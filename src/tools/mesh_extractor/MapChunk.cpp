@@ -21,9 +21,9 @@
 
 MapChunk::MapChunk( ADT* _adt, Chunk* chunk ) : Adt(_adt), Source(chunk)
 {
-    Stream* stream = chunk->GetStream();
+    FILE* stream = chunk->GetStream();
     Header.Read(stream);
-    stream->Seek(chunk->Offset, SEEK_SET);
+    fseek(stream, chunk->Offset, SEEK_SET);
     Index = Header.IndexX + Header.IndexY * 16;
     GenerateVertices(stream);
 }
@@ -47,12 +47,12 @@ void MapChunk::GenerateTriangles()
             Constants::TriangleType triangleType = Constants::TRIANGLE_TYPE_TERRAIN;
             if (Adt->_LiquidHandler && !Adt->_LiquidHandler->MCNKData.empty())
             {
-                MCNKLiquidData* data = Adt->_LiquidHandler->MCNKData[Index];
+                MCNKLiquidData& data = Adt->_LiquidHandler->MCNKData[Index];
                 float maxHeight = std::max(
                     std::max(
                     std::max(std::max(Vertices[topLeft].z, Vertices[topRight].z), Vertices[bottomLeft].z),
                     Vertices[bottomRight].z), Vertices[center].z);
-                if (data->IsWater(x, y, maxHeight))
+                if (data.IsWater(x, y, maxHeight))
                     triangleType = Constants::TRIANGLE_TYPE_WATER;
             }
 
@@ -64,9 +64,9 @@ void MapChunk::GenerateTriangles()
     }
 }
 
-void MapChunk::GenerateVertices(Stream* stream)
+void MapChunk::GenerateVertices( FILE* stream )
 {
-    stream->Seek(Header.OffsetMCVT, SEEK_CUR);
+    fseek(stream, Header.OffsetMCVT, SEEK_CUR);
     Vertices.reserve(125);
 
     for (int j = 0; j < 17; j++)
@@ -74,7 +74,9 @@ void MapChunk::GenerateVertices(Stream* stream)
         int values = j % 2 ? 8 : 9;
         for (int i = 0; i < values; i++)
         {
-            float tmp = stream->Read<float>();
+            float tmp;
+            if (fread(&tmp, sizeof(float), 1, stream) != 1)
+                printf("MapChunk::GenerateVertices: Failed to read some data expected 1, read 0\n");
             Vector3 vert(Header.Position.x - (j * (Constants::UnitSize * 0.5f)), Header.Position.y - (i * Constants::UnitSize), Header.Position.z + tmp);
             if (values == 8)
                 vert.y -= Constants::UnitSize * 0.5f;
@@ -82,7 +84,7 @@ void MapChunk::GenerateVertices(Stream* stream)
         }
     }
     // Restore stream position.
-    stream->Seek(Source->Offset, SEEK_SET);
+    fseek(stream, Source->Offset, SEEK_SET);
 }
 
 bool MapChunk::HasHole( uint32 map, int x, int y )

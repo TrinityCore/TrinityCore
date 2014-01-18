@@ -18,7 +18,6 @@
 #include "WorldModelRoot.h"
 #include "ChunkedData.h"
 #include "Utils.h"
-#include "MPQManager.h"
 
 WorldModelRoot::WorldModelRoot( std::string path )
 {
@@ -33,10 +32,6 @@ WorldModelRoot::WorldModelRoot( std::string path )
 WorldModelRoot::~WorldModelRoot()
 {
     delete Data;
-    for (std::vector<WorldModelGroup*>::iterator group = Groups.begin(); group != Groups.end(); ++group)
-        delete *group;
-
-    Groups.clear();
 }
 
 void WorldModelRoot::ReadGroups()
@@ -47,10 +42,9 @@ void WorldModelRoot::ReadGroups()
     {
         char name[200];
         sprintf(name, "%s_%03u.wmo", pathBase.c_str(), i);
-        Stream* stream = MPQHandler->GetFile(name);
-        if (!stream)
-            continue;
-        Groups.push_back(new WorldModelGroup(stream, name, i));
+        WorldModelGroup group(name, i);
+        if (!group.IsBad)
+            Groups.push_back(group);
     }
 }
 
@@ -60,7 +54,7 @@ void WorldModelRoot::ReadDoodadSets()
     if (!chunk)
         return;
 
-    Stream* stream = chunk->GetStream();
+    FILE* stream = chunk->GetStream();
     ASSERT(chunk->Length / 32 == Header.CountSets && "chunk.Length / 32 == Header.CountSets");
     DoodadSets.reserve(Header.CountSets);
     for (uint32 i = 0; i < Header.CountSets; i++)
@@ -79,14 +73,14 @@ void WorldModelRoot::ReadDoodadInstances()
     DoodadInstances.reserve(countInstances);
     for (uint32 i = 0; i < countInstances; i++)
     {
-        Stream* stream = chunk->GetStream();
-        stream->Seek(instanceSize * i, SEEK_CUR);
+        FILE* stream = chunk->GetStream();
+        fseek(stream, instanceSize * i, SEEK_CUR);
         DoodadInstance instance = DoodadInstance::Read(stream);
-        Stream* nameStream = nameChunk->GetStream();
+        FILE* nameStream = nameChunk->GetStream();
         if (instance.FileOffset >= nameChunk->Length)
             continue;
-        nameStream->Seek(instance.FileOffset, SEEK_CUR);
-        instance.File = nameStream->ReadString();
+        fseek(nameStream, instance.FileOffset, SEEK_CUR);
+        instance.File = Utils::ReadString(nameStream);
         DoodadInstances.push_back(instance);
     }
 }
@@ -97,6 +91,6 @@ void WorldModelRoot::ReadHeader()
     if (!chunk)
         return;
 
-    Stream* stream = chunk->GetStream();
-    Header.Read(stream);
+    FILE* stream = chunk->GetStream();
+    Header = WorldModelHeader::Read(stream);
 }

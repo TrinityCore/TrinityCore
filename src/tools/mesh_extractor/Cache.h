@@ -31,18 +31,24 @@ class GenericCache
 public:
     GenericCache() {}
 
-    T const* Get(K key)
+    static const uint32 FlushLimit = 300; // We can't get too close to filling up all the memory, and we have to be wary of the maximum number of open streams.
+
+    void Insert(K key, T* val)
+    {
+        ACE_GUARD(ACE_Thread_Mutex, g, mutex);
+
+        if (_items.size() > FlushLimit)
+            Clear();
+        _items[key] = val;
+    }
+
+    T* Get(K key)
     {
         ACE_GUARD_RETURN(ACE_Thread_Mutex, g, mutex, NULL);
         typename std::map<K, T*>::iterator itr = _items.find(key);
         if (itr != _items.end())
             return itr->second;
-        else
-        {
-            T* t = new T(key); // Create the object
-            _items[key] = t;
-            return t;
-        }
+        return NULL;
     }
 
     void Clear()

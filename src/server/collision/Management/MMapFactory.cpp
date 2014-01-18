@@ -25,14 +25,14 @@ namespace MMAP
 {
     // ######################## MMapFactory ########################
     // our global singleton copy
-    MMapManager* _manager = NULL;
+    MMapManager* g_MMapManager = NULL;
 
-    MMapManager* MMapFactory::CreateOrGetMMapManager()
+    MMapManager* MMapFactory::createOrGetMMapManager()
     {
-        if (_manager == NULL)
-            _manager = new MMapManager();
+        if (g_MMapManager == NULL)
+            g_MMapManager = new MMapManager();
 
-        return _manager;
+        return g_MMapManager;
     }
 
     bool MMapFactory::IsPathfindingEnabled(uint32 mapId)
@@ -41,12 +41,12 @@ namespace MMAP
             && !DisableMgr::IsDisabledFor(DISABLE_TYPE_MMAP, mapId, NULL, MMAP_DISABLE_PATHFINDING);
     }
 
-    void MMapFactory::Clear()
+    void MMapFactory::clear()
     {
-        if (_manager)
+        if (g_MMapManager)
         {
-            delete _manager;
-            _manager = NULL;
+            delete g_MMapManager;
+            g_MMapManager = NULL;
         }
     }
 }

@@ -21,18 +21,18 @@
 
 #include <string>
 
-ChunkedData::ChunkedData(Stream* stream, uint32 maxLength, uint32 chunksHint /*= 300*/ ) :
-_Stream(stream)
+ChunkedData::ChunkedData( FILE* stream, uint32 maxLength, uint32 chunksHint /*= 300*/ ) :
+Stream(stream)
 {
-    if (!_Stream)
+    if (!Stream)
         return;
     Load(maxLength, chunksHint);
 }
 
 ChunkedData::ChunkedData( const std::string& file, uint32 chunksHint /*= 300*/ )
 {
-    _Stream = MPQHandler->GetFile(file);
-    if (!_Stream)
+    Stream = MPQHandler->GetFile(file);
+    if (!Stream)
         return;
     Load(0, chunksHint);
 }
@@ -40,30 +40,31 @@ ChunkedData::ChunkedData( const std::string& file, uint32 chunksHint /*= 300*/ )
 void ChunkedData::Load( uint32 maxLength, uint32 chunksHint )
 {
     if (!maxLength)
-        maxLength = _Stream->GetSize();
+        maxLength = Utils::Size(Stream);
     Chunks.reserve(chunksHint);
-    uint32 baseOffset = _Stream->GetPos();
+    uint32 baseOffset = ftell(Stream);
     uint32 calcOffset = 0;
-    while ((calcOffset + baseOffset) < _Stream->GetSize() && (calcOffset < maxLength))
+    while ((calcOffset + baseOffset) < Utils::Size(Stream) && (calcOffset < maxLength))
     {
         char nameBytes[5];
-        _Stream->Read(nameBytes, sizeof(char) * 4);
-        nameBytes[4] = '\0';
+        uint32 read = fread(&nameBytes, sizeof(char), 4, Stream);
+        nameBytes[read] = '\0';
         std::string name = std::string(nameBytes);
+        // Utils::Reverse(nameBytes);
         name = std::string(name.rbegin(), name.rend());
-
-        uint32 length = _Stream->Read<uint32>();
+        uint32 length;
+        if (fread(&length, sizeof(uint32), 1, Stream) != 1)
+            continue;
         calcOffset += 8;
-
-        Chunks.push_back(new Chunk(name.c_str(), length, calcOffset + baseOffset, _Stream));
+        Chunks.push_back(new Chunk(name.c_str(), length, calcOffset + baseOffset, Stream));
         calcOffset += length;
         // save an extra seek at the end
-        if ((calcOffset + baseOffset) < _Stream->GetSize() && calcOffset < maxLength)
-            _Stream->Seek(length, SEEK_CUR);
+        if ((calcOffset + baseOffset) < Utils::Size(Stream) && calcOffset < maxLength)
+            fseek(Stream, length, SEEK_CUR);
     }
 }
 
-int ChunkedData::GetFirstIndex( const std::string& name ) const
+int ChunkedData::GetFirstIndex( const std::string& name )
 {
     for (uint32 i = 0; i < Chunks.size(); ++i)
         if (Chunks[i]->Name == name)
@@ -85,7 +86,6 @@ ChunkedData::~ChunkedData()
         delete *itr;
 
     Chunks.clear();
-    /* WorldModelGroup Data and SubData share the same _Stream so it's deleted twice and it crashes
-    if (_Stream)
-        delete _Stream;*/
+    if (Stream)
+        fclose(Stream);
 }

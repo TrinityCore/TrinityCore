@@ -34,41 +34,16 @@
 MPQManager* MPQHandler;
 CacheClass* Cache;
 
-bool IgnoreMap(uint32 id)
-{
-    switch (id)
-    {
-        case 13:    // test.wdt
-        case 25:    // ScottTest.wdt
-        case 29:    // Test.wdt
-        case 42:    // Colin.wdt
-        case 169:   // EmeraldDream.wdt (unused, and very large)
-        case 451:   // development.wdt
-        case 573:   // ExteriorTest.wdt
-        case 597:   // CraigTest.wdt
-        case 605:   // development_nonweighted.wdt
-        case 606:   // QA_DVD.wdt
-            return true;
-        default:
-            break;
-    }
-
-    return false;
-}
-
 void ExtractMMaps(std::set<uint32>& mapIds, uint32 threads)
 {
-    std::string basePath = "mmaps/";
-    Utils::CreateDir(basePath);
-
-    DBC const* dbc = MPQHandler->GetDBC("Map");
-    printf("Map.dbc contains " SIZEFMTD " rows.\n", dbc->Records.size());
-    for (std::vector<Record*>::const_iterator itr = dbc->Records.begin(); itr != dbc->Records.end(); ++itr)
+    DBC* dbc = MPQHandler->GetDBC("Map");
+    printf("Map.dbc contains %u rows.\n", dbc->Records.size());
+    for (std::vector<Record*>::iterator itr = dbc->Records.begin(); itr != dbc->Records.end(); ++itr)
     {
         uint32 mapId = (*itr)->Values[0];
 
-        // Skip this map if a list of specific maps was provided and this one is not contained in it, or if the map is in the ignore list.
-        if ((!mapIds.empty() && mapIds.find(mapId) == mapIds.end()) || IgnoreMap(mapId))
+        // Skip this map if a list of specific maps was provided and this one is not contained in it.
+        if (!mapIds.empty() && mapIds.find(mapId) == mapIds.end())
         {
             if (Constants::Debug)
                 printf("Map %u will not be built.\n", mapId);
@@ -100,12 +75,9 @@ void ExtractDBCs()
     // Populate list of DBC files
     // We get the DBC names by going over the (guaranteed to exist) default locale files
     // Then we look in other locale files in case that they are available.
-    for (std::map<uint32, std::deque<MPQArchive*> >::iterator itr = MPQHandler->LocaleFiles.begin(); itr != MPQHandler->LocaleFiles.end(); ++itr)
-        for (std::deque<MPQArchive*>::iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
-            for (std::vector<std::string>::iterator itr3 = (*itr2)->Files.begin(); itr3 != (*itr2)->Files.end(); ++itr3)
-                if (itr3->rfind(".dbc") == itr3->length() - extLen) // Check if the extension is ".dbc"
-                    if (DBCFiles.find(*itr3) == DBCFiles.end())
-                        DBCFiles.insert(*itr3);
+    for (std::vector<std::string>::iterator itr = MPQHandler->LocaleFiles[MPQHandler->BaseLocale]->Files.begin(); itr != MPQHandler->LocaleFiles[MPQHandler->BaseLocale]->Files.end(); ++itr)
+        if (itr->rfind(".dbc") == itr->length() - extLen) // Check if the extension is ".dbc"
+            DBCFiles.insert(*itr);
 
     const size_t folderLen = strlen("DBFilesClient\\");
     // Iterate over all available locales
@@ -121,10 +93,10 @@ void ExtractDBCs()
 
         std::string component = "component.wow-" + std::string(MPQManager::Languages[*itr]) + ".txt";
         // Extract the component file
-        Utils::SaveToDisk(MPQHandler->GetFileFromLocale(component, *itr), path + component);
+        Utils::SaveToDisk(MPQHandler->GetFileFrom(component, MPQHandler->LocaleFiles[*itr]), path + component);
         // Extract the DBC files for the given locale
         for (std::set<std::string>::iterator itr2 = DBCFiles.begin(); itr2 != DBCFiles.end(); ++itr2)
-            Utils::SaveToDisk(MPQHandler->GetFileFromLocale(*itr2, *itr), path + (itr2->c_str() + folderLen));
+            Utils::SaveToDisk(MPQHandler->GetFileFrom(*itr2, MPQHandler->LocaleFiles[*itr]), path + (itr2->c_str() + folderLen));
     }
     printf("DBC extraction finished!\n");
 }
@@ -146,8 +118,8 @@ void ExtractGameobjectModels()
         return;
     }
 
-    DBC const* dbc = MPQHandler->GetDBC("GameObjectDisplayInfo");
-    for (std::vector<Record*>::const_iterator itr = dbc->Records.begin(); itr != dbc->Records.end(); ++itr)
+    DBC* dbc = MPQHandler->GetDBC("GameObjectDisplayInfo");
+    for (std::vector<Record*>::iterator itr = dbc->Records.begin(); itr != dbc->Records.end(); ++itr)
     {
         std::string path = (*itr)->GetString(1);
         std::string fileName = Utils::GetPlainName(path.c_str());
@@ -253,9 +225,8 @@ void ExtractGameobjectModels()
             fwrite(&model.Header.WmoId, sizeof(uint32), 1, output);
 
             const char grp[] = { 'G' , 'R' , 'P', ' ' };
-            for (std::vector<WorldModelGroup*>::iterator groupItr = model.Groups.begin(); groupItr != model.Groups.end(); ++groupItr)
+            for (std::vector<WorldModelGroup>::iterator itr2 = model.Groups.begin(); itr2 != model.Groups.end(); ++itr2)
             {
-                WorldModelGroup* itr2 = *groupItr;
                 const WMOGroupHeader& header = itr2->Header;
                 fwrite(&header.Flags, sizeof(uint32), 1, output);
                 fwrite(&header.WmoId, sizeof(uint32), 1, output);
@@ -392,6 +363,7 @@ void LoadTile(dtNavMesh*& navMesh, const char* tile)
 
 int main(int argc, char* argv[])
 {
+    _setmaxstdio(2048);
     uint32 threads = 4, extractFlags = 0;
     std::set<uint32> mapIds;
 
@@ -423,8 +395,13 @@ int main(int argc, char* argv[])
 
     if (extractFlags & Constants::EXTRACT_FLAG_TEST)
     {
+<<<<<<< .mine
         float start[] = { -45.4745407f, -29.5000954f, -21.4456501f };
         float end[] = { -107.686218f, -32.3544769f, -30.3459435f };
+=======
+        float start[] = { 16226.200195f, 16257.000000f, 13.202200f };
+        float end[] = { 16245.725586f, 16382.465820f, 47.384956f };
+>>>>>>> .theirs
 
         //
         float m_spos[3];
@@ -453,7 +430,7 @@ int main(int argc, char* argv[])
         dtPolyRef m_startRef;
         dtPolyRef m_endRef;
 
-        FILE* mmap = fopen("mmaps/631.mmap", "rb");
+        FILE* mmap = fopen("mmaps/001.mmap", "rb");
         dtNavMeshParams params;
         int count = fread(&params, sizeof(dtNavMeshParams), 1, mmap);
         fclose(mmap);
@@ -472,7 +449,7 @@ int main(int argc, char* argv[])
             for (int j = 0; j <= 32; ++j)
             {
                 char buff[100];
-                sprintf(buff, "mmaps/631%02i%02i.mmtile", i, j);
+                sprintf(buff, "mmaps/001%02i%02i.mmtile", i, j);
                 LoadTile(navMesh, buff);
             }
         }
@@ -490,6 +467,7 @@ int main(int argc, char* argv[])
             return 0;
         }
 
+<<<<<<< .mine
         dtStatus status;
         status = navMeshQuery->initSlicedFindPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter);
         while (status != DT_SUCCESS)
@@ -500,12 +478,46 @@ int main(int argc, char* argv[])
         int resultHopCount = 0;
         float* straightPath = new float[2048 * 3];
         unsigned char* pathFlags = new unsigned char[2048];
+=======
+        int hops;
+
+
+
+
+
+
+
+
+
+>>>>>>> .theirs
         dtPolyRef* hopBuffer = new dtPolyRef[8192];
+<<<<<<< .mine
 
         navMeshQuery->finalizeSlicedFindPath(pathRefs, &pcount, 200);
+
+
+
+
+
+
+=======
+        dtStatus status = navMeshQuery->findPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter, hopBuffer, &hops, 8192);
+        
+        int resultHopCount;
+        float* straightPath = new float[2048*3];
+        unsigned char* pathFlags = new unsigned char[2048];
+        dtPolyRef* pathRefs = new dtPolyRef[2048];
+
+        status = navMeshQuery->findStraightPath(m_spos, m_epos, hopBuffer, hops, straightPath, pathFlags, pathRefs, &resultHopCount, 2048);
+>>>>>>> .theirs
         std::vector<Vector3> FinalPath;
+<<<<<<< .mine
 
         for (int i = 0; i < pcount; ++i)
+=======
+        FinalPath.reserve(resultHopCount);
+        for (uint32 i = 0; i < resultHopCount; ++i)
+>>>>>>> .theirs
         {
             navMeshQuery->findStraightPath(m_spos, m_epos, &pathRefs[i], 1,
                 straightPath, pathFlags,
@@ -514,14 +526,6 @@ int main(int argc, char* argv[])
             FinalPath.push_back(finalV);
             printf("Point %f %f %f\n", finalV.x, finalV.y, finalV.z);
         }
-        /*
-        FinalPath.reserve(resultHopCount);
-        for (int i = 0; i < resultHopCount; ++i)
-        {
-            Vector3 finalV = Utils::ToWoWCoords(Vector3(straightPath[i * 3 + 0], straightPath[i * 3 + 1], straightPath[i * 3 + 2]));
-            FinalPath.push_back(finalV);
-            printf("Point %f %f %f\n", finalV.x, finalV.y, finalV.z);
-        }*/
     }
 
     return 0;

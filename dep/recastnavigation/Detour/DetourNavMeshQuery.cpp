@@ -16,13 +16,13 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include <math.h>
 #include <float.h>
 #include <string.h>
 #include "DetourNavMeshQuery.h"
 #include "DetourNavMesh.h"
 #include "DetourNode.h"
 #include "DetourCommon.h"
-#include "DetourMath.h"
 #include "DetourAlloc.h"
 #include "DetourAssert.h"
 #include <new>
@@ -99,8 +99,9 @@ inline float dtQueryFilter::getCost(const float* pa, const float* pb,
 	return dtVdist(pa, pb) * m_areaCost[curPoly->getArea()];
 }
 #endif	
-	
-static const float H_SCALE = 0.999f; // Search heuristic scale.
+
+// Edited by TC
+static const float H_SCALE = 2.0f; // Search heuristic scale. 
 
 
 dtNavMeshQuery* dtAllocNavMeshQuery()
@@ -510,7 +511,11 @@ dtStatus dtNavMeshQuery::closestPointOnPoly(dtPolyRef ref, const float* pos, flo
 		return DT_FAILURE | DT_INVALID_PARAM;
 	if (!tile)
 		return DT_FAILURE | DT_INVALID_PARAM;
-	
+
+    // Edited by TC
+    if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION) 
+        return DT_FAILURE;
+
 	closestPointOnPolyInTile(tile, poly, pos, closest);
 	
 	return DT_SUCCESS;
@@ -3342,7 +3347,7 @@ dtStatus dtNavMeshQuery::findDistanceToWall(dtPolyRef startRef, const float* cen
 	dtVsub(hitNormal, centerPos, hitPos);
 	dtVnormalize(hitNormal);
 	
-	*hitDist = dtMathSqrtf(radiusSqr);
+	*hitDist = dtSqrt(radiusSqr);
 	
 	return status;
 }

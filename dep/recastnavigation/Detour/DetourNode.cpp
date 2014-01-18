@@ -22,30 +22,17 @@
 #include "DetourCommon.h"
 #include <string.h>
 
-#ifdef DT_POLYREF64
-// From Thomas Wang, https://gist.github.com/badboy/6267743
 inline unsigned int dtHashRef(dtPolyRef a)
 {
-	a = (~a) + (a << 18); // a = (a << 18) - a - 1;
-	a = a ^ (a >> 31);
-	a = a * 21; // a = (a + (a << 2)) + (a << 4);
-	a = a ^ (a >> 11);
-	a = a + (a << 6);
-	a = a ^ (a >> 22);
-	return (unsigned int)a;
+    // Edited by TC
+    a = (~a) + (a << 18);
+    a = a ^ (a >> 31);
+    a = a * 21;
+    a = a ^ (a >> 11);
+    a = a + (a << 6);
+    a = a ^ (a >> 22);
+    return (unsigned int)a;
 }
-#else
-inline unsigned int dtHashRef(dtPolyRef a)
-{
-	a += ~(a<<15);
-	a ^=  (a>>10);
-	a +=  (a<<3);
-	a ^=  (a>>6);
-	a += ~(a<<11);
-	a ^=  (a>>16);
-	return (unsigned int)a;
-}
-#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////
 dtNodePool::dtNodePool(int maxNodes, int hashSize) :

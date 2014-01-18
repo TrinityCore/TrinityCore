@@ -20,6 +20,10 @@
 #define _MMAP_FACTORY_H
 
 #include "MMapManager.h"
+#include "UnorderedMap.h"
+#include "DetourAlloc.h"
+#include "DetourNavMesh.h"
+#include "DetourNavMeshQuery.h"
 
 namespace MMAP
 {
@@ -36,8 +40,8 @@ namespace MMAP
     class MMapFactory
     {
         public:
-            static MMapManager* CreateOrGetMMapManager();
-            static void Clear();
+            static MMapManager* createOrGetMMapManager();
+            static void clear();
             static bool IsPathfindingEnabled(uint32 mapId);
     };
 }

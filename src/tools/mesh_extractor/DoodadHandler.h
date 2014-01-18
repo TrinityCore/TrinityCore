@@ -21,7 +21,6 @@
 #include "Utils.h"
 #include "Chunk.h"
 #include "Model.h"
-#include "Stream.h"
 #include <set>
 #include <vector>
 
@@ -40,14 +39,18 @@ public:
         return Vector3(vec.z, vec.x, vec.y);
     }
 
-    void Read(Stream* stream)
+    void Read(FILE* stream)
     {
-        MmidIndex = stream->Read<uint32>();
-        UniqueId = stream->Read<uint32>();
-        Position = Vector3::Read(stream);
+        int count = 0;
+
+        count += fread(&MmidIndex, sizeof(uint32), 1, stream);
+        count += fread(&UniqueId, sizeof(uint32), 1, stream);
+        Position = (Vector3::Read(stream));
         Rotation = Vector3::Read(stream);
-        DecimalScale = stream->Read<uint16>();
-        Flags = stream->Read<uint16>();
+        count += fread(&DecimalScale, sizeof(uint16), 1, stream);
+        count += fread(&Flags, sizeof(uint16), 1, stream);
+        if (count != 4)
+            printf("DoodadDefinition::Read: Failed to read some data expected 4, read %d\n", count);
     }
 };
 
@@ -59,7 +62,7 @@ public:
 
     std::vector<Vector3> Vertices;
     std::vector<Triangle<uint32> > Triangles;
-    bool IsSane() const { return _definitions && _paths; }
+    bool IsSane() { return _definitions && _paths; }
 
 
 protected:
@@ -68,7 +71,7 @@ protected:
 private:
     void ReadDoodadDefinitions(Chunk* chunk);
     void ReadDoodadPaths(Chunk* id, Chunk* data);
-    void InsertModelGeometry(const DoodadDefinition& def, Model const* model);
+    void InsertModelGeometry(const DoodadDefinition& def, Model* model);
     std::set<uint32> _drawn;
     std::vector<DoodadDefinition>* _definitions;
     std::vector<std::string>* _paths;

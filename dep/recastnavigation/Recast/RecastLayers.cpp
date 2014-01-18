@@ -325,7 +325,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 					continue;
 				// Skip if the height range would become too large.
 				const int ymin = rcMin(root.ymin, regn.ymin);
-				const int ymax = rcMax(root.ymax, regn.ymax);
+				const int ymax = rcMax(root.ymax, regn.ymax); // Edited by TC
 				if ((ymax - ymin) >= 255)
 					 continue;
 
@@ -373,7 +373,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 					continue;
 				// Skip if the height range would become too large.
 				const int ymin = rcMin(ri.ymin, rj.ymin);
-				const int ymax = rcMax(ri.ymax, rj.ymax);
+				const int ymax = rcMax(ri.ymax, rj.ymax);  // Edited by TC
 				if ((ymax - ymin) >= 255)
 				  continue;
 						  
