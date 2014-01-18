@@ -39,12 +39,12 @@ class ElunaTemplate
             return 1;
         }
 
-        // If assertion fails, should check if obj really has gc on or off
-        template<typename T> static T const* GetTPointer(T const& obj, bool gc) { ASSERT(!gc); return &obj; }
-        template<typename T> static T const* GetNewTPointer(T const& obj, bool gc) { ASSERT(gc); return new T(obj); }
+        // If assertion fails, should check if obj really should have gc on
+        template<typename T> static T const* GetTPointer(T const& obj) { return &obj; }
+        template<typename T> static T const* GetNewTPointer(T const& obj) { ASSERT(manageMemory); return new T(obj); }
         // If gc / memory management is true, should have specialized function:
-        static WorldPacket const* GetTPointer(WorldPacket const& obj, bool gc) { return GetNewTPointer(obj, gc); }
-        static QueryResult const* GetTPointer(QueryResult const& obj, bool gc) { return GetNewTPointer(obj, gc); }
+        static WorldPacket const* GetTPointer(WorldPacket const& obj) { return GetNewTPointer(obj); }
+        static QueryResult const* GetTPointer(QueryResult const& obj) { return GetNewTPointer(obj); }
 
         template<typename T>
         static int gcT(lua_State* L)
@@ -129,7 +129,7 @@ class ElunaTemplate
             T const** ptrHold = (T const**)lua_newuserdata(L, sizeof(T**));
             if (ptrHold)
             {
-                *ptrHold = GetTPointer(*obj, manageMemory);
+                *ptrHold = GetTPointer(*obj);
                 lua_pushvalue(L, -2);
                 lua_setmetatable(L, -2);
             }

@@ -1103,7 +1103,6 @@ void RegisterFunctions(lua_State* L)
     ElunaTemplate<Unit>::SetMethods(L, ObjectMethods);
     ElunaTemplate<Unit>::SetMethods(L, WorldObjectMethods);
     ElunaTemplate<Unit>::SetMethods(L, UnitMethods);
-    ElunaTemplate<Unit>::SetMethods(L, QueryMethods); // Fail test
 
     ElunaTemplate<Player>::Register(L, "Player");
     ElunaTemplate<Player>::SetMethods(L, ObjectMethods);
@@ -1156,6 +1155,7 @@ void RegisterFunctions(lua_State* L)
     ElunaTemplate<Weather>::SetMethods(L, WeatherMethods);
 
     ElunaTemplate<AuctionHouseObject>::Register(L, "AuctionHouseObject");
+    ElunaTemplate<AuctionHouseObject>::SetMethods(L, AuctionMethods);
 
     ElunaTemplate<WorldPacket>::Register(L, "WorldPacket", true);
     ElunaTemplate<WorldPacket>::SetMethods(L, PacketMethods);
