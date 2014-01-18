@@ -246,6 +246,8 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
     {
         // 946684800 is 01/01/2000 00:00:00 - default response time
         CalendarInvite invite(0, calendarEvent.GetEventId(), 0, guid, 946684800, CALENDAR_STATUS_NOT_SIGNED_UP, CALENDAR_RANK_PLAYER, "");
+        // WARNING: By passing pointer to a local variable, the underlying method(s) must NOT perform any kind
+        // of storage of the pointer as it will lead to memory corruption
         sCalendarMgr->AddInvite(&calendarEvent, &invite);
     }
     else
