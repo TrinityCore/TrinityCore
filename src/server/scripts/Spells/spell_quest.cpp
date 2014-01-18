@@ -2241,6 +2241,47 @@ class spell_q12919_gymers_throw : public SpellScriptLoader
         }
 };
 
+enum Quest_The_Hunter_And_The_Prince
+{
+    SPELL_ILLIDAN_KILL_CREDIT      = 61748
+};
+
+class spell_q13400_illidan_kill_master : public SpellScriptLoader
+{
+    public:
+        spell_q13400_illidan_kill_master() : SpellScriptLoader("spell_q13400_illidan_kill_master") { }
+
+        class spell_q13400_illidan_kill_master_SpellScript : public SpellScript
+        {
+           PrepareSpellScript(spell_q13400_illidan_kill_master_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ILLIDAN_KILL_CREDIT))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                if (caster->IsVehicle())
+                    if (Unit* passenger = caster->GetVehicleKit()->GetPassenger(0))
+                         passenger->CastSpell(passenger, SPELL_ILLIDAN_KILL_CREDIT, true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q13400_illidan_kill_master_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_q13400_illidan_kill_master_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2295,4 +2336,5 @@ void AddSC_quest_spell_scripts()
     new spell_q12619_emblazon_runeblade_effect();
     new spell_q12919_gymers_grab();
     new spell_q12919_gymers_throw();
+    new spell_q13400_illidan_kill_master();
 }
