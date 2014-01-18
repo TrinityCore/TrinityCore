@@ -1394,7 +1394,7 @@ bool Guild::SetName(std::string const& name)
     return true;
 }
 
-void Guild::HandleRoster(WorldSession* session /*= NULL*/)
+void Guild::HandleRoster(WorldSession* session)
 {
     ByteBuffer memberData(100);
     // Guess size
@@ -1475,16 +1475,8 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
     data.AppendPackedTime(m_createdDate);
     data << uint32(0);
 
-    if (session)
-    {
-        TC_LOG_DEBUG("guild", "SMSG_GUILD_ROSTER [%s]", session->GetPlayerInfo().c_str());
-        session->SendPacket(&data);
-    }
-    else
-    {
-        TC_LOG_DEBUG("guild", "SMSG_GUILD_ROSTER [Broadcast]");
-        BroadcastPacket(&data);
-    }
+    TC_LOG_DEBUG("guild", "SMSG_GUILD_ROSTER [%s]", session->GetPlayerInfo().c_str());
+    session->SendPacket(&data);
 }
 
 void Guild::HandleQuery(WorldSession* session)
