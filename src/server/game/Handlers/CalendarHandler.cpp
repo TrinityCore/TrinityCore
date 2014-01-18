@@ -245,8 +245,8 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
     if (calendarEvent.IsGuildAnnouncement())
     {
         // 946684800 is 01/01/2000 00:00:00 - default response time
-        CalendarInvite* invite = new CalendarInvite(0, calendarEvent.GetEventId(), 0, guid, 946684800, CALENDAR_STATUS_NOT_SIGNED_UP, CALENDAR_RANK_PLAYER, "");
-        sCalendarMgr->AddInvite(&calendarEvent, invite);
+        CalendarInvite invite(0, calendarEvent.GetEventId(), 0, guid, 946684800, CALENDAR_STATUS_NOT_SIGNED_UP, CALENDAR_RANK_PLAYER, "");
+        sCalendarMgr->AddInvite(&calendarEvent, &invite);
     }
     else
     {
