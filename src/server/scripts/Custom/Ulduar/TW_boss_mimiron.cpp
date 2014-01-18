@@ -1014,7 +1014,8 @@ public:
     {
         TW_npc_proximity_mineAI(Creature* creature) : ScriptedAI(creature)
         {
-           me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+           me->AddUnitState(UNIT_STATE_ROOT);
            uiBoomTimer = 35000;
            Boom = false;
         }
@@ -1026,7 +1027,7 @@ public:
         {
             if (!Boom && me->IsWithinDistInMap(who, 0.5f) && who->ToPlayer() && !who->ToPlayer()->IsGameMaster())
             {
-                DoCastAOE(SPELL_EXPLOSION);
+                DoCast(SPELL_EXPLOSION);
                 me->DespawnOrUnsummon(1000);
                 Boom = true;
             }
@@ -1038,7 +1039,7 @@ public:
             {
                 if (!Boom)
                 {
-                    DoCastAOE(SPELL_EXPLOSION);
+                    DoCast(SPELL_EXPLOSION);
                     me->DespawnOrUnsummon(1000);
                     Boom = true;
                 }
