@@ -16,13 +16,13 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <float.h>
 #include "DetourNavMesh.h"
 #include "DetourCommon.h"
-#include "DetourMath.h"
 #include "DetourNavMeshBuilder.h"
 #include "DetourAlloc.h"
 #include "DetourAssert.h"
@@ -202,8 +202,8 @@ static int createBVTree(const unsigned short* verts, const int /*nverts*/,
 			if (z > it.bmax[2]) it.bmax[2] = z;
 		}
 		// Remap y
-		it.bmin[1] = (unsigned short)dtMathFloorf((float)it.bmin[1]*ch/cs);
-		it.bmax[1] = (unsigned short)dtMathCeilf((float)it.bmax[1]*ch/cs);
+		it.bmin[1] = (unsigned short)floorf((float)it.bmin[1]*ch/cs);
+		it.bmax[1] = (unsigned short)ceilf((float)it.bmax[1]*ch/cs);
 	}
 	
 	int curNode = 0;

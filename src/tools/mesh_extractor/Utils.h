@@ -27,8 +27,6 @@
 #include "Define.h"
 #include "Constants.h"
 
-#include "Stream.h"
-
 #include <ace/Stack_Trace.h>
 
 struct WorldModelDefinition;
@@ -61,7 +59,7 @@ struct Vector3
         return Vector3(x * s, y * s, z * s);
     }
 
-    static Vector3 Read(Stream* file);
+    static Vector3 Read(FILE* file);
 };
 
 struct TilePos
@@ -102,7 +100,7 @@ public:
     uint32 AreaId;
     uint32 MapObjectRefs;
     uint32 Holes;
-    uint32 LowQualityTextureMap[4];
+    uint32* LowQualityTextureMap;
     uint32 PredTex;
     uint32 NumberEffectDoodad;
     uint32 OffsetMCSE;
@@ -112,7 +110,7 @@ public:
     Vector3 Position;
     uint32 OffsetMCCV;
 
-    void Read(Stream* stream);
+    void Read(FILE* stream);
 };
 
 class MHDR
@@ -132,7 +130,7 @@ public:
     uint32 OffsetMH2O;
     uint32 OffsetMTFX;
 
-    void Read(Stream* stream);
+    void Read(FILE* stream);
 };
 
 class ModelHeader
@@ -189,7 +187,7 @@ public:
     uint32 CountBoundingNormals;
     uint32 OffsetBoundingNormals;
 
-    void Read(Stream* stream);
+    void Read(FILE* stream);
 };
 
 class WorldModelHeader
@@ -208,7 +206,7 @@ public:
     Vector3 BoundingBox[2];
     uint32 LiquidTypeRelated;
 
-    void Read(Stream* stream);
+    static WorldModelHeader Read(FILE* stream);
 };
 
 class DoodadInstance
@@ -225,7 +223,7 @@ public:
     float Scale;
     uint32 LightColor;
 
-    static DoodadInstance Read(Stream* stream);
+    static DoodadInstance Read(FILE* stream);
 };
 
 class DoodadSet
@@ -237,13 +235,13 @@ public:
     uint32 CountInstances;
     uint32 UnknownZero;
 
-    static DoodadSet Read(Stream* stream);
+    static DoodadSet Read(FILE* stream);
 };
 
 class LiquidHeader
 {
 public:
-    LiquidHeader() : CountXVertices(0), CountYVertices(0), Width(0), Height(0), BaseLocation(0,0,0), MaterialId(0) {}
+    LiquidHeader() {}
     uint32 CountXVertices;
     uint32 CountYVertices;
     uint32 Width;
@@ -251,36 +249,22 @@ public:
     Vector3 BaseLocation;
     uint16 MaterialId;
 
-    void Read(Stream* stream);
+    static LiquidHeader Read(FILE* stream);
 };
 
 class LiquidData
 {
 public:
-    LiquidData() : HeightMap(NULL), RenderFlags(NULL), CountXVertices(0), Width(0) {}
-    
-    ~LiquidData()
-    {
-        for (uint32 i = 0; i < CountXVertices; ++i)
-            delete[] HeightMap[i];
-        delete[] HeightMap;
-
-        for (uint32 i = 0; i < Width; ++i)
-            delete[] RenderFlags[i];
-        delete[] RenderFlags;
-    }
-
+    LiquidData() {}
     float** HeightMap;
     uint8** RenderFlags;
-    uint32 CountXVertices;
-    uint32 Width;
 
-    bool ShouldRender(int x, int y) const
+    bool ShouldRender(int x, int y)
     {
         return RenderFlags[x][y] != 0x0F;
     }
 
-    void Read(Stream* stream, LiquidHeader& header);
+    static LiquidData Read(FILE* stream, LiquidHeader& header);
 };
 
 class H2ORenderMask
@@ -294,15 +278,14 @@ public:
         return (Mask[y] >> x & 1) != 0;
     }
 
-    static H2ORenderMask Read(Stream* stream);
+    static H2ORenderMask Read(FILE* stream);
 };
 
 class MCNKLiquidData
 {
 public:
-    MCNKLiquidData() : Heights(NULL) {}
+    MCNKLiquidData() {}
     MCNKLiquidData(float** heights, H2ORenderMask mask) : Heights(heights), Mask(mask) {}
-    ~MCNKLiquidData();
 
     float** Heights;
     H2ORenderMask Mask;
@@ -318,7 +301,7 @@ public:
     uint32 LayerCount;
     uint32 OffsetRender;
 
-    static H2OHeader Read(Stream* stream);
+    static H2OHeader Read(FILE* stream);
 };
 
 class H2OInformation
@@ -336,7 +319,7 @@ public:
     uint32 OffsetMask2;
     uint32 OffsetHeightmap;
 
-    static H2OInformation Read(Stream* stream);
+    static H2OInformation Read(FILE* stream);
 };
 
 class WMOGroupHeader
@@ -355,7 +338,7 @@ public:
     uint32 LiquidTypeRelated;
     uint32 WmoId;
 
-    static WMOGroupHeader Read(Stream* stream);
+    static WMOGroupHeader Read(FILE* stream);
 };
 
 // Dummy class to act as an interface.
@@ -368,7 +351,7 @@ public:
 };
 
 #define MMAP_MAGIC 0x4d4d4150   // 'MMAP'
-#define MMAP_VERSION 5
+#define MMAP_VERSION 3
 
 struct MmapTileHeader
 {
@@ -376,13 +359,18 @@ struct MmapTileHeader
     uint32 dtVersion;
     uint32 mmapVersion;
     uint32 size;
-    bool usesLiquids : 1;
+    bool usesLiquids;
+
+    MmapTileHeader() : mmapMagic(MMAP_MAGIC), dtVersion(DT_NAVMESH_VERSION),
+        mmapVersion(MMAP_VERSION), size(0), usesLiquids(true) {}
 };
 
 class Utils
 {
 public:
-    static void Reverse(std::string& str);
+    static void Reverse(char word[]);
+    static std::string ReadString(FILE* file);
+    static uint32 Size(FILE* file);
     static Vector3 ToRecast(const Vector3& val );
     static std::string GetAdtPath(const std::string& world, int x, int y);
     static std::string FixModelPath(const std::string& path);
@@ -406,15 +394,14 @@ public:
                 return false;
         return true;
     }
-    static std::string Replace(std::string str, const std::string& oldStr, const std::string& newStr);
-    static void CreateDir(const std::string& Path);
-    static void SaveToDisk(Stream* stream, const std::string& path);
-    static Vector3 ToWoWCoords(const Vector3& vec);
-    static std::string GetExtension( std::string path);
+    static std::string Replace( std::string str, const std::string& oldStr, const std::string& newStr );
+    static void CreateDir( const std::string& Path );
+    static void SaveToDisk(FILE* stream, const std::string& path);
+    static Vector3 ToWoWCoords(const Vector3& vec );
+    static std::string GetExtension( std::string path );
     static char* GetPlainName(const char* FileName);
-    static Vector3 TransformDoodadVertex(const IDefinition& def, Vector3 vec, bool translate = true);
-    static Vector3 VectorTransform(const Vector3& vec, const G3D::Matrix4& matrix, bool normal = false);
-    static Vector3 TransformWmoDoodad(const DoodadInstance& inst, const WorldModelDefinition& root, const Vector3& vec, bool translate = true);
-    static void InitializeMmapTileHeader(MmapTileHeader& header);
+    static Vector3 TransformDoodadVertex(const IDefinition& def, Vector3& vec, bool translate = true);
+    static Vector3 VectorTransform(const Vector3& vec, const G3D::Matrix4& matrix, bool normal = false );
+    static Vector3 TransformWmoDoodad(const DoodadInstance& inst, const WorldModelDefinition& root, Vector3& vec, bool translate = true );
 };
 #endif

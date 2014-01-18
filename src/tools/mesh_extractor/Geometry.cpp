@@ -20,7 +20,6 @@
 #include "ADT.h"
 #include "WorldModelHandler.h"
 #include "DoodadHandler.h"
-#include "LiquidHandler.h"
 #include <limits.h>
 
 Geometry::Geometry() : Transform(false)
@@ -35,7 +34,7 @@ void Geometry::CalculateBoundingBox( float*& min, float*& max )
     max = new float[3];
     for (int i = 0; i < 3; ++i)
     {
-        max[i] = -FLT_MAX;
+        max[i] = std::numeric_limits<float>::lowest();
         min[i] = std::numeric_limits<float>::max();
     }
 
@@ -61,7 +60,7 @@ void Geometry::CalculateBoundingBox( float*& min, float*& max )
 void Geometry::CalculateMinMaxHeight( float& min, float& max )
 {
     min = std::numeric_limits<float>::max();
-    max = -FLT_MAX;
+    max = std::numeric_limits<float>::lowest();
 
     for (std::vector<Vector3>::iterator itr = Vertices.begin(); itr != Vertices.end(); ++itr)
     {
@@ -92,12 +91,12 @@ void Geometry::AddData( std::vector<Vector3>& verts, std::vector<Triangle<uint32
         Triangles.push_back(Triangle<uint32>(itr->Type, itr->V0 + vertOffset, itr->V1 + vertOffset, itr->V2 + vertOffset));
 }
 
-void Geometry::GetRawData( float*& verts, int*& tris, uint8*& areas ) const
+void Geometry::GetRawData( float*& verts, int*& tris, uint8*& areas )
 {
     verts = new float[Vertices.size() * 3];
     for (uint32 i = 0; i < Vertices.size(); ++i)
     {
-        const Vector3& vert = Vertices[i];
+        Vector3& vert = Vertices[i];
         verts[(i * 3) + 0] = vert.x;
         verts[(i * 3) + 1] = vert.y;
         verts[(i * 3) + 2] = vert.z;
@@ -106,7 +105,7 @@ void Geometry::GetRawData( float*& verts, int*& tris, uint8*& areas ) const
     tris = new int[Triangles.size() * 3];
     for (uint32 i = 0; i < Triangles.size(); ++i)
     {
-        const Triangle<uint32>& tri = Triangles[i];
+        Triangle<uint32>& tri = Triangles[i];
         tris[(i * 3) + 0] = (int)tri.V0;
         tris[(i * 3) + 1] = (int)tri.V1;
         tris[(i * 3) + 2] = (int)tri.V2;
@@ -143,8 +142,5 @@ void Geometry::AddAdt( ADT* adt )
 
     if (!adt->_WorldModelHandler->Triangles.empty())
         AddData(adt->_WorldModelHandler->Vertices, adt->_WorldModelHandler->Triangles);
-
-    if (!adt->_LiquidHandler->Triangles.empty())
-        AddData(adt->_LiquidHandler->Vertices, adt->_LiquidHandler->Triangles);
 }
 

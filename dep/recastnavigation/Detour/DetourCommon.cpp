@@ -16,14 +16,14 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include <math.h>
 #include "DetourCommon.h"
-#include "DetourMath.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
 float dtSqrt(float x)
 {
-	return dtMathSqrtf(x);
+	return sqrtf(x);
 }
 
 void dtClosestPtPointTriangle(float* closest, const float* p,

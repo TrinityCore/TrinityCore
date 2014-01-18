@@ -34,7 +34,7 @@ public:
     WorldModelHeader Header;
     std::vector<DoodadInstance> DoodadInstances;
     std::vector<DoodadSet> DoodadSets;
-    std::vector<WorldModelGroup*> Groups;
+    std::vector<WorldModelGroup> Groups;
 private:
     void ReadGroups();
     void ReadDoodadSets();

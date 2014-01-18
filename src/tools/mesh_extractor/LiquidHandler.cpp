@@ -17,20 +17,10 @@
 
 #include "LiquidHandler.h"
 #include "Utils.h"
-#include "DBC.h"
-#include "MPQManager.h"
 
 LiquidHandler::LiquidHandler( ADT* adt ) : Source(adt)
 {
     HandleNewLiquid();
-    HandleOldLiquid();
-}
-
-LiquidHandler::~LiquidHandler()
-{
-    for (std::vector<MCNKLiquidData*>::iterator itr = MCNKData.begin(); itr != MCNKData.end(); ++itr)
-        delete *itr;
-    MCNKData.clear();
 }
 
 void LiquidHandler::HandleNewLiquid()
@@ -42,7 +32,7 @@ void LiquidHandler::HandleNewLiquid()
     Vertices.reserve(1000);
     Triangles.reserve(1000);
 
-    Stream* stream = chunk->GetStream();
+    FILE* stream = chunk->GetStream();
     H2OHeader header[256];
     MCNKData.reserve(256);
     for (int i = 0; i < 256; i++)
@@ -54,44 +44,40 @@ void LiquidHandler::HandleNewLiquid()
         if (h.LayerCount == 0)
         {
             // Need to fill in missing data with dummies.
-            MCNKData.push_back(new MCNKLiquidData(NULL, H2ORenderMask()));
+            MCNKData.push_back(MCNKLiquidData(NULL, H2ORenderMask()));
             continue;
         }
-        stream->Seek(chunk->Offset + h.OffsetInformation, SEEK_SET);
+        fseek(stream, chunk->Offset + h.OffsetInformation, SEEK_SET);
         H2OInformation information = H2OInformation::Read(stream);
 
-        // Load the LiquidTypes DBC
-        DBC const* liquidTypes = MPQHandler->GetDBC("LiquidTypes");
-        Record const* liquid = liquidTypes->GetRecordById(information.LiquidType);
-        ASSERT(liquid);
-
-        // This pointer will be passed to the MCNKLiquidData constructor, from that point on, it is the job of MCNKLiquidData's destructor to release it.
         float** heights = new float*[9];
         for (int j = 0; j < 9; ++j)
         {
             heights[j] = new float[9];
             memset(heights[j], 0, sizeof(float) * 9);
         }
-        
+
         H2ORenderMask renderMask;
-        if (liquid->GetValue<uint32>(3) != 1) // Read the liquid type and skip Ocean, Slow Ocean and Fast Ocean
+        if (information.LiquidType != 2)
         {
-            stream->Seek(chunk->Offset + h.OffsetRender, SEEK_SET);
+            fseek(stream, chunk->Offset + h.OffsetRender, SEEK_SET);
             renderMask = H2ORenderMask::Read(stream);
             if ((Utils::IsAllZero(renderMask.Mask, 8) || (information.Width == 8 && information.Height == 8)) && information.OffsetMask2)
             {
-                stream->Seek(chunk->Offset + information.OffsetMask2, SEEK_SET);
+                fseek(stream, chunk->Offset + information.OffsetMask2, SEEK_SET);
                 uint32 size = ceil(information.Width * information.Height / 8.0f);
-                uint8* altMask = (uint8*)stream->Read(size);
-                for (uint32 mi = 0; mi < size; mi++)
-                    renderMask.Mask[mi + information.OffsetY] |= altMask[mi];
+                uint8* altMask = new uint8[size];
+                if (fread(altMask, sizeof(uint8), size, stream) == size)
+                    for (uint32 mi = 0; mi < size; mi++)
+                        renderMask.Mask[mi + information.OffsetY] |= altMask[mi];
                 delete[] altMask;
             }
-            stream->Seek(chunk->Offset + information.OffsetHeightmap, SEEK_SET);
+            fseek(stream, chunk->Offset + information.OffsetHeightmap, SEEK_SET);
 
             for (int y = information.OffsetY; y < (information.OffsetY + information.Height); y++)
                 for (int x = information.OffsetX; x < (information.OffsetX + information.Width); x++)
-                    heights[x][y] = stream->Read<float>();
+                    if (fread(&heights[x][y], sizeof(float), 1, stream) != 1)
+                        return;
         }
         else
         {
@@ -104,7 +90,7 @@ void LiquidHandler::HandleNewLiquid()
                     heights[x][y] = information.HeightLevel1;
         }
 
-        MCNKData.push_back(new MCNKLiquidData(heights, renderMask));
+        MCNKData.push_back(MCNKLiquidData(heights, renderMask));
 
         for (int y = information.OffsetY; y < (information.OffsetY + information.Height); y++)
         {
@@ -124,37 +110,10 @@ void LiquidHandler::HandleNewLiquid()
                 Vertices.push_back(Vector3(location.x - Constants::UnitSize, location.y, location.z));
                 Vertices.push_back(Vector3(location.x, location.y - Constants::UnitSize, location.z));
                 Vertices.push_back(Vector3(location.x - Constants::UnitSize, location.y - Constants::UnitSize, location.z));
-                
-                // Define the liquid type
-                Constants::TriangleType type = Constants::TRIANGLE_TYPE_UNKNOWN;
-                switch (liquid->GetValue<uint32>(3))
-                {
-                    case 0: // Water
-                    case 1: // Ocean
-                        type = Constants::TRIANGLE_TYPE_WATER;
-                        break;
-                    case 2: // Magma
-                        type = Constants::TRIANGLE_TYPE_MAGMA;
-                        break;
-                    case 3: // Slime
-                        type = Constants::TRIANGLE_TYPE_SLIME;
-                        break;
-                }
 
-                Triangles.push_back(Triangle<uint32>(type, vertOffset, vertOffset+2, vertOffset + 1));
-                Triangles.push_back(Triangle<uint32>(type, vertOffset + 2, vertOffset + 3, vertOffset + 1));
+                Triangles.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WATER, vertOffset, vertOffset+2, vertOffset + 1));
+                Triangles.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WATER, vertOffset + 2, vertOffset + 3, vertOffset + 1));
             }
         }
-    }
-}
-
-void LiquidHandler::HandleOldLiquid()
-{
-    for (uint32 i = 0; i < 256; ++i)
-    {
-        MapChunk* mapChunk = Source->MapChunks[i];
-        if (!mapChunk->Header.OffsetMCLQ || mapChunk->Header.SizeMCLQ <= 8)
-            continue;
-        printf("Found old liquid");
     }
 }
