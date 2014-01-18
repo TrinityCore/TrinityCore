@@ -885,7 +885,7 @@ Player::Player(WorldSession* session): Unit(true), phaseMgr(this)
     m_timeSyncClient = 0;
     m_timeSyncServer = 0;
 
-    for (uint8 i = 0; i < MAX_POWERS; ++i)
+    for (uint8 i = 0; i < MAX_POWERS_PER_CLASS; ++i)
         m_powerFraction[i] = 0;
 
     isDebugAreaTriggers = false;
