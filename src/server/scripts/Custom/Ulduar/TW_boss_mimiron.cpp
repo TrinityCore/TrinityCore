@@ -1301,7 +1301,7 @@ public:
                         case EVENT_FROST_BOMB:
                             if (me->FindNearestCreature(NPC_FLAME_SPREAD, 100.0f))
                             {
-                                DoCast(SPELL_FROST_BOMB);
+                                me->CastCustomSpell(SPELL_FROST_BOMB, SPELLVALUE_MAX_TARGETS, 1, NULL);
                                 events.RescheduleEvent(EVENT_FROST_BOMB, 45000);
                             }
                             else
