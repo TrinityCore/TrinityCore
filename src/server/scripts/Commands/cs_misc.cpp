@@ -1336,23 +1336,20 @@ public:
             return false;
         }
 
-        std::string tNameLink = handler->GetNameLink(target);
+        bool targetHasSkill = target->GetSkillValue(skill);
 
-        if (!target->GetSkillValue(skill))
-        {
-            handler->PSendSysMessage(LANG_SET_SKILL_ERROR, tNameLink.c_str(), skill, skillLine->name);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        uint16 max = maxPureSkill ? atol (maxPureSkill) : target->GetPureMaxSkillValue(skill);
+        // If our target does not yet have the skill they are trying to add to them, the chosen level also becomes
+        // the max level of the new profession.
+        uint16 max = maxPureSkill ? atol(maxPureSkill) : targetHasSkill ? target->GetPureMaxSkillValue(skill) : uint16(level);
 
         if (level <= 0 || level > max || max <= 0)
             return false;
 
-        target->SetSkill(skill, target->GetSkillStep(skill), level, max);
-        handler->PSendSysMessage(LANG_SET_SKILL, skill, skillLine->name, tNameLink.c_str(), level, max);
-
+        // If the player has the skill, we get the current skill step. If they don't have the skill, we
+        // add the skill to the player's book with step 1 (which is the first rank, in most cases something
+        // like 'Apprentice <skill>'.
+        target->SetSkill(skill, targetHasSkill ? target->GetSkillStep(skill) : 1, level, max);
+        handler->PSendSysMessage(LANG_SET_SKILL, skill, skillLine->name, handler->GetNameLink(target).c_str(), level, max);
         return true;
     }
 
@@ -1839,7 +1836,7 @@ public:
             target->GetSession()->m_muteTime = muteTime;
             stmt->setInt64(0, muteTime);
             std::string nameLink = handler->playerLink(targetName);
-            
+
             if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD))
             {
                 sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, (handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : "Server"), nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
