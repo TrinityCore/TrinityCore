@@ -143,3 +143,7 @@ UPDATE `creature_template` SET `ScriptName` = 'TW_npc_mimiron_bomb_bot' WHERE `e
 -- CleanUp
 DELETE FROM creature WHERE id IN (34071, 33856);
 UPDATE `creature_template` SET `flags_extra` = 2 WHERE `entry` = 34143;
+
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'TW_spell_rapid_burst';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(63382, 'TW_spell_rapid_burst');
