@@ -1254,30 +1254,6 @@ bool HookMgr::OnPacketReceive(WorldSession* session, WorldPacket& packet)
     }
     return Result;
 }
-void HookMgr::OnUnknownPacketReceive(WorldSession* session, WorldPacket* packet)
-{
-    Player* player = NULL;
-    if (session)
-        player = session->GetPlayer();
-    for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[SERVER_EVENT_ON_PACKET_RECEIVE_UNKNOWN].begin();
-        itr != sEluna->ServerEventBindings[SERVER_EVENT_ON_PACKET_RECEIVE_UNKNOWN].end(); ++itr)
-    {
-        sEluna->BeginCall((*itr));
-        sEluna->Push(sEluna->L, SERVER_EVENT_ON_PACKET_RECEIVE_UNKNOWN);
-        sEluna->Push(sEluna->L, packet);
-        sEluna->Push(sEluna->L, player);
-        sEluna->ExecuteCall(3, 0);
-    }
-    for (std::vector<int>::const_iterator itr = sEluna->PacketEventBindings[packet->GetOpcode()].begin();
-        itr != sEluna->PacketEventBindings[packet->GetOpcode()].end(); ++itr)
-    {
-        sEluna->BeginCall((*itr));
-        sEluna->Push(sEluna->L, SERVER_EVENT_ON_PACKET_RECEIVE_UNKNOWN);
-        sEluna->Push(sEluna->L, packet);
-        sEluna->Push(sEluna->L, player);
-        sEluna->ExecuteCall(3, 0);
-    }
-}
 
 struct ElunaWorldAI : public WorldScript
 {

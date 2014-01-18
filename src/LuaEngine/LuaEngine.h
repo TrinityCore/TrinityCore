@@ -20,36 +20,7 @@ extern "C"
 typedef std::set<std::string> LoadedScripts;
 
 template<class T>
-class SafeObj
-{
-public:
-    SafeObj(WorldObject const* obj)
-    {
-        if (!obj)
-            guid = 0;
-        else
-            guid = obj->GetGUID();
-    }
-    
-    T* GetObj() const
-    {
-        if (!guid)
-            return NULL;
-        return ObjectAccessor::GetObjectInWorld(guid, (T*)NULL);
-    }
-
-private:
-    uint64 guid;
-};
-
-template<class T>
 struct ElunaRegister
-{
-    const char* name;
-    int(*mfunc)(lua_State*, T*);
-};
-template<class T>
-struct ElunaRegister< SafeObj<T> >
 {
     const char* name;
     int(*mfunc)(lua_State*, T*);
@@ -74,24 +45,6 @@ class ElunaTemplate
         // If gc / memory management is true, should have specialized function:
         static WorldPacket const* GetTPointer(WorldPacket const& obj, bool gc) { return GetNewTPointer(obj, gc); }
         static QueryResult const* GetTPointer(QueryResult const& obj, bool gc) { return GetNewTPointer(obj, gc); }
-        template<typename T> static SafeObj<T> const* GetTPointer(SafeObj<T> const& obj, bool gc) { return GetNewTPointer(obj, gc); }
-
-        template<typename T> static int CallTMethod(lua_State* L, T* obj)
-        {
-            ElunaRegister<T>* l = static_cast<ElunaRegister<T>*>(lua_touserdata(L, lua_upvalueindex(1)));
-            if (!obj)
-                return 0;
-            return l->mfunc(L, obj);
-        }
-        template<typename T> static int CallTMethod(lua_State* L, SafeObj<T>* safeObj)
-        {
-            ElunaRegister<T>* l = static_cast<ElunaRegister<T>*>(lua_touserdata(L, lua_upvalueindex(1)));
-            if (!safeObj)
-                return 0;
-            if (T* obj = safeObj->GetObj())
-                return l->mfunc(L, obj);
-            return 0;
-        }
 
         template<typename T>
         static int gcT(lua_State* L)
@@ -196,7 +149,10 @@ class ElunaTemplate
         {
             T* obj = check(L, 1); // get self
             lua_remove(L, 1); // remove self
-            return CallTMethod(L, obj);
+            ElunaRegister<T>* l = static_cast<ElunaRegister<T>*>(lua_touserdata(L, lua_upvalueindex(1)));
+            if (!obj)
+                return 0;
+            return l->mfunc(L, obj);
         }
 
         static int tostringT(lua_State* L)
@@ -206,47 +162,6 @@ class ElunaTemplate
             T* obj = *ptrHold;
             sprintf(buff, "%p", obj);
             lua_pushfstring(L, "%s (%s)", tname, buff);
-            return 1;
-        }
-
-        static int index(lua_State* L)
-        {
-            lua_getglobal(L, tname);
-            const char* key = lua_tostring(L, 2);
-            if (lua_istable(L, - 1))
-            {
-                lua_pushvalue(L, 2);
-                lua_rawget(L, -2);
-                if (lua_isnil(L, -1))
-                {
-                    lua_getmetatable(L, -2);
-                    if (lua_istable(L, -1))
-                    {
-                        lua_getfield(L, -1, "__index");
-                        if (lua_isfunction(L, -1))
-                        {
-                            lua_pushvalue(L, 1);
-                            lua_pushvalue(L, 2);
-                            lua_pcall(L, 2, 1, 0);
-                        }
-                        else if (lua_istable(L, -1))
-                            lua_getfield(L, -1, key);
-                        else
-                            lua_pushnil(L);
-                    }
-                    else
-                        lua_pushnil(L);
-                }
-                else if (lua_istable(L, -1))
-                {
-                    lua_pushvalue(L, 2);
-                    lua_rawget(L, -2);
-                }
-            }
-            else
-                lua_pushnil(L);
-            lua_insert(L, 1);
-            lua_settop(L, 1);
             return 1;
         }
 };
@@ -455,33 +370,6 @@ class Eluna
         template<typename T> void Push(lua_State* L, T const* ptr)
         {
             ElunaTemplate<T>::push(L, ptr);
-        }
-
-        template<typename T> SafeObj<T>* GetSafe(T const* ptr)
-        {
-            if (!ptr)
-                return NULL;
-            return new SafeObj<T>(ptr);
-        }
-
-        void Push(lua_State* L, Player const* ptr)
-        {
-            Push(L, GetSafe(ptr));
-        }
-
-        void Push(lua_State* L, Creature const* ptr)
-        {
-            Push(L, GetSafe(ptr));
-        }
-
-        void Push(lua_State* L, GameObject const* ptr)
-        {
-            Push(L, GetSafe(ptr));
-        }
-
-        void Push(lua_State* L, Corpse const* ptr)
-        {
-            Push(L, GetSafe(ptr));
         }
 
         void Push(lua_State* L, Pet const* pet)

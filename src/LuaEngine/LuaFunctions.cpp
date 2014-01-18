@@ -1099,33 +1099,33 @@ void RegisterFunctions(lua_State* L)
     ElunaTemplate<WorldObject>::SetMethods(L, ObjectMethods);
     ElunaTemplate<WorldObject>::SetMethods(L, WorldObjectMethods);
 
-    ElunaTemplate< Unit >::Register(L, "Unit");
-    ElunaTemplate< Unit >::SetMethods(L, ObjectMethods);
-    ElunaTemplate< Unit >::SetMethods(L, WorldObjectMethods);
-    ElunaTemplate< Unit >::SetMethods(L, VehicleMethods);
-    ElunaTemplate< Unit >::SetMethods(L, UnitMethods);
+    ElunaTemplate<Unit>::Register(L, "Unit");
+    ElunaTemplate<Unit>::SetMethods(L, ObjectMethods);
+    ElunaTemplate<Unit>::SetMethods(L, WorldObjectMethods);
+    ElunaTemplate<Unit>::SetMethods(L, UnitMethods);
+    ElunaTemplate<Unit>::SetMethods(L, QueryMethods); // Fail test
 
-    ElunaTemplate< SafeObj<Player> >::Register(L, "Player", true);
-    ElunaTemplate< SafeObj<Player> >::SetMethods(L, ObjectMethods);
-    ElunaTemplate< SafeObj<Player> >::SetMethods(L, WorldObjectMethods);
-    ElunaTemplate< SafeObj<Player> >::SetMethods(L, UnitMethods);
-    ElunaTemplate< SafeObj<Player> >::SetMethods(L, PlayerMethods);
+    ElunaTemplate<Player>::Register(L, "Player");
+    ElunaTemplate<Player>::SetMethods(L, ObjectMethods);
+    ElunaTemplate<Player>::SetMethods(L, WorldObjectMethods);
+    ElunaTemplate<Player>::SetMethods(L, UnitMethods);
+    ElunaTemplate<Player>::SetMethods(L, PlayerMethods);
 
-    ElunaTemplate< SafeObj<Creature> >::Register(L, "Creature", true);
-    ElunaTemplate< SafeObj<Creature> >::SetMethods(L, ObjectMethods);
-    ElunaTemplate< SafeObj<Creature> >::SetMethods(L, WorldObjectMethods);
-    ElunaTemplate< SafeObj<Creature> >::SetMethods(L, UnitMethods);
-    ElunaTemplate< SafeObj<Creature> >::SetMethods(L, CreatureMethods);
+    ElunaTemplate<Creature>::Register(L, "Creature");
+    ElunaTemplate<Creature>::SetMethods(L, ObjectMethods);
+    ElunaTemplate<Creature>::SetMethods(L, WorldObjectMethods);
+    ElunaTemplate<Creature>::SetMethods(L, UnitMethods);
+    ElunaTemplate<Creature>::SetMethods(L, CreatureMethods);
 
-    ElunaTemplate< SafeObj<GameObject> >::Register(L, "GameObject", true);
-    ElunaTemplate< SafeObj<GameObject> >::SetMethods(L, ObjectMethods);
-    ElunaTemplate< SafeObj<GameObject> >::SetMethods(L, WorldObjectMethods);
-    ElunaTemplate< SafeObj<GameObject> >::SetMethods(L, GameObjectMethods);
+    ElunaTemplate<GameObject>::Register(L, "GameObject");
+    ElunaTemplate<GameObject>::SetMethods(L, ObjectMethods);
+    ElunaTemplate<GameObject>::SetMethods(L, WorldObjectMethods);
+    ElunaTemplate<GameObject>::SetMethods(L, GameObjectMethods);
 
-    ElunaTemplate< SafeObj<Corpse> >::Register(L, "Corpse", true);
-    ElunaTemplate< SafeObj<Corpse> >::SetMethods(L, ObjectMethods);
-    ElunaTemplate< SafeObj<Corpse> >::SetMethods(L, WorldObjectMethods);
-    ElunaTemplate< SafeObj<Corpse> >::SetMethods(L, CorpseMethods);
+    ElunaTemplate<Corpse>::Register(L, "Corpse");
+    ElunaTemplate<Corpse>::SetMethods(L, ObjectMethods);
+    ElunaTemplate<Corpse>::SetMethods(L, WorldObjectMethods);
+    ElunaTemplate<Corpse>::SetMethods(L, CorpseMethods);
 
     ElunaTemplate<Item>::Register(L, "Item");
     ElunaTemplate<Item>::SetMethods(L, ObjectMethods);

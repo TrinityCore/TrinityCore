@@ -58,8 +58,8 @@ enum RegisterTypes
 
 // RegisterPacketEvent(Opcode, function)
 // SERVER_EVENT_ON_PACKET_RECEIVE          =     5,       // (event, packet, player) - Player only if accessible. Can return false or a new packet
-// SERVER_EVENT_ON_PACKET_RECEIVE_UNKNOWN  =     6,       // (event, packet, player) - Player only if accessible. Can return false or a new packet
-// SERVER_EVENT_ON_PACKET_SEND             =     7,       // (event, packet, player) - Player only if accessible
+// SERVER_EVENT_ON_PACKET_RECEIVE_UNKNOWN  =     6,       // Not Implemented
+// SERVER_EVENT_ON_PACKET_SEND             =     7,       // (event, packet, player) - Player only if accessible. Can return false or a new packet
 
 // RegisterServerEvent(EventId, function)
 enum ServerEvents
@@ -70,8 +70,8 @@ enum ServerEvents
     SERVER_EVENT_ON_SOCKET_OPEN             =     3,       // Not Implemented
     SERVER_EVENT_ON_SOCKET_CLOSE            =     4,       // Not Implemented
     SERVER_EVENT_ON_PACKET_RECEIVE          =     5,       // (event, packet, player) - Player only if accessible. Can return false or a new packet
-    SERVER_EVENT_ON_PACKET_RECEIVE_UNKNOWN  =     6,       // (event, packet, player) - Player only if accessible. Can return false or a new packet
-    SERVER_EVENT_ON_PACKET_SEND             =     7,       // (event, packet, player) - Player only if accessible
+    SERVER_EVENT_ON_PACKET_RECEIVE_UNKNOWN  =     6,       // Not Implemented
+    SERVER_EVENT_ON_PACKET_SEND             =     7,       // (event, packet, player) - Player only if accessible. Can return false or a new packet
 
     // World
     WORLD_EVENT_ON_OPEN_STATE_CHANGE        =     8,       // (event, open)
@@ -328,7 +328,6 @@ struct HookMgr
     /* Packet */
     bool OnPacketSend(WorldSession* session, WorldPacket& packet);
     bool OnPacketReceive(WorldSession* session, WorldPacket& packet);
-    void OnUnknownPacketReceive(WorldSession* session, WorldPacket* packet);
     /* Player */
     void OnPlayerEnterCombat(Player* pPlayer, Unit* pEnemy);
     void OnPlayerLeaveCombat(Player* pPlayer);

@@ -137,8 +137,6 @@ class WorldSocket : public WorldHandler
         /// Called by WorldSocketMgr/ReactorRunnable.
         int Update(void);
 
-        WorldSession* GetSession() const { return m_Session; }
-
     private:
         /// Helper functions for processing incoming data.
         int handle_input_header(void);
