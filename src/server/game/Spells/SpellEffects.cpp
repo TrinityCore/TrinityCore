@@ -4785,6 +4785,7 @@ void Spell::EffectResurrectPet(SpellEffIndex /*effIndex*/)
         hadPet = false;
     }
 
+    // TODO: Better to fail Hunter's "Revive Pet" at cast instead of here when casting ends
     Pet* pet = player->GetPet(); // Attempt to get current pet
     if (!pet || pet->IsAlive())
         return;
