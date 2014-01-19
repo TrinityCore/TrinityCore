@@ -1955,8 +1955,8 @@ class TW_npc_frost_bomb : public CreatureScript
         {
             TW_npc_frost_bombAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
+                me->AddUnitState(UNIT_STATE_ROOT);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NOT_SELECTABLE);
                 DoCast(me, SPELL_FROST_BOMB_VISUAL, true);
                 _frostTimer = 10000;
             }

@@ -49,3 +49,13 @@ UPDATE `gameobject_template` SET `data1` = 26955 WHERE `entry` = 194314;
 DELETE FROM `gameobject_loot_template` WHERE `entry` BETWEEN 196000 AND 196003;
 
 DELETE FROM `creature_text` WHERE `entry` = 32865 AND `groupid` = 20;
+
+-- Mimiron
+
+DELETE FROM `conditions` WHERE `SourceEntry` = 64623 AND `SourceTypeOrReferenceId` = 13;
+
+UPDATE `creature_template` SET `faction_A` = 35, `faction_H` = 35 WHERE `entry` IN (34149, 34361); -- Frost Bombs
+
+DELETE FROM `achievement_criteria_data` WHERE `ScriptName` = 'TW_achievement_firefighter';
+
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'TW_spell_rapid_burst';
