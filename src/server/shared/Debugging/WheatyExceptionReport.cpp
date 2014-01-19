@@ -566,6 +566,9 @@ PVOID addr, PTSTR szModule, DWORD len, DWORD& section, DWORD_PTR& offset)
 
     DWORD_PTR hMod = (DWORD_PTR)mbi.AllocationBase;
 
+    if (!hMod)
+        return FALSE;
+
     if (!GetModuleFileName((HMODULE)hMod, szModule, len))
         return FALSE;
 
@@ -708,7 +711,7 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
         }
 
         // Get the source line for this stack frame entry
-        IMAGEHLP_LINE64 lineInfo = { sizeof(IMAGEHLP_LINE) };
+        IMAGEHLP_LINE64 lineInfo = { sizeof(IMAGEHLP_LINE64) };
         DWORD dwLineDisplacement;
         if (SymGetLineFromAddr64(m_hProcess, sf.AddrPC.Offset,
             &dwLineDisplacement, &lineInfo))
@@ -746,11 +749,11 @@ ULONG         /*SymbolSize*/,
 PVOID         UserContext)
 {
 
-    char szBuffer[2048];
+    char szBuffer[4092];
 
     __try
     {
-        if (FormatSymbolValue(pSymInfo, (STACKFRAME*)UserContext,
+        if (FormatSymbolValue(pSymInfo, (STACKFRAME64*)UserContext,
             szBuffer, sizeof(szBuffer)))
             _tprintf(_T("\t%s\r\n"), szBuffer);
     }
@@ -769,7 +772,7 @@ PVOID         UserContext)
 //////////////////////////////////////////////////////////////////////////////
 bool WheatyExceptionReport::FormatSymbolValue(
 PSYMBOL_INFO pSym,
-STACKFRAME * sf,
+STACKFRAME64 * sf,
 char * pszBuffer,
 unsigned /*cbBuffer*/)
 {
@@ -782,7 +785,7 @@ unsigned /*cbBuffer*/)
         pszCurrBuffer += sprintf(pszCurrBuffer, "Local ");
 
     // If it's a function, don't do anything.
-    if (pSym->Tag == 5)                                   // SymTagFunction from CVCONST.H from the DIA SDK
+    if (pSym->Tag == SymTagFunction)                      // SymTagFunction from CVCONST.H from the DIA SDK
         return false;
 
     DWORD_PTR pVariable = 0;                                // Will point to the variable's data in memory
@@ -791,7 +794,11 @@ unsigned /*cbBuffer*/)
     {
         // if (pSym->Register == 8)   // EBP is the value 8 (in DBGHELP 5.1)
         {                                                   //  This may change!!!
+#ifdef _M_IX86
             pVariable = sf->AddrFrame.Offset;
+#elif _M_X64
+            pVariable = sf->AddrStack.Offset;
+#endif
             pVariable += (DWORD_PTR)pSym->Address;
         }
         // else
@@ -889,6 +896,12 @@ char* /*Name*/)
     // Iterate through each of the children
     for (unsigned i = 0; i < dwChildrenCount; i++)
     {
+        DWORD symTag;
+        SymGetTypeInfo(m_hProcess, modBase, children.ChildId[i], TI_GET_SYMTAG, &symTag);
+
+        if (symTag == SymTagFunction || symTag == SymTagTypedef)
+            continue;
+
         // Add appropriate indentation level (since this routine is recursive)
         for (unsigned j = 0; j <= nestingLevel+1; j++)
             pszCurrBuffer += sprintf(pszCurrBuffer, "\t");
@@ -1017,7 +1030,7 @@ WheatyExceptionReport::GetBasicType(DWORD typeIndex, DWORD64 modBase)
 //============================================================================
 int __cdecl WheatyExceptionReport::_tprintf(const TCHAR * format, ...)
 {
-    TCHAR szBuff[1024];
+    TCHAR szBuff[4092];
     int retValue;
     DWORD cbWritten;
     va_list argptr;
