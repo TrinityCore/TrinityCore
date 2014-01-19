@@ -1,0 +1,22 @@
+language:
+    cpp
+
+compiler:
+    - gcc
+    - clang
+
+# Only get newest commit
+git:
+    depth: 1    
+
+script:
+# Clone to TrinityCore
+# Go to to TrinityCore
+# Create TrinityCore/BUILD
+    - mkdir BUILD
+# Run cmake and set the BUILD directory as target for solution
+    - cmake ../ -DPREFIX=/BUILD
+# Go to TrinityCore/BUILD
+    - cd BUILD
+# Compile (with 4 cores)
+    - make -j4
