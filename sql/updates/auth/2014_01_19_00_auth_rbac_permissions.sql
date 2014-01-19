@@ -1,4 +1,4 @@
-SET @id = 775;
+SET @id = 777;
 
 -- Add new permissions
 DELETE FROM `rbac_permissions` WHERE `id`=@id;
