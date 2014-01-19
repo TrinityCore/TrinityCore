@@ -14,9 +14,11 @@ script:
 # Go to to TrinityCore
 # Create TrinityCore/BUILD
     - mkdir BUILD
-# Run cmake and set the BUILD directory as target for solution
-    - cmake ../ -DPREFIX=/BUILD
+# Create TrinityCore/SERVER
+    - mkdir SERVER
 # Go to TrinityCore/BUILD
     - cd BUILD
+# Run cmake and set the BUILD directory as target for solution
+    - cmake ../ -DPREFIX=/SERVER -DWITH_WARNINGS=1
 # Compile (with 4 cores)
     - make -j4
