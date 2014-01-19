@@ -35,7 +35,7 @@ bool WorldSession::CanOpenMailBox(uint64 guid)
     {
         if (!HasPermission(rbac::RBAC_PERM_COMMAND_MAILBOX))
         {
-            TC_LOG_WARN("cheat", "%s attempt open mailbox in cheating way.", GetPlayer()->GetName());
+            TC_LOG_WARN("cheat", "%s attempt open mailbox in cheating way.", GetPlayer()->GetName().c_str());
             return false;
         }
     }
