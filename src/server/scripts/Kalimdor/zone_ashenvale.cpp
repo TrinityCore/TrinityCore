@@ -198,7 +198,7 @@ public:
 
         void sQuestAccept(Player* player, Quest const* quest)
         {
-            if (quest->GetQuestId() == QUEST_TOREK_ASSULT)
+            if (quest->GetQuestId() == QUEST_FREEDOM_TO_RUUL)
             {
                 me->setFaction(FACTION_QUEST);
                 npc_escortAI::Start(true, false, player->GetGUID());
