@@ -8,23 +8,23 @@ compiler:
 # Only get newest commit
 git:
     depth: 1
-    
+
 before_install:
 # Install ACE
 # Get ACE
-    - wget http://download.dre.vanderbilt.edu/previous_versions/ACE-6.0.3.tar.gz
+    - wget http://download.dre.vanderbilt.edu/previous_versions/ACE-6.0.3.tar.gz > /dev/null
 # Unzip ACE to TrinityCore/
-    - tar xzf ACE-6.0.3.tar.gz
+    - tar xzf ACE-6.0.3.tar.gz > /dev/null
 # Go to TrinityCore/ACE_wrappers
     - cd ACE_wrappers/
 # Create TrinityCore/ACE_wrappers/build
     - mkdir build
 # Go to TrinityCore/ACE_wrappers/build
     - cd build
-# Must install locally? Testing system wide:
-    - ../configure --disable-ssl
-    - make -s --jobs=4
-    - sudo make -s --jobs=4 install
+# Install ACE system wide:
+    - ../configure --disable-ssl > /dev/null
+    - make -i --jobs=4 > /dev/null
+    - sudo make -i --jobs=4 install > /dev/null
 # Go to TrinityCore/
     - cd ../../
 
