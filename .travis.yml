@@ -9,7 +9,7 @@ compiler:
 git:
     depth: 1
     
-install:
+before_install:
 # Install ACE
 # Get ACE
     - wget http://download.dre.vanderbilt.edu/previous_versions/ACE-6.0.3.tar.gz
