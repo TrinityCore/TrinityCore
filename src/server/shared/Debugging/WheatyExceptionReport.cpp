@@ -62,6 +62,13 @@ WheatyExceptionReport::WheatyExceptionReport()             // Constructor
     // Install the unhandled exception filter function
     m_previousFilter = SetUnhandledExceptionFilter(WheatyUnhandledExceptionFilter);
     m_hProcess = GetCurrentProcess();
+    if (!IsDebuggerPresent())
+    {
+        _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+        _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
+        _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+        _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+    }
 }
 
 //============
