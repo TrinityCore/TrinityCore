@@ -11,6 +11,9 @@
 #include <dirent.h>
 #endif
 
+template<> WorldPacket const* ElunaTemplate<WorldPacket>::GetTPointer(WorldPacket const& obj) { return GetNewTPointer(obj); }
+template<> QueryResult const* ElunaTemplate<QueryResult>::GetTPointer(QueryResult const& obj) { return GetNewTPointer(obj); }
+
 extern void RegisterFunctions(lua_State* L);
 extern void AddElunaScripts();
 

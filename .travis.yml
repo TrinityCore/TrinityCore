@@ -23,7 +23,7 @@ before_install:
     - cd build
 # Must install locally? Testing system wide:
     - ../configure --disable-ssl
-    - make
+    - make -j4
     - sudo make install
 # Go to TrinityCore/
     - cd ../../
