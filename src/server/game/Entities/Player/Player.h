@@ -1936,7 +1936,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetDeathTimer() const { return m_deathTimer; }
         uint32 GetCorpseReclaimDelay(bool pvp) const;
         void UpdateCorpseReclaimDelay();
-        void SendCorpseReclaimDelay(bool load = false);
+        int32 CalculateCorpseReclaimDelay(bool load = false);
+        void SendCorpseReclaimDelay(uint32 delay);
 
         uint32 GetShieldBlockValue() const;                 // overwrite Unit version (virtual)
         bool CanParry() const { return m_canParry; }
