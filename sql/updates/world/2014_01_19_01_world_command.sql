@@ -1,4 +1,4 @@
-SET @id = 775;
+SET @id = 777;
 
 DELETE FROM `command` WHERE `name` = 'mailbox';
 INSERT INTO `command` (`name`, `permission`, `help`) VALUES

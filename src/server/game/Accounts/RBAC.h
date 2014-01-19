@@ -678,7 +678,9 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_WP_UNLOAD                              = 772,
     RBAC_PERM_COMMAND_WP_RELOAD                              = 773,
     RBAC_PERM_COMMAND_WP_SHOW                                = 774,
-    RBAC_PERM_COMMAND_MAILBOX                                = 775,
+    RBAC_PERM_COMMAND_MODIFY_CURRENCY                        = 775, // only 4.3.4
+    RBAC_PERM_COMMAND_DEBUG_PHASE                            = 776, // only 4.3.4
+    RBAC_PERM_COMMAND_MAILBOX                                = 777,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
