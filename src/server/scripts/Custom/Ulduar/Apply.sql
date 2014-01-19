@@ -147,3 +147,15 @@ UPDATE `creature_template` SET `flags_extra` = 2 WHERE `entry` = 34143;
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'TW_spell_rapid_burst';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (63382, 'TW_spell_rapid_burst');
+
+DELETE FROM `disables` WHERE `entry` IN (10450, 10463) AND `SourceType` = 4;
+DELETE FROM `achievement_criteria_data` WHERE `ScriptName` = 'TW_achievement_firefighter';
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
+(10450, 11, 0, 0, 'TW_achievement_firefighter'),
+(10463, 11, 0, 0, 'TW_achievement_firefighter');
+
+-- Conditions for Mimiron's Frost Bomb (64623)
+DELETE FROM `conditions` WHERE `SourceEntry` = 64623 AND `SourceTypeOrReferenceId` = 13;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`)VALUES
+(13, 1, 64623, 0, 0, 31, 0, 3, 34121, 0, 0, 0, 0,'','Mimiron - Frost Bomb on Flame (Spread)'),
+(13, 1, 64623, 0, 1, 31, 0, 3, 34149, 0, 0, 0, 0,'','Mimiron - Frost Bomb on Flame (Initial)');
