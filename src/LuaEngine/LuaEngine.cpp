@@ -87,9 +87,7 @@ void StartEluna(bool restart)
         AddElunaScripts();
 
     sEluna->L = luaL_newstate();
-    TC_LOG_INFO("misc", "");
     TC_LOG_INFO("misc", "[Eluna]: Lua Engine loaded.");
-    TC_LOG_INFO("misc", "");
 
     LoadedScripts loadedScripts;
     sEluna->LoadDirectory("lua_scripts", &loadedScripts);
@@ -149,7 +147,6 @@ void StartEluna(bool restart)
     */
 
     TC_LOG_INFO("misc", "[Eluna]: Loaded %u Lua scripts..", count);
-    TC_LOG_INFO("misc", "");
 }
 
 // Loads lua scripts from given directory
@@ -206,7 +203,7 @@ void Eluna::LoadDirectory(const char* Dirname, LoadedScripts* lscr)
     }
     FindClose(hFile);
 #else
-    char* dir = strrchr(Dirname, '/');
+    const char* dir = strrchr(Dirname, '/');
     if (strcmp(Dirname, "..") == 0 || strcmp(Dirname, ".") == 0)
         return;
 
@@ -234,7 +231,7 @@ void Eluna::LoadDirectory(const char* Dirname, LoadedScripts* lscr)
             error = false;
 
         if (!error && S_ISDIR(attributes.st_mode))
-            LoadDirectory((char*)_path, lscr);
+            LoadDirectory(_path, lscr);
         else
         {
             char* ext = strrchr(list[fileCount]->d_name, '.');
