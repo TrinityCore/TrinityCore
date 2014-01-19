@@ -5127,7 +5127,7 @@ void Player::BuildPlayerRepop()
     // BG - remove insignia related
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
 
-//    SendCorpseReclaimDelay();
+    SendCorpseReclaimDelay();
 
     // to prevent cheating
     corpse->ResetGhostTime();
