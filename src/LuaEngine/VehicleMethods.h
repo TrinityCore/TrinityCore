@@ -83,7 +83,7 @@ namespace LuaVehicle
         if (!passenger || controller)
             return 0;
 
-        vehicle->EjectPassenger(passenger, controller);
+        //vehicle->EjectPassenger(passenger, controller);
         return 0;
     }
 
