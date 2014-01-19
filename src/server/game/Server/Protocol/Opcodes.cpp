@@ -931,7 +931,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x386*/ { "SMSG_SPLINE_SET_FLIGHT_BACK_SPEED",            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x387*/ { "CMSG_MAELSTROM_INVALIDATE_CACHE",              STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x388*/ { "SMSG_FLIGHT_SPLINE_SYNC",                      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
-    /*0x389*/ { "CMSG_SET_TAXI_BENCHMARK_MODE",                 STATUS_AUTHED,   PROCESS_THREADUNSAFE, &WorldSession::HandleSetTaxiBenchmarkOpcode    },
+    /*0x389*/ { "CMSG_SET_TAXI_BENCHMARK_MODE",                 STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleSetTaxiBenchmarkOpcode    },
     /*0x38A*/ { "SMSG_JOINED_BATTLEGROUND_QUEUE",               STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x38B*/ { "SMSG_REALM_SPLIT",                             STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x38C*/ { "CMSG_REALM_SPLIT",                             STATUS_AUTHED,   PROCESS_THREADUNSAFE, &WorldSession::HandleRealmSplitOpcode          },
