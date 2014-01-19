@@ -153,7 +153,7 @@ void StartEluna(bool restart)
 }
 
 // Loads lua scripts from given directory
-void Eluna::LoadDirectory(char* Dirname, LoadedScripts* lscr)
+void Eluna::LoadDirectory(const char* Dirname, LoadedScripts* lscr)
 {
 #ifdef WIN32
     HANDLE hFile;

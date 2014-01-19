@@ -707,7 +707,7 @@ namespace LuaUnit
                     type = POWER_MANA;
             }
         }
-        else if (type >= POWER_ALL)
+        else if (type < 0 || type >= (int)POWER_ALL)
         {
             luaL_error(L, "Invalid power type (%d)", type);
             return 0;
@@ -747,7 +747,7 @@ namespace LuaUnit
                     type = POWER_MANA;
             }
         }
-        else if (type < 0 || type >= POWER_ALL)
+        else if (type < 0 || type >= (int)POWER_ALL)
         {
             luaL_error(L, "Invalid index (%d)", type);
             return 0;

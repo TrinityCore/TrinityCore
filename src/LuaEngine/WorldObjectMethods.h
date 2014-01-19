@@ -138,7 +138,7 @@ namespace LuaWorldObject
         uint32 entry = luaL_optunsigned(L, 2, 0);
 
         std::list<Creature*> list;
-        Eluna::WorldObjectInRangeCheck checker(false, obj, range, TYPEMASK_UNIT);
+        Eluna::WorldObjectInRangeCheck checker(false, obj, range, TYPEMASK_UNIT, entry);
         Trinity::CreatureListSearcher<Eluna::WorldObjectInRangeCheck> searcher(obj, list, checker);
         obj->VisitNearbyGridObject(range, searcher);
 
@@ -164,7 +164,7 @@ namespace LuaWorldObject
         float x, y, z;
         obj->GetPosition(x, y, z);
         std::list<GameObject*> list;
-        Eluna::WorldObjectInRangeCheck checker(false, obj, range, TYPEMASK_GAMEOBJECT);
+        Eluna::WorldObjectInRangeCheck checker(false, obj, range, TYPEMASK_GAMEOBJECT, entry);
         Trinity::GameObjectListSearcher<Eluna::WorldObjectInRangeCheck> searcher(obj, list, checker);
         obj->VisitNearbyGridObject(range, searcher);
 

@@ -180,10 +180,9 @@ namespace LuaPlayer
     int SendListInventory(lua_State* L, Player* player)
     {
         WorldObject* obj = sEluna->CHECK_WORLDOBJECT(L, 1);
-        uint32 entry = luaL_optunsigned(L, 2, 0);
 
         if (obj)
-            player->GetSession()->SendListInventory(obj->GetGUID()), entry;
+            player->GetSession()->SendListInventory(obj->GetGUID());
         return 0;
     }
 
@@ -1721,7 +1720,7 @@ namespace LuaPlayer
         };
         static const uint32 skillsSize = sizeof(skillsArray) / sizeof(*skillsArray);
 
-        for (int i = 0; i < skillsSize; ++i)
+        for (uint32 i = 0; i < skillsSize; ++i)
         {
             if (player->HasSkill(skillsArray[i]))
                 player->UpdateSkill(skillsArray[i], step);
@@ -1921,7 +1920,7 @@ namespace LuaPlayer
     {
         const char* msg = luaL_checkstring(L, 1);
         if (std::string(msg).length() > 0)
-            player->GetSession()->SendAreaTriggerMessage(msg);
+            player->GetSession()->SendAreaTriggerMessage("%s", msg);
         return 0;
     }
 
@@ -1929,7 +1928,7 @@ namespace LuaPlayer
     {
         const char* msg = luaL_checkstring(L, 1);
         if (std::string(msg).length() > 0)
-            player->GetSession()->SendNotification(msg);
+            player->GetSession()->SendNotification("%s", msg);
         return 0;
     }
 

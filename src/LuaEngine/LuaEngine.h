@@ -182,12 +182,12 @@ struct EventMgr
         // Should never execute on dead events
         bool Execute(uint64 time, uint32 diff);
 
-        bool hasObject; // Dont call event if object no longer exists
-        Object* obj;    // Object to push
+        EventProcessor* events; // Pointer to events (holds the timed event)
         int funcRef;    // Lua function reference ID, also used as event ID
         uint32 delay;   // Delay between event calls
         uint32 calls;   // Amount of calls to make, 0 for infinite
-        EventProcessor* events; // Pointer to events (holds the timed event)
+        Object* obj;    // Object to push
+        bool hasObject; // Dont call event if object no longer exists
     };
 
     // Updates all processors stored in the manager
@@ -350,7 +350,7 @@ class Eluna
         void BeginCall(int fReference);
         bool ExecuteCall(uint8 params, uint8 res);
         void EndCall(uint8 res);
-        void LoadDirectory(char* directory, LoadedScripts* scr);
+        void LoadDirectory(const char* directory, LoadedScripts* scr);
         // Pushes
         void Push(lua_State*); // nil
         void Push(lua_State*, const uint64);
@@ -661,11 +661,11 @@ class Eluna
                 return true;
             }
 
+            bool i_nearest;
             WorldObject const* i_obj;
             float i_range;
             uint16 i_typeMask;
             uint32 i_entry;
-            bool i_nearest;
             uint32 i_hostile;
 
             WorldObjectInRangeCheck(WorldObjectInRangeCheck const&);

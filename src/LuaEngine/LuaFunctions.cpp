@@ -748,7 +748,7 @@ ElunaRegister<Vehicle> VehicleMethods[] =
     {"InstallAccessory", &LuaVehicle::InstallAccessory},    // :InstallAccessory(entry, seatId, bool minion, typeId, summonTime) - Installs an accessory
     {"ApplyAllImmunities", &LuaVehicle::ApplyAllImmunities}, // :ApplyAllImmunities() - Applies all Vehicle immunities
     {"AddPassenger", &LuaVehicle::AddPassenger},            // :AddPassenger(passenger, seatId) - Adds a vehicle passenger
-    {"EjectPassenger", &LuaVehicle::EjectPassenger},        // :EjectPassenger(passenger, controller) - Disabled for now
+    // {"EjectPassenger", &LuaVehicle::EjectPassenger},        // :EjectPassenger(passenger, controller) - Disabled for now
     {"RelocatePassengers", &LuaVehicle::RelocatePassengers}, // :RelocatePassengers() - Relocates Passengers
     {"RemoveAllPassengers", &LuaVehicle::RemoveAllPassengers}, // :RemoveAllPassengers() - Removes all Passengers from the Vehicle
     {"RemovePassenger", &LuaVehicle::RemovePassenger},      // :RemovePassenger(passenger) - Removes the passenger from the vehicle
