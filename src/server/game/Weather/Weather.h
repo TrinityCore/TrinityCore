@@ -69,10 +69,10 @@ class Weather
         Weather(uint32 zone, WeatherData const* weatherChances);
         ~Weather() { };
 
-        bool Update(uint32 diff);
         bool ReGenerate();
-        bool UpdateWeather();
 
+        void Update(uint32 diff);
+        void UpdateWeather();
         void SendWeatherUpdateToPlayer(Player* player);
         void SetWeather(WeatherType type, float grade);
 
