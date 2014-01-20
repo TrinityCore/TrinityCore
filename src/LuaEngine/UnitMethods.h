@@ -982,7 +982,7 @@ namespace LuaUnit
 
     int SetStandState(lua_State* L, Unit* unit)
     {
-        uint8 state = sEluna->CHECK_ULONG(L, 1);
+        uint8 state = sEluna.CHECK_ULONG(L, 1);
         unit->SetStandState(state);
         return 0;
     }
@@ -1212,7 +1212,7 @@ namespace LuaUnit
 
     int IsStandState(lua_State* L, Unit* unit)
     {
-        sEluna->Push(L, unit->IsStandState());
+        sEluna.Push(L, unit->IsStandState());
         return 1;
     }
 
