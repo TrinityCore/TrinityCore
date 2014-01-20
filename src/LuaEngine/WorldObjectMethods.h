@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2010 - 2013 Eluna Lua Engine <http://emudevs.com/>
+* Copyright (C) 2010 - 2014 Eluna Lua Engine <http://emudevs.com/>
 * This program is free software licensed under GPL version 3
 * Please see the included DOCS/LICENSE.TXT for more information
 */
@@ -239,6 +239,50 @@ namespace LuaWorldObject
         case HIGHGUID_UNIT:          sEluna->Push(L, sObjectAccessor->GetCreature(*obj, guid)); break;
         case HIGHGUID_PET:           sEluna->Push(L, sObjectAccessor->GetPet(*obj, guid)); break;
         default:                     return 0;
+        }
+        return 1;
+    }
+
+    int GetDistance(lua_State* L, WorldObject* obj)
+    {
+        WorldObject* target = sEluna->CHECK_WORLDOBJECT(L, 1);
+        if (target && target->IsInWorld())
+            sEluna->Push(L, obj->GetDistance(target));
+        else
+        {
+            float X = luaL_checknumber(L, 1);
+            float Y = luaL_checknumber(L, 2);
+            float Z = luaL_checknumber(L, 3);
+            sEluna->Push(L, obj->GetDistance(X, Y, Z));
+        }
+        return 1;
+    }
+
+    int GetRelativePoint(lua_State* L, WorldObject* obj)
+    {
+        float dist = luaL_checknumber(L, 1);
+        float rad = luaL_checknumber(L, 2);
+
+        float x, y, z;
+        obj->GetClosePoint(x, y, z, 0.0f, dist, rad);
+
+        sEluna->Push(L, x);
+        sEluna->Push(L, y);
+        sEluna->Push(L, z);
+        return 3;
+    }
+
+    int GetAngle(lua_State* L, WorldObject* obj)
+    {
+        WorldObject* target = sEluna->CHECK_WORLDOBJECT(L, 1);
+
+        if (target && target->IsInWorld())
+            sEluna->Push(L, obj->GetAngle(target));
+        else
+        {
+            float x = luaL_checknumber(L, 1);
+            float y = luaL_checknumber(L, 2);
+            sEluna->Push(L, obj->GetAngle(x, y));
         }
         return 1;
     }

@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2010 - 2013 Eluna Lua Engine <http://emudevs.com/>
+* Copyright (C) 2010 - 2014 Eluna Lua Engine <http://emudevs.com/>
 * This program is free software licensed under GPL version 3
 * Please see the included DOCS/LICENSE.TXT for more information
 */
@@ -495,14 +495,6 @@ namespace LuaGlobalFunctions
         return 1;
     }
 
-    /*// FindUnit(guid)
-    int FindUnit(lua_State* L)
-    {
-    uint64 guid = sEluna->CHECK_ULONG(L, 1);
-    // sEluna->Push(L, sObjectAccessor->FindUnit(guid));
-    return 1;
-    }*/
-
     // GetPlayerGUID(lowguid)
     static int GetPlayerGUID(lua_State* L)
     {
@@ -697,7 +689,6 @@ namespace LuaGlobalFunctions
         return 1;
     }
 
-    // AddVendorItem(entry, itemId, maxcount, incrtime, extendedcost[, persist(bool)])
     int AddVendorItem(lua_State* L)
     {
         uint32 entry = luaL_checkunsigned(L, 1);
@@ -705,7 +696,6 @@ namespace LuaGlobalFunctions
         int maxcount = luaL_checkinteger(L, 3);
         uint32 incrtime = luaL_checkunsigned(L, 4);
         uint32 extendedcost = luaL_checkunsigned(L, 5);
-        bool persist = luaL_optbool(L, 6, true);
         if (!sObjectMgr->GetCreatureTemplate(entry))
         {
             luaL_error(L, "Couldn't find a creature with (ID: %d)!", entry);
@@ -714,11 +704,10 @@ namespace LuaGlobalFunctions
 
         if (!sObjectMgr->IsVendorItemValid(entry, item, maxcount, incrtime, extendedcost))
             return 0;
-        sObjectMgr->AddVendorItem(entry, item, maxcount, incrtime, extendedcost, persist);
+        sObjectMgr->AddVendorItem(entry, item, maxcount, incrtime, extendedcost);
         return 0;
     }
 
-    // VendorRemoveItem(entry, item[, persist(bool)])
     int VendorRemoveItem(lua_State* L)
     {
         uint32 entry = luaL_checkunsigned(L, 1);
@@ -733,7 +722,6 @@ namespace LuaGlobalFunctions
         return 0;
     }
 
-    // VendorRemoveAllItems(entry, persist(bool))
     int VendorRemoveAllItems(lua_State* L)
     {
         uint32 entry = luaL_checkunsigned(L, 1);
