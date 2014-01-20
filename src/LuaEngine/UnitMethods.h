@@ -932,8 +932,8 @@ namespace LuaUnit
     int SetFacingToObject(lua_State* L, Unit* unit)
     {
         WorldObject* obj = sEluna.CHECK_WORLDOBJECT(L, 1);
-        if (obj)
-            unit->SetFacingToObject(obj);
+
+        unit->SetFacingToObject(obj);
         return 0;
     }
 
@@ -977,6 +977,13 @@ namespace LuaUnit
         bool enable = luaL_optbool(L, 1, true);
 
         unit->SetWaterWalking(enable);
+        return 0;
+    }
+
+    int SetStandState(lua_State* L, Unit* unit)
+    {
+        uint8 state = sEluna->CHECK_ULONG(L, 1);
+        unit->SetStandState(state);
         return 0;
     }
 
@@ -1200,6 +1207,12 @@ namespace LuaUnit
         uint32 spell = luaL_checkunsigned(L, 1);
 
         sEluna.Push(L, unit->HasAura(spell));
+        return 1;
+    }
+
+    int IsStandState(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsStandState());
         return 1;
     }
 
