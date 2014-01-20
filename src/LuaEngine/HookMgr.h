@@ -403,28 +403,6 @@ struct HookMgr
     void OnDisband(Group* group);
     void OnCreate(Group* group, uint64 leaderGuid, GroupType groupType);
 };
-#define sHookMgr ACE_Singleton<HookMgr, ACE_Null_Mutex>::instance()
-
-class ElunaCreatureScript : public CreatureScript
-{
-public:
-    ElunaCreatureScript() : CreatureScript("Smart_ElunaCreatureScript") { } // Smart suppressing error @startup 
-    ~ElunaCreatureScript() { }
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return sHookMgr->GetAI(creature);
-    }
-};
-
-class ElunaGameObjectScript : public GameObjectScript
-{
-public:
-    ElunaGameObjectScript() : GameObjectScript("Smart_ElunaGameObjectScript") { } // Smart suppressing error @startup
-    ~ElunaGameObjectScript() { }
-    GameObjectAI* GetAI(GameObject* gameObject) const OVERRIDE
-    {
-        return sHookMgr->GetAI(gameObject);
-    }
-};
+#define sHookMgr (*ACE_Singleton<HookMgr, ACE_Null_Mutex>::instance())
 
 #endif

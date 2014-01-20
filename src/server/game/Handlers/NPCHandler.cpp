@@ -398,7 +398,7 @@ void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket& recvData)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 #ifdef ELUNA
-    sHookMgr->OnResurrect(GetPlayer());
+    sHookMgr.OnResurrect(GetPlayer());
 #endif
 
     SendSpiritResurrect();

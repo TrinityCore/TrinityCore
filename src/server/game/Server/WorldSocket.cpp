@@ -173,7 +173,7 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
 
     sScriptMgr->OnPacketSend(this, *pkt);
 #ifdef ELUNA
-    if (!sHookMgr->OnPacketSend(m_Session, data))
+    if (!sHookMgr.OnPacketSend(m_Session, data))
         return 0;
 #endif
 
@@ -697,7 +697,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
 
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
 #ifdef ELUNA
-                if (!sHookMgr->OnPacketReceive(m_Session, *new_pct))
+                if (!sHookMgr.OnPacketReceive(m_Session, *new_pct))
                     return 0;
 #endif
                 return HandleAuthSession(*new_pct);
@@ -705,7 +705,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
 #ifdef ELUNA
-                sHookMgr->OnPacketReceive(m_Session, *new_pct);
+                sHookMgr.OnPacketReceive(m_Session, *new_pct);
 #endif
                 return 0;
             default:

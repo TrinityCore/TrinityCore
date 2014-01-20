@@ -11,49 +11,49 @@ namespace LuaAura
 {
     int GetCaster(lua_State* L, Aura* aura)
     {
-        sEluna->Push(L, aura->GetCaster());
+        sEluna.Push(L, aura->GetCaster());
         return 1;
     }
 
     int GetCasterGUID(lua_State* L, Aura* aura)
     {
-        sEluna->Push(L, aura->GetCasterGUID());
+        sEluna.Push(L, aura->GetCasterGUID());
         return 1;
     }
 
     int GetCasterLevel(lua_State* L, Aura* aura)
     {
-        sEluna->Push(L, aura->GetCaster()->getLevel());
+        sEluna.Push(L, aura->GetCaster()->getLevel());
         return 1;
     }
 
     int GetDuration(lua_State* L, Aura* aura)
     {
-        sEluna->Push(L, aura->GetDuration());
+        sEluna.Push(L, aura->GetDuration());
         return 1;
     }
 
     int GetCharges(lua_State* L, Aura* aura)
     {
-        sEluna->Push(L, aura->GetStackAmount());
+        sEluna.Push(L, aura->GetStackAmount());
         return 1;
     }
 
     int GetAuraId(lua_State* L, Aura* aura)
     {
-        sEluna->Push(L, aura->GetId());
+        sEluna.Push(L, aura->GetId());
         return 1;
     }
 
     int GetMaxDuration(lua_State* L, Aura* aura)
     {
-        sEluna->Push(L, aura->GetMaxDuration());
+        sEluna.Push(L, aura->GetMaxDuration());
         return 1;
     }
 
     int GetStackAmount(lua_State* L, Aura* aura)
     {
-        sEluna->Push(L, aura->GetStackAmount());
+        sEluna.Push(L, aura->GetStackAmount());
         return 1;
     }
 
@@ -86,7 +86,7 @@ namespace LuaAura
 
     int GetOwner(lua_State* L, Aura* aura)
     {
-        sEluna->Push(L, aura->GetOwner());
+        sEluna.Push(L, aura->GetOwner());
         return 1;
     }
 };
