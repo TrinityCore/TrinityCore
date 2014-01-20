@@ -13,6 +13,7 @@ set(scripts_STAT_SRCS
   Custom/TrialOfTheCrusader/TW_boss_faction_champions.cpp
   Custom/custom_scripts.cpp
   Custom/brewfest.cpp
+  Custom/cs_custom.cpp
   Custom/TW_hallows_end.cpp
   Custom/TW_pilgrim.cpp
   Custom/HallsOfReflection/TW_boss_falric.cpp
