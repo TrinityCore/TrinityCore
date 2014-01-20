@@ -12,7 +12,7 @@ namespace LuaCorpse
     // GetOwnerGUID()
     int GetOwnerGUID(lua_State* L, Corpse* corpse)
     {
-        sEluna->Push(L, corpse->GetOwnerGUID());
+        sEluna.Push(L, corpse->GetOwnerGUID());
         return 1;
     }
 
@@ -21,16 +21,16 @@ namespace LuaCorpse
     {
         time_t time = corpse->GetGhostTime();
         if (time < 0)
-            sEluna->Push(L, int32(time));
+            sEluna.Push(L, int32(time));
         else
-            sEluna->Push(L, uint32(time));
+            sEluna.Push(L, uint32(time));
         return 1;
     }
 
     // GetType()
     int GetType(lua_State* L, Corpse* corpse)
     {
-        sEluna->Push(L, corpse->GetType());
+        sEluna.Push(L, corpse->GetType());
         return 1;
     }
 

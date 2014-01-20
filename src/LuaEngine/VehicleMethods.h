@@ -11,39 +11,39 @@ namespace LuaVehicle
 {
     int GetBase(lua_State* L, Vehicle* vehicle)
     {
-        sEluna->Push(L, vehicle->GetBase());
+        sEluna.Push(L, vehicle->GetBase());
         return 1;
     }
 
     int GetAvailableSeatCount(lua_State* L, Vehicle* vehicle)
     {
-        sEluna->Push(L, vehicle->GetAvailableSeatCount());
+        sEluna.Push(L, vehicle->GetAvailableSeatCount());
         return 1;
     }
 
     int GetCreatureEntry(lua_State* L, Vehicle* vehicle)
     {
-        sEluna->Push(L, vehicle->GetCreatureEntry());
+        sEluna.Push(L, vehicle->GetCreatureEntry());
         return 1;
     }
 
     int GetPassenger(lua_State* L, Vehicle* vehicle)
     {
         int8 seatId = luaL_checkinteger(L, 1);
-        sEluna->Push(L, vehicle->GetPassenger(seatId));
+        sEluna.Push(L, vehicle->GetPassenger(seatId));
         return 1;
     }
 
     int HasEmptySeat(lua_State* L, Vehicle* vehicle)
     {
         int8 seatId = luaL_checkinteger(L, 1);
-        sEluna->Push(L, vehicle->HasEmptySeat(seatId));
+        sEluna.Push(L, vehicle->HasEmptySeat(seatId));
         return 1;
     }
 
     int IsVehicleInUse(lua_State* L, Vehicle* vehicle)
     {
-        sEluna->Push(L, vehicle->IsVehicleInUse());
+        sEluna.Push(L, vehicle->IsVehicleInUse());
         return 1;
     }
 
@@ -66,7 +66,7 @@ namespace LuaVehicle
 
     int AddPassenger(lua_State* L, Vehicle* vehicle)
     {
-        Unit* passenger = sEluna->CHECK_UNIT(L, 1);
+        Unit* passenger = sEluna.CHECK_UNIT(L, 1);
         if (!passenger)
             return 0;
 
@@ -78,8 +78,8 @@ namespace LuaVehicle
 
     int EjectPassenger(lua_State* L, Vehicle* vehicle)
     {
-        Unit* passenger = sEluna->CHECK_UNIT(L, 1);
-        Unit* controller = sEluna->CHECK_UNIT(L, 2);
+        Unit* passenger = sEluna.CHECK_UNIT(L, 1);
+        Unit* controller = sEluna.CHECK_UNIT(L, 2);
         if (!passenger || controller)
             return 0;
 
@@ -101,7 +101,7 @@ namespace LuaVehicle
 
     int RemovePassenger(lua_State* L, Vehicle* vehicle)
     {
-        Unit* passenger = sEluna->CHECK_UNIT(L, 1);
+        Unit* passenger = sEluna.CHECK_UNIT(L, 1);
         if (!passenger)
             return 0;
 
@@ -111,7 +111,7 @@ namespace LuaVehicle
 
     int RemovePendingEventsForPassenger(lua_State* L, Vehicle* vehicle)
     {
-        Unit* passenger = sEluna->CHECK_UNIT(L, 1);
+        Unit* passenger = sEluna.CHECK_UNIT(L, 1);
         if (!passenger)
             return 0;
 

@@ -15,9 +15,9 @@ namespace LuaGameObject
         int deg = luaL_checkinteger(L, 2);
 
         float o = Position::NormalizeOrientation(go->GetOrientation() + (deg * M_PI / 180));
-        sEluna->Push(L, go->GetPositionX() + (dist * cosf(o)));
-        sEluna->Push(L, go->GetPositionY() + (dist * sinf(o)));
-        sEluna->Push(L, o);
+        sEluna.Push(L, go->GetPositionX() + (dist * cosf(o)));
+        sEluna.Push(L, go->GetPositionY() + (dist * sinf(o)));
+        sEluna.Push(L, o);
         return 3;
     }
 
@@ -61,7 +61,7 @@ namespace LuaGameObject
             default:
                 return 0;
         }
-        sEluna->Push(L, go->SummonCreature(entry, x, y, z, o, type, despawnTimer)->ToCreature());
+        sEluna.Push(L, go->SummonCreature(entry, x, y, z, o, type, despawnTimer)->ToCreature());
         return 1;
     }
 
@@ -73,13 +73,13 @@ namespace LuaGameObject
         float z = luaL_checknumber(L, 4);
         float o = luaL_checknumber(L, 5);
         uint32 respawnDelay = luaL_optunsigned(L, 6, 30);
-        sEluna->Push(L, go->SummonGameObject(entry, x, y, z, o, 0, 0, 0, 0, respawnDelay));
+        sEluna.Push(L, go->SummonGameObject(entry, x, y, z, o, 0, 0, 0, 0, respawnDelay));
         return 1;
     }
 
     int GetDisplayId(lua_State* L, GameObject* go)
     {
-        sEluna->Push(L, go->GetDisplayId());
+        sEluna.Push(L, go->GetDisplayId());
         return 1;
     }
 
@@ -87,31 +87,31 @@ namespace LuaGameObject
     {
         uint32 questId = luaL_checkunsigned(L, 1);
 
-        sEluna->Push(L, go->hasQuest(questId));
+        sEluna.Push(L, go->hasQuest(questId));
         return 1;
     }
 
     int IsSpawned(lua_State* L, GameObject* go)
     {
-        sEluna->Push(L, go->isSpawned());
+        sEluna.Push(L, go->isSpawned());
         return 1;
     }
 
     int IsTransport(lua_State* L, GameObject* go)
     {
-        sEluna->Push(L, go->IsTransport());
+        sEluna.Push(L, go->IsTransport());
         return 1;
     }
 
     int IsDestructible(lua_State* L, GameObject* go)
     {
-        sEluna->Push(L, go->IsDestructibleBuilding());
+        sEluna.Push(L, go->IsDestructibleBuilding());
         return 1;
     }
 
     int IsActive(lua_State* L, GameObject* go)
     {
-        sEluna->Push(L, go->isActiveObject());
+        sEluna.Push(L, go->isActiveObject());
         return 1;
     }
 
@@ -148,20 +148,20 @@ namespace LuaGameObject
 
         lua_settop(L, 1);
         int functionRef = lua_ref(L, true);
-        sEluna->Push(L, sEluna->m_EventMgr.AddEvent(go->GetGUID(), functionRef, delay, repeats, go));
+        sEluna.Push(L, sEluna.m_EventMgr.AddEvent(go->GetGUID(), functionRef, delay, repeats, go));
         return 1;
     }
 
     int RemoveEventById(lua_State* L, GameObject* go)
     {
         int eventId = luaL_checkinteger(L, 1);
-        sEluna->m_EventMgr.RemoveEvent(go->GetGUID(), eventId);
+        sEluna.m_EventMgr.RemoveEvent(go->GetGUID(), eventId);
         return 0;
     }
 
     int RemoveEvents(lua_State* L, GameObject* go)
     {
-        sEluna->m_EventMgr.RemoveEvents(go->GetGUID());
+        sEluna.m_EventMgr.RemoveEvents(go->GetGUID());
         return 0;
     }
 
@@ -192,7 +192,7 @@ namespace LuaGameObject
         if (!go || !go->IsInWorld())
             return 0;
 
-        sEluna->Push(L, go->GetGoState());
+        sEluna.Push(L, go->GetGoState());
         return 1;
     }
 
@@ -214,7 +214,7 @@ namespace LuaGameObject
 
     int GetLootState(lua_State* L, GameObject* go)
     {
-        sEluna->Push(L, go->getLootState());
+        sEluna.Push(L, go->getLootState());
         return 1;
     }
 

@@ -12429,7 +12429,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
         ApplyEquipCooldown(pItem2);
 
 #ifdef ELUNA
-        sHookMgr->OnEquip(this, pItem2, bag, slot);
+        sHookMgr.OnEquip(this, pItem2, bag, slot);
 #endif
         return pItem2;
     }
@@ -12439,7 +12439,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM, pItem->GetEntry(), slot);
 
 #ifdef ELUNA
-        sHookMgr->OnEquip(this, pItem, bag, slot);
+        sHookMgr.OnEquip(this, pItem, bag, slot);
 #endif
     return pItem;
 }
@@ -12463,7 +12463,7 @@ void Player::QuickEquipItem(uint16 pos, Item* pItem)
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM, pItem->GetEntry());
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM, pItem->GetEntry(), slot);
 #ifdef ELUNA
-        sHookMgr->OnEquip(this, pItem, (pos >> 8), slot);
+        sHookMgr.OnEquip(this, pItem, (pos >> 8), slot);
 #endif
     }
 }
@@ -24626,7 +24626,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
             loot->DeleteLootItemFromContainerItemDB(item->itemid);
 
 #ifdef ELUNA
-        sHookMgr->OnLootItem(this, newitem, item->count, this->GetLootGUID());
+        sHookMgr.OnLootItem(this, newitem, item->count, this->GetLootGUID());
 #endif
     }
     else

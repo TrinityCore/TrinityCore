@@ -352,32 +352,32 @@ class Eluna
         void EndCall(uint8 res);
         void LoadDirectory(const char* directory, LoadedScripts* scr);
         // Pushes
-        void Push(lua_State*); // nil
-        void Push(lua_State*, const uint64);
-        void Push(lua_State*, const int64);
-        void Push(lua_State*, const uint32);
-        void Push(lua_State*, const int32);
-        void Push(lua_State*, const bool);
-        void Push(lua_State*, const float);
-        void Push(lua_State*, const double);
-        void Push(lua_State*, const char*);
-        void Push(lua_State*, const std::string);
-        template<typename T> void Push(lua_State* L, T const* ptr)
+        static void Push(lua_State*); // nil
+        static void Push(lua_State*, const uint64);
+        static void Push(lua_State*, const int64);
+        static void Push(lua_State*, const uint32);
+        static void Push(lua_State*, const int32);
+        static void Push(lua_State*, const bool);
+        static void Push(lua_State*, const float);
+        static void Push(lua_State*, const double);
+        static void Push(lua_State*, const char*);
+        static void Push(lua_State*, const std::string);
+        template<typename T> static void Push(lua_State* L, T const* ptr)
         {
             ElunaTemplate<T>::push(L, ptr);
         }
 
-        void Push(lua_State* L, Pet const* pet)
+        static void Push(lua_State* L, Pet const* pet)
         {
             Push(L, pet->ToCreature());
         }
 
-        void Push(lua_State* L, TempSummon const* summon)
+        static void Push(lua_State* L, TempSummon const* summon)
         {
             Push(L, summon->ToCreature());
         }
 
-        void Push(lua_State* L, Unit const* unit)
+        static void Push(lua_State* L, Unit const* unit)
         {
             if (!unit)
             {
@@ -397,7 +397,7 @@ class Eluna
             }
         }
 
-        void Push(lua_State*, WorldObject const* obj)
+        static void Push(lua_State* L, WorldObject const* obj)
         {
             if (!obj)
             {
@@ -423,7 +423,7 @@ class Eluna
             }
         }
 
-        void Push(lua_State* L, Object const* obj)
+        static void Push(lua_State* L, Object const* obj)
         {
             if (!obj)
             {
@@ -671,7 +671,7 @@ class Eluna
             WorldObjectInRangeCheck(WorldObjectInRangeCheck const&);
         };
 };
-#define sEluna ACE_Singleton<Eluna, ACE_Null_Mutex>::instance()
+#define sEluna (*ACE_Singleton<Eluna, ACE_Null_Mutex>::instance())
 
 class LuaTaxiMgr
 {

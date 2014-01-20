@@ -11,31 +11,31 @@ namespace LuaSpell
 {
     int GetCaster(lua_State* L, Spell* spell)
     {
-        sEluna->Push(L, spell->GetCaster());
+        sEluna.Push(L, spell->GetCaster());
         return 1;
     }
 
     int GetCastTime(lua_State* L, Spell* spell)
     {
-        sEluna->Push(L, spell->GetCastTime());
+        sEluna.Push(L, spell->GetCastTime());
         return 1;
     }
 
     int GetId(lua_State* L, Spell* spell)
     {
-        sEluna->Push(L, spell->m_spellInfo->Id);
+        sEluna.Push(L, spell->m_spellInfo->Id);
         return 1;
     }
 
     int GetPowerCost(lua_State* L, Spell* spell)
     {
-        sEluna->Push(L, spell->GetPowerCost());
+        sEluna.Push(L, spell->GetPowerCost());
         return 1;
     }
 
     int GetDuration(lua_State* L, Spell* spell)
     {
-        sEluna->Push(L, spell->GetSpellInfo()->GetDuration());
+        sEluna.Push(L, spell->GetSpellInfo()->GetDuration());
         return 1;
     }
 
@@ -48,7 +48,7 @@ namespace LuaSpell
 
     int IsAutoRepeat(lua_State* L, Spell* spell)
     {
-        sEluna->Push(L, spell->IsAutoRepeat());
+        sEluna.Push(L, spell->IsAutoRepeat());
         return 1;
     }
 
@@ -79,9 +79,9 @@ namespace LuaSpell
 
         float x, y, z;
         spell->m_targets.GetDstPos()->GetPosition(x, y, z);
-        sEluna->Push(L, x);
-        sEluna->Push(L, y);
-        sEluna->Push(L, z);
+        sEluna.Push(L, x);
+        sEluna.Push(L, y);
+        sEluna.Push(L, z);
         return 3;
     }
 };

@@ -11,65 +11,65 @@ namespace LuaWorldObject
 {
     int GetName(lua_State* L, WorldObject* obj)
     {
-        sEluna->Push(L, obj->GetName());
+        sEluna.Push(L, obj->GetName());
         return 1;
     }
     int GetMap(lua_State* L, WorldObject* obj)
     {
-        sEluna->Push(L, obj->GetMap());
+        sEluna.Push(L, obj->GetMap());
         return 1;
     }
     int GetPhaseMask(lua_State* L, WorldObject* obj)
     {
-        sEluna->Push(L, obj->GetPhaseMask());
+        sEluna.Push(L, obj->GetPhaseMask());
         return 1;
     }
     int GetInstanceId(lua_State* L, WorldObject* obj)
     {
-        sEluna->Push(L, obj->GetInstanceId());
+        sEluna.Push(L, obj->GetInstanceId());
         return 1;
     }
     int GetAreaId(lua_State* L, WorldObject* obj)
     {
-        sEluna->Push(L, obj->GetAreaId());
+        sEluna.Push(L, obj->GetAreaId());
         return 1;
     }
     int GetZoneId(lua_State* L, WorldObject* obj)
     {
-        sEluna->Push(L, obj->GetZoneId());
+        sEluna.Push(L, obj->GetZoneId());
         return 1;
     }
     int GetMapId(lua_State* L, WorldObject* obj)
     {
-        sEluna->Push(L, obj->GetMapId());
+        sEluna.Push(L, obj->GetMapId());
         return 1;
     }
     int GetX(lua_State* L, WorldObject* obj)
     {
-        sEluna->Push(L, obj->GetPositionX());
+        sEluna.Push(L, obj->GetPositionX());
         return 1;
     }
     int GetY(lua_State* L, WorldObject* obj)
     {
-        sEluna->Push(L, obj->GetPositionY());
+        sEluna.Push(L, obj->GetPositionY());
         return 1;
     }
     int GetZ(lua_State* L, WorldObject* obj)
     {
-        sEluna->Push(L, obj->GetPositionZ());
+        sEluna.Push(L, obj->GetPositionZ());
         return 1;
     }
     int GetO(lua_State* L, WorldObject* obj)
     {
-        sEluna->Push(L, obj->GetOrientation());
+        sEluna.Push(L, obj->GetOrientation());
         return 1;
     }
     int GetLocation(lua_State* L, WorldObject* obj)
     {
-        sEluna->Push(L, obj->GetPositionX());
-        sEluna->Push(L, obj->GetPositionY());
-        sEluna->Push(L, obj->GetPositionZ());
-        sEluna->Push(L, obj->GetOrientation());
+        sEluna.Push(L, obj->GetPositionX());
+        sEluna.Push(L, obj->GetPositionY());
+        sEluna.Push(L, obj->GetPositionZ());
+        sEluna.Push(L, obj->GetOrientation());
         return 4;
     }
     int GetNearestPlayer(lua_State* L, WorldObject* obj)
@@ -80,7 +80,7 @@ namespace LuaWorldObject
         Eluna::WorldObjectInRangeCheck checker(true, obj, range, TYPEMASK_PLAYER);
         Trinity::PlayerLastSearcher<Eluna::WorldObjectInRangeCheck> searcher(obj, target, checker);
 
-        sEluna->Push(L, target);
+        sEluna.Push(L, target);
         return 1;
     }
     int GetNearestGameObject(lua_State* L, WorldObject* obj)
@@ -93,7 +93,7 @@ namespace LuaWorldObject
         Trinity::GameObjectLastSearcher<Eluna::WorldObjectInRangeCheck> searcher(obj, target, checker);
         obj->VisitNearbyGridObject(range, searcher);
 
-        sEluna->Push(L, target);
+        sEluna.Push(L, target);
         return 1;
     }
     int GetNearestCreature(lua_State* L, WorldObject* obj)
@@ -106,7 +106,7 @@ namespace LuaWorldObject
         Trinity::CreatureLastSearcher<Eluna::WorldObjectInRangeCheck> searcher(obj, target, checker);
         obj->VisitNearbyGridObject(range, searcher);
 
-        sEluna->Push(L, target);
+        sEluna.Push(L, target);
         return 1;
     }
     int GetPlayersInRange(lua_State* L, WorldObject* obj)
@@ -124,8 +124,8 @@ namespace LuaWorldObject
 
         for (std::list<Player*>::const_iterator it = list.begin(); it != list.end(); ++it)
         {
-            sEluna->Push(L, ++i);
-            sEluna->Push(L, *it);
+            sEluna.Push(L, ++i);
+            sEluna.Push(L, *it);
             lua_settable(L, tbl);
         }
 
@@ -148,8 +148,8 @@ namespace LuaWorldObject
 
         for (std::list<Creature*>::const_iterator it = list.begin(); it != list.end(); ++it)
         {
-            sEluna->Push(L, ++i);
-            sEluna->Push(L, *it);
+            sEluna.Push(L, ++i);
+            sEluna.Push(L, *it);
             lua_settable(L, tbl);
         }
 
@@ -174,8 +174,8 @@ namespace LuaWorldObject
 
         for (std::list<GameObject*>::const_iterator it = list.begin(); it != list.end(); ++it)
         {
-            sEluna->Push(L, ++i);
-            sEluna->Push(L, *it);
+            sEluna.Push(L, ++i);
+            sEluna.Push(L, *it);
             lua_settable(L, tbl);
         }
 
@@ -199,7 +199,7 @@ namespace LuaWorldObject
             Trinity::WorldObjectLastSearcher<Eluna::WorldObjectInRangeCheck> searcher(obj, target, checker);
             obj->VisitNearbyObject(range, searcher);
 
-            sEluna->Push(L, target);
+            sEluna.Push(L, target);
             return 1;
         }
         else
@@ -214,8 +214,8 @@ namespace LuaWorldObject
 
             for (std::list<WorldObject*>::const_iterator it = list.begin(); it != list.end(); ++it)
             {
-                sEluna->Push(L, ++i);
-                sEluna->Push(L, *it);
+                sEluna.Push(L, ++i);
+                sEluna.Push(L, *it);
                 lua_settable(L, tbl);
             }
 
@@ -227,17 +227,17 @@ namespace LuaWorldObject
     }
     int GetWorldObject(lua_State* L, WorldObject* obj)
     {
-        uint64 guid = sEluna->CHECK_ULONG(L, 1);
+        uint64 guid = sEluna.CHECK_ULONG(L, 1);
 
         switch (GUID_HIPART(guid))
         {
-        case HIGHGUID_PLAYER:        sEluna->Push(L, sObjectAccessor->GetPlayer(*obj, guid)); break;
+        case HIGHGUID_PLAYER:        sEluna.Push(L, sObjectAccessor->GetPlayer(*obj, guid)); break;
         case HIGHGUID_TRANSPORT:
         case HIGHGUID_MO_TRANSPORT:
-        case HIGHGUID_GAMEOBJECT:    sEluna->Push(L, sObjectAccessor->GetGameObject(*obj, guid)); break;
+        case HIGHGUID_GAMEOBJECT:    sEluna.Push(L, sObjectAccessor->GetGameObject(*obj, guid)); break;
         case HIGHGUID_VEHICLE:
-        case HIGHGUID_UNIT:          sEluna->Push(L, sObjectAccessor->GetCreature(*obj, guid)); break;
-        case HIGHGUID_PET:           sEluna->Push(L, sObjectAccessor->GetPet(*obj, guid)); break;
+        case HIGHGUID_UNIT:          sEluna.Push(L, sObjectAccessor->GetCreature(*obj, guid)); break;
+        case HIGHGUID_PET:           sEluna.Push(L, sObjectAccessor->GetPet(*obj, guid)); break;
         default:                     return 0;
         }
         return 1;
@@ -245,15 +245,15 @@ namespace LuaWorldObject
 
     int GetDistance(lua_State* L, WorldObject* obj)
     {
-        WorldObject* target = sEluna->CHECK_WORLDOBJECT(L, 1);
+        WorldObject* target = sEluna.CHECK_WORLDOBJECT(L, 1);
         if (target && target->IsInWorld())
-            sEluna->Push(L, obj->GetDistance(target));
+            sEluna.Push(L, obj->GetDistance(target));
         else
         {
             float X = luaL_checknumber(L, 1);
             float Y = luaL_checknumber(L, 2);
             float Z = luaL_checknumber(L, 3);
-            sEluna->Push(L, obj->GetDistance(X, Y, Z));
+            sEluna.Push(L, obj->GetDistance(X, Y, Z));
         }
         return 1;
     }
@@ -266,23 +266,23 @@ namespace LuaWorldObject
         float x, y, z;
         obj->GetClosePoint(x, y, z, 0.0f, dist, rad);
 
-        sEluna->Push(L, x);
-        sEluna->Push(L, y);
-        sEluna->Push(L, z);
+        sEluna.Push(L, x);
+        sEluna.Push(L, y);
+        sEluna.Push(L, z);
         return 3;
     }
 
     int GetAngle(lua_State* L, WorldObject* obj)
     {
-        WorldObject* target = sEluna->CHECK_WORLDOBJECT(L, 1);
+        WorldObject* target = sEluna.CHECK_WORLDOBJECT(L, 1);
 
         if (target && target->IsInWorld())
-            sEluna->Push(L, obj->GetAngle(target));
+            sEluna.Push(L, obj->GetAngle(target));
         else
         {
             float x = luaL_checknumber(L, 1);
             float y = luaL_checknumber(L, 2);
-            sEluna->Push(L, obj->GetAngle(x, y));
+            sEluna.Push(L, obj->GetAngle(x, y));
         }
         return 1;
     }

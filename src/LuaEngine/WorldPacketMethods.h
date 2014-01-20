@@ -12,14 +12,14 @@ namespace LuaPacket
     // GetOpcode()
     int GetOpcode(lua_State* L, WorldPacket* packet)
     {
-        sEluna->Push(L, packet->GetOpcode());
+        sEluna.Push(L, packet->GetOpcode());
         return 1;
     }
 
     // GetSize()
     int GetSize(lua_State* L, WorldPacket* packet)
     {
-        sEluna->Push(L, packet->size());
+        sEluna.Push(L, packet->size());
         return 1;
     }
 
@@ -39,7 +39,7 @@ namespace LuaPacket
     {
         int8 byte;
         (*packet) >> byte;
-        sEluna->Push(L, byte);
+        sEluna.Push(L, byte);
         return 1;
     }
 
@@ -48,7 +48,7 @@ namespace LuaPacket
     {
         uint8 byte;
         (*packet) >> byte;
-        sEluna->Push(L, byte);
+        sEluna.Push(L, byte);
         return 1;
     }
 
@@ -57,7 +57,7 @@ namespace LuaPacket
     {
         int16 _short;
         (*packet) >> _short;
-        sEluna->Push(L, _short);
+        sEluna.Push(L, _short);
         return 1;
     }
 
@@ -66,7 +66,7 @@ namespace LuaPacket
     {
         uint16 _ushort;
         (*packet) >> _ushort;
-        sEluna->Push(L, _ushort);
+        sEluna.Push(L, _ushort);
         return 1;
     }
 
@@ -75,7 +75,7 @@ namespace LuaPacket
     {
         int32 _long;
         (*packet) >> _long;
-        sEluna->Push(L, _long);
+        sEluna.Push(L, _long);
         return 1;
     }
 
@@ -84,7 +84,7 @@ namespace LuaPacket
     {
         uint32 _ulong;
         (*packet) >> _ulong;
-        sEluna->Push(L, _ulong);
+        sEluna.Push(L, _ulong);
         return 1;
     }
 
@@ -93,7 +93,7 @@ namespace LuaPacket
     {
         float _val;
         (*packet) >> _val;
-        sEluna->Push(L, _val);
+        sEluna.Push(L, _val);
         return 1;
     }
 
@@ -102,7 +102,7 @@ namespace LuaPacket
     {
         double _val;
         (*packet) >> _val;
-        sEluna->Push(L, _val);
+        sEluna.Push(L, _val);
         return 1;
     }
 
@@ -111,7 +111,7 @@ namespace LuaPacket
     {
         uint64 guid;
         (*packet) >> guid;
-        sEluna->Push(L, guid);
+        sEluna.Push(L, guid);
         return 1;
     }
 
@@ -120,14 +120,14 @@ namespace LuaPacket
     {
         std::string _val;
         (*packet) >> _val;
-        sEluna->Push(L, _val);
+        sEluna.Push(L, _val);
         return 1;
     }
 
     // WriteGUID(guid)
     int WriteGUID(lua_State* L, WorldPacket* packet)
     {
-        uint64 guid = sEluna->CHECK_ULONG(L, 1);
+        uint64 guid = sEluna.CHECK_ULONG(L, 1);
         (*packet) << guid;
         return 0;
     }
