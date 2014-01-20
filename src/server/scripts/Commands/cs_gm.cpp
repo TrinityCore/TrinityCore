@@ -198,33 +198,34 @@ public:
     //Enable\Disable Invisible mode
     static bool HandleGMVisibleCommand(ChatHandler* handler, char const* args)
     {
+        Player* _player = handler->GetSession()->GetPlayer();
+
         if (!*args)
         {
-            handler->PSendSysMessage(LANG_YOU_ARE, handler->GetSession()->GetPlayer()->isGMVisible() ? handler->GetTrinityString(LANG_VISIBLE) : handler->GetTrinityString(LANG_INVISIBLE));
+            handler->PSendSysMessage(LANG_YOU_ARE, _player->isGMVisible() ? handler->GetTrinityString(LANG_VISIBLE) : handler->GetTrinityString(LANG_INVISIBLE));
             return true;
         }
 
         const uint32 VISUAL_AURA = 37800;
         std::string param = (char*)args;
-        Player* player = handler->GetSession()->GetPlayer();
 
         if (param == "on")
         {
-            if (player->HasAura(VISUAL_AURA, 0))
-                player->RemoveAurasDueToSpell(VISUAL_AURA);
+            if (_player->HasAura(VISUAL_AURA, 0))
+                _player->RemoveAurasDueToSpell(VISUAL_AURA);
 
-            player->SetGMVisible(true);
+            _player->SetGMVisible(true);
+            _player->UpdateObjectVisibility();
             handler->GetSession()->SendNotification(LANG_INVISIBLE_VISIBLE);
             return true;
         }
 
         if (param == "off")
         {
+            _player->AddAura(VISUAL_AURA, _player);
+            _player->SetGMVisible(false);
+            _player->UpdateObjectVisibility();
             handler->GetSession()->SendNotification(LANG_INVISIBLE_INVISIBLE);
-            player->SetGMVisible(false);
-
-            player->AddAura(VISUAL_AURA, player);
-
             return true;
         }
 
@@ -236,12 +237,11 @@ public:
     //Enable\Disable GM Mode
     static bool HandleGMCommand(ChatHandler* handler, char const* args)
     {
+        Player* _player = handler->GetSession()->GetPlayer();
+
         if (!*args)
         {
-            if (handler->GetSession()->GetPlayer()->IsGameMaster())
-                handler->GetSession()->SendNotification(LANG_GM_ON);
-            else
-                handler->GetSession()->SendNotification(LANG_GM_OFF);
+            handler->GetSession()->SendNotification(_player->IsGameMaster() ? LANG_GM_ON : LANG_GM_OFF);
             return true;
         }
 
@@ -249,9 +249,9 @@ public:
 
         if (param == "on")
         {
-            handler->GetSession()->GetPlayer()->SetGameMaster(true);
+            _player->SetGameMaster(true);
             handler->GetSession()->SendNotification(LANG_GM_ON);
-            handler->GetSession()->GetPlayer()->UpdateTriggerVisibility();
+            _player->UpdateTriggerVisibility();
 #ifdef _DEBUG_VMAPS
             VMAP::IVMapManager* vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
             vMapManager->processCommand("stoplog");
@@ -261,9 +261,9 @@ public:
 
         if (param == "off")
         {
-            handler->GetSession()->GetPlayer()->SetGameMaster(false);
+            _player->SetGameMaster(false);
             handler->GetSession()->SendNotification(LANG_GM_OFF);
-            handler->GetSession()->GetPlayer()->UpdateTriggerVisibility();
+            _player->UpdateTriggerVisibility();
 #ifdef _DEBUG_VMAPS
             VMAP::IVMapManager* vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
             vMapManager->processCommand("startlog");

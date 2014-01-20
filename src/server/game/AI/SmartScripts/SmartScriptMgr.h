@@ -1332,7 +1332,6 @@ public:
     ObjectGuidList(ObjectList* objectList, WorldObject* baseObject)
     {
         ASSERT(objectList != NULL);
-        ASSERT(baseObject != NULL);
         m_objectList = objectList;
         m_baseObject = baseObject;
         m_guidList = new GuidList();
@@ -1345,15 +1344,18 @@ public:
 
     ObjectList* GetObjectList()
     {
-        //sanitize list using m_guidList
-        m_objectList->clear();
-
-        for (GuidList::iterator itr = m_guidList->begin(); itr != m_guidList->end(); ++itr)
+        if (m_baseObject)
         {
-            if (WorldObject* obj = ObjectAccessor::GetWorldObject(*m_baseObject, *itr))
-                m_objectList->push_back(obj);
-            else
-                TC_LOG_DEBUG("scripts.ai", "SmartScript::mTargetStorage stores a guid to an invalid object: " UI64FMTD, *itr);
+            //sanitize list using m_guidList
+            m_objectList->clear();
+
+            for (GuidList::iterator itr = m_guidList->begin(); itr != m_guidList->end(); ++itr)
+            {
+                if (WorldObject* obj = ObjectAccessor::GetWorldObject(*m_baseObject, *itr))
+                    m_objectList->push_back(obj);
+                else
+                    TC_LOG_DEBUG("scripts.ai", "SmartScript::mTargetStorage stores a guid to an invalid object: " UI64FMTD, *itr);
+            }
         }
 
         return m_objectList;
