@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2010 - 2013 Eluna Lua Engine <http://emudevs.com/>
+* Copyright (C) 2010 - 2014 Eluna Lua Engine <http://emudevs.com/>
 * This program is free software licensed under GPL version 3
 * Please see the included DOCS/LICENSE.TXT for more information
 */
@@ -52,18 +52,6 @@ namespace LuaUnit
         Map* map = unit->GetMap();
         sEluna->Push(L, map);
         return 1;
-    }
-
-    int GetRelativePoint(lua_State* L, Unit* unit)
-    {
-        float dist = luaL_checknumber(L, 1);
-        float rad = luaL_checknumber(L, 2);
-
-        float o = Position::NormalizeOrientation(unit->GetOrientation() + rad);
-        sEluna->Push(L, unit->GetPositionX() + (dist * cosf(o)));
-        sEluna->Push(L, unit->GetPositionY() + (dist * sinf(o)));
-        sEluna->Push(L, o);
-        return 3;
     }
 
     int Mount(lua_State* L, Unit* unit)
@@ -136,21 +124,6 @@ namespace LuaUnit
     int GetMountId(lua_State* L, Unit* unit)
     {
         sEluna->Push(L, unit->GetMountID());
-        return 1;
-    }
-
-    int GetDistance(lua_State* L, Unit* unit)
-    {
-        WorldObject* obj = sEluna->CHECK_WORLDOBJECT(L, 1);
-        if (obj && obj->IsInWorld())
-            sEluna->Push(L, unit->GetDistance(obj));
-        else
-        {
-            float X = luaL_checknumber(L, 1);
-            float Y = luaL_checknumber(L, 2);
-            float Z = luaL_checknumber(L, 3);
-            sEluna->Push(L, unit->GetDistance(X, Y, Z));
-        }
         return 1;
     }
 
@@ -381,15 +354,6 @@ namespace LuaUnit
     int GetVictim(lua_State* L, Unit* unit)
     {
         sEluna->Push(L, unit->GetVictim());
-        return 1;
-    }
-
-    int GetNearbyTarget(lua_State* L, Unit* unit)
-    {
-        float dist = luaL_optnumber(L, 1, 5.0f);
-        Unit* exclude = sEluna->CHECK_UNIT(L, 2);
-
-        sEluna->Push(L, unit->SelectNearbyTarget(exclude, dist));
         return 1;
     }
 
@@ -968,6 +932,7 @@ namespace LuaUnit
     int SetFacingToObject(lua_State* L, Unit* unit)
     {
         WorldObject* obj = sEluna->CHECK_WORLDOBJECT(L, 1);
+
         unit->SetFacingToObject(obj);
         return 0;
     }
