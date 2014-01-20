@@ -223,6 +223,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetDisplayId", &LuaUnit::SetDisplayId},               // :SetDisplayId(id)
     {"SetNativeDisplayId", &LuaUnit::SetNativeDisplayId},   // :SetNativeDisplayId(id)
     {"SetFacing", &LuaUnit::SetFacing},                     // :SetFacing(o) - Sets the Unit facing to arg
+    {"SetFacingToObject", &LuaUnit::SetFacingToObject},     // :SetFacingToObject(worldObject) - Sets the Unit facing towards the WorldObject
     {"SetPhaseMask", &LuaUnit::SetPhaseMask},               // :SetPhaseMask(Phase[, update]) - Sets the phase of the unit
     {"SetSpeed", &LuaUnit::SetSpeed},                       // :SetSpeed(type, speed[, forced]) - Sets speed for the movement type (0 = walk, 1 = run ..)
     // {"SetStunned", &LuaUnit::SetStunned},                // :SetStunned([enable]) - Stuns or removes stun
@@ -243,6 +244,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetPetGUID", &LuaUnit::SetPetGUID},                   // :SetPetGUID(uint64 guid) - Sets the pet's guid
     {"SetCritterGUID", &LuaUnit::SetCritterGUID},           // :SetCritterGUID(uint64 guid) - Sets the critter's guid
     {"SetWaterWalk", &LuaUnit::SetWaterWalk},               // :SetWaterWalk([enable]) - Sets WaterWalk on or off
+    {"SetStandState", &LuaUnit::SetStandState},             // :SetStandState(state) - Sets the stand state (Stand, Kneel, sleep, etc) of the unit
 
     // Boolean
     {"IsAlive", &LuaUnit::IsAlive},                         // :IsAlive()
@@ -286,6 +288,7 @@ ElunaRegister<Unit> UnitMethods[] =
     // {"IsRooted", &LuaUnit::IsRooted},                    // :IsRooted()
     {"IsFullHealth", &LuaUnit::IsFullHealth},               // :IsFullHealth() - Returns if the unit is full health
     {"HasAura", &LuaUnit::HasAura},                         // :HasAura(spellId) - Returns true if the unit has the aura from the spell
+    {"IsStandState", &LuaUnit::IsStandState},               // :IsStandState() - Returns true if the unit is standing
 
     // Other
     {"RegisterEvent", &LuaUnit::RegisterEvent},             // :RegisterEvent(function, delay, calls)
