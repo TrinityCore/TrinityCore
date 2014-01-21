@@ -7524,14 +7524,9 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     {
         if (Weather* weather = WeatherMgr::FindWeather(zone->ID))
             weather->SendWeatherUpdateToPlayer(this);
-        else
-        {
-            if (!WeatherMgr::AddWeather(zone->ID))
-            {
-                // send fine weather packet to remove old zone's weather
-                WeatherMgr::SendFineWeatherUpdateToPlayer(this);
-            }
-        }
+        else if (!WeatherMgr::AddWeather(zone->ID))
+            // send fine weather packet to remove old zone's weather
+            WeatherMgr::SendFineWeatherUpdateToPlayer(this);
     }
 
     sScriptMgr->OnPlayerUpdateZone(this, newZone, newArea);
