@@ -2282,7 +2282,7 @@ bool World::SendZoneMessage(uint32 zone, WorldPacket* packet, WorldSession* self
 
     for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
-        if (itr->second)
+        if (itr->second &&
             itr->second->GetPlayer() &&
             itr->second->GetPlayer()->IsInWorld() &&
             itr->second->GetPlayer()->GetZoneId() == zone &&
