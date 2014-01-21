@@ -107,7 +107,7 @@ public:
         void JustDied(Unit* killer) OVERRIDE
         {
             hyjal_trashAI::JustDied(killer);
-            if (instance && IsEvent)
+            if (IsEvent)
                 instance->SetData(DATA_AZGALOREVENT, DONE);
             Talk(SAY_ONDEATH);
         }
@@ -237,7 +237,7 @@ public:
             {
                 if (AzgalorGUID)
                 {
-                    Creature* boss = Unit::GetCreature((*me), AzgalorGUID);
+                    Creature* boss = ObjectAccessor::GetCreature(*me, AzgalorGUID);
                     if (!boss || (boss && boss->isDead()))
                     {
                         me->setDeathState(JUST_DIED);
