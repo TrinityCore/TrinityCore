@@ -678,6 +678,9 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_WP_UNLOAD                              = 772,
     RBAC_PERM_COMMAND_WP_RELOAD                              = 773,
     RBAC_PERM_COMMAND_WP_SHOW                                = 774,
+    RBAC_PERM_COMMAND_MODIFY_CURRENCY                        = 775, // only 4.3.4
+    RBAC_PERM_COMMAND_DEBUG_PHASE                            = 776, // only 4.3.4
+    RBAC_PERM_COMMAND_MAILBOX                                = 777,
 
     RBAC_PERM_COMMAND_RESET_ARENA_POINTS                     = 1001,
     RBAC_PERM_COMMAND_QUESTCOMPLETER                         = 1002,
