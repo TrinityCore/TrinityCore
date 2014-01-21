@@ -814,11 +814,12 @@ public:
         if (kickReason != NULL)
             kickReasonStr = kickReason;
 
-            if (sWorld->getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD))
-                sWorld->SendWorldText(LANG_COMMAND_KICKMESSAGE_WORLD, (handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : "Server"), playerName.c_str(), kickReasonStr.c_str());
-            else
-                handler->PSendSysMessage(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
-                target->GetSession()->KickPlayer();
+        if (sWorld->getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD))
+            sWorld->SendWorldText(LANG_COMMAND_KICKMESSAGE_WORLD, (handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : "Server"), playerName.c_str(), kickReasonStr.c_str());
+        else
+            handler->PSendSysMessage(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
+
+        target->GetSession()->KickPlayer();
 
         return true;
     }
@@ -1838,7 +1839,7 @@ public:
             target->GetSession()->m_muteTime = muteTime;
             stmt->setInt64(0, muteTime);
             std::string nameLink = handler->playerLink(targetName);
-            
+
             if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD))
             {
                 sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, (handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : "Server"), nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
