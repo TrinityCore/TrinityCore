@@ -866,3 +866,10 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket& /*recvData*/)
 
     SendPacket(&data);
 }
+
+void WorldSession::SendShowMailBox(uint64 guid)
+{
+    WorldPacket data(SMSG_SHOW_MAILBOX, 8);
+    data << guid;
+    SendPacket(&data);
+}
