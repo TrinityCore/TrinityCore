@@ -1190,10 +1190,12 @@ void Battleground::AddPlayer(Player* player)
 
     uint64 guid = player->GetGUID();
     uint32 team = player->GetBGTeam();
+    int32  primaryTree = player->GetPrimaryTalentTree(player->GetActiveSpec());
 
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
     bp.Team = team;
+    bp.PrimaryTree = primaryTree;
 
     // Add to list/maps
     m_Players[guid] = bp;
