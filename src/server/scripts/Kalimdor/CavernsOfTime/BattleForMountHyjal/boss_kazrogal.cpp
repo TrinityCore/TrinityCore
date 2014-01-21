@@ -103,7 +103,7 @@ public:
         void JustDied(Unit* killer) OVERRIDE
         {
             hyjal_trashAI::JustDied(killer);
-            if (instance && IsEvent)
+            if (IsEvent)
                 instance->SetData(DATA_KAZROGALEVENT, DONE);
             DoPlaySoundToSet(me, SOUND_ONDEATH);
         }

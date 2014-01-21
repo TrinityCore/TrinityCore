@@ -40,7 +40,10 @@ public:
 
     struct boss_gluttonAI : public BossAI
     {
-        boss_gluttonAI(Creature* creature) : BossAI(creature, DATA_GLUTTON) { }
+        boss_gluttonAI(Creature* creature) : BossAI(creature, DATA_GLUTTON)
+        {
+            hp15 = false;
+        }
 
         void Reset() OVERRIDE
         {
