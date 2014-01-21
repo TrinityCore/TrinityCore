@@ -451,7 +451,7 @@ class instance_ulduar : public InstanceMapScript
                         SifGUID = creature->GetGUID();
                         break;
 
-                        // TW - Mimiron
+                    // TW - Mimiron
                     case NPC_LEVIATHAN_MKII:
                         LeviathanMKIIGUID = creature->GetGUID();
                         break;
@@ -766,10 +766,10 @@ class instance_ulduar : public InstanceMapScript
 
                             instance->SummonCreature(NPC_THORIM_OBSERVATION_RING, ObservationRingKeepersPos[2]);
 
-                            DoUseDoorOrButton(ThorimLightningFieldGUID);
+                            HandleGameObject(ThorimLightningFieldGUID, true);
                         }
                         else if (state == IN_PROGRESS)
-                            DoUseDoorOrButton(ThorimLightningFieldGUID);
+                            HandleGameObject(ThorimLightningFieldGUID, false);
                         break;
                     case BOSS_ALGALON:
                         if (state == DONE)

@@ -719,6 +719,8 @@ public:
 
             if (PreAddsCount >= 6 && !Wipe)
             {
+                if (instance)
+                    instance->SetBossState(BOSS_THORIM, IN_PROGRESS);
                 // Event starts
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 events.Reset();
