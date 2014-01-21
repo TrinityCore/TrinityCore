@@ -354,6 +354,8 @@ public:
         TW_boss_thorimAI(Creature* creature) : BossAI(creature, 3)
         {
             homePosition = creature->GetHomePosition();
+            EncounterFinished = false;
+            Wipe = false;
         }
 
         Phases phase;
