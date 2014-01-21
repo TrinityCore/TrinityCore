@@ -813,11 +813,12 @@ public:
         if (kickReason != NULL)
             kickReasonStr = kickReason;
 
-            if (sWorld->getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD))
-                sWorld->SendWorldText(LANG_COMMAND_KICKMESSAGE_WORLD, (handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : "Server"), playerName.c_str(), kickReasonStr.c_str());
-            else
-                handler->PSendSysMessage(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
-                target->GetSession()->KickPlayer();
+        if (sWorld->getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD))
+            sWorld->SendWorldText(LANG_COMMAND_KICKMESSAGE_WORLD, (handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : "Server"), playerName.c_str(), kickReasonStr.c_str());
+        else
+            handler->PSendSysMessage(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
+
+        target->GetSession()->KickPlayer();
 
         return true;
     }

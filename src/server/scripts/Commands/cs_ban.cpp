@@ -205,7 +205,7 @@ public:
                     else
                         handler->PSendSysMessage(LANG_BAN_YOUBANNED, nameOrIP.c_str(), secsToTimeString(TimeStringToSecs(durationStr), true).c_str(), reasonStr);
                 }
-                else                
+                else
                 {
                     if (sWorld->getBoolConfig(CONFIG_SHOW_BAN_IN_WORLD))
                         sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, (handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : "Server"), nameOrIP.c_str(), reasonStr);
