@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,7 +17,7 @@
 
 /* ScriptData
 Name: custom_Commandscript
-%Complete: 90
+%Complete: 90 will never complete
 Comment: commandscript for custom commands
 Category: Scripts
 EndScriptData */
@@ -57,6 +56,7 @@ class custom_commandscript : public CommandScript
             };
             return commandTable;
         }
+        
         static bool HandleQuestCompleterStatusCommand(ChatHandler* handler, char const* args)
         {
             char* quest = handler->extractKeyFromLink((char*)args, "Hquest");
@@ -89,68 +89,71 @@ class custom_commandscript : public CommandScript
         
             return true;
         }
-	static bool HandleQuestCompleterAddCommand(ChatHandler* handler, char const* args)
-	{
-		char* quest = handler->extractKeyFromLink((char*)args, "Hquest");
-		if (!quest)
-		{
-			handler->PSendSysMessage("Please enter a quest link.");
-			handler->SetSentErrorMessage(true);
-			return false;
-		}
-		// Change from string to int to prevent crash with query
-		uint32 id = atol(quest);
-		QueryResult QCSearch = LoginDatabase.PQuery("SELECT COUNT(id) FROM quest_completer WHERE id = %i", id);
-		Field* fields = QCSearch->Fetch();
+        
+        static bool HandleQuestCompleterAddCommand(ChatHandler* handler, char const* args)
+        {
+            char* quest = handler->extractKeyFromLink((char*)args, "Hquest");
+            if (!quest)
+            {
+                handler->PSendSysMessage("Please enter a quest link.");
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+            // Change from string to int to prevent crash with query
+            uint32 id = atol(quest);
+            QueryResult QCSearch = LoginDatabase.PQuery("SELECT COUNT(id) FROM quest_completer WHERE id = %i", id);
+            Field* fields = QCSearch->Fetch();
 
-		if (fields[0].GetUInt32() == 1)
-			handler->PSendSysMessage("Quest is already added!");
-		else
-		{
-			if (id != 0)
-			{
-				PreparedStatement* stmt = NULL;
-				stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_QUESTCOMPLETER);
-				stmt->setUInt32(0, id);
-				LoginDatabase.Execute(stmt);
-				handler->PSendSysMessage("Quest was added!");
-			}
-			else
-				handler->PSendSysMessage("There was a error with your request.");
-		}
-		return true;
-	}
-	static bool HandleQuestCompleterDelCommand(ChatHandler* handler, char const* args)
-	{
-		char* quest = handler->extractKeyFromLink((char*)args, "Hquest");
-		if (!quest)
-		{
-			handler->PSendSysMessage("Please enter a quest link.");
-			handler->SetSentErrorMessage(true);
-			return false;
-		}
-		// Change from string to int to prevent crash with query
-		uint32 id = atol(quest);
-		QueryResult QCSearch = LoginDatabase.PQuery("SELECT COUNT(id) FROM quest_completer WHERE id = %i", id);
-		Field* fields = QCSearch->Fetch();
-
-		if (fields[0].GetUInt32() == 0)
-			handler->PSendSysMessage("Quest not in list!");
-		else
-		{
-			if (id != 0)
-			{
-				PreparedStatement* stmt = NULL;
-				stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_QUESTCOMPLETER);
-				stmt->setUInt32(0, id);
-				LoginDatabase.Execute(stmt);
-				handler->PSendSysMessage("Quest was removed!");
-			}
-			else
-				handler->PSendSysMessage("There was a error with your request.");
-		}
-		return true;
+            if (fields[0].GetUInt32() == 1)
+                handler->PSendSysMessage("Quest is already added!");
+            else
+            {
+                if (id != 0)
+                {
+                    PreparedStatement* stmt = NULL;
+                    stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_QUESTCOMPLETER);
+                    stmt->setUInt32(0, id);
+                    LoginDatabase.Execute(stmt);
+                    handler->PSendSysMessage("Quest was added!");
+                }
+                else
+                    handler->PSendSysMessage("There was a error with your request.");
+            }
+            return true;
         }
+        
+        static bool HandleQuestCompleterDelCommand(ChatHandler* handler, char const* args)
+        {
+            char* quest = handler->extractKeyFromLink((char*)args, "Hquest");
+            if (!quest)
+            {
+                handler->PSendSysMessage("Please enter a quest link.");
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+            // Change from string to int to prevent crash with query
+            uint32 id = atol(quest);
+            QueryResult QCSearch = LoginDatabase.PQuery("SELECT COUNT(id) FROM quest_completer WHERE id = %i", id);
+            Field* fields = QCSearch->Fetch();
+
+            if (fields[0].GetUInt32() == 0)
+                handler->PSendSysMessage("Quest not in list!");
+            else
+            {
+                if (id != 0)
+                {
+                    PreparedStatement* stmt = NULL;
+                    stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_QUESTCOMPLETER);
+                    stmt->setUInt32(0, id);
+                    LoginDatabase.Execute(stmt);
+                    handler->PSendSysMessage("Quest was removed!");
+                }
+                else
+                    handler->PSendSysMessage("There was a error with your request.");
+            }
+            return true;
+        }
+
         //Added a way to see if a player is on a different character without having to pinfo/lookup all toons on the account
         static bool HandleOnlineAccountCommand(ChatHandler* handler, char const* args)
         {
