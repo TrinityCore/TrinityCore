@@ -766,6 +766,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u attempts to set invalid phase, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                     return false;
                 }
+
                 if (!IsMinMaxValid(e, e.action.randomPhaseRange.phaseMin, e.action.randomPhaseRange.phaseMax))
                     return false;
                 break;
