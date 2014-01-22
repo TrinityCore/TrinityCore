@@ -1151,6 +1151,14 @@ public:
                     me->SetStandState(UNIT_STAND_STATE_STAND);
                     phase = PHASE_VX001_ASSEMBLED;
                     events.SetPhase(PHASE_VX001_ASSEMBLED);
+                    
+                    if (Creature* Rocket = me->SummonCreature(NPC_ROCKET, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN))
+                    {
+                        Rocket->setFaction(14);
+                        Rocket->SetReactState(REACT_PASSIVE);
+                        Rocket->EnterVehicle(me, 6);
+                    }
+
                     events.RescheduleEvent(EVENT_LASER_BARRAGE, urand(35000, 40000));
                     events.RescheduleEvent(EVENT_ROCKET_STRIKE, 20000);
                     events.RescheduleEvent(EVENT_HAND_PULSE, 15000, 0, PHASE_VX001_ASSEMBLED);
