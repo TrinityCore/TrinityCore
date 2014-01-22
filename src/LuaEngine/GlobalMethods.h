@@ -912,7 +912,8 @@ namespace LuaGlobalFunctions
             if (end - start < 4) // no mandatory args, dont add
             {
                 while (end != start)
-                    lua_remove(L, --end);
+                    if (!lua_isnone(L, --end))
+                        lua_remove(L, end);
                 continue;
             }
 
@@ -936,7 +937,8 @@ namespace LuaGlobalFunctions
             nodes.push_back(*entry);
 
             while (end != start) // remove args
-                lua_remove(L, --end);
+                if (!lua_isnone(L, --end))
+                    lua_remove(L, end);
 
             lua_pop(L, 1);
         }

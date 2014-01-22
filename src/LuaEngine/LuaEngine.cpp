@@ -31,54 +31,20 @@ void StartEluna(bool restart)
         {
 
             // Remove bindings
-            for (std::map<int, std::vector<int> >::iterator itr = sEluna.PacketEventBindings.begin(); itr != sEluna.PacketEventBindings.end(); ++itr)
-            {
-                for (std::vector<int>::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-                    luaL_unref(sEluna.L, LUA_REGISTRYINDEX, (*it));
-                itr->second.clear();
-            }
+            sEluna.PacketEventBindings.Clear();
+            sEluna.ServerEventBindings.Clear();
+            sEluna.PlayerEventBindings.Clear();
+            sEluna.GuildEventBindings.Clear();
+            sEluna.GroupEventBindings.Clear();
+            sEluna.VehicleEventBindings.Clear();
 
-            for (std::map<int, std::vector<int> >::iterator itr = sEluna.ServerEventBindings.begin(); itr != sEluna.ServerEventBindings.end(); ++itr)
-            {
-                for (std::vector<int>::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-                    luaL_unref(sEluna.L, LUA_REGISTRYINDEX, (*it));
-                itr->second.clear();
-            }
-
-            for (std::map<int, std::vector<int> >::iterator itr = sEluna.PlayerEventBindings.begin(); itr != sEluna.PlayerEventBindings.end(); ++itr)
-            {
-                for (std::vector<int>::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-                    luaL_unref(sEluna.L, LUA_REGISTRYINDEX, (*it));
-                itr->second.clear();
-            }
-
-            for (std::map<int, std::vector<int> >::iterator itr = sEluna.VehicleEventBindings.begin(); itr != sEluna.VehicleEventBindings.end(); ++itr)
-            {
-                for (std::vector<int>::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-                    luaL_unref(sEluna.L, LUA_REGISTRYINDEX, (*it));
-                itr->second.clear();
-            }
-
-            for (std::map<int, std::vector<int> >::iterator itr = sEluna.GuildEventBindings.begin(); itr != sEluna.GuildEventBindings.end(); ++itr)
-            {
-                for (std::vector<int>::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-                    luaL_unref(sEluna.L, LUA_REGISTRYINDEX, (*it));
-                itr->second.clear();
-            }
-
-            for (std::map<int, std::vector<int> >::iterator itr = sEluna.GroupEventBindings.begin(); itr != sEluna.GroupEventBindings.end(); ++itr)
-            {
-                for (std::vector<int>::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-                    luaL_unref(sEluna.L, LUA_REGISTRYINDEX, (*it));
-                itr->second.clear();
-            }
-            sEluna.CreatureEventBindings->Clear();
-            sEluna.CreatureGossipBindings->Clear();
-            sEluna.GameObjectEventBindings->Clear();
-            sEluna.GameObjectGossipBindings->Clear();
-            sEluna.ItemEventBindings->Clear();
-            sEluna.ItemGossipBindings->Clear();
-            sEluna.playerGossipBindings->Clear();
+            sEluna.CreatureEventBindings.Clear();
+            sEluna.CreatureGossipBindings.Clear();
+            sEluna.GameObjectEventBindings.Clear();
+            sEluna.GameObjectGossipBindings.Clear();
+            sEluna.ItemEventBindings.Clear();
+            sEluna.ItemGossipBindings.Clear();
+            sEluna.playerGossipBindings.Clear();
 
             lua_close(sEluna.L);
         }
@@ -271,7 +237,7 @@ void Eluna::BeginCall(int fReference)
     lua_rawgeti(L, LUA_REGISTRYINDEX, (fReference));
 }
 
-bool Eluna::ExecuteCall(uint8 params, uint8 res)
+bool Eluna::ExecuteCall(int params, int res)
 {
     bool ret = true;
     int top = lua_gettop(L);
@@ -299,7 +265,7 @@ bool Eluna::ExecuteCall(uint8 params, uint8 res)
     return ret;
 }
 
-void Eluna::EndCall(uint8 res)
+void Eluna::EndCall(int res)
 {
     for (int i = res; i > 0; i--)
     {
@@ -462,7 +428,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
         case REGTYPE_PACKET:
             if (evt < NUM_MSG_TYPES)
             {
-                PacketEventBindings[evt].push_back(functionRef);
+                PacketEventBindings.Insert(evt, functionRef);
                 return;
             }
             break;
@@ -470,7 +436,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
         case REGTYPE_SERVER:
             if (evt < SERVER_EVENT_COUNT)
             {
-                ServerEventBindings[evt].push_back(functionRef);
+                ServerEventBindings.Insert(evt, functionRef);
                 return;
             }
             break;
@@ -478,7 +444,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
         case REGTYPE_PLAYER:
             if (evt < PLAYER_EVENT_COUNT)
             {
-                PlayerEventBindings[evt].push_back(functionRef);
+                PlayerEventBindings.Insert(evt, functionRef);
                 return;
             }
             break;
@@ -486,7 +452,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
         case REGTYPE_VEHICLE:
             if (evt < VEHICLE_EVENT_COUNT)
             {
-                VehicleEventBindings[evt].push_back(functionRef);
+                VehicleEventBindings.Insert(evt, functionRef);
                 return;
             }
             break;
@@ -494,7 +460,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
         case REGTYPE_GUILD:
             if (evt < GUILD_EVENT_COUNT)
             {
-                GuildEventBindings[evt].push_back(functionRef);
+                GuildEventBindings.Insert(evt, functionRef);
                 return;
             }
             break;
@@ -502,7 +468,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
         case REGTYPE_GROUP:
             if (evt < GROUP_EVENT_COUNT)
             {
-                GroupEventBindings[evt].push_back(functionRef);
+                GroupEventBindings.Insert(evt, functionRef);
                 return;
             }
             break;
@@ -516,7 +482,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
                     return;
                 }
 
-                sEluna.CreatureEventBindings->Insert(id, evt, functionRef);
+                sEluna.CreatureEventBindings.Insert(id, evt, functionRef);
                 return;
             }
             break;
@@ -530,7 +496,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
                     return;
                 }
 
-                sEluna.CreatureGossipBindings->Insert(id, evt, functionRef);
+                sEluna.CreatureGossipBindings.Insert(id, evt, functionRef);
                 return;
             }
             break;
@@ -544,7 +510,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
                     return;
                 }
 
-                sEluna.GameObjectEventBindings->Insert(id, evt, functionRef);
+                sEluna.GameObjectEventBindings.Insert(id, evt, functionRef);
                 return;
             }
             break;
@@ -558,7 +524,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
                     return;
                 }
 
-                sEluna.GameObjectGossipBindings->Insert(id, evt, functionRef);
+                sEluna.GameObjectGossipBindings.Insert(id, evt, functionRef);
                 return;
             }
             break;
@@ -572,7 +538,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
                     return;
                 }
 
-                sEluna.ItemEventBindings->Insert(id, evt, functionRef);
+                sEluna.ItemEventBindings.Insert(id, evt, functionRef);
                 return;
             }
             break;
@@ -586,7 +552,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
                     return;
                 }
 
-                sEluna.ItemGossipBindings->Insert(id, evt, functionRef);
+                sEluna.ItemGossipBindings.Insert(id, evt, functionRef);
                 return;
             }
             break;
@@ -594,7 +560,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
         case REGTYPE_PLAYER_GOSSIP:
             if (evt < GOSSIP_EVENT_COUNT)
             {
-                sEluna.playerGossipBindings->Insert(id, evt, functionRef);
+                sEluna.playerGossipBindings.Insert(id, evt, functionRef);
                 return;
             }
             break;
@@ -647,8 +613,9 @@ void Eluna::EventBind::ExecuteCall()
             lua_pushvalue(sEluna.L, i);
         sEluna.ExecuteCall(params, LUA_MULTRET); // Do call and leave results to stack
     }
-    for (int i = 1; i <= params; ++i) // Remove original pushed params
-        lua_remove(sEluna.L, i);
+    for (int i = params; i > 0; --i) // Remove original pushed params
+        if (!lua_isnone(sEluna.L, i))
+            lua_remove(sEluna.L, i);
     // Results in stack, otherwise stack clean
 }
 
@@ -670,7 +637,7 @@ void Eluna::EntryBind::Clear()
     Bindings.clear();
 }
 
-void Eluna::ElunaBind::Insert(uint32 entryId, uint32 eventId, int funcRef)
+void Eluna::EntryBind::Insert(uint32 entryId, int eventId, int funcRef)
 {
     if (Bindings[entryId][eventId])
     {
