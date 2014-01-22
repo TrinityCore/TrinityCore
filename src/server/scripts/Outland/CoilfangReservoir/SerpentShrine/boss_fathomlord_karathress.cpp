@@ -268,7 +268,6 @@ public:
             {
                 BlessingOfTides = true;
                 bool continueTriggering = false;
-                Creature* Advisor;
                 for (uint8 i = 0; i < MAX_ADVISORS; ++i)
                     if (Advisors[i])
                     {
