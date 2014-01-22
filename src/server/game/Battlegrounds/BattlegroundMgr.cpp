@@ -379,7 +379,8 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
     size_t count_pos = data->bitwpos();
     data->WriteBits(0, 21);
     uint32 count = 0;
-    BattlegroundPlayerMap const& bgPlayers = bg->GetPlayers();
+    Battleground::BattlegroundPlayerMap const& bgPlayers = bg->GetPlayers();
+
     for (Battleground::BattlegroundScoreMap::const_iterator itr = bg->GetPlayerScoresBegin(); itr != bg->GetPlayerScoresEnd(); ++itr)
     {
         if (!bg->IsPlayerInBattleground(itr->first))
@@ -397,10 +398,10 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         }
         else
         {
-            BattlegroundPlayerMap::const_iterator itr2 = bgPlayers.find(itr->first);
+            Battleground::BattlegroundPlayerMap::const_iterator itr2 = bgPlayers.find(itr->first);
             if (itr2 == bgPlayers.end())
             {
-                TC_LOG_ERROR(LOG_FILTER_BATTLEGROUND, "Player " UI64FMTD " has scoreboard entry for battleground %u but do not have battleground data!", itr->first, bg->GetTypeID(true));
+                TC_LOG_ERROR("bg.battleground", "Player " UI64FMTD " has scoreboard entry for battleground %u but do not have battleground data!", itr->first, bg->GetTypeID(true));
                 continue;
             }
 
