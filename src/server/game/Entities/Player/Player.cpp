@@ -3099,14 +3099,14 @@ void Player::GiveLevel(uint8 level)
     InitTaxiNodesForLevel();
     InitGlyphsForLevel();
 
-	if ((sIRC->BOTMASK & 64) != 0)
+	if ((sIRC->BOTMASK & 64) != 0 && sIRC->Status.size() > 0)
     {
         char  temp [5];
         sprintf(temp, "%u", level);
         std::string plevel = temp;
         std::string pname = GetName();
         std::string ircchan = "#";
-        ircchan += sIRC->_irc_chan[sIRC->Status].c_str();
+        ircchan += sIRC->Status;
         sIRC->Send_IRC_Channel(ircchan, "\00311["+pname+"] : Has Reached Level: "+plevel, true);
     }
 

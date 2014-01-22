@@ -101,13 +101,37 @@ void IRCClient::Handle_IRC(std::string sData)
                         else
                         SendIRC("JOIN #" + sIRC->_irc_chan[i]);
                 }
-                // See if there's a logchannel available, if so: join it.
+                // See if there's a log channel available, if so: join it.
                 if (sIRC->logchan.size() > 0)
                 {
                     if (sIRC->logchanpw.size() > 0)
                         SendIRC("JOIN #" + sIRC->logchan + " " + sIRC->logchanpw);
                     else
                         SendIRC("JOIN #" + sIRC->logchan);
+                }
+                // See if there's a Status channel available, if so: join it.
+                if (sIRC->Status.size() > 0)
+                {
+                    if (sIRC->Statuspw.size() > 0)
+                        SendIRC("JOIN #" + sIRC->Status + " " + sIRC->Statuspw);
+                    else
+                        SendIRC("JOIN #" + sIRC->Status);
+                }
+                // See if there's a Ticket channel available, if so: join it.
+                if (sIRC->ticann.size() > 0)
+                {
+                    if (sIRC->ticannpw.size() > 0)
+                        SendIRC("JOIN #" + sIRC->ticann + " " + sIRC->ticannpw);
+                    else
+                        SendIRC("JOIN #" + sIRC->ticann);
+                }
+                // See if there's an Announce channel available, if so: join it.
+                if (sIRC->anchn.size() > 0)
+                {
+                    if (sIRC->anchnpw.size() > 0)
+                        SendIRC("JOIN #" + sIRC->anchn + " " + sIRC->anchnpw);
+                    else
+                        SendIRC("JOIN #" + sIRC->anchn);
                 }
             }
             // someone joined the channel this could be the bot or another user

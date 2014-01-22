@@ -2846,7 +2846,7 @@ irc.host = "irc.xxxx.net"
 # irc.port
 # IRC server port to use
 #
-irc.port = "1337"
+irc.port = "6667"
 
 ##################################################
 # irc.user
@@ -2872,7 +2872,7 @@ irc.pass = "ServicesPass"
 # IRC Nickname to use if Auth method 2 or 4 is used
 #
 irc.auth = 0
-irc.auth.nick = "AuthNick"
+irc.auth.nick = "NickServ"
 
 ##################################################
 # irc.ldef
@@ -2916,7 +2916,7 @@ irc.autojoin_kick = 1
 # IRC command prefix
 # Example: (.)online all
 #
-irc.command_prefix = "\"
+irc.command_prefix = "."
 
 ##################################################
 # irc.joinmsg
@@ -2924,7 +2924,7 @@ irc.command_prefix = "\"
 # irc.kickmsg
 # TriniChat bot join/restart/kick messages
 #
-irc.joinmsg = "Trinity Core With TriniChat $Ver Is Up And Running! Command Trigger Is: $Trigger"
+irc.joinmsg = "TrinityCore With TriniChat $Ver Is Up And Running! Command Trigger Is: $Trigger"
 irc.rstmsg = "TriniChat Is Restarting, I Will Be Right Back."
 irc.kickmsg = "Do Not Kick Me Again, Severe Actions Will Be Taken!"
 
@@ -2948,19 +2948,22 @@ irc.pass_1 = "pass"
 
 ##################################################
 # irc.StatusChannel
-# Channel Number To Display Status Messages In (AuctionHouse, Levels, Deaths, Etc)
-# Default: 1 - Channel ID 1
+# Channel Name To Display Status Messages In (AuctionHouse, Levels, Deaths, Etc)
+# Default: ""
 # irc.AnnounceChannel
-# Channel Number To Display Announcements In (Announces, Notifies, Event)
-# Default: 1 - Channel ID 1
+# Channel Name To Display Announcements In (Announces, Notifies, Event)
+# Default: ""
 # irc.Tickets
-# Channel Number To Display Ticket Announcment in (Create, Edit, Closed, lag Reports)
-# Default: 1 - Channel ID 1
+# Channel Name To Display Ticket Announcment in (Create, Edit, Closed, lag Reports)
+# Default: ""
 # Note: Botmask : Enable Ticket Announment must be activ
 #
-irc.StatusChannel = 1
-irc.AnnounceChannel = 1
-irc.Tickets = 1
+irc.StatusChannel = ""
+irc.StatusChannelPW = ""
+irc.AnnounceChannel = ""
+irc.AnnounceChannelPW = ""
+irc.Tickets = ""
+irc.TicketsPW = ""
 
 ##################################################
 # irc.op_gm_login
@@ -2969,7 +2972,7 @@ irc.Tickets = 1
 # 1 - Enable
 # irc.op_gm_level
 # The Minimum GM Level Required To Have The Bot Op The User
-# Default: 5 - GM Level 5
+# Default: 3 - GM Level 3
 #
 irc.op_gm_login = 0
 irc.op_gm_level = 3
@@ -2983,7 +2986,7 @@ irc.op_gm_level = 3
 # irc.ajchan
 # Channel to join if above is Enabled.
 #
-irc.ajoin = 1
+irc.ajoin = 0
 irc.ajchan = "world"
 
 ##################################################
@@ -3032,8 +3035,8 @@ chat.change_nick = "<> $Name Is Now Known As $NewName!"
 # (16) Announce Tickets updated by Gms. (Close ,Assigned ,Unassigned and ect..)
 #
 
-Botmask = 2047
-Ticketmask = 31
+Botmask = 0
+Ticketmask = 0
 
 ##################################################
 # irc.gmlog
@@ -3052,9 +3055,9 @@ Ticketmask = 31
 # (1) Broadcast IRC Commands into logchannel.
 # (2) Broadcast Ingame GM Commands into logchannel.
 # (3) Broadcast both IRC Commands and GM Commands into logchannel.
-irc.gmlog = 1
+irc.gmlog = 0
 irc.logfile.prefix = "IRC_"
-irc.logchannel = "testlog"
+irc.logchannel = ""
 irc.logchannelpw = ""
 irc.logmask = 3
 

@@ -129,11 +129,11 @@ public:
 
         std::string msg = ticket->FormatMessageString(*handler, NULL, target.c_str(), NULL, NULL);
         handler->SendGlobalGMSysMessage(msg.c_str());
-		if ((sIRC->TICMASK & 16) != 0 && (sIRC->BOTMASK & 1024) != 0)
+		if ((sIRC->TICMASK & 16) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
         {
             std::string ircchan = "#";
             std::ostringstream smsg;
-            ircchan += sIRC->_irc_chan[sIRC->ticann].c_str();
+            ircchan += sIRC->ticann;
             smsg << "[\00304Ticket Assigned\003][By:\00304 " << ticket->GetPlayerName().c_str() << " \003][ID: \00304" << ticket->GetId() << " \003][Assigned To: \00304" << target.c_str() << " \003]";
             sIRC->Send_IRC_Channel(ircchan, smsg.str().c_str() , true);
         }
@@ -168,7 +168,7 @@ public:
         std::string msg = ticket->FormatMessageString(*handler, player ? player->GetName().c_str() : "Console", NULL, NULL, NULL);
         handler->SendGlobalGMSysMessage(msg.c_str());
 
-        if ((sIRC->TICMASK & 16) != 0 && (sIRC->BOTMASK & 1024) != 0)
+        if ((sIRC->TICMASK & 16) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
         {
             std::string ircchan = "#";
             std::ostringstream smsg;
@@ -177,7 +177,7 @@ public:
             if (player)
                 assignedto = player->GetName().c_str();
             else assignedto = "Console";
-            ircchan += sIRC->_irc_chan[sIRC->ticann].c_str();
+            ircchan += sIRC->ticann;
             smsg << "[\00304Ticket Closed\003][By:\00304 " << ticket->GetPlayerName().c_str() << " \003][ID: \00304" << ticket->GetId() << " \003][Closed By: \00304" << assignedto << " \003]";
             sIRC->Send_IRC_Channel(ircchan, smsg.str().c_str() , true);
         }
@@ -288,11 +288,11 @@ public:
         std::string msg = ticket->FormatMessageString(*handler, NULL, NULL, NULL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console");
         handler->SendGlobalGMSysMessage(msg.c_str());
 
-        if ((sIRC->TICMASK & 16) != 0 && (sIRC->BOTMASK & 1024) != 0)
+        if ((sIRC->TICMASK & 16) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
         {
             std::string ircchan = "#";
             std::ostringstream smsg;
-            ircchan += sIRC->_irc_chan[sIRC->ticann].c_str();
+            ircchan += sIRC->ticann;
             smsg << "[\00304Ticket Deleted\003][By:\00304 " << ticket->GetPlayerName().c_str() << " \003][ID: \00304" << ticket->GetId() << " \003][Deleted By: \00304" 
                 << handler->GetSession()->GetPlayer()->GetName().c_str() << " \003]";
             sIRC->Send_IRC_Channel(ircchan, smsg.str().c_str() , true);
@@ -430,11 +430,11 @@ public:
             handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console", NULL);
         handler->SendGlobalGMSysMessage(msg.c_str());
 		
-        if ((sIRC->TICMASK & 16) != 0 && (sIRC->BOTMASK & 1024) != 0)
+        if ((sIRC->TICMASK & 16) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
         {
             std::string ircchan = "#";
             std::ostringstream smsg;
-            ircchan += sIRC->_irc_chan[sIRC->ticann].c_str();
+            ircchan += sIRC->ticann;
             smsg << "[\00304Ticket Assigned\003][By:\00304 " << ticket->GetPlayerName().c_str() << " \003][ID: \00304" << ticket->GetId() << " \003][Unssigned From: \00304"
                 << assignedTo.c_str() << " \003][By: \00304" << handler->GetSession()->GetPlayer()->GetName().c_str() << " \003]";
             sIRC->Send_IRC_Channel(ircchan, smsg.str().c_str() , true);

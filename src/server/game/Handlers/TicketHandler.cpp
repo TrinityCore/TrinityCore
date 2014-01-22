@@ -98,11 +98,11 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
 
         response = GMTICKET_RESPONSE_CREATE_SUCCESS;
 
-		if ((sIRC->TICMASK & 1) != 0 && (sIRC->BOTMASK & 1024) != 0)
+		if ((sIRC->TICMASK & 1) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
 		{
 			std::string ircchan = "#";
 			std::ostringstream smsg;
-			ircchan += sIRC->_irc_chan[sIRC->ticann].c_str();
+			ircchan += sIRC->ticann;
 			smsg << "[By: \00304" << GetPlayer()->GetName().c_str() << "\003 ][ID: \00304" << ticket->GetId() << "\003 ]";
 			sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00304Ticket Created\003] %s", " %s" , smsg.str().c_str()) , true);
             //begin // because newlines don't show on irc
@@ -145,11 +145,11 @@ void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket& recvData)
 
         response = GMTICKET_RESPONSE_UPDATE_SUCCESS;
 
-		if ((sIRC->TICMASK & 2) != 0 && (sIRC->BOTMASK & 1024) != 0)
+		if ((sIRC->TICMASK & 2) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
         {
             std::string ircchan = "#";
             std::ostringstream smsg;
-            ircchan += sIRC->_irc_chan[sIRC->ticann].c_str();
+            ircchan += sIRC->ticann;
             smsg << "[By: \00304" << GetPlayer()->GetName().c_str() << "\003 ][ID: \00304" << ticket->GetId() << "\003 ]";
             sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00304Ticket Updated\003] %s", " %s" , smsg.str().c_str()) , true);
             //begin // because newlines don't show on irc
@@ -189,11 +189,11 @@ void WorldSession::HandleGMTicketDeleteOpcode(WorldPacket & /*recvData*/)
         sTicketMgr->CloseTicket(ticket->GetId(), GetPlayer()->GetGUID());
         sTicketMgr->SendTicket(this, NULL);
 
-		if ((sIRC->TICMASK & 4) != 0 && (sIRC->BOTMASK & 1024) != 0)
+		if ((sIRC->TICMASK & 4) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
         {
             std::string ircchan = "#";
             std::ostringstream smsg;
-            ircchan += sIRC->_irc_chan[sIRC->ticann].c_str();
+            ircchan += sIRC->ticann;
             smsg << "[By: \00304" << GetPlayer()->GetName().c_str() << " \003][ID: \00304" << ticket->GetId() << "\003 ]";
             sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00311Ticket Abandoned\003] %s", " %s" , smsg.str().c_str()) , true);
         }
@@ -287,12 +287,12 @@ void WorldSession::HandleReportLag(WorldPacket& recvData)
     stmt->setUInt32(7, time(NULL));
     CharacterDatabase.Execute(stmt);
 
-	if ((sIRC->TICMASK & 8) != 0 && (sIRC->BOTMASK & 1024) != 0)
+	if ((sIRC->TICMASK & 8) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
     {
         std::string ircchan = "#";
         std::ostringstream lmsg;
         std::ostringstream ltype;
-        ircchan += sIRC->_irc_chan[sIRC->ticann].c_str();
+        ircchan += sIRC->ticann;
         lmsg << "[By: \00310" << GetPlayer()->GetName().c_str() << "\003]";
         sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00310Lag Report\003] %s", " %s" , lmsg.str().c_str()) , true);
         lmsg.str("");

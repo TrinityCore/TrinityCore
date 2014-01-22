@@ -401,7 +401,7 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
             switch(ParamsValid(&CDATA, 0, sIRC->CRELOAD))
             {
                 case E_OK:
-                    sIRC->Send_IRC_Channels("Reloading Configiguration Options.");
+                    sIRC->Send_IRC_Channels("Reloading Configuration Options.");
                     sWorld->LoadConfigSettings(true);
                     break;
                 case E_AUTH:
@@ -891,7 +891,7 @@ void IRCClient::AHCancel(uint64 itmid, std::string itmnme, std::string plname, u
         std::string wowstr = Command.MakeMsg("%s Auction has been canceled |cffffffff|Hitem:%s:0:0:0:0:0:0:0|h[%s]|h|r. By: %s",wowfact.c_str(), itemid.c_str(), itemname.c_str(), wowname.c_str());
         std::string ircstr = Command.MakeMsg("%s Auction has been canceled [%s]. By: %s", ircfact.c_str(), itemname.c_str(), ircname.c_str());
 
-        sIRC->Send_WoW_Channel(sIRC->_wow_chan[sIRC->Status].c_str(), wowstr.c_str());
-        sIRC->Send_IRC_Channel(sIRC->_irc_chan[sIRC->Status].c_str(), ircstr.c_str());
+        sIRC->Send_WoW_Channel(sIRC->Status.c_str(), wowstr.c_str());
+        sIRC->Send_IRC_Channel(sIRC->Status.c_str(), ircstr.c_str());
     }
 }

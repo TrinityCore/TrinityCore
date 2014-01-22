@@ -1907,7 +1907,7 @@ void IRCCmd::Sysmsg_Server(_CDATA *CD)
 {
     std::string* _PARAMS = getArray(CD->PARAMS, CD->PCOUNT);
     std::string ircchan = "#";
-    ircchan += sIRC->_irc_chan[sIRC->anchn].c_str();
+    ircchan += sIRC->anchn;
     if (_PARAMS[0] == "a")
     {
         std::string str = _PARAMS[1];

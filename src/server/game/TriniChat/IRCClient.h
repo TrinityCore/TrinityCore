@@ -143,11 +143,18 @@ class IRCClient : public ACE_Based::Runnable
         // BotMask Options
         int Botmask;
         // Ticket Channel
-        int ticann;
+        string ticann;
+        // Ticket Channel Password
+        string ticannpw;
         // Status Channel
-        int Status;
+        string Status;
+        // Status Channel Password
+        string Statuspw;
         // Announce Channel
-        int anchn;
+        string anchn;
+        // Announce Channel Password
+        string anchnpw;
+        // Auto-announce timer
         int autoanc;
         // IRC Channel count
         int _chan_count;

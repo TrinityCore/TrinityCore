@@ -420,7 +420,7 @@ void World::LoadConfigSettings(bool reload)
 
     ///- Read the player limit and the Message of the day from the config file
     SetPlayerAmountLimit(sConfigMgr->GetIntDefault("PlayerLimit", 100));
-    SetMotd(sConfigMgr->GetStringDefault("Motd", "Welcome to a Trinity Core Server."));
+    SetMotd(sConfigMgr->GetStringDefault("Motd", "Welcome to a TrinityCore Server."));
 
     ///- Read ticket system setting from the config file
     m_bool_configs[CONFIG_ALLOW_TICKETS] = sConfigMgr->GetBoolDefault("AllowTickets", true);
@@ -1279,7 +1279,7 @@ void World::LoadConfigSettings(bool reload)
     sIRC->_Host = sConfigMgr->GetStringDefault("irc.host", "irc.freenode.net");
     if (sIRC->_Host.size() > 0)
         ConfCnt++;
-    sIRC->_Mver = "Version 3.0.0";
+    sIRC->_Mver = "Version 4.0";
     sIRC->_Port = sConfigMgr->GetIntDefault("irc.port", 6667);
     sIRC->_User = sConfigMgr->GetStringDefault("irc.user", "TriniChat");
     sIRC->_Pass = sConfigMgr->GetStringDefault("irc.pass", "Services Password");
@@ -1315,7 +1315,7 @@ void World::LoadConfigSettings(bool reload)
             sIRC->_wow_chan[sIRC->_chan_count] = sConfigMgr->GetStringDefault(ci.c_str(), t_chan.c_str());
         }
     }
-    sIRC->JoinMsg = sConfigMgr->GetStringDefault("irc.joinmsg", "TriniChat2 $Ver for Trinitycore 3.3.x Maintained by SPGM of Trinitycore http://code.google.com/p/spgm-trinity/");
+    sIRC->JoinMsg = sConfigMgr->GetStringDefault("irc.joinmsg", "TriniChat $Ver for Trinitycore 3.3.x");
     sIRC->RstMsg  = sConfigMgr->GetStringDefault("irc.rstmsg", "TriniChat Is Restarting, I Will Be Right Back!");
     sIRC->kikmsg = sConfigMgr->GetStringDefault("irc.kickmsg", "Do Not Kick Me Again, Severe Actions Will Be Taken!");
 
@@ -1341,9 +1341,12 @@ void World::LoadConfigSettings(bool reload)
     sIRC->gmlog = sConfigMgr->GetIntDefault("irc.gmlog", 1);
     sIRC->BOTMASK = sConfigMgr->GetIntDefault("BotMask", 0);
     sIRC->TICMASK = sConfigMgr->GetIntDefault("Ticketmask", 0);
-    sIRC->Status = sConfigMgr->GetIntDefault("irc.StatusChannel", 1);
-    sIRC->anchn = sConfigMgr->GetIntDefault("irc.AnnounceChannel", 1);
-    sIRC->ticann = sConfigMgr->GetIntDefault("irc.Tickets", 1);
+    sIRC->Status = sConfigMgr->GetStringDefault("irc.StatusChannel", "");
+    sIRC->Statuspw = sConfigMgr->GetStringDefault("irc.StatusChannelPW","");
+    sIRC->anchn = sConfigMgr->GetStringDefault("irc.AnnounceChannel", "");
+    sIRC->anchnpw = sConfigMgr->GetStringDefault("irc.AnnounceChannelPW","");
+    sIRC->ticann = sConfigMgr->GetStringDefault("irc.Tickets", "");
+    sIRC->ticannpw = sConfigMgr->GetStringDefault("irc.TicketsPW","");
     sIRC->autoanc = sConfigMgr->GetIntDefault("irc.auto.announce", 30);
     sIRC->ojGM1 = sConfigMgr->GetStringDefault("irc.gm1", "[VIP]");
     sIRC->ojGM2 = sConfigMgr->GetStringDefault("irc.gm2", "[Donator]");
@@ -2908,7 +2911,7 @@ void World::SendRNDBroadcastIRC()
     
     sWorld->SendWorldText(6612,msg.c_str());
     std::string ircchan = "#";
-    ircchan += sIRC->_irc_chan[sIRC->anchn].c_str();
+    ircchan += sIRC->anchn;
     sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("\00304,08\037/!\\\037\017\00304 Automatic System Message \00304,08\037/!\\\037\017 %s", "%s", msg.c_str()), true);
 }
 

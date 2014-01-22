@@ -135,10 +135,10 @@ public:
         if (!*args)
             return false;
 
-		if ((sIRC->BOTMASK & 256) != 0)
+        if ((sIRC->BOTMASK & 256) != 0 && sIRC->anchn.size() > 0)
         {
             std::string ircchan = "#";
-            ircchan += sIRC->_irc_chan[sIRC->anchn].c_str();
+            ircchan += sIRC->anchn;
             sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("\00304,08\037/!\\\037\017\00304 System Message \00304,08\037/!\\\037\017 %s", "%s", args), true);
         }
 
@@ -162,10 +162,10 @@ public:
         if (!*args)
             return false;
 
-		if ((sIRC->BOTMASK & 256) != 0)
+		if ((sIRC->BOTMASK & 256) != 0 && sIRC->anchn.size() > 0)
         {
             std::string ircchan = "#";
-            ircchan += sIRC->_irc_chan[sIRC->anchn].c_str();
+            ircchan += sIRC->anchn;
             sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("\00304,08\037/!\\\037\017\00304 Global Notify \00304,08\037/!\\\037\017 %s", "%s", args), true);
         }
 
