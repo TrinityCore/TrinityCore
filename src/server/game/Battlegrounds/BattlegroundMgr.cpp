@@ -376,7 +376,10 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         }
     }
 
-    data->WriteBits(bg->GetPlayerScoresSize(), 21);
+    size_t count_pos = data->bitwpos();
+    data->WriteBits(0, 21);
+    uint32 count = 0;
+    BattlegroundPlayerMap const& bgPlayers = bg->GetPlayers();
     for (Battleground::BattlegroundScoreMap::const_iterator itr = bg->GetPlayerScoresBegin(); itr != bg->GetPlayerScoresEnd(); ++itr)
     {
         if (!bg->IsPlayerInBattleground(itr->first))
@@ -385,7 +388,26 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
             continue;
         }
 
-        Player* player = ObjectAccessor::FindPlayer(itr->first);
+        uint32 team;
+        int32  primaryTree;
+        if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+        {
+            team = player->GetBGTeam();
+            primaryTree = player->GetPrimaryTalentTree(player->GetActiveSpec());
+        }
+        else
+        {
+            BattlegroundPlayerMap::const_iterator itr2 = bgPlayers.find(itr->first);
+            if (itr2 == bgPlayers.end())
+            {
+                TC_LOG_ERROR(LOG_FILTER_BATTLEGROUND, "Player " UI64FMTD " has scoreboard entry for battleground %u but do not have battleground data!", itr->first, bg->GetTypeID(true));
+                continue;
+            }
+
+            team = itr2->second.Team;
+            primaryTree = itr2->second.PrimaryTree;
+        }
+
         ObjectGuid playerGUID = itr->first;
         BattlegroundScore* score = itr->second;
 
@@ -401,7 +423,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         data->WriteBit(playerGUID[5]);
         data->WriteBit(playerGUID[1]);
         data->WriteBit(playerGUID[6]);
-        data->WriteBit(player->GetBGTeam() == HORDE ? 0 : 1);
+        data->WriteBit(team == HORDE ? 0 : 1);
         data->WriteBit(playerGUID[7]);
 
         buff << uint32(score->HealingDone);             // healing done
@@ -423,7 +445,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         buff.WriteByteSeq(playerGUID[1]);
         buff.WriteByteSeq(playerGUID[6]);
 
-        buff << int32(player->GetPrimaryTalentTree(player->GetActiveSpec()));
+        buff << int32(primaryTree);
 
         switch (bg->GetTypeID(true))                             // Custom values
         {
@@ -539,8 +561,10 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         // if (unk 4) << uint32() unk
         buff.WriteByteSeq(playerGUID[7]);
         buff.WriteByteSeq(playerGUID[2]);
+        ++count;
     }
 
+    data->PutBits(count_pos, count, 21);
     data->WriteBit(bg->GetStatus() == STATUS_WAIT_LEAVE);    // If Ended
 
     if (isRated)                                             // arena
