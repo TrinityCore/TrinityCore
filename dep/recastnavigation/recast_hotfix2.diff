@@ -1,0 +1,38 @@
+diff --git a/dep/recastnavigation/Detour/DetourNavMesh.h b/dep/recastnavigation/Detour/DetourNavMesh.h
+index c094e41..9c61a9b 100644
+--- a/dep/recastnavigation/Detour/DetourNavMesh.h
++++ b/dep/recastnavigation/Detour/DetourNavMesh.h
+@@ -25,7 +25,8 @@
+ 
+ // Edited by TC
+ #if defined(WIN32) && !defined(__MINGW32__)
+-typedef unsigned __int64    uint64;
++/// Do not rename back to uint64. Otherwise mac complains about typedef redefinition
++typedef unsigned __int64    uint64_d;
+ #else
+ #include <stdint.h>
+ #ifndef uint64_t
+@@ -33,7 +34,8 @@ typedef unsigned __int64    uint64;
+ #include <linux/types.h>
+ #endif
+ #endif
+-typedef uint64_t            uint64;
++/// Do not rename back to uint64. Otherwise mac complains about typedef redefinition
++typedef uint64_t            uint64_d;
+ #endif 
+ 
+ // Note: If you want to use 64-bit refs, change the types of both dtPolyRef & dtTileRef.
+@@ -48,11 +50,11 @@ static const int STATIC_POLY_BITS = 31;
+ 
+ /// A handle to a polygon within a navigation mesh tile.
+ /// @ingroup detour
+-typedef uint64 dtPolyRef; // Edited by TC
++typedef uint64_d dtPolyRef; // Edited by TC
+ 
+ /// A handle to a tile within a navigation mesh.
+ /// @ingroup detour
+-typedef uint64 dtTileRef; // Edited by TC
++typedef uint64_d dtTileRef; // Edited by TC
+ 
+ /// The maximum number of vertices per navigation polygon.
+ /// @ingroup detour
