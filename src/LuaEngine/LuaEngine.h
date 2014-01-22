@@ -329,20 +329,116 @@ class Eluna
         lua_State* L;
         EventMgr m_EventMgr;
 
-        struct ElunaBind;
-        std::map<int, std::vector<int> > PacketEventBindings;
-        std::map<int, std::vector<int> > ServerEventBindings;
-        std::map<int, std::vector<int> > PlayerEventBindings;
-        std::map<int, std::vector<int> > VehicleEventBindings;
-        std::map<int, std::vector<int> > GuildEventBindings;
-        std::map<int, std::vector<int> > GroupEventBindings;
-        ElunaBind* CreatureEventBindings;
-        ElunaBind* CreatureGossipBindings;
-        ElunaBind* GameObjectEventBindings;
-        ElunaBind* GameObjectGossipBindings;
-        ElunaBind* ItemEventBindings;
-        ElunaBind* ItemGossipBindings;
-        ElunaBind* playerGossipBindings;
+        Eluna()
+        {
+            L = NULL;
+        }
+
+        ~Eluna()
+        {
+            lua_close(L); // Closing
+        }
+
+        struct EventBind
+        {
+            typedef std::vector<int> ElunaBindingMap;
+            typedef std::map<int, ElunaBindingMap> ElunaEntryMap;
+
+            ~EventBind()
+            {
+                Clear();
+            }
+
+            void Clear(); // unregisters all registered functions and clears all registered events from the bind std::maps (reset)
+            void Insert(int eventId, int funcRef); // Inserts a new registered event
+
+            // Gets the binding std::map containing all registered events with the function refs for the entry
+            ElunaBindingMap* GetBindMap(int eventId)
+            {
+                if (Bindings.empty())
+                    return NULL;
+                ElunaEntryMap::iterator itr = Bindings.find(eventId);
+                if (itr == Bindings.end())
+                    return NULL;
+
+                return &itr->second;
+            }
+
+            // Checks if there are events for ID, if so, cleans stack and pushes eventId
+            bool BeginCall(int eventId) const;
+            // Loops through all registered events for the eventId at stack index 1
+            // Copies the whole stack as arguments for the called function. Before Executing, push all params to stack!
+            // Leaves return values from all functions in order to the stack.
+            void ExecuteCall();
+            void EndCall() const;
+
+            ElunaEntryMap Bindings; // Binding store Bindings[eventId] = {funcRef};
+        };
+
+        struct EntryBind
+        {
+            typedef std::map<int, int> ElunaBindingMap;
+            typedef std::map<uint32, ElunaBindingMap> ElunaEntryMap;
+
+            ~EntryBind()
+            {
+                Clear();
+            }
+
+            void Clear(); // unregisters all registered functions and clears all registered events from the bind std::maps (reset)
+            void Insert(uint32 entryId, int eventId, int funcRef); // Inserts a new registered event
+
+            // Gets the function ref of an entry for an event
+            int GetBind(uint32 entryId, int eventId) const
+            {
+                if (Bindings.empty())
+                    return 0;
+                ElunaEntryMap::const_iterator itr = Bindings.find(entryId);
+                if (itr == Bindings.end() || itr->second.empty())
+                    return 0;
+                ElunaBindingMap::const_iterator itr2 = itr->second.find(eventId);
+                if (itr2 == itr->second.end())
+                    return 0;
+                return itr2->second;
+            }
+
+            // Gets the binding std::map containing all registered events with the function refs for the entry
+            const ElunaBindingMap* GetBindMap(uint32 entryId) const
+            {
+                if (Bindings.empty())
+                    return NULL;
+                ElunaEntryMap::const_iterator itr = Bindings.find(entryId);
+                if (itr == Bindings.end())
+                    return NULL;
+
+                return &itr->second;
+            }
+
+            // Returns true if the entry has registered binds
+            bool HasBinds(uint32 entryId) const
+            {
+                if (Bindings.empty())
+                    return false;
+                return Bindings.find(entryId) != Bindings.end();
+            }
+
+            ElunaEntryMap Bindings; // Binding store Bindings[entryId][eventId] = funcRef;
+        };
+
+        EventBind PacketEventBindings;
+        EventBind ServerEventBindings;
+        EventBind PlayerEventBindings;
+        EventBind GuildEventBindings;
+        EventBind GroupEventBindings;
+        EventBind VehicleEventBindings; // Not on mangos
+
+        EntryBind CreatureEventBindings;
+        EntryBind CreatureGossipBindings;
+        EntryBind GameObjectEventBindings;
+        EntryBind GameObjectGossipBindings;
+        EntryBind ItemEventBindings;
+        EntryBind ItemGossipBindings;
+        EntryBind playerGossipBindings;
 
         void Initialize();
         static void report(lua_State*);
@@ -464,143 +560,6 @@ class Eluna
         uint64 CHECK_ULONG(lua_State* L, int narg);
         int64 CHECK_LONG(lua_State* L, int narg);
         Item* CHECK_ITEM(lua_State* L, int narg);
-
-        // Creates new binding stores
-        Eluna()
-        {
-            L = NULL;
-
-            for (int i = 0; i < NUM_MSG_TYPES; ++i)
-            {
-                std::vector<int> _vector;
-                PacketEventBindings.insert(std::pair<int, std::vector<int> >(i, _vector));
-            }
-
-            for (int i = 0; i < SERVER_EVENT_COUNT; ++i)
-            {
-                std::vector<int> _vector;
-                ServerEventBindings.insert(std::pair<int, std::vector<int> >(i, _vector));
-            }
-
-            for (int i = 0; i < PLAYER_EVENT_COUNT; ++i)
-            {
-                std::vector<int> _vector;
-                PlayerEventBindings.insert(std::pair<int, std::vector<int> >(i, _vector));
-            }
-
-            for (int i = 0; i < VEHICLE_EVENT_COUNT; ++i)
-            {
-                std::vector<int> _vector;
-                VehicleEventBindings.insert(std::pair<int, std::vector<int> >(i, _vector));
-            }
-
-            for (int i = 0; i < GUILD_EVENT_COUNT; ++i)
-            {
-                std::vector<int> _vector;
-                GuildEventBindings.insert(std::pair<int, std::vector<int> >(i, _vector));
-            }
-
-            for (int i = 0; i < GROUP_EVENT_COUNT; ++i)
-            {
-                std::vector<int> _vector;
-                GroupEventBindings.insert(std::pair<int, std::vector<int> >(i, _vector));
-            }
-            CreatureEventBindings = new ElunaBind;
-            CreatureGossipBindings = new ElunaBind;
-            GameObjectEventBindings = new ElunaBind;
-            GameObjectGossipBindings = new ElunaBind;
-            ItemEventBindings = new ElunaBind;
-            ItemGossipBindings = new ElunaBind;
-            playerGossipBindings = new ElunaBind;
-        }
-
-        ~Eluna()
-        {
-            for (std::map<int, std::vector<int> >::iterator itr = ServerEventBindings.begin(); itr != ServerEventBindings.end(); ++itr)
-            {
-                for (std::vector<int>::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-                    luaL_unref(L, LUA_REGISTRYINDEX, (*it));
-                itr->second.clear();
-            }
-
-            for (std::map<int, std::vector<int> >::iterator itr = PlayerEventBindings.begin(); itr != PlayerEventBindings.end(); ++itr)
-            {
-                for (std::vector<int>::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-                    luaL_unref(L, LUA_REGISTRYINDEX, (*it));
-                itr->second.clear();
-            }
-
-            for (std::map<int, std::vector<int> >::iterator itr = VehicleEventBindings.begin(); itr != VehicleEventBindings.end(); ++itr)
-            {
-                for (std::vector<int>::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-                    luaL_unref(L, LUA_REGISTRYINDEX, (*it));
-                itr->second.clear();
-            }
-
-            for (std::map<int, std::vector<int> >::iterator itr = GuildEventBindings.begin(); itr != GuildEventBindings.end(); ++itr)
-            {
-                for (std::vector<int>::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-                    luaL_unref(L, LUA_REGISTRYINDEX, (*it));
-                itr->second.clear();
-            }
-
-            for (std::map<int, std::vector<int> >::iterator itr = GroupEventBindings.begin(); itr != GroupEventBindings.end(); ++itr)
-            {
-                for (std::vector<int>::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-                    luaL_unref(L, LUA_REGISTRYINDEX, (*it));
-                itr->second.clear();
-            }
-            PacketEventBindings.clear();
-            ServerEventBindings.clear();
-            PlayerEventBindings.clear();
-            VehicleEventBindings.clear();
-            GuildEventBindings.clear();
-            GroupEventBindings.clear();
-            CreatureEventBindings->Clear();
-            CreatureGossipBindings->Clear();
-            GameObjectEventBindings->Clear();
-            GameObjectGossipBindings->Clear();
-            ItemEventBindings->Clear();
-            ItemGossipBindings->Clear();
-            playerGossipBindings->Clear();
-
-            lua_close(L); // Closing
-        }
-
-        struct ElunaBind
-        {
-            typedef std::map<int, int> ElunaBindingMap;
-            typedef UNORDERED_MAP<uint32, ElunaBindingMap> ElunaEntryMap;
-
-            void Clear(); // unregisters all registered functions and clears all registered events from the bind std::maps (reset)
-            void Insert(uint32 entryId, uint32 eventId, int funcRef); // Inserts a new registered event
-
-            // Gets the function ref of an entry for an event
-            int GetBind(uint32 entryId, uint32 eventId)
-            {
-                if (Bindings.empty())
-                    return 0;
-                ElunaEntryMap::iterator itr = Bindings.find(entryId);
-                if (itr == Bindings.end())
-                    return 0;
-
-                return itr->second[eventId];
-            }
-
-            // Gets the binding std::map containing all registered events with the function refs for the entry
-            ElunaBindingMap* GetBindMap(uint32 entryId)
-            {
-                if (Bindings.empty())
-                    return NULL;
-                ElunaEntryMap::iterator itr = Bindings.find(entryId);
-                if (itr == Bindings.end())
-                    return NULL;
-
-                return &itr->second;
-            }
-
-            ElunaEntryMap Bindings; // Binding store Bindings[entryId][eventId] = funcRef;
-        };
 
         struct ObjectGUIDCheck
         {
