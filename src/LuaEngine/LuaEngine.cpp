@@ -606,7 +606,58 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
     luaL_error(L, "Unknown event type (regtype %d, id %d, event %d)", regtype, id, evt);
 }
 
-void Eluna::ElunaBind::Clear()
+
+void Eluna::EventBind::Clear()
+{
+    if (Bindings.empty())
+        return;
+    for (ElunaEntryMap::iterator itr = Bindings.begin(); itr != Bindings.end(); ++itr)
+    {
+        for (ElunaBindingMap::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+            luaL_unref(sEluna.L, LUA_REGISTRYINDEX, (*it));
+        itr->second.clear();
+    }
+    Bindings.clear();
+}
+
+void Eluna::EventBind::Insert(int eventId, int funcRef)
+{
+    Bindings[eventId].push_back(funcRef);
+}
+
+bool Eluna::EventBind::BeginCall(int eventId) const
+{
+    if (Bindings.empty())
+        return false;
+    if (Bindings.find(eventId) == Bindings.end())
+        return false;
+    lua_settop(sEluna.L, 0); // stack should be empty
+    sEluna.Push(sEluna.L, eventId);
+    return true;
+}
+
+void Eluna::EventBind::ExecuteCall()
+{
+    int eventId = luaL_checkinteger(sEluna.L, 1);
+    int params = lua_gettop(sEluna.L);
+    for (ElunaBindingMap::const_iterator it = Bindings[eventId].begin(); it != Bindings[eventId].end(); ++it)
+    {
+        lua_rawgeti(sEluna.L, LUA_REGISTRYINDEX, (*it)); // Fetch function
+        for (int i = 1; i <= params; ++i) // Copy original pushed params
+            lua_pushvalue(sEluna.L, i);
+        sEluna.ExecuteCall(params, LUA_MULTRET); // Do call and leave results to stack
+    }
+    for (int i = 1; i <= params; ++i) // Remove original pushed params
+        lua_remove(sEluna.L, i);
+    // Results in stack, otherwise stack clean
+}
+
+void Eluna::EventBind::EndCall() const
+{
+    lua_settop(sEluna.L, 0); // stack should be empty
+};
+
+void Eluna::EntryBind::Clear()
 {
     if (Bindings.empty())
         return;
