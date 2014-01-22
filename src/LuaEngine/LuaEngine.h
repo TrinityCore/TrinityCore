@@ -143,7 +143,8 @@ class ElunaTemplate
         static int thunk(lua_State* L)
         {
             T* obj = check(L, 1); // get self
-            lua_remove(L, 1); // remove self
+            if (!lua_isnone(L, 1))
+                lua_remove(L, 1); // remove self
             ElunaRegister<T>* l = static_cast<ElunaRegister<T>*>(lua_touserdata(L, lua_upvalueindex(1)));
             if (!obj)
                 return 0;
@@ -195,6 +196,8 @@ struct EventMgr
     void Update(uint32 diff)
     {
         GlobalEvents.Update(diff);
+        if (Processors.empty())
+            return;
         for (ProcessorMap::iterator it = Processors.begin(); it != Processors.end(); ++it)
             it->second.Update(diff);
     }
@@ -215,8 +218,12 @@ struct EventMgr
     {
         if (!events)
             return;
+        if (LuaEvents.empty())
+            return;
         EventMap::const_iterator it = LuaEvents.find(events); // Get event set
         if (it == LuaEvents.end())
+            return;
+        if (it->second.empty())
             return;
         for (EventSet::const_iterator itr = it->second.begin(); itr != it->second.end();) // Loop events
             (*(itr++))->to_Abort = true; // Abort event
@@ -225,8 +232,9 @@ struct EventMgr
     // Remove all timed events
     void RemoveEvents()
     {
-        for (EventMap::const_iterator it = LuaEvents.begin(); it != LuaEvents.end();) // loop processors
-            KillAllEvents((it++)->first);
+        if (!LuaEvents.empty())
+            for (EventMap::const_iterator it = LuaEvents.begin(); it != LuaEvents.end();) // loop processors
+                KillAllEvents((it++)->first);
         LuaEvents.clear(); // remove pointers
         // This is handled automatically on delete
         /*for (ProcessorMap::iterator it = Processors.begin(); it != Processors.end();)
@@ -247,6 +255,8 @@ struct EventMgr
     // Remove timed events from guid
     void RemoveEvents(uint64 guid)
     {
+        if (Processors.empty())
+            return;
         if (Processors.find(guid) != Processors.end())
             LuaEvents.erase(&Processors[guid]);
         //Processors[guid].KillAllEvents(true); // remove events
@@ -275,8 +285,12 @@ struct EventMgr
     {
         if (!events || !eventId)
             return NULL;
+        if (LuaEvents.empty())
+            return NULL;
         EventMap::const_iterator it = LuaEvents.find(events); // Get event set
         if (it == LuaEvents.end())
+            return NULL;
+        if (it->second.empty())
             return NULL;
         for (EventSet::const_iterator itr = it->second.begin(); itr != it->second.end(); ++itr) // Loop events
             if ((*itr) && (*itr)->funcRef == eventId) // Check if the event has our ID
@@ -301,6 +315,8 @@ struct EventMgr
     // Remove event by ID from processor stored for guid
     bool RemoveEvent(uint64 guid, int eventId)
     {
+        if (Processors.empty())
+            return false;
         if (!guid || Processors.find(guid) == Processors.end())
             return false;
         return RemoveEvent(&Processors[guid], eventId);
@@ -310,6 +326,8 @@ struct EventMgr
     void RemoveEvent(int eventId)
     {
         if (!eventId)
+            return;
+        if (LuaEvents.empty())
             return;
         for (EventMap::const_iterator it = LuaEvents.begin(); it != LuaEvents.end();) // loop processors
             if (RemoveEvent((it++)->first, eventId))
@@ -444,8 +462,8 @@ class Eluna
         static void report(lua_State*);
         void Register(uint8 reg, uint32 id, uint32 evt, int func);
         void BeginCall(int fReference);
-        bool ExecuteCall(uint8 params, uint8 res);
-        void EndCall(uint8 res);
+        bool ExecuteCall(int params, int res);
+        void EndCall(int res);
         void LoadDirectory(const char* directory, LoadedScripts* scr);
         // Pushes
         static void Push(lua_State*); // nil
