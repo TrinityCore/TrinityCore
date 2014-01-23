@@ -1492,6 +1492,7 @@ class spell_taldaram_ball_of_inferno_flame : public SpellScriptLoader
         }
 };
 
+// 72080 - Kinetic Bomb (Valanar)
 class spell_valanar_kinetic_bomb : public SpellScriptLoader
 {
     public:
@@ -1501,18 +1502,15 @@ class spell_valanar_kinetic_bomb : public SpellScriptLoader
         {
             PrepareSpellScript(spell_valanar_kinetic_bomb_SpellScript);
 
-            void ChangeSummonPos(SpellEffIndex /*effIndex*/)
+            void SetDest(SpellDestination& dest)
             {
-                WorldLocation summonPos = *GetExplTargetDest();
-                Position offset = {0.0f, 0.0f, 20.0f, 0.0f};
-                summonPos.RelocateOffset(offset);
-                SetExplTargetDest(summonPos);
-                GetHitDest()->RelocateOffset(offset);
+                Position const offset = { 0.0f, 0.0f, 20.0f, 0.0f };
+                dest.RelocateOffset(offset);
             }
 
             void Register() OVERRIDE
             {
-                OnEffectHit += SpellEffectFn(spell_valanar_kinetic_bomb_SpellScript::ChangeSummonPos, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_valanar_kinetic_bomb_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER);
             }
         };
 
