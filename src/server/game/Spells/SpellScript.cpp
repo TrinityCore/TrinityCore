@@ -203,8 +203,8 @@ void SpellScript::HitHandler::Call(SpellScript* spellScript)
     (spellScript->*pHitHandlerScript)();
 }
 
-SpellScript::TargetHook::TargetHook(uint8 _effectIndex, uint16 _targetType, bool _area)
-    : _SpellScript::EffectHook(_effectIndex), targetType(_targetType), area(_area) { }
+SpellScript::TargetHook::TargetHook(uint8 _effectIndex, uint16 _targetType, bool _area, bool _dest)
+    : _SpellScript::EffectHook(_effectIndex), targetType(_targetType), area(_area), dest(_dest) { }
 
 std::string SpellScript::TargetHook::ToString()
 {
@@ -236,8 +236,9 @@ bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 eff
             switch (targetInfo.GetObjectType())
             {
                 case TARGET_OBJECT_TYPE_SRC: // EMPTY
-                case TARGET_OBJECT_TYPE_DEST: // EMPTY
                     return false;
+                case TARGET_OBJECT_TYPE_DEST: // DEST
+                    return dest;
                 default:
                     switch (targetInfo.GetReferenceType())
                     {
@@ -259,7 +260,7 @@ bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 eff
 }
 
 SpellScript::ObjectAreaTargetSelectHandler::ObjectAreaTargetSelectHandler(SpellObjectAreaTargetSelectFnType _pObjectAreaTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType)
-    : TargetHook(_effIndex, _targetType, true)
+    : TargetHook(_effIndex, _targetType, true, false)
 {
     pObjectAreaTargetSelectHandlerScript = _pObjectAreaTargetSelectHandlerScript;
 }
@@ -270,7 +271,7 @@ void SpellScript::ObjectAreaTargetSelectHandler::Call(SpellScript* spellScript, 
 }
 
 SpellScript::ObjectTargetSelectHandler::ObjectTargetSelectHandler(SpellObjectTargetSelectFnType _pObjectTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType)
-    : TargetHook(_effIndex, _targetType, false)
+    : TargetHook(_effIndex, _targetType, false, false)
 {
     pObjectTargetSelectHandlerScript = _pObjectTargetSelectHandlerScript;
 }
@@ -278,6 +279,17 @@ SpellScript::ObjectTargetSelectHandler::ObjectTargetSelectHandler(SpellObjectTar
 void SpellScript::ObjectTargetSelectHandler::Call(SpellScript* spellScript, WorldObject*& target)
 {
     (spellScript->*pObjectTargetSelectHandlerScript)(target);
+}
+
+SpellScript::DestinationTargetSelectHandler::DestinationTargetSelectHandler(SpellDestinationTargetSelectFnType _DestinationTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType)
+    : TargetHook(_effIndex, _targetType, false, true)
+{
+    DestinationTargetSelectHandlerScript = _DestinationTargetSelectHandlerScript;
+}
+
+void SpellScript::DestinationTargetSelectHandler::Call(SpellScript* spellScript, SpellDestination& target)
+{
+    (spellScript->*DestinationTargetSelectHandlerScript)(target);
 }
 
 bool SpellScript::_Validate(SpellInfo const* entry)
@@ -305,6 +317,10 @@ bool SpellScript::_Validate(SpellInfo const* entry)
     for (std::list<ObjectTargetSelectHandler>::iterator itr = OnObjectTargetSelect.begin(); itr != OnObjectTargetSelect.end(); ++itr)
         if (!(*itr).GetAffectedEffectsMask(entry))
             TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnObjectTargetSelect` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+
+    for (std::list<DestinationTargetSelectHandler>::iterator itr = OnDestinationTargetSelect.begin(); itr != OnDestinationTargetSelect.end(); ++itr)
+        if (!(*itr).GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnDestinationTargetSelect` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
 
     return _SpellScript::_Validate(entry);
 }

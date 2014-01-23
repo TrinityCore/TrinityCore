@@ -88,13 +88,9 @@ enum GameObjectIds
 };
 
 template<class AI>
-CreatureAI* GetZulGurubAI(Creature* creature)
+AI* GetZulGurubAI(Creature* creature)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(ZGScriptName))
-                return new AI(creature);
-    return NULL;
+    return GetInstanceAI<AI>(creature, ZGScriptName);
 }
 
 #endif
