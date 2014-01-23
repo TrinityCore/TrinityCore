@@ -502,8 +502,6 @@ public:
 
             //Added. Can be removed if its included in DB.
             me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
-            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 0);
-            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 0);
         }
 
         void CastSpellOnBug(Creature* target)

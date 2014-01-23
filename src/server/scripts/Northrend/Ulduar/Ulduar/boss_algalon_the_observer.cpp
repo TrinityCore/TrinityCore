@@ -1253,6 +1253,7 @@ class spell_algalon_remove_phase : public SpellScriptLoader
         }
 };
 
+// 62295 - Cosmic Smash
 class spell_algalon_cosmic_smash : public SpellScriptLoader
 {
     public:
@@ -1262,16 +1263,15 @@ class spell_algalon_cosmic_smash : public SpellScriptLoader
         {
             PrepareSpellScript(spell_algalon_cosmic_smash_SpellScript);
 
-            void ModDestHeight(SpellEffIndex /*effIndex*/)
+            void ModDestHeight(SpellDestination& dest)
             {
-                Position offset = {0.0f, 0.0f, 65.0f, 0.0f};
-                const_cast<WorldLocation*>(GetExplTargetDest())->RelocateOffset(offset);
-                GetHitDest()->RelocateOffset(offset);
+                Position const offset = { 0.0f, 0.0f, 65.0f, 0.0f };
+                dest.RelocateOffset(offset);
             }
 
             void Register() OVERRIDE
             {
-                OnEffectLaunch += SpellEffectFn(spell_algalon_cosmic_smash_SpellScript::ModDestHeight, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_algalon_cosmic_smash_SpellScript::ModDestHeight, EFFECT_0, TARGET_DEST_CASTER_SUMMON);
             }
         };
 
