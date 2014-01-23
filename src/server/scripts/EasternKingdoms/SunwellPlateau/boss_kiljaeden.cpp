@@ -454,7 +454,7 @@ public:
         {
             if (uiRandomSayTimer < diff)
             {
-                if (instance && instance->GetBossState(DATA_MURU) != DONE && instance->GetBossState(DATA_KILJAEDEN) == NOT_STARTED)
+                if (instance->GetBossState(DATA_MURU) != DONE && instance->GetBossState(DATA_KILJAEDEN) == NOT_STARTED)
                     Talk(SAY_KJ_OFFCOMBAT);
                 uiRandomSayTimer = 30000;
             } else uiRandomSayTimer -= diff;

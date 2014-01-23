@@ -147,9 +147,9 @@ struct boss_horAI : ScriptedAI
     {
         events.Reset();
         me->SetVisible(false);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
         me->SetReactState(REACT_PASSIVE);
-        if (instance && instance->GetData(DATA_WAVE_COUNT) != NOT_STARTED)
+        if (instance->GetData(DATA_WAVE_COUNT) != NOT_STARTED)
             instance->ProcessEvent(0, EVENT_DO_WIPE);
     }
 
@@ -158,7 +158,7 @@ struct boss_horAI : ScriptedAI
         switch (actionID)
         {
             case ACTION_ENTER_COMBAT:  // called by InstanceScript when boss shall enter in combat.
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                 me->SetReactState(REACT_AGGRESSIVE);
 
                 if (Unit* unit = me->SelectNearestTarget())

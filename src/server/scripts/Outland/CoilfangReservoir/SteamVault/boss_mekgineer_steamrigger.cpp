@@ -224,11 +224,11 @@ public:
         {
             if (Repair_Timer <= diff)
             {
-                if (instance && instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == IN_PROGRESS)
+                if (instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == IN_PROGRESS)
                 {
-                    if (Unit* pMekgineer = Unit::GetUnit(*me, instance->GetData64(DATA_MEKGINEER_STEAMRIGGER)))
+                    if (Creature* mekgineer = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MEKGINEER_STEAMRIGGER)))
                     {
-                        if (me->IsWithinDistInMap(pMekgineer, MAX_REPAIR_RANGE))
+                        if (me->IsWithinDistInMap(mekgineer, MAX_REPAIR_RANGE))
                         {
                             //are we already channeling? Doesn't work very well, find better check?
                             if (!me->GetUInt32Value(UNIT_CHANNEL_SPELL))

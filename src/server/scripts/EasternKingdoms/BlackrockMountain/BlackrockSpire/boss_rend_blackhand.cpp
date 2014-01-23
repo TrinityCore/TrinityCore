@@ -191,7 +191,7 @@ public:
 
         void SetData(uint32 type, uint32 data) OVERRIDE
         {
-            if (instance && type == AREATRIGGER && data == AREATRIGGER_BLACKROCK_STADIUM)
+            if (type == AREATRIGGER && data == AREATRIGGER_BLACKROCK_STADIUM)
             {
                 if (!gythEvent)
                 {
