@@ -1192,7 +1192,7 @@ class npc_lorekeeper : public CreatureScript
         bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
         {
             InstanceScript* instance = creature->GetInstanceScript();
-            if (instance && instance->GetData(BOSS_LEVIATHAN) !=DONE && player)
+            if (instance->GetData(BOSS_LEVIATHAN) != DONE && player)
             {
                 player->PrepareGossipMenu(creature);
 
@@ -1245,7 +1245,7 @@ public:
     //bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     //{
     //    InstanceScript* instance = creature->GetInstanceScript();
-    //    if (instance && instance->GetData(BOSS_LEVIATHAN) !=DONE)
+    //    if (instance->GetData(BOSS_LEVIATHAN) !=DONE)
     //    {
     //        player->PrepareGossipMenu(creature);
     //

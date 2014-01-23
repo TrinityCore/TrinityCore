@@ -519,7 +519,7 @@ public:
                 if (CheckTimer <= diff)
                 {
                     // Start Phase 3
-                    if (instance && instance->GetData(DATA_CANSTARTPHASE3))
+                    if (instance->GetData(DATA_CANSTARTPHASE3))
                     {
                         // set life 50%
                         me->SetHealth(me->CountPctFromMaxHealth(50));

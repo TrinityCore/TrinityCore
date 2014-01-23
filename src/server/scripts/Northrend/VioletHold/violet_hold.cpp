@@ -446,7 +446,7 @@ public:
 
         void Reset() OVERRIDE
         {
-            if (instance && !uiBoss)
+            if (!uiBoss)
                 uiBoss = instance->GetData(DATA_WAVE_COUNT) == 6 ? instance->GetData(DATA_FIRST_BOSS) : instance->GetData(DATA_SECOND_BOSS);
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_NON_ATTACKABLE);
@@ -486,7 +486,7 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (instance && instance->GetData(DATA_MAIN_EVENT_PHASE) != IN_PROGRESS)
+            if (instance->GetData(DATA_MAIN_EVENT_PHASE) != IN_PROGRESS)
                 me->CastStop();
 
             npc_escortAI::UpdateAI(diff);
@@ -723,7 +723,7 @@ struct violet_hold_trashAI : public npc_escortAI
 
     void UpdateAI(uint32) OVERRIDE
     {
-        if (instance && instance->GetData(DATA_MAIN_EVENT_PHASE) != IN_PROGRESS)
+        if (instance->GetData(DATA_MAIN_EVENT_PHASE) != IN_PROGRESS)
             me->CastStop();
 
         if (!bHasGotMovingPoints)

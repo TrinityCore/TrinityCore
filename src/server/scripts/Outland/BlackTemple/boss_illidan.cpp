@@ -1672,7 +1672,7 @@ public:
             {
                 if (Check_Timer <= diff)
                 {
-                    if (instance && instance->GetBossState(DATA_ILLIDARI_COUNCIL) == DONE)
+                    if (instance->GetBossState(DATA_ILLIDARI_COUNCIL) == DONE)
                         me->SetVisible(true);
 
                     Check_Timer = 5000;
