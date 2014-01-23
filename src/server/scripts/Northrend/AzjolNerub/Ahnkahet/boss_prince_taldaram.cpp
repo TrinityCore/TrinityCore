@@ -17,76 +17,75 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "Player.h"
 #include "ahnkahet.h"
 
 enum Spells
 {
-    SPELL_BLOODTHIRST                             = 55968, // Trigger Spell + add aura
-    SPELL_CONJURE_FLAME_SPHERE                    = 55931,
-    SPELL_FLAME_SPHERE_SUMMON_1                   = 55895, // 1x 30106
-    H_SPELL_FLAME_SPHERE_SUMMON_1                 = 59511, // 1x 31686
-    H_SPELL_FLAME_SPHERE_SUMMON_2                 = 59512, // 1x 31687
-    SPELL_FLAME_SPHERE_SPAWN_EFFECT               = 55891,
-    SPELL_FLAME_SPHERE_VISUAL                     = 55928,
-    SPELL_FLAME_SPHERE_PERIODIC                   = 55926,
-    SPELL_FLAME_SPHERE_DEATH_EFFECT               = 55947,
-    SPELL_BEAM_VISUAL                             = 60342,
-    SPELL_EMBRACE_OF_THE_VAMPYR                   = 55959,
-    SPELL_VANISH                                  = 55964,
-    CREATURE_FLAME_SPHERE                         = 30106,
-    H_CREATURE_FLAME_SPHERE_1                     = 31686,
-    H_CREATURE_FLAME_SPHERE_2                     = 31687,
-    SPELL_HOVER_FALL                              = 60425
+    SPELL_BLOODTHIRST                       = 55968, // Trigger Spell + add aura
+    SPELL_CONJURE_FLAME_SPHERE              = 55931,
+    SPELL_FLAME_SPHERE_SUMMON_1             = 55895, // 1x 30106
+    SPELL_FLAME_SPHERE_SUMMON_2             = 59511, // 1x 31686
+    SPELL_FLAME_SPHERE_SUMMON_3             = 59512, // 1x 31687
+    SPELL_FLAME_SPHERE_SPAWN_EFFECT         = 55891,
+    SPELL_FLAME_SPHERE_VISUAL               = 55928,
+    SPELL_FLAME_SPHERE_PERIODIC             = 55926,
+    SPELL_FLAME_SPHERE_DEATH_EFFECT         = 55947,
+    SPELL_EMBRACE_OF_THE_VAMPYR             = 55959,
+    SPELL_VANISH                            = 55964,
+
+    NPC_FLAME_SPHERE_1                      = 30106,
+    NPC_FLAME_SPHERE_2                      = 31686,
+    NPC_FLAME_SPHERE_3                      = 31687,
+
+    SPELL_BEAM_VISUAL                       = 60342,
+    SPELL_HOVER_FALL                        = 60425
 };
 
 enum Misc
 {
-    DATA_EMBRACE_DMG                              = 20000,
-    H_DATA_EMBRACE_DMG                            = 40000,
-    DATA_SPHERE_DISTANCE                          = 15
+    DATA_EMBRACE_DMG                        = 20000,
+    H_DATA_EMBRACE_DMG                      = 40000
 };
 
-#define DATA_SPHERE_ANGLE_OFFSET                  0.7f
-#define DATA_GROUND_POSITION_Z                    11.30809f
+#define DATA_SPHERE_DISTANCE                25.0f
+#define DATA_SPHERE_ANGLE_OFFSET            M_PI / 2
+#define DATA_GROUND_POSITION_Z              11.30809f
 
 enum Yells
 {
-    SAY_1                                         = 0,
-    SAY_WARNING                                   = 1,
-    SAY_AGGRO                                     = 2,
-    SAY_SLAY                                      = 3,
-    SAY_DEATH                                     = 4,
-    SAY_FEED                                      = 5,
-    SAY_VANISH                                    = 6
+    SAY_1                                   = 0,
+    SAY_WARNING                             = 1,
+    SAY_AGGRO                               = 2,
+    SAY_SLAY                                = 3,
+    SAY_DEATH                               = 4,
+    SAY_FEED                                = 5,
+    SAY_VANISH                              = 6
 };
 
 enum Events
 {
-    EVENT_CASTING_FLAME_SPHERES                   = 1,
+    EVENT_CONJURE_FLAME_SPHERES             = 1,
+    EVENT_BLOODTHIRST,
+    EVENT_VANISH,
     EVENT_JUST_VANISHED,
     EVENT_VANISHED,
     EVENT_FEEDING,
 
-    EVENT_BLOODTHIRST,
-    EVENT_FLAME_SPHERE,
-    EVENT_VANISH
+    // Flame Sphere
+    EVENT_START_MOVE,
+    EVENT_DESPAWN
 };
 
-enum Phase
-{
-    PHASE_NORMAL                                  = 1,
-    PHASE_SPECIAL                                 = 2
-};
-
-class boss_taldaram : public CreatureScript
+class boss_prince_taldaram : public CreatureScript
 {
     public:
-        boss_taldaram() : CreatureScript("boss_taldaram") { }
+        boss_prince_taldaram() : CreatureScript("boss_prince_taldaram") { }
 
-        struct boss_taldaramAI : public BossAI
+        struct boss_prince_taldaramAI : public BossAI
         {
-            boss_taldaramAI(Creature* creature) : BossAI(creature, DATA_PRINCE_TALDARAM)
+            boss_prince_taldaramAI(Creature* creature) : BossAI(creature, DATA_PRINCE_TALDARAM)
             {
                 me->SetDisableGravity(true);
             }
@@ -94,6 +93,7 @@ class boss_taldaram : public CreatureScript
             void Reset() OVERRIDE
             {
                 _Reset();
+                _flameSphereTargetGUID = 0;
                 _embraceTargetGUID = 0;
                 _embraceTakenDamage = 0;
             }
@@ -102,10 +102,24 @@ class boss_taldaram : public CreatureScript
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
-                events.SetPhase(PHASE_NORMAL);
                 events.ScheduleEvent(EVENT_BLOODTHIRST, 10000);
                 events.ScheduleEvent(EVENT_VANISH, urand(25000, 35000));
-                events.ScheduleEvent(EVENT_FLAME_SPHERE, 5000);
+                events.ScheduleEvent(EVENT_CONJURE_FLAME_SPHERES, 5000);
+            }
+
+            void JustSummoned(Creature* summon)
+            {
+                BossAI::JustSummoned(summon);
+
+                switch (summon->GetEntry())
+                {
+                    case NPC_FLAME_SPHERE_1:
+                    case NPC_FLAME_SPHERE_2:
+                    case NPC_FLAME_SPHERE_3:
+                        summon->AI()->SetGUID(_flameSphereTargetGUID);
+                    default:
+                        return;
+                }
             }
 
             void UpdateAI(uint32 diff) OVERRIDE
@@ -122,80 +136,40 @@ class boss_taldaram : public CreatureScript
                 {
                     switch (eventId)
                     {
-                        if (events.IsInPhase(PHASE_NORMAL))
+                        case EVENT_BLOODTHIRST:
+                            DoCast(me, SPELL_BLOODTHIRST);
+                            events.ScheduleEvent(EVENT_BLOODTHIRST, 10000);
+                            break;
+                        case EVENT_CONJURE_FLAME_SPHERES:
+                            // random target?
+                            if (Unit* victim = me->GetVictim())
+                            {
+                                _flameSphereTargetGUID = victim->GetGUID();
+                                DoCast(victim, SPELL_CONJURE_FLAME_SPHERE);
+                            }
+                            events.ScheduleEvent(EVENT_CONJURE_FLAME_SPHERES, 15000);
+                            break;
+                        case EVENT_VANISH:
                         {
-                            case EVENT_BLOODTHIRST:
-                                DoCast(me, SPELL_BLOODTHIRST);
-                                events.ScheduleEvent(EVENT_BLOODTHIRST, 10000);
-                                break;
-                            case EVENT_FLAME_SPHERE:
-                                DoCastVictim(SPELL_CONJURE_FLAME_SPHERE);
-                                events.SetPhase(PHASE_SPECIAL);
-                                events.ScheduleEvent(EVENT_CASTING_FLAME_SPHERES, 3000);
-                                events.ScheduleEvent(EVENT_FLAME_SPHERE, 15000);
-                                break;
-                            case EVENT_VANISH:
+                            Map::PlayerList const& players = me->GetMap()->GetPlayers();
+                            uint32 targets = 0;
+                            for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                             {
-                                Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                                uint32 targets = 0;
-                                for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
-                                {
-                                    Player* player = i->GetSource();
-                                    if (player && player->IsAlive())
-                                        ++targets;
-                                }
-
-                                if (targets > 2)
-                                {
-                                    Talk(SAY_VANISH);
-                                    DoCast(me, SPELL_VANISH);
-                                    events.SetPhase(PHASE_SPECIAL);
-                                    events.ScheduleEvent(EVENT_JUST_VANISHED, 500);
-                                    if (Unit* embraceTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                                        _embraceTargetGUID = embraceTarget->GetGUID();
-                                }
-                                events.ScheduleEvent(EVENT_VANISH, urand(25000, 35000));
-                                break;
-                            }
-                        }
-                        case EVENT_CASTING_FLAME_SPHERES:
-                        {
-                            events.SetPhase(PHASE_NORMAL);
-                            Unit* sphereTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                            if (!sphereTarget)
-                                break;
-
-                            float angle, x, y;
-
-                            //DoCast(me, SPELL_FLAME_SPHERE_SUMMON_1);
-                            if (Creature* sphere = DoSpawnCreature(CREATURE_FLAME_SPHERE, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS))
-                            {
-                                angle = sphere->GetAngle(sphereTarget);
-                                x = sphere->GetPositionX() + DATA_SPHERE_DISTANCE * std::cos(angle);
-                                y = sphere->GetPositionY() + DATA_SPHERE_DISTANCE * std::sin(angle);
-                                sphere->GetMotionMaster()->MovePoint(0, x, y, sphere->GetPositionZ());
+                                Player* player = i->GetSource();
+                                if (player && player->IsAlive())
+                                    ++targets;
                             }
 
-                            if (IsHeroic())
+                            if (targets > 2)
                             {
-                                //DoCast(me, H_SPELL_FLAME_SPHERE_SUMMON_1);
-                                if (Creature* sphere = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_1, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS))
-                                {
-                                    angle = sphere->GetAngle(sphereTarget) + DATA_SPHERE_ANGLE_OFFSET;
-                                    x = sphere->GetPositionX() + DATA_SPHERE_DISTANCE/2 * std::cos(angle);
-                                    y = sphere->GetPositionY() + DATA_SPHERE_DISTANCE/2 * std::sin(angle);
-                                    sphere->GetMotionMaster()->MovePoint(0, x, y, sphere->GetPositionZ());
-                                }
-
-                                //DoCast(me, H_SPELL_FLAME_SPHERE_SUMMON_2);
-                                if (Creature* sphere = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_2, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS))
-                                {
-                                    angle = sphere->GetAngle(sphereTarget) - DATA_SPHERE_ANGLE_OFFSET;
-                                    x = sphere->GetPositionX() + DATA_SPHERE_DISTANCE/2 * std::cos(angle);
-                                    y = sphere->GetPositionY() + DATA_SPHERE_DISTANCE/2 * std::sin(angle);
-                                    sphere->GetMotionMaster()->MovePoint(0, x, y, sphere->GetPositionZ());
-                                }
+                                Talk(SAY_VANISH);
+                                DoCast(me, SPELL_VANISH);
+                                events.DelayEvents(500);
+                                events.ScheduleEvent(EVENT_JUST_VANISHED, 500);
+                                if (Unit* embraceTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                                    _embraceTargetGUID = embraceTarget->GetGUID();
                             }
+                            events.ScheduleEvent(EVENT_VANISH, urand(25000, 35000));
                             break;
                         }
                         case EVENT_JUST_VANISHED:
@@ -218,7 +192,6 @@ class boss_taldaram : public CreatureScript
                             break;
                         case EVENT_FEEDING:
                             _embraceTargetGUID = 0;
-                            events.SetPhase(PHASE_NORMAL);
                             break;
                         default:
                             break;
@@ -232,13 +205,12 @@ class boss_taldaram : public CreatureScript
             {
                 Unit* embraceTarget = GetEmbraceTarget();
 
-                if (events.IsInPhase(PHASE_SPECIAL) && embraceTarget && embraceTarget->IsAlive())
+                if (embraceTarget && embraceTarget->IsAlive())
                 {
                     _embraceTakenDamage += damage;
                     if (_embraceTakenDamage > DUNGEON_MODE<uint32>(DATA_EMBRACE_DMG, H_DATA_EMBRACE_DMG))
                     {
                         _embraceTargetGUID = 0;
-                        events.SetPhase(PHASE_NORMAL);
                         me->CastStop();
                     }
                 }
@@ -255,12 +227,9 @@ class boss_taldaram : public CreatureScript
                 if (victim->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                Unit* embraceTarget = GetEmbraceTarget();
-                if (events.IsInPhase(PHASE_SPECIAL) && embraceTarget && victim == embraceTarget)
-                {
+                if (victim->GetGUID() == _embraceTargetGUID)
                     _embraceTargetGUID = 0;
-                    events.SetPhase(PHASE_NORMAL);
-                }
+
                 Talk(SAY_SLAY);
             }
 
@@ -289,76 +258,120 @@ class boss_taldaram : public CreatureScript
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), DATA_GROUND_POSITION_Z, me->GetOrientation());
                 DoCast(SPELL_HOVER_FALL);
                 me->SetDisableGravity(false);
-                me->GetMotionMaster()->MovePoint(0, me->GetHomePosition());
+                me->GetMotionMaster()->MoveLand(0, me->GetHomePosition());
                 Talk(SAY_WARNING);
                 instance->HandleGameObject(instance->GetData64(DATA_PRINCE_TALDARAM_PLATFORM), true);
             }
 
         private:
+            uint64 _flameSphereTargetGUID;
             uint64 _embraceTargetGUID;
             uint32 _embraceTakenDamage;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return GetAhnKahetAI<boss_taldaramAI>(creature);
+            return GetAhnKahetAI<boss_prince_taldaramAI>(creature);
         }
 };
 
-class npc_taldaram_flamesphere : public CreatureScript
+// 30106, 31686, 31687 - Flame Sphere
+class npc_prince_taldaram_flame_sphere : public CreatureScript
 {
     public:
-        npc_taldaram_flamesphere() : CreatureScript("npc_taldaram_flamesphere") { }
+        npc_prince_taldaram_flame_sphere() : CreatureScript("npc_prince_taldaram_flame_sphere") { }
 
-        struct npc_taldaram_flamesphereAI : public ScriptedAI
+        struct npc_prince_taldaram_flame_sphereAI : public ScriptedAI
         {
-            npc_taldaram_flamesphereAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            npc_prince_taldaram_flame_sphereAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() OVERRIDE
             {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
-                me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
-                me->setFaction(16);
-                me->SetObjectScale(1.0f);
-                DoCast(me, SPELL_FLAME_SPHERE_VISUAL);
-                DoCast(me, SPELL_FLAME_SPHERE_SPAWN_EFFECT);
-                DoCast(me, SPELL_FLAME_SPHERE_PERIODIC);
-                _despawnTimer = 10 * IN_MILLISECONDS;
+                DoCast(me, SPELL_FLAME_SPHERE_SPAWN_EFFECT, true);
+                DoCast(me, SPELL_FLAME_SPHERE_VISUAL, true);
+
+                _flameSphereTargetGUID = 0;
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_START_MOVE, 3 * IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_DESPAWN, 13 * IN_MILLISECONDS);
+            }
+
+            void SetGUID(uint64 guid, int32 /*id = 0*/) OVERRIDE
+            {
+                _flameSphereTargetGUID = guid;
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE { }
             void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
-            {
-                DoCast(me, SPELL_FLAME_SPHERE_DEATH_EFFECT);
-            }
-
             void UpdateAI(uint32 diff) OVERRIDE
             {
-                if (_despawnTimer <= diff)
-                    me->DisappearAndDie();
-                else
-                    _despawnTimer -= diff;
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_START_MOVE:
+                        {
+                            DoCast(me, SPELL_FLAME_SPHERE_PERIODIC, true);
+
+                            /// @todo: find correct values
+                            float angleOffset = 0.0f;
+                            float distOffset = DATA_SPHERE_DISTANCE;
+
+                            switch (me->GetEntry())
+                            {
+                                case NPC_FLAME_SPHERE_1:
+                                    break;
+                                case NPC_FLAME_SPHERE_2:
+                                    angleOffset = DATA_SPHERE_ANGLE_OFFSET;
+                                    break;
+                                case NPC_FLAME_SPHERE_3:
+                                    angleOffset = -DATA_SPHERE_ANGLE_OFFSET;
+                                    break;
+                                default:
+                                    return;
+                            }
+
+                            Unit* sphereTarget = ObjectAccessor::GetUnit(*me, _flameSphereTargetGUID);
+                            if (!sphereTarget)
+                                return;
+
+                            float angle = me->GetAngle(sphereTarget) + angleOffset;
+                            float x = me->GetPositionX() + distOffset * std::cos(angle);
+                            float y = me->GetPositionY() + distOffset * std::sin(angle);
+
+                            /// @todo: correct speed
+                            me->GetMotionMaster()->MovePoint(0, x, y, me->GetPositionZ());
+                            break;
+                        }
+                        case EVENT_DESPAWN:
+                            DoCast(me, SPELL_FLAME_SPHERE_DEATH_EFFECT, true);
+                            me->DespawnOrUnsummon(1000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
 
         private:
-            uint32 _despawnTimer;
+            EventMap _events;
+            uint64 _flameSphereTargetGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_taldaram_flamesphereAI(creature);
+            return new npc_prince_taldaram_flame_sphereAI(creature);
         }
 };
 
-class prince_taldaram_sphere : public GameObjectScript
+// 193093, 193094 - Ancient Nerubian Device
+class go_prince_taldaram_sphere : public GameObjectScript
 {
     public:
-        prince_taldaram_sphere() : GameObjectScript("prince_taldaram_sphere") { }
+        go_prince_taldaram_sphere() : GameObjectScript("go_prince_taldaram_sphere") { }
 
         bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
         {
@@ -369,7 +382,6 @@ class prince_taldaram_sphere : public GameObjectScript
             Creature* PrinceTaldaram = ObjectAccessor::GetCreature(*go, instance->GetData64(DATA_PRINCE_TALDARAM));
             if (PrinceTaldaram && PrinceTaldaram->IsAlive())
             {
-                // maybe these are hacks :(
                 go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 go->SetGoState(GO_STATE_ACTIVE);
 
@@ -385,15 +397,88 @@ class prince_taldaram_sphere : public GameObjectScript
                         break;
                 }
 
-                CAST_AI(boss_taldaram::boss_taldaramAI, PrinceTaldaram->AI())->CheckSpheres();
+                CAST_AI(boss_prince_taldaram::boss_prince_taldaramAI, PrinceTaldaram->AI())->CheckSpheres();
             }
             return true;
         }
 };
 
+// 55931 - Conjure Flame Sphere
+class spell_prince_taldaram_conjure_flame_sphere : public SpellScriptLoader
+{
+    public:
+        spell_prince_taldaram_conjure_flame_sphere() : SpellScriptLoader("spell_prince_taldaram_conjure_flame_sphere") { }
+
+        class spell_prince_taldaram_conjure_flame_sphere_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_prince_taldaram_conjure_flame_sphere_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_FLAME_SPHERE_SUMMON_1)
+                    || !sSpellMgr->GetSpellInfo(SPELL_FLAME_SPHERE_SUMMON_2)
+                    || !sSpellMgr->GetSpellInfo(SPELL_FLAME_SPHERE_SUMMON_3))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                caster->CastSpell(caster, SPELL_FLAME_SPHERE_SUMMON_1, true);
+
+                if (caster->GetMap()->IsHeroic())
+                {
+                    caster->CastSpell(caster, SPELL_FLAME_SPHERE_SUMMON_2, true);
+                    caster->CastSpell(caster, SPELL_FLAME_SPHERE_SUMMON_3, true);
+                }
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_prince_taldaram_conjure_flame_sphere_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_prince_taldaram_conjure_flame_sphere_SpellScript();
+        }
+};
+
+// 55895, 59511, 59512 - Flame Sphere Summon
+class spell_prince_taldaram_flame_sphere_summon : public SpellScriptLoader
+{
+    public:
+        spell_prince_taldaram_flame_sphere_summon() : SpellScriptLoader("spell_prince_taldaram_flame_sphere_summon") { }
+
+        class spell_prince_taldaram_flame_sphere_summon_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_prince_taldaram_flame_sphere_summon_SpellScript);
+
+            void SetDest(SpellDestination& dest)
+            {
+                Position offset = { 0.0f, 0.0f, 5.5f, 0.0f };
+                dest.RelocateOffset(offset);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_prince_taldaram_flame_sphere_summon_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_prince_taldaram_flame_sphere_summon_SpellScript();
+        }
+};
+
 void AddSC_boss_taldaram()
 {
-    new boss_taldaram();
-    new npc_taldaram_flamesphere();
-    new prince_taldaram_sphere();
+    new boss_prince_taldaram();
+    new npc_prince_taldaram_flame_sphere();
+    new go_prince_taldaram_sphere();
+    new spell_prince_taldaram_conjure_flame_sphere();
+    new spell_prince_taldaram_flame_sphere_summon();
 }
