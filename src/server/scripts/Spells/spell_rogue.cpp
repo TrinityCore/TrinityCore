@@ -25,6 +25,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "Containers.h"
 
 enum RogueSpells
 {
