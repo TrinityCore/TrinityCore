@@ -33,6 +33,7 @@
 #include "Formulas.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "CellImpl.h"
 #include "ScriptMgr.h"
 #include "Vehicle.h"
 #include "Battlefield.h"
