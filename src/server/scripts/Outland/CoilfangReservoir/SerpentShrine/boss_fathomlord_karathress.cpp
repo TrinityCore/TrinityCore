@@ -214,7 +214,7 @@ public:
         void UpdateAI(uint32 diff) OVERRIDE
         {
             //Only if not incombat check if the event is started
-            if (!me->IsInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
+            if (!me->IsInCombat() && instance->GetData(DATA_KARATHRESSEVENT))
             {
                 if (Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER)))
                 {
@@ -228,7 +228,7 @@ public:
                 return;
 
             //someone evaded!
-            if (instance && !instance->GetData(DATA_KARATHRESSEVENT))
+            if (!instance->GetData(DATA_KARATHRESSEVENT))
             {
                 EnterEvadeMode();
                 return;
@@ -355,7 +355,7 @@ public:
         void UpdateAI(uint32 diff) OVERRIDE
         {
             //Only if not incombat check if the event is started
-            if (!me->IsInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
+            if (!me->IsInCombat() && instance->GetData(DATA_KARATHRESSEVENT))
             {
                 if (Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER)))
                     AttackStart(target);
@@ -366,7 +366,7 @@ public:
                 return;
 
             //someone evaded!
-            if (instance && !instance->GetData(DATA_KARATHRESSEVENT))
+            if (!instance->GetData(DATA_KARATHRESSEVENT))
             {
                 EnterEvadeMode();
                 return;
@@ -482,7 +482,7 @@ public:
         void UpdateAI(uint32 diff) OVERRIDE
         {
             //Only if not incombat check if the event is started
-            if (!me->IsInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
+            if (!me->IsInCombat() && instance->GetData(DATA_KARATHRESSEVENT))
             {
                 if (Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER)))
                     AttackStart(target);
@@ -493,7 +493,7 @@ public:
                 return;
 
             //someone evaded!
-            if (instance && !instance->GetData(DATA_KARATHRESSEVENT))
+            if (!instance->GetData(DATA_KARATHRESSEVENT))
             {
                 EnterEvadeMode();
                 return;
@@ -597,7 +597,7 @@ public:
         void UpdateAI(uint32 diff) OVERRIDE
         {
             //Only if not incombat check if the event is started
-            if (!me->IsInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
+            if (!me->IsInCombat() && instance->GetData(DATA_KARATHRESSEVENT))
             {
                 if (Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER)))
                     AttackStart(target);

@@ -72,14 +72,15 @@ public:
             AuraTimer = 5000;
             InfernoTimer = 45000;
 
-            if (instance && IsEvent)
+            if (IsEvent)
                 instance->SetData(DATA_ANETHERONEVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (instance && IsEvent)
+            if (IsEvent)
                 instance->SetData(DATA_ANETHERONEVENT, IN_PROGRESS);
+
             Talk(SAY_ONAGGRO);
         }
 
@@ -91,7 +92,7 @@ public:
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
-            if (waypointId == 7 && instance)
+            if (waypointId == 7)
             {
                 Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_JAINAPROUDMOORE));
                 if (target && target->IsAlive())

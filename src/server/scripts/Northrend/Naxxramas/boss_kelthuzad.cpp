@@ -757,8 +757,7 @@ class npc_kelthuzad_abomination : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (_instance)
-                    _instance->SetData(DATA_ABOMINATION_KILLED, _instance->GetData(DATA_ABOMINATION_KILLED) + 1);
+                _instance->SetData(DATA_ABOMINATION_KILLED, _instance->GetData(DATA_ABOMINATION_KILLED) + 1);
             }
 
         private:

@@ -433,10 +433,11 @@ public:
         {
             if (!SummonSentinel)
             {
-                if (InAction && instance && instance->GetBossState(DATA_MURU) == NOT_STARTED)
+                if (InAction && instance->GetBossState(DATA_MURU) == NOT_STARTED)
                     Reset();
                 return;
             }
+
             if (SummonTimer <= diff)
             {
                 DoCastAOE(SPELL_SUMMON_VOID_SENTINEL, false);

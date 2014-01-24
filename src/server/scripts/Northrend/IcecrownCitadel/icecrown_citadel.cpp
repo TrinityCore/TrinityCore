@@ -2034,6 +2034,7 @@ class spell_svalna_remove_spear : public SpellScriptLoader
         }
 };
 
+// 72585 - Soul Missile
 class spell_icc_soul_missile : public SpellScriptLoader
 {
     public:
@@ -2043,15 +2044,15 @@ class spell_icc_soul_missile : public SpellScriptLoader
         {
             PrepareSpellScript(spell_icc_soul_missile_SpellScript);
 
-            void RelocateDest()
+            void RelocateDest(SpellDestination& dest)
             {
-                static Position const offset = {0.0f, 0.0f, 200.0f, 0.0f};
-                const_cast<WorldLocation*>(GetExplTargetDest())->RelocateOffset(offset);
+                static Position const offset = { 0.0f, 0.0f, 200.0f, 0.0f };
+                dest.RelocateOffset(offset);
             }
 
             void Register() OVERRIDE
             {
-                OnCast += SpellCastFn(spell_icc_soul_missile_SpellScript::RelocateDest);
+                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_icc_soul_missile_SpellScript::RelocateDest, EFFECT_0, TARGET_DEST_CASTER);
             }
         };
 

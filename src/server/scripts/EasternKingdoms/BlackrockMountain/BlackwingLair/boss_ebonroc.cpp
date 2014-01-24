@@ -45,7 +45,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (instance && instance->GetBossState(BOSS_BROODLORD) != DONE)
+            if (instance->GetBossState(BOSS_BROODLORD) != DONE)
             {
                 EnterEvadeMode();
                 return;

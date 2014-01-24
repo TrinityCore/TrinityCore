@@ -96,7 +96,7 @@ class boss_majordomo : public CreatureScript
 
             void UpdateAI(uint32 diff) OVERRIDE
             {
-                if (instance && instance->GetBossState(BOSS_MAJORDOMO_EXECUTUS) != DONE)
+                if (instance->GetBossState(BOSS_MAJORDOMO_EXECUTUS) != DONE)
                 {
                     if (!UpdateVictim())
                         return;

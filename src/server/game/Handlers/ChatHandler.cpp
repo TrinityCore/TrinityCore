@@ -299,6 +299,10 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         case CHAT_MSG_EMOTE:
         case CHAT_MSG_YELL:
         {
+            // Prevent cheating
+            if (!sender->IsAlive())
+                return;
+
             if (sender->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_SAY_LEVEL_REQ))
             {
                 SendNotification(GetTrinityString(LANG_SAY_REQ), sWorld->getIntConfig(CONFIG_CHAT_SAY_LEVEL_REQ));
@@ -311,7 +315,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 sender->TextEmote(msg);
             else if (type == CHAT_MSG_YELL)
                 sender->Yell(msg, lang);
-        } break;
+            break;
+        }
         case CHAT_MSG_WHISPER:
         {
             if (!normalizePlayerName(to))
@@ -351,7 +356,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 sender->AddWhisperWhiteList(receiver->GetGUID());
 
             GetPlayer()->Whisper(msg, lang, receiver->GetGUID());
-        } break;
+            break;
+        }
         case CHAT_MSG_PARTY:
         case CHAT_MSG_PARTY_LEADER:
         {
@@ -359,7 +365,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             Group* group = GetPlayer()->GetOriginalGroup();
             if (!group)
             {
-                group = _player->GetGroup();
+                group = sender->GetGroup();
                 if (!group || group->isBGGroup())
                     return;
             }
@@ -370,9 +376,10 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 
             WorldPacket data;
-            ChatHandler::BuildChatPacket(data, ChatMsg(type), Language(lang), _player, NULL, msg);
+            ChatHandler::BuildChatPacket(data, ChatMsg(type), Language(lang), sender, NULL, msg);
             group->BroadcastPacket(&data, false, group->GetMemberGroup(GetPlayer()->GetGUID()));
-        } break;
+            break;
+        }
         case CHAT_MSG_GUILD:
         {
             if (GetPlayer()->GetGuildId())
@@ -384,7 +391,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                     guild->BroadcastToGuild(this, false, msg, lang == LANG_ADDON ? LANG_ADDON : LANG_UNIVERSAL);
                 }
             }
-        } break;
+            break;
+        }
         case CHAT_MSG_OFFICER:
         {
             if (GetPlayer()->GetGuildId())
@@ -396,7 +404,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                     guild->BroadcastToGuild(this, true, msg, lang == LANG_ADDON ? LANG_ADDON : LANG_UNIVERSAL);
                 }
             }
-        } break;
+            break;
+        }
         case CHAT_MSG_RAID:
         case CHAT_MSG_RAID_LEADER:
         {
@@ -415,9 +424,10 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 
             WorldPacket data;
-            ChatHandler::BuildChatPacket(data, ChatMsg(type), Language(lang), _player, NULL, msg);
+            ChatHandler::BuildChatPacket(data, ChatMsg(type), Language(lang), sender, NULL, msg);
             group->BroadcastPacket(&data, false);
-        } break;
+            break;
+        }
         case CHAT_MSG_RAID_WARNING:
         {
             Group* group = GetPlayer()->GetGroup();
@@ -428,9 +438,10 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
             WorldPacket data;
             //in battleground, raid warning is sent only to players in battleground - code is ok
-            ChatHandler::BuildChatPacket(data, CHAT_MSG_RAID_WARNING, Language(lang), _player, NULL, msg);
+            ChatHandler::BuildChatPacket(data, CHAT_MSG_RAID_WARNING, Language(lang), sender, NULL, msg);
             group->BroadcastPacket(&data, false);
-        } break;
+            break;
+        }
         case CHAT_MSG_BATTLEGROUND:
         case CHAT_MSG_BATTLEGROUND_LEADER:
         {
@@ -445,74 +456,76 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 
             WorldPacket data;
-            ChatHandler::BuildChatPacket(data, ChatMsg(type), Language(lang), _player, NULL, msg);
+            ChatHandler::BuildChatPacket(data, ChatMsg(type), Language(lang), sender, NULL, msg);
             group->BroadcastPacket(&data, false);
-        } break;
+            break;
+        }
         case CHAT_MSG_CHANNEL:
         {
             if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHAT_CHANNEL_REQ))
             {
-                if (_player->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_CHANNEL_LEVEL_REQ))
+                if (sender->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_CHANNEL_LEVEL_REQ))
                 {
                     SendNotification(GetTrinityString(LANG_CHANNEL_REQ), sWorld->getIntConfig(CONFIG_CHAT_CHANNEL_LEVEL_REQ));
                     return;
                 }
             }
 
-            if (ChannelMgr* cMgr = ChannelMgr::forTeam(_player->GetTeam()))
+            if (ChannelMgr* cMgr = ChannelMgr::forTeam(sender->GetTeam()))
             {
-                if (Channel* chn = cMgr->GetChannel(channel, _player))
+                if (Channel* chn = cMgr->GetChannel(channel, sender))
                 {
-                    sScriptMgr->OnPlayerChat(_player, type, lang, msg, chn);
-                    chn->Say(_player->GetGUID(), msg.c_str(), lang);
+                    sScriptMgr->OnPlayerChat(sender, type, lang, msg, chn);
+                    chn->Say(sender->GetGUID(), msg.c_str(), lang);
                 }
             }
-        } break;
+            break;
+        }
         case CHAT_MSG_AFK:
         {
-            if (!_player->IsInCombat())
+            if (!sender->IsInCombat())
             {
-                if (_player->isAFK())                       // Already AFK
+                if (sender  ->isAFK())                       // Already AFK
                 {
                     if (msg.empty())
-                        _player->ToggleAFK();               // Remove AFK
+                        sender->ToggleAFK();                // Remove AFK
                     else
-                        _player->autoReplyMsg = msg;        // Update message
+                        sender->autoReplyMsg = msg;         // Update message
                 }
                 else                                        // New AFK mode
                 {
-                    _player->autoReplyMsg = msg.empty() ? GetTrinityString(LANG_PLAYER_AFK_DEFAULT) : msg;
+                    sender->autoReplyMsg = msg.empty() ? GetTrinityString(LANG_PLAYER_AFK_DEFAULT) : msg;
 
-                    if (_player->isDND())
-                        _player->ToggleDND();
+                    if (sender->isDND())
+                        sender->ToggleDND();
 
-                    _player->ToggleAFK();
+                    sender->ToggleAFK();
                 }
 
-                sScriptMgr->OnPlayerChat(_player, type, lang, msg);
+                sScriptMgr->OnPlayerChat(sender, type, lang, msg);
             }
             break;
         }
         case CHAT_MSG_DND:
         {
-            if (_player->isDND())                           // Already DND
+            if (sender->isDND())                            // Already DND
             {
                 if (msg.empty())
-                    _player->ToggleDND();                   // Remove DND
+                    sender->ToggleDND();                    // Remove DND
                 else
-                    _player->autoReplyMsg = msg;            // Update message
+                    sender->autoReplyMsg = msg;             // Update message
             }
             else                                            // New DND mode
             {
-                _player->autoReplyMsg = msg.empty() ? GetTrinityString(LANG_PLAYER_DND_DEFAULT) : msg;
+                sender->autoReplyMsg = msg.empty() ? GetTrinityString(LANG_PLAYER_DND_DEFAULT) : msg;
 
-                if (_player->isAFK())
-                    _player->ToggleAFK();
+                if (sender->isAFK())
+                    sender->ToggleAFK();
 
-                _player->ToggleDND();
+                sender->ToggleDND();
             }
 
-            sScriptMgr->OnPlayerChat(_player, type, lang, msg);
+            sScriptMgr->OnPlayerChat(sender, type, lang, msg);
             break;
         }
         default:
