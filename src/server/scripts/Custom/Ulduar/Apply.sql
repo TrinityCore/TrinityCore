@@ -161,3 +161,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 64623, 0, 1, 31, 0, 3, 34149, 0, 0, 0, 0,'','Mimiron - Frost Bomb on Flame (Initial)');
 
 UPDATE `creature_template` SET `faction_A` = 14, `faction_H` = 14 WHERE `entry` IN (34149, 34361); -- Previous value was 35
+
+-- Implements achievement Not-So-Friendly Fire 
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id`='10405' AND `type`='18'; 
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id`='10406' AND `type`='18'; 

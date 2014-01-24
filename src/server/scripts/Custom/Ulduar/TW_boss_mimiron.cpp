@@ -1692,8 +1692,7 @@ class TW_npc_assault_bot : public CreatureScript
             {
                 // Achievement Not-So-Friendly Fire
                 if (spell->Id == SPELL_ROCKET_STRIKE_DMG)
-                    if (Player* player = me->SelectNearestPlayer(100.0f))
-                        player->CastSpell(player, SPELL_NOT_SO_FRIENDLY_FIRE, true);
+                    DoCastAOE(SPELL_NOT_SO_FRIENDLY_FIRE);
             }
 
         private:

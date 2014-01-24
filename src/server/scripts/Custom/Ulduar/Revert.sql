@@ -59,3 +59,10 @@ UPDATE `creature_template` SET `faction_A` = 35, `faction_H` = 35 WHERE `entry` 
 DELETE FROM `achievement_criteria_data` WHERE `ScriptName` = 'TW_achievement_firefighter';
 
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'TW_spell_rapid_burst';
+
+-- Revert Not-So-Friendly Fire
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id`='10405' AND `type`='18'; 
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id`='10406' AND `type`='18'; 
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`) VALUES
+(10406, 18),
+(10405, 18);
