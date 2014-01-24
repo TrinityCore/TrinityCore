@@ -470,7 +470,7 @@ class npc_swarm_scarab : public CreatureScript
 
             void UpdateAI(uint32 diff) OVERRIDE
             {
-                if (_instance && _instance->GetBossState(BOSS_ANUBARAK) != IN_PROGRESS)
+                if (_instance->GetBossState(BOSS_ANUBARAK) != IN_PROGRESS)
                     me->DisappearAndDie();
 
                 if (!UpdateVictim())
@@ -540,7 +540,7 @@ class npc_nerubian_burrower : public CreatureScript
 
             void UpdateAI(uint32 diff) OVERRIDE
             {
-                if (_instance && _instance->GetBossState(BOSS_ANUBARAK) != IN_PROGRESS)
+                if (_instance->GetBossState(BOSS_ANUBARAK) != IN_PROGRESS)
                     me->DisappearAndDie();
 
                 if (!UpdateVictim() && !me->HasAura(SPELL_SUBMERGE_EFFECT))

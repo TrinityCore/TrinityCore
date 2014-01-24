@@ -93,7 +93,7 @@ public:
             MortalStrike_Timer = 12000;
             //        RaiseDead_Timer = 30000;
             SummonSkeletons_Timer = 34000;
-            if (instance && instance->GetData(TYPE_RAMSTEIN) == DONE)
+            if (instance->GetData(TYPE_RAMSTEIN) == DONE)
                 instance->SetData(TYPE_BARON, NOT_STARTED);
         }
 

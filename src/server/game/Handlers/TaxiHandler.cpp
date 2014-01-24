@@ -184,6 +184,14 @@ void WorldSession::HandleActivateTaxiExpressOpcode (WorldPacket& recvData)
     {
         uint32 node;
         recvData >> node;
+
+        if (!GetPlayer()->m_taxi.IsTaximaskNodeKnown(node) && !GetPlayer()->isTaxiCheater())
+        {
+            SendActivateTaxiReply(ERR_TAXINOTVISITED);
+            recvData.rfinish();
+            return;
+        }
+
         nodes.push_back(node);
     }
 
@@ -285,6 +293,15 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket& recvData)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleActivateTaxiOpcode - Unit (GUID: %u) not found or you can't interact with it.", uint32(GUID_LOPART(guid)));
         return;
+    }
+
+    if (!GetPlayer()->isTaxiCheater())
+    {
+        if (!GetPlayer()->m_taxi.IsTaximaskNodeKnown(nodes[0]) || !GetPlayer()->m_taxi.IsTaximaskNodeKnown(nodes[1]))
+        {
+            SendActivateTaxiReply(ERR_TAXINOTVISITED);
+            return;
+        }
     }
 
     GetPlayer()->ActivateTaxiPathTo(nodes, npc);

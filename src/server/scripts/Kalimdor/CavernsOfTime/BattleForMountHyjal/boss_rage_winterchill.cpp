@@ -69,13 +69,13 @@ public:
             NovaTimer = 15000;
             IceboltTimer = 10000;
 
-            if (instance && IsEvent)
+            if (IsEvent)
                 instance->SetData(DATA_RAGEWINTERCHILLEVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (instance && IsEvent)
+            if (IsEvent)
                 instance->SetData(DATA_RAGEWINTERCHILLEVENT, IN_PROGRESS);
             Talk(SAY_ONAGGRO);
         }

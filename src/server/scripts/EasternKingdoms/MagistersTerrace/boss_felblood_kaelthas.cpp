@@ -515,7 +515,7 @@ public:
                 return;
             }
             //Don't really die in all phases of Kael'Thas
-            if (instance && instance->GetData(DATA_KAELTHAS_EVENT) == 0)
+            if (instance->GetData(DATA_KAELTHAS_EVENT) == 0)
             {
                 //prevent death
                 damage = 0;

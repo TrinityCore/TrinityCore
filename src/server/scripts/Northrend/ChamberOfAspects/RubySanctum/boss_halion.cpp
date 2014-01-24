@@ -1696,6 +1696,7 @@ class spell_halion_twilight_phasing : public SpellScriptLoader
         }
 };
 
+// 74805 - Summon Exit Portals
 class spell_halion_summon_exit_portals : public SpellScriptLoader
 {
     public:
@@ -1705,23 +1706,22 @@ class spell_halion_summon_exit_portals : public SpellScriptLoader
         {
             PrepareSpellScript(spell_halion_summon_exit_portals_SpellScript);
 
-            void OnSummon(SpellEffIndex effIndex)
+            void SetDest0(SpellDestination& dest)
             {
-                WorldLocation summonPos = *GetExplTargetDest();
-                Position offset = {0.0f, 20.0f, 0.0f, 0.0f};
-                if (effIndex == EFFECT_1)
-                    offset.m_positionY = -20.0f;
+                Position const offset = { 0.0f, 20.0f, 0.0f, 0.0f };
+                dest.RelocateOffset(offset);
+            }
 
-                summonPos.RelocateOffset(offset);
-
-                SetExplTargetDest(summonPos);
-                GetHitDest()->RelocateOffset(offset);
+            void SetDest1(SpellDestination& dest)
+            {
+                Position const offset = { 0.0f, -20.0f, 0.0f, 0.0f };
+                dest.RelocateOffset(offset);
             }
 
             void Register() OVERRIDE
             {
-                OnEffectLaunch += SpellEffectFn(spell_halion_summon_exit_portals_SpellScript::OnSummon, EFFECT_0, SPELL_EFFECT_SUMMON_OBJECT_WILD);
-                OnEffectLaunch += SpellEffectFn(spell_halion_summon_exit_portals_SpellScript::OnSummon, EFFECT_1, SPELL_EFFECT_SUMMON_OBJECT_WILD);
+                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_halion_summon_exit_portals_SpellScript::SetDest0, EFFECT_0, TARGET_DEST_CASTER);
+                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_halion_summon_exit_portals_SpellScript::SetDest1, EFFECT_1, TARGET_DEST_CASTER);
             }
         };
 

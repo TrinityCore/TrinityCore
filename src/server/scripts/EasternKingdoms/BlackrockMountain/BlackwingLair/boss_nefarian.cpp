@@ -223,16 +223,14 @@ public:
 
         void SetData(uint32 type, uint32 data) OVERRIDE
         {
-            if (instance && type == 1 && data == 1)
+            if ( type == 1 && data == 1)
             {
                 me->StopMoving();
                 events.ScheduleEvent(EVENT_PATH_2, 9000);
             }
 
-            if (instance && type == 1 && data == 2)
-            {
+            if (type == 1 && data == 2)
                 events.ScheduleEvent(EVENT_SUCCESS_1, 5000);
-            }
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
