@@ -1359,10 +1359,7 @@ public:
 
     struct npc_counselor_talbotAI : public ScriptedAI
     {
-        npc_counselor_talbotAI(Creature* creature) : ScriptedAI(creature)
-        {
-            creature->RestoreFaction();
-        }
+        npc_counselor_talbotAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 leryssaGUID;
         uint64 arlosGUID;

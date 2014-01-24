@@ -78,14 +78,15 @@ public:
             EnrageTimer = 600000;
             enraged = false;
 
-            if (instance && IsEvent)
+            if (IsEvent)
                 instance->SetData(DATA_AZGALOREVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (instance && IsEvent)
+            if (IsEvent)
                 instance->SetData(DATA_AZGALOREVENT, IN_PROGRESS);
+
             Talk(SAY_ONAGGRO);
         }
 

@@ -231,7 +231,7 @@ struct boss_hexlord_addAI : public ScriptedAI
 
     void UpdateAI(uint32 /*diff*/) OVERRIDE
     {
-        if (instance && instance->GetData(DATA_HEXLORDEVENT) != IN_PROGRESS)
+        if (instance->GetData(DATA_HEXLORDEVENT) != IN_PROGRESS)
         {
             EnterEvadeMode();
             return;

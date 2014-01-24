@@ -496,12 +496,13 @@ public:
             EventStarted = false;
             YellTimer = 0;
 
-            if (instance && instance->GetData64(DATA_IMAGE_OF_MEDIVH) == 0)
+            if (instance->GetData64(DATA_IMAGE_OF_MEDIVH) == 0)
             {
                 instance->SetData64(DATA_IMAGE_OF_MEDIVH, me->GetGUID());
                 (*me).GetMotionMaster()->MovePoint(1, MedivPos[0], MedivPos[1], MedivPos[2]);
                 Step = 0;
-            }else
+            }
+            else
             {
                 me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 me->RemoveCorpse();

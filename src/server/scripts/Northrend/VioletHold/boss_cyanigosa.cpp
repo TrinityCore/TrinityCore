@@ -90,7 +90,7 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (instance && instance->GetData(DATA_REMOVE_NPC) == 1)
+            if (instance->GetData(DATA_REMOVE_NPC) == 1)
             {
                 me->DespawnOrUnsummon();
                 instance->SetData(DATA_REMOVE_NPC, 0);

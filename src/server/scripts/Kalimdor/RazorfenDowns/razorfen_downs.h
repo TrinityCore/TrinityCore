@@ -61,13 +61,9 @@ enum GameObjectIds
 };
 
 template<class AI>
-CreatureAI* GetRazorfenDownsAI(Creature* creature)
+AI* GetRazorfenDownsAI(Creature* creature)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(RFDScriptName))
-                return new AI(creature);
-    return NULL;
+    return GetInstanceAI<AI>(creature, RFDScriptName);
 }
 
 #endif

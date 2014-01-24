@@ -77,7 +77,7 @@ class boss_void_reaver : public CreatureScript
 
                 Enraged = false;
 
-                if (instance && me->IsAlive())
+                if (me->IsAlive())
                     instance->SetData(DATA_VOIDREAVEREVENT, NOT_STARTED);
             }
 

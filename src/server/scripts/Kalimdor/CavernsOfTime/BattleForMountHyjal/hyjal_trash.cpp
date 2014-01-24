@@ -443,7 +443,7 @@ public:
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
-            if (waypointId == 0 && instance && !IsOverrun)
+            if (waypointId == 0 && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
@@ -559,7 +559,7 @@ public:
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
-            if (waypointId == 7 && instance && !IsOverrun)
+            if (waypointId == 7 && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
@@ -658,7 +658,7 @@ public:
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
-            if (waypointId == 7 && instance && !IsOverrun)
+            if (waypointId == 7 && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
@@ -769,7 +769,7 @@ public:
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
-            if (waypointId == 7 && instance && !IsOverrun)
+            if (waypointId == 7 && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
@@ -882,7 +882,7 @@ public:
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
-            if (waypointId == 7 && instance && !IsOverrun)
+            if (waypointId == 7 && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
@@ -978,7 +978,7 @@ public:
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
-            if (waypointId == 7 && instance && !IsOverrun)
+            if (waypointId == 7 && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
@@ -1064,7 +1064,7 @@ public:
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
-            if (waypointId == 7 && instance && !IsOverrun)
+            if (waypointId == 7 && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
@@ -1153,7 +1153,7 @@ public:
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
-            if (waypointId == 2 && instance && !IsOverrun)
+            if (waypointId == 2 && !IsOverrun)
             {
                 Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_THRALL));
                 if (target && target->IsAlive())
@@ -1166,7 +1166,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance && IsEvent)
+            if (IsEvent)
                 instance->SetData(DATA_TRASH, 0);//signal trash is dead
 
             float x, y, z;
@@ -1181,11 +1181,13 @@ public:
         void UpdateAI(uint32 diff) OVERRIDE
         {
             hyjal_trashAI::UpdateAI(diff);
+
             if (IsEvent || IsOverrun)
             {
                 CAST_AI(hyjal_trashAI, me->AI())->SetCanAttack(false);
                 npc_escortAI::UpdateAI(diff);
             }
+
             if (IsEvent)
             {
                 if (!go)
@@ -1197,7 +1199,9 @@ public:
                             AddWaypoint(i, FrostWyrmWPs[i][0],    FrostWyrmWPs[i][1],    FrostWyrmWPs[i][2]);
                         Start(false, true);
                         SetDespawnAtEnd(false);
-                    }else{//fly path FlyPathWPs
+                    }
+                    else
+                    {//fly path FlyPathWPs
                         for (uint8 i = 0; i < 3; ++i)
                             AddWaypoint(i, FlyPathWPs[i][0]+irand(-10, 10),    FlyPathWPs[i][1]+irand(-10, 10),    FlyPathWPs[i][2]);
                         Start(false, true);
@@ -1205,9 +1209,12 @@ public:
                     }
                 }
             }
+
             if (!UpdateVictim())
                 return;
-            if (!me->IsWithinDist(me->GetVictim(), 25)){
+
+            if (!me->IsWithinDist(me->GetVictim(), 25))
+            {
                 if (MoveTimer <= diff)
                 {
                     me->GetMotionMaster()->MoveChase(me->GetVictim());
@@ -1227,7 +1234,6 @@ public:
             } else FrostBreathTimer -= diff;
         }
     };
-
 };
 
 class npc_gargoyle : public CreatureScript
@@ -1246,7 +1252,8 @@ public:
         {
             instance = creature->GetInstanceScript();
             go = false;
-            DummyTarget[0] = 0;DummyTarget[1] = 0;DummyTarget[2] = 0;
+            for (uint8 i = 0; i < 3; ++i)
+                DummyTarget[i] = 0;
             Reset();
         }
 
@@ -1267,7 +1274,7 @@ public:
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
-            if (waypointId == 2 && instance && !IsOverrun)
+            if (waypointId == 2 && !IsOverrun)
             {
                 Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_THRALL));
                 if (target && target->IsAlive())
@@ -1291,11 +1298,13 @@ public:
         void UpdateAI(uint32 diff) OVERRIDE
         {
             hyjal_trashAI::UpdateAI(diff);
+
             if (IsEvent || IsOverrun)
             {
                 CAST_AI(hyjal_trashAI, me->AI())->SetCanAttack(false);
                 npc_escortAI::UpdateAI(diff);
             }
+
             if (IsEvent)
             {
                 if (!go)
@@ -1315,6 +1324,7 @@ public:
                     }
                 }
             }
+
             if (IsOverrun && !UpdateVictim())
             {
                 if (faction == 0)//alliance
@@ -1326,8 +1336,10 @@ public:
                     } else StrikeTimer -= diff;
                     }
             }
+
             if (!UpdateVictim())
                 return;
+
             if (!me->IsWithinDist(me->GetVictim(), 20) || forcemove)
             {
                 forcemove = false;
@@ -1347,6 +1359,7 @@ public:
                     MoveTimer = 2000;
                 } else MoveTimer-=diff;
             }
+
             if (StrikeTimer <= diff)
             {
                 if (me->IsWithinDist(me->GetVictim(), 20))
@@ -1359,7 +1372,6 @@ public:
             } else StrikeTimer -= diff;
         }
     };
-
 };
 
 class alliance_rifleman : public CreatureScript
