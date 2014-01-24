@@ -5570,21 +5570,6 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
                     case 46736:
                         triggerSpellId = 46737;
                         break;
-                    case 65418:                  //Well Fed - Candied Sweet Potatoes
-                        triggerSpellId = 65410;
-                        break;
-                    case 65419:                  //Well Fed - Spice Bread Stuffing
-                        triggerSpellId = 65416;
-                        break;
-                    case 65420:                  //Well Fed - Cranberry Chutney
-                        triggerSpellId = 65412;
-                        break;
-                    case 65421:                  //Well Fed - Pumpkin Pie
-                        triggerSpellId = 65415;
-                        break;
-                    case 65422:                  //Well Fed - Slow-Roasted Turkey
-                        triggerSpellId = 65414;
-                        break;
                 }
                 break;
             }
