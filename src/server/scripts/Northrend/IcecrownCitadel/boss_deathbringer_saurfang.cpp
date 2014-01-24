@@ -773,7 +773,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
         bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
         {
             InstanceScript* instance = creature->GetInstanceScript();
-            if (instance->GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE)
+            if (instance && instance->GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE)
             {
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "We are ready to go, High Overlord. The Lich King must fall!", 631, -ACTION_START_EVENT);
                 player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
@@ -921,7 +921,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
         bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
         {
             InstanceScript* instance = creature->GetInstanceScript();
-            if (instance->GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE)
+            if (instance && instance->GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE)
             {
                 player->ADD_GOSSIP_ITEM(0, "Let it begin...", 631, -ACTION_START_EVENT + 1);
                 player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());

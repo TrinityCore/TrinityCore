@@ -113,7 +113,7 @@ public:
     {
         InstanceScript* instance = creature->GetInstanceScript();
 
-        if (instance->GetData(TYPE_EVENT) == NOT_STARTED)
+        if (instance && instance->GetData(TYPE_EVENT) == NOT_STARTED)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
         player->SEND_GOSSIP_MENU(GOSSIP_TEXT_EMI, creature->GetGUID());

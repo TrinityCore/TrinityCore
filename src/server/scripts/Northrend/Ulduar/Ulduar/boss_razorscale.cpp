@@ -720,7 +720,7 @@ class npc_expedition_commander : public CreatureScript
         bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
         {
             InstanceScript* instance = creature->GetInstanceScript();
-            if (instance->GetBossState(BOSS_RAZORSCALE) == NOT_STARTED)
+            if (instance && instance->GetBossState(BOSS_RAZORSCALE) == NOT_STARTED)
             {
                 player->PrepareGossipMenu(creature);
 
