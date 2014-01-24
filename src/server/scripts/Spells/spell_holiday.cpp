@@ -277,6 +277,61 @@ class spell_hallow_end_tricky_treat : public SpellScriptLoader
         }
 };
 
+enum PilgrimsBountyBuffFood
+{
+    // Pilgrims Bounty Buff Food
+    SPELL_WELL_FED_AP_TRIGGER       = 65414,
+    SPELL_WELL_FED_ZM_TRIGGER       = 65412,
+    SPELL_WELL_FED_HIT_TRIGGER      = 65416,
+    SPELL_WELL_FED_HASTE_TRIGGER    = 65410,
+    SPELL_WELL_FED_SPIRIT_TRIGGER   = 65415
+};
+
+class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
+{
+    private:
+        uint32 _triggeredSpellId;
+    public:
+        spell_pilgrims_bounty_buff_food(const char* name, uint32 triggeredSpellId) : SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
+
+        class spell_pilgrims_bounty_buff_food_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pilgrims_bounty_buff_food_AuraScript)
+        private:
+            uint32 _triggeredSpellId;
+
+        public:
+            spell_pilgrims_bounty_buff_food_AuraScript(uint32 triggeredSpellId) : AuraScript(), _triggeredSpellId(triggeredSpellId) { }
+
+            bool Load()
+            {
+                _handled = false;
+                return true;
+            }
+
+            void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
+            {
+                if (_handled)
+                    return;
+
+                _handled = true;
+                GetTarget()->CastSpell(GetTarget(), _triggeredSpellId, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_pilgrims_bounty_buff_food_AuraScript::HandleTriggerSpell, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+
+            bool _handled;
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pilgrims_bounty_buff_food_AuraScript(_triggeredSpellId);
+        }
+};
+
 enum Mistletoe
 {
     SPELL_CREATE_MISTLETOE          = 26206,
@@ -396,6 +451,12 @@ void AddSC_holiday_spell_scripts()
     new spell_hallow_end_trick();
     new spell_hallow_end_trick_or_treat();
     new spell_hallow_end_tricky_treat();
+    // Pilgrims Bounty
+    new spell_pilgrims_bounty_buff_food("spell_gen_slow_roasted_turkey", SPELL_WELL_FED_AP_TRIGGER);
+    new spell_pilgrims_bounty_buff_food("spell_gen_cranberry_chutney", SPELL_WELL_FED_ZM_TRIGGER);
+    new spell_pilgrims_bounty_buff_food("spell_gen_spice_bread_stuffing", SPELL_WELL_FED_HIT_TRIGGER);
+    new spell_pilgrims_bounty_buff_food("spell_gen_pumpkin_pie", SPELL_WELL_FED_SPIRIT_TRIGGER);
+    new spell_pilgrims_bounty_buff_food("spell_gen_candied_sweet_potato", SPELL_WELL_FED_HASTE_TRIGGER);
     // Winter Veil
     new spell_winter_veil_mistletoe();
     new spell_winter_veil_px_238_winter_wondervolt();
