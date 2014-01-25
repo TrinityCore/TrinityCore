@@ -173,7 +173,7 @@ public:
             std::string ircchan = "#";
             std::ostringstream smsg;
             std::string assignedto;
-            // If closed from console,ther eis no player,so we assign to Console.
+            // If closed from console,there is no player,so we assign to Console.
             if (player)
                 assignedto = player->GetName().c_str();
             else assignedto = "Console";
@@ -262,9 +262,13 @@ public:
         {
             std::string ircchan = "#";
             std::ostringstream smsg;
+            std::string respondedby;
+            // If responded from console,there is no player,so we assign to Console.
+            if (handler->GetSession()->GetPlayer())
+                respondedby = handler->GetSession()->GetPlayer()->GetName().c_str();
+            else respondedby = "Console";
             ircchan += sIRC->ticann;
-            smsg << "[\00304Ticket Completed\003][By:\00304 " << ticket->GetPlayerName().c_str() << " \003][ID: \00304" << ticket->GetId() << " \003][Responded By: \00304" 
-                << handler->GetSession()->GetPlayer()->GetName().c_str() << " \003]";
+            smsg << "[\00304Ticket Completed\003][By:\00304 " << ticket->GetPlayerName().c_str() << " \003][ID: \00304" << ticket->GetId() << " \003][Responded By: \00304" << respondedby << " \003]";
             sIRC->Send_IRC_Channel(ircchan, smsg.str().c_str() , true);
         }
 
