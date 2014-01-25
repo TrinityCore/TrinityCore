@@ -239,7 +239,6 @@ Creature* Transport::CreateNPCPassenger(uint32 guid, CreatureData const* data)
     float o = data->orientation;
 
     creature->SetTransport(this);
-    creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     creature->m_movementInfo.transport.guid = GetGUID();
     creature->m_movementInfo.transport.pos.Relocate(x, y, z, o);
     CalculatePassengerPosition(x, y, z, &o);

@@ -20,4 +20,6 @@
 #include "ScriptedGossip.h"
 #include "Player.h"
 
-void AddSC_ironforge() { }
+void AddSC_ironforge()
+{
+}

@@ -30,7 +30,9 @@ char * wdtGetPlainName(char * FileName)
     return FileName;
 }
 
-WDTFile::WDTFile(char* file_name, char* file_name1) : WDT(file_name), gWmoInstansName(NULL), gnWMO(0)
+extern HANDLE WorldMpq;
+
+WDTFile::WDTFile(char* file_name, char* file_name1):WDT(WorldMpq, file_name)
 {
     filename.append(file_name1,strlen(file_name1));
 }
@@ -81,7 +83,7 @@ bool WDTFile::init(char* /*map_id*/, unsigned int mapID)
                 while (p < buf + size)
                 {
                     char* s=wdtGetPlainName(p);
-                    fixnamen(s,strlen(s));
+                    FixNameCase(s,strlen(s));
                     p=p+strlen(p)+1;
                     gWmoInstansName[q++] = s;
                 }
@@ -125,6 +127,6 @@ ADTFile* WDTFile::GetMap(int x, int z)
 
     char name[512];
 
-    sprintf(name,"World\\Maps\\%s\\%s_%d_%d.adt", filename.c_str(), filename.c_str(), x, z);
+    sprintf(name,"World\\Maps\\%s\\%s_%d_%d_obj0.adt", filename.c_str(), filename.c_str(), x, z);
     return new ADTFile(name);
 }

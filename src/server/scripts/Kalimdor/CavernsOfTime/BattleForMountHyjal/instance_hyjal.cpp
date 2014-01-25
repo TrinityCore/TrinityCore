@@ -31,6 +31,7 @@ EndScriptData */
 #include "WorldPacket.h"
 #include "Opcodes.h"
 #include "Chat.h"
+#include "WorldSession.h"
 
 /* Battle of Mount Hyjal encounters:
 0 - Rage Winterchill event
@@ -191,7 +192,8 @@ public:
                                             i->GetSource()->GetSession()->SendPacket(&packet);
 
                                             WorldPacket data2(SMSG_PLAY_SOUND, 4);
-                                            data2 << 10986;
+                                            data2 << uint32(10986);
+                                            data2 << uint64(unit->GetGUID());
                                             i->GetSource()->GetSession()->SendPacket(&data2);
                                          }
                                     }

@@ -11,26 +11,29 @@
 
 file(GLOB_RECURSE sources *.cpp *.h)
 
-set(include_Dirs
-    ${CMAKE_SOURCE_DIR}/dep/libmpq
-)
+# uncomment next line to disable debug mode
+add_definitions("-DIOMAP_DEBUG")
 
-if( WIN32 )
-  set(include_Dirs
-    ${include_Dirs}
-    ${CMAKE_SOURCE_DIR}/dep/libmpq/win
-  )
+# build setup currently only supports libmpq 0.4.x
+if( NOT MSVC )
+  add_definitions("-Wall")
+  add_definitions("-ggdb")
+  add_definitions("-O3")
 endif()
 
-include_directories(${include_Dirs})
+include_directories(
+  ${CMAKE_SOURCE_DIR}/dep/StormLib/src
+)
 
 add_executable(vmap4extractor ${sources})
 
 target_link_libraries(vmap4extractor
-  mpq
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
+  storm
 )
+
+add_dependencies(vmap4extractor storm)
 
 if( UNIX )
   install(TARGETS vmap4extractor DESTINATION bin)

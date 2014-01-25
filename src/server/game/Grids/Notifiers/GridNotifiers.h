@@ -25,6 +25,7 @@
 
 #include "Corpse.h"
 #include "Object.h"
+#include "AreaTrigger.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
 #include "Player.h"
@@ -45,7 +46,7 @@ namespace Trinity
         std::set<Unit*> i_visibleNow;
         Player::ClientGUIDs vis_guids;
 
-        VisibleNotifier(Player &player) : i_player(player), vis_guids(player.m_clientGUIDs) { }
+        VisibleNotifier(Player &player) : i_player(player), i_data(player.GetMapId()), vis_guids(player.m_clientGUIDs) { }
         template<class T> void Visit(GridRefManager<T> &m);
         void SendToSelf(void);
     };
@@ -118,6 +119,7 @@ namespace Trinity
         void Visit(GameObjectMapType &m) { updateObjects<GameObject>(m); }
         void Visit(DynamicObjectMapType &m) { updateObjects<DynamicObject>(m); }
         void Visit(CorpseMapType &m) { updateObjects<Corpse>(m); }
+        void Visit(AreaTriggerMapType &m) { updateObjects<AreaTrigger>(m); }
     };
 
     struct MessageDistDeliverer
@@ -186,6 +188,7 @@ namespace Trinity
         void Visit(CreatureMapType &m);
         void Visit(CorpseMapType &m);
         void Visit(DynamicObjectMapType &m);
+        void Visit(AreaTriggerMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
     };
@@ -206,6 +209,7 @@ namespace Trinity
         void Visit(CreatureMapType &m);
         void Visit(CorpseMapType &m);
         void Visit(DynamicObjectMapType &m);
+        void Visit(AreaTriggerMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
     };
@@ -226,6 +230,7 @@ namespace Trinity
         void Visit(CorpseMapType &m);
         void Visit(GameObjectMapType &m);
         void Visit(DynamicObjectMapType &m);
+        void Visit(AreaTriggerMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
     };
@@ -280,6 +285,15 @@ namespace Trinity
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_DYNAMICOBJECT))
                 return;
             for (DynamicObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                    i_do(itr->GetSource());
+        }
+
+        void Visit(AreaTriggerMapType &m)
+        {
+            if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_AREATRIGGER))
+                return;
+            for (AreaTriggerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
                 if (itr->GetSource()->InSamePhase(i_phaseMask))
                     i_do(itr->GetSource());
         }
@@ -1362,6 +1376,25 @@ namespace Trinity
 
         private:
             uint64 _GUID;
+    };
+
+    class HeightDifferenceCheck
+    {
+    public:
+        HeightDifferenceCheck(WorldObject* go, float diff, bool reverse)
+            : _baseObject(go), _difference(diff), _reverse(reverse)
+        {
+        }
+
+        bool operator()(WorldObject* unit) const
+        {
+            return (unit->GetPositionZ() - _baseObject->GetPositionZ() > _difference) != _reverse;
+        }
+
+    private:
+        WorldObject* _baseObject;
+        float _difference;
+        bool _reverse;
     };
 
     class UnitAuraCheck

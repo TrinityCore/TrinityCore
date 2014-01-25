@@ -356,7 +356,7 @@ class boss_lady_deathwhisper : public CreatureScript
             void DamageTaken(Unit* /*damageDealer*/, uint32& damage) OVERRIDE
             {
                 // phase transition
-                if (events.IsInPhase(PHASE_ONE) && damage > me->GetPower(POWER_MANA))
+                if (events.IsInPhase(PHASE_ONE) && damage > uint32(me->GetPower(POWER_MANA)))
                 {
                     Talk(SAY_PHASE_2);
                     Talk(EMOTE_PHASE_2);

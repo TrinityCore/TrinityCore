@@ -90,6 +90,7 @@ WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, uint64 guid)
         case HIGHGUID_UNIT:          return GetCreature(p, guid);
         case HIGHGUID_PET:           return GetPet(p, guid);
         case HIGHGUID_DYNAMICOBJECT: return GetDynamicObject(p, guid);
+        case HIGHGUID_AREATRIGGER:   return GetAreaTrigger(p, guid);
         case HIGHGUID_CORPSE:        return GetCorpse(p, guid);
         default:                     return NULL;
     }
@@ -126,6 +127,9 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, uint64 guid, u
             if (typemask & TYPEMASK_DYNAMICOBJECT)
                 return GetDynamicObject(p, guid);
             break;
+        case HIGHGUID_AREATRIGGER:
+            if (typemask & TYPEMASK_AREATRIGGER)
+                return GetAreaTrigger(p, guid);
         case HIGHGUID_CORPSE:
             break;
     }
@@ -155,6 +159,11 @@ Transport* ObjectAccessor::GetTransport(WorldObject const& u, uint64 guid)
 DynamicObject* ObjectAccessor::GetDynamicObject(WorldObject const& u, uint64 guid)
 {
     return GetObjectInMap(guid, u.GetMap(), (DynamicObject*)NULL);
+}
+
+AreaTrigger* ObjectAccessor::GetAreaTrigger(WorldObject const& u, uint64 guid)
+{
+    return GetObjectInMap(guid, u.GetMap(), (AreaTrigger*)NULL);
 }
 
 Unit* ObjectAccessor::GetUnit(WorldObject const& u, uint64 guid)

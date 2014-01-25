@@ -52,7 +52,7 @@ Location MoveSpline::ComputePosition() const
     }
     else
     {
-        if (!splineflags.hasFlag(MoveSplineFlag::OrientationFixed | MoveSplineFlag::Falling))
+        if (!splineflags.hasFlag(MoveSplineFlag::OrientationFixed | MoveSplineFlag::Falling | MoveSplineFlag::Unknown0))
         {
             Vector3 hermite;
             spline.evaluate_derivative(point_Idx, u, hermite);
@@ -216,7 +216,7 @@ bool MoveSplineInitArgs::Validate(Unit* unit) const
 // each vertex offset packed into 11 bytes
 bool MoveSplineInitArgs::_checkPathBounds() const
 {
-    if (!(flags & MoveSplineFlag::Mask_CatmullRom) && path.size() > 2)
+    if (!(flags & MoveSplineFlag::Catmullrom) && path.size() > 2)
     {
         enum{
             MAX_OFFSET = (1 << 11) / 2

@@ -145,7 +145,7 @@ class boss_elder_nadox : public CreatureScript
                     }
                 }
 
-                if (me->HealthBelowPct(100 - AmountHealthModifier * 25))
+                if (me->HealthBelowPct(100 - AmountHealthModifier* 25))
                 {
                     Talk(EMOTE_HATCHES, me);
                     DoCast(me, SPELL_SUMMON_SWARM_GUARD);
@@ -271,7 +271,7 @@ public:
 
         void FilterTargets(std::list<WorldObject*>& targets)
         {
-            targets.remove_if(GuardianCheck());
+            targets.remove_if (GuardianCheck());
         }
 
         void Register() OVERRIDE
