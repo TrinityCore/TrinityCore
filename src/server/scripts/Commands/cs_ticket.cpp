@@ -264,8 +264,9 @@ public:
             std::ostringstream smsg;
             std::string respondedby;
             // If responded from console,there is no player,so we assign to Console.
-            if (handler->GetSession()->GetPlayer())
-                respondedby = handler->GetSession()->GetPlayer()->GetName().c_str();
+            Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : NULL;
+            if (player)
+                respondedby = player->GetName().c_str();
             else respondedby = "Console";
             ircchan += sIRC->ticann;
             smsg << "[\00304Ticket Completed\003][By:\00304 " << ticket->GetPlayerName().c_str() << " \003][ID: \00304" << ticket->GetId() << " \003][Responded By: \00304" << respondedby << " \003]";
