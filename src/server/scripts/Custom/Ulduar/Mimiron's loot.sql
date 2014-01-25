@@ -1,4 +1,4 @@
--- Mimiron's loot fetched from GC's MaNGOS database
+-- Mimiron's loot fetched from GC's MaNGOS database.
 
 SET @normal10 := 196004;
 SET @heroic10 := 196005;
