@@ -66,3 +66,7 @@ DELETE FROM `achievement_criteria_data` WHERE `criteria_id`='10406' AND `type`='
 INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`) VALUES
 (10406, 18),
 (10405, 18);
+
+-- Revert Set Us Up The Bomb
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10542, 10544, 10545, 10548, 10547, 10546) AND `type` = 11;
+

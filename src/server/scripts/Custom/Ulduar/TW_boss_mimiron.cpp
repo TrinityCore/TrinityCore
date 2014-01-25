@@ -152,7 +152,10 @@ enum Actions
     DO_INCREASE_FLAME_COUNT,
     DO_DECREASE_FLAME_COUNT,
     DATA_GET_HARD_MODE,
-    DATA_FLAME_COUNT
+    DATA_FLAME_COUNT,
+    DATA_SET_US_UP_THE_BOMB_BOT,
+    DATA_SET_US_UP_THE_BOMB_ROCKET,
+    DATA_SET_US_UP_THE_BOMB_MINE,
 };
 
 enum Npcs
@@ -169,9 +172,6 @@ enum Npcs
     NPC_MKII_TURRET                             = 34071,
     NPC_PROXIMITY_MINE                          = 34362
 };
-
-// Achievements
-#define ACHIEVEMENT_SET_UP_US_THE_BOMB          RAID_MODE(2989, 3237) // TODO
 
 enum MimironChests
 {
@@ -248,6 +248,9 @@ class TW_boss_mimiron : public CreatureScript
                 _checkBotAlive = true;
                 _enraged = false;
                 _checkTargetTimer = 7000;
+                rocketCriteria = true;
+                mineCriteria = true;
+                botCriteria = true;
 
                 DespawnCreatures(NPC_FLAMES_INITIAL, 100.0f);
                 DespawnCreatures(NPC_PROXIMITY_MINE, 100.0f);
@@ -674,8 +677,32 @@ class TW_boss_mimiron : public CreatureScript
                         return _mimironHardMode ? 1 : 0;
                     case DATA_FLAME_COUNT:
                         return _flameCount;
+                    case DATA_SET_US_UP_THE_BOMB_MINE:
+                        return mineCriteria;
+                    case DATA_SET_US_UP_THE_BOMB_ROCKET:
+                        return rocketCriteria;
+                    case DATA_SET_US_UP_THE_BOMB_BOT:
+                        return botCriteria;
                     default:
                         return 0;
+                }
+            }
+
+            void SetData(uint32 uiType, uint32 uiData) OVERRIDE
+            {
+                switch (uiType)
+                {
+                    case DATA_SET_US_UP_THE_BOMB_MINE:
+                        mineCriteria = uiData;
+                        break;
+                    case DATA_SET_US_UP_THE_BOMB_ROCKET:
+                        rocketCriteria = uiData;
+                        break;
+                    case DATA_SET_US_UP_THE_BOMB_BOT:
+                        botCriteria = uiData;
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -731,6 +758,9 @@ class TW_boss_mimiron : public CreatureScript
             bool _mimironHardMode;
             bool _checkBotAlive;
             bool _enraged;
+            bool rocketCriteria;
+            bool mineCriteria;
+            bool botCriteria;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1033,6 +1063,13 @@ public:
             }
         }
 
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) OVERRIDE
+        {
+            if (target->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_EXPLOSION)
+                if (Creature* Mimiron = me->FindNearestCreature(NPC_MIMIRON, 200.0f))
+                    Mimiron->AI()->SetData(DATA_SET_US_UP_THE_BOMB_MINE, false);
+        }
+
         void UpdateAI(uint32 diff) OVERRIDE
         {
             if (uiBoomTimer <= diff)
@@ -1048,7 +1085,6 @@ public:
         }
     };
 };
-
 
 /*---------------------------------------------*
  *                    VX-001                   *
@@ -1344,6 +1380,13 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             me->DespawnOrUnsummon(10000);
             DoCast(me, SPELL_ROCKET_STRIKE_AURA);
+        }
+
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) OVERRIDE
+        {
+            if (target->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_ROCKET_STRIKE_DMG)
+                if (Creature* Mimiron = me->FindNearestCreature(NPC_MIMIRON, 200.0f))
+                    Mimiron->AI()->SetData(DATA_SET_US_UP_THE_BOMB_ROCKET, false);
         }
     };
 };
@@ -1776,6 +1819,13 @@ class TW_npc_mimiron_bomb_bot : public CreatureScript
                 DoCast(me, SPELL_BOMB_BOT, true);
             }
 
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) OVERRIDE
+            {
+                if (target->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_BOMB_BOT)
+                    if (Creature* Mimiron = me->FindNearestCreature(NPC_MIMIRON, 200.0f))
+                        Mimiron->AI()->SetData(DATA_SET_US_UP_THE_BOMB_BOT, false);
+            }
+
             void UpdateAI(uint32 /*diff*/)
             {
                 if (!UpdateVictim())
@@ -2009,6 +2059,39 @@ class TW_achievement_firefighter : public AchievementCriteriaScript
         }
 };
 
+class TW_achievement_set_us_up_the_bomb : public AchievementCriteriaScript
+{
+    public:
+        uint32 spell_id;
+
+        TW_achievement_set_us_up_the_bomb(const char* name, uint32 spell_entry) : AchievementCriteriaScript(name)
+        {
+            spell_id = spell_entry;
+        }
+
+        bool OnCheck(Player* player, Unit* /*target*/) OVERRIDE
+        {
+            if (!player)
+                return false;
+
+            if (InstanceScript* instance = player->GetInstanceScript())
+                if (Creature* mimiron = ObjectAccessor::GetCreature(*player, instance->GetData64(BOSS_MIMIRON)))
+                {
+                    if (spell_id == SPELL_BOMB_BOT && mimiron->AI()->GetData(DATA_SET_US_UP_THE_BOMB_BOT))
+                        return true;
+
+                    if (spell_id == SPELL_ROCKET_STRIKE_DMG && mimiron->AI()->GetData(DATA_SET_US_UP_THE_BOMB_ROCKET))
+                        return true;
+
+                    if (spell_id == SPELL_EXPLOSION && mimiron->AI()->GetData(DATA_SET_US_UP_THE_BOMB_MINE))
+                        return true;
+                }
+
+
+            return false;
+        }
+};
+
 class TW_go_call_tram : public GameObjectScript
 {
 public:
@@ -2056,4 +2139,7 @@ void AddSC_TW_boss_mimiron()
     new TW_npc_frost_bomb();
     new TW_achievement_firefighter();
     new TW_go_call_tram();
+    new TW_achievement_set_us_up_the_bomb("TW_achievement_set_us_up_the_bomb_bot", SPELL_BOMB_BOT);
+    new TW_achievement_set_us_up_the_bomb("TW_achievement_set_us_up_the_bomb_rocket", SPELL_ROCKET_STRIKE_DMG);
+    new TW_achievement_set_us_up_the_bomb("TW_achievement_set_us_up_the_bomb_mine", SPELL_EXPLOSION);
 }
