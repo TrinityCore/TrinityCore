@@ -258,6 +258,16 @@ public:
             if (player->IsInWorld())
                 ticket->SendResponse(player->GetSession());
 
+        if ((sIRC->TICMASK & 16) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
+        {
+            std::string ircchan = "#";
+            std::ostringstream smsg;
+            ircchan += sIRC->ticann;
+            smsg << "[\00304Ticket Completed\003][By:\00304 " << ticket->GetPlayerName().c_str() << " \003][ID: \00304" << ticket->GetId() << " \003][Responded By: \00304" 
+                << handler->GetSession()->GetPlayer()->GetName().c_str() << " \003]";
+            sIRC->Send_IRC_Channel(ircchan, smsg.str().c_str() , true);
+        }
+
         SQLTransaction trans = SQLTransaction(NULL);
         ticket->SetCompleted();
         ticket->SaveToDB(trans);
