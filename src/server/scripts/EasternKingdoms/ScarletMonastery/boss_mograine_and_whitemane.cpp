@@ -172,7 +172,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (_bHasDied && !_bHeal && instance && instance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT) == SPECIAL)
+            if (_bHasDied && !_bHeal && instance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT) == SPECIAL)
             {
                 //On ressurection, stop fake death and heal whitemane and resume fight
                 if (Unit* Whitemane = Unit::GetUnit(*me, instance->GetData64(DATA_WHITEMANE)))
@@ -259,7 +259,7 @@ public:
 
         void AttackStart(Unit* who) OVERRIDE
         {
-            if (instance && instance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT) == NOT_STARTED)
+            if (instance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT) == NOT_STARTED)
                 return;
 
             ScriptedAI::AttackStart(who);
@@ -289,11 +289,11 @@ public:
             if (_bCanResurrect)
             {
                 //When casting resuruction make sure to delay so on rez when reinstate battle deepsleep runs out
-                if (instance && Wait_Timer <= diff)
+                if (Wait_Timer <= diff)
                 {
-                    if (Unit* Mograine = Unit::GetUnit(*me, instance->GetData64(DATA_MOGRAINE)))
+                    if (Creature* mograine = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MOGRAINE)))
                     {
-                        DoCast(Mograine, SPELL_SCARLETRESURRECTION);
+                        DoCast(mograine, SPELL_SCARLETRESURRECTION);
                         Talk(SAY_WH_RESSURECT);
                         _bCanResurrect = false;
                     }
@@ -325,7 +325,7 @@ public:
                 if (!HealthAbovePct(75))
                     target = me;
 
-                if (Creature* mograine = Unit::GetCreature((*me), instance->GetData64(DATA_MOGRAINE)))
+                if (Creature* mograine = Unit::GetCreature(*me, instance->GetData64(DATA_MOGRAINE)))
                 {
                     // checking _bCanResurrectCheck prevents her healing Mograine while he is "faking death"
                     if (_bCanResurrectCheck && mograine->IsAlive() && !mograine->HealthAbovePct(75))

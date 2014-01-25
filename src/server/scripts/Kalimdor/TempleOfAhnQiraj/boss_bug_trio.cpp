@@ -119,7 +119,7 @@ public:
                 //Checking if Vem is dead. If yes we will enrage.
                 if (Check_Timer <= diff)
                 {
-                    if (instance && instance->GetData(DATA_VEMISDEAD))
+                    if (instance->GetData(DATA_VEMISDEAD))
                     {
                         DoCast(me, SPELL_ENRAGE);
                         VemDead = true;

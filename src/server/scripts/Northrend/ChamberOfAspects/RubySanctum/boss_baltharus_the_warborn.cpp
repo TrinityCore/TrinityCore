@@ -252,9 +252,8 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
             void JustDied(Unit* killer) OVERRIDE
             {
                 // This is here because DamageTaken wont trigger if the damage is deadly.
-                if (_instance)
-                    if (Creature* baltharus = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_BALTHARUS_THE_WARBORN)))
-                        killer->Kill(baltharus);
+                if (Creature* baltharus = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_BALTHARUS_THE_WARBORN)))
+                    killer->Kill(baltharus);
             }
 
             void UpdateAI(uint32 diff) OVERRIDE
@@ -262,8 +261,7 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (_instance)
-                    me->SetHealth(_instance->GetData(DATA_BALTHARUS_SHARED_HEALTH));
+                me->SetHealth(_instance->GetData(DATA_BALTHARUS_SHARED_HEALTH));
 
                 _events.Update(diff);
 

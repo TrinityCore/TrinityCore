@@ -814,7 +814,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     {
         if (EventProcFlag & PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS)
         {
-            if (!(procExtra & PROC_EX_INTERNAL_DOT))
+            if (!(procExtra & PROC_EX_INTERNAL_HOT))
                 return false;
         }
         else if (procExtra & PROC_EX_INTERNAL_HOT)
@@ -3043,6 +3043,9 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 42730:
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 42739;
+                break;
+            case 42436: // Drink! (Brewfest)
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
                 break;
             case 59735:
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 59736;

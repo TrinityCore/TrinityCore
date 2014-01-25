@@ -454,7 +454,7 @@ public:
         {
             if (uiRandomSayTimer < diff)
             {
-                if (instance && instance->GetBossState(DATA_MURU) != DONE && instance->GetBossState(DATA_KILJAEDEN) == NOT_STARTED)
+                if (instance->GetBossState(DATA_MURU) != DONE && instance->GetBossState(DATA_KILJAEDEN) == NOT_STARTED)
                     Talk(SAY_KJ_OFFCOMBAT);
                 uiRandomSayTimer = 30000;
             } else uiRandomSayTimer -= diff;
@@ -1206,7 +1206,7 @@ public:
 
             if (uiTimer <= diff)
             {
-                if (Unit* random = Unit::GetUnit(*me, instance ? instance->GetData64(DATA_PLAYER_GUID) : 0))
+                if (Unit* random = ObjectAccessor::GetPlayer(*me, instance->GetData64(DATA_PLAYER_GUID)))
                     DoCast(random, SPELL_SHADOW_BOLT, false);
                 uiTimer = urand(500, 1000);
             } else uiTimer -= diff;

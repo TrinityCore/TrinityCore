@@ -433,10 +433,11 @@ public:
         {
             if (!SummonSentinel)
             {
-                if (InAction && instance && instance->GetBossState(DATA_MURU) == NOT_STARTED)
+                if (InAction && instance->GetBossState(DATA_MURU) == NOT_STARTED)
                     Reset();
                 return;
             }
+
             if (SummonTimer <= diff)
             {
                 DoCastAOE(SPELL_SUMMON_VOID_SENTINEL, false);
@@ -602,7 +603,7 @@ public:
         {
             if (SpellTimer <= diff)
             {
-                Unit* Victim = Unit::GetUnit(*me, instance ? instance->GetData64(DATA_PLAYER_GUID) : 0);
+                Unit* Victim = Unit::GetUnit(*me, instance->GetData64(DATA_PLAYER_GUID));
                 switch (NeedForAHack)
                 {
                     case 0:

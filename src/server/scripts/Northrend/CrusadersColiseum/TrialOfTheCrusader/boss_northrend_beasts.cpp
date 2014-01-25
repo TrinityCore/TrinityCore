@@ -295,8 +295,7 @@ class npc_snobold_vassal : public CreatureScript
             npc_snobold_vassalAI(Creature* creature) : ScriptedAI(creature)
             {
                 _instance = creature->GetInstanceScript();
-                if (_instance)
-                    _instance->SetData(DATA_SNOBOLD_COUNT, INCREASE);
+                _instance->SetData(DATA_SNOBOLD_COUNT, INCREASE);
             }
 
             void Reset() OVERRIDE
@@ -350,8 +349,7 @@ class npc_snobold_vassal : public CreatureScript
                 if (Unit* target = ObjectAccessor::GetPlayer(*me, _targetGUID))
                     if (target->IsAlive())
                         target->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
-                if (_instance)
-                    _instance->SetData(DATA_SNOBOLD_COUNT, DECREASE);
+                _instance->SetData(DATA_SNOBOLD_COUNT, DECREASE);
             }
 
             void DoAction(int32 action) OVERRIDE
@@ -378,30 +376,27 @@ class npc_snobold_vassal : public CreatureScript
                 {
                     if (!target->IsAlive())
                     {
-                        if (_instance)
+                        Unit* gormok = ObjectAccessor::GetCreature(*me, _instance->GetData64(NPC_GORMOK));
+                        if (gormok && gormok->IsAlive())
                         {
-                            Unit* gormok = ObjectAccessor::GetCreature(*me, _instance->GetData64(NPC_GORMOK));
-                            if (gormok && gormok->IsAlive())
-                            {
-                                SetCombatMovement(false);
-                                _targetDied = true;
+                            SetCombatMovement(false);
+                            _targetDied = true;
 
-                                // looping through Gormoks seats
-                                for (uint8 i = 0; i < MAX_SNOBOLDS; i++)
+                            // looping through Gormoks seats
+                            for (uint8 i = 0; i < MAX_SNOBOLDS; i++)
+                            {
+                                if (!gormok->GetVehicleKit()->GetPassenger(i))
                                 {
-                                    if (!gormok->GetVehicleKit()->GetPassenger(i))
-                                    {
-                                        me->EnterVehicle(gormok, i);
-                                        DoAction(ACTION_ENABLE_FIRE_BOMB);
-                                        break;
-                                    }
+                                    me->EnterVehicle(gormok, i);
+                                    DoAction(ACTION_ENABLE_FIRE_BOMB);
+                                    break;
                                 }
                             }
-                            else if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                            {
-                                _targetGUID = target2->GetGUID();
-                                me->GetMotionMaster()->MoveJump(target2->GetPositionX(), target2->GetPositionY(), target2->GetPositionZ(), 15.0f, 15.0f);
-                            }
+                        }
+                        else if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        {
+                            _targetGUID = target2->GetGUID();
+                            me->GetMotionMaster()->MoveJump(target2->GetPositionX(), target2->GetPositionY(), target2->GetPositionZ(), 15.0f, 15.0f);
                         }
                     }
                 }
@@ -528,7 +523,7 @@ struct boss_jormungarAI : public BossAI
     void JustReachedHome() OVERRIDE
     {
         // prevent losing 2 attempts at once on heroics
-        if (instance && instance->GetData(TYPE_NORTHREND_BEASTS) != FAIL)
+        if (instance->GetData(TYPE_NORTHREND_BEASTS) != FAIL)
             instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
 
         me->DespawnOrUnsummon();
@@ -552,7 +547,7 @@ struct boss_jormungarAI : public BossAI
         if (!UpdateVictim())
             return;
 
-        if (!Enraged && instance && instance->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL)
+        if (!Enraged && instance->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL)
         {
             me->RemoveAurasDueToSpell(SPELL_SUBMERGE_0);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);

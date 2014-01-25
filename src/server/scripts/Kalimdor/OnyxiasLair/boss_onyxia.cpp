@@ -340,7 +340,7 @@ public:
                             Trinity::GameObjectInRangeCheck check(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 15);
                             Trinity::GameObjectLastSearcher<Trinity::GameObjectInRangeCheck> searcher(me, Floor, check);
                             me->VisitNearbyGridObject(30, searcher);
-                            if (instance && Floor)
+                            if (Floor)
                                 instance->SetData64(DATA_FLOOR_ERUPTION_GUID, Floor->GetGUID());
                             events.ScheduleEvent(EVENT_BELLOWING_ROAR, 30000);
                             break;

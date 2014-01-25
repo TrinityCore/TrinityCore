@@ -164,7 +164,11 @@ void InstanceSaveManager::RemoveInstanceSave(uint32 InstanceId)
 void InstanceSaveManager::UnloadInstanceSave(uint32 InstanceId)
 {
     if (InstanceSave* save = GetInstanceSave(InstanceId))
+    {
         save->UnloadIfEmpty();
+        if (save->m_toDelete)
+            delete save;
+    }
 }
 
 InstanceSave::InstanceSave(uint16 MapId, uint32 InstanceId, Difficulty difficulty, time_t resetTime, bool canReset)

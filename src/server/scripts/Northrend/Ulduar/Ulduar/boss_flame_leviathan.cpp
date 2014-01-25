@@ -1192,7 +1192,7 @@ class npc_lorekeeper : public CreatureScript
         bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
         {
             InstanceScript* instance = creature->GetInstanceScript();
-            if (instance && instance->GetData(BOSS_LEVIATHAN) !=DONE && player)
+            if (instance && instance->GetData(BOSS_LEVIATHAN) != DONE && player)
             {
                 player->PrepareGossipMenu(creature);
 
@@ -1285,8 +1285,7 @@ class go_ulduar_tower : public GameObjectScript
                     break;
             }
 
-            Creature* trigger = go->FindNearestCreature(NPC_ULDUAR_GAUNTLET_GENERATOR, 15.0f, true);
-            if (trigger)
+            if (Creature* trigger = go->FindNearestCreature(NPC_ULDUAR_GAUNTLET_GENERATOR, 15.0f, true))
                 trigger->DisappearAndDie();
         }
 };

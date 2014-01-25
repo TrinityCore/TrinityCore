@@ -315,7 +315,7 @@ private:
 
         bool LoadFromDB(Field* fields);
         void SaveToDB(SQLTransaction& trans) const;
-        void WritePacket(WorldPacket& data) const;
+        void WritePacket(WorldPacket& data, bool sendOfficerNote) const;
 
         uint64 GetGUID() const { return m_guid; }
         std::string const& GetName() const { return m_name; }
@@ -661,7 +661,7 @@ public:
     bool SetName(std::string const& name);
 
     // Handle client commands
-    void HandleRoster(WorldSession* session = NULL);          // NULL = broadcast
+    void HandleRoster(WorldSession* session);
     void HandleQuery(WorldSession* session);
     void HandleSetMOTD(WorldSession* session, std::string const& motd);
     void HandleSetInfo(WorldSession* session, std::string const& info);

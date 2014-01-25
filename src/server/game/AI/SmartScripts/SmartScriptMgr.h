@@ -52,9 +52,12 @@ enum SMART_EVENT_PHASE
     SMART_EVENT_PHASE_4       = 4,
     SMART_EVENT_PHASE_5       = 5,
     SMART_EVENT_PHASE_6       = 6,
-    SMART_EVENT_PHASE_MAX     = 7,
+    SMART_EVENT_PHASE_7       = 7,
+    SMART_EVENT_PHASE_8       = 8,
+    SMART_EVENT_PHASE_9       = 9,
+    SMART_EVENT_PHASE_MAX     = 10,
 
-    SMART_EVENT_PHASE_COUNT   = 6
+    SMART_EVENT_PHASE_COUNT   = 9
 };
 
 enum SMART_EVENT_PHASE_BITS
@@ -66,7 +69,10 @@ enum SMART_EVENT_PHASE_BITS
     SMART_EVENT_PHASE_4_BIT        = 8,
     SMART_EVENT_PHASE_5_BIT        = 16,
     SMART_EVENT_PHASE_6_BIT        = 32,
-    SMART_EVENT_PHASE_ALL          = SMART_EVENT_PHASE_1_BIT + SMART_EVENT_PHASE_2_BIT + SMART_EVENT_PHASE_3_BIT + SMART_EVENT_PHASE_4_BIT + SMART_EVENT_PHASE_5_BIT + SMART_EVENT_PHASE_6_BIT
+    SMART_EVENT_PHASE_7_BIT        = 64,
+    SMART_EVENT_PHASE_8_BIT        = 128,
+    SMART_EVENT_PHASE_9_BIT        = 256,
+    SMART_EVENT_PHASE_ALL          = SMART_EVENT_PHASE_1_BIT + SMART_EVENT_PHASE_2_BIT + SMART_EVENT_PHASE_3_BIT + SMART_EVENT_PHASE_4_BIT + SMART_EVENT_PHASE_5_BIT + SMART_EVENT_PHASE_6_BIT + SMART_EVENT_PHASE_7_BIT + SMART_EVENT_PHASE_8_BIT + SMART_EVENT_PHASE_9_BIT
 };
 
 const uint32 SmartPhaseMask[SMART_EVENT_PHASE_COUNT][2] =
@@ -76,7 +82,10 @@ const uint32 SmartPhaseMask[SMART_EVENT_PHASE_COUNT][2] =
     {SMART_EVENT_PHASE_3, SMART_EVENT_PHASE_3_BIT },
     {SMART_EVENT_PHASE_4, SMART_EVENT_PHASE_4_BIT },
     {SMART_EVENT_PHASE_5, SMART_EVENT_PHASE_5_BIT },
-    {SMART_EVENT_PHASE_6, SMART_EVENT_PHASE_6_BIT }
+    {SMART_EVENT_PHASE_6, SMART_EVENT_PHASE_6_BIT },
+    {SMART_EVENT_PHASE_7, SMART_EVENT_PHASE_7_BIT },
+    {SMART_EVENT_PHASE_8, SMART_EVENT_PHASE_8_BIT },
+    {SMART_EVENT_PHASE_9, SMART_EVENT_PHASE_9_BIT }
 };
 
 enum SMART_EVENT
@@ -1321,7 +1330,58 @@ struct SmartScriptHolder
 typedef UNORDERED_MAP<uint32, WayPoint*> WPPath;
 
 typedef std::list<WorldObject*> ObjectList;
-typedef UNORDERED_MAP<uint32, ObjectList*> ObjectListMap;
+typedef std::list<uint64> GuidList;
+class ObjectGuidList
+{
+    ObjectList* m_objectList;
+    GuidList* m_guidList;
+    WorldObject* m_baseObject;
+
+public:
+    ObjectGuidList(ObjectList* objectList, WorldObject* baseObject)
+    {
+        ASSERT(objectList != NULL);
+        m_objectList = objectList;
+        m_baseObject = baseObject;
+        m_guidList = new GuidList();
+
+        for (ObjectList::iterator itr = objectList->begin(); itr != objectList->end(); ++itr)
+        {
+            m_guidList->push_back((*itr)->GetGUID());
+        }
+    }
+
+    ObjectList* GetObjectList()
+    {
+        if (m_baseObject)
+        {
+            //sanitize list using m_guidList
+            m_objectList->clear();
+
+            for (GuidList::iterator itr = m_guidList->begin(); itr != m_guidList->end(); ++itr)
+            {
+                if (WorldObject* obj = ObjectAccessor::GetWorldObject(*m_baseObject, *itr))
+                    m_objectList->push_back(obj);
+                else
+                    TC_LOG_DEBUG("scripts.ai", "SmartScript::mTargetStorage stores a guid to an invalid object: " UI64FMTD, *itr);
+            }
+        }
+
+        return m_objectList;
+    }
+
+    bool Equals(ObjectList* objectList)
+    {
+        return m_objectList == objectList;
+    }
+
+    ~ObjectGuidList()
+    {
+        delete m_objectList;
+        delete m_guidList;
+    }
+};
+typedef UNORDERED_MAP<uint32, ObjectGuidList*> ObjectListMap;
 
 class SmartWaypointMgr
 {
