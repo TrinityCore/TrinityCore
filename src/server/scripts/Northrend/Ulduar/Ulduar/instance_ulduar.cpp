@@ -730,6 +730,9 @@ class instance_ulduar : public InstanceMapScript
                     case BOSS_MIMIRON:
                         if (state == DONE)
                             instance->SummonCreature(NPC_MIMIRON_OBSERVATION_RING, ObservationRingKeepersPos[3]);
+                        for (std::list<uint64>::iterator i = MimironDoorGUIDList.begin(); i != MimironDoorGUIDList.end(); i++)
+                            if (GameObject* obj = instance->GetGameObject(*i))
+                                obj->SetGoState(state == IN_PROGRESS ? GO_STATE_READY : GO_STATE_ACTIVE);
                         break;
                     case BOSS_FREYA:
                         if (state == DONE)
