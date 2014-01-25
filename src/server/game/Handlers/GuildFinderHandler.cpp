@@ -76,23 +76,31 @@ void WorldSession::HandleGuildFinderAddRecruit(WorldPacket& recvPacket)
 void WorldSession::HandleGuildFinderBrowse(WorldPacket& recvPacket)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_LF_GUILD_BROWSE");
-    uint32 classRoles = 0;
-    uint32 availability = 0;
-    uint32 guildInterests = 0;
-    uint32 playerLevel = 0; // Raw player level (1-85), do they use MAX_FINDER_LEVEL when on level 85 ?
+    bool check = false;
+    uint32 classRoles;
+    uint32 availability;
+    uint32 guildInterests;
+    uint32 playerLevel; // Raw player level (1-85), do they use MAX_FINDER_LEVEL when on level 85 ?
 
     recvPacket >> classRoles >> availability >> guildInterests >> playerLevel;
 
     if (!(classRoles & GUILDFINDER_ALL_ROLES) || classRoles > GUILDFINDER_ALL_ROLES)
-        return;
+        check = true;
     if (!(availability & AVAILABILITY_ALWAYS) || availability > AVAILABILITY_ALWAYS)
-        return;
+        check = true;
     if (!(guildInterests & ALL_INTERESTS) || guildInterests > ALL_INTERESTS)
-        return;
+        check = true;
     if (playerLevel > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) || playerLevel < 1)
-        return;
+        check = true;
 
     Player* player = GetPlayer();
+
+    if (check)
+    {
+        WorldPacket packet(SMSG_LF_GUILD_BROWSE_UPDATED, 0);
+        player->SendDirectMessage(&packet);
+        return;
+    }
 
     LFGuildPlayer settings(player->GetGUIDLow(), classRoles, availability, guildInterests, ANY_FINDER_LEVEL);
     LFGuildStore guildList = sGuildFinderMgr->GetGuildsMatchingSetting(settings, player->GetTeamId());
