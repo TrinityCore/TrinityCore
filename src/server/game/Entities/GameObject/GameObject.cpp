@@ -2220,6 +2220,7 @@ float GameObject::GetInteractionDistance()
         case GAMEOBJECT_TYPE_MAILBOX:
             return 10.0f;
         case GAMEOBJECT_TYPE_FISHINGHOLE:
+        case GAMEOBJECT_TYPE_FISHINGNODE:
             return 20.0f + CONTACT_DISTANCE; // max spell range
         default:
             return INTERACTION_DISTANCE;
