@@ -253,6 +253,9 @@ enum UlduarGameObjects
     GO_MIMIRON_DOOR_2           = 194774,
     GO_MIMIRON_DOOR_3           = 194775,
     GO_BIG_RED_BUTTON           = 194739,
+
+    // The Ancient Gate of the Keepers
+    GO_ANCIENT_GATE             = 194255    
 };
 
 enum EventIds
