@@ -442,7 +442,7 @@ bool processArgv(int argc, char ** argv, const char *versionString)
             {
                 hasInputPathParam = true;
                 strcpy(input_path, argv[i+1]);
-                if (input_path[strlen(input_path) - 1] != '\\' || input_path[strlen(input_path) - 1] != '/')
+                if (input_path[strlen(input_path) - 1] != '\\' && input_path[strlen(input_path) - 1] != '/')
                     strcat(input_path, "/");
                 ++i;
             }

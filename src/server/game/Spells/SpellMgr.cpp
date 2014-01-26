@@ -2928,12 +2928,18 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             case 2589:
             case 2590:
             case 2591:
+            case 7159:
+            case 8627:
             case 8721:
             case 11279:
             case 11280:
             case 11281:
+            case 15582:
+            case 15657:
+            case 22416:
             case 25300:
             case 26863:
+            case 37685:
             case 48656:
             case 48657:
             case 703: // Garrote

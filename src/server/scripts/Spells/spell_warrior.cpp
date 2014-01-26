@@ -330,39 +330,24 @@ class spell_warr_glyph_of_sunder_armor : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_glyph_of_sunder_armor_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            void HandleEffectCalcSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SUNDER_ARMOR))
-                    return false;
-                return true;
-            }
+                if (!spellMod)
+                {
+                    spellMod = new SpellModifier(aurEff->GetBase());
+                    spellMod->op = SpellModOp(aurEff->GetMiscValue());
+                    spellMod->type = SPELLMOD_FLAT;
+                    spellMod->spellId = GetId();
+                    spellMod->mask = GetSpellInfo()->Effects[aurEff->GetEffIndex()].SpellClassMask;
+                }
 
-            bool Load() OVERRIDE
-            {
-                _target = NULL;
-                return true;
-            }
-
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                _target = GetTarget()->SelectNearbyTarget(eventInfo.GetProcTarget());
-                return _target;
-            }
-
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastSpell(_target, SPELL_WARRIOR_SUNDER_ARMOR, true, NULL, aurEff);
+                spellMod->value = aurEff->GetAmount();
             }
 
             void Register() OVERRIDE
             {
-                DoCheckProc += AuraCheckProcFn(spell_warr_glyph_of_sunder_armor_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_warr_glyph_of_sunder_armor_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+                DoEffectCalcSpellMod += AuraEffectCalcSpellModFn(spell_warr_glyph_of_sunder_armor_AuraScript::HandleEffectCalcSpellMod, EFFECT_0, SPELL_AURA_DUMMY);
             }
-
-        private:
-            Unit * _target;
         };
 
         AuraScript* GetAuraScript() const OVERRIDE
@@ -638,7 +623,7 @@ class spell_warr_retaliation : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                // check attack comes not from behind
+                // check attack comes not from behind and warrior is not stunned
                 return GetTarget()->isInFront(eventInfo.GetProcTarget(), M_PI) && !GetTarget()->HasUnitState(UNIT_STATE_STUNNED);
             }
 

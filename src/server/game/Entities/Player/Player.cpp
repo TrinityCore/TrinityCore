@@ -2705,43 +2705,44 @@ void Player::RegenerateHealth()
         return;
 
     float HealthIncreaseRate = sWorld->getRate(RATE_HEALTH);
-    float addvalue = 0.0f;
+    float addValue = 0.0f;
 
     // polymorphed case
     if (IsPolymorphed())
-        addvalue = (float)GetMaxHealth()/3;
+        addValue = float(GetMaxHealth()) / 3.0f;
     // normal regen case (maybe partly in combat case)
     else if (!IsInCombat() || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT))
     {
-        addvalue = HealthIncreaseRate;
+        addValue = HealthIncreaseRate;
+
         if (!IsInCombat())
         {
             if (getLevel() < 15)
-                addvalue = (0.20f*((float)GetMaxHealth())/getLevel()*HealthIncreaseRate);
+                addValue = (0.20f * ((float)GetMaxHealth()) / getLevel() * HealthIncreaseRate);
             else
-                addvalue = 0.015f*((float)GetMaxHealth())*HealthIncreaseRate;
+                addValue = 0.015f * ((float)GetMaxHealth()) * HealthIncreaseRate;
 
             AuraEffectList const& mModHealthRegenPct = GetAuraEffectsByType(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT);
             for (AuraEffectList::const_iterator i = mModHealthRegenPct.begin(); i != mModHealthRegenPct.end(); ++i)
-                AddPct(addvalue, (*i)->GetAmount());
+                AddPct(addValue, (*i)->GetAmount());
 
-            addvalue += GetTotalAuraModifier(SPELL_AURA_MOD_REGEN) * 2 * IN_MILLISECONDS / (5 * IN_MILLISECONDS);
+            addValue += GetTotalAuraModifier(SPELL_AURA_MOD_REGEN) * 0.4f;
         }
         else if (HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT))
-            ApplyPct(addvalue, GetTotalAuraModifier(SPELL_AURA_MOD_REGEN_DURING_COMBAT));
+            ApplyPct(addValue, GetTotalAuraModifier(SPELL_AURA_MOD_REGEN_DURING_COMBAT));
 
         if (!IsStandState())
-            addvalue *= 1.5f;
+            addValue *= 1.5f;
     }
 
     // always regeneration bonus (including combat)
-    addvalue += GetTotalAuraModifier(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT);
-    addvalue += m_baseHealthRegen / 2.5f;
+    addValue += GetTotalAuraModifier(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT);
+    addValue += m_baseHealthRegen / 2.5f;
 
-    if (addvalue < 0)
-        addvalue = 0;
+    if (addValue < 0.0f)
+        addValue = 0.0f;
 
-    ModifyHealth(int32(addvalue));
+    ModifyHealth(int32(addValue));
 }
 
 void Player::ResetAllPowers()
@@ -2844,30 +2845,14 @@ GameObject* Player::GetGameObjectIfCanInteractWith(uint64 guid, GameobjectTypes 
     {
         if (go->GetGoType() == type)
         {
-            float maxdist;
-            switch (type)
-            {
-                /// @todo find out how the client calculates the maximal usage distance to spellless working
-                // gameobjects like guildbanks and mailboxes - 10.0 is a just an abitrary choosen number
-                case GAMEOBJECT_TYPE_GUILD_BANK:
-                case GAMEOBJECT_TYPE_MAILBOX:
-                    maxdist = 10.0f;
-                    break;
-                case GAMEOBJECT_TYPE_FISHINGHOLE:
-                    maxdist = 20.0f+CONTACT_DISTANCE;       // max spell range
-                    break;
-                default:
-                    maxdist = INTERACTION_DISTANCE;
-                    break;
-            }
-
-            if (go->IsWithinDistInMap(this, maxdist))
+            if (go->IsWithinDistInMap(this, go->GetInteractionDistance()))
                 return go;
 
-            TC_LOG_DEBUG("maps", "IsGameObjectOfTypeInRange: GameObject '%s' [GUID: %u] is too far away from player %s [GUID: %u] to be used by him (distance=%f, maximal 10 is allowed)", go->GetGOInfo()->name.c_str(),
+            TC_LOG_DEBUG("maps", "GetGameObjectIfCanInteractWith: GameObject '%s' [GUID: %u] is too far away from player %s [GUID: %u] to be used by him (distance=%f, maximal 10 is allowed)", go->GetGOInfo()->name.c_str(),
                 go->GetGUIDLow(), GetName().c_str(), GetGUIDLow(), go->GetDistance(this));
         }
     }
+
     return NULL;
 }
 
@@ -17233,7 +17218,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     // init saved position, and fix it later if problematic
     uint32 transLowGUID = uint32(fields[31].GetUInt32());
-    
+
     Relocate(fields[12].GetFloat(), fields[13].GetFloat(), fields[14].GetFloat(), fields[16].GetFloat());
 
     uint32 mapId = fields[15].GetUInt16();

@@ -2796,22 +2796,65 @@ enum Replenishment
     SPELL_INFINITE_REPLENISHMENT    = 61782
 };
 
+class ReplenishmentCheck
+{
+public:
+    bool operator()(WorldObject* obj) const
+    {
+        if (Unit* target = obj->ToUnit())
+            return target->getPowerType() != POWER_MANA;
+
+        return true;
+    }
+};
+
 class spell_gen_replenishment : public SpellScriptLoader
 {
     public:
         spell_gen_replenishment() : SpellScriptLoader("spell_gen_replenishment") { }
 
+        class spell_gen_replenishment_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_replenishment_SpellScript);
+
+            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+            {
+                // In arenas Replenishment may only affect the caster
+                if (Player* caster = GetCaster()->ToPlayer())
+                {
+                    if (caster->InArena())
+                    {
+                        targets.clear();
+                        targets.push_back(caster);
+                        return;
+                    }
+                }
+
+                targets.remove_if(ReplenishmentCheck());
+
+                uint8 const maxTargets = 10;
+
+                if (targets.size() > maxTargets)
+                {
+                    targets.sort(Trinity::PowerPctOrderPred(POWER_MANA));
+                    targets.resize(maxTargets);
+                }
+            }
+
+            void Register() OVERRIDE
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_replenishment_SpellScript::RemoveInvalidTargets, EFFECT_ALL, TARGET_UNIT_CASTER_AREA_RAID);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_gen_replenishment_SpellScript();
+        }
+
         class spell_gen_replenishment_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_gen_replenishment_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_REPLENISHMENT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_INFINITE_REPLENISHMENT))
-                    return false;
-                return true;
-            }
 
             bool Load() OVERRIDE
             {
