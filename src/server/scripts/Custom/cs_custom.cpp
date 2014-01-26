@@ -39,7 +39,7 @@ class custom_commandscript : public CommandScript
             {
                 { "add",              rbac::RBAC_PERM_COMMAND_QUESTCOMPLETER_ADD,     true, &HandleQuestCompleterAddCommand,     "", NULL },
                 { "del",              rbac::RBAC_PERM_COMMAND_QUESTCOMPLETER_DEL,     true, &HandleQuestCompleterDelCommand,     "", NULL },
-                { "status",           rbac::RBAC_PERM_COMMAND_QUESTCOMPLETER_STATUS,  true, &HandleQuestCompleterStatusCommand,  "", NULL },
+                { "",                 rbac::RBAC_PERM_COMMAND_QUESTCOMPLETER_STATUS,  true, &HandleQuestCompleterStatusCommand,  "", NULL },
                 { NULL,               0,                                              false, NULL,                               "", NULL }
             };
             static ChatCommand onlineCommandTable[] =
@@ -56,10 +56,20 @@ class custom_commandscript : public CommandScript
             };
             return commandTable;
         }
-        
+
         static bool HandleQuestCompleterStatusCommand(ChatHandler* handler, char const* args)
         {
-            char* quest = handler->extractKeyFromLink((char*)args, "Hquest");
+            char* cId = handler->extractKeyFromLink((char*)args, "Hquest");
+
+            if(!cId)
+            {
+                handler->PSendSysMessage("Syntax: .qc status $quest\n\nSearches Quest Completer to see if $quest is bugged.");
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 entry = atol(cId);
+            Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
             if (!quest)
             {
                 handler->PSendSysMessage("Please enter a quest link.");
@@ -68,13 +78,21 @@ class custom_commandscript : public CommandScript
             }
             else
             {
-                uint32 id = atol(quest);
-                if(id != 0)
+                if(entry != 0)
                 {
-                    QueryResult IDSearch = LoginDatabase.PQuery("SELECT COUNT(id) FROM quest_completer WHERE id = %i", id);
-                    Field* fields = IDSearch->Fetch();
+                    uint32 checked = 0;
+                    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_QUESTCOMPLETER);
+                    stmt->setUInt32(0, entry);
+                    PreparedQueryResult resultCheck = LoginDatabase.Query(stmt);
 
-                    if (fields[0].GetUInt32() == 1)
+                    if (!resultCheck)
+                    {
+                        handler->PSendSysMessage("Error: no results.");
+                    }
+
+                    checked = (*resultCheck)[0].GetUInt32();
+
+                    if(checked == 1)
                         handler->PSendSysMessage("Quest is bugged!");
                     else
                         handler->PSendSysMessage("Quest is not bugged!");
@@ -86,67 +104,104 @@ class custom_commandscript : public CommandScript
                     return false;
                 }
             }
-        
             return true;
         }
         
         static bool HandleQuestCompleterAddCommand(ChatHandler* handler, char const* args)
         {
-            char* quest = handler->extractKeyFromLink((char*)args, "Hquest");
+            char* cId = handler->extractKeyFromLink((char*)args, "Hquest");
+
+            if(!cId)
+            {
+                handler->PSendSysMessage("Syntax: .qc add $quest\n\nAdds $quest to the quest completer.");
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+            
+            uint32 entry = atol(cId);
+            Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
             if (!quest)
             {
                 handler->PSendSysMessage("Please enter a quest link.");
                 handler->SetSentErrorMessage(true);
                 return false;
             }
+            
             // Change from string to int to prevent crash with query
-            uint32 id = atol(quest);
-            QueryResult QCSearch = LoginDatabase.PQuery("SELECT COUNT(id) FROM quest_completer WHERE id = %i", id);
-            Field* fields = QCSearch->Fetch();
+            uint32 checked = 0;
+            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_QUESTCOMPLETER);
+            stmt->setUInt32(0, entry);
+            PreparedQueryResult resultCheck = LoginDatabase.Query(stmt);
 
-            if (fields[0].GetUInt32() == 1)
+            if (!resultCheck)
+            {
+                handler->PSendSysMessage("Error: no results.");
+            }
+
+            checked = (*resultCheck)[0].GetUInt32();
+
+            if (checked == 1)
                 handler->PSendSysMessage("Quest is already added!");
             else
             {
-                if (id != 0)
+                if (entry != 0)
                 {
                     PreparedStatement* stmt = NULL;
                     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_QUESTCOMPLETER);
-                    stmt->setUInt32(0, id);
+                    stmt->setUInt32(0, entry);
                     LoginDatabase.Execute(stmt);
-                    handler->PSendSysMessage("Quest was added!");
+                    handler->PSendSysMessage("Quest %u was added!", entry);
                 }
                 else
                     handler->PSendSysMessage("There was a error with your request.");
             }
             return true;
         }
-        
+
         static bool HandleQuestCompleterDelCommand(ChatHandler* handler, char const* args)
         {
-            char* quest = handler->extractKeyFromLink((char*)args, "Hquest");
+            char* cId = handler->extractKeyFromLink((char*)args, "Hquest");
+
+            if(!cId)
+            {
+                handler->PSendSysMessage("Syntax: .qc del $quest\n\nDeletes $quest from the quest completer.");
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+            
+            uint32 entry = atol(cId);
+            Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
             if (!quest)
             {
                 handler->PSendSysMessage("Please enter a quest link.");
                 handler->SetSentErrorMessage(true);
                 return false;
             }
+            
             // Change from string to int to prevent crash with query
-            uint32 id = atol(quest);
-            QueryResult QCSearch = LoginDatabase.PQuery("SELECT COUNT(id) FROM quest_completer WHERE id = %i", id);
-            Field* fields = QCSearch->Fetch();
+            uint32 checked = 0;
+            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_QUESTCOMPLETER);
+            stmt->setUInt32(0, entry);
+            PreparedQueryResult resultCheck = LoginDatabase.Query(stmt);
 
-            if (fields[0].GetUInt32() == 0)
+            if (!resultCheck)
+            {
+                handler->PSendSysMessage("Error: no results.");
+            }
+
+            checked = (*resultCheck)[0].GetUInt32();
+
+            if (checked == 0)
                 handler->PSendSysMessage("Quest not in list!");
             else
             {
-                if (id != 0)
+                if (entry != 0)
                 {
                     PreparedStatement* stmt = NULL;
                     stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_QUESTCOMPLETER);
-                    stmt->setUInt32(0, id);
+                    stmt->setUInt32(0, entry);
                     LoginDatabase.Execute(stmt);
-                    handler->PSendSysMessage("Quest was removed!");
+                    handler->PSendSysMessage("Quest %u was removed!", entry);
                 }
                 else
                     handler->PSendSysMessage("There was a error with your request.");
