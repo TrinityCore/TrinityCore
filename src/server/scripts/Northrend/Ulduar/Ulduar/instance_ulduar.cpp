@@ -121,6 +121,7 @@ class instance_ulduar : public InstanceMapScript
             uint64 AerialUnitGUID;
             uint64 MimironElevatorGUID;
             uint64 MimironTrainGUID;
+            uint64 AncientGateGUID;
 
             std::list<uint64> MimironDoorGUIDList;
             std::set<uint64> mRubbleSpawns;
@@ -182,6 +183,7 @@ class instance_ulduar : public InstanceMapScript
                 AerialUnitGUID                   = 0;
                 MimironTrainGUID                 = 0;
                 MimironElevatorGUID              = 0;
+                AncientGateGUID                  = 0;
 
                 memset(AlgalonSigilDoorGUID, 0, sizeof(AlgalonSigilDoorGUID));
                 memset(AlgalonFloorGUID, 0, sizeof(AlgalonFloorGUID));
@@ -620,6 +622,9 @@ class instance_ulduar : public InstanceMapScript
                         gameObject->setActive(true);
                         MimironDoorGUIDList.push_back(gameObject->GetGUID());
                         break;
+                    case GO_ANCIENT_GATE:
+                        AncientGateGUID = gameObject->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -821,6 +826,13 @@ class instance_ulduar : public InstanceMapScript
                         }
                         break;
                 }
+
+                if (GetBossState(BOSS_FREYA) == DONE &&
+                    GetBossState(BOSS_MIMIRON) == DONE &&
+                    GetBossState(BOSS_HODIR) == DONE &&
+                    GetBossState(BOSS_THORIM) == DONE)
+                    if (GameObject* go = instance->GetGameObject(AncientGateGUID))
+                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
 
                 return true;
             }
