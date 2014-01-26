@@ -290,7 +290,7 @@ enum PilgrimsBountyBuffFood
 class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
 {
     private:
-        uint32 _triggeredSpellId;
+        uint32 const _triggeredSpellId;
     public:
         spell_pilgrims_bounty_buff_food(const char* name, uint32 triggeredSpellId) : SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
 
@@ -298,12 +298,12 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pilgrims_bounty_buff_food_AuraScript)
         private:
-            uint32 _triggeredSpellId;
+            uint32 const _triggeredSpellId;
 
         public:
             spell_pilgrims_bounty_buff_food_AuraScript(uint32 triggeredSpellId) : AuraScript(), _triggeredSpellId(triggeredSpellId) { }
 
-            bool Load()
+            bool Load() OVERRIDE
             {
                 _handled = false;
                 return true;
@@ -311,6 +311,7 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
 
             void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
             {
+                PreventDefaultAction();
                 if (_handled)
                     return;
 
@@ -318,7 +319,7 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
                 GetTarget()->CastSpell(GetTarget(), _triggeredSpellId, true);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_pilgrims_bounty_buff_food_AuraScript::HandleTriggerSpell, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
@@ -326,7 +327,7 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
             bool _handled;
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_pilgrims_bounty_buff_food_AuraScript(_triggeredSpellId);
         }
