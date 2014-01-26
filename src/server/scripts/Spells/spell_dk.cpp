@@ -144,9 +144,8 @@ class spell_dk_anti_magic_shell_self : public SpellScriptLoader
             {
                 // damage absorbed by Anti-Magic Shell energizes the DK with additional runic power.
                 // This, if I'm not mistaken, shows that we get back ~20% of the absorbed damage as runic power.
-                absorbAmount *= 0.2f;
-
-                GetTarget()->CastCustomSpell(SPELL_DK_RUNIC_POWER_ENERGIZE, SPELLVALUE_BASE_POINT0, absorbAmount, GetTarget(), true, NULL, aurEff);
+                int32 bp = CalculatePct(absorbAmount, 20);
+                GetTarget()->CastCustomSpell(SPELL_DK_RUNIC_POWER_ENERGIZE, SPELLVALUE_BASE_POINT0, bp, GetTarget(), true, NULL, aurEff);
             }
 
             void Register() OVERRIDE
