@@ -31,6 +31,7 @@ enum PriestSpells
 {
     SPELL_PRIEST_DIVINE_AEGIS                       = 47753,
     SPELL_PRIEST_EMPOWERED_RENEW                    = 63544,
+    SPELL_PRIEST_GLYPH_OF_CIRCLE_OF_HEALING         = 55675,
     SPELL_PRIEST_GLYPH_OF_LIGHTWELL                 = 55673,
     SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL    = 56161,
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
@@ -51,6 +52,82 @@ enum PriestSpellIcons
     PRIEST_ICON_ID_BORROWED_TIME                    = 2899,
     PRIEST_ICON_ID_EMPOWERED_RENEW_TALENT           = 3021,
     PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874,
+};
+
+class PowerCheck
+{
+    public:
+        explicit PowerCheck(Powers power) : _power(power) { }
+
+        bool operator()(WorldObject* obj) const
+        {
+            if (Unit* target = obj->ToUnit())
+                return target->getPowerType() != _power;
+
+            return true;
+        }
+
+    private:
+        Powers _power;
+};
+
+class RaidCheck
+{
+    public:
+        explicit RaidCheck(Unit const* caster) : _caster(caster) { }
+
+        bool operator()(WorldObject* obj) const
+        {
+            if (Unit* target = obj->ToUnit())
+                return !_caster->IsInRaidWith(target);
+
+            return true;
+        }
+
+    private:
+        Unit const* _caster;
+};
+
+// -34861 - Circle of Healing
+class spell_pri_circle_of_healing : public SpellScriptLoader
+{
+    public:
+        spell_pri_circle_of_healing() : SpellScriptLoader("spell_pri_circle_of_healing") { }
+
+        class spell_pri_circle_of_healing_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_circle_of_healing_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_GLYPH_OF_CIRCLE_OF_HEALING))
+                    return false;
+                return true;
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(RaidCheck(GetCaster()));
+
+                uint32 const maxTargets = GetCaster()->HasAura(SPELL_PRIEST_GLYPH_OF_CIRCLE_OF_HEALING) ? 6 : 5; // Glyph of Circle of Healing
+
+                if (targets.size() > maxTargets)
+                {
+                    targets.sort(Trinity::HealthPctOrderPred());
+                    targets.resize(maxTargets);
+                }
+            }
+
+            void Register() OVERRIDE
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_circle_of_healing_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_pri_circle_of_healing_SpellScript();
+        }
 };
 
 // -47509 - Divine Aegis
@@ -100,6 +177,41 @@ class spell_pri_divine_aegis : public SpellScriptLoader
         AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_pri_divine_aegis_AuraScript();
+        }
+};
+
+// 64844 - Divine Hymn
+class spell_pri_divine_hymn : public SpellScriptLoader
+{
+    public:
+        spell_pri_divine_hymn() : SpellScriptLoader("spell_pri_divine_hymn") { }
+
+        class spell_pri_divine_hymn_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_divine_hymn_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(RaidCheck(GetCaster()));
+
+                uint32 const maxTargets = 3;
+
+                if (targets.size() > maxTargets)
+                {
+                    targets.sort(Trinity::HealthPctOrderPred());
+                    targets.resize(maxTargets);
+                }
+            }
+
+            void Register() OVERRIDE
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_divine_hymn_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_pri_divine_hymn_SpellScript();
         }
 };
 
@@ -195,6 +307,42 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
         AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_pri_guardian_spirit_AuraScript();
+        }
+};
+
+// 64904 - Hymn of Hope
+class spell_pri_hymn_of_hope : public SpellScriptLoader
+{
+    public:
+        spell_pri_hymn_of_hope() : SpellScriptLoader("spell_pri_hymn_of_hope") { }
+
+        class spell_pri_hymn_of_hope_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_hymn_of_hope_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(PowerCheck(POWER_MANA));
+                targets.remove_if(RaidCheck(GetCaster()));
+
+                uint32 const maxTargets = 3;
+
+                if (targets.size() > maxTargets)
+                {
+                    targets.sort(Trinity::PowerPctOrderPred(POWER_MANA));
+                    targets.resize(maxTargets);
+                }
+            }
+
+            void Register() OVERRIDE
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_hymn_of_hope_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_pri_hymn_of_hope_SpellScript();
         }
 };
 
@@ -703,9 +851,12 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_circle_of_healing();
     new spell_pri_divine_aegis();
+    new spell_pri_divine_hymn();
     new spell_pri_glyph_of_prayer_of_healing();
     new spell_pri_guardian_spirit();
+    new spell_pri_hymn_of_hope();
     new spell_pri_item_greater_heal_refund();
     new spell_pri_lightwell_renew();
     new spell_pri_mana_burn();

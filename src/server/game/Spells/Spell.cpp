@@ -1244,100 +1244,8 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
     CallScriptObjectAreaTargetSelectHandlers(targets, effIndex);
 
-    std::list<Unit*> unitTargets;
-    std::list<GameObject*> gObjTargets;
-    // for compability with older code - add only unit and go targets
-    /// @todo remove this
-    for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+    if (!targets.empty())
     {
-        if (Unit* unitTarget = (*itr)->ToUnit())
-            unitTargets.push_back(unitTarget);
-        else if (GameObject* gObjTarget = (*itr)->ToGameObject())
-            gObjTargets.push_back(gObjTarget);
-    }
-
-    if (!unitTargets.empty())
-    {
-        // Special target selection for smart heals and energizes
-        uint32 maxSize = 0;
-        int32 power = -1;
-        switch (m_spellInfo->SpellFamilyName)
-        {
-            case SPELLFAMILY_GENERIC:
-                switch (m_spellInfo->Id)
-                {
-                    case 52759: // Ancestral Awakening
-                    case 71610: // Echoes of Light (Althor's Abacus normal version)
-                    case 71641: // Echoes of Light (Althor's Abacus heroic version)
-                        maxSize = 1;
-                        power = POWER_HEALTH;
-                        break;
-                    case 54968: // Glyph of Holy Light
-                        maxSize = m_spellInfo->MaxAffectedTargets;
-                        power = POWER_HEALTH;
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            case SPELLFAMILY_PRIEST:
-                if (m_spellInfo->SpellFamilyFlags[0] == 0x10000000) // Circle of Healing
-                {
-                    maxSize = m_caster->HasAura(55675) ? 6 : 5; // Glyph of Circle of Healing
-                    power = POWER_HEALTH;
-                }
-                else if (m_spellInfo->Id == 64844) // Divine Hymn
-                {
-                    maxSize = 3;
-                    power = POWER_HEALTH;
-                }
-                else if (m_spellInfo->Id == 64904) // Hymn of Hope
-                {
-                    maxSize = 3;
-                    power = POWER_MANA;
-                }
-                else
-                    break;
-
-                // Remove targets outside caster's raid
-                for (std::list<Unit*>::iterator itr = unitTargets.begin(); itr != unitTargets.end();)
-                {
-                    if (!(*itr)->IsInRaidWith(m_caster))
-                        itr = unitTargets.erase(itr);
-                    else
-                        ++itr;
-                }
-                break;
-            default:
-                break;
-        }
-
-        if (maxSize && power != -1)
-        {
-            if (Powers(power) == POWER_HEALTH)
-            {
-                if (unitTargets.size() > maxSize)
-                {
-                    unitTargets.sort(Trinity::HealthPctOrderPred());
-                    unitTargets.resize(maxSize);
-                }
-            }
-            else
-            {
-                for (std::list<Unit*>::iterator itr = unitTargets.begin(); itr != unitTargets.end();)
-                    if ((*itr)->getPowerType() != (Powers)power)
-                        itr = unitTargets.erase(itr);
-                    else
-                        ++itr;
-
-                if (unitTargets.size() > maxSize)
-                {
-                    unitTargets.sort(Trinity::PowerPctOrderPred((Powers)power));
-                    unitTargets.resize(maxSize);
-                }
-            }
-        }
-
         // Other special target selection goes here
         if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
         {
@@ -1346,27 +1254,16 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                 if ((*j)->IsAffectedOnSpell(m_spellInfo))
                     maxTargets += (*j)->GetAmount();
 
-            Trinity::Containers::RandomResizeList(unitTargets, maxTargets);
+            Trinity::Containers::RandomResizeList(targets, maxTargets);
         }
 
-        for (std::list<Unit*>::iterator itr = unitTargets.begin(); itr != unitTargets.end(); ++itr)
-            AddUnitTarget(*itr, effMask, false);
-    }
-
-    if (!gObjTargets.empty())
-    {
-        if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
+        for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
         {
-            Unit::AuraEffectList const& Auras = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_MAX_AFFECTED_TARGETS);
-            for (Unit::AuraEffectList::const_iterator j = Auras.begin(); j != Auras.end(); ++j)
-                if ((*j)->IsAffectedOnSpell(m_spellInfo))
-                    maxTargets += (*j)->GetAmount();
-
-            Trinity::Containers::RandomResizeList(gObjTargets, maxTargets);
+            if (Unit* unitTarget = (*itr)->ToUnit())
+                AddUnitTarget(unitTarget, effMask, false);
+            else if (GameObject* gObjTarget = (*itr)->ToGameObject())
+                AddGOTarget(gObjTarget, effMask);
         }
-
-        for (std::list<GameObject*>::iterator itr = gObjTargets.begin(); itr != gObjTargets.end(); ++itr)
-            AddGOTarget(*itr, effMask);
     }
 }
 
@@ -1403,9 +1300,9 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
             float minDist = m_spellInfo->GetMinRange(true);
             float maxDist = m_spellInfo->GetMaxRange(true);
             float dist = frand(minDist, maxDist);
-            float x, y, z, angle;
+            float x, y, z;
             float angle = float(rand_norm()) * static_cast<float>(M_PI * 35.0f / 180.0f) - static_cast<float>(M_PI * 17.5f / 180.0f);
-            m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE, dis, angle);
+            m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE, dist, angle);
 
             float ground = z;
             float liquidLevel = m_caster->GetMap()->GetWaterOrGroundLevel(x, y, z, &ground);
