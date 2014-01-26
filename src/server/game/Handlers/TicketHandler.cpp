@@ -135,7 +135,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
 			else
 			{
 				sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00304Ticket Message(1/2)\003]: %s ", " %s", tmsg.substr(0, 399).c_str()), true);
-				sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00304Ticket Message(2/2)\003]: %s ", " %s", tmsg.substr(400, 800).c_str()), true);
+				sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00304Ticket Message(2/2)\003]: %s ", " %s", tmsg.substr(399, 800).c_str()), true);
 			}
 		}
     }
@@ -182,7 +182,7 @@ void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket& recvData)
             else
             {
                 sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00304Ticket Message(1/2)\003]: %s ", " %s", tmsg.substr(0, 399).c_str()), true);
-                sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00304Ticket Message(2/2)\003]: %s ", " %s", tmsg.substr(400, 800).c_str()), true);
+                sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00304Ticket Message(2/2)\003]: %s ", " %s", tmsg.substr(399, 800).c_str()), true);
             }
         }
     }

@@ -307,9 +307,14 @@ public:
         {
             std::string ircchan = "#";
             std::ostringstream smsg;
+            std::string deletedby;
+            // If deleted from console,there is no player,so we assign to Console.
+            Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : NULL;
+            if (player)
+                deletedby = player->GetName().c_str();
+            else deletedby = "Console";
             ircchan += sIRC->ticann;
-            smsg << "[\00304Ticket Deleted\003][By:\00304 " << ticket->GetPlayerName().c_str() << " \003][ID: \00304" << ticket->GetId() << " \003][Deleted By: \00304" 
-                << handler->GetSession()->GetPlayer()->GetName().c_str() << " \003]";
+            smsg << "[\00304Ticket Deleted\003][By:\00304 " << ticket->GetPlayerName().c_str() << " \003][ID: \00304" << ticket->GetId() << " \003][Deleted By: \00304" << deletedby << " \003]";
             sIRC->Send_IRC_Channel(ircchan, smsg.str().c_str() , true);
         }
 
