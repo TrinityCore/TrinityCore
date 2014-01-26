@@ -361,7 +361,6 @@ class spell_pal_divine_sacrifice : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-
                 if (Unit* caster = GetCaster())
                 {
                     if (caster->GetTypeId() == TYPEID_PLAYER)
@@ -561,6 +560,39 @@ class spell_pal_eye_for_an_eye : public SpellScriptLoader
         AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_pal_eye_for_an_eye_AuraScript();
+        }
+};
+
+// 54968 - Glyph of Holy Light
+class spell_pal_glyph_of_holy_light : public SpellScriptLoader
+{
+    public:
+        spell_pal_glyph_of_holy_light() : SpellScriptLoader("spell_pal_glyph_of_holy_light") { }
+
+        class spell_pal_glyph_of_holy_light_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_glyph_of_holy_light_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                uint32 const maxTargets = GetSpellInfo()->MaxAffectedTargets;
+
+                if (targets.size() > maxTargets)
+                {
+                    targets.sort(Trinity::HealthPctOrderPred());
+                    targets.resize(maxTargets);
+                }
+            }
+
+            void Register() OVERRIDE
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_glyph_of_holy_light_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_pal_glyph_of_holy_light_SpellScript();
         }
 };
 
@@ -1142,6 +1174,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_divine_storm_dummy();
     new spell_pal_exorcism_and_holy_wrath_damage();
     new spell_pal_eye_for_an_eye();
+    new spell_pal_glyph_of_holy_light();
     new spell_pal_guarded_by_the_light();
     new spell_pal_hand_of_sacrifice();
     new spell_pal_hand_of_salvation();
