@@ -140,13 +140,13 @@ class spell_dk_anti_magic_shell_self : public SpellScriptLoader
                 absorbAmount = std::min(CalculatePct(dmgInfo.GetDamage(), absorbPct), GetTarget()->CountPctFromMaxHealth(hpPct));
             }
 
-            void Trigger(AuraEffect* aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
+            void Trigger(AuraEffect* aurEff, DamageInfo& /*dmgInfo*/, uint32& absorbAmount)
             {
-                Unit* target = GetTarget();
                 // damage absorbed by Anti-Magic Shell energizes the DK with additional runic power.
                 // This, if I'm not mistaken, shows that we get back ~20% of the absorbed damage as runic power.
-                int32 bp = absorbAmount * 2 / 10;
-                target->CastCustomSpell(target, SPELL_DK_RUNIC_POWER_ENERGIZE, &bp, NULL, NULL, true, NULL, aurEff);
+                absorbAmount = absorbAmount * 2 / 10;
+
+                GetTarget()->CastCustomSpell(SPELL_DK_RUNIC_POWER_ENERGIZE, SPELLVALUE_BASE_POINT0, absorbAmount, GetTarget(), true, NULL, aurEff);
             }
 
             void Register() OVERRIDE
