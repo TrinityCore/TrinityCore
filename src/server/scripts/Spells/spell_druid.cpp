@@ -1033,7 +1033,7 @@ class spell_dru_wild_growth : public SpellScriptLoader
 
                 int32 const maxTargets = GetSpellInfo()->Effects[EFFECT_2].CalcValue(GetCaster());
 
-                if (targets.size() > maxTargets)
+                if (targets.size() > uint32(maxTargets))
                 {
                     targets.sort(Trinity::HealthPctOrderPred());
                     targets.resize(maxTargets);
