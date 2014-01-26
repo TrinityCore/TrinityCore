@@ -66,7 +66,7 @@ enum Phase
     PHASE_TWO                   = 2
 };
 
-Position const SpawnBat[6] = 
+Position const SpawnBat[6] =
 {
     { -12291.6220f, -1380.2640f, 144.8304f, 5.483f },
     { -12289.6220f, -1380.2640f, 144.8304f, 5.483f },
@@ -175,7 +175,7 @@ class boss_jeklik : public CreatureScript
                             me->InterruptNonMeleeSpells(false);
                             DoCastVictim(SPELL_CHAIN_MIND_FLAY);
                             events.ScheduleEvent(EVENT_CHAIN_MIND_FLAY, urand(15000, 30000), 0, PHASE_TWO);
-                            break; 
+                            break;
                         case EVENT_GREATER_HEAL:
                             me->InterruptNonMeleeSpells(false);
                             DoCast(me, SPELL_GREATERHEAL);
