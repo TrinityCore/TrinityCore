@@ -349,6 +349,40 @@ class spell_item_deviate_fish : public SpellScriptLoader
         }
 };
 
+// 71610, 71641 - Echoes of Light (Althor's Abacus)
+class spell_item_echoes_of_light : public SpellScriptLoader
+{
+    public:
+        spell_item_echoes_of_light() : SpellScriptLoader("spell_item_echoes_of_light") { }
+
+        class spell_item_echoes_of_light_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_echoes_of_light_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.size() < 2)
+                    return;
+
+                targets.sort(Trinity::HealthPctOrderPred());
+
+                WorldObject* target = targets.front();
+                targets.clear();
+                targets.push_back(target);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_item_echoes_of_light_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_item_echoes_of_light_SpellScript();
+        }
+};
+
 // http://www.wowhead.com/item=47499 Flask of the North
 // 67019 Flask of the North
 enum FlaskOfTheNorthSpells
@@ -2526,6 +2560,7 @@ void AddSC_item_spell_scripts()
     new spell_item_defibrillate("spell_item_gnomish_army_knife", 33);
     new spell_item_desperate_defense();
     new spell_item_deviate_fish();
+    new spell_item_echoes_of_light();
     new spell_item_flask_of_the_north();
     new spell_item_gnomish_death_ray();
     new spell_item_make_a_wish();

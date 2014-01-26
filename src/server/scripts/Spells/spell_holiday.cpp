@@ -303,7 +303,7 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
         public:
             spell_pilgrims_bounty_buff_food_AuraScript(uint32 triggeredSpellId) : AuraScript(), _triggeredSpellId(triggeredSpellId) { }
 
-            bool Load()
+            bool Load() OVERRIDE
             {
                 _handled = false;
                 return true;
@@ -318,7 +318,7 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
                 GetTarget()->CastSpell(GetTarget(), _triggeredSpellId, true);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_pilgrims_bounty_buff_food_AuraScript::HandleTriggerSpell, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
@@ -326,7 +326,7 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
             bool _handled;
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_pilgrims_bounty_buff_food_AuraScript(_triggeredSpellId);
         }
