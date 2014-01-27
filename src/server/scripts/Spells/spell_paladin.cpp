@@ -876,35 +876,6 @@ class spell_pal_judgement : public SpellScriptLoader
         }
 };
 
-// 20425 - Judgement of Command
-class spell_pal_judgement_of_command : public SpellScriptLoader
-{
-    public:
-        spell_pal_judgement_of_command() : SpellScriptLoader("spell_pal_judgement_of_command") { }
-
-        class spell_pal_judgement_of_command_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pal_judgement_of_command_SpellScript);
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* unitTarget = GetHitUnit())
-                    if (SpellInfo const* spell_proto = sSpellMgr->GetSpellInfo(GetEffectValue()))
-                        GetCaster()->CastSpell(unitTarget, spell_proto, true, NULL);
-            }
-
-            void Register() OVERRIDE
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_pal_judgement_of_command_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const OVERRIDE
-        {
-            return new spell_pal_judgement_of_command_SpellScript();
-        }
-};
-
 // 633 - Lay on Hands
 class spell_pal_lay_on_hands : public SpellScriptLoader
 {
@@ -1194,7 +1165,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_improved_aura_effect("spell_pal_sanctified_retribution_effect");
     new spell_pal_item_healing_discount();
     new spell_pal_judgement();
-    new spell_pal_judgement_of_command();
     new spell_pal_lay_on_hands();
     new spell_pal_righteous_defense();
     new spell_pal_sacred_shield();
