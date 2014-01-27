@@ -57,9 +57,6 @@ enum PaladinSpells
     SPELL_PALADIN_IMPROVED_DEVOTION_AURA         = 63514,
     SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
     SPELL_PALADIN_JUDGEMENT_DAMAGE               = 54158,
-    SPELL_PALADIN_JUDGEMENT_OF_JUSTICE           = 20184,
-    SPELL_PALADIN_JUDGEMENT_OF_LIGHT             = 20185,
-    SPELL_PALADIN_JUDGEMENT_OF_WISDOM            = 20186,
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
     SPELL_PALADIN_SANCTIFIED_RETRIBUTION_AURA    = 63531,
     SPELL_PALADIN_SANCTIFIED_RETRIBUTION_R1      = 31869,
@@ -830,32 +827,27 @@ class spell_pal_item_healing_discount : public SpellScriptLoader
         }
 };
 
-// 53407 - Judgement of Justice
-// 20271 - Judgement of Light
-// 53408 - Judgement of Wisdom
+// 20271 - Judgement
+/// Updated 4.3.4
 class spell_pal_judgement : public SpellScriptLoader
 {
     public:
-        spell_pal_judgement(char const* scriptName, uint32 spellId) : SpellScriptLoader(scriptName), _spellId(spellId) { }
+        spell_pal_judgement() : SpellScriptLoader("spell_pal_judgement") { }
 
         class spell_pal_judgement_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_pal_judgement_SpellScript);
 
-        public:
-            spell_pal_judgement_SpellScript(uint32 spellId) : SpellScript(), _spellId(spellId) { }
-
             bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_JUDGEMENT_DAMAGE)
-                    || !sSpellMgr->GetSpellInfo(_spellId))
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_JUDGEMENT_DAMAGE))
                     return false;
                 return true;
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                uint32 spellId2 = SPELL_PALADIN_JUDGEMENT_DAMAGE;
+                uint32 spellId = SPELL_PALADIN_JUDGEMENT_DAMAGE;
 
                 // some seals have SPELL_AURA_DUMMY in EFFECT_2
                 Unit::AuraEffectList const& auras = GetCaster()->GetAuraEffectsByType(SPELL_AURA_DUMMY);
@@ -864,31 +856,24 @@ class spell_pal_judgement : public SpellScriptLoader
                     if ((*i)->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_SEAL && (*i)->GetEffIndex() == EFFECT_2)
                         if (sSpellMgr->GetSpellInfo((*i)->GetAmount()))
                         {
-                            spellId2 = (*i)->GetAmount();
+                            spellId = (*i)->GetAmount();
                             break;
                         }
                 }
 
-                GetCaster()->CastSpell(GetHitUnit(), _spellId, true);
-                GetCaster()->CastSpell(GetHitUnit(), spellId2, true);
+                GetCaster()->CastSpell(GetHitUnit(), spellId, true);
             }
 
             void Register() OVERRIDE
             {
-                OnEffectHitTarget += SpellEffectFn(spell_pal_judgement_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_judgement_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
-
-        private:
-            uint32 const _spellId;
         };
 
         SpellScript* GetSpellScript() const OVERRIDE
         {
-            return new spell_pal_judgement_SpellScript(_spellId);
+            return new spell_pal_judgement_SpellScript();
         }
-
-    private:
-        uint32 const _spellId;
 };
 
 // 20425 - Judgement of Command
@@ -1208,9 +1193,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_improved_aura_effect("spell_pal_improved_devotion_aura_effect");
     new spell_pal_improved_aura_effect("spell_pal_sanctified_retribution_effect");
     new spell_pal_item_healing_discount();
-    new spell_pal_judgement("spell_pal_judgement_of_justice", SPELL_PALADIN_JUDGEMENT_OF_JUSTICE);
-    new spell_pal_judgement("spell_pal_judgement_of_light", SPELL_PALADIN_JUDGEMENT_OF_LIGHT);
-    new spell_pal_judgement("spell_pal_judgement_of_wisdom", SPELL_PALADIN_JUDGEMENT_OF_WISDOM);
+    new spell_pal_judgement();
     new spell_pal_judgement_of_command();
     new spell_pal_lay_on_hands();
     new spell_pal_righteous_defense();
