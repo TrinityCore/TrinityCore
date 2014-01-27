@@ -388,6 +388,7 @@ class npc_precious_icc : public CreatureScript
         {
             npc_precious_iccAI(Creature* creature) : ScriptedAI(creature), _summons(me)
             {
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 _instance = creature->GetInstanceScript();
             }
 
