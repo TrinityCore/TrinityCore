@@ -831,7 +831,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         float GetStationaryZ() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MO_TRANSPORT) return m_stationaryPosition.GetPositionZ(); return GetPositionZ(); }
         float GetStationaryO() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MO_TRANSPORT) return m_stationaryPosition.GetOrientation(); return GetOrientation(); }
 
-        float GetInteractionDistance();
+        float GetInteractionDistance() const;
 
     protected:
         bool AIM_Initialize();
