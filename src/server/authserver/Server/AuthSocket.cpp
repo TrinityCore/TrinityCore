@@ -321,9 +321,7 @@ bool AuthSocket::_HandleLogonChallenge()
 
     socket().recv((char *)&buf[0], 4);
 
-#if TRINITY_ENDIAN == TRINITY_BIGENDIAN
     EndianConvert(*((uint16*)(buf[0])));
-#endif
 
     uint16 remaining = ((sAuthLogonChallenge_C *)&buf[0])->size;
     TC_LOG_DEBUG("server.authserver", "[AuthChallenge] got header, body is %#04x bytes", remaining);
@@ -343,7 +341,6 @@ bool AuthSocket::_HandleLogonChallenge()
 
     // BigEndian code, nop in little endian case
     // size already converted
-#if TRINITY_ENDIAN == TRINITY_BIGENDIAN
     EndianConvert(*((uint32*)(&ch->gamename[0])));
     EndianConvert(ch->build);
     EndianConvert(*((uint32*)(&ch->platform[0])));
@@ -351,7 +348,6 @@ bool AuthSocket::_HandleLogonChallenge()
     EndianConvert(*((uint32*)(&ch->country[0])));
     EndianConvert(ch->timezone_bias);
     EndianConvert(ch->ip);
-#endif
 
     ByteBuffer pkt;
 
@@ -397,7 +393,7 @@ bool AuthSocket::_HandleLogonChallenge()
             bool locked = false;
             if (fields[2].GetUInt8() == 1)                  // if ip is locked
             {
-                TC_LOG_DEBUG("server.authserver", "[AuthChallenge] Account '%s' is locked to IP - '%s'", _login.c_str(), fields[3].GetCString());
+                TC_LOG_DEBUG("server.authserver", "[AuthChallenge] Account '%s' is locked to IP - '%s'", _login.c_str(), fields[4].GetCString());
                 TC_LOG_DEBUG("server.authserver", "[AuthChallenge] Player address is '%s'", ip_address.c_str());
 
                 if (strcmp(fields[4].GetCString(), ip_address.c_str()) != 0)
@@ -783,9 +779,7 @@ bool AuthSocket::_HandleReconnectChallenge()
 
     socket().recv((char *)&buf[0], 4);
 
-#if TRINITY_ENDIAN == TRINITY_BIGENDIAN
     EndianConvert(*((uint16*)(buf[0])));
-#endif
 
     uint16 remaining = ((sAuthLogonChallenge_C *)&buf[0])->size;
     TC_LOG_DEBUG("server.authserver", "[ReconnectChallenge] got header, body is %#04x bytes", remaining);
