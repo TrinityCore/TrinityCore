@@ -1204,7 +1204,7 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
 			}
 			while (result3->NextRow());
 		}
-		if (playersInBG>39 && playersInBG3<20)
+		if (playersInBG>29 && playersInBG3<20)
 		{
 			uint32 selectedWeight = 0;
 			// Select a random value
