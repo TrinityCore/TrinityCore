@@ -929,7 +929,10 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
         if (spellInfo->GetExplicitTargetMask() & TARGET_FLAG_DEST_LOCATION)
             targets.SetDst(m_targets);
 
-        targets.SetUnitTarget(m_caster);
+        if (Unit* target = m_targets.GetUnitTarget())
+            targets.SetUnitTarget(target);
+        else
+            targets.SetUnitTarget(m_caster);
     }
 
     CustomSpellValues values;
