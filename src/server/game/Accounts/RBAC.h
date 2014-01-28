@@ -692,6 +692,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_ONLINE_CHAR                            = 1008,
     RBAC_PERM_COMMAND_INSTANCE_SETDATA                       = 1009,
     RBAC_PERM_COMMAND_INSTANCE_GETDATA                       = 1010,
+	RBAC_PERM_COMMAND_QUESTCOMPLETER_COMP					 = 1011,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
