@@ -74,6 +74,7 @@ enum Events
     EVENT_END_HARD_1,
     EVENT_END_HARD_2,
     EVENT_END_HARD_3,
+    EVENT_SIFFED
 };
 
 enum Yells
@@ -147,10 +148,6 @@ enum Actions
     ACTION_BERSERK                         = 3,
     ACTION_CLOSE_ARENA_DOOR                = 4
 };
-
-// Achievements
-#define ACHIEVEMENT_SIFFED                      RAID_MODE(2977, 2978)
-#define ACHIEVEMENT_LOSE_ILLUSION               RAID_MODE(3176, 3183)
 
 // Thorim Arena Phase Adds
 enum ArenaAdds
@@ -611,6 +608,9 @@ public:
                             DoCast(me, SPELL_BERSERK_PHASE_2);
                             Talk(SAY_BERSERK);
                             break;
+                        case EVENT_SIFFED:
+                            DoCastAOE(SPELL_ACHIEVEMENT_SIFFED);
+                            break;
                     }
                 }
             }
@@ -771,8 +771,7 @@ public:
                     if (EncounterTime <= 3*MINUTE*IN_MILLISECONDS)
                     {
                         HardMode = true;
-                        // Summon Sif
-                        DoCastAOE(SPELL_ACHIEVEMENT_SIFFED);
+                        events.ScheduleEvent(EVENT_SIFFED, 5000);
                         me->SummonCreature(NPC_SIF, 2149.27f, -260.55f, 419.69f, 2.527f, TEMPSUMMON_CORPSE_DESPAWN);
                     }
                     else
