@@ -485,7 +485,10 @@ namespace LuaPlayer
         {
             ++i;
             sEluna.Push(L, it->first);
-            sEluna.Push(L, it->second.end);
+            if (it->second.end < 0)
+                sEluna.Push(L, int32(it->second.end));
+            else
+                sEluna.Push(L, uint32(it->second.end));
             lua_settable(L, tbl);
         }
 
