@@ -17,9 +17,16 @@ template<> QueryResult const* ElunaTemplate<QueryResult>::GetTPointer(QueryResul
 extern void RegisterFunctions(lua_State* L);
 extern void AddElunaScripts();
 
-void StartEluna(bool restart)
+bool StartEluna()
 {
-    if (restart)
+#if !defined(ELUNA)
+    {
+        TC_LOG_ERROR("server.loading", "[Eluna]: LuaEngine is Disabled. (If you want to use it please enable in cmake)");
+        return false;
+    }
+#endif
+
+    if (sEluna.L)
     {
         sHookMgr.OnEngineRestart();
         TC_LOG_INFO("misc", "[Eluna]: Restarting Lua Engine");
@@ -27,27 +34,23 @@ void StartEluna(bool restart)
         // Unregisters and stops all timed events
         sEluna.m_EventMgr.RemoveEvents();
 
-        if (sEluna.L)
-        {
+        // Remove bindings
+        sEluna.PacketEventBindings.Clear();
+        sEluna.ServerEventBindings.Clear();
+        sEluna.PlayerEventBindings.Clear();
+        sEluna.GuildEventBindings.Clear();
+        sEluna.GroupEventBindings.Clear();
+        sEluna.VehicleEventBindings.Clear();
 
-            // Remove bindings
-            sEluna.PacketEventBindings.Clear();
-            sEluna.ServerEventBindings.Clear();
-            sEluna.PlayerEventBindings.Clear();
-            sEluna.GuildEventBindings.Clear();
-            sEluna.GroupEventBindings.Clear();
-            sEluna.VehicleEventBindings.Clear();
+        sEluna.CreatureEventBindings.Clear();
+        sEluna.CreatureGossipBindings.Clear();
+        sEluna.GameObjectEventBindings.Clear();
+        sEluna.GameObjectGossipBindings.Clear();
+        sEluna.ItemEventBindings.Clear();
+        sEluna.ItemGossipBindings.Clear();
+        sEluna.playerGossipBindings.Clear();
 
-            sEluna.CreatureEventBindings.Clear();
-            sEluna.CreatureGossipBindings.Clear();
-            sEluna.GameObjectEventBindings.Clear();
-            sEluna.GameObjectGossipBindings.Clear();
-            sEluna.ItemEventBindings.Clear();
-            sEluna.ItemGossipBindings.Clear();
-            sEluna.playerGossipBindings.Clear();
-
-            lua_close(sEluna.L);
-        }
+        lua_close(sEluna.L);
     }
     else
         AddElunaScripts();
@@ -113,6 +116,7 @@ void StartEluna(bool restart)
     */
 
     TC_LOG_INFO("misc", "[Eluna]: Loaded %u Lua scripts..", count);
+    return true;
 }
 
 // Loads lua scripts from given directory
@@ -207,16 +211,6 @@ void Eluna::LoadDirectory(const char* Dirname, LoadedScripts* lscr)
         free(list[fileCount]);
     }
     free(list);
-#endif
-}
-
-void Eluna::Initialize()
-{
-    // Check define for eluna is enabled or disabled
-#ifdef ELUNA
-        StartEluna(false);
-#else
-        TC_LOG_ERROR("server.loading", "[Eluna]: LuaEngine is Disabled. (If you want to use it please enable in cmake)", _path);
 #endif
 }
 
@@ -575,8 +569,6 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
 
 void Eluna::EventBind::Clear()
 {
-    if (Bindings.empty())
-        return;
     for (ElunaEntryMap::iterator itr = Bindings.begin(); itr != Bindings.end(); ++itr)
     {
         for (ElunaBindingMap::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
@@ -626,8 +618,6 @@ void Eluna::EventBind::EndCall() const
 
 void Eluna::EntryBind::Clear()
 {
-    if (Bindings.empty())
-        return;
     for (ElunaEntryMap::iterator itr = Bindings.begin(); itr != Bindings.end(); ++itr)
     {
         for (ElunaBindingMap::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
@@ -641,8 +631,8 @@ void Eluna::EntryBind::Insert(uint32 entryId, int eventId, int funcRef)
 {
     if (Bindings[entryId][eventId])
     {
-        luaL_error(sEluna.L, "A function is already registered for entry (%d) event (%d)", entryId, eventId);
         luaL_unref(sEluna.L, LUA_REGISTRYINDEX, funcRef); // free the unused ref
+        luaL_error(sEluna.L, "A function is already registered for entry (%d) event (%d)", entryId, eventId);
     }
     else
         Bindings[entryId][eventId] = funcRef;

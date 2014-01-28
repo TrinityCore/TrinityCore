@@ -7,7 +7,7 @@
 #ifndef GLOBALMETHODS_H
 #define GLOBALMETHODS_H
 
-extern void StartEluna(bool restart);
+extern bool StartEluna();
 
 namespace LuaGlobalFunctions
 {
@@ -267,8 +267,8 @@ namespace LuaGlobalFunctions
 
     int ReloadEluna(lua_State* L)
     {
-        StartEluna(true);
-        return 0;
+        sEluna.Push(L, StartEluna());
+        return 1;
     }
 
     int GetPlayerByGUID(lua_State* L)

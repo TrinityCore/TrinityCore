@@ -354,7 +354,6 @@ class Eluna
 
         ~Eluna()
         {
-            lua_close(L); // Closing
         }
 
         struct EventBind
@@ -458,7 +457,6 @@ class Eluna
         EntryBind ItemGossipBindings;
         EntryBind playerGossipBindings;
 
-        void Initialize();
         static void report(lua_State*);
         void Register(uint8 reg, uint32 id, uint32 evt, int func);
         void BeginCall(int fReference);

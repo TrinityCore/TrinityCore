@@ -181,7 +181,7 @@ ScriptMgr::ScriptMgr()
 
 ScriptMgr::~ScriptMgr() { }
 
-extern void StartEluna(bool restart);
+extern bool StartEluna();
 void ScriptMgr::Initialize()
 {
     uint32 oldMSTime = getMSTime();
@@ -192,9 +192,9 @@ void ScriptMgr::Initialize()
 
     FillSpellSummary();
     AddScripts();
-    /* Eluna [Lua Engine] */
+
 #ifdef ELUNA
-    StartEluna(false);
+    StartEluna();
 #endif
 
     TC_LOG_INFO("server.loading", ">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
