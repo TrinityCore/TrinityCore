@@ -3803,6 +3803,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 52212: // Death Knight's Death and Decay triggered spell
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
                 break;
+            case 24259: // Spell Lock
+                spellInfo->Speed = 80.0f;
+                break;
             // ISLE OF CONQUEST SPELLS
             //
             case 66551: // Teleport
