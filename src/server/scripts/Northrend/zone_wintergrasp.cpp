@@ -249,7 +249,10 @@ class npc_wg_queue : public CreatureScript
 
     struct npc_wg_queueAI : public ScriptedAI
     {
-        npc_wg_queueAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_wg_queueAI(Creature* creature) : ScriptedAI(creature)
+        {
+            FrostArmor_Timer = 0;
+        }
 
         uint32 FrostArmor_Timer;
 

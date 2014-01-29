@@ -175,7 +175,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectSummonObject,                             //106 SPELL_EFFECT_SUMMON_OBJECT_SLOT3
     &Spell::EffectSummonObject,                             //107 SPELL_EFFECT_SUMMON_OBJECT_SLOT4
     &Spell::EffectDispelMechanic,                           //108 SPELL_EFFECT_DISPEL_MECHANIC
-    &Spell::EffectSummonDeadPet,                            //109 SPELL_EFFECT_SUMMON_DEAD_PET
+    &Spell::EffectResurrectPet,                             //109 SPELL_EFFECT_RESURRECT_PET
     &Spell::EffectDestroyAllTotems,                         //110 SPELL_EFFECT_DESTROY_ALL_TOTEMS
     &Spell::EffectDurabilityDamage,                         //111 SPELL_EFFECT_DURABILITY_DAMAGE
     &Spell::EffectUnused,                                   //112 SPELL_EFFECT_112
@@ -2326,7 +2326,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     if (!summon || !summon->HasUnitTypeMask(UNIT_MASK_MINION))
                         return;
 
-                    summon->SelectLevel(summon->GetCreatureTemplate());       // some summoned creaters have different from 1 DB data for level/hp
+                    summon->SelectLevel();       // some summoned creaters have different from 1 DB data for level/hp
                     summon->SetUInt32Value(UNIT_NPC_FLAGS, summon->GetCreatureTemplate()->npcflag);
 
                     summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
@@ -2538,8 +2538,6 @@ void Spell::EffectDualWield(SpellEffIndex /*effIndex*/)
         return;
 
     unitTarget->SetCanDualWield(true);
-    if (unitTarget->GetTypeId() == TYPEID_UNIT)
-        unitTarget->ToCreature()->UpdateDamagePhysical(OFF_ATTACK);
 }
 
 void Spell::EffectPull(SpellEffIndex effIndex)
@@ -4103,65 +4101,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
             }
             break;
         }
-        case SPELLFAMILY_PALADIN:
-        {
-            // Judgement (seal trigger)
-            if (m_spellInfo->GetCategory() == SPELLCATEGORY_JUDGEMENT)
-            {
-                if (!unitTarget || !unitTarget->IsAlive())
-                    return;
-                uint32 spellId1 = 0;
-                uint32 spellId2 = 0;
-
-                // Judgement self add switch
-                switch (m_spellInfo->Id)
-                {
-                    case 53407: spellId1 = 20184; break;    // Judgement of Justice
-                    case 20271:                             // Judgement of Light
-                    case 57774: spellId1 = 20185; break;    // Judgement of Light
-                    case 53408: spellId1 = 20186; break;    // Judgement of Wisdom
-                    default:
-                        TC_LOG_ERROR("spells", "Unsupported Judgement (seal trigger) spell (Id: %u) in Spell::EffectScriptEffect", m_spellInfo->Id);
-                        return;
-                }
-                // all seals have aura dummy in 2 effect
-                Unit::AuraApplicationMap & sealAuras = m_caster->GetAppliedAuras();
-                for (Unit::AuraApplicationMap::iterator iter = sealAuras.begin(); iter != sealAuras.end();)
-                {
-                    Aura* aura = iter->second->GetBase();
-                    if (aura->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_SEAL)
-                    {
-                        if (AuraEffect* aureff = aura->GetEffect(2))
-                            if (aureff->GetAuraType() == SPELL_AURA_DUMMY)
-                            {
-                                if (sSpellMgr->GetSpellInfo(aureff->GetAmount()))
-                                    spellId2 = aureff->GetAmount();
-                                break;
-                            }
-                        if (!spellId2)
-                        {
-                            switch (iter->first)
-                            {
-                                // Seal of light, Seal of wisdom, Seal of justice
-                                case 20165:
-                                case 20166:
-                                case 20164:
-                                    spellId2 = 54158;
-                            }
-                        }
-                        break;
-                    }
-                    else
-                        ++iter;
-                }
-                if (spellId1)
-                    m_caster->CastSpell(unitTarget, spellId1, true);
-                if (spellId2)
-                    m_caster->CastSpell(unitTarget, spellId2, true);
-                return;
-            }
-            break;
-        }
         case SPELLFAMILY_DEATHKNIGHT:
         {
             // Pestilence
@@ -5051,7 +4990,7 @@ void Spell::EffectDispelMechanic(SpellEffIndex effIndex)
     }
 }
 
-void Spell::EffectSummonDeadPet(SpellEffIndex /*effIndex*/)
+void Spell::EffectResurrectPet(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
@@ -5063,9 +5002,9 @@ void Spell::EffectSummonDeadPet(SpellEffIndex /*effIndex*/)
     if (!player)
         return;
 
-
     // Maybe player dismissed dead pet or pet despawned?
     bool hadPet = true;
+
     if (!player->GetPet())
     {
         // Position passed to SummonPet is irrelevant with current implementation,
@@ -5076,11 +5015,7 @@ void Spell::EffectSummonDeadPet(SpellEffIndex /*effIndex*/)
 
     // TODO: Better to fail Hunter's "Revive Pet" at cast instead of here when casting ends
     Pet* pet = player->GetPet(); // Attempt to get current pet
-    if (!pet)
-        return;
-
-    // TODO: Better to fail Hunter's "Revive Pet" at cast instead of here when casting ends
-    if (pet->IsAlive())
+    if (!pet || pet->IsAlive())
         return;
 
     // If player did have a pet before reviving, teleport it
@@ -5806,6 +5741,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
         TempSummon* summon = map->SummonCreature(entry, pos, properties, duration, caster, m_spellInfo->Id);
         if (!summon)
             return;
+
         if (summon->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
             ((Guardian*)summon)->InitStatsForLevel(level);
 
@@ -5819,11 +5755,11 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
         {
             if (uint32 weapon = m_caster->GetUInt32Value(PLAYER_VISIBLE_ITEM_16_ENTRYID))
             {
-                summon->SetDisplayId(11686);
+                summon->SetDisplayId(11686); // modelid2
                 summon->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, weapon);
             }
             else
-                summon->SetDisplayId(1126);
+                summon->SetDisplayId(1126); // modelid1
         }
 
         summon->AI()->EnterEvadeMode();

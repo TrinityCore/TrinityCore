@@ -467,7 +467,7 @@ public:
                         CallDragon(DATA_TENEBRON);
                         break;
                     case EVENT_CALL_SHADRON:
-                        CallDragon(DATA_SHADRON);    
+                        CallDragon(DATA_SHADRON);
                         break;
                     case EVENT_CALL_VESPERON:
                         CallDragon(DATA_VESPERON);

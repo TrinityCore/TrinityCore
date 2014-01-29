@@ -1960,7 +1960,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
         if (isEmpty || method == INSTANCE_RESET_GROUP_DISBAND || method == INSTANCE_RESET_CHANGE_DIFFICULTY)
         {
             // do not reset the instance, just unbind if others are permanently bound to it
-            if (instanceSave->CanReset())
+            if (isEmpty && instanceSave->CanReset())
                 instanceSave->DeleteFromDB();
             else
             {

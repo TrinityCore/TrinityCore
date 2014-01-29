@@ -140,13 +140,12 @@ class spell_dk_anti_magic_shell_self : public SpellScriptLoader
                 absorbAmount = std::min(CalculatePct(dmgInfo.GetDamage(), absorbPct), GetTarget()->CountPctFromMaxHealth(hpPct));
             }
 
-            void Trigger(AuraEffect* aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
+            void Trigger(AuraEffect* aurEff, DamageInfo& /*dmgInfo*/, uint32& absorbAmount)
             {
-                Unit* target = GetTarget();
                 // damage absorbed by Anti-Magic Shell energizes the DK with additional runic power.
                 // This, if I'm not mistaken, shows that we get back ~20% of the absorbed damage as runic power.
-                int32 bp = absorbAmount * 2 / 10;
-                target->CastCustomSpell(target, SPELL_DK_RUNIC_POWER_ENERGIZE, &bp, NULL, NULL, true, NULL, aurEff);
+                int32 bp = CalculatePct(absorbAmount, 20);
+                GetTarget()->CastCustomSpell(SPELL_DK_RUNIC_POWER_ENERGIZE, SPELLVALUE_BASE_POINT0, bp, GetTarget(), true, NULL, aurEff);
             }
 
             void Register() OVERRIDE
@@ -879,7 +878,7 @@ class spell_dk_presence : public SpellScriptLoader
             {
                 Unit* target = GetTarget();
 
-                if (GetSpellInfo()->Id == SPELL_DK_BLOOD_PRESENCE)
+                if (GetId() == SPELL_DK_BLOOD_PRESENCE)
                     target->CastSpell(target, SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED, true);
                 else if (AuraEffect const* impAurEff = target->GetAuraEffectOfRankedSpell(SPELL_DK_IMPROVED_BLOOD_PRESENCE_R1, EFFECT_0))
                     if (!target->HasAura(SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED))
@@ -890,7 +889,7 @@ class spell_dk_presence : public SpellScriptLoader
             {
                 Unit* target = GetTarget();
 
-                if (GetSpellInfo()->Id == SPELL_DK_FROST_PRESENCE)
+                if (GetId() == SPELL_DK_FROST_PRESENCE)
                     target->CastSpell(target, SPELL_DK_FROST_PRESENCE_TRIGGERED, true);
                 else if (AuraEffect const* impAurEff = target->GetAuraEffectOfRankedSpell(SPELL_DK_IMPROVED_FROST_PRESENCE_R1, EFFECT_0))
                     if (!target->HasAura(SPELL_DK_FROST_PRESENCE_TRIGGERED))
@@ -901,12 +900,12 @@ class spell_dk_presence : public SpellScriptLoader
             {
                 Unit* target = GetTarget();
 
-                if (GetSpellInfo()->Id == SPELL_DK_UNHOLY_PRESENCE)
+                if (GetId() == SPELL_DK_UNHOLY_PRESENCE)
                     target->CastSpell(target, SPELL_DK_UNHOLY_PRESENCE_TRIGGERED, true);
 
                 if (AuraEffect const* impAurEff = target->GetAuraEffectOfRankedSpell(SPELL_DK_IMPROVED_UNHOLY_PRESENCE_R1, EFFECT_0))
                 {
-                    if (GetSpellInfo()->Id == SPELL_DK_UNHOLY_PRESENCE)
+                    if (GetId() == SPELL_DK_UNHOLY_PRESENCE)
                     {
                         // Not listed as any effect, only base points set
                         int32 bp = impAurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue();

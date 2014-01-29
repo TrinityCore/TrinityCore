@@ -111,12 +111,13 @@ class boss_garfrost : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
+                me->RemoveAllGameObjects();
 
                 if (Creature* tyrannus = me->GetCreature(*me, instance->GetData64(DATA_TYRANNUS)))
                     tyrannus->AI()->Talk(SAY_TYRANNUS_DEATH);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*uiDamage*/) OVERRIDE
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
             {
                 if (events.IsInPhase(PHASE_ONE) && !HealthAbovePct(66))
                 {

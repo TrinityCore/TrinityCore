@@ -340,7 +340,9 @@ namespace MMAP
     /**************************************************************************/
     void MapBuilder::buildMap(uint32 mapID)
     {
+#ifndef __APPLE__
         printf("[Thread %u] Building map %03u:\n", uint32(ACE_Thread::self()), mapID);
+#endif
 
         std::set<uint32>* tiles = getTileList(mapID);
 

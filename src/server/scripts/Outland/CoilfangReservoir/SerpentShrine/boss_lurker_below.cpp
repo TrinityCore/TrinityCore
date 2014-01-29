@@ -112,10 +112,11 @@ public:
 
         bool CheckCanStart()//check if players fished
         {
-            if (instance && instance->GetData(DATA_STRANGE_POOL) == NOT_STARTED)
+            if (instance->GetData(DATA_STRANGE_POOL) == NOT_STARTED)
                 return false;
             return true;
         }
+
         void Reset() OVERRIDE
         {
             me->SetSwim(true);

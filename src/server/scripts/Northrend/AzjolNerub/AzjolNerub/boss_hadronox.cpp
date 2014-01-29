@@ -84,7 +84,7 @@ public:
             uiDoorsTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             uiCheckDistanceTimer = 2*IN_MILLISECONDS;
 
-            if (instance && (instance->GetBossState(DATA_HADRONOX) != DONE && !bFirstTime))
+            if (instance->GetBossState(DATA_HADRONOX) != DONE && !bFirstTime)
                 instance->SetBossState(DATA_HADRONOX, FAIL);
 
             bFirstTime = false;

@@ -74,13 +74,13 @@ public:
             MarkTimer = 45000;
             MarkTimerBase = 45000;
 
-            if (instance && IsEvent)
+            if (IsEvent)
                 instance->SetData(DATA_KAZROGALEVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (instance && IsEvent)
+            if (IsEvent)
                 instance->SetData(DATA_KAZROGALEVENT, IN_PROGRESS);
             Talk(SAY_ONAGGRO);
         }
@@ -103,7 +103,7 @@ public:
         void JustDied(Unit* killer) OVERRIDE
         {
             hyjal_trashAI::JustDied(killer);
-            if (instance && IsEvent)
+            if (IsEvent)
                 instance->SetData(DATA_KAZROGALEVENT, DONE);
             DoPlaySoundToSet(me, SOUND_ONDEATH);
         }

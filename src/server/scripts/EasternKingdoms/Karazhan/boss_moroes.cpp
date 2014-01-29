@@ -252,7 +252,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (instance && !instance->GetData(TYPE_MOROES))
+            if (!instance->GetData(TYPE_MOROES))
             {
                 EnterEvadeMode();
                 return;
@@ -371,7 +371,7 @@ struct boss_moroes_guestAI : public ScriptedAI
 
     void UpdateAI(uint32 /*diff*/) OVERRIDE
     {
-        if (instance && !instance->GetData(TYPE_MOROES))
+        if (!instance->GetData(TYPE_MOROES))
             EnterEvadeMode();
 
         DoMeleeAttackIfReady();

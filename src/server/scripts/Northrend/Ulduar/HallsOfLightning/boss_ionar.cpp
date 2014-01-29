@@ -168,7 +168,7 @@ public:
 
             for (std::list<uint64>::const_iterator itr = lSparkList.begin(); itr != lSparkList.end(); ++itr)
             {
-                if (Creature* pSpark = Unit::GetCreature(*me, *itr))
+                if (Creature* pSpark = ObjectAccessor::GetCreature(*me, *itr))
                 {
                     if (pSpark->IsAlive())
                     {
@@ -297,11 +297,6 @@ class npc_spark_of_ionar : public CreatureScript
 public:
     npc_spark_of_ionar() : CreatureScript("npc_spark_of_ionar") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return GetInstanceAI<npc_spark_of_ionarAI>(creature);
-    }
-
     struct npc_spark_of_ionarAI : public ScriptedAI
     {
         npc_spark_of_ionarAI(Creature* creature) : ScriptedAI(creature)
@@ -336,7 +331,7 @@ public:
         void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             // Despawn if the encounter is not running
-            if (instance && instance->GetBossState(DATA_IONAR) != IN_PROGRESS)
+            if (instance->GetBossState(DATA_IONAR) != IN_PROGRESS)
             {
                 me->DespawnOrUnsummon();
                 return;
@@ -345,13 +340,13 @@ public:
             // Prevent them to follow players through the whole instance
             if (uiCheckTimer <= uiDiff)
             {
-                Creature* pIonar = instance->instance->GetCreature(instance->GetData64(DATA_IONAR));
-                if (pIonar && pIonar->IsAlive())
+                Creature* ionar = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IONAR));
+                if (ionar && ionar->IsAlive())
                 {
-                    if (me->GetDistance(pIonar) > DATA_MAX_SPARK_DISTANCE)
+                    if (me->GetDistance(ionar) > DATA_MAX_SPARK_DISTANCE)
                     {
                         Position pos;
-                        pIonar->GetPosition(&pos);
+                        ionar->GetPosition(&pos);
 
                         me->SetSpeed(MOVE_RUN, 2.0f);
                         me->GetMotionMaster()->Clear();
@@ -369,6 +364,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return GetInstanceAI<npc_spark_of_ionarAI>(creature);
+    }
 };
 
 void AddSC_boss_ionar()

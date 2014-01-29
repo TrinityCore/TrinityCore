@@ -79,6 +79,18 @@ class spell_sha_ancestral_awakening_proc : public SpellScriptLoader
                 return true;
             }
 
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.size() < 2)
+                    return;
+
+                targets.sort(Trinity::HealthPctOrderPred());
+
+                WorldObject* target = targets.front();
+                targets.clear();
+                targets.push_back(target);
+            }
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 int32 damage = GetEffectValue();
@@ -88,6 +100,7 @@ class spell_sha_ancestral_awakening_proc : public SpellScriptLoader
 
             void Register() OVERRIDE
             {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_ancestral_awakening_proc_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
                 OnEffectHitTarget += SpellEffectFn(spell_sha_ancestral_awakening_proc_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };

@@ -455,6 +455,8 @@ uint32 SpellMgr::GetSpellDifficultyId(uint32 spellId) const
 
 void SpellMgr::SetSpellDifficultyId(uint32 spellId, uint32 id)
 {
+    if (uint32 i = GetSpellDifficultyId(spellId))
+        TC_LOG_ERROR("spells", "SpellMgr::SetSpellDifficultyId: Spell %u has already spellDifficultyId %u. Will override with spellDifficultyId %u.", spellId, i, id);
     mSpellDifficultySearcherMap[spellId] = id;
 }
 
@@ -480,7 +482,7 @@ uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) con
     SpellDifficultyEntry const* difficultyEntry = sSpellDifficultyStore.LookupEntry(difficultyId);
     if (!difficultyEntry)
     {
-        TC_LOG_DEBUG("spells", "SpellMgr::GetSpellIdForDifficulty: SpellDifficultyEntry not found for spell %u. This should never happen.", spellId);
+        TC_LOG_ERROR("spells", "SpellMgr::GetSpellIdForDifficulty: SpellDifficultyEntry not found for spell %u. This should never happen.", spellId);
         return spellId; //return source spell
     }
 
@@ -812,7 +814,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     {
         if (EventProcFlag & PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS)
         {
-            if (!(procExtra & PROC_EX_INTERNAL_DOT))
+            if (!(procExtra & PROC_EX_INTERNAL_HOT))
                 return false;
         }
         else if (procExtra & PROC_EX_INTERNAL_HOT)
@@ -2847,12 +2849,18 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             case 2589:
             case 2590:
             case 2591:
+            case 7159:
+            case 8627:
             case 8721:
             case 11279:
             case 11280:
             case 11281:
+            case 15582:
+            case 15657:
+            case 22416:
             case 25300:
             case 26863:
+            case 37685:
             case 48656:
             case 48657:
             case 703: // Garrote
@@ -3041,6 +3049,9 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 42730:
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 42739;
+                break;
+            case 42436: // Drink! (Brewfest)
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
                 break;
             case 59735:
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 59736;
@@ -3690,6 +3701,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             //
             // RUBY SANCTUM SPELLS
             //
+            case 74799: // Soul Consumption
+                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_12_YARDS);
+                break;
             case 74769: // Twilight Cutter
             case 77844: // Twilight Cutter
             case 77845: // Twilight Cutter

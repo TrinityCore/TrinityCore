@@ -683,7 +683,8 @@ enum NPCFlags
     UNIT_NPC_FLAG_STABLEMASTER          = 0x00400000,       // 100%
     UNIT_NPC_FLAG_GUILD_BANKER          = 0x00800000,       // cause client to send 997 opcode
     UNIT_NPC_FLAG_SPELLCLICK            = 0x01000000,       // cause client to send 1015 opcode (spell click)
-    UNIT_NPC_FLAG_PLAYER_VEHICLE        = 0x02000000        // players with mounts that have vehicle data should have it set
+    UNIT_NPC_FLAG_PLAYER_VEHICLE        = 0x02000000,       // players with mounts that have vehicle data should have it set
+    UNIT_NPC_FLAG_MAILBOX               = 0x04000000        //
 };
 
 enum MovementFlags
@@ -1292,7 +1293,7 @@ class Unit : public WorldObject
         bool isAttackReady(WeaponAttackType type = BASE_ATTACK) const { return m_attackTimer[type] == 0; }
         bool haveOffhandWeapon() const;
         bool CanDualWield() const { return m_canDualWield; }
-        void SetCanDualWield(bool value) { m_canDualWield = value; }
+        virtual void SetCanDualWield(bool value) { m_canDualWield = value; }
         float GetCombatReach() const { return m_floatValues[UNIT_FIELD_COMBATREACH]; }
         float GetMeleeReach() const;
         bool IsWithinCombatRange(const Unit* obj, float dist2compare) const;
@@ -1404,6 +1405,7 @@ class Unit : public WorldObject
         void GetPartyMembers(std::list<Unit*> &units);
         bool IsContestedGuard() const;
         bool IsPvP() const { return HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_PVP); }
+        bool IsFFAPvP() const { return HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP); }
         void SetPvP(bool state);
         uint32 GetCreatureType() const;
         uint32 GetCreatureTypeMask() const;
@@ -1870,14 +1872,18 @@ class Unit : public WorldObject
         virtual bool UpdateStats(Stats stat) = 0;
         virtual bool UpdateAllStats() = 0;
         virtual void UpdateResistances(uint32 school) = 0;
+        virtual void UpdateAllResistances();
         virtual void UpdateArmor() = 0;
         virtual void UpdateMaxHealth() = 0;
         virtual void UpdateMaxPower(Powers power) = 0;
         virtual void UpdateAttackPowerAndDamage(bool ranged = false) = 0;
-        virtual void UpdateDamagePhysical(WeaponAttackType attType) = 0;
+        virtual void UpdateDamagePhysical(WeaponAttackType attType);
         float GetTotalAttackPowerValue(WeaponAttackType attType) const;
         float GetWeaponDamageRange(WeaponAttackType attType, WeaponDamageRange type) const;
         void SetBaseWeaponDamage(WeaponAttackType attType, WeaponDamageRange damageRange, float value) { m_weaponDamage[attType][damageRange] = value; }
+        virtual void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) = 0;
+        uint32 CalculateDamage(WeaponAttackType attType, bool normalized, bool addTotalPct);
+        float GetAPMultiplier(WeaponAttackType attType, bool normalized);
 
         bool isInFrontInMap(Unit const* target, float distance, float arc = M_PI) const;
         bool isInBackInMap(Unit const* target, float distance, float arc = M_PI) const;
@@ -1935,8 +1941,6 @@ class Unit : public WorldObject
         void RemoveGameObject(uint32 spellid, bool del);
         void RemoveAllGameObjects();
 
-        uint32 CalculateDamage(WeaponAttackType attType, bool normalized, bool addTotalPct);
-        float GetAPMultiplier(WeaponAttackType attType, bool normalized);
         void ModifyAuraState(AuraStateType flag, bool apply);
         uint32 BuildAuraStateUpdateForTarget(Unit* target) const;
         bool HasAuraState(AuraStateType flag, SpellInfo const* spellProto = NULL, Unit const* Caster = NULL) const;
@@ -1955,7 +1959,6 @@ class Unit : public WorldObject
 
         uint32 MeleeDamageBonusDone(Unit* pVictim, uint32 damage, WeaponAttackType attType, SpellInfo const* spellProto = NULL);
         uint32 MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackType attType, SpellInfo const* spellProto = NULL);
-
 
         bool   isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType = BASE_ATTACK);
         bool   isBlockCritical();
@@ -2245,7 +2248,8 @@ class Unit : public WorldObject
         bool m_cleanupDone; // lock made to not add stuff after cleanup before delete
         bool m_duringRemoveFromWorld; // lock made to not add stuff after begining removing from world
 
-        bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
+        uint32 _oldFactionId;           ///< faction before charm
+        bool _isWalkingBeforeCharm;     ///< Are we walking before we were charmed?
 
         time_t _lastDamagedTime; // Part of Evade mechanics
 };
@@ -2256,31 +2260,53 @@ namespace Trinity
     class PowerPctOrderPred
     {
         public:
-            PowerPctOrderPred(Powers power, bool ascending = true) : m_power(power), m_ascending(ascending) { }
-            bool operator() (const Unit* a, const Unit* b) const
+            PowerPctOrderPred(Powers power, bool ascending = true) : _power(power), _ascending(ascending) { }
+
+            bool operator()(WorldObject const* objA, WorldObject const* objB) const
             {
-                float rA = a->GetMaxPower(m_power) ? float(a->GetPower(m_power)) / float(a->GetMaxPower(m_power)) : 0.0f;
-                float rB = b->GetMaxPower(m_power) ? float(b->GetPower(m_power)) / float(b->GetMaxPower(m_power)) : 0.0f;
-                return m_ascending ? rA < rB : rA > rB;
+                Unit const* a = objA->ToUnit();
+                Unit const* b = objB->ToUnit();
+                float rA = (a && a->GetMaxPower(_power)) ? float(a->GetPower(_power)) / float(a->GetMaxPower(_power)) : 0.0f;
+                float rB = (b && b->GetMaxPower(_power)) ? float(b->GetPower(_power)) / float(b->GetMaxPower(_power)) : 0.0f;
+                return _ascending ? rA < rB : rA > rB;
             }
+
+            bool operator()(Unit const* a, Unit const* b) const
+            {
+                float rA = a->GetMaxPower(_power) ? float(a->GetPower(_power)) / float(a->GetMaxPower(_power)) : 0.0f;
+                float rB = b->GetMaxPower(_power) ? float(b->GetPower(_power)) / float(b->GetMaxPower(_power)) : 0.0f;
+                return _ascending ? rA < rB : rA > rB;
+            }
+
         private:
-            const Powers m_power;
-            const bool m_ascending;
+            Powers const _power;
+            bool const _ascending;
     };
 
     // Binary predicate for sorting Units based on percent value of health
     class HealthPctOrderPred
     {
         public:
-            HealthPctOrderPred(bool ascending = true) : m_ascending(ascending) { }
-            bool operator() (const Unit* a, const Unit* b) const
+            HealthPctOrderPred(bool ascending = true) : _ascending(ascending) { }
+
+            bool operator()(WorldObject const* objA, WorldObject const* objB) const
+            {
+                Unit const* a = objA->ToUnit();
+                Unit const* b = objB->ToUnit();
+                float rA = (a && a->GetMaxHealth()) ? float(a->GetHealth()) / float(a->GetMaxHealth()) : 0.0f;
+                float rB = (b && b->GetMaxHealth()) ? float(b->GetHealth()) / float(b->GetMaxHealth()) : 0.0f;
+                return _ascending ? rA < rB : rA > rB;
+            }
+
+            bool operator() (Unit const* a, Unit const* b) const
             {
                 float rA = a->GetMaxHealth() ? float(a->GetHealth()) / float(a->GetMaxHealth()) : 0.0f;
                 float rB = b->GetMaxHealth() ? float(b->GetHealth()) / float(b->GetMaxHealth()) : 0.0f;
-                return m_ascending ? rA < rB : rA > rB;
+                return _ascending ? rA < rB : rA > rB;
             }
+
         private:
-            const bool m_ascending;
+            bool const _ascending;
     };
 }
 #endif

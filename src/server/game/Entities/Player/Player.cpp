@@ -760,7 +760,6 @@ Player::Player(WorldSession* session): Unit(true)
     m_ArmorProficiency = 0;
     m_canParry = false;
     m_canBlock = false;
-    m_canDualWield = false;
     m_canTitanGrip = false;
     m_ammoDPS = 0.0f;
 
@@ -2636,38 +2635,38 @@ void Player::RegenerateHealth()
     if (getLevel() < 15)
         HealthIncreaseRate = sWorld->getRate(RATE_HEALTH) * (2.066f - (getLevel() * 0.066f));
 
-    float addvalue = 0.0f;
+    float addValue = 0.0f;
 
     // polymorphed case
     if (IsPolymorphed())
-        addvalue = (float)GetMaxHealth()/3;
+        addValue = float(GetMaxHealth()) / 3.0f;
     // normal regen case (maybe partly in combat case)
     else if (!IsInCombat() || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT))
     {
-        addvalue = OCTRegenHPPerSpirit() * HealthIncreaseRate;
+        addValue = OCTRegenHPPerSpirit() * HealthIncreaseRate;
         if (!IsInCombat())
         {
             AuraEffectList const& mModHealthRegenPct = GetAuraEffectsByType(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT);
             for (AuraEffectList::const_iterator i = mModHealthRegenPct.begin(); i != mModHealthRegenPct.end(); ++i)
-                AddPct(addvalue, (*i)->GetAmount());
+                AddPct(addValue, (*i)->GetAmount());
 
-            addvalue += GetTotalAuraModifier(SPELL_AURA_MOD_REGEN) * 2 * IN_MILLISECONDS / (5 * IN_MILLISECONDS);
+            addValue += GetTotalAuraModifier(SPELL_AURA_MOD_REGEN) * 0.4f;
         }
         else if (HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT))
-            ApplyPct(addvalue, GetTotalAuraModifier(SPELL_AURA_MOD_REGEN_DURING_COMBAT));
+            ApplyPct(addValue, GetTotalAuraModifier(SPELL_AURA_MOD_REGEN_DURING_COMBAT));
 
         if (!IsStandState())
-            addvalue *= 1.5f;
+            addValue *= 1.5f;
     }
 
     // always regeneration bonus (including combat)
-    addvalue += GetTotalAuraModifier(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT);
-    addvalue += m_baseHealthRegen / 2.5f;
+    addValue += GetTotalAuraModifier(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT);
+    addValue += m_baseHealthRegen / 2.5f;
 
-    if (addvalue < 0)
-        addvalue = 0;
+    if (addValue < 0.0f)
+        addValue = 0.0f;
 
-    ModifyHealth(int32(addvalue));
+    ModifyHealth(int32(addValue));
 }
 
 void Player::ResetAllPowers()
@@ -2767,30 +2766,14 @@ GameObject* Player::GetGameObjectIfCanInteractWith(uint64 guid, GameobjectTypes 
     {
         if (go->GetGoType() == type)
         {
-            float maxdist;
-            switch (type)
-            {
-                /// @todo find out how the client calculates the maximal usage distance to spellless working
-                // gameobjects like guildbanks and mailboxes - 10.0 is a just an abitrary choosen number
-                case GAMEOBJECT_TYPE_GUILD_BANK:
-                case GAMEOBJECT_TYPE_MAILBOX:
-                    maxdist = 10.0f;
-                    break;
-                case GAMEOBJECT_TYPE_FISHINGHOLE:
-                    maxdist = 20.0f+CONTACT_DISTANCE;       // max spell range
-                    break;
-                default:
-                    maxdist = INTERACTION_DISTANCE;
-                    break;
-            }
-
-            if (go->IsWithinDistInMap(this, maxdist))
+            if (go->IsWithinDistInMap(this, go->GetInteractionDistance()))
                 return go;
 
-            TC_LOG_DEBUG("maps", "IsGameObjectOfTypeInRange: GameObject '%s' [GUID: %u] is too far away from player %s [GUID: %u] to be used by him (distance=%f, maximal 10 is allowed)", go->GetGOInfo()->name.c_str(),
+            TC_LOG_DEBUG("maps", "GetGameObjectIfCanInteractWith: GameObject '%s' [GUID: %u] is too far away from player %s [GUID: %u] to be used by him (distance=%f, maximal 10 is allowed)", go->GetGOInfo()->name.c_str(),
                 go->GetGUIDLow(), GetName().c_str(), GetGUIDLow(), go->GetDistance(this));
         }
     }
+
     return NULL;
 }
 
@@ -5129,7 +5112,10 @@ void Player::BuildPlayerRepop()
     // BG - remove insignia related
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
 
-//    SendCorpseReclaimDelay();
+    int32 corpseReclaimDelay = CalculateCorpseReclaimDelay();
+
+    if (corpseReclaimDelay >= 0)
+        SendCorpseReclaimDelay(corpseReclaimDelay);
 
     // to prevent cheating
     corpse->ResetGhostTime();
@@ -5237,7 +5223,11 @@ void Player::KillPlayer()
     m_deathTimer = 6 * MINUTE * IN_MILLISECONDS;
 
     UpdateCorpseReclaimDelay();                             // dependent at use SetDeathPvP() call before kill
-    SendCorpseReclaimDelay();
+
+    int32 corpseReclaimDelay = CalculateCorpseReclaimDelay();
+
+    if (corpseReclaimDelay >= 0)
+        SendCorpseReclaimDelay(corpseReclaimDelay);
 
     // don't create corpse at this moment, player might be falling
 
@@ -7285,8 +7275,8 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
         {
             // Check if allowed to receive it in current map
             uint8 MapType = sWorld->getIntConfig(CONFIG_PVP_TOKEN_MAP_TYPE);
-            if ((MapType == 1 && !InBattleground() && !HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
-                || (MapType == 2 && !HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
+            if ((MapType == 1 && !InBattleground() && !IsFFAPvP())
+                || (MapType == 2 && !IsFFAPvP())
                 || (MapType == 3 && !InBattleground()))
                 return true;
 
@@ -7519,14 +7509,9 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     {
         if (Weather* weather = WeatherMgr::FindWeather(zone->ID))
             weather->SendWeatherUpdateToPlayer(this);
-        else
-        {
-            if (!WeatherMgr::AddWeather(zone->ID))
-            {
-                // send fine weather packet to remove old zone's weather
-                WeatherMgr::SendFineWeatherUpdateToPlayer(this);
-            }
-        }
+        else if (!WeatherMgr::AddWeather(zone->ID))
+            // send fine weather packet to remove old zone's weather
+            WeatherMgr::SendFineWeatherUpdateToPlayer(this);
     }
 
     sScriptMgr->OnPlayerUpdateZone(this, newZone, newArea);
@@ -15102,11 +15087,11 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
     if (!CanRewardQuest(quest, msg))
         return false;
 
+    ItemPosCountVec dest;
     if (quest->GetRewChoiceItemsCount() > 0)
     {
         if (quest->RewardChoiceItemId[reward])
         {
-            ItemPosCountVec dest;
             InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, quest->RewardChoiceItemId[reward], quest->RewardChoiceItemCount[reward]);
             if (res != EQUIP_ERR_OK)
             {
@@ -15122,7 +15107,6 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
         {
             if (quest->RewardItemId[i])
             {
-                ItemPosCountVec dest;
                 InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, quest->RewardItemId[i], quest->RewardItemIdCount[i]);
                 if (res != EQUIP_ERR_OK)
                 {
@@ -17356,49 +17340,56 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     // NOW player must have valid map
     // load the player's map here if it's not already loaded
     Map* map = sMapMgr->CreateMap(mapId, this);
+    AreaTrigger const* areaTrigger = NULL;
+    bool check = false;
 
     if (!map)
     {
-        instanceId = 0;
-        AreaTrigger const* at = sObjectMgr->GetGoBackTrigger(mapId);
-        if (at)
+        areaTrigger = sObjectMgr->GetGoBackTrigger(mapId);
+        check = true;
+    }
+    else if (map->IsDungeon()) // if map is dungeon...
+    {
+        if (!((InstanceMap*)map)->CanEnter(this)) // ... and can't enter map, then look for entry point.
         {
-            TC_LOG_ERROR("entities.player", "Player (guidlow %d) is teleported to gobacktrigger (Map: %u X: %f Y: %f Z: %f O: %f).", guid, mapId, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
-            Relocate(at->target_X, at->target_Y, at->target_Z, GetOrientation());
-            mapId = at->target_mapId;
+            areaTrigger = sObjectMgr->GetGoBackTrigger(mapId);
+            check = true;
         }
-        else
+        else if (instanceId && !sInstanceSaveMgr->GetInstanceSave(instanceId)) // ... and instance is reseted then look for entrance.
         {
-            TC_LOG_ERROR("entities.player", "Player (guidlow %d) is teleported to home (Map: %u X: %f Y: %f Z: %f O: %f).", guid, mapId, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
-            RelocateToHomebind();
-        }
-
-        map = sMapMgr->CreateMap(mapId, this);
-        if (!map)
-        {
-            PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
-            mapId = info->mapId;
-            Relocate(info->positionX, info->positionY, info->positionZ, 0.0f);
-            TC_LOG_ERROR("entities.player", "Player (guidlow %d) have invalid coordinates (X: %f Y: %f Z: %f O: %f). Teleport to default race/class locations.", guid, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
-            map = sMapMgr->CreateMap(mapId, this);
-            if (!map)
-            {
-                TC_LOG_ERROR("entities.player", "Player (guidlow %d) has invalid default map coordinates (X: %f Y: %f Z: %f O: %f). or instance couldn't be created", guid, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
-                return false;
-            }
+            areaTrigger = sObjectMgr->GetMapEntranceTrigger(mapId);
+            check = true;
         }
     }
 
-    // if the player is in an instance and it has been reset in the meantime teleport him to the entrance
-    if (instanceId && !sInstanceSaveMgr->GetInstanceSave(instanceId) && !map->IsBattlegroundOrArena())
+    if (check) // in case of special event when creating map...
     {
-        AreaTrigger const* at = sObjectMgr->GetMapEntranceTrigger(mapId);
-        if (at)
-            Relocate(at->target_X, at->target_Y, at->target_Z, at->target_Orientation);
+        if (areaTrigger) // ... if we have an areatrigger, then relocate to new map/coordinates.
+        {
+            Relocate(areaTrigger->target_X, areaTrigger->target_Y, areaTrigger->target_Z, GetOrientation());
+            if (mapId != areaTrigger->target_mapId)
+            {
+                mapId = areaTrigger->target_mapId;
+                map = sMapMgr->CreateMap(mapId, this);
+            }
+        }
         else
         {
-            TC_LOG_ERROR("entities.player", "Player %s(GUID: %u) logged in to a reset instance (map: %u) and there is no area-trigger leading to this map. Thus he can't be ported back to the entrance. This _might_ be an exploit attempt.", GetName().c_str(), GetGUIDLow(), mapId);
-            RelocateToHomebind();
+            TC_LOG_ERROR("entities.player", "Player %s (guid: %d) Map: %u, X: %f, Y: %f, Z: %f, O: %f. Areatrigger not found.", m_name.c_str(), guid, mapId, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+            map = NULL;
+        }
+    }
+
+    if (!map)
+    {
+        PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
+        mapId = info->mapId;
+        Relocate(info->positionX, info->positionY, info->positionZ, 0.0f);
+        map = sMapMgr->CreateMap(mapId, this);
+        if (!map)
+        {
+            TC_LOG_ERROR("entities.player", "Player %s (guid: %d) Map: %u, X: %f, Y: %f, Z: %f, O: %f. Invalid default map coordinates or instance couldn't be created.", m_name.c_str(), guid, mapId, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+            return false;
         }
     }
 
@@ -17445,14 +17436,21 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     m_atLoginFlags = fields[33].GetUInt16();
 
+    if (HasAtLoginFlag(AT_LOGIN_RENAME))
+    {
+        TC_LOG_ERROR("entities.player", "Player (GUID: %u) tried to login while forced to rename, can't load.'", GetGUIDLow());
+        return false;
+    }
+
     // Honor system
     // Update Honor kills data
     m_lastHonorUpdateTime = logoutTime;
     UpdateHonorFields();
 
     m_deathExpireTime = time_t(fields[36].GetUInt32());
-    if (m_deathExpireTime > now+MAX_DEATH_COUNT*DEATH_EXPIRE_STEP)
-        m_deathExpireTime = now+MAX_DEATH_COUNT*DEATH_EXPIRE_STEP-1;
+
+    if (m_deathExpireTime > now + MAX_DEATH_COUNT * DEATH_EXPIRE_STEP)
+        m_deathExpireTime = now + MAX_DEATH_COUNT * DEATH_EXPIRE_STEP - 1;
 
     // clear channel spell data (if saved at channel spell casting)
     SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, 0);
@@ -21684,14 +21682,14 @@ void Player::UpdatePvPState(bool onlyFFA)
     if (!pvpInfo.IsInNoPvPArea && !IsGameMaster()
         && (pvpInfo.IsInFFAPvPArea || sWorld->IsFFAPvPRealm()))
     {
-        if (!HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
+        if (!IsFFAPvP())
         {
             SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
             for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
                 (*itr)->SetByteValue(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
         }
     }
-    else if (HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
+    else if (IsFFAPvP())
     {
         RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
         for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
@@ -23767,14 +23765,18 @@ void Player::ResurectUsingRequestData()
     SpawnCorpseBones();
 }
 
-void Player::SetClientControl(Unit* target, uint8 allowMove)
+void Player::SetClientControl(Unit* target, bool allowMove)
 {
     WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, target->GetPackGUID().size()+1);
     data.append(target->GetPackGUID());
-    data << uint8(allowMove);
+    data << uint8(allowMove ? 1 : 0);
     GetSession()->SendPacket(&data);
-    if (target == this)
-        SetMover(this);
+
+    if (this != target)
+        SetViewpoint(target, allowMove);
+
+    if (allowMove)
+        SetMover(target);
 }
 
 void Player::SetMover(Unit* target)
@@ -23839,7 +23841,7 @@ uint32 Player::GetCorpseReclaimDelay(bool pvp) const
     time_t now = time(NULL);
     // 0..2 full period
     // should be ceil(x)-1 but not floor(x)
-    uint64 count = (now < m_deathExpireTime - 1) ? (m_deathExpireTime - 1 - now)/DEATH_EXPIRE_STEP : 0;
+    uint64 count = (now < m_deathExpireTime - 1) ? (m_deathExpireTime - 1 - now) / DEATH_EXPIRE_STEP : 0;
     return copseReclaimDelay[count];
 }
 
@@ -23852,65 +23854,66 @@ void Player::UpdateCorpseReclaimDelay()
         return;
 
     time_t now = time(NULL);
+
     if (now < m_deathExpireTime)
     {
         // full and partly periods 1..3
-        uint64 count = (m_deathExpireTime - now)/DEATH_EXPIRE_STEP +1;
+        uint64 count = (m_deathExpireTime - now) / DEATH_EXPIRE_STEP + 1;
+
         if (count < MAX_DEATH_COUNT)
-            m_deathExpireTime = now+(count+1)*DEATH_EXPIRE_STEP;
+            m_deathExpireTime = now+(count + 1) * DEATH_EXPIRE_STEP;
         else
-            m_deathExpireTime = now+MAX_DEATH_COUNT*DEATH_EXPIRE_STEP;
+            m_deathExpireTime = now + MAX_DEATH_COUNT*DEATH_EXPIRE_STEP;
     }
     else
-        m_deathExpireTime = now+DEATH_EXPIRE_STEP;
+        m_deathExpireTime = now + DEATH_EXPIRE_STEP;
 }
 
-void Player::SendCorpseReclaimDelay(bool load)
+int32 Player::CalculateCorpseReclaimDelay(bool load)
 {
     Corpse* corpse = GetCorpse();
+
     if (load && !corpse)
-        return;
+        return -1;
 
-    bool pvp;
-    if (corpse)
-        pvp = (corpse->GetType() == CORPSE_RESURRECTABLE_PVP);
-    else
-        pvp = (m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH);
+    bool pvp = corpse ? corpse->GetType() == CORPSE_RESURRECTABLE_PVP : m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH;
 
-    time_t delay;
+    uint32 delay;
+
     if (load)
     {
         if (corpse->GetGhostTime() > m_deathExpireTime)
-            return;
+            return -1;
 
-        uint64 count;
+        uint64 count = 0;
+
         if ((pvp && sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVP)) ||
            (!pvp && sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE)))
         {
-            count = (m_deathExpireTime-corpse->GetGhostTime())/DEATH_EXPIRE_STEP;
+            count = (m_deathExpireTime - corpse->GetGhostTime()) / DEATH_EXPIRE_STEP;
+
             if (count >= MAX_DEATH_COUNT)
-                count = MAX_DEATH_COUNT-1;
+                count = MAX_DEATH_COUNT - 1;
         }
-        else
-            count=0;
 
-        time_t expected_time = corpse->GetGhostTime()+copseReclaimDelay[count];
-
+        time_t expected_time = corpse->GetGhostTime() + copseReclaimDelay[count];
         time_t now = time(NULL);
-        if (now >= expected_time)
-            return;
 
-        delay = expected_time-now;
+        if (now >= expected_time)
+            return -1;
+
+        delay = expected_time - now;
     }
     else
         delay = GetCorpseReclaimDelay(pvp);
 
-    if (!delay)
-        return;
+    return delay * IN_MILLISECONDS;
+}
 
-    //! corpse reclaim delay 30 * 1000ms or longer at often deaths
+void Player::SendCorpseReclaimDelay(uint32 delay)
+{
     WorldPacket data(SMSG_CORPSE_RECLAIM_DELAY, 4);
-    data << uint32(delay*IN_MILLISECONDS);
+    data << uint32(delay);
     GetSession()->SendPacket(&data);
 }
 

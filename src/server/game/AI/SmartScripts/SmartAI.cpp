@@ -439,6 +439,8 @@ void SmartAI::EnterEvadeMode()
     me->LoadCreaturesAddon();
     me->SetLootRecipient(NULL);
     me->ResetPlayerDamageReq();
+    me->SetLastDamagedTime(0);
+
     GetScript()->ProcessEventsFor(SMART_EVENT_EVADE);//must be after aura clear so we can cast spells from db
 
     SetRun(mRun);
@@ -574,7 +576,7 @@ void SmartAI::JustReachedHome()
         GetScript()->ProcessEventsFor(SMART_EVENT_REACHED_HOME);
 
         if (!UpdateVictim() && me->GetMotionMaster()->GetCurrentMovementGeneratorType() == IDLE_MOTION_TYPE && me->GetWaypointPath())
-            me->ToCreature()->GetMotionMaster()->MovePath(me->GetWaypointPath(), true);
+            me->GetMotionMaster()->MovePath(me->GetWaypointPath(), true);
     }
 
     mJustReset = false;
@@ -902,12 +904,6 @@ bool SmartGameObjectAI::QuestReward(Player* player, Quest const* quest, uint32 o
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_REWARD_QUEST, player, quest->GetQuestId(), opt, false, NULL, go);
     return false;
-}
-
-// Called when the dialog status between a player and the gameobject is requested.
-uint32 SmartGameObjectAI::GetDialogStatus(Player* /*player*/)
-{
-    return DIALOG_STATUS_SCRIPTED_NO_STATUS;
 }
 
 // Called when the gameobject is destroyed (destructible buildings only).
