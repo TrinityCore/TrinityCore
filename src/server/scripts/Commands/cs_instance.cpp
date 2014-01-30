@@ -248,7 +248,35 @@ public:
         int32 field = atoi (args);
 
         int32 value = ((InstanceMap*)map)->GetInstanceScript()->GetBossState(field);
-        handler->PSendSysMessage("Instance data for field %i is %i.", field, value);
+        std::string output;
+
+        // Funky way to do this - improve if you can!
+        switch (value)
+        {
+            case NOT_STARTED:
+                output = "0 - (NOT_STARTED)";
+                break;
+            case IN_PROGRESS:
+                output = "1 - (IN_PROGRESS)";
+                break;
+            case FAIL:
+                output = "2 - (FAIL)";
+                break;
+            case DONE:
+                output = "3 - (DONE)";
+                break;
+            case SPECIAL:
+                output = "4 - (SPECIAL)";
+                break;
+            case TO_BE_DECIDED:
+                output = "5 - (TO_BE_DECIDED)";
+                break;
+            default: 
+                output = "Unknown";
+                break;
+        }
+
+        handler->PSendSysMessage("Instance data for field %i is %s.", field, output.c_str());
         return true;
     }
 };
