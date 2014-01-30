@@ -26,6 +26,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "Pet.h"
+#include "GridNotifiers.h"
 
 enum MageSpells
 {
