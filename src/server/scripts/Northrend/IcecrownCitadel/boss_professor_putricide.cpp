@@ -711,6 +711,7 @@ class npc_putricide_oozeAI : public ScriptedAI
         npc_putricide_oozeAI(Creature* creature, uint32 hitTargetSpellId) : ScriptedAI(creature),
             _hitTargetSpellId(hitTargetSpellId), _newTargetSelectTimer(0)
         {
+            _switched = false;
         }
 
         void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) OVERRIDE
@@ -727,6 +728,20 @@ class npc_putricide_oozeAI : public ScriptedAI
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
+            if (!_switched)
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    Map::PlayerList const &PlayerList = instance->instance->GetPlayers();
+                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                        if (Player* player = i->GetSource())
+                            if (player->HasAura(RAID_MODE<uint32>(70672, 72455, 72832, 72833)) && player->HasAura(RAID_MODE<uint32>(70477, 72836, 72837, 72838)) && me->GetEntry() == NPC_VOLATILE_OOZE)
+                            {
+                                CastMainSpell();
+                                _newTargetSelectTimer = 0;
+                                _switched = true;
+                            }
+                }
+
             if (!UpdateVictim() && !_newTargetSelectTimer)
                 return;
 
@@ -755,6 +770,7 @@ class npc_putricide_oozeAI : public ScriptedAI
     private:
         uint32 _hitTargetSpellId;
         uint32 _newTargetSelectTimer;
+        bool _switched;
 };
 
 class npc_volatile_ooze : public CreatureScript
