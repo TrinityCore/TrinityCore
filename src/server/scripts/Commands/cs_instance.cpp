@@ -219,6 +219,13 @@ public:
         int32 field = atoi(field_str);
         int32 value = atoi(value_str);
 
+        if (value > 5)
+        {
+            handler->PSendSysMessage("State index out of range.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
         ((InstanceMap*)map)->GetInstanceScript()->SetBossState(field, (EncounterState)value);
         handler->PSendSysMessage("Instance data field %i is now set to %i.", field, value);
         return true;
