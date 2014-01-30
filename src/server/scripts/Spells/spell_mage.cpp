@@ -81,7 +81,8 @@ enum MageSpells
     SPELL_MAGE_RING_OF_FROST_FREEZE              = 82691,
     SPELL_MAGE_RING_OF_FROST_DUMMY               = 91264,
 
-    SPELL_MAGE_FINGERS_OF_FROST                  = 44544
+    SPELL_MAGE_FINGERS_OF_FROST                  = 44544,
+    SPELL_MAGE_TEMPORAL_DISPLACEMENT             = 80354,
 };
 
 enum MageIcons
@@ -95,7 +96,10 @@ enum MageIcons
 
 enum MiscSpells
 {
-    SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409
+    SPELL_HUNTER_INSANITY                        = 95809,
+    SPELL_PRIEST_SHADOW_WORD_DEATH               = 32409,
+    SPELL_SHAMAN_EXHAUSTION                      = 57723,
+    SPELL_SHAMAN_SATED                           = 57724
 };
 
 // -31571 - Arcane Potency
@@ -1349,6 +1353,53 @@ class spell_mage_ring_of_frost_freeze : public SpellScriptLoader
         }
 };
 
+// 80353 - Time Warp
+class spell_mage_time_warp : public SpellScriptLoader
+{
+    public:
+        spell_mage_time_warp() : SpellScriptLoader("spell_mage_time_warp") { }
+
+        class spell_mage_time_warp_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_time_warp_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_TEMPORAL_DISPLACEMENT)
+                    || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_INSANITY)
+                    || !sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EXHAUSTION)
+                    || !sSpellMgr->GetSpellInfo(SPELL_SHAMAN_SATED))
+                    return false;
+                return true;
+            }
+
+            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
+                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_HUNTER_INSANITY));
+                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTION));
+                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
+            }
+
+            void ApplyDebuff()
+            {
+                if (Unit* target = GetHitUnit())
+                    target->CastSpell(target, SPELL_MAGE_TEMPORAL_DISPLACEMENT, true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp_SpellScript::RemoveInvalidTargets, EFFECT_ALL, TARGET_UNIT_CASTER_AREA_RAID);
+                AfterHit += SpellHitFn(spell_mage_time_warp_SpellScript::ApplyDebuff);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_mage_time_warp_SpellScript();
+        }
+};
+
 // 33395 Water Elemental's Freeze
 /// Updated 4.3.4
 class spell_mage_water_elemental_freeze : public SpellScriptLoader
@@ -1432,5 +1483,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_replenish_mana();
     new spell_mage_ring_of_frost();
     new spell_mage_ring_of_frost_freeze();
+    new spell_mage_time_warp();
     new spell_mage_water_elemental_freeze();
 }
