@@ -3,23 +3,23 @@ CREATE TABLE IF NOT EXISTS `spell_custom_attr` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'spell id',
   `attributes` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'SpellCustomAttributes',
   PRIMARY KEY (`entry`)
-) ENGINE=MRG_MyISAM DEFAULT CHARSET=utf8 COMMENT='SpellInfo custom attributes';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='SpellInfo custom attributes';
 
-SET @SPELL_ATTR0_CU_ENCHANT_PROC                  = 0x00000001,
-    @SPELL_ATTR0_CU_CONE_BACK                     = 0x00000002,
-    @SPELL_ATTR0_CU_CONE_LINE                     = 0x00000004,
-    @SPELL_ATTR0_CU_SHARE_DAMAGE                  = 0x00000008,
-    @SPELL_ATTR0_CU_NO_INITIAL_THREAT             = 0x00000010,
-    @SPELL_ATTR0_CU_AURA_CC                       = 0x00000040,
-    @SPELL_ATTR0_CU_DIRECT_DAMAGE                 = 0x00000100,
-    @SPELL_ATTR0_CU_CHARGE                        = 0x00000200,
-    @SPELL_ATTR0_CU_PICKPOCKET                    = 0x00000400,
-    @SPELL_ATTR0_CU_NEGATIVE_EFF0                 = 0x00001000,
-    @SPELL_ATTR0_CU_NEGATIVE_EFF1                 = 0x00002000,
-    @SPELL_ATTR0_CU_NEGATIVE_EFF2                 = 0x00004000,
-    @SPELL_ATTR0_CU_IGNORE_ARMOR                  = 0x00008000,
-    @SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER      = 0x00010000,
-    @SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET      = 0x00020000;
+SET @SPELL_ATTR0_CU_ENCHANT_PROC                  = 1,
+    @SPELL_ATTR0_CU_CONE_BACK                     = 2,
+    @SPELL_ATTR0_CU_CONE_LINE                     = 4,
+    @SPELL_ATTR0_CU_SHARE_DAMAGE                  = 8,
+    @SPELL_ATTR0_CU_NO_INITIAL_THREAT             = 16,
+    @SPELL_ATTR0_CU_AURA_CC                       = 64,
+    @SPELL_ATTR0_CU_DIRECT_DAMAGE                 = 256,
+    @SPELL_ATTR0_CU_CHARGE                        = 512,
+    @SPELL_ATTR0_CU_PICKPOCKET                    = 1024,
+    @SPELL_ATTR0_CU_NEGATIVE_EFF0                 = 4096,
+    @SPELL_ATTR0_CU_NEGATIVE_EFF1                 = 8192,
+    @SPELL_ATTR0_CU_NEGATIVE_EFF2                 = 16384,
+    @SPELL_ATTR0_CU_IGNORE_ARMOR                  = 32768,
+    @SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER      = 65536,
+    @SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET      = 131072;
 
 INSERT INTO `spell_custom_attr` (`entry`, `attributes`) VALUES
 (1776, @SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER),
