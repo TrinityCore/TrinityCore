@@ -253,7 +253,7 @@ struct dummy_dragonAI : public ScriptedAI
         {
             case NPC_TENEBRON:
             {
-                if (instance && !instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
+                if (!instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
                 {
                     for (uint32 i = 0; i < 6; ++i)
                         me->SummonCreature(NPC_TWILIGHT_EGG, TwilightEggs[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
@@ -267,7 +267,7 @@ struct dummy_dragonAI : public ScriptedAI
             }
             case NPC_SHADRON:
             {
-                if (instance && !instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
+                if (!instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
                     me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
                 else
                     me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron2, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
@@ -276,7 +276,7 @@ struct dummy_dragonAI : public ScriptedAI
             }
             case NPC_VESPERON:
             {
-                if (instance && !instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
+                if (!instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
                 {
                     if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
                     {
@@ -328,19 +328,19 @@ struct dummy_dragonAI : public ScriptedAI
         {
             case NPC_TENEBRON:
                 spellId = SPELL_POWER_OF_TENEBRON;
-                if (instance && instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
+                if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
                     instance->SetBossState(DATA_TENEBRON, DONE);
                 break;
             case NPC_SHADRON:
                 spellId = SPELL_POWER_OF_SHADRON;
-                if (instance && instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
+                if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
                     instance->SetBossState(DATA_SHADRON, DONE);
                 if (Creature* acolyte = me->FindNearestCreature(NPC_ACOLYTE_OF_SHADRON, 100.0f))
                     acolyte->Kill(acolyte);
                 break;
             case NPC_VESPERON:
                 spellId = SPELL_POWER_OF_VESPERON;
-                if (instance && instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
+                if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
                     instance->SetBossState(DATA_VESPERON, DONE);
                 if (Creature* acolyte = me->FindNearestCreature(NPC_ACOLYTE_OF_VESPERON, 100.0f))
                     acolyte->Kill(acolyte);

@@ -57,6 +57,11 @@ enum PaladinSpells
 
     SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
 
+    SPELL_PALADIN_JUDGEMENT_DAMAGE               = 54158,
+    SPELL_PALADIN_JUDGEMENT_OF_JUSTICE           = 20184,
+    SPELL_PALADIN_JUDGEMENT_OF_LIGHT             = 20185,
+    SPELL_PALADIN_JUDGEMENT_OF_WISDOM            = 20186,
+
     SPELL_PALADIN_GLYPH_OF_SALVATION             = 63225,
 
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
@@ -361,7 +366,6 @@ class spell_pal_divine_sacrifice : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-
                 if (Unit* caster = GetCaster())
                 {
                     if (caster->GetTypeId() == TYPEID_PLAYER)
@@ -561,6 +565,39 @@ class spell_pal_eye_for_an_eye : public SpellScriptLoader
         AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_pal_eye_for_an_eye_AuraScript();
+        }
+};
+
+// 54968 - Glyph of Holy Light
+class spell_pal_glyph_of_holy_light : public SpellScriptLoader
+{
+    public:
+        spell_pal_glyph_of_holy_light() : SpellScriptLoader("spell_pal_glyph_of_holy_light") { }
+
+        class spell_pal_glyph_of_holy_light_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_glyph_of_holy_light_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                uint32 const maxTargets = GetSpellInfo()->MaxAffectedTargets;
+
+                if (targets.size() > maxTargets)
+                {
+                    targets.sort(Trinity::HealthPctOrderPred());
+                    targets.resize(maxTargets);
+                }
+            }
+
+            void Register() OVERRIDE
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_glyph_of_holy_light_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_pal_glyph_of_holy_light_SpellScript();
         }
 };
 
@@ -891,6 +928,67 @@ class spell_pal_item_healing_discount : public SpellScriptLoader
         }
 };
 
+// 53407 - Judgement of Justice
+// 20271 - Judgement of Light
+// 53408 - Judgement of Wisdom
+class spell_pal_judgement : public SpellScriptLoader
+{
+    public:
+        spell_pal_judgement(char const* scriptName, uint32 spellId) : SpellScriptLoader(scriptName), _spellId(spellId) { }
+
+        class spell_pal_judgement_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_judgement_SpellScript);
+
+        public:
+            spell_pal_judgement_SpellScript(uint32 spellId) : SpellScript(), _spellId(spellId) { }
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_JUDGEMENT_DAMAGE)
+                    || !sSpellMgr->GetSpellInfo(_spellId))
+                    return false;
+                return true;
+            }
+
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                uint32 spellId2 = SPELL_PALADIN_JUDGEMENT_DAMAGE;
+
+                // some seals have SPELL_AURA_DUMMY in EFFECT_2
+                Unit::AuraEffectList const& auras = GetCaster()->GetAuraEffectsByType(SPELL_AURA_DUMMY);
+                for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+                {
+                    if ((*i)->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_SEAL && (*i)->GetEffIndex() == EFFECT_2)
+                        if (sSpellMgr->GetSpellInfo((*i)->GetAmount()))
+                        {
+                            spellId2 = (*i)->GetAmount();
+                            break;
+                        }
+                }
+
+                GetCaster()->CastSpell(GetHitUnit(), _spellId, true);
+                GetCaster()->CastSpell(GetHitUnit(), spellId2, true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pal_judgement_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+
+        private:
+            uint32 const _spellId;
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_pal_judgement_SpellScript(_spellId);
+        }
+
+    private:
+        uint32 const _spellId;
+};
+
 // 20425 - Judgement of Command
 class spell_pal_judgement_of_command : public SpellScriptLoader
 {
@@ -1142,6 +1240,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_divine_storm_dummy();
     new spell_pal_exorcism_and_holy_wrath_damage();
     new spell_pal_eye_for_an_eye();
+    new spell_pal_glyph_of_holy_light();
     new spell_pal_guarded_by_the_light();
     new spell_pal_hand_of_sacrifice();
     new spell_pal_hand_of_salvation();
@@ -1154,6 +1253,9 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_improved_aura_effect("spell_pal_improved_devotion_aura_effect");
     new spell_pal_improved_aura_effect("spell_pal_sanctified_retribution_effect");
     new spell_pal_item_healing_discount();
+    new spell_pal_judgement("spell_pal_judgement_of_justice", SPELL_PALADIN_JUDGEMENT_OF_JUSTICE);
+    new spell_pal_judgement("spell_pal_judgement_of_light", SPELL_PALADIN_JUDGEMENT_OF_LIGHT);
+    new spell_pal_judgement("spell_pal_judgement_of_wisdom", SPELL_PALADIN_JUDGEMENT_OF_WISDOM);
     new spell_pal_judgement_of_command();
     new spell_pal_lay_on_hands();
     new spell_pal_righteous_defense();

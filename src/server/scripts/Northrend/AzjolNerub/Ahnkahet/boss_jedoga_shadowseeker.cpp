@@ -394,7 +394,7 @@ public:
 
         void AttackStart(Unit* victim) OVERRIDE
         {
-            if ((instance && instance->GetBossState(DATA_JEDOGA_SHADOWSEEKER) == IN_PROGRESS) || !victim)
+            if ((instance->GetBossState(DATA_JEDOGA_SHADOWSEEKER) == IN_PROGRESS) || !victim)
                 return;
 
             ScriptedAI::AttackStart(victim);
@@ -403,7 +403,7 @@ public:
         void MoveInLineOfSight(Unit* who) OVERRIDE
 
         {
-            if ((instance && instance->GetBossState(DATA_JEDOGA_SHADOWSEEKER) == IN_PROGRESS) || !who)
+            if ((instance->GetBossState(DATA_JEDOGA_SHADOWSEEKER) == IN_PROGRESS) || !who)
                 return;
 
             ScriptedAI::MoveInLineOfSight(who);
@@ -432,7 +432,7 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (instance && bCheckTimer <= diff)
+            if (bCheckTimer <= diff)
             {
                 if (me->GetGUID() == instance->GetData64(DATA_ADD_JEDOGA_OPFER) && !bWalking)
                 {

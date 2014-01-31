@@ -213,7 +213,7 @@ public:
     {
         InstanceScript* instance = go->GetInstanceScript();
 
-        Creature* pKeristrasza = Unit::GetCreature(*go, instance ? instance->GetData64(DATA_KERISTRASZA) : 0);
+        Creature* pKeristrasza = ObjectAccessor::GetCreature(*go, instance->GetData64(DATA_KERISTRASZA));
         if (pKeristrasza && pKeristrasza->IsAlive())
         {
             // maybe these are hacks :(

@@ -139,21 +139,20 @@ public:
             RAdvisors[0] = instance->GetData64(DATA_SHARKKIS);
             RAdvisors[1] = instance->GetData64(DATA_TIDALVESS);
             RAdvisors[2] = instance->GetData64(DATA_CARIBDIS);
-            //Respawn of the 3 Advisors
-            Creature* pAdvisor = NULL;
-            for (int i=0; i<MAX_ADVISORS; ++i)
+            // Respawn of the 3 Advisors
+            for (uint8 i = 0; i < MAX_ADVISORS; ++i)
                 if (RAdvisors[i])
                 {
-                    pAdvisor = (Unit::GetCreature((*me), RAdvisors[i]));
-                    if (pAdvisor && !pAdvisor->IsAlive())
+                    Creature* advisor = ObjectAccessor::GetCreature(*me, RAdvisors[i]);
+                    if (advisor && !advisor->IsAlive())
                     {
-                        pAdvisor->Respawn();
-                        pAdvisor->AI()->EnterEvadeMode();
-                        pAdvisor->GetMotionMaster()->MoveTargetedHome();
+                        advisor->Respawn();
+                        advisor->AI()->EnterEvadeMode();
+                        advisor->GetMotionMaster()->MoveTargetedHome();
                     }
                 }
-            instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
 
+            instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
         }
 
         void EventSharkkisDeath()
@@ -215,7 +214,7 @@ public:
         void UpdateAI(uint32 diff) OVERRIDE
         {
             //Only if not incombat check if the event is started
-            if (!me->IsInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
+            if (!me->IsInCombat() && instance->GetData(DATA_KARATHRESSEVENT))
             {
                 if (Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER)))
                 {
@@ -229,7 +228,7 @@ public:
                 return;
 
             //someone evaded!
-            if (instance && !instance->GetData(DATA_KARATHRESSEVENT))
+            if (!instance->GetData(DATA_KARATHRESSEVENT))
             {
                 EnterEvadeMode();
                 return;
@@ -269,12 +268,11 @@ public:
             {
                 BlessingOfTides = true;
                 bool continueTriggering = false;
-                Creature* Advisor;
                 for (uint8 i = 0; i < MAX_ADVISORS; ++i)
                     if (Advisors[i])
                     {
-                        Advisor = (Unit::GetCreature(*me, Advisors[i]));
-                        if (Advisor && Advisor->IsAlive())
+                        Creature* advisor = ObjectAccessor::GetCreature(*me, Advisors[i]);
+                        if (advisor && advisor->IsAlive())
                         {
                             continueTriggering = true;
                             break;
@@ -333,11 +331,9 @@ public:
 
             pet = false;
 
-            Creature* Pet = Unit::GetCreature(*me, SummonedPet);
+            Creature* Pet = ObjectAccessor::GetCreature(*me, SummonedPet);
             if (Pet && Pet->IsAlive())
-            {
                 Pet->DealDamage(Pet, Pet->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            }
 
             SummonedPet = 0;
 
@@ -346,7 +342,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (Creature* Karathress = (Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS))))
+            if (Creature* Karathress = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KARATHRESS)))
                 CAST_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventSharkkisDeath();
         }
 
@@ -359,7 +355,7 @@ public:
         void UpdateAI(uint32 diff) OVERRIDE
         {
             //Only if not incombat check if the event is started
-            if (!me->IsInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
+            if (!me->IsInCombat() && instance->GetData(DATA_KARATHRESSEVENT))
             {
                 if (Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER)))
                     AttackStart(target);
@@ -370,7 +366,7 @@ public:
                 return;
 
             //someone evaded!
-            if (instance && !instance->GetData(DATA_KARATHRESSEVENT))
+            if (!instance->GetData(DATA_KARATHRESSEVENT))
             {
                 EnterEvadeMode();
                 return;
@@ -394,11 +390,11 @@ public:
             if (TheBeastWithin_Timer <= diff)
             {
                 DoCast(me, SPELL_THE_BEAST_WITHIN);
-                Creature* Pet = Unit::GetCreature(*me, SummonedPet);
+
+                Creature* Pet = ObjectAccessor::GetCreature(*me, SummonedPet);
                 if (Pet && Pet->IsAlive())
-                {
                     Pet->CastSpell(Pet, SPELL_PET_ENRAGE, true);
-                }
+
                 TheBeastWithin_Timer = 30000;
             } else TheBeastWithin_Timer -= diff;
 
@@ -472,7 +468,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (Creature* Karathress = Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS)))
+            if (Creature* Karathress = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KARATHRESS)))
                 CAST_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventTidalvessDeath();
         }
 
@@ -486,7 +482,7 @@ public:
         void UpdateAI(uint32 diff) OVERRIDE
         {
             //Only if not incombat check if the event is started
-            if (!me->IsInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
+            if (!me->IsInCombat() && instance->GetData(DATA_KARATHRESSEVENT))
             {
                 if (Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER)))
                     AttackStart(target);
@@ -497,7 +493,7 @@ public:
                 return;
 
             //someone evaded!
-            if (instance && !instance->GetData(DATA_KARATHRESSEVENT))
+            if (!instance->GetData(DATA_KARATHRESSEVENT))
             {
                 EnterEvadeMode();
                 return;
@@ -588,7 +584,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (Creature* Karathress = Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS)))
+            if (Creature* Karathress = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KARATHRESS)))
                 CAST_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventCaribdisDeath();
         }
 
@@ -601,7 +597,7 @@ public:
         void UpdateAI(uint32 diff) OVERRIDE
         {
             //Only if not incombat check if the event is started
-            if (!me->IsInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
+            if (!me->IsInCombat() && instance->GetData(DATA_KARATHRESSEVENT))
             {
                 if (Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER)))
                     AttackStart(target);
@@ -612,7 +608,7 @@ public:
                 return;
 
             //someone evaded!
-            if (instance && !instance->GetData(DATA_KARATHRESSEVENT))
+            if (!instance->GetData(DATA_KARATHRESSEVENT))
             {
                 EnterEvadeMode();
                 return;
