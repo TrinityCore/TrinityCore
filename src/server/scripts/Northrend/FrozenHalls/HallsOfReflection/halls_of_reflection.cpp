@@ -1837,7 +1837,6 @@ public:
         void IsSummonedBy(Unit*) OVERRIDE
         {
             DoCast(me, SPELL_EMERGE_VISUAL);
-            DoZoneInCombat(me, 100.00f);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE

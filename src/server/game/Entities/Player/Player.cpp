@@ -706,7 +706,7 @@ Player::Player(WorldSession* session): Unit(true), phaseMgr(this)
     m_focusRegenTimerCount = 0;
     m_weaponChangeTimer = 0;
 
-    m_zoneUpdateId = 0;
+    m_zoneUpdateId = uint32(-1);
     m_zoneUpdateTimer = 0;
 
     m_areaUpdateId = 0;
@@ -24198,7 +24198,7 @@ uint32 Player::GetResurrectionSpellId()
 }
 
 // Used in triggers for check "Only to targets that grant experience or honor" req
-bool Player::isHonorOrXPTarget(Unit const* victim)
+bool Player::isHonorOrXPTarget(Unit const* victim) const
 {
     uint8 v_level = victim->getLevel();
     uint8 k_grey  = Trinity::XP::GetGrayLevel(getLevel());
