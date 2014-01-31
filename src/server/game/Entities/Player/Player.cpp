@@ -687,7 +687,7 @@ Player::Player(WorldSession* session): Unit(true)
     m_regenTimerCount = 0;
     m_weaponChangeTimer = 0;
 
-    m_zoneUpdateId = 0;
+    m_zoneUpdateId = uint32(-1);
     m_zoneUpdateTimer = 0;
 
     m_areaUpdateId = 0;
