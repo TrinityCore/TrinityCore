@@ -1207,8 +1207,9 @@ class spell_algalon_big_bang : public SpellScriptLoader
 
             void CheckTargets()
             {
-                if (!_targetCount)
-                    GetCaster()->GetAI()->DoAction(ACTION_ASCEND);
+                if (GetCaster()->GetTypeId() == TYPEID_UNIT)
+                    if (!_targetCount)
+                        GetCaster()->GetAI()->DoAction(ACTION_ASCEND);
             }
 
             void Register() OVERRIDE
