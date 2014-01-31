@@ -559,11 +559,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
     if (!unitTarget && !gameObjTarget && !itemTarget)
         return;
 
-    uint32 spell_id = 0;
-    int32 bp = 0;
-    bool triggered = true;
-    SpellCastTargets targets;
-
     // selection by spell family
     switch (m_spellInfo->SpellFamilyName)
     {
@@ -600,58 +595,8 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 }
             }
             break;
-        case SPELLFAMILY_DEATHKNIGHT:
-            switch (m_spellInfo->Id)
-            {
-                case 46584: // Raise Dead
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // Do we have talent Master of Ghouls?
-                    if (m_caster->HasAura(52143))
-                        // summon as pet
-                        bp = 52150;
-                    else
-                        // or guardian
-                        bp = 46585;
-
-                    if (m_targets.HasDst())
-                        targets.SetDst(*m_targets.GetDstPos());
-                    else
-                    {
-                        targets.SetDst(*m_caster);
-                        // Corpse not found - take reagents (only not triggered cast can take them)
-                        triggered = false;
-                    }
-                    // Remove cooldown - summon spellls have category
-                    m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
-                    spell_id = 48289;
-                    break;
-                // Raise dead - take reagents and trigger summon spells
-                case 48289:
-                    if (m_targets.HasDst())
-                        targets.SetDst(*m_targets.GetDstPos());
-                    spell_id = CalculateDamage(0, NULL);
-                    break;
-            }
+        default:
             break;
-    }
-
-    //spells triggered by dummy effect should not miss
-    if (spell_id)
-    {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
-
-        if (!spellInfo)
-        {
-            TC_LOG_ERROR("spells", "EffectDummy of spell %u: triggering unknown spell id %i\n", m_spellInfo->Id, spell_id);
-            return;
-        }
-
-        targets.SetUnitTarget(unitTarget);
-        Spell* spell = new Spell(m_caster, spellInfo, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, m_originalCasterGUID, true);
-        if (bp) spell->SetSpellValue(SPELLVALUE_BASE_POINT0, bp);
-        spell->prepare(&targets);
     }
 
     // pet auras
@@ -774,7 +719,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(triggered_spell_id);
     if (!spellInfo)
     {
-        TC_LOG_DEBUG("spells", "Spell::EffectTriggerSpell spell %u tried to trigger unknown spell %u", m_spellInfo->Id, triggered_spell_id);
+        TC_LOG_ERROR("spells", "Spell::EffectTriggerSpell spell %u tried to trigger unknown spell %u", m_spellInfo->Id, triggered_spell_id);
         return;
     }
 
@@ -826,7 +771,7 @@ void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(triggered_spell_id);
     if (!spellInfo)
     {
-        TC_LOG_DEBUG("spells", "Spell::EffectTriggerMissileSpell spell %u tried to trigger unknown spell %u", m_spellInfo->Id, triggered_spell_id);
+        TC_LOG_ERROR("spells", "Spell::EffectTriggerMissileSpell spell %u tried to trigger unknown spell %u", m_spellInfo->Id, triggered_spell_id);
         return;
     }
 
