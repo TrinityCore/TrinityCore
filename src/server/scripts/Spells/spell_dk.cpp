@@ -703,7 +703,7 @@ class spell_dk_ghoul_explode : public SpellScriptLoader
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 int32 value = int32(GetCaster()->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_2].CalcValue(GetCaster())));
-                SetHitDamage(value);
+                SetEffectValue(value);
             }
 
             void Suicide(SpellEffIndex /*effIndex*/)
