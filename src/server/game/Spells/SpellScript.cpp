@@ -583,7 +583,19 @@ int32 SpellScript::GetEffectValue() const
         TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::GetEffectValue was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return 0;
     }
+
     return m_spell->damage;
+}
+
+void SpellScript::SetEffectValue(int32 value)
+{
+    if (!IsInEffectHook())
+    {
+        TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::SetEffectValue was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        return;
+    }
+
+    m_spell->damage = value;
 }
 
 Item* SpellScript::GetCastItem()
