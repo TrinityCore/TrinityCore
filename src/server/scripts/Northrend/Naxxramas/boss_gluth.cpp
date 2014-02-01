@@ -131,8 +131,8 @@ public:
                         break;
                     case EVENT_DEVOUR:
                         {
-                            Creature* zombie = me->FindNearestCreature(NPC_ZOMBIE, 200);
-                            if(zombie && me->IsWithinDist2d(zombie, 7))
+                            Creature* zombie = me->FindNearestCreature(NPC_ZOMBIE, 7);
+                            if(zombie)
                             {
                                 Talk(EMOTE_NEARBY);
                                 me->AddUnitState(UNIT_STATE_NOT_MOVE);
