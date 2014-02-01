@@ -30,7 +30,8 @@ enum Spells
 
 enum Creatures
 {
-    NPC_ZOMBIE              = 16360
+    NPC_ZOMBIE              = 16360,
+    NPC_GLUTH               = 15932
 };
 
 Position const PosSummon[3] =
@@ -47,9 +48,16 @@ enum Events
     EVENT_DECIMATE,
     EVENT_BERSERK,
     EVENT_SUMMON,
+    EVENT_DEVOUR,
+    EVENT_DEVOUR2
 };
 
-#define EMOTE_NEARBY    " spots a nearby zombie to devour!"
+enum Emotes
+{
+    EMOTE_NEARBY,
+    EMOTE_ENRAGE,
+    EMOTE_DECIMATE
+};
 
 class boss_gluth : public CreatureScript
 {
@@ -69,19 +77,6 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_INFECTED_WOUND, true);
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
-
-        {
-            if (who->GetEntry() == NPC_ZOMBIE && me->IsWithinDistInMap(who, 7))
-            {
-                SetGazeOn(who);
-                /// @todo use a script text
-                me->MonsterTextEmote(EMOTE_NEARBY, NULL, true);
-            }
-            else
-                BossAI::MoveInLineOfSight(who);
-        }
-
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             _EnterCombat();
@@ -90,12 +85,13 @@ public:
             events.ScheduleEvent(EVENT_DECIMATE, 105000);
             events.ScheduleEvent(EVENT_BERSERK, 8*60000);
             events.ScheduleEvent(EVENT_SUMMON, 15000);
+            events.ScheduleEvent(EVENT_DEVOUR, RAND(5, 8) * 1000);
         }
 
         void JustSummoned(Creature* summon) OVERRIDE
         {
             if (summon->GetEntry() == NPC_ZOMBIE)
-                summon->AI()->AttackStart(me);
+                summon->AI()->AttackStart(summon->SelectNearestPlayer(200));
             summons.Summon(summon);
         }
 
@@ -115,12 +111,12 @@ public:
                         events.ScheduleEvent(EVENT_WOUND, 10000);
                         break;
                     case EVENT_ENRAGE:
-                        /// @todo Add missing text
+                        Talk(EMOTE_ENRAGE);
                         DoCast(me, SPELL_ENRAGE);
                         events.ScheduleEvent(EVENT_ENRAGE, 15000);
                         break;
                     case EVENT_DECIMATE:
-                        /// @todo Add missing text
+                        Talk(EMOTE_DECIMATE);
                         DoCastAOE(SPELL_DECIMATE);
                         events.ScheduleEvent(EVENT_DECIMATE, 105000);
                         break;
@@ -133,25 +129,71 @@ public:
                             DoSummon(NPC_ZOMBIE, PosSummon[rand() % RAID_MODE(1, 3)]);
                         events.ScheduleEvent(EVENT_SUMMON, 10000);
                         break;
-                }
-            }
+                    case EVENT_DEVOUR:
+                        {
+                            Creature* zombie = me->FindNearestCreature(NPC_ZOMBIE, 200);
+                            if(zombie && me->IsWithinDist2d(zombie, 7))
+                            {
+                                Talk(EMOTE_NEARBY);
+                                me->AddUnitState(UNIT_STATE_NOT_MOVE);
+                                me->SetTarget(zombie->GetGUID());
 
-            if (me->GetVictim() && me->GetVictim()->GetEntry() == NPC_ZOMBIE)
-            {
-                if (me->IsWithinMeleeRange(me->GetVictim()))
-                {
-                    me->Kill(me->GetVictim());
-                    me->ModifyHealth(int32(me->CountPctFromMaxHealth(5)));
+                                events.ScheduleEvent(EVENT_DEVOUR2, 500);
+                            }
+                            events.ScheduleEvent(EVENT_DEVOUR, RAND(5, 8) * 1000);
+                        }
+                        break;
+                    case EVENT_DEVOUR2:
+                        {
+                            Creature* zombie = sObjectAccessor->GetCreature(*me, me->GetTarget());
+                            me->Kill(zombie);
+                            Unit* unit = SelectTarget(SELECT_TARGET_TOPAGGRO);
+                            me->SetTarget(unit->GetGUID());
+                            me->ClearUnitState(UNIT_STATE_NOT_MOVE);
+                            me->ModifyHealth(me->CountPctFromMaxHealth(5));
+                        }
+                        break;
                 }
             }
-            else
-                DoMeleeAttackIfReady();
+            
+            DoMeleeAttackIfReady();
         }
     };
 
 };
 
+class spell_gluth_decimate : public SpellScriptLoader
+{
+    public:
+        spell_gluth_decimate() : SpellScriptLoader("spell_gluth_decimate") { }
+
+        class spell_gluth_decimate_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gluth_decimate_SpellScript);
+
+            void Decimate(SpellEffIndex)
+            {
+                Unit* unit = GetHitUnit();
+                if(unit && unit->GetEntry() != NPC_GLUTH && unit->HealthAbovePct(5))
+                {
+                    unit->SetHealth(unit->GetMaxHealth() / 20);
+                }
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gluth_decimate_SpellScript::Decimate, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_gluth_decimate_SpellScript();
+        }
+};
+
 void AddSC_boss_gluth()
 {
     new boss_gluth();
+    new spell_gluth_decimate();
 }
