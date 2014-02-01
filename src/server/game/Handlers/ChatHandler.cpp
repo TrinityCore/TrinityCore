@@ -99,6 +99,14 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         return;
     }
 
+    if (lang == LANG_UNIVERSAL)
+    {
+        TC_LOG_ERROR("network", "CMSG_MESSAGECHAT: Possible hacking-attempt: %s tried to send a message in universal language", GetPlayerInfo().c_str());
+        SendNotification(LANG_UNKNOWN_LANGUAGE);
+        recvData.rfinish();
+        return;
+    }
+
     Player* sender = GetPlayer();
 
     //TC_LOG_DEBUG("misc", "CHAT: packet received. type %u, lang %u", type, lang);

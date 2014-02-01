@@ -2810,7 +2810,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             uint32 spellId = fields[0].GetUInt32();
             uint32 attributes = fields[1].GetUInt32();
 
-            spellInfo = mSpellInfoMap[spellId];
+            spellInfo = _GetSpellInfo(spellId);
             if (!spellInfo)
             {
                 TC_LOG_ERROR("sql.sql", "Table `spell_custom_attr` has wrong spell (entry: %u), ignored.", spellId);
