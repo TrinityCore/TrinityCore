@@ -176,7 +176,18 @@ class spell_gluth_decimate : public SpellScriptLoader
                 Unit* unit = GetHitUnit();
                 if(unit && unit->GetEntry() != NPC_GLUTH && unit->HealthAbovePct(5))
                 {
-                    unit->SetHealth(unit->GetMaxHealth() / 20);
+                    int damage = unit->GetHealth() - unit->CountPctFromMaxHealth(5);
+
+                    SpellInfo* info = (SpellInfo*) sSpellMgr->GetSpellInfo(28375);
+                    info->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
+
+                    CustomSpellValues values;
+                    values.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
+
+                    SpellCastTargets targets;
+                    targets.SetUnitTarget(unit);
+
+                    GetCaster()->CastSpell(targets, info, &values);
                 }
             }
 
