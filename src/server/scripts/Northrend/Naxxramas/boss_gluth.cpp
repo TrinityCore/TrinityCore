@@ -178,8 +178,9 @@ class spell_gluth_decimate : public SpellScriptLoader
                 {
                     int damage = unit->GetHealth() - unit->CountPctFromMaxHealth(5);
 
-                    SpellInfo* info = (SpellInfo*) sSpellMgr->GetSpellInfo(28375);
-                    info->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
+                    SpellInfo info = *sSpellMgr->GetSpellInfo(28375);
+
+                    info.AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
 
                     CustomSpellValues values;
                     values.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
@@ -187,7 +188,7 @@ class spell_gluth_decimate : public SpellScriptLoader
                     SpellCastTargets targets;
                     targets.SetUnitTarget(unit);
 
-                    GetCaster()->CastSpell(targets, info, &values);
+                    GetCaster()->CastSpell(targets, &info, &values);
                 }
             }
 
