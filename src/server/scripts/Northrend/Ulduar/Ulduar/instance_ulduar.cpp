@@ -624,6 +624,11 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case GO_ANCIENT_GATE:
                         AncientGateGUID = gameObject->GetGUID();
+                        if (GetBossState(BOSS_FREYA) == DONE &&
+                            GetBossState(BOSS_MIMIRON) == DONE &&
+                            GetBossState(BOSS_HODIR) == DONE &&
+                            GetBossState(BOSS_THORIM) == DONE)
+                            gameObject->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
                         break;
                     default:
                         break;
