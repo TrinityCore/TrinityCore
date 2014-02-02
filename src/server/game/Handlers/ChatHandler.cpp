@@ -99,14 +99,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (lang == LANG_UNIVERSAL)
-    {
-        TC_LOG_ERROR("network", "CMSG_MESSAGECHAT: Possible hacking-attempt: %s tried to send a message in universal language", GetPlayerInfo().c_str());
-        SendNotification(LANG_UNKNOWN_LANGUAGE);
-        recvData.rfinish();
-        return;
-    }
-
     Player* sender = GetPlayer();
 
     //TC_LOG_DEBUG("misc", "CHAT: packet received. type %u, lang %u", type, lang);
@@ -116,6 +108,14 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
     {
         recvData >> lang;
 
+        if (lang == LANG_UNIVERSAL)
+        {
+            TC_LOG_ERROR("network", "CMSG_MESSAGECHAT: Possible hacking-attempt: %s tried to send a message in universal language", GetPlayerInfo().c_str());
+            SendNotification(LANG_UNKNOWN_LANGUAGE);
+            recvData.rfinish();
+            return;
+        }
+
         // prevent talking at unknown language (cheating)
         LanguageDesc const* langDesc = GetLanguageDescByID(lang);
         if (!langDesc)
@@ -124,6 +124,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             recvData.rfinish();
             return;
         }
+
         if (langDesc->skill_id != 0 && !sender->HasSkill(langDesc->skill_id))
         {
             // also check SPELL_AURA_COMPREHEND_LANGUAGE (client offers option to speak in that language)
