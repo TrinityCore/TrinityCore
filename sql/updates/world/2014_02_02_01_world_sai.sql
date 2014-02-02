@@ -1,4 +1,4 @@
-	SET @Guid := XXXX; -- Needs 4 for Archivum System, Brann Bronzebeard, Prospector Doren (10m), Prospector Loren (25m)
+	SET @Guid := 68101; -- Needs 4 for Archivum System, Brann Bronzebeard, Prospector Doren (10m), Prospector Loren (25m)
 	-- Quest Linking
     -- 10 man quest chain
     -- Set Archivum Data Disc as previous quest for The Celestial Planetarium and set so that quest can only be completed via an external event
