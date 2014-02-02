@@ -1,7 +1,5 @@
 	SET @Guid := XXXX; -- Needs 4 for Archivum System, Brann Bronzebeard, Prospector Doren (10m), Prospector Loren (25m)
-
 	-- Quest Linking
-
     -- 10 man quest chain
     -- Set Archivum Data Disc as previous quest for The Celestial Planetarium and set so that quest can only be completed via an external event
     UPDATE `quest_template` SET `PrevQuestId`=13604,`SpecialFlags` = 2  WHERE  `Id`=13607;
@@ -20,16 +18,13 @@
     UPDATE `quest_template` SET `PrevQuestId`=13824 WHERE  `Id`=13818;
     -- Set Algalon as previous quest for All is well that ends well
     UPDATE `quest_template` SET `PrevQuestId`=13818 WHERE  `Id`=13819;
-    
 	-- Area triggers
-
     -- Area trigger relation for The Celestial Planetarium
     DELETE FROM `areatrigger_involvedrelation` WHERE `quest` = 13607;
     INSERT INTO `areatrigger_involvedrelation` (`id`, `quest`) VALUES (5400, 13607);
 	-- Area trigger relation for Heroic: The Celestial Planetarium
     DELETE FROM `areatrigger_involvedrelation` WHERE `quest` = 13816;
     INSERT INTO `areatrigger_involvedrelation` (`id`, `quest`) VALUES (5401, 13816);
-
     -- Correct drops of Archivum Data disk so correct item drops in 10m/25m
     DELETE FROM `creature_loot_template` WHERE `entry` IN (32867, 33693,33692,32927) AND `item` IN(45857,45506);
     INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
@@ -37,7 +32,6 @@
     (32927,45506,100,1,0,1,1),
     (33692,45857,100,1,0,1,1),
     (33693,45857,100,1,0,1,1);
-
 	-- Creature Texts all with correct sound ids maybe missing some emotes for non sniffed ones though or for brann texts anyway
     DELETE FROM  `creature_text` WHERE `entry` IN(33874,33235);
     INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
@@ -101,8 +95,6 @@
     (33874, 39, 0, 'Val''anyr was shattered during the first war between the earthen and the iron dwarves. The weapon''s remnants were believed lost in the conflict.', 12, 0, 100, 0, 0, 15466, 'Archivum System'),
     (33874, 40, 0, 'Probability of successful repair by ordinary means available in this world is close to nil. Please hold while theoretical means analyzed.', 12, 0, 100, 0, 0, 15467, 'Archivum System'),
     (33874, 41, 0, 'Powerful acidic content theoretically found inside the being known as Yogg-Saron would account for the liquification of saronite. Submersion in this substance might be sufficient to rebind an alloy of titan origin.', 12, 0, 100, 0, 0, 15468, 'Archivum System');
-
-
 	-- Brann Bronzebeard Gossip
     UPDATE `creature_template` SET `gossip_menu_id`=10387,`npcflag`=1 WHERE  `entry`=33235;
     DELETE FROM `gossip_menu` WHERE `entry`=10387;
@@ -128,7 +120,6 @@
 	(@GUID+3, 33957, 603, 2, 1, 1556.939, 144.098, 427.3084, 4.043797, 7200, 5, 1); -- 33956 (Area: 0) (possible waypoints or random movement)
 	-- Hide Archivum system from non GM
     UPDATE `creature_template` SET `flags_extra`=130 WHERE  `entry`=33874;
-
 	-- Archivum Console script
     UPDATE `gameobject_template` SET `AIName`='SmartGameObjectAI' WHERE  `entry`=194555;
     DELETE FROM `smart_scripts` WHERE `entryorguid`=194555 AND `source_type`=1;
@@ -190,13 +181,11 @@
     (19455505, 9, 5, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 1, 40, 0, 0, 0, 0, 0, 19, 33874, 0, 0, 0, 0, 0, 0, 'Archivum Console - Script 6 - Say Text Line 40 on Archivum System '),
     (19455505, 9, 6, 0, 0, 0, 100, 0, 13000, 13000, 0, 0, 1, 41, 0, 0, 0, 0, 0, 19, 33874, 0, 0, 0, 0, 0, 0, 'Archivum Console - Script 6 - Say Text Line 41 on Archivum System '),
     (19455505, 9, 7, 0, 0, 0, 100, 0, 8000, 8000, 0, 0, 104, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum Console - Script 6 - Set Go Flags');
-
 	-- Only show mark to return quests in correct difficulty
     DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` =20 AND `SourceEntry` IN(13604,13817);
     INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
     (20, 0, 13604, 0, 0, 19, 0, 1, 0, 0, 0, 0, 0, '', 'Archivum Data Disc quest mark only shown in 10 man'),
     (20, 0, 13817, 0, 0, 19, 0, 2, 0, 0, 0, 0, 0, '', 'Heroic: Archivum Data Disc quest mark only shown in 25 man');
-
 	-- Brann Bronzebeard Script
     UPDATE `creature_template` SET `AIName`='SmartAI',`unit_flags`=33536 WHERE `entry`=33235;
     DELETE FROM `smart_scripts` WHERE `entryorguid`=33235  AND `source_type`=0;
@@ -235,17 +224,14 @@
     (3323500,9,17,0,0,0,100,0,10000,10000,0,0,1,1,0,0,0,0,0,19,33874,0,0,0,0,0,0, 'Brann Bronzebeard - Script - Say Text Line 1 on Archivum System'),
     (3323500,9,18,0,0,0,100,0,4500,4500,0,0,1,2,0,0,0,0,0,19,33874,0,0,0,0,0,0, 'Brann Bronzebeard - Script - Say Text Line 2 on Archivum System'),
     (3323500,9,19,0,0,0,100,0,5000,5000,0,0,1,12,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Brann Bronzebeard - Script - Say Text Line 12 on Brann Bronzebeard');
-
 	-- Condition for event trigger
 	DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`= 33235 AND `SourceId`=0;
 	INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
 	(22, 13, 33235, 0, 0, 13, 1, 4, 3, 2, 0, 0, 0, '', 'Execute SAI only if Assembly of Iron Done');
-
 	-- Gossip Menu for Archivum Console
     DELETE FROM `gossip_menu` WHERE `entry`=10368;
     INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES
     (10368, 14383); -- 194555
-
 	-- Gossip Menu Entries
     DELETE FROM `gossip_menu_option` WHERE `menu_id`=10368;
     INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) VALUES
@@ -265,7 +251,6 @@
     (15, 10368, 2, 0, 1, 9, 0, 13823, 0, 0, 0, 0, 0, '', 'Show gossip option has quest 13823'),
     (15, 10368, 3, 0, 0, 9, 0, 13611, 0, 0, 0, 0, 0, '', 'Show gossip option has quest 13611'),
     (15, 10368, 3, 0, 1, 9, 0, 13824, 0, 0, 0, 0, 0, '', 'Show gossip option has quest 13824');
-
 	-- Prospector Loren/Doren Script
     UPDATE `creature_template` SET `AIName`='SmartAI',`unit_flags`=33536 WHERE `entry`IN(33956,33957);
     DELETE FROM `smart_scripts` WHERE `entryorguid`IN(33956,33957)  AND `source_type`=0;
@@ -301,7 +286,6 @@
     (3395700,9,12,0,0,0,100,0,10000,10000,0,0,1,15,0,0,0,0,0,19,33235,0,0,0,0,0,0, 'Prospector Doren - Script - Say Text Line 15 on Brann Bronzebeard'),
 	(3395700,9,13,0,0,0,100,0,5000,5000,0,0,81,2,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Prospector Doren - Script - Set Npc Flags'),
 	(3395700,9,14,0,0,0,100,0,8000,8000,0,0,45,2,2,0,0,0,0,20,194555,0,0,0,0,0,0, 'Prospector Doren - Script - Set Data 2 2 on Archivum Console');
-
 	-- Waypoints
 	DELETE FROM `waypoints` WHERE `entry` IN (33235,33956);
 	INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES 
@@ -314,7 +298,6 @@
 	(33956, 2, 1512.351685, 126.760139, 427.331238, 'Prospector Doren'),
 	(33956, 3, 1476.325806, 117.784752, 423.641113, 'Prospector Doren'),
 	(33956, 4, 1438.413330, 117.163376, 423.641113, 'Prospector Doren');
-
 	-- Creature Template Addon Entries
 	DELETE FROM `creature_template_addon` WHERE `entry` IN (33235,33956,33957,33874);
 	INSERT INTO `creature_template_addon` (`entry`, `mount`, `bytes1`, `bytes2`, `auras`) VALUES
@@ -322,6 +305,3 @@
 	(33956, 0, 0x0, 0x1, ''), -- 33956
 	(33957, 0, 0x0, 0x1, ''), -- 33956
 	(33874, 0, 0x0, 0x1, ''); -- 33874
-
-
-
