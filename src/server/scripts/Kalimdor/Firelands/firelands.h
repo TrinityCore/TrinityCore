@@ -38,6 +38,16 @@ enum DataTypes
 
 enum CreatureIds
 {
+    //Bosses
+    NPC_SHANNOX                     = 53691,
+    NPC_LORD_RHYOLITH               = 52558,
+    NPC_BETH_TILAC                  = 52498,
+    NPC_ALYSRAZOR                   = 52530,
+    NPC_BALEROC                     = 53494,
+    NPC_MAJORDOMO_STAGHELM          = 52571,
+    NPC_RAGNAROS                    = 52409,
+
+    //Alysrazor
     NPC_BLAZING_MONSTROSITY_LEFT    = 53786,
     NPC_BLAZING_MONSTROSITY_RIGHT   = 53791,
     NPC_EGG_PILE                    = 53795,

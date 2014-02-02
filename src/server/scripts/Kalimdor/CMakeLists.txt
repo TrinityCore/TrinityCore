@@ -126,6 +126,7 @@ set(scripts_STAT_SRCS
   Kalimdor/Firelands/instance_firelands.cpp
   Kalimdor/Firelands/firelands.h
   Kalimdor/Firelands/boss_alysrazor.cpp
+  Kalimdor/Firelands/boss_baleroc.cpp
 )
 
 message("  -> Prepared: Kalimdor")
