@@ -1,4 +1,4 @@
---By Krudor
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (99253,99256,99259,99353,99489,99515,99516,99517,100230,100231,100232);
 INSERT INTO `spell_script_names` VALUES (99253, 'spell_baleroc_torment');
 INSERT INTO `spell_script_names` VALUES (99256, 'spell_baleroc_tormented');
 INSERT INTO `spell_script_names` VALUES (99259, 'spell_shards_of_torment');
