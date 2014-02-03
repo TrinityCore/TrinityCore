@@ -21,11 +21,11 @@
 
 DoorData const doorData[] =
 {
-    {GO_LORD_RHYOLITH_BRIDGE,    DATA_LORD_RHYOLITH,      DOOR_TYPE_ROOM,        BOUNDARY_EAST },
+    {GO_LORD_RHYOLITH_BRIDGE,    DATA_LORD_RHYOLITH,      DOOR_TYPE_ROOM,        BOUNDARY_E    },
     {GO_BETH_TILAC_DOOR,         DATA_BETH_TILAC,         DOOR_TYPE_ROOM,        BOUNDARY_SE   },
     //{GO_BALEROC_FIREWALL,        DATA_BALEROC,            DOOR_TYPE_ROOM,        BOUNDARY_S    },
-    {GO_MAJORDOMO_FIREWALL       DATA_MAJORDOMO_STAGHELM, DOOR_TYPE_PASSAGE,     BOUNDARY_N    },
-    {GO_RAGNAROS_DOOR            DATA_RAGNAROS,           DOOR_TYPE_ROOM,        BOUNDARY_S    },
+    {GO_MAJORDOMO_FIREWALL,      DATA_MAJORDOMO_STAGHELM, DOOR_TYPE_PASSAGE,     BOUNDARY_N    },
+    {GO_RAGNAROS_DOOR,           DATA_RAGNAROS,           DOOR_TYPE_ROOM,        BOUNDARY_S    },
     {0,                          0,                       DOOR_TYPE_ROOM,        BOUNDARY_NONE }, //END
 }; //Baleroc door is special, it depends on the health status of the other bosses in the instance
 
