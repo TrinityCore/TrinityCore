@@ -105,21 +105,40 @@ class TW_npc_apothecary_hummel : public CreatureScript
     public:
         TW_npc_apothecary_hummel() : CreatureScript("TW_npc_apothecary_hummel") { }
 
-        /*bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature)
         {
-            if (creature->isQuestGiver())
+            if (creature->IsQuestGiver())
                 player->PrepareQuestMenu(creature->GetGUID());
 
-            // player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_START, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_START, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
             player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+            return true;
+        }
+
+        /*bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*opt)
+        {
+            InstanceScript* instanceScript = creature->GetInstanceScript();
+            if (!instanceScript)
+                return true;
+
+            if (quest->GetQuestId() == 14488)
+            {
+                instanceScript->SetData(TYPE_BATTLE, IN_PROGRESS);
+                creature->AI()->DoAction(START_INTRO);
+            }
+            player->CLOSE_GOSSIP_MENU();
             return true;
         }*/
 
-        //bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*opt*/)
         bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
         {
-            //if (quest->GetQuestId() == 14488)
-            // if (action == GOSSIP_ACTION_INFO_DEF + 1)
+
+            InstanceScript* instanceScript = creature->GetInstanceScript();           
+            if (!instanceScript)              
+                return true;
+           
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
                 creature->AI()->DoAction(START_INTRO);
 
             player->CLOSE_GOSSIP_MENU();
@@ -156,6 +175,7 @@ class TW_npc_apothecary_hummel : public CreatureScript
                 _sprayTimer = urand(4000, 7000);
                 _chainReactionTimer = urand(10000, 25000);
                 _firstCrazed = false;
+                me->setFaction(35);
 
                 me->SetCorpseDelay(900); // delay despawn while still fighting baxter or frye
                 _summons.DespawnAll();
@@ -376,6 +396,7 @@ class TW_npc_apothecary_baxter : public CreatureScript
                 _sprayTimer = urand(4000, 7000);
                 _chainReactionTimer = urand (10000, 25000);
                 _phase = PHASE_NORMAL;
+                me->setFaction(35);
 
                 if (Creature* hummel = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(DATA_HUMMEL) : 0))
                 {
@@ -482,7 +503,7 @@ class TW_npc_apothecary_baxter : public CreatureScript
 };
 
 /*######
-## TW_apothecary frye
+## TW_apothecary frye   
 ######*/
 
 class TW_npc_apothecary_frye : public CreatureScript
@@ -505,6 +526,7 @@ class TW_npc_apothecary_frye : public CreatureScript
                 _throwTimer = urand(2000, 4000);
                 _targetSwitchTimer = urand(1000, 2000);
                 _phase = PHASE_NORMAL;
+                me->setFaction(35);
 
                 if (Creature* hummel = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(DATA_HUMMEL) : 0))
                 {

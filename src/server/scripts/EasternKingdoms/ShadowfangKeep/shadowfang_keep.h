@@ -25,7 +25,8 @@ enum DataTypes
     TYPE_RETHILGORE             = 2,
     TYPE_FENRUS                 = 3,
     TYPE_NANDOS                 = 4,
-    TYPE_CROWN                  = 5
+    TYPE_CROWN                  = 5,
+    TYPE_BATTLE                 = 6
 };
 
 enum Creaturesapothecary

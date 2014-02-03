@@ -31,7 +31,7 @@ EndScriptData */
 #include "Group.h"
 #include "GameEventMgr.h"
 
-#define MAX_ENCOUNTER              5
+#define MAX_ENCOUNTER              6
 
 enum Apothecary
 {
@@ -224,6 +224,9 @@ public:
                         spawnCrazedTimer = urand(7000, 14000);
                     m_auiEncounter[4] = data;
                     break;
+                case TYPE_BATTLE:
+                    m_auiEncounter[5] = data;
+                    break;
             }
 
             if (data == DONE)
@@ -254,6 +257,8 @@ public:
                     return m_auiEncounter[3];
                 case TYPE_CROWN:
                     return m_auiEncounter[4];
+                case TYPE_BATTLE:
+                    return m_auiEncounter[5];
             }
             return 0;
         }
