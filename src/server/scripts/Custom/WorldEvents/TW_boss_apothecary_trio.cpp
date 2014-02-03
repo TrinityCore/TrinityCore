@@ -103,7 +103,7 @@ void SetInCombat(Creature* self)
 class TW_npc_apothecary_hummel : public CreatureScript
 {
     public:
-        TW_npc_apothecary_hummel() : CreatureScript("npc_apothecary_hummel") { }
+        TW_npc_apothecary_hummel() : CreatureScript("TW_npc_apothecary_hummel") { }
 
         /*bool OnGossipHello(Player* player, Creature* creature)
         {
