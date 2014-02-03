@@ -115,6 +115,8 @@ public:
         uint8 uiPhase;
         uint16 uiTimer;
 
+        bool isApothecaryTrioSpawned;
+
         void Initialize() OVERRIDE
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
@@ -133,6 +135,8 @@ public:
 
             uiPhase = 0;
             uiTimer = 0;
+
+            isApothecaryTrioSpawned = false;
         }
 
         void OnCreatureCreate(Creature* creature) OVERRIDE
@@ -269,7 +273,7 @@ public:
         void OnPlayerEnter(Player* player) OVERRIDE
         {
             Map::PlayerList const& players = instance->GetPlayers();
-            if (!players.isEmpty() && !fryeGUID)
+            if (!players.isEmpty() && !isApothecaryTrioSpawned)
             {
                 if (Group* group = players.begin()->GetSource()->GetGroup())
                     if (group->isLFGGroup() && sGameEventMgr->IsActiveEvent(EVENT_LOVE_IS_IN_THE_AIR))
@@ -277,6 +281,7 @@ public:
                         instance->SummonCreature(NPC_FRYE, ApothecarySpawnLocation[0]);
                         instance->SummonCreature(NPC_HUMMEL, ApothecarySpawnLocation[1]);
                         instance->SummonCreature(NPC_BAXTER, ApothecarySpawnLocation[2]);
+                        isApothecaryTrioSpawned = true;
                     }
             } 
         }
