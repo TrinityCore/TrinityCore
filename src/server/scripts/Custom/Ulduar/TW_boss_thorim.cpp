@@ -1454,7 +1454,7 @@ class TW_spell_stormhammer_targeting : public SpellScriptLoader
                 SetTarget(unitList);
             }
 
-            void SetTarget(std::list<WorldObject*>& unitList) OVERRIDE
+            void SetTarget(std::list<WorldObject*>& unitList)
             {
                 unitList.clear();
 

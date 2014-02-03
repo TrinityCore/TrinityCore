@@ -689,9 +689,14 @@ class boss_sara : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) OVERRIDE
             {
-                if (_events.IsInPhase(PHASE_ONE) && damage >= me->GetHealth())
+                if (Intro && damage >= me->GetHealth())
                 {
                     damage = 0;
+
+                    if (TransitionStarted)
+                        return;
+
+                    TransitionStarted = true;
 
                     if (Creature* voice = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_VOICE_OF_YOGG_SARON)))
                         voice->AI()->DoAction(ACTION_PHASE_TRANSFORM);
@@ -747,6 +752,8 @@ class boss_sara : public CreatureScript
                 me->setFaction(35);
                 _events.Reset();
                 _events.SetPhase(PHASE_ONE);
+                TransitionStarted = false;
+                Intro = true;
             }
 
             void UpdateAI(uint32 diff) OVERRIDE
@@ -798,6 +805,7 @@ class boss_sara : public CreatureScript
                             if (Creature* yogg = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_YOGG_SARON)))
                                 DoCast(yogg, SPELL_RIDE_YOGG_SARON_VEHICLE);
                             DoCast(me, SPELL_SHADOWY_BARRIER_SARA);
+                            Intro = false;
                             _events.SetPhase(PHASE_TWO);
                             _events.ScheduleEvent(EVENT_DEATH_RAY, 20000, 0, PHASE_TWO);    // almost never cast at scheduled time, why?
                             _events.ScheduleEvent(EVENT_MALADY_OF_THE_MIND, 18000, 0, PHASE_TWO);
@@ -871,6 +879,8 @@ class boss_sara : public CreatureScript
                 EventMap _events;
                 InstanceScript* _instance;
                 std::map<uint64, uint64> _linkData;
+                bool TransitionStarted;
+                bool Intro;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE

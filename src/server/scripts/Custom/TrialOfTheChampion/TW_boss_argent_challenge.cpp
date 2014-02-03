@@ -127,7 +127,7 @@ class TW_spell_eadric_hoj : public SpellScriptLoader
         {
             PrepareSpellScript(TW_spell_eadric_hoj_SpellScript);
 
-            void HandleOnHit() OVERRIDE
+            void HandleOnHit()
             {
                 if (GetHitUnit() && GetHitUnit()->GetTypeId() == TYPEID_PLAYER)
                     if (!GetHitUnit()->HasAura(SPELL_HAMMER_JUSTICE_STUN)) // FIXME: Has Catched Hammer...
@@ -886,7 +886,7 @@ class TW_spell_gen_reflective_shield : public SpellScriptLoader
                 return true;
             }
 
-            void Trigger(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount) OVERRIDE
+            void Trigger(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 Unit * target = dmgInfo.GetAttacker();
                 if (!target)

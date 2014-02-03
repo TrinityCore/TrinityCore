@@ -359,7 +359,7 @@ class boss_sindragosa : public CreatureScript
                         events.ScheduleEvent(EVENT_LAND, 30000);
                         break;
                     case POINT_LAND:
-                        events.ScheduleEvent(EVENT_LAND_GROUND, 2*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_LAND_GROUND, 5*IN_MILLISECONDS);
                         break;
                     case POINT_LAND_GROUND:
                     {
@@ -1350,6 +1350,11 @@ class spell_sindragosa_icy_grip : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
+                // Hack - Beaconed players shouldn't get gripped with this
+                if (Unit* unit = GetHitUnit())
+                    if (unit->HasAura(SPELL_FROST_BEACON))
+                        return;
+
                 GetHitUnit()->CastSpell(GetCaster(), SPELL_ICY_GRIP_JUMP, true);
             }
 

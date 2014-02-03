@@ -1022,7 +1022,7 @@ class spell_dru_wild_growth : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) OVERRIDE
             {
-                if (spellInfo->Effects[EFFECT_2].IsEffect() || !spellInfo->Effects[EFFECT_2].CalcValue())
+                if (spellInfo->Effects[EFFECT_2].IsEffect() || spellInfo->Effects[EFFECT_2].CalcValue() <= 0)
                     return false;
                 return true;
             }
@@ -1031,19 +1031,30 @@ class spell_dru_wild_growth : public SpellScriptLoader
             {
                 targets.remove_if(RaidCheck(GetCaster()));
 
-                int32 const maxTargets = GetSpellInfo()->Effects[EFFECT_2].CalcValue(GetCaster());
+                uint32 const maxTargets = uint32(GetSpellInfo()->Effects[EFFECT_2].CalcValue(GetCaster()));
 
-                if (targets.size() > uint32(maxTargets))
+                if (targets.size() > maxTargets)
                 {
                     targets.sort(Trinity::HealthPctOrderPred());
                     targets.resize(maxTargets);
                 }
+
+                _targets = targets;
+            }
+
+            void SetTargets(std::list<WorldObject*>& targets)
+            {
+                targets = _targets;
             }
 
             void Register() OVERRIDE
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth_SpellScript::SetTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
             }
+
+        private:
+            std::list<WorldObject*> _targets;
         };
 
         SpellScript* GetSpellScript() const OVERRIDE

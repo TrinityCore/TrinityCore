@@ -211,6 +211,7 @@ class TW_boss_mimiron : public CreatureScript
             {
                 me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_ROCKET_STRIKE_DMG, true);
                 me->SetReactState(REACT_PASSIVE);
+                HasBeenInCombat = false;
             }
 
             void DespawnCreatures(uint32 entry, float distance)
@@ -274,6 +275,12 @@ class TW_boss_mimiron : public CreatureScript
                     go->SetLootState(GO_JUST_DEACTIVATED);
                     go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 }
+
+                if (HasBeenInCombat)
+                {
+                    HasBeenInCombat = false;
+                    instance->SetBossState(BOSS_MIMIRON, FAIL);
+                }
             }
 
             void EndEncounter()
@@ -308,6 +315,8 @@ class TW_boss_mimiron : public CreatureScript
                 _flameTimer = 5000;
                 _enrageTimer = _mimironHardMode ? 10*60*1000 : 15*60*1000; // Enrage in 10 (hard mode) or 15 min
                 JumpToNextStep(100);
+
+                HasBeenInCombat = true;
 
                 if (GameObject* go = me->FindNearestGameObject(GO_BIG_RED_BUTTON, 200))
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
@@ -761,6 +770,7 @@ class TW_boss_mimiron : public CreatureScript
             bool rocketCriteria;
             bool mineCriteria;
             bool botCriteria;
+            bool HasBeenInCombat;
         };
 
         CreatureAI* GetAI(Creature* creature) const
