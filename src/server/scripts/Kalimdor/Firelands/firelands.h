@@ -56,6 +56,15 @@ enum CreatureIds
     NPC_SMOULDERING_HATCHLING       = 53794,
 };
 
+enum GameobjectIds
+{
+    GO_LORD_RHYOLITH_BRIDGE         = 209255,
+    GO_BETH_TILAC_DOOR              = 208877,
+    GO_BALEROC_FIREWALL             = 209066,
+    GO_MAJORDOMO_FIREWALL           = 208906,
+    GO_RAGNAROS_DOOR                = 209073,
+};
+
 class DelayedAttackStartEvent : public BasicEvent
 {
     public:
