@@ -144,8 +144,8 @@ class boss_baleroc : public CreatureScript
                 events.ScheduleEvent(EVENT_INCENDIARY_SOUL, 8.5*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_SHARDS_OF_TORMENT, 5*IN_MILLISECONDS);
                 if (me->GetMap()->IsHeroic())
-                    events.ScheduleEvent(EVENT_COUNTDOWN, 27*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_BLADE, 31*IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_COUNTDOWN, 26*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_BLADE, 30.5*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_BERSERK, 6*MINUTE*IN_MILLISECONDS);
 
                 //Reset our achievement list. We do this here and not in reset, as the debuff may have been spread after the boss has reset.
@@ -256,7 +256,7 @@ class boss_baleroc : public CreatureScript
                                     Talk(ABILITY_DECIMATION_BLADE);
                                     break;
                             }
-                            events.ScheduleEvent(EVENT_BLADE, 48*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_BLADE, 47*IN_MILLISECONDS);
                             break;
                         case EVENT_RESTORE_WEAPONS:
                             SetEquipmentSlots(true);
@@ -273,11 +273,11 @@ class boss_baleroc : public CreatureScript
                         case EVENT_SHARDS_OF_TORMENT:
                             Talk(EMOTE_SHARDS_OF_TORMENT);
                             DoCast(SPELL_SHARDS_OF_TORMENT);
-                            events.ScheduleEvent(EVENT_SHARDS_OF_TORMENT, 33*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SHARDS_OF_TORMENT, 34*IN_MILLISECONDS);
                             break;
                         case EVENT_COUNTDOWN:
                             DoCast(SPELL_COUNTDOWN);
-                            events.ScheduleEvent(EVENT_COUNTDOWN, 45*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_COUNTDOWN, 48*IN_MILLISECONDS);
                             break;
                         case EVENT_BERSERK:
                             DoCast(SPELL_BERSERK);
