@@ -12,10 +12,11 @@ set(scripts_STAT_SRCS
   Custom/custom.cpp
   Custom/TrialOfTheCrusader/TW_boss_faction_champions.cpp
   Custom/custom_scripts.cpp
-  Custom/brewfest.cpp
+  Custom/WorldEvents/brewfest.cpp
   Custom/cs_custom.cpp
-  Custom/TW_hallows_end.cpp
-  Custom/TW_pilgrim.cpp
+  Custom/WorldEvents/TW_hallows_end.cpp
+  Custom/WorldEvents/TW_pilgrim.cpp
+  Custom/WorldEvents/TW_boss_apothecary_trio.cpp
   Custom/HallsOfReflection/TW_boss_falric.cpp
   Custom/HallsOfReflection/TW_boss_lich_king_hor.cpp
   Custom/HallsOfReflection/TW_boss_marwyn.cpp
