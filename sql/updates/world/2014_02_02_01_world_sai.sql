@@ -106,7 +106,6 @@ INSERT INTO `creature_equip_template` (`entry`, `id`, `itemEntry1`, `itemEntry2`
 (33235, 1, 1903, 0, 25972), -- 33235
 (33956, 1, 1903, 0, 25972), -- 33956
 (33957, 1, 1903, 0, 25972); -- 33956
-
 -- Prospector Doren/Loren Gossip
 UPDATE `creature_template` SET `gossip_menu_id`=10393,`npcflag`=2 WHERE  `entry`IN(33956,33957);
 DELETE FROM `gossip_menu` WHERE `entry`=10393;
