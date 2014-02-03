@@ -1,3 +1,4 @@
+DELETE FROM `creature_text` WHERE `entry`=53494;
 INSERT INTO `creature_text` VALUES (53494, 4, 2, 'Behold your weakness.', 14, 0, 100, 0, 0, 24451, 'Baleroc');
 INSERT INTO `creature_text` VALUES (53494, 0, 0, 'You are forbidden from my master\'s domain, mortals.', 14, 0, 100, 0, 0, 24441, 'Baleroc');
 INSERT INTO `creature_text` VALUES (53494, 1, 0, 'Fool mortals. Hurl yourselves into your own demise!', 14, 0, 100, 0, 0, 24446, 'Baleroc');
