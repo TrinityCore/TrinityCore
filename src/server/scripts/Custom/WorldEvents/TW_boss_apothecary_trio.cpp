@@ -23,7 +23,6 @@
 #include "LFGMgr.h"
 #include "Player.h"
 #include "Group.h"
-#include "LFGMgr.h"
 #include "InstanceScript.h"
 
 
@@ -183,7 +182,7 @@ class TW_npc_apothecary_hummel : public CreatureScript
                 }
 
                 if (GameObject* door = _instance->instance->GetGameObject(_instance->GetData64(DATA_DOOR)))
-                    _instance->HandleGameObject(NULL, true, door);
+                    _instance->HandleGameObject(door->GetGUID(), true);
             }
 
             void DoAction(int32 action) OVERRIDE
@@ -336,10 +335,6 @@ class TW_npc_apothecary_hummel : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                DoAction(APOTHECARY_DIED);
-
-                _instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, 36296, NULL);
-
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 if (!players.isEmpty())
                 {
@@ -347,6 +342,7 @@ class TW_npc_apothecary_hummel : public CreatureScript
                         if (group->isLFGGroup())
                             sLFGMgr->FinishDungeon(group->GetGUID(), 288);
                 } 
+                DoAction(APOTHECARY_DIED);
             }
         };
 
