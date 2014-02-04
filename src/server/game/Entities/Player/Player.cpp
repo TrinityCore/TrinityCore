@@ -18494,6 +18494,9 @@ void Player::_LoadGroup(PreparedQueryResult result)
     {
         if (Group* group = sGroupMgr->GetGroupByDbStoreId((*result)[0].GetUInt32()))
         {
+            if (group->IsLeader(GetGUID()))
+                SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
+
             uint8 subgroup = group->GetMemberGroup(GetGUID());
             SetGroup(group, subgroup);
             if (getLevel() >= LEVELREQUIREMENT_HEROIC)
@@ -18504,6 +18507,9 @@ void Player::_LoadGroup(PreparedQueryResult result)
             }
         }
     }
+
+    if (!GetGroup() || !GetGroup()->IsLeader(GetGUID()))
+        RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
 }
 
 void Player::_LoadBoundInstances(PreparedQueryResult result)
