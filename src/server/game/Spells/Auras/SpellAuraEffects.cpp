@@ -5792,6 +5792,13 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     else
         damage = uint32(target->CountPctFromMaxHealth(damage));
 
+    if (m_spellInfo->Effects[m_effIndex].IsTargetingArea() || m_spellInfo->Effects[m_effIndex].IsAreaAuraEffect() || m_spellInfo->Effects[m_effIndex].IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA))
+    {
+        damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
+        if (caster->GetTypeId() != TYPEID_PLAYER)
+            damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
+    }
+
     bool crit = IsPeriodicTickCrit(target, caster);
     if (crit)
         damage = caster->SpellCriticalDamageBonus(m_spellInfo, damage, target);

@@ -918,6 +918,7 @@ struct AccessRequirement
 {
     uint8  levelMin;
     uint8  levelMax;
+    uint16 item_level;
     uint32 item;
     uint32 item2;
     uint32 quest_A;
