@@ -858,8 +858,8 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
     {
-        if (!player->HasItemCount(ITEM_TELEPORTER_POWER_PACK) && (player->GetQuestStatus(QUEST_A_NOT_SO_MODEST_PROPOSAL) != QUEST_STATUS_INCOMPLETE
-            || player->GetQuestStatus(QUEST_GETTING_DOWN_TO_THE_BUSINESS) == QUEST_STATUS_NONE))
+        if (player->GetQuestStatus(QUEST_A_NOT_SO_MODEST_PROPOSAL) != QUEST_STATUS_INCOMPLETE
+            || player->GetQuestStatus(QUEST_GETTING_DOWN_TO_THE_BUSINESS) == QUEST_STATUS_NONE)
             return false;
 
         go->SummonCreature(NPC_IMAGE_WIND_TRADER, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), go->GetAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
