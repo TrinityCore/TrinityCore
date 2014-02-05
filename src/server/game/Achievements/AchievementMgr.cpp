@@ -425,8 +425,8 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
         case ACHIEVEMENT_CRITERIA_REQUIRE_NTH_BIRTHDAY:
         {
             time_t birthday_start = time_t(sWorld->getIntConfig(CONFIG_BIRTHDAY_TIME));
-
-            tm birthday_tm = *localtime(&birthday_start);
+            tm birthday_tm;
+            ACE_OS::localtime_r(&birthday_start, &birthday_tm);
 
             // exactly N birthday
             birthday_tm.tm_year += birthday_login.nth_birthday;
