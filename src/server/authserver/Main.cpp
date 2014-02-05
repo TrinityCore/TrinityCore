@@ -178,51 +178,53 @@ extern int main(int argc, char** argv)
     Handler.register_handler(SIGINT, &SignalINT);
     Handler.register_handler(SIGTERM, &SignalTERM);
 
+#if defined(_WIN32) || defined(__linux__)
+    
     ///- Handle affinity for multiple processors and process priority
     uint32 affinity = sConfigMgr->GetIntDefault("UseProcessors", 0);
     bool highPriority = sConfigMgr->GetBoolDefault("ProcessPriority", false);
-
+    
 #ifdef _WIN32 // Windows
+    
+    HANDLE hProcess = GetCurrentProcess();
+    if (affinity > 0)
     {
-        HANDLE hProcess = GetCurrentProcess();
-
-        if (affinity > 0)
+        ULONG_PTR appAff;
+        ULONG_PTR sysAff;
+        
+        if (GetProcessAffinityMask(hProcess, &appAff, &sysAff))
         {
-            ULONG_PTR appAff;
-            ULONG_PTR sysAff;
-
-            if (GetProcessAffinityMask(hProcess, &appAff, &sysAff))
-            {
-                ULONG_PTR currentAffinity = affinity & appAff;            // remove non accessible processors
-
-                if (!currentAffinity)
-                    TC_LOG_ERROR("server.authserver", "Processors marked in UseProcessors bitmask (hex) %x are not accessible for the authserver. Accessible processors bitmask (hex): %x", affinity, appAff);
-                else if (SetProcessAffinityMask(hProcess, currentAffinity))
-                    TC_LOG_INFO("server.authserver", "Using processors (bitmask, hex): %x", currentAffinity);
-                else
-                    TC_LOG_ERROR("server.authserver", "Can't set used processors (hex): %x", currentAffinity);
-            }
-        }
-
-        if (highPriority)
-        {
-            if (SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS))
-                TC_LOG_INFO("server.authserver", "authserver process priority class set to HIGH");
+            // remove non accessible processors
+            ULONG_PTR currentAffinity = affinity & appAff;
+            
+            if (!currentAffinity)
+                TC_LOG_ERROR("server.authserver", "Processors marked in UseProcessors bitmask (hex) %x are not accessible for the authserver. Accessible processors bitmask (hex): %x", affinity, appAff);
+            else if (SetProcessAffinityMask(hProcess, currentAffinity))
+                TC_LOG_INFO("server.authserver", "Using processors (bitmask, hex): %x", currentAffinity);
             else
-                TC_LOG_ERROR("server.authserver", "Can't set authserver process priority class.");
+                TC_LOG_ERROR("server.authserver", "Can't set used processors (hex): %x", currentAffinity);
         }
     }
-#elif __linux__ // Linux
-
+    
+    if (highPriority)
+    {
+        if (SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS))
+            TC_LOG_INFO("server.authserver", "authserver process priority class set to HIGH");
+        else
+            TC_LOG_ERROR("server.authserver", "Can't set authserver process priority class.");
+    }
+    
+#else // Linux
+    
     if (affinity > 0)
     {
         cpu_set_t mask;
         CPU_ZERO(&mask);
-
+        
         for (unsigned int i = 0; i < sizeof(affinity) * 8; ++i)
             if (affinity & (1 << i))
                 CPU_SET(i, &mask);
-
+        
         if (sched_setaffinity(0, sizeof(mask), &mask))
             TC_LOG_ERROR("server.authserver", "Can't set used processors (hex): %x, error: %s", affinity, strerror(errno));
         else
@@ -232,7 +234,7 @@ extern int main(int argc, char** argv)
             TC_LOG_INFO("server.authserver", "Using processors (bitmask, hex): %lx", *(__cpu_mask*)(&mask));
         }
     }
-
+    
     if (highPriority)
     {
         if (setpriority(PRIO_PROCESS, 0, PROCESS_HIGH_PRIORITY))
@@ -240,7 +242,8 @@ extern int main(int argc, char** argv)
         else
             TC_LOG_INFO("server.authserver", "authserver process priority class set to %i", getpriority(PRIO_PROCESS, 0));
     }
-
+    
+#endif
 #endif
 
     // maximum counter for next ping

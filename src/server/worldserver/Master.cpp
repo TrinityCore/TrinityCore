@@ -200,51 +200,53 @@ int Master::Run()
 
     ACE_Based::Thread rarThread(new RARunnable);
 
+#if defined(_WIN32) || defined(__linux__)
+    
     ///- Handle affinity for multiple processors and process priority
     uint32 affinity = sConfigMgr->GetIntDefault("UseProcessors", 0);
     bool highPriority = sConfigMgr->GetBoolDefault("ProcessPriority", false);
-
+    
 #ifdef _WIN32 // Windows
+    
+    HANDLE hProcess = GetCurrentProcess();
+    
+    if (affinity > 0)
     {
-        HANDLE hProcess = GetCurrentProcess();
-
-        if (affinity > 0)
+        ULONG_PTR appAff;
+        ULONG_PTR sysAff;
+        
+        if (GetProcessAffinityMask(hProcess, &appAff, &sysAff))
         {
-            ULONG_PTR appAff;
-            ULONG_PTR sysAff;
-
-            if (GetProcessAffinityMask(hProcess, &appAff, &sysAff))
-            {
-                ULONG_PTR currentAffinity = affinity & appAff;            // remove non accessible processors
-
-                if (!currentAffinity)
-                    TC_LOG_ERROR("server.worldserver", "Processors marked in UseProcessors bitmask (hex) %x are not accessible for the worldserver. Accessible processors bitmask (hex): %x", affinity, appAff);
-                else if (SetProcessAffinityMask(hProcess, currentAffinity))
-                    TC_LOG_INFO("server.worldserver", "Using processors (bitmask, hex): %x", currentAffinity);
-                else
-                    TC_LOG_ERROR("server.worldserver", "Can't set used processors (hex): %x", currentAffinity);
-            }
-        }
-
-        if (highPriority)
-        {
-            if (SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS))
-                TC_LOG_INFO("server.worldserver", "worldserver process priority class set to HIGH");
+            ULONG_PTR currentAffinity = affinity & appAff;            // remove non accessible processors
+            
+            if (!currentAffinity)
+                TC_LOG_ERROR("server.worldserver", "Processors marked in UseProcessors bitmask (hex) %x are not accessible for the worldserver. Accessible processors bitmask (hex): %x", affinity, appAff);
+            else if (SetProcessAffinityMask(hProcess, currentAffinity))
+                TC_LOG_INFO("server.worldserver", "Using processors (bitmask, hex): %x", currentAffinity);
             else
-                TC_LOG_ERROR("server.worldserver", "Can't set worldserver process priority class.");
+                TC_LOG_ERROR("server.worldserver", "Can't set used processors (hex): %x", currentAffinity);
         }
     }
-#elif __linux__ // Linux
-
+    
+    if (highPriority)
+    {
+        if (SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS))
+            TC_LOG_INFO("server.worldserver", "worldserver process priority class set to HIGH");
+        else
+            TC_LOG_ERROR("server.worldserver", "Can't set worldserver process priority class.");
+    }
+    
+#else // Linux
+    
     if (affinity > 0)
     {
         cpu_set_t mask;
         CPU_ZERO(&mask);
-
+        
         for (unsigned int i = 0; i < sizeof(affinity) * 8; ++i)
             if (affinity & (1 << i))
                 CPU_SET(i, &mask);
-
+        
         if (sched_setaffinity(0, sizeof(mask), &mask))
             TC_LOG_ERROR("server.worldserver", "Can't set used processors (hex): %x, error: %s", affinity, strerror(errno));
         else
@@ -254,7 +256,7 @@ int Master::Run()
             TC_LOG_INFO("server.worldserver", "Using processors (bitmask, hex): %lx", *(__cpu_mask*)(&mask));
         }
     }
-
+    
     if (highPriority)
     {
         if (setpriority(PRIO_PROCESS, 0, PROCESS_HIGH_PRIORITY))
@@ -262,7 +264,8 @@ int Master::Run()
         else
             TC_LOG_INFO("server.worldserver", "worldserver process priority class set to %i", getpriority(PRIO_PROCESS, 0));
     }
-
+    
+#endif
 #endif
 
     //Start soap serving thread
