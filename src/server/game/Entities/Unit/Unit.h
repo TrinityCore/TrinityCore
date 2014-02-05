@@ -1233,6 +1233,16 @@ enum PlayerTotemType
     SUMMON_TYPE_TOTEM_AIR   = 83
 };
 
+/// Spell cooldown flags sent in SMSG_SPELL_COOLDOWN
+enum SpellCooldownFlags
+{
+    SPELL_COOLDOWN_FLAG_NONE                    = 0x0,
+    SPELL_COOLDOWN_FLAG_INCLUDE_GCD             = 0x1,  ///< Starts GCD in addition to normal cooldown specified in the packet
+    SPELL_COOLDOWN_FLAG_INCLUDE_EVENT_COOLDOWNS = 0x2   ///< Starts GCD for spells that should start their cooldown on events, requires SPELL_COOLDOWN_FLAG_INCLUDE_GCD set
+};
+
+typedef UNORDERED_MAP<uint32, uint32> PacketCooldowns;
+
 // delay time next attack to prevent client attack animation problems
 #define ATTACK_DISPLAY_DELAY 200
 #define MAX_PLAYER_STEALTH_DETECT_RANGE 30.0f               // max distance for detection targets by player
@@ -1565,6 +1575,8 @@ class Unit : public WorldObject
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
         void SendPlaySpellVisual(uint32 id);
         void SendPlaySpellImpact(uint64 guid, uint32 id);
+        void BuildCooldownPacket(WorldPacket& data, uint8 flags, uint32 spellId, uint32 cooldown);
+        void BuildCooldownPacket(WorldPacket& data, uint8 flags, PacketCooldowns const& cooldowns);
 
         void DeMorph();
 
