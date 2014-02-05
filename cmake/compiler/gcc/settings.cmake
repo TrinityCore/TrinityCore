@@ -22,3 +22,14 @@ if( WITH_COREDEBUG )
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3")
   message(STATUS "GCC: Debug-flags set (-g3)")
 endif()
+
+execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion
+                    OUTPUT_VARIABLE GCC_VERSION)
+
+if (GCC_VERSION VERSION_GREATER 4.7 OR GCC_VERSION VERSION_EQUAL 4.7)
+    message(STATUS "GCC ${GCC_VERSION} found. C++11 activated.")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+elseif(GCC_VERSION VERSION_GREATER 4.3 OR GCC_VERSION VERSION_EQUAL 4.3)
+    message(WARNING "GCC ${GCC_VERSION} found. C++0x activated. If you get any errors update to a compiler which fully supports C++11")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
+endif()
