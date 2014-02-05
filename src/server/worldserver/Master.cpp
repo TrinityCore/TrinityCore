@@ -205,7 +205,7 @@ int Master::Run()
     ///- Handle affinity for multiple processors and process priority
     uint32 affinity = sConfigMgr->GetIntDefault("UseProcessors", 0);
     bool highPriority = sConfigMgr->GetBoolDefault("ProcessPriority", false);
-    
+
 #ifdef _WIN32 // Windows
     
     HANDLE hProcess = GetCurrentProcess();
@@ -242,11 +242,11 @@ int Master::Run()
     {
         cpu_set_t mask;
         CPU_ZERO(&mask);
-        
+
         for (unsigned int i = 0; i < sizeof(affinity) * 8; ++i)
             if (affinity & (1 << i))
                 CPU_SET(i, &mask);
-        
+
         if (sched_setaffinity(0, sizeof(mask), &mask))
             TC_LOG_ERROR("server.worldserver", "Can't set used processors (hex): %x, error: %s", affinity, strerror(errno));
         else
@@ -256,7 +256,7 @@ int Master::Run()
             TC_LOG_INFO("server.worldserver", "Using processors (bitmask, hex): %lx", *(__cpu_mask*)(&mask));
         }
     }
-    
+
     if (highPriority)
     {
         if (setpriority(PRIO_PROCESS, 0, PROCESS_HIGH_PRIORITY))
