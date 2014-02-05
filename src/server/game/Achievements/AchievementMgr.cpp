@@ -97,6 +97,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:                // only Children's Week achievements
         case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
         case ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL:
+        case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
             break;
         default:
             if (dataType != ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT)
@@ -111,6 +112,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
     {
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE:
         case ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT:
+        case ACHIEVEMENT_CRITERIA_REQUIRE_NTH_BIRTHDAY:
             return true;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_CREATURE:
             if (!creature.id || !sObjectMgr->GetCreatureTemplate(creature.id))
@@ -292,6 +294,16 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
                 return false;
             }
             return true;
+        case ACHIEVEMENT_CRITERIA_REQUIRE_KNOWN_TITLE:
+        {
+            if (!sCharTitlesStore.LookupEntry(known_title.title_id))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_requirement` (Entry: %u Type: %u) for requirement ACHIEVEMENT_CRITERIA_REQUIRE_KNOWN_TITLE (%u) have unknown title_id in value1 (%u), ignore.",
+                    criteria->ID, criteria->requiredType, dataType, known_title.title_id);
+                return false;
+            }
+            return true;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: %u Type: %u) has data for non-supported data type (%u), ignored.", criteria->ID, criteria->requiredType, dataType);
             return false;
@@ -410,6 +422,26 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID:
             return source->GetMapId() == map_id.mapId;
+        case ACHIEVEMENT_CRITERIA_REQUIRE_NTH_BIRTHDAY:
+        {
+            time_t birthday_start = time_t(sWorld->getIntConfig(CONFIG_BIRTHDAY_TIME));
+
+            tm birthday_tm = *localtime(&birthday_start);
+
+            // exactly N birthday
+            birthday_tm.tm_year += birthday_login.nth_birthday;
+
+            time_t birthday = mktime(&birthday_tm);
+            time_t now = sWorld->GetGameTime();
+            return now <= birthday + DAY && now >= birthday;
+        }
+        case ACHIEVEMENT_CRITERIA_REQUIRE_KNOWN_TITLE:
+        {
+            if (CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(known_title.title_id))
+                return source && source->HasTitle(titleInfo->bit_index);
+
+            return false;
+        }
         default:
             break;
     }
@@ -1562,6 +1594,20 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
             }
+            case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
+            {
+                // This criteria is only called directly after login - with expected miscvalue1 == 1
+                if (!miscValue1)
+                    continue;
+
+                // They have no proper requirements in dbc
+                AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
+                if (!data || !data->Meets(GetPlayer(), unit))
+                    continue;
+
+                SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
+                break;
+            }
             // std case: not exist in DBC, not triggered in code as result
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALTH:
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_SPELLPOWER:
@@ -1574,7 +1620,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID:
             case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
             case ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK:
-            case ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE:
                 break;                                   // Not implemented yet :(
         }
 
@@ -1717,6 +1762,8 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
             return progress->counter >= achievementCriteria->get_killing_blow.killCount;
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
             return achievementCriteria->win_arena.count && progress->counter >= achievementCriteria->win_arena.count;
+        case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
+            return true;
         // handle all statistic-only criteria here
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
         case ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP:
