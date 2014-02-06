@@ -142,7 +142,7 @@ class custom_commandscript : public CommandScript
 
             if(!cId)
             {
-                handler->PSendSysMessage("Syntax: .qc status $quest\n\nSearches Quest Completer to see if $quest is bugged.");
+                handler->PSendSysMessage("Syntax: .qc $quest\n\nSearches Quest Completer to see if $quest is bugged.");
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -173,7 +173,7 @@ class custom_commandscript : public CommandScript
 
                     if(checked == 1)
                     {
-                        handler->PSendSysMessage("Quest is bugged! Completing quest.");
+                        handler->PSendSysMessage("Bugged quest completed!");
                         std::string name;
                         const char* playerName = handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : NULL;
                         //const char* playerName = handler->GetSession()->GetPlayer()->GetName().c_str();
