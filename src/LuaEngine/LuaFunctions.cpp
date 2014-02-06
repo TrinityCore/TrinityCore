@@ -309,17 +309,6 @@ ElunaRegister<Unit> UnitMethods[] =
     {"PlayDirectSound", &LuaUnit::PlayDirectSound},         // :PlayDirectSound(soundId, player) - Unit plays soundID to player, or everyone around if no player
     {"PlayDistanceSound", &LuaUnit::PlayDistanceSound},     // :PlayDistanceSound(soundId, player) - Unit plays soundID to player, or everyone around if no player. The sound fades the further you are
     // {"Kill", &LuaUnit::Kill},                            // :Kill(target, durabilityLoss) - Unit kills the target, if no target then kills the unit. Durabilityloss is true by default
-    // {"KnockbackFrom", &LuaUnit::KnockbackFrom},          // :KnockbackFrom(x, y, speedXY, speedZ) - Knocks the player to the opposite direction from x,y at the defined speeds
-    // {"JumpTo", &LuaUnit::JumpTo},                        // :JumpTo(WorldObj, speedZ) - Unit jumps to world object
-    // {"Jump", &LuaUnit::Jump},                            // :Jump(speedXY, speedZ[, forward]) - Unit jumps at given speeds
-    {"JumpToCoords", &LuaUnit::JumpToCoords},               // :JumpToCoords(x, y, z, speedXY, speedZ) - Unit jumps to coordinates at given speeds
-    {"MoveTo", &LuaUnit::MoveTo},                           // :MoveTo(id, x, y, z[, generatePath]) - Unit moves to point. ID is sent to WP reach hook
-    // {"MoveCharge", &LuaUnit::MoveCharge},                // :MoveCharge(x, y, z, speed) - Charges to target location
-    {"MoveChase", &LuaUnit::MoveChase},                     // :MoveChase(target[, dist, angle]) - Chases target unit
-    {"MoveFollow", &LuaUnit::MoveFollow},                   // :MoveFollow(target, dist, angle) - Follows target unit
-    {"MoveClear", &LuaUnit::MoveClear},                     // :MoveClear() - Stops movement
-    {"MoveRandom", &LuaUnit::MoveRandom},                   // :MoveRandom(radius) - Moves randomly inside radius
-    // {"MoveRotate", &LuaUnit::MoveRotate},                // :MoveRotate(time, left) - Turns left (true or nil) or right (false) for given time
     {"SummonGameObject", &LuaUnit::SummonGameObject},       // :SummonGameObject(entry, x, y, z, o[, respawnDelay]) - Spawns an object to location. Returns the object or nil
     {"SpawnCreature", &LuaUnit::SpawnCreature},             // :SpawnCreature(entry, x, y, z, o[, spawnType, despawnDelay]) - Spawns a creature to location that despawns after given time (0 for infinite). Returns the creature or nil
     {"StopSpellCast", &LuaUnit::StopSpellCast},             // :StopSpellCast(spellId(optional)) - Stops the unit from casting a spell. If a spellId is defined, it will stop that unit from casting that spell
@@ -334,14 +323,22 @@ ElunaRegister<Unit> UnitMethods[] =
     // {"RestoreFaction", &LuaUnit::RestoreFaction},        // :RestoreFaction()
     // {"RemoveBindSightAuras", &LuaUnit::RemoveBindSightAuras},                                            // :RemoveBindSightAuras()
     // {"RemoveCharmAuras", &LuaUnit::RemoveCharmAuras},    // :RemoveCharmAuras()
-    {"StopMoving", &LuaUnit::StopMoving},                   // :StopMoving()
     {"ClearThreatList", &LuaUnit::ClearThreatList},         // :ClearThreatList()
     {"ClearUnitState", &LuaUnit::ClearUnitState},           // :ClearUnitState(state)
     {"AddUnitState", &LuaUnit::AddUnitState},               // :AddUnitState(state)
     {"DisableMelee", &LuaUnit::DisableMelee},               // :DisableMelee([disable]) - if true, enables
     {"SummonGuardian", &LuaUnit::SummonGuardian},           // :SummonGuardian(entry, x, y, z, o[, duration]) - summons a guardian to location. Scales with summoner, is friendly to him and guards him.
     {"NearTeleport", &LuaUnit::NearTeleport},               // :NearTeleport(x, y, z, o) - Teleports to give coordinates. Does not leave combat or unsummon pet.
-
+    {"MoveIdle", &LuaUnit::MoveIdle},                       // :MoveIdle()
+    {"MoveRandom", &LuaUnit::MoveRandom},                   // :MoveRandom(radius)
+    {"MoveHome", &LuaUnit::MoveHome},                       // :MoveHome()
+    {"MoveFollow", &LuaUnit::MoveFollow},                   // :MoveFollow(target[, dist, angle])
+    {"MoveChase", &LuaUnit::MoveChase},                     // :MoveChase(target[, dist, angle])
+    {"MoveConfused", &LuaUnit::MoveConfused},               // :MoveConfused()
+    {"MoveFleeing", &LuaUnit::MoveFleeing},                 // :MoveFleeing(enemy[, time])
+    {"MoveTo", &LuaUnit::MoveTo},                           // :MoveTo(id, x, y, z[, genPath]) - Moves to point. id is sent to WP reach hook. genPath defaults to true
+    {"MoveJump", &LuaUnit::MoveJump},                       // :MoveJump(x, y, z, zSpeed, maxHeight, id)
+    
     /* Vehicle */
     {"GetVehicle", &LuaUnit::GetVehicle},                 // :GetVehicle() - Returns the unit's vehicle (if it is a vehicle)
 
@@ -700,6 +697,7 @@ ElunaRegister<Creature> CreatureMethods[] =
     // {"RemoveLootMode", &LuaCreature::RemoveLootMode},
     {"SaveToDB", &LuaCreature::SaveToDB},                    // :SaveToDB() - Saves to database
     {"SelectVictim", &LuaCreature::SelectVictim},            // :SelectVictim() - Selects a victim
+    {"MoveWaypoint", &LuaCreature::MoveWaypoint},            // :MoveWaypoint()
 
     {NULL, NULL},
 };
