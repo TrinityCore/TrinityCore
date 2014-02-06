@@ -7506,6 +7506,10 @@ void ObjectMgr::LoadGameObjectForQuests()
     {
         switch (itr->second.type)
         {
+            case GAMEOBJECT_TYPE_QUESTGIVER:
+                _gameObjectForQuestStore.insert(itr->second.entry);
+                ++count;
+                break;
             case GAMEOBJECT_TYPE_CHEST:
             {
                 // scan GO chest with loot including quest items
