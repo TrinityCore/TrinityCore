@@ -111,8 +111,8 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
     switch (dataType)
     {
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE:
-        case ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT:
-        case ACHIEVEMENT_CRITERIA_REQUIRE_NTH_BIRTHDAY:
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT:
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_NTH_BIRTHDAY:
             return true;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_CREATURE:
             if (!creature.id || !sObjectMgr->GetCreatureTemplate(creature.id))
@@ -261,7 +261,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPED_ITEM:
             if (equipped_item.item_quality >= MAX_ITEM_QUALITY)
             {
-                TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_requirement` (Entry: %u Type: %u) for requirement ACHIEVEMENT_CRITERIA_REQUIRE_S_EQUIPED_ITEM (%u) has unknown quality state in value1 (%u), ignored.",
+                TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPED_ITEM (%u) has unknown quality state in value1 (%u), ignored.",
                     criteria->ID, criteria->requiredType, dataType, equipped_item.item_quality);
                 return false;
             }
@@ -269,7 +269,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID:
             if (!sMapStore.LookupEntry(map_id.mapId))
             {
-                TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_requirement` (Entry: %u Type: %u) for requirement ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID (%u) has unknown map id in value1 (%u), ignored.",
+                TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID (%u) has unknown map id in value1 (%u), ignored.",
                     criteria->ID, criteria->requiredType, dataType, map_id.mapId);
                 return false;
             }
@@ -294,16 +294,14 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
                 return false;
             }
             return true;
-        case ACHIEVEMENT_CRITERIA_REQUIRE_KNOWN_TITLE:
-        {
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE:
             if (!sCharTitlesStore.LookupEntry(known_title.title_id))
             {
-                TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_requirement` (Entry: %u Type: %u) for requirement ACHIEVEMENT_CRITERIA_REQUIRE_KNOWN_TITLE (%u) have unknown title_id in value1 (%u), ignore.",
+                TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_requirement` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE (%u) have unknown title_id in value1 (%u), ignore.",
                     criteria->ID, criteria->requiredType, dataType, known_title.title_id);
                 return false;
             }
             return true;
-        }
         default:
             TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: %u Type: %u) has data for non-supported data type (%u), ignored.", criteria->ID, criteria->requiredType, dataType);
             return false;
@@ -329,7 +327,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
                 return false;
             return true;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE:
-            if (!source || source->GetTypeId() != TYPEID_PLAYER)
+            if (source->GetTypeId() != TYPEID_PLAYER)
                 return false;
             if (classRace.class_id && classRace.class_id != source->ToPlayer()->getClass())
                 return false;
@@ -393,22 +391,22 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             uint32 score = bg->GetTeamScore(source->GetTeamId() == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE);
             return score >= bg_loss_team_score.min_score && score <= bg_loss_team_score.max_score;
         }
-        case ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT:
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT:
         {
             if (!source->IsInWorld())
                 return false;
             Map* map = source->GetMap();
             if (!map->IsDungeon())
             {
-                TC_LOG_ERROR("achievement", "Achievement system call ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT (%u) for achievement criteria %u for non-dungeon/non-raid map %u",
-                    ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT, criteria_id, map->GetId());
+                TC_LOG_ERROR("achievement", "Achievement system call ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT (%u) for achievement criteria %u for non-dungeon/non-raid map %u",
+                    dataType, criteria_id, map->GetId());
                     return false;
             }
-            InstanceScript* instance = ((InstanceMap*)map)->GetInstanceScript();
+            InstanceScript* instance = map->ToInstanceMap()->GetInstanceScript();
             if (!instance)
             {
-                TC_LOG_ERROR("achievement", "Achievement system call ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT (%u) for achievement criteria %u for map %u but map does not have a instance script",
-                    ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT, criteria_id, map->GetId());
+                TC_LOG_ERROR("achievement", "Achievement system call ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT (%u) for achievement criteria %u for map %u but map does not have a instance script",
+                    dataType, criteria_id, map->GetId());
                 return false;
             }
             return instance->CheckAchievementCriteriaMeet(criteria_id, source, target, miscvalue1);
@@ -422,7 +420,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID:
             return source->GetMapId() == map_id.mapId;
-        case ACHIEVEMENT_CRITERIA_REQUIRE_NTH_BIRTHDAY:
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_NTH_BIRTHDAY:
         {
             time_t birthday_start = time_t(sWorld->getIntConfig(CONFIG_BIRTHDAY_TIME));
             tm birthday_tm;
@@ -435,11 +433,10 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             time_t now = sWorld->GetGameTime();
             return now <= birthday + DAY && now >= birthday;
         }
-        case ACHIEVEMENT_CRITERIA_REQUIRE_KNOWN_TITLE:
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE:
         {
             if (CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(known_title.title_id))
-                return source && source->HasTitle(titleInfo->bit_index);
-
+                return source->HasTitle(titleInfo->bit_index);
             return false;
         }
         default:
@@ -2334,11 +2331,24 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 
         switch (criteria->requiredType)
         {
-            case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:          // any cases
-                break;
             case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE:
+            case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
+            case ACHIEVEMENT_CRITERIA_TYPE_FALL_WITHOUT_DYING:
+            case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:
+            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
+            case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
+            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL:
+            case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
+            case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
+            case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT:
+            case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
+            case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:
+            case ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL:
+            case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
             case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
-                break;                                      // any cases
+            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
+                // achievement requires db data
+                break;
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
             {
                 AchievementEntry const* achievement = sAchievementMgr->GetAchievement(criteria->referredAchievement);
@@ -2351,43 +2361,21 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 
                 continue;
             }
-            case ACHIEVEMENT_CRITERIA_TYPE_FALL_WITHOUT_DYING:
-                break;                                      // any cases
-            case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET: // any cases
-                break;
-            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:      // any cases
-                break;
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA: // need skip generic cases
                 if (criteria->additionalRequirements[0].additionalRequirement_type != ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE)
                     continue;
                 break;
-            case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM: // any cases
-                break;
-            case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
-                break;                                      // any cases
-            case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT:
-                break;                                      // any cases
             case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:        // need skip generic cases
                 if (criteria->do_emote.count == 0)
                     continue;
                 break;
-            case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:
-                break;                                      // any cases
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL:        // skip statistics
                 if (criteria->win_duel.duelCount == 0)
                     continue;
                 break;
-            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:     // any cases
-                break;
             case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:       // need skip generic cases
                 if (criteria->loot_type.lootTypeCount != 1)
                     continue;
-                break;
-            case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
-                break;                                      // any cases
-            case ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL:
-                break;                                      // any cases
-            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL:  // any cases
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST:
             case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:        // only Children's Week achievements
@@ -2399,8 +2387,6 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
                     continue;
                 break;
             }
-            case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
-                break;
             default:                                        // type not use DB data, ignore
                 continue;
         }
