@@ -65,12 +65,12 @@ enum AchievementCriteriaDataType
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_DRUNK             = 15, // drunken_state  0             (enum DrunkenState) of player
     ACHIEVEMENT_CRITERIA_DATA_TYPE_HOLIDAY             = 16, // holiday_id     0             event in holiday time
     ACHIEVEMENT_CRITERIA_DATA_TYPE_BG_LOSS_TEAM_SCORE  = 17, // min_score      max_score     player's team win bg and opposition team have team score in range
-    ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT          = 18, // 0              0             maker instance script call for check current criteria requirements fit
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT     = 18, // 0              0             maker instance script call for check current criteria requirements fit
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPED_ITEM      = 19, // item_level     item_quality  for equipped item in slot to check item level and quality
     ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID              = 20, // map_id         0             player must be on map with id in map_id
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE = 21, // class_id       race_id
-    ACHIEVEMENT_CRITERIA_REQUIRE_NTH_BIRTHDAY          = 22, // N                            login on day of N-th Birthday
-    ACHIEVEMENT_CRITERIA_REQUIRE_KNOWN_TITLE           = 23, // title_id                     known (pvp) title, values from dbc
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_NTH_BIRTHDAY        = 22, // N                            login on day of N-th Birthday
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE       = 23  // title_id                     known (pvp) title, values from dbc
 };
 
 #define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               24 // maximum value in AchievementCriteriaDataType enum
@@ -163,7 +163,7 @@ struct AchievementCriteriaData
             uint32 min_score;
             uint32 max_score;
         } bg_loss_team_score;
-        // ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT        = 18 (no data)
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT   = 18 (no data)
         // ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPED_ITEM    = 19
         struct
         {
@@ -175,12 +175,12 @@ struct AchievementCriteriaData
         {
             uint32 mapId;
         } map_id;
-        // ACHIEVEMENT_CRITERIA_REQUIRE_NTH_BIRTHDAY      = 21
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_NTH_BIRTHDAY      = 21
         struct
         {
             uint32 nth_birthday;
         } birthday_login;
-        // ACHIEVEMENT_CRITERIA_REQUIRE_KNOWN_TITLE       = 22
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_KNOWN_TITLE       = 22
         struct
         {
             uint32 title_id;
