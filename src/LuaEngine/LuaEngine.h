@@ -39,11 +39,6 @@ class ElunaTemplate
             return 1;
         }
 
-        // If assertion fails, should check if obj really should have gc on
-        // If gc / memory management is true, may need specialized function for GetTPointer to copy object using GetNewTPointerin LuaEngine.cpp
-        static T const* GetNewTPointer(T const& obj) { ASSERT(manageMemory); return new T(obj); }
-        static T const* GetTPointer(T const& obj) { return &obj; }
-
         static int gcT(lua_State* L)
         {
             if (!manageMemory)
@@ -124,7 +119,7 @@ class ElunaTemplate
             T const** ptrHold = (T const**)lua_newuserdata(L, sizeof(T**));
             if (ptrHold)
             {
-                *ptrHold = GetTPointer(*obj);
+                *ptrHold = obj;
                 lua_pushvalue(L, -2);
                 lua_setmetatable(L, -2);
             }

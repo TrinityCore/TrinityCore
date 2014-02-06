@@ -1021,7 +1021,7 @@ bool HookMgr::OnPacketSend(WorldSession* session, WorldPacket& packet)
         player = session->GetPlayer();
     if (sEluna.ServerEventBindings.BeginCall(SERVER_EVENT_ON_PACKET_SEND))
     {
-        sEluna.Push(sEluna.L, &packet);
+        sEluna.Push(sEluna.L, new WorldPacket(packet));
         sEluna.Push(sEluna.L, player);
         sEluna.ServerEventBindings.ExecuteCall();
         for (int i = 1; i <= lua_gettop(sEluna.L); ++i)
@@ -1038,7 +1038,7 @@ bool HookMgr::OnPacketSend(WorldSession* session, WorldPacket& packet)
     }
     if (sEluna.PacketEventBindings.BeginCall(packet.GetOpcode()))
     {
-        sEluna.Push(sEluna.L, &packet);
+        sEluna.Push(sEluna.L, new WorldPacket(packet));
         sEluna.Push(sEluna.L, player);
         sEluna.PacketEventBindings.ExecuteCall();
         for (int i = 1; i <= lua_gettop(sEluna.L); ++i)
@@ -1063,7 +1063,7 @@ bool HookMgr::OnPacketReceive(WorldSession* session, WorldPacket& packet)
         player = session->GetPlayer();
     if (sEluna.ServerEventBindings.BeginCall(SERVER_EVENT_ON_PACKET_RECEIVE))
     {
-        sEluna.Push(sEluna.L, &packet);
+        sEluna.Push(sEluna.L, new WorldPacket(packet));
         sEluna.Push(sEluna.L, player);
         sEluna.ServerEventBindings.ExecuteCall();
         for (int i = 1; i <= lua_gettop(sEluna.L); ++i)
@@ -1080,7 +1080,7 @@ bool HookMgr::OnPacketReceive(WorldSession* session, WorldPacket& packet)
     }
     if (sEluna.PacketEventBindings.BeginCall(packet.GetOpcode()))
     {
-        sEluna.Push(sEluna.L, &packet);
+        sEluna.Push(sEluna.L, new WorldPacket(packet));
         sEluna.Push(sEluna.L, player);
         sEluna.PacketEventBindings.ExecuteCall();
         for (int i = 1; i <= lua_gettop(sEluna.L); ++i)

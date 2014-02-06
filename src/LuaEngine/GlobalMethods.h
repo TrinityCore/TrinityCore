@@ -646,9 +646,7 @@ namespace LuaGlobalFunctions
             luaL_error(L, "Invalid opcode type (%d)", opcode);
             return 0;
         }
-        WorldPacket* data = new WorldPacket((Opcodes)opcode, size);
-        sEluna.Push(L, data); // copies the packet
-        delete data; // Can delete original
+        sEluna.Push(L, new WorldPacket((Opcodes)opcode, size));
         return 1;
     }
 
