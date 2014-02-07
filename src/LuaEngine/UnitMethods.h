@@ -475,9 +475,29 @@ namespace LuaUnit
         unit->StopMoving(); // Some
     }
 
+    int MoveStop(lua_State* L, Unit* unit)
+    {
+        unit->StopMoving();
+        return 0;
+    }
+
+    int MoveExpire(lua_State* L, Unit* unit)
+    {
+        bool reset = luaL_optbool(L, 1, true);
+        unit->GetMotionMaster()->MovementExpired(reset);
+        return 0;
+    }
+
+    int MoveClear(lua_State* L, Unit* unit)
+    {
+        bool reset = luaL_optbool(L, 1, true);
+        unit->GetMotionMaster()->Clear(reset);
+        return 0;
+    }
+
     int MoveIdle(lua_State* L, Unit* unit)
     {
-        PrepareMove(unit);
+        // PrepareMove(unit);
         unit->GetMotionMaster()->MoveIdle();
         return 0;
     }
@@ -485,14 +505,14 @@ namespace LuaUnit
     int MoveRandom(lua_State* L, Unit* unit)
     {
         float radius = luaL_checknumber(L, 1);
-        PrepareMove(unit);
+        // PrepareMove(unit);
         unit->GetMotionMaster()->MoveRandom(radius);
         return 0;
     }
 
     int MoveHome(lua_State* L, Unit* unit)
     {
-        PrepareMove(unit);
+        // PrepareMove(unit);
         unit->GetMotionMaster()->MoveTargetedHome();
         return 0;
     }
@@ -504,7 +524,7 @@ namespace LuaUnit
         float angle = luaL_optnumber(L, 3, 0.0f);
         if (!target)
             return 0;
-        PrepareMove(unit);
+        // PrepareMove(unit);
         unit->GetMotionMaster()->MoveFollow(target, dist, angle);
         return 0;
     }
@@ -516,14 +536,14 @@ namespace LuaUnit
         float angle = luaL_optnumber(L, 3, 0.0f);
         if (!target)
             return 0;
-        PrepareMove(unit);
+        // PrepareMove(unit);
         unit->GetMotionMaster()->MoveChase(target, dist, angle);
         return 0;
     }
 
     int MoveConfused(lua_State* L, Unit* unit)
     {
-        PrepareMove(unit);
+        // PrepareMove(unit);
         unit->GetMotionMaster()->MoveConfused();
         return 0;
     }
@@ -534,7 +554,7 @@ namespace LuaUnit
         uint32 time = luaL_optunsigned(L, 2, 0);
         if (!target)
             return 0;
-        PrepareMove(unit);
+        // PrepareMove(unit);
         unit->GetMotionMaster()->MoveFleeing(target, time);
         return 0;
     }
@@ -546,7 +566,7 @@ namespace LuaUnit
         float y = luaL_checknumber(L, 3);
         float z = luaL_checknumber(L, 4);
         bool genPath = luaL_optbool(L, 5, true);
-        PrepareMove(unit);
+        // PrepareMove(unit);
         unit->GetMotionMaster()->MovePoint(id, x, y, z, genPath);
         return 0;
     }
@@ -559,7 +579,7 @@ namespace LuaUnit
         float zSpeed = luaL_checknumber(L, 4);
         float maxHeight = luaL_checknumber(L, 5);
         uint32 id = luaL_optunsigned(L, 6, 0);
-        PrepareMove(unit);
+        // PrepareMove(unit);
         unit->GetMotionMaster()->MoveJump(x, y, z, zSpeed, maxHeight, id);
         return 0;
     }

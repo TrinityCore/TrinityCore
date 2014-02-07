@@ -329,7 +329,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"DisableMelee", &LuaUnit::DisableMelee},               // :DisableMelee([disable]) - if true, enables
     {"SummonGuardian", &LuaUnit::SummonGuardian},           // :SummonGuardian(entry, x, y, z, o[, duration]) - summons a guardian to location. Scales with summoner, is friendly to him and guards him.
     {"NearTeleport", &LuaUnit::NearTeleport},               // :NearTeleport(x, y, z, o) - Teleports to give coordinates. Does not leave combat or unsummon pet.
-    {"MoveIdle", &LuaUnit::MoveIdle},                       // :MoveIdle()
+    {"MoveIdle", &LuaUnit::MoveIdle},                       // :MoveIdle() - Use MoveExpire or Clear before
     {"MoveRandom", &LuaUnit::MoveRandom},                   // :MoveRandom(radius)
     {"MoveHome", &LuaUnit::MoveHome},                       // :MoveHome()
     {"MoveFollow", &LuaUnit::MoveFollow},                   // :MoveFollow(target[, dist, angle])
@@ -338,7 +338,10 @@ ElunaRegister<Unit> UnitMethods[] =
     {"MoveFleeing", &LuaUnit::MoveFleeing},                 // :MoveFleeing(enemy[, time])
     {"MoveTo", &LuaUnit::MoveTo},                           // :MoveTo(id, x, y, z[, genPath]) - Moves to point. id is sent to WP reach hook. genPath defaults to true
     {"MoveJump", &LuaUnit::MoveJump},                       // :MoveJump(x, y, z, zSpeed, maxHeight, id)
-    
+    {"MoveStop", &LuaUnit::MoveStop},                       // :MoveStop()
+    {"MoveExpire", &LuaUnit::MoveExpire},                   // :MoveExpire([reset])
+    {"MoveClear", &LuaUnit::MoveClear},                     // :MoveClear([reset])
+
     /* Vehicle */
     {"GetVehicle", &LuaUnit::GetVehicle},                 // :GetVehicle() - Returns the unit's vehicle (if it is a vehicle)
 

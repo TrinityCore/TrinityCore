@@ -123,7 +123,7 @@ namespace LuaCreature
 
     int MoveWaypoint(lua_State* L, Creature* creature)
     {
-        LuaUnit::PrepareMove(creature);
+        // LuaUnit::PrepareMove(creature);
         creature->GetMotionMaster()->MovePath(creature->GetWaypointPath(), true);
         return 0;
     }
