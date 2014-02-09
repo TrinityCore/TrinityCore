@@ -431,6 +431,9 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket& recvData)
 
     if (lootThreshold < ITEM_QUALITY_UNCOMMON || lootThreshold > ITEM_QUALITY_ARTIFACT)
         return;
+
+    if (lootMethod == MASTER_LOOT && !group->IsMember(lootMaster))
+        return;
     /********************/
 
     // everything's fine, do it
