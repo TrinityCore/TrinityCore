@@ -196,7 +196,7 @@ class npc_skittering_infector : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_skittering_infectorAI(creature);
+            return GetAzjolNerubAI<npc_skittering_infectorAI>(creature);
         }
 };
 
@@ -290,7 +290,7 @@ class npc_anub_ar_skirmisher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_anub_ar_skirmisherAI(creature);
+            return GetAzjolNerubAI<npc_anub_ar_skirmisherAI>(creature);
         }
 };
 
@@ -351,7 +351,7 @@ class npc_anub_ar_shadowcaster : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_anub_ar_shadowcasterAI(creature);
+            return GetAzjolNerubAI<npc_anub_ar_shadowcasterAI>(creature);
         }
 };
 
@@ -411,7 +411,7 @@ class npc_anub_ar_warrior : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_anub_ar_warriorAI(creature);
+            return GetAzjolNerubAI<npc_anub_ar_warriorAI>(creature);
         }
 };
 
@@ -426,19 +426,19 @@ class npc_watcher_gashra : public CreatureScript
 
             void Reset() OVERRIDE
             {
-                events.Reset();
+                _events.Reset();
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 DoCast(me, SPELL_ENRAGE, true);
-                events.ScheduleEvent(EVENT_WEB_WRAP_GASHRA, 11000);
-                events.ScheduleEvent(EVENT_INFECTED_BITE_GASHRA, 4000);
+                _events.ScheduleEvent(EVENT_WEB_WRAP_GASHRA, 11000);
+                _events.ScheduleEvent(EVENT_INFECTED_BITE_GASHRA, 4000);
             }
             
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                Creature* krikthir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KRIKTHIR_THE_GATEWATCHER));
+                Creature* krikthir = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_KRIKTHIR_THE_GATEWATCHER));
                 if (krikthir && krikthir->IsAlive())
                     krikthir->AI()->Talk(SAY_PREFIGHT);
             }
@@ -448,23 +448,23 @@ class npc_watcher_gashra : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                events.Update(diff);
+                _events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_WEB_WRAP_GASHRA:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 DoCast(target, SPELL_WEB_WRAP, true);
-                            events.ScheduleEvent(EVENT_WEB_WRAP_GASHRA, 17000);
+                            _events.ScheduleEvent(EVENT_WEB_WRAP_GASHRA, 17000);
                             break;
                         case EVENT_INFECTED_BITE_GASHRA:
                             DoCastVictim(SPELL_INFECTED_BITE, true);
-                            events.ScheduleEvent(EVENT_INFECTED_BITE_GASHRA, 15000);
+                            _events.ScheduleEvent(EVENT_INFECTED_BITE_GASHRA, 15000);
                             break;
                         default:
                             break;
@@ -475,12 +475,13 @@ class npc_watcher_gashra : public CreatureScript
             }
 
             private:
-                EventMap events;
+                EventMap _events;
+                InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_watcher_gashraAI(creature);
+            return GetAzjolNerubAI<npc_watcher_gashraAI>(creature);
         }
 };
 
@@ -495,19 +496,19 @@ class npc_watcher_narjil : public CreatureScript
 
             void Reset() OVERRIDE
             {
-                events.Reset();
+                _events.Reset();
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
-                events.ScheduleEvent(EVENT_WEB_WRAP_NARJIL, 11000);
-                events.ScheduleEvent(EVENT_INFECTED_BITE_NARJIL, 4000);
-                events.ScheduleEvent(EVENT_BINDING_WEBS, 17000);
+                _events.ScheduleEvent(EVENT_WEB_WRAP_NARJIL, 11000);
+                _events.ScheduleEvent(EVENT_INFECTED_BITE_NARJIL, 4000);
+                _events.ScheduleEvent(EVENT_BINDING_WEBS, 17000);
             }
             
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                Creature* krikthir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KRIKTHIR_THE_GATEWATCHER));
+                Creature* krikthir = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_KRIKTHIR_THE_GATEWATCHER));
                 if (krikthir && krikthir->IsAlive())
                     krikthir->AI()->Talk(SAY_PREFIGHT);
             }
@@ -517,27 +518,27 @@ class npc_watcher_narjil : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                events.Update(diff);
+                _events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_WEB_WRAP_NARJIL:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 DoCast(target, SPELL_WEB_WRAP, true);
-                            events.ScheduleEvent(EVENT_WEB_WRAP_NARJIL, 15000);
+                            _events.ScheduleEvent(EVENT_WEB_WRAP_NARJIL, 15000);
                             break;
                         case EVENT_INFECTED_BITE_NARJIL:
                             DoCastVictim(SPELL_INFECTED_BITE, true);
-                            events.ScheduleEvent(EVENT_INFECTED_BITE_NARJIL, 11000);
+                            _events.ScheduleEvent(EVENT_INFECTED_BITE_NARJIL, 11000);
                             break;
                         case EVENT_BINDING_WEBS:
                             DoCastVictim(SPELL_BLINDING_WEBS, true);
-                            events.ScheduleEvent(EVENT_BINDING_WEBS, 17000);
+                            _events.ScheduleEvent(EVENT_BINDING_WEBS, 17000);
                             break;
                         default:
                             break;
@@ -548,12 +549,13 @@ class npc_watcher_narjil : public CreatureScript
             }
 
             private:
-                EventMap events;
+                EventMap _events;
+                InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_watcher_narjilAI(creature);
+            return GetAzjolNerubAI<npc_watcher_narjilAI>(creature);
         }
 };
 
@@ -568,19 +570,19 @@ class npc_watcher_silthik : public CreatureScript
 
             void Reset() OVERRIDE
             {
-                events.Reset();
+                _events.Reset();
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
-                events.ScheduleEvent(EVENT_WEB_WRAP_SILTHIK, 11000);
-                events.ScheduleEvent(EVENT_INFECTED_BITE_SILTHIK, 4000);
-                events.ScheduleEvent(EVENT_POISON_SPRAY, 15000);
+                _events.ScheduleEvent(EVENT_WEB_WRAP_SILTHIK, 11000);
+                _events.ScheduleEvent(EVENT_INFECTED_BITE_SILTHIK, 4000);
+                _events.ScheduleEvent(EVENT_POISON_SPRAY, 15000);
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                Creature* krikthir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KRIKTHIR_THE_GATEWATCHER));
+                Creature* krikthir = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_KRIKTHIR_THE_GATEWATCHER));
                 if (krikthir && krikthir->IsAlive())
                     krikthir->AI()->Talk(SAY_PREFIGHT);
             }
@@ -590,27 +592,27 @@ class npc_watcher_silthik : public CreatureScript
                 if (!UpdateVictim())
                     return;
                     
-                events.Update(diff);
+                _events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_WEB_WRAP_SILTHIK:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 DoCast(target, SPELL_WEB_WRAP, true);
-                            events.ScheduleEvent(EVENT_WEB_WRAP_SILTHIK, 15000);
+                            _events.ScheduleEvent(EVENT_WEB_WRAP_SILTHIK, 15000);
                             break;
                         case EVENT_INFECTED_BITE_SILTHIK:
                             DoCastVictim(SPELL_INFECTED_BITE, true);
-                            events.ScheduleEvent(EVENT_INFECTED_BITE_SILTHIK, 11000);
+                            _events.ScheduleEvent(EVENT_INFECTED_BITE_SILTHIK, 11000);
                             break;
                         case EVENT_POISON_SPRAY:
                             DoCastVictim(SPELL_POSION_SPRAY, true);
-                            events.ScheduleEvent(EVENT_POISON_SPRAY, 17000);
+                            _events.ScheduleEvent(EVENT_POISON_SPRAY, 17000);
                             break;
                         default:
                             break;
@@ -621,12 +623,13 @@ class npc_watcher_silthik : public CreatureScript
             }
 
             private:
-                EventMap events;
+                EventMap _events;
+                InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_watcher_silthikAI(creature);
+            return GetAzjolNerubAI<npc_watcher_silthikAI>(creature);
         }
 };
 
