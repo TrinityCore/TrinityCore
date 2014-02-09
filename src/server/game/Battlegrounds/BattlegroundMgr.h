@@ -126,12 +126,13 @@ class BattlegroundMgr
         uint32 GetRatingDiscardTimer()  const;
         void InitAutomaticArenaPointDistribution();
         void LoadBattleMastersEntry();
+        void CheckBattleMasters();
         BattlegroundTypeId GetBattleMasterBG(uint32 entry) const
         {
             BattleMastersMap::const_iterator itr = mBattleMastersMap.find(entry);
             if (itr != mBattleMastersMap.end())
                 return itr->second;
-            return BATTLEGROUND_WS;
+            return BATTLEGROUND_TYPE_NONE;
         }
 
     private:

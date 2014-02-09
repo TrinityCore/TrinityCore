@@ -1633,7 +1633,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadGameObjectForQuests();
 
     TC_LOG_INFO("server.loading", "Loading BattleMasters...");
-    sBattlegroundMgr->LoadBattleMastersEntry();
+    sBattlegroundMgr->LoadBattleMastersEntry();                 // must be after load CreatureTemplate
 
     TC_LOG_INFO("server.loading", "Loading GameTeleports...");
     sObjectMgr->LoadGameTele();
