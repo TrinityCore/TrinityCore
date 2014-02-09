@@ -422,7 +422,10 @@ class npc_watcher_gashra : public CreatureScript
 
         struct npc_watcher_gashraAI : public ScriptedAI
         {
-            npc_watcher_gashraAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_watcher_gashraAI(Creature* creature) : ScriptedAI(creature)
+            {
+                _instance = creature->GetInstanceScript();
+            }
 
             void Reset() OVERRIDE
             {
@@ -492,7 +495,10 @@ class npc_watcher_narjil : public CreatureScript
 
         struct npc_watcher_narjilAI : public ScriptedAI
         {
-            npc_watcher_narjilAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_watcher_narjilAI(Creature* creature) : ScriptedAI(creature)
+            {
+                _instance = creature->GetInstanceScript();
+            }
 
             void Reset() OVERRIDE
             {
@@ -566,7 +572,10 @@ class npc_watcher_silthik : public CreatureScript
 
         struct npc_watcher_silthikAI : public ScriptedAI
         {
-            npc_watcher_silthikAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_watcher_silthikAI(Creature* creature) : ScriptedAI(creature)
+            {
+                _instance = creature->GetInstanceScript();
+            }
 
             void Reset() OVERRIDE
             {
