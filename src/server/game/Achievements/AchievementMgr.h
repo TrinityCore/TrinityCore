@@ -233,6 +233,7 @@ struct AchievementReward
     uint32 sender;
     std::string subject;
     std::string text;
+    uint32 mailTemplate;
 };
 
 typedef UNORDERED_MAP<uint32, AchievementReward> AchievementRewards;
