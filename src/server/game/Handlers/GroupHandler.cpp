@@ -543,11 +543,20 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
     }
     else                                                    // target icon update
     {
-        if (!group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()))
+        if (group->isRaidGroup() && !group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()))
             return;
 
         uint64 guid;
         recvData >> guid;
+
+        if (IS_PLAYER_GUID(guid))
+        {
+            Player* target = ObjectAccessor::FindPlayer(guid);
+
+            if (!target || target->IsHostileTo(GetPlayer()))
+                return;
+        }
+
         group->SetTargetIcon(x, _player->GetGUID(), guid);
     }
 }
