@@ -590,10 +590,7 @@ void BattlegroundSA::OverrideGunFaction()
     for (uint8 i = BG_SA_GUN_1; i <= BG_SA_GUN_10; i++)
     {
         if (Creature* gun = GetBGCreature(i))
-        {
             gun->setFaction(BG_SA_Factions[Attackers ? TEAM_ALLIANCE : TEAM_HORDE]);
-            gun->AddUnitState(UNIT_STATE_ROOT);
-        }
     }
 
     for (uint8 i = BG_SA_DEMOLISHER_1; i <= BG_SA_DEMOLISHER_4; i++)
