@@ -54,11 +54,61 @@ class custom_commandscript : public CommandScript
             {
                 { "qc",              rbac::RBAC_PERM_COMMAND_QUESTCOMPLETER,          true,  NULL,                               "", questcompleterCommandTable },
                 { "online",          rbac::RBAC_PERM_COMMAND_ONLINE,                  true,  NULL,                               "", onlineCommandTable },
+				{ "mutehistory",     rbac::RBAC_PERM_COMMAND_MUTEHISTORY,             true,  &HandleMuteInfoCommand,             "", NULL },
                 { NULL,              0,                                               false, NULL,                               "", NULL }
             };
             return commandTable;
         }
+		
+		static bool HandleMuteInfoCommand(ChatHandler* handler, char const* args)
+		{
+			if (!*args)
+				return false;
 
+			char* nameStr = strtok((char*)args, "");
+			if (!nameStr)
+				return false;
+
+			std::string accountName = nameStr;
+			if (!AccountMgr::normalizeString(accountName))
+			{
+				handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+				handler->SetSentErrorMessage(true);
+				return false;
+			}
+
+			uint32 accountId = AccountMgr::GetId(accountName);
+			if (!accountId)
+			{
+				handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+				return true;
+			}
+
+			return HandleMuteInfoHelper(accountId, accountName.c_str(), handler);
+		}
+
+		static bool HandleMuteInfoHelper(uint32 accountId, char const* accountName, ChatHandler* handler)
+		{
+			QueryResult result = LoginDatabase.PQuery("SELECT FROM_UNIXTIME(mutedate), mutetime, mutereason, mutedby FROM account_muted WHERE guid = '%u' ORDER BY mutedate ASC", accountId);
+			if (!result)
+			{
+				handler->PSendSysMessage("No mutes for account: %s", accountName);
+				return true;
+			}
+
+			handler->PSendSysMessage("Mutes for account: %s", accountName);
+			do
+			{
+				Field* fields = result->Fetch();
+
+				bool active = false;
+				handler->PSendSysMessage("Mute Date: %s Mutetime: %u Reason: %s Set by: %s",
+					fields[0].GetCString(), fields[1].GetUInt32(), fields[2].GetCString(), fields[3].GetCString());
+			}
+			while (result->NextRow());
+
+			return true;
+		}
         static bool HandleQuestCompleterCompHelper(Player* player, uint32 entry, ChatHandler* handler)
         {
             // actual code for completing

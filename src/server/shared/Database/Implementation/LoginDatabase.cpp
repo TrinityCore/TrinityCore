@@ -106,4 +106,5 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_SEL_QUESTCOMPLETER, "SELECT COUNT(id) FROM quest_completer WHERE id = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_INS_QUESTCOMPLETER, "INSERT INTO quest_completer VALUES (?)", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_DEL_QUESTCOMPLETER, "DELETE FROM quest_completer WHERE id = ?", CONNECTION_ASYNC);
+	PrepareStatement(LOGIN_INS_ACCOUNT_MUTE, "INSERT INTO account_muted VALUES (?, UNIX_TIMESTAMP(), ?, ?, ?)", CONNECTION_ASYNC);
 }
