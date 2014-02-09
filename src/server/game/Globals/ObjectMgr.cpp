@@ -20,6 +20,7 @@
 #include "AchievementMgr.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
+#include "BattlegroundMgr.h"
 #include "Chat.h"
 #include "Common.h"
 #include "DatabaseEnv.h"

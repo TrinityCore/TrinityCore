@@ -3324,7 +3324,7 @@ enum BattlegroundTypeId
     BATTLEGROUND_DS             = 10, // Dalaran Sewers
     BATTLEGROUND_RV             = 11, // Ring of Valor
     BATTLEGROUND_IC             = 30, // Isle of Conquest
-    BATTLEGROUND_RB             = 32 // Random Battleground
+    BATTLEGROUND_RB             = 32  // Random Battleground
 };
 
 #define MAX_BATTLEGROUND_TYPE_ID 33

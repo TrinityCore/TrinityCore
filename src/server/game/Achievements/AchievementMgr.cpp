@@ -297,7 +297,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE:
             if (!sCharTitlesStore.LookupEntry(known_title.title_id))
             {
-                TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_requirement` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE (%u) have unknown title_id in value1 (%u), ignore.",
+                TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE (%u) have unknown title_id in value1 (%u), ignore.",
                     criteria->ID, criteria->requiredType, dataType, known_title.title_id);
                 return false;
             }
@@ -400,7 +400,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             {
                 TC_LOG_ERROR("achievement", "Achievement system call ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT (%u) for achievement criteria %u for non-dungeon/non-raid map %u",
                     dataType, criteria_id, map->GetId());
-                    return false;
+                return false;
             }
             InstanceScript* instance = map->ToInstanceMap()->GetInstanceScript();
             if (!instance)
@@ -2082,25 +2082,30 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
     // mail
     if (reward->sender)
     {
-        Item* item = reward->itemId ? Item::CreateItem(reward->itemId, 1, GetPlayer()) : NULL;
+        MailDraft draft(reward->mailTemplate);
 
-        int loc_idx = GetPlayer()->GetSession()->GetSessionDbLocaleIndex();
-
-        // subject and text
-        std::string subject = reward->subject;
-        std::string text = reward->text;
-        if (loc_idx >= 0)
+        if (!reward->mailTemplate)
         {
-            if (AchievementRewardLocale const* loc = sAchievementMgr->GetAchievementRewardLocale(achievement))
+            // subject and text
+            std::string subject = reward->subject;
+            std::string text = reward->text;
+
+            int locIdx = GetPlayer()->GetSession()->GetSessionDbLocaleIndex();
+            if (locIdx >= 0)
             {
-                ObjectMgr::GetLocaleString(loc->subject, loc_idx, subject);
-                ObjectMgr::GetLocaleString(loc->text, loc_idx, text);
+                if (AchievementRewardLocale const* loc = sAchievementMgr->GetAchievementRewardLocale(achievement))
+                {
+                    ObjectMgr::GetLocaleString(loc->subject, locIdx, subject);
+                    ObjectMgr::GetLocaleString(loc->text, locIdx, text);
+                }
             }
+
+            draft = MailDraft(subject, text);
         }
 
-        MailDraft draft(subject, text);
-
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+        Item* item = reward->itemId ? Item::CreateItem(reward->itemId, 1, GetPlayer()) : NULL;
         if (item)
         {
             // save new item before send
@@ -2441,8 +2446,8 @@ void AchievementGlobalMgr::LoadRewards()
 
     m_achievementRewards.clear();                           // need for reload case
 
-    //                                               0      1        2        3     4       5        6
-    QueryResult result = WorldDatabase.Query("SELECT entry, title_A, title_H, item, sender, subject, text FROM achievement_reward");
+    //                                               0      1        2        3     4       5        6     7
+    QueryResult result = WorldDatabase.Query("SELECT entry, title_A, title_H, item, sender, subject, text, mailTemplate FROM achievement_reward");
 
     if (!result)
     {
@@ -2456,20 +2461,21 @@ void AchievementGlobalMgr::LoadRewards()
     {
         Field* fields = result->Fetch();
         uint32 entry = fields[0].GetUInt32();
-        const AchievementEntry* pAchievement = GetAchievement(entry);
-        if (!pAchievement)
+        AchievementEntry const* achievement = GetAchievement(entry);
+        if (!achievement)
         {
             TC_LOG_ERROR("sql.sql", "Table `achievement_reward` has wrong achievement (Entry: %u), ignored.", entry);
             continue;
         }
 
         AchievementReward reward;
-        reward.titleId[0] = fields[1].GetUInt32();
-        reward.titleId[1] = fields[2].GetUInt32();
-        reward.itemId     = fields[3].GetUInt32();
-        reward.sender     = fields[4].GetUInt32();
-        reward.subject    = fields[5].GetString();
-        reward.text       = fields[6].GetString();
+        reward.titleId[0]   = fields[1].GetUInt32();
+        reward.titleId[1]   = fields[2].GetUInt32();
+        reward.itemId       = fields[3].GetUInt32();
+        reward.sender       = fields[4].GetUInt32();
+        reward.subject      = fields[5].GetString();
+        reward.text         = fields[6].GetString();
+        reward.mailTemplate = fields[7].GetUInt32();
 
         // must be title or mail at least
         if (!reward.titleId[0] && !reward.titleId[1] && !reward.sender)
@@ -2478,7 +2484,7 @@ void AchievementGlobalMgr::LoadRewards()
             continue;
         }
 
-        if (pAchievement->requiredFaction == ACHIEVEMENT_FACTION_ANY && ((reward.titleId[0] == 0) != (reward.titleId[1] == 0)))
+        if (achievement->requiredFaction == ACHIEVEMENT_FACTION_ANY && (!reward.titleId[0] ^ !reward.titleId[1]))
             TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) has title (A: %u H: %u) for only one team.", entry, reward.titleId[0], reward.titleId[1]);
 
         if (reward.titleId[0])
@@ -2520,6 +2526,20 @@ void AchievementGlobalMgr::LoadRewards()
 
             if (!reward.text.empty())
                 TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) does not have sender data but has mail text.", entry);
+
+            if (reward.mailTemplate)
+                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) does not have sender data but has mailTemplate.", entry);
+        }
+
+        if (reward.mailTemplate)
+        {
+            if (!sMailTemplateStore.LookupEntry(reward.mailTemplate))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) has invalid mailTemplate (%u).", entry, reward.mailTemplate);
+                reward.mailTemplate = 0;
+            }
+            else if (!reward.subject.empty() || !reward.text.empty())
+                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) has mailTemplate (%u) and mail subject/text.", entry, reward.mailTemplate);
         }
 
         if (reward.itemId)
