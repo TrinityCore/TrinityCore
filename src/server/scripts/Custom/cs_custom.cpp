@@ -29,6 +29,7 @@ EndScriptData */
 #include "MapManager.h"
 #include "Group.h"
 #include "ScriptMgr.h"
+#include "AccountMgr.h"
 
 class custom_commandscript : public CommandScript
 {
@@ -72,37 +73,65 @@ class custom_commandscript : public CommandScript
             std::string accountName = nameStr;
             if (!AccountMgr::normalizeString(accountName))
             {
-                handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
-                handler->SetSentErrorMessage(true);
-                return false;
+                handler->PSendSysMessage("Checked normalizeString");
+                QueryResult result = CharacterDatabase.PQuery("SELECT account FROM `characters` where UPPER(name) = UPPER('%s')", nameStr);
+                if(!result)
+                {
+                    handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+                    handler->SetSentErrorMessage(true);
+                    return false;
+                }
+                
+                Field* fields = result->Fetch();
+                uint32 accountId = fields[0].GetUInt32();
+                accountName = AccountMgr::GetName(accountId, accountName);
+                
+                return HandleMuteInfoHelper("character", accountId, accountName.c_str(), handler);
             }
 
             uint32 accountId = AccountMgr::GetId(accountName);
             if (!accountId)
             {
-                handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
-                return true;
+                QueryResult result = CharacterDatabase.PQuery("SELECT account FROM `characters` where UPPER(name) = UPPER('%s')", nameStr);
+                if(!result)
+                {
+                    handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+                    handler->SetSentErrorMessage(true);
+                    return false;
+                }
+                
+                Field* fields = result->Fetch();
+                uint32 accountId = fields[0].GetUInt32();
+                
+                return HandleMuteInfoHelper("character", accountId, accountName.c_str(), handler);
             }
+            
 
-            return HandleMuteInfoHelper(accountId, accountName.c_str(), handler);
+            return HandleMuteInfoHelper("account", accountId, accountName.c_str(), handler);
         }
 
-        static bool HandleMuteInfoHelper(uint32 accountId, char const* accountName, ChatHandler* handler)
+        static bool HandleMuteInfoHelper(char const* type, uint32 accountId, char const* accountName, ChatHandler* handler)
         {
             QueryResult result = LoginDatabase.PQuery("SELECT FROM_UNIXTIME(mutedate), mutetime, mutereason, mutedby FROM account_muted WHERE guid = '%u' ORDER BY mutedate ASC", accountId);
             if (!result)
             {
-                handler->PSendSysMessage("No mutes for account: %s", accountName);
+                if(type == "account")
+                    handler->PSendSysMessage("No mutes for account: %s", accountName);
+                else if(type == "character")
+                    handler->PSendSysMessage("No mutes for character: %s", accountName);
                 return true;
             }
 
-            handler->PSendSysMessage("Mutes for account: %s", accountName);
+            if(type == "account")
+                handler->PSendSysMessage("Mutes for account: %s", accountName);
+            else if(type == "character")
+                handler->PSendSysMessage("Mutes for character: %s", accountName);
             do
             {
                 Field* fields = result->Fetch();
 
                 bool active = false;
-                handler->PSendSysMessage("Mute Date: %s Mutetime: %u Reason: %s Set by: %s",
+                handler->PSendSysMessage("| Mute Date: %s | Mutetime: %u Minute(s) | Reason: %s | Set by: %s |",
                     fields[0].GetCString(), fields[1].GetUInt32(), fields[2].GetCString(), fields[3].GetCString());
             }
             while (result->NextRow());
@@ -223,7 +252,6 @@ class custom_commandscript : public CommandScript
 
                     if(checked == 1)
                     {
-                        handler->PSendSysMessage("Bugged quest completed!");
                         std::string name;
                         const char* playerName = handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : NULL;
                         //const char* playerName = handler->GetSession()->GetPlayer()->GetName().c_str();
@@ -232,8 +260,18 @@ class custom_commandscript : public CommandScript
                             name = playerName;
                             normalizePlayerName(name);
                             Player* player = sObjectAccessor->FindPlayerByName(name);
-                            HandleQuestCompleterCompHelper(player, entry, handler);
-                            
+                            Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
+                            if(!quest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE)
+                            {
+                                handler->PSendSysMessage("Quest is bugged!");
+                                return false;
+                            }
+                            else
+                            {
+                                handler->PSendSysMessage("Bugged quest completed!");
+                                HandleQuestCompleterCompHelper(player, entry, handler);
+                                return true;
+                            }
                         }
                     }
                     else
@@ -246,7 +284,6 @@ class custom_commandscript : public CommandScript
                     return false;
                 }
             }
-            return true;
         }
         
         static bool HandleQuestCompleterAddCommand(ChatHandler* handler, char const* args)
