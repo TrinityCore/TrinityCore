@@ -465,6 +465,7 @@ class Battleground
         void CheckArenaAfterTimerConditions();
         void CheckArenaWinConditions();
         void UpdateArenaWorldState();
+        bool CheckCheatArena(uint32 winTeam);
 
         // Triggers handle
         // must be implemented in BG subclass

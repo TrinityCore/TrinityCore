@@ -715,6 +715,42 @@ void Battleground::UpdateWorldStateForPlayer(uint32 field, uint32 value, Player*
     player->SendDirectMessage(&data);
 }
 
+bool Battleground::CheckCheatArena(uint32 winTeam)
+{
+    uint8 counted = 0;		// Player did nothing?, nor heal nor dmg ... weird...
+    uint32 maxHealthWinner = 1;
+    uint32 dmgLoser = 0;
+
+    if (!GetPlayersCountByTeam(ALLIANCE) || !GetPlayersCountByTeam(HORDE)) 
+        return false;
+
+    for (Battleground::BattlegroundScoreMap::const_iterator itr = GetPlayerScoresBegin(); itr != GetPlayerScoresEnd(); ++itr)
+    {
+        if (!itr->second->DamageDone && !itr->second->HealingDone) ++counted;
+        else if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+        {
+            if ((player->GetArenaTeamId(m_ArenaType == 5 ? 2 : m_ArenaType == 3) == winTeam)) maxHealthWinner += player->GetMaxHealth();
+            else dmgLoser += itr->second->DamageDone;
+        }
+    }
+
+    float factorLooser = dmgLoser * 100 / maxHealthWinner; // did looser team gave fight?
+    float factor = (counted + 0.0) / GetPlayersSize();
+
+    switch (m_ArenaType)
+    {
+        case 2: // Arena 2v2. Half players (or more) done 0 dmg, 0 heal || At least looser team did 10% dmg [Default values]?
+            return factor >= sWorld->getFloatConfig(CONFIG_ARENA_CHECK_CHEATERS_2v2) || factorLooser <= sWorld->getIntConfig(CONFIG_ARENA_CHECK_CHEATERS_MIN_DMG_2v2);
+        case 3: 
+            return factor >= sWorld->getFloatConfig(CONFIG_ARENA_CHECK_CHEATERS_3v3) || factorLooser <= sWorld->getIntConfig(CONFIG_ARENA_CHECK_CHEATERS_MIN_DMG_3v3);
+        case 5: 
+            return factor >= sWorld->getFloatConfig(CONFIG_ARENA_CHECK_CHEATERS_5v5) || factorLooser <= sWorld->getIntConfig(CONFIG_ARENA_CHECK_CHEATERS_MIN_DMG_5v5);
+        default:
+            return false;
+    }
+    return false;
+}
+
 void Battleground::EndBattleground(uint32 winner)
 {
     RemoveFromBGFreeSlotQueue();
@@ -763,47 +799,58 @@ void Battleground::EndBattleground(uint32 winner)
     {
         winnerArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(winner));
         loserArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(winner)));
-
-        if (winnerArenaTeam && loserArenaTeam && winnerArenaTeam != loserArenaTeam)
+        if (sWorld->getBoolConfig(CONFIG_ARENA_CHECK_CHEATERS) && CheckCheatArena(GetArenaTeamIdForTeam(winner)))
         {
-            if (winner != WINNER_NONE)
+            if (!sWorld->getBoolConfig(CONFIG_ARENA_CHECK_CHEATERS_ONLYLOG))
             {
-                loserTeamRating = loserArenaTeam->GetRating();
-                loserMatchmakerRating = GetArenaMatchmakerRating(GetOtherTeam(winner));
-                winnerTeamRating = winnerArenaTeam->GetRating();
-                winnerMatchmakerRating = GetArenaMatchmakerRating(winner);
-                winnerMatchmakerChange = winnerArenaTeam->WonAgainst(winnerMatchmakerRating, loserMatchmakerRating, winnerChange);
-                loserMatchmakerChange = loserArenaTeam->LostAgainst(loserMatchmakerRating, winnerMatchmakerRating, loserChange);
-                TC_LOG_DEBUG("bg.arena", "match Type: %u --- Winner: old rating: %u, rating gain: %d, old MMR: %u, MMR gain: %d --- Loser: old rating: %u, rating loss: %d, old MMR: %u, MMR loss: %d ---", m_ArenaType, winnerTeamRating, winnerChange, winnerMatchmakerRating,
-                    winnerMatchmakerChange, loserTeamRating, loserChange, loserMatchmakerRating, loserMatchmakerChange);
-                SetArenaMatchmakerRating(winner, winnerMatchmakerRating + winnerMatchmakerChange);
-                SetArenaMatchmakerRating(GetOtherTeam(winner), loserMatchmakerRating + loserMatchmakerChange);
-                SetArenaTeamRatingChangeForTeam(winner, winnerChange);
-                SetArenaTeamRatingChangeForTeam(GetOtherTeam(winner), loserChange);
-                TC_LOG_DEBUG("bg.arena", "Arena match Type: %u for Team1Id: %u - Team2Id: %u ended. WinnerTeamId: %u. Winner rating: +%d, Loser rating: %d", m_ArenaType, m_ArenaTeamIds[TEAM_ALLIANCE], m_ArenaTeamIds[TEAM_HORDE], winnerArenaTeam->GetId(), winnerChange, loserChange);
-                if (sWorld->getBoolConfig(CONFIG_ARENA_LOG_EXTENDED_INFO))
-                    for (Battleground::BattlegroundScoreMap::const_iterator itr = GetPlayerScoresBegin(); itr != GetPlayerScoresEnd(); ++itr)
-                        if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-                        {
-                            TC_LOG_DEBUG("bg.arena", "Statistics match Type: %u for %s (GUID: " UI64FMTD ", Team: %d, IP: %s): %u damage, %u healing, %u killing blows",
-                                m_ArenaType, player->GetName().c_str(), itr->first, player->GetArenaTeamId(m_ArenaType == 5 ? 2 : m_ArenaType == 3),
+                SetArenaTeamRatingChangeForTeam(ALLIANCE, 0);
+                SetArenaTeamRatingChangeForTeam(HORDE, 0);
+            }
+            TC_LOG_INFO("arena.cheat", "Arena cheated, score is 0 for teams IDs %u and %u", winnerArenaTeam->GetId(),loserArenaTeam->GetId());
+        }
+        else 
+        {
+            if (winnerArenaTeam && loserArenaTeam && winnerArenaTeam != loserArenaTeam)
+            {
+                if (winner != WINNER_NONE)
+                {
+                    loserTeamRating = loserArenaTeam->GetRating();
+                    loserMatchmakerRating = GetArenaMatchmakerRating(GetOtherTeam(winner));
+                    winnerTeamRating = winnerArenaTeam->GetRating();
+                    winnerMatchmakerRating = GetArenaMatchmakerRating(winner);
+                    winnerMatchmakerChange = winnerArenaTeam->WonAgainst(winnerMatchmakerRating, loserMatchmakerRating, winnerChange);
+                    loserMatchmakerChange = loserArenaTeam->LostAgainst(loserMatchmakerRating, winnerMatchmakerRating, loserChange);
+                    TC_LOG_DEBUG("bg.arena", "match Type: %u --- Winner: old rating: %u, rating gain: %d, old MMR: %u, MMR gain: %d --- Loser: old rating: %u, rating loss: %d, old MMR: %u, MMR loss: %d ---", m_ArenaType, winnerTeamRating, winnerChange, winnerMatchmakerRating,
+                        winnerMatchmakerChange, loserTeamRating, loserChange, loserMatchmakerRating, loserMatchmakerChange);
+                    SetArenaMatchmakerRating(winner, winnerMatchmakerRating + winnerMatchmakerChange);
+                    SetArenaMatchmakerRating(GetOtherTeam(winner), loserMatchmakerRating + loserMatchmakerChange);
+                    SetArenaTeamRatingChangeForTeam(winner, winnerChange);
+                    SetArenaTeamRatingChangeForTeam(GetOtherTeam(winner), loserChange);
+                    TC_LOG_DEBUG("bg.arena", "Arena match Type: %u for Team1Id: %u - Team2Id: %u ended. WinnerTeamId: %u. Winner rating: +%d, Loser rating: %d", m_ArenaType, m_ArenaTeamIds[TEAM_ALLIANCE], m_ArenaTeamIds[TEAM_HORDE], winnerArenaTeam->GetId(), winnerChange, loserChange);
+                    if (sWorld->getBoolConfig(CONFIG_ARENA_LOG_EXTENDED_INFO))
+                        for (Battleground::BattlegroundScoreMap::const_iterator itr = GetPlayerScoresBegin(); itr != GetPlayerScoresEnd(); ++itr)
+                            if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+                            {
+                                TC_LOG_DEBUG("bg.arena", "Statistics match Type: %u for %s (GUID: " UI64FMTD ", Team: %d, IP: %s): %u damage, %u healing, %u killing blows",
+                                    m_ArenaType, player->GetName().c_str(), itr->first, player->GetArenaTeamId(m_ArenaType == 5 ? 2 : m_ArenaType == 3),
                                 player->GetSession()->GetRemoteAddress().c_str(), itr->second->DamageDone, itr->second->HealingDone,
                                 itr->second->KillingBlows);
-                        }
+                            }
+                }
+                // Deduct 16 points from each teams arena-rating if there are no winners after 45+2 minutes
+                else
+                {
+                    SetArenaTeamRatingChangeForTeam(ALLIANCE, ARENA_TIMELIMIT_POINTS_LOSS);
+                    SetArenaTeamRatingChangeForTeam(HORDE, ARENA_TIMELIMIT_POINTS_LOSS);
+                    winnerArenaTeam->FinishGame(ARENA_TIMELIMIT_POINTS_LOSS);
+                    loserArenaTeam->FinishGame(ARENA_TIMELIMIT_POINTS_LOSS);
+                }
             }
-            // Deduct 16 points from each teams arena-rating if there are no winners after 45+2 minutes
             else
             {
-                SetArenaTeamRatingChangeForTeam(ALLIANCE, ARENA_TIMELIMIT_POINTS_LOSS);
-                SetArenaTeamRatingChangeForTeam(HORDE, ARENA_TIMELIMIT_POINTS_LOSS);
-                winnerArenaTeam->FinishGame(ARENA_TIMELIMIT_POINTS_LOSS);
-                loserArenaTeam->FinishGame(ARENA_TIMELIMIT_POINTS_LOSS);
+                SetArenaTeamRatingChangeForTeam(ALLIANCE, 0);
+                SetArenaTeamRatingChangeForTeam(HORDE, 0);
             }
-        }
-        else
-        {
-            SetArenaTeamRatingChangeForTeam(ALLIANCE, 0);
-            SetArenaTeamRatingChangeForTeam(HORDE, 0);
         }
     }
 
