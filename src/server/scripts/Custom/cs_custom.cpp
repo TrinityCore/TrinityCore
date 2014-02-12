@@ -73,7 +73,6 @@ class custom_commandscript : public CommandScript
             std::string accountName = nameStr;
             if (!AccountMgr::normalizeString(accountName))
             {
-                handler->PSendSysMessage("Checked normalizeString");
                 QueryResult result = CharacterDatabase.PQuery("SELECT account FROM `characters` where UPPER(name) = UPPER('%s')", nameStr);
                 if(!result)
                 {
@@ -218,7 +217,6 @@ class custom_commandscript : public CommandScript
         static bool HandleQuestCompleterStatusCommand(ChatHandler* handler, char const* args)
         {
             char* cId = handler->extractKeyFromLink((char*)args, "Hquest");
-
             if(!cId)
             {
                 handler->PSendSysMessage("Syntax: .qc $quest\n\nSearches Quest Completer to see if $quest is bugged.");
@@ -239,13 +237,17 @@ class custom_commandscript : public CommandScript
                 if(entry != 0)
                 {
                     uint32 checked = 0;
+					std::string questName = "";
                     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_QUESTCOMPLETER);
                     stmt->setUInt32(0, entry);
+					stmt->setUInt32(1, entry);
                     PreparedQueryResult resultCheck = LoginDatabase.Query(stmt);
 
                     if (!resultCheck)
                     {
                         handler->PSendSysMessage("Error: no results.");
+						handler->SetSentErrorMessage(true);
+						return false;
                     }
 
                     checked = (*resultCheck)[0].GetUInt32();
@@ -253,8 +255,8 @@ class custom_commandscript : public CommandScript
                     if(checked == 1)
                     {
                         std::string name;
+						questName = (*resultCheck)[2].GetString();
                         const char* playerName = handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : NULL;
-                        //const char* playerName = handler->GetSession()->GetPlayer()->GetName().c_str();
                         if(playerName)
                         {
                             name = playerName;
@@ -263,19 +265,27 @@ class custom_commandscript : public CommandScript
                             Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
                             if(!quest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE)
                             {
-                                handler->PSendSysMessage("Quest is bugged!");
-                                return false;
+                                handler->PSendSysMessage("%s is bugged!", questName.c_str());
+                                return true;
                             }
                             else
                             {
-                                handler->PSendSysMessage("Bugged quest completed!");
+                                handler->PSendSysMessage("%s completed!", questName.c_str());
                                 HandleQuestCompleterCompHelper(player, entry, handler);
                                 return true;
                             }
                         }
+						else
+						{
+							handler->PSendSysMessage("%s is bugged!", questName.c_str());
+                            return true;
+						}
                     }
                     else
+					{
                         handler->PSendSysMessage("Quest is not bugged!");
+						return true;
+					}
                 }
                 else
                 {
@@ -310,6 +320,7 @@ class custom_commandscript : public CommandScript
             uint32 checked = 0;
             PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_QUESTCOMPLETER);
             stmt->setUInt32(0, entry);
+            stmt->setUInt32(1, entry);
             PreparedQueryResult resultCheck = LoginDatabase.Query(stmt);
 
             if (!resultCheck)
@@ -361,6 +372,7 @@ class custom_commandscript : public CommandScript
             uint32 checked = 0;
             PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_QUESTCOMPLETER);
             stmt->setUInt32(0, entry);
+            stmt->setUInt32(1, entry);
             PreparedQueryResult resultCheck = LoginDatabase.Query(stmt);
 
             if (!resultCheck)
