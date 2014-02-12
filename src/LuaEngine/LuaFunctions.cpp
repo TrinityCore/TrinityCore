@@ -351,7 +351,8 @@ ElunaRegister<Unit> UnitMethods[] =
 ElunaRegister<Player> PlayerMethods[] =
 {
     // Getters
-    {"GetSelection", &LuaPlayer::GetSelection},             // :GetSelection()
+    {"GetSelectedUnit", &LuaPlayer::GetSelectedUnit},       // :GetSelectedUnit()
+    {"GetSelectedPlayer", &LuaPlayer::GetSelectedPlayer},   // :GetSelectedPlayer()
     {"GetGMRank", &LuaPlayer::GetGMRank},                   // :GetSecurity()
     {"GetGuildId", &LuaPlayer::GetGuildId},                 // :GetGuildId() - nil on no guild
     {"GetCoinage", &LuaPlayer::GetCoinage},                 // :GetCoinage()

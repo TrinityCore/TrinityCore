@@ -1571,12 +1571,6 @@ namespace LuaPlayer
         return 1;
     }
 
-    int GetSelection(lua_State* L, Player* player)
-    {
-        sEluna.Push(L, player->GetSelectedUnit());
-        return 1;
-    }
-
     int GetGMRank(lua_State* L, Player* player)
     {
         sEluna.Push(L, player->GetSession()->GetSecurity());
