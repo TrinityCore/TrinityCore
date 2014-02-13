@@ -581,7 +581,7 @@ bool PathGenerator::HaveTile(const G3D::Vector3& p) const
     if (tx < 0 || ty < 0)
         return false;
 
-    return (_navMesh->getTileAt(tx, ty, 0) != NULL);
+    return (_navMesh->getTileAt(tx, ty) != NULL);
 }
 
 uint32 PathGenerator::FixupCorridor(dtPolyRef* path, uint32 npath, uint32 maxPath, dtPolyRef const* visited, uint32 nvisited)

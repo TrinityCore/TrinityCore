@@ -283,8 +283,6 @@ static bool floodRegion(int x, int y, int i,
 				if (chf.areas[ai] != area)
 					continue;
 				unsigned short nr = srcReg[ai];
-				if (nr & RC_BORDER_REG) // Do not take borders into account.
-					continue;
 				if (nr != 0 && nr != r)
 					ar = nr;
 				
@@ -298,9 +296,9 @@ static bool floodRegion(int x, int y, int i,
 					const int ai2 = (int)chf.cells[ax2+ay2*w].index + rcGetCon(as, dir2);
 					if (chf.areas[ai2] != area)
 						continue;
-					unsigned short nr2 = srcReg[ai2];
-					if (nr2 != 0 && nr2 != r)
-						ar = nr2;
+					unsigned short nr = srcReg[ai2];
+					if (nr != 0 && nr != r)
+						ar = nr;
 				}				
 			}
 		}
@@ -321,13 +319,16 @@ static bool floodRegion(int x, int y, int i,
 				const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(cs, dir);
 				if (chf.areas[ai] != area)
 					continue;
-				if (chf.dist[ai] >= lev && srcReg[ai] == 0)
+				if (chf.dist[ai] >= lev)
 				{
-					srcReg[ai] = r;
-					srcDist[ai] = 0;
-					stack.push(ax);
-					stack.push(ay);
-					stack.push(ai);
+					if (srcReg[ai] == 0)
+					{
+						srcReg[ai] = r;
+						srcDist[ai] = 0;
+						stack.push(ax);
+						stack.push(ay);
+						stack.push(ai);
+					}
 				}
 			}
 		}
@@ -678,17 +679,17 @@ static void walkContour(int x, int y, int i, int dir,
 	// Remove adjacent duplicates.
 	if (cont.size() > 1)
 	{
-		for (int j = 0; j < cont.size(); )
+		for (int i = 0; i < cont.size(); )
 		{
-			int nj = (j+1) % cont.size();
-			if (cont[j] == cont[nj])
+			int ni = (i+1) % cont.size();
+			if (cont[i] == cont[ni])
 			{
-				for (int k = j; k < cont.size()-1; ++k)
-					cont[k] = cont[k+1];
+				for (int j = i; j < cont.size()-1; ++j)
+					cont[j] = cont[j+1];
 				cont.pop();
 			}
 			else
-				++j;
+				++i;
 		}
 	}
 }
@@ -806,14 +807,14 @@ static bool filterSmallRegions(rcContext* ctx, int minRegionArea, int mergeRegio
 					connectsToBorder = true;
 					continue;
 				}
-				rcRegion& neireg = regions[creg.connections[j]];
-				if (neireg.visited)
+				rcRegion& nreg = regions[creg.connections[j]];
+				if (nreg.visited)
 					continue;
-				if (neireg.id == 0 || (neireg.id & RC_BORDER_REG))
+				if (nreg.id == 0 || (nreg.id & RC_BORDER_REG))
 					continue;
 				// Visit
-				stack.push(neireg.id);
-				neireg.visited = true;
+				stack.push(nreg.id);
+				nreg.visited = true;
 			}
 		}
 		
@@ -1086,8 +1087,6 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 		paintRectRegion(w-bw, w, 0, h, id|RC_BORDER_REG, chf, srcReg); id++;
 		paintRectRegion(0, w, 0, bh, id|RC_BORDER_REG, chf, srcReg); id++;
 		paintRectRegion(0, w, h-bh, h, id|RC_BORDER_REG, chf, srcReg); id++;
-		
-		chf.borderSize = borderSize;
 	}
 	
 	rcIntArray prev(256);
@@ -1257,19 +1256,11 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 //	const int expandIters = 4 + walkableRadius * 2;
 	const int expandIters = 8;
 
-	if (borderSize > 0)
-	{
-		// Make sure border will not overflow.
-		const int bw = rcMin(w, borderSize);
-		const int bh = rcMin(h, borderSize);
-		// Paint regions
-		paintRectRegion(0, bw, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
-		paintRectRegion(w-bw, w, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
-		paintRectRegion(0, w, 0, bh, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
-		paintRectRegion(0, w, h-bh, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
-
-		chf.borderSize = borderSize;
-	}
+	// Mark border regions.
+	paintRectRegion(0, borderSize, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
+	paintRectRegion(w-borderSize, w, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
+	paintRectRegion(0, w, 0, borderSize, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
+	paintRectRegion(0, w, h-borderSize, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
 	
 	while (level > 0)
 	{
