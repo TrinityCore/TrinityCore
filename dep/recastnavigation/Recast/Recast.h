@@ -65,8 +65,6 @@ enum rcTimerLabel
 	RC_TIMER_ERODE_AREA,
 	/// The time to mark a box area. (See: #rcMarkBoxArea)
 	RC_TIMER_MARK_BOX_AREA,
-	/// The time to mark a cylinder area. (See: #rcMarkCylinderArea)
-	RC_TIMER_MARK_CYLINDER_AREA,
 	/// The time to mark a convex polygon area. (See: #rcMarkConvexPolyArea)
 	RC_TIMER_MARK_CONVEXPOLY_AREA,
 	/// The total time to build the distance field. (See: #rcBuildDistanceField)
@@ -85,8 +83,6 @@ enum rcTimerLabel
 	RC_TIMER_BUILD_REGIONS_FLOOD,
 	/// The time to filter out small regions. (See: #rcBuildRegions, #rcBuildRegionsMonotone)
 	RC_TIMER_BUILD_REGIONS_FILTER,
-	/// The time to build heightfield layers. (See: #rcBuildHeightfieldLayers)
-	RC_TIMER_BUILD_LAYERS, 
 	/// The time to build the polygon mesh detail. (See: #rcBuildPolyMeshDetail)
 	RC_TIMER_BUILD_POLYMESHDETAIL,
 	/// The time to merge polygon mesh details. (See: #rcMergePolyMeshDetails)
@@ -284,6 +280,9 @@ struct rcHeightfield
 	rcSpan* freelist;	///< The next free span.
 };
 
+rcHeightfield* rcAllocHeightfield();
+void rcFreeHeightField(rcHeightfield* hf);
+
 /// Provides information on the content of a cell column in a compact heightfield. 
 struct rcCompactCell
 {
@@ -309,7 +308,6 @@ struct rcCompactHeightfield
 	int spanCount;				///< The number of spans in the heightfield.
 	int walkableHeight;			///< The walkable height used during the build of the field.  (See: rcConfig::walkableHeight)
 	int walkableClimb;			///< The walkable climb used during the build of the field. (See: rcConfig::walkableClimb)
-	int borderSize;				///< The AABB border size used during the build of the field. (See: rcConfig::borderSize)
 	unsigned short maxDistance;	///< The maximum distance value of any span within the field. 
 	unsigned short maxRegions;	///< The maximum region id of any span within the field. 
 	float bmin[3];				///< The minimum bounds in world space. [(x, y, z)]
@@ -322,35 +320,9 @@ struct rcCompactHeightfield
 	unsigned char* areas;		///< Array containing area id data. [Size: #spanCount]
 };
 
-/// Represents a heightfield layer within a layer set.
-/// @see rcHeightfieldLayerSet
-struct rcHeightfieldLayer
-{
-	float bmin[3];				///< The minimum bounds in world space. [(x, y, z)]
-	float bmax[3];				///< The maximum bounds in world space. [(x, y, z)]
-	float cs;					///< The size of each cell. (On the xz-plane.)
-	float ch;					///< The height of each cell. (The minimum increment along the y-axis.)
-	int width;					///< The width of the heightfield. (Along the x-axis in cell units.)
-	int height;					///< The height of the heightfield. (Along the z-axis in cell units.)
-	int minx;					///< The minimum x-bounds of usable data.
-	int maxx;					///< The maximum x-bounds of usable data.
-	int miny;					///< The minimum y-bounds of usable data. (Along the z-axis.)
-	int maxy;					///< The maximum y-bounds of usable data. (Along the z-axis.)
-	int hmin;					///< The minimum height bounds of usable data. (Along the y-axis.)
-	int hmax;					///< The maximum height bounds of usable data. (Along the y-axis.)
-	unsigned char* heights;		///< The heightfield. [Size: (width - borderSize*2) * (h - borderSize*2)]
-	unsigned char* areas;		///< Area ids. [Size: Same as #heights]
-	unsigned char* cons;		///< Packed neighbor connection information. [Size: Same as #heights]
-};
+rcCompactHeightfield* rcAllocCompactHeightfield();
+void rcFreeCompactHeightfield(rcCompactHeightfield* chf);
 
-/// Represents a set of heightfield layers.
-/// @ingroup recast
-/// @see rcAllocHeightfieldLayerSet, rcFreeHeightfieldLayerSet 
-struct rcHeightfieldLayerSet
-{
-	rcHeightfieldLayer* layers;			///< The layers in the set. [Size: #nlayers]
-	int nlayers;						///< The number of layers in the set.
-};
 
 /// Represents a simple, non-overlapping contour in field space.
 struct rcContour
@@ -373,10 +345,11 @@ struct rcContourSet
 	float bmax[3];		///< The maximum bounds in world space. [(x, y, z)]
 	float cs;			///< The size of each cell. (On the xz-plane.)
 	float ch;			///< The height of each cell. (The minimum increment along the y-axis.)
-	int width;			///< The width of the set. (Along the x-axis in cell units.) 
-	int height;			///< The height of the set. (Along the z-axis in cell units.) 
-	int borderSize;		///< The AABB border size used to generate the source data from which the contours were derived.
 };
+
+rcContourSet* rcAllocContourSet();
+void rcFreeContourSet(rcContourSet* cset);
+
 
 /// Represents a polygon mesh suitable for use in building a navigation mesh. 
 /// @ingroup recast
@@ -395,8 +368,11 @@ struct rcPolyMesh
 	float bmax[3];			///< The maximum bounds in world space. [(x, y, z)]
 	float cs;				///< The size of each cell. (On the xz-plane.)
 	float ch;				///< The height of each cell. (The minimum increment along the y-axis.)
-	int borderSize;			///< The AABB border size used to generate the source data from which the mesh was derived.
 };
+
+rcPolyMesh* rcAllocPolyMesh();
+void rcFreePolyMesh(rcPolyMesh* pmesh);
+
 
 /// Contains triangle meshes that represent detailed height data associated 
 /// with the polygons in its associated polygon mesh object.
@@ -410,71 +386,6 @@ struct rcPolyMeshDetail
 	int nverts;				///< The number of vertices in #verts.
 	int ntris;				///< The number of triangles in #tris.
 };
-
-/// @name Allocation Functions
-/// Functions used to allocate and de-allocate Recast objects.
-/// @see rcAllocSetCustom
-/// @{
-
-/// Allocates a heightfield object using the Recast allocator.
-///  @return A heightfield that is ready for initialization, or null on failure.
-///  @ingroup recast
-///  @see rcCreateHeightfield, rcFreeHeightField
-rcHeightfield* rcAllocHeightfield();
-
-/// Frees the specified heightfield object using the Recast allocator.
-///  @param[in]		hf	A heightfield allocated using #rcAllocHeightfield
-///  @ingroup recast
-///  @see rcAllocHeightfield
-void rcFreeHeightField(rcHeightfield* hf);
-
-/// Allocates a compact heightfield object using the Recast allocator.
-///  @return A compact heightfield that is ready for initialization, or null on failure.
-///  @ingroup recast
-///  @see rcBuildCompactHeightfield, rcFreeCompactHeightfield
-rcCompactHeightfield* rcAllocCompactHeightfield();
-
-/// Frees the specified compact heightfield object using the Recast allocator.
-///  @param[in]		chf		A compact heightfield allocated using #rcAllocCompactHeightfield
-///  @ingroup recast
-///  @see rcAllocCompactHeightfield
-void rcFreeCompactHeightfield(rcCompactHeightfield* chf);
-
-/// Allocates a heightfield layer set using the Recast allocator.
-///  @return A heightfield layer set that is ready for initialization, or null on failure.
-///  @ingroup recast
-///  @see rcBuildHeightfieldLayers, rcFreeHeightfieldLayerSet
-rcHeightfieldLayerSet* rcAllocHeightfieldLayerSet();
-
-/// Frees the specified heightfield layer set using the Recast allocator.
-///  @param[in]		lset	A heightfield layer set allocated using #rcAllocHeightfieldLayerSet
-///  @ingroup recast
-///  @see rcAllocHeightfieldLayerSet
-void rcFreeHeightfieldLayerSet(rcHeightfieldLayerSet* lset);
-
-/// Allocates a contour set object using the Recast allocator.
-///  @return A contour set that is ready for initialization, or null on failure.
-///  @ingroup recast
-///  @see rcBuildContours, rcFreeContourSet
-rcContourSet* rcAllocContourSet();
-
-/// Frees the specified contour set using the Recast allocator.
-///  @param[in]		cset	A contour set allocated using #rcAllocContourSet
-///  @ingroup recast
-///  @see rcAllocContourSet
-void rcFreeContourSet(rcContourSet* cset);
-
-/// Allocates a polygon mesh object using the Recast allocator.
-///  @return A polygon mesh that is ready for initialization, or null on failure.
-///  @ingroup recast
-///  @see rcBuildPolyMesh, rcFreePolyMesh
-rcPolyMesh* rcAllocPolyMesh();
-
-/// Frees the specified polygon mesh using the Recast allocator.
-///  @param[in]		pmesh	A polygon mesh allocated using #rcAllocPolyMesh
-///  @ingroup recast
-///  @see rcAllocPolyMesh
-void rcFreePolyMesh(rcPolyMesh* pmesh);
 
 /// Allocates a detail mesh object using the Recast allocator.
 ///  @return A detail mesh that is ready for initialization, or null on failure.
@@ -545,6 +456,32 @@ static const unsigned char RC_WALKABLE_AREA = 63;
 /// The value returned by #rcGetCon if the specified direction is not connected
 /// to another span. (Has no neighbor.)
 static const int RC_NOT_CONNECTED = 0x3f;
+
+// Compact span neighbour helpers.
+inline void rcSetCon(rcCompactSpan& s, int dir, int i)
+{
+	const unsigned int shift = (unsigned int)dir*6;
+	unsigned int con = s.con;
+	s.con = (con & ~(0x3f << shift)) | (((unsigned int)i & 0x3f) << shift);
+}
+
+inline int rcGetCon(const rcCompactSpan& s, int dir)
+{
+	const unsigned int shift = (unsigned int)dir*6;
+	return (s.con >> shift) & 0x3f;
+}
+
+inline int rcGetDirOffsetX(int dir)
+{
+	const int offset[4] = { -1, 0, 1, 0, };
+	return offset[dir&0x03];
+}
+
+inline int rcGetDirOffsetY(int dir)
+{
+	const int offset[4] = { 0, 1, 0, -1 };
+	return offset[dir&0x03];
+}
 
 /// @name General helper functions
 /// @{
@@ -710,6 +647,13 @@ inline void rcVnormalize(float* v)
 	v[2] *= d;
 }
 
+inline bool rcVequal(const float* p0, const float* p1)
+{
+	static const float thr = rcSqr(1.0f/16384.0f);
+	const float d = rcVdistSqr(p0, p1);
+	return d < thr;
+}
+
 /// @}
 /// @name Heightfield Functions
 /// @see rcHeightfield
@@ -774,20 +718,18 @@ void rcClearUnwalkableTriangles(rcContext* ctx, const float walkableSlopeAngle, 
 								const int* tris, int nt, unsigned char* areas); 
 
 /// Adds a span to the specified heightfield.
-///  @ingroup recast
-///  @param[in,out]	ctx				The build context to use during the operation.
-///  @param[in,out]	hf				An initialized heightfield.
-///  @param[in]		x				The width index where the span is to be added.
-///  								[Limits: 0 <= value < rcHeightfield::width]
-///  @param[in]		y				The height index where the span is to be added.
-///  								[Limits: 0 <= value < rcHeightfield::height]
-///  @param[in]		smin			The minimum height of the span. [Limit: < @p smax] [Units: vx]
-///  @param[in]		smax			The maximum height of the span. [Limit: <= #RC_SPAN_MAX_HEIGHT] [Units: vx]
-///  @param[in]		area			The area id of the span. [Limit: <= #RC_WALKABLE_AREA)
-///  @param[in]		flagMergeThr	The merge theshold. [Limit: >= 0] [Units: vx]
-void rcAddSpan(rcContext* ctx, rcHeightfield& hf, const int x, const int y,
+// The span addition can set to favor flags. If the span is merged to
+// another span and the new smax is within 'flagMergeThr' units away
+// from the existing span the span flags are merged and stored.
+// Params:
+//	solid - (in) heightfield where the spans is added to
+//  x,y - (in) location on the heightfield where the span is added
+//  smin,smax - (in) spans min/max height
+//  flags - (in) span flags (zero or WALKABLE)
+//  flagMergeThr - (in) merge threshold.
+void rcAddSpan(rcContext* ctx, rcHeightfield& solid, const int x, const int y,
 			   const unsigned short smin, const unsigned short smax,
-			   const unsigned char area, const int flagMergeThr);
+			   const unsigned short area, const int flagMergeThr);
 
 /// Rasterizes a triangle into the specified heightfield.
 ///  @ingroup recast
@@ -935,28 +877,6 @@ void rcMarkConvexPolyArea(rcContext* ctx, const float* verts, const int nverts,
 						  const float hmin, const float hmax, unsigned char areaId,
 						  rcCompactHeightfield& chf);
 
-/// Helper function to offset voncex polygons for rcMarkConvexPolyArea.
-///  @ingroup recast
-///  @param[in]		verts		The vertices of the polygon [Form: (x, y, z) * @p nverts]
-///  @param[in]		nverts		The number of vertices in the polygon.
-///  @param[out]	outVerts	The offset vertices (should hold up to 2 * @p nverts) [Form: (x, y, z) * return value]
-///  @param[in]		maxOutVerts	The max number of vertices that can be stored to @p outVerts.
-///  @returns Number of vertices in the offset polygon or 0 if too few vertices in @p outVerts.
-int rcOffsetPoly(const float* verts, const int nverts, const float offset,
-				 float* outVerts, const int maxOutVerts);
-
-/// Applies the area id to all spans within the specified cylinder.
-///  @ingroup recast
-///  @param[in,out]	ctx		The build context to use during the operation.
-///  @param[in]		pos		The center of the base of the cylinder. [Form: (x, y, z)] 
-///  @param[in]		r		The radius of the cylinder.
-///  @param[in]		h		The height of the cylinder.
-///  @param[in]		areaId	The area id to apply. [Limit: <= #RC_WALKABLE_AREA]
-///  @param[in,out]	chf	A populated compact heightfield.
-void rcMarkCylinderArea(rcContext* ctx, const float* pos,
-						const float r, const float h, unsigned char areaId,
-						rcCompactHeightfield& chf);
-
 /// Builds the distance field for the specified compact heightfield. 
 ///  @ingroup recast
 ///  @param[in,out]	ctx		The build context to use during the operation.
@@ -992,68 +912,6 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 							const int borderSize, const int minRegionArea, const int mergeRegionArea);
 
-
-/// Sets the neighbor connection data for the specified direction.
-///  @param[in]		s		The span to update.
-///  @param[in]		dir		The direction to set. [Limits: 0 <= value < 4]
-///  @param[in]		i		The index of the neighbor span.
-inline void rcSetCon(rcCompactSpan& s, int dir, int i)
-{
-	const unsigned int shift = (unsigned int)dir*6;
-	unsigned int con = s.con;
-	s.con = (con & ~(0x3f << shift)) | (((unsigned int)i & 0x3f) << shift);
-}
-
-/// Gets neighbor connection data for the specified direction.
-///  @param[in]		s		The span to check.
-///  @param[in]		dir		The direction to check. [Limits: 0 <= value < 4]
-///  @return The neighbor connection data for the specified direction,
-///  	or #RC_NOT_CONNECTED if there is no connection.
-inline int rcGetCon(const rcCompactSpan& s, int dir)
-{
-	const unsigned int shift = (unsigned int)dir*6;
-	return (s.con >> shift) & 0x3f;
-}
-
-/// Gets the standard width (x-axis) offset for the specified direction.
-///  @param[in]		dir		The direction. [Limits: 0 <= value < 4]
-///  @return The width offset to apply to the current cell position to move
-///  	in the direction.
-inline int rcGetDirOffsetX(int dir)
-{
-	const int offset[4] = { -1, 0, 1, 0, };
-	return offset[dir&0x03];
-}
-
-/// Gets the standard height (z-axis) offset for the specified direction.
-///  @param[in]		dir		The direction. [Limits: 0 <= value < 4]
-///  @return The height offset to apply to the current cell position to move
-///  	in the direction.
-inline int rcGetDirOffsetY(int dir)
-{
-	const int offset[4] = { 0, 1, 0, -1 };
-	return offset[dir&0x03];
-}
-
-/// @}
-/// @name Layer, Contour, Polymesh, and Detail Mesh Functions
-/// @see rcHeightfieldLayer, rcContourSet, rcPolyMesh, rcPolyMeshDetail
-/// @{
-
-/// Builds a layer set from the specified compact heightfield.
-///  @ingroup recast
-///  @param[in,out]	ctx			The build context to use during the operation.
-///  @param[in]		chf			A fully built compact heightfield.
-///  @param[in]		borderSize	The size of the non-navigable border around the heightfield. [Limit: >=0] 
-///  							[Units: vx]
-///  @param[in]		walkableHeight	Minimum floor to 'ceiling' height that will still allow the floor area 
-///  							to be considered walkable. [Limit: >= 3] [Units: vx]
-///  @param[out]	lset		The resulting layer set. (Must be pre-allocated.)
-///  @returns True if the operation completed successfully.
-bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf, 
-							  const int borderSize, const int walkableHeight,
-							  rcHeightfieldLayerSet& lset);
-
 /// Builds a contour set from the region outlines in the provided compact heightfield.
 ///  @ingroup recast
 ///  @param[in,out]	ctx			The build context to use during the operation.
@@ -1069,15 +927,13 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 					 const float maxError, const int maxEdgeLen,
 					 rcContourSet& cset, const int flags = RC_CONTOUR_TESS_WALL_EDGES);
 
-/// Builds a polygon mesh from the provided contours.
-///  @ingroup recast
-///  @param[in,out]	ctx		The build context to use during the operation.
-///  @param[in]		cset	A fully built contour set.
-///  @param[in]		nvp		The maximum number of vertices allowed for polygons generated during the 
-///  						contour to polygon conversion process. [Limit: >= 3] 
-///  @param[out]	mesh	The resulting polygon mesh. (Must be re-allocated.)
-///  @returns True if the operation completed successfully.
-bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMesh& mesh);
+// Builds connected convex polygon mesh from contour polygons.
+// Params:
+//	cset - (in) contour set.
+//	nvp - (in) maximum number of vertices per polygon.
+//	mesh - (out) poly mesh.
+// Returns false if operation ran out of memory.
+bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, int nvp, rcPolyMesh& mesh);
 
 /// Merges multiple polygon meshes into a single mesh.
 ///  @ingroup recast
@@ -1101,14 +957,6 @@ bool rcMergePolyMeshes(rcContext* ctx, rcPolyMesh** meshes, const int nmeshes, r
 bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompactHeightfield& chf,
 						   const float sampleDist, const float sampleMaxError,
 						   rcPolyMeshDetail& dmesh);
-
-/// Copies the poly mesh data from src to dst.
-///  @ingroup recast
-///  @param[in,out]	ctx		The build context to use during the operation.
-///  @param[in]		src		The source mesh to copy from.
-///  @param[out]	dst		The resulting detail mesh. (Must be pre-allocated, must be empty mesh.)
-///  @returns True if the operation completed successfully.
-bool rcCopyPolyMesh(rcContext* ctx, const rcPolyMesh& src, rcPolyMesh& dst);
 
 /// Merges multiple detail meshes into a single detail mesh.
 ///  @ingroup recast
