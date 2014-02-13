@@ -16,7 +16,7 @@ extern void AddElunaScripts();
 
 bool StartEluna()
 {
-#if !defined(ELUNA)
+#ifndef ELUNA
     {
         TC_LOG_ERROR("server.loading", "[Eluna]: LuaEngine is Disabled. (If you want to use it please enable in cmake)");
         return false;
@@ -61,6 +61,9 @@ bool StartEluna()
     luaL_openlibs(sEluna.L);
     // Register functions here
     RegisterFunctions(sEluna.L);
+
+    // Randomize math.random()
+    luaL_dostring(sEluna.L, "math.randomseed( tonumber(tostring(os.time()):reverse():sub(1,6)) )");
 
     uint32 count = 0;
     char filename[200];

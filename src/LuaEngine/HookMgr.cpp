@@ -10,14 +10,23 @@
 extern bool StartEluna();
 bool HookMgr::OnCommand(Player* player, const char* text)
 {
-    std::string cmd(text);
-    std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
-    if (cmd.length() > ReloadCmd.length())
-        cmd = cmd.substr(0, ReloadCmd.length());
-    if (cmd.find(ReloadCmd) == 0)
+    char* creload = strtok((char*)text, " ");
+    char* celuna = strtok(NULL, "");
+    if (creload && celuna)
     {
-        StartEluna();
-        return false;
+        std::string reload(creload);
+        std::string eluna(celuna);
+        std::transform(reload.begin(), reload.end(), reload.begin(), ::tolower);
+        if (reload == "reload")
+        {
+            std::transform(eluna.begin(), eluna.end(), eluna.begin(), ::tolower);
+            if (std::string("eluna").find(eluna) == 0)
+            {
+                sWorld->SendServerMessage(SERVER_MSG_STRING, "Reloading Eluna...");
+                StartEluna();
+                return false;
+            }
+        }
     }
     ELUNA_GUARD();
     bool result = true;
@@ -281,25 +290,18 @@ bool HookMgr::OnUse(Player* pPlayer, Item* pItem, SpellCastTargets const& target
         sEluna.Push(sEluna.L, ITEM_EVENT_ON_USE);
         sEluna.Push(sEluna.L, pPlayer);
         sEluna.Push(sEluna.L, pItem);
-#ifdef MANGOS
-        if (GameObject* target = targets.getGOTarget())
-            sEluna.Push(sEluna.L, target);
-        else if (Item* target = targets.getItemTarget())
-            sEluna.Push(sEluna.L, target);
-        else if (Unit* target = targets.getUnitTarget())
-            sEluna.Push(sEluna.L, target);
-        else
-            sEluna.Push(sEluna.L);
-#else
         if (GameObject* target = targets.GetGOTarget())
             sEluna.Push(sEluna.L, target);
         else if (Item* target = targets.GetItemTarget())
             sEluna.Push(sEluna.L, target);
+        else if (Corpse* target = targets.GetCorpseTarget())
+            sEluna.Push(sEluna.L, target);
         else if (Unit* target = targets.GetUnitTarget())
+            sEluna.Push(sEluna.L, target);
+        else if (WorldObject* target = targets.GetObjectTarget())
             sEluna.Push(sEluna.L, target);
         else
             sEluna.Push(sEluna.L);
-#endif
         sEluna.ExecuteCall(4, 0);
     }
     // pPlayer->SendEquipError((InventoryResult)83, pItem, NULL);
@@ -1038,7 +1040,6 @@ bool HookMgr::OnChat(Player* pPlayer, uint32 type, uint32 lang, std::string& msg
     return result;
 }
 
-#ifndef MANGOS
 // Vehicle
 void HookMgr::OnInstall(Vehicle* vehicle)
 {
@@ -1103,7 +1104,6 @@ void HookMgr::OnRemovePassenger(Vehicle* vehicle, Unit* passenger)
     sEluna.VehicleEventBindings.ExecuteCall();
     sEluna.VehicleEventBindings.EndCall();
 }
-#endif
 
 // areatrigger
 bool HookMgr::OnAreaTrigger(Player* pPlayer, AreaTriggerEntry const* pTrigger)

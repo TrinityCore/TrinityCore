@@ -22,8 +22,6 @@ typedef std::set<std::string> LoadedScripts;
 #define ELUNA_GUARD() \
     ACE_Guard< ACE_Thread_Mutex > ELUNA_GUARD_OBJECT (sEluna.lock);
 
-const std::string ReloadCmd = "reload eluna"; // lowercase
-
 template<class T>
 struct ElunaRegister
 {
