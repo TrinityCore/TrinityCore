@@ -682,10 +682,6 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_DEBUG_PHASE                            = 776, // only 4.3.4
     RBAC_PERM_COMMAND_MAILBOX                                = 777,
 
-    /* Eluna */
-#ifdef ELUNA
-    RBAC_PERM_COMMAND_RELOAD_ELUNA                           = 900,
-#endif
 
     // custom permissions 1000+
     RBAC_PERM_MAX

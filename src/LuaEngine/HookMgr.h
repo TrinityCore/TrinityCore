@@ -151,6 +151,11 @@ enum PlayerEvents
     PLAYER_EVENT_ON_REPOP                   =     35,       // (event, player)
     PLAYER_EVENT_ON_RESURRECT               =     36,       // (event, player)
     PLAYER_EVENT_ON_LOOT_MONEY              =     37,       // (event, player, amount)
+    PLAYER_EVENT_ON_QUEST_ABANDON           =     38,       // (event, player, questId)
+    PLAYER_EVENT_ON_GM_TICKET_CREATE        =     39,       // (event, player, ticketText)
+    PLAYER_EVENT_ON_GM_TICKET_UPDATE        =     40,       // (event, player, ticketText)
+    PLAYER_EVENT_ON_GM_TICKET_DELETE        =     41,       // (event, player)
+    PLAYER_EVENT_ON_COMMAND                 =     42,       // (event, player, command) - Can return false
 
     PLAYER_EVENT_COUNT
 };
@@ -286,6 +291,7 @@ struct HookMgr
     GameObjectAI* GetAI(GameObject* gameObject);
 
     /* Misc */
+    bool OnCommand(Player* player, const char* text);
     void OnWorldUpdate(uint32 diff);
     void OnLootItem(Player* pPlayer, Item* pItem, uint32 count, uint64 guid);
     void OnLootMoney(Player* pPlayer, uint32 amount);
@@ -293,6 +299,10 @@ struct HookMgr
     void OnEquip(Player* pPlayer, Item* pItem, uint8 bag, uint8 slot);
     void OnRepop(Player* pPlayer);
     void OnResurrect(Player* pPlayer);
+    void OnQuestAbandon(Player* pPlayer, uint32 questId); // Not on TC
+    void OnGmTicketCreate(Player* pPlayer, std::string& ticketText); // Not on TC
+    void OnGmTicketUpdate(Player* pPlayer, std::string& ticketText); // Not on TC
+    void OnGmTicketDelete(Player* pPlayer); // Not on TC
     InventoryResult OnCanUseItem(const Player* pPlayer, uint32 itemEntry);
     void OnEngineRestart();
     /* Item */
@@ -311,6 +321,7 @@ struct HookMgr
     bool OnQuestComplete(Player* pPlayer, Creature* pCreature, Quest const* pQuest);
     bool OnQuestReward(Player* pPlayer, Creature* pCreature, Quest const* pQuest);
     uint32 GetDialogStatus(Player* pPlayer, Creature* pCreature);
+    void OnSummoned(Creature* creature, Unit* summoner);
     /* GameObject */
     bool OnDummyEffect(Unit* pCaster, uint32 spellId, SpellEffIndex effIndex, GameObject* pTarget);
     bool OnGossipHello(Player* pPlayer, GameObject* pGameObject);
@@ -325,6 +336,7 @@ struct HookMgr
     void OnDamaged(GameObject* pGameObject, Player* pPlayer);
     void OnLootStateChanged(GameObject* pGameObject, uint32 state, Unit* pUnit);
     void OnGameObjectStateChanged(GameObject* pGameObject, uint32 state);
+    void UpdateAI(GameObject* pGameObject, uint32 update_diff, uint32 p_time);
     /* Packet */
     bool OnPacketSend(WorldSession* session, WorldPacket& packet);
     bool OnPacketReceive(WorldSession* session, WorldPacket& packet);

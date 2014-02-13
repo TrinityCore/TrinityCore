@@ -41,8 +41,6 @@ EndScriptData */
 #include "WardenCheckMgr.h"
 #include "WaypointManager.h"
 
-extern bool StartEluna();
-
 class reload_commandscript : public CommandScript
 {
 public:
@@ -157,7 +155,6 @@ public:
             { "waypoint_data",                 rbac::RBAC_PERM_COMMAND_RELOAD_WAYPOINT_DATA, true,  &HandleReloadWpCommand,                         "", NULL },
             { "vehicle_accessory",             rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_ACCESORY, true,  &HandleReloadVehicleAccessoryCommand,           "", NULL },
             { "vehicle_template_accessory",    rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE_ACCESSORY, true,  &HandleReloadVehicleTemplateAccessoryCommand,   "", NULL },
-            { "eluna",                         rbac::RBAC_PERM_COMMAND_RELOAD_ELUNA, true, &HandleReloadElunaLuaEngine, "", NULL },
             { NULL,                            0,                          false, NULL,                                           "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -1225,16 +1222,6 @@ public:
         sAccountMgr->LoadRBAC();
         sWorld->ReloadRBAC();
         handler->SendGlobalGMSysMessage("RBAC data reloaded.");
-        return true;
-    }
-
-    static bool HandleReloadElunaLuaEngine(ChatHandler* handler, const char* /*args*/)
-    {
-        handler->SendGlobalGMSysMessage("Re-Loading Eluna LuaEngine...");
-        if (StartEluna())
-            handler->SendGlobalGMSysMessage("Eluna LuaEngine reloaded.");
-        else
-            handler->SendGlobalGMSysMessage("Eluna Lua Engine is disabled can't reload.");
         return true;
     }
 };

@@ -19,6 +19,11 @@ extern "C"
 
 typedef std::set<std::string> LoadedScripts;
 
+#define ELUNA_GUARD() \
+    ACE_Guard< ACE_Thread_Mutex > ELUNA_GUARD_OBJECT (sEluna.lock);
+
+const std::string ReloadCmd = "reload eluna"; // lowercase
+
 template<class T>
 struct ElunaRegister
 {
@@ -183,7 +188,6 @@ struct EventMgr
         uint32 delay;   // Delay between event calls
         uint32 calls;   // Amount of calls to make, 0 for infinite
         Object* obj;    // Object to push
-        bool hasObject; // Dont call event if object no longer exists
     };
 
     // Updates all processors stored in the manager
@@ -341,6 +345,7 @@ class Eluna
         friend class ScriptMgr;
         lua_State* L;
         EventMgr m_EventMgr;
+        ACE_Thread_Mutex lock;
 
         Eluna()
         {

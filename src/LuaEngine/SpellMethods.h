@@ -84,5 +84,22 @@ namespace LuaSpell
         sEluna.Push(L, z);
         return 3;
     }
+
+    int GetTarget(lua_State* L, Spell* spell)
+    {
+        if (GameObject* target = spell->m_targets.GetGOTarget())
+            sEluna.Push(sEluna.L, target);
+        else if (Item* target = spell->m_targets.GetItemTarget())
+            sEluna.Push(sEluna.L, target);
+        else if (Corpse* target = spell->m_targets.GetCorpseTarget())
+            sEluna.Push(sEluna.L, target);
+        else if (Unit* target = spell->m_targets.GetUnitTarget())
+            sEluna.Push(sEluna.L, target);
+        else if (WorldObject* target = spell->m_targets.GetObjectTarget())
+            sEluna.Push(sEluna.L, target);
+        else
+            sEluna.Push(sEluna.L);
+        return 1;
+    }
 };
 #endif

@@ -35,6 +35,7 @@
 #include "SpellMgr.h"
 #include "ScriptMgr.h"
 #include "ChatLink.h"
+#include "HookMgr.h"
 
 bool ChatHandler::load_command_table = true;
 
@@ -318,7 +319,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, st
         // select subcommand from child commands list
         if (table[i].ChildCommands != NULL)
         {
-            if (!ExecuteCommandInTable(table[i].ChildCommands, text, fullcmd))
+            if (!ExecuteCommandInTable(table[i].ChildCommands, text, fullcmd) && sHookMgr.OnCommand(GetSession() ? GetSession()->GetPlayer() : NULL, oldtext))
             {
                 if (text[0] != '\0')
                     SendSysMessage(LANG_NO_SUBCMD);
@@ -464,7 +465,7 @@ bool ChatHandler::ParseCommands(char const* text)
     if (text[0] == '!' || text[0] == '.')
         ++text;
 
-    if (!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
+    if (!ExecuteCommandInTable(getCommandTable(), text, fullcmd) && sHookMgr.OnCommand(GetSession() ? GetSession()->GetPlayer() : NULL, text))
     {
         if (m_session && !m_session->HasPermission(rbac::RBAC_PERM_COMMANDS_NOTIFY_COMMAND_NOT_FOUND_ERROR))
             return false;

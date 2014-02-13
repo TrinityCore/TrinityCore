@@ -22,7 +22,8 @@ bool StartEluna()
         return false;
     }
 #endif
-
+    
+    ELUNA_GUARD();
     if (sEluna.L)
     {
         sHookMgr.OnEngineRestart();
@@ -638,7 +639,6 @@ void Eluna::EntryBind::Insert(uint32 entryId, int eventId, int funcRef)
 EventMgr::LuaEvent::LuaEvent(EventProcessor* _events, int _funcRef, uint32 _delay, uint32 _calls, Object* _obj) :
     events(_events), funcRef(_funcRef), delay(_delay), calls(_calls), obj(_obj)
 {
-    hasObject = _obj;
     if (_events)
         sEluna.m_EventMgr.LuaEvents[_events].insert(this); // Able to access the event if we have the processor
 }
@@ -657,8 +657,7 @@ EventMgr::LuaEvent::~LuaEvent()
 
 bool EventMgr::LuaEvent::Execute(uint64 time, uint32 diff)
 {
-    if (hasObject && !obj) // interrupt event if object doesnt exist anymore and should exist.
-        return true;
+    ELUNA_GUARD();
     bool remove = (calls == 1);
     if (!remove)
         events->AddEvent(this, events->CalculateTime(delay)); // Reschedule before calling incase RemoveEvents used

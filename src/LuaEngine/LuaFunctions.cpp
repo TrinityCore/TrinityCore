@@ -862,6 +862,7 @@ ElunaRegister<Spell> SpellMethods[] =
     {"GetDuration", &LuaSpell::GetDuration},                // :GetDuration() - Returns the spell's duration
     {"GetPowerCost", &LuaSpell::GetPowerCost},              // :GetPowerCost() - Returns the spell's power cost (mana, energy, rage, etc)
     {"GetTargetDest", &LuaSpell::GetTargetDest},            // :GetTargetDest() - Returns the target destination (x,y,z,o,map) or nil. Orientation and map may be 0.
+    {"GetTarget", &LuaSpell::GetTarget},                    // :GetTarget() - Returns spell cast target (item, worldobject)
 
     // Setters
     {"SetAutoRepeat", &LuaSpell::SetAutoRepeat},            // :SetAutoRepeat(boolean)
