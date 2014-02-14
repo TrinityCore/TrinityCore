@@ -18,7 +18,7 @@ bool StartEluna()
 {
 #ifndef ELUNA
     {
-        TC_LOG_ERROR("server.loading", "[Eluna]: LuaEngine is Disabled. (If you want to use it please enable in cmake)");
+        TC_LOG_ERROR("eluna", "[Eluna]: LuaEngine is Disabled. (If you want to use it please enable in cmake)");
         return false;
     }
 #endif
@@ -27,7 +27,7 @@ bool StartEluna()
     if (sEluna.L)
     {
         sHookMgr.OnEngineRestart();
-        TC_LOG_INFO("misc", "[Eluna]: Restarting Lua Engine");
+        TC_LOG_INFO("eluna", "[Eluna]: Restarting Lua Engine");
 
         // Unregisters and stops all timed events
         sEluna.m_EventMgr.RemoveEvents();
@@ -54,7 +54,7 @@ bool StartEluna()
         AddElunaScripts();
 
     sEluna.L = luaL_newstate();
-    TC_LOG_INFO("misc", "[Eluna]: Lua Engine loaded.");
+    TC_LOG_INFO("eluna", "[Eluna]: Lua Engine loaded.");
 
     LoadedScripts loadedScripts;
     sEluna.LoadDirectory("lua_scripts", &loadedScripts);
@@ -72,7 +72,7 @@ bool StartEluna()
         strcpy(filename, itr->c_str());
         if (luaL_loadfile(sEluna.L, filename) != 0)
         {
-            TC_LOG_ERROR("server.loading", "[Eluna]: Error loading file `%s`.", itr->c_str());
+            TC_LOG_ERROR("eluna", "[Eluna]: Error loading file `%s`.", itr->c_str());
             sEluna.report(sEluna.L);
         }
         else
@@ -80,7 +80,7 @@ bool StartEluna()
             int err = lua_pcall(sEluna.L, 0, 0, 0);
             if (err != 0 && err == LUA_ERRRUN)
             {
-                TC_LOG_ERROR("server.loading", "[Eluna]: Error loading file `%s`.", itr->c_str());
+                TC_LOG_ERROR("eluna", "[Eluna]: Error loading file `%s`.", itr->c_str());
                 sEluna.report(sEluna.L);
             }
         }
@@ -135,7 +135,7 @@ void Eluna::LoadDirectory(const char* Dirname, LoadedScripts* lscr)
     hFile = FindFirstFile(SearchName, &FindData);
     if (hFile == INVALID_HANDLE_VALUE)
     {
-        TC_LOG_ERROR("server.loading", "[Eluna]: Error No `lua_scripts` directory found! Creating a 'lua_scripts' directory.");
+        TC_LOG_ERROR("eluna", "[Eluna]: Error No `lua_scripts` directory found! Creating a 'lua_scripts' directory.");
         CreateDirectory("lua_scripts", NULL);
         return;
     }
@@ -167,7 +167,7 @@ void Eluna::LoadDirectory(const char* Dirname, LoadedScripts* lscr)
             ext[i++] = '\0';
             if (!_stricmp(ext, "aul."))
             {
-                TC_LOG_DEBUG("server.loading", "[Eluna]: Load File: %s", fname.c_str());
+                TC_LOG_DEBUG("eluna", "[Eluna]: Load File: %s", fname.c_str());
                 lscr->insert(fname);
             }
         }
@@ -196,7 +196,7 @@ void Eluna::LoadDirectory(const char* Dirname, LoadedScripts* lscr)
         if (stat(_path, &attributes) == -1)
         {
             error = true;
-            TC_LOG_ERROR("server.loading", "[Eluna]: Error opening `%s`", _path);
+            TC_LOG_ERROR("eluna", "[Eluna]: Error opening `%s`", _path);
         }
         else
             error = false;
@@ -221,7 +221,7 @@ void Eluna::report(lua_State* L)
     while (msg)
     {
         lua_pop(L, -1);
-        printf("\t%s\n",msg);
+        TC_LOG_ERROR("eluna", "%s", msg);
         msg = lua_tostring(L, -1);
     }
 }
