@@ -237,17 +237,17 @@ class custom_commandscript : public CommandScript
                 if(entry != 0)
                 {
                     uint32 checked = 0;
-					std::string questName = "";
+                    std::string questName = "";
                     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_QUESTCOMPLETER);
                     stmt->setUInt32(0, entry);
-					stmt->setUInt32(1, entry);
+                    stmt->setUInt32(1, entry);
                     PreparedQueryResult resultCheck = LoginDatabase.Query(stmt);
 
                     if (!resultCheck)
                     {
                         handler->PSendSysMessage("Error: no results.");
-						handler->SetSentErrorMessage(true);
-						return false;
+                        handler->SetSentErrorMessage(true);
+                        return false;
                     }
 
                     checked = (*resultCheck)[0].GetUInt32();
@@ -255,7 +255,7 @@ class custom_commandscript : public CommandScript
                     if(checked == 1)
                     {
                         std::string name;
-						questName = (*resultCheck)[2].GetString();
+                        questName = (*resultCheck)[2].GetString();
                         const char* playerName = handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : NULL;
                         if(playerName)
                         {
@@ -275,17 +275,17 @@ class custom_commandscript : public CommandScript
                                 return true;
                             }
                         }
-						else
-						{
-							handler->PSendSysMessage("%s is bugged!", questName.c_str());
+                        else
+                        {
+                            handler->PSendSysMessage("%s is bugged!", questName.c_str());
                             return true;
-						}
+                        }
                     }
                     else
-					{
+                    {
                         handler->PSendSysMessage("Quest is not bugged!");
-						return true;
-					}
+                        return true;
+                    }
                 }
                 else
                 {
