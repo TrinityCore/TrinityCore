@@ -15,9 +15,11 @@ set(scripts_STAT_SRCS
 	Custom/Transmogrifier.cpp
 	Custom/Duel_Reset.cpp
 	Custom/vip.cpp
-	Custom/NPCS/Change.cpp
-	Custom/NPCS/npc_morpher.cpp
-	Custom/NPCS/Teleporter.cpp
+	Custom/NPCS/Change_NPC.cpp
+	Custom/NPCS/NPC_morpher.cpp
+	Custom/NPCS/Teleporter_NPC.cpp
+	Custom/NPCS/Enchanter_NPC.cpp
+	Custom/KillStreak.cpp
 )
 
 message("  -> Prepared: Custom")

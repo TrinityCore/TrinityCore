@@ -1,0 +1,269 @@
+diff --git a/sql/updates/custom/world_creature_template_outfits.sql b/sql/updates/custom/world_creature_template_outfits.sql
+new file mode 100644
+index 0000000..9a3f750
+--- /dev/null
++++ b/sql/updates/custom/world_creature_template_outfits.sql
+@@ -0,0 +1,39 @@
++-- --------------------------------------------------------
++-- Host:                         localhost
++-- Server version:               5.6.10 - MySQL Community Server (GPL)
++-- Server OS:                    Win64
++-- HeidiSQL Version:             8.0.0.4491
++-- --------------------------------------------------------
++ 
++/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
++/*!40101 SET NAMES utf8 */;
++/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
++/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
++ 
++-- Dumping structure for table e2_w.creature_template_outfits
++CREATE TABLE IF NOT EXISTS `creature_template_outfits` (
++  `entry` INT(10) UNSIGNED NOT NULL,
++  `race` tinyint(3) UNSIGNED NOT NULL DEFAULT '1',
++  `gender` tinyint(3) UNSIGNED NOT NULL DEFAULT '0' COMMENT '0 for male, 1 for female',
++  `skin` tinyint(3) UNSIGNED NOT NULL DEFAULT '0',
++  `face` tinyint(3) UNSIGNED NOT NULL DEFAULT '0',
++  `hair` tinyint(3) UNSIGNED NOT NULL DEFAULT '0',
++  `haircolor` tinyint(3) UNSIGNED NOT NULL DEFAULT '0',
++  `facialhair` tinyint(3) UNSIGNED NOT NULL DEFAULT '0',
++  `head` INT(10) UNSIGNED NOT NULL DEFAULT '0',
++  `shoulders` INT(10) UNSIGNED NOT NULL DEFAULT '0',
++  `body` INT(10) UNSIGNED NOT NULL DEFAULT '0',
++  `chest` INT(10) UNSIGNED NOT NULL DEFAULT '0',
++  `waist` INT(10) UNSIGNED NOT NULL DEFAULT '0',
++  `legs` INT(10) UNSIGNED NOT NULL DEFAULT '0',
++  `feet` INT(10) UNSIGNED NOT NULL DEFAULT '0',
++  `wrists` INT(10) UNSIGNED NOT NULL DEFAULT '0',
++  `hands` INT(10) UNSIGNED NOT NULL DEFAULT '0',
++  `back` INT(10) UNSIGNED NOT NULL DEFAULT '0',
++  `tabard` INT(10) UNSIGNED NOT NULL DEFAULT '0'
++) ENGINE=InnoDB DEFAULT CHARSET=utf8;
++ 
++-- Data exporting was unselected.
++/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
++/*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
++/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+\ No newline at end of file
+diff --git a/src/server/game/Globals/ObjectMgr.cpp b/src/server/game/Globals/ObjectMgr.cpp
+index 25a2244..a9277c6 100644
+--- a/src/server/game/Globals/ObjectMgr.cpp
++++ b/src/server/game/Globals/ObjectMgr.cpp
+@@ -7785,6 +7785,78 @@ SkillRangeType GetSkillRangeType(SkillLineEntry const* pSkill, bool racial)
+     }
+ }
+ 
++void ObjectMgr::LoadCreatureOutfits()
++{
++    uint32 oldMSTime = getMSTime();
++
++    _creatureOutfitStore.clear();                           // for reload case (test only)
++
++    //                                                 0     1      2      3     4     5       6           7
++    QueryResult result = WorldDatabase.Query("SELECT entry, race, gender, skin, face, hair, haircolor, facialhair, "
++        //8       9        10    11     12     13    14     15     16     17     18
++        "head, shoulders, body, chest, waist, legs, feet, wrists, hands, back, tabard FROM creature_template_outfits");
++
++    if (!result)
++    {
++        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 creature outfits. DB table `creature_template_outfits` is empty!");
++        return;
++    }
++
++    uint32 count = 0;
++
++    do
++    {
++        Field* fields = result->Fetch();
++
++        uint32 i = 0;
++        uint32 entry   = fields[i++].GetUInt32();
++
++        if (!GetCreatureTemplate(entry))
++        {
++            TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, ">> Creature entry %u in `creature_template_outfits`, but not in `creature_template`!", entry);
++            continue;
++        }
++
++        CreatureOutfit co; // const, shouldnt be changed after saving
++        co.race         = fields[i++].GetUInt8();
++        const ChrRacesEntry* rEntry = sChrRacesStore.LookupEntry(co.race);
++        if (!rEntry)
++        {
++            TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, ">> Creature entry %u in `creature_template_outfits` has incorrect race (%u).", entry, uint32(co.race));
++            continue;
++        }
++        co.gender       = fields[i++].GetUInt8();
++        // Set correct displayId
++        switch (co.gender)
++        {
++        case GENDER_FEMALE: _creatureTemplateStore[entry].Modelid1    = rEntry->model_f;    break;
++        case GENDER_MALE:   _creatureTemplateStore[entry].Modelid1    = rEntry->model_m;    break;
++        default:
++            TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, ">> Creature entry %u in `creature_template_outfits` has invalid gender %u", entry, uint32(co.gender));
++            continue;
++        }
++        _creatureTemplateStore[entry].Modelid2 = 0;
++        _creatureTemplateStore[entry].Modelid3 = 0;
++        _creatureTemplateStore[entry].Modelid4 = 0;
++        _creatureTemplateStore[entry].unit_flags2 |= UNIT_FLAG2_MIRROR_IMAGE; // Needed so client requests mirror packet
++
++        co.skin         = fields[i++].GetUInt8();
++        co.face         = fields[i++].GetUInt8();
++        co.hair         = fields[i++].GetUInt8();
++        co.haircolor    = fields[i++].GetUInt8();
++        co.facialhair   = fields[i++].GetUInt8();
++        for (uint32 j = 0; j < MAX_CREATURE_OUTFIT_DISPLAYS; ++j)
++            co.outfit[j]    = fields[i+j].GetUInt32();
++
++        _creatureOutfitStore[entry] = co;
++
++        ++count;
++    }
++    while (result->NextRow());
++
++    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature outfits in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
++}
++
+ void ObjectMgr::LoadGameTele()
+ {
+     uint32 oldMSTime = getMSTime();
+diff --git a/src/server/game/Globals/ObjectMgr.h b/src/server/game/Globals/ObjectMgr.h
+index b1f80af..e46ba68 100644
+--- a/src/server/game/Globals/ObjectMgr.h
++++ b/src/server/game/Globals/ObjectMgr.h
+@@ -144,6 +144,21 @@ struct GameTele
+ 
+ typedef UNORDERED_MAP<uint32, GameTele > GameTeleContainer;
+ 
++#define MAX_CREATURE_OUTFIT_DISPLAYS 11
++struct CreatureOutfit
++{
++    uint8 race;
++    uint8 gender;
++    uint8 face;
++    uint8 skin;
++    uint8 hair;
++    uint8 facialhair;
++    uint8 haircolor;
++    uint32 outfit[MAX_CREATURE_OUTFIT_DISPLAYS];
++};
++
++typedef UNORDERED_MAP<uint32, CreatureOutfit > CreatureOutfitContainer;
++
+ enum ScriptsType
+ {
+     SCRIPTS_FIRST = 1,
+@@ -966,6 +981,7 @@ class ObjectMgr
+ 
+         void LoadNPCSpellClickSpells();
+ 
++        void LoadCreatureOutfits();
+         void LoadGameTele();
+ 
+         void LoadGossipMenu();
+@@ -1166,6 +1182,8 @@ class ObjectMgr
+         bool AddGameTele(GameTele& data);
+         bool DeleteGameTele(std::string const& name);
+ 
++        CreatureOutfitContainer* GetCreatureOutfitMap() { return &_creatureOutfitStore; }
++
+         TrainerSpellData const* GetNpcTrainerSpells(uint32 entry) const
+         {
+             CacheTrainerSpellContainer::const_iterator  iter = _cacheTrainerSpellStore.find(entry);
+@@ -1310,6 +1328,8 @@ class ObjectMgr
+         PageTextContainer _pageTextStore;
+         InstanceTemplateContainer _instanceTemplateStore;
+ 
++        CreatureOutfitContainer _creatureOutfitStore;
++
+     private:
+         void LoadScripts(ScriptsType type);
+         void CheckScripts(ScriptsType type, std::set<int32>& ids);
+diff --git a/src/server/game/Handlers/SpellHandler.cpp b/src/server/game/Handlers/SpellHandler.cpp
+index 75a9824..70098e5 100644
+--- a/src/server/game/Handlers/SpellHandler.cpp
++++ b/src/server/game/Handlers/SpellHandler.cpp
+@@ -566,6 +566,34 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
+     if (!unit)
+         return;
+ 
++    if (unit->ToCreature())
++    {
++        CreatureOutfitContainer* outfits = sObjectMgr->GetCreatureOutfitMap();
++        CreatureOutfitContainer::const_iterator it = outfits->find(unit->GetEntry());
++        if (it != outfits->end())
++        {
++            WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
++            data << uint64(guid);
++            data << uint32(unit->GetDisplayId());   // displayId
++            data << uint8(it->second.race);         // race
++            data << uint8(it->second.gender);       // gender
++            data << uint8(1);                       // class
++            data << uint8(it->second.skin);         // skin
++            data << uint8(it->second.face);         // face
++            data << uint8(it->second.hair);         // hair
++            data << uint8(it->second.haircolor);    // haircolor
++            data << uint8(it->second.facialhair);   // facialhair
++            data << uint32(0);                      // guildId
++
++            // item displays
++            for (uint32 i = 0; i < MAX_CREATURE_OUTFIT_DISPLAYS; ++i)
++                data << uint32(it->second.outfit[i]);
++
++            SendPacket(&data);
++            return;
++        }
++    }
++
+     if (!unit->HasAuraType(SPELL_AURA_CLONE_CASTER))
+         return;
+ 
+diff --git a/src/server/game/World/World.cpp b/src/server/game/World/World.cpp
+index 3fde3ad..69a8840 100644
+--- a/src/server/game/World/World.cpp
++++ b/src/server/game/World/World.cpp
+@@ -1442,6 +1442,9 @@ void World::SetInitialWorldSettings()
+     TC_LOG_INFO("server.loading", "Loading Creature templates...");
+     sObjectMgr->LoadCreatureTemplates();
+ 
++    TC_LOG_INFO("server.loading", "Loading Creature template outfits...");     // must be after LoadCreatureTemplates
++    sObjectMgr->LoadCreatureOutfits();
++
+     TC_LOG_INFO("server.loading", "Loading Equipment templates...");           // must be after LoadCreatureTemplates
+     sObjectMgr->LoadEquipmentTemplates();
+ 
+diff --git a/src/server/scripts/Commands/cs_reload.cpp b/src/server/scripts/Commands/cs_reload.cpp
+index b897a1f..c9c4a99 100644
+--- a/src/server/scripts/Commands/cs_reload.cpp
++++ b/src/server/scripts/Commands/cs_reload.cpp
+@@ -85,6 +85,7 @@ class reload_commandscript : public CommandScript
+             { "creature_queststarter",         rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_QUESTSTARTER, true,  &HandleReloadCreatureQuestStarterCommand,     "", NULL },
+             { "creature_summon_groups",        rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_SUMMON_GROUPS, true,  &HandleReloadCreatureSummonGroupsCommand,       "", NULL },
+             { "creature_template",             rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_TEMPLATE, true,  &HandleReloadCreatureTemplateCommand,           "", NULL },
++            { "creature_template_outfits",     SEC_ADMINISTRATOR,                                true, &HandleReloadCreatureTemplateOutfitsCommand, "", NULL },
+             //{ "db_script_string",              rbac::RBAC_PERM_COMMAND_RELOAD_, true,  &HandleReloadDbScriptStringCommand,            "", NULL },
+             { "disables",                      rbac::RBAC_PERM_COMMAND_RELOAD_DISABLES, true,  &HandleReloadDisablesCommand,                   "", NULL },
+             { "disenchant_loot_template",      rbac::RBAC_PERM_COMMAND_RELOAD_DISENCHANT_LOOT_TEMPLATE, true,  &HandleReloadLootTemplatesDisenchantCommand,    "", NULL },
+@@ -194,6 +195,7 @@ class reload_commandscript : public CommandScript
+         HandleReloadGameTeleCommand(handler, "");
+ 
+         HandleReloadCreatureSummonGroupsCommand(handler, "");
++        HandleReloadCreatureTemplateOutfitsCommand(handler, "");
+ 
+         HandleReloadVehicleAccessoryCommand(handler, "");
+         HandleReloadVehicleTemplateAccessoryCommand(handler, "");
+@@ -405,6 +407,14 @@ class reload_commandscript : public CommandScript
+         handler->SendGlobalGMSysMessage("DB table `creature_template` reloaded.");
+         return true;
+     }
++    
++    static bool HandleReloadCreatureTemplateOutfitsCommand(ChatHandler* handler, const char* /*args*/)
++    {
++        TC_LOG_INFO("misc", "Loading Creature Outfits... (`creature_template_outfits`)");
++        sObjectMgr->LoadCreatureOutfits();
++        handler->SendGlobalGMSysMessage("DB table `creature_template_outfits` reloaded.");
++        return true;
++    }
+ 
+     static bool HandleReloadCreatureQuestStarterCommand(ChatHandler* handler, const char* /*args*/)
+     {

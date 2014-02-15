@@ -1440,6 +1440,7 @@ void AddSC_vipcommands();
 void AddSC_Duel_Reset();
 void AddSC_teleporter_npc();
 void AddSC_npc_changer();
+void AddSC_PvP_System();
 #endif
 
 void AddCustomScripts()
@@ -1452,5 +1453,6 @@ void AddCustomScripts()
 	AddSC_Duel_Reset();
 	AddSC_teleporter_npc();
 	AddSC_npc_changer();
+	AddSC_PvP_System();
 #endif
 }

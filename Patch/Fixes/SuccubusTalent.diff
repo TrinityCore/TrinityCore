@@ -1,0 +1,16 @@
+diff --git a/src/server/game/Spells/SpellMgr.cpp b/src/server/game/Spells/SpellMgr.cpp
+index f737259..575eb7e 100644
+--- a/src/server/game/Spells/SpellMgr.cpp
++++ b/src/server/game/Spells/SpellMgr.cpp
+@@ -3771,6 +3771,11 @@ void SpellMgr::LoadSpellInfoCorrections()
+                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
+                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13);
+                 break;
++			case 18754: // Improved succubus - problems with apply if target is pet
++			case 18755:
++			case 18756:
++                spellInfo->Effects[0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
++                break;
+             case 15473: // Shadowform.
+                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN;
+                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_DAMAGE_PERCENT_DONE;
