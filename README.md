@@ -1,6 +1,6 @@
 # ![logo](http://www.trinitycore.org/f/public/style_images/1_trinitycore.png) TrinityCore
-
-
+ 
+ 
 ## Introduction
 
 TrinityCore is a *MMORPG* Framework based mostly in C++.
