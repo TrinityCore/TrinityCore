@@ -10,6 +10,14 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+	Custom/Transmogrification.h
+	Custom/Transmogrification.cpp
+	Custom/Transmogrifier.cpp
+	Custom/Duel_Reset.cpp
+	Custom/vip.cpp
+	Custom/NPCS/Change.cpp
+	Custom/NPCS/npc_morpher.cpp
+	Custom/NPCS/Teleporter.cpp
 )
 
 message("  -> Prepared: Custom")
