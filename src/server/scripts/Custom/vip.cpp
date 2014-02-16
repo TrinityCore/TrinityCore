@@ -23,21 +23,21 @@ public:
 		static ChatCommand vipCommandTable[] =
 
 		{
-			{ "mall", SEC_MODERATOR, true, &HandleVipMallCommand, "", NULL },
-			{ "duelzone", SEC_MODERATOR, true, &HandleDuelZoneCommand, "", NULL },
-			{ "bank", SEC_MODERATOR, true, &HandleBankCommand, "", NULL },
-			{ "appear", SEC_MODERATOR, true, &HandleAppearCommand, "", NULL },
-			{ "maxskill", SEC_MODERATOR, true, &HandleMaxSkillCommand, "", NULL },
-			{ "changerace", SEC_MODERATOR, false, &HandleChangeRaceCommand, "", NULL },
-			{ "changefaction", SEC_MODERATOR, false, &HandleChangeFactionCommand, "", NULL },
-			{ "customize", SEC_MODERATOR, false, &HandleCustomizeCommand, "", NULL },
-			{ "tele", SEC_MODERATOR, false, &HandleTeleCommand, "", NULL },
+			{ "mall", SEC_VIP, true, &HandleVipMallCommand, "", NULL },
+			{ "duelzone", SEC_VIP, true, &HandleDuelZoneCommand, "", NULL },
+			{ "bank", SEC_VIP, true, &HandleBankCommand, "", NULL },
+			{ "appear", SEC_VIP, true, &HandleAppearCommand, "", NULL },
+			{ "maxskill", SEC_VIP, true, &HandleMaxSkillCommand, "", NULL },
+			{ "changerace", SEC_VIP, false, &HandleChangeRaceCommand, "", NULL },
+			{ "changefaction", SEC_VIP, false, &HandleChangeFactionCommand, "", NULL },
+			{ "customize", SEC_VIP, false, &HandleCustomizeCommand, "", NULL },
+			{ "tele", SEC_VIP, false, &HandleTeleCommand, "", NULL },
 
 			{ NULL, 0, false, NULL, "", NULL }
 		};
 		static ChatCommand commandTable[] =
 		{
-			{ "vip", SEC_MODERATOR, true, NULL, "", vipCommandTable },
+			{ "vip", SEC_VIP, true, NULL, "", vipCommandTable },
 			{ NULL, 0, false, NULL, "", NULL }
 		};
 		return commandTable;
