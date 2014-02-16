@@ -83,7 +83,6 @@ struct dtNavMeshCreateParams
 	unsigned int userId;	///< The user defined id of the tile.
 	int tileX;				///< The tile's x-grid location within the multi-tile destination mesh. (Along the x-axis.)
 	int tileY;				///< The tile's y-grid location within the multi-tile desitation mesh. (Along the z-axis.)
-	int tileLayer;			///< The tile's layer within the layered destination mesh. [Limit: >= 0] (Along the y-axis.)
 	float bmin[3];			///< The minimum bounds of the tile. [(x, y, z)] [Unit: wu]
 	float bmax[3];			///< The maximum bounds of the tile. [(x, y, z)] [Unit: wu]
 
@@ -96,12 +95,7 @@ struct dtNavMeshCreateParams
 	float walkableClimb;	///< The agent maximum traversable ledge. (Up/Down) [Unit: wu]
 	float cs;				///< The xz-plane cell size of the polygon mesh. [Limit: > 0] [Unit: wu]
 	float ch;				///< The y-axis cell height of the polygon mesh. [Limit: > 0] [Unit: wu]
-
-	/// True if a bounding volume tree should be built for the tile.
-	/// @note The BVTree is not normally needed for layered navigation meshes.
-	bool buildBvTree;
-
-	/// @}
+	int tileSize;							// Tile size (width & height) (vx).
 };
 
 /// Builds navigation mesh tile data from the provided tile creation data.

@@ -420,13 +420,15 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified,
 					// Round based on the segments in lexilogical order so that the
 					// max tesselation is consistent regardles in which direction
 					// segments are traversed.
-					const int n = bi < ai ? (bi+pn - ai) : (bi - ai);
-					if (n > 1)
+					if (bx > ax || (bx == ax && bz > az))
 					{
-						if (bx > ax || (bx == ax && bz > az))
-							maxi = (ai + n/2) % pn;
-						else
-							maxi = (ai + (n+1)/2) % pn;
+						const int n = bi < ai ? (bi+pn - ai) : (bi - ai);
+						maxi = (ai + n/2) % pn;
+					}
+					else
+					{
+						const int n = bi < ai ? (bi+pn - ai) : (bi - ai);
+						maxi = (ai + (n+1)/2) % pn;
 					}
 				}
 			}
@@ -464,7 +466,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified,
 		// and the neighbour region is take from the next raw point.
 		const int ai = (simplified[i*4+3]+1) % pn;
 		const int bi = simplified[i*4+3];
-		simplified[i*4+3] = (points[ai*4+3] & (RC_CONTOUR_REG_MASK|RC_AREA_BORDER)) | (points[bi*4+3] & RC_BORDER_VERTEX);
+		simplified[i*4+3] = (points[ai*4+3] & RC_CONTOUR_REG_MASK) | (points[bi*4+3] & RC_BORDER_VERTEX);
 	}
 	
 }
@@ -611,26 +613,13 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 	
 	const int w = chf.width;
 	const int h = chf.height;
-	const int borderSize = chf.borderSize;
 	
 	ctx->startTimer(RC_TIMER_BUILD_CONTOURS);
 	
 	rcVcopy(cset.bmin, chf.bmin);
 	rcVcopy(cset.bmax, chf.bmax);
-	if (borderSize > 0)
-	{
-		// If the heightfield was build with bordersize, remove the offset.
-		const float pad = borderSize*chf.cs;
-		cset.bmin[0] += pad;
-		cset.bmin[2] += pad;
-		cset.bmax[0] -= pad;
-		cset.bmax[2] -= pad;
-	}
 	cset.cs = chf.cs;
 	cset.ch = chf.ch;
-	cset.width = chf.width - chf.borderSize*2;
-	cset.height = chf.height - chf.borderSize*2;
-	cset.borderSize = chf.borderSize;
 	
 	int maxContours = rcMax((int)chf.maxRegions, 8);
 	cset.conts = (rcContour*)rcAlloc(sizeof(rcContour)*maxContours, RC_ALLOC_PERM);
@@ -682,6 +671,8 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 	
 	ctx->stopTimer(RC_TIMER_BUILD_CONTOURS_TRACE);
 	
+	ctx->startTimer(RC_TIMER_BUILD_CONTOURS_SIMPLIFY);
+	
 	rcIntArray verts(256);
 	rcIntArray simplified(64);
 	
@@ -704,17 +695,10 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 				
 				verts.resize(0);
 				simplified.resize(0);
-
-				ctx->startTimer(RC_TIMER_BUILD_CONTOURS_TRACE);
 				walkContour(x, y, i, chf, flags, verts);
-				ctx->stopTimer(RC_TIMER_BUILD_CONTOURS_TRACE);
-
-				ctx->startTimer(RC_TIMER_BUILD_CONTOURS_SIMPLIFY);
 				simplifyContour(verts, simplified, maxError, maxEdgeLen, buildFlags);
 				removeDegenerateSegments(simplified);
-				ctx->stopTimer(RC_TIMER_BUILD_CONTOURS_SIMPLIFY);
 				
-
 				// Store region->contour remap info.
 				// Create contour.
 				if (simplified.size()/4 >= 3)
@@ -749,16 +733,6 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 						return false;
 					}
 					memcpy(cont->verts, &simplified[0], sizeof(int)*cont->nverts*4);
-					if (borderSize > 0)
-					{
-						// If the heightfield was build with bordersize, remove the offset.
-						for (int j = 0; j < cont->nverts; ++j)
-						{
-							int* v = &cont->verts[j*4];
-							v[0] -= borderSize;
-							v[2] -= borderSize;
-						}
-					}
 					
 					cont->nrverts = verts.size()/4;
 					cont->rverts = (int*)rcAlloc(sizeof(int)*cont->nrverts*4, RC_ALLOC_PERM);
@@ -768,16 +742,6 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 						return false;
 					}
 					memcpy(cont->rverts, &verts[0], sizeof(int)*cont->nrverts*4);
-					if (borderSize > 0)
-					{
-						// If the heightfield was build with bordersize, remove the offset.
-						for (int j = 0; j < cont->nrverts; ++j)
-						{
-							int* v = &cont->rverts[j*4];
-							v[0] -= borderSize;
-							v[2] -= borderSize;
-						}
-					}
 					
 /*					cont->cx = cont->cy = cont->cz = 0;
 					for (int i = 0; i < cont->nverts; ++i)
@@ -844,6 +808,8 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 			}
 		}
 	}
+	
+	ctx->stopTimer(RC_TIMER_BUILD_CONTOURS_SIMPLIFY);
 	
 	ctx->stopTimer(RC_TIMER_BUILD_CONTOURS);
 	

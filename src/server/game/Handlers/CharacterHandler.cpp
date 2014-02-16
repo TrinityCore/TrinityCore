@@ -1027,6 +1027,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     m_playerLoading = false;
 
+    // Handle Login-Achievements (should be handled after loading)
+    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN, 1);
+
     sScriptMgr->OnPlayerLogin(pCurrChar);
     delete holder;
 }

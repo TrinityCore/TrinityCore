@@ -986,9 +986,17 @@ bool GameObject::ActivateToQuest(Player* target) const
 
     switch (GetGoType())
     {
-        // scan GO chest with loot including quest items
+        case GAMEOBJECT_TYPE_QUESTGIVER:
+        {
+            GameObject* go = const_cast<GameObject*>(this);
+            QuestGiverStatus questStatus = target->GetQuestDialogStatus(go);
+            if (questStatus > DIALOG_STATUS_UNAVAILABLE)
+                return true;
+            break;
+        }
         case GAMEOBJECT_TYPE_CHEST:
         {
+            // scan GO chest with loot including quest items
             if (LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->GetLootId(), target))
             {
                 if (Battleground const* bg = target->GetBattleground())
@@ -2148,6 +2156,10 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                 int16 pathProgress = -1;
                 switch (GetGoType())
                 {
+                    case GAMEOBJECT_TYPE_QUESTGIVER:
+                        if (ActivateToQuest(target))
+                            dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
+                        break;
                     case GAMEOBJECT_TYPE_CHEST:
                     case GAMEOBJECT_TYPE_GOOBER:
                         if (ActivateToQuest(target))

@@ -3020,7 +3020,7 @@ void Spell::cast(bool skipCheck)
         if (this->GetSpellInfo()->DmgClass != SPELL_DAMAGE_CLASS_NONE)
             if (Pet* playerPet = playerCaster->GetPet())
                 if (playerPet->IsAlive() && playerPet->isControlled() && (m_targets.GetTargetMask() & TARGET_FLAG_UNIT))
-                    playerPet->AI()->OwnerAttacked(m_targets.GetObjectTarget()->ToUnit());
+                    playerPet->AI()->OwnerAttacked(m_targets.GetUnitTarget());
     }
 
     SetExecutedCurrently(true);
@@ -6650,10 +6650,10 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
 
             if (m_damage > 0)
             {
-                if (m_spellInfo->Effects[i].IsTargetingArea())
+                if (m_spellInfo->Effects[i].IsTargetingArea() || m_spellInfo->Effects[i].IsAreaAuraEffect() || m_spellInfo->Effects[i].IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA))
                 {
                     m_damage = int32(float(m_damage) * unit->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
-                    if (m_caster->GetTypeId() == TYPEID_UNIT)
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         m_damage = int32(float(m_damage) * unit->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
 
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)

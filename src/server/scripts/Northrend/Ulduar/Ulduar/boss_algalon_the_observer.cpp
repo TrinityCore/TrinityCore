@@ -652,7 +652,6 @@ class boss_algalon_the_observer : public CreatureScript
                             break;
                         case EVENT_OUTRO_2:
                             _EnterEvadeMode();
-                            me->AddUnitState(UNIT_STATE_EVADE);
                             me->GetMotionMaster()->MovePoint(POINT_ALGALON_OUTRO, AlgalonOutroPos);
                             break;
                         case EVENT_OUTRO_3:

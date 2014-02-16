@@ -651,9 +651,9 @@ struct CharTitlesEntry
 {
     uint32  ID;                                             // 0, title ids, for example in Quest::GetCharTitleId()
     //uint32      unk1;                                     // 1 flags?
-    char*   name[16];                                       // 2-17
+    char*   nameMale[16];                                   // 2-17
                                                             // 18 string flag, unused
-    //char*       name2[16];                                // 19-34, unused
+    char*   nameFemale[16];                                 // 19-34
                                                             // 35 string flag, unused
     uint32  bit_index;                                      // 36 used in PLAYER_CHOSEN_TITLE and 1<<index in PLAYER__FIELD_KNOWN_TITLES
 };
@@ -1270,7 +1270,7 @@ struct MailTemplateEntry
     uint32      ID;                                         // 0
     //char*       subject[16];                              // 1-16
                                                             // 17 name flags, unused
-    char*       content[16];                              // 18-33
+    char*       content[16];                                // 18-33
 };
 
 struct MapEntry

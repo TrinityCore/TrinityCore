@@ -267,11 +267,11 @@ static int addEdge(rcContext* ctx, int* edges, int& nedges, const int maxEdges, 
 	int e = findEdge(edges, nedges, s, t);
 	if (e == UNDEF)
 	{
-		int* edge = &edges[nedges*4];
-		edge[0] = s;
-		edge[1] = t;
-		edge[2] = l;
-		edge[3] = r;
+		int* e = &edges[nedges*4];
+		e[0] = s;
+		e[1] = t;
+		e[2] = l;
+		e[3] = r;
 		return nedges++;
 	}
 	else
@@ -554,7 +554,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 			float dx = vi[0] - vj[0];
 			float dy = vi[1] - vj[1];
 			float dz = vi[2] - vj[2];
-			float d = rcSqrt(dx*dx + dz*dz);
+			float d = sqrtf(dx*dx + dz*dz);
 			int nn = 1 + (int)floorf(d/sampleDist);
 			if (nn >= MAX_VERTS_PER_EDGE) nn = MAX_VERTS_PER_EDGE-1;
 			if (nverts+nn >= MAX_VERTS)
@@ -583,10 +583,10 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 				int maxi = -1;
 				for (int m = a+1; m < b; ++m)
 				{
-					float dev = distancePtSeg(&edge[m*3],va,vb);
-					if (dev > maxd)
+					float d = distancePtSeg(&edge[m*3],va,vb);
+					if (d > maxd)
 					{
-						maxd = dev;
+						maxd = d;
 						maxi = m;
 					}
 				}
@@ -743,7 +743,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 
 static void getHeightData(const rcCompactHeightfield& chf,
 						  const unsigned short* poly, const int npoly,
-						  const unsigned short* verts, const int bs,
+						  const unsigned short* verts,
 						  rcHeightPatch& hp, rcIntArray& stack)
 {
 	// Floodfill the heightfield to get 2D height data,
@@ -775,7 +775,7 @@ static void getHeightData(const rcCompactHeightfield& chf,
 				az < hp.ymin || az >= hp.ymin+hp.height)
 				continue;
 			
-			const rcCompactCell& c = chf.cells[(ax+bs)+(az+bs)*chf.width];
+			const rcCompactCell& c = chf.cells[ax+az*chf.width];
 			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
@@ -847,7 +847,7 @@ static void getHeightData(const rcCompactHeightfield& chf,
 			if (hp.data[ax-hp.xmin+(ay-hp.ymin)*hp.width] != 0)
 				continue;
 			
-			const int ai = (int)chf.cells[(ax+bs)+(ay+bs)*chf.width].index + rcGetCon(cs, dir);
+			const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(cs, dir);
 
 			int idx = ax-hp.xmin+(ay-hp.ymin)*hp.width;
 			hp.data[idx] = 1;
@@ -903,7 +903,7 @@ static void getHeightData(const rcCompactHeightfield& chf,
 			if (hp.data[ax-hp.xmin+(ay-hp.ymin)*hp.width] != RC_UNSET_HEIGHT)
 				continue;
 			
-			const int ai = (int)chf.cells[(ax+bs)+(ay+bs)*chf.width].index + rcGetCon(cs, dir);
+			const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(cs, dir);
 			
 			const rcCompactSpan& as = chf.spans[ai];
 			int idx = ax-hp.xmin+(ay-hp.ymin)*hp.width;
@@ -961,7 +961,6 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 	const float cs = mesh.cs;
 	const float ch = mesh.ch;
 	const float* orig = mesh.bmin;
-	const int borderSize = mesh.borderSize;
 	
 	rcIntArray edges(64);
 	rcIntArray tris(512);
@@ -1072,7 +1071,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 		hp.ymin = bounds[i*4+2];
 		hp.width = bounds[i*4+1]-bounds[i*4+0];
 		hp.height = bounds[i*4+3]-bounds[i*4+2];
-		getHeightData(chf, p, npoly, mesh.verts, borderSize, hp, stack);
+		getHeightData(chf, p, npoly, mesh.verts, hp, stack);
 		
 		// Build detail mesh.
 		int nverts = 0;
