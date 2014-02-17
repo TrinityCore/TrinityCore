@@ -405,7 +405,7 @@ void LFGMgr::InitializeLockedDungeons(Player* player, uint8 level /* = 0 */)
             lockData = LFG_LOCKSTATUS_NOT_IN_SEASON;
         else if (AccessRequirement const* ar = sObjectMgr->GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty)))
         {
-            if (player->GetAverageItemLevel() < ar->item_level)
+            if (ar->item_level && player->GetAverageItemLevel() < ar->item_level)
                 lockData = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
             else if (ar->achievement && !player->HasAchieved(ar->achievement))
                 lockData = LFG_LOCKSTATUS_MISSING_ACHIEVEMENT;
