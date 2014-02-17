@@ -846,7 +846,6 @@ public:
 enum EtherealTeleportPad
 {
     NPC_IMAGE_WIND_TRADER               = 20518,
-    ITEM_TELEPORTER_POWER_PACK          = 28969,
     QUEST_A_NOT_SO_MODEST_PROPOSAL      = 10270,
     QUEST_GETTING_DOWN_TO_THE_BUSINESS  = 10271
 };
