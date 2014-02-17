@@ -22,6 +22,10 @@ include(Commands/CMakeLists.txt)
 
 include(Examples/CMakeLists.txt)
 
+if (DETACH_CSCRIPTS)
+  include(Custom/CMakeLists.txt)
+endif()
+
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   ../game/AI/ScriptedAI/ScriptedEscortAI.cpp
@@ -29,8 +33,10 @@ set(scripts_STAT_SRCS
   ../game/AI/ScriptedAI/ScriptedFollowerAI.cpp
 )
 
-if(SCRIPTS)
-  include(Custom/CMakeLists.txt)
+if (SCRIPTS)
+  if(NOT DETACH_CSCRIPTS)
+    include(Custom/CMakeLists.txt)
+  endif()
   include(World/CMakeLists.txt)
   include(OutdoorPvP/CMakeLists.txt)
   include(EasternKingdoms/CMakeLists.txt)
