@@ -2324,25 +2324,25 @@ ArenaLog.ExtendedInfo = 0
 #
 #    Arena.Cheated
 #        Description: Check if players are cheating in the arena.
-#        Default:	0 - (Disabled)
-#					1 - (Enabled)
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
 Arena.Cheated = 0
 
 #
 #    Arena.Cheated.OnlyLOG
 #        Description: Check if should report only on Log file/console, allowing the system to award arena points.
-#        Default:	1 - (Enabled: Only reports if cheat detected)
-#					0 - (Disabled: Reports and changes the award points to 0 if cheat detected)
+#        Default:     1 - (Enabled: Only reports if cheat detected)
+#                     0 - (Disabled: Reports and changes awarded points to 0 if cheat detected)
 Arena.Cheated.OnlyLOG = 1
 
 #
 #    Arena.Cheated.Rating.2v2
 #    Arena.Cheated.Rating.3v3
 #    Arena.Cheated.Rating.5v5
-#        Description: Sets the threshold of minimum activity (heal+dmg) for the arenas
-#        Default:	2v2 - Default 50%
-#					3v3 - Default 66%
-#					5v5 - Default 75%
+#        Description: Sets the threshold of minimum activity (heal+dmg) for the arenas. The % is calculated based on the max HP of the whole winner team.
+#        Default:     2v2 - Default 50%
+#                     3v3 - Default 66%
+#                     5v5 - Default 75%
 Arena.Cheated.Rating.2v2 = 0.5
 Arena.Cheated.Rating.3v3 = 0.66
 Arena.Cheated.Rating.5v5 = 0.75
@@ -2351,10 +2351,10 @@ Arena.Cheated.Rating.5v5 = 0.75
 #    Arena.Cheated.Minimum.Damage.2v2
 #    Arena.Cheated.Minimum.Damage.3v3
 #    Arena.Cheated.Minimum.Damage.5v5
-#        Description: Sets minimum damage the Looser team (in %) on an Arena has to deal or it will be considered cheating
-#        Default:	2v2 - Default 10%
-#					3v3 - Default 10%
-#					5v5 - Default 10%
+#        Description: Sets minimum damage the Looser team (in %) on an Arena has to deal to winner team it will be considered cheating.
+#        Default:     2v2 - Default 10%
+#                     3v3 - Default 10%
+#                     5v5 - Default 10%
 Arena.Cheated.Minimum.Damage.2v2 = 10
 Arena.Cheated.Minimum.Damage.3v3 = 10
 Arena.Cheated.Minimum.Damage.5v5 = 10
