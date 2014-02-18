@@ -1,0 +1,53 @@
+diff --git a/src/server/game/Handlers/CharacterHandler.cpp b/src/server/game/Handlers/CharacterHandler.cpp
+index 4c7d166..179f955 100644
+--- a/src/server/game/Handlers/CharacterHandler.cpp
++++ b/src/server/game/Handlers/CharacterHandler.cpp
+@@ -245,6 +245,8 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recvData*/)
+ {
+     AntiDOS.AllowOpcode(CMSG_CHAR_ENUM, false);
+ 
++	if (sWorld->IncreaseAndCheckFlooding(GetRemoteAddress()))
++        return;
+     // remove expired bans
+     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
+     CharacterDatabase.Execute(stmt);
+diff --git a/src/server/game/World/World.cpp b/src/server/game/World/World.cpp
+index 69a8840..89bf8af 100644
+--- a/src/server/game/World/World.cpp
++++ b/src/server/game/World/World.cpp
+@@ -1938,6 +1938,12 @@ void World::LoadAutobroadcasts()
+ /// Update the World !
+ void World::Update(uint32 diff)
+ {
++	m_GlobalAntiFloodTimer += diff;
++	if (m_GlobalAntiFloodTimer > 5*IN_MILLISECONDS)
++	{
++		m_GlobalAntiFloodTimer = 0;
++		m_GlobalAntiFloodStorage.clear();
++	}
+     m_updateTime = diff;
+ 
+     if (m_int_configs[CONFIG_INTERVAL_LOG_UPDATE] && diff > m_int_configs[CONFIG_MIN_LOG_UPDATE])
+diff --git a/src/server/game/World/World.h b/src/server/game/World/World.h
+index a320933..31e3659 100644
+--- a/src/server/game/World/World.h
++++ b/src/server/game/World/World.h
+@@ -528,6 +528,18 @@ class World
+ 
+         World();
+         ~World();
++		
++		std::map<std::string, uint32> m_GlobalAntiFloodStorage;
++        uint32 m_GlobalAntiFloodTimer;
++ 
++        inline bool IncreaseAndCheckFlooding(std::string ipaddress)
++        {
++            m_GlobalAntiFloodStorage[ipaddress] += 1;
++            if (m_GlobalAntiFloodStorage[ipaddress] > 15)
++                return true;
++ 
++			return false;
++        }
+ 
+         WorldSession* FindSession(uint32 id) const;
+         void AddSession(WorldSession* s);

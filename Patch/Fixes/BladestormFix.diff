@@ -1,0 +1,14 @@
+diff --git a/src/server/game/Spells/Auras/SpellAuraEffects.cpp b/src/server/game/Spells/Auras/SpellAuraEffects.cpp
+index fd29d13..247de5a 100644
+--- a/src/server/game/Spells/Auras/SpellAuraEffects.cpp
++++ b/src/server/game/Spells/Auras/SpellAuraEffects.cpp
+@@ -2222,6 +2222,9 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode,
+     if (!apply)
+         target->RemoveFlag(field, flag);
+ 
++    if (apply && target->HasAura(46924))
++        target->RemoveAura(46924);
++ 
+     // Handle damage modification, shapeshifted druids are not affected
+     if (target->GetTypeId() == TYPEID_PLAYER && !target->IsInFeralForm())
+     {

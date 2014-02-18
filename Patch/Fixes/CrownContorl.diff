@@ -1,0 +1,210 @@
+diff --git a/src/server/game/Spells/Spell.cpp b/src/server/game/Spells/Spell.cpp
+index 49eed70..aed1495 100644
+--- a/src/server/game/Spells/Spell.cpp
++++ b/src/server/game/Spells/Spell.cpp
+@@ -2150,21 +2150,21 @@ void Spell::CleanupTargetList()
+ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*= true*/, bool implicit /*= true*/)
+ {
+     for (uint32 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+-        if (!m_spellInfo->Effects[effIndex].IsEffect() || !CheckEffectTarget(target, effIndex))
+-            effectMask &= ~(1 << effIndex);
++    if (!m_spellInfo->Effects[effIndex].IsEffect() || !CheckEffectTarget(target, effIndex))
++        effectMask &= ~(1 << effIndex);
+ 
+     // no effects left
+     if (!effectMask)
+         return;
+ 
+     if (checkIfValid)
+-        if (m_spellInfo->CheckTarget(m_caster, target, implicit) != SPELL_CAST_OK)
+-            return;
++    if (m_spellInfo->CheckTarget(m_caster, target, implicit) != SPELL_CAST_OK)
++        return;
+ 
+     // Check for effect immune skip if immuned
+     for (uint32 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+-        if (target->IsImmunedToSpellEffect(m_spellInfo, effIndex))
+-            effectMask &= ~(1 << effIndex);
++    if (target->IsImmunedToSpellEffect(m_spellInfo, effIndex))
++        effectMask &= ~(1 << effIndex);
+ 
+     uint64 targetGUID = target->GetGUID();
+ 
+@@ -2191,11 +2191,11 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
+     TargetInfo targetInfo;
+     targetInfo.targetGUID = targetGUID;                         // Store target GUID
+     targetInfo.effectMask = effectMask;                         // Store all effects not immune
+-    targetInfo.processed  = false;                              // Effects not apply on target
+-    targetInfo.alive      = target->IsAlive();
+-    targetInfo.damage     = 0;
+-    targetInfo.crit       = false;
+-    targetInfo.scaleAura  = false;
++    targetInfo.processed = false;                              // Effects not apply on target
++    targetInfo.alive = target->IsAlive();
++    targetInfo.damage = 0;
++    targetInfo.crit = false;
++    targetInfo.scaleAura = false;
+     if (m_auraScaleMask && targetInfo.effectMask == m_auraScaleMask && m_caster != target)
+     {
+         SpellInfo const* auraSpell = m_spellInfo->GetFirstRankSpell();
+@@ -2223,14 +2223,18 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
+ 
+         if (dist < 5.0f)
+             dist = 5.0f;
+-        targetInfo.timeDelay = (uint64) floor(dist / m_spellInfo->Speed * 1000.0f);
++        targetInfo.timeDelay = (uint64)floor(dist / m_spellInfo->Speed * 1000.0f);
+ 
+         // Calculate minimum incoming time
+         if (m_delayMoment == 0 || m_delayMoment > targetInfo.timeDelay)
+             m_delayMoment = targetInfo.timeDelay;
+     }
+     else
+-        targetInfo.timeDelay = 0LL;
++    {
++        targetInfo.timeDelay = GetCrowdControlDelay(m_spellInfo);
++        if (m_delayMoment == 0 || m_delayMoment > targetInfo.timeDelay)
++            m_delayMoment = targetInfo.timeDelay;
++    }
+ 
+     // If target reflect spell back to caster
+     if (targetInfo.missCondition == SPELL_MISS_REFLECT)
+@@ -3330,7 +3334,7 @@ void Spell::cast(bool skipCheck)
+     SendSpellGo();
+ 
+     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
+-    if ((m_spellInfo->Speed > 0.0f && !m_spellInfo->IsChanneled()) || m_spellInfo->AttributesEx4 & SPELL_ATTR4_UNK4)
++    if ((m_spellInfo->Speed > 0.0f || GetCrowdControlDelay(m_spellInfo) > 0 && !m_spellInfo->IsChanneled()) || m_spellInfo->AttributesEx4 & SPELL_ATTR4_UNK4)
+     {
+         // Remove used for cast item if need (it can be already NULL after TakeReagents call
+         // in case delayed spell remove item at cast delay start
+@@ -5612,6 +5616,117 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
+     return CheckCast(true);
+ }
+ 
++uint32 Spell::GetCrowdControlDelay(SpellInfo const* spell)
++{
++    switch (spell->SpellFamilyName)
++    {
++    case SPELLFAMILY_WARRIOR:
++        if (spell->Mechanic == MECHANIC_STUN) // Charge, Intercept, Mocking Blow & Shockwave.
++            return 63;
++        if (spell->Mechanic == MECHANIC_SILENCE) // Gag Order.
++            return 63;
++        if (spell->Mechanic == MECHANIC_FEAR) // Intimidating Shout.
++            return 63;
++        if (spell->Mechanic == MECHANIC_ROOT) // Improved Hamstring.
++            return 63;
++        break;
++    case SPELLFAMILY_PALADIN:
++        if (spell->Mechanic == MECHANIC_SILENCE) // Avenger's Shield.
++            return 63;
++        if (spell->Mechanic == MECHANIC_KNOCKOUT) // Repentance.
++            return 63;
++        if (spell->Mechanic == MECHANIC_STUN && spell->Id != 20170) // Hammer of Justice with Seal of Justice disabled.
++            return 63;
++        break;
++    case SPELLFAMILY_HUNTER:
++        /*
++        Scatter Shot, Intimidation, Wyvern Sting, Entrapment, Silencing Shot, Freezing Arrow, Freezing Trap & Some Pet Abilities.
++        Freezing Arrow, Freezing Trap; both (MECHANIC_STUN), need extra attention paid because if you use 
++        the mechanic function it will break the trap spells.
++        */
++        break;
++    case SPELLFAMILY_ROGUE:
++        if (spell->Mechanic == MECHANIC_SILENCE) // Garrote.
++            return 63;
++        if (spell->Mechanic == MECHANIC_STUN) // Cheap Shot & Kidney Shot.
++            return 63;
++        if (spell->Mechanic == MECHANIC_DISORIENTED) // Blind.
++            return 63;
++        if (spell->Mechanic == MECHANIC_SAPPED) // Sap.
++            return 63;
++        break;
++    case SPELLFAMILY_PRIEST:
++        if (spell->Mechanic == MECHANIC_SILENCE) // Silence.
++            return 63;
++        if (spell->Mechanic == MECHANIC_FEAR) // Psychic Scream.
++            return 63;
++        if (spell->Mechanic == MECHANIC_CHARM) // Mind Control.
++            return 63;
++        if (spell->Mechanic == MECHANIC_HORROR) // Psychic Horror.
++            return 63;
++        break;
++    case SPELLFAMILY_DEATHKNIGHT:
++        if (spell->Mechanic == MECHANIC_FREEZE) // Hungering Cold.
++            return 63;
++        if (spell->Mechanic == MECHANIC_SILENCE) // Strangulate.
++            return 63;
++        break;
++    case SPELLFAMILY_SHAMAN:
++        if (spell->Mechanic == MECHANIC_STUN) // Stoneclaw Stun, Spirit Wolf Stun.
++            return 63;
++        if (spell->Mechanic == MECHANIC_ROOT) // Storm, Earth, and Fire Roots Effect.
++            return 63;
++        break;
++    case SPELLFAMILY_MAGE:
++        // if (spell->GetEffectMechanic == MECHANIC_DISORIENTED) // Dragon's Breath.
++            // return 63;
++        // if (spell->GetEffectMechanic == MECHANIC_ROOT) // Water Elemental Freeze.
++            // return 63;
++        if (spell->Mechanic == MECHANIC_ROOT) // Frost Nova & Frostbite.
++            return 63;
++        if (spell->Mechanic == MECHANIC_STUN) // Deep Freeze.
++            return 63;
++        if (spell->Mechanic == MECHANIC_SILENCE) // Improved Counterspell.
++            return 63;
++        break;
++    case SPELLFAMILY_WARLOCK:
++        // if (spell->GetEffectMechanic == MECHANIC_HORROR) // Death Coil.
++            // return 63;
++        // if (spell->GetEffectMechanic == MECHANIC_SILENCE) // Spell Lock.
++            // return 63;
++        // if (spell->GetEffectMechanic == MECHANIC_STUN) // Summon Inferno Stun.
++            // return 63;
++        if (spell->Mechanic == MECHANIC_FEAR) // Fear & Howl of Terror.
++            return 63;
++        if (spell->Mechanic == MECHANIC_BANISH) // Banish.
++            return 63;
++        break;
++    case SPELLFAMILY_DRUID:
++        // if (spell->GetEffectMechanic == MECHANIC_STUN) // Pounce.
++            // return 63;
++        if (spell->Mechanic == MECHANIC_BANISH) // Cyclone.
++            return 63;
++        if (spell->Mechanic == MECHANIC_ROOT) // Entangling Root.
++            return 63;
++        if (spell->Mechanic == MECHANIC_STUN) // Bash.
++            return 63;
++        break;
++    case SPELLFAMILY_GENERIC:
++        // Arcane Torrent (Racial).
++        if (spell->Id == 25046) // Arcane Torrent (Rogue).
++            return 63;
++        if (spell->Id == 28730) // Arcane Torrent (Paladin, Hunter, Priest, Mage, Warlock).
++            return 63;
++        if (spell->Id == 50613) // Arcane Torrent (Death Knight).
++            return 63;
++        if (spell->Id == 47481) // Ghoul Gnaw.
++            return 63;
++        if (spell->Id == 6358) // Seduction.
++            return 63;
++        break;
++    }
++    return 0;
++}
+ SpellCastResult Spell::CheckCasterAuras() const
+ {
+     // spells totally immuned to caster auras (wsg flag drop, give marks etc)
+diff --git a/src/server/game/Spells/Spell.h b/src/server/game/Spells/Spell.h
+index 72bc195..1d3185b 100644
+--- a/src/server/game/Spells/Spell.h
++++ b/src/server/game/Spells/Spell.h
+@@ -387,6 +387,8 @@ class Spell
+         SpellCastResult CheckCast(bool strict);
+         SpellCastResult CheckPetCast(Unit* target);
+ 
++        static uint32 GetCrowdControlDelay(SpellInfo const* spell);
++
+         // handlers
+         void handle_immediate();
+         uint64 handle_delayed(uint64 t_offset);

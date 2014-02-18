@@ -1434,13 +1434,25 @@ void AddBattlegroundScripts()
 
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
-
+void AddSC_npc_morpher();
+void AddSC_CPWS_Transmogrification();
+void AddSC_vipcommands();
+void AddSC_Duel_Reset();
+void AddSC_teleporter_npc();
+void AddSC_npc_changer();
+void AddSC_PvP_System();
 #endif
 
 void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
-
+	AddSC_npc_morpher();
+    AddSC_CPWS_Transmogrification();
+	AddSC_vipcommands();
+	AddSC_Duel_Reset();
+	AddSC_teleporter_npc();
+	AddSC_npc_changer();
+	AddSC_PvP_System();
 #endif
 }

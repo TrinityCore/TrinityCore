@@ -245,6 +245,8 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recvData*/)
 {
     AntiDOS.AllowOpcode(CMSG_CHAR_ENUM, false);
 
+		if (sWorld->IncreaseAndCheckFlooding(GetRemoteAddress()))
+        return;
     // remove expired bans
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
     CharacterDatabase.Execute(stmt);
@@ -1007,8 +1009,23 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))
         pCurrChar->RemoveAtLoginFlag(AT_LOGIN_FIRST);
-
-    // show time before shutdown if shutdown planned.
+	
+	// Start Permanent Scale system
+	QueryResult result3 = CharacterDatabase.PQuery("SELECT scale FROM character_scale WHERE guid = %u", pCurrChar->GetGUID());
+	if(result3)
+	{
+		Field* fields3 = result3->Fetch();
+		float plrScale;
+		plrScale = fields3[0].GetFloat();
+		pCurrChar->SetFloatValue(OBJECT_FIELD_SCALE_X, plrScale);
+	}
+	else
+	{
+		CharacterDatabase.PExecute("REPLACE INTO `character_scale` VALUES (%u, 1, 'Default Scale');", pCurrChar->GetGUID());
+	}
+	// End Permanent Scale System	
+    
+	// show time before shutdown if shutdown planned.
     if (sWorld->IsShuttingDown())
         sWorld->ShutdownMsg(true, pCurrChar);
 

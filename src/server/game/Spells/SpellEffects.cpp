@@ -520,8 +520,8 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             // Lookup for Deadly poison (only attacker applied)
                             if (AuraEffect const* aurEff = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x00010000, 0, 0, m_caster->GetGUID()))
                             {
-                                // count consumed deadly poison doses at target
-                                bool needConsume = true;
+								// Fix Glyph of Envenom
+                                bool needConsume = !m_caster->HasAura(64199);
                                 uint32 spellId = aurEff->GetId();
 
                                 uint32 doses = aurEff->GetBase()->GetStackAmount();
