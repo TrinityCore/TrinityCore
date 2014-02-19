@@ -1776,7 +1776,6 @@ void Player::Update(uint32 p_time)
         if (p_time >= m_nextSave)
         {
             // m_nextSave reset in SaveToDB call
-            sScriptMgr->OnPlayerSave(this);
             SaveToDB();
             TC_LOG_DEBUG("entities.player", "Player '%s' (GUID: %u) saved", GetName().c_str(), GetGUIDLow());
         }
@@ -19118,6 +19117,8 @@ void Player::SaveToDB(bool create /*=false*/)
 
     TC_LOG_DEBUG("entities.unit", "The value of player %s at save: ", m_name.c_str());
     outDebugValues();
+
+    sScriptMgr->OnPlayerSave(this);
 
     PreparedStatement* stmt = NULL;
     uint8 index = 0;
