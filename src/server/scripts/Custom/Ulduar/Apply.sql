@@ -164,9 +164,9 @@ DELETE FROM `achievement_criteria_data` WHERE `criteria_id`='10405' AND `type`='
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id`='10406' AND `type`='18'; 
 
 -- Implements achievement Set Us Up The Bomb
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10542, 10544, 10545, 10548, 10547, 10546) AND `type` = 11;
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10543, 10544, 10545, 10548, 10547, 10546) AND `type` = 11;
 INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
-(10542, 11, 0, 0, "TW_achievement_set_us_up_the_bomb_mine"),
+(10543, 11, 0, 0, "TW_achievement_set_us_up_the_bomb_mine"),
 (10544, 11, 0, 0, "TW_achievement_set_us_up_the_bomb_rocket"),
 (10545, 11, 0, 0, "TW_achievement_set_us_up_the_bomb_bot"),
 (10546, 11, 0, 0, "TW_achievement_set_us_up_the_bomb_mine"),
