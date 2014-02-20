@@ -171,7 +171,7 @@ ElunaRegister<WorldObject> WorldObjectMethods[] =
     {"GetAngle", &LuaWorldObject::GetAngle},                                // :GetAngle(WorldObject or x, y) - Returns angle between world object and target or x and y coords.
 
     // Other
-    {"SendPacket", &LuaWorldObject::SendPacket},                            // :SendPacket(packet[, toSelf]) - Sends a specified packet, optional bool to send to self
+    {"SendPacket", &LuaWorldObject::SendPacket},                            // :SendPacket(packet) - Sends a specified packet to players around object
     {NULL, NULL},
 };
 
@@ -605,6 +605,7 @@ ElunaRegister<Player> PlayerMethods[] =
     {"Mute", &LuaPlayer::Mute},                             // :Mute(time[, reason]) - Mutes the player for given time in seconds.
     {"SummonPlayer", &LuaPlayer::SummonPlayer},             // :SummonPlayer(player, map, x, y, z, zoneId[, delay]) - Sends a popup to the player asking if he wants to be summoned if yes, teleported to coords. ZoneID defines the location name shown in the popup Delay is the time until the popup closes automatically.
     {"SaveToDB", &LuaPlayer::SaveToDB},                     // :SaveToDB() - Saves to database
+    {"SendPacket", &LuaPlayer::SendPacket},                 // :SendPacket(packet[, selfOnly]) - Sends a specified packet to self or self + people around if selfOnly is false
 
     {NULL, NULL},
 };
