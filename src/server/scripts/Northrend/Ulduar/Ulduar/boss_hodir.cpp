@@ -479,6 +479,14 @@ class boss_hodir : public CreatureScript
                 }
             }
 
+            uint32 GetData(uint32 type) const OVERRIDE
+            {
+                if (type == DATA_HODIR_RARE_CACHE)
+                    return iCouldSayThatThisCacheWasRare;
+
+                return 0;
+            }
+
             void FlashFreeze()
             {
                 std::list<Unit*> TargetList;
@@ -1001,6 +1009,20 @@ public:
     }
 };
 
+class TW_achievement_i_could_say_this_cache_was_rare : public AchievementCriteriaScript
+{
+    public:
+        TW_achievement_i_could_say_this_cache_was_rare() : AchievementCriteriaScript("TW_achievement_i_could_say_this_cache_was_rare") { }
+
+        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
+        {
+            if (!target)
+                return false;
+
+            return target->ToCreature()->AI()->GetData(DATA_HODIR_RARE_CACHE);
+        }
+};
+
 void AddSC_boss_hodir()
 {
     new boss_hodir();
@@ -1015,4 +1037,5 @@ void AddSC_boss_hodir()
     new npc_flash_freeze();
     new spell_biting_cold();
     new spell_biting_cold_dot();
+    new TW_achievement_i_could_say_this_cache_was_rare();
 }
