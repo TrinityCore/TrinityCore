@@ -1047,8 +1047,8 @@ void World::LoadConfigSettings(bool reload)
     m_float_configs[CONFIG_ARENA_CHECK_CHEATERS_3v3]                 = sConfigMgr->GetFloatDefault("Arena.Cheated.Rating.3v3", 0.66f);
     m_float_configs[CONFIG_ARENA_CHECK_CHEATERS_5v5]                 = sConfigMgr->GetFloatDefault("Arena.Cheated.Rating.5v5", 0.75f);
     m_int_configs[CONFIG_ARENA_CHECK_CHEATERS_MIN_DMG_2v2]           = sConfigMgr->GetIntDefault ("Arena.Cheated.Minimum.Damage.2v2", 10);
-    m_int_configs[CONFIG_ARENA_CHECK_CHEATERS_MIN_DMG_3v3]           = sConfigMgr->GetIntDefault ("Arena.Cheated.Minimum.Damage.2v2", 10);
-    m_int_configs[CONFIG_ARENA_CHECK_CHEATERS_MIN_DMG_5v5]           = sConfigMgr->GetIntDefault ("Arena.Cheated.Minimum.Damage.2v2", 10);
+    m_int_configs[CONFIG_ARENA_CHECK_CHEATERS_MIN_DMG_3v3]           = sConfigMgr->GetIntDefault ("Arena.Cheated.Minimum.Damage.3v3", 10);
+    m_int_configs[CONFIG_ARENA_CHECK_CHEATERS_MIN_DMG_5v5]           = sConfigMgr->GetIntDefault ("Arena.Cheated.Minimum.Damage.5v5", 10);
 
     m_bool_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN]            = sConfigMgr->GetBoolDefault("OffhandCheckAtSpellUnlearn", true);
 
