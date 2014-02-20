@@ -286,5 +286,13 @@ namespace LuaWorldObject
         }
         return 1;
     }
+
+    int SendPacket(lua_State* L, WorldObject* obj)
+    {
+        WorldPacket* data = sEluna.CHECK_PACKET(L, 1);
+        if (data)
+            obj->SendMessageToSet(data, false);
+        return 0;
+    }
 };
 #endif

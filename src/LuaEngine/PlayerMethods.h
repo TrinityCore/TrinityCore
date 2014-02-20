@@ -1929,48 +1929,6 @@ namespace LuaPlayer
         return 0;
     }
 
-    int SendPacketToPlayer(lua_State* L, Player* player)
-    {
-        WorldPacket* data = sEluna.CHECK_PACKET(L, 1);
-        if (data)
-            player->GetSession()->SendPacket(data);
-        return 0;
-    }
-
-    int SendPacket(lua_State* L, Player* player)
-    {
-        WorldPacket* data = sEluna.CHECK_PACKET(L, 1);
-        if (data)
-            player->SendMessageToSet(data, false);
-        return 0;
-    }
-
-    int SendPacketToGroup(lua_State* L, Player* player)
-    {
-        WorldPacket* data = sEluna.CHECK_PACKET(L, 1);
-        bool ignorePlayersInBg = luaL_optbool(L, 2, false);
-        if (data && player->GetGroup())
-            player->GetGroup()->BroadcastPacket(data, ignorePlayersInBg, -1, player->GetGUIDLow());
-        return 0;
-    }
-
-    int SendPacketToGuild(lua_State* L, Player* player)
-    {
-        WorldPacket* data = sEluna.CHECK_PACKET(L, 1);
-        if (data && player->GetGuild())
-            player->GetGuild()->BroadcastPacket(data);
-        return 0;
-    }
-
-    int SendPacketToRankedInGuild(lua_State* L, Player* player)
-    {
-        WorldPacket* data = sEluna.CHECK_PACKET(L, 1);
-        uint8 ranked = luaL_checkunsigned(L, 2);
-        if (data && player->GetGuild())
-            player->GetGuild()->BroadcastPacketToRank(data, ranked);
-        return 0;
-    }
-
     int SendVendorWindow(lua_State* L, Player* player)
     {
         Unit* sendTo = sEluna.CHECK_UNIT(L, 1);

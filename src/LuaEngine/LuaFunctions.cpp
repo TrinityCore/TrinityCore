@@ -170,6 +170,8 @@ ElunaRegister<WorldObject> WorldObjectMethods[] =
     {"GetRelativePoint", &LuaWorldObject::GetRelativePoint},                // :GetRelativePoint(dist, rad) - Returns the x, y and z of a point dist away from worldobject.
     {"GetAngle", &LuaWorldObject::GetAngle},                                // :GetAngle(WorldObject or x, y) - Returns angle between world object and target or x and y coords.
 
+    // Other
+    {"SendPacket", &LuaWorldObject::SendPacket},                            // :SendPacket(packet) - Sends a specified packet
     {NULL, NULL},
 };
 
@@ -524,11 +526,6 @@ ElunaRegister<Player> PlayerMethods[] =
     {"SendBroadcastMessage", &LuaPlayer::SendBroadcastMessage},                                               // :SendBroadcastMessage(message)
     {"SendAreaTriggerMessage", &LuaPlayer::SendAreaTriggerMessage},                                           // :SendAreaTriggerMessage(message) - Sends a yellow message in the middle of your screen
     {"SendNotification", &LuaPlayer::SendNotification},     // :SendNotification(message) - Sends a red message in the middle of your screen
-    {"SendPacketToPlayer", &LuaPlayer::SendPacketToPlayer}, // :SendPacketToPlayer(packet) - Sends a specified packet to the player
-    {"SendPacket", &LuaPlayer::SendPacket},                 // :SendPacket(packet) - Sends a specified packet
-    // {"SendPacketToGroup", &LuaPlayer::SendPacketToGroup},// :SendPacketToGroup(packet[, sendToPlayersInBattleground(bool)]) - Sends a specified packet to the group with the choice (true/false) to send it to players in a battleground
-    // {"SendPacketToGuild", &LuaPlayer::SendPacketToGuild},// :SendPacketToGuild(packet) - Sends a specified packet to your guild
-    // {"SendPacketToRankedInGuild", &LuaPlayer::SendPacketToRankedInGuild},                                     // :SendPacketToRankedInGuild(packet, rankId) - Sends a specified packet to your guild, specifying a rankId will only send the packet to your ranked members
     {"SendVendorWindow", &LuaPlayer::SendVendorWindow},     // :SendVendorWindow(unit) - Sends the unit's vendor window to the player
     {"ModifyMoney", &LuaPlayer::ModifyMoney},               // :ModifyMoney(amount[, sendError]) - Modifies (does not set) money (copper count) of the player. Amount can be negative to remove copper
     {"LearnSpell", &LuaPlayer::LearnSpell},                 // :LearnSpell(id) - learns the given spell
