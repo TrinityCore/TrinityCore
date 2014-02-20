@@ -171,7 +171,7 @@ ElunaRegister<WorldObject> WorldObjectMethods[] =
     {"GetAngle", &LuaWorldObject::GetAngle},                                // :GetAngle(WorldObject or x, y) - Returns angle between world object and target or x and y coords.
 
     // Other
-    {"SendPacket", &LuaWorldObject::SendPacket},                            // :SendPacket(packet) - Sends a specified packet
+    {"SendPacket", &LuaWorldObject::SendPacket},                            // :SendPacket(packet[, toSelf]) - Sends a specified packet, optional bool to send to self
     {NULL, NULL},
 };
 

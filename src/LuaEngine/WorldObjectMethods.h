@@ -290,8 +290,10 @@ namespace LuaWorldObject
     int SendPacket(lua_State* L, WorldObject* obj)
     {
         WorldPacket* data = sEluna.CHECK_PACKET(L, 1);
+        bool toSelf = luaL_optbool(L, 2, false);
+
         if (data)
-            obj->SendMessageToSet(data, false);
+            obj->SendMessageToSet(data, toSelf);
         return 0;
     }
 };
