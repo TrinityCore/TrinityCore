@@ -2198,5 +2198,20 @@ namespace LuaPlayer
         sEluna.Push(L, player->CanFly());
         return 1;
     }
+
+    int SendPacket(lua_State* L, Player* player)
+    {
+        WorldPacket* data = sEluna.CHECK_PACKET(L, 1);
+        bool selfOnly = luaL_optbool(L, 2, true);
+
+        if (data)
+        {
+            if (selfOnly)
+                player->SendDirectMessage(data);
+            else
+                player->SendMessageToSet(data, true);
+        }
+        return 0;
+    }
 };
 #endif
