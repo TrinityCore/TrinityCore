@@ -23,8 +23,8 @@ namespace LuaGuild
                 if (player->GetSession() && (player->GetGuildId() == guild->GetId()))
                 {
                     ++i;
-                    sEluna.Push(L, i);
-                    sEluna.Push(L, player);
+                    sEluna->Push(L, i);
+                    sEluna->Push(L, player);
                     lua_settable(L, tbl);
                 }
             }
@@ -35,51 +35,59 @@ namespace LuaGuild
     }
 
     int GetMemberCount(lua_State* L, Guild* guild)
-    { 
-        sEluna.Push(L, guild->GetMemberSize());
+    {
+        sEluna->Push(L, guild->GetMemberSize());
         return 1;
     }
 
     int GetLeader(lua_State* L, Guild* guild)
     {
-        sEluna.Push(L, sObjectAccessor->FindPlayer(guild->GetLeaderGUID()));
+#ifdef MANGOS
+        sEluna->Push(L, sObjectAccessor->FindPlayer(guild->GetLeaderGuid()));
+#else
+        sEluna->Push(L, sObjectAccessor->FindPlayer(guild->GetLeaderGUID()));
+#endif
         return 1;
     }
 
     int SetLeader(lua_State* L, Guild* guild)
     {
-        Player* player = sEluna.CHECK_PLAYER(L, 1);
-        if (!player)
-            return 0;
+        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
 
+#ifdef MANGOS
+        guild->SetLeader(player->GET_GUID());
+#else
         guild->HandleSetLeader(player->GetSession(), player->GetName());
+#endif
         return 0;
     }
 
     int GetLeaderGUID(lua_State* L, Guild* guild)
     {
-        sEluna.Push(L, guild->GetLeaderGUID());
+#ifdef MANGOS
+        sEluna->Push(L, guild->GetLeaderGuid());
+#else
+        sEluna->Push(L, guild->GetLeaderGUID());
+#endif
         return 1;
     }
 
     // SendPacketToGuild(packet)
     int SendPacket(lua_State* L, Guild* guild)
     {
-        WorldPacket* data = sEluna.CHECK_PACKET(L, 1);
+        WorldPacket* data = sEluna->CHECKOBJ<WorldPacket>(L, 2);
 
-        if (data)
-            guild->BroadcastPacket(data);
+        guild->BroadcastPacket(data);
         return 0;
     }
 
     // SendPacketToRankedInGuild(packet, rankId)
     int SendPacketToRanked(lua_State* L, Guild* guild)
     {
-        WorldPacket* data = sEluna.CHECK_PACKET(L, 1);
-        uint8 ranked = luaL_checkunsigned(L, 2);
+        WorldPacket* data = sEluna->CHECKOBJ<WorldPacket>(L, 2);
+        uint8 ranked = sEluna->CHECKVAL<uint8>(L, 3);
 
-        if (data)
-            guild->BroadcastPacketToRank(data, ranked);
+        guild->BroadcastPacketToRank(data, ranked);
         return 0;
     }
 
@@ -91,96 +99,102 @@ namespace LuaGuild
 
     int GetId(lua_State* L, Guild* guild)
     {
-        sEluna.Push(L, guild->GetId());
+        sEluna->Push(L, guild->GetId());
         return 1;
     }
 
     int GetName(lua_State* L, Guild* guild)
     {
-        sEluna.Push(L, guild->GetName());
+        sEluna->Push(L, guild->GetName());
         return 1;
     }
 
     int GetMOTD(lua_State* L, Guild* guild)
     {
-        sEluna.Push(L, guild->GetMOTD());
+        sEluna->Push(L, guild->GetMOTD());
         return 1;
     }
 
     int GetInfo(lua_State* L, Guild* guild)
     {
-        sEluna.Push(L, guild->GetInfo());
+#ifdef MANGOS
+        sEluna->Push(L, guild->GetGINFO());
+#else
+        sEluna->Push(L, guild->GetInfo());
+#endif
         return 1;
     }
 
     int AddMember(lua_State* L, Guild* guild)
     {
-        Player* player = sEluna.CHECK_PLAYER(L, 1);
-        uint8 rankId = luaL_optint(L, 2, GUILD_RANK_NONE);
+        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
+        uint8 rankId = sEluna->CHECKVAL<uint8>(L, 3, GUILD_RANK_NONE);
 
-        if (player)
-            guild->AddMember(player->GetGUID(), rankId);
+        guild->AddMember(player->GET_GUID(), rankId);
         return 0;
     }
 
     int DeleteMember(lua_State* L, Guild* guild)
     {
-        Player* player = sEluna.CHECK_PLAYER(L, 1);
-        bool isDisbanding = luaL_optbool(L, 2, false);
+        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
+        bool isDisbanding = sEluna->CHECKVAL<bool>(L, 3, false);
 
-        if (player)
-            guild->DeleteMember(player->GetGUID(), isDisbanding);
+#ifdef MANGOS
+        guild->DelMember(player->GET_GUID(), isDisbanding);
+#else
+        guild->DeleteMember(player->GET_GUID(), isDisbanding);
+#endif
         return 0;
     }
 
     int ChangeMemberRank(lua_State* L, Guild* guild)
     {
-        Player* player = sEluna.CHECK_PLAYER(L, 1);
-        uint8 newRank = luaL_checkunsigned(L, 2);
+        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
+        uint8 newRank = sEluna->CHECKVAL<uint8>(L, 3);
 
-        if (player)
-            guild->ChangeMemberRank(player->GetGUID(), newRank);
+        guild->ChangeMemberRank(player->GET_GUID(), newRank);
         return 0;
     }
 
     int SetBankTabText(lua_State* L, Guild* guild)
     {
-        uint8 tabId = luaL_checkunsigned(L, 1);
-        const char* text = luaL_checkstring(L, 2);
+        uint8 tabId = sEluna->CHECKVAL<uint8>(L, 2);
+        const char* text = sEluna->CHECKVAL<const char*>(L, 3);
+#ifdef MANGOS
+        guild->SetGuildBankTabText(tabId, text);
+#else
         guild->SetBankTabText(tabId, text);
+#endif
         return 0;
     }
 
-    /*int GetBankMoney(lua_State* L, Guild* guild)
+    // Move to Player methods
+    int WithdrawBankMoney(lua_State* L, Guild* guild)
     {
-        sEluna.Push(L, guild->GetGuildBankMoney());
-        return 1;
-    }*/
-
-    /*int WithdrawBankMoney(lua_State* L, Guild* guild)
-    {
-        Player* player = sEluna.CHECK_PLAYER(L, 1);
-        uint32 money = luaL_checknumber(L, 2);
-
-        if (!player || (guild->GetGuildBankMoney() - money) < 0)
+        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
+        uint32 money = sEluna->CHECKVAL<uint32>(L, 3);
+#ifdef MANGOS
+        if (guild->GetGuildBankMoney() < money)
             return 0;
-
-        player->SetMoney(player->GetMoney() + money);
         guild->SetBankMoney(guild->GetGuildBankMoney() - money);
+#else
+        guild->HandleMemberWithdrawMoney(player->GetSession(), money);
+#endif
         return 0;
-    }*/
+    }
 
-    /*int DepositBankMoney(lua_State* L, Guild* guild)
+    // Move to Player methods
+    int DepositBankMoney(lua_State* L, Guild* guild)
     {
-        Player* player = sEluna.CHECK_PLAYER(L, 1);
-        uint32 money = luaL_checknumber(L, 2);
+        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
+        uint32 money = sEluna->CHECKVAL<uint32>(L, 3);
 
-        if (!player || (player->GetMoney() - money) < 0)
-            return 0;
-
-        player->SetMoney(player->GetMoney() - money);
-        guild->DepositBankMoney(guild->GetGuildBankMoney() + money);
+#ifdef MANGOS
+        guild->SetBankMoney(guild->GetGuildBankMoney() + money);
+#else
+        guild->HandleMemberDepositMoney(player->GetSession(), money);
+#endif
         return 0;
-    }*/
+    }
 };
 #endif

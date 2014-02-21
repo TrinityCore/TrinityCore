@@ -254,7 +254,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 return;
             }
 #ifdef ELUNA
-            if(!sHookMgr.OnChat(sender, type, lang, msg))
+            if(!sHookMgr->OnChat(sender, type, lang, msg))
                 return;
 #endif
 
@@ -322,7 +322,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 #ifdef ELUNA
-            if(!sHookMgr.OnChat(sender, type, lang, msg, group))
+            if(!sHookMgr->OnChat(sender, type, lang, msg, group))
                 return;
 #endif
 
@@ -338,7 +338,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 {
                     sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, guild);
 #ifdef ELUNA
-                    if(!sHookMgr.OnChat(sender, type, lang, msg, guild))
+                    if(!sHookMgr->OnChat(sender, type, lang, msg, guild))
                         return;
 #endif
 
@@ -354,7 +354,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 {
                     sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, guild);
 #ifdef ELUNA
-                    if(!sHookMgr.OnChat(sender, type, lang, msg, guild))
+                    if(!sHookMgr->OnChat(sender, type, lang, msg, guild))
                         return;
 #endif
 
@@ -375,7 +375,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 #ifdef ELUNA
-            if(!sHookMgr.OnChat(sender, type, lang, msg, group))
+            if(!sHookMgr->OnChat(sender, type, lang, msg, group))
                 return;
 #endif
 
@@ -396,7 +396,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 #ifdef ELUNA
-            if(!sHookMgr.OnChat(sender, type, lang, msg, group))
+            if(!sHookMgr->OnChat(sender, type, lang, msg, group))
                 return;
 #endif
 
@@ -412,7 +412,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 #ifdef ELUNA
-            if(!sHookMgr.OnChat(sender, type, lang, msg, group))
+            if(!sHookMgr->OnChat(sender, type, lang, msg, group))
                 return;
 #endif
 
@@ -430,7 +430,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 #ifdef ELUNA
-            if(!sHookMgr.OnChat(sender, type, lang, msg, group))
+            if(!sHookMgr->OnChat(sender, type, lang, msg, group))
                 return;
 #endif
 
@@ -447,7 +447,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 #ifdef ELUNA
-            if(!sHookMgr.OnChat(sender, type, lang, msg, group))
+            if(!sHookMgr->OnChat(sender, type, lang, msg, group))
                 return;
 #endif
 
@@ -472,7 +472,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 {
                     sScriptMgr->OnPlayerChat(sender, type, lang, msg, chn);
 #ifdef ELUNA
-                    if(!sHookMgr.OnChat(sender, type, lang, msg, chn))
+                    if(!sHookMgr->OnChat(sender, type, lang, msg, chn))
                         return;
 #endif
                     chn->Say(sender->GetGUID(), msg.c_str(), lang);
@@ -502,7 +502,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
                 sScriptMgr->OnPlayerChat(sender, type, lang, msg);
 #ifdef ELUNA
-                if(!sHookMgr.OnChat(sender, type, lang, msg))
+                if(!sHookMgr->OnChat(sender, type, lang, msg))
                     return;
 #endif
             }
@@ -529,7 +529,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
             sScriptMgr->OnPlayerChat(sender, type, lang, msg);
 #ifdef ELUNA
-            if(!sHookMgr.OnChat(sender, type, lang, msg))
+            if(!sHookMgr->OnChat(sender, type, lang, msg))
                 return;
 #endif
             break;

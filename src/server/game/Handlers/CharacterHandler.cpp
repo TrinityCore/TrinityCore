@@ -1007,7 +1007,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     }
 #ifdef ELUNA
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))
-        sHookMgr.OnFirstLogin(pCurrChar);
+        sHookMgr->OnFirstLogin(pCurrChar);
 #endif
 
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))

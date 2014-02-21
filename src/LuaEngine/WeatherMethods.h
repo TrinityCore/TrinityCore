@@ -9,22 +9,16 @@
 
 namespace LuaWeather
 {
-    int GetScriptId(lua_State* L, Weather* weather)
-    {
-        sEluna.Push(L, weather->GetScriptId());
-        return 1;
-    }
-
     int GetZoneId(lua_State* L, Weather* weather)
     {
-        sEluna.Push(L, weather->GetZone());
+        sEluna->Push(L, weather->GetZone());
         return 1;
     }
 
     int SetWeather(lua_State* L, Weather* weather)
     {
-        uint32 weatherType = luaL_checkunsigned(L, 1);
-        float grade = luaL_checknumber(L, 2);
+        uint32 weatherType = sEluna->CHECKVAL<uint32>(L, 2);
+        float grade = sEluna->CHECKVAL<float>(L, 3);
 
         weather->SetWeather((WeatherType)weatherType, grade);
         return 0;
@@ -32,9 +26,7 @@ namespace LuaWeather
 
     int SendWeatherUpdateToPlayer(lua_State* L, Weather* weather)
     {
-        Player* player = sEluna.CHECK_PLAYER(L, 1);
-        if (!player)
-            return 0;
+        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
 
         weather->SendWeatherUpdateToPlayer(player);
         return 0;
@@ -42,13 +34,13 @@ namespace LuaWeather
 
     int Regenerate(lua_State* L, Weather* weather)
     {
-        sEluna.Push(L, weather->ReGenerate());
+        sEluna->Push(L, weather->ReGenerate());
         return 1;
     }
 
     int UpdateWeather(lua_State* L, Weather* weather)
     {
-        sEluna.Push(L, weather->UpdateWeather());
+        sEluna->Push(L, weather->UpdateWeather());
         return 1;
     }
 };

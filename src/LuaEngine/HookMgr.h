@@ -7,15 +7,43 @@
 #ifndef LUAHOOKS_H
 #define LUAHOOKS_H
 
-#include "ScriptMgr.h"
-#include "Group.h"
+// #define MANGOS
+// #define TBC
+
+// Base
+#include "Common.h"
+#include "SharedDefines.h"
+#include <ace/Singleton.h>
+#include <ace/Atomic_Op.h>
+// enums
+#ifndef MANGOS
 #include "GameObjectAI.h"
-#include "CreatureAI.h"
+#endif
+#include "Group.h"
 #include "Item.h"
+#include "Weather.h"
+
+#ifdef MANGOS
+#define ScriptedAI              ReactorAI
+#define SpellEffIndex           SpellEffectIndex
+#define ItemTemplate            ItemPrototype
+#define GetTemplate             GetProto
+//#include "Common.h"
+//#include "Policies/Singleton.h"
+//#include "ObjectGuid.h"
+//#include "ace/Atomic_Op.h"
+//
+//enums
+//#include "DBCEnums.h"
+//#include "Includes.h"
+#endif
 
 struct AreaTriggerEntry;
-struct SpellEntry;
-class Aura;
+#ifdef MANGOS
+class ScriptedAI;
+#else
+struct ScriptedAI;
+#endif
 class AuctionHouseObject;
 class Channel;
 class Creature;
@@ -23,10 +51,7 @@ class CreatureAI;
 class GameObject;
 class Guild;
 class Group;
-class InstanceData;
 class Item;
-class Map;
-class Object;
 class Player;
 class Quest;
 class Spell;
@@ -34,9 +59,7 @@ class SpellCastTargets;
 class Transport;
 class Unit;
 class Weather;
-class WorldObject;
 class WorldPacket;
-class WorldSocket;
 
 enum RegisterTypes
 {
@@ -73,9 +96,9 @@ enum ServerEvents
     SERVER_EVENT_ON_PACKET_RECEIVE_UNKNOWN  =     6,       // Not Implemented
     SERVER_EVENT_ON_PACKET_SEND             =     7,       // (event, packet, player) - Player only if accessible. Can return false or a new packet
 
-    // World
-    WORLD_EVENT_ON_OPEN_STATE_CHANGE        =     8,       // (event, open)
-    WORLD_EVENT_ON_CONFIG_LOAD              =     9,       // (event, reload)
+    // World // Not implemented on mangos
+    WORLD_EVENT_ON_OPEN_STATE_CHANGE        =     8,        // (event, open)
+    WORLD_EVENT_ON_CONFIG_LOAD              =     9,        // (event, reload)
     WORLD_EVENT_ON_MOTD_CHANGE              =     10,       // (event, newMOTD)
     WORLD_EVENT_ON_SHUTDOWN_INIT            =     11,       // (event, code, mask)
     WORLD_EVENT_ON_SHUTDOWN_CANCEL          =     12,       // (event)
@@ -104,8 +127,8 @@ enum ServerEvents
     // Auction house
     AUCTION_EVENT_ON_ADD                    =     26,       // (event, AHObject)
     AUCTION_EVENT_ON_REMOVE                 =     27,       // (event, AHObject)
-    AUCTION_EVENT_ON_SUCCESSFUL             =     28,       // (event, AHObject)
-    AUCTION_EVENT_ON_EXPIRE                 =     29,       // (event, AHObject)
+    AUCTION_EVENT_ON_SUCCESSFUL             =     28,       // (event, AHObject) // NOT SUPPORTED YET
+    AUCTION_EVENT_ON_EXPIRE                 =     29,       // (event, AHObject) // NOT SUPPORTED YET
 
     SERVER_EVENT_COUNT
 };
@@ -141,6 +164,7 @@ enum PlayerEvents
     PLAYER_EVENT_ON_BIND_TO_INSTANCE        =     26,       // (event, player, difficulty, mapid, permanent)
     PLAYER_EVENT_ON_UPDATE_ZONE             =     27,       // (event, player, newZone, newArea)
     PLAYER_EVENT_ON_MAP_CHANGE              =     28,       // (event, player)
+
     // Custom
     PLAYER_EVENT_ON_EQUIP                   =     29,       // (event, player, item, bag, slot)
     PLAYER_EVENT_ON_FIRST_LOGIN             =     30,       // (event, player)
@@ -160,25 +184,12 @@ enum PlayerEvents
     PLAYER_EVENT_COUNT
 };
 
-// RegisterVehicleEvent(eventId, function)
-enum VehicleEvents
-{
-    VEHICLE_EVENT_ON_INSTALL                =     1,
-    VEHICLE_EVENT_ON_UNINSTALL              =     2,
-    VEHICLE_EVENT_ON_RESET                  =     3,
-    VEHICLE_EVENT_ON_INSTALL_ACCESSORY      =     4,
-    VEHICLE_EVENT_ON_ADD_PASSENGER          =     5,
-    VEHICLE_EVENT_ON_REMOVE_PASSENGER       =     6,
-
-    VEHICLE_EVENT_COUNT
-};
-
 // RegisterGuildEvent(eventId, function)
 enum GuildEventTypes
 {
     // Guild
     GUILD_EVENT_ON_ADD_MEMBER               =     1,       // (event, guild, player, rank)
-    GUILD_EVENT_ON_REMOVE_MEMBER            =     2,       // (event, guild, isDisbanding, isKicked)
+    GUILD_EVENT_ON_REMOVE_MEMBER            =     2,       // (event, guild, isDisbanding)
     GUILD_EVENT_ON_MOTD_CHANGE              =     3,       // (event, guild, newMotd)
     GUILD_EVENT_ON_INFO_CHANGE              =     4,       // (event, guild, newInfo)
     GUILD_EVENT_ON_CREATE                   =     5,       // (event, guild, leader, name)
@@ -204,6 +215,19 @@ enum GroupEvents
     GROUP_EVENT_ON_CREATE                   =     6,       // (event, group, leaderGuid, groupType)
 
     GROUP_EVENT_COUNT
+};
+
+// RegisterVehicleEvent(eventId, function)
+enum VehicleEvents
+{
+    VEHICLE_EVENT_ON_INSTALL                =     1,
+    VEHICLE_EVENT_ON_UNINSTALL              =     2,
+    VEHICLE_EVENT_ON_RESET                  =     3,
+    VEHICLE_EVENT_ON_INSTALL_ACCESSORY      =     4,
+    VEHICLE_EVENT_ON_ADD_PASSENGER          =     5,
+    VEHICLE_EVENT_ON_REMOVE_PASSENGER       =     6,
+
+    VEHICLE_EVENT_COUNT
 };
 
 // RegisterCreatureEvent(entry, EventId, function)
@@ -251,7 +275,7 @@ enum CreatureEvents
 enum GameObjectEvents
 {
     GAMEOBJECT_EVENT_ON_AIUPDATE                    = 1,    // (event, go, diff)
-    GAMEOBJECT_EVENT_ON_RESET                       = 2,    // (event, go)
+    GAMEOBJECT_EVENT_ON_RESET                       = 2,    // (event, go)                  // TODO
     GAMEOBJECT_EVENT_ON_DUMMY_EFFECT                = 3,    // (event, caster, spellid, effindex, go)
     GAMEOBJECT_EVENT_ON_QUEST_ACCEPT                = 4,    // (event, player, go, quest)
     GAMEOBJECT_EVENT_ON_QUEST_REWARD                = 5,    // (event, player, go, quest, opt)
@@ -285,12 +309,16 @@ enum GossipEvents
     GOSSIP_EVENT_COUNT
 };
 
-struct HookMgr
+class HookMgr
 {
+public:
     CreatureAI* GetAI(Creature* creature);
-    GameObjectAI* GetAI(GameObject* gameObject);
 
-    /* Misc */
+#ifndef MANGOS
+    GameObjectAI* GetAI(GameObject* gameObject);
+#endif
+
+    /* Custom */
     bool OnCommand(Player* player, const char* text);
     void OnWorldUpdate(uint32 diff);
     void OnLootItem(Player* pPlayer, Item* pItem, uint32 count, uint64 guid);
@@ -305,12 +333,14 @@ struct HookMgr
     void OnGmTicketDelete(Player* pPlayer); // Not on TC
     InventoryResult OnCanUseItem(const Player* pPlayer, uint32 itemEntry);
     void OnEngineRestart();
+
     /* Item */
     bool OnDummyEffect(Unit* pCaster, uint32 spellId, SpellEffIndex effIndex, Item* pTarget);
     bool OnQuestAccept(Player* pPlayer, Item* pItem, Quest const* pQuest);
     bool OnUse(Player* pPlayer, Item* pItem, SpellCastTargets const& targets);
     bool OnExpire(Player* pPlayer, ItemTemplate const* pProto);
     void HandleGossipSelectOption(Player* pPlayer, Item* item, uint32 sender, uint32 action, std::string code);
+
     /* Creature */
     bool OnDummyEffect(Unit* pCaster, uint32 spellId, SpellEffIndex effIndex, Creature* pTarget);
     bool OnGossipHello(Player* pPlayer, Creature* pCreature);
@@ -320,8 +350,9 @@ struct HookMgr
     bool OnQuestSelect(Player* pPlayer, Creature* pCreature, Quest const* pQuest);
     bool OnQuestComplete(Player* pPlayer, Creature* pCreature, Quest const* pQuest);
     bool OnQuestReward(Player* pPlayer, Creature* pCreature, Quest const* pQuest);
-    uint32 GetDialogStatus(Player* pPlayer, Creature* pCreature);
+    uint32 GetDialogStatus(Player* pPlayer, Creature* pCreature); // Not on TC
     void OnSummoned(Creature* creature, Unit* summoner);
+
     /* GameObject */
     bool OnDummyEffect(Unit* pCaster, uint32 spellId, SpellEffIndex effIndex, GameObject* pTarget);
     bool OnGossipHello(Player* pPlayer, GameObject* pGameObject);
@@ -332,14 +363,16 @@ struct HookMgr
     bool OnQuestReward(Player* pPlayer, GameObject* pGameObject, Quest const* pQuest);
     bool OnGameObjectUse(Player* pPlayer, GameObject* pGameObject) { return false; }; // TODO? Not on TC
     uint32 GetDialogStatus(Player* pPlayer, GameObject* pGameObject);
-    void OnDestroyed(GameObject* pGameObject, Player* pPlayer);
-    void OnDamaged(GameObject* pGameObject, Player* pPlayer);
-    void OnLootStateChanged(GameObject* pGameObject, uint32 state, Unit* pUnit);
-    void OnGameObjectStateChanged(GameObject* pGameObject, uint32 state);
-    void UpdateAI(GameObject* pGameObject, uint32 update_diff, uint32 p_time);
+    void OnDestroyed(GameObject* pGameObject, Player* pPlayer); // TODO
+    void OnDamaged(GameObject* pGameObject, Player* pPlayer); // TODO
+    void OnLootStateChanged(GameObject* pGameObject, uint32 state, Unit* pUnit); // TODO
+    void OnGameObjectStateChanged(GameObject* pGameObject, uint32 state); // TODO
+    void UpdateAI(GameObject* pGameObject, uint32 diff);
+
     /* Packet */
     bool OnPacketSend(WorldSession* session, WorldPacket& packet);
     bool OnPacketReceive(WorldSession* session, WorldPacket& packet);
+
     /* Player */
     void OnPlayerEnterCombat(Player* pPlayer, Unit* pEnemy);
     void OnPlayerLeaveCombat(Player* pPlayer);
@@ -372,6 +405,8 @@ struct HookMgr
     void OnUpdateZone(Player* pPlayer, uint32 newZone, uint32 newArea);
     void OnMapChanged(Player* pPlayer); // TODO
     void HandleGossipSelectOption(Player* pPlayer, uint32 menuId, uint32 sender, uint32 action, std::string code);
+
+#ifndef MANGOS
     /* Vehicle */
     void OnInstall(Vehicle* vehicle);
     void OnUninstall(Vehicle* vehicle);
@@ -379,42 +414,53 @@ struct HookMgr
     void OnInstallAccessory(Vehicle* vehicle, Creature* accessory);
     void OnAddPassenger(Vehicle* vehicle, Unit* passenger, int8 seatId);
     void OnRemovePassenger(Vehicle* vehicle, Unit* passenger);
+#endif
+
     /* AreaTrigger */
     bool OnAreaTrigger(Player* pPlayer, AreaTriggerEntry const* pTrigger);
+
     /* Weather */
-    void OnChange(Weather* weather, WeatherState state, float grade);
+    void OnChange(Weather* weather, WeatherState state, float grade); // TODO
+
     /* Auction House */
-    void OnAdd(AuctionHouseObject* ah);
-    void OnRemove(AuctionHouseObject* ah);
-    void OnSuccessful(AuctionHouseObject* ah);
-    void OnExpire(AuctionHouseObject* ah);
+    void OnAdd(AuctionHouseObject* auctionHouse);
+    void OnRemove(AuctionHouseObject* auctionHouse);
+    void OnSuccessful(AuctionHouseObject* auctionHouse);
+    void OnExpire(AuctionHouseObject* auctionHouse);
+
     /* Condition */
-    bool OnConditionCheck(Condition* condition, ConditionSourceInfo& sourceInfo) { return false; }; // TODO ?
+
     /* Transport */
-    void OnAddPassenger(Transport* transport, Player* player);
-    void OnAddCreaturePassenger(Transport* transport, Creature* creature);
-    void OnRemovePassenger(Transport* transport, Player* player);
-    void OnRelocate(Transport* transport, uint32 waypointId, uint32 mapId, float x, float y, float z);
+    void OnAddPassenger(Transport* transport, Player* player); // TODO
+    void OnAddCreaturePassenger(Transport* transport, Creature* creature); // TODO
+    void OnRemovePassenger(Transport* transport, Player* player); // TODO
+    void OnRelocate(Transport* transport, uint32 waypointId, uint32 mapId, float x, float y, float z); // TODO
+
     /* Guild */
     void OnAddMember(Guild* guild, Player* player, uint32 plRank);
-    void OnRemoveMember(Guild* guild, Player* player, bool isDisbanding, bool isKicked);
+    void OnRemoveMember(Guild* guild, Player* player, bool isDisbanding);
     void OnMOTDChanged(Guild* guild, const std::string& newMotd);
     void OnInfoChanged(Guild* guild, const std::string& newInfo);
     void OnCreate(Guild* guild, Player* leader, const std::string& name); // TODO: Implement to TC
     void OnDisband(Guild* guild);
-    void OnMemberWitdrawMoney(Guild* guild, Player* player, uint32 &amount, bool isRepair);
-    void OnMemberDepositMoney(Guild* guild, Player* player, uint32 &amount);
-    void OnItemMove(Guild* guild, Player* player, Item* pItem, bool isSrcBank, uint8 srcContainer, uint8 srcSlotId, bool isDestBank, uint8 destContainer, uint8 destSlotId);
-    void OnEvent(Guild* guild, uint8 eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank);
+    void OnMemberWitdrawMoney(Guild* guild, Player* player, uint32& amount, bool isRepair);
+    void OnMemberDepositMoney(Guild* guild, Player* player, uint32& amount);
+    void OnItemMove(Guild* guild, Player* player, Item* pItem, bool isSrcBank, uint8 srcContainer, uint8 srcSlotId, bool isDestBank, uint8 destContainer, uint8 destSlotId); // TODO: Implement
+    void OnEvent(Guild* guild, uint8 eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank); // TODO: Implement
     void OnBankEvent(Guild* guild, uint8 eventType, uint8 tabId, uint32 playerGuid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId);
+
     /* Group */
     void OnAddMember(Group* group, uint64 guid);
     void OnInviteMember(Group* group, uint64 guid);
-    void OnRemoveMember(Group* group, uint64 guid, uint8 method, uint64 kicker, const char* reason);
+    void OnRemoveMember(Group* group, uint64 guid, uint8 method);
     void OnChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid);
     void OnDisband(Group* group);
     void OnCreate(Group* group, uint64 leaderGuid, GroupType groupType);
 };
-#define sHookMgr (*ACE_Singleton<HookMgr, ACE_Null_Mutex>::instance())
+#ifdef MANGOS
+#define sHookMgr (&MaNGOS::Singleton<HookMgr>::Instance())
+#else
+#define sHookMgr ACE_Singleton<HookMgr, ACE_Null_Mutex>::instance()
+#endif
 
 #endif

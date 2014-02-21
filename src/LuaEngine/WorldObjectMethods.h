@@ -11,112 +11,137 @@ namespace LuaWorldObject
 {
     int GetName(lua_State* L, WorldObject* obj)
     {
-        sEluna.Push(L, obj->GetName());
+        sEluna->Push(L, obj->GetName());
         return 1;
     }
     int GetMap(lua_State* L, WorldObject* obj)
     {
-        sEluna.Push(L, obj->GetMap());
+        sEluna->Push(L, obj->GetMap());
         return 1;
     }
+
+#ifndef TBC
     int GetPhaseMask(lua_State* L, WorldObject* obj)
     {
-        sEluna.Push(L, obj->GetPhaseMask());
+        sEluna->Push(L, obj->GetPhaseMask());
         return 1;
     }
+#endif
+
     int GetInstanceId(lua_State* L, WorldObject* obj)
     {
-        sEluna.Push(L, obj->GetInstanceId());
+        sEluna->Push(L, obj->GetInstanceId());
         return 1;
     }
     int GetAreaId(lua_State* L, WorldObject* obj)
     {
-        sEluna.Push(L, obj->GetAreaId());
+        sEluna->Push(L, obj->GetAreaId());
         return 1;
     }
     int GetZoneId(lua_State* L, WorldObject* obj)
     {
-        sEluna.Push(L, obj->GetZoneId());
+        sEluna->Push(L, obj->GetZoneId());
         return 1;
     }
     int GetMapId(lua_State* L, WorldObject* obj)
     {
-        sEluna.Push(L, obj->GetMapId());
+        sEluna->Push(L, obj->GetMapId());
         return 1;
     }
     int GetX(lua_State* L, WorldObject* obj)
     {
-        sEluna.Push(L, obj->GetPositionX());
+        sEluna->Push(L, obj->GetPositionX());
         return 1;
     }
     int GetY(lua_State* L, WorldObject* obj)
     {
-        sEluna.Push(L, obj->GetPositionY());
+        sEluna->Push(L, obj->GetPositionY());
         return 1;
     }
     int GetZ(lua_State* L, WorldObject* obj)
     {
-        sEluna.Push(L, obj->GetPositionZ());
+        sEluna->Push(L, obj->GetPositionZ());
         return 1;
     }
     int GetO(lua_State* L, WorldObject* obj)
     {
-        sEluna.Push(L, obj->GetOrientation());
+        sEluna->Push(L, obj->GetOrientation());
         return 1;
     }
     int GetLocation(lua_State* L, WorldObject* obj)
     {
-        sEluna.Push(L, obj->GetPositionX());
-        sEluna.Push(L, obj->GetPositionY());
-        sEluna.Push(L, obj->GetPositionZ());
-        sEluna.Push(L, obj->GetOrientation());
+        sEluna->Push(L, obj->GetPositionX());
+        sEluna->Push(L, obj->GetPositionY());
+        sEluna->Push(L, obj->GetPositionZ());
+        sEluna->Push(L, obj->GetOrientation());
         return 4;
     }
     int GetNearestPlayer(lua_State* L, WorldObject* obj)
     {
-        float range = luaL_optnumber(L, 1, SIZE_OF_GRIDS);
+        float range = sEluna->CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
 
-        Player* target = NULL;
+        Unit* target = NULL;
         Eluna::WorldObjectInRangeCheck checker(true, obj, range, TYPEMASK_PLAYER);
-        Trinity::PlayerLastSearcher<Eluna::WorldObjectInRangeCheck> searcher(obj, target, checker);
+#ifdef MANGOS
+        MaNGOS::UnitLastSearcher<Eluna::WorldObjectInRangeCheck> searcher(target, checker);
+        Cell::VisitWorldObjects(obj, searcher, range);
+#else
+        Trinity::UnitLastSearcher<Eluna::WorldObjectInRangeCheck> searcher(obj, target, checker);
+        obj->VisitNearbyObject(range, searcher);
+#endif
 
-        sEluna.Push(L, target);
+        sEluna->Push(L, target);
         return 1;
     }
     int GetNearestGameObject(lua_State* L, WorldObject* obj)
     {
-        float range = luaL_optnumber(L, 1, SIZE_OF_GRIDS);
-        uint32 entry = luaL_optunsigned(L, 2, 0);
+        float range = sEluna->CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
+        uint32 entry = sEluna->CHECKVAL<uint32>(L, 3, 0);
 
         GameObject* target = NULL;
         Eluna::WorldObjectInRangeCheck checker(true, obj, range, TYPEMASK_GAMEOBJECT, entry);
+#ifdef MANGOS
+        MaNGOS::GameObjectLastSearcher<Eluna::WorldObjectInRangeCheck> searcher(target, checker);
+        Cell::VisitGridObjects(obj, searcher, range);
+#else
         Trinity::GameObjectLastSearcher<Eluna::WorldObjectInRangeCheck> searcher(obj, target, checker);
-        obj->VisitNearbyGridObject(range, searcher);
+        obj->VisitNearbyObject(range, searcher);
+#endif
 
-        sEluna.Push(L, target);
+        sEluna->Push(L, target);
         return 1;
     }
     int GetNearestCreature(lua_State* L, WorldObject* obj)
     {
-        float range = luaL_optnumber(L, 1, SIZE_OF_GRIDS);
-        uint32 entry = luaL_optunsigned(L, 2, 0);
+        float range = sEluna->CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
+        uint32 entry = sEluna->CHECKVAL<uint32>(L, 3, 0);
 
         Creature* target = NULL;
         Eluna::WorldObjectInRangeCheck checker(true, obj, range, TYPEMASK_UNIT, entry);
+#ifdef MANGOS
+        MaNGOS::CreatureLastSearcher<Eluna::WorldObjectInRangeCheck> searcher(target, checker);
+        Cell::VisitGridObjects(obj, searcher, range);
+#else
         Trinity::CreatureLastSearcher<Eluna::WorldObjectInRangeCheck> searcher(obj, target, checker);
-        obj->VisitNearbyGridObject(range, searcher);
+        obj->VisitNearbyObject(range, searcher);
+#endif
 
-        sEluna.Push(L, target);
+        sEluna->Push(L, target);
         return 1;
     }
     int GetPlayersInRange(lua_State* L, WorldObject* obj)
     {
-        float range = luaL_optnumber(L, 1, SIZE_OF_GRIDS);
+        float range = sEluna->CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
 
         std::list<Player*> list;
         Eluna::WorldObjectInRangeCheck checker(false, obj, range, TYPEMASK_PLAYER);
+#ifdef MANGOS
+        MaNGOS::PlayerListSearcher<Eluna::WorldObjectInRangeCheck> searcher(list, checker);
+        Cell::VisitWorldObjects(obj, searcher, range);
+#else
         Trinity::PlayerListSearcher<Eluna::WorldObjectInRangeCheck> searcher(obj, list, checker);
-        obj->VisitNearbyWorldObject(range, searcher);
+        obj->VisitNearbyObject(range, searcher);
+#endif
 
         lua_newtable(L);
         int tbl = lua_gettop(L);
@@ -124,8 +149,8 @@ namespace LuaWorldObject
 
         for (std::list<Player*>::const_iterator it = list.begin(); it != list.end(); ++it)
         {
-            sEluna.Push(L, ++i);
-            sEluna.Push(L, *it);
+            sEluna->Push(L, ++i);
+            sEluna->Push(L, *it);
             lua_settable(L, tbl);
         }
 
@@ -134,13 +159,18 @@ namespace LuaWorldObject
     }
     int GetCreaturesInRange(lua_State* L, WorldObject* obj)
     {
-        float range = luaL_optnumber(L, 1, SIZE_OF_GRIDS);
-        uint32 entry = luaL_optunsigned(L, 2, 0);
+        float range = sEluna->CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
+        uint32 entry = sEluna->CHECKVAL<uint32>(L, 3, 0);
 
         std::list<Creature*> list;
         Eluna::WorldObjectInRangeCheck checker(false, obj, range, TYPEMASK_UNIT, entry);
+#ifdef MANGOS
+        MaNGOS::CreatureListSearcher<Eluna::WorldObjectInRangeCheck> searcher(list, checker);
+        Cell::VisitGridObjects(obj, searcher, range);
+#else
         Trinity::CreatureListSearcher<Eluna::WorldObjectInRangeCheck> searcher(obj, list, checker);
-        obj->VisitNearbyGridObject(range, searcher);
+        obj->VisitNearbyObject(range, searcher);
+#endif
 
         lua_newtable(L);
         int tbl = lua_gettop(L);
@@ -148,8 +178,8 @@ namespace LuaWorldObject
 
         for (std::list<Creature*>::const_iterator it = list.begin(); it != list.end(); ++it)
         {
-            sEluna.Push(L, ++i);
-            sEluna.Push(L, *it);
+            sEluna->Push(L, ++i);
+            sEluna->Push(L, *it);
             lua_settable(L, tbl);
         }
 
@@ -158,15 +188,18 @@ namespace LuaWorldObject
     }
     int GetGameObjectsInRange(lua_State* L, WorldObject* obj)
     {
-        float range = luaL_optnumber(L, 1, SIZE_OF_GRIDS);
-        uint32 entry = luaL_optunsigned(L, 2, 0);
+        float range = sEluna->CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
+        uint32 entry = sEluna->CHECKVAL<uint32>(L, 3, 0);
 
-        float x, y, z;
-        obj->GetPosition(x, y, z);
         std::list<GameObject*> list;
         Eluna::WorldObjectInRangeCheck checker(false, obj, range, TYPEMASK_GAMEOBJECT, entry);
+#ifdef MANGOS
+        MaNGOS::GameObjectListSearcher<Eluna::WorldObjectInRangeCheck> searcher(list, checker);
+        Cell::VisitGridObjects(obj, searcher, range);
+#else
         Trinity::GameObjectListSearcher<Eluna::WorldObjectInRangeCheck> searcher(obj, list, checker);
-        obj->VisitNearbyGridObject(range, searcher);
+        obj->VisitNearbyObject(range, searcher);
+#endif
 
         lua_newtable(L);
         int tbl = lua_gettop(L);
@@ -174,8 +207,8 @@ namespace LuaWorldObject
 
         for (std::list<GameObject*>::const_iterator it = list.begin(); it != list.end(); ++it)
         {
-            sEluna.Push(L, ++i);
-            sEluna.Push(L, *it);
+            sEluna->Push(L, ++i);
+            sEluna->Push(L, *it);
             lua_settable(L, tbl);
         }
 
@@ -184,11 +217,11 @@ namespace LuaWorldObject
     }
     int GetNearObject(lua_State* L, WorldObject* obj)
     {
-        bool nearest = luaL_optbool(L, 1, true);
-        float range = luaL_optnumber(L, 2, SIZE_OF_GRIDS);
-        uint16 type = luaL_optunsigned(L, 3, 0); // TypeMask
-        uint32 entry = luaL_optunsigned(L, 4, 0);
-        uint32 hostile = luaL_optunsigned(L, 5, 0); // 0 none, 1 hostile, 2 friendly
+        bool nearest = sEluna->CHECKVAL<bool>(L, 2, true);
+        float range = sEluna->CHECKVAL<float>(L, 3, SIZE_OF_GRIDS);
+        uint16 type = sEluna->CHECKVAL<uint16>(L, 4, 0); // TypeMask
+        uint32 entry = sEluna->CHECKVAL<uint32>(L, 5, 0);
+        uint32 hostile = sEluna->CHECKVAL<uint32>(L, 6, 0); // 0 none, 1 hostile, 2 friendly
 
         float x, y, z;
         obj->GetPosition(x, y, z);
@@ -196,17 +229,27 @@ namespace LuaWorldObject
         if (nearest)
         {
             WorldObject* target = NULL;
+#ifdef MANGOS
+            MaNGOS::WorldObjectLastSearcher<Eluna::WorldObjectInRangeCheck> searcher(target, checker);
+            Cell::VisitAllObjects(obj, searcher, range);
+#else
             Trinity::WorldObjectLastSearcher<Eluna::WorldObjectInRangeCheck> searcher(obj, target, checker);
             obj->VisitNearbyObject(range, searcher);
+#endif
 
-            sEluna.Push(L, target);
+            sEluna->Push(L, target);
             return 1;
         }
         else
         {
             std::list<WorldObject*> list;
+#ifdef MANGOS
+            MaNGOS::WorldObjectListSearcher<Eluna::WorldObjectInRangeCheck> searcher(list, checker);
+            Cell::VisitAllObjects(obj, searcher, range);
+#else
             Trinity::WorldObjectListSearcher<Eluna::WorldObjectInRangeCheck> searcher(obj, list, checker);
             obj->VisitNearbyObject(range, searcher);
+#endif
 
             lua_newtable(L);
             int tbl = lua_gettop(L);
@@ -214,8 +257,8 @@ namespace LuaWorldObject
 
             for (std::list<WorldObject*>::const_iterator it = list.begin(); it != list.end(); ++it)
             {
-                sEluna.Push(L, ++i);
-                sEluna.Push(L, *it);
+                sEluna->Push(L, ++i);
+                sEluna->Push(L, *it);
                 lua_settable(L, tbl);
             }
 
@@ -227,73 +270,144 @@ namespace LuaWorldObject
     }
     int GetWorldObject(lua_State* L, WorldObject* obj)
     {
-        uint64 guid = sEluna.CHECK_ULONG(L, 1);
+        uint64 guid = sEluna->CHECKVAL<uint64>(L, 2);
 
+#ifdef MANGOS
         switch (GUID_HIPART(guid))
         {
-        case HIGHGUID_PLAYER:        sEluna.Push(L, sObjectAccessor->GetPlayer(*obj, guid)); break;
+        case HIGHGUID_PLAYER:        sEluna->Push(L, obj->GetMap()->GetPlayer(GUID_TYPE(guid))); break;
         case HIGHGUID_TRANSPORT:
         case HIGHGUID_MO_TRANSPORT:
-        case HIGHGUID_GAMEOBJECT:    sEluna.Push(L, sObjectAccessor->GetGameObject(*obj, guid)); break;
+        case HIGHGUID_GAMEOBJECT:    sEluna->Push(L, obj->GetMap()->GetGameObject(GUID_TYPE(guid))); break;
+#ifndef TBC
         case HIGHGUID_VEHICLE:
-        case HIGHGUID_UNIT:          sEluna.Push(L, sObjectAccessor->GetCreature(*obj, guid)); break;
-        case HIGHGUID_PET:           sEluna.Push(L, sObjectAccessor->GetPet(*obj, guid)); break;
+#endif
+        case HIGHGUID_UNIT:
+        case HIGHGUID_PET:           sEluna->Push(L, obj->GetMap()->GetAnyTypeCreature(GUID_TYPE(guid))); break;
         default:                     return 0;
         }
+#else
+        switch (GUID_HIPART(guid))
+        {
+        case HIGHGUID_PLAYER:        sEluna->Push(L, sObjectAccessor->GetPlayer(*obj, GUID_TYPE(guid))); break;
+        case HIGHGUID_TRANSPORT:
+        case HIGHGUID_MO_TRANSPORT:
+        case HIGHGUID_GAMEOBJECT:    sEluna->Push(L, sObjectAccessor->GetGameObject(*obj, GUID_TYPE(guid))); break;
+        case HIGHGUID_VEHICLE:
+        case HIGHGUID_UNIT:          sEluna->Push(L, sObjectAccessor->GetCreature(*obj, GUID_TYPE(guid))); break;
+        case HIGHGUID_PET:           sEluna->Push(L, sObjectAccessor->GetPet(*obj, GUID_TYPE(guid))); break;
+        default:                     return 0;
+        }
+#endif
         return 1;
     }
 
     int GetDistance(lua_State* L, WorldObject* obj)
     {
-        WorldObject* target = sEluna.CHECK_WORLDOBJECT(L, 1);
+        WorldObject* target = sEluna->CHECKOBJ<WorldObject>(L, 2, false);
         if (target && target->IsInWorld())
-            sEluna.Push(L, obj->GetDistance(target));
+            sEluna->Push(L, obj->GetDistance(target));
         else
         {
-            float X = luaL_checknumber(L, 1);
-            float Y = luaL_checknumber(L, 2);
-            float Z = luaL_checknumber(L, 3);
-            sEluna.Push(L, obj->GetDistance(X, Y, Z));
+            float X = sEluna->CHECKVAL<float>(L, 2);
+            float Y = sEluna->CHECKVAL<float>(L, 3);
+            float Z = sEluna->CHECKVAL<float>(L, 4);
+            sEluna->Push(L, obj->GetDistance(X, Y, Z));
         }
         return 1;
     }
 
     int GetRelativePoint(lua_State* L, WorldObject* obj)
     {
-        float dist = luaL_checknumber(L, 1);
-        float rad = luaL_checknumber(L, 2);
+        float dist = sEluna->CHECKVAL<float>(L, 2);
+        float rad = sEluna->CHECKVAL<float>(L, 3);
 
         float x, y, z;
         obj->GetClosePoint(x, y, z, 0.0f, dist, rad);
 
-        sEluna.Push(L, x);
-        sEluna.Push(L, y);
-        sEluna.Push(L, z);
+        sEluna->Push(L, x);
+        sEluna->Push(L, y);
+        sEluna->Push(L, z);
         return 3;
     }
 
     int GetAngle(lua_State* L, WorldObject* obj)
     {
-        WorldObject* target = sEluna.CHECK_WORLDOBJECT(L, 1);
+        WorldObject* target = sEluna->CHECKOBJ<WorldObject>(L, 2, false);
 
         if (target && target->IsInWorld())
-            sEluna.Push(L, obj->GetAngle(target));
+            sEluna->Push(L, obj->GetAngle(target));
         else
         {
-            float x = luaL_checknumber(L, 1);
-            float y = luaL_checknumber(L, 2);
-            sEluna.Push(L, obj->GetAngle(x, y));
+            float x = sEluna->CHECKVAL<float>(L, 2);
+            float y = sEluna->CHECKVAL<float>(L, 3);
+            sEluna->Push(L, obj->GetAngle(x, y));
         }
         return 1;
     }
 
     int SendPacket(lua_State* L, WorldObject* obj)
     {
-        WorldPacket* data = sEluna.CHECK_PACKET(L, 1);
-
-        if (data)
-            obj->SendMessageToSet(data, false);
+        WorldPacket* data = sEluna->CHECKOBJ<WorldPacket>(L, 2);
+        obj->SendMessageToSet(data, true);
         return 0;
+    }
+
+    int SummonGameObject(lua_State* L, WorldObject* obj)
+    {
+        uint32 entry = sEluna->CHECKVAL<uint32>(L, 2);
+        float x = sEluna->CHECKVAL<float>(L, 3);
+        float y = sEluna->CHECKVAL<float>(L, 4);
+        float z = sEluna->CHECKVAL<float>(L, 5);
+        float o = sEluna->CHECKVAL<float>(L, 6);
+        uint32 respawnDelay = sEluna->CHECKVAL<uint32>(L, 7, 30);
+#ifdef MANGOS
+        sEluna->Push(L, obj->SummonGameObject(entry, x, y, z, o, respawnDelay));
+#else
+        sEluna->Push(L, obj->SummonGameObject(entry, x, y, z, o, 0, 0, 0, 0, respawnDelay));
+#endif
+        return 1;
+    }
+
+    int SpawnCreature(lua_State* L, WorldObject* obj)
+    {
+        uint32 entry = sEluna->CHECKVAL<uint32>(L, 2);
+        float x = sEluna->CHECKVAL<float>(L, 3);
+        float y = sEluna->CHECKVAL<float>(L, 4);
+        float z = sEluna->CHECKVAL<float>(L, 5);
+        float o = sEluna->CHECKVAL<float>(L, 6);
+        uint32 spawnType = sEluna->CHECKVAL<uint32>(L, 7, 8);
+        uint32 despawnTimer = sEluna->CHECKVAL<uint32>(L, 8, 0);
+
+        TempSummonType type;
+        switch (spawnType)
+        {
+        case 1:
+            type = TEMPSUMMON_TIMED_OR_DEAD_DESPAWN;
+            break;
+        case 2:
+            type = TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN;
+            break;
+        case 3:
+            type = TEMPSUMMON_TIMED_DESPAWN;
+            break;
+        case 5:
+            type = TEMPSUMMON_CORPSE_DESPAWN;
+            break;
+        case 6:
+            type = TEMPSUMMON_CORPSE_TIMED_DESPAWN;
+            break;
+        case 7:
+            type = TEMPSUMMON_DEAD_DESPAWN;
+            break;
+        case 8:
+            type = TEMPSUMMON_MANUAL_DESPAWN;
+            break;
+        default:
+            return luaL_argerror(L, 7, "valid SpawnType expected");
+        }
+        sEluna->Push(L, obj->SummonCreature(entry, x, y, z, o, type, despawnTimer));
+        return 1;
     }
 };
 #endif

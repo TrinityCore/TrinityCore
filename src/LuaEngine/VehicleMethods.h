@@ -4,127 +4,74 @@
 * Please see the included DOCS/LICENSE.TXT for more information
 */
 
+#ifndef TBC
 #ifndef VEHICLEMETHODS_H
 #define VEHICLEMETHODS_H
 
 namespace LuaVehicle
 {
-    int GetBase(lua_State* L, Vehicle* vehicle)
+    int GetOwner(lua_State* L, Vehicle* vehicle)
     {
-        sEluna.Push(L, vehicle->GetBase());
+#ifdef MANGOS
+        sEluna->Push(L, vehicle->GetOwner());
+#else
+        sEluna->Push(L, vehicle->GetBase());
+#endif
         return 1;
     }
 
-    int GetAvailableSeatCount(lua_State* L, Vehicle* vehicle)
+    int GetEntry(lua_State* L, Vehicle* vehicle)
     {
-        sEluna.Push(L, vehicle->GetAvailableSeatCount());
-        return 1;
-    }
-
-    int GetCreatureEntry(lua_State* L, Vehicle* vehicle)
-    {
-        sEluna.Push(L, vehicle->GetCreatureEntry());
+#ifdef MANGOS
+        sEluna->Push(L, vehicle->GetVehicleEntry()->m_ID);
+#else
+        sEluna->Push(L, vehicle->GetVehicleInfo()->m_ID);
+#endif
         return 1;
     }
 
     int GetPassenger(lua_State* L, Vehicle* vehicle)
     {
-        int8 seatId = luaL_checkinteger(L, 1);
-        sEluna.Push(L, vehicle->GetPassenger(seatId));
+        int8 seatId = sEluna->CHECKVAL<int8>(L, 2);
+        sEluna->Push(L, vehicle->GetPassenger(seatId));
         return 1;
-    }
-
-    int HasEmptySeat(lua_State* L, Vehicle* vehicle)
-    {
-        int8 seatId = luaL_checkinteger(L, 1);
-        sEluna.Push(L, vehicle->HasEmptySeat(seatId));
-        return 1;
-    }
-
-    int IsVehicleInUse(lua_State* L, Vehicle* vehicle)
-    {
-        sEluna.Push(L, vehicle->IsVehicleInUse());
-        return 1;
-    }
-
-    int InstallAccessory(lua_State* L, Vehicle* vehicle)
-    {
-        uint32 entry = luaL_checkunsigned(L, 1);
-        int8 seatId = luaL_checkinteger(L, 2);
-        bool minion = luaL_checkbool(L, 3);
-        uint8 typeId = luaL_checkunsigned(L, 4);
-        uint32 summonTime = luaL_checkunsigned(L, 5);
-        vehicle->InstallAccessory(entry, seatId, minion, typeId, summonTime);
-        return 0;
-    }
-
-    int ApplyAllImmunities(lua_State* L, Vehicle* vehicle)
-    {
-        vehicle->ApplyAllImmunities();
-        return 0;
     }
 
     int AddPassenger(lua_State* L, Vehicle* vehicle)
     {
-        Unit* passenger = sEluna.CHECK_UNIT(L, 1);
-        if (!passenger)
-            return 0;
-
-        int8 seatId = luaL_checkinteger(L, 2);
-
+        Unit* passenger = sEluna->CHECKOBJ<Unit>(L, 2);
+        int8 seatId = sEluna->CHECKVAL<int8>(L, 3);
+#ifdef MANGOS
+        if (vehicle->CanBoard(passenger))
+            vehicle->Board(passenger, seatId);
+#else
         vehicle->AddPassenger(passenger, seatId);
-        return 0;
-    }
-
-    int EjectPassenger(lua_State* L, Vehicle* vehicle)
-    {
-        Unit* passenger = sEluna.CHECK_UNIT(L, 1);
-        Unit* controller = sEluna.CHECK_UNIT(L, 2);
-        if (!passenger || controller)
-            return 0;
-
-        //vehicle->EjectPassenger(passenger, controller);
-        return 0;
-    }
-
-    int RelocatePassengers(lua_State* L, Vehicle* vehicle)
-    {
-        vehicle->RelocatePassengers();
-        return 0;
-    }
-
-    int RemoveAllPassengers(lua_State* L, Vehicle* vehicle)
-    {
-        vehicle->RemoveAllPassengers();
+#endif
         return 0;
     }
 
     int RemovePassenger(lua_State* L, Vehicle* vehicle)
     {
-        Unit* passenger = sEluna.CHECK_UNIT(L, 1);
-        if (!passenger)
-            return 0;
-
+        Unit* passenger = sEluna->CHECKOBJ<Unit>(L, 2);
+#ifdef MANGOS
+        vehicle->UnBoard(passenger, false);
+#else
         vehicle->RemovePassenger(passenger);
+#endif
         return 0;
     }
 
-    int RemovePendingEventsForPassenger(lua_State* L, Vehicle* vehicle)
+    int IsOnBoard(lua_State* L, Vehicle* vehicle)
     {
-        Unit* passenger = sEluna.CHECK_UNIT(L, 1);
-        if (!passenger)
-            return 0;
-
-        vehicle->RemovePendingEventsForPassenger(passenger);
-        return 0;
-    }
-
-    int Reset(lua_State* L, Vehicle* vehicle)
-    {
-        bool evading = luaL_optbool(L, 1, false);
-        vehicle->Reset(evading);
-        return 0;
+        Unit* passenger = sEluna->CHECKOBJ<Unit>(L, 2);
+#ifdef MANGOS
+        sEluna->Push(L, vehicle->HasOnBoard(passenger));
+#else
+        sEluna->Push(L, passenger->IsOnVehicle(vehicle->GetBase()));
+#endif
+        return 1;
     }
 }
 
+#endif
 #endif
