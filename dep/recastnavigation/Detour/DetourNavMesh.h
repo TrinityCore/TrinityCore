@@ -66,7 +66,7 @@ static const int DT_VERTS_PER_POLYGON = 6;
 static const int DT_NAVMESH_MAGIC = 'D'<<24 | 'N'<<16 | 'A'<<8 | 'V';
 
 /// A version number used to detect compatibility of navigation tile data.
-static const int DT_NAVMESH_VERSION = 6;
+static const int DT_NAVMESH_VERSION = 7;
 
 /// A magic number used to detect the compatibility of navigation tile states.
 static const int DT_NAVMESH_STATE_MAGIC = 'D'<<24 | 'N'<<16 | 'M'<<8 | 'S';
@@ -112,6 +112,12 @@ enum dtStraightPathFlags
 	DT_STRAIGHTPATH_OFFMESH_CONNECTION = 0x04,	///< The vertex is the start of an off-mesh connection.
 };
 
+/// Options for dtNavMeshQuery::findStraightPath.
+enum dtStraightPathOptions
+{
+	DT_STRAIGHTPATH_AREA_CROSSINGS = 0x01,	///< Add a vertex at every polygon edge crossing where area changes.
+	DT_STRAIGHTPATH_ALL_CROSSINGS = 0x02,	///< Add a vertex at every polygon edge crossing.
+};
 
 /// Flags representing the type of a navigation mesh polygon.
 enum dtPolyTypes
@@ -225,6 +231,7 @@ struct dtMeshHeader
 	int version;			///< Tile data format version number.
 	int x;					///< The x-position of the tile within the dtNavMesh tile grid. (x, y, layer)
 	int y;					///< The y-position of the tile within the dtNavMesh tile grid. (x, y, layer)
+	int layer;				///< The layer of the tile within the dtNavMesh tile grid. (x, y, layer)
 	unsigned int userId;	///< The user defined id of the tile.
 	int polyCount;			///< The number of polygons in the tile.
 	int vertCount;			///< The number of vertices in the tile.
@@ -347,18 +354,31 @@ public:
 	void calcTileLoc(const float* pos, int* tx, int* ty) const;
 
 	/// Gets the tile at the specified grid location.
-	// Params:
-	//  x,y - (in) Location of the tile to get.
-	// Returns: pointer to tile if tile exists or 0 tile does not exists.
-	const dtMeshTile* getTileAt(int x, int y) const;
+	///  @param[in]	x		The tile's x-location. (x, y, layer)
+	///  @param[in]	y		The tile's y-location. (x, y, layer)
+	///  @param[in]	layer	The tile's layer. (x, y, layer)
+	/// @return The tile, or null if the tile does not exist.
+	const dtMeshTile* getTileAt(const int x, const int y, const int layer) const;
 
-	// Returns reference to tile at specified location.
-	// Params:
-	//  x,y - (in) Location of the tile to get.
-	// Returns: reference to tile if tile exists or 0 tile does not exists.
-	dtTileRef getTileRefAt(int x, int y) const;
+	/// Gets all tiles at the specified grid location. (All layers.)
+	///  @param[in]		x			The tile's x-location. (x, y)
+	///  @param[in]		y			The tile's y-location. (x, y)
+	///  @param[out]	tiles		A pointer to an array of tiles that will hold the result.
+	///  @param[in]		maxTiles	The maximum tiles the tiles parameter can hold.
+	/// @return The number of tiles returned in the tiles array.
+	int getTilesAt(const int x, const int y,
+				   dtMeshTile const** tiles, const int maxTiles) const;
 	
-	// Returns tile references of a tile based on tile pointer.
+	/// Gets the tile reference for the tile at specified grid location.
+	///  @param[in]	x		The tile's x-location. (x, y, layer)
+	///  @param[in]	y		The tile's y-location. (x, y, layer)
+	///  @param[in]	layer	The tile's layer. (x, y, layer)
+	/// @return The tile reference of the tile, or 0 if there is none.
+	dtTileRef getTileRefAt(int x, int y, int layer) const;
+
+	/// Gets the tile reference for the specified tile.
+	///  @param[in]	tile	The tile.
+	/// @return The tile reference of the tile.
 	dtTileRef getTileRef(const dtMeshTile* tile) const;
 
 	/// Gets the tile for the specified tile reference.
@@ -532,7 +552,13 @@ private:
 	dtMeshTile* getTile(int i);
 
 	/// Returns neighbour tile based on side.
-	dtMeshTile* getNeighbourTileAt(int x, int y, int side) const;
+	int getTilesAt(const int x, const int y,
+				   dtMeshTile** tiles, const int maxTiles) const;
+
+	/// Returns neighbour tile based on side.
+	int getNeighbourTilesAt(const int x, const int y, const int side,
+							dtMeshTile** tiles, const int maxTiles) const;
+	
 	/// Returns all polygons in neighbour tile based on portal defined by the segment.
 	int findConnectingPolys(const float* va, const float* vb,
 							const dtMeshTile* tile, int side,
@@ -541,7 +567,7 @@ private:
 	/// Builds internal polygons links for a tile.
 	void connectIntLinks(dtMeshTile* tile);
 	/// Builds internal polygons links for a tile.
-	void connectIntOffMeshLinks(dtMeshTile* tile);
+	void baseOffMeshLinks(dtMeshTile* tile);
 
 	/// Builds external polygon links for a tile.
 	void connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side);
@@ -549,7 +575,7 @@ private:
 	void connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int side);
 	
 	/// Removes external links at specified side.
-	void unconnectExtLinks(dtMeshTile* tile, int side);
+	void unconnectExtLinks(dtMeshTile* tile, dtMeshTile* target);
 	
 
 	// TODO: These methods are duplicates from dtNavMeshQuery, but are needed for off-mesh connection finding.
@@ -561,8 +587,7 @@ private:
 	dtPolyRef findNearestPolyInTile(const dtMeshTile* tile, const float* center,
 									const float* extents, float* nearestPt) const;
 	/// Returns closest point on polygon.
-	dtStatus closestPointOnPolyInTile(const dtMeshTile* tile, unsigned int ip,
-									  const float* pos, float* closest) const;
+	void closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* posOverPoly) const;
 	
 	dtNavMeshParams m_params;			///< Current initialization params. TODO: do not store this info twice.
 	float m_orig[3];					///< Origin of the tile (0,0)

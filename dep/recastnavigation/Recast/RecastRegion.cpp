@@ -283,8 +283,13 @@ static bool floodRegion(int x, int y, int i,
 				if (chf.areas[ai] != area)
 					continue;
 				unsigned short nr = srcReg[ai];
+				if (nr & RC_BORDER_REG) // Do not take borders into account.
+					continue;
 				if (nr != 0 && nr != r)
+				{
 					ar = nr;
+					break;
+				}
 				
 				const rcCompactSpan& as = chf.spans[ai];
 				
@@ -296,9 +301,12 @@ static bool floodRegion(int x, int y, int i,
 					const int ai2 = (int)chf.cells[ax2+ay2*w].index + rcGetCon(as, dir2);
 					if (chf.areas[ai2] != area)
 						continue;
-					unsigned short nr = srcReg[ai2];
-					if (nr != 0 && nr != r)
-						ar = nr;
+					unsigned short nr2 = srcReg[ai2];
+					if (nr2 != 0 && nr2 != r)
+					{
+						ar = nr2;
+						break;
+					}
 				}				
 			}
 		}
@@ -319,16 +327,13 @@ static bool floodRegion(int x, int y, int i,
 				const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(cs, dir);
 				if (chf.areas[ai] != area)
 					continue;
-				if (chf.dist[ai] >= lev)
+				if (chf.dist[ai] >= lev && srcReg[ai] == 0)
 				{
-					if (srcReg[ai] == 0)
-					{
-						srcReg[ai] = r;
-						srcDist[ai] = 0;
-						stack.push(ax);
-						stack.push(ay);
-						stack.push(ai);
-					}
+					srcReg[ai] = r;
+					srcDist[ai] = 0;
+					stack.push(ax);
+					stack.push(ay);
+					stack.push(ai);
 				}
 			}
 		}
@@ -341,30 +346,44 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 									 rcCompactHeightfield& chf,
 									 unsigned short* srcReg, unsigned short* srcDist,
 									 unsigned short* dstReg, unsigned short* dstDist, 
-									 rcIntArray& stack)
+									 rcIntArray& stack,
+									 bool fillStack)
 {
 	const int w = chf.width;
 	const int h = chf.height;
 
-	// Find cells revealed by the raised level.
-	stack.resize(0);
-	for (int y = 0; y < h; ++y)
+	if (fillStack)
 	{
-		for (int x = 0; x < w; ++x)
+		// Find cells revealed by the raised level.
+		stack.resize(0);
+		for (int y = 0; y < h; ++y)
 		{
-			const rcCompactCell& c = chf.cells[x+y*w];
-			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+			for (int x = 0; x < w; ++x)
 			{
-				if (chf.dist[i] >= level && srcReg[i] == 0 && chf.areas[i] != RC_NULL_AREA)
+				const rcCompactCell& c = chf.cells[x+y*w];
+				for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 				{
-					stack.push(x);
-					stack.push(y);
-					stack.push(i);
+					if (chf.dist[i] >= level && srcReg[i] == 0 && chf.areas[i] != RC_NULL_AREA)
+					{
+						stack.push(x);
+						stack.push(y);
+						stack.push(i);
+					}
 				}
 			}
 		}
 	}
-	
+	else // use cells in the input stack
+	{
+		// mark all cells which already have a region
+		for (int j=0; j<stack.size(); j+=3)
+		{
+			int i = stack[j+2];
+			if (srcReg[i] != 0)
+				stack[j+2] = -1;
+		}
+	}
+
 	int iter = 0;
 	while (stack.size() > 0)
 	{
@@ -434,6 +453,61 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 	return srcReg;
 }
 
+
+
+static void sortCellsByLevel(unsigned short startLevel,
+							  rcCompactHeightfield& chf,
+							  unsigned short* srcReg,
+							  unsigned int nbStacks, rcIntArray* stacks,
+							  unsigned short loglevelsPerStack) // the levels per stack (2 in our case) as a bit shift
+{
+	const int w = chf.width;
+	const int h = chf.height;
+	startLevel = startLevel >> loglevelsPerStack;
+
+	for (unsigned int j=0; j<nbStacks; ++j)
+		stacks[j].resize(0);
+
+	// put all cells in the level range into the appropriate stacks
+	for (int y = 0; y < h; ++y)
+	{
+		for (int x = 0; x < w; ++x)
+		{
+			const rcCompactCell& c = chf.cells[x+y*w];
+			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+			{
+				if (chf.areas[i] == RC_NULL_AREA || srcReg[i] != 0)
+					continue;
+
+				int level = chf.dist[i] >> loglevelsPerStack;
+				int sId = startLevel - level;
+				if (sId >= (int)nbStacks)
+					continue;
+				if (sId < 0)
+					sId = 0;
+
+				stacks[sId].push(x);
+				stacks[sId].push(y);
+				stacks[sId].push(i);
+			}
+		}
+	}
+}
+
+
+static void appendStacks(rcIntArray& srcStack, rcIntArray& dstStack,
+						 unsigned short* srcReg)
+{
+	for (int j=0; j<srcStack.size(); j+=3)
+	{
+		int i = srcStack[j+2];
+		if ((i < 0) || (srcReg[i] != 0))
+			continue;
+		dstStack.push(srcStack[j]);
+		dstStack.push(srcStack[j+1]);
+		dstStack.push(srcStack[j+2]);
+	}
+}
 
 struct rcRegion
 {
@@ -679,17 +753,17 @@ static void walkContour(int x, int y, int i, int dir,
 	// Remove adjacent duplicates.
 	if (cont.size() > 1)
 	{
-		for (int i = 0; i < cont.size(); )
+		for (int j = 0; j < cont.size(); )
 		{
-			int ni = (i+1) % cont.size();
-			if (cont[i] == cont[ni])
+			int nj = (j+1) % cont.size();
+			if (cont[j] == cont[nj])
 			{
-				for (int j = i; j < cont.size()-1; ++j)
-					cont[j] = cont[j+1];
+				for (int k = j; k < cont.size()-1; ++k)
+					cont[k] = cont[k+1];
 				cont.pop();
 			}
 			else
-				++i;
+				++j;
 		}
 	}
 }
@@ -807,14 +881,14 @@ static bool filterSmallRegions(rcContext* ctx, int minRegionArea, int mergeRegio
 					connectsToBorder = true;
 					continue;
 				}
-				rcRegion& nreg = regions[creg.connections[j]];
-				if (nreg.visited)
+				rcRegion& neireg = regions[creg.connections[j]];
+				if (neireg.visited)
 					continue;
-				if (nreg.id == 0 || (nreg.id & RC_BORDER_REG))
+				if (neireg.id == 0 || (neireg.id & RC_BORDER_REG))
 					continue;
 				// Visit
-				stack.push(nreg.id);
-				nreg.visited = true;
+				stack.push(neireg.id);
+				neireg.visited = true;
 			}
 		}
 		
@@ -1087,6 +1161,8 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 		paintRectRegion(w-bw, w, 0, h, id|RC_BORDER_REG, chf, srcReg); id++;
 		paintRectRegion(0, w, 0, bh, id|RC_BORDER_REG, chf, srcReg); id++;
 		paintRectRegion(0, w, h-bh, h, id|RC_BORDER_REG, chf, srcReg); id++;
+		
+		chf.borderSize = borderSize;
 	}
 	
 	rcIntArray prev(256);
@@ -1235,7 +1311,13 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	}
 	
 	ctx->startTimer(RC_TIMER_BUILD_REGIONS_WATERSHED);
-	
+
+	const int LOG_NB_STACKS = 3;
+	const int NB_STACKS = 1 << LOG_NB_STACKS;
+	rcIntArray lvlStacks[NB_STACKS];
+	for (int i=0; i<NB_STACKS; ++i)
+		lvlStacks[i].resize(1024);
+
 	rcIntArray stack(1024);
 	rcIntArray visited(1024);
 	
@@ -1256,20 +1338,39 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 //	const int expandIters = 4 + walkableRadius * 2;
 	const int expandIters = 8;
 
-	// Mark border regions.
-	paintRectRegion(0, borderSize, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
-	paintRectRegion(w-borderSize, w, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
-	paintRectRegion(0, w, 0, borderSize, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
-	paintRectRegion(0, w, h-borderSize, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
+	if (borderSize > 0)
+	{
+		// Make sure border will not overflow.
+		const int bw = rcMin(w, borderSize);
+		const int bh = rcMin(h, borderSize);
+		// Paint regions
+		paintRectRegion(0, bw, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
+		paintRectRegion(w-bw, w, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
+		paintRectRegion(0, w, 0, bh, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
+		paintRectRegion(0, w, h-bh, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
+
+		chf.borderSize = borderSize;
+	}
 	
+	int sId = -1;
 	while (level > 0)
 	{
 		level = level >= 2 ? level-2 : 0;
-		
+		sId = (sId+1) & (NB_STACKS-1);
+
+//		ctx->startTimer(RC_TIMER_DIVIDE_TO_LEVELS);
+
+		if (sId == 0)
+			sortCellsByLevel(level, chf, srcReg, NB_STACKS, lvlStacks, 1);
+		else 
+			appendStacks(lvlStacks[sId-1], lvlStacks[sId], srcReg); // copy left overs from last level
+
+//		ctx->stopTimer(RC_TIMER_DIVIDE_TO_LEVELS);
+
 		ctx->startTimer(RC_TIMER_BUILD_REGIONS_EXPAND);
 		
 		// Expand current regions until no empty connected cells found.
-		if (expandRegions(expandIters, level, chf, srcReg, srcDist, dstReg, dstDist, stack) != srcReg)
+		if (expandRegions(expandIters, level, chf, srcReg, srcDist, dstReg, dstDist, lvlStacks[sId], false) != srcReg)
 		{
 			rcSwap(srcReg, dstReg);
 			rcSwap(srcDist, dstDist);
@@ -1280,18 +1381,15 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 		ctx->startTimer(RC_TIMER_BUILD_REGIONS_FLOOD);
 		
 		// Mark new regions with IDs.
-		for (int y = 0; y < h; ++y)
+		for (int j=0; j<lvlStacks[sId].size(); j+=3)
 		{
-			for (int x = 0; x < w; ++x)
+			int x = lvlStacks[sId][j];
+			int y = lvlStacks[sId][j+1];
+			int i = lvlStacks[sId][j+2];
+			if (i >= 0 && srcReg[i] == 0)
 			{
-				const rcCompactCell& c = chf.cells[x+y*w];
-				for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
-				{
-					if (chf.dist[i] < level || srcReg[i] != 0 || chf.areas[i] == RC_NULL_AREA)
-						continue;
-					if (floodRegion(x, y, i, level, regionId, chf, srcReg, srcDist, stack))
-						regionId++;
-				}
+				if (floodRegion(x, y, i, level, regionId, chf, srcReg, srcDist, stack))
+					regionId++;
 			}
 		}
 		
@@ -1299,7 +1397,7 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	}
 	
 	// Expand current regions until no empty connected cells found.
-	if (expandRegions(expandIters*8, 0, chf, srcReg, srcDist, dstReg, dstDist, stack) != srcReg)
+	if (expandRegions(expandIters*8, 0, chf, srcReg, srcDist, dstReg, dstDist, stack, true) != srcReg)
 	{
 		rcSwap(srcReg, dstReg);
 		rcSwap(srcDist, dstDist);
