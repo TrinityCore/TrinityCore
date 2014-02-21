@@ -27,7 +27,8 @@ enum dtNodeFlags
 	DT_NODE_CLOSED = 0x02,
 };
 
-static const unsigned short DT_NULL_IDX = 0xffff;
+typedef unsigned short dtNodeIndex;
+static const dtNodeIndex DT_NULL_IDX = (dtNodeIndex)~0;
 
 struct dtNode
 {
@@ -72,21 +73,21 @@ public:
 	{
 		return sizeof(*this) +
 			sizeof(dtNode)*m_maxNodes +
-			sizeof(unsigned short)*m_maxNodes +
-			sizeof(unsigned short)*m_hashSize;
+			sizeof(dtNodeIndex)*m_maxNodes +
+			sizeof(dtNodeIndex)*m_hashSize;
 	}
 	
 	inline int getMaxNodes() const { return m_maxNodes; }
 	
 	inline int getHashSize() const { return m_hashSize; }
-	inline unsigned short getFirst(int bucket) const { return m_first[bucket]; }
-	inline unsigned short getNext(int i) const { return m_next[i]; }
+	inline dtNodeIndex getFirst(int bucket) const { return m_first[bucket]; }
+	inline dtNodeIndex getNext(int i) const { return m_next[i]; }
 	
 private:
 	
 	dtNode* m_nodes;
-	unsigned short* m_first;
-	unsigned short* m_next;
+	dtNodeIndex* m_first;
+	dtNodeIndex* m_next;
 	const int m_maxNodes;
 	const int m_hashSize;
 	int m_nodeCount;

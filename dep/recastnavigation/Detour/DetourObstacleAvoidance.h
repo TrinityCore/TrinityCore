@@ -21,21 +21,19 @@
 
 struct dtObstacleCircle
 {
-	float p[3];				// Position of the obstacle
-	float vel[3];			// Velocity of the obstacle
-	float dvel[3];			// Velocity of the obstacle
-	float rad;				// Radius of the obstacle
-	float dp[3], np[3];		// Use for side selection during sampling.
+	float p[3];				///< Position of the obstacle
+	float vel[3];			///< Velocity of the obstacle
+	float dvel[3];			///< Velocity of the obstacle
+	float rad;				///< Radius of the obstacle
+	float dp[3], np[3];		///< Use for side selection during sampling.
 };
 
 struct dtObstacleSegment
 {
-	float p[3], q[3];		// End points of the obstacle segment
+	float p[3], q[3];		///< End points of the obstacle segment
 	bool touch;
 };
 
-static const int RVO_SAMPLE_RAD = 15;
-static const int MAX_RVO_SAMPLES = (RVO_SAMPLE_RAD*2+1)*(RVO_SAMPLE_RAD*2+1) + 100;
 
 class dtObstacleAvoidanceDebugData
 {
@@ -75,6 +73,23 @@ dtObstacleAvoidanceDebugData* dtAllocObstacleAvoidanceDebugData();
 void dtFreeObstacleAvoidanceDebugData(dtObstacleAvoidanceDebugData* ptr);
 
 
+static const int DT_MAX_PATTERN_DIVS = 32;	///< Max numver of adaptive divs.
+static const int DT_MAX_PATTERN_RINGS = 4;	///< Max number of adaptive rings.
+
+struct dtObstacleAvoidanceParams
+{
+	float velBias;
+	float weightDesVel;
+	float weightCurVel;
+	float weightSide;
+	float weightToi;
+	float horizTime;
+	unsigned char gridSize;	///< grid
+	unsigned char adaptiveDivs;	///< adaptive
+	unsigned char adaptiveRings;	///< adaptive
+	unsigned char adaptiveDepth;	///< adaptive
+};
+
 class dtObstacleAvoidanceQuery
 {
 public:
@@ -90,22 +105,15 @@ public:
 				   
 	void addSegment(const float* p, const float* q);
 
-	inline void setVelocitySelectionBias(float v) { m_velBias = v; }
-	inline void setDesiredVelocityWeight(float w) { m_weightDesVel = w; }
-	inline void setCurrentVelocityWeight(float w) { m_weightCurVel = w; }
-	inline void setPreferredSideWeight(float w) { m_weightSide = w; }
-	inline void setCollisionTimeWeight(float w) { m_weightToi = w; }
-	inline void setTimeHorizon(float t) { m_horizTime = t; }
+	int sampleVelocityGrid(const float* pos, const float rad, const float vmax,
+						   const float* vel, const float* dvel, float* nvel,
+						   const dtObstacleAvoidanceParams* params,
+						   dtObstacleAvoidanceDebugData* debug = 0);
 
-	void sampleVelocityGrid(const float* pos, const float rad, const float vmax,
-							const float* vel, const float* dvel, float* nvel,
-							const int gsize,
-							dtObstacleAvoidanceDebugData* debug = 0);
-
-	void sampleVelocityAdaptive(const float* pos, const float rad, const float vmax,
-								const float* vel, const float* dvel, float* nvel,
-								const int ndivs, const int nrings, const int depth, 
-								dtObstacleAvoidanceDebugData* debug = 0);
+	int sampleVelocityAdaptive(const float* pos, const float rad, const float vmax,
+							   const float* vel, const float* dvel, float* nvel,
+							   const dtObstacleAvoidanceParams* params, 
+							   dtObstacleAvoidanceDebugData* debug = 0);
 	
 	inline int getObstacleCircleCount() const { return m_ncircles; }
 	const dtObstacleCircle* getObstacleCircle(const int i) { return &m_circles[i]; }
@@ -119,19 +127,17 @@ private:
 
 	float processSample(const float* vcand, const float cs,
 						const float* pos, const float rad,
-						const float vmax, const float* vel, const float* dvel,
+						const float* vel, const float* dvel,
 						dtObstacleAvoidanceDebugData* debug);
 
 	dtObstacleCircle* insertCircle(const float dist);
 	dtObstacleSegment* insertSegment(const float dist);
 
-	float m_velBias;
-	float m_weightDesVel;
-	float m_weightCurVel;
-	float m_weightSide;
-	float m_weightToi;
-	float m_horizTime;
-	
+	dtObstacleAvoidanceParams m_params;
+	float m_invHorizTime;
+	float m_vmax;
+	float m_invVmax;
+
 	int m_maxCircles;
 	dtObstacleCircle* m_circles;
 	int m_ncircles;

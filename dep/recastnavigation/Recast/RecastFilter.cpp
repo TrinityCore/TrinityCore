@@ -48,6 +48,7 @@ void rcFilterLowHangingWalkableObstacles(rcContext* ctx, const int walkableClimb
 		{
 			rcSpan* ps = 0;
 			bool previousWalkable = false;
+			unsigned char previousArea = RC_NULL_AREA;
 			
 			for (rcSpan* s = solid.spans[x + y*w]; s; ps = s, s = s->next)
 			{
@@ -57,11 +58,12 @@ void rcFilterLowHangingWalkableObstacles(rcContext* ctx, const int walkableClimb
 				if (!walkable && previousWalkable)
 				{
 					if (rcAbs((int)s->smax - (int)ps->smax) <= walkableClimb)
-						s->area = RC_NULL_AREA;
+						s->area = previousArea;
 				}
 				// Copy walkable flag so that it cannot propagate
 				// past multiple non-walkable objects.
 				previousWalkable = walkable;
+				previousArea = s->area;
 			}
 		}
 	}
