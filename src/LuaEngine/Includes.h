@@ -80,9 +80,9 @@ typedef std::set<std::string> LoadedScripts;
 #define GET_GUID                GetObjectGuid
 #define GetGameObjectTemplate   GetGameObjectInfo
 #define GetItemTemplate         GetItemPrototype
-#define TC_LOG_INFO(L, F, ...)  { sLog.outString(F, __VA_ARGS__); }
-#define TC_LOG_ERROR(L, F, ...) { sLog.outErrorEluna(F, __VA_ARGS__); }
-#define TC_LOG_DEBUG(L, F, ...) { sLog.outDebug(F, __VA_ARGS__); }
+#define TC_LOG_INFO(L, F, ...)  sLog.outString(F, __VA_ARGS__);
+#define TC_LOG_ERROR(L, F, ...) sLog.outErrorEluna(F, __VA_ARGS__);
+#define TC_LOG_DEBUG(L, F, ...) sLog.outDebug(F, __VA_ARGS__);
 #define CORE_VERSION            REVISION_NR
 #define CORE_NAME               "MaNGOS"
 #define SERVER_MSG_STRING       SERVER_MSG_CUSTOM
