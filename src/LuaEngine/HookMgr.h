@@ -7,9 +7,7 @@
 #ifndef LUAHOOKS_H
 #define LUAHOOKS_H
 
-#define NOINCLUDE
 #include "Includes.h"
-#undef  NOINCLUDE
 
 // Base
 #include "Common.h"
@@ -17,7 +15,9 @@
 #include <ace/Singleton.h>
 #include <ace/Atomic_Op.h>
 // enums
-#ifndef MANGOS
+#ifdef MANGOS
+#include "Player.h"
+#else
 #include "GameObjectAI.h"
 #endif
 #include "Group.h"
