@@ -7,8 +7,9 @@
 #ifndef LUAHOOKS_H
 #define LUAHOOKS_H
 
-// #define MANGOS
-// #define TBC
+#define NOINCLUDE
+#include "Includes.h"
+#undef  NOINCLUDE
 
 // Base
 #include "Common.h"

@@ -118,7 +118,6 @@ LUALIB_API void (luaL_requiref) (lua_State *L, const char *modname,
 #define luaL_optint(L,n,d)	((int)luaL_optinteger(L, (n), (d)))
 #define luaL_checklong(L,n)	((long)luaL_checkinteger(L, (n)))
 #define luaL_optlong(L,n,d)	((long)luaL_optinteger(L, (n), (d)))
-#define luaL_optbool(L, n, d) ( lua_isboolean( L, n ) ? lua_toboolean( L, n ) : (bool)luaL_optint( L, n, d ) )
 #define luaL_checkbool(L, n) ( lua_isboolean( L, n ) ? lua_toboolean( L, n ) : (bool)luaL_optint( L, n, false) )
 
 #define luaL_typename(L,i)	lua_typename(L, lua_type(L,(i)))

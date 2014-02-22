@@ -502,7 +502,7 @@ namespace LuaUnit
 
     int MoveClear(lua_State* L, Unit* unit)
     {
-        bool reset = luaL_optbool(L, 2, true);
+        bool reset = sEluna->CHECKVAL<bool>(L, 2, true);
         unit->GetMotionMaster()->Clear(reset);
         return 0;
     }

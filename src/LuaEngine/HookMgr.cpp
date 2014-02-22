@@ -5,6 +5,7 @@
 */
 
 #include "LuaEngine.h"
+#include "HookMgr.h"
 
 extern bool StartEluna();
 bool HookMgr::OnCommand(Player* player, const char* text)
@@ -38,7 +39,7 @@ bool HookMgr::OnCommand(Player* player, const char* text)
     {
         if (lua_isnoneornil(sEluna->L, i))
             continue;
-        result = luaL_optbool(sEluna->L, i, result);
+        result = sEluna->CHECKVAL<bool>(sEluna->L, i, result);
     }
     sEluna->PlayerEventBindings.EndCall();
     return result;
