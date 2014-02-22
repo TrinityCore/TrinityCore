@@ -749,11 +749,18 @@ namespace LuaGlobalFunctions
 #ifdef MANGOS
         if (!sObjectMgr->IsVendorItemValid(false, "npc_vendor", entry, item, maxcount, incrtime, extendedcost, 0))
             return 0;
+        sObjectMgr->AddVendorItem(entry, item, maxcount, incrtime, extendedcost);
+#else
+#ifdef CATA
+        if (!sObjectMgr->IsVendorItemValid(entry, item, maxcount, incrtime, extendedcost, 1))
+            return 0;
+        sObjectMgr->AddVendorItem(entry, item, maxcount, incrtime, extendedcost, 1);
 #else
         if (!sObjectMgr->IsVendorItemValid(entry, item, maxcount, incrtime, extendedcost))
             return 0;
-#endif
         sObjectMgr->AddVendorItem(entry, item, maxcount, incrtime, extendedcost);
+#endif
+#endif
         return 0;
     }
 
@@ -764,7 +771,11 @@ namespace LuaGlobalFunctions
         if (!sObjectMgr->GetCreatureTemplate(entry))
             return luaL_argerror(L, 1, "valid CreatureEntry expected");
 
+#ifdef CATA
+        sObjectMgr->RemoveVendorItem(entry, item, 1);
+#else
         sObjectMgr->RemoveVendorItem(entry, item);
+#endif
         return 0;
     }
 
@@ -778,7 +789,11 @@ namespace LuaGlobalFunctions
 
         VendorItemList const itemlist = items->m_items;
         for (VendorItemList::const_iterator itr = itemlist.begin(); itr != itemlist.end(); ++itr)
+#ifdef CATA
+            sObjectMgr->RemoveVendorItem(entry, (*itr)->item, 1);
+#else
             sObjectMgr->RemoveVendorItem(entry, (*itr)->item);
+#endif
         return 0;
     }
 

@@ -379,8 +379,10 @@ ElunaRegister<Player> PlayerMethods[] =
     {"GetGuild", &LuaPlayer::GetGuild},                                         // :GetGuild()
     {"GetAccountId", &LuaPlayer::GetAccountId},                                 // :GetAccountId()
     {"GetAccountName", &LuaPlayer::GetAccountName},                             // :GetAccountName()
+#ifndef CATA
     {"GetArenaPoints", &LuaPlayer::GetArenaPoints},                             // :GetArenaPoints()
     {"GetHonorPoints", &LuaPlayer::GetHonorPoints},                             // :GetHonorPoints()
+#endif
     {"GetLifetimeKills", &LuaPlayer::GetLifetimeKills},                         // :GetLifetimeKills() - Returns the player's lifetime (honorable) kills
     {"GetPlayerIP", &LuaPlayer::GetPlayerIP},                                   // :GetPlayerIP() - Returns the player's IP Address
     {"GetLevelPlayedTime", &LuaPlayer::GetLevelPlayedTime},                     // :GetLevelPlayedTime() - Returns the player's played time at that level
@@ -393,7 +395,7 @@ ElunaRegister<Player> PlayerMethods[] =
     {"GetChatTag", &LuaPlayer::GetChatTag},                                     // :GetChatTag() - Returns player chat tag ID
     {"GetRestBonus", &LuaPlayer::GetRestBonus},                                 // :GetRestBonus() - Gets player's rest bonus
     {"GetRestType", &LuaPlayer::GetRestType},                                   // :GetRestType() - Returns the player's rest type
-#ifndef TBC
+#ifdef WOTLK
     {"GetPhaseMaskForSpawn", &LuaPlayer::GetPhaseMaskForSpawn},                 // :GetPhaseMaskForSpawn() - Gets the real phasemask for spawning things. Used if the player is in GM mode
 #endif
     {"GetReqKillOrCastCurrentCount", &LuaPlayer::GetReqKillOrCastCurrentCount}, // :GetReqKillOrCastCurrentCount(questId, entry) - Gets the objective (kill or cast) current count done
@@ -439,7 +441,9 @@ ElunaRegister<Player> PlayerMethods[] =
     {"GetCorpse", &LuaPlayer::GetCorpse},                                       // :GetCorpse() - Returns the player's corpse
     {"GetGossipTextId", &LuaPlayer::GetGossipTextId},                           // :GetGossipTextId(worldObject) - Returns the WorldObject's gossip textId
     {"GetQuestRewardStatus", &LuaPlayer::GetQuestRewardStatus},                 // :GetQuestRewardStatus(questId) - Returns the true/false of the quest reward status
+#ifndef CATA
     {"GetShieldBlockValue", &LuaPlayer::GetShieldBlockValue},                   // :GetShieldBlockValue() - Returns block value
+#endif
 
     // Setters
     {"AdvanceSkillsToMax", &LuaPlayer::AdvanceSkillsToMax},     // :AdvanceSkillsToMax() - Advances all currently known skills to the currently known max level
@@ -450,8 +454,10 @@ ElunaRegister<Player> PlayerMethods[] =
     {"SetKnownTitle", &LuaPlayer::SetKnownTitle},               // :SetKnownTitle(id)
     {"UnsetKnownTitle", &LuaPlayer::UnsetKnownTitle},           // :UnsetKnownTitle(id)
     {"SetBindPoint", &LuaPlayer::SetBindPoint},                 // :SetBindPoint(x, y, z, map, areaid) - sets home for hearthstone
+#ifndef CATA
     {"SetArenaPoints", &LuaPlayer::SetArenaPoints},             // :SetArenaPoints(amount)
     {"SetHonorPoints", &LuaPlayer::SetHonorPoints},             // :SetHonorPoints(amount)
+#endif
     {"SetLifetimeKills", &LuaPlayer::SetLifetimeKills},         // :SetLifetimeKills(val) - Sets the overall lifetime (honorable) kills of the player
     {"SetGameMaster", &LuaPlayer::SetGameMaster},               // :SetGameMaster([on]) - Sets GM mode on or off
     {"SetGMChat", &LuaPlayer::SetGMChat},                       // :SetGMChat([on]) - Sets GM chat on or off
@@ -602,8 +608,10 @@ ElunaRegister<Player> PlayerMethods[] =
     {"DurabilityPointLossForEquipSlot", &LuaPlayer::DurabilityPointLossForEquipSlot},   // :DurabilityPointLossForEquipSlot(slot) - Causes durability loss for the item in the given slot
     {"DurabilityRepairAll", &LuaPlayer::DurabilityRepairAll},                           // :DurabilityRepairAll([has_cost, discount, guildBank]) - Repairs all durability
     {"DurabilityRepair", &LuaPlayer::DurabilityRepair},                                 // :DurabilityRepair(position[, has_cost, discount, guildBank]) - Repairs item durability of item in given position
+#ifndef CATA
     {"ModifyHonorPoints", &LuaPlayer::ModifyHonorPoints},                               // :ModifyHonorPoints(amount) - Modifies the player's honor points
     {"ModifyArenaPoints", &LuaPlayer::ModifyArenaPoints},                               // :ModifyArenaPoints(amount) - Modifies the player's arena points
+#endif
     {"LeaveBattleground", &LuaPlayer::LeaveBattleground},                               // :LeaveBattleground([teleToEntryPoint]) - The player leaves the battleground
     // {"BindToInstance", &LuaPlayer::BindToInstance},                                  // :BindToInstance() - Binds the player to the current instance
     {"UnbindInstance", &LuaPlayer::UnbindInstance},                                     // :UnbindInstance(map, difficulty) - Unbinds the player from an instance
@@ -621,7 +629,7 @@ ElunaRegister<Player> PlayerMethods[] =
     {"SendTaxiMenu", &LuaPlayer::SendTaxiMenu},                                         // :SendTaxiMenu(creature) - Sends flight window to player from creature
     {"RewardQuest", &LuaPlayer::RewardQuest},                                           // :RewardQuest(entry) - Gives quest rewards for the player
     {"SendAuctionMenu", &LuaPlayer::SendAuctionMenu},                                   // :SendAuctionMenu(unit) - Sends auction window to player. Auction house is sent by object.
-#ifndef TBC
+#ifdef WOTLK
     {"SendMailMenu", &LuaPlayer::SendMailMenu},                                         // :SendMailMenu(object) - Sends mail window to player from gameobject
 #endif
     {"StartTaxi", &LuaPlayer::StartTaxi},                                               // :StartTaxi(pathId) - player starts the given flight path
@@ -663,7 +671,9 @@ ElunaRegister<Creature> CreatureMethods[] =
     {"GetLootRecipient", &LuaCreature::GetLootRecipient},                           // :GetLootRecipient() - Returns loot receiver
     {"GetLootRecipientGroup", &LuaCreature::GetLootRecipientGroup},                 // :GetLootRecipientGroup() - Returns loot receiver group
     {"GetNPCFlags", &LuaCreature::GetNPCFlags},                                     // :GetNPCFlags() - Returns NPC flags
+#ifndef CATA
     {"GetShieldBlockValue", &LuaCreature::GetShieldBlockValue},                     // :GetShieldBlockValue() - Returns block value
+#endif
 
     // Setters
     {"SetHover", &LuaCreature::SetHover},                                   // :SetHover([enable]) - Sets hover on or off
@@ -785,7 +795,7 @@ ElunaRegister<Item> ItemMethods[] =
     {"GetAllowableRace", &LuaItem::GetAllowableRace},           // :GetAllowableRace()
     {"GetItemLevel", &LuaItem::GetItemLevel},                   // :GetItemLevel()
     {"GetRequiredLevel", &LuaItem::GetRequiredLevel},           // :GetRequiredLevel()
-#ifndef TBC
+#ifdef WOTLK
     {"GetStatsCount", &LuaItem::GetStatsCount},                 // :GetStatsCount()
 #endif
     {"GetRandomProperty", &LuaItem::GetRandomProperty},         // :GetRandomProperty()
@@ -816,8 +826,10 @@ ElunaRegister<Item> ItemMethods[] =
     {"IsEquipped", &LuaItem::IsEquipped},                       // :IsEquipped() - Returns true if the item is equipped
     {"HasQuest", &LuaItem::HasQuest},                           // :HasQuest(questId) - Returns true if the item starts the quest
     {"IsPotion", &LuaItem::IsPotion},                           // :IsPotion() - Returns true if the item is a potion
+#ifndef CATA
     {"IsWeaponVellum", &LuaItem::IsWeaponVellum},               // :IsWeaponVellum() - Returns true if the item is a weapon vellum
     {"IsArmorVellum", &LuaItem::IsArmorVellum},                 // :IsArmorVellum() - Returns true if the item is an armor vellum
+#endif
     {"IsConjuredConsumable", &LuaItem::IsConjuredConsumable},   // :IsConjuredConsumable() - Returns true if the item is a conjured consumable
     // {"IsRefundExpired", &LuaItem::IsRefundExpired},          // :IsRefundExpired() - Returns true if the item's refund time has expired
     {"SetEnchantment", &LuaItem::SetEnchantment},               // :SetEnchantment(enchantid, enchantmentslot) - Sets a new enchantment for the item. Returns true on success
@@ -955,7 +967,9 @@ ElunaRegister<Guild> GuildMethods[] =
     // Setters
     {"SetBankTabText", &LuaGuild::SetBankTabText},          // :SetBankTabText(tabId, text)
     {"SetMemberRank", &LuaGuild::ChangeMemberRank},         // :SetMemberRank(player, newRank) - Sets the player rank in the guild to the new rank
+#ifndef CATA
     {"SetLeader", &LuaGuild::SetLeader},                    // :SetLeader() - Sets the guild's leader
+#endif
 
     // Boolean
 

@@ -119,6 +119,9 @@ enum SelectAggroTarget
 #define CORE_NAME               "TrinityCore"
 #define REGEN_TIME_FULL
 #define ThreatList              ThreatContainer::StorageType
+#ifdef CATA
+#define NUM_MSG_TYPES           NUM_OPCODE_HANDLERS
+#endif
 #endif
 
 template<typename T>

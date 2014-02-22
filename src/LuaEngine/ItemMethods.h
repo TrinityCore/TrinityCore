@@ -9,7 +9,7 @@
 
 namespace LuaItem
 {
-    int GetItemLink(lua_State* L, Item* item) // TODO: Implement
+    int GetItemLink(lua_State* L, Item* item)
     {
         // LOCALE_enUS = 0,
         // LOCALE_koKR = 1,
@@ -32,7 +32,11 @@ namespace LuaItem
 
         if (int32 itemRandPropId = item->GetItemRandomPropertyId())
         {
+#ifdef CATA
+            char* suffix = NULL;
+#else
             char* const* suffix = NULL;
+#endif
             if (itemRandPropId < 0)
             {
                 const ItemRandomSuffixEntry* itemRandEntry = sItemRandomSuffixStore.LookupEntry(-item->GetItemRandomPropertyId());
@@ -47,12 +51,12 @@ namespace LuaItem
             }
             if (suffix)
             {
-                std::string test(suffix[(name != temp->Name1) ? loc_idx : DEFAULT_LOCALE]);
-                if (!test.empty())
-                {
-                    name += ' ';
-                    name += test;
-                }
+                //std::string test(suffix[(name != temp->Name1) ? loc_idx : DEFAULT_LOCALE]);
+                //if (!test.empty())
+                //{
+                name += ' ';
+                name += suffix[(name != temp->Name1) ? loc_idx : DEFAULT_LOCALE];
+                /*}*/
             }
         }
 
@@ -247,6 +251,7 @@ namespace LuaItem
         return 1;
     }
 
+#ifndef CATA
     int IsWeaponVellum(lua_State* L, Item* item)
     {
         sEluna->Push(L, item->IsWeaponVellum());
@@ -258,6 +263,7 @@ namespace LuaItem
         sEluna->Push(L, item->IsArmorVellum());
         return 1;
     }
+#endif
 
     int IsConjuredConsumable(lua_State* L, Item* item)
     {
@@ -439,7 +445,7 @@ namespace LuaItem
         return 1;
     }
 
-#ifndef TBC
+#ifdef WOTLK
     int GetStatsCount(lua_State* L, Item* item)
     {
         sEluna->Push(L, item->GetTemplate()->StatsCount);

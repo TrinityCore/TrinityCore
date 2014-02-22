@@ -50,6 +50,7 @@ namespace LuaGuild
         return 1;
     }
 
+#ifndef CATA
     int SetLeader(lua_State* L, Guild* guild)
     {
         Player* player = sEluna->CHECKOBJ<Player>(L, 2);
@@ -61,6 +62,7 @@ namespace LuaGuild
 #endif
         return 0;
     }
+#endif
 
     int GetLeaderGUID(lua_State* L, Guild* guild)
     {

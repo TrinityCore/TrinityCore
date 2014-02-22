@@ -649,11 +649,13 @@ namespace LuaCreature
         return 1;
     }
 
+#ifndef CATA
     int GetShieldBlockValue(lua_State* L, Creature* creature)
     {
         sEluna->Push(L, creature->GetShieldBlockValue());
         return 1;
     }
+#endif
 
     int CanFly(lua_State* L, Creature* creature)
     {
