@@ -21,10 +21,12 @@ extern void AddElunaScripts();
 bool StartEluna()
 {
 #ifndef ELUNA
+#ifndef MANGOS
     {
         TC_LOG_ERROR("eluna", "[Eluna]: LuaEngine is Disabled. (If you want to use it please enable in cmake)");
         return false;
     }
+#endif
 #endif
 
     ELUNA_GUARD();
