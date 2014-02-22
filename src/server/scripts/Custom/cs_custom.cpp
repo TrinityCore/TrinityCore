@@ -60,7 +60,7 @@ class custom_commandscript : public CommandScript
             };
             return commandTable;
         }
-        
+
         static bool HandleMuteInfoCommand(ChatHandler* handler, char const* args)
         {
             if (!*args)
@@ -80,11 +80,11 @@ class custom_commandscript : public CommandScript
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
-                
+
                 Field* fields = result->Fetch();
                 uint32 accountId = fields[0].GetUInt32();
                 accountName = AccountMgr::GetName(accountId, accountName);
-                
+
                 return HandleMuteInfoHelper("character", accountId, accountName.c_str(), handler);
             }
 
@@ -98,13 +98,12 @@ class custom_commandscript : public CommandScript
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
-                
                 Field* fields = result->Fetch();
                 uint32 accountId = fields[0].GetUInt32();
-                
+
                 return HandleMuteInfoHelper("character", accountId, accountName.c_str(), handler);
             }
-            
+
 
             return HandleMuteInfoHelper("account", accountId, accountName.c_str(), handler);
         }
@@ -141,7 +140,7 @@ class custom_commandscript : public CommandScript
         {
             // actual code for completing
             Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
-            
+
             //If player doesnt have the quest
             if(!quest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE)
             {
@@ -149,7 +148,7 @@ class custom_commandscript : public CommandScript
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-            
+
             // Add quest items for quests that require items
             for(uint8 x = 0; x < QUEST_ITEM_OBJECTIVES_COUNT; ++x)
             {
@@ -157,9 +156,9 @@ class custom_commandscript : public CommandScript
                 uint32 count = quest->RequiredItemCount[x];
                 if(!id || !count)
                     continue;
-                    
+
                 uint32 curItemCount = player->GetItemCount(id, true);
-              
+
                 ItemPosCountVec dest;
                 uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, id, count-curItemCount);
                 if (msg == EQUIP_ERR_OK)
@@ -168,7 +167,7 @@ class custom_commandscript : public CommandScript
                     player->SendNewItem(item, count-curItemCount, true, false);
                 }
             }
-                
+
             // All creature/GO slain/cast (not required, but otherwise it will display "Creature slain 0/10")
             for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
             {
@@ -213,7 +212,7 @@ class custom_commandscript : public CommandScript
             player->CompleteQuest(entry);
             return true;
         }
-        
+
         static bool HandleQuestCompleterStatusCommand(ChatHandler* handler, char const* args)
         {
             char* cId = handler->extractKeyFromLink((char*)args, "Hquest");
@@ -237,10 +236,9 @@ class custom_commandscript : public CommandScript
                 if(entry != 0)
                 {
                     uint32 checked = 0;
-                    std::string questName = "";
                     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_QUESTCOMPLETER);
                     stmt->setUInt32(0, entry);
-                    stmt->setUInt32(1, entry);
+                    std::string questTitle = quest->GetTitle();
                     PreparedQueryResult resultCheck = LoginDatabase.Query(stmt);
 
                     if (!resultCheck)
@@ -251,11 +249,9 @@ class custom_commandscript : public CommandScript
                     }
 
                     checked = (*resultCheck)[0].GetUInt32();
-
                     if(checked == 1)
                     {
                         std::string name;
-                        questName = (*resultCheck)[2].GetString();
                         const char* playerName = handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : NULL;
                         if(playerName)
                         {
@@ -265,25 +261,25 @@ class custom_commandscript : public CommandScript
                             Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
                             if(!quest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE)
                             {
-                                handler->PSendSysMessage("%s is bugged!", questName.c_str());
+                                handler->PSendSysMessage("%s is bugged!", questTitle.c_str());
                                 return true;
                             }
                             else
                             {
-                                handler->PSendSysMessage("%s completed!", questName.c_str());
+                                handler->PSendSysMessage("%s completed!", questTitle.c_str());
                                 HandleQuestCompleterCompHelper(player, entry, handler);
                                 return true;
                             }
                         }
                         else
                         {
-                            handler->PSendSysMessage("%s is bugged!", questName.c_str());
+                            handler->PSendSysMessage("%s is bugged!", questTitle.c_str());
                             return true;
                         }
                     }
                     else
                     {
-                        handler->PSendSysMessage("Quest is not bugged!");
+                        handler->PSendSysMessage("%s is not bugged!", questTitle.c_str());
                         return true;
                     }
                 }
@@ -295,7 +291,7 @@ class custom_commandscript : public CommandScript
                 }
             }
         }
-        
+
         static bool HandleQuestCompleterAddCommand(ChatHandler* handler, char const* args)
         {
             char* cId = handler->extractKeyFromLink((char*)args, "Hquest");
@@ -306,7 +302,7 @@ class custom_commandscript : public CommandScript
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-            
+
             uint32 entry = atol(cId);
             Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
             if (!quest)
@@ -315,12 +311,12 @@ class custom_commandscript : public CommandScript
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-            
+
             // Change from string to int to prevent crash with query
             uint32 checked = 0;
+            std::string questTitle = quest->GetTitle();
             PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_QUESTCOMPLETER);
             stmt->setUInt32(0, entry);
-            stmt->setUInt32(1, entry);
             PreparedQueryResult resultCheck = LoginDatabase.Query(stmt);
 
             if (!resultCheck)
@@ -331,7 +327,7 @@ class custom_commandscript : public CommandScript
             checked = (*resultCheck)[0].GetUInt32();
 
             if (checked == 1)
-                handler->PSendSysMessage("Quest is already added!");
+                handler->PSendSysMessage("%s is already in Quest Completer!", questTitle.c_str());
             else
             {
                 if (entry != 0)
@@ -340,7 +336,7 @@ class custom_commandscript : public CommandScript
                     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_QUESTCOMPLETER);
                     stmt->setUInt32(0, entry);
                     LoginDatabase.Execute(stmt);
-                    handler->PSendSysMessage("Quest %u was added!", entry);
+                    handler->PSendSysMessage("%s was added!", questTitle.c_str());
                 }
                 else
                     handler->PSendSysMessage("There was a error with your request.");
@@ -358,7 +354,7 @@ class custom_commandscript : public CommandScript
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-            
+
             uint32 entry = atol(cId);
             Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
             if (!quest)
@@ -367,12 +363,12 @@ class custom_commandscript : public CommandScript
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-            
+
             // Change from string to int to prevent crash with query
             uint32 checked = 0;
+            std::string questTitle = quest->GetTitle();
             PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_QUESTCOMPLETER);
             stmt->setUInt32(0, entry);
-            stmt->setUInt32(1, entry);
             PreparedQueryResult resultCheck = LoginDatabase.Query(stmt);
 
             if (!resultCheck)
@@ -383,7 +379,7 @@ class custom_commandscript : public CommandScript
             checked = (*resultCheck)[0].GetUInt32();
 
             if (checked == 0)
-                handler->PSendSysMessage("Quest not in list!");
+                handler->PSendSysMessage("%s is not in the Quest Completer.", questTitle.c_str());
             else
             {
                 if (entry != 0)
@@ -392,7 +388,7 @@ class custom_commandscript : public CommandScript
                     stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_QUESTCOMPLETER);
                     stmt->setUInt32(0, entry);
                     LoginDatabase.Execute(stmt);
-                    handler->PSendSysMessage("Quest %u was removed!", entry);
+                    handler->PSendSysMessage("%s was removed!", questTitle.c_str());
                 }
                 else
                     handler->PSendSysMessage("There was a error with your request.");
