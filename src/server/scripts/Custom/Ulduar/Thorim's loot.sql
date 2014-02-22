@@ -8,7 +8,7 @@ SET @heroic25 := 196003;
 
 DELETE FROM `gameobject_loot_template` WHERE `entry` = @normal10;
 INSERT INTO `gameobject_loot_template` (entry, item, ChanceOrQuestChance, groupid, mincountOrRef, maxcount, lootmode) VALUES
-(@normal10, 49426, 100, 0, 1, 1, 1),
+(@normal10, 47241, 100, 0, 1, 1, 1),
 (@normal10, 45659, 0, 1, 1, 1, 1),
 (@normal10, 45660, 0, 1, 1, 1, 1),
 (@normal10, 45661, 0, 1, 1, 1, 1),
@@ -21,7 +21,7 @@ INSERT INTO `gameobject_loot_template` (entry, item, ChanceOrQuestChance, groupi
 DELETE FROM `gameobject_loot_template` WHERE `entry` = @heroic10;
 INSERT INTO `gameobject_loot_template` (entry, item, ChanceOrQuestChance, groupid, mincountOrRef, maxcount, lootmode) VALUES
 (@heroic10, 45087, 70, 0, 1, 1, 1),
-(@heroic10, 49426, 100, 0, 1, 1, 1),
+(@heroic10, 47241, 100, 0, 1, 1, 1),
 (@heroic10, 45784, -100, 0, 1, 1, 1),
 (@heroic10, 45928, 0, 2, 1, 1, 1),
 (@heroic10, 45929, 0, 2, 1, 1, 1),
@@ -46,7 +46,7 @@ INSERT INTO `gameobject_loot_template` (entry, item, ChanceOrQuestChance, groupi
 (@normal25, 45467, 0, 2, 1, 1, 1),
 (@normal25, 45468, 0, 2, 1, 1, 1),
 (@normal25, 45469, 0, 2, 1, 1, 1),
-(@normal25, 49426, 100, 0, 1, 1, 1),
+(@normal25, 47241, 100, 0, 1, 1, 1),
 (@normal25, 45638, 0, 1, 1, 1, 1),
 (@normal25, 45639, 0, 1, 1, 1, 1),
 (@normal25, 45640, 0, 1, 1, 1, 1);
@@ -59,7 +59,7 @@ INSERT INTO `gameobject_loot_template` (entry, item, ChanceOrQuestChance, groupi
 (@heroic25, 45473, 0, 2, 1, 1, 1),
 (@heroic25, 45474, 0, 2, 1, 1, 1),
 (@heroic25, 45570, 0, 2, 1, 1, 1),
-(@heroic25, 49426, 100, 0, 1, 1, 1),
+(@heroic25, 47241, 100, 0, 1, 1, 1),
 (@heroic25, 45817, -100, 0, 1, 1, 1),
 (@heroic25, 45463, 0, 3, 1, 1, 1), 
 (@heroic25, 45466, 0, 3, 1, 1, 1),

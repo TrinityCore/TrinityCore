@@ -939,6 +939,25 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
             SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
             SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
             //SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, float(cinfo->attackpower));
+
+            /* You might ask the reason behind this. SUMMON_PET is used for generic summons and I'm not sure if all of them
+            should scale as this so keeping track of affected minions like this. */
+            switch (GetEntry())
+            {
+                case 416:   // Imp
+                case 417:   // Felhunter
+                case 1860:  // Voidwalker
+                case 1863:  // Succubus
+                case 17252: // Felguard
+                case 26125: // Unholy DK ghoul
+                    // Let summons inherit their master's hit rating.
+                    m_modMeleeHitChance = m_owner->m_modMeleeHitChance;
+                    m_modSpellHitChance = m_owner->m_modSpellHitChance;
+                    break;
+                default:
+                    break;
+            }
+
             break;
         }
         case HUNTER_PET:
@@ -950,6 +969,11 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
             //damage range is then petlevel / 2
             SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
             //damage is increased afterwards as strength and pet scaling modify attack power
+
+            // Let hunter pets inherit their master's hit rating
+            m_modMeleeHitChance = m_owner->m_modMeleeHitChance;
+            m_modSpellHitChance = m_owner->m_modSpellHitChance;
+
             break;
         }
         default:
@@ -1001,6 +1025,10 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     int32 bonus_dmg = int32(GetOwner()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SHADOW)* 0.3f);
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float((petlevel * 4 - petlevel) + bonus_dmg));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float((petlevel * 4 + petlevel) + bonus_dmg));
+
+                    // Let summons inherit their master's hit rating.
+                    m_modMeleeHitChance = m_owner->m_modMeleeHitChance;
+                    m_modSpellHitChance = m_owner->m_modSpellHitChance;
 
                     break;
                 }
