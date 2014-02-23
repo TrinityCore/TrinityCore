@@ -480,6 +480,9 @@ ElunaRegister<Player> PlayerMethods[] =
     {"SetPlayerLock", &LuaPlayer::SetPlayerLock},               // :SetPlayerLock(on/off)
     {"SetGender", &LuaPlayer::SetGender},                       // :SetGender(value) - 0 = male 1 = female
     {"SetSheath", &LuaPlayer::SetSheath},                       // :SetSheath(SheathState) - Sets player's sheathstate
+#ifdef MANGOS
+    {"SetFFA", &LuaPlayer::SetFFA},                             // :SetFFA([apply]) - Sets the units FFA tag on or off
+#endif
 
     // Boolean
     {"IsInGroup", &LuaPlayer::IsInGroup},                                               // :IsInGroup()
