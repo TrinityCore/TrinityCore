@@ -29,7 +29,7 @@
 ////////////////// PathGenerator //////////////////
 PathGenerator::PathGenerator(const Unit* owner) :
     _polyLength(0), _type(PATHFIND_BLANK), _useStraightPath(false),
-    _forceDestination(false), _pointPathLimit(MAX_POINT_PATH_LENGTH),
+    _forceDestination(false), _pointPathLimit(MAX_POINT_PATH_LENGTH), _straightLine(false),
     _endPosition(G3D::Vector3::zero()), _sourceUnit(owner), _navMesh(NULL),
     _navMeshQuery(NULL)
 {
@@ -53,7 +53,7 @@ PathGenerator::~PathGenerator()
     TC_LOG_DEBUG("maps", "++ PathGenerator::~PathGenerator() for %u \n", _sourceUnit->GetGUIDLow());
 }
 
-bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool forceDest)
+bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool forceDest, bool straightLine)
 {
     float x, y, z;
     _sourceUnit->GetPosition(x, y, z);
@@ -68,6 +68,7 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
     SetStartPosition(start);
 
     _forceDestination = forceDest;
+    _straightLine = straightLine;
 
     TC_LOG_DEBUG("maps", "++ PathGenerator::CalculatePath() for %u \n", _sourceUnit->GetGUIDLow());
 
@@ -338,15 +339,45 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
 
         // generate suffix
         uint32 suffixPolyLength = 0;
-        dtStatus dtResult = _navMeshQuery->findPath(
-                                suffixStartPoly,    // start polygon
-                                endPoly,            // end polygon
-                                suffixEndPoint,     // start position
-                                endPoint,           // end position
-                                &_filter,            // polygon search filter
-                                _pathPolyRefs + prefixPolyLength - 1,    // [out] path
-                                (int*)&suffixPolyLength,
-                                MAX_PATH_LENGTH-prefixPolyLength);   // max number of polygons in output path
+
+        dtStatus dtResult;
+        if (_straightLine)
+        {
+            float hit = 0;
+            float hitNormal[3];
+            memset(hitNormal, 0, sizeof(hitNormal));
+
+            dtResult = _navMeshQuery->raycast(
+                            suffixStartPoly,
+                            suffixEndPoint,
+                            endPoint,
+                            &_filter,
+                            &hit,
+                            hitNormal,
+                            _pathPolyRefs + prefixPolyLength - 1,
+                            (int*)&suffixPolyLength,
+                            MAX_PATH_LENGTH - prefixPolyLength);
+
+            // raycast() sets hit to FLT_MAX if there is a ray between start and end
+            if (hit != FLT_MAX)
+            {
+                // the ray hit something, return no path instead of the incomplete one
+                _type = PATHFIND_NOPATH;
+                return;
+            }
+        }
+        else
+        {
+            dtResult = _navMeshQuery->findPath(
+                            suffixStartPoly,    // start polygon
+                            endPoly,            // end polygon
+                            suffixEndPoint,     // start position
+                            endPoint,           // end position
+                            &_filter,            // polygon search filter
+                            _pathPolyRefs + prefixPolyLength - 1,    // [out] path
+                            (int*)&suffixPolyLength,
+                            MAX_PATH_LENGTH - prefixPolyLength);   // max number of polygons in output path
+        }
 
         if (!suffixPolyLength || dtStatusFailed(dtResult))
         {
@@ -372,15 +403,44 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         // free and invalidate old path data
         Clear();
 
-        dtStatus dtResult = _navMeshQuery->findPath(
-                startPoly,          // start polygon
-                endPoly,            // end polygon
-                startPoint,         // start position
-                endPoint,           // end position
-                &_filter,           // polygon search filter
-                _pathPolyRefs,     // [out] path
-                (int*)&_polyLength,
-                MAX_PATH_LENGTH);   // max number of polygons in output path
+        dtStatus dtResult;
+        if (_straightLine)
+        {
+            float hit = 0;
+            float hitNormal[3];
+            memset(hitNormal, 0, sizeof(hitNormal));
+
+            dtResult = _navMeshQuery->raycast(
+                            startPoly,
+                            startPoint,
+                            endPoint,
+                            &_filter,
+                            &hit,
+                            hitNormal,
+                            _pathPolyRefs,
+                            (int*)&_polyLength,
+                            MAX_PATH_LENGTH);
+
+            // raycast() sets hit to FLT_MAX if there is a ray between start and end
+            if (hit != FLT_MAX)
+            {
+                // the ray hit something, return no path instead of the incomplete one
+                _type = PATHFIND_NOPATH;
+                return;
+            }
+        }
+        else
+        {
+            dtResult = _navMeshQuery->findPath(
+                            startPoly,          // start polygon
+                            endPoly,            // end polygon
+                            startPoint,         // start position
+                            endPoint,           // end position
+                            &_filter,           // polygon search filter
+                            _pathPolyRefs,     // [out] path
+                            (int*)&_polyLength,
+                            MAX_PATH_LENGTH);   // max number of polygons in output path
+        }
 
         if (!_polyLength || dtStatusFailed(dtResult))
         {
@@ -407,7 +467,15 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
     float pathPoints[MAX_POINT_PATH_LENGTH*VERTEX_SIZE];
     uint32 pointCount = 0;
     dtStatus dtResult = DT_FAILURE;
-    if (_useStraightPath)
+    if (_straightLine)
+    {
+        // if the path is a straight line then start and end position are enough
+        dtResult = DT_SUCCESS;
+        pointCount = 2;
+        memcpy(&pathPoints[0], startPoint, sizeof(float)* 3);
+        memcpy(&pathPoints[3], endPoint, sizeof(float)* 3);
+    }
+    else if (_useStraightPath)
     {
         dtResult = _navMeshQuery->findStraightPath(
                 startPoint,         // start position
