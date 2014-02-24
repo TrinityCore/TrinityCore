@@ -14,15 +14,22 @@
 #endif
 namespace LuaQuery
 {
-    int NextRow(lua_State* L, QueryResult* result)
+    /* BOOLEAN */
+    int IsNull(lua_State* L, QueryResult* result)
     {
-        if (!result)
-            sEluna->Push(L, false);
+        uint32 col = sEluna->CHECKVAL<uint32>(L, 2);
+        if (!result || col >= RESULT->GetFieldCount())
+            sEluna->Push(L, true);
         else
-            sEluna->Push(L, RESULT->NextRow());
+#ifdef MANGOS
+            sEluna->Push(L, RESULT->Fetch()[col].IsNULL());
+#else
+            sEluna->Push(L, RESULT->Fetch()[col].IsNull());
+#endif
         return 1;
     }
 
+    /* GETTERS */
     int GetColumnCount(lua_State* L, QueryResult* result)
     {
         if (!result)
@@ -43,20 +50,6 @@ namespace LuaQuery
             else
                 sEluna->Push(L, RESULT->GetRowCount());
         }
-        return 1;
-    }
-
-    int IsNull(lua_State* L, QueryResult* result)
-    {
-        uint32 col = sEluna->CHECKVAL<uint32>(L, 2);
-        if (!result || col >= RESULT->GetFieldCount())
-            sEluna->Push(L, true);
-        else
-#ifdef MANGOS
-            sEluna->Push(L, RESULT->Fetch()[col].IsNULL());
-#else
-            sEluna->Push(L, RESULT->Fetch()[col].IsNull());
-#endif
         return 1;
     }
 
@@ -177,6 +170,16 @@ namespace LuaQuery
             sEluna->Push(L, "");
         else
             sEluna->Push(L, RESULT->Fetch()[col].GetString());
+        return 1;
+    }
+
+    /* OTHER */
+    int NextRow(lua_State* L, QueryResult* result)
+    {
+        if (!result)
+            sEluna->Push(L, false);
+        else
+            sEluna->Push(L, RESULT->NextRow());
         return 1;
     }
 };

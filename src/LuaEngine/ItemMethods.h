@@ -9,6 +9,139 @@
 
 namespace LuaItem
 {
+    /* BOOLEAN */
+    int IsSoulBound(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->IsSoulBound());
+        return 1;
+    }
+
+#ifndef TBC
+    int IsBoundAccountWide(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->IsBoundAccountWide());
+        return 1;
+    }
+#endif
+
+    int IsBoundByEnchant(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->IsBoundByEnchant());
+        return 1;
+    }
+
+    int IsNotBoundToPlayer(lua_State* L, Item* item)
+    {
+        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
+
+        sEluna->Push(L, item->IsBindedNotWith(player));
+        return 1;
+    }
+
+    int IsLocked(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->IsLocked());
+        return 1;
+    }
+
+    int IsBag(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->IsBag());
+        return 1;
+    }
+
+    int IsCurrencyToken(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->IsCurrencyToken());
+        return 1;
+    }
+
+    int IsNotEmptyBag(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->IsNotEmptyBag());
+        return 1;
+    }
+
+    int IsBroken(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->IsBroken());
+        return 1;
+    }
+
+    int CanBeTraded(lua_State* L, Item* item)
+    {
+#ifdef TBC
+        sEluna->Push(L, item->CanBeTraded());
+#else
+        bool mail = sEluna->CHECKVAL<bool>(L, 2, false);
+        sEluna->Push(L, item->CanBeTraded(mail));
+#endif
+        return 1;
+    }
+
+    int IsInTrade(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->IsInTrade());
+        return 1;
+    }
+
+    int IsInBag(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->IsInBag());
+        return 1;
+    }
+
+    int IsEquipped(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->IsEquipped());
+        return 1;
+    }
+
+    int HasQuest(lua_State* L, Item* item)
+    {
+        uint32 quest = sEluna->CHECKVAL<uint32>(L, 2);
+#ifdef MANGOS
+        sEluna->Push(L, item->HasQuest(quest));
+#else
+        sEluna->Push(L, item->hasQuest(quest));
+#endif
+        return 1;
+    }
+
+    int IsPotion(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->IsPotion());
+        return 1;
+    }
+
+#ifndef CATA
+    int IsWeaponVellum(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->IsWeaponVellum());
+        return 1;
+    }
+
+    int IsArmorVellum(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->IsArmorVellum());
+        return 1;
+    }
+#endif
+
+    int IsConjuredConsumable(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->IsConjuredConsumable());
+        return 1;
+    }
+
+    int IsRefundExpired(lua_State* L, Item* item)// TODO: Implement core support
+    {
+        /*sEluna->Push(L, item->IsRefundExpired());
+        return 1;*/
+        return 0; // Temp till supported
+    }
+
+    /* GETTERS */
     int GetItemLink(lua_State* L, Item* item)
     {
         // LOCALE_enUS = 0,
@@ -97,111 +230,10 @@ namespace LuaItem
         return 1;
     }
 
-    int SetOwner(lua_State* L, Item* item)
-    {
-        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
-#ifdef MANGOS
-        item->SetOwnerGuid(player->GET_GUID());
-#else
-        item->SetOwnerGUID(player->GET_GUID());
-#endif
-        return 0;
-    }
-
-    int SetBinding(lua_State* L, Item* item)
-    {
-        bool soulbound = sEluna->CHECKVAL<bool>(L, 2);
-
-        item->SetBinding(soulbound);
-        return 0;
-    }
-
-    int IsSoulBound(lua_State* L, Item* item)
-    {
-        sEluna->Push(L, item->IsSoulBound());
-        return 1;
-    }
-
-#ifndef TBC
-    int IsBoundAccountWide(lua_State* L, Item* item)
-    {
-        sEluna->Push(L, item->IsBoundAccountWide());
-        return 1;
-    }
-#endif
-
-    int IsBoundByEnchant(lua_State* L, Item* item)
-    {
-        sEluna->Push(L, item->IsBoundByEnchant());
-        return 1;
-    }
-
-    int IsNotBoundToPlayer(lua_State* L, Item* item)
-    {
-        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
-
-        sEluna->Push(L, item->IsBindedNotWith(player));
-        return 1;
-    }
-
-    int IsLocked(lua_State* L, Item* item)
-    {
-        sEluna->Push(L, item->IsLocked());
-        return 1;
-    }
-
-    int IsBag(lua_State* L, Item* item)
-    {
-        sEluna->Push(L, item->IsBag());
-        return 1;
-    }
-
-    int IsCurrencyToken(lua_State* L, Item* item)
-    {
-        sEluna->Push(L, item->IsCurrencyToken());
-        return 1;
-    }
-
-    int IsNotEmptyBag(lua_State* L, Item* item)
-    {
-        sEluna->Push(L, item->IsNotEmptyBag());
-        return 1;
-    }
-
-    int IsBroken(lua_State* L, Item* item)
-    {
-        sEluna->Push(L, item->IsBroken());
-        return 1;
-    }
-
-    int CanBeTraded(lua_State* L, Item* item)
-    {
-#ifdef TBC
-        sEluna->Push(L, item->CanBeTraded());
-#else
-        bool mail = sEluna->CHECKVAL<bool>(L, 2, false);
-        sEluna->Push(L, item->CanBeTraded(mail));
-#endif
-        return 1;
-    }
-
-    int IsInTrade(lua_State* L, Item* item)
-    {
-        sEluna->Push(L, item->IsInTrade());
-        return 1;
-    }
-
     int GetCount(lua_State* L, Item* item)
     {
         sEluna->Push(L, item->GetCount());
         return 1;
-    }
-
-    int SetCount(lua_State* L, Item* item)
-    {
-        uint32 count = sEluna->CHECKVAL<uint32>(L, 2);
-        item->SetCount(count);
-        return 0;
     }
 
     int GetMaxStackCount(lua_State* L, Item* item)
@@ -219,114 +251,6 @@ namespace LuaItem
     int GetBagSlot(lua_State* L, Item* item)
     {
         sEluna->Push(L, item->GetBagSlot());
-        return 1;
-    }
-
-    int IsInBag(lua_State* L, Item* item)
-    {
-        sEluna->Push(L, item->IsInBag());
-        return 1;
-    }
-
-    int IsEquipped(lua_State* L, Item* item)
-    {
-        sEluna->Push(L, item->IsEquipped());
-        return 1;
-    }
-
-    int HasQuest(lua_State* L, Item* item)
-    {
-        uint32 quest = sEluna->CHECKVAL<uint32>(L, 2);
-#ifdef MANGOS
-        sEluna->Push(L, item->HasQuest(quest));
-#else
-        sEluna->Push(L, item->hasQuest(quest));
-#endif
-        return 1;
-    }
-
-    int IsPotion(lua_State* L, Item* item)
-    {
-        sEluna->Push(L, item->IsPotion());
-        return 1;
-    }
-
-#ifndef CATA
-    int IsWeaponVellum(lua_State* L, Item* item)
-    {
-        sEluna->Push(L, item->IsWeaponVellum());
-        return 1;
-    }
-
-    int IsArmorVellum(lua_State* L, Item* item)
-    {
-        sEluna->Push(L, item->IsArmorVellum());
-        return 1;
-    }
-#endif
-
-    int IsConjuredConsumable(lua_State* L, Item* item)
-    {
-        sEluna->Push(L, item->IsConjuredConsumable());
-        return 1;
-    }
-
-    int IsRefundExpired(lua_State* L, Item* item)// TODO: Implement core support
-    {
-        /*sEluna->Push(L, item->IsRefundExpired());
-        return 1;*/
-        return 0; // Temp till supported
-    }
-
-    int SetEnchantment(lua_State* L, Item* item)
-    {
-        Player* owner = item->GetOwner();
-        if (!owner)
-        {
-            sEluna->Push(L, false);
-            return 1;
-        }
-
-        uint32 enchant = sEluna->CHECKVAL<uint32>(L, 2);
-        if (!sSpellItemEnchantmentStore.LookupEntry(enchant))
-        {
-            sEluna->Push(L, false);
-            return 1;
-        }
-
-        EnchantmentSlot slot = (EnchantmentSlot)sEluna->CHECKVAL<uint32>(L, 3);
-        if (slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
-            return luaL_argerror(L, 2, "valid EnchantmentSlot expected");
-
-        owner->ApplyEnchantment(item, slot, false);
-        item->SetEnchantment(slot, enchant, 0, 0);
-        owner->ApplyEnchantment(item, slot, true);
-        sEluna->Push(L, true);
-        return 1;
-    }
-
-    int ClearEnchantment(lua_State* L, Item* item)
-    {
-        Player* owner = item->GetOwner();
-        if (!owner)
-        {
-            sEluna->Push(L, false);
-            return 1;
-        }
-
-        EnchantmentSlot slot = (EnchantmentSlot)sEluna->CHECKVAL<uint32>(L, 2);
-        if (slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
-            return luaL_argerror(L, 2, "valid EnchantmentSlot expected");
-
-        if (!item->GetEnchantmentId(slot))
-        {
-            sEluna->Push(L, false);
-            return 1;
-        }
-
-        owner->ApplyEnchantment(item, slot, false);
-        item->ClearEnchantment(slot);
-        sEluna->Push(L, true);
         return 1;
     }
 
@@ -477,6 +401,86 @@ namespace LuaItem
             sEluna->Push(L, bag->GetBagSize());
         else
             sEluna->Push(L, 0);
+        return 1;
+    }
+
+    /* SETTERS */
+    int SetOwner(lua_State* L, Item* item)
+    {
+        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
+#ifdef MANGOS
+        item->SetOwnerGuid(player->GET_GUID());
+#else
+        item->SetOwnerGUID(player->GET_GUID());
+#endif
+        return 0;
+    }
+
+    int SetBinding(lua_State* L, Item* item)
+    {
+        bool soulbound = sEluna->CHECKVAL<bool>(L, 2);
+
+        item->SetBinding(soulbound);
+        return 0;
+    }
+
+    int SetCount(lua_State* L, Item* item)
+    {
+        uint32 count = sEluna->CHECKVAL<uint32>(L, 2);
+        item->SetCount(count);
+        return 0;
+    }
+
+    int SetEnchantment(lua_State* L, Item* item)
+    {
+        Player* owner = item->GetOwner();
+        if (!owner)
+        {
+            sEluna->Push(L, false);
+            return 1;
+        }
+
+        uint32 enchant = sEluna->CHECKVAL<uint32>(L, 2);
+        if (!sSpellItemEnchantmentStore.LookupEntry(enchant))
+        {
+            sEluna->Push(L, false);
+            return 1;
+        }
+
+        EnchantmentSlot slot = (EnchantmentSlot)sEluna->CHECKVAL<uint32>(L, 3);
+        if (slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
+            return luaL_argerror(L, 2, "valid EnchantmentSlot expected");
+
+        owner->ApplyEnchantment(item, slot, false);
+        item->SetEnchantment(slot, enchant, 0, 0);
+        owner->ApplyEnchantment(item, slot, true);
+        sEluna->Push(L, true);
+        return 1;
+    }
+
+    /* OTHER */
+    int ClearEnchantment(lua_State* L, Item* item)
+    {
+        Player* owner = item->GetOwner();
+        if (!owner)
+        {
+            sEluna->Push(L, false);
+            return 1;
+        }
+
+        EnchantmentSlot slot = (EnchantmentSlot)sEluna->CHECKVAL<uint32>(L, 2);
+        if (slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
+            return luaL_argerror(L, 2, "valid EnchantmentSlot expected");
+
+        if (!item->GetEnchantmentId(slot))
+        {
+            sEluna->Push(L, false);
+            return 1;
+        }
+
+        owner->ApplyEnchantment(item, slot, false);
+        item->ClearEnchantment(slot);
+        sEluna->Push(L, true);
         return 1;
     }
 

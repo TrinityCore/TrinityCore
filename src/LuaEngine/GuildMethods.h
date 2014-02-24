@@ -9,6 +9,7 @@
 
 namespace LuaGuild
 {
+    /* GETTERS */
     int GetMembers(lua_State* L, Guild* guild)
     {
         lua_newtable(L);
@@ -50,20 +51,6 @@ namespace LuaGuild
         return 1;
     }
 
-#ifndef CATA
-    int SetLeader(lua_State* L, Guild* guild)
-    {
-        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
-
-#ifdef MANGOS
-        guild->SetLeader(player->GET_GUID());
-#else
-        guild->HandleSetLeader(player->GetSession(), player->GetName());
-#endif
-        return 0;
-    }
-#endif
-
     int GetLeaderGUID(lua_State* L, Guild* guild)
     {
 #ifdef MANGOS
@@ -72,31 +59,6 @@ namespace LuaGuild
         sEluna->Push(L, guild->GetLeaderGUID());
 #endif
         return 1;
-    }
-
-    // SendPacketToGuild(packet)
-    int SendPacket(lua_State* L, Guild* guild)
-    {
-        WorldPacket* data = sEluna->CHECKOBJ<WorldPacket>(L, 2);
-
-        guild->BroadcastPacket(data);
-        return 0;
-    }
-
-    // SendPacketToRankedInGuild(packet, rankId)
-    int SendPacketToRanked(lua_State* L, Guild* guild)
-    {
-        WorldPacket* data = sEluna->CHECKOBJ<WorldPacket>(L, 2);
-        uint8 ranked = sEluna->CHECKVAL<uint8>(L, 3);
-
-        guild->BroadcastPacketToRank(data, ranked);
-        return 0;
-    }
-
-    int Disband(lua_State* L, Guild* guild)
-    {
-        guild->Disband();
-        return 0;
     }
 
     int GetId(lua_State* L, Guild* guild)
@@ -127,6 +89,59 @@ namespace LuaGuild
         return 1;
     }
 
+    /* SETTERS */
+#ifndef CATA
+    int SetLeader(lua_State* L, Guild* guild)
+    {
+        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
+
+#ifdef MANGOS
+        guild->SetLeader(player->GET_GUID());
+#else
+        guild->HandleSetLeader(player->GetSession(), player->GetName());
+#endif
+        return 0;
+    }
+#endif
+
+    int SetBankTabText(lua_State* L, Guild* guild)
+    {
+        uint8 tabId = sEluna->CHECKVAL<uint8>(L, 2);
+        const char* text = sEluna->CHECKVAL<const char*>(L, 3);
+#ifdef MANGOS
+        guild->SetGuildBankTabText(tabId, text);
+#else
+        guild->SetBankTabText(tabId, text);
+#endif
+        return 0;
+    }
+
+    /* OTHER */
+    // SendPacketToGuild(packet)
+    int SendPacket(lua_State* L, Guild* guild)
+    {
+        WorldPacket* data = sEluna->CHECKOBJ<WorldPacket>(L, 2);
+
+        guild->BroadcastPacket(data);
+        return 0;
+    }
+
+    // SendPacketToRankedInGuild(packet, rankId)
+    int SendPacketToRanked(lua_State* L, Guild* guild)
+    {
+        WorldPacket* data = sEluna->CHECKOBJ<WorldPacket>(L, 2);
+        uint8 ranked = sEluna->CHECKVAL<uint8>(L, 3);
+
+        guild->BroadcastPacketToRank(data, ranked);
+        return 0;
+    }
+
+    int Disband(lua_State* L, Guild* guild)
+    {
+        guild->Disband();
+        return 0;
+    }
+
     int AddMember(lua_State* L, Guild* guild)
     {
         Player* player = sEluna->CHECKOBJ<Player>(L, 2);
@@ -155,18 +170,6 @@ namespace LuaGuild
         uint8 newRank = sEluna->CHECKVAL<uint8>(L, 3);
 
         guild->ChangeMemberRank(player->GET_GUID(), newRank);
-        return 0;
-    }
-
-    int SetBankTabText(lua_State* L, Guild* guild)
-    {
-        uint8 tabId = sEluna->CHECKVAL<uint8>(L, 2);
-        const char* text = sEluna->CHECKVAL<const char*>(L, 3);
-#ifdef MANGOS
-        guild->SetGuildBankTabText(tabId, text);
-#else
-        guild->SetBankTabText(tabId, text);
-#endif
         return 0;
     }
 

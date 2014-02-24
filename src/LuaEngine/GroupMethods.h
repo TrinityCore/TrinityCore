@@ -9,6 +9,83 @@
 
 namespace LuaGroup
 {
+    /* BOOLEAN */
+    int IsLeader(lua_State* L, Group* group)
+    {
+        uint64 guid = sEluna->CHECKVAL<uint64>(L, 2);
+        sEluna->Push(L, group->IsLeader(GUID_TYPE(guid)));
+        return 1;
+    }
+
+    int IsFull(lua_State* L, Group* group)
+    {
+        sEluna->Push(L, group->IsFull());
+        return 1;
+    }
+
+    int isRaidGroup(lua_State* L, Group* group)
+    {
+        sEluna->Push(L, group->isRaidGroup());
+        return 1;
+    }
+
+    int isBGGroup(lua_State* L, Group* group)
+    {
+        sEluna->Push(L, group->isBGGroup());
+        return 1;
+    }
+
+    int IsMember(lua_State* L, Group* group)
+    {
+        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
+        sEluna->Push(L, group->IsMember(player->GET_GUID()));
+        return 1;
+    }
+
+    int IsAssistant(lua_State* L, Group* group)
+    {
+        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
+
+        sEluna->Push(L, group->IsAssistant(player->GET_GUID()));
+        return 1;
+    }
+
+    int SameSubGroup(lua_State* L, Group* group)
+    {
+        Player* player1 = sEluna->CHECKOBJ<Player>(L, 2);
+        Player* player2 = sEluna->CHECKOBJ<Player>(L, 3);
+        sEluna->Push(L, group->SameSubGroup(player1, player2));
+        return 1;
+    }
+
+    int HasFreeSlotSubGroup(lua_State* L, Group* group)
+    {
+        uint8 subGroup = sEluna->CHECKVAL<uint8>(L, 2);
+        sEluna->Push(L, group->HasFreeSlotSubGroup(subGroup));
+        return 1;
+    }
+
+    int AddInvite(lua_State* L, Group* group)
+    {
+        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
+
+        sEluna->Push(L, group->AddInvite(player));
+        return 1;
+    }
+
+    /*int isLFGGroup(lua_State* L, Group* group) // TODO: Implementation
+    {
+    sEluna->Push(L, group->isLFGGroup());
+    return 1;
+    }*/
+
+    /*int isBFGroup(lua_State* L, Group* group) // TODO: Implementation
+    {
+    sEluna->Push(L, group->isBFGroup());
+    return 1;
+    }*/
+
+    /* GETTERS */
     int GetMembers(lua_State* L, Group* group)
     {
         lua_newtable(L);
@@ -62,19 +139,38 @@ namespace LuaGroup
         return 1;
     }
 
+    int GetMemberGUID(lua_State* L, Group* group)
+    {
+        const char* name = sEluna->CHECKVAL<const char*>(L, 2);
+#ifdef MANGOS
+        sEluna->Push(L, group->GetMemberGuid(name));
+#else
+        sEluna->Push(L, group->GetMemberGUID(name));
+#endif
+        return 1;
+    }
+
+    int GetMembersCount(lua_State* L, Group* group)
+    {
+        sEluna->Push(L, group->GetMembersCount());
+        return 1;
+    }
+
+    int GetMemberGroup(lua_State* L, Group* group)
+    {
+        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
+
+        sEluna->Push(L, group->GetMemberGroup(player->GET_GUID()));
+        return 1;
+    }
+
+    /* OTHER */
     int ChangeLeader(lua_State* L, Group* group)
     {
         Player* leader = sEluna->CHECKOBJ<Player>(L, 2);
 
         group->ChangeLeader(leader->GET_GUID());
         return 0;
-    }
-
-    int IsLeader(lua_State* L, Group* group)
-    {
-        uint64 guid = sEluna->CHECKVAL<uint64>(L, 2);
-        sEluna->Push(L, group->IsLeader(GUID_TYPE(guid)));
-        return 1;
     }
 
     // SendPacket(packet, sendToPlayersInBattleground[, ignoreguid])
@@ -86,14 +182,6 @@ namespace LuaGroup
 
         group->BroadcastPacket(data, ignorePlayersInBg, -1, (GUID_TYPE)ignore);
         return 0;
-    }
-
-    int AddInvite(lua_State* L, Group* group)
-    {
-        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
-
-        sEluna->Push(L, group->AddInvite(player));
-        return 1;
     }
 
     int RemoveMember(lua_State* L, Group* group)
@@ -115,89 +203,6 @@ namespace LuaGroup
         return 0;
     }
 
-    int IsFull(lua_State* L, Group* group)
-    {
-        sEluna->Push(L, group->IsFull());
-        return 1;
-    }
-
-    /*int isLFGGroup(lua_State* L, Group* group) // TODO: Implementation
-    {
-    sEluna->Push(L, group->isLFGGroup());
-    return 1;
-    }*/
-
-    int isRaidGroup(lua_State* L, Group* group)
-    {
-        sEluna->Push(L, group->isRaidGroup());
-        return 1;
-    }
-
-    int isBGGroup(lua_State* L, Group* group)
-    {
-        sEluna->Push(L, group->isBGGroup());
-        return 1;
-    }
-
-    /*int isBFGroup(lua_State* L, Group* group) // TODO: Implementation
-    {
-    sEluna->Push(L, group->isBFGroup());
-    return 1;
-    }*/
-
-    int IsMember(lua_State* L, Group* group)
-    {
-        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
-        sEluna->Push(L, group->IsMember(player->GET_GUID()));
-        return 1;
-    }
-
-    int IsAssistant(lua_State* L, Group* group)
-    {
-        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
-
-        sEluna->Push(L, group->IsAssistant(player->GET_GUID()));
-        return 1;
-    }
-
-    int SameSubGroup(lua_State* L, Group* group)
-    {
-        Player* player1 = sEluna->CHECKOBJ<Player>(L, 2);
-        Player* player2 = sEluna->CHECKOBJ<Player>(L, 3);
-        sEluna->Push(L, group->SameSubGroup(player1, player2));
-        return 1;
-    }
-
-    int HasFreeSlotSubGroup(lua_State* L, Group* group)
-    {
-        uint8 subGroup = sEluna->CHECKVAL<uint8>(L, 2);
-        sEluna->Push(L, group->HasFreeSlotSubGroup(subGroup));
-        return 1;
-    }
-
-    int GetMemberGUID(lua_State* L, Group* group)
-    {
-        const char* name = sEluna->CHECKVAL<const char*>(L, 2);
-#ifdef MANGOS
-        sEluna->Push(L, group->GetMemberGuid(name));
-#else
-        sEluna->Push(L, group->GetMemberGUID(name));
-#endif
-        return 1;
-    }
-
-    int GetMembersCount(lua_State* L, Group* group)
-    {
-        sEluna->Push(L, group->GetMembersCount());
-        return 1;
-    }
-
-    /*int ConvertToLFG(lua_State* L, Group* group) // TODO: Implementation
-    {
-    group->ConvertToLFG();
-    return 0;
-    }*/
-
     int ConvertToRaid(lua_State* L, Group* group)
     {
         group->ConvertToRaid();
@@ -213,12 +218,10 @@ namespace LuaGroup
         return 0;
     }
 
-    int GetMemberGroup(lua_State* L, Group* group)
+    /*int ConvertToLFG(lua_State* L, Group* group) // TODO: Implementation
     {
-        Player* player = sEluna->CHECKOBJ<Player>(L, 2);
-
-        sEluna->Push(L, group->GetMemberGroup(player->GET_GUID()));
-        return 1;
-    }
+    group->ConvertToLFG();
+    return 0;
+    }*/
 };
 #endif

@@ -9,11 +9,13 @@
 
 namespace LuaWorldObject
 {
+    /* GETTERS */
     int GetName(lua_State* L, WorldObject* obj)
     {
         sEluna->Push(L, obj->GetName());
         return 1;
     }
+
     int GetMap(lua_State* L, WorldObject* obj)
     {
         sEluna->Push(L, obj->GetMap());
@@ -33,41 +35,49 @@ namespace LuaWorldObject
         sEluna->Push(L, obj->GetInstanceId());
         return 1;
     }
+
     int GetAreaId(lua_State* L, WorldObject* obj)
     {
         sEluna->Push(L, obj->GetAreaId());
         return 1;
     }
+
     int GetZoneId(lua_State* L, WorldObject* obj)
     {
         sEluna->Push(L, obj->GetZoneId());
         return 1;
     }
+
     int GetMapId(lua_State* L, WorldObject* obj)
     {
         sEluna->Push(L, obj->GetMapId());
         return 1;
     }
+
     int GetX(lua_State* L, WorldObject* obj)
     {
         sEluna->Push(L, obj->GetPositionX());
         return 1;
     }
+
     int GetY(lua_State* L, WorldObject* obj)
     {
         sEluna->Push(L, obj->GetPositionY());
         return 1;
     }
+
     int GetZ(lua_State* L, WorldObject* obj)
     {
         sEluna->Push(L, obj->GetPositionZ());
         return 1;
     }
+
     int GetO(lua_State* L, WorldObject* obj)
     {
         sEluna->Push(L, obj->GetOrientation());
         return 1;
     }
+
     int GetLocation(lua_State* L, WorldObject* obj)
     {
         sEluna->Push(L, obj->GetPositionX());
@@ -76,6 +86,7 @@ namespace LuaWorldObject
         sEluna->Push(L, obj->GetOrientation());
         return 4;
     }
+
     int GetNearestPlayer(lua_State* L, WorldObject* obj)
     {
         float range = sEluna->CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
@@ -93,6 +104,7 @@ namespace LuaWorldObject
         sEluna->Push(L, target);
         return 1;
     }
+
     int GetNearestGameObject(lua_State* L, WorldObject* obj)
     {
         float range = sEluna->CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
@@ -111,6 +123,7 @@ namespace LuaWorldObject
         sEluna->Push(L, target);
         return 1;
     }
+
     int GetNearestCreature(lua_State* L, WorldObject* obj)
     {
         float range = sEluna->CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
@@ -129,6 +142,7 @@ namespace LuaWorldObject
         sEluna->Push(L, target);
         return 1;
     }
+
     int GetPlayersInRange(lua_State* L, WorldObject* obj)
     {
         float range = sEluna->CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
@@ -157,6 +171,7 @@ namespace LuaWorldObject
         lua_settop(L, tbl);
         return 1;
     }
+
     int GetCreaturesInRange(lua_State* L, WorldObject* obj)
     {
         float range = sEluna->CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
@@ -186,6 +201,7 @@ namespace LuaWorldObject
         lua_settop(L, tbl);
         return 1;
     }
+
     int GetGameObjectsInRange(lua_State* L, WorldObject* obj)
     {
         float range = sEluna->CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
@@ -215,6 +231,7 @@ namespace LuaWorldObject
         lua_settop(L, tbl);
         return 1;
     }
+
     int GetNearObject(lua_State* L, WorldObject* obj)
     {
         bool nearest = sEluna->CHECKVAL<bool>(L, 2, true);
@@ -268,6 +285,7 @@ namespace LuaWorldObject
 
         return 0;
     }
+
     int GetWorldObject(lua_State* L, WorldObject* obj)
     {
         uint64 guid = sEluna->CHECKVAL<uint64>(L, 2);
@@ -346,6 +364,7 @@ namespace LuaWorldObject
         return 1;
     }
 
+    /* OTHER */
     int SendPacket(lua_State* L, WorldObject* obj)
     {
         WorldPacket* data = sEluna->CHECKOBJ<WorldPacket>(L, 2);

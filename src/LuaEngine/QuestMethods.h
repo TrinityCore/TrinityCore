@@ -9,6 +9,31 @@
 
 namespace LuaQuest
 {
+    /* BOOLEAN */
+    int HasFlag(lua_State* L, Quest* quest)
+    {
+        uint32 flag = sEluna->CHECKVAL<uint32>(L, 2);
+#ifdef MANGOS
+        sEluna->Push(L, quest->HasQuestFlag((QuestFlags)flag));
+#else
+        sEluna->Push(L, quest->HasFlag(flag));
+#endif
+        return 1;
+    }
+
+    int IsDaily(lua_State* L, Quest* quest)
+    {
+        sEluna->Push(L, quest->IsDaily());
+        return 1;
+    }
+
+    int IsRepeatable(lua_State* L, Quest* quest)
+    {
+        sEluna->Push(L, quest->IsRepeatable());
+        return 1;
+    }
+
+    /* GETTERS */
     int GetId(lua_State* L, Quest* quest)
     {
         sEluna->Push(L, quest->GetQuestId());
@@ -20,12 +45,6 @@ namespace LuaQuest
         sEluna->Push(L, quest->GetQuestLevel());
         return 1;
     }
-
-    /*int GetMaxLevel(lua_State* L, Quest* quest)
-    {
-    sEluna->Push(L, quest->GetMaxLevel());
-    return 1;
-    }*/
 
     int GetMinLevel(lua_State* L, Quest* quest)
     {
@@ -67,29 +86,13 @@ namespace LuaQuest
         return 1;
     }
 
-    int HasFlag(lua_State* L, Quest* quest)
+    /*int GetMaxLevel(lua_State* L, Quest* quest)
     {
-        uint32 flag = sEluna->CHECKVAL<uint32>(L, 2);
-#ifdef MANGOS
-        sEluna->Push(L, quest->HasQuestFlag((QuestFlags)flag));
-#else
-        sEluna->Push(L, quest->HasFlag(flag));
-#endif
-        return 1;
-    }
+    sEluna->Push(L, quest->GetMaxLevel());
+    return 1;
+    }*/
 
-    int IsDaily(lua_State* L, Quest* quest)
-    {
-        sEluna->Push(L, quest->IsDaily());
-        return 1;
-    }
-
-    int IsRepeatable(lua_State* L, Quest* quest)
-    {
-        sEluna->Push(L, quest->IsRepeatable());
-        return 1;
-    }
-
+    /* SETTERS */
     int SetFlag(lua_State* L, Quest* quest)
     {
         uint32 flag = sEluna->CHECKVAL<uint32>(L, 2);

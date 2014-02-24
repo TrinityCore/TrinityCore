@@ -9,6 +9,7 @@
 
 namespace LuaUnit
 {
+    /* BOOLEAN */
     int Attack(lua_State* L, Unit* unit)
     {
         Unit* who = sEluna->CHECKOBJ<Unit>(L, 2);
@@ -18,69 +19,16 @@ namespace LuaUnit
         return 1;
     }
 
-    int ClearThreatList(lua_State* L, Unit* unit)
+    int AttackStop(lua_State* L, Unit* unit)
     {
-        unit->getThreatManager().clearReferences();
-        return 0;
-    }
-
-    int SetOwnerGUID(lua_State* L, Unit* unit)
-    {
-        uint64 guid = sEluna->CHECKVAL<uint64>(L, 2);
-
-#ifdef MANGOS
-        unit->SetOwnerGuid(GUID_TYPE(guid));
-#else
-        unit->SetOwnerGUID(GUID_TYPE(guid));
-#endif
-        return 0;
-    }
-
-    int GetOwner(lua_State* L, Unit* unit)
-    {
-        sEluna->Push(L, unit->GetOwner());
+        sEluna->Push(L, unit->AttackStop());
         return 1;
     }
 
-    int GetOwnerGUID(lua_State* L, Unit* unit)
+    int IsStandState(lua_State* L, Unit* unit)
     {
-#ifdef MANGOS
-        sEluna->Push(L, unit->GetOwnerGuid());
-#else
-        sEluna->Push(L, unit->GetOwnerGUID());
-#endif
+        sEluna->Push(L, unit->IsStandState());
         return 1;
-    }
-
-    int GetMap(lua_State* L, Unit* unit)
-    {
-        Map* map = unit->GetMap();
-        sEluna->Push(L, map);
-        return 1;
-    }
-
-    int Mount(lua_State* L, Unit* unit)
-    {
-        uint32 displayId = sEluna->CHECKVAL<uint32>(L, 2);
-
-        unit->Mount(displayId);
-        return 0;
-    }
-
-    int Dismount(lua_State* L, Unit* unit)
-    {
-        if (unit->IsMounted())
-        {
-#ifdef MANGOS
-            unit->Unmount();
-            unit->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
-#else
-            unit->Dismount();
-            unit->RemoveAurasByType(SPELL_AURA_MOUNTED);
-#endif
-        }
-
-        return 0;
     }
 
     int IsMounted(lua_State* L, Unit* unit)
@@ -133,6 +81,327 @@ namespace LuaUnit
 #else
         sEluna->Push(L, unit->isInAccessiblePlaceFor(creature));
 #endif
+        return 1;
+    }
+
+    int IsAuctioneer(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->isAuctioner());
+#else
+        sEluna->Push(L, unit->IsAuctioner());
+#endif
+        return 1;
+    }
+
+    int IsGuildMaster(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->isGuildMaster());
+#else
+        sEluna->Push(L, unit->IsGuildMaster());
+#endif
+        return 1;
+    }
+
+    int IsInnkeeper(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->isInnkeeper());
+#else
+        sEluna->Push(L, unit->IsInnkeeper());
+#endif
+        return 1;
+    }
+
+    int IsTrainer(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->isTrainer());
+#else
+        sEluna->Push(L, unit->IsTrainer());
+#endif
+        return 1;
+    }
+
+    int IsGossip(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->isGossip());
+#else
+        sEluna->Push(L, unit->IsGossip());
+#endif
+        return 1;
+    }
+
+    int IsTaxi(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->isTaxi());
+#else
+        sEluna->Push(L, unit->IsTaxi());
+#endif
+        return 1;
+    }
+
+    int IsSpiritHealer(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->isSpiritHealer());
+#else
+        sEluna->Push(L, unit->IsSpiritHealer());
+#endif
+        return 1;
+    }
+
+    int IsSpiritGuide(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->isSpiritGuide());
+#else
+        sEluna->Push(L, unit->IsSpiritGuide());
+#endif
+        return 1;
+    }
+
+    int IsTabardDesigner(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->isTabardDesigner());
+#else
+        sEluna->Push(L, unit->IsTabardDesigner());
+#endif
+        return 1;
+    }
+
+    int IsServiceProvider(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->isServiceProvider());
+#else
+        sEluna->Push(L, unit->IsServiceProvider());
+#endif
+        return 1;
+    }
+
+    int IsSpiritService(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->isSpiritService());
+#else
+        sEluna->Push(L, unit->IsSpiritService());
+#endif
+        return 1;
+    }
+
+    int IsAlive(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->isAlive());
+#else
+        sEluna->Push(L, unit->IsAlive());
+#endif
+        return 1;
+    }
+
+    int IsDead(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->isDead());
+        return 1;
+    }
+
+    int IsDying(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->isDying());
+        return 1;
+    }
+
+    int IsBanker(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->isBanker());
+#else
+        sEluna->Push(L, unit->IsBanker());
+#endif
+        return 1;
+    }
+
+    int IsVendor(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->isVendor());
+#else
+        sEluna->Push(L, unit->IsVendor());
+#endif
+        return 1;
+    }
+
+    int IsBattleMaster(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->isBattleMaster());
+#else
+        sEluna->Push(L, unit->IsBattleMaster());
+#endif
+        return 1;
+    }
+
+    int IsCharmed(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->isCharmed());
+#else
+        sEluna->Push(L, unit->IsCharmed());
+#endif
+        return 1;
+    }
+
+    int IsArmorer(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->isArmorer());
+#else
+        sEluna->Push(L, unit->IsArmorer());
+#endif
+        return 1;
+    }
+
+    int IsAttackingPlayer(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->isAttackingPlayer());
+        return 1;
+    }
+
+    int IsInWorld(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsInWorld());
+        return 1;
+    }
+
+    int IsPvPFlagged(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsPvP());
+        return 1;
+    }
+
+    int IsOnVehicle(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->IsBoarded());
+#else
+        sEluna->Push(L, unit->GetVehicle());
+#endif
+        return 1;
+    }
+
+    int IsInCombat(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->isInCombat());
+#else
+        sEluna->Push(L, unit->IsInCombat());
+#endif
+        return 1;
+    }
+
+    int IsUnderWater(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsUnderWater());
+        return 1;
+    }
+
+    int IsInWater(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsInWater());
+        return 1;
+    }
+
+    int IsStopped(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsStopped());
+        return 1;
+    }
+
+    int IsQuestGiver(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->isQuestGiver());
+#else
+        sEluna->Push(L, unit->IsQuestGiver());
+#endif
+        return 1;
+    }
+
+    int HealthBelowPct(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->HealthBelowPct(sEluna->CHECKVAL<int32>(L, 2)));
+        return 1;
+    }
+
+    int HealthAbovePct(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->HealthAbovePct(sEluna->CHECKVAL<int32>(L, 2)));
+        return 1;
+    }
+
+    int HasAura(lua_State* L, Unit* unit)
+    {
+        uint32 spell = sEluna->CHECKVAL<uint32>(L, 2);
+
+        sEluna->Push(L, unit->HasAura(spell));
+        return 1;
+    }
+
+    int HasUnitState(lua_State* L, Unit* unit)
+    {
+        uint32 state = sEluna->CHECKVAL<uint32>(L, 2);
+#ifdef MANGOS
+        sEluna->Push(L, unit->hasUnitState(state));
+#else
+        sEluna->Push(L, unit->HasUnitState(state));
+#endif
+        return 1;
+    }
+
+    /*int IsVisible(lua_State* L, Unit* unit)
+    {
+    sEluna->Push(L, unit->IsVisible());
+    return 1;
+    }*/
+
+    /*int IsMoving(lua_State* L, Unit* unit)
+    {
+    sEluna->Push(L, unit->isMoving());
+    return 1;
+    }*/
+
+    /*int IsFlying(lua_State* L, Unit* unit)
+    {
+    sEluna->Push(L, unit->IsFlying());
+    return 1;
+    }*/
+
+    /* GETTERS */
+    int GetOwner(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetOwner());
+        return 1;
+    }
+
+    int GetOwnerGUID(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->GetOwnerGuid());
+#else
+        sEluna->Push(L, unit->GetOwnerGUID());
+#endif
+        return 1;
+    }
+
+    int GetMap(lua_State* L, Unit* unit)
+    {
+        Map* map = unit->GetMap();
+        sEluna->Push(L, map);
         return 1;
     }
 
@@ -249,176 +518,6 @@ namespace LuaUnit
         return 1;
     }
 
-    int SetPvP(lua_State* L, Unit* unit)
-    {
-        bool apply = sEluna->CHECKVAL<bool>(L, 2, true);
-
-        unit->SetPvP(apply);
-        return 0;
-    }
-
-    int IsAuctioneer(lua_State* L, Unit* unit)
-    {
-#ifdef MANGOS
-        sEluna->Push(L, unit->isAuctioner());
-#else
-        sEluna->Push(L, unit->IsAuctioner());
-#endif
-        return 1;
-    }
-
-    int IsGuildMaster(lua_State* L, Unit* unit)
-    {
-#ifdef MANGOS
-        sEluna->Push(L, unit->isGuildMaster());
-#else
-        sEluna->Push(L, unit->IsGuildMaster());
-#endif
-        return 1;
-    }
-
-    int IsInnkeeper(lua_State* L, Unit* unit)
-    {
-#ifdef MANGOS
-        sEluna->Push(L, unit->isInnkeeper());
-#else
-        sEluna->Push(L, unit->IsInnkeeper());
-#endif
-        return 1;
-    }
-
-    int IsTrainer(lua_State* L, Unit* unit)
-    {
-#ifdef MANGOS
-        sEluna->Push(L, unit->isTrainer());
-#else
-        sEluna->Push(L, unit->IsTrainer());
-#endif
-        return 1;
-    }
-
-    int IsGossip(lua_State* L, Unit* unit)
-    {
-#ifdef MANGOS
-        sEluna->Push(L, unit->isGossip());
-#else
-        sEluna->Push(L, unit->IsGossip());
-#endif
-        return 1;
-    }
-
-    int IsTaxi(lua_State* L, Unit* unit)
-    {
-#ifdef MANGOS
-        sEluna->Push(L, unit->isTaxi());
-#else
-        sEluna->Push(L, unit->IsTaxi());
-#endif
-        return 1;
-    }
-
-    int IsSpiritHealer(lua_State* L, Unit* unit)
-    {
-#ifdef MANGOS
-        sEluna->Push(L, unit->isSpiritHealer());
-#else
-        sEluna->Push(L, unit->IsSpiritHealer());
-#endif
-        return 1;
-    }
-
-    int IsSpiritGuide(lua_State* L, Unit* unit)
-    {
-#ifdef MANGOS
-        sEluna->Push(L, unit->isSpiritGuide());
-#else
-        sEluna->Push(L, unit->IsSpiritGuide());
-#endif
-        return 1;
-    }
-
-    int IsTabardDesigner(lua_State* L, Unit* unit)
-    {
-#ifdef MANGOS
-        sEluna->Push(L, unit->isTabardDesigner());
-#else
-        sEluna->Push(L, unit->IsTabardDesigner());
-#endif
-        return 1;
-    }
-
-    int IsServiceProvider(lua_State* L, Unit* unit)
-    {
-#ifdef MANGOS
-        sEluna->Push(L, unit->isServiceProvider());
-#else
-        sEluna->Push(L, unit->IsServiceProvider());
-#endif
-        return 1;
-    }
-
-    int IsSpiritService(lua_State* L, Unit* unit)
-    {
-#ifdef MANGOS
-        sEluna->Push(L, unit->isSpiritService());
-#else
-        sEluna->Push(L, unit->IsSpiritService());
-#endif
-        return 1;
-    }
-
-    int HealthBelowPct(lua_State* L, Unit* unit)
-    {
-        sEluna->Push(L, unit->HealthBelowPct(sEluna->CHECKVAL<int32>(L, 2)));
-        return 1;
-    }
-
-    int HealthAbovePct(lua_State* L, Unit* unit)
-    {
-        sEluna->Push(L, unit->HealthAbovePct(sEluna->CHECKVAL<int32>(L, 2)));
-        return 1;
-    }
-
-    int Emote(lua_State* L, Unit* unit)
-    {
-        unit->HandleEmoteCommand(sEluna->CHECKVAL<uint32>(L, 2));
-        return 0;
-    }
-
-    int CountPctFromCurHealth(lua_State* L, Unit* unit)
-    {
-        sEluna->Push(L, unit->CountPctFromCurHealth(sEluna->CHECKVAL<int32>(L, 2)));
-        return 1;
-    }
-
-    int CountPctFromMaxHealth(lua_State* L, Unit* unit)
-    {
-        sEluna->Push(L, unit->CountPctFromMaxHealth(sEluna->CHECKVAL<int32>(L, 2)));
-        return 1;
-    }
-
-    int SetSheath(lua_State* L, Unit* unit)
-    {
-        uint32 sheathed = sEluna->CHECKVAL<uint32>(L, 2);
-        if (sheathed >= MAX_SHEATH_STATE)
-            return luaL_argerror(L, 2, "valid SheathState expected");
-
-        unit->SetSheath((SheathState)sheathed);
-        return 0;
-    }
-
-    int IsUnderWater(lua_State* L, Unit* unit)
-    {
-        sEluna->Push(L, unit->IsUnderWater());
-        return 1;
-    }
-
-    int IsInWater(lua_State* L, Unit* unit)
-    {
-        sEluna->Push(L, unit->IsInWater());
-        return 1;
-    }
-
     int GetVictim(lua_State* L, Unit* unit)
     {
 #ifdef MANGOS
@@ -427,33 +526,6 @@ namespace LuaUnit
         sEluna->Push(L, unit->GetVictim());
 #endif
         return 1;
-    }
-
-    int SendChatMessageToPlayer(lua_State* L, Unit* unit)
-    {
-        uint8 type = sEluna->CHECKVAL<uint8>(L, 2);
-        uint32 lang = sEluna->CHECKVAL<uint32>(L, 3);
-        const char* msg = sEluna->CHECKVAL<const char*>(L, 4);
-        Player* target = sEluna->CHECKOBJ<Player>(L, 5);
-        if (type == CHAT_MSG_CHANNEL)
-            return 0;
-
-        WorldPacket* data = new WorldPacket();
-        uint32 messageLength = (uint32)strlen(msg) + 1;
-        data->Initialize(SMSG_MESSAGECHAT, 100);
-        *data << (uint8)type;
-        *data << lang;
-        *data << unit->GetGUIDLow();
-        *data << uint32(0);
-        *data << unit->GetGUIDLow();
-        *data << messageLength;
-        *data << msg;
-        if (unit->ToPlayer() && type != CHAT_MSG_WHISPER_INFORM && type != CHAT_MSG_DND && type != CHAT_MSG_AFK)
-            *data << uint8(unit->ToPlayer()->GetChatTag());
-        else
-            *data << uint8(0);
-        target->GetSession()->SendPacket(data);
-        return 0;
     }
 
     int GetCurrentSpell(lua_State* L, Unit* unit)
@@ -465,187 +537,9 @@ namespace LuaUnit
         return 1;
     }
 
-    /*int DealDamage(lua_State* L, Unit* unit)
-    {
-    Unit* target = sEluna->CHECKOBJ<Unit>(L, 2);
-    uint32 amount = sEluna->CHECKVAL<uint32>(L, 3);
-
-    unit->DealDamage(target, amount);
-    return 0;
-    }*/
-
     int GetStandState(lua_State* L, Unit* unit)
     {
         sEluna->Push(L, unit->getStandState());
-        return 0;
-    }
-
-    static void PrepareMove(Unit* unit)
-    {
-        unit->GetMotionMaster()->MovementExpired(); // Chase
-        unit->StopMoving(); // Some
-        unit->GetMotionMaster()->Clear(); // all
-    }
-
-    int MoveStop(lua_State* L, Unit* unit)
-    {
-        unit->StopMoving();
-        return 0;
-    }
-
-    int MoveExpire(lua_State* L, Unit* unit)
-    {
-        bool reset = sEluna->CHECKVAL<bool>(L, 2, true);
-        unit->GetMotionMaster()->MovementExpired(reset);
-        return 0;
-    }
-
-    int MoveClear(lua_State* L, Unit* unit)
-    {
-        bool reset = sEluna->CHECKVAL<bool>(L, 2, true);
-        unit->GetMotionMaster()->Clear(reset);
-        return 0;
-    }
-
-    int MoveIdle(lua_State* L, Unit* unit)
-    {
-        // PrepareMove(unit);
-        unit->GetMotionMaster()->MoveIdle();
-        return 0;
-    }
-
-    int MoveRandom(lua_State* L, Unit* unit)
-    {
-        float radius = sEluna->CHECKVAL<float>(L, 2);
-        // PrepareMove(unit);
-        float x, y, z;
-        unit->GetPosition(x, y, z);
-#ifdef MANGOS
-        unit->GetMotionMaster()->MoveRandomAroundPoint(x, y, z, radius);
-#else
-        unit->GetMotionMaster()->MoveRandom(radius);
-#endif
-        return 0;
-    }
-
-    int MoveHome(lua_State* L, Unit* unit)
-    {
-        // PrepareMove(unit);
-        unit->GetMotionMaster()->MoveTargetedHome();
-        return 0;
-    }
-
-    int MoveFollow(lua_State* L, Unit* unit)
-    {
-        Unit* target = sEluna->CHECKOBJ<Unit>(L, 2);
-        float dist = sEluna->CHECKVAL<float>(L, 3, 0.0f);
-        float angle = sEluna->CHECKVAL<float>(L, 4, 0.0f);
-        // PrepareMove(unit);
-        unit->GetMotionMaster()->MoveFollow(target, dist, angle);
-        return 0;
-    }
-
-    int MoveChase(lua_State* L, Unit* unit)
-    {
-        Unit* target = sEluna->CHECKOBJ<Unit>(L, 2);
-        float dist = sEluna->CHECKVAL<float>(L, 3, 0.0f);
-        float angle = sEluna->CHECKVAL<float>(L, 4, 0.0f);
-        // PrepareMove(unit);
-        unit->GetMotionMaster()->MoveChase(target, dist, angle);
-        return 0;
-    }
-
-    int MoveConfused(lua_State* L, Unit* unit)
-    {
-        // PrepareMove(unit);
-        unit->GetMotionMaster()->MoveConfused();
-        return 0;
-    }
-
-    int MoveFleeing(lua_State* L, Unit* unit)
-    {
-        Unit* target = sEluna->CHECKOBJ<Unit>(L, 2);
-        uint32 time = sEluna->CHECKVAL<uint32>(L, 3, 0);
-        // PrepareMove(unit);
-        unit->GetMotionMaster()->MoveFleeing(target, time);
-        return 0;
-    }
-
-    int MoveTo(lua_State* L, Unit* unit)
-    {
-        uint32 id = sEluna->CHECKVAL<uint32>(L, 2);
-        float x = sEluna->CHECKVAL<float>(L, 3);
-        float y = sEluna->CHECKVAL<float>(L, 4);
-        float z = sEluna->CHECKVAL<float>(L, 5);
-        bool genPath = sEluna->CHECKVAL<bool>(L, 6, true);
-        // PrepareMove(unit);
-        unit->GetMotionMaster()->MovePoint(id, x, y, z, genPath);
-        return 0;
-    }
-
-#ifndef TBC
-    int MoveJump(lua_State* L, Unit* unit)
-    {
-        float x = sEluna->CHECKVAL<float>(L, 2);
-        float y = sEluna->CHECKVAL<float>(L, 3);
-        float z = sEluna->CHECKVAL<float>(L, 4);
-        float zSpeed = sEluna->CHECKVAL<float>(L, 5);
-        float maxHeight = sEluna->CHECKVAL<float>(L, 6);
-        uint32 id = sEluna->CHECKVAL<uint32>(L, 7, 0);
-        // PrepareMove(unit);
-        unit->GetMotionMaster()->MoveJump(x, y, z, zSpeed, maxHeight, id);
-        return 0;
-    }
-#endif
-
-    int SetName(lua_State* L, Unit* unit)
-    {
-        const char* name = sEluna->CHECKVAL<const char*>(L, 2);
-        if (std::string(name).length() > 0)
-            unit->SetName(name);
-        return 0;
-    }
-
-    /*int SetStunned(lua_State* L, Unit* unit)
-    {
-    bool apply = sEluna->CHECKVAL<bool>(L, 2, true);
-    unit->SetControlled(apply, UNIT_STATE_STUNNED);
-    return 0;
-    }*/
-
-    /*int SetRooted(lua_State* L, Unit* unit)
-    {
-    bool apply = sEluna->CHECKVAL<bool>(L, 2, true);
-    unit->SetControlled(apply, UNIT_STATE_ROOT);
-    return 0;
-    }*/
-
-    /*int SetConfused(lua_State* L, Unit* unit)
-    {
-    bool apply = sEluna->CHECKVAL<bool>(L, 2, true);
-    unit->SetControlled(apply, UNIT_STATE_CONFUSED);
-    return 0;
-    }*/
-
-    /*int SetFeared(lua_State* L, Unit* unit)
-    {
-    bool apply = sEluna->CHECKVAL<bool>(L, 2, true);
-    unit->SetControlled(apply, UNIT_STATE_FLEEING);
-    return 0;
-    }*/
-
-    int SetSpeed(lua_State* L, Unit* unit)
-    {
-        uint32 type = sEluna->CHECKVAL<uint32>(L, 2);
-        float rate = sEluna->CHECKVAL<float>(L, 3);
-        bool forced = sEluna->CHECKVAL<bool>(L, 4, false);
-        if (type >= MAX_MOVE_TYPE)
-            return luaL_argerror(L, 2, "valid UnitMoveType expected");
-#ifdef MANGOS
-        unit->SetSpeedRate((UnitMoveType)type, rate, forced);
-#else
-        unit->SetSpeed((UnitMoveType)type, rate, forced);
-#endif
         return 0;
     }
 
@@ -854,6 +748,169 @@ namespace LuaUnit
         return 1;
     }
 
+    int GetAura(lua_State* L, Unit* unit)
+    {
+        uint32 spellID = sEluna->CHECKVAL<uint32>(L, 2);
+#ifdef MANGOS
+        sEluna->Push(L, unit->GetAura(spellID, EFFECT_INDEX_0));
+#else
+        sEluna->Push(L, unit->GetAura(spellID));
+#endif
+        return 1;
+    }
+
+    int GetCombatTime(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetCombatTimer());
+        return 1;
+    }
+
+    int GetFriendlyUnitsInRange(lua_State* L, Unit* unit)
+    {
+        float range = sEluna->CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
+
+        std::list<Unit*> list;
+#ifdef MANGOS
+        MaNGOS::AnyFriendlyUnitInObjectRangeCheck checker(unit, range);
+        MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck> searcher(list, checker);
+        Cell::VisitGridObjects(unit, searcher, range);
+#else
+        Trinity::AnyFriendlyUnitInObjectRangeCheck checker(unit, unit, range);
+        Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(unit, list, checker);
+        unit->VisitNearbyObject(range, searcher);
+#endif
+        Eluna::ObjectGUIDCheck guidCheck(unit->GET_GUID());
+        list.remove_if(guidCheck);
+
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+        uint32 i = 0;
+
+        for (std::list<Unit*>::const_iterator it = list.begin(); it != list.end(); ++it)
+        {
+            sEluna->Push(L, ++i);
+            sEluna->Push(L, *it);
+            lua_settable(L, tbl);
+        }
+
+        lua_settop(L, tbl);
+        return 1;
+    }
+
+    int GetUnfriendlyUnitsInRange(lua_State* L, Unit* unit)
+    {
+        float range = sEluna->CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
+
+        std::list<Unit*> list;
+#ifdef MANGOS
+        MaNGOS::AnyUnfriendlyUnitInObjectRangeCheck checker(unit, range);
+        MaNGOS::UnitListSearcher<MaNGOS::AnyUnfriendlyUnitInObjectRangeCheck> searcher(list, checker);
+        Cell::VisitGridObjects(unit, searcher, range);
+#else
+        Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(unit, unit, range);
+        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(unit, list, checker);
+        unit->VisitNearbyObject(range, searcher);
+#endif
+        Eluna::ObjectGUIDCheck guidCheck(unit->GET_GUID());
+        list.remove_if(guidCheck);
+
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+        uint32 i = 0;
+
+        for (std::list<Unit*>::const_iterator it = list.begin(); it != list.end(); ++it)
+        {
+            sEluna->Push(L, ++i);
+            sEluna->Push(L, *it);
+            lua_settable(L, tbl);
+        }
+
+        lua_settop(L, tbl);
+        return 1;
+    }
+
+#ifndef TBC
+    int GetVehicleKit(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->GetVehicleInfo());
+#else
+        sEluna->Push(L, unit->GetVehicleKit());
+#endif
+        return 1;
+    }
+
+    int GetVehicle(lua_State* L, Unit* unit)
+    {
+        // sEluna->Push(L, unit->GetVehicle());
+        return 1;
+    }
+
+    int GetCritterGUID(lua_State* L, Unit* unit)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, unit->GetCritterGuid());
+#else
+        sEluna->Push(L, unit->GetCritterGUID());
+#endif
+        return 1;
+    }
+#endif
+
+    /* SETTERS */
+    int SetOwnerGUID(lua_State* L, Unit* unit)
+    {
+        uint64 guid = sEluna->CHECKVAL<uint64>(L, 2);
+
+#ifdef MANGOS
+        unit->SetOwnerGuid(GUID_TYPE(guid));
+#else
+        unit->SetOwnerGUID(GUID_TYPE(guid));
+#endif
+        return 0;
+    }
+
+    int SetPvP(lua_State* L, Unit* unit)
+    {
+        bool apply = sEluna->CHECKVAL<bool>(L, 2, true);
+
+        unit->SetPvP(apply);
+        return 0;
+    }
+
+    int SetSheath(lua_State* L, Unit* unit)
+    {
+        uint32 sheathed = sEluna->CHECKVAL<uint32>(L, 2);
+        if (sheathed >= MAX_SHEATH_STATE)
+            return luaL_argerror(L, 2, "valid SheathState expected");
+
+        unit->SetSheath((SheathState)sheathed);
+        return 0;
+    }
+
+    int SetName(lua_State* L, Unit* unit)
+    {
+        const char* name = sEluna->CHECKVAL<const char*>(L, 2);
+        if (std::string(name).length() > 0)
+            unit->SetName(name);
+        return 0;
+    }
+
+    int SetSpeed(lua_State* L, Unit* unit)
+    {
+        uint32 type = sEluna->CHECKVAL<uint32>(L, 2);
+        float rate = sEluna->CHECKVAL<float>(L, 3);
+        bool forced = sEluna->CHECKVAL<bool>(L, 4, false);
+        if (type >= MAX_MOVE_TYPE)
+            return luaL_argerror(L, 2, "valid UnitMoveType expected");
+#ifdef MANGOS
+        unit->SetSpeedRate((UnitMoveType)type, rate, forced);
+#else
+        unit->SetSpeed((UnitMoveType)type, rate, forced);
+#endif
+        return 0;
+    }
+
     int SetFaction(lua_State* L, Unit* unit)
     {
         uint32 factionId = sEluna->CHECKVAL<uint32>(L, 2);
@@ -1028,105 +1085,292 @@ namespace LuaUnit
         return 0;
     }
 
-    int IsAlive(lua_State* L, Unit* unit)
+#ifndef TBC
+    int SetFFA(lua_State* L, Unit* unit)
     {
+        bool apply = sEluna->CHECKVAL<bool>(L, 2, true);
+
 #ifdef MANGOS
-        sEluna->Push(L, unit->isAlive());
+        unit->SetFFAPvP(apply);
 #else
-        sEluna->Push(L, unit->IsAlive());
+        if (apply)
+        {
+            unit->SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+            for (Unit::ControlList::iterator itr = unit->m_Controlled.begin(); itr != unit->m_Controlled.end(); ++itr)
+                (*itr)->SetByteValue(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+        }
+        else
+        {
+            unit->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+            for (Unit::ControlList::iterator itr = unit->m_Controlled.begin(); itr != unit->m_Controlled.end(); ++itr)
+                (*itr)->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+        }
 #endif
-        return 1;
+        return 0;
     }
 
-    int IsDead(lua_State* L, Unit* unit)
+    int SetSanctuary(lua_State* L, Unit* unit)
     {
-        sEluna->Push(L, unit->isDead());
-        return 1;
+        bool apply = sEluna->CHECKVAL<bool>(L, 2, true);
+
+        if (apply)
+        {
+            unit->SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
+            unit->CombatStop();
+            unit->CombatStopWithPets();
+        }
+        else
+            unit->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
+
+        return 0;
     }
 
-    int IsDying(lua_State* L, Unit* unit)
+    int SetPhaseMask(lua_State* L, Unit* unit)
     {
-        sEluna->Push(L, unit->isDying());
-        return 1;
+        uint32 phaseMask = sEluna->CHECKVAL<uint32>(L, 2);
+        bool Update = sEluna->CHECKVAL<bool>(L, 3, true);
+        unit->SetPhaseMask(phaseMask, Update);
+        return 0;
     }
 
-    int IsBanker(lua_State* L, Unit* unit)
+    int SetCritterGUID(lua_State* L, Unit* unit)
     {
+        uint64 guid = sEluna->CHECKVAL<uint64>(L, 2);
 #ifdef MANGOS
-        sEluna->Push(L, unit->isBanker());
+        unit->SetCritterGuid(GUID_TYPE(guid));
 #else
-        sEluna->Push(L, unit->IsBanker());
+        unit->SetCritterGUID(GUID_TYPE(guid));
 #endif
-        return 1;
+        return 0;
+    }
+#endif
+
+    /*int SetStunned(lua_State* L, Unit* unit)
+    {
+    bool apply = sEluna->CHECKVAL<bool>(L, 2, true);
+    unit->SetControlled(apply, UNIT_STATE_STUNNED);
+    return 0;
+    }*/
+
+    /*int SetRooted(lua_State* L, Unit* unit)
+    {
+    bool apply = sEluna->CHECKVAL<bool>(L, 2, true);
+    unit->SetControlled(apply, UNIT_STATE_ROOT);
+    return 0;
+    }*/
+
+    /*int SetConfused(lua_State* L, Unit* unit)
+    {
+    bool apply = sEluna->CHECKVAL<bool>(L, 2, true);
+    unit->SetControlled(apply, UNIT_STATE_CONFUSED);
+    return 0;
+    }*/
+
+    /*int SetFeared(lua_State* L, Unit* unit)
+    {
+    bool apply = sEluna->CHECKVAL<bool>(L, 2, true);
+    unit->SetControlled(apply, UNIT_STATE_FLEEING);
+    return 0;
+    }*/
+
+    /*int SetCanFly(lua_State* L, Unit* unit)
+    {
+    bool apply = sEluna->CHECKVAL<bool>(L, 2, true);
+    unit->SetCanFly(apply);
+    return 0;
+    }*/
+
+    /*int SetVisible(lua_State* L, Unit* unit)
+    {
+    bool x = sEluna->CHECKVAL<bool>(L, 2, true);
+    unit->SetVisible(x);
+    return 0;
+    }*/
+
+    /* OTHER */
+    int ClearThreatList(lua_State* L, Unit* unit)
+    {
+        unit->getThreatManager().clearReferences();
+        return 0;
     }
 
-    int IsVendor(lua_State* L, Unit* unit)
+    int Mount(lua_State* L, Unit* unit)
     {
+        uint32 displayId = sEluna->CHECKVAL<uint32>(L, 2);
+
+        unit->Mount(displayId);
+        return 0;
+    }
+
+    int Dismount(lua_State* L, Unit* unit)
+    {
+        if (unit->IsMounted())
+        {
 #ifdef MANGOS
-        sEluna->Push(L, unit->isVendor());
+            unit->Unmount();
+            unit->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
 #else
-        sEluna->Push(L, unit->IsVendor());
+            unit->Dismount();
+            unit->RemoveAurasByType(SPELL_AURA_MOUNTED);
 #endif
+        }
+
+        return 0;
+    }
+
+    int Emote(lua_State* L, Unit* unit)
+    {
+        unit->HandleEmoteCommand(sEluna->CHECKVAL<uint32>(L, 2));
+        return 0;
+    }
+
+    int CountPctFromCurHealth(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->CountPctFromCurHealth(sEluna->CHECKVAL<int32>(L, 2)));
         return 1;
     }
 
-    int IsBattleMaster(lua_State* L, Unit* unit)
+    int CountPctFromMaxHealth(lua_State* L, Unit* unit)
     {
+        sEluna->Push(L, unit->CountPctFromMaxHealth(sEluna->CHECKVAL<int32>(L, 2)));
+        return 1;
+    }
+
+    int SendChatMessageToPlayer(lua_State* L, Unit* unit)
+    {
+        uint8 type = sEluna->CHECKVAL<uint8>(L, 2);
+        uint32 lang = sEluna->CHECKVAL<uint32>(L, 3);
+        const char* msg = sEluna->CHECKVAL<const char*>(L, 4);
+        Player* target = sEluna->CHECKOBJ<Player>(L, 5);
+        if (type == CHAT_MSG_CHANNEL)
+            return 0;
+
+        WorldPacket* data = new WorldPacket();
+        uint32 messageLength = (uint32)strlen(msg) + 1;
+        data->Initialize(SMSG_MESSAGECHAT, 100);
+        *data << (uint8)type;
+        *data << lang;
+        *data << unit->GetGUIDLow();
+        *data << uint32(0);
+        *data << unit->GetGUIDLow();
+        *data << messageLength;
+        *data << msg;
+        if (unit->ToPlayer() && type != CHAT_MSG_WHISPER_INFORM && type != CHAT_MSG_DND && type != CHAT_MSG_AFK)
+            *data << uint8(unit->ToPlayer()->GetChatTag());
+        else
+            *data << uint8(0);
+        target->GetSession()->SendPacket(data);
+        return 0;
+    }
+
+    static void PrepareMove(Unit* unit)
+    {
+        unit->GetMotionMaster()->MovementExpired(); // Chase
+        unit->StopMoving(); // Some
+        unit->GetMotionMaster()->Clear(); // all
+    }
+
+    int MoveStop(lua_State* L, Unit* unit)
+    {
+        unit->StopMoving();
+        return 0;
+    }
+
+    int MoveExpire(lua_State* L, Unit* unit)
+    {
+        bool reset = sEluna->CHECKVAL<bool>(L, 2, true);
+        unit->GetMotionMaster()->MovementExpired(reset);
+        return 0;
+    }
+
+    int MoveClear(lua_State* L, Unit* unit)
+    {
+        bool reset = sEluna->CHECKVAL<bool>(L, 2, true);
+        unit->GetMotionMaster()->Clear(reset);
+        return 0;
+    }
+
+    int MoveIdle(lua_State* L, Unit* unit)
+    {
+        unit->GetMotionMaster()->MoveIdle();
+        return 0;
+    }
+
+    int MoveRandom(lua_State* L, Unit* unit)
+    {
+        float radius = sEluna->CHECKVAL<float>(L, 2);
+        float x, y, z;
+        unit->GetPosition(x, y, z);
 #ifdef MANGOS
-        sEluna->Push(L, unit->isBattleMaster());
+        unit->GetMotionMaster()->MoveRandomAroundPoint(x, y, z, radius);
 #else
-        sEluna->Push(L, unit->IsBattleMaster());
+        unit->GetMotionMaster()->MoveRandom(radius);
 #endif
-        return 1;
+        return 0;
     }
 
-    int IsCharmed(lua_State* L, Unit* unit)
+    int MoveHome(lua_State* L, Unit* unit)
     {
-#ifdef MANGOS
-        sEluna->Push(L, unit->isCharmed());
-#else
-        sEluna->Push(L, unit->IsCharmed());
+        unit->GetMotionMaster()->MoveTargetedHome();
+        return 0;
+    }
+
+    int MoveFollow(lua_State* L, Unit* unit)
+    {
+        Unit* target = sEluna->CHECKOBJ<Unit>(L, 2);
+        float dist = sEluna->CHECKVAL<float>(L, 3, 0.0f);
+        float angle = sEluna->CHECKVAL<float>(L, 4, 0.0f);
+        unit->GetMotionMaster()->MoveFollow(target, dist, angle);
+        return 0;
+    }
+
+    int MoveChase(lua_State* L, Unit* unit)
+    {
+        Unit* target = sEluna->CHECKOBJ<Unit>(L, 2);
+        float dist = sEluna->CHECKVAL<float>(L, 3, 0.0f);
+        float angle = sEluna->CHECKVAL<float>(L, 4, 0.0f);
+        unit->GetMotionMaster()->MoveChase(target, dist, angle);
+        return 0;
+    }
+
+    int MoveConfused(lua_State* L, Unit* unit)
+    {
+        unit->GetMotionMaster()->MoveConfused();
+        return 0;
+    }
+
+    int MoveFleeing(lua_State* L, Unit* unit)
+    {
+        Unit* target = sEluna->CHECKOBJ<Unit>(L, 2);
+        uint32 time = sEluna->CHECKVAL<uint32>(L, 3, 0);
+        unit->GetMotionMaster()->MoveFleeing(target, time);
+        return 0;
+    }
+
+    int MoveTo(lua_State* L, Unit* unit)
+    {
+        uint32 id = sEluna->CHECKVAL<uint32>(L, 2);
+        float x = sEluna->CHECKVAL<float>(L, 3);
+        float y = sEluna->CHECKVAL<float>(L, 4);
+        float z = sEluna->CHECKVAL<float>(L, 5);
+        bool genPath = sEluna->CHECKVAL<bool>(L, 6, true);
+        unit->GetMotionMaster()->MovePoint(id, x, y, z, genPath);
+        return 0;
+    }
+
+#ifndef TBC
+    int MoveJump(lua_State* L, Unit* unit)
+    {
+        float x = sEluna->CHECKVAL<float>(L, 2);
+        float y = sEluna->CHECKVAL<float>(L, 3);
+        float z = sEluna->CHECKVAL<float>(L, 4);
+        float zSpeed = sEluna->CHECKVAL<float>(L, 5);
+        float maxHeight = sEluna->CHECKVAL<float>(L, 6);
+        uint32 id = sEluna->CHECKVAL<uint32>(L, 7, 0);
+        unit->GetMotionMaster()->MoveJump(x, y, z, zSpeed, maxHeight, id);
+        return 0;
+    }
 #endif
-        return 1;
-    }
-
-    int IsArmorer(lua_State* L, Unit* unit)
-    {
-#ifdef MANGOS
-        sEluna->Push(L, unit->isArmorer());
-#else
-        sEluna->Push(L, unit->IsArmorer());
-#endif
-        return 1;
-    }
-
-    int IsAttackingPlayer(lua_State* L, Unit* unit)
-    {
-        sEluna->Push(L, unit->isAttackingPlayer());
-        return 1;
-    }
-
-    int IsInWorld(lua_State* L, Unit* unit)
-    {
-        sEluna->Push(L, unit->IsInWorld());
-        return 1;
-    }
-
-    int IsPvPFlagged(lua_State* L, Unit* unit)
-    {
-        sEluna->Push(L, unit->IsPvP());
-        return 1;
-    }
-
-    int IsInCombat(lua_State* L, Unit* unit)
-    {
-#ifdef MANGOS
-        sEluna->Push(L, unit->isInCombat());
-#else
-        sEluna->Push(L, unit->IsInCombat());
-#endif
-        return 1;
-    }
 
     int SendUnitWhisper(lua_State* L, Unit* unit)
     {
@@ -1194,23 +1438,6 @@ namespace LuaUnit
         bool triggered = sEluna->CHECKVAL<bool>(L, 6, true);
         unit->CastSpell(_x, _y, _z, spell, triggered);
         return 0;
-    }
-
-    int GetAura(lua_State* L, Unit* unit)
-    {
-        uint32 spellID = sEluna->CHECKVAL<uint32>(L, 2);
-#ifdef MANGOS
-        sEluna->Push(L, unit->GetAura(spellID, EFFECT_INDEX_0));
-#else
-        sEluna->Push(L, unit->GetAura(spellID));
-#endif
-        return 1;
-    }
-
-    int GetCombatTime(lua_State* L, Unit* unit)
-    {
-        sEluna->Push(L, unit->GetCombatTimer());
-        return 1;
     }
 
     int ClearInCombat(lua_State* L, Unit* unit)
@@ -1283,20 +1510,6 @@ namespace LuaUnit
         return 1;
     }
 
-    int HasAura(lua_State* L, Unit* unit)
-    {
-        uint32 spell = sEluna->CHECKVAL<uint32>(L, 2);
-
-        sEluna->Push(L, unit->HasAura(spell));
-        return 1;
-    }
-
-    int IsStandState(lua_State* L, Unit* unit)
-    {
-        sEluna->Push(L, unit->IsStandState());
-        return 1;
-    }
-
     int RemoveAura(lua_State* L, Unit* unit)
     {
         uint32 spellId = sEluna->CHECKVAL<uint32>(L, 2);
@@ -1338,14 +1551,6 @@ namespace LuaUnit
         return 0;
     }
 
-    /*int Kill(lua_State* L, Unit* unit)
-    {
-    Unit* target = sEluna->CHECKOBJ<Unit>(L, 2);
-    bool durLoss = sEluna->CHECKVAL<bool>(L, 3, true);
-    unit->Kill(target, durLoss);
-    return 0;
-    }*/
-
     int RegisterEvent(lua_State* L, Unit* unit)
     {
         luaL_checktype(L, 2, LUA_TFUNCTION);
@@ -1375,158 +1580,6 @@ namespace LuaUnit
         return 0;
     }
 
-    int IsOnVehicle(lua_State* L, Unit* unit)
-    {
-#ifdef MANGOS
-        sEluna->Push(L, unit->IsBoarded());
-#else
-        sEluna->Push(L, unit->GetVehicle());
-#endif
-        return 1;
-    }
-
-    int GetFriendlyUnitsInRange(lua_State* L, Unit* unit)
-    {
-        float range = sEluna->CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
-
-        std::list<Unit*> list;
-#ifdef MANGOS
-        MaNGOS::AnyFriendlyUnitInObjectRangeCheck checker(unit, range);
-        MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck> searcher(list, checker);
-        Cell::VisitGridObjects(unit, searcher, range);
-#else
-        Trinity::AnyFriendlyUnitInObjectRangeCheck checker(unit, unit, range);
-        Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(unit, list, checker);
-        unit->VisitNearbyObject(range, searcher);
-#endif
-        Eluna::ObjectGUIDCheck guidCheck(unit->GET_GUID());
-        list.remove_if(guidCheck);
-
-        lua_newtable(L);
-        int tbl = lua_gettop(L);
-        uint32 i = 0;
-
-        for (std::list<Unit*>::const_iterator it = list.begin(); it != list.end(); ++it)
-        {
-            sEluna->Push(L, ++i);
-            sEluna->Push(L, *it);
-            lua_settable(L, tbl);
-        }
-
-        lua_settop(L, tbl);
-        return 1;
-    }
-
-    int GetUnfriendlyUnitsInRange(lua_State* L, Unit* unit)
-    {
-        float range = sEluna->CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
-
-        std::list<Unit*> list;
-#ifdef MANGOS
-        MaNGOS::AnyUnfriendlyUnitInObjectRangeCheck checker(unit, range);
-        MaNGOS::UnitListSearcher<MaNGOS::AnyUnfriendlyUnitInObjectRangeCheck> searcher(list, checker);
-        Cell::VisitGridObjects(unit, searcher, range);
-#else
-        Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(unit, unit, range);
-        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(unit, list, checker);
-        unit->VisitNearbyObject(range, searcher);
-#endif
-        Eluna::ObjectGUIDCheck guidCheck(unit->GET_GUID());
-        list.remove_if(guidCheck);
-
-        lua_newtable(L);
-        int tbl = lua_gettop(L);
-        uint32 i = 0;
-
-        for (std::list<Unit*>::const_iterator it = list.begin(); it != list.end(); ++it)
-        {
-            sEluna->Push(L, ++i);
-            sEluna->Push(L, *it);
-            lua_settable(L, tbl);
-        }
-
-        lua_settop(L, tbl);
-        return 1;
-    }
-
-    int AttackStop(lua_State* L, Unit* unit)
-    {
-        sEluna->Push(L, unit->AttackStop());
-        return 1;
-    }
-
-    /*int SetCanFly(lua_State* L, Unit* unit)
-    {
-    bool apply = sEluna->CHECKVAL<bool>(L, 2, true);
-    unit->SetCanFly(apply);
-    return 0;
-    }*/
-
-    /*int SetVisible(lua_State* L, Unit* unit)
-    {
-    bool x = sEluna->CHECKVAL<bool>(L, 2, true);
-    unit->SetVisible(x);
-    return 0;
-    }*/
-
-    /*int IsVisible(lua_State* L, Unit* unit)
-    {
-    sEluna->Push(L, unit->IsVisible());
-    return 1;
-    }*/
-
-    /*int IsMoving(lua_State* L, Unit* unit)
-    {
-    sEluna->Push(L, unit->isMoving());
-    return 1;
-    }*/
-
-    /*int IsFlying(lua_State* L, Unit* unit)
-    {
-    sEluna->Push(L, unit->IsFlying());
-    return 1;
-    }*/
-
-    int IsStopped(lua_State* L, Unit* unit)
-    {
-        sEluna->Push(L, unit->IsStopped());
-        return 1;
-    }
-
-    int IsQuestGiver(lua_State* L, Unit* unit)
-    {
-#ifdef MANGOS
-        sEluna->Push(L, unit->isQuestGiver());
-#else
-        sEluna->Push(L, unit->IsQuestGiver());
-#endif
-        return 1;
-    }
-
-    /*int RestoreDisplayId(lua_State* L, Unit* unit)
-    {
-    unit->RestoreDisplayId();
-    return 0;
-    }*/
-
-    /*int RestoreFaction(lua_State* L, Unit* unit)
-    {
-    unit->RestoreFaction();
-    return 0;
-    }*/
-
-    /*int RemoveBindSightAuras(lua_State* L, Unit* unit)
-    {
-    unit->RemoveBindSightAuras();
-    return 0;
-    }*/
-
-    /*int RemoveCharmAuras(lua_State* L, Unit* unit)
-    {
-    unit->RemoveCharmAuras();
-    return 0;
-    }*/
-
     int AddUnitState(lua_State* L, Unit* unit)
     {
         uint32 state = sEluna->CHECKVAL<uint32>(L, 2);
@@ -1551,18 +1604,6 @@ namespace LuaUnit
         return 0;
     }
 
-    int HasUnitState(lua_State* L, Unit* unit)
-    {
-        uint32 state = sEluna->CHECKVAL<uint32>(L, 2);
-        
-#ifdef MANGOS
-        sEluna->Push(L, unit->hasUnitState(state));
-#else
-        sEluna->Push(L, unit->HasUnitState(state));
-#endif
-        return 1;
-    }
-
     int NearTeleport(lua_State* L, Unit* unit)
     {
         float x = sEluna->CHECKVAL<float>(L, 2);
@@ -1573,6 +1614,47 @@ namespace LuaUnit
         unit->NearTeleportTo(x, y, z, o);
         return 1;
     }
+
+    /*int DealDamage(lua_State* L, Unit* unit)
+    {
+    Unit* target = sEluna->CHECKOBJ<Unit>(L, 2);
+    uint32 amount = sEluna->CHECKVAL<uint32>(L, 3);
+
+    unit->DealDamage(target, amount);
+    return 0;
+    }*/
+
+    /*int Kill(lua_State* L, Unit* unit)
+    {
+    Unit* target = sEluna->CHECKOBJ<Unit>(L, 2);
+    bool durLoss = sEluna->CHECKVAL<bool>(L, 3, true);
+    unit->Kill(target, durLoss);
+    return 0;
+    }*/
+
+    /*int RestoreDisplayId(lua_State* L, Unit* unit)
+    {
+    unit->RestoreDisplayId();
+    return 0;
+    }*/
+
+    /*int RestoreFaction(lua_State* L, Unit* unit)
+    {
+    unit->RestoreFaction();
+    return 0;
+    }*/
+
+    /*int RemoveBindSightAuras(lua_State* L, Unit* unit)
+    {
+    unit->RemoveBindSightAuras();
+    return 0;
+    }*/
+
+    /*int RemoveCharmAuras(lua_State* L, Unit* unit)
+    {
+    unit->RemoveCharmAuras();
+    return 0;
+    }*/
 
     /*int DisableMelee(lua_State* L, Unit* unit)
     {
@@ -1624,91 +1706,5 @@ namespace LuaUnit
     sEluna->Push(L, summon);
     return 1;
     }*/
-
-#ifndef TBC
-    int SetFFA(lua_State* L, Unit* unit)
-    {
-        bool apply = sEluna->CHECKVAL<bool>(L, 2, true);
-
-#ifdef MANGOS
-        unit->SetFFAPvP(apply);
-#else
-        if (apply)
-        {
-            unit->SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
-            for (Unit::ControlList::iterator itr = unit->m_Controlled.begin(); itr != unit->m_Controlled.end(); ++itr)
-                (*itr)->SetByteValue(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
-        }
-        else
-        {
-            unit->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
-            for (Unit::ControlList::iterator itr = unit->m_Controlled.begin(); itr != unit->m_Controlled.end(); ++itr)
-                (*itr)->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
-        }
-#endif
-        return 0;
-    }
-
-    int SetSanctuary(lua_State* L, Unit* unit)
-    {
-        bool apply = sEluna->CHECKVAL<bool>(L, 2, true);
-
-        if (apply)
-        {
-            unit->SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
-            unit->CombatStop();
-            unit->CombatStopWithPets();
-        }
-        else
-            unit->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
-
-        return 0;
-    }
-
-    int SetPhaseMask(lua_State* L, Unit* unit)
-    {
-        uint32 phaseMask = sEluna->CHECKVAL<uint32>(L, 2);
-        bool Update = sEluna->CHECKVAL<bool>(L, 3, true);
-        unit->SetPhaseMask(phaseMask, Update);
-        return 0;
-    }
-
-    int GetVehicleKit(lua_State* L, Unit* unit)
-    {
-#ifdef MANGOS
-        sEluna->Push(L, unit->GetVehicleInfo());
-#else
-        sEluna->Push(L, unit->GetVehicleKit());
-#endif
-        return 1;
-    }
-
-    int GetVehicle(lua_State* L, Unit* unit)
-    {
-        // sEluna->Push(L, unit->GetVehicle());
-        return 1;
-    }
-
-    int GetCritterGUID(lua_State* L, Unit* unit)
-    {
-#ifdef MANGOS
-        sEluna->Push(L, unit->GetCritterGuid());
-#else
-        sEluna->Push(L, unit->GetCritterGUID());
-#endif
-        return 1;
-    }
-
-    int SetCritterGUID(lua_State* L, Unit* unit)
-    {
-        uint64 guid = sEluna->CHECKVAL<uint64>(L, 2);
-#ifdef MANGOS
-        unit->SetCritterGuid(GUID_TYPE(guid));
-#else
-        unit->SetCritterGUID(GUID_TYPE(guid));
-#endif
-        return 0;
-    }
-#endif
 };
 #endif
