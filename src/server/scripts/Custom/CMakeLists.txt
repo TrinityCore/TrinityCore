@@ -17,6 +17,7 @@ set(scripts_STAT_SRCS
   Custom/WorldEvents/TW_hallows_end.cpp
   Custom/WorldEvents/TW_pilgrim.cpp
   Custom/WorldEvents/TW_boss_apothecary_trio.cpp
+  Custom/AzjolNerub/TW_boss_hadronox.cpp
   Custom/HallsOfReflection/TW_boss_falric.cpp
   Custom/HallsOfReflection/TW_boss_lich_king_hor.cpp
   Custom/HallsOfReflection/TW_boss_marwyn.cpp

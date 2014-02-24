@@ -16,6 +16,8 @@ SET @WEB_FRONT_DOORS         := 53177; -- -//-
 SET @GUID1                  := 209846; -- Guids of 2 guards of initial Crusher
 SET @GUID2                  := 209847; -- -//-
 
+UPDATE `creature_template` SET `ScriptName` = 'TW_boss_hadronox' WHERE `ScriptName` = 'boss_hadronox';
+
 -- Delete existing unblizzlike spawns
 DELETE FROM `creature` WHERE `id` IN (29064,29063,29062,29098,29096,29097,@AttackingNecromancer,@AttackingChampion,@AttackingFiend,@NoSpellNecromancer);
 

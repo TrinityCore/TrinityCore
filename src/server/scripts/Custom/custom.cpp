@@ -20,6 +20,7 @@ void AddSC_TW_boss_thorim();
 void AddSC_TW_boss_mimiron();
 void AddSC_custom_commandscript();
 void AddSC_TW_boss_apothecary_trio();
+void AddSC_TW_boss_hadronox();
 
 /* This is where custom scripts should be added. */
 void AddSC_custom()
@@ -43,4 +44,5 @@ void AddSC_custom()
     AddSC_TW_boss_mimiron();
     AddSC_custom_commandscript();
     AddSC_TW_boss_apothecary_trio();
+    AddSC_TW_boss_hadronox();
 }
