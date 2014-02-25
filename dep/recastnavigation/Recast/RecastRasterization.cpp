@@ -95,7 +95,7 @@ static void addSpan(rcHeightfield& hf, const int x, const int y,
 	s->area = area;
 	s->next = 0;
 	
-	// Empty cell, add he first span.
+	// Empty cell, add the first span.
 	if (!hf.spans[idx])
 	{
 		hf.spans[idx] = s;
@@ -169,35 +169,63 @@ void rcAddSpan(rcContext* /*ctx*/, rcHeightfield& hf, const int x, const int y,
 	addSpan(hf, x,y, smin, smax, area, flagMergeThr);
 }
 
-static int clipPoly(const float* in, int n, float* out, float pnx, float pnz, float pd)
+// divides a convex polygons into two convex polygons on both sides of a line
+static void dividePoly(const float* in, int nin,
+					  float* out1, int* nout1,
+					  float* out2, int* nout2,
+					  float x, int axis)
 {
 	float d[12];
-	for (int i = 0; i < n; ++i)
-		d[i] = pnx*in[i*3+0] + pnz*in[i*3+2] + pd;
-	
-	int m = 0;
-	for (int i = 0, j = n-1; i < n; j=i, ++i)
+	for (int i = 0; i < nin; ++i)
+		d[i] = x - in[i*3+axis];
+
+	int m = 0, n = 0;
+	for (int i = 0, j = nin-1; i < nin; j=i, ++i)
 	{
 		bool ina = d[j] >= 0;
 		bool inb = d[i] >= 0;
 		if (ina != inb)
 		{
 			float s = d[j] / (d[j] - d[i]);
-			out[m*3+0] = in[j*3+0] + (in[i*3+0] - in[j*3+0])*s;
-			out[m*3+1] = in[j*3+1] + (in[i*3+1] - in[j*3+1])*s;
-			out[m*3+2] = in[j*3+2] + (in[i*3+2] - in[j*3+2])*s;
+			out1[m*3+0] = in[j*3+0] + (in[i*3+0] - in[j*3+0])*s;
+			out1[m*3+1] = in[j*3+1] + (in[i*3+1] - in[j*3+1])*s;
+			out1[m*3+2] = in[j*3+2] + (in[i*3+2] - in[j*3+2])*s;
+			rcVcopy(out2 + n*3, out1 + m*3);
 			m++;
+			n++;
+			// add the i'th point to the right polygon. Do NOT add points that are on the dividing line
+			// since these were already added above
+			if (d[i] > 0)
+			{
+				rcVcopy(out1 + m*3, in + i*3);
+				m++;
+			}
+			else if (d[i] < 0)
+			{
+				rcVcopy(out2 + n*3, in + i*3);
+				n++;
+			}
 		}
-		if (inb)
+		else // same side
 		{
-			out[m*3+0] = in[i*3+0];
-			out[m*3+1] = in[i*3+1];
-			out[m*3+2] = in[i*3+2];
-			m++;
+			// add the i'th point to the right polygon. Addition is done even for points on the dividing line
+			if (d[i] >= 0)
+			{
+				rcVcopy(out1 + m*3, in + i*3);
+				m++;
+				if (d[i] != 0)
+					continue;
+			}
+			rcVcopy(out2 + n*3, in + i*3);
+			n++;
 		}
 	}
-	return m;
+
+	*nout1 = m;
+	*nout2 = n;
 }
+
+
 
 static void rasterizeTri(const float* v0, const float* v1, const float* v2,
 						 const unsigned char area, rcHeightfield& hf,
@@ -222,48 +250,57 @@ static void rasterizeTri(const float* v0, const float* v1, const float* v2,
 	if (!overlapBounds(bmin, bmax, tmin, tmax))
 		return;
 	
-	// Calculate the footpring of the triangle on the grid.
-	int x0 = (int)((tmin[0] - bmin[0])*ics);
+	// Calculate the footprint of the triangle on the grid's y-axis
 	int y0 = (int)((tmin[2] - bmin[2])*ics);
-	int x1 = (int)((tmax[0] - bmin[0])*ics);
 	int y1 = (int)((tmax[2] - bmin[2])*ics);
-	x0 = rcClamp(x0, 0, w-1);
 	y0 = rcClamp(y0, 0, h-1);
-	x1 = rcClamp(x1, 0, w-1);
 	y1 = rcClamp(y1, 0, h-1);
 	
 	// Clip the triangle into all grid cells it touches.
-	float in[7*3], out[7*3], inrow[7*3];
+	float buf[7*3*4];
+	float *in = buf, *inrow = buf+7*3, *p1 = inrow+7*3, *p2 = p1+7*3;
+
+	rcVcopy(&in[0], v0);
+	rcVcopy(&in[1*3], v1);
+	rcVcopy(&in[2*3], v2);
+	int nvrow, nvIn = 3;
 	
 	for (int y = y0; y <= y1; ++y)
 	{
-		// Clip polygon to row.
-		rcVcopy(&in[0], v0);
-		rcVcopy(&in[1*3], v1);
-		rcVcopy(&in[2*3], v2);
-		int nvrow = 3;
+		// Clip polygon to row. Store the remaining polygon as well
 		const float cz = bmin[2] + y*cs;
-		nvrow = clipPoly(in, nvrow, out, 0, 1, -cz);
-		if (nvrow < 3) continue;
-		nvrow = clipPoly(out, nvrow, inrow, 0, -1, cz+cs);
+		dividePoly(in, nvIn, inrow, &nvrow, p1, &nvIn, cz+cs, 2);
+		rcSwap(in, p1);
 		if (nvrow < 3) continue;
 		
+		// find the horizontal bounds in the row
+		float minX = inrow[0], maxX = inrow[0];
+		for (int i=1; i<nvrow; ++i)
+		{
+			if (minX > inrow[i*3])	minX = inrow[i*3];
+			if (maxX < inrow[i*3])	maxX = inrow[i*3];
+		}
+		int x0 = (int)((minX - bmin[0])*ics);
+		int x1 = (int)((maxX - bmin[0])*ics);
+		x0 = rcClamp(x0, 0, w-1);
+		x1 = rcClamp(x1, 0, w-1);
+
+		int nv, nv2 = nvrow;
+
 		for (int x = x0; x <= x1; ++x)
 		{
-			// Clip polygon to column.
-			int nv = nvrow;
+			// Clip polygon to column. store the remaining polygon as well
 			const float cx = bmin[0] + x*cs;
-			nv = clipPoly(inrow, nv, out, 1, 0, -cx);
-			if (nv < 3) continue;
-			nv = clipPoly(out, nv, in, -1, 0, cx+cs);
+			dividePoly(inrow, nv2, p1, &nv, p2, &nv2, cx+cs, 0);
+			rcSwap(inrow, p2);
 			if (nv < 3) continue;
 			
 			// Calculate min and max of the span.
-			float smin = in[1], smax = in[1];
+			float smin = p1[1], smax = p1[1];
 			for (int i = 1; i < nv; ++i)
 			{
-				smin = rcMin(smin, in[i*3+1]);
-				smax = rcMax(smax, in[i*3+1]);
+				smin = rcMin(smin, p1[i*3+1]);
+				smax = rcMax(smax, p1[i*3+1]);
 			}
 			smin -= bmin[1];
 			smax -= bmin[1];

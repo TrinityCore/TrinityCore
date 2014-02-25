@@ -661,7 +661,8 @@ static bool removeVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned short 
 			}
 			// Remove the polygon.
 			unsigned short* p2 = &mesh.polys[(mesh.npolys-1)*nvp*2];
-			memcpy(p,p2,sizeof(unsigned short)*nvp);
+			if (p != p2)
+				memcpy(p,p2,sizeof(unsigned short)*nvp);
 			memset(p+nvp,0xff,sizeof(unsigned short)*nvp);
 			mesh.regs[i] = mesh.regs[mesh.npolys-1];
 			mesh.areas[i] = mesh.areas[mesh.npolys-1];
@@ -861,7 +862,9 @@ static bool removeVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned short 
 				unsigned short* pa = &polys[bestPa*nvp];
 				unsigned short* pb = &polys[bestPb*nvp];
 				mergePolys(pa, pb, bestEa, bestEb, tmpPoly, nvp);
-				memcpy(pb, &polys[(npolys-1)*nvp], sizeof(unsigned short)*nvp);
+				unsigned short* last = &polys[(npolys-1)*nvp];
+				if (pb != last)
+					memcpy(pb, last, sizeof(unsigned short)*nvp);
 				pregs[bestPb] = pregs[npolys-1];
 				pareas[bestPb] = pareas[npolys-1];
 				npolys--;
@@ -1105,7 +1108,9 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 					unsigned short* pa = &polys[bestPa*nvp];
 					unsigned short* pb = &polys[bestPb*nvp];
 					mergePolys(pa, pb, bestEa, bestEb, tmpPoly, nvp);
-					memcpy(pb, &polys[(npolys-1)*nvp], sizeof(unsigned short)*nvp);
+					unsigned short* lastPoly = &polys[(npolys-1)*nvp];
+					if (pb != lastPoly)
+						memcpy(pb, lastPoly, sizeof(unsigned short)*nvp);
 					npolys--;
 				}
 				else
@@ -1319,6 +1324,12 @@ bool rcMergePolyMeshes(rcContext* ctx, rcPolyMesh** meshes, const int nmeshes, r
 		const unsigned short ox = (unsigned short)floorf((pmesh->bmin[0]-mesh.bmin[0])/mesh.cs+0.5f);
 		const unsigned short oz = (unsigned short)floorf((pmesh->bmin[2]-mesh.bmin[2])/mesh.cs+0.5f);
 		
+		bool isMinX = (ox == 0);
+		bool isMinZ = (oz == 0);
+		bool isMaxX = ((unsigned short)floorf((mesh.bmax[0] - pmesh->bmax[0]) / mesh.cs + 0.5f)) == 0;
+		bool isMaxZ = ((unsigned short)floorf((mesh.bmax[2] - pmesh->bmax[2]) / mesh.cs + 0.5f)) == 0;
+		bool isOnBorder = (isMinX || isMinZ || isMaxX || isMaxZ);
+
 		for (int j = 0; j < pmesh->nverts; ++j)
 		{
 			unsigned short* v = &pmesh->verts[j*3];
@@ -1338,6 +1349,36 @@ bool rcMergePolyMeshes(rcContext* ctx, rcPolyMesh** meshes, const int nmeshes, r
 			{
 				if (src[k] == RC_MESH_NULL_IDX) break;
 				tgt[k] = vremap[src[k]];
+			}
+
+			if (isOnBorder)
+			{
+				for (int k = mesh.nvp; k < mesh.nvp * 2; ++k)
+				{
+					if (src[k] & 0x8000 && src[k] != 0xffff)
+					{
+						unsigned short dir = src[k] & 0xf;
+						switch (dir)
+						{
+							case 0: // Portal x-
+								if (isMinX)
+									tgt[k] = src[k];
+								break;
+							case 1: // Portal z+
+								if (isMaxZ)
+									tgt[k] = src[k];
+								break;
+							case 2: // Portal x+
+								if (isMaxX)
+									tgt[k] = src[k];
+								break;
+							case 3: // Portal z-
+								if (isMinZ)
+									tgt[k] = src[k];
+								break;
+						}
+					}
+				}
 			}
 		}
 	}
