@@ -70,6 +70,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
         {
             instance_culling_of_stratholme_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetBossNumber(MAX_ENCOUNTER);
                 _arthasGUID = 0;
                 _meathookGUID = 0;
                 _salrammGUID = 0;
@@ -83,7 +84,6 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 _malGanisChestGUID = 0;
                 _genericBunnyGUID = 0;
                 _chromieGUID = 0;
-                memset(&_encounterState[0], 0, sizeof(uint32) * MAX_ENCOUNTER);
                 _crateCount = 0;
                 _eventMinute = 0;
             }
@@ -165,6 +165,8 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 }
             }
 
+            
+
             void SetData(uint32 type, uint32 data) OVERRIDE
             {
                 switch (type)
@@ -228,7 +230,6 @@ class instance_culling_of_stratholme : public InstanceMapScript
                                 _eventMinute = 25;
                             }
                     }
-
                 if (data == DONE)
                     SaveToDB();
             }
@@ -285,13 +286,20 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 return 0;
             }
 
+            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
+            {
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+
+                return true;
+            }
+
             std::string GetSaveData() OVERRIDE
             {
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << "C S " << _encounterState[0] << ' ' << _encounterState[1] << ' '
-                    << _encounterState[2] << ' ' << _encounterState[3] << ' ' << _encounterState[4];
+                saveStream << "C S " << GetBossSaveData();
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -314,17 +322,20 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4;
 
                 if (dataHead1 == 'C' && dataHead2 == 'S')
-                {
                     _encounterState[0] = data0;
                     _encounterState[1] = data1;
                     _encounterState[2] = data2;
                     _encounterState[3] = data3;
                     _encounterState[4] = data4;
-
-                    for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                        if (_encounterState[i] == IN_PROGRESS)
-                            _encounterState[i] = NOT_STARTED;
-
+                {                                        
+                    for (uint32 i = 0; i < MAX_ENCOUNTER; ++i)
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
+                    }
                 }
                 else
                     OUT_LOAD_INST_DATA_FAIL;

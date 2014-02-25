@@ -143,6 +143,7 @@ public:
             Talk(SAY_DEATH);
 
             instance->SetData(DATA_SALRAMM_EVENT, DONE);
+            instance->SetBossState(DATA_SALRAMM_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE

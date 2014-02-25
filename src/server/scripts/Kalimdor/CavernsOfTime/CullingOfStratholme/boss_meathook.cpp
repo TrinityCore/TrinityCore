@@ -74,7 +74,6 @@ public:
             uiChainTimer = urand(12000, 17000);   //seen on video 13, 17, 15, 12, 16
             uiDiseaseTimer = urand(2000, 4000);   //approx 3s
             uiFrenzyTimer = urand(21000, 26000);  //made it up
-
             instance->SetData(DATA_MEATHOOK_EVENT, NOT_STARTED);
         }
 
@@ -82,7 +81,6 @@ public:
         {
             _EnterCombat();
             Talk(SAY_AGGRO);
-
             instance->SetData(DATA_MEATHOOK_EVENT, IN_PROGRESS);
         }
 
@@ -119,6 +117,7 @@ public:
             _JustDied();
             Talk(SAY_DEATH);
             instance->SetData(DATA_MEATHOOK_EVENT, DONE);
+            instance->SetBossState(DATA_MEATHOOK_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE

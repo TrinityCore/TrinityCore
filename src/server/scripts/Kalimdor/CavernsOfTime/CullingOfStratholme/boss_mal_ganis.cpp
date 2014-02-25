@@ -232,6 +232,7 @@ public:
             // give achievement credit and LFG rewards to players. criteria use spell 58630 which doesn't exist, but it was created in spell_dbc
             DoCastAOE(SPELL_KILL_CREDIT);
             _JustDied();
+            instance->SetBossState(DATA_MAL_GANIS_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE
