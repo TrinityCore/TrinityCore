@@ -322,12 +322,13 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4;
 
                 if (dataHead1 == 'C' && dataHead2 == 'S')
+                {
                     _encounterState[0] = data0;
                     _encounterState[1] = data1;
                     _encounterState[2] = data2;
                     _encounterState[3] = data3;
                     _encounterState[4] = data4;
-                {                                        
+
                     for (uint32 i = 0; i < MAX_ENCOUNTER; ++i)
                     {
                         uint32 tmpState;
