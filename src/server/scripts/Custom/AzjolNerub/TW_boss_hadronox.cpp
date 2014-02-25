@@ -393,6 +393,7 @@ class TW_boss_hadronox : public CreatureScript
                     {
                         case 4:
                             _allowedAttack = true;
+                            _hadronoxDenied = true;
                             events.ScheduleEvent(EVENT_MOVE_IN_TUNNEL, 25*IN_MILLISECONDS, 2);
                             break;
                         case 6:
