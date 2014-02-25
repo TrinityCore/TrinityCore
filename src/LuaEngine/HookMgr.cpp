@@ -1665,7 +1665,7 @@ struct ElunaCreatureAI : ScriptedAI
     }
 
     // Called when AI is temporarily replaced or put back when possess is applied or removed
-    void OnPossess(bool apply) OVERRIDE
+    void OnPossess(bool apply)
     {
         ELUNA_GUARD();
         ScriptedAI::OnPossess(apply);
@@ -1806,7 +1806,7 @@ struct ElunaCreatureAI : ScriptedAI
     }
 
     // Called if IsVisible(Unit* who) is true at each who move, reaction at visibility zone enter
-    void MoveInLineOfSight_Safe(Unit* who) OVERRIDE
+    void MoveInLineOfSight_Safe(Unit* who)
     {
         ELUNA_GUARD();
         ScriptedAI::MoveInLineOfSight_Safe(who);
