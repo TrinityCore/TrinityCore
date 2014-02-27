@@ -141,7 +141,7 @@ enum HodirActions
 #define ACHIEVEMENT_CHEESE_THE_FREEZE            RAID_MODE<uint32>(2961, 2962)
 #define ACHIEVEMENT_GETTING_COLD_IN_HERE         RAID_MODE<uint8>(2967, 2968)
 #define ACHIEVEMENT_THIS_CACHE_WAS_RARE          RAID_MODE<uint32>(3182, 3184)
-#define ACHIEVEMENT_COOLEST_FRIENDS              RAID_MODE<uint8>(2963, 2965)
+#define ACHIEVEMENT_COOLEST_FRIENDS              RAID_MODE<uint32>(2963, 2965)
 #define FRIENDS_COUNT                            RAID_MODE<uint8>(4, 8)
 
 enum Misc
@@ -372,6 +372,9 @@ class boss_hodir : public CreatureScript
 
                     if (cheeseTheFreeze)
                         DoCompleteAchievement(ACHIEVEMENT_CHEESE_THE_FREEZE, me);
+
+                    if (iHaveTheCoolestFriends)
+                        DoCompleteAchievement(ACHIEVEMENT_COOLEST_FRIENDS, me);
 
                     me->RemoveAllAuras();
                     me->RemoveAllAttackers();
