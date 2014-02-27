@@ -181,3 +181,10 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value
 (10452, 11, 0, 0, 'TW_achievement_i_could_say_this_cache_was_rare'),
 (10458, 11, 0, 0, 'TW_achievement_i_could_say_this_cache_was_rare');
 
+-- Implements Cheese the Freeze
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10259, 10261) AND `type` IN (18, 11);
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
+(10259, 11, 0, 0, 'TW_achievement_cheese_the_freeze'),
+(10261, 11, 0, 0, 'TW_achievement_cheese_the_freeze');
+
+

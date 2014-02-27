@@ -138,7 +138,7 @@ enum HodirActions
     ACTION_CHEESE_THE_FREEZE                     = 2,
 };
 
-#define ACHIEVEMENT_CHEESE_THE_FREEZE            RAID_MODE<uint8>(2961, 2962)
+#define ACHIEVEMENT_CHEESE_THE_FREEZE            RAID_MODE<uint32>(2961, 2962)
 #define ACHIEVEMENT_GETTING_COLD_IN_HERE         RAID_MODE<uint8>(2967, 2968)
 #define ACHIEVEMENT_THIS_CACHE_WAS_RARE          RAID_MODE<uint32>(3182, 3184)
 #define ACHIEVEMENT_COOLEST_FRIENDS              RAID_MODE<uint8>(2963, 2965)
@@ -370,6 +370,9 @@ class boss_hodir : public CreatureScript
                         DoCompleteAchievement(ACHIEVEMENT_THIS_CACHE_WAS_RARE, me);
                     }
 
+                    if (cheeseTheFreeze)
+                        DoCompleteAchievement(ACHIEVEMENT_CHEESE_THE_FREEZE, me);
+
                     me->RemoveAllAuras();
                     me->RemoveAllAttackers();
                     me->AttackStop();
@@ -494,6 +497,8 @@ class boss_hodir : public CreatureScript
             {
                 if (type == DATA_HODIR_RARE_CACHE)
                     return iCouldSayThatThisCacheWasRare;
+                else if (type == DATA_CHEESE_THE_FREEZE)
+                    return cheeseTheFreeze;
 
                 return 0;
             }
@@ -1034,6 +1039,20 @@ class TW_achievement_i_could_say_this_cache_was_rare : public AchievementCriteri
         }
 };
 
+class TW_achievement_cheese_the_freeze : public AchievementCriteriaScript
+{
+    public:
+        TW_achievement_cheese_the_freeze() : AchievementCriteriaScript("TW_achievement_cheese_the_freeze") { }
+
+        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
+        {
+            if (!target)
+                return false;
+
+            return target->ToCreature()->AI()->GetData(DATA_CHEESE_THE_FREEZE);
+        }
+};
+
 void DoCompleteAchievement(uint32 achievement, Creature* source)
 {
     Map::PlayerList const &PlayerList = source->GetMap()->GetPlayers();
@@ -1066,4 +1085,5 @@ void AddSC_boss_hodir()
     new spell_biting_cold();
     new spell_biting_cold_dot();
     new TW_achievement_i_could_say_this_cache_was_rare();
+    new TW_achievement_cheese_the_freeze();
 }

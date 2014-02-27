@@ -322,6 +322,7 @@ enum UlduarData
 
     // Hodir
     DATA_HODIR_RARE_CACHE,
+    DATA_CHEESE_THE_FREEZE,
 
     // Yogg-Saron
     DATA_VOICE_OF_YOGG_SARON,
