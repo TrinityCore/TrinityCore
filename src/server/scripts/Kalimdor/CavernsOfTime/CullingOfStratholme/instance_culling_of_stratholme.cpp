@@ -47,7 +47,8 @@ enum Texts
 
 enum Events
 {
-    EVENT_INFINITE_TIMER   = 1
+    EVENT_INFINITE_TIMER   = 1,
+    EVENT_RESET_ZOMBIE_COUNTER = 2
 };
 
 Position const ChromieSummonPos[] = 
@@ -86,6 +87,8 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 _chromieGUID = 0;
                 _crateCount = 0;
                 _eventMinute = 0;
+                _zombieCounter = 0;
+                _zombieTimerStarted = false;
             }
 
             bool IsEncounterInProgress() const OVERRIDE
@@ -165,7 +168,34 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 }
             }
 
-            
+            void OnUnitDeath(Unit* unit) OVERRIDE
+            {
+                Creature* creature = unit->ToCreature();
+                if (!creature)
+                    return;
+
+                if (creature->GetEntry() == NPC_RISEN_ZOMBIE)
+                {
+                    _zombieCounter++;
+                    
+                    if (!_zombieTimerStarted)
+                    {
+                        events.ScheduleEvent(EVENT_RESET_ZOMBIE_COUNTER, 1*MINUTE*IN_MILLISECONDS);
+                        _zombieTimerStarted = true;
+                    }
+                    
+                    if (_zombieCounter >= 100)
+                        DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, NPC_RISEN_ZOMBIE, 1);
+                }
+            }
+
+            bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*, Unit const* /* = NULL */, uint32 /* = 0 */) OVERRIDE
+            {
+                if (criteriaId == CRITERIA_ZOMBIEFEST)
+                    return _zombieCounter >= 100 ? true : false;
+
+                return false;
+            }
 
             void SetData(uint32 type, uint32 data) OVERRIDE
             {
@@ -352,44 +382,61 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 {
                     switch(eventId)
                     {
-                    case EVENT_INFINITE_TIMER:
-                        DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 1);
-                        DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN, _eventMinute);
-                        events.ScheduleEvent(EVENT_INFINITE_TIMER, MINUTE*IN_MILLISECONDS);
-
-                        switch(_eventMinute)
+                        case EVENT_INFINITE_TIMER:
                         {
-                        case 25:
-                            if (!instance->GetPlayers().isEmpty())
-                                if (Player* player = instance->GetPlayers().getFirst()->GetSource())
-                                    if (Creature* chromie = instance->GetCreature(_chromieGUID))
-                                        sCreatureTextMgr->SendChat(chromie, SAY_INFINITE_START, player, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
-                            break;
-                        case 5:
-                            if (!instance->GetPlayers().isEmpty())
-                                if (Player* player = instance->GetPlayers().getFirst()->GetSource())
-                                    if (Creature* chromie = instance->GetCreature(_chromieGUID))
-                                        sCreatureTextMgr->SendChat(chromie, SAY_INFINITE, player, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
-                            break;
-                        case 0:
-                            if (!instance->GetPlayers().isEmpty())
-                                if (Player* player = instance->GetPlayers().getFirst()->GetSource())
-                                    if (Creature* chromie = instance->GetCreature(_chromieGUID))
-                                        sCreatureTextMgr->SendChat(chromie, SAY_INFINITE_FAIL, player, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                            DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 1);
+                            DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN, _eventMinute);
+                            events.ScheduleEvent(EVENT_INFINITE_TIMER, MINUTE*IN_MILLISECONDS);
 
-                            if (Creature* infinite = instance->GetCreature(_infiniteGUID))
-                                if (Creature* rift = infinite->FindNearestCreature(NPC_TIME_RIFT, 100.0f))
-                                {
-                                    infinite->Kill(infinite->FindNearestCreature(NPC_GUARDIAN_OF_TIME, 100.0f));
-                                    infinite->GetMotionMaster()->MovePoint(0, rift->GetPositionX(), rift->GetPositionY(), rift->GetPositionZ());
-                                    infinite->AI()->Talk(SAY_FAIL);
-                                    rift->DespawnOrUnsummon();
-                                    infinite->DespawnOrUnsummon(3*IN_MILLISECONDS);     
-                                    events.CancelEvent(EVENT_INFINITE_TIMER);
-                                    DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 0);
-                                }
-                                break;
-                        } 
+                            switch(_eventMinute)
+                            {
+                                case 25:
+                                    if (!instance->GetPlayers().isEmpty())
+                                        if (Player* player = instance->GetPlayers().getFirst()->GetSource())
+                                            if (Creature* chromie = instance->GetCreature(_chromieGUID))
+                                                sCreatureTextMgr->SendChat(chromie, SAY_INFINITE_START, player, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                                    break;
+                                case 5:
+                                    if (!instance->GetPlayers().isEmpty())
+                                        if (Player* player = instance->GetPlayers().getFirst()->GetSource())
+                                            if (Creature* chromie = instance->GetCreature(_chromieGUID))
+                                                sCreatureTextMgr->SendChat(chromie, SAY_INFINITE, player, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                                    break;
+                                case 0:
+                                    if (!instance->GetPlayers().isEmpty())
+                                        if (Player* player = instance->GetPlayers().getFirst()->GetSource())
+                                            if (Creature* chromie = instance->GetCreature(_chromieGUID))
+                                                sCreatureTextMgr->SendChat(chromie, SAY_INFINITE_FAIL, player, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+
+                                    if (Creature* infinite = instance->GetCreature(_infiniteGUID))
+                                    {
+                                        if (Creature* rift = infinite->FindNearestCreature(NPC_TIME_RIFT, 100.0f))
+                                        {
+                                            infinite->Kill(infinite->FindNearestCreature(NPC_GUARDIAN_OF_TIME, 100.0f));
+                                            infinite->GetMotionMaster()->MovePoint(0, rift->GetPositionX(), rift->GetPositionY(), rift->GetPositionZ());
+                                            infinite->AI()->Talk(SAY_FAIL);
+                                            rift->DespawnOrUnsummon();
+                                            infinite->DespawnOrUnsummon(3*IN_MILLISECONDS);     
+                                            events.CancelEvent(EVENT_INFINITE_TIMER);
+                                            DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 0);
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        }
+                        case EVENT_RESET_ZOMBIE_COUNTER:
+                        {
+                            // if by whichever reasons the players have got skipped... award them
+                            if (_zombieCounter >= 100)
+                                DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, NPC_RISEN_ZOMBIE, _zombieCounter);
+
+                            _zombieCounter = 0;
+                            _zombieTimerStarted = false;
+                        }
+                        break;
                     } 
                     --_eventMinute;
                 }
@@ -413,6 +460,8 @@ class instance_culling_of_stratholme : public InstanceMapScript
             uint32 _eventCounterState;
             uint32 _crateCount;
             uint32 _eventMinute;
+            uint32 _zombieCounter;
+            bool _zombieTimerStarted;
 
             EventMap events;
         };
