@@ -319,6 +319,8 @@ class boss_hodir : public CreatureScript
             bool iHaveTheCoolestFriends;
             bool iCouldSayThatThisCacheWasRare;
 
+            std::list<Creature*> flashfreeze;
+
             void Reset() OVERRIDE
             {
                 _Reset();
@@ -378,6 +380,11 @@ class boss_hodir : public CreatureScript
 
                     me->setFaction(35);
                     me->DespawnOrUnsummon(10000);
+
+                    GetCreatureListWithEntryInGrid(flashfreeze, me, NPC_FLASH_FREEZE, 500.0f);
+                    GetCreatureListWithEntryInGrid(flashfreeze, me, NPC_ICE_BLOCK, 500.0f);
+                    for (std::list<Creature*>::const_iterator itr = flashfreeze.begin(); itr != flashfreeze.end(); ++itr)
+                        (*itr)->DisappearAndDie();
 
                     DoCastAOE(SPELL_KILL_CREDIT);
 
