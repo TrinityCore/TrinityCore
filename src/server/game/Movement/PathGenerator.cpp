@@ -270,8 +270,16 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
     {
         for (; pathStartIndex < _polyLength; ++pathStartIndex)
         {
-            // here to carch few bugs
-            ASSERT(_pathPolyRefs[pathStartIndex] != INVALID_POLYREF);
+            // here to catch few bugs
+            if (_pathPolyRefs[pathStartIndex] == INVALID_POLYREF)
+            {
+                TC_LOG_ERROR("maps", "Invalid poly ref in BuildPolyPath. _polyLength: %u, pathStartIndex: %u,"
+                                     " startPos: %s, endPos: %s, mapid: %u",
+                                     _polyLength, pathStartIndex, startPos.toString().c_str(), endPos.toString().c_str(),
+                                     _sourceUnit->GetMapId());
+
+                break;
+            }
 
             if (_pathPolyRefs[pathStartIndex] == startPoly)
             {
