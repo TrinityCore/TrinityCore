@@ -426,4 +426,6 @@ class NoPlayerOrPetCheck
         }
 };
 
+void DoCompleteAchievement(uint32 achievement, Creature* source);
+
 #endif

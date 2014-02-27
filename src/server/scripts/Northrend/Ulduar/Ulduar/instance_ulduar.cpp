@@ -21,6 +21,7 @@
 #include "ulduar.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#include "AchievementMgr.h"
 
 static DoorData const doorData[] =
 {

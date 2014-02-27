@@ -24,6 +24,7 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "ulduar.h"
+#include "AchievementMgr.h"
 
 /* @todo Achievements
           Storm Cloud (Shaman ability)
@@ -139,7 +140,7 @@ enum HodirActions
 
 #define ACHIEVEMENT_CHEESE_THE_FREEZE            RAID_MODE<uint8>(2961, 2962)
 #define ACHIEVEMENT_GETTING_COLD_IN_HERE         RAID_MODE<uint8>(2967, 2968)
-#define ACHIEVEMENT_THIS_CACHE_WAS_RARE          RAID_MODE<uint8>(3182, 3184)
+#define ACHIEVEMENT_THIS_CACHE_WAS_RARE          RAID_MODE<uint32>(3182, 3184)
 #define ACHIEVEMENT_COOLEST_FRIENDS              RAID_MODE<uint8>(2963, 2965)
 #define FRIENDS_COUNT                            RAID_MODE<uint8>(4, 8)
 
@@ -364,13 +365,15 @@ class boss_hodir : public CreatureScript
                     damage = 0;
                     Talk(SAY_DEATH);
                     if (iCouldSayThatThisCacheWasRare)
+                    {
                         instance->SetData(DATA_HODIR_RARE_CACHE, 1);
+                        DoCompleteAchievement(ACHIEVEMENT_THIS_CACHE_WAS_RARE, me);
+                    }
 
                     me->RemoveAllAuras();
                     me->RemoveAllAttackers();
                     me->AttackStop();
-                    me->SetReactState(REACT_PASSIVE);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
+                    me->SetReactState(REACT_PASSIVE);                   
                     me->InterruptNonMeleeSpells(true);
                     me->StopMoving();
                     me->GetMotionMaster()->Clear();
@@ -387,7 +390,8 @@ class boss_hodir : public CreatureScript
                         (*itr)->DisappearAndDie();
 
                     DoCastAOE(SPELL_KILL_CREDIT);
-
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
+                    instance->DoCastSpellOnPlayers(SPELL_KILL_CREDIT);
                     _JustDied();
                 }
             }
@@ -1029,6 +1033,23 @@ class TW_achievement_i_could_say_this_cache_was_rare : public AchievementCriteri
             return target->ToCreature()->AI()->GetData(DATA_HODIR_RARE_CACHE);
         }
 };
+
+void DoCompleteAchievement(uint32 achievement, Creature* source)
+{
+    Map::PlayerList const &PlayerList = source->GetMap()->GetPlayers();
+
+    AchievementEntry const* pAE = sAchievementMgr->GetAchievement(achievement);
+    if (!pAE)
+        return;
+
+    if (!PlayerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            if (Player *player = i->GetSource())
+            {
+                if (player->IsWithinDistInMap(source, 100.0f))
+                    player->CompletedAchievement(pAE);
+            }
+}
 
 void AddSC_boss_hodir()
 {
