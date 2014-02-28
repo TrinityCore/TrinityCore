@@ -245,7 +245,7 @@ public:
             return false;
         }
 
-        if (!groupSource->IsFull())
+        if (groupSource->IsFull())
         {
             handler->PSendSysMessage(LANG_GROUP_FULL);
             handler->SetSentErrorMessage(true);

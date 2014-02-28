@@ -131,7 +131,7 @@ public:
 
     bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) OVERRIDE
     {
-        if (player->HasQuestForItem(ITEM_FRAGMENT))
+        if (player->HasQuestForItem(ITEM_FRAGMENT) && !player->FindNearestCreature(NPC_TWILIGHT_CORRUPTER, 500.0f))
         {
             if (Unit* corrupter = player->SummonCreature(NPC_TWILIGHT_CORRUPTER, -10328.16f, -489.57f, 49.95f, 0, TEMPSUMMON_MANUAL_DESPAWN, 60000))
                 corrupter->setFaction(FACTION_HOSTILE);

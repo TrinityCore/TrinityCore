@@ -24,6 +24,7 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "ulduar.h"
+#include "AchievementMgr.h"
 
 /* @todo Achievements
           Storm Cloud (Shaman ability)
@@ -76,6 +77,8 @@ enum HodirSpells
     // Shamans
     SPELL_LAVA_BURST                             = 61924,
     SPELL_STORM_CLOUD                            = 65123,
+    SPELL_STORM_POWER_10                         = 63711,
+    SPELL_STORM_POWER_25                         = 65134,
 
     // Mages
     SPELL_FIREBALL                               = 61909,
@@ -137,10 +140,10 @@ enum HodirActions
     ACTION_CHEESE_THE_FREEZE                     = 2,
 };
 
-#define ACHIEVEMENT_CHEESE_THE_FREEZE            RAID_MODE<uint8>(2961, 2962)
-#define ACHIEVEMENT_GETTING_COLD_IN_HERE         RAID_MODE<uint8>(2967, 2968)
-#define ACHIEVEMENT_THIS_CACHE_WAS_RARE          RAID_MODE<uint8>(3182, 3184)
-#define ACHIEVEMENT_COOLEST_FRIENDS              RAID_MODE<uint8>(2963, 2965)
+#define ACHIEVEMENT_CHEESE_THE_FREEZE            RAID_MODE<uint32>(2961, 2962)
+#define ACHIEVEMENT_GETTING_COLD_IN_HERE         RAID_MODE<uint32>(2967, 2968)
+#define ACHIEVEMENT_THIS_CACHE_WAS_RARE          RAID_MODE<uint32>(3182, 3184)
+#define ACHIEVEMENT_COOLEST_FRIENDS              RAID_MODE<uint32>(2963, 2965)
 #define FRIENDS_COUNT                            RAID_MODE<uint8>(4, 8)
 
 enum Misc
@@ -319,6 +322,8 @@ class boss_hodir : public CreatureScript
             bool iHaveTheCoolestFriends;
             bool iCouldSayThatThisCacheWasRare;
 
+            std::list<Creature*> flashfreeze;
+
             void Reset() OVERRIDE
             {
                 _Reset();
@@ -361,14 +366,23 @@ class boss_hodir : public CreatureScript
                 {
                     damage = 0;
                     Talk(SAY_DEATH);
+                    
                     if (iCouldSayThatThisCacheWasRare)
                         instance->SetData(DATA_HODIR_RARE_CACHE, 1);
+                    
+                    if (cheeseTheFreeze)
+                        DoCompleteAchievement(ACHIEVEMENT_CHEESE_THE_FREEZE, me);
+
+                    if (iHaveTheCoolestFriends)
+                        DoCompleteAchievement(ACHIEVEMENT_COOLEST_FRIENDS, me);
+
+                    if (gettingColdInHere)
+                        DoCompleteAchievement(ACHIEVEMENT_GETTING_COLD_IN_HERE, me);
 
                     me->RemoveAllAuras();
                     me->RemoveAllAttackers();
                     me->AttackStop();
-                    me->SetReactState(REACT_PASSIVE);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
+                    me->SetReactState(REACT_PASSIVE);                   
                     me->InterruptNonMeleeSpells(true);
                     me->StopMoving();
                     me->GetMotionMaster()->Clear();
@@ -376,11 +390,16 @@ class boss_hodir : public CreatureScript
                     me->SetControlled(true, UNIT_STATE_STUNNED);
                     me->CombatStop(true);
 
+                    DoCastAOE(SPELL_KILL_CREDIT);
                     me->setFaction(35);
                     me->DespawnOrUnsummon(10000);
 
-                    DoCastAOE(SPELL_KILL_CREDIT);
+                    GetCreatureListWithEntryInGrid(flashfreeze, me, NPC_FLASH_FREEZE, 500.0f);
+                    GetCreatureListWithEntryInGrid(flashfreeze, me, NPC_ICE_BLOCK, 500.0f);
+                    for (std::list<Creature*>::const_iterator itr = flashfreeze.begin(); itr != flashfreeze.end(); ++itr)
+                        (*itr)->DisappearAndDie();
 
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
                     _JustDied();
                 }
             }
@@ -477,6 +496,14 @@ class boss_hodir : public CreatureScript
                     default:
                         break;
                 }
+            }
+
+            uint32 GetData(uint32 type) const OVERRIDE
+            {
+                if (type == DATA_CHEESE_THE_FREEZE)
+                    return cheeseTheFreeze;
+
+                return 0;
             }
 
             void FlashFreeze()
@@ -719,10 +746,10 @@ class npc_hodir_shaman : public CreatureScript
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
-             {
+            {
                 if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_HODIR)))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
-              }
+            }
 
         private:
             InstanceScript* instance;
@@ -1001,6 +1028,51 @@ public:
     }
 };
 
+class TW_achievement_cheese_the_freeze : public AchievementCriteriaScript
+{
+    public:
+        TW_achievement_cheese_the_freeze() : AchievementCriteriaScript("TW_achievement_cheese_the_freeze") { }
+
+        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
+        {
+            if (!target)
+                return false;
+
+            return target->ToCreature()->AI()->GetData(DATA_CHEESE_THE_FREEZE);
+        }
+};
+
+class TW_achievement_staying_buffed_all_winter : public AchievementCriteriaScript
+{
+   public:
+       TW_achievement_staying_buffed_all_winter() : AchievementCriteriaScript("TW_achievement_staying_buffed_all_winter") {}
+
+       bool OnCheck(Player* player, Unit* /*target*/)
+       {
+           if (player->HasAura(SPELL_SINGED) && player->HasAura(SPELL_STARLIGHT) && (player->HasAura(SPELL_STORM_POWER_10) || player->HasAura(SPELL_STORM_POWER_25)))
+               return true;
+
+           return false;
+       }
+};
+
+void DoCompleteAchievement(uint32 achievement, Creature* source)
+{
+    Map::PlayerList const &PlayerList = source->GetMap()->GetPlayers();
+
+    AchievementEntry const* pAE = sAchievementMgr->GetAchievement(achievement);
+    if (!pAE)
+        return;
+
+    if (!PlayerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            if (Player *player = i->GetSource())
+            {
+                if (player->IsWithinDistInMap(source, 100.0f))
+                    player->CompletedAchievement(pAE);
+            }
+}
+
 void AddSC_boss_hodir()
 {
     new boss_hodir();
@@ -1015,4 +1087,6 @@ void AddSC_boss_hodir()
     new npc_flash_freeze();
     new spell_biting_cold();
     new spell_biting_cold_dot();
+    new TW_achievement_cheese_the_freeze();
+    new TW_achievement_staying_buffed_all_winter();
 }

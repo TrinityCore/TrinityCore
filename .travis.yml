@@ -1,0 +1,26 @@
+language: cpp
+
+git:
+  depth: 1
+
+compiler:
+  - gcc
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install build-essential autoconf libtool gcc g++ make cmake libace-dev openssl libssl-dev libmysqlclient15-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev
+  
+script:
+  - mkdir build
+  - cd build
+  - cmake .. -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=0 -DSCRIPTS=1 -DSERVERS=1
+  - make -j16
+
+notifications:
+  email: false
+  webhooks:
+    urls:
+      - http://irc.truewow.org:8080/travis
+    on_success: always
+    on_failure: always
+    on_start: always

@@ -286,6 +286,10 @@ class boss_freya : public CreatureScript
 
             void Reset() OVERRIDE
             {
+                if (InstanceScript* _instance = me->GetInstanceScript())
+                    if (_instance->GetBossState(BOSS_FREYA) == DONE)
+                        return;
+
                 _Reset();
                 trioWaveCount = 0;
                 trioWaveController = 0;
@@ -324,6 +328,10 @@ class boss_freya : public CreatureScript
 
             void EnterCombat(Unit* who) OVERRIDE
             {
+                if (InstanceScript* _instance = me->GetInstanceScript())
+                    if (_instance->GetBossState(BOSS_FREYA) == DONE)
+                        return;
+
                 _EnterCombat();
                 DoZoneInCombat();
                 Creature* Elder[3];

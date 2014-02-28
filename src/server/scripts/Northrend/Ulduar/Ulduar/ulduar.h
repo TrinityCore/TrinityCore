@@ -162,6 +162,20 @@ enum UlduarNPCs
     NPC_ALGALON_STALKER_ASTEROID_TARGET_01  = 33104,
     NPC_ALGALON_STALKER_ASTEROID_TARGET_02  = 33105,
     NPC_UNLEASHED_DARK_MATTER               = 34097,
+
+    // Thorim
+    NPC_THORIM_CTRL                         = 32879,
+    NPC_THORIM_IMAGE                        = 33413, 
+    NPC_SIF                                 = 33196,
+    // Thorim_PrePhaseAddEntries
+    NPC_JORMUNGAR_BEHEMOTH                  = 32882,
+    NPC_MERCENARY_CAPTAIN_A                 = 32908,
+    NPC_MERCENARY_SOLDIER_A                 = 32885,
+    NPC_DARK_RUNE_ACOLYTE                   = 32886,
+    NPC_MERCENARY_CAPTAIN_H                 = 32907,
+    NPC_MERCENARY_SOLDIER_H                 = 32883,
+    NPC_RUNIC_COLOSSUS                      = 32872,
+    NPC_RUNE_GIANT                          = 32873,
 };
 
 enum UlduarGameObjects
@@ -225,6 +239,23 @@ enum UlduarGameObjects
     GO_DOODAD_UL_ULDUAR_TRAPDOOR_03         = 194253,
     GO_GIFT_OF_THE_OBSERVER_10              = 194821,
     GO_GIFT_OF_THE_OBSERVER_25              = 194822,
+
+    // Thorim - TW
+    GO_THORIM_DARK_IRON_PROTCULLIS          = 194560,
+    GO_THORIM_LIGHTNING_FIELD               = 194559,
+    GO_THORIM_STONE_DOOR                    = 194558,
+    GO_THORIM_RUNIC_DOOR                    = 194557,
+
+    // Mimiron - TW
+    GO_MIMIRON_TRAIN            = 194675,
+    GO_MIMIRON_ELEVATOR         = 194749,
+    GO_MIMIRON_DOOR_1           = 194776,
+    GO_MIMIRON_DOOR_2           = 194774,
+    GO_MIMIRON_DOOR_3           = 194775,
+    GO_BIG_RED_BUTTON           = 194739,
+
+    // The Ancient Gate of the Keepers
+    GO_ANCIENT_GATE             = 194255    
 };
 
 enum EventIds
@@ -250,6 +281,8 @@ enum UlduarAchievementCriteriaIds
 {
     CRITERIA_CON_SPEED_ATORY                 = 21597,
     CRITERIA_DISARMED                        = 21687,
+    CRITERIA_THIS_CACHE_WAS_RARE_10          = 10452,
+    CRITERIA_THIS_CACHE_WAS_RARE_25          = 10458,
     CRITERIA_WAITS_DREAMING_STORMWIND_25     = 10321,
     CRITERIA_WAITS_DREAMING_CHAMBER_25       = 10322,
     CRITERIA_WAITS_DREAMING_ICECROWN_25      = 10323,
@@ -291,6 +324,7 @@ enum UlduarData
 
     // Hodir
     DATA_HODIR_RARE_CACHE,
+    DATA_CHEESE_THE_FREEZE,
 
     // Yogg-Saron
     DATA_VOICE_OF_YOGG_SARON,
@@ -314,6 +348,19 @@ enum UlduarData
     DATA_UNIVERSE_GLOBE,
     DATA_ALGALON_TRAPDOOR,
     DATA_BRANN_BRONZEBEARD_ALG,
+
+    // Thorim - TW
+    DATA_RUNIC_DOOR,
+    DATA_STONE_DOOR,
+    DATA_RUNIC_COLOSSUS,
+    DATA_RUNE_GIANT,
+
+    DATA_CALL_TRAM,
+    // Mimiron - TW
+    DATA_LEVIATHAN_MK_II,
+    DATA_VX_001,
+    DATA_AERIAL_UNIT,
+    DATA_MIMIRON_ELEVATOR,
 };
 
 enum UlduarWorldStates
@@ -350,6 +397,12 @@ AI* GetUlduarAI(T* obj)
     return GetInstanceAI<AI, T>(obj, UlduarScriptName);
 }
 
+enum UlduarFactions
+{
+    FACTION_HOSTILE  = 14,
+    FACTION_FRIENDLY = 35
+};
+
 class PlayerOrPetCheck
 {
     public:
@@ -362,5 +415,20 @@ class PlayerOrPetCheck
             return false;
         }
 };
+
+class NoPlayerOrPetCheck
+{
+    public:
+        bool operator() (WorldObject* unit)
+        {
+            if (unit->GetTypeId() != TYPEID_PLAYER)
+                if (!unit->ToCreature()->IsPet())
+                    return false;
+
+            return true;
+        }
+};
+
+void DoCompleteAchievement(uint32 achievement, Creature* source);
 
 #endif

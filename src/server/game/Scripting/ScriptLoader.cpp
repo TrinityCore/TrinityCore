@@ -674,6 +674,7 @@ void AddSC_zangarmarsh();
 
 // Events
 void AddSC_event_childrens_week();
+void AddSC_event_midsummer();
 
 // Pets
 void AddSC_deathknight_pet_scripts();
@@ -1399,6 +1400,7 @@ void AddEventScripts()
 {
 #ifdef SCRIPTS
     AddSC_event_childrens_week();
+    AddSC_event_midsummer();
 #endif
 }
 
@@ -1434,13 +1436,13 @@ void AddBattlegroundScripts()
 
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
-
+void AddSC_custom();
 #endif
 
 void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
-
+	AddSC_custom();
 #endif
 }
