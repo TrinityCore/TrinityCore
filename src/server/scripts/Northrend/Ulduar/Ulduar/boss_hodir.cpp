@@ -77,6 +77,8 @@ enum HodirSpells
     // Shamans
     SPELL_LAVA_BURST                             = 61924,
     SPELL_STORM_CLOUD                            = 65123,
+    SPELL_STORM_POWER_10                         = 63711,
+    SPELL_STORM_POWER_25                         = 65134,
 
     // Mages
     SPELL_FIREBALL                               = 61909,
@@ -139,7 +141,7 @@ enum HodirActions
 };
 
 #define ACHIEVEMENT_CHEESE_THE_FREEZE            RAID_MODE<uint32>(2961, 2962)
-#define ACHIEVEMENT_GETTING_COLD_IN_HERE         RAID_MODE<uint8>(2967, 2968)
+#define ACHIEVEMENT_GETTING_COLD_IN_HERE         RAID_MODE<uint32>(2967, 2968)
 #define ACHIEVEMENT_THIS_CACHE_WAS_RARE          RAID_MODE<uint32>(3182, 3184)
 #define ACHIEVEMENT_COOLEST_FRIENDS              RAID_MODE<uint32>(2963, 2965)
 #define FRIENDS_COUNT                            RAID_MODE<uint8>(4, 8)
@@ -376,6 +378,9 @@ class boss_hodir : public CreatureScript
                     if (iHaveTheCoolestFriends)
                         DoCompleteAchievement(ACHIEVEMENT_COOLEST_FRIENDS, me);
 
+                    if (gettingColdInHere)
+                        DoCompleteAchievement(ACHIEVEMENT_GETTING_COLD_IN_HERE, me);
+
                     me->RemoveAllAuras();
                     me->RemoveAllAttackers();
                     me->AttackStop();
@@ -397,7 +402,6 @@ class boss_hodir : public CreatureScript
 
                     DoCastAOE(SPELL_KILL_CREDIT);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
-                    instance->DoCastSpellOnPlayers(SPELL_KILL_CREDIT);
                     _JustDied();
                 }
             }
@@ -746,10 +750,10 @@ class npc_hodir_shaman : public CreatureScript
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
-             {
+            {
                 if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_HODIR)))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
-              }
+            }
 
         private:
             InstanceScript* instance;
@@ -1056,6 +1060,20 @@ class TW_achievement_cheese_the_freeze : public AchievementCriteriaScript
         }
 };
 
+class TW_achievement_staying_buffed_all_winter : public AchievementCriteriaScript
+{
+   public:
+       TW_achievement_staying_buffed_all_winter() : AchievementCriteriaScript("TW_achievement_staying_buffed_all_winter") {}
+
+       bool OnCheck(Player* player, Unit* /*target*/)
+       {
+           if (player->HasAura(SPELL_SINGED) && player->HasAura(SPELL_STARLIGHT) && (player->HasAura(SPELL_STORM_POWER_10) || player->HasAura(SPELL_STORM_POWER_25)))
+               return true;
+
+           return false;
+       }
+};
+
 void DoCompleteAchievement(uint32 achievement, Creature* source)
 {
     Map::PlayerList const &PlayerList = source->GetMap()->GetPlayers();
@@ -1089,4 +1107,5 @@ void AddSC_boss_hodir()
     new spell_biting_cold_dot();
     new TW_achievement_i_could_say_this_cache_was_rare();
     new TW_achievement_cheese_the_freeze();
+    new TW_achievement_staying_buffed_all_winter();
 }

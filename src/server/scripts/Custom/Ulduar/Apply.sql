@@ -187,4 +187,18 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value
 (10259, 11, 0, 0, 'TW_achievement_cheese_the_freeze'),
 (10261, 11, 0, 0, 'TW_achievement_cheese_the_freeze');
 
+-- Hodir
+-- Achievement: Stayin buffed all winter.
+-- 10 man handling.
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10223, 10240, 10241) AND `type` IN (11, 18);
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES 
+(10223, 11, 0, 0, 'TW_achievement_staying_buffed_all_winter'), 
+(10240, 11, 0, 0, 'TW_achievement_staying_buffed_all_winter'), 
+(10241, 11, 0, 0, 'TW_achievement_staying_buffed_all_winter');
 
+-- 25 man handling.
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10229, 10238, 10239) AND `type` IN (11, 18);
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES 
+(10229, 11, 0, 0, 'TW_achievement_staying_buffed_all_winter'), 
+(10238, 11, 0, 0, 'TW_achievement_staying_buffed_all_winter'), 
+(10239, 11, 0, 0, 'TW_achievement_staying_buffed_all_winter');
