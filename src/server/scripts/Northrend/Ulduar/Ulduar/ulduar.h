@@ -281,6 +281,8 @@ enum UlduarAchievementCriteriaIds
 {
     CRITERIA_CON_SPEED_ATORY                 = 21597,
     CRITERIA_DISARMED                        = 21687,
+    CRITERIA_GETTING_COLD_IN_HERE_10         = 10247,
+    CRITERIA_GETTING_COLD_IN_HERE_25         = 10248,
     CRITERIA_THIS_CACHE_WAS_RARE_10          = 10452,
     CRITERIA_THIS_CACHE_WAS_RARE_25          = 10458,
     CRITERIA_COOLEST_FRIENDS_10              = 10258,
@@ -327,6 +329,7 @@ enum UlduarData
     DATA_BRUNDIR,
 
     // Hodir
+    DATA_GETTING_COLD_IN_HERE,
     DATA_HODIR_RARE_CACHE,
     DATA_COOLEST_FRIENDS,
     DATA_CHEESE_THE_FREEZE,
@@ -433,7 +436,5 @@ class NoPlayerOrPetCheck
             return true;
         }
 };
-
-void DoCompleteAchievement(uint32 achievement, Creature* source);
 
 #endif

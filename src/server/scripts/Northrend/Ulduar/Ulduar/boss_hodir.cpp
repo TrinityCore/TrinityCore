@@ -146,11 +146,6 @@ enum HodirActions
 #define ACHIEVEMENT_COOLEST_FRIENDS              RAID_MODE<uint32>(2963, 2965)
 #define FRIENDS_COUNT                            RAID_MODE<uint8>(4, 8)
 
-enum Misc
-{
-    DATA_GETTING_COLD_IN_HERE                    = 29672968 // 2967, 2968 are achievement IDs
-};
-
 Position const SummonPositions[8] =
 {
     { 1983.75f, -243.36f, 432.767f, 1.57f }, // Field Medic Penny    &&  Battle-Priest Eliza
@@ -370,9 +365,6 @@ class boss_hodir : public CreatureScript
                     if (iCouldSayThatThisCacheWasRare)
                         instance->SetData(DATA_HODIR_RARE_CACHE, 1);
                     
-                    if (gettingColdInHere)
-                        DoCompleteAchievement(ACHIEVEMENT_GETTING_COLD_IN_HERE, me);
-
                     me->RemoveAllAuras();
                     me->RemoveAllAttackers();
                     me->AttackStop();
@@ -494,11 +486,15 @@ class boss_hodir : public CreatureScript
 
             uint32 GetData(uint32 type) const OVERRIDE
             {
-                if (type == DATA_CHEESE_THE_FREEZE)
-                    return cheeseTheFreeze;
-                else if (type == DATA_COOLEST_FRIENDS)
-                    return iHaveTheCoolestFriends;
-
+                switch (type)
+                {
+                    case DATA_CHEESE_THE_FREEZE:
+                        return cheeseTheFreeze;
+                    case DATA_COOLEST_FRIENDS:
+                        return iHaveTheCoolestFriends;
+                    case DATA_GETTING_COLD_IN_HERE:
+                        return gettingColdInHere;
+                }
                 return 0;
             }
 
@@ -1037,23 +1033,6 @@ class TW_achievement_staying_buffed_all_winter : public AchievementCriteriaScrip
            return false;
        }
 };
-
-void DoCompleteAchievement(uint32 achievement, Creature* source)
-{
-    Map::PlayerList const &PlayerList = source->GetMap()->GetPlayers();
-
-    AchievementEntry const* pAE = sAchievementMgr->GetAchievement(achievement);
-    if (!pAE)
-        return;
-
-    if (!PlayerList.isEmpty())
-        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            if (Player *player = i->GetSource())
-            {
-                if (player->IsWithinDistInMap(source, 100.0f))
-                    player->CompletedAchievement(pAE);
-            }
-}
 
 void AddSC_boss_hodir()
 {
