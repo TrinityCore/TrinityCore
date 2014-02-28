@@ -439,6 +439,7 @@ class TW_boss_hadronox : public CreatureScript
                 {
                     _clearedWPMovement = true;
                     events.CancelEventGroup(2);
+                    me->GetMotionMaster()->MoveIdle();
                     me->GetMotionMaster()->Clear();
                 }
             }
