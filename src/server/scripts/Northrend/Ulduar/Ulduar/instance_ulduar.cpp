@@ -1094,7 +1094,7 @@ class instance_ulduar : public InstanceMapScript
                         return keepersCount == 0;
                     case CRITERIA_THIS_CACHE_WAS_RARE_10:
                     case CRITERIA_THIS_CACHE_WAS_RARE_25:
-                        return HodirRareCacheData;
+                        return HodirRareCacheData == 1;
                 }
 
                 return false;

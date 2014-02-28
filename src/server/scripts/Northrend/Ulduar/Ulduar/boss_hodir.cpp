@@ -366,6 +366,7 @@ class boss_hodir : public CreatureScript
                 {
                     damage = 0;
                     Talk(SAY_DEATH);
+                    
                     if (iCouldSayThatThisCacheWasRare)
                         instance->SetData(DATA_HODIR_RARE_CACHE, 1);
                     
