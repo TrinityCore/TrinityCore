@@ -367,11 +367,8 @@ class boss_hodir : public CreatureScript
                     damage = 0;
                     Talk(SAY_DEATH);
                     if (iCouldSayThatThisCacheWasRare)
-                    {
                         instance->SetData(DATA_HODIR_RARE_CACHE, 1);
-                        DoCompleteAchievement(ACHIEVEMENT_THIS_CACHE_WAS_RARE, me);
-                    }
-
+                    
                     if (cheeseTheFreeze)
                         DoCompleteAchievement(ACHIEVEMENT_CHEESE_THE_FREEZE, me);
 
@@ -392,6 +389,7 @@ class boss_hodir : public CreatureScript
                     me->SetControlled(true, UNIT_STATE_STUNNED);
                     me->CombatStop(true);
 
+                    DoCastAOE(SPELL_KILL_CREDIT);
                     me->setFaction(35);
                     me->DespawnOrUnsummon(10000);
 
@@ -400,7 +398,6 @@ class boss_hodir : public CreatureScript
                     for (std::list<Creature*>::const_iterator itr = flashfreeze.begin(); itr != flashfreeze.end(); ++itr)
                         (*itr)->DisappearAndDie();
 
-                    DoCastAOE(SPELL_KILL_CREDIT);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
                     _JustDied();
                 }
@@ -502,9 +499,7 @@ class boss_hodir : public CreatureScript
 
             uint32 GetData(uint32 type) const OVERRIDE
             {
-                if (type == DATA_HODIR_RARE_CACHE)
-                    return iCouldSayThatThisCacheWasRare;
-                else if (type == DATA_CHEESE_THE_FREEZE)
+                if (type == DATA_CHEESE_THE_FREEZE)
                     return cheeseTheFreeze;
 
                 return 0;
@@ -1032,20 +1027,6 @@ public:
     }
 };
 
-class TW_achievement_i_could_say_this_cache_was_rare : public AchievementCriteriaScript
-{
-    public:
-        TW_achievement_i_could_say_this_cache_was_rare() : AchievementCriteriaScript("TW_achievement_i_could_say_this_cache_was_rare") { }
-
-        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
-        {
-            if (!target)
-                return false;
-
-            return target->ToCreature()->AI()->GetData(DATA_HODIR_RARE_CACHE);
-        }
-};
-
 class TW_achievement_cheese_the_freeze : public AchievementCriteriaScript
 {
     public:
@@ -1105,7 +1086,6 @@ void AddSC_boss_hodir()
     new npc_flash_freeze();
     new spell_biting_cold();
     new spell_biting_cold_dot();
-    new TW_achievement_i_could_say_this_cache_was_rare();
     new TW_achievement_cheese_the_freeze();
     new TW_achievement_staying_buffed_all_winter();
 }

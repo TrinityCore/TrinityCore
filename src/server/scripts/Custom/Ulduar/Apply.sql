@@ -175,12 +175,6 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value
 
 DELETE FROM `disables` WHERE `entry` IN (10542, 10544, 10545, 10548, 10547, 10546) AND `sourceType` = 4;
 
--- Implements I could say that this cache was rare
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10452, 10458) AND `type` = 11;
-INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
-(10452, 11, 0, 0, 'TW_achievement_i_could_say_this_cache_was_rare'),
-(10458, 11, 0, 0, 'TW_achievement_i_could_say_this_cache_was_rare');
-
 -- Implements Cheese the Freeze
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10259, 10261) AND `type` IN (18, 11);
 INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES

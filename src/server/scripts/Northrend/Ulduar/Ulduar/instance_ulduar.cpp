@@ -1092,6 +1092,9 @@ class instance_ulduar : public InstanceMapScript
                     case CRITERIA_ALONE_IN_THE_DARKNESS_10:
                     case CRITERIA_ALONE_IN_THE_DARKNESS_25:
                         return keepersCount == 0;
+                    case CRITERIA_THIS_CACHE_WAS_RARE_10:
+                    case CRITERIA_THIS_CACHE_WAS_RARE_25:
+                        return HodirRareCacheData;
                 }
 
                 return false;
