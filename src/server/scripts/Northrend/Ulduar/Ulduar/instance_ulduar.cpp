@@ -1095,6 +1095,11 @@ class instance_ulduar : public InstanceMapScript
                     case CRITERIA_THIS_CACHE_WAS_RARE_10:
                     case CRITERIA_THIS_CACHE_WAS_RARE_25:
                         return HodirRareCacheData == 1;
+                    case CRITERIA_COOLEST_FRIENDS_10:
+                    case CRITERIA_COOLEST_FRIENDS_25:
+                        if (Creature* Hodir = instance->GetCreature(HodirGUID))
+                            return Hodir->AI()->GetData(DATA_COOLEST_FRIENDS);
+                        return false;
                 }
 
                 return false;

@@ -373,9 +373,6 @@ class boss_hodir : public CreatureScript
                     if (cheeseTheFreeze)
                         DoCompleteAchievement(ACHIEVEMENT_CHEESE_THE_FREEZE, me);
 
-                    if (iHaveTheCoolestFriends)
-                        DoCompleteAchievement(ACHIEVEMENT_COOLEST_FRIENDS, me);
-
                     if (gettingColdInHere)
                         DoCompleteAchievement(ACHIEVEMENT_GETTING_COLD_IN_HERE, me);
 
@@ -502,6 +499,8 @@ class boss_hodir : public CreatureScript
             {
                 if (type == DATA_CHEESE_THE_FREEZE)
                     return cheeseTheFreeze;
+                else if (type == DATA_COOLEST_FRIENDS)
+                    return iHaveTheCoolestFriends;
 
                 return 0;
             }
