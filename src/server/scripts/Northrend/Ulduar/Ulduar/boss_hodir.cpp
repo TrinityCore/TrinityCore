@@ -370,9 +370,6 @@ class boss_hodir : public CreatureScript
                     if (iCouldSayThatThisCacheWasRare)
                         instance->SetData(DATA_HODIR_RARE_CACHE, 1);
                     
-                    if (cheeseTheFreeze)
-                        DoCompleteAchievement(ACHIEVEMENT_CHEESE_THE_FREEZE, me);
-
                     if (gettingColdInHere)
                         DoCompleteAchievement(ACHIEVEMENT_GETTING_COLD_IN_HERE, me);
 
@@ -1027,20 +1024,6 @@ public:
     }
 };
 
-class TW_achievement_cheese_the_freeze : public AchievementCriteriaScript
-{
-    public:
-        TW_achievement_cheese_the_freeze() : AchievementCriteriaScript("TW_achievement_cheese_the_freeze") { }
-
-        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
-        {
-            if (!target)
-                return false;
-
-            return target->ToCreature()->AI()->GetData(DATA_CHEESE_THE_FREEZE);
-        }
-};
-
 class TW_achievement_staying_buffed_all_winter : public AchievementCriteriaScript
 {
    public:
@@ -1086,6 +1069,5 @@ void AddSC_boss_hodir()
     new npc_flash_freeze();
     new spell_biting_cold();
     new spell_biting_cold_dot();
-    new TW_achievement_cheese_the_freeze();
     new TW_achievement_staying_buffed_all_winter();
 }

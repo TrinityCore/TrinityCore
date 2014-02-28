@@ -1100,6 +1100,11 @@ class instance_ulduar : public InstanceMapScript
                         if (Creature* Hodir = instance->GetCreature(HodirGUID))
                             return Hodir->AI()->GetData(DATA_COOLEST_FRIENDS);
                         return false;
+                    case CRITERIA_CHEESE_THE_FREEZE_10:
+                    case CRITERIA_CHEESE_THE_FREEZE_25:
+                        if (Creature* Hodir = instance->GetCreature(HodirGUID))
+                            return Hodir->AI()->GetData(DATA_CHEESE_THE_FREEZE);
+                        return false;
                 }
 
                 return false;

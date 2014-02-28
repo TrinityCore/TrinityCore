@@ -175,12 +175,6 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value
 
 DELETE FROM `disables` WHERE `entry` IN (10542, 10544, 10545, 10548, 10547, 10546) AND `sourceType` = 4;
 
--- Implements Cheese the Freeze
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10259, 10261) AND `type` IN (18, 11);
-INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
-(10259, 11, 0, 0, 'TW_achievement_cheese_the_freeze'),
-(10261, 11, 0, 0, 'TW_achievement_cheese_the_freeze');
-
 -- Hodir
 -- Achievement: Stayin buffed all winter.
 -- 10 man handling.
