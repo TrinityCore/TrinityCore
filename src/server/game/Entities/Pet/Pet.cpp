@@ -942,6 +942,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
             /* You might ask the reason behind this. SUMMON_PET is used for generic summons and I'm not sure if all of them
             should scale as this so keeping track of affected minions like this. */
+
             switch (GetEntry())
             {
                 case 416:   // Imp
@@ -949,11 +950,18 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                 case 1860:  // Voidwalker
                 case 1863:  // Succubus
                 case 17252: // Felguard
+                    m_modMeleeHitChance = m_owner->m_modMeleeHitChance;
+                    m_modSpellHitChance = m_owner->m_modSpellHitChance;               
+                    break;
                 case 26125: // Unholy DK ghoul
-                    // Let summons inherit their master's hit rating.
+                {
+                    // Let them inherit their master's hit and haste rating.
                     m_modMeleeHitChance = m_owner->m_modMeleeHitChance;
                     m_modSpellHitChance = m_owner->m_modSpellHitChance;
+                    float ownerHaste = ((Player*)m_owner)->GetRatingBonusValue(CR_HASTE_MELEE);
+                    ApplyAttackTimePercentMod(BASE_ATTACK, ownerHaste, true);
                     break;
+                }
                 default:
                     break;
             }
