@@ -79,7 +79,10 @@ bool StartEluna()
     RegisterFunctions(sEluna->L);
 
     // Randomize math.random()
-    luaL_dostring(sEluna->L, "math.randomseed( tonumber(tostring(os.time()):reverse():sub(1,6)) )");
+    // The macro fails on TC for unknown reason
+    // luaL_dostring(sEluna->L, "math.randomseed( tonumber(tostring(os.time()):reverse():sub(1,6)) )");
+    if (!luaL_loadstring(sEluna->L, "math.randomseed( tonumber(tostring(os.time()):reverse():sub(1,6)) )"))
+        lua_pcall(sEluna->L, 0, LUA_MULTRET, 0);
 
     uint32 count = 0;
     char filename[200];
