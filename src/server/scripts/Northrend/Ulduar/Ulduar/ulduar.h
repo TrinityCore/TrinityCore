@@ -280,6 +280,7 @@ enum LeviathanActions
 enum UlduarAchievementCriteriaIds
 {
     CRITERIA_CON_SPEED_ATORY                 = 21597,
+    CRITERIA_LUMBERJACKED                    = 21686,
     CRITERIA_DISARMED                        = 21687,
     CRITERIA_GETTING_COLD_IN_HERE_10         = 10247,
     CRITERIA_GETTING_COLD_IN_HERE_25         = 10248,
@@ -289,6 +290,8 @@ enum UlduarAchievementCriteriaIds
     CRITERIA_COOLEST_FRIENDS_25              = 10260,
     CRITERIA_CHEESE_THE_FREEZE_10            = 10259,
     CRITERIA_CHEESE_THE_FREEZE_25            = 10261,
+    CRITERIA_LUMBERJACKED_10                 = 10720,
+    CRITERIA_LUMBERJACKED_25                 = 10721,
     CRITERIA_WAITS_DREAMING_STORMWIND_25     = 10321,
     CRITERIA_WAITS_DREAMING_CHAMBER_25       = 10322,
     CRITERIA_WAITS_DREAMING_ICECROWN_25      = 10323,

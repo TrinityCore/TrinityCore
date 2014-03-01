@@ -148,7 +148,9 @@ enum FreyaSpells
     // Attuned To Nature spells
     SPELL_ATTUNED_TO_NATURE_2_DOSE_REDUCTION     = 62524,
     SPELL_ATTUNED_TO_NATURE_10_DOSE_REDUCTION    = 62525,
-    SPELL_ATTUNED_TO_NATURE_25_DOSE_REDUCTION    = 62521
+    SPELL_ATTUNED_TO_NATURE_25_DOSE_REDUCTION    = 62521,
+
+    SPELL_LUMBERJACKED                           = 65296
 };
 
 enum FreyaNpcs
@@ -720,6 +722,8 @@ class boss_elder_brightleaf : public CreatureScript
                     if (Creature* Stonebark = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_STONEBARK)))
                         Stonebark->AI()->DoAction(ACTION_ELDER_DEATH);
                 }
+                if (elderCount >= 2 && lumberjackTimer < 15*IN_MILLISECONDS)
+                    DoCastAOE(SPELL_LUMBERJACKED);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -841,6 +845,8 @@ class boss_elder_stonebark : public CreatureScript
                     if (Creature* Brightleaf = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF)))
                         Brightleaf->AI()->DoAction(ACTION_ELDER_DEATH);
                 }
+                if (elderCount >= 2 && lumberjackTimer < 15*IN_MILLISECONDS)
+                    DoCastAOE(SPELL_LUMBERJACKED);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -968,6 +974,8 @@ class boss_elder_ironbranch : public CreatureScript
                     if (Creature* Stonebark = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_STONEBARK)))
                         Stonebark->AI()->DoAction(ACTION_ELDER_DEATH);
                 }
+                if (elderCount >= 2 && lumberjackTimer < 15*IN_MILLISECONDS)
+                    DoCastAOE(SPELL_LUMBERJACKED);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE

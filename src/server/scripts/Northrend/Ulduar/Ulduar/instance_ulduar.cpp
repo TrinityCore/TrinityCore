@@ -123,6 +123,7 @@ class instance_ulduar : public InstanceMapScript
             uint64 MimironElevatorGUID;
             uint64 MimironTrainGUID;
             uint64 AncientGateGUID;
+            bool lumberjacked;
 
             std::list<uint64> MimironDoorGUIDList;
             std::set<uint64> mRubbleSpawns;
@@ -169,6 +170,7 @@ class instance_ulduar : public InstanceMapScript
                 illusion                         = 0;
                 keepersCount                     = 0;
                 conSpeedAtory                    = false;
+                lumberjacked                     = false;
                 Unbroken                         = true;
                 _algalonSummoned                 = false;
                 _summonAlgalon                   = false;
@@ -683,6 +685,15 @@ class instance_ulduar : public InstanceMapScript
                             conSpeedAtory = true;
                         }
                         break;
+                    case NPC_IRONBRANCH:
+                    case NPC_BRIGHTLEAF:
+                    case NPC_STONEBARK:
+                        if (!lumberjacked)
+                        {
+                            DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, CRITERIA_LUMBERJACKED);
+                            lumberjacked = true;
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -1110,6 +1121,9 @@ class instance_ulduar : public InstanceMapScript
                         if (Creature* Hodir = instance->GetCreature(HodirGUID))
                             return Hodir->AI()->GetData(DATA_GETTING_COLD_IN_HERE);
                         return false;
+                    case CRITERIA_LUMBERJACKED_10:
+                    case CRITERIA_LUMBERJACKED_25:
+                        return lumberjacked == 1;
                 }
 
                 return false;
