@@ -279,7 +279,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     {
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_PET_SLOT_BY_SLOT_EXCLUDE_ID);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_SLOT_EXCLUDE_ID);
         stmt->setUInt8(0, uint8(PET_SAVE_NOT_IN_SLOT));
         stmt->setUInt32(1, ownerid);
         stmt->setUInt8(2, uint8(PET_SAVE_AS_CURRENT));
@@ -430,7 +430,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         // prevent duplicate using slot (except PET_SAVE_NOT_IN_SLOT)
         if (mode <= PET_SAVE_LAST_STABLE_SLOT)
         {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_PET_SLOT_BY_SLOT);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_SLOT);
             stmt->setUInt8(0, uint8(PET_SAVE_NOT_IN_SLOT));
             stmt->setUInt32(1, ownerLowGUID);
             stmt->setUInt8(2, uint8(mode));
