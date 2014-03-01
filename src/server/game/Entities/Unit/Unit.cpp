@@ -14037,6 +14037,25 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
         SpellInfo const* spellProto = itr->second->GetBase()->GetSpellInfo();
 
+        // !TW - Exception for seal procs, they should all be able to proc on full absorbs.    
+        if (spellProto && (procExtra & PROC_EX_BLOCK || procExtra & PROC_EX_ABSORB))
+        {
+            switch (spellProto->Id)
+            {
+                case 21084: // Seal of Righteousness
+                case 20166: // Seal of Wisdom
+                case 20165: // Seal of Light
+                case 20164: // Seal of Justice
+                case 20375: // Seal of Command 
+                case 31801: // Seal of Vengeance
+                case 53736: // Seal of Corruption
+                    active = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         // only auras that has triggered spell should proc from fully absorbed damage
         if (procExtra & PROC_EX_ABSORB && isVictim)
             if (damage || spellProto->Effects[EFFECT_0].TriggerSpell || spellProto->Effects[EFFECT_1].TriggerSpell || spellProto->Effects[EFFECT_2].TriggerSpell)
