@@ -10,6 +10,19 @@
 
 namespace LuaVehicle
 {
+    /* BOOLEAN */
+    int IsOnBoard(lua_State* L, Vehicle* vehicle)
+    {
+        Unit* passenger = sEluna->CHECKOBJ<Unit>(L, 2);
+#ifdef MANGOS
+        sEluna->Push(L, vehicle->HasOnBoard(passenger));
+#else
+        sEluna->Push(L, passenger->IsOnVehicle(vehicle->GetBase()));
+#endif
+        return 1;
+    }
+
+    /* GETTERS */
     int GetOwner(lua_State* L, Vehicle* vehicle)
     {
 #ifdef MANGOS
@@ -37,6 +50,7 @@ namespace LuaVehicle
         return 1;
     }
 
+    /* OTHER */
     int AddPassenger(lua_State* L, Vehicle* vehicle)
     {
         Unit* passenger = sEluna->CHECKOBJ<Unit>(L, 2);
@@ -59,17 +73,6 @@ namespace LuaVehicle
         vehicle->RemovePassenger(passenger);
 #endif
         return 0;
-    }
-
-    int IsOnBoard(lua_State* L, Vehicle* vehicle)
-    {
-        Unit* passenger = sEluna->CHECKOBJ<Unit>(L, 2);
-#ifdef MANGOS
-        sEluna->Push(L, vehicle->HasOnBoard(passenger));
-#else
-        sEluna->Push(L, passenger->IsOnVehicle(vehicle->GetBase()));
-#endif
-        return 1;
     }
 }
 

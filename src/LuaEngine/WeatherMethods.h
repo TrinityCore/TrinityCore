@@ -9,12 +9,14 @@
 
 namespace LuaWeather
 {
+    /* GETTERS */
     int GetZoneId(lua_State* L, Weather* weather)
     {
         sEluna->Push(L, weather->GetZone());
         return 1;
     }
 
+    /* SETTERS */
     int SetWeather(lua_State* L, Weather* weather)
     {
         uint32 weatherType = sEluna->CHECKVAL<uint32>(L, 2);
@@ -32,6 +34,7 @@ namespace LuaWeather
         return 0;
     }
 
+    /* OTHER */
     int Regenerate(lua_State* L, Weather* weather)
     {
         sEluna->Push(L, weather->ReGenerate());

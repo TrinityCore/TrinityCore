@@ -11,6 +11,243 @@ extern bool StartEluna();
 
 namespace LuaGlobalFunctions
 {
+    /* GETTERS */
+    int GetLuaEngine(lua_State* L)
+    {
+        sEluna->Push(L, "ElunaEngine");
+        return 1;
+    }
+
+    int GetCoreName(lua_State* L)
+    {
+        sEluna->Push(L, CORE_NAME);
+        return 1;
+    }
+
+    int GetCoreVersion(lua_State* L)
+    {
+        sEluna->Push(L, CORE_VERSION);
+        return 1;
+    }
+
+    int GetQuest(lua_State* L)
+    {
+        uint32 questId = sEluna->CHECKVAL<uint32>(L, 1);
+
+        sEluna->Push(L, sObjectMgr->GetQuestTemplate(questId));
+        return 1;
+    }
+
+    int GetPlayerByGUID(lua_State* L)
+    {
+        uint64 guid = sEluna->CHECKVAL<uint64>(L, 1);
+        sEluna->Push(L, sObjectAccessor->FindPlayer(GUID_TYPE(guid)));
+        return 1;
+    }
+
+    int GetPlayerByName(lua_State* L)
+    {
+        const char* message = sEluna->CHECKVAL<const char*>(L, 1);
+        sEluna->Push(L, sObjectAccessor->FindPlayerByName(message));
+        return 1;
+    }
+
+    int GetGameTime(lua_State* L)
+    {
+        time_t time = sWorld->GetGameTime();
+        if (time < 0)
+            sEluna->Push(L, int32(time));
+        else
+            sEluna->Push(L, uint32(time));
+        return 1;
+    }
+
+    int GetPlayersInWorld(lua_State* L)
+    {
+        uint32 team = sEluna->CHECKVAL<uint32>(L, 1, TEAM_NEUTRAL);
+        bool onlyGM = sEluna->CHECKVAL<bool>(L, 2, false);
+
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+        uint32 i = 0;
+
+        SessionMap const& sessions = sWorld->GetAllSessions();
+        for (SessionMap::const_iterator it = sessions.begin(); it != sessions.end(); ++it)
+        {
+            if (Player* player = it->second->GetPlayer())
+            {
+#ifdef MANGOS
+                if (player->GetSession() && ((team >= TEAM_NEUTRAL || player->GetTeamId() == team) && (!onlyGM || player->isGameMaster())))
+#else
+                if (player->GetSession() && ((team >= TEAM_NEUTRAL || player->GetTeamId() == team) && (!onlyGM || player->IsGameMaster())))
+#endif
+                {
+                    ++i;
+                    sEluna->Push(L, i);
+                    sEluna->Push(L, player);
+                    lua_settable(L, tbl);
+                }
+            }
+        }
+
+        lua_settop(L, tbl); // push table to top of stack
+        return 1;
+    }
+
+    int GetPlayersInMap(lua_State* L)
+    {
+        uint32 mapID = sEluna->CHECKVAL<uint32>(L, 1);
+        uint32 instanceID = sEluna->CHECKVAL<uint32>(L, 2, 0);
+        uint32 team = sEluna->CHECKVAL<uint32>(L, 3, TEAM_NEUTRAL);
+
+        Map* map = sMapMgr->FindMap(mapID, instanceID);
+        if (!map)
+            return 0;
+
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+        uint32 i = 0;
+
+        Map::PlayerList const& players = map->GetPlayers();
+        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        {
+#ifdef MANGOS
+            Player* player = itr->getSource();
+#else
+            Player* player = itr->GetSource();
+#endif
+            if (!player)
+                continue;
+            if (player->GetSession() && (team >= TEAM_NEUTRAL || player->GetTeamId() == team))
+            {
+                ++i;
+                sEluna->Push(L, i);
+                sEluna->Push(L, player);
+                lua_settable(L, tbl);
+            }
+        }
+
+        lua_settop(L, tbl);
+        return 1;
+    }
+
+    int GetGuildByName(lua_State* L)
+    {
+        const char* name = sEluna->CHECKVAL<const char*>(L, 1);
+        sEluna->Push(L, sGuildMgr->GetGuildByName(name));
+        return 1;
+    }
+
+    int GetMapById(lua_State* L)
+    {
+        uint32 mapid = sEluna->CHECKVAL<uint32>(L, 1);
+        uint32 instance = sEluna->CHECKVAL<uint32>(L, 2);
+
+        sEluna->Push(L, sMapMgr->FindMap(mapid, instance));
+        return 1;
+    }
+
+    int GetGuildByLeaderGUID(lua_State* L)
+    {
+        uint64 guid = sEluna->CHECKVAL<uint64>(L, 1);
+
+        sEluna->Push(L, sGuildMgr->GetGuildByLeader(GUID_TYPE(guid)));
+        return 1;
+    }
+
+    int GetPlayerCount(lua_State* L)
+    {
+        sEluna->Push(L, sWorld->GetActiveSessionCount());
+        return 1;
+    }
+
+    int GetPlayerGUID(lua_State* L)
+    {
+        uint32 lowguid = sEluna->CHECKVAL<uint32>(L, 1);
+        sEluna->Push(L, MAKE_NEW_GUID(lowguid, 0, HIGHGUID_PLAYER));
+        return 1;
+    }
+
+    int GetItemGUID(lua_State* L)
+    {
+        uint32 lowguid = sEluna->CHECKVAL<uint32>(L, 1);
+        sEluna->Push(L, MAKE_NEW_GUID(lowguid, 0, HIGHGUID_ITEM));
+        return 1;
+    }
+
+    int GetObjectGUID(lua_State* L)
+    {
+        uint32 lowguid = sEluna->CHECKVAL<uint32>(L, 1);
+        uint32 entry = sEluna->CHECKVAL<uint32>(L, 2);
+        sEluna->Push(L, MAKE_NEW_GUID(lowguid, entry, HIGHGUID_GAMEOBJECT));
+        return 1;
+    }
+
+    int GetUnitGUID(lua_State* L)
+    {
+        uint32 lowguid = sEluna->CHECKVAL<uint32>(L, 1);
+        uint32 entry = sEluna->CHECKVAL<uint32>(L, 2);
+        sEluna->Push(L, MAKE_NEW_GUID(lowguid, entry, HIGHGUID_UNIT));
+        return 1;
+    }
+
+    int GetGUIDLow(lua_State* L)
+    {
+        uint64 guid = sEluna->CHECKVAL<uint64>(L, 1);
+
+        sEluna->Push(L, GUID_LOPART(guid));
+        return 1;
+    }
+
+    int GetItemLink(lua_State* L)
+    {
+        /*
+        LOCALE_enUS = 0,
+        LOCALE_koKR = 1,
+        LOCALE_frFR = 2,
+        LOCALE_deDE = 3,
+        LOCALE_zhCN = 4,
+        LOCALE_zhTW = 5,
+        LOCALE_esES = 6,
+        LOCALE_esMX = 7,
+        LOCALE_ruRU = 8
+        */
+        uint32 entry = sEluna->CHECKVAL<uint32>(L, 1);
+        int loc_idx = sEluna->CHECKVAL<int>(L, 2, DEFAULT_LOCALE);
+        if (loc_idx < 0 || loc_idx >= MAX_LOCALES)
+            return luaL_argerror(L, 2, "valid LocaleConstant expected");
+
+        const ItemTemplate* temp = sObjectMgr->GetItemTemplate(entry);
+        if (!temp)
+            return luaL_argerror(L, 1, "valid ItemEntry expected");
+
+        std::string name = temp->Name1;
+        if (ItemLocale const* il = sObjectMgr->GetItemLocale(entry))
+            ObjectMgr::GetLocaleString(il->Name, loc_idx, name);
+
+        std::ostringstream oss;
+        oss << "|c" << std::hex << ItemQualityColors[temp->Quality] << std::dec <<
+            "|Hitem:" << entry << ":0:0:0:0:0:0:0:0:0|h[" << name << "]|h|r";
+
+        sEluna->Push(L, oss.str());
+        return 1;
+    }
+
+    int GetGUIDType(lua_State* L)
+    {
+        uint64 guid = sEluna->CHECKVAL<uint64>(L, 1);
+        sEluna->Push(L, GUID_HIPART(guid));
+        return 1;
+    }
+
+    int GetGUIDEntry(lua_State* L)
+    {
+        uint64 guid = sEluna->CHECKVAL<uint64>(L, 1);
+        sEluna->Push(L, GUID_ENPART(guid));
+        return 1;
+    }
+
+    /* OTHER */
     int RegisterPacketEvent(lua_State* L)
     {
         lua_settop(L, 2);
@@ -150,59 +387,9 @@ namespace LuaGlobalFunctions
         return 0;
     }
 
-    int GetLuaEngine(lua_State* L)
-    {
-        sEluna->Push(L, "ElunaEngine");
-        return 1;
-    }
-
-    int GetCoreName(lua_State* L)
-    {
-        sEluna->Push(L, CORE_NAME);
-        return 1;
-    }
-
-    int GetCoreVersion(lua_State* L)
-    {
-        sEluna->Push(L, CORE_VERSION);
-        return 1;
-    }
-
-    int GetQuest(lua_State* L)
-    {
-        uint32 questId = sEluna->CHECKVAL<uint32>(L, 1);
-
-        sEluna->Push(L, sObjectMgr->GetQuestTemplate(questId));
-        return 1;
-    }
-
     int ReloadEluna(lua_State* L)
     {
         sEluna->Push(L, StartEluna());
-        return 1;
-    }
-
-    int GetPlayerByGUID(lua_State* L)
-    {
-        uint64 guid = sEluna->CHECKVAL<uint64>(L, 1);
-        sEluna->Push(L, sObjectAccessor->FindPlayer(GUID_TYPE(guid)));
-        return 1;
-    }
-
-    int GetPlayerByName(lua_State* L)
-    {
-        const char* message = sEluna->CHECKVAL<const char*>(L, 1);
-        sEluna->Push(L, sObjectAccessor->FindPlayerByName(message));
-        return 1;
-    }
-
-    int GetGameTime(lua_State* L)
-    {
-        time_t time = sWorld->GetGameTime();
-        if (time < 0)
-            sEluna->Push(L, int32(time));
-        else
-            sEluna->Push(L, uint32(time));
         return 1;
     }
 
@@ -211,75 +398,6 @@ namespace LuaGlobalFunctions
         const char* message = sEluna->CHECKVAL<const char*>(L, 1);
         sWorld->SendServerMessage(SERVER_MSG_STRING, message);
         return 0;
-    }
-
-    int GetPlayersInWorld(lua_State* L)
-    {
-        uint32 team = sEluna->CHECKVAL<uint32>(L, 1, TEAM_NEUTRAL);
-        bool onlyGM = sEluna->CHECKVAL<bool>(L, 2, false);
-
-        lua_newtable(L);
-        int tbl = lua_gettop(L);
-        uint32 i = 0;
-
-        SessionMap const& sessions = sWorld->GetAllSessions();
-        for (SessionMap::const_iterator it = sessions.begin(); it != sessions.end(); ++it)
-        {
-            if (Player* player = it->second->GetPlayer())
-            {
-#ifdef MANGOS
-                if (player->GetSession() && ((team >= TEAM_NEUTRAL || player->GetTeamId() == team) && (!onlyGM || player->isGameMaster())))
-#else
-                if (player->GetSession() && ((team >= TEAM_NEUTRAL || player->GetTeamId() == team) && (!onlyGM || player->IsGameMaster())))
-#endif
-                {
-                    ++i;
-                    sEluna->Push(L, i);
-                    sEluna->Push(L, player);
-                    lua_settable(L, tbl);
-                }
-            }
-        }
-
-        lua_settop(L, tbl); // push table to top of stack
-        return 1;
-    }
-
-    int GetPlayersInMap(lua_State* L)
-    {
-        uint32 mapID = sEluna->CHECKVAL<uint32>(L, 1);
-        uint32 instanceID = sEluna->CHECKVAL<uint32>(L, 2, 0);
-        uint32 team = sEluna->CHECKVAL<uint32>(L, 3, TEAM_NEUTRAL);
-
-        Map* map = sMapMgr->FindMap(mapID, instanceID);
-        if (!map)
-            return 0;
-
-        lua_newtable(L);
-        int tbl = lua_gettop(L);
-        uint32 i = 0;
-
-        Map::PlayerList const& players = map->GetPlayers();
-        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-        {
-#ifdef MANGOS
-            Player* player = itr->getSource();
-#else
-            Player* player = itr->GetSource();
-#endif
-            if (!player)
-                continue;
-            if (player->GetSession() && (team >= TEAM_NEUTRAL || player->GetTeamId() == team))
-            {
-                ++i;
-                sEluna->Push(L, i);
-                sEluna->Push(L, player);
-                lua_settable(L, tbl);
-            }
-        }
-
-        lua_settop(L, tbl);
-        return 1;
     }
 
     int WorldDBQuery(lua_State* L)
@@ -360,66 +478,6 @@ namespace LuaGlobalFunctions
         const char* query = sEluna->CHECKVAL<const char*>(L, 1);
         LoginDatabase.Execute(query);
         return 0;
-    }
-
-    int GetGuildByName(lua_State* L)
-    {
-        const char* name = sEluna->CHECKVAL<const char*>(L, 1);
-        sEluna->Push(L, sGuildMgr->GetGuildByName(name));
-        return 1;
-    }
-
-    int GetMapById(lua_State* L)
-    {
-        uint32 mapid = sEluna->CHECKVAL<uint32>(L, 1);
-        uint32 instance = sEluna->CHECKVAL<uint32>(L, 2);
-
-        sEluna->Push(L, sMapMgr->FindMap(mapid, instance));
-        return 1;
-    }
-
-    int GetGuildByLeaderGUID(lua_State* L)
-    {
-        uint64 guid = sEluna->CHECKVAL<uint64>(L, 1);
-
-        sEluna->Push(L, sGuildMgr->GetGuildByLeader(GUID_TYPE(guid)));
-        return 1;
-    }
-
-    int GetPlayerCount(lua_State* L)
-    {
-        sEluna->Push(L, sWorld->GetActiveSessionCount());
-        return 1;
-    }
-
-    int GetPlayerGUID(lua_State* L)
-    {
-        uint32 lowguid = sEluna->CHECKVAL<uint32>(L, 1);
-        sEluna->Push(L, MAKE_NEW_GUID(lowguid, 0, HIGHGUID_PLAYER));
-        return 1;
-    }
-
-    int GetItemGUID(lua_State* L)
-    {
-        uint32 lowguid = sEluna->CHECKVAL<uint32>(L, 1);
-        sEluna->Push(L, MAKE_NEW_GUID(lowguid, 0, HIGHGUID_ITEM));
-        return 1;
-    }
-
-    int GetObjectGUID(lua_State* L)
-    {
-        uint32 lowguid = sEluna->CHECKVAL<uint32>(L, 1);
-        uint32 entry = sEluna->CHECKVAL<uint32>(L, 2);
-        sEluna->Push(L, MAKE_NEW_GUID(lowguid, entry, HIGHGUID_GAMEOBJECT));
-        return 1;
-    }
-
-    int GetUnitGUID(lua_State* L)
-    {
-        uint32 lowguid = sEluna->CHECKVAL<uint32>(L, 1);
-        uint32 entry = sEluna->CHECKVAL<uint32>(L, 2);
-        sEluna->Push(L, MAKE_NEW_GUID(lowguid, entry, HIGHGUID_UNIT));
-        return 1;
     }
 
     int CreateLuaEvent(lua_State* L)
@@ -853,14 +911,6 @@ namespace LuaGlobalFunctions
         return 0;
     }
 
-    int GetGUIDLow(lua_State* L)
-    {
-        uint64 guid = sEluna->CHECKVAL<uint64>(L, 1);
-
-        sEluna->Push(L, GUID_LOPART(guid));
-        return 1;
-    }
-
     int SendMail(lua_State* L)
     {
         int i = 0;
@@ -974,20 +1024,6 @@ namespace LuaGlobalFunctions
         return 1;
     }
 
-    int GetGUIDType(lua_State* L)
-    {
-        uint64 guid = sEluna->CHECKVAL<uint64>(L, 1);
-        sEluna->Push(L, GUID_HIPART(guid));
-        return 1;
-    }
-
-    int GetGUIDEntry(lua_State* L)
-    {
-        uint64 guid = sEluna->CHECKVAL<uint64>(L, 1);
-        sEluna->Push(L, GUID_ENPART(guid));
-        return 1;
-    }
-
     // AddTaxiPath(pathTable, mountA, mountH[, price, pathId])
     int AddTaxiPath(lua_State* L)
     {
@@ -1049,40 +1085,6 @@ namespace LuaGlobalFunctions
         }
 
         sEluna->Push(L, LuaTaxiMgr::AddPath(nodes, mountA, mountH, price, pathId));
-        return 1;
-    }
-
-    int GetItemLink(lua_State* L)
-    {
-        /*
-        LOCALE_enUS = 0,
-        LOCALE_koKR = 1,
-        LOCALE_frFR = 2,
-        LOCALE_deDE = 3,
-        LOCALE_zhCN = 4,
-        LOCALE_zhTW = 5,
-        LOCALE_esES = 6,
-        LOCALE_esMX = 7,
-        LOCALE_ruRU = 8
-        */
-        uint32 entry = sEluna->CHECKVAL<uint32>(L, 1);
-        int loc_idx = sEluna->CHECKVAL<int>(L, 2, DEFAULT_LOCALE);
-        if (loc_idx < 0 || loc_idx >= MAX_LOCALES)
-            return luaL_argerror(L, 2, "valid LocaleConstant expected");
-
-        const ItemTemplate* temp = sObjectMgr->GetItemTemplate(entry);
-        if (!temp)
-            return luaL_argerror(L, 1, "valid ItemEntry expected");
-
-        std::string name = temp->Name1;
-        if (ItemLocale const* il = sObjectMgr->GetItemLocale(entry))
-            ObjectMgr::GetLocaleString(il->Name, loc_idx, name);
-
-        std::ostringstream oss;
-        oss << "|c" << std::hex << ItemQualityColors[temp->Quality] << std::dec <<
-            "|Hitem:" << entry << ":0:0:0:0:0:0:0:0:0|h[" << name << "]|h|r";
-
-        sEluna->Push(L, oss.str());
         return 1;
     }
 

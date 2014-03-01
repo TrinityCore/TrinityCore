@@ -69,6 +69,16 @@ namespace LuaAura
         return 1;
     }
 
+    int GetOwner(lua_State* L, Aura* aura)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, aura->GetTarget());
+#else
+        sEluna->Push(L, aura->GetOwner());
+#endif
+        return 1;
+    }
+
     int SetDuration(lua_State* L, Aura* aura)
     {
         int duration = sEluna->CHECKVAL<int>(L, 2);
@@ -112,16 +122,6 @@ namespace LuaAura
         aura->Remove();
 #endif
         return 0;
-    }
-
-    int GetOwner(lua_State* L, Aura* aura)
-    {
-#ifdef MANGOS
-        sEluna->Push(L, aura->GetTarget());
-#else
-        sEluna->Push(L, aura->GetOwner());
-#endif
-        return 1;
     }
 };
 #endif

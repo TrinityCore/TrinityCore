@@ -9,6 +9,48 @@
 
 namespace LuaMap
 {
+    /* BOOLEAN */
+    int IsArena(lua_State* L, Map* map)
+    {
+        sEluna->Push(L, map->IsBattleArena());
+        return 1;
+    }
+
+    int IsBattleground(lua_State* L, Map* map)
+    {
+#ifdef MANGOS
+        sEluna->Push(L, map->IsBattleGround());
+#else
+        sEluna->Push(L, map->IsBattleground());
+#endif
+        return 1;
+    }
+
+    int IsDungeon(lua_State* L, Map* map)
+    {
+        sEluna->Push(L, map->IsDungeon());
+        return 1;
+    }
+
+    int IsEmpty(lua_State* L, Map* map)
+    {
+        sEluna->Push(L, map->isEmpty());
+        return 1;
+    }
+
+    int IsHeroic(lua_State* L, Map* map)
+    {
+        sEluna->Push(L, map->IsHeroic());
+        return 1;
+    }
+
+    int IsRaid(lua_State* L, Map* map)
+    {
+        sEluna->Push(L, map->IsRaid());
+        return 1;
+    }
+
+    /* GETTERS */
     int GetName(lua_State* L, Map* map)
     {
         sEluna->Push(L, map->GetMapName());
@@ -66,46 +108,6 @@ namespace LuaMap
 #else
         sEluna->Push(L, map->GetAreaId(x, y, z));
 #endif
-        return 1;
-    }
-
-    int IsArena(lua_State* L, Map* map)
-    {
-        sEluna->Push(L, map->IsBattleArena());
-        return 1;
-    }
-
-    int IsBattleground(lua_State* L, Map* map)
-    {
-#ifdef MANGOS
-        sEluna->Push(L, map->IsBattleGround());
-#else
-        sEluna->Push(L, map->IsBattleground());
-#endif
-        return 1;
-    }
-
-    int IsDungeon(lua_State* L, Map* map)
-    {
-        sEluna->Push(L, map->IsDungeon());
-        return 1;
-    }
-
-    int IsEmpty(lua_State* L, Map* map)
-    {
-        sEluna->Push(L, map->isEmpty());
-        return 1;
-    }
-
-    int IsHeroic(lua_State* L, Map* map)
-    {
-        sEluna->Push(L, map->IsHeroic());
-        return 1;
-    }
-
-    int IsRaid(lua_State* L, Map* map)
-    {
-        sEluna->Push(L, map->IsRaid());
         return 1;
     }
 };
