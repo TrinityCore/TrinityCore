@@ -7549,6 +7549,17 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                 }
                 return true;
             }
+            else if (dummySpell->Id == 53486 || dummySpell->Id == 53488)             // The Art of War
+                if (!(procEx & PROC_EX_CRITICAL_HIT))
+                    *handled = true;
+            break;
+        }
+        case SPELLFAMILY_PRIEST:
+        {
+            // Blessed Recovery
+            if (dummySpell->SpellIconID == 1875 && dummySpell->SchoolMask == SPELL_SCHOOL_MASK_NORMAL)
+                if (procEx & PROC_EX_ABSORB && damage <= 0)
+                    *handled = true;
             break;
         }
         case SPELLFAMILY_MAGE:
@@ -14049,6 +14060,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 case 20375: // Seal of Command 
                 case 31801: // Seal of Vengeance
                 case 53736: // Seal of Corruption
+                case 53486: // The Art of War (Rank 1)
+                case 53488: // The Art of War (Rank 2)
                     active = true;
                     break;
                 default:
