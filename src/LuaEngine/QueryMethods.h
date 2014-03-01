@@ -45,8 +45,8 @@ namespace LuaQuery
             sEluna->Push(L, 0);
         else
         {
-            if (RESULT->GetRowCount() > (uint32) - 1)
-                sEluna->Push(L, (uint32) - 1);
+            if (RESULT->GetRowCount() > (uint32)-1)
+                sEluna->Push(L, (uint32)-1);
             else
                 sEluna->Push(L, RESULT->GetRowCount());
         }

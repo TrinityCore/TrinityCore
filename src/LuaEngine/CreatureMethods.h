@@ -373,27 +373,27 @@ namespace LuaCreature
         {
         case SELECT_TARGET_NEAREST:
         case SELECT_TARGET_TOPAGGRO:
-            {
-                std::list<Unit*>::const_iterator itr = targetList.begin();
-                std::advance(itr, position);
-                sEluna->Push(L, *itr);
-                return 1;
-            }
+        {
+            std::list<Unit*>::const_iterator itr = targetList.begin();
+            std::advance(itr, position);
+            sEluna->Push(L, *itr);
+            return 1;
+        }
         case SELECT_TARGET_FARTHEST:
         case SELECT_TARGET_BOTTOMAGGRO:
-            {
-                std::list<Unit*>::reverse_iterator ritr = targetList.rbegin();
-                std::advance(ritr, position);
-                sEluna->Push(L, *ritr);
-                return 1;
-            }
+        {
+            std::list<Unit*>::reverse_iterator ritr = targetList.rbegin();
+            std::advance(ritr, position);
+            sEluna->Push(L, *ritr);
+            return 1;
+        }
         case SELECT_TARGET_RANDOM:
-            {
-                std::list<Unit*>::const_iterator itr = targetList.begin();
-                std::advance(itr, urand(position, targetList.size() - 1));
-                sEluna->Push(L, *itr);
-                return 1;
-            }
+        {
+            std::list<Unit*>::const_iterator itr = targetList.begin();
+            std::advance(itr, urand(position, targetList.size() - 1));
+            sEluna->Push(L, *itr);
+            return 1;
+        }
         default:
             luaL_argerror(L, 2, "SelectAggroTarget expected");
         }

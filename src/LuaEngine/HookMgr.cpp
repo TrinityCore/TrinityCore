@@ -10,6 +10,7 @@
 extern bool StartEluna();
 bool HookMgr::OnCommand(Player* player, const char* text)
 {
+    std::string fullcmd(text);
     char* creload = strtok((char*)text, " ");
     char* celuna = strtok(NULL, "");
     if (creload && celuna)
@@ -33,7 +34,7 @@ bool HookMgr::OnCommand(Player* player, const char* text)
     if (!sEluna->PlayerEventBindings.BeginCall(PLAYER_EVENT_ON_COMMAND))
         return result;
     sEluna->Push(sEluna->L, player);
-    sEluna->Push(sEluna->L, text);
+    sEluna->Push(sEluna->L, fullcmd);
     sEluna->PlayerEventBindings.ExecuteCall();
     for (int i = 1; i <= lua_gettop(sEluna->L); ++i)
     {

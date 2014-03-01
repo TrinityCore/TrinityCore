@@ -83,7 +83,7 @@ bool StartEluna()
 
     uint32 count = 0;
     char filename[200];
-    for (std::set<std::string>::const_iterator itr = loadedScripts.begin(); itr !=  loadedScripts.end(); ++itr)
+    for (std::set<std::string>::const_iterator itr = loadedScripts.begin(); itr != loadedScripts.end(); ++itr)
     {
         strcpy(filename, itr->c_str());
         if (luaL_loadfile(sEluna->L, filename) != 0)
@@ -803,7 +803,7 @@ void Eluna::EntryBind::Insert(uint32 entryId, int eventId, int funcRef)
 }
 
 EventMgr::LuaEvent::LuaEvent(EventProcessor* _events, int _funcRef, uint32 _delay, uint32 _calls, Object* _obj) :
-    events(_events), funcRef(_funcRef), delay(_delay), calls(_calls), obj(_obj)
+events(_events), funcRef(_funcRef), delay(_delay), calls(_calls), obj(_obj)
 {
     if (_events)
         sEluna->m_EventMgr.LuaEvents[_events].insert(this); // Able to access the event if we have the processor

@@ -188,7 +188,7 @@ namespace LuaGroup
     {
         Player* player = sEluna->CHECKOBJ<Player>(L, 2);
         uint32 method = sEluna->CHECKVAL<uint32>(L, 3, 0);
-        
+
 #ifdef MANGOS
         sEluna->Push(L, group->RemoveMember(player->GET_GUID(), method));
 #else

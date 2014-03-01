@@ -602,7 +602,7 @@ namespace LuaUnit
         else if (type < 0 || type >= POWER_ALL)
             return luaL_argerror(L, 2, "valid Powers expected");
 
-        sEluna->Push(L, unit->GetPower((Powers) type));
+        sEluna->Push(L, unit->GetPower((Powers)type));
         return 1;
     }
 
@@ -641,7 +641,7 @@ namespace LuaUnit
         else if (type < 0 || type >= POWER_ALL)
             return luaL_argerror(L, 2, "valid Powers expected");
 
-        sEluna->Push(L, unit->GetMaxPower((Powers) type));
+        sEluna->Push(L, unit->GetMaxPower((Powers)type));
         return 1;
     }
 
@@ -1595,7 +1595,7 @@ namespace LuaUnit
     int ClearUnitState(lua_State* L, Unit* unit)
     {
         uint32 state = sEluna->CHECKVAL<uint32>(L, 2);
-        
+
 #ifdef MANGOS
         unit->clearUnitState(state);
 #else
