@@ -1384,7 +1384,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 if (!caster)
                     break;
                 // Ice barrier - dispel/absorb remove
-                if (removeMode == AURA_REMOVE_BY_ENEMY_SPELL && GetSpellInfo()->SpellFamilyFlags[1] & 0x1)
+                if (removeMode == AURA_REMOVE_BY_ENEMY_SPELL  && GetSpellInfo()->SpellFamilyFlags[1] & 0x1 && GetEffect(EFFECT_0)->GetAmount() <= 0)
                 {
                     // Shattered Barrier
                     if (AuraEffect* dummy = caster->GetDummyAuraEffect(SPELLFAMILY_MAGE, 2945, 0))
