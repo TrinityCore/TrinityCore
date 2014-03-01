@@ -175,18 +175,8 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value
 
 DELETE FROM `disables` WHERE `entry` IN (10542, 10544, 10545, 10548, 10547, 10546) AND `sourceType` = 4;
 
--- Hodir
--- Achievement: Stayin buffed all winter.
--- 10 man handling.
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10223, 10240, 10241) AND `type` IN (11, 18);
-INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES 
-(10223, 11, 0, 0, 'TW_achievement_staying_buffed_all_winter'), 
-(10240, 11, 0, 0, 'TW_achievement_staying_buffed_all_winter'), 
-(10241, 11, 0, 0, 'TW_achievement_staying_buffed_all_winter');
-
--- 25 man handling.
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10229, 10238, 10239) AND `type` IN (11, 18);
-INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES 
-(10229, 11, 0, 0, 'TW_achievement_staying_buffed_all_winter'), 
-(10238, 11, 0, 0, 'TW_achievement_staying_buffed_all_winter'), 
-(10239, 11, 0, 0, 'TW_achievement_staying_buffed_all_winter');
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (62807, 62821, 63711);
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(62807, 'TW_spell_starlight'),
+(62821, 'TW_spell_toasty_fire'),
+(63711, 'TW_spell_storm_power');

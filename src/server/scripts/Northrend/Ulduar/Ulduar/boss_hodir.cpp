@@ -1020,18 +1020,106 @@ public:
     }
 };
 
-class TW_achievement_staying_buffed_all_winter : public AchievementCriteriaScript
+class TW_spell_starlight : public SpellScriptLoader
 {
-   public:
-       TW_achievement_staying_buffed_all_winter() : AchievementCriteriaScript("TW_achievement_staying_buffed_all_winter") {}
+public:
+    TW_spell_starlight() : SpellScriptLoader("TW_spell_starlight") { }
 
-       bool OnCheck(Player* player, Unit* /*target*/)
-       {
-           if (player->HasAura(SPELL_SINGED) && player->HasAura(SPELL_STARLIGHT) && (player->HasAura(SPELL_STORM_POWER_10) || player->HasAura(SPELL_STORM_POWER_25)))
-               return true;
+    class TW_spell_starlight_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(TW_spell_starlight_AuraScript);
 
-           return false;
-       }
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* target = GetTarget())
+                if (target->GetTypeId() == TYPEID_PLAYER)   
+                {
+                    AchievementEntry const* achiev = target->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL 
+                        ? sAchievementStore.LookupEntry(2969) : sAchievementStore.LookupEntry(2970);
+
+                    if (target->HasAura(62821) && (target->HasAura(65134) || target->HasAura(63711)))                                                 
+                        target->ToPlayer()->CompletedAchievement(achiev);
+                }
+        }
+
+        void Register() OVERRIDE
+        {
+            AfterEffectApply += AuraEffectApplyFn(TW_spell_starlight_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const OVERRIDE
+    {
+        return new TW_spell_starlight_AuraScript();
+    }
+};
+
+class TW_spell_toasty_fire : public SpellScriptLoader
+{
+public:
+    TW_spell_toasty_fire() : SpellScriptLoader("TW_spell_toasty_fire") { }
+
+    class TW_spell_toasty_fire_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(TW_spell_toasty_fire_AuraScript);
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* target = GetTarget())
+                if (target->GetTypeId() == TYPEID_PLAYER)   
+                {
+                    AchievementEntry const* achiev = target->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL 
+                        ? sAchievementStore.LookupEntry(2969) : sAchievementStore.LookupEntry(2970);
+
+                    if ((target->HasAura(65134) || target->HasAura(63711)) && target->HasAura(62807))                       
+                        target->ToPlayer()->CompletedAchievement(achiev);
+                }
+        }
+
+        void Register() OVERRIDE
+        {
+            AfterEffectApply += AuraEffectApplyFn(TW_spell_toasty_fire_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_STAT, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const OVERRIDE
+    {
+        return new TW_spell_toasty_fire_AuraScript();
+    }
+};
+
+class TW_spell_storm_power : public SpellScriptLoader
+{
+public:
+    TW_spell_storm_power() : SpellScriptLoader("TW_spell_storm_power") { }
+
+    class TW_spell_storm_power_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(TW_spell_storm_power_AuraScript);
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* target = GetTarget())
+                if (target->GetTypeId() == TYPEID_PLAYER)   
+                {
+                    AchievementEntry const* achiev = target->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL 
+                        ? sAchievementStore.LookupEntry(2969) : sAchievementStore.LookupEntry(2970);
+
+                    if (target->HasAura(62821) && target->HasAura(62807))                   
+                        target->ToPlayer()->CompletedAchievement(achiev);
+                }
+        }
+
+        void Register() OVERRIDE
+        {
+            AfterEffectApply += AuraEffectApplyFn(TW_spell_storm_power_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, AURA_EFFECT_HANDLE_REAL);           
+        }
+    };
+
+    AuraScript* GetAuraScript() const OVERRIDE
+    {
+        return new TW_spell_storm_power_AuraScript();
+    }
 };
 
 void AddSC_boss_hodir()
@@ -1048,5 +1136,7 @@ void AddSC_boss_hodir()
     new npc_flash_freeze();
     new spell_biting_cold();
     new spell_biting_cold_dot();
-    new TW_achievement_staying_buffed_all_winter();
+    new TW_spell_starlight();
+    new TW_spell_toasty_fire();    
+    new TW_spell_storm_power();
 }
