@@ -3692,6 +3692,11 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 48574:
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                 break;
+            case 49224: // Magic Suppression
+            case 49610:
+            case 49611:
+                spellInfo->ProcCharges = 0;
+                break;
             default:
                 break;
         }
