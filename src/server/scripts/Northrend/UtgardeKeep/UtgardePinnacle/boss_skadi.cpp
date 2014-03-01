@@ -367,14 +367,14 @@ public:
                                 me->GetMotionMaster()->MovePoint(0, Location[69].GetPositionX(), Location[69].GetPositionY(), Location[69].GetPositionZ());
                                 Talk(SAY_DRAKE_BREATH);
                                 Talk(EMOTE_BREATH);
-                                // ! Hack - Because the encounter doesn't work as it should, should check Grauf's health instead!
-                                if (me->HealthBelowPct(100))
-                                    m_myGirlLovesToSkadi = false;
                                 m_uiMovementTimer = 2500;
                                 break;
                             case 4:
                                 me->GetMotionMaster()->MovePoint(0, Location[70].GetPositionX(), Location[70].GetPositionY(), Location[70].GetPositionZ());
                                 m_uiMovementTimer = 2000;
+                                // ! Hack - Because the encounter doesn't work as it should, should check Grauf's health instead!
+                                if (me->HealthBelowPct(100))
+                                    m_myGirlLovesToSkadi = false;
                                 SpawnTrigger();
                                 break;
                             case 5:
