@@ -468,11 +468,13 @@ namespace LuaPlayer
         return 1;
     }
 
+#ifndef MANGOS
     int GetChampioningFaction(lua_State* L, Player* player)
     {
         sEluna->Push(L, player->GetChampioningFaction());
         return 1;
     }
+#endif
 
     int GetOriginalSubGroup(lua_State* L, Player* player)
     {

@@ -433,7 +433,9 @@ ElunaRegister<Player> PlayerMethods[] =
     {"GetNextRandomRaidMember", &LuaPlayer::GetNextRandomRaidMember},           // :GetNextRandomRaidMember(radius) - Gets a random raid member in given radius
     {"GetOriginalGroup", &LuaPlayer::GetOriginalGroup},                         // :GetOriginalGroup() - Gets the original group object
     {"GetOriginalSubGroup", &LuaPlayer::GetOriginalSubGroup},                   // :GetOriginalSubGroup() - Returns the original subgroup ID
-    {"GetChampioningFaction", &LuaPlayer::GetChampioningFaction},               // :GetChampioningFaction() - Returns the player's championing faction
+#ifndef MANGOS
+    {"GetChampioningFaction", &LuaPlayer::GetChampioningFaction },               // :GetChampioningFaction() - Returns the player's championing faction
+#endif
     {"GetLatency", &LuaPlayer::GetLatency},                                     // :GetLatency() - Returns player's latency
     // {"GetRecruiterId", &LuaPlayer::GetRecruiterId},                          // :GetRecruiterId() - Returns player's recruiter's ID
     {"GetDbLocaleIndex", &LuaPlayer::GetDbLocaleIndex},                         // :GetDbLocaleIndex() - Returns locale index
