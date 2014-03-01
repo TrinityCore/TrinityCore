@@ -408,11 +408,11 @@ void Eluna::Push(lua_State* L, Object const* obj)
 }
 template<> bool Eluna::CHECKVAL<bool>(lua_State* L, int narg)
 {
-    return !lua_toboolean(L, narg) ? false : luaL_optnumber(L, narg, 1) ? true : false;
+    return lua_isnumber(L, narg) ? luaL_optnumber(L, narg, 1) ? true : false : lua_toboolean(L, narg);
 }
 template<> bool Eluna::CHECKVAL<bool>(lua_State* L, int narg, bool def)
 {
-    return lua_isnone(L, narg) ? def : !lua_toboolean(L, narg) ? false : luaL_optnumber(L, narg, 1) ? true : false;
+    return lua_isnone(L, narg) ? def : lua_isnumber(L, narg) ? luaL_optnumber(L, narg, 1) ? true : false : lua_toboolean(L, narg);
 }
 template<> float Eluna::CHECKVAL<float>(lua_State* L, int narg)
 {
