@@ -525,6 +525,12 @@ class boss_stormcaller_brundir : public CreatureScript
                     Talk(SAY_BRUNDIR_SLAY);
             }
 
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) OVERRIDE
+            {
+                if ((target && target->GetTypeId() == TYPEID_PLAYER) && (spell->Id == SPELL_CHAIN_LIGHTNING || spell->Id == SPELL_LIGHTNING_WHIRL))
+                    instance->SetData(DATA_STUNNED, 0);
+            }
+
             void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())

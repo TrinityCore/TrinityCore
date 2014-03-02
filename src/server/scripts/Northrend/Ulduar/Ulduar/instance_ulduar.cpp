@@ -124,6 +124,7 @@ class instance_ulduar : public InstanceMapScript
             uint64 MimironTrainGUID;
             uint64 AncientGateGUID;
             bool lumberjacked;
+            bool stunned;
 
             std::list<uint64> MimironDoorGUIDList;
             std::set<uint64> mRubbleSpawns;
@@ -175,6 +176,7 @@ class instance_ulduar : public InstanceMapScript
                 _algalonSummoned                 = false;
                 _summonAlgalon                   = false;
 
+                // TW
                 RunicDoorGUID                    = 0;
                 StoneDoorGUID                    = 0;
                 RunicColossusGUID                = 0;
@@ -187,6 +189,7 @@ class instance_ulduar : public InstanceMapScript
                 MimironTrainGUID                 = 0;
                 MimironElevatorGUID              = 0;
                 AncientGateGUID                  = 0;
+                stunned                          = true;
 
                 memset(AlgalonSigilDoorGUID, 0, sizeof(AlgalonSigilDoorGUID));
                 memset(AlgalonFloorGUID, 0, sizeof(AlgalonFloorGUID));
@@ -887,6 +890,9 @@ class instance_ulduar : public InstanceMapScript
                     case DATA_DRIVE_ME_CRAZY:
                         IsDriveMeCrazyEligible = data ? true : false;
                         break;
+                    case DATA_STUNNED:
+                        stunned = bool(data);
+                        break;
                     case EVENT_DESPAWN_ALGALON:
                         DoUpdateWorldState(WORLD_STATE_ALGALON_TIMER_ENABLED, 1);
                         DoUpdateWorldState(WORLD_STATE_ALGALON_DESPAWN_TIMER, 60);
@@ -1124,6 +1130,9 @@ class instance_ulduar : public InstanceMapScript
                     case CRITERIA_LUMBERJACKED_10:
                     case CRITERIA_LUMBERJACKED_25:
                         return lumberjacked == 1;
+                    case CRITERIA_CANT_DO_THAT_WHILE_STUNNED_10:
+                    case CRITERIA_CANT_DO_THAT_WHILE_STUNNED_25:
+                        return stunned && GetBossState(BOSS_ASSEMBLY_OF_IRON) == DONE;
                 }
 
                 return false;
