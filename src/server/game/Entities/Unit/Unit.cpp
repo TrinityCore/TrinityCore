@@ -7682,6 +7682,21 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
             }
             break;
         }
+        case SPELLFAMILY_SHAMAN:
+        {
+            switch (dummySpell->SpellIconID)
+            {
+                // Should not proc if the damage is full absorbed
+                case 2287: // Water Shield
+                case 19:   // Lightning Shield
+                    if (procEx & PROC_EX_ABSORB && dummySpell->DmgClass == SPELL_DAMAGE_CLASS_MAGIC && damage <= 0)
+                        *handled = true;
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
         case SPELLFAMILY_WARRIOR:
         {
             switch (dummySpell->Id)
