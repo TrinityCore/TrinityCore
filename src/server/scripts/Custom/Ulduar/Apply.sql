@@ -180,3 +180,11 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (62807, 'TW_spell_starlight'),
 (62821, 'TW_spell_toasty_fire'),
 (63711, 'TW_spell_storm_power');
+
+-- Implement Can't do it while stunned
+DELETE FROM `achievement_criteria_data` WHERE `type` = '18' AND `criteria_id` IN (10424, 10422);
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
+('10424', '18', 0, 0, ''),
+('10422', '18', 0, 0, '');
+
+DELETE FROM `disables` WHERE `entry` IN (10424, 10422) AND `sourceType` = 4;
