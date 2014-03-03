@@ -4577,21 +4577,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             if (m_triggeredByAuraSpell)
                 return SPELL_FAILED_DONT_REPORT;
             else
-            {
-                // !Hack -- Spells that bug out client side when used on gcd can be put here
-                switch (m_spellInfo->Id)
-                {
-                    case 11958: // Cold Snap
-                    case 15473: // Shadowform
-                    case 34477: // Misdirection
-                    case 57934: // Tricks of the Trade
-                        return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-                        break;
-                    default:
-                        break;
-                }
-                return SPELL_FAILED_NOT_READY;
-            }
+                return m_spellInfo->Id == 15473 ? SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW : SPELL_FAILED_NOT_READY; // !Hack, returning not ready bugs shadowform client side
         }
 
         // check if we are using a potion in combat for the 2nd+ time. Cooldown is added only after caster gets out of combat
@@ -4607,21 +4593,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     // Check global cooldown
     if (strict && !(_triggeredCastFlags & TRIGGERED_IGNORE_GCD) && HasGlobalCooldown())
-    {
-        // !Hack -- Spells that bug out client side when used on gcd can be put here
-        switch (m_spellInfo->Id)
-        {
-            case 11958: // Cold Snap
-            case 15473: // Shadowform
-            case 34477: // Misdirection
-            case 57934: // Tricks of the Trade
-                return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-                break;
-            default:
-                break;
-        }
-        return SPELL_FAILED_NOT_READY;
-    }
+        return m_spellInfo->Id == 15473 ? SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW : SPELL_FAILED_NOT_READY; // !Hack, returning not ready bugs shadowform client side
 
     // only triggered spells can be processed an ended battleground
     if (!IsTriggered() && m_caster->GetTypeId() == TYPEID_PLAYER)
