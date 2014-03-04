@@ -163,7 +163,10 @@ class boss_ignis : public CreatureScript
             void KilledUnit(Unit* who) OVERRIDE
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
+                {
                     Talk(SAY_SLAY);
+                    instance->SetData(DATA_CRITERIA_IGNIS, 1);
+                }
             }
 
             void JustSummoned(Creature* summon) OVERRIDE
@@ -317,6 +320,12 @@ class npc_iron_construct : public CreatureScript
 
                     me->DespawnOrUnsummon(1000);
                 }
+            }
+            
+            void KilledUnit(Unit* who) OVERRIDE
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    me->GetInstanceScript()->SetData(DATA_CRITERIA_IGNIS, 1);
             }
 
             void UpdateAI(uint32 /*uiDiff*/) OVERRIDE

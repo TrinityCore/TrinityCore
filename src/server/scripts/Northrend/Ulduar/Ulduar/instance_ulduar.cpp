@@ -191,6 +191,7 @@ class instance_ulduar : public InstanceMapScript
                 AncientGateGUID                  = 0;
                 stunned                          = true;
 
+                memset(champConqOfUlduar, 0, sizeof(champConqOfUlduar));
                 memset(AlgalonSigilDoorGUID, 0, sizeof(AlgalonSigilDoorGUID));
                 memset(AlgalonFloorGUID, 0, sizeof(AlgalonFloorGUID));
                 memset(XTToyPileGUIDs, 0, sizeof(XTToyPileGUIDs));
@@ -893,6 +894,22 @@ class instance_ulduar : public InstanceMapScript
                     case DATA_STUNNED:
                         stunned = bool(data);
                         break;
+                    case DATA_CRITERIA_FLAME_LEVIATHAN:
+                    case DATA_CRITERIA_IGNIS:
+                    case DATA_CRITERIA_RAZORSCALE:
+                    case DATA_CRITERIA_XT_002:
+                    case DATA_CRITERIA_ASSEMBLY_OF_IRON:
+                    case DATA_CRITERIA_KOLOGARN:
+                    case DATA_CRITERIA_AURIAYA:
+                    case DATA_CRITERIA_HODIR:
+                    case DATA_CRITERIA_THORIM:
+                    case DATA_CRITERIA_FREYA:
+                    case DATA_CRITERIA_MIMIRON:
+                    case DATA_CRITERIA_GENERAL_VEZAX:
+                    case DATA_CRITERIA_YOGG_SARON:
+                        champConqOfUlduar[type - DATA_CRITERIA_FLAME_LEVIATHAN] = data;
+                        SaveToDB();
+                        break;
                     case EVENT_DESPAWN_ALGALON:
                         DoUpdateWorldState(WORLD_STATE_ALGALON_TIMER_ENABLED, 1);
                         DoUpdateWorldState(WORLD_STATE_ALGALON_DESPAWN_TIMER, 60);
@@ -1133,6 +1150,45 @@ class instance_ulduar : public InstanceMapScript
                     case CRITERIA_CANT_DO_THAT_WHILE_STUNNED_10:
                     case CRITERIA_CANT_DO_THAT_WHILE_STUNNED_25:
                         return stunned && GetBossState(BOSS_ASSEMBLY_OF_IRON) == DONE;
+                    case CRITERIA_FLAME_LEVIATHAN_10:
+                    case CRITERIA_FLAME_LEVIATHAN_25:
+                        return champConqOfUlduar[0] == 0;
+                    case CRITERIA_IGNIS_10:
+                    case CRITERIA_IGNIS_25:
+                        return champConqOfUlduar[1] == 0;
+                    case CRITERIA_RAZORSCALE_10:
+                    case CRITERIA_RAZORSCALE_25:
+                        return champConqOfUlduar[2] == 0;
+                    case CRITERIA_XT_002_10:
+                    case CRITERIA_XT_002_25:
+                        return champConqOfUlduar[3] == 0;
+                    case CRITERIA_ASSEMBLY_OF_IRON_10:
+                    case CRITERIA_ASSEMBLY_OF_IRON_25:
+                        return champConqOfUlduar[4] == 0;
+                    case CRITERIA_KOLOGARN_10:
+                    case CRITERIA_KOLOGARN_25:
+                        return champConqOfUlduar[5] == 0;
+                    case CRITERIA_AURIAYA_10:
+                    case CRITERIA_AURIAYA_25:
+                        return champConqOfUlduar[6] == 0;
+                    case CRITERIA_HODIR_10:
+                    case CRITERIA_HODIR_25:
+                        return champConqOfUlduar[7] == 0;
+                    case CRITERIA_THORIM_10:
+                    case CRITERIA_THORIM_25:
+                        return champConqOfUlduar[8] == 0;
+                    case CRITERIA_FREYA_10:
+                    case CRITERIA_FREYA_25:
+                        return champConqOfUlduar[9] == 0;
+                    case CRITERIA_MIMIRON_10:
+                    case CRITERIA_MIMIRON_25:
+                        return champConqOfUlduar[10] == 0;
+                    case CRITERIA_GENERAL_VEZAX_10:
+                    case CRITERIA_GENERAL_VEZAX_25:
+                        return champConqOfUlduar[11] == 0;
+                    case CRITERIA_YOGG_SARON_10:
+                    case CRITERIA_YOGG_SARON_25:
+                        return champConqOfUlduar[12] == 0;
                 }
 
                 return false;
@@ -1147,6 +1203,9 @@ class instance_ulduar : public InstanceMapScript
 
                 for (uint8 i = 0; i < 4; ++i)
                     saveStream << ' ' << (KeeperGUIDs[i] ? 1 : 0);
+
+                for (uint8 i = 0; i < 13; i++)
+                    saveStream << ' ' << champConqOfUlduar[i];
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -1213,6 +1272,9 @@ class instance_ulduar : public InstanceMapScript
                         _summonObservationRingKeeper[2] = true;
                     if (GetBossState(BOSS_MIMIRON) == DONE && !_summonYSKeeper[3])
                         _summonObservationRingKeeper[3] = true;
+
+                    for (uint8 i = 0; i < 13; i++)
+                        loadStream >> champConqOfUlduar[i];
                 }
 
                 OUT_LOAD_INST_DATA_COMPLETE;
@@ -1255,6 +1317,7 @@ class instance_ulduar : public InstanceMapScript
             bool _summonYSKeeper[4];
             uint32 _maxArmorItemLevel;
             uint32 _maxWeaponItemLevel;
+            uint32 champConqOfUlduar[13];
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE

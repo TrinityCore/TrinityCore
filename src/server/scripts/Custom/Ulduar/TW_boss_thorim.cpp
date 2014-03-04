@@ -417,9 +417,13 @@ public:
                 go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* victim) OVERRIDE
         {
-            Talk(SAY_SLAY);
+            if (victim->GetTypeId() == TYPEID_PLAYER)
+            {
+                Talk(SAY_SLAY);
+                instance->SetData(DATA_CRITERIA_THORIM, 1);
+            }
         }
 
         void EncounterIsDone()
@@ -937,6 +941,12 @@ class TW_npc_thorim_arena_phase : public CreatureScript
                 Reset();
             }
 
+             void KilledUnit(Unit* who) OVERRIDE
+             {
+                 if (who->GetTypeId() == TYPEID_PLAYER)
+                     me->GetInstanceScript()->SetData(DATA_CRITERIA_THORIM, 1);
+             }
+
             void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
@@ -1065,6 +1075,12 @@ class TW_npc_runic_colossus : public CreatureScript
                 summons.Summon(summon);
             }
 
+            void KilledUnit(Unit* who) OVERRIDE
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    me->GetInstanceScript()->SetData(DATA_CRITERIA_THORIM, 1);
+            }
+
             void JustDied(Unit* /*victim*/) OVERRIDE
             {
                 // Runed Door opened
@@ -1185,6 +1201,12 @@ class TW_npc_runic_smash : public CreatureScript
                 ExplodeTimer = 10000;
             }
 
+            void KilledUnit(Unit* who) OVERRIDE
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    me->GetInstanceScript()->SetData(DATA_CRITERIA_THORIM, 1);
+            }
+
             void SetData(uint32 /*type*/, uint32 data) OVERRIDE
             {
                 ExplodeTimer = data;
@@ -1251,6 +1273,12 @@ public:
             summons.DespawnAll();
             for (uint8 i = 0; i < 5; i++)
                 me->SummonCreature(giantAddLocations[i].entry,giantAddLocations[i].x,giantAddLocations[i].y,giantAddLocations[i].z,giantAddLocations[i].o,TEMPSUMMON_CORPSE_TIMED_DESPAWN,3000);
+        }
+
+        void KilledUnit(Unit* who) OVERRIDE
+        {
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                me->GetInstanceScript()->SetData(DATA_CRITERIA_THORIM, 1);
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
@@ -1334,6 +1362,12 @@ public:
             VolleyTimer = 15000;
             BlizzardTimer = 30000;
             NovaTimer = urand(20000, 25000);
+        }
+
+        void KilledUnit(Unit* who) OVERRIDE
+        {
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                me->GetInstanceScript()->SetData(DATA_CRITERIA_THORIM, 1);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE

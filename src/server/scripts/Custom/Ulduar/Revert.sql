@@ -70,3 +70,35 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`) VALUES
 -- Revert Set Us Up The Bomb
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10542, 10544, 10545, 10548, 10547, 10546) AND `type` = 11;
 
+-- Revert conqueror of ulduar
+DELETE FROM `achievement_criteria_data` WHERE `type` = '11' AND `criteria_id` IN
+(10042, 10352,
+10342, 10355,
+10340, 10353,
+10341, 10354,
+10598, 10599,
+10348, 10357,
+10351, 10363,
+10439, 10719,
+10403, 10404,
+10582, 10583,
+10347, 10361,
+10349, 10362,
+10350, 10364
+);
+ 
+DELETE FROM `achievement_criteria_data` WHERE `type` = '18' AND `criteria_id` IN
+(10042, 10352,
+10342, 10355,
+10340, 10353,
+10341, 10354,
+10598, 10599,
+10348, 10357,
+10351, 10363,
+10439, 10719,
+10403, 10404,
+10582, 10583,
+10347, 10361,
+10349, 10362,
+10350, 10364
+);

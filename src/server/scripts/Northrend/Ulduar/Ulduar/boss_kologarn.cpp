@@ -169,7 +169,10 @@ class boss_kologarn : public CreatureScript
             void KilledUnit(Unit* who) OVERRIDE
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
+                {
+                    instance->SetData(DATA_CRITERIA_KOLOGARN, 1);
                     Talk(SAY_SLAY);
+                }
             }
 
             void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) OVERRIDE

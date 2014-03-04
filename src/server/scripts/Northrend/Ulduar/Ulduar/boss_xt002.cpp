@@ -252,7 +252,10 @@ class boss_xt002 : public CreatureScript
             void KilledUnit(Unit* who) OVERRIDE
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
+                {
+                    instance->SetData(DATA_CRITERIA_XT_002, 1);
                     Talk(SAY_SLAY);
+                }
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
@@ -513,6 +516,12 @@ class npc_scrapbot : public CreatureScript
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
+            void KilledUnit(Unit* who) OVERRIDE
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    me->GetInstanceScript()->SetData(DATA_CRITERIA_XT_002, 1);
+            }
+
             void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (_rangeCheckTimer <= diff)
@@ -565,6 +574,12 @@ class npc_pummeller : public CreatureScript
                     xt002->GetPosition(&pos);
                     me->GetMotionMaster()->MovePoint(0, pos);
                 }
+            }
+
+            void KilledUnit(Unit* who) OVERRIDE
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    me->GetInstanceScript()->SetData(DATA_CRITERIA_XT_002, 1);
             }
 
             void UpdateAI(uint32 diff) OVERRIDE
@@ -672,6 +687,12 @@ class npc_boombot : public CreatureScript
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
+            void KilledUnit(Unit* who) OVERRIDE
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    me->GetInstanceScript()->SetData(DATA_CRITERIA_XT_002, 1);
+            }
+
             void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
             {
                 if (damage >= (me->GetHealth() - me->GetMaxHealth() * 0.5f) && !_boomed)
@@ -739,6 +760,12 @@ class npc_life_spark : public CreatureScript
                 _shockTimer = 0; // first one is immediate.
                 
                 me->SetInCombatWithZone();
+            }
+
+            void KilledUnit(Unit* who) OVERRIDE
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    me->GetInstanceScript()->SetData(DATA_CRITERIA_XT_002, 1);
             }
 
             void UpdateAI(uint32 diff) OVERRIDE

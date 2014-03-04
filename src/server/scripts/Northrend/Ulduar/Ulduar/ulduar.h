@@ -311,6 +311,34 @@ enum UlduarAchievementCriteriaIds
     CRITERIA_ALONE_IN_THE_DARKNESS_10        = 10412,
     CRITERIA_ALONE_IN_THE_DARKNESS_25        = 10417,
     CRITERIA_HERALD_OF_TITANS                = 10678,
+
+    // Champion/Conqueror of Ulduar
+    CRITERIA_FLAME_LEVIATHAN_10                         = 10042,
+    CRITERIA_IGNIS_10                                   = 10342,
+    CRITERIA_RAZORSCALE_10                              = 10340,
+    CRITERIA_XT_002_10                                  = 10341,
+    CRITERIA_ASSEMBLY_OF_IRON_10                        = 10598,
+    CRITERIA_KOLOGARN_10                                = 10348,
+    CRITERIA_AURIAYA_10                                 = 10351,
+    CRITERIA_HODIR_10                                   = 10439,
+    CRITERIA_THORIM_10                                  = 10403,
+    CRITERIA_FREYA_10                                   = 10582,
+    CRITERIA_MIMIRON_10                                 = 10347,
+    CRITERIA_GENERAL_VEZAX_10                           = 10349,
+    CRITERIA_YOGG_SARON_10                              = 10350,
+    CRITERIA_FLAME_LEVIATHAN_25                         = 10352,
+    CRITERIA_IGNIS_25                                   = 10355,
+    CRITERIA_RAZORSCALE_25                              = 10353,
+    CRITERIA_XT_002_25                                  = 10354,
+    CRITERIA_ASSEMBLY_OF_IRON_25                        = 10599,
+    CRITERIA_KOLOGARN_25                                = 10357,
+    CRITERIA_AURIAYA_25                                 = 10363,
+    CRITERIA_HODIR_25                                   = 10719,
+    CRITERIA_THORIM_25                                  = 10404,
+    CRITERIA_FREYA_25                                   = 10583,
+    CRITERIA_MIMIRON_25                                 = 10361,
+    CRITERIA_GENERAL_VEZAX_25                           = 10362,
+    CRITERIA_YOGG_SARON_25                              = 10364,
 };
 
 enum UlduarData
@@ -375,6 +403,20 @@ enum UlduarData
     DATA_VX_001,
     DATA_AERIAL_UNIT,
     DATA_MIMIRON_ELEVATOR,
+
+    DATA_CRITERIA_FLAME_LEVIATHAN,  // Achievement IDs: 10042,10352
+    DATA_CRITERIA_IGNIS,            // Achievement IDs: 10342,10355
+    DATA_CRITERIA_RAZORSCALE,       // Achievement IDs: 10340,10353
+    DATA_CRITERIA_XT_002,           // Achievement IDs: 10341,10354
+    DATA_CRITERIA_ASSEMBLY_OF_IRON, // Achievement IDs: 10598,10599
+    DATA_CRITERIA_KOLOGARN,         // Achievement IDs: 10348,10357
+    DATA_CRITERIA_AURIAYA,          // Achievement IDs: 10351,10363
+    DATA_CRITERIA_HODIR,            // Achievement IDs: 10439,10719
+    DATA_CRITERIA_THORIM,           // Achievement IDs: 10403,10404
+    DATA_CRITERIA_FREYA,            // Achievement IDs: 10582,10583
+    DATA_CRITERIA_MIMIRON,          // Achievement IDs: 10347,10361
+    DATA_CRITERIA_GENERAL_VEZAX,    // Achievement IDs: 10349,10362
+    DATA_CRITERIA_YOGG_SARON,       // Achievement IDs: 10350,10364
 };
 
 enum UlduarWorldStates

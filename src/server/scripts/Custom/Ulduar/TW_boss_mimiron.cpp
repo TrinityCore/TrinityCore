@@ -817,17 +817,17 @@ public:
             MimironHardMode = false;
         }
 
-        void KilledUnit(Unit* /*who*/)
+        void KilledUnit(Unit* who)
         {
-            if (!(rand()%5))
-                if (instance)
-                    if (Creature* Mimiron = me->GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
-                    {
-                        if (phase == PHASE_LEVIATHAN_SOLO)
-                            Talk(SAY_MKII_SLAY, Mimiron);
-                        else
-                            Talk(SAY_V07TRON_SLAY, Mimiron);
-                    }
+            if (Creature* Mimiron = me->GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
+            {
+                if (phase == PHASE_LEVIATHAN_SOLO)
+                    Talk(SAY_MKII_SLAY, Mimiron);
+                else
+                    Talk(SAY_V07TRON_SLAY, Mimiron);
+            }
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                me->GetInstanceScript()->SetData(DATA_CRITERIA_MIMIRON, 1);
         }
 
         void DamageTaken(Unit* /*who*/, uint32 &damage)
@@ -980,6 +980,12 @@ class TW_boss_leviathan_mk_turret : public CreatureScript
                 _NapalmShell = urand(8000, 12000);
             }
 
+            void KilledUnit(Unit* who) OVERRIDE
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    me->GetInstanceScript()->SetData(DATA_CRITERIA_MIMIRON, 1);
+            }
+
             // try to prefer ranged targets
             Unit* GetNapalmShellTarget()
             {
@@ -1079,6 +1085,12 @@ public:
                 if (Creature* Mimiron = me->FindNearestCreature(NPC_MIMIRON, 200.0f))
                     Mimiron->AI()->SetData(DATA_SET_US_UP_THE_BOMB_MINE, false);
         }
+        
+        void KilledUnit(Unit* who) OVERRIDE
+        {
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                me->GetInstanceScript()->SetData(DATA_CRITERIA_MIMIRON, 1);
+        }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
@@ -1149,7 +1161,7 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_ID, 59164, true);
         }
 
-        void KilledUnit(Unit* /*who*/)
+        void KilledUnit(Unit* who)
         {
             if (!(rand()%5))
                 if (instance)
@@ -1160,6 +1172,9 @@ public:
                         else
                             Talk(SAY_V07TRON_SLAY, Mimiron);
                     }
+
+                    if (who->GetTypeId() == TYPEID_PLAYER)
+                        me->GetInstanceScript()->SetData(DATA_CRITERIA_MIMIRON, 1);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -1391,6 +1406,12 @@ public:
             me->DespawnOrUnsummon(10000);
             DoCast(me, SPELL_ROCKET_STRIKE_AURA);
         }
+        
+        void KilledUnit(Unit* who) OVERRIDE
+        {
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                me->GetInstanceScript()->SetData(DATA_CRITERIA_MIMIRON, 1);
+        }
 
         void SpellHitTarget(Unit* target, SpellInfo const* spell) OVERRIDE
         {
@@ -1485,17 +1506,18 @@ public:
             MimironHardMode = false;
         }
 
-        void KilledUnit(Unit* /*who*/)
+        void KilledUnit(Unit* who)
         {
-            if (!(rand()%5))
-                if (instance)
-                    if (Creature* Mimiron = me->GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
-                    {
-                        if (phase == PHASE_AERIAL_SOLO)
-                            Talk(SAY_AERIAL_SLAY, Mimiron);
-                        else
-                            Talk(SAY_V07TRON_SLAY, Mimiron);
-                    }
+            if (Creature* Mimiron = me->GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
+            {
+                if (phase == PHASE_AERIAL_SOLO)
+                    Talk(SAY_AERIAL_SLAY, Mimiron);
+                else
+                    Talk(SAY_V07TRON_SLAY, Mimiron);
+            }
+
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                me->GetInstanceScript()->SetData(DATA_CRITERIA_MIMIRON, 1);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -1725,6 +1747,12 @@ class TW_npc_assault_bot : public CreatureScript
                 _fieldTimer = urand(4000, 6000);
             }
 
+            void KilledUnit(Unit* who) OVERRIDE
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    me->GetInstanceScript()->SetData(DATA_CRITERIA_MIMIRON, 1);      
+            }
+
             void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
@@ -1829,6 +1857,12 @@ class TW_npc_mimiron_bomb_bot : public CreatureScript
                 DoCast(me, SPELL_BOMB_BOT, true);
             }
 
+            void KilledUnit(Unit* who) OVERRIDE
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    me->GetInstanceScript()->SetData(DATA_CRITERIA_MIMIRON, 1);
+            }
+
             void SpellHitTarget(Unit* target, SpellInfo const* spell) OVERRIDE
             {
                 if (target->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_BOMB_BOT)
@@ -1918,6 +1952,12 @@ class TW_npc_mimiron_flame_trigger : public CreatureScript
                     default:
                         break;
                 }
+            }
+
+            void KilledUnit(Unit* who) OVERRIDE
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    me->GetInstanceScript()->SetData(DATA_CRITERIA_MIMIRON, 1);
             }
 
             void JustSummoned(Creature* /*summon*/)
