@@ -360,7 +360,7 @@ enum UlduarData
     DATA_STEELBREAKER,
     DATA_MOLGEIM,
     DATA_BRUNDIR,
-    DATA_STUNNED,  // Achievement IDs: 10422,10424
+    DATA_STUNNED, 
 
     // Hodir
     DATA_GETTING_COLD_IN_HERE,
