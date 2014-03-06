@@ -659,13 +659,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 {
                     if (eventId == EVENT_DEDICATED_INSANITY_CHECK)
                     {
-                        std::cout << "\nchecking!";
-
                         if (TributeToDedicatedInsanityEligible && !IsEligible())
-                        {
                             TributeToDedicatedInsanityEligible = false;
-                            std::cout << "\nfailed";
-                        }
 
                         // Only check for it if an encounter is in progress - guessing it should be like this.
                         if (IsEncounterInProgress())
