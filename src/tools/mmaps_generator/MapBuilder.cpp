@@ -36,7 +36,7 @@ namespace DisableMgr
 }
 
 #define MMAP_MAGIC 0x4d4d4150   // 'MMAP'
-#define MMAP_VERSION 3
+#define MMAP_VERSION 5
 
 struct MmapTileHeader
 {
@@ -701,14 +701,6 @@ namespace MMAP
         delete[] dmmerge;
         delete[] tiles;
 
-        // remove padding for extraction
-        for (int i = 0; i < iv.polyMesh->nverts; ++i)
-        {
-            unsigned short* v = &iv.polyMesh->verts[i * 3];
-            v[0] -= (unsigned short)config.borderSize;
-            v[2] -= (unsigned short)config.borderSize;
-        }
-
         // set polygons as walkable
         // TODO: special flags for DYNAMIC polygons, ie surfaces that can be turned on and off
         for (int i = 0; i < iv.polyMesh->npolys; ++i)
@@ -747,9 +739,8 @@ namespace MMAP
         rcVcopy(params.bmax, bmax);
         params.cs = config.cs;
         params.ch = config.ch;
-        params.tileSize = VERTEX_PER_MAP;
-        /*params.tileLayer = 0;
-        params.buildBvTree = true;*/
+        params.tileLayer = 0;
+        params.buildBvTree = true;
 
         // will hold final navmesh
         unsigned char* navData = NULL;

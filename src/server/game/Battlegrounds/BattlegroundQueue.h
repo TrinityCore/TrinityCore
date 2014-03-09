@@ -88,8 +88,8 @@ class BattlegroundQueue
         typedef std::map<uint64, PlayerQueueInfo> QueuedPlayersMap;
         QueuedPlayersMap m_QueuedPlayers;
 
-        //we need constant add to begin and constant remove / add from the end, therefore deque suits our problem well
-        typedef std::deque<GroupQueueInfo*> GroupsQueueType;
+        //do NOT use deque because deque.erase() invalidates ALL iterators
+        typedef std::list<GroupQueueInfo*> GroupsQueueType;
 
         /*
         This two dimensional array is used to store All queued groups
