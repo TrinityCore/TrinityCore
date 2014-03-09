@@ -362,12 +362,6 @@ enum UlduarData
     DATA_BRUNDIR,
     DATA_STUNNED, 
 
-    // Hodir
-    DATA_GETTING_COLD_IN_HERE,
-    DATA_HODIR_RARE_CACHE,
-    DATA_COOLEST_FRIENDS,
-    DATA_CHEESE_THE_FREEZE,
-
     // Yogg-Saron
     DATA_VOICE_OF_YOGG_SARON,
     DATA_SARA,
@@ -417,6 +411,12 @@ enum UlduarData
     DATA_CRITERIA_MIMIRON,          // Achievement IDs: 10347,10361
     DATA_CRITERIA_GENERAL_VEZAX,    // Achievement IDs: 10349,10362
     DATA_CRITERIA_YOGG_SARON,       // Achievement IDs: 10350,10364
+
+    // Hodir
+    DATA_GETTING_COLD_IN_HERE,
+    DATA_HODIR_RARE_CACHE,
+    DATA_COOLEST_FRIENDS,
+    DATA_CHEESE_THE_FREEZE,
 };
 
 enum UlduarWorldStates
