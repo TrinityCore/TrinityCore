@@ -290,22 +290,23 @@ public:
                         events.ScheduleEvent(EVENT_CHECK_AREA, 5000);
                     break;
                 case EVENT_REACHED_HOME:
-                    Unit* player = me->GetVehicleKit()->GetPassenger(0);
-                    if (player && player->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        // for each prisoner on drake, give credit
-                        for (uint8 i = 1; i < 4; ++i)
-                            if (Unit* prisoner = me->GetVehicleKit()->GetPassenger(i))
+                    if (Vehicle* vehicle = me->GetVehicleKit())
+                        if (Unit* player = vehicle->GetPassenger(0))
+                            if (player->GetTypeId() == TYPEID_PLAYER)
                             {
-                                if (prisoner->GetTypeId() != TYPEID_UNIT)
-                                    return;
-                                prisoner->CastSpell(player, SPELL_KILL_CREDIT_PRISONER, true);
-                                prisoner->CastSpell(prisoner, SPELL_SUMMON_LIBERATED, true);
-                                prisoner->ExitVehicle();
+                                // for each prisoner on drake, give credit
+                                for (uint8 i = 1; i < 4; ++i)
+                                    if (Unit* prisoner = me->GetVehicleKit()->GetPassenger(i))
+                                    {
+                                        if (prisoner->GetTypeId() != TYPEID_UNIT)
+                                            return;
+                                        prisoner->CastSpell(player, SPELL_KILL_CREDIT_PRISONER, true);
+                                        prisoner->CastSpell(prisoner, SPELL_SUMMON_LIBERATED, true);
+                                        prisoner->ExitVehicle();
+                                    }
+                                me->CastSpell(me, SPELL_KILL_CREDIT_DRAKE, true);
+                                player->ExitVehicle();
                             }
-                        me->CastSpell(me, SPELL_KILL_CREDIT_DRAKE, true);
-                        player->ExitVehicle();
-                    }
                     break;
             }
         }
