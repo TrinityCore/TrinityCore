@@ -22,11 +22,11 @@
 
 enum Yells
 {
-    SAY_AGGRO       = 0,
-    SAY_SLAY        = 1,
-    SAY_DEATH       = 2,
-    SAY_EGG_SAC     = 3,
-    EMOTE_HATCHES   = 4
+    SAY_AGGRO                   = 0,
+    SAY_SLAY                    = 1,
+    SAY_DEATH                   = 2,
+    SAY_EGG_SAC                 = 3,
+    EMOTE_HATCHES               = 4
 };
 
 enum Spells
@@ -43,7 +43,7 @@ enum Spells
 
 enum Events
 {
-    EVENT_PLAGUE = 1,
+    EVENT_PLAGUE                = 1,
     EVENT_RAGE,
     EVENT_SUMMON_SWARMER,
     EVENT_CHECK_ENRAGE,
@@ -205,12 +205,13 @@ class npc_ahnkahar_nerubian : public CreatureScript
                 {
                     switch (eventId)
                     {
-                    case EVENT_SPRINT:
-                        DoCast(me, SPELL_SPRINT);
-                        events.ScheduleEvent(EVENT_SPRINT, 20 * IN_MILLISECONDS);
-                        break;
+                        case EVENT_SPRINT:
+                            DoCast(me, SPELL_SPRINT);
+                            events.ScheduleEvent(EVENT_SPRINT, 20 * IN_MILLISECONDS);
+                            break;
                     }
                 }
+
                 DoMeleeAttackIfReady();
             }
         };
