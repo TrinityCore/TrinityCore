@@ -30,17 +30,17 @@ enum Spells
     SPELL_POISONOUS_MUSHROOM_VISUAL_AREA          = 61566, // Self
     SPELL_POISONOUS_MUSHROOM_VISUAL_AURA          = 56741, // Self
     SPELL_PUTRID_MUSHROOM                         = 31690, // To make the mushrooms visible
-    SPELL_POWER_MUSHROOM_VISUAL_AURA              = 56740,
+    SPELL_POWER_MUSHROOM_VISUAL_AURA              = 56740
 };
 
 enum Creatures
 {
-    NPC_TRIGGER                                     = 19656
+    NPC_TRIGGER                                   = 19656
 };
 
 enum Events
 {
-    EVENT_SPAWN = 1,
+    EVENT_SPAWN                                   = 1,
     EVENT_MINI,
     EVENT_ROOT,
     EVENT_BASH,
@@ -148,6 +148,7 @@ class boss_amanitar : public CreatureScript
                             break;
                     }
                 }
+
                 DoMeleeAttackIfReady();
             }
         };
@@ -183,9 +184,9 @@ public:
                 DoCast(SPELL_POWER_MUSHROOM_VISUAL_AURA);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32 &damage) OVERRIDE
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (damage >= me->GetHealth() && me->GetEntry() == NPC_HEALTHY_MUSHROOM)
+            if (me->GetEntry() == NPC_HEALTHY_MUSHROOM)
                 DoCast(me, SPELL_HEALTHY_MUSHROOM_POTENT_FUNGUS, true);
         }
 
@@ -194,9 +195,6 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (!UpdateVictim())
-                return;
-
             events.Update(diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
