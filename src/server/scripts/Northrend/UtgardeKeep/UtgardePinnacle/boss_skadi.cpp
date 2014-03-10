@@ -307,6 +307,7 @@ public:
                     m_uiPoisonedSpearTimer = 10000;
                     m_uiWhirlwindTimer = 20000;
                     me->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
+                    me->SetHealth(me->GetMaxHealth()); // There's a better way to do this, I'm aware, but since the entire boss script needs to be rewriten this won't hurt.
                 }
             }
         }
