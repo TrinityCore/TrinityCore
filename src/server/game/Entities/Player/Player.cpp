@@ -12654,7 +12654,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
         ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
         sScriptMgr->OnItemRemove(this, pItem);
-		
+
         if (bag == INVENTORY_SLOT_BAG_0)
         {
             SetUInt64Value(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), 0);
