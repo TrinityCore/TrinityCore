@@ -404,7 +404,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 
     recvData >> lootguid >> slotid >> target_playerguid;
 
-    if (!_player->GetGroup() || _player->GetGroup()->GetLooterGuid() != _player->GetGUID())
+    if (!_player->GetGroup() || _player->GetGroup()->GetLooterGuid() != _player->GetGUID() || _player->GetGroup()->GetLootMethod() != MASTER_LOOT)
     {
         _player->SendLootRelease(GetPlayer()->GetLootGUID());
         return;
@@ -424,7 +424,6 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         TC_LOG_INFO("loot", "MasterLootItem: Player %s tried to give an item to ineligible player %s !", GetPlayer()->GetName().c_str(), target->GetName().c_str());
         return;
     }
-
 
     Loot* loot = NULL;
 
