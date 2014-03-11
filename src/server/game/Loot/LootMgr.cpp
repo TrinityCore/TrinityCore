@@ -953,6 +953,21 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             }
             break;
         }
+        case RESTRICTED_PERMISSION:
+        {
+            for (uint8 i = 0; i < l.items.size(); ++i)
+            {
+                if (!l.items[i].is_looted && !l.items[i].freeforall && l.items[i].conditions.empty() && l.items[i].AllowedForPlayer(lv.viewer))
+                {
+                    uint8 slot_type = l.items[i].is_blocked ? LOOT_SLOT_TYPE_LOCKED : LOOT_SLOT_TYPE_ALLOW_LOOT;
+
+                    b << uint8(i) << l.items[i];
+                    b << uint8(slot_type);
+                    ++itemsShown;
+                }
+            }
+            break;
+        }
         default:
             return b;
     }
@@ -976,6 +991,9 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                     {
                         case MASTER_PERMISSION:
                             b << uint8(LOOT_SLOT_TYPE_MASTER);
+                            break;
+                        case RESTRICTED_PERMISSION:
+                            b << (item.is_blocked ? uint8(LOOT_SLOT_TYPE_LOCKED) : uint8(slotType));
                             break;
                         case GROUP_PERMISSION:
                         case ROUND_ROBIN_PERMISSION:
@@ -1032,6 +1050,9 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                     {
                     case MASTER_PERMISSION:
                         b << uint8(LOOT_SLOT_TYPE_MASTER);
+                        break;
+                    case RESTRICTED_PERMISSION:
+                        b << (item.is_blocked ? uint8(LOOT_SLOT_TYPE_LOCKED) : uint8(slotType));
                         break;
                     case GROUP_PERMISSION:
                     case ROUND_ROBIN_PERMISSION:
