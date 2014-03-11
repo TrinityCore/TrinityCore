@@ -890,12 +890,25 @@ void Group::SendLooter(Creature* creature, Player* groupLooter)
 
     WorldPacket data(SMSG_LOOT_LIST, (8+8));
     data << uint64(creature->GetGUID());
-    data << uint8(0); // unk1
 
     if (groupLooter)
-        data.append(groupLooter->GetPackGUID());
+    {
+        if (GetLootMethod() == MASTER_LOOT)
+        {
+            data.append(groupLooter->GetPackGUID());
+            data << uint8(0);
+        }
+        else
+        {
+            data << uint8(0);
+            data.append(groupLooter->GetPackGUID());
+        }
+    }
     else
+    {
         data << uint8(0);
+        data << uint8(0);
+    }
 
     BroadcastPacket(&data, false);
 }
@@ -1196,9 +1209,25 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
     }
 }
 
-void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
+void Group::MasterLoot(Loot* loot, WorldObject* pLootedObject)
 {
     TC_LOG_DEBUG("network", "Group::MasterLoot (SMSG_LOOT_MASTER_LIST)");
+
+    for (std::vector<LootItem>::iterator i = loot->items.begin(); i != loot->items.end(); ++i)
+    {
+        if (i->freeforall)
+            continue;
+
+        i->is_blocked = !i->is_underthreshold;
+    }
+
+    for (std::vector<LootItem>::iterator i = loot->quest_items.begin(); i != loot->quest_items.end(); ++i)
+    {
+        if (!i->follow_loot_rules)
+            continue;
+
+        i->is_blocked = !i->is_underthreshold;
+    }
 
     uint32 real_count = 0;
 
