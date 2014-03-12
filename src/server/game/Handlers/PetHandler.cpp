@@ -647,7 +647,7 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
         stmt->setUInt32(0, pet->GetCharmInfo()->GetPetNumber());
         trans->Append(stmt);
 
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_CHAR_PET_DECLINEDNAME);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_PET_DECLINEDNAME);
         stmt->setUInt32(0, _player->GetGUIDLow());
 
         for (uint8 i = 0; i < 5; i++)
