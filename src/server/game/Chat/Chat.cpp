@@ -86,16 +86,28 @@ ChatCommand* ChatHandler::getCommandTable()
                 added += appendCommandTable(commandTableCache + added, *it);
         }
 
-        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_COMMANDS);
-        PreparedQueryResult result = WorldDatabase.Query(stmt);
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_RBAC_PERMISSIONS);
+        PreparedQueryResult result = LoginDatabase.Query(stmt);
         if (result)
         {
             do
             {
                 Field* fields = result->Fetch();
-                std::string name = fields[0].GetString();
+                uint16 permission = fields[0].GetUInt16();
+                std::string name = fields[1].GetString();
+                std::string help = fields[2].GetString();
 
-                SetDataForCommandInTable(commandTableCache, name.c_str(), fields[1].GetUInt16(), fields[2].GetString(), name);
+                std::string prefix = "Command: ";
+                std::string cleanp = "";
+
+                auto data = name.find(prefix);
+                while(data != std::string::npos)
+                {
+                    name.replace(data, prefix.size(), cleanp) ;
+                    data = name.find( prefix, data + cleanp.size() ) ;
+                }
+
+                SetDataForCommandInTable(commandTableCache, name.c_str(), permission, help, name);
             }
             while (result->NextRow());
         }
