@@ -93,23 +93,24 @@ ChatCommand* ChatHandler::getCommandTable()
             do
             {
                 Field* fields = result->Fetch();
+
                 uint16 permission = fields[0].GetUInt16();
                 std::string name = fields[1].GetString();
                 std::string help = fields[2].GetString();
 
-                std::string prefix = "Command: ";
+                std::string prefix = "Command: "; // Commands always needs to be prefixed with 'Command: ' in the column `name`.
                 std::string cleanp = "";
 
                 auto data = name.find(prefix);
-                while(data != std::string::npos)
+
+                while (data != std::string::npos)
                 {
                     name.replace(data, prefix.size(), cleanp) ;
-                    data = name.find( prefix, data + cleanp.size() ) ;
+                    data = name.find(prefix, data + cleanp.size()) ;
                 }
 
                 SetDataForCommandInTable(commandTableCache, name.c_str(), permission, help, name);
-            }
-            while (result->NextRow());
+            } while (result->NextRow());
         }
     }
 
