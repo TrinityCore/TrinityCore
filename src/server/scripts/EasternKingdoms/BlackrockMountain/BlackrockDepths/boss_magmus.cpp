@@ -25,6 +25,12 @@ enum Spells
     SPELL_WARSTOMP                                         = 24375
 };
 
+enum Events
+{
+    EVENT_FIERY_BURST                                      = 1,
+    EVENT_WARSTOMP                                         = 2
+};
+
 enum Misc
 {
     DATA_THRONE_DOOR                                       = 24 // not id or guid of doors but number of enum in blackrock_depths.h
@@ -46,20 +52,49 @@ public:
 
         uint32 FieryBurst_Timer;
         uint32 WarStomp_Timer;
+        bool PhaseTwo;
 
         void Reset() OVERRIDE
         {
+            _events.ScheduleEvent(EVENT_FIERY_BURST, 5000);
+            PhaseTwo = false;
             FieryBurst_Timer = 5000;
             WarStomp_Timer =0;
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
+        {
+            if (!HealthAbovePct(50) && !PhaseTwo)
+            {
+                PhaseTwo = true;
+                _events.ScheduleEvent(EVENT_WARSTOMP, 0);
+            }
+        }
+
         void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
                 return;
+
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_FIERY_BURST:
+                        DoCastVictim(SPELL_FIERYBURST);
+                        _events.ScheduleEvent(EVENT_FIERY_BURST, 6000);
+                        break;
+                    case EVENT_WARSTOMP:
+                        DoCastVictim(SPELL_WARSTOMP);
+                        _events.ScheduleEvent(EVENT_WARSTOMP, 8000);
+                        break;
+                }
+            }
 
             //FieryBurst_Timer
             if (FieryBurst_Timer <= diff)
@@ -80,12 +115,14 @@ public:
 
             DoMeleeAttackIfReady();
         }
-        // When he die open door to last chamber
+        // When he dies open door to last chamber
         void JustDied(Unit* killer) OVERRIDE
         {
             if (InstanceScript* instance = killer->GetInstanceScript())
                 instance->HandleGameObject(instance->GetData64(DATA_THRONE_DOOR), true);
         }
+        private:
+            EventMap _events;
     };
 };
 
