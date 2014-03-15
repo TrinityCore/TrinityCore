@@ -203,7 +203,7 @@ class npc_skittering_infector : public CreatureScript
 enum TrashEvents
 {
     // Anubar Skrimisher
-    EVENT_ANUBAR_CHARGE,
+    EVENT_ANUBAR_CHARGE = 1,
     EVENT_BACKSTAB,
 
     // Anubar Shadowcaster
