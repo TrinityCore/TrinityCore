@@ -219,7 +219,10 @@ public:
 
     struct npc_slad_ran_constrictorAI : public ScriptedAI
     {
-        npc_slad_ran_constrictorAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_slad_ran_constrictorAI(Creature* creature) : ScriptedAI(creature)
+        {
+            uiGripOfSladRanTimer = 1 * IN_MILLISECONDS;
+        }
 
         uint32 uiGripOfSladRanTimer;
 
@@ -270,7 +273,10 @@ public:
 
     struct npc_slad_ran_viperAI : public ScriptedAI
     {
-        npc_slad_ran_viperAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_slad_ran_viperAI(Creature* creature) : ScriptedAI(creature)
+        {
+            uiVenomousBiteTimer = 2 * IN_MILLISECONDS;
+        }
 
         uint32 uiVenomousBiteTimer;
 

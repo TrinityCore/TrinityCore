@@ -1180,7 +1180,10 @@ enum TrashEvents
 
 struct npc_gauntlet_trash : public ScriptedAI
 {
-    npc_gauntlet_trash(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+    npc_gauntlet_trash(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+    {
+        InternalWaveId = 0;
+    }
 
     void Reset() OVERRIDE
     {
