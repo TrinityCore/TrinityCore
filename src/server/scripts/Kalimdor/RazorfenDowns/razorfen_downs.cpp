@@ -158,6 +158,8 @@ public:
         {
             instance = creature->GetInstanceScript();
             eventInProgress = false;
+            channeling = false;
+            eventProgress = 0;
             spawnerCount = 0;
         }
 

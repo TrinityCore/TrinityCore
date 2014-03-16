@@ -654,6 +654,7 @@ class npc_torturer_lecraft : public CreatureScript
         {
             npc_torturer_lecraftAI(Creature* creature) : ScriptedAI(creature)
             {
+                _textCounter = 1;
                 _playerGUID = 0;
             }
 
