@@ -219,7 +219,7 @@ class boss_lord_marrowgar : public CreatureScript
                             break;
                         case EVENT_WARN_BONE_STORM:
                             _boneSlice = false;
-                            Talk(EMOTE_BONE_STORM);
+                            Talk(SAY_BONE_STORM);
                             me->FinishSpell(CURRENT_MELEE_SPELL, false);
                             DoCast(me, SPELL_BONE_STORM);
                             events.DelayEvents(3000, EVENT_GROUP_SPECIAL);
@@ -230,7 +230,7 @@ class boss_lord_marrowgar : public CreatureScript
                             if (Aura* pStorm = me->GetAura(SPELL_BONE_STORM))
                                 pStorm->SetDuration(int32(_boneStormDuration));
                             me->SetSpeed(MOVE_RUN, _baseSpeed*3.0f, true);
-                            Talk(SAY_BONE_STORM);
+                            Talk(EMOTE_BONE_STORM);
                             events.ScheduleEvent(EVENT_BONE_STORM_END, _boneStormDuration+1);
                             // no break here
                         case EVENT_BONE_STORM_MOVE:
