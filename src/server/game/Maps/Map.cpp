@@ -217,7 +217,7 @@ void Map::DeleteStateMachine()
 }
 
 Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode, Map* _parent):
-_creatureToMoveLock(false), _gameObjectsToMoveLock(false),
+_creatureToMoveLock(false), _gameObjectsToMoveLock(false), _dynamicObjectsToMoveLock(false),
 i_mapEntry(sMapStore.LookupEntry(id)), i_spawnMode(SpawnMode), i_InstanceId(InstanceId),
 m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
@@ -274,6 +274,15 @@ void Map::AddToGrid(Creature* obj, Cell const& cell)
 
 template<>
 void Map::AddToGrid(GameObject* obj, Cell const& cell)
+{
+    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
+    grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
+
+    obj->SetCurrentCell(cell);
+}
+
+template<>
+void Map::AddToGrid(DynamicObject* obj, Cell const& cell)
 {
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
     grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
@@ -953,6 +962,38 @@ void Map::GameObjectRelocation(GameObject* go, float x, float y, float z, float 
     ASSERT(integrity_check == old_cell);
 }
 
+void Map::DynamicObjectRelocation(DynamicObject* dynObj, float x, float y, float z, float orientation)
+{
+    Cell integrity_check(dynObj->GetPositionX(), dynObj->GetPositionY());
+    Cell old_cell = dynObj->GetCurrentCell();
+
+    ASSERT(integrity_check == old_cell);
+    Cell new_cell(x, y);
+
+    if (!getNGrid(new_cell.GridX(), new_cell.GridY()))
+        return;
+
+    // delay creature move for grid/cell to grid/cell moves
+    if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
+    {
+#ifdef TRINITY_DEBUG
+        TC_LOG_DEBUG("maps", "GameObject (GUID: %u) added to moving list from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", dynObj->GetGUIDLow(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+#endif
+        AddDynamicObjectToMoveList(dynObj, x, y, z, orientation);
+        // in diffcell/diffgrid case notifiers called at finishing move dynObj in Map::MoveAllGameObjectsInMoveList
+    }
+    else
+    {
+        dynObj->Relocate(x, y, z, orientation);
+        dynObj->UpdateObjectVisibility(false);
+        RemoveDynamicObjectFromMoveList(dynObj);
+    }
+
+    old_cell = dynObj->GetCurrentCell();
+    integrity_check = Cell(dynObj->GetPositionX(), dynObj->GetPositionY());
+    ASSERT(integrity_check == old_cell);
+}
+
 void Map::AddCreatureToMoveList(Creature* c, float x, float y, float z, float ang)
 {
     if (_creatureToMoveLock) //can this happen?
@@ -989,6 +1030,25 @@ void Map::RemoveGameObjectFromMoveList(GameObject* go)
 
     if (go->_moveState == MAP_OBJECT_CELL_MOVE_ACTIVE)
         go->_moveState = MAP_OBJECT_CELL_MOVE_INACTIVE;
+}
+
+void Map::AddDynamicObjectToMoveList(DynamicObject* dynObj, float x, float y, float z, float ang)
+{
+    if (_dynamicObjectsToMoveLock) //can this happen?
+        return;
+
+    if (dynObj->_moveState == MAP_OBJECT_CELL_MOVE_NONE)
+        _dynamicObjectsToMove.push_back(dynObj);
+    dynObj->SetNewCellPosition(x, y, z, ang);
+}
+
+void Map::RemoveDynamicObjectFromMoveList(DynamicObject* dynObj)
+{
+    if (_dynamicObjectsToMoveLock) //can this happen?
+        return;
+
+    if (dynObj->_moveState == MAP_OBJECT_CELL_MOVE_ACTIVE)
+        dynObj->_moveState = MAP_OBJECT_CELL_MOVE_INACTIVE;
 }
 
 void Map::MoveAllCreaturesInMoveList()
@@ -1089,6 +1149,44 @@ void Map::MoveAllGameObjectsInMoveList()
     }
     _gameObjectsToMove.clear();
     _gameObjectsToMoveLock = false;
+}
+
+void Map::MoveAllDynamicObjectsInMoveList()
+{
+    _dynamicObjectsToMoveLock = true;
+    for (std::vector<DynamicObject*>::iterator itr = _dynamicObjectsToMove.begin(); itr != _dynamicObjectsToMove.end(); ++itr)
+    {
+        DynamicObject* dynObj = *itr;
+        if (dynObj->FindMap() != this) //transport is teleported to another map
+            continue;
+
+        if (dynObj->_moveState != MAP_OBJECT_CELL_MOVE_ACTIVE)
+        {
+            dynObj->_moveState = MAP_OBJECT_CELL_MOVE_NONE;
+            continue;
+        }
+
+        dynObj->_moveState = MAP_OBJECT_CELL_MOVE_NONE;
+        if (!dynObj->IsInWorld())
+            continue;
+
+        // do move or do move to respawn or remove creature if previous all fail
+        if (DynamicObjectCellRelocation(dynObj, Cell(dynObj->_newPosition.m_positionX, dynObj->_newPosition.m_positionY)))
+        {
+            // update pos
+            dynObj->Relocate(dynObj->_newPosition);
+            dynObj->UpdateObjectVisibility(false);
+        }
+        else
+        {
+#ifdef TRINITY_DEBUG
+            TC_LOG_DEBUG("maps", "DynamicObject (GUID: %u) cannot be moved to unloaded grid.", dynObj->GetGUIDLow());
+#endif
+        }
+    }
+
+    _dynamicObjectsToMove.clear();
+    _dynamicObjectsToMoveLock = false;
 }
 
 bool Map::CreatureCellRelocation(Creature* c, Cell new_cell)
@@ -1209,6 +1307,67 @@ bool Map::GameObjectCellRelocation(GameObject* go, Cell new_cell)
     // fail to move: normal GameObject attempt move to unloaded grid
     #ifdef TRINITY_DEBUG
         TC_LOG_DEBUG("maps", "GameObject (GUID: %u Entry: %u) attempted to move from grid[%u, %u]cell[%u, %u] to unloaded grid[%u, %u]cell[%u, %u].", go->GetGUIDLow(), go->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+    #endif
+    return false;
+}
+
+bool Map::DynamicObjectCellRelocation(DynamicObject* go, Cell new_cell)
+{
+    Cell const& old_cell = go->GetCurrentCell();
+    if (!old_cell.DiffGrid(new_cell))                       // in same grid
+    {
+        // if in same cell then none do
+        if (old_cell.DiffCell(new_cell))
+        {
+            #ifdef TRINITY_DEBUG
+                TC_LOG_DEBUG("maps", "DynamicObject (GUID: %u) moved in grid[%u, %u] from cell[%u, %u] to cell[%u, %u].", go->GetGUIDLow(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.CellX(), new_cell.CellY());
+            #endif
+
+            go->RemoveFromGrid();
+            AddToGrid(go, new_cell);
+        }
+        else
+        {
+            #ifdef TRINITY_DEBUG
+                TC_LOG_DEBUG("maps", "DynamicObject (GUID: %u) moved in same grid[%u, %u]cell[%u, %u].", go->GetGUIDLow(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY());
+            #endif
+        }
+
+        return true;
+    }
+
+    // in diff. grids but active GameObject
+    if (go->isActiveObject())
+    {
+        EnsureGridLoadedForActiveObject(new_cell, go);
+
+        #ifdef TRINITY_DEBUG
+            TC_LOG_DEBUG("maps", "Active DynamicObject (GUID: %u) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", go->GetGUIDLow(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+        #endif
+
+        go->RemoveFromGrid();
+        AddToGrid(go, new_cell);
+
+        return true;
+    }
+
+    // in diff. loaded grid normal GameObject
+    if (IsGridLoaded(GridCoord(new_cell.GridX(), new_cell.GridY())))
+    {
+        #ifdef TRINITY_DEBUG
+            TC_LOG_DEBUG("maps", "DynamicObject (GUID: %u) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", go->GetGUIDLow() old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+        #endif
+
+        go->RemoveFromGrid();
+        EnsureGridCreated(GridCoord(new_cell.GridX(), new_cell.GridY()));
+        AddToGrid(go, new_cell);
+
+        return true;
+    }
+
+    // fail to move: normal GameObject attempt move to unloaded grid
+    #ifdef TRINITY_DEBUG
+        TC_LOG_DEBUG("maps", "DynamicObject (GUID: %u) attempted to move from grid[%u, %u]cell[%u, %u] to unloaded grid[%u, %u]cell[%u, %u].", go->GetGUIDLow(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
     #endif
     return false;
 }
