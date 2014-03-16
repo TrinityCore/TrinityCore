@@ -51,15 +51,15 @@ public:
     {
         boss_moira_bronzebeardAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE
+        void Reset() OVERRIDE { }
+
+        void EnterCombat(Unit* /*who*/) OVERRIDE 
         {
             //_events.ScheduleEvent(EVENT_HEAL, 12000); // not used atm // These times are probably wrong
             _events.ScheduleEvent(EVENT_MINDBLAST, 16000);
             _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 2000);
             _events.ScheduleEvent(EVENT_SMITE, 8000);
         }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

@@ -44,13 +44,13 @@ public:
     {
         boss_ambassador_flamelashAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE
+        void Reset() OVERRIDE { }
+
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             _events.ScheduleEvent(EVENT_FIREBLAST, 2000);
             _events.ScheduleEvent(EVENT_SUMMON_SPIRITS, 24000);
         }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void SummonSpirits(Unit* victim)
         {
@@ -75,7 +75,7 @@ public:
                         _events.ScheduleEvent(EVENT_FIREBLAST, 7000);
                         break;
                     case EVENT_SUMMON_SPIRITS:
-						for (uint32 i10 = 0; i10 < 4; ++i10)
+                        for (uint32 i10 = 0; i10 < 4; ++i10)
                             SummonSpirits(me->GetVictim());
                         _events.ScheduleEvent(EVENT_SUMMON_SPIRITS, 30000);
                         break;

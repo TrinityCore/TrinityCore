@@ -50,15 +50,15 @@ public:
         boss_high_interrogator_gerstahnAI(Creature* creature) : ScriptedAI(creature) { }
 
 
-        void Reset() OVERRIDE
+        void Reset() OVERRIDE { }
+
+        void EnterCombat(Unit* /*who*/) OVERRIDE 
         {
             _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 4000);
             _events.ScheduleEvent(EVENT_MANABURN, 14000);
             _events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, 32000);
             _events.ScheduleEvent(EVENT_SHADOWSHIELD, 8000);
         }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
