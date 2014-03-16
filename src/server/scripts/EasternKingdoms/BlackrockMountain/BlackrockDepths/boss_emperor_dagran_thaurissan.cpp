@@ -57,16 +57,14 @@ public:
 
         InstanceScript* instance;
 
-        void Reset() OVERRIDE
-        {
-            _events.ScheduleEvent(EVENT_HANDOFTHAURISSAN, 4000);
-            _events.ScheduleEvent(EVENT_AVATAROFFLAME, 25000);
-        }
+        void Reset() OVERRIDE { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
             me->CallForHelp(VISIBLE_RANGE);
+            _events.ScheduleEvent(EVENT_HANDOFTHAURISSAN, 4000);
+            _events.ScheduleEvent(EVENT_AVATAROFFLAME, 25000);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE

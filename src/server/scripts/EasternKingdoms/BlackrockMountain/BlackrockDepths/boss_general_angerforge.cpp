@@ -57,14 +57,16 @@ public:
 
         void Reset() OVERRIDE
         {
-            _events.ScheduleEvent(EVENT_MIGHTYBLOW, 8000);
-            _events.ScheduleEvent(EVENT_HAMSTRING, 12000);
-            _events.ScheduleEvent(EVENT_CLEAVE, 16000);
             Medics = false;
             PhaseTwo = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE 
+        {
+            _events.ScheduleEvent(EVENT_MIGHTYBLOW, 8000);
+            _events.ScheduleEvent(EVENT_HAMSTRING, 12000);
+            _events.ScheduleEvent(EVENT_CLEAVE, 16000);
+        }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
         {

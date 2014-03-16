@@ -45,14 +45,12 @@ public:
     {
         boss_gorosh_the_dervishAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE
-        {
-            _events.ScheduleEvent(EVENT_WHIRLWIND, 12000);
-            _events.ScheduleEvent(EVENT_MORTALSTRIKE , 22000);
-        }
+        void Reset() OVERRIDE { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
+            _events.ScheduleEvent(EVENT_WHIRLWIND, 12000);
+            _events.ScheduleEvent(EVENT_MORTALSTRIKE, 22000);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE

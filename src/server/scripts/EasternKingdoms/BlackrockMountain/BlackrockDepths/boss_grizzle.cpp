@@ -50,11 +50,13 @@ public:
 
         void Reset() OVERRIDE
         {
-            _events.ScheduleEvent(EVENT_GROUNDTREMOR, 12000);
             PhaseTwo = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE 
+        {
+            _events.ScheduleEvent(EVENT_GROUNDTREMOR, 12000);
+        }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
         {
