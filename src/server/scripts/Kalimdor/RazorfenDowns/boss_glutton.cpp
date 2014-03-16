@@ -42,6 +42,7 @@ public:
     {
         boss_gluttonAI(Creature* creature) : BossAI(creature, DATA_GLUTTON)
         {
+            hp50 = false;
             hp15 = false;
         }
 
