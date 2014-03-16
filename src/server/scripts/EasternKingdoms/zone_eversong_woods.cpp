@@ -281,8 +281,10 @@ public:
                 Completed = true;
                 if (PlayerGUID)
                     if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
+                    {
+                        player->KilledMonsterCredit(16364, PlayerGUID);
                         player->CompleteQuest(QUEST_POWERING_OUR_DEFENSES);
-
+                    }
                 me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 me->RemoveCorpse();
             } else EndTimer -= diff;
