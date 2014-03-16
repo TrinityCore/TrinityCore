@@ -99,6 +99,15 @@ enum DoomrelSpells
     SPELL_SUMMON_VOIDWALKERS                               = 15092
 };
 
+enum DoomrelEvents
+{
+    EVENT_SHADOW_BOLT_VOLLEY                               = 1,
+    EVENT_IMMOLATE                                         = 2,
+    EVENT_CURSE_OF_WEAKNESS                                = 3,
+    EVENT_DEMONARMOR                                       = 4,
+    EVENT_SUMMON_VOIDWALKERS                               = 5
+};
+
 #define GOSSIP_ITEM_CHALLENGE   "Your bondage is at an end, Doom'rel. I challenge you!"
 #define GOSSIP_SELECT_DOOMREL   "[PH] Continue..."
 
@@ -151,18 +160,10 @@ public:
         }
 
         InstanceScript* instance;
-        uint32 ShadowVolley_Timer;
-        uint32 Immolate_Timer;
-        uint32 CurseOfWeakness_Timer;
-        uint32 DemonArmor_Timer;
         bool Voidwalkers;
 
         void Reset() OVERRIDE
         {
-            ShadowVolley_Timer = 10000;
-            Immolate_Timer = 18000;
-            CurseOfWeakness_Timer = 5000;
-            DemonArmor_Timer = 16000;
             Voidwalkers = false;
 
             me->setFaction(FACTION_FRIEND);
@@ -178,6 +179,19 @@ public:
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
+            _events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 10000);
+            _events.ScheduleEvent(EVENT_IMMOLATE, 18000);
+            _events.ScheduleEvent(EVENT_CURSE_OF_WEAKNESS, 5000);
+            _events.ScheduleEvent(EVENT_DEMONARMOR, 16000);
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
+        {
+            if (!Voidwalkers && !HealthAbovePct(50))
+            {
+                DoCastVictim(SPELL_SUMMON_VOIDWALKERS, true);
+                Voidwalkers = true;
+            }
         }
 
         void EnterEvadeMode() OVERRIDE
@@ -202,45 +216,36 @@ public:
             if (!UpdateVictim())
                 return;
 
-            //ShadowVolley_Timer
-            if (ShadowVolley_Timer <= diff)
-            {
-                DoCastVictim(SPELL_SHADOWBOLTVOLLEY);
-                ShadowVolley_Timer = 12000;
-            } else ShadowVolley_Timer -= diff;
+            _events.Update(diff);
 
-            //Immolate_Timer
-            if (Immolate_Timer <= diff)
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_IMMOLATE);
-
-                Immolate_Timer = 25000;
-            } else Immolate_Timer -= diff;
-
-            //CurseOfWeakness_Timer
-            if (CurseOfWeakness_Timer <= diff)
-            {
-                DoCastVictim(SPELL_CURSEOFWEAKNESS);
-                CurseOfWeakness_Timer = 45000;
-            } else CurseOfWeakness_Timer -= diff;
-
-            //DemonArmor_Timer
-            if (DemonArmor_Timer <= diff)
-            {
-                DoCast(me, SPELL_DEMONARMOR);
-                DemonArmor_Timer = 300000;
-            } else DemonArmor_Timer -= diff;
-
-            //Summon Voidwalkers
-            if (!Voidwalkers && HealthBelowPct(51))
-            {
-                DoCastVictim(SPELL_SUMMON_VOIDWALKERS, true);
-                Voidwalkers = true;
+                switch (eventId)
+                {
+                    case EVENT_SHADOW_BOLT_VOLLEY:
+                        DoCastVictim(SPELL_SHADOWBOLTVOLLEY);
+                        _events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 12000);
+                        break;
+                    case EVENT_IMMOLATE:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            DoCast(target, SPELL_IMMOLATE);
+                        _events.ScheduleEvent(EVENT_IMMOLATE, 25000);
+                        break;
+                    case EVENT_CURSE_OF_WEAKNESS:
+                        DoCastVictim(SPELL_CURSEOFWEAKNESS);
+                        _events.ScheduleEvent(EVENT_CURSE_OF_WEAKNESS, 45000);
+                        break;
+                    case EVENT_DEMONARMOR:
+                        DoCast(me, SPELL_DEMONARMOR);
+                        _events.ScheduleEvent(EVENT_DEMONARMOR, 300000);
+                        break;
+                }
             }
 
             DoMeleeAttackIfReady();
         }
+        private:
+            EventMap _events;
     };
 };
 
