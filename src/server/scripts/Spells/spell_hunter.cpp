@@ -413,7 +413,17 @@ class spell_hun_masters_call : public SpellScriptLoader
         class spell_hun_masters_call_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_hun_masters_call_SpellScript);
-
+			SpellCastResult CheckCast()
+            {
+                Unit* caster = GetCaster();
+                    if (Player* caster = GetCaster()->ToPlayer())
+                        if (Pet* target = caster->GetPet())
+							if (target->isAlive())
+								return SPELL_CAST_OK;
+							return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+					                
+            }
+			
             bool Validate(SpellInfo const* spellInfo) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_MASTERS_CALL_TRIGGERED) || !sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].CalcValue()) || !sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_1].CalcValue()))
@@ -427,6 +437,7 @@ class spell_hun_masters_call : public SpellScriptLoader
                     if (Player* caster = GetCaster()->ToPlayer())
                         if (Pet* target = caster->GetPet())
                         {
+							target->RemoveMovementImpairingAuras(); // remove already applied root and snare from pet
                             TriggerCastFlags castMask = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_CASTER_AURASTATE);
                             target->CastSpell(ally, GetEffectValue(), castMask);
                             target->CastSpell(ally, GetSpellInfo()->Effects[EFFECT_0].CalcValue(), castMask);
@@ -445,6 +456,7 @@ class spell_hun_masters_call : public SpellScriptLoader
 
             void Register() OVERRIDE
             {
+				OnCheckCast += SpellCheckCastFn(spell_hun_masters_call_SpellScript::CheckCast);
                 OnEffectHitTarget += SpellEffectFn(spell_hun_masters_call_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
                 OnEffectHitTarget += SpellEffectFn(spell_hun_masters_call_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }

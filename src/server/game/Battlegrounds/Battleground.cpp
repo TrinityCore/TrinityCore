@@ -898,7 +898,12 @@ void Battleground::EndBattleground(uint32 winner)
             if (IsRandom() || BattlegroundMgr::IsBGWeekend(GetTypeID()))
                 UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(loser_kills));
         }
-
+		
+		if (isArena())
+		{
+			player->SetGMVisible(true);
+			player->SetGameMaster(false);
+		}		
         player->ResetAllPowers();
         player->CombatStopWithPets(true);
 
@@ -1252,14 +1257,24 @@ void Battleground::EventPlayerLoggedOut(Player* player)
     m_Players[guid].OfflineRemoveTime = sWorld->GetGameTime() + MAX_OFFLINE_TIME;
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        // drop flag and handle other cleanups
-        RemovePlayer(player, guid, GetPlayerTeam(guid));
-
-        // 1 player is logging out, if it is the last, then end arena!
-        if (isArena())
-            if (GetAlivePlayersCountByTeam(player->GetBGTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetBGTeam())))
-                EndBattleground(GetOtherTeam(player->GetBGTeam()));
+		if (!player->IsSpectator())
+		{
+			// drop flag and handle other cleanups
+			RemovePlayer(player, guid, GetPlayerTeam(guid));
+			// 1 player is logging out, if it is the last, then end arena!
+			if (isArena())
+				if (GetAlivePlayersCountByTeam(player->GetTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetTeam())))
+					EndBattleground(GetOtherTeam(player->GetTeam()));
+		}
     }
+
+	if (!player->IsSpectator())
+		player->LeaveBattleground();
+	else
+	{
+		player->TeleportToBGEntryPoint();
+		RemoveSpectator(player->GetGUID());
+	}
 }
 
 // This method should be called only once ... it adds pointer to queue
@@ -1948,6 +1963,15 @@ void Battleground::HandleAreaTrigger(Player* player, uint32 trigger)
 {
     TC_LOG_DEBUG("bg.battleground", "Unhandled AreaTrigger %u in Battleground %u. Player coords (x: %f, y: %f, z: %f)",
                    trigger, player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+}
+
+void Battleground::SendSpectateAddonsMsg(SpectatorAddonMsg msg)
+{
+	if (!HaveSpectators())
+		return;
+	
+	for (SpectatorList::iterator itr = m_Spectators.begin(); itr != m_Spectators.end(); ++itr)
+		msg.SendPacket(*itr);
 }
 
 bool Battleground::CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/)

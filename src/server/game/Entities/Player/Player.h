@@ -28,6 +28,7 @@
 #include "QuestDef.h"
 #include "SpellMgr.h"
 #include "Unit.h"
+#include "Battleground.h"
 
 #include <string>
 #include <vector>
@@ -1140,6 +1141,14 @@ class Player : public Unit, public GridObject<Player>
         void SetHas310Flyer(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_HAS_310_FLYER; else m_ExtraFlags &= ~PLAYER_EXTRA_HAS_310_FLYER; }
         void SetPvPDeath(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_PVP_DEATH; else m_ExtraFlags &= ~PLAYER_EXTRA_PVP_DEATH; }
 
+		bool HaveSpectators();
+		void SendSpectatorAddonMsgToBG(SpectatorAddonMsg msg);
+		bool IsSpectateCanceled() { return spectateCanceled; }
+		void CancelSpectate() { spectateCanceled = true; }
+		Unit* getSpectateFrom() { return spectateFrom; }
+		bool IsSpectator() const { return spectatorFlag; }
+		void SetSpectate(bool on);
+		
         void GiveXP(uint32 xp, Unit* victim, float group_rate=1.0f);
         void GiveLevel(uint8 level);
 
@@ -1512,7 +1521,7 @@ class Player : public Unit, public GridObject<Player>
         Player* GetSelectedPlayer() const;
 
         void SetTarget(uint64 /*guid*/) OVERRIDE { } /// Used for serverside target changes, does not apply to players
-        void SetSelection(uint64 guid) { SetUInt64Value(UNIT_FIELD_TARGET, guid); }
+        void SetSelection(uint64 guid);
 
         uint8 GetComboPoints() const { return m_comboPoints; }
         uint64 GetComboTarget() const { return m_comboTarget; }
@@ -2623,7 +2632,11 @@ class Player : public Unit, public GridObject<Player>
         InstanceTimeMap _instanceResetTimes;
         uint32 _pendingBindId;
         uint32 _pendingBindTimer;
-
+		
+		bool spectatorFlag;
+		bool spectateCanceled;
+		Unit *spectateFrom;
+		
         uint32 _activeCheats;
 };
 
