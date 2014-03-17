@@ -16,3 +16,6 @@ CMakeLists.txt.user
 *.BACKUP.*
 *.BASE.*
 *.LOCAL.*
+
+/src/LuaEngine/*
+!/src/LuaEngine/Includes.h

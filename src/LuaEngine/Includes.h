@@ -9,6 +9,7 @@
 
 // #define MANGOS
 #define TRINITY
+// #define CLASSIC
 // #define TBC
 #define WOTLK
 // #define CATA
