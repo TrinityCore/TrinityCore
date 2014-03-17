@@ -286,7 +286,6 @@ public:
                     if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                     {
                         player->KilledMonsterCredit(QUEST_POD_CREDIT, 0);
-                        player->CompleteQuest(QUEST_POWERING_OUR_DEFENSES);
                     }
                 me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 me->RemoveCorpse();
