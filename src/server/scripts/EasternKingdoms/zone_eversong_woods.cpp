@@ -187,6 +187,9 @@ public:
 
 enum InfusedCrystal
 {
+    // Quest
+    QUEST_POWERING_OUR_DEFENSES     = 8490,
+    
     // Quest Credit
     QUEST_POD_CREDIT                = 16364,
 
@@ -266,24 +269,16 @@ public:
             summoned->AI()->AttackStart(me);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
-        {
-            if (PlayerGUID && !Completed)
-                if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
-                    player->FailQuest(QUEST_POWERING_OUR_DEFENSES);
-        }
-
         void UpdateAI(uint32 diff) OVERRIDE
         {
             if (EndTimer < diff && Progress)
             {
-                Talk(EMOTE);
                 Completed = true;
                 if (PlayerGUID)
                     if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
-                        player->KilledMonsterCredit(QUEST_POD_CREDIT, 0);
-                me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                me->RemoveCorpse();
+                        Talk(EMOTE, player);
+                        player->KilledMonsterCredit(QUEST_POD_CREDIT);
+                me->DespawnOrUnsummon();
             } else EndTimer -= diff;
 
             if (WaveTimer < diff && !Completed && Progress)
