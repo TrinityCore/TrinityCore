@@ -566,7 +566,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         if (uint32 combo = player->GetComboPoints())
                         {
                             float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                            damage += irand(int32(ap * combo * 0.03f), int32(ap * combo * 0.07f));
+                            damage += irand(int32(ap * combo * 0.0715f), int32(ap * combo * 0.075f));
 
                             // Eviscerate and Envenom Bonus Damage (item set effect)
                             if (m_caster->HasAura(37169))
