@@ -1,0 +1,16 @@
+commit a8840070c3c6948a60afd769fbca75368b718e02
+Author: Aokromes <Aokromes@users.noreply.github.com>
+Date:   Fri Mar 14 00:14:42 2014 +0100
+
+    DB/SAI: No Rest For The Wicked
+    
+    By MitchesD, closes #11709
+
+diff --git a/sql/updates/world/2014_03_13_01_world_sai.sql b/sql/updates/world/2014_03_13_01_world_sai.sql
+new file mode 100644
+index 0000000..93697d5
+--- /dev/null
++++ b/sql/updates/world/2014_03_13_01_world_sai.sql
+@@ -0,0 +1,2 @@
++--
++UPDATE `smart_scripts` SET `target_param3`=0, `target_x`=8219, `target_y`=2187.09, `target_z`=499.82, `target_o`=3.10669 WHERE `entryorguid`=32347;
