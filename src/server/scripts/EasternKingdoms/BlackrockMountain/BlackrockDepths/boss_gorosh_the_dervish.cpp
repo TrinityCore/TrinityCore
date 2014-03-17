@@ -25,6 +25,12 @@ enum Spells
     SPELL_MORTALSTRIKE                                     = 24573
 };
 
+enum Events
+{
+    EVENT_WHIRLWIND                                        = 1,
+    EVENT_MORTALSTRIKE                                     = 2
+};
+
 class boss_gorosh_the_dervish : public CreatureScript
 {
 public:
@@ -39,17 +45,12 @@ public:
     {
         boss_gorosh_the_dervishAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint32 WhirlWind_Timer;
-        uint32 MortalStrike_Timer;
-
-        void Reset() OVERRIDE
-        {
-            WhirlWind_Timer = 12000;
-            MortalStrike_Timer = 22000;
-        }
+        void Reset() OVERRIDE { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
+            _events.ScheduleEvent(EVENT_WHIRLWIND, 12000);
+            _events.ScheduleEvent(EVENT_MORTALSTRIKE, 22000);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -58,22 +59,28 @@ public:
             if (!UpdateVictim())
                 return;
 
-            //WhirlWind_Timer
-            if (WhirlWind_Timer <= diff)
-            {
-                DoCast(me, SPELL_WHIRLWIND);
-                WhirlWind_Timer = 15000;
-            } else WhirlWind_Timer -= diff;
+            _events.Update(diff);
 
-            //MortalStrike_Timer
-            if (MortalStrike_Timer <= diff)
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                DoCastVictim(SPELL_MORTALSTRIKE);
-                MortalStrike_Timer = 15000;
-            } else MortalStrike_Timer -= diff;
+                switch (eventId)
+                {
+                    case EVENT_WHIRLWIND:
+                        DoCast(me, SPELL_WHIRLWIND);
+                        _events.ScheduleEvent(EVENT_WHIRLWIND, 15000);
+                        break;
+                    case EVENT_MORTALSTRIKE:
+                        DoCastVictim(SPELL_MORTALSTRIKE);
+                        _events.ScheduleEvent(EVENT_MORTALSTRIKE, 15000);
+                        break;
+                }
+            }
 
             DoMeleeAttackIfReady();
         }
+
+        private:
+            EventMap _events;
     };
 };
 

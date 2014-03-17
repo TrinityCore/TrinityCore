@@ -24,6 +24,12 @@ enum Spells
     SPELL_FIREBLAST                                        = 15573
 };
 
+enum Events
+{
+    EVENT_FIREBLAST                                        = 1,
+    EVENT_SUMMON_SPIRITS                                   = 2
+};
+
 class boss_ambassador_flamelash : public CreatureScript
 {
 public:
@@ -38,16 +44,13 @@ public:
     {
         boss_ambassador_flamelashAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint32 FireBlast_Timer;
-        uint32 Spirit_Timer;
+        void Reset() OVERRIDE { }
 
-        void Reset() OVERRIDE
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            FireBlast_Timer = 2000;
-            Spirit_Timer = 24000;
+            _events.ScheduleEvent(EVENT_FIREBLAST, 2000);
+            _events.ScheduleEvent(EVENT_SUMMON_SPIRITS, 24000);
         }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void SummonSpirits(Unit* victim)
         {
@@ -61,26 +64,28 @@ public:
             if (!UpdateVictim())
                 return;
 
-            //FireBlast_Timer
-            if (FireBlast_Timer <= diff)
-            {
-                DoCastVictim(SPELL_FIREBLAST);
-                FireBlast_Timer = 7000;
-            } else FireBlast_Timer -= diff;
+            _events.Update(diff);
 
-            //Spirit_Timer
-            if (Spirit_Timer <= diff)
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                SummonSpirits(me->GetVictim());
-                SummonSpirits(me->GetVictim());
-                SummonSpirits(me->GetVictim());
-                SummonSpirits(me->GetVictim());
-
-                Spirit_Timer = 30000;
-            } else Spirit_Timer -= diff;
+                switch (eventId)
+                {
+                    case EVENT_FIREBLAST:
+                        DoCastVictim(SPELL_FIREBLAST);
+                        _events.ScheduleEvent(EVENT_FIREBLAST, 7000);
+                        break;
+                    case EVENT_SUMMON_SPIRITS:
+                        for (uint32 i10 = 0; i10 < 4; ++i10)
+                            SummonSpirits(me->GetVictim());
+                        _events.ScheduleEvent(EVENT_SUMMON_SPIRITS, 30000);
+                        break;
+                }
+            }
 
             DoMeleeAttackIfReady();
         }
+        private:
+            EventMap _events;
     };
 };
 
