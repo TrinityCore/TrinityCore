@@ -187,9 +187,6 @@ public:
 
 enum InfusedCrystal
 {
-    // Quest
-    QUEST_POWERING_OUR_DEFENSES     = 8490,
-
     // Quest Credit
     QUEST_POD_CREDIT                = 16364,
 
@@ -284,9 +281,7 @@ public:
                 Completed = true;
                 if (PlayerGUID)
                     if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
-                    {
                         player->KilledMonsterCredit(QUEST_POD_CREDIT, 0);
-                    }
                 me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 me->RemoveCorpse();
             } else EndTimer -= diff;
