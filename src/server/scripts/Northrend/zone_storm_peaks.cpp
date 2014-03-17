@@ -454,6 +454,9 @@ public:
     {
         npc_brann_bronzebeard_keystoneAI(Creature* creature) : ScriptedAI(creature)
         {
+            memset(&objectGUID, 0, sizeof(objectGUID));
+            playerGUID = 0;
+            voiceGUID = 0;
             objectCounter = 0;
         }
 
@@ -640,6 +643,7 @@ public:
     {
         npc_king_jokkum_vehicleAI(Creature* creature) : VehicleAI(creature)
         {
+            playerGUID = 0;
             pathEnd = false;
         }
 

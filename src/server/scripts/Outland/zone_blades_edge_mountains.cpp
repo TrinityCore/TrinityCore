@@ -115,6 +115,7 @@ public:
     {
         npc_bloodmaul_bruteAI(Creature* creature) : ScriptedAI(creature)
         {
+            PlayerGUID = 0;
             hp30 = false;
         }
 

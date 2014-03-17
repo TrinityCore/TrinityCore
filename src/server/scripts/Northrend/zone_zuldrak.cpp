@@ -453,7 +453,11 @@ public:
 
         struct npc_alchemist_finklesteinAI : public ScriptedAI
         {
-            npc_alchemist_finklesteinAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_alchemist_finklesteinAI(Creature* creature) : ScriptedAI(creature)
+            {
+                _playerGUID = 0;
+                _getingredienttry = 0;
+            }
 
             void Reset() OVERRIDE
             {

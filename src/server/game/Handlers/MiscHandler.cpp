@@ -162,7 +162,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
         {
             go->AI()->GossipSelectCode(_player, menuId, gossipListId, code.c_str());
             if (!sScriptMgr->OnGossipSelectCode(_player, go, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId), code.c_str()))
-                _player->OnGossipSelect(unit, gossipListId, menuId);
+                _player->OnGossipSelect(go, gossipListId, menuId);
         }
     }
     else

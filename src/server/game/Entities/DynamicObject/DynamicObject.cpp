@@ -26,6 +26,7 @@
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "ScriptMgr.h"
+#include "Transport.h"
 
 DynamicObject::DynamicObject(bool isWorldObject) : WorldObject(isWorldObject),
     _aura(NULL), _removedAura(NULL), _caster(NULL), _duration(0), _isViewpoint(false)
@@ -45,6 +46,18 @@ DynamicObject::~DynamicObject()
     ASSERT(!_caster);
     ASSERT(!_isViewpoint);
     delete _removedAura;
+}
+
+void DynamicObject::CleanupsBeforeDelete(bool finalCleanup /* = true */)
+{
+    WorldObject::CleanupsBeforeDelete(finalCleanup);
+
+    if (Transport* transport = GetTransport())
+    {
+        transport->RemovePassenger(this);
+        SetTransport(NULL);
+        m_movementInfo.transport.Reset();
+    }
 }
 
 void DynamicObject::AddToWorld()
@@ -108,8 +121,28 @@ bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, uint32 spe
     if (IsWorldObject())
         setActive(true);    //must before add to map to be put in world container
 
+    Transport* transport = caster->GetTransport();
+    if (transport)
+    {
+        m_movementInfo.transport.guid = GetGUID();
+
+        float x, y, z, o;
+        pos.GetPosition(x, y, z, o);
+        transport->CalculatePassengerOffset(x, y, z, &o);
+        m_movementInfo.transport.pos.Relocate(x, y, z, o);
+
+        SetTransport(transport);
+        // This object must be added to transport before adding to map for the client to properly display it
+        transport->AddPassenger(this);
+    }
+
     if (!GetMap()->AddToMap(this))
+    {
+        // Returning false will cause the object to be deleted - remove from transport
+        if (transport)
+            transport->RemovePassenger(this);
         return false;
+    }
 
     return true;
 }

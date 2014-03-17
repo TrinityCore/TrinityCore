@@ -450,6 +450,9 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z, fl
                     if (!obj->ToPlayer()->TeleportTo(newMapid, destX, destY, destZ, destO, TELE_TO_NOT_LEAVE_TRANSPORT))
                         _passengers.erase(obj);
                     break;
+                case TYPEID_DYNAMICOBJECT:
+                    obj->AddObjectToRemoveList();
+                    break;
                 default:
                     break;
             }
@@ -517,6 +520,9 @@ void Transport::UpdatePassengerPositions(std::set<WorldObject*>& passengers)
                 break;
             case TYPEID_GAMEOBJECT:
                 GetMap()->GameObjectRelocation(passenger->ToGameObject(), x, y, z, o, false);
+                break;
+            case TYPEID_DYNAMICOBJECT:
+                GetMap()->DynamicObjectRelocation(passenger->ToDynObject(), x, y, z, o);
                 break;
             default:
                 break;
