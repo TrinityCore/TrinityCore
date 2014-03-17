@@ -189,7 +189,7 @@ enum InfusedCrystal
 {
     // Quest
     QUEST_POWERING_OUR_DEFENSES     = 8490,
-    
+
     // Quest Credit
     QUEST_POD_CREDIT                = 16364,
 
@@ -276,8 +276,10 @@ public:
                 Completed = true;
                 if (PlayerGUID)
                     if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
+                    {
                         Talk(EMOTE, player);
                         player->KilledMonsterCredit(QUEST_POD_CREDIT);
+                    }
                 me->DespawnOrUnsummon();
             } else EndTimer -= diff;
 
