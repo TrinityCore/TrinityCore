@@ -583,6 +583,56 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                         return false;
                 }
                 break;
+            case SMART_EVENT_DISTANCE_CREATURE:
+                if (e.event.distance.guid == 0 && e.event.distance.entry == 0)
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE did not provide creature guid or entry, skipped.");
+                    return false;
+                }
+
+                if (e.event.distance.guid != 0 && e.event.distance.entry != 0)
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE provided both an entry and guid, skipped.");
+                    return false;
+                }
+
+                if (e.event.distance.guid != 0 && !sObjectMgr->GetCreatureData(e.event.distance.guid))
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE using invalid creature guid %u, skipped.", e.event.distance.guid);
+                    return false;
+                }
+
+                if (e.event.distance.entry != 0 && !sObjectMgr->GetCreatureTemplate(e.event.distance.entry))
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE using invalid creature entry %u, skipped.", e.event.distance.entry);
+                    return false;
+                }
+                break;
+            case SMART_EVENT_DISTANCE_GAMEOBJECT:
+                if (e.event.distance.guid == 0 && e.event.distance.entry == 0)
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT did not provide gameobject guid or entry, skipped.");
+                    return false;
+                }
+
+                if (e.event.distance.guid != 0 && e.event.distance.entry != 0)
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT provided both an entry and guid, skipped.");
+                    return false;
+                }
+
+                if (e.event.distance.guid != 0 && !sObjectMgr->GetGOData(e.event.distance.guid))
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT using invalid gameobject guid %u, skipped.", e.event.distance.guid);
+                    return false;
+                }
+
+                if (e.event.distance.entry != 0 && !sObjectMgr->GetGameObjectTemplate(e.event.distance.entry))
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT using invalid gameobject entry %u, skipped.", e.event.distance.entry);
+                    return false;
+                }
+                break;
             case SMART_EVENT_GO_STATE_CHANGED:
             case SMART_EVENT_GO_EVENT_INFORM:
             case SMART_EVENT_TIMED_EVENT_TRIGGERED:

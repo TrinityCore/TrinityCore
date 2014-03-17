@@ -165,8 +165,10 @@ enum SMART_EVENT
     SMART_EVENT_ACTION_DONE              = 72,      // eventId (SharedDefines.EventId)
     SMART_EVENT_ON_SPELLCLICK            = 73,      // clicker (unit)
     SMART_EVENT_FRIENDLY_HEALTH_PCT      = 74,      // minHpPct, maxHpPct, repeatMin, repeatMax
+    SMART_EVENT_DISTANCE_CREATURE        = 75,      // guid, entry, distance, repeat
+    SMART_EVENT_DISTANCE_GAMEOBJECT      = 76,      // guid, entry, distance, repeat
 
-    SMART_EVENT_END                      = 75
+    SMART_EVENT_END                      = 77
 };
 
 struct SmartEvent
@@ -385,6 +387,14 @@ struct SmartEvent
             uint32 repeatMin;
             uint32 repeatMax;
         } friendlyHealthPct;
+
+        struct
+        {
+            uint32 guid;
+            uint32 entry;
+            uint32 dist;
+            uint32 repeat;
+        } distance;
 
         struct
         {
@@ -1271,6 +1281,8 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_ACTION_DONE,               SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_ON_SPELLCLICK,             SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_FRIENDLY_HEALTH_PCT,       SMART_SCRIPT_TYPE_MASK_CREATURE },
+    {SMART_EVENT_DISTANCE_CREATURE,         SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
+    {SMART_EVENT_DISTANCE_GAMEOBJECT,       SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
 };
 
 enum SmartEventFlags
