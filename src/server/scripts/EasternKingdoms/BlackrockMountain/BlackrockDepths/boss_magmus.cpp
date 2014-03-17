@@ -50,11 +50,9 @@ public:
     {
         boss_magmusAI(Creature* creature) : ScriptedAI(creature) { }
 
-        bool PhaseTwo;
-
         void Reset() OVERRIDE
         {
-            PhaseTwo = false;
+            _phaseTwo = false;
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE 
@@ -64,9 +62,9 @@ public:
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
         {
-            if (!HealthAbovePct(50) && !PhaseTwo)
+            if (!HealthAbovePct(50) && !_phaseTwo)
             {
-                PhaseTwo = true;
+                _phaseTwo = true;
                 _events.ScheduleEvent(EVENT_WARSTOMP, 0);
             }
         }
@@ -104,6 +102,7 @@ public:
         }
         private:
             EventMap _events;
+            bool _phaseTwo; // Sub-50% Phase
     };
 };
 

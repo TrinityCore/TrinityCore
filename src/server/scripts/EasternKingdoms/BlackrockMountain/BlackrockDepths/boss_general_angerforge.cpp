@@ -46,19 +46,12 @@ public:
 
     struct boss_general_angerforgeAI : public ScriptedAI
     {
-        boss_general_angerforgeAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 MightyBlow_Timer;
-        uint32 HamString_Timer;
-        uint32 Cleave_Timer;
-        uint32 Adds_Timer;
-        bool Medics;
-        bool PhaseTwo; // Sub 20% Phase
-
+        boss_general_angerforgeAI(Creature* creature) : ScriptedAI(creature) {}
+        
         void Reset() OVERRIDE
         {
-            Medics = false;
-            PhaseTwo = false;
+            _medics = false;
+            _phaseTwo = false;
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE 
@@ -70,9 +63,9 @@ public:
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
         {
-            if (!HealthAbovePct(20) && !PhaseTwo)
+            if (!HealthAbovePct(20) && !_phaseTwo)
             {
-                PhaseTwo = true;
+                _phaseTwo = true;
                 _events.ScheduleEvent(EVENT_ADDS, 0);
             }
         }
@@ -116,11 +109,11 @@ public:
                     case EVENT_ADDS:
                         for (uint32 i10 = 0; i10 < 3; ++i10)
                             SummonAdds(me->GetVictim());
-                        if (!Medics)
+                        if (!_medics)
                         {
                             for (uint32 i10 = 0; i10 < 2; ++i10)
                                 SummonMedics(me->GetVictim());
-                            Medics = true;
+                            _medics = true;
                         }
                         _events.ScheduleEvent(EVENT_ADDS, 25000);
                         break;
@@ -131,6 +124,8 @@ public:
         }
         private:
             EventMap _events;
+            bool _medics;
+            bool _phaseTwo; // Sub 20% Phase
     };
 };
 

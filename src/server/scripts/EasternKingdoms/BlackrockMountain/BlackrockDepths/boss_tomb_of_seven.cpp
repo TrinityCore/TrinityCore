@@ -160,11 +160,10 @@ public:
         }
 
         InstanceScript* instance;
-        bool Voidwalkers;
 
         void Reset() OVERRIDE
         {
-            Voidwalkers = false;
+            _voidWalkers = false;
 
             me->setFaction(FACTION_FRIEND);
 
@@ -187,10 +186,10 @@ public:
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
         {
-            if (!Voidwalkers && !HealthAbovePct(50))
+            if (!_voidWalkers && !HealthAbovePct(50))
             {
                 DoCastVictim(SPELL_SUMMON_VOIDWALKERS, true);
-                Voidwalkers = true;
+                _voidWalkers = true;
             }
         }
 
@@ -246,6 +245,7 @@ public:
         }
         private:
             EventMap _events;
+            bool _voidWalkers;
     };
 };
 

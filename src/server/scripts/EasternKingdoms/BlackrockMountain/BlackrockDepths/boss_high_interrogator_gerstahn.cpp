@@ -49,7 +49,6 @@ public:
     {
         boss_high_interrogator_gerstahnAI(Creature* creature) : ScriptedAI(creature) { }
 
-
         void Reset() OVERRIDE { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE 

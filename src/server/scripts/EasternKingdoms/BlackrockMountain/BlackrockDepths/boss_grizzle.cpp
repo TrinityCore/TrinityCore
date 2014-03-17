@@ -46,11 +46,9 @@ public:
     {
         boss_grizzleAI(Creature* creature) : ScriptedAI(creature) { }
 
-        bool PhaseTwo; //Frenzy Phase
-
         void Reset() OVERRIDE
         {
-            PhaseTwo = false;
+            _phaseTwo = false;
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE 
@@ -60,9 +58,9 @@ public:
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
         {
-            if (!HealthAbovePct(50) && !PhaseTwo)
+            if (!HealthAbovePct(50) && !_phaseTwo)
             {
-                PhaseTwo = true;
+                _phaseTwo = true;
                 _events.ScheduleEvent(EVENT_FRENZY, 0);
             }
         }
@@ -95,6 +93,7 @@ public:
         }
         private:
             EventMap _events;
+            bool _phaseTwo; //Frenzy Phase
     };
 };
 
