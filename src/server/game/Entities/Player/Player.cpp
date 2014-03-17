@@ -24741,6 +24741,12 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         return;
     }
 
+    if (!item->AllowedForPlayer(this))
+    {
+        SendLootRelease(GetLootGUID());
+        return;
+    }
+
     // questitems use the blocked field for other purposes
     if (!qitem && item->is_blocked)
     {
