@@ -3118,6 +3118,68 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             ProcessTimedAction(e, e.event.friendlyHealthPct.repeatMin, e.event.friendlyHealthPct.repeatMax, target);
             break;
         }
+        case SMART_EVENT_DISTANCE_CREATURE:
+        {
+            if (!me)
+                return;
+
+            WorldObject* creature = NULL;
+
+            if (e.event.distance.guid != 0)
+            {
+                creature = FindCreatureNear(me, e.event.distance.guid);
+
+                if (!creature)
+                    return;
+
+                if (!me->IsInRange(creature, 0, (float)e.event.distance.dist))
+                    return;
+            }
+            else if (e.event.distance.entry != 0)
+            {
+                std::list<Creature*> list;
+                me->GetCreatureListWithEntryInGrid(list, e.event.distance.entry, (float)e.event.distance.dist);
+
+                if (list.size() > 0)
+                    creature = list.front();
+            }
+
+            if (creature)
+                ProcessTimedAction(e, e.event.distance.repeat, e.event.distance.repeat);
+
+            break;
+        }
+        case SMART_EVENT_DISTANCE_GAMEOBJECT:
+        {
+            if (!me)
+                return;
+
+            WorldObject* gameobject = NULL;
+
+            if (e.event.distance.guid != 0)
+            {
+                gameobject = FindGameObjectNear(me, e.event.distance.guid);
+
+                if (!gameobject)
+                    return;
+
+                if (!me->IsInRange(gameobject, 0, (float)e.event.distance.dist))
+                    return;
+            }
+            else if (e.event.distance.entry != 0)
+            {
+                std::list<GameObject*> list;
+                me->GetGameObjectListWithEntryInGrid(list, e.event.distance.entry, (float)e.event.distance.dist);
+
+                if (list.size() > 0)
+                    gameobject = list.front();
+            }
+
+            if (gameobject)
+                ProcessTimedAction(e, e.event.distance.repeat, e.event.distance.repeat);
+
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessEvent: Unhandled Event type %u", e.GetEventType());
             break;
@@ -3137,6 +3199,10 @@ void SmartScript::InitTimer(SmartScriptHolder& e)
         case SMART_EVENT_IC_LOS:
         case SMART_EVENT_OOC_LOS:
             RecalcTimer(e, e.event.los.cooldownMin, e.event.los.cooldownMax);
+            break;
+        case SMART_EVENT_DISTANCE_CREATURE:
+        case SMART_EVENT_DISTANCE_GAMEOBJECT:
+            RecalcTimer(e, e.event.distance.repeat, e.event.distance.repeat);
             break;
         default:
             e.active = true;
@@ -3198,6 +3264,8 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
             case SMART_EVENT_TARGET_BUFFED:
             case SMART_EVENT_IS_BEHIND_TARGET:
             case SMART_EVENT_FRIENDLY_HEALTH_PCT:
+            case SMART_EVENT_DISTANCE_CREATURE:
+            case SMART_EVENT_DISTANCE_GAMEOBJECT:
             {
                 ProcessEvent(e);
                 if (e.GetScriptType() == SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
