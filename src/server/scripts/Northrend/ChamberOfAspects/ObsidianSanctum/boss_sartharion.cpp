@@ -134,6 +134,8 @@ public:
     struct boss_sartharionAI : public BossAI
     {
         boss_sartharionAI(Creature* creature) : BossAI(creature, DATA_SARTHARION) { }
+        
+        std::list<uint64> gonnagowhenthevulcanoblowsList;
 
         void Reset() OVERRIDE
         {
@@ -508,7 +510,6 @@ public:
         }
 
     private:
-        std::list<uint64> gonnagowhenthevulcanoblowsList;
         bool _isBerserk;
         bool _isSoftEnraged;
         bool _isHardEnraged;
