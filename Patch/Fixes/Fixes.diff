@@ -1,0 +1,194 @@
+diff --git a/sql/updates/custom/world_spell_warl_seduction.sql b/sql/updates/custom/world_spell_warl_seduction.sql
+new file mode 100644
+index 0000000..6ade9d4
+--- /dev/null
++++ b/sql/updates/custom/world_spell_warl_seduction.sql
+@@ -0,0 +1,3 @@
++DELETE FROM `spell_script_names` WHERE `spell_id`=6358;
++INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
++(6358,'spell_warl_seduction');
+\ No newline at end of file
+diff --git a/src/server/game/Entities/Unit/Unit.cpp b/src/server/game/Entities/Unit/Unit.cpp
+index e7e29fe..0ab4eca 100644
+--- a/src/server/game/Entities/Unit/Unit.cpp
++++ b/src/server/game/Entities/Unit/Unit.cpp
+@@ -5846,16 +5846,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
+                     triggered_spell_id = 37378;
+                     break;
+                 }
+-                // Glyph of Succubus
+-                case 56250:
+-                {
+-                    if (!target)
+-                        return false;
+-                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, target->GetAura(32409)); // SW:D shall not be removed.
+-                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+-                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
+-                    return true;
+-                }
+             }
+             break;
+         }
+diff --git a/src/server/game/Spells/SpellMgr.cpp b/src/server/game/Spells/SpellMgr.cpp
+index 33eb0cd..053e534 100644
+--- a/src/server/game/Spells/SpellMgr.cpp
++++ b/src/server/game/Spells/SpellMgr.cpp
+@@ -3772,6 +3772,13 @@ void SpellMgr::LoadSpellInfoCorrections()
+                 break;
+             // ENDOF ISLE OF CONQUEST SPELLS
+             //
++            case 24259: // Spell Lock.
++                spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
++                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REDIRECTED;
++                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
++                spellInfo->Attributes |= SPELL_ATTR0_DONT_AFFECT_SHEATH_STATE;
++                spellInfo->Speed = 80;
++                break;
+             default:
+                 break;
+         }
+diff --git a/src/server/scripts/Spells/spell_hunter.cpp b/src/server/scripts/Spells/spell_hunter.cpp
+index 2f8a5da..348848f 100644
+--- a/src/server/scripts/Spells/spell_hunter.cpp
++++ b/src/server/scripts/Spells/spell_hunter.cpp
+@@ -409,47 +409,58 @@ class spell_hun_masters_call : public SpellScriptLoader
+ {
+     public:
+         spell_hun_masters_call() : SpellScriptLoader("spell_hun_masters_call") { }
+-
++        
+         class spell_hun_masters_call_SpellScript : public SpellScript
+         {
+             PrepareSpellScript(spell_hun_masters_call_SpellScript);
+-
+-            bool Validate(SpellInfo const* spellInfo) OVERRIDE
++            
++            bool Validate(SpellInfo const* spellEntry) OVERRIDE
+             {
+-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_MASTERS_CALL_TRIGGERED) || !sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].CalcValue()) || !sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_1].CalcValue()))
++                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_MASTERS_CALL_TRIGGERED) || !sSpellMgr->GetSpellInfo(spellEntry->Effects[EFFECT_0].CalcValue()) || !sSpellMgr->GetSpellInfo(spellEntry->Effects[EFFECT_1].CalcValue()))
+                     return false;
+                 return true;
+             }
+-
+-            void HandleDummy(SpellEffIndex /*effIndex*/)
++            
++            SpellCastResult CheckIfPetInLOS()
+             {
+-                if (Unit* ally = GetHitUnit())
+-                    if (Player* caster = GetCaster()->ToPlayer())
+-                        if (Pet* target = caster->GetPet())
+-                        {
+-                            TriggerCastFlags castMask = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_CASTER_AURASTATE);
+-                            target->CastSpell(ally, GetEffectValue(), castMask);
+-                            target->CastSpell(ally, GetSpellInfo()->Effects[EFFECT_0].CalcValue(), castMask);
+-                        }
++                if (Player* player = GetCaster()->ToPlayer())
++                {
++                    if (Pet* pet = player->GetPet())
++                    {
++                        if (pet->isDead())
++                            return SPELL_FAILED_DONT_REPORT;
++                        if (pet->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
++                            return SPELL_FAILED_STUNNED;
++                        float x, y, z; pet->GetPosition(x, y, z);
++                        if (player->IsWithinLOS(x, y, z))
++                            return SPELL_CAST_OK;
++                    }
++                }
++                return SPELL_FAILED_LINE_OF_SIGHT;
+             }
+-
++            
+             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+             {
+                 if (Unit* target = GetHitUnit())
+                 {
+-                    // Cannot be processed while pet is dead
+                     TriggerCastFlags castMask = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_CASTER_AURASTATE);
++                    target->CastSpell(target, GetEffectValue(), castMask);
+                     target->CastSpell(target, SPELL_HUNTER_MASTERS_CALL_TRIGGERED, castMask);
++                    if (Unit* ally = GetExplTargetUnit())
++                    {
++                        target->CastSpell(ally, GetEffectValue(), castMask);
++                        target->CastSpell(ally, GetSpellInfo()->Effects[EFFECT_0].CalcValue(), castMask);
++                    }
+                 }
+             }
+-
++            
+             void Register() OVERRIDE
+             {
+-                OnEffectHitTarget += SpellEffectFn(spell_hun_masters_call_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                 OnEffectHitTarget += SpellEffectFn(spell_hun_masters_call_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
++                OnCheckCast += SpellCheckCastFn(spell_hun_masters_call_SpellScript::CheckIfPetInLOS);
+             }
+         };
+-
++        
+         SpellScript* GetSpellScript() const OVERRIDE
+         {
+             return new spell_hun_masters_call_SpellScript();
+diff --git a/src/server/scripts/Spells/spell_warlock.cpp b/src/server/scripts/Spells/spell_warlock.cpp
+index 36e63b5..e091616 100644
+--- a/src/server/scripts/Spells/spell_warlock.cpp
++++ b/src/server/scripts/Spells/spell_warlock.cpp
+@@ -52,7 +52,8 @@ enum WarlockSpells
+     SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2               = 32553,
+     SPELL_WARLOCK_SOULSHATTER                       = 32835,
+     SPELL_WARLOCK_SIPHON_LIFE_HEAL                  = 63106,
+-    SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117
++    SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117,
++    SPELL_WARLOCK_GLYPH_OF_SUCCUBUS                 = 56250
+ };
+ 
+ enum WarlockSpellIcons
+@@ -896,6 +897,42 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
+         }
+ };
+ 
++class spell_warl_seduction : public SpellScriptLoader
++{
++    public:
++        spell_warl_seduction() : SpellScriptLoader("spell_warl_seduction") { }
++        
++        class spell_warl_seduction_SpellScript : public SpellScript
++        {
++            PrepareSpellScript(spell_warl_seduction_SpellScript);
++           
++            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
++            {
++                Unit* caster = GetCaster();
++                if (Unit* target = GetHitUnit())
++                {
++                    if (caster->GetOwner() && caster->GetOwner()->HasAura(SPELL_WARLOCK_GLYPH_OF_SUCCUBUS))
++                    {
++                        // Shadow Word: Death shouldn't be removed.
++                        target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, target->GetAura(32409));
++                        target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
++                        target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
++                    }
++                }
++            }
++            
++            void Register()
++            {
++                OnEffectHitTarget += SpellEffectFn(spell_warl_seduction_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
++            }
++        };
++        
++        SpellScript* GetSpellScript() const
++        {
++            return new spell_warl_seduction_SpellScript();
++        }
++};
++
+ void AddSC_warlock_spell_scripts()
+ {
+     new spell_warl_banish();
+@@ -916,4 +953,5 @@ void AddSC_warlock_spell_scripts()
+     new spell_warl_siphon_life();
+     new spell_warl_soulshatter();
+     new spell_warl_unstable_affliction();
++    new spell_warl_seduction();
+ }

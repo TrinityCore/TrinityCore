@@ -1937,6 +1937,12 @@ void World::LoadAutobroadcasts()
 /// Update the World !
 void World::Update(uint32 diff)
 {
+	m_GlobalAntiFloodTimer += diff;
+	if (m_GlobalAntiFloodTimer > 5*IN_MILLISECONDS)
+	{
+		m_GlobalAntiFloodTimer = 0;
+		m_GlobalAntiFloodStorage.clear();
+	}
     m_updateTime = diff;
 
     if (m_int_configs[CONFIG_INTERVAL_LOG_UPDATE] && diff > m_int_configs[CONFIG_MIN_LOG_UPDATE])

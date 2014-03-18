@@ -529,7 +529,19 @@ class World
 
         World();
         ~World();
-
+		
+		std::map<std::string, uint32> m_GlobalAntiFloodStorage;
+        uint32 m_GlobalAntiFloodTimer;
+ 
+        inline bool IncreaseAndCheckFlooding(std::string ipaddress)
+        {
+            m_GlobalAntiFloodStorage[ipaddress] += 1;
+            if (m_GlobalAntiFloodStorage[ipaddress] > 15)
+                return true;
+ 
+					return false;
+        }
+  
         WorldSession* FindSession(uint32 id) const;
         void AddSession(WorldSession* s);
         void SendAutoBroadcast();

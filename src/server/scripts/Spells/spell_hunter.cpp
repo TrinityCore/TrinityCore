@@ -440,8 +440,21 @@ class spell_hun_masters_call : public SpellScriptLoader
                     // Cannot be processed while pet is dead
                     TriggerCastFlags castMask = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_CASTER_AURASTATE);
                     target->CastSpell(target, SPELL_HUNTER_MASTERS_CALL_TRIGGERED, castMask);
+                    // there is a possibility that this effect should access effect 0 (dummy) target, but i dubt that
+                    // it's more likely that on on retail it's possible to call target selector based on dbc values
+                    // anyways, we're using GetExplTargetUnit() here and it's ok
+                    if (Unit* target = GetExplTargetUnit())
+                    {
+                        target->CastSpell(target, GetEffectValue(), castMask);
+                        target->CastSpell(target, GetSpellInfo()->Effects[EFFECT_0].CalcValue(), castMask);
+						target->RemoveMovementImpairingAuras(); // remove already applied root and snare from pet
+                        target->RemoveMovementImpairingAuras(); // remove already applied root and snare from pet's target
+                        target->CastSpell(target, GetEffectValue(), castMask); // this should remove already applied root and snare from pet's target, but not working
+                        target->CastSpell(target, GetSpellInfo()->Effects[EFFECT_0].CalcValue(), castMask); // apply 4s root and snare immunity to pet's target
+                    }
                 }
             }
+
 
             void Register() OVERRIDE
             {

@@ -2239,7 +2239,10 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, 
     // if disarm aura is to be removed, remove the flag first to reapply damage/aura mods
     if (!apply)
         target->RemoveFlag(field, flag);
-
+		
+    if (apply && target->HasAura(46924))
+        target->RemoveAura(46924);
+ 
     // Handle damage modification, shapeshifted druids are not affected
     if (target->GetTypeId() == TYPEID_PLAYER && !target->IsInFeralForm())
     {
