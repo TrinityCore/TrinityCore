@@ -3202,6 +3202,9 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo();
                 spellInfo->Effects[EFFECT_1].TargetB = SpellImplicitTargetInfo();
                 break;
+            case 58883: // Rapid Recuperation
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_ENERGIZE_PCT;
+                break;
             case 53241: // Marked for Death (Rank 1)
             case 53243: // Marked for Death (Rank 2)
             case 53244: // Marked for Death (Rank 3)
