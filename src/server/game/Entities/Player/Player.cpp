@@ -1862,7 +1862,7 @@ void Player::Update(uint32 p_time)
         if (timer < 0xFFFFFFFF)
         {
             timer += p_time;
-            SetRuneTimer(i, std::min(uint32(2500), timer);
+            SetRuneTimer(i, std::min(uint32(2500), timer));
         }
     }
 
