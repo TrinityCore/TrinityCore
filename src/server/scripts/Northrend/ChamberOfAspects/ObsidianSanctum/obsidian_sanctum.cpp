@@ -73,7 +73,7 @@ enum Enums
 
     //Whelps
     NPC_TWILIGHT_WHELP                          = 30890,
-    NPC_SHARTHARION_TWILIGHT_WHELP              = 31214,
+    NPC_SARTHARION_TWILIGHT_WHELP              = 31214,
     SPELL_FADE_ARMOR                            = 60708,    // Reduces the armor of an enemy by 1500 for 15s
 
     //flame tsunami
@@ -253,7 +253,7 @@ struct dummy_dragonAI : public ScriptedAI
         {
             case NPC_TENEBRON:
             {
-                if (!instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
+                if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
                 {
                     for (uint32 i = 0; i < 6; ++i)
                         me->SummonCreature(NPC_TWILIGHT_EGG, TwilightEggs[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
@@ -267,7 +267,7 @@ struct dummy_dragonAI : public ScriptedAI
             }
             case NPC_SHADRON:
             {
-                if (!instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
+                if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
                     me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
                 else
                     me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron2, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
@@ -276,7 +276,7 @@ struct dummy_dragonAI : public ScriptedAI
             }
             case NPC_VESPERON:
             {
-                if (!instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
+                if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
                 {
                     if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
                     {
@@ -816,10 +816,10 @@ public:
         {
             me->RemoveAllAuras();
 
-            if (!instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
+            if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
                 me->SummonCreature(NPC_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
             else
-                me->SummonCreature(NPC_SHARTHARION_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
+                me->SummonCreature(NPC_SARTHARION_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
             me->DealDamage(me, me->GetHealth());
         }
 
