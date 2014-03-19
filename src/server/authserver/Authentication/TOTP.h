@@ -16,7 +16,7 @@
  */
 
 #ifndef _TOTP_H
-#define _TOPT_H
+#define _TOTP_H
 
 #include "openssl/hmac.h"
 #include "openssl/evp.h"
