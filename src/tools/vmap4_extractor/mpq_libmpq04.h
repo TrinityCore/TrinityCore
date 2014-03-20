@@ -36,7 +36,7 @@ public:
     mpq_archive_s *mpq_a;
 
     MPQArchive(const char* filename);
-    void close();
+    ~MPQArchive() { close(); }
 
     void GetFileListTo(vector<string>& filelist) {
         uint32_t filenum;
@@ -65,6 +65,9 @@ public:
 
         delete[] buffer;
     }
+
+private:
+    void close();
 };
 typedef std::deque<MPQArchive*> ArchiveSet;
 
