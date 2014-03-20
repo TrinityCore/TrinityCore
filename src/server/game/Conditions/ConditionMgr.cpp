@@ -1994,7 +1994,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_UNIT_STATE:
         {
-            if (cond->ConditionValue1 > uint32(UNIT_STATE_ALL_STATE))
+            if (!(cond->ConditionValue1 & UNIT_STATE_ALL_STATE_SUPPORTED))
             {
                 TC_LOG_ERROR("sql.sql", "UnitState condition has non existing UnitState in value1 (%u), skipped", cond->ConditionValue1);
                 return false;
