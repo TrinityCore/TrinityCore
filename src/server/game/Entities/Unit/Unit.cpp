@@ -5836,16 +5836,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = 37378;
                     break;
                 }
-                // Glyph of Succubus
-                case 56250:
-                {
-                    if (!target)
-                        return false;
-                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, target->GetAura(32409)); // SW:D shall not be removed.
-                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
-                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
-                    return true;
-                }
             }
             break;
         }
@@ -6336,27 +6326,28 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 }
                 else
                 {    // Check Party/Raid Group
-                    if (Group* group = ToPlayer()->GetGroup())
-                    {
+                    if (Group* group = IsPet() ? GetOwner()->ToPlayer()->GetGroup() : ToPlayer()->GetGroup())
                         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
-                        {
                             if (Player* member = itr->GetSource())
                             {
                                 // check if it was heal by paladin which cast this beacon of light
                                 if (member->GetAura(53563, victim->GetGUID()))
-                                {
-                                    // do not proc when target of beacon of light is healed
-                                    if (member == this)
-                                        return false;
-
                                     beaconTarget = member;
+                                else if (Pet* pet = member->GetPet())
+                                    if (pet->GetAura(53563, victim->GetGUID()))
+                                        beaconTarget = pet;
+
+                                // do not proc when target of beacon of light is healed
+                                if (beaconTarget == this)
+                                    return false;
+
+                                if (beaconTarget)
+                                {
                                     basepoints0 = int32(damage);
                                     triggered_spell_id = procSpell->IsRankOf(sSpellMgr->GetSpellInfo(635)) ? 53652 : 53654;
                                     break;
                                 }
                             }
-                        }
-                    }
                 }
 
                 if (triggered_spell_id && beaconTarget)
