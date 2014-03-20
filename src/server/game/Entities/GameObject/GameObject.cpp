@@ -317,7 +317,6 @@ void GameObject::Update(uint32 diff)
                     m_lootState = GO_READY;
                     break;
                 }
-                /* TODO: Fix movement in unloaded grid - currently GO will just disappear
                 case GAMEOBJECT_TYPE_TRANSPORT:
                 {
                     if (!m_goValue.Transport.AnimationInfo)
@@ -326,6 +325,7 @@ void GameObject::Update(uint32 diff)
                     if (GetGoState() == GO_STATE_READY)
                     {
                         m_goValue.Transport.PathProgress += diff;
+                        /* TODO: Fix movement in unloaded grid - currently GO will just disappear
                         uint32 timer = m_goValue.Transport.PathProgress % m_goValue.Transport.AnimationInfo->TotalTime;
                         TransportAnimationEntry const* node = m_goValue.Transport.AnimationInfo->GetAnimNode(timer);
                         if (node && m_goValue.Transport.CurrentSeg != node->TimeSeg)
@@ -341,14 +341,14 @@ void GameObject::Update(uint32 diff)
 
                             G3D::Vector3 src(GetPositionX(), GetPositionY(), GetPositionZ());
 
-                            TC_LOG_INFO("misc", "Src: %s Dest: %s", src.toString().c_str(), pos.toString().c_str());
+                            TC_LOG_DEBUG("misc", "Src: %s Dest: %s", src.toString().c_str(), pos.toString().c_str());
 
                             GetMap()->GameObjectRelocation(this, pos.x, pos.y, pos.z, GetOrientation());
                         }
+                        */
                     }
                     break;
                 }
-                */
                 case GAMEOBJECT_TYPE_FISHINGNODE:
                 {
                     // fishing code (bobber ready)
