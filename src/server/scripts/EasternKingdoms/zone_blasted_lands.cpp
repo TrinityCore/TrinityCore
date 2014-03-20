@@ -17,11 +17,7 @@
 
 /*
 Blasted_Lands
-Quest support: 3628. Teleporter to Rise of the Defiler.
-*/
-
-/*
-npc_deathly_usher
+Quest support: 3628.
 */
 
 #include "ScriptMgr.h"
@@ -31,37 +27,11 @@ npc_deathly_usher
 #include "Player.h"
 #include "Group.h"
 
-/*######
-## npc_deathly_usher
-######*/
-
 enum DeathlyUsher
 {
     SPELL_TELEPORT_SINGLE               = 12885,
     SPELL_TELEPORT_SINGLE_IN_GROUP      = 13142,
     SPELL_TELEPORT_GROUP                = 27686
-};
-
-class npc_deathly_usher : public CreatureScript
-{
-public:
-    npc_deathly_usher() : CreatureScript("npc_deathly_usher") { }
-
-    struct npc_deathly_usherAI : public ScriptedAI
-    {
-        npc_deathly_usherAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) OVERRIDE
-        {
-            player->CLOSE_GOSSIP_MENU();
-            me->CastSpell(player, SPELL_TELEPORT_GROUP, true);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_deathly_usherAI(creature);
-    }
 };
 
 /*#####
@@ -113,6 +83,5 @@ class spell_razelikh_teleport_group : public SpellScriptLoader
 
 void AddSC_blasted_lands()
 {
-    new npc_deathly_usher();
     new spell_razelikh_teleport_group();
 }
