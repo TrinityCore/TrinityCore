@@ -903,7 +903,7 @@ class spell_q12659_ahunaes_knife : public SpellScriptLoader
 enum StoppingTheSpread
 {
     NPC_VILLAGER_KILL_CREDIT                     = 18240,
-    SPELL_FLAMES                                 = 39199,
+    SPELL_FLAMES                                 = 39199
 };
 
 class spell_q9874_liquid_fire : public SpellScriptLoader
@@ -926,7 +926,7 @@ class spell_q9874_liquid_fire : public SpellScriptLoader
             {
                 Player* caster = GetCaster()->ToPlayer();
                 if (Creature* target = GetHitCreature())
-                    if (target && target->HasAura(SPELL_FLAMES))
+                    if (target && !target->HasAura(SPELL_FLAMES))
                     {
                         caster->KilledMonsterCredit(NPC_VILLAGER_KILL_CREDIT, 0);
                         target->CastSpell(target, SPELL_FLAMES, true);
