@@ -581,6 +581,9 @@ class npc_ice_tomb : public CreatureScript
                     // Intentional initialization
                     _asphyxiationTimer = 20000;
                     
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _trappedPlayerGUID))
+                        player->RemoveAura(SPELL_FROST_BEACON);
+
                     if (InstanceScript* instance = me->GetInstanceScript())
                         if (Creature* sindragosa = me->GetCreature(*me, instance->GetData64(DATA_SINDRAGOSA)))
                             _asphyxiationTimer = sindragosa->AI()->GetData(DATA_AIR_PHASE) ? 30000 : 20000;
