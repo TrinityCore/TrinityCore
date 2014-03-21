@@ -11782,7 +11782,7 @@ void Unit::ClearInCombat()
     // Reset rune flags after combat
     if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_DEATH_KNIGHT)
     {
-        for (uint8 i = 0; i < MAX_RUNES; i)
+        for (uint8 i = 0; i < MAX_RUNES; ++i)
         {
             ToPlayer()->SetRuneTimer(i, 0xFFFFFFFF);
             ToPlayer()->SetLastRuneGraceTimer(i, 0);
