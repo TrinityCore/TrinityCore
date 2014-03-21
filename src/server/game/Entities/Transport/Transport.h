@@ -46,13 +46,13 @@ class Transport : public GameObject, public TransportBase
         GameObject* CreateGOPassenger(uint32 guid, GameObjectData const* data);
 
         /// This method transforms supplied transport offsets into global coordinates
-        void CalculatePassengerPosition(float& x, float& y, float& z, float* o /*= NULL*/) const
+        void CalculatePassengerPosition(float& x, float& y, float& z, float* o = NULL) const
         {
             TransportBase::CalculatePassengerPosition(x, y, z, o, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
         }
 
         /// This method transforms supplied global coordinates into local offsets
-        void CalculatePassengerOffset(float& x, float& y, float& z, float* o /*= NULL*/) const
+        void CalculatePassengerOffset(float& x, float& y, float& z, float* o = NULL) const
         {
             TransportBase::CalculatePassengerOffset(x, y, z, o, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
         }

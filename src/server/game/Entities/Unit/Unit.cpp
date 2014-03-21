@@ -17288,7 +17288,12 @@ bool CharmInfo::IsCommandFollow()
 void CharmInfo::SaveStayPosition()
 {
     //! At this point a new spline destination is enabled because of Unit::StopMoving()
-    G3D::Vector3 const stayPos = _unit->movespline->FinalDestination();
+    G3D::Vector3 stayPos = _unit->movespline->FinalDestination();
+
+    if (_unit->movespline->onTransport)
+        if (TransportBase* transport = _unit->GetDirectTransport())
+            transport->CalculatePassengerPosition(stayPos.x, stayPos.y, stayPos.z);
+
     _stayX = stayPos.x;
     _stayY = stayPos.y;
     _stayZ = stayPos.z;
