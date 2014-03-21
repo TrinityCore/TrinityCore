@@ -429,6 +429,7 @@ class spell_rog_preparation : public SpellScriptLoader
                 for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
                 {
                     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
+                    ASSERT(spellInfo);
 
                     if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE)
                     {

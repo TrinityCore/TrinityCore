@@ -1034,6 +1034,7 @@ void GameObject::TriggeringLinkedGameObject(uint32 trapEntry, Unit* target)
     if (!trapSpell)                                          // checked at load already
         return;
 
+    ASSERT(GetOwner());
     float range = float(target->GetSpellMaxRangeForTarget(GetOwner(), trapSpell));
 
     // search nearest linked GO
