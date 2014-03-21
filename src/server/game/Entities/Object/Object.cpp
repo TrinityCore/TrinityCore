@@ -370,6 +370,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     {
         if (flags & UPDATEFLAG_POSITION)
         {
+            ASSERT(object);
             Transport* transport = object->GetTransport();
 
             if (transport)
@@ -459,6 +460,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     // 0x4
     if (flags & UPDATEFLAG_HAS_TARGET)
     {
+        ASSERT(unit);
         if (Unit* victim = unit->GetVictim())
             data->append(victim->GetPackGUID());
         else
