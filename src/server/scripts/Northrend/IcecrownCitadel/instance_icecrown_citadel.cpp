@@ -31,7 +31,7 @@ enum EventIds
 {
     EVENT_QUAKE                     = 23437,
     EVENT_SECOND_REMORSELESS_WINTER = 23507,
-    EVENT_TELEPORT_TO_FROSMOURNE    = 23617,
+    EVENT_TELEPORT_TO_FROSTMOURNE   = 23617
 };
 
 enum TimedEvents
@@ -68,7 +68,7 @@ DoorData const doorData[] =
     {GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR,       DATA_SINDRAGOSA,            DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
     {GO_ICE_WALL,                            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM,       BOUNDARY_SE  },
     {GO_ICE_WALL,                            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM,       BOUNDARY_SW  },
-    {0,                                      0,                          DOOR_TYPE_ROOM,       BOUNDARY_NONE}, // END
+    {0,                                      0,                          DOOR_TYPE_ROOM,       BOUNDARY_NONE}  // END
 };
 
 // this doesnt have to only store questgivers, also can be used for related quest spawns
@@ -89,7 +89,7 @@ WeeklyQuest const WeeklyQuestData[WeeklyNPCs] =
     {NPC_ALRIN_THE_AGILE,             {QUEST_BLOOD_QUICKENING_10,              QUEST_BLOOD_QUICKENING_25             }}, // Blood Quickening
     {NPC_INFILTRATOR_MINCHAR_BQ,      {QUEST_BLOOD_QUICKENING_10,              QUEST_BLOOD_QUICKENING_25             }}, // Blood Quickening
     {NPC_MINCHAR_BEAM_STALKER,        {QUEST_BLOOD_QUICKENING_10,              QUEST_BLOOD_QUICKENING_25             }}, // Blood Quickening
-    {NPC_VALITHRIA_DREAMWALKER_QUEST, {QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_10, QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_25}}, // Respite for a Tormented Soul
+    {NPC_VALITHRIA_DREAMWALKER_QUEST, {QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_10, QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_25}}  // Respite for a Tormented Soul
 };
 
 class instance_icecrown_citadel : public InstanceMapScript
@@ -335,7 +335,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             {
                                 uint8 diffIndex = uint8(instance->GetSpawnMode() & 1);
                                 if (!sPoolMgr->IsSpawnedObject<Quest>(WeeklyQuestData[questIndex].questId[diffIndex]))
-                                    entry = 0;
+                                    return 0;
                                 break;
                             }
                         }
@@ -1235,7 +1235,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             Events.ScheduleEvent(EVENT_REBUILD_PLATFORM, 1500);
                         }
                         break;
-                    case EVENT_TELEPORT_TO_FROSMOURNE: // Harvest Soul (normal mode)
+                    case EVENT_TELEPORT_TO_FROSTMOURNE: // Harvest Soul (normal mode)
                         if (Creature* terenas = instance->SummonCreature(NPC_TERENAS_MENETHIL_FROSTMOURNE, TerenasSpawn, NULL, 63000))
                         {
                             terenas->AI()->DoAction(ACTION_FROSTMOURNE_INTRO);

@@ -68,7 +68,7 @@ enum TeleporterSpells
     DEATHBRINGER_S_RISE_TELEPORT    = 70858,
     UPPER_SPIRE_TELEPORT            = 70859,
     FROZEN_THRONE_TELEPORT          = 70860,
-    SINDRAGOSA_S_LAIR_TELEPORT      = 70861,
+    SINDRAGOSA_S_LAIR_TELEPORT      = 70861
 };
 
 enum DataTypes
@@ -285,7 +285,7 @@ enum CreaturesIds
     NPC_FROSTMOURNE_TRIGGER                     = 38584,
 
     // Generic
-    NPC_INVISIBLE_STALKER                       = 30298,
+    NPC_INVISIBLE_STALKER                       = 30298
 };
 
 enum GameObjectsIds
@@ -368,7 +368,7 @@ enum GameObjectsIds
     GO_DOODAD_ICECROWN_SNOWEDGEWARNING01    = 202190,
     GO_FROZEN_LAVAMAN                       = 202436,
     GO_LAVAMAN_PILLARS_CHAINED              = 202437,
-    GO_LAVAMAN_PILLARS_UNCHAINED            = 202438,
+    GO_LAVAMAN_PILLARS_UNCHAINED            = 202438
 };
 
 enum AchievementCriteriaIds
@@ -403,7 +403,7 @@ enum AchievementCriteriaIds
     CRITERIA_ONCE_BITTEN_TWICE_SHY_10N  = 12780,
     CRITERIA_ONCE_BITTEN_TWICE_SHY_25N  = 13012,
     CRITERIA_ONCE_BITTEN_TWICE_SHY_10V  = 13011,
-    CRITERIA_ONCE_BITTEN_TWICE_SHY_25V  = 13013,
+    CRITERIA_ONCE_BITTEN_TWICE_SHY_25V  = 13013
 };
 
 enum SharedActions
@@ -431,7 +431,7 @@ enum SharedActions
 
     // The Lich King
     ACTION_RESTORE_LIGHT        = -72262,
-    ACTION_FROSTMOURNE_INTRO    = -36823,
+    ACTION_FROSTMOURNE_INTRO    = -36823
 };
 
 enum WeekliesICC
@@ -445,7 +445,7 @@ enum WeekliesICC
     QUEST_BLOOD_QUICKENING_10               = 24874,
     QUEST_BLOOD_QUICKENING_25               = 24879,
     QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_10  = 24872,
-    QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_25  = 24880,
+    QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_25  = 24880
 };
 
 enum WorldStatesICC
@@ -454,12 +454,12 @@ enum WorldStatesICC
     WORLDSTATE_EXECUTION_TIME       = 4904,
     WORLDSTATE_SHOW_ATTEMPTS        = 4940,
     WORLDSTATE_ATTEMPTS_REMAINING   = 4941,
-    WORLDSTATE_ATTEMPTS_MAX         = 4942,
+    WORLDSTATE_ATTEMPTS_MAX         = 4942
 };
 
 enum AreaIds
 {
-    AREA_THE_FROZEN_THRONE  = 4859,
+    AREA_THE_FROZEN_THRONE  = 4859
 };
 
 class spell_trigger_spell_from_caster : public SpellScriptLoader
