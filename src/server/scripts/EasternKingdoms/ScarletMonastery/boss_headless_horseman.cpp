@@ -787,7 +787,11 @@ public:
 
     struct npc_pulsing_pumpkinAI : public ScriptedAI
     {
-        npc_pulsing_pumpkinAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_pulsing_pumpkinAI(Creature* creature) : ScriptedAI(creature)
+        {
+            sprouted = false;
+            debuffGUID = 0;
+        }
 
         bool sprouted;
         uint64 debuffGUID;
