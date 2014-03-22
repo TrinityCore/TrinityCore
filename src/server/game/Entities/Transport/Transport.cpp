@@ -98,6 +98,21 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
     return true;
 }
 
+void Transport::CleanupsBeforeDelete(bool finalCleanup /*= true*/)
+{
+    UnloadStaticPassengers();
+    while (!_passengers.empty())
+    {
+        WorldObject* obj = *_passengers.begin();
+        obj->m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+        obj->m_movementInfo.transport.Reset();
+        obj->SetTransport(NULL);
+        RemovePassenger(obj);
+    }
+
+    GameObject::CleanupsBeforeDelete(finalCleanup);
+}
+
 void Transport::Update(uint32 diff)
 {
     uint32 const positionUpdateDelay = 200;

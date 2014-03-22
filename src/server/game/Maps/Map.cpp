@@ -2650,7 +2650,10 @@ void Map::RemoveAllObjectsInRemoveList()
             RemoveFromMap((DynamicObject*)obj, true);
             break;
         case TYPEID_GAMEOBJECT:
-            RemoveFromMap((GameObject*)obj, true);
+            if (Transport* transport = obj->ToGameObject()->ToTransport())
+                RemoveFromMap(transport, true);
+            else
+                RemoveFromMap(obj->ToGameObject(), true);
             break;
         case TYPEID_UNIT:
             // in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
