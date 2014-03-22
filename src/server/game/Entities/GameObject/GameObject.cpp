@@ -148,7 +148,7 @@ void GameObject::AddToWorld()
         sObjectAccessor->AddObject(this);
 
         // The state can be changed after GameObject::Create but before GameObject::AddToWorld
-        bool toggledState = GetGoType() == GAMEOBJECT_TYPE_CHEST ? getLootState() == GO_READY : GetGoState() == GO_STATE_READY;
+        bool toggledState = GetGoType() == GAMEOBJECT_TYPE_CHEST ? getLootState() == GO_READY : (GetGoState() == GO_STATE_READY || IsTransport());
         if (m_model)
             GetMap()->InsertGameObjectModel(*m_model);
 
@@ -2020,7 +2020,7 @@ void GameObject::SetGoState(GOState state)
 {
     SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
     sScriptMgr->OnGameObjectStateChanged(this, state);
-    if (m_model)
+    if (m_model && !IsTransport())
     {
         if (!IsInWorld())
             return;
@@ -2237,5 +2237,18 @@ float GameObject::GetInteractionDistance()
             return 20.0f + CONTACT_DISTANCE; // max spell range
         default:
             return INTERACTION_DISTANCE;
+    }
+}
+
+void GameObject::UpdateModelPosition()
+{
+    if (!m_model)
+        return;
+
+    if (GetMap()->ContainsGameObjectModel(*m_model))
+    {
+        GetMap()->RemoveGameObjectModel(*m_model);
+        m_model->Relocate(*this);
+        GetMap()->InsertGameObjectModel(*m_model);
     }
 }
