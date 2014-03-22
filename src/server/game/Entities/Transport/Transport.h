@@ -34,9 +34,11 @@ class Transport : public GameObject, public TransportBase
         ~Transport();
 
         bool Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress);
-        void Update(uint32 diff);
+        void CleanupsBeforeDelete(bool finalCleanup = true) OVERRIDE;
 
-        void BuildUpdate(UpdateDataMapType& data_map);
+        void Update(uint32 diff) OVERRIDE;
+
+        void BuildUpdate(UpdateDataMapType& data_map) OVERRIDE;
 
         void AddPassenger(WorldObject* passenger);
         void RemovePassenger(WorldObject* passenger);
@@ -46,13 +48,13 @@ class Transport : public GameObject, public TransportBase
         GameObject* CreateGOPassenger(uint32 guid, GameObjectData const* data);
 
         /// This method transforms supplied transport offsets into global coordinates
-        void CalculatePassengerPosition(float& x, float& y, float& z, float* o = NULL) const
+        void CalculatePassengerPosition(float& x, float& y, float& z, float* o = NULL) const OVERRIDE
         {
             TransportBase::CalculatePassengerPosition(x, y, z, o, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
         }
 
         /// This method transforms supplied global coordinates into local offsets
-        void CalculatePassengerOffset(float& x, float& y, float& z, float* o = NULL) const
+        void CalculatePassengerOffset(float& x, float& y, float& z, float* o = NULL) const OVERRIDE
         {
             TransportBase::CalculatePassengerOffset(x, y, z, o, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
         }
