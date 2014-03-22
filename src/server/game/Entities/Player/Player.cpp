@@ -1849,20 +1849,23 @@ void Player::Update(uint32 p_time)
         }
     }
 
-    // Update rune timers
-    for (uint8 i = 0; i < MAX_RUNES; ++i)
+    if (getClass() == CLASS_DEATH_KNIGHT)
     {
-        uint32 timer = GetRuneTimer(i);
-
-        // Don't update timer if rune is disabled
-        if (GetRuneCooldown(i))
-            continue;
-
-        // Timer has began
-        if (timer < 0xFFFFFFFF)
+        // Update rune timers
+        for (uint8 i = 0; i < MAX_RUNES; ++i)
         {
-            timer += p_time;
-            SetRuneTimer(i, std::min(uint32(2500), timer));
+            uint32 timer = GetRuneTimer(i);
+
+            // Don't update timer if rune is disabled
+            if (GetRuneCooldown(i))
+                continue;
+
+            // Timer has began
+            if (timer < 0xFFFFFFFF)
+            {
+                timer += p_time;
+                SetRuneTimer(i, std::min(uint32(2500), timer));
+            }
         }
     }
 
