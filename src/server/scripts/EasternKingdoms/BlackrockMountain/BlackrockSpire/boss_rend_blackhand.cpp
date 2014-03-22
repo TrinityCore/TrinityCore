@@ -164,7 +164,12 @@ public:
 
     struct boss_rend_blackhandAI : public BossAI
     {
-        boss_rend_blackhandAI(Creature* creature) : BossAI(creature, DATA_WARCHIEF_REND_BLACKHAND) { }
+        boss_rend_blackhandAI(Creature* creature) : BossAI(creature, DATA_WARCHIEF_REND_BLACKHAND)
+        {
+            gythEvent = false;
+            victorGUID = 0;
+            portcullisGUID = 0;
+        }
 
         void Reset() OVERRIDE
         {
