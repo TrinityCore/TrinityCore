@@ -1048,16 +1048,33 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
     }
 
     CallScriptObjectTargetSelectHandlers(target, effIndex);
+    if (!target)
+    {
+        TC_LOG_DEBUG("spells", "Spell::SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id %u set NULL target, effect %u", m_spellInfo->Id, effIndex);
+        return;
+    }
 
     switch (targetType.GetObjectType())
     {
         case TARGET_OBJECT_TYPE_UNIT:
+        {
             if (Unit* unitTarget = target->ToUnit())
                 AddUnitTarget(unitTarget, effMask, true, false);
+            else
+            {
+                TC_LOG_DEBUG("spells", "Spell::SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id %u set object of wrong type, expected unit, got %s, effect %u", m_spellInfo->Id, GetLogNameForGuid(target->GetGUID()), effMask);
+                return;
+            }
             break;
+        }
         case TARGET_OBJECT_TYPE_GOBJ:
             if (GameObject* gobjTarget = target->ToGameObject())
                 AddGOTarget(gobjTarget, effMask);
+            else
+            {
+                TC_LOG_DEBUG("spells", "Spell::SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id %u set object of wrong type, expected gameobject, got %s, effect %u", m_spellInfo->Id, GetLogNameForGuid(target->GetGUID()), effMask);
+                return;
+            }
             break;
         case TARGET_OBJECT_TYPE_DEST:
             m_targets.SetDst(*target);
