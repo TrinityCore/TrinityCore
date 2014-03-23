@@ -454,6 +454,9 @@ public:
     {
         npc_brann_bronzebeard_keystoneAI(Creature* creature) : ScriptedAI(creature)
         {
+            memset(&objectGUID, 0, sizeof(objectGUID));
+            playerGUID = 0;
+            voiceGUID = 0;
             objectCounter = 0;
         }
 
@@ -640,6 +643,7 @@ public:
     {
         npc_king_jokkum_vehicleAI(Creature* creature) : VehicleAI(creature)
         {
+            playerGUID = 0;
             pathEnd = false;
         }
 
@@ -788,37 +792,6 @@ class spell_veranus_summon : public SpellScriptLoader
         }
 };
 
-/*#####
-# spell_jokkum_eject_all
-#####*/
-
-class spell_jokkum_eject_all : public SpellScriptLoader
-{
-    public: spell_jokkum_eject_all() : SpellScriptLoader("spell_jokkum_eject_all") { }
-
-        class spell_jokkum_eject_all_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_jokkum_eject_all_SpellScript);
-
-            void HandleScriptEffect(SpellEffIndex /* effIndex */)
-            {
-                if (Unit* caster = GetCaster())
-                    if (caster->IsVehicle())
-                        caster->GetVehicleKit()->RemoveAllPassengers();
-            }
-
-            void Register() OVERRIDE
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_jokkum_eject_all_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const OVERRIDE
-        {
-            return new spell_jokkum_eject_all_SpellScript();
-        }
-};
-
 enum CloseRift
 {
     SPELL_DESPAWN_RIFT          = 61665
@@ -878,6 +851,5 @@ void AddSC_storm_peaks()
     new npc_king_jokkum_vehicle();
     new spell_jokkum_scriptcast();
     new spell_veranus_summon();
-    new spell_jokkum_eject_all();
     new spell_close_rift();
 }

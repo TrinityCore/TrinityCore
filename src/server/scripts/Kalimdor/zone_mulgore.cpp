@@ -24,7 +24,6 @@ SDCategory: Mulgore
 EndScriptData */
 
 /* ContentData
-npc_skorn_whitecloud
 npc_kyle_frenzied
 npc_plains_vision
 EndContentData */
@@ -34,41 +33,6 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "Player.h"
 #include "SpellInfo.h"
-
-/*######
-# npc_skorn_whitecloud
-######*/
-
-#define GOSSIP_SW "Tell me a story, Skorn."
-
-class npc_skorn_whitecloud : public CreatureScript
-{
-public:
-    npc_skorn_whitecloud() : CreatureScript("npc_skorn_whitecloud") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF)
-            player->SEND_GOSSIP_MENU(523, creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (!player->GetQuestRewardStatus(770))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        player->SEND_GOSSIP_MENU(522, creature->GetGUID());
-
-        return true;
-    }
-
-};
 
 /*#####
 # npc_kyle_frenzied
@@ -321,7 +285,6 @@ public:
 
 void AddSC_mulgore()
 {
-    new npc_skorn_whitecloud();
     new npc_kyle_frenzied();
     new npc_plains_vision();
 }

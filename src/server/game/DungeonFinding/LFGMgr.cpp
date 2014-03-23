@@ -968,6 +968,7 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
             player->CastSpell(player, LFG_SPELL_DUNGEON_COOLDOWN, false);
     }
 
+    ASSERT(grp);
     grp->SetDungeonDifficulty(Difficulty(dungeon->difficulty));
     uint64 gguid = grp->GetGUID();
     SetDungeon(gguid, dungeon->Entry());

@@ -1018,7 +1018,6 @@ public:
 
         int32 area = GetAreaFlagByAreaID(atoi((char*)args));
         int32 offset = area / 32;
-        uint32 val = uint32((1 << (area % 32)));
 
         if (area<0 || offset >= PLAYER_EXPLORED_ZONES_SIZE)
         {
@@ -1027,6 +1026,7 @@ public:
             return false;
         }
 
+        uint32 val = uint32((1 << (area % 32)));
         uint32 currFields = playerTarget->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset);
         playerTarget->SetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset, uint32((currFields | val)));
 
@@ -1049,7 +1049,6 @@ public:
 
         int32 area = GetAreaFlagByAreaID(atoi((char*)args));
         int32 offset = area / 32;
-        uint32 val = uint32((1 << (area % 32)));
 
         if (area < 0 || offset >= PLAYER_EXPLORED_ZONES_SIZE)
         {
@@ -1058,6 +1057,7 @@ public:
             return false;
         }
 
+        uint32 val = uint32((1 << (area % 32)));
         uint32 currFields = playerTarget->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset);
         playerTarget->SetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset, uint32((currFields ^ val)));
 

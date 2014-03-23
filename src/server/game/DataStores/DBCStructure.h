@@ -1230,6 +1230,24 @@ struct LFGDungeonEntry
     uint32 Entry() const { return ID + (type << 24); }
 };
 
+struct LightEntry
+{
+    uint32 Id;
+    uint32 MapId;
+    float X;
+    float Y;
+    float Z;
+    //float FalloffStart;
+    //float FalloffEnd;
+    //uint32 SkyAndFog;
+    //uint32 WaterSettings;
+    //uint32 SunsetParams;
+    //uint32 OtherParams;
+    //uint32 DeathParams;
+    //uint32 Unknown;
+    //uint32 Unknown;
+    //uint32 Unknown;
+};
 
 struct LiquidTypeEntry
 {

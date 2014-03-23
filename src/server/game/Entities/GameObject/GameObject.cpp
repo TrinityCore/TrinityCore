@@ -148,7 +148,7 @@ void GameObject::AddToWorld()
         sObjectAccessor->AddObject(this);
 
         // The state can be changed after GameObject::Create but before GameObject::AddToWorld
-        bool toggledState = GetGoType() == GAMEOBJECT_TYPE_CHEST ? getLootState() == GO_READY : GetGoState() == GO_STATE_READY;
+        bool toggledState = GetGoType() == GAMEOBJECT_TYPE_CHEST ? getLootState() == GO_READY : (GetGoState() == GO_STATE_READY || IsTransport());
         if (m_model)
             GetMap()->InsertGameObjectModel(*m_model);
 
@@ -317,7 +317,6 @@ void GameObject::Update(uint32 diff)
                     m_lootState = GO_READY;
                     break;
                 }
-                /* TODO: Fix movement in unloaded grid - currently GO will just disappear
                 case GAMEOBJECT_TYPE_TRANSPORT:
                 {
                     if (!m_goValue.Transport.AnimationInfo)
@@ -326,6 +325,7 @@ void GameObject::Update(uint32 diff)
                     if (GetGoState() == GO_STATE_READY)
                     {
                         m_goValue.Transport.PathProgress += diff;
+                        /* TODO: Fix movement in unloaded grid - currently GO will just disappear
                         uint32 timer = m_goValue.Transport.PathProgress % m_goValue.Transport.AnimationInfo->TotalTime;
                         TransportAnimationEntry const* node = m_goValue.Transport.AnimationInfo->GetAnimNode(timer);
                         if (node && m_goValue.Transport.CurrentSeg != node->TimeSeg)
@@ -341,14 +341,14 @@ void GameObject::Update(uint32 diff)
 
                             G3D::Vector3 src(GetPositionX(), GetPositionY(), GetPositionZ());
 
-                            TC_LOG_INFO("misc", "Src: %s Dest: %s", src.toString().c_str(), pos.toString().c_str());
+                            TC_LOG_DEBUG("misc", "Src: %s Dest: %s", src.toString().c_str(), pos.toString().c_str());
 
                             GetMap()->GameObjectRelocation(this, pos.x, pos.y, pos.z, GetOrientation());
                         }
+                        */
                     }
                     break;
                 }
-                */
                 case GAMEOBJECT_TYPE_FISHINGNODE:
                 {
                     // fishing code (bobber ready)
@@ -1034,6 +1034,7 @@ void GameObject::TriggeringLinkedGameObject(uint32 trapEntry, Unit* target)
     if (!trapSpell)                                          // checked at load already
         return;
 
+    ASSERT(GetOwner());
     float range = float(target->GetSpellMaxRangeForTarget(GetOwner(), trapSpell));
 
     // search nearest linked GO
@@ -2019,7 +2020,7 @@ void GameObject::SetGoState(GOState state)
 {
     SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
     sScriptMgr->OnGameObjectStateChanged(this, state);
-    if (m_model)
+    if (m_model && !IsTransport())
     {
         if (!IsInWorld())
             return;
@@ -2236,5 +2237,18 @@ float GameObject::GetInteractionDistance()
             return 20.0f + CONTACT_DISTANCE; // max spell range
         default:
             return INTERACTION_DISTANCE;
+    }
+}
+
+void GameObject::UpdateModelPosition()
+{
+    if (!m_model)
+        return;
+
+    if (GetMap()->ContainsGameObjectModel(*m_model))
+    {
+        GetMap()->RemoveGameObjectModel(*m_model);
+        m_model->Relocate(*this);
+        GetMap()->InsertGameObjectModel(*m_model);
     }
 }

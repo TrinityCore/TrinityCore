@@ -294,6 +294,8 @@ class npc_snobold_vassal : public CreatureScript
         {
             npc_snobold_vassalAI(Creature* creature) : ScriptedAI(creature)
             {
+                _targetGUID = 0;
+                _targetDied = false;
                 _instance = creature->GetInstanceScript();
                 _instance->SetData(DATA_SNOBOLD_COUNT, INCREASE);
             }

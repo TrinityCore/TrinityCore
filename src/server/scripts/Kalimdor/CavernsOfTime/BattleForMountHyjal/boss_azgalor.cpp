@@ -191,6 +191,9 @@ public:
     {
         npc_lesser_doomguardAI(Creature* creature) : hyjal_trashAI(creature)
         {
+            CrippleTimer = 50000;
+            WarstompTimer = 10000;
+            CheckTimer = 5000;
             instance = creature->GetInstanceScript();
             AzgalorGUID = instance->GetData64(DATA_AZGALOR);
         }
