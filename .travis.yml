@@ -9,15 +9,13 @@ compiler:
 before_install:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo apt-get update -qq
-  - sudo apt-get install -qq build-essential autoconf libtool make cmake libace-dev openssl libssl-dev libmysqlclient15-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev
-  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.7; fi
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.7" CC="gcc-4.7"; fi
+  - sudo apt-get install -qq build-essential autoconf libtool gcc g++ make cmake libace-dev openssl libssl-dev libmysqlclient15-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev
   
 script:
   - mkdir build
   - cd build
-  - declare -x CFLAGS="-m64 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -O1 -g3 -ggdb3 -pipe -msse3 -fno-strength-reduce -fno-delete-null-pointer-checks -fno-strict-aliasing -frename-registers -rdynamic -fno-fast-math -std=c++11"
-  - declare -x CXXFLAGS="-m64 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -O1 -g3 -ggdb3 -pipe -msse3 -fno-strength-reduce -fno-delete-null-pointer-checks -fno-strict-aliasing -frename-registers -rdynamic -fno-fast-math -std=c++11"
+  - declare -x CFLAGS="-std=c++11"
+  - declare -x CXXFLAGS="-std=c++11"
   - cmake .. -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=0 -DSCRIPTS=1 -DSERVERS=1
   - make -j16
 
