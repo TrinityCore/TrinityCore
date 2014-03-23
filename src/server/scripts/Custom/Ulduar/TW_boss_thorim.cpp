@@ -348,7 +348,7 @@ public:
 
     struct TW_boss_thorimAI : public BossAI
     {
-        TW_boss_thorimAI(Creature* creature) : BossAI(creature, 3)
+        TW_boss_thorimAI(Creature* creature) : BossAI(creature, BOSS_THORIM)
         {
             homePosition = creature->GetHomePosition();
             EncounterFinished = false;
@@ -454,7 +454,6 @@ public:
                         lightning->SetGoState(GO_STATE_ACTIVE);
 
                 DoCastAOE(SPELL_ACHIEVEMENT_CHECK);
-                instance->SetBossState(BOSS_THORIM, DONE);
                 me->setFaction(FACTION_FRIENDLY);
             }
         }
