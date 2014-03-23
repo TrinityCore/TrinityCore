@@ -16,6 +16,8 @@ before_install:
 script:
   - mkdir build
   - cd build
+  - declare -x CFLAGS="-m64 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -O1 -g3 -ggdb3 -pipe -msse3 -fno-strength-reduce -fno-delete-null-pointer-checks -fno-strict-aliasing -frename-registers -rdynamic -fno-fast-math -std=c++11"
+  - declare -x CXXFLAGS="-m64 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -O1 -g3 -ggdb3 -pipe -msse3 -fno-strength-reduce -fno-delete-null-pointer-checks -fno-strict-aliasing -frename-registers -rdynamic -fno-fast-math -std=c++11"
   - cmake .. -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=0 -DSCRIPTS=1 -DSERVERS=1
   - make -j16
 
