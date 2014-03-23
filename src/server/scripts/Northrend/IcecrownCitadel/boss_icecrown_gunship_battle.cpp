@@ -15,11 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CellImpl.h"
 #include "CreatureTextMgr.h"
+#include "GridNotifiersImpl.h"
+#include "GossipDef.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
-#include "SpellScript.h"
+#include "PassiveAI.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "Transport.h"
 #include "TransportMgr.h"
 #include "Vehicle.h"
