@@ -16,34 +16,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: boss_Halazzi
-SD%Complete: 80
-SDComment:
-SDCategory: Zul'Aman
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "zulaman.h"
 #include "SpellInfo.h"
-
-#define YELL_AGGRO "Get on your knees and bow to da fang and claw!"
-#define SOUND_AGGRO                    12020
-#define YELL_SABER_ONE "You gonna leave in pieces!"
-#define YELL_SABER_TWO "Me gonna carve ya now!"
-#define YELL_SPLIT "Me gonna carve ya now!"
-#define SOUND_SPLIT                    12021
-#define YELL_MERGE "Spirit, come back to me!"
-#define SOUND_MERGE                    12022
-#define YELL_KILL_ONE "You cant fight the power!"
-#define SOUND_KILL_ONE                12026
-#define YELL_KILL_TWO "You gonna fail!"
-#define SOUND_KILL_TWO                12027
-#define YELL_DEATH "Chaga... choka'jinn."
-#define SOUND_DEATH                    12028
-#define YELL_BERSERK "Whatch you be doing? Pissin' yourselves..."
-#define SOUND_BERSERK                12025
 
 enum Spells
 {
@@ -78,23 +54,32 @@ enum PhaseHalazzi
     PHASE_ENRAGE                = 5
 };
 
+enum Yells
+{
+    SAY_AGGRO                   = 0,
+    SAY_SABER                   = 1,
+    SAY_SPLIT                   = 2,
+    SAY_MERGE                   = 3,
+    SAY_KILL                    = 4,
+    SAY_DEATH                   = 5,
+    SAY_BERSERK                 = 6
+};
+
 class boss_halazzi : public CreatureScript
 {
     public:
-
-        boss_halazzi()
-            : CreatureScript("boss_halazzi")
-        {
-        }
+        boss_halazzi() : CreatureScript("boss_halazzi") { }
 
         struct boss_halazziAI : public ScriptedAI
         {
-            boss_halazziAI(Creature* creature) : ScriptedAI(creature)
+            boss_halazziAI(Creature* creature) : ScriptedAI(creature), summons(me)
             {
                 instance = creature->GetInstanceScript();
             }
 
             InstanceScript* instance;
+            SummonList summons;
+            PhaseHalazzi Phase;
 
             uint32 FrenzyTimer;
             uint32 SaberlashTimer;
@@ -102,16 +87,14 @@ class boss_halazzi : public CreatureScript
             uint32 TotemTimer;
             uint32 CheckTimer;
             uint32 BerserkTimer;
-
             uint32 TransformCount;
-
-            PhaseHalazzi Phase;
 
             uint64 LynxGUID;
 
             void Reset() OVERRIDE
             {
                 instance->SetData(DATA_HALAZZIEVENT, NOT_STARTED);
+                summons.DespawnAll();
 
                 LynxGUID = 0;
                 TransformCount = 0;
@@ -127,10 +110,7 @@ class boss_halazzi : public CreatureScript
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 instance->SetData(DATA_HALAZZIEVENT, IN_PROGRESS);
-
-                me->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(me, SOUND_AGGRO);
-
+                Talk(SAY_AGGRO);
                 EnterPhase(PHASE_LYNX);
             }
 
@@ -139,6 +119,7 @@ class boss_halazzi : public CreatureScript
                 summon->AI()->AttackStart(me->GetVictim());
                 if (summon->GetEntry() == NPC_SPIRIT_LYNX)
                     LynxGUID = summon->GetGUID();
+                summons.Summon(summon);
             }
 
             void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
@@ -155,7 +136,8 @@ class boss_halazzi : public CreatureScript
 
             void AttackStart(Unit* who) OVERRIDE
             {
-                if (Phase != PHASE_MERGE) ScriptedAI::AttackStart(who);
+                if (Phase != PHASE_MERGE)
+                    ScriptedAI::AttackStart(who);
             }
 
             void EnterPhase(PhaseHalazzi NextPhase)
@@ -180,8 +162,7 @@ class boss_halazzi : public CreatureScript
                     TotemTimer = 12000;
                     break;
                 case PHASE_SPLIT:
-                    me->MonsterYell(YELL_SPLIT, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(me, SOUND_SPLIT);
+                    Talk(SAY_SPLIT);
                     DoCast(me, SPELL_TRANSFORM_SPLIT, true);
                     break;
                 case PHASE_HUMAN:
@@ -195,8 +176,7 @@ class boss_halazzi : public CreatureScript
                 case PHASE_MERGE:
                     if (Unit* pLynx = Unit::GetUnit(*me, LynxGUID))
                     {
-                        me->MonsterYell(YELL_MERGE, LANG_UNIVERSAL, NULL);
-                        DoPlaySoundToSet(me, SOUND_MERGE);
+                        Talk(SAY_MERGE);
                         pLynx->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         pLynx->GetMotionMaster()->Clear();
                         pLynx->GetMotionMaster()->MoveFollow(me, 0, 0);
@@ -211,15 +191,14 @@ class boss_halazzi : public CreatureScript
                 Phase = NextPhase;
             }
 
-             void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
 
                 if (BerserkTimer <= diff)
                 {
-                    me->MonsterYell(YELL_BERSERK, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(me, SOUND_BERSERK);
+                    Talk(SAY_BERSERK);
                     DoCast(me, SPELL_BERSERK, true);
                     BerserkTimer = 60000;
                 } else BerserkTimer -= diff;
@@ -313,28 +292,18 @@ class boss_halazzi : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void KilledUnit(Unit* /*victim*/) OVERRIDE
+            void KilledUnit(Unit* victim) OVERRIDE
             {
-                switch (urand(0, 1))
-                {
-                    case 0:
-                        me->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, NULL);
-                        DoPlaySoundToSet(me, SOUND_KILL_ONE);
-                        break;
+                if (victim->GetTypeId() != TYPEID_PLAYER)
+                    return;
 
-                    case 1:
-                        me->MonsterYell(YELL_KILL_TWO, LANG_UNIVERSAL, NULL);
-                        DoPlaySoundToSet(me, SOUND_KILL_TWO);
-                        break;
-                }
+                Talk(SAY_KILL);
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 instance->SetData(DATA_HALAZZIEVENT, DONE);
-
-                me->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(me, SOUND_DEATH);
+                Talk(SAY_DEATH);
             }
         };
 
@@ -348,11 +317,7 @@ class boss_halazzi : public CreatureScript
 class npc_halazzi_lynx : public CreatureScript
 {
     public:
-
-        npc_halazzi_lynx()
-            : CreatureScript("npc_halazzi_lynx")
-        {
-        }
+        npc_halazzi_lynx() : CreatureScript("npc_halazzi_lynx") { }
 
         struct npc_halazzi_lynxAI : public ScriptedAI
         {
@@ -414,5 +379,3 @@ void AddSC_boss_halazzi()
     new boss_halazzi();
     new npc_halazzi_lynx();
 }
-
-
