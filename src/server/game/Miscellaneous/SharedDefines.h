@@ -23,6 +23,9 @@
 #include "Define.h"
 #include <cassert>
 
+#define TRINITY
+#define WOTLK
+
 enum SpellEffIndex
 {
     EFFECT_0 = 0,

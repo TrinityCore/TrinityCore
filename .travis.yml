@@ -35,13 +35,8 @@ before_install:
     - cd ../../
 
 # Get Eluna
-# Go to /src/LuaEngine/
-    - cd src/LuaEngine/
-# init git and get latest eluna
-    - git init
-    - git pull https://github.com/Rochet2/Eluna.git dev
-# Go to Source/
-    - cd ../../
+    - git submodule init
+    - git submodule update
 
 script:
 # Create Source/BUILD
