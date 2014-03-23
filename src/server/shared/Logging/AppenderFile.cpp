@@ -16,6 +16,7 @@
  */
 
 #include "AppenderFile.h"
+#include "Common.h"
 
 #if PLATFORM == PLATFORM_WINDOWS
 # include <Windows.h>
