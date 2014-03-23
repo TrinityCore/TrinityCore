@@ -3384,6 +3384,15 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 71169: // Shadow's Fate
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
+            case 72347: // Lock Players and Tap Chest
+                spellInfo->AttributesEx3 &= ~SPELL_ATTR3_NO_INITIAL_AGGRO;
+                break;
+            case 73843: // Award Reputation - Boss Kill
+            case 73844: // Award Reputation - Boss Kill
+            case 73845: // Award Reputation - Boss Kill
+            case 73846: // Award Reputation - Boss Kill
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
+                break;
             case 72378: // Blood Nova (Deathbringer Saurfang)
             case 73058: // Blood Nova (Deathbringer Saurfang)
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
