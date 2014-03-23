@@ -454,6 +454,7 @@ enum SharedActions
 {
     // Icecrown Gunship Battle
     ACTION_ENEMY_GUNSHIP_TALK   = -369390,
+    ACTION_EXIT_SHIP            = -369391,
 
     // Festergut
     ACTION_FESTERGUT_COMBAT     = -366260,
