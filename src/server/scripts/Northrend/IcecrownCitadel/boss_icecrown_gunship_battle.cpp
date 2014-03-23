@@ -216,6 +216,39 @@ Position const OrgrimsHammerTeleportExit = { 7.461699f, 0.158853f, 35.72989f, 0.
 Position const OrgrimsHammerTeleportPortal = { 47.550990f, -0.101778f, 37.61111f, 0.0f };
 Position const SkybreakerTeleportExit      = { -17.55738f, -0.090421f, 21.18366f, 0.0f };
 
+uint32 const MuradinExitPathSize = 10;
+G3D::Vector3 const MuradinExitPath[MuradinExitPathSize] =
+{
+    { 8.130936f, -0.2699585f, 20.31728f },
+    { 6.380936f, -0.2699585f, 20.31728f },
+    { 3.507703f, 0.02986573f, 20.78463f },
+    { -2.767633f, 3.743143f, 20.37663f },
+    { -4.017633f, 4.493143f, 20.12663f },
+    { -7.242224f, 6.856013f, 20.03468f },
+    { -7.742224f, 8.606013f, 20.78468f },
+    { -7.992224f, 9.856013f, 21.28468f },
+    { -12.24222f, 23.10601f, 21.28468f },
+    { -14.88477f, 25.20844f, 21.59985f },
+};
+
+uint32 const SaurfangExitPathSize = 13;
+G3D::Vector3 const SaurfangExitPath[SaurfangExitPathSize] =
+{
+    { 30.43987f, 0.1475817f, 36.10674f },
+    { 21.36141f, -3.056458f, 35.42970f },
+    { 19.11141f, -3.806458f, 35.42970f },
+    { 19.01736f, -3.299440f, 35.39428f },
+    { 18.6747f, -5.862823f, 35.66611f },
+    { 18.6747f, -7.862823f, 35.66611f },
+    { 18.1747f, -17.36282f, 35.66611f },
+    { 18.1747f, -22.61282f, 35.66611f },
+    { 17.9247f, -24.36282f, 35.41611f },
+    { 17.9247f, -26.61282f, 35.66611f },
+    { 17.9247f, -27.86282f, 35.66611f },
+    { 17.9247f, -29.36282f, 35.66611f },
+    { 15.33203f, -30.42621f, 35.93796f }
+};
+
 enum PassengerSlots
 {
     // Freezing the cannons
@@ -569,6 +602,8 @@ struct gunship_npc_AI : public ScriptedAI
 
     bool CanAIAttack(Unit const* target) const OVERRIDE
     {
+        if (Instance->GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != IN_PROGRESS)
+            return false;
         return target->HasAura(Instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? SPELL_ON_ORGRIMS_HAMMER_DECK : SPELL_ON_SKYBREAKER_DECK);
     }
 
@@ -582,7 +617,10 @@ protected:
     bool SelectVictim()
     {
         if (Instance->GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != IN_PROGRESS)
+        {
+            EnterEvadeMode();
             return false;
+        }
 
         if (!me->HasReactState(REACT_PASSIVE))
         {
@@ -632,7 +670,7 @@ class npc_gunship : public CreatureScript
 
             void DamageTaken(Unit* /*source*/, uint32& damage) OVERRIDE
             {
-                if (damage > me->GetHealth())
+                if (damage >= me->GetHealth())
                 {
                     JustDied(NULL);
                     damage = me->GetHealth() - 1;
@@ -662,6 +700,7 @@ class npc_gunship : public CreatureScript
 
                 bool isVictory = me->GetTransport()->GetEntry() == GO_THE_SKYBREAKER_H || me->GetTransport()->GetEntry() == GO_ORGRIMS_HAMMER_A;
                 InstanceScript* instance = me->GetInstanceScript();
+                instance->SetBossState(DATA_ICECROWN_GUNSHIP_BATTLE, isVictory ? DONE : FAIL);
                 if (Creature* creature = me->FindNearestCreature(me->GetEntry() == NPC_ORGRIMS_HAMMER ? NPC_THE_SKYBREAKER : NPC_ORGRIMS_HAMMER, 200.0f))
                 {
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, creature);
@@ -675,8 +714,12 @@ class npc_gunship : public CreatureScript
                 std::list<Creature*> creatures;
                 GetCreatureListWithEntryInGrid(creatures, me, NPC_MARTYR_STALKER_IGB_SAURFANG, SIZE_OF_GRIDS);
                 for (std::list<Creature*>::iterator itr = creatures.begin(); itr != creatures.end(); ++itr)
-                    (*itr)->AI()->EnterEvadeMode();
-
+                {
+                    Creature* stalker = *itr;
+                    stalker->RemoveAllAuras();
+                    stalker->DeleteThreatList();
+                    stalker->CombatStop(true);
+                }
 
                 uint32 explosionSpell = isVictory ? SPELL_EXPLOSION_VICTORY : SPELL_EXPLOSION_WIPE;
                 creatures.clear();
@@ -735,6 +778,14 @@ class npc_gunship : public CreatureScript
                         ship->CastSpell(ship, SPELL_ACHIEVEMENT, TRIGGERED_FULL_MASK);
                         ship->CastSpell(ship, SPELL_AWARD_REPUTATION_BOSS_KILL, TRIGGERED_FULL_MASK);
                     }
+
+                    creatures.clear();
+                    GetCreatureListWithEntryInGrid(creatures, me, NPC_SKYBREAKER_MARINE, 200.0f);
+                    GetCreatureListWithEntryInGrid(creatures, me, NPC_SKYBREAKER_SERGEANT, 200.0f);
+                    GetCreatureListWithEntryInGrid(creatures, me, NPC_KOR_KRON_REAVER, 200.0f);
+                    GetCreatureListWithEntryInGrid(creatures, me, NPC_KOR_KRON_SERGEANT, 200.0f);
+                    for (std::list<Creature*>::iterator itr = creatures.begin(); itr != creatures.end(); ++itr)
+                        (*itr)->DespawnOrUnsummon(1);
                 }
                 else
                 {
@@ -742,8 +793,6 @@ class npc_gunship : public CreatureScript
                     me->m_Events.AddEvent(new ResetEncounterEvent(me, teleportSpellId, me->GetInstanceScript()->GetData64(DATA_ENEMY_GUNSHIP)),
                         me->m_Events.CalculateTime(8000));
                 }
-
-                instance->SetBossState(DATA_ICECROWN_GUNSHIP_BATTLE, isVictory ? DONE : FAIL);
             }
 
             void SetGUID(uint64 guid, int32 id/* = 0*/) OVERRIDE
@@ -860,8 +909,8 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 else if (action == ACTION_SPAWN_MAGE)
                 {
                     time_t now = time(NULL);
-                    if (_firstMageCooldown < now)
-                        _events.ScheduleEvent(EVENT_SUMMON_MAGE, (now - _firstMageCooldown) * IN_MILLISECONDS);
+                    if (_firstMageCooldown > now)
+                        _events.ScheduleEvent(EVENT_SUMMON_MAGE, (_firstMageCooldown - now) * IN_MILLISECONDS);
                     else
                         _events.ScheduleEvent(EVENT_SUMMON_MAGE, 1);
                 }
@@ -878,6 +927,21 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                         _controller.SummonCreatures(SLOT_MORTAR_1, SLOT_MORTAR_2);
                         _controller.SummonCreatures(SLOT_RIFLEMAN_1, SLOT_RIFLEMAN_4);
                     }
+                }
+                else if (action == ACTION_EXIT_SHIP)
+                {
+                    Position pos;
+                    pos.Relocate(SaurfangExitPath[SaurfangExitPathSize - 1].x, SaurfangExitPath[SaurfangExitPathSize - 1].y, SaurfangExitPath[SaurfangExitPathSize - 1].z);
+                    me->GetMotionMaster()->MovePoint(EVENT_CHARGE_PREPATH, pos, false);
+
+                    Movement::PointsArray path(SaurfangExitPath, SaurfangExitPath + SaurfangExitPathSize);
+
+                    Movement::MoveSplineInit init(me);
+                    init.DisableTransportPathTransformations();
+                    init.MovebyPath(path, 0);
+                    init.Launch();
+
+                    me->DespawnOrUnsummon(18000);
                 }
             }
 
@@ -908,7 +972,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 if (me->HealthBelowPctDamaged(65, damage) && !me->HasAura(SPELL_TASTE_OF_BLOOD))
                     DoCast(me, SPELL_TASTE_OF_BLOOD, true);
 
-                if (damage > me->GetHealth())
+                if (damage >= me->GetHealth())
                     damage = me->GetHealth() - 1;
             }
 
@@ -1017,6 +1081,8 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
 
             bool CanAIAttack(Unit const* target) const OVERRIDE
             {
+                if (_instance->GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != IN_PROGRESS)
+                    return false;
                 return target->HasAura(SPELL_ON_ORGRIMS_HAMMER_DECK) || !target->IsControlledByPlayer();
             }
 
@@ -1109,8 +1175,8 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 else if (action == ACTION_SPAWN_MAGE)
                 {
                     time_t now = time(NULL);
-                    if (_firstMageCooldown < now)
-                        _events.ScheduleEvent(EVENT_SUMMON_MAGE, (now - _firstMageCooldown) * IN_MILLISECONDS);
+                    if (_firstMageCooldown > now)
+                        _events.ScheduleEvent(EVENT_SUMMON_MAGE, (_firstMageCooldown - now) * IN_MILLISECONDS);
                     else
                         _events.ScheduleEvent(EVENT_SUMMON_MAGE, 1);
                 }
@@ -1127,6 +1193,21 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                         _controller.SummonCreatures(SLOT_MORTAR_1, SLOT_MORTAR_2);
                         _controller.SummonCreatures(SLOT_RIFLEMAN_1, SLOT_RIFLEMAN_4);
                     }
+                }
+                else if (action == ACTION_EXIT_SHIP)
+                {
+                    Position pos;
+                    pos.Relocate(MuradinExitPath[MuradinExitPathSize - 1].x, MuradinExitPath[MuradinExitPathSize - 1].y, MuradinExitPath[MuradinExitPathSize - 1].z);
+                    me->GetMotionMaster()->MovePoint(EVENT_CHARGE_PREPATH, pos, false);
+
+                    Movement::PointsArray path(MuradinExitPath, MuradinExitPath + MuradinExitPathSize);
+
+                    Movement::MoveSplineInit init(me);
+                    init.DisableTransportPathTransformations();
+                    init.MovebyPath(path, 0);
+                    init.Launch();
+
+                    me->DespawnOrUnsummon(18000);
                 }
             }
 
@@ -1158,7 +1239,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 if (me->HealthBelowPctDamaged(65, damage) && me->HasAura(SPELL_TASTE_OF_BLOOD))
                     DoCast(me, SPELL_TASTE_OF_BLOOD, true);
 
-                if (damage > me->GetHealth())
+                if (damage >= me->GetHealth())
                     damage = me->GetHealth() - 1;
             }
 
@@ -1270,6 +1351,8 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
 
             bool CanAIAttack(Unit const* target) const OVERRIDE
             {
+                if (_instance->GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != IN_PROGRESS)
+                    return false;
                 return target->HasAura(SPELL_ON_SKYBREAKER_DECK) || !target->IsControlledByPlayer();
             }
 
