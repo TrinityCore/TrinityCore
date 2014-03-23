@@ -2570,38 +2570,6 @@ class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_eject_all_passengers : public SpellScriptLoader
-{
-    public:
-        spell_the_lich_king_eject_all_passengers() : SpellScriptLoader("spell_the_lich_king_eject_all_passengers") { }
-
-        class spell_the_lich_king_eject_all_passengers_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_the_lich_king_eject_all_passengers_SpellScript);
-
-            bool Load() OVERRIDE
-            {
-                return GetCaster()->IsVehicle();
-            }
-
-            void HandleDummy(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-                GetCaster()->GetVehicleKit()->RemoveAllPassengers();
-            }
-
-            void Register() OVERRIDE
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_eject_all_passengers_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const OVERRIDE
-        {
-            return new spell_the_lich_king_eject_all_passengers_SpellScript();
-        }
-};
-
 class spell_the_lich_king_cast_back_to_caster : public SpellScriptLoader
 {
     public:
@@ -3234,7 +3202,6 @@ void AddSC_boss_the_lich_king()
     new spell_the_lich_king_summon_into_air();
     new spell_the_lich_king_soul_reaper();
     new spell_the_lich_king_valkyr_target_search();
-    new spell_the_lich_king_eject_all_passengers();
     new spell_the_lich_king_cast_back_to_caster();
     new spell_the_lich_king_life_siphon();
     new spell_the_lich_king_vile_spirits();

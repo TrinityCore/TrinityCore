@@ -36,6 +36,7 @@
 #include "SkillDiscovery.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "Vehicle.h"
 
 class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
 {
@@ -3673,6 +3674,33 @@ class spell_gen_whisper_gulch_yogg_saron_whisper : public SpellScriptLoader
         }
 };
 
+class spell_gen_eject_all_passengers : public SpellScriptLoader
+{
+    public:
+        spell_gen_eject_all_passengers() : SpellScriptLoader("spell_gen_eject_all_passengers") { }
+
+        class spell_gen_eject_all_passengers_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_eject_all_passengers_SpellScript);
+
+            void RemoveVehicleAuras()
+            {
+                if (Vehicle* vehicle = GetHitUnit()->GetVehicleKit())
+                    vehicle->RemoveAllPassengers();
+            }
+
+            void Register() OVERRIDE
+            {
+                AfterHit += SpellHitFn(spell_gen_eject_all_passengers_SpellScript::RemoveVehicleAuras);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_gen_eject_all_passengers_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3754,4 +3782,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_vendor_bark_trigger();
     new spell_gen_wg_water();
     new spell_gen_whisper_gulch_yogg_saron_whisper();
+    new spell_gen_eject_all_passengers();
 }
