@@ -47,6 +47,24 @@ class Transport : public GameObject, public TransportBase
         Creature* CreateNPCPassenger(uint32 guid, CreatureData const* data);
         GameObject* CreateGOPassenger(uint32 guid, GameObjectData const* data);
 
+        /**
+        * @fn bool Transport::SummonPassenger(uint64, Position const&, TempSummonType, SummonPropertiesEntry const*, uint32, Unit*, uint32, uint32)
+        *
+        * @brief Temporarily summons a creature as passenger on this transport.
+        *
+        * @param entry Id of the creature from creature_template table
+        * @param pos Initial position of the creature (transport offsets)
+        * @param summonType
+        * @param properties
+        * @param duration Determines how long the creauture will exist in world depending on @summonType (in milliseconds)
+        * @param summoner Summoner of the creature (for AI purposes)
+        * @param spellId
+        * @param vehId If set, this value overrides vehicle id from creature_template that the creature will use
+        *
+        * @return Summoned creature.
+        */
+        TempSummon* SummonPassenger(uint32 entry, Position const& pos, TempSummonType summonType, SummonPropertiesEntry const* properties = NULL, uint32 duration = 0, Unit* summoner = NULL, uint32 spellId = 0, uint32 vehId = 0);
+
         /// This method transforms supplied transport offsets into global coordinates
         void CalculatePassengerPosition(float& x, float& y, float& z, float* o = NULL) const OVERRIDE
         {

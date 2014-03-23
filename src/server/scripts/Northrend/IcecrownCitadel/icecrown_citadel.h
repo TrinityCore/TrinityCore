@@ -76,7 +76,7 @@ enum DataTypes
     // Encounter States/Boss GUIDs
     DATA_LORD_MARROWGAR             = 0,
     DATA_LADY_DEATHWHISPER          = 1,
-    DATA_GUNSHIP_EVENT              = 2,
+    DATA_ICECROWN_GUNSHIP_BATTLE    = 2,
     DATA_DEATHBRINGER_SAURFANG      = 3,
     DATA_FESTERGUT                  = 4,
     DATA_ROTFACE                    = 5,
@@ -116,6 +116,7 @@ enum DataTypes
     DATA_HIGHLORD_TIRION_FORDRING   = 37,
     DATA_ARTHAS_PLATFORM            = 38,
     DATA_TERENAS_MENETHIL           = 39,
+    DATA_ENEMY_GUNSHIP              = 40
 };
 
 enum CreaturesIds
@@ -168,6 +169,33 @@ enum CreaturesIds
     NPC_EMPOWERED_ADHERENT                      = 38136,
     NPC_REANIMATED_ADHERENT                     = 38010,
     NPC_VENGEFUL_SHADE                          = 38222,
+
+    // Icecrown Gunship Battle
+    NPC_MARTYR_STALKER_IGB_SAURFANG             = 38569,
+    NPC_ALLIANCE_GUNSHIP_CANNON                 = 36838,
+    NPC_HORDE_GUNSHIP_CANNON                    = 36839,
+    NPC_SKYBREAKER_DECKHAND                     = 36970,
+    NPC_ORGRIMS_HAMMER_CREW                     = 36971,
+    NPC_IGB_HIGH_OVERLORD_SAURFANG              = 36939,
+    NPC_IGB_MURADIN_BRONZEBEARD                 = 36948,
+    NPC_THE_SKYBREAKER                          = 37540,
+    NPC_ORGRIMS_HAMMER                          = 37215,
+    NPC_GUNSHIP_HULL                            = 37547,
+    NPC_TELEPORT_PORTAL                         = 37227,
+    NPC_TELEPORT_EXIT                           = 37488,
+    NPC_SKYBREAKER_SORCERER                     = 37116,
+    NPC_SKYBREAKER_RIFLEMAN                     = 36969,
+    NPC_SKYBREAKER_MORTAR_SOLDIER               = 36978,
+    NPC_SKYBREAKER_MARINE                       = 36950,
+    NPC_SKYBREAKER_SERGEANT                     = 36961,
+    NPC_KOR_KRON_BATTLE_MAGE                    = 37117,
+    NPC_KOR_KRON_AXETHROWER                     = 36968,
+    NPC_KOR_KRON_ROCKETEER                      = 36982,
+    NPC_KOR_KRON_REAVER                         = 36957,
+    NPC_KOR_KRON_SERGEANT                       = 36960,
+    NPC_ZAFOD_BOOMBOX                           = 37184,
+    NPC_HIGH_CAPTAIN_JUSTIN_BARTLETT            = 37182,
+    NPC_SKY_REAVER_KORM_BLACKSCAR               = 37833,
 
     // Deathbringer Saurfang
     NPC_DEATHBRINGER_SAURFANG                   = 37813,
@@ -305,6 +333,22 @@ enum GameObjectsIds
     GO_ORATORY_OF_THE_DAMNED_ENTRANCE       = 201563,
     GO_LADY_DEATHWHISPER_ELEVATOR           = 202220,
 
+    // Icecrown Gunship Battle - Horde raid
+    GO_ORGRIMS_HAMMER_H                     = 201812,
+    GO_THE_SKYBREAKER_H                     = 201811,
+    GO_GUNSHIP_ARMORY_H_10N                 = 202178,
+    GO_GUNSHIP_ARMORY_H_25N                 = 202180,
+    GO_GUNSHIP_ARMORY_H_10H                 = 202177,
+    GO_GUNSHIP_ARMORY_H_25H                 = 202179,
+
+    // Icecrown Gunship Battle - Alliance raid
+    GO_ORGRIMS_HAMMER_A                     = 201581,
+    GO_THE_SKYBREAKER_A                     = 201580,
+    GO_GUNSHIP_ARMORY_A_10N                 = 201873,
+    GO_GUNSHIP_ARMORY_A_25N                 = 201874,
+    GO_GUNSHIP_ARMORY_A_10H                 = 201872,
+    GO_GUNSHIP_ARMORY_A_25H                 = 201875,
+
     // Deathbringer Saurfang
     GO_SAURFANG_S_DOOR                      = 201825,
     GO_DEATHBRINGER_S_CACHE_10N             = 202239,
@@ -408,6 +452,9 @@ enum AchievementCriteriaIds
 
 enum SharedActions
 {
+    // Icecrown Gunship Battle
+    ACTION_ENEMY_GUNSHIP_TALK   = -369390,
+
     // Festergut
     ACTION_FESTERGUT_COMBAT     = -366260,
     ACTION_FESTERGUT_GAS        = -366261,
@@ -459,6 +506,7 @@ enum WorldStatesICC
 
 enum AreaIds
 {
+    AREA_ICECROWN_CITADEL   = 4812,
     AREA_THE_FROZEN_THRONE  = 4859
 };
 
