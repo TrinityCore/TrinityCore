@@ -9,7 +9,7 @@ compiler:
 before_install:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo apt-get update -qq
-  - sudo apt-get install -qq build-essential autoconf libtool g++-4.8 gcc make cmake libace-dev openssl libssl-dev libmysqlclient15-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev
+  - sudo apt-get install -qq build-essential autoconf libtool gcc-4.8 g++-4.8 make cmake libace-dev openssl libssl-dev libmysqlclient15-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev
   
 script:
   - mkdir build
