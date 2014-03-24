@@ -17,6 +17,5 @@ endif(TOOLS)
 
 if ( ELUNA )
   add_subdirectory(LuaEngine)
-  file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin/Release/lua_scripts)
 endif(ELUNA)
 

@@ -1,0 +1,3 @@
+[submodule "src/LuaEngine"]
+	path = src/LuaEngine
+	url = https://github.com/ElunaLuaEngine/Eluna.git

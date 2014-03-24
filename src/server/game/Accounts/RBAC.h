@@ -682,7 +682,6 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_DEBUG_PHASE                            = 776, // only 4.3.4
     RBAC_PERM_COMMAND_MAILBOX                                = 777,
 
-
     // custom permissions 1000+
     RBAC_PERM_MAX
 };
