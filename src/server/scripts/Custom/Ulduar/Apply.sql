@@ -173,7 +173,7 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value
 (10547, 11, 0, 0, "TW_achievement_set_us_up_the_bomb_rocket"),
 (10548, 11, 0, 0, "TW_achievement_set_us_up_the_bomb_bot");
 
-DELETE FROM `disables` WHERE `entry` IN (10542, 10544, 10545, 10548, 10547, 10546) AND `sourceType` = 4;
+DELETE FROM `disables` WHERE `entry` IN (10543, 10544, 10545, 10548, 10547, 10546) AND `sourceType` = 4;
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (62807, 62821, 63711);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
