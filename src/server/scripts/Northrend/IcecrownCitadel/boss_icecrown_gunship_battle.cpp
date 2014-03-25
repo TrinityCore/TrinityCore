@@ -1083,7 +1083,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
             {
                 if (_instance->GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != IN_PROGRESS)
                     return false;
-                return target->HasAura(SPELL_ON_ORGRIMS_HAMMER_DECK) || !target->IsControlledByPlayer();
+                return target->HasAura(SPELL_ON_ORGRIMS_HAMMER_DECK) || target->GetEntry() == NPC_SKYBREAKER_MARINE || target->GetEntry() == NPC_SKYBREAKER_SERGEANT;
             }
 
         private:
@@ -1353,7 +1353,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
             {
                 if (_instance->GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != IN_PROGRESS)
                     return false;
-                return target->HasAura(SPELL_ON_SKYBREAKER_DECK) || !target->IsControlledByPlayer();
+                return target->HasAura(SPELL_ON_SKYBREAKER_DECK) || target->GetEntry() == NPC_KOR_KRON_REAVER || target->GetEntry() == NPC_KOR_KRON_SERGEANT;
             }
 
         private:
