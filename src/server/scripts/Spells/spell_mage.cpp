@@ -433,7 +433,7 @@ class spell_mage_living_bomb : public SpellScriptLoader
                     return;
 
                 if (Unit* caster = GetCaster())
-                    GetTarget()->CastSpell(GetTarget(), uint32(aurEff->GetAmount()), true, NULL, aurEff, caster->GetGUID());
+                    caster->CastSpell(GetTarget(), uint32(aurEff->GetAmount()), true, NULL, aurEff);
             }
 
             void Register() OVERRIDE
