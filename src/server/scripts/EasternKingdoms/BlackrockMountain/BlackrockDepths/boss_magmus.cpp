@@ -52,12 +52,8 @@ public:
 
         void Reset() OVERRIDE
         {
-            _phaseTwo = false;
-        }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE 
-        {
             _events.ScheduleEvent(EVENT_FIERY_BURST, 5000);
+            _phaseTwo = false;
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE

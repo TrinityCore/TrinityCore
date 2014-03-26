@@ -51,15 +51,13 @@ public:
     {
         boss_anubshiahAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE { }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE 
+        void Reset() OVERRIDE 
         {
             _events.ScheduleEvent(EVENT_SHADOWBOLT, 7000);
             _events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, 24000);
             _events.ScheduleEvent(EVENT_CURSE_OF_WEAKNESS, 12000);
             _events.ScheduleEvent(EVENT_DEMON_ARMOR, 3000);
-            _events.ScheduleEvent(EVENT_ENVELOPING_WEB, 16000);
+            _events.ScheduleEvent(EVENT_ENVELOPING_WEB, 16000); 
         }
 
         void UpdateAI(uint32 diff) OVERRIDE

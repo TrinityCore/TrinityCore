@@ -162,7 +162,11 @@ public:
         InstanceScript* instance;
 
         void Reset() OVERRIDE
-        {
+        {            
+            _events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 10000);
+            _events.ScheduleEvent(EVENT_IMMOLATE, 18000);
+            _events.ScheduleEvent(EVENT_CURSE_OF_WEAKNESS, 5000);
+            _events.ScheduleEvent(EVENT_DEMONARMOR, 16000);
             _voidWalkers = false;
 
             me->setFaction(FACTION_FRIEND);
@@ -174,14 +178,6 @@ public:
                 me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
             else
                 me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-        }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE
-        {
-            _events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 10000);
-            _events.ScheduleEvent(EVENT_IMMOLATE, 18000);
-            _events.ScheduleEvent(EVENT_CURSE_OF_WEAKNESS, 5000);
-            _events.ScheduleEvent(EVENT_DEMONARMOR, 16000);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
@@ -212,7 +208,7 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (!UpdateVictim())
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             _events.Update(diff);

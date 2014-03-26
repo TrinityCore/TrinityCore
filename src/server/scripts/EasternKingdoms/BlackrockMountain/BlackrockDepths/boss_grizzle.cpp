@@ -47,13 +47,9 @@ public:
         boss_grizzleAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE
-        {
-            _phaseTwo = false;
-        }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE 
-        {
+        {            
             _events.ScheduleEvent(EVENT_GROUNDTREMOR, 12000);
+            _phaseTwo = false;
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE

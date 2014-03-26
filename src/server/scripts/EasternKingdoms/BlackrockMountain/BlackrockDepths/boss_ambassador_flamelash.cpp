@@ -44,12 +44,10 @@ public:
     {
         boss_ambassador_flamelashAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE { }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void Reset() OVERRIDE 
         {
             _events.ScheduleEvent(EVENT_FIREBLAST, 2000);
-            _events.ScheduleEvent(EVENT_SUMMON_SPIRITS, 24000);
+            _events.ScheduleEvent(EVENT_SUMMON_SPIRITS, 24000); 
         }
 
         void SummonSpirits(Unit* victim)

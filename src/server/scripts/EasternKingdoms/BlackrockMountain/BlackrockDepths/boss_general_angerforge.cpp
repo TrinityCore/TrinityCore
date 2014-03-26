@@ -49,16 +49,12 @@ public:
         boss_general_angerforgeAI(Creature* creature) : ScriptedAI(creature) {}
         
         void Reset() OVERRIDE
-        {
-            _medics = false;
-            _phaseTwo = false;
-        }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE 
-        {
+        {            
             _events.ScheduleEvent(EVENT_MIGHTYBLOW, 8000);
             _events.ScheduleEvent(EVENT_HAMSTRING, 12000);
             _events.ScheduleEvent(EVENT_CLEAVE, 16000);
+            _medics = false;
+            _phaseTwo = false;            
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
