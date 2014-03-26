@@ -804,9 +804,6 @@ void WorldSession::HandleReclaimCorpseOpcode(WorldPacket& recvData)
 
     if (!corpse->IsWithinDistInMap(_player, CORPSE_RECLAIM_RADIUS, true))
         return;
-#ifdef ELUNA
-    sHookMgr->OnResurrect(GetPlayer());
-#endif
 
     // resurrect
     _player->ResurrectPlayer(_player->InBattleground() ? 1.0f : 0.5f);

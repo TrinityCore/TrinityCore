@@ -665,7 +665,7 @@ bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effInd
     ASSERT(target);
 #ifdef ELUNA
     if(sHookMgr->OnDummyEffect(caster, spellId, effIndex, target))
-        return true;
+        return false;
 #endif
 
     GET_SCRIPT_RET(ItemScript, target->GetScriptId(), tmpscript, false);
@@ -679,7 +679,7 @@ bool ScriptMgr::OnQuestAccept(Player* player, Item* item, Quest const* quest)
     ASSERT(quest);
 #ifdef ELUNA
     if(sHookMgr->OnQuestAccept(player, item, quest))
-        return true;
+        return false;
 #endif
 
     GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
@@ -693,7 +693,7 @@ bool ScriptMgr::OnItemUse(Player* player, Item* item, SpellCastTargets const& ta
     ASSERT(item);
 #ifdef ELUNA
     if(sHookMgr->OnUse(player, item, targets))
-        return true;
+        return false;
 #endif
 
     GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
@@ -706,7 +706,7 @@ bool ScriptMgr::OnItemExpire(Player* player, ItemTemplate const* proto)
     ASSERT(proto);
 #ifdef ELUNA
     if(sHookMgr->OnExpire(player, proto))
-        return true;
+        return false;
 #endif
 
     GET_SCRIPT_RET(ItemScript, proto->ScriptId, tmpscript, false);
@@ -728,7 +728,7 @@ bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effInd
     ASSERT(target);
 #ifdef ELUNA
     if(sHookMgr->OnDummyEffect(caster, spellId, effIndex, target))
-        return true;
+        return false;
 #endif
 
     GET_SCRIPT_RET(CreatureScript, target->GetScriptId(), tmpscript, false);
@@ -785,7 +785,7 @@ bool ScriptMgr::OnQuestAccept(Player* player, Creature* creature, Quest const* q
     if(sHookMgr->OnQuestAccept(player, creature, quest))
     {
         player->PlayerTalkClass->ClearMenus();
-        return true;
+        return false;
     }
 #endif
 
@@ -803,7 +803,7 @@ bool ScriptMgr::OnQuestSelect(Player* player, Creature* creature, Quest const* q
     if(sHookMgr->OnQuestSelect(player, creature, quest))
     {
         player->PlayerTalkClass->ClearMenus();
-        return true;
+        return false;
     }
 #endif
 
@@ -821,7 +821,7 @@ bool ScriptMgr::OnQuestComplete(Player* player, Creature* creature, Quest const*
     if(sHookMgr->OnQuestComplete(player, creature, quest))
     {
         player->PlayerTalkClass->ClearMenus();
-        return true;
+        return false;
     }
 #endif
 
@@ -839,7 +839,7 @@ bool ScriptMgr::OnQuestReward(Player* player, Creature* creature, Quest const* q
     if(sHookMgr->OnQuestReward(player, creature, quest))
     {
         player->PlayerTalkClass->ClearMenus();
-        return true;
+        return false;
     }
 #endif
 
@@ -946,7 +946,7 @@ bool ScriptMgr::OnQuestAccept(Player* player, GameObject* go, Quest const* quest
     ASSERT(quest);
 #ifdef ELUNA
     if(sHookMgr->OnQuestAccept(player, go, quest))
-        return true;
+        return false;
 #endif
 
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
@@ -961,7 +961,7 @@ bool ScriptMgr::OnQuestReward(Player* player, GameObject* go, Quest const* quest
     ASSERT(quest);
 #ifdef ELUNA
     if(sHookMgr->OnQuestReward(player, go, quest))
-        return true;
+        return false;
 #endif
 
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
@@ -1048,7 +1048,7 @@ bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effInd
     ASSERT(target);
 #ifdef ELUNA
     if(sHookMgr->OnDummyEffect(caster, spellId, effIndex, target))
-        return true;
+        return false;
 #endif
 
     GET_SCRIPT_RET(GameObjectScript, target->GetScriptId(), tmpscript, false);
@@ -1061,7 +1061,7 @@ bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)
     ASSERT(trigger);
 #ifdef ELUNA
     if(sHookMgr->OnAreaTrigger(player, trigger))
-        return true;
+        return false;
 #endif
 
     GET_SCRIPT_RET(AreaTriggerScript, sObjectMgr->GetAreaTriggerScriptId(trigger->id), tmpscript, false);
