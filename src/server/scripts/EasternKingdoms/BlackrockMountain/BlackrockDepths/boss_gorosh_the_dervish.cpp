@@ -47,6 +47,11 @@ public:
 
         void Reset() OVERRIDE 
         {
+            _events.Reset();
+        }
+
+        void EnterCombat(Unit* /*who*/) OVERRIDE
+        {
             _events.ScheduleEvent(EVENT_WHIRLWIND, 12000);
             _events.ScheduleEvent(EVENT_MORTALSTRIKE, 22000);
         }
@@ -58,6 +63,9 @@ public:
                 return;
 
             _events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
             while (uint32 eventId = _events.ExecuteEvent())
             {

@@ -59,14 +59,15 @@ public:
 
         void Reset() OVERRIDE 
         {
-            _events.ScheduleEvent(EVENT_HANDOFTHAURISSAN, 4000);
-            _events.ScheduleEvent(EVENT_AVATAROFFLAME, 25000); 
+            _events.Reset();
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
             me->CallForHelp(VISIBLE_RANGE);
+            _events.ScheduleEvent(EVENT_HANDOFTHAURISSAN, 4000);
+            _events.ScheduleEvent(EVENT_AVATAROFFLAME, 25000); 
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -90,6 +91,9 @@ public:
                 return;
 
             _events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
             while (uint32 eventId = _events.ExecuteEvent())
             {

@@ -53,6 +53,11 @@ public:
 
         void Reset() OVERRIDE 
         {
+            _events.Reset();
+        }
+
+        void EnterCombat(Unit* /*who*/) OVERRIDE
+        {
             _events.ScheduleEvent(EVENT_SHADOWBOLT, 7000);
             _events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, 24000);
             _events.ScheduleEvent(EVENT_CURSE_OF_WEAKNESS, 12000);
@@ -67,6 +72,9 @@ public:
                 return;
 
             _events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
             while (uint32 eventId = _events.ExecuteEvent())
             {

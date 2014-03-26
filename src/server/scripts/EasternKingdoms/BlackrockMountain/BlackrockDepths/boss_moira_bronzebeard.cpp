@@ -53,6 +53,11 @@ public:
 
         void Reset() OVERRIDE 
         {            
+            _events.Reset();
+        }
+
+        void EnterCombat(Unit* /*who*/) OVERRIDE
+        {
             //_events.ScheduleEvent(EVENT_HEAL, 12000); // not used atm // These times are probably wrong
             _events.ScheduleEvent(EVENT_MINDBLAST, 16000);
             _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 2000);
@@ -66,6 +71,9 @@ public:
                 return;
 
             _events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
             while (uint32 eventId = _events.ExecuteEvent())
             {

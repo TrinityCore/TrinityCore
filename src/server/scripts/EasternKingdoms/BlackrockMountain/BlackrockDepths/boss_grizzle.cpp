@@ -48,8 +48,13 @@ public:
 
         void Reset() OVERRIDE
         {            
-            _events.ScheduleEvent(EVENT_GROUNDTREMOR, 12000);
+            _events.Reset();
             _phaseTwo = false;
+        }
+
+        void EnterCombat(Unit* /*who*/) OVERRIDE
+        {
+            _events.ScheduleEvent(EVENT_GROUNDTREMOR, 12000);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
@@ -68,6 +73,9 @@ public:
                 return;
 
             _events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
             while (uint32 eventId = _events.ExecuteEvent())
             {

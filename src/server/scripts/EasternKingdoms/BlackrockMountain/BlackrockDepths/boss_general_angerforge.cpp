@@ -50,11 +50,16 @@ public:
         
         void Reset() OVERRIDE
         {            
+            _events.Reset();
+            _medics = false;
+            _phaseTwo = false;            
+        }
+
+        void EnterCombat(Unit* /*who*/) OVERRIDE
+        {
             _events.ScheduleEvent(EVENT_MIGHTYBLOW, 8000);
             _events.ScheduleEvent(EVENT_HAMSTRING, 12000);
             _events.ScheduleEvent(EVENT_CLEAVE, 16000);
-            _medics = false;
-            _phaseTwo = false;            
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
@@ -85,6 +90,9 @@ public:
                 return;
 
             _events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
             while (uint32 eventId = _events.ExecuteEvent())
             {
