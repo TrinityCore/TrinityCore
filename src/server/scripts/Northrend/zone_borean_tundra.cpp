@@ -2537,6 +2537,39 @@ public:
 
 };
 
+enum WindsoulTotemAura
+{
+    SPELL_WINDSOUL_CREDT = 46378
+};
+
+class spell_windsoul_totem_aura : public SpellScriptLoader
+{
+public:
+    spell_windsoul_totem_aura() : SpellScriptLoader("spell_windsoul_totem_aura") { }
+
+    class spell_windsoul_totem_aura_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_windsoul_totem_aura_AuraScript);
+
+        void OnRemove(AuraEffect const*, AuraEffectHandleModes)
+        {
+            if (GetTarget()->isDead())
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(NULL, SPELL_WINDSOUL_CREDT);
+        }
+
+        void Register() OVERRIDE
+        {
+            OnEffectRemove += AuraEffectRemoveFn(spell_windsoul_totem_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const OVERRIDE
+    {
+        return new spell_windsoul_totem_aura_AuraScript();
+    }
+};
+
 void AddSC_borean_tundra()
 {
     new npc_sinkhole_kill_credit();
@@ -2565,4 +2598,5 @@ void AddSC_borean_tundra()
     new npc_valiance_keep_cannoneer();
     new npc_warmage_coldarra();
     new npc_hidden_cultist();
+    new spell_windsoul_totem_aura();
 }
