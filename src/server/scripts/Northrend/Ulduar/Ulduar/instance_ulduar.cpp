@@ -434,6 +434,7 @@ class instance_ulduar : public InstanceMapScript
                     // Algalon
                     case NPC_ALGALON:
                         AlgalonGUID = creature->GetGUID();
+                        creature->SetRespawnDelay(7 * DAY);
                         break;
                     case NPC_BRANN_BRONZBEARD_ALG:
                         BrannBronzebeardAlgGUID = creature->GetGUID();
