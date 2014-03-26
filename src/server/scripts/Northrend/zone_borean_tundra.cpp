@@ -44,6 +44,7 @@ EndContentData */
 #include "Player.h"
 #include "SpellInfo.h"
 #include "WorldSession.h"
+#include "SpellScript.h"
 
 /*######
 ## npc_sinkhole_kill_credit
