@@ -3698,15 +3698,6 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
                 spellInfo->Effects[1].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
                 break;
-            case 1822: // Rake 
-            case 1823:
-            case 1824:
-            case 9904:
-            case 27003:
-            case 48573:
-            case 48574:
-                spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
-                break;
             case 49224: // Magic Suppression
             case 49610:
             case 49611:
