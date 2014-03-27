@@ -1442,6 +1442,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guidLow, uint32 linkedGuidLow)
         return false;
 
     const CreatureData* master = GetCreatureData(guidLow);
+    ASSERT(master);
     uint64 guid = MAKE_NEW_GUID(guidLow, master->id, HIGHGUID_UNIT);
 
     if (!linkedGuidLow) // we're removing the linking
