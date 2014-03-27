@@ -649,11 +649,11 @@ public:
                         Unit* mob = NULL;
                         for (uint8 i = 0; i < 4; ++i)
                         {
-                            mob = player->FindNearestCreature(entries[i], 50, me);
+                            mob = player->FindNearestCreature(entries[i], 50);
                             while (mob)
                             {
                                 mob->RemoveFromWorld();
-                                mob = player->FindNearestCreature(15423, 50, me);
+                                mob = player->FindNearestCreature(15423, 50);
                             }
                         }
                         break;
@@ -1021,7 +1021,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_A_PAWN_ON_THE_ETERNAL_BOARD)
         {
-            if (Creature* trigger = go->FindNearestCreature(15454, 100, player))
+            if (Creature* trigger = go->FindNearestCreature(15454, 100))
             {
                 Unit* Merithra = trigger->SummonCreature(15378, -8034.535f, 1535.14f, 2.61f, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
                 Unit* Caelestrasz = trigger->SummonCreature(15379, -8032.767f, 1533.148f, 2.61f, 1.5f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);

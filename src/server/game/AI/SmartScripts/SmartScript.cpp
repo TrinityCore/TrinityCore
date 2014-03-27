@@ -512,7 +512,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         // unless target is outside spell range, out of mana, or LOS.
 
                         bool _allowMove = false;
-                        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(e.action.cast.spell);
+                        SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(e.action.cast.spell);
                         int32 mana = me->GetPower(POWER_MANA);
 
                         if (me->GetDistance(*itr) > spellInfo->GetMaxRange(true) ||
