@@ -1554,7 +1554,7 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
         data << uint8(m_lootThreshold);                 // loot threshold
         data << uint8(m_dungeonDifficulty);             // Dungeon Difficulty
         data << uint8(m_raidDifficulty);                // Raid Difficulty
-        data << uint8(0);                               // 3.3
+        data << uint8(m_raidDifficulty >= RAID_DIFFICULTY_10MAN_HEROIC);    // 3.3 Dynamic Raid Difficulty - 0 normal/1 heroic
     }
 
     player->GetSession()->SendPacket(&data);

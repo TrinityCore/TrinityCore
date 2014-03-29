@@ -22798,7 +22798,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     // SMSG_INSTANCE_DIFFICULTY
     data.Initialize(SMSG_INSTANCE_DIFFICULTY, 4+4);
     data << uint32(GetMap()->GetDifficulty());
-    data << uint32(0);
+    data << uint32(GetMap()->IsRaid() && GetMap()->IsHeroic()); // Raid dynamic difficulty
     GetSession()->SendPacket(&data);
 
     SendInitialSpells();
