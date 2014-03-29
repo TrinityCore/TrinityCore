@@ -8796,7 +8796,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
                 loot->FillLoot(lootid, LootTemplates_Gameobject, this, !groupRules, false, go->GetLootMode());
 
                 // get next RR player (for next loot)
-                if (groupRules)
+                if (groupRules && !go->loot.empty())
                     group->UpdateLooterGuid(go);
             }
 
@@ -17805,10 +17805,6 @@ bool Player::isAllowedToLoot(const Creature* creature)
 
             return loot->hasItemFor(this);
         case MASTER_LOOT:
-            // may loot if the player is the master looter
-            if (thisGroup->GetMasterLooterGuid() == GetGUID())
-                return true;
-            // fall-through
         case GROUP_LOOT:
         case NEED_BEFORE_GREED:
             // may only loot if the player is the loot roundrobin player
