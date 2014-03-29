@@ -156,11 +156,11 @@ public:
                         {
                             for (std::list<uint64>::const_iterator itr = bloodmage.begin(); itr != bloodmage.end(); ++itr)
                                 if (Creature* bloodmage = (Unit::GetCreature(*me, *itr)))
-                                    bloodmage->AI()->DoCast(SPELL_SUMMON_CHANNEL);
+                                    bloodmage->CastSpell((Unit*)NULL, SPELL_SUMMON_CHANNEL);
 
                             for (std::list<uint64>::const_iterator itr = deathshaper.begin(); itr != deathshaper.end(); ++itr)
                                 if (Creature* deathshaper = (Unit::GetCreature(*me, *itr)))
-                                    deathshaper->AI()->DoCast(SPELL_SUMMON_CHANNEL);
+                                    deathshaper->CastSpell((Unit*)NULL, SPELL_SUMMON_CHANNEL);
 
                             events.ScheduleEvent(EVENT_SET_CHANNELERS, 12000);
 

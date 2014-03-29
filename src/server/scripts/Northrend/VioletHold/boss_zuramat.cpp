@@ -189,7 +189,7 @@ public:
         void JustSummoned(Creature* summon) OVERRIDE
         {
             summon->AI()->AttackStart(me->GetVictim());
-            summon->AI()->DoCastAOE(SPELL_ZURAMAT_ADD_2);
+            summon->CastSpell((Unit*)NULL, SPELL_ZURAMAT_ADD_2);
             summon->SetPhaseMask(17, true);
         }
     };

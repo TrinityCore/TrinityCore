@@ -231,7 +231,7 @@ public:
             if (Creature* crystalChannelTarget = crystal->FindNearestCreature(NPC_CRYSTAL_CHANNEL_TARGET, 5.0f))
             {
                 if (active)
-                    crystalChannelTarget->AI()->DoCastAOE(SPELL_BEAM_CHANNEL);
+                    crystalChannelTarget->CastSpell((Unit*)NULL, SPELL_BEAM_CHANNEL);
                 else if (crystalChannelTarget->HasUnitState(UNIT_STATE_CASTING))
                     crystalChannelTarget->CastStop();
             }
