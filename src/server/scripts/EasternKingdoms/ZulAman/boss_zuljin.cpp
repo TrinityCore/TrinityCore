@@ -346,7 +346,7 @@ class boss_zuljin : public CreatureScript
                         }
                     }
                     else
-                        me->AI()->AttackStart(me->GetVictim());
+                        AttackStart(me->GetVictim());
                     if (NextPhase == 3)
                     {
                         me->RemoveAurasDueToSpell(SPELL_ENERGY_STORM);
