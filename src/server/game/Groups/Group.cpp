@@ -895,7 +895,7 @@ void Group::SendLooter(Creature* creature, Player* groupLooter)
     WorldPacket data(SMSG_LOOT_LIST, (8+8));
     data << uint64(creature->GetGUID());
 
-    if (GetLootMethod() == MASTER_LOOT)
+    if (GetLootMethod() == MASTER_LOOT && creature->loot.hasOverThresholdItem())
         data.appendPackGUID(GetMasterLooterGuid());
     else
         data << uint8(0);
@@ -1549,7 +1549,7 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
         if (m_lootMethod == MASTER_LOOT)
             data << uint64(m_masterLooterGuid);         // master looter guid
         else
-            data << uint64(m_looterGuid);               // looter guid
+            data << uint64(0);
 
         data << uint8(m_lootThreshold);                 // loot threshold
         data << uint8(m_dungeonDifficulty);             // Dungeon Difficulty

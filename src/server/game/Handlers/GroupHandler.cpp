@@ -439,7 +439,6 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket& recvData)
     // everything's fine, do it
     group->SetLootMethod((LootMethod)lootMethod);
     group->SetMasterLooterGuid(lootMaster);
-    group->SetLooterGuid(lootMaster);
     group->SetLootThreshold((ItemQualities)lootThreshold);
     group->SendUpdate();
 }
