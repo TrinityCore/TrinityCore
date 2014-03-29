@@ -139,7 +139,7 @@ class boss_arlokk : public CreatureScript
                                 _triggersSideAGUID[sideA] = trigger->GetGUID();
                                 ++sideA;
                             }
-                             else
+                            else
                             {
                                 _triggersSideBGUID[sideB] = trigger->GetGUID();
                                 ++sideB;
@@ -364,7 +364,7 @@ class npc_zulian_prowler : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (Unit* arlokk = me->GetUnit(*me, _instance->GetData64(NPC_ARLOKK)))
+                if (Unit* arlokk = ObjectAccessor::GetUnit(*me, _instance->GetData64(NPC_ARLOKK)))
                 {
                     if (arlokk->IsAlive())
                         arlokk->GetAI()->SetData(_sideData, 0);
