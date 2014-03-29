@@ -40,7 +40,8 @@ enum Misc
 
 class boss_renataki : public CreatureScript
 {
-    public: boss_renataki() : CreatureScript("boss_renataki") { }
+    public:
+        boss_renataki() : CreatureScript("boss_renataki") { }
 
         struct boss_renatakiAI : public BossAI
         {
@@ -101,9 +102,7 @@ class boss_renataki : public CreatureScript
                 {
                     if (Ambush_Timer <= diff)
                     {
-                        Unit* target = NULL;
-                        target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                        if (target)
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                         {
                             DoTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
                             DoCast(target, SPELL_AMBUSH);
@@ -135,14 +134,12 @@ class boss_renataki : public CreatureScript
                 {
                     if (Aggro_Timer <= diff)
                     {
-                        Unit* target = NULL;
-                        target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-
-                        if (DoGetThreat(me->GetVictim()))
-                            DoModifyThreatPercent(me->GetVictim(), -50);
-
-                        if (target)
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        {
+                            if (DoGetThreat(me->GetVictim()))
+                                DoModifyThreatPercent(me->GetVictim(), -50);
                             AttackStart(target);
+                        }
 
                         Aggro_Timer = urand(7000, 20000);
                     } else Aggro_Timer -= diff;
