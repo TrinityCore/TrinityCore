@@ -56,7 +56,7 @@ Loot* Roll::getLoot()
 Group::Group() : m_leaderGuid(0), m_leaderName(""), m_groupType(GROUPTYPE_NORMAL),
 m_dungeonDifficulty(DUNGEON_DIFFICULTY_NORMAL), m_raidDifficulty(RAID_DIFFICULTY_10MAN_NORMAL),
 m_bgGroup(NULL), m_bfGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(0),
-m_subGroupsCounts(NULL), m_guid(0), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0)
+m_masterLooterGuid(0), m_subGroupsCounts(NULL), m_guid(0), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0)
 {
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
         m_targetIcons[i] = 0;
@@ -112,6 +112,7 @@ bool Group::Create(Player* leader)
 
     m_lootThreshold = ITEM_QUALITY_UNCOMMON;
     m_looterGuid = leaderGuid;
+    m_masterLooterGuid = 0;
 
     m_dungeonDifficulty = DUNGEON_DIFFICULTY_NORMAL;
     m_raidDifficulty = RAID_DIFFICULTY_10MAN_NORMAL;
@@ -146,6 +147,7 @@ bool Group::Create(Player* leader)
         stmt->setUInt8(index++, uint8(m_groupType));
         stmt->setUInt32(index++, uint8(m_dungeonDifficulty));
         stmt->setUInt32(index++, uint8(m_raidDifficulty));
+        stmt->setUInt32(index++, GUID_LOPART(m_masterLooterGuid));
 
         CharacterDatabase.Execute(stmt);
 
@@ -162,7 +164,7 @@ bool Group::Create(Player* leader)
 
 void Group::LoadGroupFromDB(Field* fields)
 {
-    m_dbStoreId = fields[15].GetUInt32();
+    m_dbStoreId = fields[16].GetUInt32();
     m_guid = MAKE_NEW_GUID(sGroupMgr->GenerateGroupId(), 0, HIGHGUID_GROUP);
     m_leaderGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
 
@@ -192,6 +194,8 @@ void Group::LoadGroupFromDB(Field* fields)
        m_raidDifficulty = RAID_DIFFICULTY_10MAN_NORMAL;
     else
        m_raidDifficulty = Difficulty(r_diff);
+
+    m_masterLooterGuid = MAKE_NEW_GUID(fields[15].GetUInt32(), 0, HIGHGUID_PLAYER);
 
     if (m_groupType & GROUPTYPE_LFG)
         sLFGMgr->_LoadFromDB(fields, GetGUID());
@@ -890,7 +894,11 @@ void Group::SendLooter(Creature* creature, Player* groupLooter)
 
     WorldPacket data(SMSG_LOOT_LIST, (8+8));
     data << uint64(creature->GetGUID());
-    data << uint8(0); // unk1
+
+    if (GetLootMethod() == MASTER_LOOT)
+        data.appendPackGUID(GetMasterLooterGuid());
+    else
+        data << uint8(0);
 
     if (groupLooter)
         data.append(groupLooter->GetPackGUID());
@@ -1196,9 +1204,25 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
     }
 }
 
-void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
+void Group::MasterLoot(Loot* loot, WorldObject* pLootedObject)
 {
     TC_LOG_DEBUG("network", "Group::MasterLoot (SMSG_LOOT_MASTER_LIST)");
+
+    for (std::vector<LootItem>::iterator i = loot->items.begin(); i != loot->items.end(); ++i)
+    {
+        if (i->freeforall)
+            continue;
+
+        i->is_blocked = !i->is_underthreshold;
+    }
+
+    for (std::vector<LootItem>::iterator i = loot->quest_items.begin(); i != loot->quest_items.end(); ++i)
+    {
+        if (!i->follow_loot_rules)
+            continue;
+
+        i->is_blocked = !i->is_underthreshold;
+    }
 
     uint32 real_count = 0;
 
@@ -1521,7 +1545,12 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     if (GetMembersCount() - 1)
     {
         data << uint8(m_lootMethod);                    // loot method
-        data << uint64(m_looterGuid);                   // looter guid
+
+        if (m_lootMethod == MASTER_LOOT)
+            data << uint64(m_masterLooterGuid);         // master looter guid
+        else
+            data << uint64(m_looterGuid);               // looter guid
+
         data << uint8(m_lootThreshold);                 // loot threshold
         data << uint8(m_dungeonDifficulty);             // Dungeon Difficulty
         data << uint8(m_raidDifficulty);                // Raid Difficulty
@@ -1677,7 +1706,7 @@ void Group::ChangeMembersGroup(uint64 guid, uint8 group)
 
 // Retrieve the next Round-Roubin player for the group
 //
-// No update done if loot method is Master or FFA.
+// No update done if loot method is FFA.
 //
 // If the RR player is not yet set for the group, the first group member becomes the round-robin player.
 // If the RR player is set, the next player in group becomes the round-robin player.
@@ -1688,16 +1717,10 @@ void Group::ChangeMembersGroup(uint64 guid, uint8 group)
 //      if not, he loses his turn.
 void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
 {
-    switch (GetLootMethod())
-    {
-        case MASTER_LOOT:
-        case FREE_FOR_ALL:
-            return;
-        default:
-            // round robin style looting applies for all low
-            // quality items in each loot method except free for all and master loot
-            break;
-    }
+    // round robin style looting applies for all low
+    // quality items in each loot method except free for all
+    if (GetLootMethod() == FREE_FOR_ALL)
+        return;
 
     uint64 oldLooterGUID = GetLooterGuid();
     member_citerator guid_itr = _getMemberCSlot(oldLooterGUID);
@@ -2121,6 +2144,11 @@ void Group::SetLooterGuid(uint64 guid)
     m_looterGuid = guid;
 }
 
+void Group::SetMasterLooterGuid(uint64 guid)
+{
+    m_masterLooterGuid = guid;
+}
+
 void Group::SetLootThreshold(ItemQualities threshold)
 {
     m_lootThreshold = threshold;
@@ -2194,6 +2222,11 @@ LootMethod Group::GetLootMethod() const
 uint64 Group::GetLooterGuid() const
 {
     return m_looterGuid;
+}
+
+uint64 Group::GetMasterLooterGuid() const
+{
+    return m_masterLooterGuid;
 }
 
 ItemQualities Group::GetLootThreshold() const
