@@ -2415,7 +2415,7 @@ public:
         {
             me->setFaction(14);
             if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
-                me->AI()->AttackStart(player);
+                AttackStart(player);
         }
 
         void UpdateAI(uint32 uiDiff) OVERRIDE

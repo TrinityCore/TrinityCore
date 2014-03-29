@@ -504,7 +504,7 @@ public:
                         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                         if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
                         {
-                            voice->AI()->DoCast(voice, SPELL_RESURRECTION);
+                            voice->CastSpell(voice, SPELL_RESURRECTION);
                             if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                                 voice->AI()->Talk(SAY_VOICE_1, player);
                         }
@@ -546,7 +546,7 @@ public:
                         break;
                     case EVENT_SCRIPT_9:
                         if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
-                            voice->AI()->DoCast(voice, SPELL_RESURRECTION);
+                            voice->CastSpell(voice, SPELL_RESURRECTION);
                         events.ScheduleEvent(EVENT_SCRIPT_10, 6000);
                         break;
                     case EVENT_SCRIPT_10:

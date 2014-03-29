@@ -199,17 +199,17 @@ public:
 
             if (summon->GetGUID() == uiFireMagusGUID)
             {
-                me->AI()->DoAction(ACTION_MAGUS_DEAD);
+                DoAction(ACTION_MAGUS_DEAD);
                 bFireMagusDead = true;
             }
             else if (summon->GetGUID() == uiFrostMagusGUID)
             {
-                me->AI()->DoAction(ACTION_MAGUS_DEAD);
+                DoAction(ACTION_MAGUS_DEAD);
                 bFrostMagusDead = true;
             }
             else if (summon->GetGUID() == uiArcaneMagusGUID)
             {
-                me->AI()->DoAction(ACTION_MAGUS_DEAD);
+                DoAction(ACTION_MAGUS_DEAD);
                 bArcaneMagusDead = true;
             }
         }
