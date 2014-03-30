@@ -849,6 +849,9 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 _controller.SetTransport(creature->GetTransport());
                 me->setRegeneratingHealth(false);
                 me->m_CombatDistance = 70.0f;
+                _firstMageCooldown = time(NULL) + 60;
+                _axethrowersYellCooldown = time_t(0);
+                _rocketeersYellCooldown = time_t(0);
             }
 
             void InitializeAI() OVERRIDE
@@ -1083,7 +1086,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
             {
                 if (_instance->GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != IN_PROGRESS)
                     return false;
-                return target->HasAura(SPELL_ON_ORGRIMS_HAMMER_DECK) || !target->IsControlledByPlayer();
+                return target->HasAura(SPELL_ON_ORGRIMS_HAMMER_DECK) || target->GetEntry() == NPC_SKYBREAKER_MARINE || target->GetEntry() == NPC_SKYBREAKER_SERGEANT;
             }
 
         private:
@@ -1115,6 +1118,9 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 _controller.SetTransport(creature->GetTransport());
                 me->setRegeneratingHealth(false);
                 me->m_CombatDistance = 70.0f;
+                _firstMageCooldown = time(NULL) + 60;
+                _riflemanYellCooldown = time_t(0);
+                _mortarYellCooldown = time_t(0);
             }
 
             void InitializeAI() OVERRIDE
@@ -1353,7 +1359,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
             {
                 if (_instance->GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != IN_PROGRESS)
                     return false;
-                return target->HasAura(SPELL_ON_SKYBREAKER_DECK) || !target->IsControlledByPlayer();
+                return target->HasAura(SPELL_ON_SKYBREAKER_DECK) || target->GetEntry() == NPC_KOR_KRON_REAVER || target->GetEntry() == NPC_KOR_KRON_SERGEANT;
             }
 
         private:
@@ -1837,7 +1843,7 @@ class spell_igb_rocket_pack : public SpellScriptLoader
 
             void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                SpellInfo const* damageInfo = sSpellMgr->GetSpellInfo(SPELL_ROCKET_PACK_DAMAGE);
+                SpellInfo const* damageInfo = sSpellMgr->EnsureSpellInfo(SPELL_ROCKET_PACK_DAMAGE);
                 GetTarget()->CastCustomSpell(SPELL_ROCKET_PACK_DAMAGE, SPELLVALUE_BASE_POINT0, 2 * (damageInfo->Effects[EFFECT_0].CalcValue() + aurEff->GetTickNumber() * aurEff->GetAmplitude()), NULL, TRIGGERED_FULL_MASK);
                 GetTarget()->CastSpell(NULL, SPELL_ROCKET_BURST, TRIGGERED_FULL_MASK);
             }

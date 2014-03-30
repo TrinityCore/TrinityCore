@@ -82,7 +82,12 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
 
         struct boss_wrath_scryer_soccothratesAI : public BossAI
         {
-            boss_wrath_scryer_soccothratesAI(Creature* creature) : BossAI(creature, DATA_SOCCOTHRATES) { }
+            boss_wrath_scryer_soccothratesAI(Creature* creature) : BossAI(creature, DATA_SOCCOTHRATES)
+            {
+                preFight = false;
+                dalliahTaunt = false;
+                dalliahDeath = false;
+            }
 
             void Reset() OVERRIDE
             {

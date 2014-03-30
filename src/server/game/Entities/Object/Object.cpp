@@ -413,6 +413,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             // 0x40
             if (flags & UPDATEFLAG_STATIONARY_POSITION)
             {
+                ASSERT(object);
                 *data << object->GetStationaryX();
                 *data << object->GetStationaryY();
                 *data << object->GetStationaryZ();
@@ -486,6 +487,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     if (flags & UPDATEFLAG_VEHICLE)
     {
         /// @todo Allow players to aquire this updateflag.
+        ASSERT(unit);
+        ASSERT(unit->GetVehicleKit());
+        ASSERT(unit->GetVehicleKit()->GetVehicleInfo());
         *data << uint32(unit->GetVehicleKit()->GetVehicleInfo()->m_ID);
         if (unit->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
             *data << float(unit->GetTransOffsetO());

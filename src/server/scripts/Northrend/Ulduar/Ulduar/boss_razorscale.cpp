@@ -211,8 +211,8 @@ class boss_razorscale_controller : public CreatureScript
                             Harpoon3->RemoveFromWorld();
                         if (GameObject* Harpoon4 = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_RAZOR_HARPOON_4)))
                             Harpoon4->RemoveFromWorld();
-                        me->AI()->DoAction(ACTION_HARPOON_BUILD);
-                        me->AI()->DoAction(ACTION_PLACE_BROKEN_HARPOON);
+                        DoAction(ACTION_HARPOON_BUILD);
+                        DoAction(ACTION_PLACE_BROKEN_HARPOON);
                         break;
                     case SPELL_HARPOON_SHOT_1:
                     case SPELL_HARPOON_SHOT_2:
