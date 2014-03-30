@@ -1296,7 +1296,7 @@ struct MapEntry
     uint32  MapID;                                          // 0
     //char*       internalname;                             // 1 unused
     uint32  map_type;                                       // 2
-    //uint32 unk_330;                                       // 3
+    uint32  Flags;                                          // 3
                                                             // 4 0 or 1 for battlegrounds (not arenas)
     char*   name[16];                                       // 5-20
                                                             // 21 name flags, unused
@@ -1306,14 +1306,14 @@ struct MapEntry
     //char*     allianceIntro[16];                          // 40-55 text for PvP Zones
                                                             // 56 intro text flags
     uint32  multimap_id;                                    // 57
-                                                            // 58
+    //float BattlefieldMapIconScale;                        // 58
     int32   entrance_map;                                   // 59 map_id of entrance map
     float   entrance_x;                                     // 60 entrance x coordinate (if exist single entry)
     float   entrance_y;                                     // 61 entrance y coordinate (if exist single entry)
-                                                            // 62 -1, 0 and 720
+    //uint32 TimeOfDayOverride;                             // 62 -1, 0 and 720
     uint32  addon;                                          // 63 (0-original maps, 1-tbc addon)
     uint32  unk_time;                                       // 64 some kind of time?
-    //uint32 maxPlayers;                                    // 65 max players
+    uint32  maxPlayers;                                     // 65 max players, fallback if not present in MapDifficulty.dbc
 
     // Helpers
     uint32 Expansion() const { return addon; }
@@ -1341,6 +1341,8 @@ struct MapEntry
     {
         return MapID == 0 || MapID == 1 || MapID == 530 || MapID == 571;
     }
+
+    bool IsDynamicDifficultyMap() const { return Flags & MAP_FLAG_DYNAMIC_DIFFICULTY; }
 };
 
 struct MapDifficultyEntry
