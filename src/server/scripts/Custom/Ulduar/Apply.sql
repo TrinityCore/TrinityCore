@@ -189,6 +189,20 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value
 
 DELETE FROM `disables` WHERE `entry` IN (10424, 10422) AND `sourceType` = 4;
 
+-- Implement If looks could kill
+UPDATE `creature_template` SET `ScriptName`='TW_npc_focused_eyebeam' WHERE  `entry` IN (33632, 33802);
+
+DELETE FROM `spell_script_names` WHERE `spell_id` = 63346;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(63346, 'TW_spell_kologarn_focused_eyebeam_damage');
+
+DELETE FROM `achievement_criteria_data` WHERE `type` = 11 AND `criteria_id` IN (10099,10286);
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `ScriptName`) VALUES 
+(10099, 11, 'TW_achievement_if_looks_could_kill'),
+(10286, 11, 'TW_achievement_if_looks_could_kill');
+
+DELETE FROM `disables` WHERE `entry` IN (10099, 10286) AND `sourceType` = 4;
+
 DELETE FROM `disables` WHERE `sourceType` = '4' AND `entry` IN
 (10042, 10352,
 10342, 10355,
