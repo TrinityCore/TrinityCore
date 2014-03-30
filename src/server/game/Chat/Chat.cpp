@@ -1199,7 +1199,8 @@ char* ChatHandler::extractQuotedArg(char* args)
             if (*(args + 1) == '"')
             {
                 strtok(args, " ");
-                char arg[] = "";
+                static char arg[1];
+                arg[0] = '\0';
                 return arg;
             }
             else
