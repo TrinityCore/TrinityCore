@@ -597,7 +597,7 @@ class boss_flame_leviathan_seat : public CreatureScript
                             turret->AI()->AttackStart(who);
                         }
                     if (Unit* devicePassenger = me->GetVehicleKit()->GetPassenger(SEAT_DEVICE))
-                        if (Creature* device = device->ToCreature())
+                        if (Creature* device = devicePassenger->ToCreature())
                         {
                             device->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                             device->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
