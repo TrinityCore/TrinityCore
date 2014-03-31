@@ -1824,6 +1824,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
     if (target->GetTypeId() == TYPEID_PLAYER)
     {
         SpellShapeshiftEntry const* shapeInfo = sSpellShapeshiftStore.LookupEntry(form);
+        ASSERT(shapeInfo);
         // Learn spells for shapeshift form - no need to send action bars or add spells to spellbook
         for (uint8 i = 0; i<MAX_SHAPESHIFT_SPELLS; ++i)
         {
