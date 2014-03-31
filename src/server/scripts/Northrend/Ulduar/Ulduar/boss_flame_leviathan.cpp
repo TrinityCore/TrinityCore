@@ -589,17 +589,19 @@ class boss_flame_leviathan_seat : public CreatureScript
                     else if (Creature* leviathan = me->GetVehicleCreatureBase())
                         leviathan->AI()->Talk(SAY_PLAYER_RIDING);
 
-                    if (Creature* turret = me->GetVehicleKit()->GetPassenger(SEAT_TURRET)->ToCreature())
-                    {
-                        turret->setFaction(me->GetVehicleBase()->getFaction());
-                        turret->SetUInt32Value(UNIT_FIELD_FLAGS, 0); // unselectable
-                        turret->AI()->AttackStart(who);
-                    }
-                    if (Creature* device = me->GetVehicleKit()->GetPassenger(SEAT_DEVICE)->ToCreature())
-                    {
-                        device->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                        device->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    }
+                    if (Unit* turretPassenger = me->GetVehicleKit()->GetPassenger(SEAT_TURRET))
+                        if (Creature* turret = turretPassenger->ToCreature())
+                        {
+                            turret->setFaction(me->GetVehicleBase()->getFaction());
+                            turret->SetUInt32Value(UNIT_FIELD_FLAGS, 0); // unselectable
+                            turret->AI()->AttackStart(who);
+                        }
+                    if (Unit* devicePassenger = me->GetVehicleKit()->GetPassenger(SEAT_DEVICE))
+                        if (Creature* device = device->ToCreature())
+                        {
+                            device->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                            device->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        }
 
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 }
