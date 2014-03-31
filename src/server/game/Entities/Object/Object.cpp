@@ -350,6 +350,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     // 0x20
     if (flags & UPDATEFLAG_LIVING)
     {
+        ASSERT(unit);
         unit->BuildMovementPacket(data);
 
         *data << unit->GetSpeed(MOVE_WALK)
