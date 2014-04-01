@@ -6095,8 +6095,8 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
         caster->DealDamage(caster, funnelDamage, &cleanDamage, NODAMAGE, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), true);
     }
 
-    uint32 procAttacker = PROC_FLAG_DONE_PERIODIC;
-    uint32 procVictim   = PROC_FLAG_TAKEN_PERIODIC;
+    uint32 procAttacker = PROC_FLAG_DONE_PERIODIC | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS;
+    uint32 procVictim   = PROC_FLAG_TAKEN_PERIODIC | PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS;
     uint32 procEx = (crit ? PROC_EX_CRITICAL_HIT : PROC_EX_NORMAL_HIT) | PROC_EX_INTERNAL_HOT;
     // ignore item heals
     if (!haveCastItem)
