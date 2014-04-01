@@ -3701,6 +3701,40 @@ class spell_gen_eject_all_passengers : public SpellScriptLoader
         }
 };
 
+class spell_gen_landmine_knockback : public SpellScriptLoader
+{
+public:
+    spell_gen_landmine_knockback() : SpellScriptLoader("spell_gen_landmine_knockback") { }
+
+    class spell_gen_landmine_knockback_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_landmine_knockback_SpellScript);
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            if (Player* target = GetHitPlayer())
+            {
+                Aura const* aura = GetHitAura();
+                if (!aura || aura->GetStackAmount() != 10)
+                    return;
+
+                AchievementEntry const* achiev = sAchievementStore.LookupEntry(1428);
+                target->CompletedAchievement(achiev);
+            }
+        }
+
+        void Register() OVERRIDE
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_gen_landmine_knockback_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+        }
+    };
+
+    SpellScript* GetSpellScript() const OVERRIDE
+    {
+        return new spell_gen_landmine_knockback_SpellScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3783,4 +3817,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_wg_water();
     new spell_gen_whisper_gulch_yogg_saron_whisper();
     new spell_gen_eject_all_passengers();
+    new spell_gen_landmine_knockback();
 }
