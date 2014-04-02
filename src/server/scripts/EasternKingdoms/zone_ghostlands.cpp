@@ -95,7 +95,7 @@ public:
                             Summ1->Attack(me, true);
                             Summ2->Attack(player, true);
                         }
-                        me->AI()->AttackStart(Summ1);
+                        AttackStart(Summ1);
                     }
                     break;
                 case 19:

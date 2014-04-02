@@ -1087,6 +1087,11 @@ void ObjectMgr::LoadEquipmentTemplates()
         }
 
         uint8 id = fields[1].GetUInt8();
+        if (!id)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature equipment template with id 0 found for creature %u, skipped.", entry);
+            continue;
+        }
 
         EquipmentInfo& equipmentInfo = _equipmentInfoStore[entry][id];
 
@@ -1437,6 +1442,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guidLow, uint32 linkedGuidLow)
         return false;
 
     const CreatureData* master = GetCreatureData(guidLow);
+    ASSERT(master);
     uint64 guid = MAKE_NEW_GUID(guidLow, master->id, HIGHGUID_UNIT);
 
     if (!linkedGuidLow) // we're removing the linking

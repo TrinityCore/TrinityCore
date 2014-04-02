@@ -308,7 +308,7 @@ class npc_snowfall_glade_playmate : public CreatureScript
                             break;
                         case 4:
                             orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_2);
-                            orphan->AI()->DoCast(me, SPELL_SNOWBALL);
+                            orphan->CastSpell(me, SPELL_SNOWBALL);
                             timer = 5000;
                             break;
                         case 5:

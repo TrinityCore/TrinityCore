@@ -152,9 +152,11 @@ class boss_jeklik : public CreatureScript
                         case EVENT_SONIC_BURST:
                             DoCastVictim(SPELL_SONICBURST);
                             events.ScheduleEvent(EVENT_SONIC_BURST, urand(8000, 13000), 0, PHASE_ONE);
+                            break;
                         case EVENT_SCREECH:
                             DoCastVictim(SPELL_SCREECH);
                             events.ScheduleEvent(EVENT_SCREECH, urand(18000, 26000), 0, PHASE_ONE);
+                            break;
                         case EVENT_SPAWN_BATS:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 for (uint8 i = 0; i < 6; ++i)

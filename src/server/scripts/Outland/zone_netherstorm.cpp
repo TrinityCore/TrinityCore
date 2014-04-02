@@ -728,7 +728,15 @@ public:
 
     struct npc_phase_hunterAI : public ScriptedAI
     {
-        npc_phase_hunterAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_phase_hunterAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Weak = false;
+            Materialize = false;
+            Drained = false;
+            WeakPercent = 25;
+            PlayerGUID = 0;
+            ManaBurnTimer = 5000;
+        }
 
         bool Weak;
         bool Materialize;

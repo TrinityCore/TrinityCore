@@ -60,8 +60,8 @@ void LFGMgr::_LoadFromDB(Field* fields, uint64 guid)
 
     SetLeader(guid, MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER));
 
-    uint32 dungeon = fields[16].GetUInt32();
-    uint8 state = fields[17].GetUInt8();
+    uint32 dungeon = fields[17].GetUInt32();
+    uint8 state = fields[18].GetUInt8();
 
     if (!dungeon || !state)
         return;
@@ -968,6 +968,7 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
             player->CastSpell(player, LFG_SPELL_DUNGEON_COOLDOWN, false);
     }
 
+    ASSERT(grp);
     grp->SetDungeonDifficulty(Difficulty(dungeon->difficulty));
     uint64 gguid = grp->GetGUID();
     SetDungeon(gguid, dungeon->Entry());

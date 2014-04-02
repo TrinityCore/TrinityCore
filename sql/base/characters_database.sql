@@ -1632,6 +1632,7 @@ CREATE TABLE `groups` (
   `groupType` tinyint(3) unsigned NOT NULL,
   `difficulty` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `raiddifficulty` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `masterLooterGuid` int(10) unsigned NOT NULL,
   PRIMARY KEY (`guid`),
   KEY `leaderGuid` (`leaderGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Groups';

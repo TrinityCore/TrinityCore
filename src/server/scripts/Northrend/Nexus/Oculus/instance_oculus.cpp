@@ -208,9 +208,11 @@ class instance_oculus : public InstanceMapScript
                         break;
                     case DATA_VAROS:
                         if (state == DONE)
+                        {
                             DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 0);
                             if (Creature* urom = instance->GetCreature(UromGUID))
                                 urom->SetPhaseMask(1, true);
+                        }
                         break;
                     case DATA_UROM:
                         if (state == DONE)

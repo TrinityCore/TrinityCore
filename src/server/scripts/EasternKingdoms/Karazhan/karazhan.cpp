@@ -584,10 +584,13 @@ public:
                     arca->MonsterYell(SAY_DIALOG_ARCANAGOS_8, LANG_UNIVERSAL, NULL);
                 return 5000;
             case 12:
-                arca->GetMotionMaster()->MovePoint(0, -11010.82f, -1761.18f, 156.47f);
-                arca->setActive(true);
-                arca->InterruptNonMeleeSpells(true);
-                arca->SetSpeed(MOVE_FLIGHT, 2.0f);
+                if (arca)
+                {
+                    arca->GetMotionMaster()->MovePoint(0, -11010.82f, -1761.18f, 156.47f);
+                    arca->setActive(true);
+                    arca->InterruptNonMeleeSpells(true);
+                    arca->SetSpeed(MOVE_FLIGHT, 2.0f);
+                }
                 return 10000;
             case 13:
                 me->MonsterYell(SAY_DIALOG_MEDIVH_9, LANG_UNIVERSAL, NULL);

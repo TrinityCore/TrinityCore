@@ -364,7 +364,7 @@ class npc_sanctum_sentry : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             {
                                 me->AddThreat(target, 100.0f);
-                                me->AI()->AttackStart(target);
+                                AttackStart(target);
                                 DoCast(target, SPELL_SAVAGE_POUNCE);
                             }
                             events.ScheduleEvent(EVENT_POUNCE, urand(12000, 17000));
@@ -430,7 +430,7 @@ class npc_feral_defender : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             {
                                 me->AddThreat(target, 100.0f);
-                                me->AI()->AttackStart(target);
+                                AttackStart(target);
                                 DoCast(target, SPELL_FERAL_POUNCE);
                             }
                             events.ScheduleEvent(EVENT_FERAL_POUNCE, urand(10000, 12000));
@@ -439,7 +439,7 @@ class npc_feral_defender : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             {
                                 me->AddThreat(target, 100.0f);
-                                me->AI()->AttackStart(target);
+                                AttackStart(target);
                                 DoCast(target, SPELL_FERAL_RUSH);
                             }
                             events.ScheduleEvent(EVENT_RUSH, urand(10000, 12000));

@@ -319,6 +319,11 @@ enum MapTypes                                               // Lua_IsInInstance
     MAP_ARENA           = 4                                 // arena
 };
 
+enum MapFlags
+{
+    MAP_FLAG_DYNAMIC_DIFFICULTY = 0x100
+};
+
 enum AbilytyLearnType
 {
     ABILITY_LEARNED_ON_GET_PROFESSION_SKILL     = 1,
