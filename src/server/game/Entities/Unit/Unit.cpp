@@ -8387,11 +8387,13 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
 
             if (cooldown && target->GetTypeId() == TYPEID_PLAYER && target->ToPlayer()->HasSpellCooldown(trigger_spell_id))
                 return false;
+            if (trigger_spell_id == 52916)
+                CastSpell(target, trigger_spell_id, true, castItem, triggeredByAura);
+            else
+                target->CastSpell(target, trigger_spell_id, true, castItem, triggeredByAura);
 
-            target->CastSpell(target, trigger_spell_id, true, castItem, triggeredByAura);
-
-            if (cooldown && GetTypeId() == TYPEID_PLAYER)
-                ToPlayer()->AddSpellCooldown(trigger_spell_id, 0, time(NULL) + cooldown);
+            if (cooldown && target->GetTypeId() == TYPEID_PLAYER)
+                target->ToPlayer()->AddSpellCooldown(trigger_spell_id, 0, time(NULL) + cooldown);
             return true;
         }
         // Cast positive spell on enemy target
