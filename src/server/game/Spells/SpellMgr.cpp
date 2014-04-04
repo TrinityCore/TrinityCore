@@ -814,7 +814,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     {
         if (EventProcFlag & PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS)
         {
-            if (!(procExtra & PROC_EX_INTERNAL_HOT))
+            if (!(procExtra & PROC_EX_INTERNAL_DOT))
                 return false;
         }
         else if (procExtra & PROC_EX_INTERNAL_HOT)
