@@ -3710,6 +3710,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 49611:
                 spellInfo->ProcCharges = 0;
                 break;
+			case 11389: // Detect Undead (from Elixir of Detect Undead)
+				spellInfo->ManaPerSecond = 0;
+				break;
             default:
                 break;
         }
