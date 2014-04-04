@@ -1280,7 +1280,7 @@ void World::LoadConfigSettings(bool reload)
     sIRC->_Host = sConfigMgr->GetStringDefault("irc.host", "irc.freenode.net");
     if (sIRC->_Host.size() > 0)
         ConfCnt++;
-    sIRC->_Mver = "Version 4.0";
+    sIRC->_Mver = "Version 4.1";
     sIRC->_Port = sConfigMgr->GetIntDefault("irc.port", 6667);
     sIRC->_User = sConfigMgr->GetStringDefault("irc.user", "TriniChat");
     sIRC->_Pass = sConfigMgr->GetStringDefault("irc.pass", "Services Password");
@@ -1316,7 +1316,7 @@ void World::LoadConfigSettings(bool reload)
             sIRC->_wow_chan[sIRC->_chan_count] = sConfigMgr->GetStringDefault(ci.c_str(), t_chan.c_str());
         }
     }
-    sIRC->JoinMsg = sConfigMgr->GetStringDefault("irc.joinmsg", "TriniChat $Ver for Trinitycore 3.3.x");
+    sIRC->JoinMsg = sConfigMgr->GetStringDefault("irc.joinmsg", "TriniChat $Ver for Trinitycore 4.1");
     sIRC->RstMsg  = sConfigMgr->GetStringDefault("irc.rstmsg", "TriniChat Is Restarting, I Will Be Right Back!");
     sIRC->kikmsg = sConfigMgr->GetStringDefault("irc.kickmsg", "Do Not Kick Me Again, Severe Actions Will Be Taken!");
 
