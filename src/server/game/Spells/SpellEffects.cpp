@@ -3595,9 +3595,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     }
                     return;
                 }
-                case 45204: // Clone Me!
-                    m_caster->CastSpell(unitTarget, damage, true);
-                    break;
                 case 55693:                                 // Remove Collapsing Cave Aura
                     if (!unitTarget)
                         return;
