@@ -3689,6 +3689,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 52212: // Death Knight's Death and Decay triggered spell
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
             case 24259: // Spell Lock
                 spellInfo->Speed = 80.0f;
