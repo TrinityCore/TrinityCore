@@ -47,9 +47,13 @@ namespace ByteConverter
 #if TRINITY_ENDIAN == TRINITY_BIGENDIAN
 template<typename T> inline void EndianConvert(T& val) { ByteConverter::apply<T>(&val); }
 template<typename T> inline void EndianConvertReverse(T&) { }
+template<typename T> inline void EndianConvertPtr(void* val) { ByteConverter::apply<T>(val); }
+template<typename T> inline void EndianConvertPtrReverse(void*) { }
 #else
 template<typename T> inline void EndianConvert(T&) { }
 template<typename T> inline void EndianConvertReverse(T& val) { ByteConverter::apply<T>(&val); }
+template<typename T> inline void EndianConvertPtr(void*) { }
+template<typename T> inline void EndianConvertPtrReverse(void* val) { ByteConverter::apply<T>(val); }
 #endif
 
 template<typename T> void EndianConvert(T*);         // will generate link error

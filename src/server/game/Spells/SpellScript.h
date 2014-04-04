@@ -208,6 +208,7 @@ class SpellScript : public _SpellScript
                 TargetHook(uint8 _effectIndex, uint16 _targetType, bool _area, bool _dest);
                 bool CheckEffect(SpellInfo const* spellInfo, uint8 effIndex);
                 std::string ToString();
+                uint16 GetTarget() const { return targetType; }
             protected:
                 uint16 targetType;
                 bool area;
@@ -411,7 +412,8 @@ class SpellScript : public _SpellScript
         void PreventHitDefaultEffect(SpellEffIndex effIndex);
 
         // method avalible only in EffectHandler method
-        int32 GetEffectValue();
+        int32 GetEffectValue() const;
+        void SetEffectValue(int32 value);
 
         // returns: cast item if present.
         Item* GetCastItem();

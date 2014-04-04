@@ -23,6 +23,7 @@
 #include "DetourAlloc.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
+#include <string>
 
 //  move map related classes
 namespace MMAP

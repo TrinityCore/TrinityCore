@@ -182,13 +182,11 @@ public:
     {
         if (quest->GetQuestId() == QUEST_TOTEM_KARDASH_H)
         {
-            if (npc_maghar_captiveAI* pEscortAI = dynamic_cast<npc_maghar_captiveAI*>(creature->AI()))
+            if (npc_maghar_captiveAI* EscortAI = dynamic_cast<npc_maghar_captiveAI*>(creature->AI()))
             {
                 creature->SetStandState(UNIT_STAND_STATE_STAND);
                 creature->setFaction(232);
-
-                pEscortAI->Start(true, false, player->GetGUID(), quest);
-
+                EscortAI->Start(true, false, player->GetGUID(), quest);
                 creature->AI()->Talk(SAY_MAG_START);
 
                 creature->SummonCreature(NPC_MURK_RAIDER, m_afAmbushA[0]+2.5f, m_afAmbushA[1]-2.5f, m_afAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
@@ -208,20 +206,32 @@ public:
     {
         npc_maghar_captiveAI(Creature* creature) : npc_escortAI(creature) { Reset(); }
 
-        uint32 m_uiChainLightningTimer;
-        uint32 m_uiHealTimer;
-        uint32 m_uiFrostShockTimer;
+        uint32 ChainLightningTimer;
+        uint32 HealTimer;
+        uint32 FrostShockTimer;
 
         void Reset() OVERRIDE
         {
-            m_uiChainLightningTimer = 1000;
-            m_uiHealTimer = 0;
-            m_uiFrostShockTimer = 6000;
+            ChainLightningTimer = 1000;
+            HealTimer = 0;
+            FrostShockTimer = 6000;
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             DoCast(me, SPELL_EARTHBIND_TOTEM, false);
+        }
+
+        void JustDied(Unit* /*killer*/) OVERRIDE
+        {
+            if (!HasEscortState(STATE_ESCORT_ESCORTING))
+                return;
+
+            if (Player* player = GetPlayerForEscort())
+            {
+                if (player->GetQuestStatus(QUEST_TOTEM_KARDASH_H) != QUEST_STATUS_COMPLETE)
+                    player->FailQuest(QUEST_TOTEM_KARDASH_H);
+            }
         }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
@@ -263,9 +273,9 @@ public:
 
         }
 
-        void SpellHitTarget(Unit* /*target*/, const SpellInfo* pSpell) OVERRIDE
+        void SpellHitTarget(Unit* /*target*/, const SpellInfo* spell) OVERRIDE
         {
-            if (pSpell->Id == SPELL_CHAIN_LIGHTNING)
+            if (spell->Id == SPELL_CHAIN_LIGHTNING)
             {
                 if (rand()%10)
                     return;
@@ -274,38 +284,42 @@ public:
             }
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 diff) OVERRIDE
         {
-            npc_escortAI::UpdateAI(uiDiff);
-            if (!me->GetVictim())
+            npc_escortAI::UpdateAI(diff);
+
+            if (!UpdateVictim())
                 return;
 
-            if (m_uiChainLightningTimer <= uiDiff)
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            if (ChainLightningTimer <= diff)
             {
                 DoCastVictim(SPELL_CHAIN_LIGHTNING);
-                m_uiChainLightningTimer = urand(7000, 14000);
+                ChainLightningTimer = urand(7000, 14000);
             }
             else
-                m_uiChainLightningTimer -= uiDiff;
+                ChainLightningTimer -= diff;
 
             if (HealthBelowPct(30))
             {
-                if (m_uiHealTimer <= uiDiff)
+                if (HealTimer <= diff)
                 {
                     DoCast(me, SPELL_HEALING_WAVE);
-                    m_uiHealTimer = 5000;
+                    HealTimer = 5000;
                 }
                 else
-                    m_uiHealTimer -= uiDiff;
+                    HealTimer -= diff;
             }
 
-            if (m_uiFrostShockTimer <= uiDiff)
+            if (FrostShockTimer <= diff)
             {
                 DoCastVictim(SPELL_FROST_SHOCK);
-                m_uiFrostShockTimer = urand(7500, 15000);
+                FrostShockTimer = urand(7500, 15000);
             }
             else
-                m_uiFrostShockTimer -= uiDiff;
+                FrostShockTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -517,6 +531,7 @@ public:
             if (npc_kurenai_captiveAI* EscortAI = dynamic_cast<npc_kurenai_captiveAI*>(creature->AI()))
             {
                 creature->SetStandState(UNIT_STAND_STATE_STAND);
+                creature->setFaction(231);
                 EscortAI->Start(true, false, player->GetGUID(), quest);
                 creature->AI()->Talk(SAY_KUR_START);
 
@@ -629,6 +644,8 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
+            npc_escortAI::UpdateAI(diff);
+
             if (!UpdateVictim())
                 return;
 

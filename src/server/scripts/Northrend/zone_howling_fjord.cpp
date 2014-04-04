@@ -458,10 +458,10 @@ class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                caster->AI()->DoCast(caster, SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE);
+                caster->CastSpell(caster, SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE);
 
                 for (uint8 i = 0; i < 10; ++i)
-                    caster->AI()->DoCast(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
+                    caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
 
                 caster->DespawnOrUnsummon(4000);
             }

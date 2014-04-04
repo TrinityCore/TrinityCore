@@ -36,6 +36,7 @@
 #include "SkillDiscovery.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "Vehicle.h"
 
 class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
 {
@@ -1191,7 +1192,7 @@ class spell_gen_defend : public SpellScriptLoader
 
             void Register() OVERRIDE
             {
-                SpellInfo const* spell = sSpellMgr->GetSpellInfo(m_scriptSpellId);
+                SpellInfo const* spell = sSpellMgr->EnsureSpellInfo(m_scriptSpellId);
 
                 // Defend spells cast by NPCs (add visuals)
                 if (spell->Effects[EFFECT_0].ApplyAuraName == SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)
@@ -2177,7 +2178,7 @@ class spell_gen_mounted_charge: public SpellScriptLoader
 
             void Register() OVERRIDE
             {
-                SpellInfo const* spell = sSpellMgr->GetSpellInfo(m_scriptSpellId);
+                SpellInfo const* spell = sSpellMgr->EnsureSpellInfo(m_scriptSpellId);
 
                 if (spell->HasEffect(SPELL_EFFECT_SCRIPT_EFFECT))
                     OnEffectHitTarget += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
@@ -2963,22 +2964,65 @@ enum Replenishment
     SPELL_INFINITE_REPLENISHMENT    = 61782
 };
 
+class ReplenishmentCheck
+{
+public:
+    bool operator()(WorldObject* obj) const
+    {
+        if (Unit* target = obj->ToUnit())
+            return target->getPowerType() != POWER_MANA;
+
+        return true;
+    }
+};
+
 class spell_gen_replenishment : public SpellScriptLoader
 {
     public:
         spell_gen_replenishment() : SpellScriptLoader("spell_gen_replenishment") { }
 
+        class spell_gen_replenishment_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_replenishment_SpellScript);
+
+            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+            {
+                // In arenas Replenishment may only affect the caster
+                if (Player* caster = GetCaster()->ToPlayer())
+                {
+                    if (caster->InArena())
+                    {
+                        targets.clear();
+                        targets.push_back(caster);
+                        return;
+                    }
+                }
+
+                targets.remove_if(ReplenishmentCheck());
+
+                uint8 const maxTargets = 10;
+
+                if (targets.size() > maxTargets)
+                {
+                    targets.sort(Trinity::PowerPctOrderPred(POWER_MANA));
+                    targets.resize(maxTargets);
+                }
+            }
+
+            void Register() OVERRIDE
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_replenishment_SpellScript::RemoveInvalidTargets, EFFECT_ALL, TARGET_UNIT_CASTER_AREA_RAID);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_gen_replenishment_SpellScript();
+        }
+
         class spell_gen_replenishment_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_gen_replenishment_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_REPLENISHMENT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_INFINITE_REPLENISHMENT))
-                    return false;
-                return true;
-            }
 
             bool Load() OVERRIDE
             {
@@ -3630,6 +3674,33 @@ class spell_gen_whisper_gulch_yogg_saron_whisper : public SpellScriptLoader
         }
 };
 
+class spell_gen_eject_all_passengers : public SpellScriptLoader
+{
+    public:
+        spell_gen_eject_all_passengers() : SpellScriptLoader("spell_gen_eject_all_passengers") { }
+
+        class spell_gen_eject_all_passengers_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_eject_all_passengers_SpellScript);
+
+            void RemoveVehicleAuras()
+            {
+                if (Vehicle* vehicle = GetHitUnit()->GetVehicleKit())
+                    vehicle->RemoveAllPassengers();
+            }
+
+            void Register() OVERRIDE
+            {
+                AfterHit += SpellHitFn(spell_gen_eject_all_passengers_SpellScript::RemoveVehicleAuras);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_gen_eject_all_passengers_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3711,4 +3782,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_vendor_bark_trigger();
     new spell_gen_wg_water();
     new spell_gen_whisper_gulch_yogg_saron_whisper();
+    new spell_gen_eject_all_passengers();
 }

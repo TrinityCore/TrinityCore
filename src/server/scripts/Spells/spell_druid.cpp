@@ -993,6 +993,76 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
         }
 };
 
+class RaidCheck
+{
+    public:
+        explicit RaidCheck(Unit const* caster) : _caster(caster) { }
+
+        bool operator()(WorldObject* obj) const
+        {
+            if (Unit* target = obj->ToUnit())
+                return !_caster->IsInRaidWith(target);
+
+            return true;
+        }
+
+    private:
+        Unit const* _caster;
+};
+
+// -48438 - Wild Growth
+class spell_dru_wild_growth : public SpellScriptLoader
+{
+    public:
+        spell_dru_wild_growth() : SpellScriptLoader("spell_dru_wild_growth") { }
+
+        class spell_dru_wild_growth_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_wild_growth_SpellScript);
+
+            bool Validate(SpellInfo const* spellInfo) OVERRIDE
+            {
+                if (spellInfo->Effects[EFFECT_2].IsEffect() || spellInfo->Effects[EFFECT_2].CalcValue() <= 0)
+                    return false;
+                return true;
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(RaidCheck(GetCaster()));
+
+                uint32 const maxTargets = uint32(GetSpellInfo()->Effects[EFFECT_2].CalcValue(GetCaster()));
+
+                if (targets.size() > maxTargets)
+                {
+                    targets.sort(Trinity::HealthPctOrderPred());
+                    targets.resize(maxTargets);
+                }
+
+                _targets = targets;
+            }
+
+            void SetTargets(std::list<WorldObject*>& targets)
+            {
+                targets = _targets;
+            }
+
+            void Register() OVERRIDE
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth_SpellScript::SetTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+
+        private:
+            std::list<WorldObject*> _targets;
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_dru_wild_growth_SpellScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_dash();
@@ -1018,4 +1088,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_tiger_s_fury();
     new spell_dru_typhoon();
     new spell_dru_t10_restoration_4p_bonus();
+    new spell_dru_wild_growth();
 }

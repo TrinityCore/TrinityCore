@@ -44,10 +44,6 @@ typedef uint64_t            uint64_d;
 // Edited by TC
 // We cannot have over 31 bits for either tile nor poly
 // without changing polyCount to use 64bits too.
-static const int STATIC_SALT_BITS = 12;
-static const int STATIC_TILE_BITS = 21;
-static const int STATIC_POLY_BITS = 31; 
-
 /// A handle to a polygon within a navigation mesh tile.
 /// @ingroup detour
 typedef uint64_d dtPolyRef; // Edited by TC
@@ -93,6 +89,12 @@ static const unsigned int DT_OFFMESH_CON_BIDIR = 1;
 /// The maximum number of user defined area ids.
 /// @ingroup detour
 static const int DT_MAX_AREAS = 64;
+
+static const int STATIC_SALT_BITS = 12;
+static const int STATIC_TILE_BITS = 21;
+static const int STATIC_POLY_BITS = 31;
+// we cannot have over 31 bits for either tile nor poly
+// without changing polyCount to use 64bits too.
 
 /// Tile flags used for various functions and fields.
 /// For an example, see dtNavMesh::addTile().
@@ -585,8 +587,7 @@ private:
 	dtPolyRef findNearestPolyInTile(const dtMeshTile* tile, const float* center,
 									const float* extents, float* nearestPt) const;
 	/// Returns closest point on polygon.
-	void closestPointOnPolyInTile(const dtMeshTile* tile, unsigned int ip,
-								  const float* pos, float* closest) const;
+	void closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* posOverPoly) const;
 	
 	dtNavMeshParams m_params;			///< Current initialization params. TODO: do not store this info twice.
 	float m_orig[3];					///< Origin of the tile (0,0)

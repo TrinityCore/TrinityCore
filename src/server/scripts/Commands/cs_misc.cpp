@@ -830,10 +830,13 @@ public:
         if (handler->HasLowerSecurity(target, 0))
             return false;
 
-        char const* kickReason = strtok(NULL, "\r");
         std::string kickReasonStr = "No reason";
-        if (kickReason != NULL)
-            kickReasonStr = kickReason;
+        if (*args != '\0')
+        {
+            char const* kickReason = strtok(NULL, "\r");
+            if (kickReason != NULL)
+                kickReasonStr = kickReason;
+        }
 
         if (sWorld->getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD))
             sWorld->SendWorldText(LANG_COMMAND_KICKMESSAGE_WORLD, (handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : "Server"), playerName.c_str(), kickReasonStr.c_str());
@@ -1036,7 +1039,6 @@ public:
 
         int32 area = GetAreaFlagByAreaID(atoi((char*)args));
         int32 offset = area / 32;
-        uint32 val = uint32((1 << (area % 32)));
 
         if (area<0 || offset >= PLAYER_EXPLORED_ZONES_SIZE)
         {
@@ -1045,6 +1047,7 @@ public:
             return false;
         }
 
+        uint32 val = uint32((1 << (area % 32)));
         uint32 currFields = playerTarget->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset);
         playerTarget->SetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset, uint32((currFields | val)));
 
@@ -1067,7 +1070,6 @@ public:
 
         int32 area = GetAreaFlagByAreaID(atoi((char*)args));
         int32 offset = area / 32;
-        uint32 val = uint32((1 << (area % 32)));
 
         if (area < 0 || offset >= PLAYER_EXPLORED_ZONES_SIZE)
         {
@@ -1076,6 +1078,7 @@ public:
             return false;
         }
 
+        uint32 val = uint32((1 << (area % 32)));
         uint32 currFields = playerTarget->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset);
         playerTarget->SetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset, uint32((currFields ^ val)));
 

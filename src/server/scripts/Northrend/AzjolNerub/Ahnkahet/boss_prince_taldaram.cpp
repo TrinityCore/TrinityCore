@@ -88,6 +88,9 @@ class boss_prince_taldaram : public CreatureScript
             boss_prince_taldaramAI(Creature* creature) : BossAI(creature, DATA_PRINCE_TALDARAM)
             {
                 me->SetDisableGravity(true);
+                _flameSphereTargetGUID = 0;
+                _embraceTargetGUID = 0;
+                _embraceTakenDamage = 0;
             }
 
             void Reset() OVERRIDE
@@ -283,7 +286,10 @@ class npc_prince_taldaram_flame_sphere : public CreatureScript
 
         struct npc_prince_taldaram_flame_sphereAI : public ScriptedAI
         {
-            npc_prince_taldaram_flame_sphereAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_prince_taldaram_flame_sphereAI(Creature* creature) : ScriptedAI(creature) 
+            { 
+                _flameSphereTargetGUID = 0;
+            }
 
             void Reset() OVERRIDE
             {

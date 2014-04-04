@@ -171,7 +171,11 @@ public:
 
     struct npc_snufflenose_gopherAI : public PetAI
     {
-        npc_snufflenose_gopherAI(Creature* creature) : PetAI(creature) { }
+        npc_snufflenose_gopherAI(Creature* creature) : PetAI(creature)
+        {
+            IsMovementActive = false;
+            TargetTubberGUID = 0;
+        }
 
         void Reset() OVERRIDE
         {
