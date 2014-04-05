@@ -4648,9 +4648,10 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                         target->ToPlayer()->RemoveAmmo();      // not use ammo and not allow use
                     break;
                 case 52916: // Honor Among Thieves
-                    if (target->GetTypeId() == TYPEID_PLAYER)
-                        if (Unit* spellTarget = ObjectAccessor::GetUnit(*target, target->ToPlayer()->GetComboTarget()))
-                            target->CastSpell(spellTarget, 51699, true);
+                    if (caster && caster->GetTypeId() == TYPEID_PLAYER && (caster != target || !caster->ToPlayer()->GetGroup()))
+                        if (Unit* spellTarget = ObjectAccessor::GetUnit(*caster, caster->GetTarget()))
+                            if (caster->IsValidAttackTarget(spellTarget))
+                                caster->CastSpell(spellTarget, 51699, true);
                    break;
                 case 71563:
                     if (Aura* newAura = target->AddAura(71564, target))

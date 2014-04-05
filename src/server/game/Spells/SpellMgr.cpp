@@ -3241,6 +3241,10 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
                 spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_MASTER);
                 break;
+            case 5171:
+            case 6774:
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+                break;
             case 54800: // Sigil of the Frozen Conscience - change class mask to custom extended flags of Icy Touch
                         // this is done because another spell also uses the same SpellFamilyFlags as Icy Touch
                         // SpellFamilyFlags[0] & 0x00000040 in SPELLFAMILY_DEATHKNIGHT is currently unused (3.3.5a)
