@@ -17,7 +17,14 @@ git:
 
 before_install:
 # Install base
-    - sudo apt-get install libncurses5-dev
+    - mkdir cmake_inst
+    - cd cmake_inst
+    - wget http://www.cmake.org/files/v2.8/cmake-2.8.12.2.tar.gz > /dev/null
+    - tar xzf Acmake-2.8.12.2.tar.gz > /dev/null
+    - cmake . 
+    - make
+    - make install
+    - cd ..
 
 # Install ACE
 # Get ACE
