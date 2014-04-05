@@ -31,7 +31,10 @@ enum BasicType                                              // Stolen from CVCON
     btComplex = 28,
     btBit = 29,
     btBSTR = 30,
-    btHresult = 31
+    btHresult = 31,
+
+    // Custom types
+    btStdString = 101
 };
 
 const char* const rgBaseType[] =
