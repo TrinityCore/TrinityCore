@@ -110,13 +110,18 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             case CHAT_MSG_WHISPER:
                 if (sWorld->getBoolConfig(CONFIG_CHATLOG_ADDON))
                 {
-                    std::string msg = "";
+                    std::string to, msg;
+                    if (type == CHAT_MSG_WHISPER)
+                        recvData >> to;
                     recvData >> msg;
 
                     if (msg.empty())
                         return;
 
                     sScriptMgr->OnPlayerChat(sender, uint32(CHAT_MSG_ADDON), lang, msg);
+#ifdef ELUNA
+                    sHookMgr->OnAddonMessage(sender, msg, type, to);
+#endif
                 }
 
                 // Disabled addon channel?
