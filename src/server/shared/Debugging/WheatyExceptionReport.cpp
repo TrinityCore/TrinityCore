@@ -878,6 +878,17 @@ char* suffix)
     if (SymGetTypeInfo(m_hProcess, modBase, dwTypeIndex, TI_GET_SYMNAME,
         &pwszTypeName))
     {
+        // handle special cases
+        if (wcscmp(pwszTypeName, L"std::basic_string<char,std::char_traits<char>,std::allocator<char> >") == 0)
+        {
+            LocalFree(pwszTypeName);
+            pszCurrBuffer += sprintf(pszCurrBuffer, " %s", "std::string");
+            pszCurrBuffer = FormatOutputValue(pszCurrBuffer, btStdString, 0, (PVOID)offset);
+            pszCurrBuffer += sprintf(pszCurrBuffer, "\r\n");
+            bHandled = true;
+            return pszCurrBuffer;
+        }
+
         pszCurrBuffer += sprintf(pszCurrBuffer, " %ls", pwszTypeName);
         LocalFree(pwszTypeName);
     }
@@ -928,6 +939,19 @@ char* suffix)
                     FormatOutputValue(&addressStr[1], btVoid, sizeof(PVOID), (PVOID)offset);
                     pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID, nestingLevel + 1,
                         address, bHandled, "", addressStr);
+
+                    if (!bHandled)
+                    {
+                        BasicType basicType = GetBasicType(dwTypeIndex, modBase);
+                        pszCurrBuffer += sprintf(pszCurrBuffer, rgBaseType[basicType]);
+                        // Get the size of the child member
+                        ULONG64 length;
+                        SymGetTypeInfo(m_hProcess, modBase, innerTypeID, TI_GET_LENGTH, &length);
+                        pszCurrBuffer = FormatOutputValue(pszCurrBuffer, basicType, length, (PVOID)address);
+                        pszCurrBuffer += sprintf(pszCurrBuffer, "\r\n");
+                        bHandled = true;
+                        return pszCurrBuffer;
+                    }
                 }
             }
             break;
@@ -1027,13 +1051,6 @@ char* suffix)
             ULONG64 length;
             SymGetTypeInfo(m_hProcess, modBase, typeId, TI_GET_LENGTH, &length);
 
-            //             BasicType basicType = GetBasicType(children.ChildId[i], modBase);
-            //
-            //          pszCurrBuffer += sprintf(pszCurrBuffer, rgBaseType[basicType]);
-            //
-            // Emit the variable name
-            //          pszCurrBuffer += sprintf(pszCurrBuffer, "\'%s\'", Name);
-
             pszCurrBuffer = FormatOutputValue(pszCurrBuffer, basicType,
                 length, (PVOID)dwFinalOffset);
 
@@ -1052,49 +1069,60 @@ PVOID pAddress)
 {
     __try
     {
-        // Format appropriately (assuming it's a 1, 2, or 4 bytes (!!!)
-        if (length == 1)
-            pszCurrBuffer += sprintf(pszCurrBuffer, " = %X", *(PBYTE)pAddress);
-        else if (length == 2)
-            pszCurrBuffer += sprintf(pszCurrBuffer, " = %X", *(PWORD)pAddress);
-        else if (length == 4)
+        switch (basicType)
         {
-            if (basicType == btFloat)
-            {
-                pszCurrBuffer += sprintf(pszCurrBuffer, " = %f", *(PFLOAT)pAddress);
-            }
-            else if (basicType == btChar)
-            {
-                if (!IsBadStringPtr(*(PSTR*)pAddress, 32))
+            case btChar:
+                pszCurrBuffer += sprintf(pszCurrBuffer, " = \"%s\"", pAddress);
+                break;
+            case btStdString:
+                pszCurrBuffer += sprintf(pszCurrBuffer, " = \"%s\"", static_cast<std::string*>(pAddress)->c_str());
+                break;
+            default:
+                // Format appropriately (assuming it's a 1, 2, or 4 bytes (!!!)
+                if (length == 1)
+                    pszCurrBuffer += sprintf(pszCurrBuffer, " = %X", *(PBYTE)pAddress);
+                else if (length == 2)
+                    pszCurrBuffer += sprintf(pszCurrBuffer, " = %X", *(PWORD)pAddress);
+                else if (length == 4)
                 {
-                    pszCurrBuffer += sprintf(pszCurrBuffer, " = \"%.31s\"",
-                        *(PSTR*)pAddress);
+                    if (basicType == btFloat)
+                    {
+                        pszCurrBuffer += sprintf(pszCurrBuffer, " = %f", *(PFLOAT)pAddress);
+                    }
+                    else if (basicType == btChar)
+                    {
+                        if (!IsBadStringPtr(*(PSTR*)pAddress, 32))
+                        {
+                            pszCurrBuffer += sprintf(pszCurrBuffer, " = \"%.31s\"",
+                                *(PSTR*)pAddress);
+                        }
+                        else
+                            pszCurrBuffer += sprintf(pszCurrBuffer, " = %X",
+                            *(PDWORD)pAddress);
+                    }
+                    else
+                        pszCurrBuffer += sprintf(pszCurrBuffer, " = %X", *(PDWORD)pAddress);
+                }
+                else if (length == 8)
+                {
+                    if (basicType == btFloat)
+                    {
+                        pszCurrBuffer += sprintf(pszCurrBuffer, " = %lf",
+                            *(double *)pAddress);
+                    }
+                    else
+                        pszCurrBuffer += sprintf(pszCurrBuffer, " = %I64X",
+                        *(DWORD64*)pAddress);
                 }
                 else
-                    pszCurrBuffer += sprintf(pszCurrBuffer, " = %X",
-                    *(PDWORD)pAddress);
-            }
-            else
-                pszCurrBuffer += sprintf(pszCurrBuffer, " = %X", *(PDWORD)pAddress);
-        }
-        else if (length == 8)
-        {
-            if (basicType == btFloat)
-            {
-                pszCurrBuffer += sprintf(pszCurrBuffer, " = %lf",
-                    *(double *)pAddress);
-            }
-            else
-                pszCurrBuffer += sprintf(pszCurrBuffer, " = %I64X",
-                *(DWORD64*)pAddress);
-        }
-        else
-        {
-#if _WIN64
-            pszCurrBuffer += sprintf(pszCurrBuffer, " = %I64X", (DWORD64*)pAddress);
-#else
-            pszCurrBuffer += sprintf(pszCurrBuffer, " = %X", (PDWORD)pAddress);
-#endif
+                {
+    #if _WIN64
+                    pszCurrBuffer += sprintf(pszCurrBuffer, " = %I64X", (DWORD64*)pAddress);
+    #else
+                    pszCurrBuffer += sprintf(pszCurrBuffer, " = %X", (PDWORD)pAddress);
+    #endif
+                }
+                break;
         }
     }
     __except (EXCEPTION_EXECUTE_HANDLER)

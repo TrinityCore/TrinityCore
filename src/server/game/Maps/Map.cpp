@@ -3482,13 +3482,12 @@ void Map::SetZoneMusic(uint32 zoneId, uint32 musicId)
     Map::PlayerList const& players = GetPlayers();
     if (!players.isEmpty())
     {
-        WorldPacket data(SMSG_PLAY_MUSIC, 4);
-        data << uint32(musicId);
-
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             if (Player* player = itr->GetSource())
                 if (player->GetZoneId() == zoneId)
                 {
+                    WorldPacket data(SMSG_PLAY_MUSIC, 4);
+                    data << uint32(musicId);
                     data << uint64(player->GetGUID());
                     player->SendDirectMessage(&data);
                 }
