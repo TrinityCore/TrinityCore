@@ -20,7 +20,7 @@ before_install:
     - mkdir cmake_inst
     - cd cmake_inst
     - wget http://www.cmake.org/files/v2.8/cmake-2.8.12.2.tar.gz > /dev/null
-    - tar xzf Acmake-2.8.12.2.tar.gz > /dev/null
+    - tar xzf cmake-2.8.12.2.tar.gz > /dev/null
     - cmake . 
     - make
     - make install
