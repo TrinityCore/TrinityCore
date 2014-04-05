@@ -21,8 +21,8 @@ before_install:
     - tar xzf cmake-2.8.12.2.tar.gz > /dev/null
     - cd cmake-2.8.12.2
     - cmake . 
-    - make
-    - make install
+    - make -i --jobs=4 > /dev/null
+    - sudo make -i --jobs=4 install > /dev/null
     - cd ../
 
 # Install ACE
