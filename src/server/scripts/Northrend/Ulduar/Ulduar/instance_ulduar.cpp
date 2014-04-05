@@ -116,6 +116,7 @@ class instance_ulduar : public InstanceMapScript
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doorData);
                 LoadMinionData(minionData);
+                LeviathanGUID                    = 0;
                 IgnisGUID                        = 0;
                 RazorscaleGUID                   = 0;
                 RazorscaleController             = 0;
@@ -154,6 +155,7 @@ class instance_ulduar : public InstanceMapScript
                 keepersCount                     = 0;
                 conSpeedAtory                    = false;
                 Unbroken                         = true;
+                IsDriveMeCrazyEligible           = true;
                 _algalonSummoned                 = false;
                 _summonAlgalon                   = false;
 
