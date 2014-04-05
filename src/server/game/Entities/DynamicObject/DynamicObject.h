@@ -32,7 +32,7 @@ enum DynamicObjectType
     DYNAMIC_OBJECT_FARSIGHT_FOCUS   = 0x2
 };
 
-class DynamicObject : public WorldObject, public GridObject<DynamicObject>
+class DynamicObject : public WorldObject, public GridObject<DynamicObject>, public MapObject
 {
     public:
         DynamicObject(bool isWorldObject);
@@ -40,6 +40,8 @@ class DynamicObject : public WorldObject, public GridObject<DynamicObject>
 
         void AddToWorld();
         void RemoveFromWorld();
+
+        void CleanupsBeforeDelete(bool finalCleanup = true) OVERRIDE;
 
         bool CreateDynamicObject(uint32 guidlow, Unit* caster, SpellInfo const* spell, Position const& pos, float radius, DynamicObjectType type);
         void Update(uint32 p_time);

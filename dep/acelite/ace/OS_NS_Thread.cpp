@@ -885,8 +885,12 @@ ACE_TSS_Cleanup::thread_detach_key (ACE_thread_key_t key)
     ACE_TSS_CLEANUP_GUARD
 
     u_int key_index = key;
-    ACE_ASSERT (key_index < sizeof(this->table_)/sizeof(this->table_[0])
-        && this->table_[key_index].key_ == key);
+    ACE_ASSERT (key_index < sizeof(this->table_)/sizeof(this->table_[0]));
+    // If this entry was never set, just bug out. If it is set, but is the
+    // wrong key, assert.
+    if (this->table_[key_index].key_ == 0)
+        return 0;
+    ACE_ASSERT(this->table_[key_index].key_ == key);
     ACE_TSS_Info &info = this->table_ [key_index];
 
     // sanity check

@@ -56,6 +56,28 @@ public:
     {
         instance_blackwing_lair_InstanceMapScript(Map* map) : InstanceScript(map)
         {
+            // Razorgore
+            EggCount = 0;
+            EggEvent = 0;
+            RazorgoreTheUntamedGUID = 0;
+            RazorgoreDoorGUID = 0;
+            // Vaelastrasz the Corrupt
+            VaelastraszTheCorruptGUID = 0;
+            VaelastraszDoorGUID = 0;
+            // Broodlord Lashlayer
+            BroodlordLashlayerGUID = 0;
+            BroodlordDoorGUID = 0;
+            // 3 Dragons
+            FiremawGUID = 0;
+            EbonrocGUID = 0;
+            FlamegorGUID = 0;
+            ChrommagusDoorGUID = 0;
+            // Chormaggus
+            ChromaggusGUID = 0;
+            NefarianDoorGUID = 0;
+            // Nefarian
+            LordVictorNefariusGUID = 0;
+            NefarianGUID = 0;
             SetBossNumber(EncounterCount);
         }
 

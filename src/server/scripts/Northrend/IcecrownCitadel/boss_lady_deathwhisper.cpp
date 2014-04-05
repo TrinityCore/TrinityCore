@@ -545,7 +545,7 @@ class boss_lady_deathwhisper : public CreatureScript
             void Summon(uint32 entry, const Position& pos)
             {
                 if (TempSummon* summon = me->SummonCreature(entry, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
-                    summon->AI()->DoCast(summon, SPELL_TELEPORT_VISUAL);
+                    summon->CastSpell(summon, SPELL_TELEPORT_VISUAL);
             }
 
             void SetGUID(uint64 guid, int32 id/* = 0*/) OVERRIDE

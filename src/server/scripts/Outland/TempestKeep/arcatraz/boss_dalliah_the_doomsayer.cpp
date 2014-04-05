@@ -59,11 +59,16 @@ class boss_dalliah_the_doomsayer : public CreatureScript
 
         struct boss_dalliah_the_doomsayerAI : public BossAI
         {
-            boss_dalliah_the_doomsayerAI(Creature* creature) : BossAI(creature, DATA_DALLIAH) { }
+            boss_dalliah_the_doomsayerAI(Creature* creature) : BossAI(creature, DATA_DALLIAH)
+            {
+                soccothratesTaunt = false;
+                soccothratesDeath = false;
+            }
 
             void Reset() OVERRIDE
             {
                 _Reset();
+                soccothratesTaunt = false;
                 soccothratesDeath = false;
             }
 

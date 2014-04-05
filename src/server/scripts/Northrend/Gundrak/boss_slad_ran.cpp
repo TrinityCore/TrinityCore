@@ -219,7 +219,10 @@ public:
 
     struct npc_slad_ran_constrictorAI : public ScriptedAI
     {
-        npc_slad_ran_constrictorAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_slad_ran_constrictorAI(Creature* creature) : ScriptedAI(creature)
+        {
+            uiGripOfSladRanTimer = 1 * IN_MILLISECONDS;
+        }
 
         uint32 uiGripOfSladRanTimer;
 
@@ -247,8 +250,9 @@ public:
                     target->CastSpell(target, SPELL_SNAKE_WRAP, true);
 
                     if (TempSummon* _me = me->ToTempSummon())
-                        if (Creature* sladran = _me->GetSummoner()->ToCreature())
-                            sladran->AI()->SetGUID(target->GetGUID(), DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES);
+                        if (Unit* summoner = _me->GetSummoner())
+                            if (Creature* sladran = summoner->ToCreature())
+                                sladran->AI()->SetGUID(target->GetGUID(), DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES);
 
                     me->DespawnOrUnsummon();
                 }
@@ -270,7 +274,10 @@ public:
 
     struct npc_slad_ran_viperAI : public ScriptedAI
     {
-        npc_slad_ran_viperAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_slad_ran_viperAI(Creature* creature) : ScriptedAI(creature)
+        {
+            uiVenomousBiteTimer = 2 * IN_MILLISECONDS;
+        }
 
         uint32 uiVenomousBiteTimer;
 

@@ -16,6 +16,7 @@
  */
 
 #include "AppenderFile.h"
+#include "Common.h"
 
 #if PLATFORM == PLATFORM_WINDOWS
 # include <Windows.h>
@@ -33,7 +34,8 @@ AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, co
     dynamicName = std::string::npos != filename.find("%s");
     backup = (_flags & APPENDER_FLAGS_MAKE_FILE_BACKUP) != 0;
 
-    logfile = !dynamicName ? OpenFile(_filename, _mode, mode == "w" && backup) : NULL;
+    if (!dynamicName)
+        logfile = OpenFile(_filename, _mode, mode == "w" && backup);
 }
 
 AppenderFile::~AppenderFile()
@@ -49,7 +51,15 @@ void AppenderFile::_write(LogMessage const& message)
     {
         char namebuf[TRINITY_PATH_MAX];
         snprintf(namebuf, TRINITY_PATH_MAX, filename.c_str(), message.param1.c_str());
-        logfile = OpenFile(namebuf, mode, backup || exceedMaxSize);
+        // always use "a" with dynamic name otherwise it could delete the log we wrote in last _write() call
+        FILE* file = OpenFile(namebuf, "a", backup || exceedMaxSize);
+        if (!file)
+            return;
+        fprintf(file, "%s%s", message.prefix.c_str(), message.text.c_str());
+        fflush(file);
+        fileSize += uint64(message.Size());
+        fclose(file);
+        return;
     }
     else if (exceedMaxSize)
         logfile = OpenFile(filename, "w", true);
@@ -60,9 +70,6 @@ void AppenderFile::_write(LogMessage const& message)
     fprintf(logfile, "%s%s", message.prefix.c_str(), message.text.c_str());
     fflush(logfile);
     fileSize += uint64(message.Size());
-
-    if (dynamicName)
-        CloseFile();
 }
 
 FILE* AppenderFile::OpenFile(std::string const &filename, std::string const &mode, bool backup)
@@ -74,6 +81,7 @@ FILE* AppenderFile::OpenFile(std::string const &filename, std::string const &mod
         std::string newName(fullName);
         newName.push_back('.');
         newName.append(LogMessage::getTimeStr(time(NULL)));
+        std::replace(newName.begin(), newName.end(), ':', '-');
         rename(fullName.c_str(), newName.c_str()); // no error handling... if we couldn't make a backup, just ignore
     }
 

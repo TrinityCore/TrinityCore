@@ -25,7 +25,7 @@ website at [TrinityCore.org](http://www.trinitycore.org).
 + Processor with SSE2 support
 + ACE ≥ 5.8.3 (included for Windows)
 + MySQL ≥ 5.1.0 (included for Windows)
-+ CMake ≥ 2.8.0
++ CMake ≥ 2.8.11.2 / 2.8.9 (Windows / Linux)
 + OpenSSL ≥ 1.0.0
 + GCC ≥ 4.7.2 (Linux only)
 + MS Visual Studio ≥ 12 (2013) (Windows only)

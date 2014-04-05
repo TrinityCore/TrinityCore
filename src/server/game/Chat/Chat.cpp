@@ -1198,10 +1198,34 @@ char* ChatHandler::extractQuotedArg(char* args)
         return strtok(args+1, "\"");
     else
     {
-        char* space = strtok(args, "\"");
-        if (!space)
+        // skip spaces
+        while (*args == ' ')
+        {
+            args += 1;
+            continue;
+        }
+
+        // return NULL if we reached the end of the string
+        if (!*args)
             return NULL;
-        return strtok(NULL, "\"");
+
+        // since we skipped all spaces, we expect another token now
+        if (*args == '"')
+        {
+            // return an empty string if there are 2 "" in a row.
+            // strtok doesn't handle this case
+            if (*(args + 1) == '"')
+            {
+                strtok(args, " ");
+                static char arg[1];
+                arg[0] = '\0';
+                return arg;
+            }
+            else
+                return strtok(args + 1, "\"");
+        }
+        else
+            return NULL;
     }
 }
 

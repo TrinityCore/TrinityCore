@@ -193,8 +193,6 @@ class SmartAI : public CreatureAI
         }
         void StartDespawn() { mDespawnState = 2; }
 
-        void RemoveAuras();
-
         void OnSpellClick(Unit* clicker, bool& result);
 
     private:

@@ -31,6 +31,7 @@
 #include "Player.h"
 #include "Cell.h"
 #include "CellImpl.h"
+#include "Totem.h"
 
 Transport::Transport() : GameObject(),
     _transportInfo(NULL), _isMoving(true), _pendingStop(false),
@@ -95,7 +96,23 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
     SetGoAnimProgress(animprogress);
     SetName(goinfo->name);
     UpdateRotationFields(0.0f, 1.0f);
+
+    m_model = GameObjectModel::Create(*this);
     return true;
+}
+
+void Transport::CleanupsBeforeDelete(bool finalCleanup /*= true*/)
+{
+    UnloadStaticPassengers();
+    while (!_passengers.empty())
+    {
+        WorldObject* obj = *_passengers.begin();
+        obj->m_movementInfo.transport.Reset();
+        obj->SetTransport(NULL);
+        RemovePassenger(obj);
+    }
+
+    GameObject::CleanupsBeforeDelete(finalCleanup);
 }
 
 void Transport::Update(uint32 diff)
@@ -202,6 +219,9 @@ void Transport::Update(uint32 diff)
 
 void Transport::AddPassenger(WorldObject* passenger)
 {
+    if (!IsInWorld())
+        return;
+
     if (_passengers.insert(passenger).second)
     {
         TC_LOG_DEBUG("entities.transport", "Object %s boarded transport %s.", passenger->GetName().c_str(), GetName().c_str());
@@ -307,11 +327,134 @@ GameObject* Transport::CreateGOPassenger(uint32 guid, GameObjectData const* data
     return go;
 }
 
+TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSummonType summonType, SummonPropertiesEntry const* properties /*= NULL*/, uint32 duration /*= 0*/, Unit* summoner /*= NULL*/, uint32 spellId /*= 0*/, uint32 vehId /*= 0*/)
+{
+    Map* map = FindMap();
+    if (!map)
+        return NULL;
+
+    uint32 mask = UNIT_MASK_SUMMON;
+    if (properties)
+    {
+        switch (properties->Category)
+        {
+            case SUMMON_CATEGORY_PET:
+                mask = UNIT_MASK_GUARDIAN;
+                break;
+            case SUMMON_CATEGORY_PUPPET:
+                mask = UNIT_MASK_PUPPET;
+                break;
+            case SUMMON_CATEGORY_VEHICLE:
+                mask = UNIT_MASK_MINION;
+                break;
+            case SUMMON_CATEGORY_WILD:
+            case SUMMON_CATEGORY_ALLY:
+            case SUMMON_CATEGORY_UNK:
+            {
+                switch (properties->Type)
+                {
+                    case SUMMON_TYPE_MINION:
+                    case SUMMON_TYPE_GUARDIAN:
+                    case SUMMON_TYPE_GUARDIAN2:
+                        mask = UNIT_MASK_GUARDIAN;
+                        break;
+                    case SUMMON_TYPE_TOTEM:
+                    case SUMMON_TYPE_LIGHTWELL:
+                        mask = UNIT_MASK_TOTEM;
+                        break;
+                    case SUMMON_TYPE_VEHICLE:
+                    case SUMMON_TYPE_VEHICLE2:
+                        mask = UNIT_MASK_SUMMON;
+                        break;
+                    case SUMMON_TYPE_MINIPET:
+                        mask = UNIT_MASK_MINION;
+                        break;
+                    default:
+                        if (properties->Flags & 512) // Mirror Image, Summon Gargoyle
+                            mask = UNIT_MASK_GUARDIAN;
+                        break;
+                }
+                break;
+            }
+            default:
+                return NULL;
+        }
+    }
+
+    uint32 phase = PHASEMASK_NORMAL;
+    uint32 team = 0;
+    if (summoner)
+    {
+        phase = summoner->GetPhaseMask();
+        if (summoner->GetTypeId() == TYPEID_PLAYER)
+            team = summoner->ToPlayer()->GetTeam();
+    }
+
+    TempSummon* summon = NULL;
+    switch (mask)
+    {
+        case UNIT_MASK_SUMMON:
+            summon = new TempSummon(properties, summoner, false);
+            break;
+        case UNIT_MASK_GUARDIAN:
+            summon = new Guardian(properties, summoner, false);
+            break;
+        case UNIT_MASK_PUPPET:
+            summon = new Puppet(properties, summoner);
+            break;
+        case UNIT_MASK_TOTEM:
+            summon = new Totem(properties, summoner);
+            break;
+        case UNIT_MASK_MINION:
+            summon = new Minion(properties, summoner, false);
+            break;
+    }
+
+    float x, y, z, o;
+    pos.GetPosition(x, y, z, o);
+    CalculatePassengerPosition(x, y, z, &o);
+
+    if (!summon->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, phase, entry, vehId, team, x, y, z, o))
+    {
+        delete summon;
+        return NULL;
+    }
+
+    summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellId);
+
+    summon->SetTransport(this);
+    summon->m_movementInfo.transport.guid = GetGUID();
+    summon->m_movementInfo.transport.pos.Relocate(pos);
+    summon->Relocate(x, y, z, o);
+    summon->SetHomePosition(x, y, z, o);
+    summon->SetTransportHomePosition(pos);
+
+    /// @HACK - transport models are not added to map's dynamic LoS calculations
+    ///         because the current GameObjectModel cannot be moved without recreating
+    summon->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
+
+    summon->InitStats(duration);
+
+    if (!map->AddToMap<Creature>(summon))
+    {
+        delete summon;
+        return NULL;
+    }
+
+    _staticPassengers.insert(summon);
+
+    summon->InitSummon();
+    summon->SetTempSummonType(summonType);
+
+    return summon;
+}
+
 void Transport::UpdatePosition(float x, float y, float z, float o)
 {
     bool newActive = GetMap()->IsGridLoaded(x, y);
 
     Relocate(x, y, z, o);
+    UpdateModelPosition();
 
     UpdatePassengerPositions(_passengers);
 
@@ -449,12 +592,16 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z, fl
                     if (!obj->ToPlayer()->TeleportTo(newMapid, destX, destY, destZ, destO, TELE_TO_NOT_LEAVE_TRANSPORT))
                         _passengers.erase(obj);
                     break;
+                case TYPEID_DYNAMICOBJECT:
+                    obj->AddObjectToRemoveList();
+                    break;
                 default:
                     break;
             }
         }
 
         Relocate(x, y, z, o);
+        UpdateModelPosition();
         GetMap()->AddToMap<Transport>(this);
         return true;
     }
@@ -516,6 +663,9 @@ void Transport::UpdatePassengerPositions(std::set<WorldObject*>& passengers)
                 break;
             case TYPEID_GAMEOBJECT:
                 GetMap()->GameObjectRelocation(passenger->ToGameObject(), x, y, z, o, false);
+                break;
+            case TYPEID_DYNAMICOBJECT:
+                GetMap()->DynamicObjectRelocation(passenger->ToDynObject(), x, y, z, o);
                 break;
             default:
                 break;

@@ -295,13 +295,13 @@ public:
                     Timer = 1000;
                     if (Phase == 3)
                     {
-                        if (!Essence->IsAlive())
+                        if (Essence && !Essence->IsAlive())
                             DoCast(me, 7, true);
                         else return;
                     }
                     else
                     {
-                        if (Essence->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                        if (Essence && Essence->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                         {
                             MergeThreatList(Essence);
                             Essence->RemoveAllAuras();
@@ -312,31 +312,37 @@ public:
                     break;
                 case 4:
                     Timer = 1500;
-                    if (Essence->IsWithinDistInMap(me, 10))
+                    if (Essence)
                     {
-                        Essence->SetUInt32Value(UNIT_NPC_EMOTESTATE, 374); //rotate and disappear
-                        Timer = 2000;
-                        me->RemoveAurasDueToSpell(SPELL_SUBMERGE);
-                    }
-                    else
-                    {
-                        MergeThreatList(Essence);
-                        Essence->RemoveAllAuras();
-                        Essence->DeleteThreatList();
-                        Essence->GetMotionMaster()->MoveFollow(me, 0, 0);
-                        return;
+                        if (Essence->IsWithinDistInMap(me, 10))
+                        {
+                            Essence->SetUInt32Value(UNIT_NPC_EMOTESTATE, 374); //rotate and disappear
+                            Timer = 2000;
+                            me->RemoveAurasDueToSpell(SPELL_SUBMERGE);
+                        }
+                        else
+                        {
+                            MergeThreatList(Essence);
+                            Essence->RemoveAllAuras();
+                            Essence->DeleteThreatList();
+                            Essence->GetMotionMaster()->MoveFollow(me, 0, 0);
+                            return;
+                        }
                     }
                     break;
                 case 5:
-                    if (Phase == 1)
+                    if (Essence)
                     {
-                        Essence->AI()->Talk(SUFF_SAY_AFTER);
+                        if (Phase == 1)
+                        {
+                            Essence->AI()->Talk(SUFF_SAY_AFTER);
+                        }
+                        else
+                        {
+                            Essence->AI()->Talk(DESI_SAY_AFTER);
+                        }
+                        Essence->DespawnOrUnsummon();
                     }
-                    else
-                    {
-                        Essence->AI()->Talk(DESI_SAY_AFTER);
-                    }
-                    Essence->DespawnOrUnsummon();
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
                     EssenceGUID = 0;
                     SoulCount = 0;

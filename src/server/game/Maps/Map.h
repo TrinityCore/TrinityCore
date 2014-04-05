@@ -229,6 +229,18 @@ enum LevelRequirementVsMode
     LEVELREQUIREMENT_HEROIC = 70
 };
 
+struct ZoneDynamicInfo
+{
+    ZoneDynamicInfo() : MusicId(0), WeatherId(0), WeatherGrade(0.0f),
+        OverrideLightId(0), LightFadeInTime(0) { }
+
+    uint32 MusicId;
+    uint32 WeatherId;
+    float WeatherGrade;
+    uint32 OverrideLightId;
+    uint32 LightFadeInTime;
+};
+
 #if defined(__GNUC__)
 #pragma pack()
 #else
@@ -242,6 +254,8 @@ enum LevelRequirementVsMode
 #define MIN_UNLOAD_DELAY      1                             // immediate unload
 
 typedef std::map<uint32/*leaderDBGUID*/, CreatureGroup*>        CreatureGroupHolderType;
+
+typedef UNORDERED_MAP<uint32 /*zoneId*/, ZoneDynamicInfo> ZoneDynamicInfoMap;
 
 class Map : public GridRefManager<NGridType>
 {
@@ -280,6 +294,7 @@ class Map : public GridRefManager<NGridType>
         void PlayerRelocation(Player*, float x, float y, float z, float orientation);
         void CreatureRelocation(Creature* creature, float x, float y, float z, float ang, bool respawnRelocationOnFail = true);
         void GameObjectRelocation(GameObject* go, float x, float y, float z, float orientation, bool respawnRelocationOnFail = true);
+        void DynamicObjectRelocation(DynamicObject* go, float x, float y, float z, float orientation);
 
         template<class T, class CONTAINER> void Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor);
 
@@ -353,6 +368,7 @@ class Map : public GridRefManager<NGridType>
 
         void MoveAllCreaturesInMoveList();
         void MoveAllGameObjectsInMoveList();
+        void MoveAllDynamicObjectsInMoveList();
         void RemoveAllObjectsInRemoveList();
         virtual void RemoveAllPlayers();
 
@@ -489,6 +505,11 @@ class Map : public GridRefManager<NGridType>
 
         void SendInitTransports(Player* player);
         void SendRemoveTransports(Player* player);
+        void SendZoneDynamicInfo(Player* player);
+
+        void SetZoneMusic(uint32 zoneId, uint32 musicId);
+        void SetZoneWeather(uint32 zoneId, uint32 weatherId, float weatherGrade);
+        void SetZoneOverrideLight(uint32 zoneId, uint32 lightId, uint32 fadeInTime);
 
     private:
         void LoadMapAndVMap(int gx, int gy);
@@ -503,18 +524,24 @@ class Map : public GridRefManager<NGridType>
 
         bool CreatureCellRelocation(Creature* creature, Cell new_cell);
         bool GameObjectCellRelocation(GameObject* go, Cell new_cell);
+        bool DynamicObjectCellRelocation(DynamicObject* go, Cell new_cell);
 
         template<class T> void InitializeObject(T* obj);
         void AddCreatureToMoveList(Creature* c, float x, float y, float z, float ang);
         void RemoveCreatureFromMoveList(Creature* c);
         void AddGameObjectToMoveList(GameObject* go, float x, float y, float z, float ang);
         void RemoveGameObjectFromMoveList(GameObject* go);
+        void AddDynamicObjectToMoveList(DynamicObject* go, float x, float y, float z, float ang);
+        void RemoveDynamicObjectFromMoveList(DynamicObject* go);
 
         bool _creatureToMoveLock;
         std::vector<Creature*> _creaturesToMove;
 
         bool _gameObjectsToMoveLock;
         std::vector<GameObject*> _gameObjectsToMove;
+
+        bool _dynamicObjectsToMoveLock;
+        std::vector<DynamicObject*> _dynamicObjectsToMove;
 
         bool IsGridLoaded(const GridCoord &) const;
         void EnsureGridCreated(const GridCoord &);
@@ -627,6 +654,9 @@ class Map : public GridRefManager<NGridType>
 
         UNORDERED_MAP<uint32 /*dbGUID*/, time_t> _creatureRespawnTimes;
         UNORDERED_MAP<uint32 /*dbGUID*/, time_t> _goRespawnTimes;
+
+        ZoneDynamicInfoMap _zoneDynamicInfo;
+        uint32 _defaultLight;
 };
 
 enum InstanceResetMethod
