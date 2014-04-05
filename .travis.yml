@@ -17,14 +17,13 @@ git:
 
 before_install:
 # Install base
-    - mkdir cmake_inst
-    - cd cmake_inst
     - wget http://www.cmake.org/files/v2.8/cmake-2.8.12.2.tar.gz > /dev/null
     - tar xzf cmake-2.8.12.2.tar.gz > /dev/null
+    - cd cmake-2.8.12.2
     - cmake . 
     - make
     - make install
-    - cd ..
+    - cd ../
 
 # Install ACE
 # Get ACE
