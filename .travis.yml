@@ -16,6 +16,10 @@ git:
     depth: 1
 
 before_install:
+# Install base
+    - sudo apt-get install build-essential autoconf libtool gcc g++ make cmake git-core patch wget links zip unzip unrar
+    - sudo apt-get install openssl libssl-dev mysql-server mysql-client libmysqlclient15-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev
+
 # Install ACE
 # Get ACE
     - wget http://download.dre.vanderbilt.edu/previous_versions/ACE-6.0.3.tar.gz > /dev/null
