@@ -177,12 +177,13 @@ public:
         if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
             return false;
 
-        if (GameObject* pTrigger = player->FindNearestGameObject(GO_TRIGGER, 30.0f))
-        {
-            pTrigger->SetGoState(GO_STATE_READY);
-            player->SummonCreature(NPC_ULAG, 2390.26f, 336.47f, 40.01f, 2.26f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
-            return false;
-        }
+        if (!player->FindNearestCreature(NPC_ULAG, 50.0f))
+            if (GameObject* pTrigger = player->FindNearestGameObject(GO_TRIGGER, 30.0f))
+            {
+                pTrigger->SetGoState(GO_STATE_READY);
+                player->SummonCreature(NPC_ULAG, 2390.26f, 336.47f, 40.01f, 2.26f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
+                return false;
+            }
 
         return false;
     }
