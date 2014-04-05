@@ -107,7 +107,7 @@ class boss_majordomo : public CreatureScript
                     {
                         instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, me->GetEntry(), me);
                         me->setFaction(35);
-                        me->AI()->EnterEvadeMode();
+                        EnterEvadeMode();
                         Talk(SAY_DEFEAT);
                         _JustDied();
                         events.ScheduleEvent(EVENT_OUTRO_1, 32000);

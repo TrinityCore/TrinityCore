@@ -185,6 +185,8 @@ public:
     {
         npc_towering_infernalAI(Creature* creature) : ScriptedAI(creature)
         {
+            ImmolationTimer = 5000;
+            CheckTimer = 5000;
             instance = creature->GetInstanceScript();
             AnetheronGUID = instance->GetData64(DATA_ANETHERON);
         }

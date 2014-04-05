@@ -48,9 +48,9 @@ enum Spells
 
 enum Events
 {
-    EVENT_STREAM_OF_MACHINE_FLUID   = 0,
-    EVENT_JACKHAMMER                = 1,
-    EVENT_SHADOW_POWER              = 2
+    EVENT_STREAM_OF_MACHINE_FLUID   = 1,
+    EVENT_JACKHAMMER                = 2,
+    EVENT_SHADOW_POWER              = 3
 };
 
 class boss_gatewatcher_iron_hand : public CreatureScript

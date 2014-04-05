@@ -217,13 +217,13 @@ void Map::DeleteStateMachine()
 }
 
 Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode, Map* _parent):
-_creatureToMoveLock(false), _gameObjectsToMoveLock(false),
+_creatureToMoveLock(false), _gameObjectsToMoveLock(false), _dynamicObjectsToMoveLock(false),
 i_mapEntry(sMapStore.LookupEntry(id)), i_spawnMode(SpawnMode), i_InstanceId(InstanceId),
 m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
 m_activeNonPlayersIter(m_activeNonPlayers.end()), _transportsUpdateIter(_transports.end()),
 i_gridExpiry(expiry),
-i_scriptLock(false)
+i_scriptLock(false), _defaultLight(GetDefaultMapLight(id))
 {
     m_parentMap = (_parent ? _parent : this);
     for (unsigned int idx=0; idx < MAX_NUMBER_OF_GRIDS; ++idx)
@@ -274,6 +274,15 @@ void Map::AddToGrid(Creature* obj, Cell const& cell)
 
 template<>
 void Map::AddToGrid(GameObject* obj, Cell const& cell)
+{
+    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
+    grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
+
+    obj->SetCurrentCell(cell);
+}
+
+template<>
+void Map::AddToGrid(DynamicObject* obj, Cell const& cell)
 {
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
     grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
@@ -468,6 +477,7 @@ bool Map::AddPlayerToMap(Player* player)
 
     SendInitSelf(player);
     SendInitTransports(player);
+    SendZoneDynamicInfo(player);
 
     player->m_clientGUIDs.clear();
     player->UpdateObjectVisibility(false);
@@ -944,12 +954,45 @@ void Map::GameObjectRelocation(GameObject* go, float x, float y, float z, float 
     else
     {
         go->Relocate(x, y, z, orientation);
+        go->UpdateModelPosition();
         go->UpdateObjectVisibility(false);
         RemoveGameObjectFromMoveList(go);
     }
 
     old_cell = go->GetCurrentCell();
     integrity_check = Cell(go->GetPositionX(), go->GetPositionY());
+    ASSERT(integrity_check == old_cell);
+}
+
+void Map::DynamicObjectRelocation(DynamicObject* dynObj, float x, float y, float z, float orientation)
+{
+    Cell integrity_check(dynObj->GetPositionX(), dynObj->GetPositionY());
+    Cell old_cell = dynObj->GetCurrentCell();
+
+    ASSERT(integrity_check == old_cell);
+    Cell new_cell(x, y);
+
+    if (!getNGrid(new_cell.GridX(), new_cell.GridY()))
+        return;
+
+    // delay creature move for grid/cell to grid/cell moves
+    if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
+    {
+#ifdef TRINITY_DEBUG
+        TC_LOG_DEBUG("maps", "GameObject (GUID: %u) added to moving list from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", dynObj->GetGUIDLow(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+#endif
+        AddDynamicObjectToMoveList(dynObj, x, y, z, orientation);
+        // in diffcell/diffgrid case notifiers called at finishing move dynObj in Map::MoveAllGameObjectsInMoveList
+    }
+    else
+    {
+        dynObj->Relocate(x, y, z, orientation);
+        dynObj->UpdateObjectVisibility(false);
+        RemoveDynamicObjectFromMoveList(dynObj);
+    }
+
+    old_cell = dynObj->GetCurrentCell();
+    integrity_check = Cell(dynObj->GetPositionX(), dynObj->GetPositionY());
     ASSERT(integrity_check == old_cell);
 }
 
@@ -989,6 +1032,25 @@ void Map::RemoveGameObjectFromMoveList(GameObject* go)
 
     if (go->_moveState == MAP_OBJECT_CELL_MOVE_ACTIVE)
         go->_moveState = MAP_OBJECT_CELL_MOVE_INACTIVE;
+}
+
+void Map::AddDynamicObjectToMoveList(DynamicObject* dynObj, float x, float y, float z, float ang)
+{
+    if (_dynamicObjectsToMoveLock) //can this happen?
+        return;
+
+    if (dynObj->_moveState == MAP_OBJECT_CELL_MOVE_NONE)
+        _dynamicObjectsToMove.push_back(dynObj);
+    dynObj->SetNewCellPosition(x, y, z, ang);
+}
+
+void Map::RemoveDynamicObjectFromMoveList(DynamicObject* dynObj)
+{
+    if (_dynamicObjectsToMoveLock) //can this happen?
+        return;
+
+    if (dynObj->_moveState == MAP_OBJECT_CELL_MOVE_ACTIVE)
+        dynObj->_moveState = MAP_OBJECT_CELL_MOVE_INACTIVE;
 }
 
 void Map::MoveAllCreaturesInMoveList()
@@ -1071,6 +1133,7 @@ void Map::MoveAllGameObjectsInMoveList()
         {
             // update pos
             go->Relocate(go->_newPosition);
+            go->UpdateModelPosition();
             go->UpdateObjectVisibility(false);
         }
         else
@@ -1089,6 +1152,44 @@ void Map::MoveAllGameObjectsInMoveList()
     }
     _gameObjectsToMove.clear();
     _gameObjectsToMoveLock = false;
+}
+
+void Map::MoveAllDynamicObjectsInMoveList()
+{
+    _dynamicObjectsToMoveLock = true;
+    for (std::vector<DynamicObject*>::iterator itr = _dynamicObjectsToMove.begin(); itr != _dynamicObjectsToMove.end(); ++itr)
+    {
+        DynamicObject* dynObj = *itr;
+        if (dynObj->FindMap() != this) //transport is teleported to another map
+            continue;
+
+        if (dynObj->_moveState != MAP_OBJECT_CELL_MOVE_ACTIVE)
+        {
+            dynObj->_moveState = MAP_OBJECT_CELL_MOVE_NONE;
+            continue;
+        }
+
+        dynObj->_moveState = MAP_OBJECT_CELL_MOVE_NONE;
+        if (!dynObj->IsInWorld())
+            continue;
+
+        // do move or do move to respawn or remove creature if previous all fail
+        if (DynamicObjectCellRelocation(dynObj, Cell(dynObj->_newPosition.m_positionX, dynObj->_newPosition.m_positionY)))
+        {
+            // update pos
+            dynObj->Relocate(dynObj->_newPosition);
+            dynObj->UpdateObjectVisibility(false);
+        }
+        else
+        {
+#ifdef TRINITY_DEBUG
+            TC_LOG_DEBUG("maps", "DynamicObject (GUID: %u) cannot be moved to unloaded grid.", dynObj->GetGUIDLow());
+#endif
+        }
+    }
+
+    _dynamicObjectsToMove.clear();
+    _dynamicObjectsToMoveLock = false;
 }
 
 bool Map::CreatureCellRelocation(Creature* c, Cell new_cell)
@@ -1209,6 +1310,67 @@ bool Map::GameObjectCellRelocation(GameObject* go, Cell new_cell)
     // fail to move: normal GameObject attempt move to unloaded grid
     #ifdef TRINITY_DEBUG
         TC_LOG_DEBUG("maps", "GameObject (GUID: %u Entry: %u) attempted to move from grid[%u, %u]cell[%u, %u] to unloaded grid[%u, %u]cell[%u, %u].", go->GetGUIDLow(), go->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+    #endif
+    return false;
+}
+
+bool Map::DynamicObjectCellRelocation(DynamicObject* go, Cell new_cell)
+{
+    Cell const& old_cell = go->GetCurrentCell();
+    if (!old_cell.DiffGrid(new_cell))                       // in same grid
+    {
+        // if in same cell then none do
+        if (old_cell.DiffCell(new_cell))
+        {
+            #ifdef TRINITY_DEBUG
+                TC_LOG_DEBUG("maps", "DynamicObject (GUID: %u) moved in grid[%u, %u] from cell[%u, %u] to cell[%u, %u].", go->GetGUIDLow(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.CellX(), new_cell.CellY());
+            #endif
+
+            go->RemoveFromGrid();
+            AddToGrid(go, new_cell);
+        }
+        else
+        {
+            #ifdef TRINITY_DEBUG
+                TC_LOG_DEBUG("maps", "DynamicObject (GUID: %u) moved in same grid[%u, %u]cell[%u, %u].", go->GetGUIDLow(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY());
+            #endif
+        }
+
+        return true;
+    }
+
+    // in diff. grids but active GameObject
+    if (go->isActiveObject())
+    {
+        EnsureGridLoadedForActiveObject(new_cell, go);
+
+        #ifdef TRINITY_DEBUG
+            TC_LOG_DEBUG("maps", "Active DynamicObject (GUID: %u) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", go->GetGUIDLow(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+        #endif
+
+        go->RemoveFromGrid();
+        AddToGrid(go, new_cell);
+
+        return true;
+    }
+
+    // in diff. loaded grid normal GameObject
+    if (IsGridLoaded(GridCoord(new_cell.GridX(), new_cell.GridY())))
+    {
+        #ifdef TRINITY_DEBUG
+            TC_LOG_DEBUG("maps", "DynamicObject (GUID: %u) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", go->GetGUIDLow(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+        #endif
+
+        go->RemoveFromGrid();
+        EnsureGridCreated(GridCoord(new_cell.GridX(), new_cell.GridY()));
+        AddToGrid(go, new_cell);
+
+        return true;
+    }
+
+    // fail to move: normal GameObject attempt move to unloaded grid
+    #ifdef TRINITY_DEBUG
+        TC_LOG_DEBUG("maps", "DynamicObject (GUID: %u) attempted to move from grid[%u, %u]cell[%u, %u] to unloaded grid[%u, %u]cell[%u, %u].", go->GetGUIDLow(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
     #endif
     return false;
 }
@@ -2493,7 +2655,10 @@ void Map::RemoveAllObjectsInRemoveList()
             RemoveFromMap((AreaTrigger*)obj, true);
             break;
         case TYPEID_GAMEOBJECT:
-            RemoveFromMap((GameObject*)obj, true);
+            if (Transport* transport = obj->ToGameObject()->ToTransport())
+                RemoveFromMap(transport, true);
+            else
+                RemoveFromMap(obj->ToGameObject(), true);
             break;
         case TYPEID_UNIT:
             // in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
@@ -3024,18 +3189,11 @@ MapDifficulty const* Map::GetMapDifficulty() const
 
 uint32 InstanceMap::GetMaxPlayers() const
 {
-    if (MapDifficulty const* mapDiff = GetMapDifficulty())
-    {
-        if (mapDiff->maxPlayers || IsRegularDifficulty())    // Normal case (expect that regular difficulty always have correct maxplayers)
-            return mapDiff->maxPlayers;
-        else                                                // DBC have 0 maxplayers for heroic instances with expansion < 2
-        {                                                   // The heroic entry exists, so we don't have to check anything, simply return normal max players
-            MapDifficulty const* normalDiff = GetMapDifficultyData(GetId(), REGULAR_DIFFICULTY);
-            return normalDiff ? normalDiff->maxPlayers : 0;
-        }
-    }
-    else                                                    // I'd rather ASSERT(false);
-        return 0;
+    MapDifficulty const* mapDiff = GetMapDifficulty();
+    if (mapDiff && mapDiff->maxPlayers)
+        return mapDiff->maxPlayers;
+
+    return GetEntry()->maxPlayers;
 }
 
 uint32 InstanceMap::GetMaxResetDelay() const
@@ -3280,3 +3438,103 @@ time_t Map::GetLinkedRespawnTime(uint64 guid) const
     return time_t(0);
 }
 
+void Map::SendZoneDynamicInfo(Player* player)
+{
+    uint32 zoneId = GetZoneId(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+    ZoneDynamicInfoMap::const_iterator itr = _zoneDynamicInfo.find(zoneId);
+    if (itr == _zoneDynamicInfo.end())
+        return;
+
+    if (uint32 music = itr->second.MusicId)
+    {
+        WorldPacket data(SMSG_PLAY_MUSIC, 4);
+        data << uint32(music);
+        player->SendDirectMessage(&data);
+    }
+
+    if (uint32 weather = itr->second.WeatherId)
+    {
+        WorldPacket data(SMSG_WEATHER, 4 + 4 + 1);
+        data << uint32(weather);
+        data << float(itr->second.WeatherGrade);
+        data << uint8(0);
+        player->SendDirectMessage(&data);
+    }
+
+    if (uint32 overrideLight = itr->second.OverrideLightId)
+    {
+        WorldPacket data(SMSG_OVERRIDE_LIGHT, 4 + 4 + 1);
+        data << uint32(_defaultLight);
+        data << uint32(overrideLight);
+        data << uint32(itr->second.LightFadeInTime);
+        player->SendDirectMessage(&data);
+    }
+}
+
+void Map::SetZoneMusic(uint32 zoneId, uint32 musicId)
+{
+    if (_zoneDynamicInfo.find(zoneId) == _zoneDynamicInfo.end())
+        _zoneDynamicInfo.insert(ZoneDynamicInfoMap::value_type(zoneId, ZoneDynamicInfo()));
+
+    _zoneDynamicInfo[zoneId].MusicId = musicId;
+
+    Map::PlayerList const& players = GetPlayers();
+    if (!players.isEmpty())
+    {
+        WorldPacket data(SMSG_PLAY_MUSIC, 4);
+        data << uint32(musicId);
+
+        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            if (Player* player = itr->GetSource())
+                if (player->GetZoneId() == zoneId)
+                    player->SendDirectMessage(&data);
+    }
+}
+
+void Map::SetZoneWeather(uint32 zoneId, uint32 weatherId, float weatherGrade)
+{
+    if (_zoneDynamicInfo.find(zoneId) == _zoneDynamicInfo.end())
+        _zoneDynamicInfo.insert(ZoneDynamicInfoMap::value_type(zoneId, ZoneDynamicInfo()));
+
+    ZoneDynamicInfo& info = _zoneDynamicInfo[zoneId];
+    info.WeatherId = weatherId;
+    info.WeatherGrade = weatherGrade;
+    Map::PlayerList const& players = GetPlayers();
+
+    if (!players.isEmpty())
+    {
+        WorldPacket data(SMSG_WEATHER, 4 + 4 + 1);
+        data << uint32(weatherId);
+        data << float(weatherGrade);
+        data << uint8(0);
+
+        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            if (Player* player = itr->GetSource())
+                if (player->GetZoneId() == zoneId)
+                    player->SendDirectMessage(&data);
+    }
+}
+
+void Map::SetZoneOverrideLight(uint32 zoneId, uint32 lightId, uint32 fadeInTime)
+{
+    if (_zoneDynamicInfo.find(zoneId) == _zoneDynamicInfo.end())
+        _zoneDynamicInfo.insert(ZoneDynamicInfoMap::value_type(zoneId, ZoneDynamicInfo()));
+
+    ZoneDynamicInfo& info = _zoneDynamicInfo[zoneId];
+    info.OverrideLightId = lightId;
+    info.LightFadeInTime = fadeInTime;
+    Map::PlayerList const& players = GetPlayers();
+
+    if (!players.isEmpty())
+    {
+        WorldPacket data(SMSG_OVERRIDE_LIGHT, 4 + 4 + 1);
+        data << uint32(_defaultLight);
+        data << uint32(lightId);
+        data << uint32(fadeInTime);
+
+        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            if (Player* player = itr->GetSource())
+                if (player->GetZoneId() == zoneId)
+                    player->SendDirectMessage(&data);
+    }
+}

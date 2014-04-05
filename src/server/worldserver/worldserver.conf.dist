@@ -1114,6 +1114,15 @@ AccountInstancesPerHour = 5
 Account.PasswordChangeSecurity = 0
 
 #
+#   BirthdayTime
+#        Description: Set to date of project's birth in UNIX time. By default the date when TrinityCore was started (Thu Oct 2, 2008)
+#        Default:     1222964635
+#
+#
+
+BirthdayTime = 1222964635
+
+#
 ###################################################################################################
 
 ###################################################################################################

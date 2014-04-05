@@ -26,30 +26,22 @@
 enum Spells
 {
     SPELL_MIND_FLAY                               = 52586,
-    H_SPELL_MIND_FLAY                             = 59367,
     SPELL_CURSE_OF_FATIGUE                        = 52592,
-    H_SPELL_CURSE_OF_FATIGUE                      = 59368,
     SPELL_FRENZY                                  = 28747, //maybe 53361
     SPELL_SUMMON_SKITTERING_SWARMER               = 52438, //AOE Effect 140, maybe 52439
     SPELL_SUMMON_SKITTERING_SWARMER_1             = 52439, //Summon 3x 28735
-    H_SPELL_ACID_SPLASH                           = 59363,
     SPELL_ACID_SPLASH                             = 52446,
     SPELL_CHARGE                                  = 16979, //maybe is another spell
     SPELL_BACKSTAB                                = 52540,
     SPELL_SHADOW_BOLT                             = 52534,
-    H_SPELL_SHADOW_BOLT                           = 59357,
     SPELL_SHADOW_NOVA                             = 52535,
-    H_SPELL_SHADOW_NOVA                           = 59358,
     SPELL_STRIKE                                  = 52532,
     SPELL_CLEAVE                                  = 49806,
     SPELL_ENRAGE                                  = 52470,
     SPELL_INFECTED_BITE                           = 52469,
-    H_SPELL_INFECTED_BITE                         = 59364,
     SPELL_WEB_WRAP                                = 52086, //the spell is not working properly
     SPELL_BLINDING_WEBS                           = 52524,
-    H_SPELL_BLINDING_WEBS                         = 59365,
-    SPELL_POSION_SPRAY                            = 52493,
-    H_SPELL_POSION_SPRAY                          = 59366
+    SPELL_POSION_SPRAY                            = 52493
 };
 
 enum Mobs
@@ -69,7 +61,7 @@ enum Yells
     SAY_SEND_GROUP                                = 5
 };
 
-const Position SpawnPoint[] =
+Position const SpawnPoint[] =
 {
     { 566.164f, 682.087f, 769.079f, 2.21657f  },
     { 529.042f, 706.941f, 777.298f, 1.0821f   },
@@ -81,444 +73,573 @@ const Position SpawnPoint[] =
     { 552.625f, 706.408f, 777.177f, 3.4383f   }
 };
 
+enum Events
+{
+    EVENT_SUMMON                                  = 1,
+    EVENT_MIND_FLAY,
+    EVENT_CURSE_FATIGUE
+};
+
 class boss_krik_thir : public CreatureScript
 {
-public:
-    boss_krik_thir() : CreatureScript("boss_krik_thir") { }
+    public:
+        boss_krik_thir() : CreatureScript("boss_krik_thir") { }
 
-    struct boss_krik_thirAI : public ScriptedAI
-    {
-        boss_krik_thirAI(Creature* creature) : ScriptedAI(creature)
+        struct boss_krik_thirAI : public BossAI
         {
-            instance = creature->GetInstanceScript();
-        }
+            boss_krik_thirAI(Creature* creature) : BossAI(creature, DATA_KRIKTHIR_THE_GATEWATCHER) { }
 
-        InstanceScript* instance;
-
-        uint32 uiMindFlayTimer;
-        uint32 uiCurseFatigueTimer;
-        uint32 uiSummonTimer;
-
-        void Reset() OVERRIDE
-        {
-            uiMindFlayTimer = 15*IN_MILLISECONDS;
-            uiCurseFatigueTimer = 12*IN_MILLISECONDS;
-
-            instance->SetBossState(DATA_KRIKTHIR_THE_GATEWATCHER, NOT_STARTED);
-        }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE
-        {
-            Talk(SAY_AGGRO);
-            Summon();
-            uiSummonTimer = 15*IN_MILLISECONDS;
-
-            instance->SetBossState(DATA_KRIKTHIR_THE_GATEWATCHER, IN_PROGRESS);
-        }
-
-        void Summon()
-        {
-                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[0], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[0], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[1], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[1], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[2], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[2], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[3], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[3], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_INFECTIOR, SpawnPoint[4], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[4], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_INFECTIOR, SpawnPoint[5], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[5], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_INFECTIOR, SpawnPoint[6], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[6], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[7], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[7], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-        }
-
-        void UpdateAI(uint32 diff) OVERRIDE
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (uiSummonTimer <= diff)
+            void Reset() OVERRIDE
             {
+                _Reset();
+            }
+
+            void EnterCombat(Unit* /*who*/) OVERRIDE
+            {
+                Talk(SAY_AGGRO);
+                _EnterCombat();
                 Summon();
-                uiSummonTimer = 15*IN_MILLISECONDS;
-            } else uiSummonTimer -= diff;
 
-            if (uiMindFlayTimer <= diff)
+                events.ScheduleEvent(EVENT_SUMMON, 15000);
+                events.ScheduleEvent(EVENT_MIND_FLAY, 15000);
+                events.ScheduleEvent(EVENT_CURSE_FATIGUE, 12000);
+            }
+
+            void Summon()
             {
-                    DoCastVictim(SPELL_MIND_FLAY);
-                    uiMindFlayTimer = 15*IN_MILLISECONDS;
-                } else uiMindFlayTimer -= diff;
+                for (uint8 i = 0; i < 8; i++)
+                {
+                    me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[i], TEMPSUMMON_TIMED_DESPAWN, 25000);
+                    uint32 summon_entry = (i == 4 || i == 5 || i == 6) ? NPC_SKITTERING_INFECTIOR : NPC_SKITTERING_SWARMER;
+                    me->SummonCreature(summon_entry, SpawnPoint[i], TEMPSUMMON_TIMED_DESPAWN, 25000);
+                }
+            }
 
-            if (uiCurseFatigueTimer <= diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
-                //WowWiki say "Curse of Fatigue-Kirk'thir will cast Curse of Fatigue on 2-3 targets periodically."
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_CURSE_OF_FATIGUE);
-                if (Unit* tankTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
-                    DoCast(tankTarget, SPELL_CURSE_OF_FATIGUE);
+                if (!UpdateVictim())
+                    return;
 
-                uiCurseFatigueTimer = 10*IN_MILLISECONDS;
-            } else uiCurseFatigueTimer -= diff;
+                events.Update(diff);
 
-            if (!me->HasAura(SPELL_FRENZY) && HealthBelowPct(10))
-                DoCast(me, SPELL_FRENZY, true);
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
-            DoMeleeAttackIfReady();
-        }
-        void JustDied(Unit* /*killer*/) OVERRIDE
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SUMMON:
+                            Summon();
+                            events.ScheduleEvent(EVENT_SUMMON, 15000);
+                            break;
+                        case EVENT_MIND_FLAY:
+                            DoCastVictim(SPELL_MIND_FLAY);
+                            events.ScheduleEvent(EVENT_MIND_FLAY, 15000);
+                            break;
+                        case EVENT_CURSE_FATIGUE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                DoCast(target, SPELL_CURSE_OF_FATIGUE);
+                            events.ScheduleEvent(EVENT_CURSE_FATIGUE, 10000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                if (!me->HasAura(SPELL_FRENZY) && HealthBelowPct(10))
+                    DoCast(me, SPELL_FRENZY, true);
+
+                DoMeleeAttackIfReady();
+            }
+
+            void JustDied(Unit* /*killer*/) OVERRIDE
+            {
+                Talk(SAY_DEATH);
+                _JustDied();
+            }
+
+            void KilledUnit(Unit* victim) OVERRIDE
+            {
+                if (victim->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                Talk(SAY_SLAY);
+            }
+
+            void JustSummoned(Creature* summoned) OVERRIDE
+            {
+                summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            Talk(SAY_DEATH);
-
-            instance->SetBossState(DATA_KRIKTHIR_THE_GATEWATCHER, DONE);
+            return GetAzjolNerubAI<boss_krik_thirAI>(creature);
         }
-
-        void KilledUnit(Unit* victim) OVERRIDE
-        {
-            if (victim->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            Talk(SAY_SLAY);
-        }
-
-        void JustSummoned(Creature* summoned) OVERRIDE
-        {
-            summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return GetInstanceAI<boss_krik_thirAI>(creature);
-    }
 };
 
 class npc_skittering_infector : public CreatureScript
 {
-public:
-    npc_skittering_infector() : CreatureScript("npc_skittering_infector") { }
+    public:
+        npc_skittering_infector() : CreatureScript("npc_skittering_infector") { }
 
-    struct npc_skittering_infectorAI : public ScriptedAI
-    {
-        npc_skittering_infectorAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        struct npc_skittering_infectorAI : public ScriptedAI
         {
-            //The spell is not working propperly
-            DoCastVictim(SPELL_ACID_SPLASH, true);
-        }
-    };
+            npc_skittering_infectorAI(Creature* creature) : ScriptedAI(creature) { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_skittering_infectorAI(creature);
-    }
+            void JustDied(Unit* /*killer*/) OVERRIDE
+            {
+                DoCastAOE(SPELL_ACID_SPLASH);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        {
+            return GetAzjolNerubAI<npc_skittering_infectorAI>(creature);
+        }
+};
+
+enum TrashEvents
+{
+    // Anubar Skrimisher
+    EVENT_ANUBAR_CHARGE = 1,
+    EVENT_BACKSTAB,
+
+    // Anubar Shadowcaster
+    EVENT_SHADOW_BOLT,
+    EVENT_SHADOW_NOVA,
+
+    // Anubar Warrior
+    EVENT_STRIKE,
+    EVENT_CLEAVE,
+
+    // Watcher Gashra
+    EVENT_WEB_WRAP_GASHRA,
+    EVENT_INFECTED_BITE_GASHRA,
+
+    // Watcher Narjil
+    EVENT_WEB_WRAP_NARJIL,
+    EVENT_INFECTED_BITE_NARJIL,
+    EVENT_BINDING_WEBS,
+
+    // Watcher Silthik
+    EVENT_WEB_WRAP_SILTHIK,
+    EVENT_INFECTED_BITE_SILTHIK,
+    EVENT_POISON_SPRAY
 };
 
 class npc_anub_ar_skirmisher : public CreatureScript
 {
-public:
-    npc_anub_ar_skirmisher() : CreatureScript("npc_anub_ar_skirmisher") { }
+    public:
+        npc_anub_ar_skirmisher() : CreatureScript("npc_anub_ar_skirmisher") { }
 
-    struct npc_anub_ar_skirmisherAI : public ScriptedAI
-    {
-        npc_anub_ar_skirmisherAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 uiChargeTimer;
-        uint32 uiBackstabTimer;
-
-        void Reset() OVERRIDE
+        struct npc_anub_ar_skirmisherAI : public ScriptedAI
         {
-            uiChargeTimer   = 11*IN_MILLISECONDS;
-            uiBackstabTimer = 7*IN_MILLISECONDS;
-        }
+            npc_anub_ar_skirmisherAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void UpdateAI(uint32 diff) OVERRIDE
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (uiChargeTimer <= diff)
+            void Reset() OVERRIDE
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                events.Reset();
+            }
+
+            void EnterCombat(Unit* /*who*/) OVERRIDE
+            {
+                events.ScheduleEvent(EVENT_ANUBAR_CHARGE, 11000);
+                events.ScheduleEvent(EVENT_BACKSTAB, 7000);
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    DoResetThreat();
-                    me->AddThreat(target, 1.0f);
-                    DoCast(target, SPELL_CHARGE, true);
+                    switch (eventId)
+                    {
+                        case EVENT_ANUBAR_CHARGE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            {
+                                DoResetThreat();
+                                me->AddThreat(target, 1.0f);
+                                DoCast(target, SPELL_CHARGE, true);
+                            }
+                            events.ScheduleEvent(EVENT_ANUBAR_CHARGE, 15000);
+                            break;
+                        case EVENT_BACKSTAB:
+                            DoCastVictim(SPELL_BACKSTAB);
+                            events.ScheduleEvent(EVENT_BACKSTAB, 12000);
+                            break;
+                        default:
+                            break;
+                    }
                 }
-                uiChargeTimer = 15*IN_MILLISECONDS;
-            } else uiChargeTimer -= diff;
 
-            if (uiBackstabTimer <= diff)
-            {
-                DoCastVictim(SPELL_BACKSTAB);
-                uiBackstabTimer = 12*IN_MILLISECONDS;
-            } else uiBackstabTimer -= diff;
+                DoMeleeAttackIfReady();
+            }
 
-            DoMeleeAttackIfReady();
+            private:
+                EventMap events;
+        };
 
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        {
+            return GetAzjolNerubAI<npc_anub_ar_skirmisherAI>(creature);
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_anub_ar_skirmisherAI(creature);
-    }
 };
 
 class npc_anub_ar_shadowcaster : public CreatureScript
 {
-public:
-    npc_anub_ar_shadowcaster() : CreatureScript("npc_anub_ar_shadowcaster") { }
+    public:
+        npc_anub_ar_shadowcaster() : CreatureScript("npc_anub_ar_shadowcaster") { }
 
-    struct npc_anub_ar_shadowcasterAI : public ScriptedAI
-    {
-        npc_anub_ar_shadowcasterAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 uiShadowBoltTimer;
-        uint32 uiShadowNovaTimer;
-
-        void Reset() OVERRIDE
+        struct npc_anub_ar_shadowcasterAI : public ScriptedAI
         {
-            uiShadowBoltTimer = 6*IN_MILLISECONDS;
-            uiShadowNovaTimer = 15*IN_MILLISECONDS;
-        }
+            npc_anub_ar_shadowcasterAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+            void Reset() OVERRIDE
+            {
+                events.Reset();
+            }
+
+            void EnterCombat(Unit* /*who*/) OVERRIDE
+            {
+                events.ScheduleEvent(EVENT_SHADOW_BOLT, 6000);
+                events.ScheduleEvent(EVENT_SHADOW_NOVA, 15000);
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SHADOW_BOLT:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                DoCast(target, SPELL_SHADOW_BOLT, true);
+                            events.ScheduleEvent(EVENT_SHADOW_BOLT, 15000);
+                            break;
+                        case EVENT_SHADOW_NOVA:
+                            DoCastVictim(SPELL_SHADOW_NOVA, true);
+                            events.ScheduleEvent(EVENT_SHADOW_NOVA, 17000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+            private:
+                EventMap events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            if (!UpdateVictim())
-                return;
-
-            if (uiShadowBoltTimer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                     DoCast(target, SPELL_SHADOW_BOLT, true);
-                uiShadowBoltTimer = 15*IN_MILLISECONDS;
-            } else uiShadowBoltTimer -= diff;
-
-            if (uiShadowNovaTimer <= diff)
-            {
-                DoCastVictim(SPELL_SHADOW_NOVA, true);
-                uiShadowNovaTimer = 17*IN_MILLISECONDS;
-            } else uiShadowNovaTimer -= diff;
-
-            DoMeleeAttackIfReady();
+            return GetAzjolNerubAI<npc_anub_ar_shadowcasterAI>(creature);
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_anub_ar_shadowcasterAI(creature);
-    }
 };
 
 class npc_anub_ar_warrior : public CreatureScript
 {
-public:
-    npc_anub_ar_warrior() : CreatureScript("npc_anub_ar_warrior") { }
+    public:
+        npc_anub_ar_warrior() : CreatureScript("npc_anub_ar_warrior") { }
 
-    struct npc_anub_ar_warriorAI : public ScriptedAI
-    {
-        npc_anub_ar_warriorAI(Creature* creature) : ScriptedAI(creature){ }
-
-        uint32 uiCleaveTimer;
-        uint32 uiStrikeTimer;
-
-        void Reset() OVERRIDE
+        struct npc_anub_ar_warriorAI : public ScriptedAI
         {
-            uiCleaveTimer = 11*IN_MILLISECONDS;
-            uiStrikeTimer = 6*IN_MILLISECONDS;
-        }
+            npc_anub_ar_warriorAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+            void Reset() OVERRIDE
+            {
+                events.Reset();
+            }
+
+            void EnterCombat(Unit* /*who*/) OVERRIDE
+            {
+                events.ScheduleEvent(EVENT_CLEAVE, 11000);
+                events.ScheduleEvent(EVENT_STRIKE, 6000);
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_CLEAVE:
+                            DoCastVictim(SPELL_STRIKE, true);
+                            events.ScheduleEvent(EVENT_CLEAVE, 15000);
+                            break;
+                        case EVENT_STRIKE:
+                            DoCastVictim(SPELL_CLEAVE, true);
+                            events.ScheduleEvent(EVENT_STRIKE, 17000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+            private:
+                EventMap events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            if (!UpdateVictim())
-                return;
-
-            if (uiStrikeTimer <= diff)
-            {
-                DoCastVictim(SPELL_STRIKE, true);
-                uiStrikeTimer = 15*IN_MILLISECONDS;
-            } else uiStrikeTimer -= diff;
-
-            if (uiCleaveTimer <= diff)
-            {
-                DoCastVictim(SPELL_CLEAVE, true);
-                uiCleaveTimer = 17*IN_MILLISECONDS;
-            } else uiCleaveTimer -= diff;
-
-            DoMeleeAttackIfReady();
+            return GetAzjolNerubAI<npc_anub_ar_warriorAI>(creature);
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_anub_ar_warriorAI(creature);
-    }
 };
 
 class npc_watcher_gashra : public CreatureScript
 {
-public:
-    npc_watcher_gashra() : CreatureScript("npc_watcher_gashra") { }
+    public:
+        npc_watcher_gashra() : CreatureScript("npc_watcher_gashra") { }
 
-    struct npc_watcher_gashraAI : public ScriptedAI
-    {
-        npc_watcher_gashraAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 uiWebWrapTimer;
-        uint32 uiInfectedBiteTimer;
-
-        void Reset() OVERRIDE
+        struct npc_watcher_gashraAI : public ScriptedAI
         {
-            uiWebWrapTimer      = 11*IN_MILLISECONDS;
-            uiInfectedBiteTimer = 4*IN_MILLISECONDS;
-        }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE
-        {
-            DoCast(me, SPELL_ENRAGE, true);
-        }
-
-        void UpdateAI(uint32 diff) OVERRIDE
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (uiWebWrapTimer <= diff)
+            npc_watcher_gashraAI(Creature* creature) : ScriptedAI(creature)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_WEB_WRAP, true);
-                uiWebWrapTimer = 17*IN_MILLISECONDS;
-            } else uiWebWrapTimer -= diff;
+                _instance = creature->GetInstanceScript();
+            }
 
-            if (uiInfectedBiteTimer <= diff)
+            void Reset() OVERRIDE
             {
-                DoCastVictim(SPELL_INFECTED_BITE, true);
-                uiInfectedBiteTimer = 15*IN_MILLISECONDS;
-            } else uiInfectedBiteTimer -= diff;
+                _events.Reset();
+            }
 
-            DoMeleeAttackIfReady();
+            void EnterCombat(Unit* /*who*/) OVERRIDE
+            {
+                DoCast(me, SPELL_ENRAGE, true);
+                _events.ScheduleEvent(EVENT_WEB_WRAP_GASHRA, 11000);
+                _events.ScheduleEvent(EVENT_INFECTED_BITE_GASHRA, 4000);
+            }
+            
+            void JustDied(Unit* /*killer*/) OVERRIDE
+            {
+                Creature* krikthir = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_KRIKTHIR_THE_GATEWATCHER));
+                if (krikthir && krikthir->IsAlive())
+                    krikthir->AI()->Talk(SAY_PREFIGHT);
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (!UpdateVictim())
+                    return;
+
+                _events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_WEB_WRAP_GASHRA:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                DoCast(target, SPELL_WEB_WRAP, true);
+                            _events.ScheduleEvent(EVENT_WEB_WRAP_GASHRA, 17000);
+                            break;
+                        case EVENT_INFECTED_BITE_GASHRA:
+                            DoCastVictim(SPELL_INFECTED_BITE, true);
+                            _events.ScheduleEvent(EVENT_INFECTED_BITE_GASHRA, 15000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+            private:
+                EventMap _events;
+                InstanceScript* _instance;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        {
+            return GetAzjolNerubAI<npc_watcher_gashraAI>(creature);
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_watcher_gashraAI(creature);
-    }
 };
 
 class npc_watcher_narjil : public CreatureScript
 {
-public:
-    npc_watcher_narjil() : CreatureScript("npc_watcher_narjil") { }
+    public:
+        npc_watcher_narjil() : CreatureScript("npc_watcher_narjil") { }
 
-    struct npc_watcher_narjilAI : public ScriptedAI
-    {
-        npc_watcher_narjilAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 uiWebWrapTimer;
-        uint32 uiInfectedBiteTimer;
-        uint32 uiBindingWebsTimer;
-
-        void Reset() OVERRIDE
+        struct npc_watcher_narjilAI : public ScriptedAI
         {
-            uiWebWrapTimer      = 11*IN_MILLISECONDS;
-            uiInfectedBiteTimer = 4*IN_MILLISECONDS;
-            uiBindingWebsTimer = 17*IN_MILLISECONDS;
-        }
+            npc_watcher_narjilAI(Creature* creature) : ScriptedAI(creature)
+            {
+                _instance = creature->GetInstanceScript();
+            }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+            void Reset() OVERRIDE
+            {
+                _events.Reset();
+            }
+
+            void EnterCombat(Unit* /*who*/) OVERRIDE
+            {
+                _events.ScheduleEvent(EVENT_WEB_WRAP_NARJIL, 11000);
+                _events.ScheduleEvent(EVENT_INFECTED_BITE_NARJIL, 4000);
+                _events.ScheduleEvent(EVENT_BINDING_WEBS, 17000);
+            }
+            
+            void JustDied(Unit* /*killer*/) OVERRIDE
+            {
+                Creature* krikthir = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_KRIKTHIR_THE_GATEWATCHER));
+                if (krikthir && krikthir->IsAlive())
+                    krikthir->AI()->Talk(SAY_PREFIGHT);
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (!UpdateVictim())
+                    return;
+
+                _events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_WEB_WRAP_NARJIL:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                DoCast(target, SPELL_WEB_WRAP, true);
+                            _events.ScheduleEvent(EVENT_WEB_WRAP_NARJIL, 15000);
+                            break;
+                        case EVENT_INFECTED_BITE_NARJIL:
+                            DoCastVictim(SPELL_INFECTED_BITE, true);
+                            _events.ScheduleEvent(EVENT_INFECTED_BITE_NARJIL, 11000);
+                            break;
+                        case EVENT_BINDING_WEBS:
+                            DoCastVictim(SPELL_BLINDING_WEBS, true);
+                            _events.ScheduleEvent(EVENT_BINDING_WEBS, 17000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+            private:
+                EventMap _events;
+                InstanceScript* _instance;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            if (!UpdateVictim())
-                return;
-
-            if (uiWebWrapTimer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_WEB_WRAP, true);
-                uiWebWrapTimer = 15*IN_MILLISECONDS;
-            } else uiWebWrapTimer -= diff;
-
-            if (uiInfectedBiteTimer <= diff)
-            {
-                DoCastVictim(SPELL_INFECTED_BITE, true);
-                uiInfectedBiteTimer = 11*IN_MILLISECONDS;
-            } else uiInfectedBiteTimer -= diff;
-
-            if (uiBindingWebsTimer <= diff)
-            {
-                DoCastVictim(SPELL_BLINDING_WEBS, true);
-                uiBindingWebsTimer = 17*IN_MILLISECONDS;
-            } else uiBindingWebsTimer -= diff;
-
-            DoMeleeAttackIfReady();
+            return GetAzjolNerubAI<npc_watcher_narjilAI>(creature);
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_watcher_narjilAI(creature);
-    }
 };
 
 class npc_watcher_silthik : public CreatureScript
 {
-public:
-    npc_watcher_silthik() : CreatureScript("npc_watcher_silthik") { }
+    public:
+        npc_watcher_silthik() : CreatureScript("npc_watcher_silthik") { }
 
-    struct npc_watcher_silthikAI : public ScriptedAI
-    {
-        npc_watcher_silthikAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 uiWebWrapTimer;
-        uint32 uiInfectedBiteTimer;
-        uint32 uiPoisonSprayTimer;
-
-        void Reset() OVERRIDE
+        struct npc_watcher_silthikAI : public ScriptedAI
         {
-            uiWebWrapTimer      = 11*IN_MILLISECONDS;
-            uiInfectedBiteTimer = 4*IN_MILLISECONDS;
-            uiPoisonSprayTimer  = 15*IN_MILLISECONDS;
-        }
+            npc_watcher_silthikAI(Creature* creature) : ScriptedAI(creature)
+            {
+                _instance = creature->GetInstanceScript();
+            }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+            void Reset() OVERRIDE
+            {
+                _events.Reset();
+            }
+
+            void EnterCombat(Unit* /*who*/) OVERRIDE
+            {
+                _events.ScheduleEvent(EVENT_WEB_WRAP_SILTHIK, 11000);
+                _events.ScheduleEvent(EVENT_INFECTED_BITE_SILTHIK, 4000);
+                _events.ScheduleEvent(EVENT_POISON_SPRAY, 15000);
+            }
+
+            void JustDied(Unit* /*killer*/) OVERRIDE
+            {
+                Creature* krikthir = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_KRIKTHIR_THE_GATEWATCHER));
+                if (krikthir && krikthir->IsAlive())
+                    krikthir->AI()->Talk(SAY_PREFIGHT);
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (!UpdateVictim())
+                    return;
+                    
+                _events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_WEB_WRAP_SILTHIK:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                DoCast(target, SPELL_WEB_WRAP, true);
+                            _events.ScheduleEvent(EVENT_WEB_WRAP_SILTHIK, 15000);
+                            break;
+                        case EVENT_INFECTED_BITE_SILTHIK:
+                            DoCastVictim(SPELL_INFECTED_BITE, true);
+                            _events.ScheduleEvent(EVENT_INFECTED_BITE_SILTHIK, 11000);
+                            break;
+                        case EVENT_POISON_SPRAY:
+                            DoCastVictim(SPELL_POSION_SPRAY, true);
+                            _events.ScheduleEvent(EVENT_POISON_SPRAY, 17000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+            private:
+                EventMap _events;
+                InstanceScript* _instance;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            if (!UpdateVictim())
-                return;
-
-            if (uiWebWrapTimer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_WEB_WRAP, true);
-
-                uiWebWrapTimer = 15*IN_MILLISECONDS;
-            } else uiWebWrapTimer -= diff;
-
-            if (uiInfectedBiteTimer <= diff)
-            {
-                DoCastVictim(SPELL_INFECTED_BITE, true);
-                uiInfectedBiteTimer = 15*IN_MILLISECONDS;
-            } else uiInfectedBiteTimer -= diff;
-
-            if (uiPoisonSprayTimer <= diff)
-            {
-                DoCastVictim(SPELL_POSION_SPRAY, true);
-                uiPoisonSprayTimer = 17*IN_MILLISECONDS;
-            } else uiPoisonSprayTimer -= diff;
-
-            DoMeleeAttackIfReady();
-
+            return GetAzjolNerubAI<npc_watcher_silthikAI>(creature);
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_watcher_silthikAI(creature);
-    }
 };
 
 class achievement_watch_him_die : public AchievementCriteriaScript

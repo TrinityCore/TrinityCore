@@ -435,7 +435,7 @@ class boss_alar : public CreatureScript
                         Unit* target = NULL;
                         target = me->SelectNearestTargetInAttackDistance(5);
                         if (target)
-                            me->AI()->AttackStart(target);
+                            AttackStart(target);
                         else
                         {
                             DoCast(me, SPELL_FLAME_BUFFET, true);

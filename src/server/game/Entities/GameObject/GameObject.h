@@ -833,6 +833,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
 
         float GetInteractionDistance() const;
 
+        void UpdateModelPosition();
+
     protected:
         bool AIM_Initialize();
         void UpdateModel();                                 // updates model in case displayId were changed

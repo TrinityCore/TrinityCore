@@ -47,12 +47,6 @@ namespace Movement
     float computeFallTime(float path_length, bool isSafeFall);
     float computeFallElevation(float t_passed, bool isSafeFall, float start_velocity = 0.0f);
 
-#ifndef static_assert
-    #define CONCAT(x, y) CONCAT1 (x, y)
-    #define CONCAT1(x, y) x##y
-    #define static_assert(expr, msg) typedef char CONCAT(static_assert_failed_at_line_, __LINE__) [(expr) ? 1 : -1]
-#endif
-
     template<class T, T limit>
     class counter
     {

@@ -7,36 +7,45 @@ extern "C" {
 #include <limits.h>
 #include <strings.h>
 
-#define	JEMALLOC_VERSION "3.3.1-0-g9ef9d9e8c271cdf14f664b871a8f98c827714784"
+#define	JEMALLOC_VERSION "3.5.1-0-g7709a64c59daf0b1f938be49472fcc499e1bd136"
 #define	JEMALLOC_VERSION_MAJOR 3
-#define	JEMALLOC_VERSION_MINOR 3
+#define	JEMALLOC_VERSION_MINOR 5
 #define	JEMALLOC_VERSION_BUGFIX 1
 #define	JEMALLOC_VERSION_NREV 0
-#define	JEMALLOC_VERSION_GID "9ef9d9e8c271cdf14f664b871a8f98c827714784"
+#define	JEMALLOC_VERSION_GID "7709a64c59daf0b1f938be49472fcc499e1bd136"
 
-#include "jemalloc_defs.h"
+#  define MALLOCX_LG_ALIGN(la)	(la)
+#  if LG_SIZEOF_PTR == 2
+#    define MALLOCX_ALIGN(a)	(ffs(a)-1)
+#  else
+#    define MALLOCX_ALIGN(a)						\
+	 ((a < (size_t)INT_MAX) ? ffs(a)-1 : ffs(a>>32)+31)
+#  endif
+#  define MALLOCX_ZERO	((int)0x40)
+/* Bias arena index bits so that 0 encodes "MALLOCX_ARENA() unspecified". */
+#  define MALLOCX_ARENA(a)	((int)(((a)+1) << 8))
 
 #ifdef JEMALLOC_EXPERIMENTAL
-#define	ALLOCM_LG_ALIGN(la)	(la)
-#if LG_SIZEOF_PTR == 2
-#define	ALLOCM_ALIGN(a)	(ffs(a)-1)
-#else
-#define	ALLOCM_ALIGN(a)	((a < (size_t)INT_MAX) ? ffs(a)-1 : ffs(a>>32)+31)
-#endif
-#define	ALLOCM_ZERO	((int)0x40)
-#define	ALLOCM_NO_MOVE	((int)0x80)
+#  define ALLOCM_LG_ALIGN(la)	(la)
+#  if LG_SIZEOF_PTR == 2
+#    define ALLOCM_ALIGN(a)	(ffs(a)-1)
+#  else
+#    define ALLOCM_ALIGN(a)						\
+	 ((a < (size_t)INT_MAX) ? ffs(a)-1 : ffs(a>>32)+31)
+#  endif
+#  define ALLOCM_ZERO	((int)0x40)
+#  define ALLOCM_NO_MOVE	((int)0x80)
 /* Bias arena index bits so that 0 encodes "ALLOCM_ARENA() unspecified". */
-#define	ALLOCM_ARENA(a)	((int)(((a)+1) << 8))
-
-#define	ALLOCM_SUCCESS		0
-#define	ALLOCM_ERR_OOM		1
-#define	ALLOCM_ERR_NOT_MOVED	2
+#  define ALLOCM_ARENA(a)	((int)(((a)+1) << 8))
+#  define ALLOCM_SUCCESS	0
+#  define ALLOCM_ERR_OOM	1
+#  define ALLOCM_ERR_NOT_MOVED	2
 #endif
 
 /*
- * The je_ prefix on the following public symbol declarations is an artifact of
- * namespace management, and should be omitted in application code unless
- * JEMALLOC_NO_DEMANGLE is defined (see below).
+ * The je_ prefix on the following public symbol declarations is an artifact
+ * of namespace management, and should be omitted in application code unless
+ * JEMALLOC_NO_DEMANGLE is defined (see jemalloc_mangle.h).
  */
 extern JEMALLOC_EXPORT const char	*je_malloc_conf;
 extern JEMALLOC_EXPORT void		(*je_malloc_message)(void *cbopaque,
@@ -52,6 +61,25 @@ JEMALLOC_EXPORT void	*je_aligned_alloc(size_t alignment, size_t size)
 JEMALLOC_EXPORT void	*je_realloc(void *ptr, size_t size);
 JEMALLOC_EXPORT void	je_free(void *ptr);
 
+JEMALLOC_EXPORT void	*je_mallocx(size_t size, int flags);
+JEMALLOC_EXPORT void	*je_rallocx(void *ptr, size_t size, int flags);
+JEMALLOC_EXPORT size_t	je_xallocx(void *ptr, size_t size, size_t extra,
+    int flags);
+JEMALLOC_EXPORT size_t	je_sallocx(const void *ptr, int flags);
+JEMALLOC_EXPORT void	je_dallocx(void *ptr, int flags);
+JEMALLOC_EXPORT size_t	je_nallocx(size_t size, int flags);
+
+JEMALLOC_EXPORT int	je_mallctl(const char *name, void *oldp,
+    size_t *oldlenp, void *newp, size_t newlen);
+JEMALLOC_EXPORT int	je_mallctlnametomib(const char *name, size_t *mibp,
+    size_t *miblenp);
+JEMALLOC_EXPORT int	je_mallctlbymib(const size_t *mib, size_t miblen,
+    void *oldp, size_t *oldlenp, void *newp, size_t newlen);
+JEMALLOC_EXPORT void	je_malloc_stats_print(void (*write_cb)(void *,
+    const char *), void *je_cbopaque, const char *opts);
+JEMALLOC_EXPORT size_t	je_malloc_usable_size(
+    JEMALLOC_USABLE_SIZE_CONST void *ptr);
+
 #ifdef JEMALLOC_OVERRIDE_MEMALIGN
 JEMALLOC_EXPORT void *	je_memalign(size_t alignment, size_t size)
     JEMALLOC_ATTR(malloc);
@@ -60,17 +88,6 @@ JEMALLOC_EXPORT void *	je_memalign(size_t alignment, size_t size)
 #ifdef JEMALLOC_OVERRIDE_VALLOC
 JEMALLOC_EXPORT void *	je_valloc(size_t size) JEMALLOC_ATTR(malloc);
 #endif
-
-JEMALLOC_EXPORT size_t	je_malloc_usable_size(
-    JEMALLOC_USABLE_SIZE_CONST void *ptr);
-JEMALLOC_EXPORT void	je_malloc_stats_print(void (*write_cb)(void *,
-    const char *), void *je_cbopaque, const char *opts);
-JEMALLOC_EXPORT int	je_mallctl(const char *name, void *oldp,
-    size_t *oldlenp, void *newp, size_t newlen);
-JEMALLOC_EXPORT int	je_mallctlnametomib(const char *name, size_t *mibp,
-    size_t *miblenp);
-JEMALLOC_EXPORT int	je_mallctlbymib(const size_t *mib, size_t miblen,
-    void *oldp, size_t *oldlenp, void *newp, size_t newlen);
 
 #ifdef JEMALLOC_EXPERIMENTAL
 JEMALLOC_EXPORT int	je_allocm(void **ptr, size_t *rsize, size_t size,
@@ -92,63 +109,71 @@ JEMALLOC_EXPORT int	je_nallocm(size_t *rsize, size_t size, int flags);
  * --with-mangling and/or --with-jemalloc-prefix configuration settings.
  */
 #ifdef JEMALLOC_MANGLE
-#ifndef JEMALLOC_NO_DEMANGLE
-#define	JEMALLOC_NO_DEMANGLE
-#endif
-#define	malloc_conf je_malloc_conf
-#define	malloc_message je_malloc_message
-#define	malloc je_malloc
-#define	calloc je_calloc
-#define	posix_memalign je_posix_memalign
-#define	aligned_alloc je_aligned_alloc
-#define	realloc je_realloc
-#define	free je_free
-#define	malloc_usable_size je_malloc_usable_size
-#define	malloc_stats_print je_malloc_stats_print
-#define	mallctl je_mallctl
-#define	mallctlnametomib je_mallctlnametomib
-#define	mallctlbymib je_mallctlbymib
-#define	memalign je_memalign
-#define	valloc je_valloc
-#ifdef JEMALLOC_EXPERIMENTAL
-#define	allocm je_allocm
-#define	rallocm je_rallocm
-#define	sallocm je_sallocm
-#define	dallocm je_dallocm
-#define	nallocm je_nallocm
-#endif
+#  ifndef JEMALLOC_NO_DEMANGLE
+#    define JEMALLOC_NO_DEMANGLE
+#  endif
+#  define malloc_conf je_malloc_conf
+#  define malloc_message je_malloc_message
+#  define malloc je_malloc
+#  define calloc je_calloc
+#  define posix_memalign je_posix_memalign
+#  define aligned_alloc je_aligned_alloc
+#  define realloc je_realloc
+#  define free je_free
+#  define mallocx je_mallocx
+#  define rallocx je_rallocx
+#  define xallocx je_xallocx
+#  define sallocx je_sallocx
+#  define dallocx je_dallocx
+#  define nallocx je_nallocx
+#  define mallctl je_mallctl
+#  define mallctlnametomib je_mallctlnametomib
+#  define mallctlbymib je_mallctlbymib
+#  define malloc_stats_print je_malloc_stats_print
+#  define malloc_usable_size je_malloc_usable_size
+#  define memalign je_memalign
+#  define valloc je_valloc
+#  define allocm je_allocm
+#  define dallocm je_dallocm
+#  define nallocm je_nallocm
+#  define rallocm je_rallocm
+#  define sallocm je_sallocm
 #endif
 
 /*
- * The je_* macros can be used as stable alternative names for the public
- * jemalloc API if JEMALLOC_NO_DEMANGLE is defined.  This is primarily meant
- * for use in jemalloc itself, but it can be used by application code to
+ * The je_* macros can be used as stable alternative names for the
+ * public jemalloc API if JEMALLOC_NO_DEMANGLE is defined.  This is primarily
+ * meant for use in jemalloc itself, but it can be used by application code to
  * provide isolation from the name mangling specified via --with-mangling
  * and/or --with-jemalloc-prefix.
  */
 #ifndef JEMALLOC_NO_DEMANGLE
-#undef je_malloc_conf
-#undef je_malloc_message
-#undef je_malloc
-#undef je_calloc
-#undef je_posix_memalign
-#undef je_aligned_alloc
-#undef je_realloc
-#undef je_free
-#undef je_malloc_usable_size
-#undef je_malloc_stats_print
-#undef je_mallctl
-#undef je_mallctlnametomib
-#undef je_mallctlbymib
-#undef je_memalign
-#undef je_valloc
-#ifdef JEMALLOC_EXPERIMENTAL
-#undef je_allocm
-#undef je_rallocm
-#undef je_sallocm
-#undef je_dallocm
-#undef je_nallocm
-#endif
+#  undef je_malloc_conf
+#  undef je_malloc_message
+#  undef je_malloc
+#  undef je_calloc
+#  undef je_posix_memalign
+#  undef je_aligned_alloc
+#  undef je_realloc
+#  undef je_free
+#  undef je_mallocx
+#  undef je_rallocx
+#  undef je_xallocx
+#  undef je_sallocx
+#  undef je_dallocx
+#  undef je_nallocx
+#  undef je_mallctl
+#  undef je_mallctlnametomib
+#  undef je_mallctlbymib
+#  undef je_malloc_stats_print
+#  undef je_malloc_usable_size
+#  undef je_memalign
+#  undef je_valloc
+#  undef je_allocm
+#  undef je_dallocm
+#  undef je_nallocm
+#  undef je_rallocm
+#  undef je_sallocm
 #endif
 
 #ifdef __cplusplus

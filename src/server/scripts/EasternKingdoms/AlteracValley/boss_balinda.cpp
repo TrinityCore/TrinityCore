@@ -50,7 +50,12 @@ public:
 
     struct npc_water_elementalAI : public ScriptedAI
     {
-        npc_water_elementalAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_water_elementalAI(Creature* creature) : ScriptedAI(creature)
+        {
+            waterBoltTimer = 3 * IN_MILLISECONDS;
+            resetTimer = 5 * IN_MILLISECONDS;
+            balindaGUID = 0;
+        }
 
         uint32 waterBoltTimer;
         uint64 balindaGUID;

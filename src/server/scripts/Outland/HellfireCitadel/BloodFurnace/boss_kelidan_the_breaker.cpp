@@ -135,7 +135,7 @@ class boss_kelidan_the_breaker : public CreatureScript
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
                 if (killer)
-                    me->AI()->AttackStart(killer);
+                    AttackStart(killer);
             }
 
             uint64 GetChanneled(Creature* channeler1)

@@ -237,7 +237,7 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL              = 70,
     ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT            = 72,
     /// @todo 73: Achievements 1515, 1241, 1103 (Name: Mal'Ganis)
-    ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE              = 74, /// @todo title id is not mentioned in dbc
+    ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN                      = 74,
     ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS        = 75,
     ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL                      = 76,
     ACHIEVEMENT_CRITERIA_TYPE_LOSE_DUEL                     = 77,
@@ -384,6 +384,11 @@ enum MapTypes                                               // Lua_IsInInstance
     MAP_RAID            = 2,                                // raid
     MAP_BATTLEGROUND    = 3,                                // pvp
     MAP_ARENA           = 4                                 // arena
+};
+
+enum MapFlags
+{
+    MAP_FLAG_DYNAMIC_DIFFICULTY = 0x100
 };
 
 enum AbilytyLearnType

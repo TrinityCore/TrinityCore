@@ -212,13 +212,24 @@ public:
             {
                 if (eruptTimer <= diff)
                 {
-                    uint32 treeHeight = 0;
-                    do
+                    uint64 frontGuid = FloorEruptionGUIDQueue.front();
+                    std::map<uint64, uint32>::iterator itr = FloorEruptionGUID[1].find(frontGuid);
+                    if (itr != FloorEruptionGUID[1].end())
                     {
-                        treeHeight = (*FloorEruptionGUID[1].find(FloorEruptionGUIDQueue.front())).second;
-                        FloorEruption(FloorEruptionGUIDQueue.front());
-                        FloorEruptionGUIDQueue.pop();
-                    } while (!FloorEruptionGUIDQueue.empty() && (*FloorEruptionGUID[1].find(FloorEruptionGUIDQueue.front())).second == treeHeight);
+                        uint32 treeHeight = itr->second;
+
+                        do
+                        {
+                            FloorEruption(frontGuid);
+                            FloorEruptionGUIDQueue.pop();
+                            if (FloorEruptionGUIDQueue.empty())
+                                break;
+
+                            frontGuid = FloorEruptionGUIDQueue.front();
+                            itr = FloorEruptionGUID[1].find(frontGuid);
+                        } while (itr != FloorEruptionGUID[1].end() && itr->second == treeHeight);
+                    }
+
                     eruptTimer = 1000;
                 }
                 else
