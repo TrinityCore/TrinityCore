@@ -236,9 +236,13 @@ class npc_onyx_flamecaller : public CreatureScript
 
             void WaypointReached(uint32 waypointId) OVERRIDE
             {
-                if (waypointId == MAX_PATH_FLAMECALLER_WAYPOINTS || waypointId == MAX_PATH_FLAMECALLER_WAYPOINTS*2)
+                if (waypointId == MAX_PATH_FLAMECALLER_WAYPOINTS-1 || waypointId == (MAX_PATH_FLAMECALLER_WAYPOINTS*2)-1)
                 {
-                    DoZoneInCombat();
+                    if (Unit* target = me->SelectNearestPlayer(100.00f))
+                    {
+                        AttackStart(target);
+                        DoZoneInCombat();
+                    }
                     SetEscortPaused(true);
                 }
             }
