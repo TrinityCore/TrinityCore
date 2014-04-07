@@ -16,7 +16,15 @@ git:
     depth: 1
 
 before_install:
-# Install base
+# Update GCC and cmake
+    - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+    - sudo apt-get update
+    - sudo apt-get install gcc-4.7 g++-4.7
+    - sudo update-alternatives --remove gcc /usr/bin/gcc-4.6
+    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.7 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.7
+    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 40 --slave /usr/bin/g++ g++ /usr/bin/g++-4.6
+#    - sudo update-alternatives --config gcc
+    - gcc --version
     - wget http://www.cmake.org/files/v2.8/cmake-2.8.12.2.tar.gz > /dev/null
     - tar xzf cmake-2.8.12.2.tar.gz > /dev/null
     - cd cmake-2.8.12.2
@@ -57,6 +65,6 @@ script:
 # Go to Source/BUILD
     - cd BUILD
 # Run cmake and set the BUILD directory as target for solution
-    - cmake ../ -DPREFIX=/SERVER -DWITH_WARNINGS=1
+    - sudo cmake ../ -DPREFIX=/SERVER -DWITH_WARNINGS=1
 # Compile (with 4 cores)
-    - make --jobs=4
+    - sudo make --jobs=4
