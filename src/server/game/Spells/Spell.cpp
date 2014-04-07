@@ -5334,7 +5334,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (m_caster->IsInDisallowedMountForm())
                     return SPELL_FAILED_NOT_SHAPESHIFT;
 
-                if (m_caster->HasAura(SPELL_AURA_TRANSFORM))
+                if (m_caster->HasAuraType(SPELL_AURA_TRANSFORM))
                     return SPELL_FAILED_NOT_ON_SHAPESHIFT;
 
                 break;
