@@ -608,19 +608,12 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
     if (prefix.empty() || prefix.length() > 16)
         return;
 
-    // Logging enabled?
-    if (sWorld->getBoolConfig(CONFIG_CHATLOG_ADDON))
-    {
-        if (message.empty())
-            return;
-
-        // Weird way to log stuff...
-        sScriptMgr->OnPlayerChat(sender, uint32(CHAT_MSG_ADDON), uint32(LANG_ADDON), message);
-    }
-
     // Disabled addon channel?
     if (!sWorld->getBoolConfig(CONFIG_ADDON_CHANNEL))
+    {
+        recvData.rfinish();
         return;
+    }
 
     switch (type)
     {
