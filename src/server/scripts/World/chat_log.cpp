@@ -22,144 +22,133 @@
 
 class ChatLogScript : public PlayerScript
 {
-public:
-    ChatLogScript() : PlayerScript("ChatLogScript") { }
+    public:
+        ChatLogScript() : PlayerScript("ChatLogScript") { }
 
-    void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg)
-    {
-        switch (type)
+        void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg) OVERRIDE
         {
-            case CHAT_MSG_ADDON:
-                if (sWorld->getBoolConfig(CONFIG_CHATLOG_ADDON))
-                    TC_LOG_DEBUG("chat.log", "[ADDON] Player %s sends: %s",
-                        player->GetName().c_str(), msg.c_str());
-                break;
-
-            case CHAT_MSG_SAY:
-                if (sWorld->getBoolConfig(CONFIG_CHATLOG_PUBLIC))
-                    TC_LOG_DEBUG("chat.log", "[SAY] Player %s says (language %u): %s",
+            switch (type)
+            {
+                case CHAT_MSG_SAY:
+                    TC_LOG_DEBUG("chat.log.say", "Player %s says (language %u): %s",
                         player->GetName().c_str(), lang, msg.c_str());
-                break;
+                    break;
 
-            case CHAT_MSG_EMOTE:
-                if (sWorld->getBoolConfig(CONFIG_CHATLOG_PUBLIC))
-                    TC_LOG_DEBUG("chat.log", "[TEXTEMOTE] Player %s emotes: %s",
+                case CHAT_MSG_EMOTE:
+                    TC_LOG_DEBUG("chat.log.emote", "Player %s emotes: %s",
                         player->GetName().c_str(), msg.c_str());
-                break;
+                    break;
 
-            case CHAT_MSG_YELL:
-                if (sWorld->getBoolConfig(CONFIG_CHATLOG_PUBLIC))
-                    TC_LOG_DEBUG("chat.log", "[YELL] Player %s yells (language %u): %s",
+                case CHAT_MSG_YELL:
+                    TC_LOG_DEBUG("chat.log.yell", "Player %s yells (language %u): %s",
                         player->GetName().c_str(), lang, msg.c_str());
-                break;
+                    break;
+            }
         }
-    }
 
-    void OnChat(Player* player, uint32 /*type*/, uint32 lang, std::string& msg, Player* receiver)
-    {
-        if (lang != LANG_ADDON && sWorld->getBoolConfig(CONFIG_CHATLOG_WHISPER))
-            TC_LOG_DEBUG("chat.log", "[WHISPER] Player %s tells %s: %s",
-                player->GetName().c_str(), receiver ? receiver->GetName().c_str() : "<unknown>", msg.c_str());
-        else if (lang == LANG_ADDON && sWorld->getBoolConfig(CONFIG_CHATLOG_ADDON))
-            TC_LOG_DEBUG("chat.log", "[ADDON] Player %s tells %s: %s",
-                player->GetName().c_str(), receiver ? receiver->GetName().c_str() : "<unknown>", msg.c_str());
-    }
-
-    void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group)
-    {
-        //! NOTE:
-        //! LANG_ADDON can only be sent by client in "PARTY", "RAID", "GUILD", "BATTLEGROUND", "WHISPER"
-        switch (type)
+        void OnChat(Player* player, uint32 /*type*/, uint32 lang, std::string& msg, Player* receiver) OVERRIDE
         {
-            case CHAT_MSG_PARTY:
-                if (lang != LANG_ADDON && sWorld->getBoolConfig(CONFIG_CHATLOG_PARTY))
-                    TC_LOG_DEBUG("chat.log", "[PARTY] Player %s tells group with leader %s: %s",
-                        player->GetName().c_str(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
-                else if (lang == LANG_ADDON && sWorld->getBoolConfig(CONFIG_CHATLOG_ADDON))
-                    TC_LOG_DEBUG("chat.log", "[ADDON] Player %s tells group with leader %s: %s",
-                        player->GetName().c_str(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
-                break;
-
-            case CHAT_MSG_PARTY_LEADER:
-                if (sWorld->getBoolConfig(CONFIG_CHATLOG_PARTY))
-                    TC_LOG_DEBUG("chat.log", "[PARTY] Leader %s tells group: %s",
-                        player->GetName().c_str(), msg.c_str());
-                break;
-
-            case CHAT_MSG_RAID:
-                if (lang != LANG_ADDON && sWorld->getBoolConfig(CONFIG_CHATLOG_RAID))
-                    TC_LOG_DEBUG("chat.log", "[RAID] Player %s tells raid with leader %s: %s",
-                        player->GetName().c_str(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
-                else if (lang == LANG_ADDON && sWorld->getBoolConfig(CONFIG_CHATLOG_ADDON))
-                    TC_LOG_DEBUG("chat.log", "[ADDON] Player %s tells raid with leader %s: %s",
-                        player->GetName().c_str(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
-                break;
-
-            case CHAT_MSG_RAID_LEADER:
-                if (sWorld->getBoolConfig(CONFIG_CHATLOG_RAID))
-                    TC_LOG_DEBUG("chat.log", "[RAID] Leader player %s tells raid: %s",
-                        player->GetName().c_str(), msg.c_str());
-                break;
-
-            case CHAT_MSG_RAID_WARNING:
-                if (sWorld->getBoolConfig(CONFIG_CHATLOG_RAID))
-                    TC_LOG_DEBUG("chat.log", "[RAID] Leader player %s warns raid with: %s",
-                        player->GetName().c_str(), msg.c_str());
-                break;
-
-            case CHAT_MSG_BATTLEGROUND:
-                if (lang != LANG_ADDON && sWorld->getBoolConfig(CONFIG_CHATLOG_BGROUND))
-                    TC_LOG_DEBUG("chat.log", "[BATTLEGROUND] Player %s tells battleground with leader %s: %s",
-                        player->GetName().c_str(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
-                else if (lang == LANG_ADDON && sWorld->getBoolConfig(CONFIG_CHATLOG_ADDON))
-                    TC_LOG_DEBUG("chat.log", "[ADDON] Player %s tells battleground with leader %s: %s",
-                        player->GetName().c_str(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
-                break;
-
-            case CHAT_MSG_BATTLEGROUND_LEADER:
-                if (sWorld->getBoolConfig(CONFIG_CHATLOG_BGROUND))
-                    TC_LOG_DEBUG("chat.log", "[BATTLEGROUND] Leader player %s tells battleground: %s",
-                        player->GetName().c_str(), msg.c_str());
-                break;
+            if (lang != LANG_ADDON)
+                TC_LOG_DEBUG("chat.log.whisper", "Player %s tells %s: %s",
+                    player->GetName().c_str(), receiver ? receiver->GetName().c_str() : "<unknown>", msg.c_str());
+            else
+                TC_LOG_DEBUG("chat.log.addon.whisper", "Player %s tells %s: %s",
+                    player->GetName().c_str(), receiver ? receiver->GetName().c_str() : "<unknown>", msg.c_str());
         }
-    }
 
-    void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild)
-    {
-        switch (type)
+        void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group) OVERRIDE
         {
-            case CHAT_MSG_GUILD:
-                if (lang != LANG_ADDON && sWorld->getBoolConfig(CONFIG_CHATLOG_GUILD))
-                    TC_LOG_DEBUG("chat.log", "[GUILD] Player %s tells guild %s: %s",
-                        player->GetName().c_str(), guild ? guild->GetName().c_str() : "<unknown>", msg.c_str());
-                else if (lang == LANG_ADDON && sWorld->getBoolConfig(CONFIG_CHATLOG_ADDON))
-                    TC_LOG_DEBUG("chat.log", "[ADDON] Player %s sends to guild %s: %s",
-                        player->GetName().c_str(), guild ? guild->GetName().c_str() : "<unknown>", msg.c_str());
-                break;
+            //! NOTE:
+            //! LANG_ADDON can only be sent by client in "PARTY", "RAID", "GUILD", "BATTLEGROUND", "WHISPER"
+            switch (type)
+            {
+                case CHAT_MSG_PARTY:
+                    if (lang != LANG_ADDON)
+                        TC_LOG_DEBUG("chat.log.party", "Player %s tells group with leader %s: %s",
+                            player->GetName().c_str(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
+                    else
+                        TC_LOG_DEBUG("chat.log.addon.party", "Player %s tells group with leader %s: %s",
+                            player->GetName().c_str(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
+                    break;
 
-            case CHAT_MSG_OFFICER:
-                if (sWorld->getBoolConfig(CONFIG_CHATLOG_GUILD))
-                    TC_LOG_DEBUG("chat.log", "[OFFICER] Player %s tells guild %s officers: %s",
-                        player->GetName().c_str(), guild ? guild->GetName().c_str() : "<unknown>", msg.c_str());
-                break;
+                case CHAT_MSG_PARTY_LEADER:
+                    TC_LOG_DEBUG("chat.log.party", "Leader %s tells group: %s",
+                        player->GetName().c_str(), msg.c_str());
+                    break;
+
+                case CHAT_MSG_RAID:
+                    if (lang != LANG_ADDON)
+                        TC_LOG_DEBUG("chat.log.raid", "Player %s tells raid with leader %s: %s",
+                            player->GetName().c_str(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
+                    else
+                        TC_LOG_DEBUG("chat.log.addon.raid", "Player %s tells raid with leader %s: %s",
+                            player->GetName().c_str(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
+                    break;
+
+                case CHAT_MSG_RAID_LEADER:
+                    TC_LOG_DEBUG("chat.log.raid", "Leader player %s tells raid: %s",
+                        player->GetName().c_str(), msg.c_str());
+                    break;
+
+                case CHAT_MSG_RAID_WARNING:
+                    TC_LOG_DEBUG("chat.log.raid", "Leader player %s warns raid with: %s",
+                        player->GetName().c_str(), msg.c_str());
+                    break;
+
+                case CHAT_MSG_BATTLEGROUND:
+                    if (lang != LANG_ADDON)
+                        TC_LOG_DEBUG("chat.log.bg", "Player %s tells battleground with leader %s: %s",
+                            player->GetName().c_str(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
+                    else
+                        TC_LOG_DEBUG("chat.log.addon.bg", "Player %s tells battleground with leader %s: %s",
+                            player->GetName().c_str(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
+                    break;
+
+                case CHAT_MSG_BATTLEGROUND_LEADER:
+                    TC_LOG_DEBUG("chat.log.bg", "Leader player %s tells battleground: %s",
+                        player->GetName().c_str(), msg.c_str());
+                    break;
+            }
         }
-    }
 
-    void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Channel* channel)
-    {
-        bool isSystem = channel &&
-                        (channel->HasFlag(CHANNEL_FLAG_TRADE) ||
-                         channel->HasFlag(CHANNEL_FLAG_GENERAL) ||
-                         channel->HasFlag(CHANNEL_FLAG_CITY) ||
-                         channel->HasFlag(CHANNEL_FLAG_LFG));
+        void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild) OVERRIDE
+        {
+            switch (type)
+            {
+                case CHAT_MSG_GUILD:
+                    if (lang != LANG_ADDON)
+                        TC_LOG_DEBUG("chat.log.guild", "Player %s tells guild %s: %s",
+                            player->GetName().c_str(), guild ? guild->GetName().c_str() : "<unknown>", msg.c_str());
+                    else
+                        TC_LOG_DEBUG("chat.log.addon.guild", "Player %s sends to guild %s: %s",
+                            player->GetName().c_str(), guild ? guild->GetName().c_str() : "<unknown>", msg.c_str());
+                    break;
 
-        if (sWorld->getBoolConfig(CONFIG_CHATLOG_SYSCHAN) && isSystem)
-            TC_LOG_DEBUG("chat.log", "[SYSCHAN] Player %s tells channel %s: %s",
-                player->GetName().c_str(), channel->GetName().c_str(), msg.c_str());
-        else if (sWorld->getBoolConfig(CONFIG_CHATLOG_CHANNEL))
-            TC_LOG_DEBUG("chat.log", "[CHANNEL] Player %s tells channel %s: %s",
-                player->GetName().c_str(), channel ? channel->GetName().c_str() : "<unknown>", msg.c_str());
-    }
+                case CHAT_MSG_OFFICER:
+                    TC_LOG_DEBUG("chat.log.guild.officer", "Player %s tells guild %s officers: %s",
+                        player->GetName().c_str(), guild ? guild->GetName().c_str() : "<unknown>", msg.c_str());
+                    break;
+            }
+        }
+
+        void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Channel* channel) OVERRIDE
+        {
+            bool isSystem = channel &&
+                            (channel->HasFlag(CHANNEL_FLAG_TRADE) ||
+                             channel->HasFlag(CHANNEL_FLAG_GENERAL) ||
+                             channel->HasFlag(CHANNEL_FLAG_CITY) ||
+                             channel->HasFlag(CHANNEL_FLAG_LFG));
+
+            if (isSystem)
+                TC_LOG_DEBUG("chat.log.system", "Player %s tells channel %s: %s",
+                    player->GetName().c_str(), channel->GetName().c_str(), msg.c_str());
+            else
+            {
+                std::string channelName = channel ? channel->GetName() : "<unknown>";
+                TC_LOG_DEBUG("chat.log.channel." + channelName, "Player %s tells channel %s: %s",
+                    player->GetName().c_str(), channelName.c_str(), msg.c_str());
+            }
+        }
 };
 
 void AddSC_chat_log()
