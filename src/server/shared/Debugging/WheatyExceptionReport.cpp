@@ -29,15 +29,23 @@
 inline LPTSTR ErrorMessage(DWORD dw)
 {
     LPVOID lpMsgBuf;
-    FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER |
-        FORMAT_MESSAGE_FROM_SYSTEM,
-        NULL,
-        dw,
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPTSTR) &lpMsgBuf,
-        0, NULL);
-    return (LPTSTR)lpMsgBuf;
+    DWORD formatResult = FormatMessage(
+                            FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                            FORMAT_MESSAGE_FROM_SYSTEM,
+                            NULL,
+                            dw,
+                            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                            (LPTSTR) &lpMsgBuf,
+                            0, NULL);
+    if (formatResult != 0)
+        return (LPTSTR)lpMsgBuf;
+    else
+    {
+        LPTSTR msgBuf = (LPTSTR)LocalAlloc(LPTR, 30);
+        sprintf(msgBuf, "Unknown error: %u", dw);
+        return msgBuf;
+    }
+        
 }
 
 //============================== Global Variables =============================

@@ -28,6 +28,7 @@
 
 enum WarriorSpells
 {
+    SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
     SPELL_WARRIOR_BLOODTHIRST                       = 23885,
     SPELL_WARRIOR_BLOODTHIRST_DAMAGE                = 23881,
     SPELL_WARRIOR_CHARGE                            = 34846,
@@ -52,7 +53,8 @@ enum WarriorSpells
     SPELL_WARRIOR_SHIELD_SLAM                       = 23922,
     SPELL_WARRIOR_SLAM                              = 50782,
     SPELL_WARRIOR_SUNDER_ARMOR                      = 58567,
-    SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK     = 26654,
+    SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
+    SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
     SPELL_WARRIOR_TAUNT                             = 355,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_RANK_1        = 46859,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_RANK_2        = 46860,
@@ -844,7 +846,7 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK))
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1) || !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2))
                     return false;
                 return true;
             }
@@ -861,10 +863,23 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
                 return _procTarget;
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK, true, NULL, aurEff);
+                if (eventInfo.GetDamageInfo())
+                {
+                    SpellInfo const* spellInfo = eventInfo.GetDamageInfo()->GetSpellInfo();
+                    if (spellInfo && (spellInfo->Id == SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND || (spellInfo->Id == SPELL_WARRIOR_EXECUTE && !_procTarget->HasAuraState(AURA_STATE_HEALTHLESS_20_PERCENT))))
+                    {
+                        // If triggered by Execute (while target is not under 20% hp) or Bladestorm deals normalized weapon damage
+                        GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2, true, NULL, aurEff);
+                    }
+                    else
+                    {
+                        int32 damage = eventInfo.GetDamageInfo()->GetDamage();
+                        GetTarget()->CastCustomSpell(SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1, SPELLVALUE_BASE_POINT0, damage, _procTarget, true, NULL, aurEff);
+                    }
+                }
             }
 
             void Register() OVERRIDE
