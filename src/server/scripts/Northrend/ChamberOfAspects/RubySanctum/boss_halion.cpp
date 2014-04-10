@@ -394,6 +394,13 @@ class boss_halion : public CreatureScript
                 if (events.IsInPhase(PHASE_TWO))
                     return;
 
+                // Rough radius, it is not an exactly perfect circle
+                if (me->GetDistance2d(HalionControllerSpawnPos.GetPositionX(), HalionControllerSpawnPos.GetPositionY()) > 48.5f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
                 generic_halionAI::UpdateAI(diff);
             }
 
