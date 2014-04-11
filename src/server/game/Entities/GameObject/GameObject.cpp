@@ -52,7 +52,7 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_spellId = 0;
     m_cooldownTime = 0;
     m_goInfo = NULL;
-    m_ritualOwner = NULL;
+    m_ritualOwnerGUID = 0;
     m_goData = NULL;
 
     m_DBTableGuid = 0;
@@ -1445,9 +1445,16 @@ void GameObject::Use(Unit* user)
 
             GameObjectTemplate const* info = GetGOInfo();
 
+            Player* m_ritualOwner = NULL;
+            if (m_ritualOwnerGUID)
+                m_ritualOwner = ObjectAccessor::FindPlayer(m_ritualOwnerGUID);
+
             // ritual owner is set for GO's without owner (not summoned)
             if (!m_ritualOwner && !owner)
+            {
+                m_ritualOwnerGUID = player->GetGUID();
                 m_ritualOwner = player;
+            }
 
             if (owner)
             {
@@ -1518,7 +1525,7 @@ void GameObject::Use(Unit* user)
                 else
                 {
                     // reset ritual for this GO
-                    m_ritualOwner = NULL;
+                    m_ritualOwnerGUID = 0;
                     m_unique_users.clear();
                     m_usetimes = 0;
                 }
