@@ -527,6 +527,7 @@ class TW_npc_herald_toc5 : public CreatureScript
         {
             if (actionID == ACTION_SET_HERALD_IN_POSITION)
             {
+                me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MovePoint(1, 735.898f, 651.961f, 411.93f);
                 if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
