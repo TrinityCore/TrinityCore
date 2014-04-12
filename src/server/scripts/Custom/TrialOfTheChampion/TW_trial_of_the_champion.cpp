@@ -151,8 +151,6 @@ class TW_npc_herald_toc5 : public CreatureScript
             else
                 player->SEND_GOSSIP_MENU(GOSSIP_NOT_MOUNTED_A, creature->GetGUID());
 
-            instance->SetData(DATA_MOVEMENT_DONE, 0);
-
             return true;
         }
 
@@ -587,7 +585,10 @@ class TW_npc_herald_toc5 : public CreatureScript
                 if (instance->GetData(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED && instance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED)
                 {
                     if (instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED)
-                        me->AI()->SetData(DATA_START,NOT_STARTED);
+                    {
+                        instance->SetData(DATA_MOVEMENT_DONE, 0);
+                        me->AI()->SetData(DATA_START, NOT_STARTED);
+                    }
 
                     if (instance->GetData(BOSS_GRAND_CHAMPIONS) == DONE)
                         DoStartArgentChampionEncounter();
