@@ -402,16 +402,24 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
                     case EVENT_CHARGE_VEHICLE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
-                            if (target->GetTypeId() == TYPEID_PLAYER && me->GetDistance(target) > 8.0f && me->GetDistance(target) < 25.0f)
+                            DoResetThreat();
+                            me->AddThreat(target, 5.0f);
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MoveChase(me->GetVictim());
+                            // directly charge if range is ok
+                            if (me->GetDistance(me->GetVictim()) > 5.0f && me->GetDistance(me->GetVictim()) <= 30.0f)
+                                DoCastVictim(SPELL_CHARGE);
+                            else
                             {
-                                if (target->GetVehicle())
-                                    if (Unit* vehTarget = target->GetVehicle()->GetBase())
-                                        DoCast(vehTarget, SPELL_CHARGE);
+                                events.ScheduleEvent(EVENT_CHARGE_VEHICLE, 3000);
+                                // move away for charge...
+                                float angle = me->GetAngle(me->GetVictim());
+                                float x = me->GetPositionX() + 20.0f * cos(angle);
+                                float y = me->GetPositionY() + 20.0f * sin(angle);
+                                me->GetMotionMaster()->MovePoint(0, x, y, me->GetPositionZ());
                             }
-                            else if (target->GetTypeId() == TYPEID_UNIT && me->GetDistance(target) > 8.0f && me->GetDistance(target) < 25.0f)
-                                DoCast(target, SPELL_CHARGE);
                         }
-                        events.ScheduleEvent(EVENT_CHARGE, urand(10000, 30000));
+                        events.ScheduleEvent(EVENT_CHARGE_VEHICLE, urand(10000, 30000));
                         break;
                     case EVENT_SHIELD_BREAKER:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -457,11 +465,7 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
             bool combatEntered;
 
             uint32 combatCheckTimer;
-            uint32 uiShieldBreakerTimer;
             uint32 uiCheckTimer;
-            uint32 uiDefendTimer;
-            uint32 uiChargeTimer;
-            uint32 uiThrustTimer;
             uint32 uiWaypointPath;
     };
 
