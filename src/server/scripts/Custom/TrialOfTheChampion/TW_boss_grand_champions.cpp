@@ -117,6 +117,7 @@ enum Events
     EVENT_CHARGE_VEHICLE            = 19,
     EVENT_THRUST                    = 20,
     EVENT_DEFEND                    = 21,
+    EVENT_CHARGE_BACK               = 22,
 
     EVENT_PHASE_SWITCH,
 };
@@ -389,7 +390,7 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
             }
 
             npc_escortAI::UpdateAI(uiDiff);
-            
+
             if (!UpdateVictim())
                 return;
 
@@ -404,14 +405,12 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
                         {
                             DoResetThreat();
                             me->AddThreat(target, 5.0f);
-                            me->GetMotionMaster()->Clear();
-                            me->GetMotionMaster()->MoveChase(me->GetVictim());
                             // directly charge if range is ok
                             if (me->GetDistance(me->GetVictim()) > 5.0f && me->GetDistance(me->GetVictim()) <= 30.0f)
                                 DoCastVictim(SPELL_CHARGE);
                             else
                             {
-                                events.ScheduleEvent(EVENT_CHARGE_VEHICLE, 3000);
+                                events.ScheduleEvent(EVENT_CHARGE_BACK, 3000);
                                 // move away for charge...
                                 float angle = me->GetAngle(me->GetVictim());
                                 float x = me->GetPositionX() + 20.0f * cos(angle);
@@ -451,6 +450,12 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
                         if (me->IsWithinMeleeRange(me->GetVictim()))
                             DoCastVictim(SPELL_THRUST);
                         events.ScheduleEvent(EVENT_THRUST, urand(8000, 14000));
+                        break;
+                    case EVENT_CHARGE_BACK:
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MoveChase(me->GetVictim());
+                        if (me->GetDistance(me->GetVictim()) > 5.0f && me->GetDistance(me->GetVictim()) <= 30.0f)
+                            DoCastVictim(SPELL_CHARGE);
                         break;
                     default:
                         break;
