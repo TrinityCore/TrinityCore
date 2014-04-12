@@ -3052,7 +3052,7 @@ chat.change_nick = "<> $Name Is Now Known As $NewName!"
 # (256)Display WoW Announces/Notifies In IRC
 # (512)Do Not Let Players Use Commands On Higher GM Level Players
 # (1024)Enable Ticket Annoucemnt
-# (2048)Enable AuctionHouse Announcements !!DISSABLED!!
+# (2048)Display Warden penalties
 #
 # Tickets Botmask
 # (1) Announce Created Tickets.

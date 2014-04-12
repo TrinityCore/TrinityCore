@@ -29,7 +29,6 @@
 #include "UpdateMask.h"
 #include "Util.h"
 #include "AccountMgr.h"
-#include "IRCClient.h"
 
 //void called when player click on auctioneer npc
 void WorldSession::HandleAuctionHelloOpcode(WorldPacket& recvData)
@@ -560,12 +559,6 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket& recvData)
     player->SaveInventoryAndGoldToDB(trans);
     auction->DeleteFromDB(trans);
     CharacterDatabase.CommitTransaction(trans);
-
-	if ((sIRC->BOTMASK & 2048) != 0)
-	{
-        ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(auction->itemEntry);
-		sIRC->AHCancel(auction->itemEntry, pProto->Name1, player->GetName(), auction->GetHouseId());
-	}
 
     uint32 itemEntry = auction->itemEntry;
     sAuctionMgr->RemoveAItem(auction->itemGUIDLow);
