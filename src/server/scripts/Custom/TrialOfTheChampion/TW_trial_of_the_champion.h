@@ -27,7 +27,6 @@ enum eData
     DATA_MOVEMENT_DONE,
     DATA_LESSER_CHAMPIONS_DEFEATED,
     DATA_START,
-    DATA_IN_POSITION,
     DATA_ARGENT_SOLDIER_DEFEATED,
     DATA_TEAM_IN_INSTANCE,
     DATA_RESET,
@@ -189,7 +188,7 @@ enum eVehicles
 enum Actions
 {
     ACTION_OUTRO                        = 0,
-    ACTION_RESET_BLACK_KNIGHT           = 1
+    ACTION_SET_HERALD_IN_POSITION       = 1
 };
 
 enum Criterias

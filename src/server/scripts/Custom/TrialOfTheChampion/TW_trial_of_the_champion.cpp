@@ -151,6 +151,8 @@ class TW_npc_herald_toc5 : public CreatureScript
             else
                 player->SEND_GOSSIP_MENU(GOSSIP_NOT_MOUNTED_A, creature->GetGUID());
 
+            instance->SetData(DATA_MOVEMENT_DONE, 0);
+
             return true;
         }
 
@@ -272,13 +274,6 @@ class TW_npc_herald_toc5 : public CreatureScript
                         instance->HandleGameObject(pGO->GetGUID(),false);
                     DoSummonGrandChampion(uiFirstBoss);
                     events.ScheduleEvent(EVENT_SUMMON_FACTION_2, 10000, 0, PHASE_INPROGRESS);
-                    break;
-                case DATA_IN_POSITION:
-                    me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
-                    me->GetMotionMaster()->MovePoint(1, 735.898f, 651.961f, 411.93f);
-                    if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
-                        instance->HandleGameObject(pGO->GetGUID(),false);
-                    events.ScheduleEvent(EVENT_AGGRO_FACTION, 15000, 0, PHASE_INPROGRESS);
                     break;
                 case DATA_LESSER_CHAMPIONS_DEFEATED:
                 {
@@ -530,8 +525,14 @@ class TW_npc_herald_toc5 : public CreatureScript
         
         void DoAction(int32 actionID)
         {
-            if (actionID == ACTION_RESET_BLACK_KNIGHT)
-                StartEncounter();
+            if (actionID == ACTION_SET_HERALD_IN_POSITION)
+            {
+                me->GetMotionMaster()->Clear();
+                me->GetMotionMaster()->MovePoint(1, 735.898f, 651.961f, 411.93f);
+                if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                    instance->HandleGameObject(pGO->GetGUID(), false);
+                events.ScheduleEvent(EVENT_AGGRO_FACTION, 15000, 0, PHASE_INPROGRESS);
+            }
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE

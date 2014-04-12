@@ -289,8 +289,8 @@ public:
                     uiMovementDone = uiData;
                     if (uiMovementDone == 3)
                     {
-                        if (Creature* pAnnouncer =  instance->GetCreature(uiAnnouncerGUID))
-                            pAnnouncer->AI()->SetData(DATA_IN_POSITION, 0);
+                        if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
+                            pAnnouncer->AI()->DoAction(ACTION_SET_HERALD_IN_POSITION);
                     }
                     break;
                 case BOSS_GRAND_CHAMPIONS:

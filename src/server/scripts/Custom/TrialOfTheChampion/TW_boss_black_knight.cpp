@@ -738,9 +738,6 @@ public:
                 case 10:
                     me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
                     me->SetSpeed(MOVE_RUN, 2.0f);
-                    if (!me->FindNearestCreature(NPC_BLACK_KNIGHT, 200.0f))
-                        if (Creature* announcer = Unit::GetCreature(*me, instance->GetData64(DATA_ANNOUNCER)))
-                            announcer->AI()->DoAction(ACTION_RESET_BLACK_KNIGHT);
                     break;
             }
         }
