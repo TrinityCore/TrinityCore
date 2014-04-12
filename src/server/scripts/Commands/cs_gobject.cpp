@@ -209,6 +209,13 @@ public:
 
         uint32 objectId = atoi(id);
 
+        if (!sObjectMgr->GetGameObjectTemplate(objectId))
+        {
+            handler->PSendSysMessage(LANG_GAMEOBJECT_NOT_EXIST, objectId);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
         player->SummonGameObject(objectId, x, y, z, ang, 0, 0, rot2, rot3, spawntm);
 
         return true;
