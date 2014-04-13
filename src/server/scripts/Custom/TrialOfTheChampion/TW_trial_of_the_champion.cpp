@@ -536,6 +536,8 @@ class TW_npc_herald_toc5 : public CreatureScript
                     events.ScheduleEvent(EVENT_AGGRO_FACTION, 15000, 0, PHASE_INPROGRESS);
                     break;
                 case ACTION_RESET_GRAND_CHAMPIONS:
+                    Champion1List.clear();
+                    Champion2List.clear();
                     Champion3List.clear();
                     uiSummonTimes = 0;
 
