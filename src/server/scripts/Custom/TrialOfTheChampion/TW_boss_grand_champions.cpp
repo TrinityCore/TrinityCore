@@ -389,6 +389,10 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
                 } else combatCheckTimer -= uiDiff;
             }
 
+            if (!CheckPlayersAlive())
+               if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ANNOUNCER)))
+                   announcer->AI()->DoAction(ACTION_RESET_GRAND_CHAMPIONS);
+
             npc_escortAI::UpdateAI(uiDiff);
 
             if (!UpdateVictim())
@@ -630,7 +634,6 @@ class TW_boss_warrior_toc5 : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->setFaction(35);
                 me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
-                HandleKillCreditForAllPlayers(me);
                 HandleInstanceBind(me);
             }
         }
@@ -790,7 +793,6 @@ class TW_boss_mage_toc5 : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                 me->setFaction(35);
                 me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
-                HandleKillCreditForAllPlayers(me);
                 HandleInstanceBind(me);
             }
         }
@@ -955,7 +957,6 @@ class TW_boss_shaman_toc5 : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->setFaction(35);
                 me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
-                HandleKillCreditForAllPlayers(me);
                 HandleInstanceBind(me);
             }
         }
@@ -1014,7 +1015,7 @@ class TW_boss_hunter_toc5 : public CreatureScript
                 }
 
                 if (instance)
-                    instance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, NOT_STARTED);
 
                 if (instance)
                 {
@@ -1168,7 +1169,6 @@ class TW_boss_hunter_toc5 : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->setFaction(35);
                 me->GetMotionMaster()->MovePoint(0, 746.843f, 695.68f, 412.339f);
-                HandleKillCreditForAllPlayers(me);
                 HandleInstanceBind(me);
             }
         }
@@ -1223,7 +1223,7 @@ class TW_boss_rogue_toc5 : public CreatureScript
                 }
 
                 if (instance)
-                    instance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, NOT_STARTED);
 
                 if (instance)
                 {
@@ -1342,7 +1342,6 @@ class TW_boss_rogue_toc5 : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->setFaction(35);
                 me->GetMotionMaster()->MovePoint(0, 746.843f, 695.68f, 412.339f);
-                HandleKillCreditForAllPlayers(me);
                 HandleInstanceBind(me);
             }
         }
@@ -1388,18 +1387,6 @@ void HandleInstanceBind(Creature* source)
             if (player)
                 source->GetMap()->ToInstanceMap()->PermBindAllPlayers(player);
         }
-    }
-}
-
-void HandleKillCreditForAllPlayers(Creature* credit)
-{
-    InstanceScript* instance = credit->GetInstanceScript();
-    if (instance)
-    {
-        Map::PlayerList const &PlayerList = instance->instance->GetPlayers();
-        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            if (Player* player = i->GetSource())
-                player->KilledMonsterCredit(credit->GetEntry(), 0);
     }
 }
 

@@ -237,7 +237,6 @@ class TW_boss_eadric : public CreatureScript
                     instance->HandleGameObject(pGO->GetGUID(),true);
                 if (instance)
                     instance->SetData(BOSS_ARGENT_CHALLENGE_E, DONE);
-                HandleKillCreditForAllPlayers(me);
                 HandleInstanceBind(me);
             }
         }
@@ -443,7 +442,6 @@ class TW_boss_paletress : public CreatureScript
                 if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
                     pInstance->HandleGameObject(pGO->GetGUID(),true);
                 pInstance->SetData(BOSS_ARGENT_CHALLENGE_P, DONE);
-                HandleKillCreditForAllPlayers(me);
                 HandleInstanceBind(me);
 
                 if (Creature* memory = me->GetMap()->ToInstanceMap()->GetCreature(MemoryGUID))

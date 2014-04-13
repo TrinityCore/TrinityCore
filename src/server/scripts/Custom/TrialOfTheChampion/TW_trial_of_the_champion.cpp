@@ -199,6 +199,10 @@ class TW_npc_herald_toc5 : public CreatureScript
             uiVehicle2GUID = 0;
             uiVehicle3GUID = 0;
 
+            uiGrandChampionBoss1 = 0;
+            uiGrandChampionBoss2 = 0;
+            uiGrandChampionBoss3 = 0;
+
             Champion1List.clear();
             Champion2List.clear();
             Champion3List.clear();
@@ -234,6 +238,10 @@ class TW_npc_herald_toc5 : public CreatureScript
         uint64 uiVehicle2GUID;
         uint64 uiVehicle3GUID;
         uint64 GrandChampionBoss;
+
+        uint64 uiGrandChampionBoss1;
+        uint64 uiGrandChampionBoss2;
+        uint64 uiGrandChampionBoss3;
 
         std::list<uint64> Champion1List;
         std::list<uint64> Champion2List;
@@ -413,48 +421,42 @@ class TW_npc_herald_toc5 : public CreatureScript
                     case 1:
                     {
                         uiVehicle1GUID = pBoss->GetGUID();
-                        uint64 uiGrandChampionBoss1 = 0;
                         if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle1GUID))
                             if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                                 if (Unit* pUnit = pVehicle->GetPassenger(0))
                                     uiGrandChampionBoss1 = pUnit->GetGUID();
+                        
                         if (instance)
-                        {
-                            instance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_1, uiVehicle1GUID);
                             instance->SetData64(DATA_GRAND_CHAMPION_1, uiGrandChampionBoss1);
-                        }
+
                         pBoss->AI()->SetData(1,0);
                         break;
                     }
                     case 2:
                     {
                         uiVehicle2GUID = pBoss->GetGUID();
-                        uint64 uiGrandChampionBoss2 = 0;
                         if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle2GUID))
                             if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                                 if (Unit* pUnit = pVehicle->GetPassenger(0))
                                     uiGrandChampionBoss2 = pUnit->GetGUID();
+                       
                         if (instance)
-                        {
-                            instance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_2, uiVehicle2GUID);
                             instance->SetData64(DATA_GRAND_CHAMPION_2, uiGrandChampionBoss2);
-                        }
+
                         pBoss->AI()->SetData(2, 0);
                         break;
                     }
                     case 3:
                     {
                         uiVehicle3GUID = pBoss->GetGUID();
-                        uint64 uiGrandChampionBoss3 = 0;
                         if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle3GUID))
                             if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                                 if (Unit* pUnit = pVehicle->GetPassenger(0))
                                     uiGrandChampionBoss3 = pUnit->GetGUID();
+                        
                         if (instance)
-                        {
-                            instance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_3, uiVehicle3GUID);
                             instance->SetData64(DATA_GRAND_CHAMPION_3, uiGrandChampionBoss3);
-                        }
+
                         pBoss->AI()->SetData(3, 0);
                         break;
                     }
@@ -523,14 +525,27 @@ class TW_npc_herald_toc5 : public CreatureScript
         
         void DoAction(int32 actionID)
         {
-            if (actionID == ACTION_SET_HERALD_IN_POSITION)
+            switch (actionID)
             {
-                me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MovePoint(1, 735.898f, 651.961f, 411.93f);
-                if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
-                    instance->HandleGameObject(pGO->GetGUID(), false);
-                events.ScheduleEvent(EVENT_AGGRO_FACTION, 15000, 0, PHASE_INPROGRESS);
+                case ACTION_SET_HERALD_IN_POSITION:
+                    me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MovePoint(1, 735.898f, 651.961f, 411.93f);
+                    if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                        instance->HandleGameObject(pGO->GetGUID(), false);
+                    events.ScheduleEvent(EVENT_AGGRO_FACTION, 15000, 0, PHASE_INPROGRESS);
+                    break;
+                case ACTION_RESET_GRAND_CHAMPIONS:
+                    Champion3List.clear();
+                    uiSummonTimes = 0;
+
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, NOT_STARTED);
+                    break;
+                default:
+                    break;
             }
         }
 

@@ -188,7 +188,8 @@ enum eVehicles
 enum Actions
 {
     ACTION_OUTRO                        = 0,
-    ACTION_SET_HERALD_IN_POSITION       = 1
+    ACTION_SET_HERALD_IN_POSITION       = 1,
+    ACTION_RESET_GRAND_CHAMPIONS        = 2,
 };
 
 enum Criterias
@@ -197,7 +198,6 @@ enum Criterias
 };
 
 void HandleSpellOnPlayersInInstanceToC5(Unit* caller, uint32 spellId);
-void HandleKillCreditForAllPlayers(Creature* credit);
 void HandleInstanceBind(Creature* source);
 
 
