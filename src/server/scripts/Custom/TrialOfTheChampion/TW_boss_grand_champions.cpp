@@ -117,7 +117,6 @@ enum Events
     EVENT_CHARGE_VEHICLE            = 19,
     EVENT_THRUST                    = 20,
     EVENT_DEFEND                    = 21,
-    EVENT_CHARGE_BACK               = 22,
 
     EVENT_PHASE_SWITCH,
 };
@@ -286,6 +285,7 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
             events.ScheduleEvent(EVENT_SHIELD_BREAKER, 8000);
             events.ScheduleEvent(EVENT_DEFEND, urand(30000, 60000));
             events.ScheduleEvent(EVENT_CHARGE_VEHICLE, urand(10000, 30000));
+            events.ScheduleEvent(EVENT_THRUST, urand(8000, 14000));
         }
 
         void DoCastSpellDefend()
@@ -412,15 +412,6 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
                             // directly charge if range is ok
                             if (me->GetDistance(me->GetVictim()) > 5.0f && me->GetDistance(me->GetVictim()) <= 30.0f)
                                 DoCastVictim(SPELL_CHARGE);
-                            else
-                            {
-                                events.ScheduleEvent(EVENT_CHARGE_BACK, 3000);
-                                // move away for charge...
-                                float angle = me->GetAngle(me->GetVictim());
-                                float x = me->GetPositionX() + 20.0f * cos(angle);
-                                float y = me->GetPositionY() + 20.0f * sin(angle);
-                                me->GetMotionMaster()->MovePoint(0, x, y, me->GetPositionZ());
-                            }
                         }
                         events.ScheduleEvent(EVENT_CHARGE_VEHICLE, urand(10000, 30000));
                         break;
@@ -451,15 +442,8 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
                         events.ScheduleEvent(EVENT_DEFEND, urand(30000, 45000));
                         break;
                     case EVENT_THRUST:
-                        if (me->IsWithinMeleeRange(me->GetVictim()))
-                            DoCastVictim(SPELL_THRUST);
+                        DoCastVictim(SPELL_THRUST);
                         events.ScheduleEvent(EVENT_THRUST, urand(8000, 14000));
-                        break;
-                    case EVENT_CHARGE_BACK:
-                        me->GetMotionMaster()->Clear();
-                        me->GetMotionMaster()->MoveChase(me->GetVictim());
-                        if (me->GetDistance(me->GetVictim()) > 5.0f && me->GetDistance(me->GetVictim()) <= 30.0f)
-                            DoCastVictim(SPELL_CHARGE);
                         break;
                     default:
                         break;
