@@ -2301,7 +2301,7 @@ class spell_q14100_q14111_make_player_destroy_totems : public SpellScriptLoader
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 if (Player* player = GetHitPlayer())
-                    player->CastSpell(player, SPELL_TOTEM_OF_THE_EARTHEN_RING, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
+                    player->CastSpell(player, SPELL_TOTEM_OF_THE_EARTHEN_RING, TRIGGERED_FULL_MASK); // ignore reagent cost, consumed by quest
             }
 
             void Register() OVERRIDE
