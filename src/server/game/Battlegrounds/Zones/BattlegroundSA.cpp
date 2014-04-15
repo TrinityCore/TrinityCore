@@ -646,18 +646,22 @@ void BattlegroundSA::DestroyGate(Player* player, GameObject* go)
             switch (i)
             {
                 case BG_SA_GREEN_GATE:
+                    DelCreature(BG_SA_NPC_TRIGGER_2);
                     if (GateStatus[BG_SA_BLUE_GATE] == BG_SA_GATE_DESTROYED)
                         rewardHonor = false;
                     break;
                 case BG_SA_BLUE_GATE:
+                    DelCreature(BG_SA_NPC_TRIGGER_1);
                     if (GateStatus[BG_SA_GREEN_GATE] == BG_SA_GATE_DESTROYED)
                         rewardHonor = false;
                     break;
                 case BG_SA_RED_GATE:
+                    DelCreature(BG_SA_NPC_TRIGGER_5);
                     if (GateStatus[BG_SA_PURPLE_GATE] == BG_SA_GATE_DESTROYED)
                         rewardHonor = false;
                     break;
                 case BG_SA_PURPLE_GATE:
+                    DelCreature(BG_SA_NPC_TRIGGER_3);
                     if (GateStatus[BG_SA_RED_GATE] == BG_SA_GATE_DESTROYED)
                         rewardHonor = false;
                     break;
