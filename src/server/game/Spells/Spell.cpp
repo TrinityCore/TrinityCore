@@ -2967,9 +2967,6 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
 
 void Spell::cancel()
 {
-    if (m_spellInfo->AttributesEx3 & SPELL_ATTR3_IGNORE_OTHER_CASTS)
-        return;
-
     if (m_spellState == SPELL_STATE_FINISHED)
         return;
 
