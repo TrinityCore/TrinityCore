@@ -439,16 +439,14 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
                 }
             }
         }
-        private:
-            EventMap events;
-            InstanceScript* instance;
-
-            bool hasBeenInCombat;
-            bool combatEntered;
-
-            uint32 combatCheckTimer;
-            uint32 uiCheckTimer;
-            uint32 uiWaypointPath;
+    private:
+        EventMap events;
+        InstanceScript* instance;
+        bool hasBeenInCombat;
+        bool combatEntered;
+        uint32 combatCheckTimer;
+        uint32 uiCheckTimer;
+        uint32 uiWaypointPath;
     };
 
     CreatureAI* GetAI(Creature* creature) const
