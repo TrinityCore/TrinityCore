@@ -3303,6 +3303,9 @@ void SpellMgr::LoadSpellInfoCorrections()
                 /// @todo: remove this when basepoints of all Ride Vehicle auras are calculated correctly
                 spellInfo->Effects[EFFECT_0].BasePoints = 1;
                 break;
+            case  50452: // Bloodworm summon
+                spellInfo->Effects[EFFECT_0].DieSides = 3;
+                break;
             // ULDUAR SPELLS
             //
             case 62374: // Pursued (Flame Leviathan)
