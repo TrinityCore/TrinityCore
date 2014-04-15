@@ -409,9 +409,7 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
                         {
                             DoResetThreat();
                             me->AddThreat(target, 5.0f);
-                            // directly charge if range is ok
-                            if (me->GetDistance(me->GetVictim()) > 5.0f && me->GetDistance(me->GetVictim()) <= 30.0f)
-                                DoCastVictim(SPELL_CHARGE);
+                            DoCastVictim(SPELL_CHARGE);
                         }
                         events.ScheduleEvent(EVENT_CHARGE_VEHICLE, urand(10000, 30000));
                         break;
