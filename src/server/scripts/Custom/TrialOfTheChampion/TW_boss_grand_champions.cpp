@@ -423,17 +423,11 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
                                 if (target->GetVehicle())
                                 {
                                     if (Unit* vehTarget = target->GetVehicle()->GetBase())
-                                    {
                                         DoCast(vehTarget, SPELL_SHIELD_BREAKER);
-                                        vehTarget->RemoveAuraFromStack(SPELL_DEFEND);
-                                    }
                                 }
                             }
                             else if (target->GetTypeId() == TYPEID_UNIT && me->GetDistance(target) > 8.0f && me->GetDistance(target) < 25.0f)
-                            {
                                 DoCast(target, SPELL_SHIELD_BREAKER);
-                                target->RemoveAuraFromStack(SPELL_DEFEND);
-                            }
                         }
                         events.ScheduleEvent(EVENT_SHIELD_BREAKER, urand(15000, 20000));
                         break;
