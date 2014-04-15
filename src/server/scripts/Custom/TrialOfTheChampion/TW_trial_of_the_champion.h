@@ -18,6 +18,8 @@
 #ifndef DEF_TOC_H
 #define DEF_TOC_H
 
+#define TOCHScriptName "TW_instance_trial_of_the_champion"
+
 enum eData
 {
     BOSS_GRAND_CHAMPIONS,
@@ -200,5 +202,15 @@ enum Criterias
 void HandleSpellOnPlayersInInstanceToC5(Unit* caller, uint32 spellId);
 void HandleInstanceBind(Creature* source);
 
+
+template<class AI>
+CreatureAI* GetTWTrialOfTheChampionAI(Creature* creature)
+{
+    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
+        if (instance->GetInstanceScript())
+            if (instance->GetScriptId() == sObjectMgr->GetScriptId(TOCHScriptName))
+                return new AI(creature);
+            return NULL;
+}
 
 #endif

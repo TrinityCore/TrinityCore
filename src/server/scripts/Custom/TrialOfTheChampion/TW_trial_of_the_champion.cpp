@@ -274,10 +274,10 @@ class TW_npc_herald_toc5 : public CreatureScript
             switch (uiType)
             {
                 case DATA_START:
-                    if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
-                        instance->HandleGameObject(pGO->GetGUID(),true);
-                    if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
-                        instance->HandleGameObject(pGO->GetGUID(),false);
+                    if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                        instance->HandleGameObject(gate->GetGUID(),true);
+                    if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+                        instance->HandleGameObject(gate->GetGUID(),false);
                     DoSummonGrandChampion(uiFirstBoss);
                     events.ScheduleEvent(EVENT_SUMMON_FACTION_2, 10000, 0, PHASE_INPROGRESS);
                     break;
@@ -335,7 +335,7 @@ class TW_npc_herald_toc5 : public CreatureScript
 
         void JustSummoned(Creature* summon) OVERRIDE
         {
-            if (instance && instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED)
+            if (instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED)
             {
                 summon->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                 summon->SetReactState(REACT_PASSIVE);
@@ -426,9 +426,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                                 if (Unit* pUnit = pVehicle->GetPassenger(0))
                                     uiGrandChampionBoss1 = pUnit->GetGUID();
                         
-                        if (instance)
-                            instance->SetData64(DATA_GRAND_CHAMPION_1, uiGrandChampionBoss1);
-
+                        instance->SetData64(DATA_GRAND_CHAMPION_1, uiGrandChampionBoss1);
                         pBoss->AI()->SetData(1,0);
                         break;
                     }
@@ -440,9 +438,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                                 if (Unit* pUnit = pVehicle->GetPassenger(0))
                                     uiGrandChampionBoss2 = pUnit->GetGUID();
                        
-                        if (instance)
-                            instance->SetData64(DATA_GRAND_CHAMPION_2, uiGrandChampionBoss2);
-
+                        instance->SetData64(DATA_GRAND_CHAMPION_2, uiGrandChampionBoss2);
                         pBoss->AI()->SetData(2, 0);
                         break;
                     }
@@ -815,7 +811,7 @@ class TW_npc_herald_toc5 : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new TW_npc_herald_toc5AI (creature);
+        return GetTWTrialOfTheChampionAI<TW_npc_herald_toc5AI>(creature);
     };
 };
 

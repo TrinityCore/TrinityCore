@@ -175,14 +175,11 @@ public:
             iveHadWorse = true;
             pAnnouncer = NULL;
 
-            if (instance)
-            {
-                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
-                    instance->HandleGameObject(go->GetGUID(), false);
+            if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                instance->HandleGameObject(go->GetGUID(), false);
 
-                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
-                    instance->HandleGameObject(go->GetGUID(), true);
-            }
+            if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+                instance->HandleGameObject(go->GetGUID(), true);
 
             if (bEventInBattle)
             {
@@ -495,16 +492,13 @@ public:
                     varian->AI()->Talk(SAY_AGGRO_OUTRO);
             }
 
-            if (instance)
-            {
-                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
-                    instance->HandleGameObject(go->GetGUID(), false);
+            if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+                instance->HandleGameObject(gate->GetGUID(), false);
 
-                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
-                    instance->HandleGameObject(go->GetGUID(), false);
+            if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                instance->HandleGameObject(gate->GetGUID(), false);
 
-                instance->SetData(BOSS_BLACK_KNIGHT, IN_PROGRESS);
-            }
+            instance->SetData(BOSS_BLACK_KNIGHT, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -558,21 +552,15 @@ public:
         {
             DoCast(me, SPELL_KILL_CREDIT);
             Talk(SAY_DEATH);
+            
             if (TempSummon* summ = me->ToTempSummon())
                 summ->SetTempSummonType(TEMPSUMMON_DEAD_DESPAWN);
 
-            if (instance)
-            {
-                instance->SetData(BOSS_BLACK_KNIGHT, DONE);
+            instance->SetData(BOSS_BLACK_KNIGHT, DONE);
+            instance->DoCastSpellOnPlayers(SPELL_KILL_CREDIT);
 
-                instance->DoCastSpellOnPlayers(SPELL_KILL_CREDIT);
-
-                // Instance encounter counting mechanics
-                //instance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, 68663, me);
-
-                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
-                    instance->HandleGameObject(go->GetGUID(), true);
-            }
+            if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+                instance->HandleGameObject(gate->GetGUID(), true);
         }
         private:
             EventMap _events;
@@ -580,7 +568,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new TW_boss_black_knightAI (creature);
+        return GetTWTrialOfTheChampionAI<TW_boss_black_knightAI>(creature);
     }
 
 };
@@ -623,14 +611,14 @@ public:
         void SpellHitTarget(Unit* target, const SpellInfo* spell) OVERRIDE
         {
             if (target->GetTypeId() == TYPEID_PLAYER && (spell->Id == GHOUL_EXPLODE_DAMAGE || spell->Id == H_GHOUL_EXPLODE_DAMAGE || spell->Id == SPELL_GHOUL_EXPLODE))
-                if (Creature* knight = me->FindNearestCreature(NPC_BLACK_KNIGHT, 200.0f))
+                if (Creature* knight = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BLACK_KNIGHT)))
                     knight->AI()->SetData(DATA_IVE_HAD_WORSE, false);
         }
     };
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new TW_npc_risen_ghoulAI(creature);
+        return GetTWTrialOfTheChampionAI<TW_npc_risen_ghoulAI>(creature);
     }
 };
 
@@ -683,7 +671,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new TW_npc_risen_announcerAI(creature);
+        return GetTWTrialOfTheChampionAI<TW_npc_risen_announcerAI>(creature);
     }
 };
 
@@ -753,7 +741,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new TW_npc_black_knight_skeletal_gryphonAI(creature);
+        return GetTWTrialOfTheChampionAI<TW_npc_black_knight_skeletal_gryphonAI>(creature);
     }
 };
 

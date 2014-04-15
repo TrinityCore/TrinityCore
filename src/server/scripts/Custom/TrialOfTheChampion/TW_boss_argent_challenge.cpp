@@ -202,16 +202,13 @@ class TW_boss_eadric : public CreatureScript
                          return;
                 }
                 
-                if (instance)
-                {
-                    GameObject* GO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1));
-                    if (GO)
-                        instance->HandleGameObject(GO->GetGUID(),true);
-                    Creature* announcer=pMap->GetCreature(instance->GetData64(DATA_ANNOUNCER));
-                    instance->SetData(DATA_ARGENT_SOLDIER_DEFEATED,0);
-                    announcer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                }
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+                    instance->HandleGameObject(gate->GetGUID(), true);
 
+                if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ANNOUNCER)))
+                    announcer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+                instance->SetData(DATA_ARGENT_SOLDIER_DEFEATED, 0);
                 me->RemoveFromWorld();
             }
         }
@@ -231,12 +228,11 @@ class TW_boss_eadric : public CreatureScript
                 Talk(SAY_EADRIC_DEFEATED);
                 me->setFaction(35);
                 bDone = true;
-                if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
-                    instance->HandleGameObject(pGO->GetGUID(),true);
-                if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
-                    instance->HandleGameObject(pGO->GetGUID(),true);
-                if (instance)
-                    instance->SetData(BOSS_ARGENT_CHALLENGE_E, DONE);
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                    instance->HandleGameObject(gate->GetGUID(),true);
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+                    instance->HandleGameObject(gate->GetGUID(),true);
+                instance->SetData(BOSS_ARGENT_CHALLENGE_E, DONE);
                 HandleInstanceBind(me);
             }
         }
@@ -283,8 +279,8 @@ class TW_boss_eadric : public CreatureScript
             {
                 me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
                 bDone = false;
-                if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
-                    instance->HandleGameObject(pGO->GetGUID(),false);
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                    instance->HandleGameObject(gate->GetGUID(),false);
             } else uiResetTimer -= uiDiff;
 
             if (!UpdateVictim())
@@ -327,7 +323,7 @@ class TW_boss_eadric : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new TW_boss_eadricAI(creature);
+        return GetTWTrialOfTheChampionAI<TW_boss_eadricAI>(creature);
     };
 };
 
@@ -392,16 +388,13 @@ class TW_boss_paletress : public CreatureScript
                         return;
                 }
 
-                if (pInstance)
-                {
-                    GameObject* GO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1));
-                    if(GO)
-                       pInstance->HandleGameObject(GO->GetGUID(),true);
-                    Creature* announcer = pMap->GetCreature(pInstance->GetData64(DATA_ANNOUNCER));
-                    pInstance->SetData(DATA_ARGENT_SOLDIER_DEFEATED,0);
-                    announcer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                }
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+                    pInstance->HandleGameObject(gate->GetGUID(), true);
 
+                if (Creature* announcer = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_ANNOUNCER)))
+                    announcer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+                pInstance->SetData(DATA_ARGENT_SOLDIER_DEFEATED, 0);
                 me->RemoveFromWorld();
             }
         }
@@ -437,14 +430,14 @@ class TW_boss_paletress : public CreatureScript
                 Talk(SAY_PALETRESS_DEFEATED);
                 me->setFaction(35);
                 bDone = true;
-                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
-                    pInstance->HandleGameObject(pGO->GetGUID(),true);
-                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
-                    pInstance->HandleGameObject(pGO->GetGUID(),true);
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
+                    pInstance->HandleGameObject(gate->GetGUID(),true);
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+                    pInstance->HandleGameObject(gate->GetGUID(),true);
                 pInstance->SetData(BOSS_ARGENT_CHALLENGE_P, DONE);
                 HandleInstanceBind(me);
 
-                if (Creature* memory = me->GetMap()->ToInstanceMap()->GetCreature(MemoryGUID))
+                if (Creature* memory = ObjectAccessor::GetCreature(*me, MemoryGUID))
                     HandleSpellOnPlayersInInstanceToC5(memory, SPELL_CONFESSOR_ACHIEVEMENT);
             }
         }
@@ -453,7 +446,6 @@ class TW_boss_paletress : public CreatureScript
         {
             if (MovementType != POINT_MOTION_TYPE)
                 return;
-
         }
 
         void UpdateAI(uint32 uiDiff)
@@ -462,8 +454,8 @@ class TW_boss_paletress : public CreatureScript
             {
                 me->GetMotionMaster()->MovePoint(0, 746.843f, 695.68f, 412.339f);
                 bDone = false;
-                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
-                    pInstance->HandleGameObject(pGO->GetGUID(),false);
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
+                    pInstance->HandleGameObject(gate->GetGUID(),false);
             } else uiResetTimer -= uiDiff;
 
             if (!UpdateVictim())
@@ -507,7 +499,7 @@ class TW_boss_paletress : public CreatureScript
                             DoCast(me,DUNGEON_MODE(SPELL_RENEW,SPELL_RENEW_H));
                             break;
                         case 1:
-                            if (Creature* pMemory = Unit::GetCreature(*me, MemoryGUID))
+                            if (Creature* pMemory = ObjectAccessor::GetCreature(*me, MemoryGUID))
                                 if (pMemory->IsAlive())
                                     DoCast(pMemory, DUNGEON_MODE(SPELL_RENEW,SPELL_RENEW_H));
                             break;
@@ -539,7 +531,7 @@ class TW_boss_paletress : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new TW_boss_paletressAI(creature);
+        return GetTWTrialOfTheChampionAI<TW_boss_paletressAI>(creature);
     };
 };
 
@@ -613,7 +605,7 @@ class TW_npc_memory : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new TW_npc_memoryAI(creature);
+        return GetTWTrialOfTheChampionAI<TW_npc_memoryAI>(creature);
     };
 };
 
@@ -631,8 +623,8 @@ class TW_npc_argent_soldier : public CreatureScript
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
             me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_SELECTABLE);
-            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
-                pInstance->HandleGameObject(pGO->GetGUID(),true);
+            if (GameObject* gate = ObjectAccessor::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
+                pInstance->HandleGameObject(gate->GetGUID(),true);
             SetDespawnAtEnd(false);
             uiWaypoint = 0;
             bStarted = false;
@@ -705,8 +697,8 @@ class TW_npc_argent_soldier : public CreatureScript
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                         bStarted = true;
-                        if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
-                            pInstance->HandleGameObject(pGO->GetGUID(),false);
+                        if (GameObject* gate = ObjectAccessor::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
+                            pInstance->HandleGameObject(gate->GetGUID(),false);
                         break;
                 }
 
@@ -850,14 +842,13 @@ class TW_npc_argent_soldier : public CreatureScript
 
         void JustDied(Unit* killer) OVERRIDE
         {
-            if (pInstance)
-                pInstance->SetData(DATA_ARGENT_SOLDIER_DEFEATED,pInstance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);
+            pInstance->SetData(DATA_ARGENT_SOLDIER_DEFEATED,pInstance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);
         }
     };
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new TW_npc_argent_soldierAI(creature);
+        return GetTWTrialOfTheChampionAI<TW_npc_argent_soldierAI>(creature);
     };
 };
 
