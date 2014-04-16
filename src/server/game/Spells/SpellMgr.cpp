@@ -2913,14 +2913,8 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 53096: // Quetz'lun's Judgment
                 spellInfo->MaxAffectedTargets = 1;
                 break;
-            case 42730:
-                spellInfo->Effects[EFFECT_1].TriggerSpell = 42739;
-                break;
             case 42436: // Drink! (Brewfest)
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
-                break;
-            case 59735:
-                spellInfo->Effects[EFFECT_1].TriggerSpell = 59736;
                 break;
             case 52611: // Summon Skeletons
             case 52612: // Summon Skeletons
