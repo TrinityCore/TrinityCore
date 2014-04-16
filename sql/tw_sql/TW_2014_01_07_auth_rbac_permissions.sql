@@ -9,7 +9,7 @@ INSERT INTO `rbac_permissions` (`id`,`name`) VALUES
 (1007,'Command: online account'),
 (1008,'Command: online character'),
 (1009,'Command: instance setdata'),
-(1010,'Command: instance getdata');
+(1010,'Command: instance getdata'),
 (1011,'Command: qc complete');
  
 /* adds qc to players */
@@ -31,6 +31,6 @@ INSERT INTO `rbac_linked_permissions` (`id`,`linkedId`) VALUES
 /* adds instance setdata to GMs */
 (193, 1009), 
 /* adds instance getdata to GMs */
-(193, 1010);
+(193, 1010),
 /* adds qc complete to players */
 (195, 1011);
