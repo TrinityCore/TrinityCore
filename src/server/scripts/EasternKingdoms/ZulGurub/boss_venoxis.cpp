@@ -85,7 +85,8 @@ enum NPCs
 
 class boss_venoxis : public CreatureScript
 {
-    public: boss_venoxis() : CreatureScript("boss_venoxis") { }
+    public:
+        boss_venoxis() : CreatureScript("boss_venoxis") { }
 
         struct boss_venoxisAI : public BossAI
         {
@@ -167,7 +168,6 @@ class boss_venoxis : public CreatureScript
                             DoCast(me, SPELL_THRASH, true);
                             events.ScheduleEvent(EVENT_THRASH, urand(10000, 20000));
                             break;
-
                         // troll form spells and Actions (first part)
                         case EVENT_DISPEL_MAGIC:
                             DoCast(me, SPELL_DISPEL_MAGIC);

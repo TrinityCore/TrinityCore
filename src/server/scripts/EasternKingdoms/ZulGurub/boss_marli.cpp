@@ -29,10 +29,10 @@ EndScriptData */
 
 enum Says
 {
-    SAY_AGGRO               = 0,
-    SAY_TRANSFORM           = 1,
-    SAY_SPIDER_SPAWN        = 2,
-    SAY_DEATH               = 3
+    SAY_AGGRO                 = 0,
+    SAY_TRANSFORM             = 1,
+    SAY_SPIDER_SPAWN          = 2,
+    SAY_DEATH                 = 3
 };
 
 enum Spells
@@ -62,6 +62,11 @@ enum Phases
     PHASE_ONE                 = 1,
     PHASE_TWO                 = 2,
     PHASE_THREE               = 3
+};
+
+enum Misc
+{
+    NPC_SPIDER                = 15041
 };
 
 class boss_marli : public CreatureScript
@@ -107,23 +112,12 @@ class boss_marli : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SPAWN_START_SPIDERS:
-
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
                                 Talk(SAY_SPIDER_SPAWN);
-                                Creature* Spider = NULL;
-                                Spider = me->SummonCreature(15041, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                                if (Spider)
-                                    Spider->AI()->AttackStart(target);
-                                Spider = me->SummonCreature(15041, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                                if (Spider)
-                                    Spider->AI()->AttackStart(target);
-                                Spider = me->SummonCreature(15041, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                                if (Spider)
-                                    Spider->AI()->AttackStart(target);
-                                Spider = me->SummonCreature(15041, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                                if (Spider)
-                                    Spider->AI()->AttackStart(target);
+                                for (uint8 i = 0; i < 4; ++i)
+                                    if (Creature* spider = me->SummonCreature(NPC_SPIDER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
+                                        spider->AI()->AttackStart(target);
                             }
                             events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12000, 0, PHASE_TWO);
                             events.ScheduleEvent(EVENT_TRANSFORM, 45000, 0, PHASE_TWO);
@@ -142,11 +136,8 @@ class boss_marli : public CreatureScript
                             break;
                         case EVENT_SPAWN_SPIDER:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            {
-                                Creature* Spider = me->SummonCreature(15041, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                                if (Spider)
-                                    Spider->AI()->AttackStart(target);
-                            }
+                                if (Creature* spider = me->SummonCreature(NPC_SPIDER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
+                                    spider->AI()->AttackStart(target);
                             events.ScheduleEvent(EVENT_SPAWN_SPIDER, urand(12000, 17000));
                             break;
                         case EVENT_TRANSFORM:
@@ -235,9 +226,7 @@ class npc_spawn_of_marli : public CreatureScript
                 LevelUp_Timer = 3000;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
-            {
-            }
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
             void UpdateAI(uint32 diff) OVERRIDE
             {

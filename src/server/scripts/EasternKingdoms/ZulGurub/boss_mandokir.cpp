@@ -37,7 +37,8 @@ enum Says
     SAY_WATCH                 = 2,
     SAY_WATCH_WHISPER         = 3,
     SAY_OHGAN_DEAD            = 4,
-    SAY_GRATS_JINDO           = 0,
+
+    SAY_GRATS_JINDO           = 0
 };
 
 enum Spells
@@ -106,7 +107,8 @@ Position const PosMandokir[2] =
 
 class boss_mandokir : public CreatureScript
 {
-    public: boss_mandokir() : CreatureScript("boss_mandokir") { }
+    public:
+        boss_mandokir() : CreatureScript("boss_mandokir") { }
 
         struct boss_mandokirAI : public BossAI
         {
@@ -118,9 +120,9 @@ class boss_mandokir : public CreatureScript
                 {
                     _Reset();
                     killCount = 0;
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                     events.ScheduleEvent(EVENT_CHECK_START, 1000);
-                    if (Creature* speaker = Creature::GetCreature(*me, instance->GetData64(NPC_VILEBRANCH_SPEAKER)))
+                    if (Creature* speaker = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_VILEBRANCH_SPEAKER)))
                         if (!speaker->IsAlive())
                             speaker->Respawn(true);
                 }
@@ -132,7 +134,7 @@ class boss_mandokir : public CreatureScript
             {
                 // Do not want to unsummon Ohgan
                 for (int i = 0; i < CHAINED_SPIRT_COUNT; ++i)
-                    if (Creature* unsummon = Creature::GetCreature(*me, chainedSpirtGUIDs[i]))
+                    if (Creature* unsummon = ObjectAccessor::GetCreature(*me, chainedSpirtGUIDs[i]))
                         unsummon->DespawnOrUnsummon();
                 instance->SetBossState(DATA_MANDOKIR, DONE);
                 instance->SaveToDB();
@@ -169,7 +171,7 @@ class boss_mandokir : public CreatureScript
                 if (++killCount == 3)
                 {
                     Talk(SAY_DING_KILL);
-                    if (Creature* jindo = Creature::GetCreature(*me, instance->GetData64(DATA_JINDO)))
+                    if (Creature* jindo = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_JINDO)))
                         if (jindo->IsAlive())
                             jindo->AI()->Talk(SAY_GRATS_JINDO);
                     DoCast(me, SPELL_LEVEL_UP, true);
@@ -213,7 +215,7 @@ class boss_mandokir : public CreatureScript
                                         events.ScheduleEvent(EVENT_CHECK_START, 1000);
                                     break;
                                 case EVENT_STARTED:
-                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
+                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                                     me->GetMotionMaster()->MovePath(PATH_MANDOKIR, false);
                                     break;
                                 default:
@@ -293,7 +295,8 @@ enum OhganSpells
 
 class npc_ohgan : public CreatureScript
 {
-    public: npc_ohgan() : CreatureScript("npc_ohgan") { }
+    public:
+        npc_ohgan() : CreatureScript("npc_ohgan") { }
 
         struct npc_ohganAI : public ScriptedAI
         {
@@ -345,7 +348,8 @@ enum VilebranchSpells
 
 class npc_vilebranch_speaker : public CreatureScript
 {
-    public: npc_vilebranch_speaker() : CreatureScript("npc_vilebranch_speaker") { }
+    public:
+        npc_vilebranch_speaker() : CreatureScript("npc_vilebranch_speaker") { }
 
         struct npc_vilebranch_speakerAI : public ScriptedAI
         {
