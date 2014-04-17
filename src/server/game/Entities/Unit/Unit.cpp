@@ -6363,15 +6363,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 CastSpell(this, 57669, true, castItem, triggeredByAura);
                 break;
             }
-            // Sanctified Wrath
-            if (dummySpell->SpellIconID == 3029)
-            {
-                triggered_spell_id = 57318;
-                target = this;
-                basepoints0 = triggerAmount;
-                CastCustomSpell(target, triggered_spell_id, &basepoints0, &basepoints0, NULL, true, castItem, triggeredByAura);
-                return true;
-            }
             // Righteous Vengeance
             if (dummySpell->SpellIconID == 3025)
             {
