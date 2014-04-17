@@ -2276,6 +2276,46 @@ class spell_q13400_illidan_kill_master : public SpellScriptLoader
         }
 };
 
+enum RelicOfTheEarthenRing
+{
+    SPELL_TOTEM_OF_THE_EARTHEN_RING = 66747
+};
+
+// 66744 - Make Player Destroy Totems
+class spell_q14100_q14111_make_player_destroy_totems : public SpellScriptLoader
+{
+    public:
+        spell_q14100_q14111_make_player_destroy_totems() : SpellScriptLoader("spell_q14100_q14111_make_player_destroy_totems") { }
+
+        class spell_q14100_q14111_make_player_destroy_totems_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q14100_q14111_make_player_destroy_totems_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_TOTEM_OF_THE_EARTHEN_RING))
+                    return false;
+                return true;
+            }
+
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                if (Player* player = GetHitPlayer())
+                    player->CastSpell(player, SPELL_TOTEM_OF_THE_EARTHEN_RING, TRIGGERED_FULL_MASK); // ignore reagent cost, consumed by quest
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q14100_q14111_make_player_destroy_totems_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_q14100_q14111_make_player_destroy_totems_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2331,4 +2371,5 @@ void AddSC_quest_spell_scripts()
     new spell_q12919_gymers_grab();
     new spell_q12919_gymers_throw();
     new spell_q13400_illidan_kill_master();
+    new spell_q14100_q14111_make_player_destroy_totems();
 }

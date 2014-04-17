@@ -70,15 +70,13 @@ enum Events
     EVENT_TRIGGER,
 
     EVENT_PHASE,
-    EVENT_MORTAL_WOUND,
+    EVENT_MORTAL_WOUND
 };
 
 enum Spells
 {
     SPELL_FROST_BOLT                                       = 28478,
-    H_SPELL_FROST_BOLT                                     = 55802,
     SPELL_FROST_BOLT_AOE                                   = 28479,
-    H_SPELL_FROST_BOLT_AOE                                 = 55807,
     SPELL_SHADOW_FISURE                                    = 27810,
     SPELL_VOID_BLAST                                       = 27812,
     SPELL_MANA_DETONATION                                  = 27819,
@@ -122,7 +120,7 @@ enum Spells
 
     // Abomination spells
     SPELL_FRENZY                                           = 28468,
-    SPELL_MORTAL_WOUND                                     = 28467,
+    SPELL_MORTAL_WOUND                                     = 28467
 };
 
 enum Creatures
@@ -133,7 +131,7 @@ enum Creatures
     NPC_ICECROWN                                           = 16441 // Guardians of Icecrown
 };
 
-const Position Pos[12] =
+Position const Pos[12] =
 {
     {3783.272705f, -5062.697266f, 143.711203f, 3.617599f},     //LEFT_FAR
     {3730.291260f, -5027.239258f, 143.956909f, 4.461900f},     //LEFT_MIDDLE
@@ -146,13 +144,13 @@ const Position Pos[12] =
     {3732.02f, -5028.53f, 143.92f, 4.49f},                     //WINDOW_PORTAL02
     {3687.571777f, -5126.831055f, 142.017807f, 0.604023f},     //RIGHT_FAR
     {3707.990733f, -5151.450195f, 142.032562f, 1.376855f},     //RIGHT_MIDDLE
-    {3782.76f, -5062.97f, 143.79f, 3.82f},                     //WINDOW_PORTAL03
+    {3782.76f, -5062.97f, 143.79f, 3.82f}                      //WINDOW_PORTAL03
 };
 
 //creatures in corners
 //Unstoppable Abominations
 #define MAX_ABOMINATIONS                        21
-const Position PosAbominations[MAX_ABOMINATIONS] =
+Position const PosAbominations[MAX_ABOMINATIONS] =
 {
     {3755.52f, -5155.22f, 143.480f, 2.0f},
     {3744.35f, -5164.03f, 143.590f, 2.00f},
@@ -174,12 +172,12 @@ const Position PosAbominations[MAX_ABOMINATIONS] =
     {3669.74f, -5149.63f, 143.678f, 0.528643f},
     {3695.53f, -5169.53f, 143.671f, 2.11908f},
     {3701.98f, -5166.51f, 143.395f, 1.24257f},
-    {3709.62f, -5169.15f, 143.576f, 5.97695f},
+    {3709.62f, -5169.15f, 143.576f, 5.97695f}
 };
 
 //Soldiers of the Frozen Wastes
 #define MAX_WASTES                              49
-const Position PosWastes[MAX_WASTES] =
+Position const PosWastes[MAX_WASTES] =
 {
     {3754.41f, -5147.24f, 143.204f, 2.0f},
     {3754.68f, -5156.17f, 143.418f, 2.0f},
@@ -229,12 +227,12 @@ const Position PosWastes[MAX_WASTES] =
     {3708.53f, -5172.19f, 143.573f, 3.26575f},
     {3712.49f, -5167.62f, 143.657f, 5.63295f},
     {3704.89f, -5161.84f, 143.239f, 5.63295f},
-    {3695.66f, -5164.63f, 143.674f, 1.54416f},
+    {3695.66f, -5164.63f, 143.674f, 1.54416f}
 };
 
 //Soul Weavers
 #define MAX_WEAVERS                             7
-const Position PosWeavers[MAX_WEAVERS] =
+Position const PosWeavers[MAX_WEAVERS] =
 {
     {3752.45f, -5168.35f, 143.562f, 1.6094f},
     {3772.2f, -5070.04f, 143.329f, 1.93686f},
@@ -242,7 +240,7 @@ const Position PosWeavers[MAX_WEAVERS] =
     {3689.05f, -5055.7f, 143.172f, 6.09554f},
     {3649.45f, -5093.17f, 143.299f, 2.51805f},
     {3659.7f, -5144.49f, 143.363f, 4.08806f},
-    {3704.71f, -5175.96f, 143.597f, 3.36549f},
+    {3704.71f, -5175.96f, 143.597f, 3.36549f}
 };
 
 // predicate function to select not charmed target
@@ -278,9 +276,6 @@ public:
 
         std::map<uint64, float> chained;
 
-        uint64 PortalsGUID[4];
-        uint64 KTTriggerGUID;
-
         SummonList spawns; // adds spawn by the trigger. kept in separated list (i.e. not in summons)
 
         void ResetPlayerScale()
@@ -299,36 +294,29 @@ public:
         {
             _Reset();
 
-            PortalsGUID[0] = PortalsGUID[1] = PortalsGUID[2] = PortalsGUID[3] = 0;
-            KTTriggerGUID = 0;
-
             me->setFaction(35);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
 
             ResetPlayerScale();
             spawns.DespawnAll();
 
-            FindGameObjects();
-
             instance->SetData(DATA_ABOMINATION_KILLED, 0);
 
-            if (GameObject* pKTTrigger = me->GetMap()->GetGameObject(KTTriggerGUID))
+            if (GameObject* trigger = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_KELTHUZAD_TRIGGER)))
             {
-                pKTTrigger->ResetDoorOrButton();
-                pKTTrigger->SetPhaseMask(1, true);
+                trigger->ResetDoorOrButton();
+                trigger->SetPhaseMask(1, true);
             }
 
             for (uint8 i = 0; i <= 3; ++i)
             {
-                if (GameObject* pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
-                {
-                    if (!((pPortal->getLootState() == GO_READY) || (pPortal->getLootState() == GO_NOT_READY)))
-                        pPortal->ResetDoorOrButton();
-                }
+                if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_KELTHUZAD_PORTAL01 + i)))
+                    if (!((portal->getLootState() == GO_READY) || (portal->getLootState() == GO_NOT_READY)))
+                        portal->ResetDoorOrButton();
             }
 
             nGuardiansOfIcecrownCount = 0;
-            uiGuardiansOfIcecrownTimer = 5000;                   //5 seconds for summoning each Guardian of Icecrown in phase 3
+            uiGuardiansOfIcecrownTimer = 5000; // 5 seconds for summoning each Guardian of Icecrown in phase 3
 
             Phase = 0;
             nAbomination = 0;
@@ -353,11 +341,10 @@ public:
             me->setFaction(uiFaction);
 
             _EnterCombat();
-            FindGameObjects();
             for (uint8 i = 0; i <= 3; ++i)
             {
-                if (GameObject* pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
-                    pPortal->ResetDoorOrButton();
+                if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_KELTHUZAD_PORTAL01 + i)))
+                    portal->ResetDoorOrButton();
             }
             DoCast(me, SPELL_KELTHUZAD_CHANNEL, false);
             Talk(SAY_SUMMON_MINIONS);
@@ -370,15 +357,6 @@ public:
             events.ScheduleEvent(EVENT_ABOMIN, 30000);
             events.ScheduleEvent(EVENT_WEAVER, 50000);
             events.ScheduleEvent(EVENT_PHASE, 228000);
-        }
-
-        void FindGameObjects()
-        {
-            PortalsGUID[0] = instance->GetData64(DATA_KELTHUZAD_PORTAL01);
-            PortalsGUID[1] = instance->GetData64(DATA_KELTHUZAD_PORTAL02);
-            PortalsGUID[2] = instance->GetData64(DATA_KELTHUZAD_PORTAL03);
-            PortalsGUID[3] = instance->GetData64(DATA_KELTHUZAD_PORTAL04);
-            KTTriggerGUID = instance->GetData64(DATA_KELTHUZAD_TRIGGER);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -419,8 +397,8 @@ public:
                                 events.PopEvent();
                             break;
                         case EVENT_TRIGGER:
-                            if (GameObject* pKTTrigger = me->GetMap()->GetGameObject(KTTriggerGUID))
-                                pKTTrigger->SetPhaseMask(2, true);
+                            if (GameObject* trigger = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_KELTHUZAD_TRIGGER)))
+                                trigger->SetPhaseMask(2, true);
                             events.PopEvent();
                             break;
                         case EVENT_PHASE:
@@ -461,11 +439,9 @@ public:
 
                         for (uint8 i = 0; i <= 3; ++i)
                         {
-                            if (GameObject* pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
-                            {
-                                if (pPortal->getLootState() == GO_READY)
-                                    pPortal->UseDoorOrButton();
-                            }
+                            if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_KELTHUZAD_PORTAL01 + i)))
+                                if (portal->getLootState() == GO_READY)
+                                    portal->UseDoorOrButton();
                         }
                     }
                 }
@@ -474,8 +450,8 @@ public:
                     if (uiGuardiansOfIcecrownTimer <= diff)
                     {
                         /// @todo Add missing text
-                        if (Creature* pGuardian = DoSummon(NPC_ICECROWN, Pos[RAND(2, 5, 8, 11)]))
-                            pGuardian->SetFloatValue(UNIT_FIELD_COMBATREACH, 2);
+                        if (Creature* guardian = DoSummon(NPC_ICECROWN, Pos[RAND(2, 5, 8, 11)]))
+                            guardian->SetFloatValue(UNIT_FIELD_COMBATREACH, 2);
                         ++nGuardiansOfIcecrownCount;
                         uiGuardiansOfIcecrownTimer = 5000;
                     }
@@ -490,11 +466,11 @@ public:
                     switch (eventId)
                     {
                         case EVENT_BOLT:
-                            DoCastVictim(RAID_MODE(SPELL_FROST_BOLT, H_SPELL_FROST_BOLT));
+                            DoCastVictim(SPELL_FROST_BOLT);
                             events.RepeatEvent(urand(5000, 10000));
                             break;
                         case EVENT_NOVA:
-                            DoCastAOE(RAID_MODE(SPELL_FROST_BOLT_AOE, H_SPELL_FROST_BOLT_AOE));
+                            DoCastAOE(SPELL_FROST_BOLT_AOE);
                             events.RepeatEvent(urand(15000, 30000));
                             break;
                         case EVENT_CHAIN:
@@ -666,7 +642,7 @@ public:
         if (!instance || instance->IsEncounterInProgress() || instance->GetBossState(BOSS_KELTHUZAD) == DONE)
             return false;
 
-        Creature* pKelthuzad = Unit::GetCreature(*player, instance->GetData64(DATA_KELTHUZAD));
+        Creature* pKelthuzad = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_KELTHUZAD));
         if (!pKelthuzad)
             return false;
 
@@ -675,7 +651,7 @@ public:
             return false;
 
         pKelthuzadAI->AttackStart(player);
-        if (GameObject* trigger = instance->instance->GetGameObject(instance->GetData64(DATA_KELTHUZAD_TRIGGER)))
+        if (GameObject* trigger = ObjectAccessor::GetGameObject(*player, instance->GetData64(DATA_KELTHUZAD_TRIGGER)))
         {
             if (trigger->getLootState() == GO_READY)
                 trigger->UseDoorOrButton();

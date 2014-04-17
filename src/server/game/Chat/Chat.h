@@ -97,6 +97,8 @@ class ChatHandler
         Creature* getSelectedCreature();
         Unit*     getSelectedUnit();
         WorldObject* getSelectedObject();
+        // Returns either the selected player or self if there is no selected player
+        Player*   getSelectedPlayerOrSelf();
 
         char*     extractKeyFromLink(char* text, char const* linkType, char** something1 = NULL);
         char*     extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = NULL);

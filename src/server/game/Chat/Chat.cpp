@@ -782,6 +782,24 @@ Creature* ChatHandler::getSelectedCreature()
     return ObjectAccessor::GetCreatureOrPetOrVehicle(*m_session->GetPlayer(), m_session->GetPlayer()->GetTarget());
 }
 
+Player* ChatHandler::getSelectedPlayerOrSelf()
+{
+    if (!m_session)
+        return NULL;
+
+    uint64 selected = m_session->GetPlayer()->GetTarget();
+    if (!selected)
+        return m_session->GetPlayer();
+
+    // first try with selected target
+    Player* targetPlayer = ObjectAccessor::FindPlayer(selected);
+    // if the target is not a player, then return self
+    if (!targetPlayer)
+        targetPlayer = m_session->GetPlayer();
+
+    return targetPlayer;
+}
+
 char* ChatHandler::extractKeyFromLink(char* text, char const* linkType, char** something1)
 {
     // skip empty
