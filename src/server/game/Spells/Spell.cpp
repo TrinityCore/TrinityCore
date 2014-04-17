@@ -2407,7 +2407,25 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
 
     if (missInfo != SPELL_MISS_EVADE && !m_caster->IsFriendlyTo(unit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
     {
-        m_caster->CombatStart(unit, !(m_spellInfo->AttributesEx3 & SPELL_ATTR3_NO_INITIAL_AGGRO));
+        // No spells with SPELL_ATTR3_NO_INITIAL_AGGRO trigger combat.
+        // No spells with SPELL_ATTR1_NOT_BREAK_STEALTH trigger combat.
+        // No spells with SPELL_ATTR1_NO_THREAT trigger combat.
+        bool spellTriggersCombat = !(m_spellInfo->AttributesEx3 & SPELL_ATTR3_NO_INITIAL_AGGRO  ||
+                                     m_spellInfo->AttributesEx  & (SPELL_ATTR1_NOT_BREAK_STEALTH | SPELL_ATTR1_NO_THREAT));
+
+        // Only for players.
+        // No spells with SPELL_ATTR4_FIXED_DAMAGE trigger combat.
+        // Of spells with SPELL_ATTR4_TRIGGERED only spells that also have SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2 or SPELL_ATTR2_TRIGGERED_CAN_TRIGGER_PROC or both trigger combat(See Starfall).
+        // Of spells with SPELL_ATTR3_IGNORE_HIT_RESULT only spells with SPELL_ATTR0_NOT_SHAPESHIFT trigger combat(See Chaos Bolt, Shattering Throw).        
+        if (spellTriggersCombat && m_caster->GetTypeId() == TYPEID_PLAYER)
+            spellTriggersCombat = !(m_spellInfo->AttributesEx4 & SPELL_ATTR4_FIXED_DAMAGE                 ||
+                                   (m_spellInfo->AttributesEx4 & SPELL_ATTR4_TRIGGERED                    &&
+                                  !(m_spellInfo->AttributesEx3 & SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2 ||
+                                    m_spellInfo->AttributesEx2 & SPELL_ATTR2_TRIGGERED_CAN_TRIGGER_PROC)) ||
+                                   (m_spellInfo->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT            &&
+                                  !(m_spellInfo->Attributes & SPELL_ATTR0_NOT_SHAPESHIFT)));
+
+        m_caster->CombatStart(unit, spellTriggersCombat);
 
         if (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_AURA_CC)
             if (!unit->IsStandState())
