@@ -32,6 +32,8 @@ INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `l
 (32927,45506,100,1,0,1,1),
 (33692,45857,100,1,0,1,1),
 (33693,45857,100,1,0,1,1);
+-- Corect drop of reply-code alpha from Algalon in 25 man mode has algalon in both 10 and 25 was dropping only 10m item
+UPDATE `gameobject_loot_template` SET `item`=46053 WHERE  `entry`=26974 AND `item`=46052;
 -- Creature Texts all with correct sound ids maybe missing some emotes for non sniffed ones though or for brann texts anyway
 DELETE FROM `creature_text` WHERE `entry` IN(33874,33235);
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`,`BroadcastTextID`) VALUES
