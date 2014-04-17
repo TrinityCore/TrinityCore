@@ -170,14 +170,6 @@ class boss_ingvar_the_plunderer : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                // hack to give kill credit for achievement 489
-                if (instance)
-                    {
-                        Map::PlayerList const &PlayerList = instance->instance->GetPlayers();
-                        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                            if (Player* player = i->GetSource())
-                                player->KilledMonsterCredit(NPC_INGVAR_UNDEAD, 0);
-                    }
                 _JustDied();
                 Talk(SAY_DEATH_2);
             }
