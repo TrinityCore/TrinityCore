@@ -181,12 +181,13 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- Script 6 Ancient History Turn in
 (19455505, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 104, 16, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum Console - Script 6 - Set Go Flags'),
 (19455505, 9, 1, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 1, 36, 0, 0, 0, 0, 0, 19, 33874, 0, 0, 0, 0, 0, 0, 'Archivum Console - Script 6 - Say Text Line 36 on Archivum System '),
-(19455505, 9, 2, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 1, 37, 0, 0, 0, 0, 0, 19, 33874, 0, 0, 0, 0, 0, 0, 'Archivum Console - Script 6 - Say Text Line 37 on Archivum System '),
-(19455505, 9, 3, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 1, 38, 0, 0, 0, 0, 0, 19, 33874, 0, 0, 0, 0, 0, 0, 'Archivum Console - Script 6 - Say Text Line 38 on Archivum System '),
-(19455505, 9, 4, 0, 0, 0, 100, 0, 12000, 12000, 0, 0, 1, 39, 0, 0, 0, 0, 0, 19, 33874, 0, 0, 0, 0, 0, 0, 'Archivum Console - Script 6 - Say Text Line 39 on Archivum System '),
-(19455505, 9, 5, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 1, 40, 0, 0, 0, 0, 0, 19, 33874, 0, 0, 0, 0, 0, 0, 'Archivum Console - Script 6 - Say Text Line 40 on Archivum System '),
-(19455505, 9, 6, 0, 0, 0, 100, 0, 13000, 13000, 0, 0, 1, 41, 0, 0, 0, 0, 0, 19, 33874, 0, 0, 0, 0, 0, 0, 'Archivum Console - Script 6 - Say Text Line 41 on Archivum System '),
-(19455505, 9, 7, 0, 0, 0, 100, 0, 8000, 8000, 0, 0, 104, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum Console - Script 6 - Set Go Flags');
+(19455505, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 12, 34070, 3, 35000, 0, 0, 0, 8, 0, 0, 0, 1435.798, 118.855, 425.8811, 0, 'Archivum Console - Script 6 - Spawn Uwel Stoneheart'),
+(19455505, 9, 3, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 1, 37, 0, 0, 0, 0, 0, 19, 33874, 0, 0, 0, 0, 0, 0, 'Archivum Console - Script 6 - Say Text Line 37 on Archivum System '),
+(19455505, 9, 4, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 1, 38, 0, 0, 0, 0, 0, 19, 33874, 0, 0, 0, 0, 0, 0, 'Archivum Console - Script 6 - Say Text Line 38 on Archivum System '),
+(19455505, 9, 5, 0, 0, 0, 100, 0, 12000, 12000, 0, 0, 1, 39, 0, 0, 0, 0, 0, 19, 33874, 0, 0, 0, 0, 0, 0, 'Archivum Console - Script 6 - Say Text Line 39 on Archivum System '),
+(19455505, 9, 6, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 1, 40, 0, 0, 0, 0, 0, 19, 33874, 0, 0, 0, 0, 0, 0, 'Archivum Console - Script 6 - Say Text Line 40 on Archivum System '),
+(19455505, 9, 7, 0, 0, 0, 100, 0, 13000, 13000, 0, 0, 1, 41, 0, 0, 0, 0, 0, 19, 33874, 0, 0, 0, 0, 0, 0, 'Archivum Console - Script 6 - Say Text Line 41 on Archivum System '),
+(19455505, 9, 8, 0, 0, 0, 100, 0, 8000, 8000, 0, 0, 104, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Archivum Console - Script 6 - Set Go Flags');
 -- Only show mark to return quests in correct difficulty
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` =20 AND `SourceEntry` IN(13604,13817);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
