@@ -286,8 +286,8 @@ class npc_prince_taldaram_flame_sphere : public CreatureScript
 
         struct npc_prince_taldaram_flame_sphereAI : public ScriptedAI
         {
-            npc_prince_taldaram_flame_sphereAI(Creature* creature) : ScriptedAI(creature) 
-            { 
+            npc_prince_taldaram_flame_sphereAI(Creature* creature) : ScriptedAI(creature)
+            {
                 _flameSphereTargetGUID = 0;
             }
 

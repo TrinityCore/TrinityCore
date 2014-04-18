@@ -25058,7 +25058,7 @@ void Player::HandleFall(MovementInfo const& movementInfo)
         if (damageperc > 0)
         {
             uint32 damage = (uint32)(damageperc * GetMaxHealth()*sWorld->getRate(RATE_DAMAGE_FALL));
-            
+
             if (GetCommandStatus(CHEAT_GOD))
                 damage = 0;
 
