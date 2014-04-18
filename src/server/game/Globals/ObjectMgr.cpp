@@ -5236,7 +5236,7 @@ void ObjectMgr::LoadGossipText()
             gText.Options[i].Text_0           = fields[cic++].GetString();
             gText.Options[i].Text_1           = fields[cic++].GetString();
 
-			gText.Options[i].BroadcastTextID  = fields[cic++].GetUInt32(); // Need for correct loading order
+            gText.Options[i].BroadcastTextID  = fields[cic++].GetUInt32(); // Need for correct loading order
 
             gText.Options[i].Language         = fields[cic++].GetUInt8();
             gText.Options[i].Probability      = fields[cic++].GetFloat();

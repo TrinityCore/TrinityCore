@@ -784,8 +784,8 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
 
     bool hasFamilyMask = false;
 
-    /** 
-    
+    /**
+
     * @brief Check auras procced by periodics
 
     *Only damaging Dots can proc auras with PROC_FLAG_TAKEN_DAMAGE
@@ -799,12 +799,12 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     *Only Dots can proc auras with PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG or PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG
 
     *Only Hots can proc auras with PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS or PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS
-    
+
     * @param procSpell the spell proccing the aura
     * @param procFlags proc_flags of spellProc
     * @param procExtra proc_EX of procSpell
     * @param EventProcFlag proc_flags of aura to be procced
-    
+
 
     */
 
