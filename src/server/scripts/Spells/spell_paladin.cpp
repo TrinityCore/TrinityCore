@@ -67,6 +67,10 @@ enum PaladinSpells
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
 
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
+    
+    SPELL_PALADIN_AVENGING_WRATH                 = 31884,
+    SPELL_PALADIN_SANCTIFIED_WRATH               = 57318,
+    SPELL_PALADIN_SANCTIFIED_WRATH_TALENT        = 53375,
 
     SPELL_PALADIN_CONCENTRACTION_AURA            = 19746,
     SPELL_PALADIN_SANCTIFIED_RETRIBUTION_R1      = 31869,
@@ -233,6 +237,54 @@ class spell_pal_aura_mastery_immune : public SpellScriptLoader
         AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_pal_aura_mastery_immune_AuraScript();
+        }
+};
+
+// 33184 - Avenging Wrath, 57318 - Sanctified Wrath, 53375 & 53376 - Sanctified Wrath talent.
+class spell_pal_avenging_wrath : public SpellScriptLoader
+{
+    public:
+        spell_pal_avenging_wrath() : SpellScriptLoader("spell_pal_avenging_wrath") { }
+    
+        class spell_pal_avenging_wrath_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_avenging_wrath_AuraScript);
+    
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_SANCTIFIED_WRATH_TALENT))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_SANCTIFIED_WRATH))
+                    return false;
+                return true;
+            }
+    
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (AuraEffect const* aurEff = caster->GetAuraEffectOfRankedSpell(SPELL_PALADIN_SANCTIFIED_WRATH_TALENT, EFFECT_2))
+                    {
+                        int32 basepoints = aurEff->GetAmount();
+                        caster->CastCustomSpell(caster, SPELL_PALADIN_SANCTIFIED_WRATH, &basepoints, &basepoints, NULL, true, NULL, aurEff);
+                    }
+            }
+    
+            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetCaster())
+                    GetCaster()->RemoveAurasDueToSpell(SPELL_PALADIN_SANCTIFIED_WRATH);
+            }
+    
+            void Register() OVERRIDE
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_pal_avenging_wrath_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_pal_avenging_wrath_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+    
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_pal_avenging_wrath_AuraScript();
         }
 };
 
@@ -1233,6 +1285,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_ardent_defender();
     new spell_pal_aura_mastery();
     new spell_pal_aura_mastery_immune();
+    new spell_pal_avenging_wrath();
     new spell_pal_blessing_of_faith();
     new spell_pal_blessing_of_sanctuary();
     new spell_pal_divine_sacrifice();
