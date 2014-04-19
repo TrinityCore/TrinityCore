@@ -86,10 +86,10 @@ void PetAI::UpdateAI(uint32 diff)
     else
         m_updateAlliesTimer -= diff;
 
-    if (me->GetVictim() && me->GetVictim()->IsAlive())
+    if (me->GetVictim() && me->EnsureVictim()->IsAlive())
     {
         // is only necessary to stop casting, the pet must not exit combat
-        if (me->GetVictim()->HasBreakableByDamageCrowdControlAura(me))
+        if (me->EnsureVictim()->HasBreakableByDamageCrowdControlAura(me))
         {
             me->InterruptNonMeleeSpells(false);
             return;
@@ -345,7 +345,7 @@ void PetAI::OwnerAttackedBy(Unit* attacker)
         return;
 
     // Prevent pet from disengaging from current target
-    if (me->GetVictim() && me->GetVictim()->IsAlive())
+    if (me->GetVictim() && me->EnsureVictim()->IsAlive())
         return;
 
     // Continue to evaluate and attack if necessary
@@ -366,7 +366,7 @@ void PetAI::OwnerAttacked(Unit* target)
         return;
 
     // Prevent pet from disengaging from current target
-    if (me->GetVictim() && me->GetVictim()->IsAlive())
+    if (me->GetVictim() && me->EnsureVictim()->IsAlive())
         return;
 
     // Continue to evaluate and attack if necessary
@@ -627,7 +627,7 @@ void PetAI::AttackedBy(Unit* attacker)
         return;
 
     // Prevent pet from disengaging from current target
-    if (me->GetVictim() && me->GetVictim()->IsAlive())
+    if (me->GetVictim() && me->EnsureVictim()->IsAlive())
         return;
 
     // Continue to evaluate and attack if necessary

@@ -100,7 +100,7 @@ public:
 
                 if (me->IsInCombat() && me->GetVictim())
                 {
-                    if (Player* player = me->GetVictim()->ToPlayer())
+                    if (Player* player = me->EnsureVictim()->ToPlayer())
                     {
                         if (player->GetTeam() == HORDE)
                         {

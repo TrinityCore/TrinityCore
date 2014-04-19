@@ -1255,7 +1255,7 @@ public:
 
             if ((victimClass == 0) && me->GetVictim())
             {
-                victimClass = me->GetVictim()->getClass();
+                victimClass = me->EnsureVictim()->getClass();
                 switch (victimClass)
                 {
                     case CLASS_DRUID:

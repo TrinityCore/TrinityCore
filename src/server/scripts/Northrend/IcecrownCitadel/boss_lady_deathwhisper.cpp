@@ -890,7 +890,7 @@ class npc_darnavan : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (_canShatter && me->GetVictim() && me->GetVictim()->IsImmunedToDamage(SPELL_SCHOOL_MASK_NORMAL))
+                if (_canShatter && me->GetVictim() && me->EnsureVictim()->IsImmunedToDamage(SPELL_SCHOOL_MASK_NORMAL))
                 {
                     DoCastVictim(SPELL_SHATTERING_THROW);
                     _canShatter = false;

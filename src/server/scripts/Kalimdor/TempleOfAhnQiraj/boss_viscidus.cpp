@@ -272,7 +272,7 @@ class npc_glob_of_viscidus : public CreatureScript
                     if (Viscidus->IsAlive() && Viscidus->GetHealthPct() < 5.0f)
                     {
                         Viscidus->SetVisible(true);
-                        Viscidus->GetVictim()->Kill(Viscidus);
+                        Viscidus->EnsureVictim()->Kill(Viscidus);
                     }
                     else
                     {
