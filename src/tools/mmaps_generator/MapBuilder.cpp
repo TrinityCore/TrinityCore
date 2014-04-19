@@ -553,7 +553,9 @@ namespace MMAP
         config.borderSize = config.walkableRadius + 3;
         config.maxEdgeLen = VERTEX_PER_TILE + 1;        // anything bigger than tileSize
         config.walkableHeight = m_bigBaseUnit ? 3 : 6;
-        config.walkableClimb = m_bigBaseUnit ? 2 : 4;   // keep less than walkableHeight
+        // a value >= 3|6 allows npcs to walk over some fences
+        // a value >= 4|8 allows npcs to walk over all fences
+        config.walkableClimb = m_bigBaseUnit ? 4 : 8;
         config.minRegionArea = rcSqr(60);
         config.mergeRegionArea = rcSqr(50);
         config.maxSimplificationError = 1.8f;           // eliminates most jagged edges (tiny polygons)
