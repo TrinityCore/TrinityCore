@@ -484,7 +484,7 @@ public:
                         EnterEvadeMode();
                     return;
                 }
-                else if (me->EnsureVictim()->GetTypeId() == TYPEID_PLAYER && me->EnsureVictim()->HealthBelowPct(10))
+                else if (me->GetVictim() && me->EnsureVictim()->GetTypeId() == TYPEID_PLAYER && me->EnsureVictim()->HealthBelowPct(10))
                 {
                     me->EnsureVictim()->CastSpell(me->GetVictim(), 7267, true); // beg
                     me->EnsureVictim()->RemoveGameObject(SPELL_DUEL_FLAG, true);
@@ -832,7 +832,7 @@ public:
                 }
             }
 
-            if (!UpdateVictim())
+            if (!UpdateVictim() || !me->GetVictim())
                 return;
 
             //ScriptedAI::UpdateAI(diff);

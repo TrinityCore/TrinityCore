@@ -668,7 +668,7 @@ public:
         void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
-            if (!UpdateVictim())
+            if (!UpdateVictim() || !me->GetVictim())
                 return;
 
             if (!CheckedAggro)

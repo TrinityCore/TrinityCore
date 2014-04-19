@@ -428,7 +428,8 @@ class boss_zuljin : public CreatureScript
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
-                                TankGUID = me->EnsureVictim()->GetGUID();
+                                if (me->GetVictim())
+                                    TankGUID = me->EnsureVictim()->GetGUID();
                                 me->SetSpeed(MOVE_RUN, 5.0f);
                                 AttackStart(target); // change victim
                                 Claw_Rage_Timer = 0;
