@@ -787,42 +787,61 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
 
     bool hasFamilyMask = false;
 
-    /* Check Periodic Auras
+    /**
 
-    *Dots can trigger if spell has no PROC_FLAG_SUCCESSFUL_NEGATIVE_MAGIC_SPELL
-        nor PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL
+    * @brief Check auras procced by periodics
 
-    *Only Hots can trigger if spell has PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL
+    *Only damaging Dots can proc auras with PROC_FLAG_TAKEN_DAMAGE
 
-    *Only dots can trigger if spell has both positivity flags or PROC_FLAG_SUCCESSFUL_NEGATIVE_MAGIC_SPELL
+    *Both Dots and hots can proc if ONLY has PROC_FLAG_DONE_PERIODIC or PROC_FLAG_TAKEN_PERIODIC. Such auras need support in Unit::HandleAuraProc.
 
-    *Aura has to have PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL or spellfamily specified to trigger from Hot
+    *Only Dots can proc auras with PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG or PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG
+
+    *Only Hots can proc auras with PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS or PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS
+
+    *Only Dots can proc auras with PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG or PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG
+
+    *Only Hots can proc auras with PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS or PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS
+
+    * @param procSpell the spell proccing the aura
+    * @param procFlags proc_flags of spellProc
+    * @param procExtra proc_EX of procSpell
+    * @param EventProcFlag proc_flags of aura to be procced
+
 
     */
 
-    if (procFlags & PROC_FLAG_DONE_PERIODIC)
+    /// Quick Check - If PROC_FLAG_TAKEN_DAMAGE is set for aura and procSpell dealt damage, proc no matter what kind of spell that deals the damage.
+    if (procFlags & PROC_FLAG_TAKEN_DAMAGE && EventProcFlag & PROC_FLAG_TAKEN_DAMAGE)
+        return true;
+
+    /// Any aura that has only PROC_FLAG_DONE_PERIODIC or PROC_FLAG_TAKEN_PERIODIC should always proc, if procSpell is correct or not is checked in Unit::HandleAuraProc
+    if (EventProcFlag == PROC_FLAG_DONE_PERIODIC || EventProcFlag == PROC_FLAG_TAKEN_PERIODIC)
+        return true;
+
+    if (procFlags & PROC_FLAG_DONE_PERIODIC && EventProcFlag & PROC_FLAG_DONE_PERIODIC)
     {
-        if (EventProcFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG)
+        /// Aura must have positive procflags for a HOT to proc
+        if (procExtra & PROC_EX_INTERNAL_HOT)
         {
-            if (!(procExtra & PROC_EX_INTERNAL_DOT))
+            if (!(EventProcFlag & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS)))
                 return false;
         }
-        else if (procExtra & PROC_EX_INTERNAL_HOT)
-            procExtra |= PROC_EX_INTERNAL_REQ_FAMILY;
-        else if (EventProcFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS)
+        /// Aura must have negative procflags for a DOT to proc
+        else if (!(EventProcFlag & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG)))
             return false;
     }
 
-    if (procFlags & PROC_FLAG_TAKEN_PERIODIC)
+    if (procFlags & PROC_FLAG_TAKEN_PERIODIC && EventProcFlag & PROC_FLAG_TAKEN_PERIODIC)
     {
-        if (EventProcFlag & PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS)
+        /// Aura must have positive procflags for a HOT to proc
+        if (procExtra & PROC_EX_INTERNAL_HOT)
         {
-            if (!(procExtra & PROC_EX_INTERNAL_DOT))
+            if (!(EventProcFlag & (PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS)))
                 return false;
         }
-        else if (procExtra & PROC_EX_INTERNAL_HOT)
-            procExtra |= PROC_EX_INTERNAL_REQ_FAMILY;
-        else if (EventProcFlag & PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS)
+        /// Aura must have negative procflags for a DOT to proc
+        else if (!(EventProcFlag & (PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG)))
             return false;
     }
     // Trap casts are active by default
@@ -2989,14 +3008,8 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         switch (spellInfo->Id)
         {
-            case 42730: // Woe Strike
-                spellInfo->Effects[EFFECT_1].TriggerSpell = 42739;
-                break;
             case 42436: // Drink! (Brewfest)
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
-                break;
-            case 59735: // Woe Strike
-                spellInfo->Effects[EFFECT_1].TriggerSpell = 59736;
                 break;
             case 52611: // Summon Skeletons
             case 52612: // Summon Skeletons
