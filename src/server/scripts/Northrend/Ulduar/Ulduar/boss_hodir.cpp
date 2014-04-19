@@ -199,7 +199,10 @@ class npc_flash_freeze : public CreatureScript
 
             void UpdateAI(uint32 diff) OVERRIDE
             {
-                if (!UpdateVictim() || me->EnsureVictim()->HasAura(SPELL_BLOCK_OF_ICE) || me->EnsureVictim()->HasAura(SPELL_FLASH_FREEZE_HELPER))
+                if (!UpdateVictim()
+                 || !me->GetVictim()
+                 || me->EnsureVictim()->HasAura(SPELL_BLOCK_OF_ICE)
+                 || me->EnsureVictim()->HasAura(SPELL_FLASH_FREEZE_HELPER))
                     return;
 
                 if (me->EnsureVictim()->GetGUID() != targetGUID || instance->GetBossState(BOSS_HODIR) != IN_PROGRESS)
