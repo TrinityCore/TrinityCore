@@ -887,7 +887,8 @@ class boss_fenstalker : public CreatureScript
                 if (volatileinf_timer <= diff)
                 {
                     // core bug
-                    me->EnsureVictim()->CastSpell(me->GetVictim(), SPELL_VOLATILE_INFECTION, false);
+                    if (me->GetVictim())
+                        me->EnsureVictim()->CastSpell(me->GetVictim(), SPELL_VOLATILE_INFECTION, false);
                     volatileinf_timer = 12000;
                 } else volatileinf_timer -= diff;
 
