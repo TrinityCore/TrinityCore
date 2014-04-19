@@ -2077,12 +2077,12 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (me->GetVictim()->GetTypeId() != TYPEID_PLAYER)
+            if (me->EnsureVictim()->GetTypeId() != TYPEID_PLAYER)
                 return; // Only cast the below on players.
 
-            if (!me->GetVictim()->HasAura(SPELL_PARALYZE))
+            if (!me->EnsureVictim()->HasAura(SPELL_PARALYZE))
             {
-                TargetGUID = me->GetVictim()->GetGUID();
+                TargetGUID = me->EnsureVictim()->GetGUID();
                 me->AddThreat(me->GetVictim(), 10000000.0f);
                 DoCastVictim(SPELL_PURPLE_BEAM, true);
                 DoCastVictim(SPELL_PARALYZE, true);
@@ -2154,8 +2154,8 @@ public:
         {
             if (me->isAttackReady() && me->IsWithinMeleeRange(me->GetVictim()))
             {
-                if (!me->GetVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND)
-                    && !me->GetVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND2))
+                if (!me->EnsureVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND)
+                    && !me->EnsureVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND2))
                 {
                     if (Creature* illidan = Unit::GetCreature((*me), IllidanGUID))// summon only in 1. phase
                         if (CAST_AI(boss_illidan_stormrage::boss_illidan_stormrageAI, illidan->AI())->Phase == PHASE_NORMAL)

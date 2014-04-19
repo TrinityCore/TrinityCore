@@ -405,7 +405,7 @@ class boss_nalorakk : public CreatureScript
 
                     if (Mangle_Timer <= diff)
                     {
-                        if (me->GetVictim() && !me->GetVictim()->HasAura(SPELL_MANGLEEFFECT))
+                        if (me->GetVictim() && !me->EnsureVictim()->HasAura(SPELL_MANGLEEFFECT))
                         {
                             DoCastVictim(SPELL_MANGLE);
                             Mangle_Timer = 1000;

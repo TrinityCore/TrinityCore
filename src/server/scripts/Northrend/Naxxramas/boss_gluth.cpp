@@ -136,7 +136,7 @@ public:
                 }
             }
 
-            if (me->GetVictim() && me->GetVictim()->GetEntry() == NPC_ZOMBIE)
+            if (me->GetVictim() && me->EnsureVictim()->GetEntry() == NPC_ZOMBIE)
             {
                 if (me->IsWithinMeleeRange(me->GetVictim()))
                 {

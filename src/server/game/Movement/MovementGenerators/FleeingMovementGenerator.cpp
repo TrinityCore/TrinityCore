@@ -141,7 +141,7 @@ void FleeingMovementGenerator<Creature>::DoFinalize(Creature* owner)
     owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
     owner->ClearUnitState(UNIT_STATE_FLEEING|UNIT_STATE_FLEEING_MOVE);
     if (owner->GetVictim())
-        owner->SetTarget(owner->GetVictim()->GetGUID());
+        owner->SetTarget(owner->EnsureVictim()->GetGUID());
 }
 
 template<class T>
