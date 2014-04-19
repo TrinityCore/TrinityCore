@@ -138,7 +138,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (me->GetVictim()->GetGUID() != victimGUID)
+            if (me->EnsureVictim()->GetGUID() != victimGUID)
             {
                 DoModifyThreatPercent(me->GetVictim(), -100);
                 Unit* owner = Unit::GetUnit(*me, victimGUID);
@@ -519,7 +519,7 @@ public:
                     for (ThreatContainer::StorageType::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
                     {
                         Unit* tempTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                        if (tempTarget && tempTarget->GetTypeId() == TYPEID_PLAYER && tempTarget->GetGUID() != me->GetVictim()->GetGUID() && TargetList.size()<5)
+                        if (tempTarget && tempTarget->GetTypeId() == TYPEID_PLAYER && tempTarget->GetGUID() != me->EnsureVictim()->GetGUID() && TargetList.size()<5)
                             TargetList.push_back(tempTarget);
                     }
                     //SpellInfo* spell = GET_SPELL(SPELL_INSIDIOUS_WHISPER);

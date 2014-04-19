@@ -249,9 +249,9 @@ class boss_zuljin : public CreatureScript
                     {
                         if (Phase == 1 && !Overpower_Timer)
                         {
-                            uint32 health = me->GetVictim()->GetHealth();
+                            uint32 health = me->EnsureVictim()->GetHealth();
                             me->AttackerStateUpdate(me->GetVictim());
-                            if (me->GetVictim() && health == me->GetVictim()->GetHealth())
+                            if (me->GetVictim() && health == me->EnsureVictim()->GetHealth())
                             {
                                 DoCastVictim(SPELL_OVERPOWER, false);
                                 Overpower_Timer = 5000;
@@ -428,7 +428,7 @@ class boss_zuljin : public CreatureScript
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
-                                TankGUID = me->GetVictim()->GetGUID();
+                                TankGUID = me->EnsureVictim()->GetGUID();
                                 me->SetSpeed(MOVE_RUN, 5.0f);
                                 AttackStart(target); // change victim
                                 Claw_Rage_Timer = 0;
@@ -477,7 +477,7 @@ class boss_zuljin : public CreatureScript
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
-                                TankGUID = me->GetVictim()->GetGUID();
+                                TankGUID = me->EnsureVictim()->GetGUID();
                                 me->SetSpeed(MOVE_RUN, 5.0f);
                                 AttackStart(target); // change victim
                                 Lynx_Rush_Timer = 0;
