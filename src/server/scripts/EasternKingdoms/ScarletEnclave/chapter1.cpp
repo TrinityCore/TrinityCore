@@ -484,10 +484,10 @@ public:
                         EnterEvadeMode();
                     return;
                 }
-                else if (me->GetVictim()->GetTypeId() == TYPEID_PLAYER && me->GetVictim()->HealthBelowPct(10))
+                else if (me->EnsureVictim()->GetTypeId() == TYPEID_PLAYER && me->EnsureVictim()->HealthBelowPct(10))
                 {
-                    me->GetVictim()->CastSpell(me->GetVictim(), 7267, true); // beg
-                    me->GetVictim()->RemoveGameObject(SPELL_DUEL_FLAG, true);
+                    me->EnsureVictim()->CastSpell(me->GetVictim(), 7267, true); // beg
+                    me->EnsureVictim()->RemoveGameObject(SPELL_DUEL_FLAG, true);
                     EnterEvadeMode();
                     return;
                 }
@@ -837,7 +837,7 @@ public:
 
             //ScriptedAI::UpdateAI(diff);
             //Check if we have a current target
-            if (me->GetVictim()->GetEntry() == NPC_GHOSTS)
+            if (me->EnsureVictim()->GetEntry() == NPC_GHOSTS)
             {
                 if (me->isAttackReady())
                 {

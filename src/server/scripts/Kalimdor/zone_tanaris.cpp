@@ -123,7 +123,7 @@ public:
             {
                 if (SendItemTimer <= diff)
                 {
-                    if (me->GetVictim()->GetTypeId() == TYPEID_PLAYER)
+                    if (me->EnsureVictim()->GetTypeId() == TYPEID_PLAYER)
                         SendItem(me->GetVictim());
                     SendItemTimer = 5000;
                 } else SendItemTimer -= diff;

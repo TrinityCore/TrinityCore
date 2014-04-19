@@ -391,8 +391,8 @@ public:
             if (me->HasUnitState(UNIT_STATE_STUNNED))      // While shifting to phase 2 malchezaar stuns himself
                 return;
 
-            if (me->GetUInt64Value(UNIT_FIELD_TARGET) != me->GetVictim()->GetGUID())
-                me->SetTarget(me->GetVictim()->GetGUID());
+            if (me->GetUInt64Value(UNIT_FIELD_TARGET) != me->EnsureVictim()->GetGUID())
+                me->SetTarget(me->EnsureVictim()->GetGUID());
 
             if (phase == 1)
             {
