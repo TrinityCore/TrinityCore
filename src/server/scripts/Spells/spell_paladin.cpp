@@ -60,6 +60,8 @@ enum PaladinSpells
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
     SPELL_PALADIN_SANCTIFIED_RETRIBUTION_AURA    = 63531,
     SPELL_PALADIN_SANCTIFIED_RETRIBUTION_R1      = 31869,
+    SPELL_PALADIN_SANCTIFIED_WRATH               = 57318,
+    SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1     = 53375,
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
     SPELL_PALADIN_SWIFT_RETRIBUTION_R1           = 53379
 };
@@ -227,6 +229,52 @@ class spell_pal_aura_mastery_immune : public SpellScriptLoader
         }
 };
 
+// 31884 - Avenging Wrath
+class spell_pal_avenging_wrath : public SpellScriptLoader
+{
+    public:
+        spell_pal_avenging_wrath() : SpellScriptLoader("spell_pal_avenging_wrath") { }
+
+        class spell_pal_avenging_wrath_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_avenging_wrath_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_SANCTIFIED_WRATH)
+                    || !sSpellMgr->GetSpellInfo(SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1))
+                    return false;
+                return true;
+            }
+
+            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                if (AuraEffect const* aurEff = target->GetAuraEffectOfRankedSpell(SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1, EFFECT_2))
+                {
+                    int32 basepoints = aurEff->GetAmount();
+                    target->CastCustomSpell(target, SPELL_PALADIN_SANCTIFIED_WRATH, &basepoints, &basepoints, NULL, true, NULL, aurEff);
+                }
+            }
+
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveAurasDueToSpell(SPELL_PALADIN_SANCTIFIED_WRATH);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_pal_avenging_wrath_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_pal_avenging_wrath_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_pal_avenging_wrath_AuraScript();
+        }
+};
+
 // 53651 - Beacon of Light
 class spell_pal_beacon_of_light : public SpellScriptLoader
 {
@@ -287,6 +335,7 @@ class spell_pal_beacon_of_light : public SpellScriptLoader
             return new spell_pal_beacon_of_light_AuraScript();
         }
 };
+
 
 // 37877 - Blessing of Faith
 class spell_pal_blessing_of_faith : public SpellScriptLoader
@@ -1149,6 +1198,7 @@ void AddSC_paladin_spell_scripts()
     //new spell_pal_ardent_defender();
     new spell_pal_aura_mastery();
     new spell_pal_aura_mastery_immune();
+    new spell_pal_avenging_wrath();
     new spell_pal_beacon_of_light();
     new spell_pal_blessing_of_faith();
     new spell_pal_divine_sacrifice();
