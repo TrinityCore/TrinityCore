@@ -198,8 +198,8 @@ uint8 const MAX_CORPOREALITY_STATE = 11;
 
 struct CorporealityEntry
 {
-    uint32 materialRealmSpell;
     uint32 twilightRealmSpell;
+    uint32 materialRealmSpell;
 };
 
 CorporealityEntry const _corporealityReference[MAX_CORPOREALITY_STATE] = {

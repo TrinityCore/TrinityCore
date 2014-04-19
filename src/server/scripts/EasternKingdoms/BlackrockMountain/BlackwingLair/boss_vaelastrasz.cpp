@@ -200,7 +200,7 @@ public:
                         break;
                     case EVENT_BURNINGADRENALINE_TANK:
                         // have the victim cast the spell on himself otherwise the third effect aura will be applied to Vael instead of the player
-                        me->GetVictim()->CastSpell(me->GetVictim(), SPELL_BURNINGADRENALINE, true);
+                        me->EnsureVictim()->CastSpell(me->GetVictim(), SPELL_BURNINGADRENALINE, true);
                         events.ScheduleEvent(EVENT_BURNINGADRENALINE_TANK, 45000);
                         break;
                 }

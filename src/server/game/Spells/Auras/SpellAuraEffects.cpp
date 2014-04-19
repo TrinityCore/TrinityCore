@@ -5338,12 +5338,12 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
             {
                 // Feeding Frenzy Rank 1
                 case 53511:
-                    if (target->GetVictim() && target->GetVictim()->HealthBelowPct(35))
+                    if (target->GetVictim() && target->EnsureVictim()->HealthBelowPct(35))
                         target->CastSpell(target, 60096, true, 0, this);
                     return;
                 // Feeding Frenzy Rank 2
                 case 53512:
-                    if (target->GetVictim() && target->GetVictim()->HealthBelowPct(35))
+                    if (target->GetVictim() && target->EnsureVictim()->HealthBelowPct(35))
                         target->CastSpell(target, 60097, true, 0, this);
                     return;
                 default:

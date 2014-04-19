@@ -626,7 +626,7 @@ public:
             {
                 DoCastVictim(SPELL_TIDAL_SURGE);
                 // Hacky way to do it - won't trigger elseways
-                me->GetVictim()->CastSpell(me->GetVictim(), SPELL_TIDAL_SURGE_FREEZE, true);
+                me->EnsureVictim()->CastSpell(me->GetVictim(), SPELL_TIDAL_SURGE_FREEZE, true);
                 TidalSurge_Timer = 15000+rand()%5000;
             } else TidalSurge_Timer -= diff;
 
