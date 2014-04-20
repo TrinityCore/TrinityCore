@@ -206,7 +206,7 @@ public:
             uiMarkedDeathTimer = urand (5000, 7000);
             uiIntroTimer = 15000;
             uiIntroPhase = 0;
-            Phase = IDLE;
+            Phase = INTRO;
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
@@ -705,7 +705,7 @@ public:
                     break;
                 case 2:
                     me->SetSpeed(MOVE_FLIGHT, 2.0f);
-                    if (Creature* blackknight = Unit::GetCreature(*me, instance->GetData64(DATA_BLACK_KNIGHT)))
+                    if (Creature* blackknight = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BLACK_KNIGHT)))
                         blackknight->AI()->Talk(SAY_INTRO_1);
                     break;
                 case 3:
@@ -715,7 +715,7 @@ public:
                     break;
                 case 6:
                     me->SetSpeed(MOVE_FLIGHT, 2.0f);
-                    if (Creature* tirion = Unit::GetCreature(*me, instance->GetData64(DATA_HIGHLORD)))
+                    if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HIGHLORD)))
                         tirion->AI()->Talk(SAY_INTRO_2);
                     break;
                 case 7:

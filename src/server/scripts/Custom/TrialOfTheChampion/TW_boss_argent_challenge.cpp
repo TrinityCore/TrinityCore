@@ -317,9 +317,8 @@ class TW_boss_eadric : public CreatureScript
                     default:
                         break;
                 }
-
-                DoMeleeAttackIfReady();
             }
+            DoMeleeAttackIfReady();
         }
     private:
         EventMap events;
