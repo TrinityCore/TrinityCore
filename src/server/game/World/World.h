@@ -491,14 +491,15 @@ struct CliCommandHolder
     CommandFinished* m_commandFinished;
 
     CliCommandHolder(void* callbackArg, const char *command, Print* zprint, CommandFinished* commandFinished)
-        : m_callbackArg(callbackArg), m_print(zprint), m_commandFinished(commandFinished)
+        : m_callbackArg(callbackArg), m_command(strdup(command)), m_print(zprint), m_commandFinished(commandFinished)
     {
-        size_t len = strlen(command)+1;
-        m_command = new char[len];
-        memcpy(m_command, command, len);
     }
 
-    ~CliCommandHolder() { delete[] m_command; }
+    ~CliCommandHolder() { free(m_command); }
+
+private:
+    CliCommandHolder(CliCommandHolder const& right) DELETE_MEMBER;
+    CliCommandHolder& operator=(CliCommandHolder const& right) DELETE_MEMBER;
 };
 
 typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;
