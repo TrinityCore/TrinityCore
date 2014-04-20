@@ -182,6 +182,8 @@ template<class TObject> class UpdatableScript
         {
         }
 
+        virtual ~UpdatableScript() { }
+
     public:
 
         virtual void OnUpdate(TObject* /*obj*/, uint32 /*diff*/) { }

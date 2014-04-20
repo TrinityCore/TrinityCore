@@ -262,6 +262,10 @@ class UnitAI
         virtual void sQuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }
         virtual bool sOnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/) { return false; }
         virtual void sOnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
+
+    private:
+        UnitAI(UnitAI const& right) DELETE_MEMBER;
+        UnitAI& operator=(UnitAI const& right) DELETE_MEMBER;
 };
 
 class PlayerAI : public UnitAI

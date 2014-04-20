@@ -49,8 +49,7 @@ class DatabaseWorkerPool
 {
     public:
         /* Activity state */
-        DatabaseWorkerPool() :
-        _queue(new ACE_Activation_Queue())
+        DatabaseWorkerPool() : _queue(new ACE_Activation_Queue()), _connectionInfo(NULL)
         {
             memset(_connectionCount, 0, sizeof(_connectionCount));
             _connections.resize(IDX_SIZE);
@@ -66,7 +65,7 @@ class DatabaseWorkerPool
         bool Open(const std::string& infoString, uint8 async_threads, uint8 synch_threads)
         {
             bool res = true;
-            _connectionInfo = MySQLConnectionInfo(infoString);
+            _connectionInfo = new MySQLConnectionInfo(infoString);
 
             TC_LOG_INFO("sql.driver", "Opening DatabasePool '%s'. Asynchronous connections: %u, synchronous connections: %u.",
                 GetDatabaseName(), async_threads, synch_threads);
@@ -75,7 +74,7 @@ class DatabaseWorkerPool
             _connections[IDX_ASYNC].resize(async_threads);
             for (uint8 i = 0; i < async_threads; ++i)
             {
-                T* t = new T(_queue, _connectionInfo);
+                T* t = new T(_queue, *_connectionInfo);
                 res &= t->Open();
                 if (res) // only check mysql version if connection is valid
                     WPFatal(mysql_get_server_version(t->GetHandle()) >= MIN_MYSQL_SERVER_VERSION, "TrinityCore does not support MySQL versions below 5.1");
@@ -87,7 +86,7 @@ class DatabaseWorkerPool
             _connections[IDX_SYNCH].resize(synch_threads);
             for (uint8 i = 0; i < synch_threads; ++i)
             {
-                T* t = new T(_connectionInfo);
+                T* t = new T(*_connectionInfo);
                 res &= t->Open();
                 _connections[IDX_SYNCH][i] = t;
                 ++_connectionCount[IDX_SYNCH];
@@ -134,6 +133,9 @@ class DatabaseWorkerPool
             delete _queue;
 
             TC_LOG_INFO("sql.driver", "All connections on DatabasePool '%s' closed.", GetDatabaseName());
+
+            delete _connectionInfo;
+            _connectionInfo = NULL;
         }
 
         /**
@@ -507,7 +509,7 @@ class DatabaseWorkerPool
 
         char const* GetDatabaseName() const
         {
-            return _connectionInfo.database.c_str();
+            return _connectionInfo->database.c_str();
         }
 
     private:
@@ -521,7 +523,7 @@ class DatabaseWorkerPool
         ACE_Activation_Queue*           _queue;             //! Queue shared by async worker threads.
         std::vector< std::vector<T*> >  _connections;
         uint32                          _connectionCount[2];       //! Counter of MySQL connections;
-        MySQLConnectionInfo             _connectionInfo;
+        MySQLConnectionInfo*            _connectionInfo;
 };
 
 #endif

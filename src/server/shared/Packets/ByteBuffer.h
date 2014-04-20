@@ -85,6 +85,8 @@ class ByteBuffer
         {
         }
 
+        virtual ~ByteBuffer() { }
+
         void clear()
         {
             _storage.clear();

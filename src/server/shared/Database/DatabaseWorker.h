@@ -18,6 +18,7 @@
 #ifndef _WORKERTHREAD_H
 #define _WORKERTHREAD_H
 
+#include "Define.h"
 #include <ace/Task.h>
 #include <ace/Activation_Queue.h>
 
@@ -33,9 +34,11 @@ class DatabaseWorker : protected ACE_Task_Base
         int wait() { return ACE_Task_Base::wait(); }
 
     private:
-        DatabaseWorker() : ACE_Task_Base() { }
         ACE_Activation_Queue* m_queue;
         MySQLConnection* m_conn;
+
+        DatabaseWorker(DatabaseWorker const& right) DELETE_MEMBER;
+        DatabaseWorker& operator=(DatabaseWorker const& right) DELETE_MEMBER;
 };
 
 #endif

@@ -73,9 +73,11 @@
 #if COMPILER_HAS_CPP11_SUPPORT
 #  define OVERRIDE override
 #  define FINAL final
+#  define DELETE_MEMBER = delete
 #else
 #  define OVERRIDE
 #  define FINAL
+#  define DELETE_MEMBER
 #endif //COMPILER_HAS_CPP11_SUPPORT
 
 #define UI64FMTD ACE_UINT64_FORMAT_SPECIFIER
