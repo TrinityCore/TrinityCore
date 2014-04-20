@@ -101,6 +101,9 @@ class PreparedStatement
         MySQLPreparedStatement* m_stmt;
         uint32 m_index;
         std::vector<PreparedStatementData> statement_data;    //- Buffer of parameters, not tied to MySQL in any way yet
+
+        PreparedStatement(PreparedStatement const& right) DELETE_MEMBER;
+        PreparedStatement& operator=(PreparedStatement const& right) DELETE_MEMBER;
 };
 
 //- Class of which the instances are unique per MySQLConnection
@@ -145,6 +148,9 @@ class MySQLPreparedStatement
         uint32 m_paramCount;
         std::vector<bool> m_paramsSet;
         MYSQL_BIND* m_bind;
+
+        MySQLPreparedStatement(MySQLPreparedStatement const& right) DELETE_MEMBER;
+        MySQLPreparedStatement& operator=(MySQLPreparedStatement const& right) DELETE_MEMBER;
 };
 
 typedef ACE_Future<PreparedQueryResult> PreparedQueryResultFuture;

@@ -69,6 +69,10 @@ class SQLOperation : public ACE_Method_Request
         virtual void SetConnection(MySQLConnection* con) { m_conn = con; }
 
         MySQLConnection* m_conn;
+
+    private:
+        SQLOperation(SQLOperation const& right) DELETE_MEMBER;
+        SQLOperation& operator=(SQLOperation const& right) DELETE_MEMBER;
 };
 
 #endif

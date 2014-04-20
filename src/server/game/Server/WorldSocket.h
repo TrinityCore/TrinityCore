@@ -209,6 +209,8 @@ class WorldSocket : public WorldHandler
 
         uint32 m_Seed;
 
+        WorldSocket(WorldSocket const& right) DELETE_MEMBER;
+        WorldSocket& operator=(WorldSocket const& right) DELETE_MEMBER;
 };
 
 #endif  /* _WORLDSOCKET_H */

@@ -693,6 +693,9 @@ class Spell
         double rand_norm()                      { return m_caster->GetMap()->mtRand.randExc(); }
         double rand_chance()                    { return m_caster->GetMap()->mtRand.randExc(100.0); }
 #endif
+
+        Spell(Spell const& right) DELETE_MEMBER;
+        Spell& operator=(Spell const& right) DELETE_MEMBER;
 };
 
 namespace Trinity
