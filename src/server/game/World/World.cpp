@@ -1948,7 +1948,13 @@ void World::LoadAutobroadcasts()
 void World::Update(uint32 diff)
 {
     m_updateTime = diff;
-    sSocialServer; //XXX REMOVE ME: convince gcc to actually link libraries for testing
+
+    /*
+    zmqpp::message msg;
+    msg << (uint32)0;
+    msg << "lowlz";
+    sSocialServer->SendCommand(msg); //Uncomment those lines for quick and dirty debugging of connectivity issues.
+    */
     if (m_int_configs[CONFIG_INTERVAL_LOG_UPDATE] && diff > m_int_configs[CONFIG_MIN_LOG_UPDATE])
     {
         if (m_updateTimeSum > m_int_configs[CONFIG_INTERVAL_LOG_UPDATE])

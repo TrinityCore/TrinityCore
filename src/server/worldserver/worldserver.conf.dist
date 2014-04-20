@@ -2738,6 +2738,8 @@ Log.Async.Enable = 0
 # hic sunt dracones
 Redirect.Enable = 1
 
+# location of social server.
+Redirect.SocialServer = tcp://localhost:9997
 #
 ###################################################################################################
 
