@@ -32,8 +32,15 @@ find_path(ZMQ_INCLUDE_DIR
 
 if (MSVC)
   # Read registry key holding version
+  if (PLATFORM EQUAL 64)
+    get_filename_component(ZMQ_NAME "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\ZeroMQ (x64);DisplayVersion]" NAME)
+  else()
+    get_filename_component(ZMQ_NAME "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\ZeroMQ;DisplayVersion]" NAME)
+    if (${ZMQ_NAME} MATCHES "registry") # if key was not found, the string "registry" is returned
+      get_filename_component(ZMQ_NAME "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\ZeroMQ;DisplayVersion]" NAME)
+    endif()
+  endif()
 
-  get_filename_component(ZMQ_NAME "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\ZeroMQ;DisplayVersion]" NAME)
   # Replace dots with underscores
   string(REGEX REPLACE "\\." "_" ZMQ_NAME ${ZMQ_NAME})
 

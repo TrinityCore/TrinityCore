@@ -67,8 +67,10 @@
 #endif // if __GNUC_ == 4
 #else
 #ifdef _MSC_VER
+#define NOEXCEPT throw()
+#if _MSC_VER < 1800
 #define ZMQPP_EXPLICITLY_DELETED
-#define NOEXCEPT
+#endif
 #if _MSC_VER < 1600
 #define ZMQPP_IGNORE_LAMBDA_FUNCTION_TESTS
 #define nullptr NULL

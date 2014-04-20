@@ -47,6 +47,7 @@
 #include "WardenWin.h"
 #include "WardenMac.h"
 
+#include <ace/OS_NS_arpa_inet.h>
 #include "Cryptography/HMACSHA1.h"
 
 namespace {

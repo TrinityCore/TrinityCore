@@ -15,14 +15,7 @@ set(ha_SRCS
 )
 
 if (UNIX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Werror -pedantic -Wall -Wextra")
-endif()
-
- if(WIN32)
-   set(ha_SRCS
-     ${ha_SRCS}
-     ${sources_windows_Debugging}
-   )
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -pedantic -Wall -Wextra")
 endif()
 
 include_directories(
@@ -33,7 +26,7 @@ include_directories(
   ${ACE_INCLUDE_DIR}
 )
 
-add_library(ha ${ha_SRCS})
+add_library(ha STATIC ${ha_SRCS})
 
 target_link_libraries(ha
   ${ZMQ_LIBRARY}
