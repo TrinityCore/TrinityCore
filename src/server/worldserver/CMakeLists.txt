@@ -169,9 +169,9 @@ target_link_libraries(worldserver
   g3dlib
   gsoap
   Detour
-  zmq
   ha
   zmqpp
+  ${ZMQ_LIBRARY}
   ${JEMALLOC_LIBRARY}
   ${READLINE_LIBRARY}
   ${TERMCAP_LIBRARY}
