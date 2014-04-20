@@ -298,7 +298,7 @@ public:
                         Unit* target = (*itr)->getTarget();
                         if (target
                                 && target->GetTypeId() == TYPEID_PLAYER
-                                && target->GetGUID() != me->EnsureVictim()->GetGUID()
+                                && (!target->GetVictim() || target->GetGUID() != me->EnsureVictim()->GetGUID())
                                 && target->GetPositionZ() > me->GetPositionZ() - 5
                                 && !target->HasAura(AURA_SPECTRAL_EXHAUSTION))
                         {

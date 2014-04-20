@@ -156,9 +156,12 @@ class boss_ayamiss : public CreatureScript
                     _phase = PHASE_GROUND;
                     SetCombatMovement(true);
                     me->SetCanFly(false);
-                    Position VictimPos;
-                    me->EnsureVictim()->GetPosition(&VictimPos);
-                    me->GetMotionMaster()->MovePoint(POINT_GROUND, VictimPos);
+                    if (me->GetVictim())
+                    {
+                        Position VictimPos;
+                        me->EnsureVictim()->GetPosition(&VictimPos);
+                        me->GetMotionMaster()->MovePoint(POINT_GROUND, VictimPos);
+                    }
                     DoResetThreat();
                     events.ScheduleEvent(EVENT_LASH, urand(5000, 8000));
                     events.ScheduleEvent(EVENT_TRASH, urand(3000, 6000));

@@ -93,7 +93,7 @@ class npc_pet_hunter_snake_trap : public CreatureScript
 
             void UpdateAI(uint32 diff) OVERRIDE
             {
-                if (!UpdateVictim())
+                if (!UpdateVictim() || !me->GetVictim())
                     return;
 
                 if (me->EnsureVictim()->HasBreakableByDamageCrowdControlAura(me))
