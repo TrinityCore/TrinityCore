@@ -40,6 +40,8 @@ enum LiquidType
 #define ADT_CELL_SIZE         8
 #define ADT_GRID_SIZE         (ADT_CELLS_PER_GRID*ADT_CELL_SIZE)
 
+#pragma pack(push, 1)
+
 //
 // Adt file height map chunk
 //
@@ -303,5 +305,7 @@ public:
 
     adt_MHDR *a_grid;
 };
+
+#pragma pack(pop)
 
 #endif
