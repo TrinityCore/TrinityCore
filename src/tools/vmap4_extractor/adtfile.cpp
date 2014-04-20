@@ -159,7 +159,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                 ADT.read(buf, size);
                 char* p=buf;
                 int q = 0;
-                WmoInstansName = new string[size];
+                WmoInstansName = new std::string[size];
                 while (p<buf+size)
                 {
                     char* s = GetPlainName(p);

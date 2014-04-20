@@ -47,6 +47,8 @@ typedef uint8_t            uint8;
 
 #define FILE_FORMAT_VERSION    18
 
+#pragma pack(push, 1)
+
 union u_map_fcc
 {
     char   fcc_txt[4];
@@ -80,4 +82,7 @@ public:
     bool loadFile(char *filename, bool log = true);
     virtual void free();
 };
+
+#pragma pack(pop)
+
 #endif
