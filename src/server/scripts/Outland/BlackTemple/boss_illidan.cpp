@@ -2074,7 +2074,7 @@ public:
 
         void UpdateAI(uint32 /*diff*/) OVERRIDE
         {
-            if (!UpdateVictim())
+            if (!UpdateVictim() || !me->GetVictim())
                 return;
 
             if (me->EnsureVictim()->GetTypeId() != TYPEID_PLAYER)
