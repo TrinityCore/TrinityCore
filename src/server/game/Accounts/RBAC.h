@@ -702,7 +702,7 @@ class RBACPermission
 {
     public:
         RBACPermission(uint32 id = 0, std::string const& name = ""):
-            _id(id), _name(name) { }
+            _id(id), _name(name), _perms() { }
 
         /// Gets the Name of the Object
         std::string const& GetName() const { return _name; }
@@ -737,7 +737,8 @@ class RBACData
 {
     public:
         RBACData(uint32 id, std::string const& name, int32 realmId, uint8 secLevel = 255):
-            _id(id), _name(name), _realmId(realmId), _secLevel(secLevel) { }
+            _id(id), _name(name), _realmId(realmId), _secLevel(secLevel),
+            _grantedPerms(), _deniedPerms(), _globalPerms() { }
 
         /// Gets the Name of the Object
         std::string const& GetName() const { return _name; }
