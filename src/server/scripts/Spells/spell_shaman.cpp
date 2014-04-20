@@ -310,6 +310,12 @@ class spell_sha_earth_shield : public SpellScriptLoader
                     amount = caster->SpellHealingBonusDone(GetUnitOwner(), GetSpellInfo(), amount, HEAL);
                     amount = GetUnitOwner()->SpellHealingBonusTaken(caster, GetSpellInfo(), amount, HEAL);
 
+                    // If target is affected by healing reduction, modifier is guaranteed to be negative 
+                    // value (e.g. -50). To revert the effect, multiply amount with reciprocal of relative value:
+                    // (100 / ((-1) * modifier)) * 100 = (-1) * 100 * 100 / modifier = -10000 / modifier
+                    if (int32 modifier = GetUnitOwner()->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HEALING_PCT))
+                        ApplyPct(amount, -10000.0f / float(modifier));
+
                     // Glyph of Earth Shield
                     //! WORKAROUND
                     //! this glyph is a proc
