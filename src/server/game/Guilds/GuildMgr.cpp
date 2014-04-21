@@ -488,7 +488,7 @@ void GuildMgr::LoadGuildXpForLevel()
         Field* fields = result->Fetch();
 
         uint32 level        = fields[0].GetUInt8();
-        uint32 requiredXP   = fields[1].GetUInt64();
+        uint32 requiredXP   = fields[1].GetUInt32();
 
         if (level >= sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL))
         {
