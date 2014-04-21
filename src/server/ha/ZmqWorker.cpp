@@ -38,7 +38,6 @@ int ZmqWorker::HandleOpen()
     results->connect(res_uri);
 
     poller->add(*task_queue);
-    poller->add(*results, zmqpp::poller::poll_out);
     return ACE_Task_Base::activate();
 }
 

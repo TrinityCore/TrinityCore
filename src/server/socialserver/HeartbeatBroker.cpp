@@ -32,7 +32,7 @@ int HeartbeatBroker::svc()
 {
     while (true)
     {
-        poller->poll(1000);
+        poller->poll();
         if (process_exit())
             break;
 

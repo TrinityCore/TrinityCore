@@ -69,8 +69,6 @@ int CommandPuller::HandleOpen()
 
     poller->add(*commands);
     poller->add(*work_res);
-    poller->add(*broadcast, zmqpp::poller::poll_out);
-    poller->add(*work_queue, zmqpp::poller::poll_out);
 
     printf("CommandPuller sockets have been set up successfully\n");
     return ACE_Task_Base::activate();
