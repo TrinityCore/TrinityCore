@@ -29,7 +29,7 @@ Script Data End */
 #include "ScriptedEscortAI.h"
 #include "Player.h"
 
-#define GOSSIP_START_EVENT "I am ready to being"
+#define GOSSIP_START_EVENT "I am ready to begin."
 
 enum BlastmasterEmi
 {
