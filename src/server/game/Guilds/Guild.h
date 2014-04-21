@@ -26,6 +26,10 @@
 #include "Player.h"
 
 class Item;
+namespace zmqpp
+{
+    class message;
+}
 
 enum GuildMisc
 {
@@ -711,7 +715,7 @@ public:
 
     // Broadcasts
     void BroadcastToGuild(WorldSession* session, bool officerOnly, std::string const& msg, uint32 language = LANG_UNIVERSAL) const;
-    void BroadcastPacketToRank(WorldPacket* packet, uint8 rankId) const;
+    void BroadcastPacket(zmqpp::message const& message, WorldPacket* packet) const;
     void BroadcastPacket(WorldPacket* packet) const;
 
     void MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, uint32 minRank);

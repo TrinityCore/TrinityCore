@@ -46,6 +46,7 @@
 #include "Transport.h"
 #include "WardenWin.h"
 #include "WardenMac.h"
+#include "SocialServer.h"
 
 #include <ace/OS_NS_arpa_inet.h>
 #include "Cryptography/HMACSHA1.h"
@@ -285,11 +286,11 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket &&
             _recvQueue.next(packet, updater))
     {
-        if (!AntiDOS.EvaluateOpcode(*packet))
+        /*if (!AntiDOS.EvaluateOpcode(*packet))
         {
             KickPlayer();
         }
-        else if (packet->GetOpcode() >= NUM_MSG_TYPES)
+        else*/ if (packet->GetOpcode() >= NUM_MSG_TYPES)
         {
             TC_LOG_ERROR("network.opcode", "Received non-existed opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str()
                             , GetPlayerInfo().c_str());
@@ -1130,10 +1131,6 @@ bool WorldSession::SendRedirect(const char* ip_str, uint16 port)
     hmac.Finalize();
     data.append(hmac.GetDigest(), hmac.GetLength());
     SendPacket(&data);
-
-    WorldPacket flush(SMSG_SUSPEND_COMMS, 4);
-    flush << uint32(0);
-    SendPacket(&flush);
     return true;
 }
 
@@ -1148,10 +1145,24 @@ void WorldSession::RedirectToNode(uint32 mapid)
         SendRedirect(ri.ip.c_str(), ri.port);
 }
 
+void WorldSession::HandleRedirectionFailed(WorldPacket& /*recvPacket*/)
+{
+    m_flags &= ~SESSION_FLAG_HAS_REDIRECTED;
+    WorldPacket data(SMSG_CHARACTER_LOGIN_FAILED);// send Transfer Aborted: Instance not found when not login case
+    SendPacket(&data);
+}
+
 void WorldSession::HandleSuspendComms(WorldPacket& recv)
 {
     recv.rfinish();
-    m_Socket->CloseSocket();
+    //m_Socket->CloseSocket();
+
+    zmqpp::message msg;
+    WorldPacket fsqp(SMSG_FORCE_SEND_QUEUED_PACKETS, 0);
+    sSocialServer->BuildPacketCommand(msg, fsqp);
+    msg << uint8(5);   // broadcast target
+    msg << uint32(GetAccountId());
+    sSocialServer->SendCommand(msg);
 }
 
 void WorldSession::SetPlayer(Player* player)

@@ -49,7 +49,7 @@ int ZmqListener::svc()
     while(!process_exit())
     {
         poller->poll();
-        
+
         while(poller->events(*from) & zmqpp::poller::poll_in &&
               poller->events(*to) & zmqpp::poller::poll_out)
         {

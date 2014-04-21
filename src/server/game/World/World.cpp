@@ -1833,6 +1833,8 @@ void World::SetInitialWorldSettings()
 
     LoadCharacterNameData();
 
+    sSocialServer->Init(m_currNode);
+
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
     TC_LOG_INFO("server.worldserver", "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
@@ -1949,12 +1951,6 @@ void World::Update(uint32 diff)
 {
     m_updateTime = diff;
 
-    /*
-    zmqpp::message msg;
-    msg << (uint32)0;
-    msg << "lowlz";
-    sSocialServer->SendCommand(msg); //Uncomment those lines for quick and dirty debugging of connectivity issues.
-    */
     if (m_int_configs[CONFIG_INTERVAL_LOG_UPDATE] && diff > m_int_configs[CONFIG_MIN_LOG_UPDATE])
     {
         if (m_updateTimeSum > m_int_configs[CONFIG_INTERVAL_LOG_UPDATE])
@@ -2020,8 +2016,11 @@ void World::Update(uint32 diff)
         sAuctionMgr->Update();
     }
 
-    /// <li> Handle session updates when the timer has passed
     RecordTimeDiff(NULL);
+    sSocialServer->Update();
+    RecordTimeDiff("SocialServer");
+
+    /// <li> Handle session updates when the timer has passed
     UpdateSessions(diff);
     RecordTimeDiff("UpdateSessions");
 

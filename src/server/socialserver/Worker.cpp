@@ -18,25 +18,28 @@
 #include "Worker.h"
 #include "ZmqContext.h"
 
-
 void Worker::dispatch(const zmqpp::message& msg)
 {
-    uint32 opcode;
-    msg.get(opcode, 0);
-    printf("worker recv opcode %u\n", opcode);
-    if(opcode >= OPCODES_MAX)
+    std::string nodeIp;
+    uint16 nodePort;
+    uint16 command;
+
+    msg.get(nodeIp, 0);
+    msg.get(nodePort, 1);
+    msg.get(command, 2);
+    printf("Worker received command %u from %s:%hu\n", command, nodeIp.c_str(), nodePort);
+    if (command >= OPCODES_MAX)
         return;
 
-    (this->*handlers[opcode])(msg);
+    (this->*handlers[command])(msg, { nodeIp, nodePort });
 }
 
-void Worker::test_handler(const zmqpp::message& msg)
+void Worker::HandleBroadcastPacket(zmqpp::message const& msg, RedirectInfo const& sourceNode)
 {
-    std::string s;
-    msg.get(s, 1);
-    printf("Debug message recvd: %s\n", s.c_str());
+    results->send(const_cast<zmqpp::message&>(msg));
 }
 
 const opcode_handler handlers[OPCODES_MAX] = {
-    &Worker::test_handler,
+    &Worker::HandleBroadcastPacket,
+    &Worker::HandleBroadcastPacket,
 };

@@ -30,11 +30,11 @@ public:
 protected:
     int HandleOpen() OVERRIDE;
     int HandleClose(u_long flags = 0) OVERRIDE;
+    zmqpp::socket* results;
 private:
     void perform_work();
     virtual void dispatch(const zmqpp::message&) = 0;
     zmqpp::socket* task_queue;
-    zmqpp::socket* results;
     std::string task_uri;
     std::string res_uri;
 };

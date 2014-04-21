@@ -24,18 +24,27 @@ class Worker;
 
 enum Operations
 {
-    TEST,
+    SUSPEND_COMMS,
+    BROADCAST_PACKET,
     OPCODES_MAX
 };
 
-typedef void (Worker::*opcode_handler)(const zmqpp::message&);
+struct RedirectInfo
+{
+    std::string ip;
+    uint16 port;
+};
+
+typedef void (Worker::*opcode_handler)(zmqpp::message const& msg, RedirectInfo const& sourceNode);
 
 extern const opcode_handler handlers[OPCODES_MAX];
 
 class Worker : public ZmqWorker
 {
 public:
-    void test_handler(const zmqpp::message&);
+    void HandleSuspendComms(zmqpp::message const& msg, RedirectInfo const& sourceNode);
+    void HandleBroadcastPacket(zmqpp::message const& msg, RedirectInfo const& sourceNode);
+
     Worker(std::string t_u, std::string r_u): ZmqWorker(t_u, r_u) {}
 
 private:

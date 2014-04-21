@@ -28,6 +28,7 @@
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
 #include "Opcodes.h"
+#include "SocialServer.h"
 
 #define MAX_GUILD_BANK_TAB_TEXT_LEN 500
 #define EMBLEM_PRICE 10 * GOLD
@@ -2148,27 +2149,60 @@ void Guild::BroadcastToGuild(WorldSession* session, bool officerOnly, std::strin
     {
         WorldPacket data;
         ChatHandler::BuildChatPacket(data, officerOnly ? CHAT_MSG_OFFICER : CHAT_MSG_GUILD, Language(language), session->GetPlayer(), NULL, msg);
-        for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
-            if (Player* player = itr->second->FindPlayer())
-                if (player->GetSession() && _HasRankRight(player, officerOnly ? GR_RIGHT_OFFCHATLISTEN : GR_RIGHT_GCHATLISTEN) &&
-                    !player->GetSocial()->HasIgnore(session->GetPlayer()->GetGUIDLow()))
-                    player->GetSession()->SendPacket(&data);
+        //for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
+        //    if (Player* player = itr->second->FindPlayer())
+        //        if (player->GetSession() && _HasRankRight(player, officerOnly ? GR_RIGHT_OFFCHATLISTEN : GR_RIGHT_GCHATLISTEN) &&
+        //            !player->GetSocial()->HasIgnore(session->GetPlayer()->GetGUIDLow()))
+        //            player->GetSession()->SendPacket(&data);
+
+        zmqpp::message msg;
+        sSocialServer->BuildPacketCommand(msg, data);
+        msg << uint8(1);   // broadcast target
+        msg << uint32(GetId());
+        msg << uint64(session->GetPlayer()->GetGUID());
+        msg << bool(officerOnly);
+        sSocialServer->SendCommand(msg);
     }
 }
 
-void Guild::BroadcastPacketToRank(WorldPacket* packet, uint8 rankId) const
+void Guild::BroadcastPacket(zmqpp::message const& message, WorldPacket* packet) const
 {
-    for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
-        if (itr->second->IsRank(rankId))
+    uint64 senderGuid;
+
+    message.get(senderGuid, 8);
+
+    if (!senderGuid)
+    {
+        // just a broadcast without filters
+        for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
             if (Player* player = itr->second->FindPlayer())
                 player->GetSession()->SendPacket(packet);
+    }
+    else
+    {
+        bool officerOnly;
+        message.get(officerOnly, 9);
+
+        for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
+            if (Player* player = itr->second->FindPlayer())
+                if (player->GetSession() && _HasRankRight(player, officerOnly ? GR_RIGHT_OFFCHATLISTEN : GR_RIGHT_GCHATLISTEN) &&
+                    !player->GetSocial()->HasIgnore(senderGuid))
+                    player->GetSession()->SendPacket(packet);
+    }
 }
 
 void Guild::BroadcastPacket(WorldPacket* packet) const
 {
-    for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
-        if (Player* player = itr->second->FindPlayer())
-            player->GetSession()->SendPacket(packet);
+    //for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
+    //    if (Player* player = itr->second->FindPlayer())
+    //        player->GetSession()->SendPacket(packet);
+    zmqpp::message msg;
+    sSocialServer->BuildPacketCommand(msg, *packet);
+    msg << uint8(1);   // broadcast target
+    msg << uint32(GetId());
+    msg << uint64(0);
+    msg << bool(false);
+    sSocialServer->SendCommand(msg);
 }
 
 void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, uint32 minRank)

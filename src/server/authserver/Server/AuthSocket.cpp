@@ -885,8 +885,8 @@ ACE_INET_Addr const& AuthSocket::GetAddressForClient(Realm const& realm, ACE_INE
     if (clientAddr.is_loopback())
     {
         // Try guessing if realm is also connected locally
-        if (realm.LocalAddress.is_loopback() || realm.ExternalAddress.is_loopback())
-            return clientAddr;
+        //if (realm.LocalAddress.is_loopback() || realm.ExternalAddress.is_loopback())
+        //    return clientAddr;
 
         // Assume that user connecting from the machine that authserver is located on
         // has all realms available in his local network

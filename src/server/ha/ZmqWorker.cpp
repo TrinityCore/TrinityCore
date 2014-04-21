@@ -22,7 +22,7 @@ ZmqWorker::ZmqWorker(std::string task_uri, std::string res_uri) :
     task_uri(task_uri), res_uri(res_uri)
 { }
 
-ZmqWorker::~ZmqWorker() 
+ZmqWorker::~ZmqWorker()
 {
     delete task_queue;
     delete results;
@@ -50,12 +50,13 @@ int ZmqWorker::HandleClose(u_long)
 
 int ZmqWorker::svc()
 {
-    while(!process_exit())
+    while (!process_exit())
     {
         poller->poll();
-        if(poller->events(*task_queue) & zmqpp::poller::poll_in)
+        if (poller->events(*task_queue) & zmqpp::poller::poll_in)
             perform_work();
     }
+
     return 0;
 }
 
@@ -68,5 +69,5 @@ void ZmqWorker::perform_work()
         task_queue->receive(msg);
         dispatch(msg);
         task_queue->get(zmqpp::socket_option::events, op1);
-    }while(op1 & zmqpp::poller::poll_in);
+    } while (op1 & zmqpp::poller::poll_in);
 }

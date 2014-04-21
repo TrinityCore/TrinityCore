@@ -28,7 +28,7 @@ SockWrap::~SockWrap()
     delete sock;
 }
 
-SockWrap* TLSock::make_TSS_TYPE() const 
+SockWrap* TLSock::make_TSS_TYPE() const
 {
     SockWrap* sw = new SockWrap();
     (*sw)->connect(uri);

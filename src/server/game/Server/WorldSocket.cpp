@@ -44,6 +44,7 @@
 #include "PacketLog.h"
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
+#include "SocialServer.h"
 
 #if defined(__GNUC__)
 #pragma pack(1)
@@ -157,6 +158,9 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
 
     if (closing_)
         return -1;
+
+    if (m_Session && m_Session->HasRedirected() && pct.GetOpcode() != SMSG_SUSPEND_COMMS && pct.GetOpcode() != SMSG_REDIRECT_CLIENT)
+        return 0;
 
     // Dump outgoing packet
     if (sPacketLog->CanLogPacket())
@@ -694,6 +698,9 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 return 0;
             case CMSG_REDIRECTION_AUTH_PROOF:
                return HandleAuthRedirect(*new_pct);
+            case CMSG_SUSPEND_COMMS_ACK:
+                m_Session->HandleSuspendComms(*new_pct);
+                return 0;
             default:
             {
                 ACE_GUARD_RETURN(LockType, Guard, m_SessionLock, -1);
@@ -1123,14 +1130,22 @@ int WorldSocket::HandleAuthRedirect(WorldPacket& recvPacket)
     if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
         m_Session->InitWarden(&sessionKey, os);
 
+    RedirectInfo const& ri = sWorld->GetCurrentNode();
+    zmqpp::message msg;
+    msg << ri.ip;
+    msg << ri.port;
+    msg << uint16(0);
+    msg << uint32(id);
+    sSocialServer->SendCommand(msg);
+
+    //WorldPacket fsqp(SMSG_FORCE_SEND_QUEUED_PACKETS, 0);
+    //SendPacket(fsqp);
+
     // Sleep this Network thread for
     uint32 sleepTime = sWorld->getIntConfig(CONFIG_SESSION_ADD_DELAY);
     ACE_OS::sleep(ACE_Time_Value(0, sleepTime));
 
-    WorldPacket fsqp(SMSG_FORCE_SEND_QUEUED_PACKETS);
-    SendPacket(fsqp);
-
-    sWorld->AddSession(m_Session);
+    sSocialServer->QueueSession(m_Session);
     return 0;
 }
 
