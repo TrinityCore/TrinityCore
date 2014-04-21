@@ -1169,7 +1169,7 @@ class RaidCheck
         Unit const* _caster;
 };
 
-// -48438 - Wild Growth
+// 48438 - Wild Growth
 class spell_dru_wild_growth : public SpellScriptLoader
 {
     public:
