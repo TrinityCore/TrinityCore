@@ -22519,7 +22519,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
 
         if (catrec > 0 && !(spellInfo->AttributesEx6 & SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS))
             ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, catrec, spell);
-            
+
         if (int32 cooldownMod = GetTotalAuraModifier(SPELL_AURA_MOD_COOLDOWN))
         {
             // Apply SPELL_AURA_MOD_COOLDOWN only to own spells
@@ -22529,7 +22529,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
                 rec += cooldownMod * IN_MILLISECONDS;   // SPELL_AURA_MOD_COOLDOWN does not affect category cooldows, verified with shaman shocks
             }
         }
-        
+
         // Apply SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN modifiers
         // Note: This aura applies its modifiers to all cooldowns of spells with set category, not to category cooldown only
         if (cat)

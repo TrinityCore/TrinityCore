@@ -1073,7 +1073,7 @@ public:
             if (titleInfo)
             {
                 std::string name = target->getGender() == GENDER_MALE ? titleInfo->nameMale : titleInfo->nameFemale;
-                
+
                 if (name.empty())
                     continue;
 
