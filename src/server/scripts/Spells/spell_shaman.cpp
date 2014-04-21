@@ -141,7 +141,7 @@ class spell_sha_ancestral_awakening_proc : public SpellScriptLoader
                 targets.clear();
                 targets.push_back(target);
             }
-            
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 GetCaster()->CastCustomSpell(SPELL_SHAMAN_ANCESTRAL_AWAKENING_PROC, SPELLVALUE_BASE_POINT0, GetEffectValue(), GetHitUnit(), true);
