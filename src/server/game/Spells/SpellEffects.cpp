@@ -5181,13 +5181,23 @@ void Spell::EffectQuestStart(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+    if (!unitTarget)
         return;
 
     Player* player = unitTarget->ToPlayer();
-    if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(m_spellInfo->Effects[effIndex].MiscValue))
-        if (player->CanTakeQuest(qInfo, false) && player->CanAddQuest(qInfo, false))
-            player->AddQuestAndCheckCompletion(qInfo, NULL);
+    if (!player)
+        return;
+
+    if (Quest const* quest = sObjectMgr->GetQuestTemplate(m_spellInfo->Effects[effIndex].MiscValue))
+    {
+        if (!player->CanTakeQuest(quest, false))
+            return;
+
+        if (quest->IsAutoAccept() && player->CanAddQuest(quest, false))
+            player->AddQuestAndCheckCompletion(quest, player);
+
+        player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, player->GetGUID(), true);
+    }
 }
 
 void Spell::EffectActivateRune(SpellEffIndex effIndex)
