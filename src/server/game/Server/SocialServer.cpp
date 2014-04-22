@@ -4,6 +4,7 @@
 #include "Log.h"
 #include "GuildMgr.h"
 #include "World.h"
+#include "Commands.h"
 
 SocialServer::SocialServer() :
     poller(new zmqpp::poller()),
@@ -41,7 +42,7 @@ void SocialServer::BuildPacketCommand(zmqpp::message& msg, WorldPacket& packet)
 {
     msg << current_node.ip;
     msg << uint16(current_node.port);
-    msg << uint16(1);   // refactor: replace with enum and put in a place shared with game/ss
+    msg << uint16(BROADCAST_PACKET);
     msg << uint16(packet.GetOpcode());
     msg << uint32(packet.size());
     msg.add(packet.contents(), packet.size());
@@ -74,7 +75,7 @@ void SocialServer::HandleCommand(zmqpp::message const& msg)
 
     switch (command)
     {
-        case 0: // suspend comms
+        case SUSPEND_COMMS:
         {
             // ignore if we sent this request, only disconnect client from other nodes
             uint32 accountId;
@@ -91,7 +92,7 @@ void SocialServer::HandleCommand(zmqpp::message const& msg)
             }
             break;
         }
-        case 1: // broadcast packet
+        case BROADCAST_PACKET:
         {
             uint16 opcode;
             uint32 size;
@@ -110,9 +111,9 @@ void SocialServer::HandleCommand(zmqpp::message const& msg)
                 packet.put(0, data, size);
             }
 
-            switch (target) // todo: make enum for this
+            switch (target) 
             {
-                case 1: // guild
+                case GUILD: 
                 {
                     uint32 guildId;
                     msg.get(guildId, 7);
@@ -120,13 +121,13 @@ void SocialServer::HandleCommand(zmqpp::message const& msg)
                         guild->BroadcastPacket(msg, &packet);
                     break;
                 }
-                case 2: // group
+                case GROUP: 
                     uint32 guildId;
                     msg.get(guildId, 7);
                     //if (Group* group = sGroupMgr->GetGroupByGUID(guildId))
                     //    guild->BroadcastPacket(msg, &packet);
                     break;
-                case 3: // player
+                case PLAYER:
                 {
                     uint64 guid;
                     msg.get(guid, 7);
@@ -134,7 +135,7 @@ void SocialServer::HandleCommand(zmqpp::message const& msg)
                         player->GetSession()->SendPacket(&packet);
                     break;
                 }
-                case 4: // account
+                case ACCOUNT:
                 {
                     uint32 accountId;
                     msg.get(accountId, 7);
@@ -142,7 +143,7 @@ void SocialServer::HandleCommand(zmqpp::message const& msg)
                         session->SendPacket(&packet);
                     break;
                 }
-                case 5: // pending session
+                case PENDING_SESSION:
                 {
                     uint32 accountId;
                     msg.get(accountId, 7);

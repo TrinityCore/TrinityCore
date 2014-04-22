@@ -1160,7 +1160,7 @@ void WorldSession::HandleSuspendComms(WorldPacket& recv)
     zmqpp::message msg;
     WorldPacket fsqp(SMSG_FORCE_SEND_QUEUED_PACKETS, 0);
     sSocialServer->BuildPacketCommand(msg, fsqp);
-    msg << uint8(5);   // broadcast target
+    msg << uint8(PENDING_SESSION);   // broadcast target
     msg << uint32(GetAccountId());
     sSocialServer->SendCommand(msg);
 }

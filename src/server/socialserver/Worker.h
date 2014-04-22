@@ -19,15 +19,9 @@
 #define __WORKER_H
 
 #include "ZmqWorker.h"
+#include "Commands.h"
 
 class Worker;
-
-enum Operations
-{
-    SUSPEND_COMMS,
-    BROADCAST_PACKET,
-    OPCODES_MAX
-};
 
 struct RedirectInfo
 {

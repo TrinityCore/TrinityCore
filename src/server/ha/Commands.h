@@ -15,31 +15,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Worker.h"
-#include "ZmqContext.h"
+#ifndef _COMMANDS_H
+#define _COMMANDS_H
 
-void Worker::dispatch(const zmqpp::message& msg)
-{
-    std::string nodeIp;
-    uint16 nodePort;
-    uint16 command;
+enum Commands
+  {
+    SUSPEND_COMMS,
+    BROADCAST_PACKET,
+    OPCODES_MAX
+  };
 
-    msg.get(nodeIp, 0);
-    msg.get(nodePort, 1);
-    msg.get(command, 2);
-    printf("Worker received command %u from %s:%hu\n", command, nodeIp.c_str(), nodePort);
-    if (command >= OPCODES_MAX)
-        return;
+enum BroadcastType 
+  {
+    GUILD,
+    GROUP,
+    PLAYER,
+    ACCOUNT,
+    PENDING_SESSION,
+    BROADCAST_TYPE_MAX
+  };
 
-    (this->*handlers[command])(msg, { nodeIp, nodePort });
-}
-
-void Worker::HandleBroadcastPacket(zmqpp::message const& msg, RedirectInfo const&)
-{
-    results->send(const_cast<zmqpp::message&>(msg));
-}
-
-const opcode_handler handlers[OPCODES_MAX] = {
-    &Worker::HandleBroadcastPacket,
-    &Worker::HandleBroadcastPacket,
-};
+#endif

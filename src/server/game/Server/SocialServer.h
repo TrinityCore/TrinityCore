@@ -3,6 +3,7 @@
 
 #include <zmqpp/zmqpp.hpp>
 #include <ace/Singleton.h>
+#include "Commands.h"
 
 class WorldPacket;
 
