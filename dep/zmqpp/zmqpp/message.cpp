@@ -15,16 +15,6 @@ namespace zmqpp
 
 /*!
  * \brief internal construct
- * \internal wraps the zmq struct block so allow us to monitor sent state
- */
-struct zmq_msg_wrapper
-{
-	bool sent;
-	zmq_msg_t msg;
-};
-
-/*!
- * \brief internal construct
  * \internal handles bubbling callback from zmq c style to the c++ functor provided
  */
 struct callback_releaser
@@ -40,18 +30,6 @@ message::message()
 
 message::~message()
 {
-	for(size_t i = 0; i < _parts.size(); ++i)
-	{
-		zmq_msg_t& msg = _parts[i].msg;
-
-#ifndef NDEBUG // unused assert variable in release
-		int result = zmq_msg_close(&msg);
-		assert(0 == result);
-#else
-		zmq_msg_close(&msg);
-#endif // NDEBUG
-
-	}
 	_parts.clear();
 }
 
@@ -66,138 +44,63 @@ size_t message::parts() const
  * so accurately represent the intent of these calls.
  */
 
-size_t message::size(size_t const& part /* = 0 */) const
+size_t message::size(size_t const part /* = 0 */) const
 {
 	if(part >= _parts.size())
 	{
 		throw exception("attempting to request a message part outside the valid range");
 	}
 
-	zmq_msg_wrapper const& wrap = _parts[part];
-	return zmq_msg_size( const_cast<zmq_msg_t*>( &wrap.msg ) );
+	return _parts[part].size();
 }
 
-void const* message::raw_data(size_t const& part /* = 0 */) const
+void const* message::raw_data(size_t const part /* = 0 */) const
 {
 	if(part >= _parts.size())
 	{
 		throw exception("attempting to request a message part outside the valid range");
 	}
 
-	zmq_msg_wrapper const& wrap = _parts[part];
-	return zmq_msg_data( const_cast<zmq_msg_t*>( &wrap.msg ) );
+	return _parts[part].data();
 }
 
-zmq_msg_t& message::raw_msg(size_t const& part /* = 0 */)
+zmq_msg_t& message::raw_msg(size_t const part /* = 0 */)
 {
 	if(part >= _parts.size())
 	{
 		throw exception("attempting to request a message part outside the valid range");
 	}
 
-	zmq_msg_wrapper& wrap = _parts[part];
-	return wrap.msg;
+	return _parts[part].msg();
 }
 
 zmq_msg_t& message::raw_new_msg()
 {
-	parts_type tmp(_parts.size() + 1);
+	_parts.push_back( frame() );
 
-	for(size_t i = 0; i < _parts.size(); ++i)
-	{
-		zmq_msg_t& dest = tmp[i].msg;
-		if( 0 != zmq_msg_init(&dest) )
-		{
-			throw zmq_internal_exception();
-		}
-
-		zmq_msg_t& src = _parts[i].msg;
-		if( 0 != zmq_msg_move(&dest, &src) )
-		{
-			throw zmq_internal_exception();
-		}
-	}
-
-	std::swap(tmp, _parts);
-
-	zmq_msg_t& msg = _parts.back().msg;
-	if( 0 != zmq_msg_init(&msg) )
-	{
-		throw zmq_internal_exception();
-	}
-
-	return msg;
+	return _parts.back().msg();
 }
 
-std::string message::get(size_t const& part /* = 0 */) const
+zmq_msg_t& message::raw_new_msg(size_t const reserve_data_size)
+{
+	_parts.push_back( frame(reserve_data_size) );
+
+	return _parts.back().msg();
+}
+
+std::string message::get(size_t const part /* = 0 */) const
 {
 	return std::string(static_cast<char const*>(raw_data(part)), size(part));
 }
 
 
 // Move operators will take ownership of message parts without copying
-void message::move(void* part, size_t& size, release_function const& release)
+void message::move(void* part, size_t const size, release_function const& release)
 {
-	parts_type tmp(_parts.size() + 1);
-
-	for(size_t i = 0; i < _parts.size(); ++i)
-	{
-		zmq_msg_t& dest = tmp[i].msg;
-		if( 0 != zmq_msg_init(&dest) )
-		{
-			throw zmq_internal_exception();
-		}
-
-		zmq_msg_t& src = _parts[i].msg;
-		if( 0 != zmq_msg_move(&dest, &src) )
-		{
-			throw zmq_internal_exception();
-		}
-	}
-
-	std::swap(tmp, _parts);
-
 	callback_releaser* hint = new callback_releaser();
 	hint->func = release;
 
-	zmq_msg_t& msg = _parts.back().msg;
-	if (0 != zmq_msg_init_data(&msg, part, size, &message::release_callback, hint))
-	{
-		throw zmq_internal_exception();
-	}
-}
-
-void message::add(void const* part, size_t const& size)
-{
-	parts_type tmp(_parts.size() + 1);
-
-	for(size_t i = 0; i < _parts.size(); ++i)
-	{
-		zmq_msg_t& dest = tmp[i].msg;
-		if( 0 != zmq_msg_init(&dest) )
-		{
-			throw zmq_internal_exception();
-		}
-
-		zmq_msg_t& src = _parts[i].msg;
-		if( 0 != zmq_msg_move(&dest, &src) )
-		{
-			throw zmq_internal_exception();
-		}
-	}
-
-	std::swap(tmp, _parts);
-
-	zmq_msg_t& msg = _parts.back().msg;
-
-	if( 0 != zmq_msg_init_size(&msg, size) )
-	{
-		throw zmq_internal_exception();
-	}
-
-	void* msg_data = zmq_msg_data(&msg);
-
-	memcpy(msg_data, part, size);
+	_parts.push_back( frame( part, size, &message::release_callback, hint ) );
 }
 
 // Stream reader style
@@ -206,7 +109,7 @@ void message::reset_read_cursor()
 	_read_cursor = 0;
 }
 
-void message::get(int8_t& integer, size_t const& part) const
+void message::get(int8_t& integer, size_t const part) const
 {
 	assert(sizeof(int8_t) == size(part));
 
@@ -214,7 +117,7 @@ void message::get(int8_t& integer, size_t const& part) const
 	integer = *byte;
 }
 
-void message::get(int16_t& integer, size_t const& part) const
+void message::get(int16_t& integer, size_t const part) const
 {
 	assert(sizeof(int16_t) == size(part));
 
@@ -222,7 +125,7 @@ void message::get(int16_t& integer, size_t const& part) const
 	integer = static_cast<int16_t>(ntohs(*network_order));
 }
 
-void message::get(int32_t& integer, size_t const& part) const
+void message::get(int32_t& integer, size_t const part) const
 {
 	assert(sizeof(int32_t) == size(part));
 
@@ -230,7 +133,7 @@ void message::get(int32_t& integer, size_t const& part) const
 	integer = static_cast<int32_t>(htonl(*network_order));
 }
 
-void message::get(int64_t& integer, size_t const& part) const
+void message::get(int64_t& integer, size_t const part) const
 {
 	assert(sizeof(int64_t) == size(part));
 
@@ -238,7 +141,7 @@ void message::get(int64_t& integer, size_t const& part) const
 	integer = static_cast<int64_t>(htonll(*network_order));
 }
 
-void message::get(uint8_t& unsigned_integer, size_t const& part) const
+void message::get(uint8_t& unsigned_integer, size_t const part) const
 {
 	assert(sizeof(uint8_t) == size(part));
 
@@ -246,7 +149,7 @@ void message::get(uint8_t& unsigned_integer, size_t const& part) const
 	unsigned_integer = *byte;
 }
 
-void message::get(uint16_t& unsigned_integer, size_t const& part) const
+void message::get(uint16_t& unsigned_integer, size_t const part) const
 {
 	assert(sizeof(uint16_t) == size(part));
 
@@ -254,7 +157,7 @@ void message::get(uint16_t& unsigned_integer, size_t const& part) const
 	unsigned_integer = ntohs(*network_order);
 }
 
-void message::get(uint32_t& unsigned_integer, size_t const& part) const
+void message::get(uint32_t& unsigned_integer, size_t const part) const
 {
 	assert(sizeof(uint32_t) == size(part));
 
@@ -262,7 +165,7 @@ void message::get(uint32_t& unsigned_integer, size_t const& part) const
 	unsigned_integer = ntohl(*network_order);
 }
 
-void message::get(uint64_t& unsigned_integer, size_t const& part) const
+void message::get(uint64_t& unsigned_integer, size_t const part) const
 {
 	assert(sizeof(uint64_t) == size(part));
 
@@ -270,27 +173,23 @@ void message::get(uint64_t& unsigned_integer, size_t const& part) const
 	unsigned_integer = ntohll(*network_order);
 }
 
-void message::get(float& floating_point, size_t const& part) const
+void message::get(float& floating_point, size_t const part) const
 {
-	assert(sizeof(uint32_t) == size(part));
+	assert(sizeof(float) == size(part));
 
-	uint32_t const* network_order = static_cast<uint32_t const*>(raw_data(part));
-	uint32_t host_order = ntohl(*network_order);
-	float* temp = reinterpret_cast<float*>(&host_order);
-	floating_point = *temp;
+	float const* network_order = static_cast<float const*>(raw_data(part));
+	floating_point = ntohf(*network_order);
 }
 
-void message::get(double& double_precision, size_t const& part) const
+void message::get(double& double_precision, size_t const part) const
 {
-	assert(sizeof(uint64_t) == size(part));
+	assert(sizeof(double) == size(part));
 
-	uint64_t const* network_order = static_cast<uint64_t const*>(raw_data(part));
-	uint64_t host_order = ntohll(*network_order);
-	double* temp = reinterpret_cast<double*>(&host_order);
-	double_precision = *temp;
+	double const* network_order = static_cast<double const*>(raw_data(part));
+	double_precision = ntohd(*network_order);
 }
 
-void message::get(bool& boolean, size_t const& part) const
+void message::get(bool& boolean, size_t const part) const
 {
 	assert(sizeof(uint8_t) == size(part));
 
@@ -298,148 +197,234 @@ void message::get(bool& boolean, size_t const& part) const
 	boolean = (*byte != 0);
 }
 
-void message::get(std::string& string, size_t const& part) const
+void message::get(std::string& string, size_t const part) const
 {
 	string.assign( get(part) );
 }
 
 
 // Stream writer style - these all use copy styles
-message& message::operator<<(int8_t const& integer)
+message& message::operator<<(int8_t const integer)
 {
-	add(&integer, sizeof(int8_t));
+        add(reinterpret_cast<void const*>(&integer), sizeof(int8_t));
 	return *this;
 }
 
-message& message::operator<<(int16_t const& integer)
+message& message::operator<<(int16_t const integer)
 {
 	uint16_t network_order = htons(static_cast<uint16_t>(integer));
-	add(&network_order, sizeof(uint16_t));
+	add(reinterpret_cast<void const*>(&network_order), sizeof(uint16_t));
 
 	return *this;
 }
 
-message& message::operator<<(int32_t const& integer)
+message& message::operator<<(int32_t const integer)
 {
 	uint32_t network_order = htonl(static_cast<uint32_t>(integer));
-	add(&network_order, sizeof(uint32_t));
+	add(reinterpret_cast<void const*>(&network_order), sizeof(uint32_t));
 
 	return *this;
 }
 
-message& message::operator<<(int64_t const& integer)
+message& message::operator<<(int64_t const integer)
 {
 	uint64_t network_order = htonll(static_cast<uint64_t>(integer));
-	add(&network_order, sizeof(uint64_t));
+	add(reinterpret_cast<void const*>(&network_order), sizeof(uint64_t));
 
 	return *this;
 }
 
 
-message& message::operator<<(uint8_t const& unsigned_integer)
+message& message::operator<<(uint8_t const unsigned_integer)
 {
-	add(&unsigned_integer, sizeof(uint8_t));
+        add(reinterpret_cast<void const*>(&unsigned_integer), sizeof(uint8_t));
 	return *this;
 }
 
-message& message::operator<<(uint16_t const& unsigned_integer)
+message& message::operator<<(uint16_t const unsigned_integer)
 {
 	uint16_t network_order = htons(unsigned_integer);
-	add(&network_order, sizeof(uint16_t));
+	add(reinterpret_cast<void const*>(&network_order), sizeof(uint16_t));
 
 	return *this;
 }
 
-message& message::operator<<(uint32_t const& unsigned_integer)
+message& message::operator<<(uint32_t const unsigned_integer)
 {
 	uint32_t network_order = htonl(unsigned_integer);
-	add(&network_order, sizeof(uint32_t));
+	add(reinterpret_cast<void const*>(&network_order), sizeof(uint32_t));
 
 	return *this;
 }
 
-message& message::operator<<(uint64_t const& unsigned_integer)
+message& message::operator<<(uint64_t const unsigned_integer)
 {
 	uint64_t network_order = htonll(unsigned_integer);
-	add(&network_order, sizeof(uint64_t));
+	add(reinterpret_cast<void const*>(&network_order), sizeof(uint64_t));
 
 	return *this;
 }
 
-message& message::operator<<(float const& floating_point)
+message& message::operator<<(float const floating_point)
 {
 	assert(sizeof(float) == 4);
 
-	uint32_t const host_order = *reinterpret_cast<uint32_t const*>(&floating_point);
-	uint32_t network_order = htonl(host_order);
-	add(&network_order, sizeof(uint32_t));
+	float network_order = htonf(floating_point);
+	add(&network_order, sizeof(float));
 
 	return *this;
 }
 
-message& message::operator<<(double const& double_precision)
+message& message::operator<<(double const double_precision)
 {
 	assert(sizeof(double) == 8);
 
-	uint64_t const host_order = *reinterpret_cast<uint64_t const*>(&double_precision);
-	uint64_t network_order = htonll(host_order);
-	add(&network_order, sizeof(uint64_t));
+	double network_order = htond(double_precision);
+	add(&network_order, sizeof(double));
 
 	return *this;
 }
 
-message& message::operator<<(bool const& boolean)
+message& message::operator<<(bool const boolean)
 {
 	uint8_t byte = (boolean) ? 1 : 0;
-	add(&byte, sizeof(uint8_t));
+	add(reinterpret_cast<void const*>(&byte), sizeof(uint8_t));
 
 	return *this;
 }
 
 message& message::operator<<(char const* c_string)
 {
-	add(c_string, strlen(c_string));
+        add(reinterpret_cast<void const*>(c_string), strlen(c_string));
 	return *this;
 }
 
 message& message::operator<<(std::string const& string)
 {
-	add(string.data(), string.size());
+        add(reinterpret_cast<void const*>(string.data()), string.size());
 	return *this;
 }
 
-message::message(message&& source) NOEXCEPT
+void message::push_front(void const* part, size_t const size)
+{
+	_parts.emplace( _parts.begin(), part, size );
+}
+
+void message::push_front(int8_t const integer)
+{
+	push_front(&integer, sizeof(int8_t));
+}
+
+void message::push_front(int16_t const integer)
+{
+	uint16_t network_order = htons(static_cast<uint16_t>(integer));
+	push_front(&network_order, sizeof(uint16_t));
+}
+
+void message::push_front(int32_t const integer)
+{
+	uint32_t network_order = htonl(static_cast<uint32_t>(integer));
+	push_front(&network_order, sizeof(uint32_t));
+}
+
+void message::push_front(int64_t const integer)
+{
+	uint64_t network_order = htonll(static_cast<uint64_t>(integer));
+	push_front(&network_order, sizeof(uint64_t));
+}
+
+
+void message::push_front(uint8_t const unsigned_integer)
+{
+	push_front(&unsigned_integer, sizeof(uint8_t));
+}
+
+void message::push_front(uint16_t const unsigned_integer)
+{
+	uint16_t network_order = htons(unsigned_integer);
+	push_front(&network_order, sizeof(uint16_t));
+}
+
+void message::push_front(uint32_t const unsigned_integer)
+{
+	uint32_t network_order = htonl(unsigned_integer);
+	push_front(&network_order, sizeof(uint32_t));
+}
+
+void message::push_front(uint64_t const unsigned_integer)
+{
+	uint64_t network_order = htonll(unsigned_integer);
+	push_front(&network_order, sizeof(uint64_t));
+}
+
+void message::push_front(float const floating_point)
+{
+	assert(sizeof(float) == 4);
+
+	float network_order = htonf(floating_point);
+	push_front(&network_order, sizeof(float));
+}
+
+void message::push_front(double const double_precision)
+{
+	assert(sizeof(double) == 8);
+
+	double network_order = htond(double_precision);
+	push_front(&network_order, sizeof(double));
+}
+
+void message::push_front(bool const boolean)
+{
+	uint8_t byte = (boolean) ? 1 : 0;
+	push_front(&byte, sizeof(uint8_t));
+}
+
+void message::push_front(char const* c_string)
+{
+	push_front(c_string, strlen(c_string));
+}
+
+void message::push_front(std::string const& string)
+{
+	push_front(string.data(), string.size());
+}
+
+void message::pop_front()
+{
+	_parts.erase( _parts.begin() );
+}
+
+void message::pop_back()
+{
+	_parts.pop_back();
+}
+
+message::message(message&& source) noexcept
+	: _parts()
+	, _read_cursor(0)
 {
 	std::swap(_parts, source._parts);
 }
 
-message& message::operator=(message&& source) NOEXCEPT
+message& message::operator=(message&& source) noexcept
 {
 	std::swap(_parts, source._parts);
 	return *this;
 }
 
-message message::copy()
+message message::copy() const
 {
 	message msg;
 	msg.copy(*this);
 	return msg;
 }
 
-void message::copy(message& source)
+void message::copy(message const& source)
 {
-	_parts.resize(source._parts.size());
+	_parts.resize( source._parts.size() );
 	for(size_t i = 0; i < source._parts.size(); ++i)
 	{
-		if( 0 != zmq_msg_init_size(&_parts[i].msg, zmq_msg_size(&source._parts[i].msg)) )
-		{
-			throw zmq_internal_exception();
-		}
-
-		if( 0 != zmq_msg_copy(&_parts[i].msg, &source._parts[i].msg) )
-		{
-			throw zmq_internal_exception();
-		}
+		_parts[i] = source._parts[i].copy();
 	}
 
 	// we don't need a copy of the releasers as we did data copies of the internal data,
@@ -448,11 +433,11 @@ void message::copy(message& source)
 }
 
 // Used for internal tracking
-void message::sent(size_t const& part)
+void message::sent(size_t const part)
 {
 	// sanity check
-	assert(!_parts[part].sent);
-	_parts[part].sent = true;
+	assert(!_parts[part].is_sent());
+	_parts[part].mark_sent();
 }
 
 // Note that these releasers are not thread safe, the only safety is provided by

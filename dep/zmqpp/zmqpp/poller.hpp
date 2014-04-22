@@ -52,7 +52,7 @@ public:
 	 * \param socket the socket to monitor.
 	 * \param event the event flags to monitor on the socket.
 	 */
-	void add(socket_t& socket, short const& event = poll_in);
+	void add(socket_t& socket, short const event = poll_in);
 
 	/*!
 	 * Add a file descriptor to the polling model and set which events to monitor.
@@ -60,7 +60,7 @@ public:
 	 * \param descriptor the file descriptor to monitor.
 	 * \param event the event flags to monitor.
 	 */
-	void add(int const& descriptor, short const& event = poll_in | poll_error);
+	void add(int const descriptor, short const event = poll_in | poll_error);
 
 	/*!
 	 * Check if we are monitoring a given socket with this poller.
@@ -76,7 +76,7 @@ public:
 	 * \param descriptor the file descriptor to check.
 	 * \return true if it is there.
 	 */
-	bool has(int const& descriptor);
+	bool has(int const descriptor);
 
 	/*!
 	 * Stop monitoring a socket.
@@ -90,7 +90,7 @@ public:
 	 *
 	 * \param descriptor the file descriptor to stop monitoring.
 	 */
-	void remove(int const& descriptor);
+	void remove(int const descriptor);
 
 	/*!
 	 * Update the monitored event flags for a given socket.
@@ -98,7 +98,7 @@ public:
 	 * \param socket the socket to update event flags.
 	 * \param event the event flags to monitor on the socket.
 	 */
-	void check_for(socket_t const& socket, short const& event);
+	void check_for(socket_t const& socket, short const event);
 
 	/*!
 	 * Update the monitored event flags for a given file descriptor.
@@ -106,7 +106,7 @@ public:
 	 * \param descriptor the file descriptor to update event flags.
 	 * \param event the event flags to monitor on the socket.
 	 */
-	void check_for(int const& descriptor, short const& event);
+	void check_for(int const descriptor, short const event);
 
 	/*!
 	 * Poll for monitored events.
@@ -135,7 +135,7 @@ public:
 	 * \param descriptor the file descriptor to get triggered event flags for.
 	 * \return the event flags.
 	 */
-	short events(int const& descriptor) const;
+	short events(int const descriptor) const;
 
 	/*!
 	 * Check either a file descriptor or socket for input events.

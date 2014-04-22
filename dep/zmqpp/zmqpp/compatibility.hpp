@@ -27,20 +27,20 @@
 #define ZMQPP_REQUIRED_ZMQ_MAJOR 2
 #define ZMQPP_REQUIRED_ZMQ_MINOR 2
 
-#if (ZMQ_VERSION_MAJOR < ZMQPP_REQUIRED_ZMQ_MAJOR) || ((ZMQ_VERSION_MAJOR == ZMQPP_REQUIRED_ZMQ_MAJOR) && (ZMQ_VERSION_MINOR < ZMQPP_REQUIRED_ZMQ_MINOR))
+#if (ZMQ_VERSION_MAJOR < ZMQPP_REQUIRED_ZMQ_MAJOR) or ((ZMQ_VERSION_MAJOR == ZMQPP_REQUIRED_ZMQ_MAJOR) and (ZMQ_VERSION_MINOR < ZMQPP_REQUIRED_ZMQ_MINOR))
 #error zmqpp requires a later version of 0mq
 #endif
 
 // Experimental feature support
-#if (ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR == 0)
+#if (ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR == 0)
 #define ZMQ_EXPERIMENTAL_LABELS
 #endif
 
-// Currently if your not using gcc or it's a major version other than 4 you'll have to deal with it yourself
-#ifdef __GNUC__
+// Deal with older versions of gcc
+#if defined(__GNUC__) and !defined(__clang__)
 #if __GNUC__ == 4
 
-// Deal with older compilers not supporting C++0x typesafe enum class name {} comparison
+// Deal with older gcc not supporting C++0x typesafe enum class name {} comparison
 #if __GNUC_MINOR__ < 4
 #define ZMQPP_COMPARABLE_ENUM enum
 #endif
@@ -52,32 +52,20 @@
 #endif // if __GNUC_PATCHLEVEL__ < 1
 #endif // if __GNUC_MINOR__ == 4
 
-// Deal with older compilers not supporting C++0x lambda function
+// Deal with older gcc not supporting C++0x lambda function
 #if __GNUC_MINOR__ < 5
 #define ZMQPP_IGNORE_LAMBDA_FUNCTION_TESTS
 #define ZMQPP_EXPLICITLY_DELETED
 #endif // if __GNUC_MINOR__ < 5
 
-// Deal with older compilers not supporting C++0x nullptr
+// Deal with older gcc not supporting C++0x nullptr
 #if __GNUC_MINOR__ < 6
 #define nullptr NULL
-#define NOEXCEPT
+#define noexcept
 #endif // if __GNUC_MINOR__ < 6
 
 #endif // if __GNUC_ == 4
-#else
-#ifdef _MSC_VER
-#define NOEXCEPT throw()
-#if _MSC_VER < 1800
-#define ZMQPP_EXPLICITLY_DELETED
-#endif
-#if _MSC_VER < 1600
-#define ZMQPP_IGNORE_LAMBDA_FUNCTION_TESTS
-#define nullptr NULL
-#define ZMQPP_COMPARABLE_ENUM enum
-#endif
-#endif // _MSC_VER
-#endif // if __GNUC_
+#endif // if defined(__GNUC__) && !defined(__clang__)
 
 // Generic state, assume a modern compiler
 #ifndef ZMQPP_COMPARABLE_ENUM
@@ -86,10 +74,6 @@
 
 #ifndef ZMQPP_EXPLICITLY_DELETED
 #define ZMQPP_EXPLICITLY_DELETED = delete
-#endif
-
-#ifndef NOEXCEPT
-#define NOEXCEPT noexcept
 #endif
 
 #endif /* ZMQPP_COMPATIBILITY_HPP_ */
