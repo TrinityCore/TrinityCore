@@ -1125,7 +1125,7 @@ bool WorldSession::SendRedirect(const char* ip_str, uint16 port)
     BigNumber a;
     a.SetHexStr(fields[0].GetString().c_str());
 
-    HmacHash hmac(40, a.AsByteArray());
+    HmacHash hmac(40, a.AsByteArray().get());
     hmac.UpdateData((uint8*)&ip, 4);
     hmac.UpdateData((uint8*)&port, 2);
     hmac.Finalize();

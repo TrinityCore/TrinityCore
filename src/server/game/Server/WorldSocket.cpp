@@ -978,7 +978,7 @@ int WorldSocket::HandleAuthRedirect(WorldPacket& recvPacket)
     if (sWorld->IsClosed())
     {
         SendAuthResponseError(AUTH_REJECT);
-        TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthRedirect: World closed, denying client (%s).", address.c_str());
+        TC_LOG_ERROR("network", "WorldSocket::HandleAuthRedirect: World closed, denying client (%s).", address.c_str());
         return -1;
     }
 
@@ -987,7 +987,7 @@ int WorldSocket::HandleAuthRedirect(WorldPacket& recvPacket)
     recvPacket >> unk;
     recvPacket.read(digest, 20);
 
-    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthRedirect: account %s, unk " UI64FMTD "u", account.c_str(), unk);
+    TC_LOG_DEBUG("network", "WorldSocket::HandleAuthRedirect: account %s, unk " UI64FMTD "u", account.c_str(), unk);
 
     // Get the account information from the realmd database
     //         0           1        2       3          4         5       6          7   8
@@ -1000,7 +1000,7 @@ int WorldSocket::HandleAuthRedirect(WorldPacket& recvPacket)
     if (!result)
     {
         SendAuthResponseError(AUTH_UNKNOWN_ACCOUNT);
-        TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthRedirect: Sent Auth Response (unknown account).");
+        TC_LOG_ERROR("network", "WorldSocket::HandleAuthRedirect: Sent Auth Response (unknown account).");
         return -1;
     }
 
@@ -1017,7 +1017,7 @@ int WorldSocket::HandleAuthRedirect(WorldPacket& recvPacket)
         if (strcmp(fields[2].GetCString(), GetRemoteAddress().c_str()))
         {
             SendAuthResponseError(AUTH_FAILED);
-            TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthRedirect: Sent Auth Response (Account IP differs).");
+            TC_LOG_DEBUG("network", "WorldSocket::HandleAuthRedirect: Sent Auth Response (Account IP differs).");
             return -1;
         }
     }
@@ -1051,7 +1051,7 @@ int WorldSocket::HandleAuthRedirect(WorldPacket& recvPacket)
     if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED) && os != "Win" && os != "OSX")
     {
         SendAuthResponseError(AUTH_REJECT);
-        TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthRedirect: Client %s attempted to log in using invalid client OS (%s).", address.c_str(), os.c_str());
+        TC_LOG_ERROR("network", "WorldSocket::HandleAuthRedirect: Client %s attempted to log in using invalid client OS (%s).", address.c_str(), os.c_str());
         return -1;
     }
 
@@ -1078,17 +1078,17 @@ int WorldSocket::HandleAuthRedirect(WorldPacket& recvPacket)
     if (banresult) // if account banned
     {
         SendAuthResponseError(AUTH_BANNED);
-        TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthRedirect: Sent Auth Response (Account banned).");
+        TC_LOG_ERROR("network", "WorldSocket::HandleAuthRedirect: Sent Auth Response (Account banned).");
         return -1;
     }
 
     // Check locked state for server
     AccountTypes allowedAccountType = sWorld->GetPlayerSecurityLimit();
-    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "Allowed Level: %u Player Level %u", allowedAccountType, AccountTypes(security));
+    TC_LOG_DEBUG("network", "Allowed Level: %u Player Level %u", allowedAccountType, AccountTypes(security));
     if (allowedAccountType > SEC_PLAYER && AccountTypes(security) < allowedAccountType)
     {
         SendAuthResponseError(AUTH_UNAVAILABLE);
-        TC_LOG_INFO(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthRedirect: User tries to login but his security level is not enough");
+        TC_LOG_INFO("network", "WorldSocket::HandleAuthRedirect: User tries to login but his security level is not enough");
         return -1;
     }
 
@@ -1103,11 +1103,11 @@ int WorldSocket::HandleAuthRedirect(WorldPacket& recvPacket)
     if (memcmp(sha.GetDigest(), digest, 20))
     {
         SendAuthResponseError(AUTH_FAILED);
-        TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthRedirect: Authentication failed for account: %u ('%s') address: %s", id, account.c_str(), address.c_str());
+        TC_LOG_ERROR("network", "WorldSocket::HandleAuthRedirect: Authentication failed for account: %u ('%s') address: %s", id, account.c_str(), address.c_str());
         return -1;
     }
 
-    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthRedirect: Client '%s' authenticated successfully from %s.",
+    TC_LOG_DEBUG("network", "WorldSocket::HandleAuthRedirect: Client '%s' authenticated successfully from %s.",
         account.c_str(),
         address.c_str());
 
@@ -1119,7 +1119,7 @@ int WorldSocket::HandleAuthRedirect(WorldPacket& recvPacket)
     bool isRecruiter = !result.null();
 
     ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter, SESSION_FLAG_FROM_REDIRECT), -1);
-    
+
     m_Crypt.Init(&sessionKey, m_serverEncryptSeed.AsByteArray(16).get(), m_clientDecryptSeed.AsByteArray(16).get());
 
     m_Session->LoadGlobalAccountData();

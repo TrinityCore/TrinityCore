@@ -3230,7 +3230,7 @@ void World::ReloadNodes()
     PreparedQueryResult res = WorldDatabase.Query(stmt);
     if (!res)
     {
-        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "No nodes defined! Redirecting disabled.");
+        TC_LOG_ERROR("server.loading", "No nodes defined! Redirecting disabled.");
         m_bool_configs[CONFIG_ENABLE_REDIRECTS] = false;
         return;
     }
@@ -3248,7 +3248,7 @@ void World::ReloadNodes()
     if (!m_nodes.count(CATCHALL_NODE)) //you done goofed
     {
         m_nodes.clear();
-        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "No catchall node defined! Redirecting disabled.");
+        TC_LOG_ERROR("server.loading", "No catchall node defined! Redirecting disabled.");
         m_bool_configs[CONFIG_ENABLE_REDIRECTS] = false;
         return;
     }
