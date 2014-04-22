@@ -1312,12 +1312,6 @@ enum SmartCastFlags
     SMARTCAST_COMBAT_MOVE            = 0x40                      //Prevents combat movement if cast successful. Allows movement on range, OOM, LOS
 };
 
-enum BroadcastTextIds
-{
-    BROADCAST_TEXT_CALL_FOR_HELP    = 2541,
-    BROADCAST_TEXT_FLEE_FOR_ASSIST  = 1150
-};
-
 // one line in DB is one event
 struct SmartScriptHolder
 {
