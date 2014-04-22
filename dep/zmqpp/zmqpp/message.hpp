@@ -131,7 +131,7 @@ public:
 	void add(Type *part, size_t const size)
 	{
 		_parts.push_back( frame( part, size ) );
-	};
+	}
 
 
 	template<typename Type, typename ...Args>
