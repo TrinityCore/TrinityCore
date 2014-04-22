@@ -586,7 +586,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             case 5060:
                             case 5070:
                             case 5080:
-                                return NPC_LICH_KING_1;
+                                return NPC_LICH_KING;
                                 break;
                             case 120:
                             case 122:
