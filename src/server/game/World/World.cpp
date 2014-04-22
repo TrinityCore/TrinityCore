@@ -1352,6 +1352,10 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading instances...");
     sInstanceSaveMgr->LoadInstances();
 
+    TC_LOG_INFO("server.loading", "Loading Broadcast texts...");
+    sObjectMgr->LoadBroadcastTexts();
+    sObjectMgr->LoadBroadcastTextLocales();
+
     TC_LOG_INFO("server.loading", "Loading Localization strings...");
     uint32 oldMSTime = getMSTime();
     sObjectMgr->LoadCreatureLocales();

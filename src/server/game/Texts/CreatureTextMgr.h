@@ -36,6 +36,7 @@ struct CreatureTextEntry
     Emote emote;
     uint32 duration;
     uint32 sound;
+    uint32 BroadcastTextId;
 };
 
 enum CreatureTextRange
@@ -186,7 +187,7 @@ void CreatureTextMgr::SendChatPacket(WorldObject* source, Builder const& builder
         case CHAT_MSG_MONSTER_WHISPER:
         case CHAT_MSG_RAID_BOSS_WHISPER:
         {
-            if (range == TEXT_RANGE_NORMAL) //ignores team and gmOnly
+            if (range == TEXT_RANGE_NORMAL) // ignores team and gmOnly
             {
                 if (!whisperTarget || whisperTarget->GetTypeId() != TYPEID_PLAYER)
                     return;
