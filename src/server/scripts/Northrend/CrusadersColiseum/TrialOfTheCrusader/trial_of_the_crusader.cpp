@@ -275,7 +275,7 @@ class boss_lich_king_toc : public CreatureScript
                 if (!_instance)
                     return;
 
-                if (_instance->GetData(TYPE_EVENT_NPC) != NPC_LICH_KING_1)
+                if (_instance->GetData(TYPE_EVENT_NPC) != NPC_LICH_KING)
                     return;
 
                 _updateTimer = _instance->GetData(TYPE_EVENT_TIMER);
@@ -764,7 +764,7 @@ class npc_tirion_toc : public CreatureScript
                         case 5005:
                             _updateTimer = 8*IN_MILLISECONDS;
                             _instance->SetData(TYPE_EVENT, 5010);
-                            me->SummonCreature(NPC_LICH_KING_1, ToCCommonLoc[2].GetPositionX(), ToCCommonLoc[2].GetPositionY(), ToCCommonLoc[2].GetPositionZ(), 5);
+                            me->SummonCreature(NPC_LICH_KING, ToCCommonLoc[2].GetPositionX(), ToCCommonLoc[2].GetPositionY(), ToCCommonLoc[2].GetPositionZ(), 5);
                             break;
                         case 5020:
                             Talk(SAY_STAGE_4_03);
