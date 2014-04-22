@@ -63,7 +63,7 @@ public:
             { "sellerror",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SELLERROR,     false, &HandleDebugSendSellErrorCommand,       "", NULL },
             { "setphaseshift", rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SETPHASESHIFT, false, &HandleDebugSendSetPhaseShiftCommand,   "", NULL },
             { "spellfail",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SPELLFAIL,     false, &HandleDebugSendSpellFailCommand,       "", NULL },
-            { "redirect",      rbac::RBAC_PERM_COMMAND_DEBUG_SEND_OPCODE,        true,  &HandleDebugSendRedirectCommand,        "", NULL },
+            { "redirect",      rbac::RBAC_PERM_COMMAND_DEBUG_SEND_OPCODE,        true,  &HandleDebugSendRedirectCommand,       "", NULL },
             { NULL,            0,                                          false, NULL,                                   "", NULL }
         };
         static ChatCommand debugCommandTable[] =

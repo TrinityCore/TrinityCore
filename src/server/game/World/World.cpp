@@ -1257,6 +1257,10 @@ void World::LoadConfigSettings(bool reload)
     m_float_configs[CONFIG_STATS_LIMITS_BLOCK] = sConfigMgr->GetFloatDefault("Stats.Limits.Block", 95.0f);
     m_float_configs[CONFIG_STATS_LIMITS_CRIT] = sConfigMgr->GetFloatDefault("Stats.Limits.Crit", 95.0f);
 
+    m_bool_configs[CONFIG_ENABLE_REDIRECTS] = sConfigMgr->GetBoolDefault("Redirect.Enable", false);
+    if (m_bool_configs[CONFIG_ENABLE_REDIRECTS])
+        ReloadNodes();
+
     //packet spoof punishment
     m_int_configs[CONFIG_PACKET_SPOOF_POLICY] = sConfigMgr->GetIntDefault("PacketSpoof.Policy", (uint32)WorldSession::DosProtection::POLICY_KICK);
     m_int_configs[CONFIG_PACKET_SPOOF_BANMODE] = sConfigMgr->GetIntDefault("PacketSpoof.BanMode", (uint32)BAN_ACCOUNT);
@@ -1266,10 +1270,6 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_PACKET_SPOOF_BANDURATION] = sConfigMgr->GetIntDefault("PacketSpoof.BanDuration", 86400);
 
     m_int_configs[CONFIG_BIRTHDAY_TIME] = sConfigMgr->GetIntDefault("BirthdayTime", 1222964635);
-
-    m_bool_configs[CONFIG_ENABLE_REDIRECTS] = sConfigMgr->GetBoolDefault("Redirect.Enable", false);
-    if (m_bool_configs[CONFIG_ENABLE_REDIRECTS])
-        ReloadNodes();
 
     // call ScriptMgr if we're reloading the configuration
     if (reload)

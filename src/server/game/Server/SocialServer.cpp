@@ -14,9 +14,11 @@ SocialServer::SocialServer() :
 {
     push_socket->connect(sConfigMgr->GetStringDefault("Redirect.SocialServer", "inproc://no-ss"));
     pull_socket->connect("tcp://localhost:9998");
-
-    pull_socket->subscribe("");
-
+    host_id = (uint32)rand32();
+    char subscribe_id[5] = {0};
+    memcpy(subscribe_id, &host_id, 4);
+    pull_socket->subscribe("\xFF\xFF\xFF\xFF");
+    pull_socket->subscribe(subscribe_id);
     poller->add(*pull_socket, zmqpp::poller::poll_in);
 
     TC_LOG_INFO("socialserver", "Connected to socialserver");
@@ -36,13 +38,12 @@ void SocialServer::Init(RedirectInfo const& currentNode)
 
 void SocialServer::SendCommand(zmqpp::message& msg)
 {
+    msg.push_front(host_id);
     push_socket->send(msg);
 }
 
 void SocialServer::BuildPacketCommand(zmqpp::message& msg, WorldPacket& packet)
 {
-    msg << current_node.ip;
-    msg << uint16(current_node.port);
     msg << uint16(BROADCAST_PACKET);
     msg << uint16(packet.GetOpcode());
     msg << uint32(packet.size());
@@ -67,30 +68,35 @@ void SocialServer::Update()
 
 void SocialServer::HandleCommand(zmqpp::message& msg)
 {
-    RedirectInfo source;
     uint16 command;
-
-    msg >> source.ip;
-    msg >> source.port;
+    uint32 source;
+    uint32 envelope;
+    
+    msg >> envelope;
+    msg >> source;
     msg >> command;
 
+    printf("Received %u from %u envelope %u\n", command, source, envelope);
     switch (command)
     {
         case SUSPEND_COMMS:
         {
-            // ignore if we sent this request, only disconnect client from other nodes
             uint32 accountId;
             msg >> accountId;
-
+	    printf("SUSPEND_COMMS: %u", accountId);
             if (WorldSession* session = sWorld->FindSession(accountId))
             {
-                if (source.ip != current_node.ip || source.port != current_node.port)
+         	printf("Session found");
+        	// ignore if we sent this request, only disconnect client from other nodes
+                if (source != host_id)
                 {
                     WorldPacket suspend(SMSG_SUSPEND_COMMS, 4);
                     suspend << uint32(0);
                     session->SendPacket(&suspend);
                 }
             }
+	    else
+	      printf("Session not found");
             break;
         }
         case BROADCAST_PACKET:

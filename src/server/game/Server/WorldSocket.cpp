@@ -168,7 +168,6 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
 
     WorldPacket const* pkt = &pct;
 
-
     TC_LOG_TRACE("network.opcode", "S->C: %s %s", (m_Session ? m_Session->GetPlayerInfo() : m_Address).c_str(), GetOpcodeNameForLogging(pkt->GetOpcode()).c_str());
 
     sScriptMgr->OnPacketSend(this, *pkt);
@@ -697,7 +696,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return 0;
             case CMSG_REDIRECTION_AUTH_PROOF:
-               return HandleAuthRedirect(*new_pct);
+                return HandleAuthRedirect(*new_pct);
             case CMSG_SUSPEND_COMMS_ACK:
                 m_Session->HandleSuspendComms(*new_pct);
                 return 0;
@@ -745,7 +744,6 @@ int WorldSocket::HandleSendAuthSession()
 
     m_clientDecryptSeed.SetRand(16 * 8);
     packet.append(m_clientDecryptSeed.AsByteArray(16).get(), 16);               // new encryption seeds
-
     return SendPacket(packet);
 }
 
@@ -1040,7 +1038,7 @@ int WorldSocket::HandleAuthRedirect(WorldPacket& recvPacket)
         LoginDatabase.Execute(stmt);
     }
 
-    locale = LocaleConstant (fields[6].GetUInt8());
+    locale = LocaleConstant(fields[6].GetUInt8());
     if (locale >= TOTAL_LOCALES)
         locale = LOCALE_enUS;
 
@@ -1132,8 +1130,6 @@ int WorldSocket::HandleAuthRedirect(WorldPacket& recvPacket)
 
     RedirectInfo const& ri = sWorld->GetCurrentNode();
     zmqpp::message msg;
-    msg << ri.ip;
-    msg << ri.port;
     msg << uint16(SUSPEND_COMMS);
     msg << uint32(id);
     sSocialServer->SendCommand(msg);

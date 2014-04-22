@@ -28,9 +28,9 @@ private:
     zmqpp::socket* push_socket;
     zmqpp::socket* pull_socket;
     RedirectInfo current_node;
-
+    uint32 host_id;
     std::unordered_map<uint32, WorldSession*> _sessionQueue;
-
+    
     SocialServer(SocialServer const& right);
     SocialServer& operator=(SocialServer const& right);
 };

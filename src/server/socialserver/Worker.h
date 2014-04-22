@@ -23,21 +23,15 @@
 
 class Worker;
 
-struct RedirectInfo
-{
-    std::string ip;
-    uint16 port;
-};
-
-typedef void (Worker::*opcode_handler)(zmqpp::message const& msg, RedirectInfo const& sourceNode);
+typedef void (Worker::*opcode_handler)(zmqpp::message const& msg);
 
 extern const opcode_handler handlers[OPCODES_MAX];
 
 class Worker : public ZmqWorker
 {
 public:
-    void HandleSuspendComms(zmqpp::message const& msg, RedirectInfo const& sourceNode);
-    void HandleBroadcastPacket(zmqpp::message const& msg, RedirectInfo const& sourceNode);
+    void HandleSuspendComms(zmqpp::message const& msg);
+    void HandleBroadcastPacket(zmqpp::message const& msg);
 
     Worker(std::string t_u, std::string r_u): ZmqWorker(t_u, r_u) {}
 

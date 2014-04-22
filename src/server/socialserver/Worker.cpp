@@ -20,23 +20,24 @@
 
 void Worker::dispatch(const zmqpp::message& msg)
 {
-    std::string nodeIp;
-    uint16 nodePort;
+    uint32 source;
     uint16 command;
 
-    msg.get(nodeIp, 0);
-    msg.get(nodePort, 1);
-    msg.get(command, 2);
-    printf("Worker received command %u from %s:%hu\n", command, nodeIp.c_str(), nodePort);
+    msg.get(source, 0);
+    msg.get(command, 1);
+
+    printf("Worker received command %u from %u\n", command, source);
     if (command >= OPCODES_MAX)
         return;
 
-    (this->*handlers[command])(msg, { nodeIp, nodePort });
+    (this->*handlers[command])(msg);
 }
 
-void Worker::HandleBroadcastPacket(zmqpp::message const& msg, RedirectInfo const&)
+void Worker::HandleBroadcastPacket(zmqpp::message const& msg)
 {
-    results->send(const_cast<zmqpp::message&>(msg));
+    zmqpp::message m = msg.copy();
+    m.push_front(0xFFFFFFFF);
+    results->send(const_cast<zmqpp::message&>(m));
 }
 
 const opcode_handler handlers[OPCODES_MAX] = {

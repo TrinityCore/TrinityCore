@@ -44,10 +44,10 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     if (WasRedirected())
     {
         GetPlayer()->SetTeleportDest(WorldLocation(GetPlayer()->GetMapId(),
-                                                   GetPlayer()->GetPositionX(),
-                                                   GetPlayer()->GetPositionY(),
-                                                   GetPlayer()->GetPositionZ(),
-                                                   GetPlayer()->GetOrientation()));
+            GetPlayer()->GetPositionX(),
+            GetPlayer()->GetPositionY(),
+            GetPlayer()->GetPositionZ(),
+            GetPlayer()->GetOrientation()));
 
         GetPlayer()->SetSemaphoreTeleportFar(true);
     }
@@ -219,7 +219,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvData)
     uint32 flags, time;
     recvData >> flags >> time;
     TC_LOG_DEBUG("network", "Guid " UI64FMTD, guid);
-    TC_LOG_DEBUG("network", "Flags %u, time %u", flags, time/IN_MILLISECONDS);
+    TC_LOG_DEBUG("network", "Flags %u, time %u", flags, time / IN_MILLISECONDS);
 
     Player* plMover = _player->m_mover->ToPlayer();
 
@@ -457,7 +457,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     UnitMoveType move_type;
     UnitMoveType force_move_type;
 
-    static char const* move_type_name[MAX_MOVE_TYPE] = {  "Walk", "Run", "RunBack", "Swim", "SwimBack", "TurnRate", "Flight", "FlightBack", "PitchRate" };
+    static char const* move_type_name[MAX_MOVE_TYPE] = { "Walk", "Run", "RunBack", "Swim", "SwimBack", "TurnRate", "Flight", "FlightBack", "PitchRate" };
 
     switch (opcode)
     {
