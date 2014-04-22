@@ -2,6 +2,7 @@
 #include "ZmqContext.h"
 #include "Config.h"
 #include "Log.h"
+#include "GroupMgr.h"
 #include "GuildMgr.h"
 #include "World.h"
 #include "Commands.h"
@@ -111,9 +112,9 @@ void SocialServer::HandleCommand(zmqpp::message const& msg)
                 packet.put(0, data, size);
             }
 
-            switch (target) 
+            switch (target)
             {
-                case GUILD: 
+                case BROADCAST_GUILD:
                 {
                     uint32 guildId;
                     msg.get(guildId, 7);
@@ -121,13 +122,13 @@ void SocialServer::HandleCommand(zmqpp::message const& msg)
                         guild->BroadcastPacket(msg, &packet);
                     break;
                 }
-                case GROUP: 
+                case BROADCAST_GROUP:
                     uint32 guildId;
                     msg.get(guildId, 7);
                     //if (Group* group = sGroupMgr->GetGroupByGUID(guildId))
                     //    guild->BroadcastPacket(msg, &packet);
                     break;
-                case PLAYER:
+                case BROADCAST_PLAYER:
                 {
                     uint64 guid;
                     msg.get(guid, 7);
@@ -135,7 +136,7 @@ void SocialServer::HandleCommand(zmqpp::message const& msg)
                         player->GetSession()->SendPacket(&packet);
                     break;
                 }
-                case ACCOUNT:
+                case BROADCAST_ACCOUNT:
                 {
                     uint32 accountId;
                     msg.get(accountId, 7);
@@ -143,7 +144,7 @@ void SocialServer::HandleCommand(zmqpp::message const& msg)
                         session->SendPacket(&packet);
                     break;
                 }
-                case PENDING_SESSION:
+                case BROADCAST_PENDING_SESSION:
                 {
                     uint32 accountId;
                     msg.get(accountId, 7);

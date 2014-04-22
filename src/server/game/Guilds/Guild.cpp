@@ -2157,7 +2157,7 @@ void Guild::BroadcastToGuild(WorldSession* session, bool officerOnly, std::strin
 
         zmqpp::message msg;
         sSocialServer->BuildPacketCommand(msg, data);
-        msg << uint8(GUILD);   // broadcast target
+        msg << uint8(BROADCAST_GUILD);   // broadcast target
         msg << uint32(GetId());
         msg << uint64(session->GetPlayer()->GetGUID());
         msg << bool(officerOnly);
@@ -2198,7 +2198,7 @@ void Guild::BroadcastPacket(WorldPacket* packet) const
     //        player->GetSession()->SendPacket(packet);
     zmqpp::message msg;
     sSocialServer->BuildPacketCommand(msg, *packet);
-    msg << uint8(GUILD);   // broadcast target
+    msg << uint8(BROADCAST_GUILD);   // broadcast target
     msg << uint32(GetId());
     msg << uint64(0);
     msg << bool(false);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,20 +19,22 @@
 #define _COMMANDS_H
 
 enum Commands
-  {
+{
     SUSPEND_COMMS,
     BROADCAST_PACKET,
+
     OPCODES_MAX
-  };
+};
 
-enum BroadcastType 
-  {
-    GUILD,
-    GROUP,
-    PLAYER,
-    ACCOUNT,
-    PENDING_SESSION,
+enum BroadcastType
+{
+    BROADCAST_GUILD,
+    BROADCAST_GROUP,
+    BROADCAST_PLAYER,
+    BROADCAST_ACCOUNT,
+    BROADCAST_PENDING_SESSION,
+
     BROADCAST_TYPE_MAX
-  };
+};
 
-#endif
+#endif // _COMMANDS_H
