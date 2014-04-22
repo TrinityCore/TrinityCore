@@ -35,6 +35,7 @@
 #include "Util.h"
 #include "LFGMgr.h"
 #include "UpdateFieldFlags.h"
+#include "SocialServer.h"
 
 Roll::Roll(uint64 _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid),
 itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
@@ -1579,25 +1580,50 @@ void Group::UpdatePlayerOutOfRange(Player* player)
 
 void Group::BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int group, uint64 ignore)
 {
-    for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
-    {
-        Player* player = itr->GetSource();
-        if (!player || (ignore != 0 && player->GetGUID() == ignore) || (ignorePlayersInBGRaid && player->GetGroup() != this))
-            continue;
-
-        if (player->GetSession() && (group == -1 || itr->getSubGroup() == group))
-            player->GetSession()->SendPacket(packet);
-    }
+    zmqpp::message msg;
+    sSocialServer->BuildPacketCommand(msg, *packet);
+    msg << uint8(BROADCAST_GROUP);
+    msg << uint32(GetLowGUID());
+    msg << bool(ignorePlayersInBGRaid);
+    msg << int32(group);
+    msg << uint64(ignore);
+    msg << bool(false); // only leader & assistant
+    sSocialServer->SendCommand(msg);
 }
 
 void Group::BroadcastReadyCheck(WorldPacket* packet)
 {
+    zmqpp::message msg;
+    sSocialServer->BuildPacketCommand(msg, *packet);
+    msg << uint8(BROADCAST_GROUP);
+    msg << uint32(GetLowGUID());
+    msg << bool(false);
+    msg << int32(-1);
+    msg << uint64(0);
+    msg << bool(true); // only leader & assistant
+    sSocialServer->SendCommand(msg);
+}
+
+void Group::BroadcastPacket(zmqpp::message& msg, WorldPacket* packet)
+{
+    bool ignorePlayersInBGRaid;
+    int32 subGroup;
+    uint64 skippedPlayer;
+    bool leaderOrAssistant;
+
+    msg >> ignorePlayersInBGRaid;
+    msg >> subGroup;
+    msg >> skippedPlayer;
+    msg >> leaderOrAssistant;
+
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player* player = itr->GetSource();
-        if (player && player->GetSession())
-            if (IsLeader(player->GetGUID()) || IsAssistant(player->GetGUID()))
-                player->GetSession()->SendPacket(packet);
+        if (!player || (skippedPlayer != 0 && player->GetGUID() == skippedPlayer) || (ignorePlayersInBGRaid && player->GetGroup() != this) || (leaderOrAssistant && !IsLeader(player->GetGUID()) && !IsAssistant(player->GetGUID())))
+            continue;
+
+        if (player->GetSession() && (subGroup == -1 || itr->getSubGroup() == subGroup))
+            player->GetSession()->SendPacket(packet);
     }
 }
 

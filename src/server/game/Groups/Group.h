@@ -39,6 +39,11 @@ class WorldSession;
 
 struct MapEntry;
 
+namespace zmqpp
+{
+    class message;
+}
+
 #define MAXGROUPSIZE 5
 #define MAXRAIDSIZE 40
 #define MAX_RAID_SUBGROUPS MAXRAIDSIZE/MAXGROUPSIZE
@@ -271,6 +276,7 @@ class Group
                                                             // ignore: GUID of player that will be ignored
         void BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int group = -1, uint64 ignore = 0);
         void BroadcastReadyCheck(WorldPacket* packet);
+        void BroadcastPacket(zmqpp::message& msg, WorldPacket* packet);
         void OfflineReadyCheck();
 
         /*********************************************************/

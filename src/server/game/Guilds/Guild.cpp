@@ -2165,11 +2165,11 @@ void Guild::BroadcastToGuild(WorldSession* session, bool officerOnly, std::strin
     }
 }
 
-void Guild::BroadcastPacket(zmqpp::message const& message, WorldPacket* packet) const
+void Guild::BroadcastPacket(zmqpp::message& message, WorldPacket* packet) const
 {
     uint64 senderGuid;
 
-    message.get(senderGuid, 8);
+    message >> senderGuid;
 
     if (!senderGuid)
     {
@@ -2181,7 +2181,7 @@ void Guild::BroadcastPacket(zmqpp::message const& message, WorldPacket* packet) 
     else
     {
         bool officerOnly;
-        message.get(officerOnly, 9);
+        message >> officerOnly;
 
         for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
             if (Player* player = itr->second->FindPlayer())

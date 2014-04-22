@@ -20,7 +20,7 @@ public:
     void BuildPacketCommand(zmqpp::message& msg, WorldPacket& packet);
 
     void Update();
-    void HandleCommand(zmqpp::message const& msg);
+    void HandleCommand(zmqpp::message& msg);
     void QueueSession(WorldSession* session);
 
 private:
