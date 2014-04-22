@@ -138,7 +138,7 @@ void message::get(int64_t& integer, size_t const part) const
 	assert(sizeof(int64_t) == size(part));
 
 	uint64_t const* network_order = static_cast<uint64_t const*>(raw_data(part));
-	integer = static_cast<int64_t>(htonll(*network_order));
+	integer = static_cast<int64_t>(zmqpp::htonll(*network_order));
 }
 
 void message::get(uint8_t& unsigned_integer, size_t const part) const
@@ -170,7 +170,7 @@ void message::get(uint64_t& unsigned_integer, size_t const part) const
 	assert(sizeof(uint64_t) == size(part));
 
 	uint64_t const* network_order = static_cast<uint64_t const*>(raw_data(part));
-	unsigned_integer = ntohll(*network_order);
+	unsigned_integer = zmqpp::ntohll(*network_order);
 }
 
 void message::get(float& floating_point, size_t const part) const
@@ -178,7 +178,7 @@ void message::get(float& floating_point, size_t const part) const
 	assert(sizeof(float) == size(part));
 
 	float const* network_order = static_cast<float const*>(raw_data(part));
-	floating_point = ntohf(*network_order);
+	floating_point = zmqpp::ntohf(*network_order);
 }
 
 void message::get(double& double_precision, size_t const part) const
@@ -186,7 +186,7 @@ void message::get(double& double_precision, size_t const part) const
 	assert(sizeof(double) == size(part));
 
 	double const* network_order = static_cast<double const*>(raw_data(part));
-	double_precision = ntohd(*network_order);
+	double_precision = zmqpp::ntohd(*network_order);
 }
 
 void message::get(bool& boolean, size_t const part) const
@@ -228,7 +228,7 @@ message& message::operator<<(int32_t const integer)
 
 message& message::operator<<(int64_t const integer)
 {
-	uint64_t network_order = htonll(static_cast<uint64_t>(integer));
+	uint64_t network_order = zmqpp::htonll(static_cast<uint64_t>(integer));
 	add(reinterpret_cast<void const*>(&network_order), sizeof(uint64_t));
 
 	return *this;
@@ -259,7 +259,7 @@ message& message::operator<<(uint32_t const unsigned_integer)
 
 message& message::operator<<(uint64_t const unsigned_integer)
 {
-	uint64_t network_order = htonll(unsigned_integer);
+	uint64_t network_order = zmqpp::htonll(unsigned_integer);
 	add(reinterpret_cast<void const*>(&network_order), sizeof(uint64_t));
 
 	return *this;
@@ -269,7 +269,7 @@ message& message::operator<<(float const floating_point)
 {
 	assert(sizeof(float) == 4);
 
-	float network_order = htonf(floating_point);
+	float network_order = zmqpp::htonf(floating_point);
 	add(&network_order, sizeof(float));
 
 	return *this;
@@ -279,7 +279,7 @@ message& message::operator<<(double const double_precision)
 {
 	assert(sizeof(double) == 8);
 
-	double network_order = htond(double_precision);
+	double network_order = zmqpp::htond(double_precision);
 	add(&network_order, sizeof(double));
 
 	return *this;
@@ -329,7 +329,7 @@ void message::push_front(int32_t const integer)
 
 void message::push_front(int64_t const integer)
 {
-	uint64_t network_order = htonll(static_cast<uint64_t>(integer));
+	uint64_t network_order = zmqpp::htonll(static_cast<uint64_t>(integer));
 	push_front(&network_order, sizeof(uint64_t));
 }
 
@@ -353,7 +353,7 @@ void message::push_front(uint32_t const unsigned_integer)
 
 void message::push_front(uint64_t const unsigned_integer)
 {
-	uint64_t network_order = htonll(unsigned_integer);
+	uint64_t network_order = zmqpp::htonll(unsigned_integer);
 	push_front(&network_order, sizeof(uint64_t));
 }
 
@@ -361,7 +361,7 @@ void message::push_front(float const floating_point)
 {
 	assert(sizeof(float) == 4);
 
-	float network_order = htonf(floating_point);
+	float network_order = zmqpp::htonf(floating_point);
 	push_front(&network_order, sizeof(float));
 }
 
@@ -369,7 +369,7 @@ void message::push_front(double const double_precision)
 {
 	assert(sizeof(double) == 8);
 
-	double network_order = htond(double_precision);
+	double network_order = zmqpp::htond(double_precision);
 	push_front(&network_order, sizeof(double));
 }
 
@@ -399,14 +399,14 @@ void message::pop_back()
 	_parts.pop_back();
 }
 
-message::message(message&& source) noexcept
+message::message(message&& source) NOEXCEPT
 	: _parts()
 	, _read_cursor(0)
 {
 	std::swap(_parts, source._parts);
 }
 
-message& message::operator=(message&& source) noexcept
+message& message::operator=(message&& source) NOEXCEPT
 {
 	std::swap(_parts, source._parts);
 	return *this;

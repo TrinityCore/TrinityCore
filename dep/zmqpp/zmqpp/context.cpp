@@ -15,7 +15,7 @@ void context::terminate()
 	int result;
 	do
 	{
-#if (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
+#if (ZMQ_VERSION_MAJOR < 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR < 2))
 		result = zmq_term(_context);
 #else
 		result = zmq_ctx_destroy(_context);
@@ -25,7 +25,7 @@ void context::terminate()
 	_context = nullptr;
 }
 
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 void context::set(context_option const option, int const value)
 {
 	if (nullptr == _context) { throw invalid_instance("context is invalid"); }

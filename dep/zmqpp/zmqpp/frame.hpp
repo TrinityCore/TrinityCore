@@ -49,8 +49,8 @@ private:
 	zmq_msg_t _msg;
 
 	// Disable implicit copy support, code must request a copy to clone
-	frame(frame const&) noexcept ZMQPP_EXPLICITLY_DELETED;
-	frame& operator=(frame const&) noexcept ZMQPP_EXPLICITLY_DELETED;
+	frame(frame const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
+	frame& operator=(frame const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
 };
 
 } // namespace zmqpp

@@ -10,7 +10,11 @@
 
 /** \todo cross-platform version of including headers. */
 // We get htons and htonl from here
+#ifdef _WIN32
+#include <WinSock2.h>
+#else
 #include <netinet/in.h>
+#endif
 
 #include "compatibility.hpp"
 
@@ -62,8 +66,6 @@ inline uint64_t swap_if_needed(uint64_t const value_to_check)
 	std::swap(value.bytes[3], value.bytes[4]);
 
 	return value.integer;
-}
-
 }
 
 /*!
@@ -140,7 +142,7 @@ inline double htond(double value)
 
 	uint64_t temp;
 	memcpy(&temp, &value, sizeof(uint64_t));
-	temp = htonll( temp );
+	temp = zmqpp::htonll(temp);
 	memcpy(&value, &temp, sizeof(uint64_t));
 
 	return value;
@@ -158,10 +160,12 @@ inline double ntohd(double value)
 
 	uint64_t temp;
 	memcpy(&temp, &value, sizeof(uint64_t));
-	temp = ntohll( temp );
+	temp = zmqpp::ntohll(temp);
 	memcpy(&value, &temp, sizeof(uint64_t));
 
 	return value;
+}
+
 }
 
 #endif /* INET_HPP_ */

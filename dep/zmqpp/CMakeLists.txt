@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -21,5 +21,5 @@ add_library(zmqpp STATIC
 )
 
 add_definitions(-DBUILD_VERSION_MAJOR=3)
-add_definitions(-DBUILD_VERSION_MINOR=1)
+add_definitions(-DBUILD_VERSION_MINOR=2)
 add_definitions(-DBUILD_VERSION_REVISION=0)

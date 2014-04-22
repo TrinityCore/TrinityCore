@@ -14,7 +14,7 @@
 
 #include "compatibility.hpp"
 #include "exception.hpp"
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 #include "context_options.hpp"
 #endif
 
@@ -38,7 +38,7 @@ class context
 {
 public:
 
-#if (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
+#if (ZMQ_VERSION_MAJOR < 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR < 2))
 	/*!
 	 * Initialise the 0mq context.
 	 *
@@ -64,7 +64,7 @@ public:
 #endif
 		: _context(nullptr)
 	{
-#if (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
+#if (ZMQ_VERSION_MAJOR < 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR < 2))
 		_context = zmq_init(threads);
 #else
 		_context = zmq_ctx_new();
@@ -84,7 +84,7 @@ public:
 	 * If there are open sockets will block while zmq internal buffers are
 	 * processed up to a limit specified by that sockets linger option.
 	 */
-	~context() noexcept
+	~context() NOEXCEPT
 	{
 		if (nullptr != _context)
 		{
@@ -99,7 +99,7 @@ public:
 	 *
 	 * \param source a rvalue instance of the object who's internals we wish to steal.
 	 */
-	context(context&& source) noexcept
+	context(context&& source) NOEXCEPT
 		: _context(source._context)
 	{
 		source._context = nullptr;
@@ -112,7 +112,7 @@ public:
 	 *
 	 * \param source an rvalue instance of the context who's internals we wish to steal.
 	 */
-	context& operator=(context&& source) noexcept
+	context& operator=(context&& source) NOEXCEPT
 	{
 		std::swap( _context, source._context );
 		return *this;
@@ -128,7 +128,7 @@ public:
 	 */
 	void terminate();
 
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 	/*!
 	 * Set the value of an option in the underlaying zmq context.
 	 *
@@ -156,7 +156,7 @@ public:
 	 *
 	 * \return boolean true if the object is valid.
 	 */
-	operator bool() const noexcept
+	operator bool() const NOEXCEPT
 	{
 		return nullptr != _context;
 	}
@@ -166,7 +166,7 @@ public:
 	 *
 	 * \return void pointer to the underlying 0mq context.
 	 */
-	operator void*() const noexcept
+	operator void*() const NOEXCEPT
 	{
 		return _context;
 	}
@@ -176,7 +176,7 @@ private:
 
 	// No copy - private and not implemented
 	context(context const&) ZMQPP_EXPLICITLY_DELETED;
-	context& operator=(context const&) noexcept ZMQPP_EXPLICITLY_DELETED;
+	context& operator=(context const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
 };
 
 }

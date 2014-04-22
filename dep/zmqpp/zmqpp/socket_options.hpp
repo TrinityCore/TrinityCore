@@ -51,10 +51,10 @@ enum class socket_option {
 	receive_high_water_mark   = ZMQ_RCVHWM,            /*!< High-water mark for inbound messages */
 	multicast_hops            = ZMQ_MULTICAST_HOPS,    /*!< Maximum number of multicast hops */
 #endif
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 1))
 	ipv4_only                 = ZMQ_IPV4ONLY,
 #endif
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 #if (ZMQ_VERSION_MINOR == 2)
 	delay_attach_on_connect   = ZMQ_DELAY_ATTACH_ON_CONNECT, /*!< Delay buffer attachment until connect complete */
 #else

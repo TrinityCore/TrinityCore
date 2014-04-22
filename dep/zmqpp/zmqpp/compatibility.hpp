@@ -27,17 +27,17 @@
 #define ZMQPP_REQUIRED_ZMQ_MAJOR 2
 #define ZMQPP_REQUIRED_ZMQ_MINOR 2
 
-#if (ZMQ_VERSION_MAJOR < ZMQPP_REQUIRED_ZMQ_MAJOR) or ((ZMQ_VERSION_MAJOR == ZMQPP_REQUIRED_ZMQ_MAJOR) and (ZMQ_VERSION_MINOR < ZMQPP_REQUIRED_ZMQ_MINOR))
+#if (ZMQ_VERSION_MAJOR < ZMQPP_REQUIRED_ZMQ_MAJOR) || ((ZMQ_VERSION_MAJOR == ZMQPP_REQUIRED_ZMQ_MAJOR) && (ZMQ_VERSION_MINOR < ZMQPP_REQUIRED_ZMQ_MINOR))
 #error zmqpp requires a later version of 0mq
 #endif
 
 // Experimental feature support
-#if (ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR == 0)
+#if (ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR == 0)
 #define ZMQ_EXPERIMENTAL_LABELS
 #endif
 
 // Deal with older versions of gcc
-#if defined(__GNUC__) and !defined(__clang__)
+#if defined(__GNUC__) && !defined(__clang__)
 #if __GNUC__ == 4
 
 // Deal with older gcc not supporting C++0x typesafe enum class name {} comparison
@@ -61,11 +61,23 @@
 // Deal with older gcc not supporting C++0x nullptr
 #if __GNUC_MINOR__ < 6
 #define nullptr NULL
-#define noexcept
+#define NOEXCEPT
 #endif // if __GNUC_MINOR__ < 6
 
 #endif // if __GNUC_ == 4
 #endif // if defined(__GNUC__) && !defined(__clang__)
+
+#ifdef _MSC_VER
+#define NOEXCEPT throw()
+#if _MSC_VER < 1800
+#define ZMQPP_EXPLICITLY_DELETED
+#endif
+#if _MSC_VER < 1600
+#define nullptr NULL
+#define ZMQPP_IGNORE_LAMBDA_FUNCTION_TESTS
+#define ZMQPP_COMPARABLE_ENUM enum
+#endif
+#endif
 
 // Generic state, assume a modern compiler
 #ifndef ZMQPP_COMPARABLE_ENUM
@@ -74,6 +86,10 @@
 
 #ifndef ZMQPP_EXPLICITLY_DELETED
 #define ZMQPP_EXPLICITLY_DELETED = delete
+#endif
+
+#ifndef NOEXCEPT
+#define NOEXCEPT noexcept
 #endif
 
 #endif /* ZMQPP_COMPATIBILITY_HPP_ */
