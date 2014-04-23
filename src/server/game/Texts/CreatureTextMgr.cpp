@@ -29,9 +29,7 @@ class CreatureTextBuilder
 {
     public:
         CreatureTextBuilder(WorldObject const* obj, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, WorldObject const* target)
-            : _source(obj), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target)
-        {
-        }
+            : _source(obj), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target) { }
 
         size_t operator()(WorldPacket* data, LocaleConstant locale) const
         {
@@ -40,6 +38,7 @@ class CreatureTextBuilder
             return ChatHandler::BuildChatPacket(*data, _msgType, Language(_language), _source, _target, text, 0, "", locale);
         }
 
+    private:
         WorldObject const* _source;
         ChatMsg _msgType;
         uint8 _textGroup;
@@ -52,9 +51,7 @@ class PlayerTextBuilder
 {
     public:
         PlayerTextBuilder(WorldObject const* obj, WorldObject const* speaker, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, WorldObject const* target)
-            : _source(obj), _talker(speaker), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target)
-        {
-        }
+            : _source(obj), _talker(speaker), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target) { }
 
         size_t operator()(WorldPacket* data, LocaleConstant locale) const
         {
@@ -63,6 +60,7 @@ class PlayerTextBuilder
             return ChatHandler::BuildChatPacket(*data, _msgType, Language(_language), _talker, _target, text, 0, "", locale);
         }
 
+    private:
         WorldObject const* _source;
         WorldObject const* _talker;
         ChatMsg _msgType;
