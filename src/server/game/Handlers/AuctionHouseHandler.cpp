@@ -143,7 +143,9 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
     recvData >> itemsCount;
 
     uint64 itemGUIDs[MAX_AUCTION_ITEMS]; // 160 slot = 4x 36 slot bag + backpack 16 slot
+    memset(itemGUIDs, 0, sizeof(itemGUIDs));
     uint32 count[MAX_AUCTION_ITEMS];
+    memset(count, 0, sizeof(count));
 
     if (itemsCount > MAX_AUCTION_ITEMS)
     {
@@ -211,6 +213,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
     Item* items[MAX_AUCTION_ITEMS];
 
     uint32 finalCount = 0;
+    uint32 itemEntry = 0;
 
     for (uint32 i = 0; i < itemsCount; ++i)
     {
@@ -222,9 +225,12 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
             return;
         }
 
+        if (itemEntry == 0)
+            itemEntry = item->GetTemplate()->ItemId;
+
         if (sAuctionMgr->GetAItem(item->GetGUIDLow()) || !item->CanBeTraded() || item->IsNotEmptyBag() ||
             item->GetTemplate()->Flags & ITEM_PROTO_FLAG_CONJURED || item->GetUInt32Value(ITEM_FIELD_DURATION) ||
-            item->GetCount() < count[i])
+            item->GetCount() < count[i] || itemEntry != item->GetTemplate()->ItemId)
         {
             SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
             return;
@@ -238,6 +244,19 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
     {
         SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
         return;
+    }
+
+    // check if there are 2 identical guids, in this case user is most likely cheating
+    for (uint32 i = 0; i < itemsCount - 1; ++i)
+    {
+        for (uint32 j = i + 1; j < itemsCount; ++j)
+        {
+            if (itemGUIDs[i] == itemGUIDs[j])
+            {
+                SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
+                return;
+            }
+        }
     }
 
     for (uint32 i = 0; i < itemsCount; ++i)
