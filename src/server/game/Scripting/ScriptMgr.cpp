@@ -538,6 +538,10 @@ void ScriptMgr::OnCreateMap(Map* map)
     SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleground);
         itr->second->OnCreate((BattlegroundMap*)map);
     SCR_MAP_END;
+
+#ifdef ELUNA
+    sHookMgr->OnCreate(map);
+#endif
 }
 
 void ScriptMgr::OnDestroyMap(Map* map)
@@ -555,6 +559,10 @@ void ScriptMgr::OnDestroyMap(Map* map)
     SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleground);
         itr->second->OnDestroy((BattlegroundMap*)map);
     SCR_MAP_END;
+
+#ifdef ELUNA
+    sHookMgr->OnDestroy(map);
+#endif
 }
 
 void ScriptMgr::OnLoadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy)
@@ -611,6 +619,11 @@ void ScriptMgr::OnPlayerEnterMap(Map* map, Player* player)
     SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleground);
         itr->second->OnPlayerEnter((BattlegroundMap*)map, player);
     SCR_MAP_END;
+
+#ifdef ELUNA
+    sHookMgr->OnMapChanged(player);
+    sHookMgr->OnPlayerEnter(map, player);
+#endif
 }
 
 void ScriptMgr::OnPlayerLeaveMap(Map* map, Player* player)
@@ -629,6 +642,10 @@ void ScriptMgr::OnPlayerLeaveMap(Map* map, Player* player)
     SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleground);
         itr->second->OnPlayerLeave((BattlegroundMap*)map, player);
     SCR_MAP_END;
+
+#ifdef ELUNA
+    sHookMgr->OnPlayerLeave(map, player);
+#endif
 }
 
 void ScriptMgr::OnMapUpdate(Map* map, uint32 diff)
@@ -646,6 +663,10 @@ void ScriptMgr::OnMapUpdate(Map* map, uint32 diff)
     SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleground);
         itr->second->OnUpdate((BattlegroundMap*)map, diff);
     SCR_MAP_END;
+
+#ifdef ELUNA
+    sHookMgr->OnUpdate(map, diff);
+#endif
 }
 
 #undef SCR_MAP_BGN
@@ -717,6 +738,10 @@ bool ScriptMgr::OnItemRemove(Player* player, Item* item)
 {
     ASSERT(player);
     ASSERT(item);
+#ifdef ELUNA
+    if (sHookMgr->OnRemove(player, item))
+        return false;
+#endif
 
     GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
     return tmpscript->OnRemove(player, item);
@@ -882,8 +907,7 @@ GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* gameobject)
 {
     ASSERT(gameobject);
 #ifdef ELUNA
-    if(GameObjectAI* luaAI = sHookMgr->GetAI(gameobject))
-        return luaAI;
+    sHookMgr->OnSpawn(gameobject);
 #endif
 
     GET_SCRIPT_RET(GameObjectScript, gameobject->GetScriptId(), tmpscript, NULL);
@@ -1013,7 +1037,7 @@ void ScriptMgr::OnGameObjectLootStateChanged(GameObject* go, uint32 state, Unit*
 {
     ASSERT(go);
 #ifdef ELUNA
-    sHookMgr->OnLootStateChanged(go, state, unit);
+    sHookMgr->OnLootStateChanged(go, state);
 #endif
 
     GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
@@ -1192,9 +1216,6 @@ void ScriptMgr::OnReset(Vehicle* veh)
 {
     ASSERT(veh);
     ASSERT(veh->GetBase()->GetTypeId() == TYPEID_UNIT);
-#ifdef ELUNA
-    sHookMgr->OnReset(veh);
-#endif
 
     GET_SCRIPT(VehicleScript, veh->GetBase()->ToCreature()->GetScriptId(), tmpscript);
     tmpscript->OnReset(veh);
@@ -1251,9 +1272,6 @@ void ScriptMgr::OnAddPassenger(Transport* transport, Player* player)
 {
     ASSERT(transport);
     ASSERT(player);
-#ifdef ELUNA
-    sHookMgr->OnAddPassenger(transport, player);
-#endif
 
     GET_SCRIPT(TransportScript, transport->GetScriptId(), tmpscript);
     tmpscript->OnAddPassenger(transport, player);
@@ -1263,9 +1281,6 @@ void ScriptMgr::OnAddCreaturePassenger(Transport* transport, Creature* creature)
 {
     ASSERT(transport);
     ASSERT(creature);
-#ifdef ELUNA
-    sHookMgr->OnAddCreaturePassenger(transport, creature);
-#endif
 
     GET_SCRIPT(TransportScript, transport->GetScriptId(), tmpscript);
     tmpscript->OnAddCreaturePassenger(transport, creature);
@@ -1275,9 +1290,6 @@ void ScriptMgr::OnRemovePassenger(Transport* transport, Player* player)
 {
     ASSERT(transport);
     ASSERT(player);
-#ifdef ELUNA
-    sHookMgr->OnRemovePassenger(transport, player);
-#endif
 
     GET_SCRIPT(TransportScript, transport->GetScriptId(), tmpscript);
     tmpscript->OnRemovePassenger(transport, player);
@@ -1293,9 +1305,6 @@ void ScriptMgr::OnTransportUpdate(Transport* transport, uint32 diff)
 
 void ScriptMgr::OnRelocate(Transport* transport, uint32 waypointId, uint32 mapId, float x, float y, float z)
 {
-#ifdef ELUNA
-    sHookMgr->OnRelocate(transport, waypointId, mapId, x, y, z);
-#endif
     GET_SCRIPT(TransportScript, transport->GetScriptId(), tmpscript);
     tmpscript->OnRelocate(transport, waypointId, mapId, x, y, z);
 }
