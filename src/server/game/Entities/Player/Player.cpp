@@ -2325,7 +2325,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
                 GetSession()->SendPacket(&data);
                 SendSavedInstances();
-        }
+            }
 
             // move packet sent by client always after far teleport
             // code for finish transfer to new map called in WorldSession::HandleMoveWorldportAckOpcode at client packet

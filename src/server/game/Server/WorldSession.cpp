@@ -1145,17 +1145,40 @@ void WorldSession::RedirectToNode(uint32 mapid)
         SendRedirect(ri.ip.c_str(), ri.port);
 }
 
-void WorldSession::HandleRedirectionFailed(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleRedirectionFailed(WorldPacket& recvPacket)
 {
+    recvPacket.rfinish();
+
     m_flags &= ~SESSION_FLAG_HAS_REDIRECTED;
-    WorldPacket data(SMSG_CHARACTER_LOGIN_FAILED);// send Transfer Aborted: Instance not found when not login case
+
+    // Ensure the packets arrive together and in order
+    WorldPacket data(SMSG_MULTIPLE_PACKETS, 12);
+
+    if (Player* player = GetPlayer())
+    {
+        data << uint16(SMSG_TRANSFER_ABORTED);
+        if (player->IsBeingTeleportedFar())
+            data << uint32(player->GetTeleportDest().GetMapId());
+        else
+            data << uint32(-1);
+
+        data << uint8(TRANSFER_ABORT_NOT_FOUND);
+        player->SetSemaphoreTeleportFar(false);
+    }
+    else
+    {
+        data << uint16(SMSG_CHARACTER_LOGIN_FAILED);
+        data << uint8(1);   // CHAR_LOGIN_NO_WORLD
+    }
+
+    data << uint16(SMSG_FORCE_SEND_QUEUED_PACKETS);
+
     SendPacket(&data);
 }
 
 void WorldSession::HandleSuspendComms(WorldPacket& recv)
 {
     recv.rfinish();
-    //m_Socket->CloseSocket();
 
     zmqpp::message msg;
     WorldPacket fsqp(SMSG_FORCE_SEND_QUEUED_PACKETS, 0);

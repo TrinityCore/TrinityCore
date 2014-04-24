@@ -1128,14 +1128,10 @@ int WorldSocket::HandleAuthRedirect(WorldPacket& recvPacket)
     if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
         m_Session->InitWarden(&sessionKey, os);
 
-    RedirectInfo const& ri = sWorld->GetCurrentNode();
     zmqpp::message msg;
     msg << uint16(SUSPEND_COMMS);
     msg << uint32(id);
     sSocialServer->SendCommand(msg);
-
-    //WorldPacket fsqp(SMSG_FORCE_SEND_QUEUED_PACKETS, 0);
-    //SendPacket(fsqp);
 
     // Sleep this Network thread for
     uint32 sleepTime = sWorld->getIntConfig(CONFIG_SESSION_ADD_DELAY);

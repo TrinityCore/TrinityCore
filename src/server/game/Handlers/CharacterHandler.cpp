@@ -827,9 +827,10 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
         RedirectInfo const& curr = sWorld->GetCurrentNode();
         if (curr.ip != ri.ip || curr.port != ri.port)
         {
-           CharacterDatabase.PExecute("UPDATE characters SET online = 1 WHERE guid = '%u'", playerGuid);
-           SendRedirect(ri.ip.c_str(), ri.port);
-           return;
+            m_playerLoading = false;    // redirect may fail, if it does client starts all over for char_enum
+            CharacterDatabase.PExecute("UPDATE characters SET online = 1 WHERE guid = '%u'", playerGuid);
+            SendRedirect(ri.ip.c_str(), ri.port);
+            return;
         }
     }
 
