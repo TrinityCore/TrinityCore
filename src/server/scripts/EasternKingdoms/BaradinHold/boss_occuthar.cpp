@@ -322,8 +322,7 @@ class spell_occuthar_eyes_of_occuthar_vehicle : public SpellScriptLoader
 
             void HandleScript()
             {
-                Position pos;
-                GetHitUnit()->GetPosition(&pos);
+                Position pos = GetHitUnit()->GetPosition();
 
                 if (Creature* occuthar = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript()->GetData64(DATA_OCCUTHAR)))
                 {
