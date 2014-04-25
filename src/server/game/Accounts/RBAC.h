@@ -517,7 +517,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_ALL                             = 611,
     RBAC_PERM_COMMAND_RELOAD_ALL_ACHIEVEMENT                 = 612,
     RBAC_PERM_COMMAND_RELOAD_ALL_AREA                        = 613,
-    RBAC_PERM_UNUSED_614                                     = 614, // unused
+    RBAC_PERM_COMMAND_RELOAD_BROADCAST_TEXT                  = 614,
     RBAC_PERM_COMMAND_RELOAD_ALL_GOSSIP                      = 615,
     RBAC_PERM_COMMAND_RELOAD_ALL_ITEM                        = 616,
     RBAC_PERM_COMMAND_RELOAD_ALL_LOCALES                     = 617,

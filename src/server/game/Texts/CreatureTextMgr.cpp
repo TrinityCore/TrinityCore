@@ -472,13 +472,19 @@ std::string CreatureTextMgr::GetLocalizedChatString(uint32 entry, uint8 textGrou
     if (locale > MAX_LOCALES)
         locale = DEFAULT_LOCALE;
 
-    std::string baseText = groupItr->text;
+    std::string baseText = "";
+    BroadcastText const* bct = sObjectMgr->GetBroadcastText(groupItr->BroadcastTextId);
 
-    if (locale != DEFAULT_LOCALE)
+    if (bct)
+        ObjectMgr::GetLocaleString(bct->MaleText, locale, baseText);
+    else
+        baseText = groupItr->text;
+
+    if (locale != DEFAULT_LOCALE && !bct)
     {
-        LocaleCreatureTextMap::const_iterator locItr = mLocaleTextMap.find(CreatureTextId(entry, uint32(textGroup), id));
-        if (locItr != mLocaleTextMap.end())
-            ObjectMgr::GetLocaleString(locItr->second.Text, locale, baseText);
+            LocaleCreatureTextMap::const_iterator locItr = mLocaleTextMap.find(CreatureTextId(entry, uint32(textGroup), id));
+            if (locItr != mLocaleTextMap.end())
+                ObjectMgr::GetLocaleString(locItr->second.Text, locale, baseText);
     }
 
     return baseText;
