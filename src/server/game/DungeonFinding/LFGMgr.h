@@ -354,8 +354,6 @@ class LFGMgr
         // LFGScripts
         /// Get leader of the group (using internal data)
         uint64 GetLeader(uint64 guid);
-        /// Initializes locked dungeons for given player (called at login or level change)
-        void InitializeLockedDungeons(Player* player, uint8 level = 0);
         /// Sets player team
         void SetTeam(uint64 guid, uint8 team);
         /// Sets player group
@@ -373,7 +371,7 @@ class LFGMgr
 
         // LFGHandler
         /// Get locked dungeons
-        LfgLockMap const& GetLockedDungeons(uint64 guid);
+        LfgLockMap const GetLockedDungeons(uint64 guid);
         /// Returns current lfg status
         LfgUpdateData GetLfgStatus(uint64 guid);
         /// Checks if Seasonal dungeon is active
@@ -429,7 +427,6 @@ class LFGMgr
         void ClearState(uint64 guid, char const* debugMsg);
         void SetDungeon(uint64 guid, uint32 dungeon);
         void SetSelectedDungeons(uint64 guid, LfgDungeonSet const& dungeons);
-        void SetLockedDungeons(uint64 guid, LfgLockMap const& lock);
         void DecreaseKicksLeft(uint64 guid);
         void SetState(uint64 guid, LfgState state);
         void RemovePlayerData(uint64 guid);
