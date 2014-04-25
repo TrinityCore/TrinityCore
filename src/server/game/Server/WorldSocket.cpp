@@ -835,8 +835,12 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     recvPacket >> digest[13];
 
     recvPacket >> addonSize;
-    addonsData.resize(addonSize);
-    recvPacket.read((uint8*)addonsData.contents(), addonSize);
+
+    if (addonSize)
+    {
+        addonsData.resize(addonSize);
+        recvPacket.read((uint8*)addonsData.contents(), addonSize);
+    }
 
     recvPacket.ReadBit();
     uint32 accountNameLength = recvPacket.ReadBits(12);
