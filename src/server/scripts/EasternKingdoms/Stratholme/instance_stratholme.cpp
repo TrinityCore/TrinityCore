@@ -235,8 +235,7 @@ class instance_stratholme : public InstanceMapScript
                                 EncounterState[0] = data;
                                 if (Creature* ysidaTrigger = instance->GetCreature(ysidaTriggerGUID))
                                 {
-                                    Position ysidaPos;
-                                    ysidaTrigger->GetPosition(&ysidaPos);
+                                    Position ysidaPos = ysidaTrigger->GetPosition();
                                     ysidaTrigger->SummonCreature(NPC_YSIDA, ysidaPos, TEMPSUMMON_TIMED_DESPAWN, 1800000);
                                 }
                                 events.CancelEvent(EVENT_BARON_RUN);

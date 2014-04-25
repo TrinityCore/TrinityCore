@@ -364,8 +364,7 @@ class boss_lethon : public CreatureScript
             {
                 if (spell->Id == SPELL_DRAW_SPIRIT && target->GetTypeId() == TYPEID_PLAYER)
                 {
-                    Position targetPos;
-                    target->GetPosition(&targetPos);
+                    Position targetPos = target->GetPosition();
                     me->SummonCreature(NPC_SPIRIT_SHADE, targetPos, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 50000);
                 }
             }

@@ -587,8 +587,7 @@ class spell_ulduar_stone_grip : public SpellScriptLoader
 
                 // Temporarily relocate player to vehicle exit dest serverside to send proper fall movement
                 // beats me why blizzard sends these 2 spline packets one after another instantly
-                Position oldPos;
-                caster->GetPosition(&oldPos);
+                Position oldPos = caster->GetPosition();
                 caster->Relocate(exitPosition);
                 caster->GetMotionMaster()->MoveFall();
                 caster->Relocate(oldPos);

@@ -611,8 +611,7 @@ public:
         {
             if (Unit* target = GetHitUnit())
             {
-                WorldLocation loc;
-                target->GetPosition(&loc);
+                WorldLocation loc = target->GetWorldLocation();
                 SetExplTargetDest(loc);
             }
         }

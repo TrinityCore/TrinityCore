@@ -567,8 +567,7 @@ class spell_pri_leap_of_faith_effect_trigger : public SpellScriptLoader
 
             void HandleEffectDummy(SpellEffIndex /*effIndex*/)
             {
-                Position destPos;
-                GetHitDest()->GetPosition(&destPos);
+                Position destPos = GetHitDest()->GetPosition();
 
                 SpellCastTargets targets;
                 targets.SetDst(destPos);

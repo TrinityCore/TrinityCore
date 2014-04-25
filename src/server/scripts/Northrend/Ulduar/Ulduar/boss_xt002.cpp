@@ -562,8 +562,7 @@ class npc_pummeller : public CreatureScript
 
                 if (Creature* xt002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
                 {
-                    Position pos;
-                    xt002->GetPosition(&pos);
+                    Position pos = xt002->GetPosition();
                     me->GetMotionMaster()->MovePoint(0, pos);
                 }
             }

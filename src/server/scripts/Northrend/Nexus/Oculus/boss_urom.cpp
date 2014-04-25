@@ -232,8 +232,7 @@ class boss_urom : public CreatureScript
                     {
                         if (me->GetVictim())
                         {
-                            Position pos;
-                            me->EnsureVictim()->GetPosition(&pos);
+                            Position pos = me->EnsureVictim()->GetPosition();
 
                             me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
                             me->GetMotionMaster()->MoveChase(me->GetVictim());
