@@ -2027,8 +2027,7 @@ public:
             {
                 if (uiTimer <= diff)
                 {
-                    Position pos;
-                    me->GetRandomNearPosition(pos, 10.0f);
+                    Position pos = me->GetRandomNearPosition(10.0f);
                     me->GetMotionMaster()->MovePoint(0, pos);
                     bStarted = false;
                 }

@@ -163,8 +163,7 @@ public:
             if (lSparkList.empty())
                 return;
 
-            Position pos;
-            me->GetPosition(&pos);
+            Position pos = me->GetPosition();
 
             for (std::list<uint64>::const_iterator itr = lSparkList.begin(); itr != lSparkList.end(); ++itr)
             {
@@ -345,8 +344,7 @@ public:
                 {
                     if (me->GetDistance(ionar) > DATA_MAX_SPARK_DISTANCE)
                     {
-                        Position pos;
-                        ionar->GetPosition(&pos);
+                        Position pos = ionar->GetPosition();
 
                         me->SetSpeed(MOVE_RUN, 2.0f);
                         me->GetMotionMaster()->Clear();
