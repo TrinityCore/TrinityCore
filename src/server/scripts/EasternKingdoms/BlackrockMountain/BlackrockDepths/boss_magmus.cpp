@@ -25,6 +25,12 @@ enum Spells
     SPELL_WARSTOMP                                         = 24375
 };
 
+enum Events
+{
+    EVENT_FIERY_BURST                                      = 1,
+    EVENT_WARSTOMP                                         = 2
+};
+
 enum Misc
 {
     DATA_THRONE_DOOR                                       = 24 // not id or guid of doors but number of enum in blackrock_depths.h
@@ -44,16 +50,25 @@ public:
     {
         boss_magmusAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint32 FieryBurst_Timer;
-        uint32 WarStomp_Timer;
-
         void Reset() OVERRIDE
         {
-            FieryBurst_Timer = 5000;
-            WarStomp_Timer =0;
+            _events.Reset();
+            _phaseTwo = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE
+        {
+            _events.ScheduleEvent(EVENT_FIERY_BURST, 5000);
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
+        {
+            if (!HealthAbovePct(50) && !_phaseTwo)
+            {
+                _phaseTwo = true;
+                _events.ScheduleEvent(EVENT_WARSTOMP, 0);
+            }
+        }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
@@ -61,31 +76,37 @@ public:
             if (!UpdateVictim())
                 return;
 
-            //FieryBurst_Timer
-            if (FieryBurst_Timer <= diff)
-            {
-                DoCastVictim(SPELL_FIERYBURST);
-                FieryBurst_Timer = 6000;
-            } else FieryBurst_Timer -= diff;
+            _events.Update(diff);
 
-            //WarStomp_Timer
-            if (HealthBelowPct(51))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                if (WarStomp_Timer <= diff)
+                switch (eventId)
                 {
-                    DoCastVictim(SPELL_WARSTOMP);
-                    WarStomp_Timer = 8000;
-                } else WarStomp_Timer -= diff;
+                    case EVENT_FIERY_BURST:
+                        DoCastVictim(SPELL_FIERYBURST);
+                        _events.ScheduleEvent(EVENT_FIERY_BURST, 6000);
+                        break;
+                    case EVENT_WARSTOMP:
+                        DoCastVictim(SPELL_WARSTOMP);
+                        _events.ScheduleEvent(EVENT_WARSTOMP, 8000);
+                        break;
+                }
             }
 
             DoMeleeAttackIfReady();
         }
-        // When he die open door to last chamber
+        // When he dies open door to last chamber
         void JustDied(Unit* killer) OVERRIDE
         {
             if (InstanceScript* instance = killer->GetInstanceScript())
                 instance->HandleGameObject(instance->GetData64(DATA_THRONE_DOOR), true);
         }
+        private:
+            EventMap _events;
+            bool _phaseTwo; // Sub-50% Phase
     };
 };
 

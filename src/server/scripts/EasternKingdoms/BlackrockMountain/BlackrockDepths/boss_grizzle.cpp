@@ -26,6 +26,12 @@ enum Grizzle
     EMOTE_FRENZY_KILL       = 0
 };
 
+enum Events
+{
+    EVENT_GROUNDTREMOR      = 1,
+    EVENT_FRENZY            = 2
+};
+
 class boss_grizzle : public CreatureScript
 {
 public:
@@ -40,16 +46,25 @@ public:
     {
         boss_grizzleAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint32 GroundTremor_Timer;
-        uint32 Frenzy_Timer;
-
         void Reset() OVERRIDE
-        {
-            GroundTremor_Timer = 12000;
-            Frenzy_Timer =0;
+        {            
+            _events.Reset();
+            _phaseTwo = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE
+        {
+            _events.ScheduleEvent(EVENT_GROUNDTREMOR, 12000);
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
+        {
+            if (!HealthAbovePct(50) && !_phaseTwo)
+            {
+                _phaseTwo = true;
+                _events.ScheduleEvent(EVENT_FRENZY, 0);
+            }
+        }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
@@ -57,27 +72,32 @@ public:
             if (!UpdateVictim())
                 return;
 
-            //GroundTremor_Timer
-            if (GroundTremor_Timer <= diff)
-            {
-                DoCastVictim(SPELL_GROUNDTREMOR);
-                GroundTremor_Timer = 8000;
-            } else GroundTremor_Timer -= diff;
+            _events.Update(diff);
 
-            //Frenzy_Timer
-            if (HealthBelowPct(51))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                if (Frenzy_Timer <= diff)
+                switch (eventId)
                 {
-                    DoCast(me, SPELL_FRENZY);
-                    Talk(EMOTE_FRENZY_KILL);
-
-                    Frenzy_Timer = 15000;
-                } else Frenzy_Timer -= diff;
+                    case EVENT_GROUNDTREMOR:
+                        DoCastVictim(SPELL_GROUNDTREMOR);
+                        _events.ScheduleEvent(EVENT_GROUNDTREMOR, 8000);
+                        break;
+                    case EVENT_FRENZY:
+                       DoCast(me, SPELL_FRENZY);
+                       Talk(EMOTE_FRENZY_KILL);
+                        _events.ScheduleEvent(EVENT_FRENZY, 15000);
+                        break;
+                }
             }
 
             DoMeleeAttackIfReady();
         }
+        private:
+            EventMap _events;
+            bool _phaseTwo; //Frenzy Phase
     };
 };
 

@@ -26,6 +26,14 @@ enum Spells
     SPELL_CLEAVE                                           = 20691
 };
 
+enum Events
+{
+    EVENT_MIGHTYBLOW                                       = 1,
+    EVENT_HAMSTRING                                        = 2,
+    EVENT_CLEAVE                                           = 3,
+    EVENT_ADDS                                             = 4
+};
+
 class boss_general_angerforge : public CreatureScript
 {
 public:
@@ -38,24 +46,30 @@ public:
 
     struct boss_general_angerforgeAI : public ScriptedAI
     {
-        boss_general_angerforgeAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 MightyBlow_Timer;
-        uint32 HamString_Timer;
-        uint32 Cleave_Timer;
-        uint32 Adds_Timer;
-        bool Medics;
-
+        boss_general_angerforgeAI(Creature* creature) : ScriptedAI(creature) {}
+        
         void Reset() OVERRIDE
-        {
-            MightyBlow_Timer = 8000;
-            HamString_Timer = 12000;
-            Cleave_Timer = 16000;
-            Adds_Timer = 0;
-            Medics = false;
+        {            
+            _events.Reset();
+            _medics = false;
+            _phaseTwo = false;            
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE
+        {
+            _events.ScheduleEvent(EVENT_MIGHTYBLOW, 8000);
+            _events.ScheduleEvent(EVENT_HAMSTRING, 12000);
+            _events.ScheduleEvent(EVENT_CLEAVE, 16000);
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
+        {
+            if (!HealthAbovePct(20) && !_phaseTwo)
+            {
+                _phaseTwo = true;
+                _events.ScheduleEvent(EVENT_ADDS, 0);
+            }
+        }
 
         void SummonAdds(Unit* victim)
         {
@@ -75,51 +89,47 @@ public:
             if (!UpdateVictim())
                 return;
 
-            //MightyBlow_Timer
-            if (MightyBlow_Timer <= diff)
-            {
-                DoCastVictim(SPELL_MIGHTYBLOW);
-                MightyBlow_Timer = 18000;
-            } else MightyBlow_Timer -= diff;
+            _events.Update(diff);
 
-            //HamString_Timer
-            if (HamString_Timer <= diff)
-            {
-                DoCastVictim(SPELL_HAMSTRING);
-                HamString_Timer = 15000;
-            } else HamString_Timer -= diff;
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
-            //Cleave_Timer
-            if (Cleave_Timer <= diff)
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                DoCastVictim(SPELL_CLEAVE);
-                Cleave_Timer = 9000;
-            } else Cleave_Timer -= diff;
-
-            //Adds_Timer
-            if (HealthBelowPct(21))
-            {
-                if (Adds_Timer <= diff)
+                switch (eventId)
                 {
-                    // summon 3 Adds every 25s
-                    SummonAdds(me->GetVictim());
-                    SummonAdds(me->GetVictim());
-                    SummonAdds(me->GetVictim());
-
-                    Adds_Timer = 25000;
-                } else Adds_Timer -= diff;
-            }
-
-            //Summon Medics
-            if (!Medics && HealthBelowPct(21))
-            {
-                SummonMedics(me->GetVictim());
-                SummonMedics(me->GetVictim());
-                Medics = true;
+                    case EVENT_MIGHTYBLOW:
+                        DoCastVictim(SPELL_MIGHTYBLOW);
+                        _events.ScheduleEvent(EVENT_MIGHTYBLOW, 18000);
+                        break;
+                    case EVENT_HAMSTRING:
+                        DoCastVictim(SPELL_HAMSTRING);
+                        _events.ScheduleEvent(EVENT_HAMSTRING, 15000);
+                        break;
+                    case EVENT_CLEAVE:
+                        DoCastVictim(SPELL_CLEAVE);
+                        _events.ScheduleEvent(EVENT_CLEAVE, 9000);
+                        break;
+                    case EVENT_ADDS:
+                        for (uint32 i10 = 0; i10 < 3; ++i10)
+                            SummonAdds(me->GetVictim());
+                        if (!_medics)
+                        {
+                            for (uint32 i10 = 0; i10 < 2; ++i10)
+                                SummonMedics(me->GetVictim());
+                            _medics = true;
+                        }
+                        _events.ScheduleEvent(EVENT_ADDS, 25000);
+                        break;
+                }
             }
 
             DoMeleeAttackIfReady();
         }
+        private:
+            EventMap _events;
+            bool _medics;
+            bool _phaseTwo; // Sub 20% Phase
     };
 };
 

@@ -32,6 +32,12 @@ enum Spells
     SPELL_AVATAROFFLAME                                    = 15636
 };
 
+enum Events
+{
+    EVENT_HANDOFTHAURISSAN                                 = 1,
+    EVENT_AVATAROFFLAME                                    = 2
+};
+
 class boss_emperor_dagran_thaurissan : public CreatureScript
 {
 public:
@@ -50,21 +56,18 @@ public:
         }
 
         InstanceScript* instance;
-        uint32 HandOfThaurissan_Timer;
-        uint32 AvatarOfFlame_Timer;
-        //uint32 Counter;
 
-        void Reset() OVERRIDE
+        void Reset() OVERRIDE 
         {
-            HandOfThaurissan_Timer = 4000;
-            AvatarOfFlame_Timer = 25000;
-            //Counter= 0;
+            _events.Reset();
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
             me->CallForHelp(VISIBLE_RANGE);
+            _events.ScheduleEvent(EVENT_HANDOFTHAURISSAN, 4000);
+            _events.ScheduleEvent(EVENT_AVATAROFFLAME, 25000); 
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -87,33 +90,31 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (HandOfThaurissan_Timer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_HANDOFTHAURISSAN);
+            _events.Update(diff);
 
-                //3 Hands of Thaurissan will be cast
-                //if (Counter < 3)
-                //{
-                //    HandOfThaurissan_Timer = 1000;
-                //    ++Counter;
-                //}
-                //else
-                //{
-                    HandOfThaurissan_Timer = 5000;
-                    //Counter = 0;
-                //}
-            } else HandOfThaurissan_Timer -= diff;
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
-            //AvatarOfFlame_Timer
-            if (AvatarOfFlame_Timer <= diff)
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                DoCastVictim(SPELL_AVATAROFFLAME);
-                AvatarOfFlame_Timer = 18000;
-            } else AvatarOfFlame_Timer -= diff;
+                switch (eventId)
+                {
+                    case EVENT_HANDOFTHAURISSAN:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_HANDOFTHAURISSAN);
+                        _events.ScheduleEvent(EVENT_HANDOFTHAURISSAN, 5000);
+                        break;
+                    case EVENT_AVATAROFFLAME:
+                        DoCastVictim(SPELL_AVATAROFFLAME);
+                        _events.ScheduleEvent(EVENT_AVATAROFFLAME, 18000);
+                        break;
+                }
+            }
 
             DoMeleeAttackIfReady();
         }
+        private:
+            EventMap _events;
     };
 };
 
