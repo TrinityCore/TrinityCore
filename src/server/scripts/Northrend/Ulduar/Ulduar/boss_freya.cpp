@@ -1587,8 +1587,7 @@ class spell_freya_iron_roots : public SpellScriptLoader
                 PreventHitDefaultEffect(effIndex);
                 uint32 entry = uint32(GetSpellInfo()->Effects[effIndex].MiscValue);
 
-                Position pos;
-                GetCaster()->GetPosition(&pos);
+                Position pos = GetCaster()->GetPosition();
                 // Not good at all, but this prevents having roots in a different position then player
                 if (Creature* Roots = GetCaster()->SummonCreature(entry, pos))
                     GetCaster()->NearTeleportTo(Roots->GetPositionX(), Roots->GetPositionY(), Roots->GetPositionZ(), GetCaster()->GetOrientation());

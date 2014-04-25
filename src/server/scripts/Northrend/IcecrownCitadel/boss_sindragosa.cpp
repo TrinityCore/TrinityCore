@@ -1266,8 +1266,7 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
 
             void SummonTomb()
             {
-                Position pos;
-                GetHitUnit()->GetPosition(&pos);
+                Position pos = GetHitUnit()->GetPosition();
                 if (TempSummon* summon = GetCaster()->SummonCreature(NPC_ICE_TOMB, pos))
                 {
                     summon->AI()->SetGUID(GetHitUnit()->GetGUID(), DATA_TRAPPED_PLAYER);

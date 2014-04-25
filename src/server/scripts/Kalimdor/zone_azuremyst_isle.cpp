@@ -669,8 +669,7 @@ class npc_stillpine_capitive : public CreatureScript
                     Talk(CAPITIVE_SAY, owner);
                     _player = owner;
                 }
-                Position pos;
-                me->GetNearPosition(pos, 3.0f, 0.0f);
+                Position pos = me->GetNearPosition(3.0f, 0.0f);
                 me->GetMotionMaster()->MovePoint(POINT_INIT, pos);
             }
 

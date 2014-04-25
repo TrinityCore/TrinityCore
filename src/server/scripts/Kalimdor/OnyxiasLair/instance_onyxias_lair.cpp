@@ -82,8 +82,7 @@ public:
             switch (go->GetEntry())
             {
                 case GO_WHELP_SPAWNER:
-                    Position goPos;
-                    go->GetPosition(&goPos);
+                    Position goPos = go->GetPosition();
                     if (Creature* temp = go->SummonCreature(NPC_WHELP, goPos, TEMPSUMMON_CORPSE_DESPAWN))
                     {
                         temp->SetInCombatWithZone();

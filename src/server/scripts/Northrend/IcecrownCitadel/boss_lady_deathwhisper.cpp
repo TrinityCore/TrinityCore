@@ -576,8 +576,7 @@ class boss_lady_deathwhisper : public CreatureScript
             {
                 if (spell->Id == SPELL_DARK_MARTYRDOM_T)
                 {
-                    Position pos;
-                    target->GetPosition(&pos);
+                    Position pos = target->GetPosition();
                     if (target->GetEntry() == NPC_CULT_FANATIC)
                         me->SummonCreature(NPC_REANIMATED_FANATIC, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                     else

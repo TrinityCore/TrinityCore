@@ -158,8 +158,7 @@ class boss_ayamiss : public CreatureScript
                     me->SetCanFly(false);
                     if (me->GetVictim())
                     {
-                        Position VictimPos;
-                        me->EnsureVictim()->GetPosition(&VictimPos);
+                        Position VictimPos = me->EnsureVictim()->GetPosition();
                         me->GetMotionMaster()->MovePoint(POINT_GROUND, VictimPos);
                     }
                     DoResetThreat();
@@ -212,8 +211,7 @@ class boss_ayamiss : public CreatureScript
                             break;
                         case EVENT_SUMMON_SWARMER:
                         {
-                            Position Pos;
-                            me->GetRandomPoint(SwarmerPos, 80.0f, Pos);
+                            Position Pos = me->GetRandomPoint(SwarmerPos, 80.0f);
                             me->SummonCreature(NPC_SWARMER, Pos);
                             events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5000);
                             break;
