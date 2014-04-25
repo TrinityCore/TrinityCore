@@ -1541,12 +1541,17 @@ LfgDungeonSet const& LFGMgr::GetSelectedDungeons(uint64 guid)
 LfgLockMap const LFGMgr::GetLockedDungeons(uint64 guid)
 {
     TC_LOG_TRACE("lfg.data.player.dungeons.locked.get", "Player: %u, LockedDungeons.", GUID_LOPART(guid));
+    LfgLockMap lock;
     Player* player = ObjectAccessor::FindPlayer(guid);
+    if (!player)
+    {
+        TC_LOG_WARN("lfg.data.player.dungeons.locked.get", "Player: %u not ingame while retrieving his LockedDungeons.", GUID_LOPART(guid));
+        return lock;
+    }
 
     uint8 level = player->getLevel();
     uint8 expansion = player->GetSession()->Expansion();
     LfgDungeonSet const& dungeons = GetDungeonsByRandom(0);
-    LfgLockMap lock;
     bool denyJoin = !player->GetSession()->HasPermission(rbac::RBAC_PERM_JOIN_DUNGEON_FINDER);
 
     for (LfgDungeonSet::const_iterator it = dungeons.begin(); it != dungeons.end(); ++it)
