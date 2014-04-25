@@ -212,8 +212,7 @@ public:
                 }
                 else
                 {
-                    Position pos;
-                    me->GetRandomNearPosition(pos, 40);
+                    Position pos = me->GetRandomNearPosition(40);
                     me->GetMotionMaster()->MovePoint(0, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
                 }
 

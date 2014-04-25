@@ -112,8 +112,7 @@ public:
                     for (uint8 i = 0; i < 3; ++i)
                     {
                         const Position src = {147.927444f, -3851.513428f, 130.893f, 0};
-                        Position dst;
-                        me->GetRandomPoint(src, 7.0f, dst);
+                        Position dst = me->GetRandomPoint(src, 7.0f);
                         DoSummon(NPC_MARAUDING_OWL, dst, 25000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                     }
                     break;
@@ -121,8 +120,7 @@ public:
                     for (uint8 i = 0; i < 3; ++i)
                     {
                         const Position src = {-141.151581f, -4291.213867f, 120.130f, 0};
-                        Position dst;
-                        me->GetRandomPoint(src, 7.0f, dst);
+                        Position dst = me->GetRandomPoint(src, 7.0f);
                         me->SummonCreature(NPC_VILE_AMBUSHER, dst, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 25000);
                     }
                     break;
