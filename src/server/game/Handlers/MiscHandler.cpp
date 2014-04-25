@@ -1184,6 +1184,12 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
         return;
     }
 
+    if (!GetPlayer()->IsWithinDistInMap(player, INSPECT_DISTANCE, false))
+        return;
+
+    if (GetPlayer()->IsValidAttackTarget(player))
+        return;
+
     uint32 talent_points = 0x47;
     uint32 guid_size = player->GetPackGUID().wpos();
     WorldPacket data(SMSG_INSPECT_TALENT, guid_size+4+talent_points);
@@ -1214,6 +1220,12 @@ void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
         TC_LOG_DEBUG("network", "MSG_INSPECT_HONOR_STATS: No player found from GUID: " UI64FMTD, guid);
         return;
     }
+
+    if (!GetPlayer()->IsWithinDistInMap(player, INSPECT_DISTANCE, false))
+        return;
+
+    if (GetPlayer()->IsValidAttackTarget(player))
+        return;
 
     WorldPacket data(MSG_INSPECT_HONOR_STATS, 8+1+4*4);
     data << uint64(player->GetGUID());
@@ -1639,6 +1651,12 @@ void WorldSession::HandleQueryInspectAchievements(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "CMSG_QUERY_INSPECT_ACHIEVEMENTS [" UI64FMTD "] Inspected Player [" UI64FMTD "]", _player->GetGUID(), guid);
     Player* player = ObjectAccessor::FindPlayer(guid);
     if (!player)
+        return;
+
+    if (!GetPlayer()->IsWithinDistInMap(player, INSPECT_DISTANCE, false))
+        return;
+
+    if (GetPlayer()->IsValidAttackTarget(player))
         return;
 
     player->SendRespondInspectAchievements(_player);
