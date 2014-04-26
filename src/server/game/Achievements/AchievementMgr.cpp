@@ -244,13 +244,11 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
             }
             return true;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_GAME_EVENT:
-            uint32 eventId = game_event.id;
-
             GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
-            if (eventId < 1 || eventId >= events.size())
+            if (game_event.id < 1 || game_event.id >= events.size())
             {
                 TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_GAME_EVENT (%u) has unknown game_event in value1 (%u), ignored.",
-                    criteria->ID, criteria->type, dataType, eventId);
+                    criteria->ID, criteria->type, dataType, game_event.id);
                 return false;
             }
             return true;
