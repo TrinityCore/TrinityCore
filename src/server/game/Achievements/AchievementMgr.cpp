@@ -241,6 +241,17 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
                 return false;
             }
             return true;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_GAME_EVENT:
+        {
+            GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
+            if (game_event.id < 1 || game_event.id >= events.size())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_GAME_EVENT ({}) has unknown game_event in value1 ({}), ignored.",
+                    criteria->ID, criteria->Type, dataType, game_event.id);
+                return false;
+            }
+            return true;
+        }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_BG_LOSS_TEAM_SCORE:
             return true;                                    // not check correctness node indexes
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM:
@@ -391,6 +402,8 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Wo
             return Player::GetDrunkenstateByValue(source->GetDrunkValue()) >= DrunkenState(drunk.state);
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_HOLIDAY:
             return IsHolidayActive(HolidayIds(holiday.id));
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_GAME_EVENT:
+            return IsEventActive(game_event.id);
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_BG_LOSS_TEAM_SCORE:
         {
             Battleground* bg = source->GetBattleground();
