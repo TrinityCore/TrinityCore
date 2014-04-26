@@ -68,7 +68,7 @@ enum AchievementCriteriaDataType
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPED_ITEM      = 19, // item_level     item_quality  for equipped item in slot to check item level and quality
     ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID              = 20, // map_id         0             player must be on map with id in map_id
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE = 21, // class_id       race_id
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_NTH_BIRTHDAY        = 22, // N                            login on day of N-th Birthday
+    // REUSE
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE       = 23, // title_id                     known (pvp) title, values from dbc
     ACHIEVEMENT_CRITERIA_DATA_TYPE_GAME_EVENT          = 24, // game_event_id  0
 
@@ -160,11 +160,6 @@ struct AchievementCriteriaData
         {
             uint32 mapId;
         } map_id;
-        // ACHIEVEMENT_CRITERIA_DATA_TYPE_NTH_BIRTHDAY      = 21
-        struct
-        {
-            uint32 nth_birthday;
-        } birthday_login;
         // ACHIEVEMENT_CRITERIA_DATA_TYPE_KNOWN_TITLE       = 22
         struct
         {
