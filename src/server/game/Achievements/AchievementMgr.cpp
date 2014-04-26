@@ -380,19 +380,10 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             return pProto->ItemLevel >= equipped_item.item_level && pProto->Quality >= equipped_item.item_quality;
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_NTH_BIRTHDAY:
-        {
-            time_t birthday_start = time_t(sWorld->getIntConfig(CONFIG_BIRTHDAY_TIME));
-
-            tm birthday_tm;
-            ACE_OS::localtime_r(&birthday_start, &birthday_tm);
-
-            // exactly N birthday
-            birthday_tm.tm_year += birthday_login.nth_birthday;
-
-            time_t birthday = mktime(&birthday_tm);
-            time_t now = sWorld->GetGameTime();
-            return now <= birthday + DAY && now >= birthday;
-        }
+            return (IsHolidayActive(HOLIDAY_ANNIVERSARY_7_YEARS) ||
+                    IsHolidayActive(HOLIDAY_ANNIVERSARY_8_YEARS) ||
+                    IsEventActive(67 /*HOLIDAY_ANNIVERSARY_9_YEARS = 509*/) ||
+                    IsEventActive(68 /*HOLIDAY_ANNIVERSARY_10_YEARS = 514*/));
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE:
         {
             if (CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(known_title.title_id))
