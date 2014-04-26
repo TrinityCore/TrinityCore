@@ -10,8 +10,8 @@ INSERT INTO `game_event` (`eventEntry`, `start_time`, `end_time`, `occurence`, `
 
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (9058, 12562,16082,17804,18500);
 INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
-(9058, 23, 65, 0, ''), -- WoW''s 4th Anniversary'
-(12562, 23, 66, 0, ''), -- WoW''s 5th Anniversary
-(16082, 23, 67, 0, ''), -- WoW''s 6th Anniversary
+(9058,  24, 65, 0, ''), -- WoW''s 4th Anniversary'
+(12562, 24, 66, 0, ''), -- WoW''s 5th Anniversary
+(16082, 24, 67, 0, ''), -- WoW''s 6th Anniversary
 (17804, 16, 467, 0, ''), -- WoW''s 7th Anniversary
 (18500, 16, 484, 0, ''); -- WoW''s 8th Anniversary
