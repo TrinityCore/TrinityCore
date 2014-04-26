@@ -8611,6 +8611,7 @@ void ObjectMgr::LoadBroadcastTexts()
         return;
     }
 
+    _broadcastTextStore.rehash(result->GetRowCount());
     uint32 count = 0;
 
     do
@@ -8746,19 +8747,6 @@ void ObjectMgr::LoadDbScriptStrings()
 
     for (std::set<int32>::const_iterator itr = ids.begin(); itr != ids.end(); ++itr)
         TC_LOG_ERROR("sql.sql", "Table `db_script_string` has unused string id  %u", *itr);
-}
-
-bool LoadTrinityStrings(const char* table, int32 start_value, int32 end_value)
-{
-    // MAX_DB_SCRIPT_STRING_ID is max allowed negative value for scripts (scrpts can use only more deep negative values
-    // start/end reversed for negative values
-    if (start_value > MAX_DB_SCRIPT_STRING_ID || end_value >= start_value)
-    {
-        TC_LOG_ERROR("sql.sql", "Table '%s' load attempted with range (%d - %d) reserved by Trinity, strings not loaded.", table, start_value, end_value+1);
-        return false;
-    }
-
-    return sObjectMgr->LoadTrinityStrings(table, start_value, end_value);
 }
 
 CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unitClass)
