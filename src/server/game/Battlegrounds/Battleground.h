@@ -414,6 +414,8 @@ class Battleground
         void SendPacketToAll(WorldPacket* packet);
         void YellToAll(Creature* creature, const char* text, uint32 language);
 
+        void SendChatMessage(Creature* source, uint8 textId, WorldObject* target = NULL);
+
         template<class Do>
         void BroadcastWorker(Do& _do);
 
@@ -478,8 +480,7 @@ class Battleground
         virtual void EventPlayerClickedOnFlag(Player* /*player*/, GameObject* /*target_obj*/) { }
         void EventPlayerLoggedIn(Player* player);
         void EventPlayerLoggedOut(Player* player);
-        virtual void EventPlayerDamagedGO(Player* /*player*/, GameObject* /*go*/, uint32 /*eventType*/) { }
-        virtual void EventPlayerUsedGO(Player* /*player*/, GameObject* /*go*/){ }
+        virtual void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/, WorldObject* /*invoker*/ = NULL) { }
 
         // this function can be used by spell to interact with the BG map
         virtual void DoAction(uint32 /*action*/, uint64 /*var*/) { }
@@ -506,7 +507,9 @@ class Battleground
         BGCreatures BgCreatures;
         void SpawnBGObject(uint32 type, uint32 respawntime);
         bool AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime = 0);
+        bool AddObject(uint32 type, uint32 entry, Position const& pos, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime = 0);
         Creature* AddCreature(uint32 entry, uint32 type, uint32 teamval, float x, float y, float z, float o, uint32 respawntime = 0);
+        Creature* AddCreature(uint32 entry, uint32 type, uint32 teamval, Position const& pos, uint32 respawntime = 0);
         bool DelCreature(uint32 type);
         bool DelObject(uint32 type);
         bool AddSpiritGuide(uint32 type, float x, float y, float z, float o, uint32 team);

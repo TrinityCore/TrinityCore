@@ -42,18 +42,13 @@ class BroadcastTextBuilder
 {
     public:
         BroadcastTextBuilder(WorldObject const* obj, ChatMsg msgtype, uint32 id, WorldObject const* target, uint32 gender = GENDER_MALE)
-            : _source(obj), _msgType(msgtype), _textId(id), _target(target), _gender(gender)
-        {
-        }
+            : _source(obj), _msgType(msgtype), _textId(id), _target(target), _gender(gender) { }
 
         size_t operator()(WorldPacket* data, LocaleConstant locale) const
         {
             BroadcastText const* bct = sObjectMgr->GetBroadcastText(_textId);
-            std::string text = "";
-            if (bct)
-                ObjectMgr::GetLocaleString(_gender == GENDER_MALE ? bct->MaleText : bct->FemaleText, locale, text);
 
-            return ChatHandler::BuildChatPacket(*data, _msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, text, 0, "", locale);
+            return ChatHandler::BuildChatPacket(*data, _msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _gender) : "", 0, "", locale);
         }
 
         WorldObject const* _source;

@@ -52,12 +52,9 @@ namespace Trinity
 
             void operator()(WorldPacket& data, LocaleConstant locale)
             {
-                std::string text = "";
                 BroadcastText const* bct = sObjectMgr->GetBroadcastText(_textId);
-                if (bct)
-                    ObjectMgr::GetLocaleString(_player->getGender() == GENDER_MALE ? bct->MaleText : bct->FemaleText, locale, text);
 
-                ChatHandler::BuildChatPacket(data, _msgType, LANG_UNIVERSAL, _player, _player, text, _achievementId);
+                ChatHandler::BuildChatPacket(data, _msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _player, _player, bct ? bct->GetText(locale, _player->getGender()) : "", _achievementId);
             }
 
         private:
@@ -66,7 +63,7 @@ namespace Trinity
             int32 _textId;
             uint32 _achievementId;
     };
-}                                                           // namespace Trinity
+} // namespace Trinity
 
 bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
 {

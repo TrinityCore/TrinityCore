@@ -876,7 +876,6 @@ class BattlegroundIC : public Battleground
         void EndBattleground(uint32 winner);
         void EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj*/);
 
-        void EventPlayerDamagedGO(Player* /*player*/, GameObject* go, uint32 eventType);
         void DestroyGate(Player* player, GameObject* go);
 
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
