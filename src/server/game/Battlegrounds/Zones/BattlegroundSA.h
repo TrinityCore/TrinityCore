@@ -20,6 +20,7 @@
 #define __BATTLEGROUNDSA_H
 
 #include "Battleground.h"
+#include "Object.h"
 
 struct BattlegroundSAScore : public BattlegroundScore
 {

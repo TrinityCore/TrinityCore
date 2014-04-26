@@ -569,7 +569,7 @@ void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject*
                         if (Creature* c = obj->FindNearestCreature(NPC_WORLD_TRIGGER, 500.0f))
                             SendChatMessage(c, gate->DamagedText, invoker);
 
-                        PlaySoundToAll(Attackers == ALLIANCE ? SOUND_WALL_ATTACKED_ALLIANCE : SOUND_WALL_ATTACKED_HORDE);
+                        PlaySoundToAll(Attackers == TEAM_ALLIANCE ? SOUND_WALL_ATTACKED_ALLIANCE : SOUND_WALL_ATTACKED_HORDE);
                     }
                     // destroyed
                     else if (eventId == go->GetGOInfo()->building.destroyedEvent)
@@ -617,7 +617,7 @@ void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject*
                         if (Creature* c = obj->FindNearestCreature(NPC_WORLD_TRIGGER, 500.0f))
                             SendChatMessage(c, gate->DestroyedText, invoker);
 
-                        PlaySoundToAll(Attackers == ALLIANCE ? SOUND_WALL_DESTROYED_ALLIANCE : SOUND_WALL_DESTROYED_HORDE);
+                        PlaySoundToAll(Attackers == TEAM_ALLIANCE ? SOUND_WALL_DESTROYED_ALLIANCE : SOUND_WALL_DESTROYED_HORDE);
                     }
                     else
                         break;
