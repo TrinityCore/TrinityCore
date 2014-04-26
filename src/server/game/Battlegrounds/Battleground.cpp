@@ -21,6 +21,7 @@
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
 #include "Creature.h"
+#include "CreatureTextMgr.h"
 #include "Chat.h"
 #include "Formulas.h"
 #include "GridNotifiersImpl.h"
@@ -100,13 +101,13 @@ namespace Trinity
             int32 _arg1;
             int32 _arg2;
     };
-}                                                           // namespace Trinity
+} // namespace Trinity
 
 template<class Do>
 void Battleground::BroadcastWorker(Do& _do)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER)))
+        if (Player* player = _GetPlayer(itr, "BroadcastWorker"))
             _do(player);
 }
 
@@ -640,6 +641,11 @@ void Battleground::SendPacketToTeam(uint32 TeamID, WorldPacket* packet, Player* 
                 player->SendDirectMessage(packet);
         }
     }
+}
+
+void Battleground::SendChatMessage(Creature* source, uint8 textId, WorldObject* target /*= NULL*/)
+{
+    sCreatureTextMgr->SendChat(source, textId, target, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
 }
 
 void Battleground::PlaySoundToAll(uint32 SoundID)
@@ -1452,8 +1458,6 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
     if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, GetBgMap(),
         PHASEMASK_NORMAL, x, y, z, o, rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
     {
-        TC_LOG_ERROR("sql.sql", "Battleground::AddObject: cannot create gameobject (entry: %u) for BG (map: %u, instance id: %u)!",
-                entry, m_MapId, m_InstanceID);
         TC_LOG_ERROR("bg.battleground", "Battleground::AddObject: cannot create gameobject (entry: %u) for BG (map: %u, instance id: %u)!",
                 entry, m_MapId, m_InstanceID);
         delete go;
@@ -1489,6 +1493,11 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
     }
     BgObjects[type] = go->GetGUID();
     return true;
+}
+
+bool Battleground::AddObject(uint32 type, uint32 entry, Position const& pos, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime /*= 0*/)
+{
+    return AddObject(type, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), rotation0, rotation1, rotation2, rotation3, respawnTime);
 }
 
 // Some doors aren't despawned so we cannot handle their closing in gameobject::update()
@@ -1610,7 +1619,12 @@ Creature* Battleground::AddCreature(uint32 entry, uint32 type, uint32 teamval, f
     if (respawntime)
         creature->SetRespawnDelay(respawntime);
 
-    return  creature;
+    return creature;
+}
+
+Creature* Battleground::AddCreature(uint32 entry, uint32 type, uint32 teamval, Position const& pos, uint32 respawntime /*= 0*/)
+{
+    return AddCreature(entry, type, teamval, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), respawntime);
 }
 
 bool Battleground::DelCreature(uint32 type)
@@ -1707,7 +1721,7 @@ void Battleground::SendWarningToAll(int32 entry, ...)
 
     std::map<uint32, WorldPacket> localizedPackets;
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER)))
+        if (Player* player = _GetPlayer(itr, "SendWarningToAll"))
         {
             if (localizedPackets.find(player->GetSession()->GetSessionDbLocaleIndex()) == localizedPackets.end())
             {
