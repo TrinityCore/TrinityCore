@@ -117,7 +117,6 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
     {
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE:
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT:
-        case ACHIEVEMENT_CRITERIA_DATA_TYPE_NTH_BIRTHDAY:
             return true;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_CREATURE:
             if (!creature.id || !sObjectMgr->GetCreatureTemplate(creature.id))
@@ -392,11 +391,6 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
                 return false;
             return pProto->ItemLevel >= equipped_item.item_level && pProto->Quality >= equipped_item.item_quality;
         }
-        case ACHIEVEMENT_CRITERIA_DATA_TYPE_NTH_BIRTHDAY:
-            return (IsHolidayActive(HOLIDAY_ANNIVERSARY_7_YEARS) ||
-                    IsHolidayActive(HOLIDAY_ANNIVERSARY_8_YEARS) ||
-                    IsEventActive(67 /*HOLIDAY_ANNIVERSARY_9_YEARS = 509*/) ||
-                    IsEventActive(68 /*HOLIDAY_ANNIVERSARY_10_YEARS = 514*/));
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE:
         {
             if (CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(known_title.title_id))
