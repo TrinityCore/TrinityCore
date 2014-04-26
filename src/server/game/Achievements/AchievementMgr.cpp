@@ -384,6 +384,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
                     IsHolidayActive(HOLIDAY_ANNIVERSARY_8_YEARS) ||
                     IsEventActive(67 /*HOLIDAY_ANNIVERSARY_9_YEARS = 509*/) ||
                     IsEventActive(68 /*HOLIDAY_ANNIVERSARY_10_YEARS = 514*/));
+            return false;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE:
         {
             if (CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(known_title.title_id))
