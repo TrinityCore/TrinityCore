@@ -574,7 +574,7 @@ class BattlegroundSA : public Battleground
         bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target = NULL, uint32 miscValue = 0) OVERRIDE;
 
         // Control Phase Shift
-        bool IsSpellAllowed(uint32 spellId, Player const* player) const;
+        bool IsSpellAllowed(uint32 spellId, Player const* player) const OVERRIDE;
 
     private:
 
