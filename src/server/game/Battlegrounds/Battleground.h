@@ -28,9 +28,11 @@ class GameObject;
 class Group;
 class Player;
 class Unit;
+class WorldObject;
 class WorldPacket;
 class BattlegroundMap;
 
+struct Position;
 struct PvPDifficultyEntry;
 struct WorldSafeLocsEntry;
 
