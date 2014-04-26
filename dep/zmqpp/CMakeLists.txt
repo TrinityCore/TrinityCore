@@ -20,6 +20,12 @@ add_library(zmqpp STATIC
   ${zmqpp_STAT_SRCS}
 )
 
+if (WIN32)
+  add_definitions(-DBUILD_VERSION=\\"3.2.0\\")
+else()
+  add_definitions(-DBUILD_VERSION='"3.2.0"')
+endif()
+
 add_definitions(-DBUILD_VERSION_MAJOR=3)
 add_definitions(-DBUILD_VERSION_MINOR=2)
 add_definitions(-DBUILD_VERSION_REVISION=0)

@@ -67,17 +67,17 @@
 #endif // if __GNUC_ == 4
 #endif // if defined(__GNUC__) && !defined(__clang__)
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER)
 #define NOEXCEPT throw()
 #if _MSC_VER < 1800
 #define ZMQPP_EXPLICITLY_DELETED
-#endif
+#endif // if _MSC_VER < 1800
 #if _MSC_VER < 1600
 #define nullptr NULL
 #define ZMQPP_IGNORE_LAMBDA_FUNCTION_TESTS
 #define ZMQPP_COMPARABLE_ENUM enum
-#endif
-#endif
+#endif // if _MSC_VER < 1600
+#endif // if defined(_MSC_VER)
 
 // Generic state, assume a modern compiler
 #ifndef ZMQPP_COMPARABLE_ENUM
