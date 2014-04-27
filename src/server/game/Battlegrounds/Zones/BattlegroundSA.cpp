@@ -369,17 +369,12 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
         {
             if (TotalTime >= BG_SA_ROUNDLENGTH)
             {
-                for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-                    if (Player* p = ObjectAccessor::FindPlayer(itr->first))
-                        p->CastSpell(p, 52459, true);
-
                 RoundScores[0].winner = Attackers;
                 RoundScores[0].time = BG_SA_ROUNDLENGTH;
                 TotalTime = 0;
                 Status = BG_SA_SECOND_WARMUP;
                 Attackers = (Attackers == TEAM_ALLIANCE) ? TEAM_HORDE : TEAM_ALLIANCE;
                 UpdateWaitTimer = 5000;
-                gateDestroyed = false;
                 SignaledRoundTwo = false;
                 SignaledRoundTwoHalfMin = false;
                 InitSecondRound = true;
@@ -392,10 +387,6 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
         {
             if (TotalTime >= EndRoundTimer)
             {
-                for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-                    if (Player* p = ObjectAccessor::FindPlayer(itr->first))
-                        p->CastSpell(p, 52459, true);
-
                 RoundScores[1].time = BG_SA_ROUNDLENGTH;
                 RoundScores[1].winner = (Attackers == TEAM_ALLIANCE) ? TEAM_HORDE : TEAM_ALLIANCE;
                 if (RoundScores[0].time == RoundScores[1].time)
