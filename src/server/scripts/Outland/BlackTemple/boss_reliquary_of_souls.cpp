@@ -668,22 +668,22 @@ public:
         void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
-            if (!UpdateVictim())
+            if (!UpdateVictim() || !me->GetVictim())
                 return;
 
             if (!CheckedAggro)
             {
-                AggroTargetGUID = me->GetVictim()->GetGUID();
+                AggroTargetGUID = me->EnsureVictim()->GetGUID();
                 CheckedAggro = true;
             }
 
             if (CheckTankTimer <= diff)
             {
-                if (me->GetVictim()->GetGUID() != AggroTargetGUID)
+                if (me->EnsureVictim()->GetGUID() != AggroTargetGUID)
                 {
                     Talk(ANGER_SAY_BEFORE);
                     DoCast(me, SPELL_SELF_SEETHE, true);
-                    AggroTargetGUID = me->GetVictim()->GetGUID();
+                    AggroTargetGUID = me->EnsureVictim()->GetGUID();
                 }
                 CheckTankTimer = 2000;
             } else CheckTankTimer -= diff;

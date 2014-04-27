@@ -238,7 +238,7 @@ class boss_mandokir : public CreatureScript
                             events.ScheduleEvent(EVENT_OVERPOWER, urand(6000, 12000));
                             break;
                         case EVENT_MORTAL_STRIKE:
-                            if (me->GetVictim() && me->GetVictim()->HealthBelowPct(50))
+                            if (me->GetVictim() && me->EnsureVictim()->HealthBelowPct(50))
                                 DoCastVictim(SPELL_MORTAL_STRIKE, true);
                             events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(12000, 18000));
                             break;

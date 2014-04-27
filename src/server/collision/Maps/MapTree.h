@@ -81,6 +81,10 @@ namespace VMAP
             bool isTiled() const { return iIsTiled; }
             uint32 numLoadedTiles() const { return iLoadedTiles.size(); }
             void getModelInstances(ModelInstance* &models, uint32 &count);
+
+        private:
+            StaticMapTree(StaticMapTree const& right) DELETE_MEMBER;
+            StaticMapTree& operator=(StaticMapTree const& right) DELETE_MEMBER;
     };
 
     struct AreaInfo

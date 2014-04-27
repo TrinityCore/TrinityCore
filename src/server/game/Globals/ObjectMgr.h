@@ -410,6 +410,42 @@ struct AreaTrigger
     float  target_Orientation;
 };
 
+struct BroadcastText
+{
+    uint32 Id;
+    uint32 Language;
+    StringVector MaleText;
+    StringVector FemaleText;
+    uint32 EmoteId0;
+    uint32 EmoteId1;
+    uint32 EmoteId2;
+    uint32 EmoteDelay0;
+    uint32 EmoteDelay1;
+    uint32 EmoteDelay2;
+    uint32 SoundId;
+    uint32 Unk1;
+    uint32 Unk2;
+    // uint32 WDBVerified;
+
+    std::string const& GetText(LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE, bool forceGender = false) const
+    {
+        if (gender == GENDER_FEMALE && (forceGender || !FemaleText[DEFAULT_LOCALE].empty()))
+        {
+            if (FemaleText.size() > size_t(locale) && !FemaleText[locale].empty())
+                return FemaleText[locale];
+            return FemaleText[DEFAULT_LOCALE];
+        }
+        // else if (gender == GENDER_MALE)
+        {
+            if (MaleText.size() > size_t(locale) && !MaleText[locale].empty())
+                return MaleText[locale];
+            return MaleText[DEFAULT_LOCALE];
+        }
+    }
+};
+
+typedef UNORDERED_MAP<uint32, BroadcastText> BroadcastTextContainer;
+
 typedef std::set<uint32> CellGuidSet;
 typedef std::map<uint32/*player guid*/, uint32/*instance*/> CellCorpseSet;
 struct CellObjectGuids
@@ -426,8 +462,6 @@ typedef UNORDERED_MAP<uint32/*(mapid, spawnMode) pair*/, CellObjectGuidsMap> Map
 #define MAX_TRINITY_STRING_ID           2000000000
 #define MIN_DB_SCRIPT_STRING_ID        MAX_TRINITY_STRING_ID // 'db_script_string'
 #define MAX_DB_SCRIPT_STRING_ID        2000010000
-#define MIN_CREATURE_AI_TEXT_STRING_ID (-1)                 // 'creature_ai_texts'
-#define MAX_CREATURE_AI_TEXT_STRING_ID (-1000000)
 
 // Trinity Trainer Reference start range
 #define TRINITY_TRAINER_START_REF      200000
@@ -527,6 +561,7 @@ struct GossipMenuItems
     uint32          OptionIndex;
     uint8           OptionIcon;
     std::string     OptionText;
+    uint32          OptionBroadcastTextId;
     uint32          OptionType;
     uint32          OptionNpcflag;
     uint32          ActionMenuId;
@@ -534,6 +569,7 @@ struct GossipMenuItems
     bool            BoxCoded;
     uint32          BoxMoney;
     std::string     BoxText;
+    uint32          BoxBroadcastTextId;
     ConditionList   Conditions;
 };
 
@@ -905,6 +941,8 @@ class ObjectMgr
         void LoadSpellScriptNames();
         void ValidateSpellScripts();
 
+        void LoadBroadcastTexts();
+        void LoadBroadcastTextLocales();
         bool LoadTrinityStrings(char const* table, int32 min_value, int32 max_value);
         bool LoadTrinityStrings() { return LoadTrinityStrings("trinity_string", MIN_TRINITY_STRING_ID, MAX_TRINITY_STRING_ID); }
         void LoadDbScriptStrings();
@@ -1039,6 +1077,14 @@ class ObjectMgr
             if (itr != _tempSummonDataStore.end())
                 return &itr->second;
 
+            return NULL;
+        }
+
+        BroadcastText const* GetBroadcastText(uint32 id) const
+        {
+            BroadcastTextContainer::const_iterator itr = _broadcastTextStore.find(id);
+            if (itr != _broadcastTextStore.end())
+                return &itr->second;
             return NULL;
         }
 
@@ -1361,6 +1407,7 @@ class ObjectMgr
         /// Stores temp summon data grouped by summoner's entry, summoner's type and group id
         TempSummonDataContainer _tempSummonDataStore;
 
+        BroadcastTextContainer _broadcastTextStore;
         ItemTemplateContainer _itemTemplateStore;
         ItemLocaleContainer _itemLocaleStore;
         ItemSetNameLocaleContainer _itemSetNameLocaleStore;
@@ -1389,8 +1436,5 @@ class ObjectMgr
 };
 
 #define sObjectMgr ACE_Singleton<ObjectMgr, ACE_Null_Mutex>::instance()
-
-// scripting access functions
-bool LoadTrinityStrings(char const* table, int32 start_value = MAX_CREATURE_AI_TEXT_STRING_ID, int32 end_value = std::numeric_limits<int32>::min());
 
 #endif

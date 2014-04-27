@@ -374,7 +374,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
                                         // both spells have SPELL_ATTR5_SINGLE_TARGET_SPELL, no manual removal needed
                                         newOfftank->CastSpell(me->GetVictim(), SPELL_BLOOD_MIRROR_DAMAGE, true);
-                                        me->GetVictim()->CastSpell(newOfftank, SPELL_BLOOD_MIRROR_DUMMY, true);
+                                        me->EnsureVictim()->CastSpell(newOfftank, SPELL_BLOOD_MIRROR_DUMMY, true);
                                         DoCastVictim(SPELL_BLOOD_MIRROR_VISUAL);
                                         if (Is25ManRaid() && newOfftank->GetQuestStatus(QUEST_BLOOD_INFUSION) == QUEST_STATUS_INCOMPLETE &&
                                             newOfftank->HasAura(SPELL_UNSATED_CRAVING) && !newOfftank->HasAura(SPELL_THIRST_QUENCHED) &&

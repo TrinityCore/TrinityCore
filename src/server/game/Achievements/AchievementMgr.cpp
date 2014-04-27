@@ -47,22 +47,23 @@ namespace Trinity
     class AchievementChatBuilder
     {
         public:
-            AchievementChatBuilder(Player const& player, ChatMsg msgtype, int32 textId, uint32 ach_id)
-                : i_player(player), i_msgtype(msgtype), i_textId(textId), i_achievementId(ach_id) { }
+            AchievementChatBuilder(Player const* player, ChatMsg msgType, uint32 textId, uint32 achievementId)
+                : _player(player), _msgType(msgType), _textId(textId), _achievementId(achievementId) { }
 
-            void operator()(WorldPacket& data, LocaleConstant loc_idx)
+            void operator()(WorldPacket& data, LocaleConstant locale)
             {
-                std::string text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
-                ChatHandler::BuildChatPacket(data, i_msgtype, LANG_UNIVERSAL, &i_player, &i_player, text, i_achievementId);
+                BroadcastText const* bct = sObjectMgr->GetBroadcastText(_textId);
+
+                ChatHandler::BuildChatPacket(data, _msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _player, _player, bct ? bct->GetText(locale, _player->getGender()) : "", _achievementId);
             }
 
         private:
-            Player const& i_player;
-            ChatMsg i_msgtype;
-            int32 i_textId;
-            uint32 i_achievementId;
+            Player const* _player;
+            ChatMsg _msgType;
+            int32 _textId;
+            uint32 _achievementId;
     };
-}                                                           // namespace Trinity
+} // namespace Trinity
 
 bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
 {
@@ -660,9 +661,9 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement) 
 
     if (Guild* guild = sGuildMgr->GetGuildById(GetPlayer()->GetGuildId()))
     {
-        Trinity::AchievementChatBuilder say_builder(*GetPlayer(), CHAT_MSG_GUILD_ACHIEVEMENT, LANG_ACHIEVEMENT_EARNED, achievement->ID);
-        Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> say_do(say_builder);
-        guild->BroadcastWorker(say_do, GetPlayer());
+        Trinity::AchievementChatBuilder _builder(GetPlayer(), CHAT_MSG_GUILD_ACHIEVEMENT, BROADCAST_TEXT_ACHIEVEMENT_EARNED, achievement->ID);
+        Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> _localizer(_builder);
+        guild->BroadcastWorker(_localizer, GetPlayer());
     }
 
     if (achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_KILL | ACHIEVEMENT_FLAG_REALM_FIRST_REACH))
@@ -678,16 +679,10 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement) 
     // if player is in world he can tell his friends about new achievement
     else if (GetPlayer()->IsInWorld())
     {
-        CellCoord p = Trinity::ComputeCellCoord(GetPlayer()->GetPositionX(), GetPlayer()->GetPositionY());
-
-        Cell cell(p);
-        cell.SetNoCreate();
-
-        Trinity::AchievementChatBuilder say_builder(*GetPlayer(), CHAT_MSG_ACHIEVEMENT, LANG_ACHIEVEMENT_EARNED, achievement->ID);
-        Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> say_do(say_builder);
-        Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> > say_worker(GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), say_do);
-        TypeContainerVisitor<Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> >, WorldTypeMapContainer > message(say_worker);
-        cell.Visit(p, message, *GetPlayer()->GetMap(), *GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
+        Trinity::AchievementChatBuilder _builder(GetPlayer(), CHAT_MSG_ACHIEVEMENT, BROADCAST_TEXT_ACHIEVEMENT_EARNED, achievement->ID);
+        Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> _localizer(_builder);
+        Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> > _worker(GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), _localizer);
+        GetPlayer()->VisitNearbyWorldObject(sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), _worker);
     }
 
     WorldPacket data(SMSG_ACHIEVEMENT_EARNED, 8+4+8);

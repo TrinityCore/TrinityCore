@@ -438,7 +438,7 @@ class npc_watcher_gashra : public CreatureScript
                 _events.ScheduleEvent(EVENT_WEB_WRAP_GASHRA, 11000);
                 _events.ScheduleEvent(EVENT_INFECTED_BITE_GASHRA, 4000);
             }
-            
+
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Creature* krikthir = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_KRIKTHIR_THE_GATEWATCHER));
@@ -511,7 +511,7 @@ class npc_watcher_narjil : public CreatureScript
                 _events.ScheduleEvent(EVENT_INFECTED_BITE_NARJIL, 4000);
                 _events.ScheduleEvent(EVENT_BINDING_WEBS, 17000);
             }
-            
+
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Creature* krikthir = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_KRIKTHIR_THE_GATEWATCHER));
@@ -600,7 +600,7 @@ class npc_watcher_silthik : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
-                    
+
                 _events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))

@@ -87,9 +87,7 @@ class boss_amanitar : public CreatureScript
 
                 for (uint8 i = 0; i < 30; ++i)
                 {
-                    Position pos;
-                    me->GetPosition(&pos);
-                    me->GetRandomNearPosition(pos, 30.0f);
+                    Position pos = me->GetRandomNearPosition(30.0f);
                     pos.m_positionZ = me->GetMap()->GetHeight(pos.GetPositionX(), pos.GetPositionY(), MAX_HEIGHT) + 2.0f;
 
                     if (Creature* trigger = me->SummonCreature(NPC_TRIGGER, pos))

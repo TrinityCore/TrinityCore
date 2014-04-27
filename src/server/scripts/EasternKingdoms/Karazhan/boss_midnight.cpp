@@ -191,7 +191,7 @@ public:
                             if (pAttumen->GetVictim())
                             {
                                 pAttumen->GetMotionMaster()->MoveChase(pAttumen->GetVictim());
-                                pAttumen->SetTarget(pAttumen->GetVictim()->GetGUID());
+                                pAttumen->SetTarget(pAttumen->EnsureVictim()->GetGUID());
                             }
                             pAttumen->SetObjectScale(1);
                         }

@@ -320,7 +320,7 @@ public:
                 handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
             }
         }
-        handler->PSendSysMessage(LANG_RBAC_LIST_HEADER_DENIED, command->rbac->GetId(), command->rbac->GetName().c_str());
+        handler->PSendSysMessage(LANG_RBAC_LIST_HEADER_BY_SEC_LEVEL, command->rbac->GetId(), command->rbac->GetName().c_str(), command->rbac->GetSecurityLevel());
         rbac::RBACPermissionContainer const& defaultPermissions = sAccountMgr->GetRBACDefaultPermissions(command->rbac->GetSecurityLevel());
         if (defaultPermissions.empty())
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_EMPTY));

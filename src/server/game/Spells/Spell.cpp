@@ -5012,9 +5012,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (!target)
                         return SPELL_FAILED_DONT_REPORT;
 
-                    Position pos;
-                    target->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-                    target->GetFirstCollisionPosition(pos, CONTACT_DISTANCE, target->GetRelativeAngle(m_caster));
+                    //target->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+                    Position pos = target->GetFirstCollisionPosition(CONTACT_DISTANCE, target->GetRelativeAngle(m_caster));
 
                     m_preGeneratedPath.SetPathLengthLimit(m_spellInfo->GetMaxRange(true) * 1.5f);
                     bool result = m_preGeneratedPath.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize(), false, true);

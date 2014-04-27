@@ -183,6 +183,8 @@ template<class TObject> class UpdatableScript
         {
         }
 
+        virtual ~UpdatableScript() { }
+
     public:
 
         virtual void OnUpdate(TObject* /*obj*/, uint32 /*diff*/) { }
@@ -388,7 +390,7 @@ class ItemScript : public ScriptObject
 
         // Called when the item expires (is destroyed).
         virtual bool OnExpire(Player* /*player*/, ItemTemplate const* /*proto*/) { return false; }
-		
+
         // Called when the item is destroyed.
         virtual bool OnRemove(Player* /*player*/, Item* /*item*/) { return false; }
 };

@@ -74,7 +74,7 @@ bool FollowerAI::AssistPlayerInCombat(Unit* who)
         return false;
 
     //not a player
-    if (!who->GetVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
+    if (!who->EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
         return false;
 
     //never attack friendly

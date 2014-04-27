@@ -6375,15 +6375,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 CastSpell(this, 57669, true, castItem, triggeredByAura);
                 break;
             }
-            // Sanctified Wrath
-            if (dummySpell->SpellIconID == 3029)
-            {
-                triggered_spell_id = 57318;
-                target = this;
-                basepoints0 = triggerAmount;
-                CastCustomSpell(target, triggered_spell_id, &basepoints0, &basepoints0, NULL, true, castItem, triggeredByAura);
-                return true;
-            }
             // Righteous Vengeance
             if (dummySpell->SpellIconID == 3025)
             {
@@ -8707,6 +8698,9 @@ bool Unit::HandleOverrideClassScriptAuraProc(Unit* victim, uint32 /*damage*/, Au
 
 void Unit::setPowerType(Powers new_powertype)
 {
+    if (getPowerType() == new_powertype)
+        return;
+
     SetByteValue(UNIT_FIELD_BYTES_0, 3, new_powertype);
 
     if (GetTypeId() == TYPEID_PLAYER)
@@ -15661,7 +15655,7 @@ void Unit::SetStunned(bool apply)
     else
     {
         if (IsAlive() && GetVictim())
-            SetTarget(GetVictim()->GetGUID());
+            SetTarget(EnsureVictim()->GetGUID());
 
         // don't remove UNIT_FLAG_STUNNED for pet when owner is mounted (disabled pet's interface)
         Unit* owner = GetOwner();
@@ -15752,7 +15746,7 @@ void Unit::SetFeared(bool apply)
             if (GetMotionMaster()->GetCurrentMovementGeneratorType() == FLEEING_MOTION_TYPE)
                 GetMotionMaster()->MovementExpired();
             if (GetVictim())
-                SetTarget(GetVictim()->GetGUID());
+                SetTarget(EnsureVictim()->GetGUID());
         }
     }
 
@@ -15774,7 +15768,7 @@ void Unit::SetConfused(bool apply)
             if (GetMotionMaster()->GetCurrentMovementGeneratorType() == CONFUSED_MOTION_TYPE)
                 GetMotionMaster()->MovementExpired();
             if (GetVictim())
-                SetTarget(GetVictim()->GetGUID());
+                SetTarget(EnsureVictim()->GetGUID());
         }
     }
 
@@ -17006,7 +17000,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 
     Position pos;
     if (!exitPosition)                          // Exit position not specified
-        vehicle->GetBase()->GetPosition(&pos);  // This should use passenger's current position, leaving it as it is now
+        pos = vehicle->GetBase()->GetPosition();  // This should use passenger's current position, leaving it as it is now
                                                 // because we calculate positions incorrect (sometimes under map)
     else
         pos = *exitPosition;

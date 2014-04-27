@@ -19,6 +19,13 @@
 #ifndef __TRINITY_LANGUAGE_H
 #define __TRINITY_LANGUAGE_H
 
+enum BroadcastTextIds
+{
+    BROADCAST_TEXT_ACHIEVEMENT_EARNED   = 29245,
+    BROADCAST_TEXT_CALL_FOR_HELP        = 2541,
+    BROADCAST_TEXT_FLEE_FOR_ASSIST      = 1150
+};
+
 enum TrinityStrings
 {
     // for chat commands
@@ -753,7 +760,7 @@ enum TrinityStrings
     LANG_NEED_CHARACTER_NAME            = 807,
     LANG_PLAYER_NOT_EXIST_OR_OFFLINE    = 808,
     LANG_ACCOUNT_FOR_PLAYER_NOT_FOUND   = 809,
-    LANG_ACHIEVEMENT_EARNED             = 810,
+    // unused                           = 810,
     LANG_GUILD_MASTER                   = 811,
     LANG_GUILD_OFFICER                  = 812,
     LANG_GUILD_VETERAN                  = 813,
@@ -1074,12 +1081,12 @@ enum TrinityStrings
     LANG_GOINFO_NAME                    = 5027,
     LANG_GOINFO_LOOTID                  = 5028,
     LANG_COMMAND_LOOKUP_MAX_RESULTS     = 5029,
-    LANG_FLEE                           = 5030,
+    // unused                           = 5030,
     LANG_NPCINFO_AIINFO                 = 5031,
     LANG_COMMAND_NO_BATTLEGROUND_FOUND  = 5032,
     LANG_COMMAND_NO_ACHIEVEMENT_CRITERIA_FOUND = 5033,
     LANG_COMMAND_NO_OUTDOOR_PVP_FORUND  = 5034,
-    LANG_CALL_FOR_HELP                  = 5035,
+    // unused                           = 5035,
     LANG_NPCINFO_EQUIPMENT              = 5036,
     LANG_NPCINFO_MECHANIC_IMMUNE        = 5037,
     LANG_NPCINFO_UNIT_FIELD_FLAGS       = 5038,
@@ -1195,21 +1202,11 @@ enum TrinityStrings
     LANG_BG_SA_START_TWO_MINUTES            = 10056,
     LANG_BG_SA_START_ONE_MINUTE             = 10057,
     LANG_BG_SA_START_HALF_MINUTE            = 10058,
-    LANG_BG_SA_HAS_BEGUN                    = 10059,
-    LANG_BG_SA_IS_UNDER_ATTACK              = 10060, //The %s is under attack!
-    LANG_BG_SA_WAS_DESTROYED                = 10061, //The %s was destroyed!
-    LANG_BG_SA_ROUND_ONE_END                = 10062, //Round 1 - finished!
+    // unused                                 10059-10062
     LANG_BG_SA_ALLIANCE_CAPTURED_RELIC      = 10063, //The Alliance captured the titan portal!
     LANG_BG_SA_HORDE_CAPTURED_RELIC         = 10064, //The Horde captured the titan portal!
     LANG_BG_SA_ROUND_TWO_ONE_MINUTE         = 10065, //Round 2 of the Battle for the Strand of the Ancients begins in 1 minute.
     LANG_BG_SA_ROUND_TWO_START_HALF_MINUTE  = 10066, //Round 2 begins in 30 seconds. Prepare yourselves!
-    LANG_BG_SA_CHAMBER_BREACHED             = 10067, //The chamber has been breached! The titan relic is vulnerable!
-    LANG_BG_SA_A_GY_SOUTH                   = 10068, //The Alliance captured the South Graveyard!
-    LANG_BG_SA_A_GY_WEST                    = 10069, //The Alliance captured the West Graveyard!
-    LANG_BG_SA_A_GY_EAST                    = 10070, //The Alliance captured the East Graveyard!
-    LANG_BG_SA_H_GY_SOUTH                   = 10071, //The Horde captured the South Graveyard!
-    LANG_BG_SA_H_GY_WEST                    = 10072, //The Horde captured the West Graveyard!
-    LANG_BG_SA_H_GY_EAST                    = 10073, //The Horde captured the East Graveyard!
 
     // Use for custom patches             11000-11999
     LANG_AUTO_BROADCAST                 = 11000,

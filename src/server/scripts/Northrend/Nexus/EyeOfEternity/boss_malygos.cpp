@@ -470,8 +470,7 @@ public:
                     break;
                 case ACTION_LIFT_IN_AIR:
                 {
-                    Position _zToLift;
-                    me->GetPosition(&_zToLift);
+                    Position _zToLift = me->GetPosition();
                     if (_phase == PHASE_ONE)
                     {
                         _zToLift.m_positionZ += 20.0f;
@@ -1596,8 +1595,7 @@ public:
                 me->DespawnOrUnsummon(2050);
                 me->SetOrientation(2.5f);
                 me->SetSpeed(MOVE_FLIGHT, 1.0f, true);
-                Position pos;
-                me->GetPosition(&pos);
+                Position pos = me->GetPosition();
                 pos.m_positionX += 10.0f;
                 pos.m_positionY += 10.0f;
                 pos.m_positionZ += 12.0f;
