@@ -611,7 +611,7 @@ public:
         void SpellHitTarget(Unit* target, const SpellInfo* spell) OVERRIDE
         {
             if (target->GetTypeId() == TYPEID_PLAYER && (spell->Id == GHOUL_EXPLODE_DAMAGE || spell->Id == H_GHOUL_EXPLODE_DAMAGE || spell->Id == SPELL_GHOUL_EXPLODE))
-                if (Creature* knight = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BLACK_KNIGHT)))
+                if (Creature* knight = me->FindNearestCreature(NPC_BLACK_KNIGHT, 200.0f))
                     knight->AI()->SetData(DATA_IVE_HAD_WORSE, false);
         }
     };
