@@ -6099,7 +6099,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     uint32 procVictim   = PROC_FLAG_TAKEN_PERIODIC;
     uint32 procEx = (crit ? PROC_EX_CRITICAL_HIT : PROC_EX_NORMAL_HIT) | PROC_EX_INTERNAL_HOT;
     // ignore item heals
-    if (!haveCastItem)
+    if (!haveCastItem && GetAuraType() != SPELL_AURA_OBS_MOD_HEALTH)
         caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, BASE_ATTACK, GetSpellInfo());
 }
 
