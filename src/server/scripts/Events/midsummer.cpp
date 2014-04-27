@@ -315,8 +315,8 @@ class boss_ahune : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 8.0f, true))
                             {
                                 DoCast(target, SPELL_COLD_SLAP);
-                                Position targetPos;
-                                target->GetNearPosition(targetPos, float(rand_norm()) * 5.0f + 35.0f, me->GetAngle(target));
+                                Position targetPos = target->GetNearPosition(float(rand_norm()) * 5.0f + 35.0f, me->GetAngle(target));
+                                //target->GetNearPosition(targetPos, float(rand_norm()) * 5.0f + 35.0f, me->GetAngle(target));
                                 target->GetMotionMaster()->MoveJump(targetPos.GetPositionX(), targetPos.GetPositionY(), targetPos.GetPositionZ(), target->GetExactDist2d(targetPos.GetPositionX(), targetPos.GetPositionY()), 10.0f);
                             }
                             events.ScheduleEvent(EVENT_COLD_SLAP, 500, 0, PHASE_ONE);

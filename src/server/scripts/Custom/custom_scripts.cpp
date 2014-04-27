@@ -788,8 +788,7 @@ public:
                     me->SetHealth(50000);
                                                             
                     me->SetFacingToObject(plr);
-                    Position pos;
-                    me->GetPosition(&pos);
+                    Position pos = me->GetPosition();
                     me->SetHomePosition(pos);
                     
                     mountDuel = true;
