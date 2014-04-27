@@ -33,6 +33,7 @@
 #define INTERACTION_DISTANCE        5.0f
 #define ATTACK_DISTANCE             5.0f
 #define INSPECT_DISTANCE            28.0f
+#define TRADE_DISTANCE              11.11f
 #define MAX_VISIBILITY_DISTANCE     SIZE_OF_GRIDS           // max distance for visible objects
 #define SIGHT_RANGE_UNIT            50.0f
 #define DEFAULT_VISIBILITY_DISTANCE 90.0f                   // default visible distance, 90 yards on continents
