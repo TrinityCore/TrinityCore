@@ -1021,7 +1021,14 @@ public:
         void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) OVERRIDE
         {
             if (apply && passenger->GetTypeId() == TYPEID_PLAYER)
+            {
+                /// @workaround - Because accessory gets unmounted when using vehicle_template_accessory.
+                /// When vehicle spawns accessory is mounted to seat 0,but when player mounts
+                /// he uses the same seat (instead of mounting to seat 1) kicking the accessory out.
+                passenger->ChangeSeat(1, false);
+                me->GetVehicleKit()->InstallAccessory(NPC_PILOT, 0, true, TEMPSUMMON_DEAD_DESPAWN, 0);
                 me->GetMotionMaster()->MovePath(NPC_PLANE, false);
+            }
         }
 
         void MovementInform(uint32 type, uint32 id) OVERRIDE
@@ -1056,6 +1063,7 @@ public:
                     case 25:
                         Talk(PLANE_EMOTE);
                         DoCast(SPELL_ENGINE);
+                        me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVEMENT);
                         break;
                 }
         }
