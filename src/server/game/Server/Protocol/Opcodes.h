@@ -1331,7 +1331,7 @@ enum Opcodes
     CMSG_REDIRECTION_FAILED                         = 0x50E, // something with networking
     SMSG_SUSPEND_COMMS                              = 0x50F,
     CMSG_SUSPEND_COMMS_ACK                          = 0x510,
-    SMSG_FORCE_SEND_QUEUED_PACKETS                  = 0x511,
+    SMSG_RESUME_COMMS                               = 0x511,
     CMSG_REDIRECTION_AUTH_PROOF                     = 0x512,
     CMSG_DROP_NEW_CONNECTION                        = 0x513,
     SMSG_SEND_ALL_COMBAT_LOG                        = 0x514,

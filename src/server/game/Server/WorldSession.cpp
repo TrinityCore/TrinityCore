@@ -1171,7 +1171,7 @@ void WorldSession::HandleRedirectionFailed(WorldPacket& recvPacket)
         data << uint8(1);   // CHAR_LOGIN_NO_WORLD
     }
 
-    data << uint16(SMSG_FORCE_SEND_QUEUED_PACKETS);
+    data << uint16(SMSG_RESUME_COMMS);
 
     SendPacket(&data);
 }
@@ -1181,7 +1181,7 @@ void WorldSession::HandleSuspendComms(WorldPacket& recv)
     recv.rfinish();
 
     zmqpp::message msg;
-    WorldPacket fsqp(SMSG_FORCE_SEND_QUEUED_PACKETS, 0);
+    WorldPacket fsqp(SMSG_RESUME_COMMS, 0);
     sSocialServer->BuildPacketCommand(msg, fsqp);
     msg << uint8(BROADCAST_PENDING_SESSION);   // broadcast target
     msg << uint32(GetAccountId());

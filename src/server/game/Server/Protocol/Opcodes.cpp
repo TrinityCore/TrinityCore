@@ -1323,7 +1323,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x50E*/ { "CMSG_REDIRECTION_FAILED",                      STATUS_AUTHED,   PROCESS_INPLACE,      &WorldSession::HandleRedirectionFailed         },
     /*0x50F*/ { "SMSG_SUSPEND_COMMS",                           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x510*/ { "CMSG_SUSPEND_COMMS_ACK",                       STATUS_AUTHED,   PROCESS_INPLACE,      &WorldSession::HandleSuspendComms              },
-    /*0x511*/ { "SMSG_FORCE_SEND_QUEUED_PACKETS",               STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
+    /*0x511*/ { "SMSG_RESUME_COMMS",                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x512*/ { "CMSG_REDIRECTION_AUTH_PROOF",                  STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x513*/ { "CMSG_DROP_NEW_CONNECTION",                     STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x514*/ { "SMSG_SEND_ALL_COMBAT_LOG",                     STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
@@ -1336,5 +1336,5 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x51B*/ { "CMSG_COMMENTATOR_SKIRMISH_QUEUE_COMMAND",      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x51C*/ { "SMSG_COMMENTATOR_SKIRMISH_QUEUE_RESULT1",      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x51D*/ { "SMSG_COMMENTATOR_SKIRMISH_QUEUE_RESULT2",      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
-    /*0x51E*/ { "SMSG_COMPRESSED_UNKNOWN_1310",                 STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
+    /*0x51E*/ { "SMSG_MULTIPLE_MOVES",                          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
 };
