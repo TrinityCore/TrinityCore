@@ -668,7 +668,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
 
         if (cInfo->expansion > difficultyInfo->expansion)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, expansion %u) has different `expansion` in difficulty %u mode (Entry: %u, expansion %u).",
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, exp %u) has different `exp` in difficulty %u mode (Entry: %u, exp %u).",
                 cInfo->Entry, cInfo->expansion, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->expansion);
         }
 
@@ -676,24 +676,33 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         {
             TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, faction_A %u) has different `faction_A` in difficulty %u mode (Entry: %u, faction_A %u).",
                 cInfo->Entry, cInfo->faction_A, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->faction_A);
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `faction_A`=%u WHERE `entry`=%u;",
+                cInfo->faction_A, cInfo->DifficultyEntry[diff]);
         }
 
         if (cInfo->faction_H != difficultyInfo->faction_H)
         {
             TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, faction_H %u) has different `faction_H` in difficulty %u mode (Entry: %u, faction_H %u).",
                 cInfo->Entry, cInfo->faction_H, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->faction_H);
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `faction_H`=%u WHERE `entry`=%u;",
+                cInfo->faction_H, cInfo->DifficultyEntry[diff]);
         }
 
         if (cInfo->unit_class != difficultyInfo->unit_class)
         {
             TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, class %u) has different `unit_class` in difficulty %u mode (Entry: %u, class %u).",
                 cInfo->Entry, cInfo->unit_class, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->unit_class);
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `unit_class`=%u WHERE `entry`=%u;",
+                cInfo->unit_class, cInfo->DifficultyEntry[diff]);
             continue;
         }
 
         if (cInfo->npcflag != difficultyInfo->npcflag)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has different `npcflag` in difficulty %u mode (Entry: %u).", cInfo->Entry, diff + 1, cInfo->DifficultyEntry[diff]);
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, `npcflag`: %u) has different `npcflag` in difficulty %u mode (Entry: %u, `npcflag`: %u).",
+                cInfo->Entry, cInfo->npcflag, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->npcflag);
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `npcflag`=%u WHERE `entry`=%u;",
+                cInfo->npcflag, cInfo->DifficultyEntry[diff]);
             continue;
         }
 
@@ -701,23 +710,34 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         {
             TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, family %u) has different `family` in difficulty %u mode (Entry: %u, family %u).",
                 cInfo->Entry, cInfo->family, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->family);
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `family`=%u WHERE `entry`=%u;",
+                cInfo->family, cInfo->DifficultyEntry[diff]);
         }
 
         if (cInfo->trainer_class != difficultyInfo->trainer_class)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has different `trainer_class` in difficulty %u mode (Entry: %u).", cInfo->Entry, diff + 1, cInfo->DifficultyEntry[diff]);
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, trainer_class: %u) has different `trainer_class` in difficulty %u mode (Entry: %u).",
+                cInfo->Entry, cInfo->trainer_class, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->trainer_class);
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `trainer_class`=%u WHERE `entry`=%u;",
+                cInfo->trainer_class, cInfo->DifficultyEntry[diff]);
             continue;
         }
 
         if (cInfo->trainer_race != difficultyInfo->trainer_race)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has different `trainer_race` in difficulty %u mode (Entry: %u).", cInfo->Entry, diff + 1, cInfo->DifficultyEntry[diff]);
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, trainer_race: %u) has different `trainer_race` in difficulty %u mode (Entry: %u, trainer_race: %u).",
+                cInfo->Entry, cInfo->trainer_race, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->trainer_race);
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `trainer_race`=%u WHERE `entry`=%u;",
+                cInfo->trainer_race, cInfo->DifficultyEntry[diff]);
             continue;
         }
 
         if (cInfo->trainer_type != difficultyInfo->trainer_type)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has different `trainer_type` in difficulty %u mode (Entry: %u).", cInfo->Entry, diff + 1, cInfo->DifficultyEntry[diff]);
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, trainer_type: %u) has different `trainer_type` in difficulty %u mode (Entry: %u, trainer_type: %u).",
+                cInfo->Entry, cInfo->trainer_type, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->trainer_type);
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `trainer_type`=%u WHERE `entry`=%u;",
+                cInfo->trainer_type, cInfo->DifficultyEntry[diff]);
             continue;
         }
 
@@ -725,6 +745,8 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         {
             TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, type %u) has different `type` in difficulty %u mode (Entry: %u, type %u).",
                 cInfo->Entry, cInfo->type, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->type);
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `type`=%u WHERE `entry`=%u;",
+                cInfo->type, cInfo->DifficultyEntry[diff]);
         }
 
         if (!cInfo->VehicleId && difficultyInfo->VehicleId)
