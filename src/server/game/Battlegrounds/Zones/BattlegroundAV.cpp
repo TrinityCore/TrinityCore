@@ -289,7 +289,6 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
         cinfoid=uint16(BG_AV_StaticCreaturePos[type][4]);
         creature = AddCreature(BG_AV_StaticCreatureInfo[cinfoid][0],
                                (type+AV_CPLACE_MAX),
-                               BG_AV_StaticCreatureInfo[cinfoid][1],
                                BG_AV_StaticCreaturePos[type][0],
                                BG_AV_StaticCreaturePos[type][1],
                                BG_AV_StaticCreaturePos[type][2],
@@ -303,11 +302,7 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
     {
         creature = AddCreature(BG_AV_CreatureInfo[cinfoid][0],
                                type,
-                               BG_AV_CreatureInfo[cinfoid][1],
-                               BG_AV_CreaturePos[type][0],
-                               BG_AV_CreaturePos[type][1],
-                               BG_AV_CreaturePos[type][2],
-                               BG_AV_CreaturePos[type][3]);
+                               BG_AV_CreaturePos[type]);
         level = (BG_AV_CreatureInfo[cinfoid][2] == BG_AV_CreatureInfo[cinfoid][3])
                 ? BG_AV_CreatureInfo[cinfoid][2]
                 : urand(BG_AV_CreatureInfo[cinfoid][2], BG_AV_CreatureInfo[cinfoid][3]);
@@ -365,11 +360,7 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
     {
         if (Creature* trigger = AddCreature(WORLD_TRIGGER,
                                             triggerSpawnID,
-                                            BG_AV_CreatureInfo[creature->GetEntry()][1],
-                                            BG_AV_CreaturePos[triggerSpawnID][0],
-                                            BG_AV_CreaturePos[triggerSpawnID][1],
-                                            BG_AV_CreaturePos[triggerSpawnID][2],
-                                            BG_AV_CreaturePos[triggerSpawnID][3]))
+                                            BG_AV_CreaturePos[triggerSpawnID]))
         {
             trigger->setFaction(newFaction);
             trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
@@ -782,7 +773,7 @@ void BattlegroundAV::PopulateNode(BG_AV_Nodes node)
         //spiritguide
         if (BgCreatures[node])
             DelCreature(node);
-        if (!AddSpiritGuide(node, BG_AV_CreaturePos[node][0], BG_AV_CreaturePos[node][1], BG_AV_CreaturePos[node][2], BG_AV_CreaturePos[node][3], owner))
+        if (!AddSpiritGuide(node, BG_AV_CreaturePos[node], GetTeamIndexByTeamId(owner)))
             TC_LOG_ERROR("bg.battleground", "AV: couldn't spawn spiritguide at node %i", node);
     }
     for (uint8 i=0; i<4; i++)
@@ -795,11 +786,8 @@ void BattlegroundAV::PopulateNode(BG_AV_Nodes node)
     {
        trigger = AddCreature(WORLD_TRIGGER,
                              node + 302,
-                             owner,
-                             BG_AV_CreaturePos[node + 302][0],
-                             BG_AV_CreaturePos[node + 302][1],
-                             BG_AV_CreaturePos[node + 302][2],
-                             BG_AV_CreaturePos[node + 302][3]);
+                             BG_AV_CreaturePos[node + 302],
+                             GetTeamIndexByTeamId(owner));
     }
 
     //add bonus honor aura trigger creature when node is accupied
@@ -1219,15 +1207,10 @@ WorldSafeLocsEntry const* BattlegroundAV::GetClosestGraveYard(Player* player)
 bool BattlegroundAV::SetupBattleground()
 {
     // Create starting objects
-    if (
-       // alliance gates
-        !AddObject(BG_AV_OBJECT_DOOR_A, BG_AV_OBJECTID_GATE_A,
-                   BG_AV_DoorPositons[0][0], BG_AV_DoorPositons[0][1], BG_AV_DoorPositons[0][2], BG_AV_DoorPositons[0][3],
-                   0, 0, std::sin(BG_AV_DoorPositons[0][3]/2), std::cos(BG_AV_DoorPositons[0][3]/2), RESPAWN_IMMEDIATELY)
+    if (// alliance gates
+        !AddObject(BG_AV_OBJECT_DOOR_A, BG_AV_OBJECTID_GATE_A, BG_AV_DoorPositons[0], 0, 0, std::sin(BG_AV_DoorPositons[0].GetOrientation()/2), std::cos(BG_AV_DoorPositons[0].GetOrientation()/2), RESPAWN_IMMEDIATELY)
         // horde gates
-        || !AddObject(BG_AV_OBJECT_DOOR_H, BG_AV_OBJECTID_GATE_H,
-                      BG_AV_DoorPositons[1][0], BG_AV_DoorPositons[1][1], BG_AV_DoorPositons[1][2], BG_AV_DoorPositons[1][3],
-                      0, 0, std::sin(BG_AV_DoorPositons[1][3]/2), std::cos(BG_AV_DoorPositons[1][3]/2), RESPAWN_IMMEDIATELY))
+        || !AddObject(BG_AV_OBJECT_DOOR_H, BG_AV_OBJECTID_GATE_H, BG_AV_DoorPositons[1], 0, 0, std::sin(BG_AV_DoorPositons[1].GetOrientation()/2), std::cos(BG_AV_DoorPositons[1].GetOrientation()/2), RESPAWN_IMMEDIATELY))
     {
         TC_LOG_ERROR("sql.sql", "BatteGroundAV: Failed to spawn some object Battleground not created!1");
         return false;
@@ -1504,8 +1487,8 @@ bool BattlegroundAV::SetupBattleground()
         AddAVCreature(0, i + AV_CPLACE_MAX);
     //mainspiritguides:
     TC_LOG_DEBUG("bg.battleground", "BG_AV: start spawning spiritguides creatures");
-    AddSpiritGuide(7, BG_AV_CreaturePos[7][0], BG_AV_CreaturePos[7][1], BG_AV_CreaturePos[7][2], BG_AV_CreaturePos[7][3], ALLIANCE);
-    AddSpiritGuide(8, BG_AV_CreaturePos[8][0], BG_AV_CreaturePos[8][1], BG_AV_CreaturePos[8][2], BG_AV_CreaturePos[8][3], HORDE);
+    AddSpiritGuide(7, BG_AV_CreaturePos[7], TEAM_ALLIANCE);
+    AddSpiritGuide(8, BG_AV_CreaturePos[8], TEAM_HORDE);
     //spawn the marshals (those who get deleted, if a tower gets destroyed)
     TC_LOG_DEBUG("bg.battleground", "BG_AV: start spawning marshal creatures");
     for (i = AV_NPC_A_MARSHAL_SOUTH; i <= AV_NPC_H_MARSHAL_WTOWER; i++)

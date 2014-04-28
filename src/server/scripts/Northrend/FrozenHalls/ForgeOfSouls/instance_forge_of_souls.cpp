@@ -69,15 +69,15 @@ class instance_forge_of_souls : public InstanceMapScript
                         break;
                     case NPC_SYLVANAS_PART1:
                         if (teamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_JAINA_PART1, ALLIANCE);
+                            creature->UpdateEntry(NPC_JAINA_PART1);
                         break;
                     case NPC_LORALEN:
                         if (teamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_ELANDRA, ALLIANCE);
+                            creature->UpdateEntry(NPC_ELANDRA);
                         break;
                     case NPC_KALIRA:
                         if (teamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_KORELN, ALLIANCE);
+                            creature->UpdateEntry(NPC_KORELN);
                         break;
                 }
             }

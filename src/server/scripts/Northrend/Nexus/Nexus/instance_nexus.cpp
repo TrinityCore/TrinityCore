@@ -88,7 +88,7 @@ public:
                     if (ServerAllowsTwoSideGroups())
                         creature->setFaction(FACTION_HOSTILE_FOR_ALL);
                     if (TeamInInstance == ALLIANCE)
-                        creature->UpdateEntry(26799, HORDE);
+                        creature->UpdateEntry(26799);
                     break;
                 }
                 case 26802:
@@ -96,7 +96,7 @@ public:
                     if (ServerAllowsTwoSideGroups())
                         creature->setFaction(FACTION_HOSTILE_FOR_ALL);
                     if (TeamInInstance == ALLIANCE)
-                        creature->UpdateEntry(26801, HORDE);
+                        creature->UpdateEntry(26801);
                     break;
                 }
                 case 26805:
@@ -104,7 +104,7 @@ public:
                     if (ServerAllowsTwoSideGroups())
                         creature->setFaction(FACTION_HOSTILE_FOR_ALL);
                     if (TeamInInstance == ALLIANCE)
-                        creature->UpdateEntry(26803, HORDE);
+                        creature->UpdateEntry(26803);
                     break;
                 }
                 case 27949:
@@ -112,7 +112,7 @@ public:
                     if (ServerAllowsTwoSideGroups())
                         creature->setFaction(FACTION_HOSTILE_FOR_ALL);
                     if (TeamInInstance == ALLIANCE)
-                        creature->UpdateEntry(27947, HORDE);
+                        creature->UpdateEntry(27947);
                     break;
                 }
                 case 26796:
@@ -120,7 +120,7 @@ public:
                     if (ServerAllowsTwoSideGroups())
                         creature->setFaction(FACTION_HOSTILE_FOR_ALL);
                     if (TeamInInstance == ALLIANCE)
-                        creature->UpdateEntry(26798, HORDE);
+                        creature->UpdateEntry(26798);
                     break;
                 }
             }
