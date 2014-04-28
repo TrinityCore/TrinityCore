@@ -249,7 +249,7 @@ class OutdoorPvP : public ZoneScript
         void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
 
         static TeamId GetTeamIdByTeam(uint32 team)
-        { 
+        {
             switch (team)
             {
                 case ALLIANCE:
