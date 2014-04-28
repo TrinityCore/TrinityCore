@@ -298,35 +298,35 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case NPC_EIVI_NIGHTFEATHER:
                         if (TeamInInstance == HORDE)
-                            creature->UpdateEntry(NPC_TOR_GREYCLOUD, HORDE);
+                            creature->UpdateEntry(NPC_TOR_GREYCLOUD);
                         break;
                     case NPC_ELLIE_NIGHTFEATHER:
                         if (TeamInInstance == HORDE)
-                            creature->UpdateEntry(NPC_KAR_GREYCLOUD, HORDE);
+                            creature->UpdateEntry(NPC_KAR_GREYCLOUD);
                         break;
                     case NPC_ELEMENTALIST_MAHFUUN:
                         if (TeamInInstance == HORDE)
-                            creature->UpdateEntry(NPC_SPIRITWALKER_TARA, HORDE);
+                            creature->UpdateEntry(NPC_SPIRITWALKER_TARA);
                         break;
                     case NPC_ELEMENTALIST_AVUUN:
                         if (TeamInInstance == HORDE)
-                            creature->UpdateEntry(NPC_SPIRITWALKER_YONA, HORDE);
+                            creature->UpdateEntry(NPC_SPIRITWALKER_YONA);
                         break;
                     case NPC_MISSY_FLAMECUFFS:
                         if (TeamInInstance == HORDE)
-                            creature->UpdateEntry(NPC_AMIRA_BLAZEWEAVER, HORDE);
+                            creature->UpdateEntry(NPC_AMIRA_BLAZEWEAVER);
                         break;
                     case NPC_SISSY_FLAMECUFFS:
                         if (TeamInInstance == HORDE)
-                            creature->UpdateEntry(NPC_VEESHA_BLAZEWEAVER, HORDE);
+                            creature->UpdateEntry(NPC_VEESHA_BLAZEWEAVER);
                         break;
                     case NPC_FIELD_MEDIC_PENNY:
                         if (TeamInInstance == HORDE)
-                            creature->UpdateEntry(NPC_BATTLE_PRIEST_ELIZA, HORDE);
+                            creature->UpdateEntry(NPC_BATTLE_PRIEST_ELIZA);
                         break;
                     case NPC_FIELD_MEDIC_JESSI:
                         if (TeamInInstance == HORDE)
-                            creature->UpdateEntry(NPC_BATTLE_PRIEST_GINA, HORDE);
+                            creature->UpdateEntry(NPC_BATTLE_PRIEST_GINA);
                         break;
 
                     case NPC_THORIM:

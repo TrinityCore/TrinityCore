@@ -194,39 +194,39 @@ class instance_icecrown_citadel : public InstanceMapScript
                 {
                     case NPC_KOR_KRON_GENERAL:
                         if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_ALLIANCE_COMMANDER, ALLIANCE);
+                            creature->UpdateEntry(NPC_ALLIANCE_COMMANDER);
                         break;
                     case NPC_KOR_KRON_LIEUTENANT:
                         if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_SKYBREAKER_LIEUTENANT, ALLIANCE);
+                            creature->UpdateEntry(NPC_SKYBREAKER_LIEUTENANT);
                         break;
                     case NPC_TORTUNOK:
                         if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_ALANA_MOONSTRIKE, ALLIANCE);
+                            creature->UpdateEntry(NPC_ALANA_MOONSTRIKE);
                         break;
                     case NPC_GERARDO_THE_SUAVE:
                         if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_TALAN_MOONSTRIKE, ALLIANCE);
+                            creature->UpdateEntry(NPC_TALAN_MOONSTRIKE);
                         break;
                     case NPC_UVLUS_BANEFIRE:
                         if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_MALFUS_GRIMFROST, ALLIANCE);
+                            creature->UpdateEntry(NPC_MALFUS_GRIMFROST);
                         break;
                     case NPC_IKFIRUS_THE_VILE:
                         if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_YILI, ALLIANCE);
+                            creature->UpdateEntry(NPC_YILI);
                         break;
                     case NPC_VOL_GUK:
                         if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_JEDEBIA, ALLIANCE);
+                            creature->UpdateEntry(NPC_JEDEBIA);
                         break;
                     case NPC_HARAGG_THE_UNSEEN:
                         if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_NIBY_THE_ALMIGHTY, ALLIANCE);
+                            creature->UpdateEntry(NPC_NIBY_THE_ALMIGHTY);
                         break;
                     case NPC_GARROSH_HELLSCREAM:
                         if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_KING_VARIAN_WRYNN, ALLIANCE);
+                            creature->UpdateEntry(NPC_KING_VARIAN_WRYNN);
                         break;
                     case NPC_DEATHBRINGER_SAURFANG:
                         DeathbringerSaurfangGUID = creature->GetGUID();
@@ -237,7 +237,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case NPC_SE_HIGH_OVERLORD_SAURFANG:
                         if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_SE_MURADIN_BRONZEBEARD, ALLIANCE, creature->GetCreatureData());
+                            creature->UpdateEntry(NPC_SE_MURADIN_BRONZEBEARD, creature->GetCreatureData());
                         // no break;
                     case NPC_SE_MURADIN_BRONZEBEARD:
                         DeathbringerSaurfangEventGUID = creature->GetGUID();
@@ -245,7 +245,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case NPC_SE_KOR_KRON_REAVER:
                         if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_SE_SKYBREAKER_MARINE, ALLIANCE);
+                            creature->UpdateEntry(NPC_SE_SKYBREAKER_MARINE);
                         break;
                     case NPC_FESTERGUT:
                         FestergutGUID = creature->GetGUID();
