@@ -151,16 +151,16 @@ void OPvPCapturePointEP_EWT::SummonSupportUnitAtNorthpassTower(uint32 team)
     if (m_UnitsSummonedSide != team)
     {
         m_UnitsSummonedSide = team;
-        const creature_type * ct = NULL;
+        creature_type const* ct = nullptr;
         if (team == ALLIANCE)
-            ct=EP_EWT_Summons_A;
+            ct = EP_EWT_Summons_A;
         else
-            ct=EP_EWT_Summons_H;
+            ct = EP_EWT_Summons_H;
 
         for (uint8 i = 0; i < EP_EWT_NUM_CREATURES; ++i)
         {
             DelCreature(i);
-            AddCreature(i, ct[i].entry, ct[i].teamval, ct[i].map, ct[i].x, ct[i].y, ct[i].z, ct[i].o, 1000000);
+            AddCreature(i, ct[i].entry, ct[i].map, ct[i].x, ct[i].y, ct[i].z, ct[i].o, OutdoorPvP::GetTeamIdByTeam(team), 1000000);
         }
     }
 }
@@ -571,7 +571,7 @@ void OPvPCapturePointEP_PWT::SummonFlightMaster(uint32 team)
     {
         m_FlightMasterSpawned = team;
         DelCreature(EP_PWT_FLIGHTMASTER);
-        AddCreature(EP_PWT_FLIGHTMASTER, EP_PWT_FlightMaster.entry, team, EP_PWT_FlightMaster.map, EP_PWT_FlightMaster.x, EP_PWT_FlightMaster.y, EP_PWT_FlightMaster.z, EP_PWT_FlightMaster.o);
+        AddCreature(EP_PWT_FLIGHTMASTER, EP_PWT_FlightMaster.entry, EP_PWT_FlightMaster.map, EP_PWT_FlightMaster.x, EP_PWT_FlightMaster.y, EP_PWT_FlightMaster.z, EP_PWT_FlightMaster.o, OutdoorPvP::GetTeamIdByTeam(team));
         /*
         // sky - we need update gso code
 

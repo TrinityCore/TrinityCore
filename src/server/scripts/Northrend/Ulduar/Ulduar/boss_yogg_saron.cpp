@@ -2709,7 +2709,7 @@ class spell_yogg_saron_revealed_tentacle : public SpellScriptLoader    // 64012
                 {
                     caster->CastSpell(caster, SPELL_TENTACLE_VOID_ZONE, true);
                     caster->CastSpell(caster, SPELL_GRIM_REPRISAL, true);
-                    caster->UpdateEntry(NPC_INFLUENCE_TENTACLE, 0, caster->GetCreatureData());
+                    caster->UpdateEntry(NPC_INFLUENCE_TENTACLE, caster->GetCreatureData());
                 }
             }
 

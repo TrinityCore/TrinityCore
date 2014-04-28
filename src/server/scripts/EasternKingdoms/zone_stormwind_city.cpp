@@ -541,7 +541,7 @@ public:
                             uiPhase = 3;
                             break;
                         case 3:
-                            me->UpdateEntry(NPC_PRIESTESS_TYRIONA, ALLIANCE);
+                            me->UpdateEntry(NPC_PRIESTESS_TYRIONA);
                             uiTimer = 2000;
                             uiPhase = 4;
                             break;

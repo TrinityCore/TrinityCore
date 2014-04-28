@@ -52,10 +52,10 @@ const go_type ZM_Banner_H = { 182528, 530, 253.54f, 7083.81f, 36.7728f, -0.01745
 const go_type ZM_Banner_N = { 182529, 530, 253.54f, 7083.81f, 36.7728f, -0.017453f, 0.0f, 0.0f, 0.008727f, -0.999962f };
 
 // horde field scout spawn data
-const creature_type ZM_HordeFieldScout = {18564, 67, 530, 296.625f, 7818.4f, 42.6294f, 5.18363f};
+const creature_type ZM_HordeFieldScout = {18564, 530, 296.625f, 7818.4f, 42.6294f, 5.18363f};
 
 // alliance field scout spawn data
-const creature_type ZM_AllianceFieldScout = {18581, 469, 530, 374.395f, 6230.08f, 22.8351f, 0.593412f};
+const creature_type ZM_AllianceFieldScout = {18581, 530, 374.395f, 6230.08f, 22.8351f, 0.593412f};
 
 enum ZMCreatureTypes
 {
