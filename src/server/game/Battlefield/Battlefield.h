@@ -285,7 +285,7 @@ class Battlefield : public ZoneScript
         BfGraveyard* GetGraveyardById(uint32 id) const;
 
         // Misc methods
-        Creature* SpawnCreature(uint32 entry, float x, float y, float z, float o, TeamId team);
+        virtual Creature* SpawnCreature(uint32 entry, float x, float y, float z, float o, TeamId team);
         Creature* SpawnCreature(uint32 entry, const Position& pos, TeamId team);
         GameObject* SpawnGameObject(uint32 entry, float x, float y, float z, float o);
 

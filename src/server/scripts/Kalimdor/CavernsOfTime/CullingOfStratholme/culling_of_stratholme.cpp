@@ -856,7 +856,7 @@ public:
                                 if (!pZombie)
                                     pZombie = GetClosestCreatureWithEntry(malganis, NPC_CITY_MAN2, 100.0f);
                                 if (pZombie)
-                                    pZombie->UpdateEntry(NPC_ZOMBIE, 0);
+                                    pZombie->UpdateEntry(NPC_ZOMBIE);
                                 else //There's no one else to transform
                                     step++;
                             }
@@ -1017,7 +1017,7 @@ public:
                         case 68:
                             if (Creature* disguised2 = Unit::GetCreature(*me, infiniteDraconianGUID[2]))
                             {
-                                disguised2->UpdateEntry(NPC_INFINITE_HUNTER, 0);
+                                disguised2->UpdateEntry(NPC_INFINITE_HUNTER);
                                 //Make them unattackable
                                 disguised2->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                                 disguised2->SetReactState(REACT_PASSIVE);
@@ -1027,7 +1027,7 @@ public:
                         case 69:
                             if (Creature* disguised1 = Unit::GetCreature(*me, infiniteDraconianGUID[1]))
                             {
-                                disguised1->UpdateEntry(NPC_INFINITE_AGENT, 0);
+                                disguised1->UpdateEntry(NPC_INFINITE_AGENT);
                                 //Make them unattackable
                                 disguised1->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                                 disguised1->SetReactState(REACT_PASSIVE);
@@ -1037,7 +1037,7 @@ public:
                         case 70:
                             if (Creature* disguised0 = Unit::GetCreature(*me, infiniteDraconianGUID[0]))
                             {
-                                disguised0->UpdateEntry(NPC_INFINITE_ADVERSARY, 0);
+                                disguised0->UpdateEntry(NPC_INFINITE_ADVERSARY);
                                 //Make them unattackable
                                 disguised0->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                                 disguised0->SetReactState(REACT_PASSIVE);

@@ -436,7 +436,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         void DisappearAndDie();
 
-        bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data = NULL);
+        bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 entry, float x, float y, float z, float ang, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool LoadCreaturesAddon(bool reload = false);
         void SelectLevel();
         void LoadEquipment(int8 id = 1, bool force = false);
@@ -504,7 +504,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         bool HasSpell(uint32 spellID) const;
 
-        bool UpdateEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
+        bool UpdateEntry(uint32 entry, CreatureData const* data = nullptr);
 
         void UpdateMovementFlags();
 
@@ -678,8 +678,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void ReleaseFocus(Spell const* focusSpell);
 
     protected:
-        bool CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint32 team, const CreatureData* data = NULL);
-        bool InitEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
+        bool CreateFromProto(uint32 guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
+        bool InitEntry(uint32 entry, CreatureData const* data = nullptr);
 
         // vendor items
         VendorItemCounts m_vendorItemCounts;

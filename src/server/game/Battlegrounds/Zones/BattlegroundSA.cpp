@@ -103,7 +103,7 @@ bool BattlegroundSA::ResetObjs()
     for (uint8 i = 0; i < 6; i++)
         GateStatus[i] = BG_SA_GATE_OK;
 
-    AddCreature(BG_SA_NpcEntries[BG_SA_NPC_KANRETHAD], BG_SA_NPC_KANRETHAD, 0, BG_SA_NpcSpawnlocs[BG_SA_NPC_KANRETHAD]);
+    AddCreature(BG_SA_NpcEntries[BG_SA_NPC_KANRETHAD], BG_SA_NPC_KANRETHAD, BG_SA_NpcSpawnlocs[BG_SA_NPC_KANRETHAD]);
 
     for (uint8 i = 0; i <= BG_SA_PORTAL_DEFFENDER_RED; i++)
     {
@@ -148,7 +148,7 @@ bool BattlegroundSA::ResetObjs()
     //By capturing GYs.
     for (uint8 i = 0; i < BG_SA_DEMOLISHER_5; i++)
     {
-        if (!AddCreature(BG_SA_NpcEntries[i], i, (Attackers == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE), BG_SA_NpcSpawnlocs[i], 600))
+        if (!AddCreature(BG_SA_NpcEntries[i], i, BG_SA_NpcSpawnlocs[i], Attackers == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE, 600))
             return false;
     }
 
@@ -185,12 +185,12 @@ bool BattlegroundSA::ResetObjs()
         if (i == BG_SA_BEACH_GY)
         {
             GraveyardStatus[i] = Attackers;
-            AddSpiritGuide(i + BG_SA_MAXNPC, sg->x, sg->y, sg->z, BG_SA_GYOrientation[i], ((Attackers == TEAM_HORDE)? HORDE : ALLIANCE));
+            AddSpiritGuide(i + BG_SA_MAXNPC, sg->x, sg->y, sg->z, BG_SA_GYOrientation[i], Attackers);
         }
         else
         {
             GraveyardStatus[i] = ((Attackers == TEAM_HORDE)? TEAM_ALLIANCE : TEAM_HORDE);
-            if (!AddSpiritGuide(i + BG_SA_MAXNPC, sg->x, sg->y, sg->z, BG_SA_GYOrientation[i], ((Attackers == TEAM_HORDE)? ALLIANCE : HORDE)))
+            if (!AddSpiritGuide(i + BG_SA_MAXNPC, sg->x, sg->y, sg->z, BG_SA_GYOrientation[i], Attackers == TEAM_HORDE ? TEAM_ALLIANCE : TEAM_HORDE))
                 TC_LOG_ERROR("bg.battleground", "SOTA: couldn't spawn GY: %u", i);
         }
     }
@@ -766,7 +766,7 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
         return;
     }
 
-    AddSpiritGuide(i + BG_SA_MAXNPC, sg->x, sg->y, sg->z, BG_SA_GYOrientation[i], (GraveyardStatus[i] == TEAM_ALLIANCE?  ALLIANCE : HORDE));
+    AddSpiritGuide(i + BG_SA_MAXNPC, sg->x, sg->y, sg->z, BG_SA_GYOrientation[i], GraveyardStatus[i]);
     uint32 npc = 0;
     uint32 flag = 0;
 
@@ -779,20 +779,19 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
                 BG_SA_ObjSpawnlocs[flag], 0, 0, 0, 0, RESPAWN_ONE_DAY);
 
             npc = BG_SA_NPC_RIGSPARK;
-            if (Creature* rigspark = AddCreature(BG_SA_NpcEntries[npc], npc, Attackers, BG_SA_NpcSpawnlocs[npc]))
+            if (Creature* rigspark = AddCreature(BG_SA_NpcEntries[npc], npc, BG_SA_NpcSpawnlocs[npc], Attackers))
                 rigspark->AI()->Talk(TEXT_SPARKLIGHT_RIGSPARK_SPAWN);
 
             for (uint8 j = BG_SA_DEMOLISHER_7; j <= BG_SA_DEMOLISHER_8; j++)
             {
-                AddCreature(BG_SA_NpcEntries[j], j, (Attackers == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE),
-                    BG_SA_NpcSpawnlocs[j], 600);
+                AddCreature(BG_SA_NpcEntries[j], j, BG_SA_NpcSpawnlocs[j], (Attackers == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE), 600);
 
                 if (Creature* dem = GetBGCreature(j))
                     dem->setFaction(BG_SA_Factions[Attackers]);
             }
 
-            UpdateWorldState(BG_SA_LEFT_GY_ALLIANCE, (GraveyardStatus[i] == TEAM_ALLIANCE ? 1 : 0));
-            UpdateWorldState(BG_SA_LEFT_GY_HORDE, (GraveyardStatus[i] == TEAM_ALLIANCE ? 0 : 1));
+            UpdateWorldState(BG_SA_LEFT_GY_ALLIANCE, GraveyardStatus[i] == TEAM_ALLIANCE);
+            UpdateWorldState(BG_SA_LEFT_GY_HORDE, GraveyardStatus[i] == TEAM_HORDE);
 
             if (Creature* c = Source->FindNearestCreature(NPC_WORLD_TRIGGER, 500.0f))
                 SendChatMessage(c, Source->GetTeamId() == TEAM_ALLIANCE ? TEXT_WEST_GRAVEYARD_CAPTURED_A : TEXT_WEST_GRAVEYARD_CAPTURED_H, Source);
@@ -805,20 +804,19 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
                 BG_SA_ObjSpawnlocs[flag], 0, 0, 0, 0, RESPAWN_ONE_DAY);
 
             npc = BG_SA_NPC_SPARKLIGHT;
-            if (Creature* sparklight = AddCreature(BG_SA_NpcEntries[npc], npc, Attackers, BG_SA_NpcSpawnlocs[npc]))
+            if (Creature* sparklight = AddCreature(BG_SA_NpcEntries[npc], npc, BG_SA_NpcSpawnlocs[npc], Attackers))
                 sparklight->AI()->Talk(TEXT_SPARKLIGHT_RIGSPARK_SPAWN);
 
             for (uint8 j = BG_SA_DEMOLISHER_5; j <= BG_SA_DEMOLISHER_6; j++)
             {
-                AddCreature(BG_SA_NpcEntries[j], j, (Attackers == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE),
-                    BG_SA_NpcSpawnlocs[j], 600);
+                AddCreature(BG_SA_NpcEntries[j], j, BG_SA_NpcSpawnlocs[j], Attackers == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE, 600);
 
                 if (Creature* dem = GetBGCreature(j))
                     dem->setFaction(BG_SA_Factions[Attackers]);
             }
 
-            UpdateWorldState(BG_SA_RIGHT_GY_ALLIANCE, (GraveyardStatus[i] == TEAM_ALLIANCE ? 1 : 0));
-            UpdateWorldState(BG_SA_RIGHT_GY_HORDE, (GraveyardStatus[i] == TEAM_ALLIANCE ? 0 : 1));
+            UpdateWorldState(BG_SA_RIGHT_GY_ALLIANCE, GraveyardStatus[i] == TEAM_ALLIANCE);
+            UpdateWorldState(BG_SA_RIGHT_GY_HORDE, GraveyardStatus[i] == TEAM_HORDE);
 
             if (Creature* c = Source->FindNearestCreature(NPC_WORLD_TRIGGER, 500.0f))
                 SendChatMessage(c, Source->GetTeamId() == TEAM_ALLIANCE ? TEXT_EAST_GRAVEYARD_CAPTURED_A : TEXT_EAST_GRAVEYARD_CAPTURED_H, Source);
@@ -830,8 +828,8 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
             AddObject(flag, (BG_SA_ObjEntries[flag] - (Source->GetTeamId() == TEAM_ALLIANCE ? 0 : 1)),
               BG_SA_ObjSpawnlocs[flag], 0, 0, 0, 0, RESPAWN_ONE_DAY);
 
-            UpdateWorldState(BG_SA_CENTER_GY_ALLIANCE, (GraveyardStatus[i] == TEAM_ALLIANCE ? 1 : 0));
-            UpdateWorldState(BG_SA_CENTER_GY_HORDE, (GraveyardStatus[i] == TEAM_ALLIANCE ? 0 : 1));
+            UpdateWorldState(BG_SA_CENTER_GY_ALLIANCE, GraveyardStatus[i] == TEAM_ALLIANCE);
+            UpdateWorldState(BG_SA_CENTER_GY_HORDE, GraveyardStatus[i] == TEAM_HORDE);
 
             if (Creature* c = Source->FindNearestCreature(NPC_WORLD_TRIGGER, 500.0f))
                 SendChatMessage(c, Source->GetTeamId() == TEAM_ALLIANCE ? TEXT_SOUTH_GRAVEYARD_CAPTURED_A : TEXT_SOUTH_GRAVEYARD_CAPTURED_H, Source);
