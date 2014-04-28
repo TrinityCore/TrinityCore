@@ -1085,7 +1085,7 @@ public:
                     case 2:
                         if (talbot)
                         {
-                            talbot->UpdateEntry(NPC_PRINCE_VALANAR, ALLIANCE);
+                            talbot->UpdateEntry(NPC_PRINCE_VALANAR);
                             talbot->setFaction(14);
                             talbot->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             talbot->SetReactState(REACT_PASSIVE);
@@ -1630,19 +1630,18 @@ public:
             {
                 EnterEvadeMode(); //We make sure that the npc is not attacking the player!
                 me->SetReactState(REACT_PASSIVE);
-                StartFollow(pCaster->ToPlayer(), 0, NULL);
-                me->UpdateEntry(NPC_CAPTURED_BERLY_SORCERER, TEAM_NEUTRAL);
+                StartFollow(pCaster->ToPlayer());
+                me->UpdateEntry(NPC_CAPTURED_BERLY_SORCERER);
                 DoCast(me, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF, true);
 
                 if (Player* player = pCaster->ToPlayer())
-                    player->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER, 0);
+                    player->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER);
 
                 bEnslaved = true;
             }
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
-
         {
             FollowerAI::MoveInLineOfSight(who);
 

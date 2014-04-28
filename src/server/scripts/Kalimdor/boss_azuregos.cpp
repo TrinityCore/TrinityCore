@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "Player.h"
 
 enum Say
 {
