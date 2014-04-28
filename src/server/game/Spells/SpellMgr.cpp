@@ -816,7 +816,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
         return true;
 
     /// Any aura that has only PROC_FLAG_DONE_PERIODIC or PROC_FLAG_TAKEN_PERIODIC should always proc, if procSpell is correct or not is checked in Unit::HandleAuraProc
-    if (EventProcFlag == PROC_FLAG_DONE_PERIODIC || EventProcFlag == PROC_FLAG_TAKEN_PERIODIC)
+    if ((EventProcFlag == PROC_FLAG_DONE_PERIODIC && procFlags == PROC_FLAG_DONE_PERIODIC) || (EventProcFlag == PROC_FLAG_TAKEN_PERIODIC && procFlags == PROC_FLAG_TAKEN_PERIODIC))
         return true;
 
     if (procFlags & PROC_FLAG_DONE_PERIODIC && EventProcFlag & PROC_FLAG_DONE_PERIODIC)
