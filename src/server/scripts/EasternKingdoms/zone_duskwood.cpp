@@ -56,19 +56,19 @@ public:
     {
         boss_twilight_corrupterAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             KillCount                 = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(YELL_TWILIGHTCORRUPTOR_AGGRO);
             _events.ScheduleEvent(EVENT_SOUL_CORRUPTION, 15000);
             _events.ScheduleEvent(EVENT_CREATURE_OF_NIGHTMARE, 30000);
         }
 
-        void KilledUnit(Unit* victim) OVERRIDE
+        void KilledUnit(Unit* victim) override
         {
             if (victim->GetTypeId() == TYPEID_PLAYER)
             {
@@ -83,7 +83,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -114,7 +114,7 @@ public:
             uint8 KillCount;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_twilight_corrupterAI(creature);
     }
@@ -129,7 +129,7 @@ class at_twilight_grove : public AreaTriggerScript
 public:
     at_twilight_grove() : AreaTriggerScript("at_twilight_grove") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) OVERRIDE
+    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
     {
         if (player->HasQuestForItem(ITEM_FRAGMENT))
         {

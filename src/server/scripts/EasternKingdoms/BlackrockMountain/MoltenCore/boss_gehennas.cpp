@@ -53,7 +53,7 @@ class boss_gehennas : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* victim) OVERRIDE
+            void EnterCombat(Unit* victim) override
             {
                 BossAI::EnterCombat(victim);
                 events.ScheduleEvent(EVENT_GEHENNAS_CURSE, 12000);
@@ -61,7 +61,7 @@ class boss_gehennas : public CreatureScript
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 6000);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -98,7 +98,7 @@ class boss_gehennas : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_gehennasAI(creature);
         }

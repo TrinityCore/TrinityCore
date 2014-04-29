@@ -53,7 +53,7 @@ class Totem : public Minion
         void UpdateMaxHealth() { }
         void UpdateMaxPower(Powers /*power*/) { }
         void UpdateAttackPowerAndDamage(bool /*ranged*/) { }
-        void UpdateDamagePhysical(WeaponAttackType /*attType*/) OVERRIDE { }
+        void UpdateDamagePhysical(WeaponAttackType /*attType*/) override { }
 
         bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const;
 

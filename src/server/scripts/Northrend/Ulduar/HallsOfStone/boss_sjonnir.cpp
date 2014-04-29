@@ -78,13 +78,13 @@ class boss_sjonnir : public CreatureScript
         {
             boss_sjonnirAI(Creature* creature) : BossAI(creature, DATA_SJONNIR) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
                 abuseTheOoze = 0;
             }
 
-            void EnterCombat(Unit* who) OVERRIDE
+            void EnterCombat(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(DATA_SJONNIR, who->ToPlayer()))
                 {
@@ -103,7 +103,7 @@ class boss_sjonnir : public CreatureScript
                 events.ScheduleEvent(EVENT_FRENZY, 300000);
             }
 
-            void JustSummoned(Creature* summon) OVERRIDE
+            void JustSummoned(Creature* summon) override
             {
                 summon->GetMotionMaster()->MovePoint(0, CenterPoint);
                 /*if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
@@ -111,25 +111,25 @@ class boss_sjonnir : public CreatureScript
                 summons.Summon(summon);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_DEATH);
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_SLAY);
             }
 
-            void DoAction(int32 action) OVERRIDE
+            void DoAction(int32 action) override
             {
                 if (action == ACTION_OOZE_DEAD)
                     ++abuseTheOoze;
             }
 
-            uint32 GetData(uint32 type) const OVERRIDE
+            uint32 GetData(uint32 type) const override
             {
                 if (type == DATA_ABUSE_THE_OOZE)
                     return abuseTheOoze;
@@ -137,7 +137,7 @@ class boss_sjonnir : public CreatureScript
                 return 0;
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -198,7 +198,7 @@ class boss_sjonnir : public CreatureScript
                 uint8 abuseTheOoze;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetHallsOfStoneAI<boss_sjonnirAI>(creature);
         }
@@ -213,12 +213,12 @@ class npc_malformed_ooze : public CreatureScript
         {
             npc_malformed_oozeAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _mergeTimer = 10000;
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (_mergeTimer <= diff)
                 {
@@ -243,7 +243,7 @@ class npc_malformed_ooze : public CreatureScript
             uint32 _mergeTimer;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetHallsOfStoneAI<npc_malformed_oozeAI>(creature);
         }
@@ -263,14 +263,14 @@ class npc_iron_sludge : public CreatureScript
 
             InstanceScript* instance;
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 if (Creature* sjonnir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SJONNIR)))
                     sjonnir->AI()->DoAction(ACTION_OOZE_DEAD);
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetHallsOfStoneAI<npc_iron_sludgeAI>(creature);
         }
@@ -283,7 +283,7 @@ class achievement_abuse_the_ooze : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*player*/, Unit* target) override
         {
             if (!target)
                 return false;
