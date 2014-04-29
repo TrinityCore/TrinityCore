@@ -84,7 +84,7 @@ class boss_hydross_the_unstable : public CreatureScript
 public:
     boss_hydross_the_unstable() : CreatureScript("boss_hydross_the_unstable") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_hydross_the_unstableAI>(creature);
     }
@@ -113,7 +113,7 @@ public:
         bool beam;
         SummonList Summons;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             DeSummonBeams();
             beams[0] = 0;
@@ -169,19 +169,19 @@ public:
                 }
             }
         }
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
             instance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, IN_PROGRESS);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(CorruptedForm ? SAY_CORRUPT_SLAY : SAY_CLEAN_SLAY);
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             if (summoned->GetEntry() == ENTRY_PURE_SPAWN)
             {
@@ -197,12 +197,12 @@ public:
             }
         }
 
-        void SummonedCreatureDespawn(Creature* summon) OVERRIDE
+        void SummonedCreatureDespawn(Creature* summon) override
         {
             Summons.Despawn(summon);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(CorruptedForm ? SAY_CORRUPT_DEATH : SAY_CLEAN_DEATH);
 
@@ -210,7 +210,7 @@ public:
             Summons.DespawnAll();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!beam)
             {

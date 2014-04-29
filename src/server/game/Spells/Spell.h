@@ -694,8 +694,8 @@ class Spell
         double rand_chance()                    { return m_caster->GetMap()->mtRand.randExc(100.0); }
 #endif
 
-        Spell(Spell const& right) DELETE_MEMBER;
-        Spell& operator=(Spell const& right) DELETE_MEMBER;
+        Spell(Spell const& right) = delete;
+        Spell& operator=(Spell const& right) = delete;
 };
 
 namespace Trinity

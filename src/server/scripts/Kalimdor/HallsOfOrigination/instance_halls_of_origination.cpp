@@ -67,7 +67,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 _deadElementals = 0;
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -104,7 +104,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* go) OVERRIDE
+            void OnGameObjectRemove(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -125,7 +125,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -141,7 +141,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 data) const OVERRIDE
+            uint32 GetData(uint32 data) const override
             {
                 switch (data)
                 {
@@ -154,7 +154,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 index) const OVERRIDE
+            uint64 GetData64(uint32 index) const override
             {
                 switch (index)
                 {
@@ -189,7 +189,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
-            void OnUnitDeath(Unit* unit) OVERRIDE
+            void OnUnitDeath(Unit* unit) override
             {
                 Creature* creature = unit->ToCreature();
                 if (!creature)
@@ -211,7 +211,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
-            std::string GetSaveData() OVERRIDE
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -222,7 +222,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* str) OVERRIDE
+            void Load(const char* str) override
             {
                 if (!str)
                 {
@@ -270,7 +270,7 @@ class instance_halls_of_origination : public InstanceMapScript
             uint32 _deadElementals;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_halls_of_origination_InstanceMapScript(map);
         }

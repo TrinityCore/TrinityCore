@@ -329,8 +329,8 @@ class Object
 
         // for output helpfull error messages from asserts
         bool PrintIndexError(uint32 index, bool set) const;
-        Object(Object const& right) DELETE_MEMBER;
-        Object& operator=(Object const& right) DELETE_MEMBER;
+        Object(Object const& right) = delete;
+        Object& operator=(Object const& right) = delete;
 };
 
 struct Position

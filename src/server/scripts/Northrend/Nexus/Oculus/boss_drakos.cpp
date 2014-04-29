@@ -59,7 +59,7 @@ class boss_drakos : public CreatureScript
         {
             boss_drakosAI(Creature* creature) : BossAI(creature, DATA_DRAKOS) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
 
@@ -70,13 +70,13 @@ class boss_drakos : public CreatureScript
                 postPull = false;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -118,7 +118,7 @@ class boss_drakos : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
 
@@ -128,7 +128,7 @@ class boss_drakos : public CreatureScript
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
             }
 
-            void KilledUnit(Unit* /*victim*/) OVERRIDE
+            void KilledUnit(Unit* /*victim*/) override
             {
                 Talk(SAY_KILL);
             }
@@ -137,7 +137,7 @@ class boss_drakos : public CreatureScript
             bool postPull;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetOculusAI<boss_drakosAI>(creature);
         }
@@ -152,7 +152,7 @@ class npc_unstable_sphere : public CreatureScript
         {
             npc_unstable_sphereAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->GetMotionMaster()->MoveRandom(40.0f);
@@ -165,7 +165,7 @@ class npc_unstable_sphere : public CreatureScript
                 me->DespawnOrUnsummon(19000);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (pulseTimer <= diff)
                 {
@@ -180,7 +180,7 @@ class npc_unstable_sphere : public CreatureScript
             uint32 pulseTimer;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_unstable_sphereAI(creature);
         }

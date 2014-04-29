@@ -107,7 +107,7 @@ public:
             }
         }
 
-        void Reset() OVERRIDE { }
+        void Reset() override { }
 
         void EnterCombat(Unit* who)
         {
@@ -128,7 +128,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_deathstalker_erlandAI(creature);
     }

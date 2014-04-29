@@ -57,7 +57,7 @@ class boss_broggok : public CreatureScript
             uint32 PoisonBolt_Timer;
             bool canAttack;
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
                 AcidSpray_Timer = 10000;
@@ -66,13 +66,13 @@ class boss_broggok : public CreatureScript
                 DoAction(ACTION_RESET_BROGGOK);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -107,12 +107,12 @@ class boss_broggok : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
             }
 
-            void DoAction(int32 action) OVERRIDE
+            void DoAction(int32 action) override
             {
                 switch (action)
                 {
@@ -134,7 +134,7 @@ class boss_broggok : public CreatureScript
 
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetBloodFurnaceAI<boss_broggokAI>(creature);
         }
@@ -153,15 +153,15 @@ class npc_broggok_poison_cloud : public CreatureScript
                 creature->SetReactState(REACT_PASSIVE);
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) OVERRIDE
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 DoCast(me, SPELL_POISON_CLOUD_PASSIVE, true);
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
+            void UpdateAI(uint32 /*diff*/) override { }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_broggok_poison_cloudAI(creature);
         }
@@ -172,7 +172,7 @@ class go_broggok_lever : public GameObjectScript
     public:
         go_broggok_lever() : GameObjectScript("go_broggok_lever") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
+        bool OnGossipHello(Player* /*player*/, GameObject* go) override
         {
             if (InstanceScript* instance = go->GetInstanceScript())
                 if (instance->GetBossState(DATA_BROGGOK) != DONE && instance->GetBossState(DATA_BROGGOK) != IN_PROGRESS)
@@ -197,7 +197,7 @@ class spell_broggok_poison_cloud : public SpellScriptLoader
         {
             PrepareAuraScript(spell_broggok_poison_cloud_AuraScript);
 
-            bool Validate(SpellInfo const* spellInfo) OVERRIDE
+            bool Validate(SpellInfo const* spellInfo) override
             {
                 if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].TriggerSpell))
                     return false;
@@ -213,13 +213,13 @@ class spell_broggok_poison_cloud : public SpellScriptLoader
                 GetTarget()->CastCustomSpell(triggerSpell, SPELLVALUE_RADIUS_MOD, mod, (Unit*)NULL, TRIGGERED_FULL_MASK, NULL, aurEff);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_broggok_poison_cloud_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_broggok_poison_cloud_AuraScript();
         }

@@ -95,7 +95,7 @@ public:
 
     void SetDelayTime(uint32 t) { _delaytime = t; }
 
-    void run() OVERRIDE
+    void run() override
     {
         if (!_delaytime)
             return;

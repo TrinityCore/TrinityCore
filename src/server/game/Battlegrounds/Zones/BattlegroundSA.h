@@ -545,7 +545,7 @@ class BattlegroundSA : public Battleground
         /// Return the nearest graveyard where player can respawn
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
         /// Called when someone activates an event
-        void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/, WorldObject* /*invoker*/ = NULL) OVERRIDE;
+        void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/, WorldObject* /*invoker*/ = NULL) override;
         /// Called when a player click on flag (graveyard flag)
         void EventPlayerClickedOnFlag(Player* source, GameObject* go);
         /// Called when a player clicked on relic
@@ -572,10 +572,10 @@ class BattlegroundSA : public Battleground
         void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
 
         // Achievement: Not Even a Scratch
-        bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target = NULL, uint32 miscValue = 0) OVERRIDE;
+        bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target = NULL, uint32 miscValue = 0) override;
 
         // Control Phase Shift
-        bool IsSpellAllowed(uint32 spellId, Player const* player) const OVERRIDE;
+        bool IsSpellAllowed(uint32 spellId, Player const* player) const override;
 
     private:
 

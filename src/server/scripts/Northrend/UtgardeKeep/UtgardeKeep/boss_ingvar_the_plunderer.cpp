@@ -106,7 +106,7 @@ class boss_ingvar_the_plunderer : public CreatureScript
         {
             boss_ingvar_the_plundererAI(Creature* creature) : BossAI(creature, DATA_INGVAR) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 if (me->GetEntry() != NPC_INGVAR)
                     me->UpdateEntry(NPC_INGVAR);
@@ -122,7 +122,7 @@ class boss_ingvar_the_plunderer : public CreatureScript
                 events.ScheduleEvent(EVENT_SMASH, urand(12, 17)*IN_MILLISECONDS, 0, PHASE_HUMAN);
             }
 
-            void DamageTaken(Unit* /*doneBy*/, uint32& damage) OVERRIDE
+            void DamageTaken(Unit* /*doneBy*/, uint32& damage) override
             {
                 if (damage >= me->GetHealth() && events.IsInPhase(PHASE_HUMAN))
                 {
@@ -155,13 +155,13 @@ class boss_ingvar_the_plunderer : public CreatureScript
                 events.ScheduleEvent(EVENT_JUST_TRANSFORMED, 2 * IN_MILLISECONDS, 0, PHASE_EVENT);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_DEATH);
@@ -176,13 +176,13 @@ class boss_ingvar_the_plunderer : public CreatureScript
                 events.ScheduleEvent(EVENT_SHADOW_AXE, 30*IN_MILLISECONDS, 0, PHASE_UNDEAD);
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_SLAY);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim() && !events.IsInPhase(PHASE_EVENT))
                     return;
@@ -249,7 +249,7 @@ class boss_ingvar_the_plunderer : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetUtgardeKeepAI<boss_ingvar_the_plundererAI>(creature);
         }
@@ -267,7 +267,7 @@ class npc_annhylde_the_caller : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _events.Reset();
 
@@ -275,7 +275,7 @@ class npc_annhylde_the_caller : public CreatureScript
                 me->GetMotionMaster()->MovePoint(1, x, y, z - 15.0f);
             }
 
-            void MovementInform(uint32 type, uint32 id) OVERRIDE
+            void MovementInform(uint32 type, uint32 id) override
             {
                 if (type != POINT_MOTION_TYPE)
                     return;
@@ -300,11 +300,11 @@ class npc_annhylde_the_caller : public CreatureScript
                 }
             }
 
-            void AttackStart(Unit* /*who*/) OVERRIDE { }
-            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
-            void EnterCombat(Unit* /*who*/) OVERRIDE { }
+            void AttackStart(Unit* /*who*/) override { }
+            void MoveInLineOfSight(Unit* /*who*/) override { }
+            void EnterCombat(Unit* /*who*/) override { }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 _events.Update(diff);
 
@@ -341,7 +341,7 @@ class npc_annhylde_the_caller : public CreatureScript
             float x, y, z;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetUtgardeKeepAI<npc_annhylde_the_callerAI>(creature);
         }
@@ -356,7 +356,7 @@ class npc_ingvar_throw_dummy : public CreatureScript
         {
             npc_ingvar_throw_dummyAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 me->SetReactState(REACT_PASSIVE);
 
@@ -371,7 +371,7 @@ class npc_ingvar_throw_dummy : public CreatureScript
                     me->DespawnOrUnsummon();
             }
 
-            void MovementInform(uint32 type, uint32 id) OVERRIDE
+            void MovementInform(uint32 type, uint32 id) override
             {
                 if (type == EFFECT_MOTION_TYPE && id == EVENT_CHARGE)
                 {
@@ -381,7 +381,7 @@ class npc_ingvar_throw_dummy : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_ingvar_throw_dummyAI(creature);
         }
@@ -402,13 +402,13 @@ class spell_ingvar_summon_banshee : public SpellScriptLoader
                 dest.RelocateOffset({ 0.0f, 0.0f, 30.0f, 0.0f });
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_ingvar_summon_banshee_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER_BACK);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_ingvar_summon_banshee_SpellScript();
         }
@@ -424,7 +424,7 @@ class spell_ingvar_woe_strike : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ingvar_woe_strike_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WOE_STRIKE_EFFECT))
                     return false;
@@ -442,14 +442,14 @@ class spell_ingvar_woe_strike : public SpellScriptLoader
                 GetTarget()->CastSpell(eventInfo.GetActor(), SPELL_WOE_STRIKE_EFFECT, true, NULL, aurEff);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 DoCheckProc += AuraCheckProcFn(spell_ingvar_woe_strike_AuraScript::CheckProc);
                 OnEffectProc += AuraEffectProcFn(spell_ingvar_woe_strike_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_ingvar_woe_strike_AuraScript();
         }

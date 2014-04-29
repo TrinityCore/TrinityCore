@@ -89,12 +89,12 @@ class boss_krik_thir : public CreatureScript
         {
             boss_krik_thirAI(Creature* creature) : BossAI(creature, DATA_KRIKTHIR_THE_GATEWATCHER) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 _EnterCombat();
@@ -115,7 +115,7 @@ class boss_krik_thir : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -153,13 +153,13 @@ class boss_krik_thir : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
                 _JustDied();
             }
 
-            void KilledUnit(Unit* victim) OVERRIDE
+            void KilledUnit(Unit* victim) override
             {
                 if (victim->GetTypeId() != TYPEID_PLAYER)
                     return;
@@ -167,13 +167,13 @@ class boss_krik_thir : public CreatureScript
                 Talk(SAY_SLAY);
             }
 
-            void JustSummoned(Creature* summoned) OVERRIDE
+            void JustSummoned(Creature* summoned) override
             {
                 summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetAzjolNerubAI<boss_krik_thirAI>(creature);
         }
@@ -188,13 +188,13 @@ class npc_skittering_infector : public CreatureScript
         {
             npc_skittering_infectorAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 DoCastAOE(SPELL_ACID_SPLASH);
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetAzjolNerubAI<npc_skittering_infectorAI>(creature);
         }
@@ -238,18 +238,18 @@ class npc_anub_ar_skirmisher : public CreatureScript
         {
             npc_anub_ar_skirmisherAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_ANUBAR_CHARGE, 11000);
                 events.ScheduleEvent(EVENT_BACKSTAB, 7000);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -288,7 +288,7 @@ class npc_anub_ar_skirmisher : public CreatureScript
                 EventMap events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetAzjolNerubAI<npc_anub_ar_skirmisherAI>(creature);
         }
@@ -303,18 +303,18 @@ class npc_anub_ar_shadowcaster : public CreatureScript
         {
             npc_anub_ar_shadowcasterAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 6000);
                 events.ScheduleEvent(EVENT_SHADOW_NOVA, 15000);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -349,7 +349,7 @@ class npc_anub_ar_shadowcaster : public CreatureScript
                 EventMap events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetAzjolNerubAI<npc_anub_ar_shadowcasterAI>(creature);
         }
@@ -364,18 +364,18 @@ class npc_anub_ar_warrior : public CreatureScript
         {
             npc_anub_ar_warriorAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_CLEAVE, 11000);
                 events.ScheduleEvent(EVENT_STRIKE, 6000);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -409,7 +409,7 @@ class npc_anub_ar_warrior : public CreatureScript
                 EventMap events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetAzjolNerubAI<npc_anub_ar_warriorAI>(creature);
         }
@@ -427,26 +427,26 @@ class npc_watcher_gashra : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_ENRAGE, true);
                 _events.ScheduleEvent(EVENT_WEB_WRAP_GASHRA, 11000);
                 _events.ScheduleEvent(EVENT_INFECTED_BITE_GASHRA, 4000);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 Creature* krikthir = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_KRIKTHIR_THE_GATEWATCHER));
                 if (krikthir && krikthir->IsAlive())
                     krikthir->AI()->Talk(SAY_PREFIGHT);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -482,7 +482,7 @@ class npc_watcher_gashra : public CreatureScript
                 InstanceScript* _instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetAzjolNerubAI<npc_watcher_gashraAI>(creature);
         }
@@ -500,26 +500,26 @@ class npc_watcher_narjil : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _events.ScheduleEvent(EVENT_WEB_WRAP_NARJIL, 11000);
                 _events.ScheduleEvent(EVENT_INFECTED_BITE_NARJIL, 4000);
                 _events.ScheduleEvent(EVENT_BINDING_WEBS, 17000);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 Creature* krikthir = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_KRIKTHIR_THE_GATEWATCHER));
                 if (krikthir && krikthir->IsAlive())
                     krikthir->AI()->Talk(SAY_PREFIGHT);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -559,7 +559,7 @@ class npc_watcher_narjil : public CreatureScript
                 InstanceScript* _instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetAzjolNerubAI<npc_watcher_narjilAI>(creature);
         }
@@ -577,26 +577,26 @@ class npc_watcher_silthik : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _events.ScheduleEvent(EVENT_WEB_WRAP_SILTHIK, 11000);
                 _events.ScheduleEvent(EVENT_INFECTED_BITE_SILTHIK, 4000);
                 _events.ScheduleEvent(EVENT_POISON_SPRAY, 15000);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 Creature* krikthir = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_KRIKTHIR_THE_GATEWATCHER));
                 if (krikthir && krikthir->IsAlive())
                     krikthir->AI()->Talk(SAY_PREFIGHT);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -636,7 +636,7 @@ class npc_watcher_silthik : public CreatureScript
                 InstanceScript* _instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetAzjolNerubAI<npc_watcher_silthikAI>(creature);
         }
@@ -649,7 +649,7 @@ class achievement_watch_him_die : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*player*/, Unit* target) override
         {
             if (!target)
                 return false;
