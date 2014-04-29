@@ -94,14 +94,14 @@ class boss_general_zarithrian : public CreatureScript
             {
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
                 if (instance->GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && instance->GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
@@ -111,36 +111,36 @@ class boss_general_zarithrian : public CreatureScript
                 events.ScheduleEvent(EVENT_SUMMON_ADDS, 40000);
             }
 
-            void JustReachedHome() OVERRIDE
+            void JustReachedHome() override
             {
                 _JustReachedHome();
                 instance->SetBossState(DATA_GENERAL_ZARITHRIAN, FAIL);
             }
 
             // Override to not set adds in combat yet.
-            void JustSummoned(Creature* summon) OVERRIDE
+            void JustSummoned(Creature* summon) override
             {
                 summons.Summon(summon);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_DEATH);
             }
 
-            void KilledUnit(Unit* victim) OVERRIDE
+            void KilledUnit(Unit* victim) override
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_KILL);
             }
 
-            bool CanAIAttack(Unit const* /*target*/) const OVERRIDE
+            bool CanAIAttack(Unit const* /*target*/) const override
             {
                 return (instance->GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && instance->GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -189,7 +189,7 @@ class boss_general_zarithrian : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetRubySanctumAI<boss_general_zarithrianAI>(creature);
         }
@@ -207,7 +207,7 @@ class npc_onyx_flamecaller : public CreatureScript
                 npc_escortAI::SetDespawnAtEnd(false);
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _lavaGoutCount = 0;
                 me->setActive(true);
@@ -215,26 +215,26 @@ class npc_onyx_flamecaller : public CreatureScript
                 Start(true, true);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_BLAST_NOVA, urand(20000, 30000));
                 _events.ScheduleEvent(EVENT_LAVA_GOUT, 5000);
             }
 
-            void EnterEvadeMode() OVERRIDE
+            void EnterEvadeMode() override
             {
                 // Prevent EvadeMode
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) OVERRIDE
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 // Let Zarithrian count as summoner.
                 if (Creature* zarithrian = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_GENERAL_ZARITHRIAN)))
                     zarithrian->AI()->JustSummoned(me);
             }
 
-            void WaypointReached(uint32 waypointId) OVERRIDE
+            void WaypointReached(uint32 waypointId) override
             {
                 if (waypointId == MAX_PATH_FLAMECALLER_WAYPOINTS - 1 || waypointId == MAX_PATH_FLAMECALLER_WAYPOINTS * 2 - 1)
                 {
@@ -257,7 +257,7 @@ class npc_onyx_flamecaller : public CreatureScript
                 }
             }
 
-            void UpdateEscortAI(uint32 const diff) OVERRIDE
+            void UpdateEscortAI(uint32 const diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -299,7 +299,7 @@ class npc_onyx_flamecaller : public CreatureScript
             uint8 _lavaGoutCount;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetRubySanctumAI<npc_onyx_flamecallerAI>(creature);
         }

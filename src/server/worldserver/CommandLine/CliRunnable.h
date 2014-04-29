@@ -27,7 +27,7 @@
 class CliRunnable : public ACE_Based::Runnable
 {
     public:
-        void run() OVERRIDE;
+        void run() override;
 };
 
 #endif

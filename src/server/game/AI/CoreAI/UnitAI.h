@@ -264,8 +264,8 @@ class UnitAI
         virtual void sOnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
 
     private:
-        UnitAI(UnitAI const& right) DELETE_MEMBER;
-        UnitAI& operator=(UnitAI const& right) DELETE_MEMBER;
+        UnitAI(UnitAI const& right) = delete;
+        UnitAI& operator=(UnitAI const& right) = delete;
 };
 
 class PlayerAI : public UnitAI

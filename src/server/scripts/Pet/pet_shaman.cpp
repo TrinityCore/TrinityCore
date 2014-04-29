@@ -51,14 +51,14 @@ class npc_pet_shaman_earth_elemental : public CreatureScript
             npc_pet_shaman_earth_elementalAI(Creature* creature) : ScriptedAI(creature) { }
 
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_SHAMAN_ANGEREDEARTH, 0);
                 me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -78,7 +78,7 @@ class npc_pet_shaman_earth_elemental : public CreatureScript
             EventMap _events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_pet_shaman_earth_elementalAI(creature);
         }
@@ -93,7 +93,7 @@ class npc_pet_shaman_fire_elemental : public CreatureScript
         {
             npc_pet_shaman_fire_elementalAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_SHAMAN_FIRENOVA, urand(5000, 20000));
@@ -102,7 +102,7 @@ class npc_pet_shaman_fire_elemental : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -140,7 +140,7 @@ class npc_pet_shaman_fire_elemental : public CreatureScript
             EventMap _events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_pet_shaman_fire_elementalAI(creature);
         }
