@@ -186,7 +186,7 @@ int RASocket::check_access_level(const std::string& user)
 
     AccountMgr::normalizeString(safeUser);
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_RBAC_PERMISSION_LEVEL);
     stmt->setString(0, safeUser);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 

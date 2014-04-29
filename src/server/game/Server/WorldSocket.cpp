@@ -852,7 +852,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     }
 
     // Checks gmlevel per Realm
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_RBAC_PERMISSION_LEVEL_BY_REALMID);
 
     stmt->setUInt32(0, id);
     stmt->setInt32(1, int32(realmID));

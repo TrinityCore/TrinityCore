@@ -114,7 +114,7 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
     stmt->setUInt32(0, accountId);
     trans->Append(stmt);
 
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS);
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_RBAC_PERMISSION_LEVEL);
     stmt->setUInt32(0, accountId);
     trans->Append(stmt);
 
@@ -249,7 +249,7 @@ uint32 AccountMgr::GetId(std::string const& username)
 
 uint32 AccountMgr::GetSecurity(uint32 accountId)
 {
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCOUNT_ACCESS_GMLEVEL);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_RBAC_PERMISSION_LEVEL);
     stmt->setUInt32(0, accountId);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
@@ -258,7 +258,7 @@ uint32 AccountMgr::GetSecurity(uint32 accountId)
 
 uint32 AccountMgr::GetSecurity(uint32 accountId, int32 realmId)
 {
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_RBAC_PERMISSION_LEVEL_BY_REALMID);
     stmt->setUInt32(0, accountId);
     stmt->setInt32(1, realmId);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
@@ -476,13 +476,13 @@ void AccountMgr::UpdateAccountAccess(rbac::RBACData* rbac, uint32 accountId, uin
     // Delete old security level from DB
     if (realmId == -1)
     {
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS);
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_RBAC_PERMISSION_LEVEL);
         stmt->setUInt32(0, accountId);
         LoginDatabase.Execute(stmt);
     }
     else
     {
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS_BY_REALM);
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_RBAC_PERMISSION_LEVEL_BY_REALM);
         stmt->setUInt32(0, accountId);
         stmt->setUInt32(1, realmId);
         LoginDatabase.Execute(stmt);
@@ -491,7 +491,7 @@ void AccountMgr::UpdateAccountAccess(rbac::RBACData* rbac, uint32 accountId, uin
     // Add new security level
     if (securityLevel)
     {
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_ACCESS);
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_RBAC_PERMISSION_LEVEL);
         stmt->setUInt32(0, accountId);
         stmt->setUInt8(1, securityLevel);
         stmt->setInt32(2, realmId);
