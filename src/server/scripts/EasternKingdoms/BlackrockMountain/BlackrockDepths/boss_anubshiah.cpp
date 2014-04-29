@@ -33,7 +33,7 @@ class boss_anubshiah : public CreatureScript
 public:
     boss_anubshiah() : CreatureScript("boss_anubshiah") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_anubshiahAI(creature);
     }
@@ -48,7 +48,7 @@ public:
         uint32 DemonArmor_Timer;
         uint32 EnvelopingWeb_Timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             ShadowBolt_Timer = 7000;
             CurseOfTongues_Timer = 24000;
@@ -57,9 +57,9 @@ public:
             EnvelopingWeb_Timer = 16000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())

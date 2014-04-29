@@ -50,7 +50,7 @@ class boss_epoch_hunter : public CreatureScript
 public:
     boss_epoch_hunter() : CreatureScript("boss_epoch_hunter") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_epoch_hunterAI>(creature);
     }
@@ -69,7 +69,7 @@ public:
         uint32 WingBuffet_Timer;
         uint32 Mda_Timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             SandBreath_Timer = urand(8000, 16000);
             ImpendingDeath_Timer = urand(25000, 30000);
@@ -77,17 +77,17 @@ public:
             Mda_Timer = 40000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
 
@@ -95,7 +95,7 @@ public:
                 instance->SetData(TYPE_THRALL_PART4, DONE);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())

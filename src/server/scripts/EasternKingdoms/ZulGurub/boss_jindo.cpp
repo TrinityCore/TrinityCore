@@ -74,17 +74,17 @@ class boss_jindo : public CreatureScript
         {
             boss_jindoAI(Creature* creature) : BossAI(creature, DATA_JINDO) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_BRAIN_WASH_TOTEM, 20000);
@@ -95,7 +95,7 @@ class boss_jindo : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -159,7 +159,7 @@ class boss_jindo : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_jindoAI(creature);
         }
@@ -181,14 +181,14 @@ class npc_healing_ward : public CreatureScript
             uint32 Heal_Timer;
             InstanceScript* instance;
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 Heal_Timer = 2000;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE { }
+            void EnterCombat(Unit* /*who*/) override { }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 // Heal_Timer
                 if (Heal_Timer <= diff)
@@ -202,7 +202,7 @@ class npc_healing_ward : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<npc_healing_wardAI>(creature);
         }
@@ -220,15 +220,15 @@ class npc_shade_of_jindo : public CreatureScript
 
             uint32 ShadowShock_Timer;
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 ShadowShock_Timer = 1000;
                 DoCast(me, SPELL_INVISIBLE, true);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE { }
+            void EnterCombat(Unit* /*who*/) override { }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 // ShadowShock_Timer
                 if (ShadowShock_Timer <= diff)
@@ -241,7 +241,7 @@ class npc_shade_of_jindo : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_shade_of_jindoAI(creature);
         }

@@ -68,7 +68,7 @@ class npc_medivh_bm : public CreatureScript
 public:
     npc_medivh_bm() : CreatureScript("npc_medivh_bm") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_medivh_bmAI>(creature);
     }
@@ -89,7 +89,7 @@ public:
         bool Life50;
         bool Life25;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             SpellCorrupt_Timer = 0;
             Check_Timer = 0;
@@ -105,7 +105,7 @@ public:
             DoCast(me, SPELL_PORTAL_RUNE, true);
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 10.0f))
             {
@@ -136,7 +136,7 @@ public:
             }
         }
 
-        void AttackStart(Unit* /*who*/) OVERRIDE
+        void AttackStart(Unit* /*who*/) override
         {
             //if (instance->GetData(TYPE_MEDIVH) == IN_PROGRESS)
             //    return;
@@ -144,9 +144,9 @@ public:
             //ScriptedAI::AttackStart(who);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) OVERRIDE
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
             if (SpellCorrupt_Timer)
                 return;
@@ -158,7 +158,7 @@ public:
                 SpellCorrupt_Timer = 3000;
         }
 
-        void JustDied(Unit* killer) OVERRIDE
+        void JustDied(Unit* killer) override
         {
             if (killer->GetEntry() == me->GetEntry())
                 return;
@@ -166,7 +166,7 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (SpellCorrupt_Timer)
             {
@@ -256,7 +256,7 @@ class npc_time_rift : public CreatureScript
 public:
     npc_time_rift() : CreatureScript("npc_time_rift") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_time_riftAI>(creature);
     }
@@ -275,7 +275,7 @@ public:
         uint8 mPortalCount;
         uint8 mWaveId;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
 
             TimeRiftWave_Timer = 15000;
@@ -290,7 +290,7 @@ public:
             else mWaveId = 1;
 
         }
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
         void DoSummonAtRift(uint32 creature_entry)
         {
@@ -333,7 +333,7 @@ public:
             } else DoSummonAtRift(entry);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (TimeRiftWave_Timer <= diff)
             {
@@ -367,7 +367,7 @@ class npc_saat : public CreatureScript
 public:
     npc_saat() : CreatureScript("npc_saat") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF+1)
@@ -378,7 +378,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());

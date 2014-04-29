@@ -498,8 +498,8 @@ struct CliCommandHolder
     ~CliCommandHolder() { free(m_command); }
 
 private:
-    CliCommandHolder(CliCommandHolder const& right) DELETE_MEMBER;
-    CliCommandHolder& operator=(CliCommandHolder const& right) DELETE_MEMBER;
+    CliCommandHolder(CliCommandHolder const& right) = delete;
+    CliCommandHolder& operator=(CliCommandHolder const& right) = delete;
 };
 
 typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;

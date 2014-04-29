@@ -34,7 +34,7 @@ class instance_trial_of_the_champion : public InstanceMapScript
 public:
     instance_trial_of_the_champion() : InstanceMapScript("instance_trial_of_the_champion", 650) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_trial_of_the_champion_InstanceMapScript(map);
     }
@@ -66,7 +66,7 @@ public:
 
         bool bDone;
 
-        void Initialize() OVERRIDE
+        void Initialize() override
         {
             uiMovementDone = 0;
             uiGrandChampionsDeaths = 0;
@@ -90,7 +90,7 @@ public:
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
         }
 
-        bool IsEncounterInProgress() const OVERRIDE
+        bool IsEncounterInProgress() const override
         {
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             {
@@ -101,7 +101,7 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* creature) OVERRIDE
+        void OnCreatureCreate(Creature* creature) override
         {
             Map::PlayerList const &players = instance->GetPlayers();
             uint32 TeamInInstance = 0;
@@ -152,7 +152,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go) OVERRIDE
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
@@ -166,7 +166,7 @@ public:
             }
         }
 
-        void SetData(uint32 uiType, uint32 uiData) OVERRIDE
+        void SetData(uint32 uiType, uint32 uiData) override
         {
             switch (uiType)
             {
@@ -235,7 +235,7 @@ public:
                 SaveToDB();
         }
 
-        uint32 GetData(uint32 uiData) const OVERRIDE
+        uint32 GetData(uint32 uiData) const override
         {
             switch (uiData)
             {
@@ -251,7 +251,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 uiData) const OVERRIDE
+        uint64 GetData64(uint32 uiData) const override
         {
             switch (uiData)
             {
@@ -266,7 +266,7 @@ public:
             return 0;
         }
 
-        void SetData64(uint32 uiType, uint64 uiData) OVERRIDE
+        void SetData64(uint32 uiType, uint64 uiData) override
         {
             switch (uiType)
             {
@@ -282,7 +282,7 @@ public:
             }
         }
 
-        std::string GetSaveData() OVERRIDE
+        std::string GetSaveData() override
         {
             OUT_SAVE_INST_DATA;
 
@@ -301,7 +301,7 @@ public:
             return str_data;
         }
 
-        void Load(const char* in) OVERRIDE
+        void Load(const char* in) override
         {
             if (!in)
             {

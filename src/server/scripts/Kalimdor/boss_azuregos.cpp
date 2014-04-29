@@ -60,12 +60,12 @@ class boss_azuregos : public CreatureScript
         {
             boss_azuregosAI(Creature* creature) : WorldBossAI(creature) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_MARK_OF_FROST_AURA, true);
                 _enraged = false;
@@ -79,13 +79,13 @@ class boss_azuregos : public CreatureScript
                 events.ScheduleEvent(EVENT_CLEAVE, 7000);
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     who->CastSpell(who, SPELL_MARK_OF_FROST, true);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -152,7 +152,7 @@ class boss_azuregos : public CreatureScript
             bool _enraged;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_azuregosAI(creature);
         }
@@ -180,7 +180,7 @@ class spell_mark_of_frost : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mark_of_frost_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_FROST))
                     return false;
@@ -200,14 +200,14 @@ class spell_mark_of_frost : public SpellScriptLoader
                 GetHitUnit()->CastSpell(GetHitUnit(), SPELL_AURA_OF_FROST, true);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mark_of_frost_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_mark_of_frost_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_mark_of_frost_SpellScript();
         }
