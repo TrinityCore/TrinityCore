@@ -65,8 +65,8 @@ struct SqlDbc
     }
 
 private:
-    SqlDbc(SqlDbc const& right) DELETE_MEMBER;
-    SqlDbc& operator=(SqlDbc const& right) DELETE_MEMBER;
+    SqlDbc(SqlDbc const& right) = delete;
+    SqlDbc& operator=(SqlDbc const& right) = delete;
 };
 
 template<class T>
@@ -296,8 +296,8 @@ class DBCStorage
         T* dataTable;
         StringPoolList stringPoolList;
 
-        DBCStorage(DBCStorage const& right) DELETE_MEMBER;
-        DBCStorage& operator=(DBCStorage const& right) DELETE_MEMBER;
+        DBCStorage(DBCStorage const& right) = delete;
+        DBCStorage& operator=(DBCStorage const& right) = delete;
 };
 
 #endif

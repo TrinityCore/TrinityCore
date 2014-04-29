@@ -30,12 +30,12 @@ class instance_firelands : public InstanceMapScript
             {
             }
 
-            void Initialize() OVERRIDE
+            void Initialize() override
             {
                 SetBossNumber(EncounterCount);
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -47,7 +47,7 @@ class instance_firelands : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_firelands_InstanceScript(map);
         }

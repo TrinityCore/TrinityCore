@@ -44,7 +44,7 @@ class instance_baradin_hold: public InstanceMapScript
                 AlizabalGUID = 0;
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch(creature->GetEntry())
                 {
@@ -60,7 +60,7 @@ class instance_baradin_hold: public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch(go->GetEntry())
                 {
@@ -72,7 +72,7 @@ class instance_baradin_hold: public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 data) const OVERRIDE
+            uint64 GetData64(uint32 data) const override
             {
                 switch (data)
                 {
@@ -89,7 +89,7 @@ class instance_baradin_hold: public InstanceMapScript
                 return 0;
             }
 
-            void OnGameObjectRemove(GameObject* go) OVERRIDE
+            void OnGameObjectRemove(GameObject* go) override
             {
                 switch(go->GetEntry())
                 {
@@ -101,7 +101,7 @@ class instance_baradin_hold: public InstanceMapScript
                 }
             }
 
-            std::string GetSaveData() OVERRIDE
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -112,7 +112,7 @@ class instance_baradin_hold: public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* in) OVERRIDE
+            void Load(const char* in) override
             {
                 if (!in)
                 {

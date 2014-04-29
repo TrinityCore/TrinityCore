@@ -54,7 +54,7 @@ class npc_apothecary_hanes : public CreatureScript
 public:
     npc_apothecary_hanes() : CreatureScript("npc_apothecary_hanes") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_TRAIL_OF_FIRE)
         {
@@ -77,19 +77,19 @@ public:
         npc_Apothecary_HanesAI(Creature* creature) : npc_escortAI(creature){ }
         uint32 PotTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             SetDespawnAtFar(false);
             PotTimer = 10000; //10 sec cooldown on potion
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (Player* player = GetPlayerForEscort())
                 player->FailQuest(QUEST_TRAIL_OF_FIRE);
         }
 
-        void UpdateEscortAI(const uint32 diff) OVERRIDE
+        void UpdateEscortAI(const uint32 diff) override
         {
             if (HealthBelowPct(75))
             {
@@ -103,7 +103,7 @@ public:
                 DoMeleeAttackIfReady();
         }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -153,7 +153,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_Apothecary_HanesAI(creature);
     }
@@ -177,7 +177,7 @@ public:
     {
         npc_plaguehound_trackerAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uint64 summonerGUID = 0;
 
@@ -193,7 +193,7 @@ public:
             Start(false, false, summonerGUID);
         }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             if (waypointId != 26)
                 return;
@@ -202,7 +202,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_plaguehound_trackerAI(creature);
     }
@@ -231,7 +231,7 @@ class npc_razael_and_lyana : public CreatureScript
 public:
     npc_razael_and_lyana() : CreatureScript("npc_razael_and_lyana") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -260,7 +260,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -304,7 +304,7 @@ class npc_daegarn : public CreatureScript
 public:
     npc_daegarn() : CreatureScript("npc_daegarn") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) OVERRIDE
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
     {
         if (quest->GetQuestId() == QUEST_DEFEAT_AT_RING)
         {
@@ -323,7 +323,7 @@ public:
         bool bEventInProgress;
         uint64 uiPlayerGUID;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             bEventInProgress = false;
             uiPlayerGUID = 0;
@@ -339,7 +339,7 @@ public:
             SummonGladiator(NPC_FIRJUS);
         }
 
-        void JustSummoned(Creature* summon) OVERRIDE
+        void JustSummoned(Creature* summon) override
         {
             if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
             {
@@ -360,7 +360,7 @@ public:
             me->SummonCreature(uiEntry, afSummon[0], afSummon[1], afSummon[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30*IN_MILLISECONDS);
         }
 
-        void SummonedCreatureDies(Creature* summoned, Unit* /*killer*/) OVERRIDE
+        void SummonedCreatureDies(Creature* summoned, Unit* /*killer*/) override
         {
             uint32 uiEntry = 0;
 
@@ -377,7 +377,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_daegarnAI(creature);
     }
@@ -397,12 +397,12 @@ public:
     {
         npc_mindless_abominationAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             events.ScheduleEvent(EVENT_CHECK_CHARMED, 1000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -424,7 +424,7 @@ public:
         EventMap events;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_mindless_abominationAI(creature);
     }
@@ -445,7 +445,7 @@ class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mindless_abomination_explosion_fx_master_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON) || !sSpellMgr->GetSpellInfo(SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE))
                     return false;
@@ -466,13 +466,13 @@ class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
                 caster->DespawnOrUnsummon(4000);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_mindless_abomination_explosion_fx_master_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_mindless_abomination_explosion_fx_master_SpellScript();
         }

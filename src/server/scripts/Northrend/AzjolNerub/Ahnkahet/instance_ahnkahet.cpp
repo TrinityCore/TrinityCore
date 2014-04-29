@@ -55,7 +55,7 @@ class instance_ahnkahet : public InstanceMapScript
                 InitiandGUIDs.clear();
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -82,7 +82,7 @@ class instance_ahnkahet : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -117,7 +117,7 @@ class instance_ahnkahet : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* go) OVERRIDE
+            void OnGameObjectRemove(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -129,7 +129,7 @@ class instance_ahnkahet : public InstanceMapScript
                 }
             }
 
-            void SetData(uint32 type, uint32 data) OVERRIDE
+            void SetData(uint32 type, uint32 data) override
             {
                 switch (type)
                 {
@@ -156,7 +156,7 @@ class instance_ahnkahet : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type) const OVERRIDE
+            uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -179,7 +179,7 @@ class instance_ahnkahet : public InstanceMapScript
                 return 0;
             }
 
-            void SetData64(uint32 type, uint64 data) OVERRIDE
+            void SetData64(uint32 type, uint64 data) override
             {
                 switch (type)
                 {
@@ -194,7 +194,7 @@ class instance_ahnkahet : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const OVERRIDE
+            uint64 GetData64(uint32 type) const override
             {
                 switch (type)
                 {
@@ -235,7 +235,7 @@ class instance_ahnkahet : public InstanceMapScript
                 return 0;
             }
 
-            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
+            bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -258,7 +258,7 @@ class instance_ahnkahet : public InstanceMapScript
                 return true;
             }
 
-            std::string GetSaveData() OVERRIDE
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -269,7 +269,7 @@ class instance_ahnkahet : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(char const* str) OVERRIDE
+            void Load(char const* str) override
             {
                 if (!str)
                 {
@@ -321,7 +321,7 @@ class instance_ahnkahet : public InstanceMapScript
             uint8 SwitchTrigger;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
            return new instance_ahnkahet_InstanceScript(map);
         }

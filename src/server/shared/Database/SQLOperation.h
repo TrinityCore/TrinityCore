@@ -71,8 +71,8 @@ class SQLOperation : public ACE_Method_Request
         MySQLConnection* m_conn;
 
     private:
-        SQLOperation(SQLOperation const& right) DELETE_MEMBER;
-        SQLOperation& operator=(SQLOperation const& right) DELETE_MEMBER;
+        SQLOperation(SQLOperation const& right) = delete;
+        SQLOperation& operator=(SQLOperation const& right) = delete;
 };
 
 #endif

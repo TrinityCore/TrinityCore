@@ -59,9 +59,9 @@ public:
     {
         npc_oox09hlAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() OVERRIDE { }
+        void Reset() override { }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             if (who->GetEntry() == NPC_MARAUDING_OWL || who->GetEntry() == NPC_VILE_AMBUSHER)
                 return;
@@ -69,7 +69,7 @@ public:
             Talk(SAY_OOX_AGGRO);
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
         }
@@ -103,7 +103,7 @@ public:
             }
         }
 
-        void WaypointStart(uint32 pointId) OVERRIDE
+        void WaypointStart(uint32 pointId) override
         {
             switch (pointId)
             {
@@ -127,7 +127,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_oox09hlAI(creature);
     }

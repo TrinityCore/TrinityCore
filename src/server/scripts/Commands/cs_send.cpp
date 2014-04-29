@@ -27,7 +27,7 @@ class send_commandscript : public CommandScript
 public:
     send_commandscript() : CommandScript("send_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand sendCommandTable[] =
         {

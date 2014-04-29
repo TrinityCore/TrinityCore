@@ -62,7 +62,7 @@ public:
 
         EventMap events;
 
-        void MovementInform(uint32 type, uint32 pointId) OVERRIDE
+        void MovementInform(uint32 type, uint32 pointId) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -76,19 +76,19 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*attacker*/) OVERRIDE
+        void EnterCombat(Unit* /*attacker*/) override
         {
             events.Reset();
             events.ScheduleEvent(EVENT_CAST_CLEAVE, urand(3000, 5000));
             events.ScheduleEvent(EVENT_CAST_STARFALL, urand(8000, 10000));
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             DoCast(SPELL_OMEN_SUMMON_SPOTLIGHT);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) OVERRIDE
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
             if (spell->Id == SPELL_ELUNE_CANDLE)
             {
@@ -99,7 +99,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -123,7 +123,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_omenAI(creature);
     }
@@ -140,13 +140,13 @@ public:
 
         EventMap events;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             events.Reset();
             events.ScheduleEvent(EVENT_DESPAWN, 5*MINUTE*IN_MILLISECONDS);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -166,7 +166,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_giant_spotlightAI(creature);
     }
