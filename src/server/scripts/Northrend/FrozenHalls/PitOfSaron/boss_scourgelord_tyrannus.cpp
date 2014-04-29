@@ -134,7 +134,7 @@ class boss_tyrannus : public CreatureScript
             {
             }
 
-            void InitializeAI() OVERRIDE
+            void InitializeAI() override
             {
                 if (instance->GetBossState(DATA_TYRANNUS) != DONE)
                     Reset();
@@ -142,7 +142,7 @@ class boss_tyrannus : public CreatureScript
                     me->DespawnOrUnsummon();
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 events.Reset();
                 events.SetPhase(PHASE_NONE);
@@ -156,12 +156,12 @@ class boss_tyrannus : public CreatureScript
                 return ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RIMEFANG));
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }
 
-            void AttackStart(Unit* victim) OVERRIDE
+            void AttackStart(Unit* victim) override
             {
                 if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
@@ -170,7 +170,7 @@ class boss_tyrannus : public CreatureScript
                     me->GetMotionMaster()->MoveChase(victim);
             }
 
-            void EnterEvadeMode() OVERRIDE
+            void EnterEvadeMode() override
             {
                 instance->SetBossState(DATA_TYRANNUS, FAIL);
                 if (Creature* rimefang = GetRimefang())
@@ -179,13 +179,13 @@ class boss_tyrannus : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void KilledUnit(Unit* victim) OVERRIDE
+            void KilledUnit(Unit* victim) override
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
                 instance->SetBossState(DATA_TYRANNUS, DONE);
@@ -199,7 +199,7 @@ class boss_tyrannus : public CreatureScript
                     rimefang->AI()->DoAction(ACTION_END_COMBAT);
             }
 
-            void DoAction(int32 actionId) OVERRIDE
+            void DoAction(int32 actionId) override
             {
                 if (actionId == ACTION_START_INTRO)
                 {
@@ -213,7 +213,7 @@ class boss_tyrannus : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim() && !events.IsInPhase(PHASE_INTRO))
                     return;
@@ -277,7 +277,7 @@ class boss_tyrannus : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetPitOfSaronAI<boss_tyrannusAI>(creature);
         }
@@ -295,7 +295,7 @@ class boss_rimefang : public CreatureScript
                 ASSERT(_vehicle);
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _events.Reset();
                 _events.SetPhase(PHASE_NONE);
@@ -306,12 +306,12 @@ class boss_rimefang : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void JustReachedHome() OVERRIDE
+            void JustReachedHome() override
             {
                 _vehicle->InstallAllAccessories(false);
             }
 
-            void DoAction(int32 actionId) OVERRIDE
+            void DoAction(int32 actionId) override
             {
                 if (actionId == ACTION_START_RIMEFANG)
                 {
@@ -324,7 +324,7 @@ class boss_rimefang : public CreatureScript
                     _EnterEvadeMode();
             }
 
-            void SetGUID(uint64 guid, int32 type) OVERRIDE
+            void SetGUID(uint64 guid, int32 type) override
             {
                 if (type == GUID_HOARFROST)
                 {
@@ -333,7 +333,7 @@ class boss_rimefang : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim() && !_events.IsInPhase(PHASE_COMBAT))
                     return;
@@ -376,7 +376,7 @@ class boss_rimefang : public CreatureScript
             uint8 _currentWaypoint;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_rimefangAI(creature);
         }
@@ -387,20 +387,20 @@ class player_overlord_brandAI : public PlayerAI
     public:
         player_overlord_brandAI(Player* player, uint64 casterGUID) : PlayerAI(player), _tyrannusGUID(casterGUID) { }
 
-        void DamageDealt(Unit* /*victim*/, uint32& damage, DamageEffectType /*damageType*/) OVERRIDE
+        void DamageDealt(Unit* /*victim*/, uint32& damage, DamageEffectType /*damageType*/) override
         {
             if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
                 if (Unit* victim = tyrannus->GetVictim())
                     me->CastCustomSpell(SPELL_OVERLORD_BRAND_DAMAGE, SPELLVALUE_BASE_POINT0, damage, victim, true, NULL, NULL, tyrannus->GetGUID());
         }
 
-        void HealDone(Unit* /*target*/, uint32& addHealth) OVERRIDE
+        void HealDone(Unit* /*target*/, uint32& addHealth) override
         {
             if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
                 me->CastCustomSpell(SPELL_OVERLORD_BRAND_HEAL, SPELLVALUE_BASE_POINT0, int32(addHealth * 5.5f), tyrannus, true, NULL, NULL, tyrannus->GetGUID());
         }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE { }
+        void UpdateAI(uint32 /*diff*/) override { }
 
     private:
         uint64 _tyrannusGUID;
@@ -415,7 +415,7 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
         {
             PrepareAuraScript(spell_tyrannus_overlord_brand_AuraScript);
 
-            bool Load() OVERRIDE
+            bool Load() override
             {
                 return GetCaster() && GetCaster()->GetEntry() == NPC_TYRANNUS;
             }
@@ -442,7 +442,7 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
                 delete thisAI;
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_tyrannus_overlord_brand_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_tyrannus_overlord_brand_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
@@ -452,7 +452,7 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
             bool oldAIState;
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_tyrannus_overlord_brand_AuraScript();
         }
@@ -478,13 +478,13 @@ class spell_tyrannus_mark_of_rimefang : public SpellScriptLoader
                         rimefang->AI()->SetGUID(GetTarget()->GetGUID(), GUID_HOARFROST);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_tyrannus_mark_of_rimefang_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_tyrannus_mark_of_rimefang_AuraScript();
         }
@@ -495,7 +495,7 @@ class at_tyrannus_event_starter : public AreaTriggerScript
     public:
         at_tyrannus_event_starter() : AreaTriggerScript("at_tyrannus_event_starter") { }
 
-        bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) OVERRIDE
+        bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
         {
             InstanceScript* instance = player->GetInstanceScript();
             if (player->IsGameMaster() || !instance)

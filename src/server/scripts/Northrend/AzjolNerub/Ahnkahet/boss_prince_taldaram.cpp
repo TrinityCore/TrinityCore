@@ -93,7 +93,7 @@ class boss_prince_taldaram : public CreatureScript
                 _embraceTakenDamage = 0;
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
                 _flameSphereTargetGUID = 0;
@@ -101,7 +101,7 @@ class boss_prince_taldaram : public CreatureScript
                 _embraceTakenDamage = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
@@ -125,7 +125,7 @@ class boss_prince_taldaram : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -204,7 +204,7 @@ class boss_prince_taldaram : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void DamageTaken(Unit* /*doneBy*/, uint32& damage) OVERRIDE
+            void DamageTaken(Unit* /*doneBy*/, uint32& damage) override
             {
                 Unit* embraceTarget = GetEmbraceTarget();
 
@@ -219,13 +219,13 @@ class boss_prince_taldaram : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
                 _JustDied();
             }
 
-            void KilledUnit(Unit* victim) OVERRIDE
+            void KilledUnit(Unit* victim) override
             {
                 if (victim->GetTypeId() != TYPEID_PLAYER)
                     return;
@@ -272,7 +272,7 @@ class boss_prince_taldaram : public CreatureScript
             uint32 _embraceTakenDamage;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetAhnKahetAI<boss_prince_taldaramAI>(creature);
         }
@@ -291,7 +291,7 @@ class npc_prince_taldaram_flame_sphere : public CreatureScript
                 _flameSphereTargetGUID = 0;
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 DoCast(me, SPELL_FLAME_SPHERE_SPAWN_EFFECT, true);
                 DoCast(me, SPELL_FLAME_SPHERE_VISUAL, true);
@@ -302,15 +302,15 @@ class npc_prince_taldaram_flame_sphere : public CreatureScript
                 _events.ScheduleEvent(EVENT_DESPAWN, 13 * IN_MILLISECONDS);
             }
 
-            void SetGUID(uint64 guid, int32 /*id = 0*/) OVERRIDE
+            void SetGUID(uint64 guid, int32 /*id = 0*/) override
             {
                 _flameSphereTargetGUID = guid;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE { }
-            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
+            void EnterCombat(Unit* /*who*/) override { }
+            void MoveInLineOfSight(Unit* /*who*/) override { }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 _events.Update(diff);
 
@@ -367,7 +367,7 @@ class npc_prince_taldaram_flame_sphere : public CreatureScript
             uint64 _flameSphereTargetGUID;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_prince_taldaram_flame_sphereAI(creature);
         }
@@ -379,7 +379,7 @@ class go_prince_taldaram_sphere : public GameObjectScript
     public:
         go_prince_taldaram_sphere() : GameObjectScript("go_prince_taldaram_sphere") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
+        bool OnGossipHello(Player* /*player*/, GameObject* go) override
         {
             InstanceScript* instance = go->GetInstanceScript();
             if (!instance)
@@ -419,7 +419,7 @@ class spell_prince_taldaram_conjure_flame_sphere : public SpellScriptLoader
         {
             PrepareSpellScript(spell_prince_taldaram_conjure_flame_sphere_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_FLAME_SPHERE_SUMMON_1)
                     || !sSpellMgr->GetSpellInfo(SPELL_FLAME_SPHERE_SUMMON_2)
@@ -440,13 +440,13 @@ class spell_prince_taldaram_conjure_flame_sphere : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_prince_taldaram_conjure_flame_sphere_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_prince_taldaram_conjure_flame_sphere_SpellScript();
         }
@@ -468,13 +468,13 @@ class spell_prince_taldaram_flame_sphere_summon : public SpellScriptLoader
                 dest.RelocateOffset(offset);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_prince_taldaram_flame_sphere_summon_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_prince_taldaram_flame_sphere_summon_SpellScript();
         }

@@ -37,8 +37,8 @@ class DatabaseWorker : protected ACE_Task_Base
         ACE_Activation_Queue* m_queue;
         MySQLConnection* m_conn;
 
-        DatabaseWorker(DatabaseWorker const& right) DELETE_MEMBER;
-        DatabaseWorker& operator=(DatabaseWorker const& right) DELETE_MEMBER;
+        DatabaseWorker(DatabaseWorker const& right) = delete;
+        DatabaseWorker& operator=(DatabaseWorker const& right) = delete;
 };
 
 #endif

@@ -83,8 +83,8 @@ namespace VMAP
             void getModelInstances(ModelInstance* &models, uint32 &count);
 
         private:
-            StaticMapTree(StaticMapTree const& right) DELETE_MEMBER;
-            StaticMapTree& operator=(StaticMapTree const& right) DELETE_MEMBER;
+            StaticMapTree(StaticMapTree const& right) = delete;
+            StaticMapTree& operator=(StaticMapTree const& right) = delete;
     };
 
     struct AreaInfo

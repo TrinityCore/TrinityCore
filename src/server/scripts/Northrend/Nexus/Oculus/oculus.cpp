@@ -126,7 +126,7 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
                 player->DestroyItemCount(itemId, 1, true, false);
             }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) OVERRIDE
+            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 switch (menuId)
                 {
@@ -172,7 +172,7 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
                 player->PlayerTalkClass->SendCloseGossip();
             }
 
-            void MovementInform(uint32 /*type*/, uint32 id) OVERRIDE
+            void MovementInform(uint32 /*type*/, uint32 id) override
             {
                 if (id != POINT_MOVE_OUT)
                     return;
@@ -186,7 +186,7 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetOculusAI<npc_verdisa_beglaristrasz_eternosAI>(creature);
         }
@@ -201,7 +201,7 @@ class npc_image_belgaristrasz : public CreatureScript
         {
             npc_image_belgaristraszAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void IsSummonedBy(Unit* summoner) OVERRIDE
+            void IsSummonedBy(Unit* summoner) override
             {
                 if (summoner->GetEntry() == NPC_VAROS)
                 {
@@ -217,7 +217,7 @@ class npc_image_belgaristrasz : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetOculusAI<npc_image_belgaristraszAI>(creature);
         }
@@ -235,13 +235,13 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _events.Reset();
                 _healthWarning = true;
             }
 
-            void IsSummonedBy(Unit* summoner) OVERRIDE
+            void IsSummonedBy(Unit* summoner) override
             {
                 if (_instance->GetBossState(DATA_EREGOS) == IN_PROGRESS)
                     if (Creature* eregos = me->FindNearestCreature(NPC_EREGOS, 450.0f, true))
@@ -268,13 +268,13 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 me->GetMotionMaster()->MovePoint(POINT_LAND, pos);
             }
 
-            void MovementInform(uint32 type, uint32 id) OVERRIDE
+            void MovementInform(uint32 type, uint32 id) override
             {
                 if (type == POINT_MOTION_TYPE && id == POINT_LAND)
                     me->SetDisableGravity(false); // Needed this for proper animation after spawn, the summon in air fall to ground bug leave no other option for now, if this isn't used the drake will only walk on move.
             }
 
-            void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) OVERRIDE
+            void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
             {
                 if (passenger->GetTypeId() != TYPEID_PLAYER)
                     return;
@@ -294,7 +294,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (_healthWarning)
                 {
@@ -355,7 +355,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
             bool _healthWarning;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetOculusAI<npc_ruby_emerald_amber_drakeAI>(creature);
         }
@@ -380,13 +380,13 @@ class spell_oculus_call_ruby_emerald_amber_drake : public SpellScriptLoader
                 dest.RelocateOffset(offset);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_oculus_call_ruby_emerald_amber_drake_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER_FRONT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_oculus_call_ruby_emerald_amber_drake_SpellScript();
         }
@@ -412,13 +412,13 @@ class spell_oculus_ride_ruby_emerald_amber_drake_que : public SpellScriptLoader
                     GetTarget()->CastSpell(caster, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_oculus_ride_ruby_emerald_amber_drake_que_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_oculus_ride_ruby_emerald_amber_drake_que_AuraScript();
         }
@@ -434,7 +434,7 @@ class spell_oculus_evasive_maneuvers : public SpellScriptLoader
         {
             PrepareAuraScript(spell_oculus_evasive_maneuvers_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_RUBY_EVASIVE_CHARGES))
                     return false;
@@ -449,13 +449,13 @@ class spell_oculus_evasive_maneuvers : public SpellScriptLoader
                     Remove();
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectProc += AuraEffectProcFn(spell_oculus_evasive_maneuvers_AuraScript::HandleProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_oculus_evasive_maneuvers_AuraScript();
         }
@@ -471,7 +471,7 @@ class spell_oculus_shock_lance : public SpellScriptLoader
         {
             PrepareSpellScript(spell_oculus_shock_lance_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_AMBER_SHOCK_CHARGE))
                     return false;
@@ -491,13 +491,13 @@ class spell_oculus_shock_lance : public SpellScriptLoader
                 SetHitDamage(damage);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_oculus_shock_lance_SpellScript::CalcDamage);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_oculus_shock_lance_SpellScript();
         }
@@ -513,7 +513,7 @@ class spell_oculus_stop_time : public SpellScriptLoader
         {
             PrepareAuraScript(spell_oculus_stop_time_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_AMBER_SHOCK_CHARGE))
                     return false;
@@ -531,13 +531,13 @@ class spell_oculus_stop_time : public SpellScriptLoader
                     caster->CastSpell(target, SPELL_AMBER_SHOCK_CHARGE, true);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_oculus_stop_time_AuraScript::Apply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_oculus_stop_time_AuraScript();
         }
@@ -553,7 +553,7 @@ class spell_oculus_temporal_rift : public SpellScriptLoader
         {
             PrepareAuraScript(spell_oculus_temporal_rift_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_AMBER_SHOCK_CHARGE))
                     return false;
@@ -575,13 +575,13 @@ class spell_oculus_temporal_rift : public SpellScriptLoader
                 const_cast<AuraEffect*>(aurEff)->SetAmount(amount);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectProc += AuraEffectProcFn(spell_oculus_temporal_rift_AuraScript::HandleProc, EFFECT_2, SPELL_AURA_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_oculus_temporal_rift_AuraScript();
         }
@@ -602,13 +602,13 @@ class spell_oculus_touch_the_nightmare : public SpellScriptLoader
                 SetHitDamage(int32(GetCaster()->CountPctFromMaxHealth(30)));
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_oculus_touch_the_nightmare_SpellScript::HandleDamageCalc, EFFECT_2, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_oculus_touch_the_nightmare_SpellScript();
         }
@@ -632,14 +632,14 @@ class spell_oculus_dream_funnel : public SpellScriptLoader
                 canBeRecalculated = false;
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_oculus_dream_funnel_AuraScript::HandleEffectCalcAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_oculus_dream_funnel_AuraScript::HandleEffectCalcAmount, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_oculus_dream_funnel_AuraScript();
         }

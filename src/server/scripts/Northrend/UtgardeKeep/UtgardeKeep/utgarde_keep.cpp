@@ -41,7 +41,7 @@ class npc_dragonflayer_forge_master : public CreatureScript
                 _forgeId = 0;
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 if (!_forgeId)
                     _forgeId = GetForgeMasterType();
@@ -53,7 +53,7 @@ class npc_dragonflayer_forge_master : public CreatureScript
                     _instance->SetData(DATA_FORGE_1 + _forgeId - 1, NOT_STARTED);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 if (!_forgeId)
                     _forgeId = GetForgeMasterType();
@@ -62,7 +62,7 @@ class npc_dragonflayer_forge_master : public CreatureScript
                     _instance->SetData(DATA_FORGE_1 + _forgeId - 1, DONE);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 if (!_forgeId)
                     _forgeId = GetForgeMasterType();
@@ -73,7 +73,7 @@ class npc_dragonflayer_forge_master : public CreatureScript
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (!_forgeId)
                     _forgeId = GetForgeMasterType();
@@ -108,7 +108,7 @@ class npc_dragonflayer_forge_master : public CreatureScript
             uint8 _forgeId;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetUtgardeKeepAI<npc_dragonflayer_forge_masterAI>(creature);
         }
@@ -128,7 +128,7 @@ class spell_ticking_time_bomb : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ticking_time_bomb_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TICKING_TIME_BOMB_EXPLODE))
                     return false;
@@ -141,13 +141,13 @@ class spell_ticking_time_bomb : public SpellScriptLoader
                     GetTarget()->CastSpell(GetTarget(), SPELL_TICKING_TIME_BOMB_EXPLODE, true);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectRemove += AuraEffectRemoveFn(spell_ticking_time_bomb_AuraScript::HandleOnEffectRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_ticking_time_bomb_AuraScript();
         }
@@ -167,7 +167,7 @@ class spell_fixate : public SpellScriptLoader
         {
             PrepareSpellScript(spell_fixate_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_FIXATE_TRIGGER))
                     return false;
@@ -179,13 +179,13 @@ class spell_fixate : public SpellScriptLoader
                 GetHitUnit()->CastSpell(GetCaster(), SPELL_FIXATE_TRIGGER, true);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_fixate_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_fixate_SpellScript();
         }
@@ -223,7 +223,7 @@ class npc_enslaved_proto_drake : public CreatureScript
                 _setData = false;
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_REND, urand(2000, 3000));
@@ -231,7 +231,7 @@ class npc_enslaved_proto_drake : public CreatureScript
                 _events.ScheduleEvent(EVENT_KNOCKAWAY, urand(3500, 6000));
             }
 
-            void MovementInform(uint32 type, uint32 id) OVERRIDE
+            void MovementInform(uint32 type, uint32 id) override
             {
                 if (type == WAYPOINT_MOTION_TYPE && id == POINT_LAST)
                 {
@@ -239,7 +239,7 @@ class npc_enslaved_proto_drake : public CreatureScript
                 }
             }
 
-            void SetData(uint32 type, uint32 data) OVERRIDE
+            void SetData(uint32 type, uint32 data) override
             {
                 if (type == TYPE_PROTODRAKE_AT && data == DATA_PROTODRAKE_MOVE && !_setData && me->GetDistance(protodrakeCheckPos) < 5.0f)
                 {
@@ -249,7 +249,7 @@ class npc_enslaved_proto_drake : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -289,7 +289,7 @@ class npc_enslaved_proto_drake : public CreatureScript
 
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_enslaved_proto_drakeAI(creature);
         }
