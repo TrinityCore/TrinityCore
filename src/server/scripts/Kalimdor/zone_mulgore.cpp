@@ -55,7 +55,7 @@ class npc_kyle_frenzied : public CreatureScript
 public:
     npc_kyle_frenzied() : CreatureScript("npc_kyle_frenzied") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_kyle_frenziedAI(creature);
     }
@@ -70,7 +70,7 @@ public:
         uint32 EventTimer;
         uint8 EventPhase;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             EventActive = false;
             IsMovingToLunch = false;
@@ -82,7 +82,7 @@ public:
                 me->UpdateEntry(NPC_KYLE_FRENZIED);
         }
 
-        void SpellHit(Unit* Caster, SpellInfo const* Spell) OVERRIDE
+        void SpellHit(Unit* Caster, SpellInfo const* Spell) override
         {
             if (!me->GetVictim() && !EventActive && Spell->Id == SPELL_LUNCH)
             {
@@ -102,7 +102,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 Type, uint32 PointId) OVERRIDE
+        void MovementInform(uint32 Type, uint32 PointId) override
         {
             if (Type != POINT_MOTION_TYPE || !EventActive)
                 return;
@@ -111,7 +111,7 @@ public:
                 IsMovingToLunch = false;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (EventActive)
             {
@@ -228,7 +228,7 @@ class npc_plains_vision : public CreatureScript
 public:
     npc_plains_vision() : CreatureScript("npc_plains_vision") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
           return new npc_plains_visionAI(creature);
     }
@@ -241,16 +241,16 @@ public:
         uint8 WayPointId;
         uint8 amountWP;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             WayPointId = 0;
             newWaypoint = true;
             amountWP  = 49;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void MovementInform(uint32 type, uint32 id) OVERRIDE
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -267,7 +267,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (newWaypoint)
             {

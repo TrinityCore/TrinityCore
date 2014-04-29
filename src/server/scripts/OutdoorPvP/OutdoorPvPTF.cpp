@@ -366,7 +366,7 @@ class OutdoorPvP_terokkar_forest : public OutdoorPvPScript
         {
         }
 
-        OutdoorPvP* GetOutdoorPvP() const OVERRIDE
+        OutdoorPvP* GetOutdoorPvP() const override
         {
             return new OutdoorPvPTF();
         }

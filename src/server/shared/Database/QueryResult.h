@@ -56,8 +56,8 @@ class ResultSet
         MYSQL_RES* _result;
         MYSQL_FIELD* _fields;
 
-        ResultSet(ResultSet const& right) DELETE_MEMBER;
-        ResultSet& operator=(ResultSet const& right) DELETE_MEMBER;
+        ResultSet(ResultSet const& right) = delete;
+        ResultSet& operator=(ResultSet const& right) = delete;
 };
 
 typedef Trinity::AutoPtr<ResultSet, ACE_Thread_Mutex> QueryResult;
@@ -103,8 +103,8 @@ class PreparedResultSet
         void CleanUp();
         bool _NextRow();
 
-        PreparedResultSet(PreparedResultSet const& right) DELETE_MEMBER;
-        PreparedResultSet& operator=(PreparedResultSet const& right) DELETE_MEMBER;
+        PreparedResultSet(PreparedResultSet const& right) = delete;
+        PreparedResultSet& operator=(PreparedResultSet const& right) = delete;
 };
 
 typedef Trinity::AutoPtr<PreparedResultSet, ACE_Thread_Mutex> PreparedQueryResult;

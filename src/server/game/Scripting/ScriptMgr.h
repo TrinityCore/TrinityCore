@@ -198,7 +198,7 @@ class SpellScriptLoader : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Should return a fully valid SpellScript pointer.
         virtual SpellScript* GetSpellScript() const { return NULL; }
@@ -356,7 +356,7 @@ class InstanceMapScript : public ScriptObject, public MapScript<InstanceMap>
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Gets an InstanceScript object for this instance.
         virtual InstanceScript* GetInstanceScript(InstanceMap* /*map*/) const { return NULL; }
@@ -377,7 +377,7 @@ class ItemScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Called when a dummy spell effect is triggered on the item.
         virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/, Item* /*target*/) { return false; }
@@ -426,7 +426,7 @@ class CreatureScript : public UnitScript, public UpdatableScript<Creature>
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Called when a dummy spell effect is triggered on the creature.
         virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/, Creature* /*target*/) { return false; }
@@ -467,7 +467,7 @@ class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Called when a dummy spell effect is triggered on the gameobject.
         virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/, GameObject* /*target*/) { return false; }
@@ -514,7 +514,7 @@ class AreaTriggerScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Called when the area trigger is activated by a player.
         virtual bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/) { return false; }
@@ -528,7 +528,7 @@ class BattlegroundScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Should return a fully valid Battleground object for the type ID.
         virtual Battleground* GetBattleground() const = 0;
@@ -542,7 +542,7 @@ class OutdoorPvPScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Should return a fully valid OutdoorPvP object for the type ID.
         virtual OutdoorPvP* GetOutdoorPvP() const = 0;
@@ -568,7 +568,7 @@ class WeatherScript : public ScriptObject, public UpdatableScript<Weather>
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Called when the weather changes in the zone this script is associated with.
         virtual void OnChange(Weather* /*weather*/, WeatherState /*state*/, float /*grade*/) { }
@@ -603,7 +603,7 @@ class ConditionScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Called when a single condition is checked for a player.
         virtual bool OnConditionCheck(Condition* /*condition*/, ConditionSourceInfo& /*sourceInfo*/) { return true; }
@@ -651,7 +651,7 @@ class TransportScript : public ScriptObject, public UpdatableScript<Transport>
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Called when a player boards the transport.
         virtual void OnAddPassenger(Transport* /*transport*/, Player* /*player*/) { }
@@ -674,7 +674,7 @@ class AchievementCriteriaScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Called when an additional criteria is checked.
         virtual bool OnCheck(Player* source, Unit* target) = 0;
@@ -776,7 +776,7 @@ class GuildScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return false; }
+        bool IsDatabaseBound() const final { return false; }
 
         // Called when a member is added to the guild.
         virtual void OnAddMember(Guild* /*guild*/, Player* /*player*/, uint8& /*plRank*/) { }
@@ -819,7 +819,7 @@ class GroupScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return false; }
+        bool IsDatabaseBound() const final { return false; }
 
         // Called when a member is added to a group.
         virtual void OnAddMember(Group* /*group*/, uint64 /*guid*/) { }

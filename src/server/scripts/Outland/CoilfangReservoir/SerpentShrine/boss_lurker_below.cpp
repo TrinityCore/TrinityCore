@@ -79,7 +79,7 @@ class boss_the_lurker_below : public CreatureScript
 public:
     boss_the_lurker_below() : CreatureScript("boss_the_lurker_below") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_the_lurker_belowAI>(creature);
     }
@@ -117,7 +117,7 @@ public:
             return true;
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             me->SetSwim(true);
             me->SetDisableGravity(true);
@@ -147,7 +147,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             instance->SetData(DATA_THELURKERBELOWEVENT, DONE);
             instance->SetData(DATA_STRANGE_POOL, IN_PROGRESS);
@@ -155,12 +155,12 @@ public:
             Summons.DespawnAll();
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             instance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
 
         {
             if (!CanStartEvent) // boss is invisible, don't attack
@@ -173,13 +173,13 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 /*id*/) OVERRIDE
+        void MovementInform(uint32 type, uint32 /*id*/) override
         {
             if (type == ROTATE_MOTION_TYPE)
                 me->SetReactState(REACT_AGGRESSIVE);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!CanStartEvent) // boss is invisible, don't attack
             {
@@ -365,7 +365,7 @@ class npc_coilfang_ambusher : public CreatureScript
 public:
     npc_coilfang_ambusher() : CreatureScript("npc_coilfang_ambusher") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_coilfang_ambusherAI(creature);
     }
@@ -380,13 +380,13 @@ public:
         uint32 MultiShotTimer;
         uint32 ShootBowTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             MultiShotTimer = 10000;
             ShootBowTimer = 4000;
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
 
         {
             if (!who || me->GetVictim())
@@ -396,7 +396,7 @@ public:
                 AttackStart(who);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (MultiShotTimer <= diff)
             {
@@ -425,7 +425,7 @@ class go_strange_pool : public GameObjectScript
     public:
         go_strange_pool() : GameObjectScript("go_strange_pool") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
+        bool OnGossipHello(Player* player, GameObject* go) override
         {
             // 25%
             if (InstanceScript* instanceScript = go->GetInstanceScript())
