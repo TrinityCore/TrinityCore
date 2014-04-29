@@ -95,7 +95,7 @@ class Guardian : public Minion
         void UpdateMaxHealth();
         void UpdateMaxPower(Powers power);
         void UpdateAttackPowerAndDamage(bool ranged = false);
-        void UpdateDamagePhysical(WeaponAttackType attType) OVERRIDE;
+        void UpdateDamagePhysical(WeaponAttackType attType) override;
 
         int32 GetBonusDamage() const { return m_bonusSpellDamage; }
         void SetBonusDamage(int32 damage);

@@ -96,7 +96,7 @@ class boss_moroes : public CreatureScript
 public:
     boss_moroes() : CreatureScript("boss_moroes") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_moroesAI>(creature);
     }
@@ -125,7 +125,7 @@ public:
         bool InVanish;
         bool Enrage;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             Vanish_Timer = 30000;
             Blind_Timer = 35000;
@@ -148,7 +148,7 @@ public:
             DoZoneInCombat();
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             StartEvent();
 
@@ -157,12 +157,12 @@ public:
             DoZoneInCombat();
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_KILL);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
 
@@ -247,7 +247,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -343,7 +343,7 @@ struct boss_moroes_guestAI : public ScriptedAI
         instance = creature->GetInstanceScript();
     }
 
-    void Reset() OVERRIDE
+    void Reset() override
     {
         instance->SetData(TYPE_MOROES, NOT_STARTED);
     }
@@ -369,7 +369,7 @@ struct boss_moroes_guestAI : public ScriptedAI
         return me;
     }
 
-    void UpdateAI(uint32 /*diff*/) OVERRIDE
+    void UpdateAI(uint32 /*diff*/) override
     {
         if (!instance->GetData(TYPE_MOROES))
             EnterEvadeMode();
@@ -383,7 +383,7 @@ class boss_baroness_dorothea_millstipe : public CreatureScript
 public:
     boss_baroness_dorothea_millstipe() : CreatureScript("boss_baroness_dorothea_millstipe") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_baroness_dorothea_millstipeAI>(creature);
     }
@@ -397,7 +397,7 @@ public:
         uint32 MindFlay_Timer;
         uint32 ShadowWordPain_Timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             ManaBurn_Timer = 7000;
             MindFlay_Timer = 1000;
@@ -408,7 +408,7 @@ public:
             boss_moroes_guestAI::Reset();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -446,7 +446,7 @@ class boss_baron_rafe_dreuger : public CreatureScript
 public:
     boss_baron_rafe_dreuger() : CreatureScript("boss_baron_rafe_dreuger") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_baron_rafe_dreugerAI>(creature);
     }
@@ -460,7 +460,7 @@ public:
         uint32 SealOfCommand_Timer;
         uint32 JudgementOfCommand_Timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             HammerOfJustice_Timer = 1000;
             SealOfCommand_Timer = 7000;
@@ -469,7 +469,7 @@ public:
             boss_moroes_guestAI::Reset();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -503,7 +503,7 @@ class boss_lady_catriona_von_indi : public CreatureScript
 public:
     boss_lady_catriona_von_indi() : CreatureScript("boss_lady_catriona_von_indi") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_lady_catriona_von_indiAI>(creature);
     }
@@ -518,7 +518,7 @@ public:
         uint32 HolyFire_Timer;
         uint32 PowerWordShield_Timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             DispelMagic_Timer = 11000;
             GreaterHeal_Timer = 1500;
@@ -530,7 +530,7 @@ public:
             boss_moroes_guestAI::Reset();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -573,7 +573,7 @@ class boss_lady_keira_berrybuck : public CreatureScript
 public:
     boss_lady_keira_berrybuck() : CreatureScript("boss_lady_keira_berrybuck") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_lady_keira_berrybuckAI>(creature);
     }
@@ -588,7 +588,7 @@ public:
         uint32 HolyLight_Timer;
         uint32 DivineShield_Timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             Cleanse_Timer = 13000;
             GreaterBless_Timer = 1000;
@@ -600,7 +600,7 @@ public:
             boss_moroes_guestAI::Reset();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -647,7 +647,7 @@ class boss_lord_robin_daris : public CreatureScript
 public:
     boss_lord_robin_daris() : CreatureScript("boss_lord_robin_daris") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_lord_robin_darisAI>(creature);
     }
@@ -661,7 +661,7 @@ public:
         uint32 MortalStrike_Timer;
         uint32 WhirlWind_Timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             Hamstring_Timer = 7000;
             MortalStrike_Timer = 10000;
@@ -670,7 +670,7 @@ public:
             boss_moroes_guestAI::Reset();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -703,7 +703,7 @@ class boss_lord_crispin_ference : public CreatureScript
 public:
     boss_lord_crispin_ference() : CreatureScript("boss_lord_crispin_ference") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_lord_crispin_ferenceAI>(creature);
     }
@@ -718,7 +718,7 @@ public:
         uint32 ShieldBash_Timer;
         uint32 ShieldWall_Timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             Disarm_Timer = 6000;
             HeroicStrike_Timer = 10000;
@@ -728,7 +728,7 @@ public:
             boss_moroes_guestAI::Reset();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

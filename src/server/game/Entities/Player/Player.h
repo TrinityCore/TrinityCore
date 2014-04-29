@@ -1511,7 +1511,7 @@ class Player : public Unit, public GridObject<Player>
         Unit* GetSelectedUnit() const;
         Player* GetSelectedPlayer() const;
 
-        void SetTarget(uint64 /*guid*/) OVERRIDE { } /// Used for serverside target changes, does not apply to players
+        void SetTarget(uint64 /*guid*/) override { } /// Used for serverside target changes, does not apply to players
         void SetSelection(uint64 guid) { SetUInt64Value(UNIT_FIELD_TARGET, guid); }
 
         uint8 GetComboPoints() const { return m_comboPoints; }
@@ -1757,7 +1757,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateRating(CombatRating cr);
         void UpdateAllRatings();
 
-        void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) OVERRIDE;
+        void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) override;
 
         void UpdateDefenseBonusesMod();
         inline void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}

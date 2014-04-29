@@ -192,7 +192,7 @@ class boss_xt002 : public CreatureScript
     public:
         boss_xt002() : CreatureScript("boss_xt002") { }
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetUlduarAI<boss_xt002_AI>(creature);
         }
@@ -203,7 +203,7 @@ class boss_xt002 : public CreatureScript
             {
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
 
@@ -221,7 +221,7 @@ class boss_xt002 : public CreatureScript
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 _EnterCombat();
@@ -235,7 +235,7 @@ class boss_xt002 : public CreatureScript
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
             }
 
-            void DoAction(int32 action) OVERRIDE
+            void DoAction(int32 action) override
             {
                 switch (action)
                 {
@@ -245,25 +245,25 @@ class boss_xt002 : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
                 _JustDied();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
             {
                 if (!_hardMode && _phase == 1 && !HealthAbovePct(100 - 25 * (_heartExposed+1)))
                     ExposeHeart();
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim() || !CheckInRoom())
                     return;
@@ -316,7 +316,7 @@ class boss_xt002 : public CreatureScript
                     DoMeleeAttackIfReady();
             }
 
-            void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) OVERRIDE
+            void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
             {
                 if (apply && who->GetEntry() == NPC_XS013_SCRAPBOT)
                 {
@@ -329,7 +329,7 @@ class boss_xt002 : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type) const OVERRIDE
+            uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -344,7 +344,7 @@ class boss_xt002 : public CreatureScript
                 return 0;
             }
 
-            void SetData(uint32 type, uint32 data) OVERRIDE
+            void SetData(uint32 type, uint32 data) override
             {
                 switch (type)
                 {
@@ -453,9 +453,9 @@ class npc_xt002_heart : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
+            void UpdateAI(uint32 /*diff*/) override { }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 Creature* xt002 = _instance ? me->GetCreature(*me, _instance->GetData64(BOSS_XT002)) : NULL;
                 if (!xt002 || !xt002->AI())
@@ -469,7 +469,7 @@ class npc_xt002_heart : public CreatureScript
             InstanceScript* _instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<npc_xt002_heartAI>(creature);
         }
@@ -485,7 +485,7 @@ class npc_scrapbot : public CreatureScript
     public:
         npc_scrapbot() : CreatureScript("npc_scrapbot") { }
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<npc_scrapbotAI>(creature);
         }
@@ -497,7 +497,7 @@ class npc_scrapbot : public CreatureScript
                 _instance = me->GetInstanceScript();
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 me->SetReactState(REACT_PASSIVE);
 
@@ -507,7 +507,7 @@ class npc_scrapbot : public CreatureScript
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (_rangeCheckTimer <= diff)
                 {
@@ -542,7 +542,7 @@ class npc_pummeller : public CreatureScript
     public:
         npc_pummeller() : CreatureScript("npc_pummeller") { }
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<npc_pummellerAI>(creature);
         }
@@ -554,7 +554,7 @@ class npc_pummeller : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _arcingSmashTimer = TIMER_ARCING_SMASH;
                 _trampleTimer = TIMER_TRAMPLE;
@@ -567,7 +567,7 @@ class npc_pummeller : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -643,7 +643,7 @@ class npc_boombot : public CreatureScript
     public:
         npc_boombot() : CreatureScript("npc_boombot") { }
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<npc_boombotAI>(creature);
         }
@@ -655,7 +655,7 @@ class npc_boombot : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _boomed = false;
 
@@ -672,7 +672,7 @@ class npc_boombot : public CreatureScript
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
+            void DamageTaken(Unit* /*who*/, uint32& damage) override
             {
                 if (damage >= (me->GetHealth() - me->GetMaxHealth() * 0.5f) && !_boomed)
                 {
@@ -697,7 +697,7 @@ class npc_boombot : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (!UpdateVictim())
                     return;
@@ -722,7 +722,7 @@ class npc_life_spark : public CreatureScript
     public:
         npc_life_spark() : CreatureScript("npc_life_spark") { }
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_life_sparkAI(creature);
         }
@@ -733,13 +733,13 @@ class npc_life_spark : public CreatureScript
             {
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 DoCast(me, RAID_MODE(SPELL_STATIC_CHARGED_10, SPELL_STATIC_CHARGED_25));
                 _shockTimer = 0; // first one is immediate.
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -769,7 +769,7 @@ class spell_xt002_searing_light_spawn_life_spark : public SpellScriptLoader
         {
             PrepareAuraScript(spell_xt002_searing_light_spawn_life_spark_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_LIFE_SPARK))
                     return false;
@@ -784,13 +784,13 @@ class spell_xt002_searing_light_spawn_life_spark : public SpellScriptLoader
                             player->CastSpell(player, SPELL_SUMMON_LIFE_SPARK, true);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_xt002_searing_light_spawn_life_spark_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_xt002_searing_light_spawn_life_spark_AuraScript();
         }
@@ -805,7 +805,7 @@ class spell_xt002_gravity_bomb_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_xt002_gravity_bomb_aura_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_VOID_ZONE))
                     return false;
@@ -835,14 +835,14 @@ class spell_xt002_gravity_bomb_aura : public SpellScriptLoader
                         xt002->GetAI()->SetData(DATA_GRAVITY_BOMB_CASUALTY, 1);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_xt002_gravity_bomb_aura_AuraScript::OnPeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_xt002_gravity_bomb_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_xt002_gravity_bomb_aura_AuraScript();
         }
@@ -868,13 +868,13 @@ class spell_xt002_gravity_bomb_damage : public SpellScriptLoader
                         caster->GetAI()->SetData(DATA_GRAVITY_BOMB_CASUALTY, 1);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_xt002_gravity_bomb_damage_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_xt002_gravity_bomb_damage_SpellScript();
         }
@@ -889,7 +889,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
         {
             PrepareSpellScript(spell_xt002_heart_overload_periodic_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_ENERGY_ORB))
                     return false;
@@ -935,13 +935,13 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_xt002_heart_overload_periodic_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_xt002_heart_overload_periodic_SpellScript();
         }
@@ -966,7 +966,7 @@ class spell_xt002_tympanic_tantrum : public SpellScriptLoader
                 SetHitDamage(GetHitUnit()->CountPctFromMaxHealth(GetHitDamage()));
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_xt002_tympanic_tantrum_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_xt002_tympanic_tantrum_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
@@ -974,7 +974,7 @@ class spell_xt002_tympanic_tantrum : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_xt002_tympanic_tantrum_SpellScript();
         }
@@ -999,13 +999,13 @@ class spell_xt002_submerged : public SpellScriptLoader
                 target->SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_SUBMERGED);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_xt002_submerged_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_xt002_submerged_SpellScript();
         }
@@ -1030,13 +1030,13 @@ class spell_xt002_stand : public SpellScriptLoader
                 target->SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_STAND);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_xt002_stand_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_xt002_stand_SpellScript();
         }
@@ -1047,7 +1047,7 @@ class achievement_nerf_engineering : public AchievementCriteriaScript
     public:
         achievement_nerf_engineering() : AchievementCriteriaScript("achievement_nerf_engineering") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             if (!target || !target->GetAI())
                 return false;
@@ -1061,7 +1061,7 @@ class achievement_heartbreaker : public AchievementCriteriaScript
     public:
         achievement_heartbreaker() : AchievementCriteriaScript("achievement_heartbreaker") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             if (!target || !target->GetAI())
                 return false;
@@ -1075,7 +1075,7 @@ class achievement_nerf_gravity_bombs : public AchievementCriteriaScript
     public:
         achievement_nerf_gravity_bombs() : AchievementCriteriaScript("achievement_nerf_gravity_bombs") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             if (!target || !target->GetAI())
                 return false;

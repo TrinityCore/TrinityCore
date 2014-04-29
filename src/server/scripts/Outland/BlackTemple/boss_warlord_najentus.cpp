@@ -76,7 +76,7 @@ class boss_najentus : public CreatureScript
 public:
     boss_najentus() : CreatureScript("boss_najentus") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_najentusAI>(creature);
     }
@@ -93,7 +93,7 @@ public:
 
         uint64 SpineTargetGUID;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             events.Reset();
 
@@ -102,20 +102,20 @@ public:
             instance->SetBossState(DATA_HIGH_WARLORD_NAJENTUS, NOT_STARTED);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_SLAY);
             events.DelayEvents(5000, GCD_YELL);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             instance->SetBossState(DATA_HIGH_WARLORD_NAJENTUS, DONE);
 
             Talk(SAY_DEATH);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) OVERRIDE
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
             if (spell->Id == SPELL_HURL_SPINE && me->HasAura(SPELL_TIDAL_SHIELD))
             {
@@ -125,7 +125,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             instance->SetBossState(DATA_HIGH_WARLORD_NAJENTUS, IN_PROGRESS);
 
@@ -155,7 +155,7 @@ public:
             events.RescheduleEvent(EVENT_SHIELD, 60000 + inc);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -222,7 +222,7 @@ class go_najentus_spine : public GameObjectScript
 public:
     go_najentus_spine() : GameObjectScript("go_najentus_spine") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
+    bool OnGossipHello(Player* player, GameObject* go) override
     {
         if (InstanceScript* instance = go->GetInstanceScript())
             if (Creature* Najentus = ObjectAccessor::GetCreature(*go, instance->GetData64(DATA_HIGH_WARLORD_NAJENTUS)))

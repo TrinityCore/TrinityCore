@@ -43,13 +43,13 @@ class instance_forge_of_souls : public InstanceMapScript
                 teamInInstance = 0;
             }
 
-            void OnPlayerEnter(Player* player) OVERRIDE
+            void OnPlayerEnter(Player* player) override
             {
                 if (!teamInInstance)
                     teamInInstance = player->GetTeam();
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 if (!teamInInstance)
                 {
@@ -82,7 +82,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type) const OVERRIDE
+            uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -95,7 +95,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const OVERRIDE
+            uint64 GetData64(uint32 type) const override
             {
                 switch (type)
                 {
@@ -110,7 +110,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 return 0;
             }
 
-            std::string GetSaveData() OVERRIDE
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -121,7 +121,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* in) OVERRIDE
+            void Load(const char* in) override
             {
                 if (!in)
                 {
@@ -158,7 +158,7 @@ class instance_forge_of_souls : public InstanceMapScript
             uint32 teamInInstance;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_forge_of_souls_InstanceScript(map);
         }
