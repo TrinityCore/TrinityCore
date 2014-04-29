@@ -106,7 +106,6 @@ set(scripts_STAT_SRCS
   Kalimdor/WailingCaverns/wailing_caverns.cpp
   Kalimdor/zone_durotar.cpp
   Kalimdor/zone_felwood.cpp
-  Kalimdor/boss_azuregos.cpp
   Kalimdor/zone_tanaris.cpp
   Kalimdor/zone_dustwallow_marsh.cpp
   Kalimdor/zone_winterspring.cpp
