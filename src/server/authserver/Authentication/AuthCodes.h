@@ -70,6 +70,57 @@ enum LoginResult
     LOGIN_LOCKED_ENFORCED                        = 0x10
 };
 
+namespace Battlenet
+{
+    enum AuthResult
+    {
+        AUTH_OK                         = 0,
+        AUTH_BAD_SERVER_PROOF           = 103,
+        AUTH_UNKNOWN_ACCOUNT            = 104,
+        AUTH_CLOSED                     = 105,
+        AUTH_LOGIN_TIMEOUT              = 106,
+        AUTH_NO_GAME_ACCOUNTS           = 107,
+        AUTH_INVALID_TOKEN              = 108,
+        AUTH_INVALID_PROGRAM            = 109,
+        AUTH_INVALID_OS                 = 110,
+        AUTH_UNSUPPORTED_LANGUAGE       = 111,
+        AUTH_REGION_BAD_VERSION         = 112,
+        AUTH_TEMP_OUTAGE                = 113,
+        AUTH_CANT_DOWNLOAD_MODULE       = 114,
+        AUTH_DUPLICATE_LOGON            = 115,
+        AUTH_BAD_CREDENTIALS_2          = 116,
+        AUTH_VERSION_CHECK_SUCCEEDED    = 117,
+        AUTH_BAD_VERSION_HASH           = 118,
+        AUTH_CANT_RETRIEVE_PORTAL_LIST  = 119,
+        AUTH_DARK_PORTAL_DOES_NOT_EXIST = 120,
+        AUTH_DARK_PORTAL_FILE_CORRUPTED = 121,
+        AUTH_BATTLENET_MAINTENANCE      = 122,
+        AUTH_LOGON_TOO_FAST             = 123,
+        AUTH_USE_GRUNT_LOGON            = 124,
+
+        LOGIN_NO_GAME_ACCOUNT           = 201,
+        LOGIN_BANNED                    = 202,
+        LOGIN_SUSPENDED                 = 203,
+        LOGIN_GAME_ACCOUNT_LOCKED       = 204,
+        LOGIN_ALREADY_ONLINE            = 205,
+        LOGIN_NOTIME                    = 206,
+        LOGIN_EXPIRED                   = 207,
+        LOGIN_EXPIRED_2                 = 208,
+        LOGIN_PARENTALCONTROL           = 209,
+        LOGIN_TRIAL_EXPIRED             = 210,
+        LOGIN_ANTI_INDULGENCE           = 211,
+        LOGIN_INCORRECT_REGION          = 212,
+        LOGIN_CHARGEBACK                = 213,
+        LOGIN_IGR_WITHOUT_BNET          = 214,
+        LOGIN_LOCKED_ENFORCED           = 215,
+        LOGIN_UNLOCKABLE_LOCK           = 216,
+        LOGIN_IGR_REQUIRED              = 217,
+        LOGIN_PAYMENT_CHANGED           = 218,
+        LOGIN_INVALID_PAYMENT           = 219,
+        LOGIN_INVALID_ACCOUNT_STATE     = 220
+    };
+}
+
 enum ExpansionFlags
 {
     POST_BC_EXP_FLAG                            = 0x2,

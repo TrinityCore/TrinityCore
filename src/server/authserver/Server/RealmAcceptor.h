@@ -24,7 +24,9 @@
 
 #include "RealmSocket.h"
 #include "AuthSocket.h"
+#include "BattlenetSocket.h"
 
+template<class LoginType>
 class RealmAcceptor : public ACE_Acceptor<RealmSocket, ACE_SOCK_Acceptor>
 {
 public:
@@ -42,7 +44,7 @@ protected:
             ACE_NEW_RETURN(sh, RealmSocket, -1);
 
         sh->reactor(reactor());
-        sh->set_session(new AuthSocket(*sh));
+        sh->set_session(new LoginType(*sh));
         return 0;
     }
 
