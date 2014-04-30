@@ -254,6 +254,8 @@ extern int main(int argc, char** argv)
 #endif
 #endif
 
+    sBattlenetMgr->Load();
+
     // maximum counter for next ping
     uint32 numLoops = (sConfigMgr->GetIntDefault("MaxPingTime", 30) * (MINUTE * 1000000 / 100000));
     uint32 loopCounter = 0;

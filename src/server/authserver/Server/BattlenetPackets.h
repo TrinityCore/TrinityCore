@@ -18,6 +18,9 @@
 #ifndef __BATTLENETPACKETS_H__
 #define __BATTLENETPACKETS_H__
 
+#include "AuthCodes.h"
+#include "BattlenetBitStream.h"
+#include "BattlenetManager.h"
 #include "Define.h"
 #include "Errors.h"
 #include <string>
@@ -39,6 +42,7 @@ namespace Battlenet
     {
         CMSG_AUTH_CHALLENGE         = 0x0,
         CMSG_AUTH_PROOF_RESPONSE    = 0x2,
+        CMSG_AUTH_CHALLENGE_NEW     = 0x9,  // MoP
 
         SMSG_AUTH_COMPLETE          = 0x0,
         SMSG_AUTH_PROOF_REQUEST     = 0x2,
@@ -116,15 +120,8 @@ namespace Battlenet
     public:
         AuthChallenge(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
         {
-            ASSERT(header == PacketHeader(CMSG_AUTH_CHALLENGE, AUTHENTICATION) && "Invalid packet header for AuthChallenge");
+            ASSERT(header.Channel == AUTHENTICATION && (header.Opcode == CMSG_AUTH_CHALLENGE || header.Opcode == CMSG_AUTH_CHALLENGE_NEW) && "Invalid packet header for AuthChallenge");
         }
-
-        struct Component
-        {
-            std::string Program;
-            std::string Platform;
-            uint32 Build;
-        };
 
         void Read() override;
         std::string ToString() const override;
@@ -151,6 +148,7 @@ namespace Battlenet
         ProofRequest() : ServerPacket(PacketHeader(SMSG_AUTH_PROOF_REQUEST, AUTHENTICATION)) { }
 
         void Write() override;
+        std::string ToString() const override;
 
         std::vector<ModuleInfo> Modules;
     };
@@ -181,14 +179,16 @@ namespace Battlenet
     {
     public:
         AuthComplete() : ServerPacket(PacketHeader(SMSG_AUTH_COMPLETE, AUTHENTICATION)),
-            AuthResult(0), ErrorType(0), PingTimeout(120000), Threshold(1000000), Rate(1000)
+            Result(AUTH_OK), ErrorType(0), PingTimeout(120000), Threshold(1000000), Rate(1000)
         {
         }
 
         void Write() override;
+        std::string ToString() const override;
 
-        uint32 AuthResult;
         std::vector<ModuleInfo> Modules;
+        void SetAuthResult(AuthResult result);
+        AuthResult Result;
         uint32 ErrorType;
 
         int32 PingTimeout;

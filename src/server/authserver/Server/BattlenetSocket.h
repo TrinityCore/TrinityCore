@@ -19,6 +19,7 @@
 #define _BATTLENETSOCKET_H
 
 #include "RealmSocket.h"
+#include "BattlenetPackets.h"
 #include "BattlenetPacketCrypt.h"
 
 namespace Battlenet
@@ -39,6 +40,8 @@ namespace Battlenet
         void OnRead() override;
         void OnAccept() override;
         void OnClose() override;
+
+        void Send(ServerPacket& packet);
 
     private:
         RealmSocket& _socket;

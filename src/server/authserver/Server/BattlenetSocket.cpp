@@ -17,7 +17,6 @@
 
 #include "AuthCodes.h"
 #include "BattlenetBitStream.h"
-#include "BattlenetPackets.h"
 #include "BattlenetSocket.h"
 #include <map>
 
@@ -26,13 +25,29 @@ bool Battlenet::Socket::HandleAuthChallenge(PacketHeader& header, BitStream& pac
     AuthChallenge info(header, packet);
     info.Read();
 
+    for (Component const& component : info.Components)
+    {
+        if (!sBattlenetMgr->HasComponent(&component))
+        {
+            AuthComplete complete;
+            if (!sBattlenetMgr->HasProgram(component.Program))
+                complete.SetAuthResult(AUTH_INVALID_PROGRAM);
+            else if (!sBattlenetMgr->HasPlatform(component.Platform))
+                complete.SetAuthResult(AUTH_INVALID_OS);
+            else if (!sBattlenetMgr->HasBuild(component.Build))
+                complete.SetAuthResult(AUTH_REGION_BAD_VERSION);
+
+            Send(complete);
+            return true;
+        }
+    }
+
     printf("%s\n", info.ToString().c_str());
 
     _accountName = info.Login;
 
     ProofRequest request;
-    request.Write();
-    _socket.send((char const*)request.GetData(), request.GetSize());
+    Send(request);
     return true;
 }
 
@@ -44,10 +59,8 @@ bool Battlenet::Socket::HandleAuthProofResponse(PacketHeader& header, BitStream&
     printf("%s\n", response.ToString().c_str());
 
     AuthComplete complete;
-    complete.ErrorType = 1;
-    complete.AuthResult = AUTH_USE_GRUNT_LOGON;
-    complete.Write();
-    _socket.send((char const*)complete.GetData(), complete.GetSize());
+    complete.SetAuthResult(AUTH_USE_GRUNT_LOGON);
+    Send(complete);
     return true;
 }
 
@@ -56,6 +69,7 @@ std::map<Battlenet::PacketHeader, Battlenet::Socket::PacketHandler> InitHandlers
     std::map<Battlenet::PacketHeader, Battlenet::Socket::PacketHandler> handlers;
 
     handlers[Battlenet::PacketHeader(Battlenet::CMSG_AUTH_CHALLENGE, Battlenet::AUTHENTICATION)] = &Battlenet::Socket::HandleAuthChallenge;
+    handlers[Battlenet::PacketHeader(Battlenet::CMSG_AUTH_CHALLENGE_NEW, Battlenet::AUTHENTICATION)] = &Battlenet::Socket::HandleAuthChallenge;
     handlers[Battlenet::PacketHeader(Battlenet::CMSG_AUTH_PROOF_RESPONSE, Battlenet::AUTHENTICATION)] = &Battlenet::Socket::HandleAuthProofResponse;
 
     return handlers;
@@ -121,4 +135,12 @@ void Battlenet::Socket::OnAccept()
 void Battlenet::Socket::OnClose()
 {
     printf("Battlenet::Socket::OnClose\n");
+}
+
+void Battlenet::Socket::Send(ServerPacket& packet)
+{
+    printf("Battlenet::Socket::Send %s\n", packet.ToString().c_str());
+
+    packet.Write();
+    _socket.send(reinterpret_cast<char const*>(packet.GetData()), packet.GetSize());
 }
