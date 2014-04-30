@@ -8644,8 +8644,8 @@ void ObjectMgr::LoadBroadcastTexts()
 
         bct.Id = fields[0].GetUInt32();
         bct.Language = fields[1].GetUInt32();
-        AddLocaleString(fields[2].GetString(), DEFAULT_LOCALE, bct.MaleText);
-        AddLocaleString(fields[3].GetString(), DEFAULT_LOCALE, bct.FemaleText);
+        bct.MaleText[DEFAULT_LOCALE] = fields[2].GetString();
+        bct.FemaleText[DEFAULT_LOCALE] = fields[3].GetString();
         bct.EmoteId0 = fields[4].GetUInt32();
         bct.EmoteId1 = fields[5].GetUInt32();
         bct.EmoteId2 = fields[6].GetUInt32();
