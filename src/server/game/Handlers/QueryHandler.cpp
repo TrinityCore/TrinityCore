@@ -299,8 +299,8 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& recvData)
             BroadcastText const* bct = sObjectMgr->GetBroadcastText(gossip->Options[i].BroadcastTextID);
             if (bct)
             {
-                ObjectMgr::GetLocaleString(bct->MaleText, locale, text0[i]);
-                ObjectMgr::GetLocaleString(bct->FemaleText, locale, text1[i]);
+                text0[i] = bct->GetText(locale, GENDER_MALE, true);
+                text1[i] = bct->GetText(locale, GENDER_FEMALE, true);
             }
             else
             {

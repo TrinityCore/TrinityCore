@@ -412,6 +412,12 @@ struct AreaTrigger
 
 struct BroadcastText
 {
+    BroadcastText()
+    {
+        MaleText.resize(DEFAULT_LOCALE + 1);
+        FemaleText.resize(DEFAULT_LOCALE + 1);
+    }
+
     uint32 Id;
     uint32 Language;
     StringVector MaleText;
