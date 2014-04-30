@@ -660,10 +660,6 @@ void KillRewarder::Reward()
 
 }
 
-// == Player ====================================================
-
-// we can disable this warning for this since it only
-// causes undefined behavior when passed to the base class constructor
 Player::Player(WorldSession* session): Unit(true), phaseMgr(this)
 {
     m_speakTime = 0;
@@ -14492,12 +14488,12 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
             LocaleConstant locale = GetSession()->GetSessionDbLocaleIndex();
 
             if (optionBroadcastText)
-                ObjectMgr::GetLocaleString(getGender() == GENDER_MALE ? optionBroadcastText->MaleText : optionBroadcastText->FemaleText, locale, strOptionText);
+                strOptionText = optionBroadcastText->GetText(locale, getGender());
             else
                 strOptionText = itr->second.OptionText;
 
             if (boxBroadcastText)
-                ObjectMgr::GetLocaleString(getGender() == GENDER_MALE ? boxBroadcastText->MaleText : boxBroadcastText->FemaleText, locale, strBoxText);
+                strBoxText = optionBroadcastText->GetText(locale, getGender());
             else
                 strBoxText = itr->second.BoxText;
 
