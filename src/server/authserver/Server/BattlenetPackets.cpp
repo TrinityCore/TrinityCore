@@ -15,9 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "BattlenetBitStream.h"
 #include "BattlenetPackets.h"
+#include "Common.h"
 #include "Util.h"
 #include <limits>
 #include <sstream>
@@ -58,14 +57,17 @@ void Battlenet::AuthChallenge::Read()
 
     if (_stream.Read<uint32>(1))
         Login = _stream.ReadString(9, 3);
+
+    if (GetHeader().Opcode == CMSG_AUTH_CHALLENGE_NEW)
+        _stream.FinishReading();
 }
 
 std::string Battlenet::AuthChallenge::ToString() const
 {
     std::ostringstream stream;
     stream << "Battlenet::AuthChallenge Program: " << Program << ", Platform: " << Platform << ", Locale: " << Locale;
-    for (uint32 i = 0; i < Components.size(); ++i)
-        stream << std::endl << "Battlenet::AuthChallenge::Component Program: " << Components[i].Program << ", Platform: " << Components[i].Platform << ", Build: " << Components[i].Build;
+    for (Component const& component : Components)
+        stream << std::endl << "Battlenet::AuthChallenge::Component Program: " << component.Program << ", Platform: " << component.Platform << ", Build: " << component.Build;
 
     if (!Login.empty())
         stream << std::endl << "Battlenet::AuthChallenge Login: " << Login;
@@ -85,6 +87,16 @@ void Battlenet::ProofRequest::Write()
         _stream.Write(info.BlobSize, 10);
         _stream.WriteBytes(info.Blob, info.BlobSize);
     }
+}
+
+std::string Battlenet::ProofRequest::ToString() const
+{
+    std::ostringstream stream;
+    stream << "Battlenet::ProofRequest modules " << Modules.size();
+    for (ModuleInfo const& module : Modules)
+        stream << std::endl << "Locale " << module.Locale << "ModuleId " << ByteArrayToHexStr(module.ModuleId, 32) << "BlobSize " << module.BlobSize;
+
+    return stream.str();
 }
 
 Battlenet::ProofResponse::~ProofResponse()
@@ -108,10 +120,10 @@ std::string Battlenet::ProofResponse::ToString() const
 {
     std::ostringstream stream;
     stream << "Battlenet::ProofResponse Modules " << Modules.size();
-    for (size_t i = 0; i < Modules.size(); ++i)
+    for (ModuleData const& module : Modules)
     {
-        std::string hexStr = ByteArrayToHexStr(Modules[i].Data, Modules[i].Size);
-        stream << std::endl << "Battlenet::ProofResponse::ModuleData Size: " << Modules[i].Size << ", Data: " << hexStr;
+        std::string hexStr = ByteArrayToHexStr(module.Data, module.Size);
+        stream << std::endl << "Battlenet::ProofResponse::ModuleData Size: " << module.Size << ", Data: " << hexStr;
     }
 
     return stream.str();
@@ -119,8 +131,8 @@ std::string Battlenet::ProofResponse::ToString() const
 
 void Battlenet::AuthComplete::Write()
 {
-    _stream.Write(AuthResult != 0, 1);
-    if (AuthResult == 0)
+    _stream.Write(Result != 0, 1);
+    if (Result == 0)
     {
         _stream.Write(Modules.size(), 3);
         for (size_t i = 0; i < Modules.size(); ++i)
@@ -163,8 +175,19 @@ void Battlenet::AuthComplete::Write()
         _stream.Write(ErrorType, 2);
         if (ErrorType == 1)
         {
-            _stream.Write(AuthResult, 16);
+            _stream.Write<uint16>(Result, 16);
             _stream.Write(0, 32);
         }
     }
+}
+
+std::string Battlenet::AuthComplete::ToString() const
+{
+    return "Battlenet::AuthComplete";
+}
+
+void Battlenet::AuthComplete::SetAuthResult(AuthResult result)
+{
+    ErrorType = result != AUTH_OK ? 1 : 0;
+    Result = result;
 }

@@ -178,6 +178,8 @@ namespace Battlenet
 
         size_t GetSize() const { return _buffer.size(); }
 
+        void FinishReading() { _readPos = _numBits; }
+
     private:
         std::vector<uint8> _buffer;
         uint32 _numBits;
