@@ -103,7 +103,7 @@ void GossipMenu::AddMenuItem(uint32 menuId, uint32 menuItemId, uint32 sender, ui
 
         /// BoxText
         if (boxBroadcastText)
-            strBoxText = optionBroadcastText->GetText(GetLocale());
+            strBoxText = boxBroadcastText->GetText(GetLocale());
         else
             strBoxText = itr->second.BoxText;
 
