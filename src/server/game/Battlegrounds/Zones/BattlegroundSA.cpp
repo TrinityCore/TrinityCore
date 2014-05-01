@@ -552,8 +552,9 @@ void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject*
         switch (go->GetGoType())
         {
             case GAMEOBJECT_TYPE_GOOBER:
-                if (eventId == BG_SA_EVENT_TITAN_RELIC_ACTIVATED)
-                    TitanRelicActivated(invoker->ToPlayer());
+                if (invoker)
+                    if (eventId == BG_SA_EVENT_TITAN_RELIC_ACTIVATED)
+                        TitanRelicActivated(invoker->ToPlayer());
                 break;
             case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
             {
@@ -577,8 +578,15 @@ void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject*
                         GateStatus[gate->GateId] = BG_SA_GATE_DESTROYED;
                         _gateDestroyed = true;
 
-                        bool rewardHonor = true;
+                        if (gateId < 5)
+                            DelObject(gateId + 14);
 
+                        if (Creature* c = obj->FindNearestCreature(NPC_WORLD_TRIGGER, 500.0f))
+                            SendChatMessage(c, gate->DestroyedText, invoker);
+
+                        PlaySoundToAll(Attackers == TEAM_ALLIANCE ? SOUND_WALL_DESTROYED_ALLIANCE : SOUND_WALL_DESTROYED_HORDE);
+
+                        bool rewardHonor = true;
                         switch (gateId)
                         {
                             case BG_SA_GREEN_GATE:
@@ -601,23 +609,18 @@ void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject*
                                 break;
                         }
 
-                        if (gateId < 5)
-                            DelObject(gateId + 14);
-
-                        if (Unit* unit = invoker->ToUnit())
+                        if (invoker)
                         {
-                            if (Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself())
+                            if (Unit* unit = invoker->ToUnit())
                             {
-                                UpdatePlayerScore(player, SCORE_DESTROYED_WALL, 1);
-                                if (rewardHonor)
-                                    UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(1));
+                                if (Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself())
+                                {
+                                    UpdatePlayerScore(player, SCORE_DESTROYED_WALL, 1);
+                                    if (rewardHonor)
+                                        UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(1));
+                                }
                             }
                         }
-
-                        if (Creature* c = obj->FindNearestCreature(NPC_WORLD_TRIGGER, 500.0f))
-                            SendChatMessage(c, gate->DestroyedText, invoker);
-
-                        PlaySoundToAll(Attackers == TEAM_ALLIANCE ? SOUND_WALL_DESTROYED_ALLIANCE : SOUND_WALL_DESTROYED_HORDE);
                     }
                     else
                         break;
