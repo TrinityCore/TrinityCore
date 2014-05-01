@@ -31,10 +31,10 @@ class Map;
 
 typedef Movement::Spline<double>                 TransportSpline;
 typedef std::vector<KeyFrame>                    KeyFrameVec;
-typedef UNORDERED_MAP<uint32, TransportTemplate> TransportTemplates;
+typedef std::unordered_map<uint32, TransportTemplate> TransportTemplates;
 typedef std::set<Transport*>                     TransportSet;
-typedef UNORDERED_MAP<uint32, TransportSet>      TransportMap;
-typedef UNORDERED_MAP<uint32, std::set<uint32> > TransportInstanceMap;
+typedef std::unordered_map<uint32, TransportSet>      TransportMap;
+typedef std::unordered_map<uint32, std::set<uint32> > TransportInstanceMap;
 
 struct KeyFrame
 {
