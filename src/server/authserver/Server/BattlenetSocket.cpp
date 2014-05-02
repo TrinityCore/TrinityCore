@@ -25,6 +25,32 @@ bool Battlenet::Socket::HandleAuthChallenge(PacketHeader& header, BitStream& pac
     AuthChallenge info(header, packet);
     info.Read();
 
+    printf("%s\n", info.ToString().c_str());
+
+    if (info.Program != "WoW")
+    {
+        AuthComplete complete;
+        complete.SetAuthResult(AUTH_INVALID_PROGRAM);
+        Send(complete);
+        return true;
+    }
+
+    if (!sBattlenetMgr->HasPlatform(info.Platform))
+    {
+        AuthComplete complete;
+        complete.SetAuthResult(AUTH_INVALID_OS);
+        Send(complete);
+        return true;
+    }
+
+    if (!sBattlenetMgr->HasPlatform(info.Locale))
+    {
+        AuthComplete complete;
+        complete.SetAuthResult(AUTH_UNSUPPORTED_LANGUAGE);
+        Send(complete);
+        return true;
+    }
+
     for (Component const& component : info.Components)
     {
         if (!sBattlenetMgr->HasComponent(&component))
@@ -34,7 +60,7 @@ bool Battlenet::Socket::HandleAuthChallenge(PacketHeader& header, BitStream& pac
                 complete.SetAuthResult(AUTH_INVALID_PROGRAM);
             else if (!sBattlenetMgr->HasPlatform(component.Platform))
                 complete.SetAuthResult(AUTH_INVALID_OS);
-            else if (!sBattlenetMgr->HasBuild(component.Build))
+            else
                 complete.SetAuthResult(AUTH_REGION_BAD_VERSION);
 
             Send(complete);
@@ -42,9 +68,9 @@ bool Battlenet::Socket::HandleAuthChallenge(PacketHeader& header, BitStream& pac
         }
     }
 
-    printf("%s\n", info.ToString().c_str());
-
     _accountName = info.Login;
+    _locale = info.Locale;
+    _os = info.Platform;
 
     ProofRequest request;
     Send(request);
@@ -101,6 +127,8 @@ void Battlenet::Socket::OnRead()
                 header.Opcode = packet.Read<uint32>(6);
                 if (packet.Read<uint32>(1))
                     _currentChannel = header.Channel = packet.Read<int32>(4);
+                else
+                    header.Channel = _currentChannel;
 
                 printf("Battlenet::Socket::OnRead %s\n", header.ToString().c_str());
                 std::map<PacketHeader, PacketHandler>::const_iterator itr = Handlers.find(header);

@@ -22,16 +22,21 @@
 #include <exception>
 #include <string>
 #include <vector>
+#include <ace/Stack_Trace.h>
 
 namespace Battlenet
 {
     class BitStreamPositionException : public std::exception
     {
     public:
+        BitStreamPositionException() : st(1) { }
+
         char const* what() const
         {
-            return "";
+            return st.c_str();
         }
+
+        ACE_Stack_Trace st;
     };
 
     class BitStream
@@ -121,7 +126,10 @@ namespace Battlenet
         void WriteBytes(T* data, uint32 count)
         {
             AlignToNextByte();
-            if (_writePos + 8 * count > MaxSize)
+            if (!count || !data)
+                return;
+
+            if (_writePos + count > MaxSize)
                 throw BitStreamPositionException();
 
             _buffer.resize(_buffer.size() + count);

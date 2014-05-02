@@ -48,6 +48,8 @@ namespace Battlenet
         uint32 _currentChannel;
 
         std::string _accountName;
+        std::string _locale;
+        std::string _os;
 
         PacketCrypt _crypt;
     };

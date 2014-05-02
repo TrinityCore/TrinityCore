@@ -58,7 +58,12 @@ namespace Battlenet
 
         bool operator<(PacketHeader const& right) const
         {
-            return Opcode < right.Opcode || Channel < right.Channel;
+            if (Opcode < right.Opcode)
+                return true;
+            if (Opcode > right.Opcode)
+                return false;
+
+            return Channel < right.Channel;
         }
 
         bool operator==(PacketHeader const& right) const
@@ -133,15 +138,6 @@ namespace Battlenet
         std::string Login;
     };
 
-    struct ModuleInfo
-    {
-        std::string AuthString;
-        std::string Locale;
-        uint8 ModuleId[32];
-        uint32 BlobSize;
-        uint8* Blob;
-    };
-
     class ProofRequest final : public ServerPacket
     {
     public:
@@ -150,7 +146,7 @@ namespace Battlenet
         void Write() override;
         std::string ToString() const override;
 
-        std::vector<ModuleInfo> Modules;
+        std::vector<ModuleInfo const*> Modules;
     };
 
     class ProofResponse final : public ClientPacket
