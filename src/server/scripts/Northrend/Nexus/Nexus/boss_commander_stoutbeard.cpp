@@ -41,7 +41,7 @@ class boss_commander_stoutbeard : public CreatureScript
 public:
     boss_commander_stoutbeard() : CreatureScript("boss_commander_stoutbeard") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_commander_stoutbeardAI(creature);
     }
@@ -50,11 +50,11 @@ public:
     {
         boss_commander_stoutbeardAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE { }
-        void AttackStart(Unit* /*who*/) OVERRIDE { }
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
+        void Reset() override { }
+        void AttackStart(Unit* /*who*/) override { }
+        void MoveInLineOfSight(Unit* /*who*/) override { }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE
+        void UpdateAI(uint32 /*diff*/) override
         {
             //Return since we have no target
             if (!UpdateVictim())

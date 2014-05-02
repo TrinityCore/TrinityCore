@@ -452,7 +452,7 @@ enum SMART_ACTION
     SMART_ACTION_CALL_KILLEDMONSTER                 = 33,     // CreatureId,
     SMART_ACTION_SET_INST_DATA                      = 34,     // Field, Data
     SMART_ACTION_SET_INST_DATA64                    = 35,     // Field,
-    SMART_ACTION_UPDATE_TEMPLATE                    = 36,     // Entry, Team
+    SMART_ACTION_UPDATE_TEMPLATE                    = 36,     // Entry
     SMART_ACTION_DIE                                = 37,     // No Params
     SMART_ACTION_SET_IN_COMBAT_WITH_ZONE            = 38,     // No Params
     SMART_ACTION_CALL_FOR_HELP                      = 39,     // Radius, With Emote
@@ -701,7 +701,6 @@ struct SmartAction
         struct
         {
             uint32 creature;
-            uint32 team;
         } updateTemplate;
 
         struct

@@ -33,7 +33,7 @@ class npc_four_car_garage : public CreatureScript
         {
             npc_four_car_garageAI(Creature* creature) : NullCreatureAI(creature) { }
 
-            void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) OVERRIDE
+            void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
             {
                 if (apply)
                 {
@@ -64,7 +64,7 @@ class npc_four_car_garage : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_four_car_garageAI(creature);
         }

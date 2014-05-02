@@ -20,6 +20,7 @@
 #define __BATTLEGROUNDAV_H
 
 #include "Battleground.h"
+#include "Object.h"
 
 #define LANG_BG_AV_A_CAPTAIN_BUFF       "Begone. Uncouth scum! The Alliance shall prevail in Alterac Valley!"
 #define LANG_BG_AV_H_CAPTAIN_BUFF       "Now is the time to attack! For the Horde!"
@@ -528,7 +529,7 @@ const float BG_AV_ObjectPos[AV_OPLACE_MAX][4] =
     {-951.394f, -193.695f, 67.634f, 0.802851f}
 };
 
-const float BG_AV_DoorPositons[2][4] =
+Position const BG_AV_DoorPositons[2] =
 {
     {780.487f, -493.024f, 99.9553f, 3.0976f},   //alliance
     {-1375.193f, -538.981f, 55.2824f, 0.72178f} //horde
@@ -624,8 +625,7 @@ enum BG_AV_CreaturePlace
     AV_CPLACE_MAX = 321
 };
 
-//x, y, z, o
-const float BG_AV_CreaturePos[AV_CPLACE_MAX][4] =
+Position const BG_AV_CreaturePos[AV_CPLACE_MAX] =
 {
     //spiritguides
     {643.000000f, 44.000000f, 69.740196f, -0.001854f},

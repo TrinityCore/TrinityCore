@@ -30,7 +30,7 @@ class instance_maraudon : public InstanceMapScript
 public:
     instance_maraudon() : InstanceMapScript("instance_maraudon", 349) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_maraudon_InstanceMapScript(map);
     }

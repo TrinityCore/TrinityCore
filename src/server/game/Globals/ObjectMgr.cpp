@@ -396,7 +396,7 @@ void ObjectMgr::LoadCreatureTemplates()
     //                                                 0              1                 2                  3                 4            5           6        7         8
     QueryResult result = WorldDatabase.Query("SELECT entry, difficulty_entry_1, difficulty_entry_2, difficulty_entry_3, KillCredit1, KillCredit2, modelid1, modelid2, modelid3, "
     //                                           9       10      11       12           13           14        15     16      17          18       19         20         21
-                                             "modelid4, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, faction_A, faction_H, npcflag, speed_walk, speed_run, "
+                                             "modelid4, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, faction, npcflag, speed_walk, speed_run, "
     //                                         22     23     24     25        26          27             28              29                30           31          32          33
                                              "scale, rank, mindmg, maxdmg, dmgschool, attackpower, dmg_multiplier, baseattacktime, rangeattacktime, unit_class, unit_flags, unit_flags2, "
     //                                             34         35         36             37             38             39          40           41              42           43
@@ -447,65 +447,64 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.minlevel          = fields[14].GetUInt8();
         creatureTemplate.maxlevel          = fields[15].GetUInt8();
         creatureTemplate.expansion         = uint32(fields[16].GetInt16());
-        creatureTemplate.faction_A         = uint32(fields[17].GetUInt16());
-        creatureTemplate.faction_H         = uint32(fields[18].GetUInt16());
-        creatureTemplate.npcflag           = fields[19].GetUInt32();
-        creatureTemplate.speed_walk        = fields[20].GetFloat();
-        creatureTemplate.speed_run         = fields[21].GetFloat();
-        creatureTemplate.scale             = fields[22].GetFloat();
-        creatureTemplate.rank              = uint32(fields[23].GetUInt8());
-        creatureTemplate.mindmg            = fields[24].GetFloat();
-        creatureTemplate.maxdmg            = fields[25].GetFloat();
-        creatureTemplate.dmgschool         = uint32(fields[26].GetInt8());
-        creatureTemplate.attackpower       = fields[27].GetUInt32();
-        creatureTemplate.dmg_multiplier    = fields[28].GetFloat();
-        creatureTemplate.baseattacktime    = fields[29].GetUInt32();
-        creatureTemplate.rangeattacktime   = fields[30].GetUInt32();
-        creatureTemplate.unit_class        = uint32(fields[31].GetUInt8());
-        creatureTemplate.unit_flags        = fields[32].GetUInt32();
-        creatureTemplate.unit_flags2       = fields[33].GetUInt32();
-        creatureTemplate.dynamicflags      = fields[34].GetUInt32();
-        creatureTemplate.family            = uint32(fields[35].GetUInt8());
-        creatureTemplate.trainer_type      = uint32(fields[36].GetUInt8());
-        creatureTemplate.trainer_spell     = fields[37].GetUInt32();
-        creatureTemplate.trainer_class     = uint32(fields[38].GetUInt8());
-        creatureTemplate.trainer_race      = uint32(fields[39].GetUInt8());
-        creatureTemplate.minrangedmg       = fields[40].GetFloat();
-        creatureTemplate.maxrangedmg       = fields[41].GetFloat();
-        creatureTemplate.rangedattackpower = uint32(fields[42].GetUInt16());
-        creatureTemplate.type              = uint32(fields[43].GetUInt8());
-        creatureTemplate.type_flags        = fields[44].GetUInt32();
-        creatureTemplate.lootid            = fields[45].GetUInt32();
-        creatureTemplate.pickpocketLootId  = fields[46].GetUInt32();
-        creatureTemplate.SkinLootId        = fields[47].GetUInt32();
+        creatureTemplate.faction           = uint32(fields[17].GetUInt16());
+        creatureTemplate.npcflag           = fields[18].GetUInt32();
+        creatureTemplate.speed_walk        = fields[19].GetFloat();
+        creatureTemplate.speed_run         = fields[20].GetFloat();
+        creatureTemplate.scale             = fields[21].GetFloat();
+        creatureTemplate.rank              = uint32(fields[22].GetUInt8());
+        creatureTemplate.mindmg            = fields[23].GetFloat();
+        creatureTemplate.maxdmg            = fields[24].GetFloat();
+        creatureTemplate.dmgschool         = uint32(fields[25].GetInt8());
+        creatureTemplate.attackpower       = fields[26].GetUInt32();
+        creatureTemplate.dmg_multiplier    = fields[27].GetFloat();
+        creatureTemplate.baseattacktime    = fields[28].GetUInt32();
+        creatureTemplate.rangeattacktime   = fields[29].GetUInt32();
+        creatureTemplate.unit_class        = uint32(fields[30].GetUInt8());
+        creatureTemplate.unit_flags        = fields[31].GetUInt32();
+        creatureTemplate.unit_flags2       = fields[32].GetUInt32();
+        creatureTemplate.dynamicflags      = fields[33].GetUInt32();
+        creatureTemplate.family            = uint32(fields[34].GetUInt8());
+        creatureTemplate.trainer_type      = uint32(fields[35].GetUInt8());
+        creatureTemplate.trainer_spell     = fields[36].GetUInt32();
+        creatureTemplate.trainer_class     = uint32(fields[37].GetUInt8());
+        creatureTemplate.trainer_race      = uint32(fields[38].GetUInt8());
+        creatureTemplate.minrangedmg       = fields[39].GetFloat();
+        creatureTemplate.maxrangedmg       = fields[40].GetFloat();
+        creatureTemplate.rangedattackpower = uint32(fields[41].GetUInt16());
+        creatureTemplate.type              = uint32(fields[42].GetUInt8());
+        creatureTemplate.type_flags        = fields[43].GetUInt32();
+        creatureTemplate.lootid            = fields[44].GetUInt32();
+        creatureTemplate.pickpocketLootId  = fields[45].GetUInt32();
+        creatureTemplate.SkinLootId        = fields[46].GetUInt32();
 
         for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-            creatureTemplate.resistance[i] = fields[48 + i -1].GetInt16();
+            creatureTemplate.resistance[i] = fields[47 + i -1].GetInt16();
 
         for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
-            creatureTemplate.spells[i] = fields[54 + i].GetUInt32();
+            creatureTemplate.spells[i] = fields[53 + i].GetUInt32();
 
-        creatureTemplate.PetSpellDataId = fields[62].GetUInt32();
-        creatureTemplate.VehicleId      = fields[63].GetUInt32();
-        creatureTemplate.mingold        = fields[64].GetUInt32();
-        creatureTemplate.maxgold        = fields[65].GetUInt32();
-        creatureTemplate.AIName         = fields[66].GetString();
-        creatureTemplate.MovementType   = uint32(fields[67].GetUInt8());
-        creatureTemplate.InhabitType    = uint32(fields[68].GetUInt8());
-        creatureTemplate.HoverHeight    = fields[69].GetFloat();
-        creatureTemplate.ModHealth      = fields[70].GetFloat();
-        creatureTemplate.ModMana        = fields[71].GetFloat();
-        creatureTemplate.ModArmor       = fields[72].GetFloat();
-        creatureTemplate.RacialLeader   = fields[73].GetBool();
+        creatureTemplate.PetSpellDataId = fields[61].GetUInt32();
+        creatureTemplate.VehicleId      = fields[62].GetUInt32();
+        creatureTemplate.mingold        = fields[63].GetUInt32();
+        creatureTemplate.maxgold        = fields[64].GetUInt32();
+        creatureTemplate.AIName         = fields[65].GetString();
+        creatureTemplate.MovementType   = uint32(fields[66].GetUInt8());
+        creatureTemplate.InhabitType    = uint32(fields[67].GetUInt8());
+        creatureTemplate.HoverHeight    = fields[68].GetFloat();
+        creatureTemplate.ModHealth      = fields[69].GetFloat();
+        creatureTemplate.ModMana        = fields[70].GetFloat();
+        creatureTemplate.ModArmor       = fields[71].GetFloat();
+        creatureTemplate.RacialLeader   = fields[72].GetBool();
 
         for (uint8 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
-            creatureTemplate.questItems[i] = fields[74 + i].GetUInt32();
+            creatureTemplate.questItems[i] = fields[73 + i].GetUInt32();
 
-        creatureTemplate.movementId         = fields[80].GetUInt32();
-        creatureTemplate.RegenHealth        = fields[81].GetBool();
-        creatureTemplate.MechanicImmuneMask = fields[82].GetUInt32();
-        creatureTemplate.flags_extra        = fields[83].GetUInt32();
-        creatureTemplate.ScriptID           = GetScriptId(fields[84].GetCString());
+        creatureTemplate.movementId         = fields[79].GetUInt32();
+        creatureTemplate.RegenHealth        = fields[80].GetBool();
+        creatureTemplate.MechanicImmuneMask = fields[81].GetUInt32();
+        creatureTemplate.flags_extra        = fields[82].GetUInt32();
+        creatureTemplate.ScriptID           = GetScriptId(fields[83].GetCString());
 
         ++count;
     }
@@ -637,37 +636,51 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
             }
             ok2 = true;
         }
+
         if (!ok2)
             continue;
 
         if (cInfo->expansion > difficultyInfo->expansion)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, expansion %u) has different `expansion` in difficulty %u mode (Entry: %u, expansion %u).",
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, exp %u) has different `exp` in difficulty %u mode (Entry: %u, exp %u).",
                 cInfo->Entry, cInfo->expansion, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->expansion);
         }
 
-        if (cInfo->faction_A != difficultyInfo->faction_A)
+        if (cInfo->minlevel > difficultyInfo->minlevel)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, faction_A %u) has different `faction_A` in difficulty %u mode (Entry: %u, faction_A %u).",
-                cInfo->Entry, cInfo->faction_A, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->faction_A);
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, minlevel %u) has different `minlevel` in difficulty %u mode (Entry: %u, minlevel %u).",
+                cInfo->Entry, cInfo->minlevel, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->minlevel);
         }
 
-        if (cInfo->faction_H != difficultyInfo->faction_H)
+        if (cInfo->maxlevel > difficultyInfo->maxlevel)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, faction_H %u) has different `faction_H` in difficulty %u mode (Entry: %u, faction_H %u).",
-                cInfo->Entry, cInfo->faction_H, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->faction_H);
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, maxlevel %u) has different `maxlevel` in difficulty %u mode (Entry: %u, maxlevel %u).",
+                cInfo->Entry, cInfo->maxlevel, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->maxlevel);
+        }
+
+        if (cInfo->faction != difficultyInfo->faction)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, faction %u) has different `faction` in difficulty %u mode (Entry: %u, faction %u).",
+                cInfo->Entry, cInfo->faction, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->faction);
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `faction`=%u WHERE `entry`=%u;",
+                cInfo->faction, cInfo->DifficultyEntry[diff]);
         }
 
         if (cInfo->unit_class != difficultyInfo->unit_class)
         {
             TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, class %u) has different `unit_class` in difficulty %u mode (Entry: %u, class %u).",
                 cInfo->Entry, cInfo->unit_class, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->unit_class);
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `unit_class`=%u WHERE `entry`=%u;",
+                cInfo->unit_class, cInfo->DifficultyEntry[diff]);
             continue;
         }
 
         if (cInfo->npcflag != difficultyInfo->npcflag)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has different `npcflag` in difficulty %u mode (Entry: %u).", cInfo->Entry, diff + 1, cInfo->DifficultyEntry[diff]);
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, `npcflag`: %u) has different `npcflag` in difficulty %u mode (Entry: %u, `npcflag`: %u).",
+                cInfo->Entry, cInfo->npcflag, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->npcflag);
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `npcflag`=%u WHERE `entry`=%u;",
+                cInfo->npcflag, cInfo->DifficultyEntry[diff]);
             continue;
         }
 
@@ -675,23 +688,34 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         {
             TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, family %u) has different `family` in difficulty %u mode (Entry: %u, family %u).",
                 cInfo->Entry, cInfo->family, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->family);
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `family`=%u WHERE `entry`=%u;",
+                cInfo->family, cInfo->DifficultyEntry[diff]);
         }
 
         if (cInfo->trainer_class != difficultyInfo->trainer_class)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has different `trainer_class` in difficulty %u mode (Entry: %u).", cInfo->Entry, diff + 1, cInfo->DifficultyEntry[diff]);
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, trainer_class: %u) has different `trainer_class` in difficulty %u mode (Entry: %u, trainer_class: %u).",
+                cInfo->Entry, cInfo->trainer_class, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->trainer_class);
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `trainer_class`=%u WHERE `entry`=%u;",
+                cInfo->trainer_class, cInfo->DifficultyEntry[diff]);
             continue;
         }
 
         if (cInfo->trainer_race != difficultyInfo->trainer_race)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has different `trainer_race` in difficulty %u mode (Entry: %u).", cInfo->Entry, diff + 1, cInfo->DifficultyEntry[diff]);
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, trainer_race: %u) has different `trainer_race` in difficulty %u mode (Entry: %u, trainer_race: %u).",
+                cInfo->Entry, cInfo->trainer_race, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->trainer_race);
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `trainer_race`=%u WHERE `entry`=%u;",
+                cInfo->trainer_race, cInfo->DifficultyEntry[diff]);
             continue;
         }
 
         if (cInfo->trainer_type != difficultyInfo->trainer_type)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has different `trainer_type` in difficulty %u mode (Entry: %u).", cInfo->Entry, diff + 1, cInfo->DifficultyEntry[diff]);
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, trainer_type: %u) has different `trainer_type` in difficulty %u mode (Entry: %u, trainer_type: %u).",
+                cInfo->Entry, cInfo->trainer_type, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->trainer_type);
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `trainer_type`=%u WHERE `entry`=%u;",
+                cInfo->trainer_type, cInfo->DifficultyEntry[diff]);
             continue;
         }
 
@@ -705,6 +729,8 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         {
             TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, type %u) has different `type` in difficulty %u mode (Entry: %u, type %u).",
                 cInfo->Entry, cInfo->type, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->type);
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `type`=%u WHERE `entry`=%u;",
+                cInfo->type, cInfo->DifficultyEntry[diff]);
         }
 
         if (!cInfo->VehicleId && difficultyInfo->VehicleId)
@@ -732,13 +758,9 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         ok = true;
     }
 
-    FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction_A);
+    FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction);
     if (!factionTemplate)
-        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-existing faction_A template (%u).", cInfo->Entry, cInfo->faction_A);
-
-    factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction_H);
-    if (!factionTemplate)
-        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-existing faction_H template (%u).", cInfo->Entry, cInfo->faction_H);
+        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-existing faction template (%u).", cInfo->Entry, cInfo->faction);
 
     // used later for scale
     CreatureDisplayInfoEntry const* displayScaleEntry = NULL;
@@ -1828,7 +1850,7 @@ bool ObjectMgr::MoveCreData(uint32 guid, uint32 mapId, const Position& pos)
     return true;
 }
 
-uint32 ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay)
+uint32 ObjectMgr::AddCreData(uint32 entry, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay /*= 0*/)
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate(entry);
     if (!cInfo)
@@ -8597,8 +8619,8 @@ void ObjectMgr::LoadBroadcastTexts()
 
         bct.Id = fields[0].GetUInt32();
         bct.Language = fields[1].GetUInt32();
-        AddLocaleString(fields[2].GetString(), DEFAULT_LOCALE, bct.MaleText);
-        AddLocaleString(fields[3].GetString(), DEFAULT_LOCALE, bct.FemaleText);
+        bct.MaleText[DEFAULT_LOCALE] = fields[2].GetString();
+        bct.FemaleText[DEFAULT_LOCALE] = fields[3].GetString();
         bct.EmoteId0 = fields[4].GetUInt32();
         bct.EmoteId1 = fields[5].GetUInt32();
         bct.EmoteId2 = fields[6].GetUInt32();

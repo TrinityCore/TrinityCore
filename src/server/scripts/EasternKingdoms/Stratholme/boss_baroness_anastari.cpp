@@ -40,7 +40,7 @@ class boss_baroness_anastari : public CreatureScript
 public:
     boss_baroness_anastari() : CreatureScript("boss_baroness_anastari") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_baroness_anastariAI>(creature);
     }
@@ -59,7 +59,7 @@ public:
         uint32 Silence_Timer;
         //uint32 Possess_Timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             BansheeWail_Timer = 1000;
             BansheeCurse_Timer = 11000;
@@ -67,16 +67,16 @@ public:
             //Possess_Timer = 35000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             instance->SetData(TYPE_BARONESS, IN_PROGRESS);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

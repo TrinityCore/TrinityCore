@@ -73,7 +73,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             bIsSlam = false;
 
@@ -85,14 +85,14 @@ public:
 
             instance->SetBossState(DATA_KRYSTALLUS, NOT_STARTED);
         }
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
             instance->SetBossState(DATA_KRYSTALLUS, IN_PROGRESS);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -137,14 +137,14 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
 
             instance->SetBossState(DATA_KRYSTALLUS, DONE);
         }
 
-        void KilledUnit(Unit* victim) OVERRIDE
+        void KilledUnit(Unit* victim) override
         {
             if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -152,7 +152,7 @@ public:
             Talk(SAY_KILL);
         }
 
-        void SpellHitTarget(Unit* /*target*/, const SpellInfo* pSpell) OVERRIDE
+        void SpellHitTarget(Unit* /*target*/, const SpellInfo* pSpell) override
         {
             //this part should be in the core
             if (pSpell->Id == SPELL_SHATTER || pSpell->Id == H_SPELL_SHATTER)
@@ -174,7 +174,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetHallsOfStoneAI<boss_krystallusAI>(creature);
     }
@@ -198,13 +198,13 @@ class spell_krystallus_shatter : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_krystallus_shatter_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_krystallus_shatter_SpellScript();
         }
@@ -233,13 +233,13 @@ class spell_krystallus_shatter_effect : public SpellScriptLoader
                     SetHitDamage(int32(GetHitDamage() * ((radius - distance) / radius)));
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_krystallus_shatter_effect_SpellScript::CalculateDamage);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_krystallus_shatter_effect_SpellScript();
         }

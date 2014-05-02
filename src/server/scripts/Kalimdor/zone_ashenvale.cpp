@@ -63,16 +63,16 @@ public:
     {
         npc_torekAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             rend_Timer        = 5000;
             thunderclap_Timer = 8000;
             _completed        = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             summoned->AI()->AttackStart(me);
         }
@@ -88,7 +88,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             if (Player* player = GetPlayerForEscort())
             {
@@ -118,7 +118,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             npc_escortAI::UpdateAI(diff);
 
@@ -145,7 +145,7 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_torekAI(creature);
     }
@@ -183,15 +183,15 @@ public:
     {
         npc_ruul_snowhoofAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
                 Cage->SetGoState(GO_STATE_READY);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             summoned->AI()->AttackStart(me);
         }
@@ -205,7 +205,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -234,13 +234,13 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             npc_escortAI::UpdateAI(diff);
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_ruul_snowhoofAI(creature);
     }
@@ -300,14 +300,14 @@ public:
     {
         npc_muglashAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             eventTimer = 10000;
             waveId = 0;
             _isBrazierExtinguished = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             if (Player* player = GetPlayerForEscort())
                 if (HasEscortState(STATE_ESCORT_PAUSED))
@@ -318,14 +318,14 @@ public:
                 }
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 if (Player* player = GetPlayerForEscort())
                     player->FailQuest(QUEST_VORSHA);
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             summoned->AI()->AttackStart(me);
         }
@@ -340,7 +340,7 @@ public:
             }
         }
 
-            void WaypointReached(uint32 waypointId) OVERRIDE
+            void WaypointReached(uint32 waypointId) override
             {
                 if (Player* player = GetPlayerForEscort())
                 {
@@ -396,7 +396,7 @@ public:
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 npc_escortAI::UpdateAI(diff);
 
@@ -426,7 +426,7 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_muglashAI(creature);
     }
@@ -437,7 +437,7 @@ class go_naga_brazier : public GameObjectScript
     public:
         go_naga_brazier() : GameObjectScript("go_naga_brazier") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
+        bool OnGossipHello(Player* /*player*/, GameObject* go) override
         {
             if (Creature* creature = GetClosestCreatureWithEntry(go, NPC_MUGLASH, INTERACTION_DISTANCE*2))
             {

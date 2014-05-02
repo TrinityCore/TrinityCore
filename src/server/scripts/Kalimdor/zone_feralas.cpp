@@ -42,7 +42,7 @@ class npc_gregan_brewspewer : public CreatureScript
 public:
     npc_gregan_brewspewer() : CreatureScript("npc_gregan_brewspewer") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF+1)
@@ -55,7 +55,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -97,7 +97,7 @@ class npc_oox22fe : public CreatureScript
 public:
     npc_oox22fe() : CreatureScript("npc_oox22fe") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) OVERRIDE
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
     {
         if (quest->GetQuestId() == QUEST_RESCUE_OOX22FE)
         {
@@ -118,7 +118,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_oox22feAI(creature);
     }
@@ -127,7 +127,7 @@ public:
     {
         npc_oox22feAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             switch (waypointId)
             {
@@ -162,20 +162,20 @@ public:
             }
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
                 me->SetStandState(UNIT_STAND_STATE_DEAD);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             //For an small probability the npc says something when he get aggro
             if (urand(0, 9) > 7)
                 Talk(SAY_OOX_AGGRO);
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             summoned->AI()->AttackStart(me);
         }
@@ -192,7 +192,7 @@ class npc_screecher_spirit : public CreatureScript
 public:
     npc_screecher_spirit() : CreatureScript("npc_screecher_spirit") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         player->SEND_GOSSIP_MENU(2039, creature->GetGUID());
         player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
@@ -227,13 +227,13 @@ class spell_gordunni_trap : public SpellScriptLoader
                     }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnCast += SpellCastFn(spell_gordunni_trap_SpellScript::HandleDummy);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_gordunni_trap_SpellScript();
         }

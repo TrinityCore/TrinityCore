@@ -149,7 +149,7 @@ class npc_commandscript : public CommandScript
 public:
     npc_commandscript() : CommandScript("npc_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand npcAddCommandTable[] =
         {
@@ -226,14 +226,6 @@ public:
         if (!charID)
             return false;
 
-        char* team = strtok(NULL, " ");
-        int32 teamval = 0;
-        if (team)
-            teamval = atoi(team);
-
-        if (teamval < 0)
-            teamval = 0;
-
         uint32 id  = atoi(charID);
         if (!sObjectMgr->GetCreatureTemplate(id))
             return false;
@@ -265,7 +257,7 @@ public:
         }
 
         Creature* creature = new Creature();
-        if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, 0, (uint32)teamval, x, y, z, o))
+        if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, x, y, z, o))
         {
             delete creature;
             return false;
@@ -596,17 +588,13 @@ public:
 
         // Update in memory..
         if (CreatureTemplate const* cinfo = creature->GetCreatureTemplate())
-        {
-            const_cast<CreatureTemplate*>(cinfo)->faction_A = factionId;
-            const_cast<CreatureTemplate*>(cinfo)->faction_H = factionId;
-        }
+            const_cast<CreatureTemplate*>(cinfo)->faction = factionId;
 
         // ..and DB
         PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_FACTION);
 
         stmt->setUInt16(0, uint16(factionId));
-        stmt->setUInt16(1, uint16(factionId));
-        stmt->setUInt32(2, creature->GetEntry());
+        stmt->setUInt32(1, creature->GetEntry());
 
         WorldDatabase.Execute(stmt);
 

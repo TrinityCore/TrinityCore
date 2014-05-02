@@ -133,7 +133,7 @@ class boss_nalorakk : public CreatureScript
             uint32 MovePhase;
             uint32 waitTimer;
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 if (MoveEvent)
                 {
@@ -192,13 +192,13 @@ class boss_nalorakk : public CreatureScript
                 }
             }
 
-            void AttackStart(Unit* who) OVERRIDE
+            void AttackStart(Unit* who) override
             {
                 if (!MoveEvent)
                     ScriptedAI::AttackStart(who);
             }
 
-            void MoveInLineOfSight(Unit* who) OVERRIDE
+            void MoveInLineOfSight(Unit* who) override
 
             {
                 if (!MoveEvent)
@@ -272,7 +272,7 @@ class boss_nalorakk : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 instance->SetData(DATA_NALORAKKEVENT, IN_PROGRESS);
 
@@ -281,7 +281,7 @@ class boss_nalorakk : public CreatureScript
                 DoZoneInCombat();
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 instance->SetData(DATA_NALORAKKEVENT, DONE);
 
@@ -289,7 +289,7 @@ class boss_nalorakk : public CreatureScript
                 DoPlaySoundToSet(me, SOUND_YELL_DEATH);
             }
 
-            void KilledUnit(Unit* /*victim*/) OVERRIDE
+            void KilledUnit(Unit* /*victim*/) override
             {
                 switch (urand(0, 1))
                 {
@@ -304,7 +304,7 @@ class boss_nalorakk : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 type, uint32 id) OVERRIDE
+            void MovementInform(uint32 type, uint32 id) override
             {
                 if (MoveEvent)
                 {
@@ -344,7 +344,7 @@ class boss_nalorakk : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (waitTimer && inMove)
                 {
@@ -448,7 +448,7 @@ class boss_nalorakk : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<boss_nalorakkAI>(creature);
         }

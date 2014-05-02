@@ -261,11 +261,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         {
                             if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate((*itr)->ToCreature()->GetEntry()))
                             {
-                                if ((*itr)->ToCreature()->getFaction() != ci->faction_A)
+                                if ((*itr)->ToCreature()->getFaction() != ci->faction)
                                 {
-                                    (*itr)->ToCreature()->setFaction(ci->faction_A);
+                                    (*itr)->ToCreature()->setFaction(ci->faction);
                                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_SET_FACTION: Creature entry %u, GuidLow %u set faction to %u",
-                                        (*itr)->GetEntry(), (*itr)->GetGUIDLow(), ci->faction_A);
+                                        (*itr)->GetEntry(), (*itr)->GetGUIDLow(), ci->faction);
                                 }
                             }
                         }
@@ -972,7 +972,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 if (IsCreature(*itr))
-                    (*itr)->ToCreature()->UpdateEntry(e.action.updateTemplate.creature, e.action.updateTemplate.team ? HORDE : ALLIANCE);
+                    (*itr)->ToCreature()->UpdateEntry(e.action.updateTemplate.creature);
 
             delete targets;
             break;

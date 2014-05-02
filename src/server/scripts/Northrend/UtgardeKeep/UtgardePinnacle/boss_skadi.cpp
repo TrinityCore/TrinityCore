@@ -165,7 +165,7 @@ class boss_skadi : public CreatureScript
 public:
     boss_skadi() : CreatureScript("boss_skadi") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_skadiAI>(creature);
     }
@@ -196,7 +196,7 @@ public:
 
         CombatPhase Phase;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             triggersGUID.clear();
 
@@ -219,7 +219,7 @@ public:
             instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
-        void JustReachedHome() OVERRIDE
+        void JustReachedHome() override
         {
             me->SetCanFly(false);
             me->Dismount();
@@ -228,7 +228,7 @@ public:
                 me->SummonCreature(NPC_GRAUF, Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 3.0f);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -247,7 +247,7 @@ public:
             Summons.DespawnEntry(NPC_GRAUF);
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             switch (summoned->GetEntry())
             {
@@ -270,7 +270,7 @@ public:
             Summons.Summon(summoned);
         }
 
-        void SummonedCreatureDespawn(Creature* summoned) OVERRIDE
+        void SummonedCreatureDespawn(Creature* summoned) override
         {
             if (summoned->GetEntry() == NPC_GRAUF)
                 m_uiGraufGUID = 0;
@@ -285,7 +285,7 @@ public:
             return 0;
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) OVERRIDE
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
             if (spell->Id == SPELL_HARPOON_DAMAGE)
             {
@@ -312,7 +312,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             switch (Phase)
             {
@@ -420,14 +420,14 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
             Summons.DespawnAll();
             instance->SetBossState(DATA_SKADI_THE_RUTHLESS, DONE);
         }
 
-        void KilledUnit(Unit* who) OVERRIDE
+        void KilledUnit(Unit* who) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_KILL);
@@ -482,7 +482,7 @@ class go_harpoon_launcher : public GameObjectScript
 public:
     go_harpoon_launcher() : GameObjectScript("go_harpoon_launcher") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
+    bool OnGossipHello(Player* player, GameObject* go) override
     {
         InstanceScript* instance = go->GetInstanceScript();
         if (!instance)

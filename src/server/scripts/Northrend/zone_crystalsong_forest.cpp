@@ -58,12 +58,12 @@ public:
 
         uint64 targetGUID;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             targetGUID = 0;
         }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (me->IsNonMeleeSpellCast(false))
                 return;
@@ -103,7 +103,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_warmage_violetstandAI(creature);
     }

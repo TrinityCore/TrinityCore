@@ -1904,6 +1904,7 @@ void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= NULL*/, u
     if (newState == GetDestructibleState())
         return;
 
+    /// @todo: pass attackerOrHealer instead of player
     SetDestructibleState(newState, player, false);
 }
 

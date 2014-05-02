@@ -50,7 +50,7 @@ class npc_mountaineer_pebblebitty : public CreatureScript
 public:
     npc_mountaineer_pebblebitty() : CreatureScript("npc_mountaineer_pebblebitty") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -86,7 +86,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());

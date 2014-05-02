@@ -642,19 +642,8 @@ void KillRewarder::Reward()
                 instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, _victim->GetEntry(), _victim);
 }
 
-// == Player ====================================================
-
-// we can disable this warning for this since it only
-// causes undefined behavior when passed to the base class constructor
-#ifdef _MSC_VER
-#pragma warning(disable:4355)
-#endif
 Player::Player(WorldSession* session): Unit(true)
 {
-#ifdef _MSC_VER
-#pragma warning(default:4355)
-#endif
-
     m_speakTime = 0;
     m_speakCount = 0;
 
@@ -14472,12 +14461,12 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
             LocaleConstant locale = GetSession()->GetSessionDbLocaleIndex();
 
             if (optionBroadcastText)
-                ObjectMgr::GetLocaleString(getGender() == GENDER_MALE ? optionBroadcastText->MaleText : optionBroadcastText->FemaleText, locale, strOptionText);
+                strOptionText = optionBroadcastText->GetText(locale, getGender());
             else
                 strOptionText = itr->second.OptionText;
 
             if (boxBroadcastText)
-                ObjectMgr::GetLocaleString(getGender() == GENDER_MALE ? boxBroadcastText->MaleText : boxBroadcastText->FemaleText, locale, strBoxText);
+                strBoxText = boxBroadcastText->GetText(locale, getGender());
             else
                 strBoxText = itr->second.BoxText;
 

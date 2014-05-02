@@ -42,7 +42,7 @@ class misc_commandscript : public CommandScript
 public:
     misc_commandscript() : CommandScript("misc_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand commandTable[] =
         {

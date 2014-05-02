@@ -50,18 +50,18 @@ class boss_zereketh_the_unbound : public CreatureScript
         {
             boss_zereketh_the_unboundAI(Creature* creature) : BossAI(creature, DATA_ZEREKETH) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_VOID_ZONE, urand (6000, 10000));
@@ -70,12 +70,12 @@ class boss_zereketh_the_unbound : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void KilledUnit(Unit* /*victim*/) OVERRIDE
+            void KilledUnit(Unit* /*victim*/) override
             {
                 Talk(SAY_SLAY);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -113,7 +113,7 @@ class boss_zereketh_the_unbound : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_zereketh_the_unboundAI(creature);
         }

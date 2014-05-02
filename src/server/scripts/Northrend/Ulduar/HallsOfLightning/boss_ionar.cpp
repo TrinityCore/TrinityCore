@@ -70,7 +70,7 @@ class boss_ionar : public CreatureScript
 public:
     boss_ionar() : CreatureScript("boss_ionar") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_ionarAI>(creature);
     }
@@ -96,7 +96,7 @@ public:
 
         uint32 uiDisperseHealth;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             lSparkList.DespawnAll();
 
@@ -118,14 +118,14 @@ public:
             instance->SetBossState(DATA_IONAR, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
             instance->SetBossState(DATA_IONAR, IN_PROGRESS);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
 
@@ -134,13 +134,13 @@ public:
             instance->SetBossState(DATA_IONAR, DONE);
         }
 
-        void KilledUnit(Unit* who) OVERRIDE
+        void KilledUnit(Unit* who) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_SLAY);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) OVERRIDE
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
             if (spell->Id == SPELL_DISPERSE)
             {
@@ -181,13 +181,13 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) OVERRIDE
+        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) override
         {
             if (!me->IsVisible())
                 uiDamage = 0;
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             if (summoned->GetEntry() == NPC_SPARK_OF_IONAR)
             {
@@ -204,13 +204,13 @@ public:
             }
         }
 
-        void SummonedCreatureDespawn(Creature* summoned) OVERRIDE
+        void SummonedCreatureDespawn(Creature* summoned) override
         {
             if (summoned->GetEntry() == NPC_SPARK_OF_IONAR)
                 lSparkList.Despawn(summoned);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -307,13 +307,13 @@ public:
 
         uint32 uiCheckTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiCheckTimer = 2*IN_MILLISECONDS;
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void MovementInform(uint32 uiType, uint32 uiPointId) OVERRIDE
+        void MovementInform(uint32 uiType, uint32 uiPointId) override
         {
             if (uiType != POINT_MOTION_TYPE || !instance)
                 return;
@@ -322,12 +322,12 @@ public:
                 me->DespawnOrUnsummon();
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) OVERRIDE
+        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) override
         {
             uiDamage = 0;
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             // Despawn if the encounter is not running
             if (instance->GetBossState(DATA_IONAR) != IN_PROGRESS)
@@ -362,7 +362,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_spark_of_ionarAI>(creature);
     }

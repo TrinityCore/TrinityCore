@@ -95,7 +95,7 @@ class Pet : public Guardian
         void UpdateMaxHealth();
         void UpdateMaxPower(Powers power);
         void UpdateAttackPowerAndDamage(bool ranged = false);
-        void UpdateDamagePhysical(WeaponAttackType attType) OVERRIDE;
+        void UpdateDamagePhysical(WeaponAttackType attType) override;
         */
 
         void ToggleAutocast(SpellInfo const* spellInfo, bool apply);
