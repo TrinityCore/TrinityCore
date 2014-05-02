@@ -138,10 +138,15 @@ namespace Battlenet
         }
 
         //WriteFloat
-        void WriteFourCC(char const* fcc)
+        void WriteFourCC(std::string const& fcc)
         {
-            uint32 intVal = *(uint32*)fcc;
+            uint32 intVal = *(uint32*)fcc.c_str();
+            size_t len = fcc.length();
             EndianConvertReverse(intVal);
+            // Add padding
+            while (len++ < 4)
+                intVal >>= 8;
+
             Write(intVal, 32);
         }
 

@@ -52,7 +52,7 @@ namespace Battlenet
 
     struct ModuleInfo
     {
-        ModuleInfo() : DataSize(0), Data(nullptr) { }
+        ModuleInfo() : Region("EU"), DataSize(0), Data(nullptr) { }
         ModuleInfo(ModuleInfo const& right) : Type(right.Type), Region(right.Region), DataSize(right.DataSize), Data(nullptr)
         {
             memcpy(ModuleId, right.ModuleId, 32);

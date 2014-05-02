@@ -64,7 +64,6 @@ void BattlenetMgr::LoadModules()
             Field* fields = result->Fetch();
             Battlenet::ModuleInfo* module = new Battlenet::ModuleInfo();
             module->Type = fields[2].GetString();
-            module->Region.assign("\0\0EU", 4);
             HexStrToByteArray(fields[0].GetString(), module->ModuleId);
             std::string data = fields[4].GetString();
             module->DataSize = data.length() / 2;
