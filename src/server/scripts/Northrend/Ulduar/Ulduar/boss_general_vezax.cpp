@@ -333,7 +333,7 @@ class boss_saronite_animus : public CreatureScript
                 events.ScheduleEvent(EVENT_PROFOUND_OF_DARKNESS, 3000);
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     me->GetInstanceScript()->SetData(DATA_CRITERIA_GENERAL_VEZAX, 1);

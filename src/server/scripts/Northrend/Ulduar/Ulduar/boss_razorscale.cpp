@@ -247,7 +247,7 @@ class boss_razorscale_controller : public CreatureScript
                 }
             }
             
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     instance->SetData(DATA_CRITERIA_RAZORSCALE, 1);
@@ -404,7 +404,7 @@ class boss_razorscale : public CreatureScript
                 return 0;
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     instance->SetData(DATA_CRITERIA_RAZORSCALE, 1);
@@ -844,7 +844,7 @@ class npc_devouring_flame : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     me->GetInstanceScript()->SetData(DATA_CRITERIA_RAZORSCALE, 1);
@@ -880,7 +880,7 @@ class npc_darkrune_watcher : public CreatureScript
                 LightTimer = urand(1000, 3000);
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     me->GetInstanceScript()->SetData(DATA_CRITERIA_RAZORSCALE, 1);
@@ -945,7 +945,7 @@ class npc_darkrune_guardian : public CreatureScript
                     killedByBreath = value;
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     me->GetInstanceScript()->SetData(DATA_CRITERIA_RAZORSCALE, 1);
@@ -997,7 +997,7 @@ class npc_darkrune_sentinel : public CreatureScript
                 ShoutTimer = urand(15000, 30000);
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     me->GetInstanceScript()->SetData(DATA_CRITERIA_RAZORSCALE, 1);

@@ -1018,9 +1018,9 @@ public:
             // just in case the spawns fuckup,force correct the id based on teamInInstance
             // usually happens after a crash
             if (m_pInstance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE && me->GetCreatureTemplate()->Entry == NPC_SYLVANA_OUTRO)
-                 me->UpdateEntry(NPC_JAINA_OUTRO, ALLIANCE);
+                 me->UpdateEntry(NPC_JAINA_OUTRO);
             else if (m_pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE && me->GetCreatureTemplate()->Entry == NPC_JAINA_OUTRO)
-                    me->UpdateEntry(NPC_SYLVANA_OUTRO, HORDE);
+                    me->UpdateEntry(NPC_SYLVANA_OUTRO);
             
             Player* player = (Player *)who;
 

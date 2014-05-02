@@ -322,7 +322,7 @@ class npc_iron_construct : public CreatureScript
                 }
             }
             
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     me->GetInstanceScript()->SetData(DATA_CRITERIA_IGNIS, 1);

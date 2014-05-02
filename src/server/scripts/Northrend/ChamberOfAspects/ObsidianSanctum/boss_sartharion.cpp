@@ -402,7 +402,7 @@ public:
             Trinity::Containers::SelectRandomContainerElement(fireCyclonesList)->CastSpell(target, SPELL_LAVA_STRIKE, true);
         }
         
-        void SetGUID(uint64 guid, int32 id/* = 0 */) OVERRIDE
+        void SetGUID(uint64 guid, int32 id/* = 0 */) override
         {
             if (id == DATA_GONNA_GO_WHEN_THE_VULCANO_BLOWS)
                 gonnagowhenthevulcanoblowsList.push_back(guid);
@@ -543,13 +543,13 @@ class spell_lava_strike : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_lava_strike_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_lava_strike_SpellScript();
         }
@@ -562,7 +562,7 @@ class achievement_gonna_go_when_the_vulcano_blows : public AchievementCriteriaSc
         {
         }
 
-        bool OnCheck(Player* player, Unit* target) OVERRIDE
+        bool OnCheck(Player* player, Unit* target) override
         {
             if (!target)
                 return false;

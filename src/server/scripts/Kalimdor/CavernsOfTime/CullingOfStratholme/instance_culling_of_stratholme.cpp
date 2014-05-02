@@ -168,7 +168,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 }
             }
 
-            void OnUnitDeath(Unit* unit) OVERRIDE
+            void OnUnitDeath(Unit* unit) override
             {
                 Creature* creature = unit->ToCreature();
                 if (!creature)
@@ -189,7 +189,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 }
             }
 
-            bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*, Unit const* /* = NULL */, uint32 /* = 0 */) OVERRIDE
+            bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*, Unit const* /* = NULL */, uint32 /* = 0 */) override
             {
                 if (criteriaId == CRITERIA_ZOMBIEFEST)
                     return _zombieCounter >= 100 ? true : false;

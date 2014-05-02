@@ -277,7 +277,7 @@ public:
             Summons.Despawn(summoned);
         }
         
-        uint32 GetData(uint32 type) const OVERRIDE
+        uint32 GetData(uint32 type) const override
         {
             if (type == DATA_MGLTS)
                 return m_myGirlLovesToSkadi;
@@ -503,7 +503,7 @@ class TW_achievement_my_girl_loves_to_skadi_all_the_time : public AchievementCri
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*player*/, Unit* target) override
         {
             if (!target)
                 return false;

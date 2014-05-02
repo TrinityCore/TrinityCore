@@ -516,7 +516,7 @@ class npc_scrapbot : public CreatureScript
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     me->GetInstanceScript()->SetData(DATA_CRITERIA_XT_002, 1);
@@ -575,7 +575,7 @@ class npc_pummeller : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     me->GetInstanceScript()->SetData(DATA_CRITERIA_XT_002, 1);
@@ -686,7 +686,7 @@ class npc_boombot : public CreatureScript
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     me->GetInstanceScript()->SetData(DATA_CRITERIA_XT_002, 1);
@@ -761,7 +761,7 @@ class npc_life_spark : public CreatureScript
                 me->SetInCombatWithZone();
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     me->GetInstanceScript()->SetData(DATA_CRITERIA_XT_002, 1);

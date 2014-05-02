@@ -1355,7 +1355,7 @@ class npc_dark_nucleus : public CreatureScript
                     _targetAuraCheck -= diff;
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 me->DespawnOrUnsummon();
             }

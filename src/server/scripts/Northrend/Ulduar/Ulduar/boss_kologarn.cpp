@@ -230,7 +230,7 @@ class boss_kologarn : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type) const OVERRIDE
+            uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -247,7 +247,7 @@ class boss_kologarn : public CreatureScript
                 return 0;
             }
 
-            void SetData(uint32 uiType, uint32 uiData) OVERRIDE
+            void SetData(uint32 uiType, uint32 uiData) override
             {
                 switch (uiType)
                 {
@@ -259,14 +259,14 @@ class boss_kologarn : public CreatureScript
                 }
             }
 
-            uint64 GetGUID(int32 type /*= 0 */) const OVERRIDE
+            uint64 GetGUID(int32 type /*= 0 */) const override
             {
                 if (DATA_EYEBEAM_TARGET)
                     return eyebeamTarget;
                 return 0;
             }
 
-            void JustSummoned(Creature* summon) OVERRIDE
+            void JustSummoned(Creature* summon) override
             {
                 switch (summon->GetEntry())
                 {
@@ -396,7 +396,7 @@ public:
             inChase = false;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!inChase)
             {
@@ -766,13 +766,13 @@ public:
                     kologarn->GetAI()->SetData(DATA_IF_LOOKS_COULD_KILL, false);
         }
 
-        void Register() OVERRIDE
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(TW_spell_kologarn_focused_eyebeam_damage_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
 
-    SpellScript* GetSpellScript() const OVERRIDE
+    SpellScript* GetSpellScript() const override
     {
         return new TW_spell_kologarn_focused_eyebeam_damage_SpellScript();
     }
@@ -783,7 +783,7 @@ class achievement_rubble_and_roll : public AchievementCriteriaScript
     public:
         achievement_rubble_and_roll(const char* name) : AchievementCriteriaScript(name) {}
 
-        bool OnCheck(Player* /*source*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             if (target && target->IsAIEnabled)
                 return target->GetAI()->GetData(DATA_RUBBLE_AND_ROLL);
@@ -797,7 +797,7 @@ class achievement_with_open_arms : public AchievementCriteriaScript
     public:
         achievement_with_open_arms(const char* name) : AchievementCriteriaScript(name) {}
 
-        bool OnCheck(Player* /*source*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             if (target && target->IsAIEnabled)
                 return target->GetAI()->GetData(DATA_WITH_OPEN_ARMS);
@@ -811,7 +811,7 @@ class TW_achievement_if_looks_could_kill : public AchievementCriteriaScript
 public:
     TW_achievement_if_looks_could_kill(const char* name) : AchievementCriteriaScript(name) {}
 
-    bool OnCheck(Player* /*source*/, Unit* target) OVERRIDE
+    bool OnCheck(Player* /*source*/, Unit* target) override
     {
         if (target)
             return target->GetAI()->GetData(DATA_IF_LOOKS_COULD_KILL);

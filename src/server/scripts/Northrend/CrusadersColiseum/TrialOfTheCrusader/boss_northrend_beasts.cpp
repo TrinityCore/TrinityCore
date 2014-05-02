@@ -613,7 +613,7 @@ struct boss_jormungarAI : public BossAI
             DoSpellAttackIfReady(SpitSpell);
     }
 
-    void SummonedCreatureDespawn(Creature* summoned) OVERRIDE
+    void SummonedCreatureDespawn(Creature* summoned) override
     {
         if (Enraged || !summoned->HasAura(SPELL_ENRAGE)) // We don't want this to happen if it's not a wipe
             return;

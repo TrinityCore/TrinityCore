@@ -1248,7 +1248,7 @@ public:
         }
         return true;
     }
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         InstanceScript* instance = creature->GetInstanceScript();
         if (instance && instance->GetData(BOSS_LEVIATHAN) !=DONE)

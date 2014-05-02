@@ -3758,13 +3758,13 @@ public:
             }
         }
 
-        void Register() OVERRIDE
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_gen_landmine_knockback_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
         }
     };
 
-    SpellScript* GetSpellScript() const OVERRIDE
+    SpellScript* GetSpellScript() const override
     {
         return new spell_gen_landmine_knockback_SpellScript();
     }

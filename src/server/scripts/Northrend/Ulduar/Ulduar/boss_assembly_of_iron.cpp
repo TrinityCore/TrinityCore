@@ -537,7 +537,7 @@ class boss_stormcaller_brundir : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) OVERRIDE
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 if ((target && target->GetTypeId() == TYPEID_PLAYER) && (spell->Id == SPELL_CHAIN_LIGHTNING || spell->Id == SPELL_LIGHTNING_WHIRL))
                     instance->SetData(DATA_STUNNED, 0);

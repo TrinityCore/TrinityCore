@@ -490,7 +490,7 @@ class boss_hodir : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type) const OVERRIDE
+            uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -1048,13 +1048,13 @@ public:
                 }
         }
 
-        void Register() OVERRIDE
+        void Register() override
         {
             AfterEffectApply += AuraEffectApplyFn(TW_spell_starlight_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
-    AuraScript* GetAuraScript() const OVERRIDE
+    AuraScript* GetAuraScript() const override
     {
         return new TW_spell_starlight_AuraScript();
     }
@@ -1082,13 +1082,13 @@ public:
                 }
         }
 
-        void Register() OVERRIDE
+        void Register() override
         {
             AfterEffectApply += AuraEffectApplyFn(TW_spell_toasty_fire_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_STAT, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
-    AuraScript* GetAuraScript() const OVERRIDE
+    AuraScript* GetAuraScript() const override
     {
         return new TW_spell_toasty_fire_AuraScript();
     }
@@ -1116,13 +1116,13 @@ public:
                 }
         }
 
-        void Register() OVERRIDE
+        void Register() override
         {
             AfterEffectApply += AuraEffectApplyFn(TW_spell_storm_power_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, AURA_EFFECT_HANDLE_REAL);           
         }
     };
 
-    AuraScript* GetAuraScript() const OVERRIDE
+    AuraScript* GetAuraScript() const override
     {
         return new TW_spell_storm_power_AuraScript();
     }
