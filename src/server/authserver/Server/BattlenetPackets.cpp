@@ -78,14 +78,13 @@ std::string Battlenet::AuthChallenge::ToString() const
 void Battlenet::ProofRequest::Write()
 {
     _stream.Write(Modules.size(), 3);
-    for (size_t i = 0; i < Modules.size(); ++i)
+    for (ModuleInfo const* info : Modules)
     {
-        ModuleInfo& info = Modules[i];
-        _stream.WriteBytes(info.AuthString.c_str(), 4);
-        _stream.WriteFourCC(info.Locale.c_str());
-        _stream.WriteBytes(info.ModuleId, 32);
-        _stream.Write(info.BlobSize, 10);
-        _stream.WriteBytes(info.Blob, info.BlobSize);
+        _stream.WriteBytes(info->Type.c_str(), 4);
+        _stream.WriteFourCC(info->Region.c_str());
+        _stream.WriteBytes(info->ModuleId, 32);
+        _stream.Write(info->DataSize, 10);
+        _stream.WriteBytes(info->Data, info->DataSize);
     }
 }
 
@@ -93,8 +92,8 @@ std::string Battlenet::ProofRequest::ToString() const
 {
     std::ostringstream stream;
     stream << "Battlenet::ProofRequest modules " << Modules.size();
-    for (ModuleInfo const& module : Modules)
-        stream << std::endl << "Locale " << module.Locale << "ModuleId " << ByteArrayToHexStr(module.ModuleId, 32) << "BlobSize " << module.BlobSize;
+    for (ModuleInfo const* module : Modules)
+        stream << std::endl << "Locale " << module->Region << "ModuleId " << ByteArrayToHexStr(module->ModuleId, 32) << "BlobSize " << module->DataSize;
 
     return stream.str();
 }
@@ -138,11 +137,11 @@ void Battlenet::AuthComplete::Write()
         for (size_t i = 0; i < Modules.size(); ++i)
         {
             ModuleInfo& info = Modules[i];
-            _stream.WriteBytes(info.AuthString.c_str(), 4);
-            _stream.WriteFourCC(info.Locale.c_str());
+            _stream.WriteBytes(info.Type.c_str(), 4);
+            _stream.WriteFourCC(info.Region.c_str());
             _stream.WriteBytes(info.ModuleId, 32);
-            _stream.Write(info.BlobSize, 10);
-            _stream.WriteBytes(info.Blob, info.BlobSize);
+            _stream.Write(info.DataSize, 10);
+            _stream.WriteBytes(info.Data, info.DataSize);
         }
 
         _stream.Write(PingTimeout + std::numeric_limits<int32>::min(), 32);
@@ -165,11 +164,11 @@ void Battlenet::AuthComplete::Write()
         if (!Modules.empty())
         {
             ModuleInfo& info = Modules[0];
-            _stream.WriteBytes(info.AuthString.c_str(), 4);
-            _stream.WriteFourCC(info.Locale.c_str());
+            _stream.WriteBytes(info.Type.c_str(), 4);
+            _stream.WriteFourCC(info.Region.c_str());
             _stream.WriteBytes(info.ModuleId, 32);
-            _stream.Write(info.BlobSize, 10);
-            _stream.WriteBytes(info.Blob, info.BlobSize);
+            _stream.Write(info.DataSize, 10);
+            _stream.WriteBytes(info.Data, info.DataSize);
         }
 
         _stream.Write(ErrorType, 2);

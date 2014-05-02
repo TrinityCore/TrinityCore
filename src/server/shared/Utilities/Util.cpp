@@ -547,3 +547,28 @@ std::string ByteArrayToHexStr(uint8 const* bytes, uint32 arrayLen, bool reverse 
 
     return ss.str();
 }
+
+void HexStrToByteArray(std::string const& str, uint8* out, bool reverse /*= false*/)
+{
+    // string must have even number of characters
+    if (str.length() & 1)
+        return;
+
+    int32 init = 0;
+    int32 end = str.length();
+    int8 op = 1;
+
+    if (reverse)
+    {
+        init = str.length() - 2;
+        end = -1;
+        op = -1;
+    }
+
+    uint32 j = 0;
+    for (int32 i = init; i != end; i += 2 * op)
+    {
+        char buffer[3] = { str[i], str[i + 1], '\0' };
+        out[j++] = strtoul(buffer, NULL, 16);
+    }
+}

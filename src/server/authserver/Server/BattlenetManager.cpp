@@ -18,6 +18,15 @@
 #include "BattlenetManager.h"
 #include "DatabaseEnv.h"
 
+BattlenetMgr::~BattlenetMgr()
+{
+    for (Battlenet::Component* component : _components)
+        delete component;
+
+    for (auto const& m : _modules)
+        delete m.second;
+}
+
 void BattlenetMgr::Load()
 {
     LoadComponents();
@@ -40,7 +49,6 @@ void BattlenetMgr::LoadComponents()
             _components.insert(component);
             _programs.insert(component->Program);
             _platforms.insert(component->Platform);
-            _builds.insert(component->Build);
 
         } while (result->NextRow());
     }
@@ -48,7 +56,27 @@ void BattlenetMgr::LoadComponents()
 
 void BattlenetMgr::LoadModules()
 {
+    QueryResult result = LoginDatabase.Query("SELECT `Hash`, `Name`, `Type`, `System`, `Data` FROM battlenet_modules");
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            Battlenet::ModuleInfo* module = new Battlenet::ModuleInfo();
+            module->Type = fields[2].GetString();
+            module->Region.assign("\0\0EU", 4);
+            HexStrToByteArray(fields[0].GetString(), module->ModuleId);
+            std::string data = fields[4].GetString();
+            module->DataSize = data.length() / 2;
+            if (module->DataSize)
+            {
+                module->Data = new uint8[data.length() / 2];
+                HexStrToByteArray(data, module->Data);
+            }
 
+            _modules[{ fields[3].GetString(), fields[1].GetString() }] = module;
+        } while (result->NextRow());
+    }
 }
 
 bool BattlenetMgr::HasComponent(Battlenet::Component const* component) const
@@ -58,4 +86,12 @@ bool BattlenetMgr::HasComponent(Battlenet::Component const* component) const
             return true;
 
     return false;
+}
+
+Battlenet::ModuleInfo const* BattlenetMgr::GetModule(Battlenet::ModuleKey const& key) const
+{
+    if (_modules.count(key))
+        return _modules.at(key);
+
+    return NULL;
 }

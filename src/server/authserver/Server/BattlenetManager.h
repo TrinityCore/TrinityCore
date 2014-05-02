@@ -32,20 +32,61 @@ namespace Battlenet
         std::string Platform;
         uint32 Build;
     };
+
+    struct ModuleKey
+    {
+        std::string Platform;
+        std::string Name;
+
+        bool operator<(ModuleKey const& right) const
+        {
+            int32 res = Platform.compare(right.Platform);
+            if (res < 0)
+                return true;
+            else if (res > 0)
+                return false;
+
+            return Name < right.Name;
+        }
+    };
+
+    struct ModuleInfo
+    {
+        ModuleInfo() : DataSize(0), Data(nullptr) { }
+        ModuleInfo(ModuleInfo const& right) : Type(right.Type), Region(right.Region), DataSize(right.DataSize), Data(nullptr)
+        {
+            memcpy(ModuleId, right.ModuleId, 32);
+            if (DataSize)
+            {
+                Data = new uint8[DataSize];
+                memcpy(Data, right.Data, DataSize);
+            }
+        }
+        ~ModuleInfo()
+        {
+            delete Data;
+        }
+
+        std::string Type;
+        std::string Region;
+        uint8 ModuleId[32];
+        uint32 DataSize;
+        uint8* Data;
+    };
 }
 
 class BattlenetMgr
 {
     friend class ACE_Singleton<BattlenetMgr, ACE_Null_Mutex>;
     BattlenetMgr() { }
-    ~BattlenetMgr() { }
+    ~BattlenetMgr();
 
 public:
     void Load();
     bool HasComponent(Battlenet::Component const* component) const;
     bool HasProgram(std::string const& program) const { return _programs.count(program); }
     bool HasPlatform(std::string const& platform) const { return _platforms.count(platform); }
-    bool HasBuild(uint32 build) const { return _builds.count(build); }
+    Battlenet::ModuleInfo const* GetModule(Battlenet::ModuleKey const& key) const;
 
 private:
     void LoadComponents();
@@ -54,7 +95,7 @@ private:
     std::set<Battlenet::Component*> _components;
     std::set<std::string> _programs;
     std::set<std::string> _platforms;
-    std::set<uint32> _builds;
+    std::map<Battlenet::ModuleKey, Battlenet::ModuleInfo*> _modules;
 };
 
 #define sBattlenetMgr ACE_Singleton<BattlenetMgr, ACE_Null_Mutex>::instance()
