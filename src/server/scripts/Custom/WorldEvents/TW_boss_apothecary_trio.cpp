@@ -163,7 +163,7 @@ class TW_npc_apothecary_hummel : public CreatureScript
             uint32 _chainReactionTimer;
             bool _firstCrazed;
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 me->RestoreFaction();
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -205,7 +205,7 @@ class TW_npc_apothecary_hummel : public CreatureScript
                     _instance->HandleGameObject(door->GetGUID(), true);
             }
 
-            void DoAction(int32 action) OVERRIDE
+            void DoAction(int32 action) override
             {
                 switch (action)
                 {
@@ -273,7 +273,7 @@ class TW_npc_apothecary_hummel : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (_phase == PHASE_INTRO)
                 {
@@ -348,12 +348,12 @@ class TW_npc_apothecary_hummel : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature* summon) OVERRIDE
+            void JustSummoned(Creature* summon) override
             {
                 _summons.Summon(summon);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 if (!players.isEmpty())
@@ -388,7 +388,7 @@ class TW_npc_apothecary_baxter : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 me->RestoreFaction();
                 _aggroTimer = 5000;
@@ -407,7 +407,7 @@ class TW_npc_apothecary_baxter : public CreatureScript
                 }
             }
 
-            void DoAction(int32 action) OVERRIDE
+            void DoAction(int32 action) override
             {
                 switch (action)
                 {
@@ -430,7 +430,7 @@ class TW_npc_apothecary_baxter : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (_phase == PHASE_INTRO)
                 {
@@ -479,7 +479,7 @@ class TW_npc_apothecary_baxter : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH_BAXTER);
                 if (Creature* hummel = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(DATA_HUMMEL) : 0))
@@ -518,7 +518,7 @@ class TW_npc_apothecary_frye : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 me->RestoreFaction();
                 _aggroTimer = 5000;
@@ -537,7 +537,7 @@ class TW_npc_apothecary_frye : public CreatureScript
                 }
             }
 
-            void DoAction(int32 action) OVERRIDE
+            void DoAction(int32 action) override
             {
                 switch (action)
                 {
@@ -574,7 +574,7 @@ class TW_npc_apothecary_frye : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) OVERRIDE
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 switch (spell->Id)
                 {
@@ -587,7 +587,7 @@ class TW_npc_apothecary_frye : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (_phase == PHASE_INTRO)
                 {
@@ -636,7 +636,7 @@ class TW_npc_apothecary_frye : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH_FRYE);
                 if (Creature* hummel = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(DATA_HUMMEL) : 0))
@@ -673,7 +673,7 @@ class TW_npc_crazed_apothecary : public CreatureScript
         {
             TW_npc_crazed_apothecaryAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void MovementInform(uint32 type, uint32 id) OVERRIDE
+            void MovementInform(uint32 type, uint32 id) override
             {
                 if (type != POINT_MOTION_TYPE)
                     return;
@@ -689,7 +689,7 @@ class TW_npc_crazed_apothecary : public CreatureScript
                     me->DespawnOrUnsummon();
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;

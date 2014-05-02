@@ -83,7 +83,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
 	||	me->HasAuraType(SPELL_AURA_MOD_CONFUSE);
     }
 
-    void Reset() OVERRIDE
+    void Reset() override
     {
         championControllerGUID = 0;
         CCTimer = rand()%10000;
@@ -91,7 +91,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
         trinket_timer = 0;
     }
 
-    void JustReachedHome() OVERRIDE
+    void JustReachedHome() override
     {
         if (instance)
             if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
@@ -148,7 +148,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
         //DoCast(me, SPELL_PVP_TRINKET);
     }
 
-    void JustDied(Unit* /*killer*/) OVERRIDE
+    void JustDied(Unit* /*killer*/) override
     {
         if (mAIType != AI_PET)
             if (instance)
@@ -156,7 +156,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
                     pChampionController->AI()->SetData(2, DONE);
     }
 
-    void EnterCombat(Unit* /*who*/) OVERRIDE
+    void EnterCombat(Unit* /*who*/) override
     {
         DoCast(me, SPELL_ANTI_AOE, true);
         me->SetInCombatWithZone();
@@ -165,7 +165,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
                 pChampionController->AI()->SetData(2, IN_PROGRESS);
     }
 
-    void KilledUnit(Unit* victim) OVERRIDE
+    void KilledUnit(Unit* victim) override
     {
         if (victim->GetTypeId() == TYPEID_PLAYER)
         {
@@ -232,7 +232,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
         return count;
     }
 
-    void AttackStart(Unit* who) OVERRIDE
+    void AttackStart(Unit* who) override
     {
         if (!who)
             return;
@@ -251,7 +251,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
         }
     }
 
-    void UpdateAI(uint32 uiDiff) OVERRIDE
+    void UpdateAI(uint32 uiDiff) override
     {
         if (ThreatTimer < uiDiff)
         {
@@ -323,7 +323,7 @@ public:
         uint32 m_uiBarkskinTimer;
         uint32 m_uiCommonTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             TW_boss_faction_championsAI::Reset();
             m_uiNatureGraspTimer = IN_MILLISECONDS;
@@ -333,7 +333,7 @@ public:
             SetEquipmentSlots(false, 51799, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -419,7 +419,7 @@ public:
         uint32 m_uiHexTimer;
         uint32 m_uiCommonTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             TW_boss_faction_championsAI::Reset();
             m_uiHeroismOrBloodlustTimer = IN_MILLISECONDS;
@@ -428,7 +428,7 @@ public:
             SetEquipmentSlots(false, 49992, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -516,7 +516,7 @@ public:
         uint32 m_uiHammerOfJusticeTimer;
         uint32 m_uiCommonTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             TW_boss_faction_championsAI::Reset();
             m_uiBubbleTimer = urand(0*IN_MILLISECONDS, 360*IN_MILLISECONDS);
@@ -528,7 +528,7 @@ public:
             SetEquipmentSlots(false, 50771, 47079, EQUIP_NO_CHANGE);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -620,7 +620,7 @@ public:
         uint32 m_uiPsychicScreamTimer;
         uint32 m_uiCommonTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             TW_boss_faction_championsAI::Reset();
             m_uiPsychicScreamTimer = IN_MILLISECONDS;
@@ -628,7 +628,7 @@ public:
             SetEquipmentSlots(false, 49992, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -705,7 +705,7 @@ public:
         uint32 m_uiMindBlastTimer;
         uint32 m_uiCommonTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             TW_boss_faction_championsAI::Reset();
             m_uiPsychicScreamTimer = urand(5*IN_MILLISECONDS, 25*IN_MILLISECONDS);
@@ -722,7 +722,7 @@ public:
             TW_boss_faction_championsAI::EnterCombat(who);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -821,7 +821,7 @@ public:
         uint32 m_uiCommonTimer;
         uint32 m_uiSummonPetTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             TW_boss_faction_championsAI::Reset();
             m_uiFearTimer = urand(4*IN_MILLISECONDS, 15*IN_MILLISECONDS);
@@ -834,7 +834,7 @@ public:
             DoCast(SPELL_SUMMON_FELHUNTER);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -927,7 +927,7 @@ public:
         uint32 m_uiPolymorphTimer;
         uint32 m_uiCommonTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             TW_boss_faction_championsAI::Reset();
             m_uiCounterspellTimer = urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS);
@@ -938,7 +938,7 @@ public:
             SetEquipmentSlots(false, 47524, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1035,7 +1035,7 @@ public:
         uint32 m_uiCommonTimer;
         uint32 m_uiSummonPetTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             TW_boss_faction_championsAI::Reset();
             m_uiDisengageTimer = urand(12*IN_MILLISECONDS, 20*IN_MILLISECONDS);
@@ -1050,7 +1050,7 @@ public:
             DoCast(SPELL_CALL_PET);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1148,7 +1148,7 @@ public:
         uint32 m_uiFaerieFireTimer;
         uint32 m_uiCommonTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             TW_boss_faction_championsAI::Reset();
             m_uiBarkskinTimer = urand(5*IN_MILLISECONDS, 120*IN_MILLISECONDS);
@@ -1159,7 +1159,7 @@ public:
             SetEquipmentSlots(false, 50966, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1257,7 +1257,7 @@ public:
         uint32 m_uiShatteringThrowTimer;
         uint32 m_uiDisarmTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             TW_boss_faction_championsAI::Reset();
             m_uiBladestormTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
@@ -1272,7 +1272,7 @@ public:
             SetEquipmentSlots(false, 47427, 46964, EQUIP_NO_CHANGE);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1372,7 +1372,7 @@ public:
         uint32 m_uiIcyTouchTimer;
         uint32 m_uiDeathGripTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             TW_boss_faction_championsAI::Reset();
             m_uiIceboundFortitudeTimer = urand(5*IN_MILLISECONDS, 90*IN_MILLISECONDS);
@@ -1385,7 +1385,7 @@ public:
             SetEquipmentSlots(false, 47518, 51021, EQUIP_NO_CHANGE);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1475,7 +1475,7 @@ public:
         uint32 m_uiCloakTimer;
         uint32 m_uiBladeFlurryTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             TW_boss_faction_championsAI::Reset();
             m_uiFanOfKnivesTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
@@ -1488,7 +1488,7 @@ public:
             SetEquipmentSlots(false, 47422, 49982, EQUIP_NO_CHANGE);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1577,7 +1577,7 @@ public:
         uint8  m_uiTotemCount;
         float  m_fTotemOldCenterX, m_fTotemOldCenterY;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             TW_boss_faction_championsAI::Reset();
             m_uiHeroismOrBloodlustTimer = urand(25*IN_MILLISECONDS, 60*IN_MILLISECONDS);
@@ -1592,12 +1592,12 @@ public:
             Summons.DespawnAll();
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             Summons.Summon(summoned);
         }
 
-        void SummonedCreatureDespawn(Creature* /*pSummoned*/) OVERRIDE
+        void SummonedCreatureDespawn(Creature* /*pSummoned*/) override
         {
             --m_uiTotemCount;
         }
@@ -1620,13 +1620,13 @@ public:
             */
         }
 
-        void JustDied(Unit* killer) OVERRIDE
+        void JustDied(Unit* killer) override
         {
             TW_boss_faction_championsAI::JustDied(killer);
             Summons.DespawnAll();
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1709,7 +1709,7 @@ public:
         uint32 m_uiDivineStormTimer;
         uint32 m_uiJudgementOfCommandTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             TW_boss_faction_championsAI::Reset();
             m_uiRepeteanceTimer = 60*IN_MILLISECONDS;
@@ -1721,13 +1721,13 @@ public:
             SetEquipmentSlots(false, 47519, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             TW_boss_faction_championsAI::EnterCombat(who);
             DoCast(SPELL_SEAL_OF_COMMAND);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1799,14 +1799,14 @@ public:
         uint32 m_uiDevourMagicTimer;
         uint32 m_uiSpellLockTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             TW_boss_faction_championsAI::Reset();
             m_uiDevourMagicTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             m_uiSpellLockTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1850,13 +1850,13 @@ public:
 
         uint32 m_uiClawTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             TW_boss_faction_championsAI::Reset();
             m_uiClawTimer = urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;

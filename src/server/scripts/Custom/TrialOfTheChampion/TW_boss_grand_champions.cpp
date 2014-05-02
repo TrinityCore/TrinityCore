@@ -213,12 +213,12 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
             instance = creature->GetInstanceScript();
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             combatCheckTimer = 500;
         }
 
-        void SetData(uint32 uiType, uint32 /*uiData8*/) OVERRIDE
+        void SetData(uint32 uiType, uint32 /*uiData8*/) override
         {
             switch(uiType)
             {
@@ -260,7 +260,7 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
                 Start(false, true, 0, NULL);
         }
 
-        void WaypointReached(uint32 i) OVERRIDE
+        void WaypointReached(uint32 i) override
         {
             switch(i)
             {
@@ -274,7 +274,7 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
             }
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             hasBeenInCombat = true;
             DoCastSpellDefend();
@@ -346,7 +346,7 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
             return true;
         }
 
-        void EnterEvadeMode() OVERRIDE
+        void EnterEvadeMode() override
         {
             // Try to stay in combat, otherwise reset
             if (!StayInCombatAndCleanup(true, false))
@@ -374,7 +374,7 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
                 DoCast(me, SPELL_SHIELD, true);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             // Try to keep players clean of defend aura
             if (combatEntered)
@@ -482,14 +482,14 @@ class TW_boss_warrior_toc5 : public CreatureScript
         bool bCredit;
         bool hasBeenInCombat;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiInterceptTimer  = 7000;                    
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             events.SetPhase(PHASE_IDLE);
         }
 
-        void JustReachedHome() OVERRIDE
+        void JustReachedHome() override
         {
             ScriptedAI::JustReachedHome();
 
@@ -501,7 +501,7 @@ class TW_boss_warrior_toc5 : public CreatureScript
             bHome = false;
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             _EnterCombat();
             hasBeenInCombat = true;
@@ -510,7 +510,7 @@ class TW_boss_warrior_toc5 : public CreatureScript
             events.SetPhase(PHASE_COMBAT);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!me->GetVehicle())
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -584,7 +584,7 @@ class TW_boss_warrior_toc5 : public CreatureScript
                 DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
+        void DamageTaken(Unit* /*who*/, uint32& damage) override
         {
             if (damage >= me->GetHealth())
             {
@@ -643,12 +643,12 @@ class TW_boss_mage_toc5 : public CreatureScript
         bool hasBeenInCombat;
         bool bCredit;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             events.SetPhase(PHASE_IDLE);
         }
 
-        void JustReachedHome() OVERRIDE
+        void JustReachedHome() override
         {
             ScriptedAI::JustReachedHome();
 
@@ -660,7 +660,7 @@ class TW_boss_mage_toc5 : public CreatureScript
             bHome = false;
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             _EnterCombat();
             hasBeenInCombat = true;
@@ -671,7 +671,7 @@ class TW_boss_mage_toc5 : public CreatureScript
             events.SetPhase(PHASE_COMBAT);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!me->GetVehicle())
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -736,7 +736,7 @@ class TW_boss_mage_toc5 : public CreatureScript
                 DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
+        void DamageTaken(Unit* /*who*/, uint32& damage) override
         {
             if (damage >= me->GetHealth())
             {
@@ -794,12 +794,12 @@ class TW_boss_shaman_toc5 : public CreatureScript
         bool bCredit;
         bool bChance;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             events.SetPhase(PHASE_IDLE);
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             _EnterCombat();
             hasBeenInCombat = true;
@@ -815,7 +815,7 @@ class TW_boss_shaman_toc5 : public CreatureScript
             events.SetPhase(PHASE_COMBAT);
         };
 
-        void JustReachedHome() OVERRIDE
+        void JustReachedHome() override
         {
             ScriptedAI::JustReachedHome();
 
@@ -827,7 +827,7 @@ class TW_boss_shaman_toc5 : public CreatureScript
             bHome = false;
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!me->GetVehicle())
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -897,7 +897,7 @@ class TW_boss_shaman_toc5 : public CreatureScript
                 DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
+        void DamageTaken(Unit* /*who*/, uint32& damage) override
         {
             if (damage >= me->GetHealth())
             {
@@ -958,7 +958,7 @@ class TW_boss_hunter_toc5 : public CreatureScript
         bool hasBeenInCombat;
         bool bCredit;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiTargetGUID = 0;
 
@@ -984,7 +984,7 @@ class TW_boss_hunter_toc5 : public CreatureScript
             }
         }
 
-        void JustReachedHome() OVERRIDE
+        void JustReachedHome() override
         {
             ScriptedAI::JustReachedHome();
 
@@ -996,7 +996,7 @@ class TW_boss_hunter_toc5 : public CreatureScript
             bHome = false;
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             _EnterCombat();
             hasBeenInCombat = true;
@@ -1006,7 +1006,7 @@ class TW_boss_hunter_toc5 : public CreatureScript
             events.SetPhase(PHASE_COMBAT);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!me->GetVehicle())
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -1102,7 +1102,7 @@ class TW_boss_hunter_toc5 : public CreatureScript
                 DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
+        void DamageTaken(Unit* /*who*/, uint32& damage) override
         {
             if (damage >= me->GetHealth())
             {
@@ -1161,7 +1161,7 @@ class TW_boss_rogue_toc5 : public CreatureScript
         bool hasBeenInCombat;
         bool bCredit;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
 
             Map* pMap = me->GetMap();
@@ -1185,7 +1185,7 @@ class TW_boss_rogue_toc5 : public CreatureScript
             }
         }
 
-        void JustReachedHome() OVERRIDE
+        void JustReachedHome() override
         {
             ScriptedAI::JustReachedHome();
 
@@ -1197,7 +1197,7 @@ class TW_boss_rogue_toc5 : public CreatureScript
             bHome = false;
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             _EnterCombat();
             hasBeenInCombat = true;
@@ -1207,7 +1207,7 @@ class TW_boss_rogue_toc5 : public CreatureScript
             events.SetPhase(PHASE_COMBAT);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!me->GetVehicle())
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -1268,7 +1268,7 @@ class TW_boss_rogue_toc5 : public CreatureScript
                 DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
+        void DamageTaken(Unit* /*who*/, uint32& damage) override
         {
             if (damage >= me->GetHealth())
             {
@@ -1309,7 +1309,7 @@ class TW_achievement_toc5_grand_champions : public AchievementCriteriaScript
             creature_entry = original_entry;
         }
 
-        bool OnCheck(Player* source, Unit* target) OVERRIDE
+        bool OnCheck(Player* source, Unit* target) override
         {
             if (!target)
                 return false;

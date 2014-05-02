@@ -64,7 +64,7 @@ class npc_coren_direbrew : public CreatureScript
             {
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 me->RestoreFaction();
                 me->SetCorpseDelay(1800); // 30 minutes
@@ -81,7 +81,7 @@ class npc_coren_direbrew : public CreatureScript
                         _add[i] = creature->GetGUID();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 SetEquipmentSlots(false, EQUIP_ID_TANKARD, EQUIP_ID_TANKARD, EQUIP_NO_CHANGE);
 
@@ -100,7 +100,7 @@ class npc_coren_direbrew : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -150,7 +150,7 @@ class npc_coren_direbrew : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustSummoned(Creature* summon) OVERRIDE
+            void JustSummoned(Creature* summon) override
             {
                 if (me->getFaction() == FACTION_HOSTILE_CORE)
                 {
@@ -163,7 +163,7 @@ class npc_coren_direbrew : public CreatureScript
                 _summons.Summon(summon);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 _summons.DespawnAll();
 
@@ -219,19 +219,19 @@ class npc_brewmaiden : public CreatureScript
             {
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _brewTimer = 2000;
                 _barrelTimer = 5000;
                 _chuckMugTimer = 10000;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 me->SetInCombatWithZone();
             }
 
-            void AttackStart(Unit* who) OVERRIDE
+            void AttackStart(Unit* who) override
             {
                 if (!who)
                     return;
@@ -249,7 +249,7 @@ class npc_brewmaiden : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) OVERRIDE
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 // TODO: move to DB
 
@@ -260,7 +260,7 @@ class npc_brewmaiden : public CreatureScript
                     target->CastSpell(target, SPELL_CONSUME_BREW, true);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;

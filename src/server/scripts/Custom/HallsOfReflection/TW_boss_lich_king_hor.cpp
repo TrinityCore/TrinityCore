@@ -86,7 +86,7 @@ public:
         bool NonFight;
         float walkSpeed;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             if(!pInstance)
                 return;
@@ -96,9 +96,9 @@ public:
             uiWall = 0;
         }
 
-        void JustDied(Unit* pKiller) OVERRIDE { }
+        void JustDied(Unit* pKiller) override { }
 
-        void WaypointReached(uint32 i) OVERRIDE
+        void WaypointReached(uint32 i) override
         {
             if(pInstance->GetData(DATA_ICE_WALL_1) == IN_PROGRESS)
             {
@@ -137,7 +137,7 @@ public:
             }
         }
 
-        void AttackStart(Unit* who) OVERRIDE
+        void AttackStart(Unit* who) override
         {
             if (!pInstance || !who)
                 return;
@@ -151,7 +151,7 @@ public:
             npc_escortAI::AttackStart(who);
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             if(!pInstance || !summoned)
                 return;
@@ -294,7 +294,7 @@ public:
             }
         }
 
-        void UpdateEscortAI(uint32 const diff) OVERRIDE
+        void UpdateEscortAI(uint32 const diff) override
         {
             if(!pInstance)
                 return;
@@ -398,7 +398,7 @@ public:
         bool Jumped;
         uint64 uiLiderGUID;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             DoCast(me, SPELL_EMERGE_VISUAL);
             EmergeTimer = 4000;
@@ -406,7 +406,7 @@ public:
             Jumped = false;
         }
 
-        void JustDied(Unit* pKiller) OVERRIDE
+        void JustDied(Unit* pKiller) override
         {
             if(!pInstance)
                 return;
@@ -414,7 +414,7 @@ public:
             pInstance->SetData(DATA_SUMMONS, 0);
         }
 
-        void AttackStart(Unit* who) OVERRIDE
+        void AttackStart(Unit* who) override
         {
             if (!who)
                 return;
@@ -425,7 +425,7 @@ public:
             ScriptedAI::AttackStart(who);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if(!pInstance)
                 return;
@@ -499,7 +499,7 @@ public:
         uint32 uiBoltVolleyTimer;
         uint32 uiCurseTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             DoCast(me, SPELL_EMERGE_VISUAL);
             EmergeTimer = 5000;
@@ -509,7 +509,7 @@ public:
             Emerge = false;
         }
 
-        void JustDied(Unit* pKiller) OVERRIDE
+        void JustDied(Unit* pKiller) override
         {
             if(!pInstance)
                 return;
@@ -518,7 +518,7 @@ public:
 
         }
 
-        void AttackStart(Unit* who) OVERRIDE
+        void AttackStart(Unit* who) override
         {
             if (!who)
                 return;
@@ -529,7 +529,7 @@ public:
             ScriptedAI::AttackStart(who);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if(!pInstance)
                 return;
@@ -610,14 +610,14 @@ public:
         uint32 uiStrikeTimer;
         uint32 uiVomitTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             Walk = false;
             uiVomitTimer = 15000;
             uiStrikeTimer = 6000;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if(!pInstance) return;
 
@@ -655,7 +655,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* pKiller) OVERRIDE
+        void JustDied(Unit* pKiller) override
         {
             if(!pInstance)
                 return;
@@ -725,7 +725,7 @@ class TW_npc_jaina_and_sylvana_hor_part2 : public CreatureScript
 public:
     TW_npc_jaina_and_sylvana_hor_part2() : CreatureScript("TW_npc_jaina_and_sylvana_hor_part2") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 uiSender, uint32 uiAction) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 uiSender, uint32 uiAction) override
     {
         InstanceScript* m_pInstance = (InstanceScript*)creature->GetInstanceScript();
         switch (uiAction)
@@ -751,7 +751,7 @@ public:
         }
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         InstanceScript*   m_pInstance = (InstanceScript*)creature->GetInstanceScript();
 
@@ -771,7 +771,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new TW_npc_jaina_and_sylvana_hor_part2AI(creature);
     }
@@ -803,7 +803,7 @@ public:
         Creature* pLichKing;
         uint32 m_chestID;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             if(!m_pInstance)
                 return;
@@ -829,7 +829,7 @@ public:
             me->SetHealth(252000);
         }
 
-        void AttackStart(Unit* who) OVERRIDE
+        void AttackStart(Unit* who) override
         {
             if(!who)
                 return;
@@ -844,7 +844,7 @@ public:
 
         }
 
-        void JustDied(Unit* pKiller) OVERRIDE
+        void JustDied(Unit* pKiller) override
         {
             if(!m_pInstance)
                 return;
@@ -853,7 +853,7 @@ public:
                 m_pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
         }
 
-        void WaypointReached(uint32 i) OVERRIDE
+        void WaypointReached(uint32 i) override
         {
             switch(i)
             {
@@ -1003,7 +1003,7 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
         {
             if (!who || !m_pInstance)
                 return;
@@ -1041,7 +1041,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage) OVERRIDE
+        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage) override
         {
             if(!m_pInstance)
                 return;
@@ -1254,7 +1254,7 @@ public:
             }
         }
 
-        void UpdateEscortAI(uint32 const diff) OVERRIDE
+        void UpdateEscortAI(uint32 const diff) override
         {
             if (!m_pInstance || !Event)
                 return;

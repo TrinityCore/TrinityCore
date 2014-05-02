@@ -328,7 +328,7 @@ class TW_boss_mimiron : public CreatureScript
                 ++_step;
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -697,7 +697,7 @@ class TW_boss_mimiron : public CreatureScript
                 }
             }
 
-            void SetData(uint32 uiType, uint32 uiData) OVERRIDE
+            void SetData(uint32 uiType, uint32 uiData) override
             {
                 switch (uiType)
                 {
@@ -922,7 +922,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -980,7 +980,7 @@ class TW_boss_leviathan_mk_turret : public CreatureScript
                 _NapalmShell = urand(8000, 12000);
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     me->GetInstanceScript()->SetData(DATA_CRITERIA_MIMIRON, 1);
@@ -1018,7 +1018,7 @@ class TW_boss_leviathan_mk_turret : public CreatureScript
                     return NULL;
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -1079,20 +1079,20 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* target, SpellInfo const* spell) OVERRIDE
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
         {
             if (target->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_EXPLOSION)
                 if (Creature* Mimiron = me->FindNearestCreature(NPC_MIMIRON, 200.0f))
                     Mimiron->AI()->SetData(DATA_SET_US_UP_THE_BOMB_MINE, false);
         }
         
-        void KilledUnit(Unit* who) OVERRIDE
+        void KilledUnit(Unit* who) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
                 me->GetInstanceScript()->SetData(DATA_CRITERIA_MIMIRON, 1);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (uiBoomTimer <= diff)
             {
@@ -1279,7 +1279,7 @@ public:
                 me->SummonCreature(NPC_FROST_BOMB, *target, TEMPSUMMON_TIMED_DESPAWN, 11000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1407,13 +1407,13 @@ public:
             DoCast(me, SPELL_ROCKET_STRIKE_AURA);
         }
         
-        void KilledUnit(Unit* who) OVERRIDE
+        void KilledUnit(Unit* who) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
                 me->GetInstanceScript()->SetData(DATA_CRITERIA_MIMIRON, 1);
         }
 
-        void SpellHitTarget(Unit* target, SpellInfo const* spell) OVERRIDE
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
         {
             if (target->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_ROCKET_STRIKE_DMG)
                 if (Creature* Mimiron = me->FindNearestCreature(NPC_MIMIRON, 200.0f))
@@ -1574,7 +1574,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1747,13 +1747,13 @@ class TW_npc_assault_bot : public CreatureScript
                 _fieldTimer = urand(4000, 6000);
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     me->GetInstanceScript()->SetData(DATA_CRITERIA_MIMIRON, 1);      
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -1804,7 +1804,7 @@ class TW_npc_emergency_bot : public CreatureScript
                     DoCast(me, SPELL_DEAFENING_SIREN, true);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (_sprayTimer <= diff)
                 {
@@ -1857,13 +1857,13 @@ class TW_npc_mimiron_bomb_bot : public CreatureScript
                 DoCast(me, SPELL_BOMB_BOT, true);
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     me->GetInstanceScript()->SetData(DATA_CRITERIA_MIMIRON, 1);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) OVERRIDE
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 if (target->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_BOMB_BOT)
                     if (Creature* Mimiron = me->FindNearestCreature(NPC_MIMIRON, 200.0f))
@@ -1954,7 +1954,7 @@ class TW_npc_mimiron_flame_trigger : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     me->GetInstanceScript()->SetData(DATA_CRITERIA_MIMIRON, 1);
@@ -1966,7 +1966,7 @@ class TW_npc_mimiron_flame_trigger : public CreatureScript
                     mimiron->AI()->DoAction(DO_INCREASE_FLAME_COUNT);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (_flameTimer <= diff)
                 {
@@ -2068,7 +2068,7 @@ class TW_npc_frost_bomb : public CreatureScript
                 _frostTimer = 10000;
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (_frostTimer <= diff)
                 {
@@ -2119,7 +2119,7 @@ class TW_achievement_set_us_up_the_bomb : public AchievementCriteriaScript
             spell_id = spell_entry;
         }
 
-        bool OnCheck(Player* player, Unit* /*target*/) OVERRIDE
+        bool OnCheck(Player* player, Unit* /*target*/) override
         {
             if (!player)
                 return false;

@@ -128,7 +128,7 @@ class TW_npc_herald_toc5 : public CreatureScript
     public:
         TW_npc_herald_toc5(): CreatureScript("TW_npc_herald_toc5") {}
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF+1)
@@ -140,7 +140,7 @@ class TW_npc_herald_toc5 : public CreatureScript
         return true;
     }
         
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         InstanceScript* instance = creature->GetInstanceScript();
 
@@ -249,13 +249,13 @@ class TW_npc_herald_toc5 : public CreatureScript
 
         bool _introDone;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             _introDone = false;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
         {
             if (!_introDone && (instance->GetData(BOSS_GRAND_CHAMPIONS) != DONE && instance->GetData(BOSS_GRAND_CHAMPIONS) != FAIL) && me->IsWithinDistInMap(who, 75.0f))
             {
@@ -269,7 +269,7 @@ class TW_npc_herald_toc5 : public CreatureScript
             }
         }
 
-        void SetData(uint32 uiType, uint32 /*uiData*/) OVERRIDE
+        void SetData(uint32 uiType, uint32 /*uiData*/) override
         {
             switch (uiType)
             {
@@ -321,7 +321,7 @@ class TW_npc_herald_toc5 : public CreatureScript
             }
         }
 
-        void MovementInform(uint32 uiType, uint32 uiPointId) OVERRIDE 
+        void MovementInform(uint32 uiType, uint32 uiPointId) override 
         {
             if (uiType != POINT_MOTION_TYPE)
                 return;
@@ -333,7 +333,7 @@ class TW_npc_herald_toc5 : public CreatureScript
             }
         }
 
-        void JustSummoned(Creature* summon) OVERRIDE
+        void JustSummoned(Creature* summon) override
         {
             if (instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED)
             {
@@ -342,7 +342,7 @@ class TW_npc_herald_toc5 : public CreatureScript
             }
         }
 
-        void SummonedCreatureDespawn(Creature* summon) OVERRIDE
+        void SummonedCreatureDespawn(Creature* summon) override
         {
             switch(summon->GetEntry())
             {
@@ -547,7 +547,7 @@ class TW_npc_herald_toc5 : public CreatureScript
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             me->SetReactState(REACT_PASSIVE);
             if (Creature* pGhoul = me->SummonCreature(NPC_RISEN_JAEREN, 742.835f, 639.134f, 411.571f, 1.05731f))
@@ -692,7 +692,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                 }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!(thrallGUID || garroshGUID || varianGUID || proudmooreGUID || tirionGUID))
                 return;

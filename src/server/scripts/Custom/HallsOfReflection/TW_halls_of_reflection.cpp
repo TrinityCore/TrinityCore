@@ -313,7 +313,7 @@ class TW_npc_jaina_or_sylvanas_hor : public CreatureScript
 
         EventMap _events;
 
-        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action) OVERRIDE
+        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action) override
         {
             player->PlayerTalkClass->ClearMenus();
             switch (action)
@@ -331,7 +331,7 @@ class TW_npc_jaina_or_sylvanas_hor : public CreatureScript
             }
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             _events.Reset();
 
@@ -343,7 +343,7 @@ class TW_npc_jaina_or_sylvanas_hor : public CreatureScript
             _events.ScheduleEvent(EVENT_WALK_INTRO1, 3000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             _events.Update(diff);
 
@@ -703,7 +703,7 @@ class TW_npc_jaina_or_sylvanas_hor : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetHallsOfReflectionAI<TW_npc_jaina_or_sylvanas_horAI>(creature);
     }
@@ -786,19 +786,19 @@ struct npc_gauntlet_trash : public ScriptedAI
 {
     npc_gauntlet_trash(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-    void Reset() OVERRIDE
+    void Reset() override
     {
         me->CastSpell(me, SPELL_WELL_OF_SOULS, true);
         _events.Reset();
     }
 
-    void EnterEvadeMode() OVERRIDE
+    void EnterEvadeMode() override
     {
         if (_instance->GetData(DATA_WAVE_COUNT) != NOT_STARTED)
             _instance->SetData(DATA_WAVE_COUNT, NOT_STARTED);
     }
 
-    void SetData(uint32 type, uint32 value) OVERRIDE
+    void SetData(uint32 type, uint32 value) override
     {
         if (type)
             return;
@@ -806,7 +806,7 @@ struct npc_gauntlet_trash : public ScriptedAI
         InternalWaveId = value;
     }
 
-    uint32 GetData(uint32 type) const OVERRIDE
+    uint32 GetData(uint32 type) const override
     {
         if (type)
             return 0;
@@ -829,7 +829,7 @@ public:
     {
         TW_npc_ghostly_priestAI(Creature* creature) : npc_gauntlet_trash(creature) { }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 8000); /// @todo adjust timers
             _events.ScheduleEvent(EVENT_CIRCLE_OF_DESTRUCTION, 12000);
@@ -837,7 +837,7 @@ public:
             _events.ScheduleEvent(EVENT_DARK_MENDING, 20000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -883,7 +883,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new TW_npc_ghostly_priestAI(creature);
     }
@@ -898,13 +898,13 @@ public:
     {
         TW_npc_phantom_mageAI(Creature* creature) : npc_gauntlet_trash(creature) { }
 
-        void EnterEvadeMode() OVERRIDE
+        void EnterEvadeMode() override
         {
             if (!me->HasAura(AURA_HALLUCINATION))
                 npc_gauntlet_trash::EnterEvadeMode();
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_FIREBALL, 3000); /// @todo adjust timers
             _events.ScheduleEvent(EVENT_FLAMESTRIKE, 6000);
@@ -913,7 +913,7 @@ public:
             _events.ScheduleEvent(EVENT_HALLUCINATION, 40000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -955,7 +955,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new TW_npc_phantom_mageAI(creature);
     }
@@ -970,26 +970,26 @@ public:
     {
         TW_npc_phantom_hallucinationAI(Creature* creature) : TW_npc_phantom_mage::TW_npc_phantom_mageAI(creature) { }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             if (Unit* unit = me->SelectNearestTarget())
                 AttackStart(unit);
             DoZoneInCombat();
         }
 
-        void EnterEvadeMode() OVERRIDE
+        void EnterEvadeMode() override
         {
             if (!me->GetOwner()->HasAura(AURA_HALLUCINATION))
                 TW_npc_phantom_mage::TW_npc_phantom_mageAI::EnterEvadeMode();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             DoCast(SPELL_HALLUCINATION_2);
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new TW_npc_phantom_hallucinationAI(creature);
     }
@@ -1004,7 +1004,7 @@ public:
     {
         TW_npc_shadowy_mercenaryAI(Creature* creature) : npc_gauntlet_trash(creature) { }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_SHADOW_STEP, 8000); /// @todo adjust timers
             _events.ScheduleEvent(EVENT_DEADLY_POISON, 5000);
@@ -1012,7 +1012,7 @@ public:
             _events.ScheduleEvent(EVENT_KIDNEY_SHOT, 12000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1047,7 +1047,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new TW_npc_shadowy_mercenaryAI(creature);
     }
@@ -1062,14 +1062,14 @@ public:
     {
         TW_npc_spectral_footmanAI(Creature* creature) : npc_gauntlet_trash(creature) { }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_SPECTRAL_STRIKE, 5000); /// @todo adjust timers
             _events.ScheduleEvent(EVENT_SHIELD_BASH, 10000);
             _events.ScheduleEvent(EVENT_TORTURED_ENRAGE, 15000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1099,7 +1099,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new TW_npc_spectral_footmanAI(creature);
     }
@@ -1114,7 +1114,7 @@ public:
     {
         TW_npc_tortured_riflemanAI(Creature* creature) : npc_gauntlet_trash(creature) { }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_SHOOT, 1); /// @todo adjust timers
             _events.ScheduleEvent(EVENT_CURSED_ARROW, 7000);
@@ -1122,7 +1122,7 @@ public:
             _events.ScheduleEvent(EVENT_ICE_SHOT, 15000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1158,7 +1158,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new TW_npc_tortured_riflemanAI(creature);
     }
@@ -1203,19 +1203,19 @@ public:
         InstanceScript* _instance;
         EventMap _events;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             _events.Reset();
             _instance->SetData(DATA_FROSWORN_EVENT, NOT_STARTED);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
             _instance->SetData(DATA_FROSWORN_EVENT, DONE);
         }
 
-        void EnterCombat(Unit* /*victim*/) OVERRIDE
+        void EnterCombat(Unit* /*victim*/) override
         {
             Talk(SAY_AGGRO);
             _events.ScheduleEvent(EVENT_SHIELD, 5000);
@@ -1224,7 +1224,7 @@ public:
             _instance->SetData(DATA_FROSWORN_EVENT, IN_PROGRESS);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1274,7 +1274,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new TW_npc_frostworn_generalAI(creature);
     }
@@ -1294,22 +1294,22 @@ public:
 
         EventMap _events;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             _events.Reset();
         }
 
-        void EnterCombat(Unit* /*victim*/) OVERRIDE
+        void EnterCombat(Unit* /*victim*/) override
         {
             _events.ScheduleEvent(EVENT_BALEFUL_STRIKE, 3000);
         }
 
-        void JustDied(Unit* killer) OVERRIDE
+        void JustDied(Unit* killer) override
         {
             DoCast(killer, SPELL_SPIRIT_BURST);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1331,7 +1331,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new TW_npc_spiritual_reflectionAI(creature);
     }
@@ -1342,7 +1342,7 @@ class TW_at_hor_intro_start : public AreaTriggerScript
 public:
     TW_at_hor_intro_start() : AreaTriggerScript("TW_at_hor_intro_start") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) OVERRIDE
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
     {
         InstanceScript* _instance = player->GetInstanceScript();
 
@@ -1361,7 +1361,7 @@ class TW_at_hor_waves_restarter : public AreaTriggerScript
 public:
     TW_at_hor_waves_restarter() : AreaTriggerScript("TW_at_hor_waves_restarter") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) OVERRIDE
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
     {
         InstanceScript* _instance = player->GetInstanceScript();
 
@@ -1408,7 +1408,7 @@ public:
         bool _doJump;
         uint64 _leaderGUID;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             _emergeTimer = 4000;
             _doEmerge = false;
@@ -1418,19 +1418,19 @@ public:
 
         }
 
-        void IsSummonedBy(Unit*) OVERRIDE
+        void IsSummonedBy(Unit*) override
         {
             DoCast(me, SPELL_EMERGE_VISUAL);
             DoZoneInCombat(me, 100.00f);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
              if (_instance)
                  _instance->SetData(DATA_SUMMONS, 0);
         }
 
-        void AttackStart(Unit* who) OVERRIDE
+        void AttackStart(Unit* who) override
         {
             if (!who)
                 return;
@@ -1441,7 +1441,7 @@ public:
             ScriptedAI::AttackStart(who);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!_instance)
                 return;
@@ -1482,7 +1482,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new TW_npc_raging_ghoulAI(creature);
     }
@@ -1508,7 +1508,7 @@ public:
         uint32 _boltVolleyTimer;
         uint32 _curseTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             _emergeTimer = 5000;
             _boltTimer = 6000;
@@ -1520,20 +1520,20 @@ public:
                     _instance->SetData(DATA_SUMMONS, 1);
         }
 
-        void IsSummonedBy(Unit*) OVERRIDE
+        void IsSummonedBy(Unit*) override
         {
             DoCast(me, SPELL_EMERGE_VISUAL);
             DoZoneInCombat(me, 100.00f);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (_instance)
                 _instance->SetData(DATA_SUMMONS, 0);
 
         }
 
-        void AttackStart(Unit* who) OVERRIDE
+        void AttackStart(Unit* who) override
         {
             if (!who)
                 return;
@@ -1544,7 +1544,7 @@ public:
             ScriptedAI::AttackStart(who);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!_instance)
                 return;
@@ -1602,7 +1602,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new TW_npc_risen_witch_doctorAI(creature);
     }
@@ -1627,7 +1627,7 @@ public:
         uint32 _strikeTimer;
         uint32 _vomitTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             _doWalk = false;
             _vomitTimer = 15000;
@@ -1637,13 +1637,13 @@ public:
                     _instance->SetData(DATA_SUMMONS, 1);
         }
 
-        void IsSummonedBy(Unit*) OVERRIDE
+        void IsSummonedBy(Unit*) override
         {
             DoCast(me, SPELL_EMERGE_VISUAL);
             DoZoneInCombat(me, 100.00f);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!_instance)
                 return;
@@ -1684,7 +1684,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (_instance)
                 _instance->SetData(DATA_SUMMONS, 0);
@@ -1692,7 +1692,7 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new TW_npc_lumbering_abominationAI(creature);
     }
@@ -1703,7 +1703,7 @@ class TW_at_koreln_loralen : public AreaTriggerScript
 public:
     TW_at_koreln_loralen() : AreaTriggerScript("TW_at_koreln_loralen") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) OVERRIDE
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
     {
         InstanceScript* _instance = player->GetInstanceScript();
 

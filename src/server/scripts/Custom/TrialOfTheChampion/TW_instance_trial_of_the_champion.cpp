@@ -84,7 +84,7 @@ public:
         bool bDone;
         bool HasChestSpawned;
 
-        void Initialize() OVERRIDE
+        void Initialize() override
         {
             uiMovementDone                = 0;
             uiGrandChampionsDeaths        = 0;
@@ -127,7 +127,7 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* creature)  OVERRIDE
+        void OnCreatureCreate(Creature* creature)  override
         {
             Map::PlayerList const &players = instance->GetPlayers();
 
@@ -271,7 +271,7 @@ public:
             }
         }
 
-        bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*, Unit const* /* = NULL */, uint32 /* = 0 */) OVERRIDE
+        bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*, Unit const* /* = NULL */, uint32 /* = 0 */) override
         {
             switch (criteriaId)
             {
@@ -286,7 +286,7 @@ public:
             return false;
         }
 
-        void OnGameObjectCreate(GameObject* go) OVERRIDE
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch(go->GetEntry())
             {
@@ -303,7 +303,7 @@ public:
             }
         }
 
-        void SetData(uint32 uiType, uint32 uiData) OVERRIDE
+        void SetData(uint32 uiType, uint32 uiData) override
         {
             switch (uiType)
             {
@@ -454,7 +454,7 @@ public:
             return 0;
         }
 
-        void SetData64(uint32 uiType, uint64 uiData) OVERRIDE
+        void SetData64(uint32 uiType, uint64 uiData) override
         {
             switch(uiType)
             {
@@ -523,7 +523,7 @@ public:
             OUT_LOAD_INST_DATA_COMPLETE;
         }
 
-        void Update(uint32 uiDiff) OVERRIDE
+        void Update(uint32 uiDiff) override
         {
             events.Update(uiDiff);
 

@@ -49,7 +49,7 @@ public:
     {
         TW_npc_argent_squireAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action) OVERRIDE
+        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action) override
         {
             player->PlayerTalkClass->ClearMenus();
 
@@ -78,7 +78,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new TW_npc_argent_squireAI(creature);
     }
@@ -120,7 +120,7 @@ public:
         uint32 uiThrustTimer;
         bool bCharge;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiChargeTimer = 12000;
             uiShieldBreakerTimer = 10000;
@@ -129,13 +129,13 @@ public:
             bCharge = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             for (uint8 i = 0; i < 3; ++i)
                 DoCast(me, SPELL_DEFEND, true);
         }
 
-        void MovementInform(uint32 uiType, uint32 /*pointId*/) OVERRIDE
+        void MovementInform(uint32 uiType, uint32 /*pointId*/) override
         {
             if (uiType != POINT_MOTION_TYPE)
                 return;
@@ -155,7 +155,7 @@ public:
                 me->setFaction(14);
         }
 
-        void DamageTaken(Unit* pDoneBy, uint32& uiDamage) OVERRIDE
+        void DamageTaken(Unit* pDoneBy, uint32& uiDamage) override
         {
             if (uiDamage >= me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
             {
@@ -168,7 +168,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -217,7 +217,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new TW_npc_argent_championAI(creature);
     }
@@ -304,7 +304,7 @@ class TW_npc_argent_faction_rider : public CreatureScript
 public:
     TW_npc_argent_faction_rider() : CreatureScript("TW_npc_argent_faction_rider") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         // prevent gossip when defeated
         if (creature->GetAI()->GetData(DATA_DEFEATED) > 0)
@@ -369,7 +369,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
 
@@ -400,7 +400,7 @@ public:
 
         uint32 challengeeGUID;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             me->m_CombatDistance = 100.0f; // lawl, copied from zuldrak.cpp
             me->setFaction(35);
@@ -425,7 +425,7 @@ public:
 
         }
 
-        uint32 GetData(uint32 type) const OVERRIDE
+        uint32 GetData(uint32 type) const override
         {
             if (type == DATA_TYPE)
                 return GetCustomType();
@@ -436,13 +436,13 @@ public:
             return 0;
         }
 
-        void SetData(uint32 type, uint32 data) OVERRIDE
+        void SetData(uint32 type, uint32 data) override
         {
             if (type == DATA_PLAYER)
                 challengeeGUID = data;
         }
 
-        void DoAction(int32 type) OVERRIDE
+        void DoAction(int32 type) override
         {
             if (type == EVENT_START)
             {
@@ -540,7 +540,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             uint8 stackAmount;
             if (GetCustomType() == TYPE_CHAMPION)
@@ -552,7 +552,7 @@ public:
                 DoCast(me, SPELL_DEFEND, true);
         }
 
-        void MovementInform(uint32 uiType, uint32 /*pointId*/) OVERRIDE
+        void MovementInform(uint32 uiType, uint32 /*pointId*/) override
         {
             if (uiType != POINT_MOTION_TYPE)
                 return;
@@ -584,7 +584,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* who, uint32& damage) OVERRIDE
+        void DamageTaken(Unit* who, uint32& damage) override
         {
             if (damage >= me->GetHealth() && who->GetTypeId() == TYPEID_PLAYER && !bDefeated)
             {
@@ -657,7 +657,7 @@ public:
 
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -705,7 +705,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new TW_npc_argent_faction_riderAI(creature);
     }
@@ -742,7 +742,7 @@ public:
         bool mountDuel;
         bool handDuel;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             me->m_CombatDistance = 100.0f; // lawl, copied from zuldrak.cpp
             uiChargeTimer = 7000;
@@ -753,7 +753,7 @@ public:
             handDuel = false;
         }
 
-        void SetGUID(uint64 guid, int32) OVERRIDE
+        void SetGUID(uint64 guid, int32) override
         {
             if (Player* plr = Player::GetPlayer(*me, guid))
             {
@@ -763,19 +763,19 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             me->DespawnOrUnsummon(5000);
         }
 
-        void EnterCombat(Unit* /*attacker*/) OVERRIDE
+        void EnterCombat(Unit* /*attacker*/) override
         {
             DoCast(me,SPELL_DEFEND_AURA_PERIODIC,true);
             if (Aura* aur = me->AddAura(SPELL_DEFEND,me))
                 aur->ModStackAmount(1);
         }
 
-        void MovementInform(uint32 uiType, uint32 uiId) OVERRIDE
+        void MovementInform(uint32 uiType, uint32 uiId) override
         {
             if (uiType != POINT_MOTION_TYPE)
                 return;
@@ -823,7 +823,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* pDoneBy, uint32& uiDamage) OVERRIDE
+        void DamageTaken(Unit* pDoneBy, uint32& uiDamage) override
         {
             if (pDoneBy && pDoneBy->GetGUID() != guidAttacker)
                 uiDamage = 0;
@@ -849,7 +849,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -909,7 +909,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const OVERRIDE
+    CreatureAI *GetAI(Creature* creature) const override
     {
         return new TW_npc_the_black_knightAI(creature);
     }

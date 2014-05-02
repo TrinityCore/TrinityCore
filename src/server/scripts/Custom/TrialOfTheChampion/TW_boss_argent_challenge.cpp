@@ -33,7 +33,7 @@ enum Spells
     SPELL_HAMMER_JUSTICE        = 66863,
     SPELL_HAMMER_JUSTICE_STUN   = 66940,
     SPELL_HAMMER_RIGHTEOUS      = 66867,
-    SPELL_HAMMER_OVERRIDE_BAR   = 66904, // overrides players cast bar
+    SPELL_HAMMER_override_BAR   = 66904, // overrides players cast bar
     SPELL_HAMMER_THROWBACK_DMG  = 66905, // the hammer that is thrown back by the player
     SPELL_RADIANCE              = 66935,
     SPELL_VENGEANCE             = 66865,
@@ -146,12 +146,12 @@ class TW_spell_eadric_hoj : public SpellScriptLoader
                     if (!GetHitUnit()->HasAura(SPELL_HAMMER_JUSTICE_STUN)) // FIXME: Has Catched Hammer...
                     {
                         SetHitDamage(0);
-                        GetHitUnit()->AddAura(SPELL_HAMMER_OVERRIDE_BAR, GetHitUnit());
+                        GetHitUnit()->AddAura(SPELL_HAMMER_override_BAR, GetHitUnit());
                     }
 
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnHit += SpellHitFn(TW_spell_eadric_hoj_SpellScript::HandleOnHit);
             }
@@ -265,7 +265,7 @@ class TW_boss_eadric : public CreatureScript
             }
         }
 
-        uint32 GetData(uint32 type) const OVERRIDE
+        uint32 GetData(uint32 type) const override
         {
             if (type == DATA_THE_FACEROLLER)
                 return _theFaceRoller;
@@ -519,7 +519,7 @@ class TW_boss_paletress : public CreatureScript
             DoMeleeAttackIfReady();
         }
 
-        void JustSummoned(Creature* summon) OVERRIDE
+        void JustSummoned(Creature* summon) override
         {
             memoryGUID = summon->GetGUID();
         }
@@ -561,7 +561,7 @@ class TW_npc_memory : public CreatureScript
             uiWakingNightmare = 7000;
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -596,7 +596,7 @@ class TW_npc_memory : public CreatureScript
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* killer) OVERRIDE
+        void JustDied(Unit* killer) override
         {
             if (me->IsSummon())
             {
@@ -653,7 +653,7 @@ class TW_npc_argent_soldier : public CreatureScript
 
         bool bStarted;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiStrikeTimer = 5000;
             uiCleaveTimer = 6000;
@@ -673,7 +673,7 @@ class TW_npc_argent_soldier : public CreatureScript
             }
         }
 
-        void WaypointReached(uint32 uiPoint) OVERRIDE
+        void WaypointReached(uint32 uiPoint) override
         {
             if (uiPoint == 0)
             {
@@ -712,7 +712,7 @@ class TW_npc_argent_soldier : public CreatureScript
             }  
         }
 
-        void SetData(uint32 uiType, uint32 uiData) OVERRIDE
+        void SetData(uint32 uiType, uint32 uiData) override
         {
             switch(me->GetEntry())
             {
@@ -770,7 +770,7 @@ class TW_npc_argent_soldier : public CreatureScript
             uiWaypoint = uiType;
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             npc_escortAI::UpdateAI(uiDiff);
 
@@ -846,7 +846,7 @@ class TW_npc_argent_soldier : public CreatureScript
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* killer) OVERRIDE
+        void JustDied(Unit* killer) override
         {
             pInstance->SetData(DATA_ARGENT_SOLDIER_DEFEATED,pInstance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);
         }
@@ -873,7 +873,7 @@ class TW_spell_gen_reflective_shield : public SpellScriptLoader
         {
             PrepareAuraScript(TW_spell_gen_reflective_shield_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_REFLECTIVE_SHIELD_TRIGGERED)) // Is this correct?  I honestly don't know anything about AuraScript, so I took this from class spell_blood_queen_pact_of_the_darkfallen_dmg 
                     return false;
@@ -914,7 +914,7 @@ class TW_achievement_toc5_argent_challenge : public AchievementCriteriaScript
             creature_entry = original_entry;
         }
 
-        bool OnCheck(Player* source, Unit* target) OVERRIDE
+        bool OnCheck(Player* source, Unit* target) override
         {
             if (!target)
                 return false;
@@ -937,7 +937,7 @@ class TW_achievement_toc5_argent_confessor : public AchievementCriteriaScript
             creature_entry = original_entry;
         }
 
-        bool OnCheck(Player* source, Unit* target) OVERRIDE
+        bool OnCheck(Player* source, Unit* target) override
         {
             if (!target)
                 return false;
@@ -955,7 +955,7 @@ class TW_achievement_toc5_the_faceroller : public AchievementCriteriaScript
     public:
         TW_achievement_toc5_the_faceroller(const char* name) : AchievementCriteriaScript(name) {}
 
-        bool OnCheck(Player* /*source*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             if (target && target->GetMap()->ToInstanceMap()->IsHeroic())
                 return target->GetAI()->GetData(DATA_THE_FACEROLLER);

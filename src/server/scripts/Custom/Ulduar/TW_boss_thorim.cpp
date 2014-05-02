@@ -369,7 +369,7 @@ public:
         Position homePosition;
         uint64 SifGUID;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             if (EncounterFinished)
                 return;
@@ -417,7 +417,7 @@ public:
                 go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
         }
 
-        void KilledUnit(Unit* victim) OVERRIDE
+        void KilledUnit(Unit* victim) override
         {
             if (victim->GetTypeId() == TYPEID_PLAYER)
             {
@@ -458,7 +458,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO_1);
             _EnterCombat();
@@ -490,7 +490,7 @@ public:
                 instance->SetBossState(BOSS_THORIM, IN_PROGRESS);
         }
 
-        void EnterEvadeMode() OVERRIDE
+        void EnterEvadeMode() override
         {
             if (!_EnterEvadeMode())
                 return;
@@ -500,7 +500,7 @@ public:
             Reset();
         }
 
-        uint32 GetData(uint32 type) const OVERRIDE
+        uint32 GetData(uint32 type) const override
         {
             switch (type)
             {
@@ -515,13 +515,13 @@ public:
             return 0;
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell) OVERRIDE
+        void SpellHitTarget(Unit* target, const SpellInfo* spell) override
         {
             if (target->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_LIGHTNING_RELEASE)
                 LightningAchievement = false;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
             
@@ -698,7 +698,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void DoAction(int32 action) OVERRIDE
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -731,7 +731,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summon) OVERRIDE
+        void JustSummoned(Creature* summon) override
         {
             summons.Summon(summon);
             if (me->IsInCombat())
@@ -741,7 +741,7 @@ public:
                 summon->CastSpell(summon, SPELL_LIGHTNING_DESTRUCTION, true);
         }
 
-        void DamageTaken(Unit* attacker, uint32 &damage) OVERRIDE
+        void DamageTaken(Unit* attacker, uint32 &damage) override
         {
             if (damage >= me->GetHealth())
             {
@@ -815,19 +815,19 @@ public:
         uint32 SecondaryTimer;
         bool healer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             PrimaryTimer = urand(3000, 6000);
             SecondaryTimer = urand (12000, 15000);
         }
 
-        void JustDied(Unit* /*victim*/) OVERRIDE
+        void JustDied(Unit* /*victim*/) override
         {
             if (Creature* pThorim = me->GetCreature(*me, pInstance->GetData64(BOSS_THORIM)))
                 pThorim->AI()->DoAction(ACTION_INCREASE_PREADDS_COUNT);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -904,26 +904,26 @@ class TW_npc_thorim_arena_phase : public CreatureScript
                 return (_IsInArena == IN_ARENA(who));
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage) OVERRIDE
+            void DamageTaken(Unit* attacker, uint32 &damage) override
             {
                 if (!isOnSameSide(attacker))
                     damage = 0;
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _PrimaryTimer = urand(3000, 6000);
                 _SecondaryTimer = urand (7000, 9000);
                 _ChargeTimer = 8000;
             }
 
-            void MoveInLineOfSight(Unit* who) OVERRIDE
+            void MoveInLineOfSight(Unit* who) override
             {
                 if (me->IsWithinDistInMap(who, 10.0f))
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 if (_id == DARK_RUNE_WARBRINGER)
                     DoCast(me, SPELL_AURA_OF_CELERITY);
@@ -931,7 +931,7 @@ class TW_npc_thorim_arena_phase : public CreatureScript
 
             // this should only happen if theres no alive player in the arena -> summon orb
             // might be called by mind control release or controllers death?
-            void EnterEvadeMode() OVERRIDE
+            void EnterEvadeMode() override
             {
                 if (Creature* thorim = me->GetCreature(*me, _instance ? _instance->GetData64(BOSS_THORIM) : 0))
                     thorim->AI()->DoAction(ACTION_BERSERK);
@@ -940,13 +940,13 @@ class TW_npc_thorim_arena_phase : public CreatureScript
                 Reset();
             }
 
-             void KilledUnit(Unit* who) OVERRIDE
+             void KilledUnit(Unit* who) override
              {
                  if (who->GetTypeId() == TYPEID_PLAYER)
                      me->GetInstanceScript()->SetData(DATA_CRITERIA_THORIM, 1);
              }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
@@ -1039,7 +1039,7 @@ class TW_npc_runic_colossus : public CreatureScript
                 //SetImmuneToPushPullEffects(true);
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 BarrierTimer = urand(12000, 15000);
                 SmashTimer = urand (15000, 18000);
@@ -1063,31 +1063,31 @@ class TW_npc_runic_colossus : public CreatureScript
                     colossusAddLocations[i].o, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
             }
 
-            void MoveInLineOfSight(Unit* who) OVERRIDE
+            void MoveInLineOfSight(Unit* who) override
             {
                 if (me->IsWithinDistInMap(who, 30.0f))
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
             }
 
-            void JustSummoned(Creature* summon) OVERRIDE
+            void JustSummoned(Creature* summon) override
             {
                 summons.Summon(summon);
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     me->GetInstanceScript()->SetData(DATA_CRITERIA_THORIM, 1);
             }
 
-            void JustDied(Unit* /*victim*/) OVERRIDE
+            void JustDied(Unit* /*victim*/) override
             {
                 // Runed Door opened
                 if (instance)
                     instance->SetData(DATA_RUNIC_DOOR, GO_STATE_ACTIVE);
             }
 
-            void DoAction(int32 action) OVERRIDE
+            void DoAction(int32 action) override
             {
                 switch (action)
                 {
@@ -1108,14 +1108,14 @@ class TW_npc_runic_colossus : public CreatureScript
                         bunny->AI()->SetData(1, (i + 1)* 200);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 RunicSmashPhase = 0;
                 me->InterruptNonMeleeSpells(true);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (RunicSmashPhase == 1)
                 {
@@ -1200,18 +1200,18 @@ class TW_npc_runic_smash : public CreatureScript
                 ExplodeTimer = 10000;
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     me->GetInstanceScript()->SetData(DATA_CRITERIA_THORIM, 1);
             }
 
-            void SetData(uint32 /*type*/, uint32 data) OVERRIDE
+            void SetData(uint32 /*type*/, uint32 data) override
             {
                 ExplodeTimer = data;
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (ExplodeTimer <= diff)
                 {
@@ -1256,7 +1256,7 @@ public:
         uint32 StompTimer;
         uint32 DetonationTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             StompTimer = urand(10000, 12000);
             DetonationTimer = 25000;
@@ -1274,38 +1274,38 @@ public:
                 me->SummonCreature(giantAddLocations[i].entry,giantAddLocations[i].x,giantAddLocations[i].y,giantAddLocations[i].z,giantAddLocations[i].o,TEMPSUMMON_CORPSE_TIMED_DESPAWN,3000);
         }
 
-        void KilledUnit(Unit* who) OVERRIDE
+        void KilledUnit(Unit* who) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
                 me->GetInstanceScript()->SetData(DATA_CRITERIA_THORIM, 1);
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
         {
             if (me->IsWithinDistInMap(who, 30.0f))
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
         }
 
-        void JustSummoned(Creature *summon) OVERRIDE
+        void JustSummoned(Creature *summon) override
         {
             summons.Summon(summon);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             me->MonsterTextEmote(EMOTE_MIGHT, 0, true);
             DoCast(me, SPELL_RUNIC_FORTIFICATION, true);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void JustDied(Unit* /*victim*/) OVERRIDE
+        void JustDied(Unit* /*victim*/) override
         {
             // Stone Door opened
             if (instance)
                 instance->SetData(DATA_STONE_DOOR, GO_STATE_ACTIVE);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -1355,7 +1355,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             FrostTimer = 2000;
             VolleyTimer = 15000;
@@ -1363,13 +1363,13 @@ public:
             NovaTimer = urand(20000, 25000);
         }
 
-        void KilledUnit(Unit* who) OVERRIDE
+        void KilledUnit(Unit* who) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
                 me->GetInstanceScript()->SetData(DATA_CRITERIA_THORIM, 1);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -1435,7 +1435,7 @@ public:
         EventMap events;
         bool HasStunAura;
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
         {
             if (who->IsWithinDistInMap(me, 12.0f) && who->GetTypeId() == TYPEID_PLAYER && !HasStunAura)
             {
@@ -1445,7 +1445,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
             while (uint32 eventId = events.ExecuteEvent())
@@ -1495,7 +1495,7 @@ class TW_spell_stormhammer_targeting : public SpellScriptLoader
                     unitList.push_back(_target);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(TW_spell_stormhammer_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(TW_spell_stormhammer_targeting_SpellScript::SetTarget, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
@@ -1516,7 +1516,7 @@ class TW_go_thorim_lever : public GameObjectScript
     public:
        TW_go_thorim_lever() : GameObjectScript("TW_go_thorim_lever") { }
 
-       bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
+       bool OnGossipHello(Player* player, GameObject* go) override
        {
            if (GameObject* porticullis = go->FindNearestGameObject(GO_THORIM_DARK_IRON_PROTCULLIS, 50.0f))
                go->GetInstanceScript()->DoUseDoorOrButton(porticullis->GetGUID());
@@ -1596,7 +1596,7 @@ class TW_achievement_siffed_and_lose_your_illusion : public AchievementCriteriaS
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*player*/, Unit* target) override
         {
             if (!target)
                 return false;
@@ -1616,7 +1616,7 @@ class TW_achievement_dont_stand_in_the_lightning : public AchievementCriteriaScr
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*player*/, Unit* target) override
         {
             if (!target)
                 return false;

@@ -23,7 +23,7 @@ class TW_spell_gen_turkey_tracker : public SpellScriptLoader
         {
             PrepareSpellScript(TW_spell_gen_turkey_tracker_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_KILL_COUNTER_VISUAL))
                     return false;
@@ -68,7 +68,7 @@ class TW_spell_gen_turkey_tracker : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(TW_spell_gen_turkey_tracker_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
@@ -99,7 +99,7 @@ class TW_spell_gen_feast_on : public SpellScriptLoader
                         caster->CastSpell(player, bp0, true, NULL, NULL, player->ToPlayer()->GetGUID());
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(TW_spell_gen_feast_on_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
@@ -152,7 +152,7 @@ class TW_spell_gen_well_fed_pilgrims_bounty : public SpellScriptLoader
             TW_spell_gen_well_fed_pilgrims_bounty_SpellScript(uint32 triggeredSpellId1, uint32 triggeredSpellId2) : SpellScript(),
                 _triggeredSpellId1(triggeredSpellId1), _triggeredSpellId2(triggeredSpellId2) { }
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(_triggeredSpellId2))
                     return false;
@@ -187,7 +187,7 @@ class TW_spell_gen_well_fed_pilgrims_bounty : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(TW_spell_gen_well_fed_pilgrims_bounty_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
@@ -237,7 +237,7 @@ class TW_spell_gen_on_plate_pilgrims_bounty : public SpellScriptLoader
             TW_spell_gen_on_plate_pilgrims_bounty_SpellScript(uint32 triggeredSpellId1, uint32 triggeredSpellId2) : SpellScript(),
                 _triggeredSpellId1(triggeredSpellId1), _triggeredSpellId2(triggeredSpellId2) { }
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(_triggeredSpellId1))
                     return false;
@@ -260,7 +260,7 @@ class TW_spell_gen_on_plate_pilgrims_bounty : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(TW_spell_gen_on_plate_pilgrims_bounty_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
@@ -300,7 +300,7 @@ class TW_spell_gen_bountiful_feast : public SpellScriptLoader
                 caster->CastSpell(caster, SPELL_BOUNTIFUL_FEAST_REFRESHMENT, true);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(TW_spell_gen_bountiful_feast_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
@@ -338,7 +338,7 @@ class TW_spell_pilgrims_bounty_buff_food : public SpellScriptLoader
         public:
             TW_spell_pilgrims_bounty_buff_food_AuraScript(uint32 triggeredSpellId) : AuraScript(), _triggeredSpellId(triggeredSpellId) { }
 
-            bool Load() OVERRIDE
+            bool Load() override
             {
                 _handled = false;
                 return true;
@@ -357,7 +357,7 @@ class TW_spell_pilgrims_bounty_buff_food : public SpellScriptLoader
                 caster->CastSpell(caster, _triggeredSpellId, true);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(TW_spell_pilgrims_bounty_buff_food_AuraScript::HandleTriggerSpell, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
@@ -376,7 +376,7 @@ class TW_achievement_food_fight : public AchievementCriteriaScript
 public:
     TW_achievement_food_fight() : AchievementCriteriaScript("TW_achievement_food_fight") { }
 
-    bool OnCheck(Player* /*source*/, Unit* target) OVERRIDE
+    bool OnCheck(Player* /*source*/, Unit* target) override
     {
         if (!target)
             return false;
@@ -407,7 +407,7 @@ public:
     {
         TW_npc_lonely_turkeyAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             if (me->IsSummon())
                 if (Unit* owner = me->ToTempSummon()->GetSummoner())
@@ -416,7 +416,7 @@ public:
             _StinkerBrokenHeartTimer = 3.5 * IN_MILLISECONDS;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (_StinkerBrokenHeartTimer <= diff)
             {

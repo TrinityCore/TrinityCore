@@ -140,7 +140,7 @@ public:
         EventMap events;
         uint64 _playerGUID;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             off = false;
             fireEffigy = false;
@@ -153,7 +153,7 @@ public:
             events.ScheduleEvent(EVENT_FIRE_GROW_FIRE, 1000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -205,7 +205,7 @@ public:
             }
         }
 
-        void SetGUID(uint64 guid, int32 id) OVERRIDE
+        void SetGUID(uint64 guid, int32 id) override
         {
             if (off) return;
 
@@ -257,7 +257,7 @@ public:
         uint32 wpCount;
         std::list<uint64> _playerList;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             moving = true;
             pointReached = true;
@@ -278,7 +278,7 @@ public:
             events.ScheduleEvent(EVENT_FIRE_FAIL, 600000);
         }
 
-        void JustSummoned(Creature* summon) OVERRIDE
+        void JustSummoned(Creature* summon) override
         {
             if (!summon)
                 return;
@@ -287,7 +287,7 @@ public:
             fires.Summon(summon);
         }
 
-        void SummonedCreatureDespawn(Creature* summon) OVERRIDE
+        void SummonedCreatureDespawn(Creature* summon) override
         {
             if (!summon)
                 return;
@@ -295,12 +295,12 @@ public:
             fires.Despawn(summon);
         }
 
-        void JustDied(Unit* killer) OVERRIDE
+        void JustDied(Unit* killer) override
         {
             if (killer && killer->GetAreaId() == me->GetAreaId())
                 killer->SummonGameObject(GO_LARGE_JACK_O_LANTERN, me->GetPositionX(), me->GetPositionY(), killer->GetPositionZ()+1.0f, me->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 180000);
         }
-        void MovementInform(uint32 type, uint32 id) OVERRIDE
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -339,7 +339,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -471,7 +471,7 @@ public:
             return 0.0f;
         }
 
-        void SetGUID(uint64 guid, int32 id) OVERRIDE
+        void SetGUID(uint64 guid, int32 id) override
         {
             if (id == EVENT_FIRE_HIT_BY_BUCKET)
             {

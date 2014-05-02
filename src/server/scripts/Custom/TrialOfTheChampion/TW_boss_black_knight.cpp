@@ -161,7 +161,7 @@ public:
         uint32 uiDeathBiteTimer;
         uint32 uiMarkedDeathTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             RemoveSummons();
             me->SetDisplayId(me->GetNativeDisplayId());
@@ -209,7 +209,7 @@ public:
             Phase = INTRO;
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
         {
             if (!who)
                 return;
@@ -247,12 +247,12 @@ public:
             SummonList.clear();
         }
 
-        void JustSummoned(Creature* summon) OVERRIDE
+        void JustSummoned(Creature* summon) override
         {
             SummonList.push_back(summon->GetGUID());
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (Phase == IDLE)
                 return;
@@ -472,7 +472,7 @@ public:
                 DoMeleeAttackIfReady();
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             bEventInBattle = true;
             Talk(SAY_AGGRO);
@@ -501,12 +501,12 @@ public:
             instance->SetData(BOSS_BLACK_KNIGHT, IN_PROGRESS);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_KILLED_PLAYER);
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
+        void DamageTaken(Unit* /*who*/, uint32& damage) override
         {
             if (damage >= me->GetHealth() && uiPhase <= PHASE_SKELETON)
             {
@@ -534,7 +534,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type) const OVERRIDE
+        uint32 GetData(uint32 type) const override
         {
             if (type == DATA_IVE_HAD_WORSE)
                 return iveHadWorse;
@@ -542,13 +542,13 @@ public:
             return 0;
         }
 
-        void SetData(uint32 uiType, uint32 uiData) OVERRIDE
+        void SetData(uint32 uiType, uint32 uiData) override
         {
             if (uiType == DATA_IVE_HAD_WORSE)
                 iveHadWorse = uiData;
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             DoCast(me, SPELL_KILL_CREDIT);
             Talk(SAY_DEATH);
@@ -585,12 +585,12 @@ public:
         uint32 uiAttackTimer;
         InstanceScript* instance;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiAttackTimer = 3500;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -608,7 +608,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell) OVERRIDE
+        void SpellHitTarget(Unit* target, const SpellInfo* spell) override
         {
             if (target->GetTypeId() == TYPEID_PLAYER && (spell->Id == GHOUL_EXPLODE_DAMAGE || spell->Id == H_GHOUL_EXPLODE_DAMAGE || spell->Id == SPELL_GHOUL_EXPLODE))
                 if (Creature* knight = me->FindNearestCreature(NPC_BLACK_KNIGHT, 200.0f))
@@ -636,13 +636,13 @@ public:
         uint32 uiLeapTimer;
         uint32 uiClawTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiLeapTimer = 10000;
             uiClawTimer = 1000;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -691,12 +691,12 @@ public:
         Creature* pHighlord;
         InstanceScript* instance;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             pHighlord = NULL;
         }
 
-        void WaypointReached(uint32 uiPointId) OVERRIDE
+        void WaypointReached(uint32 uiPointId) override
         {
             switch (uiPointId)
             {
@@ -730,7 +730,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             npc_escortAI::UpdateAI(uiDiff);
 
@@ -752,7 +752,7 @@ class TW_achievement_ive_had_worse : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*player*/, Unit* target) override
         {
             if (!target)
                 return false;
