@@ -824,7 +824,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
             if (EventProcFlag == PROC_FLAG_DONE_PERIODIC)
             {
                 /// no aura with only PROC_FLAG_DONE_PERIODIC and spellFamilyName == 0 can proc from a HOT.
-                if (!spellProcEvent->spellFamilyName)
+                if (!spellProcEvent || !spellProcEvent->spellFamilyName)
                     return false;
             }
             /// Aura must have positive procflags for a HOT to proc

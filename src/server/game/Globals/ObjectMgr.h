@@ -413,7 +413,8 @@ struct AreaTriggerStruct
 
 struct BroadcastText
 {
-    BroadcastText()
+    BroadcastText() : Id(0), Language(0), EmoteId0(0), EmoteId1(0), EmoteId2(0),
+                      EmoteDelay0(0), EmoteDelay1(0), EmoteDelay2(0), SoundId(0), Unk1(0), Unk2(0)
     {
         MaleText.resize(DEFAULT_LOCALE + 1);
         FemaleText.resize(DEFAULT_LOCALE + 1);
