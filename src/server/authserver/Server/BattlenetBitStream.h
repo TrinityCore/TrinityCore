@@ -61,7 +61,7 @@ namespace Battlenet
             _writePos = (_writePos + 7) & ~7;
         }
 
-        std::string ReadString(uint32 bitCount, uint32 baseLength = 0)
+        std::string ReadString(uint32 bitCount, int32 baseLength = 0)
         {
             uint32 len = Read<uint32>(bitCount) + baseLength;
             AlignToNextByte();
@@ -120,7 +120,11 @@ namespace Battlenet
             return ret;
         }
 
-        //WriteString
+        void WriteString(std::string const& str, uint32 bitCount, int32 baseLength = 0)
+        {
+            Write(str.length() + baseLength, bitCount);
+            WriteBytes(str.c_str(), str.length());
+        }
 
         template<typename T>
         void WriteBytes(T* data, uint32 count)
