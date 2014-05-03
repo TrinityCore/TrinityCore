@@ -561,7 +561,7 @@ void HexStrToByteArray(std::string const& str, uint8* out, bool reverse /*= fals
     if (reverse)
     {
         init = str.length() - 2;
-        end = -1;
+        end = -2;
         op = -1;
     }
 
