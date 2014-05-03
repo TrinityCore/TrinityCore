@@ -776,7 +776,7 @@ SpellProcEventEntry const* SpellMgr::GetSpellProcEvent(uint32 spellId) const
     return NULL;
 }
 
-bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellInfo const* procSpell, uint32 procFlags, uint32 procExtra, bool active) const
+bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellInfo const* spellProto, SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellInfo const* procSpell, uint32 procFlags, uint32 procExtra, bool active) const
 {
     // No extra req need
     uint32 procEvent_procEx = PROC_EX_NONE;
@@ -793,7 +793,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
 
     *Only damaging Dots can proc auras with PROC_FLAG_TAKEN_DAMAGE
 
-    *Only Dots can proc if ONLY has PROC_FLAG_DONE_PERIODIC and spellfamily == 0 or PROC_FLAG_TAKEN_PERIODIC.
+    *Only Dots can proc if ONLY has PROC_FLAG_DONE_PERIODIC or PROC_FLAG_TAKEN_PERIODIC.
     
     *Hots can proc if ONLY has PROC_FLAG_DONE_PERIODIC and spellfamily != 0
 
@@ -809,7 +809,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     * @param procFlags proc_flags of spellProc
     * @param procExtra proc_EX of procSpell
     * @param EventProcFlag proc_flags of aura to be procced
-    * @param spellProcEvent SpellProcEventEntry of aura to be procced    
+    * @param spellProto SpellInfo of aura to be procced    
 
     */
 
@@ -824,7 +824,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
             if (EventProcFlag == PROC_FLAG_DONE_PERIODIC)
             {
                 /// no aura with only PROC_FLAG_DONE_PERIODIC and spellFamilyName == 0 can proc from a HOT.
-                if (!spellProcEvent || !spellProcEvent->spellFamilyName)
+                if (!spellProto->SpellFamilyName)
                     return false;
             }
             /// Aura must have positive procflags for a HOT to proc

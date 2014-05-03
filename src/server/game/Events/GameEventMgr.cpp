@@ -1621,7 +1621,7 @@ uint16 GameEventMgr::GetEventIdForQuest(Quest const* quest) const
     if (!quest)
         return 0;
 
-    UNORDERED_MAP<uint32, uint16>::const_iterator itr = _questToEventLinks.find(quest->GetQuestId());
+    std::unordered_map<uint32, uint16>::const_iterator itr = _questToEventLinks.find(quest->GetQuestId());
     if (itr == _questToEventLinks.end())
         return 0;
 
