@@ -70,15 +70,15 @@ struct CreatureTextId
 };
 
 typedef std::vector<CreatureTextEntry> CreatureTextGroup;              //texts in a group
-typedef UNORDERED_MAP<uint8, CreatureTextGroup> CreatureTextHolder;    //groups for a creature by groupid
-typedef UNORDERED_MAP<uint32, CreatureTextHolder> CreatureTextMap;     //all creatures by entry
+typedef std::unordered_map<uint8, CreatureTextGroup> CreatureTextHolder;    //groups for a creature by groupid
+typedef std::unordered_map<uint32, CreatureTextHolder> CreatureTextMap;     //all creatures by entry
 
 typedef std::map<CreatureTextId, CreatureTextLocale> LocaleCreatureTextMap;
 
 //used for handling non-repeatable random texts
 typedef std::vector<uint8> CreatureTextRepeatIds;
-typedef UNORDERED_MAP<uint8, CreatureTextRepeatIds> CreatureTextRepeatGroup;
-typedef UNORDERED_MAP<uint64, CreatureTextRepeatGroup> CreatureTextRepeatMap;//guid based
+typedef std::unordered_map<uint8, CreatureTextRepeatIds> CreatureTextRepeatGroup;
+typedef std::unordered_map<uint64, CreatureTextRepeatGroup> CreatureTextRepeatMap;//guid based
 
 class CreatureTextMgr
 {

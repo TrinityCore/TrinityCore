@@ -126,7 +126,7 @@ class MapManager
         MapUpdater * GetMapUpdater() { return &m_updater; }
 
     private:
-        typedef UNORDERED_MAP<uint32, Map*> MapMapType;
+        typedef std::unordered_map<uint32, Map*> MapMapType;
         typedef std::vector<bool> InstanceIds;
 
         MapManager();

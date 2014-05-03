@@ -1056,7 +1056,7 @@ struct GlobalCooldown
     uint32 cast_time;
 };
 
-typedef UNORDERED_MAP<uint32 /*category*/, GlobalCooldown> GlobalCooldownList;
+typedef std::unordered_map<uint32 /*category*/, GlobalCooldown> GlobalCooldownList;
 
 class GlobalCooldownMgr                                     // Shared by Player and CharmInfo
 {
@@ -1264,7 +1264,7 @@ enum SpellCooldownFlags
     SPELL_COOLDOWN_FLAG_INCLUDE_EVENT_COOLDOWNS = 0x2   ///< Starts GCD for spells that should start their cooldown on events, requires SPELL_COOLDOWN_FLAG_INCLUDE_GCD set
 };
 
-typedef UNORDERED_MAP<uint32, uint32> PacketCooldowns;
+typedef std::unordered_map<uint32, uint32> PacketCooldowns;
 
 // delay time next attack to prevent client attack animation problems
 #define ATTACK_DISPLAY_DELAY 200

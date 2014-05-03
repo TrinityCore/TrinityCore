@@ -20,8 +20,7 @@
 
 #include "Define.h"
 #include <time.h>
-#include "Dynamic/UnorderedMap.h"
-
+#include <unordered_map>
 #include <string>
 
 // Values assigned have their equivalent in enum ACE_Log_Priority
@@ -105,6 +104,6 @@ class Appender
         AppenderFlags flags;
 };
 
-typedef UNORDERED_MAP<uint8, Appender*> AppenderMap;
+typedef std::unordered_map<uint8, Appender*> AppenderMap;
 
 #endif
