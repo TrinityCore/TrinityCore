@@ -26,14 +26,17 @@ Battlenet::PacketCrypt::PacketCrypt() : ::PacketCrypt(SHA256_DIGEST_LENGTH)
 void Battlenet::PacketCrypt::Init(BigNumber* K)
 {
     uint8 ServerEncryptionKey[SEED_KEY_SIZE] = { 0x68, 0xE0, 0xC7, 0x2E, 0xDD, 0xD6, 0xD2, 0xF3, 0x1E, 0x5A, 0xB1, 0x55, 0xB1, 0x8B, 0x63, 0x1E };
-    HmacHash serverEncryptHmac(SEED_KEY_SIZE, ServerEncryptionKey, EVP_sha256(), SHA256_DIGEST_LENGTH);
-    uint8 *encryptHash = serverEncryptHmac.ComputeHash(K);
-
     uint8 ClientDecryptionKey[SEED_KEY_SIZE] = { 0xDE, 0xA9, 0x65, 0xAE, 0x54, 0x3A, 0x1E, 0x93, 0x9E, 0x69, 0x0C, 0xAA, 0x68, 0xDE, 0x78, 0x39 };
-    HmacHash clientDecryptHmac(SEED_KEY_SIZE, ClientDecryptionKey, EVP_sha256(), SHA256_DIGEST_LENGTH);
-    uint8 *decryptHash = clientDecryptHmac.ComputeHash(K);
 
-    _clientDecrypt.Init(decryptHash);
-    _serverEncrypt.Init(encryptHash);
+    HmacHash serverEncryptHmac(K->GetNumBytes(), K->AsByteArray().get(), EVP_sha256(), SHA256_DIGEST_LENGTH);
+    serverEncryptHmac.UpdateData(ServerEncryptionKey, SEED_KEY_SIZE);
+    serverEncryptHmac.Finalize();
+
+    HmacHash clientDecryptHmac(K->GetNumBytes(), K->AsByteArray().get(), EVP_sha256(), SHA256_DIGEST_LENGTH);
+    clientDecryptHmac.UpdateData(ClientDecryptionKey, SEED_KEY_SIZE);
+    clientDecryptHmac.Finalize();
+
+    _clientDecrypt.Init(clientDecryptHmac.GetDigest());
+    _serverEncrypt.Init(serverEncryptHmac.GetDigest());
     _initialized = true;
 }
