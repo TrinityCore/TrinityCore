@@ -20,7 +20,7 @@
 #include "BigNumber.h"
 #include "Common.h"
 
-HmacHash::HmacHash(uint32 len, uint8 *seed, EVP_MD const* hasher, uint32 digestLength)
+HmacHash::HmacHash(uint32 len, uint8 *seed, EVP_MD const* hasher, uint32 digestLength) : _digestLength(digestLength)
 {
     HMAC_CTX_init(&_ctx);
     HMAC_Init_ex(&_ctx, seed, len, hasher, NULL);
