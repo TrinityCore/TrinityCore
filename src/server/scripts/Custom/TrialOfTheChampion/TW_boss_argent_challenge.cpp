@@ -346,26 +346,22 @@ class TW_boss_paletress : public CreatureScript
 
     struct TW_boss_paletressAI : public BossAI
     {
-        TW_boss_paletressAI(Creature* creature) : BossAI(creature,BOSS_ARGENT_CHALLENGE_P)
+        TW_boss_paletressAI(Creature* creature) : BossAI(creature, BOSS_ARGENT_CHALLENGE_P)
         {
             instance = creature->GetInstanceScript();
-
             hasBeenInCombat = false;
+            _hasSummonedMemory = false;
             bCredit = false;
             memoryGUID = 0;
-            creature->SetReactState(REACT_PASSIVE);
-            creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
-            creature->RestoreFaction();
         }
 
         void Reset()
         {
             me->RemoveAllAuras();
-
             uiResetTimer        = 7000;
-
-            bHealth = false;
+            _hasSummonedMemory = false;
             bDone = false;
+            me->SetReactState(REACT_PASSIVE);
 
             if (Creature* pMemory = Unit::GetCreature(*me, memoryGUID))
                 if (pMemory->IsAlive())
@@ -414,25 +410,21 @@ class TW_boss_paletress : public CreatureScript
 
         void DamageTaken(Unit* /*who*/, uint32& damage)
         {
-            if (!bHealth && me->HealthBelowPct(25))
+            if (!_hasSummonedMemory && me->HealthBelowPct(25))
             {
                 Talk(SAY_PALETRESS_SUMMON_MEMORY);
                 me->InterruptNonMeleeSpells(true);
                 DoCastAOE(SPELL_HOLY_NOVA, false);
                 DoCast(me, SPELL_SHIELD);
                 DoCastAOE(SPELL_CONFESS, false);
-                bHealth = true;
+                _hasSummonedMemory = true;
                 DoCast(SPELL_SUMMON_MEMORY);
             }
 
             if (damage >= me->GetHealth())
             {
                 damage = 0;
-                if (!bCredit)
-                {
-                    bCredit = true;
-                    HandleSpellOnPlayersInInstanceToC5(me, 68574);
-                }
+                HandleSpellOnPlayersInInstanceToC5(me, 68574);
                 EnterEvadeMode();
                 me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                 Talk(SAY_PALETRESS_DEFEATED);
@@ -527,7 +519,7 @@ class TW_boss_paletress : public CreatureScript
         InstanceScript* instance;
         Creature* memory;
         uint64 memoryGUID;
-        bool bHealth;
+        bool _hasSummonedMemory;
         bool bDone;
         bool hasBeenInCombat;
         bool bCredit;
