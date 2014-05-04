@@ -33,7 +33,7 @@ enum Spells
     SPELL_HAMMER_JUSTICE        = 66863,
     SPELL_HAMMER_JUSTICE_STUN   = 66940,
     SPELL_HAMMER_RIGHTEOUS      = 66867,
-    SPELL_HAMMER_override_BAR   = 66904, // overrides players cast bar
+    SPELL_HAMMER_OVERRIDE_BAR   = 66904, // overrides players cast bar
     SPELL_HAMMER_THROWBACK_DMG  = 66905, // the hammer that is thrown back by the player
     SPELL_RADIANCE              = 66935,
     SPELL_VENGEANCE             = 66865,
@@ -143,7 +143,7 @@ class TW_spell_eadric_hoj : public SpellScriptLoader
                     if (!GetHitUnit()->HasAura(SPELL_HAMMER_JUSTICE_STUN)) // FIXME: Has Catched Hammer...
                     {
                         SetHitDamage(0);
-                        GetHitUnit()->AddAura(SPELL_HAMMER_override_BAR, GetHitUnit());
+                        GetHitUnit()->AddAura(SPELL_HAMMER_OVERRIDE_BAR, GetHitUnit());
                     }
 
             }
@@ -168,13 +168,10 @@ class TW_boss_eadric : public CreatureScript
 
     struct TW_boss_eadricAI : public BossAI
     {
-        TW_boss_eadricAI(Creature* creature) : BossAI(creature,BOSS_ARGENT_CHALLENGE_E)
+        TW_boss_eadricAI(Creature* creature) : BossAI(creature, BOSS_ARGENT_CHALLENGE_E)
         {
             instance = creature->GetInstanceScript();
-            creature->SetReactState(REACT_PASSIVE);
-            creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
-
-            hasBeenInCombat=false;
+            hasBeenInCombat= false;
             bCredit = false;
         }
 
@@ -182,7 +179,7 @@ class TW_boss_eadric : public CreatureScript
         {
             uiResetTimer = 5000;
             uiBasePoints = 0;
-
+            me->SetReactState(REACT_PASSIVE);
             _theFaceRoller = false;
             bDone = false;
             Map* pMap = me->GetMap();
@@ -279,6 +276,7 @@ class TW_boss_eadric : public CreatureScript
                 if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
                     instance->HandleGameObject(gate->GetGUID(),false);
             } else uiResetTimer -= uiDiff;
+            
             if (!UpdateVictim())
                 return;
 
@@ -301,13 +299,10 @@ class TW_boss_eadric : public CreatureScript
                         me->InterruptNonMeleeSpells(true);
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
                         {
-                            if (target && target->IsAlive())
-                            {
-                                Talk(SAY_EADRIC_HAMMER);
-                                Talk(SAY_EADRIC_HAMMER_TARGET, target);
-                                DoCast(target, SPELL_HAMMER_JUSTICE);
-                                DoCast(target, SPELL_HAMMER_RIGHTEOUS);
-                            }
+                            Talk(SAY_EADRIC_HAMMER);
+                            Talk(SAY_EADRIC_HAMMER_TARGET, target);
+                            DoCast(target, SPELL_HAMMER_JUSTICE);
+                            DoCast(target, SPELL_HAMMER_RIGHTEOUS);
                         }
                         events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, 25000);
                         break;
