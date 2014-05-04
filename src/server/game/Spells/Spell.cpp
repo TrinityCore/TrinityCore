@@ -6335,6 +6335,45 @@ bool Spell::UpdatePointers()
         // cast item not found, somehow the item is no longer where we expected
         if (!m_CastItem)
             return false;
+
+        // check if the retrieved item can even cast the spell
+        ItemTemplate const* proto = m_CastItem->GetTemplate();
+        bool spellFound = false;
+        for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+        {
+            if (proto->Spells[i].SpellId == GetSpellInfo()->Id)
+            {
+                spellFound = true;
+                break;
+            }
+        }
+
+        // check enchantment if the spell wasn't found in item proto
+        if (!spellFound)
+        {
+            for (uint8 e_slot = 0; e_slot < MAX_ENCHANTMENT_SLOT; ++e_slot)
+            {
+                uint32 enchant_id = m_CastItem->GetEnchantmentId(EnchantmentSlot(e_slot));
+                SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
+                if (!pEnchant)
+                    continue;
+
+                for (uint8 s = 0; s < MAX_ITEM_ENCHANTMENT_EFFECTS; ++s)
+                {
+                    if (pEnchant->spellid[s] == GetSpellInfo()->Id)
+                    {
+                        spellFound = true;
+                        break;
+                    }
+                }
+
+                if (spellFound)
+                    break;
+            }
+        }
+
+        if (!spellFound)
+            return false;
     }
 
     m_targets.Update(m_caster);
