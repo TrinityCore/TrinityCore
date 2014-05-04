@@ -33,7 +33,7 @@ enum Spells
     SPELL_HAMMER_JUSTICE        = 66863,
     SPELL_HAMMER_JUSTICE_STUN   = 66940,
     SPELL_HAMMER_RIGHTEOUS      = 66867,
-    SPELL_HAMMER_override_BAR   = 66904, // overrides players cast bar
+    SPELL_HAMMER_OVERRIDE_BAR   = 66904, // overrides players cast bar
     SPELL_HAMMER_THROWBACK_DMG  = 66905, // the hammer that is thrown back by the player
     SPELL_RADIANCE              = 66935,
     SPELL_VENGEANCE             = 66865,
@@ -41,11 +41,8 @@ enum Spells
     //Paletress
     SPELL_CONFESSOR_ACHIEVEMENT = 68206,
     SPELL_SMITE                 = 66536,
-    SPELL_SMITE_H               = 67674,
     SPELL_HOLY_FIRE             = 66538,
-    SPELL_HOLY_FIRE_H           = 67676,
     SPELL_RENEW                 = 66537,
-    SPELL_RENEW_H               = 67675,
     SPELL_HOLY_NOVA             = 66546,
     SPELL_SHIELD                = 66515,
     SPELL_CONFESS               = 66680,
@@ -146,7 +143,7 @@ class TW_spell_eadric_hoj : public SpellScriptLoader
                     if (!GetHitUnit()->HasAura(SPELL_HAMMER_JUSTICE_STUN)) // FIXME: Has Catched Hammer...
                     {
                         SetHitDamage(0);
-                        GetHitUnit()->AddAura(SPELL_HAMMER_override_BAR, GetHitUnit());
+                        GetHitUnit()->AddAura(SPELL_HAMMER_OVERRIDE_BAR, GetHitUnit());
                     }
 
             }
@@ -171,13 +168,10 @@ class TW_boss_eadric : public CreatureScript
 
     struct TW_boss_eadricAI : public BossAI
     {
-        TW_boss_eadricAI(Creature* creature) : BossAI(creature,BOSS_ARGENT_CHALLENGE_E)
+        TW_boss_eadricAI(Creature* creature) : BossAI(creature, BOSS_ARGENT_CHALLENGE_E)
         {
             instance = creature->GetInstanceScript();
-            creature->SetReactState(REACT_PASSIVE);
-            creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
-
-            hasBeenInCombat=false;
+            hasBeenInCombat = false;
             bCredit = false;
         }
 
@@ -185,7 +179,7 @@ class TW_boss_eadric : public CreatureScript
         {
             uiResetTimer = 5000;
             uiBasePoints = 0;
-
+            me->SetReactState(REACT_PASSIVE);
             _theFaceRoller = false;
             bDone = false;
             Map* pMap = me->GetMap();
@@ -214,11 +208,7 @@ class TW_boss_eadric : public CreatureScript
             if (damage >= me->GetHealth())
             {
                 damage = 0;
-                if (!bCredit)
-                {
-                    bCredit = true;
-                    HandleSpellOnPlayersInInstanceToC5(me, 68575);
-                }
+                HandleSpellOnPlayersInInstanceToC5(me, 68575);
                 EnterEvadeMode();
                 me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                 Talk(SAY_EADRIC_DEFEATED);
@@ -282,6 +272,7 @@ class TW_boss_eadric : public CreatureScript
                 if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
                     instance->HandleGameObject(gate->GetGUID(),false);
             } else uiResetTimer -= uiDiff;
+            
             if (!UpdateVictim())
                 return;
 
@@ -304,13 +295,10 @@ class TW_boss_eadric : public CreatureScript
                         me->InterruptNonMeleeSpells(true);
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
                         {
-                            if (target && target->IsAlive())
-                            {
-                                Talk(SAY_EADRIC_HAMMER);
-                                Talk(SAY_EADRIC_HAMMER_TARGET, target);
-                                DoCast(target, SPELL_HAMMER_JUSTICE);
-                                DoCast(target, SPELL_HAMMER_RIGHTEOUS);
-                            }
+                            Talk(SAY_EADRIC_HAMMER);
+                            Talk(SAY_EADRIC_HAMMER_TARGET, target);
+                            DoCast(target, SPELL_HAMMER_JUSTICE);
+                            DoCast(target, SPELL_HAMMER_RIGHTEOUS);
                         }
                         events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, 25000);
                         break;
@@ -346,26 +334,22 @@ class TW_boss_paletress : public CreatureScript
 
     struct TW_boss_paletressAI : public BossAI
     {
-        TW_boss_paletressAI(Creature* creature) : BossAI(creature,BOSS_ARGENT_CHALLENGE_P)
+        TW_boss_paletressAI(Creature* creature) : BossAI(creature, BOSS_ARGENT_CHALLENGE_P)
         {
             instance = creature->GetInstanceScript();
-
             hasBeenInCombat = false;
+            _hasSummonedMemory = false;
             bCredit = false;
             memoryGUID = 0;
-            creature->SetReactState(REACT_PASSIVE);
-            creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
-            creature->RestoreFaction();
         }
 
         void Reset()
         {
             me->RemoveAllAuras();
-
             uiResetTimer        = 7000;
-
-            bHealth = false;
+            _hasSummonedMemory = false;
             bDone = false;
+            me->SetReactState(REACT_PASSIVE);
 
             if (Creature* pMemory = Unit::GetCreature(*me, memoryGUID))
                 if (pMemory->IsAlive())
@@ -414,25 +398,21 @@ class TW_boss_paletress : public CreatureScript
 
         void DamageTaken(Unit* /*who*/, uint32& damage)
         {
-            if (!bHealth && me->HealthBelowPct(25))
+            if (!_hasSummonedMemory && me->HealthBelowPct(25))
             {
                 Talk(SAY_PALETRESS_SUMMON_MEMORY);
                 me->InterruptNonMeleeSpells(true);
                 DoCastAOE(SPELL_HOLY_NOVA, false);
                 DoCast(me, SPELL_SHIELD);
                 DoCastAOE(SPELL_CONFESS, false);
-                bHealth = true;
                 DoCast(SPELL_SUMMON_MEMORY);
+                _hasSummonedMemory = true;
             }
 
             if (damage >= me->GetHealth())
             {
                 damage = 0;
-                if (!bCredit)
-                {
-                    bCredit = true;
-                    HandleSpellOnPlayersInInstanceToC5(me, 68574);
-                }
+                HandleSpellOnPlayersInInstanceToC5(me, 68574);
                 EnterEvadeMode();
                 me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                 Talk(SAY_PALETRESS_DEFEATED);
@@ -477,7 +457,7 @@ class TW_boss_paletress : public CreatureScript
                 {
                     case EVENT_HOLY_FIRE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
-                            DoCast(target, DUNGEON_MODE(SPELL_HOLY_FIRE, SPELL_HOLY_FIRE_H));
+                            DoCast(target, SPELL_HOLY_FIRE);
                         if (me->HasAura(SPELL_SHIELD))
                             events.ScheduleEvent(EVENT_HOLY_FIRE, 13000);
                         else
@@ -485,7 +465,7 @@ class TW_boss_paletress : public CreatureScript
                         break;
                     case EVENT_SMITE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
-                            DoCast(target, DUNGEON_MODE(SPELL_SMITE, SPELL_SMITE_H));
+                            DoCast(target, SPELL_SMITE);
                         if (me->HasAura(SPELL_SHIELD))
                             events.ScheduleEvent(EVENT_SMITE, 9000);
                         else
@@ -499,12 +479,12 @@ class TW_boss_paletress : public CreatureScript
                             switch (uiTarget)
                             {
                                 case 0:
-                                    DoCast(me, DUNGEON_MODE(SPELL_RENEW, SPELL_RENEW_H));
+                                    DoCast(me, SPELL_RENEW);
                                     break;
                                 case 1:
                                     if (Creature* memory = ObjectAccessor::GetCreature(*me, memoryGUID))
                                         if (memory->IsAlive())
-                                            DoCast(memory, DUNGEON_MODE(SPELL_RENEW, SPELL_RENEW_H));
+                                            DoCast(memory, SPELL_RENEW);
                                     break;
                             }
                         }
@@ -525,9 +505,8 @@ class TW_boss_paletress : public CreatureScript
         }
     private:
         InstanceScript* instance;
-        Creature* memory;
         uint64 memoryGUID;
-        bool bHealth;
+        bool _hasSummonedMemory;
         bool bDone;
         bool hasBeenInCombat;
         bool bCredit;
