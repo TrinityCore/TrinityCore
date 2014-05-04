@@ -171,7 +171,7 @@ class TW_boss_eadric : public CreatureScript
         TW_boss_eadricAI(Creature* creature) : BossAI(creature, BOSS_ARGENT_CHALLENGE_E)
         {
             instance = creature->GetInstanceScript();
-            hasBeenInCombat= false;
+            hasBeenInCombat = false;
             bCredit = false;
         }
 
@@ -208,11 +208,7 @@ class TW_boss_eadric : public CreatureScript
             if (damage >= me->GetHealth())
             {
                 damage = 0;
-                if (!bCredit)
-                {
-                    bCredit = true;
-                    HandleSpellOnPlayersInInstanceToC5(me, 68575);
-                }
+                HandleSpellOnPlayersInInstanceToC5(me, 68575);
                 EnterEvadeMode();
                 me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                 Talk(SAY_EADRIC_DEFEATED);
