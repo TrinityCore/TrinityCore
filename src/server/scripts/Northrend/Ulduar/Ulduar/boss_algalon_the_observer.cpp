@@ -1196,7 +1196,7 @@ class spell_algalon_big_bang : public SpellScriptLoader
             bool Load() override
             {
                 _targetCount = 0;
-                return true;
+                return GetCaster()->GetTypeId() == TYPEID_UNIT && GetCaster()->IsAIEnabled;
             }
 
             void CountTargets(std::list<WorldObject*>& targets)
