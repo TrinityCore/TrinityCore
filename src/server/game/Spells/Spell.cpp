@@ -6341,7 +6341,7 @@ bool Spell::UpdatePointers()
         bool spellFound = false;
         for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
         {
-            if (proto->Spells[i].SpellId == GetSpellInfo()->Id)
+            if (uint32(proto->Spells[i].SpellId) == GetSpellInfo()->Id)
             {
                 spellFound = true;
                 break;
