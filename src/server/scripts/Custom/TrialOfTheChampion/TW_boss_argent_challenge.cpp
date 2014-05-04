@@ -41,11 +41,8 @@ enum Spells
     //Paletress
     SPELL_CONFESSOR_ACHIEVEMENT = 68206,
     SPELL_SMITE                 = 66536,
-    SPELL_SMITE_H               = 67674,
     SPELL_HOLY_FIRE             = 66538,
-    SPELL_HOLY_FIRE_H           = 67676,
     SPELL_RENEW                 = 66537,
-    SPELL_RENEW_H               = 67675,
     SPELL_HOLY_NOVA             = 66546,
     SPELL_SHIELD                = 66515,
     SPELL_CONFESS               = 66680,
@@ -417,8 +414,8 @@ class TW_boss_paletress : public CreatureScript
                 DoCastAOE(SPELL_HOLY_NOVA, false);
                 DoCast(me, SPELL_SHIELD);
                 DoCastAOE(SPELL_CONFESS, false);
-                _hasSummonedMemory = true;
                 DoCast(SPELL_SUMMON_MEMORY);
+                _hasSummonedMemory = true;
             }
 
             if (damage >= me->GetHealth())
@@ -469,7 +466,7 @@ class TW_boss_paletress : public CreatureScript
                 {
                     case EVENT_HOLY_FIRE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
-                            DoCast(target, DUNGEON_MODE(SPELL_HOLY_FIRE, SPELL_HOLY_FIRE_H));
+                            DoCast(target, SPELL_HOLY_FIRE);
                         if (me->HasAura(SPELL_SHIELD))
                             events.ScheduleEvent(EVENT_HOLY_FIRE, 13000);
                         else
@@ -477,7 +474,7 @@ class TW_boss_paletress : public CreatureScript
                         break;
                     case EVENT_SMITE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
-                            DoCast(target, DUNGEON_MODE(SPELL_SMITE, SPELL_SMITE_H));
+                            DoCast(target, SPELL_SMITE);
                         if (me->HasAura(SPELL_SHIELD))
                             events.ScheduleEvent(EVENT_SMITE, 9000);
                         else
@@ -491,12 +488,12 @@ class TW_boss_paletress : public CreatureScript
                             switch (uiTarget)
                             {
                                 case 0:
-                                    DoCast(me, DUNGEON_MODE(SPELL_RENEW, SPELL_RENEW_H));
+                                    DoCast(me, SPELL_RENEW);
                                     break;
                                 case 1:
                                     if (Creature* memory = ObjectAccessor::GetCreature(*me, memoryGUID))
                                         if (memory->IsAlive())
-                                            DoCast(memory, DUNGEON_MODE(SPELL_RENEW, SPELL_RENEW_H));
+                                            DoCast(memory, SPELL_RENEW);
                                     break;
                             }
                         }
@@ -517,7 +514,6 @@ class TW_boss_paletress : public CreatureScript
         }
     private:
         InstanceScript* instance;
-        Creature* memory;
         uint64 memoryGUID;
         bool _hasSummonedMemory;
         bool bDone;
