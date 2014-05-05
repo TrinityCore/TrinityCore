@@ -309,13 +309,13 @@ void GameObject::Update(uint32 diff)
                     GameObjectTemplate const* goInfo = GetGOInfo();
                     // Bombs
                     if (goInfo->trap.type == 2)
-                        m_cooldownTime = time(NULL) + 10;   // Hardcoded tooltip value
+                        // Hardcoded tooltip value
+                        m_cooldownTime = time(NULL) + 10;
                     else if (Unit* owner = GetOwner())
-                    {
                         if (owner->IsInCombat())
                             m_cooldownTime = time(NULL) + goInfo->trap.startDelay;
-                    }
-                    m_lootState = GO_READY;
+
+                    SetLootState(GO_READY);
                     break;
                 }
                 case GAMEOBJECT_TYPE_TRANSPORT:
@@ -396,7 +396,7 @@ void GameObject::Update(uint32 diff)
                         if (targetGuid == dbtableHighGuid) // if linking self, never respawn (check delayed to next day)
                             SetRespawnTime(DAY);
                         else
-                            m_respawnTime = (now > linkedRespawntime ? now : linkedRespawntime)+urand(5, MINUTE); // else copy time from master and add a little
+                            m_respawnTime = (now > linkedRespawntime ? now : linkedRespawntime) + urand(5, MINUTE); // else copy time from master and add a little
                         SaveRespawnTime(); // also save to DB immediately
                         return;
                     }
@@ -468,47 +468,35 @@ void GameObject::Update(uint32 diff)
                     }
 
                     // Type 0 despawns after being triggered, type 1 does not.
-
-                    bool isBattlegroundTrap;
-
                     /// @todo This is activation radius. Casting radius must be selected from spell data.
-                    /// @todo Move activated state code to GO_ACTIVATED, in this place just check for activation and set state.
                     float radius;
                     if (!goInfo->trap.diameter)
                     {
-                        // Cast in other case (at some triggering/linked go/etc explicit call)
-                        if (goInfo->trap.cooldown != 3 || m_respawnTime > 0)
+                        // Battleground traps: data2 == 0 && data5 == 3
+                        if (goInfo->trap.cooldown != 3)
                             break;
 
-                        // Battleground gameobjects have data2 == 0 && data5 == 3
-                        isBattlegroundTrap = true;
                         radius = 3.f;
                     }
                     else
-                    {
-                        isBattlegroundTrap = false;
                         radius = goInfo->trap.diameter / 2.f;
-                    }
 
-                    Unit* owner = GetOwner();
                     // Pointer to appropriate target if found any
                     Unit* target = NULL;
 
                     /// @todo this hack with search required until GO casting not implemented
-                    // Hunter trap: Search units which are unfriendly to the trap's owner
-                    if (owner)
+                    if (Unit* owner = GetOwner())
                     {
+                        // Hunter trap: Search units which are unfriendly to the trap's owner
                         Trinity::AnyUnfriendlyNoTotemUnitInObjectRangeCheck checker(this, owner, radius);
                         Trinity::UnitSearcher<Trinity::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> searcher(this, target, checker);
                         VisitNearbyGridObject(radius, searcher);
                         if (!target)
                             VisitNearbyWorldObject(radius, searcher);
                     }
-                    // Environmental trap: Any target
                     else
                     {
-                        // Environmental damage spells already have around enemies targeting but this does not help in case of not existing GO casting support
-                        // Affect only players
+                        // Environmental trap: Any player
                         Player* player = NULL;
                         Trinity::AnyPlayerInObjectRangeCheck checker(this, radius);
                         Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, player, checker);
@@ -517,23 +505,8 @@ void GameObject::Update(uint32 diff)
                     }
 
                     if (target)
-                    {
-                        // Some traps do not have a spell but should be triggered
-                        if (goInfo->trap.spellId)
-                            CastSpell(target, goInfo->trap.spellId);
+                        SetLootState(GO_ACTIVATED, target);
 
-                        // Template value or 4 seconds
-                        m_cooldownTime = time(NULL) + (goInfo->trap.cooldown ? goInfo->trap.cooldown :  uint32(4));
-
-                        if (goInfo->trap.type == 1)
-                            SetLootState(GO_JUST_DEACTIVATED);
-
-                        // Battleground gameobjects case
-                        if (isBattlegroundTrap)
-                            if (Player* player = target->ToPlayer())
-                                if (Battleground* bg = player->GetBattleground())
-                                    bg->HandleTriggerBuff(GetGUID());
-                    }
                 }
                 else if (uint32 max_charges = goInfo->GetCharges())
                 {
@@ -582,11 +555,30 @@ void GameObject::Update(uint32 diff)
                 case GAMEOBJECT_TYPE_TRAP:
                 {
                     GameObjectTemplate const* goInfo = GetGOInfo();
-                    if (goInfo->trap.spellId)
+                    if (goInfo->trap.type == 2 && goInfo->trap.spellId)
+                    {
                         /// @todo NULL target won't work for target type 1
                         CastSpell(NULL, goInfo->trap.spellId);
+                        SetLootState(GO_JUST_DEACTIVATED);
+                    }
+                    else if (m_lootStateUnit)
+                    {
+                        // Some traps do not have a spell but should be triggered
+                        if (goInfo->trap.spellId)
+                            CastSpell(m_lootStateUnit, goInfo->trap.spellId);
 
-                    SetLootState(GO_JUST_DEACTIVATED);
+                        // Template value or 4 seconds
+                        m_cooldownTime = time(NULL) + (goInfo->trap.cooldown ? goInfo->trap.cooldown :  uint32(4));
+
+                        if (goInfo->trap.type == 1)
+                            SetLootState(GO_JUST_DEACTIVATED);
+
+                        // Battleground gameobjects have data2 == 0 && data5 == 3
+                        if (!goInfo->trap.diameter && goInfo->trap.cooldown == 3)
+                            if (Player* player = m_lootStateUnit->ToPlayer())
+                                if (Battleground* bg = player->GetBattleground())
+                                    bg->HandleTriggerBuff(GetGUID());
+                    }
                     break;
                 }
                 default:
