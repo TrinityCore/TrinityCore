@@ -422,7 +422,7 @@ void GameObject::Update(uint32 diff)
                         }
                         case GAMEOBJECT_TYPE_DOOR:
                         case GAMEOBJECT_TYPE_BUTTON:
-                            //we need to open doors if they are closed (add there another condition if this code breaks some usage, but it need to be here for battlegrounds)
+                            // We need to open doors if they are closed (add there another condition if this code breaks some usage, but it need to be here for battlegrounds)
                             if (GetGoState() != GO_STATE_READY)
                                 ResetDoorOrButton();
                             break;
@@ -434,13 +434,15 @@ void GameObject::Update(uint32 diff)
                             break;
                     }
 
-                    if (!m_spawnedByDefault)        // despawn timer
+                    // Despawn timer
+                    if (!m_spawnedByDefault)
                     {
-                                                    // can be despawned or destroyed
+                        // Can be despawned or destroyed
                         SetLootState(GO_JUST_DEACTIVATED);
                         return;
                     }
-                                                    // respawn timer
+
+                    // Respawn timer
                     uint32 poolid = GetDBTableGUIDLow() ? sPoolMgr->IsPartOfAPool<GameObject>(GetDBTableGUIDLow()) : 0;
                     if (poolid)
                         sPoolMgr->UpdatePool<GameObject>(poolid, GetDBTableGUIDLow());
