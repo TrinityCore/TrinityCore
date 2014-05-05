@@ -73,6 +73,9 @@ class Vehicle : public TransportBase
 
         void RemovePendingEventsForPassenger(Unit* passenger);
 
+        Unit const* GetDriver() const;
+        bool HasPlayerDriver() const;
+
     protected:
         friend class VehicleJoinEvent;
         uint32 UsableSeatNum;                               ///< Number of seats that match VehicleSeatEntry::UsableByPlayer, used for proper display flags

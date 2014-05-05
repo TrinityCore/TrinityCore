@@ -28,6 +28,9 @@
 #include "SmartScriptMgr.h"
 #include "GameObjectAI.h"
 
+#include "CombatAI.h"
+#include "Vehicle.h"
+
 enum SmartEscortState
 {
     SMART_ESCORT_NONE       = 0x000,                        //nothing in progress
@@ -42,7 +45,8 @@ enum SmartEscortVars
     SMART_MAX_AID_DIST    = SMART_ESCORT_MAX_PLAYER_DIST / 2
 };
 
-class SmartAI : public CreatureAI
+// VehicleAI is required for CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE conditions to work 
+class SmartAI : public VehicleAI
 {
     public:
         ~SmartAI(){ }
@@ -229,6 +233,9 @@ class SmartAI : public CreatureAI
         void UpdateDespawn(const uint32 diff);
         uint32 mEscortInvokerCheckTimer;
         bool mJustReset;
+
+        // VehicleAI handling
+        bool IsPlayerVehicle() { return me->IsVehicle() && me->GetVehicleKit()->HasPlayerDriver(); }
 };
 
 class SmartGameObjectAI : public GameObjectAI
