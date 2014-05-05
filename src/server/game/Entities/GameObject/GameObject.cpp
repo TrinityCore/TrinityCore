@@ -47,6 +47,7 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_respawnTime = 0;
     m_respawnDelayTime = 300;
     m_lootState = GO_NOT_READY;
+    m_lootStateUnit = NULL;
     m_spawnedByDefault = true;
     m_usetimes = 0;
     m_spellId = 0;
