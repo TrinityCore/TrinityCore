@@ -22,7 +22,7 @@
 #include "RBAC.h"
 #include <ace/Singleton.h>
 
-enum AccountOpResult
+enum class AccountOpResult : uint8
 {
     AOR_OK,
     AOR_NAME_TOO_LONG,
@@ -40,6 +40,7 @@ enum PasswordChangeSecurity
     PW_RBAC
 };
 
+#define MAX_PASS_STR 16
 #define MAX_ACCOUNT_STR 16
 #define MAX_EMAIL_STR 64
 
@@ -58,7 +59,7 @@ class AccountMgr
         ~AccountMgr();
 
     public:
-        AccountOpResult CreateAccount(std::string username, std::string password, std::string email);
+        AccountOpResult CreateAccount(std::string username, std::string password, std::string email = "");
         static AccountOpResult DeleteAccount(uint32 accountId);
         static AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword);
         static AccountOpResult ChangePassword(uint32 accountId, std::string newPassword);
@@ -75,7 +76,6 @@ class AccountMgr
         static uint32 GetCharactersCount(uint32 accountId);
 
         static std::string CalculateShaPassHash(std::string const& name, std::string const& password);
-        static bool normalizeString(std::string& utf8String);
         static bool IsPlayerAccount(uint32 gmlevel);
         static bool IsAdminAccount(uint32 gmlevel);
         static bool IsConsoleAccount(uint32 gmlevel);

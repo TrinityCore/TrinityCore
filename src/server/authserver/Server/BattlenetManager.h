@@ -73,6 +73,14 @@ namespace Battlenet
         uint32 DataSize;
         uint8* Data;
     };
+
+    struct RealmId
+    {
+        uint8 Region;
+        uint8 Battlegroup;
+        uint32 Index;
+        uint32 Build;
+    };
 }
 
 class BattlenetMgr

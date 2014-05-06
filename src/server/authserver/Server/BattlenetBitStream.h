@@ -22,6 +22,8 @@
 #include <exception>
 #include <string>
 #include <vector>
+#include <type_traits>
+#include <ace/Auto_Ptr.h>
 #include <ace/Stack_Trace.h>
 
 namespace Battlenet
@@ -70,14 +72,14 @@ namespace Battlenet
             return str;
         }
 
-        uint8* ReadBytes(uint32 count)
+        ACE_Auto_Array_Ptr<uint8> ReadBytes(uint32 count)
         {
             AlignToNextByte();
             if (_readPos + count * 8 > _numBits)
                 throw BitStreamPositionException();
 
-            uint8* buf = new uint8[count];
-            memcpy(buf, &_buffer[_readPos >> 3], count);
+            ACE_Auto_Array_Ptr<uint8> buf(new uint8[count]);
+            memcpy(buf.get(), &_buffer[_readPos >> 3], count);
             _readPos += count * 8;
             return buf;
         }
@@ -105,7 +107,9 @@ namespace Battlenet
         template<typename T>
         T Read(uint32 bitCount)
         {
-            T ret = 0;
+            static_assert(std::is_integral<T>::value || std::is_enum<T>::value, "T must be an integer type");
+
+            uint64 ret = 0;
             while (bitCount != 0)
             {
                 uint32 bitPos = (_readPos & 7);
@@ -114,10 +118,11 @@ namespace Battlenet
                     bitsLeftInByte = bitCount;
 
                 bitCount -= bitsLeftInByte;
-                ret |= static_cast<T>((uint64)(_buffer[_readPos >> 3] >> bitPos & (uint32)((uint8)(1 << bitsLeftInByte) - 1)) << bitCount);
+                ret |= (uint64)(_buffer[_readPos >> 3] >> bitPos & (uint32)((uint8)(1 << bitsLeftInByte) - 1)) << bitCount;
                 _readPos += bitsLeftInByte;
             }
-            return ret;
+
+            return static_cast<T>(ret);
         }
 
         void WriteString(std::string const& str, uint32 bitCount, int32 baseLength = 0)
@@ -141,7 +146,12 @@ namespace Battlenet
             _writePos += count * 8;
         }
 
-        //WriteFloat
+        void WriteFloat(float value)
+        {
+            uint32 intVal = *reinterpret_cast<uint32*>(&value);
+            Write(intVal, 32);
+        }
+
         void WriteFourCC(std::string const& fcc)
         {
             uint32 intVal = *(uint32*)fcc.c_str();
@@ -157,6 +167,8 @@ namespace Battlenet
         template<typename T>
         void Write(T value, uint32 bitCount)
         {
+            static_assert(std::is_integral<T>::value || std::is_enum<T>::value, "T must be an integer type");
+
             if (_writePos + bitCount >= 8 * MaxSize)
                 throw BitStreamPositionException();
 
