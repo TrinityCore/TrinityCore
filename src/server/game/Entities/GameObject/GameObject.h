@@ -832,6 +832,9 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
 
         float GetInteractionDistance();
 
+        // Event handler
+        EventProcessor m_Events;
+
         void UpdateModelPosition();
 
     protected:

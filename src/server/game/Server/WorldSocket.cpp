@@ -45,6 +45,7 @@
 #include "PacketLog.h"
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
+#include "HookMgr.h"
 
 #if defined(__GNUC__)
 #pragma pack(1)
@@ -163,13 +164,18 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(pct, SERVER_TO_CLIENT);
 
-    WorldPacket const* pkt = &pct;
+    WorldPacket data = pct;
+    WorldPacket const* pkt = &data;
 
 
     if (m_Session)
         TC_LOG_TRACE("network.opcode", "S->C: %s %s", m_Session->GetPlayerInfo().c_str(), GetOpcodeNameForLogging(pkt->GetOpcode()).c_str());
 
     sScriptMgr->OnPacketSend(this, *pkt);
+#ifdef ELUNA
+    if (!sHookMgr->OnPacketSend(m_Session, data))
+        return 0;
+#endif
 
     ServerPktHeader header(pkt->size()+2, pkt->GetOpcode());
     m_Crypt.EncryptSend ((uint8*)header.header, header.getHeaderLength());
@@ -690,10 +696,17 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 }
 
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
+#ifdef ELUNA
+                if (!sHookMgr->OnPacketReceive(m_Session, *new_pct))
+                    return 0;
+#endif
                 return HandleAuthSession(*new_pct);
             case CMSG_KEEP_ALIVE:
                 TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
+#ifdef ELUNA
+                sHookMgr->OnPacketReceive(m_Session, *new_pct);
+#endif
                 return 0;
             default:
             {

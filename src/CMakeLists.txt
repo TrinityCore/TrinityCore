@@ -15,3 +15,7 @@ if(TOOLS)
   add_subdirectory(tools)
 endif(TOOLS)
 
+if ( ELUNA )
+  add_subdirectory(LuaEngine)
+endif(ELUNA)
+

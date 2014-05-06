@@ -46,6 +46,7 @@
 #include "Transport.h"
 #include "WardenWin.h"
 #include "WardenMac.h"
+#include "HookMgr.h"
 #include "MoveSpline.h"
 
 namespace {
@@ -321,6 +322,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         else if (_player->IsInWorld())
                         {
                             sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+#ifdef ELUNA
+                            if (!sHookMgr->OnPacketReceive(this, *packet))
+                                break;
+#endif
                             (this->*opHandle.handler)(*packet);
                             LogUnprocessedTail(packet);
                         }
@@ -334,6 +339,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         {
                             // not expected _player or must checked in packet handler
                             sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+#ifdef ELUNA
+                            if (!sHookMgr->OnPacketReceive(this, *packet))
+                                break;
+#endif
                             (this->*opHandle.handler)(*packet);
                             LogUnprocessedTail(packet);
                         }
@@ -346,6 +355,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         else
                         {
                             sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+#ifdef ELUNA
+                            if (!sHookMgr->OnPacketReceive(this, *packet))
+                                break;
+#endif
                             (this->*opHandle.handler)(*packet);
                             LogUnprocessedTail(packet);
                         }
@@ -364,6 +377,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                             m_playerRecentlyLogout = false;
 
                         sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+#ifdef ELUNA
+                        if (!sHookMgr->OnPacketReceive(this, *packet))
+                            break;
+#endif
                         (this->*opHandle.handler)(*packet);
                         LogUnprocessedTail(packet);
                         break;
