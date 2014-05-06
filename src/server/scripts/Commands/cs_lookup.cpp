@@ -1218,8 +1218,7 @@ public:
         char* limitStr = strtok(NULL, " ");
         int32 limit = limitStr ? atoi(limitStr) : -1;
 
-        if (!AccountMgr::normalizeString
-            (account))
+        if (!Utf8ToUpperOnlyLatin(account))
             return false;
 
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_LIST_BY_NAME);

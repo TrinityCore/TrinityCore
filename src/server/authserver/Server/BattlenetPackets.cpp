@@ -75,6 +75,12 @@ std::string Battlenet::AuthChallenge::ToString() const
     return stream.str();
 }
 
+Battlenet::ProofRequest::~ProofRequest()
+{
+    for (size_t i = 0; i < Modules.size(); ++i)
+        delete Modules[i];
+}
+
 void Battlenet::ProofRequest::Write()
 {
     _stream.Write(Modules.size(), 3);
@@ -93,7 +99,7 @@ std::string Battlenet::ProofRequest::ToString() const
     std::ostringstream stream;
     stream << "Battlenet::ProofRequest modules " << Modules.size();
     for (ModuleInfo const* module : Modules)
-        stream << std::endl << "Battlenet::ModuleInfo Locale " << module->Region.c_str() << ", ModuleId " << ByteArrayToHexStr(module->ModuleId, 32) << ", BlobSize " << module->DataSize;
+        stream << std::endl << "Battlenet::ModuleInfo Locale " << module->Region.c_str() << ", ModuleId " << ByteArrayToHexStr(module->ModuleId, 32) << ", DataSize " << module->DataSize << ", Data " << ByteArrayToHexStr(module->Data, module->DataSize);
 
     return stream.str();
 }
@@ -101,7 +107,7 @@ std::string Battlenet::ProofRequest::ToString() const
 Battlenet::ProofResponse::~ProofResponse()
 {
     for (size_t i = 0; i < Modules.size(); ++i)
-        delete[] Modules[i].Data;
+        delete Modules[i];
 }
 
 void Battlenet::ProofResponse::Read()
@@ -109,9 +115,9 @@ void Battlenet::ProofResponse::Read()
     Modules.resize(_stream.Read<uint32>(3));
     for (size_t i = 0; i < Modules.size(); ++i)
     {
-        ModuleData& data = Modules[i];
-        data.Size = _stream.Read<uint32>(10);
-        data.Data = _stream.ReadBytes(data.Size);
+        BitStream*& dataStream = Modules[i];
+        dataStream = new BitStream(_stream.Read<uint32>(10));
+        memcpy(dataStream->GetBuffer(), _stream.ReadBytes(dataStream->GetSize()).get(), dataStream->GetSize());
     }
 }
 
@@ -119,10 +125,10 @@ std::string Battlenet::ProofResponse::ToString() const
 {
     std::ostringstream stream;
     stream << "Battlenet::ProofResponse Modules " << Modules.size();
-    for (ModuleData const& module : Modules)
+    for (BitStream* module : Modules)
     {
-        std::string hexStr = ByteArrayToHexStr(module.Data, module.Size);
-        stream << std::endl << "Battlenet::ProofResponse::ModuleData Size: " << module.Size << ", Data: " << hexStr;
+        std::string hexStr = ByteArrayToHexStr(module->GetBuffer(), module->GetSize());
+        stream << std::endl << "Battlenet::ProofResponse::ModuleData Size: " << module->GetSize() << ", Data: " << hexStr;
     }
 
     return stream.str();
@@ -156,7 +162,20 @@ void Battlenet::AuthComplete::Write()
             }
         }
 
-        // todo more
+        _stream.WriteString(FirstName, 8); // First name
+        _stream.WriteString(LastName, 8); // Last name - not set for WoW
+
+        _stream.Write(GameAccountId, 32);
+
+        _stream.Write(2, 8);
+        _stream.Write(0, 64);
+        _stream.Write(2, 8);
+
+        _stream.WriteString(GameAccountName, 5, -1);
+
+        _stream.Write(0, 64);   // Account flags
+        _stream.Write(0, 32);
+        _stream.Write(0, 1);
     }
     else
     {
@@ -174,8 +193,8 @@ void Battlenet::AuthComplete::Write()
         _stream.Write(ErrorType, 2);
         if (ErrorType == 1)
         {
-            _stream.Write<uint16>(Result, 16);
-            _stream.Write(0, 32);
+            _stream.Write(Result, 16);
+            _stream.Write(0x80000000, 32);
         }
     }
 }
@@ -189,4 +208,128 @@ void Battlenet::AuthComplete::SetAuthResult(AuthResult result)
 {
     ErrorType = result != AUTH_OK ? 1 : 0;
     Result = result;
+}
+
+Battlenet::RealmCharacterCounts::~RealmCharacterCounts()
+{
+    for (ServerPacket* realmData : RealmData)
+        delete realmData;
+}
+
+void Battlenet::RealmCharacterCounts::Write()
+{
+    _stream.Write(false, 1);    // failure
+    _stream.Write(CharacterCounts.size(), 7);
+    for (CharacterCountEntry const& entry : CharacterCounts)
+    {
+        _stream.Write(entry.Realm.Region, 8);
+        _stream.Write(0, 12);
+        _stream.Write(entry.Realm.Battlegroup, 8);
+        _stream.Write(entry.Realm.Index, 32);
+        _stream.Write(entry.CharacterCount, 16);
+    }
+
+    for (ServerPacket* realmData : RealmData)
+    {
+        realmData->Write();
+        _stream.WriteBytes(realmData->GetData(), realmData->GetSize());
+    }
+}
+
+std::string Battlenet::RealmCharacterCounts::ToString() const
+{
+    std::ostringstream stream;
+    stream << "Battlenet::RealmCharacterCounts Realms " << CharacterCounts.size();
+
+    for (CharacterCountEntry const& entry : CharacterCounts)
+        stream << std::endl << "Region " << entry.Realm.Region << " Battlegroup " << entry.Realm.Region << " Index " << entry.Realm.Index << " Characters " << entry.CharacterCount;
+
+    return stream.str().c_str();
+}
+
+void Battlenet::RealmUpdate::Write()
+{
+    _stream.Write(true, 1);     // Success
+    _stream.Write(Timezone, 32);
+    _stream.WriteFloat(Population);
+    _stream.Write(Lock, 8);
+    _stream.Write(0, 19);
+    _stream.Write(Type + std::numeric_limits<int32>::min(), 32);
+    _stream.WriteString(Name, 10);
+
+    _stream.Write(!Version.empty(), 1);
+    if (!Version.empty())
+    {
+        _stream.WriteString(Version, 5);
+        _stream.Write(Build, 32);
+
+        uint32 ip = Address.get_ip_address();
+        uint16 port = Address.get_port_number();
+
+        EndianConvertReverse(ip);
+        EndianConvertReverse(port);
+
+        _stream.WriteBytes(&ip, 4);
+        _stream.WriteBytes(&port, 2);
+    }
+
+    _stream.Write(Flags, 8);
+    _stream.Write(Region, 8);
+    _stream.Write(0, 12);
+    _stream.Write(Battlegroup, 8);
+    _stream.Write(Index, 32);
+}
+
+std::string Battlenet::RealmUpdate::ToString() const
+{
+    std::ostringstream stream;
+    stream << "Battlenet::RealmUpdate Timezone " << Timezone << " Population " << Population << " Lock " << Lock << " Type " << Type << " Name " << Name
+        << " Flags " << Flags << " Region " << Region << " Battlegroup " << Battlegroup << " Index " << Index;
+
+    if (!Version.empty())
+        stream << " Version " << Version;
+
+    return stream.str().c_str();
+}
+
+void Battlenet::RealmJoinRequest::Read()
+{
+    ClientSeed = _stream.Read<uint32>(32);
+    Unknown = _stream.Read<uint32>(20);
+    Realm.Region = _stream.Read<uint8>(8);
+    _stream.Read<uint16>(12);
+    Realm.Battlegroup = _stream.Read<uint8>(8);
+    Realm.Index = _stream.Read<uint32>(32);
+}
+
+std::string Battlenet::RealmJoinRequest::ToString() const
+{
+    std::ostringstream stream;
+    stream << "Battlenet::RealmJoinRequest ClientSeed" << ClientSeed << " Region " << Realm.Region << " Battlegroup " << Realm.Battlegroup << " Index " << Realm.Index;
+    return stream.str().c_str();
+}
+
+void Battlenet::RealmJoinResult::Write()
+{
+    _stream.Write(0, 1);    // Fail
+    _stream.Write(ServerSeed, 32);
+    _stream.Write(IPv4.size(), 5);
+    for (ACE_INET_Addr const& addr : IPv4)
+    {
+        uint32 ip = addr.get_ip_address();
+        uint16 port = addr.get_port_number();
+
+        EndianConvertReverse(ip);
+        EndianConvertReverse(port);
+
+        _stream.WriteBytes(&ip, 4);
+        _stream.WriteBytes(&port, 2);
+    }
+
+    _stream.Write(0, 5);            // IPv6 addresses
+}
+
+std::string Battlenet::RealmJoinResult::ToString() const
+{
+    return "Battlenet::RealmJoinResult";
 }

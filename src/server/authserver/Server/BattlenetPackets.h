@@ -31,8 +31,6 @@ namespace Battlenet
 
     enum Channel
     {
-        NOT_SPECIFIED   = -1,
-
         AUTHENTICATION  = 0,
         CREEP           = 1,
         WOW             = 2
@@ -48,10 +46,29 @@ namespace Battlenet
         SMSG_AUTH_PROOF_REQUEST     = 0x2,
     };
 
+    enum CreepOpcodes
+    {
+        CMSG_PING               = 0x0,
+        CMSG_ENABLE_ENCRYPTION  = 0x5,
+
+        SMSG_PONG               = 0x0
+    };
+
+    enum WoWOpcodes
+    {
+        CMSG_REALM_UPDATE       = 0x0,
+        CMSG_JOIN_REQUEST       = 0x8,
+
+        SMSG_CHARACTER_COUNTS   = 0x0,
+        SMSG_REALM_UPDATE       = 0x2,
+        SMSG_REALM_UPDATE_END   = 0x3,
+        SMSG_JOIN_RESULT        = 0x8
+    };
+
     struct PacketHeader
     {
         PacketHeader(uint32 opcode, uint32 channel) : Opcode(opcode), Channel(channel) { }
-        PacketHeader() : Opcode(0), Channel(NOT_SPECIFIED) { }
+        PacketHeader() : Opcode(0), Channel(AUTHENTICATION) { }
 
         uint32 Opcode;
         int32 Channel;
@@ -142,11 +159,12 @@ namespace Battlenet
     {
     public:
         ProofRequest() : ServerPacket(PacketHeader(SMSG_AUTH_PROOF_REQUEST, AUTHENTICATION)) { }
+        ~ProofRequest();
 
         void Write() override;
         std::string ToString() const override;
 
-        std::vector<ModuleInfo const*> Modules;
+        std::vector<ModuleInfo*> Modules;
     };
 
     class ProofResponse final : public ClientPacket
@@ -159,23 +177,18 @@ namespace Battlenet
 
         ~ProofResponse();
 
-        struct ModuleData
-        {
-            uint32 Size;
-            uint8* Data;
-        };
-
         void Read() override;
         std::string ToString() const override;
 
-        std::vector<ModuleData> Modules;
+        std::vector<BitStream*> Modules;
     };
 
     class AuthComplete final : public ServerPacket
     {
     public:
         AuthComplete() : ServerPacket(PacketHeader(SMSG_AUTH_COMPLETE, AUTHENTICATION)),
-            Result(AUTH_OK), ErrorType(0), PingTimeout(120000), Threshold(1000000), Rate(1000)
+            Result(AUTH_OK), ErrorType(0), PingTimeout(120000), Threshold(25000000), Rate(1000),
+            FirstName(""), LastName(""), GameAccountId(0), GameAccountName("")
         {
         }
 
@@ -192,6 +205,108 @@ namespace Battlenet
         uint32 Rate;
         std::string FirstName;
         std::string LastName;
+        uint32 GameAccountId;
+        std::string GameAccountName;
+        uint64 AccountFlags;
+    };
+
+    class Pong final : public ServerPacket
+    {
+    public:
+        Pong() : ServerPacket(PacketHeader(SMSG_PONG, CREEP))
+        {
+        }
+
+        void Write() override { }
+        std::string ToString() const override { return "Battlenet::Pong"; }
+    };
+
+    class RealmCharacterCounts final : public ServerPacket
+    {
+    public:
+        RealmCharacterCounts() : ServerPacket(PacketHeader(SMSG_CHARACTER_COUNTS, WOW))
+        {
+        }
+        ~RealmCharacterCounts();
+
+        struct CharacterCountEntry
+        {
+            RealmId Realm;
+            uint32 CharacterCount;
+        };
+
+        void Write() override;
+        std::string ToString() const override;
+
+        std::vector<CharacterCountEntry> CharacterCounts;
+        std::vector<ServerPacket*> RealmData;
+    };
+
+    class RealmUpdate final : public ServerPacket
+    {
+    public:
+        RealmUpdate() : ServerPacket(PacketHeader(SMSG_REALM_UPDATE, WOW)),
+            Timezone(0), Population(0.0f), Lock(0), Type(0), Name(""), Version(""),
+            Address(), Flags(0), Region(0), Battlegroup(0), Index(0), Build(0)
+        {
+        }
+
+        void Write() override;
+        std::string ToString() const override;
+
+        uint32 Timezone;
+        float Population;
+        uint8 Lock;
+        uint32 Type;
+        std::string Name;
+        std::string Version;
+        ACE_INET_Addr Address;
+        uint8 Flags;
+        uint8 Region;
+        uint8 Battlegroup;
+        uint32 Index;
+        uint32 Build;
+    };
+
+    class RealmUpdateComplete final : public ServerPacket
+    {
+    public:
+        RealmUpdateComplete() : ServerPacket(PacketHeader(SMSG_REALM_UPDATE_END, WOW))
+        {
+        }
+
+        void Write() override { }
+        std::string ToString() const override { return "Battlenet::RealmUpdateComplete"; }
+    };
+
+    class RealmJoinRequest final : public ClientPacket
+    {
+    public:
+        RealmJoinRequest(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
+        {
+            ASSERT(header == PacketHeader(CMSG_JOIN_REQUEST, WOW) && "Invalid packet header for RealmJoinRequest");
+        }
+
+        void Read() override;
+        std::string ToString() const override;
+
+        uint32 ClientSeed;
+        uint32 Unknown;
+        RealmId Realm;
+    };
+
+    class RealmJoinResult final : public ServerPacket
+    {
+    public:
+        RealmJoinResult() : ServerPacket(PacketHeader(SMSG_JOIN_RESULT, WOW)), ServerSeed(0)
+        {
+        }
+
+        void Write() override;
+        std::string ToString() const override;
+
+        uint32 ServerSeed;
+        std::vector<ACE_INET_Addr> IPv4;
     };
 }
 
