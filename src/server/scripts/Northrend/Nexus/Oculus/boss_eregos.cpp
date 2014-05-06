@@ -87,7 +87,7 @@ class boss_eregos : public CreatureScript
         {
             boss_eregosAI(Creature* creature) : BossAI(creature, DATA_EREGOS) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
                 _phase = PHASE_NORMAL;
@@ -99,13 +99,13 @@ class boss_eregos : public CreatureScript
                 DoAction(ACTION_SET_NORMAL_EVENTS);
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_KILL);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
 
@@ -121,7 +121,7 @@ class boss_eregos : public CreatureScript
                     _amberVoid = false;
             }
 
-            uint32 GetData(uint32 type) const OVERRIDE
+            uint32 GetData(uint32 type) const override
             {
                switch (type)
                {
@@ -137,7 +137,7 @@ class boss_eregos : public CreatureScript
                 return 0;
             }
 
-            void DoAction(int32 action) OVERRIDE
+            void DoAction(int32 action) override
             {
                 if (action != ACTION_SET_NORMAL_EVENTS)
                     return;
@@ -149,7 +149,7 @@ class boss_eregos : public CreatureScript
                 events.ScheduleEvent(EVENT_SUMMON_LEY_WHELP, urand(15, 30) * IN_MILLISECONDS, 0, PHASE_NORMAL);
             }
 
-            void JustSummoned(Creature* summon) OVERRIDE
+            void JustSummoned(Creature* summon) override
             {
                 BossAI::JustSummoned(summon);
 
@@ -161,7 +161,7 @@ class boss_eregos : public CreatureScript
                 summon->GetMotionMaster()->MoveRandom(100.0f);
             }
 
-            void SummonedCreatureDespawn(Creature* summon) OVERRIDE
+            void SummonedCreatureDespawn(Creature* summon) override
             {
                 if (summon->GetEntry() != NPC_PLANAR_ANOMALY)
                     return;
@@ -170,7 +170,7 @@ class boss_eregos : public CreatureScript
                 summon->CastSpell(summon, SPELL_PLANAR_BLAST, true);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
             {
                 if (!IsHeroic())
                     return;
@@ -191,7 +191,7 @@ class boss_eregos : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -231,7 +231,7 @@ class boss_eregos : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
 
@@ -245,7 +245,7 @@ class boss_eregos : public CreatureScript
              bool _amberVoid;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_eregosAI(creature);
         }
@@ -266,13 +266,13 @@ class spell_eregos_planar_shift : public SpellScriptLoader
                     creature->AI()->DoAction(ACTION_SET_NORMAL_EVENTS);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_eregos_planar_shift_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_eregos_planar_shift_AuraScript();
         }
@@ -283,7 +283,7 @@ class achievement_gen_eregos_void : public AchievementCriteriaScript
     public:
         achievement_gen_eregos_void(char const* name, uint32 data) : AchievementCriteriaScript(name), _data(data) { }
 
-        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*player*/, Unit* target) override
         {
             return target && target->GetAI()->GetData(_data);
         }

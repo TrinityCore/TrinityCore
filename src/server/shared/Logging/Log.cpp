@@ -250,13 +250,13 @@ void Log::ReadLoggersFromConfig()
         AppenderConsole* appender = new AppenderConsole(NextAppenderId(), "Console", LOG_LEVEL_DEBUG, APPENDER_FLAGS_NONE);
         appenders[appender->getId()] = appender;
 
-        Logger& logger = loggers[LOGGER_ROOT];
-        logger.Create(LOGGER_ROOT, LOG_LEVEL_ERROR);
-        logger.addAppender(appender->getId(), appender);
+        Logger& rootLogger = loggers[LOGGER_ROOT];
+        rootLogger.Create(LOGGER_ROOT, LOG_LEVEL_ERROR);
+        rootLogger.addAppender(appender->getId(), appender);
 
-        logger = loggers["server"];
-        logger.Create("server", LOG_LEVEL_ERROR);
-        logger.addAppender(appender->getId(), appender);
+        Logger& serverLogger = loggers["server"];
+        serverLogger.Create("server", LOG_LEVEL_INFO);
+        serverLogger.addAppender(appender->getId(), appender);
     }
 }
 

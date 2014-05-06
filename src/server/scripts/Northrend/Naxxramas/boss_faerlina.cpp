@@ -67,7 +67,7 @@ class boss_faerlina : public CreatureScript
             }
 
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
@@ -76,14 +76,14 @@ class boss_faerlina : public CreatureScript
                 events.ScheduleEvent(EVENT_FRENZY, urand(60000, 80000));
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
                 _delayFrenzy = false;
                 _frenzyDispels = 0;
             }
 
-            void MoveInLineOfSight(Unit* who) OVERRIDE
+            void MoveInLineOfSight(Unit* who) override
 
             {
                 if (!_introDone && who->GetTypeId() == TYPEID_PLAYER)
@@ -95,19 +95,19 @@ class boss_faerlina : public CreatureScript
                 BossAI::MoveInLineOfSight(who);
             }
 
-            void KilledUnit(Unit* /*victim*/) OVERRIDE
+            void KilledUnit(Unit* /*victim*/) override
             {
                 if (!urand(0, 2))
                     Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_DEATH);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) OVERRIDE
+            void SpellHit(Unit* caster, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_WIDOWS_EMBRACE || spell->Id == H_SPELL_WIDOWS_EMBRACE)
                 {
@@ -118,7 +118,7 @@ class boss_faerlina : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type) const OVERRIDE
+            uint32 GetData(uint32 type) const override
             {
                 if (type == DATA_FRENZY_DISPELS)
                     return _frenzyDispels;
@@ -126,7 +126,7 @@ class boss_faerlina : public CreatureScript
                 return 0;
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -177,7 +177,7 @@ class boss_faerlina : public CreatureScript
             bool _delayFrenzy;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_faerlinaAI(creature);
         }
@@ -195,7 +195,7 @@ class npc_faerlina_add : public CreatureScript
             {
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL) {
                     me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_BIND, true);
@@ -203,7 +203,7 @@ class npc_faerlina_add : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 if (_instance && GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
                     if (Creature* faerlina = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_FAERLINA)))
@@ -214,7 +214,7 @@ class npc_faerlina_add : public CreatureScript
             InstanceScript* const _instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<npc_faerlina_addAI>(creature);
         }
@@ -225,7 +225,7 @@ class achievement_momma_said_knock_you_out : public AchievementCriteriaScript
     public:
         achievement_momma_said_knock_you_out() : AchievementCriteriaScript("achievement_momma_said_knock_you_out") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             return target && !target->GetAI()->GetData(DATA_FRENZY_DISPELS);
         }

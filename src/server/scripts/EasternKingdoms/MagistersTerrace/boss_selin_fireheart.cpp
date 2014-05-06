@@ -64,7 +64,7 @@ class boss_selin_fireheart : public CreatureScript
 public:
     boss_selin_fireheart() : CreatureScript("boss_selin_fireheart") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_selin_fireheartAI>(creature);
     };
@@ -102,7 +102,7 @@ public:
 
         uint64 CrystalGUID;                                     // This will help us create a pointer to the crystal we are draining. We store GUIDs, never units in case unit is deleted/offline (offline if player of course).
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             //for (uint8 i = 0; i < CRYSTALS_NUMBER; ++i)
             for (std::list<uint64>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
@@ -191,18 +191,18 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
             instance->SetData(DATA_SELIN_EVENT, IN_PROGRESS);
          }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_KILL);
         }
 
-        void MovementInform(uint32 type, uint32 id) OVERRIDE
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type == POINT_MOTION_TYPE && id == 1)
             {
@@ -224,7 +224,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
 
@@ -232,7 +232,7 @@ public:
             ShatterRemainingCrystals();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -315,7 +315,7 @@ class npc_fel_crystal : public CreatureScript
 public:
     npc_fel_crystal() : CreatureScript("npc_fel_crystal") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_fel_crystalAI(creature);
     };
@@ -324,14 +324,14 @@ public:
     {
         npc_fel_crystalAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE { }
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
-        void AttackStart(Unit* /*who*/) OVERRIDE { }
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
+        void Reset() override { }
+        void EnterCombat(Unit* /*who*/) override { }
+        void AttackStart(Unit* /*who*/) override { }
+        void MoveInLineOfSight(Unit* /*who*/) override { }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE { }
+        void UpdateAI(uint32 /*diff*/) override { }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (InstanceScript* instance = me->GetInstanceScript())
             {

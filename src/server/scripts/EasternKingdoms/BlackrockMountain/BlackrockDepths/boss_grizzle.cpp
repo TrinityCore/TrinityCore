@@ -31,7 +31,7 @@ class boss_grizzle : public CreatureScript
 public:
     boss_grizzle() : CreatureScript("boss_grizzle") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_grizzleAI(creature);
     }
@@ -43,15 +43,15 @@ public:
         uint32 GroundTremor_Timer;
         uint32 Frenzy_Timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             GroundTremor_Timer = 12000;
             Frenzy_Timer =0;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())

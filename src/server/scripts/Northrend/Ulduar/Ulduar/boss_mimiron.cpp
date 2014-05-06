@@ -98,13 +98,13 @@ class spell_ulduar_proximity_mines : public SpellScriptLoader
                     GetCaster()->CastSpell(GetCaster(), SPELL_TRIGGER_MISSILE, true);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_ulduar_proximity_minesSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_ulduar_proximity_minesSpellScript();
         }

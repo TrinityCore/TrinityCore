@@ -138,6 +138,10 @@ public:
 
 protected:
     WorldSession* const m_pSession;
+
+private:
+    PacketFilter(PacketFilter const& right) = delete;
+    PacketFilter& operator=(PacketFilter const& right) = delete;
 };
 //process only thread-safe packets in Map::Update()
 class MapSessionFilter : public PacketFilter
@@ -947,9 +951,12 @@ class WorldSession
                 WorldSession* Session;
 
             private:
-                typedef UNORDERED_MAP<uint16, bool> OpcodeStatusMap;
+                typedef std::unordered_map<uint16, bool> OpcodeStatusMap;
                 OpcodeStatusMap _isOpcodeAllowed; // could be bool array, but wouldn't be practical for game versions with non-linear opcodes
                 Policy _policy;
+
+                DosProtection(DosProtection const& right) = delete;
+                DosProtection& operator=(DosProtection const& right) = delete;
         } AntiDOS;
 
     private:
@@ -1003,6 +1010,9 @@ class WorldSession
         ACE_Based::LockedQueue<WorldPacket*, ACE_Thread_Mutex> _recvQueue;
         time_t timeLastWhoCommand;
         rbac::RBACData* _RBACData;
+
+        WorldSession(WorldSession const& right) = delete;
+        WorldSession& operator=(WorldSession const& right) = delete;
 };
 #endif
 /// @}

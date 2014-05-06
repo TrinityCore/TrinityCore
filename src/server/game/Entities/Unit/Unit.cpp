@@ -155,11 +155,6 @@ ProcEventInfo::ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget,
     _damageInfo(damageInfo), _healInfo(healInfo)
 { }
 
-// we can disable this warning for this since it only
-// causes undefined behavior when passed to the base class constructor
-#ifdef _MSC_VER
-#pragma warning(disable:4355)
-#endif
 Unit::Unit(bool isWorldObject) :
     WorldObject(isWorldObject), m_movedPlayer(NULL), m_lastSanctuaryTime(0),
     IsAIEnabled(false), NeedChangeAI(false), LastCharmerGUID(0),
@@ -169,9 +164,6 @@ Unit::Unit(bool isWorldObject) :
     m_vehicle(NULL), m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE),
     m_HostileRefManager(this), _lastDamagedTime(0)
 {
-#ifdef _MSC_VER
-#pragma warning(default:4355)
-#endif
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
 
@@ -2515,7 +2507,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo
     // Chance hit from victim SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE auras
     modHitChance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE, schoolMask);
     // Reduce spell hit chance for Area of effect spells from victim SPELL_AURA_MOD_AOE_AVOIDANCE aura
-    if (spellInfo->IsTargetingArea())
+    if (spellInfo->IsAffectingArea())
         modHitChance -= victim->GetTotalAuraModifier(SPELL_AURA_MOD_AOE_AVOIDANCE);
 
     // Decrease hit chance from victim rating bonus
@@ -6363,15 +6355,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 CastSpell(this, 57669, true, castItem, triggeredByAura);
                 break;
             }
-            // Sanctified Wrath
-            if (dummySpell->SpellIconID == 3029)
-            {
-                triggered_spell_id = 57318;
-                target = this;
-                basepoints0 = triggerAmount;
-                CastCustomSpell(target, triggered_spell_id, &basepoints0, &basepoints0, NULL, true, castItem, triggeredByAura);
-                return true;
-            }
             // Righteous Vengeance
             if (dummySpell->SpellIconID == 3025)
             {
@@ -8644,6 +8627,9 @@ bool Unit::HandleOverrideClassScriptAuraProc(Unit* victim, uint32 /*damage*/, Au
 
 void Unit::setPowerType(Powers new_powertype)
 {
+    if (getPowerType() == new_powertype)
+        return;
+
     SetByteValue(UNIT_FIELD_BYTES_0, 3, new_powertype);
 
     if (GetTypeId() == TYPEID_PLAYER)
@@ -10443,7 +10429,7 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                 default:
                     return false;
             }
-            break;
+        // Do not add a break here, case fallthrough is intentional! Adding a break will make above spells unable to crit.
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
             if (schoolMask & SPELL_SCHOOL_MASK_NORMAL)
@@ -13051,9 +13037,35 @@ bool Unit::IsInFeralForm() const
 
 bool Unit::IsInDisallowedMountForm() const
 {
-    ShapeshiftForm form = GetShapeshiftForm();
-    return form != FORM_NONE && form != FORM_BATTLESTANCE && form != FORM_BERSERKERSTANCE && form != FORM_DEFENSIVESTANCE &&
-        form != FORM_SHADOW && form != FORM_STEALTH && form != FORM_UNDEAD;
+    if (ShapeshiftForm form = GetShapeshiftForm())
+    {
+        SpellShapeshiftEntry const* shapeshift = sSpellShapeshiftStore.LookupEntry(form);
+        if (!shapeshift)
+            return true;
+
+        if (!(shapeshift->flags1 & 0x1))
+            return true;
+    }
+
+    if (GetDisplayId() == GetNativeDisplayId())
+        return false;
+
+    CreatureDisplayInfoEntry const* display = sCreatureDisplayInfoStore.LookupEntry(GetDisplayId());
+    if (!display)
+        return true;
+
+    CreatureDisplayInfoExtraEntry const* displayExtra = sCreatureDisplayInfoExtraStore.LookupEntry(display->ExtraId);
+    if (!displayExtra)
+        return true;
+
+    CreatureModelDataEntry const* model = sCreatureModelDataStore.LookupEntry(display->ModelId);
+    ChrRacesEntry const* race = sChrRacesStore.LookupEntry(displayExtra->Race);
+
+    if (model && !(model->Flags & 0x80))
+        if (race && !(race->Flags & 0x4))
+            return true;
+
+    return false;
 }
 
 /*#######################################
@@ -14960,7 +14972,7 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const
     }
 
     // Check spellProcEvent data requirements
-    if (!sSpellMgr->IsSpellProcEventCanTriggeredBy(spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
+    if (!sSpellMgr->IsSpellProcEventCanTriggeredBy(spellProto, spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
         return false;
     // In most cases req get honor or XP from kill
     if (EventProcFlag & PROC_FLAG_KILL && GetTypeId() == TYPEID_PLAYER)
@@ -15542,7 +15554,7 @@ void Unit::SetStunned(bool apply)
     else
     {
         if (IsAlive() && GetVictim())
-            SetTarget(GetVictim()->GetGUID());
+            SetTarget(EnsureVictim()->GetGUID());
 
         // don't remove UNIT_FLAG_STUNNED for pet when owner is mounted (disabled pet's interface)
         Unit* owner = GetOwner();
@@ -15633,7 +15645,7 @@ void Unit::SetFeared(bool apply)
             if (GetMotionMaster()->GetCurrentMovementGeneratorType() == FLEEING_MOTION_TYPE)
                 GetMotionMaster()->MovementExpired();
             if (GetVictim())
-                SetTarget(GetVictim()->GetGUID());
+                SetTarget(EnsureVictim()->GetGUID());
         }
     }
 
@@ -15655,7 +15667,7 @@ void Unit::SetConfused(bool apply)
             if (GetMotionMaster()->GetCurrentMovementGeneratorType() == CONFUSED_MOTION_TYPE)
                 GetMotionMaster()->MovementExpired();
             if (GetVictim())
-                SetTarget(GetVictim()->GetGUID());
+                SetTarget(EnsureVictim()->GetGUID());
         }
     }
 
@@ -15932,10 +15944,7 @@ void Unit::RestoreFaction()
         }
 
         if (CreatureTemplate const* cinfo = ToCreature()->GetCreatureTemplate())  // normal creature
-        {
-            FactionTemplateEntry const* faction = GetFactionTemplateEntry();
-            setFaction((faction && faction->friendlyMask & 0x004) ? cinfo->faction_H : cinfo->faction_A);
-        }
+            setFaction(cinfo->faction);
     }
 }
 
@@ -16887,7 +16896,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 
     Position pos;
     if (!exitPosition)                          // Exit position not specified
-        vehicle->GetBase()->GetPosition(&pos);  // This should use passenger's current position, leaving it as it is now
+        pos = vehicle->GetBase()->GetPosition();  // This should use passenger's current position, leaving it as it is now
                                                 // because we calculate positions incorrect (sometimes under map)
     else
         pos = *exitPosition;
@@ -17688,7 +17697,7 @@ void Unit::BuildCooldownPacket(WorldPacket& data, uint8 flags, PacketCooldowns c
     data.Initialize(SMSG_SPELL_COOLDOWN, 8 + 1 + (4 + 4) * cooldowns.size());
     data << uint64(GetGUID());
     data << uint8(flags);
-    for (UNORDERED_MAP<uint32, uint32>::const_iterator itr = cooldowns.begin(); itr != cooldowns.end(); ++itr)
+    for (std::unordered_map<uint32, uint32>::const_iterator itr = cooldowns.begin(); itr != cooldowns.end(); ++itr)
     {
         data << uint32(itr->first);
         data << uint32(itr->second);

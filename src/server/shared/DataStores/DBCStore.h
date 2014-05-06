@@ -63,6 +63,10 @@ struct SqlDbc
             }
         }
     }
+
+private:
+    SqlDbc(SqlDbc const& right) = delete;
+    SqlDbc& operator=(SqlDbc const& right) = delete;
 };
 
 template<class T>
@@ -321,6 +325,9 @@ class DBCStorage
         std::map<uint32, T const*> data;
         bool loaded;
         StringPoolList stringPoolList;
+
+        DBCStorage(DBCStorage const& right) = delete;
+        DBCStorage& operator=(DBCStorage const& right) = delete;
 };
 
 #endif

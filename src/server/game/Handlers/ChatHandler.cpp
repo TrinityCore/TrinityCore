@@ -108,25 +108,12 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             case CHAT_MSG_GUILD:
             case CHAT_MSG_BATTLEGROUND:
             case CHAT_MSG_WHISPER:
-                if (sWorld->getBoolConfig(CONFIG_CHATLOG_ADDON))
-                {
-                    std::string to, msg;
-                    if (type == CHAT_MSG_WHISPER)
-                        recvData >> to;
-                    recvData >> msg;
-
-                    if (msg.empty())
-                        return;
-
-                    sScriptMgr->OnPlayerChat(sender, uint32(CHAT_MSG_ADDON), lang, msg);
-#ifdef ELUNA
-                    sHookMgr->OnAddonMessage(sender, msg, type, to);
-#endif
-                }
-
-                // Disabled addon channel?
+                // check if addon messages are disabled
                 if (!sWorld->getBoolConfig(CONFIG_ADDON_CHANNEL))
+                {
+                    recvData.rfinish();
                     return;
+                }
                 break;
             default:
                 TC_LOG_ERROR("network", "Player %s (GUID: %u) sent a chatmessage with an invalid language/message type combination",

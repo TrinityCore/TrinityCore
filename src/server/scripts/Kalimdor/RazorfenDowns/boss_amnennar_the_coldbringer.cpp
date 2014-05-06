@@ -52,7 +52,7 @@ public:
     {
         boss_amnennar_the_coldbringerAI(Creature* creature) : BossAI(creature, DATA_AMNENNAR_THE_COLD_BRINGER) { }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             _Reset();
             hp60Spectrals = false;
@@ -60,7 +60,7 @@ public:
             hp50          = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             events.ScheduleEvent(EVENT_AMNENNARSWRATH, 8000);
@@ -69,18 +69,18 @@ public:
             Talk(SAY_AGGRO);
         }
 
-        void KilledUnit(Unit* who) OVERRIDE
+        void KilledUnit(Unit* who) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_KILL);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -138,7 +138,7 @@ public:
         bool hp50;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_amnennar_the_coldbringerAI(creature);
     }

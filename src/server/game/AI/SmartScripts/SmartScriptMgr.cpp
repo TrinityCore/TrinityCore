@@ -37,7 +37,7 @@ void SmartWaypointMgr::LoadFromDB()
 {
     uint32 oldMSTime = getMSTime();
 
-    for (UNORDERED_MAP<uint32, WPPath*>::iterator itr = waypoint_map.begin(); itr != waypoint_map.end(); ++itr)
+    for (std::unordered_map<uint32, WPPath*>::iterator itr = waypoint_map.begin(); itr != waypoint_map.end(); ++itr)
     {
         for (WPPath::iterator pathItr = itr->second->begin(); pathItr != itr->second->end(); ++pathItr)
             delete pathItr->second;
@@ -96,7 +96,7 @@ void SmartWaypointMgr::LoadFromDB()
 
 SmartWaypointMgr::~SmartWaypointMgr()
 {
-    for (UNORDERED_MAP<uint32, WPPath*>::iterator itr = waypoint_map.begin(); itr != waypoint_map.end(); ++itr)
+    for (std::unordered_map<uint32, WPPath*>::iterator itr = waypoint_map.begin(); itr != waypoint_map.end(); ++itr)
     {
         for (WPPath::iterator pathItr = itr->second->begin(); pathItr != itr->second->end(); ++pathItr)
             delete pathItr->second;
@@ -992,17 +992,19 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         }
         case SMART_ACTION_EQUIP:
         {
-
             if (e.GetScriptType() == SMART_SCRIPT_TYPE_CREATURE)
             {
                 int8 equipId = (int8)e.action.equip.entry;
-                EquipmentInfo const* einfo = sObjectMgr->GetEquipmentInfo(e.entryOrGuid, equipId);
-                if (!einfo)
-                {
-                    TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info id %u for creature %u, skipped.", equipId, e.entryOrGuid);
-                    return false;
-                }
 
+                if (equipId)
+                {
+                    EquipmentInfo const* einfo = sObjectMgr->GetEquipmentInfo(e.entryOrGuid, equipId);
+                    if (!einfo)
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info id %u for creature %u, skipped.", equipId, e.entryOrGuid);
+                        return false;
+                    }
+                }
             }
             break;
         }

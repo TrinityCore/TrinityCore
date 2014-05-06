@@ -47,7 +47,7 @@ class npc_willix : public CreatureScript
 public:
     npc_willix() : CreatureScript("npc_willix") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_WILLIX_THE_IMPORTER)
         {
@@ -59,7 +59,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_willixAI(creature);
     }
@@ -68,7 +68,7 @@ public:
     {
         npc_willixAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -118,19 +118,19 @@ public:
             }
         }
 
-        void Reset() OVERRIDE { }
+        void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO1);
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             summoned->AI()->AttackStart(me);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (Player* player = GetPlayerForEscort())
                 player->FailQuest(QUEST_WILLIX_THE_IMPORTER);
@@ -164,7 +164,7 @@ struct npc_snufflenose_gopher : public CreatureScript
 public:
     npc_snufflenose_gopher() : CreatureScript("npc_snufflenose_gopher") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_snufflenose_gopherAI(creature);
     }
@@ -177,13 +177,13 @@ public:
             TargetTubberGUID = 0;
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             IsMovementActive = false;
             TargetTubberGUID = 0;
         }
 
-        void MovementInform(uint32 type, uint32 id) OVERRIDE
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type == POINT_MOTION_TYPE && id == POINT_TUBBER)
             {
@@ -232,13 +232,13 @@ public:
             IsMovementActive = true;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!IsMovementActive)
                 PetAI::UpdateAI(diff);
         }
 
-        void DoAction(int32 action) OVERRIDE
+        void DoAction(int32 action) override
         {
             if (action == ACTION_FIND_NEW_TUBBER)
                 DoFindNewTubber();
@@ -259,7 +259,7 @@ class spell_snufflenose_command : public SpellScriptLoader
         {
             PrepareSpellScript(spell_snufflenose_commandSpellScript);
 
-            bool Load() OVERRIDE
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
@@ -271,13 +271,13 @@ class spell_snufflenose_command : public SpellScriptLoader
                         target->ToCreature()->AI()->DoAction(ACTION_FIND_NEW_TUBBER);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 AfterCast += SpellCastFn(spell_snufflenose_commandSpellScript::HandleAfterCast);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_snufflenose_commandSpellScript();
         }

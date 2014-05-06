@@ -22,7 +22,7 @@
 #include "Define.h"
 #include <ace/Singleton.h>
 #include <ace/Thread_Mutex.h>
-#include "UnorderedMap.h"
+#include <unordered_map>
 
 #include "UpdateData.h"
 
@@ -47,7 +47,7 @@ class HashMapHolder
 {
     public:
 
-        typedef UNORDERED_MAP<uint64, T*> MapType;
+        typedef std::unordered_map<uint64, T*> MapType;
         typedef ACE_RW_Thread_Mutex LockType;
 
         static void Insert(T* o)
@@ -222,8 +222,8 @@ class ObjectAccessor
         static void _buildPacket(Player*, Object*, UpdateDataMapType&);
         void _update();
 
-        typedef UNORDERED_MAP<uint64, Corpse*> Player2CorpsesMapType;
-        typedef UNORDERED_MAP<Player*, UpdateData>::value_type UpdateDataValueType;
+        typedef std::unordered_map<uint64, Corpse*> Player2CorpsesMapType;
+        typedef std::unordered_map<Player*, UpdateData>::value_type UpdateDataValueType;
 
         std::set<Object*> i_objects;
         Player2CorpsesMapType i_player2corpse;

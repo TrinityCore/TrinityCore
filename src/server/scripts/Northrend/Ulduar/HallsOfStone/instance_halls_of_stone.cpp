@@ -56,7 +56,7 @@ class instance_halls_of_stone : public InstanceMapScript
                 MarnakGoGUID            = 0;
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -86,7 +86,7 @@ class instance_halls_of_stone : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -119,7 +119,7 @@ class instance_halls_of_stone : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* go) OVERRIDE
+            void OnGameObjectRemove(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -131,7 +131,7 @@ class instance_halls_of_stone : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const OVERRIDE
+            uint64 GetData64(uint32 type) const override
             {
                 switch (type)
                 {
@@ -164,7 +164,7 @@ class instance_halls_of_stone : public InstanceMapScript
                 return 0;
             }
 
-            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
+            bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -185,7 +185,7 @@ class instance_halls_of_stone : public InstanceMapScript
                 return true;
             }
 
-            bool CheckRequiredBosses(uint32 bossId, Player const* player /*= NULL*/) const OVERRIDE
+            bool CheckRequiredBosses(uint32 bossId, Player const* player /*= NULL*/) const override
             {
                 if (player && player->GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_INSTANCE_REQUIRED_BOSSES))
                     return true;
@@ -203,7 +203,7 @@ class instance_halls_of_stone : public InstanceMapScript
                 return true;
             }
 
-            std::string GetSaveData() OVERRIDE
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -214,7 +214,7 @@ class instance_halls_of_stone : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(char const* str) OVERRIDE
+            void Load(char const* str) override
             {
                 if (!str)
                 {
@@ -264,7 +264,7 @@ class instance_halls_of_stone : public InstanceMapScript
             uint64 MarnakGoGUID;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_halls_of_stone_InstanceMapScript(map);
         }
