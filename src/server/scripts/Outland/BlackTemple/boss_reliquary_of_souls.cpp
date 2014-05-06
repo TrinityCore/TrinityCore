@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -104,7 +104,7 @@ class npc_enslaved_soul : public CreatureScript
 public:
     npc_enslaved_soul() : CreatureScript("npc_enslaved_soul") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_enslaved_soulAI(creature);
     }
@@ -115,15 +115,15 @@ public:
 
         uint64 ReliquaryGUID;
 
-        void Reset() OVERRIDE { ReliquaryGUID = 0; }
+        void Reset() override { ReliquaryGUID = 0; }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             DoCast(me, ENSLAVED_SOUL_PASSIVE, true);
             DoZoneInCombat();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE;
+        void JustDied(Unit* /*killer*/) override;
     };
 };
 
@@ -132,7 +132,7 @@ class boss_reliquary_of_souls : public CreatureScript
 public:
     boss_reliquary_of_souls() : CreatureScript("boss_reliquary_of_souls") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_reliquary_of_soulsAI>(creature);
     }
@@ -156,7 +156,7 @@ public:
         uint32 SoulCount;
         uint32 SoulDeathCount;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             instance->SetBossState(DATA_RELIQUARY_OF_SOULS, NOT_STARTED);
 
@@ -175,7 +175,7 @@ public:
             me->RemoveAurasDueToSpell(SPELL_SUBMERGE);
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
         {
             if (!who)
                 return;
@@ -192,7 +192,7 @@ public:
             AttackStartNoMove(who);
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             me->AddThreat(who, 10000.0f);
             DoZoneInCombat();
@@ -239,12 +239,12 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             instance->SetBossState(DATA_RELIQUARY_OF_SOULS, DONE);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!Phase)
                 return;
@@ -295,13 +295,13 @@ public:
                     Timer = 1000;
                     if (Phase == 3)
                     {
-                        if (!Essence->IsAlive())
+                        if (Essence && !Essence->IsAlive())
                             DoCast(me, 7, true);
                         else return;
                     }
                     else
                     {
-                        if (Essence->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                        if (Essence && Essence->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                         {
                             MergeThreatList(Essence);
                             Essence->RemoveAllAuras();
@@ -312,31 +312,37 @@ public:
                     break;
                 case 4:
                     Timer = 1500;
-                    if (Essence->IsWithinDistInMap(me, 10))
+                    if (Essence)
                     {
-                        Essence->SetUInt32Value(UNIT_NPC_EMOTESTATE, 374); //rotate and disappear
-                        Timer = 2000;
-                        me->RemoveAurasDueToSpell(SPELL_SUBMERGE);
-                    }
-                    else
-                    {
-                        MergeThreatList(Essence);
-                        Essence->RemoveAllAuras();
-                        Essence->DeleteThreatList();
-                        Essence->GetMotionMaster()->MoveFollow(me, 0, 0);
-                        return;
+                        if (Essence->IsWithinDistInMap(me, 10))
+                        {
+                            Essence->SetUInt32Value(UNIT_NPC_EMOTESTATE, 374); //rotate and disappear
+                            Timer = 2000;
+                            me->RemoveAurasDueToSpell(SPELL_SUBMERGE);
+                        }
+                        else
+                        {
+                            MergeThreatList(Essence);
+                            Essence->RemoveAllAuras();
+                            Essence->DeleteThreatList();
+                            Essence->GetMotionMaster()->MoveFollow(me, 0, 0);
+                            return;
+                        }
                     }
                     break;
                 case 5:
-                    if (Phase == 1)
+                    if (Essence)
                     {
-                        Essence->AI()->Talk(SUFF_SAY_AFTER);
+                        if (Phase == 1)
+                        {
+                            Essence->AI()->Talk(SUFF_SAY_AFTER);
+                        }
+                        else
+                        {
+                            Essence->AI()->Talk(DESI_SAY_AFTER);
+                        }
+                        Essence->DespawnOrUnsummon();
                     }
-                    else
-                    {
-                        Essence->AI()->Talk(DESI_SAY_AFTER);
-                    }
-                    Essence->DespawnOrUnsummon();
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
                     EssenceGUID = 0;
                     SoulCount = 0;
@@ -383,7 +389,7 @@ class boss_essence_of_suffering : public CreatureScript
 public:
     boss_essence_of_suffering() : CreatureScript("boss_essence_of_suffering") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_essence_of_sufferingAI(creature);
     }
@@ -400,7 +406,7 @@ public:
         uint32 SoulDrainTimer;
         uint32 AuraTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             StatAuraGUID = 0;
 
@@ -411,7 +417,7 @@ public:
             AuraTimer = 5000;
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
         {
             if (damage >= me->GetHealth())
             {
@@ -422,7 +428,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
             {
@@ -434,7 +440,7 @@ public:
             }
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SUFF_SAY_SLAY);
         }
@@ -463,7 +469,7 @@ public:
             me->AddThreat(target, 1000000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (me->IsInCombat())
             {
@@ -506,7 +512,7 @@ class boss_essence_of_desire : public CreatureScript
 public:
     boss_essence_of_desire() : CreatureScript("boss_essence_of_desire") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_essence_of_desireAI(creature);
     }
@@ -519,7 +525,7 @@ public:
         uint32 DeadenTimer;
         uint32 SoulShockTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             RuneShieldTimer = 60000;
             DeadenTimer = 30000;
@@ -527,7 +533,7 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage) OVERRIDE
+        void DamageTaken(Unit* done_by, uint32 &damage) override
         {
             if (done_by == me)
                 return;
@@ -546,7 +552,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) OVERRIDE
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
             if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                 for (uint8 i = 0; i < 3; ++i)
@@ -556,19 +562,19 @@ public:
                             me->InterruptSpell(CURRENT_GENERIC_SPELL, false);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(DESI_SAY_FREED);
             DoZoneInCombat();
             DoCast(me, AURA_OF_DESIRE, true);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(DESI_SAY_SLAY);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -609,7 +615,7 @@ class boss_essence_of_anger : public CreatureScript
 public:
     boss_essence_of_anger() : CreatureScript("boss_essence_of_anger") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_essence_of_angerAI(creature);
     }
@@ -628,7 +634,7 @@ public:
 
         bool CheckedAggro;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             AggroTargetGUID = 0;
 
@@ -641,7 +647,7 @@ public:
             CheckedAggro = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(ANGER_SAY_FREED);
 
@@ -649,35 +655,35 @@ public:
             DoCast(me, AURA_OF_ANGER, true);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(ANGER_SAY_DEATH);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(ANGER_SAY_SLAY);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
-            if (!UpdateVictim())
+            if (!UpdateVictim() || !me->GetVictim())
                 return;
 
             if (!CheckedAggro)
             {
-                AggroTargetGUID = me->GetVictim()->GetGUID();
+                AggroTargetGUID = me->EnsureVictim()->GetGUID();
                 CheckedAggro = true;
             }
 
             if (CheckTankTimer <= diff)
             {
-                if (me->GetVictim()->GetGUID() != AggroTargetGUID)
+                if (me->EnsureVictim()->GetGUID() != AggroTargetGUID)
                 {
                     Talk(ANGER_SAY_BEFORE);
                     DoCast(me, SPELL_SELF_SEETHE, true);
-                    AggroTargetGUID = me->GetVictim()->GetGUID();
+                    AggroTargetGUID = me->EnsureVictim()->GetGUID();
                 }
                 CheckTankTimer = 2000;
             } else CheckTankTimer -= diff;

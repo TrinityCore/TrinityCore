@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -517,7 +517,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_ALL                             = 611,
     RBAC_PERM_COMMAND_RELOAD_ALL_ACHIEVEMENT                 = 612,
     RBAC_PERM_COMMAND_RELOAD_ALL_AREA                        = 613,
-    RBAC_PERM_UNUSED_614                                     = 614, // unused
+    RBAC_PERM_COMMAND_RELOAD_BROADCAST_TEXT                  = 614,
     RBAC_PERM_COMMAND_RELOAD_ALL_GOSSIP                      = 615,
     RBAC_PERM_COMMAND_RELOAD_ALL_ITEM                        = 616,
     RBAC_PERM_COMMAND_RELOAD_ALL_LOCALES                     = 617,
@@ -678,6 +678,9 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_WP_UNLOAD                              = 772,
     RBAC_PERM_COMMAND_WP_RELOAD                              = 773,
     RBAC_PERM_COMMAND_WP_SHOW                                = 774,
+    RBAC_PERM_COMMAND_MODIFY_CURRENCY                        = 775, // only 4.3.4
+    RBAC_PERM_COMMAND_DEBUG_PHASE                            = 776, // only 4.3.4
+    RBAC_PERM_COMMAND_MAILBOX                                = 777,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
@@ -699,7 +702,7 @@ class RBACPermission
 {
     public:
         RBACPermission(uint32 id = 0, std::string const& name = ""):
-            _id(id), _name(name) { }
+            _id(id), _name(name), _perms() { }
 
         /// Gets the Name of the Object
         std::string const& GetName() const { return _name; }
@@ -734,7 +737,8 @@ class RBACData
 {
     public:
         RBACData(uint32 id, std::string const& name, int32 realmId, uint8 secLevel = 255):
-            _id(id), _name(name), _realmId(realmId), _secLevel(secLevel) { }
+            _id(id), _name(name), _realmId(realmId), _secLevel(secLevel),
+            _grantedPerms(), _deniedPerms(), _globalPerms() { }
 
         /// Gets the Name of the Object
         std::string const& GetName() const { return _name; }

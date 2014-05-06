@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -193,10 +193,12 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
         expire_delay = DAY;
      // default case: expire time if COD 3 days, if no COD 30 days (or 90 days if sender is a game master)
     else
+    {
         if (m_COD)
             expire_delay = 3 * DAY;
         else
             expire_delay = pSender && pSender->IsGameMaster() ? 90 * DAY : 30 * DAY;
+    }
 
     time_t expire_time = deliver_time + expire_delay;
 

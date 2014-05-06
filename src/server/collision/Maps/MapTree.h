@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,8 +20,8 @@
 #define _MAPTREE_H
 
 #include "Define.h"
-#include "Dynamic/UnorderedMap.h"
 #include "BoundingIntervalHierarchy.h"
+#include <unordered_map>
 
 namespace VMAP
 {
@@ -39,8 +39,8 @@ namespace VMAP
 
     class StaticMapTree
     {
-        typedef UNORDERED_MAP<uint32, bool> loadedTileMap;
-        typedef UNORDERED_MAP<uint32, uint32> loadedSpawnMap;
+        typedef std::unordered_map<uint32, bool> loadedTileMap;
+        typedef std::unordered_map<uint32, uint32> loadedSpawnMap;
         private:
             uint32 iMapID;
             bool iIsTiled;
@@ -81,6 +81,10 @@ namespace VMAP
             bool isTiled() const { return iIsTiled; }
             uint32 numLoadedTiles() const { return iLoadedTiles.size(); }
             void getModelInstances(ModelInstance* &models, uint32 &count);
+
+        private:
+            StaticMapTree(StaticMapTree const& right) = delete;
+            StaticMapTree& operator=(StaticMapTree const& right) = delete;
     };
 
     struct AreaInfo

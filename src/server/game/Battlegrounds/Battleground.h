@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,9 +28,11 @@ class GameObject;
 class Group;
 class Player;
 class Unit;
+class WorldObject;
 class WorldPacket;
 class BattlegroundMap;
 
+struct Position;
 struct PvPDifficultyEntry;
 struct WorldSafeLocsEntry;
 
@@ -382,8 +384,8 @@ class Battleground
 
         void StartBattleground();
 
-        GameObject* GetBGObject(uint32 type);
-        Creature* GetBGCreature(uint32 type);
+        GameObject* GetBGObject(uint32 type, bool logError = true);
+        Creature* GetBGCreature(uint32 type, bool logError = true);
 
         // Location
         void SetMapId(uint32 MapID) { m_MapId = MapID; }
@@ -413,6 +415,8 @@ class Battleground
         void SendPacketToTeam(uint32 TeamID, WorldPacket* packet, Player* sender = NULL, bool self = true);
         void SendPacketToAll(WorldPacket* packet);
         void YellToAll(Creature* creature, const char* text, uint32 language);
+
+        void SendChatMessage(Creature* source, uint8 textId, WorldObject* target = NULL);
 
         template<class Do>
         void BroadcastWorker(Do& _do);
@@ -478,8 +482,7 @@ class Battleground
         virtual void EventPlayerClickedOnFlag(Player* /*player*/, GameObject* /*target_obj*/) { }
         void EventPlayerLoggedIn(Player* player);
         void EventPlayerLoggedOut(Player* player);
-        virtual void EventPlayerDamagedGO(Player* /*player*/, GameObject* /*go*/, uint32 /*eventType*/) { }
-        virtual void EventPlayerUsedGO(Player* /*player*/, GameObject* /*go*/){ }
+        virtual void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/, WorldObject* /*invoker*/ = NULL) { }
 
         // this function can be used by spell to interact with the BG map
         virtual void DoAction(uint32 /*action*/, uint64 /*var*/) { }
@@ -505,11 +508,14 @@ class Battleground
         BGObjects BgObjects;
         BGCreatures BgCreatures;
         void SpawnBGObject(uint32 type, uint32 respawntime);
-        bool AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime = 0);
-        Creature* AddCreature(uint32 entry, uint32 type, uint32 teamval, float x, float y, float z, float o, uint32 respawntime = 0);
+        virtual bool AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime = 0);
+        bool AddObject(uint32 type, uint32 entry, Position const& pos, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime = 0);
+        virtual Creature* AddCreature(uint32 entry, uint32 type, float x, float y, float z, float o, TeamId teamId = TEAM_NEUTRAL, uint32 respawntime = 0);
+        Creature* AddCreature(uint32 entry, uint32 type, Position const& pos, TeamId teamId = TEAM_NEUTRAL, uint32 respawntime = 0);
         bool DelCreature(uint32 type);
         bool DelObject(uint32 type);
-        bool AddSpiritGuide(uint32 type, float x, float y, float z, float o, uint32 team);
+        virtual bool AddSpiritGuide(uint32 type, float x, float y, float z, float o, TeamId teamId = TEAM_NEUTRAL);
+        bool AddSpiritGuide(uint32 type, Position const& pos, TeamId teamId = TEAM_NEUTRAL);
         int32 GetObjectType(uint64 guid);
 
         void DoorOpen(uint32 type);

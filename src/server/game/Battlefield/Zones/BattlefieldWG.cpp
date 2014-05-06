@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,14 +29,6 @@
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 #include "WorldSession.h"
-
-enum WGVehicles
-{
-    NPC_WG_SEIGE_ENGINE_ALLIANCE        = 28312,
-    NPC_WG_SEIGE_ENGINE_HORDE           = 32627,
-    NPC_WG_DEMOLISHER                   = 28094,
-    NPC_WG_CATAPULT                     = 27881
-};
 
 BattlefieldWG::~BattlefieldWG()
 {
@@ -164,8 +156,7 @@ bool BattlefieldWG::SetupBattlefield()
     // Spawn turrets and hide them per default
     for (uint8 i = 0; i < WG_MAX_TURRET; i++)
     {
-        Position towerCannonPos;
-        WGTurret[i].GetPosition(&towerCannonPos);
+        Position towerCannonPos = WGTurret[i].GetPosition();
         if (Creature* creature = SpawnCreature(NPC_WINTERGRASP_TOWER_CANNON, towerCannonPos, TEAM_ALLIANCE))
         {
             CanonList.insert(creature->GetGUID());
@@ -192,7 +183,7 @@ bool BattlefieldWG::SetupBattlefield()
         if (GameObject* go = SpawnGameObject(WGPortalDefenderData[i].entry, WGPortalDefenderData[i].x, WGPortalDefenderData[i].y, WGPortalDefenderData[i].z, WGPortalDefenderData[i].o))
         {
             DefenderPortalList.insert(go->GetGUID());
-            go->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[GetDefenderTeam()]);
+            go->SetFaction(WintergraspFaction[GetDefenderTeam()]);
         }
     }
 
@@ -222,7 +213,7 @@ void BattlefieldWG::OnBattleStart()
     if (GameObject* relic = SpawnGameObject(GO_WINTERGRASP_TITAN_S_RELIC, 5440.0f, 2840.8f, 430.43f, 0))
     {
         // Update faction of relic, only attacker can click on
-        relic->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[GetAttackerTeam()]);
+        relic->SetFaction(WintergraspFaction[GetAttackerTeam()]);
         // Set in use (not allow to click on before last door is broken)
         relic->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
         m_titansRelicGUID = relic->GetGUID();
@@ -360,7 +351,7 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
     // Update portal defender faction
     for (GuidSet::const_iterator itr = DefenderPortalList.begin(); itr != DefenderPortalList.end(); ++itr)
         if (GameObject* portal = GetGameObject(*itr))
-            portal->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[GetDefenderTeam()]);
+            portal->SetFaction(WintergraspFaction[GetDefenderTeam()]);
 
     // Saving data
     for (GameObjectBuilding::const_iterator itr = BuildingsInZone.begin(); itr != BuildingsInZone.end(); ++itr)
@@ -813,6 +804,9 @@ uint32 BattlefieldWG::GetData(uint32 data) const
             // Graveyards and Workshops are controlled by the same team.
             if (BfGraveyard const* graveyard = GetGraveyardById(GetSpiritGraveyardId(data)))
                 return graveyard->GetControlTeamId();
+            break;
+        default:
+            break;
     }
 
     return Battlefield::GetData(data);

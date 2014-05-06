@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,7 +32,7 @@ enum DynamicObjectType
     DYNAMIC_OBJECT_FARSIGHT_FOCUS   = 0x2
 };
 
-class DynamicObject : public WorldObject, public GridObject<DynamicObject>
+class DynamicObject : public WorldObject, public GridObject<DynamicObject>, public MapObject
 {
     public:
         DynamicObject(bool isWorldObject);
@@ -40,6 +40,8 @@ class DynamicObject : public WorldObject, public GridObject<DynamicObject>
 
         void AddToWorld();
         void RemoveFromWorld();
+
+        void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
         bool CreateDynamicObject(uint32 guidlow, Unit* caster, uint32 spellId, Position const& pos, float radius, DynamicObjectType type);
         void Update(uint32 p_time);

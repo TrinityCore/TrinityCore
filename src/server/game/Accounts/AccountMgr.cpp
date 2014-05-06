@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -348,13 +348,8 @@ bool AccountMgr::normalizeString(std::string& utf8String)
     size_t maxLength = MAX_ACCOUNT_STR;
     if (!Utf8toWStr(utf8String, buffer, maxLength))
         return false;
-#ifdef _MSC_VER
-#pragma warning(disable: 4996)
-#endif
+
     std::transform(&buffer[0], buffer+maxLength, &buffer[0], wcharToUpperOnlyLatin);
-#ifdef _MSC_VER
-#pragma warning(default: 4996)
-#endif
 
     return WStrToUtf8(buffer, maxLength, utf8String);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -159,7 +159,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                 ADT.read(buf, size);
                 char* p=buf;
                 int q = 0;
-                WmoInstansName = new string[size];
+                WmoInstansName = new std::string[size];
                 while (p<buf+size)
                 {
                     char* s = GetPlainName(p);

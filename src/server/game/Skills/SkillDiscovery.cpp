@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -40,7 +40,7 @@ struct SkillDiscoveryEntry
 };
 
 typedef std::list<SkillDiscoveryEntry> SkillDiscoveryList;
-typedef UNORDERED_MAP<int32, SkillDiscoveryList> SkillDiscoveryMap;
+typedef std::unordered_map<int32, SkillDiscoveryList> SkillDiscoveryMap;
 
 static SkillDiscoveryMap SkillDiscoveryStore;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,6 +32,8 @@
 #define CONTACT_DISTANCE            0.5f
 #define INTERACTION_DISTANCE        5.0f
 #define ATTACK_DISTANCE             5.0f
+#define INSPECT_DISTANCE            28.0f
+#define TRADE_DISTANCE              11.11f
 #define MAX_VISIBILITY_DISTANCE     SIZE_OF_GRIDS           // max distance for visible objects
 #define SIGHT_RANGE_UNIT            50.0f
 #define DEFAULT_VISIBILITY_DISTANCE 90.0f                   // default visible distance, 90 yards on continents
@@ -114,7 +116,7 @@ class WorldObject;
 class WorldPacket;
 class ZoneScript;
 
-typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
+typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
 
 class Object
 {
@@ -267,12 +269,17 @@ class Object
 
         // for output helpfull error messages from asserts
         bool PrintIndexError(uint32 index, bool set) const;
-        Object(const Object&);                              // prevent generation copy constructor
-        Object& operator=(Object const&);                   // prevent generation assigment operator
+        Object(Object const& right) = delete;
+        Object& operator=(Object const& right) = delete;
 };
 
 struct Position
 {
+    Position(float x = 0, float y = 0, float z = 0, float o = 0)
+        : m_positionX(x), m_positionY(y), m_positionZ(z), m_orientation(NormalizeOrientation(o)) { }
+
+    Position(const Position &loc) { Relocate(loc); }
+
     struct PositionXYZStreamer
     {
         explicit PositionXYZStreamer(Position& pos) : m_pos(&pos) { }
@@ -325,10 +332,10 @@ struct Position
         { x = m_positionX; y = m_positionY; z = m_positionZ; }
     void GetPosition(float &x, float &y, float &z, float &o) const
         { x = m_positionX; y = m_positionY; z = m_positionZ; o = m_orientation; }
-    void GetPosition(Position* pos) const
+
+    Position GetPosition() const
     {
-        if (pos)
-            pos->Relocate(m_positionX, m_positionY, m_positionZ, m_orientation);
+        return *this;
     }
 
     Position::PositionXYZStreamer PositionXYZStream()
@@ -479,10 +486,16 @@ class WorldLocation : public Position
     public:
         explicit WorldLocation(uint32 _mapid = MAPID_INVALID, float _x = 0, float _y = 0, float _z = 0, float _o = 0)
             : m_mapId(_mapid) { Relocate(_x, _y, _z, _o); }
-        WorldLocation(const WorldLocation &loc) { WorldRelocate(loc); }
+        WorldLocation(const WorldLocation &loc) : Position(loc) { WorldRelocate(loc); }
 
         void WorldRelocate(const WorldLocation &loc)
             { m_mapId = loc.GetMapId(); Relocate(loc); }
+
+        WorldLocation GetWorldLocation() const
+        {
+            return *this;
+        }
+
         uint32 GetMapId() const { return m_mapId; }
 
         uint32 m_mapId;
@@ -492,6 +505,8 @@ template<class T>
 class GridObject
 {
     public:
+        virtual ~GridObject() { }
+
         bool IsInGrid() const { return _gridRef.isValid(); }
         void AddToGrid(GridRefManager<T>& m) { ASSERT(!IsInGrid()); _gridRef.link(&m, (T*)this); }
         void RemoveFromGrid() { ASSERT(IsInGrid()); _gridRef.unlink(); }
@@ -537,7 +552,7 @@ class MapObject
 
     protected:
         MapObject() : _moveState(MAP_OBJECT_CELL_MOVE_NONE)
-        { 
+        {
             _newPosition.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
         }
 
@@ -571,10 +586,10 @@ class WorldObject : public Object, public WorldLocation
         void GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float searcher_size, float distance2d, float absAngle) const;
         void GetClosePoint(float &x, float &y, float &z, float size, float distance2d = 0, float angle = 0) const;
         void MovePosition(Position &pos, float dist, float angle);
-        void GetNearPosition(Position &pos, float dist, float angle);
+        Position GetNearPosition(float dist, float angle);
         void MovePositionToFirstCollision(Position &pos, float dist, float angle);
-        void GetFirstCollisionPosition(Position &pos, float dist, float angle);
-        void GetRandomNearPosition(Position &pos, float radius);
+        Position GetFirstCollisionPosition(float dist, float angle);
+        Position GetRandomNearPosition(float radius);
         void GetContactPoint(WorldObject const* obj, float &x, float &y, float &z, float distance2d = CONTACT_DISTANCE) const;
 
         float GetObjectSize() const;
@@ -582,7 +597,7 @@ class WorldObject : public Object, public WorldLocation
         void UpdateAllowedPositionZ(float x, float y, float &z) const;
 
         void GetRandomPoint(Position const &srcPos, float distance, float &rand_x, float &rand_y, float &rand_z) const;
-        void GetRandomPoint(Position const &srcPos, float distance, Position &pos) const;
+        Position GetRandomPoint(Position const &srcPos, float distance) const;
 
         uint32 GetInstanceId() const { return m_InstanceId; }
 

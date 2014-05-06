@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,13 +19,12 @@
 /* ScriptData
 SDName: Westfall
 SD%Complete: 90
-SDComment: Quest support: 155, 1651
+SDComment: Quest support: 1651
 SDCategory: Westfall
 EndScriptData */
 
 /* ContentData
 npc_daphne_stilwell
-npc_defias_traitor
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -64,7 +63,7 @@ class npc_daphne_stilwell : public CreatureScript
 public:
     npc_daphne_stilwell() : CreatureScript("npc_daphne_stilwell") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) OVERRIDE
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
     {
         if (quest->GetQuestId() == QUEST_TOME_VALOR)
         {
@@ -77,7 +76,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_daphne_stilwellAI(creature);
     }
@@ -89,7 +88,7 @@ public:
         uint32 uiWPHolder;
         uint32 uiShootTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
             {
@@ -112,7 +111,7 @@ public:
             uiShootTimer = 0;
         }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -164,7 +163,7 @@ public:
             }
         }
 
-        void AttackStart(Unit* who) OVERRIDE
+        void AttackStart(Unit* who) override
         {
             if (!who)
                 return;
@@ -179,7 +178,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             summoned->AI()->AttackStart(me);
         }
@@ -202,79 +201,7 @@ public:
     };
 };
 
-/*######
-## npc_defias_traitor
-######*/
-enum DefiasSays
-{
-    SAY_START                   = 0,
-    SAY_PROGRESS                = 1,
-    SAY_END                     = 2,
-    SAY_AGGRO                   = 3
-};
-
-
-#define QUEST_DEFIAS_BROTHERHOOD    155
-
-class npc_defias_traitor : public CreatureScript
-{
-public:
-    npc_defias_traitor() : CreatureScript("npc_defias_traitor") { }
-
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
-    {
-        if (quest->GetQuestId() == QUEST_DEFIAS_BROTHERHOOD)
-        {
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_defias_traitor::npc_defias_traitorAI, creature->AI()))
-                pEscortAI->Start(true, true, player->GetGUID());
-
-            creature->AI()->Talk(SAY_START, player);
-        }
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_defias_traitorAI(creature);
-    }
-
-    struct npc_defias_traitorAI : public npc_escortAI
-    {
-        npc_defias_traitorAI(Creature* creature) : npc_escortAI(creature) { Reset(); }
-
-        void WaypointReached(uint32 waypointId) OVERRIDE
-        {
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
-
-            switch (waypointId)
-            {
-                case 35:
-                    SetRun(false);
-                    break;
-                case 36:
-                    Talk(SAY_PROGRESS, player);
-                    break;
-                case 44:
-                    Talk(SAY_END, player);
-                    player->GroupEventHappens(QUEST_DEFIAS_BROTHERHOOD, me);
-                    break;
-            }
-        }
-
-        void EnterCombat(Unit* who) OVERRIDE
-        {
-            Talk(SAY_AGGRO, who);
-        }
-
-        void Reset() OVERRIDE { }
-    };
-};
-
 void AddSC_westfall()
 {
     new npc_daphne_stilwell();
-    new npc_defias_traitor();
 }

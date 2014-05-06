@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,10 +31,10 @@ class Map;
 
 typedef Movement::Spline<double>                 TransportSpline;
 typedef std::vector<KeyFrame>                    KeyFrameVec;
-typedef UNORDERED_MAP<uint32, TransportTemplate> TransportTemplates;
+typedef std::unordered_map<uint32, TransportTemplate> TransportTemplates;
 typedef std::set<Transport*>                     TransportSet;
-typedef UNORDERED_MAP<uint32, TransportSet>      TransportMap;
-typedef UNORDERED_MAP<uint32, std::set<uint32> > TransportInstanceMap;
+typedef std::unordered_map<uint32, TransportSet>      TransportMap;
+typedef std::unordered_map<uint32, std::set<uint32> > TransportInstanceMap;
 
 struct KeyFrame
 {

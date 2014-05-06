@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -150,9 +150,12 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
 
         struct npc_commander_eligor_dawnbringerAI : public ScriptedAI
         {
-            npc_commander_eligor_dawnbringerAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_commander_eligor_dawnbringerAI(Creature* creature) : ScriptedAI(creature)
+            {
+                talkWing = 0;
+            }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 talkWing = 0;
                 memset(audienceList, 0, sizeof(audienceList));
@@ -161,7 +164,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                 _events.ScheduleEvent(EVENT_START_RANDOM, 20000);
             }
 
-            void MovementInform(uint32 type, uint32 id) OVERRIDE
+            void MovementInform(uint32 type, uint32 id) override
             {
                 if (type == POINT_MOTION_TYPE)
                 {
@@ -286,7 +289,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                _events.Update(diff);
 
@@ -379,7 +382,7 @@ class npc_alexstrasza_wr_gate : public CreatureScript
 public:
     npc_alexstrasza_wr_gate() : CreatureScript("npc_alexstrasza_wr_gate") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -391,7 +394,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF+1)
@@ -457,13 +460,13 @@ public:
             }
         }
 
-        void Register() OVERRIDE
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_q12096_q12092_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
-    SpellScript* GetSpellScript() const OVERRIDE
+    SpellScript* GetSpellScript() const override
     {
         return new spell_q12096_q12092_dummy_SpellScript();
     }
@@ -489,13 +492,13 @@ public:
             lothalor->DespawnOrUnsummon(4000);
         }
 
-        void Register() OVERRIDE
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_q12096_q12092_bark_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
-    SpellScript* GetSpellScript() const OVERRIDE
+    SpellScript* GetSpellScript() const override
     {
         return new spell_q12096_q12092_bark_SpellScript();
     }
@@ -532,7 +535,7 @@ class npc_wyrmrest_defender : public CreatureScript
     public:
         npc_wyrmrest_defender() : CreatureScript("npc_wyrmrest_defender") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+        bool OnGossipHello(Player* player, Creature* creature) override
         {
             if (player->GetQuestStatus(QUEST_DEFENDING_WYRMREST_TEMPLE) == QUEST_STATUS_INCOMPLETE)
             {
@@ -545,7 +548,7 @@ class npc_wyrmrest_defender : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
         {
             player->PlayerTalkClass->ClearMenus();
             if (action == GOSSIP_ACTION_INFO_DEF+1)
@@ -568,7 +571,7 @@ class npc_wyrmrest_defender : public CreatureScript
 
             uint32 RenewRecoveryChecker;
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 hpWarningReady = true;
                 renewRecoveryCanCheck = false;
@@ -576,7 +579,7 @@ class npc_wyrmrest_defender : public CreatureScript
                 RenewRecoveryChecker = 0;
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 // Check system for Health Warning should happen first time whenever get under 30%,
                 // after it should be able to happen only after recovery of last renew is fully done (20 sec),
@@ -598,7 +601,7 @@ class npc_wyrmrest_defender : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) OVERRIDE
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
                 switch (spell->Id)
                 {
@@ -622,7 +625,7 @@ class npc_wyrmrest_defender : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_wyrmrest_defenderAI(creature);
         }
@@ -649,15 +652,19 @@ class npc_torturer_lecraft : public CreatureScript
 
         struct npc_torturer_lecraftAI : public ScriptedAI
         {
-            npc_torturer_lecraftAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_torturer_lecraftAI(Creature* creature) : ScriptedAI(creature)
+            {
+                _textCounter = 1;
+                _playerGUID = 0;
+            }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _textCounter = 1;
                 _playerGUID  = 0;
             }
 
-            void EnterCombat(Unit* who) OVERRIDE
+            void EnterCombat(Unit* who) override
             {
                 _events.ScheduleEvent(EVENT_HEMORRHAGE, urand(5000, 8000));
                 _events.ScheduleEvent(EVENT_KIDNEY_SHOT, urand(12000, 15000));
@@ -666,7 +673,7 @@ class npc_torturer_lecraft : public CreatureScript
                     Talk (SAY_AGGRO, player);
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
+            void SpellHit(Unit* caster, const SpellInfo* spell) override
             {
                 if (spell->Id != SPELL_HIGH_EXECUTORS_BRANDING_IRON)
                     return;
@@ -691,7 +698,7 @@ class npc_torturer_lecraft : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                if (!UpdateVictim())
                    return;

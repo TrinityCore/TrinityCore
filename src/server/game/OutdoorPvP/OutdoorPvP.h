@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -68,7 +68,6 @@ struct go_type
 struct creature_type
 {
     uint32 entry;
-    uint32 teamval;
     uint32 map;
     float x;
     float y;
@@ -145,7 +144,7 @@ class OPvPCapturePoint
 
         bool AddObject(uint32 type, uint32 entry, uint32 map, float x, float y, float z, float o,
             float rotation0, float rotation1, float rotation2, float rotation3);
-        bool AddCreature(uint32 type, uint32 entry, uint32 teamval, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0);
+        virtual bool AddCreature(uint32 type, uint32 entry, uint32 map, float x, float y, float z, float o, TeamId teamId = TEAM_NEUTRAL, uint32 spawntimedelay = 0);
 
         bool DelCreature(uint32 type);
         bool DelObject(uint32 type);
@@ -248,6 +247,19 @@ class OutdoorPvP : public ZoneScript
         virtual bool CanTalkTo(Player* player, Creature* c, GossipMenuItems const& gso);
 
         void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
+
+        static TeamId GetTeamIdByTeam(uint32 team)
+        {
+            switch (team)
+            {
+                case ALLIANCE:
+                    return TEAM_ALLIANCE;
+                case HORDE:
+                    return TEAM_HORDE;
+                default:
+                    return TEAM_NEUTRAL;
+            }
+        }
 
     protected:
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,8 +23,8 @@
 #include "Appender.h"
 #include "Logger.h"
 #include "LogWorker.h"
-#include "Dynamic/UnorderedMap.h"
 
+#include <unordered_map>
 #include <string>
 #include <ace/Singleton.h>
 
@@ -34,8 +34,8 @@ class Log
 {
     friend class ACE_Singleton<Log, ACE_Thread_Mutex>;
 
-    typedef UNORDERED_MAP<std::string, Logger> LoggerMap;
-    typedef UNORDERED_MAP<std::string, Logger const*> CachedLoggerContainer;
+    typedef std::unordered_map<std::string, Logger> LoggerMap;
+    typedef std::unordered_map<std::string, Logger const*> CachedLoggerContainer;
 
     private:
         Log();
@@ -103,16 +103,12 @@ inline Logger const* Log::GetLoggerByType(std::string const& originalType)
     }
     while (!logger);
 
-    cachedLoggers[type] = logger;
+    cachedLoggers[originalType] = logger;
     return logger;
 }
 
 inline bool Log::ShouldLog(std::string const& type, LogLevel level)
 {
-    // TODO: Use cache to store "Type.sub1.sub2": "Type" equivalence, should
-    // Speed up in cases where requesting "Type.sub1.sub2" but only configured
-    // Logger "Type"
-
     Logger const* logger = GetLoggerByType(type);
     if (!logger)
         return false;

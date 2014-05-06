@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -34,8 +34,8 @@ namespace WeatherMgr
 
 namespace
 {
-    typedef UNORDERED_MAP<uint32, Trinity::AutoPtr<Weather, ACE_Null_Mutex> > WeatherMap;
-    typedef UNORDERED_MAP<uint32, WeatherData> WeatherZoneMap;
+    typedef std::unordered_map<uint32, Trinity::AutoPtr<Weather, ACE_Null_Mutex> > WeatherMap;
+    typedef std::unordered_map<uint32, WeatherData> WeatherZoneMap;
 
     WeatherMap m_weathers;
     WeatherZoneMap mWeatherZoneMap;
@@ -145,7 +145,6 @@ void LoadWeatherData()
 void SendFineWeatherUpdateToPlayer(Player* player)
 {
     WorldPacket data(SMSG_WEATHER, (4+4+4));
-
     data << (uint32)WEATHER_STATE_FINE << (float)0.0f << uint8(0);
     player->GetSession()->SendPacket(&data);
 }

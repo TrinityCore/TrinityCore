@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -96,11 +96,11 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         }
         void push(_Ty _Val) { ++_top; Impl[_top] = _Val; }
 
-        bool needInitTop() const 
-        { 
+        bool needInitTop() const
+        {
             if (empty())
                 return false;
-            return _needInit[_top]; 
+            return _needInit[_top];
         }
         void InitTop();
     public:
@@ -120,15 +120,15 @@ class MotionMaster //: private std::stack<MovementGenerator *>
 
         bool empty() const { return (_top < 0); }
         int size() const { return _top + 1; }
-        _Ty top() const 
-        { 
+        _Ty top() const
+        {
             ASSERT(!empty());
-            return Impl[_top]; 
+            return Impl[_top];
         }
-        _Ty GetMotionSlot(int slot) const 
-        { 
+        _Ty GetMotionSlot(int slot) const
+        {
             ASSERT(slot >= 0);
-            return Impl[slot]; 
+            return Impl[slot];
         }
 
         void DirectDelete(_Ty curr);

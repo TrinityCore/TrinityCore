@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -55,7 +55,7 @@ class boss_mekgineer_steamrigger : public CreatureScript
 public:
     boss_mekgineer_steamrigger() : CreatureScript("boss_mekgineer_steamrigger") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_mekgineer_steamriggerAI>(creature);
     }
@@ -76,7 +76,7 @@ public:
         bool Summon50;
         bool Summon25;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             Shrink_Timer = 20000;
             Saw_Blade_Timer = 15000;
@@ -89,19 +89,19 @@ public:
             instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, NOT_STARTED);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
 
             instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_SLAY);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -123,7 +123,7 @@ public:
                 DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, 7, -5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -192,7 +192,7 @@ class npc_steamrigger_mechanic : public CreatureScript
 public:
     npc_steamrigger_mechanic() : CreatureScript("npc_steamrigger_mechanic") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_steamrigger_mechanicAI>(creature);
     }
@@ -208,27 +208,27 @@ public:
 
         uint32 Repair_Timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             Repair_Timer = 2000;
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE
+        void MoveInLineOfSight(Unit* /*who*/) override
         {
             //react only if attacked
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (Repair_Timer <= diff)
             {
-                if (instance && instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == IN_PROGRESS)
+                if (instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == IN_PROGRESS)
                 {
-                    if (Unit* pMekgineer = Unit::GetUnit(*me, instance->GetData64(DATA_MEKGINEER_STEAMRIGGER)))
+                    if (Creature* mekgineer = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MEKGINEER_STEAMRIGGER)))
                     {
-                        if (me->IsWithinDistInMap(pMekgineer, MAX_REPAIR_RANGE))
+                        if (me->IsWithinDistInMap(mekgineer, MAX_REPAIR_RANGE))
                         {
                             //are we already channeling? Doesn't work very well, find better check?
                             if (!me->GetUInt32Value(UNIT_CHANNEL_SPELL))

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -42,6 +42,14 @@ enum LootModes
     LOOT_MODE_HARD_MODE_2              = 0x4,
     LOOT_MODE_HARD_MODE_3              = 0x8,
     LOOT_MODE_HARD_MODE_4              = 0x10
+};
+
+enum Expansions
+{
+    EXPANSION_CLASSIC                  = 0,
+    EXPANSION_THE_BURNING_CRUSADE      = 1,
+    EXPANSION_WRATH_OF_THE_LICH_KING   = 2,
+    MAX_EXPANSIONS                     = 3
 };
 
 enum Gender
@@ -3316,7 +3324,7 @@ enum BattlegroundTypeId
     BATTLEGROUND_DS             = 10, // Dalaran Sewers
     BATTLEGROUND_RV             = 11, // Ring of Valor
     BATTLEGROUND_IC             = 30, // Isle of Conquest
-    BATTLEGROUND_RB             = 32 // Random Battleground
+    BATTLEGROUND_RB             = 32  // Random Battleground
 };
 
 #define MAX_BATTLEGROUND_TYPE_ID 33
@@ -3542,7 +3550,7 @@ enum PartyResult
 };
 
 const uint32 MMAP_MAGIC = 0x4d4d4150; // 'MMAP'
-#define MMAP_VERSION 4
+#define MMAP_VERSION 5
 
 struct MmapTileHeader
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -46,7 +46,7 @@ class boss_fankriss : public CreatureScript
 public:
     boss_fankriss() : CreatureScript("boss_fankriss") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_fankrissAI(creature);
     }
@@ -65,7 +65,7 @@ public:
         Creature* Hatchling;
         Creature* Spawn;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             MortalWound_Timer = urand(10000, 15000);
             SpawnHatchlings_Timer = urand(6000, 12000);
@@ -96,11 +96,11 @@ public:
                 Spawn->AI()->AttackStart(victim);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())

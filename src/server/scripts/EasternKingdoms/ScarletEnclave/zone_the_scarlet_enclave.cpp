@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,7 +39,7 @@ class npc_valkyr_battle_maiden : public CreatureScript
 public:
     npc_valkyr_battle_maiden() : CreatureScript("npc_valkyr_battle_maiden") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_valkyr_battle_maidenAI(creature);
     }
@@ -52,7 +52,7 @@ public:
         float x, y, z;
         uint32 phase;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             me->setActive(true);
             me->SetVisible(false);
@@ -69,7 +69,7 @@ public:
             me->SetPosition(x, y, z, 0.0f);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (FlyBackTimer <= diff)
             {

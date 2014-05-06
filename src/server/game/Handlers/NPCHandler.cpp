@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -99,6 +99,13 @@ void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
 void WorldSession::SendShowBank(uint64 guid)
 {
     WorldPacket data(SMSG_SHOW_BANK, 8);
+    data << guid;
+    SendPacket(&data);
+}
+
+void WorldSession::SendShowMailBox(uint64 guid)
+{
+    WorldPacket data(SMSG_SHOW_MAILBOX, 8);
     data << guid;
     SendPacket(&data);
 }
@@ -383,7 +390,6 @@ void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "WORLD: CMSG_SPIRIT_HEALER_ACTIVATE");
 
     uint64 guid;
-
     recvData >> guid;
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_SPIRITHEALER);
@@ -403,7 +409,6 @@ void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket& recvData)
 void WorldSession::SendSpiritResurrect()
 {
     _player->ResurrectPlayer(0.5f, true);
-
     _player->DurabilityLossAll(0.25f, true);
 
     // get corpse nearest graveyard

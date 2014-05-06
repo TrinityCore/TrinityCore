@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,6 +27,12 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "zulgurub.h"
 
+DoorData const doorData[] =
+{
+    { GO_FORCEFIELD, DATA_ARLOKK, DOOR_TYPE_ROOM, BOUNDARY_NONE },
+    { 0,             0,           DOOR_TYPE_ROOM, BOUNDARY_NONE } // END
+};
+
 class instance_zulgurub : public InstanceMapScript
 {
     public: instance_zulgurub(): InstanceMapScript(ZGScriptName, 309) { }
@@ -36,9 +42,10 @@ class instance_zulgurub : public InstanceMapScript
             instance_zulgurub_InstanceMapScript(Map* map) : InstanceScript(map)
             {
                 SetBossNumber(EncounterCount);
+                LoadDoorData(doorData);
             }
 
-            void Initialize() OVERRIDE
+            void Initialize() override
             {
                 _zealotLorkhanGUID = 0;
                 _zealotZathGUID = 0;
@@ -46,17 +53,16 @@ class instance_zulgurub : public InstanceMapScript
                 _jindoTheHexxerGUID = 0;
                 _vilebranchSpeakerGUID = 0;
                 _arlokkGUID = 0;
-                _goForcefieldGUID = 0;
                 _goGongOfBethekkGUID = 0;
             }
 
-            bool IsEncounterInProgress() const OVERRIDE
+            bool IsEncounterInProgress() const override
             {
                 // not active in Zul'Gurub
                 return false;
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -81,12 +87,12 @@ class instance_zulgurub : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
                     case GO_FORCEFIELD:
-                        _goForcefieldGUID = go->GetGUID();
+                        AddDoor(go, true);
                         break;
                     case GO_GONG_OF_BETHEKK:
                         _goGongOfBethekkGUID = go->GetGUID();
@@ -100,7 +106,19 @@ class instance_zulgurub : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 uiData) const OVERRIDE
+            void OnGameObjectRemove(GameObject* go) override
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_FORCEFIELD:
+                        AddDoor(go, false);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            uint64 GetData64(uint32 uiData) const override
             {
                 switch (uiData)
                 {
@@ -119,9 +137,6 @@ class instance_zulgurub : public InstanceMapScript
                     case NPC_ARLOKK:
                         return _arlokkGUID;
                         break;
-                    case GO_FORCEFIELD:
-                        return _goForcefieldGUID;
-                        break;
                     case GO_GONG_OF_BETHEKK:
                         return _goGongOfBethekkGUID;
                         break;
@@ -129,7 +144,7 @@ class instance_zulgurub : public InstanceMapScript
                 return 0;
             }
 
-            std::string GetSaveData() OVERRIDE
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -140,7 +155,7 @@ class instance_zulgurub : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* str) OVERRIDE
+            void Load(const char* str) override
             {
                 if (!str)
                 {
@@ -181,11 +196,10 @@ class instance_zulgurub : public InstanceMapScript
             uint64 _jindoTheHexxerGUID;
             uint64 _vilebranchSpeakerGUID;
             uint64 _arlokkGUID;
-            uint64 _goForcefieldGUID;
             uint64 _goGongOfBethekkGUID;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_zulgurub_InstanceMapScript(map);
         }

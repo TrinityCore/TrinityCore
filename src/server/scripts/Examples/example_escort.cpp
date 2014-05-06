@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -79,13 +79,13 @@ class example_escort : public CreatureScript
             uint32 m_uiDeathCoilTimer;
             uint32 m_uiChatTimer;
 
-            void JustSummoned(Creature* summoned) OVERRIDE
+            void JustSummoned(Creature* summoned) override
             {
                 summoned->AI()->AttackStart(me);
             }
 
             // Pure Virtual Functions (Have to be implemented)
-            void WaypointReached(uint32 waypointId) OVERRIDE
+            void WaypointReached(uint32 waypointId) override
             {
                 switch (waypointId)
                 {
@@ -108,7 +108,7 @@ class example_escort : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 if (HasEscortState(STATE_ESCORT_ESCORTING))
                 {
@@ -119,13 +119,13 @@ class example_escort : public CreatureScript
                     Talk(SAY_AGGRO2);
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 m_uiDeathCoilTimer = 4000;
                 m_uiChatTimer = 4000;
             }
 
-            void JustDied(Unit* killer) OVERRIDE
+            void JustDied(Unit* killer) override
             {
                 if (HasEscortState(STATE_ESCORT_ESCORTING))
                 {
@@ -142,7 +142,7 @@ class example_escort : public CreatureScript
                     Talk(SAY_DEATH_3);
             }
 
-            void UpdateAI(uint32 uiDiff) OVERRIDE
+            void UpdateAI(uint32 uiDiff) override
             {
                 //Must update npc_escortAI
                 npc_escortAI::UpdateAI(uiDiff);
@@ -186,12 +186,12 @@ class example_escort : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new example_escortAI(creature);
         }
 
-        bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+        bool OnGossipHello(Player* player, Creature* creature) override
         {
             player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
             player->PrepareGossipMenu(creature, 0);
@@ -205,7 +205,7 @@ class example_escort : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
         {
             player->PlayerTalkClass->ClearMenus();
             npc_escortAI* pEscortAI = CAST_AI(example_escort::example_escortAI, creature->AI());

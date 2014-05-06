@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -59,7 +59,7 @@ class instance_oculus : public InstanceMapScript
                 VerdisaGUID         = 0;
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -121,7 +121,7 @@ class instance_oculus : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -137,7 +137,7 @@ class instance_oculus : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* go) OVERRIDE
+            void OnGameObjectRemove(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -149,7 +149,7 @@ class instance_oculus : public InstanceMapScript
                 }
             }
 
-            void OnUnitDeath(Unit* unit) OVERRIDE
+            void OnUnitDeath(Unit* unit) override
             {
                 Creature* creature = unit->ToCreature();
                 if (!creature)
@@ -165,7 +165,7 @@ class instance_oculus : public InstanceMapScript
                 }
             }
 
-            void FillInitialWorldStates(WorldPacket& data) OVERRIDE
+            void FillInitialWorldStates(WorldPacket& data) override
             {
                 if (GetBossState(DATA_DRAKOS) == DONE && GetBossState(DATA_VAROS) != DONE)
                 {
@@ -179,7 +179,7 @@ class instance_oculus : public InstanceMapScript
                 }
             }
 
-            void ProcessEvent(WorldObject* /*unit*/, uint32 eventId) OVERRIDE
+            void ProcessEvent(WorldObject* /*unit*/, uint32 eventId) override
             {
                 if (eventId != EVENT_CALL_DRAGON)
                     return;
@@ -189,7 +189,7 @@ class instance_oculus : public InstanceMapScript
                         drake->AI()->DoAction(ACTION_CALL_DRAGON_EVENT);
             }
 
-            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
+            bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -208,9 +208,11 @@ class instance_oculus : public InstanceMapScript
                         break;
                     case DATA_VAROS:
                         if (state == DONE)
+                        {
                             DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 0);
                             if (Creature* urom = instance->GetCreature(UromGUID))
                                 urom->SetPhaseMask(1, true);
+                        }
                         break;
                     case DATA_UROM:
                         if (state == DONE)
@@ -237,7 +239,7 @@ class instance_oculus : public InstanceMapScript
                 return true;
             }
 
-            uint64 GetData64(uint32 type) const OVERRIDE
+            uint64 GetData64(uint32 type) const override
             {
                 switch (type)
                 {
@@ -284,7 +286,7 @@ class instance_oculus : public InstanceMapScript
                         gwhelp->SetPhaseMask(1, true);
             }
 
-            std::string GetSaveData() OVERRIDE
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -295,7 +297,7 @@ class instance_oculus : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(char const* str) OVERRIDE
+            void Load(char const* str) override
             {
                 if (!str)
                 {
@@ -344,7 +346,7 @@ class instance_oculus : public InstanceMapScript
             std::list<uint64> GreaterWhelpList;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_oculus_InstanceMapScript(map);
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -705,7 +705,7 @@ void hyjalAI::UpdateAI(uint32 diff)
         switch (me->GetEntry())
         {
             case JAINA:
-                if (instance && instance->GetData(DATA_ALLIANCE_RETREAT))
+                if (instance->GetData(DATA_ALLIANCE_RETREAT))
                 {
                     me->SetVisible(false);
                     HideNearPos(me->GetPositionX(), me->GetPositionY());
@@ -717,7 +717,7 @@ void hyjalAI::UpdateAI(uint32 diff)
                 else me->SetVisible(true);
                 break;
             case THRALL: //thrall
-                if (instance && instance->GetData(DATA_HORDE_RETREAT))
+                if (instance->GetData(DATA_HORDE_RETREAT))
                 {
                     me->SetVisible(false);
                     HideNearPos(me->GetPositionX(), me->GetPositionY());
@@ -781,7 +781,7 @@ void hyjalAI::UpdateAI(uint32 diff)
 
     if (Summon)
     {
-        if (instance && EnemyCount)
+        if (EnemyCount)
         {
             EnemyCount = instance->GetData(DATA_TRASH);
             if (!EnemyCount)

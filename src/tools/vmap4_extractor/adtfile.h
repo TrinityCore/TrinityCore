@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -113,14 +113,14 @@ private:
     //size_t mcnk_offsets[256], mcnk_sizes[256];
     MPQFile ADT;
     //mcell Mcell;
-    string Adtfilename;
+    std::string Adtfilename;
 public:
     ADTFile(char* filename);
     ~ADTFile();
     int nWMO;
     int nMDX;
-    string* WmoInstansName;
-    string* ModelInstansName;
+    std::string* WmoInstansName;
+    std::string* ModelInstansName;
     bool init(uint32 map_num, uint32 tileX, uint32 tileY);
     //void LoadMapChunks();
 

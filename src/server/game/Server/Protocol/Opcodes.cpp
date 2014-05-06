@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -526,7 +526,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x1F1*/ { "MSG_SAVE_GUILD_EMBLEM",                        STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleSaveGuildEmblemOpcode     },
     /*0x1F2*/ { "MSG_TABARDVENDOR_ACTIVATE",                    STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleTabardVendorActivateOpcode},
     /*0x1F3*/ { "SMSG_PLAY_SPELL_VISUAL",                       STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
-    /*0x1F4*/ { "CMSG_ZONEUPDATE",                              STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleZoneUpdateOpcode          },
+    /*0x1F4*/ { "CMSG_ZONEUPDATE",                              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleZoneUpdateOpcode          },
     /*0x1F5*/ { "SMSG_PARTYKILLLOG",                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x1F6*/ { "SMSG_COMPRESSED_UPDATE_OBJECT",                STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x1F7*/ { "SMSG_PLAY_SPELL_IMPACT",                       STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
@@ -931,7 +931,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x386*/ { "SMSG_SPLINE_SET_FLIGHT_BACK_SPEED",            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x387*/ { "CMSG_MAELSTROM_INVALIDATE_CACHE",              STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x388*/ { "SMSG_FLIGHT_SPLINE_SYNC",                      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
-    /*0x389*/ { "CMSG_SET_TAXI_BENCHMARK_MODE",                 STATUS_AUTHED,   PROCESS_THREADUNSAFE, &WorldSession::HandleSetTaxiBenchmarkOpcode    },
+    /*0x389*/ { "CMSG_SET_TAXI_BENCHMARK_MODE",                 STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleSetTaxiBenchmarkOpcode    },
     /*0x38A*/ { "SMSG_JOINED_BATTLEGROUND_QUEUE",               STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x38B*/ { "SMSG_REALM_SPLIT",                             STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x38C*/ { "CMSG_REALM_SPLIT",                             STATUS_AUTHED,   PROCESS_THREADUNSAFE, &WorldSession::HandleRealmSplitOpcode          },

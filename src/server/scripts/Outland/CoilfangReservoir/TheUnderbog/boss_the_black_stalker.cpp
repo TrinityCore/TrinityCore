@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -47,7 +47,7 @@ class boss_the_black_stalker : public CreatureScript
 public:
     boss_the_black_stalker() : CreatureScript("boss_the_black_stalker") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_the_black_stalkerAI(creature);
     }
@@ -68,7 +68,7 @@ public:
         uint32 check_Timer;
         std::list<uint64> Striders;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             Levitate_Timer = 12000;
             ChainLightning_Timer = 6000;
@@ -80,9 +80,9 @@ public:
             Striders.clear();
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void JustSummoned(Creature* summon) OVERRIDE
+        void JustSummoned(Creature* summon) override
         {
             if (summon && summon->GetEntry() == ENTRY_SPORE_STRIDER)
             {
@@ -95,14 +95,14 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             for (std::list<uint64>::const_iterator i = Striders.begin(); i != Striders.end(); ++i)
                 if (Creature* strider = Unit::GetCreature(*me, *i))
                     strider->DisappearAndDie();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

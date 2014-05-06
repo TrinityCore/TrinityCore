@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -41,7 +41,7 @@ class boss_ouro : public CreatureScript
 public:
     boss_ouro() : CreatureScript("boss_ouro") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_ouroAI(creature);
     }
@@ -60,7 +60,7 @@ public:
         bool Enrage;
         bool Submerged;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             Sweep_Timer = urand(5000, 10000);
             SandBlast_Timer = urand(20000, 35000);
@@ -73,12 +73,12 @@ public:
             Submerged = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             DoCastVictim(SPELL_BIRTH);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())

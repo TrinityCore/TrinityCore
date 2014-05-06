@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,6 +25,7 @@ namespace AuthHelper
         {15595, 4, 3, 4, ' '},
         {14545, 4, 2, 2, ' '},
         {13623, 4, 0, 6, 'a'},
+        {13930, 3, 3, 5, 'a'},                                  // 3.3.5a China Mainland build
         {12340, 3, 3, 5, 'a'},
         {11723, 3, 3, 3, 'a'},
         {11403, 3, 3, 2, ' '},

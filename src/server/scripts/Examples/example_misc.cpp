@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -35,7 +35,7 @@ class AT_example_areatrigger : public AreaTriggerScript
         {
         }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) OVERRIDE
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
             player->Kill(player);
             return true;
@@ -51,7 +51,7 @@ class ItemUse_example_item : public ItemScript
         {
         }
 
-        bool OnUse(Player* /*player*/, Item* /*item*/, SpellCastTargets const& /*targets*/) OVERRIDE
+        bool OnUse(Player* /*player*/, Item* /*item*/, SpellCastTargets const& /*targets*/) override
         {
             sScriptMgr->LoadDatabase();
             return true;
@@ -67,7 +67,7 @@ class GOHello_example_go_teleporter : public GameObjectScript
         {
         }
 
-        bool OnGossipHello(Player* player, GameObject* /*go*/) OVERRIDE
+        bool OnGossipHello(Player* player, GameObject* /*go*/) override
         {
             player->TeleportTo(0, 1807.07f, 336.105f, 70.3975f, 0.0f);
             return false;

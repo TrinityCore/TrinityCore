@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -73,7 +73,7 @@ enum Enums
 
     //Whelps
     NPC_TWILIGHT_WHELP                          = 30890,
-    NPC_SHARTHARION_TWILIGHT_WHELP              = 31214,
+    NPC_SARTHARION_TWILIGHT_WHELP              = 31214,
     SPELL_FADE_ARMOR                            = 60708,    // Reduces the armor of an enemy by 1500 for 15s
 
     //flame tsunami
@@ -168,7 +168,7 @@ struct dummy_dragonAI : public ScriptedAI
         instance = creature->GetInstanceScript();
     }
 
-    void Reset() OVERRIDE
+    void Reset() override
     {
         if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -180,7 +180,7 @@ struct dummy_dragonAI : public ScriptedAI
         _canLoot = true;
     }
 
-    void EnterCombat(Unit* /*who*/) OVERRIDE
+    void EnterCombat(Unit* /*who*/) override
     {
         Talk(SAY_AGGRO);
         DoZoneInCombat();
@@ -189,13 +189,13 @@ struct dummy_dragonAI : public ScriptedAI
         events.ScheduleEvent(EVENT_SHADOW_BREATH, 20000);
     }
 
-    void SetData(uint32 type, uint32 value) OVERRIDE
+    void SetData(uint32 type, uint32 value) override
     {
         if (type == DATA_CAN_LOOT)
             _canLoot = value;
     }
 
-    void MovementInform(uint32 type, uint32 pointId) OVERRIDE
+    void MovementInform(uint32 type, uint32 pointId) override
     {
         if (!instance || type != POINT_MOTION_TYPE)
             return;
@@ -253,7 +253,7 @@ struct dummy_dragonAI : public ScriptedAI
         {
             case NPC_TENEBRON:
             {
-                if (instance && !instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
+                if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
                 {
                     for (uint32 i = 0; i < 6; ++i)
                         me->SummonCreature(NPC_TWILIGHT_EGG, TwilightEggs[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
@@ -267,7 +267,7 @@ struct dummy_dragonAI : public ScriptedAI
             }
             case NPC_SHADRON:
             {
-                if (instance && !instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
+                if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
                     me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
                 else
                     me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron2, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
@@ -276,7 +276,7 @@ struct dummy_dragonAI : public ScriptedAI
             }
             case NPC_VESPERON:
             {
-                if (instance && !instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
+                if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
                 {
                     if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
                     {
@@ -311,13 +311,13 @@ struct dummy_dragonAI : public ScriptedAI
         // Refresh respawnTime so time again are set to 30secs?
     }
 
-    void KilledUnit(Unit* who) OVERRIDE
+    void KilledUnit(Unit* who) override
     {
         if (who->GetTypeId() == TYPEID_PLAYER)
             Talk(SAY_SLAY);
     }
 
-    void JustDied(Unit* /*killer*/) OVERRIDE
+    void JustDied(Unit* /*killer*/) override
     {
         if (!_canLoot)
             me->SetLootRecipient(NULL);
@@ -328,19 +328,19 @@ struct dummy_dragonAI : public ScriptedAI
         {
             case NPC_TENEBRON:
                 spellId = SPELL_POWER_OF_TENEBRON;
-                if (instance && instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
+                if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
                     instance->SetBossState(DATA_TENEBRON, DONE);
                 break;
             case NPC_SHADRON:
                 spellId = SPELL_POWER_OF_SHADRON;
-                if (instance && instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
+                if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
                     instance->SetBossState(DATA_SHADRON, DONE);
                 if (Creature* acolyte = me->FindNearestCreature(NPC_ACOLYTE_OF_SHADRON, 100.0f))
                     acolyte->Kill(acolyte);
                 break;
             case NPC_VESPERON:
                 spellId = SPELL_POWER_OF_VESPERON;
-                if (instance && instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
+                if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
                     instance->SetBossState(DATA_VESPERON, DONE);
                 if (Creature* acolyte = me->FindNearestCreature(NPC_ACOLYTE_OF_VESPERON, 100.0f))
                     acolyte->Kill(acolyte);
@@ -365,7 +365,7 @@ struct dummy_dragonAI : public ScriptedAI
             }
     }
 
-    void UpdateAI(uint32 diff) OVERRIDE
+    void UpdateAI(uint32 diff) override
     {
         events.Update(diff);
 
@@ -417,19 +417,19 @@ public:
     {
         npc_tenebronAI(Creature* creature) : dummy_dragonAI(creature) { }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             dummy_dragonAI::Reset();
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             dummy_dragonAI::EnterCombat(who);
 
             events.ScheduleEvent(EVENT_HATCH_EGGS, 30000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             // if no target, update dummy and return
             if (!UpdateVictim())
@@ -458,7 +458,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetObsidianSanctumAI<npc_tenebronAI>(creature);
     }
@@ -477,7 +477,7 @@ public:
     {
         npc_shadronAI(Creature* creature) : dummy_dragonAI(creature) { }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             dummy_dragonAI::Reset();
 
@@ -490,14 +490,14 @@ public:
             instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             dummy_dragonAI::EnterCombat(who);
 
             events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 60000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             // if no target, update dummy and return
             if (!UpdateVictim())
@@ -537,7 +537,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetObsidianSanctumAI<npc_shadronAI>(creature);
     }
@@ -556,19 +556,19 @@ public:
     {
         npc_vesperonAI(Creature* creature) : dummy_dragonAI(creature) { }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             dummy_dragonAI::Reset();
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             dummy_dragonAI::EnterCombat(who);
 
             events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 60000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             // if no target, update dummy and return
             if (!UpdateVictim())
@@ -603,7 +603,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetObsidianSanctumAI<npc_vesperonAI>(creature);
     }
@@ -625,7 +625,7 @@ class npc_acolyte_of_shadron : public CreatureScript
                 instance = creature->GetInstanceScript();
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 // Despawn the NPC automatically after 28 seconds
                 me->DespawnOrUnsummon(28000);
@@ -645,7 +645,7 @@ class npc_acolyte_of_shadron : public CreatureScript
                 me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 if (ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADRON)))
                     instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
@@ -681,7 +681,7 @@ class npc_acolyte_of_shadron : public CreatureScript
                         debuffTarget->RemoveAurasDueToSpell(SPELL_GIFT_OF_TWILIGTH_SHA);
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (!UpdateVictim())
                     return;
@@ -693,7 +693,7 @@ class npc_acolyte_of_shadron : public CreatureScript
             InstanceScript* instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetObsidianSanctumAI<npc_acolyte_of_shadronAI>(creature);
         }
@@ -715,7 +715,7 @@ class npc_acolyte_of_vesperon : public CreatureScript
                 instance = creature->GetInstanceScript();
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 // Despawn the NPC automatically after 28 seconds
                 me->DespawnOrUnsummon(28000);
@@ -725,7 +725,7 @@ class npc_acolyte_of_vesperon : public CreatureScript
                 DoCast(me, SPELL_TWILIGHT_TORMENT_VESP_ACO);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 me->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP_ACO);
 
@@ -765,7 +765,7 @@ class npc_acolyte_of_vesperon : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(58835); // Components of spell Twilight Torment
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (!UpdateVictim())
                     return;
@@ -777,7 +777,7 @@ class npc_acolyte_of_vesperon : public CreatureScript
             InstanceScript* instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetObsidianSanctumAI<npc_acolyte_of_vesperonAI>(creature);
         }
@@ -805,7 +805,7 @@ public:
             instance = creature->GetInstanceScript();
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
 
@@ -816,19 +816,19 @@ public:
         {
             me->RemoveAllAuras();
 
-            if (!instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
+            if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
                 me->SummonCreature(NPC_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
             else
-                me->SummonCreature(NPC_SHARTHARION_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
+                me->SummonCreature(NPC_SARTHARION_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
             me->DealDamage(me, me->GetHealth());
         }
 
-        void JustSummoned(Creature* who) OVERRIDE
+        void JustSummoned(Creature* who) override
         {
             who->SetInCombatWithZone();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -846,7 +846,7 @@ public:
         EventMap events;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetObsidianSanctumAI<npc_twilight_eggsAI>(creature);
     }
@@ -875,7 +875,7 @@ public:
             me->AddAura(SPELL_FLAME_TSUNAMI, me);
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             me->SetReactState(REACT_PASSIVE);
             events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 100);
@@ -883,7 +883,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -908,7 +908,7 @@ public:
         EventMap events;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_flame_tsunamiAI(creature);
     }
@@ -935,7 +935,7 @@ public:
             SetCombatMovement(false);
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             me->AddAura(46265, me); // Wrong, can't find proper visual
@@ -943,7 +943,7 @@ public:
             events.ScheduleEvent(EVENT_VOID_BLAST, 5000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -962,7 +962,7 @@ public:
         EventMap events;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_twilight_fissureAI(creature);
     }
@@ -989,14 +989,14 @@ public:
             Reset();
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             me->RemoveAllAuras();
             me->SetInCombatWithZone();
             events.ScheduleEvent(EVENT_FADE_ARMOR, 1000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1017,7 +1017,7 @@ public:
         EventMap events;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_twilight_whelpAI(creature);
     }
@@ -1028,7 +1028,7 @@ class achievement_twilight_assist : public AchievementCriteriaScript
     public:
         achievement_twilight_assist() : AchievementCriteriaScript("achievement_twilight_assist") { }
 
-        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*player*/, Unit* target) override
         {
             return target && target->GetAI()->GetData(TWILIGHT_ACHIEVEMENTS) >= 1;
         }
@@ -1039,7 +1039,7 @@ class achievement_twilight_duo : public AchievementCriteriaScript
     public:
         achievement_twilight_duo() : AchievementCriteriaScript("achievement_twilight_duo") { }
 
-        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*player*/, Unit* target) override
         {
             return target && target->GetAI()->GetData(TWILIGHT_ACHIEVEMENTS) >= 2;
         }
@@ -1050,7 +1050,7 @@ class achievement_twilight_zone : public AchievementCriteriaScript
     public:
         achievement_twilight_zone() : AchievementCriteriaScript("achievement_twilight_zone") { }
 
-        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*player*/, Unit* target) override
         {
             return target && target->GetAI()->GetData(TWILIGHT_ACHIEVEMENTS) == 3;
         }

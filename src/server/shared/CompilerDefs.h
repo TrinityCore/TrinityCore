@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -53,12 +53,6 @@
 #  define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #else
 #  error "FATAL ERROR: Unknown compiler."
-#endif
-
-#if defined(__cplusplus) && __cplusplus == 201103L
-#  define COMPILER_HAS_CPP11_SUPPORT 1
-#else
-#  define COMPILER_HAS_CPP11_SUPPORT 0
 #endif
 
 #endif

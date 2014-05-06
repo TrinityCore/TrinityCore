@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -61,7 +61,7 @@
 
 #include "Define.h"
 
-#include "Dynamic/UnorderedMap.h"
+#include <unordered_map>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -70,12 +70,6 @@
 #include <errno.h>
 #include <signal.h>
 #include <assert.h>
-
-#if PLATFORM == PLATFORM_WINDOWS
-#define STRCASECMP stricmp
-#else
-#define STRCASECMP strcasecmp
-#endif
 
 #include <set>
 #include <list>
@@ -114,8 +108,6 @@
 
 #include <float.h>
 
-#define I32FMT "%08I32X"
-#define I64FMT "%016I64X"
 #define snprintf _snprintf
 #define atoll _atoi64
 #define vsnprintf _vsnprintf
@@ -126,8 +118,6 @@
 
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
-#define I32FMT "%08X"
-#define I64FMT "%016llX"
 
 #endif
 

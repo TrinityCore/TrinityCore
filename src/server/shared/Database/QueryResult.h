@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -55,6 +55,9 @@ class ResultSet
         void CleanUp();
         MYSQL_RES* _result;
         MYSQL_FIELD* _fields;
+
+        ResultSet(ResultSet const& right) = delete;
+        ResultSet& operator=(ResultSet const& right) = delete;
 };
 
 typedef Trinity::AutoPtr<ResultSet, ACE_Thread_Mutex> QueryResult;
@@ -100,6 +103,8 @@ class PreparedResultSet
         void CleanUp();
         bool _NextRow();
 
+        PreparedResultSet(PreparedResultSet const& right) = delete;
+        PreparedResultSet& operator=(PreparedResultSet const& right) = delete;
 };
 
 typedef Trinity::AutoPtr<PreparedResultSet, ACE_Thread_Mutex> PreparedQueryResult;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -275,6 +275,13 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
 
     // set before checks for propertly undo at problems (it already set in to client)
     my_trade->SetAccepted(true);
+
+    if (!_player->IsWithinDistInMap(trader, TRADE_DISTANCE, false))
+    {
+        SendTradeStatus(TRADE_STATUS_TARGET_TO_FAR);
+        my_trade->SetAccepted(false);
+        return;
+    }
 
     // not accept case incorrect money amount
     if (!_player->HasEnoughMoney(my_trade->GetMoney()))
@@ -648,7 +655,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (!pOther->IsWithinDistInMap(_player, 10.0f, false))
+    if (!pOther->IsWithinDistInMap(_player, TRADE_DISTANCE, false))
     {
         SendTradeStatus(TRADE_STATUS_TARGET_TO_FAR);
         return;

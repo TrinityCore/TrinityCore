@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -160,7 +160,7 @@ class boss_gormok : public CreatureScript
             {
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 events.ScheduleEvent(EVENT_IMPALE, urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_STAGGERING_STOMP, 15*IN_MILLISECONDS);
@@ -169,13 +169,13 @@ class boss_gormok : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterEvadeMode() OVERRIDE
+            void EnterEvadeMode() override
             {
                 instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
                 ScriptedAI::EnterEvadeMode();
             }
 
-            void MovementInform(uint32 type, uint32 pointId) OVERRIDE
+            void MovementInform(uint32 type, uint32 pointId) override
             {
                 if (type != POINT_MOTION_TYPE)
                     return;
@@ -193,12 +193,12 @@ class boss_gormok : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 instance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_DONE);
             }
 
-            void JustReachedHome() OVERRIDE
+            void JustReachedHome() override
             {
                 instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
                 instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
@@ -206,7 +206,7 @@ class boss_gormok : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 me->SetInCombatWithZone();
@@ -223,7 +223,7 @@ class boss_gormok : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
+            void DamageTaken(Unit* /*who*/, uint32& damage) override
             {
                 // despawn the remaining passengers on death
                 if (damage >= me->GetHealth())
@@ -232,7 +232,7 @@ class boss_gormok : public CreatureScript
                             pSnobold->ToCreature()->DespawnOrUnsummon();
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -279,7 +279,7 @@ class boss_gormok : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<boss_gormokAI>(creature);
         }
@@ -294,12 +294,13 @@ class npc_snobold_vassal : public CreatureScript
         {
             npc_snobold_vassalAI(Creature* creature) : ScriptedAI(creature)
             {
+                _targetGUID = 0;
+                _targetDied = false;
                 _instance = creature->GetInstanceScript();
-                if (_instance)
-                    _instance->SetData(DATA_SNOBOLD_COUNT, INCREASE);
+                _instance->SetData(DATA_SNOBOLD_COUNT, INCREASE);
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _events.ScheduleEvent(EVENT_BATTER, 5*IN_MILLISECONDS);
                 _events.ScheduleEvent(EVENT_HEAD_CRACK, 25*IN_MILLISECONDS);
@@ -311,25 +312,25 @@ class npc_snobold_vassal : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterEvadeMode() OVERRIDE
+            void EnterEvadeMode() override
             {
                 ScriptedAI::EnterEvadeMode();
             }
 
-            void EnterCombat(Unit* who) OVERRIDE
+            void EnterCombat(Unit* who) override
             {
                 _targetGUID = who->GetGUID();
                 me->TauntApply(who);
                 DoCast(who, SPELL_SNOBOLLED);
             }
 
-            void DamageTaken(Unit* pDoneBy, uint32 &uiDamage) OVERRIDE
+            void DamageTaken(Unit* pDoneBy, uint32 &uiDamage) override
             {
                 if (pDoneBy->GetGUID() == _targetGUID)
                     uiDamage = 0;
             }
 
-            void MovementInform(uint32 type, uint32 pointId) OVERRIDE
+            void MovementInform(uint32 type, uint32 pointId) override
             {
                 if (type != POINT_MOTION_TYPE)
                     return;
@@ -345,16 +346,15 @@ class npc_snobold_vassal : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 if (Unit* target = ObjectAccessor::GetPlayer(*me, _targetGUID))
                     if (target->IsAlive())
                         target->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
-                if (_instance)
-                    _instance->SetData(DATA_SNOBOLD_COUNT, DECREASE);
+                _instance->SetData(DATA_SNOBOLD_COUNT, DECREASE);
             }
 
-            void DoAction(int32 action) OVERRIDE
+            void DoAction(int32 action) override
             {
                 switch (action)
                 {
@@ -369,7 +369,7 @@ class npc_snobold_vassal : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim() || _targetDied)
                     return;
@@ -378,30 +378,27 @@ class npc_snobold_vassal : public CreatureScript
                 {
                     if (!target->IsAlive())
                     {
-                        if (_instance)
+                        Unit* gormok = ObjectAccessor::GetCreature(*me, _instance->GetData64(NPC_GORMOK));
+                        if (gormok && gormok->IsAlive())
                         {
-                            Unit* gormok = ObjectAccessor::GetCreature(*me, _instance->GetData64(NPC_GORMOK));
-                            if (gormok && gormok->IsAlive())
-                            {
-                                SetCombatMovement(false);
-                                _targetDied = true;
+                            SetCombatMovement(false);
+                            _targetDied = true;
 
-                                // looping through Gormoks seats
-                                for (uint8 i = 0; i < MAX_SNOBOLDS; i++)
+                            // looping through Gormoks seats
+                            for (uint8 i = 0; i < MAX_SNOBOLDS; i++)
+                            {
+                                if (!gormok->GetVehicleKit()->GetPassenger(i))
                                 {
-                                    if (!gormok->GetVehicleKit()->GetPassenger(i))
-                                    {
-                                        me->EnterVehicle(gormok, i);
-                                        DoAction(ACTION_ENABLE_FIRE_BOMB);
-                                        break;
-                                    }
+                                    me->EnterVehicle(gormok, i);
+                                    DoAction(ACTION_ENABLE_FIRE_BOMB);
+                                    break;
                                 }
                             }
-                            else if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                            {
-                                _targetGUID = target2->GetGUID();
-                                me->GetMotionMaster()->MoveJump(target2->GetPositionX(), target2->GetPositionY(), target2->GetPositionZ(), 15.0f, 15.0f);
-                            }
+                        }
+                        else if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        {
+                            _targetGUID = target2->GetGUID();
+                            me->GetMotionMaster()->MoveJump(target2->GetPositionX(), target2->GetPositionY(), target2->GetPositionZ(), 15.0f, 15.0f);
                         }
                     }
                 }
@@ -449,7 +446,7 @@ class npc_snobold_vassal : public CreatureScript
                 bool   _targetDied;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<npc_snobold_vassalAI>(creature);
         }
@@ -467,7 +464,7 @@ class npc_firebomb : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 DoCast(me, SPELL_FIRE_BOMB_DOT, true);
                 SetCombatMovement(false);
@@ -475,7 +472,7 @@ class npc_firebomb : public CreatureScript
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (_instance->GetData(TYPE_NORTHREND_BEASTS) != GORMOK_IN_PROGRESS)
                     me->DespawnOrUnsummon();
@@ -485,7 +482,7 @@ class npc_firebomb : public CreatureScript
                 InstanceScript* _instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<npc_firebombAI>(creature);
         }
@@ -497,7 +494,7 @@ struct boss_jormungarAI : public BossAI
     {
     }
 
-    void Reset() OVERRIDE
+    void Reset() override
     {
         Enraged = false;
 
@@ -509,7 +506,7 @@ struct boss_jormungarAI : public BossAI
         events.ScheduleEvent(EVENT_SLIME_POOL, 15*IN_MILLISECONDS, 0, PHASE_MOBILE);
     }
 
-    void JustDied(Unit* /*killer*/) OVERRIDE
+    void JustDied(Unit* /*killer*/) override
     {
         if (Creature* otherWorm = Unit::GetCreature(*me, instance->GetData64(OtherWormEntry)))
         {
@@ -525,34 +522,34 @@ struct boss_jormungarAI : public BossAI
         }
     }
 
-    void JustReachedHome() OVERRIDE
+    void JustReachedHome() override
     {
         // prevent losing 2 attempts at once on heroics
-        if (instance && instance->GetData(TYPE_NORTHREND_BEASTS) != FAIL)
+        if (instance->GetData(TYPE_NORTHREND_BEASTS) != FAIL)
             instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
 
         me->DespawnOrUnsummon();
     }
 
-    void KilledUnit(Unit* who) OVERRIDE
+    void KilledUnit(Unit* who) override
     {
         if (who->GetTypeId() == TYPEID_PLAYER)
             instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE, 0);
     }
 
-    void EnterCombat(Unit* /*who*/) OVERRIDE
+    void EnterCombat(Unit* /*who*/) override
     {
         _EnterCombat();
         me->SetInCombatWithZone();
         instance->SetData(TYPE_NORTHREND_BEASTS, SNAKES_IN_PROGRESS);
     }
 
-    void UpdateAI(uint32 diff) OVERRIDE
+    void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
             return;
 
-        if (!Enraged && instance && instance->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL)
+        if (!Enraged && instance->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL)
         {
             me->RemoveAurasDueToSpell(SPELL_SUBMERGE_0);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -686,7 +683,7 @@ class boss_acidmaw : public CreatureScript
         {
             boss_acidmawAI(Creature* creature) : boss_jormungarAI(creature) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 boss_jormungarAI::Reset();
                 BiteSpell = SPELL_PARALYTIC_BITE;
@@ -702,7 +699,7 @@ class boss_acidmaw : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<boss_acidmawAI>(creature);
         }
@@ -719,7 +716,7 @@ class boss_dreadscale : public CreatureScript
             {
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 boss_jormungarAI::Reset();
                 BiteSpell = SPELL_BURNING_BITE;
@@ -736,7 +733,7 @@ class boss_dreadscale : public CreatureScript
                 WasMobile = false;
             }
 
-            void MovementInform(uint32 type, uint32 pointId) OVERRIDE
+            void MovementInform(uint32 type, uint32 pointId) override
             {
                 if (type != POINT_MOTION_TYPE)
                     return;
@@ -754,13 +751,13 @@ class boss_dreadscale : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() OVERRIDE
+            void EnterEvadeMode() override
             {
                 instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
                 boss_jormungarAI::EnterEvadeMode();
             }
 
-            void JustReachedHome() OVERRIDE
+            void JustReachedHome() override
             {
                 instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
 
@@ -768,7 +765,7 @@ class boss_dreadscale : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<boss_dreadscaleAI>(creature);
         }
@@ -786,13 +783,13 @@ class npc_slime_pool : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _cast = false;
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (!_cast)
                 {
@@ -809,7 +806,7 @@ class npc_slime_pool : public CreatureScript
 
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<npc_slime_poolAI>(creature);
         }
@@ -833,13 +830,13 @@ class spell_gormok_fire_bomb : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_gormok_fire_bomb_SpellScript::TriggerFireBomb, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_gormok_fire_bomb_SpellScript();
         }
@@ -856,7 +853,7 @@ class boss_icehowl : public CreatureScript
             {
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 events.ScheduleEvent(EVENT_FEROCIOUS_BUTT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS));
@@ -872,13 +869,13 @@ class boss_icehowl : public CreatureScript
                 _stage = 0;
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 instance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_DONE);
             }
 
-            void MovementInform(uint32 type, uint32 pointId) OVERRIDE
+            void MovementInform(uint32 type, uint32 pointId) override
             {
                 if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
                     return;
@@ -915,20 +912,20 @@ class boss_icehowl : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() OVERRIDE
+            void EnterEvadeMode() override
             {
                 instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
                 ScriptedAI::EnterEvadeMode();
             }
 
-            void JustReachedHome() OVERRIDE
+            void JustReachedHome() override
             {
                 instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
                 instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
                 me->DespawnOrUnsummon();
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                 {
@@ -936,13 +933,13 @@ class boss_icehowl : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 instance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_IN_PROGRESS);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) OVERRIDE
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_TRAMPLE && target->GetTypeId() == TYPEID_PLAYER)
                 {
@@ -954,7 +951,7 @@ class boss_icehowl : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -1120,7 +1117,7 @@ class boss_icehowl : public CreatureScript
                 uint8  _stage;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<boss_icehowlAI>(creature);
         }

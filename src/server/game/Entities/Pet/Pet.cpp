@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -39,7 +39,7 @@ Pet::Pet(Player* owner, PetType type) :
     m_happinessTimer(7500), m_petType(type), m_duration(0), m_auraRaidUpdateMask(0), m_loading(false),
     m_declinedname(NULL)
 {
-    ASSERT(GetOwner()->GetTypeId() == TYPEID_PLAYER);
+    ASSERT(GetOwner());
 
     m_unitTypeMask |= UNIT_MASK_PET;
     if (type == HUNTER_PET)
@@ -279,7 +279,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     {
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_PET_SLOT_BY_SLOT_EXCLUDE_ID);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_SLOT_EXCLUDE_ID);
         stmt->setUInt8(0, uint8(PET_SAVE_NOT_IN_SLOT));
         stmt->setUInt32(1, ownerid);
         stmt->setUInt8(2, uint8(PET_SAVE_AS_CURRENT));
@@ -384,8 +384,6 @@ void Pet::SavePetToDB(PetSaveMode mode)
         return;
 
     Player* owner = GetOwner();
-    if (!owner)
-        return;
 
     // not save pet as current if another pet temporary unsummoned
     if (mode == PET_SAVE_AS_CURRENT && owner->GetTemporaryUnsummonedPetNumber() &&
@@ -430,7 +428,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         // prevent duplicate using slot (except PET_SAVE_NOT_IN_SLOT)
         if (mode <= PET_SAVE_LAST_STABLE_SLOT)
         {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_PET_SLOT_BY_SLOT);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_SLOT);
             stmt->setUInt8(0, uint8(PET_SAVE_NOT_IN_SLOT));
             stmt->setUInt32(1, ownerLowGUID);
             stmt->setUInt8(2, uint8(mode));
@@ -563,7 +561,7 @@ void Pet::Update(uint32 diff)
         {
             // unsummon pet that lost owner
             Player* owner = GetOwner();
-            if (!owner || (!IsWithinDistInMap(owner, GetMap()->GetVisibilityRange()) && !isPossessed()) || (isControlled() && !owner->GetPetGUID()))
+            if ((!IsWithinDistInMap(owner, GetMap()->GetVisibilityRange()) && !isPossessed()) || (isControlled() && !owner->GetPetGUID()))
             //if (!owner || (!IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()) && (owner->GetCharmGUID() && (owner->GetCharmGUID() != GetGUID()))) || (isControlled() && !owner->GetPetGUID()))
             {
                 Remove(PET_SAVE_NOT_IN_SLOT, true);
@@ -846,8 +844,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     if (IsPet() && GetOwner()->GetTypeId() == TYPEID_PLAYER)
     {
         if (GetOwner()->getClass() == CLASS_WARLOCK
-                || GetOwner()->getClass() == CLASS_SHAMAN        // Fire Elemental
-                || GetOwner()->getClass() == CLASS_DEATH_KNIGHT) // Risen Ghoul
+            || GetOwner()->getClass() == CLASS_SHAMAN        // Fire Elemental
+            || GetOwner()->getClass() == CLASS_DEATH_KNIGHT) // Risen Ghoul
         {
             petType = SUMMON_PET;
         }
@@ -1122,9 +1120,8 @@ void Pet::_LoadSpellCooldowns()
     {
         time_t curTime = time(NULL);
 
-        WorldPacket data(SMSG_SPELL_COOLDOWN, size_t(8+1+result->GetRowCount()*8));
-        data << GetGUID();
-        data << uint8(0x0);                                 // flags (0x1, 0x2)
+        PacketCooldowns cooldowns;
+        WorldPacket data;
 
         do
         {
@@ -1143,8 +1140,7 @@ void Pet::_LoadSpellCooldowns()
             if (db_time <= curTime)
                 continue;
 
-            data << uint32(spell_id);
-            data << uint32(uint32(db_time-curTime)*IN_MILLISECONDS);
+            cooldowns[spell_id] = uint32(db_time - curTime)*IN_MILLISECONDS;
 
             _AddCreatureSpellCooldown(spell_id, db_time);
 
@@ -1152,8 +1148,11 @@ void Pet::_LoadSpellCooldowns()
         }
         while (result->NextRow());
 
-        if (!m_CreatureSpellCooldowns.empty() && GetOwner())
+        if (!cooldowns.empty())
+        {
+            BuildCooldownPacket(data, SPELL_COOLDOWN_FLAG_NONE, cooldowns);
             GetOwner()->GetSession()->SendPacket(&data);
+        }
     }
 }
 
@@ -1628,12 +1627,7 @@ bool Pet::removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
     if (clear_ab && !learn_prev && m_charmInfo->RemoveSpellFromActionBar(spell_id))
     {
         if (!m_loading)
-        {
-            // need update action bar for last removed rank
-            if (Unit* owner = GetOwner())
-                if (owner->GetTypeId() == TYPEID_PLAYER)
-                    owner->ToPlayer()->PetSpellInitialize();
-        }
+            GetOwner()->PetSpellInitialize(); // need update action bar for last removed rank
     }
 
     return true;
@@ -1668,13 +1662,11 @@ void Pet::InitPetCreateSpells()
 
 bool Pet::resetTalents()
 {
-    Unit* owner = GetOwner();
-    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
-        return false;
+    Player* player = GetOwner();
 
     // not need after this call
-    if (owner->ToPlayer()->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
-        owner->ToPlayer()->RemoveAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS, true);
+    if (player->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
+        player->RemoveAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS, true);
 
     CreatureTemplate const* ci = GetCreatureTemplate();
     if (!ci)
@@ -1683,8 +1675,6 @@ bool Pet::resetTalents()
     CreatureFamilyEntry const* pet_family = sCreatureFamilyStore.LookupEntry(ci->family);
     if (!pet_family || pet_family->petTalentType < 0)
         return false;
-
-    Player* player = owner->ToPlayer();
 
     uint8 level = getLevel();
     uint32 talentPointsForLevel = GetMaxTalentPointsForLevel(level);
@@ -1830,20 +1820,15 @@ void Pet::InitTalentForLevel()
 
     SetFreeTalentPoints(talentPointsForLevel - m_usedTalentCount);
 
-    Unit* owner = GetOwner();
-    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
-        return;
-
     if (!m_loading)
-        owner->ToPlayer()->SendTalentsInfoData(true);
+        GetOwner()->SendTalentsInfoData(true);
 }
 
 uint8 Pet::GetMaxTalentPointsForLevel(uint8 level)
 {
     uint8 points = (level >= 20) ? ((level - 16) / 4) : 0;
     // Mod points from owner SPELL_AURA_MOD_PET_TALENT_POINTS
-    if (Unit* owner = GetOwner())
-        points+=owner->GetTotalAuraModifier(SPELL_AURA_MOD_PET_TALENT_POINTS);
+    points += GetOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_PET_TALENT_POINTS);
     return points;
 }
 
@@ -1966,11 +1951,9 @@ void Pet::LearnPetPassives()
 
 void Pet::CastPetAuras(bool current)
 {
-    Unit* owner = GetOwner();
-    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
-        return;
+    Player* owner = GetOwner();
 
-    if (!IsPermanentPetFor(owner->ToPlayer()))
+    if (!IsPermanentPetFor(owner))
         return;
 
     for (PetAuraSet::const_iterator itr = owner->m_petAuras.begin(); itr != owner->m_petAuras.end();)
@@ -2002,10 +1985,7 @@ void Pet::CastPetAura(PetAura const* aura)
 
 bool Pet::IsPetAura(Aura const* aura)
 {
-    Unit* owner = GetOwner();
-
-    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
-        return false;
+    Player* owner = GetOwner();
 
     // if the owner has that pet aura, return true
     for (PetAuraSet::const_iterator itr = owner->m_petAuras.begin(); itr != owner->m_petAuras.end(); ++itr)
@@ -2026,9 +2006,7 @@ void Pet::learnSpellHighRank(uint32 spellid)
 
 void Pet::SynchronizeLevelWithOwner()
 {
-    Unit* owner = GetOwner();
-    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
-        return;
+    Player* owner = GetOwner();
 
     switch (getPetType())
     {
@@ -2050,21 +2028,16 @@ void Pet::SynchronizeLevelWithOwner()
 
 void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 {
-    WorldPacket data(SMSG_SPELL_COOLDOWN, 8+1+m_spells.size()*8);
-    data << uint64(GetGUID());
-    data << uint8(0x0);                                     // flags (0x1, 0x2)
+    PacketCooldowns cooldowns;
+    WorldPacket data;
     time_t curTime = time(NULL);
     for (PetSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
     {
         if (itr->second.state == PETSPELL_REMOVED)
             continue;
+
         uint32 unSpellId = itr->first;
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(unSpellId);
-        if (!spellInfo)
-        {
-            ASSERT(spellInfo);
-            continue;
-        }
+        SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(unSpellId);
 
         // Not send cooldown for this spells
         if (spellInfo->IsCooldownStartedOnEvent())
@@ -2075,14 +2048,16 @@ void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 
         if ((idSchoolMask & spellInfo->GetSchoolMask()) && GetCreatureSpellCooldownDelay(unSpellId) < unTimeMs)
         {
-            data << uint32(unSpellId);
-            data << uint32(unTimeMs);                       // in m.secs
+            cooldowns[unSpellId] = unTimeMs;
             _AddCreatureSpellCooldown(unSpellId, curTime + unTimeMs/IN_MILLISECONDS);
         }
     }
 
-    if (Player* owner = GetOwner())
-        owner->GetSession()->SendPacket(&data);
+    if (!cooldowns.empty())
+    {
+        BuildCooldownPacket(data, SPELL_COOLDOWN_FLAG_NONE, cooldowns);
+        GetOwner()->GetSession()->SendPacket(&data);
+    }
 }
 
 Player* Pet::GetOwner() const
@@ -2097,8 +2072,6 @@ void Pet::SetDisplayId(uint32 modelId)
     if (!isControlled())
         return;
 
-    if (Unit* owner = GetOwner())
-        if (Player* player = owner->ToPlayer())
-            if (player->GetGroup())
-                player->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_MODEL_ID);
+    if (GetOwner()->GetGroup())
+        GetOwner()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_MODEL_ID);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -48,7 +48,7 @@ public:
     {
         npc_injured_goblinAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -65,18 +65,18 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void Reset() OVERRIDE { }
+        void Reset() override { }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Player* player = GetPlayerForEscort();
             if (HasEscortState(STATE_ESCORT_ESCORTING) && player)
                 player->FailQuest(QUEST_BITTER_DEPARTURE);
         }
 
-       void UpdateAI(uint32 uiDiff) OVERRIDE
+       void UpdateAI(uint32 uiDiff) override
         {
             npc_escortAI::UpdateAI(uiDiff);
             if (!UpdateVictim())
@@ -84,7 +84,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void sGossipSelect(Player* player, uint32 sender, uint32 action) OVERRIDE
+        void sGossipSelect(Player* player, uint32 sender, uint32 action) override
         {
             if (sender == GOSSIP_ID && action == GOSSIP_OPTION_ID)
             {
@@ -95,12 +95,12 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_injured_goblinAI(creature);
     }
 
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest) OVERRIDE
+    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_BITTER_DEPARTURE)
             creature->AI()->Talk(SAY_QUEST_ACCEPT);
@@ -124,7 +124,7 @@ class npc_roxi_ramrocket : public CreatureScript
 public:
     npc_roxi_ramrocket() : CreatureScript("npc_roxi_ramrocket") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         //Quest Menu
         if (creature->IsQuestGiver())
@@ -143,7 +143,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -183,18 +183,18 @@ public:
 
         bool freed;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             freed = false;
             me->CastSpell(me, SPELL_ICE_PRISON, true);
         }
 
-        void JustRespawned() OVERRIDE
+        void JustRespawned() override
         {
             Reset();
         }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (!freed)
                 return;
@@ -203,7 +203,7 @@ public:
                 me->DespawnOrUnsummon();
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
+        void SpellHit(Unit* caster, const SpellInfo* spell) override
         {
             if (spell->Id != SPELL_ICE_LANCE)
                 return;
@@ -218,7 +218,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_brunnhildar_prisonerAI(creature);
     }
@@ -255,12 +255,12 @@ public:
 
         EventMap events;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             events.ScheduleEvent(EVENT_CHECK_AREA, 5000);
         }
 
-        void MovementInform(uint32 type, uint32 id) OVERRIDE
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != WAYPOINT_MOTION_TYPE)
                 return;
@@ -270,7 +270,7 @@ public:
             events.ScheduleEvent(EVENT_REACHED_HOME, 2000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -290,28 +290,29 @@ public:
                         events.ScheduleEvent(EVENT_CHECK_AREA, 5000);
                     break;
                 case EVENT_REACHED_HOME:
-                    Unit* player = me->GetVehicleKit()->GetPassenger(0);
-                    if (player && player->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        // for each prisoner on drake, give credit
-                        for (uint8 i = 1; i < 4; ++i)
-                            if (Unit* prisoner = me->GetVehicleKit()->GetPassenger(i))
+                    if (Vehicle* vehicle = me->GetVehicleKit())
+                        if (Unit* player = vehicle->GetPassenger(0))
+                            if (player->GetTypeId() == TYPEID_PLAYER)
                             {
-                                if (prisoner->GetTypeId() != TYPEID_UNIT)
-                                    return;
-                                prisoner->CastSpell(player, SPELL_KILL_CREDIT_PRISONER, true);
-                                prisoner->CastSpell(prisoner, SPELL_SUMMON_LIBERATED, true);
-                                prisoner->ExitVehicle();
+                                // for each prisoner on drake, give credit
+                                for (uint8 i = 1; i < 4; ++i)
+                                    if (Unit* prisoner = me->GetVehicleKit()->GetPassenger(i))
+                                    {
+                                        if (prisoner->GetTypeId() != TYPEID_UNIT)
+                                            return;
+                                        prisoner->CastSpell(player, SPELL_KILL_CREDIT_PRISONER, true);
+                                        prisoner->CastSpell(prisoner, SPELL_SUMMON_LIBERATED, true);
+                                        prisoner->ExitVehicle();
+                                    }
+                                me->CastSpell(me, SPELL_KILL_CREDIT_DRAKE, true);
+                                player->ExitVehicle();
                             }
-                        me->CastSpell(me, SPELL_KILL_CREDIT_DRAKE, true);
-                        player->ExitVehicle();
-                    }
                     break;
             }
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_freed_protodrakeAI(creature);
     }
@@ -326,11 +327,11 @@ public:
     {
         npc_icefangAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void AttackStart(Unit* /*who*/) OVERRIDE { }
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
-        void EnterEvadeMode() OVERRIDE { }
+        void AttackStart(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) override { }
+        void EnterEvadeMode() override { }
 
-        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) OVERRIDE
+        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
             {
@@ -339,11 +340,11 @@ public:
             }
         }
 
-        void WaypointReached(uint32 /*waypointId*/) OVERRIDE { }
-        void JustDied(Unit* /*killer*/) OVERRIDE { }
-        void OnCharmed(bool /*apply*/) OVERRIDE { }
+        void WaypointReached(uint32 /*waypointId*/) override { }
+        void JustDied(Unit* /*killer*/) override { }
+        void OnCharmed(bool /*apply*/) override { }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             npc_escortAI::UpdateAI(diff);
 
@@ -352,7 +353,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_icefangAI(creature);
     }
@@ -373,7 +374,7 @@ class npc_hyldsmeet_protodrake : public CreatureScript
             public:
                 npc_hyldsmeet_protodrakeAI(Creature* creature) : CreatureAI(creature), _accessoryRespawnTimer(0), _vehicleKit(creature->GetVehicleKit()) { }
 
-                void PassengerBoarded(Unit* who, int8 /*seat*/, bool apply) OVERRIDE
+                void PassengerBoarded(Unit* who, int8 /*seat*/, bool apply) override
                 {
                     if (apply)
                         return;
@@ -382,7 +383,7 @@ class npc_hyldsmeet_protodrake : public CreatureScript
                         _accessoryRespawnTimer = 5 * MINUTE * IN_MILLISECONDS;
                 }
 
-                void UpdateAI(uint32 diff) OVERRIDE
+                void UpdateAI(uint32 diff) override
                 {
                     //! We need to manually reinstall accessories because the vehicle itself is friendly to players,
                     //! so EnterEvadeMode is never triggered. The accessory on the other hand is hostile and killable.
@@ -400,7 +401,7 @@ class npc_hyldsmeet_protodrake : public CreatureScript
                 Vehicle* _vehicleKit;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_hyldsmeet_protodrakeAI(creature);
         }
@@ -451,9 +452,15 @@ public:
 
     struct npc_brann_bronzebeard_keystoneAI : public ScriptedAI
     {
-        npc_brann_bronzebeard_keystoneAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_brann_bronzebeard_keystoneAI(Creature* creature) : ScriptedAI(creature)
+        {
+            memset(&objectGUID, 0, sizeof(objectGUID));
+            playerGUID = 0;
+            voiceGUID = 0;
+            objectCounter = 0;
+        }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             memset(&objectGUID, 0, sizeof(objectGUID));
             playerGUID = 0;
@@ -461,14 +468,14 @@ public:
             objectCounter = 0;
         }
 
-        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) OVERRIDE
+        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) override
         {
             player->CLOSE_GOSSIP_MENU();
             playerGUID = player->GetGUID();
             events.ScheduleEvent(EVENT_SCRIPT_1, 100);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -497,7 +504,7 @@ public:
                         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                         if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
                         {
-                            voice->AI()->DoCast(voice, SPELL_RESURRECTION);
+                            voice->CastSpell(voice, SPELL_RESURRECTION);
                             if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                                 voice->AI()->Talk(SAY_VOICE_1, player);
                         }
@@ -539,7 +546,7 @@ public:
                         break;
                     case EVENT_SCRIPT_9:
                         if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
-                            voice->AI()->DoCast(voice, SPELL_RESURRECTION);
+                            voice->CastSpell(voice, SPELL_RESURRECTION);
                         events.ScheduleEvent(EVENT_SCRIPT_10, 6000);
                         break;
                     case EVENT_SCRIPT_10:
@@ -582,7 +589,7 @@ public:
         uint8 objectCounter;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_brann_bronzebeard_keystoneAI(creature);
     }
@@ -634,17 +641,21 @@ public:
 
     struct npc_king_jokkum_vehicleAI : public VehicleAI
     {
-        npc_king_jokkum_vehicleAI(Creature* creature) : VehicleAI(creature) { }
+        npc_king_jokkum_vehicleAI(Creature* creature) : VehicleAI(creature)
+        {
+            playerGUID = 0;
+            pathEnd = false;
+        }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             playerGUID = 0;
             pathEnd    = false;
         }
 
-        void OnCharmed(bool /*apply*/) OVERRIDE { }
+        void OnCharmed(bool /*apply*/) override { }
 
-        void PassengerBoarded(Unit* who, int8 /*seat*/, bool apply) OVERRIDE
+        void PassengerBoarded(Unit* who, int8 /*seat*/, bool apply) override
         {
             if (apply)
             {
@@ -656,7 +667,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 id) OVERRIDE
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != WAYPOINT_MOTION_TYPE)
                 return;
@@ -683,7 +694,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!pathEnd)
                 return;
@@ -709,7 +720,7 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_king_jokkum_vehicleAI(creature);
     }
@@ -723,7 +734,7 @@ class spell_jokkum_scriptcast : public SpellScriptLoader
         {
             PrepareAuraScript(spell_jokkum_scriptcast_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_JOKKUM_SUMMON))
                     return false;
@@ -736,13 +747,13 @@ class spell_jokkum_scriptcast : public SpellScriptLoader
                     target->CastSpell(target, SPELL_JOKKUM_SUMMON, true);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectApply += AuraEffectApplyFn(spell_jokkum_scriptcast_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_jokkum_scriptcast_AuraScript();
         }
@@ -756,7 +767,7 @@ class spell_veranus_summon : public SpellScriptLoader
         {
             PrepareAuraScript(spell_veranus_summon_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_VERANUS_AND_THORIM))
                     return false;
@@ -769,46 +780,15 @@ class spell_veranus_summon : public SpellScriptLoader
                     target->CastSpell(target, SPELL_SUMMON_VERANUS_AND_THORIM, true);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectApply += AuraEffectApplyFn(spell_veranus_summon_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_veranus_summon_AuraScript();
-        }
-};
-
-/*#####
-# spell_jokkum_eject_all
-#####*/
-
-class spell_jokkum_eject_all : public SpellScriptLoader
-{
-    public: spell_jokkum_eject_all() : SpellScriptLoader("spell_jokkum_eject_all") { }
-
-        class spell_jokkum_eject_all_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_jokkum_eject_all_SpellScript);
-
-            void HandleScriptEffect(SpellEffIndex /* effIndex */)
-            {
-                if (Unit* caster = GetCaster())
-                    if (caster->IsVehicle())
-                        caster->GetVehicleKit()->RemoveAllPassengers();
-            }
-
-            void Register() OVERRIDE
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_jokkum_eject_all_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const OVERRIDE
-        {
-            return new spell_jokkum_eject_all_SpellScript();
         }
 };
 
@@ -826,13 +806,13 @@ class spell_close_rift : public SpellScriptLoader
         {
             PrepareAuraScript(spell_close_rift_AuraScript);
 
-            bool Load() OVERRIDE
+            bool Load() override
             {
                 _counter = 0;
                 return true;
             }
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 return sSpellMgr->GetSpellInfo(SPELL_DESPAWN_RIFT);
             }
@@ -843,7 +823,7 @@ class spell_close_rift : public SpellScriptLoader
                     GetTarget()->CastSpell((Unit*)NULL, SPELL_DESPAWN_RIFT, true);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_close_rift_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
@@ -853,7 +833,7 @@ class spell_close_rift : public SpellScriptLoader
 
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_close_rift_AuraScript();
         }
@@ -871,6 +851,5 @@ void AddSC_storm_peaks()
     new npc_king_jokkum_vehicle();
     new spell_jokkum_scriptcast();
     new spell_veranus_summon();
-    new spell_jokkum_eject_all();
     new spell_close_rift();
 }

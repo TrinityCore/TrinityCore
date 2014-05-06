@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -44,7 +44,7 @@ class boss_vectus : public CreatureScript
 public:
     boss_vectus() : CreatureScript("boss_vectus") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_vectusAI(creature);
     }
@@ -57,14 +57,14 @@ public:
         uint32 m_uiBlastWave_Timer;
         uint32 m_uiFrenzy_Timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             m_uiFireShield_Timer = 2000;
             m_uiBlastWave_Timer = 14000;
             m_uiFrenzy_Timer = 0;
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;

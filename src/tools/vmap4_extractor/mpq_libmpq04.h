@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,7 +36,7 @@ public:
     mpq_archive_s *mpq_a;
 
     MPQArchive(const char* filename);
-    void close();
+    ~MPQArchive() { close(); }
 
     void GetFileListTo(vector<string>& filelist) {
         uint32_t filenum;
@@ -65,6 +65,9 @@ public:
 
         delete[] buffer;
     }
+
+private:
+    void close();
 };
 typedef std::deque<MPQArchive*> ArchiveSet;
 

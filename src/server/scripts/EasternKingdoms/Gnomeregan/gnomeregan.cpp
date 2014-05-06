@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,17 +24,13 @@ Script Data End */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "gnomeregan.h"
 #include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 #include "Player.h"
-
-#define GOSSIP_START_EVENT "I am ready to being"
+#include "gnomeregan.h"
 
 enum BlastmasterEmi
 {
-    GOSSIP_TEXT_EMI     = 1693,
-
     SAY_BLASTMASTER_0   = 0,
     SAY_BLASTMASTER_1   = 1,
     SAY_BLASTMASTER_2   = 2,
@@ -88,37 +84,9 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
 public:
     npc_blastmaster_emi_shortfuse() : CreatureScript("npc_blastmaster_emi_shortfuse") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_blastmaster_emi_shortfuseAI>(creature);
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_blastmaster_emi_shortfuse::npc_blastmaster_emi_shortfuseAI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
-
-            creature->setFaction(player->getFaction());
-            creature->AI()->SetData(1, 0);
-
-            player->CLOSE_GOSSIP_MENU();
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
-    {
-        InstanceScript* instance = creature->GetInstanceScript();
-
-        if (instance && instance->GetData(TYPE_EVENT) == NOT_STARTED)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_EMI, creature->GetGUID());
-
-        return true;
     }
 
     struct npc_blastmaster_emi_shortfuseAI : public npc_escortAI
@@ -138,7 +106,7 @@ public:
         std::list<uint64> SummonList;
         std::list<uint64> GoSummonList;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
             {
@@ -149,6 +117,19 @@ public:
 
                 SummonList.clear();
                 GoSummonList.clear();
+            }
+        }
+
+        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            if (gossipListId == 0)
+            {
+                Start(true, false, player->GetGUID());
+
+                me->setFaction(player->getFaction());
+                SetData(1, 0);
+
+                player->PlayerTalkClass->SendCloseGossip();
             }
         }
 
@@ -193,15 +174,10 @@ public:
                     instance->HandleGameObject(0, false, go);
         }
 
-        void SetInFace(bool bBool)
+        void SetInFace(bool isRight)
         {
-            if (bBool)
-            {
-                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
-                    me->SetFacingToObject(go);
-            }else
-                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_LEFT)))
-                    me->SetFacingToObject(go);
+            if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(isRight ? DATA_GO_CAVE_IN_RIGHT : DATA_GO_CAVE_IN_LEFT)))
+                me->SetFacingToObject(go);
         }
 
         void RestoreAll()
@@ -256,7 +232,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             //just in case
             if (GetPlayerForEscort())
@@ -300,7 +276,7 @@ public:
             }
         }
 
-        void SetData(uint32 uiI, uint32 uiValue) OVERRIDE
+        void SetData(uint32 uiI, uint32 uiValue) override
         {
             switch (uiI)
             {
@@ -397,7 +373,7 @@ public:
             }
         }
 
-        void UpdateEscortAI(const uint32 uiDiff) OVERRIDE
+        void UpdateEscortAI(const uint32 uiDiff) override
         {
             if (uiPhase)
             {
@@ -524,7 +500,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustSummoned(Creature* summon) OVERRIDE
+        void JustSummoned(Creature* summon) override
         {
             SummonList.push_back(summon->GetGUID());
             AggroAllPlayers(summon);
@@ -538,7 +514,7 @@ class boss_grubbis : public CreatureScript
 public:
     boss_grubbis() : CreatureScript("boss_grubbis") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_grubbisAI(creature);
     }
@@ -560,7 +536,7 @@ public:
                     creature->AI()->SetData(2, 1);
         }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (!UpdateVictim())
                 return;
@@ -568,7 +544,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (!me->IsSummon())
                 return;

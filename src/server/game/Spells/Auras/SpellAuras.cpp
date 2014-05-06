@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1525,11 +1525,8 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
                             player->AddSpellCooldown(GetSpellInfo()->Id, 0, uint32(time(NULL) + aurEff->GetAmount()));
 
-                            WorldPacket data(SMSG_SPELL_COOLDOWN, 8+1+4+4);
-                            data << uint64(player->GetGUID());
-                            data << uint8(0x0);                                     // flags (0x1, 0x2)
-                            data << uint32(GetSpellInfo()->Id);
-                            data << uint32(aurEff->GetAmount()*IN_MILLISECONDS);
+                            WorldPacket data;
+                            player->BuildCooldownPacket(data, SPELL_COOLDOWN_FLAG_NONE, GetSpellInfo()->Id, aurEff->GetAmount()*IN_MILLISECONDS);
                             player->SendDirectMessage(&data);
                         }
                         break;

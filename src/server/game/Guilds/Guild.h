@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -315,7 +315,7 @@ private:
 
         bool LoadFromDB(Field* fields);
         void SaveToDB(SQLTransaction& trans) const;
-        void WritePacket(WorldPacket& data) const;
+        void WritePacket(WorldPacket& data, bool sendOfficerNote) const;
 
         uint64 GetGUID() const { return m_guid; }
         std::string const& GetName() const { return m_name; }
@@ -637,7 +637,7 @@ private:
         void CanStoreItemInTab(Item* pItem, uint8 skipSlotId, bool merge, uint32& count);
     };
 
-    typedef UNORDERED_MAP<uint32, Member*> Members;
+    typedef std::unordered_map<uint32, Member*> Members;
     typedef std::vector<RankInfo> Ranks;
     typedef std::vector<BankTab*> BankTabs;
 
@@ -661,7 +661,7 @@ public:
     bool SetName(std::string const& name);
 
     // Handle client commands
-    void HandleRoster(WorldSession* session = NULL);          // NULL = broadcast
+    void HandleRoster(WorldSession* session);
     void HandleQuery(WorldSession* session);
     void HandleSetMOTD(WorldSession* session, std::string const& motd);
     void HandleSetInfo(WorldSession* session, std::string const& info);

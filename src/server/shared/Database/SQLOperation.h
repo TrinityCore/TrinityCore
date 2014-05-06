@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -69,6 +69,10 @@ class SQLOperation : public ACE_Method_Request
         virtual void SetConnection(MySQLConnection* con) { m_conn = con; }
 
         MySQLConnection* m_conn;
+
+    private:
+        SQLOperation(SQLOperation const& right) = delete;
+        SQLOperation& operator=(SQLOperation const& right) = delete;
 };
 
 #endif

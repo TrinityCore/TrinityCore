@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -66,13 +66,9 @@ enum GameobjectIds
 };
 
 template<class AI>
-CreatureAI* GetZulGurubAI(Creature* creature)
+AI* GetZulGurubAI(Creature* creature)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(ZGScriptName))
-                return new AI(creature);
-    return NULL;
+    return GetInstanceAI<AI>(creature, ZGScriptName);
 }
 
 #endif

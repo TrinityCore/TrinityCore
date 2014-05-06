@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -137,15 +137,8 @@ enum WorldBoolConfigs
     CONFIG_PVP_TOKEN_ENABLE,
     CONFIG_NO_RESET_TALENT_COST,
     CONFIG_SHOW_KICK_IN_WORLD,
-    CONFIG_CHATLOG_CHANNEL,
-    CONFIG_CHATLOG_WHISPER,
-    CONFIG_CHATLOG_SYSCHAN,
-    CONFIG_CHATLOG_PARTY,
-    CONFIG_CHATLOG_RAID,
-    CONFIG_CHATLOG_GUILD,
-    CONFIG_CHATLOG_PUBLIC,
-    CONFIG_CHATLOG_ADDON,
-    CONFIG_CHATLOG_BGROUND,
+    CONFIG_SHOW_MUTE_IN_WORLD,
+    CONFIG_SHOW_BAN_IN_WORLD,
     CONFIG_AUTOBROADCAST,
     CONFIG_ALLOW_TICKETS,
     CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES,
@@ -337,6 +330,7 @@ enum WorldIntConfigs
     CONFIG_BG_REWARD_WINNER_ARENA_LAST,
     CONFIG_BG_REWARD_LOSER_HONOR_FIRST,
     CONFIG_BG_REWARD_LOSER_HONOR_LAST,
+    CONFIG_BIRTHDAY_TIME,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -497,17 +491,18 @@ struct CliCommandHolder
     CommandFinished* m_commandFinished;
 
     CliCommandHolder(void* callbackArg, const char *command, Print* zprint, CommandFinished* commandFinished)
-        : m_callbackArg(callbackArg), m_print(zprint), m_commandFinished(commandFinished)
+        : m_callbackArg(callbackArg), m_command(strdup(command)), m_print(zprint), m_commandFinished(commandFinished)
     {
-        size_t len = strlen(command)+1;
-        m_command = new char[len];
-        memcpy(m_command, command, len);
     }
 
-    ~CliCommandHolder() { delete[] m_command; }
+    ~CliCommandHolder() { free(m_command); }
+
+private:
+    CliCommandHolder(CliCommandHolder const& right) = delete;
+    CliCommandHolder& operator=(CliCommandHolder const& right) = delete;
 };
 
-typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;
+typedef std::unordered_map<uint32, WorldSession*> SessionMap;
 
 struct CharacterNameData
 {
@@ -626,7 +621,7 @@ class World
         void SendGMText(int32 string_id, ...);
         void SendGlobalMessage(WorldPacket* packet, WorldSession* self = 0, uint32 team = 0);
         void SendGlobalGMMessage(WorldPacket* packet, WorldSession* self = 0, uint32 team = 0);
-        void SendZoneMessage(uint32 zone, WorldPacket* packet, WorldSession* self = 0, uint32 team = 0);
+        bool SendZoneMessage(uint32 zone, WorldPacket* packet, WorldSession* self = 0, uint32 team = 0);
         void SendZoneText(uint32 zone, const char *text, WorldSession* self = 0, uint32 team = 0);
         void SendServerMessage(ServerMessageType type, const char *text = "", Player* player = NULL);
 
@@ -779,7 +774,7 @@ class World
         uint32 m_currentTime;
 
         SessionMap m_sessions;
-        typedef UNORDERED_MAP<uint32, time_t> DisconnectMap;
+        typedef std::unordered_map<uint32, time_t> DisconnectMap;
         DisconnectMap m_disconnects;
         uint32 m_maxActiveSessionCount;
         uint32 m_maxQueuedSessionCount;

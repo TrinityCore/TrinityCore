@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -41,7 +41,7 @@ class instance_drak_tharon_keep : public InstanceMapScript
                 memset(NovosSummonerGUIDs, 0, 4 * sizeof(uint64));
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -68,7 +68,7 @@ class instance_drak_tharon_keep : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -121,7 +121,7 @@ class instance_drak_tharon_keep : public InstanceMapScript
                     NovosSummonerGUIDs[3] = creature->GetGUID();
             }
 
-            uint64 GetData64(uint32 type) const OVERRIDE
+            uint64 GetData64(uint32 type) const override
             {
                 switch (type)
                 {
@@ -152,14 +152,14 @@ class instance_drak_tharon_keep : public InstanceMapScript
                 return 0;
             }
 
-            void OnUnitDeath(Unit* unit) OVERRIDE
+            void OnUnitDeath(Unit* unit) override
             {
                 if (unit->GetEntry() == NPC_CRYSTAL_HANDLER)
                     if (Creature* novos = instance->GetCreature(NovosGUID))
                         novos->AI()->DoAction(ACTION_CRYSTAL_HANDLER_DIED);
             }
 
-            std::string GetSaveData() OVERRIDE
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -170,7 +170,7 @@ class instance_drak_tharon_keep : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(char const* str) OVERRIDE
+            void Load(char const* str) override
             {
                 if (!str)
                 {
@@ -213,7 +213,7 @@ class instance_drak_tharon_keep : public InstanceMapScript
             uint64 NovosSummonerGUIDs[4];
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_drak_tharon_keep_InstanceScript(map);
         }

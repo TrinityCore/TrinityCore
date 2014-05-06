@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -82,7 +82,7 @@ class GmTicket
 {
 public:
     GmTicket();
-    GmTicket(Player* player, WorldPacket& recvData);
+    GmTicket(Player* player);
     ~GmTicket();
 
     bool IsClosed() const { return _closedBy; }
@@ -129,6 +129,8 @@ public:
     void SetComment(std::string const& comment) { _comment = comment; }
     void SetViewed() { _viewed = true; }
     void SetUnassigned();
+    void SetPosition(uint32 mapId, float x, float y, float z);
+    void SetGmAction(uint32 needResponse, bool needMoreHelp);
 
     void AppendResponse(std::string const& response) { _response += response; }
 
@@ -164,7 +166,7 @@ private:
     GMTicketEscalationStatus _escalatedStatus;
     bool _viewed;
     bool _needResponse; /// @todo find out the use of this, and then store it in DB
-    bool _haveTicket;
+    bool _needMoreHelp;
     std::string _response;
     std::string _chatLog; // No need to store in db, will be refreshed every session client side
 };

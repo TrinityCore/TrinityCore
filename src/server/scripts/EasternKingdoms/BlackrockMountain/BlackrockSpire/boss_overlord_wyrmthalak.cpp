@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -50,7 +50,7 @@ class boss_overlord_wyrmthalak : public CreatureScript
 public:
     boss_overlord_wyrmthalak() : CreatureScript("boss_overlord_wyrmthalak") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_overlordwyrmthalakAI(creature);
     }
@@ -61,13 +61,13 @@ public:
 
         bool Summoned;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             _Reset();
             Summoned = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             events.ScheduleEvent(EVENT_BLAST_WAVE, 20 * IN_MILLISECONDS);
@@ -76,12 +76,12 @@ public:
             events.ScheduleEvent(EVENT_KNOCK_AWAY, 12 * IN_MILLISECONDS);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

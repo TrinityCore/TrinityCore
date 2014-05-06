@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -340,7 +340,8 @@ CalendarEventStore CalendarMgr::GetPlayerEvents(uint64 guid)
     for (CalendarEventInviteStore::const_iterator itr = _invites.begin(); itr != _invites.end(); ++itr)
         for (CalendarInviteStore::const_iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
             if ((*itr2)->GetInviteeGUID() == guid)
-                events.insert(GetEvent(itr->first));
+                if (CalendarEvent* event = GetEvent(itr->first)) // NULL check added as attempt to fix #11512
+                    events.insert(event);
 
     if (Player* player = ObjectAccessor::FindPlayer(guid))
         for (CalendarEventStore::const_iterator itr = _events.begin(); itr != _events.end(); ++itr)

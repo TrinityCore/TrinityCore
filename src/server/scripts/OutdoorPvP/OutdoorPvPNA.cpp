@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -82,15 +82,15 @@ uint32 OPvPCapturePointNA::GetControllingFaction() const
 
 void OPvPCapturePointNA::SpawnNPCsForTeam(uint32 team)
 {
-    const creature_type * creatures = NULL;
+    creature_type const* creatures = nullptr;
     if (team == ALLIANCE)
-        creatures=AllianceControlNPCs;
+        creatures = AllianceControlNPCs;
     else if (team == HORDE)
-        creatures=HordeControlNPCs;
+        creatures = HordeControlNPCs;
     else
         return;
     for (int i = 0; i < NA_CONTROL_NPC_NUM; ++i)
-        AddCreature(i, creatures[i].entry, creatures[i].teamval, creatures[i].map, creatures[i].x, creatures[i].y, creatures[i].z, creatures[i].o, 1000000);
+        AddCreature(i, creatures[i].entry, creatures[i].map, creatures[i].x, creatures[i].y, creatures[i].z, creatures[i].o, OutdoorPvP::GetTeamIdByTeam(team), 1000000);
 }
 
 void OPvPCapturePointNA::DeSpawnNPCs()
@@ -667,7 +667,7 @@ class OutdoorPvP_nagrand : public OutdoorPvPScript
         {
         }
 
-        OutdoorPvP* GetOutdoorPvP() const OVERRIDE
+        OutdoorPvP* GetOutdoorPvP() const override
         {
             return new OutdoorPvPNA();
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -48,29 +48,29 @@ public:
     {
        boss_gizrul_the_slavenerAI(Creature* creature) : BossAI(creature, DATA_GIZRUL_THE_SLAVENER) { }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             _Reset();
         }
 
-        void IsSummonedBy(Unit* /*summoner*/) OVERRIDE
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             me->GetMotionMaster()->MovePath(GIZRUL_PATH, false);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             events.ScheduleEvent(EVENT_FATAL_BITE, urand(17000,20000));
             events.ScheduleEvent(EVENT_INFECTED_BITE, urand(10000,12000));
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -100,7 +100,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_gizrul_the_slavenerAI(creature);
     }

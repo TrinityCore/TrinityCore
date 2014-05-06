@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -47,9 +47,13 @@ namespace ByteConverter
 #if TRINITY_ENDIAN == TRINITY_BIGENDIAN
 template<typename T> inline void EndianConvert(T& val) { ByteConverter::apply<T>(&val); }
 template<typename T> inline void EndianConvertReverse(T&) { }
+template<typename T> inline void EndianConvertPtr(void* val) { ByteConverter::apply<T>(val); }
+template<typename T> inline void EndianConvertPtrReverse(void*) { }
 #else
 template<typename T> inline void EndianConvert(T&) { }
 template<typename T> inline void EndianConvertReverse(T& val) { ByteConverter::apply<T>(&val); }
+template<typename T> inline void EndianConvertPtr(void*) { }
+template<typename T> inline void EndianConvertPtrReverse(void* val) { ByteConverter::apply<T>(val); }
 #endif
 
 template<typename T> void EndianConvert(T*);         // will generate link error

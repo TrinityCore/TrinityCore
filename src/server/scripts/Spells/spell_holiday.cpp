@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -99,14 +99,14 @@ class spell_love_is_in_the_air_romantic_picnic : public SpellScriptLoader
                     target->RemoveAura(SPELL_ROMANTIC_PICNIC_ACHIEV);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_love_is_in_the_air_romantic_picnic_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_love_is_in_the_air_romantic_picnic_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_love_is_in_the_air_romantic_picnic_AuraScript();
         }
@@ -136,7 +136,7 @@ class spell_hallow_end_trick : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hallow_end_trick_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_MALE) || !sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_MALE)
                     || !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_MALE) || !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_FEMALE)
@@ -177,13 +177,13 @@ class spell_hallow_end_trick : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_hallow_end_trick_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_hallow_end_trick_SpellScript();
         }
@@ -209,7 +209,7 @@ class spell_hallow_end_trick_or_treat : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hallow_end_trick_or_treat_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TRICK) || !sSpellMgr->GetSpellInfo(SPELL_TREAT) || !sSpellMgr->GetSpellInfo(SPELL_TRICKED_OR_TREATED))
                     return false;
@@ -226,13 +226,13 @@ class spell_hallow_end_trick_or_treat : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_hallow_end_trick_or_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_hallow_end_trick_or_treat_SpellScript();
         }
@@ -247,7 +247,7 @@ class spell_hallow_end_tricky_treat : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hallow_end_tricky_treat_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TRICKY_TREAT_SPEED))
                     return false;
@@ -265,15 +265,71 @@ class spell_hallow_end_tricky_treat : public SpellScriptLoader
                     caster->CastSpell(caster, SPELL_UPSET_TUMMY, true);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_hallow_end_tricky_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_hallow_end_tricky_treat_SpellScript();
+        }
+};
+
+enum PilgrimsBountyBuffFood
+{
+    // Pilgrims Bounty Buff Food
+    SPELL_WELL_FED_AP_TRIGGER       = 65414,
+    SPELL_WELL_FED_ZM_TRIGGER       = 65412,
+    SPELL_WELL_FED_HIT_TRIGGER      = 65416,
+    SPELL_WELL_FED_HASTE_TRIGGER    = 65410,
+    SPELL_WELL_FED_SPIRIT_TRIGGER   = 65415
+};
+
+class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
+{
+    private:
+        uint32 const _triggeredSpellId;
+    public:
+        spell_pilgrims_bounty_buff_food(const char* name, uint32 triggeredSpellId) : SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
+
+        class spell_pilgrims_bounty_buff_food_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pilgrims_bounty_buff_food_AuraScript)
+        private:
+            uint32 const _triggeredSpellId;
+
+        public:
+            spell_pilgrims_bounty_buff_food_AuraScript(uint32 triggeredSpellId) : AuraScript(), _triggeredSpellId(triggeredSpellId) { }
+
+            bool Load() override
+            {
+                _handled = false;
+                return true;
+            }
+
+            void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
+            {
+                PreventDefaultAction();
+                if (_handled)
+                    return;
+
+                _handled = true;
+                GetTarget()->CastSpell(GetTarget(), _triggeredSpellId, true);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_pilgrims_bounty_buff_food_AuraScript::HandleTriggerSpell, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+
+            bool _handled;
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pilgrims_bounty_buff_food_AuraScript(_triggeredSpellId);
         }
 };
 
@@ -293,7 +349,7 @@ class spell_winter_veil_mistletoe : public SpellScriptLoader
         {
             PrepareSpellScript(spell_winter_veil_mistletoe_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_CREATE_MISTLETOE) ||
                     !sSpellMgr->GetSpellInfo(SPELL_CREATE_HOLLY) ||
@@ -311,13 +367,13 @@ class spell_winter_veil_mistletoe : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_winter_veil_mistletoe_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_winter_veil_mistletoe_SpellScript();
         }
@@ -341,7 +397,7 @@ class spell_winter_veil_px_238_winter_wondervolt : public SpellScriptLoader
         {
             PrepareSpellScript(spell_winter_veil_px_238_winter_wondervolt_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_1) ||
                     !sSpellMgr->GetSpellInfo(SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_2) ||
@@ -373,7 +429,7 @@ class spell_winter_veil_px_238_winter_wondervolt : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_winter_veil_px_238_winter_wondervolt_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
@@ -382,7 +438,7 @@ class spell_winter_veil_px_238_winter_wondervolt : public SpellScriptLoader
 
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_winter_veil_px_238_winter_wondervolt_SpellScript();
         }
@@ -396,6 +452,12 @@ void AddSC_holiday_spell_scripts()
     new spell_hallow_end_trick();
     new spell_hallow_end_trick_or_treat();
     new spell_hallow_end_tricky_treat();
+    // Pilgrims Bounty
+    new spell_pilgrims_bounty_buff_food("spell_gen_slow_roasted_turkey", SPELL_WELL_FED_AP_TRIGGER);
+    new spell_pilgrims_bounty_buff_food("spell_gen_cranberry_chutney", SPELL_WELL_FED_ZM_TRIGGER);
+    new spell_pilgrims_bounty_buff_food("spell_gen_spice_bread_stuffing", SPELL_WELL_FED_HIT_TRIGGER);
+    new spell_pilgrims_bounty_buff_food("spell_gen_pumpkin_pie", SPELL_WELL_FED_SPIRIT_TRIGGER);
+    new spell_pilgrims_bounty_buff_food("spell_gen_candied_sweet_potato", SPELL_WELL_FED_HASTE_TRIGGER);
     // Winter Veil
     new spell_winter_veil_mistletoe();
     new spell_winter_veil_px_238_winter_wondervolt();

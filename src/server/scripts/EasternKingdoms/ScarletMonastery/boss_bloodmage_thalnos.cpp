@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -46,7 +46,7 @@ class boss_bloodmage_thalnos : public CreatureScript
 public:
     boss_bloodmage_thalnos() : CreatureScript("boss_bloodmage_thalnos") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_bloodmage_thalnosAI(creature);
     }
@@ -61,7 +61,7 @@ public:
         uint32 FlameSpike_Timer;
         uint32 FireNova_Timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             HpYell = false;
             FlameShock_Timer = 10000;
@@ -70,17 +70,17 @@ public:
             FireNova_Timer = 40000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
         }
 
-        void KilledUnit(Unit* /*Victim*/) OVERRIDE
+        void KilledUnit(Unit* /*Victim*/) override
         {
             Talk(SAY_KILL);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

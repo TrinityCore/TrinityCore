@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -991,9 +991,9 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleSetAmmoOpcode(WorldPacket& recvData)
 {
-    if (!GetPlayer()->IsAlive())
+    if (!_player->IsAlive())
     {
-        GetPlayer()->SendEquipError(EQUIP_ERR_YOU_ARE_DEAD, NULL, NULL);
+        _player->SendEquipError(EQUIP_ERR_YOU_ARE_DEAD, NULL, NULL);
         return;
     }
 
@@ -1002,10 +1002,18 @@ void WorldSession::HandleSetAmmoOpcode(WorldPacket& recvData)
 
     recvData >> item;
 
-    if (!item)
-        GetPlayer()->RemoveAmmo();
+    if (item)
+    {
+        if (!_player->GetItemCount(item))
+        {
+            _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
+            return;
+        }
+
+        _player->SetAmmo(item);
+    }
     else
-        GetPlayer()->SetAmmo(item);
+        _player->RemoveAmmo();
 }
 
 void WorldSession::SendEnchantmentLog(uint64 target, uint64 caster, uint32 itemId, uint32 enchantId)
@@ -1202,6 +1210,11 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //get geminfo from dbc storage
         GemProps[i] = (Gems[i]) ? sGemPropertiesStore.LookupEntry(Gems[i]->GetTemplate()->GemProperties) : NULL;
 
+    // Find first prismatic socket
+    int32 firstPrismatic = 0;
+    while (firstPrismatic < MAX_GEM_SOCKETS && itemProto->Socket[firstPrismatic].Color)
+        ++firstPrismatic;
+
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //check for hack maybe
     {
         if (!GemProps[i])
@@ -1214,11 +1227,8 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
             if (!itemTarget->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT))
                 return;
 
-            // not first not-colored (not normaly used) socket
-            if (i != 0 && !itemProto->Socket[i-1].Color && (i+1 >= MAX_GEM_SOCKETS || itemProto->Socket[i+1].Color))
+            if (i != firstPrismatic)
                 return;
-
-            // ok, this is first not colored socket for item with prismatic socket
         }
 
         // tried to put normal gem in meta socket

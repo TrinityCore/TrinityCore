@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -47,22 +47,23 @@ namespace Trinity
     class AchievementChatBuilder
     {
         public:
-            AchievementChatBuilder(Player const& player, ChatMsg msgtype, int32 textId, uint32 ach_id)
-                : i_player(player), i_msgtype(msgtype), i_textId(textId), i_achievementId(ach_id) { }
+            AchievementChatBuilder(Player const* player, ChatMsg msgType, uint32 textId, uint32 achievementId)
+                : _player(player), _msgType(msgType), _textId(textId), _achievementId(achievementId) { }
 
-            void operator()(WorldPacket& data, LocaleConstant loc_idx)
+            void operator()(WorldPacket& data, LocaleConstant locale)
             {
-                std::string text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
-                ChatHandler::BuildChatPacket(data, i_msgtype, LANG_UNIVERSAL, &i_player, &i_player, text, i_achievementId);
+                BroadcastText const* bct = sObjectMgr->GetBroadcastText(_textId);
+
+                ChatHandler::BuildChatPacket(data, _msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _player, _player, bct ? bct->GetText(locale, _player->getGender()) : "", _achievementId);
             }
 
         private:
-            Player const& i_player;
-            ChatMsg i_msgtype;
-            int32 i_textId;
-            uint32 i_achievementId;
+            Player const* _player;
+            ChatMsg _msgType;
+            int32 _textId;
+            uint32 _achievementId;
     };
-}                                                           // namespace Trinity
+} // namespace Trinity
 
 bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
 {
@@ -97,6 +98,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:                // only Children's Week achievements
         case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
         case ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL:
+        case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
             break;
         default:
             if (dataType != ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT)
@@ -110,7 +112,8 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
     switch (dataType)
     {
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE:
-        case ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT:
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT:
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_NTH_BIRTHDAY:
             return true;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_CREATURE:
             if (!creature.id || !sObjectMgr->GetCreatureTemplate(creature.id))
@@ -259,7 +262,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPED_ITEM:
             if (equipped_item.item_quality >= MAX_ITEM_QUALITY)
             {
-                TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_requirement` (Entry: %u Type: %u) for requirement ACHIEVEMENT_CRITERIA_REQUIRE_S_EQUIPED_ITEM (%u) has unknown quality state in value1 (%u), ignored.",
+                TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPED_ITEM (%u) has unknown quality state in value1 (%u), ignored.",
                     criteria->ID, criteria->requiredType, dataType, equipped_item.item_quality);
                 return false;
             }
@@ -267,7 +270,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID:
             if (!sMapStore.LookupEntry(map_id.mapId))
             {
-                TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_requirement` (Entry: %u Type: %u) for requirement ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID (%u) has unknown map id in value1 (%u), ignored.",
+                TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID (%u) has unknown map id in value1 (%u), ignored.",
                     criteria->ID, criteria->requiredType, dataType, map_id.mapId);
                 return false;
             }
@@ -289,6 +292,14 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
             {
                 TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE (%u) has non-existing race in value2 (%u), ignored.",
                     criteria->ID, criteria->requiredType, dataType, classRace.race_id);
+                return false;
+            }
+            return true;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE:
+            if (!sCharTitlesStore.LookupEntry(known_title.title_id))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE (%u) have unknown title_id in value1 (%u), ignore.",
+                    criteria->ID, criteria->requiredType, dataType, known_title.title_id);
                 return false;
             }
             return true;
@@ -317,7 +328,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
                 return false;
             return true;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE:
-            if (!source || source->GetTypeId() != TYPEID_PLAYER)
+            if (source->GetTypeId() != TYPEID_PLAYER)
                 return false;
             if (classRace.class_id && classRace.class_id != source->ToPlayer()->getClass())
                 return false;
@@ -381,22 +392,22 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             uint32 score = bg->GetTeamScore(source->GetTeamId() == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE);
             return score >= bg_loss_team_score.min_score && score <= bg_loss_team_score.max_score;
         }
-        case ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT:
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT:
         {
             if (!source->IsInWorld())
                 return false;
             Map* map = source->GetMap();
             if (!map->IsDungeon())
             {
-                TC_LOG_ERROR("achievement", "Achievement system call ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT (%u) for achievement criteria %u for non-dungeon/non-raid map %u",
-                    ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT, criteria_id, map->GetId());
-                    return false;
+                TC_LOG_ERROR("achievement", "Achievement system call ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT (%u) for achievement criteria %u for non-dungeon/non-raid map %u",
+                    dataType, criteria_id, map->GetId());
+                return false;
             }
-            InstanceScript* instance = ((InstanceMap*)map)->GetInstanceScript();
+            InstanceScript* instance = map->ToInstanceMap()->GetInstanceScript();
             if (!instance)
             {
-                TC_LOG_ERROR("achievement", "Achievement system call ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT (%u) for achievement criteria %u for map %u but map does not have a instance script",
-                    ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT, criteria_id, map->GetId());
+                TC_LOG_ERROR("achievement", "Achievement system call ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT (%u) for achievement criteria %u for map %u but map does not have a instance script",
+                    dataType, criteria_id, map->GetId());
                 return false;
             }
             return instance->CheckAchievementCriteriaMeet(criteria_id, source, target, miscvalue1);
@@ -410,6 +421,25 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID:
             return source->GetMapId() == map_id.mapId;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_NTH_BIRTHDAY:
+        {
+            time_t birthday_start = time_t(sWorld->getIntConfig(CONFIG_BIRTHDAY_TIME));
+            tm birthday_tm;
+            ACE_OS::localtime_r(&birthday_start, &birthday_tm);
+
+            // exactly N birthday
+            birthday_tm.tm_year += birthday_login.nth_birthday;
+
+            time_t birthday = mktime(&birthday_tm);
+            time_t now = sWorld->GetGameTime();
+            return now <= birthday + DAY && now >= birthday;
+        }
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE:
+        {
+            if (CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(known_title.title_id))
+                return source->HasTitle(titleInfo->bit_index);
+            return false;
+        }
         default:
             break;
     }
@@ -631,9 +661,9 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement) 
 
     if (Guild* guild = sGuildMgr->GetGuildById(GetPlayer()->GetGuildId()))
     {
-        Trinity::AchievementChatBuilder say_builder(*GetPlayer(), CHAT_MSG_GUILD_ACHIEVEMENT, LANG_ACHIEVEMENT_EARNED, achievement->ID);
-        Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> say_do(say_builder);
-        guild->BroadcastWorker(say_do, GetPlayer());
+        Trinity::AchievementChatBuilder _builder(GetPlayer(), CHAT_MSG_GUILD_ACHIEVEMENT, BROADCAST_TEXT_ACHIEVEMENT_EARNED, achievement->ID);
+        Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> _localizer(_builder);
+        guild->BroadcastWorker(_localizer, GetPlayer());
     }
 
     if (achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_KILL | ACHIEVEMENT_FLAG_REALM_FIRST_REACH))
@@ -649,16 +679,10 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement) 
     // if player is in world he can tell his friends about new achievement
     else if (GetPlayer()->IsInWorld())
     {
-        CellCoord p = Trinity::ComputeCellCoord(GetPlayer()->GetPositionX(), GetPlayer()->GetPositionY());
-
-        Cell cell(p);
-        cell.SetNoCreate();
-
-        Trinity::AchievementChatBuilder say_builder(*GetPlayer(), CHAT_MSG_ACHIEVEMENT, LANG_ACHIEVEMENT_EARNED, achievement->ID);
-        Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> say_do(say_builder);
-        Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> > say_worker(GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), say_do);
-        TypeContainerVisitor<Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> >, WorldTypeMapContainer > message(say_worker);
-        cell.Visit(p, message, *GetPlayer()->GetMap(), *GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
+        Trinity::AchievementChatBuilder _builder(GetPlayer(), CHAT_MSG_ACHIEVEMENT, BROADCAST_TEXT_ACHIEVEMENT_EARNED, achievement->ID);
+        Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> _localizer(_builder);
+        Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> > _worker(GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), _localizer);
+        GetPlayer()->VisitNearbyWorldObject(sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), _worker);
     }
 
     WorldPacket data(SMSG_ACHIEVEMENT_EARNED, 8+4+8);
@@ -1562,6 +1586,20 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
             }
+            case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
+            {
+                // This criteria is only called directly after login - with expected miscvalue1 == 1
+                if (!miscValue1)
+                    continue;
+
+                // They have no proper requirements in dbc
+                AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
+                if (!data || !data->Meets(GetPlayer(), unit))
+                    continue;
+
+                SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
+                break;
+            }
             // std case: not exist in DBC, not triggered in code as result
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALTH:
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_SPELLPOWER:
@@ -1574,7 +1612,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID:
             case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
             case ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK:
-            case ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE:
                 break;                                   // Not implemented yet :(
         }
 
@@ -1717,6 +1754,8 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
             return progress->counter >= achievementCriteria->get_killing_blow.killCount;
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
             return achievementCriteria->win_arena.count && progress->counter >= achievementCriteria->win_arena.count;
+        case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
+            return true;
         // handle all statistic-only criteria here
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
         case ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP:
@@ -2038,25 +2077,30 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
     // mail
     if (reward->sender)
     {
-        Item* item = reward->itemId ? Item::CreateItem(reward->itemId, 1, GetPlayer()) : NULL;
+        MailDraft draft(reward->mailTemplate);
 
-        int loc_idx = GetPlayer()->GetSession()->GetSessionDbLocaleIndex();
-
-        // subject and text
-        std::string subject = reward->subject;
-        std::string text = reward->text;
-        if (loc_idx >= 0)
+        if (!reward->mailTemplate)
         {
-            if (AchievementRewardLocale const* loc = sAchievementMgr->GetAchievementRewardLocale(achievement))
+            // subject and text
+            std::string subject = reward->subject;
+            std::string text = reward->text;
+
+            int locIdx = GetPlayer()->GetSession()->GetSessionDbLocaleIndex();
+            if (locIdx >= 0)
             {
-                ObjectMgr::GetLocaleString(loc->subject, loc_idx, subject);
-                ObjectMgr::GetLocaleString(loc->text, loc_idx, text);
+                if (AchievementRewardLocale const* loc = sAchievementMgr->GetAchievementRewardLocale(achievement))
+                {
+                    ObjectMgr::GetLocaleString(loc->subject, locIdx, subject);
+                    ObjectMgr::GetLocaleString(loc->text, locIdx, text);
+                }
             }
+
+            draft = MailDraft(subject, text);
         }
 
-        MailDraft draft(subject, text);
-
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+        Item* item = reward->itemId ? Item::CreateItem(reward->itemId, 1, GetPlayer()) : NULL;
         if (item)
         {
             // save new item before send
@@ -2287,11 +2331,24 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 
         switch (criteria->requiredType)
         {
-            case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:          // any cases
-                break;
             case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE:
+            case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
+            case ACHIEVEMENT_CRITERIA_TYPE_FALL_WITHOUT_DYING:
+            case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:
+            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
+            case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
+            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL:
+            case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
+            case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
+            case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT:
+            case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
+            case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:
+            case ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL:
+            case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
             case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
-                break;                                      // any cases
+            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
+                // achievement requires db data
+                break;
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
             {
                 AchievementEntry const* achievement = sAchievementMgr->GetAchievement(criteria->referredAchievement);
@@ -2304,43 +2361,21 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 
                 continue;
             }
-            case ACHIEVEMENT_CRITERIA_TYPE_FALL_WITHOUT_DYING:
-                break;                                      // any cases
-            case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET: // any cases
-                break;
-            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:      // any cases
-                break;
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA: // need skip generic cases
                 if (criteria->additionalRequirements[0].additionalRequirement_type != ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE)
                     continue;
                 break;
-            case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM: // any cases
-                break;
-            case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
-                break;                                      // any cases
-            case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT:
-                break;                                      // any cases
             case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:        // need skip generic cases
                 if (criteria->do_emote.count == 0)
                     continue;
                 break;
-            case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:
-                break;                                      // any cases
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL:        // skip statistics
                 if (criteria->win_duel.duelCount == 0)
                     continue;
                 break;
-            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:     // any cases
-                break;
             case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:       // need skip generic cases
                 if (criteria->loot_type.lootTypeCount != 1)
                     continue;
-                break;
-            case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
-                break;                                      // any cases
-            case ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL:
-                break;                                      // any cases
-            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL:  // any cases
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST:
             case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:        // only Children's Week achievements
@@ -2352,8 +2387,6 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
                     continue;
                 break;
             }
-            case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
-                break;
             default:                                        // type not use DB data, ignore
                 continue;
         }
@@ -2408,8 +2441,8 @@ void AchievementGlobalMgr::LoadRewards()
 
     m_achievementRewards.clear();                           // need for reload case
 
-    //                                               0      1        2        3     4       5        6
-    QueryResult result = WorldDatabase.Query("SELECT entry, title_A, title_H, item, sender, subject, text FROM achievement_reward");
+    //                                               0      1        2        3     4       5        6     7
+    QueryResult result = WorldDatabase.Query("SELECT entry, title_A, title_H, item, sender, subject, text, mailTemplate FROM achievement_reward");
 
     if (!result)
     {
@@ -2423,20 +2456,21 @@ void AchievementGlobalMgr::LoadRewards()
     {
         Field* fields = result->Fetch();
         uint32 entry = fields[0].GetUInt32();
-        const AchievementEntry* pAchievement = GetAchievement(entry);
-        if (!pAchievement)
+        AchievementEntry const* achievement = GetAchievement(entry);
+        if (!achievement)
         {
             TC_LOG_ERROR("sql.sql", "Table `achievement_reward` has wrong achievement (Entry: %u), ignored.", entry);
             continue;
         }
 
         AchievementReward reward;
-        reward.titleId[0] = fields[1].GetUInt32();
-        reward.titleId[1] = fields[2].GetUInt32();
-        reward.itemId     = fields[3].GetUInt32();
-        reward.sender     = fields[4].GetUInt32();
-        reward.subject    = fields[5].GetString();
-        reward.text       = fields[6].GetString();
+        reward.titleId[0]   = fields[1].GetUInt32();
+        reward.titleId[1]   = fields[2].GetUInt32();
+        reward.itemId       = fields[3].GetUInt32();
+        reward.sender       = fields[4].GetUInt32();
+        reward.subject      = fields[5].GetString();
+        reward.text         = fields[6].GetString();
+        reward.mailTemplate = fields[7].GetUInt32();
 
         // must be title or mail at least
         if (!reward.titleId[0] && !reward.titleId[1] && !reward.sender)
@@ -2445,7 +2479,7 @@ void AchievementGlobalMgr::LoadRewards()
             continue;
         }
 
-        if (pAchievement->requiredFaction == ACHIEVEMENT_FACTION_ANY && ((reward.titleId[0] == 0) != (reward.titleId[1] == 0)))
+        if (achievement->requiredFaction == ACHIEVEMENT_FACTION_ANY && (!reward.titleId[0] ^ !reward.titleId[1]))
             TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) has title (A: %u H: %u) for only one team.", entry, reward.titleId[0], reward.titleId[1]);
 
         if (reward.titleId[0])
@@ -2487,6 +2521,20 @@ void AchievementGlobalMgr::LoadRewards()
 
             if (!reward.text.empty())
                 TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) does not have sender data but has mail text.", entry);
+
+            if (reward.mailTemplate)
+                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) does not have sender data but has mailTemplate.", entry);
+        }
+
+        if (reward.mailTemplate)
+        {
+            if (!sMailTemplateStore.LookupEntry(reward.mailTemplate))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) has invalid mailTemplate (%u).", entry, reward.mailTemplate);
+                reward.mailTemplate = 0;
+            }
+            else if (!reward.subject.empty() || !reward.text.empty())
+                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) has mailTemplate (%u) and mail subject/text.", entry, reward.mailTemplate);
         }
 
         if (reward.itemId)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,7 +24,7 @@
 #include <ace/Thread_Mutex.h>
 #include <list>
 #include <map>
-#include "UnorderedMap.h"
+#include <unordered_map>
 #include "DatabaseEnv.h"
 #include "DBCEnums.h"
 #include "ObjectDefines.h"
@@ -115,16 +115,16 @@ class InstanceSave
            but that would depend on a lot of things that can easily change in future */
         Difficulty GetDifficulty() const { return m_difficulty; }
 
+        typedef std::list<Player*> PlayerListType;
+        typedef std::list<Group*> GroupListType;
+    private:
+        bool UnloadIfEmpty();
         /* used to flag the InstanceSave as to be deleted, so the caller can delete it */
         void SetToDelete(bool toDelete)
         {
             m_toDelete = toDelete;
         }
 
-        typedef std::list<Player*> PlayerListType;
-        typedef std::list<Group*> GroupListType;
-    private:
-        bool UnloadIfEmpty();
         /* the only reason the instSave-object links are kept is because
            the object-instSave links need to be broken at reset time */
            /// @todo: Check if maybe it's enough to just store the number of players/groups
@@ -140,7 +140,7 @@ class InstanceSave
         ACE_Thread_Mutex _lock;
 };
 
-typedef UNORDERED_MAP<uint32 /*PAIR32(map, difficulty)*/, time_t /*resetTime*/> ResetTimeByMapDifficultyMap;
+typedef std::unordered_map<uint32 /*PAIR32(map, difficulty)*/, time_t /*resetTime*/> ResetTimeByMapDifficultyMap;
 
 class InstanceSaveManager
 {
@@ -152,7 +152,7 @@ class InstanceSaveManager
         ~InstanceSaveManager();
 
     public:
-        typedef UNORDERED_MAP<uint32 /*InstanceId*/, InstanceSave*> InstanceSaveHashMap;
+        typedef std::unordered_map<uint32 /*InstanceId*/, InstanceSave*> InstanceSaveHashMap;
 
         /* resetTime is a global propery of each (raid/heroic) map
            all instances of that map reset at the same time */
@@ -195,6 +195,7 @@ class InstanceSaveManager
         InstanceSave* AddInstanceSave(uint32 mapId, uint32 instanceId, Difficulty difficulty, time_t resetTime,
             bool canReset, bool load = false);
         void RemoveInstanceSave(uint32 InstanceId);
+        void UnloadInstanceSave(uint32 InstanceId);
         static void DeleteInstanceFromDB(uint32 instanceid);
 
         InstanceSave* GetInstanceSave(uint32 InstanceId);

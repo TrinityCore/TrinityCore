@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,25 +38,24 @@
 #include "MoveSplineInit.h"
 #include "GameEventMgr.h"
 
-class TrinityStringTextBuilder
+class BroadcastTextBuilder
 {
     public:
-        TrinityStringTextBuilder(WorldObject* obj, ChatMsg msgtype, int32 id, uint32 language, WorldObject* target)
-            : _source(obj), _msgType(msgtype), _textId(id), _language(language), _target(target)
-        {
-        }
+        BroadcastTextBuilder(WorldObject const* obj, ChatMsg msgtype, uint32 id, WorldObject const* target, uint32 gender = GENDER_MALE)
+            : _source(obj), _msgType(msgtype), _textId(id), _target(target), _gender(gender) { }
 
         size_t operator()(WorldPacket* data, LocaleConstant locale) const
         {
-            std::string text = sObjectMgr->GetTrinityString(_textId, locale);
-            return ChatHandler::BuildChatPacket(*data, _msgType, Language(_language), _source, _target, text, 0, "", locale);
+            BroadcastText const* bct = sObjectMgr->GetBroadcastText(_textId);
+
+            return ChatHandler::BuildChatPacket(*data, _msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _gender) : "", 0, "", locale);
         }
 
-        WorldObject* _source;
+        WorldObject const* _source;
         ChatMsg _msgType;
-        int32 _textId;
-        uint32 _language;
-        WorldObject* _target;
+        uint32 _textId;
+        WorldObject const* _target;
+        uint32 _gender;
 };
 
 SmartScript::SmartScript()
@@ -76,6 +75,7 @@ SmartScript::SmartScript()
     goOrigGUID = 0;
     mLastInvoker = 0;
     mScriptType = SMART_SCRIPT_TYPE_CREATURE;
+    isProcessingTimedActionList = false;
 }
 
 SmartScript::~SmartScript()
@@ -261,11 +261,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         {
                             if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate((*itr)->ToCreature()->GetEntry()))
                             {
-                                if ((*itr)->ToCreature()->getFaction() != ci->faction_A)
+                                if ((*itr)->ToCreature()->getFaction() != ci->faction)
                                 {
-                                    (*itr)->ToCreature()->setFaction(ci->faction_A);
+                                    (*itr)->ToCreature()->setFaction(ci->faction);
                                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_SET_FACTION: Creature entry %u, GuidLow %u set faction to %u",
-                                        (*itr)->GetEntry(), (*itr)->GetGUIDLow(), ci->faction_A);
+                                        (*itr)->GetEntry(), (*itr)->GetGUIDLow(), ci->faction);
                                 }
                             }
                         }
@@ -511,7 +511,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         // unless target is outside spell range, out of mana, or LOS.
 
                         bool _allowMove = false;
-                        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(e.action.cast.spell);
+                        SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(e.action.cast.spell);
                         int32 mana = me->GetPower(POWER_MANA);
 
                         if (me->GetDistance(*itr) > spellInfo->GetMaxRange(true) ||
@@ -759,7 +759,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             me->DoFleeToGetAssistance();
             if (e.action.flee.withEmote)
             {
-                TrinityStringTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, LANG_FLEE, LANG_UNIVERSAL, NULL);
+                BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_FLEE_FOR_ASSIST, NULL, me->getGender());
                 sCreatureTextMgr->SendChatPacket(me, builder, CHAT_MSG_MONSTER_EMOTE);
             }
             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_FLEE_FOR_ASSIST: Creature %u DoFleeToGetAssistance", me->GetGUIDLow());
@@ -972,7 +972,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 if (IsCreature(*itr))
-                    (*itr)->ToCreature()->UpdateEntry(e.action.updateTemplate.creature, e.action.updateTemplate.team ? HORDE : ALLIANCE);
+                    (*itr)->ToCreature()->UpdateEntry(e.action.updateTemplate.creature);
 
             delete targets;
             break;
@@ -1002,7 +1002,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 me->CallForHelp((float)e.action.callHelp.range);
                 if (e.action.callHelp.withEmote)
                 {
-                    TrinityStringTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, LANG_CALL_FOR_HELP, LANG_UNIVERSAL, NULL);
+                    BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_CALL_FOR_HELP, NULL, me->getGender());
                     sCreatureTextMgr->SendChatPacket(me, builder, CHAT_MSG_MONSTER_EMOTE);
                 }
                 TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_CALL_FOR_HELP: Creature %u", me->GetGUIDLow());
@@ -2551,7 +2551,10 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
         {
             ObjectListMap::iterator itr = mTargetStorage->find(e.target.stored.id);
             if (itr != mTargetStorage->end())
-                l->assign(itr->second->begin(), itr->second->end());
+            {
+                ObjectList* objectList = itr->second->GetObjectList();
+                l->assign(objectList->begin(), objectList->end());
+            }
 
             return l;
         }
@@ -2687,9 +2690,9 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_TARGET_HEALTH_PCT:
         {
-            if (!me || !me->IsInCombat() || !me->GetVictim() || !me->GetVictim()->GetMaxHealth())
+            if (!me || !me->IsInCombat() || !me->GetVictim() || !me->EnsureVictim()->GetMaxHealth())
                 return;
-            uint32 perc = (uint32)me->GetVictim()->GetHealthPct();
+            uint32 perc = (uint32)me->EnsureVictim()->GetHealthPct();
             if (perc > e.event.minMaxRepeat.max || perc < e.event.minMaxRepeat.min)
                 return;
             ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax, me->GetVictim());
@@ -2707,9 +2710,9 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_TARGET_MANA_PCT:
         {
-            if (!me || !me->IsInCombat() || !me->GetVictim() || !me->GetVictim()->GetMaxPower(POWER_MANA))
+            if (!me || !me->IsInCombat() || !me->GetVictim() || !me->EnsureVictim()->GetMaxPower(POWER_MANA))
                 return;
-            uint32 perc = uint32(100.0f * me->GetVictim()->GetPower(POWER_MANA) / me->GetVictim()->GetMaxPower(POWER_MANA));
+            uint32 perc = uint32(100.0f * me->EnsureVictim()->GetPower(POWER_MANA) / me->EnsureVictim()->GetMaxPower(POWER_MANA));
             if (perc > e.event.minMaxRepeat.max || perc < e.event.minMaxRepeat.min)
                 return;
             ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax, me->GetVictim());
@@ -2789,7 +2792,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         {
             if (!me || !me->GetVictim())
                 return;
-            uint32 count = me->GetVictim()->GetAuraCount(e.event.aura.spell);
+            uint32 count = me->EnsureVictim()->GetAuraCount(e.event.aura.spell);
             if (count < e.event.aura.count)
                 return;
             ProcessTimedAction(e, e.event.aura.repeatMin, e.event.aura.repeatMax);
@@ -3114,6 +3117,68 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             ProcessTimedAction(e, e.event.friendlyHealthPct.repeatMin, e.event.friendlyHealthPct.repeatMax, target);
             break;
         }
+        case SMART_EVENT_DISTANCE_CREATURE:
+        {
+            if (!me)
+                return;
+
+            WorldObject* creature = NULL;
+
+            if (e.event.distance.guid != 0)
+            {
+                creature = FindCreatureNear(me, e.event.distance.guid);
+
+                if (!creature)
+                    return;
+
+                if (!me->IsInRange(creature, 0, (float)e.event.distance.dist))
+                    return;
+            }
+            else if (e.event.distance.entry != 0)
+            {
+                std::list<Creature*> list;
+                me->GetCreatureListWithEntryInGrid(list, e.event.distance.entry, (float)e.event.distance.dist);
+
+                if (list.size() > 0)
+                    creature = list.front();
+            }
+
+            if (creature)
+                ProcessTimedAction(e, e.event.distance.repeat, e.event.distance.repeat);
+
+            break;
+        }
+        case SMART_EVENT_DISTANCE_GAMEOBJECT:
+        {
+            if (!me)
+                return;
+
+            WorldObject* gameobject = NULL;
+
+            if (e.event.distance.guid != 0)
+            {
+                gameobject = FindGameObjectNear(me, e.event.distance.guid);
+
+                if (!gameobject)
+                    return;
+
+                if (!me->IsInRange(gameobject, 0, (float)e.event.distance.dist))
+                    return;
+            }
+            else if (e.event.distance.entry != 0)
+            {
+                std::list<GameObject*> list;
+                me->GetGameObjectListWithEntryInGrid(list, e.event.distance.entry, (float)e.event.distance.dist);
+
+                if (list.size() > 0)
+                    gameobject = list.front();
+            }
+
+            if (gameobject)
+                ProcessTimedAction(e, e.event.distance.repeat, e.event.distance.repeat);
+
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessEvent: Unhandled Event type %u", e.GetEventType());
             break;
@@ -3133,6 +3198,10 @@ void SmartScript::InitTimer(SmartScriptHolder& e)
         case SMART_EVENT_IC_LOS:
         case SMART_EVENT_OOC_LOS:
             RecalcTimer(e, e.event.los.cooldownMin, e.event.los.cooldownMax);
+            break;
+        case SMART_EVENT_DISTANCE_CREATURE:
+        case SMART_EVENT_DISTANCE_GAMEOBJECT:
+            RecalcTimer(e, e.event.distance.repeat, e.event.distance.repeat);
             break;
         default:
             e.active = true;
@@ -3194,6 +3263,8 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
             case SMART_EVENT_TARGET_BUFFED:
             case SMART_EVENT_IS_BEHIND_TARGET:
             case SMART_EVENT_FRIENDLY_HEALTH_PCT:
+            case SMART_EVENT_DISTANCE_CREATURE:
+            case SMART_EVENT_DISTANCE_GAMEOBJECT:
             {
                 ProcessEvent(e);
                 if (e.GetScriptType() == SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
@@ -3250,6 +3321,7 @@ void SmartScript::OnUpdate(uint32 const diff)
     bool needCleanup = true;
     if (!mTimedActionList.empty())
     {
+        isProcessingTimedActionList = true;
         for (SmartAIEventList::iterator i = mTimedActionList.begin(); i != mTimedActionList.end(); ++i)
         {
             if ((*i).enableTimed)
@@ -3258,6 +3330,8 @@ void SmartScript::OnUpdate(uint32 const diff)
                 needCleanup = false;
             }
         }
+
+        isProcessingTimedActionList = false;
     }
     if (needCleanup)
         mTimedActionList.clear();
@@ -3499,6 +3573,14 @@ Unit* SmartScript::DoFindClosestFriendlyInRange(float range, bool playerOnly)
 
 void SmartScript::SetScript9(SmartScriptHolder& e, uint32 entry)
 {
+    //do NOT clear mTimedActionList if it's being iterated because it will invalidate the iterator and delete
+    // any SmartScriptHolder contained like the "e" parameter passed to this function
+    if (isProcessingTimedActionList)
+    {
+        TC_LOG_ERROR("scripts.ai", "Entry %d SourceType %u Event %u Action %u is trying to overwrite timed action list from a timed action, this is not allowed!.", e.entryOrGuid, e.GetScriptType(), e.GetEventType(), e.GetActionType());
+        return;
+    }
+
     mTimedActionList.clear();
     mTimedActionList = sSmartScriptMgr->GetScript(entry, SMART_SCRIPT_TYPE_TIMED_ACTIONLIST);
     if (mTimedActionList.empty())

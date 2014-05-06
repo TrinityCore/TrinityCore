@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -49,7 +49,7 @@ bool AddonHandler::BuildAddonPacket(WorldPacket* source, WorldPacket* target)
 
     AddOnPacked.resize(AddonRealSize);                      // resize target for zlib action
 
-    if (!uncompress(AddOnPacked.contents(), &AddonRealSize, source->contents() + CurrentPosition, source->size() - CurrentPosition)!= Z_OK)
+    if (uncompress(AddOnPacked.contents(), &AddonRealSize, source->contents() + CurrentPosition, source->size() - CurrentPosition) == Z_OK)
     {
         target->Initialize(SMSG_ADDON_INFO);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,11 +17,7 @@
 
 /*
 Blasted_Lands
-Quest support: 3628. Teleporter to Rise of the Defiler.
-*/
-
-/*
-npc_deathly_usher
+Quest support: 3628.
 */
 
 #include "ScriptMgr.h"
@@ -31,37 +27,11 @@ npc_deathly_usher
 #include "Player.h"
 #include "Group.h"
 
-/*######
-## npc_deathly_usher
-######*/
-
 enum DeathlyUsher
 {
     SPELL_TELEPORT_SINGLE               = 12885,
     SPELL_TELEPORT_SINGLE_IN_GROUP      = 13142,
     SPELL_TELEPORT_GROUP                = 27686
-};
-
-class npc_deathly_usher : public CreatureScript
-{
-public:
-    npc_deathly_usher() : CreatureScript("npc_deathly_usher") { }
-
-    struct npc_deathly_usherAI : public ScriptedAI
-    {
-        npc_deathly_usherAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) OVERRIDE
-        {
-            player->CLOSE_GOSSIP_MENU();
-            me->CastSpell(player, SPELL_TELEPORT_GROUP, true);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_deathly_usherAI(creature);
-    }
 };
 
 /*#####
@@ -76,7 +46,7 @@ class spell_razelikh_teleport_group : public SpellScriptLoader
         {
             PrepareSpellScript(spell_razelikh_teleport_group_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TELEPORT_SINGLE) && !sSpellMgr->GetSpellInfo(SPELL_TELEPORT_SINGLE_IN_GROUP))
                     return false;
@@ -99,13 +69,13 @@ class spell_razelikh_teleport_group : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_razelikh_teleport_group_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_razelikh_teleport_group_SpellScript();
         }
@@ -113,6 +83,5 @@ class spell_razelikh_teleport_group : public SpellScriptLoader
 
 void AddSC_blasted_lands()
 {
-    new npc_deathly_usher();
     new spell_razelikh_teleport_group();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -651,9 +651,9 @@ struct CharTitlesEntry
 {
     uint32  ID;                                             // 0, title ids, for example in Quest::GetCharTitleId()
     //uint32      unk1;                                     // 1 flags?
-    char*   name[16];                                       // 2-17
+    char*   nameMale[16];                                   // 2-17
                                                             // 18 string flag, unused
-    //char*       name2[16];                                // 19-34, unused
+    char*   nameFemale[16];                                 // 19-34
                                                             // 35 string flag, unused
     uint32  bit_index;                                      // 36 used in PLAYER_CHOSEN_TITLE and 1<<index in PLAYER__FIELD_KNOWN_TITLES
 };
@@ -690,7 +690,7 @@ struct ChrClassesEntry
 struct ChrRacesEntry
 {
     uint32      RaceID;                                     // 0
-                                                            // 1 unused
+    uint32      Flags;                                      // 1
     uint32      FactionID;                                  // 2 facton template id
                                                             // 3 unused
     uint32      model_m;                                    // 4
@@ -736,7 +736,7 @@ struct CreatureDisplayInfoEntry
     uint32      Displayid;                                  // 0        m_ID
     uint32      ModelId;                                    // 1        m_modelID
                                                             // 2        m_soundID
-                                                            // 3        m_extendedDisplayInfoID
+    uint32      ExtraId;                                    // 3        m_extendedDisplayInfoID
     float       scale;                                      // 4        m_creatureModelScale
                                                             // 5        m_creatureModelAlpha
                                                             // 6-8      m_textureVariation[3]
@@ -747,6 +747,31 @@ struct CreatureDisplayInfoEntry
                                                             // 13       m_particleColorID
                                                             // 14       m_creatureGeosetData
                                                             // 15       m_objectEffectPackageID
+};
+
+struct CreatureDisplayInfoExtraEntry
+{
+    //uint32 Id;                                            // 0
+    uint32 Race;                                            // 1
+    uint32 Gender;                                          // 2
+    //uint32 SkinColor;                                     // 3
+    //uint32 FaceType;                                      // 4
+    //uint32 HairType;                                      // 5
+    //uint32 HairStyle;                                     // 6
+    //uint32 FacialHair;                                    // 7
+    //uint32 HelmDisplayId;                                 // 8
+    //uint32 ShoulderDisplayId;                             // 9
+    //uint32 ShirtDisplayId;                                // 10
+    //uint32 ChestDisplayId;                                // 11
+    //uint32 BeltDisplayId;                                 // 12
+    //uint32 LegsDisplayId;                                 // 13
+    //uint32 BootsDisplayId;                                // 14
+    //uint32 WristDisplayId;                                // 15
+    //uint32 GlovesDisplayId;                               // 16
+    //uint32 TabardDisplayId;                               // 17
+    //uint32 CloakDisplayId;                                // 18
+    //uint32 CanEquip;                                      // 19
+    //char const* Texture;                                  // 20
 };
 
 struct CreatureFamilyEntry
@@ -768,7 +793,7 @@ struct CreatureFamilyEntry
 struct CreatureModelDataEntry
 {
     uint32 Id;
-    //uint32 Flags;
+    uint32 Flags;
     //char* ModelPath[16]
     //uint32 Unk1;
     float Scale;                                             // Used in calculation of unit collision data
@@ -1230,6 +1255,24 @@ struct LFGDungeonEntry
     uint32 Entry() const { return ID + (type << 24); }
 };
 
+struct LightEntry
+{
+    uint32 Id;
+    uint32 MapId;
+    float X;
+    float Y;
+    float Z;
+    //float FalloffStart;
+    //float FalloffEnd;
+    //uint32 SkyAndFog;
+    //uint32 WaterSettings;
+    //uint32 SunsetParams;
+    //uint32 OtherParams;
+    //uint32 DeathParams;
+    //uint32 Unknown;
+    //uint32 Unknown;
+    //uint32 Unknown;
+};
 
 struct LiquidTypeEntry
 {
@@ -1270,7 +1313,7 @@ struct MailTemplateEntry
     uint32      ID;                                         // 0
     //char*       subject[16];                              // 1-16
                                                             // 17 name flags, unused
-    char*       content[16];                              // 18-33
+    char*       content[16];                                // 18-33
 };
 
 struct MapEntry
@@ -1278,7 +1321,7 @@ struct MapEntry
     uint32  MapID;                                          // 0
     //char*       internalname;                             // 1 unused
     uint32  map_type;                                       // 2
-    //uint32 unk_330;                                       // 3
+    uint32  Flags;                                          // 3
                                                             // 4 0 or 1 for battlegrounds (not arenas)
     char*   name[16];                                       // 5-20
                                                             // 21 name flags, unused
@@ -1288,14 +1331,14 @@ struct MapEntry
     //char*     allianceIntro[16];                          // 40-55 text for PvP Zones
                                                             // 56 intro text flags
     uint32  multimap_id;                                    // 57
-                                                            // 58
+    //float BattlefieldMapIconScale;                        // 58
     int32   entrance_map;                                   // 59 map_id of entrance map
     float   entrance_x;                                     // 60 entrance x coordinate (if exist single entry)
     float   entrance_y;                                     // 61 entrance y coordinate (if exist single entry)
-                                                            // 62 -1, 0 and 720
+    //uint32 TimeOfDayOverride;                             // 62 -1, 0 and 720
     uint32  addon;                                          // 63 (0-original maps, 1-tbc addon)
     uint32  unk_time;                                       // 64 some kind of time?
-    //uint32 maxPlayers;                                    // 65 max players
+    uint32  maxPlayers;                                     // 65 max players, fallback if not present in MapDifficulty.dbc
 
     // Helpers
     uint32 Expansion() const { return addon; }
@@ -1323,6 +1366,8 @@ struct MapEntry
     {
         return MapID == 0 || MapID == 1 || MapID == 530 || MapID == 571;
     }
+
+    bool IsDynamicDifficultyMap() const { return Flags & MAP_FLAG_DYNAMIC_DIFFICULTY; }
 };
 
 struct MapDifficultyEntry

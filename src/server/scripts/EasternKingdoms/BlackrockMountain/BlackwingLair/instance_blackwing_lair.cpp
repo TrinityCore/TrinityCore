@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -56,10 +56,32 @@ public:
     {
         instance_blackwing_lair_InstanceMapScript(Map* map) : InstanceScript(map)
         {
+            // Razorgore
+            EggCount = 0;
+            EggEvent = 0;
+            RazorgoreTheUntamedGUID = 0;
+            RazorgoreDoorGUID = 0;
+            // Vaelastrasz the Corrupt
+            VaelastraszTheCorruptGUID = 0;
+            VaelastraszDoorGUID = 0;
+            // Broodlord Lashlayer
+            BroodlordLashlayerGUID = 0;
+            BroodlordDoorGUID = 0;
+            // 3 Dragons
+            FiremawGUID = 0;
+            EbonrocGUID = 0;
+            FlamegorGUID = 0;
+            ChrommagusDoorGUID = 0;
+            // Chormaggus
+            ChromaggusGUID = 0;
+            NefarianDoorGUID = 0;
+            // Nefarian
+            LordVictorNefariusGUID = 0;
+            NefarianGUID = 0;
             SetBossNumber(EncounterCount);
         }
 
-        void Initialize() OVERRIDE
+        void Initialize() override
         {
             // Razorgore
             EggCount = 0;
@@ -86,7 +108,7 @@ public:
             NefarianGUID = 0;
         }
 
-        void OnCreatureCreate(Creature* creature) OVERRIDE
+        void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
@@ -127,7 +149,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go) OVERRIDE
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
@@ -160,13 +182,13 @@ public:
             }
         }
 
-        void OnGameObjectRemove(GameObject* go) OVERRIDE
+        void OnGameObjectRemove(GameObject* go) override
         {
             if (go->GetEntry() == 177807) // Egg
                 EggList.remove(go->GetGUID());
         }
 
-        bool SetBossState(uint32 type, EncounterState state) OVERRIDE
+        bool SetBossState(uint32 type, EncounterState state) override
         {
             if (!InstanceScript::SetBossState(type, state))
                 return false;
@@ -216,7 +238,7 @@ public:
             return true;
         }
 
-        uint64 GetData64(uint32 id) const OVERRIDE
+        uint64 GetData64(uint32 id) const override
         {
             switch (id)
             {
@@ -234,7 +256,7 @@ public:
             return 0;
         }
 
-        void SetData(uint32 type, uint32 data) OVERRIDE
+        void SetData(uint32 type, uint32 data) override
         {
             if (type == DATA_EGG_EVENT)
             {
@@ -269,14 +291,14 @@ public:
             }
         }
 
-        void OnUnitDeath(Unit* unit) OVERRIDE
+        void OnUnitDeath(Unit* unit) override
         {
             //! HACK, needed because of buggy CreatureAI after charm
             if (unit->GetEntry() == NPC_RAZORGORE && GetBossState(BOSS_RAZORGORE) != DONE)
                 SetBossState(BOSS_RAZORGORE, DONE);
         }
 
-        void Update(uint32 diff) OVERRIDE
+        void Update(uint32 diff) override
         {
             if (_events.Empty())
                 return;
@@ -344,7 +366,7 @@ public:
         uint64 NefarianGUID;
     };
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_blackwing_lair_InstanceMapScript(map);
     }

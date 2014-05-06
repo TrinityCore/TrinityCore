@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -101,6 +101,9 @@ class PreparedStatement
         MySQLPreparedStatement* m_stmt;
         uint32 m_index;
         std::vector<PreparedStatementData> statement_data;    //- Buffer of parameters, not tied to MySQL in any way yet
+
+        PreparedStatement(PreparedStatement const& right) = delete;
+        PreparedStatement& operator=(PreparedStatement const& right) = delete;
 };
 
 //- Class of which the instances are unique per MySQLConnection
@@ -145,6 +148,9 @@ class MySQLPreparedStatement
         uint32 m_paramCount;
         std::vector<bool> m_paramsSet;
         MYSQL_BIND* m_bind;
+
+        MySQLPreparedStatement(MySQLPreparedStatement const& right) = delete;
+        MySQLPreparedStatement& operator=(MySQLPreparedStatement const& right) = delete;
 };
 
 typedef ACE_Future<PreparedQueryResult> PreparedQueryResultFuture;

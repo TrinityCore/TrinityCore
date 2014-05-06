@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -314,7 +314,8 @@ bool SpellChatLink::ValidateName(char* buffer, const char* context)
                 // found the prefix, remove it to perform spellname validation below
                 // -2 = strlen(": ")
                 uint32 spellNameLength = strlen(buffer) - skillLineNameLength - 2;
-                memcpy(buffer, buffer + skillLineNameLength + 2, spellNameLength + 1);
+                memmove(buffer, buffer + skillLineNameLength + 2, spellNameLength + 1);
+                break;
             }
         }
     }

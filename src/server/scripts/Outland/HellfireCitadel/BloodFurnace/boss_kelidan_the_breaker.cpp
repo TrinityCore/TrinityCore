@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -15,18 +15,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* ScriptData
-SDName: Boss_Kelidan_The_Breaker
-SD%Complete: 100
-SDComment:
-SDCategory: Hellfire Citadel, Blood Furnace
-EndScriptData */
-
-/* ContentData
-boss_kelidan_the_breaker
-npc_shadowmoon_channeler
-EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -71,22 +59,15 @@ const float ShadowmoonChannelers[5][4]=
 class boss_kelidan_the_breaker : public CreatureScript
 {
     public:
+        boss_kelidan_the_breaker() : CreatureScript("boss_kelidan_the_breaker") { }
 
-        boss_kelidan_the_breaker()
-            : CreatureScript("boss_kelidan_the_breaker")
+        struct boss_kelidan_the_breakerAI : public BossAI
         {
-        }
-
-        struct boss_kelidan_the_breakerAI : public ScriptedAI
-        {
-            boss_kelidan_the_breakerAI(Creature* creature) : ScriptedAI(creature)
+            boss_kelidan_the_breakerAI(Creature* creature) : BossAI(creature, DATA_KELIDAN_THE_BREAKER)
             {
-                instance = creature->GetInstanceScript();
-                for (uint8 i=0; i<5; ++i)
+                for (uint8 i = 0; i < 5; ++i)
                     Channelers[i] = 0;
             }
-
-            InstanceScript* instance;
 
             uint32 ShadowVolley_Timer;
             uint32 BurningNova_Timer;
@@ -97,8 +78,9 @@ class boss_kelidan_the_breaker : public CreatureScript
             bool addYell;
             uint64 Channelers[5];
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
+                _Reset();
                 ShadowVolley_Timer = 1000;
                 BurningNova_Timer = 15000;
                 Corruption_Timer = 5000;
@@ -108,19 +90,18 @@ class boss_kelidan_the_breaker : public CreatureScript
                 SummonChannelers();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
-                instance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* who) OVERRIDE
+            void EnterCombat(Unit* who) override
             {
+                _EnterCombat();
                 Talk(SAY_WAKE);
                 if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(true);
                 DoStartMovement(who);
-                instance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, IN_PROGRESS);
             }
 
-            void KilledUnit(Unit* /*victim*/) OVERRIDE
+            void KilledUnit(Unit* /*victim*/) override
             {
                 if (rand()%2)
                     return;
@@ -154,7 +135,7 @@ class boss_kelidan_the_breaker : public CreatureScript
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
                 if (killer)
-                    me->AI()->AttackStart(killer);
+                    AttackStart(killer);
             }
 
             uint64 GetChanneled(Creature* channeler1)
@@ -187,16 +168,13 @@ class boss_kelidan_the_breaker : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
+                _JustDied();
                 Talk(SAY_DIE);
-
-                instance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_DOOR1), true);
-                instance->HandleGameObject(instance->GetData64(DATA_DOOR6), true);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                 {
@@ -268,9 +246,9 @@ class boss_kelidan_the_breaker : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_kelidan_the_breakerAI>(creature);
+            return GetBloodFurnaceAI<boss_kelidan_the_breakerAI>(creature);
         }
 };
 
@@ -301,7 +279,7 @@ class npc_shadowmoon_channeler : public CreatureScript
             uint32 MarkOfShadow_Timer;
             uint32 check_Timer;
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 ShadowBolt_Timer = 1000+rand()%1000;
                 MarkOfShadow_Timer = 5000+rand()%2000;
@@ -310,7 +288,7 @@ class npc_shadowmoon_channeler : public CreatureScript
                     me->InterruptNonMeleeSpells(true);
             }
 
-            void EnterCombat(Unit* who) OVERRIDE
+            void EnterCombat(Unit* who) override
             {
                 if (Creature* Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
                     CAST_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->ChannelerEngaged(who);
@@ -319,13 +297,13 @@ class npc_shadowmoon_channeler : public CreatureScript
                 DoStartMovement(who);
             }
 
-            void JustDied(Unit* killer) OVERRIDE
+            void JustDied(Unit* killer) override
             {
                if (Creature* Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
                    CAST_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->ChannelerDied(killer);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                 {
@@ -366,9 +344,9 @@ class npc_shadowmoon_channeler : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_shadowmoon_channelerAI>(creature);
+            return GetBloodFurnaceAI<npc_shadowmoon_channelerAI>(creature);
         }
 };
 

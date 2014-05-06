@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,13 +36,13 @@ class instance_ramparts : public InstanceMapScript
         {
             instance_ramparts_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
-            void Initialize() OVERRIDE
+            void Initialize() override
             {
                 SetBossNumber(EncounterCount);
                 felIronChestGUID = 0;
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -53,7 +53,7 @@ class instance_ramparts : public InstanceMapScript
                 }
             }
 
-            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
+            bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -72,7 +72,7 @@ class instance_ramparts : public InstanceMapScript
                 return true;
             }
 
-            std::string GetSaveData() OVERRIDE
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -83,7 +83,7 @@ class instance_ramparts : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* strIn) OVERRIDE
+            void Load(const char* strIn) override
             {
                 if (!strIn)
                 {
@@ -121,7 +121,7 @@ class instance_ramparts : public InstanceMapScript
                 bool spawned;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_ramparts_InstanceMapScript(map);
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -831,26 +831,6 @@ namespace Trinity
             }
         private:
             WorldObject const* i_obj;
-            Unit const* i_funit;
-            float i_range;
-    };
-
-    class AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck
-    {
-        public:
-            AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck(Unit const* funit, float range)
-                : i_funit(funit), i_range(range) { }
-
-            bool operator()(const Unit* u)
-            {
-                return u->IsAlive()
-                    && i_funit->IsWithinDistInMap(u, i_range)
-                    && !i_funit->IsFriendlyTo(u)
-                    && i_funit->IsValidAttackTarget(u)
-                    && u->GetCreatureType() != CREATURE_TYPE_CRITTER
-                    && i_funit->CanSeeOrDetect(u);
-            }
-        private:
             Unit const* i_funit;
             float i_range;
     };

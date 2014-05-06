@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,7 +24,6 @@ SDCategory: Mulgore
 EndScriptData */
 
 /* ContentData
-npc_skorn_whitecloud
 npc_kyle_frenzied
 npc_plains_vision
 EndContentData */
@@ -34,41 +33,6 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "Player.h"
 #include "SpellInfo.h"
-
-/*######
-# npc_skorn_whitecloud
-######*/
-
-#define GOSSIP_SW "Tell me a story, Skorn."
-
-class npc_skorn_whitecloud : public CreatureScript
-{
-public:
-    npc_skorn_whitecloud() : CreatureScript("npc_skorn_whitecloud") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF)
-            player->SEND_GOSSIP_MENU(523, creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (!player->GetQuestRewardStatus(770))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        player->SEND_GOSSIP_MENU(522, creature->GetGUID());
-
-        return true;
-    }
-
-};
 
 /*#####
 # npc_kyle_frenzied
@@ -91,7 +55,7 @@ class npc_kyle_frenzied : public CreatureScript
 public:
     npc_kyle_frenzied() : CreatureScript("npc_kyle_frenzied") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_kyle_frenziedAI(creature);
     }
@@ -106,7 +70,7 @@ public:
         uint32 EventTimer;
         uint8 EventPhase;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             EventActive = false;
             IsMovingToLunch = false;
@@ -118,7 +82,7 @@ public:
                 me->UpdateEntry(NPC_KYLE_FRENZIED);
         }
 
-        void SpellHit(Unit* Caster, SpellInfo const* Spell) OVERRIDE
+        void SpellHit(Unit* Caster, SpellInfo const* Spell) override
         {
             if (!me->GetVictim() && !EventActive && Spell->Id == SPELL_LUNCH)
             {
@@ -138,7 +102,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 Type, uint32 PointId) OVERRIDE
+        void MovementInform(uint32 Type, uint32 PointId) override
         {
             if (Type != POINT_MOTION_TYPE || !EventActive)
                 return;
@@ -147,7 +111,7 @@ public:
                 IsMovingToLunch = false;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (EventActive)
             {
@@ -264,7 +228,7 @@ class npc_plains_vision : public CreatureScript
 public:
     npc_plains_vision() : CreatureScript("npc_plains_vision") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
           return new npc_plains_visionAI(creature);
     }
@@ -277,16 +241,16 @@ public:
         uint8 WayPointId;
         uint8 amountWP;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             WayPointId = 0;
             newWaypoint = true;
             amountWP  = 49;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void MovementInform(uint32 type, uint32 id) OVERRIDE
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -303,7 +267,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (newWaypoint)
             {
@@ -321,7 +285,6 @@ public:
 
 void AddSC_mulgore()
 {
-    new npc_skorn_whitecloud();
     new npc_kyle_frenzied();
     new npc_plains_vision();
 }

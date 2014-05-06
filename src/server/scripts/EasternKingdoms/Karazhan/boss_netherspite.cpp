@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -69,7 +69,7 @@ class boss_netherspite : public CreatureScript
 public:
     boss_netherspite() : CreatureScript("boss_netherspite") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_netherspiteAI>(creature);
     }
@@ -127,7 +127,7 @@ public:
             return sqrt((xa-xb)*(xa-xb) + (ya-yb)*(ya-yb));
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             Berserk = false;
             NetherInfusionTimer = 540000;
@@ -247,29 +247,29 @@ public:
             PortalPhase = false;
             Talk(EMOTE_PHASE_BANISH);
 
-            for (int i=0; i<3; ++i)
+            for (uint8 i = 0; i < 3; ++i)
                 me->RemoveAurasDueToSpell(NetherBuff[i]);
         }
 
         void HandleDoors(bool open) // Massive Door switcher
         {
-            if (GameObject* Door = GameObject::GetGameObject(*me, instance ? instance->GetData64(DATA_GO_MASSIVE_DOOR) : 0))
+            if (GameObject* Door = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_GO_MASSIVE_DOOR) ))
                 Door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             HandleDoors(false);
             SwitchToPortalPhase();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             HandleDoors(true);
             DestroyPortals();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

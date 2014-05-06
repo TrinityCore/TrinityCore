@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1133,7 +1133,7 @@ struct BfWGGameObjectBuilding
                 m_WG->SendUpdateWorldState(m_WorldState, m_State);
             }
             UpdateCreatureAndGo();
-            build->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[m_Team]);
+            build->SetFaction(WintergraspFaction[m_Team]);
         }
     }
 
@@ -1309,8 +1309,7 @@ struct BfWGGameObjectBuilding
             // Spawn Turret bottom
             for (uint8 i = 0; i < TowerCannon[towerid].nbTowerCannonBottom; i++)
             {
-                Position turretPos;
-                TowerCannon[towerid].TowerCannonBottom[i].GetPosition(&turretPos);
+                Position turretPos = TowerCannon[towerid].TowerCannonBottom[i].GetPosition();
                 if (Creature* turret = m_WG->SpawnCreature(NPC_WINTERGRASP_TOWER_CANNON, turretPos, TEAM_ALLIANCE))
                 {
                     m_TowerCannonBottomList.insert(turret->GetGUID());
@@ -1335,8 +1334,7 @@ struct BfWGGameObjectBuilding
             // Spawn Turret top
             for (uint8 i = 0; i < TowerCannon[towerid].nbTurretTop; i++)
             {
-                Position towerCannonPos;
-                TowerCannon[towerid].TurretTop[i].GetPosition(&towerCannonPos);
+                Position towerCannonPos = TowerCannon[towerid].TurretTop[i].GetPosition();
                 if (Creature* turret = m_WG->SpawnCreature(NPC_WINTERGRASP_TOWER_CANNON, towerCannonPos, TeamId(0)))
                 {
                     m_TurretTopList.insert(turret->GetGUID());

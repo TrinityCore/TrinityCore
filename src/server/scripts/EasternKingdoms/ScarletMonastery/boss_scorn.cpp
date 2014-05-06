@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -39,7 +39,7 @@ class boss_scorn : public CreatureScript
 public:
     boss_scorn() : CreatureScript("boss_scorn") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_scornAI(creature);
     }
@@ -53,7 +53,7 @@ public:
         uint32 MindFlay_Timer;
         uint32 FrostNova_Timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             LichSlap_Timer = 45000;
             FrostboltVolley_Timer = 30000;
@@ -61,9 +61,9 @@ public:
             FrostNova_Timer = 30000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

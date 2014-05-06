@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -702,7 +702,7 @@ bool AuctionEntry::LoadFromDB(Field* fields)
         return false;
     }
 
-    factionTemplateId = auctioneerInfo->faction_A;
+    factionTemplateId = auctioneerInfo->faction;
     auctionHouseEntry = AuctionHouseMgr::GetAuctionHouseEntry(factionTemplateId);
     if (!auctionHouseEntry)
     {
@@ -825,7 +825,7 @@ bool AuctionEntry::LoadFromFieldList(Field* fields)
         return false;
     }
 
-    factionTemplateId = auctioneerInfo->faction_A;
+    factionTemplateId = auctioneerInfo->faction;
     auctionHouseEntry = AuctionHouseMgr::GetAuctionHouseEntry(factionTemplateId);
 
     if (!auctionHouseEntry)

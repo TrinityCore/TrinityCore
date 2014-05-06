@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -87,6 +87,9 @@ struct SpellDestination
     SpellDestination(Position const& pos);
     SpellDestination(WorldObject const& wObj);
 
+    void Relocate(Position const& pos);
+    void RelocateOffset(Position const& offset);
+
     WorldLocation _position;
     uint64 _transportGUID;
     Position _transportOffset;
@@ -141,8 +144,10 @@ class SpellCastTargets
         void SetDst(float x, float y, float z, float orientation, uint32 mapId = MAPID_INVALID);
         void SetDst(Position const& pos);
         void SetDst(WorldObject const& wObj);
+        void SetDst(SpellDestination const& spellDest);
         void SetDst(SpellCastTargets const& spellTargets);
         void ModDst(Position const& pos);
+        void ModDst(SpellDestination const& spellDest);
         void RemoveDst();
 
         bool HasSrc() const { return GetTargetMask() & TARGET_FLAG_SOURCE_LOCATION; }
@@ -301,7 +306,7 @@ class Spell
         void EffectKnockBack(SpellEffIndex effIndex);
         void EffectPullTowards(SpellEffIndex effIndex);
         void EffectDispelMechanic(SpellEffIndex effIndex);
-        void EffectSummonDeadPet(SpellEffIndex effIndex);
+        void EffectResurrectPet(SpellEffIndex effIndex);
         void EffectDestroyAllTotems(SpellEffIndex effIndex);
         void EffectDurabilityDamage(SpellEffIndex effIndex);
         void EffectSkill(SpellEffIndex effIndex);
@@ -359,7 +364,7 @@ class Spell
         void SelectImplicitCasterObjectTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void SelectImplicitTargetObjectTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, WorldObject* target, uint32 effMask);
-        void SelectImplicitTrajTargets();
+        void SelectImplicitTrajTargets(SpellEffIndex effIndex);
 
         void SelectEffectTypeImplicitTargets(uint8 effIndex);
 
@@ -446,6 +451,7 @@ class Spell
         SpellInfo const* const m_spellInfo;
         Item* m_CastItem;
         uint64 m_castItemGUID;
+        uint32 m_castItemEntry;
         uint8 m_cast_count;
         uint32 m_glyphIndex;
         uint32 m_preCastSpell;
@@ -481,7 +487,7 @@ class Spell
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         int32 GetPowerCost() const { return m_powerCost; }
 
-        void UpdatePointers();                              // must be used at call Spell code after time delay (non triggered spell cast/update spell call/etc)
+        bool UpdatePointers();                              // must be used at call Spell code after time delay (non triggered spell cast/update spell call/etc)
 
         void CleanupTargetList();
 
@@ -552,7 +558,7 @@ class Spell
         GameObject* focusObject;
 
         // Damage and healing in effects need just calculate
-        int32 m_damage;           // Damge   in effects count here
+        int32 m_damage;           // Damage  in effects count here
         int32 m_healing;          // Healing in effects count here
 
         // ******************************************
@@ -634,8 +640,9 @@ class Spell
         void CallScriptBeforeHitHandlers();
         void CallScriptOnHitHandlers();
         void CallScriptAfterHitHandlers();
-        void CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex);
-        void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex);
+        void CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
+        void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
+        void CallScriptDestinationTargetSelectHandlers(SpellDestination& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         bool CheckScriptEffectImplicitTargets(uint32 effIndex, uint32 effIndexToCheck);
         std::list<SpellScript*> m_loadedScripts;
 
@@ -682,6 +689,9 @@ class Spell
         double rand_norm()                      { return m_caster->GetMap()->mtRand.randExc(); }
         double rand_chance()                    { return m_caster->GetMap()->mtRand.randExc(100.0); }
 #endif
+
+        Spell(Spell const& right) = delete;
+        Spell& operator=(Spell const& right) = delete;
 };
 
 namespace Trinity

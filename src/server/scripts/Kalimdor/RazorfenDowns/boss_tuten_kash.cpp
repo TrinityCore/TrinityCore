@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -42,7 +42,7 @@ public:
     {
         boss_tuten_kashAI(Creature* creature) : BossAI(creature, DATA_TUTEN_KASH) { }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             _Reset();
             if (!me->HasAura(SPELL_THRASH))
@@ -51,19 +51,19 @@ public:
                 DoCast(me, SPELL_VIRULENT_POISON);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             events.ScheduleEvent(EVENT_WEB_SPRAY, urand(3000, 5000));
             events.ScheduleEvent(EVENT_CURSE_OF_TUTENKASH, urand(9000, 14000));
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -95,7 +95,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_tuten_kashAI(creature);
     }

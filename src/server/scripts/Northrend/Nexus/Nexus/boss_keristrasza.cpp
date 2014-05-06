@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -59,7 +59,7 @@ class boss_keristrasza : public CreatureScript
 public:
     boss_keristrasza() : CreatureScript("boss_keristrasza") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_keristraszaAI>(creature);
     }
@@ -81,7 +81,7 @@ public:
         bool intenseCold;
         bool bEnrage;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiCrystalfireBreathTimer = 14*IN_MILLISECONDS;
             uiCrystalChainsCrystalizeTimer = DUNGEON_MODE(30*IN_MILLISECONDS, 11*IN_MILLISECONDS);
@@ -98,7 +98,7 @@ public:
             instance->SetData(DATA_KERISTRASZA_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
             DoCastAOE(SPELL_INTENSE_COLD);
@@ -106,14 +106,14 @@ public:
             instance->SetData(DATA_KERISTRASZA_EVENT, IN_PROGRESS);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
 
             instance->SetData(DATA_KERISTRASZA_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* who) OVERRIDE
+        void KilledUnit(Unit* who) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_SLAY);
@@ -157,13 +157,13 @@ public:
             }
         }
 
-        void SetGUID(uint64 guid, int32 id/* = 0 */) OVERRIDE
+        void SetGUID(uint64 guid, int32 id/* = 0 */) override
         {
             if (id == DATA_INTENSE_COLD)
                 intenseColdList.push_back(guid);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -209,11 +209,11 @@ class containment_sphere : public GameObjectScript
 public:
     containment_sphere() : GameObjectScript("containment_sphere") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
+    bool OnGossipHello(Player* /*player*/, GameObject* go) override
     {
         InstanceScript* instance = go->GetInstanceScript();
 
-        Creature* pKeristrasza = Unit::GetCreature(*go, instance ? instance->GetData64(DATA_KERISTRASZA) : 0);
+        Creature* pKeristrasza = ObjectAccessor::GetCreature(*go, instance->GetData64(DATA_KERISTRASZA));
         if (pKeristrasza && pKeristrasza->IsAlive())
         {
             // maybe these are hacks :(
@@ -247,13 +247,13 @@ class spell_intense_cold : public SpellScriptLoader
                 caster->GetAI()->SetGUID(GetTarget()->GetGUID(), DATA_INTENSE_COLD);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_intense_cold_AuraScript::HandlePeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_intense_cold_AuraScript();
         }
@@ -266,7 +266,7 @@ class achievement_intense_cold : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* player, Unit* target) OVERRIDE
+        bool OnCheck(Player* player, Unit* target) override
         {
             if (!target)
                 return false;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -69,14 +69,6 @@
 #  define ATTR_PRINTF(F, V)
 #  define ATTR_DEPRECATED
 #endif //COMPILER == COMPILER_GNU
-
-#if COMPILER_HAS_CPP11_SUPPORT
-#  define OVERRIDE override
-#  define FINAL final
-#else
-#  define OVERRIDE
-#  define FINAL
-#endif //COMPILER_HAS_CPP11_SUPPORT
 
 #define UI64FMTD ACE_UINT64_FORMAT_SPECIFIER
 #define UI64LIT(N) ACE_UINT64_LITERAL(N)

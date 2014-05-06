@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,9 +28,9 @@
 class BasicEvent
 {
     public:
-        BasicEvent() 
-        { 
-            to_Abort = false; 
+        BasicEvent()
+        {
+            to_Abort = false;
             m_addTime = 0;
             m_execTime = 0;
         }
