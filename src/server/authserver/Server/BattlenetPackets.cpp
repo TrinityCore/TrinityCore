@@ -173,7 +173,7 @@ void Battlenet::AuthComplete::Write()
 
         _stream.WriteString(GameAccountName, 5, -1);
 
-        _stream.Write(0, 64);   // Account flags
+        _stream.Write(AccountFlags, 64);
         _stream.Write(0, 32);
         _stream.Write(0, 1);
     }
