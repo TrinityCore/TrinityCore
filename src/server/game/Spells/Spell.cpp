@@ -573,6 +573,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
 
     m_CastItem = NULL;
     m_castItemGUID = 0;
+    m_castItemEntry = 0;
 
     unitTarget = NULL;
     itemTarget = NULL;
@@ -2808,9 +2809,15 @@ bool Spell::UpdateChanneledTargetList()
 void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggeredByAura)
 {
     if (m_CastItem)
+    {
         m_castItemGUID = m_CastItem->GetGUID();
+        m_castItemEntry = m_CastItem->GetEntry();
+    }
     else
+    {
         m_castItemGUID = 0;
+        m_castItemEntry = 0;
+    }
 
     InitExplicitTargets(*targets);
 
@@ -4299,6 +4306,7 @@ void Spell::TakeCastItem()
 
         m_CastItem = NULL;
         m_castItemGUID = 0;
+        m_castItemEntry = 0;
     }
 }
 
@@ -4538,6 +4546,7 @@ void Spell::TakeReagents()
 
             m_CastItem = NULL;
             m_castItemGUID = 0;
+            m_castItemEntry = 0;
         }
 
         // if GetItemTarget is also spell reagent
@@ -6371,43 +6380,8 @@ bool Spell::UpdatePointers()
         if (!m_CastItem)
             return false;
 
-        // check if the retrieved item can even cast the spell
-        ItemTemplate const* proto = m_CastItem->GetTemplate();
-        bool spellFound = false;
-        for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-        {
-            if (uint32(proto->Spells[i].SpellId) == GetSpellInfo()->Id)
-            {
-                spellFound = true;
-                break;
-            }
-        }
-
-        // check enchantment if the spell wasn't found in item proto
-        if (!spellFound)
-        {
-            for (uint8 e_slot = 0; e_slot < MAX_ENCHANTMENT_SLOT; ++e_slot)
-            {
-                uint32 enchant_id = m_CastItem->GetEnchantmentId(EnchantmentSlot(e_slot));
-                SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
-                if (!pEnchant)
-                    continue;
-
-                for (uint8 s = 0; s < MAX_ITEM_ENCHANTMENT_EFFECTS; ++s)
-                {
-                    if (pEnchant->spellid[s] == GetSpellInfo()->Id)
-                    {
-                        spellFound = true;
-                        break;
-                    }
-                }
-
-                if (spellFound)
-                    break;
-            }
-        }
-
-        if (!spellFound)
+        // check if the item is really the same, in case it has been wrapped for example
+        if (m_castItemEntry != m_CastItem->GetEntry())
             return false;
     }
 
