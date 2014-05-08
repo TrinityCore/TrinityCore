@@ -65,7 +65,7 @@ class instance_black_temple : public InstanceMapScript
                 memset(IllidanDoorGUIDs, 0, 2 * sizeof(uint64));
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -110,7 +110,7 @@ class instance_black_temple : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -140,7 +140,7 @@ class instance_black_temple : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* go) OVERRIDE
+            void OnGameObjectRemove(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -161,7 +161,7 @@ class instance_black_temple : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const OVERRIDE
+            uint64 GetData64(uint32 type) const override
             {
                 switch (type)
                 {
@@ -202,7 +202,7 @@ class instance_black_temple : public InstanceMapScript
                 return 0;
             }
 
-            std::string GetSaveData() OVERRIDE
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -213,7 +213,7 @@ class instance_black_temple : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(char const* str) OVERRIDE
+            void Load(char const* str) override
             {
                 if (!str)
                 {
@@ -266,7 +266,7 @@ class instance_black_temple : public InstanceMapScript
             uint64 IllidanDoorGUIDs[2];
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_black_temple_InstanceMapScript(map);
         }

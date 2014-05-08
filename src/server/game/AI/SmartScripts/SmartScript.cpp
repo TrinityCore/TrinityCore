@@ -38,25 +38,24 @@
 #include "MoveSplineInit.h"
 #include "GameEventMgr.h"
 
-class TrinityStringTextBuilder
+class BroadcastTextBuilder
 {
     public:
-        TrinityStringTextBuilder(WorldObject* obj, ChatMsg msgtype, int32 id, uint32 language, WorldObject* target)
-            : _source(obj), _msgType(msgtype), _textId(id), _language(language), _target(target)
-        {
-        }
+        BroadcastTextBuilder(WorldObject const* obj, ChatMsg msgtype, uint32 id, WorldObject const* target, uint32 gender = GENDER_MALE)
+            : _source(obj), _msgType(msgtype), _textId(id), _target(target), _gender(gender) { }
 
         size_t operator()(WorldPacket* data, LocaleConstant locale) const
         {
-            std::string text = sObjectMgr->GetTrinityString(_textId, locale);
-            return ChatHandler::BuildChatPacket(*data, _msgType, Language(_language), _source, _target, text, 0, "", locale);
+            BroadcastText const* bct = sObjectMgr->GetBroadcastText(_textId);
+
+            return ChatHandler::BuildChatPacket(*data, _msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _gender) : "", 0, "", locale);
         }
 
-        WorldObject* _source;
+        WorldObject const* _source;
         ChatMsg _msgType;
-        int32 _textId;
-        uint32 _language;
-        WorldObject* _target;
+        uint32 _textId;
+        WorldObject const* _target;
+        uint32 _gender;
 };
 
 SmartScript::SmartScript()
@@ -262,11 +261,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         {
                             if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate((*itr)->ToCreature()->GetEntry()))
                             {
-                                if ((*itr)->ToCreature()->getFaction() != ci->faction_A)
+                                if ((*itr)->ToCreature()->getFaction() != ci->faction)
                                 {
-                                    (*itr)->ToCreature()->setFaction(ci->faction_A);
+                                    (*itr)->ToCreature()->setFaction(ci->faction);
                                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_SET_FACTION: Creature entry %u, GuidLow %u set faction to %u",
-                                        (*itr)->GetEntry(), (*itr)->GetGUIDLow(), ci->faction_A);
+                                        (*itr)->GetEntry(), (*itr)->GetGUIDLow(), ci->faction);
                                 }
                             }
                         }
@@ -760,7 +759,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             me->DoFleeToGetAssistance();
             if (e.action.flee.withEmote)
             {
-                TrinityStringTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, LANG_FLEE, LANG_UNIVERSAL, NULL);
+                BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_FLEE_FOR_ASSIST, NULL, me->getGender());
                 sCreatureTextMgr->SendChatPacket(me, builder, CHAT_MSG_MONSTER_EMOTE);
             }
             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_FLEE_FOR_ASSIST: Creature %u DoFleeToGetAssistance", me->GetGUIDLow());
@@ -973,7 +972,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 if (IsCreature(*itr))
-                    (*itr)->ToCreature()->UpdateEntry(e.action.updateTemplate.creature, e.action.updateTemplate.team ? HORDE : ALLIANCE);
+                    (*itr)->ToCreature()->UpdateEntry(e.action.updateTemplate.creature);
 
             delete targets;
             break;
@@ -1003,7 +1002,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 me->CallForHelp((float)e.action.callHelp.range);
                 if (e.action.callHelp.withEmote)
                 {
-                    TrinityStringTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, LANG_CALL_FOR_HELP, LANG_UNIVERSAL, NULL);
+                    BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_CALL_FOR_HELP, NULL, me->getGender());
                     sCreatureTextMgr->SendChatPacket(me, builder, CHAT_MSG_MONSTER_EMOTE);
                 }
                 TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_CALL_FOR_HELP: Creature %u", me->GetGUIDLow());
@@ -2691,9 +2690,9 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_TARGET_HEALTH_PCT:
         {
-            if (!me || !me->IsInCombat() || !me->GetVictim() || !me->GetVictim()->GetMaxHealth())
+            if (!me || !me->IsInCombat() || !me->GetVictim() || !me->EnsureVictim()->GetMaxHealth())
                 return;
-            uint32 perc = (uint32)me->GetVictim()->GetHealthPct();
+            uint32 perc = (uint32)me->EnsureVictim()->GetHealthPct();
             if (perc > e.event.minMaxRepeat.max || perc < e.event.minMaxRepeat.min)
                 return;
             ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax, me->GetVictim());
@@ -2711,9 +2710,9 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_TARGET_MANA_PCT:
         {
-            if (!me || !me->IsInCombat() || !me->GetVictim() || !me->GetVictim()->GetMaxPower(POWER_MANA))
+            if (!me || !me->IsInCombat() || !me->GetVictim() || !me->EnsureVictim()->GetMaxPower(POWER_MANA))
                 return;
-            uint32 perc = uint32(100.0f * me->GetVictim()->GetPower(POWER_MANA) / me->GetVictim()->GetMaxPower(POWER_MANA));
+            uint32 perc = uint32(100.0f * me->EnsureVictim()->GetPower(POWER_MANA) / me->EnsureVictim()->GetMaxPower(POWER_MANA));
             if (perc > e.event.minMaxRepeat.max || perc < e.event.minMaxRepeat.min)
                 return;
             ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax, me->GetVictim());
@@ -2793,7 +2792,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         {
             if (!me || !me->GetVictim())
                 return;
-            uint32 count = me->GetVictim()->GetAuraCount(e.event.aura.spell);
+            uint32 count = me->EnsureVictim()->GetAuraCount(e.event.aura.spell);
             if (count < e.event.aura.count)
                 return;
             ProcessTimedAction(e, e.event.aura.repeatMin, e.event.aura.repeatMax);

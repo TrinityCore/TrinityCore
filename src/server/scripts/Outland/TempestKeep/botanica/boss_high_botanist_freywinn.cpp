@@ -74,7 +74,7 @@ class boss_high_botanist_freywinn : public CreatureScript
             uint32 DeadAddsCount;
             bool MoveFree;
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 Adds_List.clear();
 
@@ -85,12 +85,12 @@ class boss_high_botanist_freywinn : public CreatureScript
                 MoveFree = true;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }
 
-            void JustSummoned(Creature* summoned) OVERRIDE
+            void JustSummoned(Creature* summoned) override
             {
                 if (summoned->GetEntry() == NPC_FRAYER)
                     Adds_List.push_back(summoned->GetGUID());
@@ -107,17 +107,17 @@ class boss_high_botanist_freywinn : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* /*victim*/) OVERRIDE
+            void KilledUnit(Unit* /*victim*/) override
             {
                 Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -200,7 +200,7 @@ class boss_high_botanist_freywinn : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_high_botanist_freywinnAI(creature);
         }

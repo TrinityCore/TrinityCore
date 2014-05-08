@@ -773,7 +773,7 @@ SpellProcEventEntry const* SpellMgr::GetSpellProcEvent(uint32 spellId) const
     return NULL;
 }
 
-bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellInfo const* procSpell, uint32 procFlags, uint32 procExtra, bool active) const
+bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellInfo const* spellProto, SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellInfo const* procSpell, uint32 procFlags, uint32 procExtra, bool active) const
 {
     // No extra req need
     uint32 procEvent_procEx = PROC_EX_NONE;
@@ -784,43 +784,71 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
 
     bool hasFamilyMask = false;
 
-    /* Check Periodic Auras
+    /** 
+    
+    * @brief Check auras procced by periodics
 
-    *Dots can trigger if spell has no PROC_FLAG_SUCCESSFUL_NEGATIVE_MAGIC_SPELL
-        nor PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL
+    *Only damaging Dots can proc auras with PROC_FLAG_TAKEN_DAMAGE
 
-    *Only Hots can trigger if spell has PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL
+    *Only Dots can proc if ONLY has PROC_FLAG_DONE_PERIODIC or PROC_FLAG_TAKEN_PERIODIC.
+    
+    *Hots can proc if ONLY has PROC_FLAG_DONE_PERIODIC and spellfamily != 0
 
-    *Only dots can trigger if spell has both positivity flags or PROC_FLAG_SUCCESSFUL_NEGATIVE_MAGIC_SPELL
+    *Only Dots can proc auras with PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG or PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG
 
-    *Aura has to have PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL or spellfamily specified to trigger from Hot
+    *Only Hots can proc auras with PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS or PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS
+
+    *Only Dots can proc auras with PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG or PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG
+
+    *Only Hots can proc auras with PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS or PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS
+
+    * @param procSpell the spell proccing the aura
+    * @param procFlags proc_flags of spellProc
+    * @param procExtra proc_EX of procSpell
+    * @param EventProcFlag proc_flags of aura to be procced
+    * @param spellProto SpellInfo of aura to be procced    
 
     */
 
-    if (procFlags & PROC_FLAG_DONE_PERIODIC)
-    {
-        if (EventProcFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG)
+    /// Quick Check - If PROC_FLAG_TAKEN_DAMAGE is set for aura and procSpell dealt damage, proc no matter what kind of spell that deals the damage.
+    if (procFlags & PROC_FLAG_TAKEN_DAMAGE && EventProcFlag & PROC_FLAG_TAKEN_DAMAGE)
+        return true;
+
+    if (procFlags & PROC_FLAG_DONE_PERIODIC && EventProcFlag & PROC_FLAG_DONE_PERIODIC)
+    {        
+        if (procExtra & PROC_EX_INTERNAL_HOT)
         {
-            if (!(procExtra & PROC_EX_INTERNAL_DOT))
+            if (EventProcFlag == PROC_FLAG_DONE_PERIODIC)
+            {
+                /// no aura with only PROC_FLAG_DONE_PERIODIC and spellFamilyName == 0 can proc from a HOT.
+                if (!spellProto->SpellFamilyName)
+                    return false;
+            }
+            /// Aura must have positive procflags for a HOT to proc
+            else if (!(EventProcFlag & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS)))
                 return false;
         }
-        else if (procExtra & PROC_EX_INTERNAL_HOT)
-            procExtra |= PROC_EX_INTERNAL_REQ_FAMILY;
-        else if (EventProcFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS)
-            return false;
+        /// Aura must have negative or neutral(PROC_FLAG_DONE_PERIODIC only) procflags for a DOT to proc
+        else if (EventProcFlag != PROC_FLAG_DONE_PERIODIC)
+            if (!(EventProcFlag & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG)))
+                return false;
     }
 
-    if (procFlags & PROC_FLAG_TAKEN_PERIODIC)
-    {
-        if (EventProcFlag & PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS)
+    if (procFlags & PROC_FLAG_TAKEN_PERIODIC && EventProcFlag & PROC_FLAG_TAKEN_PERIODIC)
+    {            
+        if (procExtra & PROC_EX_INTERNAL_HOT)
         {
-            if (!(procExtra & PROC_EX_INTERNAL_DOT))
+            /// No aura that only has PROC_FLAG_TAKEN_PERIODIC can proc from a HOT.
+            if (EventProcFlag == PROC_FLAG_TAKEN_PERIODIC)
+                return false;
+            /// Aura must have positive procflags for a HOT to proc
+            if (!(EventProcFlag & (PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS)))
                 return false;
         }
-        else if (procExtra & PROC_EX_INTERNAL_HOT)
-            procExtra |= PROC_EX_INTERNAL_REQ_FAMILY;
-        else if (EventProcFlag & PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS)
-            return false;
+        /// Aura must have negative or neutral(PROC_FLAG_TAKEN_PERIODIC only) procflags for a DOT to proc
+        else if (EventProcFlag != PROC_FLAG_TAKEN_PERIODIC)
+            if (!(EventProcFlag & (PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG)))
+                return false;
     }
     // Trap casts are active by default
     if (procFlags & PROC_FLAG_DONE_TRAP_ACTIVATION)
@@ -2913,14 +2941,8 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 53096: // Quetz'lun's Judgment
                 spellInfo->MaxAffectedTargets = 1;
                 break;
-            case 42730:
-                spellInfo->Effects[EFFECT_1].TriggerSpell = 42739;
-                break;
             case 42436: // Drink! (Brewfest)
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
-                break;
-            case 59735:
-                spellInfo->Effects[EFFECT_1].TriggerSpell = 59736;
                 break;
             case 52611: // Summon Skeletons
             case 52612: // Summon Skeletons

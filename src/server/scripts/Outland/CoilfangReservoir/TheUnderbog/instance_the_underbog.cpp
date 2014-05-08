@@ -30,7 +30,7 @@ class instance_the_underbog : public InstanceMapScript
 public:
     instance_the_underbog() : InstanceMapScript("instance_the_underbog", 546) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_the_underbog_InstanceMapScript(map);
     }

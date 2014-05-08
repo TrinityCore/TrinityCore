@@ -123,7 +123,7 @@ public:
 
         uint32 BlackHoleSummonTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             BlackHoleSummonTimer = 15000;
             DoCastAOE(SPELL_NEGATIVE_ENERGY_E, false);
@@ -133,7 +133,7 @@ public:
             instance->SetBossState(DATA_MURU, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             DoCastAOE(SPELL_NEGATIVE_ENERGY_E, true);
             DoCast(me, SPELL_ENTROPIUS_SPAWN, false);
@@ -141,7 +141,7 @@ public:
             instance->SetBossState(DATA_MURU, IN_PROGRESS);
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             switch (summoned->GetEntry())
             {
@@ -159,13 +159,13 @@ public:
             Summons.Summon(summoned);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Summons.DespawnAll();
             instance->SetBossState(DATA_MURU, DONE);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -195,7 +195,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetSunwellPlateauAI<boss_entropiusAI>(creature);
     }
@@ -222,7 +222,7 @@ public:
 
         bool DarkFiend;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             DarkFiend = false;
             Phase = 1;
@@ -240,13 +240,13 @@ public:
             instance->SetBossState(DATA_MURU, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             DoCastAOE(SPELL_NEGATIVE_ENERGY, false);
             instance->SetBossState(DATA_MURU, IN_PROGRESS);
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
         {
             if (damage > me->GetHealth() && Phase == 1)
             {
@@ -260,7 +260,7 @@ public:
                 damage = 0;
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             switch (summoned->GetEntry())
             {
@@ -275,7 +275,7 @@ public:
             Summons.Summon(summoned);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -358,7 +358,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetSunwellPlateauAI<boss_muruAI>(creature);
     }
@@ -369,7 +369,7 @@ class npc_muru_portal : public CreatureScript
 public:
     npc_muru_portal() : CreatureScript("npc_muru_portal") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_muru_portalAI>(creature);
     }
@@ -391,7 +391,7 @@ public:
 
         uint32 SummonTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             SummonTimer = 5000;
 
@@ -403,7 +403,7 @@ public:
             Summons.DespawnAll();
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             if (Player* Target = ObjectAccessor::GetPlayer(*me, instance->GetData64(DATA_PLAYER_GUID)))
                 summoned->AI()->AttackStart(Target);
@@ -411,7 +411,7 @@ public:
             Summons.Summon(summoned);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* Spell) OVERRIDE
+        void SpellHit(Unit* /*caster*/, const SpellInfo* Spell) override
         {
             float x, y, z, o;
             me->GetHomePosition(x, y, z, o);
@@ -429,7 +429,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!SummonSentinel)
             {
@@ -453,7 +453,7 @@ class npc_dark_fiend : public CreatureScript
 public:
     npc_dark_fiend() : CreatureScript("npc_dark_fiend") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_dark_fiendAI(creature);
     }
@@ -465,7 +465,7 @@ public:
         uint32 WaitTimer;
         bool InAction;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             WaitTimer = 2000;
             InAction = false;
@@ -473,14 +473,14 @@ public:
             me->AddUnitState(UNIT_STATE_STUNNED);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* Spell) OVERRIDE
+        void SpellHit(Unit* /*caster*/, const SpellInfo* Spell) override
         {
             for (uint8 i = 0; i < 3; ++i)
                 if (Spell->Effects[i].Effect == 38)
                     me->DisappearAndDie();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -514,7 +514,7 @@ class npc_void_sentinel : public CreatureScript
 public:
     npc_void_sentinel() : CreatureScript("npc_void_sentinel") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_void_sentinelAI(creature);
     }
@@ -526,7 +526,7 @@ public:
         uint32 PulseTimer;
         uint32 VoidBlastTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             PulseTimer = 3000;
             VoidBlastTimer = 45000; //is this a correct timer?
@@ -536,13 +536,13 @@ public:
             DoTeleportTo(x, y, 71);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             for (uint8 i = 0; i < 8; ++i)
                 me->SummonCreature(NPC_VOID_SPAWN, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand()%6), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -569,7 +569,7 @@ class npc_blackhole : public CreatureScript
 public:
     npc_blackhole() : CreatureScript("npc_blackhole") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_blackholeAI>(creature);
     }
@@ -588,7 +588,7 @@ public:
         uint8 Phase;
         uint8 NeedForAHack;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             DespawnTimer = 15000;
             SpellTimer = 5000;
@@ -599,7 +599,7 @@ public:
             DoCastAOE(SPELL_BLACKHOLE_SPAWN, true);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (SpellTimer <= diff)
             {

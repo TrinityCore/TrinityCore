@@ -64,12 +64,12 @@ class boss_blackheart_the_inciter : public CreatureScript
         {
             boss_blackheart_the_inciterAI(Creature* creature) : BossAI(creature, DATA_BLACKHEART_THE_INCITER) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_INCITE_CHAOS, 20000);
@@ -79,19 +79,19 @@ class boss_blackheart_the_inciter : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_DEATH);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -137,7 +137,7 @@ class boss_blackheart_the_inciter : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetShadowLabyrinthAI<boss_blackheart_the_inciterAI>(creature);
         }

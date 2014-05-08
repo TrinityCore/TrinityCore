@@ -19,8 +19,9 @@
 #ifndef __BATTLEGROUNDEY_H
 #define __BATTLEGROUNDEY_H
 
-#include "Language.h"
 #include "Battleground.h"
+#include "Language.h"
+#include "Object.h"
 
 enum BG_EY_Misc
 {
@@ -255,8 +256,7 @@ struct BattlegroundEYPointIconsStruct
     uint32 WorldStateHordeControlledIndex;
 };
 
-// x, y, z, o
-const float BG_EY_TriggerPositions[EY_POINTS_MAX][4] =
+Position const BG_EY_TriggerPositions[EY_POINTS_MAX] =
 {
     {2044.28f, 1729.68f, 1189.96f, 0.017453f},  // FEL_REAVER center
     {2048.83f, 1393.65f, 1194.49f, 0.20944f},   // BLOOD_ELF center

@@ -616,9 +616,8 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
 
     pet->SetName(name);
 
-    Player* owner = pet->GetOwner();
-    if (owner && owner->GetGroup())
-        owner->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_NAME);
+    if (pet->GetOwner()->GetGroup())
+        pet->GetOwner()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_NAME);
 
     pet->RemoveByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED);
 

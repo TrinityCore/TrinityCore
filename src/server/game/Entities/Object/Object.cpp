@@ -1555,11 +1555,11 @@ void WorldObject::GetRandomPoint(const Position &pos, float distance, float &ran
     UpdateGroundPositionZ(rand_x, rand_y, rand_z);            // update to LOS height if available
 }
 
-void WorldObject::GetRandomPoint(const Position &srcPos, float distance, Position &pos) const
+Position WorldObject::GetRandomPoint(const Position &srcPos, float distance) const
 {
     float x, y, z;
     GetRandomPoint(srcPos, distance, x, y, z);
-    pos.Relocate(x, y, z, GetOrientation());
+    return Position(x, y, z, GetOrientation());
 }
 
 void WorldObject::UpdateGroundPositionZ(float x, float y, float &z) const
@@ -2171,13 +2171,8 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     }
 
     uint32 phase = PHASEMASK_NORMAL;
-    uint32 team = 0;
     if (summoner)
-    {
         phase = summoner->GetPhaseMask();
-        if (summoner->GetTypeId() == TYPEID_PLAYER)
-            team = summoner->ToPlayer()->GetTeam();
-    }
 
     TempSummon* summon = NULL;
     switch (mask)
@@ -2199,7 +2194,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             break;
     }
 
-    if (!summon->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), this, phase, entry, vehId, team, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()))
+    if (!summon->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), this, phase, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), nullptr, vehId))
     {
         delete summon;
         return NULL;
@@ -2527,22 +2522,25 @@ void WorldObject::GetClosePoint(float &x, float &y, float &z, float size, float 
     GetNearPoint(NULL, x, y, z, size, distance2d, GetOrientation() + angle);
 }
 
-void WorldObject::GetNearPosition(Position &pos, float dist, float angle)
+Position WorldObject::GetNearPosition(float dist, float angle)
 {
-    GetPosition(&pos);
+    Position pos = GetPosition();
     MovePosition(pos, dist, angle);
+    return pos;
 }
 
-void WorldObject::GetFirstCollisionPosition(Position &pos, float dist, float angle)
+Position WorldObject::GetFirstCollisionPosition(float dist, float angle)
 {
-    GetPosition(&pos);
+    Position pos = GetPosition();
     MovePositionToFirstCollision(pos, dist, angle);
+    return pos;
 }
 
-void WorldObject::GetRandomNearPosition(Position &pos, float radius)
+Position WorldObject::GetRandomNearPosition(float radius)
 {
-    GetPosition(&pos);
+    Position pos = GetPosition();
     MovePosition(pos, radius * (float)rand_norm(), (float)rand_norm() * static_cast<float>(2 * M_PI));
+    return pos;
 }
 
 void WorldObject::GetContactPoint(const WorldObject* obj, float &x, float &y, float &z, float distance2d /*= CONTACT_DISTANCE*/) const

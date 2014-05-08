@@ -41,7 +41,7 @@ class lfg_commandscript : public CommandScript
 public:
     lfg_commandscript() : CommandScript("lfg_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand lfgCommandTable[] =
         {

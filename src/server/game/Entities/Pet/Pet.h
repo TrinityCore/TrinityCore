@@ -32,7 +32,7 @@ struct PetSpell
     PetSpellType type;
 };
 
-typedef UNORDERED_MAP<uint32, PetSpell> PetSpellMap;
+typedef std::unordered_map<uint32, PetSpell> PetSpellMap;
 typedef std::vector<uint32> AutoSpellList;
 
 class Player;
@@ -95,7 +95,7 @@ class Pet : public Guardian
         void UpdateMaxHealth();
         void UpdateMaxPower(Powers power);
         void UpdateAttackPowerAndDamage(bool ranged = false);
-        void UpdateDamagePhysical(WeaponAttackType attType) OVERRIDE;
+        void UpdateDamagePhysical(WeaponAttackType attType) override;
         */
 
         void ToggleAutocast(SpellInfo const* spellInfo, bool apply);

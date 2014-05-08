@@ -146,7 +146,7 @@ public:
         uint64 m_uiActivedCreatureGUID;
         uint64 m_uiOrbGUID;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             _Reset();
             m_bIsWalking = false;
@@ -176,19 +176,19 @@ public:
             m_uiOrbGUID = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             Talk(SAY_AGGRO);
         }
 
-        void SpellHitTarget(Unit* who, SpellInfo const* spell) OVERRIDE
+        void SpellHitTarget(Unit* who, SpellInfo const* spell) override
         {
             if (who && who->GetTypeId() == TYPEID_PLAYER && spell->Id == 59302)
                 kingsBane = false;
         }
 
-        uint32 GetData(uint32 type) const OVERRIDE
+        uint32 GetData(uint32 type) const override
         {
             if (type == DATA_KINGS_BANE)
                 return kingsBane ? 1 : 0;
@@ -196,7 +196,7 @@ public:
             return 0;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (m_bIsWalking)
             {
@@ -354,13 +354,13 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
             Talk(SAY_DEATH);
         }
 
-        void KilledUnit(Unit* who) OVERRIDE
+        void KilledUnit(Unit* who) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_SLAY);
@@ -376,7 +376,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetUtgardePinnacleAI<boss_ymironAI>(creature);
     }
@@ -387,7 +387,7 @@ class achievement_kings_bane : public AchievementCriteriaScript
     public:
         achievement_kings_bane() : AchievementCriteriaScript("achievement_kings_bane") { }
 
-        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*player*/, Unit* target) override
         {
             if (!target)
                 return false;

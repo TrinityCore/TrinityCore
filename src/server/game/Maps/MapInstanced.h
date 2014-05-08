@@ -27,7 +27,7 @@ class MapInstanced : public Map
 {
     friend class MapManager;
     public:
-        typedef UNORDERED_MAP< uint32, Map*> InstancedMaps;
+        typedef std::unordered_map< uint32, Map*> InstancedMaps;
 
         MapInstanced(uint32 id, time_t expiry);
         ~MapInstanced() { }

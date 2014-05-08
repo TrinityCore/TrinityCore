@@ -23,7 +23,6 @@
 #include "BattlegroundMgr.h"
 #include "Creature.h"
 #include "Language.h"
-#include "Object.h"
 #include "Player.h"
 #include "Util.h"
 
@@ -523,14 +522,14 @@ bool BattlegroundEY::SetupBattleground()
 
     WorldSafeLocsEntry const* sg = NULL;
     sg = sWorldSafeLocsStore.LookupEntry(EY_GRAVEYARD_MAIN_ALLIANCE);
-    if (!sg || !AddSpiritGuide(EY_SPIRIT_MAIN_ALLIANCE, sg->x, sg->y, sg->z, 3.124139f, ALLIANCE))
+    if (!sg || !AddSpiritGuide(EY_SPIRIT_MAIN_ALLIANCE, sg->x, sg->y, sg->z, 3.124139f, TEAM_ALLIANCE))
     {
         TC_LOG_ERROR("sql.sql", "BatteGroundEY: Failed to spawn spirit guide! Battleground not created!");
         return false;
     }
 
     sg = sWorldSafeLocsStore.LookupEntry(EY_GRAVEYARD_MAIN_HORDE);
-    if (!sg || !AddSpiritGuide(EY_SPIRIT_MAIN_HORDE, sg->x, sg->y, sg->z, 3.193953f, HORDE))
+    if (!sg || !AddSpiritGuide(EY_SPIRIT_MAIN_HORDE, sg->x, sg->y, sg->z, 3.193953f, TEAM_HORDE))
     {
         TC_LOG_ERROR("sql.sql", "BatteGroundEY: Failed to spawn spirit guide! Battleground not created!");
         return false;
@@ -768,7 +767,7 @@ void BattlegroundEY::EventTeamCapturedPoint(Player* player, uint32 Point)
 
     WorldSafeLocsEntry const* sg = NULL;
     sg = sWorldSafeLocsStore.LookupEntry(m_CapturingPointTypes[Point].GraveYardId);
-    if (!sg || !AddSpiritGuide(Point, sg->x, sg->y, sg->z, 3.124139f, Team))
+    if (!sg || !AddSpiritGuide(Point, sg->x, sg->y, sg->z, 3.124139f, GetTeamIndexByTeamId(Team)))
         TC_LOG_ERROR("bg.battleground", "BatteGroundEY: Failed to spawn spirit guide! point: %u, team: %u, graveyard_id: %u",
             Point, Team, m_CapturingPointTypes[Point].GraveYardId);
 
@@ -782,7 +781,7 @@ void BattlegroundEY::EventTeamCapturedPoint(Player* player, uint32 Point)
 
     Creature* trigger = GetBGCreature(Point + 6, false);//0-5 spirit guides
     if (!trigger)
-       trigger = AddCreature(WORLD_TRIGGER, Point+6, Team, BG_EY_TriggerPositions[Point][0], BG_EY_TriggerPositions[Point][1], BG_EY_TriggerPositions[Point][2], BG_EY_TriggerPositions[Point][3]);
+        trigger = AddCreature(WORLD_TRIGGER, Point+6, BG_EY_TriggerPositions[Point], GetTeamIndexByTeamId(Team));
 
     //add bonus honor aura trigger creature when node is accupied
     //cast bonus aura (+50% honor in 25yards)
