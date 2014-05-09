@@ -364,6 +364,12 @@ void TradeData::SetMoney(uint32 money)
     if (m_money == money)
         return;
 
+    if (!m_player->HasEnoughMoney(money))
+    {
+        m_player->GetSession()->SendTradeStatus(TRADE_STATUS_BUSY);
+        return;
+    }
+
     m_money = money;
 
     SetAccepted(false);
