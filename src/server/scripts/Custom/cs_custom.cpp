@@ -143,7 +143,7 @@ class custom_commandscript : public CommandScript
             Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
             //If player doesnt have the quest
-            if (!quest || player->GetQuestStatus(entry) != QUEST_STATUS_INCOMPLETE)
+            if (!quest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE)
             {
                 handler->PSendSysMessage("Quest not in your quest log.");
                 handler->SetSentErrorMessage(true);
@@ -261,7 +261,7 @@ class custom_commandscript : public CommandScript
                             normalizePlayerName(name);
                             Player* player = sObjectAccessor->FindPlayerByName(name);
                             Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
-                            if (!quest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE)
+                            if (!quest || player->GetQuestStatus(entry) != QUEST_STATUS_INCOMPLETE)
                             {
                                 handler->PSendSysMessage("%s is bugged!", questTitle.c_str());
                                 return true;
