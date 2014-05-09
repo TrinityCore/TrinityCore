@@ -74,7 +74,7 @@ class custom_commandscript : public CommandScript
             if (!AccountMgr::normalizeString(accountName))
             {
                 QueryResult result = CharacterDatabase.PQuery("SELECT account FROM `characters` where UPPER(name) = UPPER('%s')", nameStr);
-                if(!result)
+                if (!result)
                 {
                     handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
                     handler->SetSentErrorMessage(true);
@@ -92,7 +92,7 @@ class custom_commandscript : public CommandScript
             if (!accountId)
             {
                 QueryResult result = CharacterDatabase.PQuery("SELECT account FROM `characters` where UPPER(name) = UPPER('%s')", nameStr);
-                if(!result)
+                if (!result)
                 {
                     handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
                     handler->SetSentErrorMessage(true);
@@ -113,16 +113,16 @@ class custom_commandscript : public CommandScript
             QueryResult result = LoginDatabase.PQuery("SELECT FROM_UNIXTIME(mutedate), mutetime, mutereason, mutedby FROM account_muted WHERE guid = '%u' ORDER BY mutedate ASC", accountId);
             if (!result)
             {
-                if(type == "account")
+                if (type == "account")
                     handler->PSendSysMessage("No mutes for account: %s", accountName);
-                else if(type == "character")
+                else if (type == "character")
                     handler->PSendSysMessage("No mutes for character: %s", accountName);
                 return true;
             }
 
-            if(type == "account")
+            if (type == "account")
                 handler->PSendSysMessage("Mutes for account: %s", accountName);
-            else if(type == "character")
+            else if (type == "character")
                 handler->PSendSysMessage("Mutes for character: %s", accountName);
             do
             {
@@ -136,13 +136,14 @@ class custom_commandscript : public CommandScript
 
             return true;
         }
+
         static bool HandleQuestCompleterCompHelper(Player* player, uint32 entry, ChatHandler* handler)
         {
             // actual code for completing
             Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
             //If player doesnt have the quest
-            if(!quest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE)
+            if (!quest || player->GetQuestStatus(entry) != QUEST_STATUS_INCOMPLETE)
             {
                 handler->PSendSysMessage("Quest not in your quest log.");
                 handler->SetSentErrorMessage(true);
@@ -154,7 +155,7 @@ class custom_commandscript : public CommandScript
             {
                 uint32 id = quest->RequiredItemId[x];
                 uint32 count = quest->RequiredItemCount[x];
-                if(!id || !count)
+                if (!id || !count)
                     continue;
 
                 uint32 curItemCount = player->GetItemCount(id, true);
@@ -209,6 +210,7 @@ class custom_commandscript : public CommandScript
             if (ReqOrRewMoney < 0)
                 player->ModifyMoney(-ReqOrRewMoney);
 
+            handler->PSendSysMessage("%s completed!", quest->GetTitle().c_str());
             player->CompleteQuest(entry);
             return true;
         }
@@ -216,7 +218,7 @@ class custom_commandscript : public CommandScript
         static bool HandleQuestCompleterStatusCommand(ChatHandler* handler, char const* args)
         {
             char* cId = handler->extractKeyFromLink((char*)args, "Hquest");
-            if(!cId)
+            if (!cId)
             {
                 handler->PSendSysMessage("Syntax: .qc $quest\n\nSearches Quest Completer to see if $quest is bugged.");
                 handler->SetSentErrorMessage(true);
@@ -233,7 +235,7 @@ class custom_commandscript : public CommandScript
             }
             else
             {
-                if(entry != 0)
+                if (entry != 0)
                 {
                     uint32 checked = 0;
                     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_QUESTCOMPLETER);
@@ -249,24 +251,23 @@ class custom_commandscript : public CommandScript
                     }
 
                     checked = (*resultCheck)[0].GetUInt32();
-                    if(checked == 1)
+                    if (checked == 1)
                     {
                         std::string name;
                         const char* playerName = handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : NULL;
-                        if(playerName)
+                        if (playerName)
                         {
                             name = playerName;
                             normalizePlayerName(name);
                             Player* player = sObjectAccessor->FindPlayerByName(name);
                             Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
-                            if(!quest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE)
+                            if (!quest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE)
                             {
                                 handler->PSendSysMessage("%s is bugged!", questTitle.c_str());
                                 return true;
                             }
                             else
                             {
-                                handler->PSendSysMessage("%s completed!", questTitle.c_str());
                                 HandleQuestCompleterCompHelper(player, entry, handler);
                                 return true;
                             }
@@ -296,7 +297,7 @@ class custom_commandscript : public CommandScript
         {
             char* cId = handler->extractKeyFromLink((char*)args, "Hquest");
 
-            if(!cId)
+            if (!cId)
             {
                 handler->PSendSysMessage("Syntax: .qc add $quest\n\nAdds $quest to the quest completer.");
                 handler->SetSentErrorMessage(true);
@@ -348,7 +349,7 @@ class custom_commandscript : public CommandScript
         {
             char* cId = handler->extractKeyFromLink((char*)args, "Hquest");
 
-            if(!cId)
+            if (!cId)
             {
                 handler->PSendSysMessage("Syntax: .qc del $quest\n\nDeletes $quest from the quest completer.");
                 handler->SetSentErrorMessage(true);
