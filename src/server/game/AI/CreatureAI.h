@@ -79,6 +79,7 @@ class CreatureAI : public UnitAI
 
     public:
         void Talk(uint8 id, WorldObject const* whisperTarget = NULL);
+        void TalkToMap(uint8 id, WorldObject const* whisperTarget = NULL);
         explicit CreatureAI(Creature* creature) : UnitAI(creature), me(creature), m_MoveInLineOfSight_locked(false) { }
 
         virtual ~CreatureAI() { }
