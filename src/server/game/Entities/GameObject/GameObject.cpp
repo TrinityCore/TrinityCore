@@ -702,6 +702,32 @@ void GameObject::getFishLoot(Loot* fishloot, Player* loot_owner)
         fishloot->FillLoot(zone, LootTemplates_Fishing, loot_owner, true);
 }
 
+void GameObject::getFishLootJunk(Loot* fishloot, Player* loot_owner)
+{
+    fishloot->clear();
+
+    uint32 zone, subzone;
+    uint32 defaultzone = 1;
+    GetZoneAndAreaId(zone, subzone);
+
+    // it can use here ,but ,if need change ,it simple and work
+    //fishloot->FillLoot(defaultzone, LootTemplates_Fishing, loot_owner, true, true, LOOT_MODE_JUNK_FISH);
+
+    fishloot->FillLoot(subzone, LootTemplates_Fishing, loot_owner, true, true, LOOT_MODE_JUNK_FISH);
+
+    // if subzone loot exist use it
+    if (fishloot->empty())  //use this becase use LOOT_MODE_JUNK_FISH
+    {
+        // else use zone loot
+        fishloot->FillLoot(zone, LootTemplates_Fishing, loot_owner, true, true, LOOT_MODE_JUNK_FISH);
+        if (fishloot->empty())
+        {
+            //else use zone 1 as default
+            fishloot->FillLoot(defaultzone, LootTemplates_Fishing, loot_owner, true, true, LOOT_MODE_JUNK_FISH);
+        }
+    }
+}
+
 void GameObject::SaveToDB()
 {
     // this should only be used when the gameobject has already been loaded
@@ -1415,7 +1441,8 @@ void GameObject::Use(Unit* user)
                     }
                     /// @todo else: junk
                     else
-                        m_respawnTime = time(NULL);
+                        //m_respawnTime = time(NULL);
+                        player->SendLoot(GetGUID(), LOOT_FISHING_JUNK);
 
                     break;
                 }
