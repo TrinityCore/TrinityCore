@@ -39,30 +39,33 @@ namespace Battlenet
     enum AuthOpcode
     {
         CMSG_AUTH_CHALLENGE         = 0x0,
+        CMSG_AUTH_RECONNECT         = 0x1,
         CMSG_AUTH_PROOF_RESPONSE    = 0x2,
         CMSG_AUTH_CHALLENGE_NEW     = 0x9,  // MoP
 
         SMSG_AUTH_COMPLETE          = 0x0,
-        SMSG_AUTH_PROOF_REQUEST     = 0x2,
+        SMSG_AUTH_PROOF_REQUEST     = 0x2
     };
 
     enum CreepOpcodes
     {
         CMSG_PING               = 0x0,
         CMSG_ENABLE_ENCRYPTION  = 0x5,
+        CMSG_INVALID_PACKET     = 0x9,
 
         SMSG_PONG               = 0x0
     };
 
     enum WoWOpcodes
     {
-        CMSG_REALM_UPDATE       = 0x0,
-        CMSG_JOIN_REQUEST       = 0x8,
+        CMSG_REALM_UPDATE_SUBSCRIBE     = 0x0,
+        CMSG_REALM_UPDATE_UNSUBSCRIBE   = 0x1,
+        CMSG_JOIN_REQUEST               = 0x8,
 
-        SMSG_CHARACTER_COUNTS   = 0x0,
-        SMSG_REALM_UPDATE       = 0x2,
-        SMSG_REALM_UPDATE_END   = 0x3,
-        SMSG_JOIN_RESULT        = 0x8
+        SMSG_CHARACTER_COUNTS           = 0x0,
+        SMSG_REALM_UPDATE               = 0x2,
+        SMSG_REALM_UPDATE_END           = 0x3,
+        SMSG_JOIN_RESULT                = 0x8
     };
 
     struct PacketHeader
@@ -118,9 +121,7 @@ namespace Battlenet
     public:
         ClientPacket(PacketHeader const& header, BitStream& stream) : Packet(header, stream) { }
 
-        void Write() override { ASSERT(!"Write not implemented for this packet."); }
-
-        virtual std::string ToString() const override { return "Battenet::ClientPacket"; };
+        void Write() override final { ASSERT(!"Write not implemented for this packet."); }
     };
 
     class ServerPacket : public Packet
@@ -129,9 +130,7 @@ namespace Battlenet
         ServerPacket(PacketHeader const& header);
         ~ServerPacket();
 
-        void Read() override { ASSERT(!"Read not implemented for server packets."); }
-
-        virtual std::string ToString() const override { return "Battenet::ServerPacket"; };
+        void Read() override final { ASSERT(!"Read not implemented for server packets."); }
 
         uint8 const* GetData() const { return _stream.GetBuffer(); }
         size_t GetSize() const { return _stream.GetSize(); }
