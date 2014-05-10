@@ -39,7 +39,7 @@ std::map<Battlenet::PacketHeader, Battlenet::Socket::PacketHandler> InitHandlers
     handlers[Battlenet::PacketHeader(Battlenet::CMSG_PING, Battlenet::CREEP)] = &Battlenet::Socket::HandlePing;
     handlers[Battlenet::PacketHeader(Battlenet::CMSG_ENABLE_ENCRYPTION, Battlenet::CREEP)] = &Battlenet::Socket::HandleEnableEncryption;
 
-    handlers[Battlenet::PacketHeader(Battlenet::CMSG_REALM_UPDATE, Battlenet::WOW)] = &Battlenet::Socket::HandleRealmUpdate;
+    handlers[Battlenet::PacketHeader(Battlenet::CMSG_REALM_UPDATE_SUBSCRIBE, Battlenet::WOW)] = &Battlenet::Socket::HandleRealmUpdateSubscribe;
     handlers[Battlenet::PacketHeader(Battlenet::CMSG_JOIN_REQUEST, Battlenet::WOW)] = &Battlenet::Socket::HandleRealmJoinRequest;
 
     return handlers;
@@ -371,7 +371,7 @@ bool Battlenet::Socket::HandleEnableEncryption(PacketHeader& /*header*/, BitStre
     return false;
 }
 
-bool Battlenet::Socket::HandleRealmUpdate(PacketHeader& /*header*/, BitStream& /*packet*/)
+bool Battlenet::Socket::HandleRealmUpdateSubscribe(PacketHeader& /*header*/, BitStream& /*packet*/)
 {
     sRealmList->UpdateIfNeed();
 
@@ -535,6 +535,8 @@ void Battlenet::Socket::OnClose()
 
 void Battlenet::Socket::Send(ServerPacket& packet)
 {
+    TC_LOG_TRACE("server.battlenet", "Battlenet::Socket::Send %s", packet.ToString().c_str());
+
     packet.Write();
 
     _crypt.EncryptSend(const_cast<uint8*>(packet.GetData()), packet.GetSize());

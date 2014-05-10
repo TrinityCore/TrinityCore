@@ -60,7 +60,7 @@ namespace Battlenet
         bool HandleEnableEncryption(PacketHeader& header, BitStream& packet);
 
         // WoW
-        bool HandleRealmUpdate(PacketHeader& header, BitStream& packet);
+        bool HandleRealmUpdateSubscribe(PacketHeader& header, BitStream& packet);
         bool HandleRealmJoinRequest(PacketHeader& header, BitStream& packet);
 
         void OnRead() override;
