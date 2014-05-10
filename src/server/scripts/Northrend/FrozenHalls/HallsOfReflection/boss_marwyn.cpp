@@ -17,6 +17,8 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "halls_of_reflection.h"
 
 enum Texts
@@ -33,6 +35,7 @@ enum Spells
     SPELL_WELL_OF_CORRUPTION                      = 72362,
     SPELL_CORRUPTED_FLESH                         = 72363,
     SPELL_SHARED_SUFFERING                        = 72368,
+    SPELL_SHARED_SUFFERING_DISPEL                 = 72373
 };
 
 enum Events
@@ -41,93 +44,130 @@ enum Events
     EVENT_OBLITERATE,
     EVENT_WELL_OF_CORRUPTION,
     EVENT_CORRUPTED_FLESH,
-    EVENT_SHARED_SUFFERING,
+    EVENT_SHARED_SUFFERING
 };
 
 class boss_marwyn : public CreatureScript
 {
-public:
-    boss_marwyn() : CreatureScript("boss_marwyn") { }
+    public:
+        boss_marwyn() : CreatureScript("boss_marwyn") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_marwynAI>(creature);
-    }
-
-    struct boss_marwynAI : public boss_horAI
-    {
-        boss_marwynAI(Creature* creature) : boss_horAI(creature) { }
-
-        void Reset() override
+        struct boss_marwynAI : public boss_horAI
         {
-            boss_horAI::Reset();
+            boss_marwynAI(Creature* creature) : boss_horAI(creature, DATA_MARWYN) { }
 
-            instance->SetBossState(DATA_MARWYN_EVENT, NOT_STARTED);
-        }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
-            Talk(SAY_AGGRO);
-            instance->SetBossState(DATA_MARWYN_EVENT, IN_PROGRESS);
-
-            events.ScheduleEvent(EVENT_OBLITERATE, 30000);          /// @todo Check timer
-            events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 13000);
-            events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20000);
-            events.ScheduleEvent(EVENT_SHARED_SUFFERING, 20000);    /// @todo Check timer
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            Talk(SAY_DEATH);
-
-            instance->SetBossState(DATA_MARWYN_EVENT, DONE);
-        }
-
-        void KilledUnit(Unit* /*victim*/) override
-        {
-            Talk(SAY_SLAY);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            // Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            switch (events.ExecuteEvent())
+            void Reset() override
             {
-                case EVENT_OBLITERATE:
-                    DoCast(SPELL_OBLITERATE);
-                    events.ScheduleEvent(EVENT_OBLITERATE, 30000);
-                    break;
-                case EVENT_WELL_OF_CORRUPTION:
-                    DoCast(SPELL_WELL_OF_CORRUPTION);
-                    events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 13000);
-                    break;
-                case EVENT_CORRUPTED_FLESH:
-                    Talk(SAY_CORRUPTED_FLESH);
-                    DoCast(SPELL_CORRUPTED_FLESH);
-                    events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20000);
-                    break;
-                case EVENT_SHARED_SUFFERING:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                        DoCast(target, SPELL_SHARED_SUFFERING);
-                    events.ScheduleEvent(EVENT_SHARED_SUFFERING, 20000);
-                    break;
+                boss_horAI::Reset();
             }
 
-            DoMeleeAttackIfReady();
-        }
-    };
+            void EnterCombat(Unit* /*who*/) override
+            {
+                Talk(SAY_AGGRO);
+                DoZoneInCombat();
+                instance->SetBossState(DATA_MARWYN, IN_PROGRESS);
 
+                events.ScheduleEvent(EVENT_OBLITERATE, urand(8000, 13000));
+                events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 13000);
+                events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20000);
+                events.ScheduleEvent(EVENT_SHARED_SUFFERING, urand(14000, 15000));
+            }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                Talk(SAY_DEATH);
+                events.Reset();
+                instance->SetBossState(DATA_MARWYN, DONE);
+            }
+
+            void KilledUnit(Unit* who) override
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_OBLITERATE:
+                        DoCastVictim(SPELL_OBLITERATE);
+                        events.ScheduleEvent(EVENT_OBLITERATE, urand(8000, 13000));
+                        break;
+                    case EVENT_WELL_OF_CORRUPTION:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            DoCast(target, SPELL_WELL_OF_CORRUPTION);
+                        events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 13000);
+                        break;
+                    case EVENT_CORRUPTED_FLESH:
+                        Talk(SAY_CORRUPTED_FLESH);
+                        DoCastAOE(SPELL_CORRUPTED_FLESH);
+                        events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20000);
+                        break;
+                    case EVENT_SHARED_SUFFERING:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            DoCast(target, SPELL_SHARED_SUFFERING);
+                        events.ScheduleEvent(EVENT_SHARED_SUFFERING, urand(14000, 15000));
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetHallsOfReflectionAI<boss_marwynAI>(creature);
+        }
+};
+
+// 72368, 72369 - Shared Suffering
+class spell_marwyn_shared_suffering : public SpellScriptLoader
+{
+    public:
+        spell_marwyn_shared_suffering() : SpellScriptLoader("spell_marwyn_shared_suffering") { }
+
+        class spell_marwyn_shared_suffering_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_marwyn_shared_suffering_AuraScript);
+
+            void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
+                    return;
+
+                if (Unit* caster = GetCaster())
+                {
+                    int32 remainingDamage = aurEff->GetAmount() * (aurEff->GetTotalTicks() - aurEff->GetTickNumber());
+                    if (remainingDamage > 0)
+                        caster->CastCustomSpell(SPELL_SHARED_SUFFERING_DISPEL, SPELLVALUE_BASE_POINT1, remainingDamage, GetTarget(), TRIGGERED_FULL_MASK);
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_marwyn_shared_suffering_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_marwyn_shared_suffering_AuraScript();
+        }
 };
 
 void AddSC_boss_marwyn()
 {
     new boss_marwyn();
+    new spell_marwyn_shared_suffering();
 }
