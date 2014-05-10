@@ -28,7 +28,6 @@
 
 void UnitAI::AttackStart(Unit* victim)
 {
-
     if (victim && me->Attack(victim, true))
         me->GetMotionMaster()->MoveChase(victim);
 }
