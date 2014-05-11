@@ -1606,7 +1606,7 @@ class npc_phantom_hallucination : public CreatureScript
 
             void Reset() override
             {
-                DoZoneInCombat(me, MAX_VISIBILITY_DISTANCE);
+                DoZoneInCombat(me, 150.0f);
             }
 
             void EnterEvadeMode() override
@@ -2089,6 +2089,9 @@ enum EscapeEvents
     EVENT_LUMBERING_ABOMINATION_CLEAVE
 };
 
+namespace hor
+{
+
 class StartMovementEvent : public BasicEvent
 {
     public:
@@ -2105,6 +2108,8 @@ class StartMovementEvent : public BasicEvent
     private:
         Creature* _owner;
 };
+
+} // namespace hor
 
 struct npc_escape_event_trash : public ScriptedAI
 {
@@ -2123,7 +2128,7 @@ struct npc_escape_event_trash : public ScriptedAI
 
     void IsSummonedBy(Unit* /*summoner*/) override
     {
-        DoZoneInCombat(me, MAX_VISIBILITY_DISTANCE);
+        DoZoneInCombat(me, 0.0f);
         if (Creature* leader = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ESCAPE_LEADER)))
         {
             me->SetInCombatWith(leader);
@@ -2157,7 +2162,7 @@ class npc_raging_ghoul : public CreatureScript
                 me->CastSpell(me, SPELL_RAGING_GHOUL_SPAWN, true);
                 me->SetReactState(REACT_PASSIVE);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                me->m_Events.AddEvent(new StartMovementEvent(me), me->m_Events.CalculateTime(5000));
+                me->m_Events.AddEvent(new hor::StartMovementEvent(me), me->m_Events.CalculateTime(5000));
 
                 npc_escape_event_trash::IsSummonedBy(summoner);
             }
@@ -2223,7 +2228,7 @@ class npc_risen_witch_doctor : public CreatureScript
                 me->CastSpell(me, SPELL_RISEN_WITCH_DOCTOR_SPAWN, true);
                 me->SetReactState(REACT_PASSIVE);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                me->m_Events.AddEvent(new StartMovementEvent(me), me->m_Events.CalculateTime(5000));
+                me->m_Events.AddEvent(new hor::StartMovementEvent(me), me->m_Events.CalculateTime(5000));
 
                 npc_escape_event_trash::IsSummonedBy(summoner);
             }
