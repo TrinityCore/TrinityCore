@@ -307,6 +307,7 @@ std::string Battlenet::RealmJoinRequest::ToString() const
 
 void Battlenet::RealmJoinResult::Write()
 {
+    _stream.Write(0, 27);
     _stream.Write(0, 1);    // Fail
     _stream.Write(ServerSeed, 32);
     _stream.Write(0, 5);            // IPv6 addresses
