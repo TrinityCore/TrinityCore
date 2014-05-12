@@ -1,0 +1,21 @@
+if(WIN32)
+ set(BOOST_DEBUG ON)
+  if(DEFINED ENV{BOOST_ROOT})
+    set(BOOST_ROOT $ENV{BOOST_ROOT})
+    set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib64-msvc-12.0)
+    message(${BOOST_ROOT})
+  else()
+    message(FATAL_ERROR "No BOOST_ROOT environment variable could be found! Please make sure it is set and the points to your Boost installation.")
+  endif()
+
+  set(Boost_ADDITIONAL_VERSIONS "1.55" "1.55.0")
+  set(Boost_USE_STATIC_LIBS        ON)
+  set(Boost_USE_MULTITHREADED      ON)
+  set(Boost_USE_STATIC_RUNTIME     OFF)
+endif()
+
+find_package(Boost 1.55 REQUIRED atomic chrono date_time exception system thread)
+
+if(Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIRS})
+endif()
