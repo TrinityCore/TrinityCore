@@ -32,8 +32,10 @@ AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email,
     if (GetId(email))
          return AccountOpResult::AOR_NAME_ALREADY_EXIST;
 
-    LoginDatabase.EscapeString(email);
-    LoginDatabase.DirectPExecute("INSERT INTO battlenet_accounts (`email`,`sha_pass_hash`) VALUES ('%s', '%s')", email.c_str(), CalculateShaPassHash(email, password).c_str());
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_ACCOUNT);
+    stmt->setString(0, email);
+    stmt->setString(1, CalculateShaPassHash(email, password));
+    LoginDatabase.Execute(stmt);
 
     return AccountOpResult::AOR_OK;
 }
@@ -41,24 +43,26 @@ AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email,
 AccountOpResult Battlenet::AccountMgr::ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword)
 {
     // Check if accounts exists
-    QueryResult result = LoginDatabase.PQuery("SELECT 1 FROM battlenet_accounts WHERE id = %u", accountId);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_EMAIL_BY_ID);
+    stmt->setUInt32(0, accountId);
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     if (!result)
         return AccountOpResult::AOR_NAME_NOT_EXIST;
 
+    Utf8ToUpperOnlyLatin(newUsername);
     if (utf8length(newUsername) > MAX_ACCOUNT_STR)
         return AccountOpResult::AOR_NAME_TOO_LONG;
 
+    Utf8ToUpperOnlyLatin(newPassword);
     if (utf8length(newPassword) > MAX_PASS_STR)
         return AccountOpResult::AOR_PASS_TOO_LONG;
 
-    Utf8ToUpperOnlyLatin(newUsername);
-    Utf8ToUpperOnlyLatin(newPassword);
-
-    LoginDatabase.EscapeString(newUsername);
-    LoginDatabase.EscapeString(newPassword);
-    LoginDatabase.PExecute("UPDATE account SET v = '', s = '', username = '%s', sha_pass_hash = '%s' WHERE id = '%u'",
-        newUsername.c_str(), CalculateShaPassHash(newUsername, newPassword).c_str(), newPassword.c_str(), accountId);
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_PASSWORD);
+    stmt->setString(0, newUsername);
+    stmt->setString(1, CalculateShaPassHash(newUsername, newPassword));
+    stmt->setUInt32(2, accountId);
+    LoginDatabase.Execute(stmt);
 
     return AccountOpResult::AOR_OK;
 }
@@ -69,31 +73,35 @@ AccountOpResult Battlenet::AccountMgr::ChangePassword(uint32 accountId, std::str
     if (!GetName(accountId, username))
         return AccountOpResult::AOR_NAME_NOT_EXIST;                          // account doesn't exist
 
+    Utf8ToUpperOnlyLatin(username);
+    Utf8ToUpperOnlyLatin(newPassword);
     if (utf8length(newPassword) > MAX_PASS_STR)
         return AccountOpResult::AOR_PASS_TOO_LONG;
 
-    Utf8ToUpperOnlyLatin(username);
-    Utf8ToUpperOnlyLatin(newPassword);
-
-    LoginDatabase.EscapeString(newPassword);
-    LoginDatabase.PExecute("UPDATE account SET v = '', s = '',  sha_pass_hash = '%s' WHERE id = '%u'",
-        CalculateShaPassHash(username, newPassword).c_str(), newPassword.c_str(), accountId);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_PASSWORD);
+    stmt->setString(0, username);
+    stmt->setString(1, CalculateShaPassHash(username, newPassword));
+    stmt->setUInt32(2, accountId);
+    LoginDatabase.Execute(stmt);
 
     return AccountOpResult::AOR_OK;
 }
 
 uint32 Battlenet::AccountMgr::GetId(std::string const& username)
 {
-    QueryResult result = LoginDatabase.PQuery("SELECT id FROM battlenet_accounts WHERE email = '%s'", username.c_str());
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_ID_BY_EMAIL);
+    stmt->setString(0, username);
+    if (PreparedQueryResult result = LoginDatabase.Query(stmt))
+        return (*result)[0].GetUInt32();
 
-    return result ? (*result)[0].GetUInt32() : 0;
+    return 0;
 }
 
 bool Battlenet::AccountMgr::GetName(uint32 accountId, std::string& name)
 {
-    QueryResult result = LoginDatabase.PQuery("SELECT email FROM battlenet_accounts WHERE id = '%u'", accountId);
-
-    if (result)
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_EMAIL_BY_ID);
+    stmt->setUInt32(0, accountId);
+    if (PreparedQueryResult result = LoginDatabase.Query(stmt))
     {
         name = (*result)[0].GetString();
         return true;
@@ -112,9 +120,12 @@ bool Battlenet::AccountMgr::CheckPassword(uint32 accountId, std::string password
     Utf8ToUpperOnlyLatin(username);
     Utf8ToUpperOnlyLatin(password);
 
-    QueryResult result = LoginDatabase.PQuery("SELECT 1 FROM battlenet_accounts WHERE id = %u AND sha_pass_hash = '%s'", accountId, CalculateShaPassHash(username, password));
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHECK_PASSWORD);
+    stmt->setUInt32(0, accountId);
+    stmt->setString(1, CalculateShaPassHash(username, password));
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
 
-    return (result) ? true : false;
+    return !result.null();
 }
 
 std::string Battlenet::AccountMgr::CalculateShaPassHash(std::string const& name, std::string const& password)
