@@ -175,6 +175,12 @@ void WorldSession::HandleArenaTeamInviteOpcode(WorldPacket& recvData)
         return;
     }
 
+    if (GetPlayer()->GetArenaTeamId(arenaTeam->GetSlot()) != arenaTeamId)
+    {
+        SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", "", ERR_ARENA_TEAM_PERMISSIONS);
+        return;
+    }
+
     // OK result but don't send invite
     if (player->GetSocial()->HasIgnore(GetPlayer()->GetGUIDLow()))
         return;
