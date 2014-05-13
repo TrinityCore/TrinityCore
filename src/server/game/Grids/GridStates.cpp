@@ -20,18 +20,6 @@
 #include "GridNotifiers.h"
 #include "Log.h"
 
-#ifdef TRINITY_DEBUG
-bool GridState::checkMagic()
-{
-    if (i_Magic != MAGIC_TESTVAL)
-    {
-        TC_LOG_ERROR("misc", "!!! GridState: Magic value gone !!!");
-        return false;
-    }
-    return true;
-}
-#endif
-
 void InvalidState::Update(Map&, NGridType&, GridInfo&, uint32) const
 { }
 

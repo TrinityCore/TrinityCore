@@ -347,6 +347,8 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
             npc_jaina_or_sylvanas_intro_horAI(Creature* creature) : ScriptedAI(creature)
             {
                 _instance = me->GetInstanceScript();
+                _utherGUID = 0;
+                _lichkingGUID = 0;
             }
 
             void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
