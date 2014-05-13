@@ -36,6 +36,7 @@
 #include "Player.h"
 #include "WorldSession.h"
 #include "Opcodes.h"
+#include "SocialServer.h"
 
 MapManager::MapManager()
 {
@@ -399,4 +400,57 @@ void MapManager::FreeInstanceId(uint32 instanceId)
         SetNextInstanceId(instanceId);
 
     _instanceIds[instanceId] = false;
+}
+
+uint32 MapManager::CanPlayerEnterRemoteMap(uint32 mapid, uint32 groupGuid, uint32 instanceId) const
+{
+    MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
+    if (!mapEntry)
+        return TRANSFER_ABORT_MAP_NOT_ALLOWED;
+
+    if (!mapEntry->IsDungeon())
+        return TRANSFER_ABORT_NONE;
+
+    Map* map = FindMap(mapid, instanceId);
+    if (!map)
+        return TRANSFER_ABORT_NONE; // insatnce will be first created for player, allow
+
+    InstanceMap* instance = map->ToInstanceMap();
+    if (!instance)
+        return TRANSFER_ABORT_MAP_NOT_ALLOWED;
+
+    // cannot enter if the instance is full (player cap), GMs don't count
+    uint32 maxPlayers = instance->GetMaxPlayers();
+    if (instance->GetPlayersCountExceptGMs() >= maxPlayers)
+        return TRANSFER_ABORT_MAX_PLAYERS;
+
+    // cannot enter while an encounter is in progress on raids
+    if (instance->IsRaid() && instance->GetInstanceScript() && instance->GetInstanceScript()->IsEncounterInProgress())
+        return TRANSFER_ABORT_ZONE_IN_COMBAT;
+
+    // cannot enter if instance is in use by another party/soloer that have a
+    // permanent save in the same instance id
+
+    Map::PlayerList const &playerList = instance->GetPlayers();
+    if (!playerList.isEmpty())
+    {
+        for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+        {
+            if (Player* iPlayer = i->GetSource())
+            {
+                if (iPlayer->IsGameMaster()) // bypass GMs
+                    continue;
+
+                if (!groupGuid) // player has not group and there is someone inside, deny entry
+                    return TRANSFER_ABORT_MAX_PLAYERS;
+
+                // player inside instance has no group or his groups is different to entering player's one, deny entry
+                if (!iPlayer->GetGroup() || iPlayer->GetGroup()->GetLowGUID() != groupGuid)
+                    return TRANSFER_ABORT_MAX_PLAYERS;
+                break;
+            }
+        }
+    }
+
+    return TRANSFER_ABORT_NONE;
 }

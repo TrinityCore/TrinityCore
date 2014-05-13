@@ -823,13 +823,10 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
     if (sWorld->CanRedirect() && !WasRedirected())
     {
         QueryResult res = CharacterDatabase.PQuery("SELECT map FROM characters WHERE guid = '%u'", playerGuid);
-        RedirectInfo const& ri = sWorld->GetNodeForMap((*res)[0].GetUInt16());
-        RedirectInfo const& curr = sWorld->GetCurrentNode();
-        if (curr.ip != ri.ip || curr.port != ri.port)
+        if (RedirectToNode((*res)[0].GetUInt16()))
         {
             m_playerLoading = false;    // redirect may fail, if it does client starts all over for char_enum
-            CharacterDatabase.PExecute("UPDATE characters SET online = 1 WHERE guid = '%u'", playerGuid);
-            SendRedirect(ri.ip.c_str(), ri.port);
+            CharacterDatabase.PExecute("UPDATE characters SET online = 3 WHERE guid = '%u'", playerGuid);
             return;
         }
     }
@@ -862,6 +859,28 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         delete holder;                                      // delete all unprocessed queries
         m_playerLoading = false;
         return;
+    }
+
+    if (WasRedirected())
+    {
+        QueryResult onlineres = CharacterDatabase.PQuery("select online from characters where guid = %u", GUID_LOPART(playerGuid));
+        if (onlineres && (*onlineres)[0].GetUInt8() == 2)
+        {
+            WorldPacket newWorld(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
+            newWorld << uint32(pCurrChar->GetMapId());
+            if (pCurrChar->GetTransport())
+                newWorld << pCurrChar->m_movementInfo.transport.pos.PositionXYZOStream();
+            else
+                newWorld << pCurrChar->PositionXYZOStream();
+
+            pCurrChar->SetTeleportDest(WorldLocation(pCurrChar->GetMapId(),
+                pCurrChar->GetPositionX(),
+                pCurrChar->GetPositionY(),
+                pCurrChar->GetPositionZ(),
+                pCurrChar->GetOrientation()));
+
+            pCurrChar->SetSemaphoreTeleportFar(true);
+        }
     }
 
     pCurrChar->GetMotionMaster()->Initialize();

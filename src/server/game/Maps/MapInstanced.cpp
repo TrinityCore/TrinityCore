@@ -184,6 +184,36 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
     return map;
 }
 
+uint32 MapInstanced::GetInstanceIdForPlayer(uint32 mapId, Player* player)
+{
+    MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
+
+    if (mapEntry->IsBattlegroundOrArena())
+        return player->GetBattlegroundId();
+    else
+    {
+        InstancePlayerBind* bind = player->GetBoundInstance(mapId, player->GetDifficulty(mapEntry->IsRaid()));
+        InstanceSave* save = bind ? bind->save : NULL;
+
+        if (!bind || !bind->perm)
+        {
+            InstanceGroupBind* groupBind = NULL;
+            Group* group = player->GetGroup();
+            if (group)
+            {
+                groupBind = group->GetBoundInstance(mapEntry);
+                if (groupBind)
+                    save = groupBind->save;
+            }
+        }
+
+        if (save)
+            return save->GetInstanceId();
+    }
+
+    return 0;
+}
+
 InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save, Difficulty difficulty)
 {
     // load/create a map

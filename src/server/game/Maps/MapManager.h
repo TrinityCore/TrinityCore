@@ -108,6 +108,7 @@ class MapManager
         void DoDelayedMovesAndRemoves();
 
         bool CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck = false);
+        uint32 CanPlayerEnterRemoteMap(uint32 mapid, uint32 groupGuid, uint32 instanceId) const;
         void InitializeVisibilityDistanceInfo();
 
         /* statistics */

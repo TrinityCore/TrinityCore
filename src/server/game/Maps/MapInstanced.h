@@ -40,6 +40,7 @@ class MapInstanced : public Map
         bool CanEnter(Player* player);
 
         Map* CreateInstanceForPlayer(const uint32 mapId, Player* player);
+        static uint32 GetInstanceIdForPlayer(uint32 mapId, Player* player);
         Map* FindInstanceMap(uint32 instanceId) const
         {
             InstancedMaps::const_iterator i = m_InstancedMaps.find(instanceId);

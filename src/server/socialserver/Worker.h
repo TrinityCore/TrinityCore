@@ -32,6 +32,7 @@ class Worker : public ZmqWorker
 public:
     void HandleSuspendComms(zmqpp::message const& msg);
     void HandleBroadcastPacket(zmqpp::message const& msg);
+    void HandleCanEnterMapResult(zmqpp::message const& msg);
 
     Worker(std::string t_u, std::string r_u): ZmqWorker(t_u, r_u) {}
 

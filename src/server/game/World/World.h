@@ -758,6 +758,7 @@ class World
         RedirectInfo const& GetNodeForMap(uint32 mapId);
         RedirectInfo const& GetCurrentNode() { return m_currNode; }
         bool CanRedirect() const { return m_bool_configs[CONFIG_ENABLE_REDIRECTS]; }
+        bool IsMapHandledByCurrentNode(uint32 mapId);
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters

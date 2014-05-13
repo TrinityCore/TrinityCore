@@ -37,10 +37,19 @@ void Worker::HandleBroadcastPacket(zmqpp::message const& msg)
 {
     zmqpp::message m = msg.copy();
     m.push_front(0xFFFFFFFF);
-    results->send(const_cast<zmqpp::message&>(m));
+    results->send(m);
+}
+
+void Worker::HandleCanEnterMapResult(zmqpp::message const& msg)
+{
+    zmqpp::message m = msg.copy();
+    m.push_front(m.get<uint32>(2));
+    results->send(m);
 }
 
 const opcode_handler handlers[OPCODES_MAX] = {
+    &Worker::HandleBroadcastPacket, // this should be a targeted send
     &Worker::HandleBroadcastPacket,
-    &Worker::HandleBroadcastPacket,
+    &Worker::HandleBroadcastPacket, // this should be a targeted send
+    &Worker::HandleCanEnterMapResult
 };

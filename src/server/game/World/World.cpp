@@ -295,7 +295,7 @@ void World::AddSession_(WorldSession* s)
     else
     {
         s->CheckCharactersAllowedToLogin();
-        if (QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM characters WHERE account = %u AND online = 1", s->GetAccountId()))
+        if (QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM characters WHERE account = %u AND online > 0", s->GetAccountId()))
         {
             WorldPacket data(CMSG_PLAYER_LOGIN, 8);
             data << uint64((*result)[0].GetUInt32());
@@ -3267,4 +3267,13 @@ RedirectInfo const& World::GetNodeForMap(uint32 mapId)
         return m_nodes[INSTANCE_NODE];
     else
         return m_nodes[CATCHALL_NODE];
+}
+
+bool World::IsMapHandledByCurrentNode(uint32 mapId)
+{
+    RedirectInfo const& ri = GetNodeForMap(mapId);
+    if (ri.ip != GetCurrentNode().ip || ri.port != GetCurrentNode().port)
+        return false;
+
+    return true;
 }

@@ -146,7 +146,11 @@ WorldSession::~WorldSession()
 {
     ///- unload player if not unloaded
     if (_player)
+    {
+        if (HasRedirected())
+            _player->SetSemaphoreTeleportFar(false);
         LogoutPlayer(!HasRedirected());
+    }
 
     /// - If have unclosed socket, close it
     if (m_Socket)
@@ -1100,7 +1104,7 @@ bool WorldSession::SendRedirect(const char* ip_str, uint16 port)
         // Save player state
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
         trans->PAppend("UPDATE characters SET online = 0 WHERE account = %u AND guid != %u", GetAccountId(), player->GetGUID());
-        trans->PAppend("UPDATE characters SET online = 1 WHERE guid = %u", player->GetGUID());
+        trans->PAppend("UPDATE characters SET online = 2 WHERE guid = %u", player->GetGUID());
         CharacterDatabase.DirectCommitTransaction(trans);
         player->SaveToDB();
         player->RemoveFromWorld();
@@ -1134,15 +1138,19 @@ bool WorldSession::SendRedirect(const char* ip_str, uint16 port)
     return true;
 }
 
-void WorldSession::RedirectToNode(uint32 mapid)
+bool WorldSession::RedirectToNode(uint32 mapid)
 {
     if (!sWorld->CanRedirect())
-        return;
+        return false;
 
     RedirectInfo const& ri = sWorld->GetNodeForMap(mapid);
-    if (sWorld->GetCurrentNode().ip != ri.ip ||
-        sWorld->GetCurrentNode().port != ri.port) //dont reconnect to current node
+    if (sWorld->GetCurrentNode().ip != ri.ip || sWorld->GetCurrentNode().port != ri.port) //dont reconnect to current node
+    {
         SendRedirect(ri.ip.c_str(), ri.port);
+        return true;
+    }
+
+    return false;
 }
 
 void WorldSession::HandleRedirectionFailed(WorldPacket& recvPacket)

@@ -78,6 +78,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "GameObjectAI.h"
+#include "SocialServer.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -2314,27 +2315,40 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             // if the player is saved before worldportack (at logout for example)
             // this will be used instead of the current location in SaveToDB
 
+            // Need to clear FROM_REDIRECT flag for situations where we were redirected before
+            // but new teleport will be handled by the same node
+            GetSession()->ClearRedirectFlag(SESSION_FLAG_FROM_REDIRECT);
             if (!GetSession()->PlayerLogout())
             {
-                WorldPacket data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
-                data << uint32(mapid);
-                if (m_transport)
-                    data << m_movementInfo.transport.pos.PositionXYZOStream();
-                else
-                    data << m_teleport_dest.PositionXYZOStream();
+                if (sWorld->IsMapHandledByCurrentNode(mapid))
+                {
+                    WorldPacket data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
+                    data << uint32(mapid);
+                    if (m_transport)
+                        data << m_movementInfo.transport.pos.PositionXYZOStream();
+                    else
+                        data << m_teleport_dest.PositionXYZOStream();
 
-                GetSession()->SendPacket(&data);
-                SendSavedInstances();
+                    GetSession()->SendPacket(&data);
+                    SendSavedInstances();
+                }
+                else if (!IsGameMaster() && mEntry->Instanceable())
+                {
+                    zmqpp::message msg;
+                    msg << uint16(CHECK_CAN_ENTER_MAP);
+                    msg << uint32(mapid);
+                    msg << uint64(GetGUID());
+                    msg << uint32(GetGroup() ? GetGroup()->GetLowGUID() : 0);
+                    msg << MapInstanced::GetInstanceIdForPlayer(mapid, this);
+                    sSocialServer->SendCommand(msg);
+                }
+                else
+                    GetSession()->RedirectToNode(mapid);
             }
 
             // move packet sent by client always after far teleport
             // code for finish transfer to new map called in WorldSession::HandleMoveWorldportAckOpcode at client packet
             SetSemaphoreTeleportFar(true);
-
-            // Need to clear FROM_REDIRECT flag for situations where we were redirected before
-            // but new teleport will be handled by the same node
-            GetSession()->ClearRedirectFlag(SESSION_FLAG_FROM_REDIRECT);
-            GetSession()->RedirectToNode(mapid);
         }
         //else
         //    return false;

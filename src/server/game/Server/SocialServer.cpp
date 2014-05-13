@@ -171,6 +171,52 @@ void SocialServer::HandleCommand(zmqpp::message& msg)
 
             break;
         }
+        case CHECK_CAN_ENTER_MAP:
+        {
+            uint32 mapId;
+
+            msg >> mapId;
+            if (sWorld->IsMapHandledByCurrentNode(mapId))
+            {
+                uint64 playerGuid;
+                uint32 groupGuid;
+                uint32 instanceId;
+
+                msg >> playerGuid;
+                msg >> groupGuid;
+                msg >> instanceId;
+
+                zmqpp::message response;
+                response << uint16(CHECK_CAN_ENTER_MAP_RESULT);
+                response << uint32(source);
+                response << uint32(mapId);
+                response << uint64(playerGuid);
+                response << uint32(sMapMgr->CanPlayerEnterRemoteMap(mapId, groupGuid, instanceId));
+                SendCommand(response);
+            }
+            break;
+        }
+        case CHECK_CAN_ENTER_MAP_RESULT:
+        {
+            uint32 destNode;
+            uint32 mapId;
+            uint64 playerGuid;
+            uint32 result;
+
+            msg >> destNode;
+            msg >> mapId;
+            msg >> playerGuid;
+            msg >> result;
+
+            if (Player* player = HashMapHolder<Player>::Find(playerGuid))
+            {
+                if (!result)
+                    player->GetSession()->RedirectToNode(mapId);
+                else
+                    player->SendTransferAborted(mapId, TransferAbortReason(result));
+            }
+            break;
+        }
         default:
             break;
     }

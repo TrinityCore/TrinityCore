@@ -2465,6 +2465,17 @@ bool Map::CheckGridIntegrity(Creature* c, bool moved) const
     return true;
 }
 
+bool Map::CanEnter(Player* player)
+{
+    if (!sWorld->IsMapHandledByCurrentNode(GetId()))
+    {
+        player->SendTransferAborted(GetId(), TRANSFER_ABORT_NOT_FOUND);
+        return false;
+    }
+
+    return true;
+}
+
 char const* Map::GetMapName() const
 {
     return i_mapEntry ? i_mapEntry->name[sWorld->GetDefaultDbcLocale()] : "UNNAMEDMAP\x0";
