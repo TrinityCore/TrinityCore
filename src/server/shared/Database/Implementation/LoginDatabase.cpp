@@ -102,4 +102,12 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_SEL_RBAC_ACCOUNT_PERMISSIONS, "SELECT permissionId, granted FROM rbac_account_permissions WHERE accountId = ? AND (realmId = ? OR realmId = -1) ORDER BY permissionId, realmId", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_INS_RBAC_ACCOUNT_PERMISSION, "INSERT INTO rbac_account_permissions (accountId, permissionId, granted, realmId) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE granted = VALUES(granted)", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_DEL_RBAC_ACCOUNT_PERMISSION, "DELETE FROM rbac_account_permissions WHERE accountId = ? AND permissionId = ? AND (realmId = ? OR realmId = -1)", CONNECTION_ASYNC);
+
+    PrepareStatement(LOGIN_SEL_BNET_ACCOUNT_INFO, "SELECT sha_pass_hash, id, locked, lock_country, last_ip, v, s FROM battlenet_accounts WHERE email = ?", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_DEL_BNET_EXPIRED_BANS, "UPDATE battlenet_account_bans SET active = 0 WHERE active = 1 AND unbandate <> bandate AND unbandate <= UNIX_TIMESTAMP()", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_SEL_BNET_ACTIVE_ACCOUNT_BAN, "SELECT bandate, unbandate FROM battlenet_account_bans WHERE id = ? AND active = 1", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_SEL_BNET_GAME_ACCOUNTS, "SELECT a.username, a.id, ab.bandate, ab.unbandate, ab.active FROM account a LEFT JOIN account_banned ab ON a.id = ab.id WHERE battlenet_account = ?", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_SEL_BNET_GAME_ACCOUNT, "SELECT a.id, ab.bandate, ab.unbandate, ab.active FROM account a LEFT JOIN account_banned ab ON a.id = ab.id WHERE username = ? AND battlenet_account = ?", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_UPD_BNET_LAST_LOGIN_INFO, "UPDATE battlenet_accounts SET last_ip = ?, last_login = NOW(), locale = ?, failed_logins = 0, os = ? WHERE id = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_SEL_BNET_CHARACTER_COUNTS, "SELECT rc.numchars, r.id, r.Region, r.Battlegroup, r.gamebuild FROM realmcharacters rc INNER JOIN realmlist r ON rc.realmid = r.id WHERE rc.acctid = ?", CONNECTION_SYNCH);
 }
