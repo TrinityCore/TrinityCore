@@ -679,13 +679,16 @@ public:
             if (!map->IsDungeon())
                 return;
 
-            Map::PlayerList const &PlayerList = map->GetPlayers();
-            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            Map::PlayerList const &playerList = map->GetPlayers();
+            Position homePos = me->GetHomePosition();
+            for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
             {
-                if (i->GetSource()->GetPositionZ() <= DRAGON_REALM_Z-5)
+                Player* player = itr->GetSource();
+                if (player->IsInDist(&homePos, 50.0f) && player->GetPositionZ() <= DEMON_REALM_Z + 10.f)
                 {
-                    i->GetSource()->RemoveAura(AURA_SPECTRAL_REALM);
-                    i->GetSource()->TeleportTo(me->GetMap()->GetId(), i->GetSource()->GetPositionX(), i->GetSource()->GetPositionY(), DRAGON_REALM_Z+5, i->GetSource()->GetOrientation());
+                    player->RemoveAura(AURA_SPECTRAL_REALM);
+                    player->TeleportTo(me->GetMap()->GetId(), player->GetPositionX(),
+                        player->GetPositionY(), DRAGON_REALM_Z + 5, player->GetOrientation());
                 }
             }
         }
