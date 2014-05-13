@@ -195,9 +195,10 @@ bool Battlenet::Socket::HandleAuthChallenge(PacketHeader& header, BitStream& pac
     _os = info.Platform;
 
     Utf8ToUpperOnlyLatin(_accountName);
-    LoginDatabase.EscapeString(_accountName);
-    //                                                            0   1       2             3        4  5  6
-    QueryResult result = LoginDatabase.PQuery("SELECT sha_pass_hash, id, locked, lock_country, last_ip, v, s FROM battlenet_accounts WHERE email = '%s'", _accountName.c_str());
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_INFO);
+    stmt->setString(0, _accountName);
+
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
     if (!result)
     {
         AuthComplete complete;
@@ -252,10 +253,12 @@ bool Battlenet::Socket::HandleAuthChallenge(PacketHeader& header, BitStream& pac
     }
 
     //set expired bans to inactive
-    LoginDatabase.DirectExecute("UPDATE battlenet_account_bans SET active = 0 WHERE active = 1 AND unbandate <> bandate AND unbandate <= UNIX_TIMESTAMP()");
+    LoginDatabase.DirectExecute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_BNET_EXPIRED_BANS));
 
     // If the account is banned, reject the logon attempt
-    QueryResult banresult = LoginDatabase.PQuery("SELECT bandate, unbandate FROM battlenet_account_bans WHERE id = %u AND active = 1", _accountId);
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACTIVE_ACCOUNT_BAN);
+    stmt->setUInt32(0, _accountId);
+    PreparedQueryResult banresult = LoginDatabase.Query(stmt);
     if (banresult)
     {
         Field* fields = banresult->Fetch();
@@ -380,16 +383,22 @@ bool Battlenet::Socket::HandleRealmUpdateSubscribe(PacketHeader& /*header*/, Bit
     ACE_INET_Addr clientAddr;
     _socket.peer().get_remote_addr(clientAddr);
 
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHARACTER_COUNTS);
+    stmt->setUInt32(0, _gameAccountId);
+
+    if (PreparedQueryResult countResult = LoginDatabase.Query(stmt))
+    {
+        do
+        {
+            Field* fields = countResult->Fetch();
+            uint32 build = fields[4].GetUInt32();
+            counts.CharacterCounts.push_back({ { fields[2].GetUInt8(), fields[3].GetUInt8(), fields[1].GetUInt32(), (_build != build ? build : 0) }, fields[0].GetUInt8() });
+        } while (countResult->NextRow());
+    }
+
     for (RealmList::RealmMap::const_iterator i = sRealmList->begin(); i != sRealmList->end(); ++i)
     {
         Realm const& realm = i->second;
-
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_NUM_CHARS_ON_REALM);
-        stmt->setUInt32(0, realm.m_ID);
-        stmt->setUInt32(1, _gameAccountId);
-
-        if (PreparedQueryResult result = LoginDatabase.Query(stmt))
-            counts.CharacterCounts.push_back({ { realm.Region, realm.Battlegroup, realm.m_ID, 0 }, (*result)[0].GetUInt8() });
 
         uint32 flag = realm.flag;
         RealmBuildInfo const* buildInfo = AuthHelper::GetBuildInfo(realm.gamebuild);
@@ -656,7 +665,9 @@ bool Battlenet::Socket::HandlePasswordModule(BitStream* dataStream, ServerPacket
     }
 
     uint64 numAccounts = 0;
-    QueryResult result = LoginDatabase.PQuery("SELECT a.username, a.id, ab.bandate, ab.unbandate, ab.active FROM account a LEFT JOIN account_banned ab ON a.id = ab.id WHERE battlenet_account = '%u'", _accountId);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_GAME_ACCOUNTS);
+    stmt->setUInt32(0, _accountId);
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
     if (result)
         numAccounts = result->GetRowCount();
 
@@ -759,8 +770,10 @@ bool Battlenet::Socket::HandleSelectGameAccountModule(BitStream* dataStream, Ser
     dataStream->Read<uint8>(8);
     std::string account = dataStream->ReadString(8);
 
-    LoginDatabase.EscapeString(account);
-    QueryResult result = LoginDatabase.PQuery("SELECT a.id, ab.bandate, ab.unbandate, ab.active FROM account a LEFT JOIN account_banned ab ON a.id = ab.id WHERE username = '%s' AND battlenet_account = '%u'", account.c_str(), _accountId);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_GAME_ACCOUNT);
+    stmt->setString(0, account);
+    stmt->setUInt32(1, _accountId);
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
     if (!result)
     {
         AuthComplete* complete = new AuthComplete();
@@ -810,7 +823,12 @@ bool Battlenet::Socket::HandleRiskFingerprintModule(BitStream* dataStream, Serve
         complete->GameAccountName = str.str();
         complete->AccountFlags = 0x800000;      // 0x1 IsGMAccount, 0x8 IsTrialAccount, 0x800000 IsProPassAccount
 
-        LoginDatabase.PExecute("UPDATE battlenet_accounts SET last_ip = '%s', last_login = NOW(), locale = %u, failed_logins = 0, os = '%s' WHERE id = %u", _socket.getRemoteAddress().c_str(), GetLocaleByName(_locale), _os.c_str(), _accountId);
+        PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_LAST_LOGIN_INFO);
+        stmt->setString(0, _socket.getRemoteAddress());
+        stmt->setUInt8(1, GetLocaleByName(_locale));
+        stmt->setString(2, _os);
+        stmt->setUInt32(3, _accountId);
+        LoginDatabase.Execute(stmt);
     }
     else
         complete->SetAuthResult(AUTH_BAD_VERSION_HASH);
