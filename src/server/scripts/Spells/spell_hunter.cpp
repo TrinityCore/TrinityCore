@@ -65,7 +65,7 @@ class spell_hun_aspect_of_the_beast : public SpellScriptLoader
 
         class spell_hun_aspect_of_the_beast_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_hun_aspect_of_the_beast_AuraScript);
+            PrepareAuraScript(spell_hun_aspect_of_the_beast_AuraScript)
 
             bool Load() override
             {
@@ -114,7 +114,7 @@ class spell_hun_ascpect_of_the_viper : public SpellScriptLoader
 
         class spell_hun_ascpect_of_the_viper_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_hun_ascpect_of_the_viper_AuraScript);
+            PrepareAuraScript(spell_hun_ascpect_of_the_viper_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -175,7 +175,7 @@ class spell_hun_chimera_shot : public SpellScriptLoader
 
         class spell_hun_chimera_shot_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_hun_chimera_shot_SpellScript);
+            PrepareSpellScript(spell_hun_chimera_shot_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -268,7 +268,7 @@ class spell_hun_disengage : public SpellScriptLoader
 
         class spell_hun_disengage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_hun_disengage_SpellScript);
+            PrepareSpellScript(spell_hun_disengage_SpellScript)
 
             SpellCastResult CheckCast()
             {
@@ -299,7 +299,7 @@ class spell_hun_improved_mend_pet : public SpellScriptLoader
 
         class spell_hun_improved_mend_pet_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_hun_improved_mend_pet_AuraScript);
+            PrepareAuraScript(spell_hun_improved_mend_pet_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -339,7 +339,7 @@ class spell_hun_invigoration : public SpellScriptLoader
 
         class spell_hun_invigoration_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_hun_invigoration_SpellScript);
+            PrepareSpellScript(spell_hun_invigoration_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -376,7 +376,7 @@ class spell_hun_last_stand_pet : public SpellScriptLoader
 
         class spell_hun_last_stand_pet_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_hun_last_stand_pet_SpellScript);
+            PrepareSpellScript(spell_hun_last_stand_pet_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -412,7 +412,7 @@ class spell_hun_masters_call : public SpellScriptLoader
 
         class spell_hun_masters_call_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_hun_masters_call_SpellScript);
+            PrepareSpellScript(spell_hun_masters_call_SpellScript)
 
             bool Validate(SpellInfo const* spellInfo) override
             {
@@ -464,7 +464,7 @@ class spell_hun_misdirection : public SpellScriptLoader
 
         class spell_hun_misdirection_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_hun_misdirection_AuraScript);
+            PrepareAuraScript(spell_hun_misdirection_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -512,7 +512,7 @@ class spell_hun_misdirection_proc : public SpellScriptLoader
 
         class spell_hun_misdirection_proc_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_hun_misdirection_proc_AuraScript);
+            PrepareAuraScript(spell_hun_misdirection_proc_AuraScript)
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -539,7 +539,7 @@ class spell_hun_pet_carrion_feeder : public SpellScriptLoader
 
         class spell_hun_pet_carrion_feeder_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_hun_pet_carrion_feeder_SpellScript);
+            PrepareSpellScript(spell_hun_pet_carrion_feeder_SpellScript)
 
             bool Load() override
             {
@@ -596,7 +596,7 @@ class spell_hun_pet_heart_of_the_phoenix : public SpellScriptLoader
 
         class spell_hun_pet_heart_of_the_phoenix_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_hun_pet_heart_of_the_phoenix_SpellScript);
+            PrepareSpellScript(spell_hun_pet_heart_of_the_phoenix_SpellScript)
 
             bool Load() override
             {
@@ -643,7 +643,7 @@ class spell_hun_readiness : public SpellScriptLoader
 
         class spell_hun_readiness_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_hun_readiness_SpellScript);
+            PrepareSpellScript(spell_hun_readiness_SpellScript)
 
             bool Load() override
             {
@@ -692,7 +692,7 @@ class spell_hun_scatter_shot : public SpellScriptLoader
 
         class spell_hun_scatter_shot_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_hun_scatter_shot_SpellScript);
+            PrepareSpellScript(spell_hun_scatter_shot_SpellScript)
 
             bool Load() override
             {
@@ -728,7 +728,7 @@ class spell_hun_sniper_training : public SpellScriptLoader
 
         class spell_hun_sniper_training_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_hun_sniper_training_AuraScript);
+            PrepareAuraScript(spell_hun_sniper_training_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -782,7 +782,7 @@ class spell_hun_tame_beast : public SpellScriptLoader
 
         class spell_hun_tame_beast_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_hun_tame_beast_SpellScript);
+            PrepareSpellScript(spell_hun_tame_beast_SpellScript)
 
             SpellCastResult CheckCast()
             {
@@ -835,7 +835,7 @@ class spell_hun_target_only_pet_and_owner : public SpellScriptLoader
 
         class spell_hun_target_only_pet_and_owner_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_hun_target_only_pet_and_owner_SpellScript);
+            PrepareSpellScript(spell_hun_target_only_pet_and_owner_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -866,7 +866,7 @@ class spell_hun_viper_attack_speed : public SpellScriptLoader
 
         class spell_hun_viper_attack_speed_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_hun_viper_attack_speed_AuraScript);
+            PrepareAuraScript(spell_hun_viper_attack_speed_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

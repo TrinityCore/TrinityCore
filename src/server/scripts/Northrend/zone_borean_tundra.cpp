@@ -2548,7 +2548,7 @@ public:
 
     class spell_windsoul_totem_aura_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_windsoul_totem_aura_AuraScript);
+        PrepareAuraScript(spell_windsoul_totem_aura_AuraScript)
 
         void OnRemove(AuraEffect const*, AuraEffectHandleModes)
         {

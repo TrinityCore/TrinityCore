@@ -481,7 +481,7 @@ class spell_wintergrasp_force_building : public SpellScriptLoader
 
         class spell_wintergrasp_force_building_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_wintergrasp_force_building_SpellScript);
+            PrepareSpellScript(spell_wintergrasp_force_building_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -518,7 +518,7 @@ class spell_wintergrasp_grab_passenger : public SpellScriptLoader
 
         class spell_wintergrasp_grab_passenger_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_wintergrasp_grab_passenger_SpellScript);
+            PrepareSpellScript(spell_wintergrasp_grab_passenger_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -574,7 +574,7 @@ public:
 
     class spell_wintergrasp_defender_teleport_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_wintergrasp_defender_teleport_SpellScript);
+        PrepareSpellScript(spell_wintergrasp_defender_teleport_SpellScript)
 
         SpellCastResult CheckCast()
         {
@@ -605,7 +605,7 @@ public:
 
     class spell_wintergrasp_defender_teleport_trigger_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_wintergrasp_defender_teleport_trigger_SpellScript);
+        PrepareSpellScript(spell_wintergrasp_defender_teleport_trigger_SpellScript)
 
         void HandleDummy(SpellEffIndex /*effindex*/)
         {

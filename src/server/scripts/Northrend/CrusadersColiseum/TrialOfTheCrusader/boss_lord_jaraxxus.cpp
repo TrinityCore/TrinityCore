@@ -495,7 +495,7 @@ class spell_mistress_kiss : public SpellScriptLoader
 
         class spell_mistress_kiss_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mistress_kiss_AuraScript);
+            PrepareAuraScript(spell_mistress_kiss_AuraScript)
 
             bool Load() override
             {

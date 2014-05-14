@@ -212,7 +212,7 @@ class spell_tharon_ja_clear_gift_of_tharon_ja : public SpellScriptLoader
 
         class spell_tharon_ja_clear_gift_of_tharon_ja_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_tharon_ja_clear_gift_of_tharon_ja_SpellScript);
+            PrepareSpellScript(spell_tharon_ja_clear_gift_of_tharon_ja_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

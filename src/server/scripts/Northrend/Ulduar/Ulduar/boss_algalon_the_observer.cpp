@@ -1039,7 +1039,7 @@ class spell_algalon_phase_punch : public SpellScriptLoader
 
         class spell_algalon_phase_punch_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_algalon_phase_punch_AuraScript);
+            PrepareAuraScript(spell_algalon_phase_punch_AuraScript)
 
             void HandlePeriodic(AuraEffect const* /*aurEff*/)
             {
@@ -1093,7 +1093,7 @@ class spell_algalon_arcane_barrage : public SpellScriptLoader
 
         class spell_algalon_arcane_barrage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_algalon_arcane_barrage_SpellScript);
+            PrepareSpellScript(spell_algalon_arcane_barrage_SpellScript)
 
             void SelectTarget(std::list<WorldObject*>& targets)
             {
@@ -1128,7 +1128,7 @@ class spell_algalon_trigger_3_adds : public SpellScriptLoader
 
         class spell_algalon_trigger_3_adds_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_algalon_trigger_3_adds_SpellScript);
+            PrepareSpellScript(spell_algalon_trigger_3_adds_SpellScript)
 
             void SelectTarget(std::list<WorldObject*>& targets)
             {
@@ -1164,7 +1164,7 @@ class spell_algalon_collapse : public SpellScriptLoader
 
         class spell_algalon_collapse_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_algalon_collapse_AuraScript);
+            PrepareAuraScript(spell_algalon_collapse_AuraScript)
 
             void HandlePeriodic(AuraEffect const* /*aurEff*/)
             {
@@ -1191,7 +1191,7 @@ class spell_algalon_big_bang : public SpellScriptLoader
 
         class spell_algalon_big_bang_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_algalon_big_bang_SpellScript);
+            PrepareSpellScript(spell_algalon_big_bang_SpellScript)
 
             bool Load() override
             {
@@ -1232,7 +1232,7 @@ class spell_algalon_remove_phase : public SpellScriptLoader
 
         class spell_algalon_remove_phase_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_algalon_remove_phase_AuraScript);
+            PrepareAuraScript(spell_algalon_remove_phase_AuraScript)
 
             void HandlePeriodic(AuraEffect const* /*aurEff*/)
             {
@@ -1260,7 +1260,7 @@ class spell_algalon_cosmic_smash : public SpellScriptLoader
 
         class spell_algalon_cosmic_smash_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_algalon_cosmic_smash_SpellScript);
+            PrepareSpellScript(spell_algalon_cosmic_smash_SpellScript)
 
             void ModDestHeight(SpellDestination& dest)
             {
@@ -1287,7 +1287,7 @@ class spell_algalon_cosmic_smash_damage : public SpellScriptLoader
 
         class spell_algalon_cosmic_smash_damage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_algalon_cosmic_smash_damage_SpellScript);
+            PrepareSpellScript(spell_algalon_cosmic_smash_damage_SpellScript)
 
             void RecalculateDamage()
             {
@@ -1318,7 +1318,7 @@ class spell_algalon_supermassive_fail : public SpellScriptLoader
 
         class spell_algalon_supermassive_fail_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_algalon_supermassive_fail_SpellScript);
+            PrepareSpellScript(spell_algalon_supermassive_fail_SpellScript)
 
             void RecalculateDamage()
             {

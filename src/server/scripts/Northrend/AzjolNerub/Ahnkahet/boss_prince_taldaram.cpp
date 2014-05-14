@@ -417,7 +417,7 @@ class spell_prince_taldaram_conjure_flame_sphere : public SpellScriptLoader
 
         class spell_prince_taldaram_conjure_flame_sphere_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_prince_taldaram_conjure_flame_sphere_SpellScript);
+            PrepareSpellScript(spell_prince_taldaram_conjure_flame_sphere_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -460,7 +460,7 @@ class spell_prince_taldaram_flame_sphere_summon : public SpellScriptLoader
 
         class spell_prince_taldaram_flame_sphere_summon_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_prince_taldaram_flame_sphere_summon_SpellScript);
+            PrepareSpellScript(spell_prince_taldaram_flame_sphere_summon_SpellScript)
 
             void SetDest(SpellDestination& dest)
             {

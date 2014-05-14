@@ -160,7 +160,7 @@ class spell_shadow_portal : public SpellScriptLoader
 
         class spell_shadow_portal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_shadow_portal_SpellScript);
+            PrepareSpellScript(spell_shadow_portal_SpellScript)
 
             void HandleCast(SpellEffIndex /*effIndex*/)
             {
@@ -274,7 +274,7 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
 
         class spell_shadow_portal_rooms_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_shadow_portal_rooms_SpellScript);
+            PrepareSpellScript(spell_shadow_portal_rooms_SpellScript)
 
             void HandleSendEvent(SpellEffIndex effIndex)
             {

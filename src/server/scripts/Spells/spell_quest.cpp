@@ -33,7 +33,7 @@
 
 class spell_generic_quest_update_entry_SpellScript : public SpellScript
 {
-    PrepareSpellScript(spell_generic_quest_update_entry_SpellScript);
+    PrepareSpellScript(spell_generic_quest_update_entry_SpellScript)
     private:
         uint16 _spellEffect;
         uint8 _effIndex;
@@ -99,7 +99,7 @@ class spell_q2203_thaumaturgy_channel : public SpellScriptLoader
 
         class spell_q2203_thaumaturgy_channel_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_q2203_thaumaturgy_channel_AuraScript);
+            PrepareAuraScript(spell_q2203_thaumaturgy_channel_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -142,7 +142,7 @@ class spell_q5206_test_fetid_skull : public SpellScriptLoader
 
         class spell_q5206_test_fetid_skull_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q5206_test_fetid_skull_SpellScript);
+            PrepareSpellScript(spell_q5206_test_fetid_skull_SpellScript)
 
             bool Load() override
             {
@@ -194,7 +194,7 @@ class spell_q6124_6129_apply_salve : public SpellScriptLoader
 
         class spell_q6124_6129_apply_salve_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q6124_6129_apply_salve_SpellScript);
+            PrepareSpellScript(spell_q6124_6129_apply_salve_SpellScript)
 
             bool Load() override
             {
@@ -274,7 +274,7 @@ class spell_q11396_11399_force_shield_arcane_purple_x3 : public SpellScriptLoade
 
         class spell_q11396_11399_force_shield_arcane_purple_x3_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_q11396_11399_force_shield_arcane_purple_x3_AuraScript);
+            PrepareAuraScript(spell_q11396_11399_force_shield_arcane_purple_x3_AuraScript)
 
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -310,7 +310,7 @@ class spell_q11396_11399_scourging_crystal_controller : public SpellScriptLoader
 
         class spell_q11396_11399_scourging_crystal_controller_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q11396_11399_scourging_crystal_controller_SpellScript);
+            PrepareSpellScript(spell_q11396_11399_scourging_crystal_controller_SpellScript)
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
@@ -348,7 +348,7 @@ class spell_q11396_11399_scourging_crystal_controller_dummy : public SpellScript
 
         class spell_q11396_11399_scourging_crystal_controller_dummy_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q11396_11399_scourging_crystal_controller_dummy_SpellScript);
+            PrepareSpellScript(spell_q11396_11399_scourging_crystal_controller_dummy_SpellScript)
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
@@ -411,7 +411,7 @@ class spell_q11587_arcane_prisoner_rescue : public SpellScriptLoader
 
         class spell_q11587_arcane_prisoner_rescue_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q11587_arcane_prisoner_rescue_SpellScript);
+            PrepareSpellScript(spell_q11587_arcane_prisoner_rescue_SpellScript)
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
@@ -469,7 +469,7 @@ class spell_q11730_ultrasonic_screwdriver : public SpellScriptLoader
 
         class spell_q11730_ultrasonic_screwdriver_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q11730_ultrasonic_screwdriver_SpellScript);
+            PrepareSpellScript(spell_q11730_ultrasonic_screwdriver_SpellScript)
 
             bool Load() override
             {
@@ -539,7 +539,7 @@ class spell_q12459_seeds_of_natures_wrath : public SpellScriptLoader
 
         class spell_q12459_seeds_of_natures_wrath_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12459_seeds_of_natures_wrath_SpellScript);
+            PrepareSpellScript(spell_q12459_seeds_of_natures_wrath_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -586,7 +586,7 @@ class spell_q12634_despawn_fruit_tosser : public SpellScriptLoader
 
         class spell_q12634_despawn_fruit_tosser_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12634_despawn_fruit_tosser_SpellScript);
+            PrepareSpellScript(spell_q12634_despawn_fruit_tosser_SpellScript)
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
@@ -630,7 +630,7 @@ class spell_q12683_take_sputum_sample : public SpellScriptLoader
 
         class spell_q12683_take_sputum_sample_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12683_take_sputum_sample_SpellScript);
+            PrepareSpellScript(spell_q12683_take_sputum_sample_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -675,7 +675,7 @@ class spell_q12851_going_bearback : public SpellScriptLoader
 
         class spell_q12851_going_bearback_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_q12851_going_bearback_AuraScript);
+            PrepareAuraScript(spell_q12851_going_bearback_AuraScript)
 
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -733,7 +733,7 @@ class spell_q12937_relief_for_the_fallen : public SpellScriptLoader
 
         class spell_q12937_relief_for_the_fallen_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12937_relief_for_the_fallen_SpellScript);
+            PrepareSpellScript(spell_q12937_relief_for_the_fallen_SpellScript)
 
             bool Load() override
             {
@@ -784,7 +784,7 @@ class spell_q10041_q10040_who_are_they : public SpellScriptLoader
 
         class spell_q10041_q10040_who_are_they_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q10041_q10040_who_are_they_SpellScript);
+            PrepareSpellScript(spell_q10041_q10040_who_are_they_SpellScript)
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
@@ -828,7 +828,7 @@ class spell_symbol_of_life_dummy : public SpellScriptLoader
 
         class spell_symbol_of_life_dummy_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_symbol_of_life_dummy_SpellScript);
+            PrepareSpellScript(spell_symbol_of_life_dummy_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -871,7 +871,7 @@ class spell_q12659_ahunaes_knife : public SpellScriptLoader
 
         class spell_q12659_ahunaes_knife_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12659_ahunaes_knife_SpellScript);
+            PrepareSpellScript(spell_q12659_ahunaes_knife_SpellScript)
 
             bool Load() override
             {
@@ -915,7 +915,7 @@ class spell_q9874_liquid_fire : public SpellScriptLoader
 
         class spell_q9874_liquid_fire_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q9874_liquid_fire_SpellScript);
+            PrepareSpellScript(spell_q9874_liquid_fire_SpellScript)
 
             bool Load() override
             {
@@ -960,7 +960,7 @@ class spell_q12805_lifeblood_dummy : public SpellScriptLoader
 
         class spell_q12805_lifeblood_dummy_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12805_lifeblood_dummy_SpellScript);
+            PrepareSpellScript(spell_q12805_lifeblood_dummy_SpellScript)
 
             bool Load() override
             {
@@ -1008,7 +1008,7 @@ class spell_q13280_13283_plant_battle_standard: public SpellScriptLoader
 
         class spell_q13280_13283_plant_battle_standard_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q13280_13283_plant_battle_standard_SpellScript);
+            PrepareSpellScript(spell_q13280_13283_plant_battle_standard_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -1045,7 +1045,7 @@ class spell_q14112_14145_chum_the_water: public SpellScriptLoader
 
         class spell_q14112_14145_chum_the_water_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q14112_14145_chum_the_water_SpellScript);
+            PrepareSpellScript(spell_q14112_14145_chum_the_water_SpellScript)
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
@@ -1087,7 +1087,7 @@ class spell_q9452_cast_net: public SpellScriptLoader
 
         class spell_q9452_cast_net_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q9452_cast_net_SpellScript);
+            PrepareSpellScript(spell_q9452_cast_net_SpellScript)
 
             bool Load() override
             {
@@ -1130,7 +1130,7 @@ public:
 
     class spell_q12987_read_pronouncement_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_q12987_read_pronouncement_AuraScript);
+        PrepareAuraScript(spell_q12987_read_pronouncement_AuraScript)
 
         void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
@@ -1171,7 +1171,7 @@ class spell_q12277_wintergarde_mine_explosion : public SpellScriptLoader
 
         class spell_q12277_wintergarde_mine_explosion_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12277_wintergarde_mine_explosion_SpellScript);
+            PrepareSpellScript(spell_q12277_wintergarde_mine_explosion_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -1224,7 +1224,7 @@ public:
 
     class spell_q12066_bunny_kill_credit_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_q12066_bunny_kill_credit_SpellScript);
+        PrepareSpellScript(spell_q12066_bunny_kill_credit_SpellScript)
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
@@ -1262,7 +1262,7 @@ class spell_q12735_song_of_cleansing : public SpellScriptLoader
 
         class spell_q12735_song_of_cleansing_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12735_song_of_cleansing_SpellScript);
+            PrepareSpellScript(spell_q12735_song_of_cleansing_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1307,7 +1307,7 @@ class spell_q12372_cast_from_gossip_trigger : public SpellScriptLoader
 
         class spell_q12372_cast_from_gossip_trigger_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12372_cast_from_gossip_trigger_SpellScript);
+            PrepareSpellScript(spell_q12372_cast_from_gossip_trigger_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1343,7 +1343,7 @@ class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScriptLoad
 
         class spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript);
+            PrepareSpellScript(spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -1375,7 +1375,7 @@ class spell_q12372_azure_on_death_force_whisper : public SpellScriptLoader
 
         class spell_q12372_azure_on_death_force_whisper_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12372_azure_on_death_force_whisper_SpellScript);
+            PrepareSpellScript(spell_q12372_azure_on_death_force_whisper_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1414,7 +1414,7 @@ class spell_q11010_q11102_q11023_aggro_check_aura : public SpellScriptLoader
 
         class spell_q11010_q11102_q11023_aggro_check_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_q11010_q11102_q11023_aggro_check_aura_AuraScript);
+            PrepareAuraScript(spell_q11010_q11102_q11023_aggro_check_aura_AuraScript)
 
             void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
             {
@@ -1443,7 +1443,7 @@ class spell_q11010_q11102_q11023_aggro_check : public SpellScriptLoader
 
         class spell_q11010_q11102_q11023_aggro_check_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q11010_q11102_q11023_aggro_check_SpellScript);
+            PrepareSpellScript(spell_q11010_q11102_q11023_aggro_check_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -1473,7 +1473,7 @@ class spell_q11010_q11102_q11023_aggro_burst : public SpellScriptLoader
 
         class spell_q11010_q11102_q11023_aggro_burst_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_q11010_q11102_q11023_aggro_burst_AuraScript);
+            PrepareAuraScript(spell_q11010_q11102_q11023_aggro_burst_AuraScript)
 
             void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
@@ -1502,7 +1502,7 @@ class spell_q11010_q11102_q11023_choose_loc : public SpellScriptLoader
 
         class spell_q11010_q11102_q11023_choose_loc_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q11010_q11102_q11023_choose_loc_SpellScript);
+            PrepareSpellScript(spell_q11010_q11102_q11023_choose_loc_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -1540,7 +1540,7 @@ class spell_q11010_q11102_q11023_q11008_check_fly_mount : public SpellScriptLoad
 
         class spell_q11010_q11102_q11023_q11008_check_fly_mount_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q11010_q11102_q11023_q11008_check_fly_mount_SpellScript);
+            PrepareSpellScript(spell_q11010_q11102_q11023_q11008_check_fly_mount_SpellScript)
 
             SpellCastResult CheckRequirement()
             {
@@ -1575,7 +1575,7 @@ class spell_q12527_zuldrak_rat : public SpellScriptLoader
 
         class spell_q12527_zuldrak_rat_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12527_zuldrak_rat_SpellScript);
+            PrepareSpellScript(spell_q12527_zuldrak_rat_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -1614,7 +1614,7 @@ class spell_q12661_q12669_q12676_q12677_q12713_summon_stefan : public SpellScrip
 
         class spell_q12661_q12669_q12676_q12677_q12713_summon_stefan_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12661_q12669_q12676_q12677_q12713_summon_stefan_SpellScript);
+            PrepareSpellScript(spell_q12661_q12669_q12676_q12677_q12713_summon_stefan_SpellScript)
 
             void SetDest(SpellDestination& dest)
             {
@@ -1647,7 +1647,7 @@ class spell_q12730_quenching_mist : public SpellScriptLoader
 
         class spell_q12730_quenching_mist_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_q12730_quenching_mist_AuraScript);
+            PrepareAuraScript(spell_q12730_quenching_mist_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -1690,7 +1690,7 @@ class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy : public 
 
         class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy_SpellScript);
+            PrepareSpellScript(spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -1729,7 +1729,7 @@ class spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon : public S
 
         class spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon_SpellScript);
+            PrepareSpellScript(spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon_SpellScript)
 
             void SetDest(SpellDestination& dest)
             {
@@ -1758,7 +1758,7 @@ class spell_q12847_summon_soul_moveto_bunny : public SpellScriptLoader
 
         class spell_q12847_summon_soul_moveto_bunny_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12847_summon_soul_moveto_bunny_SpellScript);
+            PrepareSpellScript(spell_q12847_summon_soul_moveto_bunny_SpellScript)
 
             void SetDest(SpellDestination& dest)
             {
@@ -1793,7 +1793,7 @@ class spell_q13011_bear_flank_master : public SpellScriptLoader
 
         class spell_q13011_bear_flank_master_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q13011_bear_flank_master_SpellScript);
+            PrepareSpellScript(spell_q13011_bear_flank_master_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -1843,7 +1843,7 @@ class spell_q13086_cannons_target : public SpellScriptLoader
 
         class spell_q13086_cannons_target_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q13086_cannons_target_SpellScript);
+            PrepareSpellScript(spell_q13086_cannons_target_SpellScript)
 
             bool Validate(SpellInfo const* spellInfo) override
             {
@@ -1894,7 +1894,7 @@ class spell_q12690_burst_at_the_seams : public SpellScriptLoader
 
         class spell_q12690_burst_at_the_seams_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12690_burst_at_the_seams_SpellScript);
+            PrepareSpellScript(spell_q12690_burst_at_the_seams_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -1970,7 +1970,7 @@ class spell_q12308_escape_from_silverbrook : public SpellScriptLoader
 
         class spell_q12308_escape_from_silverbrook_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12308_escape_from_silverbrook_SpellScript);
+            PrepareSpellScript(spell_q12308_escape_from_silverbrook_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -2004,7 +2004,7 @@ class spell_q12308_escape_from_silverbrook_summon_worgen : public SpellScriptLoa
 
         class spell_q12308_escape_from_silverbrook_summon_worgen_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12308_escape_from_silverbrook_summon_worgen_SpellScript);
+            PrepareSpellScript(spell_q12308_escape_from_silverbrook_summon_worgen_SpellScript)
 
             void ModDest(SpellDestination& dest)
             {
@@ -2049,7 +2049,7 @@ class spell_q12641_death_comes_from_on_high : public SpellScriptLoader
 
         class spell_q12641_death_comes_from_on_high_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12641_death_comes_from_on_high_SpellScript);
+            PrepareSpellScript(spell_q12641_death_comes_from_on_high_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -2106,7 +2106,7 @@ class spell_q12619_emblazon_runeblade : public SpellScriptLoader
 
         class spell_q12619_emblazon_runeblade_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_q12619_emblazon_runeblade_AuraScript);
+            PrepareAuraScript(spell_q12619_emblazon_runeblade_AuraScript)
 
             void HandleEffectPeriodic(AuraEffect const* aurEff)
             {
@@ -2135,7 +2135,7 @@ class spell_q12619_emblazon_runeblade_effect : public SpellScriptLoader
 
         class spell_q12619_emblazon_runeblade_effect_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12619_emblazon_runeblade_effect_SpellScript);
+            PrepareSpellScript(spell_q12619_emblazon_runeblade_effect_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -2167,7 +2167,7 @@ class spell_q12919_gymers_grab : public SpellScriptLoader
 
         class spell_q12919_gymers_grab_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12919_gymers_grab_SpellScript);
+            PrepareSpellScript(spell_q12919_gymers_grab_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -2209,7 +2209,7 @@ class spell_q12919_gymers_throw : public SpellScriptLoader
 
         class spell_q12919_gymers_throw_SpellScript : public SpellScript
         {
-           PrepareSpellScript(spell_q12919_gymers_throw_SpellScript);
+           PrepareSpellScript(spell_q12919_gymers_throw_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -2246,7 +2246,7 @@ class spell_q13400_illidan_kill_master : public SpellScriptLoader
 
         class spell_q13400_illidan_kill_master_SpellScript : public SpellScript
         {
-           PrepareSpellScript(spell_q13400_illidan_kill_master_SpellScript);
+           PrepareSpellScript(spell_q13400_illidan_kill_master_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -2288,7 +2288,7 @@ class spell_q14100_q14111_make_player_destroy_totems : public SpellScriptLoader
 
         class spell_q14100_q14111_make_player_destroy_totems_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q14100_q14111_make_player_destroy_totems_SpellScript);
+            PrepareSpellScript(spell_q14100_q14111_make_player_destroy_totems_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

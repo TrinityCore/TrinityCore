@@ -732,7 +732,7 @@ class spell_jokkum_scriptcast : public SpellScriptLoader
 
         class spell_jokkum_scriptcast_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_jokkum_scriptcast_AuraScript);
+            PrepareAuraScript(spell_jokkum_scriptcast_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -765,7 +765,7 @@ class spell_veranus_summon : public SpellScriptLoader
 
         class spell_veranus_summon_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_veranus_summon_AuraScript);
+            PrepareAuraScript(spell_veranus_summon_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -804,7 +804,7 @@ class spell_close_rift : public SpellScriptLoader
 
         class spell_close_rift_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_close_rift_AuraScript);
+            PrepareAuraScript(spell_close_rift_AuraScript)
 
             bool Load() override
             {

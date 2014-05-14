@@ -450,7 +450,7 @@ class spell_general_vezax_mark_of_the_faceless : public SpellScriptLoader
 
         class spell_general_vezax_mark_of_the_faceless_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_general_vezax_mark_of_the_faceless_AuraScript);
+            PrepareAuraScript(spell_general_vezax_mark_of_the_faceless_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/)
             {
@@ -484,7 +484,7 @@ class spell_general_vezax_mark_of_the_faceless_leech : public SpellScriptLoader
 
         class spell_general_vezax_mark_of_the_faceless_leech_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_general_vezax_mark_of_the_faceless_leech_SpellScript);
+            PrepareSpellScript(spell_general_vezax_mark_of_the_faceless_leech_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -513,7 +513,7 @@ class spell_general_vezax_saronite_vapors : public SpellScriptLoader
 
         class spell_general_vezax_saronite_vapors_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_general_vezax_saronite_vapors_AuraScript);
+            PrepareAuraScript(spell_general_vezax_saronite_vapors_AuraScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {

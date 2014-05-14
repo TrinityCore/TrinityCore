@@ -823,7 +823,7 @@ class spell_putricide_gaseous_bloat : public SpellScriptLoader
 
         class spell_putricide_gaseous_bloat_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_putricide_gaseous_bloat_AuraScript);
+            PrepareAuraScript(spell_putricide_gaseous_bloat_AuraScript)
 
             void HandleExtraEffect(AuraEffect const* /*aurEff*/)
             {
@@ -855,7 +855,7 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
 
         class spell_putricide_ooze_channel_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_ooze_channel_SpellScript);
+            PrepareSpellScript(spell_putricide_ooze_channel_SpellScript)
 
             bool Validate(SpellInfo const* spell) override
             {
@@ -943,7 +943,7 @@ class spell_putricide_slime_puddle : public SpellScriptLoader
 
         class spell_putricide_slime_puddle_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_slime_puddle_SpellScript);
+            PrepareSpellScript(spell_putricide_slime_puddle_SpellScript)
 
             void ScaleRange(std::list<WorldObject*>& targets)
             {
@@ -971,7 +971,7 @@ class spell_putricide_slime_puddle_aura : public SpellScriptLoader
 
         class spell_putricide_slime_puddle_aura_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_slime_puddle_aura_SpellScript);
+            PrepareSpellScript(spell_putricide_slime_puddle_aura_SpellScript)
 
             void ReplaceAura()
             {
@@ -998,7 +998,7 @@ class spell_putricide_unstable_experiment : public SpellScriptLoader
 
         class spell_putricide_unstable_experiment_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_unstable_experiment_SpellScript);
+            PrepareSpellScript(spell_putricide_unstable_experiment_SpellScript)
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -1046,7 +1046,7 @@ class spell_putricide_ooze_eruption_searcher : public SpellScriptLoader
 
         class spell_putricide_ooze_eruption_searcher_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_ooze_eruption_searcher_SpellScript);
+            PrepareSpellScript(spell_putricide_ooze_eruption_searcher_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -1077,7 +1077,7 @@ class spell_putricide_choking_gas_bomb : public SpellScriptLoader
 
         class spell_putricide_choking_gas_bomb_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_choking_gas_bomb_SpellScript);
+            PrepareSpellScript(spell_putricide_choking_gas_bomb_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1111,7 +1111,7 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
 
         class spell_putricide_unbound_plague_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_unbound_plague_SpellScript);
+            PrepareSpellScript(spell_putricide_unbound_plague_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -1190,7 +1190,7 @@ class spell_putricide_eat_ooze : public SpellScriptLoader
 
         class spell_putricide_eat_ooze_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_eat_ooze_SpellScript);
+            PrepareSpellScript(spell_putricide_eat_ooze_SpellScript)
 
             void SelectTarget(std::list<WorldObject*>& targets)
             {
@@ -1242,7 +1242,7 @@ class spell_putricide_mutated_plague : public SpellScriptLoader
 
         class spell_putricide_mutated_plague_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_putricide_mutated_plague_AuraScript);
+            PrepareAuraScript(spell_putricide_mutated_plague_AuraScript)
 
             void HandleTriggerSpell(AuraEffect const* aurEff)
             {
@@ -1292,7 +1292,7 @@ class spell_putricide_mutation_init : public SpellScriptLoader
 
         class spell_putricide_mutation_init_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_mutation_init_SpellScript);
+            PrepareSpellScript(spell_putricide_mutation_init_SpellScript)
 
             SpellCastResult CheckRequirementInternal(SpellCustomErrors& extendedError)
             {
@@ -1346,7 +1346,7 @@ class spell_putricide_mutation_init : public SpellScriptLoader
 
         class spell_putricide_mutation_init_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_putricide_mutation_init_AuraScript);
+            PrepareAuraScript(spell_putricide_mutation_init_AuraScript)
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1381,7 +1381,7 @@ class spell_putricide_mutated_transformation_dismiss : public SpellScriptLoader
 
         class spell_putricide_mutated_transformation_dismiss_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_putricide_mutated_transformation_dismiss_AuraScript);
+            PrepareAuraScript(spell_putricide_mutated_transformation_dismiss_AuraScript)
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1408,7 +1408,7 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
 
         class spell_putricide_mutated_transformation_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_mutated_transformation_SpellScript);
+            PrepareSpellScript(spell_putricide_mutated_transformation_SpellScript)
 
             void HandleSummon(SpellEffIndex effIndex)
             {
@@ -1469,7 +1469,7 @@ class spell_putricide_mutated_transformation_dmg : public SpellScriptLoader
 
         class spell_putricide_mutated_transformation_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_mutated_transformation_dmg_SpellScript);
+            PrepareSpellScript(spell_putricide_mutated_transformation_dmg_SpellScript)
 
             void FilterTargetsInitial(std::list<WorldObject*>& targets)
             {
@@ -1496,7 +1496,7 @@ class spell_putricide_regurgitated_ooze : public SpellScriptLoader
 
         class spell_putricide_regurgitated_ooze_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_regurgitated_ooze_SpellScript);
+            PrepareSpellScript(spell_putricide_regurgitated_ooze_SpellScript)
 
             // the only purpose of this hook is to fail the achievement
             void ExtraEffect(SpellEffIndex /*effIndex*/)
@@ -1525,7 +1525,7 @@ class spell_putricide_clear_aura_effect_value : public SpellScriptLoader
 
         class spell_putricide_clear_aura_effect_value_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_clear_aura_effect_value_SpellScript);
+            PrepareSpellScript(spell_putricide_clear_aura_effect_value_SpellScript)
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -1554,7 +1554,7 @@ class spell_stinky_precious_decimate : public SpellScriptLoader
 
         class spell_stinky_precious_decimate_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_stinky_precious_decimate_SpellScript);
+            PrepareSpellScript(spell_stinky_precious_decimate_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
