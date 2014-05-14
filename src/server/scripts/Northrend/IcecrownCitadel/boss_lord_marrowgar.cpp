@@ -499,7 +499,7 @@ class spell_marrowgar_coldflame : public SpellScriptLoader
 
         class spell_marrowgar_coldflame_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_marrowgar_coldflame_SpellScript);
+            PrepareSpellScript(spell_marrowgar_coldflame_SpellScript)
 
             void SelectTarget(std::list<WorldObject*>& targets)
             {
@@ -541,7 +541,7 @@ class spell_marrowgar_coldflame_bonestorm : public SpellScriptLoader
 
         class spell_marrowgar_coldflame_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_marrowgar_coldflame_SpellScript);
+            PrepareSpellScript(spell_marrowgar_coldflame_SpellScript)
 
             void HandleScriptEffect(SpellEffIndex effIndex)
             {
@@ -569,7 +569,7 @@ class spell_marrowgar_coldflame_damage : public SpellScriptLoader
 
         class spell_marrowgar_coldflame_damage_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_marrowgar_coldflame_damage_AuraScript);
+            PrepareAuraScript(spell_marrowgar_coldflame_damage_AuraScript)
 
             bool CanBeAppliedOn(Unit* target)
             {
@@ -605,7 +605,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
 
         class spell_marrowgar_bone_spike_graveyard_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_marrowgar_bone_spike_graveyard_SpellScript);
+            PrepareSpellScript(spell_marrowgar_bone_spike_graveyard_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -670,7 +670,7 @@ class spell_marrowgar_bone_storm : public SpellScriptLoader
 
         class spell_marrowgar_bone_storm_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_marrowgar_bone_storm_SpellScript);
+            PrepareSpellScript(spell_marrowgar_bone_storm_SpellScript)
 
             void RecalculateDamage()
             {
@@ -696,7 +696,7 @@ class spell_marrowgar_bone_slice : public SpellScriptLoader
 
         class spell_marrowgar_bone_slice_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_marrowgar_bone_slice_SpellScript);
+            PrepareSpellScript(spell_marrowgar_bone_slice_SpellScript)
 
             bool Load() override
             {

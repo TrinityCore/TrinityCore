@@ -263,7 +263,7 @@ class spell_gruul_shatter : public SpellScriptLoader
 
         class spell_gruul_shatter_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gruul_shatter_SpellScript);
+            PrepareSpellScript(spell_gruul_shatter_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -302,7 +302,7 @@ class spell_gruul_shatter_effect : public SpellScriptLoader
 
         class spell_gruul_shatter_effect_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gruul_shatter_effect_SpellScript);
+            PrepareSpellScript(spell_gruul_shatter_effect_SpellScript)
 
             void CalculateDamage()
             {

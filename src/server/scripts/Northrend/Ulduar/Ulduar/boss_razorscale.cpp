@@ -1014,7 +1014,7 @@ class spell_razorscale_devouring_flame : public SpellScriptLoader
 
         class spell_razorscale_devouring_flame_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_razorscale_devouring_flame_SpellScript);
+            PrepareSpellScript(spell_razorscale_devouring_flame_SpellScript)
 
             void HandleSummon(SpellEffIndex effIndex)
             {
@@ -1047,7 +1047,7 @@ class spell_razorscale_flame_breath : public SpellScriptLoader
 
         class spell_razorscale_flame_breath_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_razorscale_flame_breath_SpellScript);
+            PrepareSpellScript(spell_razorscale_flame_breath_SpellScript)
 
             void CheckDamage()
             {

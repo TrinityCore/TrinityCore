@@ -754,7 +754,7 @@ int32 Guild::Member::GetBankWithdrawValue(uint8 tabId) const
 {
     // Guild master has unlimited amount.
     if (IsRank(GR_GUILDMASTER))
-        return tabId == GUILD_BANK_MAX_TABS ? GUILD_WITHDRAW_MONEY_UNLIMITED : GUILD_WITHDRAW_SLOT_UNLIMITED;
+        return static_cast<int32>(tabId == GUILD_BANK_MAX_TABS ? GUILD_WITHDRAW_MONEY_UNLIMITED : GUILD_WITHDRAW_SLOT_UNLIMITED);
 
     return m_bankWithdraw[tabId];
 }
@@ -1760,7 +1760,7 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint32 amount)
 bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint32 amount, bool repair)
 {
     //clamp amount to MAX_MONEY_AMOUNT, Players can't hold more than that anyway
-    amount = std::min(amount, uint32(MAX_MONEY_AMOUNT));
+    amount = std::min(amount, MAX_MONEY_AMOUNT);
 
     if (m_bankMoney < amount)                               // Not enough money in bank
         return false;
@@ -2581,7 +2581,7 @@ inline int32 Guild::_GetMemberRemainingSlots(Member const* member, uint8 tabId) 
     {
         uint8 rankId = member->GetRankId();
         if (rankId == GR_GUILDMASTER)
-            return GUILD_WITHDRAW_SLOT_UNLIMITED;
+            return static_cast<int32>(GUILD_WITHDRAW_SLOT_UNLIMITED);
         if ((_GetRankBankTabRights(rankId, tabId) & GUILD_BANK_RIGHT_VIEW_TAB) != 0)
         {
             int32 remaining = _GetRankBankTabSlotsPerDay(rankId, tabId) - member->GetBankWithdrawValue(tabId);
@@ -2598,7 +2598,7 @@ inline int32 Guild::_GetMemberRemainingMoney(Member const* member) const
     {
         uint8 rankId = member->GetRankId();
         if (rankId == GR_GUILDMASTER)
-            return GUILD_WITHDRAW_MONEY_UNLIMITED;
+            return static_cast<int32>(GUILD_WITHDRAW_MONEY_UNLIMITED);
 
         if ((_GetRankRights(rankId) & (GR_RIGHT_WITHDRAW_REPAIR | GR_RIGHT_WITHDRAW_GOLD)) != 0)
         {

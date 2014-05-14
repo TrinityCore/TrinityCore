@@ -488,7 +488,7 @@ class spell_paralyze_pinnacle : public SpellScriptLoader
 
         class spell_paralyze_pinnacle_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_paralyze_pinnacle_SpellScript);
+            PrepareSpellScript(spell_paralyze_pinnacle_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& unitList)
             {

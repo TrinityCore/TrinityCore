@@ -2232,7 +2232,7 @@ class spell_faction_champion_warl_unstable_affliction : public SpellScriptLoader
 
         class spell_faction_champion_warl_unstable_affliction_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_faction_champion_warl_unstable_affliction_AuraScript);
+            PrepareAuraScript(spell_faction_champion_warl_unstable_affliction_AuraScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -2266,7 +2266,7 @@ class spell_faction_champion_death_grip : public SpellScriptLoader
 
         class spell_faction_champion_death_grip_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_faction_champion_death_grip_SpellScript);
+            PrepareSpellScript(spell_faction_champion_death_grip_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -2304,7 +2304,7 @@ class spell_toc_bloodlust : public SpellScriptLoader
 
         class spell_toc_bloodlust_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_toc_bloodlust_SpellScript);
+            PrepareSpellScript(spell_toc_bloodlust_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -2345,7 +2345,7 @@ class spell_toc_heroism : public SpellScriptLoader
 
         class spell_toc_heroism_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_toc_heroism_SpellScript);
+            PrepareSpellScript(spell_toc_heroism_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

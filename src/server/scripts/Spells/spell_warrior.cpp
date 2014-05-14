@@ -78,7 +78,7 @@ class spell_warr_bloodthirst : public SpellScriptLoader
 
         class spell_warr_bloodthirst_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_bloodthirst_SpellScript);
+            PrepareSpellScript(spell_warr_bloodthirst_SpellScript)
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
@@ -120,7 +120,7 @@ class spell_warr_bloodthirst_heal : public SpellScriptLoader
 
         class spell_warr_bloodthirst_heal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_bloodthirst_heal_SpellScript);
+            PrepareSpellScript(spell_warr_bloodthirst_heal_SpellScript)
 
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
@@ -148,7 +148,7 @@ class spell_warr_charge : public SpellScriptLoader
 
         class spell_warr_charge_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_charge_SpellScript);
+            PrepareSpellScript(spell_warr_charge_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -188,7 +188,7 @@ class spell_warr_concussion_blow : public SpellScriptLoader
 
         class spell_warr_concussion_blow_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_concussion_blow_SpellScript);
+            PrepareSpellScript(spell_warr_concussion_blow_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -215,7 +215,7 @@ class spell_warr_damage_shield : public SpellScriptLoader
 
         class spell_warr_damage_shield_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warr_damage_shield_AuraScript);
+            PrepareAuraScript(spell_warr_damage_shield_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -253,7 +253,7 @@ class spell_warr_deep_wounds : public SpellScriptLoader
 
         class spell_warr_deep_wounds_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_deep_wounds_SpellScript);
+            PrepareSpellScript(spell_warr_deep_wounds_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -308,7 +308,7 @@ class spell_warr_execute : public SpellScriptLoader
 
         class spell_warr_execute_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_execute_SpellScript);
+            PrepareSpellScript(spell_warr_execute_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -364,7 +364,7 @@ class spell_warr_glyph_of_sunder_armor : public SpellScriptLoader
 
         class spell_warr_glyph_of_sunder_armor_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warr_glyph_of_sunder_armor_AuraScript);
+            PrepareAuraScript(spell_warr_glyph_of_sunder_armor_AuraScript)
 
             void HandleEffectCalcSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
             {
@@ -400,7 +400,7 @@ class spell_warr_improved_spell_reflection : public SpellScriptLoader
 
         class spell_warr_improved_spell_reflection_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_improved_spell_reflection_SpellScript);
+            PrepareSpellScript(spell_warr_improved_spell_reflection_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
@@ -428,7 +428,7 @@ class spell_warr_intimidating_shout : public SpellScriptLoader
 
         class spell_warr_intimidating_shout_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_intimidating_shout_SpellScript);
+            PrepareSpellScript(spell_warr_intimidating_shout_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
@@ -456,7 +456,7 @@ class spell_warr_last_stand : public SpellScriptLoader
 
         class spell_warr_last_stand_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_last_stand_SpellScript);
+            PrepareSpellScript(spell_warr_last_stand_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -492,7 +492,7 @@ class spell_warr_overpower : public SpellScriptLoader
 
         class spell_warr_overpower_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_overpower_SpellScript);
+            PrepareSpellScript(spell_warr_overpower_SpellScript)
 
             void HandleEffect(SpellEffIndex /*effIndex*/)
             {
@@ -530,7 +530,7 @@ class spell_warr_rend : public SpellScriptLoader
 
         class spell_warr_rend_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warr_rend_AuraScript);
+            PrepareAuraScript(spell_warr_rend_AuraScript)
 
             void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
             {
@@ -576,7 +576,7 @@ class spell_warr_retaliation : public SpellScriptLoader
 
         class spell_warr_retaliation_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warr_retaliation_AuraScript);
+            PrepareAuraScript(spell_warr_retaliation_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -618,7 +618,7 @@ class spell_warr_shattering_throw : public SpellScriptLoader
 
         class spell_warr_shattering_throw_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_shattering_throw_SpellScript);
+            PrepareSpellScript(spell_warr_shattering_throw_SpellScript)
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -649,7 +649,7 @@ class spell_warr_slam : public SpellScriptLoader
 
         class spell_warr_slam_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_slam_SpellScript);
+            PrepareSpellScript(spell_warr_slam_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -684,7 +684,7 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
 
         class spell_warr_sweeping_strikes_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warr_sweeping_strikes_AuraScript);
+            PrepareAuraScript(spell_warr_sweeping_strikes_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -748,7 +748,7 @@ class spell_warr_vigilance : public SpellScriptLoader
 
         class spell_warr_vigilance_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warr_vigilance_AuraScript);
+            PrepareAuraScript(spell_warr_vigilance_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -842,7 +842,7 @@ class spell_warr_vigilance_trigger : public SpellScriptLoader
 
         class spell_warr_vigilance_trigger_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_vigilance_trigger_SpellScript);
+            PrepareSpellScript(spell_warr_vigilance_trigger_SpellScript)
 
             void HandleScript(SpellEffIndex effIndex)
             {
