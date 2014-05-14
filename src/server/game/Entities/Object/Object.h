@@ -711,6 +711,16 @@ class WorldObject : public Object, public WorldLocation
         void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
         void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
 
+        static Unit* GetUnit(WorldObject& object, uint64 guid);
+        static Player* GetPlayer(WorldObject& object, uint64 guid);
+        static Creature* GetCreature(WorldObject& object, uint64 guid);
+        static GameObject* GetGameObject(WorldObject& object, uint64 guid);
+
+        Unit* GetUnit(uint64 guid) { return GetUnit(*this, guid); }
+        Player* GetPlayer(uint64 guid) { return GetPlayer(*this, guid); }
+        Creature* GetCreature(uint64 guid) { return GetCreature(*this, guid); }
+        GameObject* GetGameObject(uint64 guid) { return GetGameObject(*this, guid); }
+
         void DestroyForNearbyPlayers();
         virtual void UpdateObjectVisibility(bool forced = true);
         void BuildUpdate(UpdateDataMapType&);

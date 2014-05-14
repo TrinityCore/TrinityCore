@@ -4814,7 +4814,7 @@ void Unit::RemoveAllDynObjects()
         m_dynObj.front()->Remove();
 }
 
-GameObject* Unit::GetGameObject(uint32 spellId) const
+GameObject* Unit::GetGameObjectBySpellId(uint32 spellId) const
 {
     for (GameObjectList::const_iterator i = m_gameObj.begin(); i != m_gameObj.end(); ++i)
         if ((*i)->GetSpellId() == spellId)
@@ -12986,21 +12986,6 @@ float Unit::GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spell
     if (spellInfo->RangeEntry->minRangeFriend == spellInfo->RangeEntry->minRangeHostile)
         return spellInfo->GetMinRange();
     return spellInfo->GetMinRange(!IsHostileTo(target));
-}
-
-Unit* Unit::GetUnit(WorldObject& object, uint64 guid)
-{
-    return ObjectAccessor::GetUnit(object, guid);
-}
-
-Player* Unit::GetPlayer(WorldObject& object, uint64 guid)
-{
-    return ObjectAccessor::GetPlayer(object, guid);
-}
-
-Creature* Unit::GetCreature(WorldObject& object, uint64 guid)
-{
-    return object.GetMap()->GetCreature(guid);
 }
 
 uint32 Unit::GetCreatureType() const

@@ -264,7 +264,7 @@ class spell_warl_demonic_circle_summon : public SpellScriptLoader
 
             void HandleDummyTick(AuraEffect const* /*aurEff*/)
             {
-                if (GameObject* circle = GetTarget()->GetGameObject(GetId()))
+                if (GameObject* circle = GetTarget()->GetGameObjectBySpellId(GetId()))
                 {
                     // Here we check if player is in demonic circle teleport range, if so add
                     // WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST; allowing him to cast the WARLOCK_DEMONIC_CIRCLE_TELEPORT.
@@ -309,7 +309,7 @@ class spell_warl_demonic_circle_teleport : public SpellScriptLoader
             {
                 if (Player* player = GetTarget()->ToPlayer())
                 {
-                    if (GameObject* circle = player->GetGameObject(SPELL_WARLOCK_DEMONIC_CIRCLE_SUMMON))
+                    if (GameObject* circle = player->GetGameObjectBySpellId(SPELL_WARLOCK_DEMONIC_CIRCLE_SUMMON))
                     {
                         player->NearTeleportTo(circle->GetPositionX(), circle->GetPositionY(), circle->GetPositionZ(), circle->GetOrientation());
                         player->RemoveMovementImpairingAuras();

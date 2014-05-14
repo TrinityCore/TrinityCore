@@ -1959,7 +1959,7 @@ class Unit : public WorldObject
         void RemoveDynObject(uint32 spellId);
         void RemoveAllDynObjects();
 
-        GameObject* GetGameObject(uint32 spellId) const;
+        GameObject* GetGameObjectBySpellId(uint32 spellId) const;
         void AddGameObject(GameObject* gameObj);
         void RemoveGameObject(GameObject* gameObj, bool del);
         void RemoveGameObject(uint32 spellid, bool del);
@@ -2028,9 +2028,6 @@ class Unit : public WorldObject
 
         void addFollower(FollowerReference* pRef) { m_FollowingRefManager.insertFirst(pRef); }
         void removeFollower(FollowerReference* /*pRef*/) { /* nothing to do yet */ }
-        static Unit* GetUnit(WorldObject& object, uint64 guid);
-        static Player* GetPlayer(WorldObject& object, uint64 guid);
-        static Creature* GetCreature(WorldObject& object, uint64 guid);
 
         MotionMaster* GetMotionMaster() { return i_motionMaster; }
         const MotionMaster* GetMotionMaster() const { return i_motionMaster; }
