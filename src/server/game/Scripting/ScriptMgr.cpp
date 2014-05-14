@@ -824,13 +824,6 @@ bool ScriptMgr::OnQuestSelect(Player* player, Creature* creature, Quest const* q
     ASSERT(player);
     ASSERT(creature);
     ASSERT(quest);
-#ifdef ELUNA
-    if(sHookMgr->OnQuestSelect(player, creature, quest))
-    {
-        player->PlayerTalkClass->ClearMenus();
-        return false;
-    }
-#endif
 
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
