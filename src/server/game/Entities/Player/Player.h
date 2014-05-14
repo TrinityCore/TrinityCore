@@ -2299,6 +2299,8 @@ class Player : public Unit, public GridObject<Player>
         std::string GetMapAreaAndZoneString();
         std::string GetCoordsMapAreaAndZoneString();
 
+        time_t GetSummonExpireTimer() const { return m_summon_expire; }
+
     protected:
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;

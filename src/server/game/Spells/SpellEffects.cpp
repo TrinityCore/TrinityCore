@@ -4258,6 +4258,9 @@ void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
     if (unitTarget->HasAura(23445))
         return;
 
+    if (unitTarget->ToPlayer()->GetSummonExpireTimer() > time(NULL))
+        return;
+
     float x, y, z;
     m_caster->GetPosition(x, y, z);
 
