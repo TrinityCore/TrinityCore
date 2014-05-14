@@ -518,7 +518,7 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
 
         class spell_blood_queen_vampiric_bite_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_blood_queen_vampiric_bite_SpellScript);
+            PrepareSpellScript(spell_blood_queen_vampiric_bite_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -595,7 +595,7 @@ class spell_blood_queen_frenzied_bloodthirst : public SpellScriptLoader
 
         class spell_blood_queen_frenzied_bloodthirst_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_blood_queen_frenzied_bloodthirst_AuraScript);
+            PrepareAuraScript(spell_blood_queen_frenzied_bloodthirst_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -654,7 +654,7 @@ class spell_blood_queen_bloodbolt : public SpellScriptLoader
 
         class spell_blood_queen_bloodbolt_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_blood_queen_bloodbolt_SpellScript);
+            PrepareSpellScript(spell_blood_queen_bloodbolt_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -705,7 +705,7 @@ class spell_blood_queen_essence_of_the_blood_queen : public SpellScriptLoader
 
         class spell_blood_queen_essence_of_the_blood_queen_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_blood_queen_essence_of_the_blood_queen_AuraScript);
+            PrepareAuraScript(spell_blood_queen_essence_of_the_blood_queen_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -740,7 +740,7 @@ class spell_blood_queen_pact_of_the_darkfallen : public SpellScriptLoader
 
         class spell_blood_queen_pact_of_the_darkfallen_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_blood_queen_pact_of_the_darkfallen_SpellScript);
+            PrepareSpellScript(spell_blood_queen_pact_of_the_darkfallen_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -788,7 +788,7 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public SpellScriptLoader
 
         class spell_blood_queen_pact_of_the_darkfallen_dmg_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_blood_queen_pact_of_the_darkfallen_dmg_AuraScript);
+            PrepareAuraScript(spell_blood_queen_pact_of_the_darkfallen_dmg_AuraScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -826,7 +826,7 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg_target : public SpellScriptLo
 
         class spell_blood_queen_pact_of_the_darkfallen_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_blood_queen_pact_of_the_darkfallen_dmg_SpellScript);
+            PrepareSpellScript(spell_blood_queen_pact_of_the_darkfallen_dmg_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& unitList)
             {

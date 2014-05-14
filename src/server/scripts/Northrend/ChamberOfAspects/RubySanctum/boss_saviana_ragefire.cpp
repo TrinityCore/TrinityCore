@@ -221,7 +221,7 @@ class spell_saviana_conflagration_init : public SpellScriptLoader
 
         class spell_saviana_conflagration_init_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_saviana_conflagration_init_SpellScript);
+            PrepareSpellScript(spell_saviana_conflagration_init_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -258,7 +258,7 @@ class spell_saviana_conflagration_throwback : public SpellScriptLoader
 
         class spell_saviana_conflagration_throwback_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_saviana_conflagration_throwback_SpellScript);
+            PrepareSpellScript(spell_saviana_conflagration_throwback_SpellScript)
 
             void HandleScript(SpellEffIndex effIndex)
             {

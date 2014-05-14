@@ -267,7 +267,7 @@ public:
 
     class spell_elder_nadox_guardian_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_elder_nadox_guardian_SpellScript);
+        PrepareSpellScript(spell_elder_nadox_guardian_SpellScript)
 
         void FilterTargets(std::list<WorldObject*>& targets)
         {

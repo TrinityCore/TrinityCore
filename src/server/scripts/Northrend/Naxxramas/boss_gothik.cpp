@@ -595,7 +595,7 @@ class spell_gothik_shadow_bolt_volley : public SpellScriptLoader
 
         class spell_gothik_shadow_bolt_volley_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gothik_shadow_bolt_volley_SpellScript);
+            PrepareSpellScript(spell_gothik_shadow_bolt_volley_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {

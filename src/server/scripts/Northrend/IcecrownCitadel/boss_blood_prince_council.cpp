@@ -1373,7 +1373,7 @@ class spell_taldaram_glittering_sparks : public SpellScriptLoader
 
         class spell_taldaram_glittering_sparks_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_taldaram_glittering_sparks_SpellScript);
+            PrepareSpellScript(spell_taldaram_glittering_sparks_SpellScript)
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -1400,7 +1400,7 @@ class spell_taldaram_summon_flame_ball : public SpellScriptLoader
 
         class spell_taldaram_summon_flame_ball_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_taldaram_summon_flame_ball_SpellScript);
+            PrepareSpellScript(spell_taldaram_summon_flame_ball_SpellScript)
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -1427,7 +1427,7 @@ class spell_taldaram_flame_ball_visual : public SpellScriptLoader
 
         class spell_flame_ball_visual_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_flame_ball_visual_AuraScript);
+            PrepareAuraScript(spell_flame_ball_visual_AuraScript)
 
             bool Load() override
             {
@@ -1471,7 +1471,7 @@ class spell_taldaram_ball_of_inferno_flame : public SpellScriptLoader
 
         class spell_taldaram_ball_of_inferno_flame_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_taldaram_ball_of_inferno_flame_SpellScript);
+            PrepareSpellScript(spell_taldaram_ball_of_inferno_flame_SpellScript)
 
             void ModAuraStack()
             {
@@ -1499,7 +1499,7 @@ class spell_valanar_kinetic_bomb : public SpellScriptLoader
 
         class spell_valanar_kinetic_bomb_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_valanar_kinetic_bomb_SpellScript);
+            PrepareSpellScript(spell_valanar_kinetic_bomb_SpellScript)
 
             void SetDest(SpellDestination& dest)
             {
@@ -1515,7 +1515,7 @@ class spell_valanar_kinetic_bomb : public SpellScriptLoader
 
         class spell_valanar_kinetic_bomb_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_valanar_kinetic_bomb_AuraScript);
+            PrepareAuraScript(spell_valanar_kinetic_bomb_AuraScript)
 
             void HandleDummyTick(AuraEffect const* /*aurEff*/)
             {
@@ -1556,7 +1556,7 @@ class spell_valanar_kinetic_bomb_knockback : public SpellScriptLoader
 
         class spell_valanar_kinetic_bomb_knockback_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_valanar_kinetic_bomb_knockback_SpellScript);
+            PrepareSpellScript(spell_valanar_kinetic_bomb_knockback_SpellScript)
 
             void KnockIntoAir()
             {
@@ -1583,7 +1583,7 @@ class spell_valanar_kinetic_bomb_absorb : public SpellScriptLoader
 
         class spell_valanar_kinetic_bomb_absorb_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_valanar_kinetic_bomb_absorb_AuraScript);
+            PrepareAuraScript(spell_valanar_kinetic_bomb_absorb_AuraScript)
 
             void OnAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
@@ -1611,7 +1611,7 @@ class spell_blood_council_shadow_prison : public SpellScriptLoader
 
         class spell_blood_council_shadow_prison_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_blood_council_shadow_prison_AuraScript);
+            PrepareAuraScript(spell_blood_council_shadow_prison_AuraScript)
 
             void HandleDummyTick(AuraEffect const* aurEff)
             {
@@ -1638,7 +1638,7 @@ class spell_blood_council_shadow_prison_damage : public SpellScriptLoader
 
         class spell_blood_council_shadow_prison_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_blood_council_shadow_prison_SpellScript);
+            PrepareSpellScript(spell_blood_council_shadow_prison_SpellScript)
 
             void AddExtraDamage()
             {

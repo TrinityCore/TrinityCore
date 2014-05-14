@@ -183,7 +183,7 @@ class spell_egg_event : public SpellScriptLoader
 
         class spell_egg_eventSpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_egg_eventSpellScript);
+            PrepareSpellScript(spell_egg_eventSpellScript)
 
             void HandleOnHit()
             {

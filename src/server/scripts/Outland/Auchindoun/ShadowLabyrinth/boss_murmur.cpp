@@ -181,7 +181,7 @@ class spell_murmur_sonic_boom : public SpellScriptLoader
 
         class spell_murmur_sonic_boom_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_murmur_sonic_boom_SpellScript);
+            PrepareSpellScript(spell_murmur_sonic_boom_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -215,7 +215,7 @@ class spell_murmur_sonic_boom_effect : public SpellScriptLoader
 
         class spell_murmur_sonic_boom_effect_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_murmur_sonic_boom_effect_SpellScript);
+            PrepareSpellScript(spell_murmur_sonic_boom_effect_SpellScript)
 
             void CalcDamage()
             {
@@ -258,7 +258,7 @@ class spell_murmur_thundering_storm : public SpellScriptLoader
 
         class spell_murmur_thundering_storm_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_murmur_thundering_storm_SpellScript);
+            PrepareSpellScript(spell_murmur_thundering_storm_SpellScript)
 
             void FilterTarget(std::list<WorldObject*>& targets)
             {

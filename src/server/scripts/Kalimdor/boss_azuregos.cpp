@@ -178,7 +178,7 @@ class spell_mark_of_frost : public SpellScriptLoader
 
         class spell_mark_of_frost_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mark_of_frost_SpellScript);
+            PrepareSpellScript(spell_mark_of_frost_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

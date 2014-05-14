@@ -82,7 +82,7 @@ class spell_mage_blast_wave : public SpellScriptLoader
 
         class spell_mage_blast_wave_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mage_blast_wave_SpellScript);
+            PrepareSpellScript(spell_mage_blast_wave_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -117,7 +117,7 @@ class spell_mage_burnout : public SpellScriptLoader
 
         class spell_mage_burnout_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mage_burnout_AuraScript);
+            PrepareAuraScript(spell_mage_burnout_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -162,7 +162,7 @@ class spell_mage_cold_snap : public SpellScriptLoader
 
         class spell_mage_cold_snap_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mage_cold_snap_SpellScript);
+            PrepareSpellScript(spell_mage_cold_snap_SpellScript)
 
             bool Load() override
             {
@@ -210,7 +210,7 @@ class spell_mage_fire_frost_ward : public SpellScriptLoader
 
         class spell_mage_fire_frost_ward_AuraScript : public spell_mage_incanters_absorbtion_base_AuraScript
         {
-            PrepareAuraScript(spell_mage_fire_frost_ward_AuraScript);
+            PrepareAuraScript(spell_mage_fire_frost_ward_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -276,7 +276,7 @@ class spell_mage_focus_magic : public SpellScriptLoader
 
         class spell_mage_focus_magic_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mage_focus_magic_AuraScript);
+            PrepareAuraScript(spell_mage_focus_magic_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -327,7 +327,7 @@ class spell_mage_ice_barrier : public SpellScriptLoader
 
         class spell_mage_ice_barrier_AuraScript : public spell_mage_incanters_absorbtion_base_AuraScript
         {
-            PrepareAuraScript(spell_mage_ice_barrier_AuraScript);
+            PrepareAuraScript(spell_mage_ice_barrier_AuraScript)
 
             void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
             {
@@ -370,7 +370,7 @@ class spell_mage_ignite : public SpellScriptLoader
 
         class spell_mage_ignite_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mage_ignite_AuraScript);
+            PrepareAuraScript(spell_mage_ignite_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -417,7 +417,7 @@ class spell_mage_living_bomb : public SpellScriptLoader
 
         class spell_mage_living_bomb_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mage_living_bomb_AuraScript);
+            PrepareAuraScript(spell_mage_living_bomb_AuraScript)
 
             bool Validate(SpellInfo const* spell) override
             {
@@ -456,7 +456,7 @@ class spell_mage_mana_shield : public SpellScriptLoader
 
         class spell_mage_mana_shield_AuraScript : public spell_mage_incanters_absorbtion_base_AuraScript
         {
-            PrepareAuraScript(spell_mage_mana_shield_AuraScript);
+            PrepareAuraScript(spell_mage_mana_shield_AuraScript)
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
             {
@@ -494,7 +494,7 @@ class spell_mage_master_of_elements : public SpellScriptLoader
 
         class spell_mage_master_of_elements_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mage_master_of_elements_AuraScript);
+            PrepareAuraScript(spell_mage_master_of_elements_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -546,7 +546,7 @@ class spell_mage_polymorph_cast_visual : public SpellScriptLoader
 
         class spell_mage_polymorph_cast_visual_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mage_polymorph_cast_visual_SpellScript);
+            PrepareSpellScript(spell_mage_polymorph_cast_visual_SpellScript)
 
             static const uint32 PolymorhForms[6];
 
@@ -596,7 +596,7 @@ class spell_mage_summon_water_elemental : public SpellScriptLoader
 
         class spell_mage_summon_water_elemental_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mage_summon_water_elemental_SpellScript);
+            PrepareSpellScript(spell_mage_summon_water_elemental_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

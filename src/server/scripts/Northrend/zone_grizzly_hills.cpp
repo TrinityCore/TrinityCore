@@ -761,7 +761,7 @@ class spell_shredder_delivery : public SpellScriptLoader
 
         class spell_shredder_delivery_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_shredder_delivery_SpellScript);
+            PrepareSpellScript(spell_shredder_delivery_SpellScript)
 
             bool Load() override
             {

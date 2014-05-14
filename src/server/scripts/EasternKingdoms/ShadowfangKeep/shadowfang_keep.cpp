@@ -208,7 +208,7 @@ class spell_shadowfang_keep_haunting_spirits : public SpellScriptLoader
 
         class spell_shadowfang_keep_haunting_spirits_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_shadowfang_keep_haunting_spirits_AuraScript);
+            PrepareAuraScript(spell_shadowfang_keep_haunting_spirits_AuraScript)
 
             void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& amplitude)
             {

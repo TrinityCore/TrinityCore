@@ -1006,7 +1006,7 @@ void npc_qiraj_war_spawn::npc_qiraj_war_spawnAI::JustDied(Unit* /*slayer*/)
         if (npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI* triggerAI = CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, mob->AI()))
             triggerAI->LiveCounter();
 
-};
+}
 
 /*#####
 # go_crystalline_tear
