@@ -228,6 +228,6 @@ void _releaseInputGrab_();
     @internal*/
 void _restoreInputGrab_();
 
-} } // namespace
+}; }; // namespace
 
 #endif
