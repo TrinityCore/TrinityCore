@@ -10282,9 +10282,10 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
             case 2109:
                 if ((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
                 {
-                    if (GetTypeId() != TYPEID_PLAYER)
-                        continue;
-                    float mod = ToPlayer()->GetRatingBonusValue(CR_CRIT_TAKEN_MELEE) * (-8.0f);
+                    // Patch 2.4.3: The resilience required to reach the 90% damage reduction cap
+                    //  is 22.5% critical strike damage reduction, or 444 resilience.
+                    // To calculate for 90%, we multiply the 100% by 4 (22.5% * 4 = 90%)
+                    float mod = -1.0f * GetMeleeCritDamageReduction(400);
                     AddPct(TakenTotalMod, std::max(mod, float((*i)->GetAmount())));
                 }
                 break;
@@ -11360,9 +11361,10 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
             case 2109:
                 if ((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
                 {
-                    if (GetTypeId() != TYPEID_PLAYER)
-                        continue;
-                    float mod = ToPlayer()->GetRatingBonusValue(CR_CRIT_TAKEN_MELEE) * (-8.0f);
+                    // Patch 2.4.3: The resilience required to reach the 90% damage reduction cap
+                    //  is 22.5% critical strike damage reduction, or 444 resilience.
+                    // To calculate for 90%, we multiply the 100% by 4 (22.5% * 4 = 90%)
+                    float mod = -1.0f * GetMeleeCritDamageReduction(400);
                     AddPct(TakenTotalMod, std::max(mod, float((*i)->GetAmount())));
                 }
                 break;
