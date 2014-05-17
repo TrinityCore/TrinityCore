@@ -249,7 +249,7 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
 
         class spell_varos_centrifuge_shield_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_varos_centrifuge_shield_AuraScript);
+            PrepareAuraScript(spell_varos_centrifuge_shield_AuraScript)
 
             bool Load() override
             {

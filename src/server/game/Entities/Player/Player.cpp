@@ -22645,7 +22645,7 @@ bool Player::ModifyMoney(int32 amount, bool sendError /*= true*/)
         SetMoney (GetMoney() > uint32(-amount) ? GetMoney() + amount : 0);
     else
     {
-        if (GetMoney() < uint32(MAX_MONEY_AMOUNT - amount))
+        if (GetMoney() < MAX_MONEY_AMOUNT - static_cast<uint32>(amount))
             SetMoney(GetMoney() + amount);
         else
         {

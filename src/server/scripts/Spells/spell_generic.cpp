@@ -45,7 +45,7 @@ class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
 
         class spell_gen_absorb0_hitlimit1_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_absorb0_hitlimit1_AuraScript);
+            PrepareAuraScript(spell_gen_absorb0_hitlimit1_AuraScript)
 
             uint32 limit;
 
@@ -90,7 +90,7 @@ class spell_gen_adaptive_warding : public SpellScriptLoader
 
         class spell_gen_adaptive_warding_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_adaptive_warding_AuraScript);
+            PrepareAuraScript(spell_gen_adaptive_warding_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -171,7 +171,7 @@ class spell_gen_allow_cast_from_item_only : public SpellScriptLoader
 
         class spell_gen_allow_cast_from_item_only_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_allow_cast_from_item_only_SpellScript);
+            PrepareSpellScript(spell_gen_allow_cast_from_item_only_SpellScript)
 
             SpellCastResult CheckRequirement()
             {
@@ -205,7 +205,7 @@ class spell_gen_animal_blood : public SpellScriptLoader
 
         class spell_gen_animal_blood_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_animal_blood_AuraScript);
+            PrepareAuraScript(spell_gen_animal_blood_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -249,7 +249,7 @@ class spell_gen_aura_of_anger : public SpellScriptLoader
 
         class spell_gen_aura_of_anger_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_aura_of_anger_AuraScript);
+            PrepareAuraScript(spell_gen_aura_of_anger_AuraScript)
 
             void HandleEffectPeriodicUpdate(AuraEffect* aurEff)
             {
@@ -287,7 +287,7 @@ class spell_gen_aura_service_uniform : public SpellScriptLoader
 
         class spell_gen_aura_service_uniform_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_aura_service_uniform_AuraScript);
+            PrepareAuraScript(spell_gen_aura_service_uniform_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -336,7 +336,7 @@ class spell_gen_av_drekthar_presence : public SpellScriptLoader
 
         class spell_gen_av_drekthar_presence_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_av_drekthar_presence_AuraScript);
+            PrepareAuraScript(spell_gen_av_drekthar_presence_AuraScript)
 
             bool CheckAreaTarget(Unit* target)
             {
@@ -384,7 +384,7 @@ class spell_gen_bandage : public SpellScriptLoader
 
         class spell_gen_bandage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_bandage_SpellScript);
+            PrepareSpellScript(spell_gen_bandage_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -436,7 +436,7 @@ class spell_gen_bonked : public SpellScriptLoader
 
         class spell_gen_bonked_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_bonked_SpellScript);
+            PrepareSpellScript(spell_gen_bonked_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -586,7 +586,7 @@ class spell_gen_burn_brutallus : public SpellScriptLoader
 
         class spell_gen_burn_brutallus_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_burn_brutallus_AuraScript);
+            PrepareAuraScript(spell_gen_burn_brutallus_AuraScript)
 
             void HandleEffectPeriodicUpdate(AuraEffect* aurEff)
             {
@@ -618,7 +618,7 @@ class spell_gen_cannibalize : public SpellScriptLoader
 
         class spell_gen_cannibalize_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_cannibalize_SpellScript);
+            PrepareSpellScript(spell_gen_cannibalize_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -706,7 +706,7 @@ class spell_gen_clone : public SpellScriptLoader
 
         class spell_gen_clone_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_clone_SpellScript);
+            PrepareSpellScript(spell_gen_clone_SpellScript)
 
             void HandleScriptEffect(SpellEffIndex effIndex)
             {
@@ -746,7 +746,7 @@ class spell_gen_clone_weapon : public SpellScriptLoader
 
         class spell_gen_clone_weapon_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_clone_weapon_SpellScript);
+            PrepareSpellScript(spell_gen_clone_weapon_SpellScript)
 
             void HandleScriptEffect(SpellEffIndex effIndex)
             {
@@ -773,7 +773,7 @@ class spell_gen_clone_weapon_aura : public SpellScriptLoader
 
         class spell_gen_clone_weapon_auraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_clone_weapon_auraScript);
+            PrepareAuraScript(spell_gen_clone_weapon_auraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -940,7 +940,7 @@ class spell_gen_create_lance : public SpellScriptLoader
 
         class spell_gen_create_lance_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_create_lance_SpellScript);
+            PrepareSpellScript(spell_gen_create_lance_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -982,7 +982,7 @@ class spell_gen_creature_permanent_feign_death : public SpellScriptLoader
 
         class spell_gen_creature_permanent_feign_death_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_creature_permanent_feign_death_AuraScript);
+            PrepareAuraScript(spell_gen_creature_permanent_feign_death_AuraScript)
 
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1024,7 +1024,7 @@ class spell_gen_dalaran_disguise : public SpellScriptLoader
 
         class spell_gen_dalaran_disguise_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_dalaran_disguise_SpellScript);
+            PrepareSpellScript(spell_gen_dalaran_disguise_SpellScript)
 
             bool Validate(SpellInfo const* spellInfo) override
             {
@@ -1096,7 +1096,7 @@ class spell_gen_damage_reduction_aura : public SpellScriptLoader
 
         class spell_gen_damage_reduction_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_damage_reduction_AuraScript);
+            PrepareAuraScript(spell_gen_damage_reduction_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -1151,7 +1151,7 @@ class spell_gen_defend : public SpellScriptLoader
 
         class spell_gen_defend_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_defend_AuraScript);
+            PrepareAuraScript(spell_gen_defend_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -1230,7 +1230,7 @@ class spell_gen_despawn_self : public SpellScriptLoader
 
         class spell_gen_despawn_self_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_despawn_self_SpellScript);
+            PrepareSpellScript(spell_gen_despawn_self_SpellScript)
 
             bool Load() override
             {
@@ -1268,7 +1268,7 @@ class spell_gen_divine_storm_cd_reset : public SpellScriptLoader
 
         class spell_gen_divine_storm_cd_reset_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_divine_storm_cd_reset_SpellScript);
+            PrepareSpellScript(spell_gen_divine_storm_cd_reset_SpellScript)
 
             bool Load() override
             {
@@ -1308,7 +1308,7 @@ class spell_gen_ds_flush_knockback : public SpellScriptLoader
 
         class spell_gen_ds_flush_knockback_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_ds_flush_knockback_SpellScript);
+            PrepareSpellScript(spell_gen_ds_flush_knockback_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1351,7 +1351,7 @@ class spell_gen_dummy_trigger : public SpellScriptLoader
 
         class spell_gen_dummy_trigger_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_dummy_trigger_SpellScript);
+            PrepareSpellScript(spell_gen_dummy_trigger_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -1390,7 +1390,7 @@ class spell_gen_dungeon_credit : public SpellScriptLoader
 
         class spell_gen_dungeon_credit_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_dungeon_credit_SpellScript);
+            PrepareSpellScript(spell_gen_dungeon_credit_SpellScript)
 
             bool Load() override
             {
@@ -1445,7 +1445,8 @@ class spell_gen_elune_candle : public SpellScriptLoader
 
         class spell_gen_elune_candle_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_elune_candle_SpellScript);
+            PrepareSpellScript(spell_gen_elune_candle_SpellScript)
+
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_ELUNE_CANDLE_OMEN_HEAD) ||
@@ -1554,7 +1555,7 @@ class spell_gen_gift_of_naaru : public SpellScriptLoader
 
         class spell_gen_gift_of_naaru_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_gift_of_naaru_AuraScript);
+            PrepareAuraScript(spell_gen_gift_of_naaru_AuraScript)
 
             void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
@@ -1646,7 +1647,7 @@ class spell_gen_gunship_portal : public SpellScriptLoader
 
         class spell_gen_gunship_portal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_gunship_portal_SpellScript);
+            PrepareSpellScript(spell_gen_gunship_portal_SpellScript)
 
             bool Load() override
             {
@@ -1685,7 +1686,7 @@ class spell_gen_launch : public SpellScriptLoader
 
         class spell_gen_launch_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_launch_SpellScript);
+            PrepareSpellScript(spell_gen_launch_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1733,7 +1734,7 @@ class spell_gen_lifeblood : public SpellScriptLoader
 
         class spell_gen_lifeblood_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_lifeblood_AuraScript);
+            PrepareAuraScript(spell_gen_lifeblood_AuraScript)
 
             void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
@@ -1769,7 +1770,7 @@ class spell_gen_lifebloom : public SpellScriptLoader
 
         class spell_gen_lifebloom_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_lifebloom_AuraScript);
+            PrepareAuraScript(spell_gen_lifebloom_AuraScript)
 
         public:
             spell_gen_lifebloom_AuraScript(uint32 spellId) : AuraScript(), _spellId(spellId) { }
@@ -1823,7 +1824,7 @@ class spell_gen_magic_rooster : public SpellScriptLoader
 
         class spell_gen_magic_rooster_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_magic_rooster_SpellScript);
+            PrepareSpellScript(spell_gen_magic_rooster_SpellScript)
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -1922,7 +1923,7 @@ class spell_gen_mount : public SpellScriptLoader
 
         class spell_gen_mount_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_mount_SpellScript);
+            PrepareSpellScript(spell_gen_mount_SpellScript)
 
         public:
             spell_gen_mount_SpellScript(uint32 mount0, uint32 mount60, uint32 mount100, uint32 mount150, uint32 mount280, uint32 mount310) : SpellScript(),
@@ -2210,7 +2211,7 @@ class spell_gen_netherbloom : public SpellScriptLoader
 
         class spell_gen_netherbloom_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_netherbloom_SpellScript);
+            PrepareSpellScript(spell_gen_netherbloom_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -2268,7 +2269,7 @@ class spell_gen_nightmare_vine : public SpellScriptLoader
 
         class spell_gen_nightmare_vine_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_nightmare_vine_SpellScript);
+            PrepareSpellScript(spell_gen_nightmare_vine_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -2319,7 +2320,7 @@ class spell_gen_obsidian_armor : public SpellScriptLoader
 
         class spell_gen_obsidian_armor_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_obsidian_armor_AuraScript);
+            PrepareAuraScript(spell_gen_obsidian_armor_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -2490,7 +2491,7 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
 
         class spell_gen_on_tournament_mount_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_on_tournament_mount_AuraScript);
+            PrepareAuraScript(spell_gen_on_tournament_mount_AuraScript)
 
             uint32 _pennantSpellId;
 
@@ -2648,7 +2649,7 @@ class spell_gen_oracle_wolvar_reputation : public SpellScriptLoader
 
         class spell_gen_oracle_wolvar_reputation_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_oracle_wolvar_reputation_SpellScript);
+            PrepareSpellScript(spell_gen_oracle_wolvar_reputation_SpellScript)
 
             bool Load() override
             {
@@ -2700,7 +2701,7 @@ class spell_gen_orc_disguise : public SpellScriptLoader
 
         class spell_gen_orc_disguise_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_orc_disguise_SpellScript);
+            PrepareSpellScript(spell_gen_orc_disguise_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -2750,7 +2751,7 @@ class spell_gen_parachute : public SpellScriptLoader
 
         class spell_gen_parachute_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_parachute_AuraScript);
+            PrepareAuraScript(spell_gen_parachute_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -2829,7 +2830,7 @@ class spell_gen_pet_summoned : public SpellScriptLoader
 
         class spell_gen_pet_summoned_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_pet_summoned_SpellScript);
+            PrepareSpellScript(spell_gen_pet_summoned_SpellScript)
 
             bool Load() override
             {
@@ -2842,30 +2843,28 @@ class spell_gen_pet_summoned : public SpellScriptLoader
                 if (player->GetLastPetNumber())
                 {
                     PetType newPetType = (player->getClass() == CLASS_HUNTER) ? HUNTER_PET : SUMMON_PET;
-                    if (Pet* newPet = new Pet(player, newPetType))
+                    auto newPet = new Pet(player, newPetType);
+                    if (newPet->LoadPetFromDB(player, 0, player->GetLastPetNumber(), true))
                     {
-                        if (newPet->LoadPetFromDB(player, 0, player->GetLastPetNumber(), true))
+                        // revive the pet if it is dead
+                        if (newPet->getDeathState() == DEAD)
+                            newPet->setDeathState(ALIVE);
+
+                        newPet->SetFullHealth();
+                        newPet->SetPower(newPet->getPowerType(), newPet->GetMaxPower(newPet->getPowerType()));
+
+                        switch (newPet->GetEntry())
                         {
-                            // revive the pet if it is dead
-                            if (newPet->getDeathState() == DEAD)
-                                newPet->setDeathState(ALIVE);
-
-                            newPet->SetFullHealth();
-                            newPet->SetPower(newPet->getPowerType(), newPet->GetMaxPower(newPet->getPowerType()));
-
-                            switch (newPet->GetEntry())
-                            {
-                                case NPC_DOOMGUARD:
-                                case NPC_INFERNAL:
-                                    newPet->SetEntry(NPC_IMP);
-                                    break;
-                                default:
-                                    break;
-                            }
+                            case NPC_DOOMGUARD:
+                            case NPC_INFERNAL:
+                                newPet->SetEntry(NPC_IMP);
+                                break;
+                            default:
+                                break;
                         }
-                        else
-                            delete newPet;
                     }
+                    else
+                        delete newPet;
                 }
             }
 
@@ -2888,7 +2887,7 @@ class spell_gen_profession_research : public SpellScriptLoader
 
         class spell_gen_profession_research_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_profession_research_SpellScript);
+            PrepareSpellScript(spell_gen_profession_research_SpellScript)
 
             bool Load() override
             {
@@ -2938,7 +2937,7 @@ class spell_gen_remove_flight_auras : public SpellScriptLoader
 
         class spell_gen_remove_flight_auras_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_remove_flight_auras_SpellScript);
+            PrepareSpellScript(spell_gen_remove_flight_auras_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -2986,7 +2985,7 @@ class spell_gen_replenishment : public SpellScriptLoader
 
         class spell_gen_replenishment_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_replenishment_SpellScript);
+            PrepareSpellScript(spell_gen_replenishment_SpellScript)
 
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
             {
@@ -3025,7 +3024,7 @@ class spell_gen_replenishment : public SpellScriptLoader
 
         class spell_gen_replenishment_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_replenishment_AuraScript);
+            PrepareAuraScript(spell_gen_replenishment_AuraScript)
 
             bool Load() override
             {
@@ -3071,7 +3070,7 @@ class spell_gen_seaforium_blast : public SpellScriptLoader
 
         class spell_gen_seaforium_blast_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_seaforium_blast_SpellScript);
+            PrepareSpellScript(spell_gen_seaforium_blast_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -3149,7 +3148,7 @@ class spell_gen_spirit_healer_res : public SpellScriptLoader
 
         class spell_gen_spirit_healer_res_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_spirit_healer_res_SpellScript);
+            PrepareSpellScript(spell_gen_spirit_healer_res_SpellScript)
 
             bool Load() override
             {
@@ -3192,7 +3191,7 @@ class spell_gen_summon_elemental : public SpellScriptLoader
 
         class spell_gen_summon_elemental_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_summon_elemental_AuraScript);
+            PrepareAuraScript(spell_gen_summon_elemental_AuraScript)
 
         public:
             spell_gen_summon_elemental_AuraScript(uint32 spellId) : AuraScript(), _spellId(spellId) { }
@@ -3250,7 +3249,7 @@ class spell_gen_summon_tournament_mount : public SpellScriptLoader
 
         class spell_gen_summon_tournament_mount_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_summon_tournament_mount_SpellScript);
+            PrepareSpellScript(spell_gen_summon_tournament_mount_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -3293,7 +3292,7 @@ class spell_gen_throw_shield : public SpellScriptLoader
 
         class spell_gen_throw_shield_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_throw_shield_SpellScript);
+            PrepareSpellScript(spell_gen_throw_shield_SpellScript)
 
             void HandleScriptEffect(SpellEffIndex effIndex)
             {
@@ -3326,7 +3325,7 @@ class spell_gen_tournament_duel : public SpellScriptLoader
 
         class spell_gen_tournament_duel_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_tournament_duel_SpellScript);
+            PrepareSpellScript(spell_gen_tournament_duel_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -3372,7 +3371,7 @@ class spell_gen_tournament_pennant : public SpellScriptLoader
 
         class spell_gen_tournament_pennant_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_tournament_pennant_AuraScript);
+            PrepareAuraScript(spell_gen_tournament_pennant_AuraScript)
 
             bool Load() override
             {
@@ -3413,7 +3412,7 @@ class spell_pvp_trinket_wotf_shared_cd : public SpellScriptLoader
 
         class spell_pvp_trinket_wotf_shared_cd_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pvp_trinket_wotf_shared_cd_SpellScript);
+            PrepareSpellScript(spell_pvp_trinket_wotf_shared_cd_SpellScript)
 
             bool Load() override
             {
@@ -3459,7 +3458,7 @@ class spell_gen_turkey_marker : public SpellScriptLoader
 
         class spell_gen_turkey_marker_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_turkey_marker_AuraScript);
+            PrepareAuraScript(spell_gen_turkey_marker_AuraScript)
 
             void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
@@ -3513,7 +3512,7 @@ class spell_gen_upper_deck_create_foam_sword : public SpellScriptLoader
 
         class spell_gen_upper_deck_create_foam_sword_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_upper_deck_create_foam_sword_SpellScript);
+            PrepareSpellScript(spell_gen_upper_deck_create_foam_sword_SpellScript)
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -3555,7 +3554,7 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
 
         class spell_gen_vehicle_scaling_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_vehicle_scaling_AuraScript);
+            PrepareAuraScript(spell_gen_vehicle_scaling_AuraScript)
 
             bool Load() override
             {
@@ -3644,7 +3643,7 @@ class spell_gen_wg_water : public SpellScriptLoader
 
         class spell_gen_wg_water_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_wg_water_SpellScript);
+            PrepareSpellScript(spell_gen_wg_water_SpellScript)
 
             SpellCastResult CheckCast()
             {
@@ -3677,7 +3676,7 @@ class spell_gen_whisper_gulch_yogg_saron_whisper : public SpellScriptLoader
 
         class spell_gen_whisper_gulch_yogg_saron_whisper_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_whisper_gulch_yogg_saron_whisper_AuraScript);
+            PrepareAuraScript(spell_gen_whisper_gulch_yogg_saron_whisper_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -3711,7 +3710,7 @@ class spell_gen_eject_all_passengers : public SpellScriptLoader
 
         class spell_gen_eject_all_passengers_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_eject_all_passengers_SpellScript);
+            PrepareSpellScript(spell_gen_eject_all_passengers_SpellScript)
 
             void RemoveVehicleAuras()
             {

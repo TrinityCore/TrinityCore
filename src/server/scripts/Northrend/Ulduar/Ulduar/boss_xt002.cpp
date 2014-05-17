@@ -767,7 +767,7 @@ class spell_xt002_searing_light_spawn_life_spark : public SpellScriptLoader
 
         class spell_xt002_searing_light_spawn_life_spark_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_xt002_searing_light_spawn_life_spark_AuraScript);
+            PrepareAuraScript(spell_xt002_searing_light_spawn_life_spark_AuraScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -803,7 +803,7 @@ class spell_xt002_gravity_bomb_aura : public SpellScriptLoader
 
         class spell_xt002_gravity_bomb_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_xt002_gravity_bomb_aura_AuraScript);
+            PrepareAuraScript(spell_xt002_gravity_bomb_aura_AuraScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -855,7 +855,7 @@ class spell_xt002_gravity_bomb_damage : public SpellScriptLoader
 
         class spell_xt002_gravity_bomb_damage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_xt002_gravity_bomb_damage_SpellScript);
+            PrepareSpellScript(spell_xt002_gravity_bomb_damage_SpellScript)
 
             void HandleScript(SpellEffIndex /*eff*/)
             {
@@ -887,7 +887,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
 
         class spell_xt002_heart_overload_periodic_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_xt002_heart_overload_periodic_SpellScript);
+            PrepareSpellScript(spell_xt002_heart_overload_periodic_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -954,7 +954,7 @@ class spell_xt002_tympanic_tantrum : public SpellScriptLoader
 
         class spell_xt002_tympanic_tantrum_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_xt002_tympanic_tantrum_SpellScript);
+            PrepareSpellScript(spell_xt002_tympanic_tantrum_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -987,7 +987,7 @@ class spell_xt002_submerged : public SpellScriptLoader
 
         class spell_xt002_submerged_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_xt002_submerged_SpellScript);
+            PrepareSpellScript(spell_xt002_submerged_SpellScript)
 
             void HandleScript(SpellEffIndex /*eff*/)
             {
@@ -1018,7 +1018,7 @@ class spell_xt002_stand : public SpellScriptLoader
 
         class spell_xt002_stand_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_xt002_stand_SpellScript);
+            PrepareSpellScript(spell_xt002_stand_SpellScript)
 
             void HandleScript(SpellEffIndex /*eff*/)
             {

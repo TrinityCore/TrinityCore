@@ -54,7 +54,7 @@ class spell_dru_dash : public SpellScriptLoader
 
         class spell_dru_dash_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dru_dash_AuraScript);
+            PrepareAuraScript(spell_dru_dash_AuraScript)
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
@@ -83,7 +83,7 @@ class spell_dru_enrage : public SpellScriptLoader
 
         class spell_dru_enrage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dru_enrage_SpellScript);
+            PrepareSpellScript(spell_dru_enrage_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -119,7 +119,7 @@ class spell_dru_glyph_of_starfire : public SpellScriptLoader
 
         class spell_dru_glyph_of_starfire_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dru_glyph_of_starfire_SpellScript);
+            PrepareSpellScript(spell_dru_glyph_of_starfire_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -172,7 +172,7 @@ class spell_dru_idol_lifebloom : public SpellScriptLoader
 
         class spell_dru_idol_lifebloom_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dru_idol_lifebloom_AuraScript);
+            PrepareAuraScript(spell_dru_idol_lifebloom_AuraScript)
 
             void HandleEffectCalcSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
             {
@@ -207,7 +207,7 @@ class spell_dru_innervate : public SpellScriptLoader
 
         class spell_dru_innervate_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dru_innervate_AuraScript);
+            PrepareAuraScript(spell_dru_innervate_AuraScript)
 
             void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
@@ -234,7 +234,7 @@ class spell_dru_insect_swarm : public SpellScriptLoader
 
         class spell_dru_insect_swarm_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dru_insect_swarm_AuraScript);
+            PrepareAuraScript(spell_dru_insect_swarm_AuraScript)
 
             void CalculateAmount(AuraEffect const* aurEff, int32 & amount, bool & /*canBeRecalculated*/)
             {
@@ -263,7 +263,7 @@ class spell_dru_lifebloom : public SpellScriptLoader
 
         class spell_dru_lifebloom_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dru_lifebloom_AuraScript);
+            PrepareAuraScript(spell_dru_lifebloom_AuraScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -345,7 +345,7 @@ class spell_dru_living_seed : public SpellScriptLoader
 
         class spell_dru_living_seed_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dru_living_seed_AuraScript);
+            PrepareAuraScript(spell_dru_living_seed_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -381,7 +381,7 @@ class spell_dru_living_seed_proc : public SpellScriptLoader
 
         class spell_dru_living_seed_proc_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dru_living_seed_proc_AuraScript);
+            PrepareAuraScript(spell_dru_living_seed_proc_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -416,7 +416,7 @@ class spell_dru_moonkin_form_passive : public SpellScriptLoader
 
         class spell_dru_moonkin_form_passive_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dru_moonkin_form_passive_AuraScript);
+            PrepareAuraScript(spell_dru_moonkin_form_passive_AuraScript)
 
             uint32 absorbPct;
 
@@ -460,7 +460,7 @@ class spell_dru_owlkin_frenzy : public SpellScriptLoader
 
         class spell_dru_owlkin_frenzy_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dru_owlkin_frenzy_AuraScript);
+            PrepareAuraScript(spell_dru_owlkin_frenzy_AuraScript)
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
@@ -487,7 +487,7 @@ class spell_dru_predatory_strikes : public SpellScriptLoader
 
         class spell_dru_predatory_strikes_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dru_predatory_strikes_AuraScript);
+            PrepareAuraScript(spell_dru_predatory_strikes_AuraScript)
 
             void UpdateAmount(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -516,7 +516,7 @@ class spell_dru_primal_tenacity : public SpellScriptLoader
 
         class spell_dru_primal_tenacity_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dru_primal_tenacity_AuraScript);
+            PrepareAuraScript(spell_dru_primal_tenacity_AuraScript)
 
             uint32 absorbPct;
 
@@ -560,7 +560,7 @@ class spell_dru_rip : public SpellScriptLoader
 
         class spell_dru_rip_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dru_rip_AuraScript);
+            PrepareAuraScript(spell_dru_rip_AuraScript)
 
             bool Load() override
             {
@@ -608,7 +608,7 @@ class spell_dru_savage_defense : public SpellScriptLoader
 
         class spell_dru_savage_defense_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dru_savage_defense_AuraScript);
+            PrepareAuraScript(spell_dru_savage_defense_AuraScript)
 
             uint32 absorbPct;
 
@@ -651,7 +651,7 @@ class spell_dru_savage_roar : public SpellScriptLoader
 
         class spell_dru_savage_roar_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dru_savage_roar_SpellScript);
+            PrepareSpellScript(spell_dru_savage_roar_SpellScript)
 
             SpellCastResult CheckCast()
             {
@@ -670,7 +670,7 @@ class spell_dru_savage_roar : public SpellScriptLoader
 
         class spell_dru_savage_roar_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dru_savage_roar_AuraScript);
+            PrepareAuraScript(spell_dru_savage_roar_AuraScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -716,7 +716,7 @@ class spell_dru_starfall_aoe : public SpellScriptLoader
 
         class spell_dru_starfall_aoe_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dru_starfall_aoe_SpellScript);
+            PrepareSpellScript(spell_dru_starfall_aoe_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -743,7 +743,7 @@ class spell_dru_starfall_dummy : public SpellScriptLoader
 
         class spell_dru_starfall_dummy_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dru_starfall_dummy_SpellScript);
+            PrepareSpellScript(spell_dru_starfall_dummy_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -789,7 +789,7 @@ class spell_dru_survival_instincts : public SpellScriptLoader
 
         class spell_dru_survival_instincts_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dru_survival_instincts_SpellScript);
+            PrepareSpellScript(spell_dru_survival_instincts_SpellScript)
 
             SpellCastResult CheckCast()
             {
@@ -808,7 +808,7 @@ class spell_dru_survival_instincts : public SpellScriptLoader
 
         class spell_dru_survival_instincts_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dru_survival_instincts_AuraScript);
+            PrepareAuraScript(spell_dru_survival_instincts_AuraScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -855,7 +855,7 @@ class spell_dru_swift_flight_passive : public SpellScriptLoader
 
         class spell_dru_swift_flight_passive_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dru_swift_flight_passive_AuraScript);
+            PrepareAuraScript(spell_dru_swift_flight_passive_AuraScript)
 
             bool Load() override
             {
@@ -889,7 +889,7 @@ class spell_dru_tiger_s_fury : public SpellScriptLoader
 
         class spell_dru_tiger_s_fury_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dru_tiger_s_fury_SpellScript);
+            PrepareSpellScript(spell_dru_tiger_s_fury_SpellScript)
 
             void OnHit()
             {
@@ -917,7 +917,7 @@ class spell_dru_typhoon : public SpellScriptLoader
 
         class spell_dru_typhoon_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dru_typhoon_SpellScript);
+            PrepareSpellScript(spell_dru_typhoon_SpellScript)
 
             void HandleKnockBack(SpellEffIndex effIndex)
             {
@@ -946,7 +946,7 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
 
         class spell_dru_t10_restoration_4p_bonus_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dru_t10_restoration_4p_bonus_SpellScript);
+            PrepareSpellScript(spell_dru_t10_restoration_4p_bonus_SpellScript)
 
             bool Load() override
             {
@@ -1018,7 +1018,7 @@ class spell_dru_wild_growth : public SpellScriptLoader
 
         class spell_dru_wild_growth_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dru_wild_growth_SpellScript);
+            PrepareSpellScript(spell_dru_wild_growth_SpellScript)
 
             bool Validate(SpellInfo const* spellInfo) override
             {

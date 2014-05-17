@@ -189,7 +189,7 @@ class spell_koralon_meteor_fists : public SpellScriptLoader
 
         class spell_koralon_meteor_fists_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_koralon_meteor_fists_AuraScript);
+            PrepareAuraScript(spell_koralon_meteor_fists_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -223,7 +223,7 @@ class spell_koralon_meteor_fists_damage : public SpellScriptLoader
 
         class spell_koralon_meteor_fists_damage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_koralon_meteor_fists_damage_SpellScript);
+            PrepareSpellScript(spell_koralon_meteor_fists_damage_SpellScript)
 
             bool Load() override
             {
@@ -265,7 +265,7 @@ class spell_flame_warder_meteor_fists : public SpellScriptLoader
 
         class spell_flame_warder_meteor_fists_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_flame_warder_meteor_fists_AuraScript);
+            PrepareAuraScript(spell_flame_warder_meteor_fists_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
