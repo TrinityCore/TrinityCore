@@ -20,6 +20,7 @@
 
 #include <ace/Singleton.h>
 #include "Common.h"
+#include "DatabaseEnv.h"
 #include "WorldPacket.h"
 
 enum CalendarMailAnswers
