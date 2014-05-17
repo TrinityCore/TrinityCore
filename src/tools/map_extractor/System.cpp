@@ -1114,7 +1114,7 @@ void ExtractDBCFiles(int l, bool basicLocale)
             }
 
             filename = foundFile.cFileName;
-            filename = outputPath + filename.substr(filename.rfind('\\'));
+            filename = outputPath + filename.substr(filename.rfind('\\') + 1);
 
             if (FileExists(filename.c_str()))
                 continue;
@@ -1161,7 +1161,7 @@ void ExtractDB2Files(int l, bool basicLocale)
             }
 
             filename = foundFile.cFileName;
-            filename = outputPath + filename.substr(filename.rfind('\\'));
+            filename = outputPath + filename.substr(filename.rfind('\\') + 1);
             if (ExtractFile(dbcFile, filename.c_str()))
                 ++count;
 
