@@ -259,7 +259,10 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
         if (inviteCount > 1)
             trans = CharacterDatabase.BeginTransaction();
 
-        for (uint32 i = 0; i < inviteCount; ++i)
+        // client limits the amount of players to be invited to 100
+        const int MaxPlayerInvites = 100;
+
+        for (uint32 i = 0; i < inviteCount && i < MaxPlayerInvites; ++i)
         {
             uint64 invitee = 0;
             uint8 status = 0;
