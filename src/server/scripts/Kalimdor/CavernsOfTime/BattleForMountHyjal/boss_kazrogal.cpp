@@ -181,7 +181,7 @@ class spell_mark_of_kazrogal : public SpellScriptLoader
 
         class spell_mark_of_kazrogal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mark_of_kazrogal_SpellScript);
+            PrepareSpellScript(spell_mark_of_kazrogal_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -196,7 +196,7 @@ class spell_mark_of_kazrogal : public SpellScriptLoader
 
         class spell_mark_of_kazrogal_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mark_of_kazrogal_AuraScript);
+            PrepareAuraScript(spell_mark_of_kazrogal_AuraScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {

@@ -489,7 +489,7 @@ class spell_auriaya_strenght_of_the_pack : public SpellScriptLoader
 
         class spell_auriaya_strenght_of_the_pack_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_auriaya_strenght_of_the_pack_SpellScript);
+            PrepareSpellScript(spell_auriaya_strenght_of_the_pack_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
@@ -515,7 +515,7 @@ class spell_auriaya_sentinel_blast : public SpellScriptLoader
 
         class spell_auriaya_sentinel_blast_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_auriaya_sentinel_blast_SpellScript);
+            PrepareSpellScript(spell_auriaya_sentinel_blast_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& unitList)
             {

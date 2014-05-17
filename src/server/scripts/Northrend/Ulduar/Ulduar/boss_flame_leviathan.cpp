@@ -1458,7 +1458,7 @@ class spell_load_into_catapult : public SpellScriptLoader
 
         class spell_load_into_catapult_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_load_into_catapult_AuraScript);
+            PrepareAuraScript(spell_load_into_catapult_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1503,7 +1503,7 @@ class spell_auto_repair : public SpellScriptLoader
 
         class spell_auto_repair_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_auto_repair_SpellScript);
+            PrepareSpellScript(spell_auto_repair_SpellScript)
 
             void CheckCooldownForTarget()
             {
@@ -1564,7 +1564,7 @@ class spell_systems_shutdown : public SpellScriptLoader
 
         class spell_systems_shutdown_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_systems_shutdown_AuraScript);
+            PrepareAuraScript(spell_systems_shutdown_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1650,7 +1650,7 @@ class spell_pursue : public SpellScriptLoader
 
         class spell_pursue_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pursue_SpellScript);
+            PrepareSpellScript(spell_pursue_SpellScript)
 
             bool Load() override
             {
@@ -1722,7 +1722,7 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
 
         class spell_vehicle_throw_passenger_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_vehicle_throw_passenger_SpellScript);
+            PrepareSpellScript(spell_vehicle_throw_passenger_SpellScript)
             void HandleScript(SpellEffIndex effIndex)
             {
                 Spell* baseSpell = GetSpell();

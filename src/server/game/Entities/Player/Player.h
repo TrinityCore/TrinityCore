@@ -29,6 +29,7 @@
 #include "SpellMgr.h"
 #include "Unit.h"
 
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -824,7 +825,8 @@ enum PlayerDelayedOperations
 
 // Player summoning auto-decline time (in secs)
 #define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
-#define MAX_MONEY_AMOUNT                       (0x7FFFFFFF-1)
+// Maximum money amount : 2^31 - 1
+auto constexpr MAX_MONEY_AMOUNT(static_cast<uint32>(std::numeric_limits<int32>::max()));
 
 struct InstancePlayerBind
 {

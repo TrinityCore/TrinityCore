@@ -395,7 +395,7 @@ class spell_ingvar_summon_banshee : public SpellScriptLoader
 
         class spell_ingvar_summon_banshee_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ingvar_summon_banshee_SpellScript);
+            PrepareSpellScript(spell_ingvar_summon_banshee_SpellScript)
 
             void SetDest(SpellDestination& dest)
             {
@@ -422,7 +422,7 @@ class spell_ingvar_woe_strike : public SpellScriptLoader
 
         class spell_ingvar_woe_strike_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_ingvar_woe_strike_AuraScript);
+            PrepareAuraScript(spell_ingvar_woe_strike_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

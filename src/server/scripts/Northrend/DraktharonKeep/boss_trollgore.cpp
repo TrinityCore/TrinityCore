@@ -219,7 +219,7 @@ class spell_trollgore_consume : public SpellScriptLoader
 
         class spell_trollgore_consume_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_trollgore_consume_SpellScript);
+            PrepareSpellScript(spell_trollgore_consume_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -254,7 +254,7 @@ class spell_trollgore_corpse_explode : public SpellScriptLoader
 
         class spell_trollgore_corpse_explode_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_trollgore_corpse_explode_AuraScript);
+            PrepareAuraScript(spell_trollgore_corpse_explode_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -297,7 +297,7 @@ class spell_trollgore_invader_taunt : public SpellScriptLoader
 
         class spell_trollgore_invader_taunt_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_trollgore_invader_taunt_SpellScript);
+            PrepareSpellScript(spell_trollgore_invader_taunt_SpellScript)
 
             bool Validate(SpellInfo const* spellInfo) override
             {

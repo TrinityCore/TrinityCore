@@ -762,7 +762,7 @@ public:
 
     class spell_q12620_the_lifewarden_wrath_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_q12620_the_lifewarden_wrath_SpellScript);
+        PrepareSpellScript(spell_q12620_the_lifewarden_wrath_SpellScript)
 
         void HandleSendEvent(SpellEffIndex effIndex)
         {
@@ -850,7 +850,7 @@ public:
 
     class spell_q12589_shoot_rjr_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_q12589_shoot_rjr_SpellScript);
+        PrepareSpellScript(spell_q12589_shoot_rjr_SpellScript)
 
         SpellCastResult CheckCast()
         {
@@ -1109,7 +1109,7 @@ public:
 
     class spell_shango_tracks_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_shango_tracks_SpellScript);
+        PrepareSpellScript(spell_shango_tracks_SpellScript)
 
         void HandleScript(SpellEffIndex /*effIndex*/)
         {

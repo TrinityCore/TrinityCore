@@ -44,7 +44,7 @@ class spell_razelikh_teleport_group : public SpellScriptLoader
 
         class spell_razelikh_teleport_group_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_razelikh_teleport_group_SpellScript);
+            PrepareSpellScript(spell_razelikh_teleport_group_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
