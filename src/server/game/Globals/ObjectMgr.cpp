@@ -3657,8 +3657,8 @@ void ObjectMgr::LoadQuests()
         "QuestGiverTextWindow, QuestGiverTargetName, QuestTurnTextWindow, QuestTurnTargetName, SoundAccept, SoundTurnIn, "
         //      150          151            152            153               154                155                  156                  157                158             159
         "DetailsEmote1, DetailsEmote2, DetailsEmote3, DetailsEmote4, DetailsEmoteDelay1, DetailsEmoteDelay2, DetailsEmoteDelay3, DetailsEmoteDelay4, EmoteOnIncomplete, EmoteOnComplete, "
-        //      160                 161               162                163                   164                       165                     166                  167               168
-        "OfferRewardEmote1, OfferRewardEmote2, OfferRewardEmote3, OfferRewardEmote4, OfferRewardEmoteDelay1, OfferRewardEmoteDelay2, OfferRewardEmoteDelay3, OfferRewardEmoteDelay4, WDBVerified"
+        //      160                 161               162                163                   164                       165                     166                  167
+        "OfferRewardEmote1, OfferRewardEmote2, OfferRewardEmote3, OfferRewardEmote4, OfferRewardEmoteDelay1, OfferRewardEmoteDelay2, OfferRewardEmoteDelay3, OfferRewardEmoteDelay4"
         " FROM quest_template");
     if (!result)
     {
@@ -8644,8 +8644,8 @@ void ObjectMgr::LoadBroadcastTexts()
 
         bct.Id = fields[0].GetUInt32();
         bct.Language = fields[1].GetUInt32();
-        AddLocaleString(fields[2].GetString(), DEFAULT_LOCALE, bct.MaleText);
-        AddLocaleString(fields[3].GetString(), DEFAULT_LOCALE, bct.FemaleText);
+        bct.MaleText[DEFAULT_LOCALE] = fields[2].GetString();
+        bct.FemaleText[DEFAULT_LOCALE] = fields[3].GetString();
         bct.EmoteId0 = fields[4].GetUInt32();
         bct.EmoteId1 = fields[5].GetUInt32();
         bct.EmoteId2 = fields[6].GetUInt32();

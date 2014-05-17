@@ -23,14 +23,15 @@
 
 #include <ace/Singleton.h>
 
+#include "Define.h"
 #include "DBCStructure.h"
 #include "SharedDefines.h"
-#include "UnorderedMap.h"
 #include "Util.h"
 
 #include <map>
 #include <set>
 #include <vector>
+#include <unordered_map>
 
 class SpellInfo;
 class Player;
@@ -285,7 +286,7 @@ struct SpellProcEventEntry
     uint32      cooldown;                                   // hidden cooldown used for some spell proc events, applied to _triggered_spell_
 };
 
-typedef UNORDERED_MAP<uint32, SpellProcEventEntry> SpellProcEventMap;
+typedef std::unordered_map<uint32, SpellProcEventEntry> SpellProcEventMap;
 
 struct SpellProcEntry
 {
@@ -303,7 +304,7 @@ struct SpellProcEntry
     uint32      charges;                                    // if nonzero - owerwrite procCharges field for given Spell.dbc entry, defines how many times proc can occur before aura remove, 0 - infinite
 };
 
-typedef UNORDERED_MAP<uint32, SpellProcEntry> SpellProcMap;
+typedef std::unordered_map<uint32, SpellProcEntry> SpellProcMap;
 
 struct SpellEnchantProcEntry
 {
@@ -312,7 +313,7 @@ struct SpellEnchantProcEntry
     uint32      procEx;
 };
 
-typedef UNORDERED_MAP<uint32, SpellEnchantProcEntry> SpellEnchantProcEventMap;
+typedef std::unordered_map<uint32, SpellEnchantProcEntry> SpellEnchantProcEventMap;
 
 struct SpellBonusEntry
 {
@@ -322,7 +323,7 @@ struct SpellBonusEntry
     float  ap_dot_bonus;
 };
 
-typedef UNORDERED_MAP<uint32, SpellBonusEntry>     SpellBonusMap;
+typedef std::unordered_map<uint32, SpellBonusEntry>     SpellBonusMap;
 
 enum SpellGroup
 {
@@ -443,7 +444,7 @@ enum EffectRadiusIndex
 class PetAura
 {
     private:
-        typedef UNORDERED_MAP<uint32, uint32> PetAuraMap;
+        typedef std::unordered_map<uint32, uint32> PetAuraMap;
 
     public:
         PetAura() : removeOnChangePet(false), damage(0) { }
@@ -523,7 +524,7 @@ struct SpellChainNode
     uint8  rank;
 };
 
-typedef UNORDERED_MAP<uint32, SpellChainNode> SpellChainMap;
+typedef std::unordered_map<uint32, SpellChainNode> SpellChainMap;
 
 //                   spell_id  req_spell
 typedef std::multimap<uint32, uint32> SpellRequiredMap;
@@ -657,7 +658,7 @@ class SpellMgr
 
         // Spell proc event table
         SpellProcEventEntry const* GetSpellProcEvent(uint32 spellId) const;
-        bool IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellInfo const* procSpell, uint32 procFlags, uint32 procExtra, bool active) const;
+        bool IsSpellProcEventCanTriggeredBy(SpellInfo const* spellProto, SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellInfo const* procSpell, uint32 procFlags, uint32 procExtra, bool active) const;
 
         // Spell proc table
         SpellProcEntry const* GetSpellProcEntry(uint32 spellId) const;

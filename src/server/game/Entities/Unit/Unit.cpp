@@ -155,8 +155,6 @@ ProcEventInfo::ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget,
     _damageInfo(damageInfo), _healInfo(healInfo)
 { }
 
-// we can disable this warning for this since it only
-// causes undefined behavior when passed to the base class constructor
 Unit::Unit(bool isWorldObject) :
     WorldObject(isWorldObject), m_movedPlayer(NULL), m_lastSanctuaryTime(0),
     IsAIEnabled(false), NeedChangeAI(false), LastCharmerGUID(0),
@@ -13300,7 +13298,7 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const
     }
 
     // Check spellProcEvent data requirements
-    if (!sSpellMgr->IsSpellProcEventCanTriggeredBy(spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
+    if (!sSpellMgr->IsSpellProcEventCanTriggeredBy(spellProto, spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
         return false;
     // In most cases req get honor or XP from kill
     if (EventProcFlag & PROC_FLAG_KILL && GetTypeId() == TYPEID_PLAYER)
@@ -16467,7 +16465,7 @@ void Unit::BuildCooldownPacket(WorldPacket& data, uint8 flags, PacketCooldowns c
     data.Initialize(SMSG_SPELL_COOLDOWN, 8 + 1 + (4 + 4) * cooldowns.size());
     data << uint64(GetGUID());
     data << uint8(flags);
-    for (UNORDERED_MAP<uint32, uint32>::const_iterator itr = cooldowns.begin(); itr != cooldowns.end(); ++itr)
+    for (std::unordered_map<uint32, uint32>::const_iterator itr = cooldowns.begin(); itr != cooldowns.end(); ++itr)
     {
         data << uint32(itr->first);
         data << uint32(itr->second);

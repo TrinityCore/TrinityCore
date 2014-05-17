@@ -54,7 +54,7 @@ public:
 
     void ResetTimes(bool week);
 protected:
-    typedef UNORDERED_MAP<uint32, Guild*> GuildContainer;
+    typedef std::unordered_map<uint32, Guild*> GuildContainer;
     uint32 NextGuildId;
     GuildContainer GuildStore;
     std::vector<uint64> GuildXPperLevel;
