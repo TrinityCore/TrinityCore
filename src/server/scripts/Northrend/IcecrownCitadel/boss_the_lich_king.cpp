@@ -2005,7 +2005,7 @@ class spell_the_lich_king_infest : public SpellScriptLoader
 
         class spell_the_lich_king_infest_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_infest_AuraScript);
+            PrepareAuraScript(spell_the_lich_king_infest_AuraScript)
 
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
@@ -2045,7 +2045,7 @@ class spell_the_lich_king_necrotic_plague : public SpellScriptLoader
 
         class spell_the_lich_king_necrotic_plague_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_necrotic_plague_AuraScript);
+            PrepareAuraScript(spell_the_lich_king_necrotic_plague_AuraScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -2093,7 +2093,7 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
 
         class spell_the_lich_king_necrotic_plague_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_necrotic_plague_SpellScript);
+            PrepareSpellScript(spell_the_lich_king_necrotic_plague_SpellScript)
 
             bool Load() override
             {
@@ -2133,7 +2133,7 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
 
         class spell_the_lich_king_necrotic_plague_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_necrotic_plague_AuraScript);
+            PrepareAuraScript(spell_the_lich_king_necrotic_plague_AuraScript)
 
             bool Load() override
             {
@@ -2217,7 +2217,7 @@ class spell_the_lich_king_shadow_trap_visual : public SpellScriptLoader
 
         class spell_the_lich_king_shadow_trap_visual_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_shadow_trap_visual_AuraScript);
+            PrepareAuraScript(spell_the_lich_king_shadow_trap_visual_AuraScript)
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -2244,7 +2244,7 @@ class spell_the_lich_king_shadow_trap_periodic : public SpellScriptLoader
 
         class spell_the_lich_king_shadow_trap_periodic_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_shadow_trap_periodic_SpellScript);
+            PrepareSpellScript(spell_the_lich_king_shadow_trap_periodic_SpellScript)
 
             void CheckTargetCount(std::list<WorldObject*>& targets)
             {
@@ -2273,7 +2273,7 @@ class spell_the_lich_king_quake : public SpellScriptLoader
 
         class spell_the_lich_king_quake_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_quake_SpellScript);
+            PrepareSpellScript(spell_the_lich_king_quake_SpellScript)
 
             bool Load() override
             {
@@ -2312,7 +2312,7 @@ class spell_the_lich_king_ice_burst_target_search : public SpellScriptLoader
 
         class spell_the_lich_king_ice_burst_target_search_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_ice_burst_target_search_SpellScript);
+            PrepareSpellScript(spell_the_lich_king_ice_burst_target_search_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -2355,7 +2355,7 @@ class spell_the_lich_king_raging_spirit : public SpellScriptLoader
 
         class spell_the_lich_king_raging_spirit_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_raging_spirit_SpellScript);
+            PrepareSpellScript(spell_the_lich_king_raging_spirit_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -2404,7 +2404,7 @@ class spell_the_lich_king_defile : public SpellScriptLoader
 
         class spell_the_lich_king_defile_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_defile_SpellScript);
+            PrepareSpellScript(spell_the_lich_king_defile_SpellScript)
 
             void CorrectRange(std::list<WorldObject*>& targets)
             {
@@ -2441,7 +2441,7 @@ class spell_the_lich_king_summon_into_air : public SpellScriptLoader
 
         class spell_the_lich_king_summon_into_air_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_summon_into_air_SpellScript);
+            PrepareSpellScript(spell_the_lich_king_summon_into_air_SpellScript)
 
             void ModDestHeight(SpellEffIndex effIndex)
             {
@@ -2476,7 +2476,7 @@ class spell_the_lich_king_soul_reaper : public SpellScriptLoader
 
         class spell_the_lich_king_soul_reaper_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_soul_reaper_AuraScript);
+            PrepareAuraScript(spell_the_lich_king_soul_reaper_AuraScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -2510,7 +2510,7 @@ class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
 
         class spell_the_lich_king_valkyr_target_search_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_valkyr_target_search_SpellScript);
+            PrepareSpellScript(spell_the_lich_king_valkyr_target_search_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -2576,7 +2576,7 @@ class spell_the_lich_king_cast_back_to_caster : public SpellScriptLoader
 
         class spell_the_lich_king_cast_back_to_caster_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_cast_back_to_caster_SpellScript);
+            PrepareSpellScript(spell_the_lich_king_cast_back_to_caster_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -2602,7 +2602,7 @@ class spell_the_lich_king_life_siphon : public SpellScriptLoader
 
         class spell_the_lich_king_life_siphon_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_life_siphon_SpellScript);
+            PrepareSpellScript(spell_the_lich_king_life_siphon_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -2635,7 +2635,7 @@ class spell_the_lich_king_vile_spirits : public SpellScriptLoader
 
         class spell_the_lich_king_vile_spirits_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_vile_spirits_AuraScript);
+            PrepareAuraScript(spell_the_lich_king_vile_spirits_AuraScript)
 
             bool Load() override
             {
@@ -2670,7 +2670,7 @@ class spell_the_lich_king_vile_spirits_visual : public SpellScriptLoader
 
         class spell_the_lich_king_vile_spirits_visual_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_vile_spirits_visual_SpellScript);
+            PrepareSpellScript(spell_the_lich_king_vile_spirits_visual_SpellScript)
 
             void ModDestHeight(SpellEffIndex /*effIndex*/)
             {
@@ -2697,7 +2697,7 @@ class spell_the_lich_king_vile_spirit_move_target_search : public SpellScriptLoa
 
         class spell_the_lich_king_vile_spirit_move_target_search_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_vile_spirit_move_target_search_SpellScript);
+            PrepareSpellScript(spell_the_lich_king_vile_spirit_move_target_search_SpellScript)
 
             bool Load() override
             {
@@ -2746,7 +2746,7 @@ class spell_the_lich_king_vile_spirit_damage_target_search : public SpellScriptL
 
         class spell_the_lich_king_vile_spirit_damage_target_search_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_vile_spirit_damage_target_search_SpellScript);
+            PrepareSpellScript(spell_the_lich_king_vile_spirit_damage_target_search_SpellScript)
 
             bool Load() override
             {
@@ -2787,7 +2787,7 @@ class spell_the_lich_king_harvest_soul : public SpellScriptLoader
 
         class spell_the_lich_king_harvest_soul_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_harvest_soul_AuraScript);
+            PrepareAuraScript(spell_the_lich_king_harvest_soul_AuraScript)
 
             bool Load() override
             {
@@ -2820,7 +2820,7 @@ class spell_the_lich_king_lights_favor : public SpellScriptLoader
 
         class spell_the_lich_king_lights_favor_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_lights_favor_AuraScript);
+            PrepareAuraScript(spell_the_lich_king_lights_favor_AuraScript)
 
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
@@ -2857,7 +2857,7 @@ class spell_the_lich_king_soul_rip : public SpellScriptLoader
 
         class spell_the_lich_king_soul_rip_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_soul_rip_AuraScript);
+            PrepareAuraScript(spell_the_lich_king_soul_rip_AuraScript)
 
             void OnPeriodic(AuraEffect const* aurEff)
             {
@@ -2886,7 +2886,7 @@ class spell_the_lich_king_restore_soul : public SpellScriptLoader
 
         class spell_the_lich_king_restore_soul_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_restore_soul_SpellScript);
+            PrepareSpellScript(spell_the_lich_king_restore_soul_SpellScript)
 
             bool Load() override
             {
@@ -2939,7 +2939,7 @@ class spell_the_lich_king_dark_hunger : public SpellScriptLoader
 
         class spell_the_lich_king_dark_hunger_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_dark_hunger_AuraScript);
+            PrepareAuraScript(spell_the_lich_king_dark_hunger_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -2974,7 +2974,7 @@ class spell_the_lich_king_in_frostmourne_room : public SpellScriptLoader
 
         class spell_the_lich_king_in_frostmourne_room_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_the_lich_king_in_frostmourne_room_AuraScript);
+            PrepareAuraScript(spell_the_lich_king_in_frostmourne_room_AuraScript)
 
             bool Load() override
             {
@@ -3007,7 +3007,7 @@ class spell_the_lich_king_summon_spirit_bomb : public SpellScriptLoader
 
         class spell_the_lich_king_summon_spirit_bomb_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_summon_spirit_bomb_SpellScript);
+            PrepareSpellScript(spell_the_lich_king_summon_spirit_bomb_SpellScript)
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -3034,7 +3034,7 @@ class spell_the_lich_king_trigger_vile_spirit : public SpellScriptLoader
 
         class spell_the_lich_king_trigger_vile_spirit_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_trigger_vile_spirit_SpellScript);
+            PrepareSpellScript(spell_the_lich_king_trigger_vile_spirit_SpellScript)
 
             void ActivateSpirit()
             {
@@ -3064,7 +3064,7 @@ class spell_the_lich_king_jump : public SpellScriptLoader
 
         class spell_the_lich_king_jump_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_jump_SpellScript);
+            PrepareSpellScript(spell_the_lich_king_jump_SpellScript)
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -3094,7 +3094,7 @@ class spell_the_lich_king_jump_remove_aura : public SpellScriptLoader
 
         class spell_the_lich_king_jump_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_jump_SpellScript);
+            PrepareSpellScript(spell_the_lich_king_jump_SpellScript)
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -3121,7 +3121,7 @@ class spell_the_lich_king_play_movie : public SpellScriptLoader
 
         class spell_the_lich_king_play_movie_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_the_lich_king_play_movie_SpellScript);
+            PrepareSpellScript(spell_the_lich_king_play_movie_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {

@@ -354,7 +354,7 @@ class spell_novos_summon_minions : public SpellScriptLoader
 
         class spell_novos_summon_minions_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_novos_summon_minions_SpellScript);
+            PrepareSpellScript(spell_novos_summon_minions_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

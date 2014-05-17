@@ -50,7 +50,7 @@ class spell_rog_blade_flurry : public SpellScriptLoader
 
         class spell_rog_blade_flurry_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rog_blade_flurry_AuraScript);
+            PrepareAuraScript(spell_rog_blade_flurry_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -105,7 +105,7 @@ class spell_rog_cheat_death : public SpellScriptLoader
 
         class spell_rog_cheat_death_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rog_cheat_death_AuraScript);
+            PrepareAuraScript(spell_rog_cheat_death_AuraScript)
 
             uint32 absorbChance;
 
@@ -168,7 +168,7 @@ class spell_rog_deadly_poison : public SpellScriptLoader
 
         class spell_rog_deadly_poison_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rog_deadly_poison_SpellScript);
+            PrepareSpellScript(spell_rog_deadly_poison_SpellScript)
 
             bool Load() override
             {
@@ -263,7 +263,7 @@ class spell_rog_killing_spree : public SpellScriptLoader
 
         class spell_rog_killing_spree_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rog_killing_spree_SpellScript);
+            PrepareSpellScript(spell_rog_killing_spree_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -294,7 +294,7 @@ class spell_rog_killing_spree : public SpellScriptLoader
 
         class spell_rog_killing_spree_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rog_killing_spree_AuraScript);
+            PrepareAuraScript(spell_rog_killing_spree_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -362,7 +362,7 @@ class spell_rog_nerves_of_steel : public SpellScriptLoader
 
         class spell_rog_nerves_of_steel_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rog_nerves_of_steel_AuraScript);
+            PrepareAuraScript(spell_rog_nerves_of_steel_AuraScript)
 
             uint32 absorbPct;
 
@@ -406,7 +406,7 @@ class spell_rog_preparation : public SpellScriptLoader
 
         class spell_rog_preparation_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rog_preparation_SpellScript);
+            PrepareSpellScript(spell_rog_preparation_SpellScript)
 
             bool Load() override
             {
@@ -473,7 +473,7 @@ class spell_rog_prey_on_the_weak : public SpellScriptLoader
 
         class spell_rog_prey_on_the_weak_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rog_prey_on_the_weak_AuraScript);
+            PrepareAuraScript(spell_rog_prey_on_the_weak_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -518,7 +518,7 @@ class spell_rog_rupture : public SpellScriptLoader
 
         class spell_rog_rupture_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rog_rupture_AuraScript);
+            PrepareAuraScript(spell_rog_rupture_AuraScript)
 
             bool Load() override
             {
@@ -570,7 +570,7 @@ class spell_rog_shiv : public SpellScriptLoader
 
         class spell_rog_shiv_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rog_shiv_SpellScript);
+            PrepareSpellScript(spell_rog_shiv_SpellScript)
 
             bool Load() override
             {
@@ -611,7 +611,7 @@ class spell_rog_tricks_of_the_trade : public SpellScriptLoader
 
         class spell_rog_tricks_of_the_trade_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rog_tricks_of_the_trade_AuraScript);
+            PrepareAuraScript(spell_rog_tricks_of_the_trade_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -675,7 +675,7 @@ class spell_rog_tricks_of_the_trade_proc : public SpellScriptLoader
 
         class spell_rog_tricks_of_the_trade_proc_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rog_tricks_of_the_trade_proc_AuraScript);
+            PrepareAuraScript(spell_rog_tricks_of_the_trade_proc_AuraScript)
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {

@@ -876,7 +876,7 @@ public:
 
     class spell_boss_lady_malande_shield_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_boss_lady_malande_shield_AuraScript);
+        PrepareAuraScript(spell_boss_lady_malande_shield_AuraScript)
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {

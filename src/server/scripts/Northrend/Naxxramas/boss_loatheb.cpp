@@ -165,7 +165,7 @@ class spell_loatheb_necrotic_aura_warning : public SpellScriptLoader
 
         class spell_loatheb_necrotic_aura_warning_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_loatheb_necrotic_aura_warning_AuraScript);
+            PrepareAuraScript(spell_loatheb_necrotic_aura_warning_AuraScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {

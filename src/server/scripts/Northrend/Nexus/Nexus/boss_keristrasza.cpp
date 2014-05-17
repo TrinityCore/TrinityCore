@@ -234,7 +234,7 @@ class spell_intense_cold : public SpellScriptLoader
 
         class spell_intense_cold_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_intense_cold_AuraScript);
+            PrepareAuraScript(spell_intense_cold_AuraScript)
 
             void HandlePeriodicTick(AuraEffect const* aurEff)
             {

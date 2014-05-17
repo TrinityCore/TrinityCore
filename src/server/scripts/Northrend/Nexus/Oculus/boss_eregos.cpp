@@ -258,7 +258,7 @@ class spell_eregos_planar_shift : public SpellScriptLoader
 
         class spell_eregos_planar_shift_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_eregos_planar_shift_AuraScript);
+            PrepareAuraScript(spell_eregos_planar_shift_AuraScript)
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {

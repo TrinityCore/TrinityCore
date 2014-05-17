@@ -217,7 +217,7 @@ class spell_archavon_rock_shards : public SpellScriptLoader
 
         class spell_archavon_rock_shards_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_archavon_rock_shards_SpellScript);
+            PrepareSpellScript(spell_archavon_rock_shards_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

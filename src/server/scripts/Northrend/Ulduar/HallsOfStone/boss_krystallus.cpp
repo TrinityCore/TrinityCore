@@ -187,7 +187,7 @@ class spell_krystallus_shatter : public SpellScriptLoader
 
         class spell_krystallus_shatter_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_krystallus_shatter_SpellScript);
+            PrepareSpellScript(spell_krystallus_shatter_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -217,7 +217,7 @@ class spell_krystallus_shatter_effect : public SpellScriptLoader
 
         class spell_krystallus_shatter_effect_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_krystallus_shatter_effect_SpellScript);
+            PrepareSpellScript(spell_krystallus_shatter_effect_SpellScript)
 
             void CalculateDamage()
             {

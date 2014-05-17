@@ -959,7 +959,7 @@ class spell_hexlord_unstable_affliction : public SpellScriptLoader
 
         class spell_hexlord_unstable_affliction_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_hexlord_unstable_affliction_AuraScript);
+            PrepareAuraScript(spell_hexlord_unstable_affliction_AuraScript)
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
