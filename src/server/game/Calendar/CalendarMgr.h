@@ -305,8 +305,10 @@ class CalendarMgr
         void UpdateEvent(CalendarEvent* calendarEvent);
 
         void AddInvite(CalendarEvent* calendarEvent, CalendarInvite* invite);
+        void AddInvite(CalendarEvent* calendarEvent, CalendarInvite* invite, SQLTransaction& trans);
         void RemoveInvite(uint64 inviteId, uint64 eventId, uint64 remover);
         void UpdateInvite(CalendarInvite* invite);
+        void UpdateInvite(CalendarInvite* invite, SQLTransaction& trans);
 
         void RemoveAllPlayerEventsAndInvites(uint64 guid);
         void RemovePlayerGuildEventsAndSignups(uint64 guid, uint32 guildId);
