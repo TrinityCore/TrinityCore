@@ -17,7 +17,6 @@
 
 #include "CalendarMgr.h"
 #include "QueryResult.h"
-#include "DatabaseEnv.h"
 #include "Log.h"
 #include "Player.h"
 #include "GuildMgr.h"
