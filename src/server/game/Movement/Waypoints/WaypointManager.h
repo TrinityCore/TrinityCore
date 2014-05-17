@@ -34,7 +34,7 @@ struct WaypointData
 };
 
 typedef std::vector<WaypointData*> WaypointPath;
-typedef UNORDERED_MAP<uint32, WaypointPath> WaypointPathContainer;
+typedef std::unordered_map<uint32, WaypointPath> WaypointPathContainer;
 
 class WaypointMgr
 {

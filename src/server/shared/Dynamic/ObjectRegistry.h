@@ -20,12 +20,12 @@
 #define TRINITY_OBJECTREGISTRY_H
 
 #include "Define.h"
-#include "Dynamic/UnorderedMap.h"
 #include <ace/Singleton.h>
 
 #include <string>
 #include <vector>
 #include <map>
+#include <unordered_map>
 
 /** ObjectRegistry holds all registry item of the same type
  */

@@ -785,7 +785,6 @@ void WorldSession::HandleSetTradeGoldOpcode(WorldPacket& recvPacket)
     if (!my_trade)
         return;
 
-    // gold can be incorrect, but this is checked at trade finished.
     my_trade->SetMoney(gold);
 }
 
