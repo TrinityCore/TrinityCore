@@ -40,7 +40,6 @@
 #include "TCSoap.h"
 #include "Timer.h"
 #include "Util.h"
-#include "AuthSocket.h"
 #include "RealmList.h"
 
 #include "BigNumber.h"
