@@ -357,7 +357,7 @@ class spell_devourer_of_souls_mirrored_soul : public SpellScriptLoader
 
         class spell_devourer_of_souls_mirrored_soul_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_devourer_of_souls_mirrored_soul_SpellScript)
+            PrepareSpellScript(spell_devourer_of_souls_mirrored_soul_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -392,7 +392,7 @@ class spell_devourer_of_souls_mirrored_soul_proc : public SpellScriptLoader
 
         class spell_devourer_of_souls_mirrored_soul_proc_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_devourer_of_souls_mirrored_soul_proc_AuraScript)
+            PrepareAuraScript(spell_devourer_of_souls_mirrored_soul_proc_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -439,7 +439,7 @@ class spell_devourer_of_souls_mirrored_soul_target_selector : public SpellScript
 
         class spell_devourer_of_souls_mirrored_soul_target_selector_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_devourer_of_souls_mirrored_soul_target_selector_SpellScript)
+            PrepareSpellScript(spell_devourer_of_souls_mirrored_soul_target_selector_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

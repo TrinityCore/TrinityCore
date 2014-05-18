@@ -195,7 +195,7 @@ class spell_broggok_poison_cloud : public SpellScriptLoader
 
         class spell_broggok_poison_cloud_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_broggok_poison_cloud_AuraScript)
+            PrepareAuraScript(spell_broggok_poison_cloud_AuraScript);
 
             bool Validate(SpellInfo const* spellInfo) override
             {

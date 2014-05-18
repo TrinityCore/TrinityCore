@@ -1733,7 +1733,7 @@ class spell_icc_stoneform : public SpellScriptLoader
 
         class spell_icc_stoneform_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_icc_stoneform_AuraScript)
+            PrepareAuraScript(spell_icc_stoneform_AuraScript);
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1775,7 +1775,7 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
 
         class spell_icc_sprit_alarm_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_icc_sprit_alarm_SpellScript)
+            PrepareSpellScript(spell_icc_sprit_alarm_SpellScript);
 
             void HandleEvent(SpellEffIndex effIndex)
             {
@@ -1860,7 +1860,7 @@ class spell_frost_giant_death_plague : public SpellScriptLoader
 
         class spell_frost_giant_death_plague_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_frost_giant_death_plague_SpellScript)
+            PrepareSpellScript(spell_frost_giant_death_plague_SpellScript);
 
             bool Load() override
             {
@@ -1922,7 +1922,7 @@ class spell_icc_harvest_blight_specimen : public SpellScriptLoader
 
         class spell_icc_harvest_blight_specimen_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_icc_harvest_blight_specimen_SpellScript)
+            PrepareSpellScript(spell_icc_harvest_blight_specimen_SpellScript);
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -1966,7 +1966,7 @@ class spell_svalna_revive_champion : public SpellScriptLoader
 
         class spell_svalna_revive_champion_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_svalna_revive_champion_SpellScript)
+            PrepareSpellScript(spell_svalna_revive_champion_SpellScript);
 
             void RemoveAliveTarget(std::list<WorldObject*>& targets)
             {
@@ -2007,7 +2007,7 @@ class spell_svalna_remove_spear : public SpellScriptLoader
 
         class spell_svalna_remove_spear_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_svalna_remove_spear_SpellScript)
+            PrepareSpellScript(spell_svalna_remove_spear_SpellScript);
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -2040,7 +2040,7 @@ class spell_icc_soul_missile : public SpellScriptLoader
 
         class spell_icc_soul_missile_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_icc_soul_missile_SpellScript)
+            PrepareSpellScript(spell_icc_soul_missile_SpellScript);
 
             void RelocateDest(SpellDestination& dest)
             {

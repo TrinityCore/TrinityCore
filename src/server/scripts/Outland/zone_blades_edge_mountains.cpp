@@ -1187,7 +1187,7 @@ class spell_oscillating_field : public SpellScriptLoader
 
         class spell_oscillating_field_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_oscillating_field_SpellScript)
+            PrepareSpellScript(spell_oscillating_field_SpellScript);
 
             void HandleEffect(SpellEffIndex /*effIndex*/)
             {

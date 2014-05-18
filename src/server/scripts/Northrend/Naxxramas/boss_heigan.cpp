@@ -188,7 +188,7 @@ class spell_heigan_eruption : public SpellScriptLoader
 
         class spell_heigan_eruption_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_heigan_eruption_SpellScript)
+            PrepareSpellScript(spell_heigan_eruption_SpellScript);
 
             void HandleScript(SpellEffIndex /*eff*/)
             {

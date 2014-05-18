@@ -819,7 +819,7 @@ class spell_gormok_fire_bomb : public SpellScriptLoader
 
         class spell_gormok_fire_bomb_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gormok_fire_bomb_SpellScript)
+            PrepareSpellScript(spell_gormok_fire_bomb_SpellScript);
 
             void TriggerFireBomb(SpellEffIndex /*effIndex*/)
             {

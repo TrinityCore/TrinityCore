@@ -96,7 +96,7 @@ class spell_pri_circle_of_healing : public SpellScriptLoader
 
         class spell_pri_circle_of_healing_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pri_circle_of_healing_SpellScript)
+            PrepareSpellScript(spell_pri_circle_of_healing_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -138,7 +138,7 @@ class spell_pri_divine_aegis : public SpellScriptLoader
 
         class spell_pri_divine_aegis_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pri_divine_aegis_AuraScript)
+            PrepareAuraScript(spell_pri_divine_aegis_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -188,7 +188,7 @@ class spell_pri_divine_hymn : public SpellScriptLoader
 
         class spell_pri_divine_hymn_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pri_divine_hymn_SpellScript)
+            PrepareSpellScript(spell_pri_divine_hymn_SpellScript);
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -223,7 +223,7 @@ class spell_pri_glyph_of_prayer_of_healing : public SpellScriptLoader
 
         class spell_pri_glyph_of_prayer_of_healing_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pri_glyph_of_prayer_of_healing_AuraScript)
+            PrepareAuraScript(spell_pri_glyph_of_prayer_of_healing_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -261,7 +261,7 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
 
         class spell_pri_guardian_spirit_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pri_guardian_spirit_AuraScript)
+            PrepareAuraScript(spell_pri_guardian_spirit_AuraScript);
 
             uint32 healPct;
 
@@ -318,7 +318,7 @@ class spell_pri_hymn_of_hope : public SpellScriptLoader
 
         class spell_pri_hymn_of_hope_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pri_hymn_of_hope_SpellScript)
+            PrepareSpellScript(spell_pri_hymn_of_hope_SpellScript);
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -354,7 +354,7 @@ class spell_pri_item_greater_heal_refund : public SpellScriptLoader
 
         class spell_pri_item_greater_heal_refund_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pri_item_greater_heal_refund_AuraScript)
+            PrepareAuraScript(spell_pri_item_greater_heal_refund_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -389,7 +389,7 @@ class spell_pri_lightwell_renew : public SpellScriptLoader
 
         class spell_pri_lightwell_renew_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pri_lightwell_renew_AuraScript)
+            PrepareAuraScript(spell_pri_lightwell_renew_AuraScript);
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
@@ -421,7 +421,7 @@ class spell_pri_mana_burn : public SpellScriptLoader
 
         class spell_pri_mana_burn_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pri_mana_burn_SpellScript)
+            PrepareSpellScript(spell_pri_mana_burn_SpellScript);
 
             void HandleAfterHit()
             {
@@ -449,7 +449,7 @@ class spell_pri_mana_leech : public SpellScriptLoader
 
         class spell_pri_mana_leech_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pri_mana_leech_AuraScript)
+            PrepareAuraScript(spell_pri_mana_leech_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -500,7 +500,7 @@ class spell_pri_mind_sear : public SpellScriptLoader
 
         class spell_pri_mind_sear_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pri_mind_sear_SpellScript)
+            PrepareSpellScript(spell_pri_mind_sear_SpellScript);
 
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
@@ -527,7 +527,7 @@ class spell_pri_pain_and_suffering_proc : public SpellScriptLoader
 
         class spell_pri_pain_and_suffering_proc_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pri_pain_and_suffering_proc_SpellScript)
+            PrepareSpellScript(spell_pri_pain_and_suffering_proc_SpellScript);
 
             void HandleEffectScriptEffect(SpellEffIndex /*effIndex*/)
             {
@@ -557,7 +557,7 @@ class spell_pri_penance : public SpellScriptLoader
 
         class spell_pri_penance_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pri_penance_SpellScript)
+            PrepareSpellScript(spell_pri_penance_SpellScript);
 
             bool Load() override
             {
@@ -630,7 +630,7 @@ class spell_pri_power_word_shield : public SpellScriptLoader
 
         class spell_pri_power_word_shield_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pri_power_word_shield_AuraScript)
+            PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -705,7 +705,7 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
 
         class spell_pri_prayer_of_mending_heal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pri_prayer_of_mending_heal_SpellScript)
+            PrepareSpellScript(spell_pri_prayer_of_mending_heal_SpellScript);
 
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
@@ -740,7 +740,7 @@ class spell_pri_renew : public SpellScriptLoader
 
         class spell_pri_renew_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pri_renew_AuraScript)
+            PrepareAuraScript(spell_pri_renew_AuraScript);
 
             bool Load() override
             {
@@ -783,7 +783,7 @@ class spell_pri_shadow_word_death : public SpellScriptLoader
 
         class spell_pri_shadow_word_death_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pri_shadow_word_death_SpellScript)
+            PrepareSpellScript(spell_pri_shadow_word_death_SpellScript);
 
             void HandleDamage()
             {
@@ -816,7 +816,7 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
 
         class spell_pri_vampiric_touch_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pri_vampiric_touch_AuraScript)
+            PrepareAuraScript(spell_pri_vampiric_touch_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

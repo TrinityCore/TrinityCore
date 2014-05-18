@@ -464,7 +464,7 @@ class spell_banging_the_gong : public SpellScriptLoader
 
         class spell_banging_the_gong_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_banging_the_gong_SpellScript)
+            PrepareSpellScript(spell_banging_the_gong_SpellScript);
 
             void Activate(SpellEffIndex index)
             {

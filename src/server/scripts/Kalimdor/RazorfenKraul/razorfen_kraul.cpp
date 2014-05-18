@@ -257,7 +257,7 @@ class spell_snufflenose_command : public SpellScriptLoader
 
         class spell_snufflenose_commandSpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_snufflenose_commandSpellScript)
+            PrepareSpellScript(spell_snufflenose_commandSpellScript);
 
             bool Load() override
             {

@@ -1113,7 +1113,7 @@ class spell_dreamwalker_mana_void : public SpellScriptLoader
 
         class spell_dreamwalker_mana_void_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dreamwalker_mana_void_AuraScript)
+            PrepareAuraScript(spell_dreamwalker_mana_void_AuraScript);
 
             void PeriodicTick(AuraEffect const* aurEff)
             {
@@ -1143,7 +1143,7 @@ class spell_dreamwalker_decay_periodic_timer : public SpellScriptLoader
 
         class spell_dreamwalker_decay_periodic_timer_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dreamwalker_decay_periodic_timer_AuraScript)
+            PrepareAuraScript(spell_dreamwalker_decay_periodic_timer_AuraScript);
 
             bool Load() override
             {
@@ -1181,7 +1181,7 @@ class spell_dreamwalker_summoner : public SpellScriptLoader
 
         class spell_dreamwalker_summoner_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dreamwalker_summoner_SpellScript)
+            PrepareSpellScript(spell_dreamwalker_summoner_SpellScript);
 
             bool Load() override
             {
@@ -1230,7 +1230,7 @@ class spell_dreamwalker_summon_suppresser : public SpellScriptLoader
 
         class spell_dreamwalker_summon_suppresser_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dreamwalker_summon_suppresser_AuraScript)
+            PrepareAuraScript(spell_dreamwalker_summon_suppresser_AuraScript);
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
@@ -1271,7 +1271,7 @@ class spell_dreamwalker_summon_suppresser_effect : public SpellScriptLoader
 
         class spell_dreamwalker_summon_suppresser_effect_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dreamwalker_summon_suppresser_effect_SpellScript)
+            PrepareSpellScript(spell_dreamwalker_summon_suppresser_effect_SpellScript);
 
             bool Load() override
             {
@@ -1308,7 +1308,7 @@ class spell_dreamwalker_summon_dream_portal : public SpellScriptLoader
 
         class spell_dreamwalker_summon_dream_portal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dreamwalker_summon_dream_portal_SpellScript)
+            PrepareSpellScript(spell_dreamwalker_summon_dream_portal_SpellScript);
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -1339,7 +1339,7 @@ class spell_dreamwalker_summon_nightmare_portal : public SpellScriptLoader
 
         class spell_dreamwalker_summon_nightmare_portal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dreamwalker_summon_nightmare_portal_SpellScript)
+            PrepareSpellScript(spell_dreamwalker_summon_nightmare_portal_SpellScript);
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -1370,7 +1370,7 @@ class spell_dreamwalker_nightmare_cloud : public SpellScriptLoader
 
         class spell_dreamwalker_nightmare_cloud_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dreamwalker_nightmare_cloud_AuraScript)
+            PrepareAuraScript(spell_dreamwalker_nightmare_cloud_AuraScript);
 
             bool Load() override
             {
@@ -1405,7 +1405,7 @@ class spell_dreamwalker_twisted_nightmares : public SpellScriptLoader
 
         class spell_dreamwalker_twisted_nightmares_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dreamwalker_twisted_nightmares_SpellScript)
+            PrepareSpellScript(spell_dreamwalker_twisted_nightmares_SpellScript);
 
             void HandleScript(SpellEffIndex effIndex)
             {

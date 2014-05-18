@@ -190,7 +190,7 @@ class spell_loken_pulsing_shockwave : public SpellScriptLoader
 
         class spell_loken_pulsing_shockwave_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_loken_pulsing_shockwave_SpellScript)
+            PrepareSpellScript(spell_loken_pulsing_shockwave_SpellScript);
 
             void CalculateDamage(SpellEffIndex /*effIndex*/)
             {

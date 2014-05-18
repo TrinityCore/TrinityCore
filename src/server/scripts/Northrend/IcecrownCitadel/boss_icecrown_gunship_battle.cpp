@@ -1824,7 +1824,7 @@ class spell_igb_rocket_pack : public SpellScriptLoader
 
         class spell_igb_rocket_pack_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_igb_rocket_pack_AuraScript)
+            PrepareAuraScript(spell_igb_rocket_pack_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -1868,7 +1868,7 @@ class spell_igb_rocket_pack_useable : public SpellScriptLoader
 
         class spell_igb_rocket_pack_useable_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_igb_rocket_pack_useable_AuraScript)
+            PrepareAuraScript(spell_igb_rocket_pack_useable_AuraScript);
 
             bool Load()
             {
@@ -1917,7 +1917,7 @@ class spell_igb_on_gunship_deck : public SpellScriptLoader
 
         class spell_igb_on_gunship_deck_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_igb_on_gunship_deck_AuraScript)
+            PrepareAuraScript(spell_igb_on_gunship_deck_AuraScript);
 
             bool Load() override
             {
@@ -1962,7 +1962,7 @@ class spell_igb_periodic_trigger_with_power_cost : public SpellScriptLoader
 
         class spell_igb_periodic_trigger_with_power_cost_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_igb_periodic_trigger_with_power_cost_AuraScript)
+            PrepareAuraScript(spell_igb_periodic_trigger_with_power_cost_AuraScript);
 
             void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
@@ -1989,7 +1989,7 @@ class spell_igb_cannon_blast : public SpellScriptLoader
 
         class spell_igb_cannon_blast_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_igb_cannon_blast_SpellScript)
+            PrepareSpellScript(spell_igb_cannon_blast_SpellScript);
 
             bool Load()
             {
@@ -2026,7 +2026,7 @@ class spell_igb_incinerating_blast : public SpellScriptLoader
 
         class spell_igb_incinerating_blast_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_igb_incinerating_blast_SpellScript)
+            PrepareSpellScript(spell_igb_incinerating_blast_SpellScript);
 
             void StoreEnergy()
             {
@@ -2066,7 +2066,7 @@ class spell_igb_overheat : public SpellScriptLoader
 
         class spell_igb_overheat_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_igb_overheat_AuraScript)
+            PrepareAuraScript(spell_igb_overheat_AuraScript);
 
             bool Load() override
             {
@@ -2122,7 +2122,7 @@ class spell_igb_below_zero : public SpellScriptLoader
 
         class spell_igb_below_zero_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_igb_below_zero_SpellScript)
+            PrepareSpellScript(spell_igb_below_zero_SpellScript);
 
             void RemovePassengers()
             {
@@ -2148,7 +2148,7 @@ class spell_igb_teleport_to_enemy_ship : public SpellScriptLoader
 
         class spell_igb_teleport_to_enemy_ship_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_igb_teleport_to_enemy_ship_SpellScript)
+            PrepareSpellScript(spell_igb_teleport_to_enemy_ship_SpellScript);
 
             void RelocateTransportOffset(SpellEffIndex /*effIndex*/)
             {
@@ -2182,7 +2182,7 @@ class spell_igb_burning_pitch_selector : public SpellScriptLoader
 
         class spell_igb_burning_pitch_selector_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_igb_burning_pitch_selector_SpellScript)
+            PrepareSpellScript(spell_igb_burning_pitch_selector_SpellScript);
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -2231,7 +2231,7 @@ class spell_igb_burning_pitch : public SpellScriptLoader
 
         class spell_igb_burning_pitch_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_igb_burning_pitch_SpellScript)
+            PrepareSpellScript(spell_igb_burning_pitch_SpellScript);
 
             void HandleDummy(SpellEffIndex effIndex)
             {
@@ -2259,7 +2259,7 @@ class spell_igb_rocket_artillery : public SpellScriptLoader
 
         class spell_igb_rocket_artillery_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_igb_rocket_artillery_SpellScript)
+            PrepareSpellScript(spell_igb_rocket_artillery_SpellScript);
 
             void SelectRandomTarget(std::list<WorldObject*>& targets)
             {
@@ -2297,7 +2297,7 @@ class spell_igb_rocket_artillery_explosion : public SpellScriptLoader
 
         class spell_igb_rocket_artillery_explosion_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_igb_rocket_artillery_explosion_SpellScript)
+            PrepareSpellScript(spell_igb_rocket_artillery_explosion_SpellScript);
 
             void DamageGunship(SpellEffIndex /*effIndex*/)
             {
@@ -2324,7 +2324,7 @@ class spell_igb_gunship_fall_teleport : public SpellScriptLoader
 
         class spell_igb_gunship_fall_teleport_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_igb_gunship_fall_teleport_SpellScript)
+            PrepareSpellScript(spell_igb_gunship_fall_teleport_SpellScript);
 
             bool Load()
             {
@@ -2365,7 +2365,7 @@ class spell_igb_check_for_players : public SpellScriptLoader
 
         class spell_igb_check_for_players_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_igb_check_for_players_SpellScript)
+            PrepareSpellScript(spell_igb_check_for_players_SpellScript);
 
             bool Load() override
             {
@@ -2413,7 +2413,7 @@ class spell_igb_teleport_players_on_victory : public SpellScriptLoader
 
         class spell_igb_teleport_players_on_victory_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_igb_teleport_players_on_victory_SpellScript)
+            PrepareSpellScript(spell_igb_teleport_players_on_victory_SpellScript);
 
             bool Load() override
             {

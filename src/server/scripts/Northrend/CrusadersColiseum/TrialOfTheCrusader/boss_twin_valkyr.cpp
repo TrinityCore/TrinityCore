@@ -673,8 +673,7 @@ class spell_powering_up : public SpellScriptLoader
 
         class spell_powering_up_SpellScript : public SpellScript
         {
-            public:
-                PrepareSpellScript(spell_powering_up_SpellScript)
+            PrepareSpellScript(spell_powering_up_SpellScript);
 
             uint32 spellId;
             uint32 poweringUp;
@@ -731,7 +730,7 @@ class spell_valkyr_essences : public SpellScriptLoader
 
         class spell_valkyr_essences_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_valkyr_essences_AuraScript)
+            PrepareAuraScript(spell_valkyr_essences_AuraScript);
 
             uint32 spellId;
 
@@ -826,7 +825,7 @@ class spell_power_of_the_twins : public SpellScriptLoader
 
         class spell_power_of_the_twins_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_power_of_the_twins_AuraScript)
+            PrepareAuraScript(spell_power_of_the_twins_AuraScript);
 
             bool Load() override
             {

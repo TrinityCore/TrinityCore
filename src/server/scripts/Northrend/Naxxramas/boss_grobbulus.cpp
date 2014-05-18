@@ -147,7 +147,7 @@ class spell_grobbulus_mutating_injection : public SpellScriptLoader
 
         class spell_grobbulus_mutating_injection_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_grobbulus_mutating_injection_AuraScript)
+            PrepareAuraScript(spell_grobbulus_mutating_injection_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -190,7 +190,7 @@ class spell_grobbulus_poison_cloud : public SpellScriptLoader
 
         class spell_grobbulus_poison_cloud_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_grobbulus_poison_cloud_AuraScript)
+            PrepareAuraScript(spell_grobbulus_poison_cloud_AuraScript);
 
             bool Validate(SpellInfo const* spellInfo) override
             {

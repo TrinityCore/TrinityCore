@@ -371,7 +371,7 @@ class spell_oculus_call_ruby_emerald_amber_drake : public SpellScriptLoader
 
         class spell_oculus_call_ruby_emerald_amber_drake_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_oculus_call_ruby_emerald_amber_drake_SpellScript)
+            PrepareSpellScript(spell_oculus_call_ruby_emerald_amber_drake_SpellScript);
 
             void SetDest(SpellDestination& dest)
             {
@@ -402,7 +402,7 @@ class spell_oculus_ride_ruby_emerald_amber_drake_que : public SpellScriptLoader
 
         class spell_oculus_ride_ruby_emerald_amber_drake_que_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_oculus_ride_ruby_emerald_amber_drake_que_AuraScript)
+            PrepareAuraScript(spell_oculus_ride_ruby_emerald_amber_drake_que_AuraScript);
 
             void HandlePeriodic(AuraEffect const* aurEff)
             {
@@ -432,7 +432,7 @@ class spell_oculus_evasive_maneuvers : public SpellScriptLoader
 
         class spell_oculus_evasive_maneuvers_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_oculus_evasive_maneuvers_AuraScript)
+            PrepareAuraScript(spell_oculus_evasive_maneuvers_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -469,7 +469,7 @@ class spell_oculus_shock_lance : public SpellScriptLoader
 
         class spell_oculus_shock_lance_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_oculus_shock_lance_SpellScript)
+            PrepareSpellScript(spell_oculus_shock_lance_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -511,7 +511,7 @@ class spell_oculus_stop_time : public SpellScriptLoader
 
         class spell_oculus_stop_time_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_oculus_stop_time_AuraScript)
+            PrepareAuraScript(spell_oculus_stop_time_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -551,7 +551,7 @@ class spell_oculus_temporal_rift : public SpellScriptLoader
 
         class spell_oculus_temporal_rift_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_oculus_temporal_rift_AuraScript)
+            PrepareAuraScript(spell_oculus_temporal_rift_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -595,7 +595,7 @@ class spell_oculus_touch_the_nightmare : public SpellScriptLoader
 
         class spell_oculus_touch_the_nightmare_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_oculus_touch_the_nightmare_SpellScript)
+            PrepareSpellScript(spell_oculus_touch_the_nightmare_SpellScript);
 
             void HandleDamageCalc(SpellEffIndex /*effIndex*/)
             {
@@ -622,7 +622,7 @@ class spell_oculus_dream_funnel : public SpellScriptLoader
 
         class spell_oculus_dream_funnel_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_oculus_dream_funnel_AuraScript)
+            PrepareAuraScript(spell_oculus_dream_funnel_AuraScript);
 
             void HandleEffectCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
             {

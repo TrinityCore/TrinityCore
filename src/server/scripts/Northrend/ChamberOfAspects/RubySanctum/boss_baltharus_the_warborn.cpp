@@ -312,7 +312,7 @@ class spell_baltharus_enervating_brand_trigger : public SpellScriptLoader
 
         class spell_baltharus_enervating_brand_trigger_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_baltharus_enervating_brand_trigger_SpellScript)
+            PrepareSpellScript(spell_baltharus_enervating_brand_trigger_SpellScript);
 
             void CheckDistance()
             {

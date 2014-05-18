@@ -408,7 +408,7 @@ class spell_threatening_gaze : public SpellScriptLoader
 
         class spell_threatening_gaze_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_threatening_gaze_AuraScript)
+            PrepareAuraScript(spell_threatening_gaze_AuraScript);
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {

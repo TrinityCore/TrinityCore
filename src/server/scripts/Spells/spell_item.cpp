@@ -40,7 +40,7 @@ class spell_item_trigger_spell : public SpellScriptLoader
 
         class spell_item_trigger_spell_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_trigger_spell_SpellScript)
+            PrepareSpellScript(spell_item_trigger_spell_SpellScript);
         private:
             uint32 _triggeredSpellId;
 
@@ -86,7 +86,7 @@ class spell_item_aegis_of_preservation : public SpellScriptLoader
 
         class spell_item_aegis_of_preservation_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_item_aegis_of_preservation_AuraScript)
+            PrepareAuraScript(spell_item_aegis_of_preservation_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -121,7 +121,7 @@ class spell_item_arcane_shroud : public SpellScriptLoader
 
         class spell_item_arcane_shroud_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_item_arcane_shroud_AuraScript)
+            PrepareAuraScript(spell_item_arcane_shroud_AuraScript);
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
@@ -155,7 +155,7 @@ class spell_item_blessing_of_ancient_kings : public SpellScriptLoader
 
         class spell_item_blessing_of_ancient_kings_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_item_blessing_of_ancient_kings_AuraScript)
+            PrepareAuraScript(spell_item_blessing_of_ancient_kings_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -215,7 +215,7 @@ class spell_item_defibrillate : public SpellScriptLoader
 
         class spell_item_defibrillate_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_defibrillate_SpellScript)
+            PrepareSpellScript(spell_item_defibrillate_SpellScript);
 
         public:
             spell_item_defibrillate_SpellScript(uint8 chance, uint32 failSpell) : SpellScript(), _chance(chance), _failSpell(failSpell) { }
@@ -270,7 +270,7 @@ class spell_item_desperate_defense : public SpellScriptLoader
 
         class spell_item_desperate_defense_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_item_desperate_defense_AuraScript)
+            PrepareAuraScript(spell_item_desperate_defense_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -315,7 +315,7 @@ class spell_item_deviate_fish : public SpellScriptLoader
 
         class spell_item_deviate_fish_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_deviate_fish_SpellScript)
+            PrepareSpellScript(spell_item_deviate_fish_SpellScript);
 
             bool Load() override
             {
@@ -357,7 +357,7 @@ class spell_item_echoes_of_light : public SpellScriptLoader
 
         class spell_item_echoes_of_light_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_echoes_of_light_SpellScript)
+            PrepareSpellScript(spell_item_echoes_of_light_SpellScript);
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -399,7 +399,7 @@ class spell_item_flask_of_the_north : public SpellScriptLoader
 
         class spell_item_flask_of_the_north_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_flask_of_the_north_SpellScript)
+            PrepareSpellScript(spell_item_flask_of_the_north_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -468,7 +468,7 @@ class spell_item_gnomish_death_ray : public SpellScriptLoader
 
         class spell_item_gnomish_death_ray_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_gnomish_death_ray_SpellScript)
+            PrepareSpellScript(spell_item_gnomish_death_ray_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -519,7 +519,7 @@ class spell_item_make_a_wish : public SpellScriptLoader
 
         class spell_item_make_a_wish_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_make_a_wish_SpellScript)
+            PrepareSpellScript(spell_item_make_a_wish_SpellScript);
 
             bool Load() override
             {
@@ -568,7 +568,7 @@ class spell_item_mingos_fortune_generator : public SpellScriptLoader
 
         class spell_item_mingos_fortune_generator_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_mingos_fortune_generator_SpellScript)
+            PrepareSpellScript(spell_item_mingos_fortune_generator_SpellScript);
 
             void HandleDummy(SpellEffIndex effIndex)
             {
@@ -628,7 +628,7 @@ class spell_item_necrotic_touch : public SpellScriptLoader
 
         class spell_item_necrotic_touch_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_item_necrotic_touch_AuraScript)
+            PrepareAuraScript(spell_item_necrotic_touch_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -678,7 +678,7 @@ class spell_item_net_o_matic : public SpellScriptLoader
 
         class spell_item_net_o_matic_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_net_o_matic_SpellScript)
+            PrepareSpellScript(spell_item_net_o_matic_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -730,7 +730,7 @@ class spell_item_noggenfogger_elixir : public SpellScriptLoader
 
         class spell_item_noggenfogger_elixir_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_noggenfogger_elixir_SpellScript)
+            PrepareSpellScript(spell_item_noggenfogger_elixir_SpellScript);
 
             bool Load() override
             {
@@ -777,7 +777,7 @@ class spell_item_piccolo_of_the_flaming_fire : public SpellScriptLoader
 
         class spell_item_piccolo_of_the_flaming_fire_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_piccolo_of_the_flaming_fire_SpellScript)
+            PrepareSpellScript(spell_item_piccolo_of_the_flaming_fire_SpellScript);
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -815,7 +815,7 @@ class spell_item_savory_deviate_delight : public SpellScriptLoader
 
         class spell_item_savory_deviate_delight_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_savory_deviate_delight_SpellScript)
+            PrepareSpellScript(spell_item_savory_deviate_delight_SpellScript);
 
             bool Load() override
             {
@@ -876,7 +876,7 @@ class spell_item_scroll_of_recall : public SpellScriptLoader
 
         class spell_item_scroll_of_recall_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_scroll_of_recall_SpellScript)
+            PrepareSpellScript(spell_item_scroll_of_recall_SpellScript);
 
             bool Load() override
             {
@@ -943,7 +943,7 @@ class spell_item_unsated_craving : public SpellScriptLoader
 
         class spell_item_unsated_craving_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_item_unsated_craving_AuraScript)
+            PrepareAuraScript(spell_item_unsated_craving_AuraScript);
 
             bool CheckProc(ProcEventInfo& procInfo)
             {
@@ -977,7 +977,7 @@ class spell_item_shadows_fate : public SpellScriptLoader
 
         class spell_item_shadows_fate_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_item_shadows_fate_AuraScript)
+            PrepareAuraScript(spell_item_shadows_fate_AuraScript);
 
             void HandleProc(ProcEventInfo& procInfo)
             {
@@ -1018,7 +1018,7 @@ class spell_item_shadowmourne : public SpellScriptLoader
 
         class spell_item_shadowmourne_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_item_shadowmourne_AuraScript)
+            PrepareAuraScript(spell_item_shadowmourne_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -1075,7 +1075,7 @@ class spell_item_shadowmourne_soul_fragment : public SpellScriptLoader
 
         class spell_item_shadowmourne_soul_fragment_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_item_shadowmourne_soul_fragment_AuraScript)
+            PrepareAuraScript(spell_item_shadowmourne_soul_fragment_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -1144,7 +1144,7 @@ class spell_item_six_demon_bag : public SpellScriptLoader
 
         class spell_item_six_demon_bag_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_six_demon_bag_SpellScript)
+            PrepareSpellScript(spell_item_six_demon_bag_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -1204,7 +1204,7 @@ class spell_item_the_eye_of_diminution : public SpellScriptLoader
 
         class spell_item_the_eye_of_diminution_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_item_the_eye_of_diminution_AuraScript)
+            PrepareAuraScript(spell_item_the_eye_of_diminution_AuraScript);
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
@@ -1241,7 +1241,7 @@ class spell_item_underbelly_elixir : public SpellScriptLoader
 
         class spell_item_underbelly_elixir_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_underbelly_elixir_SpellScript)
+            PrepareSpellScript(spell_item_underbelly_elixir_SpellScript);
 
             bool Load() override
             {
@@ -1292,7 +1292,7 @@ class spell_item_red_rider_air_rifle : public SpellScriptLoader
 
         class spell_item_red_rider_air_rifle_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_red_rider_air_rifle_SpellScript)
+            PrepareSpellScript(spell_item_red_rider_air_rifle_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -1357,7 +1357,7 @@ class spell_item_create_heart_candy : public SpellScriptLoader
 
         class spell_item_create_heart_candy_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_create_heart_candy_SpellScript)
+            PrepareSpellScript(spell_item_create_heart_candy_SpellScript);
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -1388,7 +1388,7 @@ class spell_item_book_of_glyph_mastery : public SpellScriptLoader
 
         class spell_item_book_of_glyph_mastery_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_book_of_glyph_mastery_SpellScript)
+            PrepareSpellScript(spell_item_book_of_glyph_mastery_SpellScript);
 
             bool Load() override
             {
@@ -1442,7 +1442,7 @@ class spell_item_gift_of_the_harvester : public SpellScriptLoader
 
         class spell_item_gift_of_the_harvester_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_gift_of_the_harvester_SpellScript)
+            PrepareSpellScript(spell_item_gift_of_the_harvester_SpellScript);
 
             SpellCastResult CheckRequirement()
             {
@@ -1483,7 +1483,7 @@ class spell_item_map_of_the_geyser_fields : public SpellScriptLoader
 
         class spell_item_map_of_the_geyser_fields_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_map_of_the_geyser_fields_SpellScript)
+            PrepareSpellScript(spell_item_map_of_the_geyser_fields_SpellScript);
 
             SpellCastResult CheckSinkholes()
             {
@@ -1523,7 +1523,7 @@ class spell_item_vanquished_clutches : public SpellScriptLoader
 
         class spell_item_vanquished_clutches_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_vanquished_clutches_SpellScript)
+            PrepareSpellScript(spell_item_vanquished_clutches_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -1574,7 +1574,7 @@ class spell_item_ashbringer : public SpellScriptLoader
 
         class spell_item_ashbringer_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_ashbringer_SpellScript)
+            PrepareSpellScript(spell_item_ashbringer_SpellScript);
 
             bool Load() override
             {
@@ -1623,7 +1623,7 @@ class spell_magic_eater_food : public SpellScriptLoader
 
         class spell_magic_eater_food_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_magic_eater_food_AuraScript)
+            PrepareAuraScript(spell_magic_eater_food_AuraScript);
 
             void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
             {
@@ -1671,7 +1671,7 @@ class spell_item_shimmering_vessel : public SpellScriptLoader
 
         class spell_item_shimmering_vessel_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_shimmering_vessel_SpellScript)
+            PrepareSpellScript(spell_item_shimmering_vessel_SpellScript);
 
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
@@ -1704,7 +1704,7 @@ class spell_item_purify_helboar_meat : public SpellScriptLoader
 
         class spell_item_purify_helboar_meat_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_purify_helboar_meat_SpellScript)
+            PrepareSpellScript(spell_item_purify_helboar_meat_SpellScript);
 
             bool Load() override
             {
@@ -1748,7 +1748,7 @@ class spell_item_crystal_prison_dummy_dnd : public SpellScriptLoader
 
         class spell_item_crystal_prison_dummy_dnd_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_crystal_prison_dummy_dnd_SpellScript)
+            PrepareSpellScript(spell_item_crystal_prison_dummy_dnd_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -1795,7 +1795,7 @@ class spell_item_reindeer_transformation : public SpellScriptLoader
 
         class spell_item_reindeer_transformation_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_reindeer_transformation_SpellScript)
+            PrepareSpellScript(spell_item_reindeer_transformation_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -1860,7 +1860,7 @@ class spell_item_nigh_invulnerability : public SpellScriptLoader
 
         class spell_item_nigh_invulnerability_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_nigh_invulnerability_SpellScript)
+            PrepareSpellScript(spell_item_nigh_invulnerability_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -1906,7 +1906,7 @@ class spell_item_poultryizer : public SpellScriptLoader
 
         class spell_item_poultryizer_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_poultryizer_SpellScript)
+            PrepareSpellScript(spell_item_poultryizer_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -1946,7 +1946,7 @@ class spell_item_socrethars_stone : public SpellScriptLoader
 
         class spell_item_socrethars_stone_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_socrethars_stone_SpellScript)
+            PrepareSpellScript(spell_item_socrethars_stone_SpellScript);
 
             bool Load() override
             {
@@ -2001,7 +2001,7 @@ class spell_item_demon_broiled_surprise : public SpellScriptLoader
 
         class spell_item_demon_broiled_surprise_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_demon_broiled_surprise_SpellScript)
+            PrepareSpellScript(spell_item_demon_broiled_surprise_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -2058,7 +2058,7 @@ class spell_item_complete_raptor_capture : public SpellScriptLoader
 
         class spell_item_complete_raptor_capture_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_complete_raptor_capture_SpellScript)
+            PrepareSpellScript(spell_item_complete_raptor_capture_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -2104,7 +2104,7 @@ class spell_item_impale_leviroth : public SpellScriptLoader
 
         class spell_item_impale_leviroth_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_impale_leviroth_SpellScript)
+            PrepareSpellScript(spell_item_impale_leviroth_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -2149,7 +2149,7 @@ class spell_item_brewfest_mount_transformation : public SpellScriptLoader
 
         class spell_item_brewfest_mount_transformation_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_brewfest_mount_transformation_SpellScript)
+            PrepareSpellScript(spell_item_brewfest_mount_transformation_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -2212,7 +2212,7 @@ class spell_item_nitro_boots : public SpellScriptLoader
 
         class spell_item_nitro_boots_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_nitro_boots_SpellScript)
+            PrepareSpellScript(spell_item_nitro_boots_SpellScript);
 
             bool Load() override
             {
@@ -2259,7 +2259,7 @@ class spell_item_teach_language : public SpellScriptLoader
 
         class spell_item_teach_language_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_teach_language_SpellScript)
+            PrepareSpellScript(spell_item_teach_language_SpellScript);
 
             bool Load() override
             {
@@ -2305,7 +2305,7 @@ class spell_item_rocket_boots : public SpellScriptLoader
 
         class spell_item_rocket_boots_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_rocket_boots_SpellScript)
+            PrepareSpellScript(spell_item_rocket_boots_SpellScript);
 
             bool Load() override
             {
@@ -2362,7 +2362,7 @@ class spell_item_pygmy_oil : public SpellScriptLoader
 
         class spell_item_pygmy_oil_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_pygmy_oil_SpellScript)
+            PrepareSpellScript(spell_item_pygmy_oil_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -2408,7 +2408,7 @@ class spell_item_unusual_compass : public SpellScriptLoader
 
         class spell_item_unusual_compass_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_unusual_compass_SpellScript)
+            PrepareSpellScript(spell_item_unusual_compass_SpellScript);
 
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
@@ -2443,7 +2443,7 @@ class spell_item_chicken_cover : public SpellScriptLoader
 
         class spell_item_chicken_cover_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_chicken_cover_SpellScript)
+            PrepareSpellScript(spell_item_chicken_cover_SpellScript);
 
             bool Load() override
             {
@@ -2496,7 +2496,7 @@ class spell_item_refocus : public SpellScriptLoader
 
         class spell_item_refocus_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_refocus_SpellScript)
+            PrepareSpellScript(spell_item_refocus_SpellScript);
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -2534,7 +2534,7 @@ class spell_item_muisek_vessel : public SpellScriptLoader
 
         class spell_item_muisek_vessel_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_muisek_vessel_SpellScript)
+            PrepareSpellScript(spell_item_muisek_vessel_SpellScript);
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -2566,7 +2566,7 @@ public:
 
     class spell_item_greatmothers_soulcatcher_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_item_greatmothers_soulcatcher_SpellScript)
+        PrepareSpellScript(spell_item_greatmothers_soulcatcher_SpellScript);
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {

@@ -48,7 +48,7 @@ class spell_love_is_in_the_air_romantic_picnic : public SpellScriptLoader
 
         class spell_love_is_in_the_air_romantic_picnic_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_love_is_in_the_air_romantic_picnic_AuraScript)
+            PrepareAuraScript(spell_love_is_in_the_air_romantic_picnic_AuraScript);
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -134,7 +134,7 @@ class spell_hallow_end_trick : public SpellScriptLoader
 
         class spell_hallow_end_trick_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_hallow_end_trick_SpellScript)
+            PrepareSpellScript(spell_hallow_end_trick_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -207,7 +207,7 @@ class spell_hallow_end_trick_or_treat : public SpellScriptLoader
 
         class spell_hallow_end_trick_or_treat_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_hallow_end_trick_or_treat_SpellScript)
+            PrepareSpellScript(spell_hallow_end_trick_or_treat_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -245,7 +245,7 @@ class spell_hallow_end_tricky_treat : public SpellScriptLoader
 
         class spell_hallow_end_tricky_treat_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_hallow_end_tricky_treat_SpellScript)
+            PrepareSpellScript(spell_hallow_end_tricky_treat_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -296,7 +296,7 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
 
         class spell_pilgrims_bounty_buff_food_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pilgrims_bounty_buff_food_AuraScript)
+            PrepareAuraScript(spell_pilgrims_bounty_buff_food_AuraScript);
         private:
             uint32 const _triggeredSpellId;
 
@@ -347,7 +347,7 @@ class spell_winter_veil_mistletoe : public SpellScriptLoader
 
         class spell_winter_veil_mistletoe_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_winter_veil_mistletoe_SpellScript)
+            PrepareSpellScript(spell_winter_veil_mistletoe_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -395,7 +395,7 @@ class spell_winter_veil_px_238_winter_wondervolt : public SpellScriptLoader
 
         class spell_winter_veil_px_238_winter_wondervolt_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_winter_veil_px_238_winter_wondervolt_SpellScript)
+            PrepareSpellScript(spell_winter_veil_px_238_winter_wondervolt_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

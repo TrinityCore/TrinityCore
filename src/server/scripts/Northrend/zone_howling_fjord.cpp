@@ -443,7 +443,7 @@ class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
 
         class spell_mindless_abomination_explosion_fx_master_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mindless_abomination_explosion_fx_master_SpellScript)
+            PrepareSpellScript(spell_mindless_abomination_explosion_fx_master_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

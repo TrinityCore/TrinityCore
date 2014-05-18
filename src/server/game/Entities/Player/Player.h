@@ -826,7 +826,7 @@ enum PlayerDelayedOperations
 // Player summoning auto-decline time (in secs)
 #define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
 // Maximum money amount : 2^31 - 1
-auto constexpr MAX_MONEY_AMOUNT(static_cast<uint32>(std::numeric_limits<int32>::max()));
+extern uint32 const MAX_MONEY_AMOUNT;
 
 struct InstancePlayerBind
 {

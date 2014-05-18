@@ -447,7 +447,7 @@ class spell_mount_check : public SpellScriptLoader
 
         class spell_mount_check_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mount_check_AuraScript)
+            PrepareAuraScript(spell_mount_check_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -495,7 +495,7 @@ class spell_voljin_war_drums : public SpellScriptLoader
 
         class spell_voljin_war_drums_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_voljin_war_drums_SpellScript)
+            PrepareSpellScript(spell_voljin_war_drums_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -552,7 +552,7 @@ class spell_voodoo : public SpellScriptLoader
 
         class spell_voodoo_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_voodoo_SpellScript)
+            PrepareSpellScript(spell_voodoo_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

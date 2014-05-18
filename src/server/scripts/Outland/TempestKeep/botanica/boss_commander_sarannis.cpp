@@ -156,7 +156,7 @@ class spell_commander_sarannis_summon_reinforcements : public SpellScriptLoader
 
         class spell_commander_sarannis_summon_reinforcements_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_commander_sarannis_summon_reinforcements_SpellScript)
+            PrepareSpellScript(spell_commander_sarannis_summon_reinforcements_SpellScript);
 
             void HandleCast(SpellEffIndex /*effIndex*/)
             {

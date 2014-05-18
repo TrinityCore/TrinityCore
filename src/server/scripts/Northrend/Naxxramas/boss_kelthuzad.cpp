@@ -754,7 +754,7 @@ class spell_kelthuzad_detonate_mana : public SpellScriptLoader
 
         class spell_kelthuzad_detonate_mana_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_kelthuzad_detonate_mana_AuraScript)
+            PrepareAuraScript(spell_kelthuzad_detonate_mana_AuraScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {

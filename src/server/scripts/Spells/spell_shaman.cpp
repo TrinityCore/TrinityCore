@@ -70,7 +70,7 @@ class spell_sha_ancestral_awakening_proc : public SpellScriptLoader
 
         class spell_sha_ancestral_awakening_proc_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_ancestral_awakening_proc_SpellScript)
+            PrepareSpellScript(spell_sha_ancestral_awakening_proc_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -119,7 +119,7 @@ class spell_sha_astral_shift : public SpellScriptLoader
 
         class spell_sha_astral_shift_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_astral_shift_AuraScript)
+            PrepareAuraScript(spell_sha_astral_shift_AuraScript);
 
             uint32 absorbPct;
 
@@ -163,7 +163,7 @@ class spell_sha_bloodlust : public SpellScriptLoader
 
         class spell_sha_bloodlust_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_bloodlust_SpellScript)
+            PrepareSpellScript(spell_sha_bloodlust_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -206,7 +206,7 @@ class spell_sha_chain_heal : public SpellScriptLoader
 
         class spell_sha_chain_heal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_chain_heal_SpellScript)
+            PrepareSpellScript(spell_sha_chain_heal_SpellScript);
 
             bool Load() override
             {
@@ -256,7 +256,7 @@ class spell_sha_cleansing_totem_pulse : public SpellScriptLoader
 
         class spell_sha_cleansing_totem_pulse_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_cleansing_totem_pulse_SpellScript)
+            PrepareSpellScript(spell_sha_cleansing_totem_pulse_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -292,7 +292,7 @@ class spell_sha_earth_shield : public SpellScriptLoader
 
         class spell_sha_earth_shield_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_earth_shield_AuraScript)
+            PrepareAuraScript(spell_sha_earth_shield_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -360,7 +360,7 @@ class spell_sha_earthbind_totem : public SpellScriptLoader
 
         class spell_sha_earthbind_totem_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_earthbind_totem_AuraScript)
+            PrepareAuraScript(spell_sha_earthbind_totem_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -432,7 +432,7 @@ class spell_sha_earthen_power : public SpellScriptLoader
 
         class spell_sha_earthen_power_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_earthen_power_SpellScript)
+            PrepareSpellScript(spell_sha_earthen_power_SpellScript);
 
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
@@ -459,7 +459,7 @@ class spell_sha_fire_nova : public SpellScriptLoader
 
         class spell_sha_fire_nova_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_fire_nova_SpellScript)
+            PrepareSpellScript(spell_sha_fire_nova_SpellScript);
 
             bool Validate(SpellInfo const* spellInfo) override
             {
@@ -517,7 +517,7 @@ class spell_sha_flame_shock : public SpellScriptLoader
 
         class spell_sha_flame_shock_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_flame_shock_AuraScript)
+            PrepareAuraScript(spell_sha_flame_shock_AuraScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -563,7 +563,7 @@ class spell_sha_healing_stream_totem : public SpellScriptLoader
 
         class spell_sha_healing_stream_totem_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_healing_stream_totem_SpellScript)
+            PrepareSpellScript(spell_sha_healing_stream_totem_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -618,7 +618,7 @@ class spell_sha_heroism : public SpellScriptLoader
 
         class spell_sha_heroism_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_heroism_SpellScript)
+            PrepareSpellScript(spell_sha_heroism_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -661,7 +661,7 @@ class spell_sha_item_lightning_shield : public SpellScriptLoader
 
         class spell_sha_item_lightning_shield_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_item_lightning_shield_AuraScript)
+            PrepareAuraScript(spell_sha_item_lightning_shield_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -696,7 +696,7 @@ class spell_sha_item_lightning_shield_trigger : public SpellScriptLoader
 
         class spell_sha_item_lightning_shield_trigger_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_item_lightning_shield_trigger_AuraScript)
+            PrepareAuraScript(spell_sha_item_lightning_shield_trigger_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -731,7 +731,7 @@ class spell_sha_item_mana_surge : public SpellScriptLoader
 
         class spell_sha_item_mana_surge_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_item_mana_surge_AuraScript)
+            PrepareAuraScript(spell_sha_item_mana_surge_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -775,7 +775,7 @@ class spell_sha_lava_lash : public SpellScriptLoader
 
         class spell_sha_lava_lash_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_lava_lash_SpellScript)
+            PrepareSpellScript(spell_sha_lava_lash_SpellScript);
 
             bool Load() override
             {
@@ -819,7 +819,7 @@ class spell_sha_mana_spring_totem : public SpellScriptLoader
 
         class spell_sha_mana_spring_totem_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_mana_spring_totem_SpellScript)
+            PrepareSpellScript(spell_sha_mana_spring_totem_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -858,7 +858,7 @@ class spell_sha_mana_tide_totem : public SpellScriptLoader
 
         class spell_sha_mana_tide_totem_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_mana_tide_totem_SpellScript)
+            PrepareSpellScript(spell_sha_mana_tide_totem_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -906,7 +906,7 @@ class spell_sha_sentry_totem : public SpellScriptLoader
 
         class spell_sha_sentry_totem_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sha_sentry_totem_AuraScript)
+            PrepareAuraScript(spell_sha_sentry_totem_AuraScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -951,7 +951,7 @@ class spell_sha_thunderstorm : public SpellScriptLoader
 
         class spell_sha_thunderstorm_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_thunderstorm_SpellScript)
+            PrepareSpellScript(spell_sha_thunderstorm_SpellScript);
 
             void HandleKnockBack(SpellEffIndex effIndex)
             {

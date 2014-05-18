@@ -1022,7 +1022,7 @@ class spell_deathbringer_blood_link : public SpellScriptLoader
 
         class spell_deathbringer_blood_link_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_deathbringer_blood_link_SpellScript)
+            PrepareSpellScript(spell_deathbringer_blood_link_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -1058,7 +1058,7 @@ class spell_deathbringer_blood_link_aura : public SpellScriptLoader
 
         class spell_deathbringer_blood_link_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_deathbringer_blood_link_AuraScript)
+            PrepareAuraScript(spell_deathbringer_blood_link_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -1094,7 +1094,7 @@ class spell_deathbringer_blood_power : public SpellScriptLoader
 
         class spell_deathbringer_blood_power_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_deathbringer_blood_power_SpellScript)
+            PrepareSpellScript(spell_deathbringer_blood_power_SpellScript);
 
             void ModAuraValue()
             {
@@ -1110,7 +1110,7 @@ class spell_deathbringer_blood_power : public SpellScriptLoader
 
         class spell_deathbringer_blood_power_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_deathbringer_blood_power_AuraScript)
+            PrepareAuraScript(spell_deathbringer_blood_power_AuraScript);
 
             void RecalculateHook(AuraEffect const* /*aurEffect*/, int32& amount, bool& canBeRecalculated)
             {
@@ -1143,7 +1143,7 @@ class spell_deathbringer_rune_of_blood : public SpellScriptLoader
 
         class spell_deathbringer_rune_of_blood_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_deathbringer_rune_of_blood_SpellScript)
+            PrepareSpellScript(spell_deathbringer_rune_of_blood_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -1178,7 +1178,7 @@ class spell_deathbringer_blood_nova : public SpellScriptLoader
 
         class spell_deathbringer_blood_nova_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_deathbringer_blood_nova_SpellScript)
+            PrepareSpellScript(spell_deathbringer_blood_nova_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -1213,7 +1213,7 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
 
         class spell_deathbringer_blood_nova_targeting_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_deathbringer_blood_nova_targeting_SpellScript)
+            PrepareSpellScript(spell_deathbringer_blood_nova_targeting_SpellScript);
 
             bool Load() override
             {
@@ -1292,7 +1292,7 @@ class spell_deathbringer_boiling_blood : public SpellScriptLoader
 
         class spell_deathbringer_boiling_blood_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_deathbringer_boiling_blood_SpellScript)
+            PrepareSpellScript(spell_deathbringer_boiling_blood_SpellScript);
 
             bool Load() override
             {
@@ -1329,7 +1329,7 @@ class spell_deathbringer_remove_marks : public SpellScriptLoader
 
         class spell_deathbringer_remove_marks_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_deathbringer_remove_marks_SpellScript)
+            PrepareSpellScript(spell_deathbringer_remove_marks_SpellScript);
 
             void HandleScript(SpellEffIndex effIndex)
             {

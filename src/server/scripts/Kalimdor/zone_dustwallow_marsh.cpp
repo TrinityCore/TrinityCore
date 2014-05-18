@@ -610,7 +610,7 @@ class spell_ooze_zap : public SpellScriptLoader
 
         class spell_ooze_zap_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ooze_zap_SpellScript)
+            PrepareSpellScript(spell_ooze_zap_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -657,7 +657,7 @@ class spell_ooze_zap_channel_end : public SpellScriptLoader
 
         class spell_ooze_zap_channel_end_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ooze_zap_channel_end_SpellScript)
+            PrepareSpellScript(spell_ooze_zap_channel_end_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -693,7 +693,7 @@ class spell_energize_aoe : public SpellScriptLoader
 
         class spell_energize_aoe_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_energize_aoe_SpellScript)
+            PrepareSpellScript(spell_energize_aoe_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

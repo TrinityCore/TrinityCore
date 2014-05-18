@@ -1023,7 +1023,7 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
 
         class spell_sindragosa_s_fury_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sindragosa_s_fury_SpellScript)
+            PrepareSpellScript(spell_sindragosa_s_fury_SpellScript);
 
             bool Load() override
             {
@@ -1110,7 +1110,7 @@ class spell_sindragosa_unchained_magic : public SpellScriptLoader
 
         class spell_sindragosa_unchained_magic_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sindragosa_unchained_magic_SpellScript)
+            PrepareSpellScript(spell_sindragosa_unchained_magic_SpellScript);
 
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
@@ -1139,7 +1139,7 @@ class spell_sindragosa_frost_breath : public SpellScriptLoader
 
         class spell_sindragosa_frost_breath_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sindragosa_frost_breath_SpellScript)
+            PrepareSpellScript(spell_sindragosa_frost_breath_SpellScript);
 
             void HandleInfusion()
             {
@@ -1184,7 +1184,7 @@ class spell_sindragosa_instability : public SpellScriptLoader
 
         class spell_sindragosa_instability_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sindragosa_instability_AuraScript)
+            PrepareAuraScript(spell_sindragosa_instability_AuraScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -1218,7 +1218,7 @@ class spell_sindragosa_frost_beacon : public SpellScriptLoader
 
         class spell_sindragosa_frost_beacon_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sindragosa_frost_beacon_AuraScript)
+            PrepareAuraScript(spell_sindragosa_frost_beacon_AuraScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -1253,7 +1253,7 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
 
         class spell_sindragosa_ice_tomb_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sindragosa_ice_tomb_SpellScript)
+            PrepareSpellScript(spell_sindragosa_ice_tomb_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -1286,7 +1286,7 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
 
         class spell_sindragosa_ice_tomb_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sindragosa_ice_tomb_AuraScript)
+            PrepareAuraScript(spell_sindragosa_ice_tomb_AuraScript);
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
@@ -1317,7 +1317,7 @@ class spell_sindragosa_icy_grip : public SpellScriptLoader
 
         class spell_sindragosa_icy_grip_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sindragosa_icy_grip_SpellScript)
+            PrepareSpellScript(spell_sindragosa_icy_grip_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -1365,7 +1365,7 @@ class spell_sindragosa_mystic_buffet : public SpellScriptLoader
 
         class spell_sindragosa_mystic_buffet_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sindragosa_mystic_buffet_SpellScript)
+            PrepareSpellScript(spell_sindragosa_mystic_buffet_SpellScript);
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -1391,7 +1391,7 @@ class spell_rimefang_icy_blast : public SpellScriptLoader
 
         class spell_rimefang_icy_blast_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rimefang_icy_blast_SpellScript)
+            PrepareSpellScript(spell_rimefang_icy_blast_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -1443,7 +1443,7 @@ class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
 
         class spell_frostwarden_handler_order_whelp_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_frostwarden_handler_order_whelp_SpellScript)
+            PrepareSpellScript(spell_frostwarden_handler_order_whelp_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -1498,7 +1498,7 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
 
         class spell_frostwarden_handler_focus_fire_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_frostwarden_handler_focus_fire_SpellScript)
+            PrepareSpellScript(spell_frostwarden_handler_focus_fire_SpellScript);
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -1515,7 +1515,7 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
 
         class spell_frostwarden_handler_focus_fire_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_frostwarden_handler_focus_fire_AuraScript)
+            PrepareAuraScript(spell_frostwarden_handler_focus_fire_AuraScript);
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
