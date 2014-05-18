@@ -850,7 +850,7 @@ class spell_sha_lava_lash : public SpellScriptLoader
 
         class spell_sha_lava_lash_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_lava_lash_SpellScript)
+            PrepareSpellScript(spell_sha_lava_lash_SpellScript);
 
             bool Load() override
             {
@@ -927,7 +927,7 @@ class spell_sha_lava_surge_proc : public SpellScriptLoader
 
         class spell_sha_lava_surge_proc_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_lava_surge_proc_SpellScript)
+            PrepareSpellScript(spell_sha_lava_surge_proc_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

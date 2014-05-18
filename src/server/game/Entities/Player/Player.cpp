@@ -150,6 +150,8 @@ uint32 const MasterySpells[MAX_CLASSES] =
     87491,  // Druid
 };
 
+uint64 const MAX_MONEY_AMOUNT = static_cast<uint64>(std::numeric_limits<int64>::max());
+
 // == PlayerTaxi ================================================
 
 PlayerTaxi::PlayerTaxi()
@@ -23250,7 +23252,7 @@ bool Player::ModifyMoney(int64 amount, bool sendError /*= true*/)
         SetMoney(GetMoney() > uint64(-amount) ? GetMoney() + amount : 0);
     else
     {
-        if (GetMoney() < uint64(MAX_MONEY_AMOUNT - amount))
+        if (GetMoney() < MAX_MONEY_AMOUNT - static_cast<uint64>(amount))
             SetMoney(GetMoney() + amount);
         else
         {
