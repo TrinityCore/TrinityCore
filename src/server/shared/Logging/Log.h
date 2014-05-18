@@ -103,12 +103,16 @@ inline Logger const* Log::GetLoggerByType(std::string const& originalType)
     }
     while (!logger);
 
-    cachedLoggers[originalType] = logger;
+    cachedLoggers[type] = logger;
     return logger;
 }
 
 inline bool Log::ShouldLog(std::string const& type, LogLevel level)
 {
+    // TODO: Use cache to store "Type.sub1.sub2": "Type" equivalence, should
+    // Speed up in cases where requesting "Type.sub1.sub2" but only configured
+    // Logger "Type"
+
     Logger const* logger = GetLoggerByType(type);
     if (!logger)
         return false;
