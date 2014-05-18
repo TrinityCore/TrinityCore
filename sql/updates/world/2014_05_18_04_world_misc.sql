@@ -1,5 +1,5 @@
 --
-SET @CGUID := 68101; -- set by TDB team (3)
+SET @CGUID := 68279; -- set by TDB team (3)
 SET @OGUID := 6100; -- set by TDB team (2)
 
 DELETE FROM `spell_area` WHERE `spell`=71314;
