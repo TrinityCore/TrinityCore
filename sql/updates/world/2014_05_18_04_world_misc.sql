@@ -1,6 +1,6 @@
 --
 SET @CGUID := 68279; -- set by TDB team (3)
-SET @OGUID := 6100; -- set by TDB team (2)
+SET @OGUID := 6134; -- set by TDB team (2)
 
 DELETE FROM `spell_area` WHERE `spell`=71314;
 INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES 
