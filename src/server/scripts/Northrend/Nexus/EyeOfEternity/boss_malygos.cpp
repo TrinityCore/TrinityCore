@@ -1647,7 +1647,7 @@ class spell_malygos_portal_beam : public SpellScriptLoader
 
         class spell_malygos_portal_beam_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_malygos_portal_beam_AuraScript)
+            PrepareAuraScript(spell_malygos_portal_beam_AuraScript);
 
             bool Load() override
             {
@@ -1694,7 +1694,7 @@ class spell_malygos_random_portal : public SpellScriptLoader
 
         class spell_malygos_random_portal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_malygos_random_portal_SpellScript)
+            PrepareSpellScript(spell_malygos_random_portal_SpellScript);
 
             bool Load() override
             {
@@ -1750,7 +1750,7 @@ class spell_malygos_arcane_storm : public SpellScriptLoader
 
         class spell_malygos_arcane_storm_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_malygos_arcane_storm_SpellScript)
+            PrepareSpellScript(spell_malygos_arcane_storm_SpellScript);
 
             bool Load() override
             {
@@ -1810,7 +1810,7 @@ public:
 
     class spell_malygos_vortex_dummy_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_malygos_vortex_dummy_SpellScript)
+        PrepareSpellScript(spell_malygos_vortex_dummy_SpellScript);
 
         bool Load() override
         {
@@ -1847,7 +1847,7 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
 
         class spell_malygos_vortex_visual_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_malygos_vortex_visual_AuraScript)
+            PrepareAuraScript(spell_malygos_vortex_visual_AuraScript);
 
             bool Load() override
             {
@@ -1926,7 +1926,7 @@ class spell_arcane_overload : public SpellScriptLoader
 
         class spell_arcane_overload_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_arcane_overload_SpellScript)
+            PrepareSpellScript(spell_arcane_overload_SpellScript);
 
             bool Load() override
             {
@@ -1959,7 +1959,7 @@ class spell_nexus_lord_align_disk_aggro : public SpellScriptLoader
 
         class spell_nexus_lord_align_disk_aggro_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_nexus_lord_align_disk_aggro_SpellScript)
+            PrepareSpellScript(spell_nexus_lord_align_disk_aggro_SpellScript);
 
             bool Load() override
             {
@@ -2010,7 +2010,7 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
 
         class spell_scion_of_eternity_arcane_barrage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_scion_of_eternity_arcane_barrage_SpellScript)
+            PrepareSpellScript(spell_scion_of_eternity_arcane_barrage_SpellScript);
 
             bool Load() override
             {
@@ -2094,7 +2094,7 @@ class spell_malygos_destroy_platform_channel : public SpellScriptLoader
 
         class spell_malygos_destroy_platform_channel_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_malygos_destroy_platform_channel_AuraScript)
+            PrepareAuraScript(spell_malygos_destroy_platform_channel_AuraScript);
 
             bool Load() override
             {
@@ -2136,7 +2136,7 @@ class spell_alexstrasza_bunny_destroy_platform_boom_visual : public SpellScriptL
 
         class spell_alexstrasza_bunny_destroy_platform_boom_visual_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_alexstrasza_bunny_destroy_platform_boom_visual_SpellScript)
+            PrepareSpellScript(spell_alexstrasza_bunny_destroy_platform_boom_visual_SpellScript);
 
             bool Load() override
             {
@@ -2176,7 +2176,7 @@ class spell_alexstrasza_bunny_destroy_platform_event : public SpellScriptLoader
 
         class spell_alexstrasza_bunny_destroy_platform_event_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_alexstrasza_bunny_destroy_platform_event_SpellScript)
+            PrepareSpellScript(spell_alexstrasza_bunny_destroy_platform_event_SpellScript);
 
             bool Load() override
             {
@@ -2217,7 +2217,7 @@ class spell_wyrmrest_skytalon_summon_red_dragon_buddy : public SpellScriptLoader
 
         class spell_wyrmrest_skytalon_summon_red_dragon_buddy_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_wyrmrest_skytalon_summon_red_dragon_buddy_SpellScript)
+            PrepareSpellScript(spell_wyrmrest_skytalon_summon_red_dragon_buddy_SpellScript);
 
             bool Load() override
             {
@@ -2250,7 +2250,7 @@ class spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger : public SpellScript
 
         class spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger_SpellScript)
+            PrepareSpellScript(spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger_SpellScript);
 
             bool Load() override
             {
@@ -2282,7 +2282,7 @@ class spell_malygos_surge_of_power_warning_selector_25 : public SpellScriptLoade
 
         class spell_malygos_surge_of_power_warning_selector_25_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_malygos_surge_of_power_warning_selector_25_SpellScript)
+            PrepareSpellScript(spell_malygos_surge_of_power_warning_selector_25_SpellScript);
 
             bool Load() override
             {
@@ -2348,7 +2348,7 @@ class spell_malygos_surge_of_power_25 : public SpellScriptLoader
 
         class spell_malygos_surge_of_power_25_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_malygos_surge_of_power_25_SpellScript)
+            PrepareSpellScript(spell_malygos_surge_of_power_25_SpellScript);
 
             bool Load() override
             {
@@ -2399,7 +2399,7 @@ class spell_alexstrasza_gift_beam : public SpellScriptLoader
 
         class spell_alexstrasza_gift_beam_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_alexstrasza_gift_beam_AuraScript)
+            PrepareAuraScript(spell_alexstrasza_gift_beam_AuraScript);
 
             bool Load() override
             {
@@ -2446,7 +2446,7 @@ class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
 
         class spell_alexstrasza_gift_beam_visual_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_alexstrasza_gift_beam_visual_AuraScript)
+            PrepareAuraScript(spell_alexstrasza_gift_beam_visual_AuraScript);
 
             bool Load() override
             {

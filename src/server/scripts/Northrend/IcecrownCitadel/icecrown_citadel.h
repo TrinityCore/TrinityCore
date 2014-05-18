@@ -518,7 +518,7 @@ class spell_trigger_spell_from_caster : public SpellScriptLoader
 
         class spell_trigger_spell_from_caster_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_trigger_spell_from_caster_SpellScript)
+            PrepareSpellScript(spell_trigger_spell_from_caster_SpellScript);
 
         public:
             spell_trigger_spell_from_caster_SpellScript(uint32 triggerId) : SpellScript(), _triggerId(triggerId) { }

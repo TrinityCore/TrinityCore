@@ -921,7 +921,7 @@ class spell_biting_cold : public SpellScriptLoader
 
         class spell_biting_cold_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_biting_cold_AuraScript)
+            PrepareAuraScript(spell_biting_cold_AuraScript);
 
             void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
@@ -977,7 +977,7 @@ public:
 
     class spell_biting_cold_dot_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_biting_cold_dot_AuraScript)
+        PrepareAuraScript(spell_biting_cold_dot_AuraScript);
 
         void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
         {

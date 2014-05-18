@@ -513,7 +513,7 @@ class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
 
         class spell_astromancer_wrath_of_the_astromancer_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_astromancer_wrath_of_the_astromancer_AuraScript)
+            PrepareAuraScript(spell_astromancer_wrath_of_the_astromancer_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

@@ -687,7 +687,7 @@ class spell_dream_fog_sleep : public SpellScriptLoader
 
         class spell_dream_fog_sleep_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dream_fog_sleep_SpellScript)
+            PrepareSpellScript(spell_dream_fog_sleep_SpellScript);
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -731,7 +731,7 @@ class spell_mark_of_nature : public SpellScriptLoader
 
         class spell_mark_of_nature_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mark_of_nature_SpellScript)
+            PrepareSpellScript(spell_mark_of_nature_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

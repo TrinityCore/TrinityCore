@@ -613,7 +613,7 @@ class spell_random_ingredient_aura : public SpellScriptLoader
 
         class spell_random_ingredient_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_random_ingredient_aura_AuraScript)
+            PrepareAuraScript(spell_random_ingredient_aura_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -660,7 +660,7 @@ class spell_random_ingredient : public SpellScriptLoader
 
         class spell_random_ingredient_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_random_ingredient_SpellScript)
+            PrepareSpellScript(spell_random_ingredient_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -724,7 +724,7 @@ class spell_pot_check : public SpellScriptLoader
 
         class spell_pot_check_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pot_check_SpellScript)
+            PrepareSpellScript(spell_pot_check_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -817,7 +817,7 @@ class spell_fetch_ingredient_aura : public SpellScriptLoader
 
         class spell_fetch_ingredient_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_fetch_ingredient_aura_AuraScript)
+            PrepareAuraScript(spell_fetch_ingredient_aura_AuraScript);
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {

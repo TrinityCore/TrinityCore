@@ -325,7 +325,7 @@ class spell_frost_tomb : public SpellScriptLoader
 
         class spell_frost_tomb_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_frost_tomb_AuraScript)
+            PrepareAuraScript(spell_frost_tomb_AuraScript);
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {

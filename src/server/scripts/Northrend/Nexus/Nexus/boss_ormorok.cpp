@@ -263,7 +263,7 @@ class spell_crystal_spike : public SpellScriptLoader
 
         class spell_crystal_spike_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_crystal_spike_AuraScript)
+            PrepareAuraScript(spell_crystal_spike_AuraScript);
 
             void HandlePeriodic(AuraEffect const* /*aurEff*/)
             {

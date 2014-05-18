@@ -163,7 +163,7 @@ class spell_capacitus_polarity_charge : public SpellScriptLoader
 
         class spell_capacitus_polarity_charge_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_capacitus_polarity_charge_SpellScript)
+            PrepareSpellScript(spell_capacitus_polarity_charge_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -231,7 +231,7 @@ class spell_capacitus_polarity_shift : public SpellScriptLoader
 
         class spell_capacitus_polarity_shift_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_capacitus_polarity_shift_SpellScript)
+            PrepareSpellScript(spell_capacitus_polarity_shift_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {

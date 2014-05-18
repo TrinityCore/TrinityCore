@@ -139,7 +139,7 @@ class spell_marwyn_shared_suffering : public SpellScriptLoader
 
         class spell_marwyn_shared_suffering_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_marwyn_shared_suffering_AuraScript)
+            PrepareAuraScript(spell_marwyn_shared_suffering_AuraScript);
 
             void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {

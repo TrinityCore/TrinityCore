@@ -432,7 +432,7 @@ public:
 
     class spell_q12096_q12092_dummy_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_q12096_q12092_dummy_SpellScript)
+        PrepareSpellScript(spell_q12096_q12092_dummy_SpellScript);
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
@@ -479,7 +479,7 @@ public:
 
     class spell_q12096_q12092_bark_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_q12096_q12092_bark_SpellScript)
+        PrepareSpellScript(spell_q12096_q12092_bark_SpellScript);
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {

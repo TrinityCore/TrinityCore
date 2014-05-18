@@ -215,7 +215,7 @@ class spell_skeram_arcane_explosion : public SpellScriptLoader
 
         class spell_skeram_arcane_explosion_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_skeram_arcane_explosion_SpellScript)
+            PrepareSpellScript(spell_skeram_arcane_explosion_SpellScript);
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {

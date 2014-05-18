@@ -144,6 +144,8 @@ enum CharacterCustomizeFlags
 
 static uint32 copseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
 
+uint32 const MAX_MONEY_AMOUNT = static_cast<uint32>(std::numeric_limits<int32>::max());
+
 // == PlayerTaxi ================================================
 
 PlayerTaxi::PlayerTaxi()

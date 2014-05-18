@@ -249,7 +249,7 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
 
         class spell_varos_centrifuge_shield_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_varos_centrifuge_shield_AuraScript)
+            PrepareAuraScript(spell_varos_centrifuge_shield_AuraScript);
 
             bool Load() override
             {
@@ -299,7 +299,7 @@ class spell_varos_energize_core_area_enemy : public SpellScriptLoader
 
         class spell_varos_energize_core_area_enemySpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_varos_energize_core_area_enemySpellScript)
+            PrepareSpellScript(spell_varos_energize_core_area_enemySpellScript);
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -343,7 +343,7 @@ class spell_varos_energize_core_area_entry : public SpellScriptLoader
 
         class spell_varos_energize_core_area_entrySpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_varos_energize_core_area_entrySpellScript)
+            PrepareSpellScript(spell_varos_energize_core_area_entrySpellScript);
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {

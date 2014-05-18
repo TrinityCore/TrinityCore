@@ -455,7 +455,7 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
 
         class spell_rotface_ooze_flood_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_ooze_flood_SpellScript)
+            PrepareSpellScript(spell_rotface_ooze_flood_SpellScript);
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -505,7 +505,7 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
 
         class spell_rotface_mutated_infection_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_mutated_infection_SpellScript)
+            PrepareSpellScript(spell_rotface_mutated_infection_SpellScript);
 
             bool Load() override
             {
@@ -565,7 +565,7 @@ class spell_rotface_little_ooze_combine : public SpellScriptLoader
 
         class spell_rotface_little_ooze_combine_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_little_ooze_combine_SpellScript)
+            PrepareSpellScript(spell_rotface_little_ooze_combine_SpellScript);
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -597,7 +597,7 @@ class spell_rotface_large_ooze_combine : public SpellScriptLoader
 
         class spell_rotface_large_ooze_combine_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_large_ooze_combine_SpellScript)
+            PrepareSpellScript(spell_rotface_large_ooze_combine_SpellScript);
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -639,7 +639,7 @@ class spell_rotface_large_ooze_buff_combine : public SpellScriptLoader
 
         class spell_rotface_large_ooze_buff_combine_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_large_ooze_buff_combine_SpellScript)
+            PrepareSpellScript(spell_rotface_large_ooze_buff_combine_SpellScript);
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -694,7 +694,7 @@ class spell_rotface_unstable_ooze_explosion_init : public SpellScriptLoader
 
         class spell_rotface_unstable_ooze_explosion_init_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_unstable_ooze_explosion_init_SpellScript)
+            PrepareSpellScript(spell_rotface_unstable_ooze_explosion_init_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -734,7 +734,7 @@ class spell_rotface_unstable_ooze_explosion : public SpellScriptLoader
 
         class spell_rotface_unstable_ooze_explosion_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_unstable_ooze_explosion_SpellScript)
+            PrepareSpellScript(spell_rotface_unstable_ooze_explosion_SpellScript);
 
             void CheckTarget(SpellEffIndex effIndex)
             {
@@ -771,7 +771,7 @@ class spell_rotface_unstable_ooze_explosion_suicide : public SpellScriptLoader
 
         class spell_rotface_unstable_ooze_explosion_suicide_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rotface_unstable_ooze_explosion_suicide_AuraScript)
+            PrepareAuraScript(spell_rotface_unstable_ooze_explosion_suicide_AuraScript);
 
             void DespawnSelf(AuraEffect const* /*aurEff*/)
             {
@@ -804,7 +804,7 @@ class spell_rotface_vile_gas_trigger : public SpellScriptLoader
 
         class spell_rotface_vile_gas_trigger_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_vile_gas_trigger_SpellScript)
+            PrepareSpellScript(spell_rotface_vile_gas_trigger_SpellScript);
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
