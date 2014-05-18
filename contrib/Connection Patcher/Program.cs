@@ -39,8 +39,6 @@ namespace Connection_Patcher
                 Console.ReadKey(true);
 
                 var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-                var system32      = Environment.GetFolderPath(Environment.SpecialFolder.System);
-                var hostsPath     = Path.Combine(system32, "drivers/etc/hosts");
                 var modulePath    = "";
                 var moduleFile    = "";
 
@@ -53,10 +51,14 @@ namespace Connection_Patcher
                 var offsetBNet        = Offsets.Windows.x86.BNet;
                 var patchSignature    = Patches.Windows.x86.Signature;
                 var offsetSignature   = Offsets.Windows.x86.Signature;
-                var fileName          = "";
+                var fileName          = args[0].Replace(".exe", "_Patched.exe");
                 var battleNetFileName = args[0].Replace("Wow.exe", "Battle.net.dll");
                 var modulePatch       = Patches.Windows.x86.Password;
                 var modulePattern     = Patterns.Windows.x86.Password;
+                var realmListPatch    = Patches.Windows.x86.RealmList;
+                var realmListoffset   = Offsets.Windows.x86.RealmList;
+                var realmListBnPatch  = Patches.Windows.x86.RealmListBn;
+                var realmListBnPattern = Patterns.Windows.x86.RealmListBn;
 
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("Creating patched binaries for ");
@@ -93,7 +95,6 @@ namespace Connection_Patcher
                         //    moduleFile       = "97eeb2e28e9e56ed6a22d09f44e2ff43c93315e006bbad43bafc0defaa6f50ae.auth";
                         //    modulePatch      = Patches.Mac.x64.Password;
                         //    modulePattern    = Patterns.Mac.x64.Password;
-                        //    hostsPath        = "/private/etc/hosts";
                         //    break;
                         default:
                             throw new NotSupportedException("Type: " + patcher.Type + " not supported!");
@@ -109,11 +110,13 @@ namespace Connection_Patcher
                     {
                         bnpatcher.Patch(patchBNet, null, offsetBNet);
                         bnpatcher.Patch(patchSignature, null, offsetSignature);
+                        bnpatcher.Patch(realmListBnPatch, realmListBnPattern);
                         bnpatcher.Finish();
                     }
 
                     patcher.Patch(patchSend, null, offsetSend);
                     patcher.Patch(patchRecv, null, offsetRecv);
+                    patcher.Patch(realmListPatch, null, realmListoffset);
 
                     patcher.Binary = fileName;
 
@@ -126,57 +129,6 @@ namespace Connection_Patcher
 
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("Successfully created your patched binaries.");
-                }
-
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine("Adding host rewrite...");
-
-                var host = args.Length == 2 ? args[1] : "127.0.0.1";
-                var hostName = args.Length == 3 ? (" " + args[2] + ".logon.battle.net") : " tc.logon.battle.net";
-                var exists = false;
-
-                using (var sr = new StreamReader(hostsPath))
-                {
-                    while (!sr.EndOfStream)
-                    {
-                        var line = sr.ReadLine();
-
-                        if (line.Contains(hostName))
-                        {
-                            Console.ForegroundColor = ConsoleColor.Yellow;
-                            Console.WriteLine("Host rewrite not needed.");
-
-                            exists = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (!exists)
-                {
-                    try
-                    {
-                        using (var stream = new StreamWriter(hostsPath, true, Encoding.UTF8))
-                        {
-                            stream.WriteLine("");
-                            stream.WriteLine("{0}{1}", host, hostName);
-                        }
-
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine("Host rewrite successfully added.");
-                    }
-                    catch (Exception e)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine(string.Format("Can't write host file! Exception type: {0}", e.GetType()));
-                        Console.WriteLine("You must add the following line:");
-
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.WriteLine("{0}{1}", host, hostName);
-
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("to your host file before using Arctium WoD Sandbox!");
-                    }
                 }
             }
             else
