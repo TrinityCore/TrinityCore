@@ -212,4 +212,4 @@ void AddSC_boss_balinda()
 {
     new boss_balinda;
     new npc_water_elemental;
-};
+}

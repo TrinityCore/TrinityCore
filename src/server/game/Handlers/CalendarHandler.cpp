@@ -259,7 +259,14 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
         uint32 inviteCount;
         recvData >> inviteCount;
 
-        for (uint32 i = 0; i < inviteCount; ++i)
+        SQLTransaction trans;
+        if (inviteCount > 1)
+            trans = CharacterDatabase.BeginTransaction();
+
+        // client limits the amount of players to be invited to 100
+        const uint32 MaxPlayerInvites = 100;
+
+        for (uint32 i = 0; i < inviteCount && i < MaxPlayerInvites; ++i)
         {
             uint64 invitee = 0;
             uint8 status = 0;
@@ -269,8 +276,11 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
 
             // 946684800 is 01/01/2000 00:00:00 - default response time
             CalendarInvite* invite = new CalendarInvite(sCalendarMgr->GetFreeInviteId(), calendarEvent.GetEventId(), invitee, guid, 946684800, CalendarInviteStatus(status), CalendarModerationRank(rank), "");
-            sCalendarMgr->AddInvite(&calendarEvent, invite);
+            sCalendarMgr->AddInvite(&calendarEvent, invite, trans);
         }
+
+        if (inviteCount > 1)
+            CharacterDatabase.CommitTransaction(trans);
     }
 
     sCalendarMgr->AddEvent(new CalendarEvent(calendarEvent, calendarEvent.GetEventId()), CALENDAR_SENDTYPE_ADD);
@@ -354,10 +364,15 @@ void WorldSession::HandleCalendarCopyEvent(WorldPacket& recvData)
         sCalendarMgr->AddEvent(newEvent, CALENDAR_SENDTYPE_COPY);
 
         CalendarInviteStore invites = sCalendarMgr->GetEventInvites(eventId);
+        SQLTransaction trans;
+        if (invites.size() > 1)
+            trans = CharacterDatabase.BeginTransaction();
 
         for (CalendarInviteStore::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
-            sCalendarMgr->AddInvite(newEvent, new CalendarInvite(**itr, sCalendarMgr->GetFreeInviteId(), newEvent->GetEventId()));
+            sCalendarMgr->AddInvite(newEvent, new CalendarInvite(**itr, sCalendarMgr->GetFreeInviteId(), newEvent->GetEventId()), trans);
 
+        if (invites.size() > 1)
+            CharacterDatabase.CommitTransaction(trans);
         // should we change owner when somebody makes a copy of event owned by another person?
     }
     else

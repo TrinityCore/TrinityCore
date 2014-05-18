@@ -673,8 +673,7 @@ class spell_powering_up : public SpellScriptLoader
 
         class spell_powering_up_SpellScript : public SpellScript
         {
-            public:
-                PrepareSpellScript(spell_powering_up_SpellScript)
+            PrepareSpellScript(spell_powering_up_SpellScript);
 
             uint32 spellId;
             uint32 poweringUp;

@@ -505,9 +505,19 @@ class ByteBuffer
             return *this;
         }
 
-        uint8 * contents() { return &_storage[0]; }
+        uint8 * contents() 
+        { 
+            if (_storage.empty())
+                throw ByteBufferException();
+            return &_storage[0]; 
+        }
 
-        const uint8 *contents() const { return &_storage[0]; }
+        const uint8 *contents() const 
+        { 
+            if (_storage.empty())
+                throw ByteBufferException();
+            return &_storage[0]; 
+        }
 
         size_t size() const { return _storage.size(); }
         bool empty() const { return _storage.empty(); }
