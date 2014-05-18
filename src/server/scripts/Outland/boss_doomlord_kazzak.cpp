@@ -182,7 +182,7 @@ class spell_mark_of_kazzak : public SpellScriptLoader
 
         class spell_mark_of_kazzak_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mark_of_kazzak_AuraScript)
+            PrepareAuraScript(spell_mark_of_kazzak_AuraScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {

@@ -441,7 +441,7 @@ class spell_thaddius_pos_neg_charge : public SpellScriptLoader
 
         class spell_thaddius_pos_neg_charge_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_thaddius_pos_neg_charge_SpellScript)
+            PrepareSpellScript(spell_thaddius_pos_neg_charge_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -520,7 +520,7 @@ class spell_thaddius_polarity_shift : public SpellScriptLoader
 
         class spell_thaddius_polarity_shift_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_thaddius_polarity_shift_SpellScript)
+            PrepareSpellScript(spell_thaddius_polarity_shift_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {

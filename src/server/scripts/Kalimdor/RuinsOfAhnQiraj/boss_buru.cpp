@@ -247,7 +247,7 @@ class spell_egg_explosion : public SpellScriptLoader
 
         class spell_egg_explosion_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_egg_explosion_SpellScript)
+            PrepareSpellScript(spell_egg_explosion_SpellScript);
 
             void HandleAfterCast()
             {

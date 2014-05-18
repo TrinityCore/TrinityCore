@@ -97,7 +97,7 @@ class spell_pal_ardent_defender : public SpellScriptLoader
 
         class spell_pal_ardent_defender_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pal_ardent_defender_AuraScript)
+            PrepareAuraScript(spell_pal_ardent_defender_AuraScript);
 
             uint32 absorbPct, healPct;
 
@@ -173,7 +173,7 @@ class spell_pal_aura_mastery : public SpellScriptLoader
 
         class spell_pal_aura_mastery_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pal_aura_mastery_AuraScript)
+            PrepareAuraScript(spell_pal_aura_mastery_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -213,7 +213,7 @@ class spell_pal_aura_mastery_immune : public SpellScriptLoader
 
         class spell_pal_aura_mastery_immune_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pal_aura_mastery_immune_AuraScript)
+            PrepareAuraScript(spell_pal_aura_mastery_immune_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -247,7 +247,7 @@ class spell_pal_avenging_wrath : public SpellScriptLoader
 
         class spell_pal_avenging_wrath_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pal_avenging_wrath_AuraScript)
+            PrepareAuraScript(spell_pal_avenging_wrath_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -293,7 +293,7 @@ class spell_pal_blessing_of_faith : public SpellScriptLoader
 
         class spell_pal_blessing_of_faith_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pal_blessing_of_faith_SpellScript)
+            PrepareSpellScript(spell_pal_blessing_of_faith_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -350,7 +350,7 @@ class spell_pal_blessing_of_sanctuary : public SpellScriptLoader
 
         class spell_pal_blessing_of_sanctuary_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pal_blessing_of_sanctuary_AuraScript)
+            PrepareAuraScript(spell_pal_blessing_of_sanctuary_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -408,7 +408,7 @@ class spell_pal_divine_sacrifice : public SpellScriptLoader
 
         class spell_pal_divine_sacrifice_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pal_divine_sacrifice_AuraScript)
+            PrepareAuraScript(spell_pal_divine_sacrifice_AuraScript);
 
             uint32 groupSize, minHpPct;
             int32 remainingAmount;
@@ -463,7 +463,7 @@ class spell_pal_divine_storm : public SpellScriptLoader
 
         class spell_pal_divine_storm_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pal_divine_storm_SpellScript)
+            PrepareSpellScript(spell_pal_divine_storm_SpellScript);
 
             uint32 healPct;
 
@@ -506,7 +506,7 @@ class spell_pal_divine_storm_dummy : public SpellScriptLoader
 
         class spell_pal_divine_storm_dummy_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pal_divine_storm_dummy_SpellScript)
+            PrepareSpellScript(spell_pal_divine_storm_dummy_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -552,7 +552,7 @@ class spell_pal_exorcism_and_holy_wrath_damage : public SpellScriptLoader
 
         class spell_pal_exorcism_and_holy_wrath_damage_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pal_exorcism_and_holy_wrath_damage_AuraScript)
+            PrepareAuraScript(spell_pal_exorcism_and_holy_wrath_damage_AuraScript);
 
             void HandleEffectCalcSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
             {
@@ -588,7 +588,7 @@ class spell_pal_eye_for_an_eye : public SpellScriptLoader
 
         class spell_pal_eye_for_an_eye_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pal_eye_for_an_eye_AuraScript)
+            PrepareAuraScript(spell_pal_eye_for_an_eye_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -625,7 +625,7 @@ class spell_pal_glyph_of_holy_light : public SpellScriptLoader
 
         class spell_pal_glyph_of_holy_light_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pal_glyph_of_holy_light_SpellScript)
+            PrepareSpellScript(spell_pal_glyph_of_holy_light_SpellScript);
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -658,7 +658,7 @@ class spell_pal_guarded_by_the_light : public SpellScriptLoader
 
         class spell_pal_guarded_by_the_light_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pal_guarded_by_the_light_SpellScript)
+            PrepareSpellScript(spell_pal_guarded_by_the_light_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -694,7 +694,7 @@ class spell_pal_hand_of_sacrifice : public SpellScriptLoader
 
         class spell_pal_hand_of_sacrifice_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pal_hand_of_sacrifice_AuraScript)
+            PrepareAuraScript(spell_pal_hand_of_sacrifice_AuraScript);
 
             int32 remainingAmount;
 
@@ -738,7 +738,7 @@ class spell_pal_hand_of_salvation : public SpellScriptLoader
 
         class spell_pal_hand_of_salvation_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pal_hand_of_salvation_AuraScript)
+            PrepareAuraScript(spell_pal_hand_of_salvation_AuraScript);
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
@@ -771,7 +771,7 @@ class spell_pal_holy_shock : public SpellScriptLoader
 
         class spell_pal_holy_shock_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pal_holy_shock_SpellScript)
+            PrepareSpellScript(spell_pal_holy_shock_SpellScript);
 
             bool Validate(SpellInfo const* spellInfo) override
             {
@@ -849,7 +849,7 @@ class spell_pal_improved_aura : public SpellScriptLoader
 
         class spell_pal_improved_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pal_improved_aura_AuraScript)
+            PrepareAuraScript(spell_pal_improved_aura_AuraScript);
 
         public:
             spell_pal_improved_aura_AuraScript(uint32 spellId) : AuraScript(), _spellId(spellId) { }
@@ -910,7 +910,7 @@ class spell_pal_improved_aura_effect : public SpellScriptLoader
 
         class spell_pal_improved_aura_effect_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pal_improved_aura_effect_AuraScript)
+            PrepareAuraScript(spell_pal_improved_aura_effect_AuraScript);
 
             bool CheckAreaTarget(Unit* target)
             {
@@ -950,7 +950,7 @@ class spell_pal_item_healing_discount : public SpellScriptLoader
 
         class spell_pal_item_healing_discount_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pal_item_healing_discount_AuraScript)
+            PrepareAuraScript(spell_pal_item_healing_discount_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -987,7 +987,7 @@ class spell_pal_judgement : public SpellScriptLoader
 
         class spell_pal_judgement_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pal_judgement_SpellScript)
+            PrepareSpellScript(spell_pal_judgement_SpellScript);
 
         public:
             spell_pal_judgement_SpellScript(uint32 spellId) : SpellScript(), _spellId(spellId) { }
@@ -1046,7 +1046,7 @@ class spell_pal_judgement_of_command : public SpellScriptLoader
 
         class spell_pal_judgement_of_command_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pal_judgement_of_command_SpellScript)
+            PrepareSpellScript(spell_pal_judgement_of_command_SpellScript);
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -1075,7 +1075,7 @@ class spell_pal_lay_on_hands : public SpellScriptLoader
 
         class spell_pal_lay_on_hands_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pal_lay_on_hands_SpellScript)
+            PrepareSpellScript(spell_pal_lay_on_hands_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
@@ -1131,7 +1131,7 @@ class spell_pal_righteous_defense : public SpellScriptLoader
 
         class spell_pal_righteous_defense_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pal_righteous_defense_SpellScript)
+            PrepareSpellScript(spell_pal_righteous_defense_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -1195,7 +1195,7 @@ class spell_pal_sacred_shield : public SpellScriptLoader
 
         class spell_pal_sacred_shield_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pal_sacred_shield_AuraScript)
+            PrepareAuraScript(spell_pal_sacred_shield_AuraScript);
 
             void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
@@ -1239,7 +1239,7 @@ class spell_pal_seal_of_righteousness : public SpellScriptLoader
 
         class spell_pal_seal_of_righteousness_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pal_seal_of_righteousness_AuraScript)
+            PrepareAuraScript(spell_pal_seal_of_righteousness_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

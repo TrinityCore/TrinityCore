@@ -43,7 +43,7 @@ class spell_ex_5581 : public SpellScriptLoader
             // initialize script, this macro does compile time check for type of the function - prevents possible issues
             // if you have assigned wrong type of function to a hook you'll receive type conversion error during build
             // this line is required, otherwise you'll get XXXHandlerFunction - identifier not found errors
-            PrepareSpellScript(spell_ex_5581SpellScript)
+            PrepareSpellScript(spell_ex_5581SpellScript);
 
             std::string localVariable;
             char* localVariable2;
@@ -205,7 +205,7 @@ class spell_ex_66244 : public SpellScriptLoader
 
         class spell_ex_66244AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_ex_66244AuraScript)
+            PrepareAuraScript(spell_ex_66244AuraScript);
             // function called on server startup
             // checks if script has data required for it to work
             bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -364,7 +364,7 @@ class spell_ex_absorb_aura : public SpellScriptLoader
 
         class spell_ex_absorb_auraAuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_ex_absorb_auraAuraScript)
+            PrepareAuraScript(spell_ex_absorb_auraAuraScript);
 
             void HandleOnEffectAbsorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
@@ -400,7 +400,7 @@ class spell_ex_463 : public SpellScriptLoader
 
         class spell_ex_463AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_ex_463AuraScript)
+            PrepareAuraScript(spell_ex_463AuraScript);
 
             bool CheckAreaTarget(Unit* target)
             {
@@ -438,7 +438,7 @@ class spell_ex : public SpellScriptLoader
 
         class spell_ex_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ex_SpellScript)
+            PrepareSpellScript(spell_ex_SpellScript);
 
             //bool Validate(SpellInfo const* spellEntry){return true;} override
             //bool Load(){return true;}

@@ -69,7 +69,7 @@ class spell_warl_banish : public SpellScriptLoader
 
         class spell_warl_banish_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warl_banish_SpellScript)
+            PrepareSpellScript(spell_warl_banish_SpellScript);
 
             bool Load() override
             {
@@ -121,7 +121,7 @@ class spell_warl_create_healthstone : public SpellScriptLoader
 
         class spell_warl_create_healthstone_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warl_create_healthstone_SpellScript)
+            PrepareSpellScript(spell_warl_create_healthstone_SpellScript);
 
             static uint32 const iTypes[8][3];
 
@@ -204,7 +204,7 @@ class spell_warl_curse_of_doom : public SpellScriptLoader
 
         class spell_warl_curse_of_doom_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warl_curse_of_doom_AuraScript)
+            PrepareAuraScript(spell_warl_curse_of_doom_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -251,7 +251,7 @@ class spell_warl_demonic_circle_summon : public SpellScriptLoader
 
         class spell_warl_demonic_circle_summon_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warl_demonic_circle_summon_AuraScript)
+            PrepareAuraScript(spell_warl_demonic_circle_summon_AuraScript);
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
             {
@@ -303,7 +303,7 @@ class spell_warl_demonic_circle_teleport : public SpellScriptLoader
 
         class spell_warl_demonic_circle_teleport_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warl_demonic_circle_teleport_AuraScript)
+            PrepareAuraScript(spell_warl_demonic_circle_teleport_AuraScript);
 
             void HandleTeleport(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -337,7 +337,7 @@ class spell_warl_demonic_empowerment : public SpellScriptLoader
 
         class spell_warl_demonic_empowerment_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warl_demonic_empowerment_SpellScript)
+            PrepareSpellScript(spell_warl_demonic_empowerment_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -401,7 +401,7 @@ class spell_warl_everlasting_affliction : public SpellScriptLoader
 
         class spell_warl_everlasting_affliction_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warl_everlasting_affliction_SpellScript)
+            PrepareSpellScript(spell_warl_everlasting_affliction_SpellScript);
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
@@ -431,7 +431,7 @@ class spell_warl_fel_synergy : public SpellScriptLoader
 
         class spell_warl_fel_synergy_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warl_fel_synergy_AuraScript)
+            PrepareAuraScript(spell_warl_fel_synergy_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -474,7 +474,7 @@ class spell_warl_glyph_of_shadowflame : public SpellScriptLoader
 
         class spell_warl_glyph_of_shadowflame_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warl_glyph_of_shadowflame_AuraScript)
+            PrepareAuraScript(spell_warl_glyph_of_shadowflame_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -509,7 +509,7 @@ class spell_warl_haunt : public SpellScriptLoader
 
         class spell_warl_haunt_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warl_haunt_SpellScript)
+            PrepareSpellScript(spell_warl_haunt_SpellScript);
 
             void HandleOnHit()
             {
@@ -526,7 +526,7 @@ class spell_warl_haunt : public SpellScriptLoader
 
         class spell_warl_haunt_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warl_haunt_AuraScript)
+            PrepareAuraScript(spell_warl_haunt_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -569,7 +569,7 @@ class spell_warl_health_funnel : public SpellScriptLoader
 
         class spell_warl_health_funnel_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warl_health_funnel_AuraScript)
+            PrepareAuraScript(spell_warl_health_funnel_AuraScript);
 
             void ApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -612,7 +612,7 @@ class spell_warl_life_tap : public SpellScriptLoader
 
         class spell_warl_life_tap_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warl_life_tap_SpellScript)
+            PrepareSpellScript(spell_warl_life_tap_SpellScript);
 
             bool Load() override
             {
@@ -684,7 +684,7 @@ class spell_warl_ritual_of_doom_effect : public SpellScriptLoader
 
         class spell_warl_ritual_of_doom_effect_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warl_ritual_of_doom_effect_SpellScript)
+            PrepareSpellScript(spell_warl_ritual_of_doom_effect_SpellScript);
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -712,7 +712,7 @@ class spell_warl_seed_of_corruption : public SpellScriptLoader
 
         class spell_warl_seed_of_corruption_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warl_seed_of_corruption_SpellScript)
+            PrepareSpellScript(spell_warl_seed_of_corruption_SpellScript);
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -740,7 +740,7 @@ class spell_warl_shadow_ward : public SpellScriptLoader
 
         class spell_warl_shadow_ward_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warl_shadow_ward_AuraScript)
+            PrepareAuraScript(spell_warl_shadow_ward_AuraScript);
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
             {
@@ -777,7 +777,7 @@ class spell_warl_siphon_life : public SpellScriptLoader
 
         class spell_warl_siphon_life_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warl_siphon_life_AuraScript)
+            PrepareAuraScript(spell_warl_siphon_life_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -826,7 +826,7 @@ class spell_warl_soulshatter : public SpellScriptLoader
 
         class spell_warl_soulshatter_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warl_soulshatter_SpellScript)
+            PrepareSpellScript(spell_warl_soulshatter_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -865,7 +865,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
 
         class spell_warl_unstable_affliction_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warl_unstable_affliction_AuraScript)
+            PrepareAuraScript(spell_warl_unstable_affliction_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

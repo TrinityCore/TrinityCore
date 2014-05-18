@@ -815,7 +815,7 @@ class spell_impale : public SpellScriptLoader
 
         class spell_impale_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_impale_SpellScript)
+            PrepareSpellScript(spell_impale_SpellScript);
 
             void HandleDamageCalc(SpellEffIndex /*effIndex*/)
             {
@@ -846,7 +846,7 @@ class spell_anubarak_leeching_swarm : public SpellScriptLoader
 
         class spell_anubarak_leeching_swarm_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_anubarak_leeching_swarm_AuraScript)
+            PrepareAuraScript(spell_anubarak_leeching_swarm_AuraScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {

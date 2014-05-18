@@ -215,7 +215,7 @@ class spell_gordunni_trap : public SpellScriptLoader
 
         class spell_gordunni_trap_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gordunni_trap_SpellScript)
+            PrepareSpellScript(spell_gordunni_trap_SpellScript);
 
             void HandleDummy()
             {

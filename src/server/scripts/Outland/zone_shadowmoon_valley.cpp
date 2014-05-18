@@ -1824,7 +1824,7 @@ class spell_unlocking_zuluheds_chains : public SpellScriptLoader
 
         class spell_unlocking_zuluheds_chains_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_unlocking_zuluheds_chains_SpellScript)
+            PrepareSpellScript(spell_unlocking_zuluheds_chains_SpellScript);
 
             void HandleAfterHit()
             {

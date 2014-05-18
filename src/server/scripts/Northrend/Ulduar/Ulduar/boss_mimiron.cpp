@@ -89,7 +89,7 @@ class spell_ulduar_proximity_mines : public SpellScriptLoader
 
         class spell_ulduar_proximity_minesSpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ulduar_proximity_minesSpellScript)
+            PrepareSpellScript(spell_ulduar_proximity_minesSpellScript);
 
             void HandleScript(SpellEffIndex effIndex)
             {

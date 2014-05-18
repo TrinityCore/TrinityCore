@@ -126,7 +126,7 @@ class spell_ticking_time_bomb : public SpellScriptLoader
 
         class spell_ticking_time_bomb_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_ticking_time_bomb_AuraScript)
+            PrepareAuraScript(spell_ticking_time_bomb_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -165,7 +165,7 @@ class spell_fixate : public SpellScriptLoader
 
         class spell_fixate_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_fixate_SpellScript)
+            PrepareSpellScript(spell_fixate_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {

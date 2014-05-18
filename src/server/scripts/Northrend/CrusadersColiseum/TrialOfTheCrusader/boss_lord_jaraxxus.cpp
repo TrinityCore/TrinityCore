@@ -495,7 +495,7 @@ class spell_mistress_kiss : public SpellScriptLoader
 
         class spell_mistress_kiss_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mistress_kiss_AuraScript)
+            PrepareAuraScript(spell_mistress_kiss_AuraScript);
 
             bool Load() override
             {
@@ -553,7 +553,7 @@ class spell_mistress_kiss_area : public SpellScriptLoader
 
         class spell_mistress_kiss_area_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mistress_kiss_area_SpellScript)
+            PrepareSpellScript(spell_mistress_kiss_area_SpellScript);
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
