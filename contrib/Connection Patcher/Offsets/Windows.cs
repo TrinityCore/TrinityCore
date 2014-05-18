@@ -25,6 +25,7 @@ namespace Connection_Patcher.Offsets
             public static readonly long Send = 0x889CA;
             public static readonly long Recv = 0x86EEE;
             public static readonly long Signature = 0x20B79;
+            public static readonly long RealmList = 0x228D6C;
         }
 
         public static class x64
@@ -33,6 +34,7 @@ namespace Connection_Patcher.Offsets
             public static readonly long Send = 0xAAB6B;
             public static readonly long Recv = 0xA9FA3;
             public static readonly long Signature = 0;
+            public static readonly long RealmList = 0x2BB33C;
         }
     }
 }
