@@ -91,6 +91,7 @@ char const OverrideSpellDatafmt[] = "niiiiiiiiiix";
 char const QuestFactionRewardfmt[] = "niiiiiiiiii";
 char const QuestSortEntryfmt[] = "nxxxxxxxxxxxxxxxxx";
 char const QuestXPfmt[] = "niiiiiiiiii";
+char const PowerDisplayfmt[] = "nixxxx";
 char const PvPDifficultyfmt[] = "diiiii";
 char const RandomPropertiesPointsfmt[] = "niiiiiiiiiiiiiii";
 char const ScalingStatDistributionfmt[] = "niiiiiiiiiiiiiiiiiiiii";
