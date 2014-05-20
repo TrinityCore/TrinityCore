@@ -143,7 +143,7 @@ class TW_spell_gen_well_fed_pilgrims_bounty : public SpellScriptLoader
 
         class TW_spell_gen_well_fed_pilgrims_bounty_SpellScript : public SpellScript
         {
-            PrepareSpellScript(TW_spell_gen_well_fed_pilgrims_bounty_SpellScript)
+            PrepareSpellScript(TW_spell_gen_well_fed_pilgrims_bounty_SpellScript);
         private:
             uint32 _triggeredSpellId1;
             uint32 _triggeredSpellId2;
@@ -228,7 +228,7 @@ class TW_spell_gen_on_plate_pilgrims_bounty : public SpellScriptLoader
 
         class TW_spell_gen_on_plate_pilgrims_bounty_SpellScript : public SpellScript
         {
-            PrepareSpellScript(TW_spell_gen_on_plate_pilgrims_bounty_SpellScript)
+            PrepareSpellScript(TW_spell_gen_on_plate_pilgrims_bounty_SpellScript);
         private:
             uint32 _triggeredSpellId1;
             uint32 _triggeredSpellId2;
@@ -331,7 +331,7 @@ class TW_spell_pilgrims_bounty_buff_food : public SpellScriptLoader
 
         class TW_spell_pilgrims_bounty_buff_food_AuraScript : public AuraScript
         {
-            PrepareAuraScript(TW_spell_pilgrims_bounty_buff_food_AuraScript)
+            PrepareAuraScript(TW_spell_pilgrims_bounty_buff_food_AuraScript);
         private:
             uint32 _triggeredSpellId;
 
