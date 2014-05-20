@@ -344,7 +344,7 @@ class npc_zulian_prowler : public CreatureScript
                 DoCast(me, SPELL_SNEAK_RANK_1_1);
                 DoCast(me, SPELL_SNEAK_RANK_1_2);
 
-                if (Unit* arlokk = me->GetUnit(*me, _instance->GetData64(NPC_ARLOKK)))
+                if (Unit* arlokk = ObjectAccessor::GetUnit(*me, _instance->GetData64(NPC_ARLOKK)))
                     me->GetMotionMaster()->MovePoint(0, arlokk->GetPositionX(), arlokk->GetPositionY(), arlokk->GetPositionZ());
                 _events.ScheduleEvent(EVENT_ATTACK, 6000);
             }

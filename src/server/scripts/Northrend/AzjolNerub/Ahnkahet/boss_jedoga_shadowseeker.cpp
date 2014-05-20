@@ -212,7 +212,7 @@ public:
             }
             else
             {
-                if (Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_PL_JEDOGA_TARGET)))
+                if (Unit* target = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_PL_JEDOGA_TARGET)))
                 {
                     AttackStart(target);
                     instance->SetData(DATA_JEDOGA_RESET_INITIANDS, 0);

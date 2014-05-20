@@ -229,7 +229,7 @@ class boss_zuljin : public CreatureScript
                 Talk(YELL_DEATH);
                 Summons.DespawnEntry(CREATURE_COLUMN_OF_FIRE);
 
-                if (Unit* Temp = Unit::GetUnit(*me, SpiritGUID[3]))
+                if (Unit* Temp = ObjectAccessor::GetUnit(*me, SpiritGUID[3]))
                     Temp->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
             }
 
@@ -284,7 +284,7 @@ class boss_zuljin : public CreatureScript
                 {
                     if (SpiritGUID[i])
                     {
-                        if (Unit* temp = Unit::GetUnit(*me, SpiritGUID[i]))
+                        if (Unit* temp = ObjectAccessor::GetUnit(*me, SpiritGUID[i]))
                         {
                             temp->SetVisible(false);
                             temp->setDeathState(DEAD);
@@ -322,10 +322,10 @@ class boss_zuljin : public CreatureScript
                     Talk(Transform[Phase].text);
                     if (Phase > 0)
                     {
-                        if (Unit* Temp = Unit::GetUnit(*me, SpiritGUID[Phase - 1]))
+                        if (Unit* Temp = ObjectAccessor::GetUnit(*me, SpiritGUID[Phase - 1]))
                             Temp->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
                     }
-                    if (Unit* Temp = Unit::GetUnit(*me, SpiritGUID[NextPhase - 1]))
+                    if (Unit* Temp = ObjectAccessor::GetUnit(*me, SpiritGUID[NextPhase - 1]))
                         Temp->CastSpell(me, SPELL_SIPHON_SOUL, false); // should m cast on temp
                     if (NextPhase == 2)
                     {
@@ -442,7 +442,7 @@ class boss_zuljin : public CreatureScript
                             if (Claw_Loop_Timer <= diff)
                             {
                                 Unit* target = me->GetVictim();
-                                if (!target || !target->isTargetableForAttack()) target = Unit::GetUnit(*me, TankGUID);
+                                if (!target || !target->isTargetableForAttack()) target = ObjectAccessor::GetUnit(*me, TankGUID);
                                 if (!target || !target->isTargetableForAttack()) target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                                 if (target)
                                 {
@@ -455,7 +455,7 @@ class boss_zuljin : public CreatureScript
                                         {
                                             Claw_Rage_Timer = urand(15000, 20000);
                                             me->SetSpeed(MOVE_RUN, 1.2f);
-                                            AttackStart(Unit::GetUnit(*me, TankGUID));
+                                            AttackStart(ObjectAccessor::GetUnit(*me, TankGUID));
                                             TankGUID = 0;
                                             return;
                                         }
@@ -503,7 +503,7 @@ class boss_zuljin : public CreatureScript
                                     {
                                         Lynx_Rush_Timer = urand(15000, 20000);
                                         me->SetSpeed(MOVE_RUN, 1.2f);
-                                        AttackStart(Unit::GetUnit(*me, TankGUID));
+                                        AttackStart(ObjectAccessor::GetUnit(*me, TankGUID));
                                         TankGUID = 0;
                                     }
                                     else

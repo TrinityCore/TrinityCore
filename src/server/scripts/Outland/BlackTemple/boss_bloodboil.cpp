@@ -150,7 +150,7 @@ public:
             std::list<HostileReference*>::const_iterator itr = m_threatlist.begin();
             for (; itr!= m_threatlist.end(); ++itr)             //store the threat list in a different container
             {
-                Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
                                                                 //only on alive players
                 if (target && target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
                     targets.push_back(target);
@@ -184,7 +184,7 @@ public:
 
         void RevertThreatOnTarget(uint64 guid)
         {
-            if (Unit* unit = Unit::GetUnit(*me, guid))
+            if (Unit* unit = ObjectAccessor::GetUnit(*me, guid))
             {
                 if (DoGetThreat(unit))
                     DoModifyThreatPercent(unit, -100);

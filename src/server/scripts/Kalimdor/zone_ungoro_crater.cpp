@@ -270,7 +270,7 @@ public:
                 {
                     if (EndEventTimer <= Diff)
                     {
-                        Creature* spraggle = Creature::GetCreature(*me, SpraggleGUID);
+                        Creature* spraggle = ObjectAccessor::GetCreature(*me, SpraggleGUID);
                         if (!spraggle || !spraggle->IsAlive())
                         {
                             SetFollowComplete();

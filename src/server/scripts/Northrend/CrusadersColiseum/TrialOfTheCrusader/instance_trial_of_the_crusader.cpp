@@ -95,7 +95,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 // make sure Anub'arak isnt missing and floor is destroyed after a crash
                 if (GetBossState(BOSS_LICH_KING) == DONE && TrialCounter && GetBossState(BOSS_ANUBARAK) != DONE)
                 {
-                    Creature* anubArak = Unit::GetCreature(*player, GetData64(NPC_ANUBARAK));
+                    Creature* anubArak = ObjectAccessor::GetCreature(*player, GetData64(NPC_ANUBARAK));
                     if (!anubArak)
                         anubArak = player->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
 

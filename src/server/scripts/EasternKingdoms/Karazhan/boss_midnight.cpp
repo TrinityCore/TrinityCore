@@ -101,7 +101,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
-            if (Unit* midnight = Unit::GetUnit(*me, Midnight))
+            if (Unit* midnight = ObjectAccessor::GetUnit(*me, Midnight))
                 midnight->Kill(midnight);
         }
 
@@ -149,7 +149,7 @@ public:
         {
             if (Phase == 2)
             {
-                if (Unit* unit = Unit::GetUnit(*me, Attumen))
+                if (Unit* unit = ObjectAccessor::GetUnit(*me, Attumen))
                     Talk(SAY_MIDNIGHT_KILL, unit);
             }
         }
@@ -172,7 +172,7 @@ public:
             }
             else if (Phase == 2 && HealthBelowPct(25))
             {
-                if (Unit* pAttumen = Unit::GetUnit(*me, Attumen))
+                if (Unit* pAttumen = ObjectAccessor::GetUnit(*me, Attumen))
                     Mount(pAttumen);
             }
             else if (Phase == 3)
@@ -184,7 +184,7 @@ public:
                         Mount_Timer = 0;
                         me->SetVisible(false);
                         me->GetMotionMaster()->MoveIdle();
-                        if (Unit* pAttumen = Unit::GetUnit(*me, Attumen))
+                        if (Unit* pAttumen = ObjectAccessor::GetUnit(*me, Attumen))
                         {
                             pAttumen->SetDisplayId(MOUNTED_DISPLAYID);
                             pAttumen->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -242,7 +242,7 @@ void boss_attumen::boss_attumenAI::UpdateAI(uint32 diff)
         if (ResetTimer <= diff)
         {
             ResetTimer = 0;
-            Unit* pMidnight = Unit::GetUnit(*me, Midnight);
+            Unit* pMidnight = ObjectAccessor::GetUnit(*me, Midnight);
             if (pMidnight)
             {
                 pMidnight->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -288,7 +288,7 @@ void boss_attumen::boss_attumenAI::UpdateAI(uint32 diff)
             std::vector<Unit*> target_list;
             for (ThreatContainer::StorageType::const_iterator itr = t_list.begin(); itr != t_list.end(); ++itr)
             {
-                target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
                 if (target && !target->IsWithinDist(me, ATTACK_DISTANCE, false))
                     target_list.push_back(target);
                 target = NULL;
@@ -304,7 +304,7 @@ void boss_attumen::boss_attumenAI::UpdateAI(uint32 diff)
     {
         if (HealthBelowPct(25))
         {
-            Creature* pMidnight = Unit::GetCreature(*me, Midnight);
+            Creature* pMidnight = ObjectAccessor::GetCreature(*me, Midnight);
             if (pMidnight && pMidnight->GetTypeId() == TYPEID_UNIT)
             {
                 CAST_AI(boss_midnight::boss_midnightAI, (pMidnight->AI()))->Mount(me);

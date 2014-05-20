@@ -158,9 +158,9 @@ public:
         {
             for (int i=0; i<3; ++i)
             {
-                if (Creature* portal = Unit::GetCreature(*me, PortalGUID[i]))
+                if (Creature* portal = ObjectAccessor::GetCreature(*me, PortalGUID[i]))
                     portal->DisappearAndDie();
-                if (Creature* portal = Unit::GetCreature(*me, BeamerGUID[i]))
+                if (Creature* portal = ObjectAccessor::GetCreature(*me, BeamerGUID[i]))
                     portal->DisappearAndDie();
                 PortalGUID[i] = 0;
                 BeamTarget[i] = 0;
@@ -170,10 +170,10 @@ public:
         void UpdatePortals() // Here we handle the beams' behavior
         {
             for (int j=0; j<3; ++j) // j = color
-                if (Creature* portal = Unit::GetCreature(*me, PortalGUID[j]))
+                if (Creature* portal = ObjectAccessor::GetCreature(*me, PortalGUID[j]))
                 {
                     // the one who's been cast upon before
-                    Unit* current = Unit::GetUnit(*portal, BeamTarget[j]);
+                    Unit* current = ObjectAccessor::GetUnit(*portal, BeamTarget[j]);
                     // temporary store for the best suitable beam reciever
                     Unit* target = me;
 
@@ -205,7 +205,7 @@ public:
                     {
                         BeamTarget[j] = target->GetGUID();
                         // remove currently beaming portal
-                        if (Creature* beamer = Unit::GetCreature(*portal, BeamerGUID[j]))
+                        if (Creature* beamer = ObjectAccessor::GetCreature(*portal, BeamerGUID[j]))
                         {
                             beamer->CastSpell(target, PortalBeam[j], false);
                             beamer->DisappearAndDie();

@@ -82,7 +82,7 @@ public:
             // check if creature is not outside of building
             if (resetTimer < diff)
             {
-                if (Creature* pBalinda = Unit::GetCreature(*me, balindaGUID))
+                if (Creature* pBalinda = ObjectAccessor::GetCreature(*me, balindaGUID))
                     if (me->GetDistance2d(pBalinda->GetHomePosition().GetPositionX(), pBalinda->GetHomePosition().GetPositionY()) > 50)
                         EnterEvadeMode();
                 resetTimer = 5 * IN_MILLISECONDS;

@@ -145,7 +145,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
             {
                 for (std::vector<uint64>::const_iterator itr = adds.begin(); itr!= adds.end(); ++itr)
                 {
-                    Creature* creature = Unit::GetCreature(*me, *itr);
+                    Creature* creature = ObjectAccessor::GetCreature(*me, *itr);
                     if (creature && creature->IsAlive())
                     {
                         creature->GetMotionMaster()->Clear(true);
@@ -157,7 +157,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
 
                 for (std::vector<uint64>::const_iterator itr = assassins.begin(); itr!= assassins.end(); ++itr)
                 {
-                    Creature* creature = Unit::GetCreature(*me, *itr);
+                    Creature* creature = ObjectAccessor::GetCreature(*me, *itr);
                     if (creature && creature->IsAlive())
                     {
                         creature->GetMotionMaster()->Clear(true);

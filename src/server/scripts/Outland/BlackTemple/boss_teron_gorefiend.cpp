@@ -95,7 +95,7 @@ public:
                 {
                     DoZoneInCombat();
 
-                    Creature* Teron = (Unit::GetCreature((*me), TeronGUID));
+                    Creature* Teron = (ObjectAccessor::GetCreature((*me), TeronGUID));
                     if ((Teron) && (!Teron->IsAlive() || Teron->IsInEvadeMode()))
                         Despawn();
                 }
@@ -177,7 +177,7 @@ public:
             std::list<Unit*> targets;
             for (; itr != threatlist.end(); ++itr)
             {
-                Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
                 if (unit && unit->IsAlive())
                     targets.push_back(unit);
             }
@@ -200,7 +200,7 @@ public:
 
             if (CheckTeronTimer <= diff)
             {
-                Creature* Teron = (Unit::GetCreature((*me), TeronGUID));
+                Creature* Teron = (ObjectAccessor::GetCreature((*me), TeronGUID));
                 if (!Teron || !Teron->IsAlive() || Teron->IsInEvadeMode())
                     me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 
@@ -324,7 +324,7 @@ public:
             ThreatContainer::StorageType::const_iterator i = threatlist.begin();
             for (i = threatlist.begin(); i != threatlist.end(); ++i)
             {
-                Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
+                Unit* unit = ObjectAccessor::GetUnit(*me, (*i)->getUnitGuid());
                 if (unit && unit->IsAlive())
                 {
                     float threat = DoGetThreat(unit);
@@ -344,7 +344,7 @@ public:
 
             Unit* ghost = NULL;
             if (GhostGUID)
-                ghost = Unit::GetUnit(*me, GhostGUID);
+                ghost = ObjectAccessor::GetUnit(*me, GhostGUID);
             if (ghost && ghost->IsAlive() && ghost->HasAura(SPELL_SHADOW_OF_DEATH))
             {
                 /*float x, y, z;
@@ -391,7 +391,7 @@ public:
                     Done = true;
                     if (AggroTargetGUID)
                     {
-                        Unit* unit = Unit::GetUnit(*me, AggroTargetGUID);
+                        Unit* unit = ObjectAccessor::GetUnit(*me, AggroTargetGUID);
                         if (unit)
                             AttackStart(unit);
 

@@ -84,7 +84,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             //Any other Actions to do with vorrel? setStandState?
-            if (Creature* vorrel = Creature::GetCreature(*me, instance->GetData64(DATA_VORREL)))
+            if (Creature* vorrel = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VORREL)))
                 vorrel->AI()->Talk(SAY_TRIGGER_VORREL);
         }
 

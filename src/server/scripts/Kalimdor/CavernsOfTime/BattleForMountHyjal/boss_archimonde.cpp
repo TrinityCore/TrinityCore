@@ -118,7 +118,7 @@ public:
         {
             if (CheckTimer <= diff)
             {
-                if (Unit* Archimonde = Unit::GetUnit(*me, ArchimondeGUID))
+                if (Unit* Archimonde = ObjectAccessor::GetUnit(*me, ArchimondeGUID))
                 {
                     if (Archimonde->HealthBelowPct(2) || !Archimonde->IsAlive())
                         DoCast(me, SPELL_DENOUEMENT_WISP);
@@ -205,7 +205,7 @@ public:
         {
             if (ChangeTargetTimer <= diff)
             {
-                if (Unit* temp = Unit::GetUnit(*me, TargetGUID))
+                if (Unit* temp = ObjectAccessor::GetUnit(*me, TargetGUID))
                 {
                     me->GetMotionMaster()->MoveFollow(temp, 0.0f, 0.0f);
                     TargetGUID = 0;
@@ -364,7 +364,7 @@ public:
             ThreatContainer::StorageType::const_iterator itr = threatlist.begin();
             for (; itr != threatlist.end(); ++itr)
             {
-                Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
                 if (unit && unit->IsAlive())
                     targets.push_back(unit);
             }
@@ -406,7 +406,7 @@ public:
                 summoned->CastSpell(summoned, SPELL_DOOMFIRE_SPAWN, false);
                 summoned->CastSpell(summoned, SPELL_DOOMFIRE, true, 0, 0, me->GetGUID());
 
-                if (Unit* DoomfireSpirit = Unit::GetUnit(*me, DoomfireSpiritGUID))
+                if (Unit* DoomfireSpirit = ObjectAccessor::GetUnit(*me, DoomfireSpiritGUID))
                 {
                     summoned->GetMotionMaster()->MoveFollow(DoomfireSpirit, 0.0f, 0.0f);
                     DoomfireSpiritGUID = 0;
@@ -487,7 +487,7 @@ public:
                         if (temp)
                             WorldTreeGUID = temp->GetGUID();
 
-                        if (Unit* Nordrassil = Unit::GetUnit(*me, WorldTreeGUID))
+                        if (Unit* Nordrassil = ObjectAccessor::GetUnit(*me, WorldTreeGUID))
                         {
                             Nordrassil->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             Nordrassil->SetDisplayId(11686);
@@ -496,7 +496,7 @@ public:
                         }
                     }
 
-                    if (Unit* Nordrassil = Unit::GetUnit(*me, WorldTreeGUID))
+                    if (Unit* Nordrassil = ObjectAccessor::GetUnit(*me, WorldTreeGUID))
                     {
                         Nordrassil->CastSpell(me, SPELL_DRAIN_WORLD_TREE_2, true);
                         DrainNordrassilTimer = 1000;
