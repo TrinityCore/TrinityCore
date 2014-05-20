@@ -211,7 +211,7 @@ public:
             // Check if all summons in this phase killed
             for (SummonList::const_iterator iter = Summons.begin(); iter != Summons.end(); ++iter)
             {
-                if (Creature* visage = Unit::GetCreature(*me, *iter))
+                if (Creature* visage = ObjectAccessor::GetCreature(*me, *iter))
                 {
                     // Not all are dead
                     if (phase == visage->GetPhaseMask())

@@ -2021,12 +2021,12 @@ class at_hor_waves_restarter : public AreaTriggerScript
             {
                 _instance->ProcessEvent(0, EVENT_SPAWN_WAVES);
 
-                if (Creature* falric = player->GetCreature(*player, _instance->GetData64(DATA_FALRIC)))
+                if (Creature* falric = ObjectAccessor::GetCreature(*player, _instance->GetData64(DATA_FALRIC)))
                 {
                     falric->CastSpell(falric, SPELL_BOSS_SPAWN_AURA, true);
                     falric->SetVisible(true);
                 }
-                if (Creature* marwyn = player->GetCreature(*player, _instance->GetData64(DATA_MARWYN)))
+                if (Creature* marwyn = ObjectAccessor::GetCreature(*player, _instance->GetData64(DATA_MARWYN)))
                 {
                     marwyn->CastSpell(marwyn, SPELL_BOSS_SPAWN_AURA, true);
                     marwyn->SetVisible(true);

@@ -956,7 +956,7 @@ public:
                     ThreatContainer::StorageType const &threatlist = me->getThreatManager().getThreatList();
                     for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                     {
-                        Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                        Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
                         if (unit)
                             pPortal->AddThreat(unit, 1.0f);
                     }

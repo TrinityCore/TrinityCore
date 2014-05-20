@@ -234,7 +234,7 @@ class boss_kologarn : public CreatureScript
                 // Victim gets 67351
                 if (eyebeamTarget)
                 {
-                    if (Unit* target = Unit::GetUnit(*summon, eyebeamTarget))
+                    if (Unit* target = ObjectAccessor::GetUnit(*summon, eyebeamTarget))
                     {
                         summon->Attack(target, false);
                         summon->GetMotionMaster()->MoveChase(target);

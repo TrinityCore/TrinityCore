@@ -130,7 +130,7 @@ public:
         {
             if (summoned->GetEntry() == ENTRY_HIGHBORNE_BUNNY)
             {
-                if (Creature* target = Unit::GetCreature(*summoned, targetGUID))
+                if (Creature* target = ObjectAccessor::GetCreature(*summoned, targetGUID))
                 {
                     target->MonsterMoveWithSpeed(target->GetPositionX(), target->GetPositionY(), me->GetPositionZ()+15.0f, 0);
                     target->SetPosition(target->GetPositionX(), target->GetPositionY(), me->GetPositionZ()+15.0f, 0.0f);

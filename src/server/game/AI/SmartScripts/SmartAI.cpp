@@ -437,7 +437,7 @@ void SmartAI::EnterEvadeMode()
     }
     else if (mFollowGuid)
     {
-        if (Unit* target = me->GetUnit(*me, mFollowGuid))
+        if (Unit* target = ObjectAccessor::GetUnit(*me, mFollowGuid))
             me->GetMotionMaster()->MoveFollow(target, mFollowDist, mFollowAngle);
 
         // evade is not cleared in MoveFollow, so we can't keep it

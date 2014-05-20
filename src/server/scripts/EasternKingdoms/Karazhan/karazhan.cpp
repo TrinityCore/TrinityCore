@@ -286,7 +286,7 @@ public:
                 {
                     if (TalkCount > 3)
                     {
-                        if (Creature* pSpotlight = Unit::GetCreature(*me, m_uiSpotlightGUID))
+                        if (Creature* pSpotlight = ObjectAccessor::GetCreature(*me, m_uiSpotlightGUID))
                             pSpotlight->DespawnOrUnsummon();
 
                         SetEscortPaused(false);
@@ -539,7 +539,7 @@ public:
 
         uint32 NextStep(uint32 Step)
         {
-            Creature* arca = Unit::GetCreature(*me, ArcanagosGUID);
+            Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID);
             Map* map = me->GetMap();
             switch (Step)
             {
@@ -630,7 +630,7 @@ public:
 
             if (Step >= 7 && Step <= 12)
             {
-                Unit* arca = Unit::GetUnit(*me, ArcanagosGUID);
+                Unit* arca = ObjectAccessor::GetUnit(*me, ArcanagosGUID);
 
                 if (FireArcanagosTimer <= diff)
                 {

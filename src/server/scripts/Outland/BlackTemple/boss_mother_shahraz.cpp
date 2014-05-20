@@ -245,7 +245,7 @@ public:
                     {
                         if (TargetGUID[i])
                         {
-                            if (Unit* unit = Unit::GetUnit(*me, TargetGUID[i]))
+                            if (Unit* unit = ObjectAccessor::GetUnit(*me, TargetGUID[i]))
                                 unit->CastSpell(unit, SPELL_ATTRACTION, true);
                             TargetGUID[i] = 0;
                         }

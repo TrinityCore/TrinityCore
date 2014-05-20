@@ -304,13 +304,13 @@ class boss_akilzon : public CreatureScript
                             break;
                         case EVENT_STORM_SEQUENCE:
                             {
-                                Unit* target = Unit::GetUnit(*me, CloudGUID);
+                                Unit* target = ObjectAccessor::GetUnit(*me, CloudGUID);
                                 if (!target || !target->IsAlive())
                                 {
                                     EnterEvadeMode();
                                     return;
                                 }
-                                else if (Unit* Cyclone = Unit::GetUnit(*me, CycloneGUID))
+                                else if (Unit* Cyclone = ObjectAccessor::GetUnit(*me, CycloneGUID))
                                     Cyclone->CastSpell(target, SPELL_SAND_STORM, true); // keep casting or...
                                 HandleStormSequence(target);
                                 break;
@@ -323,7 +323,7 @@ class boss_akilzon : public CreatureScript
 
                             for (uint8 i = 0; i < 8; ++i)
                             {
-                                Unit* bird = Unit::GetUnit(*me, BirdGUIDs[i]);
+                                Unit* bird = ObjectAccessor::GetUnit(*me, BirdGUIDs[i]);
                                 if (!bird) //they despawned on die
                                 {
                                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -406,7 +406,7 @@ class npc_akilzon_eagle : public CreatureScript
                 arrived = true;
                 if (TargetGUID)
                 {
-                    if (Unit* target = Unit::GetUnit(*me, TargetGUID))
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, TargetGUID))
                         DoCast(target, SPELL_EAGLE_SWOOP, true);
                     TargetGUID = 0;
                     me->SetSpeed(MOVE_RUN, 1.2f);

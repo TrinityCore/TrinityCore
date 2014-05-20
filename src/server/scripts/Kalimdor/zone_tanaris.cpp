@@ -584,7 +584,7 @@ public:
                     {
                         PostEventTimer = 5000;
 
-                        Creature* torta = Creature::GetCreature(*me, TortaGUID);
+                        Creature* torta = ObjectAccessor::GetCreature(*me, TortaGUID);
                         if (!torta || !torta->IsAlive())
                         {
                             //something happened, so just complete
