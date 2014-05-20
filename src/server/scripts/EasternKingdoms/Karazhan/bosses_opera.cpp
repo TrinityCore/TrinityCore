@@ -109,7 +109,7 @@ void SummonCroneIfReady(InstanceScript* instance, Creature* creature)
                 pCrone->AI()->AttackStart(creature->GetVictim());
         }
     }
-};
+}
 
 class boss_dorothee : public CreatureScript
 {

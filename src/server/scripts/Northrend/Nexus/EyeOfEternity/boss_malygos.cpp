@@ -1810,7 +1810,7 @@ public:
 
     class spell_malygos_vortex_dummy_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_malygos_vortex_dummy_SpellScript)
+        PrepareSpellScript(spell_malygos_vortex_dummy_SpellScript);
 
         bool Load() override
         {
@@ -2282,7 +2282,7 @@ class spell_malygos_surge_of_power_warning_selector_25 : public SpellScriptLoade
 
         class spell_malygos_surge_of_power_warning_selector_25_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_malygos_surge_of_power_warning_selector_25_SpellScript)
+            PrepareSpellScript(spell_malygos_surge_of_power_warning_selector_25_SpellScript);
 
             bool Load() override
             {
@@ -2348,7 +2348,7 @@ class spell_malygos_surge_of_power_25 : public SpellScriptLoader
 
         class spell_malygos_surge_of_power_25_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_malygos_surge_of_power_25_SpellScript)
+            PrepareSpellScript(spell_malygos_surge_of_power_25_SpellScript);
 
             bool Load() override
             {
