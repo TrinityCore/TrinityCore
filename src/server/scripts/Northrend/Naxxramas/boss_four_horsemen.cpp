@@ -138,10 +138,10 @@ public:
 
         bool DoEncounteraction(Unit* who, bool attack, bool reset, bool checkAllDead)
         {
-            Creature* Thane = Unit::GetCreature(*me, instance->GetData64(DATA_THANE));
-            Creature* Lady = Unit::GetCreature(*me, instance->GetData64(DATA_LADY));
-            Creature* Baron = Unit::GetCreature(*me, instance->GetData64(DATA_BARON));
-            Creature* Sir = Unit::GetCreature(*me, instance->GetData64(DATA_SIR));
+            Creature* Thane = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_THANE));
+            Creature* Lady = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LADY));
+            Creature* Baron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BARON));
+            Creature* Sir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SIR));
 
             if (Thane && Lady && Baron && Sir)
             {
@@ -226,7 +226,7 @@ public:
                 movementCompleted = true;
                 me->SetReactState(REACT_AGGRESSIVE);
 
-                Unit* eventStarter = Unit::GetUnit(*me, uiEventStarterGUID);
+                Unit* eventStarter = ObjectAccessor::GetUnit(*me, uiEventStarterGUID);
 
                 if (eventStarter && me->IsValidAttackTarget(eventStarter))
                     AttackStart(eventStarter);

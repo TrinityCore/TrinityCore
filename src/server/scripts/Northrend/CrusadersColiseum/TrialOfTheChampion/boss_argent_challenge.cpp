@@ -292,7 +292,7 @@ public:
             bHealth = false;
             bDone = false;
 
-            if (Creature* pMemory = Unit::GetCreature(*me, MemoryGUID))
+            if (Creature* pMemory = ObjectAccessor::GetCreature(*me, MemoryGUID))
                 if (pMemory->IsAlive())
                     pMemory->RemoveFromWorld();
         }
@@ -373,7 +373,7 @@ public:
                             DoCast(me, SPELL_RENEW);
                             break;
                         case 1:
-                            if (Creature* pMemory = Unit::GetCreature(*me, MemoryGUID))
+                            if (Creature* pMemory = ObjectAccessor::GetCreature(*me, MemoryGUID))
                                 if (pMemory->IsAlive())
                                     DoCast(pMemory, SPELL_RENEW);
                             break;

@@ -307,7 +307,7 @@ public:
                             break;
                         case 4:
                         {
-                            Creature* temp = Unit::GetCreature(*me, valrothGUID);
+                            Creature* temp = ObjectAccessor::GetCreature(*me, valrothGUID);
 
                             if (!temp || !temp->IsAlive())
                             {

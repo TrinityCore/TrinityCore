@@ -207,7 +207,7 @@ public:
             {
                 if (ShieldGeneratorChannel[i])
                 {
-                    if (Unit* remo = Unit::GetUnit(*me, ShieldGeneratorChannel[i]))
+                    if (Unit* remo = ObjectAccessor::GetUnit(*me, ShieldGeneratorChannel[i]))
                     {
                         remo->setDeathState(JUST_DIED);
                         ShieldGeneratorChannel[i] = 0;
@@ -431,7 +431,7 @@ public:
                     std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
                     for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                     {
-                        Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                        Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
                         if (target && target->IsWithinDistInMap(me, 5)) // if in melee range
                         {
                             inMeleeRange = true;
@@ -620,7 +620,7 @@ public:
                     if (me->IsWithinDist3d(MIDDLE_X, MIDDLE_Y, MIDDLE_Z, 3))
                         DoCast(me, SPELL_SURGE);
                 }
-                if (Creature* vashj = Unit::GetCreature(*me, VashjGUID))
+                if (Creature* vashj = ObjectAccessor::GetCreature(*me, VashjGUID))
                     if (!vashj->IsInCombat() || CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->Phase != 2 || vashj->isDead())
                         me->Kill(me);
                 Move = 1000;
@@ -662,7 +662,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* vashj = Unit::GetCreature((*me), instance->GetData64(DATA_LADYVASHJ)))
+            if (Creature* vashj = ObjectAccessor::GetCreature((*me), instance->GetData64(DATA_LADYVASHJ)))
                 CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->EventTaintedElementalDeath();
         }
 
@@ -778,7 +778,7 @@ public:
             if (CheckTimer <= diff)
             {
                 // check if vashj is death
-                Unit* Vashj = Unit::GetUnit(*me, instance->GetData64(DATA_LADYVASHJ));
+                Unit* Vashj = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_LADYVASHJ));
                 if (!Vashj || !Vashj->IsAlive() || CAST_AI(boss_lady_vashj::boss_lady_vashjAI, Vashj->ToCreature()->AI())->Phase != 3)
                 {
                     // remove
@@ -833,7 +833,7 @@ public:
         {
             if (CheckTimer <= diff)
             {
-                Unit* vashj = Unit::GetUnit(*me, instance->GetData64(DATA_LADYVASHJ));
+                Unit* vashj = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_LADYVASHJ));
 
                 if (vashj && vashj->IsAlive())
                 {
@@ -865,7 +865,7 @@ public:
             return true;
         }
 
-        Creature* vashj = Unit::GetCreature((*player), instance->GetData64(DATA_LADYVASHJ));
+        Creature* vashj = ObjectAccessor::GetCreature((*player), instance->GetData64(DATA_LADYVASHJ));
         if (vashj && (CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->Phase == 2))
         {
             if (GameObject* gObj = targets.GetGOTarget())
@@ -901,7 +901,7 @@ public:
                 }
 
                 // get and remove channel
-                if (Unit* channel = Unit::GetCreature(*vashj, CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->ShieldGeneratorChannel[channelIdentifier]))
+                if (Unit* channel = ObjectAccessor::GetCreature(*vashj, CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->ShieldGeneratorChannel[channelIdentifier]))
                     channel->setDeathState(JUST_DIED); // call Unsummon()
 
                 instance->SetData(identifier, 1);

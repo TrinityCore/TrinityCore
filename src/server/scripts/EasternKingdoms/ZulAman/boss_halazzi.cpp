@@ -152,7 +152,7 @@ class boss_halazzi : public CreatureScript
                         me->Attack(me->GetVictim(), true);
                         me->GetMotionMaster()->MoveChase(me->GetVictim());
                     }
-                    if (Creature* Lynx = Unit::GetCreature(*me, LynxGUID))
+                    if (Creature* Lynx = ObjectAccessor::GetCreature(*me, LynxGUID))
                         Lynx->DisappearAndDie();
                     me->SetMaxHealth(600000);
                     me->SetHealth(600000 - 150000 * TransformCount);
@@ -174,7 +174,7 @@ class boss_halazzi : public CreatureScript
                     TotemTimer = 12000;
                     break;
                 case PHASE_MERGE:
-                    if (Unit* pLynx = Unit::GetUnit(*me, LynxGUID))
+                    if (Unit* pLynx = ObjectAccessor::GetUnit(*me, LynxGUID))
                     {
                         Talk(SAY_MERGE);
                         pLynx->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -259,7 +259,7 @@ class boss_halazzi : public CreatureScript
                                 EnterPhase(PHASE_MERGE);
                             else
                             {
-                                Unit* Lynx = Unit::GetUnit(*me, LynxGUID);
+                                Unit* Lynx = ObjectAccessor::GetUnit(*me, LynxGUID);
                                 if (Lynx && !Lynx->HealthAbovePct(20) /*Lynx->HealthBelowPct(10)*/)
                                     EnterPhase(PHASE_MERGE);
                             }
@@ -272,7 +272,7 @@ class boss_halazzi : public CreatureScript
                 {
                     if (CheckTimer <= diff)
                     {
-                        Unit* Lynx = Unit::GetUnit(*me, LynxGUID);
+                        Unit* Lynx = ObjectAccessor::GetUnit(*me, LynxGUID);
                         if (Lynx)
                         {
                             Lynx->GetMotionMaster()->MoveFollow(me, 0, 0);

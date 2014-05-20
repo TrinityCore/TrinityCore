@@ -380,7 +380,7 @@ public:
                     {
                         if (AffrayChallenger[i])
                         {
-                            Creature* creature = Unit::GetCreature((*me), AffrayChallenger[i]);
+                            Creature* creature = ObjectAccessor::GetCreature((*me), AffrayChallenger[i]);
                             if (creature && creature->IsAlive())
                                 creature->DisappearAndDie();
                         }
@@ -388,7 +388,7 @@ public:
 
                     if (BigWill) // unsummon bigWill
                     {
-                        Creature* creature = Unit::GetCreature((*me), BigWill);
+                        Creature* creature = ObjectAccessor::GetCreature((*me), BigWill);
                         if (creature && creature->IsAlive())
                             creature->DisappearAndDie();
                     }
@@ -429,7 +429,7 @@ public:
                         {
                             if (AffrayChallenger[i])
                             {
-                                Creature* creature = Unit::GetCreature((*me), AffrayChallenger[i]);
+                                Creature* creature = ObjectAccessor::GetCreature((*me), AffrayChallenger[i]);
                                 if ((!creature || (!creature->IsAlive())) && !ChallengerDown[i])
                                 {
                                     Talk(SAY_TWIGGY_FLATHEAD_DOWN);

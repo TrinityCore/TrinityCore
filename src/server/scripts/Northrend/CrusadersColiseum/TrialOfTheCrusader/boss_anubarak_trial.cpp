@@ -344,7 +344,7 @@ class boss_anubarak_trial : public CreatureScript
                             uint32 at = urand(0, _burrowGUID.size()-1);
                             for (uint32 k = 0; k < at; k++)
                                 ++i;
-                            if (Creature* pBurrow = Unit::GetCreature(*me, *i))
+                            if (Creature* pBurrow = ObjectAccessor::GetCreature(*me, *i))
                                 pBurrow->CastSpell(pBurrow, 66340, false);
 
                             events.ScheduleEvent(EVENT_SUMMON_SCARAB, 4*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
@@ -377,7 +377,7 @@ class boss_anubarak_trial : public CreatureScript
                             uint8 i = startAt;
                             do
                             {
-                                if (Unit* pSphere = Unit::GetCreature(*me, _sphereGUID[i]))
+                                if (Unit* pSphere = ObjectAccessor::GetCreature(*me, _sphereGUID[i]))
                                 {
                                     if (!pSphere->HasAura(SPELL_FROST_SPHERE))
                                     {

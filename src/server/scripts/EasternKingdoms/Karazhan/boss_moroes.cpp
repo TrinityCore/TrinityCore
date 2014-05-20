@@ -236,7 +236,7 @@ public:
             {
                 if (AddGUID[i])
                 {
-                    Creature* temp = Creature::GetCreature((*me), AddGUID[i]);
+                    Creature* temp = ObjectAccessor::GetCreature((*me), AddGUID[i]);
                     if (temp && temp->IsAlive())
                     {
                         temp->AI()->AttackStart(me->GetVictim());
@@ -270,7 +270,7 @@ public:
                 {
                     if (AddGUID[i])
                     {
-                        Creature* temp = Unit::GetCreature((*me), AddGUID[i]);
+                        Creature* temp = ObjectAccessor::GetCreature((*me), AddGUID[i]);
                         if (temp && temp->IsAlive())
                             if (!temp->GetVictim())
                                 temp->AI()->AttackStart(me->GetVictim());
@@ -350,7 +350,7 @@ struct boss_moroes_guestAI : public ScriptedAI
 
     void AcquireGUID()
     {
-        if (Creature* Moroes = Unit::GetCreature(*me, instance->GetData64(DATA_MOROES)))
+        if (Creature* Moroes = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MOROES)))
             for (uint8 i = 0; i < 4; ++i)
                 if (uint64 GUID = CAST_AI(boss_moroes::boss_moroesAI, Moroes->AI())->AddGUID[i])
                     GuestGUID[i] = GUID;
@@ -361,7 +361,7 @@ struct boss_moroes_guestAI : public ScriptedAI
         uint64 TempGUID = GuestGUID[rand()%4];
         if (TempGUID)
         {
-            Unit* unit = Unit::GetUnit(*me, TempGUID);
+            Unit* unit = ObjectAccessor::GetUnit(*me, TempGUID);
             if (unit && unit->IsAlive())
                 return unit;
         }

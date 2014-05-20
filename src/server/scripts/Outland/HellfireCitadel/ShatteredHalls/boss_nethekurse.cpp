@@ -323,7 +323,7 @@ class npc_fel_orc_convert : public CreatureScript
             {
                 events.ScheduleEvent(EVENT_HEMORRHAGE, 3000);
 
-                if (Creature* Kurse = Unit::GetCreature(*me, instance->GetData64(NPC_GRAND_WARLOCK_NETHEKURSE)))
+                if (Creature* Kurse = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_GRAND_WARLOCK_NETHEKURSE)))
                     if (me->IsWithinDist(Kurse, 45.0f))
                         Kurse->AI()->SetData(SETDATA_DATA, SETDATA_PEON_AGGRO);
             }
@@ -333,7 +333,7 @@ class npc_fel_orc_convert : public CreatureScript
                 if (instance->GetBossState(DATA_NETHEKURSE) != IN_PROGRESS)
                     return;
 
-                if (Creature* Kurse = Unit::GetCreature(*me, instance->GetData64(NPC_GRAND_WARLOCK_NETHEKURSE)))
+                if (Creature* Kurse = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_GRAND_WARLOCK_NETHEKURSE)))
                     Kurse->AI()->SetData(SETDATA_DATA, SETDATA_PEON_DEATH);
             }
 

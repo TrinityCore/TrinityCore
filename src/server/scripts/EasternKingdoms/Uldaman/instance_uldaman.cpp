@@ -252,7 +252,7 @@ class instance_uldaman : public InstanceMapScript
                 if (!archaedas)
                     return;
 
-                if (Unit::GetUnit(*archaedas, target))
+                if (ObjectAccessor::GetUnit(*archaedas, target))
                 {
                     archaedas->CastSpell(archaedas, SPELL_ARCHAEDAS_AWAKEN, false);
                     whoWokeuiArchaedasGUID = target;

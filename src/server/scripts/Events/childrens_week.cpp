@@ -1036,7 +1036,7 @@ class npc_grizzlemaw_cw_trigger : public CreatureScript
                 if (who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
                         if (player->GetQuestStatus(QUEST_HOME_OF_THE_BEAR_MEN) == QUEST_STATUS_INCOMPLETE)
-                            if (Creature* orphan = Creature::GetCreature(*me, getOrphanGUID(player, ORPHAN_WOLVAR)))
+                            if (Creature* orphan = ObjectAccessor::GetCreature(*me, getOrphanGUID(player, ORPHAN_WOLVAR)))
                             {
                                 player->AreaExploredOrEventHappens(QUEST_HOME_OF_THE_BEAR_MEN);
                                 orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_10);

@@ -198,7 +198,7 @@ public:
             if (!SummonList.empty())
                 for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                 {
-                    if (Creature* summon = Unit::GetCreature(*me, *itr))
+                    if (Creature* summon = ObjectAccessor::GetCreature(*me, *itr))
                     {
                         if (summon->IsAlive())
                             summon->DisappearAndDie();
