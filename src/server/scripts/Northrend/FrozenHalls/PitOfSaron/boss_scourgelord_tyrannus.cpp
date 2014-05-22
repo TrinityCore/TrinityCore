@@ -235,7 +235,7 @@ class boss_tyrannus : public CreatureScript
                             me->GetMotionMaster()->MovePoint(0, miscPos);
                             break;
                         case EVENT_COMBAT_START:
-                            if (Creature* rimefang = me->GetCreature(*me, instance->GetData64(DATA_RIMEFANG)))
+                            if (Creature* rimefang = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RIMEFANG)))
                                 rimefang->AI()->DoAction(ACTION_START_RIMEFANG);    //set rimefang also infight
                             events.SetPhase(PHASE_COMBAT);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -357,7 +357,7 @@ class boss_rimefang : public CreatureScript
                             _events.ScheduleEvent(EVENT_ICY_BLAST, 15000, 0, PHASE_COMBAT);
                             break;
                         case EVENT_HOARFROST:
-                            if (Unit* target = me->GetUnit(*me, _hoarfrostTargetGUID))
+                            if (Unit* target = ObjectAccessor::GetUnit(*me, _hoarfrostTargetGUID))
                             {
                                 DoCast(target, SPELL_HOARFROST);
                                 _hoarfrostTargetGUID = 0;

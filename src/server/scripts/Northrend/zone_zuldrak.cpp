@@ -91,7 +91,7 @@ public:
             {
                 if (caster->ToPlayer()->GetQuestStatus(QUEST_TROLLS_IS_GONE_CRAZY) == QUEST_STATUS_INCOMPLETE)
                 {
-                    if (Creature* rageclaw = Unit::GetCreature(*me, _rageclawGUID))
+                    if (Creature* rageclaw = ObjectAccessor::GetCreature(*me, _rageclawGUID))
                     {
                         UnlockRageclaw(caster, rageclaw);
                         caster->ToPlayer()->KilledMonster(rageclaw->GetCreatureTemplate(), _rageclawGUID);

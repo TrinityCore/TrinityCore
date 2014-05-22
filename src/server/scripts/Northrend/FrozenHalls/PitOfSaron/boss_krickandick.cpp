@@ -362,7 +362,7 @@ class boss_krick : public CreatureScript
                     {
                         case EVENT_OUTRO_1:
                         {
-                            if (Creature* temp = me->GetCreature(*me, _instanceScript->GetData64(DATA_JAINA_SYLVANAS_1)))
+                            if (Creature* temp = ObjectAccessor::GetCreature(*me, _instanceScript->GetData64(DATA_JAINA_SYLVANAS_1)))
                                 temp->DespawnOrUnsummon();
 
                             Creature* jainaOrSylvanas = NULL;
@@ -410,7 +410,7 @@ class boss_krick : public CreatureScript
                             _events.ScheduleEvent(EVENT_OUTRO_6, 1000);
                             break;
                         case EVENT_OUTRO_6:
-                            if (Creature* tyrannus = me->GetCreature(*me, _instanceScript->GetData64(DATA_TYRANNUS_EVENT)))
+                            if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _instanceScript->GetData64(DATA_TYRANNUS_EVENT)))
                             {
                                 tyrannus->SetSpeed(MOVE_FLIGHT, 3.5f, true);
                                 tyrannus->GetMotionMaster()->MovePoint(1, outroPos[4]);

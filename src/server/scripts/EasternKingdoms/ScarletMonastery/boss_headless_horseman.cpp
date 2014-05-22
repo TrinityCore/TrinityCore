@@ -356,7 +356,7 @@ public:
                     if (wait <= diff)
                     {
                         die = false;
-                        if (Unit* body = Unit::GetUnit(*me, bodyGUID))
+                        if (Unit* body = ObjectAccessor::GetUnit(*me, bodyGUID))
                             body->Kill(body);
                         me->Kill(me);
                     }
@@ -428,7 +428,7 @@ public:
             DoCast(me, SPELL_HEAD);
             if (headGUID)
             {
-                if (Creature* Head = Unit::GetCreature((*me), headGUID))
+                if (Creature* Head = ObjectAccessor::GetCreature((*me), headGUID))
                     Head->DisappearAndDie();
 
                 headGUID = 0;
@@ -483,7 +483,7 @@ public:
                     wp_reached = false;
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     SaySound(SAY_ENTRANCE);
-                    if (Unit* player = Unit::GetUnit(*me, PlayerGUID))
+                    if (Unit* player = ObjectAccessor::GetUnit(*me, PlayerGUID))
                         DoStartMovement(player);
                     break;
                 }
@@ -516,7 +516,7 @@ public:
                 if (withhead)
                     SaySound(SAY_PLAYER_DEATH);
                 //maybe possible when player dies from conflagration
-                else if (Creature* Head = Unit::GetCreature((*me), headGUID))
+                else if (Creature* Head = ObjectAccessor::GetCreature((*me), headGUID))
                     CAST_AI(npc_head::npc_headAI, Head->AI())->SaySound(SAY_PLAYER_DEATH);
             }
         }
@@ -601,7 +601,7 @@ public:
                 ThreatContainer::StorageType threatlist = caster->getThreatManager().getThreatList();
                 for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                 {
-                    Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                    Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
                     if (unit && unit->IsAlive() && unit != caster)
                         me->AddThreat(unit, caster->getThreatManager().getThreat(unit));
                 }
@@ -621,7 +621,7 @@ public:
                 if (!headGUID)
                     headGUID = DoSpawnCreature(HEAD, float(rand()%6), float(rand()%6), 0, 0, TEMPSUMMON_DEAD_DESPAWN, 0)->GetGUID();
 
-                Unit* Head = Unit::GetUnit(*me, headGUID);
+                Unit* Head = ObjectAccessor::GetUnit(*me, headGUID);
                 if (Head && Head->IsAlive())
                 {
                     Head->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -746,7 +746,7 @@ public:
                             --Phase;
                         else
                             Phase = 1;
-                        Creature* Head = Unit::GetCreature((*me), headGUID);
+                        Creature* Head = ObjectAccessor::GetCreature((*me), headGUID);
                         if (Head && Head->IsAlive())
                         {
                             CAST_AI(npc_head::npc_headAI, Head->AI())->Phase = Phase;
@@ -837,7 +837,7 @@ public:
             if (!debuffGUID)
                 return;
 
-            Unit* debuff = Unit::GetUnit(*me, debuffGUID);
+            Unit* debuff = ObjectAccessor::GetUnit(*me, debuffGUID);
             if (debuff)
             {
                 debuff->SetVisible(false);
@@ -909,7 +909,7 @@ void npc_head::npc_headAI::Disappear()
 
     if (bodyGUID)
     {
-        Creature* body = Unit::GetCreature((*me), bodyGUID);
+        Creature* body = ObjectAccessor::GetCreature((*me), bodyGUID);
         if (body && body->IsAlive())
         {
             withbody = true;

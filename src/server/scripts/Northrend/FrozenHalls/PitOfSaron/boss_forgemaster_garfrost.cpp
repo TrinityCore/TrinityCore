@@ -113,7 +113,7 @@ class boss_garfrost : public CreatureScript
                 Talk(SAY_DEATH);
                 me->RemoveAllGameObjects();
 
-                if (Creature* tyrannus = me->GetCreature(*me, instance->GetData64(DATA_TYRANNUS)))
+                if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TYRANNUS)))
                     tyrannus->AI()->Talk(SAY_TYRANNUS_DEATH);
             }
 

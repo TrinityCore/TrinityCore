@@ -457,7 +457,7 @@ class npc_xt002_heart : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                Creature* xt002 = _instance ? me->GetCreature(*me, _instance->GetData64(BOSS_XT002)) : NULL;
+                Creature* xt002 = _instance ? ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_XT002)) : NULL;
                 if (!xt002 || !xt002->AI())
                     return;
 
@@ -503,7 +503,7 @@ class npc_scrapbot : public CreatureScript
 
                 _rangeCheckTimer = 500;
 
-                if (Creature* pXT002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                if (Creature* pXT002 = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_XT002)))
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
@@ -511,7 +511,7 @@ class npc_scrapbot : public CreatureScript
             {
                 if (_rangeCheckTimer <= diff)
                 {
-                    if (Creature* xt002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                    if (Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_XT002)))
                     {
                         if (me->IsWithinMeleeRange(xt002))
                         {
@@ -560,7 +560,7 @@ class npc_pummeller : public CreatureScript
                 _trampleTimer = TIMER_TRAMPLE;
                 _uppercutTimer = TIMER_UPPERCUT;
 
-                if (Creature* xt002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                if (Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_XT002)))
                 {
                     Position pos = xt002->GetPosition();
                     me->GetMotionMaster()->MovePoint(0, pos);
@@ -668,7 +668,7 @@ class npc_boombot : public CreatureScript
                 me->SetFloatValue(UNIT_FIELD_MAXDAMAGE, 18000.0f);
 
                 /// @todo proper waypoints?
-                if (Creature* pXT002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                if (Creature* pXT002 = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_XT002)))
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 

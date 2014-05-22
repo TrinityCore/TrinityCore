@@ -94,7 +94,7 @@ class boss_archaedas : public CreatureScript
 
             void ActivateMinion(uint64 uiGuid, bool flag)
             {
-                Unit* minion = Unit::GetUnit(*me, uiGuid);
+                Unit* minion = ObjectAccessor::GetUnit(*me, uiGuid);
 
                 if (minion && minion->IsAlive())
                 {
@@ -139,7 +139,7 @@ class boss_archaedas : public CreatureScript
                 } else if (bWakingUp && iAwakenTimer <= 0)
                 {
                     bWakingUp = false;
-                    AttackStart(Unit::GetUnit(*me, instance->GetData64(0)));
+                    AttackStart(ObjectAccessor::GetUnit(*me, instance->GetData64(0)));
                     return;     // dont want to continue until we finish the AttackStart method
                 }
 
@@ -285,7 +285,7 @@ class npc_archaedas_minions : public CreatureScript
                 {
                     bWakingUp = false;
                     bAmIAwake = true;
-                    // AttackStart(Unit::GetUnit(*me, instance->GetData64(0))); // whoWokeArchaedasGUID
+                    // AttackStart(ObjectAccessor::GetUnit(*me, instance->GetData64(0))); // whoWokeArchaedasGUID
                     return;     // dont want to continue until we finish the AttackStart method
                 }
 

@@ -223,7 +223,7 @@ public:
                 summoned->SetDisplayId(soulmodel);
                 summoned->setFaction(me->getFaction());
 
-                if (Unit* target = Unit::GetUnit(*me, soulholder))
+                if (Unit* target = ObjectAccessor::GetUnit(*me, soulholder))
                 {
 
                 CAST_AI(npc_stolen_soul::npc_stolen_soulAI, summoned->AI())->SetMyClass(soulclass);

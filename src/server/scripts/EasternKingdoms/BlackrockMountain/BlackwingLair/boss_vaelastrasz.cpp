@@ -146,8 +146,8 @@ public:
                             break;
                         case EVENT_SPEECH_4:
                             me->setFaction(103);
-                            if (PlayerGUID && Unit::GetUnit(*me, PlayerGUID))
-                                AttackStart(Unit::GetUnit(*me, PlayerGUID));
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
+                                AttackStart(player);
                             break;
                     }
                 }

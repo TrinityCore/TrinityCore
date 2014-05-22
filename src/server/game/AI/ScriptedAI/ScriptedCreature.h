@@ -98,7 +98,7 @@ public:
         Trinity::Containers::RandomResizeList<uint64, Predicate>(listCopy, predicate, max);
         for (StorageType::iterator i = listCopy.begin(); i != listCopy.end(); )
         {
-            Creature* summon = Unit::GetCreature(*me, *i++);
+            Creature* summon = ObjectAccessor::GetCreature(*me, *i++);
             if (summon && summon->IsAIEnabled)
                 summon->AI()->DoAction(info);
         }

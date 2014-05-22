@@ -257,7 +257,7 @@ class boss_magtheridon : public CreatureScript
             {
                 // to avoid multiclicks from 1 cube
                 if (uint64 guid = Cube[cubeGUID])
-                    DebuffClicker(Unit::GetUnit(*me, guid));
+                    DebuffClicker(ObjectAccessor::GetUnit(*me, guid));
                 Cube[cubeGUID] = clickerGUID;
                 NeedCheckCube = true;
             }
@@ -280,7 +280,7 @@ class boss_magtheridon : public CreatureScript
                 // if not - apply mind exhaustion and delete from clicker's list
                 for (CubeMap::iterator i = Cube.begin(); i != Cube.end(); ++i)
                 {
-                    Unit* clicker = Unit::GetUnit(*me, (*i).second);
+                    Unit* clicker = ObjectAccessor::GetUnit(*me, (*i).second);
                     if (!clicker || !clicker->HasAura(SPELL_SHADOW_GRASP))
                     {
                         DebuffClicker(clicker);
@@ -588,7 +588,7 @@ public:
 
         if (instance->GetData(DATA_MAGTHERIDON_EVENT) != IN_PROGRESS)
             return true;
-        Creature* Magtheridon =Unit::GetCreature(*go, instance->GetData64(DATA_MAGTHERIDON));
+        Creature* Magtheridon =ObjectAccessor::GetCreature(*go, instance->GetData64(DATA_MAGTHERIDON));
         if (!Magtheridon || !Magtheridon->IsAlive())
             return true;
 

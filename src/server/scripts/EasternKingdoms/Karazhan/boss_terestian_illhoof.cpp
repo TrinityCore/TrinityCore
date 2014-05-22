@@ -102,7 +102,7 @@ public:
             uint64 TerestianGUID = instance->GetData64(DATA_TERESTIAN);
             if (TerestianGUID)
             {
-                Unit* Terestian = Unit::GetUnit(*me, TerestianGUID);
+                Unit* Terestian = ObjectAccessor::GetUnit(*me, TerestianGUID);
                 if (Terestian && Terestian->IsAlive())
                     DoCast(Terestian, SPELL_BROKEN_PACT, true);
             }
@@ -157,7 +157,7 @@ public:
         {
             if (SacrificeGUID)
             {
-                Unit* Sacrifice = Unit::GetUnit(*me, SacrificeGUID);
+                Unit* Sacrifice = ObjectAccessor::GetUnit(*me, SacrificeGUID);
                 if (Sacrifice)
                     Sacrifice->RemoveAurasDueToSpell(SPELL_SACRIFICE);
             }
@@ -279,7 +279,7 @@ public:
             {
                 if (PortalGUID[i])
                 {
-                    if (Creature* pPortal = Unit::GetCreature(*me, PortalGUID[i]))
+                    if (Creature* pPortal = ObjectAccessor::GetCreature(*me, PortalGUID[i]))
                     {
                         CAST_AI(npc_fiendish_portal::npc_fiendish_portalAI, pPortal->AI())->DespawnAllImp();
                         pPortal->DespawnOrUnsummon();
@@ -344,7 +344,7 @@ public:
             {
                 if (PortalGUID[i])
                 {
-                    if (Creature* pPortal = Unit::GetCreature((*me), PortalGUID[i]))
+                    if (Creature* pPortal = ObjectAccessor::GetCreature((*me), PortalGUID[i]))
                         pPortal->DespawnOrUnsummon();
 
                     PortalGUID[i] = 0;
@@ -395,7 +395,7 @@ public:
 
                 if (PortalGUID[0] && PortalGUID[1])
                 {
-                    if (Creature* pPortal = Unit::GetCreature(*me, PortalGUID[urand(0, 1)]))
+                    if (Creature* pPortal = ObjectAccessor::GetCreature(*me, PortalGUID[urand(0, 1)]))
                         pPortal->CastSpell(me->GetVictim(), SPELL_SUMMON_FIENDISIMP, false);
                     SummonTimer = 5000;
                 }

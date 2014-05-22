@@ -442,7 +442,7 @@ public:
 
         uint32 NextStep(uint8 Step)
         {
-            Creature* Spark = Unit::GetCreature(*me, SparkGUID);
+            Creature* Spark = ObjectAccessor::GetCreature(*me, SparkGUID);
             if (!Spark)
                 return 99999999;
 
