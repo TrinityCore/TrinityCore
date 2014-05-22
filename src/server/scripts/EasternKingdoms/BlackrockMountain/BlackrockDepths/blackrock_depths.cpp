@@ -229,7 +229,7 @@ public:
 
                     if (RingBossGUID)
                     {
-                        Creature* boss = Unit::GetCreature(*me, RingBossGUID);
+                        Creature* boss = ObjectAccessor::GetCreature(*me, RingBossGUID);
                         if (boss && !boss->IsAlive() && boss->isDead())
                         {
                             RingBossGUID = 0;
@@ -242,7 +242,7 @@ public:
 
                     for (uint8 i = 0; i < MAX_NPC_AMOUNT; ++i)
                     {
-                        Creature* mob = Unit::GetCreature(*me, RingMobGUID[i]);
+                        Creature* mob = ObjectAccessor::GetCreature(*me, RingMobGUID[i]);
                         if (mob && !mob->IsAlive() && mob->isDead())
                         {
                             RingMobGUID[i] = 0;
@@ -1304,7 +1304,7 @@ public:
                     DoGo(DATA_GO_BAR_KEG_TRAP, 0);               //doesn't work very well, leaving code here for future
                     //spell by trap has effect61, this indicate the bar go hostile
 
-                    if (Unit* tmp = Unit::GetUnit(*me, instance->GetData64(DATA_PHALANX)))
+                    if (Unit* tmp = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_PHALANX)))
                         tmp->setFaction(14);
 
                     //for later, this event(s) has alot more to it.

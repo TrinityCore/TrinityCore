@@ -229,7 +229,7 @@ public:
             ThreatContainer::StorageType threatlist = target->getThreatManager().getThreatList();
             for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
             {
-                Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
                 if (unit)
                 {
                     DoModifyThreatPercent(unit, -100);
@@ -258,7 +258,7 @@ public:
             Creature* Essence = NULL;
             if (EssenceGUID)
             {
-                Essence = Unit::GetCreature(*me, EssenceGUID);
+                Essence = ObjectAccessor::GetCreature(*me, EssenceGUID);
                 if (!Essence)
                 {
                     EnterEvadeMode();
@@ -378,7 +378,7 @@ public:
 void npc_enslaved_soul::npc_enslaved_soulAI::JustDied(Unit* /*killer*/)
 {
     if (ReliquaryGUID)
-        if (Creature* Reliquary = (Unit::GetCreature((*me), ReliquaryGUID)))
+        if (Creature* Reliquary = (ObjectAccessor::GetCreature((*me), ReliquaryGUID)))
             ++(CAST_AI(boss_reliquary_of_souls::boss_reliquary_of_soulsAI, Reliquary->AI())->SoulDeathCount);
 
     DoCast(me, SPELL_SOUL_RELEASE, true);
@@ -454,7 +454,7 @@ public:
             ThreatContainer::StorageType::const_iterator itr = threatlist.begin();
             for (; itr != threatlist.end(); ++itr)
             {
-                Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
                 if (unit && unit->IsAlive() && (unit->GetTypeId() == TYPEID_PLAYER)) // Only alive players
                     targets.push_back(unit);
             }

@@ -461,11 +461,11 @@ public:
         if (player->GetQuestStatus(QUEST_THE_LONESOME_WATCHER) != QUEST_STATUS_INCOMPLETE)
             return false;
 
-        Creature* stormforgedMonitor = Creature::GetCreature(*player, stormforgedMonitorGUID);
+        Creature* stormforgedMonitor = ObjectAccessor::GetCreature(*player, stormforgedMonitorGUID);
         if (stormforgedMonitor)
             return false;
 
-        Creature* stormforgedEradictor = Creature::GetCreature(*player, stormforgedEradictorGUID);
+        Creature* stormforgedEradictor = ObjectAccessor::GetCreature(*player, stormforgedEradictorGUID);
         if (stormforgedEradictor)
             return false;
 

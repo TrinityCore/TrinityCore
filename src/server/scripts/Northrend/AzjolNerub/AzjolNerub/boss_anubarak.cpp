@@ -188,7 +188,7 @@ public:
                         }
                         break;
                     case IMPALE_PHASE_ATTACK:
-                        if (Creature* impaleTarget = Unit::GetCreature(*me, ImpaleTarget))
+                        if (Creature* impaleTarget = ObjectAccessor::GetCreature(*me, ImpaleTarget))
                         {
                             impaleTarget->CastSpell(impaleTarget, SPELL_IMPALE_SPIKE, false);
                             impaleTarget->RemoveAurasDueToSpell(SPELL_IMPALE_SHAKEGROUND);
@@ -197,7 +197,7 @@ public:
                         ImpaleTimer = 1*IN_MILLISECONDS;
                         break;
                     case IMPALE_PHASE_DMG:
-                        if (Creature* impaleTarget = Unit::GetCreature(*me, ImpaleTarget))
+                        if (Creature* impaleTarget = ObjectAccessor::GetCreature(*me, ImpaleTarget))
                             me->CastSpell(impaleTarget, SPELL_IMPALE_DMG, true);
                         ImpalePhase = IMPALE_PHASE_TARGET;
                         ImpaleTimer = 9*IN_MILLISECONDS;

@@ -314,7 +314,7 @@ public:
     {
         if (Creature* anchor = go->FindNearestCreature(29521, 15))
             if (uint64 prisonerGUID = anchor->AI()->GetGUID())
-                if (Creature* prisoner = Creature::GetCreature(*player, prisonerGUID))
+                if (Creature* prisoner = ObjectAccessor::GetCreature(*player, prisonerGUID))
                     CAST_AI(npc_unworthy_initiate::npc_unworthy_initiateAI, prisoner->AI())->EventStart(anchor, player);
 
         return false;
@@ -467,7 +467,7 @@ public:
                     {
                         me->setFaction(FACTION_HOSTILE);
 
-                        if (Unit* unit = Unit::GetUnit(*me, m_uiDuelerGUID))
+                        if (Unit* unit = ObjectAccessor::GetUnit(*me, m_uiDuelerGUID))
                             AttackStart(unit);
                     }
                     else
@@ -1049,14 +1049,14 @@ class npc_scarlet_miner : public CreatureScript
                     {
                         if (IntroPhase == 1)
                         {
-                            if (Creature* car = Unit::GetCreature(*me, carGUID))
+                            if (Creature* car = ObjectAccessor::GetCreature(*me, carGUID))
                                 DoCast(car, SPELL_CART_DRAG);
                             IntroTimer = 800;
                             IntroPhase = 2;
                         }
                         else
                         {
-                            if (Creature* car = Unit::GetCreature(*me, carGUID))
+                            if (Creature* car = ObjectAccessor::GetCreature(*me, carGUID))
                                 car->AI()->DoAction(0);
                             IntroPhase = 0;
                         }
