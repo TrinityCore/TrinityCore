@@ -3462,16 +3462,10 @@ void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at)
 
 void SmartScript::OnMoveInLineOfSight(Unit* who)
 {
-    ProcessEventsFor(SMART_EVENT_OOC_LOS, who);
-
     if (!me)
         return;
 
-    if (me->GetVictim())
-        return;
-
-    ProcessEventsFor(SMART_EVENT_IC_LOS, who);
-
+    ProcessEventsFor(me->IsInCombat() ? SMART_EVENT_IC_LOS : SMART_EVENT_OOC_LOS, who);
 }
 
 /*
