@@ -494,13 +494,13 @@ class spell_general_vezax_mark_of_the_faceless_leech : public SpellScriptLoader
                     FinishCast(SPELL_FAILED_NO_VALID_TARGETS);
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_general_vezax_mark_of_the_faceless_leech_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_general_vezax_mark_of_the_faceless_leech_SpellScript();
         }
