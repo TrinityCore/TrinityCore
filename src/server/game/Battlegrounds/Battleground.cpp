@@ -269,7 +269,7 @@ void Battleground::Update(uint32 diff)
             }
             else
             {
-                _ProcessRessurect(diff);
+                _ProcessResurrect(diff);
                 if (sBattlegroundMgr->GetPrematureFinishTime() && (GetPlayersCountByTeam(ALLIANCE) < GetMinPlayersPerTeam() || GetPlayersCountByTeam(HORDE) < GetMinPlayersPerTeam()))
                     _ProcessProgress(diff);
                 else if (m_PrematureCountDown)
@@ -334,10 +334,10 @@ inline void Battleground::_ProcessOfflineQueue()
     }
 }
 
-inline void Battleground::_ProcessRessurect(uint32 diff)
+inline void Battleground::_ProcessResurrect(uint32 diff)
 {
     // *********************************************************
-    // ***        BATTLEGROUND RESSURECTION SYSTEM           ***
+    // ***        BATTLEGROUND RESURRECTION SYSTEM           ***
     // *********************************************************
     // this should be handled by spell system
     m_LastResurrectTime += diff;
