@@ -8201,7 +8201,12 @@ void Player::_ApplyWeaponDependentAuraDamageMod(Item* item, WeaponAttackType att
     {
         HandleStatModifier(unitMod, unitModType, float(aura->GetAmount()), apply);
         if (unitModType == TOTAL_VALUE)
-            ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS, aura->GetAmount(), apply);
+        {
+            if (aura->GetAmount() > 0)
+                ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS, aura->GetAmount(), apply);
+            else
+                ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG, aura->GetAmount(), apply);
+        }
     }
 }
 
