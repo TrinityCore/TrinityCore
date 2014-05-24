@@ -24,7 +24,7 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "Opcodes.h"
+#include "WorldSession.h"
 
 const int32 ReputationMgr::PointsInRank[MAX_REPUTATION_RANK] = {36000, 3000, 3000, 3000, 6000, 12000, 21000, 1000};
 

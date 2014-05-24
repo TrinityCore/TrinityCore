@@ -27,7 +27,7 @@
 #include "AutoPtr.h"
 #include "Player.h"
 #include "WorldPacket.h"
-#include "Opcodes.h"
+#include "WorldSession.h"
 
 namespace WeatherMgr
 {
