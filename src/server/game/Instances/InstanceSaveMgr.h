@@ -115,16 +115,16 @@ class InstanceSave
            but that would depend on a lot of things that can easily change in future */
         Difficulty GetDifficulty() const { return m_difficulty; }
 
-        typedef std::list<Player*> PlayerListType;
-        typedef std::list<Group*> GroupListType;
-    private:
-        bool UnloadIfEmpty();
         /* used to flag the InstanceSave as to be deleted, so the caller can delete it */
         void SetToDelete(bool toDelete)
         {
             m_toDelete = toDelete;
         }
 
+        typedef std::list<Player*> PlayerListType;
+        typedef std::list<Group*> GroupListType;
+    private:
+        bool UnloadIfEmpty();
         /* the only reason the instSave-object links are kept is because
            the object-instSave links need to be broken at reset time */
            /// @todo: Check if maybe it's enough to just store the number of players/groups

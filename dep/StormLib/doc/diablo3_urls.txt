@@ -1,0 +1,14 @@
+http://dist.blizzard.com/mediakey/d3-authenticationcode-deDE.txt
+http://dist.blizzard.com/mediakey/d3-authenticationcode-enGB.txt
+http://dist.blizzard.com/mediakey/d3-authenticationcode-enSG.txt
+http://dist.blizzard.com/mediakey/d3-authenticationcode-enUS.txt
+http://dist.blizzard.com/mediakey/d3-authenticationcode-esES.txt
+http://dist.blizzard.com/mediakey/d3-authenticationcode-esMX.txt
+http://dist.blizzard.com/mediakey/d3-authenticationcode-frFR.txt
+http://dist.blizzard.com/mediakey/d3-authenticationcode-itIT.txt
+http://dist.blizzard.com/mediakey/d3-authenticationcode-koKR.txt
+http://dist.blizzard.com/mediakey/d3-authenticationcode-plPL.txt
+http://dist.blizzard.com/mediakey/d3-authenticationcode-ptBR.txt
+http://dist.blizzard.com/mediakey/d3-authenticationcode-ruRU.txt  <====
+http://dist.blizzard.com/mediakey/d3-authenticationcode-zhTW.txt
+http://dist.blizzard.com/mediakey/d3-authenticationcode-zhCN.txt  <==== 

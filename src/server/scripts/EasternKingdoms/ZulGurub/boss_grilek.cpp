@@ -16,53 +16,44 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Grilek
-SD%Complete: 100
-SDComment:
-SDCategory: Zul'Gurub
-EndScriptData */
-
+#include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
+enum Yells
+{
+};
+
 enum Spells
 {
-    SPELL_AVATAR                    = 24646, // Enrage Spell
-    SPELL_GROUND_TREMOR             = 6524
 };
 
 enum Events
 {
-    EVENT_AVATAR                    = 1,
-    EVENT_GROUND_TREMOR             = 2
 };
 
-class boss_grilek : public CreatureScript // grilek
+class boss_grilek : public CreatureScript
 {
     public:
         boss_grilek() : CreatureScript("boss_grilek") { }
 
         struct boss_grilekAI : public BossAI
         {
-            boss_grilekAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) { }
+            boss_grilekAI(Creature* creature) : BossAI(creature, DATA_GRILEK)
+            {
+            }
 
             void Reset() override
             {
-                _Reset();
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
             }
 
             void EnterCombat(Unit* /*who*/) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_AVATAR, urand(15000, 25000));
-                events.ScheduleEvent(EVENT_GROUND_TREMOR, urand(15000, 25000));
+            }
+
+            void JustDied(Unit* /*killer*/) override
+            {
             }
 
             void UpdateAI(uint32 diff) override
@@ -74,31 +65,16 @@ class boss_grilek : public CreatureScript // grilek
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
-
+                /*
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
-                        case EVENT_AVATAR:
-                            DoCast(me, SPELL_AVATAR);
-                            if (Unit* victim = me->GetVictim())
-                            {
-                                if (DoGetThreat(victim))
-                                    DoModifyThreatPercent(victim, -50);
-                            }
-
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                                AttackStart(target);
-                            events.ScheduleEvent(EVENT_AVATAR, urand(25000, 35000));
-                            break;
-                        case EVENT_GROUND_TREMOR:
-                            DoCastVictim(SPELL_GROUND_TREMOR, true);
-                            events.ScheduleEvent(EVENT_GROUND_TREMOR, urand(12000, 16000));
-                            break;
                         default:
                             break;
                     }
                 }
+                */
 
                 DoMeleeAttackIfReady();
             }
@@ -114,4 +90,3 @@ void AddSC_boss_grilek()
 {
     new boss_grilek();
 }
-

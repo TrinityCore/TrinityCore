@@ -157,6 +157,28 @@ void Trinity::WorldObjectSearcher<Check>::Visit(DynamicObjectMapType &m)
     }
 }
 
+template<class Check>
+void Trinity::WorldObjectSearcher<Check>::Visit(AreaTriggerMapType &m)
+{
+    if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_AREATRIGGER))
+        return;
+
+    // already found
+    if (i_object)
+        return;
+
+    for (AreaTriggerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+    {
+        if (!itr->GetSource()->InSamePhase(i_phaseMask))
+            continue;
+
+        if (i_check(itr->GetSource()))
+        {
+            i_object = itr->GetSource();
+            return;
+        }
+    }
+}
 
 template<class Check>
 void Trinity::WorldObjectLastSearcher<Check>::Visit(GameObjectMapType &m)
@@ -239,6 +261,22 @@ void Trinity::WorldObjectLastSearcher<Check>::Visit(DynamicObjectMapType &m)
 }
 
 template<class Check>
+void Trinity::WorldObjectLastSearcher<Check>::Visit(AreaTriggerMapType &m)
+{
+    if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_AREATRIGGER))
+        return;
+
+    for (AreaTriggerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+    {
+        if (!itr->GetSource()->InSamePhase(i_phaseMask))
+            continue;
+
+        if (i_check(itr->GetSource()))
+            i_object = itr->GetSource();
+    }
+}
+
+template<class Check>
 void Trinity::WorldObjectListSearcher<Check>::Visit(PlayerMapType &m)
 {
     if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_PLAYER))
@@ -289,6 +327,17 @@ void Trinity::WorldObjectListSearcher<Check>::Visit(DynamicObjectMapType &m)
         return;
 
     for (DynamicObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+        if (i_check(itr->GetSource()))
+            i_objects.push_back(itr->GetSource());
+}
+
+template<class Check>
+void Trinity::WorldObjectListSearcher<Check>::Visit(AreaTriggerMapType &m)
+{
+    if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_AREATRIGGER))
+        return;
+
+    for (AreaTriggerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         if (i_check(itr->GetSource()))
             i_objects.push_back(itr->GetSource());
 }
@@ -526,7 +575,7 @@ void Trinity::LocalizedPacketDo<Builder>::operator()(Player* p)
 
         i_builder(*data, loc_idx);
 
-        ASSERT(data->GetOpcode() != MSG_NULL_ACTION);
+        ASSERT(data->GetOpcode() != NULL_OPCODE);
 
         i_data_cache[cache_idx] = data;
     }

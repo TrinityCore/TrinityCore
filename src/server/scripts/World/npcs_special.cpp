@@ -440,9 +440,6 @@ public:
             me->Relocate(x, y, z + 0.94f);
             me->SetDisableGravity(true);
             me->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
-            WorldPacket data;                       //send update position to client
-            me->BuildHeartBeatMsg(&data);
-            me->SendMessageToSet(&data, true);
         }
 
         void UpdateAI(uint32 diff) override
@@ -469,9 +466,6 @@ public:
                 me->SetInFront(player);
                 Active = false;
 
-                WorldPacket data;
-                me->BuildHeartBeatMsg(&data);
-                me->SendMessageToSet(&data, true);
                 switch (emote)
                 {
                     case TEXT_EMOTE_KISS:
@@ -1217,6 +1211,11 @@ public:
                     player->SEND_GOSSIP_MENU(10239, creature->GetGUID());
                 else canBuy = true;
                 break;
+            case 48510:                                         //Kall Worthaton
+                if (player->GetReputationRank(1133) != REP_EXALTED && race != RACE_GOBLIN)
+                    player->SEND_GOSSIP_MENU(17494, creature->GetGUID());
+                else canBuy = true;
+                break;
         }
 
         if (canBuy)
@@ -1237,7 +1236,6 @@ public:
         return true;
     }
 };
-
 
 /*######
 ## npc_sayge
@@ -1962,11 +1960,11 @@ public:
         }
         if (doSwitch)
         {
-            if (!player->HasEnoughMoney(EXP_COST))
+            if (!player->HasEnoughMoney(uint64(EXP_COST)))
                 player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
             else if (noXPGain)
             {
-                player->ModifyMoney(-EXP_COST);
+                player->ModifyMoney(-int64(EXP_COST));
                 player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
             }
             else if (!noXPGain)

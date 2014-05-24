@@ -101,7 +101,6 @@ public:
             { "gossip_menu_option",            rbac::RBAC_PERM_COMMAND_RELOAD_GOSSIP_MENU_OPTION,               true,  &HandleReloadGossipMenuOptionCommand,           "", NULL },
             { "item_enchantment_template",     rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_ENCHANTMENT_TEMPLATE,        true,  &HandleReloadItemEnchantementsCommand,          "", NULL },
             { "item_loot_template",            rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_LOOT_TEMPLATE,               true,  &HandleReloadLootTemplatesItemCommand,          "", NULL },
-            { "item_set_names",                rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_SET_NAMES,                   true,  &HandleReloadItemSetNamesCommand,               "", NULL },
             { "lfg_dungeon_rewards",           rbac::RBAC_PERM_COMMAND_RELOAD_LFG_DUNGEON_REWARDS,              true,  &HandleReloadLfgRewardsCommand,                 "", NULL },
             { "locales_achievement_reward",    rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_ACHIEVEMENT_REWARD,       true,  &HandleReloadLocalesAchievementRewardCommand,   "", NULL },
             { "locales_creature",              rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_CRETURE,                  true,  &HandleReloadLocalesCreatureCommand,            "", NULL },
@@ -109,7 +108,6 @@ public:
             { "locales_gameobject",            rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_GAMEOBJECT,               true,  &HandleReloadLocalesGameobjectCommand,          "", NULL },
             { "locales_gossip_menu_option",    rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_GOSSIP_MENU_OPTION,       true,  &HandleReloadLocalesGossipMenuOptionCommand,    "", NULL },
             { "locales_item",                  rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_ITEM,                     true,  &HandleReloadLocalesItemCommand,                "", NULL },
-            { "locales_item_set_name",         rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_ITEM_SET_NAME,            true,  &HandleReloadLocalesItemSetNameCommand,         "", NULL },
             { "locales_npc_text",              rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_NPC_TEXT,                 true,  &HandleReloadLocalesNpcTextCommand,             "", NULL },
             { "locales_page_text",             rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_PAGE_TEXT,                true,  &HandleReloadLocalesPageTextCommand,            "", NULL },
             { "locales_points_of_interest",    rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_POINTS_OF_INTEREST,       true,  &HandleReloadLocalesPointsOfInterestCommand,    "", NULL },
@@ -440,11 +438,12 @@ public:
 
             Field* fields = result->Fetch();
 
-            cInfo->DifficultyEntry[0] = fields[0].GetUInt32();
-            cInfo->DifficultyEntry[1] = fields[1].GetUInt32();
-            cInfo->DifficultyEntry[2] = fields[2].GetUInt32();
-            cInfo->KillCredit[0]      = fields[3].GetUInt32();
-            cInfo->KillCredit[1]      = fields[4].GetUInt32();
+            for (uint8 i = 0; i < MAX_DIFFICULTY - 1; ++i)
+                cInfo->DifficultyEntry[i] = fields[0 + i].GetUInt32();
+
+            for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
+                cInfo->KillCredit[i] = fields[3 + i].GetUInt32();
+
             cInfo->Modelid1           = fields[5].GetUInt32();
             cInfo->Modelid2           = fields[6].GetUInt32();
             cInfo->Modelid3           = fields[7].GetUInt32();
@@ -456,26 +455,26 @@ public:
             cInfo->minlevel           = fields[13].GetUInt8();
             cInfo->maxlevel           = fields[14].GetUInt8();
             cInfo->expansion          = fields[15].GetUInt16();
-            cInfo->faction            = fields[16].GetUInt16();
-            cInfo->npcflag            = fields[17].GetUInt32();
-            cInfo->speed_walk         = fields[18].GetFloat();
-            cInfo->speed_run          = fields[19].GetFloat();
-            cInfo->scale              = fields[20].GetFloat();
-            cInfo->rank               = fields[21].GetUInt8();
-            cInfo->mindmg             = fields[22].GetFloat();
-            cInfo->maxdmg             = fields[23].GetFloat();
-            cInfo->dmgschool          = fields[24].GetUInt8();
-            cInfo->attackpower        = fields[25].GetUInt32();
-            cInfo->dmg_multiplier     = fields[26].GetFloat();
-            cInfo->baseattacktime     = fields[27].GetUInt32();
-            cInfo->rangeattacktime    = fields[28].GetUInt32();
-            cInfo->unit_class         = fields[29].GetUInt8();
-            cInfo->unit_flags         = fields[30].GetUInt32();
-            cInfo->unit_flags2        = fields[31].GetUInt32();
-            cInfo->dynamicflags       = fields[32].GetUInt32();
-            cInfo->family             = fields[33].GetUInt8();
-            cInfo->trainer_type       = fields[34].GetUInt8();
-            cInfo->trainer_spell      = fields[35].GetUInt32();
+            cInfo->expansionUnknown   = fields[16].GetUInt16();
+            cInfo->faction            = fields[17].GetUInt16();
+            cInfo->npcflag            = fields[18].GetUInt32();
+            cInfo->speed_walk         = fields[19].GetFloat();
+            cInfo->speed_run          = fields[20].GetFloat();
+            cInfo->scale              = fields[21].GetFloat();
+            cInfo->rank               = fields[22].GetUInt8();
+            cInfo->mindmg             = fields[23].GetFloat();
+            cInfo->maxdmg             = fields[24].GetFloat();
+            cInfo->dmgschool          = fields[25].GetUInt8();
+            cInfo->attackpower        = fields[26].GetUInt32();
+            cInfo->dmg_multiplier     = fields[27].GetFloat();
+            cInfo->baseattacktime     = fields[28].GetUInt32();
+            cInfo->rangeattacktime    = fields[29].GetUInt32();
+            cInfo->unit_class         = fields[30].GetUInt8();
+            cInfo->unit_flags         = fields[31].GetUInt32();
+            cInfo->unit_flags2        = fields[32].GetUInt32();
+            cInfo->dynamicflags       = fields[33].GetUInt32();
+            cInfo->family             = fields[34].GetUInt8();
+            cInfo->trainer_type       = fields[35].GetUInt8();
             cInfo->trainer_class      = fields[36].GetUInt8();
             cInfo->trainer_race       = fields[37].GetUInt8();
             cInfo->minrangedmg        = fields[38].GetFloat();
@@ -483,44 +482,39 @@ public:
             cInfo->rangedattackpower  = fields[40].GetUInt16();
             cInfo->type               = fields[41].GetUInt8();
             cInfo->type_flags         = fields[42].GetUInt32();
-            cInfo->lootid             = fields[43].GetUInt32();
-            cInfo->pickpocketLootId   = fields[44].GetUInt32();
-            cInfo->SkinLootId         = fields[45].GetUInt32();
+            cInfo->type_flags2        = fields[43].GetUInt32();
+            cInfo->lootid             = fields[44].GetUInt32();
+            cInfo->pickpocketLootId   = fields[45].GetUInt32();
+            cInfo->SkinLootId         = fields[46].GetUInt32();
 
             for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-                cInfo->resistance[i] = fields[46 + i -1].GetUInt16();
+                cInfo->resistance[i] = fields[47 + i -1].GetUInt16();
 
-            cInfo->spells[0]          = fields[52].GetUInt32();
-            cInfo->spells[1]          = fields[53].GetUInt32();
-            cInfo->spells[2]          = fields[54].GetUInt32();
-            cInfo->spells[3]          = fields[55].GetUInt32();
-            cInfo->spells[4]          = fields[56].GetUInt32();
-            cInfo->spells[5]          = fields[57].GetUInt32();
-            cInfo->spells[6]          = fields[58].GetUInt32();
-            cInfo->spells[7]          = fields[59].GetUInt32();
-            cInfo->PetSpellDataId     = fields[60].GetUInt32();
-            cInfo->VehicleId          = fields[61].GetUInt32();
-            cInfo->mingold            = fields[62].GetUInt32();
-            cInfo->maxgold            = fields[63].GetUInt32();
-            cInfo->AIName             = fields[64].GetString();
-            cInfo->MovementType       = fields[65].GetUInt8();
-            cInfo->InhabitType        = fields[66].GetUInt8();
-            cInfo->HoverHeight        = fields[67].GetFloat();
-            cInfo->ModHealth          = fields[68].GetFloat();
-            cInfo->ModMana            = fields[69].GetFloat();
-            cInfo->ModArmor           = fields[70].GetFloat();
-            cInfo->RacialLeader       = fields[71].GetBool();
-            cInfo->questItems[0]      = fields[72].GetUInt32();
-            cInfo->questItems[1]      = fields[73].GetUInt32();
-            cInfo->questItems[2]      = fields[74].GetUInt32();
-            cInfo->questItems[3]      = fields[75].GetUInt32();
-            cInfo->questItems[4]      = fields[76].GetUInt32();
-            cInfo->questItems[5]      = fields[77].GetUInt32();
-            cInfo->movementId         = fields[78].GetUInt32();
-            cInfo->RegenHealth        = fields[79].GetBool();
-            cInfo->MechanicImmuneMask = fields[80].GetUInt32();
-            cInfo->flags_extra        = fields[81].GetUInt32();
-            cInfo->ScriptID           = sObjectMgr->GetScriptId(fields[82].GetCString());
+            for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+                cInfo->spells[i] = fields[53 + i].GetUInt32();
+
+            cInfo->PetSpellDataId     = fields[61].GetUInt32();
+            cInfo->VehicleId          = fields[62].GetUInt32();
+            cInfo->mingold            = fields[63].GetUInt32();
+            cInfo->maxgold            = fields[64].GetUInt32();
+            cInfo->AIName             = fields[65].GetString();
+            cInfo->MovementType       = fields[66].GetUInt8();
+            cInfo->InhabitType        = fields[67].GetUInt8();
+            cInfo->HoverHeight        = fields[68].GetFloat();
+            cInfo->ModHealth          = fields[69].GetFloat();
+            cInfo->ModMana            = fields[70].GetFloat();
+            cInfo->ModManaExtra       = fields[71].GetFloat();
+            cInfo->ModArmor           = fields[72].GetFloat();
+            cInfo->RacialLeader       = fields[73].GetBool();
+
+            for (uint8 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
+                cInfo->questItems[i] = fields[74 + i].GetUInt32();
+
+            cInfo->movementId         = fields[80].GetUInt32();
+            cInfo->RegenHealth        = fields[81].GetBool();
+            cInfo->MechanicImmuneMask = fields[82].GetUInt32();
+            cInfo->flags_extra        = fields[83].GetUInt32();
+            cInfo->ScriptID           = sObjectMgr->GetScriptId(fields[84].GetCString());
 
             sObjectMgr->CheckCreatureTemplate(cInfo);
         }
@@ -950,14 +944,6 @@ public:
         return true;
     }
 
-    static bool HandleReloadItemSetNamesCommand(ChatHandler* handler, const char* /*args*/)
-    {
-        TC_LOG_INFO("misc", "Re-Loading Item set names...");
-        sObjectMgr->LoadItemSetNames();
-        handler->SendGlobalGMSysMessage("DB table `item_set_names` reloaded.");
-        return true;
-    }
-
     static bool HandleReloadEventScriptsCommand(ChatHandler* handler, const char* args)
     {
         if (sScriptMgr->IsScriptScheduled())
@@ -1127,14 +1113,6 @@ public:
         return true;
     }
 
-    static bool HandleReloadLocalesItemSetNameCommand(ChatHandler* handler, const char* /*args*/)
-    {
-        TC_LOG_INFO("misc", "Re-Loading Locales Item set name... ");
-        sObjectMgr->LoadItemSetNameLocales();
-        handler->SendGlobalGMSysMessage("DB table `locales_item_set_name` reloaded.");
-        return true;
-    }
-
     static bool HandleReloadLocalesNpcTextCommand(ChatHandler* handler, const char* /*args*/)
     {
         TC_LOG_INFO("misc", "Re-Loading Locales NPC Text ... ");
@@ -1222,6 +1200,16 @@ public:
         TC_LOG_INFO("misc", "Reloading vehicle_template_accessory table...");
         sObjectMgr->LoadVehicleTemplateAccessories();
         handler->SendGlobalGMSysMessage("Vehicle template accessories reloaded.");
+        return true;
+    }
+
+
+    static bool HandleReloadPhaseDefinitionsCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        TC_LOG_INFO("misc", "Reloading phase_definitions table...");
+        sObjectMgr->LoadPhaseDefinitions();
+        sWorld->UpdatePhaseDefinitions();
+        handler->SendGlobalGMSysMessage("Phase Definitions reloaded.");
         return true;
     }
 

@@ -145,6 +145,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/DataStores
   ${CMAKE_CURRENT_SOURCE_DIR}/DungeonFinding
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities
+  ${CMAKE_CURRENT_SOURCE_DIR}/Entities/AreaTrigger
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/Creature
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/Corpse
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/DynamicObject

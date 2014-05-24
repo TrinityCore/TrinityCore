@@ -22,6 +22,7 @@ Comment: All guild related commands
 Category: commandscripts
 EndScriptData */
 
+#include "AchievementMgr.h"
 #include "Chat.h"
 #include "Language.h"
 #include "Guild.h"

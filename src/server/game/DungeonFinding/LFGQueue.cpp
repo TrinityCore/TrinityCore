@@ -537,7 +537,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(LfgGuidList check)
     return LFG_COMPATIBLES_MATCH;
 }
 
-void LFGQueue::UpdateQueueTimers(time_t currTime)
+void LFGQueue::UpdateQueueTimers(uint8 queueId, time_t currTime)
 {
     TC_LOG_TRACE("lfg.queue.timers.update", "Updating queue timers...");
     for (LfgQueueDataContainer::iterator itQueue = QueueDataStore.begin(); itQueue != QueueDataStore.end(); ++itQueue)
@@ -578,7 +578,7 @@ void LFGQueue::UpdateQueueTimers(time_t currTime)
         if (queueinfo.bestCompatible.empty())
             FindBestCompatibleInQueue(itQueue);
 
-        LfgQueueStatusData queueData(dungeonId, waitTime, wtAvg, wtTank, wtHealer, wtDps, queuedTime, queueinfo.tanks, queueinfo.healers, queueinfo.dps);
+        LfgQueueStatusData queueData(queueId, dungeonId, queueinfo.joinTime, waitTime, wtAvg, wtTank, wtHealer, wtDps, queuedTime, queueinfo.tanks, queueinfo.healers, queueinfo.dps);
         for (LfgRolesMap::const_iterator itPlayer = queueinfo.roles.begin(); itPlayer != queueinfo.roles.end(); ++itPlayer)
         {
             uint64 pguid = itPlayer->first;
@@ -587,9 +587,13 @@ void LFGQueue::UpdateQueueTimers(time_t currTime)
     }
 }
 
-time_t LFGQueue::GetJoinTime(uint64 guid)
+time_t LFGQueue::GetJoinTime(uint64 guid) const
 {
-    return QueueDataStore[guid].joinTime;
+    LfgQueueDataContainer::const_iterator itr = QueueDataStore.find(guid);
+    if (itr != QueueDataStore.end())
+        return itr->second.joinTime;
+
+    return 0;
 }
 
 std::string LFGQueue::DumpQueueInfo() const

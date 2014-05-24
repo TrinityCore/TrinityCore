@@ -274,7 +274,7 @@ class PlayerMenu
         /*********************************************************/
         /***                    QUEST SYSTEM                   ***/
         /*********************************************************/
-        void SendQuestGiverStatus(uint8 questStatus, uint64 npcGUID) const;
+        void SendQuestGiverStatus(uint32 questStatus, uint64 npcGUID) const;
 
         void SendQuestGiverQuestList(QEmote const& eEmote, const std::string& Title, uint64 npcGUID);
 
