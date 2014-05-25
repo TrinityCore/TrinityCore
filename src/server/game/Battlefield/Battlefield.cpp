@@ -55,7 +55,7 @@ Battlefield::Battlefield()
 
     m_uiKickAfkPlayersTimer = 1000;
 
-    m_LastResurectTimer = 30 * IN_MILLISECONDS;
+    m_LastResurrectTimer = 30 * IN_MILLISECONDS;
     m_StartGroupingTimer = 0;
     m_StartGrouping = false;
     StalkerGuid = 0;
@@ -185,15 +185,15 @@ bool Battlefield::Update(uint32 diff)
     }
 
 
-    if (m_LastResurectTimer <= diff)
+    if (m_LastResurrectTimer <= diff)
     {
         for (uint8 i = 0; i < m_GraveyardList.size(); i++)
             if (GetGraveyardById(i))
                 m_GraveyardList[i]->Resurrect();
-        m_LastResurectTimer = RESURRECTION_INTERVAL;
+        m_LastResurrectTimer = RESURRECTION_INTERVAL;
     }
     else
-        m_LastResurectTimer -= diff;
+        m_LastResurrectTimer -= diff;
 
     return objective_changed;
 }
@@ -634,7 +634,7 @@ void Battlefield::RemovePlayerFromResurrectQueue(uint64 playerGuid)
 void Battlefield::SendAreaSpiritHealerQueryOpcode(Player* player, uint64 guid)
 {
     WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
-    uint32 time = m_LastResurectTimer;  // resurrect every 30 seconds
+    uint32 time = m_LastResurrectTimer;  // resurrect every 30 seconds
 
     data << guid << time;
     ASSERT(player && player->GetSession());
@@ -713,7 +713,7 @@ void BfGraveyard::Resurrect()
             if (Creature* spirit = m_Bf->GetCreature(m_SpiritGuide[m_ControlTeam]))
                 spirit->CastSpell(spirit, SPELL_SPIRIT_HEAL, true);
 
-        // Resurect player
+        // Resurrect player
         player->CastSpell(player, SPELL_RESURRECTION_VISUAL, true);
         player->ResurrectPlayer(1.0f);
         player->CastSpell(player, 6962, true);

@@ -25,12 +25,12 @@
 
 enum Yells
 {
-    //Gorkun
+    // Gorkun
     SAY_GORKUN_INTRO_2              = 0,
     SAY_GORKUN_OUTRO_1              = 1,
     SAY_GORKUN_OUTRO_2              = 2,
 
-    //Tyrannus
+    // Tyrannus
     SAY_AMBUSH_1                    = 3,
     SAY_AMBUSH_2                    = 4,
     SAY_GAUNTLET_START              = 5,
@@ -44,12 +44,12 @@ enum Yells
     SAY_DARK_MIGHT_1                = 13,
     SAY_DARK_MIGHT_2                = 14,
 
-    //Jaina
+    // Jaina
     SAY_JAYNA_OUTRO_3               = 3,
     SAY_JAYNA_OUTRO_4               = 4,
     SAY_JAYNA_OUTRO_5               = 5,
 
-    //Sylvanas
+    // Sylvanas
     SAY_SYLVANAS_OUTRO_3            = 3,
     SAY_SYLVANAS_OUTRO_4            = 4
 };
@@ -121,7 +121,7 @@ static const Position rimefangPos[10] =
     {1012.601f, 142.4965f, 665.0453f, 0.000000f},
 };
 
-static const Position miscPos = {1018.376f, 167.2495f, 628.2811f, 0.000000f};   //tyrannus combat start position
+static Position const miscPos = { 1018.376f, 167.2495f, 628.2811f, 0.000000f }; // tyrannus combat start position
 
 class boss_tyrannus : public CreatureScript
 {
@@ -490,6 +490,43 @@ class spell_tyrannus_mark_of_rimefang : public SpellScriptLoader
         }
 };
 
+// 69232 - Icy Blast
+class spell_tyrannus_rimefang_icy_blast : public SpellScriptLoader
+{
+    public:
+        spell_tyrannus_rimefang_icy_blast() : SpellScriptLoader("spell_tyrannus_rimefang_icy_blast") { }
+
+        class spell_tyrannus_rimefang_icy_blast_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_tyrannus_rimefang_icy_blast_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ICY_BLAST_AURA))
+                    return false;
+                return true;
+            }
+
+            void HandleTriggerMissile(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                if (Position const* pos = GetHitDest())
+                    if (TempSummon* summon = GetCaster()->SummonCreature(NPC_ICY_BLAST, *pos, TEMPSUMMON_TIMED_DESPAWN, 60000))
+                        summon->CastSpell(summon, SPELL_ICY_BLAST_AURA, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHit += SpellEffectFn(spell_tyrannus_rimefang_icy_blast_SpellScript::HandleTriggerMissile, EFFECT_1, SPELL_EFFECT_TRIGGER_MISSILE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_tyrannus_rimefang_icy_blast_SpellScript();
+        }
+};
+
 class at_tyrannus_event_starter : public AreaTriggerScript
 {
     public:
@@ -518,5 +555,6 @@ void AddSC_boss_tyrannus()
     new boss_rimefang();
     new spell_tyrannus_overlord_brand();
     new spell_tyrannus_mark_of_rimefang();
+    new spell_tyrannus_rimefang_icy_blast();
     new at_tyrannus_event_starter();
 }
