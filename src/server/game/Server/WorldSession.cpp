@@ -222,7 +222,7 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
 
     if (!forced)
     {
-        OpcodeHandler const* handler = ].name;
+        OpcodeHandler const* handler = opcodeTable[packet->GetOpcode()];
         if (!handler || handler->Status == STATUS_UNHANDLED)
         {
             TC_LOG_ERROR("network.opcode", "Prevented sending disabled opcode %s to %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str(), GetPlayerInfo().c_str());
