@@ -1544,11 +1544,8 @@ void Map::UnloadAll()
         Transport* transport = *itr;
         ++itr;
 
-        transport->RemoveFromWorld();
-        delete transport;
+        RemoveFromMap<Transport>(transport, true);
     }
-
-    _transports.clear();
 }
 
 // *****************************
@@ -2648,24 +2645,27 @@ void Map::RemoveAllObjectsInRemoveList()
                     RemoveFromMap(corpse, true);
                 break;
             }
-        case TYPEID_DYNAMICOBJECT:
-            RemoveFromMap((DynamicObject*)obj, true);
-            break;
-        case TYPEID_GAMEOBJECT:
-            if (Transport* transport = obj->ToGameObject()->ToTransport())
-                RemoveFromMap(transport, true);
-            else
-                RemoveFromMap(obj->ToGameObject(), true);
-            break;
-        case TYPEID_UNIT:
-            // in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
-            // make sure that like sources auras/etc removed before destructor start
-            obj->ToCreature()->CleanupsBeforeDelete();
-            RemoveFromMap(obj->ToCreature(), true);
-            break;
-        default:
-            TC_LOG_ERROR("maps", "Non-grid object (TypeId: %u) is in grid object remove list, ignored.", obj->GetTypeId());
-            break;
+            case TYPEID_DYNAMICOBJECT:
+                RemoveFromMap(obj->ToDynObject(), true);
+                break;
+            case TYPEID_GAMEOBJECT:
+            {
+                GameObject* go = obj->ToGameObject();
+                if (Transport* transport = go->ToTransport())
+                    RemoveFromMap(transport, true);
+                else
+                    RemoveFromMap(go, true);
+                break;
+            }
+            case TYPEID_UNIT:
+                // in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
+                // make sure that like sources auras/etc removed before destructor start
+                obj->ToCreature()->CleanupsBeforeDelete();
+                RemoveFromMap(obj->ToCreature(), true);
+                break;
+            default:
+                TC_LOG_ERROR("maps", "Non-grid object (TypeId: %u) is in grid object remove list, ignored.", obj->GetTypeId());
+                break;
         }
 
         i_objectsToRemove.erase(itr);
@@ -3531,4 +3531,16 @@ void Map::SetZoneOverrideLight(uint32 zoneId, uint32 lightId, uint32 fadeInTime)
                 if (player->GetZoneId() == zoneId)
                     player->SendDirectMessage(&data);
     }
+}
+
+void Map::UpdateAreaDependentAuras()
+{
+    Map::PlayerList const& players = GetPlayers();
+    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        if (Player* player = itr->GetSource())
+            if (player->IsInWorld())
+            {
+                player->UpdateAreaDependentAuras(player->GetAreaId());
+                player->UpdateZoneDependentAuras(player->GetZoneId());
+            }
 }

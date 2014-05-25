@@ -74,7 +74,7 @@ class boss_slad_ran : public CreatureScript
 public:
     boss_slad_ran() : CreatureScript("boss_slad_ran") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_slad_ranAI>(creature);
     }
@@ -98,7 +98,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiPoisonNovaTimer = 10*IN_MILLISECONDS;
             uiPowerfullBiteTimer = 3*IN_MILLISECONDS;
@@ -112,14 +112,14 @@ public:
             instance->SetData(DATA_SLAD_RAN_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
             instance->SetData(DATA_SLAD_RAN_EVENT, IN_PROGRESS);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -173,7 +173,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
             lSummons.DespawnAll();
@@ -181,19 +181,19 @@ public:
             instance->SetData(DATA_SLAD_RAN_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* who) OVERRIDE
+        void KilledUnit(Unit* who) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_SLAY);
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
             lSummons.Summon(summoned);
         }
 
-        void SetGUID(uint64 guid, int32 type) OVERRIDE
+        void SetGUID(uint64 guid, int32 type) override
         {
             if (type == DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES)
                 lWrappedPlayers.insert(guid);
@@ -212,7 +212,7 @@ class npc_slad_ran_constrictor : public CreatureScript
 public:
     npc_slad_ran_constrictor() : CreatureScript("npc_slad_ran_constrictor") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_slad_ran_constrictorAI(creature);
     }
@@ -226,12 +226,12 @@ public:
 
         uint32 uiGripOfSladRanTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiGripOfSladRanTimer = 1*IN_MILLISECONDS;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -267,7 +267,7 @@ class npc_slad_ran_viper : public CreatureScript
 public:
     npc_slad_ran_viper() : CreatureScript("npc_slad_ran_viper") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_slad_ran_viperAI(creature);
     }
@@ -281,12 +281,12 @@ public:
 
         uint32 uiVenomousBiteTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiVenomousBiteTimer = 2*IN_MILLISECONDS;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -308,7 +308,7 @@ class achievement_snakes_whyd_it_have_to_be_snakes : public AchievementCriteriaS
         {
         }
 
-        bool OnCheck(Player* player, Unit* target) OVERRIDE
+        bool OnCheck(Player* player, Unit* target) override
         {
             if (!target)
                 return false;

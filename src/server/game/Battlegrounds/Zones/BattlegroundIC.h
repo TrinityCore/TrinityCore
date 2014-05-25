@@ -204,7 +204,7 @@ struct ICNpc
 {
     uint32 type;
     uint32 entry;
-    uint32 team;
+    TeamId team;
     float x;
     float y;
     float z;
@@ -783,7 +783,7 @@ const uint32 BG_IC_GraveyardIds[MAX_NODE_TYPES+2] = {0, 0, 1480, 1481, 1482, 148
 const Position TransportMovementInfo = {7.305609f, -0.095246f, 34.51022f, 0.0f};
 const Position TeleportToTransportPosition = {661.0f, -1244.0f, 288.0f, 0.0f};
 
-const float BG_IC_SpiritGuidePos[MAX_NODE_TYPES+2][4] =
+Position const BG_IC_SpiritGuidePos[MAX_NODE_TYPES+2] =
 {
     {0.0f, 0.0f, 0.0f, 0.0f},                     // no grave
     {0.0f, 0.0f, 0.0f, 0.0f},                     // no grave
@@ -819,7 +819,7 @@ struct ICNodePoint
 {
     uint32 gameobject_type; // with this we will get the GameObject of that point
     uint32 gameobject_entry; // what gameobject entry is active here.
-    uint8 faction; // who has this node
+    TeamId faction; // who has this node
     ICNodePointType nodeType; // here we can specify if it is graveyards, hangar etc...
     uint32 banners[4]; // the banners that have this point
     bool needChange; // this is used for the 1 minute time period after the point is captured
@@ -876,7 +876,6 @@ class BattlegroundIC : public Battleground
         void EndBattleground(uint32 winner);
         void EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj*/);
 
-        void EventPlayerDamagedGO(Player* /*player*/, GameObject* go, uint32 eventType);
         void DestroyGate(Player* player, GameObject* go);
 
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);

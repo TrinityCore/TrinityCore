@@ -85,8 +85,8 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
     _triggeredDepartureEvent = false;
 
     m_goValue.Transport.PathProgress = 0;
-    SetFloatValue(OBJECT_FIELD_SCALE_X, goinfo->size);
-    SetUInt32Value(GAMEOBJECT_FACTION, goinfo->faction);
+    SetObjectScale(goinfo->size);
+    SetFaction(goinfo->faction);
     SetUInt32Value(GAMEOBJECT_FLAGS, goinfo->flags);
     SetPeriod(tInfo->pathTime);
     SetEntry(goinfo->entry);
@@ -210,8 +210,14 @@ void Transport::Update(uint32 diff)
               3. transport moves from active to inactive grid
               4. the grid that transport is currently in unloads
             */
-            if (_staticPassengers.empty() && GetMap()->IsGridLoaded(GetPositionX(), GetPositionY())) // 2.
+            bool gridActive = GetMap()->IsGridLoaded(GetPositionX(), GetPositionY());
+
+            if (_staticPassengers.empty() && gridActive) // 2.
                 LoadStaticPassengers();
+            else if (!_staticPassengers.empty() && !gridActive)
+                // 4. - if transports stopped on grid edge, some passengers can remain in active grids
+                //      unload all static passengers otherwise passengers won't load correctly when the grid that transport is currently in becomes active
+                UnloadStaticPassengers();
         }
     }
 
@@ -384,13 +390,8 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
     }
 
     uint32 phase = PHASEMASK_NORMAL;
-    uint32 team = 0;
     if (summoner)
-    {
         phase = summoner->GetPhaseMask();
-        if (summoner->GetTypeId() == TYPEID_PLAYER)
-            team = summoner->ToPlayer()->GetTeam();
-    }
 
     TempSummon* summon = NULL;
     switch (mask)
@@ -416,7 +417,7 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
     pos.GetPosition(x, y, z, o);
     CalculatePassengerPosition(x, y, z, &o);
 
-    if (!summon->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, phase, entry, vehId, team, x, y, z, o))
+    if (!summon->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, phase, entry, x, y, z, o, nullptr, vehId))
     {
         delete summon;
         return NULL;
@@ -455,6 +456,7 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
 void Transport::UpdatePosition(float x, float y, float z, float o)
 {
     bool newActive = GetMap()->IsGridLoaded(x, y);
+    Cell oldCell(GetPositionX(), GetPositionY());
 
     Relocate(x, y, z, o);
     UpdateModelPosition();
@@ -469,7 +471,7 @@ void Transport::UpdatePosition(float x, float y, float z, float o)
     */
     if (_staticPassengers.empty() && newActive) // 1.
         LoadStaticPassengers();
-    else if (!_staticPassengers.empty() && !newActive && Cell(x, y).DiffGrid(Cell(GetPositionX(), GetPositionY()))) // 3.
+    else if (!_staticPassengers.empty() && !newActive && oldCell.DiffGrid(Cell(GetPositionX(), GetPositionY()))) // 3.
         UnloadStaticPassengers();
     else
         UpdatePassengerPositions(_staticPassengers);

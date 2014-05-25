@@ -276,6 +276,13 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
     // set before checks for propertly undo at problems (it already set in to client)
     my_trade->SetAccepted(true);
 
+    if (!_player->IsWithinDistInMap(trader, TRADE_DISTANCE, false))
+    {
+        SendTradeStatus(TRADE_STATUS_TARGET_TO_FAR);
+        my_trade->SetAccepted(false);
+        return;
+    }
+
     // not accept case incorrect money amount
     if (!_player->HasEnoughMoney(my_trade->GetMoney()))
     {
@@ -292,14 +299,14 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
         return;
     }
 
-    if (_player->GetMoney() >= uint32(MAX_MONEY_AMOUNT) - his_trade->GetMoney())
+    if (_player->GetMoney() >= MAX_MONEY_AMOUNT - his_trade->GetMoney())
     {
         _player->SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD, NULL, NULL);
         my_trade->SetAccepted(false, true);
         return;
     }
 
-    if (trader->GetMoney() >= uint32(MAX_MONEY_AMOUNT) - my_trade->GetMoney())
+    if (trader->GetMoney() >= MAX_MONEY_AMOUNT - my_trade->GetMoney())
     {
         trader->SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD, NULL, NULL);
         his_trade->SetAccepted(false, true);
@@ -648,7 +655,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (!pOther->IsWithinDistInMap(_player, 10.0f, false))
+    if (!pOther->IsWithinDistInMap(_player, TRADE_DISTANCE, false))
     {
         SendTradeStatus(TRADE_STATUS_TARGET_TO_FAR);
         return;
@@ -679,7 +686,6 @@ void WorldSession::HandleSetTradeGoldOpcode(WorldPacket& recvPacket)
     if (!my_trade)
         return;
 
-    // gold can be incorrect, but this is checked at trade finished.
     my_trade->SetMoney(gold);
 }
 

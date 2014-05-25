@@ -15,14 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Script Data Start
-SDName: Boss krystallus
-SDAuthor: LordVanMartin
-SD%Complete:
-SDComment:
-SDCategory:
-Script Data End */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -30,17 +22,13 @@ Script Data End */
 
 enum Spells
 {
-    SPELL_BOULDER_TOSS                             = 50843,
-    H_SPELL_BOULDER_TOSS                           = 59742,
-    SPELL_GROUND_SPIKE                             = 59750,
-    SPELL_GROUND_SLAM                              = 50827,
-    SPELL_SHATTER                                  = 50810,
-    H_SPELL_SHATTER                                = 61546,
-    SPELL_SHATTER_EFFECT                           = 50811,
-    H_SPELL_SHATTER_EFFECT                         = 61547,
-    SPELL_STONED                                   = 50812,
-    SPELL_STOMP                                    = 48131,
-    H_SPELL_STOMP                                  = 59744
+    SPELL_BOULDER_TOSS                          = 50843,
+    SPELL_GROUND_SPIKE                          = 59750,
+    SPELL_GROUND_SLAM                           = 50827,
+    SPELL_SHATTER                               = 50810,
+    SPELL_SHATTER_EFFECT                        = 50811,
+    SPELL_STONED                                = 50812,
+    SPELL_STOMP                                 = 48131
 };
 
 enum Yells
@@ -51,133 +39,103 @@ enum Yells
     SAY_SHATTER                                 = 3
 };
 
+enum Events
+{
+    EVENT_BOULDER_TOSS                          = 1,
+    EVENT_GROUND_SPIKE,
+    EVENT_GROUND_SLAM,
+    EVENT_STOMP,
+    EVENT_SHATTER
+};
+
 class boss_krystallus : public CreatureScript
 {
-public:
-    boss_krystallus() : CreatureScript("boss_krystallus") { }
+    public:
+        boss_krystallus() : CreatureScript("boss_krystallus") { }
 
-    struct boss_krystallusAI : public ScriptedAI
-    {
-        boss_krystallusAI(Creature* creature) : ScriptedAI(creature)
+        struct boss_krystallusAI : public BossAI
         {
-            instance = creature->GetInstanceScript();
-        }
+            boss_krystallusAI(Creature* creature) : BossAI(creature, DATA_KRYSTALLUS) { }
 
-        uint32 uiBoulderTossTimer;
-        uint32 uiGroundSpikeTimer;
-        uint32 uiGroundSlamTimer;
-        uint32 uiShatterTimer;
-        uint32 uiStompTimer;
-
-        bool bIsSlam;
-
-        InstanceScript* instance;
-
-        void Reset() OVERRIDE
-        {
-            bIsSlam = false;
-
-            uiBoulderTossTimer = urand(3000, 9000);
-            uiGroundSpikeTimer = urand(9000, 14000);
-            uiGroundSlamTimer = urand(15000, 18000);
-            uiStompTimer = urand(20000, 29000);
-            uiShatterTimer = 0;
-
-            instance->SetBossState(DATA_KRYSTALLUS, NOT_STARTED);
-        }
-        void EnterCombat(Unit* /*who*/) OVERRIDE
-        {
-            Talk(SAY_AGGRO);
-
-            instance->SetBossState(DATA_KRYSTALLUS, IN_PROGRESS);
-        }
-
-        void UpdateAI(uint32 diff) OVERRIDE
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            if (uiBoulderTossTimer <= diff)
+            void Reset() override
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_BOULDER_TOSS);
-                uiBoulderTossTimer = urand(9000, 15000);
-            } else uiBoulderTossTimer -= diff;
-
-            if (uiGroundSpikeTimer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_GROUND_SPIKE);
-                uiGroundSpikeTimer = urand(12000, 17000);
-            } else uiGroundSpikeTimer -= diff;
-
-            if (uiStompTimer <= diff)
-            {
-                DoCast(me, SPELL_STOMP);
-                uiStompTimer = urand(20000, 29000);
-            } else uiStompTimer -= diff;
-
-            if (uiGroundSlamTimer <= diff)
-            {
-                DoCast(me, SPELL_GROUND_SLAM);
-                bIsSlam = true;
-                uiShatterTimer = 10000;
-                uiGroundSlamTimer = urand(15000, 18000);
-            } else uiGroundSlamTimer -= diff;
-
-            if (bIsSlam)
-            {
-                if (uiShatterTimer <= diff)
-                {
-                    DoCast(me, DUNGEON_MODE(SPELL_SHATTER, H_SPELL_SHATTER));
-                } else uiShatterTimer -= diff;
+                _Reset();
             }
 
-            DoMeleeAttackIfReady();
-        }
-
-        void JustDied(Unit* /*killer*/) OVERRIDE
-        {
-            Talk(SAY_DEATH);
-
-            instance->SetBossState(DATA_KRYSTALLUS, DONE);
-        }
-
-        void KilledUnit(Unit* victim) OVERRIDE
-        {
-            if (victim->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            Talk(SAY_KILL);
-        }
-
-        void SpellHitTarget(Unit* /*target*/, const SpellInfo* pSpell) OVERRIDE
-        {
-            //this part should be in the core
-            if (pSpell->Id == SPELL_SHATTER || pSpell->Id == H_SPELL_SHATTER)
+            void EnterCombat(Unit* /*who*/) override
             {
-                /// @todo we need eventmap to kill this stuff
-                //clear this, if we are still performing
-                if (bIsSlam)
-                {
-                    bIsSlam = false;
+                Talk(SAY_AGGRO);
+                _EnterCombat();
 
-                    //and correct movement, if not already
-                    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
+                events.ScheduleEvent(EVENT_BOULDER_TOSS, urand(3000, 9000));
+                events.ScheduleEvent(EVENT_GROUND_SLAM, urand(15000, 18000));
+                events.ScheduleEvent(EVENT_STOMP, urand(20000, 29000));
+                if (IsHeroic())
+                    events.ScheduleEvent(EVENT_GROUND_SPIKE, urand(9000, 14000));
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                // Return since we have no target
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
                     {
-                        if (me->GetVictim())
-                            me->GetMotionMaster()->MoveChase(me->GetVictim());
+                        case EVENT_BOULDER_TOSS:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                                DoCast(target, SPELL_BOULDER_TOSS);
+                            events.ScheduleEvent(EVENT_BOULDER_TOSS, urand(9000, 15000));
+                            break;
+                        case EVENT_GROUND_SPIKE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                                DoCast(target, SPELL_GROUND_SPIKE);
+                            events.ScheduleEvent(EVENT_GROUND_SPIKE, urand(12000, 17000));
+                            break;
+                        case EVENT_GROUND_SLAM:
+                            DoCast(me, SPELL_GROUND_SLAM);
+                            events.ScheduleEvent(EVENT_SHATTER, 10000);
+                            events.ScheduleEvent(EVENT_GROUND_SLAM, urand(15000, 18000));
+                            break;
+                        case EVENT_STOMP:
+                            DoCast(me, SPELL_STOMP);
+                            events.ScheduleEvent(EVENT_STOMP, urand(20000, 29000));
+                            break;
+                        case EVENT_SHATTER:
+                            DoCast(me, SPELL_SHATTER);
+                            break;
+                        default:
+                            break;
                     }
                 }
-            }
-        }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return GetHallsOfStoneAI<boss_krystallusAI>(creature);
-    }
+                DoMeleeAttackIfReady();
+            }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                Talk(SAY_DEATH);
+                _JustDied();
+            }
+
+            void KilledUnit(Unit* victim) override
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_KILL);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetHallsOfStoneAI<boss_krystallusAI>(creature);
+        }
 };
 
 class spell_krystallus_shatter : public SpellScriptLoader
@@ -198,13 +156,13 @@ class spell_krystallus_shatter : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_krystallus_shatter_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_krystallus_shatter_SpellScript();
         }
@@ -233,13 +191,13 @@ class spell_krystallus_shatter_effect : public SpellScriptLoader
                     SetHitDamage(int32(GetHitDamage() * ((radius - distance) / radius)));
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_krystallus_shatter_effect_SpellScript::CalculateDamage);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_krystallus_shatter_effect_SpellScript();
         }

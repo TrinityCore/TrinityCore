@@ -523,7 +523,7 @@ class spell_trigger_spell_from_caster : public SpellScriptLoader
         public:
             spell_trigger_spell_from_caster_SpellScript(uint32 triggerId) : SpellScript(), _triggerId(triggerId) { }
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(_triggerId))
                     return false;
@@ -535,7 +535,7 @@ class spell_trigger_spell_from_caster : public SpellScriptLoader
                 GetCaster()->CastSpell(GetHitUnit(), _triggerId, true);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 AfterHit += SpellHitFn(spell_trigger_spell_from_caster_SpellScript::HandleTrigger);
             }
@@ -543,7 +543,7 @@ class spell_trigger_spell_from_caster : public SpellScriptLoader
             uint32 _triggerId;
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_trigger_spell_from_caster_SpellScript(_triggerId);
         }

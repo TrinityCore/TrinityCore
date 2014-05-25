@@ -20,6 +20,7 @@
 #define __BATTLEGROUNDAB_H
 
 #include "Battleground.h"
+#include "Object.h"
 
 enum BG_AB_WorldStates
 {
@@ -184,8 +185,7 @@ enum BG_AB_Objectives
 
 #define AB_EVENT_START_BATTLE               9158 // Achievement: Let's Get This Done
 
-// x, y, z, o
-const float BG_AB_NodePositions[BG_AB_DYNAMIC_NODES_COUNT][4] =
+Position const BG_AB_NodePositions[BG_AB_DYNAMIC_NODES_COUNT] =
 {
     {1166.785f, 1200.132f, -56.70859f, 0.9075713f},         // stables
     {977.0156f, 1046.616f, -44.80923f, -2.600541f},         // blacksmith
@@ -218,8 +218,7 @@ const float BG_AB_BuffPositions[BG_AB_DYNAMIC_NODES_COUNT][4] =
     {1146.62f, 816.94f, -98.49f, 6.14f}                     // gold mine
 };
 
-// x, y, z, o
-const float BG_AB_SpiritGuidePos[BG_AB_ALL_NODES_COUNT][4] =
+Position const BG_AB_SpiritGuidePos[BG_AB_ALL_NODES_COUNT] =
 {
     {1200.03f, 1171.09f, -56.47f, 5.15f},                   // stables
     {1017.43f, 960.61f, -42.95f, 4.88f},                    // blacksmith

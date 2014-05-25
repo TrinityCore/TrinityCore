@@ -690,7 +690,7 @@ struct ChrClassesEntry
 struct ChrRacesEntry
 {
     uint32      RaceID;                                     // 0
-                                                            // 1 unused
+    uint32      Flags;                                      // 1
     uint32      FactionID;                                  // 2 facton template id
                                                             // 3 unused
     uint32      model_m;                                    // 4
@@ -736,7 +736,7 @@ struct CreatureDisplayInfoEntry
     uint32      Displayid;                                  // 0        m_ID
     uint32      ModelId;                                    // 1        m_modelID
                                                             // 2        m_soundID
-                                                            // 3        m_extendedDisplayInfoID
+    uint32      ExtraId;                                    // 3        m_extendedDisplayInfoID
     float       scale;                                      // 4        m_creatureModelScale
                                                             // 5        m_creatureModelAlpha
                                                             // 6-8      m_textureVariation[3]
@@ -747,6 +747,31 @@ struct CreatureDisplayInfoEntry
                                                             // 13       m_particleColorID
                                                             // 14       m_creatureGeosetData
                                                             // 15       m_objectEffectPackageID
+};
+
+struct CreatureDisplayInfoExtraEntry
+{
+    //uint32 Id;                                            // 0
+    uint32 Race;                                            // 1
+    uint32 Gender;                                          // 2
+    //uint32 SkinColor;                                     // 3
+    //uint32 FaceType;                                      // 4
+    //uint32 HairType;                                      // 5
+    //uint32 HairStyle;                                     // 6
+    //uint32 FacialHair;                                    // 7
+    //uint32 HelmDisplayId;                                 // 8
+    //uint32 ShoulderDisplayId;                             // 9
+    //uint32 ShirtDisplayId;                                // 10
+    //uint32 ChestDisplayId;                                // 11
+    //uint32 BeltDisplayId;                                 // 12
+    //uint32 LegsDisplayId;                                 // 13
+    //uint32 BootsDisplayId;                                // 14
+    //uint32 WristDisplayId;                                // 15
+    //uint32 GlovesDisplayId;                               // 16
+    //uint32 TabardDisplayId;                               // 17
+    //uint32 CloakDisplayId;                                // 18
+    //uint32 CanEquip;                                      // 19
+    //char const* Texture;                                  // 20
 };
 
 struct CreatureFamilyEntry
@@ -768,7 +793,7 @@ struct CreatureFamilyEntry
 struct CreatureModelDataEntry
 {
     uint32 Id;
-    //uint32 Flags;
+    uint32 Flags;
     //char* ModelPath[16]
     //uint32 Unk1;
     float Scale;                                             // Used in calculation of unit collision data
@@ -1373,6 +1398,16 @@ struct OverrideSpellDataEntry
     //uint32      unk0;                                     // 11
 };
 
+struct PowerDisplayEntry
+{
+    uint32 Id;                                              // 0
+    uint32 PowerType;                                       // 1
+    //char*  Name;                                          // 2
+    //uint32 R;                                             // 3
+    //uint32 G;                                             // 4
+    //uint32 B;                                             // 5
+};
+
 struct PvPDifficultyEntry
 {
     //uint32      id;                                       // 0        m_ID
@@ -1957,7 +1992,7 @@ struct VehicleEntry
     uint32  m_uiLocomotionType;                             // 34
     float   m_msslTrgtImpactTexRadius;                      // 35
     uint32  m_uiSeatIndicatorType;                          // 36
-    uint32  m_powerType;                                    // 37, new in 3.1
+    uint32  m_powerDisplayId;                               // 37, new in 3.1
                                                             // 38, new in 3.1
                                                             // 39, new in 3.1
 };

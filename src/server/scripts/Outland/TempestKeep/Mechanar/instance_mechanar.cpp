@@ -55,7 +55,7 @@ class instance_mechanar : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* gameObject) OVERRIDE
+            void OnGameObjectRemove(GameObject* gameObject) override
             {
                 switch (gameObject->GetEntry())
                 {
@@ -69,7 +69,7 @@ class instance_mechanar : public InstanceMapScript
                 }
             }
 
-            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
+            bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -89,7 +89,7 @@ class instance_mechanar : public InstanceMapScript
                 return true;
             }
 
-            std::string GetSaveData() OVERRIDE
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -100,7 +100,7 @@ class instance_mechanar : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* str) OVERRIDE
+            void Load(const char* str) override
             {
                 if (!str)
                 {
@@ -133,7 +133,7 @@ class instance_mechanar : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_mechanar_InstanceMapScript(map);
         }

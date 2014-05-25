@@ -85,14 +85,14 @@ class npc_frost_tomb : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void IsSummonedBy(Unit* summoner) OVERRIDE
+            void IsSummonedBy(Unit* summoner) override
             {
                 DoCast(summoner, SPELL_FROST_TOMB, true);
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
+            void UpdateAI(uint32 /*diff*/) override { }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 if (Creature* keleseth = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_PRINCE_KELESETH)))
                     keleseth->AI()->SetData(DATA_ON_THE_ROCKS, false);
@@ -102,7 +102,7 @@ class npc_frost_tomb : public CreatureScript
             InstanceScript* _instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetUtgardeKeepAI<npc_frost_tombAI>(creature);
         }
@@ -117,7 +117,7 @@ class boss_keleseth : public CreatureScript
         {
             boss_kelesethAI(Creature* creature) : BossAI(creature, DATA_PRINCE_KELESETH) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
                 events.ScheduleEvent(EVENT_SHADOWBOLT, urand(2, 3)*IN_MILLISECONDS);
@@ -127,7 +127,7 @@ class boss_keleseth : public CreatureScript
                 onTheRocks = true;
             }
 
-            void EnterCombat(Unit* who) OVERRIDE
+            void EnterCombat(Unit* who) override
             {
                 _EnterCombat();
                 Talk(SAY_START_COMBAT);
@@ -148,19 +148,19 @@ class boss_keleseth : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_DEATH);
             }
 
-            void SetData(uint32 data, uint32 value) OVERRIDE
+            void SetData(uint32 data, uint32 value) override
             {
                 if (data == DATA_ON_THE_ROCKS)
                     onTheRocks = value;
             }
 
-            uint32 GetData(uint32 data) const OVERRIDE
+            uint32 GetData(uint32 data) const override
             {
                 if (data == DATA_ON_THE_ROCKS)
                     return onTheRocks;
@@ -168,7 +168,7 @@ class boss_keleseth : public CreatureScript
                 return 0;
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -221,7 +221,7 @@ class boss_keleseth : public CreatureScript
             bool onTheRocks;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetUtgardeKeepAI<boss_kelesethAI>(creature);
         }
@@ -236,13 +236,13 @@ class npc_vrykul_skeleton : public CreatureScript
         {
             npc_vrykul_skeletonAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 events.Reset();
                 events.ScheduleEvent(EVENT_DECREPIFY, urand(4, 6) * IN_MILLISECONDS);
             }
 
-            void DamageTaken(Unit* /*doneBy*/, uint32& damage) OVERRIDE
+            void DamageTaken(Unit* /*doneBy*/, uint32& damage) override
             {
                 if (damage >= me->GetHealth())
                 {
@@ -265,7 +265,7 @@ class npc_vrykul_skeleton : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -312,7 +312,7 @@ class npc_vrykul_skeleton : public CreatureScript
             EventMap events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetUtgardeKeepAI<npc_vrykul_skeletonAI>(creature);
         }
@@ -336,13 +336,13 @@ class spell_frost_tomb : public SpellScriptLoader
                                 creature->DespawnOrUnsummon(1000);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                  AfterEffectRemove += AuraEffectRemoveFn(spell_frost_tomb_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_frost_tomb_AuraScript();
         }
@@ -354,7 +354,7 @@ class achievement_on_the_rocks : public AchievementCriteriaScript
     public:
         achievement_on_the_rocks() : AchievementCriteriaScript("achievement_on_the_rocks") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             return target && target->IsAIEnabled && target->GetAI()->GetData(DATA_ON_THE_ROCKS);
         }

@@ -85,7 +85,7 @@ class boss_cannon_master_willey : public CreatureScript
 public:
     boss_cannon_master_willey() : CreatureScript("boss_cannon_master_willey") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_cannon_master_willeyAI(creature);
     }
@@ -99,7 +99,7 @@ public:
         uint32 Shoot_Timer;
         uint32 SummonRifleman_Timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             Shoot_Timer = 1000;
             Pummel_Timer = 7000;
@@ -107,7 +107,7 @@ public:
             SummonRifleman_Timer = 15000;
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             me->SummonCreature(11054, ADD_1X, ADD_1Y, ADD_1Z, ADD_1O, TEMPSUMMON_TIMED_DESPAWN, 240000);
             me->SummonCreature(11054, ADD_2X, ADD_2Y, ADD_2Z, ADD_2O, TEMPSUMMON_TIMED_DESPAWN, 240000);
@@ -118,11 +118,11 @@ public:
             me->SummonCreature(11054, ADD_9X, ADD_9Y, ADD_9Z, ADD_9O, TEMPSUMMON_TIMED_DESPAWN, 240000);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())

@@ -111,7 +111,7 @@ class example_creature : public CreatureScript
 
             // *** HANDLED FUNCTION ***
             //This is called after spawn and whenever the core decides we need to evade
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 m_uiPhase = 1;                                      // Start in phase 1
                 m_uiPhaseTimer = 60000;                             // 60 seconds
@@ -125,7 +125,7 @@ class example_creature : public CreatureScript
 
             // *** HANDLED FUNCTION ***
             // Enter Combat called once per combat
-            void EnterCombat(Unit* who) OVERRIDE
+            void EnterCombat(Unit* who) override
             {
                 //Say some stuff
                 Talk(SAY_AGGRO, who);
@@ -134,21 +134,21 @@ class example_creature : public CreatureScript
             // *** HANDLED FUNCTION ***
             // Attack Start is called when victim change (including at start of combat)
             // By default, attack who and start movement toward the victim.
-            //void AttackStart(Unit* who) OVERRIDE
+            //void AttackStart(Unit* who) override
             //{
             //    ScriptedAI::AttackStart(who);
             //}
 
             // *** HANDLED FUNCTION ***
             // Called when going out of combat. Reset is called just after.
-            void EnterEvadeMode() OVERRIDE
+            void EnterEvadeMode() override
             {
                 Talk(SAY_EVADE);
             }
 
             // *** HANDLED FUNCTION ***
             //Our Receive emote function
-            void ReceiveEmote(Player* /*player*/, uint32 uiTextEmote) OVERRIDE
+            void ReceiveEmote(Player* /*player*/, uint32 uiTextEmote) override
             {
                 me->HandleEmoteCommand(uiTextEmote);
 
@@ -165,7 +165,7 @@ class example_creature : public CreatureScript
 
             // *** HANDLED FUNCTION ***
             //Update AI is called Every single map update (roughly once every 50ms if a player is within the grid)
-            void UpdateAI(uint32 uiDiff) OVERRIDE
+            void UpdateAI(uint32 uiDiff) override
             {
                 //Out of combat timers
                 if (!me->GetVictim())
@@ -262,12 +262,12 @@ class example_creature : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new example_creatureAI(creature);
         }
 
-        bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+        bool OnGossipHello(Player* player, Creature* creature) override
         {
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             player->SEND_GOSSIP_MENU(907, creature->GetGUID());
@@ -275,7 +275,7 @@ class example_creature : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
         {
             player->PlayerTalkClass->ClearMenus();
             if (action == GOSSIP_ACTION_INFO_DEF+1)
