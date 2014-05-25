@@ -222,7 +222,7 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
 
     if (!forced)
     {
-        OpcodeHandler const* handler = opcodeTable[packet->GetOpcode()];
+        OpcodeHandler const* handler = ].name;
         if (!handler || handler->Status == STATUS_UNHANDLED)
         {
             TC_LOG_ERROR("network.opcode", "Prevented sending disabled opcode %s to %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str(), GetPlayerInfo().c_str());
@@ -1192,8 +1192,8 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
     if (++packetCounter.amountCounter > maxPacketCounterAllowed)
     {
         dosTriggered = true;
-        TC_LOG_WARN("network", "AntiDOS: Account %u, IP: %s, flooding packet (opc: %u, count: %u)",
-            Session->GetAccountId(), Session->GetRemoteAddress().c_str(), p.GetOpcode(), packetCounter.amountCounter);
+        TC_LOG_WARN("network", "AntiDOS: Account %u, IP: %s, flooding packet (opc: %s (0x%X), count: %u)",
+            Session->GetAccountId(), Session->GetRemoteAddress().c_str(), opcodeTable[p.GetOpcode()]->Name, p.GetOpcode(), packetCounter.amountCounter);
     }
     
     // Then check if player is sending packets not allowed
