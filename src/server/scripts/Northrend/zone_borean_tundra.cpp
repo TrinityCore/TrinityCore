@@ -1071,8 +1071,8 @@ public:
 
             if (phaseTimer <= diff)
             {
-                Creature* talbot = me->GetCreature(*me, talbotGUID);
-                Creature* arthas = me->GetCreature(*me, arthasGUID);
+                Creature* talbot = ObjectAccessor::GetCreature(*me, talbotGUID);
+                Creature* arthas = ObjectAccessor::GetCreature(*me, arthasGUID);
                 switch (phase)
                 {
                     case 1:
@@ -1209,9 +1209,9 @@ public:
                         break;
 
                    case 17:
-                        if (Creature* leryssa = me->GetCreature(*me, leryssaGUID))
+                        if (Creature* leryssa = ObjectAccessor::GetCreature(*me, leryssaGUID))
                             leryssa->RemoveFromWorld();
-                        if (Creature* arlos= me->GetCreature(*me, arlosGUID))
+                        if (Creature* arlos= ObjectAccessor::GetCreature(*me, arlosGUID))
                             arlos->RemoveFromWorld();
                         if (talbot)
                             talbot->RemoveFromWorld();
@@ -1230,16 +1230,16 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* talbot = me->GetCreature(*me, talbotGUID))
+            if (Creature* talbot = ObjectAccessor::GetCreature(*me, talbotGUID))
                 talbot->RemoveFromWorld();
 
-            if (Creature* leryssa = me->GetCreature(*me, leryssaGUID))
+            if (Creature* leryssa = ObjectAccessor::GetCreature(*me, leryssaGUID))
                 leryssa->RemoveFromWorld();
 
-            if (Creature* arlos = me->GetCreature(*me, arlosGUID))
+            if (Creature* arlos = ObjectAccessor::GetCreature(*me, arlosGUID))
                 arlos->RemoveFromWorld();
 
-            if (Creature* arthas = me->GetCreature(*me, arthasGUID))
+            if (Creature* arthas = ObjectAccessor::GetCreature(*me, arthasGUID))
                 arthas->RemoveFromWorld();
         }
     };
@@ -1433,8 +1433,8 @@ public:
             if (!leryssaGUID || !arlosGUID)
                 return;
 
-            Creature* leryssa = Unit::GetCreature(*me, leryssaGUID);
-            Creature* arlos = Unit::GetCreature(*me, arlosGUID);
+            Creature* leryssa = ObjectAccessor::GetCreature(*me, leryssaGUID);
+            Creature* arlos = ObjectAccessor::GetCreature(*me, arlosGUID);
             if (!leryssa || !arlos)
                 return;
 

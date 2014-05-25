@@ -162,7 +162,7 @@ public:
         {
             for (uint8 i = 0; i < 2; ++i)
             {
-                if (Creature* mob = Unit::GetCreature(*me, beams[i]))
+                if (Creature* mob = ObjectAccessor::GetCreature(*me, beams[i]))
                 {
                     mob->setDeathState(DEAD);
                     mob->RemoveCorpse();

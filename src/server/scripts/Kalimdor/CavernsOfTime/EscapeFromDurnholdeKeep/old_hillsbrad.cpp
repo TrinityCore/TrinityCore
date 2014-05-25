@@ -402,7 +402,7 @@ public:
                 case 94:
                     if (uint64 TarethaGUID = instance->GetData64(DATA_TARETHA))
                     {
-                        if (Creature* Taretha = Creature::GetCreature(*me, TarethaGUID))
+                        if (Creature* Taretha = ObjectAccessor::GetCreature(*me, TarethaGUID))
                             Taretha->AI()->Talk(SAY_TA_ESCAPED, me);
                     }
                     break;
@@ -590,7 +590,7 @@ public:
                 if (instance->GetData64(DATA_EPOCH) == 0)
                      creature->SummonCreature(ENTRY_EPOCH, 2639.13f, 698.55f, 65.43f, 4.59f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
 
-                if (Creature* thrall = (Unit::GetCreature(*creature, instance->GetData64(DATA_THRALL))))
+                if (Creature* thrall = (ObjectAccessor::GetCreature(*creature, instance->GetData64(DATA_THRALL))))
                     CAST_AI(npc_thrall_old_hillsbrad::npc_thrall_old_hillsbradAI, thrall->AI())->StartWP();
             }
         }

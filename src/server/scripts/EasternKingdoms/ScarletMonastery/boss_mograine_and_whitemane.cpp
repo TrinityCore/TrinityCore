@@ -33,12 +33,12 @@ enum Says
     //Mograine says
     SAY_MO_AGGRO                 = 0,
     SAY_MO_KILL                  = 1,
-    SAY_MO_RESSURECTED           = 2,
+    SAY_MO_RESURRECTED           = 2,
 
     //Whitemane says
     SAY_WH_INTRO                 = 0,
     SAY_WH_KILL                  = 1,
-    SAY_WH_RESSURECT             = 2,
+    SAY_WH_RESURRECT             = 2,
 };
 
 enum Spells
@@ -127,7 +127,7 @@ public:
                 return;
 
             //On first death, fake death and open door, as well as initiate whitemane if exist
-            if (Unit* Whitemane = Unit::GetUnit(*me, instance->GetData64(DATA_WHITEMANE)))
+            if (Unit* Whitemane = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_WHITEMANE)))
             {
                 instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, IN_PROGRESS);
 
@@ -157,10 +157,10 @@ public:
 
         void SpellHit(Unit* /*who*/, const SpellInfo* spell) override
         {
-            //When hit with ressurection say text
+            //When hit with resurrection say text
             if (spell->Id == SPELL_SCARLETRESURRECTION)
             {
-                Talk(SAY_MO_RESSURECTED);
+                Talk(SAY_MO_RESURRECTED);
                 _bFakeDeath = false;
 
                 instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, SPECIAL);
@@ -174,8 +174,8 @@ public:
 
             if (_bHasDied && !_bHeal && instance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT) == SPECIAL)
             {
-                //On ressurection, stop fake death and heal whitemane and resume fight
-                if (Unit* Whitemane = Unit::GetUnit(*me, instance->GetData64(DATA_WHITEMANE)))
+                //On resurrection, stop fake death and heal whitemane and resume fight
+                if (Unit* Whitemane = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_WHITEMANE)))
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -294,7 +294,7 @@ public:
                     if (Creature* mograine = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MOGRAINE)))
                     {
                         DoCast(mograine, SPELL_SCARLETRESURRECTION);
-                        Talk(SAY_WH_RESSURECT);
+                        Talk(SAY_WH_RESURRECT);
                         _bCanResurrect = false;
                     }
                 }
@@ -325,7 +325,7 @@ public:
                 if (!HealthAbovePct(75))
                     target = me;
 
-                if (Creature* mograine = Unit::GetCreature(*me, instance->GetData64(DATA_MOGRAINE)))
+                if (Creature* mograine = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MOGRAINE)))
                 {
                     // checking _bCanResurrectCheck prevents her healing Mograine while he is "faking death"
                     if (_bCanResurrectCheck && mograine->IsAlive() && !mograine->HealthAbovePct(75))

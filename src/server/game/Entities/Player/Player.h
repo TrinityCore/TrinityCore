@@ -729,9 +729,10 @@ class InstanceSave;
 
 enum RestType
 {
-    REST_TYPE_NO        = 0,
-    REST_TYPE_IN_TAVERN = 1,
-    REST_TYPE_IN_CITY   = 2
+    REST_TYPE_NO                = 0,
+    REST_TYPE_IN_TAVERN         = 1,
+    REST_TYPE_IN_CITY           = 2,
+    REST_TYPE_IN_FACTION_AREA   = 3     // used with AREA_FLAG_REST_ZONE_*
 };
 
 enum TeleportToOptions
@@ -1654,9 +1655,9 @@ class Player : public Unit, public GridObject<Player>
 
         void setResurrectRequestData(uint64 guid, uint32 mapId, float X, float Y, float Z, uint32 health, uint32 mana);
         void clearResurrectRequestData() { setResurrectRequestData(0, 0, 0.0f, 0.0f, 0.0f, 0, 0); }
-        bool isRessurectRequestedBy(uint64 guid) const { return m_resurrectGUID == guid; }
-        bool isRessurectRequested() const { return m_resurrectGUID != 0; }
-        void ResurectUsingRequestData();
+        bool isResurrectRequestedBy(uint64 guid) const { return m_resurrectGUID == guid; }
+        bool isResurrectRequested() const { return m_resurrectGUID != 0; }
+        void ResurrectUsingRequestData();
 
         uint8 getCinematic() { return m_cinematic; }
         void setCinematic(uint8 cine) { m_cinematic = cine; }
