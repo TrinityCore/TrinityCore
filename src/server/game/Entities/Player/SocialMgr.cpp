@@ -19,7 +19,7 @@
 #include "SocialMgr.h"
 
 #include "DatabaseEnv.h"
-#include "Opcodes.h"
+#include "WorldSession.h"
 #include "WorldPacket.h"
 #include "Player.h"
 #include "ObjectMgr.h"

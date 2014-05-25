@@ -174,7 +174,7 @@ class BfGraveyard
         // Check if this graveyard has a spirit guide
         bool HasNpc(uint64 guid);
 
-        // Check if a player is in this graveyard's ressurect queue
+        // Check if a player is in this graveyard's resurrect queue
         bool HasPlayer(uint64 guid) { return m_ResurrectQueue.find(guid) != m_ResurrectQueue.end(); }
 
         // Get the graveyard's ID.
@@ -387,7 +387,7 @@ class Battlefield : public ZoneScript
 
         // Graveyard variables
         GraveyardVect m_GraveyardList;                          // Vector witch contain the different GY of the battle
-        uint32 m_LastResurectTimer;                             // Timer for resurect player every 30 sec
+        uint32 m_LastResurrectTimer;                            // Timer for resurrect player every 30 sec
 
         uint32 m_StartGroupingTimer;                            // Timer for invite players in area 15 minute before start battle
         bool m_StartGrouping;                                   // bool for know if all players in area has been invited
