@@ -71,7 +71,7 @@ class IRCClient : public ACE_Based::Runnable
         // IRCClient Destructor
         ~IRCClient();
         // ZThread Entry
-        void run() OVERRIDE;
+        void run();
     public:
         // AH Function
         void AHCancel(uint64 itmid, std::string itmnme, std::string plname, uint32 faction);
