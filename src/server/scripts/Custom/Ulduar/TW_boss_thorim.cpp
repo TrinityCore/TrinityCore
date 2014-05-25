@@ -399,13 +399,13 @@ public:
             _checkTargetTimer = 7000;
             PreAddsCount = 0;
 
-            if (Creature* Sif = me->GetCreature(*me, SifGUID))
+            if (Creature* Sif = ObjectAccessor::GetCreature(*me, SifGUID))
                 Sif->DespawnOrUnsummon();
             SifGUID = 0;
 
             // Respawn Mini Bosses
             for (uint8 i = DATA_RUNIC_COLOSSUS; i <= DATA_RUNE_GIANT; ++i)
-                if (Creature* MiniBoss = me->GetCreature(*me, instance->GetData64(i)))
+            if (Creature* MiniBoss = ObjectAccessor::GetCreature(*me, instance->GetData64(i)))
                     MiniBoss->Respawn(true);
 
             // Spawn Pre-Phase Adds
@@ -480,7 +480,7 @@ public:
             events.ScheduleEvent(EVENT_BERSERK, 360000, 0, PHASE_1);
             events.ScheduleEvent(EVENT_SAY_AGGRO_2, 10000, 0, PHASE_1);
 
-            if (Creature* runic = me->GetCreature(*me, instance->GetData64(DATA_RUNIC_COLOSSUS)))
+            if (Creature* runic = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RUNIC_COLOSSUS)))
                 runic->AI()->DoAction(ACTION_RUNIC_SMASH);
 
             if (GameObject* go = me->FindNearestGameObject(GO_LEVER, 500.0f))
@@ -751,11 +751,11 @@ public:
 
             if (phase == PHASE_1 && attacker && instance)
             {
-                Creature* colossus = me->GetCreature(*me, instance->GetData64(DATA_RUNIC_COLOSSUS));
-                Creature* giant = me->GetCreature(*me, instance->GetData64(DATA_RUNE_GIANT));
+                Creature* colossus = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RUNIC_COLOSSUS));
+                Creature* giant = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RUNE_GIANT));
                 if (colossus && colossus->isDead() && giant && giant->isDead() && me->IsWithinDistInMap(attacker, 10.0f) && attacker->ToPlayer())
                 {
-                    if (Creature* Sif = me->GetCreature(*me, SifGUID))
+                    if (Creature* Sif = ObjectAccessor::GetCreature(*me, SifGUID))
                         Sif->DespawnOrUnsummon();
 
                     Talk(SAY_JUMPDOWN);
@@ -823,7 +823,7 @@ public:
 
         void JustDied(Unit* /*victim*/) override
         {
-            if (Creature* pThorim = me->GetCreature(*me, pInstance->GetData64(BOSS_THORIM)))
+            if (Creature* pThorim = ObjectAccessor::GetCreature(*me, pInstance->GetData64(BOSS_THORIM)))
                 pThorim->AI()->DoAction(ACTION_INCREASE_PREADDS_COUNT);
         }
 
@@ -933,7 +933,7 @@ class TW_npc_thorim_arena_phase : public CreatureScript
             // might be called by mind control release or controllers death?
             void EnterEvadeMode() override
             {
-                if (Creature* thorim = me->GetCreature(*me, _instance ? _instance->GetData64(BOSS_THORIM) : 0))
+                if (Creature* thorim = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(BOSS_THORIM) : 0))
                     thorim->AI()->DoAction(ACTION_BERSERK);
                 _EnterEvadeMode();
                 me->GetMotionMaster()->MoveTargetedHome();

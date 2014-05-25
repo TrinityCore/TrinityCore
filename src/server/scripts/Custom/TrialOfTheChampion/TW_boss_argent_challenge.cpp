@@ -351,7 +351,7 @@ class TW_boss_paletress : public CreatureScript
             bDone = false;
             me->SetReactState(REACT_PASSIVE);
 
-            if (Creature* pMemory = Unit::GetCreature(*me, memoryGUID))
+            if (Creature* pMemory = ObjectAccessor::GetCreature(*me, memoryGUID))
                 if (pMemory->IsAlive())
                     pMemory->RemoveFromWorld();
 

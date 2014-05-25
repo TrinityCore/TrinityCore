@@ -230,7 +230,7 @@ public:
 
             for(std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
             {
-                if (Creature* temp = Unit::GetCreature(*me, *itr))
+                if (Creature* temp = ObjectAccessor::GetCreature(*me, *itr))
                 {
                     if (temp)
                     {
@@ -272,7 +272,7 @@ public:
                             uiIntroTimer = 2000;
                             break;
                         case 2:
-                            if (Creature* announcer = Unit::GetCreature(*me, instance->GetData64(DATA_ANNOUNCER)))
+                            if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ANNOUNCER)))
                                 announcer->DisappearAndDie();
 
                             me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
@@ -393,7 +393,7 @@ public:
                         {
                             for(std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                             {
-                                if (Creature* temp = Unit::GetCreature(*me, *itr))
+                                if (Creature* temp = ObjectAccessor::GetCreature(*me, *itr))
                                 {
                                     if (temp)
                                     {

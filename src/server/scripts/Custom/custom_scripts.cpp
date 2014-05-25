@@ -755,7 +755,7 @@ public:
 
         void SetGUID(uint64 guid, int32) override
         {
-            if (Player* plr = Player::GetPlayer(*me, guid))
+            if (Player* plr = ObjectAccessor::GetPlayer(*me, guid))
             {
                 guidAttacker = guid;
                 me->Mount(28652);
@@ -782,7 +782,7 @@ public:
 
             if (uiId == 0)
             {                              
-                if (Player* plr = Player::GetPlayer(*me, guidAttacker))
+                if (Player* plr = ObjectAccessor::GetPlayer(*me, guidAttacker))
                 {
                     me->SetMaxHealth(50000);
                     me->SetHealth(50000);
@@ -813,7 +813,7 @@ public:
 
             }else if (uiId == 2)
             {
-                if (Player* plr = Player::GetPlayer(*me,guidAttacker))
+                if (Player* plr = ObjectAccessor::GetPlayer(*me, guidAttacker))
                 {
                     if (plr->GetVehicleBase())
                         AttackStart(plr->GetVehicleBase()); // if player is mounted attack the mount
@@ -843,7 +843,7 @@ public:
                 me->RemoveAllAuras();
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveIdle();                
-                if (Player* plr = Player::GetPlayer(*me, guidAttacker))
+                if (Player* plr = ObjectAccessor::GetPlayer(*me, guidAttacker))
                     me->MonsterYell(YELL_ATTACK_PHASE_1_END, LANG_UNIVERSAL, plr);
                 uireattackTimer = 10000;
             }
@@ -895,13 +895,13 @@ public:
                         me->GetMotionMaster()->MoveChase(me->GetVictim());
                     me->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
 
-                    if(Player* plr = Player::GetPlayer(*me, guidAttacker))
+                    if (Player* plr = ObjectAccessor::GetPlayer(*me, guidAttacker))
                         if (plr->GetVehicleBase())
                             plr->ExitVehicle();
 
                     me->SetMaxHealth(12500);
                     me->SetHealth(12500);
-                    if (Player* plr = Player::GetPlayer(*me, guidAttacker))
+                    if (Player* plr = ObjectAccessor::GetPlayer(*me, guidAttacker))
                         me->MonsterYell(YELL_ATTACK_PHASE_2,LANG_UNIVERSAL, plr);
                     uireattackTimer = 99999999;
                 }else uireattackTimer -= uiDiff;

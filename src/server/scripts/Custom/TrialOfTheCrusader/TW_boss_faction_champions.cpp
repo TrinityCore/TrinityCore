@@ -94,7 +94,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
     void JustReachedHome() override
     {
         if (instance)
-            if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+        if (Creature* pChampionController = ObjectAccessor::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
                 pChampionController->AI()->SetData(2, FAIL);
         me->DespawnOrUnsummon();
     }
@@ -117,7 +117,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
         std::list<HostileReference*> const& tList = me->getThreatManager().getThreatList();
         for (std::list<HostileReference*>::const_iterator itr = tList.begin(); itr != tList.end(); ++itr)
         {
-            Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+            Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
             if (unit && me->getThreatManager().getThreat(unit))
             {
                 if (unit->GetTypeId()==TYPEID_PLAYER)
@@ -152,7 +152,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
     {
         if (mAIType != AI_PET)
             if (instance)
-                if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+            if (Creature* pChampionController = ObjectAccessor::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
                     pChampionController->AI()->SetData(2, DONE);
     }
 
@@ -161,7 +161,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
         DoCast(me, SPELL_ANTI_AOE, true);
         me->SetInCombatWithZone();
         if (instance)
-            if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+        if (Creature* pChampionController = ObjectAccessor::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
                 pChampionController->AI()->SetData(2, IN_PROGRESS);
     }
 
@@ -180,11 +180,11 @@ struct TW_boss_faction_championsAI : public ScriptedAI
             {
                 if (TeamInInstance == ALLIANCE)
                 {
-                    if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(NPC_VARIAN)))
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_VARIAN)))
                         temp->AI()->Talk(SAY_KILL_PLAYER);
                 }
                 else
-                    if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(NPC_GARROSH)))
+                if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_GARROSH)))
                         temp->AI()->Talk(SAY_KILL_PLAYER);
 
 
@@ -210,7 +210,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
         Unit* target;
         for (iter = tList.begin(); iter!=tList.end(); ++iter)
         {
-            target = Unit::GetUnit(*me, (*iter)->getUnitGuid());
+            target = ObjectAccessor::GetUnit(*me, (*iter)->getUnitGuid());
             if (target && target->getPowerType() == POWER_MANA)
                 return target;
         }
@@ -225,7 +225,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
         Unit* target;
         for (iter = tList.begin(); iter!=tList.end(); ++iter)
         {
-            target = Unit::GetUnit(*me, (*iter)->getUnitGuid());
+            target = ObjectAccessor::GetUnit(*me, (*iter)->getUnitGuid());
                 if (target && me->GetDistance2d(target) < distance)
                     ++count;
         }

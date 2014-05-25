@@ -537,7 +537,7 @@ class spell_lava_strike : public SpellScriptLoader
                 InstanceScript* instance = target->GetInstanceScript();
                 if (instance)
                 {
-                    Creature* sartharion = Unit::GetCreature(*target, instance->GetData64(DATA_SARTHARION));
+                    Creature* sartharion = ObjectAccessor::GetCreature(*target, instance->GetData64(DATA_SARTHARION));
                     if (target->GetTypeId() == TYPEID_PLAYER && instance && sartharion)
                         sartharion->GetAI()->SetGUID(target->GetGUID(), DATA_GONNA_GO_WHEN_THE_VULCANO_BLOWS);
                 }

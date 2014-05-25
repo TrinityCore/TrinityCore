@@ -298,7 +298,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                         }
 
                         for(std::list<uint64>::const_iterator itr = TempList.begin(); itr != TempList.end(); ++itr)
-                            if (Creature* summon = Unit::GetCreature(*me, *itr))
+                        if (Creature* summon = ObjectAccessor::GetCreature(*me, *itr))
                                 AggroAllPlayers(summon);
                     } else if (uiLesserChampions == 9)
                         StartGrandChampionsAttack();
@@ -309,9 +309,9 @@ class TW_npc_herald_toc5 : public CreatureScript
 
         void StartGrandChampionsAttack()
         {
-            Creature* pGrandChampion1 = Unit::GetCreature(*me, uiVehicle1GUID);
-            Creature* pGrandChampion2 = Unit::GetCreature(*me, uiVehicle2GUID);
-            Creature* pGrandChampion3 = Unit::GetCreature(*me, uiVehicle3GUID);
+            Creature* pGrandChampion1 = ObjectAccessor::GetCreature(*me, uiVehicle1GUID);
+            Creature* pGrandChampion2 = ObjectAccessor::GetCreature(*me, uiVehicle2GUID);
+            Creature* pGrandChampion3 = ObjectAccessor::GetCreature(*me, uiVehicle3GUID);
 
             if (pGrandChampion1 && pGrandChampion2 && pGrandChampion3)
             {
@@ -421,7 +421,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                     case 1:
                     {
                         uiVehicle1GUID = pBoss->GetGUID();
-                        if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle1GUID))
+                        if (Creature* pBoss = ObjectAccessor::GetCreature(*me, uiVehicle1GUID))
                             if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                                 if (Unit* pUnit = pVehicle->GetPassenger(0))
                                     uiGrandChampionBoss1 = pUnit->GetGUID();
@@ -433,7 +433,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                     case 2:
                     {
                         uiVehicle2GUID = pBoss->GetGUID();
-                        if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle2GUID))
+                        if (Creature* pBoss = ObjectAccessor::GetCreature(*me, uiVehicle2GUID))
                             if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                                 if (Unit* pUnit = pVehicle->GetPassenger(0))
                                     uiGrandChampionBoss2 = pUnit->GetGUID();
@@ -445,7 +445,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                     case 3:
                     {
                         uiVehicle3GUID = pBoss->GetGUID();
-                        if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle3GUID))
+                        if (Creature* pBoss = ObjectAccessor::GetCreature(*me, uiVehicle3GUID))
                             if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                                 if (Unit* pUnit = pVehicle->GetPassenger(0))
                                     uiGrandChampionBoss3 = pUnit->GetGUID();
@@ -496,7 +496,7 @@ class TW_npc_herald_toc5 : public CreatureScript
 
         void DoStartArgentChampionEncounter()
         {
-            if (Creature* tirion = Unit::GetCreature(*me, instance->GetData64(DATA_HIGHLORD)))
+            if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HIGHLORD)))
                 tirion->AI()->Talk(SAY_ARGENT_CHAMP_ENTERS);
 
             if (ArgentChampion == NPC_PALETRESS)
@@ -614,7 +614,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     me->SetReactState(REACT_AGGRESSIVE);
-                    if (Creature* tirion = me->GetCreature(*me, tirionGUID))
+                    if (Creature* tirion = ObjectAccessor::GetCreature(*me, tirionGUID))
                         tirion->AI()->Talk(SAY_INTRO_BLACK_KNIGHT_TIRION);
                     Talk(SAY_HERALD_RAFTERS);
                 }
@@ -709,56 +709,56 @@ class TW_npc_herald_toc5 : public CreatureScript
                         events.ScheduleEvent(EVENT_INTRO_2, 5000, 0, PHASE_INTRO);
                         break;
                     case EVENT_INTRO_2:
-                        if (Creature* tirion = me->GetCreature(*me, tirionGUID))
+                        if (Creature* tirion = ObjectAccessor::GetCreature(*me, tirionGUID))
                             tirion->AI()->Talk(SAY_INTRO_HERALD_2);
                         events.ScheduleEvent(EVENT_INTRO_3, 13000, 0, PHASE_INTRO);
                         break;
                     case EVENT_INTRO_3:
                         if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                         {
-                            if (Creature* thrall = me->GetCreature(*me, thrallGUID))
+                            if (Creature* thrall = ObjectAccessor::GetCreature(*me, thrallGUID))
                                 thrall->AI()->Talk(H_SAY_INTRO_HERALD_3);
                         }
                         else
-                            if (Creature* varian = me->GetCreature(*me, varianGUID))
+                        if (Creature* varian = ObjectAccessor::GetCreature(*me, varianGUID))
                                 varian->AI()->Talk(A_SAY_INTRO_HERALD_3);
                         events.ScheduleEvent(EVENT_INTRO_4, 4000, 0, PHASE_INTRO);
                         break;
                     case EVENT_INTRO_4:
                         if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                         {
-                            if (Creature* garrosh = me->GetCreature(*me, garroshGUID))
+                            if (Creature* garrosh = ObjectAccessor::GetCreature(*me, garroshGUID))
                                 garrosh->AI()->Talk(H_SAY_INTRO_HERALD_4);
                         }
                         else
-                            if (Creature* proudmoore = me->GetCreature(*me, proudmooreGUID))
+                        if (Creature* proudmoore = ObjectAccessor::GetCreature(*me, proudmooreGUID))
                                 proudmoore->AI()->Talk(A_SAY_INTRO_HERALD_4);
                         events.ScheduleEvent(EVENT_INTRO_5, 4000, 0, PHASE_INTRO);
                         break;
                     case EVENT_INTRO_5:
                         if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                         {
-                            if (Creature* varian = me->GetCreature(*me, varianGUID))
+                            if (Creature* varian = ObjectAccessor::GetCreature(*me, varianGUID))
                                 varian->AI()->Talk(SAY_INTRO_HERALD_5);
                         }
                         else
-                            if (Creature* garrosh = me->GetCreature(*me, garroshGUID))
+                        if (Creature* garrosh = ObjectAccessor::GetCreature(*me, garroshGUID))
                                 garrosh->AI()->Talk(SAY_INTRO_HERALD_5);
                         events.ScheduleEvent(EVENT_INTRO_6, 6000, 0, PHASE_INTRO);
                         break;
                     case EVENT_INTRO_6:
                         if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                         {
-                            if (Creature* proudmoore = me->GetCreature(*me, proudmooreGUID))
+                            if (Creature* proudmoore = ObjectAccessor::GetCreature(*me, proudmooreGUID))
                                 proudmoore->AI()->Talk(H_SAY_INTRO_HERALD_6);
                         }
                         else
-                            if (Creature* thrall = me->GetCreature(*me, thrallGUID))
+                        if (Creature* thrall = ObjectAccessor::GetCreature(*me, thrallGUID))
                                 thrall->AI()->Talk(A_SAY_INTRO_HERALD_6);
                         events.ScheduleEvent(EVENT_INTRO_7, 6000, 0, PHASE_INTRO);
                         break;
                     case EVENT_INTRO_7:
-                        if (Creature* tirion = me->GetCreature(*me, tirionGUID))
+                        if (Creature* tirion = ObjectAccessor::GetCreature(*me, tirionGUID))
                             tirion->AI()->Talk(SAY_INTRO_HERALD_7);
                         events.ScheduleEvent(EVENT_INTRO_8, 1000, 0, PHASE_INTRO);
                         break;
@@ -777,7 +777,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                         if (!Champion1List.empty())
                         {
                             for(std::list<uint64>::const_iterator itr = Champion1List.begin(); itr != Champion1List.end(); ++itr)
-                                if (Creature* summon = Unit::GetCreature(*me, *itr))
+                            if (Creature* summon = ObjectAccessor::GetCreature(*me, *itr))
                                     AggroAllPlayers(summon);
                         }
                         break;
@@ -787,11 +787,11 @@ class TW_npc_herald_toc5 : public CreatureScript
                         events.ScheduleEvent(EVENT_PALETRESS_2, 5000, 0, PHASE_INPROGRESS);
                         break;
                     case EVENT_PALETRESS_2:
-                        if (Creature* argentchamp = Unit::GetCreature(*me, instance->GetData64(DATA_ARGENT_CHAMPION)))
+                        if (Creature* argentchamp = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARGENT_CHAMPION)))
                             argentchamp->AI()->Talk(SAY_PALETRESS_INTRO_3);
                         events.ScheduleEvent(EVENT_PALETRESS_3, 5000);
                     case EVENT_PALETRESS_3:
-                        if (Creature* argentchamp = Unit::GetCreature(*me, instance->GetData64(DATA_ARGENT_CHAMPION)))
+                        if (Creature* argentchamp = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARGENT_CHAMPION)))
                             argentchamp->AI()->Talk(SAY_PALETRESS_INTRO_4);
                         events.CancelEvent(EVENT_PALETRESS_3);
                         break;
@@ -801,7 +801,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                         events.ScheduleEvent(EVENT_EADRIC_2, 5000);
                         break;
                     case EVENT_EADRIC_2:
-                        if (Creature* argentchamp = Unit::GetCreature(*me, instance->GetData64(DATA_ARGENT_CHAMPION)))
+                        if (Creature* argentchamp = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARGENT_CHAMPION)))
                             argentchamp->AI()->Talk(SAY_EADRIC_INTRO_3);
                         break;
                 }

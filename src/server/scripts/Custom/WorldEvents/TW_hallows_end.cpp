@@ -166,7 +166,7 @@ public:
                         if (GameObject* effigy = me->FindNearestGameObject(GO_FIRE_EFFIGY, 0.5f))
                         {
                             effigy->SetGoState(GO_STATE_READY);
-                            if (Player* player = me->GetPlayer(*me, _playerGUID))
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                                 player->KilledMonsterCredit(me->GetEntry(),0);
                             events.ScheduleEvent(EVENT_FIRE_GROW_FIRE, 22000);
                         }
@@ -219,7 +219,7 @@ public:
                             events.ScheduleEvent(EVENT_FIRE_VISUAL_WATER, 1000);
                 } else
                 {
-                    if (Creature* horseman = me->GetCreature(*me, me->GetCreatorGUID()))
+                    if (Creature* horseman = ObjectAccessor::GetCreature(*me, me->GetCreatorGUID()))
                         horseman->AI()->SetGUID(_playerGUID, EVENT_FIRE_HIT_BY_BUCKET);
                     events.ScheduleEvent(EVENT_FIRE_VISUAL_WATER, 1000);
                 }
@@ -368,7 +368,7 @@ public:
                     // Credit quest to players
                     if (!_playerList.empty())
                         for (std::list<uint64>::const_iterator i = _playerList.begin();i != _playerList.end(); ++i)
-                            if (Player* player = me->GetPlayer(*me, *i))
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, *i))
                                 player->CastSpell(player, SPELL_QUESTS_CREDITS, true);
                     return;
                 }
@@ -384,7 +384,7 @@ public:
                         {
                             for (std::list<uint64>::const_iterator i = _playerList.begin();i != _playerList.end(); ++i)
                             {
-                                Player* player = me->GetPlayer(*me, *i);
+                                Player* player = ObjectAccessor::GetPlayer(*me, *i);
                                 if (player)
                                 {
                                     uint32 questId = player->GetTeam() == ALLIANCE ? QUEST_LET_THE_FIRES_COME_A : QUEST_LET_THE_FIRES_COME_H;
@@ -400,7 +400,7 @@ public:
                         {
                             for (std::list<uint64>::const_iterator i = _playerList.begin();i != _playerList.end(); ++i)
                             {
-                                Player* player = me->GetPlayer(*me, *i);
+                                Player* player = ObjectAccessor::GetPlayer(*me, *i);
                                 if (player && player->GetDistance(me) <= 30.0f)
                                 {
                                     me->CastSpell(player, RAND(SPELL_HORSEMAN_CONFLAGRATION_1, SPELL_HORSEMAN_CONFLAGRATION_2, SPELL_HORSEMAN_JACK_O_LANTERN), true);
@@ -428,7 +428,7 @@ public:
                         {
                             for (std::list<uint64>::const_iterator i = _playerList.begin();i != _playerList.end(); ++i)
                             {
-                                Player* player = me->GetPlayer(*me, *i);
+                                Player* player = ObjectAccessor::GetPlayer(*me, *i);
                                 if (player && player->GetAreaId() == me->GetAreaId() && player->GetDistance(me) <= 30.0f)
                                 {
                                     me->CastSpell(player, RAND(SPELL_HORSEMAN_CONFLAGRATION_1, SPELL_HORSEMAN_CONFLAGRATION_2, SPELL_HORSEMAN_JACK_O_LANTERN), true);
@@ -499,7 +499,7 @@ public:
     {
         player->PrepareQuestMenu(me->GetGUID());
 
-        if (me->GetCreature(*me, _headlessHoresemanGUID))
+        if (ObjectAccessor::GetCreature(*me, _headlessHoresemanGUID))
         {
             QuestMenu &qm = player->PlayerTalkClass->GetQuestMenu();
             QuestMenu qm2;
@@ -544,7 +544,7 @@ public:
 
         if (quest->GetQuestId() == QUEST_LET_THE_FIRES_COME_A || quest->GetQuestId() == QUEST_LET_THE_FIRES_COME_H)
         {
-            Creature* horseman = me->GetCreature(*me, _headlessHoresemanGUID);
+            Creature* horseman = ObjectAccessor::GetCreature(*me, _headlessHoresemanGUID);
 
             if (!horseman)
             {

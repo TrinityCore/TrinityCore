@@ -130,7 +130,7 @@ public:
                     SetEscortPaused(true);
                     pInstance->SetBossState(DATA_LICHKING_EVENT, SPECIAL);
                     Talk(SAY_LICH_KING_END_DUN);
-                    if(Creature* pLider = ((Creature*)Unit::GetUnit((*me), pInstance->GetData64(DATA_ESCAPE_LEADER))))
+                    if (Creature* pLider = ((Creature*)ObjectAccessor::GetUnit((*me), pInstance->GetData64(DATA_ESCAPE_LEADER))))
                         me->CastSpell(pLider, SPELL_HARVEST_SOUL, false);
                     me->setActive(false);
                     break;
@@ -160,7 +160,7 @@ public:
             summoned->setActive(true);
 
             pInstance->SetData(DATA_SUMMONS, 1);
-            if (Unit* pLider = Unit::GetUnit((*me), pInstance->GetData64(DATA_ESCAPE_LEADER)))
+            if (Unit* pLider = ObjectAccessor::GetUnit((*me), pInstance->GetData64(DATA_ESCAPE_LEADER)))
             {
                 summoned->GetMotionMaster()->MoveChase(pLider);
                 summoned->AddThreat(pLider, 0.0f);
@@ -329,7 +329,7 @@ public:
             }
 
             // Leader caught, wipe
-            if (Creature* pLider = ((Creature*)Unit::GetUnit((*me), pInstance->GetData64(DATA_ESCAPE_LEADER))))
+            if (Creature* pLider = ((Creature*)ObjectAccessor::GetUnit((*me), pInstance->GetData64(DATA_ESCAPE_LEADER))))
             {
                 if (pLider->IsWithinDistInMap(me, 2.0f) && pInstance->GetBossState(DATA_LICHKING_EVENT) == IN_PROGRESS)
                 {
@@ -433,7 +433,7 @@ public:
             if(pInstance->GetBossState(DATA_LICHKING_EVENT) == IN_PROGRESS)
             {
                 uiLiderGUID = pInstance->GetData64(DATA_ESCAPE_LEADER);
-                Creature* pLider = ((Creature*)Unit::GetUnit((*me), uiLiderGUID));
+                Creature* pLider = ((Creature*)ObjectAccessor::GetUnit((*me), uiLiderGUID));
 
                 if(Emerge != true)
                 {
@@ -542,7 +542,7 @@ public:
                     {
                         Emerge = true;
                         uiLiderGUID = pInstance->GetData64(DATA_ESCAPE_LEADER);
-                        if(Creature* pLider = ((Creature*)Unit::GetUnit((*me), uiLiderGUID)))
+                        if (Creature* pLider = ((Creature*)ObjectAccessor::GetUnit((*me), uiLiderGUID)))
                         {
                             DoResetThreat();
                             me->AI()->AttackStart(pLider);
@@ -627,7 +627,7 @@ public:
                 {
                     Walk = true;
                     uiLiderGUID = pInstance->GetData64(DATA_ESCAPE_LEADER);
-                    if(Creature* pLider = ((Creature*)Unit::GetUnit((*me), uiLiderGUID)))
+                    if (Creature* pLider = ((Creature*)ObjectAccessor::GetUnit((*me), uiLiderGUID)))
                     {
                         DoResetThreat();
                         me->AI()->AttackStart(pLider);

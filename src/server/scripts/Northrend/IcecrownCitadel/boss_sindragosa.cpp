@@ -586,7 +586,7 @@ class npc_ice_tomb : public CreatureScript
                         player->RemoveAura(SPELL_FROST_BEACON);
 
                     if (InstanceScript* instance = me->GetInstanceScript())
-                        if (Creature* sindragosa = me->GetCreature(*me, instance->GetData64(DATA_SINDRAGOSA)))
+                    if (Creature* sindragosa = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SINDRAGOSA)))
                             _asphyxiationTimer = sindragosa->AI()->GetData(DATA_AIR_PHASE) ? 30000 : 20000;
                 }
             }
