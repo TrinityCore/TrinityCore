@@ -23,6 +23,7 @@
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Config.h"
+#include "WorldSession.h"
 
 mcs_OnlinePlayers::mcs_OnlinePlayers() { CD = NULL; }
 
