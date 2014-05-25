@@ -508,7 +508,7 @@ struct boss_jormungarAI : public BossAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (Creature* otherWorm = Unit::GetCreature(*me, instance->GetData64(OtherWormEntry)))
+        if (Creature* otherWorm = ObjectAccessor::GetCreature(*me, instance->GetData64(OtherWormEntry)))
         {
             if (!otherWorm->IsAlive())
             {

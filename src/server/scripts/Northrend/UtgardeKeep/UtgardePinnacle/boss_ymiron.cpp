@@ -369,7 +369,7 @@ public:
         void DespawnBoatGhosts(uint64& m_uiCreatureGUID)
         {
             if (m_uiCreatureGUID)
-                if (Creature* temp = Unit::GetCreature(*me, m_uiCreatureGUID))
+                if (Creature* temp = ObjectAccessor::GetCreature(*me, m_uiCreatureGUID))
                     temp->DisappearAndDie();
 
             m_uiCreatureGUID = 0;

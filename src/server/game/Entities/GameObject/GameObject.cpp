@@ -561,7 +561,7 @@ void GameObject::Update(uint32 diff)
                         CastSpell(NULL, goInfo->trap.spellId);
                         SetLootState(GO_JUST_DEACTIVATED);
                     }
-                    else if (Unit* target = Unit::GetUnit(*this, m_lootStateUnitGUID))
+                    else if (Unit* target = ObjectAccessor::GetUnit(*this, m_lootStateUnitGUID))
                     {
                         // Some traps do not have a spell but should be triggered
                         if (goInfo->trap.spellId)
@@ -2013,6 +2013,10 @@ void GameObject::SetLootState(LootState state, Unit* unit)
     m_lootStateUnitGUID = unit ? unit->GetGUID() : 0;
     AI()->OnStateChanged(state, unit);
     sScriptMgr->OnGameObjectLootStateChanged(this, state, unit);
+
+    if (GetGoType() == GAMEOBJECT_TYPE_DOOR) // only set collision for doors on SetGoState
+        return;
+
     if (m_model)
     {
         bool collision = false;

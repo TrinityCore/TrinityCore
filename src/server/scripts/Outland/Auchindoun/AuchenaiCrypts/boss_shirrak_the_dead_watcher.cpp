@@ -92,7 +92,7 @@ public:
                 summoned->SetLevel(me->getLevel());
                 summoned->AddUnitState(UNIT_STATE_ROOT);
 
-                if (Unit* pFocusedTarget = Unit::GetUnit(*me, FocusedTargetGUID))
+                if (Unit* pFocusedTarget = ObjectAccessor::GetUnit(*me, FocusedTargetGUID))
                     summoned->AI()->AttackStart(pFocusedTarget);
             }
         }

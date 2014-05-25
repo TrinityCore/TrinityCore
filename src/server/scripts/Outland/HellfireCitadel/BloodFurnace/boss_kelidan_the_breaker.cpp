@@ -118,7 +118,7 @@ class boss_kelidan_the_breaker : public CreatureScript
                 }
                 for (uint8 i=0; i<5; ++i)
                 {
-                    Creature* channeler = Unit::GetCreature(*me, Channelers[i]);
+                    Creature* channeler = ObjectAccessor::GetCreature(*me, Channelers[i]);
                     if (who && channeler && !channeler->IsInCombat())
                         channeler->AI()->AttackStart(who);
                 }
@@ -128,7 +128,7 @@ class boss_kelidan_the_breaker : public CreatureScript
             {
                 for (uint8 i=0; i<5; ++i)
                 {
-                    Creature* channeler = Unit::GetCreature(*me, Channelers[i]);
+                    Creature* channeler = ObjectAccessor::GetCreature(*me, Channelers[i]);
                     if (channeler && channeler->IsAlive())
                         return;
                 }
@@ -147,7 +147,7 @@ class boss_kelidan_the_breaker : public CreatureScript
                 uint8 i;
                 for (i=0; i<5; ++i)
                 {
-                    Creature* channeler = Unit::GetCreature(*me, Channelers[i]);
+                    Creature* channeler = ObjectAccessor::GetCreature(*me, Channelers[i]);
                     if (channeler && channeler->GetGUID() == channeler1->GetGUID())
                         break;
                 }
@@ -158,7 +158,7 @@ class boss_kelidan_the_breaker : public CreatureScript
             {
                 for (uint8 i=0; i<5; ++i)
                 {
-                    Creature* channeler = Unit::GetCreature(*me, Channelers[i]);
+                    Creature* channeler = ObjectAccessor::GetCreature(*me, Channelers[i]);
                     if (!channeler || channeler->isDead())
                         channeler = me->SummonCreature(ENTRY_CHANNELER, ShadowmoonChannelers[i][0], ShadowmoonChannelers[i][1], ShadowmoonChannelers[i][2], ShadowmoonChannelers[i][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
                     if (channeler)
@@ -313,7 +313,7 @@ class npc_shadowmoon_channeler : public CreatureScript
                             if (Creature* Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
                             {
                                 uint64 channeler = CAST_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->GetChanneled(me);
-                                if (Unit* channeled = Unit::GetUnit(*me, channeler))
+                                if (Unit* channeled = ObjectAccessor::GetUnit(*me, channeler))
                                     DoCast(channeled, SPELL_CHANNELING);
                             }
                         check_Timer = 5000;

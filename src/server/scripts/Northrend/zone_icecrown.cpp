@@ -595,14 +595,14 @@ public:
                     break;
                 case EVENT_INTRO_1:
                     {
-                        if (Creature* Dalfors = me->GetCreature(*me, guidDalfors))
+                        if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
                             Dalfors->AI()->Talk(DALFORS_SAY_PRE_1);
                         events.ScheduleEvent(EVENT_INTRO_2, 5000);
                     }
                     break;
                 case EVENT_INTRO_2:
                     {
-                        if (Creature* Dalfors = me->GetCreature(*me, guidDalfors))
+                        if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
                         {
                             Dalfors->SetFacingTo(6.215f);
                             Dalfors->AI()->Talk(DALFORS_SAY_PRE_2);
@@ -612,37 +612,37 @@ public:
                     break;
                 case EVENT_INTRO_3:
                     {
-                        if (Creature* Dalfors = me->GetCreature(*me, guidDalfors))
+                        if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
                         {
                             Dalfors->GetMotionMaster()->MovePoint(0, DalforsPos[2]);
                             Dalfors->SetHomePosition(DalforsPos[2]);
                         }
-                        if (Creature* Priest1 = me->GetCreature(*me, guidPriest[0]))
+                        if (Creature* Priest1 = ObjectAccessor::GetCreature(*me, guidPriest[0]))
                         {
                             Priest1->SetFacingTo(5.7421f);
                             Priest1->SetHomePosition(Priest1Pos[1]);
                         }
-                        if (Creature* Priest2 = me->GetCreature(*me, guidPriest[1]))
+                        if (Creature* Priest2 = ObjectAccessor::GetCreature(*me, guidPriest[1]))
                         {
                             Priest2->SetFacingTo(5.7421f);
                             Priest2->SetHomePosition(Priest2Pos[1]);
                         }
-                        if (Creature* Priest3 = me->GetCreature(*me, guidPriest[2]))
+                        if (Creature* Priest3 = ObjectAccessor::GetCreature(*me, guidPriest[2]))
                         {
                             Priest3->SetFacingTo(5.7421f);
                             Priest3->SetHomePosition(Priest3Pos[1]);
                         }
-                        if (Creature* Mason1 = me->GetCreature(*me, guidMason[0]))
+                        if (Creature* Mason1 = ObjectAccessor::GetCreature(*me, guidMason[0]))
                         {
                             Mason1->GetMotionMaster()->MovePoint(0, Mason1Pos[2]);
                             Mason1->SetHomePosition(Mason1Pos[2]);
                         }
-                        if (Creature* Mason2 = me->GetCreature(*me, guidMason[1]))
+                        if (Creature* Mason2 = ObjectAccessor::GetCreature(*me, guidMason[1]))
                         {
                             Mason2->GetMotionMaster()->MovePoint(0, Mason2Pos[2]);
                             Mason2->SetHomePosition(Mason2Pos[2]);
                         }
-                        if (Creature* Mason3 = me->GetCreature(*me, guidMason[2]))
+                        if (Creature* Mason3 = ObjectAccessor::GetCreature(*me, guidMason[2]))
                         {
                             Mason3->GetMotionMaster()->MovePoint(0, Mason3Pos[2]);
                             Mason3->SetHomePosition(Mason3Pos[2]);
@@ -653,17 +653,17 @@ public:
                     break;
                 case EVENT_MASON_ACTION:
                     {
-                        if (Creature* Mason1 = me->GetCreature(*me, guidMason[0]))
+                        if (Creature* Mason1 = ObjectAccessor::GetCreature(*me, guidMason[0]))
                         {
                             Mason1->SetFacingTo(2.8972f);
                             Mason1->AI()->SetData(1, 1); // triggers SAI actions on npc
                         }
-                        if (Creature* Mason2 = me->GetCreature(*me, guidMason[1]))
+                        if (Creature* Mason2 = ObjectAccessor::GetCreature(*me, guidMason[1]))
                         {
                             Mason2->SetFacingTo(3.1241f);
                             Mason2->AI()->SetData(1, 1); // triggers SAI actions on npc
                         }
-                        if (Creature* Mason3 = me->GetCreature(*me, guidMason[2]))
+                        if (Creature* Mason3 = ObjectAccessor::GetCreature(*me, guidMason[2]))
                         {
                             Mason3->SetFacingTo(3.6651f);
                             Mason3->AI()->SetData(1, 1); // triggers SAI actions on npc
@@ -674,7 +674,7 @@ public:
                     {
                         if (Creature* LK = GetClosestCreatureWithEntry(me, NPC_LK, 100))
                             LK->AI()->Talk(LK_TALK_1);
-                        if (Creature* Dalfors = me->GetCreature(*me, guidDalfors))
+                        if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
                             Dalfors->AI()->Talk(DALFORS_SAY_START);
                         events.ScheduleEvent(EVENT_WAVE_SPAWN, 1000);
                     }
@@ -763,7 +763,7 @@ public:
             }
 
             if (PhaseCount == 8)
-                if (Creature* Halof = me->GetCreature(*me, guidHalof))
+                if (Creature* Halof = ObjectAccessor::GetCreature(*me, guidHalof))
                     if (Halof->isDead())
                     {
                         DoCast(me, SPELL_CRUSADERS_SPIRE_VICTORY, true);
@@ -771,7 +771,7 @@ public:
                         Summons.DespawnEntry(NPC_REANIMATED_CAPTAIN);
                         Summons.DespawnEntry(NPC_SCOURGE_DRUDGE);
                         Summons.DespawnEntry(NPC_HALOF_THE_DEATHBRINGER);
-                        if (Creature* Dalfors = me->GetCreature(*me, guidDalfors))
+                        if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
                             Dalfors->AI()->Talk(DALFORS_YELL_FINISHED);
                         events.ScheduleEvent(EVENT_ENDED, 10000);
                     }
@@ -963,35 +963,35 @@ class npc_margrave_dhakar : public CreatureScript
                         }
                         case EVENT_LK_SAY_1:
                         {
-                            if (Creature* lichKing = Unit::GetCreature(*me, _lichKingGuid))
+                            if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _lichKingGuid))
                                 lichKing->AI()->Talk(SAY_LK_1);
                             _events.ScheduleEvent(EVENT_LK_SAY_2, 5000);
                             break;
                         }
                         case EVENT_LK_SAY_2:
                         {
-                            if (Creature* lichKing = Unit::GetCreature(*me, _lichKingGuid))
+                            if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _lichKingGuid))
                                 lichKing->AI()->Talk(SAY_LK_2);
                             _events.ScheduleEvent(EVENT_LK_SAY_3, 5000);
                             break;
                         }
                         case EVENT_LK_SAY_3:
                         {
-                            if (Creature* lichKing = Unit::GetCreature(*me, _lichKingGuid))
+                            if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _lichKingGuid))
                                 lichKing->AI()->Talk(SAY_LK_3);
                             _events.ScheduleEvent(EVENT_LK_SAY_4, 5000);
                             break;
                         }
                         case EVENT_LK_SAY_4:
                         {
-                            if (Creature* lichKing = Unit::GetCreature(*me, _lichKingGuid))
+                            if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _lichKingGuid))
                                 lichKing->AI()->Talk(SAY_LK_4);
                             _events.ScheduleEvent(EVENT_OUTRO, 12000);
                             break;
                         }
                         case EVENT_LK_SAY_5:
                         {
-                            if (Creature* lichKing = Unit::GetCreature(*me, _lichKingGuid))
+                            if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _lichKingGuid))
                                 lichKing->AI()->Talk(SAY_LK_5);
                             _events.ScheduleEvent(EVENT_OUTRO, 8000);
                             break;
@@ -1001,7 +1001,7 @@ class npc_margrave_dhakar : public CreatureScript
                             if (Creature* olakin = me->FindNearestCreature(NPC_OLAKIN, 50.0f, true))
                                 olakin->AI()->Talk(SAY_OLAKIN_PAY);
 
-                            if (Creature* lichKing = Unit::GetCreature(*me, _lichKingGuid))
+                            if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _lichKingGuid))
                                 lichKing->DespawnOrUnsummon(0);
 
                             _events.ScheduleEvent(EVENT_START, 5000);

@@ -98,7 +98,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             for (std::list<uint64>::const_iterator i = Striders.begin(); i != Striders.end(); ++i)
-                if (Creature* strider = Unit::GetCreature(*me, *i))
+                if (Creature* strider = ObjectAccessor::GetCreature(*me, *i))
                     strider->DisappearAndDie();
         }
 
@@ -132,7 +132,7 @@ public:
             {
                 if (LevitatedTarget_Timer <= diff)
                 {
-                    if (Unit* target = Unit::GetUnit(*me, LevitatedTarget))
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, LevitatedTarget))
                     {
                         if (!target->HasAura(SPELL_LEVITATE))
                         {
