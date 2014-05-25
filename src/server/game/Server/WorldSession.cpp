@@ -1340,6 +1340,17 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         }
 
         case CMSG_MESSAGECHAT:
+        {
+            maxPacketCounterAllowed = 50;
+            break;
+        }
+
+        case CMSG_CONTACT_LIST:
+        {
+            maxPacketCounterAllowed = 10;
+            break;
+        }
+
         case CMSG_WHO:
         case CMSG_GAMEOBJ_USE:
         case CMSG_GAMEOBJ_REPORT_USE:
@@ -1352,7 +1363,6 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_REQUEST_VEHICLE_NEXT_SEAT:
         case CMSG_REQUEST_VEHICLE_SWITCH_SEAT:
         case CMSG_TOGGLE_PVP:
-        case CMSG_CONTACT_LIST:
         case CMSG_ADD_FRIEND:
         case CMSG_DEL_FRIEND:
         case CMSG_SET_CONTACT_NOTES:
@@ -1479,9 +1489,21 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
             break;
         }
 
+        case CMSG_SET_ACTION_BUTTON:
+        {
+            maxPacketCounterAllowed = MAX_ACTION_BUTTONS;
+            break;
+        }
+
+        case CMSG_ITEM_REFUND_INFO:
+        {
+            maxPacketCounterAllowed = PLAYER_SLOTS_COUNT;
+            break;
+        }
+
         default:
         {
-            maxPacketCounterAllowed = 30;
+            maxPacketCounterAllowed = 100;
             break;
         }
     }
