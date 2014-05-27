@@ -222,6 +222,10 @@ class boss_sindragosa : public CreatureScript
         {
             boss_sindragosaAI(Creature* creature) : BossAI(creature, DATA_SINDRAGOSA), _summoned(false)
             {
+                me->ApplySpellImmune(0, IMMUNITY_ID, 70127, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 72528, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 72529, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 72530, true);
             }
 
             void Reset() override
@@ -408,7 +412,7 @@ class boss_sindragosa : public CreatureScript
             void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(70127, me))
-                    if (spellId == spell->Id)
+                    if (spellId == spell->Id && target->GetTypeId() == TYPEID_PLAYER)
                         if (Aura const* mysticBuffet = target->GetAura(spell->Id))
                             _mysticBuffetStack = std::max<uint8>(_mysticBuffetStack, mysticBuffet->GetStackAmount());
 
