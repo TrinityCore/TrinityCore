@@ -1351,6 +1351,8 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_WHO:
         case CMSG_SETSHEATHED:
         case CMSG_CONTACT_LIST:
+        case CMSG_GUILD_SET_PUBLIC_NOTE:
+        case CMSG_GUILD_SET_OFFICER_NOTE:
         {
             maxPacketCounterAllowed = 50;
             break;
@@ -1360,6 +1362,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_GAMEOBJ_USE:
         case CMSG_GAMEOBJ_REPORT_USE:
         case MSG_RAID_TARGET_UPDATE:
+        case CMSG_QUESTGIVER_COMPLETE_QUEST:
         {
             maxPacketCounterAllowed = 20;
             break;
@@ -1419,7 +1422,6 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_QUESTGIVER_CANCEL:
         case CMSG_QUESTLOG_REMOVE_QUEST:
         case CMSG_QUEST_CONFIRM_ACCEPT:
-        case CMSG_QUESTGIVER_COMPLETE_QUEST:
         case CMSG_DISMISS_CRITTER:
         case CMSG_REPOP_REQUEST:
         case CMSG_PETITION_BUY:
@@ -1471,8 +1473,6 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_GUILD_DISBAND:
         case CMSG_GUILD_LEADER:
         case CMSG_GUILD_MOTD:
-        case CMSG_GUILD_SET_PUBLIC_NOTE:
-        case CMSG_GUILD_SET_OFFICER_NOTE:
         case CMSG_GUILD_RANK:
         case CMSG_GUILD_ADD_RANK:
         case CMSG_GUILD_DEL_RANK:
