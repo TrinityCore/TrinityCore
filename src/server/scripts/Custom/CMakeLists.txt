@@ -18,12 +18,6 @@ set(scripts_STAT_SRCS
   Custom/WorldEvents/TW_pilgrim.cpp
   Custom/WorldEvents/TW_boss_apothecary_trio.cpp
   Custom/AzjolNerub/TW_boss_hadronox.cpp
-  Custom/HallsOfReflection/TW_boss_falric.cpp
-  Custom/HallsOfReflection/TW_boss_lich_king_hor.cpp
-  Custom/HallsOfReflection/TW_boss_marwyn.cpp
-  Custom/HallsOfReflection/TW_halls_of_reflection.cpp
-  Custom/HallsOfReflection/TW_halls_of_reflection.h
-  Custom/HallsOfReflection/TW_instance_halls_of_reflection.cpp
   Custom/TrialOfTheChampion/TW_instance_trial_of_the_champion.cpp
   Custom/TrialOfTheChampion/TW_trial_of_the_champion.h
   Custom/TrialOfTheChampion/TW_boss_argent_challenge.cpp
