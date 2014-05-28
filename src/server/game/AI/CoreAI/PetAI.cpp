@@ -89,7 +89,8 @@ void PetAI::UpdateAI(uint32 diff)
     if (me->GetVictim() && me->EnsureVictim()->IsAlive())
     {
         // is only necessary to stop casting, the pet must not exit combat
-        if (me->EnsureVictim()->HasBreakableByDamageCrowdControlAura(me))
+        if (!me->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && // ignore channeled spells (Pin, Seduction)
+            me->EnsureVictim()->HasBreakableByDamageCrowdControlAura(me))
         {
             me->InterruptNonMeleeSpells(false);
             return;
