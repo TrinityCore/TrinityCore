@@ -569,7 +569,6 @@ void WorldSession::LogoutPlayer(bool save)
     m_playerLogout = false;
     m_playerSave = false;
     m_playerRecentlyLogout = true;
-    AntiDOS.AllowOpcode(CMSG_CHAR_ENUM, true);
     LogoutRequest(0);
 }
 
