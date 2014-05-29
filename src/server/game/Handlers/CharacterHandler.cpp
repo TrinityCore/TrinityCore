@@ -243,8 +243,6 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 
 void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recvData*/)
 {
-    AntiDOS.AllowOpcode(CMSG_CHAR_ENUM, false);
-
     // remove expired bans
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
     CharacterDatabase.Execute(stmt);
@@ -681,7 +679,6 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             data << uint8(CHAR_CREATE_SUCCESS);
             SendPacket(&data);
 
-            AntiDOS.AllowOpcode(CMSG_CHAR_ENUM, true);
             std::string IP_str = GetRemoteAddress();
             TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), createInfo->Name.c_str(), newChar.GetGUIDLow());
             sScriptMgr->OnPlayerCreate(&newChar);
@@ -758,8 +755,6 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
     WorldPacket data(SMSG_CHAR_DELETE, 1);
     data << uint8(CHAR_DELETE_SUCCESS);
     SendPacket(&data);
-
-    AntiDOS.AllowOpcode(CMSG_CHAR_ENUM, true);
 }
 
 void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
@@ -1168,7 +1163,6 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult result, std::string const& newName)
 {
-    AntiDOS.AllowOpcode(CMSG_CHAR_ENUM, true);
     if (!result)
     {
         WorldPacket data(SMSG_CHAR_RENAME, 1);
@@ -1426,8 +1420,6 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
 
     stmt->setUInt32(0, GUID_LOPART(guid));
     // TODO: Make async with callback
-    // TODO 2: Allow opcode at end of callback
-    AntiDOS.AllowOpcode(CMSG_CHAR_ENUM, true);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
@@ -1682,8 +1674,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     uint8 playerClass = nameData->m_class;
     uint8 level = nameData->m_level;
 
-    // TO Do: Make async and allow opcode on callback
-    AntiDOS.AllowOpcode(CMSG_CHAR_ENUM, true);
+    // TO Do: Make async
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_AT_LOGIN_TITLES);
     stmt->setUInt32(0, lowGuid);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
