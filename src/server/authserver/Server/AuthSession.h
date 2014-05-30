@@ -34,52 +34,52 @@ const size_t bufferSize = 4096;
 class AuthSession : public std::enable_shared_from_this < AuthSession >
 {
 public:
-	AuthSession(tcp::socket socket) : _socket(std::move(socket))
-	{
-		N.SetHexStr("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
-		g.SetDword(7);
-	}
+    AuthSession(tcp::socket socket) : _socket(std::move(socket))
+    {
+        N.SetHexStr("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
+        g.SetDword(7);
+    }
 
-	void Start()
-	{
-		AsyncReadHeader();
-	}
+    void Start()
+    {
+        AsyncReadHeader();
+    }
 
-	bool _HandleLogonChallenge();
-	bool _HandleLogonProof();
-	bool _HandleReconnectChallenge();
-	bool _HandleReconnectProof();
-	bool _HandleRealmList();
+    bool _HandleLogonChallenge();
+    bool _HandleLogonProof();
+    bool _HandleReconnectChallenge();
+    bool _HandleReconnectProof();
+    bool _HandleRealmList();
 
-	const std::string GetRemoteIpAddress() const { return _socket.remote_endpoint().address().to_string(); };
-	unsigned short GetRemotePort() const { return _socket.remote_endpoint().port(); }
+    const std::string GetRemoteIpAddress() const { return _socket.remote_endpoint().address().to_string(); };
+    unsigned short GetRemotePort() const { return _socket.remote_endpoint().port(); }
 
 private:
-	void AsyncReadHeader();
-	void AsyncReadData(bool (AuthSession::*handler)(), size_t dataSize, size_t bufferOffset);
-	void AsyncWrite(size_t length);
+    void AsyncReadHeader();
+    void AsyncReadData(bool (AuthSession::*handler)(), size_t dataSize, size_t bufferOffset);
+    void AsyncWrite(size_t length);
 
 
-	void SetVSFields(const std::string& rI);
+    void SetVSFields(const std::string& rI);
 
-	BigNumber N, s, g, v;
-	BigNumber b, B;
-	BigNumber K;
-	BigNumber _reconnectProof;
+    BigNumber N, s, g, v;
+    BigNumber b, B;
+    BigNumber K;
+    BigNumber _reconnectProof;
 
-	tcp::socket _socket;
-	char _readBuffer[BUFFER_SIZE];
-	char _writeBuffer[BUFFER_SIZE];
+    tcp::socket _socket;
+    char _readBuffer[BUFFER_SIZE];
+    char _writeBuffer[BUFFER_SIZE];
 
-	bool _isAuthenticated;
-	std::string _tokenKey;
-	std::string _login;
-	std::string _localizationName;
-	std::string _os;
-	uint16 _build;
-	uint8 _expversion;
+    bool _isAuthenticated;
+    std::string _tokenKey;
+    std::string _login;
+    std::string _localizationName;
+    std::string _os;
+    uint16 _build;
+    uint8 _expversion;
 
-	AccountTypes _accountSecurityLevel;
+    AccountTypes _accountSecurityLevel;
 };
 
 #endif
