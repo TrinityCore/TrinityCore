@@ -148,7 +148,7 @@ void AuthSession::AsyncReadHeader()
                     {
                         _socket.read_some(boost::asio::buffer(&_readBuffer[1], sizeof(uint8) + sizeof(uint16))); //error + size
 
-                        AsyncReadData(entry.handler, (uint16)&_readBuffer[2], sizeof(uint8) + sizeof(uint8) + sizeof(uint16)); // cmd + error + size
+                        AsyncReadData(entry.handler, *reinterpret_cast<uint16*>(&_readBuffer[2]), sizeof(uint8) + sizeof(uint8) + sizeof(uint16)); // cmd + error + size
                     }
                     else
                     {
