@@ -25,20 +25,20 @@ using boost::asio::ip::tcp;
 class AuthServer
 {
 public:
-	AuthServer(boost::asio::io_service& ioService, std::string bindIp, int port) : _socket(ioService), _acceptor(ioService, tcp::endpoint(tcp::v4(), port))
-	{
-		tcp::endpoint endpoint(boost::asio::ip::address::from_string(bindIp), port);
+    AuthServer(boost::asio::io_service& ioService, std::string bindIp, int port) : _socket(ioService), _acceptor(ioService, tcp::endpoint(tcp::v4(), port))
+    {
+        tcp::endpoint endpoint(boost::asio::ip::address::from_string(bindIp), port);
 
-		_acceptor = tcp::acceptor(ioService, endpoint);
+        _acceptor = tcp::acceptor(ioService, endpoint);
 
-		AsyncAccept();
-	};
+        AsyncAccept();
+    };
 
 private:
-	void AsyncAccept();
+    void AsyncAccept();
 
-	tcp::acceptor _acceptor;
-	tcp::socket _socket;
+    tcp::acceptor _acceptor;
+    tcp::socket _socket;
 };
 
 #endif /* __AUTHSERVER_H__ */

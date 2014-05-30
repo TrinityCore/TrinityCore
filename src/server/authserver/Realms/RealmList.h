@@ -26,15 +26,15 @@
 
 enum RealmFlags
 {
-    REALM_FLAG_NONE                              = 0x00,
-    REALM_FLAG_INVALID                           = 0x01,
-    REALM_FLAG_OFFLINE                           = 0x02,
-    REALM_FLAG_SPECIFYBUILD                      = 0x04,
-    REALM_FLAG_UNK1                              = 0x08,
-    REALM_FLAG_UNK2                              = 0x10,
-    REALM_FLAG_RECOMMENDED                       = 0x20,
-    REALM_FLAG_NEW                               = 0x40,
-    REALM_FLAG_FULL                              = 0x80
+    REALM_FLAG_NONE = 0x00,
+    REALM_FLAG_INVALID = 0x01,
+    REALM_FLAG_OFFLINE = 0x02,
+    REALM_FLAG_SPECIFYBUILD = 0x04,
+    REALM_FLAG_UNK1 = 0x08,
+    REALM_FLAG_UNK2 = 0x10,
+    REALM_FLAG_RECOMMENDED = 0x20,
+    REALM_FLAG_NEW = 0x40,
+    REALM_FLAG_FULL = 0x80
 };
 
 // Storage object for a realm
@@ -73,7 +73,7 @@ public:
     uint32 size() const { return m_realms.size(); }
 
 private:
-    void UpdateRealms(bool init=false);
+    void UpdateRealms(bool init = false);
     void UpdateRealm(uint32 id, const std::string& name, ACE_INET_Addr const& address, ACE_INET_Addr const& localAddr, ACE_INET_Addr const& localSubmask, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float popu, uint32 build);
 
     RealmMap m_realms;
