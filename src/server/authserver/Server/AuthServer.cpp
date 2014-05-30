@@ -25,15 +25,15 @@ using boost::asio::ip::tcp;
 
 void AuthServer::AsyncAccept()
 {
-	_acceptor.async_accept(_socket, [this](boost::system::error_code error)
-	{
-		if (!error)
-		{
-			std::make_shared<AuthSession>(std::move(_socket))->Start();
-		}
+    _acceptor.async_accept(_socket, [this](boost::system::error_code error)
+    {
+        if (!error)
+        {
+            std::make_shared<AuthSession>(std::move(_socket))->Start();
+        }
 
-		AsyncAccept();
-	});
+        AsyncAccept();
+    });
 }
 
 
