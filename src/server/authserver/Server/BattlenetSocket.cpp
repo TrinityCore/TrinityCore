@@ -451,7 +451,7 @@ bool Battlenet::Socket::HandleRealmJoinRequest(PacketHeader& header, BitStream& 
 
     RealmJoinResult result;
     Realm const* realm = sRealmList->GetRealm(join.Realm);
-    if (!realm)
+    if (!realm || realm->flag & (REALM_FLAG_INVALID | REALM_FLAG_OFFLINE))
     {
         Send(result);
         return true;
