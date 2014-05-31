@@ -27,11 +27,10 @@ ByteBufferPositionException::ByteBufferPositionException(bool add, size_t pos,
                                                          size_t size, size_t valueSize)
 {
     std::ostringstream ss;
-    ACE_Stack_Trace trace;
 
     ss << "Attempted to " << (add ? "put" : "get") << " value with size: "
        << valueSize << " in ByteBuffer (pos: " << pos << " size: " << size
-       << ")\n\n" << trace.c_str();
+       << ")";
 
     message().assign(ss.str());
 }
@@ -40,12 +39,10 @@ ByteBufferSourceException::ByteBufferSourceException(size_t pos, size_t size,
                                                      size_t valueSize)
 {
     std::ostringstream ss;
-    ACE_Stack_Trace trace;
 
     ss << "Attempted to put a "
        << (valueSize > 0 ? "NULL-pointer" : "zero-sized value")
-       << " in ByteBuffer (pos: " << pos << " size: " << size << ")\n\n"
-       << trace.c_str();
+       << " in ByteBuffer (pos: " << pos << " size: " << size << ")";
 
     message().assign(ss.str());
 }
