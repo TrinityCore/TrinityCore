@@ -19,8 +19,10 @@
 #ifndef _REALMLIST_H
 #define _REALMLIST_H
 
-#include <ace/INET_Addr.h>
+#include <boost/asio.hpp>
 #include "Common.h"
+
+using namespace boost::asio;
 
 enum RealmFlags
 {
@@ -38,9 +40,10 @@ enum RealmFlags
 // Storage object for a realm
 struct Realm
 {
-    ACE_INET_Addr ExternalAddress;
-    ACE_INET_Addr LocalAddress;
-    ACE_INET_Addr LocalSubnetMask;
+    ip::address ExternalAddress;
+    ip::address LocalAddress;
+    ip::address LocalSubnetMask;
+    uint16 port;
     std::string name;
     uint8 icon;
     RealmFlags flag;
@@ -77,8 +80,8 @@ private:
     RealmList();
 
     void UpdateRealms(bool init = false);
-    void UpdateRealm(uint32 id, const std::string& name, ACE_INET_Addr const& address, ACE_INET_Addr const& localAddr, ACE_INET_Addr const& localSubmask,
-        uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float popu, uint32 build);
+    void UpdateRealm(uint32 id, const std::string& name, ip::address const& address, ip::address const& localAddr,
+        ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population, uint32 build);
 
     RealmMap m_realms;
     uint32   m_UpdateInterval;
