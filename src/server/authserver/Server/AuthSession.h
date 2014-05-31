@@ -21,7 +21,6 @@
 
 #include <memory>
 #include <boost/asio.hpp>
-
 #include "Common.h"
 #include "BigNumber.h"
 
