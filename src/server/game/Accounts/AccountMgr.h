@@ -49,6 +49,8 @@ typedef std::map<uint32, rbac::RBACPermission*> RBACPermissionsContainer;
 typedef std::map<uint8, rbac::RBACPermissionContainer> RBACDefaultPermissionsContainer;
 }
 
+typedef std::map<uint16, uint16> PacketLimitsContainer;
+
 class AccountMgr
 {
     friend class ACE_Singleton<AccountMgr, ACE_Null_Mutex>;
@@ -89,10 +91,14 @@ class AccountMgr
         rbac::RBACPermissionsContainer const& GetRBACPermissionList() const { return _permissions; }
         rbac::RBACPermissionContainer const& GetRBACDefaultPermissions(uint8 secLevel);
 
+        void LoadPacketLimits();
+        PacketLimitsContainer GetPacketLimits() { return _packetLimits; }
+
     private:
         void ClearRBAC();
         rbac::RBACPermissionsContainer _permissions;
         rbac::RBACDefaultPermissionsContainer _defaultPermissions;
+        PacketLimitsContainer _packetLimits;
 };
 
 #define sAccountMgr ACE_Singleton<AccountMgr, ACE_Null_Mutex>::instance()

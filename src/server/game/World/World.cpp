@@ -1374,6 +1374,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Account Roles and Permissions...");
     sAccountMgr->LoadRBAC();
 
+    TC_LOG_INFO("server.loading", "Loading Packet Limits...");
+    sAccountMgr->LoadPacketLimits();
+
     TC_LOG_INFO("server.loading", "Loading Page Texts...");
     sObjectMgr->LoadPageTexts();
 
