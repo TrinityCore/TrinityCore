@@ -18,6 +18,7 @@
 
 #include <memory>
 #include <boost/asio.hpp>
+#include <boost/lexical_cast.hpp>
 #include <AuthSession.h>
 #include <Log.h>
 #include "ByteBuffer.h"
@@ -729,28 +730,40 @@ bool AuthSession::_HandleReconnectProof()
     }
 }
 
-ACE_INET_Addr const& GetAddressForClient(Realm const& realm, ACE_INET_Addr const& clientAddr)
+tcp::endpoint const GetAddressForClient(Realm const& realm, ip::address const& clientAddr)
 {
+    ip::address realmIp;
+
     // Attempt to send best address for client
     if (clientAddr.is_loopback())
     {
         // Try guessing if realm is also connected locally
         if (realm.LocalAddress.is_loopback() || realm.ExternalAddress.is_loopback())
-            return clientAddr;
-
-        // Assume that user connecting from the machine that authserver is located on
-        // has all realms available in his local network
-        return realm.LocalAddress;
+            realmIp = clientAddr;
+        else
+        {
+            // Assume that user connecting from the machine that authserver is located on
+            // has all realms available in his local network
+            realmIp = realm.LocalAddress;
+        }
+    }
+    else
+    {
+        if (clientAddr.is_v4() &&
+            (clientAddr.to_v4().to_ulong() & realm.LocalSubnetMask.to_v4().to_ulong()) ==
+            (realm.LocalAddress.to_v4().to_ulong() & realm.LocalSubnetMask.to_v4().to_ulong()))
+        {
+            realmIp = realm.LocalAddress;
+        }
+        else
+            realmIp = realm.ExternalAddress;
     }
 
-    // Check if connecting client is in the same network
-    if (IsIPAddrInNetwork(realm.LocalAddress, clientAddr, realm.LocalSubnetMask))
-        return realm.LocalAddress;
+    tcp::endpoint endpoint(realmIp, realm.port);
 
     // Return external IP
-    return realm.ExternalAddress;
+    return endpoint;
 }
-
 
 bool AuthSession::_HandleRealmList()
 {
@@ -806,9 +819,6 @@ bool AuthSession::_HandleRealmList()
             name = ss.str();
         }
 
-        // We don't need the port number from which client connects with but the realm's port
-        ACE_INET_Addr clientAddr(realm.ExternalAddress.get_port_number(), GetRemoteIpAddress().c_str(), AF_INET);
-
         uint8 lock = (realm.allowedSecurityLevel > _accountSecurityLevel) ? 1 : 0;
 
         uint8 AmountOfCharacters = 0;
@@ -824,7 +834,7 @@ bool AuthSession::_HandleRealmList()
             pkt << lock;                                    // if 1, then realm locked
         pkt << uint8(flag);                                 // RealmFlags
         pkt << name;
-        pkt << GetAddressString(GetAddressForClient(realm, clientAddr));
+        pkt << boost::lexical_cast<std::string>(GetAddressForClient(realm, _socket.remote_endpoint().address()));
         pkt << realm.populationLevel;
         pkt << AmountOfCharacters;
         pkt << realm.timezone;                              // realm category
