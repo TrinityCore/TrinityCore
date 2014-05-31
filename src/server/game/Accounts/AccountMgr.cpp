@@ -540,3 +540,44 @@ rbac::RBACPermissionContainer const& AccountMgr::GetRBACDefaultPermissions(uint8
     TC_LOG_TRACE("rbac", "AccountMgr::GetRBACDefaultPermissions: secLevel %u - size: %u", secLevel, uint32(_defaultPermissions[secLevel].size()));
     return _defaultPermissions[secLevel];
 }
+
+void AccountMgr::LoadPacketLimits()
+{
+    _packetLimits.clear();
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = LoginDatabase.Query("SELECT `opcode`, `limit` FROM `packet_limits`");
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 packet limits definitions. DB table `packet_limits` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+        uint16 opcode = MSG_NULL_ACTION;
+        std::string opcodeName = fields[0].GetString();
+        for (uint16 i = 0; i < NUM_MSG_TYPES; ++i)
+        {
+            if (opcodeName.find(opcodeTable[i].name) == std::string::npos)
+                continue;
+
+            opcode = i;
+            break;
+        }
+
+        if (opcode == MSG_NULL_ACTION)
+        {
+            TC_LOG_ERROR("sql.sql", "Table packet_limits has opcode with invalid name, skipping data for opcode %s", fields[0].GetString());
+            continue;
+        }
+
+        _packetLimits[opcode] = fields[1].GetUInt16();
+        ++count;
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u packet limits in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}

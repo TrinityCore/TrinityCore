@@ -120,6 +120,7 @@ public:
             { "npc_spellclick_spells",         rbac::RBAC_PERM_COMMAND_RELOAD_NPC_SPELLCLICK_SPELLS,            true,  &HandleReloadSpellClickSpellsCommand,           "", NULL },
             { "npc_trainer",                   rbac::RBAC_PERM_COMMAND_RELOAD_NPC_TRAINER,                      true,  &HandleReloadNpcTrainerCommand,                 "", NULL },
             { "npc_vendor",                    rbac::RBAC_PERM_COMMAND_RELOAD_NPC_VENDOR,                       true,  &HandleReloadNpcVendorCommand,                  "", NULL },
+            { "packet_limits",                 rbac::RBAC_PERM_COMMAND_RELOAD_PACKET_LIMITS,                    true,  &HandleReloadPacketLimitsCommand,               "", NULL },
             { "page_text",                     rbac::RBAC_PERM_COMMAND_RELOAD_PAGE_TEXT,                        true,  &HandleReloadPageTextsCommand,                  "", NULL },
             { "pickpocketing_loot_template",   rbac::RBAC_PERM_COMMAND_RELOAD_PICKPOCKETING_LOOT_TEMPLATE,      true,  &HandleReloadLootTemplatesPickpocketingCommand, "", NULL },
             { "points_of_interest",            rbac::RBAC_PERM_COMMAND_RELOAD_POINTS_OF_INTEREST,               true,  &HandleReloadPointsOfInterestCommand,           "", NULL },
@@ -763,6 +764,14 @@ public:
         TC_LOG_INFO("misc", "Re-Loading `npc_vendor` Table!");
         sObjectMgr->LoadVendors();
         handler->SendGlobalGMSysMessage("DB table `npc_vendor` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadPacketLimitsCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        TC_LOG_INFO("misc", "Re-Loading `packet_limits` Table!");
+        sAccountMgr->LoadPacketLimits();
+        handler->SendGlobalGMSysMessage("DB table `packet_limits` reloaded.");
         return true;
     }
 
