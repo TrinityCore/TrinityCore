@@ -102,6 +102,7 @@ char const LightEntryfmt[] = "nifffxxxxxxxxxx";
 char const LiquidTypefmt[] = "nxxixixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 char const LockEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiixxxxxxxx";
 char const PhaseEntryfmt[] = "nsi";
+char const PhaseGroupfmt[] = "nii";
 char const MailTemplateEntryfmt[] = "nxs";
 char const MapEntryfmt[] = "nxiixxsixxixiffxiiii";
 char const MapDifficultyEntryfmt[] = "diisiix";
