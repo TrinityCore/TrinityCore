@@ -33,11 +33,12 @@ std::map<Battlenet::PacketHeader, Battlenet::Socket::PacketHandler> InitHandlers
     std::map<Battlenet::PacketHeader, Battlenet::Socket::PacketHandler> handlers;
 
     handlers[Battlenet::PacketHeader(Battlenet::CMSG_AUTH_CHALLENGE, Battlenet::AUTHENTICATION)] = &Battlenet::Socket::HandleAuthChallenge;
-    handlers[Battlenet::PacketHeader(Battlenet::CMSG_AUTH_CHALLENGE_NEW, Battlenet::AUTHENTICATION)] = &Battlenet::Socket::HandleAuthChallenge;
+    handlers[Battlenet::PacketHeader(Battlenet::CMSG_AUTH_RECONNECT, Battlenet::AUTHENTICATION)] = &Battlenet::Socket::HandleAuthReconnect;
     handlers[Battlenet::PacketHeader(Battlenet::CMSG_AUTH_PROOF_RESPONSE, Battlenet::AUTHENTICATION)] = &Battlenet::Socket::HandleAuthProofResponse;
 
     handlers[Battlenet::PacketHeader(Battlenet::CMSG_PING, Battlenet::CREEP)] = &Battlenet::Socket::HandlePing;
     handlers[Battlenet::PacketHeader(Battlenet::CMSG_ENABLE_ENCRYPTION, Battlenet::CREEP)] = &Battlenet::Socket::HandleEnableEncryption;
+    handlers[Battlenet::PacketHeader(Battlenet::CMSG_DISCONNECT, Battlenet::CREEP)] = &Battlenet::Socket::HandleDisconnect;
 
     handlers[Battlenet::PacketHeader(Battlenet::CMSG_REALM_UPDATE_SUBSCRIBE, Battlenet::WOW)] = &Battlenet::Socket::HandleRealmUpdateSubscribe;
     handlers[Battlenet::PacketHeader(Battlenet::CMSG_JOIN_REQUEST, Battlenet::WOW)] = &Battlenet::Socket::HandleRealmJoinRequest;
@@ -54,10 +55,12 @@ Battlenet::Socket::ModuleHandler const Battlenet::Socket::ModuleHandlers[MODULE_
     &Battlenet::Socket::UnhandledModule,
     &Battlenet::Socket::HandleSelectGameAccountModule,
     &Battlenet::Socket::HandleRiskFingerprintModule,
+    &Battlenet::Socket::HandleResumeModule,
 };
 
 Battlenet::Socket::Socket(RealmSocket& socket) : _socket(socket), _accountId(0), _accountName(), _locale(),
-    _os(), _build(0), _gameAccountId(0), _accountSecurityLevel(SEC_PLAYER)
+    _os(), _build(0), _gameAccountId(0), _accountSecurityLevel(SEC_PLAYER), I(), s(), v(), b(), B(), K(),
+    _reconnectProof(), _crypt(), _authed(false)
 {
     static uint8 const N_Bytes[] =
     {
@@ -304,6 +307,61 @@ bool Battlenet::Socket::HandleAuthChallenge(PacketHeader& header, BitStream& pac
     return true;
 }
 
+bool Battlenet::Socket::HandleAuthReconnect(PacketHeader& header, BitStream& packet)
+{
+    AuthResumeInfo reconnect(header, packet);
+    reconnect.Read();
+
+    TC_LOG_DEBUG("server.battlenet", "%s", reconnect.ToString().c_str());
+
+    _accountName = reconnect.Login;
+    _locale = reconnect.Locale;
+    _os = reconnect.Platform;
+    auto baseComponent = std::find_if(reconnect.Components.begin(), reconnect.Components.end(), [](Component const& c) { return c.Program == "base"; });
+    if (baseComponent != reconnect.Components.end())
+        _build = baseComponent->Build;
+
+    Utf8ToUpperOnlyLatin(_accountName);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_RECONNECT_INFO);
+    stmt->setString(0, _accountName);
+    stmt->setString(1, reconnect.GameAccountName.c_str());
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
+    if (!result)
+    {
+        AuthResume resume;
+        resume.SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
+        Send(resume);
+        return false;
+    }
+
+    Field* fields = result->Fetch();
+
+    _accountId = fields[0].GetUInt32();
+    K.SetHexStr(fields[1].GetString().c_str());
+    _gameAccountId = fields[2].GetUInt32();
+
+    ModuleInfo* thumbprint = sBattlenetMgr->CreateModule(_os, "Thumbprint");
+    ModuleInfo* resume = sBattlenetMgr->CreateModule(_os, "Resume");
+    BitStream resumeData;
+    uint8 state = 0;
+    _reconnectProof.SetRand(16 * 8);
+
+    resumeData.WriteBytes(&state, 1);
+    resumeData.WriteBytes(_reconnectProof.AsByteArray().get(), 16);
+
+    resume->DataSize = resumeData.GetSize();
+    resume->Data = new uint8[resume->DataSize];
+    memcpy(resume->Data, resumeData.GetBuffer(), resume->DataSize);
+
+    _modulesWaitingForData.push(MODULE_RESUME);
+
+    ProofRequest request;
+    request.Modules.push_back(thumbprint);
+    request.Modules.push_back(resume);
+    Send(request);
+    return true;
+}
+
 bool Battlenet::Socket::HandleAuthProofResponse(PacketHeader& header, BitStream& packet)
 {
     ProofResponse proof(header, packet);
@@ -347,6 +405,15 @@ bool Battlenet::Socket::HandlePing(PacketHeader& /*header*/, BitStream& /*packet
 bool Battlenet::Socket::HandleEnableEncryption(PacketHeader& /*header*/, BitStream& /*packet*/)
 {
     _crypt.Init(&K);
+    return true;
+}
+
+bool Battlenet::Socket::HandleDisconnect(PacketHeader& /*header*/, BitStream& /*packet*/)
+{
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_SESSION_KEY);
+    stmt->setString(0, "");
+    stmt->setUInt32(1, _accountId);
+    LoginDatabase.Execute(stmt);
     return true;
 }
 
@@ -483,6 +550,13 @@ void Battlenet::Socket::OnRead()
             header.Opcode = packet.Read<uint32>(6);
             if (packet.Read<bool>(1))
                 header.Channel = packet.Read<int32>(4);
+
+            if (header.Channel != AUTHENTICATION && !_authed)
+            {
+                TC_LOG_DEBUG("server.battlenet", "Battlenet::Socket::OnRead Received not allowed packet %s", header.ToString().c_str());
+                _socket.shutdown();
+                return;
+            }
 
             TC_LOG_TRACE("server.battlenet", "Battlenet::Socket::OnRead %s", header.ToString().c_str());
             std::map<PacketHeader, PacketHandler>::const_iterator itr = Handlers.find(header);
@@ -796,19 +870,110 @@ bool Battlenet::Socket::HandleRiskFingerprintModule(BitStream* dataStream, Serve
 
         complete->GameAccountId = _gameAccountId;
         complete->GameAccountName = str.str();
-        complete->AccountFlags = 0x800000;      // 0x1 IsGMAccount, 0x8 IsTrialAccount, 0x800000 IsProPassAccount
+        complete->GameAccountFlags = 1;
+
+        SQLTransaction trans = LoginDatabase.BeginTransaction();
 
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_LAST_LOGIN_INFO);
         stmt->setString(0, _socket.getRemoteAddress());
         stmt->setUInt8(1, GetLocaleByName(_locale));
         stmt->setString(2, _os);
         stmt->setUInt32(3, _accountId);
-        LoginDatabase.Execute(stmt);
+        trans->Append(stmt);
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_SESSION_KEY);
+        stmt->setString(0, K.AsHexStr());
+        stmt->setUInt32(1, _accountId);
+        trans->Append(stmt);
+
+        LoginDatabase.CommitTransaction(trans);
+
+        _authed = true;
     }
     else
         complete->SetAuthResult(AUTH_BAD_VERSION_HASH);
 
     ReplaceResponse(response, complete);
+    return true;
+}
+
+bool Battlenet::Socket::HandleResumeModule(BitStream* dataStream, ServerPacket** response)
+{
+    if (dataStream->Read<uint8>(8) != 1)
+    {
+        AuthResume* complete = new AuthResume();
+        complete->SetAuthResult(AUTH_CORRUPTED_MODULE);
+        ReplaceResponse(response, complete);
+        return false;
+    }
+
+    static uint8 const ResumeClient = 0;
+    static uint8 const ResumeServer = 1;
+
+    ACE_Auto_Array_Ptr<uint8>&& clientChallenge = dataStream->ReadBytes(16);
+    ACE_Auto_Array_Ptr<uint8>&& clientProof = dataStream->ReadBytes(32);
+    ACE_Auto_Array_Ptr<uint8>&& serverChallenge = _reconnectProof.AsByteArray();
+    ACE_Auto_Array_Ptr<uint8>&& sessionKey = K.AsByteArray();
+
+    HmacHash clientPart(64, sessionKey.get(), EVP_sha256(), SHA256_DIGEST_LENGTH);
+    clientPart.UpdateData(&ResumeClient, 1);
+    clientPart.UpdateData(clientChallenge.get(), 16);
+    clientPart.UpdateData(serverChallenge.get(), 16);
+    clientPart.Finalize();
+
+    HmacHash serverPart(64, sessionKey.get(), EVP_sha256(), SHA256_DIGEST_LENGTH);
+    serverPart.UpdateData(&ResumeServer, 1);
+    serverPart.UpdateData(serverChallenge.get(), 16);
+    serverPart.UpdateData(clientChallenge.get(), 16);
+    serverPart.Finalize();
+
+    uint8 newSessionKey[64];
+    memcpy(&newSessionKey[0], clientPart.GetDigest(), clientPart.GetLength());
+    memcpy(&newSessionKey[32], serverPart.GetDigest(), serverPart.GetLength());
+
+    K.SetBinary(newSessionKey, 64);
+
+    HmacHash proof(64, newSessionKey, EVP_sha256(), SHA256_DIGEST_LENGTH);
+    proof.UpdateData(&ResumeClient, 1);
+    proof.UpdateData(clientChallenge.get(), 16);
+    proof.UpdateData(serverChallenge.get(), 16);
+    proof.Finalize();
+
+    if (memcmp(proof.GetDigest(), clientProof.get(), serverPart.GetLength()))
+    {
+        TC_LOG_DEBUG("server.battlenet", "[Battlenet::Resume] Invalid proof!");
+        AuthResume* result = new AuthResume();
+        result->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
+        ReplaceResponse(response, result);
+        return false;
+    }
+
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_SESSION_KEY);
+    stmt->setString(0, K.AsHexStr());
+    stmt->setUInt32(1, _accountId);
+    LoginDatabase.Execute(stmt);
+
+    HmacHash serverProof(64, newSessionKey, EVP_sha256(), SHA256_DIGEST_LENGTH);
+    serverProof.UpdateData(&ResumeServer, 1);
+    serverProof.UpdateData(serverChallenge.get(), 16);
+    serverProof.UpdateData(clientChallenge.get(), 16);
+    serverProof.Finalize();
+
+    ModuleInfo* resume = sBattlenetMgr->CreateModule(_os, "Resume");
+
+    BitStream resumeData;
+    uint8 state = 2;
+    resumeData.WriteBytes(&state, 1);
+    resumeData.WriteBytes(serverProof.GetDigest(), serverProof.GetLength());
+
+    resume->DataSize = resumeData.GetSize();
+    resume->Data = new uint8[resume->DataSize];
+    memcpy(resume->Data, resumeData.GetBuffer(), resume->DataSize);
+
+    AuthResume* result = new AuthResume();
+    result->Modules.push_back(resume);
+    ReplaceResponse(response, result);
+    _authed = true;
     return true;
 }
 
