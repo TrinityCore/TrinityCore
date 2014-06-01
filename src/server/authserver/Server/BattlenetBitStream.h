@@ -138,7 +138,7 @@ namespace Battlenet
             if (!count || !data)
                 return;
 
-            if (_writePos + count > MaxSize)
+            if ((_writePos >> 3) + count > MaxSize)
                 throw BitStreamPositionException();
 
             _buffer.resize(_buffer.size() + count);
