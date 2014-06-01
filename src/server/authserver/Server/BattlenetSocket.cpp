@@ -466,11 +466,11 @@ bool Battlenet::Socket::HandleRealmUpdateSubscribe(PacketHeader& /*header*/, Bit
         if (flag & REALM_FLAG_SPECIFYBUILD)
         {
             std::ostringstream version;
-            version << buildInfo->MajorVersion << '.' << buildInfo->MinorVersion << '.' << buildInfo->BugfixVersion << '.' << buildInfo->HotfixVersion;
+            version << buildInfo->MajorVersion << '.' << buildInfo->MinorVersion << '.' << buildInfo->BugfixVersion << '.' << buildInfo->Build;
 
             update->Version = version.str();
             update->Address = realm.GetAddressForClient(clientAddr);
-            update->Build = realm.gamebuild;
+            update->Build = buildInfo->Build;
         }
 
         update->Flags = flag;
@@ -870,7 +870,7 @@ bool Battlenet::Socket::HandleRiskFingerprintModule(BitStream* dataStream, Serve
 
         complete->GameAccountId = _gameAccountId;
         complete->GameAccountName = str.str();
-        complete->GameAccountFlags = 1;
+        complete->GameAccountFlags = GAMEACCOUNT_FLAG_PROPASS_LOCK;
 
         SQLTransaction trans = LoginDatabase.BeginTransaction();
 
