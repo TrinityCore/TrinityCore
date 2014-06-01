@@ -32,6 +32,7 @@
 #include "WorldPacket.h"
 #include "Cryptography/BigNumber.h"
 #include "AccountMgr.h"
+#include <unordered_set>
 
 class Creature;
 class GameObject;
