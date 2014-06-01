@@ -1867,13 +1867,6 @@ public:
     {
         npc_shadowmoon_tuber_nodeAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() override
-        {
-            tapped = false;
-            tuberGUID = 0;
-            resetTimer = 60000;
-        }
-
         void SetData(uint32 id, uint32 data) override
         {
             if (id == TYPE_BOAR && data == DATA_BOAR)
@@ -1884,49 +1877,23 @@ public:
                 // Despawn the tuber
                 if (GameObject* tuber = me->FindNearestGameObject(GO_SHADOWMOON_TUBER_MOUND, 5.0f))
                 {
-                    tuberGUID = tuber->GetGUID();
-                    // @Workaround: find how to properly despawn the GO
-                    tuber->SetPhaseMask(2, true);
+                    tuber->SetLootState(GO_JUST_DEACTIVATED);
+                    me->DespawnOrUnsummon();
                 }
             }
         }
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
-            if (!tapped && spell->Id == SPELL_WHISTLE)
+            if (spell->Id == SPELL_WHISTLE)
             {
                 if (Creature* boar = me->FindNearestCreature(NPC_BOAR_ENTRY, 30.0f))
                 {
-                    // Disable trigger and force nearest boar to walk to him
-                    tapped = true;
                     boar->SetWalk(false);
                     boar->GetMotionMaster()->MovePoint(POINT_TUBER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                 }
             }
         }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (tapped)
-            {
-                if (resetTimer <= diff)
-                {
-                    // Respawn the tuber
-                    if (tuberGUID)
-                        if (GameObject* tuber = GameObject::GetGameObject(*me, tuberGUID))
-                        // @Workaround: find how to properly respawn the GO
-                            tuber->SetPhaseMask(1, true);
-
-                    Reset();
-                }
-                else
-                    resetTimer -= diff;
-            }
-        }
-    private:
-        bool tapped;
-        uint64 tuberGUID;
-        uint32 resetTimer;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
