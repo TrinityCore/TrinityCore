@@ -20,8 +20,27 @@
 #include "RealmList.h"
 #include "BattlenetManager.h"
 #include "Database/DatabaseEnv.h"
+#include "Util.h"
 
-RealmList::RealmList() : m_UpdateInterval(0), m_NextUpdateTime(time(NULL)) { }
+ACE_INET_Addr const& Realm::GetAddressForClient(ACE_INET_Addr const& clientAddr) const
+{
+    // Attempt to send best address for client
+    if (clientAddr.is_loopback())
+        // Assume that user connecting from the machine that authserver is located on
+        // has all realms available in his local network
+        return LocalAddress;
+
+    // Check if connecting client is in the same network
+    if (IsIPAddrInNetwork(LocalAddress, clientAddr, LocalSubnetMask))
+        return LocalAddress;
+
+    // Return external IP
+    return ExternalAddress;
+}
+
+RealmList::RealmList() : m_UpdateInterval(0), m_NextUpdateTime(time(NULL))
+{
+}
 
 // Load the realm list from the database
 void RealmList::Initialize(uint32 updateInterval)

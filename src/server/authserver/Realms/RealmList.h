@@ -53,6 +53,8 @@ struct Realm
     uint32 gamebuild;
     uint8 Region;
     uint8 Battlegroup;
+
+    ACE_INET_Addr const& GetAddressForClient(ACE_INET_Addr const& clientAddr) const;
 };
 
 namespace Battlenet

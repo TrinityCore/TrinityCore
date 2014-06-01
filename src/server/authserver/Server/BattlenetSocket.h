@@ -47,7 +47,7 @@ namespace Battlenet
         static uint32 const SRP6_V_Size;
         static uint32 const SRP6_S_Size;
 
-        Socket(RealmSocket& socket);
+        explicit Socket(RealmSocket& socket);
 
         typedef bool(Socket::*PacketHandler)(PacketHeader& socket, BitStream& packet);
 
@@ -71,7 +71,6 @@ namespace Battlenet
 
     private:
         void _SetVSFields(std::string const& rI);
-        static ACE_INET_Addr const& GetAddressForClient(Realm const& realm, ACE_INET_Addr const& clientAddr);
 
         typedef bool(Socket::*ModuleHandler)(BitStream* dataStream, ServerPacket** response);
         static ModuleHandler const ModuleHandlers[MODULE_COUNT];
