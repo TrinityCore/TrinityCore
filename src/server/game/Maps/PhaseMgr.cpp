@@ -357,31 +357,27 @@ uint32 PhaseData::RemoveAuraInfo(uint32 spellId)
     PhaseInfoContainer::const_iterator rAura = spellPhaseInfo.find(spellId);
     if (rAura != spellPhaseInfo.end())
     {
-        bool serverUpdated = false;
-        bool clientUpdated = false;
         uint32 updateflag = 0;
 
         for (auto phase = rAura->second.begin(); phase != rAura->second.end(); ++phase)
         {
-            if (!clientUpdated && phase->NeedsClientSideUpdate())
-            {
-                clientUpdated = true;
+            if (phase->NeedsClientSideUpdate())
                 updateflag |= PHASE_UPDATE_FLAG_CLIENTSIDE_CHANGED;
-            }
 
-            if (!serverUpdated && phase->NeedsServerSideUpdate())
+            if (phase->NeedsServerSideUpdate())
             {
-                serverUpdated = true;
                 _PhasemaskThroughAuras = 0;
-
                 updateflag |= PHASE_UPDATE_FLAG_SERVERSIDE_CHANGED;
-
-                spellPhaseInfo.erase(rAura);
-
-                for (PhaseInfoContainer::const_iterator itr = spellPhaseInfo.begin(); itr != spellPhaseInfo.end(); ++itr)
-                    for (auto ph = itr->second.begin(); ph != itr->second.end(); ++ph)
-                        _PhasemaskThroughAuras |= ph->phasemask;
             }
+        }
+
+        if (updateflag & PHASE_UPDATE_FLAG_SERVERSIDE_CHANGED)
+        {
+            spellPhaseInfo.erase(rAura);
+
+            for (PhaseInfoContainer::const_iterator itr = spellPhaseInfo.begin(); itr != spellPhaseInfo.end(); ++itr)
+                for (auto ph = itr->second.begin(); ph != itr->second.end(); ++ph)
+                    _PhasemaskThroughAuras |= ph->phasemask;
         }
 
         return updateflag;
