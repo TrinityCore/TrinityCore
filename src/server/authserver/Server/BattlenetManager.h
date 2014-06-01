@@ -94,7 +94,7 @@ public:
     bool HasComponent(Battlenet::Component const* component) const;
     bool HasProgram(std::string const& program) const { return _programs.count(program); }
     bool HasPlatform(std::string const& platform) const { return _platforms.count(platform); }
-    Battlenet::ModuleInfo const* GetModule(Battlenet::ModuleKey const& key) const;
+    Battlenet::ModuleInfo* CreateModule(std::string const& os, std::string const& name) const;
 
 private:
     void LoadComponents();

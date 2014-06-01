@@ -286,8 +286,8 @@ bool Battlenet::Socket::HandleAuthChallenge(PacketHeader& header, BitStream& pac
 
     I.SetBinary(sha.GetDigest(), sha.GetLength());
 
-    ModuleInfo* password = new ModuleInfo(*sBattlenetMgr->GetModule({ _os, "Password" }));
-    ModuleInfo* thumbprint = new ModuleInfo(*sBattlenetMgr->GetModule({ _os, "Thumbprint" }));
+    ModuleInfo* password = sBattlenetMgr->CreateModule(_os, "Password");
+    ModuleInfo* thumbprint = sBattlenetMgr->CreateModule(_os, "Thumbprint");
 
     std::string pStr = fields[0].GetString();
 
@@ -367,11 +367,10 @@ bool Battlenet::Socket::HandlePing(PacketHeader& /*header*/, BitStream& /*packet
     return true;
 }
 
-bool Battlenet::Socket::HandleEnableEncryption(PacketHeader& /*header*/, BitStream& packet)
+bool Battlenet::Socket::HandleEnableEncryption(PacketHeader& /*header*/, BitStream& /*packet*/)
 {
     _crypt.Init(&K);
-    _crypt.DecryptRecv(packet.GetBuffer() + 2, packet.GetSize() - 2);
-    return false;
+    return true;
 }
 
 bool Battlenet::Socket::HandleRealmUpdateSubscribe(PacketHeader& /*header*/, BitStream& /*packet*/)
@@ -691,7 +690,7 @@ bool Battlenet::Socket::HandlePasswordModule(BitStream* dataStream, ServerPacket
     M.SetBinary(sha.GetDigest(), sha.GetLength());
 
     BitStream stream;
-    ModuleInfo* password = new ModuleInfo(*sBattlenetMgr->GetModule({ _os, "Password" }));
+    ModuleInfo* password = sBattlenetMgr->CreateModule(_os, "Password");
     uint8 state = 3;
 
     stream.WriteBytes(&state, 1);
@@ -717,7 +716,7 @@ bool Battlenet::Socket::HandlePasswordModule(BitStream* dataStream, ServerPacket
             accounts.WriteString(fields[0].GetString(), 8);
         } while (result->NextRow());
 
-        ModuleInfo* selectGameAccount = new ModuleInfo(*sBattlenetMgr->GetModule({ _os, "SelectGameAccount" }));
+        ModuleInfo* selectGameAccount = sBattlenetMgr->CreateModule(_os, "SelectGameAccount");
         selectGameAccount->DataSize = accounts.GetSize();
         selectGameAccount->Data = new uint8[selectGameAccount->DataSize];
         memcpy(selectGameAccount->Data, accounts.GetBuffer(), selectGameAccount->DataSize);
@@ -743,17 +742,16 @@ bool Battlenet::Socket::HandlePasswordModule(BitStream* dataStream, ServerPacket
             }
 
             ReplaceResponse(response, complete);
-            return true;
+            return false;
         }
 
         _gameAccountId = (*result)[1].GetUInt32();
 
-        request->Modules.push_back(new ModuleInfo(*sBattlenetMgr->GetModule({ _os, "RiskFingerprint" })));
+        request->Modules.push_back(sBattlenetMgr->CreateModule(_os, "RiskFingerprint"));
         _modulesWaitingForData.push(MODULE_RISK_FINGERPRINT);
     }
 
     ReplaceResponse(response, request);
-
     return true;
 }
 
@@ -789,22 +787,22 @@ bool Battlenet::Socket::HandleSelectGameAccountModule(BitStream* dataStream, Ser
         if (fields[1].GetUInt32() == fields[2].GetUInt32())
         {
             complete->SetAuthResult(LOGIN_BANNED);
-            TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::AuthChallenge] Banned account %s tried to login!", _socket.getRemoteAddress().c_str(), _socket.getRemotePort(), _accountName.c_str());
+            TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::SelectGameAccount] Banned account %s tried to login!", _socket.getRemoteAddress().c_str(), _socket.getRemotePort(), _accountName.c_str());
         }
         else
         {
             complete->SetAuthResult(LOGIN_SUSPENDED);
-            TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::AuthChallenge] Temporarily banned account %s tried to login!", _socket.getRemoteAddress().c_str(), _socket.getRemotePort(), _accountName.c_str());
+            TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::SelectGameAccount] Temporarily banned account %s tried to login!", _socket.getRemoteAddress().c_str(), _socket.getRemotePort(), _accountName.c_str());
         }
 
         ReplaceResponse(response, complete);
-        return true;
+        return false;
     }
 
     _gameAccountId = fields[0].GetUInt32();
 
     ProofRequest* request = new ProofRequest();
-    request->Modules.push_back(new ModuleInfo(*sBattlenetMgr->GetModule({ _os, "RiskFingerprint" })));
+    request->Modules.push_back(sBattlenetMgr->CreateModule(_os, "RiskFingerprint"));
     ReplaceResponse(response, request);
 
     _modulesWaitingForData.push(MODULE_RISK_FINGERPRINT);

@@ -87,10 +87,10 @@ bool BattlenetMgr::HasComponent(Battlenet::Component const* component) const
     return false;
 }
 
-Battlenet::ModuleInfo const* BattlenetMgr::GetModule(Battlenet::ModuleKey const& key) const
+Battlenet::ModuleInfo* BattlenetMgr::CreateModule(std::string const& os, std::string const& name) const
 {
-    if (_modules.count(key))
-        return _modules.at(key);
+    Battlenet::ModuleKey key { os, name };
+    ASSERT(_modules.count(key));
 
-    return NULL;
+    return new Battlenet::ModuleInfo(*_modules.at(key));
 }
