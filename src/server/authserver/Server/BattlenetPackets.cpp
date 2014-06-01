@@ -203,10 +203,10 @@ void Battlenet::AuthComplete::Write()
         _stream.WriteString(LastName, 8); // Last name - not set for WoW
 
         _stream.Write(GameAccountId, 32);
-        _stream.Write(2, 8);
+        _stream.Write(Region, 8);
         _stream.Write(0, 64);
 
-        _stream.Write(2, 8);
+        _stream.Write(GameAccountRegion, 8);
         _stream.WriteString(GameAccountName, 5, -1);
         _stream.Write(GameAccountFlags, 64);
 
