@@ -190,13 +190,19 @@ ACE_Auto_Array_Ptr<uint8> BigNumber::AsByteArray(int32 minSize, bool littleEndia
     return ret;
 }
 
-char * BigNumber::AsHexStr() const
+std::string BigNumber::AsHexStr() const
 {
-    return BN_bn2hex(_bn);
+    char* ch = BN_bn2hex(_bn);
+    std::string ret = ch;
+    OPENSSL_free(ch);
+    return ret;
 }
 
-char * BigNumber::AsDecStr() const
+std::string BigNumber::AsDecStr() const
 {
-    return BN_bn2dec(_bn);
+    char* ch = BN_bn2dec(_bn);
+    std::string ret = ch;
+    OPENSSL_free(ch);
+    return ret;
 }
 

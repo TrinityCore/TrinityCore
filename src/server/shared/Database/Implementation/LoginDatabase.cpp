@@ -106,6 +106,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_SEL_BNET_ACCOUNT_INFO, "SELECT sha_pass_hash, id, locked, lock_country, last_ip, v, s FROM battlenet_accounts WHERE email = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_DEL_BNET_EXPIRED_BANS, "UPDATE battlenet_account_bans SET active = 0 WHERE active = 1 AND unbandate <> bandate AND unbandate <= UNIX_TIMESTAMP()", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_SEL_BNET_ACTIVE_ACCOUNT_BAN, "SELECT bandate, unbandate FROM battlenet_account_bans WHERE id = ? AND active = 1", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_UPD_BNET_VS_FIELDS, "UPDATE battlenet_accounts SET v = ?, s = ? WHERE email = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_SEL_BNET_GAME_ACCOUNTS, "SELECT a.username, a.id, ab.bandate, ab.unbandate, ab.active FROM account a LEFT JOIN account_banned ab ON a.id = ab.id WHERE battlenet_account = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_SEL_BNET_GAME_ACCOUNT, "SELECT a.id, ab.bandate, ab.unbandate, ab.active FROM account a LEFT JOIN account_banned ab ON a.id = ab.id WHERE username = ? AND battlenet_account = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_UPD_BNET_LAST_LOGIN_INFO, "UPDATE battlenet_accounts SET last_ip = ?, last_login = NOW(), locale = ?, failed_logins = 0, os = ? WHERE id = ?", CONNECTION_ASYNC);
@@ -114,5 +115,5 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_SEL_BNET_ACCOUNT_EMAIL_BY_ID, "SELECT email FROM battlenet_accounts WHERE id = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_SEL_BNET_ACCOUNT_ID_BY_EMAIL, "SELECT id FROM battlenet_accounts WHERE email = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_UPD_BNET_PASSWORD, "UPDATE account SET v = '', s = '', username = ?, sha_pass_hash = ? WHERE id = ?", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_SEL_BNET_CHECK_PASSWORD, "SELECT 1 FROM battlenet_accounts WHERE id = %u AND sha_pass_hash = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_SEL_BNET_CHECK_PASSWORD, "SELECT 1 FROM battlenet_accounts WHERE id = ? AND sha_pass_hash = ?", CONNECTION_ASYNC);
 }

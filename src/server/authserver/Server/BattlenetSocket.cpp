@@ -94,35 +94,12 @@ void Battlenet::Socket::_SetVSFields(std::string const& pstr)
     x.SetBinary(sha.GetDigest(), sha.GetLength());
     v = g.ModExp(x, N);
 
-    char* v_hex = v.AsHexStr();
-    char* s_hex = s.AsHexStr();
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_VS_FIELDS);
+    stmt->setString(0, v.AsHexStr());
+    stmt->setString(1, s.AsHexStr());
+    stmt->setString(2, _accountName);
 
-    LoginDatabase.PExecute("UPDATE battlenet_accounts SET s = '%s', v = '%s' WHERE email ='%s'", s_hex, v_hex, _accountName.c_str());
-
-    OPENSSL_free(v_hex);
-    OPENSSL_free(s_hex);
-}
-
-ACE_INET_Addr const& Battlenet::Socket::GetAddressForClient(Realm const& realm, ACE_INET_Addr const& clientAddr)
-{
-    // Attempt to send best address for client
-    if (clientAddr.is_loopback())
-    {
-        // Try guessing if realm is also connected locally
-        if (realm.LocalAddress.is_loopback() || realm.ExternalAddress.is_loopback())
-            return clientAddr;
-
-        // Assume that user connecting from the machine that authserver is located on
-        // has all realms available in his local network
-        return realm.LocalAddress;
-    }
-
-    // Check if connecting client is in the same network
-    if (IsIPAddrInNetwork(realm.LocalAddress, clientAddr, realm.LocalSubnetMask))
-        return realm.LocalAddress;
-
-    // Return external IP
-    return realm.ExternalAddress;
+    LoginDatabase.Execute(stmt);
 }
 
 bool Battlenet::Socket::HandleAuthChallenge(PacketHeader& header, BitStream& packet)
@@ -425,7 +402,7 @@ bool Battlenet::Socket::HandleRealmUpdateSubscribe(PacketHeader& /*header*/, Bit
             version << buildInfo->MajorVersion << '.' << buildInfo->MinorVersion << '.' << buildInfo->BugfixVersion << '.' << buildInfo->HotfixVersion;
 
             update->Version = version.str();
-            update->Address = GetAddressForClient(realm, clientAddr);
+            update->Address = realm.GetAddressForClient(clientAddr);
             update->Build = realm.gamebuild;
         }
 
@@ -821,7 +798,7 @@ bool Battlenet::Socket::HandleRiskFingerprintModule(BitStream* dataStream, Serve
         complete->GameAccountName = str.str();
         complete->AccountFlags = 0x800000;      // 0x1 IsGMAccount, 0x8 IsTrialAccount, 0x800000 IsProPassAccount
 
-        PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_LAST_LOGIN_INFO);
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_LAST_LOGIN_INFO);
         stmt->setString(0, _socket.getRemoteAddress());
         stmt->setUInt8(1, GetLocaleByName(_locale));
         stmt->setString(2, _os);
@@ -832,7 +809,7 @@ bool Battlenet::Socket::HandleRiskFingerprintModule(BitStream* dataStream, Serve
         complete->SetAuthResult(AUTH_BAD_VERSION_HASH);
 
     ReplaceResponse(response, complete);
-    return false;
+    return true;
 }
 
 bool Battlenet::Socket::UnhandledModule(BitStream* /*dataStream*/, ServerPacket** response)
