@@ -102,7 +102,7 @@ void RealmList::UpdateRealms(bool init)
                 (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop, build);
 
             if (init)
-                TC_LOG_INFO("server.authserver", "Added realm \"%s\" at %s:%u.", name.c_str(), m_realms[name].ExternalAddress.to_string(), port);
+                TC_LOG_INFO("server.authserver", "Added realm \"%s\" at %s:%u.", name.c_str(), m_realms[name].ExternalAddress.to_string().c_str(), port);
         }
         while (result->NextRow());
     }
