@@ -557,7 +557,7 @@ bool AuthSession::HandleLogonProof()
                 proof.M2 = M2;
                 proof.cmd = AUTH_LOGON_PROOF;
                 proof.error = 0;
-                proof.AccountFlags = 0x00800000;    // 0x01 = GM, 0x08 = Trial, 0x00800000 = Pro pass (arena tournament)
+                proof.AccountFlags = GAMEACCOUNT_FLAG_PROPASS_LOCK;
                 proof.SurveyId = 0;
                 proof.LoginFlags = 0;               // 0x1 = has account message
 
