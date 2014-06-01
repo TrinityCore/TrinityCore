@@ -253,7 +253,10 @@ DBCStorage <WMOAreaTableEntry> sWMOAreaTableStore(WMOAreaTableEntryfmt);
 DBCStorage <WorldMapAreaEntry> sWorldMapAreaStore(WorldMapAreaEntryfmt);
 DBCStorage <WorldMapOverlayEntry> sWorldMapOverlayStore(WorldMapOverlayEntryfmt);
 DBCStorage <WorldSafeLocsEntry> sWorldSafeLocsStore(WorldSafeLocsEntryfmt);
-DBCStorage <PhaseEntry> sPhaseStores(PhaseEntryfmt);
+DBCStorage <PhaseEntry> sPhaseStore(PhaseEntryfmt);
+DBCStorage <PhaseGroupEntry> sPhaseGroupStore(PhaseGroupfmt);
+
+PhaseGroupContainer sPhasesByGroup;
 
 typedef std::list<std::string> StoreProblemList;
 
@@ -468,7 +471,6 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sLightStore,                  dbcPath, "Light.dbc"); //15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sLiquidTypeStore,             dbcPath, "LiquidType.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sLockStore,                   dbcPath, "Lock.dbc");//15595
-    LoadDBC(availableDbcLocales, bad_dbc_files, sPhaseStores,                 dbcPath, "Phase.dbc");//15595
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sMailTemplateStore,           dbcPath, "MailTemplate.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sMapStore,                    dbcPath, "Map.dbc");//15595
@@ -493,6 +495,14 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sMovieStore,                  dbcPath, "Movie.dbc");//15595
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sOverrideSpellDataStore,      dbcPath, "OverrideSpellData.dbc");//15595
+
+    LoadDBC(availableDbcLocales, bad_dbc_files, sPhaseStore, dbcPath, "Phase.dbc"); // 15595
+    LoadDBC(availableDbcLocales, bad_dbc_files, sPhaseGroupStore, dbcPath, "PhaseXPhaseGroup.dbc"); // 15595
+
+    for (uint32 i = 0; i < sPhaseGroupStore.GetNumRows(); ++i)
+        if (PhaseGroupEntry const* group = sPhaseGroupStore.LookupEntry(i))
+            if (PhaseEntry const* phase = sPhaseStore.LookupEntry(group->PhaseId))
+                sPhasesByGroup[group->GroupId].insert(phase->ID);
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sPowerDisplayStore,           dbcPath, "PowerDisplay.dbc");
 
@@ -1298,4 +1308,9 @@ uint32 GetDefaultMapLight(uint32 mapId)
     }
 
     return 0;
+}
+
+std::set<uint32> const& GetPhasesForGroup(uint32 group)
+{
+    return sPhasesByGroup[group];
 }

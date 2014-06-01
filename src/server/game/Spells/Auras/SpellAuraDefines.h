@@ -385,7 +385,7 @@ enum AuraType
     SPELL_AURA_323                                          = 323,  // Not used in 4.3.4
     SPELL_AURA_324                                          = 324,  // spell critical chance (probably by school mask)
     SPELL_AURA_325                                          = 325,  // Not used in 4.3.4
-    SPELL_AURA_326                                          = 326,  // phase related
+    SPELL_AURA_PHASE_GROUP                                  = 326,  // Puts the player in all the phases that are in the group with id = miscB
     SPELL_AURA_327                                          = 327,  // Not used in 4.3.4
     SPELL_AURA_PROC_ON_POWER_AMOUNT                         = 328,
     SPELL_AURA_MOD_RUNE_REGEN_SPEED                         = 329,  // NYI
