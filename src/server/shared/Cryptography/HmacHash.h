@@ -38,7 +38,7 @@ class HmacHash
         void Finalize();
         uint8* ComputeHash(BigNumber* bn);
         uint8* GetDigest() { return _digest; }
-        int GetLength() const { return SHA_DIGEST_LENGTH; }
+        uint32 GetLength() const { return _digestLength; }
     private:
         HMAC_CTX _ctx;
         uint8* _digest;
