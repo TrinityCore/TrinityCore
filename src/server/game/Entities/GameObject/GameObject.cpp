@@ -34,6 +34,7 @@
 #include "UpdateFieldFlags.h"
 #include "World.h"
 #include "Transport.h"
+#include "LuaEngine.h"
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
     m_model(NULL), m_goValue(), m_AI(NULL)
@@ -70,6 +71,10 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
 
 GameObject::~GameObject()
 {
+#ifdef ELUNA
+    Eluna::RemoveRef(this);
+#endif
+
     delete m_AI;
     delete m_model;
     //if (m_uint32Values)                                      // field array can be not exist if GameOBject not loaded

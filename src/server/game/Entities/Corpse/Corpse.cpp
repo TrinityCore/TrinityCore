@@ -25,6 +25,7 @@
 #include "Opcodes.h"
 #include "GossipDef.h"
 #include "World.h"
+#include "LuaEngine.h"
 
 Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type)
 {
@@ -41,7 +42,12 @@ Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type
     lootRecipient = NULL;
 }
 
-Corpse::~Corpse() { }
+Corpse::~Corpse()
+{
+#ifdef ELUNA
+    Eluna::RemoveRef(this);
+#endif
+}
 
 void Corpse::AddToWorld()
 {

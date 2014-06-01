@@ -24,6 +24,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCStructure.h"
+#include "LuaEngine.h"
 
 class Item;
 class Player;
@@ -101,6 +102,10 @@ class AuctionHouseObject
   public:
     ~AuctionHouseObject()
     {
+#ifdef ELUNA
+        Eluna::RemoveRef(this);
+#endif
+
         for (AuctionEntryMap::iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
             delete itr->second;
     }

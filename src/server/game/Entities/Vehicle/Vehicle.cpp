@@ -33,6 +33,7 @@
 #include "EventProcessor.h"
 #include "Player.h"
 #include "Battleground.h"
+#include "LuaEngine.h"
 
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) :
 UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry), _status(STATUS_NONE), _lastShootPos()
@@ -59,6 +60,10 @@ UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry
 
 Vehicle::~Vehicle()
 {
+#ifdef ELUNA
+    Eluna::RemoveRef(this);
+#endif
+
     /// @Uninstall must be called before this.
     ASSERT(_status == STATUS_UNINSTALLING);
     for (SeatMap::const_iterator itr = Seats.begin(); itr != Seats.end(); ++itr)

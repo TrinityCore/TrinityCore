@@ -28,6 +28,7 @@
 #include "ConditionMgr.h"
 #include "Player.h"
 #include "Opcodes.h"
+#include "LuaEngine.h"
 
 void AddItemsSetItem(Player* player, Item* item)
 {
@@ -253,6 +254,13 @@ Item::Item()
     m_refundRecipient = 0;
     m_paidMoney = 0;
     m_paidExtendedCost = 0;
+}
+
+Item::~Item()
+{
+#ifdef ELUNA
+    Eluna::RemoveRef(this);
+#endif
 }
 
 bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)

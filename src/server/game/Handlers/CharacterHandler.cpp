@@ -46,7 +46,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "HookMgr.h"
+#include "LuaEngine.h"
 
 
 class LoginQueryHolder : public SQLQueryHolder
@@ -1007,7 +1007,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     }
 #ifdef ELUNA
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))
-        sHookMgr->OnFirstLogin(pCurrChar);
+        sEluna->OnFirstLogin(pCurrChar);
 #endif
 
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))

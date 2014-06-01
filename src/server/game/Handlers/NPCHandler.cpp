@@ -37,7 +37,7 @@
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
 #include "SpellInfo.h"
-#include "HookMgr.h"
+#include "LuaEngine.h"
 
 enum StableResultCode
 {
