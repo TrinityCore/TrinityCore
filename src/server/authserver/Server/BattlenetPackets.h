@@ -41,9 +41,9 @@ namespace Battlenet
         CMSG_AUTH_CHALLENGE         = 0x0,
         CMSG_AUTH_RECONNECT         = 0x1,
         CMSG_AUTH_PROOF_RESPONSE    = 0x2,
-        CMSG_AUTH_CHALLENGE_NEW     = 0x9,  // MoP
 
         SMSG_AUTH_COMPLETE          = 0x0,
+        SMSG_AUTH_RESUME            = 0x1,
         SMSG_AUTH_PROOF_REQUEST     = 0x2
     };
 
@@ -51,6 +51,7 @@ namespace Battlenet
     {
         CMSG_PING               = 0x0,
         CMSG_ENABLE_ENCRYPTION  = 0x5,
+        CMSG_DISCONNECT         = 0x6,
         CMSG_INVALID_PACKET     = 0x9,
 
         SMSG_PONG               = 0x0
@@ -141,7 +142,7 @@ namespace Battlenet
     public:
         AuthChallenge(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
         {
-            ASSERT(header.Channel == AUTHENTICATION && (header.Opcode == CMSG_AUTH_CHALLENGE || header.Opcode == CMSG_AUTH_CHALLENGE_NEW) && "Invalid packet header for AuthChallenge");
+            ASSERT(header == PacketHeader(CMSG_AUTH_CHALLENGE, AUTHENTICATION) && "Invalid packet header for AuthChallenge");
         }
 
         void Read() override;
@@ -152,6 +153,26 @@ namespace Battlenet
         std::string Locale;
         std::vector<Component> Components;
         std::string Login;
+    };
+
+    class AuthResumeInfo final : public ClientPacket
+    {
+    public:
+        AuthResumeInfo(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
+        {
+            ASSERT(header == PacketHeader(CMSG_AUTH_RECONNECT, AUTHENTICATION) && "Invalid packet header for AuthResumeInfo");
+        }
+
+        void Read() override;
+        std::string ToString() const override;
+
+        std::string Program;
+        std::string Platform;
+        std::string Locale;
+        std::vector<Component> Components;
+        std::string Login;
+        uint8 Region;
+        std::string GameAccountName;
     };
 
     class ProofRequest final : public ServerPacket
@@ -191,10 +212,12 @@ namespace Battlenet
         {
         }
 
+        ~AuthComplete();
+
         void Write() override;
         std::string ToString() const override;
 
-        std::vector<ModuleInfo> Modules;
+        std::vector<ModuleInfo*> Modules;
         void SetAuthResult(AuthResult result);
         AuthResult Result;
         uint32 ErrorType;
@@ -206,7 +229,30 @@ namespace Battlenet
         std::string LastName;
         uint32 GameAccountId;
         std::string GameAccountName;
-        uint64 AccountFlags;
+        uint64 GameAccountFlags;
+    };
+
+    class AuthResume final : public ServerPacket
+    {
+    public:
+        AuthResume() : ServerPacket(PacketHeader(SMSG_AUTH_RESUME, AUTHENTICATION)),
+            Result(AUTH_OK), ErrorType(0), PingTimeout(120000), Threshold(25000000), Rate(1000)
+        {
+        }
+
+        ~AuthResume();
+
+        void Write() override;
+        std::string ToString() const override;
+
+        std::vector<ModuleInfo*> Modules;
+        void SetAuthResult(AuthResult result);
+        AuthResult Result;
+        uint32 ErrorType;
+
+        int32 PingTimeout;
+        uint32 Threshold;
+        uint32 Rate;
     };
 
     class Pong final : public ServerPacket

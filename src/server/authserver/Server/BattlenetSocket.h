@@ -37,6 +37,7 @@ namespace Battlenet
         MODULE_THUMBPRINT,
         MODULE_SELECT_GAME_ACCOUNT,
         MODULE_RISK_FINGERPRINT,
+        MODULE_RESUME,
 
         MODULE_COUNT
     };
@@ -53,11 +54,13 @@ namespace Battlenet
 
         // Auth
         bool HandleAuthChallenge(PacketHeader& header, BitStream& packet);
+        bool HandleAuthReconnect(PacketHeader& header, BitStream& packet);
         bool HandleAuthProofResponse(PacketHeader& header, BitStream& packet);
 
         // Creep
         bool HandlePing(PacketHeader& header, BitStream& packet);
         bool HandleEnableEncryption(PacketHeader& header, BitStream& packet);
+        bool HandleDisconnect(PacketHeader& header, BitStream& packet);
 
         // WoW
         bool HandleRealmUpdateSubscribe(PacketHeader& header, BitStream& packet);
@@ -78,6 +81,7 @@ namespace Battlenet
         bool HandlePasswordModule(BitStream* dataStream, ServerPacket** response);
         bool HandleSelectGameAccountModule(BitStream* dataStream, ServerPacket** response);
         bool HandleRiskFingerprintModule(BitStream* dataStream, ServerPacket** response);
+        bool HandleResumeModule(BitStream* dataStream, ServerPacket** response);
         bool UnhandledModule(BitStream* dataStream, ServerPacket** response);
 
         RealmSocket& _socket;
@@ -102,9 +106,12 @@ namespace Battlenet
         BigNumber B;
         BigNumber K;    // session key
 
+        BigNumber _reconnectProof;
+
         std::queue<ModuleType> _modulesWaitingForData;
 
         PacketCrypt _crypt;
+        bool _authed;
     };
 
 }

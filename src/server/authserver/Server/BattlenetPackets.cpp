@@ -57,9 +57,6 @@ void Battlenet::AuthChallenge::Read()
 
     if (_stream.Read<uint32>(1))
         Login = _stream.ReadString(9, 3);
-
-    if (GetHeader().Opcode == CMSG_AUTH_CHALLENGE_NEW)
-        _stream.FinishReading();
 }
 
 std::string Battlenet::AuthChallenge::ToString() const
@@ -71,6 +68,40 @@ std::string Battlenet::AuthChallenge::ToString() const
 
     if (!Login.empty())
         stream << std::endl << "Battlenet::AuthChallenge Login: " << Login;
+
+    return stream.str();
+}
+
+void Battlenet::AuthResumeInfo::Read()
+{
+    Program = _stream.ReadFourCC();
+    Platform = _stream.ReadFourCC();
+    Locale = _stream.ReadFourCC();
+
+    Components.resize(_stream.Read<uint32>(6));
+    for (size_t i = 0; i < Components.size(); ++i)
+    {
+        Component& component = Components[i];
+        component.Program = _stream.ReadFourCC();
+        component.Platform = _stream.ReadFourCC();
+        component.Build = _stream.Read<uint32>(32);
+    }
+
+    Login = _stream.ReadString(9, 3);
+    Region = _stream.Read<uint8>(8);
+    GameAccountName = _stream.ReadString(5, 1);
+}
+
+std::string Battlenet::AuthResumeInfo::ToString() const
+{
+    std::ostringstream stream;
+    stream << "Battlenet::AuthReconnect Program: " << Program << ", Platform: " << Platform << ", Locale: " << Locale;
+    for (Component const& component : Components)
+        stream << std::endl << "Battlenet::Component Program: " << component.Program << ", Platform: " << component.Platform << ", Build: " << component.Build;
+
+    stream << std::endl << "Battlenet::AuthReconnect Login: " << Login;
+    stream << std::endl << "Battlenet::AuthReconnect Region: " << uint32(Region);
+    stream << std::endl << "Battlenet::AuthReconnect GameAccountName: " << GameAccountName;
 
     return stream.str();
 }
@@ -134,6 +165,12 @@ std::string Battlenet::ProofResponse::ToString() const
     return stream.str();
 }
 
+Battlenet::AuthComplete::~AuthComplete()
+{
+    for (ModuleInfo* m : Modules)
+        delete m;
+}
+
 void Battlenet::AuthComplete::Write()
 {
     _stream.Write(Result != 0, 1);
@@ -142,12 +179,12 @@ void Battlenet::AuthComplete::Write()
         _stream.Write(Modules.size(), 3);
         for (size_t i = 0; i < Modules.size(); ++i)
         {
-            ModuleInfo& info = Modules[i];
-            _stream.WriteBytes(info.Type.c_str(), 4);
-            _stream.WriteFourCC(info.Region);
-            _stream.WriteBytes(info.ModuleId, 32);
-            _stream.Write(info.DataSize, 10);
-            _stream.WriteBytes(info.Data, info.DataSize);
+            ModuleInfo* info = Modules[i];
+            _stream.WriteBytes(info->Type.c_str(), 4);
+            _stream.WriteFourCC(info->Region);
+            _stream.WriteBytes(info->ModuleId, 32);
+            _stream.Write(info->DataSize, 10);
+            _stream.WriteBytes(info->Data, info->DataSize);
         }
 
         _stream.Write(PingTimeout + std::numeric_limits<int32>::min(), 32);
@@ -168,10 +205,10 @@ void Battlenet::AuthComplete::Write()
         _stream.Write(GameAccountId, 32);
         _stream.Write(2, 8);
         _stream.Write(0, 64);
-        _stream.Write(2, 8);
 
+        _stream.Write(2, 8);
         _stream.WriteString(GameAccountName, 5, -1);
-        _stream.Write(AccountFlags, 64);
+        _stream.Write(GameAccountFlags, 64);
 
         _stream.Write(0, 32);
     }
@@ -180,12 +217,10 @@ void Battlenet::AuthComplete::Write()
         _stream.Write(!Modules.empty(), 1);
         if (!Modules.empty())
         {
-            ModuleInfo& info = Modules[0];
-            _stream.WriteBytes(info.Type.c_str(), 4);
-            _stream.WriteFourCC(info.Region);
-            _stream.WriteBytes(info.ModuleId, 32);
-            _stream.Write(info.DataSize, 10);
-            _stream.WriteBytes(info.Data, info.DataSize);
+            ModuleInfo* info = Modules[0];
+            _stream.WriteBytes(info->Type.c_str(), 4);
+            _stream.WriteFourCC(info->Region);
+            _stream.WriteBytes(info->ModuleId, 32);
         }
 
         _stream.Write(ErrorType, 2);
@@ -199,10 +234,88 @@ void Battlenet::AuthComplete::Write()
 
 std::string Battlenet::AuthComplete::ToString() const
 {
-    return "Battlenet::AuthComplete";
+    std::ostringstream stream;
+    stream << "Battlenet::AuthComplete AuthResult " << Result << " PingTimeout " << PingTimeout << " Threshold " << Threshold << " Rate " << Rate
+        << " FirstName " << FirstName << " LastName " << LastName << " GameAccountId " << GameAccountId << " GameAccountName " << GameAccountName
+        << " GameAccountFlags " << GameAccountFlags << " Modules " << Modules.size();
+
+    for (ModuleInfo const* module : Modules)
+        stream << std::endl << "Battlenet::ModuleInfo Locale " << module->Region.c_str() << ", ModuleId " << ByteArrayToHexStr(module->ModuleId, 32) << ", DataSize " << module->DataSize << ", Data " << ByteArrayToHexStr(module->Data, module->DataSize);
+
+    return stream.str();
 }
 
 void Battlenet::AuthComplete::SetAuthResult(AuthResult result)
+{
+    ErrorType = result != AUTH_OK ? 1 : 0;
+    Result = result;
+}
+
+Battlenet::AuthResume::~AuthResume()
+{
+    for (ModuleInfo* m : Modules)
+        delete m;
+}
+
+void Battlenet::AuthResume::Write()
+{
+    _stream.Write(Result != 0, 1);
+    if (Result == 0)
+    {
+        _stream.Write(Modules.size(), 3);
+        for (size_t i = 0; i < Modules.size(); ++i)
+        {
+            ModuleInfo* info = Modules[i];
+            _stream.WriteBytes(info->Type.c_str(), 4);
+            _stream.WriteFourCC(info->Region);
+            _stream.WriteBytes(info->ModuleId, 32);
+            _stream.Write(info->DataSize, 10);
+            _stream.WriteBytes(info->Data, info->DataSize);
+        }
+
+        _stream.Write(PingTimeout + std::numeric_limits<int32>::min(), 32);
+        _stream.Write(1, 1);
+        // if written == 1
+        {
+            _stream.Write(1, 1);
+            // if written == 1
+            {
+                _stream.Write(Threshold, 32);
+                _stream.Write(Rate, 32);
+            }
+        }
+    }
+    else
+    {
+        _stream.Write(!Modules.empty(), 1);
+        if (!Modules.empty())
+        {
+            ModuleInfo* info = Modules[0];
+            _stream.WriteBytes(info->Type.c_str(), 4);
+            _stream.WriteFourCC(info->Region);
+            _stream.WriteBytes(info->ModuleId, 32);
+        }
+
+        _stream.Write(ErrorType, 2);
+        if (ErrorType == 1)
+        {
+            _stream.Write(Result, 16);
+            _stream.Write(0x80000000, 32);
+        }
+    }
+}
+
+std::string Battlenet::AuthResume::ToString() const
+{
+    std::ostringstream stream;
+    stream << "Battlenet::AuthResume AuthResult " << Result << " PingTimeout " << PingTimeout << " Threshold " << Threshold << " Rate " << Rate << " Modules " << Modules.size();
+    for (ModuleInfo const* module : Modules)
+        stream << std::endl << "Battlenet::ModuleInfo Locale " << module->Region.c_str() << ", ModuleId " << ByteArrayToHexStr(module->ModuleId, 32) << ", DataSize " << module->DataSize << ", Data " << ByteArrayToHexStr(module->Data, module->DataSize);
+
+    return stream.str();
+}
+
+void Battlenet::AuthResume::SetAuthResult(AuthResult result)
 {
     ErrorType = result != AUTH_OK ? 1 : 0;
     Result = result;
