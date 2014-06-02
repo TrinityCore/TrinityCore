@@ -813,6 +813,16 @@ bool GameObject::LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap)
     if (!Create(guid, entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, artKit))
         return false;
 
+    if (data->phaseid)
+        SetInPhase(data->phaseid, false, true);
+    
+    if (data->phaseGroup)
+    {
+        // Set the gameobject in all the phases of the phasegroup
+        for (auto ph : GetPhasesForGroup(data->phaseGroup))
+            SetInPhase(ph, false, true);
+    }
+
     if (data->spawntimesecs >= 0)
     {
         m_spawnedByDefault = true;
@@ -2051,6 +2061,13 @@ void GameObject::SetDisplayId(uint32 displayid)
 {
     SetUInt32Value(GAMEOBJECT_DISPLAYID, displayid);
     UpdateModel();
+}
+
+void GameObject::SetInPhase(uint32 id, bool update, bool apply)
+{
+    WorldObject::SetInPhase(id, update, apply);
+    if (m_model && m_model->isEnabled())
+        EnableCollision(true);
 }
 
 void GameObject::SetPhaseMask(uint32 newPhaseMask, bool update)
