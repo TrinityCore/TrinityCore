@@ -2406,13 +2406,12 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
     // Spells with these attributes can't be dodged parried or blocked even if the player has turned since the ability was used (Shred, Backstab, etc)
     else if (victim->GetTypeId() == TYPEID_PLAYER && 
         spellInfo->AttributesEx & SPELL_ATTR1_UNK27 && 
-        spellInfo->AttributesEx & SPELL_ATTR2_UNK20 && 
+        spellInfo->AttributesEx2 & SPELL_ATTR2_UNK20 && 
         spellInfo->AttributesCu & SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET)
     {
-        canDodge = false;
-        canParry = false;
-        canBlock = false;
+        return SPELL_MISS_NONE;
     }
+
     // Check creatures flags_extra for disable parry
     if (victim->GetTypeId() == TYPEID_UNIT)
     {
