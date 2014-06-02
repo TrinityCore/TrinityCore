@@ -188,8 +188,6 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
         return false;
     }
 
-    SetPhaseMask(phaseMask, false);
-
     SetZoneScript();
     if (m_zoneScript)
     {

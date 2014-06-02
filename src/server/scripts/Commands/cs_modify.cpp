@@ -1267,19 +1267,19 @@ public:
         return true;
     }
 
-    //set temporary phase mask for player
+    // Toggles a phaseid on a player
     static bool HandleModifyPhaseCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)
             return false;
 
-        uint32 phasemask = (uint32)atoi((char*)args);
+        uint32 phase = (uint32)atoi((char*)args);
 
         Unit* target = handler->getSelectedUnit();
         if (target)
-            target->SetPhaseMask(phasemask, true);
+            target->SetInPhase(phase, true, !target->IsInPhase(phase));
         else
-            handler->GetSession()->GetPlayer()->SetPhaseMask(phasemask, true);
+            handler->GetSession()->GetPlayer()->SetInPhase(phase, true, !handler->GetSession()->GetPlayer()->IsInPhase(phase));
 
         return true;
     }

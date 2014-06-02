@@ -305,7 +305,7 @@ public:
             if (GameObject* trigger = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_KELTHUZAD_TRIGGER)))
             {
                 trigger->ResetDoorOrButton();
-                trigger->SetPhaseMask(1, true);
+                trigger->SetLootState(GO_READY);
             }
 
             for (uint8 i = 0; i <= 3; ++i)
@@ -398,7 +398,7 @@ public:
                             break;
                         case EVENT_TRIGGER:
                             if (GameObject* trigger = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_KELTHUZAD_TRIGGER)))
-                                trigger->SetPhaseMask(2, true);
+                                trigger->SetLootState(GO_JUST_DEACTIVATED);
                             events.PopEvent();
                             break;
                         case EVENT_PHASE:
