@@ -1007,7 +1007,7 @@ class WorldSession
         AddonsList m_addonsList;
         uint32 recruiterId;
         bool isRecruiter;
-        ACE_Based::LockedQueue<WorldPacket*, ACE_Thread_Mutex> _recvQueue;
+        LockedQueue<WorldPacket*> _recvQueue;
         time_t timeLastWhoCommand;
         rbac::RBACData* _RBACData;
 
