@@ -1004,6 +1004,8 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
                 m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_ALLIANCE].erase(itr_teams[TEAM_HORDE]);
             }
 
+            arena->SetArenaStartMatchmakerRating(ALLIANCE, aTeam->ArenaMatchmakerRating);
+            arena->SetArenaStartMatchmakerRating(HORDE, hTeam->ArenaMatchmakerRating);
             arena->SetArenaMatchmakerRating(ALLIANCE, aTeam->ArenaMatchmakerRating);
             arena->SetArenaMatchmakerRating(   HORDE, hTeam->ArenaMatchmakerRating);
             InviteGroupToBG(aTeam, arena, ALLIANCE);

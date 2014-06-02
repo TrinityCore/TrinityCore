@@ -169,6 +169,9 @@ Battleground::Battleground()
     m_ArenaTeamRatingChanges[TEAM_ALLIANCE]   = 0;
     m_ArenaTeamRatingChanges[TEAM_HORDE]      = 0;
 
+    m_ArenaTeamStartMMR[TEAM_ALLIANCE] = 0;
+    m_ArenaTeamStartMMR[TEAM_HORDE] = 0;
+
     m_ArenaTeamMMR[TEAM_ALLIANCE]   = 0;
     m_ArenaTeamMMR[TEAM_HORDE]      = 0;
 
@@ -959,6 +962,8 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
 {
     uint32 team = GetPlayerTeam(guid);
     bool participant = false;
+    // Get current status before possible status change after remove from lists/maps
+    BattlegroundStatus curStatus = GetStatus();
     // Remove from lists/maps
     BattlegroundPlayerMap::iterator itr = m_Players.find(guid);
     if (itr != m_Players.end())
@@ -1016,13 +1021,18 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
                 player->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT);
                 player->ResummonPetTemporaryUnSummonedIfAny();
 
-                if (isRated() && GetStatus() == STATUS_IN_PROGRESS)
+                if (isRated() && curStatus == STATUS_IN_PROGRESS)
                 {
                     //left a rated match while the encounter was in progress, consider as loser
                     ArenaTeam* winnerArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(team)));
                     ArenaTeam* loserArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(team));
                     if (winnerArenaTeam && loserArenaTeam && winnerArenaTeam != loserArenaTeam)
-                        loserArenaTeam->MemberLost(player, GetArenaMatchmakerRating(GetOtherTeam(team)));
+                    {
+                        loserArenaTeam->MemberLost(player, GetArenaStartMatchmakerRating(GetOtherTeam(team)));
+                        // This is needed since without it the loss won't be recorded since team was already saved in EndBattleground
+                        if (GetStatus() == STATUS_WAIT_LEAVE)
+                            loserArenaTeam->SaveToDB();
+                    }
                 }
             }
             if (SendPacket)
