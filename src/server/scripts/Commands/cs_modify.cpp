@@ -1277,14 +1277,9 @@ public:
 
         Unit* target = handler->getSelectedUnit();
         if (target)
-        {
-            if (target->GetTypeId() == TYPEID_PLAYER)
-                target->ToPlayer()->GetPhaseMgr().SetCustomPhase(phasemask);
-            else
-                target->SetPhaseMask(phasemask, true);
-        }
+            target->SetPhaseMask(phasemask, true);
         else
-            handler->GetSession()->GetPlayer()->GetPhaseMgr().SetCustomPhase(phasemask);
+            handler->GetSession()->GetPlayer()->SetPhaseMask(phasemask, true);
 
         return true;
     }

@@ -800,7 +800,6 @@ Creature* Battlefield::SpawnCreature(uint32 entry, float x, float y, float z, fl
         delete creature;
         return NULL;
     }
-
     creature->SetHomePosition(x, y, z, o);
 
     CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(entry);

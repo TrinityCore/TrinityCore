@@ -388,8 +388,15 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
     }
 
     uint32 phase = PHASEMASK_NORMAL;
+    std::set<uint32> phases;
     if (summoner)
+    {
         phase = summoner->GetPhaseMask();
+        phases = summoner->GetPhases();
+    }
+
+    if (phases.empty())
+        phases = GetPhases(); // If there was no summoner, try to use the transport phases
 
     TempSummon* summon = NULL;
     switch (mask)
@@ -420,6 +427,9 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
         delete summon;
         return NULL;
     }
+
+    for (auto itr : phases)
+        summon->SetInPhase(itr, false, true);
 
     summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellId);
 
