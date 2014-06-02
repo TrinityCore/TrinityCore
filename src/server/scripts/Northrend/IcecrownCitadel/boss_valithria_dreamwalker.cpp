@@ -618,7 +618,7 @@ class npc_the_lich_king_controller : public CreatureScript
             void JustSummoned(Creature* summon) override
             {
                 // must not be in dream phase
-                summon->SetPhaseMask((summon->GetPhaseMask() & ~0x10), true);
+                summon->SetInPhase(173, true, false);
                 if (summon->GetEntry() != NPC_SUPPRESSER)
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                         summon->AI()->AttackStart(target);
