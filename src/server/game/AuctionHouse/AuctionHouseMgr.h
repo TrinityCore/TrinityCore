@@ -24,7 +24,6 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCStructure.h"
-#include "LuaEngine.h"
 
 class Item;
 class Player;
@@ -100,15 +99,7 @@ struct AuctionEntry
 class AuctionHouseObject
 {
   public:
-    ~AuctionHouseObject()
-    {
-#ifdef ELUNA
-        Eluna::RemoveRef(this);
-#endif
-
-        for (AuctionEntryMap::iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
-            delete itr->second;
-    }
+      ~AuctionHouseObject();
 
     typedef std::map<uint32, AuctionEntry*> AuctionEntryMap;
 
