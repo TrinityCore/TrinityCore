@@ -762,6 +762,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
     if (PlayerLoading() || GetPlayer() != NULL)
     {
         TC_LOG_ERROR("network", "Player tryes to login again, AccountId = %d", GetAccountId());
+        KickPlayer();
         return;
     }
 
