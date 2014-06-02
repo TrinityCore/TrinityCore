@@ -2869,10 +2869,7 @@ bool WorldObject::IsInPhase(WorldObject const* obj) const
     if (obj->GetPhases().empty() && IsInPhase(169))
         return true;
 
-    for (auto phase : _phases)
-        if (obj->IsInPhase(phase))
-            return true;
-    return false;
+    return Trinity::Containers::Intersects(_phases.begin(), _phases.end(), obj->GetPhases().begin(), obj->GetPhases().end());
 }
 
 bool WorldObject::InSamePhase(WorldObject const* obj) const
