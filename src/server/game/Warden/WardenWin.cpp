@@ -283,7 +283,7 @@ void WardenWin::RequestData()
             {
                 uint32 seed = static_cast<uint32>(rand32());
                 buff << uint32(seed);
-                HmacHash hmac(4, (uint8*)&seed, EVP_sha1(), SHA_DIGEST_LENGTH);
+                HmacSha1 hmac(4, (uint8*)&seed);
                 hmac.UpdateData(wd->Str);
                 hmac.Finalize();
                 buff.append(hmac.GetDigest(), hmac.GetLength());

@@ -20,40 +20,47 @@
 #include "BigNumber.h"
 #include "Common.h"
 
-HmacHash::HmacHash(uint32 len, uint8 *seed, EVP_MD const* hasher, uint32 digestLength) : _digestLength(digestLength)
+template<HashCreateFn HashCreator, uint32 DigestLength>
+HmacHash<HashCreator, DigestLength>::HmacHash(uint32 len, uint8 *seed)
 {
     HMAC_CTX_init(&_ctx);
-    HMAC_Init_ex(&_ctx, seed, len, hasher, NULL);
-    _digest = new uint8[digestLength];
-    memset(_digest, 0, digestLength);
+    HMAC_Init_ex(&_ctx, seed, len, HashCreator(), NULL);
+    memset(_digest, 0, DigestLength);
 }
 
-HmacHash::~HmacHash()
+template<HashCreateFn HashCreator, uint32 DigestLength>
+HmacHash<HashCreator, DigestLength>::~HmacHash()
 {
     HMAC_CTX_cleanup(&_ctx);
-    delete[] _digest;
 }
 
-void HmacHash::UpdateData(const std::string &str)
+template<HashCreateFn HashCreator, uint32 DigestLength>
+void HmacHash<HashCreator, DigestLength>::UpdateData(const std::string &str)
 {
     HMAC_Update(&_ctx, (uint8 const*)str.c_str(), str.length());
 }
 
-void HmacHash::UpdateData(const uint8* data, size_t len)
+template<HashCreateFn HashCreator, uint32 DigestLength>
+void HmacHash<HashCreator, DigestLength>::UpdateData(const uint8* data, size_t len)
 {
     HMAC_Update(&_ctx, data, len);
 }
 
-void HmacHash::Finalize()
+template<HashCreateFn HashCreator, uint32 DigestLength>
+void HmacHash<HashCreator, DigestLength>::Finalize()
 {
     uint32 length = 0;
     HMAC_Final(&_ctx, _digest, &length);
-    ASSERT(length == _digestLength);
+    ASSERT(length == DigestLength);
 }
 
-uint8* HmacHash::ComputeHash(BigNumber* bn)
+template<HashCreateFn HashCreator, uint32 DigestLength>
+uint8* HmacHash<HashCreator, DigestLength>::ComputeHash(BigNumber* bn)
 {
     HMAC_Update(&_ctx, bn->AsByteArray().get(), bn->GetNumBytes());
     Finalize();
     return _digest;
 }
+
+template class HmacHash<EVP_sha1, SHA_DIGEST_LENGTH>;
+template class HmacHash<EVP_sha256, SHA256_DIGEST_LENGTH>;

@@ -503,7 +503,7 @@ bool Battlenet::Socket::HandleRealmJoinRequest(PacketHeader& header, BitStream& 
     result.ServerSeed = uint32(rand32());
 
     uint8 sessionKey[40];
-    HmacHash hmac(K.GetNumBytes(), K.AsByteArray().get(), EVP_sha1(), SHA_DIGEST_LENGTH);
+    HmacSha1 hmac(K.GetNumBytes(), K.AsByteArray().get());
     hmac.UpdateData((uint8*)"WoW\0", 4);
     hmac.UpdateData((uint8*)&join.ClientSeed, 4);
     hmac.UpdateData((uint8*)&result.ServerSeed, 4);
@@ -511,7 +511,7 @@ bool Battlenet::Socket::HandleRealmJoinRequest(PacketHeader& header, BitStream& 
 
     memcpy(sessionKey, hmac.GetDigest(), hmac.GetLength());
 
-    HmacHash hmac2(K.GetNumBytes(), K.AsByteArray().get(), EVP_sha1(), SHA_DIGEST_LENGTH);
+    HmacSha1 hmac2(K.GetNumBytes(), K.AsByteArray().get());
     hmac2.UpdateData((uint8*)"WoW\0", 4);
     hmac2.UpdateData((uint8*)&result.ServerSeed, 4);
     hmac2.UpdateData((uint8*)&join.ClientSeed, 4);
@@ -915,13 +915,13 @@ bool Battlenet::Socket::HandleResumeModule(BitStream* dataStream, ServerPacket**
     ACE_Auto_Array_Ptr<uint8>&& serverChallenge = _reconnectProof.AsByteArray();
     ACE_Auto_Array_Ptr<uint8>&& sessionKey = K.AsByteArray();
 
-    HmacHash clientPart(64, sessionKey.get(), EVP_sha256(), SHA256_DIGEST_LENGTH);
+    HmacSha256 clientPart(64, sessionKey.get());
     clientPart.UpdateData(&ResumeClient, 1);
     clientPart.UpdateData(clientChallenge.get(), 16);
     clientPart.UpdateData(serverChallenge.get(), 16);
     clientPart.Finalize();
 
-    HmacHash serverPart(64, sessionKey.get(), EVP_sha256(), SHA256_DIGEST_LENGTH);
+    HmacSha256 serverPart(64, sessionKey.get());
     serverPart.UpdateData(&ResumeServer, 1);
     serverPart.UpdateData(serverChallenge.get(), 16);
     serverPart.UpdateData(clientChallenge.get(), 16);
@@ -933,7 +933,7 @@ bool Battlenet::Socket::HandleResumeModule(BitStream* dataStream, ServerPacket**
 
     K.SetBinary(newSessionKey, 64);
 
-    HmacHash proof(64, newSessionKey, EVP_sha256(), SHA256_DIGEST_LENGTH);
+    HmacSha256 proof(64, newSessionKey);
     proof.UpdateData(&ResumeClient, 1);
     proof.UpdateData(clientChallenge.get(), 16);
     proof.UpdateData(serverChallenge.get(), 16);
@@ -953,7 +953,7 @@ bool Battlenet::Socket::HandleResumeModule(BitStream* dataStream, ServerPacket**
     stmt->setUInt32(1, _accountId);
     LoginDatabase.Execute(stmt);
 
-    HmacHash serverProof(64, newSessionKey, EVP_sha256(), SHA256_DIGEST_LENGTH);
+    HmacSha256 serverProof(64, newSessionKey);
     serverProof.UpdateData(&ResumeServer, 1);
     serverProof.UpdateData(serverChallenge.get(), 16);
     serverProof.UpdateData(clientChallenge.get(), 16);
