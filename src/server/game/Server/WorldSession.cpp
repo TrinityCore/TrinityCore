@@ -121,7 +121,9 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
     m_TutorialsChanged(false),
     recruiterId(recruiter),
     isRecruiter(isARecruiter),
-    _RBACData(NULL)
+    _RBACData(NULL),
+    expireTime(60000), // 1 min after socket loss, session is deleted
+    forceExit(false)
 {
     memset(m_Tutorials, 0, sizeof(m_Tutorials));
 
@@ -419,8 +421,12 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         ///- Cleanup socket pointer if need
         if (m_Socket && m_Socket->IsClosed())
         {
-            m_Socket->RemoveReference();
-            m_Socket = NULL;
+            expireTime -= expireTime > diff ? diff : expireTime;
+            if (expireTime < diff || forceExit)
+            {
+                m_Socket->RemoveReference();
+                m_Socket = NULL;
+            }
         }
 
         if (!m_Socket)
@@ -446,7 +452,6 @@ void WorldSession::LogoutPlayer(bool save)
             DoLootRelease(lguid);
 
         ///- If the player just died before logging out, make him appear as a ghost
-        //FIXME: logout must be delayed in case lost connection with client in time of combat
         if (_player->GetDeathTimer())
         {
             _player->getHostileRefManager().deleteReferences();
@@ -576,7 +581,10 @@ void WorldSession::LogoutPlayer(bool save)
 void WorldSession::KickPlayer()
 {
     if (m_Socket)
+    {
         m_Socket->CloseSocket();
+        forceExit = true;
+    }
 }
 
 void WorldSession::SendNotification(const char *format, ...)
