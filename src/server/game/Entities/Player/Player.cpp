@@ -27880,6 +27880,9 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
 
 void Player::UpdatePhasing()
 {
+    if (!IsInWorld())
+        return;
+
     std::set<uint32> phaseIds;
     std::set<uint32> terrainswaps;
     std::set<uint32> worldAreaSwaps;

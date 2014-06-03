@@ -1606,7 +1606,11 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
 
     Unit* target = aurApp->GetTarget();
 
+    std::set<uint32> const& oldPhases = target->GetPhases();
     target->SetInPhase(GetMiscValueB(), false, apply);
+
+    if (target->IsInWorld())
+        target->GetMap()->SendUpdateTransportVisibility(target, oldPhases);
 
     // call functions which may have additional effects after chainging state of unit
     // phase auras normally not expected at BG but anyway better check
@@ -1631,9 +1635,13 @@ void AuraEffect::HandlePhaseGroup(AuraApplication const* aurApp, uint8 mode, boo
 
     Unit* target = aurApp->GetTarget();
 
+    std::set<uint32> const& oldPhases = target->GetPhases();
     std::set<uint32> const& phases = GetPhasesForGroup(GetMiscValueB());
     for (auto phase : phases)
         target->SetInPhase(phase, false, apply);
+
+    if (target->IsInWorld())
+        target->GetMap()->SendUpdateTransportVisibility(target, oldPhases);
 
     // call functions which may have additional effects after chainging state of unit
     // phase auras normally not expected at BG but anyway better check
