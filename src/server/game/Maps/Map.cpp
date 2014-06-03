@@ -2526,7 +2526,7 @@ void Map::SendInitTransports(Player* player)
     // Hack to send out transports
     UpdateData transData(player->GetMapId());
     for (TransportsContainer::const_iterator i = _transports.begin(); i != _transports.end(); ++i)
-        if (*i != player->GetTransport())
+        if (*i != player->GetTransport() && player->IsInPhase(*i))
             (*i)->BuildCreateUpdateBlockForPlayer(&transData, player);
 
     WorldPacket packet;
@@ -2541,6 +2541,26 @@ void Map::SendRemoveTransports(Player* player)
     for (TransportsContainer::const_iterator i = _transports.begin(); i != _transports.end(); ++i)
         if (*i != player->GetTransport())
             (*i)->BuildOutOfRangeUpdateBlock(&transData);
+
+    WorldPacket packet;
+    transData.BuildPacket(&packet);
+    player->GetSession()->SendPacket(&packet);
+}
+
+void Map::SendUpdateTransportVisibility(Player* player, std::set<uint32> const& previousPhases)
+{
+    // Hack to send out transports
+    UpdateData transData(player->GetMapId());
+    for (TransportsContainer::const_iterator i = _transports.begin(); i != _transports.end(); ++i)
+    {
+        if (*i == player->GetTransport())
+            continue;
+
+        if (player->IsInPhase(*i) && !Trinity::Containers::Intersects(previousPhases.begin(), previousPhases.end(), (*i)->GetPhases().begin(), (*i)->GetPhases().end()))
+            (*i)->BuildCreateUpdateBlockForPlayer(&transData);
+        else if (!player->IsInPhase(*i))
+            (*i)->BuildOutOfRangeUpdateBlock(&transData);
+    }
 
     WorldPacket packet;
     transData.BuildPacket(&packet);

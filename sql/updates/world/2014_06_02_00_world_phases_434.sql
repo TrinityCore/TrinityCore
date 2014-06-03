@@ -25,3 +25,7 @@ CREATE TABLE `phase_info` (
   `comment` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+ALTER TABLE `transports`
+    ADD COLUMN `phaseid` INT(10) NOT NULL DEFAULT 0 AFTER `name`,
+    ADD COLUMN `phasegroup` INT(10) NOT NULL DEFAULT 0 AFTER `phaseid`;
