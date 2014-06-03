@@ -284,6 +284,8 @@ bool Battlenet::Socket::HandleAuthChallenge(PacketHeader& header, BitStream& pac
 
     b.SetRand(128 * 8);
     B = ((v * k) + g.ModExp(b, N)) % N;
+    BigNumber unk;
+    unk.SetRand(128 * 8);
 
     BitStream passwordData;
     uint8 state = 0;
@@ -291,7 +293,7 @@ bool Battlenet::Socket::HandleAuthChallenge(PacketHeader& header, BitStream& pac
     passwordData.WriteBytes(I.AsByteArray(32).get(), 32);
     passwordData.WriteBytes(s.AsByteArray(32).get(), 32);
     passwordData.WriteBytes(B.AsByteArray(128).get(), 128);
-    passwordData.WriteBytes(b.AsByteArray(128).get(), 128);
+    passwordData.WriteBytes(unk.AsByteArray(128).get(), 128);
 
     password->DataSize = passwordData.GetSize();
     password->Data = new uint8[password->DataSize];
@@ -740,13 +742,16 @@ bool Battlenet::Socket::HandlePasswordModule(BitStream* dataStream, ServerPacket
     sha.Finalize();
     M.SetBinary(sha.GetDigest(), sha.GetLength());
 
+    BigNumber serverProof;
+    serverProof.SetRand(128 * 8); // just send garbage, server signature check is patched out in client
+
     BitStream stream;
     ModuleInfo* password = sBattlenetMgr->CreateModule(_os, "Password");
     uint8 state = 3;
 
     stream.WriteBytes(&state, 1);
     stream.WriteBytes(M.AsByteArray(32).get(), 32);
-    stream.WriteBytes(b.AsByteArray(128).get(), 128);
+    stream.WriteBytes(serverProof.AsByteArray(128).get(), 128);
 
     password->DataSize = stream.GetSize();
     password->Data = new uint8[password->DataSize];
