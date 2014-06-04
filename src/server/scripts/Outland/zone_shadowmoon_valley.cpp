@@ -1813,7 +1813,6 @@ public:
 
 enum ZuluhedChains
 {
-    QUEST_ZULUHED   = 10866,
     NPC_KARYNAKU    = 22112,
 };
 
@@ -1828,9 +1827,9 @@ class spell_unlocking_zuluheds_chains : public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (GetCaster()->GetTypeId() == TYPEID_PLAYER)
-                    if (Creature* karynaku = GetCaster()->FindNearestCreature(NPC_KARYNAKU, 15.0f))
-                        GetCaster()->ToPlayer()->KilledMonsterCredit(NPC_KARYNAKU, karynaku->GetGUID());
+                if (Player* caster = GetCaster()->ToPlayer())
+                    if (Creature* karynaku = caster->FindNearestCreature(NPC_KARYNAKU, 15.0f))
+                        caster->KilledMonsterCredit(NPC_KARYNAKU, karynaku->GetGUID());
             }
 
             void Register() override
