@@ -746,9 +746,20 @@ void Aura::SetDuration(int32 duration, bool withMods)
     SetNeedClientUpdateForTargets();
 }
 
-void Aura::RefreshDuration()
+void Aura::RefreshDuration(bool withMods)
 {
-    SetDuration(GetMaxDuration());
+    if (withMods)
+    {
+        int32 duration = m_spellInfo->GetMaxDuration();
+        // Calculate duration of periodics affected by haste.
+        if (GetCaster()->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, m_spellInfo) || m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
+            duration = int32(duration * GetCaster()->GetFloatValue(UNIT_MOD_CAST_SPEED));
+
+        SetMaxDuration(duration);
+        SetDuration(duration);
+    }
+    else
+        SetDuration(GetMaxDuration());
 
     if (m_spellInfo->ManaPerSecond || m_spellInfo->ManaPerSecondPerLevel)
         m_timeCla = 1 * IN_MILLISECONDS;
@@ -825,7 +836,10 @@ void Aura::SetStackAmount(uint8 stackAmount)
 
     for (std::list<AuraApplication*>::const_iterator apptItr = applications.begin(); apptItr != applications.end(); ++apptItr)
         if (!(*apptItr)->GetRemoveMode())
+        {
             HandleAuraSpecificMods(*apptItr, caster, true, true);
+            HandleAuraSpecificPeriodics(*apptItr, caster);
+        }
 
     SetNeedClientUpdateForTargets();
 }
@@ -1631,26 +1645,62 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     break;
             }
             break;
-        case SPELLFAMILY_WARLOCK:
-            // Drain Soul - If the target is at or below 25% health, Drain Soul causes four times the normal damage
-            if (GetSpellInfo()->SpellFamilyFlags[0] & 0x00004000)
+    }
+}
+
+void Aura::HandleAuraSpecificPeriodics(AuraApplication const* aurApp, Unit* caster)
+{
+    Unit* target = aurApp->GetTarget();
+
+    if (!caster || aurApp->GetRemoveMode())
+        return;
+
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (!HasEffect(i))
+            continue;
+
+        if (m_spellInfo->Effects[i].IsAreaAuraEffect() || m_spellInfo->Effects[i].IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA))
+            continue;
+
+        switch (m_spellInfo->Effects[i].ApplyAuraName)
+        {
+            case SPELL_AURA_PERIODIC_DAMAGE:
+            case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
+            case SPELL_AURA_PERIODIC_LEECH:
             {
-                if (!caster)
-                    break;
-                if (apply)
-                {
-                    if (target != caster && !target->HealthAbovePct(25))
-                        caster->CastSpell(caster, 100001, true);
-                }
-                else
-                {
-                    if (target != caster)
-                        caster->RemoveAurasDueToSpell(GetId());
-                    else
-                        caster->RemoveAurasDueToSpell(100001);
-                }
+                AuraEffect* aurEff = GetEffect(i);
+
+                // ignore non positive values (can be result apply spellmods to aura damage
+                uint32 damage = std::max(aurEff->GetAmount(), 0);
+
+                // Script Hook For HandlePeriodicDamageAurasTick -- Allow scripts to change the Damage pre class mitigation calculations
+                sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
+
+                aurEff->SetDonePct(caster->SpellDamagePctDone(target, m_spellInfo, DOT)); // Calculate done percentage first!
+                aurEff->SetDamage(caster->SpellDamageBonusDone(target, m_spellInfo, damage, DOT, GetStackAmount()) * aurEff->GetDonePct());
+                aurEff->SetCritChance(caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()));
+                break;
             }
-            break;
+            case SPELL_AURA_PERIODIC_HEAL:
+            case SPELL_AURA_OBS_MOD_HEALTH:
+            {
+                AuraEffect* aurEff = GetEffect(i);
+
+                // ignore non positive values (can be result apply spellmods to aura damage
+                uint32 damage = std::max(aurEff->GetAmount(), 0);
+
+                // Script Hook For HandlePeriodicDamageAurasTick -- Allow scripts to change the Damage pre class mitigation calculations
+                sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
+
+                aurEff->SetDonePct(caster->SpellHealingPctDone(target, m_spellInfo)); // Calculate done percentage first!
+                aurEff->SetDamage(caster->SpellHealingBonusDone(target, m_spellInfo, damage, DOT, GetStackAmount()) * aurEff->GetDonePct());
+                aurEff->SetCritChance(caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()));
+                break;
+            }
+            default:
+                break;                                        
+        }
     }
 }
 

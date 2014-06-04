@@ -405,10 +405,17 @@ class spell_warl_everlasting_affliction : public SpellScriptLoader
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* unitTarget = GetHitUnit())
+                Unit* caster = GetCaster();
+                if (Unit* target = GetHitUnit())
                     // Refresh corruption on target
-                    if (AuraEffect* aur = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x2, 0, 0, GetCaster()->GetGUID()))
-                        aur->GetBase()->RefreshDuration();
+                    if (AuraEffect* aur = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x2, 0, 0, caster->GetGUID()))
+                    {
+                        uint32 damage = std::max(aur->GetAmount(), 0);
+                        sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
+                        aur->SetDamage(caster->SpellDamageBonusDone(target, aur->GetSpellInfo(), damage, DOT) * aur->GetDonePct());
+                        aur->CalculatePeriodic(caster, false, false);
+                        aur->GetBase()->RefreshDuration(true);
+                    }
             }
 
             void Register() override
