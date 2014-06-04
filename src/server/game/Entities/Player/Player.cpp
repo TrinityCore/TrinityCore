@@ -5964,6 +5964,8 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
                 ApplyCastTimePercentMod(oldVal, false);
                 ApplyCastTimePercentMod(newVal, true);
                 break;
+            default: // shut up compiler warnings
+                break;
         }
     }
 
