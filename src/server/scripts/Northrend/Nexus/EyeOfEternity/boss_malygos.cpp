@@ -664,7 +664,7 @@ public:
                 Talk(SAY_BUFF_SPARK);
             }
             else if (spell->Id == SPELL_MALYGOS_BERSERK)
-                sCreatureTextMgr->SendChat(me, EMOTE_HIT_BERSERKER_TIMER, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                TalkToMap(EMOTE_HIT_BERSERKER_TIMER);
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -1113,8 +1113,7 @@ public:
         npc_power_sparkAI(Creature* creature) : ScriptedAI(creature)
         {
             _instance = creature->GetInstanceScript();
-            // Talk range was not enough for this encounter
-            sCreatureTextMgr->SendChat(me, EMOTE_POWER_SPARK_SUMMONED, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+            TalkToMap(EMOTE_POWER_SPARK_SUMMONED);
             MoveToMalygos();
         }
 
