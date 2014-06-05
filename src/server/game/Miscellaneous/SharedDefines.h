@@ -436,7 +436,7 @@ enum SpellAttr4
     SPELL_ATTR4_UNK5                             = 0x00000020, //  5
     SPELL_ATTR4_NOT_STEALABLE                    = 0x00000040, //  6 although such auras might be dispellable, they cannot be stolen
     SPELL_ATTR4_TRIGGERED                        = 0x00000080, //  7 spells forced to be triggered
-    SPELL_ATTR4_FIXED_DAMAGE                     = 0x00000100, //  8 ignores taken percent damage mods?
+    SPELL_ATTR4_FIXED_DAMAGE                     = 0x00000100, //  8 Ignores resilience and any (except mechanic related) damage or % damage taken auras on target.
     SPELL_ATTR4_TRIGGER_ACTIVATE                 = 0x00000200, //  9 initially disabled / trigger activate from event (Execute, Riposte, Deep Freeze end other)
     SPELL_ATTR4_SPELL_VS_EXTEND_COST             = 0x00000400, // 10 Rogue Shiv have this flag
     SPELL_ATTR4_UNK11                            = 0x00000800, // 11
