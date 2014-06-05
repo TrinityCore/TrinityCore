@@ -708,7 +708,7 @@ Player::Player(WorldSession* session): Unit(true), phaseMgr(this)
 
     m_areaUpdateId = 0;
     m_team = 0;
-    
+
     m_needsZoneUpdate = false;
 
     m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
@@ -5930,31 +5930,30 @@ float Player::OCTRegenMPPerSpirit()
 
 void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
 {
-    m_baseRatingValue[cr] +=(apply ? value : -value);
+    m_baseRatingValue[cr] += (apply ? value : -value);
 
     // explicit affected values
+    float const mult = GetRatingMultiplier(cr);
+    float const oldVal = m_baseRatingValue[cr] * mult;
+    float const newVal = m_baseRatingValue[cr] * mult;
+
     switch (cr)
     {
         case CR_HASTE_MELEE:
-        {
-            float RatingChange = value * GetRatingMultiplier(cr);
-            ApplyAttackTimePercentMod(BASE_ATTACK, RatingChange, apply);
-            ApplyAttackTimePercentMod(OFF_ATTACK, RatingChange, apply);
-            if (getClass() == CLASS_DEATH_KNIGHT)
-                UpdateAllRunesRegen();
+            ApplyAttackTimePercentMod(BASE_ATTACK, oldVal, false);
+            ApplyAttackTimePercentMod(OFF_ATTACK, oldVal, false);
+            ApplyAttackTimePercentMod(BASE_ATTACK, newVal, true);
+            ApplyAttackTimePercentMod(OFF_ATTACK, newVal, true);
             break;
-        }
         case CR_HASTE_RANGED:
-        {
-            ApplyAttackTimePercentMod(RANGED_ATTACK, value * GetRatingMultiplier(cr), apply);
+            ApplyAttackTimePercentMod(RANGED_ATTACK, oldVal, false);
+            ApplyAttackTimePercentMod(RANGED_ATTACK, newVal, true);
             break;
-        }
         case CR_HASTE_SPELL:
-        {
-            ApplyCastTimePercentMod(value * GetRatingMultiplier(cr), apply);
+            ApplyCastTimePercentMod(oldVal, false);
+            ApplyCastTimePercentMod(newVal, true);
             break;
-        }
-        default:
+        default: // shut up compiler warnings
             break;
     }
 

@@ -368,38 +368,33 @@ public:
 
             if (Phase == 1)
             {
-                while (uint32 eventId = events.GetEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_WASTE:
                             DoSummon(NPC_WASTE, Pos[RAND(0, 3, 6, 9)]);
-                            events.RepeatEvent(urand(2000, 5000));
+                            events.Repeat(2000, 5000);
                             break;
                         case EVENT_ABOMIN:
                             if (nAbomination < 8)
                             {
                                 DoSummon(NPC_ABOMINATION, Pos[RAND(1, 4, 7, 10)]);
                                 nAbomination++;
-                                events.RepeatEvent(20000);
+                                events.Repeat(20000);
                             }
-                            else
-                                events.PopEvent();
                             break;
                         case EVENT_WEAVER:
                             if (nWeaver < 8)
                             {
                                 DoSummon(NPC_WEAVER, Pos[RAND(0, 3, 6, 9)]);
                                 nWeaver++;
-                                events.RepeatEvent(25000);
+                                events.Repeat(25000);
                             }
-                            else
-                                events.PopEvent();
                             break;
                         case EVENT_TRIGGER:
                             if (GameObject* trigger = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_KELTHUZAD_TRIGGER)))
                                 trigger->SetPhaseMask(2, true);
-                            events.PopEvent();
                             break;
                         case EVENT_PHASE:
                             events.Reset();
@@ -419,7 +414,6 @@ public:
                             Phase = 2;
                             break;
                         default:
-                            events.PopEvent();
                             break;
                     }
                 }
@@ -461,17 +455,17 @@ public:
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (uint32 eventId = events.GetEvent())
+                if (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_BOLT:
                             DoCastVictim(SPELL_FROST_BOLT);
-                            events.RepeatEvent(urand(5000, 10000));
+                            events.Repeat(5000, 10000);
                             break;
                         case EVENT_NOVA:
                             DoCastAOE(SPELL_FROST_BOLT_AOE);
-                            events.RepeatEvent(urand(15000, 30000));
+                            events.Repeat(15000, 30000);
                             break;
                         case EVENT_CHAIN:
                         {
@@ -490,7 +484,7 @@ public:
                             }
                             if (!chained.empty())
                                 Talk(SAY_CHAIN);
-                            events.RepeatEvent(urand(100000, 180000));
+                            events.Repeat(100000, 180000);
                             break;
                         }
                         case EVENT_CHAINED_SPELL:
@@ -565,10 +559,8 @@ public:
                                 ++itr;
                             }
 
-                            if (chained.empty())
-                                events.PopEvent();
-                            else
-                                events.RepeatEvent(5000);
+                            if (!chained.empty())
+                                events.Repeat(5000);
 
                             break;
                         }
@@ -596,23 +588,22 @@ public:
                                 Talk(SAY_SPECIAL);
                             }
 
-                            events.RepeatEvent(urand(20000, 50000));
+                            events.Repeat(20000, 50000);
                             break;
                         }
                         case EVENT_FISSURE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_SHADOW_FISURE);
-                            events.RepeatEvent(urand(10000, 45000));
+                            events.Repeat(10000, 45000);
                             break;
                         case EVENT_BLAST:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, RAID_MODE(1, 0), 0, true))
                                 DoCast(target, SPELL_FROST_BLAST);
                             if (rand()%2)
                                 Talk(SAY_FROST_BLAST);
-                            events.RepeatEvent(urand(30000, 90000));
+                            events.Repeat(30000, 90000);
                             break;
                         default:
-                            events.PopEvent();
                             break;
                     }
                 }

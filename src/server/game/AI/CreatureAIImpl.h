@@ -327,7 +327,7 @@ class EventMap
     typedef std::multimap<uint32, uint32> EventStore;
 
     public:
-        EventMap() : _time(0), _phase(0) { }
+        EventMap() : _time(0), _phase(0), _lastEvent(0) { }
 
         /**
         * @name Reset
@@ -447,27 +447,22 @@ class EventMap
 
         /**
         * @name RepeatEvent
-        * @brief Cancels the closest event and reschedules it.
+        * @brief Repeats the mostly recently executed event.
         * @param time Time until the event occurs.
         */
-        void RepeatEvent(uint32 time)
+        void Repeat(uint32 time)
         {
-            if (Empty())
-                return;
-
-            uint32 eventId = _eventMap.begin()->second;
-            _eventMap.erase(_eventMap.begin());
-            ScheduleEvent(eventId, time);
+            _eventMap.insert(EventStore::value_type(_time + time, _lastEvent));
         }
 
         /**
-        * @name PopEvent
-        * @brief Remove the first event in the map.
+        * @name RepeatEvent
+        * @brief Repeats the mostly recently executed event.
+        * @param time Time until the event occurs. Equivalent to Repeat(urand(minTime, maxTime).
         */
-        void PopEvent()
+        void Repeat(uint32 minTime, uint32 maxTime)
         {
-            if (!Empty())
-                _eventMap.erase(_eventMap.begin());
+            Repeat(urand(minTime, maxTime));
         }
 
         /**
@@ -488,31 +483,10 @@ class EventMap
                 else
                 {
                     uint32 eventId = (itr->second & 0x0000FFFF);
+                    _lastEvent = itr->second; // include phase/group
                     _eventMap.erase(itr);
                     return eventId;
                 }
-            }
-
-            return 0;
-        }
-
-        /**
-        * @name GetEvent
-        * @brief Returns the next event to execute.
-        * @return Id of the event to execute.
-        */
-        uint32 GetEvent()
-        {
-            while (!Empty())
-            {
-                EventStore::iterator itr = _eventMap.begin();
-
-                if (itr->first > _time)
-                    return 0;
-                else if (_phase && (itr->second & 0xFF000000) && !(itr->second & (_phase << 24)))
-                    _eventMap.erase(itr);
-                else
-                    return (itr->second & 0x0000FFFF);
             }
 
             return 0;
@@ -631,6 +605,21 @@ class EventMap
             return phase <= 8 && (!phase || _phase & (1 << (phase - 1)));
         }
 
+        /**
+        * @name GetTimeUntilEvent
+        * @brief Returns time in milliseconds until next event.
+        * @param Id of the event.
+        * @return Time of next event.
+        */
+        uint32 GetTimeUntilEvent(uint32 eventId) const
+        {
+            for (EventStore::const_iterator itr = _eventMap.begin(); itr != _eventMap.end(); ++itr)
+                if (eventId == (itr->second & 0x0000FFFF))
+                    return itr->first - _time;
+
+            return std::numeric_limits<uint32>::max();
+        }
+
     private:
         /**
         * @name _time
@@ -662,6 +651,13 @@ class EventMap
         * details.
         */
         EventStore _eventMap;
+
+
+        /**
+        * @name _lastEvent
+        * @brief Stores information on the most recently executed event
+        */
+        uint32 _lastEvent;
 };
 
 enum AITarget
