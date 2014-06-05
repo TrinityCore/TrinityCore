@@ -433,7 +433,7 @@ enum SMART_ACTION
     SMART_ACTION_THREAT_SINGLE_PCT                  = 13,     // Threat%
     SMART_ACTION_THREAT_ALL_PCT                     = 14,     // Threat%
     SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS    = 15,     // QuestID
-    SMART_ACTION_UNUSED_16                          = 16,     // UNUSED
+    SMART_ACTION_SET_INGAME_PHASE_GROUP             = 16,     // phaseGroupId, apply
     SMART_ACTION_SET_EMOTE_STATE                    = 17,     // emoteID
     SMART_ACTION_SET_UNIT_FLAG                      = 18,     // Flags (may be more than one field OR'd together), Target
     SMART_ACTION_REMOVE_UNIT_FLAG                   = 19,     // Flags (may be more than one field OR'd together), Target
@@ -461,7 +461,7 @@ enum SMART_ACTION
     SMART_ACTION_FORCE_DESPAWN                      = 41,     // timer
     SMART_ACTION_SET_INVINCIBILITY_HP_LEVEL         = 42,     // MinHpValue(+pct, -flat)
     SMART_ACTION_MOUNT_TO_ENTRY_OR_MODEL            = 43,     // Creature_template entry(param1) OR ModelId (param2) (or 0 for both to dismount)
-    SMART_ACTION_SET_INGAME_PHASE_MASK              = 44,     // mask
+    SMART_ACTION_SET_INGAME_PHASE_ID                = 44,     // PhaseId, apply
     SMART_ACTION_SET_DATA                           = 45,     // Field, Data (only creature @todo)
     SMART_ACTION_MOVE_FORWARD                       = 46,     // distance
     SMART_ACTION_SET_VISIBILITY                     = 47,     // on/off
@@ -728,9 +728,16 @@ struct SmartAction
 
         struct
         {
-            uint32 mask;
-        } ingamePhaseMask;
+            uint32 id;
+            uint32 apply;
+        } ingamePhaseId;
 
+        struct  
+        {
+            uint32 groupId;
+            uint32 apply;
+        } ingamePhaseGroup;
+        
         struct
         {
             uint32 field;

@@ -1008,6 +1008,44 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             break;
         }
+        case SMART_ACTION_SET_INGAME_PHASE_ID:
+        {
+            uint32 phaseId = e.action.ingamePhaseId.id;
+            uint32 apply = e.action.ingamePhaseId.apply;
+
+            if (apply != 0 && apply != 1)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SET_INGAME_PHASE_ID uses invalid apply value %u (Should be 0 or 1) for creature %u, skipped", apply, e.entryOrGuid);
+                return false;
+            }
+
+            PhaseEntry const* phase = sPhaseStore.LookupEntry(phaseId);
+            if (!phase)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SET_INGAME_PHASE_ID uses invalid phaseid %u for creature %u, skipped", phaseId, e.entryOrGuid);
+                return false;
+            }
+            break;
+        }
+        case SMART_ACTION_SET_INGAME_PHASE_GROUP:
+        {
+            uint32 phaseGroup = e.action.ingamePhaseGroup.id;
+            uint32 apply = e.action.ingamePhaseGroup.apply;
+
+            if (apply != 0 && apply != 1)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SET_INGAME_PHASE_GROUP uses invalid apply value %u (Should be 0 or 1) for creature %u, skipped", apply, e.entryOrGuid);
+                return false;
+            }
+
+            PhaseGroupEntry const* phase = sPhaseGroupStore.LookupEntry(phaseGroup);
+            if (!phase)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SET_INGAME_PHASE_GROUP uses invalid phase group id %u for creature %u, skipped", phaseGroup, e.entryOrGuid);
+                return false;
+            }
+            break;
+        }
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:
         case SMART_ACTION_STORE_TARGET_LIST:
@@ -1037,7 +1075,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_SET_RUN:
         case SMART_ACTION_SET_SWIM:
         case SMART_ACTION_FORCE_DESPAWN:
-        case SMART_ACTION_SET_INGAME_PHASE_MASK:
         case SMART_ACTION_SET_UNIT_FLAG:
         case SMART_ACTION_REMOVE_UNIT_FLAG:
         case SMART_ACTION_PLAYMOVIE:

@@ -155,7 +155,7 @@ public:
             {
                 case 177807: // Egg
                     if (GetBossState(BOSS_FIREMAW) == DONE)
-                        go->SetPhaseMask(2, true);
+                        go->SetLootState(GO_JUST_DEACTIVATED);
                     else
                         EggList.push_back(go->GetGUID());
                     break;
@@ -201,7 +201,7 @@ public:
                     {
                         for (std::list<uint64>::const_iterator itr = EggList.begin(); itr != EggList.end(); ++itr)
                             if (GameObject* egg = instance->GetGameObject((*itr)))
-                                egg->SetPhaseMask(2, true);
+                                egg->SetLootState(GO_JUST_DEACTIVATED);
                     }
                     SetData(DATA_EGG_EVENT, NOT_STARTED);
                     break;
