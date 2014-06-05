@@ -1021,6 +1021,8 @@ class WorldSession
         bool isRecruiter;
         ACE_Based::LockedQueue<WorldPacket*, ACE_Thread_Mutex> _recvQueue;
         rbac::RBACData* _RBACData;
+        uint32 expireTime;
+        bool forceExit;
 
         WorldSession(WorldSession const& right) = delete;
         WorldSession& operator=(WorldSession const& right) = delete;
