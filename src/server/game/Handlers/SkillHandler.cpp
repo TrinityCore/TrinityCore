@@ -45,7 +45,10 @@ void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
 
     uint32 talentId, talentRank;
 
-    for (uint32 i = 0; i < talentsCount; ++i)
+    // Client has max 44 talents for tree for 3 trees, rounded up : 150
+    const int MaxTalentsCount = 150;
+
+    for (uint32 i = 0; i < talentsCount && i < MaxTalentsCount; ++i)
     {
         recvPacket >> talentId >> talentRank;
 
@@ -53,6 +56,8 @@ void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
     }
 
     _player->SendTalentsInfoData(false);
+
+    recvPacket.rfinish();
 }
 
 void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
