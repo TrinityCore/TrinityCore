@@ -866,8 +866,8 @@ class spell_pal_improved_aura : public SpellScriptLoader
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                if (!target->GetOwnedAura(_spellId))
-                    target->CastSpell(target, _spellId, true);
+                GetTarget()->RemoveOwnedAura(_spellId, GetCasterGUID()); // need to remove to reapply spellmods
+                target->CastSpell(target, _spellId, true);
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
