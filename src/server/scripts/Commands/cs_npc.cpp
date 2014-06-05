@@ -1074,20 +1074,14 @@ public:
         return true;
     }
 
-    //npc phasemask handling
-    //change phasemask of creature or pet
+    //npc phase handling
+    //change phase of creature or pet
     static bool HandleNpcSetPhaseCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
 
-        uint32 phasemask = (uint32) atoi((char*)args);
-        if (phasemask == 0)
-        {
-            handler->SendSysMessage(LANG_BAD_VALUE);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+        uint32 phase = (uint32) atoi((char*)args);
 
         Creature* creature = handler->getSelectedCreature();
         if (!creature)
@@ -1097,7 +1091,7 @@ public:
             return false;
         }
 
-        creature->SetPhaseMask(phasemask, true);
+        creature->SetInPhase(phase, true, !creature->IsInPhase(phase));
 
         if (!creature->IsPet())
             creature->SaveToDB();
