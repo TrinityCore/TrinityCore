@@ -1029,7 +1029,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         }
         case SMART_ACTION_SET_INGAME_PHASE_GROUP:
         {
-            uint32 phaseGroup = e.action.ingamePhaseGroup.id;
+            uint32 phaseGroup = e.action.ingamePhaseGroup.groupId;
             uint32 apply = e.action.ingamePhaseGroup.apply;
 
             if (apply != 0 && apply != 1)

@@ -1063,7 +1063,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!targets)
                 break;
 
-            std::set<uint32> const& phases = GetPhasesForGroup(e.action.ingamePhaseGroup.id);
+            std::set<uint32> const& phases = GetPhasesForGroup(e.action.ingamePhaseGroup.groupId);
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 for (auto phase : phases)

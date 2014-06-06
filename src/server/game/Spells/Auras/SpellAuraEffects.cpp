@@ -1609,9 +1609,6 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
     std::set<uint32> const& oldPhases = target->GetPhases();
     target->SetInPhase(GetMiscValueB(), false, apply);
 
-    if (target->IsInWorld())
-        target->GetMap()->SendUpdateTransportVisibility(target, oldPhases);
-
     // call functions which may have additional effects after chainging state of unit
     // phase auras normally not expected at BG but anyway better check
     if (apply)
@@ -1621,7 +1618,11 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
     }
 
     if (Player* player = target->ToPlayer())
+    {
+        if (player->IsInWorld())
+            player->GetMap()->SendUpdateTransportVisibility(player, oldPhases);
         player->UpdatePhasing();
+    }
 
     // need triggering visibility update base at phase update of not GM invisible (other GMs anyway see in any phases)
     if (target->IsVisible())
@@ -1640,9 +1641,6 @@ void AuraEffect::HandlePhaseGroup(AuraApplication const* aurApp, uint8 mode, boo
     for (auto phase : phases)
         target->SetInPhase(phase, false, apply);
 
-    if (target->IsInWorld())
-        target->GetMap()->SendUpdateTransportVisibility(target, oldPhases);
-
     // call functions which may have additional effects after chainging state of unit
     // phase auras normally not expected at BG but anyway better check
     if (apply)
@@ -1652,7 +1650,11 @@ void AuraEffect::HandlePhaseGroup(AuraApplication const* aurApp, uint8 mode, boo
     }
 
     if (Player* player = target->ToPlayer())
+    {
+        if (player->IsInWorld())
+            player->GetMap()->SendUpdateTransportVisibility(player, oldPhases);
         player->UpdatePhasing();
+    }
 
     // need triggering visibility update base at phase update of not GM invisible (other GMs anyway see in any phases)
     if (target->IsVisible())
