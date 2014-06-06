@@ -2557,7 +2557,7 @@ void Map::SendUpdateTransportVisibility(Player* player, std::set<uint32> const& 
             continue;
 
         if (player->IsInPhase(*i) && !Trinity::Containers::Intersects(previousPhases.begin(), previousPhases.end(), (*i)->GetPhases().begin(), (*i)->GetPhases().end()))
-            (*i)->BuildCreateUpdateBlockForPlayer(&transData);
+            (*i)->BuildCreateUpdateBlockForPlayer(&transData, player);
         else if (!player->IsInPhase(*i))
             (*i)->BuildOutOfRangeUpdateBlock(&transData);
     }
