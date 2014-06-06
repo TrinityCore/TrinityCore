@@ -869,7 +869,7 @@ void WorldSession::HandleLearnPreviewTalentsPet(WorldPacket& recvData)
     uint32 talentId, talentRank;
 
     // Client has max 24 talents, rounded up : 30
-    const int MaxTalentsCount = 30;
+    uint32 const MaxTalentsCount = 30;
 
     for (uint32 i = 0; i < talentsCount && i < MaxTalentsCount; ++i)
     {
