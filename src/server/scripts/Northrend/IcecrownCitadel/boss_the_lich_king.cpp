@@ -2723,7 +2723,7 @@ class spell_the_lich_king_vile_spirit_move_target_search : public SpellScriptLoa
             {
                 PreventHitDefaultEffect(effIndex);
                 // for this spell, all units are in target map, however it should select one to attack
-                if (GetHitUnit() != _target)
+                if (GetHitUnit() != _target || GetHitUnit()->HasAura(SPELL_IN_FROSTMOURNE_ROOM))
                     return;
 
                 GetCaster()->ToCreature()->AI()->AttackStart(GetHitUnit());
