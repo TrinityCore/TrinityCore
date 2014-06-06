@@ -24,6 +24,7 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "CreatureTextMgr.h"
+#include "Group.h"
 
 class CreatureTextBuilder
 {
@@ -346,6 +347,18 @@ void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket* data, 
             }
             break;
         }
+        case CHAT_MSG_MONSTER_PARTY:
+            if (!whisperTarget)
+                return;
+
+            if (Player const* player = whisperTarget->ToPlayer())
+            {
+                if (Group* group = const_cast<Group*>(player->GetGroup()))
+                    for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                        if (Player* member = itr->GetSource())
+                            member->GetSession()->SendPacket(data);
+            }
+            return;
         default:
             break;
     }
