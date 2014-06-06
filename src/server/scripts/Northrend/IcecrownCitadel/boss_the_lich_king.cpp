@@ -1367,6 +1367,12 @@ class npc_raging_spirit : public CreatureScript
                 DoCast(me, SPELL_BOSS_HITTIN_YA, true);
             }
 
+            bool CanAIAttack(Unit const* target) const override
+            {
+                // The spirit must not select targets in frostmourne room if he killed everyone outside
+                return !target->HasAura(SPELL_IN_FROSTMOURNE_ROOM);
+            }
+
             void IsSummonedBy(Unit* /*summoner*/) override
             {
                 // player is the spellcaster so register summon manually
