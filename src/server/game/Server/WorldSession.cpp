@@ -1199,8 +1199,8 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
     if (++packetCounter.amountCounter > maxPacketCounterAllowed)
     {
         dosTriggered = true;
-        TC_LOG_WARN("network", "AntiDOS: Account %u, IP: %s, Character: %s, flooding packet (opc: %s (0x%X), count: %u)",
-            Session->GetAccountId(), Session->GetRemoteAddress().c_str(), Session->GetPlayerName().c_str(),
+        TC_LOG_WARN("network", "AntiDOS: Account %u, IP: %s, Ping: %u, Character: %s, flooding packet (opc: %s (0x%X), count: %u)",
+            Session->GetAccountId(), Session->GetRemoteAddress().c_str(), Session->GetLatency(), Session->GetPlayerName().c_str(),
             opcodeTable[p.GetOpcode()]->Name, p.GetOpcode(), packetCounter.amountCounter);
     }
     
