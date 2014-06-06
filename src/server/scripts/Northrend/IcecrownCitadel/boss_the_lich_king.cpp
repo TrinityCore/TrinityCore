@@ -1370,7 +1370,7 @@ class npc_raging_spirit : public CreatureScript
             bool CanAIAttack(Unit const* target) const override
             {
                 // The spirit must not select targets in frostmourne room if he killed everyone outside
-                return !target->HasAura(SPELL_IN_FROSTMOURNE_ROOM);
+                return !target->HasAura(SPELL_IN_FROSTMOURNE_ROOM) && target->HasAura(SPELL_HARVEST_SOULS);
             }
 
             void IsSummonedBy(Unit* /*summoner*/) override
@@ -2716,6 +2716,8 @@ class spell_the_lich_king_vile_spirit_move_target_search : public SpellScriptLoa
                 if (targets.empty())
                     return;
 
+                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_IN_FROSTMOURNE_ROOM));
+
                 _target = Trinity::Containers::SelectRandomContainerElement(targets);
             }
 
@@ -2723,7 +2725,7 @@ class spell_the_lich_king_vile_spirit_move_target_search : public SpellScriptLoa
             {
                 PreventHitDefaultEffect(effIndex);
                 // for this spell, all units are in target map, however it should select one to attack
-                if (GetHitUnit() != _target || GetHitUnit()->HasAura(SPELL_IN_FROSTMOURNE_ROOM))
+                if (GetHitUnit() != _target)
                     return;
 
                 GetCaster()->ToCreature()->AI()->AttackStart(GetHitUnit());
