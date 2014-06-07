@@ -2565,10 +2565,8 @@ class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
 
             void SelectTarget(std::list<WorldObject*>& targets)
             {
-                if (targets.empty())
-                    return;
-
                 targets.remove_if(Trinity::UnitAuraCheck(true, GetSpellInfo()->Id));
+                
                 if (targets.empty())
                     return;
 
