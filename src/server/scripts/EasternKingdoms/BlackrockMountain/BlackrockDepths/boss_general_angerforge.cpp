@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,101 +25,113 @@ enum Spells
     SPELL_CLEAVE                                           = 20691
 };
 
+enum Events
+{
+    EVENT_MIGHTYBLOW                                       = 1,
+    EVENT_HAMSTRING                                        = 2,
+    EVENT_CLEAVE                                           = 3,
+    EVENT_MEDIC                                            = 4,
+    EVENT_ADDS                                             = 5
+};
+
+enum Phases
+{
+    PHASE_ONE                                              = 1,
+    PHASE_TWO                                              = 2
+};
+
 class boss_general_angerforge : public CreatureScript
 {
-public:
-    boss_general_angerforge() : CreatureScript("boss_general_angerforge") { }
+    public:
+        boss_general_angerforge() : CreatureScript("boss_general_angerforge") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new boss_general_angerforgeAI(creature);
-    }
-
-    struct boss_general_angerforgeAI : public ScriptedAI
-    {
-        boss_general_angerforgeAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 MightyBlow_Timer;
-        uint32 HamString_Timer;
-        uint32 Cleave_Timer;
-        uint32 Adds_Timer;
-        bool Medics;
-
-        void Reset() override
+        struct boss_general_angerforgeAI : public ScriptedAI
         {
-            MightyBlow_Timer = 8000;
-            HamString_Timer = 12000;
-            Cleave_Timer = 16000;
-            Adds_Timer = 0;
-            Medics = false;
-        }
+            boss_general_angerforgeAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void SummonAdds(Unit* victim)
-        {
-            if (Creature* SummonedAdd = DoSpawnCreature(8901, float(irand(-14, 14)), float(irand(-14, 14)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000))
-                SummonedAdd->AI()->AttackStart(victim);
-        }
-
-        void SummonMedics(Unit* victim)
-        {
-            if (Creature* SummonedMedic = DoSpawnCreature(8894, float(irand(-9, 9)), float(irand(-9, 9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000))
-                SummonedMedic->AI()->AttackStart(victim);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            //MightyBlow_Timer
-            if (MightyBlow_Timer <= diff)
+            void Reset() override
             {
-                DoCastVictim(SPELL_MIGHTYBLOW);
-                MightyBlow_Timer = 18000;
-            } else MightyBlow_Timer -= diff;
+                _events.Reset();
+            }
 
-            //HamString_Timer
-            if (HamString_Timer <= diff)
+            void EnterCombat(Unit* /*who*/) override 
             {
-                DoCastVictim(SPELL_HAMSTRING);
-                HamString_Timer = 15000;
-            } else HamString_Timer -= diff;
+                _events.SetPhase(PHASE_ONE);
+                _events.ScheduleEvent(EVENT_MIGHTYBLOW, 8000);
+                _events.ScheduleEvent(EVENT_HAMSTRING, 12000);
+                _events.ScheduleEvent(EVENT_CLEAVE, 16000);
+            }
 
-            //Cleave_Timer
-            if (Cleave_Timer <= diff)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
-                DoCastVictim(SPELL_CLEAVE);
-                Cleave_Timer = 9000;
-            } else Cleave_Timer -= diff;
-
-            //Adds_Timer
-            if (HealthBelowPct(21))
-            {
-                if (Adds_Timer <= diff)
+                if (me->HealthBelowPctDamaged(20, damage) && _events.IsInPhase(PHASE_ONE))
                 {
-                    // summon 3 Adds every 25s
-                    SummonAdds(me->GetVictim());
-                    SummonAdds(me->GetVictim());
-                    SummonAdds(me->GetVictim());
-
-                    Adds_Timer = 25000;
-                } else Adds_Timer -= diff;
+                    _events.SetPhase(PHASE_TWO);
+                    _events.ScheduleEvent(EVENT_MEDIC, 0, 0, PHASE_TWO);
+                    _events.ScheduleEvent(EVENT_ADDS, 0, 0, PHASE_TWO);
+                }
             }
 
-            //Summon Medics
-            if (!Medics && HealthBelowPct(21))
+            void SummonAdd(Unit* victim)
             {
-                SummonMedics(me->GetVictim());
-                SummonMedics(me->GetVictim());
-                Medics = true;
+                if (Creature* SummonedAdd = DoSpawnCreature(8901, float(irand(-14, 14)), float(irand(-14, 14)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000))
+                    SummonedAdd->AI()->AttackStart(victim);
             }
 
-            DoMeleeAttackIfReady();
+            void SummonMedic(Unit* victim)
+            {
+                if (Creature* SummonedMedic = DoSpawnCreature(8894, float(irand(-9, 9)), float(irand(-9, 9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000))
+                    SummonedMedic->AI()->AttackStart(victim);
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_MIGHTYBLOW:
+                            DoCastVictim(SPELL_MIGHTYBLOW);
+                            _events.ScheduleEvent(EVENT_MIGHTYBLOW, 18000);
+                            break;
+                        case EVENT_HAMSTRING:
+                            DoCastVictim(SPELL_HAMSTRING);
+                            _events.ScheduleEvent(EVENT_HAMSTRING, 15000);
+                            break;
+                        case EVENT_CLEAVE:
+                            DoCastVictim(SPELL_CLEAVE);
+                            _events.ScheduleEvent(EVENT_CLEAVE, 9000);
+                            break;
+                        case EVENT_MEDIC:
+                            for (uint8 i = 0; i < 2; ++i)
+                                SummonMedic(me->GetVictim());
+                            break;
+                        case EVENT_ADDS:
+                            for (uint8 i = 0; i < 3; ++i)
+                                SummonAdd(me->GetVictim());
+                            _events.ScheduleEvent(EVENT_ADDS, 25000, 0, PHASE_TWO);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+        private:
+            EventMap _events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new boss_general_angerforgeAI(creature);
         }
-    };
 };
 
 void AddSC_boss_general_angerforge()
