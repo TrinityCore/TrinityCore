@@ -626,6 +626,12 @@ class boss_the_lich_king : public CreatureScript
                         if (!IsHeroic())
                             Talk(SAY_LK_FROSTMOURNE_ESCAPE);
                         _isInHeroicFrostmournEvent = false;
+                        for (SummonList::iterator i = summons.begin(); i != summons.end(); ++i)
+                        {
+                            Creature* summon = ObjectAccessor::GetCreature(*me, *i);
+                            if (summon && summon->GetEntry() == NPC_RAGING_SPIRIT)
+                                summon->AI()->DoAction(ACTION_TELEPORT_BACK);
+                        }
                         break;
                     }
                     default:
@@ -1024,7 +1030,11 @@ class boss_the_lich_king : public CreatureScript
                                     summon->SetReactState(REACT_PASSIVE);
                                 }
                                 else if (summon && summon->GetEntry() == NPC_RAGING_SPIRIT)
-                                    summon->m_Events.KillAllEvents(true); // this should prevent instant Soul Shrieks that get pilled up since we freeze events during Frostmourne phase
+                                {
+                                    summon->m_Events.KillAllEvents(true); // this should prevent instant Soul Shrieks that get pilled up since we freeze events during Frostmourne phase.
+                                    summon->SetReactState(REACT_PASSIVE);
+                                    summon->AddUnitState(UNIT_STATE_ROOT);
+                                }
                             }
                             _isInHeroicFrostmournEvent = true;
                             Talk(SAY_LK_HARVEST_SOUL);
@@ -1395,6 +1405,16 @@ class npc_raging_spirit : public CreatureScript
                     lichKing->AI()->SummonedCreatureDespawn(me);
                 if (TempSummon* summon = me->ToTempSummon())
                     summon->SetTempSummonType(TEMPSUMMON_CORPSE_DESPAWN);
+            }
+
+            void DoAction(int32 action) override
+            {
+                if (action != ACTION_TELEPORT_BACK)
+                    return;
+
+                _events.ScheduleEvent(EVENT_SOUL_SHRIEK, urand(12000, 15000));
+                me->SetReactState(REACT_DEFENSIVE);
+                me->ClearUnitState(UNIT_STATE_ROOT);
             }
 
             void UpdateAI(uint32 diff) override
