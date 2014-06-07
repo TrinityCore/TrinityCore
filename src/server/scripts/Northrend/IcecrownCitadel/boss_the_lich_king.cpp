@@ -1025,7 +1025,7 @@ class boss_the_lich_king : public CreatureScript
                                 if (summon && summon->GetEntry() == NPC_VILE_SPIRIT)
                                 {
                                     summon->m_Events.KillAllEvents(true);
-                                    summon->m_Events.AddEvent(new VileSpiritActivateEvent(summon), summon->m_Events.CalculateTime(50000));
+                                    summon->m_Events.AddEvent(new VileSpiritActivateEvent(summon), summon->m_Events.CalculateTime(70000));
                                     summon->GetMotionMaster()->MoveRandom(10.0f);
                                     summon->SetReactState(REACT_PASSIVE);
                                 }
