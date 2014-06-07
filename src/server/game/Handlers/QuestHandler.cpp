@@ -503,17 +503,30 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
         return;
 
     Object* object = ObjectAccessor::GetObjectByTypeMask(*_player, guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
-    if (!object || !object->hasInvolvedQuest(questId))
+
+    if (!object)
         return;
 
-    // some kind of WPE protection
-    if (!_player->CanInteractWithQuestGiver(object))
-        return;
+    if (!quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
+    {
+        if (!object->hasInvolvedQuest(questId))
+            return;
+
+        // some kind of WPE protection
+        if (!_player->CanInteractWithQuestGiver(object))
+            return;
+    }
+    else
+    {
+        // Do not allow completing quests on other players.
+        if (guid != _player->GetGUID())
+            return;
+    }
 
     if (!_player->CanSeeStartQuest(quest) && _player->GetQuestStatus(questId) == QUEST_STATUS_NONE)
     {
-        TC_LOG_ERROR("entities.player.cheat", "Possible hacking attempt: Player {} {} tried to complete quest [entry: {}] without being in possession of the quest!",
-                      _player->GetName(), _player->GetGUID().ToString(), questId);
+        TC_LOG_ERROR("entities.player.cheat", "Possible hacking attempt: Player {} [{}] tried to complete quest [entry: {}] without being in possession of the quest!",
+            _player->GetName(), _player->GetGUID().ToString(), questId);
         return;
     }
 
@@ -614,7 +627,7 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
 
         sender->SendPushToPartyResponse(receiver, QUEST_PARTY_MSG_SHARING_QUEST);
 
-        if ((quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly()) || quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
+        if (quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly())
             receiver->PlayerTalkClass->SendQuestGiverRequestItems(quest, sender->GetGUID(), receiver->CanCompleteRepeatableQuest(quest), true);
         else
         {
