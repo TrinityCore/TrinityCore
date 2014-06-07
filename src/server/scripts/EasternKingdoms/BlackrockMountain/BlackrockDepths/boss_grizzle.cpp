@@ -51,7 +51,7 @@ class boss_grizzle : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override 
+            void EnterCombat(Unit* /*who*/) override
             {
                 _events.SetPhase(PHASE_ONE);
                 _events.ScheduleEvent(EVENT_GROUNDTREMOR, 12000);
