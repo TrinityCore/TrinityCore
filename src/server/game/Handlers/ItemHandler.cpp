@@ -85,6 +85,18 @@ void WorldSession::HandleSwapInvItemOpcode(WorldPacket& recvData)
         return;
     }
 
+    if (_player->IsBankPos(INVENTORY_SLOT_BAG_0, srcslot) && !CanUseBank())
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleSwapInvItemOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(m_currentBankerGUID)));
+        return;
+    }
+
+    if (_player->IsBankPos(INVENTORY_SLOT_BAG_0, dstslot) && !CanUseBank())
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleSwapInvItemOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(m_currentBankerGUID)));
+        return;
+    }
+
     uint16 src = ((INVENTORY_SLOT_BAG_0 << 8) | srcslot);
     uint16 dst = ((INVENTORY_SLOT_BAG_0 << 8) | dstslot);
 
@@ -134,6 +146,18 @@ void WorldSession::HandleSwapItem(WorldPacket& recvData)
     if (!_player->IsValidPos(dstbag, dstslot, true))
     {
         _player->SendEquipError(EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, NULL, NULL);
+        return;
+    }
+
+    if (_player->IsBankPos(srcbag, srcslot) && !CanUseBank())
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleSwapItem - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(m_currentBankerGUID)));
+        return;
+    }
+
+    if (_player->IsBankPos(dstbag, dstslot) && !CanUseBank())
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleSwapItem - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(m_currentBankerGUID)));
         return;
     }
 
@@ -858,15 +882,11 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
     uint64 guid;
     recvPacket >> guid;
 
-    // cheating protection
-    /* not critical if "cheated", and check skip allow by slots in bank windows open by .bank command.
-    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BANKER);
-    if (!creature)
+    if (!CanUseBank(guid))
     {
-        TC_LOG_DEBUG("WORLD: HandleBuyBankSlotOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
+        TC_LOG_DEBUG("network", "WORLD: HandleBuyBankSlotOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
         return;
     }
-    */
 
     uint32 slot = _player->GetBankBagSlotCount();
 
@@ -912,6 +932,12 @@ void WorldSession::HandleAutoBankItemOpcode(WorldPacket& recvPacket)
     recvPacket >> srcbag >> srcslot;
     TC_LOG_DEBUG("network", "STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
 
+    if (!CanUseBank())
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleAutoBankItemOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(m_currentBankerGUID)));
+        return;
+    }
+
     Item* pItem = _player->GetItemByPos(srcbag, srcslot);
     if (!pItem)
         return;
@@ -942,6 +968,12 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
 
     recvPacket >> srcbag >> srcslot;
     TC_LOG_DEBUG("network", "STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
+
+    if (!CanUseBank())
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleAutoStoreBankItemOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(m_currentBankerGUID)));
+        return;
+    }
 
     Item* pItem = _player->GetItemByPos(srcbag, srcslot);
     if (!pItem)
@@ -1440,4 +1472,22 @@ void WorldSession::HandleItemTextQuery(WorldPacket& recvData )
     }
 
     SendPacket(&data);
+}
+
+bool WorldSession::CanUseBank(uint64 bankerGUID) const
+{
+    // bankerGUID parameter is optional, set to 0 by default.
+    if (!bankerGUID)
+        bankerGUID = m_currentBankerGUID;
+
+    bool isUsingBankCommand = (bankerGUID == GetPlayer()->GetGUID() && bankerGUID == m_currentBankerGUID);
+
+    if (!isUsingBankCommand)
+    {
+        Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(bankerGUID, UNIT_NPC_FLAG_BANKER);
+        if (!creature)
+            return false;
+    }
+
+    return true;
 }
