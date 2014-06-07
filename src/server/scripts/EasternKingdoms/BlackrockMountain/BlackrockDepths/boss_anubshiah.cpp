@@ -50,7 +50,7 @@ class boss_anubshiah : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override 
+            void EnterCombat(Unit* /*who*/) override
             {
                 _events.ScheduleEvent(EVENT_SHADOWBOLT, 7000);
                 _events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, 24000);

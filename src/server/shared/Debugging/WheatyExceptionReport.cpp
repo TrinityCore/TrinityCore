@@ -45,7 +45,7 @@ inline LPTSTR ErrorMessage(DWORD dw)
         sprintf(msgBuf, "Unknown error: %u", dw);
         return msgBuf;
     }
-        
+
 }
 
 //============================== Global Variables =============================
