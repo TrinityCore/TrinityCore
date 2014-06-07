@@ -1012,6 +1012,20 @@ class boss_the_lich_king : public CreatureScript
                             events.ScheduleEvent(EVENT_VILE_SPIRITS, urand(35000, 40000), EVENT_GROUP_VILE_SPIRITS, PHASE_THREE);
                             break;
                         case EVENT_HARVEST_SOULS:
+                            // Stop vile sprits at start of cast not after
+                            for (SummonList::iterator i = summons.begin(); i != summons.end(); ++i)
+                            {
+                                Creature* summon = ObjectAccessor::GetCreature(*me, *i);
+                                if (summon && summon->GetEntry() == NPC_VILE_SPIRIT)
+                                {
+                                    summon->m_Events.KillAllEvents(true);
+                                    summon->m_Events.AddEvent(new VileSpiritActivateEvent(summon), summon->m_Events.CalculateTime(50000));
+                                    summon->GetMotionMaster()->MoveRandom(10.0f);
+                                    summon->SetReactState(REACT_PASSIVE);
+                                }
+                                else if (summon && summon->GetEntry() == NPC_RAGING_SPIRIT)
+                                    summon->m_Events.KillAllEvents(true); // this should prevent instant Soul Shrieks that get pilled up since we freeze events during Frostmourne phase
+                            }
                             _isInHeroicFrostmournEvent = true;
                             Talk(SAY_LK_HARVEST_SOUL);
                             DoCastAOE(SPELL_HARVEST_SOULS);
@@ -1024,18 +1038,6 @@ class boss_the_lich_king : public CreatureScript
                             events.RescheduleEvent(EVENT_SOUL_REAPER, urand(57000, 62000), 0, PHASE_THREE);
                             events.ScheduleEvent(EVENT_START_ATTACK, 49000);
                             events.ScheduleEvent(EVENT_FROSTMOURNE_HEROIC, 6500);
-                            // Stop vile sprits at start of cast not after
-                            for (SummonList::iterator i = summons.begin(); i != summons.end(); ++i)
-                            {
-                                Creature* summon = ObjectAccessor::GetCreature(*me, *i);
-                                if (summon && summon->GetEntry() == NPC_VILE_SPIRIT)
-                                {
-                                    summon->m_Events.KillAllEvents(true);
-                                    summon->m_Events.AddEvent(new VileSpiritActivateEvent(summon), summon->m_Events.CalculateTime(50000));
-                                    summon->GetMotionMaster()->MoveRandom(10.0f);
-                                    summon->SetReactState(REACT_PASSIVE);
-                                }
-                            }
                             break;
                         case EVENT_FROSTMOURNE_HEROIC:
                             if (TempSummon* terenas = me->GetMap()->SummonCreature(NPC_TERENAS_MENETHIL_FROSTMOURNE_H, TerenasSpawnHeroic, NULL, 50000))
