@@ -3765,13 +3765,13 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 62997: // Mimiron - Plasma Blast
             case 69508: // Rotface - Slime Spray
             case 70498: // Vile Spirits
+            case 69705: // Below Zero
                 spellInfo->ChannelInterruptFlags = 0;
                 break;
             case 70541: // Infest (10 normal)
             case 73779: // Infest (25 normal)
             case 73780: // Infest (10 heroic)
             case 73781: // Infest (25 heroic)
-            case 69705: // Below Zero
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
             default:
