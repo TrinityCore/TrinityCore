@@ -17,7 +17,6 @@
 
 #include "CalendarMgr.h"
 #include "QueryResult.h"
-#include "DatabaseEnv.h"
 #include "Log.h"
 #include "Player.h"
 #include "GuildMgr.h"
@@ -128,6 +127,12 @@ void CalendarMgr::AddEvent(CalendarEvent* calendarEvent, CalendarSendEventType s
 
 void CalendarMgr::AddInvite(CalendarEvent* calendarEvent, CalendarInvite* invite)
 {
+    SQLTransaction dummy;
+    AddInvite(calendarEvent, invite, dummy);
+}
+
+void CalendarMgr::AddInvite(CalendarEvent* calendarEvent, CalendarInvite* invite, SQLTransaction& trans)
+{
     if (!calendarEvent->IsGuildAnnouncement())
         SendCalendarEventInvite(*invite);
 
@@ -137,7 +142,7 @@ void CalendarMgr::AddInvite(CalendarEvent* calendarEvent, CalendarInvite* invite
     if (!calendarEvent->IsGuildAnnouncement())
     {
         _invites[invite->GetEventId()].push_back(invite);
-        UpdateInvite(invite);
+        UpdateInvite(invite, trans);
     }
 }
 
@@ -221,7 +226,6 @@ void CalendarMgr::RemoveInvite(uint64 inviteId, uint64 eventId, uint64 /*remover
 
 void CalendarMgr::UpdateEvent(CalendarEvent* calendarEvent)
 {
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CALENDAR_EVENT);
     stmt->setUInt64(0, calendarEvent->GetEventId());
     stmt->setUInt32(1, GUID_LOPART(calendarEvent->GetCreatorGUID()));
@@ -232,13 +236,17 @@ void CalendarMgr::UpdateEvent(CalendarEvent* calendarEvent)
     stmt->setUInt32(6, uint32(calendarEvent->GetEventTime()));
     stmt->setUInt32(7, calendarEvent->GetFlags());
     stmt->setUInt32(8, calendarEvent->GetTimeZoneTime()); // correct?
-    trans->Append(stmt);
-    CharacterDatabase.CommitTransaction(trans);
+    CharacterDatabase.Execute(stmt);
 }
 
 void CalendarMgr::UpdateInvite(CalendarInvite* invite)
 {
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    SQLTransaction dummy;
+    UpdateInvite(invite, dummy);
+}
+
+void CalendarMgr::UpdateInvite(CalendarInvite* invite, SQLTransaction& trans)
+{
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CALENDAR_INVITE);
     stmt->setUInt64(0, invite->GetInviteId());
     stmt->setUInt64(1, invite->GetEventId());
@@ -248,8 +256,7 @@ void CalendarMgr::UpdateInvite(CalendarInvite* invite)
     stmt->setUInt32(5, uint32(invite->GetStatusTime()));
     stmt->setUInt8(6, invite->GetRank());
     stmt->setString(7, invite->GetText());
-    trans->Append(stmt);
-    CharacterDatabase.CommitTransaction(trans);
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
 void CalendarMgr::RemoveAllPlayerEventsAndInvites(uint64 guid)

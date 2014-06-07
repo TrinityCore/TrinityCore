@@ -28,9 +28,11 @@
 #include "AddonMgr.h"
 #include "DatabaseEnv.h"
 #include "World.h"
+#include "Opcodes.h"
 #include "WorldPacket.h"
 #include "Cryptography/BigNumber.h"
 #include "AccountMgr.h"
+#include <unordered_set>
 
 class Creature;
 class GameObject;
@@ -194,6 +196,12 @@ class CharacterCreateInfo
 
         /// Server side data
         uint8 CharCount;
+};
+
+struct PacketCounter
+{
+    time_t lastReceiveTime;
+    uint32 amountCounter;
 };
 
 /// Player session in the World
@@ -721,7 +729,6 @@ class WorldSession
         void HandleCompleteCinematic(WorldPacket& recvPacket);
         void HandleNextCinematicCamera(WorldPacket& recvPacket);
 
-        void HandlePageQuerySkippedOpcode(WorldPacket& recvPacket);
         void HandlePageTextQueryOpcode(WorldPacket& recvPacket);
 
         void HandleTutorialFlag (WorldPacket& recvData);
@@ -929,7 +936,7 @@ class WorldSession
             friend class World;
             public:
                 DosProtection(WorldSession* s) : Session(s), _policy((Policy)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_POLICY)) { }
-                bool EvaluateOpcode(WorldPacket& p) const;
+                bool EvaluateOpcode(WorldPacket& p, time_t time) const;
                 void AllowOpcode(uint16 opcode, bool allow) { _isOpcodeAllowed[opcode] = allow; }
             protected:
                 enum Policy
@@ -948,12 +955,17 @@ class WorldSession
                     return itr->second;
                 }
 
+                uint32 GetMaxPacketCounterAllowed(uint16 opcode) const;
+
                 WorldSession* Session;
 
             private:
                 typedef std::unordered_map<uint16, bool> OpcodeStatusMap;
                 OpcodeStatusMap _isOpcodeAllowed; // could be bool array, but wouldn't be practical for game versions with non-linear opcodes
                 Policy _policy;
+                typedef std::unordered_map<uint16, PacketCounter> PacketThrottlingMap;
+                // mark this member as "mutable" so it can be modified even in const functions
+                mutable PacketThrottlingMap _PacketThrottlingMap;
 
                 DosProtection(DosProtection const& right) = delete;
                 DosProtection& operator=(DosProtection const& right) = delete;
@@ -1008,8 +1020,9 @@ class WorldSession
         uint32 recruiterId;
         bool isRecruiter;
         ACE_Based::LockedQueue<WorldPacket*, ACE_Thread_Mutex> _recvQueue;
-        time_t timeLastWhoCommand;
         rbac::RBACData* _RBACData;
+        uint32 expireTime;
+        bool forceExit;
 
         WorldSession(WorldSession const& right) = delete;
         WorldSession& operator=(WorldSession const& right) = delete;

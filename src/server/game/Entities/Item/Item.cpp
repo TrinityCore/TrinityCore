@@ -29,6 +29,7 @@
 #include "Player.h"
 #include "Opcodes.h"
 #include "LuaEngine.h"
+#include "WorldSession.h"
 
 void AddItemsSetItem(Player* player, Item* item)
 {

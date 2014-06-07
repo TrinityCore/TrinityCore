@@ -553,7 +553,7 @@ class spell_mistress_kiss_area : public SpellScriptLoader
 
         class spell_mistress_kiss_area_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mistress_kiss_area_SpellScript)
+            PrepareSpellScript(spell_mistress_kiss_area_SpellScript);
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {

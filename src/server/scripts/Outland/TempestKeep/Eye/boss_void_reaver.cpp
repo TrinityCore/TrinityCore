@@ -122,7 +122,7 @@ class boss_void_reaver : public CreatureScript
                     std::vector<Unit*> target_list;
                     for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                     {
-                        target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                        target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
                         if (!target)
                             continue;
                         // exclude pets & totems, 18 yard radius minimum

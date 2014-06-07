@@ -97,7 +97,7 @@ public:
 
             }
 
-            if (Creature* pOrb = me->GetCreature(*me, targetGUID))
+            if (Creature* pOrb = ObjectAccessor::GetCreature(*me, targetGUID))
                 DoCast(pOrb, SPELL_TRANSITUS_SHIELD_BEAM);
 
         }

@@ -112,7 +112,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            Unit* unit = Unit::GetUnit(*me, victimGUID);
+            Unit* unit = ObjectAccessor::GetUnit(*me, victimGUID);
             if (unit && unit->HasAura(SPELL_INSIDIOUS_WHISPER))
                 unit->RemoveAurasDueToSpell(SPELL_INSIDIOUS_WHISPER);
         }
@@ -141,7 +141,7 @@ public:
             if (me->EnsureVictim()->GetGUID() != victimGUID)
             {
                 DoModifyThreatPercent(me->GetVictim(), -100);
-                Unit* owner = Unit::GetUnit(*me, victimGUID);
+                Unit* owner = ObjectAccessor::GetUnit(*me, victimGUID);
                 if (owner && owner->IsAlive())
                 {
                     me->AddThreat(owner, 999999);
@@ -249,7 +249,7 @@ public:
         {
             for (uint8 i = 0; i < 3; ++i)
             {
-                if (Creature* add = Unit::GetCreature(*me, SpellBinderGUID[i]))
+                if (Creature* add = ObjectAccessor::GetCreature(*me, SpellBinderGUID[i]))
                     add->DisappearAndDie();
 
                 float nx = x;
@@ -297,7 +297,7 @@ public:
             uint8 AliveChannelers = 0;
             for (uint8 i = 0; i < 3; ++i)
             {
-                Unit* add = Unit::GetUnit(*me, SpellBinderGUID[i]);
+                Unit* add = ObjectAccessor::GetUnit(*me, SpellBinderGUID[i]);
                 if (add && add->IsAlive())
                     ++AliveChannelers;
             }
@@ -350,7 +350,7 @@ public:
                 if (InnderDemon[i])
                 {
                         //delete creature
-                        Creature* creature = Unit::GetCreature((*me), InnderDemon[i]);
+                        Creature* creature = ObjectAccessor::GetCreature((*me), InnderDemon[i]);
                         if (creature && creature->IsAlive())
                         {
                             creature->DespawnOrUnsummon();
@@ -368,10 +368,10 @@ public:
             {
                 if (InnderDemon[i] > 0)
                 {
-                    Creature* unit = Unit::GetCreature((*me), InnderDemon[i]);
+                    Creature* unit = ObjectAccessor::GetCreature((*me), InnderDemon[i]);
                     if (unit && unit->IsAlive())
                     {
-                        Unit* unit_target = Unit::GetUnit(*unit, unit->AI()->GetGUID(INNER_DEMON_VICTIM));
+                        Unit* unit_target = ObjectAccessor::GetUnit(*unit, unit->AI()->GetGUID(INNER_DEMON_VICTIM));
                         if (unit_target && unit_target->IsAlive())
                         {
                             unit->CastSpell(unit_target, SPELL_CONSUMING_MADNESS, true);
@@ -397,7 +397,7 @@ public:
             //despawn copy
             if (Demon)
             {
-                if (Creature* pDemon = Unit::GetCreature(*me, Demon))
+                if (Creature* pDemon = ObjectAccessor::GetCreature(*me, Demon))
                     pDemon->DespawnOrUnsummon();
             }
             instance->SetData(DATA_LEOTHERASTHEBLINDEVENT, DONE);
@@ -518,7 +518,7 @@ public:
                     std::vector<Unit*> TargetList;
                     for (ThreatContainer::StorageType::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
                     {
-                        Unit* tempTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                        Unit* tempTarget = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
                         if (tempTarget && tempTarget->GetTypeId() == TYPEID_PLAYER && tempTarget->GetGUID() != me->EnsureVictim()->GetGUID() && TargetList.size()<5)
                             TargetList.push_back(tempTarget);
                     }
@@ -701,7 +701,7 @@ public:
             Earthshock_Timer = urand(5000, 10000);
 
             instance->SetData64(DATA_LEOTHERAS_EVENT_STARTER, 0);
-            Creature* leotheras = Unit::GetCreature(*me, leotherasGUID);
+            Creature* leotheras = ObjectAccessor::GetCreature(*me, leotherasGUID);
             if (leotheras && leotheras->IsAlive())
                 CAST_AI(boss_leotheras_the_blind::boss_leotheras_the_blindAI, leotheras->AI())->CheckChannelers(/*false*/);
         }
@@ -724,7 +724,7 @@ public:
             {
                 if (leotherasGUID)
                 {
-                    Creature* leotheras = Unit::GetCreature(*me, leotherasGUID);
+                    Creature* leotheras = ObjectAccessor::GetCreature(*me, leotherasGUID);
                     if (leotheras && leotheras->IsAlive())
                         DoCast(leotheras, BANISH_BEAM);
                 }
@@ -739,7 +739,7 @@ public:
             if (!me->IsInCombat() && instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
             {
                 Unit* victim = NULL;
-                victim = Unit::GetUnit(*me, instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
+                victim = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
                 if (victim)
                     AttackStart(victim);
             }

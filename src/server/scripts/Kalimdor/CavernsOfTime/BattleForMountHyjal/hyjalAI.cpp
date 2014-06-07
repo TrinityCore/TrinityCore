@@ -665,7 +665,7 @@ void hyjalAI::DeSpawnVeins()
 {
     if (Faction == 1)
     {
-        Creature* unit=Unit::GetCreature((*me), instance->GetData64(DATA_JAINAPROUDMOORE));
+        Creature* unit=ObjectAccessor::GetCreature((*me), instance->GetData64(DATA_JAINAPROUDMOORE));
         if (!unit)return;
         hyjalAI* ai = CAST_AI(hyjalAI, unit->AI());
         if (!ai)return;
@@ -676,7 +676,7 @@ void hyjalAI::DeSpawnVeins()
         }
     } else if (Faction)
     {
-        Creature* unit=Unit::GetCreature((*me), instance->GetData64(DATA_THRALL));
+        Creature* unit=ObjectAccessor::GetCreature((*me), instance->GetData64(DATA_THRALL));
         if (!unit)return;
         hyjalAI* ai = CAST_AI(hyjalAI, unit->AI());
         if (!ai)return;
@@ -804,7 +804,7 @@ void hyjalAI::UpdateAI(uint32 diff)
         {
             if (BossGUID[i])
             {
-                Unit* unit = Unit::GetUnit(*me, BossGUID[i]);
+                Unit* unit = ObjectAccessor::GetUnit(*me, BossGUID[i]);
                 if (unit && (!unit->IsAlive()))
                 {
                     if (BossGUID[i] == BossGUID[0])
@@ -937,7 +937,7 @@ void hyjalAI::WaypointReached(uint32 waypointId)
             DoCast(me, SPELL_MASS_TELEPORT, false);
         if (me->GetEntry() == THRALL && DummyGuid)
         {
-            if (Creature* creature = Unit::GetCreature(*me, DummyGuid))
+            if (Creature* creature = ObjectAccessor::GetCreature(*me, DummyGuid))
             {
                 hyjalAI* ai = CAST_AI(hyjalAI, creature->AI());
                 ai->DoMassTeleport = true;
