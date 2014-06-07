@@ -351,7 +351,8 @@ enum MiscData
 enum Misc
 {
     DATA_PLAGUE_STACK           = 70337,
-    DATA_VILE                   = 45814622
+    DATA_VILE                   = 45814622,
+    DATA_HEROIC_FROSTMOURN      = 3
 };
 
 class NecroticPlagueTargetCheck : public std::unary_function<Unit*, bool>
@@ -514,6 +515,7 @@ class boss_the_lich_king : public CreatureScript
                 _necroticPlagueStack = 0;
                 _vileSpiritExplosions = 0;
                 SetEquipmentSlots(true);
+                _isInHeroicFrostmournEvent = false;
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -621,6 +623,7 @@ class boss_the_lich_king : public CreatureScript
                     {
                         EntryCheckPredicate pred(NPC_STRANGULATE_VEHICLE);
                         summons.DoAction(ACTION_TELEPORT_BACK, pred);
+                        _isInHeroicFrostmournEvent = false;
                         if (!IsHeroic())
                             Talk(SAY_LK_FROSTMOURNE_ESCAPE);
                         break;
@@ -638,6 +641,8 @@ class boss_the_lich_king : public CreatureScript
                         return _necroticPlagueStack;
                     case DATA_VILE:
                         return _vileSpiritExplosions;
+                    case DATA_HEROIC_FROSTMOURN:
+                        return _isInHeroicFrostmournEvent;
                     default:
                         break;
                 }
@@ -1007,6 +1012,7 @@ class boss_the_lich_king : public CreatureScript
                             events.ScheduleEvent(EVENT_VILE_SPIRITS, urand(35000, 40000), EVENT_GROUP_VILE_SPIRITS, PHASE_THREE);
                             break;
                         case EVENT_HARVEST_SOULS:
+                            _isInHeroicFrostmournEvent = true;
                             Talk(SAY_LK_HARVEST_SOUL);
                             DoCastAOE(SPELL_HARVEST_SOULS);
                             events.ScheduleEvent(EVENT_HARVEST_SOULS, urand(100000, 110000), 0, PHASE_THREE);
@@ -1116,6 +1122,7 @@ class boss_the_lich_king : public CreatureScript
         private:
             uint32 _necroticPlagueStack;
             uint32 _vileSpiritExplosions;
+            bool _isInHeroicFrostmournEvent;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -1370,7 +1377,7 @@ class npc_raging_spirit : public CreatureScript
             bool CanAIAttack(Unit const* target) const override
             {
                 // The spirit must not select targets in frostmourne room if he killed everyone outside
-                return !target->HasAura(SPELL_IN_FROSTMOURNE_ROOM) && target->HasAura(SPELL_HARVEST_SOULS);
+                return !target->HasAura(SPELL_IN_FROSTMOURNE_ROOM) || target->HasAura(SPELL_HARVEST_SOULS);
             }
 
             void IsSummonedBy(Unit* /*summoner*/) override
@@ -1392,6 +1399,10 @@ class npc_raging_spirit : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
+
+                if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_THE_LICH_KING)))
+                    if (!lichKing->AI()->GetData(DATA_HEROIC_FROSTMOURN))
+                        return;
 
                 _events.Update(diff);
 
