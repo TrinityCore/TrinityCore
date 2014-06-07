@@ -398,17 +398,6 @@ class TW_boss_paletress : public CreatureScript
 
         void DamageTaken(Unit* /*who*/, uint32& damage)
         {
-            if (!_hasSummonedMemory && me->HealthBelowPct(25))
-            {
-                Talk(SAY_PALETRESS_SUMMON_MEMORY);
-                me->InterruptNonMeleeSpells(true);
-                DoCastAOE(SPELL_HOLY_NOVA, false);
-                DoCast(me, SPELL_SHIELD);
-                DoCastAOE(SPELL_CONFESS, false);
-                DoCast(SPELL_SUMMON_MEMORY);
-                _hasSummonedMemory = true;
-            }
-
             if (damage >= me->GetHealth())
             {
                 damage = 0;
@@ -497,6 +486,17 @@ class TW_boss_paletress : public CreatureScript
             }
 
             DoMeleeAttackIfReady();
+
+            if (!_hasSummonedMemory && me->HealthBelowPct(25))
+            {
+                Talk(SAY_PALETRESS_SUMMON_MEMORY);
+                me->InterruptNonMeleeSpells(true);
+                DoCastAOE(SPELL_HOLY_NOVA, false);
+                DoCast(me, SPELL_SHIELD);
+                DoCastAOE(SPELL_CONFESS, false);
+                DoCast(SPELL_SUMMON_MEMORY);
+                _hasSummonedMemory = true;
+            }
         }
 
         void JustSummoned(Creature* summon) override
