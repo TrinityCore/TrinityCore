@@ -765,6 +765,15 @@ SpellGroupStackRule SpellMgr::CheckSpellGroupStackRules(SpellInfo const* spellIn
     return rule;
 }
 
+SpellGroupStackRule SpellMgr::GetSpellGroupStackRule(SpellGroup group) const
+{
+    SpellGroupStackMap::const_iterator itr = mSpellGroupStack.find(group);
+    if (itr != mSpellGroupStack.end())
+        return itr->second;
+
+    return SPELL_GROUP_STACK_RULE_DEFAULT;
+}
+
 SpellProcEventEntry const* SpellMgr::GetSpellProcEvent(uint32 spellId) const
 {
     SpellProcEventMap::const_iterator itr = mSpellProcEventMap.find(spellId);
