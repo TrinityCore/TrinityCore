@@ -1264,7 +1264,7 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
             Session->GetAccountId(), Session->GetRemoteAddress().c_str(), Session->GetLatency(), Session->GetPlayerName().c_str(),
             opcodeTable[p.GetOpcode()].name, p.GetOpcode(), packetCounter.amountCounter);
     }
-    
+
     // Then check if player is sending packets not allowed
     if (!IsOpcodeAllowed(p.GetOpcode()))
     {

@@ -784,14 +784,14 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellInfo const* spellProto, Spell
 
     bool hasFamilyMask = false;
 
-    /** 
-    
+    /**
+
     * @brief Check auras procced by periodics
 
     *Only damaging Dots can proc auras with PROC_FLAG_TAKEN_DAMAGE
 
     *Only Dots can proc if ONLY has PROC_FLAG_DONE_PERIODIC or PROC_FLAG_TAKEN_PERIODIC.
-    
+
     *Hots can proc if ONLY has PROC_FLAG_DONE_PERIODIC and spellfamily != 0
 
     *Only Dots can proc auras with PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG or PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG
@@ -806,7 +806,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellInfo const* spellProto, Spell
     * @param procFlags proc_flags of spellProc
     * @param procExtra proc_EX of procSpell
     * @param EventProcFlag proc_flags of aura to be procced
-    * @param spellProto SpellInfo of aura to be procced    
+    * @param spellProto SpellInfo of aura to be procced
 
     */
 
@@ -815,7 +815,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellInfo const* spellProto, Spell
         return true;
 
     if (procFlags & PROC_FLAG_DONE_PERIODIC && EventProcFlag & PROC_FLAG_DONE_PERIODIC)
-    {        
+    {
         if (procExtra & PROC_EX_INTERNAL_HOT)
         {
             if (EventProcFlag == PROC_FLAG_DONE_PERIODIC)
@@ -835,7 +835,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellInfo const* spellProto, Spell
     }
 
     if (procFlags & PROC_FLAG_TAKEN_PERIODIC && EventProcFlag & PROC_FLAG_TAKEN_PERIODIC)
-    {            
+    {
         if (procExtra & PROC_EX_INTERNAL_HOT)
         {
             /// No aura that only has PROC_FLAG_TAKEN_PERIODIC can proc from a HOT.

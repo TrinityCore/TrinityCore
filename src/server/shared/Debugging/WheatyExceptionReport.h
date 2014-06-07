@@ -83,7 +83,7 @@ struct SymbolPair
 
     bool operator<(const SymbolPair& other) const
     {
-        return _offset < other._offset || 
+        return _offset < other._offset ||
               (_offset == other._offset && _type < other._type);
     }
 
