@@ -1397,17 +1397,16 @@ class npc_raging_spirit : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim())
-                    return;
-
                 if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_THE_LICH_KING)))
                     if (!lichKing->AI()->GetData(DATA_HEROIC_FROSTMOURN))
-                        return;
+                        if (!UpdateVictim())
+                            return;
 
                 _events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
+                if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_THE_LICH_KING)))
+                    if (me->HasUnitState(UNIT_STATE_CASTING) || lichKing->AI()->GetData(DATA_HEROIC_FROSTMOURN))
+                        return;
 
                 while (uint32 eventId = _events.ExecuteEvent())
                 {
