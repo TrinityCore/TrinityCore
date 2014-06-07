@@ -3765,7 +3765,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 62997: // Mimiron - Plasma Blast
             case 69508: // Rotface - Slime Spray
             case 70498: // Vile Spirits
-            case 69705: // Below Zero
                 spellInfo->ChannelInterruptFlags = 0;
                 break;
             case 70541: // Infest (10 normal)

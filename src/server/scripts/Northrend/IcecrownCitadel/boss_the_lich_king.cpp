@@ -352,7 +352,7 @@ enum Misc
 {
     DATA_PLAGUE_STACK           = 70337,
     DATA_VILE                   = 45814622,
-    DATA_HEROIC_FROSTMOURN      = 3
+    DATA_HEROIC_FROSTMOURNE     = 3
 };
 
 class NecroticPlagueTargetCheck : public std::unary_function<Unit*, bool>
@@ -623,9 +623,9 @@ class boss_the_lich_king : public CreatureScript
                     {
                         EntryCheckPredicate pred(NPC_STRANGULATE_VEHICLE);
                         summons.DoAction(ACTION_TELEPORT_BACK, pred);
-                        _isInHeroicFrostmournEvent = false;
                         if (!IsHeroic())
                             Talk(SAY_LK_FROSTMOURNE_ESCAPE);
+                        _isInHeroicFrostmournEvent = false;
                         break;
                     }
                     default:
@@ -641,7 +641,7 @@ class boss_the_lich_king : public CreatureScript
                         return _necroticPlagueStack;
                     case DATA_VILE:
                         return _vileSpiritExplosions;
-                    case DATA_HEROIC_FROSTMOURN:
+                    case DATA_HEROIC_FROSTMOURNE:
                         return _isInHeroicFrostmournEvent;
                     default:
                         break;
@@ -1398,14 +1398,14 @@ class npc_raging_spirit : public CreatureScript
             void UpdateAI(uint32 diff) override
             {
                 if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_THE_LICH_KING)))
-                    if (!lichKing->AI()->GetData(DATA_HEROIC_FROSTMOURN))
+                    if (!lichKing->AI()->GetData(DATA_HEROIC_FROSTMOURNE))
                         if (!UpdateVictim())
                             return;
 
                 _events.Update(diff);
 
                 if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_THE_LICH_KING)))
-                    if (me->HasUnitState(UNIT_STATE_CASTING) || lichKing->AI()->GetData(DATA_HEROIC_FROSTMOURN))
+                    if (me->HasUnitState(UNIT_STATE_CASTING) || lichKing->AI()->GetData(DATA_HEROIC_FROSTMOURNE))
                         return;
 
                 while (uint32 eventId = _events.ExecuteEvent())
