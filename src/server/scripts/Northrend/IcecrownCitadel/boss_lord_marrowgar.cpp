@@ -148,6 +148,7 @@ class boss_lord_marrowgar : public CreatureScript
                 events.ScheduleEvent(EVENT_ENRAGE, 600000);
                 _boneSlice = false;
                 _boneSpikeImmune.clear();
+                me->SetReactState(REACT_DEFENSIVE);
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -232,6 +233,7 @@ class boss_lord_marrowgar : public CreatureScript
                             me->SetSpeed(MOVE_RUN, _baseSpeed*3.0f, true);
                             Talk(SAY_BONE_STORM);
                             events.ScheduleEvent(EVENT_BONE_STORM_END, _boneStormDuration+1);
+                            me->SetReactState(REACT_PASSIVE);
                             // no break here
                         case EVENT_BONE_STORM_MOVE:
                         {
@@ -252,6 +254,7 @@ class boss_lord_marrowgar : public CreatureScript
                             events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10000);
                             if (!IsHeroic())
                                 events.RescheduleEvent(EVENT_BONE_SPIKE_GRAVEYARD, 15000, EVENT_GROUP_SPECIAL);
+                            me->SetReactState(REACT_AGGRESSIVE);
                             break;
                         case EVENT_ENABLE_BONE_SLICE:
                             _boneSlice = true;
