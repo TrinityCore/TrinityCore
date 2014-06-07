@@ -26759,3 +26759,8 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
     return pet;
 }
+
+bool Player::IsLoading() const
+{
+    return GetSession()->PlayerLoading();
+}
