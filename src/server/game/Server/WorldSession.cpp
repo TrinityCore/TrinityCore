@@ -126,7 +126,8 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
     isRecruiter(isARecruiter),
     _RBACData(NULL),
     expireTime(60000), // 1 min after socket loss, session is deleted
-    forceExit(false)
+    forceExit(false),
+    m_currentBankerGUID(0)
 {
     memset(m_Tutorials, 0, sizeof(m_Tutorials));
 
