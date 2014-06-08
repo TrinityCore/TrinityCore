@@ -119,7 +119,7 @@ class AuraEffect
         bool m_canBeRecalculated;
         bool m_isPeriodic;
     private:
-        bool CanPeriodicTickCrit(Unit* target, Unit const* caster) const;
+        bool CanPeriodicTickCrit(Unit const* caster) const;
 
     public:
         // aura effect apply/remove handlers
