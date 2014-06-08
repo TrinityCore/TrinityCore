@@ -33,7 +33,7 @@
 #define TRINITY_BIGENDIAN    1
 
 #if !defined(TRINITY_ENDIAN)
-#  if defined (BOOST_ENDIAN_BIG_BYTE)
+#  if defined (BOOST_BIG_ENDIAN)
 #    define TRINITY_ENDIAN TRINITY_BIGENDIAN
 #  else
 #    define TRINITY_ENDIAN TRINITY_LITTLEENDIAN
