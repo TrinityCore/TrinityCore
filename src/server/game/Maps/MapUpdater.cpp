@@ -1,10 +1,30 @@
+/*
+* Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include <mutex>
+#include <condition_variable>
+#include <ace/Method_Request.h>
+
 #include "MapUpdater.h"
 #include "DelayExecutor.h"
 #include "Map.h"
 #include "DatabaseEnv.h"
 
-#include <ace/Guard_T.h>
-#include <ace/Method_Request.h>
 
 class WDBThreadStartReq1 : public ACE_Method_Request
 {
@@ -57,8 +77,7 @@ class MapUpdateRequest : public ACE_Method_Request
         }
 };
 
-MapUpdater::MapUpdater():
-m_executor(), m_mutex(), m_condition(m_mutex), pending_requests(0) { }
+MapUpdater::MapUpdater(): m_executor(), pending_requests(0) { }
 
 MapUpdater::~MapUpdater()
 {
@@ -79,17 +98,19 @@ int MapUpdater::deactivate()
 
 int MapUpdater::wait()
 {
-    TRINITY_GUARD(ACE_Thread_Mutex, m_mutex);
+    std::unique_lock<std::mutex> lock(_lock);
 
     while (pending_requests > 0)
-        m_condition.wait();
+        _condition.wait(lock);
+
+    lock.unlock();
 
     return 0;
 }
 
 int MapUpdater::schedule_update(Map& map, ACE_UINT32 diff)
 {
-    TRINITY_GUARD(ACE_Thread_Mutex, m_mutex);
+    std::lock_guard<std::mutex> lock(_lock);
 
     ++pending_requests;
 
@@ -111,7 +132,7 @@ bool MapUpdater::activated()
 
 void MapUpdater::update_finished()
 {
-    TRINITY_GUARD(ACE_Thread_Mutex, m_mutex);
+    std::lock_guard<std::mutex> lock(_lock);
 
     if (pending_requests == 0)
     {
@@ -121,5 +142,5 @@ void MapUpdater::update_finished()
 
     --pending_requests;
 
-    m_condition.broadcast();
+    _condition.notify_all();
 }
