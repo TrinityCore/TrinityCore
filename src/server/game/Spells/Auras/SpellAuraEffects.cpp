@@ -380,7 +380,7 @@ AuraEffect::AuraEffect(Aura* base, uint8 effIndex, int32 *baseAmount, Unit* cast
 m_base(base), m_spellInfo(base->GetSpellInfo()),
 m_baseAmount(baseAmount ? *baseAmount : m_spellInfo->Effects[effIndex].BasePoints),
 m_spellmod(NULL), m_periodicTimer(0), m_tickNumber(0), m_effIndex(effIndex),
-m_canBeRecalculated(true), m_isPeriodic(false), m_damage(0), m_critChance(0.0f), m_donePct(1.0f)
+m_canBeRecalculated(true), m_damage(0), m_critChance(0.0f), m_donePct(1.0f), m_isPeriodic(false)
 {
     CalculatePeriodic(caster, true, false);
 
@@ -890,7 +890,7 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
     GetBase()->CallScriptEffectUpdatePeriodicHandlers(this);
 }
 
-bool AuraEffect::CanPeriodicTickCrit(Unit* target, Unit const* caster) const
+bool AuraEffect::CanPeriodicTickCrit(Unit const* caster) const
 {
     ASSERT(caster);
     if (caster->HasAuraTypeWithAffectMask(SPELL_AURA_ABILITY_PERIODIC_CRIT, m_spellInfo))
@@ -5854,7 +5854,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
     bool crit = false;
 
-    if (CanPeriodicTickCrit(target, caster))
+    if (CanPeriodicTickCrit(caster))
         crit = roll_chance_f(isAreaAura ? caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()) : m_critChance);
 
     if (crit)
@@ -5941,7 +5941,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
 
     bool crit = false;
 
-    if (CanPeriodicTickCrit(target, caster))
+    if (CanPeriodicTickCrit(caster))
         crit = roll_chance_f(isAreaAura ? caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()) : m_critChance);
 
     if (crit)
@@ -6088,7 +6088,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
 
     bool crit = false;
 
-    if (CanPeriodicTickCrit(target, caster))
+    if (CanPeriodicTickCrit(caster))
         crit = roll_chance_f(isAreaAura ? caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()) : m_critChance);
 
     if (crit)
