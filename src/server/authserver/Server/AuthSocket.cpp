@@ -293,19 +293,11 @@ void AuthSocket::_SetVSFields(const std::string& rI)
     x.SetBinary(sha.GetDigest(), sha.GetLength());
     v = g.ModExp(x, N);
 
-    // No SQL injection (username escaped)
-    char *v_hex, *s_hex;
-    v_hex = v.AsHexStr();
-    s_hex = s.AsHexStr();
-
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_VS);
-    stmt->setString(0, v_hex);
-    stmt->setString(1, s_hex);
+    stmt->setString(0, v.AsHexStr());
+    stmt->setString(1, s.AsHexStr());
     stmt->setString(2, _login);
     LoginDatabase.Execute(stmt);
-
-    OPENSSL_free(v_hex);
-    OPENSSL_free(s_hex);
 }
 
 // Logon Challenge command handler
@@ -488,7 +480,9 @@ bool AuthSocket::_HandleLogonChallenge()
                     unk3.SetRand(16 * 8);
 
                     // Fill the response packet with the result
-                    if (AuthHelper::IsAcceptedClientBuild(_build))
+                    if (fields[9].GetUInt32() && AuthHelper::IsBuildSupportingBattlenet(_build))
+                        pkt << uint8(WOW_FAIL_USE_BATTLENET);
+                    else if (AuthHelper::IsAcceptedClientBuild(_build))
                         pkt << uint8(WOW_SUCCESS);
                     else
                         pkt << uint8(WOW_FAIL_VERSION_INVALID);
@@ -650,18 +644,13 @@ bool AuthSocket::_HandleLogonProof()
         TC_LOG_DEBUG("server.authserver", "'%s:%d' User '%s' successfully authenticated", socket().getRemoteAddress().c_str(), socket().getRemotePort(), _login.c_str());
 
         // Update the sessionkey, last_ip, last login time and reset number of failed logins in the account table for this account
-        // No SQL injection (escaped user name) and IP address as received by socket
-        const char *K_hex = K.AsHexStr();
-
         PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
-        stmt->setString(0, K_hex);
+        stmt->setString(0, K.AsHexStr());
         stmt->setString(1, socket().getRemoteAddress().c_str());
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
         stmt->setString(3, _os);
         stmt->setString(4, _login);
         LoginDatabase.DirectExecute(stmt);
-
-        OPENSSL_free((void*)K_hex);
 
         // Finish SRP6 and send the final result to the client
         sha.Initialize();
@@ -693,7 +682,7 @@ bool AuthSocket::_HandleLogonProof()
             memcpy(proof.M2, sha.GetDigest(), 20);
             proof.cmd = AUTH_LOGON_PROOF;
             proof.error = 0;
-            proof.unk1 = 0x00800000;    // Accountflags. 0x01 = GM, 0x08 = Trial, 0x00800000 = Pro pass (arena tournament)
+            proof.unk1 = GAMEACCOUNT_FLAG_PROPASS_LOCK;
             proof.unk2 = 0x00;          // SurveyId
             proof.unk3 = 0x00;
             socket().send((char *)&proof, sizeof(proof));
@@ -879,28 +868,6 @@ bool AuthSocket::_HandleReconnectProof()
     }
 }
 
-ACE_INET_Addr const& AuthSocket::GetAddressForClient(Realm const& realm, ACE_INET_Addr const& clientAddr)
-{
-    // Attempt to send best address for client
-    if (clientAddr.is_loopback())
-    {
-        // Try guessing if realm is also connected locally
-        if (realm.LocalAddress.is_loopback() || realm.ExternalAddress.is_loopback())
-            return clientAddr;
-
-        // Assume that user connecting from the machine that authserver is located on
-        // has all realms available in his local network
-        return realm.LocalAddress;
-    }
-
-    // Check if connecting client is in the same network
-    if (IsIPAddrInNetwork(realm.LocalAddress, clientAddr, realm.LocalSubnetMask))
-        return realm.LocalAddress;
-
-    // Return external IP
-    return realm.ExternalAddress;
-}
-
 // Realm List command handler
 bool AuthSocket::_HandleRealmList()
 {
@@ -981,12 +948,12 @@ bool AuthSocket::_HandleRealmList()
             pkt << lock;                                    // if 1, then realm locked
         pkt << uint8(flag);                                 // RealmFlags
         pkt << name;
-        pkt << GetAddressString(GetAddressForClient(realm, clientAddr));
+        pkt << GetAddressString(realm.GetAddressForClient(clientAddr));
         pkt << realm.populationLevel;
         pkt << AmountOfCharacters;
         pkt << realm.timezone;                              // realm category
         if (_expversion & POST_BC_EXP_FLAG)                 // 2.x and 3.x clients
-            pkt << uint8(0x2C);                             // unk, may be realm number/id?
+            pkt << uint8(realm.m_ID);
         else
             pkt << uint8(0x0);                              // 1.12.1 and 1.12.2 clients
 

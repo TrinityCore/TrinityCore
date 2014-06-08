@@ -51,7 +51,16 @@ struct Realm
     AccountTypes allowedSecurityLevel;
     float populationLevel;
     uint32 gamebuild;
+    uint8 Region;
+    uint8 Battlegroup;
+
+    ACE_INET_Addr const& GetAddressForClient(ACE_INET_Addr const& clientAddr) const;
 };
+
+namespace Battlenet
+{
+    struct RealmId;
+}
 
 /// Storage object for the list of realms on the server
 class RealmList
@@ -71,10 +80,11 @@ public:
     RealmMap::const_iterator begin() const { return m_realms.begin(); }
     RealmMap::const_iterator end() const { return m_realms.end(); }
     uint32 size() const { return m_realms.size(); }
+    Realm const* GetRealm(Battlenet::RealmId const& id) const;
 
 private:
     void UpdateRealms(bool init=false);
-    void UpdateRealm(uint32 id, const std::string& name, ACE_INET_Addr const& address, ACE_INET_Addr const& localAddr, ACE_INET_Addr const& localSubmask, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float popu, uint32 build);
+    void UpdateRealm(uint32 id, const std::string& name, ACE_INET_Addr const& address, ACE_INET_Addr const& localAddr, ACE_INET_Addr const& localSubmask, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float popu, uint32 build, uint8 region, uint8 battlegroup);
 
     RealmMap m_realms;
     uint32   m_UpdateInterval;
