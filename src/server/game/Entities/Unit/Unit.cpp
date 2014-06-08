@@ -9848,8 +9848,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     float ApCoeffMod = 1.0f;
     int32 DoneTotal = 0;
 
-    uint32 creatureTypeMask = victim->GetCreatureTypeMask();
-
     // done scripted mod (take it from owner)
     Unit const* owner = GetOwner() ? GetOwner() : this;
     AuraEffectList const& mOverrideClassScript = owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
@@ -10807,8 +10805,7 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
 {
     // For totems pct done mods are calculated when its calculation is run on the player in SpellHealingBonusDone.
     if (GetTypeId() == TYPEID_UNIT && IsTotem())
-        if (Unit* owner = GetOwner())
-            return 1.0f;
+        return 1.0f;
 
     // No bonus healing for potion spells
     if (spellProto->SpellFamilyName == SPELLFAMILY_POTION)
