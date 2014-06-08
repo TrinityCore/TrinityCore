@@ -44,7 +44,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_SEL_ACCOUNT_ID_BY_NAME, "SELECT id FROM account WHERE username = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_SEL_ACCOUNT_LIST_BY_NAME, "SELECT id, username FROM account WHERE username = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME, "SELECT id, sessionkey, last_ip, locked, expansion, mutetime, locale, recruiter, os FROM account WHERE username = ?", CONNECTION_SYNCH);
-    PrepareStatement(LOGIN_SEL_ACCOUNT_INFO_BY_BNET, "SELECT id, sessionkey, last_ip, locked, expansion, mutetime, locale, recruiter, os FROM account WHERE id = SUBSTRING_INDEX(?, '#', 1)", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_SEL_ACCOUNT_INFO_BY_BNET, "SELECT id, sessionkey, last_ip, locked, expansion, mutetime, locale, recruiter, os FROM account WHERE battlenet_account = ? AND battlenet_index = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_SEL_ACCOUNT_LIST_BY_EMAIL, "SELECT id, username FROM account WHERE email = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_SEL_NUM_CHARS_ON_REALM, "SELECT numchars FROM realmcharacters WHERE realmid = ? AND acctid= ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_SEL_ACCOUNT_BY_IP, "SELECT id, username FROM account WHERE last_ip = ?", CONNECTION_SYNCH);
@@ -108,9 +108,9 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_SEL_BNET_ACTIVE_ACCOUNT_BAN, "SELECT bandate, unbandate FROM battlenet_account_bans WHERE id = ? AND active = 1", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_UPD_BNET_VS_FIELDS, "UPDATE battlenet_accounts SET v = ?, s = ? WHERE email = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_UPD_BNET_SESSION_KEY, "UPDATE battlenet_accounts SET sessionKey = ? WHERE id = ?", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_SEL_BNET_RECONNECT_INFO, "SELECT ba.id, ba.sessionKey, a.id FROM battlenet_accounts ba LEFT JOIN account a ON ba.id = a.battlenet_account WHERE ba.email = ? AND a.id = SUBSTRING_INDEX(?, '#', 1)", CONNECTION_SYNCH);
-    PrepareStatement(LOGIN_SEL_BNET_GAME_ACCOUNTS, "SELECT a.username, a.id, ab.bandate, ab.unbandate, ab.active FROM account a LEFT JOIN account_banned ab ON a.id = ab.id WHERE battlenet_account = ?", CONNECTION_SYNCH);
-    PrepareStatement(LOGIN_SEL_BNET_GAME_ACCOUNT, "SELECT a.id, ab.bandate, ab.unbandate, ab.active FROM account a LEFT JOIN account_banned ab ON a.id = ab.id WHERE username = ? AND battlenet_account = ?", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_SEL_BNET_RECONNECT_INFO, "SELECT ba.id, ba.sessionKey, a.id FROM battlenet_accounts ba LEFT JOIN account a ON ba.id = a.battlenet_account WHERE ba.email = ? AND a.battlenet_index = ?", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_SEL_BNET_GAME_ACCOUNTS, "SELECT a.battlenet_index, a.id, ab.bandate, ab.unbandate, ab.active FROM account a LEFT JOIN account_banned ab ON a.id = ab.id WHERE battlenet_account = ?", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_SEL_BNET_GAME_ACCOUNT, "SELECT a.id, ab.bandate, ab.unbandate, ab.active FROM account a LEFT JOIN account_banned ab ON a.id = ab.id WHERE battlenet_index = ? AND battlenet_account = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_UPD_BNET_LAST_LOGIN_INFO, "UPDATE battlenet_accounts SET last_ip = ?, last_login = NOW(), locale = ?, failed_logins = 0, os = ? WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_SEL_BNET_CHARACTER_COUNTS, "SELECT rc.numchars, r.id, r.Region, r.Battlegroup, r.gamebuild FROM realmcharacters rc INNER JOIN realmlist r ON rc.realmid = r.id WHERE rc.acctid = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_INS_BNET_ACCOUNT, "INSERT INTO battlenet_accounts (`email`,`sha_pass_hash`) VALUES (?, ?)", CONNECTION_ASYNC);

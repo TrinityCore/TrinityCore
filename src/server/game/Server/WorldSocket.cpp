@@ -856,9 +856,20 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     // Get the account information from the realmd database
     //         0           1        2       3          4         5       6          7   8
     // SELECT id, sessionkey, last_ip, locked, expansion, mutetime, locale, recruiter, os FROM account WHERE username = ?
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(account.find('#') == std::string::npos ? LOGIN_SEL_ACCOUNT_INFO_BY_NAME : LOGIN_SEL_ACCOUNT_INFO_BY_BNET);
-
-    stmt->setString(0, account);
+    size_t hashPos = account.find_last_of('#');
+    PreparedStatement* stmt;
+    if (hashPos != std::string::npos)
+    {
+        Tokenizer tokens(account, '#', 2);
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_BNET);
+        stmt->setUInt32(0, atol(tokens[0]));
+        stmt->setUInt8(1, atol(tokens[1]));
+    }
+    else
+    {
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
+        stmt->setString(0, account);
+    }
 
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 

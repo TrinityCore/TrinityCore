@@ -92,6 +92,7 @@ namespace Battlenet
         std::string _os;
         uint32 _build;
         uint32 _gameAccountId;
+        uint8 _gameAccountIndex;
         AccountTypes _accountSecurityLevel;
 
         BigNumber N;
