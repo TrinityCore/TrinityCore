@@ -47,8 +47,10 @@ CREATE TABLE `account` (
   `os` varchar(3) NOT NULL DEFAULT '',
   `recruiter` int(10) unsigned NOT NULL DEFAULT '0',
   `battlenet_account` int(10) unsigned DEFAULT NULL,
+  `battlenet_index` tinyint(3) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_username` (`username`),
+  UNIQUE KEY `uk_bnet_acc` (`battlenet_account`, `battlenet_index`),
   CONSTRAINT `fk_bnet_acc` FOREIGN KEY (`battlenet_account`) REFERENCES `battlenet_accounts` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Account System';
 /*!40101 SET character_set_client = @saved_cs_client */;

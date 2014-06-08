@@ -208,7 +208,7 @@ namespace Battlenet
     public:
         AuthComplete() : ServerPacket(PacketHeader(SMSG_AUTH_COMPLETE, AUTHENTICATION)),
             Result(AUTH_OK), ErrorType(0), PingTimeout(120000), Threshold(25000000), Rate(1000),
-            FirstName(""), LastName(""), Region(2), GameAccountId(0), GameAccountRegion(2), GameAccountName("")
+            FirstName(""), LastName(""), AccountId(0), Region(2), GameAccountRegion(2), GameAccountName("")
         {
         }
 
@@ -227,8 +227,8 @@ namespace Battlenet
         uint32 Rate;
         std::string FirstName;
         std::string LastName;
+        uint32 AccountId;
         uint8 Region;
-        uint32 GameAccountId;
         uint8 GameAccountRegion;
         std::string GameAccountName;
         uint64 GameAccountFlags;

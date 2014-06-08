@@ -202,7 +202,7 @@ void Battlenet::AuthComplete::Write()
         _stream.WriteString(FirstName, 8); // First name
         _stream.WriteString(LastName, 8); // Last name - not set for WoW
 
-        _stream.Write(GameAccountId, 32);
+        _stream.Write(AccountId, 32);
         _stream.Write(Region, 8);
         _stream.Write(0, 64);
 
@@ -236,7 +236,7 @@ std::string Battlenet::AuthComplete::ToString() const
 {
     std::ostringstream stream;
     stream << "Battlenet::AuthComplete AuthResult " << Result << " PingTimeout " << PingTimeout << " Threshold " << Threshold << " Rate " << Rate
-        << " FirstName " << FirstName << " LastName " << LastName << " GameAccountId " << GameAccountId << " GameAccountName " << GameAccountName
+        << " FirstName " << FirstName << " LastName " << LastName << " AccountId " << AccountId << " Region " << uint32(Region) << " GameAccountName " << GameAccountName
         << " GameAccountFlags " << GameAccountFlags << " Modules " << Modules.size();
 
     for (ModuleInfo const* module : Modules)
@@ -441,7 +441,7 @@ void Battlenet::RealmJoinResult::Write()
 std::string Battlenet::RealmJoinResult::ToString() const
 {
     std::ostringstream stream;
-    stream << "Battlenet::RealmJoinResult ServerSeed " << ServerSeed << " Addresses (IPv4)" << IPv4.size();
+    stream << "Battlenet::RealmJoinResult ServerSeed " << ServerSeed << " IPv4 Addresses " << IPv4.size();
     for (ACE_INET_Addr const& addr : IPv4)
         stream << std::endl << "Battlenet::RealmJoinResult::Address " << GetAddressString(addr);
 
