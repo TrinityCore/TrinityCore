@@ -110,13 +110,13 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RBAC_ACC_PERM_DENY                     = 204,
     RBAC_PERM_COMMAND_RBAC_ACC_PERM_REVOKE                   = 205,
     RBAC_PERM_COMMAND_RBAC_LIST                              = 206,
-    // 207 - reuse
-    // 208 - reuse
-    // 209 - reuse
-    // 210 - reuse
-    // 211 - reuse
-    // 212 - reuse
-    // 213 - reuse
+    RBAC_PERM_COMMAND_BNET_ACCOUNT                           = 207,
+    RBAC_PERM_COMMAND_BNET_ACCOUNT_CREATE                    = 208,
+    RBAC_PERM_COMMAND_BNET_ACCOUNT_LOCK_COUNTRY              = 209,
+    RBAC_PERM_COMMAND_BNET_ACCOUNT_LOCK_IP                   = 210,
+    RBAC_PERM_COMMAND_BNET_ACCOUNT_PASSWORD                  = 211,
+    RBAC_PERM_COMMAND_BNET_ACCOUNT_SET                       = 212,
+    RBAC_PERM_COMMAND_BNET_ACCOUNT_SET_PASSWORD              = 213,
     // 214 - reuse
     // 215 - reuse
     // 216 - reuse

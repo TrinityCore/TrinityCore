@@ -31,7 +31,6 @@ namespace Battlenet
     namespace AccountMgr
     {
         AccountOpResult CreateBattlenetAccount(std::string email, std::string password);
-        AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword);
         AccountOpResult ChangePassword(uint32 accountId, std::string newPassword);
         bool CheckPassword(uint32 accountId, std::string password);
 
