@@ -14846,7 +14846,7 @@ void Player::SendPreparedQuest(uint64 guid)
                 if (quest->IsAutoAccept() && CanAddQuest(quest, true) && CanTakeQuest(quest, true))
                     AddQuestAndCheckCompletion(quest, object);
 
-                if ((quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly()) || quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
+                if (quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly())
                     PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, CanCompleteRepeatableQuest(quest), true);
                 else
                     PlayerTalkClass->SendQuestGiverQuestDetails(quest, guid, true);
@@ -14914,7 +14914,7 @@ Quest const* Player::GetNextQuest(uint64 guid, Quest const* quest)
     switch (GUID_HIPART(guid))
     {
         case HIGHGUID_PLAYER:
-            ASSERT(quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT));
+            ASSERT(quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE));
             return sObjectMgr->GetQuestTemplate(nextQuestID);
         case HIGHGUID_UNIT:
         case HIGHGUID_PET:
@@ -15015,7 +15015,7 @@ bool Player::CanCompleteQuest(uint32 quest_id)
             return false;                                   // not allow re-complete quest
 
         // auto complete quest
-        if ((qInfo->IsAutoComplete() || qInfo->GetFlags() & QUEST_FLAGS_AUTOCOMPLETE) && CanTakeQuest(qInfo, false))
+        if (qInfo->IsAutoComplete() && CanTakeQuest(qInfo, false))
             return true;
 
         QuestStatusMap::iterator itr = m_QuestStatus.find(quest_id);
@@ -15095,7 +15095,7 @@ bool Player::CanCompleteRepeatableQuest(Quest const* quest)
 bool Player::CanRewardQuest(Quest const* quest, bool msg)
 {
     // not auto complete quest and not completed quest (only cheating case, then ignore without message)
-    if (!quest->IsDFQuest() && !quest->IsAutoComplete() && !(quest->GetFlags() & QUEST_FLAGS_AUTOCOMPLETE) && GetQuestStatus(quest->GetQuestId()) != QUEST_STATUS_COMPLETE)
+    if (!quest->IsDFQuest() && !quest->IsAutoComplete() && GetQuestStatus(quest->GetQuestId()) != QUEST_STATUS_COMPLETE)
         return false;
 
     // daily quest can't be rewarded (25 daily quest already completed)
@@ -16450,9 +16450,7 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
                 uint16 curitemcount = q_status.ItemCount[j];
                 if (curitemcount < reqitemcount)
                 {
-                    uint16 additemcount = curitemcount + count <= reqitemcount ? count : reqitemcount - curitemcount;
-                    q_status.ItemCount[j] += additemcount;
-
+                    q_status.ItemCount[j] = std::min<uint16>(q_status.ItemCount[j] + count, reqitemcount);
                     m_QuestStatusSave[questid] = true;
 
                     //SendQuestUpdateAddItem(qInfo, j, additemcount);
@@ -16474,9 +16472,11 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 count)
         uint32 questid = GetQuestSlotQuestId(i);
         if (!questid)
             continue;
+
         Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
         if (!qInfo)
             continue;
+
         if (!qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DELIVER))
             continue;
 
@@ -16488,18 +16488,17 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 count)
                 QuestStatusData& q_status = m_QuestStatus[questid];
 
                 uint32 reqitemcount = qInfo->RequiredItemCount[j];
-                uint16 curitemcount;
-                if (q_status.Status != QUEST_STATUS_COMPLETE)
-                    curitemcount = q_status.ItemCount[j];
-                else
-                    curitemcount = GetItemCount(entry, true);
-                if (curitemcount < reqitemcount + count)
+                uint16 curitemcount = q_status.ItemCount[j];
+
+                if (q_status.ItemCount[j] >= reqitemcount) // we may have more than what the status shows
+                    curitemcount = GetItemCount(entry, false);
+
+                uint16 newItemCount = (count > curitemcount) ? 0 : curitemcount - count;
+                newItemCount = std::min<uint16>(newItemCount, reqitemcount);
+                if (newItemCount != q_status.ItemCount[j])
                 {
-                    uint16 remitemcount = curitemcount <= reqitemcount ? count : count + reqitemcount - curitemcount;
-                    q_status.ItemCount[j] = (curitemcount <= remitemcount) ? 0 : curitemcount - remitemcount;
-
+                    q_status.ItemCount[j] = newItemCount;
                     m_QuestStatusSave[questid] = true;
-
                     IncompleteQuest(questid);
                 }
                 return;
@@ -27571,6 +27570,11 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     //ObjectAccessor::UpdateObjectVisibility(pet);
 
     return pet;
+}
+
+bool Player::IsLoading() const
+{
+    return GetSession()->PlayerLoading();
 }
 
 bool Player::CanUseMastery() const

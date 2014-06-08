@@ -2879,10 +2879,9 @@ bool InstanceMap::CanEnter(Player* player)
         return false;
     }
 
-    // cannot enter while an encounter is in progress on raids
-    /*Group* group = player->GetGroup();
-    if (!player->IsGameMaster() && group && group->InCombatToInstance(GetInstanceId()) && player->GetMapId() != GetId())*/
-    if (IsRaid() && GetInstanceScript() && GetInstanceScript()->IsEncounterInProgress())
+    // cannot enter while an encounter is in progress
+    // allow if just loading
+    if (!player->IsLoading() && IsRaid() && GetInstanceScript() && GetInstanceScript()->IsEncounterInProgress())
     {
         player->SendTransferAborted(GetId(), TRANSFER_ABORT_ZONE_IN_COMBAT);
         return false;

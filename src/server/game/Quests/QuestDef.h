@@ -147,11 +147,11 @@ enum QuestFlags
     QUEST_FLAGS_FLAGS_PVP               = 0x00002000,   // Having this quest in log forces PvP flag
     QUEST_FLAGS_UNAVAILABLE             = 0x00004000,   // Used on quests that are not generically available
     QUEST_FLAGS_WEEKLY                  = 0x00008000,
-    QUEST_FLAGS_AUTOCOMPLETE            = 0x00010000,   // auto complete
+    QUEST_FLAGS_AUTOCOMPLETE            = 0x00010000,   // Quests with this flag player submit automatically by special button in player gui
     QUEST_FLAGS_DISPLAY_ITEM_IN_TRACKER = 0x00020000,   // Displays usable item in quest tracker
     QUEST_FLAGS_OBJ_TEXT                = 0x00040000,   // use Objective text as Complete text
     QUEST_FLAGS_AUTO_ACCEPT             = 0x00080000,   // The client recognizes this flag as auto-accept. However, NONE of the current quests (3.3.5a) have this flag. Maybe blizz used to use it, or will use it in the future.
-    QUEST_FLAGS_AUTO_SUBMIT             = 0x00100000,   // Quests with this flag player submit automatically by special button in player gui
+    QUEST_FLAGS_UNK1                    = 0x00100000,   // 
     QUEST_FLAGS_AUTO_TAKE               = 0x00200000,   // Automatically suggestion of accepting quest. Not from npc.
     //QUEST_FLAGS_UNK2                    = 0x00400000,
     //QUEST_FLAGS_UNK3                    = 0x00800000,   // Found in quest 14069
