@@ -216,18 +216,12 @@ LOCK TABLES `battlenet_components` WRITE;
 /*!40000 ALTER TABLE `battlenet_components` DISABLE KEYS */;
 INSERT INTO `battlenet_components` VALUES
 ('Bnet','Cmp1',3),
-('Bnet','Win',21719),
 ('Bnet','Win',26487),
 ('Bnet','Wn64',26487),
-('Tool','Win',1569),
 ('Tool','Win',2736),
-('WoW','base',12340),
 ('WoW','base',15595),
-('WoW','enGB',12340),
 ('WoW','enGB',15595),
-('WoW','enUS',12340),
 ('WoW','enUS',15595),
-('WoW','Win',12340),
 ('WoW','Win',15595),
 ('WoW','Wn64',15595);
 /*!40000 ALTER TABLE `battlenet_components` ENABLE KEYS */;

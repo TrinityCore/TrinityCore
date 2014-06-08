@@ -107,7 +107,6 @@ void Battlenet::Socket::_SetVSFields(std::string const& pstr)
 
 bool Battlenet::Socket::HandleAuthChallenge(PacketHeader& header, BitStream& packet)
 {
-
     // Verify that this IP is not in the ip_banned table
     LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
 
@@ -160,7 +159,12 @@ bool Battlenet::Socket::HandleAuthChallenge(PacketHeader& header, BitStream& pac
             else if (!sBattlenetMgr->HasPlatform(component.Platform))
                 complete.SetAuthResult(AUTH_INVALID_OS);
             else
-                complete.SetAuthResult(AUTH_REGION_BAD_VERSION);
+            {
+                if (component.Program != "WoW" || AuthHelper::IsBuildSupportingBattlenet(component.Build))
+                    complete.SetAuthResult(AUTH_REGION_BAD_VERSION);
+                else
+                    complete.SetAuthResult(AUTH_USE_GRUNT_LOGON);
+            }
 
             Send(complete);
             return true;
