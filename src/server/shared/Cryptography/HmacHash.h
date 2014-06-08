@@ -28,20 +28,26 @@ class BigNumber;
 
 #define SEED_KEY_SIZE 16
 
+typedef EVP_MD const* (*HashCreateFn)();
+
+template<HashCreateFn HashCreator, uint32 DigestLength>
 class HmacHash
 {
     public:
         HmacHash(uint32 len, uint8 *seed);
         ~HmacHash();
-        void UpdateData(const std::string &str);
-        void UpdateData(const uint8* data, size_t len);
+        void UpdateData(std::string const& str);
+        void UpdateData(uint8 const* data, size_t len);
         void Finalize();
-        uint8 *ComputeHash(BigNumber* bn);
-        uint8 *GetDigest() { return (uint8*)m_digest; }
-        int GetLength() const { return SHA_DIGEST_LENGTH; }
+        uint8* ComputeHash(BigNumber* bn);
+        uint8* GetDigest() { return _digest; }
+        uint32 GetLength() const { return DigestLength; }
     private:
-        HMAC_CTX m_ctx;
-        uint8 m_digest[SHA_DIGEST_LENGTH];
+        HMAC_CTX _ctx;
+        uint8 _digest[DigestLength];
 };
-#endif
 
+typedef HmacHash<EVP_sha1, SHA_DIGEST_LENGTH> HmacSha1;
+typedef HmacHash<EVP_sha256, SHA256_DIGEST_LENGTH> HmacSha256;
+
+#endif

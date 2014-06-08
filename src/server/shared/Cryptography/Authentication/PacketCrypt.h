@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,27 +15,29 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _AUTHCRYPT_H
-#define _AUTHCRYPT_H
+#ifndef _PACKETCRYPT_H
+#define _PACKETCRYPT_H
 
 #include "Cryptography/ARC4.h"
 
 class BigNumber;
 
-class AuthCrypt
+class PacketCrypt
 {
     public:
-        AuthCrypt();
+        PacketCrypt(uint32 rc4InitSize);
+        virtual ~PacketCrypt() { }
 
-        void Init(BigNumber* K);
-        void DecryptRecv(uint8 *, size_t);
-        void EncryptSend(uint8 *, size_t);
+        virtual void Init(BigNumber* K) = 0;
+        void DecryptRecv(uint8* data, size_t length);
+        void EncryptSend(uint8* data, size_t length);
 
         bool IsInitialized() const { return _initialized; }
 
-    private:
+    protected:
         ARC4 _clientDecrypt;
         ARC4 _serverEncrypt;
         bool _initialized;
 };
-#endif
+
+#endif // _PACKETCRYPT_H

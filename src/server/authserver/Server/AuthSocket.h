@@ -39,8 +39,6 @@ public:
     virtual void OnAccept(void);
     virtual void OnClose(void);
 
-    static ACE_INET_Addr const& GetAddressForClient(Realm const& realm, ACE_INET_Addr const& clientAddr);
-
     bool _HandleLogonChallenge();
     bool _HandleLogonProof();
     bool _HandleReconnectChallenge();
