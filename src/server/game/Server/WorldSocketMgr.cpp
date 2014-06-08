@@ -29,13 +29,13 @@
 #include <ace/Reactor_Impl.h>
 #include <ace/TP_Reactor.h>
 #include <ace/Dev_Poll_Reactor.h>
-#include <ace/Guard_T.h>
 #include <ace/Atomic_Op.h>
 #include <ace/os_include/arpa/os_inet.h>
 #include <ace/os_include/netinet/os_tcp.h>
 #include <ace/os_include/sys/os_types.h>
 #include <ace/os_include/sys/os_socket.h>
 
+#include <mutex>
 #include <set>
 
 #include "Log.h"
@@ -109,7 +109,7 @@ class ReactorRunnable : protected ACE_Task_Base
 
         int AddSocket (WorldSocket* sock)
         {
-            TRINITY_GUARD(ACE_Thread_Mutex, m_NewSockets_Lock);
+            std::lock_guard<std::mutex> lock(newSocketsLock);
 
             ++m_Connections;
             sock->AddReference();
@@ -130,7 +130,7 @@ class ReactorRunnable : protected ACE_Task_Base
 
         void AddNewSockets()
         {
-            TRINITY_GUARD(ACE_Thread_Mutex, m_NewSockets_Lock);
+            std::lock_guard<std::mutex> lock(newSocketsLock);
 
             if (m_NewSockets.empty())
                 return;
@@ -208,7 +208,7 @@ class ReactorRunnable : protected ACE_Task_Base
         SocketSet m_Sockets;
 
         SocketSet m_NewSockets;
-        ACE_Thread_Mutex m_NewSockets_Lock;
+        std::mutex newSocketsLock;
 };
 
 WorldSocketMgr::WorldSocketMgr() :

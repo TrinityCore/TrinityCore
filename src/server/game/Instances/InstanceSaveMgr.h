@@ -19,12 +19,12 @@
 #ifndef _INSTANCESAVEMGR_H
 #define _INSTANCESAVEMGR_H
 
-#include "Define.h"
-#include <ace/Singleton.h>
-#include <ace/Thread_Mutex.h>
 #include <list>
 #include <map>
+#include <mutex>
 #include <unordered_map>
+
+#include "Define.h"
 #include "DatabaseEnv.h"
 #include "DBCEnums.h"
 #include "ObjectDefines.h"
@@ -80,13 +80,18 @@ class InstanceSave
 
         /* online players bound to the instance (perm/solo)
            does not include the members of the group unless they have permanent saves */
-        void AddPlayer(Player* player) { TRINITY_GUARD(ACE_Thread_Mutex, _lock); m_playerList.push_back(player); }
+        void AddPlayer(Player* player) 
+        { 
+            std::lock_guard<std::mutex> lock(_playerListLock);
+            m_playerList.push_back(player); 
+        }
+
         bool RemovePlayer(Player* player)
         {
-            _lock.acquire();
+            _playerListLock.lock();
             m_playerList.remove(player);
             bool isStillValid = UnloadIfEmpty();
-            _lock.release();
+            _playerListLock.unlock();
 
             //delete here if needed, after releasing the lock
             if (m_toDelete)
@@ -137,14 +142,13 @@ class InstanceSave
         bool m_canReset;
         bool m_toDelete;
 
-        ACE_Thread_Mutex _lock;
+        std::mutex _playerListLock;
 };
 
 typedef std::unordered_map<uint32 /*PAIR32(map, difficulty)*/, time_t /*resetTime*/> ResetTimeByMapDifficultyMap;
 
 class InstanceSaveManager
 {
-    friend class ACE_Singleton<InstanceSaveManager, ACE_Thread_Mutex>;
     friend class InstanceSave;
 
     private:
@@ -153,6 +157,12 @@ class InstanceSaveManager
 
     public:
         typedef std::unordered_map<uint32 /*InstanceId*/, InstanceSave*> InstanceSaveHashMap;
+
+        static InstanceSaveManager* instance()
+        {
+            static InstanceSaveManager *instance = new InstanceSaveManager();
+            return instance;
+        }
 
         /* resetTime is a global propery of each (raid/heroic) map
            all instances of that map reset at the same time */
@@ -221,5 +231,5 @@ class InstanceSaveManager
         ResetTimeQueue m_resetTimeQueue;
 };
 
-#define sInstanceSaveMgr ACE_Singleton<InstanceSaveManager, ACE_Thread_Mutex>::instance()
+#define sInstanceSaveMgr InstanceSaveManager::instance()
 #endif
