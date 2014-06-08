@@ -215,7 +215,7 @@ struct PacketCounter
 class WorldSession
 {
     public:
-        WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
+        WorldSession(uint32 id, uint32 battlenetAccountId, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
 
         bool PlayerLoading() const { return m_playerLoading; }
@@ -246,6 +246,7 @@ class WorldSession
 
         AccountTypes GetSecurity() const { return _security; }
         uint32 GetAccountId() const { return _accountId; }
+        uint32 GetBattlenetAccountId() const { return _accountId; }
         Player* GetPlayer() const { return _player; }
         std::string const& GetPlayerName() const;
         std::string GetPlayerInfo() const;
@@ -1055,6 +1056,7 @@ class WorldSession
 
         AccountTypes _security;
         uint32 _accountId;
+        uint32 _battlenetAccountId;
         uint8 m_expansion;
 
         typedef std::list<AddonInfo> AddonsList;

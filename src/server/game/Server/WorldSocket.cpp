@@ -858,11 +858,13 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     // SELECT id, sessionkey, last_ip, locked, expansion, mutetime, locale, recruiter, os FROM account WHERE username = ?
     size_t hashPos = account.find_last_of('#');
     PreparedStatement* stmt;
+    uint32 battlenetAccountId = 0;
     if (hashPos != std::string::npos)
     {
         Tokenizer tokens(account, '#', 2);
+        battlenetAccountId = atol(tokens[0]);
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_BNET);
-        stmt->setUInt32(0, atol(tokens[0]));
+        stmt->setUInt32(0, battlenetAccountId);
         stmt->setUInt8(1, atol(tokens[1]));
     }
     else
@@ -1018,7 +1020,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     LoginDatabase.Execute(stmt);
 
     // NOTE ATM the socket is single-threaded, have this in mind ...
-    ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter), -1);
+    ACE_NEW_RETURN(m_Session, WorldSession(id, battlenetAccountId, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter), -1);
 
     m_Crypt.Init(&k);
 

@@ -23,8 +23,11 @@
 
 AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email, std::string password)
 {
-    if (utf8length(email) > 64)
+    if (utf8length(email) > MAX_BNET_EMAIL_STR)
         return AccountOpResult::AOR_NAME_TOO_LONG;
+
+    if (utf8length(password) > MAX_PASS_STR)
+        return AccountOpResult::AOR_PASS_TOO_LONG;
 
     Utf8ToUpperOnlyLatin(email);
     Utf8ToUpperOnlyLatin(password);
@@ -35,33 +38,6 @@ AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email,
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_ACCOUNT);
     stmt->setString(0, email);
     stmt->setString(1, CalculateShaPassHash(email, password));
-    LoginDatabase.Execute(stmt);
-
-    return AccountOpResult::AOR_OK;
-}
-
-AccountOpResult Battlenet::AccountMgr::ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword)
-{
-    // Check if accounts exists
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_EMAIL_BY_ID);
-    stmt->setUInt32(0, accountId);
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
-
-    if (!result)
-        return AccountOpResult::AOR_NAME_NOT_EXIST;
-
-    Utf8ToUpperOnlyLatin(newUsername);
-    if (utf8length(newUsername) > MAX_ACCOUNT_STR)
-        return AccountOpResult::AOR_NAME_TOO_LONG;
-
-    Utf8ToUpperOnlyLatin(newPassword);
-    if (utf8length(newPassword) > MAX_PASS_STR)
-        return AccountOpResult::AOR_PASS_TOO_LONG;
-
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_PASSWORD);
-    stmt->setString(0, newUsername);
-    stmt->setString(1, CalculateShaPassHash(newUsername, newPassword));
-    stmt->setUInt32(2, accountId);
     LoginDatabase.Execute(stmt);
 
     return AccountOpResult::AOR_OK;

@@ -127,13 +127,7 @@ public:
         if (!accountName || !password)
             return false;
 
-        AccountOpResult result;
-        if (strchr(accountName, '@'))
-            result = Battlenet::AccountMgr::CreateBattlenetAccount(std::string(accountName), std::string(password));
-        else
-            result = sAccountMgr->CreateAccount(std::string(accountName), std::string(password), email);
-
-        switch (result)
+        switch (sAccountMgr->CreateAccount(std::string(accountName), std::string(password), email))
         {
             case AccountOpResult::AOR_OK:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName);

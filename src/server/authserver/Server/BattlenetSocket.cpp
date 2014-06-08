@@ -421,7 +421,8 @@ bool Battlenet::Socket::HandleDisconnect(PacketHeader& /*header*/, BitStream& /*
 {
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_SESSION_KEY);
     stmt->setString(0, "");
-    stmt->setUInt32(1, _accountId);
+    stmt->setBool(1, false);
+    stmt->setUInt32(2, _accountId);
     LoginDatabase.Execute(stmt);
     return true;
 }
@@ -908,7 +909,8 @@ bool Battlenet::Socket::HandleRiskFingerprintModule(BitStream* dataStream, Serve
 
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_SESSION_KEY);
         stmt->setString(0, K.AsHexStr());
-        stmt->setUInt32(1, _accountId);
+        stmt->setBool(1, true);
+        stmt->setUInt32(2, _accountId);
         trans->Append(stmt);
 
         LoginDatabase.CommitTransaction(trans);
@@ -975,7 +977,8 @@ bool Battlenet::Socket::HandleResumeModule(BitStream* dataStream, ServerPacket**
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_SESSION_KEY);
     stmt->setString(0, K.AsHexStr());
-    stmt->setUInt32(1, _accountId);
+    stmt->setBool(1, true);
+    stmt->setUInt32(2, _accountId);
     LoginDatabase.Execute(stmt);
 
     HmacSha256 serverProof(64, newSessionKey);
