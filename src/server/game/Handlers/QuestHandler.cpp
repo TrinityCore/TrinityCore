@@ -273,7 +273,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
 
     Object* object = _player;
 
-    if (!quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT))
+    if (!quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
     {
         object = ObjectAccessor::GetObjectByTypeMask(*_player, guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
         if (!object || !object->hasInvolvedQuest(questId))
@@ -469,24 +469,41 @@ void WorldSession::HandleQuestConfirmAccept(WorldPacket& recvData)
 void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
 {
     uint32 questId;
-    uint64 playerGuid;
+    uint64 guid; // NPC / GameObject guid for normal quest completion. Player guid for self-completed quests
     bool autoCompleteMode;      // 0 - standart complete quest mode with npc, 1 - auto-complete mode
-    recvData >> playerGuid >> questId >> autoCompleteMode;
+    recvData >> guid >> questId >> autoCompleteMode;
 
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUESTGIVER_COMPLETE_QUEST npc = %u, questId = %u", uint32(GUID_LOPART(playerGuid)), questId);
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUESTGIVER_COMPLETE_QUEST npc = %u, questId = %u self-complete: %u", uint32(GUID_LOPART(guid)), questId, autoCompleteMode ? 1 : 0);
 
     Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
     if (!quest)
         return;
 
-    Object* object = ObjectAccessor::GetObjectByTypeMask(*_player, playerGuid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
-    if (!object || !object->hasInvolvedQuest(questId))
+    if (autoCompleteMode && !quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
+        return;
+
+    Object* object = nullptr;
+    if (autoCompleteMode)
+        object = _player;
+    else
+        object = ObjectAccessor::GetObjectByTypeMask(*_player, guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
+    
+    if (!object)
         return;
 
     if (autoCompleteMode == 0)
     {
+        if (!object->hasInvolvedQuest(questId))
+            return;
+
         // some kind of WPE protection
         if (!_player->CanInteractWithQuestGiver(object))
+            return;
+    }
+    else
+    {
+        // Do not allow completing quests on other players.
+        if (guid != _player->GetGUID())
             return;
     }
 
@@ -503,16 +520,16 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
     if (_player->GetQuestStatus(questId) != QUEST_STATUS_COMPLETE)
     {
         if (quest->IsRepeatable())
-            _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, playerGuid, _player->CanCompleteRepeatableQuest(quest), false);
+            _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, _player->CanCompleteRepeatableQuest(quest), false);
         else
-            _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, playerGuid, _player->CanRewardQuest(quest, false), false);
+            _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, _player->CanRewardQuest(quest, false), false);
     }
     else
     {
         if (quest->GetReqItemsCount())                  // some items required
-            _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, playerGuid, _player->CanRewardQuest(quest, false), false);
+            _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, _player->CanRewardQuest(quest, false), false);
         else                                            // no items required
-            _player->PlayerTalkClass->SendQuestGiverOfferReward(quest, playerGuid, true);
+            _player->PlayerTalkClass->SendQuestGiverOfferReward(quest, guid, true);
     }
 
     if (Creature* creature = object->ToCreature())
@@ -586,7 +603,7 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
         if (quest->IsAutoAccept() && receiver->CanAddQuest(quest, true) && receiver->CanTakeQuest(quest, true))
             receiver->AddQuestAndCheckCompletion(quest, sender);
 
-        if ((quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly()) || quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
+        if (quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly())
             receiver->PlayerTalkClass->SendQuestGiverRequestItems(quest, sender->GetGUID(), receiver->CanCompleteRepeatableQuest(quest), true);
         else
         {

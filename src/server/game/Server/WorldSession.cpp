@@ -126,7 +126,8 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
     isRecruiter(isARecruiter),
     _RBACData(NULL),
     expireTime(60000), // 1 min after socket loss, session is deleted
-    forceExit(false)
+    forceExit(false),
+    m_currentBankerGUID(0)
 {
     memset(m_Tutorials, 0, sizeof(m_Tutorials));
 
@@ -1199,11 +1200,11 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
     if (++packetCounter.amountCounter > maxPacketCounterAllowed)
     {
         dosTriggered = true;
-        TC_LOG_WARN("network", "AntiDOS: Account %u, IP: %s, Character: %s, flooding packet (opc: %s (0x%X), count: %u)",
-            Session->GetAccountId(), Session->GetRemoteAddress().c_str(), Session->GetPlayerName().c_str(),
+        TC_LOG_WARN("network", "AntiDOS: Account %u, IP: %s, Ping: %u, Character: %s, flooding packet (opc: %s (0x%X), count: %u)",
+            Session->GetAccountId(), Session->GetRemoteAddress().c_str(), Session->GetLatency(), Session->GetPlayerName().c_str(),
             opcodeTable[p.GetOpcode()]->Name, p.GetOpcode(), packetCounter.amountCounter);
     }
-    
+
     // Then check if player is sending packets not allowed
     if (!IsOpcodeAllowed(p.GetOpcode()))
     {
