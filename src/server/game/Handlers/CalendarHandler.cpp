@@ -235,6 +235,14 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
     recvData.ReadPackedTime(unkPackedTime);
     recvData >> flags;
 
+    // prevent events in the past
+    // To Do: properly handle timezones and remove the "- time_t(86400L)" hack
+    if (time_t(eventPackedTime) < (time(NULL) - time_t(86400L)))
+    {
+        recvData.rfinish();
+        return;
+    }
+
     CalendarEvent* calendarEvent = new CalendarEvent(sCalendarMgr->GetFreeEventId(), guid, 0, CalendarEventType(type), dungeonId,
         time_t(eventPackedTime), flags, time_t(unkPackedTime), title, description);
 
@@ -304,6 +312,14 @@ void WorldSession::HandleCalendarUpdateEvent(WorldPacket& recvData)
     recvData.ReadPackedTime(timeZoneTime);
     recvData >> flags;
 
+    // prevent events in the past
+    // To Do: properly handle timezones and remove the "- time_t(86400L)" hack
+    if (time_t(eventPackedTime) < (time(NULL) - time_t(86400L)))
+    {
+        recvData.rfinish();
+        return;
+    }
+
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_UPDATE_EVENT [" UI64FMTD "] EventId [" UI64FMTD
         "], InviteId [" UI64FMTD "] Title %s, Description %s, type %u "
         "Repeatable %u, MaxInvites %u, Dungeon ID %d, Time %u "
@@ -346,17 +362,25 @@ void WorldSession::HandleCalendarCopyEvent(WorldPacket& recvData)
     uint64 guid = _player->GetGUID();
     uint64 eventId;
     uint64 inviteId;
-    uint32 time;
+    uint32 eventTime;
 
     recvData >> eventId >> inviteId;
-    recvData.ReadPackedTime(time);
+    recvData.ReadPackedTime(eventTime);
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_COPY_EVENT [" UI64FMTD "], EventId [" UI64FMTD
-        "] inviteId [" UI64FMTD "] Time: %u", guid, eventId, inviteId, time);
+        "] inviteId [" UI64FMTD "] Time: %u", guid, eventId, inviteId, eventTime);
+
+    // prevent events in the past
+    // To Do: properly handle timezones and remove the "- time_t(86400L)" hack
+    if (time_t(eventTime) < (time(NULL) - time_t(86400L)))
+    {
+        recvData.rfinish();
+        return;
+    }
 
     if (CalendarEvent* oldEvent = sCalendarMgr->GetEvent(eventId))
     {
         CalendarEvent* newEvent = new CalendarEvent(*oldEvent, sCalendarMgr->GetFreeEventId());
-        newEvent->SetEventTime(time_t(time));
+        newEvent->SetEventTime(time_t(eventTime));
         sCalendarMgr->AddEvent(newEvent, CALENDAR_SENDTYPE_COPY);
 
         CalendarInviteStore invites = sCalendarMgr->GetEventInvites(eventId);
