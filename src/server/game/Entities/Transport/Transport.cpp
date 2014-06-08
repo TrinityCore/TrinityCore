@@ -283,6 +283,15 @@ Creature* Transport::CreateNPCPassenger(uint32 guid, CreatureData const* data)
         return NULL;
     }
 
+    if (data->phaseid)
+        creature->SetInPhase(data->phaseid, false, true);
+    else if (data->phaseGroup)
+        for (auto phase : GetPhasesForGroup(data->phaseGroup))
+            creature->SetInPhase(phase, false, true);
+    else
+        for (auto phase : GetPhases()) // Set the creature to the transport's phases
+            creature->SetInPhase(phase, false, true);
+
     if (!map->AddToMap(creature))
     {
         delete creature;
@@ -387,15 +396,10 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
         }
     }
 
-    uint32 phase = PHASEMASK_NORMAL;
     std::set<uint32> phases;
     if (summoner)
-    {
-        phase = summoner->GetPhaseMask();
         phases = summoner->GetPhases();
-    }
-
-    if (phases.empty())
+    else
         phases = GetPhases(); // If there was no summoner, try to use the transport phases
 
     TempSummon* summon = NULL;
@@ -422,7 +426,7 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
     pos.GetPosition(x, y, z, o);
     CalculatePassengerPosition(x, y, z, &o);
 
-    if (!summon->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, phase, entry, x, y, z, o, nullptr, vehId))
+    if (!summon->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, 0, entry, x, y, z, o, nullptr, vehId))
     {
         delete summon;
         return NULL;
