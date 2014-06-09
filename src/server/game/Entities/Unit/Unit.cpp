@@ -17079,12 +17079,14 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
     bool turn = (GetOrientation() != orientation);
     bool relocated = (teleport || GetPositionX() != x || GetPositionY() != y || GetPositionZ() != z);
 
+    // TODO: Check if orientation transport offset changed instead of only global orientation
     if (turn)
         RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
 
     if (relocated)
     {
-        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
+        if (!GetVehicle())
+            RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
 
         // move and update visible state if need
         if (GetTypeId() == TYPEID_PLAYER)
