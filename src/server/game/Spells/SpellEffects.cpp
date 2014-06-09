@@ -960,7 +960,7 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
     TC_LOG_DEBUG("spells", "Spell::EffectTeleportUnits - teleport unit to %u %f %f %f %f\n", mapid, x, y, z, orientation);
 
     if (unitTarget->GetTypeId() == TYPEID_PLAYER)
-        unitTarget->ToPlayer()->TeleportTo(mapid, x, y, z, orientation, unitTarget == m_caster ? TELE_TO_SPELL : 0);
+        unitTarget->ToPlayer()->TeleportTo(mapid, x, y, z, orientation, unitTarget == m_caster ? TELE_TO_SPELL | TELE_TO_NOT_LEAVE_COMBAT : 0);
     else if (mapid == unitTarget->GetMapId())
         unitTarget->NearTeleportTo(x, y, z, orientation, unitTarget == m_caster);
     else
@@ -3755,15 +3755,40 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
             {
                 // Get diseases on target of spell
                 if (m_targets.GetUnitTarget() &&  // Glyph of Disease - cast on unit target too to refresh aura
-                    (m_targets.GetUnitTarget() != unitTarget || m_caster->GetAura(63334)))
+                    (m_targets.GetUnitTarget() != unitTarget || m_caster->HasAura(63334)))
                 {
                     // And spread them on target
                     // Blood Plague
-                    if (m_targets.GetUnitTarget()->GetAura(55078))
+                    if (m_targets.GetUnitTarget()->HasAura(55078))
+                    {
+                        AuraEffect* aurEffOld = m_targets.GetUnitTarget()->GetAura(55078)->GetEffect(0);
+                        float donePct = aurEffOld->GetDonePct();
+                        float critChance = aurEffOld->GetCritChance();
+
                         m_caster->CastSpell(unitTarget, 55078, true);
+
+                        if (unitTarget->HasAura(55078))
+                            if (AuraEffect* aurEffNew = unitTarget->GetAura(55078)->GetEffect(0))
+                            {
+                                aurEffNew->SetCritChance(critChance); // Blood Plague can crit if caster has T9.
+                                aurEffNew->SetDonePct(donePct);
+                                aurEffNew->SetDamage(m_caster->SpellDamageBonusDone(unitTarget, aurEffNew->GetSpellInfo(), std::max(aurEffNew->GetAmount(), 0), DOT) * donePct);
+                            }
+                    }
                     // Frost Fever
-                    if (m_targets.GetUnitTarget()->GetAura(55095))
+                    if (m_targets.GetUnitTarget()->HasAura(55095))
+                    {
+                        float donePct = m_targets.GetUnitTarget()->GetAura(55095)->GetEffect(0)->GetDonePct();
+
                         m_caster->CastSpell(unitTarget, 55095, true);
+
+                        if (unitTarget->HasAura(55095))
+                            if (AuraEffect* aurEffNew = unitTarget->GetAura(55095)->GetEffect(0))
+                            {
+                                aurEffNew->SetDonePct(donePct);
+                                aurEffNew->SetDamage(m_caster->SpellDamageBonusDone(unitTarget, aurEffNew->GetSpellInfo(), std::max(aurEffNew->GetAmount(), 0), DOT) * donePct);
+                            }
+                    }
                 }
             }
             break;
