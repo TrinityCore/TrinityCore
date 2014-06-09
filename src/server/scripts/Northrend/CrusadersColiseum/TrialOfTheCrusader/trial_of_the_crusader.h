@@ -41,7 +41,7 @@ enum SpellIds
 
 enum MiscData
 {
-    DESPAWN_TIME                = 1200000,
+    DESPAWN_TIME                   = 1200000,
     EVENT_DEDICATED_INSANITY_CHECK = 10*IN_MILLISECONDS,
 
     DISPLAYID_DESTROYED_FLOOR      = 9060
