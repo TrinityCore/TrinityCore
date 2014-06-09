@@ -2237,10 +2237,6 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, 
     if (!apply)
         target->RemoveFlag(field, flag);
 
-    // Bladestorm hack
-    if (apply && target->HasAura(46924))
-        target->RemoveAura(46924);
-
     // Handle damage modification, shapeshifted druids are not affected
     if (target->GetTypeId() == TYPEID_PLAYER && !target->IsInFeralForm())
     {
