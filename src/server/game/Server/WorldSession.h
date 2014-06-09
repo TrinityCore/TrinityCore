@@ -937,7 +937,6 @@ class WorldSession
             public:
                 DosProtection(WorldSession* s) : Session(s), _policy((Policy)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_POLICY)) { }
                 bool EvaluateOpcode(WorldPacket& p, time_t time) const;
-                void AllowOpcode(uint16 opcode, bool allow) { _isOpcodeAllowed[opcode] = allow; }
             protected:
                 enum Policy
                 {
@@ -946,22 +945,11 @@ class WorldSession
                     POLICY_BAN,
                 };
 
-                bool IsOpcodeAllowed(uint16 opcode) const
-                {
-                    OpcodeStatusMap::const_iterator itr = _isOpcodeAllowed.find(opcode);
-                    if (itr == _isOpcodeAllowed.end())
-                        return true;    // No presence in the map indicates this is the first time the opcode was sent this session, so allow
-
-                    return itr->second;
-                }
-
                 uint32 GetMaxPacketCounterAllowed(uint16 opcode) const;
 
                 WorldSession* Session;
 
             private:
-                typedef std::unordered_map<uint16, bool> OpcodeStatusMap;
-                OpcodeStatusMap _isOpcodeAllowed; // could be bool array, but wouldn't be practical for game versions with non-linear opcodes
                 Policy _policy;
                 typedef std::unordered_map<uint16, PacketCounter> PacketThrottlingMap;
                 // mark this member as "mutable" so it can be modified even in const functions
