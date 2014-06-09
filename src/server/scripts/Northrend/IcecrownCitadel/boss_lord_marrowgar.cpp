@@ -228,12 +228,12 @@ class boss_lord_marrowgar : public CreatureScript
                             events.ScheduleEvent(EVENT_WARN_BONE_STORM, urand(90000, 95000));
                             break;
                         case EVENT_BONE_STORM_BEGIN:
+                            me->SetReactState(REACT_PASSIVE);
                             if (Aura* pStorm = me->GetAura(SPELL_BONE_STORM))
                                 pStorm->SetDuration(int32(_boneStormDuration));
                             me->SetSpeed(MOVE_RUN, _baseSpeed*3.0f, true);
                             Talk(SAY_BONE_STORM);
                             events.ScheduleEvent(EVENT_BONE_STORM_END, _boneStormDuration+1);
-                            me->SetReactState(REACT_PASSIVE);
                             // no break here
                         case EVENT_BONE_STORM_MOVE:
                         {
@@ -246,6 +246,7 @@ class boss_lord_marrowgar : public CreatureScript
                             break;
                         }
                         case EVENT_BONE_STORM_END:
+                            me->SetReactState(REACT_AGGRESSIVE);
                             if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
                                 me->GetMotionMaster()->MovementExpired();
                             me->GetMotionMaster()->MoveChase(me->GetVictim());
@@ -254,7 +255,6 @@ class boss_lord_marrowgar : public CreatureScript
                             events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10000);
                             if (!IsHeroic())
                                 events.RescheduleEvent(EVENT_BONE_SPIKE_GRAVEYARD, 15000, EVENT_GROUP_SPECIAL);
-                            me->SetReactState(REACT_AGGRESSIVE);
                             break;
                         case EVENT_ENABLE_BONE_SLICE:
                             _boneSlice = true;
