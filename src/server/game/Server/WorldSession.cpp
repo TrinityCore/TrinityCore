@@ -121,7 +121,10 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
     m_TutorialsChanged(false),
     recruiterId(recruiter),
     isRecruiter(isARecruiter),
-    _RBACData(NULL)
+    _RBACData(NULL),
+    expireTime(60000), // 1 min after socket loss, session is deleted
+    forceExit(false),
+    m_currentBankerGUID(0)
 {
     memset(m_Tutorials, 0, sizeof(m_Tutorials));
 
@@ -419,8 +422,12 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         ///- Cleanup socket pointer if need
         if (m_Socket && m_Socket->IsClosed())
         {
-            m_Socket->RemoveReference();
-            m_Socket = NULL;
+            expireTime -= expireTime > diff ? diff : expireTime;
+            if (expireTime < diff || forceExit)
+            {
+                m_Socket->RemoveReference();
+                m_Socket = NULL;
+            }
         }
 
         if (!m_Socket)
@@ -446,7 +453,6 @@ void WorldSession::LogoutPlayer(bool save)
             DoLootRelease(lguid);
 
         ///- If the player just died before logging out, make him appear as a ghost
-        //FIXME: logout must be delayed in case lost connection with client in time of combat
         if (_player->GetDeathTimer())
         {
             _player->getHostileRefManager().deleteReferences();
@@ -602,7 +608,6 @@ void WorldSession::LogoutPlayer(bool save)
     m_playerLogout = false;
     m_playerSave = false;
     m_playerRecentlyLogout = true;
-    AntiDOS.AllowOpcode(CMSG_CHAR_ENUM, true);
     LogoutRequest(0);
 }
 
@@ -610,7 +615,10 @@ void WorldSession::LogoutPlayer(bool save)
 void WorldSession::KickPlayer()
 {
     if (m_Socket)
+    {
         m_Socket->CloseSocket();
+        forceExit = true;
+    }
 }
 
 void WorldSession::SendNotification(const char *format, ...)
@@ -1285,10 +1293,11 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
     if (++packetCounter.amountCounter > maxPacketCounterAllowed)
     {
         dosTriggered = true;
-        TC_LOG_WARN("network", "AntiDOS: Account %u, IP: %s, flooding packet (opc: %s (0x%X), count: %u)",
-            Session->GetAccountId(), Session->GetRemoteAddress().c_str(), opcodeTable[p.GetOpcode()].name, p.GetOpcode(), packetCounter.amountCounter);
+        TC_LOG_WARN("network", "AntiDOS: Account %u, IP: %s, Ping: %u, Character: %s, flooding packet (opc: %s (0x%X), count: %u)",
+            Session->GetAccountId(), Session->GetRemoteAddress().c_str(), Session->GetLatency(), Session->GetPlayerName().c_str(),
+            opcodeTable[p.GetOpcode()].name, p.GetOpcode(), packetCounter.amountCounter);
     }
-    
+
     // Then check if player is sending packets not allowed
     if (!IsOpcodeAllowed(p.GetOpcode()))
     {
@@ -1336,26 +1345,28 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
     uint32 maxPacketCounterAllowed;
     switch (opcode)
     {
+        // These opcodes are spammed by few addons so a very high limit is required
+        case CMSG_QUEST_QUERY:
         case CMSG_MESSAGECHAT:
+        case CMSG_ITEM_QUERY_SINGLE:
+        case CMSG_ITEM_NAME_QUERY:
+        case CMSG_GAMEOBJECT_QUERY:
+        case CMSG_NAME_QUERY:
+        case CMSG_PET_NAME_QUERY:
+        case CMSG_CREATURE_QUERY:
+        case CMSG_NPC_TEXT_QUERY:
+        case CMSG_QUESTGIVER_STATUS_QUERY:
         {
-            maxPacketCounterAllowed = 500;
+            maxPacketCounterAllowed = 5000;
             break;
         }
 
         case CMSG_ATTACKSTOP:
-        case CMSG_ITEM_QUERY_SINGLE:
-        case CMSG_ITEM_NAME_QUERY:
         case CMSG_GUILD_QUERY:
-        case CMSG_NAME_QUERY:
-        case CMSG_PET_NAME_QUERY:
-        case CMSG_GAMEOBJECT_QUERY:
-        case CMSG_CREATURE_QUERY:
-        case CMSG_NPC_TEXT_QUERY:
         case CMSG_ARENA_TEAM_QUERY:
         case CMSG_TAXINODE_STATUS_QUERY:
         case CMSG_TAXIQUERYAVAILABLENODES:
         case CMSG_QUESTGIVER_QUERY_QUEST:
-        case CMSG_QUEST_QUERY:
         case CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY:
         case CMSG_QUERY_QUESTS_COMPLETED:
         case CMSG_QUEST_POI_QUERY:
@@ -1373,28 +1384,35 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case MSG_QUERY_NEXT_MAIL_TIME:
         case MSG_GUILD_EVENT_LOG_QUERY:
         case MSG_MOVE_SET_FACING:
+        case CMSG_INSPECT:
         {
-            maxPacketCounterAllowed = 200;
+            maxPacketCounterAllowed = 500;
             break;
         }
 
         case CMSG_REQUEST_PARTY_MEMBER_STATS:
         case CMSG_WHO:
+        case CMSG_SETSHEATHED:
+        case CMSG_CONTACT_LIST:
+        case CMSG_GUILD_SET_PUBLIC_NOTE:
+        case CMSG_GUILD_SET_OFFICER_NOTE:
         {
             maxPacketCounterAllowed = 50;
             break;
         }
 
-        case CMSG_SETSHEATHED:
-        case CMSG_CONTACT_LIST:
+        case CMSG_SPELLCLICK:
+        case CMSG_GAMEOBJ_USE:
+        case CMSG_GAMEOBJ_REPORT_USE:
+        case MSG_RAID_TARGET_UPDATE:
+        case CMSG_QUESTGIVER_COMPLETE_QUEST:
+        case CMSG_PLAYER_VEHICLE_ENTER:
+        case CMSG_PETITION_SIGN:
         {
-            maxPacketCounterAllowed = 10;
+            maxPacketCounterAllowed = 20;
             break;
         }
 
-        case CMSG_GAMEOBJ_USE:
-        case CMSG_GAMEOBJ_REPORT_USE:
-        case CMSG_SPELLCLICK:
         case CMSG_PLAYER_LOGOUT:
         case CMSG_LOGOUT_REQUEST:
         case CMSG_LOGOUT_CANCEL:
@@ -1437,7 +1455,6 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_REQUEST_VEHICLE_EXIT:
         case CMSG_LEARN_PREVIEW_TALENTS:
         case CMSG_LEARN_PREVIEW_TALENTS_PET:
-        case CMSG_PLAYER_VEHICLE_ENTER:
         case CMSG_CONTROLLER_EJECT_PASSENGER:
         case CMSG_EQUIPMENT_SET_SAVE:
         case CMSG_DELETEEQUIPMENT_SET:
@@ -1449,11 +1466,9 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_QUESTGIVER_CANCEL:
         case CMSG_QUESTLOG_REMOVE_QUEST:
         case CMSG_QUEST_CONFIRM_ACCEPT:
-        case CMSG_QUESTGIVER_COMPLETE_QUEST:
         case CMSG_DISMISS_CRITTER:
         case CMSG_REPOP_REQUEST:
         case CMSG_PETITION_BUY:
-        case CMSG_PETITION_SIGN:
         case CMSG_TURN_IN_PETITION:
         case CMSG_COMPLETE_CINEMATIC:
         case CMSG_ITEM_REFUND:
@@ -1501,8 +1516,6 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_GUILD_DISBAND:
         case CMSG_GUILD_LEADER:
         case CMSG_GUILD_MOTD:
-        case CMSG_GUILD_SET_PUBLIC_NOTE:
-        case CMSG_GUILD_SET_OFFICER_NOTE:
         case CMSG_GUILD_RANK:
         case CMSG_GUILD_ADD_RANK:
         case CMSG_GUILD_DEL_RANK:
@@ -1519,7 +1532,6 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case MSG_SET_DUNGEON_DIFFICULTY:
         case MSG_SET_RAID_DIFFICULTY:
         case MSG_RANDOM_ROLL:
-        case MSG_RAID_TARGET_UPDATE:
         case MSG_PARTY_ASSIGNMENT:
         case MSG_RAID_READY_CHECK:
         {
