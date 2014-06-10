@@ -17742,3 +17742,27 @@ void Unit::BuildCooldownPacket(WorldPacket& data, uint8 flags, PacketCooldowns c
         data << uint32(itr->second);
     }
 }
+
+int32 Unit::GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEff, AuraType auraType, bool sameMiscValue /*= false*/) const
+{
+    int32 val = 0;
+    SpellSpellGroupMapBounds spellGroup = sSpellMgr->GetSpellSpellGroupMapBounds(aurEff->GetSpellInfo()->GetFirstRankSpell()->Id);
+    for (SpellSpellGroupMap::const_iterator itr = spellGroup.first; itr != spellGroup.second ; ++itr)
+    {
+        if (sSpellMgr->GetSpellGroupStackRule(itr->second) == SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT)
+        {
+            AuraEffectList const& auraEffList = GetAuraEffectsByType(auraType);
+            for (AuraEffectList::const_iterator auraItr = auraEffList.begin(); auraItr != auraEffList.end(); ++auraItr)
+            {
+                if (aurEff != (*auraItr) && (!sameMiscValue || aurEff->GetMiscValue() == (*auraItr)->GetMiscValue()) &&
+                    sSpellMgr->IsSpellMemberOfSpellGroup((*auraItr)->GetSpellInfo()->Id, itr->second))
+                {
+                    // absolute value only
+                    if (abs(val) < abs((*auraItr)->GetAmount()))
+                        val = (*auraItr)->GetAmount();
+                }
+            }
+        }
+    }
+    return val;
+}
