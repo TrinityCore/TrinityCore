@@ -4821,7 +4821,7 @@ void Unit::RemoveAllDynObjects()
         m_dynObj.front()->Remove();
 }
 
-GameObject* Unit::GetGameObject(uint32 spellId) const
+GameObject* Unit::GetGameObjectBySpellId(uint32 spellId) const
 {
     for (GameObjectList::const_iterator i = m_gameObj.begin(); i != m_gameObj.end(); ++i)
         if ((*i)->GetSpellId() == spellId)

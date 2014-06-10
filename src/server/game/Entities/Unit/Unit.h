@@ -1959,7 +1959,7 @@ class Unit : public WorldObject
         void RemoveDynObject(uint32 spellId);
         void RemoveAllDynObjects();
 
-        GameObject* GetGameObject(uint32 spellId) const;
+        GameObject* GetGameObjectBySpellId(uint32 spellId) const;
         void AddGameObject(GameObject* gameObj);
         void RemoveGameObject(GameObject* gameObj, bool del);
         void RemoveGameObject(uint32 spellid, bool del);

@@ -2396,6 +2396,26 @@ void WorldObject::GetCreatureListWithEntryInGrid(std::list<Creature*>& creatureL
     cell.Visit(pair, visitor, *(this->GetMap()), *this, maxSearchRange);
 }
 
+Unit* WorldObject::GetUnit(WorldObject& object, uint64 guid)
+{
+    return ObjectAccessor::GetUnit(object, guid);
+}
+
+Player* WorldObject::GetPlayer(WorldObject& object, uint64 guid)
+{
+    return ObjectAccessor::GetPlayer(object, guid);
+}
+
+Creature* WorldObject::GetCreature(WorldObject& object, uint64 guid)
+{
+    return ObjectAccessor::GetCreature(object, guid);
+}
+
+GameObject* WorldObject::GetGameObject(WorldObject& object, uint64 guid)
+{
+    return ObjectAccessor::GetGameObject(object, guid);
+}
+
 /*
 namespace Trinity
 {

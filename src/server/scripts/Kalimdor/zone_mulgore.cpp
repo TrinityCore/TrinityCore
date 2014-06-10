@@ -128,7 +128,7 @@ public:
                         case 1:
                             if (Unit* unit = ObjectAccessor::GetUnit(*me, PlayerGUID))
                             {
-                                if (GameObject* go = unit->GetGameObject(SPELL_LUNCH))
+                                if (GameObject* go = unit->GetGameObjectBySpellId(SPELL_LUNCH))
                                 {
                                     IsMovingToLunch = true;
                                     me->GetMotionMaster()->MovePoint(POINT_ID, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ());
