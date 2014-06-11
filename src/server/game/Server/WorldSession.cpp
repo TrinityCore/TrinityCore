@@ -1260,12 +1260,12 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
     }
 
     // Check if player is flooding some packets
-    if (++packetCounter.amountCounter > maxPacketCounterAllowed)
-    {
-        TC_LOG_WARN("network", "AntiDOS: Account %u, IP: %s, Ping: %u, Character: %s, flooding packet (opc: %s (0x%X), count: %u)",
-            Session->GetAccountId(), Session->GetRemoteAddress().c_str(), Session->GetLatency(), Session->GetPlayerName().c_str(),
-            opcodeTable[p.GetOpcode()].name, p.GetOpcode(), packetCounter.amountCounter);
-    }
+    if (++packetCounter.amountCounter <= maxPacketCounterAllowed)
+        return true;
+
+    TC_LOG_WARN("network", "AntiDOS: Account %u, IP: %s, Ping: %u, Character: %s, flooding packet (opc: %s (0x%X), count: %u)",
+        Session->GetAccountId(), Session->GetRemoteAddress().c_str(), Session->GetLatency(), Session->GetPlayerName().c_str(),
+        opcodeTable[p.GetOpcode()].name, p.GetOpcode(), packetCounter.amountCounter);
 
     switch (_policy)
     {
