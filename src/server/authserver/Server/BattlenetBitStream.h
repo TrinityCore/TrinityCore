@@ -211,7 +211,7 @@ namespace Battlenet
                 uint8 secondHalf = (uint8)((((uint8)(1 << bitsLeftInByte) - 1) & (uint8)(value >> bitCount)) << bitPos);
 
                 if (_buffer.size() > (_writePos >> 3))
-                    _buffer[_writePos >> 3] = (uint8)(_buffer[_writePos >> 3] & firstHalf | secondHalf);
+                    _buffer[_writePos >> 3] = (uint8)((_buffer[_writePos >> 3] & firstHalf) | secondHalf);
                 else
                     _buffer.push_back(secondHalf);
 
