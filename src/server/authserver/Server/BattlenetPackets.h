@@ -23,6 +23,7 @@
 #include "BattlenetManager.h"
 #include "Define.h"
 #include "Errors.h"
+#include <ace/INET_Addr.h>
 #include <string>
 
 namespace Battlenet
