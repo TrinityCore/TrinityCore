@@ -946,7 +946,7 @@ class spell_dk_pestilence : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_pestilence_SpellScript);
 
-            bool Validate(SpellInfo const* spellInfo) override
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DK_GLYPH_OF_DISEASE)
                     || !sSpellMgr->GetSpellInfo(SPELL_DK_BLOOD_PLAGUE)
@@ -981,7 +981,7 @@ class spell_dk_pestilence : public SpellScriptLoader
                                 {
                                     aurEffNew->SetCritChance(critChance); // Blood Plague can crit if caster has T9.
                                     aurEffNew->SetDonePct(donePct);
-                                    aurEffNew->SetDamage(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), std::max(aurEffNew->GetAmount(), NULL), DOT) * donePct);
+                                    aurEffNew->SetDamage(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), std::max(aurEffNew->GetAmount(), 0), DOT) * donePct);
                                 }
                             }
                         }
@@ -1000,7 +1000,7 @@ class spell_dk_pestilence : public SpellScriptLoader
                                 if (AuraEffect* aurEffNew = aurNew->GetEffect(EFFECT_0))
                                 {
                                     aurEffNew->SetDonePct(donePct);
-                                    aurEffNew->SetDamage(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), std::max(aurEffNew->GetAmount(), NULL), DOT) * donePct);
+                                    aurEffNew->SetDamage(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), std::max(aurEffNew->GetAmount(), 0), DOT) * donePct);
                                 }
                             }
                         }
