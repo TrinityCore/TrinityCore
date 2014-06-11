@@ -19,8 +19,8 @@
 #define __BATTLENETBITSTREAM_H__
 
 #include "ByteConverter.h"
+#include "Common.h"
 #include <exception>
-#include <string>
 #include <vector>
 #include <type_traits>
 #include <ace/Auto_Ptr.h>
