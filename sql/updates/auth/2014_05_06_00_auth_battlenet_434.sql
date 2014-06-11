@@ -1,7 +1,3 @@
-ALTER TABLE `account`
-  ADD `battlenet_account` int(10) unsigned DEFAULT NULL AFTER `recruiter`,
-  ADD CONSTRAINT `fk_bnet_acc` FOREIGN KEY (`battlenet_account`) REFERENCES `battlenet_accounts` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
-
 ALTER TABLE `realmlist`
   ADD `Region` tinyint(3) UNSIGNED NOT NULL DEFAULT 2 AFTER `gamebuild`,
   ADD `Battlegroup` tinyint(3) UNSIGNED NOT NULL DEFAULT 0 AFTER `Region`;
@@ -146,3 +142,6 @@ INSERT INTO `battlenet_modules` VALUES
 /*!40000 ALTER TABLE `battlenet_modules` ENABLE KEYS */;
 UNLOCK TABLES;
 
+ALTER TABLE `account`
+  ADD `battlenet_account` int(10) unsigned DEFAULT NULL AFTER `recruiter`,
+  ADD CONSTRAINT `fk_bnet_acc` FOREIGN KEY (`battlenet_account`) REFERENCES `battlenet_accounts` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
