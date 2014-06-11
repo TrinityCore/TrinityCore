@@ -1267,8 +1267,6 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
             opcodeTable[p.GetOpcode()].name, p.GetOpcode(), packetCounter.amountCounter);
     }
 
-        return true;
-
     switch (_policy)
     {
         case POLICY_LOG:
