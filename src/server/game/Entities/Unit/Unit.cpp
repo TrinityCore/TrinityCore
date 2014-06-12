@@ -12895,25 +12895,13 @@ void Unit::ModSpellCastTime(SpellInfo const* spellInfo, int32 & castTime, Spell*
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_CASTING_TIME, castTime, spell);
 
-    switch (spellInfo->DmgClass)
-    {
-        case SPELL_DAMAGE_CLASS_NONE:
-            if (spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION) // required double check
-                castTime = int32(float(castTime) * GetFloatValue(UNIT_MOD_CAST_SPEED));
-            else if (spellInfo->SpellVisual[0] == 3881 && HasAura(67556)) // cooking with Chef Hat.
-                castTime = 500;
-            break;
-        case SPELL_DAMAGE_CLASS_MELEE:
-            break; // no known cases
-        case SPELL_DAMAGE_CLASS_MAGIC:
-            castTime = int32(float(castTime) * GetFloatValue(UNIT_MOD_CAST_SPEED));
-            break;
-        case SPELL_DAMAGE_CLASS_RANGED:
-            castTime = int32(float(castTime) * m_modAttackSpeedPct[RANGED_ATTACK]);
-            break;
-        default:
-            break;
-    }
+    if (!((spellInfo->Attributes & (SPELL_ATTR0_ABILITY | SPELL_ATTR0_TRADESPELL)) || (spellInfo->AttributesEx3 & SPELL_ATTR3_NO_DONE_BONUS)) &&
+        ((GetTypeId() == TYPEID_PLAYER && spellInfo->SpellFamilyName) || GetTypeId() == TYPEID_UNIT))
+        castTime = int32(float(castTime) * GetFloatValue(UNIT_MOD_CAST_SPEED));
+    else if (spellInfo->Attributes & SPELL_ATTR0_REQ_AMMO && !(spellInfo->AttributesEx2 & SPELL_ATTR2_AUTOREPEAT_FLAG))
+        castTime = int32(float(castTime) * m_modAttackSpeedPct[RANGED_ATTACK]);
+    else if (spellInfo->SpellVisual[0] == 3881 && HasAura(67556)) // cooking with Chef Hat.
+        castTime = 500;
 }
 
 DiminishingLevels Unit::GetDiminishing(DiminishingGroup group)
