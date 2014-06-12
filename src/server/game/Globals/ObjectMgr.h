@@ -1308,8 +1308,8 @@ class ObjectMgr
             time_t ret = 0;
             for (HotfixData::const_iterator itr = _hotfixData.begin(); itr != _hotfixData.end(); ++itr)
                 if (itr->Entry == entry && itr->Type == type)
-                    if (itr->Timestamp > ret)
-                        ret = itr->Timestamp;
+                    if (time_t(itr->Timestamp) > ret)
+                        ret = time_t(itr->Timestamp);
 
             return ret ? ret : time(NULL);
         }
