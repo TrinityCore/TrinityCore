@@ -2313,9 +2313,41 @@ class spell_q14100_q14111_make_player_destroy_totems : public SpellScriptLoader
         {
             return new spell_q14100_q14111_make_player_destroy_totems_SpellScript();
         }
+ };
+ 
+class spell_q12414_hand_over_reins : public SpellScriptLoader
+{
+    public:
+        spell_q12414_hand_over_reins() : SpellScriptLoader("spell_q12414_hand_over_reins") { }
+
+        class spell_q12414_hand_over_reins_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12414_hand_over_reins_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                if (caster->IsVehicle())
+                    if (Unit* passenger = caster->GetCharmerOrOwner())
+                    {
+                        passenger->ExitVehicle();
+                        caster->ToCreature()->DespawnOrUnsummon();
+                    }
+            }
+            
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12414_hand_over_reins_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+        
+            SpellScript* GetSpellScript() const override
+            {
+                return new spell_q12414_hand_over_reins_SpellScript();
+            }
 };
 
-void AddSC_quest_spell_scripts()
+ void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
     new spell_q2203_thaumaturgy_channel();
@@ -2371,4 +2403,5 @@ void AddSC_quest_spell_scripts()
     new spell_q12919_gymers_throw();
     new spell_q13400_illidan_kill_master();
     new spell_q14100_q14111_make_player_destroy_totems();
+	new spell_q12414_hand_over_reins();
 }
