@@ -20900,7 +20900,7 @@ void Player::TextEmote(const std::string& text)
 void Player::WhisperAddon(const std::string& text, const std::string& prefix, Player* receiver)
 {
     std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, LANG_ADDON, _text, receiver);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, uint32(LANG_ADDON), _text, receiver);
 
     if (!receiver->GetSession()->IsAddonRegistered(prefix))
         return;

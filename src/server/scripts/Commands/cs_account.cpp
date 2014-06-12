@@ -23,7 +23,6 @@ Category: commandscripts
 EndScriptData */
 
 #include "AccountMgr.h"
-#include "BattlenetAccountMgr.h"
 #include "Chat.h"
 #include "Language.h"
 #include "Player.h"
