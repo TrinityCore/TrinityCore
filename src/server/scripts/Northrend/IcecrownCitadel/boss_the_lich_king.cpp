@@ -529,7 +529,7 @@ class boss_the_lich_king : public CreatureScript
                     frostmourne->DespawnOrUnsummon();
 
                 // !Hack - Reward credit for the Lich King's Last Stand (24748) to all raid members
-                if (Is25ManRaid() && IsHeroic())
+                if (Is25ManRaid())
                     if (Player* player = killer->ToPlayer())
                         player->RewardPlayerAndGroupAtEvent(38153, player);
             }
