@@ -118,3 +118,26 @@ std::string Battlenet::AccountMgr::CalculateShaPassHash(std::string const& name,
 
     return ByteArrayToHexStr(sha.GetDigest(), sha.GetLength(), true);
 }
+
+bool Battlenet::AccountMgr::GetAccountIdAndIndex(std::string const& account, uint32* battlenetAccountId, uint8* battlenetAccountIndex)
+{
+    Tokenizer tokens(account, '#');
+    if (tokens.size() != 2)
+        return false;
+
+    if (!battlenetAccountId)
+        return false;
+
+    *battlenetAccountId = atol(tokens[0]);
+    if (!*battlenetAccountId)
+        return false;
+
+    if (battlenetAccountIndex)
+    {
+        *battlenetAccountIndex = atol(tokens[1]);
+        if (!*battlenetAccountIndex)
+            return false;
+    }
+
+    return true;
+}
