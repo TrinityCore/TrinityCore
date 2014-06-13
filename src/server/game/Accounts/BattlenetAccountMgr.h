@@ -38,6 +38,7 @@ namespace Battlenet
         bool GetName(uint32 accountId, std::string& name);
 
         std::string CalculateShaPassHash(std::string const& name, std::string const& password);
+        bool GetAccountIdAndIndex(std::string const& account, uint32* battlenetAccountId, uint8* battlenetAccountIndex);
     }
 }
 
