@@ -2223,6 +2223,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
         case 1562:
         case 833:
         case 1161:
+        case 713:
             numSummons = (damage > 0) ? damage : 1;
             break;
         default:
@@ -3283,8 +3284,12 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             {
                 // Glyph of Death Strike
                 if (AuraEffect const* aurEff = m_caster->GetAuraEffect(59336, EFFECT_0))
-                    if (uint32 runic = std::min<uint32>(m_caster->GetPower(POWER_RUNIC_POWER), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue()))
+                    if (uint32 runic = m_caster->GetPower(POWER_RUNIC_POWER)/10)
+                    {                
+                        if (runic > 25)
+                            runic = 25;    
                         AddPct(totalDamagePercentMod, runic);
+                    }
                 break;
             }
             // Obliterate (12.5% more damage per disease)
@@ -5581,8 +5586,12 @@ void Spell::EffectTitanGrip(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->SetCanTitanGrip(true);
+    if (Player* player = (Player*)m_caster)
+    {
+        player->SetCanTitanGrip(true);
+        if (player->HasTwoHandWeaponInOneHand() && !player->HasAura(49152))
+            player->CastSpell(player, 49152, true);
+    }
 }
 
 void Spell::EffectRedirectThreat(SpellEffIndex /*effIndex*/)

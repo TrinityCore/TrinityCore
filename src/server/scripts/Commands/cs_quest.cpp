@@ -38,7 +38,7 @@ public:
         static ChatCommand questCommandTable[] =
         {
             { "add",      rbac::RBAC_PERM_COMMAND_QUEST_ADD,      false, &HandleQuestAdd,      "", NULL },
-            { "complete", rbac::RBAC_PERM_COMMAND_QUEST_COMPLETE, false, &HandleQuestComplete, "", NULL },
+            { "complete", rbac::RBAC_PERM_COMMAND_QUEST_COMPLETE, true,  &HandleQuestComplete, "", NULL },
             { "remove",   rbac::RBAC_PERM_COMMAND_QUEST_REMOVE,   false, &HandleQuestRemove,   "", NULL },
             { "reward",   rbac::RBAC_PERM_COMMAND_QUEST_REWARD,   false, &HandleQuestReward,   "", NULL },
             { NULL,       0,                                false, NULL,                 "", NULL }
@@ -151,7 +151,20 @@ public:
 
     static bool HandleQuestComplete(ChatHandler* handler, const char* args)
     {
-        Player* player = handler->getSelectedPlayer();
+        Player* player;
+        std::string name;
+        char* questArg;
+        char* playerName;
+        handler->extractOptFirstArg((char*)args, &playerName, &questArg);
+        if (!playerName)
+            player = handler->getSelectedPlayer();
+        else 
+        {
+            name = playerName;
+            normalizePlayerName(name);
+            player = sObjectAccessor->FindPlayerByName(name);
+        }
+ 
         if (!player)
         {
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -159,9 +172,12 @@ public:
             return false;
         }
 
+        if (!questArg)
+            return false;
+
         // .quest complete #entry
         // number or [name] Shift-click form |color|Hquest:quest_id:quest_level|h[name]|h|r
-        char* cId = handler->extractKeyFromLink((char*)args, "Hquest");
+        char* cId = handler->extractKeyFromLink(questArg, "Hquest");
         if (!cId)
             return false;
 

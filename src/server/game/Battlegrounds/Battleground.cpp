@@ -34,6 +34,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "Util.h"
+#include <openssl/md5.h>
 #include "World.h"
 #include "WorldPacket.h"
 
@@ -167,6 +168,9 @@ Battleground::Battleground()
 
     m_ArenaTeamRatingChanges[TEAM_ALLIANCE]   = 0;
     m_ArenaTeamRatingChanges[TEAM_HORDE]      = 0;
+
+    m_ArenaTeamStartMMR[TEAM_ALLIANCE] = 0;
+    m_ArenaTeamStartMMR[TEAM_HORDE] = 0;
 
     m_ArenaTeamMMR[TEAM_ALLIANCE]   = 0;
     m_ArenaTeamMMR[TEAM_HORDE]      = 0;
@@ -735,6 +739,7 @@ void Battleground::EndBattleground(uint32 winner)
     uint32 winnerMatchmakerRating = 0;
     int32  winnerChange = 0;
     int32  winnerMatchmakerChange = 0;
+    uint32 duration = GetStartTime()/IN_MILLISECONDS; // match duration
 
     int32 winmsg_id = 0;
 
@@ -786,6 +791,11 @@ void Battleground::EndBattleground(uint32 winner)
                 SetArenaTeamRatingChangeForTeam(winner, winnerChange);
                 SetArenaTeamRatingChangeForTeam(GetOtherTeam(winner), loserChange);
                 TC_LOG_DEBUG("bg.arena", "Arena match Type: %u for Team1Id: %u - Team2Id: %u ended. WinnerTeamId: %u. Winner rating: +%d, Loser rating: %d", m_ArenaType, m_ArenaTeamIds[TEAM_ALLIANCE], m_ArenaTeamIds[TEAM_HORDE], winnerArenaTeam->GetId(), winnerChange, loserChange);
+                // arena SQL logging
+                char uniqueIdentifier[32];
+                sprintf(uniqueIdentifier, UI64FMTD "%u%u", time(NULL), winnerArenaTeam->GetId(), loserArenaTeam->GetId());
+                LoginDatabase.DirectPExecute("INSERT INTO arena_log VALUES (NULL, '%s', '%u', '%u', '%u', '%d', '%u', '%d', '%u', '%u', '%d', '%u', '%d', '%u')", uniqueIdentifier, m_ArenaType, winnerArenaTeam->GetId(), winnerTeamRating, winnerChange, winnerMatchmakerRating,
+                    winnerMatchmakerChange, loserArenaTeam->GetId(), loserTeamRating, loserChange, loserMatchmakerRating, loserMatchmakerChange, (uint32)duration);
                 if (sWorld->getBoolConfig(CONFIG_ARENA_LOG_EXTENDED_INFO))
                     for (Battleground::BattlegroundScoreMap::const_iterator itr = GetPlayerScoresBegin(); itr != GetPlayerScoresEnd(); ++itr)
                         if (Player* player = ObjectAccessor::FindPlayer(itr->first))
@@ -794,6 +804,10 @@ void Battleground::EndBattleground(uint32 winner)
                                 m_ArenaType, player->GetName().c_str(), itr->first, player->GetArenaTeamId(m_ArenaType == 5 ? 2 : m_ArenaType == 3),
                                 player->GetSession()->GetRemoteAddress().c_str(), itr->second->DamageDone, itr->second->HealingDone,
                                 itr->second->KillingBlows);
+                            LoginDatabase.DirectPExecute("INSERT INTO arena_log_member VALUES (NULL, '%s', '%s', " UI64FMTD ", '%d', '%s', '%u', '%u', '%u')", uniqueIdentifier, player->GetName().c_str(), itr->first, player->GetArenaTeamId(m_ArenaType == 5 ? 2 : m_ArenaType == 3),
+                                player->GetSession()->GetRemoteAddress().c_str(), itr->second->DamageDone, itr->second->HealingDone,
+                                itr->second->KillingBlows, winnerArenaTeam->GetId(), winnerTeamRating, winnerChange, winnerMatchmakerRating,
+                                winnerMatchmakerChange, loserArenaTeam->GetId(), loserTeamRating, loserChange, loserMatchmakerRating, loserMatchmakerChange, (uint32)duration);
                         }
             }
             // Deduct 16 points from each teams arena-rating if there are no winners after 45+2 minutes
@@ -948,6 +962,8 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
 {
     uint32 team = GetPlayerTeam(guid);
     bool participant = false;
+    // Get current status before possible status change after remove from lists/maps
+    BattlegroundStatus curStatus = GetStatus();
     // Remove from lists/maps
     BattlegroundPlayerMap::iterator itr = m_Players.find(guid);
     if (itr != m_Players.end())
@@ -1005,13 +1021,18 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
                 player->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT);
                 player->ResummonPetTemporaryUnSummonedIfAny();
 
-                if (isRated() && GetStatus() == STATUS_IN_PROGRESS)
+                if (isRated() && curStatus == STATUS_IN_PROGRESS)
                 {
                     //left a rated match while the encounter was in progress, consider as loser
                     ArenaTeam* winnerArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(team)));
                     ArenaTeam* loserArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(team));
                     if (winnerArenaTeam && loserArenaTeam && winnerArenaTeam != loserArenaTeam)
-                        loserArenaTeam->MemberLost(player, GetArenaMatchmakerRating(GetOtherTeam(team)));
+                    {
+                        loserArenaTeam->MemberLost(player, GetArenaStartMatchmakerRating(GetOtherTeam(team)));
+                        // This is needed since without it the loss won't be recorded since team was already saved in EndBattleground
+                        if (GetStatus() == STATUS_WAIT_LEAVE)
+                            loserArenaTeam->SaveToDB();
+                    }
                 }
             }
             if (SendPacket)

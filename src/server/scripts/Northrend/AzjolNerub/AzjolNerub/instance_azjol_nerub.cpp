@@ -46,6 +46,8 @@ class instance_azjol_nerub : public InstanceMapScript
                 WatcherGashraGUID   = 0;
                 WatcherSilthikGUID  = 0;
                 WatcherNarjilGUID   = 0;
+                frontDoorTriggerAGUID = 0;
+                frontDoorTriggerBGUID = 0;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -69,6 +71,12 @@ class instance_azjol_nerub : public InstanceMapScript
                         break;
                     case NPC_WATCHER_SILTHIK:
                         WatcherSilthikGUID = creature->GetGUID();
+                        break;
+                    case NPC_WORLD_TRIGGER_LARGE_AOI:
+                        if (creature->GetPositionX() < 500.0f)
+                            frontDoorTriggerAGUID = creature->GetGUID();
+                        else
+                            frontDoorTriggerBGUID = creature->GetGUID();
                         break;
                     default:
                         break;
@@ -121,6 +129,10 @@ class instance_azjol_nerub : public InstanceMapScript
                         return WatcherSilthikGUID;
                     case DATA_WATCHER_NARJIL:
                         return WatcherNarjilGUID;
+                    case DATA_FRONT_DOOR_TRIGGER_A_GUID: 
+                        return frontDoorTriggerAGUID;
+                    case DATA_FRONT_DOOR_TRIGGER_B_GUID: 
+                        return frontDoorTriggerBGUID;
                     default:
                         break;
                 }
@@ -178,6 +190,8 @@ class instance_azjol_nerub : public InstanceMapScript
             uint64 WatcherGashraGUID;
             uint64 WatcherSilthikGUID;
             uint64 WatcherNarjilGUID;
+            uint64 frontDoorTriggerAGUID;
+            uint64 frontDoorTriggerBGUID; // Closer to tunnel
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

@@ -134,6 +134,7 @@ enum FrostwingData
     DATA_WHELP_MARKER           = 2,
     DATA_LINKED_GAMEOBJECT      = 3,
     DATA_TRAPPED_PLAYER         = 4,
+    DATA_AIR_PHASE              = 5,
 };
 
 enum MovementPoints
@@ -221,6 +222,10 @@ class boss_sindragosa : public CreatureScript
         {
             boss_sindragosaAI(Creature* creature) : BossAI(creature, DATA_SINDRAGOSA), _summoned(false)
             {
+                me->ApplySpellImmune(0, IMMUNITY_ID, 70127, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 72528, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 72529, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 72530, true);
             }
 
             void Reset() override
@@ -314,9 +319,15 @@ class boss_sindragosa : public CreatureScript
 
             uint32 GetData(uint32 type) const override
             {
-                if (type == DATA_MYSTIC_BUFFET_STACK)
-                    return _mysticBuffetStack;
-                return 0xFFFFFFFF;
+                switch (type)
+                {
+                    case DATA_MYSTIC_BUFFET_STACK:
+                        return _mysticBuffetStack;
+                    case DATA_AIR_PHASE:
+                        return _isInAirPhase ? 1 : 0;
+                    default:
+                        return 0xFFFFFFFF;
+                }
             }
 
             void MovementInform(uint32 type, uint32 point) override
@@ -352,7 +363,7 @@ class boss_sindragosa : public CreatureScript
                         events.ScheduleEvent(EVENT_LAND, 30000);
                         break;
                     case POINT_LAND:
-                        events.ScheduleEvent(EVENT_LAND_GROUND, 1);
+                        events.ScheduleEvent(EVENT_LAND_GROUND, 5*IN_MILLISECONDS);
                         break;
                     case POINT_LAND_GROUND:
                     {
@@ -363,9 +374,6 @@ class boss_sindragosa : public CreatureScript
                         if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
                             me->GetMotionMaster()->MovementExpired();
                         _isInAirPhase = false;
-                        // trigger Asphyxiation
-                        EntryCheckPredicate pred(NPC_ICE_TOMB);
-                        summons.DoAction(ACTION_TRIGGER_ASPHYXIATION, pred);
                         break;
                     }
                     default:
@@ -404,7 +412,7 @@ class boss_sindragosa : public CreatureScript
             void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(70127, me))
-                    if (spellId == spell->Id)
+                    if (spellId == spell->Id && target->GetTypeId() == TYPEID_PLAYER)
                         if (Aura const* mysticBuffet = target->GetAura(spell->Id))
                             _mysticBuffetStack = std::max<uint8>(_mysticBuffetStack, mysticBuffet->GetStackAmount());
 
@@ -557,6 +565,7 @@ class npc_ice_tomb : public CreatureScript
         {
             npc_ice_tombAI(Creature* creature) : ScriptedAI(creature)
             {
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 _trappedPlayerGUID = 0;
                 SetCombatMovement(false);
             }
@@ -572,14 +581,18 @@ class npc_ice_tomb : public CreatureScript
                 {
                     _trappedPlayerGUID = guid;
                     _existenceCheckTimer = 1000;
-                }
-            }
-
-            void DoAction(int32 action) override
-            {
-                if (action == ACTION_TRIGGER_ASPHYXIATION)
+                    _asphyxiationTriggered = false;
+                    
+                    // Intentional initialization
+                    _asphyxiationTimer = 20000;
+                    
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _trappedPlayerGUID))
-                        player->CastSpell(player, SPELL_ASPHYXIATION, true);
+                        player->RemoveAura(SPELL_FROST_BEACON);
+
+                    if (InstanceScript* instance = me->GetInstanceScript())
+                    if (Creature* sindragosa = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SINDRAGOSA)))
+                            _asphyxiationTimer = sindragosa->AI()->GetData(DATA_AIR_PHASE) ? 30000 : 20000;
+                }
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -598,6 +611,19 @@ class npc_ice_tomb : public CreatureScript
             {
                 if (!_trappedPlayerGUID)
                     return;
+                    
+                    
+                if (!_asphyxiationTriggered)
+                {
+                    if (_asphyxiationTimer <= diff)
+                    {
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _trappedPlayerGUID))
+                            player->CastSpell(player, SPELL_ASPHYXIATION, true);
+                        _asphyxiationTriggered = true;
+                    }
+                    else
+                        _asphyxiationTimer -= diff;
+                }
 
                 if (_existenceCheckTimer <= diff)
                 {
@@ -618,6 +644,8 @@ class npc_ice_tomb : public CreatureScript
         private:
             uint64 _trappedPlayerGUID;
             uint32 _existenceCheckTimer;
+            uint32 _asphyxiationTimer;
+            bool _asphyxiationTriggered;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -1329,6 +1357,11 @@ class spell_sindragosa_icy_grip : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
+                // Hack - Beaconed players shouldn't get gripped with this
+                if (Unit* unit = GetHitUnit())
+                    if (unit->HasAura(SPELL_FROST_BEACON))
+                        return;
+
                 GetHitUnit()->CastSpell(GetCaster(), SPELL_ICY_GRIP_JUMP, true);
             }
 

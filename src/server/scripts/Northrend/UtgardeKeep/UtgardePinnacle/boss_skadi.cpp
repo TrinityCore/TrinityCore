@@ -155,6 +155,11 @@ enum Achievments
     ACHIEV_TIMED_START_EVENT                      = 17726,
 };
 
+enum Data
+{
+    DATA_MGLTS
+};
+
 class boss_skadi : public CreatureScript
 {
 public:
@@ -187,6 +192,7 @@ public:
         uint32 m_uiSummonTimer;
         uint8  m_uiSpellHitCount;
         bool   m_bSaidEmote;
+        bool   m_myGirlLovesToSkadi;
 
         CombatPhase Phase;
 
@@ -201,6 +207,7 @@ public:
             m_uiWaypointId = 0;
             m_bSaidEmote = false;
             m_uiSpellHitCount = 0;
+            m_myGirlLovesToSkadi = true;
 
             Phase = SKADI;
 
@@ -269,6 +276,14 @@ public:
                 m_uiGraufGUID = 0;
             Summons.Despawn(summoned);
         }
+        
+        uint32 GetData(uint32 type) const override
+        {
+            if (type == DATA_MGLTS)
+                return m_myGirlLovesToSkadi;
+
+            return 0;
+        }
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
@@ -292,6 +307,7 @@ public:
                     m_uiPoisonedSpearTimer = 10000;
                     m_uiWhirlwindTimer = 20000;
                     AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
+                    me->SetHealth(me->GetMaxHealth()); // There's a better way to do this, I'm aware, but since the entire boss script needs to be rewriten this won't hurt.
                 }
             }
         }
@@ -357,6 +373,9 @@ public:
                             case 4:
                                 me->GetMotionMaster()->MovePoint(0, Location[70].GetPositionX(), Location[70].GetPositionY(), Location[70].GetPositionZ());
                                 m_uiMovementTimer = 2000;
+                                // ! Hack - Because the encounter doesn't work as it should, should check Grauf's health instead!
+                                if (me->HealthBelowPct(100))
+                                    m_myGirlLovesToSkadi = false;
                                 SpawnTrigger();
                                 break;
                             case 5:
@@ -477,8 +496,29 @@ public:
 
 };
 
+class TW_achievement_my_girl_loves_to_skadi_all_the_time : public AchievementCriteriaScript
+{
+    public:
+        TW_achievement_my_girl_loves_to_skadi_all_the_time() : AchievementCriteriaScript("TW_achievement_my_girl_loves_to_skadi_all_the_time")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target) override
+        {
+            if (!target)
+                return false;
+
+            if (Creature* skadi = target->ToCreature())
+                if (skadi->AI()->GetData(DATA_MGLTS) && skadi->GetMap()->ToInstanceMap()->IsHeroic())
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_skadi()
 {
     new boss_skadi();
     new go_harpoon_launcher();
+    new TW_achievement_my_girl_loves_to_skadi_all_the_time();
 }

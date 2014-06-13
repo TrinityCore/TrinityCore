@@ -69,9 +69,9 @@ public:
         return GetInstanceAI<boss_mal_ganisAI>(creature);
     }
 
-    struct boss_mal_ganisAI : public ScriptedAI
+    struct boss_mal_ganisAI : public BossAI
     {
-        boss_mal_ganisAI(Creature* creature) : ScriptedAI(creature)
+        boss_mal_ganisAI(Creature* creature) : BossAI(creature, DATA_MAL_GANIS_EVENT)
         {
             instance = creature->GetInstanceScript();
         }
@@ -93,20 +93,22 @@ public:
 
         void Reset() override
         {
-             bYelled = false;
-             bYelled2 = false;
-             Phase = COMBAT;
-             uiCarrionSwarmTimer = 6000;
-             uiMindBlastTimer = 11000;
-             uiVampiricTouchTimer = urand(10000, 15000);
-             uiSleepTimer = urand(15000, 20000);
-             uiOutroTimer = 1000;
+            _Reset();
+            bYelled = false;
+            bYelled2 = false;
+            Phase = COMBAT;
+            uiCarrionSwarmTimer = 6000;
+            uiMindBlastTimer = 11000;
+            uiVampiricTouchTimer = urand(10000, 15000);
+            uiSleepTimer = urand(15000, 20000);
+            uiOutroTimer = 1000;
 
-             instance->SetData(DATA_MAL_GANIS_EVENT, NOT_STARTED);
+            instance->SetData(DATA_MAL_GANIS_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
+            _EnterCombat();
             Talk(SAY_AGGRO);
             instance->SetData(DATA_MAL_GANIS_EVENT, IN_PROGRESS);
         }
@@ -229,6 +231,8 @@ public:
             DoCastAOE(SPELL_MAL_GANIS_KILL_CREDIT);
             // give achievement credit and LFG rewards to players. criteria use spell 58630 which doesn't exist, but it was created in spell_dbc
             DoCastAOE(SPELL_KILL_CREDIT);
+            _JustDied();
+            instance->SetBossState(DATA_MAL_GANIS_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim) override

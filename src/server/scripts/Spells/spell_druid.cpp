@@ -735,6 +735,20 @@ class spell_dru_starfall_aoe : public SpellScriptLoader
         }
 };
 
+class druid_los_check
+{
+    public:
+        explicit druid_los_check(Unit* caster) : _caster(caster) { }
+
+    bool operator()(WorldObject* target) const
+    {
+        return !target->IsWithinLOSInMap(_caster);
+    }
+
+    private:
+        Unit* _caster;
+};
+
 // -50286 - Starfall (Dummy)
 class spell_dru_starfall_dummy : public SpellScriptLoader
 {
@@ -747,6 +761,7 @@ class spell_dru_starfall_dummy : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
+                targets.remove_if(druid_los_check(GetCaster()));
                 Trinity::Containers::RandomResizeList(targets, 2);
             }
 
@@ -919,6 +934,11 @@ class spell_dru_typhoon : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_typhoon_SpellScript);
 
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(druid_los_check(GetCaster()));
+            }
+
             void HandleKnockBack(SpellEffIndex effIndex)
             {
                 // Glyph of Typhoon
@@ -928,6 +948,9 @@ class spell_dru_typhoon : public SpellScriptLoader
 
             void Register() override
             {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_typhoon_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_typhoon_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_CONE_ENEMY_104);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_typhoon_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_CONE_ENEMY_104);
                 OnEffectHitTarget += SpellEffectFn(spell_dru_typhoon_SpellScript::HandleKnockBack, EFFECT_0, SPELL_EFFECT_KNOCK_BACK);
             }
         };

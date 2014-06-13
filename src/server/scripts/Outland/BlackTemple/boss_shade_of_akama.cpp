@@ -526,7 +526,7 @@ public:
 
         void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action) override
         {
-            if (action == 0)
+            if (action == 0 && instance->GetBossState(DATA_SHADE_OF_AKAMA) != DONE)
             {
                 player->CLOSE_GOSSIP_MENU();
                 StartChannel = true;

@@ -89,6 +89,14 @@ enum Events
     EVENT_STICKY_OOZE       = 8,
 };
 
+static const uint32 OozeEntries[4] =
+{ 
+    36897, // Little Ooze 10
+    38138, // Little Ooze 25 
+    36899, // Big Ooze 10
+    38123 // Big Ooze 25
+};
+
 class boss_rotface : public CreatureScript
 {
     public:
@@ -113,6 +121,7 @@ class boss_rotface : public CreatureScript
 
                 infectionStage = 0;
                 infectionCooldown = 14000;
+                DespawnOozes();
             }
 
             void EnterCombat(Unit* who) override
@@ -140,6 +149,7 @@ class boss_rotface : public CreatureScript
                 Talk(SAY_DEATH);
                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->DoAction(ACTION_ROTFACE_DEATH);
+                DespawnOozes();
             }
 
             void JustReachedHome() override
@@ -224,6 +234,16 @@ class boss_rotface : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
+            }
+
+            void DespawnOozes()
+            {
+                std::list<Creature*> Type[4];
+                for (int i = 0; i < 4; ++i)
+                    GetCreatureListWithEntryInGrid(Type[i], me, OozeEntries[i], 200);
+                for (int x = 0; x < 4; ++x)
+                    for (std::list<Creature*>::const_iterator itr = Type[x].begin(); itr != Type[x].end(); ++itr)
+                        (*itr)->DespawnOrUnsummon();
             }
 
         private:
@@ -368,6 +388,7 @@ class npc_precious_icc : public CreatureScript
         {
             npc_precious_iccAI(Creature* creature) : ScriptedAI(creature), _summons(me)
             {
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 _instance = creature->GetInstanceScript();
             }
 
@@ -474,13 +495,14 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                // get 2 targets except 2 nearest
                 targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
-
+                
+                // Selects 5 nearest dummies, including the caster
                 // .resize() runs pop_back();
-                if (targets.size() > 4)
-                    targets.resize(4);
+                if (targets.size() > 5)
+                    targets.resize(5);
 
+                // Selects 2 farthest ones to cast a spell
                 while (targets.size() > 2)
                     targets.pop_front();
             }
@@ -862,6 +884,35 @@ class spell_rotface_vile_gas_trigger : public SpellScriptLoader
         }
 };
 
+class spell_rotface_slime_spray : public SpellScriptLoader
+{
+    public:
+        spell_rotface_slime_spray() : SpellScriptLoader("spell_rotface_slime_spray") { }
+
+        class spell_rotface_slime_spray_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rotface_slime_spray_SpellScript);
+
+            void ChangeOrientation()
+            {
+                Unit* caster = GetCaster();
+                // find stalker and set caster orientation to face it
+                if (Creature* target = caster->FindNearestCreature(NPC_OOZE_SPRAY_STALKER, 200.0f))
+                    caster->SetOrientation(caster->GetAngle(target));
+            }
+
+            void Register()
+            {
+                BeforeCast += SpellCastFn(spell_rotface_slime_spray_SpellScript::ChangeOrientation);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rotface_slime_spray_SpellScript();
+        }
+};
+
 void AddSC_boss_rotface()
 {
     new boss_rotface();
@@ -877,4 +928,5 @@ void AddSC_boss_rotface()
     new spell_rotface_unstable_ooze_explosion();
     new spell_rotface_unstable_ooze_explosion_suicide();
     new spell_rotface_vile_gas_trigger();
+    new spell_rotface_slime_spray();
 }
