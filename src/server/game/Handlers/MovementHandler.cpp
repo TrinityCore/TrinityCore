@@ -285,7 +285,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     }
 
     /* handle special cases */
-    if (movementInfo.flags & MOVEMENTFLAG_ONTRANSPORT)
+    if (movementInfo.HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
     {
         // transports size limited
         // (also received at zeppelin leave by some reason with t_* as absolute in continent coordinates, can be safely skipped)
@@ -308,27 +308,15 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
             if (!plrMover->GetTransport())
             {
                 if (Transport* transport = plrMover->GetMap()->GetTransport(movementInfo.transport.guid))
-                {
-                    plrMover->m_transport = transport;
                     transport->AddPassenger(plrMover);
-                }
             }
             else if (plrMover->GetTransport()->GetGUID() != movementInfo.transport.guid)
             {
-                bool foundNewTransport = false;
-                plrMover->m_transport->RemovePassenger(plrMover);
+                plrMover->GetTransport()->RemovePassenger(plrMover);
                 if (Transport* transport = plrMover->GetMap()->GetTransport(movementInfo.transport.guid))
-                {
-                    foundNewTransport = true;
-                    plrMover->m_transport = transport;
                     transport->AddPassenger(plrMover);
-                }
-
-                if (!foundNewTransport)
-                {
-                    plrMover->m_transport = NULL;
+                else
                     movementInfo.transport.Reset();
-                }
             }
         }
 
@@ -336,13 +324,12 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
         {
             GameObject* go = mover->GetMap()->GetGameObject(movementInfo.transport.guid);
             if (!go || go->GetGoType() != GAMEOBJECT_TYPE_TRANSPORT)
-                movementInfo.flags &= ~MOVEMENTFLAG_ONTRANSPORT;
+                movementInfo.RemoveMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
         }
     }
     else if (plrMover && plrMover->GetTransport())                // if we were on a transport, leave
     {
-        plrMover->m_transport->RemovePassenger(plrMover);
-        plrMover->m_transport = NULL;
+        plrMover->GetTransport()->RemovePassenger(plrMover);
         movementInfo.transport.Reset();
     }
 
