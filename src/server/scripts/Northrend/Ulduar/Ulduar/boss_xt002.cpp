@@ -106,6 +106,7 @@ enum Events
     EVENT_EXPOSE_HEART,
     EVENT_ENRAGE,
     EVENT_ENTER_HARD_MODE,
+    EVENT_NERF_SCRAPBOTS
 };
 
 enum Timers
@@ -147,6 +148,7 @@ enum Creatures
 enum Actions
 {
     ACTION_ENTER_HARD_MODE,
+    ACTION_INCREASE_SCRAPBOT_COUNT
 };
 
 enum XT002Data
@@ -216,6 +218,7 @@ class boss_xt002 : public CreatureScript
                 _healthRecovered = false;
                 _gravityBombCasualty = false;
                 _hardMode = false;
+                _scrapbotCount = 0;
 
                 _phase = 1;
                 _heartExposed = 0;
@@ -245,6 +248,15 @@ class boss_xt002 : public CreatureScript
                         events.ScheduleEvent(EVENT_ENTER_HARD_MODE, 1);
                         // Heart is already dead
                         events.CancelEvent(EVENT_DISPOSE_HEART);
+                        break;
+                    case ACTION_INCREASE_SCRAPBOT_COUNT:
+                        if (!_scrapbotCount)
+                            events.ScheduleEvent(EVENT_NERF_SCRAPBOTS, 12000);
+
+                        _scrapbotCount++;
+                        
+                        if (_scrapbotCount >= 20)
+                            instance->DoCastSpellOnPlayers(SPELL_ACHIEVEMENT_CREDIT_NERF_SCRAPBOTS);
                         break;
                 }
             }
@@ -322,6 +334,10 @@ class boss_xt002 : public CreatureScript
                             me->AddLootMode(LOOT_MODE_HARD_MODE_1);
                             _hardMode = true;
                             SetPhaseOne();
+                            break;
+                        case EVENT_NERF_SCRAPBOTS:
+                            _scrapbotCount = 0;
+                            events.CancelEvent(EVENT_NERF_SCRAPBOTS);
                             break;
                     }
                 }
@@ -441,6 +457,7 @@ class boss_xt002 : public CreatureScript
 
                 uint8 _phase;
                 uint8 _heartExposed;
+                uint8 _scrapbotCount;
         };
 };
 
@@ -520,6 +537,13 @@ class npc_scrapbot : public CreatureScript
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     me->GetInstanceScript()->SetData(DATA_CRITERIA_XT_002, 1);
+            }
+
+            void JustDied(Unit* who) override
+            {
+                if (who->GetEntry() == NPC_XE321_BOOMBOT)
+                    if (Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                        xt002->AI()->DoAction(ACTION_INCREASE_SCRAPBOT_COUNT);
             }
 
             void UpdateAI(uint32 diff) override
