@@ -1312,7 +1312,7 @@ void GameObject::Use(Unit* user)
                 }
                 else if (info->goober.gossipID)
                 {
-                    player->PrepareGossipMenu(this, info->goober.gossipID);
+                    player->PrepareGossipMenu(this, info->goober.gossipID, true);
                     player->SendPreparedGossip(this);
                 }
 
@@ -1747,7 +1747,7 @@ void GameObject::Use(Unit* user)
         CastSpell(user, spellId);
 }
 
-void GameObject::CastSpell(Unit* target, uint32 spellId)
+void GameObject::CastSpell(Unit* target, uint32 spellId, bool triggered /*= true*/)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -1766,7 +1766,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     if (self)
     {
         if (target)
-            target->CastSpell(target, spellInfo, true);
+            target->CastSpell(target, spellInfo, triggered);
         return;
     }
 
@@ -1780,14 +1780,14 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
         trigger->setFaction(owner->getFaction());
         // needed for GO casts for proper target validation checks
         trigger->SetOwnerGUID(owner->GetGUID());
-        trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, 0, owner->GetGUID());
+        trigger->CastSpell(target ? target : trigger, spellInfo, triggered, 0, 0, owner->GetGUID());
     }
     else
     {
         trigger->setFaction(14);
         // Set owner guid for target if no owner available - needed by trigger auras
         // - trigger gets despawned and there's no caster avalible (see AuraEffect::TriggerSpell())
-        trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, 0, target ? target->GetGUID() : 0);
+        trigger->CastSpell(target ? target : trigger, spellInfo, triggered, 0, 0, target ? target->GetGUID() : 0);
     }
 }
 
