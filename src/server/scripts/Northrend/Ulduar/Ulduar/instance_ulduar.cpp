@@ -1094,7 +1094,43 @@ class instance_ulduar : public InstanceMapScript
         }
 };
 
+class spell_ulduar_teleporter : public SpellScriptLoader
+{
+    public:
+        spell_ulduar_teleporter() : SpellScriptLoader("spell_ulduar_teleporter") { }
+
+        class spell_ulduar_teleporter_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ulduar_teleporter_SpellScript);
+
+            SpellCastResult CheckRequirement()
+            {
+                if (GetExplTargetUnit()->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (GetExplTargetUnit()->IsInCombat())
+                {
+                    Spell::SendCastResult(GetExplTargetUnit()->ToPlayer(), GetSpellInfo(), 0, SPELL_FAILED_AFFECTING_COMBAT);
+                    return SPELL_FAILED_AFFECTING_COMBAT;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_ulduar_teleporter_SpellScript::CheckRequirement);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_ulduar_teleporter_SpellScript();
+        }
+};
+
 void AddSC_instance_ulduar()
 {
     new instance_ulduar();
+    new spell_ulduar_teleporter();
 }
