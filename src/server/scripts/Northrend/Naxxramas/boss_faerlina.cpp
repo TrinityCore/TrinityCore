@@ -84,7 +84,6 @@ class boss_faerlina : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* who) override
-
             {
                 if (!_introDone && who->GetTypeId() == TYPEID_PLAYER)
                 {

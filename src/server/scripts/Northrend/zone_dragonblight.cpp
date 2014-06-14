@@ -246,13 +246,10 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                 {
                     std::list<Creature*> creatureList;
                     GetCreatureListWithEntryInGrid(creatureList, me, AudienceMobs[ii], 15.0f);
-                    for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
+                    for (Creature* creature : creatureList)
                     {
-                        if (Creature* creatureList = *itr)
-                        {
-                            audienceList[creaturecount] = creatureList->GetGUID();
-                            ++creaturecount;
-                        }
+                        audienceList[creaturecount] = creature->GetGUID();
+                        ++creaturecount;
                     }
                 }
 
