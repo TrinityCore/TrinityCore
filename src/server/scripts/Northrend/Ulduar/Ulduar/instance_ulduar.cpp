@@ -18,9 +18,10 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "InstanceScript.h"
-#include "ulduar.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#include "SpellScript.h"
+#include "ulduar.h"
 
 static DoorData const doorData[] =
 {
