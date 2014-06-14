@@ -368,9 +368,9 @@ class instance_naxxramas : public InstanceMapScript
                     if (i == section)
                         continue;
 
-                    for (std::set<uint64>::const_iterator itr = HeiganEruptionGUID[i].begin(); itr != HeiganEruptionGUID[i].end(); ++itr)
+                    for (uint64 guid : HeiganEruptionGUID[i])
                     {
-                        if (GameObject* heiganEruption = instance->GetGameObject(*itr))
+                        if (GameObject* heiganEruption = instance->GetGameObject(guid))
                         {
                             heiganEruption->SendCustomAnim(heiganEruption->GetGoAnimProgress());
                             heiganEruption->CastSpell(NULL, SPELL_ERUPTION);
