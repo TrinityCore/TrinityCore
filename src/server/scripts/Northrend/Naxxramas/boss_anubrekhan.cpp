@@ -120,7 +120,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) override
-
         {
             if (!hasTaunted && me->IsWithinDistInMap(who, 60.0f) && who->GetTypeId() == TYPEID_PLAYER)
             {

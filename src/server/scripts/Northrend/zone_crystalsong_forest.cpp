@@ -76,20 +76,18 @@ public:
                     GetCreatureListWithEntryInGrid(orbList, me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f);
                     if (!orbList.empty())
                     {
-                        for (std::list<Creature*>::const_iterator itr = orbList.begin(); itr != orbList.end(); ++itr)
+                        for (Creature* orb : orbList)
                         {
-                            if (Creature* pOrb = *itr)
+                            if (orb->GetPositionY() < 1000)
                             {
-                                if (pOrb->GetPositionY() < 1000)
-                                {
-                                    targetGUID = pOrb->GetGUID();
-                                    break;
-                                }
+                                targetGUID = orb->GetGUID();
+                                break;
                             }
                         }
                     }
                 }
-            }else
+            }
+            else
             {
                 if (!targetGUID)
                     if (Creature* pOrb = GetClosestCreatureWithEntry(me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f))
