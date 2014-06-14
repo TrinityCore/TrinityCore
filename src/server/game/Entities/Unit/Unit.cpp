@@ -8645,25 +8645,30 @@ void Unit::setPowerType(Powers new_powertype)
         }
     }
 
+    float powerMultiplier = 1.0f;
+    if (!IsPet())
+        if (Creature* creature = ToCreature())
+            powerMultiplier = creature->GetCreatureTemplate()->ModMana;
+
     switch (new_powertype)
     {
         default:
         case POWER_MANA:
             break;
         case POWER_RAGE:
-            SetMaxPower(POWER_RAGE, GetCreatePowers(POWER_RAGE));
+            SetMaxPower(POWER_RAGE, uint32(std::ceilf(GetCreatePowers(POWER_RAGE) * powerMultiplier)));
             SetPower(POWER_RAGE, 0);
             break;
         case POWER_FOCUS:
-            SetMaxPower(POWER_FOCUS, GetCreatePowers(POWER_FOCUS));
-            SetPower(POWER_FOCUS, GetCreatePowers(POWER_FOCUS));
+            SetMaxPower(POWER_FOCUS, uint32(std::ceilf(GetCreatePowers(POWER_FOCUS) * powerMultiplier)));
+            SetPower(POWER_FOCUS, uint32(std::ceilf(GetCreatePowers(POWER_FOCUS) * powerMultiplier)));
             break;
         case POWER_ENERGY:
-            SetMaxPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
+            SetMaxPower(POWER_ENERGY, uint32(std::ceilf(GetCreatePowers(POWER_ENERGY) * powerMultiplier)));
             break;
         case POWER_HAPPINESS:
-            SetMaxPower(POWER_HAPPINESS, GetCreatePowers(POWER_HAPPINESS));
-            SetPower(POWER_HAPPINESS, GetCreatePowers(POWER_HAPPINESS));
+            SetMaxPower(POWER_HAPPINESS, uint32(std::ceilf(GetCreatePowers(POWER_HAPPINESS) * powerMultiplier)));
+            SetPower(POWER_HAPPINESS, uint32(std::ceilf(GetCreatePowers(POWER_HAPPINESS) * powerMultiplier)));
             break;
     }
 }
