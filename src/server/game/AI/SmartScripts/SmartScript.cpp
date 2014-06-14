@@ -488,45 +488,47 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_CAST:
         {
-            if (!me)
-                break;
-
             ObjectList* targets = GetTargets(e, unit);
             if (!targets)
                 break;
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
             {
-                if (!IsUnit(*itr))
-                    continue;
-
-                if (!(e.action.cast.flags & SMARTCAST_AURA_NOT_PRESENT) || !(*itr)->ToUnit()->HasAura(e.action.cast.spell))
+                if (IsUnit(*itr))
                 {
-                    if (e.action.cast.flags & SMARTCAST_INTERRUPT_PREVIOUS)
-                        me->InterruptNonMeleeSpells(false);
-
-                    if (e.action.cast.flags & SMARTCAST_COMBAT_MOVE)
+                    if (!(e.action.cast.flags & SMARTCAST_AURA_NOT_PRESENT) || !(*itr)->ToUnit()->HasAura(e.action.cast.spell))
                     {
-                        // If cast flag SMARTCAST_COMBAT_MOVE is set combat movement will not be allowed
-                        // unless target is outside spell range, out of mana, or LOS.
+                        if (me)
+                        {
+                            if (e.action.cast.flags & SMARTCAST_INTERRUPT_PREVIOUS)
+                                me->InterruptNonMeleeSpells(false);
 
-                        bool _allowMove = false;
-                        SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(e.action.cast.spell);
-                        int32 mana = me->GetPower(POWER_MANA);
+                            if (e.action.cast.flags & SMARTCAST_COMBAT_MOVE)
+                            {
+                                // If cast flag SMARTCAST_COMBAT_MOVE is set combat movement will not be allowed
+                                // unless target is outside spell range, out of mana, or LOS.
 
-                        if (me->GetDistance(*itr) > spellInfo->GetMaxRange(true) ||
-                            me->GetDistance(*itr) < spellInfo->GetMinRange(true) ||
-                            !me->IsWithinLOSInMap(*itr) ||
-                            mana < spellInfo->CalcPowerCost(me, spellInfo->GetSchoolMask()))
-                                _allowMove = true;
+                                bool _allowMove = false;
+                                SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(e.action.cast.spell);
+                                int32 mana = me->GetPower(POWER_MANA);
 
-                        CAST_AI(SmartAI, me->AI())->SetCombatMove(_allowMove);
+                                if (me->GetDistance(*itr) > spellInfo->GetMaxRange(true) ||
+                                    me->GetDistance(*itr) < spellInfo->GetMinRange(true) ||
+                                    !me->IsWithinLOSInMap(*itr) ||
+                                    mana < spellInfo->CalcPowerCost(me, spellInfo->GetSchoolMask()))
+                                    _allowMove = true;
+
+                                CAST_AI(SmartAI, me->AI())->SetCombatMove(_allowMove);
+                            }
+
+                            me->CastSpell((*itr)->ToUnit(), e.action.cast.spell, (e.action.cast.flags & SMARTCAST_TRIGGERED));
+                        }
+                        else if (go)
+                            go->CastSpell((*itr)->ToUnit(), e.action.cast.spell);
+
+                        TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CAST:: %s: %u casts spell %u on target %u with castflags %u",
+                            GetLogNameForGuid(me ? me->GetGUID() : go->GetGUID()), me ? me->GetGUIDLow() : go->GetGUIDLow(), e.action.cast.spell, (*itr)->GetGUIDLow(), e.action.cast.flags);
                     }
-
-                    me->CastSpell((*itr)->ToUnit(), e.action.cast.spell, (e.action.cast.flags & SMARTCAST_TRIGGERED));
-
-                    TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CAST:: Creature %u casts spell %u on target %u with castflags %u",
-                        me->GetGUIDLow(), e.action.cast.spell, (*itr)->GetGUIDLow(), e.action.cast.flags);
                 }
                 else
                     TC_LOG_DEBUG("scripts.ai", "Spell %u not cast because it has flag SMARTCAST_AURA_NOT_PRESENT and the target (Guid: " UI64FMTD " Entry: %u Type: %u) already has the aura", e.action.cast.spell, (*itr)->GetGUID(), (*itr)->GetEntry(), uint32((*itr)->GetTypeId()));
