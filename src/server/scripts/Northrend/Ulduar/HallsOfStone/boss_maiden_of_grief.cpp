@@ -37,7 +37,7 @@ enum Spells
 
 enum Events
 {
-    EVENT_PARTING_SORROW = 1,
+    EVENT_PARTING_SORROW                = 1,
     EVENT_STORM_OF_GRIEF,
     EVENT_SHOCK_OF_SORROW,
     EVENT_PILLAR_OF_WOE

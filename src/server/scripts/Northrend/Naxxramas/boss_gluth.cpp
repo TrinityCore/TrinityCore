@@ -70,7 +70,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) override
-
         {
             if (who->GetEntry() == NPC_ZOMBIE && me->IsWithinDistInMap(who, 7))
             {

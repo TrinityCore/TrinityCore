@@ -281,8 +281,8 @@ class instance_oculus : public InstanceMapScript
 
             void GreaterWhelps()
             {
-                for (std::list<uint64>::const_iterator itr = GreaterWhelpList.begin(); itr != GreaterWhelpList.end(); ++itr)
-                    if (Creature* gwhelp = instance->GetCreature(*itr))
+                for (uint64 guid : GreaterWhelpList)
+                    if (Creature* gwhelp = instance->GetCreature(guid))
                         gwhelp->SetPhaseMask(1, true);
             }
 
