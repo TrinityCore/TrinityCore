@@ -8656,19 +8656,19 @@ void Unit::setPowerType(Powers new_powertype)
         case POWER_MANA:
             break;
         case POWER_RAGE:
-            SetMaxPower(POWER_RAGE, uint32(std::ceilf(GetCreatePowers(POWER_RAGE) * powerMultiplier)));
+            SetMaxPower(POWER_RAGE, uint32(std::ceil(GetCreatePowers(POWER_RAGE) * powerMultiplier)));
             SetPower(POWER_RAGE, 0);
             break;
         case POWER_FOCUS:
-            SetMaxPower(POWER_FOCUS, uint32(std::ceilf(GetCreatePowers(POWER_FOCUS) * powerMultiplier)));
-            SetPower(POWER_FOCUS, uint32(std::ceilf(GetCreatePowers(POWER_FOCUS) * powerMultiplier)));
+            SetMaxPower(POWER_FOCUS, uint32(std::ceil(GetCreatePowers(POWER_FOCUS) * powerMultiplier)));
+            SetPower(POWER_FOCUS, uint32(std::ceil(GetCreatePowers(POWER_FOCUS) * powerMultiplier)));
             break;
         case POWER_ENERGY:
-            SetMaxPower(POWER_ENERGY, uint32(std::ceilf(GetCreatePowers(POWER_ENERGY) * powerMultiplier)));
+            SetMaxPower(POWER_ENERGY, uint32(std::ceil(GetCreatePowers(POWER_ENERGY) * powerMultiplier)));
             break;
         case POWER_HAPPINESS:
-            SetMaxPower(POWER_HAPPINESS, uint32(std::ceilf(GetCreatePowers(POWER_HAPPINESS) * powerMultiplier)));
-            SetPower(POWER_HAPPINESS, uint32(std::ceilf(GetCreatePowers(POWER_HAPPINESS) * powerMultiplier)));
+            SetMaxPower(POWER_HAPPINESS, uint32(std::ceil(GetCreatePowers(POWER_HAPPINESS) * powerMultiplier)));
+            SetPower(POWER_HAPPINESS, uint32(std::ceil(GetCreatePowers(POWER_HAPPINESS) * powerMultiplier)));
             break;
     }
 }
