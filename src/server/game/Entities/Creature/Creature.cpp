@@ -1173,13 +1173,21 @@ bool Creature::CreateFromProto(uint32 guidlow, uint32 entry, CreatureData const*
 
     SetOriginalEntry(entry);
 
-    if (!vehId)
-        vehId = cinfo->VehicleId;
-
-    Object::_Create(guidlow, entry, vehId ? HIGHGUID_VEHICLE : HIGHGUID_UNIT);
+    Object::_Create(guidlow, entry, (vehId || cinfo->VehicleId) ? HIGHGUID_VEHICLE : HIGHGUID_UNIT);
 
     if (!UpdateEntry(entry, data))
         return false;
+
+    if (!vehId)
+    {
+        if (GetCreatureTemplate()->VehicleId)
+        {
+            vehId = GetCreatureTemplate()->VehicleId;
+            entry = GetCreatureTemplate()->Entry;
+        }
+        else
+            vehId = cinfo->VehicleId;
+    }
 
     if (vehId)
         CreateVehicleKit(vehId, entry);
