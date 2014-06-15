@@ -559,6 +559,15 @@ std::string ByteArrayToHexStr(uint8 const* bytes, uint32 arrayLen, bool reverse 
     return ss.str();
 }
 
+uint32 EventMap::GetTimeUntilEvent(uint32 eventId) const
+{
+    for (EventStore::const_iterator itr = _eventMap.begin(); itr != _eventMap.end(); ++itr)
+        if (eventId == (itr->second & 0x0000FFFF))
+            return itr->first - _time;
+
+    return std::numeric_limits<uint32>::max();
+}
+
 void HexStrToByteArray(std::string const& str, uint8* out, bool reverse /*= false*/)
 {
     // string must have even number of characters

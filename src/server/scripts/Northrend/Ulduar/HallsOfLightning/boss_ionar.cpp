@@ -165,9 +165,9 @@ public:
 
             Position pos = me->GetPosition();
 
-            for (std::list<uint64>::const_iterator itr = lSparkList.begin(); itr != lSparkList.end(); ++itr)
+            for (uint64 guid : lSparkList)
             {
-                if (Creature* pSpark = ObjectAccessor::GetCreature(*me, *itr))
+                if (Creature* pSpark = ObjectAccessor::GetCreature(*me, guid))
                 {
                     if (pSpark->IsAlive())
                     {

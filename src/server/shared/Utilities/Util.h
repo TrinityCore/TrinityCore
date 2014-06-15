@@ -868,14 +868,7 @@ class EventMap
         * @param Id of the event.
         * @return Time of next event.
         */
-        uint32 GetTimeUntilEvent(uint32 eventId) const
-        {
-            for (EventStore::const_iterator itr = _eventMap.begin(); itr != _eventMap.end(); ++itr)
-                if (eventId == (itr->second & 0x0000FFFF))
-                    return itr->first - _time;
-
-            return std::numeric_limits<uint32>::max();
-        }
+        uint32 GetTimeUntilEvent(uint32 eventId) const;
 
     private:
         /**

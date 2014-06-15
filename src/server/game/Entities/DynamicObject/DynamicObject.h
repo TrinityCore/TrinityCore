@@ -41,8 +41,6 @@ class DynamicObject : public WorldObject, public GridObject<DynamicObject>, publ
         void AddToWorld();
         void RemoveFromWorld();
 
-        void CleanupsBeforeDelete(bool finalCleanup = true) override;
-
         bool CreateDynamicObject(uint32 guidlow, Unit* caster, SpellInfo const* spell, Position const& pos, float radius, DynamicObjectType type);
         void Update(uint32 p_time);
         void Remove();

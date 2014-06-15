@@ -2598,10 +2598,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                     {
                         // Haste modifies duration of channeled spells
                         if (m_spellInfo->IsChanneled())
-                        {
-                            if (m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
-                                m_originalCaster->ModSpellCastTime(aurSpellInfo, duration, this);
-                        }
+                            m_originalCaster->ModSpellCastTime(aurSpellInfo, duration, this);
                         else if (m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
                         {
                             int32 origDuration = duration;
@@ -3242,9 +3239,9 @@ void Spell::handle_immediate()
             // Apply duration mod
             if (Player* modOwner = m_caster->GetSpellModOwner())
                 modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
+
             // Apply haste mods
-            if (m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
-                m_caster->ModSpellCastTime(m_spellInfo, duration, this);
+            m_caster->ModSpellCastTime(m_spellInfo, duration, this);
 
             m_spellState = SPELL_STATE_CASTING;
             m_caster->AddInterruptMask(m_spellInfo->ChannelInterruptFlags);
@@ -3770,7 +3767,7 @@ void Spell::SendSpellStart()
         castFlags |= CAST_FLAG_POWER_LEFT_SELF;
 
     if (m_spellInfo->RuneCostID && m_spellInfo->PowerType == POWER_RUNES)
-        castFlags |= CAST_FLAG_UNKNOWN_19;
+        castFlags |= CAST_FLAG_NO_GCD; // not needed, but Blizzard sends it
 
     WorldPacket data(SMSG_SPELL_START, (8+8+4+4+2));
     if (m_CastItem)
@@ -3859,20 +3856,21 @@ void Spell::SendSpellGo()
     if ((m_caster->GetTypeId() == TYPEID_PLAYER)
         && (m_caster->getClass() == CLASS_DEATH_KNIGHT)
         && m_spellInfo->RuneCostID
-        && m_spellInfo->PowerType == POWER_RUNES)
+        && m_spellInfo->PowerType == POWER_RUNES
+        && !(_triggeredCastFlags & TRIGGERED_IGNORE_POWER_AND_REAGENT_COST))
     {
-        castFlags |= CAST_FLAG_UNKNOWN_19;                   // same as in SMSG_SPELL_START
+        castFlags |= CAST_FLAG_NO_GCD;                       // not needed, but Blizzard sends it
         castFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
     }
 
     if (m_spellInfo->HasEffect(SPELL_EFFECT_ACTIVATE_RUNE))
-    {
         castFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
-        castFlags |= CAST_FLAG_UNKNOWN_19;                   // same as in SMSG_SPELL_START
-    }
 
     if (m_targets.HasTraj())
         castFlags |= CAST_FLAG_ADJUST_MISSILE;
+
+    if (!m_spellInfo->StartRecoveryTime)
+        castFlags |= CAST_FLAG_NO_GCD;
 
     WorldPacket data(SMSG_SPELL_GO, 50);                    // guess size
 

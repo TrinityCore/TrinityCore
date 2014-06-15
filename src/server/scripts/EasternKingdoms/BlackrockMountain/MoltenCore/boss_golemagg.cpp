@@ -144,7 +144,7 @@ class npc_core_rager : public CreatureScript
                 if (HealthAbovePct(50) || !instance)
                     return;
 
-                if (Creature* pGolemagg = instance->instance->GetCreature(instance->GetData64(BOSS_GOLEMAGG_THE_INCINERATOR)))
+                if (Creature* pGolemagg = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_GOLEMAGG_THE_INCINERATOR)))
                 {
                     if (pGolemagg->IsAlive())
                     {

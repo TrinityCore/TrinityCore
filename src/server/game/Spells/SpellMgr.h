@@ -655,6 +655,7 @@ class SpellMgr
         // Spell Group Stack Rules table
         bool AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, int32 amount, std::map<SpellGroup, int32>& groups) const;
         SpellGroupStackRule CheckSpellGroupStackRules(SpellInfo const* spellInfo1, SpellInfo const* spellInfo2) const;
+        SpellGroupStackRule GetSpellGroupStackRule(SpellGroup groupid) const;
 
         // Spell proc event table
         SpellProcEventEntry const* GetSpellProcEvent(uint32 spellId) const;

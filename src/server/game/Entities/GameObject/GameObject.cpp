@@ -98,20 +98,12 @@ std::string GameObject::GetAIName() const
     return "";
 }
 
-void GameObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
+void GameObject::CleanupsBeforeDelete(bool finalCleanup)
 {
-    if (IsInWorld())
-        RemoveFromWorld();
+    WorldObject::CleanupsBeforeDelete(finalCleanup);
 
     if (m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
         RemoveFromOwner();
-
-    if (GetTransport() && !ToTransport())
-    {
-        GetTransport()->RemovePassenger(this);
-        SetTransport(NULL);
-        m_movementInfo.transport.Reset();
-    }
 }
 
 void GameObject::RemoveFromOwner()
@@ -697,12 +689,39 @@ void GameObject::getFishLoot(Loot* fishloot, Player* loot_owner)
     fishloot->clear();
 
     uint32 zone, subzone;
+    uint32 defaultzone = 1;
     GetZoneAndAreaId(zone, subzone);
 
     // if subzone loot exist use it
-    if (!fishloot->FillLoot(subzone, LootTemplates_Fishing, loot_owner, true, true))
-        // else use zone loot (must exist in like case)
-        fishloot->FillLoot(zone, LootTemplates_Fishing, loot_owner, true);
+    fishloot->FillLoot(subzone, LootTemplates_Fishing, loot_owner, true, true);
+    if (fishloot->empty())  //use this becase if zone or subzone has set LOOT_MODE_JUNK_FISH,Even if no normal drop, fishloot->FillLoot return true. it wrong.
+    {
+        //subzone no result,use zone loot
+        fishloot->FillLoot(zone, LootTemplates_Fishing, loot_owner, true, true);
+        //use zone 1 as default, somewhere fishing got nothing,becase subzone and zone not set, like Off the coast of Storm Peaks.
+        if (fishloot->empty())
+            fishloot->FillLoot(defaultzone, LootTemplates_Fishing, loot_owner, true, true);
+    }
+}
+
+void GameObject::getFishLootJunk(Loot* fishloot, Player* loot_owner)
+{
+    fishloot->clear();
+
+    uint32 zone, subzone;
+    uint32 defaultzone = 1;
+    GetZoneAndAreaId(zone, subzone);
+
+    // if subzone loot exist use it
+    fishloot->FillLoot(subzone, LootTemplates_Fishing, loot_owner, true, true, LOOT_MODE_JUNK_FISH);
+    if (fishloot->empty())  //use this becase if zone or subzone has normal mask drop, then fishloot->FillLoot return true.
+    {
+        //use zone loot
+        fishloot->FillLoot(zone, LootTemplates_Fishing, loot_owner, true, true, LOOT_MODE_JUNK_FISH);
+        if (fishloot->empty())
+            //use zone 1 as default
+            fishloot->FillLoot(defaultzone, LootTemplates_Fishing, loot_owner, true, true, LOOT_MODE_JUNK_FISH);
+    }
 }
 
 void GameObject::SaveToDB()
@@ -1417,10 +1436,8 @@ void GameObject::Use(Unit* user)
                         else
                             player->SendLoot(GetGUID(), LOOT_FISHING);
                     }
-                    /// @todo else: junk
-                    else
-                        m_respawnTime = time(NULL);
-
+                    else // else: junk
+                        player->SendLoot(GetGUID(), LOOT_FISHING_JUNK);
                     break;
                 }
                 case GO_JUST_DEACTIVATED:                   // nothing to do, will be deleted at next update
@@ -1731,7 +1748,7 @@ void GameObject::Use(Unit* user)
         CastSpell(user, spellId);
 }
 
-void GameObject::CastSpell(Unit* target, uint32 spellId)
+void GameObject::CastSpell(Unit* target, uint32 spellId, bool triggered /*= true*/)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -1750,7 +1767,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     if (self)
     {
         if (target)
-            target->CastSpell(target, spellInfo, true);
+            target->CastSpell(target, spellInfo, triggered);
         return;
     }
 
@@ -1764,14 +1781,14 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
         trigger->setFaction(owner->getFaction());
         // needed for GO casts for proper target validation checks
         trigger->SetOwnerGUID(owner->GetGUID());
-        trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, 0, owner->GetGUID());
+        trigger->CastSpell(target ? target : trigger, spellInfo, triggered, 0, 0, owner->GetGUID());
     }
     else
     {
         trigger->setFaction(14);
         // Set owner guid for target if no owner available - needed by trigger auras
         // - trigger gets despawned and there's no caster avalible (see AuraEffect::TriggerSpell())
-        trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, 0, target ? target->GetGUID() : 0);
+        trigger->CastSpell(target ? target : trigger, spellInfo, triggered, 0, 0, target ? target->GetGUID() : 0);
     }
 }
 

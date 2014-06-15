@@ -31,6 +31,7 @@
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
 #include "MovementStructures.h"
+#include "Vehicle.h"
 
 #define MOVEMENT_PACKET_TIME_DELAY 0
 
@@ -320,27 +321,15 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
             if (!plrMover->GetTransport())
             {
                 if (Transport* transport = plrMover->GetMap()->GetTransport(movementInfo.transport.guid))
-                {
-                    plrMover->m_transport = transport;
                     transport->AddPassenger(plrMover);
-                }
             }
             else if (plrMover->GetTransport()->GetGUID() != movementInfo.transport.guid)
             {
-                bool foundNewTransport = false;
-                plrMover->m_transport->RemovePassenger(plrMover);
+                plrMover->GetTransport()->RemovePassenger(plrMover);
                 if (Transport* transport = plrMover->GetMap()->GetTransport(movementInfo.transport.guid))
-                {
-                    foundNewTransport = true;
-                    plrMover->m_transport = transport;
                     transport->AddPassenger(plrMover);
-                }
-
-                if (!foundNewTransport)
-                {
-                    plrMover->m_transport = NULL;
+                else
                     movementInfo.ResetTransport();
-                }
             }
         }
 
@@ -352,11 +341,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
         }
     }
     else if (plrMover && plrMover->GetTransport())                // if we were on a transport, leave
-    {
         plrMover->m_transport->RemovePassenger(plrMover);
-        plrMover->m_transport = NULL;
-        movementInfo.ResetTransport();
-    }
 
     // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
     if (opcode == MSG_MOVE_FALL_LAND && plrMover && !plrMover->IsInFlight())
@@ -379,12 +364,20 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
     movementInfo.guid = mover->GetGUID();
     mover->m_movementInfo = movementInfo;
 
-    /*----------------------*/
-    /* process position-change */
-    // this is almost never true (not sure why it is sometimes, but it is), normally use mover->IsVehicle()
-    if (mover->GetVehicle())
+    // Some vehicles allow the passenger to turn by himself
+    if (Vehicle* vehicle = mover->GetVehicle())
     {
-        mover->SetOrientation(movementInfo.pos.GetOrientation());
+        if (VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(mover))
+        {
+            if (seat->m_flags & VEHICLE_SEAT_FLAG_ALLOW_TURNING)
+            {
+                if (movementInfo.pos.GetOrientation() != mover->GetOrientation())
+                {
+                    mover->SetOrientation(movementInfo.pos.GetOrientation());
+                    mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
+                }
+            }
+        }
         return;
     }
 

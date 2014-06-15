@@ -568,13 +568,13 @@ void Creature::Update(uint32 diff)
             if (!IsInEvadeMode() && (!bInCombat || IsPolymorphed())) // regenerate health if not in combat or if polymorphed
                 RegenerateHealth();
 
-            if (getPowerType() == POWER_ENERGY)
+            if (HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER))
             {
-                if (!IsVehicle() || GetVehicleKit()->GetVehicleInfo()->m_powerDisplayId != POWER_PYRITE)
+                if (getPowerType() == POWER_ENERGY)
                     Regenerate(POWER_ENERGY);
+                else
+                    RegenerateMana();
             }
-            else
-                RegenerateMana();
 
             /*if (!bIsPolymorphed) // only increase the timer if not polymorphed
                     m_regenTimer += CREATURE_REGEN_INTERVAL - diff;
@@ -1180,13 +1180,21 @@ bool Creature::CreateFromProto(uint32 guidlow, uint32 entry, CreatureData const*
 
     SetOriginalEntry(entry);
 
-    if (!vehId)
-        vehId = cinfo->VehicleId;
-
-    Object::_Create(guidlow, entry, vehId ? HIGHGUID_VEHICLE : HIGHGUID_UNIT);
+    Object::_Create(guidlow, entry, (vehId || cinfo->VehicleId) ? HIGHGUID_VEHICLE : HIGHGUID_UNIT);
 
     if (!UpdateEntry(entry, data))
         return false;
+
+    if (!vehId)
+    {
+        if (GetCreatureTemplate()->VehicleId)
+        {
+            vehId = GetCreatureTemplate()->VehicleId;
+            entry = GetCreatureTemplate()->Entry;
+        }
+        else
+            vehId = cinfo->VehicleId;
+    }
 
     if (vehId)
         CreateVehicleKit(vehId, entry);
