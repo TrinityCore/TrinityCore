@@ -539,6 +539,9 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
             || !CanBeAppliedOn(itr->first))
             addUnit = false;
 
+        if (addUnit && !itr->first->IsHighestExclusiveAura(this, true))
+            addUnit = false;
+
         if (addUnit)
         {
             // persistent area aura does not hit flying targets
@@ -892,6 +895,18 @@ void Aura::RefreshSpellMods()
     for (Aura::ApplicationMap::const_iterator appIter = m_applications.begin(); appIter != m_applications.end(); ++appIter)
         if (Player* player = appIter->second->GetTarget()->ToPlayer())
             player->RestoreAllSpellMods(0, this);
+}
+
+bool Aura::HasMoreThanOneEffectForType(AuraType auraType) const
+{
+    uint32 count = 0;
+    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (HasEffect(i) && GetSpellInfo()->Effects[i].ApplyAuraName == auraType)
+            ++count;
+    }
+
+    return count > 1;
 }
 
 bool Aura::IsArea() const
@@ -1758,13 +1773,19 @@ bool Aura::CanStackWith(Aura const* existingAura) const
         return false;
 
     // check spell group stack rules
-    SpellGroupStackRule stackRule = sSpellMgr->CheckSpellGroupStackRules(m_spellInfo, existingSpellInfo);
-    if (stackRule)
+    switch (sSpellMgr->CheckSpellGroupStackRules(m_spellInfo, existingSpellInfo))
     {
-        if (stackRule == SPELL_GROUP_STACK_RULE_EXCLUSIVE)
+        case SPELL_GROUP_STACK_RULE_EXCLUSIVE:
+        case SPELL_GROUP_STACK_RULE_EXCLUSIVE_HIGHEST: // if it reaches this point, existing aura is lower/equal
             return false;
-        if (sameCaster && stackRule == SPELL_GROUP_STACK_RULE_EXCLUSIVE_FROM_SAME_CASTER)
-            return false;
+        case SPELL_GROUP_STACK_RULE_EXCLUSIVE_FROM_SAME_CASTER:
+            if (sameCaster)
+                return false;
+            break;
+        case SPELL_GROUP_STACK_RULE_DEFAULT:
+        case SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT:
+        default:
+            break;
     }
 
     if (m_spellInfo->SpellFamilyName != existingSpellInfo->SpellFamilyName)
