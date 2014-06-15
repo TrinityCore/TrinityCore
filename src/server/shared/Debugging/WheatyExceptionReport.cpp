@@ -1139,7 +1139,7 @@ bool logChildren)
             dataKind == DataIsGlobal ||
             dataKind == DataIsStaticMember)
             continue;
-        
+
 
         symbolDetails.top().HasChildren = true;
         if (!logChildren)
@@ -1296,7 +1296,7 @@ DWORD_PTR WheatyExceptionReport::DereferenceUnsafePointer(DWORD_PTR address)
         return *(PDWORD_PTR)address;
     }
     __except (EXCEPTION_EXECUTE_HANDLER)
-    { 
+    {
         return DWORD_PTR(-1);
     }
 }
