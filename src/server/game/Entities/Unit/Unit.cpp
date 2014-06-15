@@ -8707,25 +8707,30 @@ void Unit::setPowerType(Powers new_powertype)
         }
     }
 
+    float powerMultiplier = 1.0f;
+    if (!IsPet())
+        if (Creature* creature = ToCreature())
+            powerMultiplier = creature->GetCreatureTemplate()->ModMana;
+
     switch (new_powertype)
     {
         default:
         case POWER_MANA:
             break;
         case POWER_RAGE:
-            SetMaxPower(POWER_RAGE, GetCreatePowers(POWER_RAGE));
+            SetMaxPower(POWER_RAGE, uint32(std::ceil(GetCreatePowers(POWER_RAGE) * powerMultiplier)));
             SetPower(POWER_RAGE, 0);
             break;
         case POWER_FOCUS:
-            SetMaxPower(POWER_FOCUS, GetCreatePowers(POWER_FOCUS));
-            SetPower(POWER_FOCUS, GetCreatePowers(POWER_FOCUS));
+            SetMaxPower(POWER_FOCUS, uint32(std::ceil(GetCreatePowers(POWER_FOCUS) * powerMultiplier)));
+            SetPower(POWER_FOCUS, uint32(std::ceil(GetCreatePowers(POWER_FOCUS) * powerMultiplier)));
             break;
         case POWER_ENERGY:
-            SetMaxPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
+            SetMaxPower(POWER_ENERGY, uint32(std::ceil(GetCreatePowers(POWER_ENERGY) * powerMultiplier)));
             break;
         case POWER_HAPPINESS:
-            SetMaxPower(POWER_HAPPINESS, GetCreatePowers(POWER_HAPPINESS));
-            SetPower(POWER_HAPPINESS, GetCreatePowers(POWER_HAPPINESS));
+            SetMaxPower(POWER_HAPPINESS, uint32(std::ceil(GetCreatePowers(POWER_HAPPINESS) * powerMultiplier)));
+            SetPower(POWER_HAPPINESS, uint32(std::ceil(GetCreatePowers(POWER_HAPPINESS) * powerMultiplier)));
             break;
     }
 }
@@ -12945,19 +12950,24 @@ int32 Unit::ModSpellDuration(SpellInfo const* spellProto, Unit const* target, in
     return std::max(duration, 0);
 }
 
-void Unit::ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell* spell)
+void Unit::ModSpellCastTime(SpellInfo const* spellInfo, int32 & castTime, Spell* spell)
 {
-    if (!spellProto || castTime < 0)
+    if (!spellInfo || castTime < 0)
         return;
+
+    if (spellInfo->IsChanneled() && !(spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION))
+        return;
+
     // called from caster
     if (Player* modOwner = GetSpellModOwner())
-        modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CASTING_TIME, castTime, spell);
+        modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_CASTING_TIME, castTime, spell);
 
-    if (!(spellProto->Attributes & (SPELL_ATTR0_ABILITY|SPELL_ATTR0_TRADESPELL)) && ((GetTypeId() == TYPEID_PLAYER && spellProto->SpellFamilyName) || GetTypeId() == TYPEID_UNIT))
+    if (!((spellInfo->Attributes & (SPELL_ATTR0_ABILITY | SPELL_ATTR0_TRADESPELL)) || (spellInfo->AttributesEx3 & SPELL_ATTR3_NO_DONE_BONUS)) &&
+        ((GetTypeId() == TYPEID_PLAYER && spellInfo->SpellFamilyName) || GetTypeId() == TYPEID_UNIT))
         castTime = int32(float(castTime) * GetFloatValue(UNIT_MOD_CAST_SPEED));
-    else if (spellProto->Attributes & SPELL_ATTR0_REQ_AMMO && !(spellProto->AttributesEx2 & SPELL_ATTR2_AUTOREPEAT_FLAG))
+    else if (spellInfo->Attributes & SPELL_ATTR0_REQ_AMMO && !(spellInfo->AttributesEx2 & SPELL_ATTR2_AUTOREPEAT_FLAG))
         castTime = int32(float(castTime) * m_modAttackSpeedPct[RANGED_ATTACK]);
-    else if (spellProto->SpellVisual[0] == 3881 && HasAura(67556)) // cooking with Chef Hat.
+    else if (spellInfo->SpellVisual[0] == 3881 && HasAura(67556)) // cooking with Chef Hat.
         castTime = 500;
 }
 
@@ -13612,12 +13622,7 @@ void Unit::CleanupsBeforeDelete(bool finalCleanup)
 {
     CleanupBeforeRemoveFromMap(finalCleanup);
 
-    if (GetTransport())
-    {
-        GetTransport()->RemovePassenger(this);
-        SetTransport(NULL);
-        m_movementInfo.transport.Reset();
-    }
+    WorldObject::CleanupsBeforeDelete(finalCleanup);
 }
 
 void Unit::UpdateCharmAI()

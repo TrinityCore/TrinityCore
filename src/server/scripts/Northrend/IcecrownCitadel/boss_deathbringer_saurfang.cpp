@@ -1227,9 +1227,9 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                // select one random target, with preference of ranged targets
+                // select one random target, preferring ranged targets
                 uint32 targetsAtRange = 0;
-                uint32 const minTargets = uint32(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 10 : 4);
+                uint32 const minTargets = uint32(GetCaster()->GetMap()->Is25ManRaid() ? 10 : 4);
                 targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster(), false));
 
                 // get target count at range
@@ -1237,18 +1237,12 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
                     if ((*itr)->GetDistance(GetCaster()) < 12.0f)
                         break;
 
-                // set the upper cap
+                // If not enough ranged targets are present just select anyone
                 if (targetsAtRange < minTargets)
-                    targetsAtRange = std::min<uint32>(targets.size() - 1, minTargets);
-
-                if (!targetsAtRange)
-                {
-                    targets.clear();
-                    return;
-                }
+                    targetsAtRange = uint32(targets.size());
 
                 std::list<WorldObject*>::const_iterator itr = targets.begin();
-                std::advance(itr, urand(0, targetsAtRange));
+                std::advance(itr, urand(0, targetsAtRange - 1));
                 target = *itr;
                 targets.clear();
                 targets.push_back(target);
