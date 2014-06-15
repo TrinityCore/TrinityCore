@@ -73,7 +73,6 @@ public:
         void AttackStart(Unit* /*who*/) override { }
 
         void MoveInLineOfSight(Unit* who) override
-
         {
             if (!who || !who->IsInWorld() || who->GetZoneId() != 4395)
                 return;
