@@ -2165,6 +2165,7 @@ class Unit : public WorldObject
         void SetLastDamagedTime(time_t val) { _lastDamagedTime = val; }
 
         int32 GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEff, AuraType auraType, bool sameMiscValue = false) const;
+        bool IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplications = false);
 
     protected:
         explicit Unit (bool isWorldObject);
