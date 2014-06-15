@@ -120,7 +120,7 @@ struct SymbolDetail
             if (!formatted.empty())
                 formatted += " ";
             formatted += Name;
-        }    
+        }
         if (!Value.empty())
             formatted += " = " + Value;
         return formatted;
