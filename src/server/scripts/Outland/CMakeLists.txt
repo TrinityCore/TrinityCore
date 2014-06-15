@@ -112,7 +112,7 @@ set(scripts_STAT_SRCS
   Outland/BlackTemple/instance_black_temple.cpp
   Outland/BlackTemple/boss_reliquary_of_souls.cpp
   Outland/BlackTemple/boss_warlord_najentus.cpp
-  Outland/BlackTemple/boss_bloodboil.cpp
+  Outland/BlackTemple/boss_gurtogg_bloodboil.cpp
   Outland/BlackTemple/boss_illidan.cpp
   Outland/zone_shadowmoon_valley.cpp
   Outland/zone_blades_edge_mountains.cpp
