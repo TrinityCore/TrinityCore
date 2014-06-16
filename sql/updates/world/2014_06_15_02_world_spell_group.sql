@@ -382,7 +382,7 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 
 -- BoK/BoS stat increase
 (1038, -1006), -- Blessing of Kings
-(1038, -1007), -- Blessing of Sanctuary
+(1038, 67480), -- Blessing of Sanctuary
 
 (1045, 52109), -- Flametongue Totem (Rank 1)
 
@@ -498,7 +498,7 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 -- Stamina Buffs
 (1084, -1074), -- Power Word: Fortitude (Rank 1)
 (1084, -1069), -- Stamina (Level 1)
-(1084, 1075), -- Prayer of Fortitude (Rank 1)
+(1084, -1075), -- Prayer of Fortitude (Rank 1)
 (1084, 72590), -- Fortitude
 
 -- Spirit Buffs
