@@ -1533,6 +1533,7 @@ public:
         {
             SetCombatMovement(false);
             entry = creature->GetEntry();
+            me->SetReactState(REACT_PASSIVE);
         }
 
         uint32 entry;
