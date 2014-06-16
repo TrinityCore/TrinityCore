@@ -552,7 +552,7 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, uint64 guid
     // not let move dead pet in slot
     if (pet && pet->IsAlive() && pet->getPetType() == HUNTER_PET)
     {
-        data << uint32(0);                                  // 4.x unknown, some kind of order?
+        data << uint32(num);                                // 4.x unknown, some kind of order?
         data << uint32(pet->GetCharmInfo()->GetPetNumber());
         data << uint32(pet->GetEntry());
         data << uint32(pet->getLevel());
@@ -567,6 +567,7 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, uint64 guid
         {
             Field* fields = result->Fetch();
 
+            data << uint32(num);
             data << uint32(fields[1].GetUInt32());          // petnumber
             data << uint32(fields[2].GetUInt32());          // creature entry
             data << uint32(fields[3].GetUInt16());          // level
