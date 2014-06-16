@@ -6049,11 +6049,11 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = 34299;
                     if (triggeredByAura->GetCasterGUID() != GetGUID())
                         break;
-                    int32 basepoints1 = triggerAmount * 2;
+                    int32 basepoints1 = CalculatePct(GetMaxPower(Powers(POWER_MANA)), triggerAmount * 2);
                     // Improved Leader of the Pack
                     // Check cooldown of heal spell cooldown
                     if (GetTypeId() == TYPEID_PLAYER && !ToPlayer()->HasSpellCooldown(34299))
-                        CastCustomSpell(this, 60889, &basepoints1, 0, 0, true, 0, triggeredByAura);
+                        CastCustomSpell(this, 68285, &basepoints1, 0, 0, true, 0, triggeredByAura);
                     break;
                 }
                 // Healing Touch (Dreamwalker Raiment set)
