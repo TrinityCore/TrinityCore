@@ -3523,6 +3523,19 @@ void Unit::_RemoveNoStackAurasDueToAura(Aura* aura)
     if (spellProto->IsPassiveStackableWithRanks())
         return;
 
+    if (!IsHighestExclusiveAura(aura))
+    {
+        if (!aura->GetSpellInfo()->IsAffectingArea())
+        {
+            Unit* caster = aura->GetCaster();
+            if (caster && caster->GetTypeId() == TYPEID_PLAYER)
+                Spell::SendCastResult(caster->ToPlayer(), aura->GetSpellInfo(), 1, SPELL_FAILED_AURA_BOUNCED);
+        }
+
+        RemoveAura(aura);
+        return;
+    }
+
     bool remove = false;
     for (AuraApplicationMap::iterator i = m_appliedAuras.begin(); i != m_appliedAuras.end(); ++i)
     {
@@ -17834,7 +17847,7 @@ void Unit::BuildCooldownPacket(WorldPacket& data, uint8 flags, PacketCooldowns c
     }
 }
 
-int32 Unit::GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEff, AuraType auraType, bool sameMiscValue /*= false*/) const
+int32 Unit::GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEff, AuraType auraType, bool checkMiscValue /*= false*/, int32 miscValue /*= 0*/) const
 {
     int32 val = 0;
     SpellSpellGroupMapBounds spellGroup = sSpellMgr->GetSpellSpellGroupMapBounds(aurEff->GetSpellInfo()->GetFirstRankSpell()->Id);
@@ -17845,7 +17858,7 @@ int32 Unit::GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEf
             AuraEffectList const& auraEffList = GetAuraEffectsByType(auraType);
             for (AuraEffectList::const_iterator auraItr = auraEffList.begin(); auraItr != auraEffList.end(); ++auraItr)
             {
-                if (aurEff != (*auraItr) && (!sameMiscValue || aurEff->GetMiscValue() == (*auraItr)->GetMiscValue()) &&
+                if (aurEff != (*auraItr) && (!checkMiscValue || (*auraItr)->GetMiscValue() == miscValue) &&
                     sSpellMgr->IsSpellMemberOfSpellGroup((*auraItr)->GetSpellInfo()->Id, itr->second))
                 {
                     // absolute value only
@@ -17856,4 +17869,50 @@ int32 Unit::GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEf
         }
     }
     return val;
+}
+
+bool Unit::IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplications /*= false*/)
+{
+    for (uint32 i = 0 ; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (AuraEffect const* aurEff = aura->GetEffect(i))
+        {
+            AuraType const auraType = AuraType(aura->GetSpellInfo()->Effects[i].ApplyAuraName);
+            AuraEffectList const& auras = GetAuraEffectsByType(auraType);
+            for (Unit::AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end();)
+            {
+                AuraEffect const* existingAurEff = (*itr);
+                ++itr;
+
+                if (sSpellMgr->CheckSpellGroupStackRules(aura->GetSpellInfo(), existingAurEff->GetSpellInfo())
+                    == SPELL_GROUP_STACK_RULE_EXCLUSIVE_HIGHEST)
+                {
+                    int32 diff = abs(aurEff->GetAmount()) - abs(existingAurEff->GetAmount());
+                    if (!diff)
+                        diff = int32(aura->GetEffectMask()) - int32(existingAurEff->GetBase()->GetEffectMask());
+
+                    if (diff > 0)
+                    {
+                        Aura const* base = existingAurEff->GetBase();
+                        // no removing of area auras from the original owner, as that completely cancels them
+                        if (removeOtherAuraApplications && (!base->IsArea() || base->GetOwner() != this))
+                        {
+                            if (AuraApplication* aurApp = existingAurEff->GetBase()->GetApplicationOfTarget(GetGUID()))
+                            {
+                                bool hasMoreThanOneEffect = base->HasMoreThanOneEffectForType(auraType);
+                                uint32 removedAuras = m_removedAurasCount;
+                                RemoveAura(aurApp);
+                                if (hasMoreThanOneEffect || m_removedAurasCount > removedAuras + 1)
+                                    itr = auras.begin();
+                            }
+                        }
+                    }
+                    else if (diff < 0)
+                        return false;
+                }
+            }
+        }
+    }
+
+    return true;
 }

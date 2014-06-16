@@ -855,26 +855,12 @@ class npc_halion_controller : public CreatureScript
                 {
                     if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(itr)))
                     {
-                        RemoveCorporeality(halion, itr == DATA_TWILIGHT_HALION);
                         halion->CastSpell(halion, GetSpell(_materialCorporealityValue, itr == DATA_TWILIGHT_HALION), true);
 
                         if (itr == DATA_TWILIGHT_HALION)
                             halion->AI()->Talk(oldValue < _materialCorporealityValue ? EMOTE_CORPOREALITY_TOT : EMOTE_CORPOREALITY_TIT, halion);
                         else // if (itr == DATA_HALION)
                             halion->AI()->Talk(oldValue > _materialCorporealityValue ? EMOTE_CORPOREALITY_POT : EMOTE_CORPOREALITY_PIP, halion);
-                    }
-                }
-            }
-
-            void RemoveCorporeality(Creature* who, bool isTwilight = false)
-            {
-                for (uint8 i = 0; i < MAX_CORPOREALITY_STATE; i++)
-                {
-                    uint32 spellID = (isTwilight ? _corporealityReference[i].twilightRealmSpell : _corporealityReference[i].materialRealmSpell);
-                    if (who->HasAura(spellID))
-                    {
-                        who->RemoveAurasDueToSpell(spellID);
-                        break;
                     }
                 }
             }
