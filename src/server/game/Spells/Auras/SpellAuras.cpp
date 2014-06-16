@@ -1542,7 +1542,7 @@ void Aura::HandleAuraSpecificPeriodics(AuraApplication const* aurApp, Unit* cast
                 break;
             }
             default:
-                break;                                        
+                break;
         }
     }
 }
