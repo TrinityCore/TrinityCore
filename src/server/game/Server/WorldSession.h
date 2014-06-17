@@ -246,7 +246,7 @@ class WorldSession
 
         AccountTypes GetSecurity() const { return _security; }
         uint32 GetAccountId() const { return _accountId; }
-        uint32 GetBattlenetAccountId() const { return _accountId; }
+        uint32 GetBattlenetAccountId() const { return _battlenetAccountId; }
         Player* GetPlayer() const { return _player; }
         std::string const& GetPlayerName() const;
         std::string GetPlayerInfo() const;

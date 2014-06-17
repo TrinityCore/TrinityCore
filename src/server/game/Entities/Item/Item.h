@@ -231,6 +231,7 @@ class Item : public Object
         void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_SOULBOUND, val); }
         bool IsSoulBound() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_SOULBOUND); }
         bool IsBoundAccountWide() const { return (GetTemplate()->Flags & ITEM_PROTO_FLAG_BIND_TO_ACCOUNT) != 0; }
+        bool IsBattlenetAccountBound() const { return GetTemplate()->Flags2 & ITEM_FLAGS_EXTRA_BNET_ACCOUNT_BOUND; }
         bool IsBindedNotWith(Player const* player) const;
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
