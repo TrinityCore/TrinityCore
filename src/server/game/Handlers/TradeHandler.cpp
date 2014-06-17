@@ -30,40 +30,45 @@
 #include "Language.h"
 #include "AccountMgr.h"
 
-void WorldSession::SendTradeStatus(TradeStatus status)
+void WorldSession::SendTradeStatus(TradeStatus status, int8 clearSlot)
 {
     WorldPacket data;
 
+    Player* trader = GetPlayer()->GetTrader();
+
     data.Initialize(SMSG_TRADE_STATUS, 1+4+4);
-    data.WriteBit(0); // unk bit, usually 0
+    data.WriteBit(trader ? (trader->GetSession()->GetBattlenetAccountId() == GetBattlenetAccountId()) : 0); // IsSameBnetAccount, used for trading heirlooms and other battle.net bound items with your other accounts
     data.WriteBits(status, 5);
 
     switch (status)
     {
         case TRADE_STATUS_BEGIN_TRADE:
-            data.WriteBits(0, 8); // zero guid
+            data.WriteBits(0, 8); // Trader Guid
             data.FlushBits();
             break;
         case TRADE_STATUS_OPEN_WINDOW:
             data.FlushBits();
-            data << uint32(0); // unk
+            data << uint32(0); // Trade Id
             break;
         case TRADE_STATUS_CLOSE_WINDOW:
-            data.WriteBit(0); // unk
+            data.WriteBit(0); // Error bool (0 = Target, 1 = Self)
             data.FlushBits();
-            data << uint32(0); // unk
-            data << uint32(0); // unk
+            data << uint32(0); // Error Item (Relevant item to the error)
+            data << uint32(0); // InventoryResult
             break;
-        case TRADE_STATUS_ONLY_CONJURED:
-        case TRADE_STATUS_NOT_ELIGIBLE:
+        case TRADE_STATUS_ONLY_CONJURED: // Not Implemented
+        case TRADE_STATUS_NOT_ELIGIBLE: 
+            // Used when trading loot soulbound items with people that are not eligible (TRADE_STATUS_NOT_ELIGIBLE), 
+            // and when trying to trade items with players in other realms when in a cross realm BG, you can only trade conjured goods with them (TRADE_STATUS_ONLY_CONJURED)
             data.FlushBits();
-            data << uint8(0); // unk
+            data << int8(clearSlot); // Trade slot to clear, -1 = Clear the money amount
             break;
         case TRADE_STATUS_CURRENCY: // Not implemented
         case TRADE_STATUS_CURRENCY_NOT_TRADABLE: // Not implemented
+            // Blizzard never implemented these, you can only trade currency with the field9 & 1 in CurrencyTypes.DBC, and only two test currencies have that flag
             data.FlushBits();
-            data << uint32(0); // unk
-            data << uint32(0); // unk
+            data << uint32(0); // Trading Currency Id
+            data << uint32(0); // Trading Currency Amount
         default:
             data.FlushBits();
             break;
@@ -825,6 +830,13 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
     {
         // cheating attempt
         SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);
+        return;
+    }
+
+    if (item->IsBindedNotWith(GetPlayer()->GetTrader()))
+    {
+        // The item is BOP tradeable but the trader wasn't eligible to get it.
+        SendTradeStatus(TRADE_STATUS_NOT_ELIGIBLE, tradeSlot);
         return;
     }
 
