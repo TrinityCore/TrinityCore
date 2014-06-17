@@ -73,6 +73,16 @@ uint32 Battlenet::AccountMgr::GetId(std::string const& username)
     return 0;
 }
 
+uint32 Battlenet::AccountMgr::GetIdByGameAccount(uint32 gameAccountId)
+{
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_ID_BY_GAME_ACCOUNT);
+    stmt->setUInt32(0, gameAccountId);
+    if (PreparedQueryResult result = LoginDatabase.Query(stmt))
+        return (*result)[0].GetUInt32();
+
+    return 0;
+}
+
 bool Battlenet::AccountMgr::GetName(uint32 accountId, std::string& name)
 {
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_EMAIL_BY_ID);
