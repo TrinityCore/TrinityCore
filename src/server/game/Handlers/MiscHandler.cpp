@@ -1231,7 +1231,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     {
         data << uint64(guild->GetGUID());
         data << uint32(guild->GetLevel());
-        data << uint64(0/*guild->GetXP()*/);
+        data << uint64(guild->GetExperience());
         data << uint32(guild->GetMembersCount());
     }
     SendPacket(&data);
