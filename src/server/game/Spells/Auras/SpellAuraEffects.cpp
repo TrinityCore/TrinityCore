@@ -4600,28 +4600,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
         // AT APPLY
         if (apply)
         {
-            // Overpower
-            if (caster && m_spellInfo->SpellFamilyName == SPELLFAMILY_WARRIOR &&
-                m_spellInfo->SpellFamilyFlags[0] & 0x4)
-            {
-                // In addition, if you strike a player..
-                if (target->GetTypeId() != TYPEID_PLAYER)
-                    return;
-                //  ..while they are casting
-                if (target->IsNonMeleeSpellCast(false, false, true, false, true))
-                    if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARRIOR, 2775, 0))
-                        switch (aurEff->GetId())
-                        {
-                            // Unrelenting Assault, rank 1
-                            case 46859:
-                                target->CastSpell(target, 64849, true, NULL, aurEff);
-                                break;
-                            // Unrelenting Assault, rank 2
-                            case 46860:
-                                target->CastSpell(target, 64850, true, NULL, aurEff);
-                                break;
-                        }
-            }
             switch (GetId())
             {
                 case 1515:                                      // Tame beast
