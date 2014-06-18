@@ -120,4 +120,5 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_SEL_BNET_CHECK_PASSWORD, "SELECT 1 FROM battlenet_accounts WHERE id = ? AND sha_pass_hash = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_UPD_BNET_ACCOUNT_LOCK, "UPDATE battlenet_accounts SET locked = ? WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_UPD_BNET_ACCOUNT_LOCK_CONTRY, "UPDATE battlenet_accounts SET lock_country = ? WHERE id = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_SEL_BNET_ACCOUNT_ID_BY_GAME_ACCOUNT, "SELECT battlenet_account FROM account WHERE id = ?", CONNECTION_SYNCH);
 }
