@@ -538,6 +538,11 @@ class boss_the_lich_king : public CreatureScript
                 Trinity::GameObjectWorker<FrozenThroneResetWorker> worker(me, reset);
                 me->VisitNearbyGridObject(333.0f, worker);
 
+                // Restore Tirion's gossip only after The Lich King fully resets to prevent
+                // restarting the encounter while LK still runs back to spawn point
+                if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HIGHLORD_TIRION_FORDRING)))
+                    tirion->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
                 // Reset any light override
                 me->GetMap()->SetZoneOverrideLight(AREA_THE_FROZEN_THRONE, 0, 5000);
             }
@@ -1180,11 +1185,6 @@ class npc_tirion_fordring_tft : public CreatureScript
             void JustReachedHome() override
             {
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
-
-                if (_instance->GetBossState(DATA_THE_LICH_KING) == DONE)
-                    return;
-
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
 
             void UpdateAI(uint32 diff) override
