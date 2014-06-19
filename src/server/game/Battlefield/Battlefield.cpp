@@ -479,14 +479,12 @@ void Battlefield::HideNpc(Creature* creature)
     creature->CombatStop();
     creature->SetReactState(REACT_PASSIVE);
     creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-    creature->SetPhaseMask(2, true);
     creature->DisappearAndDie();
     creature->SetVisible(false);
 }
 
 void Battlefield::ShowNpc(Creature* creature, bool aggressive)
 {
-    creature->SetPhaseMask(1, true);
     creature->SetVisible(true);
     creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
     if (!creature->IsAlive())
@@ -800,7 +798,6 @@ Creature* Battlefield::SpawnCreature(uint32 entry, float x, float y, float z, fl
         delete creature;
         return NULL;
     }
-
     creature->SetHomePosition(x, y, z, o);
 
     CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(entry);

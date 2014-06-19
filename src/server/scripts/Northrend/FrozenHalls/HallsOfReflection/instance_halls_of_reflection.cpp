@@ -248,7 +248,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                     case GO_FROSTMOURNE:
                         FrostmourneGUID = go->GetGUID();
                         if (GetData(DATA_INTRO_EVENT) == DONE)
-                            go->SetPhaseMask(2, true);
+                            go->SetLootState(GO_JUST_DEACTIVATED);
                         break;
                     case GO_ENTRANCE_DOOR:
                         EntranceDoorGUID = go->GetGUID();

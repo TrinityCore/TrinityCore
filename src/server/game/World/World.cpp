@@ -1457,7 +1457,7 @@ void World::SetInitialWorldSettings()
     sSpellMgr->LoadSpellGroupStackRules();
 
     TC_LOG_INFO("server.loading", "Loading Spell Phase Dbc Info...");
-    sObjectMgr->LoadSpellPhaseInfo();
+    sObjectMgr->LoadPhaseInfo();
 
     TC_LOG_INFO("server.loading", "Loading NPC Texts...");
     sObjectMgr->LoadGossipText();
@@ -3284,10 +3284,7 @@ CharacterNameData const* World::GetCharacterNameData(uint32 guid) const
 
 void World::UpdatePhaseDefinitions()
 {
-    SessionMap::const_iterator itr;
-    for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
-        if (itr->second && itr->second->GetPlayer() && itr->second->GetPlayer()->IsInWorld())
-            itr->second->GetPlayer()->GetPhaseMgr().NotifyStoresReloaded();
+
 }
 
 void World::ReloadRBAC()

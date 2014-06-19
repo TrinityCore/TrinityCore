@@ -738,7 +738,13 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 entry, 
 {
     ASSERT(map);
     SetMap(map);
-    SetPhaseMask(phaseMask, false);
+
+    if (data && data->phaseid)
+        SetInPhase(data->phaseid, false, true);
+
+    if (data && data->phaseGroup)
+        for (auto ph : GetPhasesForGroup(data->phaseGroup))
+            SetInPhase(ph, false, true);
 
     CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(entry);
     if (!cinfo)
@@ -1506,8 +1512,6 @@ void Creature::setDeathState(DeathState s)
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
         LoadCreaturesAddon(true);
         Motion_Initialize();
-        if (GetCreatureData() && GetPhaseMask() != GetCreatureData()->phaseMask)
-            SetPhaseMask(GetCreatureData()->phaseMask, false);
         Unit::setDeathState(ALIVE);
     }
 }

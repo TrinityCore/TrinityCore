@@ -1496,7 +1496,7 @@ bool WorldObject::IsWithinDist(WorldObject const* obj, float dist2compare, bool 
 
 bool WorldObject::IsWithinDistInMap(WorldObject const* obj, float dist2compare, bool is3D /*= true*/) const
 {
-    return obj && IsInMap(obj) && InSamePhase(obj) && _IsWithinDist(obj, dist2compare, is3D);
+    return obj && IsInMap(obj) && IsInPhase(obj) && _IsWithinDist(obj, dist2compare, is3D);
 }
 
 bool WorldObject::IsWithinLOS(float ox, float oy, float oz) const
@@ -1935,7 +1935,7 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
 
 bool WorldObject::CanNeverSee(WorldObject const* obj) const
 {
-    return GetMap() != obj->GetMap() || !InSamePhase(obj);
+    return GetMap() != obj->GetMap() || !IsInPhase(obj);
 }
 
 bool WorldObject::CanDetect(WorldObject const* obj, bool ignoreStealth) const
@@ -2332,9 +2332,9 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
         }
     }
 
-    uint32 phase = PHASEMASK_NORMAL;
+    std::set<uint32> phases;
     if (summoner)
-        phase = summoner->GetPhaseMask();
+        phases = summoner->GetPhases();
 
     TempSummon* summon = NULL;
     switch (mask)
@@ -2356,11 +2356,15 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             break;
     }
 
-    if (!summon->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), this, phase, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), nullptr, vehId))
+    if (!summon->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), this, 0, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), nullptr, vehId))
     {
         delete summon;
         return NULL;
     }
+
+    // Set the summon to the summoner's phase
+    for (auto phaseId : phases)
+        summon->SetInPhase(phaseId, false, true);
 
     summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellId);
 
@@ -2455,6 +2459,9 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
         delete go;
         return NULL;
     }
+
+    for (auto phase : GetPhases())
+        go->SetInPhase(phase, false, true);
 
     go->SetRespawnTime(respawnTime);
     if (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) //not sure how to handle this
@@ -2838,9 +2845,36 @@ void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
         UpdateObjectVisibility();
 }
 
+void WorldObject::SetInPhase(uint32 id, bool update, bool apply)
+{
+    if (apply)
+        _phases.insert(id);
+    else
+        _phases.erase(id);
+    
+    if (update && IsInWorld())
+        UpdateObjectVisibility();
+}
+
+bool WorldObject::IsInPhase(WorldObject const* obj) const
+{
+    // PhaseId 169 is the default fallback phase
+    if (_phases.empty() && obj->GetPhases().empty())
+        return true;
+
+    if (_phases.empty() && obj->IsInPhase(169))
+        return true;
+
+    if (obj->GetPhases().empty() && IsInPhase(169))
+        return true;
+
+    return Trinity::Containers::Intersects(_phases.begin(), _phases.end(), obj->GetPhases().begin(), obj->GetPhases().end());
+}
+
 bool WorldObject::InSamePhase(WorldObject const* obj) const
 {
-    return InSamePhase(obj->GetPhaseMask());
+    return IsInPhase(obj);
+    // return InSamePhase(obj->GetPhaseMask());
 }
 
 void WorldObject::PlayDistanceSound(uint32 sound_id, Player* target /*= NULL*/)
