@@ -197,6 +197,7 @@
 #define	huge_boot JEMALLOC_N(huge_boot)
 #define	huge_dalloc JEMALLOC_N(huge_dalloc)
 #define	huge_dalloc_junk JEMALLOC_N(huge_dalloc_junk)
+#define	huge_dss_prec_get JEMALLOC_N(huge_dss_prec_get)
 #define	huge_malloc JEMALLOC_N(huge_malloc)
 #define	huge_mtx JEMALLOC_N(huge_mtx)
 #define	huge_ndalloc JEMALLOC_N(huge_ndalloc)
