@@ -728,7 +728,7 @@ bool ScriptMgr::OnItemUse(Player* player, Item* item, SpellCastTargets const& ta
     ASSERT(item);
 #ifdef ELUNA
     if(sEluna->OnUse(player, item, targets))
-        return false;
+        return true;
 #endif
 
     GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
