@@ -90,7 +90,6 @@ public:
                 delete go;
                 return;
             }
-
             instance->AddToMap(go);
         }
 

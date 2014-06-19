@@ -636,7 +636,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                         if (Creature* lichking = ObjectAccessor::GetCreature(*me, _lichkingGUID))
                         {
                             if (GameObject* frostmourne = ObjectAccessor::GetGameObject(*me, _instance->GetData64(DATA_FROSTMOURNE)))
-                                frostmourne->SetPhaseMask(2, true);
+                                frostmourne->SetLootState(GO_JUST_DEACTIVATED);
                             lichking->CastSpell(lichking, SPELL_TAKE_FROSTMOURNE, true);
                             lichking->CastSpell(lichking, SPELL_FROSTMOURNE_VISUAL, true);
                         }

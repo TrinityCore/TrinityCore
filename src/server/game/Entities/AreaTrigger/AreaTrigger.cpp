@@ -81,6 +81,9 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     SetFloatValue(AREATRIGGER_FINAL_POS + 1, pos.GetPositionY());
     SetFloatValue(AREATRIGGER_FINAL_POS + 2, pos.GetPositionZ());
 
+    for (auto phase : caster->GetPhases())
+        SetInPhase(phase, false, true);
+
     if (!GetMap()->AddToMap(this))
         return false;
 

@@ -694,7 +694,7 @@ public:
                     }
                     // re-create
                     Creature* wpCreature2 = new Creature();
-                    if (!wpCreature2->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMgr().GetPhaseMaskForSpawn(), VISUAL_WAYPOINT, chr->GetPositionX(), chr->GetPositionY(), chr->GetPositionZ(), chr->GetOrientation()))
+                    if (!wpCreature2->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMask(), VISUAL_WAYPOINT, chr->GetPositionX(), chr->GetPositionY(), chr->GetPositionZ(), chr->GetOrientation()))
                     {
                         handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, VISUAL_WAYPOINT);
                         delete wpCreature2;
@@ -702,7 +702,10 @@ public:
                         return false;
                     }
 
-                    wpCreature2->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMgr().GetPhaseMaskForSpawn());
+                    for (auto phase : chr->GetPhases())
+                        wpCreature2->SetInPhase(phase, false, true);
+
+                    wpCreature2->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
                     // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
                     /// @todo Should we first use "Create" then use "LoadFromDB"?
                     if (!wpCreature2->LoadCreatureFromDB(wpCreature2->GetDBTableGUIDLow(), map))
@@ -918,12 +921,15 @@ public:
                 float o = chr->GetOrientation();
 
                 Creature* wpCreature = new Creature();
-                if (!wpCreature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMgr().GetPhaseMaskForSpawn(), id, x, y, z, o))
+                if (!wpCreature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMask(), id, x, y, z, o))
                 {
                     handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
                     delete wpCreature;
                     return false;
                 }
+
+                for (auto phase : chr->GetPhases())
+                    wpCreature->SetInPhase(phase, false, true);
 
                 // Set "wpguid" column to the visual waypoint
                 PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_DATA_WPGUID);
@@ -934,7 +940,7 @@ public:
 
                 WorldDatabase.Execute(stmt);
 
-                wpCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMgr().GetPhaseMaskForSpawn());
+                wpCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
                 // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
                 if (!wpCreature->LoadCreatureFromDB(wpCreature->GetDBTableGUIDLow(), map))
                 {
@@ -982,14 +988,17 @@ public:
             Map* map = chr->GetMap();
 
             Creature* creature = new Creature();
-            if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMgr().GetPhaseMaskForSpawn(), id, x, y, z, o))
+            if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMask(), id, x, y, z, o))
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
                 delete creature;
                 return false;
             }
 
-            creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMgr().GetPhaseMaskForSpawn());
+            for (auto phase : chr->GetPhases())
+                creature->SetInPhase(phase, false, true);
+
+            creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
             if (!creature->LoadCreatureFromDB(creature->GetDBTableGUIDLow(), map))
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
@@ -1031,14 +1040,17 @@ public:
             Map* map = chr->GetMap();
 
             Creature* creature = new Creature();
-            if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMgr().GetPhaseMaskForSpawn(), id, x, y, z, o))
+            if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMask(), id, x, y, z, o))
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_NOTCREATED, id);
                 delete creature;
                 return false;
             }
 
-            creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMgr().GetPhaseMaskForSpawn());
+            for (auto phase : chr->GetPhases())
+                creature->SetInPhase(phase, false, true);
+
+            creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
             if (!creature->LoadCreatureFromDB(creature->GetDBTableGUIDLow(), map))
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_NOTCREATED, id);

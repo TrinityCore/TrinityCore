@@ -17,6 +17,7 @@
 
 #include "SpellInfo.h"
 #include "SpellAuraDefines.h"
+#include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "Spell.h"
 #include "DBCStores.h"

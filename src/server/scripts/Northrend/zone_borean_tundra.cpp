@@ -1853,7 +1853,7 @@ public:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
                     break;
                 case 20:
-                    me->SetPhaseMask(1, true);
+                    me->SetInPhase(170, true, false);
                     Talk(SAY_5);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
                     player->GroupEventHappens(QUEST_ESCAPING_THE_MIST, me);

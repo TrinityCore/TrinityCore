@@ -59,7 +59,7 @@ enum ConditionTypes
     CONDITION_AREAID                = 23,                   // area_id          0              0                  true if in area_id
     CONDITION_CREATURE_TYPE         = 24,                   // cinfo.type       0              0                  true if creature_template.type = value1
     CONDITION_SPELL                 = 25,                   // spell_id         0              0                  true if player has learned spell
-    CONDITION_PHASEMASK             = 26,                   // phasemask        0              0                  true if object is in phasemask
+    CONDITION_PHASEID               = 26,                   // phaseid          0              0                  true if object is in phaseid
     CONDITION_LEVEL                 = 27,                   // level            ComparisonType 0                  true if unit's level is equal to param1 (param2 can modify the statement)
     CONDITION_QUEST_COMPLETE        = 28,                   // quest_id         0              0                  true if player has quest_id with all objectives complete, but not yet rewarded
     CONDITION_NEAR_CREATURE         = 29,                   // creature entry   distance       0                  true if there is a creature of entry in range
