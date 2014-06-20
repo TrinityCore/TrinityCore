@@ -9,17 +9,19 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 set(Recast_STAT_SRCS
-    Recast.cpp 
-    RecastAlloc.cpp 
-    RecastArea.cpp 
-    RecastContour.cpp 
-    RecastFilter.cpp 
-	RecastLayers.cpp
-    RecastMesh.cpp 
-    RecastMeshDetail.cpp 
-    RecastRasterization.cpp 
-    RecastRegion.cpp 
+    Source/Recast.cpp 
+    Source/RecastAlloc.cpp 
+    Source/RecastArea.cpp 
+    Source/RecastContour.cpp 
+    Source/RecastFilter.cpp 
+	Source/RecastLayers.cpp
+    Source/RecastMesh.cpp 
+    Source/RecastMeshDetail.cpp 
+    Source/RecastRasterization.cpp 
+    Source/RecastRegion.cpp 
 )
+
+include_directories(Include)
 
 if(WIN32)
   include_directories(
