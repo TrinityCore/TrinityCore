@@ -38,7 +38,7 @@ struct rcLayerRegion
 	unsigned char layerId;		// Layer ID
 	unsigned char nlayers;		// Layer count
 	unsigned char nneis;		// Neighbour count
-	unsigned char base;			// Flag indicating if the region is hte base of merged regions.
+	unsigned char base;			// Flag indicating if the region is the base of merged regions.
 };
 
 
