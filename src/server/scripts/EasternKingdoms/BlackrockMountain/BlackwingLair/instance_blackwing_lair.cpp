@@ -199,8 +199,8 @@ public:
                     HandleGameObject(RazorgoreDoorGUID, state == DONE);
                     if (state == DONE)
                     {
-                        for (std::list<uint64>::const_iterator itr = EggList.begin(); itr != EggList.end(); ++itr)
-                            if (GameObject* egg = instance->GetGameObject((*itr)))
+                        for (uint64 guid : EggList)
+                            if (GameObject* egg = instance->GetGameObject(guid))
                                 egg->SetPhaseMask(2, true);
                     }
                     SetData(DATA_EGG_EVENT, NOT_STARTED);

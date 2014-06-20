@@ -205,12 +205,15 @@ class npc_ahnkahar_nerubian : public CreatureScript
                 {
                     switch (eventId)
                     {
-                    case EVENT_SPRINT:
-                        DoCast(me, SPELL_SPRINT);
-                        events.ScheduleEvent(EVENT_SPRINT, 20 * IN_MILLISECONDS);
-                        break;
+                        case EVENT_SPRINT:
+                            DoCast(me, SPELL_SPRINT);
+                            events.ScheduleEvent(EVENT_SPRINT, 20 * IN_MILLISECONDS);
+                            break;
+                        default:
+                            break;
                     }
                 }
+
                 DoMeleeAttackIfReady();
             }
         };

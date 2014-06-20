@@ -143,9 +143,9 @@ class boss_warchief_kargath_bladefist : public CreatureScript
 
             void removeAdds()
             {
-                for (std::vector<uint64>::const_iterator itr = adds.begin(); itr!= adds.end(); ++itr)
+                for (uint64 guid : adds)
                 {
-                    Creature* creature = ObjectAccessor::GetCreature(*me, *itr);
+                    Creature* creature = ObjectAccessor::GetCreature(*me, guid);
                     if (creature && creature->IsAlive())
                     {
                         creature->GetMotionMaster()->Clear(true);
@@ -155,9 +155,9 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 }
                 adds.clear();
 
-                for (std::vector<uint64>::const_iterator itr = assassins.begin(); itr!= assassins.end(); ++itr)
+                for (uint64 guid : assassins)
                 {
-                    Creature* creature = ObjectAccessor::GetCreature(*me, *itr);
+                    Creature* creature = ObjectAccessor::GetCreature(*me, guid);
                     if (creature && creature->IsAlive())
                     {
                         creature->GetMotionMaster()->Clear(true);
@@ -167,6 +167,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 }
                 assassins.clear();
             }
+
             void SpawnAssassin()
             {
                 me->SummonCreature(NPC_SHATTERED_ASSASSIN, AssassEntrance[0], AssassEntrance[1]+8, AssassEntrance[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);

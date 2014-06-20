@@ -130,22 +130,22 @@ public:
                             me->GetCreatureListWithEntryInGrid(BloodMageList, NPC_BLOOD_MAGE, 15.0f);
 
                             if (!BloodMageList.empty())
-                                for (std::list<Creature*>::const_iterator itr = BloodMageList.begin(); itr != BloodMageList.end(); ++itr)
+                                for (Creature* creature : BloodMageList)
                                 {
-                                    bloodmage.push_back((*itr)->GetGUID());
-                                    if ((*itr)->isDead())
-                                        (*itr)->Respawn();
+                                    bloodmage.push_back(creature->GetGUID());
+                                    if (creature->isDead())
+                                        creature->Respawn();
                                 }
 
                             std::list<Creature*> DeathShaperList;
                             me->GetCreatureListWithEntryInGrid(DeathShaperList, NPC_DEATHSHAPER, 15.0f);
 
                             if (!DeathShaperList.empty())
-                                for (std::list<Creature*>::const_iterator itr = DeathShaperList.begin(); itr != DeathShaperList.end(); ++itr)
+                                for (Creature* creature : DeathShaperList)
                                 {
-                                    deathshaper.push_back((*itr)->GetGUID());
-                                    if ((*itr)->isDead())
-                                        (*itr)->Respawn();
+                                    deathshaper.push_back(creature->GetGUID());
+                                    if (creature->isDead())
+                                        creature->Respawn();
                                 }
 
                             events.ScheduleEvent(EVENT_SET_CHANNELERS, 3000);
@@ -154,12 +154,12 @@ public:
                         }
                         case EVENT_SET_CHANNELERS:
                         {
-                            for (std::list<uint64>::const_iterator itr = bloodmage.begin(); itr != bloodmage.end(); ++itr)
-                                if (Creature* bloodmage = (ObjectAccessor::GetCreature(*me, *itr)))
+                            for (uint64 guid : bloodmage)
+                                if (Creature* bloodmage = ObjectAccessor::GetCreature(*me, guid))
                                     bloodmage->CastSpell((Unit*)NULL, SPELL_SUMMON_CHANNEL);
 
-                            for (std::list<uint64>::const_iterator itr = deathshaper.begin(); itr != deathshaper.end(); ++itr)
-                                if (Creature* deathshaper = (ObjectAccessor::GetCreature(*me, *itr)))
+                            for (uint64 guid : deathshaper)
+                                if (Creature* deathshaper = ObjectAccessor::GetCreature(*me, guid))
                                     deathshaper->CastSpell((Unit*)NULL, SPELL_SUMMON_CHANNEL);
 
                             events.ScheduleEvent(EVENT_SET_CHANNELERS, 12000);

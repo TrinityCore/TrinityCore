@@ -176,9 +176,9 @@ class instance_uldaman : public InstanceMapScript
             {
                 if (GetData(DATA_ALTAR_DOORS) != DONE)
                 {
-                    for (std::vector<uint64>::const_iterator i = stoneKeepers.begin(); i != stoneKeepers.end(); ++i)
+                    for (uint64 guid : stoneKeepers)
                     {
-                        Creature* target = instance->GetCreature(*i);
+                        Creature* target = instance->GetCreature(guid);
                         if (!target || !target->IsAlive())
                             continue;
                         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
@@ -198,9 +198,9 @@ class instance_uldaman : public InstanceMapScript
                 if (!archaedas)
                     return;
 
-                for (std::vector<uint64>::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
+                for (uint64 guid : archaedasWallMinions)
                 {
-                    Creature* target = instance->GetCreature(*i);
+                    Creature* target = instance->GetCreature(guid);
                     if (!target || !target->IsAlive() || target->getFaction() == 14)
                         continue;
                     archaedas->CastSpell(target, SPELL_AWAKEN_VAULT_WALKER, true);
@@ -216,9 +216,9 @@ class instance_uldaman : public InstanceMapScript
             void DeActivateMinions()
             {
                 // first despawn any aggroed wall minions
-                for (std::vector<uint64>::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
+                for (uint64 guid : archaedasWallMinions)
                 {
-                    Creature* target = instance->GetCreature(*i);
+                    Creature* target = instance->GetCreature(guid);
                     if (!target || target->isDead() || target->getFaction() != 14)
                         continue;
                     target->setDeathState(JUST_DIED);
@@ -226,9 +226,9 @@ class instance_uldaman : public InstanceMapScript
                 }
 
                 // Vault Walkers
-                for (std::vector<uint64>::const_iterator i = vaultWalkers.begin(); i != vaultWalkers.end(); ++i)
+                for (uint64 guid : vaultWalkers)
                 {
-                    Creature* target = instance->GetCreature(*i);
+                    Creature* target = instance->GetCreature(guid);
                     if (!target || target->isDead() || target->getFaction() != 14)
                         continue;
                     target->setDeathState(JUST_DIED);
@@ -236,9 +236,9 @@ class instance_uldaman : public InstanceMapScript
                 }
 
                 // Earthen Guardians
-                for (std::vector<uint64>::const_iterator i = earthenGuardians.begin(); i != earthenGuardians.end(); ++i)
+                for (uint64 guid : earthenGuardians)
                 {
-                    Creature* target = instance->GetCreature(*i);
+                    Creature* target = instance->GetCreature(guid);
                     if (!target || target->isDead() || target->getFaction() != 14)
                         continue;
                     target->setDeathState(JUST_DIED);
@@ -273,9 +273,9 @@ class instance_uldaman : public InstanceMapScript
             void RespawnMinions()
             {
                 // first respawn any aggroed wall minions
-                for (std::vector<uint64>::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
+                for (uint64 guid : archaedasWallMinions)
                 {
-                    Creature* target = instance->GetCreature(*i);
+                    Creature* target = instance->GetCreature(guid);
                     if (target && target->isDead())
                     {
                         target->Respawn();
@@ -285,9 +285,9 @@ class instance_uldaman : public InstanceMapScript
                 }
 
                 // Vault Walkers
-                for (std::vector<uint64>::const_iterator i = vaultWalkers.begin(); i != vaultWalkers.end(); ++i)
+                for (uint64 guid : vaultWalkers)
                 {
-                    Creature* target = instance->GetCreature(*i);
+                    Creature* target = instance->GetCreature(guid);
                     if (target && target->isDead())
                     {
                         target->Respawn();
@@ -297,9 +297,9 @@ class instance_uldaman : public InstanceMapScript
                 }
 
                 // Earthen Guardians
-                for (std::vector<uint64>::const_iterator i = earthenGuardians.begin(); i != earthenGuardians.end(); ++i)
+                for (uint64 guid : earthenGuardians)
                 {
-                    Creature* target = instance->GetCreature(*i);
+                    Creature* target = instance->GetCreature(guid);
                     if (target && target->isDead())
                     {
                         target->Respawn();

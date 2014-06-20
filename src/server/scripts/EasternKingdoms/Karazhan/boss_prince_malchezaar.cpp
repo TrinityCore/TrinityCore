@@ -272,8 +272,8 @@ public:
         void InfernalCleanup()
         {
             //Infernal Cleanup
-            for (std::vector<uint64>::const_iterator itr = infernals.begin(); itr != infernals.end(); ++itr)
-                if (Unit* pInfernal = ObjectAccessor::GetUnit(*me, *itr))
+            for (uint64 guid : infernals)
+                if (Unit* pInfernal = ObjectAccessor::GetUnit(*me, guid))
                     if (pInfernal->IsAlive())
                     {
                         pInfernal->SetVisible(false);

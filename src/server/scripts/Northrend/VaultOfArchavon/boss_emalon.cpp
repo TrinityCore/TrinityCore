@@ -45,7 +45,7 @@ enum Events
     EVENT_LIGHTNING_NOVA        = 2,
     EVENT_OVERCHARGE            = 3,
     EVENT_BERSERK               = 4,
-    EVENT_SHOCK                 = 5,
+    EVENT_SHOCK                 = 5
 };
 
 enum Npcs
@@ -76,9 +76,7 @@ class boss_emalon : public CreatureScript
 
         struct boss_emalonAI : public BossAI
         {
-            boss_emalonAI(Creature* creature) : BossAI(creature, DATA_EMALON)
-            {
-            }
+            boss_emalonAI(Creature* creature) : BossAI(creature, DATA_EMALON) { }
 
             void Reset() override
             {
@@ -101,9 +99,9 @@ class boss_emalon : public CreatureScript
             {
                 if (!summons.empty())
                 {
-                    for (std::list<uint64>::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
+                    for (uint64 guid : summons)
                     {
-                        Creature* minion = ObjectAccessor::GetCreature(*me, *itr);
+                        Creature* minion = ObjectAccessor::GetCreature(*me, guid);
                         if (minion && minion->IsAlive() && !minion->GetVictim() && minion->AI())
                             minion->AI()->AttackStart(who);
                     }

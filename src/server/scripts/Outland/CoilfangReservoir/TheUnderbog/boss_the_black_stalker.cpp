@@ -97,8 +97,8 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            for (std::list<uint64>::const_iterator i = Striders.begin(); i != Striders.end(); ++i)
-                if (Creature* strider = ObjectAccessor::GetCreature(*me, *i))
+            for (uint64 guid : Striders)
+                if (Creature* strider = ObjectAccessor::GetCreature(*me, guid))
                     strider->DisappearAndDie();
         }
 

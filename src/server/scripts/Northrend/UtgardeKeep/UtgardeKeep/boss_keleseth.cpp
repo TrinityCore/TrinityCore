@@ -140,10 +140,10 @@ class boss_keleseth : public CreatureScript
                 me->GetCreatureListWithEntryInGrid(guards, NPC_STRATEGIST, 60.0f);
                 if (!guards.empty())
                 {
-                    for (std::list<Creature*>::iterator itr = guards.begin(); itr != guards.end(); ++itr)
+                    for (Creature* creature : guards)
                     {
-                        if ((*itr)->IsAlive() && (*itr)->IsWithinLOSInMap(me))
-                            (*itr)->AI()->AttackStart(who);
+                        if (creature->IsAlive() && creature->IsWithinLOSInMap(me))
+                            creature->AI()->AttackStart(who);
                     }
                 }
             }

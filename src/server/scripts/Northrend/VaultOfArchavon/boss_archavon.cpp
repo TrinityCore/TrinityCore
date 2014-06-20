@@ -62,7 +62,7 @@ enum Events
     //mob
     EVENT_ROCK_SHOWER       = 6,    // set = 20s cd, unkown cd
     EVENT_SHIELD_CRUSH      = 7,    // set = 30s cd
-    EVENT_WHIRL             = 8,    // set= 10s cd
+    EVENT_WHIRL             = 8     // set= 10s cd
 };
 
 class boss_archavon : public CreatureScript
@@ -72,9 +72,7 @@ class boss_archavon : public CreatureScript
 
         struct boss_archavonAI : public BossAI
         {
-            boss_archavonAI(Creature* creature) : BossAI(creature, DATA_ARCHAVON)
-            {
-            }
+            boss_archavonAI(Creature* creature) : BossAI(creature, DATA_ARCHAVON) { }
 
             void EnterCombat(Unit* /*who*/) override
             {
@@ -148,9 +146,7 @@ class npc_archavon_warder : public CreatureScript
 
         struct npc_archavon_warderAI : public ScriptedAI //npc 32353
         {
-            npc_archavon_warderAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            npc_archavon_warderAI(Creature* creature) : ScriptedAI(creature) { }
 
             EventMap events;
 

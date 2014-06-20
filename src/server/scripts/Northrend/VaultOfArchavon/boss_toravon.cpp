@@ -36,7 +36,7 @@ enum Spells
     SPELL_FROZEN_ORB_AURA   = 72067,    // make visible
 
     // Frozen Orb Stalker
-    SPELL_FROZEN_ORB_SUMMON = 72093,    // summon orb
+    SPELL_FROZEN_ORB_SUMMON = 72093     // summon orb
 };
 
 enum Events
@@ -45,13 +45,12 @@ enum Events
     EVENT_FROZEN_ORB        = 2,
     EVENT_WHITEOUT          = 3,
 
-    EVENT_FROST_BLAST       = 4,
+    EVENT_FROST_BLAST       = 4
 };
 
 enum Creatures
 {
     NPC_FROZEN_ORB          = 38456 // 1 in 10 mode and 3 in 25 mode
-
 };
 
 class boss_toravon : public CreatureScript
@@ -61,9 +60,7 @@ class boss_toravon : public CreatureScript
 
         struct boss_toravonAI : public BossAI
         {
-            boss_toravonAI(Creature* creature) : BossAI(creature, DATA_TORAVON)
-            {
-            }
+            boss_toravonAI(Creature* creature) : BossAI(creature, DATA_TORAVON) { }
 
             void EnterCombat(Unit* /*who*/) override
             {
@@ -183,9 +180,7 @@ public:
 
     struct npc_frozen_orbAI : public ScriptedAI
     {
-        npc_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
+        npc_frozen_orbAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override
         {

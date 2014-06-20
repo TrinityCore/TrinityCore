@@ -218,10 +218,10 @@ public:
                     {
                         if (!m_uiAncientGemGUID.empty())
                         {
-                            for (std::list<uint64>::const_iterator itr = m_uiAncientGemGUID.begin(); itr != m_uiAncientGemGUID.end(); ++itr)
+                            for (uint64 guid : m_uiAncientGemGUID)
                             {
                                 //don't know how long it expected
-                                DoRespawnGameObject(*itr, DAY);
+                                DoRespawnGameObject(guid, DAY);
                             }
                         }
                     }

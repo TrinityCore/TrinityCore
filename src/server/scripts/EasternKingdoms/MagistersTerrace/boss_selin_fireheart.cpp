@@ -105,10 +105,10 @@ public:
         void Reset() override
         {
             //for (uint8 i = 0; i < CRYSTALS_NUMBER; ++i)
-            for (std::list<uint64>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
+            for (uint64 guid : Crystals)
             {
                 //Unit* unit = ObjectAccessor::GetUnit(*me, FelCrystals[i]);
-                if (Creature* creature = ObjectAccessor::GetCreature(*me, *itr))
+                if (Creature* creature = ObjectAccessor::GetCreature(*me, guid))
                 {
                     if (!creature->IsAlive())
                         creature->Respawn();      // Let the core handle setting death state, etc.
@@ -145,11 +145,11 @@ public:
             Unit* pCrystal = NULL;
             Unit* CrystalChosen = NULL;
             //for (uint8 i =  0; i < CRYSTALS_NUMBER; ++i)
-            for (std::list<uint64>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
+            for (uint64 guid : Crystals)
             {
                 pCrystal = NULL;
                 //pCrystal = ObjectAccessor::GetUnit(*me, FelCrystals[i]);
-                pCrystal = ObjectAccessor::GetUnit(*me, *itr);
+                pCrystal = ObjectAccessor::GetUnit(*me, guid);
                 if (pCrystal && pCrystal->IsAlive())
                 {
                     // select nearest
@@ -182,10 +182,10 @@ public:
                 return;
 
             //for (uint8 i = 0; i < CRYSTALS_NUMBER; ++i)
-            for (std::list<uint64>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
+            for (uint64 guid : Crystals)
             {
                 //Creature* pCrystal = (ObjectAccessor::GetCreature(*me, FelCrystals[i]));
-                Creature* pCrystal = ObjectAccessor::GetCreature(*me, *itr);
+                Creature* pCrystal = ObjectAccessor::GetCreature(*me, guid);
                 if (pCrystal && pCrystal->IsAlive())
                     pCrystal->Kill(pCrystal);
             }

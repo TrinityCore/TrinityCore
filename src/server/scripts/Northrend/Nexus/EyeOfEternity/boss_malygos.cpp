@@ -668,7 +668,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) override
-
         {
             if (!me->IsInCombat() || _phase != PHASE_ONE)
                 return;
@@ -1202,7 +1201,6 @@ public:
             {
                 if (unit->GetTypeId() != TYPEID_PLAYER)
                 {
-
                     me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetDisableGravity(false);

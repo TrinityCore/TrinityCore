@@ -119,9 +119,9 @@ public:
                 encounter[1] = data;
                 if (data == DONE)
                 {
-                    for (std::set<uint64>::const_iterator itr = HorsemanAdds.begin(); itr != HorsemanAdds.end(); ++itr)
+                    for (uint64 guid : HorsemanAdds)
                     {
-                        Creature* add = instance->GetCreature(*itr);
+                        Creature* add = instance->GetCreature(guid);
                         if (add && add->IsAlive())
                             add->Kill(add);
                     }
