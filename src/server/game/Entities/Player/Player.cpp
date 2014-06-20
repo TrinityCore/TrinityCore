@@ -25606,7 +25606,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             base_skill = 1;                                 // skill mast be known and then > 0 in any case
 
         if (GetPureSkillValue(SKILL_FIRST_AID) < base_skill)
-            SetSkill(SKILL_FIRST_AID, 0, base_skill, base_skill);
+            SetSkill(SKILL_FIRST_AID, 4 /*artisan*/, base_skill, 300);
         if (GetPureSkillValue(SKILL_AXES) < base_skill)
             SetSkill(SKILL_AXES, 0, base_skill, base_skill);
         if (GetPureSkillValue(SKILL_DEFENSE) < base_skill)
