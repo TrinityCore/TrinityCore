@@ -288,6 +288,53 @@ static bool diagonal(int i, int j, int n, const int* verts, int* indices)
 	return inCone(i, j, n, verts, indices) && diagonalie(i, j, n, verts, indices);
 }
 
+
+static bool diagonalieLoose(int i, int j, int n, const int* verts, int* indices)
+{
+	const int* d0 = &verts[(indices[i] & 0x0fffffff) * 4];
+	const int* d1 = &verts[(indices[j] & 0x0fffffff) * 4];
+	
+	// For each edge (k,k+1) of P
+	for (int k = 0; k < n; k++)
+	{
+		int k1 = next(k, n);
+		// Skip edges incident to i or j
+		if (!((k == i) || (k1 == i) || (k == j) || (k1 == j)))
+		{
+			const int* p0 = &verts[(indices[k] & 0x0fffffff) * 4];
+			const int* p1 = &verts[(indices[k1] & 0x0fffffff) * 4];
+			
+			if (vequal(d0, p0) || vequal(d1, p0) || vequal(d0, p1) || vequal(d1, p1))
+				continue;
+			
+			if (intersectProp(d0, d1, p0, p1))
+				return false;
+		}
+	}
+	return true;
+}
+
+static bool	inConeLoose(int i, int j, int n, const int* verts, int* indices)
+{
+	const int* pi = &verts[(indices[i] & 0x0fffffff) * 4];
+	const int* pj = &verts[(indices[j] & 0x0fffffff) * 4];
+	const int* pi1 = &verts[(indices[next(i, n)] & 0x0fffffff) * 4];
+	const int* pin1 = &verts[(indices[prev(i, n)] & 0x0fffffff) * 4];
+	
+	// If P[i] is a convex vertex [ i+1 left or on (i-1,i) ].
+	if (leftOn(pin1, pi, pi1))
+		return leftOn(pi, pj, pin1) && leftOn(pj, pi, pi1);
+	// Assume (i-1,i,i+1) not collinear.
+	// else P[i] is reflex.
+	return !(leftOn(pi, pj, pi1) && leftOn(pj, pi, pin1));
+}
+
+static bool diagonalLoose(int i, int j, int n, const int* verts, int* indices)
+{
+	return inConeLoose(i, j, n, verts, indices) && diagonalieLoose(i, j, n, verts, indices);
+}
+
+
 static int triangulate(int n, const int* verts, int* indices, int* tris)
 {
 	int ntris = 0;
@@ -328,14 +375,41 @@ static int triangulate(int n, const int* verts, int* indices, int* tris)
 		
 		if (mini == -1)
 		{
-			// Should not happen.
-/*			printf("mini == -1 ntris=%d n=%d\n", ntris, n);
+			// We might get here because the contour has overlapping segments, like this:
+			//
+			//  A o-o=====o---o B
+			//   /  |C   D|    \
+			//  o   o     o     o
+			//  :   :     :     :
+			// We'll try to recover by loosing up the inCone test a bit so that a diagonal
+			// like A-B or C-D can be found and we can continue.
+			minLen = -1;
+			mini = -1;
 			for (int i = 0; i < n; i++)
 			{
-				printf("%d ", indices[i] & 0x0fffffff);
+				int i1 = next(i, n);
+				int i2 = next(i1, n);
+				if (diagonalLoose(i, i2, n, verts, indices))
+				{
+					const int* p0 = &verts[(indices[i] & 0x0fffffff) * 4];
+					const int* p2 = &verts[(indices[next(i2, n)] & 0x0fffffff) * 4];
+					int dx = p2[0] - p0[0];
+					int dy = p2[2] - p0[2];
+					int len = dx*dx + dy*dy;
+					
+					if (minLen < 0 || len < minLen)
+					{
+						minLen = len;
+						mini = i;
+					}
+				}
 			}
-			printf("\n");*/
-			return -ntris;
+			if (mini == -1)
+			{
+				// The contour is messed up. This sometimes happens
+				// if the contour simplification is too aggressive.
+				return -ntris;
+			}
 		}
 		
 		int i = mini;
@@ -1463,7 +1537,7 @@ bool rcCopyPolyMesh(rcContext* ctx, const rcPolyMesh& src, rcPolyMesh& dst)
 		ctx->log(RC_LOG_ERROR, "rcCopyPolyMesh: Out of memory 'dst.flags' (%d).", src.npolys);
 		return false;
 	}
-	memcpy(dst.flags, src.flags, sizeof(unsigned char)*src.npolys);
+	memcpy(dst.flags, src.flags, sizeof(unsigned short)*src.npolys);
 	
 	return true;
 }
