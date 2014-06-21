@@ -3791,6 +3791,10 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 73781: // Infest (25 heroic)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
+            case 67116:
+            case 47893:
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
+                break;
             default:
                 break;
         }
