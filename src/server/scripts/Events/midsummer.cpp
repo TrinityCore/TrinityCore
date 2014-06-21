@@ -203,7 +203,8 @@ class boss_ahune : public CreatureScript
                             DoCast(player, SPELL_AHUNE_ACHIEVEMENT);
                     //
                     // if (Group* group = player->GetGroup())
-                    sLFGMgr->FinishDungeon(playerList.begin()->GetSource()->GetGroup()->GetGUID(), 286);
+                        if (playerList.begin()->GetSource()->GetGroup()->GetGUID()) // Lame crash fix, Prodigy please check this when you get the time
+                            sLFGMgr->FinishDungeon(playerList.begin()->GetSource()->GetGroup()->GetGUID(), 286);
                     //
                 }
 
