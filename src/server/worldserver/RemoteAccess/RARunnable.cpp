@@ -33,29 +33,22 @@
 
 #include "RASocket.h"
 
-RARunnable::RARunnable()
+
+void RemoteAccessThread()
 {
-    ACE_Reactor_Impl* imp;
+    ACE_Reactor_Impl* imp = nullptr;
 
 #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
     imp = new ACE_Dev_Poll_Reactor();
-    imp->max_notify_iterations (128);
-    imp->restart (1);
+    imp->max_notify_iterations(128);
+    imp->restart(1);
 #else
     imp = new ACE_TP_Reactor();
-    imp->max_notify_iterations (128);
+    imp->max_notify_iterations(128);
 #endif
 
-    m_Reactor = new ACE_Reactor (imp, 1);
-}
+    ACE_Reactor* reactor = new ACE_Reactor(imp, 1);
 
-RARunnable::~RARunnable()
-{
-    delete m_Reactor;
-}
-
-void RARunnable::run()
-{
     if (!sConfigMgr->GetBoolDefault("Ra.Enable", false))
         return;
 
@@ -65,7 +58,7 @@ void RARunnable::run()
     std::string stringIp = sConfigMgr->GetStringDefault("Ra.IP", "0.0.0.0");
     ACE_INET_Addr listenAddress(raPort, stringIp.c_str());
 
-    if (acceptor.open(listenAddress, m_Reactor) == -1)
+    if (acceptor.open(listenAddress, reactor) == -1)
     {
         TC_LOG_ERROR("server.worldserver", "Trinity RA can not bind to port %d on %s", raPort, stringIp.c_str());
         return;
@@ -76,9 +69,12 @@ void RARunnable::run()
     while (!World::IsStopped())
     {
         ACE_Time_Value interval(0, 100000);
-        if (m_Reactor->run_reactor_event_loop(interval) == -1)
+        if (reactor->run_reactor_event_loop(interval) == -1)
             break;
     }
+
+    delete imp;
+    delete reactor;
 
     TC_LOG_DEBUG("server.worldserver", "Trinity RA thread exiting");
 }
