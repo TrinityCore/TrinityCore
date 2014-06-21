@@ -82,7 +82,6 @@
 #include "Debugging/Errors.h"
 
 #include "Threading/LockedQueue.h"
-#include "Threading/Threading.h"
 
 #if PLATFORM == PLATFORM_WINDOWS
 #  include <ws2tcpip.h>
@@ -113,8 +112,6 @@
 #endif
 
 inline float finiteAlways(float f) { return finite(f) ? f : 0.0f; }
-
-#define atol(a) strtoul( a, NULL, 10)
 
 #define STRINGIZE(a) #a
 

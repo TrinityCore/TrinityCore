@@ -20,6 +20,8 @@
     \ingroup Trinityd
 */
 
+#include <thread>
+
 #include <ace/Sig_Handler.h>
 
 #include "Common.h"
@@ -78,51 +80,35 @@ class WorldServerSignalHandler : public Trinity::SignalHandler
         }
 };
 
-class FreezeDetectorRunnable : public ACE_Based::Runnable
+void FreezeDetectorThread(uint32 delayTime)
 {
-private:
-    uint32 _loops;
-    uint32 _lastChange;
-    uint32 _delaytime;
-public:
-    FreezeDetectorRunnable()
+    if (!delayTime)
+        return;
+
+    TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", delayTime / 1000);
+    uint32 loops = 0;
+    uint32 lastChange = 0;
+
+    while (!World::IsStopped())
     {
-        _loops = 0;
-        _lastChange = 0;
-        _delaytime = 0;
-    }
-
-    void SetDelayTime(uint32 t) { _delaytime = t; }
-
-    void run() override
-    {
-        if (!_delaytime)
-            return;
-
-        TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", _delaytime/1000);
-        _loops = 0;
-        _lastChange = 0;
-        while (!World::IsStopped())
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        uint32 curtime = getMSTime();
+        // normal work
+        uint32 worldLoopCounter = World::m_worldLoopCounter.value();
+        if (loops != worldLoopCounter)
         {
-            ACE_Based::Thread::Sleep(1000);
-            uint32 curtime = getMSTime();
-            // normal work
-            uint32 worldLoopCounter = World::m_worldLoopCounter.value();
-            if (_loops != worldLoopCounter)
-            {
-                _lastChange = curtime;
-                _loops = worldLoopCounter;
-            }
-            // possible freeze
-            else if (getMSTimeDiff(_lastChange, curtime) > _delaytime)
-            {
-                TC_LOG_ERROR("server.worldserver", "World Thread hangs, kicking out server!");
-                ASSERT(false);
-            }
+            lastChange = curtime;
+            loops = worldLoopCounter;
         }
-        TC_LOG_INFO("server.worldserver", "Anti-freeze thread exiting without problems.");
+        // possible freeze
+        else if (getMSTimeDiff(lastChange, curtime) > delayTime)
+        {
+            TC_LOG_ERROR("server.worldserver", "World Thread hangs, kicking out server!");
+            ASSERT(false);
+        }
     }
-};
+    TC_LOG_INFO("server.worldserver", "Anti-freeze thread exiting without problems.");
+}
 
 /// Main function
 int Master::Run()
@@ -182,10 +168,10 @@ int Master::Run()
 #endif
 
     ///- Launch WorldRunnable thread
-    ACE_Based::Thread worldThread(new WorldRunnable);
-    worldThread.setPriority(ACE_Based::Highest);
 
-    ACE_Based::Thread* cliThread = NULL;
+    std::thread worldThread(WorldThread);
+
+    std::thread* cliThread = NULL;
 
 #ifdef _WIN32
     if (sConfigMgr->GetBoolDefault("Console.Enable", true) && (m_ServiceStatus == -1)/* need disable console in service mode*/)
@@ -194,10 +180,10 @@ int Master::Run()
 #endif
     {
         ///- Launch CliRunnable thread
-        cliThread = new ACE_Based::Thread(new CliRunnable);
+        cliThread = new std::thread(CliThread);
     }
 
-    ACE_Based::Thread rarThread(new RARunnable);
+    std::thread rarThread(RemoteAccessThread);
 
 #if defined(_WIN32) || defined(__linux__)
     
@@ -268,22 +254,19 @@ int Master::Run()
 #endif
 
     //Start soap serving thread
-    ACE_Based::Thread* soapThread = NULL;
+    std::thread* soapThread = nullptr;
 
     if (sConfigMgr->GetBoolDefault("SOAP.Enabled", false))
     {
-        TCSoapRunnable* runnable = new TCSoapRunnable();
-        runnable->SetListenArguments(sConfigMgr->GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetIntDefault("SOAP.Port", 7878)));
-        soapThread = new ACE_Based::Thread(runnable);
+        soapThread = new std::thread(TCSoapThread, sConfigMgr->GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetIntDefault("SOAP.Port", 7878)));
     }
+
+    std::thread* freezeDetectorThread = nullptr;
 
     ///- Start up freeze catcher thread
     if (uint32 freezeDelay = sConfigMgr->GetIntDefault("MaxCoreStuckTime", 0))
     {
-        FreezeDetectorRunnable* fdr = new FreezeDetectorRunnable();
-        fdr->SetDelayTime(freezeDelay * 1000);
-        ACE_Based::Thread freezeThread(fdr);
-        freezeThread.setPriority(ACE_Based::Highest);
+        freezeDetectorThread = new std::thread(FreezeDetectorThread, freezeDelay);
     }
 
     ///- Launch the world listener socket
@@ -304,13 +287,12 @@ int Master::Run()
 
     // when the main thread closes the singletons get unloaded
     // since worldrunnable uses them, it will crash if unloaded after master
-    worldThread.wait();
-    rarThread.wait();
+    worldThread.join();
+    //rarThread.join();
 
-    if (soapThread)
+    if (soapThread != nullptr)
     {
-        soapThread->wait();
-        soapThread->destroy();
+        soapThread->join();
         delete soapThread;
     }
 
@@ -324,7 +306,7 @@ int Master::Run()
 
     TC_LOG_INFO("server.worldserver", "Halting process...");
 
-    if (cliThread)
+    if (cliThread != nullptr)
     {
         #ifdef _WIN32
 
@@ -363,16 +345,14 @@ int Master::Run()
         DWORD numb;
         WriteConsoleInput(hStdIn, b, 4, &numb);
 
-        cliThread->wait();
-
-        #else
-
-        cliThread->destroy();
+        cliThread->join();
 
         #endif
 
         delete cliThread;
     }
+
+    delete freezeDetectorThread;
 
     // for some unknown reason, unloading scripts here and not in worldrunnable
     // fixes a memory leak related to detaching threads from the module
