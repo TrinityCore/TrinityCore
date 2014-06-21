@@ -3749,10 +3749,11 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 29307: // Infected Wounds (Zombie Chow)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
-            case 18754: // Improved succubus - problems with apply if target is pet
+            case 18754: // Improved succubus 
             case 18755:
             case 18756:
                 spellInfo->Effects[0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+                spellInfo->Effects[1].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_MASTER);
                 break;
             case 52212: // Death Knight's Death and Decay triggered spell
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
