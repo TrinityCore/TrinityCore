@@ -183,7 +183,8 @@ int Master::Run()
         cliThread = new std::thread(CliThread);
     }
 
-    std::thread rarThread(RemoteAccessThread);
+    // TODO C++11/Boost
+    // std::thread rarThread(RemoteAccessThread);
 
 #if defined(_WIN32) || defined(__linux__)
     
