@@ -36,9 +36,9 @@ std::map<Battlenet::PacketHeader, Battlenet::Socket::PacketHandler> InitHandlers
     handlers[Battlenet::PacketHeader(Battlenet::CMSG_AUTH_RECONNECT, Battlenet::AUTHENTICATION)] = &Battlenet::Socket::HandleAuthReconnect;
     handlers[Battlenet::PacketHeader(Battlenet::CMSG_AUTH_PROOF_RESPONSE, Battlenet::AUTHENTICATION)] = &Battlenet::Socket::HandleAuthProofResponse;
 
-    handlers[Battlenet::PacketHeader(Battlenet::CMSG_PING, Battlenet::CREEP)] = &Battlenet::Socket::HandlePing;
-    handlers[Battlenet::PacketHeader(Battlenet::CMSG_ENABLE_ENCRYPTION, Battlenet::CREEP)] = &Battlenet::Socket::HandleEnableEncryption;
-    handlers[Battlenet::PacketHeader(Battlenet::CMSG_DISCONNECT, Battlenet::CREEP)] = &Battlenet::Socket::HandleDisconnect;
+    handlers[Battlenet::PacketHeader(Battlenet::CMSG_PING, Battlenet::CONNECTION)] = &Battlenet::Socket::HandlePing;
+    handlers[Battlenet::PacketHeader(Battlenet::CMSG_ENABLE_ENCRYPTION, Battlenet::CONNECTION)] = &Battlenet::Socket::HandleEnableEncryption;
+    handlers[Battlenet::PacketHeader(Battlenet::CMSG_DISCONNECT, Battlenet::CONNECTION)] = &Battlenet::Socket::HandleDisconnect;
 
     handlers[Battlenet::PacketHeader(Battlenet::CMSG_REALM_UPDATE_SUBSCRIBE, Battlenet::WOW)] = &Battlenet::Socket::HandleRealmUpdateSubscribe;
     handlers[Battlenet::PacketHeader(Battlenet::CMSG_JOIN_REQUEST, Battlenet::WOW)] = &Battlenet::Socket::HandleRealmJoinRequest;
