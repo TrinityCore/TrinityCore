@@ -33,8 +33,15 @@ namespace Battlenet
     enum Channel
     {
         AUTHENTICATION  = 0,
-        CREEP           = 1,
-        WOW             = 2
+        CONNECTION      = 1,
+        WOW             = 2,
+        FRIEND          = 3,
+        PRESENCE        = 4,
+        CHAT            = 5,
+        SUPPORT         = 7,
+        ACHIEVEMENT     = 8,
+        CACHE           = 11,
+        PROFILE         = 14
     };
 
     enum AuthOpcode
@@ -48,7 +55,7 @@ namespace Battlenet
         SMSG_AUTH_PROOF_REQUEST     = 0x2
     };
 
-    enum CreepOpcodes
+    enum ConnectionOpcodes
     {
         CMSG_PING               = 0x0,
         CMSG_ENABLE_ENCRYPTION  = 0x5,
@@ -261,7 +268,7 @@ namespace Battlenet
     class Pong final : public ServerPacket
     {
     public:
-        Pong() : ServerPacket(PacketHeader(SMSG_PONG, CREEP))
+        Pong() : ServerPacket(PacketHeader(SMSG_PONG, CONNECTION))
         {
         }
 
