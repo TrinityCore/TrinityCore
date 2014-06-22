@@ -32,7 +32,7 @@ enum ScriptTexts
     SAY_KILL                    = 4,
     SAY_DEATH                   = 5,
     SAY_BERSERK                 = 6,
-    EMOTE_BONE_STORM            = 7,
+    EMOTE_BONE_STORM            = 7
 };
 
 enum Spells
@@ -50,7 +50,7 @@ enum Spells
 
     // Coldflame
     SPELL_COLDFLAME_PASSIVE     = 69145,
-    SPELL_COLDFLAME_SUMMON      = 69147,
+    SPELL_COLDFLAME_SUMMON      = 69147
 };
 
 uint32 const BoneSpikeSummonId[3] = {69062, 72669, 72670};
@@ -69,13 +69,13 @@ enum Events
     EVENT_COLDFLAME_TRIGGER     = 9,
     EVENT_FAIL_BONED            = 10,
 
-    EVENT_GROUP_SPECIAL         = 1,
+    EVENT_GROUP_SPECIAL         = 1
 };
 
 enum MovementPoints
 {
     POINT_TARGET_BONESTORM_PLAYER   = 36612631,
-    POINT_TARGET_COLDFLAME          = 36672631,
+    POINT_TARGET_COLDFLAME          = 36672631
 };
 
 enum MiscInfo
@@ -91,7 +91,7 @@ enum MiscInfo
 
     ACTION_CLEAR_SPIKE_IMMUNITIES   = 1,
 
-    MAX_BONE_SPIKE_IMMUNE           = 3,
+    MAX_BONE_SPIKE_IMMUNE           = 3
 };
 
 class BoneSpikeTargetSelector : public std::unary_function<Unit*, bool>
@@ -180,7 +180,6 @@ class boss_lord_marrowgar : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* who) override
-
             {
                 if (!_introDone && me->IsWithinDistInMap(who, 70.0f))
                 {
@@ -355,9 +354,7 @@ class npc_coldflame : public CreatureScript
 
         struct npc_coldflameAI : public ScriptedAI
         {
-            npc_coldflameAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            npc_coldflameAI(Creature* creature) : ScriptedAI(creature) { }
 
             void IsSummonedBy(Unit* owner) override
             {

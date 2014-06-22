@@ -57,9 +57,7 @@ class boss_koralon : public CreatureScript
 
         struct boss_koralonAI : public BossAI
         {
-            boss_koralonAI(Creature* creature) : BossAI(creature, DATA_KORALON)
-            {
-            }
+            boss_koralonAI(Creature* creature) : BossAI(creature, DATA_KORALON) { }
 
             void EnterCombat(Unit* /*who*/) override
             {
@@ -128,9 +126,7 @@ class npc_flame_warder : public CreatureScript
 
         struct npc_flame_warderAI : public ScriptedAI
         {
-            npc_flame_warderAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            npc_flame_warderAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {

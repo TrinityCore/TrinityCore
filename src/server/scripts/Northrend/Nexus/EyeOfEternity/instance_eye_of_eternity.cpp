@@ -57,9 +57,9 @@ public:
             {
                 if (state == FAIL)
                 {
-                    for (std::list<uint64>::const_iterator itr_trigger = portalTriggers.begin(); itr_trigger != portalTriggers.end(); ++itr_trigger)
+                    for (uint64 guid : portalTriggers)
                     {
-                        if (Creature* trigger = instance->GetCreature(*itr_trigger))
+                        if (Creature* trigger = instance->GetCreature(guid))
                         {
                             // just in case
                             trigger->RemoveAllAuras();
@@ -188,13 +188,13 @@ public:
             if (Creature* malygos = instance->GetCreature(malygosGUID))
             {
                 std::list<HostileReference*> m_threatlist = malygos->getThreatManager().getThreatList();
-                for (std::list<uint64>::const_iterator itr_vortex = vortexTriggers.begin(); itr_vortex != vortexTriggers.end(); ++itr_vortex)
+                for (uint64 guid : vortexTriggers)
                 {
                     if (m_threatlist.empty())
                         return;
 
                     uint8 counter = 0;
-                    if (Creature* trigger = instance->GetCreature(*itr_vortex))
+                    if (Creature* trigger = instance->GetCreature(guid))
                     {
                         // each trigger have to cast the spell to 5 players.
                         for (std::list<HostileReference*>::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
@@ -222,11 +222,11 @@ public:
         {
             bool next = (lastPortalGUID == portalTriggers.back() || !lastPortalGUID ? true : false);
 
-            for (std::list<uint64>::const_iterator itr_trigger = portalTriggers.begin(); itr_trigger != portalTriggers.end(); ++itr_trigger)
+            for (uint64 guid : portalTriggers)
             {
                 if (next)
                 {
-                    if (Creature* trigger = instance->GetCreature(*itr_trigger))
+                    if (Creature* trigger = instance->GetCreature(guid))
                     {
                         lastPortalGUID = trigger->GetGUID();
                         trigger->CastSpell(trigger, SPELL_PORTAL_OPENED, true);
@@ -234,7 +234,7 @@ public:
                     }
                 }
 
-                if (*itr_trigger == lastPortalGUID)
+                if (guid == lastPortalGUID)
                     next = true;
             }
         }

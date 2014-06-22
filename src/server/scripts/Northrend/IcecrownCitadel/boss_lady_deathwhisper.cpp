@@ -47,7 +47,7 @@ enum ScriptTexts
 
     // Darnavan
     SAY_DARNAVAN_AGGRO          = 0,
-    SAY_DARNAVAN_RESCUED        = 1,
+    SAY_DARNAVAN_RESCUED        = 1
 };
 
 enum Spells
@@ -103,7 +103,7 @@ enum Spells
     SPELL_INTIMIDATING_SHOUT        = 65930,
     SPELL_MORTAL_STRIKE             = 65926,
     SPELL_SHATTERING_THROW          = 65940,
-    SPELL_SUNDER_ARMOR              = 65936,
+    SPELL_SUNDER_ARMOR              = 65936
 };
 
 enum EventTypes
@@ -152,7 +152,7 @@ enum EventTypes
     EVENT_DARNAVAN_INTIMIDATING_SHOUT   = 29,
     EVENT_DARNAVAN_MORTAL_STRIKE        = 30,
     EVENT_DARNAVAN_SHATTERING_THROW     = 31,
-    EVENT_DARNAVAN_SUNDER_ARMOR         = 32,
+    EVENT_DARNAVAN_SUNDER_ARMOR         = 32
 };
 
 enum Phases
@@ -171,7 +171,7 @@ enum DeprogrammingData
     NPC_DARNAVAN_CREDIT_25  = 39092,
 
     ACTION_COMPLETE_QUEST   = -384720,
-    POINT_DESPAWN           = 384721,
+    POINT_DESPAWN           = 384721
 };
 
 #define NPC_DARNAVAN        RAID_MODE<uint32>(NPC_DARNAVAN_10, NPC_DARNAVAN_25, NPC_DARNAVAN_10, NPC_DARNAVAN_25)
@@ -236,7 +236,6 @@ class boss_lady_deathwhisper : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* who) override
-
             {
                 if (!_introDone && me->IsWithinDistInMap(who, 110.0f))
                 {
@@ -593,8 +592,8 @@ class boss_lady_deathwhisper : public CreatureScript
                     return;
 
                 std::list<Creature*> temp;
-                for (SummonList::iterator itr = summons.begin(); itr != summons.end(); ++itr)
-                    if (Creature* cre = ObjectAccessor::GetCreature(*me, *itr))
+                for (uint64 guid : summons)
+                    if (Creature* cre = ObjectAccessor::GetCreature(*me, guid))
                         if (cre->IsAlive() && (cre->GetEntry() == NPC_CULT_FANATIC || cre->GetEntry() == NPC_CULT_ADHERENT))
                             temp.push_back(cre);
 
@@ -835,9 +834,7 @@ class npc_darnavan : public CreatureScript
 
         struct npc_darnavanAI : public ScriptedAI
         {
-            npc_darnavanAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            npc_darnavanAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {

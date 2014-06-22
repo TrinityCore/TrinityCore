@@ -38,7 +38,7 @@ enum Texts
     SAY_DEATH                   = 8,
     EMOTE_MUTATED_INFECTION     = 9,
 
-    EMOTE_PRECIOUS_ZOMBIES      = 0,
+    EMOTE_PRECIOUS_ZOMBIES      = 0
 };
 
 enum Spells
@@ -68,7 +68,7 @@ enum Spells
 
     // Professor Putricide
     SPELL_VILE_GAS_H                        = 72272,
-    SPELL_VILE_GAS_TRIGGER                  = 72285,
+    SPELL_VILE_GAS_TRIGGER                  = 72285
 };
 
 #define MUTATED_INFECTION RAID_MODE<int32>(69674, 71224, 73022, 73023)
@@ -86,7 +86,7 @@ enum Events
     EVENT_MORTAL_WOUND      = 6,
     EVENT_SUMMON_ZOMBIES    = 7,
 
-    EVENT_STICKY_OOZE       = 8,
+    EVENT_STICKY_OOZE       = 8
 };
 
 class boss_rotface : public CreatureScript
@@ -244,9 +244,7 @@ class npc_little_ooze : public CreatureScript
 
         struct npc_little_oozeAI : public ScriptedAI
         {
-            npc_little_oozeAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            npc_little_oozeAI(Creature* creature) : ScriptedAI(creature) { }
 
             void IsSummonedBy(Unit* summoner) override
             {
@@ -295,9 +293,7 @@ class npc_big_ooze : public CreatureScript
 
         struct npc_big_oozeAI : public ScriptedAI
         {
-            npc_big_oozeAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript())
-            {
-            }
+            npc_big_oozeAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
 
             void IsSummonedBy(Unit* /*summoner*/) override
             {

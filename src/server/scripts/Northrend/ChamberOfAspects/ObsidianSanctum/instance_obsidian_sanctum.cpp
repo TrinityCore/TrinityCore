@@ -61,6 +61,8 @@ public:
                     vesperonGUID = creature->GetGUID();
                     creature->setActive(true);
                     break;
+                default:
+                    break;
             }
         }
 
@@ -94,6 +96,8 @@ public:
                     return shadronGUID;
                 case DATA_VESPERON:
                     return vesperonGUID;
+                default:
+                    break;
             }
             return 0;
         }

@@ -175,12 +175,12 @@ public:
         {
             if (!HasKilledAkamaAndReseting)
             {
-                for (std::list<uint64>::const_iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
-                    if (Creature* Channeler = ObjectAccessor::GetCreature(*me, *itr))
+                for (uint64 guid : Channelers)
+                    if (Creature* Channeler = ObjectAccessor::GetCreature(*me, guid))
                         Channeler->DespawnOrUnsummon();
 
-                for (std::list<uint64>::const_iterator itr = Spawners.begin(); itr != Spawners.end(); ++itr)
-                    if (Creature* Spawner = ObjectAccessor::GetCreature(*me, *itr))
+                for (uint64 guid : Spawners)
+                    if (Creature* Spawner = ObjectAccessor::GetCreature(*me, guid))
                         Spawner->AI()->SetData(SETDATA_DATA, SETDATA_DESPAWN_ALL_SPAWNS);
 
                 events.ScheduleEvent(EVENT_FIND_CHANNELERS_SPAWNERS, 3000);
@@ -277,19 +277,19 @@ public:
                             me->GetCreatureListWithEntryInGrid(ChannelerList, NPC_ASHTONGUE_CHANNELER, 15.0f);
 
                             if (!ChannelerList.empty())
-                                for (std::list<Creature*>::const_iterator itr = ChannelerList.begin(); itr != ChannelerList.end(); ++itr)
+                                for (Creature* creature : ChannelerList)
                                 {
-                                    Channelers.push_back((*itr)->GetGUID());
-                                    if ((*itr)->isDead())
-                                        (*itr)->Respawn();
+                                    Channelers.push_back(creature->GetGUID());
+                                    if (creature->isDead())
+                                        creature->Respawn();
                                 }
 
                             std::list<Creature*> SpawnerList;
                             me->GetCreatureListWithEntryInGrid(SpawnerList, NPC_CREATURE_SPAWNER_AKAMA, 90.0f);
 
                             if (!SpawnerList.empty())
-                                for (std::list<Creature*>::const_iterator itr = SpawnerList.begin(); itr != SpawnerList.end(); ++itr)
-                                    Spawners.push_back((*itr)->GetGUID());
+                                for (Creature* creature : SpawnerList)
+                                    Spawners.push_back(creature->GetGUID());
 
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
                             break;
@@ -307,15 +307,15 @@ public:
                     {
                         case EVENT_SET_CHANNELERS_SPAWNERS:
                         {
-                            for (std::list<uint64>::const_iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
+                            for (uint64 guid : Channelers)
                             {
-                                if (Creature* Channeler = ObjectAccessor::GetCreature(*me, *itr))
+                                if (Creature* Channeler = ObjectAccessor::GetCreature(*me, guid))
                                     Channeler->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             }
 
-                            for (std::list<uint64>::const_iterator itr = Spawners.begin(); itr != Spawners.end(); ++itr)
+                            for (uint64 guid : Spawners)
                             {
-                                if (Creature* Spawner = ObjectAccessor::GetCreature(*me, *itr))
+                                if (Creature* Spawner = ObjectAccessor::GetCreature(*me, guid))
                                     Spawner->AI()->SetData(SETDATA_DATA, SETDATA_START_SPAWNING);
                             }
                             break;
@@ -350,12 +350,12 @@ public:
                         if (Creature* Akama = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AKAMA_SHADE)))
                             Akama->DespawnOrUnsummon();
 
-                        for (std::list<uint64>::const_iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
-                            if (Creature* Channeler = ObjectAccessor::GetCreature(*me, *itr))
+                        for (uint64 guid : Channelers)
+                            if (Creature* Channeler = ObjectAccessor::GetCreature(*me, guid))
                                 Channeler->DespawnOrUnsummon();
 
-                        for (std::list<uint64>::const_iterator itr = Spawners.begin(); itr != Spawners.end(); ++itr)
-                            if (Creature* Spawner = ObjectAccessor::GetCreature(*me, *itr))
+                        for (uint64 guid : Spawners)
+                            if (Creature* Spawner = ObjectAccessor::GetCreature(*me, guid))
                                 Spawner->AI()->SetData(SETDATA_DATA, SETDATA_DESPAWN_ALL_SPAWNS);
 
                         events.ScheduleEvent(EVENT_FIND_CHANNELERS_SPAWNERS, 10000);
@@ -379,8 +379,8 @@ public:
                             events.CancelEvent(EVENT_START_ATTACK_AKAMA);
                             events.ScheduleEvent(EVENT_ADD_THREAT, 100);
 
-                            for (std::list<uint64>::const_iterator itr = Spawners.begin(); itr != Spawners.end(); ++itr)
-                                if (Creature* Spawner = ObjectAccessor::GetCreature(*me, *itr))
+                            for (uint64 guid : Spawners)
+                                if (Creature* Spawner = ObjectAccessor::GetCreature(*me, guid))
                                     Spawner->AI()->SetData(SETDATA_DATA, SETDATA_STOP_SPAWNING);
                         }
                     }
