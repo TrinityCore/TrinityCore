@@ -21,18 +21,11 @@
 
 #include <string>
 #include <list>
-#include <ace/Singleton.h>
-#include <ace/Configuration_Import_Export.h>
-#include <ace/Thread_Mutex.h>
-#include <AutoPtr.h>
-
-typedef Trinity::AutoPtr<ACE_Configuration_Heap, ACE_Null_Mutex> Config;
+#include <mutex>
+#include <boost/property_tree/ptree.hpp>
 
 class ConfigMgr
 {
-    friend class ACE_Singleton<ConfigMgr, ACE_Null_Mutex>;
-    friend class ConfigLoader;
-
     ConfigMgr() { }
     ~ConfigMgr() { }
 
@@ -40,13 +33,11 @@ public:
     /// Method used only for loading main configuration files (authserver.conf and worldserver.conf)
     bool LoadInitial(char const* file);
 
-    /**
-     * This method loads additional configuration files
-     * It is recommended to use this method in WorldScript::OnConfigLoad hooks
-     *
-     * @return true if loading was successful
-     */
-    bool LoadMore(char const* file);
+    static ConfigMgr* instance()
+    {
+        static ConfigMgr *instance = new ConfigMgr();
+        return instance;
+    }
 
     bool Reload();
 
@@ -59,20 +50,14 @@ public:
     std::list<std::string> GetKeysByString(std::string const& name);
 
 private:
-    bool GetValueHelper(const char* name, ACE_TString &result);
-    bool LoadData(char const* file);
-
-    typedef ACE_Thread_Mutex LockType;
-    typedef ACE_Guard<LockType> GuardType;
-
     std::string _filename;
-    Config _config;
-    LockType _configLock;
+    boost::property_tree::ptree _config;
+    std::mutex _configLock;
 
     ConfigMgr(ConfigMgr const&);
     ConfigMgr& operator=(ConfigMgr const&);
 };
 
-#define sConfigMgr ACE_Singleton<ConfigMgr, ACE_Null_Mutex>::instance()
+#define sConfigMgr ConfigMgr::instance()
 
 #endif
