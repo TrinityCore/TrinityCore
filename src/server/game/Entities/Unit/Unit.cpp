@@ -2826,6 +2826,9 @@ void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool wi
             if (GetTypeId() == TYPEID_PLAYER)
                 ToPlayer()->SendAutoRepeatCancel(this);
 
+        if (spell->GetSpellInfo()->AttributesEx3 & SPELL_ATTR3_IGNORE_OTHER_CASTS)
+            return;
+
         if (spell->getState() != SPELL_STATE_FINISHED)
             spell->cancel();
 
