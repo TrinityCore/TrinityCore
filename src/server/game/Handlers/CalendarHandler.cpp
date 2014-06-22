@@ -260,26 +260,43 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
     }
     else
     {
+        // client limits the amount of players to be invited to 100
+        const uint32 MaxPlayerInvites = 100;
+
         uint32 inviteCount;
-        recvData >> inviteCount;
+        uint64 invitee[MaxPlayerInvites];
+        uint8 status[MaxPlayerInvites];
+        uint8 rank[MaxPlayerInvites];
+
+        memset(invitee, 0, sizeof(invitee));
+        memset(status, 0, sizeof(status));
+        memset(rank, 0, sizeof(rank));
+
+        try
+        {
+            recvData >> inviteCount;
+
+            for (uint32 i = 0; i < inviteCount && i < MaxPlayerInvites; ++i)
+            {
+                recvData.readPackGUID(invitee[i]);
+                recvData >> status[i] >> rank[i];
+            }
+        }
+        catch (ByteBufferException const&)
+        {
+            delete calendarEvent;
+            calendarEvent = NULL;
+            throw;
+        }
 
         SQLTransaction trans;
         if (inviteCount > 1)
             trans = CharacterDatabase.BeginTransaction();
 
-        // client limits the amount of players to be invited to 100
-        const uint32 MaxPlayerInvites = 100;
-
         for (uint32 i = 0; i < inviteCount && i < MaxPlayerInvites; ++i)
         {
-            uint64 invitee = 0;
-            uint8 status = 0;
-            uint8 rank = 0;
-            recvData.readPackGUID(invitee);
-            recvData >> status >> rank;
-
             // 946684800 is 01/01/2000 00:00:00 - default response time
-            CalendarInvite* invite = new CalendarInvite(sCalendarMgr->GetFreeInviteId(), calendarEvent->GetEventId(), invitee, guid, 946684800, CalendarInviteStatus(status), CalendarModerationRank(rank), "");
+            CalendarInvite* invite = new CalendarInvite(sCalendarMgr->GetFreeInviteId(), calendarEvent->GetEventId(), invitee[i], guid, 946684800, CalendarInviteStatus(status[i]), CalendarModerationRank(rank[i]), "");
             sCalendarMgr->AddInvite(calendarEvent, invite, trans);
         }
 
