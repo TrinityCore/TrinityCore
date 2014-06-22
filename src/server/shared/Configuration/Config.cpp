@@ -35,13 +35,13 @@ bool ConfigMgr::LoadInitial(char const* file)
 
     try
     {
-        ptree temp;
-        boost::property_tree::ini_parser::read_ini(file, temp);
+        ptree fullTree;
+        boost::property_tree::ini_parser::read_ini(file, fullTree);
 
-
-        for (auto bla : temp)
+        // Since we're using only one section per config file, we skip the section and have direct property access
+        for (auto section : fullTree)
         {
-            _config = bla.second;
+            _config = section.second;
             break;
         }
     }
