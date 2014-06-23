@@ -23,6 +23,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
 /** ObjectRegistry holds all registry item of the same type
  */
