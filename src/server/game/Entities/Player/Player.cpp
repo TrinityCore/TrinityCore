@@ -15338,6 +15338,18 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         GiveXP(XP, NULL);
     else
         moneyRew = int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY));
+        
+     if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
+     {
+      uint32 guildXP = quest->XPValue(this) * sWorld->getRate(RATE_XP_QUEST) * sWorld->getRate(RATE_XP_GUILD_MODIFIER);
+      uint32 guildRep = uint32(guildXP / 450 / 4);
+    
+    if (guildRep < 1)
+        guildRep = 1;
+    
+        guild->GiveXP(guildXP, this);
+         GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(1168), guildRep);
+      }
 
     // Give player extra money if GetRewOrReqMoney > 0 and get ReqMoney if negative
     if (quest->GetRewOrReqMoney())
