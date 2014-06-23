@@ -276,7 +276,7 @@ int WorldSocket::open (void *a)
     return 0;
 }
 
-int WorldSocket::close (u_long)
+int WorldSocket::close(u_long)
 {
     shutdown();
 
@@ -287,7 +287,7 @@ int WorldSocket::close (u_long)
     return 0;
 }
 
-int WorldSocket::handle_input (ACE_HANDLE)
+int WorldSocket::handle_input(ACE_HANDLE)
 {
     if (closing_)
         return -1;
@@ -323,7 +323,7 @@ int WorldSocket::handle_input (ACE_HANDLE)
     ACE_NOTREACHED(return -1);
 }
 
-int WorldSocket::handle_output (ACE_HANDLE)
+int WorldSocket::handle_output(ACE_HANDLE)
 {
     ACE_GUARD_RETURN (LockType, Guard, m_OutBufferLock, -1);
 
@@ -369,7 +369,7 @@ int WorldSocket::handle_output (ACE_HANDLE)
     ACE_NOTREACHED (return 0);
 }
 
-int WorldSocket::handle_output_queue (GuardType& g)
+int WorldSocket::handle_output_queue(GuardType& g)
 {
     if (msg_queue()->is_empty())
         return cancel_wakeup_output(g);
@@ -430,7 +430,7 @@ int WorldSocket::handle_output_queue (GuardType& g)
     ACE_NOTREACHED(return -1);
 }
 
-int WorldSocket::handle_close (ACE_HANDLE h, ACE_Reactor_Mask)
+int WorldSocket::handle_close(ACE_HANDLE h, ACE_Reactor_Mask)
 {
     // Critical section
     {
@@ -630,7 +630,7 @@ int WorldSocket::handle_input_missing_data (void)
     return size_t(n) == recv_size ? 1 : 2;
 }
 
-int WorldSocket::cancel_wakeup_output (GuardType& g)
+int WorldSocket::cancel_wakeup_output(GuardType& g)
 {
     if (!m_OutActive)
         return 0;
@@ -650,7 +650,7 @@ int WorldSocket::cancel_wakeup_output (GuardType& g)
     return 0;
 }
 
-int WorldSocket::schedule_wakeup_output (GuardType& g)
+int WorldSocket::schedule_wakeup_output(GuardType& g)
 {
     if (m_OutActive)
         return 0;
@@ -803,6 +803,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     std::string account;
     SHA1Hash sha;
     BigNumber k;
+    bool wardenActive = sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED);    
     WorldPacket addonsData;
 
     recvPacket.read_skip<uint32>();
@@ -877,6 +878,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     // Stop if the account is not found
     if (!result)
     {
+        // We can not log here, as we do not know the account. Thus, no accountId.
         SendAuthResponseError(AUTH_UNKNOWN_ACCOUNT);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Sent Auth Response (unknown account).");
         return -1;
@@ -889,18 +891,33 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     if (expansion > world_expansion)
         expansion = world_expansion;
 
+    // For hook purposes, we get Remoteaddress at this point.
+    std::string address = GetRemoteAddress();
+
+    // As we don't know if attempted login process by ip works, we update last_attempt_ip right away
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_ATTEMPT_IP);
+
+    stmt->setString(0, address);
+    stmt->setString(1, account);
+
+    LoginDatabase.Execute(stmt);
+    // This also allows to check for possible "hack" attempts on account
+
+    // id has to be fetched at this point, so that first actual account response that fails can be logged
+    id = fields[0].GetUInt32();
+
     ///- Re-check ip locking (same check as in realmd).
     if (fields[3].GetUInt8() == 1) // if ip is locked
     {
-        if (strcmp (fields[2].GetCString(), GetRemoteAddress().c_str()))
+        if (strcmp (fields[2].GetCString(), address.c_str()))
         {
             SendAuthResponseError(AUTH_FAILED);
-            TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Sent Auth Response (Account IP differs).");
+            TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Sent Auth Response (Account IP differs. Original IP: %s, new IP: %s).", fields[2].GetCString(), address.c_str());
+            // We could log on hook only instead of an additional db log, however action logger is config based. Better keep DB logging as well
+            sScriptMgr->OnFailedAccountLogin(id);
             return -1;
         }
     }
-
-    id = fields[0].GetUInt32();
 
     k.SetHexStr(fields[1].GetCString());
 
@@ -926,10 +943,10 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     std::string os = fields[8].GetString();
 
     // Must be done before WorldSession is created
-    if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED) && os != "Win" && os != "OSX")
+    if (wardenActive && os != "Win" && os != "OSX")
     {
         SendAuthResponseError(AUTH_REJECT);
-        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Client %s attempted to log in using invalid client OS (%s).", GetRemoteAddress().c_str(), os.c_str());
+        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Client %s attempted to log in using invalid client OS (%s).", address.c_str(), os.c_str());
         return -1;
     }
 
@@ -953,7 +970,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BANS);
 
     stmt->setUInt32(0, id);
-    stmt->setString(1, GetRemoteAddress());
+    stmt->setString(1, address);
 
     PreparedQueryResult banresult = LoginDatabase.Query(stmt);
 
@@ -961,6 +978,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     {
         SendAuthResponseError(AUTH_BANNED);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Sent Auth Response (Account banned).");
+        sScriptMgr->OnFailedAccountLogin(id);
         return -1;
     }
 
@@ -971,6 +989,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     {
         SendAuthResponseError(AUTH_UNAVAILABLE);
         TC_LOG_INFO("network", "WorldSocket::HandleAuthSession: User tries to login but his security level is not enough");
+        sScriptMgr->OnFailedAccountLogin(id);
         return -1;
     }
 
@@ -984,8 +1003,6 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     sha.UpdateData((uint8*)&seed, 4);
     sha.UpdateBigNumbers(&k, NULL);
     sha.Finalize();
-
-    std::string address = GetRemoteAddress();
 
     if (memcmp(sha.GetDigest(), digest, 20))
     {
@@ -1009,8 +1026,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     if (result)
         isRecruiter = true;
 
-    // Update the last_ip in the database
-
+    // Update the last_ip in the database as it was successful for login
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_IP);
 
     stmt->setString(0, address);
@@ -1028,8 +1044,11 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     m_Session->ReadAddonsInfo(addonsData);
     m_Session->LoadPermissions();
 
+    // At this point, we can safely hook a successful login
+    sScriptMgr->OnAccountLogin(id);
+
     // Initialize Warden system only if it is enabled by config
-    if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
+    if (wardenActive)
         m_Session->InitWarden(&k, os);
 
     // Sleep this Network thread for
@@ -1040,7 +1059,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     return 0;
 }
 
-int WorldSocket::HandlePing (WorldPacket& recvPacket)
+int WorldSocket::HandlePing(WorldPacket& recvPacket)
 {
     uint32 ping;
     uint32 latency;

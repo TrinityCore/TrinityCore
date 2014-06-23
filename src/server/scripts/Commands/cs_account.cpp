@@ -376,6 +376,7 @@ public:
         if (!AccountMgr::CheckEmail(handler->GetSession()->GetAccountId(), std::string(oldEmail)))
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGEMAIL);
+            sScriptMgr->OnFailedEmailChange(handler->GetSession()->GetAccountId());
             handler->SetSentErrorMessage(true);
             TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change email, but the provided email [%s] is not equal to registration email [%s].",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
@@ -387,6 +388,7 @@ public:
         if (!AccountMgr::CheckPassword(handler->GetSession()->GetAccountId(), std::string(password)))
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
+            sScriptMgr->OnFailedEmailChange(handler->GetSession()->GetAccountId());
             handler->SetSentErrorMessage(true);
             TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change email, but the provided password is wrong.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
@@ -397,6 +399,7 @@ public:
         if (strcmp(email, oldEmail) == 0)
         {
             handler->SendSysMessage(LANG_OLD_EMAIL_IS_NEW_EMAIL);
+            sScriptMgr->OnFailedEmailChange(handler->GetSession()->GetAccountId());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -404,6 +407,7 @@ public:
         if (strcmp(email, emailConfirmation) != 0)
         {
             handler->SendSysMessage(LANG_NEW_EMAILS_NOT_MATCH);
+            sScriptMgr->OnFailedEmailChange(handler->GetSession()->GetAccountId());
             handler->SetSentErrorMessage(true);
             TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change email, but the provided password is wrong.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
@@ -417,6 +421,7 @@ public:
         {
             case AccountOpResult::AOR_OK:
                 handler->SendSysMessage(LANG_COMMAND_EMAIL);
+                sScriptMgr->OnEmailChange(handler->GetSession()->GetAccountId());
                 TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (GUID: %u) Changed Email from [%s] to [%s].",
                     handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                     handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUIDLow(),
@@ -424,6 +429,7 @@ public:
                 break;
             case AccountOpResult::AOR_EMAIL_TOO_LONG:
                 handler->SendSysMessage(LANG_EMAIL_TOO_LONG);
+                sScriptMgr->OnFailedEmailChange(handler->GetSession()->GetAccountId());
                 handler->SetSentErrorMessage(true);
                 return false;
             default:
@@ -468,6 +474,7 @@ public:
         if (!AccountMgr::CheckPassword(handler->GetSession()->GetAccountId(), std::string(oldPassword)))
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
+            sScriptMgr->OnFailedPasswordChange(handler->GetSession()->GetAccountId());
             handler->SetSentErrorMessage(true);
             TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change password, but the provided old password is wrong.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
@@ -480,6 +487,7 @@ public:
             && !AccountMgr::CheckEmail(handler->GetSession()->GetAccountId(), std::string(emailConfirmation))) // ... and returns false if the comparison fails.
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGEMAIL);
+            sScriptMgr->OnFailedPasswordChange(handler->GetSession()->GetAccountId());
             handler->SetSentErrorMessage(true);
             TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change password, but the entered email [%s] is wrong.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
@@ -492,6 +500,7 @@ public:
         if (strcmp(newPassword, passwordConfirmation) != 0)
         {
             handler->SendSysMessage(LANG_NEW_PASSWORDS_NOT_MATCH);
+            sScriptMgr->OnFailedPasswordChange(handler->GetSession()->GetAccountId());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -502,12 +511,14 @@ public:
         {
             case AccountOpResult::AOR_OK:
                 handler->SendSysMessage(LANG_COMMAND_PASSWORD);
+                sScriptMgr->OnPasswordChange(handler->GetSession()->GetAccountId());
                 TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (GUID: %u) Changed Password.",
                     handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                     handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUIDLow());
                 break;
             case AccountOpResult::AOR_PASS_TOO_LONG:
                 handler->SendSysMessage(LANG_PASSWORD_TOO_LONG);
+                sScriptMgr->OnFailedPasswordChange(handler->GetSession()->GetAccountId());
                 handler->SetSentErrorMessage(true);
                 return false;
             default:
