@@ -1,4 +1,4 @@
-﻿UPDATE `spell_dbc` SET `ProcChance`=101, `EquippedItemClass`=2, `EquippedItemSubClassMask`=384, `Effect1`=6, `EffectDieSides1`=1, `EffectBasePoints1`=4, `EffectImplicitTargetA1`=1, `EffectApplyAuraName1`=52, `EffectMultipleValue1`=1, `DmgMultiplier1`=1, `DmgMultiplier2`=1, `DmgMultiplier3`=1 WHERE `Id`=19;
+UPDATE `spell_dbc` SET `ProcChance`=101, `EquippedItemClass`=2, `EquippedItemSubClassMask`=384, `Effect1`=6, `EffectDieSides1`=1, `EffectBasePoints1`=4, `EffectImplicitTargetA1`=1, `EffectApplyAuraName1`=52, `EffectMultipleValue1`=1, `DmgMultiplier1`=1, `DmgMultiplier2`=1, `DmgMultiplier3`=1 WHERE `Id`=19;
 UPDATE `spell_dbc` SET `ProcChance`=101, `Effect1`=3, `EffectImplicitTargetA1`=1, `DmgMultiplier1`=1 WHERE `Id`=84;
 UPDATE `spell_dbc` SET `ProcChance`=101, `EquippedItemClass`=2, `EquippedItemSubClassMask`=2048, `Effect1`=25, `DmgClass`=1, `PreventionType`=1, `DmgMultiplier1`=1, `DmgMultiplier2`=1, `DmgMultiplier3`=1 WHERE `Id`=262;
 UPDATE `spell_dbc` SET `ProcChance`=101, `EquippedItemClass`=2, `EquippedItemSubClassMask`=4096, `Effect1`=25, `DmgClass`=1, `PreventionType`=1, `DmgMultiplier1`=1, `DmgMultiplier2`=1, `DmgMultiplier3`=1 WHERE `Id`=263;
