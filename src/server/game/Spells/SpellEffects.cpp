@@ -842,7 +842,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                         !iter->second->IsPositive() && !iter->second->GetBase()->IsPassive())
                     {
                         m_caster->RemoveAura(iter);
-                    }s
+                    }
                     else
                         ++iter;
                 }
