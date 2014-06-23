@@ -2694,6 +2694,13 @@ Logger.sql.sql=5,Console DBErrors
 Log.Async.Enable = 0
 
 #
+#    Allow.IP.Based.Action.Logging
+#        Description: Logs actions, e.g. account login and logout to name a few, based on IP of current session.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Allow.IP.Based.Action.Logging = 0
+#
 ###################################################################################################
 
 ###################################################################################################
