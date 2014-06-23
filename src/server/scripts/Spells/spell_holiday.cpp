@@ -296,7 +296,7 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
 
         class spell_pilgrims_bounty_buff_food_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pilgrims_bounty_buff_food_AuraScript)
+            PrepareAuraScript(spell_pilgrims_bounty_buff_food_AuraScript);
         private:
             uint32 const _triggeredSpellId;
 

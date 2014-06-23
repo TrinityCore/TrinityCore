@@ -151,7 +151,7 @@ class boss_high_botanist_freywinn : public CreatureScript
                         {
                             for (std::list<uint64>::iterator itr = Adds_List.begin(); itr != Adds_List.end(); ++itr)
                             {
-                                if (Unit* temp = Unit::GetUnit(*me, *itr))
+                                if (Unit* temp = ObjectAccessor::GetUnit(*me, *itr))
                                 {
                                     if (!temp->IsAlive())
                                     {

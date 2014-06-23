@@ -254,7 +254,7 @@ public:
 
             if (uiRangeCheck_Timer < uiDiff)
             {
-                if (Creature* pXevozz = Unit::GetCreature(*me, instance->GetData64(DATA_XEVOZZ)))
+                if (Creature* pXevozz = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_XEVOZZ)))
                 {
                     float fDistance = me->GetDistance2d(pXevozz);
                     if (fDistance <= 3)

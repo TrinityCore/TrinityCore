@@ -252,7 +252,7 @@ public:
         {
             me->DisappearAndDie();
 
-            if (Creature* pMarzon = Unit::GetCreature(*me, MarzonGUID))
+            if (Creature* pMarzon = ObjectAccessor::GetCreature(*me, MarzonGUID))
             {
                 if (pMarzon->IsAlive())
                     pMarzon->DisappearAndDie();
@@ -261,7 +261,7 @@ public:
 
         void EnterCombat(Unit* who) override
         {
-            if (Creature* pMarzon = Unit::GetCreature(*me, MarzonGUID))
+            if (Creature* pMarzon = ObjectAccessor::GetCreature(*me, MarzonGUID))
             {
                 if (pMarzon->IsAlive() && !pMarzon->IsInCombat())
                     pMarzon->AI()->AttackStart(who);
@@ -335,7 +335,7 @@ public:
                             uiPhase = 0;
                             break;
                         case 5:
-                            if (Creature* pMarzon = Unit::GetCreature(*me, MarzonGUID))
+                            if (Creature* pMarzon = ObjectAccessor::GetCreature(*me, MarzonGUID))
                                 pMarzon->AI()->Talk(SAY_MARZON_1);
                             uiTimer = 3000;
                             uiPhase = 6;
@@ -350,7 +350,7 @@ public:
                         case 7:
                             if (Creature* pTyrion = me->FindNearestCreature(NPC_TYRION, 20.0f, true))
                                 pTyrion->AI()->Talk(SAY_TYRION_2);
-                            if (Creature* pMarzon = Unit::GetCreature(*me, MarzonGUID))
+                            if (Creature* pMarzon = ObjectAccessor::GetCreature(*me, MarzonGUID))
                                 pMarzon->setFaction(14);
                             me->setFaction(14);
                             uiTimer = 0;

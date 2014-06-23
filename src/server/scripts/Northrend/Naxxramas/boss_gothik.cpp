@@ -257,25 +257,25 @@ class boss_gothik : public CreatureScript
                     {
                         case NPC_LIVE_TRAINEE:
                         {
-                            if (Creature* liveTrigger = Unit::GetCreature(*me, LiveTriggerGUID[0]))
+                            if (Creature* liveTrigger = ObjectAccessor::GetCreature(*me, LiveTriggerGUID[0]))
                                 DoSummon(NPC_LIVE_TRAINEE, liveTrigger, 1);
-                            if (Creature* liveTrigger1 = Unit::GetCreature(*me, LiveTriggerGUID[1]))
+                            if (Creature* liveTrigger1 = ObjectAccessor::GetCreature(*me, LiveTriggerGUID[1]))
                                 DoSummon(NPC_LIVE_TRAINEE, liveTrigger1, 1);
-                            if (Creature* liveTrigger2 = Unit::GetCreature(*me, LiveTriggerGUID[2]))
+                            if (Creature* liveTrigger2 = ObjectAccessor::GetCreature(*me, LiveTriggerGUID[2]))
                                 DoSummon(NPC_LIVE_TRAINEE, liveTrigger2, 1);
                             break;
                         }
                         case NPC_LIVE_KNIGHT:
                         {
-                            if (Creature* liveTrigger3 = Unit::GetCreature(*me, LiveTriggerGUID[3]))
+                            if (Creature* liveTrigger3 = ObjectAccessor::GetCreature(*me, LiveTriggerGUID[3]))
                                 DoSummon(NPC_LIVE_KNIGHT, liveTrigger3, 1);
-                            if (Creature* liveTrigger5 = Unit::GetCreature(*me, LiveTriggerGUID[5]))
+                            if (Creature* liveTrigger5 = ObjectAccessor::GetCreature(*me, LiveTriggerGUID[5]))
                                 DoSummon(NPC_LIVE_KNIGHT, liveTrigger5, 1);
                             break;
                         }
                         case NPC_LIVE_RIDER:
                         {
-                            if (Creature* liveTrigger4 = Unit::GetCreature(*me, LiveTriggerGUID[4]))
+                            if (Creature* liveTrigger4 = ObjectAccessor::GetCreature(*me, LiveTriggerGUID[4]))
                                 DoSummon(NPC_LIVE_RIDER, liveTrigger4, 1);
                             break;
                         }
@@ -287,21 +287,21 @@ class boss_gothik : public CreatureScript
                     {
                         case NPC_LIVE_TRAINEE:
                         {
-                            if (Creature* liveTrigger = Unit::GetCreature(*me, LiveTriggerGUID[4]))
+                            if (Creature* liveTrigger = ObjectAccessor::GetCreature(*me, LiveTriggerGUID[4]))
                                 DoSummon(NPC_LIVE_TRAINEE, liveTrigger, 1);
-                            if (Creature* liveTrigger2 = Unit::GetCreature(*me, LiveTriggerGUID[4]))
+                            if (Creature* liveTrigger2 = ObjectAccessor::GetCreature(*me, LiveTriggerGUID[4]))
                                 DoSummon(NPC_LIVE_TRAINEE, liveTrigger2, 1);
                             break;
                         }
                         case NPC_LIVE_KNIGHT:
                         {
-                            if (Creature* liveTrigger5 = Unit::GetCreature(*me, LiveTriggerGUID[4]))
+                            if (Creature* liveTrigger5 = ObjectAccessor::GetCreature(*me, LiveTriggerGUID[4]))
                                 DoSummon(NPC_LIVE_KNIGHT, liveTrigger5, 1);
                             break;
                         }
                         case NPC_LIVE_RIDER:
                         {
-                            if (Creature* liveTrigger4 = Unit::GetCreature(*me, LiveTriggerGUID[4]))
+                            if (Creature* liveTrigger4 = ObjectAccessor::GetCreature(*me, LiveTriggerGUID[4]))
                                 DoSummon(NPC_LIVE_RIDER, liveTrigger4, 1);
                             break;
                         }
@@ -359,7 +359,7 @@ class boss_gothik : public CreatureScript
                 if (spellId && me->IsInCombat())
                 {
                     me->HandleEmoteCommand(EMOTE_ONESHOT_SPELL_CAST);
-                    if (Creature* pRandomDeadTrigger = Unit::GetCreature(*me, DeadTriggerGUID[rand() % POS_DEAD]))
+                    if (Creature* pRandomDeadTrigger = ObjectAccessor::GetCreature(*me, DeadTriggerGUID[rand() % POS_DEAD]))
                         me->CastSpell(pRandomDeadTrigger, spellId, true);
                 }
             }

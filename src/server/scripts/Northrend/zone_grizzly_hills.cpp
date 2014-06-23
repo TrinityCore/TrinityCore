@@ -85,18 +85,18 @@ public:
                         _mrfloppyGUID = Mrfloppy->GetGUID();
                     break;
                 case 10:
-                    if (Unit::GetCreature(*me, _mrfloppyGUID))
+                    if (ObjectAccessor::GetCreature(*me, _mrfloppyGUID))
                     {
                         Talk(SAY_WORGHAGGRO1);
                         me->SummonCreature(NPC_HUNGRY_WORG, me->GetPositionX()+5, me->GetPositionY()+2, me->GetPositionZ()+1, 3.229f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
                     }
                     break;
                 case 11:
-                    if (Creature* Mrfloppy = Unit::GetCreature(*me, _mrfloppyGUID))
+                    if (Creature* Mrfloppy = ObjectAccessor::GetCreature(*me, _mrfloppyGUID))
                         Mrfloppy->GetMotionMaster()->MoveFollow(me, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
                     break;
                 case 17:
-                    if (Creature* Mrfloppy = Unit::GetCreature(*me, _mrfloppyGUID))
+                    if (Creature* Mrfloppy = ObjectAccessor::GetCreature(*me, _mrfloppyGUID))
                         Mrfloppy->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                     Talk(SAY_WORGRAGGRO3);
                     if (Creature* RWORG = me->SummonCreature(NPC_RAVENOUS_WORG, me->GetPositionX()+10, me->GetPositionY()+8, me->GetPositionZ()+2, 3.229f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
@@ -106,31 +106,31 @@ public:
                     }
                     break;
                 case 18:
-                    if (Creature* Mrfloppy = Unit::GetCreature(*me, _mrfloppyGUID))
+                    if (Creature* Mrfloppy = ObjectAccessor::GetCreature(*me, _mrfloppyGUID))
                     {
-                        if (Creature* RWORG = Unit::GetCreature(*me, _RavenousworgGUID))
+                        if (Creature* RWORG = ObjectAccessor::GetCreature(*me, _RavenousworgGUID))
                             RWORG->GetMotionMaster()->MovePoint(0, Mrfloppy->GetPositionX(), Mrfloppy->GetPositionY(), Mrfloppy->GetPositionZ());
                         DoCast(Mrfloppy, SPELL_MRFLOPPY);
                     }
                     break;
                 case 19:
-                    if (Creature* Mrfloppy = Unit::GetCreature(*me, _mrfloppyGUID))
+                    if (Creature* Mrfloppy = ObjectAccessor::GetCreature(*me, _mrfloppyGUID))
                     {
                         if (Mrfloppy->HasAura(SPELL_MRFLOPPY, 0))
                         {
-                            if (Creature* RWORG = Unit::GetCreature(*me, _RavenousworgGUID))
+                            if (Creature* RWORG = ObjectAccessor::GetCreature(*me, _RavenousworgGUID))
                                 Mrfloppy->EnterVehicle(RWORG);
                         }
                     }
                     break;
                 case 20:
-                    if (Creature* RWORG = Unit::GetCreature(*me, _RavenousworgGUID))
+                    if (Creature* RWORG = ObjectAccessor::GetCreature(*me, _RavenousworgGUID))
                         RWORG->HandleEmoteCommand(34);
                     break;
                 case 21:
-                    if (Creature* Mrfloppy = Unit::GetCreature(*me, _mrfloppyGUID))
+                    if (Creature* Mrfloppy = ObjectAccessor::GetCreature(*me, _mrfloppyGUID))
                     {
-                        if (Creature* RWORG = Unit::GetCreature(*me, _RavenousworgGUID))
+                        if (Creature* RWORG = ObjectAccessor::GetCreature(*me, _RavenousworgGUID))
                         {
                             RWORG->Kill(Mrfloppy);
                             Mrfloppy->ExitVehicle();
@@ -141,11 +141,11 @@ public:
                     }
                     break;
                 case 22:
-                    if (Creature* Mrfloppy = Unit::GetCreature(*me, _mrfloppyGUID))
+                    if (Creature* Mrfloppy = ObjectAccessor::GetCreature(*me, _mrfloppyGUID))
                     {
                         if (Mrfloppy->isDead())
                         {
-                            if (Creature* RWORG = Unit::GetCreature(*me, _RavenousworgGUID))
+                            if (Creature* RWORG = ObjectAccessor::GetCreature(*me, _RavenousworgGUID))
                                 RWORG->DisappearAndDie();
                             me->GetMotionMaster()->MovePoint(0, Mrfloppy->GetPositionX(), Mrfloppy->GetPositionY(), Mrfloppy->GetPositionZ());
                             Mrfloppy->setDeathState(ALIVE);
@@ -167,7 +167,7 @@ public:
                     break;
                 case 27:
                     me->DisappearAndDie();
-                    if (Creature* Mrfloppy = Unit::GetCreature(*me, _mrfloppyGUID))
+                    if (Creature* Mrfloppy = ObjectAccessor::GetCreature(*me, _mrfloppyGUID))
                         Mrfloppy->DisappearAndDie();
                     break;
             }

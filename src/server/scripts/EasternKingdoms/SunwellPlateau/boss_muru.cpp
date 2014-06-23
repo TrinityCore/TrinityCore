@@ -603,7 +603,7 @@ public:
         {
             if (SpellTimer <= diff)
             {
-                Unit* Victim = Unit::GetUnit(*me, instance->GetData64(DATA_PLAYER_GUID));
+                Unit* Victim = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_PLAYER_GUID));
                 switch (NeedForAHack)
                 {
                     case 0:

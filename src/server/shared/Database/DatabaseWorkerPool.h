@@ -49,8 +49,10 @@ class DatabaseWorkerPool
 {
     public:
         /* Activity state */
-        DatabaseWorkerPool() : _queue(new ACE_Activation_Queue()), _connectionInfo(NULL)
+        DatabaseWorkerPool() : _connectionInfo(NULL)
         {
+            _messageQueue = new ACE_Message_Queue<ACE_SYNCH>(8 * 1024 * 1024, 8 * 1024 * 1024);
+            _queue = new ACE_Activation_Queue(_messageQueue);
             memset(_connectionCount, 0, sizeof(_connectionCount));
             _connections.resize(IDX_SIZE);
 
@@ -97,7 +99,7 @@ class DatabaseWorkerPool
                     (_connectionCount[IDX_SYNCH] + _connectionCount[IDX_ASYNC]));
             else
                 TC_LOG_ERROR("sql.driver", "DatabasePool %s NOT opened. There were errors opening the MySQL connections. Check your SQLDriverLogFile "
-                    "for specific errors.", GetDatabaseName());
+                    "for specific errors. Read wiki at http://collab.kpsn.org/display/tc/TrinityCore+Home", GetDatabaseName());
             return res;
         }
 
@@ -131,6 +133,7 @@ class DatabaseWorkerPool
 
             //! Deletes the ACE_Activation_Queue object and its underlying ACE_Message_Queue
             delete _queue;
+            delete _messageQueue;
 
             TC_LOG_INFO("sql.driver", "All connections on DatabasePool '%s' closed.", GetDatabaseName());
 
@@ -520,6 +523,7 @@ class DatabaseWorkerPool
             IDX_SIZE
         };
 
+        ACE_Message_Queue<ACE_SYNCH>*   _messageQueue;      //! Message Queue used by ACE_Activation_Queue
         ACE_Activation_Queue*           _queue;             //! Queue shared by async worker threads.
         std::vector< std::vector<T*> >  _connections;
         uint32                          _connectionCount[2];       //! Counter of MySQL connections;

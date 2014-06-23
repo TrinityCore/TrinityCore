@@ -706,7 +706,7 @@ public:
                         break;
                     case 65:
                         me->SetVisible(false);
-                        if (Creature* AnachronosQuestTrigger = (Unit::GetCreature(*me, AnachronosQuestTriggerGUID)))
+                        if (Creature* AnachronosQuestTrigger = (ObjectAccessor::GetCreature(*me, AnachronosQuestTriggerGUID)))
                         {
                             Talk(ARYGOS_YELL_1);
                             AnachronosQuestTrigger->AI()->EnterEvadeMode();
@@ -1002,11 +1002,11 @@ void npc_qiraj_war_spawn::npc_qiraj_war_spawnAI::JustDied(Unit* /*slayer*/)
     if (!MobGUID)
         return;
 
-    if (Creature* mob = Unit::GetCreature(*me, MobGUID))
+    if (Creature* mob = ObjectAccessor::GetCreature(*me, MobGUID))
         if (npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI* triggerAI = CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, mob->AI()))
             triggerAI->LiveCounter();
 
-};
+}
 
 /*#####
 # go_crystalline_tear

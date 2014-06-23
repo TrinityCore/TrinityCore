@@ -141,7 +141,7 @@ public:
             if (!SpineTargetGUID)
                 return false;
 
-            Unit* target = Unit::GetUnit(*me, SpineTargetGUID);
+            Unit* target = ObjectAccessor::GetUnit(*me, SpineTargetGUID);
             if (target && target->HasAura(SPELL_IMPALING_SPINE))
                 target->RemoveAurasDueToSpell(SPELL_IMPALING_SPINE);
             SpineTargetGUID=0;

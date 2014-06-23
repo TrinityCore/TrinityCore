@@ -26,34 +26,6 @@
 #include "DatabaseEnv.h"
 
 
-class WDBThreadStartReq1 : public ACE_Method_Request
-{
-    public:
-
-        WDBThreadStartReq1()
-        {
-        }
-
-        virtual int call()
-        {
-            return 0;
-        }
-};
-
-class WDBThreadEndReq1 : public ACE_Method_Request
-{
-    public:
-
-        WDBThreadEndReq1()
-        {
-        }
-
-        virtual int call()
-        {
-            return 0;
-        }
-};
-
 class MapUpdateRequest : public ACE_Method_Request
 {
     private:
@@ -86,7 +58,7 @@ MapUpdater::~MapUpdater()
 
 int MapUpdater::activate(size_t num_threads)
 {
-    return m_executor.start((int)num_threads, new WDBThreadStartReq1, new WDBThreadEndReq1);
+    return m_executor.start((int)num_threads);
 }
 
 int MapUpdater::deactivate()
