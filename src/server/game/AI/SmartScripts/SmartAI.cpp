@@ -944,7 +944,7 @@ class SmartTrigger : public AreaTriggerScript
         }
 };
 
-void AddSC_SmartSCripts()
+void AddSC_SmartScripts()
 {
     new SmartTrigger();
 }
