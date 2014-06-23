@@ -34,6 +34,7 @@ CREATE TABLE `account` (
   `reg_mail` varchar(255) NOT NULL DEFAULT '',
   `joindate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_ip` varchar(15) NOT NULL DEFAULT '127.0.0.1',
+  `last_attempt_ip` varchar(15) NOT NULL DEFAULT '127.0.0.1',
   `failed_logins` int(10) unsigned NOT NULL DEFAULT '0',
   `locked` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `lock_country` varchar(2) NOT NULL DEFAULT '00',
@@ -237,6 +238,36 @@ CREATE TABLE `logs` (
 LOCK TABLES `logs` WRITE;
 /*!40000 ALTER TABLE `logs` DISABLE KEYS */;
 /*!40000 ALTER TABLE `logs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `logs_ip_actions`
+--
+
+DROP TABLE IF EXISTS `logs_ip_actions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `logs_ip_actions` (
+`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Identifier',
+`account_id` INT(10) UNSIGNED NOT NULL COMMENT 'Account ID',
+`character_guid` INT(10) UNSIGNED NOT NULL COMMENT 'Character Guid',
+`type` TINYINT(3) UNSIGNED NOT NULL,
+`ip` VARCHAR(15) NOT NULL DEFAULT '127.0.0.1',
+`systemnote` TEXT NULL COMMENT 'Notes inserted by system',
+`unixtime` INT(10) UNSIGNED NOT NULL COMMENT 'Unixtime',
+`time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp',
+`comment` TEXT NULL COMMENT 'Allows users to add a comment',
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `logs_ip_actions`
+--
+
+LOCK TABLES `logs_ip_actions` WRITE;
+/*!40000 ALTER TABLE `logs_ip_actions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `logs_ip_actions` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
