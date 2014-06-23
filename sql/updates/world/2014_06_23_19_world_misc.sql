@@ -1,3 +1,4 @@
+--
 SET @CGUID := 76305;
 
 UPDATE `creature_template` SET `AIName`= 'SmartAI',`flags_extra`=`flags_extra`|128,`unit_flags`=33554432 WHERE `entry`  IN(23040,23081);
