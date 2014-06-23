@@ -174,7 +174,7 @@ class CharacterActionIpLogger : public PlayerScript
         }
 
         // CHARACTER_LOGIN = 8
-        void OnLogin(Player* player)
+        void OnLogin(Player* player, bool /*firstlogin*/)
         {
             CharacterIPLogAction(player, CHARACTER_LOGIN);
         }
