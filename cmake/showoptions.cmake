@@ -49,6 +49,12 @@ else()
   message("* Build scripts w/PCH    : No")
 endif()
 
+if( DETACH_CSCRIPTS )
+  message("* Detach custom scripts  : Yes")
+else()
+  message("* Detach custom scripts  : No (default)")
+endif()
+
 if( WITH_WARNINGS )
   message("* Show all warnings      : Yes")
 else()
