@@ -242,7 +242,7 @@ public:
                         if (!m_waterElements.empty())
                         {
                             for (std::list<uint64>::const_iterator itr = m_waterElements.begin(); itr != m_waterElements.end(); ++itr)
-                                if (Creature* temp = Unit::GetCreature(*me, *itr))
+                                if (Creature* temp = ObjectAccessor::GetCreature(*me, *itr))
                                     if (temp->IsAlive())
                                     {
                                         bIsWaterElementsAlive = true;
@@ -362,7 +362,7 @@ public:
         {
             if (uiRangeCheck_Timer < uiDiff)
             {
-                if (Creature* pIchoron = Unit::GetCreature(*me, instance->GetData64(DATA_ICHORON)))
+                if (Creature* pIchoron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ICHORON)))
                 {
                     if (me->IsWithinDist(pIchoron, 2.0f, false))
                     {
@@ -379,7 +379,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             DoCast(me, SPELL_SPLASH);
-            if (Creature* pIchoron = Unit::GetCreature(*me, instance->GetData64(DATA_ICHORON)))
+            if (Creature* pIchoron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ICHORON)))
                 if (pIchoron->AI())
                     pIchoron->AI()->DoAction(ACTION_WATER_ELEMENT_KILLED);
         }

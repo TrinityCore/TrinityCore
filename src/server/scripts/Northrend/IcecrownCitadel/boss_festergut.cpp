@@ -345,7 +345,7 @@ class npc_stinky_icc : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* festergut = me->GetCreature(*me, _instance->GetData64(DATA_FESTERGUT)))
+                if (Creature* festergut = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_FESTERGUT)))
                     if (festergut->IsAlive())
                         festergut->AI()->Talk(SAY_STINKY_DEAD);
             }

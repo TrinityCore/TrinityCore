@@ -17,14 +17,14 @@
  */
 
 /* ScriptData
-SDName: Boss_Bloodboil
-SD%Complete: 80
-SDComment: Bloodboil not working correctly, missing enrage
-SDCategory: Black Temple
+Name: Boss_Bloodboil
+Complete: 80
+Category: Black Temple
 EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "black_temple.h"
 
 enum Bloodboil
@@ -53,9 +53,6 @@ enum Bloodboil
     SPELL_INSIGNIFIGANCE        = 40618,
     SPELL_BERSERK               = 45078
 };
-
-
-//This is used to sort the players by distance in preparation for the Bloodboil cast.
 
 class boss_gurtogg_bloodboil : public CreatureScript
 {
@@ -137,54 +134,9 @@ public:
             Talk(SAY_DEATH);
         }
 
-        // Note: This seems like a very complicated fix. The fix needs to be handled by the core, as implementation of limited-target AoE spells are still not limited.
-        void CastBloodboil()
-        {
-            // Get the Threat List
-            std::list<HostileReference*> m_threatlist = me->getThreatManager().getThreatList();
-
-            if (m_threatlist.empty()) // He doesn't have anyone in his threatlist, useless to continue
-                return;
-
-            std::list<Unit*> targets;
-            std::list<HostileReference*>::const_iterator itr = m_threatlist.begin();
-            for (; itr!= m_threatlist.end(); ++itr)             //store the threat list in a different container
-            {
-                Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                                                                //only on alive players
-                if (target && target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
-                    targets.push_back(target);
-            }
-
-            //Sort the list of players
-            targets.sort(Trinity::ObjectDistanceOrderPred(me, false));
-            //Resize so we only get top 5
-            targets.resize(5);
-
-            //Aura each player in the targets list with Bloodboil. Aura code copied+pasted from Aura command in Level3.cpp
-            /*SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_BLOODBOIL);
-            if (spellInfo)
-            {
-                for (std::list<Unit*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                {
-                    Unit* target = *itr;
-                    if (!target) return;
-                    for (uint32 i = 0; i<3; ++i)
-                    {
-                        uint8 eff = spellInfo->Effect[i];
-                        if (eff >= TOTAL_SPELL_EFFECTS)
-                            continue;
-
-                        Aura* Aur = new Aura(spellInfo, i, target, target, target);
-                        target->AddAura(Aur);
-                    }
-                }
-            }*/
-        }
-
         void RevertThreatOnTarget(uint64 guid)
         {
-            if (Unit* unit = Unit::GetUnit(*me, guid))
+            if (Unit* unit = ObjectAccessor::GetUnit(*me, guid))
             {
                 if (DoGetThreat(unit))
                     DoModifyThreatPercent(unit, -100);
@@ -247,8 +199,7 @@ public:
                 {
                     if (BloodboilCount < 5)                      // Only cast it five times.
                     {
-                        //CastBloodboil(); // Causes issues on windows, so is commented out.
-                        DoCastVictim(SPELL_BLOODBOIL);
+                        DoCastAOE(SPELL_BLOODBOIL);
                         ++BloodboilCount;
                         BloodboilTimer = 10000*BloodboilCount;
                     }
@@ -274,7 +225,7 @@ public:
             {
                 if (Phase1)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                     {
                         Phase1 = false;
 
@@ -327,7 +278,41 @@ public:
 
 };
 
+// 42005 - Bloodboil
+class spell_gurtogg_bloodboil_bloodboil : public SpellScriptLoader
+{
+    public:
+        spell_gurtogg_bloodboil_bloodboil() : SpellScriptLoader("spell_gurtogg_bloodboil_bloodboil") { }
+
+        class spell_gurtogg_bloodboil_bloodboil_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gurtogg_bloodboil_bloodboil_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.size() <= 5)
+                    return;
+
+                // Sort the list of players
+                targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster(), false));
+                // Resize so we only get top 5
+                targets.resize(5);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gurtogg_bloodboil_bloodboil_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gurtogg_bloodboil_bloodboil_SpellScript();
+        }
+};
+
 void AddSC_boss_gurtogg_bloodboil()
 {
     new boss_gurtogg_bloodboil();
+    new spell_gurtogg_bloodboil_bloodboil();
 }

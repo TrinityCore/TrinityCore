@@ -349,13 +349,13 @@ typedef std::pair<SpellGroupSpellMap::const_iterator, SpellGroupSpellMap::const_
 
 enum SpellGroupStackRule
 {
-    SPELL_GROUP_STACK_RULE_DEFAULT                    = 0,
-    SPELL_GROUP_STACK_RULE_EXCLUSIVE                  = 1,
-    SPELL_GROUP_STACK_RULE_EXCLUSIVE_FROM_SAME_CASTER = 2,
-    SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT      = 3
+    SPELL_GROUP_STACK_RULE_DEFAULT,
+    SPELL_GROUP_STACK_RULE_EXCLUSIVE,
+    SPELL_GROUP_STACK_RULE_EXCLUSIVE_FROM_SAME_CASTER,
+    SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT,
+    SPELL_GROUP_STACK_RULE_EXCLUSIVE_HIGHEST,
+    SPELL_GROUP_STACK_RULE_MAX
 };
-
-#define SPELL_GROUP_STACK_RULE_MAX 4
 
 typedef std::map<SpellGroup, SpellGroupStackRule> SpellGroupStackMap;
 
@@ -655,6 +655,7 @@ class SpellMgr
         // Spell Group Stack Rules table
         bool AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, int32 amount, std::map<SpellGroup, int32>& groups) const;
         SpellGroupStackRule CheckSpellGroupStackRules(SpellInfo const* spellInfo1, SpellInfo const* spellInfo2) const;
+        SpellGroupStackRule GetSpellGroupStackRule(SpellGroup groupid) const;
 
         // Spell proc event table
         SpellProcEventEntry const* GetSpellProcEvent(uint32 spellId) const;

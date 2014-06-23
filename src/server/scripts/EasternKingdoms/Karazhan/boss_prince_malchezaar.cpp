@@ -146,7 +146,7 @@ public:
 
         void KilledUnit(Unit* who) override
         {
-            if (Unit* unit = Unit::GetUnit(*me, malchezaar))
+            if (Unit* unit = ObjectAccessor::GetUnit(*me, malchezaar))
                 if (Creature* creature = unit->ToCreature())
                     creature->AI()->KilledUnit(who);
         }
@@ -273,7 +273,7 @@ public:
         {
             //Infernal Cleanup
             for (std::vector<uint64>::const_iterator itr = infernals.begin(); itr != infernals.end(); ++itr)
-                if (Unit* pInfernal = Unit::GetUnit(*me, *itr))
+                if (Unit* pInfernal = ObjectAccessor::GetUnit(*me, *itr))
                     if (pInfernal->IsAlive())
                     {
                         pInfernal->SetVisible(false);
@@ -287,7 +287,7 @@ public:
         {
             for (uint8 i = 0; i < 2; ++i)
             {
-                Unit* axe = Unit::GetUnit(*me, axes[i]);
+                Unit* axe = ObjectAccessor::GetUnit(*me, axes[i]);
                 if (axe && axe->IsAlive())
                     axe->Kill(axe);
                 axes[i] = 0;
@@ -316,7 +316,7 @@ public:
             ThreatContainer::StorageType::const_iterator itr = t_list.begin();
             std::advance(itr, 1);
             for (; itr != t_list.end(); ++itr) //store the threat list in a different container
-                if (Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                if (Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
                     if (target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
                         targets.push_back(target);
 
@@ -340,7 +340,7 @@ public:
         {
             for (uint8 i = 0; i < 5; ++i)
             {
-                Unit* target = Unit::GetUnit(*me, enfeeble_targets[i]);
+                Unit* target = ObjectAccessor::GetUnit(*me, enfeeble_targets[i]);
                 if (target && target->IsAlive())
                     target->SetHealth(enfeeble_health[i]);
                 enfeeble_targets[i] = 0;
@@ -480,7 +480,7 @@ public:
                     {
                         for (uint8 i = 0; i < 2; ++i)
                         {
-                            if (Unit* axe = Unit::GetUnit(*me, axes[i]))
+                            if (Unit* axe = ObjectAccessor::GetUnit(*me, axes[i]))
                             {
                                 if (axe->GetVictim())
                                     DoModifyThreatPercent(axe->GetVictim(), -100);
@@ -583,7 +583,7 @@ public:
 
 void netherspite_infernal::netherspite_infernalAI::Cleanup()
 {
-    Creature* pMalchezaar = Unit::GetCreature(*me, malchezaar);
+    Creature* pMalchezaar = ObjectAccessor::GetCreature(*me, malchezaar);
 
     if (pMalchezaar && pMalchezaar->IsAlive())
         CAST_AI(boss_malchezaar::boss_malchezaarAI, pMalchezaar->AI())->Cleanup(me, point);

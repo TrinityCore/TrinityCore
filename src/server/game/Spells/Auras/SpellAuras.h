@@ -129,7 +129,7 @@ class Aura
         int32 CalcMaxDuration(Unit* caster) const;
         int32 GetDuration() const { return m_duration; }
         void SetDuration(int32 duration, bool withMods = false);
-        void RefreshDuration();
+        void RefreshDuration(bool withMods = false);
         void RefreshTimers();
         bool IsExpired() const { return !GetDuration();}
         bool IsPermanent() const { return GetMaxDuration() == -1; }
@@ -149,6 +149,7 @@ class Aura
 
         uint8 GetCasterLevel() const { return m_casterLevel; }
 
+        bool HasMoreThanOneEffectForType(AuraType auraType) const;
         bool IsArea() const;
         bool IsPassive() const;
         bool IsDeathPersistent() const;
@@ -190,6 +191,7 @@ class Aura
 
         void SetNeedClientUpdateForTargets() const;
         void HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, bool apply, bool onReapply);
+        void HandleAuraSpecificPeriodics(AuraApplication const* aurApp, Unit* caster);
         bool CanBeAppliedOn(Unit* target);
         bool CheckAreaTarget(Unit* target);
         bool CanStackWith(Aura const* existingAura) const;

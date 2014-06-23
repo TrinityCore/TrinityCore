@@ -243,7 +243,7 @@ public:
                     case 1:
                         if (someplayer)
                         {
-                            Unit* u = Unit::GetUnit(*me, someplayer);
+                            Unit* u = ObjectAccessor::GetUnit(*me, someplayer);
                             if (u && u->GetTypeId() == TYPEID_PLAYER)
                                 Talk(EMOTE_START, u);
                         }
@@ -795,7 +795,7 @@ public:
 
                 for (std::list<HostileReference*>::const_iterator itr = AggroList.begin(); itr != AggroList.end(); ++itr)
                 {
-                    if (Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
                     {
                         if (unit->GetCreateMana() > 0)
                             UnitsWithMana.push_back(unit);

@@ -5,12 +5,13 @@
 
 #include <dbghelp.h>
 #include <set>
-#if _MSC_VER < 1400
-#   define countof(array)   (sizeof(array) / sizeof(array[0]))
-#else
-#   include <stdlib.h>
-#   define countof  _countof
-#endif                                                      // _MSC_VER < 1400
+#include <stdlib.h>
+#include <stack>
+#define countof  _countof
+
+#define WER_MAX_ARRAY_ELEMENTS_COUNT 10
+#define WER_MAX_NESTING_LEVEL 5
+#define WER_LARGE_BUFFER_SIZE 1024 * 128
 
 enum BasicType                                              // Stolen from CVCONST.H in the DIA 2.0 SDK
 {
@@ -37,40 +38,54 @@ enum BasicType                                              // Stolen from CVCON
     btStdString = 101
 };
 
+enum DataKind                                              // Stolen from CVCONST.H in the DIA 2.0 SDK
+{
+    DataIsUnknown,
+    DataIsLocal,
+    DataIsStaticLocal,
+    DataIsParam,
+    DataIsObjectPtr,
+    DataIsFileStatic,
+    DataIsGlobal,
+    DataIsMember,
+    DataIsStaticMember,
+    DataIsConstant
+};
+
 const char* const rgBaseType[] =
 {
-    " <user defined> ",                                     // btNoType = 0,
-    " void ",                                               // btVoid = 1,
-    " char* ",                                              // btChar = 2,
-    " wchar_t* ",                                           // btWChar = 3,
-    " signed char ",
-    " unsigned char ",
-    " int ",                                                // btInt = 6,
-    " unsigned int ",                                       // btUInt = 7,
-    " float ",                                              // btFloat = 8,
-    " <BCD> ",                                              // btBCD = 9,
-    " bool ",                                               // btBool = 10,
-    " short ",
-    " unsigned short ",
-    " long ",                                               // btLong = 13,
-    " unsigned long ",                                      // btULong = 14,
-    " __int8 ",
-    " __int16 ",
-    " __int32 ",
-    " __int64 ",
-    " __int128 ",
-    " unsigned __int8 ",
-    " unsigned __int16 ",
-    " unsigned __int32 ",
-    " unsigned __int64 ",
-    " unsigned __int128 ",
-    " <currency> ",                                         // btCurrency = 25,
-    " <date> ",                                             // btDate = 26,
-    " VARIANT ",                                            // btVariant = 27,
-    " <complex> ",                                          // btComplex = 28,
-    " <bit> ",                                              // btBit = 29,
-    " BSTR ",                                               // btBSTR = 30,
-    " HRESULT "                                             // btHresult = 31
+    "<user defined>",                                     // btNoType = 0,
+    "void",                                               // btVoid = 1,
+    "char",//char*                                        // btChar = 2,
+    "wchar_t*",                                           // btWChar = 3,
+    "signed char",
+    "unsigned char",
+    "int",                                                // btInt = 6,
+    "unsigned int",                                       // btUInt = 7,
+    "float",                                              // btFloat = 8,
+    "<BCD>",                                              // btBCD = 9,
+    "bool",                                               // btBool = 10,
+    "short",
+    "unsigned short",
+    "long",                                               // btLong = 13,
+    "unsigned long",                                      // btULong = 14,
+    "int8",
+    "int16",
+    "int32",
+    "int64",
+    "int128",
+    "uint8",
+    "uint16",
+    "uint32",
+    "uint64",
+    "uint128",
+    "<currency>",                                         // btCurrency = 25,
+    "<date>",                                             // btDate = 26,
+    "VARIANT",                                            // btVariant = 27,
+    "<complex>",                                          // btComplex = 28,
+    "<bit>",                                              // btBit = 29,
+    "BSTR",                                               // btBSTR = 30,
+    "HRESULT"                                             // btHresult = 31
 };
 
 struct SymbolPair
@@ -83,7 +98,7 @@ struct SymbolPair
 
     bool operator<(const SymbolPair& other) const
     {
-        return _offset < other._offset || 
+        return _offset < other._offset ||
               (_offset == other._offset && _type < other._type);
     }
 
@@ -91,6 +106,39 @@ struct SymbolPair
     DWORD_PTR _offset;
 };
 typedef std::set<SymbolPair> SymbolPairs;
+
+struct SymbolDetail
+{
+    SymbolDetail() : Prefix(), Type(), Suffix(), Name(), Value(), Logged(false), HasChildren(false) {}
+
+    std::string ToString()
+    {
+        Logged = true;
+        std::string formatted = Prefix + Type + Suffix;
+        if (!Name.empty())
+        {
+            if (!formatted.empty())
+                formatted += " ";
+            formatted += Name;
+        }
+        if (!Value.empty())
+            formatted += " = " + Value;
+        return formatted;
+    }
+
+    bool empty() const
+    {
+        return Value.empty() && !HasChildren;
+    }
+
+    std::string Prefix;
+    std::string Type;
+    std::string Suffix;
+    std::string Name;
+    std::string Value;
+    bool Logged;
+    bool HasChildren;
+};
 
 class WheatyExceptionReport
 {
@@ -122,11 +170,12 @@ class WheatyExceptionReport
 
         static bool FormatSymbolValue(PSYMBOL_INFO, STACKFRAME64 *, char * pszBuffer, unsigned cbBuffer);
 
-        static char * DumpTypeIndex(char *, DWORD64, DWORD, unsigned, DWORD_PTR, bool &, char*, char*);
+        static char * DumpTypeIndex(char *, DWORD64, DWORD, unsigned, DWORD_PTR, bool &, const char*, char*, bool, bool);
 
-        static char * FormatOutputValue(char * pszCurrBuffer, BasicType basicType, DWORD64 length, PVOID pAddress);
+        static void FormatOutputValue(char * pszCurrBuffer, BasicType basicType, DWORD64 length, PVOID pAddress, size_t bufferSize);
 
         static BasicType GetBasicType(DWORD typeIndex, DWORD64 modBase);
+        static DWORD_PTR DereferenceUnsafePointer(DWORD_PTR address);
 
         static int __cdecl _tprintf(const TCHAR * format, ...);
 
@@ -141,6 +190,12 @@ class WheatyExceptionReport
         static HANDLE m_hDumpFile;
         static HANDLE m_hProcess;
         static SymbolPairs symbols;
+        static std::stack<SymbolDetail> symbolDetails;
+
+        static char* PushSymbolDetail(char* pszCurrBuffer);
+        static char* PopSymbolDetail(char* pszCurrBuffer);
+        static char* PrintSymbolDetail(char* pszCurrBuffer);
+
 };
 
 extern WheatyExceptionReport g_WheatyExceptionReport;       //  global instance of class

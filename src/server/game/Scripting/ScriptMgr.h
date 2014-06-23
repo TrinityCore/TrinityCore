@@ -29,6 +29,7 @@
 #include "World.h"
 #include "Weather.h"
 
+class AccountMgr;
 class AuctionHouseObject;
 class AuraScript;
 class Battleground;
@@ -744,7 +745,7 @@ class PlayerScript : public UnitScript
         virtual void OnSpellCast(Player* /*player*/, Spell* /*spell*/, bool /*skipCheck*/) { }
 
         // Called when a player logs in.
-        virtual void OnLogin(Player* /*player*/) { }
+        virtual void OnLogin(Player* /*player*/, bool /*firstLogin*/) { }
 
         // Called when a player logs out.
         virtual void OnLogout(Player* /*player*/) { }
@@ -753,7 +754,10 @@ class PlayerScript : public UnitScript
         virtual void OnCreate(Player* /*player*/) { }
 
         // Called when a player is deleted.
-        virtual void OnDelete(uint64 /*guid*/) { }
+        virtual void OnDelete(uint64 /*guid*/, uint32 /*accountId*/) { }
+
+        // Called when a player delete failed
+        virtual void OnFailedDelete(uint64 /*guid*/, uint32 /*accountId*/) { }
 
         // Called when a player is about to be saved.
         virtual void OnSave(Player* /*player*/) { }
@@ -766,6 +770,33 @@ class PlayerScript : public UnitScript
 
         // Called when a player changes to a new map (after moving to new map)
         virtual void OnMapChanged(Player* /*player*/) { }
+};
+
+class AccountScript : public ScriptObject
+{
+    protected:
+
+        AccountScript(const char* name);
+
+    public:
+
+        // Called when an account logged in succesfully
+        virtual void OnAccountLogin(uint32 accountId) {}
+
+        // Called when an account login failed
+        virtual void OnFailedAccountLogin(uint32 accountId) {}
+
+        // Called when Email is successfully changed for Account
+        virtual void OnEmailChange(uint32 accountId) {}
+
+        // Called when Email failed to change for Account
+        virtual void OnFailedEmailChange(uint32 accountId) {}
+
+        // Called when Password is successfully changed for Account
+        virtual void OnPasswordChange(uint32 accountId) {}
+
+        // Called when Password failed to change for Account
+        virtual void OnFailedPasswordChange(uint32 accountId) {}
 };
 
 class GuildScript : public ScriptObject
@@ -1034,13 +1065,23 @@ class ScriptMgr
         void OnPlayerEmote(Player* player, uint32 emote);
         void OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, uint64 guid);
         void OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck);
-        void OnPlayerLogin(Player* player);
+        void OnPlayerLogin(Player* player, bool firstLogin);
         void OnPlayerLogout(Player* player);
         void OnPlayerCreate(Player* player);
-        void OnPlayerDelete(uint64 guid);
+        void OnPlayerDelete(uint64 guid, uint32 accountId);
+        void OnPlayerFailedDelete(uint64 guid, uint32 accountId);
         void OnPlayerSave(Player* player);
         void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent);
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
+
+    public: /* AccountScript */
+
+        void OnAccountLogin(uint32 accountId);
+        void OnFailedAccountLogin(uint32 accountId);
+        void OnEmailChange(uint32 accountId);
+        void OnFailedEmailChange(uint32 accountId);
+        void OnPasswordChange(uint32 accountId);
+        void OnFailedPasswordChange(uint32 accountId);
 
     public: /* GuildScript */
 

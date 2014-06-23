@@ -593,10 +593,22 @@ bool AuthSession::_HandleLogonProof()
             GetRemoteIpAddress().c_str(), GetRemotePort(), _login.c_str());
 
         uint32 MaxWrongPassCount = sConfigMgr->GetIntDefault("WrongPass.MaxCount", 0);
+
+        // We can not include the failed account login hook. However, this is a workaround to still log this.
+        if (sConfigMgr->GetBoolDefault("Additional.IP.Based.Login.Logging", false))
+        {
+            PreparedStatement* logstmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_FALP_IP_LOGGING);
+            logstmt->setString(0, _login);
+            logstmt->setString(1, socket().getRemoteAddress());
+            logstmt->setString(2, "Logged on failed AccountLogin due wrong password");
+
+            LoginDatabase.Execute(logstmt);
+        }
+
         if (MaxWrongPassCount > 0)
         {
             //Increment number of failed logins by one and if it reaches the limit temporarily ban that account or IP
-            PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_FAILEDLOGINS);
+            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_FAILEDLOGINS);
             stmt->setString(0, _login);
             LoginDatabase.Execute(stmt);
 

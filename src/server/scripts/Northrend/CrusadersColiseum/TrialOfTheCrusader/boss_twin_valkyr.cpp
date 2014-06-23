@@ -245,7 +245,7 @@ struct boss_twin_baseAI : public BossAI
     // Called when sister pointer needed
     Creature* GetSister()
     {
-        return Unit::GetCreature((*me), instance->GetData64(SisterNpcId));
+        return ObjectAccessor::GetCreature((*me), instance->GetData64(SisterNpcId));
     }
 
     void EnterCombat(Unit* /*who*/) override
@@ -673,8 +673,7 @@ class spell_powering_up : public SpellScriptLoader
 
         class spell_powering_up_SpellScript : public SpellScript
         {
-            public:
-                PrepareSpellScript(spell_powering_up_SpellScript)
+            PrepareSpellScript(spell_powering_up_SpellScript);
 
             uint32 spellId;
             uint32 poweringUp;
