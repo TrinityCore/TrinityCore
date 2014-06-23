@@ -98,7 +98,6 @@ void AddSC_npc_innkeeper();
 void AddSC_npcs_special();
 void AddSC_npc_taxi();
 void AddSC_achievement_scripts();
-void AddSC_action_ip_logger();
 
 //eastern kingdoms
 void AddSC_alterac_valley();                 //Alterac Valley
@@ -698,6 +697,7 @@ void AddSC_outdoorpvp_zm();
 // player
 void AddSC_chat_log();
 void AddSC_action_ip_logger();
+void AddSC_character_creation();
 
 #endif
 
@@ -806,6 +806,7 @@ void AddWorldScripts()
     AddSC_npcs_special();
     AddSC_npc_taxi();
     AddSC_achievement_scripts();
+    AddSC_character_creation(); // location: scripts\World\character_creation.cpp
     AddSC_chat_log(); // location: scripts\World\chat_log.cpp
     // To avoid duplicate code, we check once /*ONLY*/ if logging is permitted or not.
     if (sWorld->getBoolConfig(CONFIG_IP_BASED_ACTION_LOGGING))
