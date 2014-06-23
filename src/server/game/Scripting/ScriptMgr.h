@@ -780,11 +780,11 @@ class AccountScript : public ScriptObject
 
     public:
 
-        // Called when an account logged in succesfully
+        // Called when an account logged in successfully
         virtual void OnAccountLogin(uint32 /*accountId*/) {}
 
         // Called when an account login failed
-        virtual void OnFailedAccountLogin(uint32 /*accountId*/) {}
+        virtual void OnFailedAccountLogin(uint32 /*accountId*/) {} // Does not log on entering wrong password!
 
         // Called when Email is successfully changed for Account
         virtual void OnEmailChange(uint32 /*accountId*/) {}
