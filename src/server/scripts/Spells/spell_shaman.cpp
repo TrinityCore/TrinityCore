@@ -775,7 +775,7 @@ class spell_sha_lava_lash : public SpellScriptLoader
 
         class spell_sha_lava_lash_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sha_lava_lash_SpellScript)
+            PrepareSpellScript(spell_sha_lava_lash_SpellScript);
 
             bool Load() override
             {

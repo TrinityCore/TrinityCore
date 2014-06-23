@@ -530,7 +530,7 @@ public:
                 std::vector<Unit*> target_list;
                 for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
-                    target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                    target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
                                                                 //15 yard radius minimum
                     if (target && target->IsWithinDist(me, 15, false))
                         target_list.push_back(target);

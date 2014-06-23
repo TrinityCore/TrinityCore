@@ -184,7 +184,7 @@ public:
             //store the threat list in a different container
             for (ThreatContainer::StorageType::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
-                Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
                 //only on alive players
                 if (target && target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
                     targets.push_back(target);
@@ -450,7 +450,7 @@ public:
                         if (!FlameWreathTarget[i])
                             continue;
 
-                        Unit* unit = Unit::GetUnit(*me, FlameWreathTarget[i]);
+                        Unit* unit = ObjectAccessor::GetUnit(*me, FlameWreathTarget[i]);
                         if (unit && !unit->IsWithinDist2d(FWTargPosX[i], FWTargPosY[i], 3))
                         {
                             unit->CastSpell(unit, 20476, true, 0, 0, me->GetGUID());

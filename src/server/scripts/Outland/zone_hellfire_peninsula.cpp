@@ -318,7 +318,7 @@ public:
             if (type != POINT_MOTION_TYPE || id != 1)
                 return;
 
-            if (Creature* helboar = me->GetCreature(*me, helboarGUID))
+            if (Creature* helboar = ObjectAccessor::GetCreature(*me, helboarGUID))
             {
                 helboar->RemoveCorpse();
                 DoCast(SPELL_SUMMON_POO);

@@ -133,7 +133,7 @@ public:
                 {
                     if (bCanEat && !bIsEating)
                     {
-                        if (Unit* unit = Unit::GetUnit(*me, uiPlayerGUID))
+                        if (Unit* unit = ObjectAccessor::GetUnit(*me, uiPlayerGUID))
                         {
                             if (GameObject* go = unit->FindNearestGameObject(GO_CARCASS, 10))
                             {
@@ -273,7 +273,7 @@ public:
             {
                 if (PlayerGUID)
                 {
-                    Unit* player = Unit::GetUnit(*me, PlayerGUID);
+                    Unit* player = ObjectAccessor::GetUnit(*me, PlayerGUID);
                     if (player)
                         DoCast(player, SPELL_FORCE_OF_NELTHARAKU, true);
 
@@ -1225,7 +1225,7 @@ public:
 
             if (TorlothAnim[AnimationCount].creature == 1)
             {
-                creature = (Unit::GetCreature(*me, LordIllidanGUID));
+                creature = (ObjectAccessor::GetCreature(*me, LordIllidanGUID));
 
                 if (!creature)
                     return;
@@ -1326,7 +1326,7 @@ public:
                     break;
             }
 
-            if (Creature* LordIllidan = (Unit::GetCreature(*me, LordIllidanGUID)))
+            if (Creature* LordIllidan = (ObjectAccessor::GetCreature(*me, LordIllidanGUID)))
                 LordIllidan->AI()->EnterEvadeMode();
         }
     };
@@ -1507,7 +1507,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             me->RemoveCorpse();
-            if (Creature* LordIllidan = (Unit::GetCreature(*me, LordIllidanGUID)))
+            if (Creature* LordIllidan = (ObjectAccessor::GetCreature(*me, LordIllidanGUID)))
                 if (LordIllidan)
                     CAST_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, LordIllidan->AI())->LiveCounter();
         }
@@ -1813,7 +1813,6 @@ public:
 
 enum ZuluhedChains
 {
-    QUEST_ZULUHED   = 10866,
     NPC_KARYNAKU    = 22112,
 };
 
@@ -1828,9 +1827,9 @@ class spell_unlocking_zuluheds_chains : public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (GetCaster()->GetTypeId() == TYPEID_PLAYER)
-                    if (Creature* karynaku = GetCaster()->FindNearestCreature(NPC_KARYNAKU, 15.0f))
-                        GetCaster()->ToPlayer()->KilledMonsterCredit(NPC_KARYNAKU, karynaku->GetGUID());
+                if (Player* caster = GetCaster()->ToPlayer())
+                    if (Creature* karynaku = caster->FindNearestCreature(NPC_KARYNAKU, 15.0f))
+                        caster->KilledMonsterCredit(NPC_KARYNAKU, karynaku->GetGUID());
             }
 
             void Register() override
@@ -1867,13 +1866,6 @@ public:
     {
         npc_shadowmoon_tuber_nodeAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() override
-        {
-            tapped = false;
-            tuberGUID = 0;
-            resetTimer = 60000;
-        }
-
         void SetData(uint32 id, uint32 data) override
         {
             if (id == TYPE_BOAR && data == DATA_BOAR)
@@ -1884,49 +1876,23 @@ public:
                 // Despawn the tuber
                 if (GameObject* tuber = me->FindNearestGameObject(GO_SHADOWMOON_TUBER_MOUND, 5.0f))
                 {
-                    tuberGUID = tuber->GetGUID();
-                    // @Workaround: find how to properly despawn the GO
-                    tuber->SetPhaseMask(2, true);
+                    tuber->SetLootState(GO_JUST_DEACTIVATED);
+                    me->DespawnOrUnsummon();
                 }
             }
         }
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
-            if (!tapped && spell->Id == SPELL_WHISTLE)
+            if (spell->Id == SPELL_WHISTLE)
             {
                 if (Creature* boar = me->FindNearestCreature(NPC_BOAR_ENTRY, 30.0f))
                 {
-                    // Disable trigger and force nearest boar to walk to him
-                    tapped = true;
                     boar->SetWalk(false);
                     boar->GetMotionMaster()->MovePoint(POINT_TUBER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                 }
             }
         }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (tapped)
-            {
-                if (resetTimer <= diff)
-                {
-                    // Respawn the tuber
-                    if (tuberGUID)
-                        if (GameObject* tuber = GameObject::GetGameObject(*me, tuberGUID))
-                        // @Workaround: find how to properly respawn the GO
-                            tuber->SetPhaseMask(1, true);
-
-                    Reset();
-                }
-                else
-                    resetTimer -= diff;
-            }
-        }
-    private:
-        bool tapped;
-        uint64 tuberGUID;
-        uint32 resetTimer;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

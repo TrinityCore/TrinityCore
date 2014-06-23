@@ -97,7 +97,7 @@ class npc_warp_splinter_treant : public CreatureScript
                 {
                     if (WarpGuid && check_Timer <= diff)
                     {
-                        if (Unit* Warp = Unit::GetUnit(*me, WarpGuid))
+                        if (Unit* Warp = ObjectAccessor::GetUnit(*me, WarpGuid))
                         {
                             if (me->IsWithinMeleeRange(Warp, 2.5f))
                             {

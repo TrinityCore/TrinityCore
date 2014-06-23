@@ -1100,7 +1100,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                                 Talk(SAY_JAINA_ESCAPE_9);
                             if (Transport* gunship = ObjectAccessor::GetTransport(*me, _instance->GetData64(DATA_GUNSHIP)))
                                 gunship->EnableMovement(true);
-                            _instance->SetBossState(DATA_THE_LICH_KING_ESCAPE, DONE); 
+                            _instance->SetBossState(DATA_THE_LICH_KING_ESCAPE, DONE);
                             break;
                         case EVENT_ESCAPE_17:
                             if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
@@ -1139,7 +1139,7 @@ class npc_the_lich_king_escape_hor : public CreatureScript
 
         struct npc_the_lich_king_escape_horAI : public ScriptedAI
         {
-            npc_the_lich_king_escape_horAI(Creature* creature) : ScriptedAI(creature) 
+            npc_the_lich_king_escape_horAI(Creature* creature) : ScriptedAI(creature)
             {
                 _instance = me->GetInstanceScript();
                 _instance->SetBossState(DATA_THE_LICH_KING_ESCAPE, NOT_STARTED);
@@ -1248,12 +1248,12 @@ class npc_the_lich_king_escape_hor : public CreatureScript
                         _events.ScheduleEvent(EVENT_ESCAPE_SUMMON_WITCH_DOCTOR, 66000);
                         _events.ScheduleEvent(EVENT_ESCAPE_SUMMON_LUMBERING_ABOMINATION, 14000);
                         Talk(SAY_LK_ESCAPE_ICEWALL_SUMMONED_4);
-                        break; 
+                        break;
                     default:
                         break;
                 }
             }
-            
+
             void EnterEvadeMode() override
             {
                 if (_despawn)
@@ -2021,12 +2021,12 @@ class at_hor_waves_restarter : public AreaTriggerScript
             {
                 _instance->ProcessEvent(0, EVENT_SPAWN_WAVES);
 
-                if (Creature* falric = player->GetCreature(*player, _instance->GetData64(DATA_FALRIC)))
+                if (Creature* falric = ObjectAccessor::GetCreature(*player, _instance->GetData64(DATA_FALRIC)))
                 {
                     falric->CastSpell(falric, SPELL_BOSS_SPAWN_AURA, true);
                     falric->SetVisible(true);
                 }
-                if (Creature* marwyn = player->GetCreature(*player, _instance->GetData64(DATA_MARWYN)))
+                if (Creature* marwyn = ObjectAccessor::GetCreature(*player, _instance->GetData64(DATA_MARWYN)))
                 {
                     marwyn->CastSpell(marwyn, SPELL_BOSS_SPAWN_AURA, true);
                     marwyn->SetVisible(true);

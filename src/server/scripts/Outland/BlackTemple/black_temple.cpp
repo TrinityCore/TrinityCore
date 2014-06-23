@@ -155,11 +155,11 @@ public:
                         case EVENT_SET_CHANNELERS:
                         {
                             for (std::list<uint64>::const_iterator itr = bloodmage.begin(); itr != bloodmage.end(); ++itr)
-                                if (Creature* bloodmage = (Unit::GetCreature(*me, *itr)))
+                                if (Creature* bloodmage = (ObjectAccessor::GetCreature(*me, *itr)))
                                     bloodmage->CastSpell((Unit*)NULL, SPELL_SUMMON_CHANNEL);
 
                             for (std::list<uint64>::const_iterator itr = deathshaper.begin(); itr != deathshaper.end(); ++itr)
-                                if (Creature* deathshaper = (Unit::GetCreature(*me, *itr)))
+                                if (Creature* deathshaper = (ObjectAccessor::GetCreature(*me, *itr)))
                                     deathshaper->CastSpell((Unit*)NULL, SPELL_SUMMON_CHANNEL);
 
                             events.ScheduleEvent(EVENT_SET_CHANNELERS, 12000);
