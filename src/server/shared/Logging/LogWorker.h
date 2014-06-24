@@ -19,19 +19,29 @@
 #define LOGWORKER_H
 
 #include "LogOperation.h"
-#include "LockedQueue.h"
 
-class LogWorker
+#include <ace/Task.h>
+#include <ace/Activation_Queue.h>
+
+class LogWorker: protected ACE_Task_Base
 {
     public:
-        LogWorker() {};
+        LogWorker();
         ~LogWorker();
 
-        void enqueue(LogOperation& op);
+        typedef ACE_Message_Queue_Ex<LogOperation, ACE_MT_SYNCH> LogMessageQueueType;
+
+        enum
+        {
+            HIGH_WATERMARK = 8 * 1024 * 1024,
+            LOW_WATERMARK  = 8 * 1024 * 1024
+        };
+
+        int enqueue(LogOperation *op);
 
     private:
         virtual int svc();
-        LockedQueue<LogOperation> m_queue;
+        LogMessageQueueType m_queue;
 };
 
 #endif
