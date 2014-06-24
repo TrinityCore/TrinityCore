@@ -133,106 +133,6 @@ class npc_risen_husk_spirit : public CreatureScript
 };
 
 /*######
-## npc_theramor_guard
-######*/
-
-enum TheramoreGuard
-{
-    QUEST_DISCREDITING_THE_DESERTERS            = 11133,
-
-    NPC_THERAMORE_GUARD                         = 4979,
-
-    SPELL_DOCTORED_LEAFLET                      = 42725,
-    SPELL_PROPAGANDIZED                         = 42246,
-
-    SAY_QUEST1                                  = 0,
-    SAY_QUEST2                                  = 1,
-    SAY_QUEST3                                  = 2
-};
-
-#define GOSSIP_ITEM_THERAMORE_GUARD "You look like an intelligent person. Why don't you read one of these leaflets and give it some thought?"
-
-class npc_theramore_guard : public CreatureScript
-{
-public:
-    npc_theramore_guard() : CreatureScript("npc_theramore_guard") { }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_DISCREDITING_THE_DESERTERS) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_THERAMORE_GUARD, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-
-        if (action == GOSSIP_SENDER_INFO)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            player->KilledMonsterCredit(NPC_THERAMORE_GUARD, 0);
-            creature->AI()->Talk(SAY_QUEST1);
-            creature->CastSpell(creature, SPELL_DOCTORED_LEAFLET, false);
-            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            CAST_AI(npc_theramore_guard::npc_theramore_guardAI, creature->AI())->YellTimer = 4000;
-            CAST_AI(npc_theramore_guard::npc_theramore_guardAI, creature->AI())->bYellTimer = true;
-        }
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_theramore_guardAI(creature);
-    }
-
-    struct npc_theramore_guardAI : public ScriptedAI
-    {
-        npc_theramore_guardAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 YellTimer;
-        uint32 Step;
-        bool bYellTimer;
-
-        void Reset() override
-        {
-            bYellTimer = false;
-            Step = 0;
-        }
-
-        void UpdateAI(uint32 Diff) override
-        {
-            if (!me->HasAura(SPELL_PROPAGANDIZED))
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-
-            if (bYellTimer && YellTimer <= Diff)
-            {
-                switch (Step)
-                {
-                    case 0:
-                        Talk(SAY_QUEST2);
-                        YellTimer = 3000;
-                        ++Step;
-                        break;
-                    case 1:
-                        Talk(SAY_QUEST3);
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
-                        Step = 0;
-                        bYellTimer = false;
-                        break;
-                }
-            }
-            else
-                YellTimer -= Diff;
-        }
-    };
-};
-
-/*######
 ## npc_lady_jaina_proudmoore
 ######*/
 
@@ -772,9 +672,40 @@ void AddSC_dustwallow_marsh()
     new npc_private_hendel();
     new npc_zelfrax();
     new npc_stinky();
-    new npc_theramore_guard();
     new spell_ooze_zap();
     new spell_ooze_zap_channel_end();
     new spell_energize_aoe();
     new go_blackhoof_cage();
 }
+
+
+/*######
+## npc_risen_husk_spirit
+######*/
+
+enum HauntingWitchHill
+{
+    // Quest
+    QUEST_WHATS_HAUNTING_WITCH_HILL     = 11180,
+
+    // General spells
+    SPELL_SUMMON_RESTLESS_APPARITION    = 42511,
+    SPELL_WITCH_HILL_INFORMATION_CREDIT = 42512,
+
+    // Risen Husk specific
+    SPELL_CONSUME_FLESH                 = 37933,
+    NPC_RISEN_HUSK                      = 23555,
+
+    // Risen Spirit specific
+    SPELL_INTANGIBLE_PRESENCE           = 43127,
+    NPC_RISEN_SPIRIT                    = 23554,
+
+    // Events
+    EVENT_CONSUME_FLESH                 = 1,
+    EVENT_INTANGIBLE_PRESENCE           = 2,
+};
+
+class npc_risen_husk_spirit : public CreatureScript
+{
+    public:
+        npc_risen_husk_spirit() : CreatureScript(
