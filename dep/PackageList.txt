@@ -34,7 +34,7 @@ zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
 
 gSOAP (a portable development toolkit for C and C++ XML Web services and XML data bindings)
   http://gsoap2.sourceforge.net/
-  Version: 2.8.10
+  Version: 2.8.17r
 
 recastnavigation (Recast is state of the art navigation mesh construction toolset for games)
   https://github.com/memononen/recastnavigation
