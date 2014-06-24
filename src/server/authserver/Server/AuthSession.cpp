@@ -599,7 +599,7 @@ bool AuthSession::_HandleLogonProof()
         {
             PreparedStatement* logstmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_FALP_IP_LOGGING);
             logstmt->setString(0, _login);
-            logstmt->setString(1, socket().getRemoteAddress());
+            logstmt->setString(1, GetRemoteIpAddress());
             logstmt->setString(2, "Logged on failed AccountLogin due wrong password");
 
             LoginDatabase.Execute(logstmt);
