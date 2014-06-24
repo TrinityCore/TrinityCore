@@ -18,7 +18,7 @@
 #ifndef _QUERYHOLDER_H
 #define _QUERYHOLDER_H
 
-#include <ace/Future.h>
+#include <future>
 
 class SQLQueryHolder
 {
@@ -39,17 +39,18 @@ class SQLQueryHolder
         void SetPreparedResult(size_t index, PreparedResultSet* result);
 };
 
-typedef ACE_Future<SQLQueryHolder*> QueryResultHolderFuture;
+typedef std::future<SQLQueryHolder*> QueryResultHolderFuture;
+typedef std::promise<SQLQueryHolder*> QueryResultHolderPromise;
 
 class SQLQueryHolderTask : public SQLOperation
 {
     private:
         SQLQueryHolder * m_holder;
-        QueryResultHolderFuture m_result;
+        QueryResultHolderPromise m_result;
 
     public:
-        SQLQueryHolderTask(SQLQueryHolder *holder, QueryResultHolderFuture res)
-            : m_holder(holder), m_result(res){ };
+        SQLQueryHolderTask(SQLQueryHolder *holder, QueryResultHolderPromise& res)
+            : m_holder(holder), m_result(std::move(res)){ };
         bool Execute();
 
 };
