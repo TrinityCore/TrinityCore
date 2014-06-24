@@ -1,5 +1,4 @@
-﻿ALTER TABLE `account`
-	ADD COLUMN `last_attempt_ip` VARCHAR(15) NOT NULL DEFAULT '127.0.0.1' AFTER `last_ip`;
+ALTER TABLE `account` ADD COLUMN `last_attempt_ip` VARCHAR(15) NOT NULL DEFAULT '127.0.0.1' AFTER `last_ip`;
 	
 CREATE TABLE `logs_ip_actions` (
 `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Identifier',
