@@ -677,35 +677,3 @@ void AddSC_dustwallow_marsh()
     new spell_energize_aoe();
     new go_blackhoof_cage();
 }
-
-
-/*######
-## npc_risen_husk_spirit
-######*/
-
-enum HauntingWitchHill
-{
-    // Quest
-    QUEST_WHATS_HAUNTING_WITCH_HILL     = 11180,
-
-    // General spells
-    SPELL_SUMMON_RESTLESS_APPARITION    = 42511,
-    SPELL_WITCH_HILL_INFORMATION_CREDIT = 42512,
-
-    // Risen Husk specific
-    SPELL_CONSUME_FLESH                 = 37933,
-    NPC_RISEN_HUSK                      = 23555,
-
-    // Risen Spirit specific
-    SPELL_INTANGIBLE_PRESENCE           = 43127,
-    NPC_RISEN_SPIRIT                    = 23554,
-
-    // Events
-    EVENT_CONSUME_FLESH                 = 1,
-    EVENT_INTANGIBLE_PRESENCE           = 2,
-};
-
-class npc_risen_husk_spirit : public CreatureScript
-{
-    public:
-        npc_risen_husk_spirit() : CreatureScript(
