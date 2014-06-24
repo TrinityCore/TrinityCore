@@ -17,29 +17,22 @@
 
 #include "LogWorker.h"
 
-LogWorker::LogWorker()
-    : m_queue(HIGH_WATERMARK, LOW_WATERMARK)
-{
-    ACE_Task_Base::activate(THR_NEW_LWP | THR_JOINABLE | THR_INHERIT_SCHED, 1);
-}
-
 LogWorker::~LogWorker()
 {
-    m_queue.deactivate();
-    wait();
+    m_queue.cancel();
 }
 
-int LogWorker::enqueue(LogOperation* op)
+void LogWorker::enqueue(LogOperation& op)
 {
-    return m_queue.enqueue(op);
+    return m_queue.add(op);
 }
 
 int LogWorker::svc()
 {
     while (1)
     {
-        LogOperation* request;
-        if (m_queue.dequeue(request) == -1)
+        LogOperation* request = nullptr;
+        if (!m_queue.next(*request))
             break;
 
         request->call();
