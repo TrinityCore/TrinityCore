@@ -49,39 +49,39 @@ class AccountActionIpLogger : public AccountScript
 
         // We log last_ip instead of last_attempt_ip, as login was successful
         // ACCOUNT_LOGIN = 0
-        void OnAccountLogin(uint32 accountId)
+        void OnAccountLogin(uint32 accountId) override
         {
             AccountIPLogAction(accountId, ACCOUNT_LOGIN);
         }
 
         // We log last_attempt_ip instead of last_ip, as failed login doesn't necessarily mean approperiate user
         // ACCOUNT_FAIL_LOGIN = 1
-        void OnFailedAccountLogin(uint32 accountId)
+        void OnFailedAccountLogin(uint32 accountId) override
         {
             AccountIPLogAction(accountId, ACCOUNT_FAIL_LOGIN);
         }
 
         // ACCOUNT_CHANGE_PW = 2
-        void OnPasswordChange(uint32 accountId)
+        void OnPasswordChange(uint32 accountId) override
         {
             AccountIPLogAction(accountId, ACCOUNT_CHANGE_PW);
         }
 
         // ACCOUNT_CHANGE_PW_FAIL = 3
-        void OnFailedPasswordChange(uint32 accountId)
+        void OnFailedPasswordChange(uint32 accountId) override
         {
             AccountIPLogAction(accountId, ACCOUNT_CHANGE_PW_FAIL);
         }
 
         // Registration Email can NOT be changed apart from GM level users. Thus, we do not require to log them...
-        // ACCOUNT_CHANGE_EMAIL = 4 
-        void OnEmailChange(uint32 accountId)
+        // ACCOUNT_CHANGE_EMAIL = 4
+        void OnEmailChange(uint32 accountId) override
         {
             AccountIPLogAction(accountId, ACCOUNT_CHANGE_EMAIL); // ... they get logged by gm command logger anyway
         }
 
         // ACCOUNT_CHANGE_EMAIL_FAIL = 5
-        void OnFailedEmailChange(uint32 accountId)
+        void OnFailedEmailChange(uint32 accountId) override
         {
             AccountIPLogAction(accountId, ACCOUNT_CHANGE_EMAIL_FAIL);
         }
@@ -168,19 +168,19 @@ class CharacterActionIpLogger : public PlayerScript
         CharacterActionIpLogger() : PlayerScript("CharacterActionIpLogger") { }
 
         // CHARACTER_CREATE = 7
-        void OnCreate(Player* player)
+        void OnCreate(Player* player) override
         {
             CharacterIPLogAction(player, CHARACTER_CREATE);
         }
 
         // CHARACTER_LOGIN = 8
-        void OnLogin(Player* player)
+        void OnLogin(Player* player, bool /*firstLogin*/) override
         {
             CharacterIPLogAction(player, CHARACTER_LOGIN);
         }
 
         // CHARACTER_LOGOUT = 9
-        void OnLogout(Player* player)
+        void OnLogout(Player* player) override
         {
             CharacterIPLogAction(player, CHARACTER_LOGOUT);
         }
@@ -252,13 +252,13 @@ public:
     CharacterDeleteActionIpLogger() : PlayerScript("CharacterDeleteActionIpLogger") { }
 
     // CHARACTER_DELETE = 10
-    void OnDelete(uint64 guid, uint32 accountId)
+    void OnDelete(uint64 guid, uint32 accountId) override
     {
         DeleteIPLogAction(guid, accountId, CHARACTER_DELETE);
     }
 
     // CHARACTER_FAILED_DELETE = 11
-    void OnFailedDelete(uint64 guid, uint32 accountId)
+    void OnFailedDelete(uint64 guid, uint32 accountId) override
     {
         DeleteIPLogAction(guid, accountId, CHARACTER_FAILED_DELETE);
     }
