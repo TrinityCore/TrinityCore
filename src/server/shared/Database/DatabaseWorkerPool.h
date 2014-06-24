@@ -307,10 +307,10 @@ class DatabaseWorkerPool
         //! The return value is then processed in ProcessQueryCallback methods.
         QueryResultFuture AsyncQuery(const char* sql)
         {
-            QueryResultFuture res;
+            QueryResultPromise res;
             BasicStatementTask* task = new BasicStatementTask(sql, res);
             Enqueue(task);
-            return res;         //! Actual return value has no use yet
+            return res.get_future();         //! Actual return value has no use yet
         }
 
         //! Enqueues a query in string format -with variable args- that will set the value of the QueryResultFuture return object as soon as the query is executed.
@@ -331,10 +331,10 @@ class DatabaseWorkerPool
         //! Statement must be prepared with CONNECTION_ASYNC flag.
         PreparedQueryResultFuture AsyncQuery(PreparedStatement* stmt)
         {
-            PreparedQueryResultFuture res;
+            PreparedQueryResultPromise res;
             PreparedStatementTask* task = new PreparedStatementTask(stmt, res);
             Enqueue(task);
-            return res;
+            return res.get_future();
         }
 
         //! Enqueues a vector of SQL operations (can be both adhoc and prepared) that will set the value of the QueryResultHolderFuture
@@ -343,10 +343,10 @@ class DatabaseWorkerPool
         //! Any prepared statements added to this holder need to be prepared with the CONNECTION_ASYNC flag.
         QueryResultHolderFuture DelayQueryHolder(SQLQueryHolder* holder)
         {
-            QueryResultHolderFuture res;
+            QueryResultHolderPromise res;
             SQLQueryHolderTask* task = new SQLQueryHolderTask(holder, res);
             Enqueue(task);
-            return res;     //! Fool compiler, has no use yet
+            return res.get_future();     //! Fool compiler, has no use yet
         }
 
         /**

@@ -25,9 +25,9 @@ m_has_result(false)
     m_sql = strdup(sql);
 }
 
-BasicStatementTask::BasicStatementTask(const char* sql, QueryResultFuture result) :
+BasicStatementTask::BasicStatementTask(const char* sql, QueryResultPromise& result) :
 m_has_result(true),
-m_result(result)
+m_result(std::move(result))
 {
     m_sql = strdup(sql);
 }
@@ -45,11 +45,11 @@ bool BasicStatementTask::Execute()
         if (!result || !result->GetRowCount() || !result->NextRow())
         {
             delete result;
-            m_result.set(QueryResult(NULL));
+            m_result.set_value(QueryResult(NULL));
             return false;
         }
 
-        m_result.set(QueryResult(result));
+        m_result.set_value(QueryResult(result));
         return true;
     }
 
