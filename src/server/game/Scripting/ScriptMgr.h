@@ -781,22 +781,22 @@ class AccountScript : public ScriptObject
     public:
 
         // Called when an account logged in succesfully
-        virtual void OnAccountLogin(uint32 accountId) {}
+        virtual void OnAccountLogin(uint32 /*accountId*/) {}
 
         // Called when an account login failed
-        virtual void OnFailedAccountLogin(uint32 accountId) {}
+        virtual void OnFailedAccountLogin(uint32 /*accountId*/) {}
 
         // Called when Email is successfully changed for Account
-        virtual void OnEmailChange(uint32 accountId) {}
+        virtual void OnEmailChange(uint32 /*accountId*/) {}
 
         // Called when Email failed to change for Account
-        virtual void OnFailedEmailChange(uint32 accountId) {}
+        virtual void OnFailedEmailChange(uint32 /*accountId*/) {}
 
         // Called when Password is successfully changed for Account
-        virtual void OnPasswordChange(uint32 accountId) {}
+        virtual void OnPasswordChange(uint32 /*accountId*/) {}
 
         // Called when Password failed to change for Account
-        virtual void OnFailedPasswordChange(uint32 accountId) {}
+        virtual void OnFailedPasswordChange(uint32 /*accountId*/) {}
 };
 
 class GuildScript : public ScriptObject
