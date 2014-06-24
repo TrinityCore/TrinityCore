@@ -877,7 +877,7 @@ unsigned nestingLevel,
 DWORD_PTR offset,
 bool & bHandled,
 const char* Name,
-char* suffix,
+char* /*suffix*/,
 bool newSymbol,
 bool logChildren)
 {
