@@ -258,7 +258,7 @@ CREATE TABLE `logs_ip_actions` (
 `time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp',
 `comment` TEXT NULL COMMENT 'Allows users to add a comment',
 PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
