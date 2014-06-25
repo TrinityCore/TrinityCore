@@ -9020,8 +9020,12 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
             // possible only if creature->lootForBody && loot->empty() at spell cast check
             if (loot_type == LOOT_SKINNING)
             {
-                loot->clear();
-                loot->FillLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, this, true);
+                if (!creature->lootForSkinned)
+                {
+                    creature->lootForSkinned = true;
+                    loot->clear();
+                    loot->FillLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, this, true);
+                }
                 permission = OWNER_PERMISSION;
             }
             // set group rights only for loot_type != LOOT_SKINNING
