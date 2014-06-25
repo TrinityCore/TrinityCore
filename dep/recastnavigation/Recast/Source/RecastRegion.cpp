@@ -315,6 +315,7 @@ static bool floodRegion(int x, int y, int i,
 			srcReg[ci] = 0;
 			continue;
 		}
+		
 		count++;
 		
 		// Expand neighbours.
@@ -516,7 +517,11 @@ struct rcRegion
 		id(i),
 		areaType(0),
 		remap(false),
-		visited(false)
+		visited(false),
+		overlap(false),
+		connectsToBorder(false),
+		ymin(0xffff),
+		ymax(0)
 	{}
 	
 	int spanCount;					// Number of spans belonging to this region
@@ -524,6 +529,9 @@ struct rcRegion
 	unsigned char areaType;			// Are type.
 	bool remap;
 	bool visited;
+	bool overlap;
+	bool connectsToBorder;
+	unsigned short ymin, ymax;
 	rcIntArray connections;
 	rcIntArray floors;
 };
@@ -768,10 +776,11 @@ static void walkContour(int x, int y, int i, int dir,
 	}
 }
 
-static bool filterSmallRegions(rcContext* ctx, int minRegionArea, int mergeRegionSize,
-							   unsigned short& maxRegionId,
-							   rcCompactHeightfield& chf,
-							   unsigned short* srcReg)
+
+static bool mergeAndFilterRegions(rcContext* ctx, int minRegionArea, int mergeRegionSize,
+								  unsigned short& maxRegionId,
+								  rcCompactHeightfield& chf,
+								  unsigned short* srcReg, rcIntArray& overlaps)
 {
 	const int w = chf.width;
 	const int h = chf.height;
@@ -780,7 +789,7 @@ static bool filterSmallRegions(rcContext* ctx, int minRegionArea, int mergeRegio
 	rcRegion* regions = (rcRegion*)rcAlloc(sizeof(rcRegion)*nreg, RC_ALLOC_TEMP);
 	if (!regions)
 	{
-		ctx->log(RC_LOG_ERROR, "filterSmallRegions: Out of memory 'regions' (%d).", nreg);
+		ctx->log(RC_LOG_ERROR, "mergeAndFilterRegions: Out of memory 'regions' (%d).", nreg);
 		return false;
 	}
 
@@ -803,7 +812,6 @@ static bool filterSmallRegions(rcContext* ctx, int minRegionArea, int mergeRegio
 				rcRegion& reg = regions[r];
 				reg.spanCount++;
 				
-				
 				// Update floors.
 				for (int j = (int)c.index; j < ni; ++j)
 				{
@@ -811,6 +819,8 @@ static bool filterSmallRegions(rcContext* ctx, int minRegionArea, int mergeRegio
 					unsigned short floorId = srcReg[j];
 					if (floorId == 0 || floorId >= nreg)
 						continue;
+					if (floorId == r)
+						reg.overlap = true;
 					addUniqueFloorRegion(reg, floorId);
 				}
 				
@@ -906,7 +916,7 @@ static bool filterSmallRegions(rcContext* ctx, int minRegionArea, int mergeRegio
 			}
 		}
 	}
-		
+	
 	// Merge too small regions to neighbour regions.
 	int mergeCount = 0 ;
 	do
@@ -916,7 +926,9 @@ static bool filterSmallRegions(rcContext* ctx, int minRegionArea, int mergeRegio
 		{
 			rcRegion& reg = regions[i];
 			if (reg.id == 0 || (reg.id & RC_BORDER_REG))
-				continue;                       
+				continue;
+			if (reg.overlap)
+				continue;
 			if (reg.spanCount == 0)
 				continue;
 			
@@ -933,7 +945,7 @@ static bool filterSmallRegions(rcContext* ctx, int minRegionArea, int mergeRegio
 			{
 				if (reg.connections[j] & RC_BORDER_REG) continue;
 				rcRegion& mreg = regions[reg.connections[j]];
-				if (mreg.id == 0 || (mreg.id & RC_BORDER_REG)) continue;
+				if (mreg.id == 0 || (mreg.id & RC_BORDER_REG) || mreg.overlap) continue;
 				if (mreg.spanCount < smallest &&
 					canMergeWithRegion(reg, mreg) &&
 					canMergeWithRegion(mreg, reg))
@@ -1003,6 +1015,224 @@ static bool filterSmallRegions(rcContext* ctx, int minRegionArea, int mergeRegio
 		if ((srcReg[i] & RC_BORDER_REG) == 0)
 			srcReg[i] = regions[srcReg[i]].id;
 	}
+
+	// Return regions that we found to be overlapping.
+	for (int i = 0; i < nreg; ++i)
+		if (regions[i].overlap)
+			overlaps.push(regions[i].id);
+
+	for (int i = 0; i < nreg; ++i)
+		regions[i].~rcRegion();
+	rcFree(regions);
+	
+	
+	return true;
+}
+
+
+static void addUniqueConnection(rcRegion& reg, int n)
+{
+	for (int i = 0; i < reg.connections.size(); ++i)
+		if (reg.connections[i] == n)
+			return;
+	reg.connections.push(n);
+}
+
+static bool mergeAndFilterLayerRegions(rcContext* ctx, int minRegionArea,
+									   unsigned short& maxRegionId,
+									   rcCompactHeightfield& chf,
+									   unsigned short* srcReg, rcIntArray& overlaps)
+{
+	const int w = chf.width;
+	const int h = chf.height;
+	
+	const int nreg = maxRegionId+1;
+	rcRegion* regions = (rcRegion*)rcAlloc(sizeof(rcRegion)*nreg, RC_ALLOC_TEMP);
+	if (!regions)
+	{
+		ctx->log(RC_LOG_ERROR, "mergeAndFilterLayerRegions: Out of memory 'regions' (%d).", nreg);
+		return false;
+	}
+	
+	// Construct regions
+	for (int i = 0; i < nreg; ++i)
+		new(&regions[i]) rcRegion((unsigned short)i);
+	
+	// Find region neighbours and overlapping regions.
+	rcIntArray lregs(32);
+	for (int y = 0; y < h; ++y)
+	{
+		for (int x = 0; x < w; ++x)
+		{
+			const rcCompactCell& c = chf.cells[x+y*w];
+
+			lregs.resize(0);
+			
+			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+			{
+				const rcCompactSpan& s = chf.spans[i];
+				const unsigned short ri = srcReg[i];
+				if (ri == 0 || ri >= nreg) continue;
+				rcRegion& reg = regions[ri];
+				
+				reg.spanCount++;
+				
+				reg.ymin = rcMin(reg.ymin, s.y);
+				reg.ymax = rcMax(reg.ymax, s.y);
+				
+				// Collect all region layers.
+				lregs.push(ri);
+				
+				// Update neighbours
+				for (int dir = 0; dir < 4; ++dir)
+				{
+					if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
+					{
+						const int ax = x + rcGetDirOffsetX(dir);
+						const int ay = y + rcGetDirOffsetY(dir);
+						const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, dir);
+						const unsigned short rai = srcReg[ai];
+						if (rai > 0 && rai < nreg && rai != ri)
+							addUniqueConnection(reg, rai);
+						if (rai & RC_BORDER_REG)
+							reg.connectsToBorder = true;
+					}
+				}
+				
+			}
+			
+			// Update overlapping regions.
+			for (int i = 0; i < lregs.size()-1; ++i)
+			{
+				for (int j = i+1; j < lregs.size(); ++j)
+				{
+					if (lregs[i] != lregs[j])
+					{
+						rcRegion& ri = regions[lregs[i]];
+						rcRegion& rj = regions[lregs[j]];
+						addUniqueFloorRegion(ri, lregs[j]);
+						addUniqueFloorRegion(rj, lregs[i]);
+					}
+				}
+			}
+			
+		}
+	}
+
+	// Create 2D layers from regions.
+	unsigned short layerId = 1;
+
+	for (int i = 0; i < nreg; ++i)
+		regions[i].id = 0;
+
+	// Merge montone regions to create non-overlapping areas.
+	rcIntArray stack(32);
+	for (int i = 1; i < nreg; ++i)
+	{
+		rcRegion& root = regions[i];
+		// Skip already visited.
+		if (root.id != 0)
+			continue;
+		
+		// Start search.
+		root.id = layerId;
+
+		stack.resize(0);
+		stack.push(i);
+		
+		while (stack.size() > 0)
+		{
+			// Pop front
+			rcRegion& reg = regions[stack[0]];
+			for (int j = 0; j < stack.size()-1; ++j)
+				stack[j] = stack[j+1];
+			stack.resize(stack.size()-1);
+			
+			const int ncons = (int)reg.connections.size();
+			for (int j = 0; j < ncons; ++j)
+			{
+				const int nei = reg.connections[j];
+				rcRegion& regn = regions[nei];
+				// Skip already visited.
+				if (regn.id != 0)
+					continue;
+				// Skip if the neighbour is overlapping root region.
+				bool overlap = false;
+				for (int k = 0; k < root.floors.size(); k++)
+				{
+					if (root.floors[k] == nei)
+					{
+						overlap = true;
+						break;
+					}
+				}
+				if (overlap)
+					continue;
+					
+				// Deepen
+				stack.push(nei);
+					
+				// Mark layer id
+				regn.id = layerId;
+				// Merge current layers to root.
+				for (int k = 0; k < regn.floors.size(); ++k)
+					addUniqueFloorRegion(root, regn.floors[k]);
+				root.ymin = rcMin(root.ymin, regn.ymin);
+				root.ymax = rcMax(root.ymax, regn.ymax);
+				root.spanCount += regn.spanCount;
+				regn.spanCount = 0;
+				root.connectsToBorder = root.connectsToBorder || regn.connectsToBorder;
+			}
+		}
+		
+		layerId++;
+	}
+	
+	// Remove small regions
+	for (int i = 0; i < nreg; ++i)
+	{
+		if (regions[i].spanCount > 0 && regions[i].spanCount < minRegionArea && !regions[i].connectsToBorder)
+		{
+			unsigned short reg = regions[i].id;
+			for (int j = 0; j < nreg; ++j)
+				if (regions[j].id == reg)
+					regions[j].id = 0;
+		}
+	}
+	
+	// Compress region Ids.
+	for (int i = 0; i < nreg; ++i)
+	{
+		regions[i].remap = false;
+		if (regions[i].id == 0) continue;				// Skip nil regions.
+		if (regions[i].id & RC_BORDER_REG) continue;    // Skip external regions.
+		regions[i].remap = true;
+	}
+	
+	unsigned short regIdGen = 0;
+	for (int i = 0; i < nreg; ++i)
+	{
+		if (!regions[i].remap)
+			continue;
+		unsigned short oldId = regions[i].id;
+		unsigned short newId = ++regIdGen;
+		for (int j = i; j < nreg; ++j)
+		{
+			if (regions[j].id == oldId)
+			{
+				regions[j].id = newId;
+				regions[j].remap = false;
+			}
+		}
+	}
+	maxRegionId = regIdGen;
+	
+	// Remap regions.
+	for (int i = 0; i < chf.spanCount; ++i)
+	{
+		if ((srcReg[i] & RC_BORDER_REG) == 0)
+			srcReg[i] = regions[srcReg[i]].id;
+	}
 	
 	for (int i = 0; i < nreg; ++i)
 		regions[i].~rcRegion();
@@ -1010,6 +1240,8 @@ static bool filterSmallRegions(rcContext* ctx, int minRegionArea, int mergeRegio
 	
 	return true;
 }
+
+
 
 /// @par
 /// 
@@ -1256,13 +1488,17 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 		}
 	}
 
+
 	ctx->startTimer(RC_TIMER_BUILD_REGIONS_FILTER);
 
-	// Filter out small regions.
+	// Merge regions and filter out small regions.
+	rcIntArray overlaps;
 	chf.maxRegions = id;
-	if (!filterSmallRegions(ctx, minRegionArea, mergeRegionArea, chf.maxRegions, chf, srcReg))
+	if (!mergeAndFilterRegions(ctx, minRegionArea, mergeRegionArea, chf.maxRegions, chf, srcReg, overlaps))
 		return false;
 
+	// Monotone partitioning does not generate overlapping regions.
+	
 	ctx->stopTimer(RC_TIMER_BUILD_REGIONS_FILTER);
 	
 	// Store the result out.
@@ -1407,11 +1643,18 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	
 	ctx->startTimer(RC_TIMER_BUILD_REGIONS_FILTER);
 	
-	// Filter out small regions.
+	// Merge regions and filter out smalle regions.
+	rcIntArray overlaps;
 	chf.maxRegions = regionId;
-	if (!filterSmallRegions(ctx, minRegionArea, mergeRegionArea, chf.maxRegions, chf, srcReg))
+	if (!mergeAndFilterRegions(ctx, minRegionArea, mergeRegionArea, chf.maxRegions, chf, srcReg, overlaps))
 		return false;
-	
+
+	// If overlapping regions were found during merging, split those regions.
+	if (overlaps.size() > 0)
+	{
+		ctx->log(RC_LOG_ERROR, "rcBuildRegions: %d overlapping regions.", overlaps.size());
+	}
+
 	ctx->stopTimer(RC_TIMER_BUILD_REGIONS_FILTER);
 		
 	// Write the result out.
@@ -1424,3 +1667,157 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 }
 
 
+bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
+						 const int borderSize, const int minRegionArea)
+{
+	rcAssert(ctx);
+	
+	ctx->startTimer(RC_TIMER_BUILD_REGIONS);
+	
+	const int w = chf.width;
+	const int h = chf.height;
+	unsigned short id = 1;
+	
+	rcScopedDelete<unsigned short> srcReg = (unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount, RC_ALLOC_TEMP);
+	if (!srcReg)
+	{
+		ctx->log(RC_LOG_ERROR, "rcBuildRegionsMonotone: Out of memory 'src' (%d).", chf.spanCount);
+		return false;
+	}
+	memset(srcReg,0,sizeof(unsigned short)*chf.spanCount);
+	
+	const int nsweeps = rcMax(chf.width,chf.height);
+	rcScopedDelete<rcSweepSpan> sweeps = (rcSweepSpan*)rcAlloc(sizeof(rcSweepSpan)*nsweeps, RC_ALLOC_TEMP);
+	if (!sweeps)
+	{
+		ctx->log(RC_LOG_ERROR, "rcBuildRegionsMonotone: Out of memory 'sweeps' (%d).", nsweeps);
+		return false;
+	}
+	
+	
+	// Mark border regions.
+	if (borderSize > 0)
+	{
+		// Make sure border will not overflow.
+		const int bw = rcMin(w, borderSize);
+		const int bh = rcMin(h, borderSize);
+		// Paint regions
+		paintRectRegion(0, bw, 0, h, id|RC_BORDER_REG, chf, srcReg); id++;
+		paintRectRegion(w-bw, w, 0, h, id|RC_BORDER_REG, chf, srcReg); id++;
+		paintRectRegion(0, w, 0, bh, id|RC_BORDER_REG, chf, srcReg); id++;
+		paintRectRegion(0, w, h-bh, h, id|RC_BORDER_REG, chf, srcReg); id++;
+		
+		chf.borderSize = borderSize;
+	}
+	
+	rcIntArray prev(256);
+	
+	// Sweep one line at a time.
+	for (int y = borderSize; y < h-borderSize; ++y)
+	{
+		// Collect spans from this row.
+		prev.resize(id+1);
+		memset(&prev[0],0,sizeof(int)*id);
+		unsigned short rid = 1;
+		
+		for (int x = borderSize; x < w-borderSize; ++x)
+		{
+			const rcCompactCell& c = chf.cells[x+y*w];
+			
+			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+			{
+				const rcCompactSpan& s = chf.spans[i];
+				if (chf.areas[i] == RC_NULL_AREA) continue;
+				
+				// -x
+				unsigned short previd = 0;
+				if (rcGetCon(s, 0) != RC_NOT_CONNECTED)
+				{
+					const int ax = x + rcGetDirOffsetX(0);
+					const int ay = y + rcGetDirOffsetY(0);
+					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 0);
+					if ((srcReg[ai] & RC_BORDER_REG) == 0 && chf.areas[i] == chf.areas[ai])
+						previd = srcReg[ai];
+				}
+				
+				if (!previd)
+				{
+					previd = rid++;
+					sweeps[previd].rid = previd;
+					sweeps[previd].ns = 0;
+					sweeps[previd].nei = 0;
+				}
+				
+				// -y
+				if (rcGetCon(s,3) != RC_NOT_CONNECTED)
+				{
+					const int ax = x + rcGetDirOffsetX(3);
+					const int ay = y + rcGetDirOffsetY(3);
+					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 3);
+					if (srcReg[ai] && (srcReg[ai] & RC_BORDER_REG) == 0 && chf.areas[i] == chf.areas[ai])
+					{
+						unsigned short nr = srcReg[ai];
+						if (!sweeps[previd].nei || sweeps[previd].nei == nr)
+						{
+							sweeps[previd].nei = nr;
+							sweeps[previd].ns++;
+							prev[nr]++;
+						}
+						else
+						{
+							sweeps[previd].nei = RC_NULL_NEI;
+						}
+					}
+				}
+				
+				srcReg[i] = previd;
+			}
+		}
+		
+		// Create unique ID.
+		for (int i = 1; i < rid; ++i)
+		{
+			if (sweeps[i].nei != RC_NULL_NEI && sweeps[i].nei != 0 &&
+				prev[sweeps[i].nei] == (int)sweeps[i].ns)
+			{
+				sweeps[i].id = sweeps[i].nei;
+			}
+			else
+			{
+				sweeps[i].id = id++;
+			}
+		}
+		
+		// Remap IDs
+		for (int x = borderSize; x < w-borderSize; ++x)
+		{
+			const rcCompactCell& c = chf.cells[x+y*w];
+			
+			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+			{
+				if (srcReg[i] > 0 && srcReg[i] < rid)
+					srcReg[i] = sweeps[srcReg[i]].id;
+			}
+		}
+	}
+	
+	
+	ctx->startTimer(RC_TIMER_BUILD_REGIONS_FILTER);
+	
+	// Merge monotone regions to layers and remove small regions.
+	rcIntArray overlaps;
+	chf.maxRegions = id;
+	if (!mergeAndFilterLayerRegions(ctx, minRegionArea, chf.maxRegions, chf, srcReg, overlaps))
+		return false;
+	
+	ctx->stopTimer(RC_TIMER_BUILD_REGIONS_FILTER);
+	
+	
+	// Store the result out.
+	for (int i = 0; i < chf.spanCount; ++i)
+		chf.spans[i].reg = srcReg[i];
+	
+	ctx->stopTimer(RC_TIMER_BUILD_REGIONS);
+	
+	return true;
+}

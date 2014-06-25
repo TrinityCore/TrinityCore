@@ -1683,23 +1683,6 @@ struct ScalingStatValuesEntry
 //    uint32    displayOrder;                               // 19     m_sortIndex
 //};
 
-//struct SkillRaceClassInfoEntry{
-//    uint32    id;                                         // 0      m_ID
-//    uint32    skillId;                                    // 1      m_skillID
-//    uint32    raceMask;                                   // 2      m_raceMask
-//    uint32    classMask;                                  // 3      m_classMask
-//    uint32    flags;                                      // 4      m_flags
-//    uint32    reqLevel;                                   // 5      m_minLevel
-//    uint32    skillTierId;                                // 6      m_skillTierID
-//    uint32    skillCostID;                                // 7      m_skillCostIndex
-//};
-
-//struct SkillTiersEntry{
-//    uint32    id;                                         // 0      m_ID
-//    uint32    skillValue[16];                             // 1-17   m_cost
-//    uint32    maxSkillValue[16];                          // 18-32  m_valueMax
-//};
-
 struct SkillLineEntry
 {
     uint32    id;                                           // 0        m_ID
@@ -1727,6 +1710,28 @@ struct SkillLineAbilityEntry
     uint32    max_value;                                    // 10       m_trivialSkillLineRankHigh
     uint32    min_value;                                    // 11       m_trivialSkillLineRankLow
     uint32    character_points[2];                          // 12-13    m_characterPoints
+};
+
+struct SkillRaceClassInfoEntry
+{
+    //uint32 Id;                                            // 0      m_ID
+    uint32 SkillId;                                         // 1      m_skillID
+    uint32 RaceMask;                                        // 2      m_raceMask
+    uint32 ClassMask;                                       // 3      m_classMask
+    uint32 Flags;                                           // 4      m_flags
+    //uint32 MinLevel;                                      // 5      m_minLevel
+    uint32 SkillTier;                                       // 6      m_skillTierID
+    //uint32 SkillCostType;                                 // 7      m_skillCostIndex
+    //uint32 Unk;                                           // 8      m_unk
+};
+
+#define MAX_SKILL_STEP 16
+
+struct SkillTiersEntry
+{
+    uint32 Id;                                              // 0      m_ID
+    //uint32 StepCost[MAX_SKILL_STEP];                      // 1-16   m_cost
+    uint32 MaxSkill[MAX_SKILL_STEP];                        // 17-32  m_valueMax
 };
 
 struct SoundEntriesEntry
