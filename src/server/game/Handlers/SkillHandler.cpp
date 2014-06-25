@@ -98,7 +98,8 @@ void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recvData)
     uint32 skillId;
     recvData >> skillId;
 
-    if (!IsPrimaryProfessionSkill(skillId))
+    SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skillId, GetPlayer()->getRace(), GetPlayer()->getClass());
+    if (!rcEntry || !(rcEntry->Flags & SKILL_FLAG_UNLEARNABLE))
         return;
 
     GetPlayer()->SetSkill(skillId, 0, 0, 0);

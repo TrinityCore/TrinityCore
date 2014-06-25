@@ -349,21 +349,20 @@ enum ItemLimitCategoryMode
     ITEM_LIMIT_CATEGORY_MODE_EQUIP      = 1                       // limit applied to amount equipped items (including used gems)
 };
 
+enum SkillRaceClassInfoFlags
+{
+    SKILL_FLAG_NO_SKILLUP_MESSAGE       = 0x2,
+    SKILL_FLAG_ALWAYS_MAX_VALUE         = 0x10,
+    SKILL_FLAG_UNLEARNABLE              = 0x20,     // Skill can be unlearned
+    SKILL_FLAG_INCLUDE_IN_SORT          = 0x80,     // Spells belonging to a skill with this flag will additionally compare skill ids when sorting spellbook in client
+    SKILL_FLAG_NOT_TRAINABLE            = 0x100,
+    SKILL_FLAG_MONO_VALUE               = 0x400     // Skill always has value 1
+};
+
 enum SpellCategoryFlags
 {
     SPELL_CATEGORY_FLAG_COOLDOWN_SCALES_WITH_WEAPON_SPEED   = 0x01, // unused
     SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT            = 0x04
-};
-
-enum TotemCategoryType
-{
-    TOTEM_CATEGORY_TYPE_KNIFE           = 1,
-    TOTEM_CATEGORY_TYPE_TOTEM           = 2,
-    TOTEM_CATEGORY_TYPE_ROD             = 3,
-    TOTEM_CATEGORY_TYPE_PICK            = 21,
-    TOTEM_CATEGORY_TYPE_STONE           = 22,
-    TOTEM_CATEGORY_TYPE_HAMMER          = 23,
-    TOTEM_CATEGORY_TYPE_SPANNER         = 24
 };
 
 // SummonProperties.dbc, col 1
@@ -396,6 +395,17 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK14           = 0x00002000,          // Guides, player follows
     SUMMON_PROP_FLAG_UNK15           = 0x00004000,          // Force of Nature, Shadowfiend, Feral Spirit, Summon Water Elemental
     SUMMON_PROP_FLAG_UNK16           = 0x00008000           // Light/Dark Bullet, Soul/Fiery Consumption, Twisted Visage, Twilight Whelp. Phase related?
+};
+
+enum TotemCategoryType
+{
+    TOTEM_CATEGORY_TYPE_KNIFE           = 1,
+    TOTEM_CATEGORY_TYPE_TOTEM           = 2,
+    TOTEM_CATEGORY_TYPE_ROD             = 3,
+    TOTEM_CATEGORY_TYPE_PICK            = 21,
+    TOTEM_CATEGORY_TYPE_STONE           = 22,
+    TOTEM_CATEGORY_TYPE_HAMMER          = 23,
+    TOTEM_CATEGORY_TYPE_SPANNER         = 24
 };
 
 enum VehicleSeatFlags
