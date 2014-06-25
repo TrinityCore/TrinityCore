@@ -8972,6 +8972,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
             if (!creature->lootForPickPocketed)
             {
                 creature->lootForPickPocketed = true;
+                creature->StartPickPocketRefillTimer();
                 loot->clear();
 
                 if (uint32 lootid = creature->GetCreatureTemplate()->pickpocketLootId)
