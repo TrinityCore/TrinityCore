@@ -2987,11 +2987,10 @@ void Player::UninviteFromGroup()
 
 void Player::RemoveFromGroup(Group* group, uint64 guid, RemoveMethod method /* = GROUP_REMOVEMETHOD_DEFAULT*/, uint64 kicker /* = 0 */, const char* reason /* = NULL */)
 {
-    if (group)
-    {
-        group->RemoveMember(guid, method, kicker, reason);
-        group = NULL;
-    }
+    if (!group)
+        return;
+
+    group->RemoveMember(guid, method, kicker, reason);
 }
 
 void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend, float /*group_rate*/)
@@ -9186,6 +9185,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
             if (!creature->lootForPickPocketed)
             {
                 creature->lootForPickPocketed = true;
+                creature->StartPickPocketRefillTimer();
                 loot->clear();
 
                 if (uint32 lootid = creature->GetCreatureTemplate()->pickpocketLootId)
@@ -9234,8 +9234,12 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
             // possible only if creature->lootForBody && loot->empty() at spell cast check
             if (loot_type == LOOT_SKINNING)
             {
-                loot->clear();
-                loot->FillLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, this, true);
+                if (!creature->lootForSkinned)
+                {
+                    creature->lootForSkinned = true;
+                    loot->clear();
+                    loot->FillLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, this, true);
+                }
                 permission = OWNER_PERMISSION;
             }
             // set group rights only for loot_type != LOOT_SKINNING
