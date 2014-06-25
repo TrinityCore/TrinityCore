@@ -3792,10 +3792,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 73781: // Infest (25 heroic)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
-            case 59289: // Glyph of Ghost Wolf
-            case 47893: // Fel Armor
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
-                break;
             case 74384:  // Intimidating Roar - Ruby Sanctum
                 spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_40_YARDS);
                 break;
