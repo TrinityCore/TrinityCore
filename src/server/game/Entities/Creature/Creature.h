@@ -554,6 +554,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool lootForPickPocketed;
         bool lootForBody;
         bool lootForSkinned;
+        void StartPickPocketRefillTimer();
+        void ResetPickPocketRefillTimer() { _pickpocketLootRestore = 0; }
         void SetSkinner(uint64 guid) { _skinner = guid; }
         uint64 GetSkinner() const { return _skinner; } // Returns the player who skinned this creature
         Player* GetLootRecipient() const;
@@ -694,6 +696,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         uint64 _skinner;
 
         /// Timers
+        time_t _pickpocketLootRestore;
         time_t m_corpseRemoveTime;                          // (msecs)timer for death or corpse disappearance
         time_t m_respawnTime;                               // (secs) time of next respawn
         uint32 m_respawnDelay;                              // (secs) delay between corpse disappearance and respawning
