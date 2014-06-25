@@ -101,6 +101,7 @@ void WorldSession::SendShowBank(uint64 guid)
 {
     WorldPacket data(SMSG_SHOW_BANK, 8);
     data << guid;
+    m_currentBankerGUID = guid;
     SendPacket(&data);
 }
 

@@ -99,7 +99,7 @@ class DatabaseWorkerPool
                     (_connectionCount[IDX_SYNCH] + _connectionCount[IDX_ASYNC]));
             else
                 TC_LOG_ERROR("sql.driver", "DatabasePool %s NOT opened. There were errors opening the MySQL connections. Check your SQLDriverLogFile "
-                    "for specific errors.", GetDatabaseName());
+                    "for specific errors. Read wiki at http://collab.kpsn.org/display/tc/TrinityCore+Home", GetDatabaseName());
             return res;
         }
 

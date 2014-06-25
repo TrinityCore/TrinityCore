@@ -690,7 +690,7 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_areaUpdateId = 0;
     m_team = 0;
-    
+
     m_needsZoneUpdate = false;
 
     m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
@@ -2136,11 +2136,9 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     {
         TC_LOG_DEBUG("maps", "Player %s using client without required expansion tried teleport to non accessible map %u", GetName().c_str(), mapid);
 
-        if (GetTransport())
+        if (Transport* transport = GetTransport())
         {
-            m_transport->RemovePassenger(this);
-            m_transport = NULL;
-            m_movementInfo.transport.Reset();
+            transport->RemovePassenger(this);
             RepopAtGraveyard();                             // teleport to near graveyard if on transport, looks blizz like :)
         }
 
@@ -2158,16 +2156,12 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     SetUnitMovementFlags(GetUnitMovementFlags() & MOVEMENTFLAG_MASK_HAS_PLAYER_STATUS_OPCODE);
     DisableSpline();
 
-    if (m_transport)
+    if (Transport* transport = GetTransport())
     {
         if (options & TELE_TO_NOT_LEAVE_TRANSPORT)
             AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
         else
-        {
-            m_transport->RemovePassenger(this);
-            m_transport = NULL;
-            m_movementInfo.transport.Reset();
-        }
+            transport->RemovePassenger(this);
     }
 
     // The player was ported to another map and loses the duel immediately.
@@ -2302,8 +2296,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 // send transfer packets
                 WorldPacket data(SMSG_TRANSFER_PENDING, 4 + 4 + 4);
                 data << uint32(mapid);
-                if (m_transport)
-                    data << m_transport->GetEntry() << GetMapId();
+                if (Transport* transport = GetTransport())
+                    data << transport->GetEntry() << GetMapId();
 
                 GetSession()->SendPacket(&data);
             }
@@ -2321,7 +2315,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             {
                 WorldPacket data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
                 data << uint32(mapid);
-                if (m_transport)
+                if (GetTransport())
                     data << m_movementInfo.transport.pos.PositionXYZOStream();
                 else
                     data << m_teleport_dest.PositionXYZOStream();
@@ -2931,11 +2925,10 @@ void Player::UninviteFromGroup()
 
 void Player::RemoveFromGroup(Group* group, uint64 guid, RemoveMethod method /* = GROUP_REMOVEMETHOD_DEFAULT*/, uint64 kicker /* = 0 */, const char* reason /* = NULL */)
 {
-    if (group)
-    {
-        group->RemoveMember(guid, method, kicker, reason);
-        group = NULL;
-    }
+    if (!group)
+        return;
+
+    group->RemoveMember(guid, method, kicker, reason);
 }
 
 void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend, float /*group_rate*/)
@@ -6444,7 +6437,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             if (newVal < currVal)
                 UpdateSkillEnchantments(id, currVal, newVal);
             // update step
-            SetUInt32Value(PLAYER_SKILL_VALUE_INDEX(itr->second.pos), MAKE_PAIR32(id, step));
+            SetUInt32Value(PLAYER_SKILL_INDEX(itr->second.pos), MAKE_PAIR32(id, step));
             // update value
             SetUInt32Value(PLAYER_SKILL_VALUE_INDEX(itr->second.pos), MAKE_SKILL_VALUE(newVal, maxVal));
             if (itr->second.uState != SKILL_NEW)
@@ -7497,7 +7490,8 @@ void Player::UpdateArea(uint32 newArea)
     {
         SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
         pvpInfo.IsInNoPvPArea = true;
-        CombatStopWithPets();
+        if (!duel)
+            CombatStopWithPets();
     }
     else
         RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
@@ -8798,7 +8792,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
 
         // not check distance for GO in case owned GO (fishing bobber case, for example)
         // And permit out of range GO with no owner in case fishing hole
-        if (!go || (loot_type != LOOT_FISHINGHOLE && (loot_type != LOOT_FISHING || go->GetOwnerGUID() != GetGUID()) && !go->IsWithinDistInMap(this, INTERACTION_DISTANCE)) || (loot_type == LOOT_CORPSE && go->GetRespawnTime() && go->isSpawnedByDefault()))
+        if (!go || (loot_type != LOOT_FISHINGHOLE && ((loot_type != LOOT_FISHING && loot_type != LOOT_FISHING_JUNK) || go->GetOwnerGUID() != GetGUID()) && !go->IsWithinDistInMap(this, INTERACTION_DISTANCE)) || (loot_type == LOOT_CORPSE && go->GetRespawnTime() && go->isSpawnedByDefault()))
         {
             SendLootRelease(guid);
             return;
@@ -8836,6 +8830,8 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
 
             if (loot_type == LOOT_FISHING)
                 go->getFishLoot(loot, this);
+            else if (loot_type == LOOT_FISHING_JUNK)
+                go->getFishLootJunk(loot, this);
 
             if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.groupLootRules)
             {
@@ -8985,6 +8981,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
             if (!creature->lootForPickPocketed)
             {
                 creature->lootForPickPocketed = true;
+                creature->StartPickPocketRefillTimer();
                 loot->clear();
 
                 if (uint32 lootid = creature->GetCreatureTemplate()->pickpocketLootId)
@@ -9033,8 +9030,12 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
             // possible only if creature->lootForBody && loot->empty() at spell cast check
             if (loot_type == LOOT_SKINNING)
             {
-                loot->clear();
-                loot->FillLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, this, true);
+                if (!creature->lootForSkinned)
+                {
+                    creature->lootForSkinned = true;
+                    loot->clear();
+                    loot->FillLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, this, true);
+                }
                 permission = OWNER_PERMISSION;
             }
             // set group rights only for loot_type != LOOT_SKINNING
@@ -9078,6 +9079,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
     {
         case LOOT_INSIGNIA:    loot_type = LOOT_SKINNING; break;
         case LOOT_FISHINGHOLE: loot_type = LOOT_FISHING; break;
+        case LOOT_FISHING_JUNK: loot_type = LOOT_FISHING; break;
         default: break;
     }
 
@@ -16401,12 +16403,8 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
                 uint16 curitemcount = q_status.ItemCount[j];
                 if (curitemcount < reqitemcount)
                 {
-                    uint16 additemcount = curitemcount + count <= reqitemcount ? count : reqitemcount - curitemcount;
-                    q_status.ItemCount[j] += additemcount;
-
+                    q_status.ItemCount[j] = std::min<uint16>(q_status.ItemCount[j] + count, reqitemcount);
                     m_QuestStatusSave[questid] = true;
-
-                    SendQuestUpdateAddItem(qInfo, j, additemcount);
                 }
                 if (CanCompleteQuest(questid))
                     CompleteQuest(questid);
@@ -16424,9 +16422,11 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 count)
         uint32 questid = GetQuestSlotQuestId(i);
         if (!questid)
             continue;
+
         Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
         if (!qInfo)
             continue;
+
         if (!qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DELIVER))
             continue;
 
@@ -16438,18 +16438,17 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 count)
                 QuestStatusData& q_status = m_QuestStatus[questid];
 
                 uint32 reqitemcount = qInfo->RequiredItemCount[j];
-                uint16 curitemcount;
-                if (q_status.Status != QUEST_STATUS_COMPLETE)
-                    curitemcount = q_status.ItemCount[j];
-                else
-                    curitemcount = GetItemCount(entry, true);
-                if (curitemcount < reqitemcount + count)
+                uint16 curitemcount = q_status.ItemCount[j];
+
+                if (q_status.ItemCount[j] >= reqitemcount) // we may have more than what the status shows
+                    curitemcount = GetItemCount(entry, false);
+
+                uint16 newItemCount = (count > curitemcount) ? 0 : curitemcount - count;
+                newItemCount = std::min<uint16>(newItemCount, reqitemcount);
+                if (newItemCount != q_status.ItemCount[j])
                 {
-                    uint16 remitemcount = curitemcount <= reqitemcount ? count : count + reqitemcount - curitemcount;
-                    q_status.ItemCount[j] = (curitemcount <= remitemcount) ? 0 : curitemcount - remitemcount;
-
+                    q_status.ItemCount[j] = newItemCount;
                     m_QuestStatusSave[questid] = true;
-
                     IncompleteQuest(questid);
                 }
                 return;
@@ -17418,15 +17417,15 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     {
         uint64 transGUID = MAKE_NEW_GUID(transLowGUID, 0, HIGHGUID_MO_TRANSPORT);
 
+        Transport* transport = NULL;
         if (GameObject* go = HashMapHolder<GameObject>::Find(transGUID))
-            m_transport = go->ToTransport();
+            transport = go->ToTransport();
 
-        if (m_transport)
+        if (transport)
         {
-            m_movementInfo.transport.guid = transGUID;
             float x = fields[26].GetFloat(), y = fields[27].GetFloat(), z = fields[28].GetFloat(), o = fields[29].GetFloat();
             m_movementInfo.transport.pos.Relocate(x, y, z, o);
-            m_transport->CalculatePassengerPosition(x, y, z, &o);
+            transport->CalculatePassengerPosition(x, y, z, &o);
 
             if (!Trinity::IsValidMapCoord(x, y, z, o) ||
                 // transport size limited
@@ -17437,7 +17436,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
                 TC_LOG_ERROR("entities.player", "Player (guidlow %d) have invalid transport coordinates (X: %f Y: %f Z: %f O: %f). Teleport to bind location.",
                     guid, x, y, z, o);
 
-                m_transport = NULL;
                 m_movementInfo.transport.Reset();
 
                 RelocateToHomebind();
@@ -17445,10 +17443,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
             else
             {
                 Relocate(x, y, z, o);
-                mapId = m_transport->GetMapId();
+                mapId = transport->GetMapId();
 
-                m_transport->AddPassenger(this);
-                AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+                transport->AddPassenger(this);
             }
         }
         else
@@ -25004,7 +25001,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             base_skill = 1;                                 // skill mast be known and then > 0 in any case
 
         if (GetPureSkillValue(SKILL_FIRST_AID) < base_skill)
-            SetSkill(SKILL_FIRST_AID, 0, base_skill, base_skill);
+            SetSkill(SKILL_FIRST_AID, 4 /*artisan*/, base_skill, 300);
         if (GetPureSkillValue(SKILL_AXES) < base_skill)
             SetSkill(SKILL_AXES, 0, base_skill, base_skill);
         if (GetPureSkillValue(SKILL_DEFENSE) < base_skill)
@@ -26779,4 +26776,9 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     //ObjectAccessor::UpdateObjectVisibility(pet);
 
     return pet;
+}
+
+bool Player::IsLoading() const
+{
+    return GetSession()->PlayerLoading();
 }

@@ -143,7 +143,7 @@ bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 }
 
 Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(),
-lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLowGUID(0),
+lootForPickPocketed(false), _pickpocketLootRestore(0), lootForBody(false), lootForSkinned(false), _skinner(0), m_groupLootTimer(0), lootingGroupLowGUID(0),
 m_PlayerDamageReq(0), m_lootRecipient(0), m_lootRecipientGroup(0), m_corpseRemoveTime(0), m_respawnTime(0),
 m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_reactState(REACT_AGGRESSIVE),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false),
@@ -552,6 +552,15 @@ void Creature::Update(uint32 diff)
             if (!IsAlive())
                 break;
 
+            time_t now = time(NULL);
+
+            // Check if we should refill the pickpocketing loot
+            if (lootForPickPocketed && _pickpocketLootRestore && _pickpocketLootRestore <= now)
+            {
+                lootForPickPocketed = false;
+                _pickpocketLootRestore = 0;
+            }
+
             if (m_regenTimer > 0)
             {
                 if (diff >= m_regenTimer)
@@ -572,13 +581,13 @@ void Creature::Update(uint32 diff)
             if (!IsInEvadeMode() && (!bInCombat || IsPolymorphed())) // regenerate health if not in combat or if polymorphed
                 RegenerateHealth();
 
-            if (getPowerType() == POWER_ENERGY)
+            if (HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER))
             {
-                if (!IsVehicle() || GetVehicleKit()->GetVehicleInfo()->m_powerDisplayId != POWER_PYRITE)
+                if (getPowerType() == POWER_ENERGY)
                     Regenerate(POWER_ENERGY);
+                else
+                    RegenerateMana();
             }
-            else
-                RegenerateMana();
 
             /*if (!bIsPolymorphed) // only increase the timer if not polymorphed
                     m_regenTimer += CREATURE_REGEN_INTERVAL - diff;
@@ -1178,13 +1187,21 @@ bool Creature::CreateFromProto(uint32 guidlow, uint32 entry, CreatureData const*
 
     SetOriginalEntry(entry);
 
-    if (!vehId)
-        vehId = cinfo->VehicleId;
-
-    Object::_Create(guidlow, entry, vehId ? HIGHGUID_VEHICLE : HIGHGUID_UNIT);
+    Object::_Create(guidlow, entry, (vehId || cinfo->VehicleId) ? HIGHGUID_VEHICLE : HIGHGUID_UNIT);
 
     if (!UpdateEntry(entry, data))
         return false;
+
+    if (!vehId)
+    {
+        if (GetCreatureTemplate()->VehicleId)
+        {
+            vehId = GetCreatureTemplate()->VehicleId;
+            entry = GetCreatureTemplate()->Entry;
+        }
+        else
+            vehId = cinfo->VehicleId;
+    }
 
     if (vehId)
         CreateVehicleKit(vehId, entry);
@@ -1524,9 +1541,10 @@ void Creature::Respawn(bool force)
         TC_LOG_DEBUG("entities.unit", "Respawning creature %s (GuidLow: %u, Full GUID: " UI64FMTD " Entry: %u)",
             GetName().c_str(), GetGUIDLow(), GetGUID(), GetEntry());
         m_respawnTime = 0;
+        _pickpocketLootRestore = 0;
         lootForPickPocketed = false;
-        lootForBody         = false;
-
+        lootForBody = false;
+        lootForSkinned = false;
         if (m_originalEntry != GetEntry())
             UpdateEntry(m_originalEntry);
 
@@ -2271,19 +2289,16 @@ void Creature::AllLootRemovedFromCorpse()
         if (m_corpseRemoveTime <= now)
             return;
 
-        float decayRate;
+        float decayRate = sWorld->getRate(RATE_CORPSE_DECAY_LOOTED);
         CreatureTemplate const* cinfo = GetCreatureTemplate();
-
-        decayRate = sWorld->getRate(RATE_CORPSE_DECAY_LOOTED);
-        uint32 diff = uint32((m_corpseRemoveTime - now) * decayRate);
-
-        m_respawnTime -= diff;
 
         // corpse skinnable, but without skinning flag, and then skinned, corpse will despawn next update
         if (cinfo && cinfo->SkinLootId)
             m_corpseRemoveTime = time(NULL);
         else
-            m_corpseRemoveTime -= diff;
+            m_corpseRemoveTime = now + m_corpseDelay * decayRate;
+
+        m_respawnTime = m_corpseRemoveTime + m_respawnTime;
     }
 }
 
@@ -2707,5 +2722,10 @@ void Creature::ReleaseFocus(Spell const* focusSpell)
 
     if (focusSpell->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_DONT_TURN_DURING_CAST)
         ClearUnitState(UNIT_STATE_ROTATING);
+}
+
+void Creature::StartPickPocketRefillTimer()
+{
+    _pickpocketLootRestore = time(NULL) + sWorld->getIntConfig(CONFIG_CREATURE_PICKPOCKET_REFILL);
 }
 

@@ -918,7 +918,7 @@ class PlayerTaxi
         bool SetTaximaskNode(uint32 nodeidx)
         {
             uint8  field   = uint8((nodeidx - 1) / 32);
-            uint32 submask = 1 << ((nodeidx-1) % 32);
+            uint32 submask = 1 << ((nodeidx - 1) % 32);
             if ((m_taximask[field] & submask) != submask)
             {
                 m_taximask[field] |= submask;
@@ -951,7 +951,7 @@ class PlayerTaxi
         std::deque<uint32> m_TaxiDestinations;
 };
 
-std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi);
+std::ostringstream& operator << (std::ostringstream& ss, PlayerTaxi const& taxi);
 
 class Player;
 
@@ -1676,7 +1676,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateZone(uint32 newZone, uint32 newArea);
         void UpdateArea(uint32 newArea);
         void SetNeedsZoneUpdate(bool needsUpdate) { m_needsZoneUpdate = needsUpdate; }
-        
+
         void UpdateZoneDependentAuras(uint32 zone_id);    // zones
         void UpdateAreaDependentAuras(uint32 area_id);    // subzones
 
@@ -2303,6 +2303,8 @@ class Player : public Unit, public GridObject<Player>
         std::string GetMapAreaAndZoneString();
         std::string GetCoordsMapAreaAndZoneString();
 
+        bool IsLoading() const;
+
     protected:
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;
@@ -2562,7 +2564,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsAlwaysDetectableFor(WorldObject const* seer) const;
 
         uint8 m_grantableLevels;
-        
+
         bool m_needsZoneUpdate;
 
     private:
@@ -2633,8 +2635,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 _activeCheats;
 };
 
-void AddItemsSetItem(Player*player, Item* item);
-void RemoveItemsSetItem(Player*player, ItemTemplate const* proto);
+void AddItemsSetItem(Player* player, Item* item);
+void RemoveItemsSetItem(Player* player, ItemTemplate const* proto);
 
 // "the bodies of template functions must be made available in a header file"
 template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell)

@@ -342,7 +342,8 @@ void WorldSession::DoLootRelease(uint64 lguid)
         }
         else
         {
-            if (pItem->loot.isLooted()) // Only delete item if no loot or money (unlooted loot is saved to db)
+            // Only delete item if no loot or money (unlooted loot is saved to db) or if it isn't an openable item
+            if (pItem->loot.isLooted() || !(proto->Flags & ITEM_PROTO_FLAG_OPENABLE))
                 player->DestroyItem(pItem->GetBagSlot(), pItem->GetSlot(), true);
         }
         return;                                             // item can be looted only single player
@@ -358,11 +359,15 @@ void WorldSession::DoLootRelease(uint64 lguid)
         loot = &creature->loot;
         if (loot->isLooted())
         {
+            creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+            
+            if (loot->loot_type == LOOT_SKINNING)
+                creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
+
             // skip pickpocketing loot for speed, skinning timer reduction is no-op in fact
             if (!creature->IsAlive())
                 creature->AllLootRemovedFromCorpse();
 
-            creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             loot->clear();
         }
         else

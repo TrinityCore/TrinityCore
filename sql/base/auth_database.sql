@@ -1,8 +1,8 @@
--- MySQL dump 10.15  Distrib 10.0.10-MariaDB, for Win64 (x86)
+-- MySQL dump 10.15  Distrib 10.0.12-MariaDB, for Win64 (x86)
 --
 -- Host: localhost    Database: auth
 -- ------------------------------------------------------
--- Server version   10.0.10-MariaDB
+-- Server version   10.0.12-MariaDB
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -34,6 +34,7 @@ CREATE TABLE `account` (
   `reg_mail` varchar(255) NOT NULL DEFAULT '',
   `joindate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_ip` varchar(15) NOT NULL DEFAULT '127.0.0.1',
+  `last_attempt_ip` varchar(15) NOT NULL DEFAULT '127.0.0.1',
   `failed_logins` int(10) unsigned NOT NULL DEFAULT '0',
   `locked` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `lock_country` varchar(2) NOT NULL DEFAULT '00',
@@ -240,6 +241,36 @@ LOCK TABLES `logs` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `logs_ip_actions`
+--
+
+DROP TABLE IF EXISTS `logs_ip_actions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `logs_ip_actions` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique Identifier',
+  `account_id` int(10) unsigned NOT NULL COMMENT 'Account ID',
+  `character_guid` int(10) unsigned NOT NULL COMMENT 'Character Guid',
+  `type` tinyint(3) unsigned NOT NULL,
+  `ip` varchar(15) NOT NULL DEFAULT '127.0.0.1',
+  `systemnote` text COMMENT 'Notes inserted by system',
+  `unixtime` int(10) unsigned NOT NULL COMMENT 'Unixtime',
+  `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp',
+  `comment` text COMMENT 'Allows users to add a comment',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Used to log ips of individual actions';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `logs_ip_actions`
+--
+
+LOCK TABLES `logs_ip_actions` WRITE;
+/*!40000 ALTER TABLE `logs_ip_actions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `logs_ip_actions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `rbac_account_permissions`
 --
 
@@ -440,4 +471,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-04-28 13:43:54
+-- Dump completed on 2014-06-25 18:37:31

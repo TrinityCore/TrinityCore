@@ -191,6 +191,10 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
     }
     else
     {
+        // Set home position at place on waypoint movement.
+        if (!creature->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) || !creature->GetTransGUID())
+            creature->SetHomePosition(creature->GetPosition());
+
         if (creature->IsStopped())
             Stop(STOP_TIME_FOR_PLAYER);
         else if (creature->movespline->Finalized())
