@@ -29,6 +29,7 @@
 #include "Util.h"
 #include "World.h"
 #include "SHA1.h"
+#include "ace/OS_NS_unistd.h"
 
 RASocket::RASocket()
 {
