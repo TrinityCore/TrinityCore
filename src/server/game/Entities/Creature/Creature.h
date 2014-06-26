@@ -551,9 +551,6 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         virtual void DeleteFromDB();                        // overriden in Pet
 
         Loot loot;
-        bool lootForPickPocketed;
-        bool lootForBody;
-        bool lootForSkinned;
         void StartPickPocketRefillTimer();
         void ResetPickPocketRefillTimer() { _pickpocketLootRestore = 0; }
         void SetSkinner(uint64 guid) { _skinner = guid; }
