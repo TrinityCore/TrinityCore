@@ -229,7 +229,7 @@ class instance_magisters_terrace : public InstanceMapScript
             }
 
         protected:
-            std::vector<uint64> FelCrystals;
+            std::vector<uint32> FelCrystals;
 
             uint64 SelinGUID;
             uint64 DelrissaGUID;

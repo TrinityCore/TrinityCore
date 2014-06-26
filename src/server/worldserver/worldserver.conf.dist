@@ -1354,7 +1354,7 @@ Rate.Creature.Elite.WORLDBOSS.HP = 1
 
 #
 #    Creature.PickPocketRefillDelay
-#        Description: Time in seconds that the server will wait before refilling the pickpocket loot 
+#        Description: Time in seconds that the server will wait before refilling the pickpocket loot
 #                     for a creature
 #        Default:     600
 
