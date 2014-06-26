@@ -142,8 +142,8 @@ bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 }
 
 Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(),
-lootForPickPocketed(false), _pickpocketLootRestore(0), lootForBody(false), lootForSkinned(false), _skinner(0), m_groupLootTimer(0), lootingGroupLowGUID(0),
-m_PlayerDamageReq(0), m_lootRecipient(0), m_lootRecipientGroup(0), m_corpseRemoveTime(0), m_respawnTime(0),
+_pickpocketLootRestore(0), m_groupLootTimer(0), lootingGroupLowGUID(0), m_PlayerDamageReq(0),
+m_lootRecipient(0), m_lootRecipientGroup(0), _skinner(0), m_corpseRemoveTime(0), m_respawnTime(0),
 m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_reactState(REACT_AGGRESSIVE),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
@@ -550,9 +550,9 @@ void Creature::Update(uint32 diff)
             time_t now = time(NULL);
 
             // Check if we should refill the pickpocketing loot
-            if (lootForPickPocketed && _pickpocketLootRestore && _pickpocketLootRestore <= now)
+            if (loot.loot_type == LOOT_PICKPOCKETING && _pickpocketLootRestore && _pickpocketLootRestore <= now)
             {
-                lootForPickPocketed = false;
+                loot.clear();
                 _pickpocketLootRestore = 0;
             }
 
@@ -1472,11 +1472,6 @@ void Creature::setDeathState(DeathState s)
 
         setActive(false);
 
-        if (!IsPet() && GetCreatureTemplate()->SkinLootId)
-            if (LootTemplates_Skinning.HaveLootFor(GetCreatureTemplate()->SkinLootId))
-                if (hasLootRecipient())
-                    SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
-
         if (HasSearchedAssistance())
         {
             SetNoSearchAssistance(false);
@@ -1537,9 +1532,7 @@ void Creature::Respawn(bool force)
             GetName().c_str(), GetGUIDLow(), GetGUID(), GetEntry());
         m_respawnTime = 0;
         _pickpocketLootRestore = 0;
-        lootForPickPocketed = false;
-        lootForBody = false;
-        lootForSkinned = false;
+        loot.clear();
         if (m_originalEntry != GetEntry())
             UpdateEntry(m_originalEntry);
 
@@ -2278,23 +2271,23 @@ void Creature::GetRespawnPosition(float &x, float &y, float &z, float* ori, floa
 
 void Creature::AllLootRemovedFromCorpse()
 {
-    if (!HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE))
-    {
-        time_t now = time(NULL);
-        if (m_corpseRemoveTime <= now)
-            return;
+    if (loot.loot_type != LOOT_SKINNING && !IsPet() && GetCreatureTemplate()->SkinLootId && hasLootRecipient())
+        if (LootTemplates_Skinning.HaveLootFor(GetCreatureTemplate()->SkinLootId))
+            SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
 
-        float decayRate = sWorld->getRate(RATE_CORPSE_DECAY_LOOTED);
-        CreatureTemplate const* cinfo = GetCreatureTemplate();
+    time_t now = time(NULL);
+    if (m_corpseRemoveTime <= now)
+        return;
 
-        // corpse skinnable, but without skinning flag, and then skinned, corpse will despawn next update
-        if (cinfo && cinfo->SkinLootId)
-            m_corpseRemoveTime = time(NULL);
-        else
-            m_corpseRemoveTime = now + m_corpseDelay * decayRate;
+    float decayRate = sWorld->getRate(RATE_CORPSE_DECAY_LOOTED);
 
-        m_respawnTime = m_corpseRemoveTime + m_respawnTime;
-    }
+    // corpse skinnable, but without skinning flag, and then skinned, corpse will despawn next update
+    if (loot.loot_type == LOOT_SKINNING)
+        m_corpseRemoveTime = time(NULL);
+    else
+        m_corpseRemoveTime = now + m_corpseDelay * decayRate;
+
+    m_respawnTime = m_corpseRemoveTime + m_respawnTime;
 }
 
 uint8 Creature::getLevelForTarget(WorldObject const* target) const
