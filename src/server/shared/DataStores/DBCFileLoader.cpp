@@ -77,6 +77,12 @@ bool DBCFileLoader::Load(const char* filename, const char* fmt)
 
     EndianConvert(recordSize);
 
+    if ((fieldCount * 4) != recordSize)
+    {
+        ASSERT(false && "Broken dbc file `fieldCount` * 4 is not equal `recordSize`");
+        return false;
+    }
+
     if (fread(&stringSize, 4, 1, f) != 1)                    // String size
     {
         fclose(f);
