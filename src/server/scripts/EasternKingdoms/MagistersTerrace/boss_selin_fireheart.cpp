@@ -119,7 +119,7 @@ public:
             }
 
             // Set Inst data for encounter
-            instance->SetData(DATA_SELIN_EVENT, NOT_STARTED);
+            instance->SetBossState(DATA_SELIN, NOT_STARTED);
 
             DrainLifeTimer = urand(3000, 7000);
             DrainManaTimer = DrainLifeTimer + 5000;
@@ -194,7 +194,7 @@ public:
         void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
-            instance->SetData(DATA_SELIN_EVENT, IN_PROGRESS);
+            instance->SetBossState(DATA_SELIN, IN_PROGRESS);
          }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -228,7 +228,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            instance->SetData(DATA_SELIN_EVENT, DONE);         // Encounter complete!
+            instance->SetBossState(DATA_SELIN, DONE);         // Encounter complete!
             ShatterRemainingCrystals();
         }
 
@@ -351,7 +351,7 @@ public:
                         }
                     }
                 }
-            } else TC_LOG_ERROR("scripts", ERROR_INST_DATA);
+            }
         }
     };
 };
