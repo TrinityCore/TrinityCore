@@ -66,7 +66,7 @@ class instance_magisters_terrace : public InstanceMapScript
                     case DATA_DELRISSA_DEATH_COUNT:
                         return DelrissaDeathCount;
                     case DATA_FEL_CRYSTAL_SIZE:
-                        return FelCrystals.size();
+                        return uint32(FelCrystals.size());
                     default:
                         break;
                 }
@@ -229,7 +229,7 @@ class instance_magisters_terrace : public InstanceMapScript
             }
 
         protected:
-            std::vector<uint32> FelCrystals;
+            std::vector<uint64> FelCrystals;
 
             uint64 SelinGUID;
             uint64 DelrissaGUID;
