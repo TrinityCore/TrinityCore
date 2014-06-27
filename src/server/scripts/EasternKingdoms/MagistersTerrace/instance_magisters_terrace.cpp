@@ -135,6 +135,22 @@ class instance_magisters_terrace : public InstanceMapScript
                 }
             }
 
+            void OnGameObjectRemove(GameObject* go) override
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_VEXALLUS_DOOR:
+                    case GO_SELIN_DOOR:
+                    case GO_SELIN_ENCOUNTER_DOOR:
+                    case GO_DELRISSA_DOOR:
+                    case GO_KAEL_DOOR:
+                        AddDoor(go, false);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
