@@ -700,7 +700,7 @@ bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effInd
     ASSERT(caster);
     ASSERT(target);
 #ifdef ELUNA
-    if(sEluna->OnDummyEffect(caster, spellId, effIndex, target))
+    if (sEluna->OnDummyEffect(caster, spellId, effIndex, target))
         return false;
 #endif
 
@@ -714,7 +714,7 @@ bool ScriptMgr::OnQuestAccept(Player* player, Item* item, Quest const* quest)
     ASSERT(item);
     ASSERT(quest);
 #ifdef ELUNA
-    if(sEluna->OnQuestAccept(player, item, quest))
+    if (sEluna->OnQuestAccept(player, item, quest))
         return false;
 #endif
 
@@ -728,7 +728,7 @@ bool ScriptMgr::OnItemUse(Player* player, Item* item, SpellCastTargets const& ta
     ASSERT(player);
     ASSERT(item);
 #ifdef ELUNA
-    if(!sEluna->OnUse(player, item, targets))
+    if (!sEluna->OnUse(player, item, targets))
         return true;
 #endif
 
@@ -741,7 +741,7 @@ bool ScriptMgr::OnItemExpire(Player* player, ItemTemplate const* proto)
     ASSERT(player);
     ASSERT(proto);
 #ifdef ELUNA
-    if(sEluna->OnExpire(player, proto))
+    if (sEluna->OnExpire(player, proto))
         return false;
 #endif
 
@@ -767,7 +767,7 @@ bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effInd
     ASSERT(caster);
     ASSERT(target);
 #ifdef ELUNA
-    if(sEluna->OnDummyEffect(caster, spellId, effIndex, target))
+    if (sEluna->OnDummyEffect(caster, spellId, effIndex, target))
         return false;
 #endif
 
@@ -780,7 +780,7 @@ bool ScriptMgr::OnGossipHello(Player* player, Creature* creature)
     ASSERT(player);
     ASSERT(creature);
 #ifdef ELUNA
-    if(sEluna->OnGossipHello(player, creature))
+    if (sEluna->OnGossipHello(player, creature))
         return true;
 #endif
 
@@ -794,7 +794,7 @@ bool ScriptMgr::OnGossipSelect(Player* player, Creature* creature, uint32 sender
     ASSERT(player);
     ASSERT(creature);
 #ifdef ELUNA
-    if(sEluna->OnGossipSelect(player, creature, sender, action))
+    if (sEluna->OnGossipSelect(player, creature, sender, action))
         return true;
 #endif
 
@@ -808,7 +808,7 @@ bool ScriptMgr::OnGossipSelectCode(Player* player, Creature* creature, uint32 se
     ASSERT(creature);
     ASSERT(code);
 #ifdef ELUNA
-    if(sEluna->OnGossipSelectCode(player, creature, sender, action, code))
+    if (sEluna->OnGossipSelectCode(player, creature, sender, action, code))
         return true;
 #endif
 
@@ -822,7 +822,7 @@ bool ScriptMgr::OnQuestAccept(Player* player, Creature* creature, Quest const* q
     ASSERT(creature);
     ASSERT(quest);
 #ifdef ELUNA
-    if(sEluna->OnQuestAccept(player, creature, quest))
+    if (sEluna->OnQuestAccept(player, creature, quest))
     {
         player->PlayerTalkClass->ClearMenus();
         return false;
@@ -851,7 +851,7 @@ bool ScriptMgr::OnQuestComplete(Player* player, Creature* creature, Quest const*
     ASSERT(creature);
     ASSERT(quest);
 #ifdef ELUNA
-    if(sEluna->OnQuestComplete(player, creature, quest))
+    if (sEluna->OnQuestComplete(player, creature, quest))
     {
         player->PlayerTalkClass->ClearMenus();
         return false;
@@ -869,7 +869,7 @@ bool ScriptMgr::OnQuestReward(Player* player, Creature* creature, Quest const* q
     ASSERT(creature);
     ASSERT(quest);
 #ifdef ELUNA
-    if(sEluna->OnQuestReward(player, creature, quest))
+    if (sEluna->OnQuestReward(player, creature, quest))
     {
         player->PlayerTalkClass->ClearMenus();
         return false;
@@ -886,7 +886,7 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, Creature* creature)
     ASSERT(player);
     ASSERT(creature);
 #ifdef ELUNA
-    if(uint32 dialogid = sEluna->GetDialogStatus(player, creature))
+    if (uint32 dialogid = sEluna->GetDialogStatus(player, creature))
     {
         player->PlayerTalkClass->ClearMenus();
         return dialogid;
@@ -903,7 +903,7 @@ CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
 {
     ASSERT(creature);
 #ifdef ELUNA
-    if(CreatureAI* luaAI = sEluna->GetAI(creature))
+    if (CreatureAI* luaAI = sEluna->GetAI(creature))
         return luaAI;
 #endif
 
@@ -935,7 +935,7 @@ bool ScriptMgr::OnGossipHello(Player* player, GameObject* go)
     ASSERT(player);
     ASSERT(go);
 #ifdef ELUNA
-    if(sEluna->OnGossipHello(player, go))
+    if (sEluna->OnGossipHello(player, go))
         return true;
 #endif
 
@@ -949,7 +949,7 @@ bool ScriptMgr::OnGossipSelect(Player* player, GameObject* go, uint32 sender, ui
     ASSERT(player);
     ASSERT(go);
 #ifdef ELUNA
-    if(sEluna->OnGossipSelect(player, go, sender, action))
+    if (sEluna->OnGossipSelect(player, go, sender, action))
         return true;
 #endif
 
@@ -963,7 +963,7 @@ bool ScriptMgr::OnGossipSelectCode(Player* player, GameObject* go, uint32 sender
     ASSERT(go);
     ASSERT(code);
 #ifdef ELUNA
-    if(sEluna->OnGossipSelectCode(player, go, sender, action, code))
+    if (sEluna->OnGossipSelectCode(player, go, sender, action, code))
         return true;
 #endif
 
@@ -977,7 +977,7 @@ bool ScriptMgr::OnQuestAccept(Player* player, GameObject* go, Quest const* quest
     ASSERT(go);
     ASSERT(quest);
 #ifdef ELUNA
-    if(sEluna->OnQuestAccept(player, go, quest))
+    if (sEluna->OnQuestAccept(player, go, quest))
         return false;
 #endif
 
@@ -992,7 +992,7 @@ bool ScriptMgr::OnQuestReward(Player* player, GameObject* go, Quest const* quest
     ASSERT(go);
     ASSERT(quest);
 #ifdef ELUNA
-    if(sEluna->OnQuestReward(player, go, quest))
+    if (sEluna->OnQuestReward(player, go, quest))
         return false;
 #endif
 
@@ -1006,7 +1006,7 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, GameObject* go)
     ASSERT(player);
     ASSERT(go);
 #ifdef ELUNA
-    if(uint32 dialogid = sEluna->GetDialogStatus(player, go))
+    if (uint32 dialogid = sEluna->GetDialogStatus(player, go))
     {
         player->PlayerTalkClass->ClearMenus();
         return dialogid;
@@ -1079,7 +1079,7 @@ bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effInd
     ASSERT(caster);
     ASSERT(target);
 #ifdef ELUNA
-    if(sEluna->OnDummyEffect(caster, spellId, effIndex, target))
+    if (sEluna->OnDummyEffect(caster, spellId, effIndex, target))
         return false;
 #endif
 
@@ -1092,7 +1092,7 @@ bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)
     ASSERT(player);
     ASSERT(trigger);
 #ifdef ELUNA
-    if(sEluna->OnAreaTrigger(player, trigger))
+    if (sEluna->OnAreaTrigger(player, trigger))
         return false;
 #endif
 
