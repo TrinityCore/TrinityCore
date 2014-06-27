@@ -1,17 +1,17 @@
 /*
-** $Id: liolib.c,v 2.108 2011/11/25 12:50:03 roberto Exp $
+** $Id: liolib.c,v 2.112.1.1 2013/04/12 18:48:47 roberto Exp $
 ** Standard I/O (and system) library
 ** See Copyright Notice in lua.h
 */
 
 
 /*
-** POSIX idiosyncrasy!
 ** This definition must come before the inclusion of 'stdio.h'; it
 ** should not affect non-POSIX systems
 */
 #if !defined(_FILE_OFFSET_BITS)
-#define _FILE_OFFSET_BITS 64
+#define	_LARGEFILE_SOURCE	1
+#define _FILE_OFFSET_BITS	64
 #endif
 
 
@@ -29,6 +29,20 @@
 #include "lualib.h"
 
 
+#if !defined(lua_checkmode)
+
+/*
+** Check whether 'mode' matches '[rwa]%+?b?'.
+** Change this macro to accept other modes for 'fopen' besides
+** the standard ones.
+*/
+#define lua_checkmode(mode) \
+	(*mode != '\0' && strchr("rwa", *(mode++)) != NULL &&	\
+	(*mode != '+' || ++mode) &&  /* skip if char is '+' */	\
+	(*mode != 'b' || ++mode) &&  /* skip if char is 'b' */	\
+	(*mode == '\0'))
+
+#endif
 
 /*
 ** {======================================================
@@ -66,35 +80,36 @@
 
 /*
 ** {======================================================
-** lua_fseek/lua_ftell: configuration for longer offsets
+** lua_fseek: configuration for longer offsets
 ** =======================================================
 */
 
-#if !defined(lua_fseek)	/* { */
+#if !defined(lua_fseek)	&& !defined(LUA_ANSI)	/* { */
 
-#if defined(LUA_USE_POSIX)
+#if defined(LUA_USE_POSIX)	/* { */
 
 #define l_fseek(f,o,w)		fseeko(f,o,w)
 #define l_ftell(f)		ftello(f)
 #define l_seeknum		off_t
 
 #elif defined(LUA_WIN) && !defined(_CRTIMP_TYPEINFO) \
-   && defined(_MSC_VER) && (_MSC_VER >= 1400)
+   && defined(_MSC_VER) && (_MSC_VER >= 1400)	/* }{ */
 /* Windows (but not DDK) and Visual C++ 2005 or higher */
 
 #define l_fseek(f,o,w)		_fseeki64(f,o,w)
 #define l_ftell(f)		_ftelli64(f)
 #define l_seeknum		__int64
 
-#else
+#endif	/* } */
 
+#endif			/* } */
+
+
+#if !defined(l_fseek)		/* default definitions */
 #define l_fseek(f,o,w)		fseek(f,o,w)
 #define l_ftell(f)		ftell(f)
 #define l_seeknum		long
-
 #endif
-
-#endif			/* } */
 
 /* }====================================================== */
 
@@ -212,14 +227,8 @@ static int io_open (lua_State *L) {
   const char *filename = luaL_checkstring(L, 1);
   const char *mode = luaL_optstring(L, 2, "r");
   LStream *p = newfile(L);
-  int i = 0;
-  /* check whether 'mode' matches '[rwa]%+?b?' */
-  if (!(mode[i] != '\0' && strchr("rwa", mode[i++]) != NULL &&
-       (mode[i] != '+' || ++i) &&  /* skip if char is '+' */
-       (mode[i] != 'b' || ++i) &&  /* skip if char is 'b' */
-       (mode[i] == '\0')))
-    return luaL_error(L, "invalid mode " LUA_QS
-                         " (should match " LUA_QL("[rwa]%%+?b?") ")", mode);
+  const char *md = mode;  /* to traverse/check mode */
+  luaL_argcheck(L, lua_checkmode(md), 2, "invalid mode");
   p->f = fopen(filename, mode);
   return (p->f == NULL) ? luaL_fileresult(L, 0, filename) : 1;
 }

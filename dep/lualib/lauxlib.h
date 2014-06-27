@@ -1,5 +1,5 @@
 /*
-** $Id: lauxlib.h,v 1.120 2011/11/29 15:55:08 roberto Exp $
+** $Id: lauxlib.h,v 1.120.1.1 2013/04/12 18:48:47 roberto Exp $
 ** Auxiliary functions for building Lua libraries
 ** See Copyright Notice in lua.h
 */
@@ -118,7 +118,6 @@ LUALIB_API void (luaL_requiref) (lua_State *L, const char *modname,
 #define luaL_optint(L,n,d)	((int)luaL_optinteger(L, (n), (d)))
 #define luaL_checklong(L,n)	((long)luaL_checkinteger(L, (n)))
 #define luaL_optlong(L,n,d)	((long)luaL_optinteger(L, (n), (d)))
-#define luaL_checkbool(L, n) ( lua_isboolean( L, n ) ? lua_toboolean( L, n ) : (bool)luaL_optint( L, n, false) )
 
 #define luaL_typename(L,i)	lua_typename(L, lua_type(L,(i)))
 

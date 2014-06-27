@@ -1,5 +1,5 @@
 /*
-** $Id: ldo.c,v 2.105 2012/06/08 15:14:04 roberto Exp $
+** $Id: ldo.c,v 2.108.1.3 2013/11/08 18:22:50 roberto Exp $
 ** Stack and Call structure of Lua
 ** See Copyright Notice in lua.h
 */
@@ -260,6 +260,7 @@ static StkId adjust_varargs (lua_State *L, Proto *p, int actual) {
   StkId base, fixed;
   lua_assert(actual >= nfixargs);
   /* move fixed parameters to final position */
+  luaD_checkstack(L, p->maxstacksize);  /* check again for new 'base' */
   fixed = L->top - actual;  /* first fixed argument */
   base = L->top;  /* final position of first argument */
   for (i=0; i<nfixargs; i++) {
@@ -311,6 +312,7 @@ int luaD_precall (lua_State *L, StkId func, int nresults) {
       ci->top = L->top + LUA_MINSTACK;
       lua_assert(ci->top <= L->stack_last);
       ci->callstatus = 0;
+      luaC_checkGC(L);  /* stack grow uses memory */
       if (L->hookmask & LUA_MASKCALL)
         luaD_hook(L, LUA_HOOKCALL, -1);
       lua_unlock(L);
@@ -323,12 +325,18 @@ int luaD_precall (lua_State *L, StkId func, int nresults) {
     case LUA_TLCL: {  /* Lua function: prepare its call */
       StkId base;
       Proto *p = clLvalue(func)->p;
-      luaD_checkstack(L, p->maxstacksize);
-      func = restorestack(L, funcr);
       n = cast_int(L->top - func) - 1;  /* number of real arguments */
+      luaD_checkstack(L, p->maxstacksize);
       for (; n < p->numparams; n++)
         setnilvalue(L->top++);  /* complete missing arguments */
-      base = (!p->is_vararg) ? func + 1 : adjust_varargs(L, p, n);
+      if (!p->is_vararg) {
+        func = restorestack(L, funcr);
+        base = func + 1;
+      }
+      else {
+        base = adjust_varargs(L, p, n);
+        func = restorestack(L, funcr);  /* previous call can change stack */
+      }
       ci = next_ci(L);  /* now 'enter' new function */
       ci->nresults = nresults;
       ci->func = func;
@@ -338,6 +346,7 @@ int luaD_precall (lua_State *L, StkId func, int nresults) {
       ci->u.l.savedpc = p->code;  /* starting point */
       ci->callstatus = CIST_LUA;
       L->top = ci->top;
+      luaC_checkGC(L);  /* stack grow uses memory */
       if (L->hookmask & LUA_MASKCALL)
         callhook(L, ci);
       return 0;
@@ -393,7 +402,6 @@ void luaD_call (lua_State *L, StkId func, int nResults, int allowyield) {
     luaV_execute(L);  /* call it */
   if (!allowyield) L->nny--;
   L->nCcalls--;
-  luaC_checkGC(L);
 }
 
 
@@ -402,7 +410,11 @@ static void finishCcall (lua_State *L) {
   int n;
   lua_assert(ci->u.c.k != NULL);  /* must have a continuation */
   lua_assert(L->nny == 0);
-  /* finish 'lua_callk' */
+  if (ci->callstatus & CIST_YPCALL) {  /* was inside a pcall? */
+    ci->callstatus &= ~CIST_YPCALL;  /* finish 'lua_pcall' */
+    L->errfunc = ci->u.c.old_errfunc;
+  }
+  /* finish 'lua_callk'/'lua_pcall' */
   adjustresults(L, ci->nresults);
   /* call continuation function */
   if (!(ci->callstatus & CIST_STAT))  /* no call status? */
@@ -473,7 +485,7 @@ static int recover (lua_State *L, int status) {
 static l_noret resume_error (lua_State *L, const char *msg, StkId firstArg) {
   L->top = firstArg;  /* remove args from the stack */
   setsvalue2s(L, L->top, luaS_new(L, msg));  /* push error message */
-  incr_top(L);
+  api_incr_top(L);
   luaD_throw(L, -1);  /* jump back to 'lua_resume' */
 }
 
@@ -522,6 +534,7 @@ static void resume (lua_State *L, void *ud) {
 
 LUA_API int lua_resume (lua_State *L, lua_State *from, int nargs) {
   int status;
+  int oldnny = L->nny;  /* save 'nny' */
   lua_lock(L);
   luai_userstateresume(L, nargs);
   L->nCcalls = (from) ? from->nCcalls + 1 : 1;
@@ -543,7 +556,7 @@ LUA_API int lua_resume (lua_State *L, lua_State *from, int nargs) {
     }
     lua_assert(status == L->status);
   }
-  L->nny = 1;  /* do not allow yields */
+  L->nny = oldnny;  /* restore 'nny' */
   L->nCcalls--;
   lua_assert(L->nCcalls == ((from) ? from->nCcalls : 0));
   lua_unlock(L);
@@ -558,7 +571,7 @@ LUA_API int lua_yieldk (lua_State *L, int nresults, int ctx, lua_CFunction k) {
   api_checknelems(L, nresults);
   if (L->nny > 0) {
     if (L != G(L)->mainthread)
-      luaG_runerror(L, "attempt to yield across metamethod/C-call boundary");
+      luaG_runerror(L, "attempt to yield across a C-call boundary");
     else
       luaG_runerror(L, "attempt to yield from outside a coroutine");
   }

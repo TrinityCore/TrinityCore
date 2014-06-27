@@ -5,6 +5,8 @@
 #
 
 file(GLOB sources *.c)
+list(REMOVE_ITEM sources ${CMAKE_CURRENT_SOURCE_DIR}/lua.c)
+list(REMOVE_ITEM sources ${CMAKE_CURRENT_SOURCE_DIR}/luac.c)
 
 set(lua_STAT_SRCS
   ${sources}
