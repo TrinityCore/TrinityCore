@@ -181,6 +181,13 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     uint64 reqmoney = cost + money;
 
+    // Check for overflow
+    if (reqmoney < money)
+    {
+        player->SendMailResult(0, MAIL_SEND, MAIL_ERR_NOT_ENOUGH_MONEY);
+        return;
+    }
+
     if (!player->HasEnoughMoney(reqmoney) && !player->IsGameMaster())
     {
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_NOT_ENOUGH_MONEY);
