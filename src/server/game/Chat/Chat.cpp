@@ -86,18 +86,31 @@ ChatCommand* ChatHandler::getCommandTable()
                 added += appendCommandTable(commandTableCache + added, *it);
         }
 
-        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_COMMANDS);
-        PreparedQueryResult result = WorldDatabase.Query(stmt);
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_RBAC_PERMISSIONS);
+        PreparedQueryResult result = LoginDatabase.Query(stmt);
         if (result)
         {
             do
             {
                 Field* fields = result->Fetch();
-                std::string name = fields[0].GetString();
+                uint16 permission = fields[0].GetUInt16();
+                std::string name = fields[1].GetString();
+                std::string help = fields[2].GetString();
 
-                SetDataForCommandInTable(commandTableCache, name.c_str(), fields[1].GetUInt16(), fields[2].GetString(), name);
-            }
-            while (result->NextRow());
+                std::string prefix = "Command: "; // Commands always needs to be prefixed with 'Command: ' in the column `name`.
+                std::string cleanp = "";
+
+                auto data = name.find(prefix);
+
+                while (data != std::string::npos)
+                {
+                    name.replace(data, prefix.size(), cleanp);
+                    data = name.find(prefix, data + cleanp.size());
+                }
+
+                SetDataForCommandInTable(commandTableCache, name.c_str(), permission, help, name);
+
+            } while (result->NextRow());
         }
     }
 
@@ -413,15 +426,15 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, char const* text,
         // expected subcommand by full name DB content
         else if (*text)
         {
-            TC_LOG_ERROR("sql.sql", "Table `command` have unexpected subcommand '%s' in command '%s', skip.", text, fullcommand.c_str());
+            TC_LOG_ERROR("sql.sql", "Table `rbac_permissons` have unexpected subcommand '%s' in command '%s', skip.", text, fullcommand.c_str());
             return false;
         }
 
         if (table[i].Permission != permission)
-            TC_LOG_INFO("misc", "Table `command` overwrite for command '%s' default permission (%u) by %u", fullcommand.c_str(), table[i].Permission, permission);
+            TC_LOG_INFO("misc", "Table `rbac_permissons` overwrite for command '%s' default permission (%u) by %u", fullcommand.c_str(), table[i].Permission, permission);
 
         table[i].Permission = permission;
-        table[i].Help          = help;
+        table[i].Help = help;
         return true;
     }
 
@@ -429,9 +442,9 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, char const* text,
     if (!cmd.empty())
     {
         if (table == getCommandTable())
-            TC_LOG_ERROR("sql.sql", "Table `command` have not existed command '%s', skip.", cmd.c_str());
+            TC_LOG_ERROR("sql.sql", "Table `rbac_permissons` have not existed command '%s', skip.", cmd.c_str());
         else
-            TC_LOG_ERROR("sql.sql", "Table `command` have not existed subcommand '%s' in command '%s', skip.", cmd.c_str(), fullcommand.c_str());
+            TC_LOG_ERROR("sql.sql", "Table `rbac_permissons` have not existed subcommand '%s' in command '%s', skip.", cmd.c_str(), fullcommand.c_str());
     }
 
     return false;
