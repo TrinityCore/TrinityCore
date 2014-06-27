@@ -29,6 +29,7 @@ EndScriptData */
 #include "Chat.h"
 #include "Language.h"
 #include "Player.h"
+#include "Transport.h"
 
 class go_commandscript : public CommandScript
 {
@@ -132,21 +133,24 @@ public:
         float x = fields[0].GetFloat();
         float y = fields[1].GetFloat();
         float z = fields[2].GetFloat();
-        float ort = fields[3].GetFloat();
-        int mapId = fields[4].GetUInt16();
+        float o = fields[3].GetFloat();
+        uint32 mapId = fields[4].GetUInt16();
         uint32 guid = fields[5].GetUInt32();
         uint32 id = fields[6].GetUInt32();
 
-        // if creature is in same map with caster go at its current location
-        if (Creature* creature = sObjectAccessor->GetCreature(*player, MAKE_NEW_GUID(guid, id, HIGHGUID_UNIT)))
+        Transport* transport = NULL;
+
+        if (Creature* creature = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(guid, id, HIGHGUID_UNIT), (Creature*)NULL))
         {
             x = creature->GetPositionX();
             y = creature->GetPositionY();
             z = creature->GetPositionZ();
-            ort = creature->GetOrientation();
+            o = creature->GetOrientation();
+            mapId = creature->GetMapId();
+            transport = creature->GetTransport();
         }
 
-        if (!MapManager::IsValidMapCoord(mapId, x, y, z, ort))
+        if (!MapManager::IsValidMapCoord(mapId, x, y, z, o) || sObjectMgr->IsTransportMap(mapId))
         {
             handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
             handler->SetSentErrorMessage(true);
@@ -163,7 +167,11 @@ public:
         else
             player->SaveRecallPosition();
 
-        player->TeleportTo(mapId, x, y, z, ort);
+        if (player->TeleportTo(mapId, x, y, z, o))
+        {
+            if (transport)
+                transport->AddPassenger(player);
+        }
         return true;
     }
 
@@ -274,8 +282,8 @@ public:
         if (!guid)
             return false;
 
-        float x, y, z, ort;
-        int mapId;
+        float x, y, z, o;
+        uint32 mapId;
 
         // by DB guid
         if (GameObjectData const* goData = sObjectMgr->GetGOData(guid))
@@ -283,7 +291,7 @@ public:
             x = goData->posX;
             y = goData->posY;
             z = goData->posZ;
-            ort = goData->orientation;
+            o = goData->orientation;
             mapId = goData->mapid;
         }
         else
@@ -293,7 +301,7 @@ public:
             return false;
         }
 
-        if (!MapManager::IsValidMapCoord(mapId, x, y, z, ort))
+        if (!MapManager::IsValidMapCoord(mapId, x, y, z, o) || sObjectMgr->IsTransportMap(mapId))
         {
             handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
             handler->SetSentErrorMessage(true);
@@ -310,7 +318,7 @@ public:
         else
             player->SaveRecallPosition();
 
-        player->TeleportTo(mapId, x, y, z, ort);
+        player->TeleportTo(mapId, x, y, z, o);
         return true;
     }
 
