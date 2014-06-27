@@ -20,15 +20,8 @@
 #define __BATTLEGROUNDSA_H
 
 #include "Battleground.h"
+#include "BattlegroundScore.h"
 #include "Object.h"
-
-struct BattlegroundSAScore : public BattlegroundScore
-{
-    BattlegroundSAScore() : demolishers_destroyed(0), gates_destroyed(0) { }
-    ~BattlegroundSAScore() { }
-    uint8 demolishers_destroyed;
-    uint8 gates_destroyed;
-};
 
 #define BG_SA_FLAG_AMOUNT           3
 #define BG_SA_DEMOLISHER_AMOUNT     4
@@ -515,6 +508,40 @@ struct BG_SA_RoundScore
     uint32 time;
 };
 
+struct BattlegroundSAScore final : public BattlegroundScore
+{
+    friend class BattlegroundSA;
+
+    protected:
+        BattlegroundSAScore(uint64 playerGuid) : BattlegroundScore(playerGuid), DemolishersDestroyed(0), GatesDestroyed(0) { }
+
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case SCORE_DESTROYED_DEMOLISHER:
+                    DemolishersDestroyed += value;
+                    break;
+                case SCORE_DESTROYED_WALL:
+                    GatesDestroyed += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
+
+        void BuildObjectivesBlock(WorldPacket& data) final
+        {
+            data << uint32(2); // Objectives Count
+            data << uint32(DemolishersDestroyed);
+            data << uint32(GatesDestroyed);
+        }
+
+        uint32 DemolishersDestroyed;
+        uint32 GatesDestroyed;
+};
+
 /// Class for manage Strand of Ancient battleground
 class BattlegroundSA : public Battleground
 {
@@ -568,8 +595,6 @@ class BattlegroundSA : public Battleground
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
 
         /* Scorekeeping */
-        /// Update score board
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
 
         // Achievement: Not Even a Scratch
         bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target = NULL, uint32 miscValue = 0) override;
