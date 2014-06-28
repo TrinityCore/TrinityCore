@@ -19,12 +19,28 @@
 #define __BATTLEGROUNDBFG_H
 
 #include "Battleground.h"
+#include "BattlegroundScore.h"
 
-class BattlegroundBFGScore : public BattlegroundScore
+class BattlegroundBFGScore final : public BattlegroundScore
 {
-    public:
-        BattlegroundBFGScore(): BasesAssaulted(0), BasesDefended(0) {};
-        virtual ~BattlegroundBFGScore() {};
+    protected:
+        BattlegroundBFGScore(uint64 playerGuid, uint8 team) : BattlegroundScore(playerGuid, team), BasesAssaulted(0), BasesDefended(0) { }
+
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case SCORE_BASES_ASSAULTED:
+                    BasesAssaulted += value;
+                    break;
+                case SCORE_BASES_DEFENDED:
+                    BasesDefended += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
 
         uint32 BasesAssaulted;
         uint32 BasesDefended;

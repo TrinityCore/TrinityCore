@@ -20,6 +20,7 @@
 #define __BATTLEGROUNDWS_H
 
 #include "Battleground.h"
+#include "BattlegroundScore.h"
 
 enum BG_WS_TimerOrScore
 {
@@ -146,12 +147,38 @@ enum BG_WS_Objectives
 
 #define WS_EVENT_START_BATTLE   8563
 
-struct BattlegroundWGScore : public BattlegroundScore
+struct BattlegroundWGScore final : public BattlegroundScore
 {
-    BattlegroundWGScore() : FlagCaptures(0), FlagReturns(0) { }
-    ~BattlegroundWGScore() { }
-    uint32 FlagCaptures;
-    uint32 FlagReturns;
+    friend class BattlegroundWS;
+
+    protected:
+        BattlegroundWGScore(uint64 playerGuid, uint8 team) : BattlegroundScore(playerGuid, team), FlagCaptures(0), FlagReturns(0) { }
+
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case SCORE_FLAG_CAPTURES:   // Flags captured
+                    FlagCaptures += value;
+                    break;
+                case SCORE_FLAG_RETURNS:    // Flags returned
+                    FlagReturns += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
+
+        void BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content) final
+        {
+            data.WriteBits(2, 24); // Objectives Count
+            content << uint32(FlagCaptures);
+            content << uint32(FlagReturns);
+        }
+
+        uint32 FlagCaptures;
+        uint32 FlagReturns;
 };
 
 class BattlegroundWS : public Battleground
@@ -197,7 +224,7 @@ class BattlegroundWS : public Battleground
         void UpdateFlagState(uint32 team, uint32 value);
         void SetLastFlagCapture(uint32 team)                { _lastFlagCaptureTeam = team; }
         void UpdateTeamScore(uint32 team);
-        void UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true);
+        bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
         void SetDroppedFlagGUID(uint64 guid, int32 team = -1)
         {
             if (team == TEAM_ALLIANCE || team == TEAM_HORDE)
