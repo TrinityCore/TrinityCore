@@ -210,8 +210,8 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER(CMSG_EQUIPMENT_SET_SAVE,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleEquipmentSetSave          );
     DEFINE_OPCODE_HANDLER(CMSG_EQUIPMENT_SET_USE,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleEquipmentSetUse           );
     DEFINE_OPCODE_HANDLER(CMSG_FAR_SIGHT,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleFarSightOpcode            );
-    DEFINE_OPCODE_HANDLER(CMSG_FORCE_MOVE_ROOT_ACK,                     STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleMoveRootAck               );
-    DEFINE_OPCODE_HANDLER(CMSG_FORCE_MOVE_UNROOT_ACK,                   STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleMoveUnRootAck             );
+    DEFINE_OPCODE_HANDLER(CMSG_FORCE_MOVE_ROOT_ACK,                     STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveRootAck               );
+    DEFINE_OPCODE_HANDLER(CMSG_FORCE_MOVE_UNROOT_ACK,                   STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveUnRootAck             );
     DEFINE_OPCODE_HANDLER(CMSG_GAMEOBJECT_QUERY,                        STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleGameObjectQueryOpcode     );
     DEFINE_OPCODE_HANDLER(CMSG_GAMEOBJ_REPORT_USE,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGameobjectReportUse       );
     DEFINE_OPCODE_HANDLER(CMSG_GAMEOBJ_USE,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGameObjectUseOpcode       );
@@ -357,7 +357,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER(CMSG_MOUNTSPECIAL_ANIM,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMountSpecialAnimOpcode    );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_CHNG_TRANSPORT,                     STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_FALL_RESET,                         STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
-    DEFINE_OPCODE_HANDLER(CMSG_MOVE_FEATHER_FALL_ACK,                   STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleFeatherFallAck            );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_FEATHER_FALL_ACK,                   STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleFeatherFallAck            );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK, STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleForceSpeedChangeAck       );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_FORCE_FLIGHT_SPEED_CHANGE_ACK,      STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleForceSpeedChangeAck       );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_FORCE_PITCH_RATE_CHANGE_ACK,        STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleForceSpeedChangeAck       );
@@ -370,10 +370,10 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_GRAVITY_DISABLE_ACK,                STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_GRAVITY_ENABLE_ACK,                 STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_HOVER_ACK,                          STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleMoveHoverAck              );
-    DEFINE_OPCODE_HANDLER(CMSG_MOVE_KNOCK_BACK_ACK,                     STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleMoveKnockBackAck          );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_KNOCK_BACK_ACK,                     STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveKnockBackAck          );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_NOT_ACTIVE_MOVER,                   STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveNotActiveMover        );
-    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_CAN_FLY,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_CAN_FLY_ACK,                    STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleMoveSetCanFlyAckOpcode    );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_CAN_FLY,                        STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_CAN_FLY_ACK,                    STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveSetCanFlyAckOpcode    );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY_ACK, STATUS_UNHANDLED, PROCESS_INPLACE, &WorldSession::Handle_NULL                 );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_COLLISION_HEIGHT_ACK,           STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleSetCollisionHeightAck     );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_SPLINE_DONE,                        STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveSplineDoneOpcode      );
@@ -683,6 +683,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER(SMSG_BINDER_CONFIRM,                          STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     DEFINE_OPCODE_HANDLER(SMSG_BINDPOINTUPDATE,                         STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     DEFINE_OPCODE_HANDLER(SMSG_BREAK_TARGET,                            STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+    DEFINE_OPCODE_HANDLER(SMSG_BUY_BANK_SLOT_RESULT,                    STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     DEFINE_OPCODE_HANDLER(SMSG_BUY_FAILED,                              STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     DEFINE_OPCODE_HANDLER(SMSG_BUY_ITEM,                                STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     DEFINE_OPCODE_HANDLER(SMSG_CALENDAR_ARENA_TEAM,                     STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
@@ -1572,7 +1573,6 @@ void OpcodeTable::Initialize()
   //DEFINE_OPCODE_HANDLER(SMSG_AFK_MONITOR_INFO_RESPONSE,               STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
   //DEFINE_OPCODE_HANDLER(SMSG_AURACASTLOG,                             STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
   //DEFINE_OPCODE_HANDLER(SMSG_BINDZONEREPLY,                           STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-  //DEFINE_OPCODE_HANDLER(SMSG_BUY_BANK_SLOT_RESULT,                    STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
   //DEFINE_OPCODE_HANDLER(SMSG_CALENDAR_ACTION_PENDING,                 STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
   //DEFINE_OPCODE_HANDLER(SMSG_CALENDAR_UPDATE_INVITE_LIST,             STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
   //DEFINE_OPCODE_HANDLER(SMSG_CHANGEPLAYER_DIFFICULTY_RESULT,          STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
