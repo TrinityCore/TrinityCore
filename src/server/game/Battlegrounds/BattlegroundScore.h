@@ -20,6 +20,7 @@
 
 #include "WorldPacket.h"
 #include "Player.h"
+#include "ObjectAccessor.h"
 
 enum ScoreType
 {
