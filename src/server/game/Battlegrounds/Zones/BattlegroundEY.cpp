@@ -363,12 +363,9 @@ void BattlegroundEY::UpdatePointsIcons(uint32 Team, uint32 Point)
 void BattlegroundEY::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    //create score and add it to map
-    BattlegroundEYScore* sc = new BattlegroundEYScore;
+    PlayerScores[player->GetGUIDLow()] = new BattlegroundEYScore(player->GetGUID(), player->GetBGTeam());
 
     m_PlayersNearPoint[EY_POINTS_MAX].push_back(player->GetGUID());
-
-    PlayerScores[player->GetGUID()] = sc;
 }
 
 void BattlegroundEY::RemovePlayer(Player* player, uint64 guid, uint32 /*team*/)
@@ -832,22 +829,20 @@ void BattlegroundEY::EventPlayerCapturedFlag(Player* player, uint32 BgObjectType
     UpdatePlayerScore(player, SCORE_FLAG_CAPTURES, 1);
 }
 
-void BattlegroundEY::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
+bool BattlegroundEY::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
 {
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(player->GetGUID());
-    if (itr == PlayerScores.end())                         // player not found
-        return;
+    if (!Battleground::UpdatePlayerScore(player, type, value, doAddHonor))
+        return false;
 
     switch (type)
     {
-        case SCORE_FLAG_CAPTURES:                           // flags captured
-            ((BattlegroundEYScore*)itr->second)->FlagCaptures += value;
+        case SCORE_FLAG_CAPTURES:
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, EY_OBJECTIVE_CAPTURE_FLAG);
             break;
         default:
-            Battleground::UpdatePlayerScore(player, type, value, doAddHonor);
             break;
     }
+    return true;
 }
 
 void BattlegroundEY::FillInitialWorldStates(WorldPacket& data)

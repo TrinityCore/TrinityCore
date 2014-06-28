@@ -19,15 +19,31 @@
 #define __BATTLEGROUNDTP_H
 
 #include "Battleground.h"
+#include "BattlegroundScore.h"
 
-class BattlegroundTPScore : public BattlegroundScore
+class BattlegroundTPScore final : public BattlegroundScore
 {
-    public:
-        BattlegroundTPScore() : FlagCaptures(0), FlagReturns(0) {};
-        virtual ~BattlegroundTPScore() {};
+    protected:
+        BattlegroundTPScore(uint64 playerGuid, uint8 team) : BattlegroundScore(playerGuid, team), BasesAssaulted(0), BasesDefended(0) { }
 
-        uint32 FlagCaptures;
-        uint32 FlagReturns;
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case SCORE_BASES_ASSAULTED:
+                    BasesAssaulted += value;
+                    break;
+                case SCORE_BASES_DEFENDED:
+                    BasesDefended += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
+
+        uint32 BasesAssaulted;
+        uint32 BasesDefended;
 };
 
 class BattlegroundTP : public Battleground
