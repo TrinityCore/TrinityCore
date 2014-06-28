@@ -242,7 +242,7 @@ uint32 const BG_SA_NpcEntries[BG_SA_MAXNPC] =
     NPC_KANRETHAD
 };
 
-Position const BG_SA_NpcSpawnlocs[BG_SA_MAXNPC + BG_SA_DEMOLISHER_AMOUNT] =
+Position const BG_SA_NpcSpawnlocs[BG_SA_MAXNPC] =
 {
     // Cannons
     { 1436.429f, 110.05f, 41.407f, 5.4f },
