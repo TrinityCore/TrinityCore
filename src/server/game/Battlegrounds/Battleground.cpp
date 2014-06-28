@@ -793,7 +793,7 @@ void Battleground::EndBattleground(uint32 winner)
                 SetArenaMatchmakerRating(GetOtherTeam(winner), loserMatchmakerRating + loserMatchmakerChange);
 
                 uint8 winnerId = GetWinner();
-                uint8 loserId = winnerId == WINNER_ALLIANCE ? WINNER_HORDE : winnerId;
+                uint8 loserId = winnerId == WINNER_ALLIANCE ? uint8(WINNER_HORDE) : winnerId;
 
                 _arenaTeamScores[winnerId]->Assign(winnerChange, winnerMatchmakerRating + winnerMatchmakerChange, winnerArenaTeam->GetName());
                 _arenaTeamScores[loserId]->Assign(loserChange, loserMatchmakerRating + loserMatchmakerChange, loserArenaTeam->GetName());
