@@ -56,7 +56,7 @@ struct BattlegroundScore
     friend class Battleground;
 
     protected:
-        BattlegroundScore(uint64 playerGuid, uint8 team) : PlayerGuid(playerGuid), TeamId(team == ALLIANCE ? 1 : 0),
+        BattlegroundScore(uint64 playerGuid, uint32 team) : PlayerGuid(playerGuid), TeamId(team == ALLIANCE ? 1 : 0),
             KillingBlows(0), Deaths(0), HonorableKills(0), BonusHonor(0), DamageDone(0), HealingDone(0) { }
 
         virtual ~BattlegroundScore() { }
