@@ -1451,7 +1451,6 @@ void Battleground::BuildPvPLogDataPacket(WorldPacket& data)
 
     size_t countPos = data.bitwpos();
     data.WriteBits(0, 21);
-    uint32 count = 0;
     for (auto const& score : PlayerScores)
         score.second->AppendToPacket(data, buff);
 

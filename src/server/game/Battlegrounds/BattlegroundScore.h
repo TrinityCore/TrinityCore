@@ -91,14 +91,14 @@ struct BattlegroundScore
 
         virtual void AppendToPacket(WorldPacket& data, ByteBuffer& content)
         {
-            int32 primaryTree;
+            uint32 primaryTree = 0;
             if (Player* player = ObjectAccessor::FindPlayer(PlayerGuid))
                 primaryTree = player->GetPrimaryTalentTree(player->GetActiveSpec());
 
             data.WriteBit(0);                   // Unk 1
             data.WriteBit(0);                   // Unk 2
             data.WriteBit(PlayerGuid[2]);
-            data.WriteBit(/*!IsArena*/ 1);          // IsArena
+            data.WriteBit(/*!IsArena*/ 1);      // IsArena
             data.WriteBit(0);                   // Unk 4
             data.WriteBit(0);                   // Unk 5
             data.WriteBit(0);                   // Unk 6

@@ -182,7 +182,7 @@ bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
     m_time = time_t(fields[11].GetUInt32());
 
     uint32 instanceId  = fields[13].GetUInt32();
-    uint32 phaseMask   = fields[14].GetUInt32();
+    //uint32 phaseMask   = fields[14].GetUInt32();
 
     // place
     SetLocationInstanceId(instanceId);

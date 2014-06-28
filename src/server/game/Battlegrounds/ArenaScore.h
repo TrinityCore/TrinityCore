@@ -36,7 +36,7 @@ struct ArenaScore : public BattlegroundScore
 
         void AppendToPacket(WorldPacket& data, ByteBuffer& content) final
         {
-            int32 primaryTree;
+            uint32 primaryTree = 0;
             if (Player* player = ObjectAccessor::FindPlayer(PlayerGuid))
                 primaryTree = player->GetPrimaryTalentTree(player->GetActiveSpec());
 
