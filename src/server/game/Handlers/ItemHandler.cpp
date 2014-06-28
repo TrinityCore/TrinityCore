@@ -804,8 +804,11 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
     uint64 guid;
     recvPacket >> guid;
 
+    WorldPacket data(SMSG_BUY_BANK_SLOT_RESULT, 4);
     if (!CanUseBank(guid))
     {
+        data << uint32(ERR_BANKSLOT_NOTBANKER);
+        SendPacket(&data);
         TC_LOG_DEBUG("network", "WORLD: HandleBuyBankSlotOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
         return;
     }
@@ -818,8 +821,6 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
     TC_LOG_INFO("network", "PLAYER: Buy bank bag slot, slot number = %u", slot);
 
     BankBagSlotPricesEntry const* slotEntry = sBankBagSlotPricesStore.LookupEntry(slot);
-
-    WorldPacket data(SMSG_BUY_BANK_SLOT_RESULT, 4);
 
     if (!slotEntry)
     {

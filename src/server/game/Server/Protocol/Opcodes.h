@@ -726,7 +726,7 @@ enum Opcodes
     SMSG_BINDPOINTUPDATE                              = 0x0527,
     SMSG_BINDZONEREPLY                                = 0x0000,
     SMSG_BREAK_TARGET                                 = 0x0105,
-    SMSG_BUY_BANK_SLOT_RESULT                         = 0x0000,
+    SMSG_BUY_BANK_SLOT_RESULT                         = 0x4806,
     SMSG_BUY_FAILED                                   = 0x6435,
     SMSG_BUY_ITEM                                     = 0x0F26,
     SMSG_CALENDAR_ACTION_PENDING                      = 0x0000,
