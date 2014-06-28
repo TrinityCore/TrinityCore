@@ -775,7 +775,7 @@ class spell_mage_ice_barrier : public SpellScriptLoader
        {
            PrepareAuraScript(spell_mage_ice_barrier_AuraScript);
 
-           void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+           void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
            {
                canBeRecalculated = false;
                if (Unit* caster = GetCaster())
