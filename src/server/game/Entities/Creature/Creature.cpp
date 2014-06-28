@@ -2287,7 +2287,7 @@ void Creature::AllLootRemovedFromCorpse()
     else
         m_corpseRemoveTime = now + m_corpseDelay * decayRate;
 
-    m_respawnTime = m_corpseRemoveTime + m_respawnTime;
+    m_respawnTime = m_corpseRemoveTime + m_respawnDelay;
 }
 
 uint8 Creature::getLevelForTarget(WorldObject const* target) const
