@@ -20,6 +20,8 @@
 
 #include "BattlegroundScore.h"
 #include "SharedDefines.h"
+#include "Player.h"
+#include "ObjectAccessor.h"
 
 struct ArenaScore : public BattlegroundScore
 {
