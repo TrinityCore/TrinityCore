@@ -170,10 +170,6 @@ Battleground::Battleground()
     m_ArenaTeamMMR[TEAM_ALLIANCE]   = 0;
     m_ArenaTeamMMR[TEAM_HORDE]      = 0;
 
-    // Iterate this way for consistency's sake - client expects it to be sent in this order
-    for (int8 i = WINNER_ALLIANCE; i >= WINNER_HORDE; --i)
-        _arenaTeamScores[i] = new ArenaTeamScore();
-
     m_BgRaids[TEAM_ALLIANCE]         = NULL;
     m_BgRaids[TEAM_HORDE]            = NULL;
 
@@ -225,10 +221,6 @@ Battleground::~Battleground()
 
     for (BattlegroundScoreMap::const_iterator itr = PlayerScores.begin(); itr != PlayerScores.end(); ++itr)
         delete itr->second;
-
-    // Iterate this way for consistency's sake - client expects it to be sent in this order
-    for (int8 i = WINNER_ALLIANCE; i >= WINNER_HORDE; --i)
-        delete _arenaTeamScores[i];
 }
 
 void Battleground::Update(uint32 diff)
@@ -795,8 +787,8 @@ void Battleground::EndBattleground(uint32 winner)
                 uint8 winnerId = GetWinner();
                 uint8 loserId = winnerId == WINNER_ALLIANCE ? uint8(WINNER_HORDE) : winnerId;
 
-                _arenaTeamScores[winnerId]->Assign(winnerChange, winnerMatchmakerRating + winnerMatchmakerChange, winnerArenaTeam->GetName());
-                _arenaTeamScores[loserId]->Assign(loserChange, loserMatchmakerRating + loserMatchmakerChange, loserArenaTeam->GetName());
+                _arenaTeamScores[winnerId].Assign(winnerChange, winnerMatchmakerRating + winnerMatchmakerChange, winnerArenaTeam->GetName());
+                _arenaTeamScores[loserId].Assign(loserChange, loserMatchmakerRating + loserMatchmakerChange, loserArenaTeam->GetName());
 
                 TC_LOG_DEBUG("bg.arena", "Arena match Type: %u for Team1Id: %u - Team2Id: %u ended. WinnerTeamId: %u. Winner rating: +%d, Loser rating: %d", m_ArenaType, m_ArenaTeamIds[TEAM_ALLIANCE], m_ArenaTeamIds[TEAM_HORDE], winnerArenaTeam->GetId(), winnerChange, loserChange);
                 if (sWorld->getBoolConfig(CONFIG_ARENA_LOG_EXTENDED_INFO))
@@ -811,8 +803,8 @@ void Battleground::EndBattleground(uint32 winner)
             // Deduct 16 points from each teams arena-rating if there are no winners after 45+2 minutes
             else
             {
-                _arenaTeamScores[WINNER_ALLIANCE]->Assign(ARENA_TIMELIMIT_POINTS_LOSS, winnerMatchmakerRating + winnerMatchmakerChange, winnerArenaTeam->GetName());
-                _arenaTeamScores[WINNER_HORDE]->Assign(ARENA_TIMELIMIT_POINTS_LOSS, loserMatchmakerRating + loserMatchmakerChange, loserArenaTeam->GetName());
+                _arenaTeamScores[WINNER_ALLIANCE].Assign(ARENA_TIMELIMIT_POINTS_LOSS, winnerMatchmakerRating + winnerMatchmakerChange, winnerArenaTeam->GetName());
+                _arenaTeamScores[WINNER_HORDE].Assign(ARENA_TIMELIMIT_POINTS_LOSS, loserMatchmakerRating + loserMatchmakerChange, loserArenaTeam->GetName());
 
                 winnerArenaTeam->FinishGame(ARENA_TIMELIMIT_POINTS_LOSS);
                 loserArenaTeam->FinishGame(ARENA_TIMELIMIT_POINTS_LOSS);
@@ -1107,6 +1099,9 @@ void Battleground::Reset()
         delete itr->second;
     PlayerScores.clear();
 
+    for (int8 i = WINNER_ALLIANCE; i >= WINNER_HORDE; --i)
+        _arenaTeamScores[i].Reset();
+
     ResetBGSubclass();
 }
 
@@ -1368,10 +1363,10 @@ void Battleground::BuildPvPLogDataPacket(WorldPacket& data)
     {
         // it seems this must be according to BG_WINNER_A/H and _NOT_ TEAM_A/H
         for (int8 i = WINNER_ALLIANCE; i >= WINNER_HORDE; --i)
-            _arenaTeamScores[i]->BuildRatingInfoBlock(data);
+            _arenaTeamScores[i].BuildRatingInfoBlock(data);
 
         for (int8 i = WINNER_ALLIANCE; i >= WINNER_HORDE; --i)
-            _arenaTeamScores[i]->BuildTeamInfoBlock(data);
+            _arenaTeamScores[i].BuildTeamInfoBlock(data);
     }
 
     if (GetStatus() == STATUS_WAIT_LEAVE)
