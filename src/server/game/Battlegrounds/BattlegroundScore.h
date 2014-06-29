@@ -101,7 +101,7 @@ struct BattlegroundScore
             BuildObjectivesBlock(data);
         }
 
-        virtual void BuildObjectivesBlock(WorldPacket& /*data*/) { }
+        virtual void BuildObjectivesBlock(WorldPacket& /*data*/) = 0;
 
         // For Logging purpose
         virtual std::string ToString() const { return ""; }
