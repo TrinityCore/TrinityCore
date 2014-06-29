@@ -152,7 +152,7 @@ struct BattlegroundWGScore final : public BattlegroundScore
     friend class BattlegroundWS;
 
     protected:
-        BattlegroundWGScore(uint64 playerGuid, uint8 team) : BattlegroundScore(playerGuid, team), FlagCaptures(0), FlagReturns(0) { }
+        BattlegroundWGScore(uint64 playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), FlagCaptures(0), FlagReturns(0) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {

@@ -513,7 +513,7 @@ struct BattlegroundSAScore final : public BattlegroundScore
     friend class BattlegroundSA;
 
     protected:
-        BattlegroundSAScore(uint64 playerGuid, uint8 team) : BattlegroundScore(playerGuid, team), DemolishersDestroyed(0), GatesDestroyed(0) { }
+        BattlegroundSAScore(uint64 playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), DemolishersDestroyed(0), GatesDestroyed(0) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {

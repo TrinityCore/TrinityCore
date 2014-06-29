@@ -328,7 +328,7 @@ struct BattlegroundEYScore final : public BattlegroundScore
     friend class BattlegroundEY;
 
     protected:
-        BattlegroundEYScore(uint64 playerGuid, uint8 team) : BattlegroundScore(playerGuid, team), FlagCaptures(0) { }
+        BattlegroundEYScore(uint64 playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), FlagCaptures(0) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {

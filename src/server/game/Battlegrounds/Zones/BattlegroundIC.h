@@ -853,7 +853,7 @@ struct BattlegroundICScore final : public BattlegroundScore
     friend class BattlegroundIC;
 
     protected:
-        BattlegroundICScore(uint64 playerGuid, uint8 team) : BattlegroundScore(playerGuid, team), BasesAssaulted(0), BasesDefended(0) { }
+        BattlegroundICScore(uint64 playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), BasesAssaulted(0), BasesDefended(0) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {
