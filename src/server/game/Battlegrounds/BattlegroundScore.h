@@ -153,7 +153,7 @@ struct BattlegroundScore
             content.WriteByteSeq(PlayerGuid[2]);
         }
 
-        virtual void BuildObjectivesBlock(WorldPacket& /*data*/, ByteBuffer& /*content*/) { }
+        virtual void BuildObjectivesBlock(WorldPacket& /*data*/, ByteBuffer& /*content*/) = 0;
 
         // For Logging purpose
         virtual std::string ToString() const { return ""; }
