@@ -322,6 +322,10 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     // If theres is an item, there is a one hour delivery delay if sent to another account's character.
     uint32 deliver_delay = needItemDelay ? sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY) : 0;
 
+    // don't ask for COD if there are no items
+    if (items_count == 0)
+        COD = 0;
+
     // will delete item or place to receiver mail list
     draft
         .AddMoney(money)
