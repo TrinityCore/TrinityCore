@@ -40,6 +40,12 @@ struct ArenaScore : public BattlegroundScore
             data << uint8(TeamId);
             data << uint32(DamageDone);
             data << uint32(HealingDone);
+
+            BuildObjectivesBlock(data);
+        }
+
+        void BuildObjectivesBlock(WorldPacket& data) final
+        {
             data << uint32(0); // Objectives Count
         }
 
@@ -51,7 +57,7 @@ struct ArenaScore : public BattlegroundScore
             return stream.str();
         }
 
-        uint8 TeamId; // TEAM_ALLIANCE or TEAM_HORDE
+        uint8 TeamId; // bgTeamId
 };
 
 #endif // TRINITY_ARENA_SCORE_H
