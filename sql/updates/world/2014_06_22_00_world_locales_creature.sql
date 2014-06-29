@@ -1,3 +1,5 @@
+SET NAMES 'utf8';
+
 -- Male frFR
 UPDATE `locales_creature` SET `name_loc2`='Contrebandier défias' WHERE `entry`=95;
 UPDATE `locales_creature` SET `name_loc2`='Eclaireur défias' WHERE `entry`=121;
@@ -3774,3 +3776,5 @@ UPDATE `locales_creature` SET `name_loc7`='Espía creciente de la muerte captura
 -- ruRU
 UPDATE `locales_creature` SET `name_loc8`='Жрец Алого ордена' WHERE `entry`=10608;
 UPDATE `locales_creature` SET `name_loc8`='Разведчик Похитителей Солнца' WHERE `entry`=30233;
+
+SET NAMES 'latin1';
