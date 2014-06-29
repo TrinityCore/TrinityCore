@@ -383,6 +383,10 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         if (guild->GetLevel() >= 17 && guild->IsMember(receiverGuid))
             deliver_delay = 0;
 
+    // don't ask for COD if there are no items
+    if (items_count == 0)
+        COD = 0;
+
     // will delete item or place to receiver mail list
     draft
         .AddMoney(money)
