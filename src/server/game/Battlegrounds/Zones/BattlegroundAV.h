@@ -1531,7 +1531,7 @@ struct BattlegroundAVScore final : public BattlegroundScore
     friend class BattlegroundAV;
 
     protected:
-        BattlegroundAVScore(uint64 playerGuid, uint8 team) : BattlegroundScore(playerGuid, team), GraveyardsAssaulted(0), GraveyardsDefended(0), TowersAssaulted(0), TowersDefended(0), MinesCaptured(0) { }
+        BattlegroundAVScore(uint64 playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), GraveyardsAssaulted(0), GraveyardsDefended(0), TowersAssaulted(0), TowersDefended(0), MinesCaptured(0) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {
