@@ -633,6 +633,7 @@ class Battleground
                 uint32 ratingLost = std::abs(std::min(RatingChange, 0));
                 uint32 ratingWon = std::max(RatingChange, 0);
 
+                // should be old rating, new rating, and client will calculate rating change itself
                 data << uint32(ratingLost);
                 data << uint32(ratingWon);
                 data << uint32(MatchmakerRating);
