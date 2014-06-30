@@ -273,7 +273,7 @@ void Log::write(LogMessage* msg) const
     msg->text.append("\n");
 
     if (worker)
-        worker->enqueue(new LogOperation(logger, msg));
+        worker->Enqueue(new LogOperation(logger, msg));
     else
     {
         logger->write(*msg);
