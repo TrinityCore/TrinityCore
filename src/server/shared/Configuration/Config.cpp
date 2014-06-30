@@ -71,7 +71,7 @@ bool ConfigMgr::GetBoolDefault(const char* name, bool def)
 {
     try
     {
-        std::string val = _config.get<std::string>(name);
+        std::string val = _config.get<std::string>(ptree::path_type(name, '/'));
         val.erase(std::remove(val.begin(), val.end(), '"'), val.end());
         return (val == "true" || val == "TRUE" || val == "yes" || val == "YES" || val == "1");
     }
@@ -83,12 +83,12 @@ bool ConfigMgr::GetBoolDefault(const char* name, bool def)
 
 int ConfigMgr::GetIntDefault(const char* name, int def)
 {
-    return _config.get<int>(name, def);
+    return _config.get<int>(ptree::path_type(name, '/'), def);
 }
 
 float ConfigMgr::GetFloatDefault(const char* name, float def)
 {
-    return _config.get<float>(name, def);
+    return _config.get<float>(ptree::path_type(name, '/'), def);
 }
 
 std::string const& ConfigMgr::GetFilename()
