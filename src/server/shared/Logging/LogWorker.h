@@ -18,30 +18,29 @@
 #ifndef LOGWORKER_H
 #define LOGWORKER_H
 
+#include <atomic>
+#include <thread>
+
 #include "LogOperation.h"
+#include "ProducerConsumerQueue.h"
 
-#include <ace/Task.h>
-#include <ace/Activation_Queue.h>
-
-class LogWorker: protected ACE_Task_Base
+class LogWorker
 {
     public:
         LogWorker();
         ~LogWorker();
 
-        typedef ACE_Message_Queue_Ex<LogOperation, ACE_MT_SYNCH> LogMessageQueueType;
-
-        enum
-        {
-            HIGH_WATERMARK = 8 * 1024 * 1024,
-            LOW_WATERMARK  = 8 * 1024 * 1024
-        };
-
-        int enqueue(LogOperation *op);
+        void Enqueue(LogOperation *op);
 
     private:
-        virtual int svc();
-        LogMessageQueueType m_queue;
+        ProducerConsumerQueue<LogOperation*> _queue;
+
+        void WorkerThread();
+        std::thread _workerThread;
+
+        std::atomic_bool _cancelationToken;
 };
+
+
 
 #endif
