@@ -19,7 +19,6 @@
 #define BATTLEFIELD_MGR_H_
 
 #include "Battlefield.h"
-#include <ace/Singleton.h>
 
 class Player;
 class ZoneScript;
@@ -28,11 +27,12 @@ class ZoneScript;
 class BattlefieldMgr
 {
     public:
-        // ctor
-        BattlefieldMgr();
-        // dtor
-        ~BattlefieldMgr();
-
+        static BattlefieldMgr* instance()
+        {
+            static BattlefieldMgr* instance = new BattlefieldMgr();
+            return instance;
+        }
+        
         // create battlefield events
         void InitBattlefield();
 
@@ -52,6 +52,9 @@ class BattlefieldMgr
         void Update(uint32 diff);
 
     private:
+        BattlefieldMgr();
+        ~BattlefieldMgr();
+
         typedef std::vector<Battlefield*> BattlefieldSet;
         typedef std::map<uint32 /*zoneId*/, Battlefield*> BattlefieldMap;
         // contains all initiated battlefield events
@@ -64,6 +67,6 @@ class BattlefieldMgr
         uint32 _updateTimer;
 };
 
-#define sBattlefieldMgr ACE_Singleton<BattlefieldMgr, ACE_Null_Mutex>::instance()
+#define sBattlefieldMgr BattlefieldMgr::instance()
 
 #endif // BATTLEFIELD_MGR_H_

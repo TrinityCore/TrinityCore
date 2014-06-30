@@ -26,7 +26,6 @@
 #define __WORLDSOCKETMGR_H
 
 #include <ace/Basic_Types.h>
-#include <ace/Singleton.h>
 #include <ace/Thread_Mutex.h>
 
 class WorldSocket;
@@ -36,9 +35,14 @@ class ACE_Event_Handler;
 /// Manages all sockets connected to peers and network threads
 class WorldSocketMgr
 {
-public:
     friend class WorldSocket;
-    friend class ACE_Singleton<WorldSocketMgr, ACE_Thread_Mutex>;
+
+public:
+    static WorldSocketMgr* instance()
+    {
+        static WorldSocketMgr* instance = new WorldSocketMgr();
+        return instance;
+    }
 
     /// Start network, listen at address:port .
     int StartNetwork(ACE_UINT16 port, const char* address);
@@ -68,7 +72,7 @@ private:
     class WorldSocketAcceptor* m_Acceptor;
 };
 
-#define sWorldSocketMgr ACE_Singleton<WorldSocketMgr, ACE_Thread_Mutex>::instance()
+#define sWorldSocketMgr WorldSocketMgr::instance()
 
 #endif
 /// @}
