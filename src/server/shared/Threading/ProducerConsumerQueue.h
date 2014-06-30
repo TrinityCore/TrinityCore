@@ -21,6 +21,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <queue>
+#include <atomic>
 
 template <typename T>
 class ProducerConsumerQueue
@@ -29,8 +30,11 @@ private:
     std::mutex _queueLock;
     std::queue<T> _queue;
     std::condition_variable _condition;
+    std::atomic<bool> _shutdown;
 
 public:
+
+    ProducerConsumerQueue<T>() : _shutdown(false) { }
 
     void Push(const T& value)
     {
@@ -68,7 +72,10 @@ public:
     {
         std::unique_lock<std::mutex> lock(_queueLock);
 
-        _condition.wait(lock, [this](){ return !_queue.empty(); });
+        while (_queue.empty() && !_shutdown)
+        {
+            _condition.wait(lock);
+        }
         
         if (_queue.empty())
             return;
@@ -90,6 +97,8 @@ public:
 
             _queue.pop();
         }
+
+        _shutdown = true;
 
         _queueLock.unlock();
 
