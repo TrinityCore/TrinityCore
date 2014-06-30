@@ -22,7 +22,6 @@
 #include <memory>
 #include "Define.h"
 
-
 struct bignum_st;
 
 class BigNumber

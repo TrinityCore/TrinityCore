@@ -22,8 +22,6 @@
 
 #include <thread>
 
-#include <ace/Sig_Handler.h>
-
 #include "Common.h"
 #include "SystemConfig.h"
 #include "SignalHandler.h"
@@ -46,6 +44,7 @@
 
 #include "BigNumber.h"
 #include "OpenSSLCrypto.h"
+#include <boost/asio.hpp>
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
@@ -58,27 +57,22 @@ extern int m_ServiceStatus;
 #define PROCESS_HIGH_PRIORITY -15 // [-20, 19], default is 0
 #endif
 
-/// Handle worldservers's termination signals
-class WorldServerSignalHandler : public Trinity::SignalHandler
+boost::asio::io_service _ioService;
+
+void SignalHandler(const boost::system::error_code& error, int signalNumber)
 {
-    public:
-        virtual void HandleSignal(int sigNum)
+    if (!error)
+    {
+        switch (signalNumber)
         {
-            switch (sigNum)
-            {
-                case SIGINT:
-                    World::StopNow(RESTART_EXIT_CODE);
-                    break;
-                case SIGTERM:
-#ifdef _WIN32
-                case SIGBREAK:
-                    if (m_ServiceStatus != 1)
-#endif
-                    World::StopNow(SHUTDOWN_EXIT_CODE);
-                    break;
-            }
+        case SIGINT:
+        case SIGTERM:
+            _ioService.stop();
+            break;
         }
-};
+    }
+}
+
 
 void FreezeDetectorThread(uint32 delayTime)
 {
@@ -153,23 +147,12 @@ int Master::Run()
     ///- Initialize the World
     sWorld->SetInitialWorldSettings();
 
-    ///- Initialize the signal handlers
-    WorldServerSignalHandler signalINT, signalTERM;
-    #ifdef _WIN32
-    WorldServerSignalHandler signalBREAK;
-    #endif /* _WIN32 */
-
-    ///- Register worldserver's signal handlers
-    ACE_Sig_Handler handle;
-    handle.register_handler(SIGINT, &signalINT);
-    handle.register_handler(SIGTERM, &signalTERM);
-#ifdef _WIN32
-    handle.register_handler(SIGBREAK, &signalBREAK);
-#endif
+    // Set signal handlers
+    boost::asio::signal_set signals(_ioService, SIGINT, SIGTERM);
+    signals.async_wait(SignalHandler);
 
     ///- Launch WorldRunnable thread
-
-    std::thread worldThread(WorldThread);
+    std::thread worldThread(WorldThread, std::ref(_ioService));
 
     std::thread* cliThread = nullptr;
 
@@ -285,6 +268,8 @@ int Master::Run()
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmID);
 
     TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", _FULLVERSION);
+
+    _ioService.run();
 
     // when the main thread closes the singletons get unloaded
     // since worldrunnable uses them, it will crash if unloaded after master

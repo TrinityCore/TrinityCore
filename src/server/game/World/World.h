@@ -25,9 +25,7 @@
 
 #include "Common.h"
 #include "Timer.h"
-#include <ace/Singleton.h>
 #include <ace/Atomic_Op.h>
-#include <ace/Null_Mutex.h>
 #include "SharedDefines.h"
 #include "QueryResult.h"
 #include "Callback.h"
@@ -156,7 +154,6 @@ enum WorldBoolConfigs
     CONFIG_STATS_LIMITS_ENABLE,
     CONFIG_INSTANCES_RESET_ANNOUNCE,
     CONFIG_IP_BASED_ACTION_LOGGING,
-    CONFIG_IP_BASED_LOGIN_LOGGING,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -520,10 +517,13 @@ struct CharacterNameData
 class World
 {
     public:
-        static ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_worldLoopCounter;
+        static World* instance()
+        {
+            static World* instance = new World();
+            return instance;
+        }
 
-        World();
-        ~World();
+        static ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_worldLoopCounter;
 
         WorldSession* FindSession(uint32 id) const;
         void AddSession(WorldSession* s);
@@ -758,6 +758,9 @@ class World
         void ResetRandomBG();
         void ResetGuildCap();
     private:
+        World();
+        ~World();
+
         static ACE_Atomic_Op<ACE_Thread_Mutex, bool> m_stopEvent;
         static uint8 m_ExitCode;
         uint32 m_ShutdownTimer;
@@ -845,6 +848,6 @@ class World
 
 extern uint32 realmID;
 
-#define sWorld ACE_Singleton<World, ACE_Null_Mutex>::instance()
+#define sWorld World::instance()
 #endif
 /// @}

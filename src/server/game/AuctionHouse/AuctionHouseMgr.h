@@ -19,8 +19,6 @@
 #ifndef _AUCTION_HOUSE_MGR_H
 #define _AUCTION_HOUSE_MGR_H
 
-#include <ace/Singleton.h>
-
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCStructure.h"
@@ -137,13 +135,16 @@ class AuctionHouseObject
 
 class AuctionHouseMgr
 {
-    friend class ACE_Singleton<AuctionHouseMgr, ACE_Null_Mutex>;
-
     private:
         AuctionHouseMgr();
         ~AuctionHouseMgr();
 
     public:
+        static AuctionHouseMgr* instance()
+        {
+            static AuctionHouseMgr* instance = new AuctionHouseMgr();
+            return instance;
+        }
 
         typedef std::unordered_map<uint32, Item*> ItemMap;
 
@@ -193,6 +194,6 @@ class AuctionHouseMgr
         ItemMap mAitems;
 };
 
-#define sAuctionMgr ACE_Singleton<AuctionHouseMgr, ACE_Null_Mutex>::instance()
+#define sAuctionMgr AuctionHouseMgr::instance()
 
 #endif

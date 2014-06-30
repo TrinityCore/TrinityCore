@@ -18,7 +18,6 @@
 #ifndef TRINITY_CALENDARMGR_H
 #define TRINITY_CALENDARMGR_H
 
-#include <ace/Singleton.h>
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "WorldPacket.h"
@@ -268,8 +267,6 @@ typedef std::map<uint64 /* eventId */, CalendarInviteStore > CalendarEventInvite
 
 class CalendarMgr
 {
-    friend class ACE_Singleton<CalendarMgr, ACE_Null_Mutex>;
-
     private:
         CalendarMgr();
         ~CalendarMgr();
@@ -283,6 +280,12 @@ class CalendarMgr
         uint64 _maxInviteId;
 
     public:
+        static CalendarMgr* instance()
+        {
+            static CalendarMgr* instance = new CalendarMgr();
+            return instance;
+        }
+
         void LoadFromDB();
 
         CalendarEvent* GetEvent(uint64 eventId) const;
@@ -329,6 +332,6 @@ class CalendarMgr
         void SendPacketToAllEventRelatives(WorldPacket packet, CalendarEvent const& calendarEvent);
 };
 
-#define sCalendarMgr ACE_Singleton<CalendarMgr, ACE_Null_Mutex>::instance()
+#define sCalendarMgr CalendarMgr::instance()
 
 #endif
