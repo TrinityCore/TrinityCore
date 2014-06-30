@@ -27,6 +27,7 @@
 #include "Timer.h"
 #include <ace/Singleton.h>
 #include <ace/Atomic_Op.h>
+#include <ace/Null_Mutex.h>
 #include "SharedDefines.h"
 #include "QueryResult.h"
 #include "Callback.h"
