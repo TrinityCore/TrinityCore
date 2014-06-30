@@ -18,8 +18,6 @@
 #ifndef _DATABASEWORKERPOOL_H
 #define _DATABASEWORKERPOOL_H
 
-#include <ace/Thread_Mutex.h>
-
 #include "Common.h"
 #include "Callback.h"
 #include "MySQLConnection.h"
@@ -51,7 +49,6 @@ class DatabaseWorkerPool
         /* Activity state */
         DatabaseWorkerPool() : _connectionInfo(NULL)
         {
-            _messageQueue = new ACE_Message_Queue<ACE_SYNCH>(8 * 1024 * 1024, 8 * 1024 * 1024);
             _queue = new ProducerConsumerQueue<SQLOperation*>();
             memset(_connectionCount, 0, sizeof(_connectionCount));
             _connections.resize(IDX_SIZE);
@@ -125,9 +122,7 @@ class DatabaseWorkerPool
             for (uint8 i = 0; i < _connectionCount[IDX_SYNCH]; ++i)
                 _connections[IDX_SYNCH][i]->Close();
 
-            //! Deletes the ACE_Activation_Queue object and its underlying ACE_Message_Queue
             delete _queue;
-            delete _messageQueue;
 
             TC_LOG_INFO("sql.driver", "All connections on DatabasePool '%s' closed.", GetDatabaseName());
 
@@ -410,7 +405,7 @@ class DatabaseWorkerPool
         //! Will be wrapped in a transaction if valid object is present, otherwise executed standalone.
         void ExecuteOrAppend(SQLTransaction& trans, PreparedStatement* stmt)
         {
-            if (trans.null())
+            if (!trans)
                 Execute(stmt);
             else
                 trans->Append(stmt);
@@ -420,7 +415,7 @@ class DatabaseWorkerPool
         //! Will be wrapped in a transaction if valid object is present, otherwise executed standalone.
         void ExecuteOrAppend(SQLTransaction& trans, const char* sql)
         {
-            if (trans.null())
+            if (!trans)
                 Execute(sql);
             else
                 trans->Append(sql);
@@ -517,7 +512,6 @@ class DatabaseWorkerPool
             IDX_SIZE
         };
 
-        ACE_Message_Queue<ACE_SYNCH>*         _messageQueue;      //! Message Queue used by ACE_Activation_Queue
         ProducerConsumerQueue<SQLOperation*>* _queue;             //! Queue shared by async worker threads.
         std::vector< std::vector<T*> >        _connections;
         uint32                                _connectionCount[2];       //! Counter of MySQL connections;

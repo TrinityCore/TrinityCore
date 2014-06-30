@@ -42,7 +42,7 @@ extern int m_ServiceStatus;
 #endif
 
 /// Heartbeat for the World
-void WorldThread()
+void WorldThread(boost::asio::io_service& ioService)
 {
     uint32 realCurrTime = 0;
     uint32 realPrevTime = getMSTime();
@@ -83,6 +83,8 @@ void WorldThread()
                 Sleep(1000);
         #endif
     }
+
+    ioService.stop();
 
     sScriptMgr->OnShutdown();
 

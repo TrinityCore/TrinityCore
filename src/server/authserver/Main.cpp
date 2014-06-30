@@ -178,7 +178,6 @@ int main(int argc, char** argv)
 
     SetProcessPriority();
 
-
     _dbPingInterval = sConfigMgr->GetIntDefault("MaxPingTime", 30);
 
     _dbPingTimer.expires_from_now(boost::posix_time::seconds(_dbPingInterval));

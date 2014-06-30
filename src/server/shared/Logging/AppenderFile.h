@@ -18,8 +18,8 @@
 #ifndef APPENDERFILE_H
 #define APPENDERFILE_H
 
-#include "Appender.h"
 #include <atomic>
+#include "Appender.h"
 
 class AppenderFile: public Appender
 {

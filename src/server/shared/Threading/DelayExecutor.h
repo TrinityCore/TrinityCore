@@ -8,7 +8,6 @@
 class DelayExecutor : protected ACE_Task_Base
 {
     public:
-
         DelayExecutor();
         virtual ~DelayExecutor();
 
@@ -25,7 +24,6 @@ class DelayExecutor : protected ACE_Task_Base
         virtual int svc();
 
     private:
-
         ACE_Activation_Queue queue_;
         ACE_Method_Request* pre_svc_hook_;
         ACE_Method_Request* post_svc_hook_;

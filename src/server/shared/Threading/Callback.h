@@ -26,10 +26,6 @@ typedef std::promise<QueryResult> QueryResultPromise;
 typedef std::future<PreparedQueryResult> PreparedQueryResultFuture;
 typedef std::promise<PreparedQueryResult> PreparedQueryResultPromise;
 
-/*! A simple template using ACE_Future to manage callbacks from the thread and object that
-    issued the request. <ParamType> is variable type of parameter that is used as parameter
-    for the callback function.
-*/
 #define CALLBACK_STAGE_INVALID uint8(-1)
 
 template <typename Result, typename ParamType, bool chain = false>
