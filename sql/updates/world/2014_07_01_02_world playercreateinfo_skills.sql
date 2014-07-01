@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS `playercreateinfo_spells`;
+DROP TABLE IF EXISTS `playercreateinfo_spell`;
 
 DROP TABLE IF EXISTS `playercreateinfo_skills`;
 CREATE TABLE `playercreateinfo_skills` (
