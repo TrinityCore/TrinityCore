@@ -19,10 +19,11 @@
 #ifndef _MAP_UPDATER_H_INCLUDED
 #define _MAP_UPDATER_H_INCLUDED
 
+#include "Define.h"
 #include <mutex>
+#include <thread>
 #include <condition_variable>
-
-#include "DelayExecutor.h"
+#include "ProducerConsumerQueue.h"
 
 class Map;
 
@@ -35,24 +36,30 @@ class MapUpdater
 
         friend class MapUpdateRequest;
 
-        int schedule_update(Map& map, ACE_UINT32 diff);
+        void schedule_update(Map& map, uint32 diff);
 
-        int wait();
+        void wait();
 
-        int activate(size_t num_threads);
+        void activate(size_t num_threads);
 
-        int deactivate();
+        void deactivate();
 
         bool activated();
 
     private:
 
-        DelayExecutor m_executor;
+        ProducerConsumerQueue <MapUpdateRequest*> _queue;
+
+        std::vector<std::thread> _workerThreads;
+        std::atomic_bool _cancelationToken;
+
         std::mutex _lock;
         std::condition_variable _condition;
         size_t pending_requests;
 
         void update_finished();
+
+        void WorkerThread();
 };
 
 #endif //_MAP_UPDATER_H_INCLUDED
