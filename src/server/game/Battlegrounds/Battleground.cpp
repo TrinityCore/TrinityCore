@@ -810,9 +810,9 @@ void Battleground::EndBattleground(uint32 winner)
                             TC_LOG_DEBUG("bg.arena", "Statistics match Type: %u for %s (GUID: %u, Team: %d, IP: %s): %s",
                                 m_ArenaType, player->GetName().c_str(), score.first, player->GetArenaTeamId(m_ArenaType == 5 ? 2 : m_ArenaType == 3),
                                 player->GetSession()->GetRemoteAddress().c_str(), score.second->ToString().c_str());
-                            LoginDatabase.DirectPExecute("INSERT INTO arena_log_member VALUES (NULL, '%s', '%s', " UI64FMTD ", '%d', '%s', '%u', '%u', '%u')", uniqueIdentifier, player->GetName().c_str(), itr->first, player->GetArenaTeamId(m_ArenaType == 5 ? 2 : m_ArenaType == 3),
-                                player->GetSession()->GetRemoteAddress().c_str(), itr->second->DamageDone, itr->second->HealingDone,
-                                itr->second->KillingBlows, winnerArenaTeam->GetId(), winnerTeamRating, winnerChange, winnerMatchmakerRating,
+                            LoginDatabase.DirectPExecute("INSERT INTO arena_log_member VALUES (NULL, '%s', '%s', " UI64FMTD ", '%d', '%s', '%u', '%u', '%u')", uniqueIdentifier, player->GetName().c_str(), player->GetGUID(), player->GetArenaTeamId(m_ArenaType == 5 ? 2 : m_ArenaType == 3),
+                                player->GetSession()->GetRemoteAddress().c_str(), score.second->DamageDone, score.second->HealingDone,
+                                score.second->KillingBlows, winnerArenaTeam->GetId(), winnerTeamRating, winnerChange, winnerMatchmakerRating,
                                 winnerMatchmakerChange, loserArenaTeam->GetId(), loserTeamRating, loserChange, loserMatchmakerRating, loserMatchmakerChange, (uint32)duration);
                         }
             }
