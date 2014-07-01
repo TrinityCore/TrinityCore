@@ -21,6 +21,7 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
+#include "BattlegroundScore.h"
 #include "CellImpl.h"
 #include "ConditionMgr.h"
 #include "CreatureAI.h"
@@ -2853,12 +2854,10 @@ uint32 Unit::GetWeaponSkillValue (WeaponAttackType attType, Unit const* target) 
         if (IsInFeralForm())
             return GetMaxSkillValueForLevel();              // always maximized SKILL_FERAL_COMBAT in fact
 
-        // weapon skill or (unarmed for base attack and fist weapons)
-        uint32 skill;
-        if (item && item->GetSkill() != SKILL_FIST_WEAPONS)
+        // weapon skill or (unarmed for base attack)
+        uint32 skill = SKILL_UNARMED;
+        if (item)
             skill = item->GetSkill();
-        else
-            skill = SKILL_UNARMED;
 
         // in PvP use full skill instead current skill value
         value = (target && target->IsControlledByPlayer())
@@ -3372,7 +3371,7 @@ void Unit::_ApplyAuraEffect(Aura* aura, uint8 effIndex)
     AuraApplication * aurApp = aura->GetApplicationOfTarget(GetGUID());
     ASSERT(aurApp);
     if (!aurApp->GetEffectMask())
-        _ApplyAura(aurApp, 1<<effIndex);
+        _ApplyAura(aurApp, 1 << effIndex);
     else
         aurApp->_HandleEffect(effIndex, true);
 }
@@ -3410,7 +3409,7 @@ void Unit::_ApplyAura(AuraApplication * aurApp, uint8 effMask)
     // apply effects of the aura
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        if (effMask & 1<<i && (!aurApp->GetRemoveMode()))
+        if (effMask & 1 << i && (!aurApp->GetRemoveMode()))
             aurApp->_HandleEffect(i, true);
     }
 }
@@ -3865,6 +3864,7 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, Aura* except,
     {
         Aura* aura = (*iter)->GetBase();
         AuraApplication * aurApp = aura->GetApplicationOfTarget(GetGUID());
+        ASSERT(aurApp);
 
         ++iter;
         if (aura != except && (!casterGUID || aura->GetCasterGUID() == casterGUID)
@@ -10566,17 +10566,21 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                 {
                     if (!((*i)->IsAffectedOnSpell(spellProto)))
                         continue;
-                    int32 modChance = 0;
+
                     switch ((*i)->GetMiscValue())
                     {
-                        // Shatter
-                        case  911: modChance+= 16;
-                        case  910: modChance+= 17;
-                        case  849: modChance+= 17;
-                            if (!victim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
-                                break;
-                            crit_chance+=modChance;
+                        case 911: // Shatter (Rank 1)
+                            if (victim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
+                                crit_chance += 17;
                             break;
+                        case 910: // Shatter (Rank 2)
+                             if (victim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
+                                 crit_chance += 34;
+                             break;
+                        case 849: // Shatter (Rank 3)
+                            if (victim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
+                                crit_chance += 50;
+                             break;
                         case 7917: // Glyph of Shadowburn
                             if (victim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
                                 crit_chance+=(*i)->GetAmount();
@@ -10596,7 +10600,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                     case SPELLFAMILY_MAGE:
                         // Glyph of Fire Blast
                         if (spellProto->SpellFamilyFlags[0] == 0x2 && spellProto->SpellIconID == 12)
-                            if (victim->HasAuraWithMechanic((1<<MECHANIC_STUN) | (1<<MECHANIC_KNOCKOUT)))
+                            if (victim->HasAuraWithMechanic((1 << MECHANIC_STUN) | (1 << MECHANIC_KNOCKOUT)))
                                 if (AuraEffect const* aurEff = GetAuraEffect(56369, EFFECT_0))
                                     crit_chance += aurEff->GetAmount();
                         break;
@@ -10617,7 +10621,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                                     crit_chance += aurEff->GetAmount();
                            break;
                         }
-                    break;
+                        break;
                     case SPELLFAMILY_ROGUE:
                         // Shiv-applied poisons can't crit
                         if (FindCurrentSpellBySpellId(5938))
@@ -10639,7 +10643,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                                 return 100.0f;
                             break;
                         }
-                    break;
+                        break;
                     case SPELLFAMILY_SHAMAN:
                         // Lava Burst
                         if (spellProto->SpellFamilyFlags[1] & 0x00001000)
@@ -10649,7 +10653,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                                     return 100.0f;
                             break;
                         }
-                    break;
+                        break;
                 }
             }
             break;
@@ -10670,17 +10674,17 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                                 crit_chance += rendAndTear->GetAmount();
                             break;
                         }
-                    break;
+                        break;
                     case SPELLFAMILY_WARRIOR:
-                       // Victory Rush
-                       if (spellProto->SpellFamilyFlags[1] & 0x100)
-                       {
-                           // Glyph of Victory Rush
-                           if (AuraEffect const* aurEff = GetAuraEffect(58382, 0))
-                               crit_chance += aurEff->GetAmount();
-                           break;
-                       }
-                    break;
+                        // Victory Rush
+                        if (spellProto->SpellFamilyFlags[1] & 0x100)
+                        {
+                            // Glyph of Victory Rush
+                            if (AuraEffect const* aurEff = GetAuraEffect(58382, 0))
+                                crit_chance += aurEff->GetAmount();
+                            break;
+                        }
+                        break;
                 }
             }
         /// Intentional fallback. Calculate critical strike chance for both Ranged and Melee spells
@@ -15348,8 +15352,8 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
         if (creature)
         {
             Loot* loot = &creature->loot;
-            if (creature->lootForPickPocketed)
-                creature->lootForPickPocketed = false;
+            if (creature->loot.loot_type == LOOT_PICKPOCKETING)
+                creature->ResetPickPocketRefillTimer();
 
             loot->clear();
             if (uint32 lootid = creature->GetCreatureTemplate()->lootid)
@@ -15365,7 +15369,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
                     group->SendLooter(creature, NULL);
 
                 // Update round robin looter only if the creature had loot
-                if (!creature->loot.empty())
+                if (!loot->empty())
                     group->UpdateLooterGuid(creature);
             }
         }
@@ -15468,9 +15472,12 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
         if (!creature->IsPet())
         {
             creature->DeleteThreatList();
-            CreatureTemplate const* cInfo = creature->GetCreatureTemplate();
-            if (cInfo && (cInfo->lootid || cInfo->maxgold > 0))
+
+            // must be after setDeathState which resets dynamic flags
+            if (!creature->loot.isLooted())
                 creature->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+            else
+                creature->AllLootRemovedFromCorpse();
         }
 
         // Call KilledUnit for creatures, this needs to be called after the lootable flag is set
@@ -16458,19 +16465,25 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
         }
     }
 
-    WorldObject::SetPhaseMask(newPhaseMask, update);
+    // Phase player, dont update
+    WorldObject::SetPhaseMask(newPhaseMask, false);
 
-    if (!IsInWorld())
-        return;
+    // Phase pets and summons
+    if (IsInWorld())
+    {
+        for (ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
+            if ((*itr)->GetTypeId() == TYPEID_UNIT)
+                (*itr)->SetPhaseMask(newPhaseMask, true);
 
-    for (ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
-        if ((*itr)->GetTypeId() == TYPEID_UNIT)
-            (*itr)->SetPhaseMask(newPhaseMask, true);
+        for (uint8 i = 0; i < MAX_SUMMON_SLOT; ++i)
+            if (m_SummonSlot[i])
+                if (Creature* summon = GetMap()->GetCreature(m_SummonSlot[i]))
+                    summon->SetPhaseMask(newPhaseMask, true);
+    }
 
-    for (uint8 i = 0; i < MAX_SUMMON_SLOT; ++i)
-        if (m_SummonSlot[i])
-            if (Creature* summon = GetMap()->GetCreature(m_SummonSlot[i]))
-                summon->SetPhaseMask(newPhaseMask, true);
+    // Update visibility after phasing pets and summons so they wont despawn
+    if (update)
+        UpdateObjectVisibility();
 }
 
 void Unit::UpdateObjectVisibility(bool forced)

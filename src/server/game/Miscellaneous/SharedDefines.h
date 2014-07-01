@@ -397,7 +397,7 @@ enum SpellAttr3
     SPELL_ATTR3_MAIN_HAND                        = 0x00000400, // 10 Main hand weapon required
     SPELL_ATTR3_BATTLEGROUND                     = 0x00000800, // 11 Can only be cast in battleground
     SPELL_ATTR3_ONLY_TARGET_GHOSTS               = 0x00001000, // 12
-    SPELL_ATTR3_UNK13                            = 0x00002000, // 13
+    SPELL_ATTR3_DONT_DISPLAY_CHANNEL_BAR         = 0x00002000, // 13 Clientside attribute - will not display channeling bar
     SPELL_ATTR3_IS_HONORLESS_TARGET              = 0x00004000, // 14 "Honorless Target" only this spells have this flag
     SPELL_ATTR3_UNK15                            = 0x00008000, // 15 Auto Shoot, Shoot, Throw,  - this is autoshot flag
     SPELL_ATTR3_CANT_TRIGGER_PROC                = 0x00010000, // 16 confirmed with many patchnotes
@@ -2595,7 +2595,7 @@ enum CreatureTypeFlags
     CREATURE_TYPEFLAGS_EXOTIC           = 0x00010000,         // Can be tamed by hunter as exotic pet
     CREATURE_TYPEFLAGS_UNK17            = 0x00020000,         // ? Related to vehicles/pvp?
     CREATURE_TYPEFLAGS_UNK18            = 0x00040000,         // ? Related to vehicle/siege weapons?
-    CREATURE_TYPEFLAGS_UNK19            = 0x00080000,
+    CREATURE_TYPEFLAGS_PROJECTILE_COLLISION = 0x00080000,     // Projectiles can collide with this creature - interacts with TARGET_DEST_TRAJ
     CREATURE_TYPEFLAGS_UNK20            = 0x00100000,
     CREATURE_TYPEFLAGS_UNK21            = 0x00200000,
     CREATURE_TYPEFLAGS_UNK22            = 0x00400000,

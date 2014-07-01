@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ArenaScore.h"
 #include "BattlegroundBE.h"
 #include "Language.h"
 #include "Object.h"
@@ -64,7 +65,7 @@ void BattlegroundBE::StartingEventOpenDoors()
 void BattlegroundBE::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUID()] = new BattlegroundScore;
+    PlayerScores[player->GetGUIDLow()] = new ArenaScore(player->GetGUID(), player->GetBGTeam());
     UpdateArenaWorldState();
 }
 
@@ -138,14 +139,4 @@ bool BattlegroundBE::SetupBattleground()
     }
 
     return true;
-}
-
-void BattlegroundBE::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
-{
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
-    if (itr == PlayerScores.end())                         // player not found...
-        return;
-
-    //there is nothing special in this score
-    Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
 }

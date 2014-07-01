@@ -1668,7 +1668,7 @@ void ObjectMgr::LoadCreatures()
         }
 
         // Skip spawnMask check for transport maps
-        if (!_transportMaps.count(data.mapid) && data.spawnMask & ~spawnMasks[data.mapid])
+        if (!IsTransportMap(data.mapid) && data.spawnMask & ~spawnMasks[data.mapid])
             TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u) that have wrong spawn mask %u including not supported difficulty modes for map (Id: %u).", guid, data.spawnMask, data.mapid);
 
         bool ok = true;
@@ -2003,7 +2003,7 @@ void ObjectMgr::LoadGameobjects()
 
         data.spawnMask      = fields[14].GetUInt8();
 
-        if (!_transportMaps.count(data.mapid) && data.spawnMask & ~spawnMasks[data.mapid])
+        if (!IsTransportMap(data.mapid) && data.spawnMask & ~spawnMasks[data.mapid])
             TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) that has wrong spawn mask %u including not supported difficulty modes for map (Id: %u), skip", guid, data.id, data.spawnMask, data.mapid);
 
         data.phaseMask      = fields[15].GetUInt32();
@@ -3322,17 +3322,91 @@ void ObjectMgr::LoadPlayerInfo()
         }
     }
 
+
+    // Load playercreate skills
+    TC_LOG_INFO("server.loading", "Loading Player Create Skill Data...");
+    {
+        uint32 oldMSTime = getMSTime();
+
+        QueryResult result = WorldDatabase.PQuery("SELECT raceMask, classMask, skill, rank FROM playercreateinfo_skills");
+
+        if (!result)
+        {
+            TC_LOG_ERROR("server.loading", ">> Loaded 0 player create skills. DB table `playercreateinfo_skills` is empty.");
+        }
+        else
+        {
+            uint32 count = 0;
+
+            do
+            {
+                Field* fields = result->Fetch();
+                uint32 raceMask = fields[0].GetUInt32();
+                uint32 classMask = fields[1].GetUInt32();
+                PlayerCreateInfoSkill skill;
+                skill.SkillId = fields[2].GetUInt16();
+                skill.Rank = fields[3].GetUInt16();
+
+                if (skill.Rank >= MAX_SKILL_STEP)
+                {
+                    TC_LOG_ERROR("sql.sql", "Skill rank value %hu set for skill %hu raceMask %u classMask %u is too high, max allowed value is %d", skill.Rank, skill.SkillId, raceMask, classMask, MAX_SKILL_STEP);
+                    continue;
+                }
+
+                if (raceMask != 0 && !(raceMask & RACEMASK_ALL_PLAYABLE))
+                {
+                    TC_LOG_ERROR("sql.sql", "Wrong race mask %u in `playercreateinfo_skills` table, ignoring.", raceMask);
+                    continue;
+                }
+
+                if (classMask != 0 && !(classMask & CLASSMASK_ALL_PLAYABLE))
+                {
+                    TC_LOG_ERROR("sql.sql", "Wrong class mask %u in `playercreateinfo_skills` table, ignoring.", classMask);
+                    continue;
+                }
+
+                if (!sSkillLineStore.LookupEntry(skill.SkillId))
+                {
+                    TC_LOG_ERROR("sql.sql", "Wrong skill id %u in `playercreateinfo_skills` table, ignoring.", skill.SkillId);
+                    continue;
+                }
+
+                for (uint32 raceIndex = RACE_HUMAN; raceIndex < MAX_RACES; ++raceIndex)
+                {
+                    if (raceMask == 0 || ((1 << (raceIndex - 1)) & raceMask))
+                    {
+                        for (uint32 classIndex = CLASS_WARRIOR; classIndex < MAX_CLASSES; ++classIndex)
+                        {
+                            if (classMask == 0 || ((1 << (classIndex - 1)) & classMask))
+                            {
+                                if (!GetSkillRaceClassInfo(skill.SkillId, raceIndex, classIndex))
+                                    continue;
+
+                                if (PlayerInfo* info = _playerInfo[raceIndex][classIndex])
+                                {
+                                    info->skills.push_back(skill);
+                                    ++count;
+                                }
+                            }
+                        }
+                    }
+                }
+            } while (result->NextRow());
+
+            TC_LOG_INFO("server.loading", ">> Loaded %u player create skills in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        }
+    }
+
     // Load playercreate spells
     TC_LOG_INFO("server.loading", "Loading Player Create Spell Data...");
     {
         uint32 oldMSTime = getMSTime();
 
-        std::string tableName = sWorld->getBoolConfig(CONFIG_START_ALL_SPELLS) ? "playercreateinfo_spell_custom" : "playercreateinfo_spell";
-        QueryResult result = WorldDatabase.PQuery("SELECT racemask, classmask, Spell FROM %s", tableName.c_str());
+        QueryResult result = WorldDatabase.PQuery("SELECT racemask, classmask, Spell FROM playercreateinfo_spell_custom");
 
         if (!result)
         {
-            TC_LOG_ERROR("server.loading", ">> Loaded 0 player create spells. DB table `%s` is empty.", tableName.c_str());
+            TC_LOG_ERROR("server.loading", ">> Loaded 0 player create spells. DB table `playercreateinfo_spell_custom` is empty.");
         }
         else
         {
@@ -3347,13 +3421,13 @@ void ObjectMgr::LoadPlayerInfo()
 
                 if (raceMask != 0 && !(raceMask & RACEMASK_ALL_PLAYABLE))
                 {
-                    TC_LOG_ERROR("sql.sql", "Wrong race mask %u in `%s` table, ignoring.", raceMask, tableName.c_str());
+                    TC_LOG_ERROR("sql.sql", "Wrong race mask %u in `playercreateinfo_spell_custom` table, ignoring.", raceMask);
                     continue;
                 }
 
                 if (classMask != 0 && !(classMask & CLASSMASK_ALL_PLAYABLE))
                 {
-                    TC_LOG_ERROR("sql.sql", "Wrong class mask %u in `%s` table, ignoring.", classMask, tableName.c_str());
+                    TC_LOG_ERROR("sql.sql", "Wrong class mask %u in `playercreateinfo_spell_custom` table, ignoring.", classMask);
                     continue;
                 }
 
@@ -3367,7 +3441,7 @@ void ObjectMgr::LoadPlayerInfo()
                             {
                                 if (PlayerInfo* info = _playerInfo[raceIndex][classIndex])
                                 {
-                                    info->spell.push_back(spellId);
+                                    info->customSpells.push_back(spellId);
                                     ++count;
                                 }
                                 // We need something better here, the check is not accounting for spells used by multiple races/classes but not all of them.
@@ -3381,7 +3455,7 @@ void ObjectMgr::LoadPlayerInfo()
             }
             while (result->NextRow());
 
-            TC_LOG_INFO("server.loading", ">> Loaded %u player create spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            TC_LOG_INFO("server.loading", ">> Loaded %u custom player create spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
@@ -7808,36 +7882,27 @@ int32 ObjectMgr::GetBaseReputationOf(FactionEntry const* factionEntry, uint8 rac
     return 0;
 }
 
-SkillRangeType GetSkillRangeType(SkillLineEntry const* pSkill, bool racial)
+SkillRangeType GetSkillRangeType(SkillRaceClassInfoEntry const* rcEntry)
 {
-    switch (pSkill->categoryId)
+    SkillLineEntry const* skill = sSkillLineStore.LookupEntry(rcEntry->SkillId);
+    if (!skill)
+        return SKILL_RANGE_NONE;
+
+    if (sSkillTiersStore.LookupEntry(rcEntry->SkillTier))
+        return SKILL_RANGE_RANK;
+
+    if (rcEntry->SkillId == SKILL_RUNEFORGING)
+        return SKILL_RANGE_MONO;
+
+    switch (skill->categoryId)
     {
-        case SKILL_CATEGORY_LANGUAGES: return SKILL_RANGE_LANGUAGE;
-        case SKILL_CATEGORY_WEAPON:
-            if (pSkill->id != SKILL_FIST_WEAPONS)
-                return SKILL_RANGE_LEVEL;
-            else
-                return SKILL_RANGE_MONO;
         case SKILL_CATEGORY_ARMOR:
-        case SKILL_CATEGORY_CLASS:
-            if (pSkill->id != SKILL_LOCKPICKING)
-                return SKILL_RANGE_MONO;
-            else
-                return SKILL_RANGE_LEVEL;
-        case SKILL_CATEGORY_SECONDARY:
-        case SKILL_CATEGORY_PROFESSION:
-            // not set skills for professions and racial abilities
-            if (IsProfessionSkill(pSkill->id))
-                return SKILL_RANGE_RANK;
-            else if (racial)
-                return SKILL_RANGE_NONE;
-            else
-                return SKILL_RANGE_MONO;
-        default:
-        case SKILL_CATEGORY_ATTRIBUTES:                     //not found in dbc
-        case SKILL_CATEGORY_GENERIC:                        //only GENERIC(DND)
-            return SKILL_RANGE_NONE;
+            return SKILL_RANGE_MONO;
+        case SKILL_CATEGORY_LANGUAGES:
+            return SKILL_RANGE_LANGUAGE;
     }
+
+    return SKILL_RANGE_LEVEL;
 }
 
 void ObjectMgr::LoadGameTele()

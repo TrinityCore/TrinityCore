@@ -1353,6 +1353,14 @@ Rate.Creature.Elite.RAREELITE.HP = 1
 Rate.Creature.Elite.WORLDBOSS.HP = 1
 
 #
+#    Creature.PickPocketRefillDelay
+#        Description: Time in seconds that the server will wait before refilling the pickpocket loot
+#                     for a creature
+#        Default:     600
+
+Creature.PickPocketRefillDelay = 600
+
+#
 #    ListenRange.Say
 #        Description: Distance in which players can read say messages from creatures or
 #                     gameobjects.
@@ -2734,6 +2742,13 @@ Logger.sql.sql=5,Console DBErrors
 
 Log.Async.Enable = 0
 
+#
+#    Allow.IP.Based.Action.Logging
+#        Description: Logs actions, e.g. account login and logout to name a few, based on IP of current session.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Allow.IP.Based.Action.Logging = 0
 #
 ###################################################################################################
 

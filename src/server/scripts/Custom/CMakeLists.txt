@@ -8,6 +8,8 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+# file(GLOB_RECURSE sources_Custom Custom/*.cpp Custom/*.h)
+
 set(scripts_STAT_SRCS
   Custom/custom.cpp
   Custom/TrialOfTheCrusader/TW_boss_faction_champions.cpp
@@ -27,6 +29,7 @@ set(scripts_STAT_SRCS
   Custom/Ulduar/TW_boss_thorim.cpp
   Custom/Ulduar/TW_boss_mimiron.cpp
   ${scripts_STAT_SRCS}
+#  ${sources_Custom}
 )
 
 message("  -> Prepared: Custom")

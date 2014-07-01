@@ -76,6 +76,8 @@ enum PermissionTypes
 
 enum LootType
 {
+    LOOT_NONE                   = 0,
+
     LOOT_CORPSE                 = 1,
     LOOT_PICKPOCKETING          = 2,
     LOOT_FISHING                = 3,
@@ -341,6 +343,7 @@ struct Loot
         gold = 0;
         unlootedCount = 0;
         roundRobinPlayer = 0;
+        loot_type = LOOT_NONE;
         i_LootValidatorRefManager.clearReferences();
     }
 
