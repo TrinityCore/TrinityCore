@@ -24,7 +24,6 @@
 
 #include "Common.h"
 #include "SystemConfig.h"
-#include "SignalHandler.h"
 #include "World.h"
 #include "WorldRunnable.h"
 #include "WorldSocket.h"

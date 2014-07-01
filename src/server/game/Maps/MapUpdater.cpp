@@ -18,57 +18,61 @@
 
 #include <mutex>
 #include <condition_variable>
-#include <ace/Method_Request.h>
 
 #include "MapUpdater.h"
-#include "DelayExecutor.h"
 #include "Map.h"
-#include "DatabaseEnv.h"
 
 
-class MapUpdateRequest : public ACE_Method_Request
+class MapUpdateRequest
 {
     private:
 
         Map& m_map;
         MapUpdater& m_updater;
-        ACE_UINT32 m_diff;
+        uint32 m_diff;
 
     public:
 
-        MapUpdateRequest(Map& m, MapUpdater& u, ACE_UINT32 d)
+        MapUpdateRequest(Map& m, MapUpdater& u, uint32 d)
             : m_map(m), m_updater(u), m_diff(d)
         {
         }
 
-        virtual int call()
+        void call()
         {
             m_map.Update (m_diff);
             m_updater.update_finished();
-            return 0;
         }
 };
 
-MapUpdater::MapUpdater(): m_executor(), pending_requests(0) { }
+MapUpdater::MapUpdater(): pending_requests(0) { }
 
 MapUpdater::~MapUpdater()
 {
     deactivate();
 }
 
-int MapUpdater::activate(size_t num_threads)
+void MapUpdater::activate(size_t num_threads)
 {
-    return m_executor.start((int)num_threads);
+    for (size_t i = 0; i < num_threads; ++i)
+    {
+        _workerThreads.push_back(std::thread(&MapUpdater::WorkerThread, this));
+    }
 }
 
-int MapUpdater::deactivate()
+void MapUpdater::deactivate()
 {
     wait();
 
-    return m_executor.deactivate();
+    _queue.Cancel();
+
+    for (auto& thread : _workerThreads)
+    {
+        thread.join();
+    }
 }
 
-int MapUpdater::wait()
+void MapUpdater::wait()
 {
     std::unique_lock<std::mutex> lock(_lock);
 
@@ -76,43 +80,44 @@ int MapUpdater::wait()
         _condition.wait(lock);
 
     lock.unlock();
-
-    return 0;
 }
 
-int MapUpdater::schedule_update(Map& map, ACE_UINT32 diff)
+void MapUpdater::schedule_update(Map& map, uint32 diff)
 {
     std::lock_guard<std::mutex> lock(_lock);
 
     ++pending_requests;
 
-    if (m_executor.execute(new MapUpdateRequest(map, *this, diff)) == -1)
-    {
-        ACE_DEBUG((LM_ERROR, ACE_TEXT("(%t) \n"), ACE_TEXT("Failed to schedule Map Update")));
-
-        --pending_requests;
-        return -1;
-    }
-
-    return 0;
+    _queue.Push(new MapUpdateRequest(map, *this, diff));
 }
 
 bool MapUpdater::activated()
 {
-    return m_executor.activated();
+    return _workerThreads.size() > 0;
 }
 
 void MapUpdater::update_finished()
 {
     std::lock_guard<std::mutex> lock(_lock);
 
-    if (pending_requests == 0)
-    {
-        ACE_ERROR((LM_ERROR, ACE_TEXT("(%t)\n"), ACE_TEXT("MapUpdater::update_finished BUG, report to devs")));
-        return;
-    }
-
     --pending_requests;
 
     _condition.notify_all();
+}
+
+void MapUpdater::WorkerThread()
+{
+    while (1)
+    {
+        MapUpdateRequest* request = nullptr;
+
+        _queue.WaitAndPop(request);
+
+        if (_cancelationToken)
+            return;
+
+        request->call();
+
+        delete request;
+    }
 }
