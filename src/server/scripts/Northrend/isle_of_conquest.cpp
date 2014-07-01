@@ -20,6 +20,9 @@
 #include "PassiveAI.h"
 #include "BattlegroundIC.h"
 #include "Player.h"
+#include "Vehicle.h"
+#include "SpellScript.h"
+#include "SpellInfo.h"
 
 // TO-DO: This should be done with SmartAI, but yet it does not correctly support vehicles's AIs.
 //        Even adding ReactState Passive we still have issues using SmartAI.
@@ -70,7 +73,129 @@ class npc_four_car_garage : public CreatureScript
         }
 };
 
+class spell_gen_gunship_portal : public SpellScriptLoader
+{
+    public:
+        spell_gen_gunship_portal() : SpellScriptLoader("spell_gen_gunship_portal") { }
+
+        class spell_gen_gunship_portal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_gunship_portal_SpellScript);
+
+            bool Load() override
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Player* caster = GetCaster()->ToPlayer();
+                if (Battleground* bg = caster->GetBattleground())
+                    if (bg->GetTypeID(true) == BATTLEGROUND_IC)
+                        bg->DoAction(1, caster->GetGUID());
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_gunship_portal_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_gunship_portal_SpellScript();
+        }
+};
+
+enum ParachuteIC
+{
+    SPELL_PARACHUTE_IC      = 66657
+};
+
+class spell_gen_parachute_ic : public SpellScriptLoader
+{
+    public:
+        spell_gen_parachute_ic() : SpellScriptLoader("spell_gen_parachute_ic") { }
+
+        class spell_gen_parachute_ic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_parachute_ic_AuraScript);
+
+            void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
+            {
+                if (Player* target = GetTarget()->ToPlayer())
+                    if (target->m_movementInfo.fallTime > 2000)
+                        target->CastSpell(target, SPELL_PARACHUTE_IC, true);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_parachute_ic_AuraScript::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_parachute_ic_AuraScript();
+        }
+};
+
+enum Launch
+{
+    SPELL_LAUNCH_NO_FALLING_DAMAGE  = 66251
+};
+
+class spell_gen_launch : public SpellScriptLoader
+{
+    public:
+        spell_gen_launch() : SpellScriptLoader("spell_gen_launch") { }
+
+        class spell_gen_launch_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_launch_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Player* player = GetHitPlayer())
+                    player->AddAura(SPELL_LAUNCH_NO_FALLING_DAMAGE, player); // prevents falling damage
+            }
+
+            void Launch()
+            {
+                WorldLocation const* const position = GetExplTargetDest();
+
+                if (Player* player = GetHitPlayer())
+                {
+                    player->ExitVehicle();
+
+                    // A better research is needed
+                    // There is no spell for this, the following calculation was based on void Spell::CalculateJumpSpeeds
+
+                    float speedZ = 10.0f;
+                    float dist = position->GetExactDist2d(player->GetPositionX(), player->GetPositionY());
+                    float speedXY = dist;
+
+                    player->GetMotionMaster()->MoveJump(position->GetPositionX(), position->GetPositionY(), position->GetPositionZ(), speedXY, speedZ);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_launch_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_FORCE_CAST);
+                AfterHit += SpellHitFn(spell_gen_launch_SpellScript::Launch);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_launch_SpellScript();
+        }
+};
+
 void AddSC_isle_of_conquest()
 {
     new npc_four_car_garage();
+    new spell_gen_gunship_portal();
+    new spell_gen_parachute_ic();
+    new spell_gen_launch();
 }
