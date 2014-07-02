@@ -18,10 +18,10 @@
 #ifndef _WORKERTHREAD_H
 #define _WORKERTHREAD_H
 
-#include "Define.h"
 #include "ProducerConsumerQueue.h"
 
 class MySQLConnection;
+class SQLOperation;
 
 class DatabaseWorker
 {
