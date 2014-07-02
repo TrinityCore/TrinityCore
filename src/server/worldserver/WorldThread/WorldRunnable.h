@@ -23,7 +23,7 @@
 #ifndef __WORLDRUNNABLE_H
 #define __WORLDRUNNABLE_H
 
-#include <boost/asio.hpp>
+#include <boost/asio/io_service.hpp>
 
 void WorldThread(boost::asio::io_service& ioService);
 
