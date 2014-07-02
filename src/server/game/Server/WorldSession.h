@@ -372,10 +372,11 @@ class WorldSession
         void SetLatency(uint32 latency) { m_latency = latency; }
         void ResetClientTimeDelay() { m_clientTimeDelay = 0; }
 
-        ACE_Atomic_Op<ACE_Thread_Mutex, time_t> m_timeOutTime;
+        std::atomic<time_t> m_timeOutTime;
+
         void UpdateTimeOutTime(uint32 diff)
         {
-            if (time_t(diff) > m_timeOutTime.value())
+            if (time_t(diff) > m_timeOutTime)
                 m_timeOutTime = 0;
             else
                 m_timeOutTime -= diff;
