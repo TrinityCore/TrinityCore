@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include <mutex>
+#include <future>
 
 void process_message(struct soap* soap_message);
 void TCSoapThread(const std::string& host, uint16 port);
@@ -41,11 +42,10 @@ class SOAPCommand
             m_printBuffer += msg;
         }
 
-        std::mutex pendingCommands;
-
         void setCommandSuccess(bool val)
         {
             m_success = val;
+            finishedPromise.set_value();
         }
 
         bool hasCommandSucceeded() const
@@ -62,6 +62,7 @@ class SOAPCommand
 
         bool m_success;
         std::string m_printBuffer;
+        std::promise<void> finishedPromise;
 };
 
 #endif

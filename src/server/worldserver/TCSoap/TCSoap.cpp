@@ -56,7 +56,7 @@ void TCSoapThread(const std::string& host, uint16 port)
 
 void process_message(struct soap* soap_message)
 {
-    ACE_TRACE (ACE_TEXT ("SOAPWorkingThread::process_message"));
+    TC_LOG_TRACE("network.soap", "SOAPWorkingThread::process_message");
 
     soap_serve(soap_message);
     soap_destroy(soap_message); // dealloc C++ data
@@ -105,16 +105,15 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
 
     // commands are executed in the world thread. We have to wait for them to be completed
     {
-        // CliCommandHolder will be deleted from world, accessing after queueing is NOT save
+        // CliCommandHolder will be deleted from world, accessing after queueing is NOT safe
         CliCommandHolder* cmd = new CliCommandHolder(&connection, command, &SOAPCommand::print, &SOAPCommand::commandFinished);
         sWorld->QueueCliCommand(cmd);
     }
 
-    // wait for callback to complete command
-    connection.pendingCommands.lock();
+    // Wait until the command has finished executing
+    connection.finishedPromise.get_future().wait();
 
-    // alright, command finished
-
+    // The command has finished executing already
     char* printBuffer = soap_strdup(soap, connection.m_printBuffer.c_str());
     if (connection.hasCommandSucceeded())
     {
@@ -129,7 +128,6 @@ void SOAPCommand::commandFinished(void* soapconnection, bool success)
 {
     SOAPCommand* con = (SOAPCommand*)soapconnection;
     con->setCommandSuccess(success);
-    con->pendingCommands.unlock();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
