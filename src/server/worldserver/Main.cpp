@@ -22,7 +22,6 @@
 
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
-#include <ace/Version.h>
 
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
@@ -135,7 +134,7 @@ extern int main(int argc, char** argv)
     TC_LOG_INFO("server.worldserver", "Using configuration file %s.", cfg_file);
 
     TC_LOG_INFO("server.worldserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-    TC_LOG_INFO("server.worldserver", "Using ACE version: %s", ACE_VERSION);
+    TC_LOG_INFO("server.worldserver", "Using Boost version: %s", BOOST_LIB_VERSION);
 
     ///- and run the 'Master'
     /// @todo Why do we need this 'Master'? Can't all of this be in the Main as for Realmd?

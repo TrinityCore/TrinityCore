@@ -22,7 +22,8 @@
 
 #include <thread>
 
-#include "Common.h"
+#include "Master.h"
+
 #include "SystemConfig.h"
 #include "World.h"
 #include "WorldRunnable.h"
@@ -31,19 +32,17 @@
 #include "Configuration/Config.h"
 #include "Database/DatabaseEnv.h"
 #include "Database/DatabaseWorkerPool.h"
-
 #include "CliRunnable.h"
 #include "Log.h"
-#include "Master.h"
 #include "RARunnable.h"
 #include "TCSoap.h"
 #include "Timer.h"
 #include "Util.h"
 #include "RealmList.h"
-
 #include "BigNumber.h"
 #include "OpenSSLCrypto.h"
-#include <boost/asio.hpp>
+#include "AsyncAcceptor.h"
+#include "RASession.h"
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
@@ -165,8 +164,8 @@ int Master::Run()
         cliThread = new std::thread(CliThread);
     }
 
-    // TODO C++11/Boost
-    // std::thread rarThread(RemoteAccessThread);
+    if (sConfigMgr->GetBoolDefault("Ra.Enable", false))
+        StartRaSocketAcceptor(_ioService);
 
 #if defined(_WIN32) || defined(__linux__)
 
@@ -469,4 +468,12 @@ void Master::ClearOnlineAccounts()
 
     // Battleground instance ids reset at server restart
     CharacterDatabase.DirectExecute("UPDATE character_battleground_data SET instanceId = 0");
+}
+
+void Master::StartRaSocketAcceptor(boost::asio::io_service& ioService)
+{
+    uint16 raPort = uint16(sConfigMgr->GetIntDefault("Ra.Port", 3443));
+    std::string raListener = sConfigMgr->GetStringDefault("Ra.IP", "0.0.0.0");
+
+    AsyncAcceptor<RASession> raAcceptor(ioService, raListener, raPort);
 }
