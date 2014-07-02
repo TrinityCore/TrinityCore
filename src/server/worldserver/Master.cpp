@@ -34,7 +34,6 @@
 #include "Database/DatabaseWorkerPool.h"
 #include "CliRunnable.h"
 #include "Log.h"
-#include "RARunnable.h"
 #include "TCSoap.h"
 #include "Timer.h"
 #include "Util.h"
