@@ -51,7 +51,7 @@ class MapUpdater
         ProducerConsumerQueue <MapUpdateRequest*> _queue;
 
         std::vector<std::thread> _workerThreads;
-        std::atomic_bool _cancelationToken;
+        std::atomic<bool> _cancelationToken;
 
         std::mutex _lock;
         std::condition_variable _condition;
