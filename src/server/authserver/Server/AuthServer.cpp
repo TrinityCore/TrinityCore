@@ -35,6 +35,3 @@ void AuthServer::AsyncAccept()
         AsyncAccept();
     });
 }
-
-
-
