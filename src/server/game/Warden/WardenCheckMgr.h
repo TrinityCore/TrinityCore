@@ -20,6 +20,8 @@
 #define _WARDENCHECKMGR_H
 
 #include <map>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/shared_mutex.hpp>
 #include "Cryptography/BigNumber.h"
 
 enum WardenActions
@@ -72,7 +74,7 @@ class WardenCheckMgr
         void LoadWardenChecks();
         void LoadWardenOverrides();
 
-        ACE_RW_Mutex _checkStoreLock;
+        boost::shared_mutex _checkStoreLock;
 
     private:
         CheckContainer CheckStore;
