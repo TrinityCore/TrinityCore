@@ -12482,7 +12482,7 @@ void Player::QuickEquipItem(uint16 pos, Item* pItem)
         // Apply Titan's Grip damage penalty if necessary
         if ((slot == EQUIPMENT_SLOT_MAINHAND || slot == EQUIPMENT_SLOT_OFFHAND) && CanTitanGrip() && HasTwoHandWeaponInOneHand() && !HasAura(49152))
             CastSpell(this, 49152, true);
-        
+
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM, pItem->GetEntry());
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM, pItem->GetEntry(), slot);
     }
@@ -21251,7 +21251,18 @@ void Player::SetRestBonus(float rest_bonus_new)
 
     // update data for client
     if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
-        SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_RAF_LINKED);
+    {
+        // This function can check distance and returns true or false
+        if(GetsRecruitAFriendBonus(true))
+            SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_RAF_LINKED);
+        else
+        {
+            if (m_rest_bonus > 10)
+                SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_RESTED);              // Set Reststate = Rested
+            else if (m_rest_bonus <= 1)
+                SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_NOT_RAF_LINKED);              // Set Reststate = Normal
+        }
+    }
     else if (m_rest_bonus > 10)
         SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_RESTED);              // Set Reststate = Rested
     else if (m_rest_bonus <= 1)
