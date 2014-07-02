@@ -19,18 +19,16 @@
 #define _TCSOAP_H
 
 #include "Define.h"
+#include <mutex>
 
-#include <ace/Semaphore.h>
-#include <ace/Task.h>
-
-void process_message(ACE_Message_Block* mb);
+void process_message(struct soap* soap_message);
 void TCSoapThread(const std::string& host, uint16 port);
 
 class SOAPCommand
 {
     public:
         SOAPCommand():
-            pendingCommands(0, USYNC_THREAD, "pendingCommands"), m_success(false)
+            m_success(false)
         {
         }
 
@@ -43,7 +41,7 @@ class SOAPCommand
             m_printBuffer += msg;
         }
 
-        ACE_Semaphore pendingCommands;
+        std::mutex pendingCommands;
 
         void setCommandSuccess(bool val)
         {
