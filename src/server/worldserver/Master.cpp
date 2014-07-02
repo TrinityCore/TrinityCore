@@ -87,7 +87,7 @@ void FreezeDetectorThread(uint32 delayTime)
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         uint32 curtime = getMSTime();
         // normal work
-        uint32 worldLoopCounter = World::m_worldLoopCounter.value();
+        uint32 worldLoopCounter = World::m_worldLoopCounter;
         if (loops != worldLoopCounter)
         {
             lastChange = curtime;
