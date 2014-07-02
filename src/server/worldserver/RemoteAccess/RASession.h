@@ -20,7 +20,7 @@
 #define __RASESSION_H__
 
 #include <memory>
-#include <boost/asio.hpp>
+#include <boost/asio/ip/tcp.hpp>
 #include "Common.h"
 
 using boost::asio::ip::tcp;
