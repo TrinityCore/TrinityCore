@@ -50,6 +50,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Cryptography
   ${CMAKE_SOURCE_DIR}/src/server/shared/Cryptography/Authentication
   ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Networking
   ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
   ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
   ${CMAKE_CURRENT_SOURCE_DIR}
