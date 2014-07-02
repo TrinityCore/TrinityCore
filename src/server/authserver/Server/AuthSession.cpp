@@ -17,8 +17,8 @@
 */
 
 #include <memory>
-#include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/asio/write.hpp>
 #include <AuthSession.h>
 #include <Log.h>
 #include "ByteBuffer.h"
