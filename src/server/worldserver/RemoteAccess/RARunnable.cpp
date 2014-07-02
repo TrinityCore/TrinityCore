@@ -22,7 +22,7 @@
 #include "Common.h"
 #include "Config.h"
 #include "Log.h"
-#include "RARunnable.h"
+#include "RARunnable.h",
 #include "World.h"
 
 #include <ace/Reactor_Impl.h>
