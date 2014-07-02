@@ -41,7 +41,6 @@
 #include "BigNumber.h"
 #include "OpenSSLCrypto.h"
 #include "AsyncAcceptor.h"
-#include "RASession.h"
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
@@ -163,8 +162,10 @@ int Master::Run()
         cliThread = new std::thread(CliThread);
     }
 
+    AsyncAcceptor<RASession>* raAcceptor = nullptr;
+
     if (sConfigMgr->GetBoolDefault("Ra.Enable", false))
-        StartRaSocketAcceptor(_ioService);
+        raAcceptor = StartRaSocketAcceptor(_ioService);
 
 #if defined(_WIN32) || defined(__linux__)
 
@@ -246,9 +247,7 @@ int Master::Run()
 
     ///- Start up freeze catcher thread
     if (uint32 freezeDelay = sConfigMgr->GetIntDefault("MaxCoreStuckTime", 0))
-    {
         freezeDetectorThread = new std::thread(FreezeDetectorThread, freezeDelay);
-    }
 
     ///- Launch the world listener socket
     uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
@@ -271,13 +270,15 @@ int Master::Run()
     // when the main thread closes the singletons get unloaded
     // since worldrunnable uses them, it will crash if unloaded after master
     worldThread.join();
-    //rarThread.join();
 
     if (soapThread != nullptr)
     {
         soapThread->join();
         delete soapThread;
     }
+
+    if (raAcceptor != nullptr)
+        delete raAcceptor;
 
     // set server offline
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realmID);
@@ -469,10 +470,10 @@ void Master::ClearOnlineAccounts()
     CharacterDatabase.DirectExecute("UPDATE character_battleground_data SET instanceId = 0");
 }
 
-void Master::StartRaSocketAcceptor(boost::asio::io_service& ioService)
+AsyncAcceptor<RASession>* Master::StartRaSocketAcceptor(boost::asio::io_service& ioService)
 {
     uint16 raPort = uint16(sConfigMgr->GetIntDefault("Ra.Port", 3443));
     std::string raListener = sConfigMgr->GetStringDefault("Ra.IP", "0.0.0.0");
 
-    AsyncAcceptor<RASession> raAcceptor(ioService, raListener, raPort);
+    return new AsyncAcceptor<RASession>(ioService, raListener, raPort);
 }
