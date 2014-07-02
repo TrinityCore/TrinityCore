@@ -19,7 +19,7 @@
 #ifndef _REALMLIST_H
 #define _REALMLIST_H
 
-#include <boost/asio.hpp>
+#include <boost/asio/ip/address.hpp>
 #include "Common.h"
 
 using namespace boost::asio;

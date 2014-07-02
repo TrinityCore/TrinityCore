@@ -16,7 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/asio.hpp>
 #include "Common.h"
 #include "RealmList.h"
 #include "Database/DatabaseEnv.h"
