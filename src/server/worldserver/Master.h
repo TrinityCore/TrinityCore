@@ -23,7 +23,7 @@
 #ifndef _MASTER_H
 #define _MASTER_H
 
-#include <boost/asio.hpp>
+#include <boost/asio/io_service.hpp>
 #include "Common.h"
 
 /// Start the server
