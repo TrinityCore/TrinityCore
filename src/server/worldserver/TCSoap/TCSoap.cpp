@@ -48,28 +48,21 @@ void TCSoapThread(const std::string& host, uint16 port)
 
         TC_LOG_DEBUG("network.soap", "Accepted connection from IP=%d.%d.%d.%d", (int)(soap.ip>>24)&0xFF, (int)(soap.ip>>16)&0xFF, (int)(soap.ip>>8)&0xFF, (int)soap.ip&0xFF);
         struct soap* thread_soap = soap_copy(&soap);// make a safe copy
-
-        ACE_Message_Block* mb = new ACE_Message_Block(sizeof(struct soap*));
-        ACE_OS::memcpy(mb->wr_ptr(), &thread_soap, sizeof(struct soap*));
-        process_message(mb);
+        process_message(thread_soap);
     }
 
     soap_done(&soap);
 }
 
-void process_message(ACE_Message_Block* mb)
+void process_message(struct soap* soap_message)
 {
     ACE_TRACE (ACE_TEXT ("SOAPWorkingThread::process_message"));
 
-    struct soap* soap;
-    ACE_OS::memcpy(&soap, mb->rd_ptr (), sizeof(struct soap*));
-    mb->release();
-
-    soap_serve(soap);
-    soap_destroy(soap); // dealloc C++ data
-    soap_end(soap); // dealloc data and clean up
-    soap_done(soap); // detach soap struct
-    free(soap);
+    soap_serve(soap_message);
+    soap_destroy(soap_message); // dealloc C++ data
+    soap_end(soap_message); // dealloc data and clean up
+    soap_done(soap_message); // detach soap struct
+    free(soap_message);
 }
 /*
 Code used for generating stubs:
@@ -118,10 +111,7 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
     }
 
     // wait for callback to complete command
-
-    int acc = connection.pendingCommands.acquire();
-    if (acc)
-        TC_LOG_ERROR("network.soap", "Error while acquiring lock, acc = %i, errno = %u", acc, errno);
+    connection.pendingCommands.lock();
 
     // alright, command finished
 
@@ -139,7 +129,7 @@ void SOAPCommand::commandFinished(void* soapconnection, bool success)
 {
     SOAPCommand* con = (SOAPCommand*)soapconnection;
     con->setCommandSuccess(success);
-    con->pendingCommands.release();
+    con->pendingCommands.unlock();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
