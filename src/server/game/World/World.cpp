@@ -1046,6 +1046,8 @@ void World::LoadConfigSettings(bool reload)
 
     m_bool_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN]            = sConfigMgr->GetBoolDefault("OffhandCheckAtSpellUnlearn", true);
 
+    m_int_configs[CONFIG_CREATURE_PICKPOCKET_REFILL] = sConfigMgr->GetIntDefault("Creature.PickPocketRefillDelay", 10 * MINUTE);
+
     if (int32 clientCacheId = sConfigMgr->GetIntDefault("ClientCacheVersion", 0))
     {
         // overwrite DB/old value
@@ -1256,7 +1258,9 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_BIRTHDAY_TIME] = sConfigMgr->GetIntDefault("BirthdayTime", 1222964635);
 
     m_bool_configs[CONFIG_IP_BASED_ACTION_LOGGING] = sConfigMgr->GetBoolDefault("Allow.IP.Based.Action.Logging", false);
-    
+
+    m_bool_configs[CONFIG_IP_BASED_LOGIN_LOGGING] = sConfigMgr->GetBoolDefault("Wrong.Password.Login.Logging", false);
+
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);

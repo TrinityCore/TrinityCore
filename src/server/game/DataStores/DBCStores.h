@@ -74,6 +74,10 @@ LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty);
 
 uint32 GetDefaultMapLight(uint32 mapId);
 
+typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoMap;
+typedef std::pair<SkillRaceClassInfoMap::iterator, SkillRaceClassInfoMap::iterator> SkillRaceClassInfoBounds;
+SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_);
+
 extern DBCStorage <AchievementEntry>             sAchievementStore;
 extern DBCStorage <AchievementCriteriaEntry>     sAchievementCriteriaStore;
 extern DBCStorage <AreaTableEntry>               sAreaStore;// recommend access using functions
@@ -150,6 +154,7 @@ extern DBCStorage <ScalingStatDistributionEntry> sScalingStatDistributionStore;
 extern DBCStorage <ScalingStatValuesEntry>       sScalingStatValuesStore;
 extern DBCStorage <SkillLineEntry>               sSkillLineStore;
 extern DBCStorage <SkillLineAbilityEntry>        sSkillLineAbilityStore;
+extern DBCStorage <SkillTiersEntry>              sSkillTiersStore;
 extern DBCStorage <SoundEntriesEntry>            sSoundEntriesStore;
 extern DBCStorage <SpellCastTimesEntry>          sSpellCastTimesStore;
 extern DBCStorage <SpellCategoryEntry>           sSpellCategoryStore;

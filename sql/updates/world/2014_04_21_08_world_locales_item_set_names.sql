@@ -1,3 +1,5 @@
+SET NAMES 'utf8';
+
 TRUNCATE `locales_item_set_names`;
 
 INSERT INTO `locales_item_set_names` (`entry`, `name_loc1`, `name_loc2`, `name_loc3`, `name_loc4`, `name_loc5`, `name_loc6`, `name_loc7`, `name_loc8`) VALUES
@@ -2490,3 +2492,5 @@ INSERT INTO `locales_item_set_names` (`entry`, `name_loc1`, `name_loc2`, `name_l
 (51774, '', 'Grand heaume de seigneur ymirjar', 'Großhelm des Ymirjarfürsten', '', '', 'Gran yelmo de señor Ymirjar', '', 'Великий шлем имирьярского повелителя'),
 (51775, '', 'Garde-jambes de seigneur ymirjar', 'Beinschützer des Ymirjarfürsten', '', '', 'Musleras de señor Ymirjar', '', 'Набедренники имирьярского повелителя'),
 (51776, '', 'Espauliers de seigneur ymirjar', 'Schulterstücke des Ymirjarfürsten', '', '', 'Espaldares de señor Ymirjar', '', 'Наплечье имирьярского повелителя');
+
+SET NAMES 'latin1';

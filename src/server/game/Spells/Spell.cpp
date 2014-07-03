@@ -1514,9 +1514,23 @@ void Spell::SelectImplicitTrajTargets(SpellEffIndex effIndex)
     std::list<WorldObject*>::const_iterator itr = targets.begin();
     for (; itr != targets.end(); ++itr)
     {
+        if (!m_caster->HasInLine(*itr, 5.0f))
+            continue;
+
+        if (m_spellInfo->CheckTarget(m_caster, *itr, true) != SPELL_CAST_OK)
+            continue;
+
         if (Unit* unitTarget = (*itr)->ToUnit())
-            if (m_caster == *itr || m_caster->IsOnVehicle(unitTarget) || (unitTarget)->GetVehicle())//(*itr)->IsOnVehicle(m_caster))
+        {
+            if (m_caster == *itr || m_caster->IsOnVehicle(unitTarget) || unitTarget->GetVehicle())
                 continue;
+
+            if (Creature* creatureTarget = unitTarget->ToCreature())
+            {
+                if (!(creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_PROJECTILE_COLLISION))
+                    continue;
+            }
+        }
 
         const float size = std::max((*itr)->GetObjectSize() * 0.7f, 1.0f); // 1/sqrt(3)
         /// @todo all calculation should be based on src instead of m_caster
@@ -2251,7 +2265,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     m_spellAura = NULL; // Set aura to null for every target-make sure that pointer is not used for unit without aura applied
 
                             //Spells with this flag cannot trigger if effect is cast on self
-    bool canEffectTrigger = !(m_spellInfo->AttributesEx3 & SPELL_ATTR3_CANT_TRIGGER_PROC) && unitTarget->CanProc() && CanExecuteTriggersOnHit(mask);
+    bool canEffectTrigger = !(m_spellInfo->AttributesEx3 & SPELL_ATTR3_CANT_TRIGGER_PROC) && unitTarget->CanProc() && (CanExecuteTriggersOnHit(mask) || missInfo == SPELL_MISS_IMMUNE || missInfo == SPELL_MISS_IMMUNE2);
     Unit* spellHitTarget = NULL;
 
     if (missInfo == SPELL_MISS_NONE)                          // In case spell hit target, do all effect on that target
@@ -2297,15 +2311,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         if (m_damage > 0)
             positive = false;
         else if (!m_healing)
-        {
-            for (uint8 i = 0; i< MAX_SPELL_EFFECTS; ++i)
-                // If at least one effect negative spell is negative hit
-                if (mask & (1<<i) && !m_spellInfo->IsPositiveEffect(i))
-                {
-                    positive = false;
-                    break;
-                }
-        }
+            positive = m_spellInfo->IsPositive();
+
         switch (m_spellInfo->DmgClass)
         {
             case SPELL_DAMAGE_CLASS_MAGIC:
@@ -2382,7 +2389,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
                (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE || m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED))
                 caster->ToPlayer()->CastItemCombatSpell(unitTarget, m_attackType, procVictim, procEx);
         }
-
 
         m_damage = damageInfo.damage;
 
@@ -2524,9 +2530,14 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         }
     }
 
+    uint8 aura_effmask = 0;
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (effectMask & (1 << i) && m_spellInfo->Effects[i].IsUnitOwnedAuraEffect())
+            aura_effmask |= 1 << i;
+
     // Get Data Needed for Diminishing Returns, some effects may have multiple auras, so this must be done on spell hit, not aura add
     m_diminishGroup = GetDiminishingReturnsGroupForSpell(m_spellInfo, m_triggeredByAuraSpell);
-    if (m_diminishGroup)
+    if (m_diminishGroup && aura_effmask)
     {
         m_diminishLevel = unit->GetDiminishing(m_diminishGroup);
         DiminishingReturnsType type = GetDiminishingReturnsGroupType(m_diminishGroup);
@@ -2536,11 +2547,6 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
             type == DRTYPE_ALL)
             unit->IncrDiminishing(m_diminishGroup);
     }
-
-    uint8 aura_effmask = 0;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (effectMask & (1 << i) && m_spellInfo->Effects[i].IsUnitOwnedAuraEffect())
-            aura_effmask |= 1 << i;
 
     if (aura_effmask)
     {
