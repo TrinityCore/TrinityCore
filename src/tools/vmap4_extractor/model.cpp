@@ -96,8 +96,19 @@ bool Model::ConvertToVMAPModel(const char * outfilename)
     wsize = sizeof(uint32) + sizeof(unsigned short) * nIndexes;
     fwrite(&wsize, sizeof(int), 1, output);
     fwrite(&nIndexes, sizeof(uint32), 1, output);
-    if (nIndexes >0)
+    if (nIndexes > 0)
+    {
+        for (uint32 i = 0; i < nIndexes; ++i)
+        {
+            if ((i % 3) - 1 == 0 && i + 1 < nIndexes)
+            {
+                uint16 tmp = indices[i];
+                indices[i] = indices[i + 1];
+                indices[i + 1] = tmp;
+            }
+        }
         fwrite(indices, sizeof(unsigned short), nIndexes, output);
+    }
 
     fwrite("VERT", 4, 1, output);
     wsize = sizeof(int) + sizeof(float) * 3 * nVertices;
@@ -105,8 +116,12 @@ bool Model::ConvertToVMAPModel(const char * outfilename)
     fwrite(&nVertices, sizeof(int), 1, output);
     if (nVertices >0)
     {
-        for(uint32 vpos=0; vpos <nVertices; ++vpos)
-            std::swap(vertices[vpos].y, vertices[vpos].z);
+        for (uint32 vpos = 0; vpos < nVertices; ++vpos)
+        {
+            float tmp = vertices[vpos].y;
+            vertices[vpos].y = -vertices[vpos].z;
+            vertices[vpos].z = tmp;
+        }
 
         fwrite(vertices, sizeof(float)*3, nVertices, output);
     }
