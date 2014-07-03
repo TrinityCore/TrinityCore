@@ -22,6 +22,10 @@
 #include <boost/array.hpp>
 #include "RASession.h"
 #include "AccountMgr.h"
+#include "Log.h"
+#include "DatabaseEnv.h"
+#include "World.h"
+#include "Config.h"
 
 using boost::asio::ip::tcp;
 
