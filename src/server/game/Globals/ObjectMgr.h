@@ -642,7 +642,7 @@ enum SkillRangeType
     SKILL_RANGE_NONE                                        // 0..0 always
 };
 
-SkillRangeType GetSkillRangeType(SkillLineEntry const* pSkill, bool racial);
+SkillRangeType GetSkillRangeType(SkillRaceClassInfoEntry const* rcEntry);
 
 #define MAX_PLAYER_NAME          12                         // max allowed by client name length
 #define MAX_INTERNAL_PLAYER_NAME 15                         // max server internal player name length (> MAX_PLAYER_NAME for support declined names)
@@ -1296,6 +1296,8 @@ class ObjectMgr
         void LoadFactionChangeReputations();
         void LoadFactionChangeSpells();
         void LoadFactionChangeTitles();
+
+        bool IsTransportMap(uint32 mapId) const { return _transportMaps.count(mapId); }
 
     private:
         // first free id for selected id type

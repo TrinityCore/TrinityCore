@@ -1,3 +1,5 @@
+SET NAMES 'utf8';
+
 TRUNCATE `locales_gameobject`;
 
 INSERT INTO `locales_gameobject` (`entry`, `name_loc1`, `name_loc2`, `name_loc3`, `name_loc4`, `name_loc5`, `name_loc6`, `name_loc7`, `name_loc8`, `castbarcaption_loc1`, `castbarcaption_loc2`, `castbarcaption_loc3`, `castbarcaption_loc4`, `castbarcaption_loc5`, `castbarcaption_loc6`, `castbarcaption_loc7`, `castbarcaption_loc8`) VALUES
@@ -19727,3 +19729,5 @@ INSERT INTO `locales_gameobject` (`entry`, `name_loc1`, `name_loc2`, `name_loc3`
 (203079, '', 'Œuf de dragon rouge (grand)', 'Großes Rotdrachenei', '', '', 'Huevo de dragón Rojo (grande)', '', 'Большое яйцо красного дракона', '', '', '', '', '', '', '', ''),
 (203080, '', 'Œuf de dragon rouge brisé (grand)', 'Zerbrochenes großes Rotdrachenei', '', '', 'Huevo de dragón Rojo roto (grande)', '', 'Большое разбитое яйцо красного дракона', '', '', '', '', '', '', '', ''),
 (203624, '', 'Anneau du Crépuscule d''Halion', 'Zwielichtring von Halion', '', '', 'Anillo Crepuscular de Halion', '', 'Сумеречное кольцо Халиона', '', '', '', '', '', '', '', '');
+
+SET NAMES 'latin1';
