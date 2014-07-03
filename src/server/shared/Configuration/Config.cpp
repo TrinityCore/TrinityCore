@@ -38,12 +38,11 @@ bool ConfigMgr::LoadInitial(char const* file)
         ptree fullTree;
         boost::property_tree::ini_parser::read_ini(file, fullTree);
 
+        if (fullTree.empty())
+            return false;
+
         // Since we're using only one section per config file, we skip the section and have direct property access
-        for (auto section : fullTree)
-        {
-            _config = section.second;
-            break;
-        }
+        _config = fullTree.begin().second;
     }
     catch (std::exception const&  /*ex*/)
     {
@@ -58,9 +57,9 @@ bool ConfigMgr::Reload()
     return LoadInitial(_filename.c_str());
 }
 
-std::string ConfigMgr::GetStringDefault(const char* name, const std::string &def)
+std::string ConfigMgr::GetStringDefault(const char* name, const std::string& def)
 {
-    std::string value = _config.get<std::string>(ptree::path_type(name,'/'), def);
+    std::string value = _config.get<std::string>(ptree::path_type(name, '/'), def);
 
     value.erase(std::remove(value.begin(), value.end(), '"'), value.end());
 
@@ -104,12 +103,8 @@ std::list<std::string> ConfigMgr::GetKeysByString(std::string const& name)
     std::list<std::string> keys;
 
     for (const ptree::value_type& child : _config)
-    {
         if (child.first.compare(0, name.length(), name) == 0)
-        {
             keys.push_back(child.first);
-        }
-    }
    
     return keys;
 }
