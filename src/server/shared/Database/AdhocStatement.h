@@ -28,16 +28,16 @@ typedef std::promise<QueryResult> QueryResultPromise;
 class BasicStatementTask : public SQLOperation
 {
     public:
-        BasicStatementTask(const char* sql);
-        BasicStatementTask(const char* sql, QueryResultPromise& result);
+        BasicStatementTask(const char* sql, bool async = false);
         ~BasicStatementTask();
 
         bool Execute() override;
+        QueryResultFuture GetFuture() { return m_result->get_future(); }
 
     private:
         const char* m_sql;      //- Raw query to be executed
         bool m_has_result;
-        QueryResultPromise m_result;
+        QueryResultPromise* m_result;
 };
 
 #endif

@@ -160,15 +160,15 @@ typedef std::promise<PreparedQueryResult> PreparedQueryResultPromise;
 class PreparedStatementTask : public SQLOperation
 {
     public:
-        PreparedStatementTask(PreparedStatement* stmt);
-        PreparedStatementTask(PreparedStatement* stmt, PreparedQueryResultPromise& result);
+        PreparedStatementTask(PreparedStatement* stmt, bool async = false);
         ~PreparedStatementTask();
 
         bool Execute();
+        PreparedQueryResultFuture GetFuture() { return m_result->get_future(); }
 
     protected:
         PreparedStatement* m_stmt;
         bool m_has_result;
-        PreparedQueryResultPromise m_result;
+        PreparedQueryResultPromise* m_result;
 };
 #endif
