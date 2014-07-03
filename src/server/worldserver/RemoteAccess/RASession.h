@@ -46,8 +46,6 @@ public:
 
 private:
     int Send(const char* data);
-    void AsyncRead();
-    void AsyncWrite(size_t length);
     std::string ReadString();
     bool CheckAccessLevel(const std::string& user);
     bool CheckPassword(const std::string& user, const std::string& pass);
