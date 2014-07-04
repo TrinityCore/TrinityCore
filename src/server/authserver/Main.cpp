@@ -24,28 +24,24 @@
 * authentication server
 */
 
-#include <openssl/opensslv.h>
-#include <openssl/crypto.h>
-#include <iostream>
 #include <cstdlib>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <iostream>
+#include <openssl/opensslv.h>
+#include <openssl/crypto.h>
 
-#include "Common.h"
-#include "Database/DatabaseEnv.h"
-#include "Configuration/Config.h"
-#include "Log.h"
-#include "SystemConfig.h"
-#include "Util.h"
-#include "RealmList.h"
 #include "AsyncAcceptor.h"
 #include "AuthSession.h"
+#include "Common.h"
+#include "Configuration/Config.h"
+#include "Database/DatabaseEnv.h"
+#include "Log.h"
+#include "ProcessPriority.h"
+#include "RealmList.h"
+#include "SystemConfig.h"
+#include "Util.h"
 
-
-#ifdef __linux__
-#include <sched.h>
-#include <sys/resource.h>
-#define PROCESS_HIGH_PRIORITY -15 // [-20, 19], default is 0
-#endif
+using boost::asio::ip::tcp;
 
 #ifndef _TRINITY_REALM_CONFIG
 # define _TRINITY_REALM_CONFIG  "authserver.conf"
@@ -53,51 +49,15 @@
 
 bool StartDB();
 void StopDB();
-void SetProcessPriority();
+void SignalHandler(const boost::system::error_code& error, int signalNumber);
+void KeepDatabaseAliveHandler(const boost::system::error_code& error);
+void usage(const char* prog);
 
 boost::asio::io_service _ioService;
 boost::asio::deadline_timer _dbPingTimer(_ioService);
 uint32 _dbPingInterval;
+LoginDatabaseWorkerPool LoginDatabase;
 
-LoginDatabaseWorkerPool LoginDatabase;                      // Accessor to the authserver database
-
-using boost::asio::ip::tcp;
-
-
-void SignalHandler(const boost::system::error_code& error, int signalNumber)
-{
-    if (!error)
-    {
-        switch (signalNumber)
-        {
-        case SIGINT:
-        case SIGTERM:
-            _ioService.stop();
-            break;
-        }
-    }
-}
-
-void KeepDatabaseAliveHandler(const boost::system::error_code& error)
-{
-    if (!error)
-    {
-        TC_LOG_INFO("server.authserver", "Ping MySQL to keep connection alive");
-        LoginDatabase.KeepAlive();
-
-        _dbPingTimer.expires_from_now(boost::posix_time::minutes(_dbPingInterval));
-    }
-}
-
-/// Print out the usage string for this program on the console.
-void usage(const char* prog)
-{
-    TC_LOG_INFO("server.authserver", "Usage: \n %s [<options>]\n"
-        "    -c config_file           use config_file as configuration file\n\r",
-        prog);
-}
-
-/// Launch the auth server
 int main(int argc, char** argv)
 {
     // Command line parsing to get the configuration file name
@@ -129,7 +89,6 @@ int main(int argc, char** argv)
     TC_LOG_INFO("server.authserver", "%s (authserver)", _FULLVERSION);
     TC_LOG_INFO("server.authserver", "<Ctrl-C> to stop.\n");
     TC_LOG_INFO("server.authserver", "Using configuration file %s.", configFile);
-
     TC_LOG_INFO("server.authserver", "%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
 
     // authserver PID file creation
@@ -158,31 +117,30 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    // Launch the listening network socket
-
+    // Start the listening port (acceptor) for auth connections
     int32 port = sConfigMgr->GetIntDefault("RealmServerPort", 3724);
     if (port < 0 || port > 0xFFFF)
     {
         TC_LOG_ERROR("server.authserver", "Specified port out of allowed range (1-65535)");
         return 1;
     }
-
+    
     std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
-
     AsyncAcceptor<AuthSession> authServer(_ioService, bindIp, port);
 
     // Set signal handlers
     boost::asio::signal_set signals(_ioService, SIGINT, SIGTERM);
     signals.async_wait(SignalHandler);
 
-    SetProcessPriority();
+    // Set process priority according to configuration settings
+    SetProcessPriority("server.authserver");
 
+    // Enabled a timed callback for handling the database keep alive ping
     _dbPingInterval = sConfigMgr->GetIntDefault("MaxPingTime", 30);
-
     _dbPingTimer.expires_from_now(boost::posix_time::seconds(_dbPingInterval));
     _dbPingTimer.async_wait(KeepDatabaseAliveHandler);
 
-    // Start the io service
+    // Start the io service worker loop
     _ioService.run();
 
     // Close the Database Pool and library
@@ -238,73 +196,35 @@ void StopDB()
     MySQL::Library_End();
 }
 
-void SetProcessPriority()
+void SignalHandler(const boost::system::error_code& error, int signalNumber)
 {
-#if defined(_WIN32) || defined(__linux__)
-
-    ///- Handle affinity for multiple processors and process priority
-    uint32 affinity = sConfigMgr->GetIntDefault("UseProcessors", 0);
-    bool highPriority = sConfigMgr->GetBoolDefault("ProcessPriority", false);
-
-#ifdef _WIN32 // Windows
-
-    HANDLE hProcess = GetCurrentProcess();
-    if (affinity > 0)
+    if (!error)
     {
-        ULONG_PTR appAff;
-        ULONG_PTR sysAff;
-
-        if (GetProcessAffinityMask(hProcess, &appAff, &sysAff))
+        switch (signalNumber)
         {
-            // remove non accessible processors
-            ULONG_PTR currentAffinity = affinity & appAff;
-
-            if (!currentAffinity)
-                TC_LOG_ERROR("server.authserver", "Processors marked in UseProcessors bitmask (hex) %x are not accessible for the authserver. Accessible processors bitmask (hex): %x", affinity, appAff);
-            else if (SetProcessAffinityMask(hProcess, currentAffinity))
-                TC_LOG_INFO("server.authserver", "Using processors (bitmask, hex): %x", currentAffinity);
-            else
-                TC_LOG_ERROR("server.authserver", "Can't set used processors (hex): %x", currentAffinity);
+        case SIGINT:
+        case SIGTERM:
+            _ioService.stop();
+            break;
         }
     }
+}
 
-    if (highPriority)
+void KeepDatabaseAliveHandler(const boost::system::error_code& error)
+{
+    if (!error)
     {
-        if (SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS))
-            TC_LOG_INFO("server.authserver", "authserver process priority class set to HIGH");
-        else
-            TC_LOG_ERROR("server.authserver", "Can't set authserver process priority class.");
+        TC_LOG_INFO("server.authserver", "Ping MySQL to keep connection alive");
+        LoginDatabase.KeepAlive();
+
+        _dbPingTimer.expires_from_now(boost::posix_time::minutes(_dbPingInterval));
     }
+}
 
-#else // Linux
-
-    if (affinity > 0)
-    {
-        cpu_set_t mask;
-        CPU_ZERO(&mask);
-
-        for (unsigned int i = 0; i < sizeof(affinity) * 8; ++i)
-            if (affinity & (1 << i))
-                CPU_SET(i, &mask);
-
-        if (sched_setaffinity(0, sizeof(mask), &mask))
-            TC_LOG_ERROR("server.authserver", "Can't set used processors (hex): %x, error: %s", affinity, strerror(errno));
-        else
-        {
-            CPU_ZERO(&mask);
-            sched_getaffinity(0, sizeof(mask), &mask);
-            TC_LOG_INFO("server.authserver", "Using processors (bitmask, hex): %lx", *(__cpu_mask*)(&mask));
-        }
-    }
-
-    if (highPriority)
-    {
-        if (setpriority(PRIO_PROCESS, 0, PROCESS_HIGH_PRIORITY))
-            TC_LOG_ERROR("server.authserver", "Can't set authserver process priority class, error: %s", strerror(errno));
-        else
-            TC_LOG_INFO("server.authserver", "authserver process priority class set to %i", getpriority(PRIO_PROCESS, 0));
-    }
-
-#endif
-#endif
+/// Print out the usage string for this program on the console.
+void usage(const char* prog)
+{
+    TC_LOG_INFO("server.authserver", "Usage: \n %s [<options>]\n"
+        "    -c config_file           use config_file as configuration file\n\r",
+        prog);
 }
