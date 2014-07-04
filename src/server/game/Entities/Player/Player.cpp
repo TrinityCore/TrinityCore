@@ -3828,7 +3828,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
             if (!pSkill)
                 continue;
 
-            if (!HasSkill(pSkill->id))
+            if (_spell_idx->second->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->id))
                 LearnDefaultSkill(pSkill->id, 0);
 
             if (pSkill->id == SKILL_MOUNTS && !Has310Flyer(false))
@@ -23119,11 +23119,11 @@ void Player::LearnDefaultSkill(uint32 skillId, uint16 rank)
             break;
         case SKILL_RANGE_LEVEL:
         {
-            uint16 skillValue = 0;
+            uint16 skillValue = 1;
             uint16 maxValue = GetMaxSkillValueForLevel();
             if (rcInfo->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)
                 skillValue = maxValue;
-            else
+            else if (getClass() == CLASS_DEATH_KNIGHT)
                 skillValue = std::min(std::max<uint16>({ 1, uint16((getLevel() - 1) * 5) }), maxValue);
 
             SetSkill(skillId, 0, skillValue, maxValue);
@@ -23138,8 +23138,13 @@ void Player::LearnDefaultSkill(uint32 skillId, uint16 rank)
                 break;
 
             SkillTiersEntry const* tier = sSkillTiersStore.LookupEntry(rcInfo->SkillTier);
-            uint16 maxValue = std::max<uint16>(GetMaxSkillValue(skillId), tier->MaxSkill[std::max<int32>(rank - 1, 0)]);
-            uint16 skillValue = std::min(std::max<uint16>({ uint16(1), uint16((getLevel() - 1) * 5) }), maxValue);
+            uint16 maxValue = tier->MaxSkill[std::max<int32>(rank - 1, 0)];
+            uint16 skillValue = 1;
+            if (rcInfo->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)
+                skillValue = maxValue;
+            else if (getClass() == CLASS_DEATH_KNIGHT)
+                skillValue = std::min(std::max<uint16>({ uint16(1), uint16((getLevel() - 1) * 5) }), maxValue);
+
             SetSkill(skillId, rank, skillValue, maxValue);
             break;
         }
