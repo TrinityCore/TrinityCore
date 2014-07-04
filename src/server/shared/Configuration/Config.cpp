@@ -42,7 +42,7 @@ bool ConfigMgr::LoadInitial(char const* file)
             return false;
 
         // Since we're using only one section per config file, we skip the section and have direct property access
-        _config = fullTree.begin().second;
+        _config = fullTree.begin()->second;
     }
     catch (std::exception const&  /*ex*/)
     {

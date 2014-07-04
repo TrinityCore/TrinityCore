@@ -595,7 +595,7 @@ bool AuthSession::_HandleLogonProof()
         uint32 MaxWrongPassCount = sConfigMgr->GetIntDefault("WrongPass.MaxCount", 0);
 
         // We can not include the failed account login hook. However, this is a workaround to still log this.
-        if (sConfigMgr->GetBoolDefault("Additional.IP.Based.Login.Logging", false))
+        if (sConfigMgr->GetBoolDefault("Wrong.Password.Login.Logging", false))
         {
             PreparedStatement* logstmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_FALP_IP_LOGGING);
             logstmt->setString(0, _login);
