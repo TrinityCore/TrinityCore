@@ -1,8 +1,8 @@
 TrinityCore uses (parts of or in whole) the following opensource software :
 
-ACE (ADAPTIVE Communication Environment)
-  http://www.cs.wustl.edu/~schmidt/ACE.html
-  Version: 6.1.4
+Boost
+  http://www.boost.org
+  Version: 1.55
 
 bzip2 (a freely available, patent free, high-quality data compressor)
   http://www.bzip.org/
