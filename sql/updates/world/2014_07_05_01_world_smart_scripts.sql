@@ -17,4 +17,3 @@ UPDATE `smart_scripts` SET
 UPDATE `smart_scripts` SET
  `action_type`=85, `action_param1`=43174, `action_param2`=1, `comment`='Proto-Drake - On Death - Cast Draconis Gastritis: Kill Credit' WHERE
  `entryorguid`=23689 AND `source_type`=0 AND `id`=7 AND `link`=0;
- 
