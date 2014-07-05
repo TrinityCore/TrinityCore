@@ -37,12 +37,12 @@
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ScriptMgr.h"
-#include "WorldSocketMgr.h"
 #include "OutdoorPvP/OutdoorPvPMgr.h"
 #include "BattlegroundMgr.h"
 #include "TCSoap.h"
 #include "CliRunnable.h"
 #include "SystemConfig.h"
+#include "WorldTcpSession.h"
 
 #define TRINITY_CORE_CONFIG  "worldserver.conf"
 #define WORLD_SLEEP_CONST 50
@@ -155,8 +155,6 @@ extern int main(int argc, char** argv)
     TC_LOG_INFO("server.worldserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
 
     OpenSSLCrypto::threadsSetup();
-    BigNumber seed1;
-    seed1.SetRand(16 * 8);
 
     /// worldserver PID file creation
     std::string pidFile = sConfigMgr->GetStringDefault("PidFile", "");
@@ -228,20 +226,16 @@ extern int main(int argc, char** argv)
 
     // Launch the worldserver listener socket
     uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
-    std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
+    std::string worldListener = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
 
-    if (sWorldSocketMgr->StartNetwork(worldPort, bindIp.c_str()) == -1)
-    {
-        TC_LOG_ERROR("server.worldserver", "Failed to start network");
-        return ERROR_EXIT_CODE;
-    }
+    AsyncAcceptor<WorldTcpSession> worldAcceptor(_ioService, worldListener, worldPort);
+
+    sScriptMgr->OnStartup();
 
     // Set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmID);
 
     TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", _FULLVERSION);
-
-    sScriptMgr->OnStartup();
 
     WorldUpdateLoop();
 
@@ -261,8 +255,6 @@ extern int main(int argc, char** argv)
 
     // unload battleground templates before different singletons destroyed
     sBattlegroundMgr->DeleteAllBattlegrounds();
-
-    sWorldSocketMgr->StopNetwork();
 
     sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
     sObjectAccessor->UnloadAll();             // unload 'i_player2corpse' storage and remove from world
