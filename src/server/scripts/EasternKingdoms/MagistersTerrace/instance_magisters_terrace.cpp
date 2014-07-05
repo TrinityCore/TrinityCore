@@ -159,7 +159,7 @@ class instance_magisters_terrace : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_DELRISSA:
-                        if (type == IN_PROGRESS)
+                        if (state == IN_PROGRESS)
                             DelrissaDeathCount = 0;
                         break;
                     default:
