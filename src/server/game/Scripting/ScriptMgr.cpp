@@ -400,35 +400,35 @@ void ScriptMgr::OnNetworkStop()
     FOREACH_SCRIPT(ServerScript)->OnNetworkStop();
 }
 
-void ScriptMgr::OnSocketOpen(WorldSocket* socket)
+void ScriptMgr::OnSocketOpen(WorldTcpSession* socket)
 {
     ASSERT(socket);
 
     FOREACH_SCRIPT(ServerScript)->OnSocketOpen(socket);
 }
 
-void ScriptMgr::OnSocketClose(WorldSocket* socket, bool wasNew)
+void ScriptMgr::OnSocketClose(WorldTcpSession* socket, bool wasNew)
 {
     ASSERT(socket);
 
     FOREACH_SCRIPT(ServerScript)->OnSocketClose(socket, wasNew);
 }
 
-void ScriptMgr::OnPacketReceive(WorldSocket* socket, WorldPacket packet)
+void ScriptMgr::OnPacketReceive(WorldTcpSession* socket, WorldPacket packet)
 {
     ASSERT(socket);
 
     FOREACH_SCRIPT(ServerScript)->OnPacketReceive(socket, packet);
 }
 
-void ScriptMgr::OnPacketSend(WorldSocket* socket, WorldPacket packet)
+void ScriptMgr::OnPacketSend(WorldTcpSession* socket, WorldPacket packet)
 {
     ASSERT(socket);
 
     FOREACH_SCRIPT(ServerScript)->OnPacketSend(socket, packet);
 }
 
-void ScriptMgr::OnUnknownPacketReceive(WorldSocket* socket, WorldPacket packet)
+void ScriptMgr::OnUnknownPacketReceive(WorldTcpSession* socket, WorldPacket packet)
 {
     ASSERT(socket);
 
