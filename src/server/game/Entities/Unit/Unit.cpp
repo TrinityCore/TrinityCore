@@ -6668,7 +6668,8 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         ? ToPlayer()->GetItemByGuid(triggeredByAura->GetBase()->GetCastItemGUID()) : NULL;
 
     // Try handle unknown trigger spells
-    if (sSpellMgr->GetSpellInfo(trigger_spell_id) == NULL)
+    // triggered spells exists only in serverside spell_dbc
+    /// @todo: reverify and move these spells to spellscripts
     {
         switch (auraSpellInfo->SpellFamilyName)
         {
@@ -13686,7 +13687,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
                     group->SendLooter(creature, NULL);
 
                 // Update round robin looter only if the creature had loot
-                if (!creature->loot.empty())
+                if (!loot->empty())
                     group->UpdateLooterGuid(creature);
             }
         }
@@ -13793,7 +13794,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
             creature->DeleteThreatList();
 
             // must be after setDeathState which resets dynamic flags
-            if (!creature->loot.empty())
+            if (!creature->loot.isLooted())
                 creature->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             else
                 creature->AllLootRemovedFromCorpse();

@@ -1704,7 +1704,7 @@ struct SkillLineAbilityEntry
     //uint32    classmaskNot;                               // 6        m_excludeClass
     uint32    req_skill_value;                              // 7        m_minSkillLineRank
     uint32    forward_spellid;                              // 8        m_supercededBySpell
-    uint32    learnOnGetSkill;                              // 9        m_acquireMethod
+    uint32    AutolearnType;                                // 9        m_acquireMethod
     uint32    max_value;                                    // 10       m_trivialSkillLineRankHigh
     uint32    min_value;                                    // 11       m_trivialSkillLineRankLow
     uint32    character_points[2];                          // 12-13    m_characterPoints

@@ -1,3 +1,5 @@
+SET NAMES 'utf8';
+
 UPDATE `locales_gameobject` SET `name_loc1`='오래된 사자상', `name_loc4`='陈旧的石狮子', `name_loc5`='老舊獅子雕像', `name_loc7`='Estatua de león antigua' WHERE `entry`=31;
 UPDATE `locales_gameobject` SET `name_loc1`='가라앉은 상자', `name_loc4`='沉没的箱子', `name_loc5`='沉沒的箱子', `name_loc7`='Cofre sumergido' WHERE `entry`=32;
 UPDATE `locales_gameobject` SET `name_loc1`='잠긴 궤짝', `name_loc4`='锁住的箱子', `name_loc5`='鎖住的箱子', `name_loc7`='Cofre cerrado' WHERE `entry`=33;
@@ -19666,3 +19668,5 @@ UPDATE `locales_gameobject` SET `name_loc1`='불타는 나무', `name_loc4`='燃
 UPDATE `locales_gameobject` SET `name_loc1`='붉은 용 알 (대형)', `name_loc4`='Red Dragon Egg (Large)', `name_loc5`='紅龍蛋(大)', `name_loc7`='Huevo de dragón Rojo (grande)' WHERE `entry`=203079;
 UPDATE `locales_gameobject` SET `name_loc1`='깨진 붉은용 알 (대형)', `name_loc4`='Broken Red Dragon Egg (Large)', `name_loc5`='破掉的紅龍蛋(大)', `name_loc7`='Huevo de dragón Rojo roto (grande)' WHERE `entry`=203080;
 UPDATE `locales_gameobject` SET `name_loc1`='할리온 황혼의 고리', `name_loc4`='海里昂暮光之环', `name_loc5`='海萊恩暮光環', `name_loc7`='Anillo Crepuscular de Halion' WHERE `entry`=203624;
+
+SET NAMES 'latin1';
