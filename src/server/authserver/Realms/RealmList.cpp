@@ -83,25 +83,33 @@ void RealmList::UpdateRealms(bool init)
     {
         do
         {
-            Field* fields = result->Fetch();
-            uint32 realmId              = fields[0].GetUInt32();
-            std::string name            = fields[1].GetString();
-            ip::address externalAddress = ip::address::from_string(fields[2].GetString());
-            ip::address localAddress    = ip::address::from_string(fields[3].GetString());
-            ip::address localSubmask    = ip::address::from_string(fields[4].GetString());
-            uint16 port                 = fields[5].GetUInt16();
-            uint8 icon                  = fields[6].GetUInt8();
-            RealmFlags flag             = RealmFlags(fields[7].GetUInt8());
-            uint8 timezone              = fields[8].GetUInt8();
-            uint8 allowedSecurityLevel  = fields[9].GetUInt8();
-            float pop                   = fields[10].GetFloat();
-            uint32 build                = fields[11].GetUInt32();
+            try
+            {
+                Field* fields = result->Fetch();
+                uint32 realmId = fields[0].GetUInt32();
+                std::string name = fields[1].GetString();
+                ip::address externalAddress = ip::address::from_string(fields[2].GetString());
+                ip::address localAddress = ip::address::from_string(fields[3].GetString());
+                ip::address localSubmask = ip::address::from_string(fields[4].GetString());
+                uint16 port = fields[5].GetUInt16();
+                uint8 icon = fields[6].GetUInt8();
+                RealmFlags flag = RealmFlags(fields[7].GetUInt8());
+                uint8 timezone = fields[8].GetUInt8();
+                uint8 allowedSecurityLevel = fields[9].GetUInt8();
+                float pop = fields[10].GetFloat();
+                uint32 build = fields[11].GetUInt32();
 
-            UpdateRealm(realmId, name, externalAddress, localAddress, localSubmask, port, icon, flag, timezone, 
-                (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop, build);
+                UpdateRealm(realmId, name, externalAddress, localAddress, localSubmask, port, icon, flag, timezone,
+                    (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop, build);
 
-            if (init)
-                TC_LOG_INFO("server.authserver", "Added realm \"%s\" at %s:%u.", name.c_str(), m_realms[name].ExternalAddress.to_string().c_str(), port);
+                if (init)
+                    TC_LOG_INFO("server.authserver", "Added realm \"%s\" at %s:%u.", name.c_str(), m_realms[name].ExternalAddress.to_string().c_str(), port);
+            }
+            catch (std::exception& ex)
+            {
+                TC_LOG_ERROR("server.authserver", "Realmlist::UpdateRealms has thrown an exception: %s", ex.what());
+                ASSERT(false);
+            }
         }
         while (result->NextRow());
     }
