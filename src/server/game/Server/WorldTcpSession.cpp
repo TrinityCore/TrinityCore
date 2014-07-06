@@ -66,6 +66,9 @@ void WorldTcpSession::AsyncReadHeader()
         {
             ClientPktHeader* header = (ClientPktHeader*)&_readBuffer;
 
+            if (_worldSession)
+                _authCrypt.DecryptRecv((uint8*)header, sizeof(ClientPktHeader));
+
             EndianConvertReverse(header->size);
             EndianConvert(header->cmd);
 
@@ -95,9 +98,12 @@ void WorldTcpSession::AsyncReadData(size_t dataSize)
 
             WorldPacket packet(opcode, header->size);
 
-            packet.resize(header->size);
+            if (header->size > 0)
+            {
+                packet.resize(header->size);
 
-            std::memcpy(packet.contents(), &_readBuffer[sizeof(ClientPktHeader)], header->size);
+                std::memcpy(packet.contents(), &_readBuffer[sizeof(ClientPktHeader)], header->size);
+            }
 
             switch (opcode)
             {
