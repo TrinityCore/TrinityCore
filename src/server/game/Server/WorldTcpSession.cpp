@@ -30,7 +30,7 @@ using boost::asio::ip::tcp;
 using boost::asio::streambuf;
 
 WorldTcpSession::WorldTcpSession(tcp::socket socket)
-    : _socket(std::move(socket)), _authSeed(static_cast<uint32>(rand32())), _worldSession(nullptr)
+    : _socket(std::move(socket)), _authSeed(static_cast<uint32>(rand32())), _worldSession(nullptr), _OverSpeedPings(0)
 {
 }
 
@@ -109,7 +109,7 @@ void WorldTcpSession::AsyncReadData(size_t dataSize)
             switch (opcode)
             {
                 case CMSG_PING:
-                    //return HandlePing(*new_pct);
+                    HandlePing(packet);
                     break;
                 case CMSG_AUTH_SESSION:
                     if (_worldSession)
@@ -127,8 +127,6 @@ void WorldTcpSession::AsyncReadData(size_t dataSize)
                     break;
                 default:
                 {
-                    //ACE_GUARD_RETURN(LockType, Guard, m_SessionLock, -1);
-
                     if (!_worldSession)
                     {
                         TC_LOG_ERROR("network.opcode", "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
@@ -412,4 +410,66 @@ void WorldTcpSession::SendAuthResponseError(uint8 code)
     packet << uint8(code);
 
     AsyncWrite(packet);
+}
+
+void WorldTcpSession::HandlePing(WorldPacket& recvPacket)
+{
+    uint32 ping;
+    uint32 latency;
+
+    // Get the ping packet content
+    recvPacket >> ping;
+    recvPacket >> latency;
+
+    if (_LastPingTime == steady_clock::time_point())
+    {
+        _LastPingTime = steady_clock::now();
+    }
+    else
+    {
+        steady_clock::time_point now = steady_clock::now();
+
+        steady_clock::duration diff = now - _LastPingTime;
+
+        _LastPingTime = now;
+
+        if (diff < seconds(27))
+        {
+            ++_OverSpeedPings;
+
+            uint32 maxAllowed = sWorld->getIntConfig(CONFIG_MAX_OVERSPEED_PINGS);
+
+            if (maxAllowed && _OverSpeedPings > maxAllowed)
+            {
+                if (_worldSession && !_worldSession->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_OVERSPEED_PING))
+                {
+                    TC_LOG_ERROR("network", "WorldSocket::HandlePing: %s kicked for over-speed pings (address: %s)",
+                        _worldSession->GetPlayerInfo().c_str(), GetRemoteIpAddress().c_str());
+
+                    _socket.close();
+                    return;
+                }
+            }
+        }
+        else
+            _OverSpeedPings = 0;
+    }
+
+    if (_worldSession)
+    {
+        _worldSession->SetLatency(latency);
+        _worldSession->ResetClientTimeDelay();
+    }
+    else
+    {
+        TC_LOG_ERROR("network", "WorldSocket::HandlePing: peer sent CMSG_PING, but is not authenticated or got recently kicked, address = %s",
+            GetRemoteIpAddress().c_str());
+
+        _socket.close();
+        return;
+    }
+
+    WorldPacket packet(SMSG_PONG, 4);
+    packet << ping;
+    return AsyncWrite(packet);
 }
