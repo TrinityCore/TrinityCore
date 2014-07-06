@@ -137,7 +137,7 @@ int main(int argc, char** argv)
 
     // Enabled a timed callback for handling the database keep alive ping
     _dbPingInterval = sConfigMgr->GetIntDefault("MaxPingTime", 30);
-    _dbPingTimer.expires_from_now(boost::posix_time::seconds(_dbPingInterval));
+    _dbPingTimer.expires_from_now(boost::posix_time::minutes(_dbPingInterval));
     _dbPingTimer.async_wait(KeepDatabaseAliveHandler);
 
     // Start the io service worker loop
@@ -218,6 +218,7 @@ void KeepDatabaseAliveHandler(const boost::system::error_code& error)
         LoginDatabase.KeepAlive();
 
         _dbPingTimer.expires_from_now(boost::posix_time::minutes(_dbPingInterval));
+        _dbPingTimer.async_wait(KeepDatabaseAliveHandler);
     }
 }
 
