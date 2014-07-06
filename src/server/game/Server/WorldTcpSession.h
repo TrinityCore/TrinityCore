@@ -69,7 +69,6 @@ private:
     tcp::socket _socket;
 
     char _readBuffer[4096];
-    char _writeBuffer[4096];
 
     uint32 _authSeed;
     AuthCrypt _authCrypt;
