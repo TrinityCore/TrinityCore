@@ -1316,7 +1316,7 @@ void World::SetInitialWorldSettings()
 
     ///- Update the realm entry in the database with the realm type from the config file
     //No SQL injection as values are treated as integers
-
+    
     // not send custom type REALM_FFA_PVP to realm list
     uint32 server_type = IsFFAPvPRealm() ? uint32(REALM_TYPE_PVP) : getIntConfig(CONFIG_GAME_TYPE);
     uint32 realm_zone = getIntConfig(CONFIG_REALM_ZONE);
