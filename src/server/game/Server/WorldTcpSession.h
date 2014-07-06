@@ -40,13 +40,10 @@ struct ClientPktHeader
 
 #pragma pack(pop)
 
-class WorldTcpSession
+class WorldTcpSession : public std::enable_shared_from_this<WorldTcpSession>
 {
 public:
-    WorldTcpSession(tcp::socket socket) : 
-        _socket(std::move(socket)), _authSeed(static_cast<uint32> (rand32()))
-    {
-    }
+    WorldTcpSession(tcp::socket socket);
 
     WorldTcpSession(WorldTcpSession const& right) = delete;
     WorldTcpSession& operator=(WorldTcpSession const& right) = delete;
