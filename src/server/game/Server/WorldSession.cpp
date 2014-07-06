@@ -97,7 +97,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, WorldTcpSession* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
+WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldTcpSession> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
     m_muteTime(mute_time),
     m_timeOutTime(0),
     AntiDOS(this),
@@ -149,7 +149,7 @@ WorldSession::~WorldSession()
     if (m_Socket)
     {
         m_Socket->CloseSocket();
-        m_Socket = NULL;
+        m_Socket = nullptr;
     }
 
     delete _warden;
@@ -420,7 +420,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             expireTime -= expireTime > diff ? diff : expireTime;
             if (expireTime < diff || forceExit)
             {
-                m_Socket = NULL;
+                m_Socket = nullptr;
             }
         }
 
