@@ -69,7 +69,7 @@ void WorldTcpSession::AsyncReadHeader()
             EndianConvertReverse(header->size);
             EndianConvert(header->cmd);
 
-            AsyncReadData(header->size - sizeof(ClientPktHeader));
+            AsyncReadData(header->size - sizeof(header->cmd));
         }
         else
         {
@@ -87,7 +87,7 @@ void WorldTcpSession::AsyncReadData(size_t dataSize)
         {
             ClientPktHeader* header = (ClientPktHeader*)&_readBuffer;
 
-            header->size -= sizeof(ClientPktHeader);
+            header->size -= sizeof(header->cmd);
 
             uint16 opcode = (uint16)header->cmd;
 
