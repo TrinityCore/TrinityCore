@@ -1002,8 +1002,8 @@ class WorldSession
         bool m_playerSave;
         LocaleConstant m_sessionDbcLocale;
         LocaleConstant m_sessionDbLocaleIndex;
-        uint32 m_latency;
-        uint32 m_clientTimeDelay;
+        std::atomic_uint32_t m_latency;
+        std::atomic_uint32_t m_clientTimeDelay;
         AccountData m_accountData[NUM_ACCOUNT_DATA_TYPES];
         uint32 m_Tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];
         bool   m_TutorialsChanged;
