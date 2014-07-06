@@ -292,7 +292,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         }
         else
         {
-            OpcodeHandler &opHandle = opcodeTable[packet->GetOpcode()];
+            OpcodeHandler& opHandle = opcodeTable[packet->GetOpcode()];
             try
             {
                 switch (opHandle.status)
