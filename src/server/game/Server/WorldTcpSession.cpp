@@ -18,6 +18,7 @@
 
 #include <boost/asio/write.hpp>
 #include <boost/asio/read_until.hpp>
+#include <memory>
 #include "WorldTcpSession.h"
 #include "ServerPktHeader.h"
 #include "BigNumber.h"
@@ -158,11 +159,18 @@ void WorldTcpSession::AsyncWrite(WorldPacket const& packet)
     ServerPktHeader header(packet.size() + 2, packet.GetOpcode());
     _authCrypt.EncryptSend((uint8*)header.header, header.getHeaderLength());
 
-    std::memcpy(_writeBuffer, (char*)header.header, header.getHeaderLength());
+    auto data = new char[header.getHeaderLength() + packet.size()];
+    std::memcpy(data, (char*)header.header, header.getHeaderLength());
+    
+    if (!packet.empty())
+        std::memcpy(data + header.getHeaderLength(), (char const*)packet.contents(), packet.size());
+    
+    std::shared_ptr<char> buffer(data, [=](char* _b)
+    {
+        delete[] _b;
+    });
 
-    std::memcpy(_writeBuffer + header.getHeaderLength(), (char const*)packet.contents(), packet.size());
-
-    boost::asio::async_write(_socket, boost::asio::buffer(_writeBuffer, header.getHeaderLength() + packet.size()), [this](boost::system::error_code error, std::size_t /*length*/)
+    boost::asio::async_write(_socket, boost::asio::buffer(buffer.get(), header.getHeaderLength() + packet.size()), [this, buffer](boost::system::error_code error, std::size_t /*length*/)
     {
         if (error)
         {
