@@ -40,13 +40,16 @@ struct ClientPktHeader
 
 #pragma pack(pop)
 
-class WorldTcpSession : public std::enable_shared_from_this<WorldTcpSession>
+class WorldTcpSession
 {
 public:
-    WorldTcpSession(tcp::socket socket) : _socket(std::move(socket)), _authSeed(static_cast<uint32> (rand32()))
+    WorldTcpSession(tcp::socket socket) : 
+        _socket(std::move(socket)), _authSeed(static_cast<uint32> (rand32()))
     {
-
     }
+
+    WorldTcpSession(WorldTcpSession const& right) = delete;
+    WorldTcpSession& operator=(WorldTcpSession const& right) = delete;
 
     void Start();
 
@@ -56,16 +59,15 @@ public:
     void CloseSocket() { _socket.close(); };
     bool IsOpen() { return _socket.is_open(); };
 
-    void WorldTcpSession::AsyncWrite(WorldPacket const& packet);
+    void AsyncWrite(WorldPacket const& packet);
 
 private:
+    void HandleSendAuthSession();
+    void HandleAuthSession(WorldPacket& recvPacket);
+    void SendAuthResponseError(uint8 code);
 
-    void WorldTcpSession::HandleSendAuthSession();
-    int WorldTcpSession::HandleAuthSession(WorldPacket& recvPacket);
-    void WorldTcpSession::SendAuthResponseError(uint8 code);
-
-    void WorldTcpSession::AsyncReadHeader();
-    void WorldTcpSession::AsyncReadData(size_t dataSize);
+    void AsyncReadHeader();
+    void AsyncReadData(size_t dataSize);
 
     tcp::socket _socket;
 
