@@ -54,9 +54,7 @@ void WorldTcpSession::HandleSendAuthSession()
 
 void WorldTcpSession::AsyncReadHeader()
 {
-    auto self(shared_from_this());
-
-    _socket.async_read_some(boost::asio::buffer(_readBuffer, sizeof(ClientPktHeader)), [this, self](boost::system::error_code error, size_t transferedBytes)
+    _socket.async_read_some(boost::asio::buffer(_readBuffer, sizeof(ClientPktHeader)), [this](boost::system::error_code error, size_t transferedBytes)
     {
         if (!error && transferedBytes == sizeof(ClientPktHeader))
         {
@@ -76,9 +74,7 @@ void WorldTcpSession::AsyncReadHeader()
 
 void WorldTcpSession::AsyncReadData(size_t dataSize)
 {
-    auto self(shared_from_this());
-
-    _socket.async_read_some(boost::asio::buffer(&_readBuffer[sizeof(ClientPktHeader)], dataSize), [this, self, dataSize](boost::system::error_code error, size_t transferedBytes)
+    _socket.async_read_some(boost::asio::buffer(&_readBuffer[sizeof(ClientPktHeader)], dataSize), [this, dataSize](boost::system::error_code error, size_t transferedBytes)
     {
         if (!error && transferedBytes == dataSize)
         {
@@ -90,31 +86,31 @@ void WorldTcpSession::AsyncReadData(size_t dataSize)
 
             std::string opcodeName = GetOpcodeNameForLogging(opcode);
 
-            WorldPacket* packet = new WorldPacket(opcode, header->size);
+            WorldPacket packet(opcode, header->size);
 
-            packet->resize(header->size);
+            packet.resize(header->size);
 
-            std::memcpy(packet->contents(), &_readBuffer[sizeof(ClientPktHeader)], header->size);
+            std::memcpy(packet.contents(), &_readBuffer[sizeof(ClientPktHeader)], header->size);
 
             switch (opcode)
             {
-            case CMSG_PING:
-                //return HandlePing(*new_pct);
-                break;
-            case CMSG_AUTH_SESSION:
-                if (_worldSession)
-                {
-                    TC_LOG_ERROR("network", "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerInfo().c_str());
+                case CMSG_PING:
+                    //return HandlePing(*new_pct);
                     break;
-                }
+                case CMSG_AUTH_SESSION:
+                    if (_worldSession)
+                    {
+                        TC_LOG_ERROR("network", "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerInfo().c_str());
+                        break;
+                    }
 
-                // sScriptMgr->OnPacketReceive(this, packet);
-                HandleAuthSession(*packet);
-                break;
-            case CMSG_KEEP_ALIVE:
-                TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
-                //sScriptMgr->OnPacketReceive(this, packet);
-                break;
+                    sScriptMgr->OnPacketReceive(this, packet);
+                    HandleAuthSession(packet);
+                    break;
+                case CMSG_KEEP_ALIVE:
+                    TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
+                    sScriptMgr->OnPacketReceive(this, packet);
+                    break;
                 default:
                 {
                     //ACE_GUARD_RETURN(LockType, Guard, m_SessionLock, -1);
@@ -129,14 +125,11 @@ void WorldTcpSession::AsyncReadData(size_t dataSize)
                     // Catches people idling on the login screen and any lingering ingame connections.
                     _worldSession->ResetTimeOutTime();
 
-                    // WARNING here we call it with locks held.
-                    // Its possible to cause deadlock if QueuePacket calls back
-                    _worldSession->QueuePacket(packet);
-                    
+                    // Copy the packet to the heap before enqueuing
+                    _worldSession->QueuePacket(new WorldPacket(packet));
                     break;
                 }
             }
-
 
             AsyncReadHeader();
         }
@@ -165,7 +158,7 @@ void WorldTcpSession::AsyncWrite(WorldPacket const& packet)
     });
 }
 
-int WorldTcpSession::HandleAuthSession(WorldPacket& recvPacket)
+void WorldTcpSession::HandleAuthSession(WorldPacket& recvPacket)
 {
     uint8 digest[20];
     uint32 clientSeed;
@@ -185,7 +178,7 @@ int WorldTcpSession::HandleAuthSession(WorldPacket& recvPacket)
     {
         SendAuthResponseError(AUTH_REJECT);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: World closed, denying client (%s).", GetRemoteIpAddress().c_str());
-        return -1;
+        return;
     }
 
     // Read the content of the packet
@@ -220,7 +213,7 @@ int WorldTcpSession::HandleAuthSession(WorldPacket& recvPacket)
         // We can not log here, as we do not know the account. Thus, no accountId.
         SendAuthResponseError(AUTH_UNKNOWN_ACCOUNT);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Sent Auth Response (unknown account).");
-        return -1;
+        return;
     }
 
     Field* fields = result->Fetch();
@@ -254,7 +247,7 @@ int WorldTcpSession::HandleAuthSession(WorldPacket& recvPacket)
             TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Sent Auth Response (Account IP differs. Original IP: %s, new IP: %s).", fields[2].GetCString(), address.c_str());
             // We could log on hook only instead of an additional db log, however action logger is config based. Better keep DB logging as well
             sScriptMgr->OnFailedAccountLogin(id);
-            return -1;
+            return;
         }
     }
 
@@ -286,7 +279,7 @@ int WorldTcpSession::HandleAuthSession(WorldPacket& recvPacket)
     {
         SendAuthResponseError(AUTH_REJECT);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Client %s attempted to log in using invalid client OS (%s).", address.c_str(), os.c_str());
-        return -1;
+        return;
     }
 
     // Checks gmlevel per Realm
@@ -318,7 +311,7 @@ int WorldTcpSession::HandleAuthSession(WorldPacket& recvPacket)
         SendAuthResponseError(AUTH_BANNED);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Sent Auth Response (Account banned).");
         sScriptMgr->OnFailedAccountLogin(id);
-        return -1;
+        return;
     }
 
     // Check locked state for server
@@ -329,7 +322,7 @@ int WorldTcpSession::HandleAuthSession(WorldPacket& recvPacket)
         SendAuthResponseError(AUTH_UNAVAILABLE);
         TC_LOG_INFO("network", "WorldSocket::HandleAuthSession: User tries to login but his security level is not enough");
         sScriptMgr->OnFailedAccountLogin(id);
-        return -1;
+        return;
     }
 
     // Check that Key and account name are the same on client and server
@@ -346,7 +339,7 @@ int WorldTcpSession::HandleAuthSession(WorldPacket& recvPacket)
     {
         SendAuthResponseError(AUTH_FAILED);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Authentication failed for account: %u ('%s') address: %s", id, account.c_str(), address.c_str());
-        return -1;
+        return;
     }
 
     TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Client '%s' authenticated successfully from %s.",
@@ -389,13 +382,7 @@ int WorldTcpSession::HandleAuthSession(WorldPacket& recvPacket)
     if (wardenActive)
         _worldSession->InitWarden(&k, os);
 
-    // Sleep this Network thread for
-    // uint32 sleepTime = sWorld->getIntConfig(CONFIG_SESSION_ADD_DELAY);
-    // ACE_OS::sleep(ACE_Time_Value(0, sleepTime));
-
     sWorld->AddSession(_worldSession);
-
-    return 0;
 }
 
 void WorldTcpSession::SendAuthResponseError(uint8 code)
