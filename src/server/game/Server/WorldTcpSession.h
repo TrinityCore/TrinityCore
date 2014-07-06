@@ -20,6 +20,7 @@
 #define __WORLDTCPSESSION_H__
 
 #include <memory>
+#include <chrono>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/streambuf.hpp>
 #include "Common.h"
@@ -63,6 +64,8 @@ private:
     void HandleAuthSession(WorldPacket& recvPacket);
     void SendAuthResponseError(uint8 code);
 
+    void HandlePing(WorldPacket& recvPacket);
+
     void AsyncReadHeader();
     void AsyncReadData(size_t dataSize);
 
@@ -72,6 +75,9 @@ private:
 
     uint32 _authSeed;
     AuthCrypt _authCrypt;
+
+    std::chrono::steady_clock::time_point _LastPingTime;
+    uint32 _OverSpeedPings;
 
     WorldSession* _worldSession;
 };
