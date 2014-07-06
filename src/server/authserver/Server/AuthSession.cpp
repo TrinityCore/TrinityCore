@@ -19,6 +19,7 @@
 #include <memory>
 #include <boost/lexical_cast.hpp>
 #include <boost/asio/write.hpp>
+#include <boost/asio/read.hpp>
 #include <AuthSession.h>
 #include <Log.h>
 #include "ByteBuffer.h"
@@ -136,7 +137,7 @@ void AuthSession::AsyncReadHeader()
 {
     auto self(shared_from_this());
 
-    _socket.async_read_some(boost::asio::buffer(_readBuffer, 1), [this, self](boost::system::error_code error, size_t transferedBytes)
+    boost::asio::async_read(_socket, boost::asio::buffer(_readBuffer, 1), [this, self](boost::system::error_code error, size_t transferedBytes)
     {
         if (!error && transferedBytes == 1)
         {
@@ -147,7 +148,7 @@ void AuthSession::AsyncReadHeader()
                     // Handle dynamic size packet
                     if (_readBuffer[0] == AUTH_LOGON_CHALLENGE)
                     {
-                        _socket.read_some(boost::asio::buffer(&_readBuffer[1], sizeof(uint8) + sizeof(uint16))); //error + size
+                        boost::asio::read(_socket, boost::asio::buffer(&_readBuffer[1], sizeof(uint8) + sizeof(uint16))); //error + size
 
                         AsyncReadData(entry.handler, *reinterpret_cast<uint16*>(&_readBuffer[2]), sizeof(uint8) + sizeof(uint8) + sizeof(uint16)); // cmd + error + size
                     }
@@ -170,7 +171,7 @@ void AuthSession::AsyncReadData(bool (AuthSession::*handler)(), size_t dataSize,
 {
     auto self(shared_from_this());
 
-    _socket.async_read_some(boost::asio::buffer(&_readBuffer[bufferOffSet], dataSize), [handler, this, self](boost::system::error_code error, size_t transferedBytes)
+    boost::asio::async_read(_socket, boost::asio::buffer(&_readBuffer[bufferOffSet], dataSize), [handler, this, self](boost::system::error_code error, size_t transferedBytes)
     {
         if (!error && transferedBytes > 0)
         {

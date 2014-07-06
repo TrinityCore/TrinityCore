@@ -27,7 +27,9 @@ if(WIN32)
   add_definitions(-D_WIN32_WINNT=${ver})
 endif()
 
-find_package(Boost 1.55 REQUIRED atomic chrono date_time exception regex system thread)
+find_package(Boost 1.55 REQUIRED system thread)
+add_definitions(-DBOOST_DATE_TIME_NO_LIB)
+add_definitions(-DBOOST_REGEX_NO_LIB)
 
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
