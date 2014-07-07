@@ -228,8 +228,9 @@ extern int main(int argc, char** argv)
     // Launch the worldserver listener socket
     uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
     std::string worldListener = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
+    bool tcpNoDelay = sConfigMgr->GetBoolDefault("Network.TcpNodelay", true);
 
-    AsyncAcceptor<WorldTcpSession> worldAcceptor(_ioService, worldListener, worldPort);
+    AsyncAcceptor<WorldTcpSession> worldAcceptor(_ioService, worldListener, worldPort, tcpNoDelay);
 
     sScriptMgr->OnStartup();
 
