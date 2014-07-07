@@ -33,6 +33,12 @@ public:
         AsyncAccept();
     };
 
+    AsyncAcceptor(boost::asio::io_service& ioService, std::string bindIp, int port, bool tcpNoDelay) : 
+        AsyncAcceptor(ioService, bindIp, port)
+    {
+        _socket.set_option(boost::asio::ip::tcp::no_delay(tcpNoDelay));
+    };
+
 private:
     void AsyncAcceptor::AsyncAccept()
     {
