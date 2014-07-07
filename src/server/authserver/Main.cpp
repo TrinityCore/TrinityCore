@@ -109,7 +109,7 @@ int main(int argc, char** argv)
         return 1;
 
     // Get the list of realms for the server
-    sRealmList.Initialize(sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 20));
+    sRealmList.Initialize(_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 20));
 
     if (sRealmList.size() == 0)
     {

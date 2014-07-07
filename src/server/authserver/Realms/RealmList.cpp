@@ -16,17 +16,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <boost/asio/ip/tcp.hpp>
 #include "Common.h"
 #include "RealmList.h"
 #include "Database/DatabaseEnv.h"
 
 namespace boost { namespace asio { namespace ip { class address; } } }
 
-RealmList::RealmList() : m_UpdateInterval(0), m_NextUpdateTime(time(NULL)) { }
+RealmList::RealmList() : m_UpdateInterval(0), m_NextUpdateTime(time(NULL)), _resolver(nullptr) { }
+RealmList::~RealmList()
+{
+    delete _resolver;
+}
 
 // Load the realm list from the database
-void RealmList::Initialize(uint32 updateInterval)
+void RealmList::Initialize(boost::asio::io_service& ioService, uint32 updateInterval)
 {
+    _resolver = new boost::asio::ip::tcp::resolver(ioService);
     m_UpdateInterval = updateInterval;
 
     // Get the content of the realmlist table in the database
@@ -85,12 +91,41 @@ void RealmList::UpdateRealms(bool init)
         {
             try
             {
+                boost::asio::ip::tcp::resolver::iterator end;
+
                 Field* fields = result->Fetch();
                 uint32 realmId = fields[0].GetUInt32();
                 std::string name = fields[1].GetString();
-                ip::address externalAddress = ip::address::from_string(fields[2].GetString());
-                ip::address localAddress = ip::address::from_string(fields[3].GetString());
-                ip::address localSubmask = ip::address::from_string(fields[4].GetString());
+                boost::asio::ip::tcp::resolver::query externalAddressQuery(fields[2].GetString(), "");
+                boost::asio::ip::tcp::resolver::iterator endPoint = _resolver->resolve(externalAddressQuery);
+                if (endPoint == end)
+                {
+                    TC_LOG_ERROR("server.authserver", "Could not resolve address %s", fields[2].GetString().c_str());
+                    return;
+                }
+
+                ip::address externalAddress = (*endPoint).endpoint().address();
+
+                boost::asio::ip::tcp::resolver::query localAddressQuery(fields[3].GetString(), "");
+                endPoint = _resolver->resolve(localAddressQuery);
+                if (endPoint == end)
+                {
+                    TC_LOG_ERROR("server.authserver", "Could not resolve address %s", fields[3].GetString().c_str());
+                    return;
+                }
+
+                ip::address localAddress = (*endPoint).endpoint().address();
+
+                boost::asio::ip::tcp::resolver::query localSubmaskQuery(fields[4].GetString(), "");
+                endPoint = _resolver->resolve(localSubmaskQuery);
+                if (endPoint == end)
+                {
+                    TC_LOG_ERROR("server.authserver", "Could not resolve address %s", fields[4].GetString().c_str());
+                    return;
+                }
+
+                ip::address localSubmask = (*endPoint).endpoint().address();
+
                 uint16 port = fields[5].GetUInt16();
                 uint8 icon = fields[6].GetUInt8();
                 RealmFlags flag = RealmFlags(fields[7].GetUInt8());

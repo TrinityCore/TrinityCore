@@ -20,6 +20,8 @@
 #define _REALMLIST_H
 
 #include <boost/asio/ip/address.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/io_service.hpp>
 #include "Common.h"
 
 using namespace boost::asio;
@@ -65,8 +67,10 @@ public:
         static RealmList *instance = new RealmList();
         return *instance;
     }
+    
+    ~RealmList();
 
-    void Initialize(uint32 updateInterval);
+    void Initialize(boost::asio::io_service& ioService, uint32 updateInterval);
 
     void UpdateIfNeed();
 
@@ -86,6 +90,7 @@ private:
     RealmMap m_realms;
     uint32   m_UpdateInterval;
     time_t   m_NextUpdateTime;
+    boost::asio::ip::tcp::resolver* _resolver;
 };
 
 #define sRealmList RealmList::instance()
