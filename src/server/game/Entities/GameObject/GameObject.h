@@ -781,6 +781,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
 
         void TriggeringLinkedGameObject(uint32 trapEntry, Unit* target);
 
+        bool IsNeverVisible() const override;
+
         bool IsAlwaysVisibleFor(WorldObject const* seer) const;
         bool IsInvisibleDueToDespawn() const;
 
