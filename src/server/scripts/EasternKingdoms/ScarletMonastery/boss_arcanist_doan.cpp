@@ -16,13 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Arcanist_Doan
-SD%Complete: 100
-SDComment:
-SDCategory: Scarlet Monastery
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
@@ -34,11 +27,19 @@ enum Yells
 
 enum Spells
 {
-    SPELL_POLYMORPH             = 13323,
-    SPELL_AOESILENCE            = 8988,
-    SPELL_ARCANEEXPLOSION       = 9433,
-    SPELL_FIREAOE               = 9435,
-    SPELL_ARCANEBUBBLE          = 9438
+    SPELL_SILENCE               = 8988,
+    SPELL_ARCANE_EXPLOSION      = 9433,
+    SPELL_DETONATION            = 9435,
+    SPELL_ARCANE_BUBBLE         = 9438,
+    SPELL_POLYMORPH             = 13323
+};
+
+enum Events
+{
+    EVENT_SILENCE               = 1,
+    EVENT_ARCANE_EXPLOSION      = 2,
+    EVENT_ARCANE_BUBBLE         = 3,
+    EVENT_POLYMORPH             = 4
 };
 
 class boss_arcanist_doan : public CreatureScript
@@ -46,33 +47,23 @@ class boss_arcanist_doan : public CreatureScript
 public:
     boss_arcanist_doan() : CreatureScript("boss_arcanist_doan") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new boss_arcanist_doanAI(creature);
-    }
-
     struct boss_arcanist_doanAI : public ScriptedAI
     {
         boss_arcanist_doanAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint32 Polymorph_Timer;
-        uint32 AoESilence_Timer;
-        uint32 ArcaneExplosion_Timer;
-        bool bCanDetonate;
-        bool bShielded;
-
         void Reset() override
         {
-            Polymorph_Timer = 20000;
-            AoESilence_Timer = 15000;
-            ArcaneExplosion_Timer = 3000;
-            bCanDetonate = false;
-            bShielded = false;
+            events.Reset();
+            HealthAbove50Pct = true;
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
+
+            events.ScheduleEvent(EVENT_SILENCE,         15*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 3*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_POLYMORPH,       30*IN_MILLISECONDS);
         }
 
         void UpdateAI(uint32 diff) override
@@ -80,57 +71,51 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (bShielded && bCanDetonate)
-            {
-                DoCast(me, SPELL_FIREAOE);
-                bCanDetonate = false;
-            }
+            events.Update(diff);
 
-            if (me->HasAura(SPELL_ARCANEBUBBLE))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            //If we are <50% hp cast Arcane Bubble
-            if (!bShielded && !HealthAbovePct(50))
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                //wait if we already casting
-                if (me->IsNonMeleeSpellCast(false))
-                    return;
+                switch (eventId)
+                {
+                    case EVENT_SILENCE:
+                        DoCastVictim(SPELL_SILENCE);
+                        events.ScheduleEvent(EVENT_SILENCE, urand(15, 20)*IN_MILLISECONDS);
+                        break;
+                    case EVENT_ARCANE_EXPLOSION:
+                        DoCastVictim(SPELL_ARCANE_EXPLOSION);
+                        events.ScheduleEvent(EVENT_SILENCE, 8*IN_MILLISECONDS);
+                        break;
+                    case EVENT_POLYMORPH:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            DoCast(target, SPELL_POLYMORPH);
+                        events.ScheduleEvent(EVENT_POLYMORPH, 20*IN_MILLISECONDS);
+                        break;
+                }
+            }
 
+            if (HealthAbove50Pct && HealthBelowPct(50))
+            {
+                HealthAbove50Pct = false;
                 Talk(SAY_SPECIALAE);
-                DoCast(me, SPELL_ARCANEBUBBLE);
-
-                bCanDetonate = true;
-                bShielded = true;
+                DoCast(me, SPELL_ARCANE_BUBBLE);
+                DoCastAOE(SPELL_DETONATION);
             }
-
-            if (Polymorph_Timer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                    DoCast(target, SPELL_POLYMORPH);
-
-                Polymorph_Timer = 20000;
-            }
-            else Polymorph_Timer -= diff;
-
-            //AoESilence_Timer
-            if (AoESilence_Timer <= diff)
-            {
-                DoCastVictim(SPELL_AOESILENCE);
-                AoESilence_Timer = urand(15000, 20000);
-            }
-            else AoESilence_Timer -= diff;
-
-            //ArcaneExplosion_Timer
-            if (ArcaneExplosion_Timer <= diff)
-            {
-                DoCastVictim(SPELL_ARCANEEXPLOSION);
-                ArcaneExplosion_Timer = 8000;
-            }
-            else ArcaneExplosion_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
+
+    private:
+        EventMap events;
+        bool HealthAbove50Pct;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new boss_arcanist_doanAI(creature);
+    }
 };
 
 void AddSC_boss_arcanist_doan()
