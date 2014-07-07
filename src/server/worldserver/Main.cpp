@@ -237,7 +237,6 @@ extern int main(int argc, char** argv)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmID);
 
     // Start the freeze check callback cycle in 5 seconds (cycle itself is 1 sec)
-    std::thread* freezeDetectorThread = nullptr;
     if (_maxCoreStuckTime = sConfigMgr->GetIntDefault("MaxCoreStuckTime", 0))
     {
         _freezeCheckTimer.expires_from_now(boost::posix_time::seconds(5));
@@ -336,8 +335,6 @@ extern int main(int argc, char** argv)
 
         delete cliThread;
     }
-
-    delete freezeDetectorThread;
 
     OpenSSLCrypto::threadsCleanup();
 
