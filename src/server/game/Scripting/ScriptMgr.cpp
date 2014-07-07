@@ -400,35 +400,35 @@ void ScriptMgr::OnNetworkStop()
     FOREACH_SCRIPT(ServerScript)->OnNetworkStop();
 }
 
-void ScriptMgr::OnSocketOpen(std::shared_ptr<WorldTcpSession> socket)
+void ScriptMgr::OnSocketOpen(std::shared_ptr<WorldSocket> socket)
 {
     ASSERT(socket);
 
     FOREACH_SCRIPT(ServerScript)->OnSocketOpen(socket);
 }
 
-void ScriptMgr::OnSocketClose(std::shared_ptr<WorldTcpSession> socket, bool wasNew)
+void ScriptMgr::OnSocketClose(std::shared_ptr<WorldSocket> socket, bool wasNew)
 {
     ASSERT(socket);
 
     FOREACH_SCRIPT(ServerScript)->OnSocketClose(socket, wasNew);
 }
 
-void ScriptMgr::OnPacketReceive(std::shared_ptr<WorldTcpSession> socket, WorldPacket packet)
+void ScriptMgr::OnPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket packet)
 {
     ASSERT(socket);
 
     FOREACH_SCRIPT(ServerScript)->OnPacketReceive(socket, packet);
 }
 
-void ScriptMgr::OnPacketSend(std::shared_ptr<WorldTcpSession> socket, WorldPacket packet)
+void ScriptMgr::OnPacketSend(std::shared_ptr<WorldSocket> socket, WorldPacket packet)
 {
     ASSERT(socket);
 
     FOREACH_SCRIPT(ServerScript)->OnPacketSend(socket, packet);
 }
 
-void ScriptMgr::OnUnknownPacketReceive(std::shared_ptr<WorldTcpSession> socket, WorldPacket packet)
+void ScriptMgr::OnUnknownPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket packet)
 {
     ASSERT(socket);
 

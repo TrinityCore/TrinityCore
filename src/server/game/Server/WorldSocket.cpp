@@ -19,7 +19,7 @@
 #include <boost/asio/write.hpp>
 #include <boost/asio/read_until.hpp>
 #include <memory>
-#include "WorldTcpSession.h"
+#include "WorldSocket.h"
 #include "ServerPktHeader.h"
 #include "BigNumber.h"
 #include "Opcodes.h"
@@ -29,18 +29,18 @@
 using boost::asio::ip::tcp;
 using boost::asio::streambuf;
 
-WorldTcpSession::WorldTcpSession(tcp::socket socket)
+WorldSocket::WorldSocket(tcp::socket socket)
     : _socket(std::move(socket)), _authSeed(static_cast<uint32>(rand32())), _worldSession(nullptr), _OverSpeedPings(0)
 {
 }
 
-void WorldTcpSession::Start()
+void WorldSocket::Start()
 {
     AsyncReadHeader();
     HandleSendAuthSession();
 }
 
-void WorldTcpSession::HandleSendAuthSession()
+void WorldSocket::HandleSendAuthSession()
 {
     WorldPacket packet(SMSG_AUTH_CHALLENGE, 37);
     packet << uint32(1);                                    // 1...31
@@ -58,7 +58,7 @@ void WorldTcpSession::HandleSendAuthSession()
 }
 
 
-void WorldTcpSession::AsyncReadHeader()
+void WorldSocket::AsyncReadHeader()
 {
     auto self(shared_from_this());
     _socket.async_read_some(boost::asio::buffer(_readBuffer, sizeof(ClientPktHeader)), [this, self](boost::system::error_code error, size_t transferedBytes)
@@ -82,7 +82,7 @@ void WorldTcpSession::AsyncReadHeader()
     });
 }
 
-void WorldTcpSession::AsyncReadData(size_t dataSize)
+void WorldSocket::AsyncReadData(size_t dataSize)
 {
     auto self(shared_from_this());
     _socket.async_read_some(boost::asio::buffer(&_readBuffer[sizeof(ClientPktHeader)], dataSize), [this, dataSize, self](boost::system::error_code error, size_t transferedBytes)
@@ -152,7 +152,7 @@ void WorldTcpSession::AsyncReadData(size_t dataSize)
     });
 }
 
-void WorldTcpSession::AsyncWrite(WorldPacket const& packet)
+void WorldSocket::AsyncWrite(WorldPacket const& packet)
 {
     ServerPktHeader header(packet.size() + 2, packet.GetOpcode());
     _authCrypt.EncryptSend((uint8*)header.header, header.getHeaderLength());
@@ -177,7 +177,7 @@ void WorldTcpSession::AsyncWrite(WorldPacket const& packet)
     });
 }
 
-void WorldTcpSession::HandleAuthSession(WorldPacket& recvPacket)
+void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 {
     uint8 digest[20];
     uint32 clientSeed;
@@ -404,7 +404,7 @@ void WorldTcpSession::HandleAuthSession(WorldPacket& recvPacket)
     sWorld->AddSession(_worldSession);
 }
 
-void WorldTcpSession::SendAuthResponseError(uint8 code)
+void WorldSocket::SendAuthResponseError(uint8 code)
 {
     WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
     packet << uint8(code);
@@ -412,7 +412,7 @@ void WorldTcpSession::SendAuthResponseError(uint8 code)
     AsyncWrite(packet);
 }
 
-void WorldTcpSession::HandlePing(WorldPacket& recvPacket)
+void WorldSocket::HandlePing(WorldPacket& recvPacket)
 {
     uint32 ping;
     uint32 latency;
