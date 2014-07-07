@@ -41,13 +41,13 @@ struct ClientPktHeader
 
 #pragma pack(pop)
 
-class WorldTcpSession : public std::enable_shared_from_this<WorldTcpSession>
+class WorldSocket : public std::enable_shared_from_this<WorldSocket>
 {
 public:
-    WorldTcpSession(tcp::socket socket);
+    WorldSocket(tcp::socket socket);
 
-    WorldTcpSession(WorldTcpSession const& right) = delete;
-    WorldTcpSession& operator=(WorldTcpSession const& right) = delete;
+    WorldSocket(WorldSocket const& right) = delete;
+    WorldSocket& operator=(WorldSocket const& right) = delete;
 
     void Start();
 
