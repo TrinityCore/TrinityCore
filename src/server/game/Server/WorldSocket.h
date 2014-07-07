@@ -16,8 +16,8 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __WORLDTCPSESSION_H__
-#define __WORLDTCPSESSION_H__
+#ifndef __WORLDSOCKET_H__
+#define __WORLDSOCKET_H__
 
 #include <memory>
 #include <chrono>

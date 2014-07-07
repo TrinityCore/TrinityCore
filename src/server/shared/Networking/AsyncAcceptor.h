@@ -33,14 +33,17 @@ public:
         AsyncAccept();
     };
 
-    AsyncAcceptor(boost::asio::io_service& ioService, std::string bindIp, int port, bool tcpNoDelay) : 
-        AsyncAcceptor(ioService, bindIp, port)
+    AsyncAcceptor(boost::asio::io_service& ioService, std::string bindIp, int port, bool tcpNoDelay) :
+        _socket(ioService),
+        _acceptor(ioService, tcp::endpoint(boost::asio::ip::address::from_string(bindIp), port))
     {
         _socket.set_option(boost::asio::ip::tcp::no_delay(tcpNoDelay));
+
+        AsyncAccept();
     };
 
 private:
-    void AsyncAcceptor::AsyncAccept()
+    void AsyncAccept()
     {
         _acceptor.async_accept(_socket, [this](boost::system::error_code error)
         {
