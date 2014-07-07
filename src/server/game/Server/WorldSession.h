@@ -46,7 +46,7 @@ class SpellCastTargets;
 class Unit;
 class Warden;
 class WorldPacket;
-class WorldTcpSession;
+class WorldSocket;
 struct AreaTableEntry;
 struct AuctionEntry;
 struct DeclinedName;
@@ -208,7 +208,7 @@ struct PacketCounter
 class WorldSession
 {
     public:
-        WorldSession(uint32 id, std::shared_ptr<WorldTcpSession> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
+        WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
 
         bool PlayerLoading() const { return m_playerLoading; }
@@ -981,7 +981,7 @@ class WorldSession
 
         uint32 m_GUIDLow;                                   // set logined or recently logout player (while m_playerRecentlyLogout set)
         Player* _player;
-        std::shared_ptr<WorldTcpSession> m_Socket;
+        std::shared_ptr<WorldSocket> m_Socket;
         std::string m_Address;                              // Current Remote Address
      // std::string m_LAddress;                             // Last Attempted Remote Adress - we can not set attempted ip for a non-existing session!
 
