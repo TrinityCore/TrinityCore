@@ -73,10 +73,10 @@
 #  define ATTR_DEPRECATED
 #endif //COMPILER == COMPILER_GNU
 
-#define UI64FMTD PRIu64
+#define UI64FMTD "%" PRIu64
 #define UI64LIT(N) UINT64_C(N)
 
-#define SI64FMTD PRId64
+#define SI64FMTD "%" PRId64
 #define SI64LIT(N) INT64_C(N)
 
 typedef int64_t int64;
