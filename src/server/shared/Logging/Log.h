@@ -22,8 +22,9 @@
 #include "Define.h"
 #include "Appender.h"
 #include "Logger.h"
-#include "LogWorker.h"
 #include <stdarg.h>
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/strand.hpp>
 
 #include <unordered_map>
 #include <string>
@@ -39,9 +40,17 @@ class Log
         ~Log();
 
     public:
-        static Log* instance()
+
+        static Log* instance(boost::asio::io_service* ioService = nullptr)
         {
             static Log* instance = new Log();
+
+            if (ioService != nullptr)
+            {
+                instance->_ioService = ioService;
+                instance->_strand = new boost::asio::strand(*ioService);
+            }
+            
             return instance;
         }
 
@@ -77,7 +86,8 @@ class Log
         std::string m_logsDir;
         std::string m_logsTimestamp;
 
-        LogWorker* worker;
+        boost::asio::io_service* _ioService;
+        boost::asio::strand* _strand;
 };
 
 inline Logger const* Log::GetLoggerByType(std::string const& type) const

@@ -37,9 +37,9 @@ public:
         _socket(ioService),
         _acceptor(ioService, tcp::endpoint(boost::asio::ip::address::from_string(bindIp), port))
     {
-        AsyncAccept();
+        _acceptor.set_option(boost::asio::ip::tcp::no_delay(tcpNoDelay));
 
-        _socket.set_option(boost::asio::ip::tcp::no_delay(tcpNoDelay));
+        AsyncAccept();
     };
 
 private:

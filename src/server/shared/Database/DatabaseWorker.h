@@ -18,6 +18,7 @@
 #ifndef _WORKERTHREAD_H
 #define _WORKERTHREAD_H
 
+#include <thread>
 #include "ProducerConsumerQueue.h"
 
 class MySQLConnection;

@@ -29,7 +29,7 @@
 #include <cstdio>
 #include <sstream>
 
-Log::Log() : worker(NULL)
+Log::Log() : _ioService(nullptr), _strand(nullptr)
 {
     m_logsTimestamp = "_" + GetTimestampStr();
     LoadFromConfig();
@@ -37,6 +37,7 @@ Log::Log() : worker(NULL)
 
 Log::~Log()
 {
+    delete _strand;
     Close();
 }
 
@@ -272,8 +273,13 @@ void Log::write(LogMessage* msg) const
     Logger const* logger = GetLoggerByType(msg->type);
     msg->text.append("\n");
 
-    if (worker)
-        worker->Enqueue(new LogOperation(logger, msg));
+    if (_ioService)
+    {
+        auto logOperation = std::shared_ptr<LogOperation>(new LogOperation(logger, msg));
+
+        _ioService->post(_strand->wrap([logOperation](){ logOperation->call(); }));
+       
+    }
     else
     {
         logger->write(*msg);
@@ -375,8 +381,6 @@ void Log::SetRealmId(uint32 id)
 
 void Log::Close()
 {
-    delete worker;
-    worker = NULL;
     loggers.clear();
     for (AppenderMap::iterator it = appenders.begin(); it != appenders.end(); ++it)
     {
@@ -389,9 +393,6 @@ void Log::Close()
 void Log::LoadFromConfig()
 {
     Close();
-
-    if (sConfigMgr->GetBoolDefault("Log.Async.Enable", false))
-        worker = new LogWorker();
 
     AppenderId = 0;
     m_logsDir = sConfigMgr->GetStringDefault("LogsDir", "");
