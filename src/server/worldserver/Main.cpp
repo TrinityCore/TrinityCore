@@ -66,7 +66,7 @@ boost::asio::io_service _ioService;
 boost::asio::deadline_timer _freezeCheckTimer(_ioService);
 uint32 _worldLoopCounter(0);
 uint32 _lastChangeMsTime(0);
-uint32 _maxCoreStuckTime(0);
+uint32 _maxCoreStuckTimeInMs(0);
 
 WorldDatabaseWorkerPool WorldDatabase;                      ///< Accessor to the world database
 CharacterDatabaseWorkerPool CharacterDatabase;              ///< Accessor to the character database
@@ -244,11 +244,12 @@ extern int main(int argc, char** argv)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmID);
 
     // Start the freeze check callback cycle in 5 seconds (cycle itself is 1 sec)
-    if (_maxCoreStuckTime = sConfigMgr->GetIntDefault("MaxCoreStuckTime", 0))
+    if (int coreStuckTime = sConfigMgr->GetIntDefault("MaxCoreStuckTime", 0))
     {
+        _maxCoreStuckTimeInMs = coreStuckTime * 1000;
         _freezeCheckTimer.expires_from_now(boost::posix_time::seconds(5));
         _freezeCheckTimer.async_wait(FreezeDetectorHandler);
-        TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", _maxCoreStuckTime);
+        TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", coreStuckTime);
     }
 
     TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", _FULLVERSION);
@@ -435,7 +436,7 @@ void FreezeDetectorHandler(const boost::system::error_code& error)
             _worldLoopCounter = worldLoopCounter;
         }
         // possible freeze
-        else if (getMSTimeDiff(_lastChangeMsTime, curtime) > _maxCoreStuckTime)
+        else if (getMSTimeDiff(_lastChangeMsTime, curtime) > _maxCoreStuckTimeInMs)
         {
             TC_LOG_ERROR("server.worldserver", "World Thread hangs, kicking out server!");
             ASSERT(false);
