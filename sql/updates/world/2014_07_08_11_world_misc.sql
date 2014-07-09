@@ -42,7 +42,7 @@ INSERT INTO `pickpocketing_loot_template` VALUES
 (@SOULEATER, 27854, 8, 1, 0, 1, 1);
 
 -- Pool_template for Eredar Soul Eater Spawns
-DELETE FROM `pool_template` WHERE entry = 1161;
+DELETE FROM `pool_template` WHERE entry = @POOL;
 INSERT INTO `pool_template` (`entry`, `max_limit`, `description`) VALUES
 (@POOL, 2, 'Eredar Soul-Eater');
 
