@@ -2,7 +2,7 @@
 SET @SPELL_TRIGGER     := 53435; -- Teleport to CoT Stratholme Phase 4
 SET @SPELL_EFFECT      := 53436; -- Teleport to CoT Stratholme Phase 4
 
-DELETE FROM `gossip_menu_option` WHERE `menu_id` = @MENUID5 or `menu_id` = @MENUID1 and `id` = 2;
+DELETE FROM `gossip_menu_option` WHERE `menu_id` = 11277 or `menu_id` = 9586 and `id` = 2;
 INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `OptionBroadcastTextID`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`, `BoxBroadcastTextID`) VALUES
 (9586, 2, 0, 'Chromie, you and I both know what\'s going to happen in this time stream. We\'ve seen this all before. Can you just skip us ahead to all the real action?', 39667, 1, 1, 11277, 0, 0, 0, '', 0),
 (11277, 0, 0, 'Yes, please!', 32024, 1, 1, 0, 0, 0, 0, '', 0);
