@@ -131,21 +131,15 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     if (!instance)
         return false;
 
-    Difficulty targetDifficulty = player->GetDifficulty(entry->IsRaid());
-    //The player has a heroic mode and tries to enter into instance which has no a heroic mode
-    MapDifficulty const* mapDiff = GetMapDifficultyData(entry->MapID, targetDifficulty);
+    Difficulty targetDifficulty, requestedDifficulty;
+    targetDifficulty = requestedDifficulty = player->GetDifficulty(entry->IsRaid());
+    // Get the highest available difficulty if current setting is higher than the instance allows
+    MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(entry->MapID, targetDifficulty);
     if (!mapDiff)
     {
-        // Send aborted message for dungeons
-        if (entry->IsNonRaidDungeon())
-        {
-            player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY, player->GetDungeonDifficulty());
-            return false;
-        }
-        else    // attempt to downscale
-            mapDiff = GetDownscaledMapDifficultyData(entry->MapID, targetDifficulty);
+        player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY, requestedDifficulty);
+        return false;
     }
-    // FIXME: mapDiff is never used
 
     //Bypass checks for GMs
     if (player->IsGameMaster())
