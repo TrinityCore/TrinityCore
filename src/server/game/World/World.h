@@ -524,7 +524,7 @@ class World
             return instance;
         }
 
-        static std::atomic_uint32_t m_worldLoopCounter;
+        static std::atomic<uint32> m_worldLoopCounter;
 
         WorldSession* FindSession(uint32 id) const;
         void AddSession(WorldSession* s);

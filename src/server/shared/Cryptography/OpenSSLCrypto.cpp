@@ -33,7 +33,7 @@ static void lockingCallback(int mode, int type, const char* /*file*/, int /*line
 
 static void threadIdCallback(CRYPTO_THREADID * id)
 {
-    CRYPTO_THREADID_set_numeric(id, std::this_thread::get_id().hash());
+    CRYPTO_THREADID_set_numeric(id, std::hash<std::thread::id>()(std::this_thread::get_id()));
 }
 
 void OpenSSLCrypto::threadsSetup()
