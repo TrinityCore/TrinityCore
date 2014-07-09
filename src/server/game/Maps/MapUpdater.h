@@ -25,6 +25,7 @@
 #include <condition_variable>
 #include "ProducerConsumerQueue.h"
 
+class MapUpdateRequest;
 class Map;
 
 class MapUpdater
@@ -48,7 +49,7 @@ class MapUpdater
 
     private:
 
-        ProducerConsumerQueue <MapUpdateRequest*> _queue;
+        ProducerConsumerQueue<MapUpdateRequest*> _queue;
 
         std::vector<std::thread> _workerThreads;
         std::atomic<bool> _cancelationToken;
