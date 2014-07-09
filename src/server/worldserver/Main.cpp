@@ -102,7 +102,7 @@ extern int main(int argc, char** argv)
                 cfg_file = argv[c];
         }
 
-        #ifdef _WIN32
+#ifdef _WIN32
         if (strcmp(argv[c], "-s") == 0) // Services
         {
             if (++c >= argc)
@@ -134,7 +134,7 @@ extern int main(int argc, char** argv)
 
         if (strcmp(argv[c], "--service") == 0)
             WinServiceRun();
-        #endif
+#endif
         ++c;
     }
 
@@ -167,6 +167,11 @@ extern int main(int argc, char** argv)
     TC_LOG_INFO("server.worldserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
 
     OpenSSLCrypto::threadsSetup();
+
+    // Seed the OpenSSL's PRNG here.
+    // That way it won't auto-seed when calling BigNumber::SetRand and slow down the first world login
+    BigNumber seed;
+    seed.SetRand(16 * 8);
 
     /// worldserver PID file creation
     std::string pidFile = sConfigMgr->GetStringDefault("PidFile", "");
