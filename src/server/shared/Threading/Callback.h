@@ -35,7 +35,7 @@ class QueryCallback
         QueryCallback() : _param(), _stage(chain ? 0 : CALLBACK_STAGE_INVALID)  { }
 
         //! The parameter of this function should be a resultset returned from either .AsyncQuery or .AsyncPQuery
-        void SetFutureResult(std::future<Result>& value)
+        void SetFutureResult(std::future<Result> value)
         {
             _result = std::move(value);
         }
@@ -118,7 +118,7 @@ class QueryCallback_2
         QueryCallback_2() : _stage(chain ? 0 : CALLBACK_STAGE_INVALID) { }
 
         //! The parameter of this function should be a resultset returned from either .AsyncQuery or .AsyncPQuery
-        void SetFutureResult(std::future<Result>& value)
+        void SetFutureResult(std::future<Result> value)
         {
             _result = std::move(value);
         }
