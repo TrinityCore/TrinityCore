@@ -163,12 +163,15 @@ void WorldSocket::AsyncWrite(WorldPacket const& packet)
     if (!packet.empty())
         std::memcpy(data + header.getHeaderLength(), (char const*)packet.contents(), packet.size());
     
+    // Use a shared_ptr here to prevent leaking memory after the async operation has completed
     std::shared_ptr<char> buffer(data, [=](char* _b)
     {
-        delete[] _b;
+        delete[] _b; // Ensure that the data is deleted as an array
     });
 
-    boost::asio::async_write(_socket, boost::asio::buffer(buffer.get(), header.getHeaderLength() + packet.size()), [this, buffer](boost::system::error_code error, std::size_t /*length*/)
+    auto self(shared_from_this());
+
+    boost::asio::async_write(_socket, boost::asio::buffer(buffer.get(), header.getHeaderLength() + packet.size()), [this, self, buffer](boost::system::error_code error, std::size_t /*length*/)
     {
         if (error)
         {
