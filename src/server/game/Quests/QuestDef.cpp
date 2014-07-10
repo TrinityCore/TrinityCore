@@ -164,9 +164,6 @@ Quest::Quest(Field* questRecord)
 
     //int32 VerifiedBuild = questRecord[168].GetInt32();
 
-    if (SpecialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
-        Flags |= QUEST_FLAGS_AUTO_ACCEPT;
-
     _reqItemsCount = 0;
     _reqNpcOrGoCount = 0;
     _rewItemsCount = 0;
