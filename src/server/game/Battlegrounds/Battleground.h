@@ -23,6 +23,7 @@
 #include "SharedDefines.h"
 #include "DBCEnums.h"
 #include "WorldPacket.h"
+#include "Object.h"
 
 class Creature;
 class GameObject;
@@ -34,7 +35,6 @@ class WorldPacket;
 class BattlegroundMap;
 
 struct BattlegroundScore;
-struct Position;
 struct PvPDifficultyEntry;
 struct WorldSafeLocsEntry;
 
