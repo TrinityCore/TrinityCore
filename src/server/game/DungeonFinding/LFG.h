@@ -98,8 +98,18 @@ enum LfgAnswer
     LFG_ANSWER_AGREE                             = 1
 };
 
+struct LfgLockInfoData
+{
+    LfgLockInfoData(uint32 _lockStatus = 0, uint16 _requiredItemLevel = 0, float _currentItemLevel = 0) :
+        lockStatus(_lockStatus), requiredItemLevel(_requiredItemLevel), currentItemLevel(_currentItemLevel) { }
+
+    uint32 lockStatus;
+    uint16 requiredItemLevel;
+    float currentItemLevel;
+};
+
 typedef std::set<uint32> LfgDungeonSet;
-typedef std::map<uint32, uint32> LfgLockMap;
+typedef std::map<uint32, LfgLockInfoData> LfgLockMap;
 typedef std::map<uint64, LfgLockMap> LfgLockPartyMap;
 typedef std::set<uint64> LfgGuidSet;
 typedef std::list<uint64> LfgGuidList;

@@ -6200,8 +6200,8 @@ void ObjectMgr::LoadAccessRequirements()
         _accessRequirementStore.clear();                                  // need for reload case
     }
 
-    //                                               0      1           2          3          4           5      6             7             8                      9     10
-    QueryResult result = WorldDatabase.Query("SELECT mapid, difficulty, level_min, level_max, item_level, item, item2, quest_done_A, quest_done_H, completed_achievement, quest_failed_text FROM access_requirement");
+    //                                                 0       1           2          3        4      5       6               7                8                   9
+    QueryResult result = WorldDatabase.Query("SELECT mapid, difficulty, level_min, level_max, item, item2, quest_done_A, quest_done_H, completed_achievement, quest_failed_text FROM access_requirement");
 
     if (!result)
     {
@@ -6221,17 +6221,15 @@ void ObjectMgr::LoadAccessRequirements()
         uint8 difficulty = fields[1].GetUInt8();
         uint32 requirement_ID = MAKE_PAIR32(mapid, difficulty);
 
-        AccessRequirement* ar = new AccessRequirement();
-
-        ar->levelMin = fields[2].GetUInt8();
-        ar->levelMax = fields[3].GetUInt8();
-        ar->item_level = fields[4].GetUInt16();
-        ar->item = fields[5].GetUInt32();
-        ar->item2 = fields[6].GetUInt32();
-        ar->quest_A = fields[7].GetUInt32();
-        ar->quest_H = fields[8].GetUInt32();
-        ar->achievement = fields[9].GetUInt32();
-        ar->questFailedText = fields[10].GetString();
+        AccessRequirement* ar   = new AccessRequirement();
+        ar->levelMin            = fields[2].GetUInt8();
+        ar->levelMax            = fields[3].GetUInt8();
+        ar->item                = fields[4].GetUInt32();
+        ar->item2               = fields[5].GetUInt32();
+        ar->quest_A             = fields[6].GetUInt32();
+        ar->quest_H             = fields[7].GetUInt32();
+        ar->achievement         = fields[8].GetUInt32();
+        ar->questFailedText     = fields[9].GetString();
 
         if (ar->item)
         {
