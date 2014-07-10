@@ -44,7 +44,7 @@ struct ClientPktHeader
 class WorldSocket : public std::enable_shared_from_this<WorldSocket>
 {
 public:
-    WorldSocket(tcp::socket socket);
+    WorldSocket(tcp::socket&& socket);
 
     WorldSocket(WorldSocket const& right) = delete;
     WorldSocket& operator=(WorldSocket const& right) = delete;

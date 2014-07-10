@@ -35,7 +35,7 @@ const size_t bufferSize = 4096;
 class RASession : public std::enable_shared_from_this <RASession>
 {
 public:
-    RASession(tcp::socket socket) : _socket(std::move(socket)), _commandExecuting(nullptr)
+    RASession(tcp::socket&& socket) : _socket(std::move(socket)), _commandExecuting(nullptr)
     {
     }
 
