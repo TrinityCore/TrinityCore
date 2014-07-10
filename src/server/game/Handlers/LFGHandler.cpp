@@ -28,10 +28,13 @@ void BuildPlayerLockDungeonBlock(WorldPacket& data, lfg::LfgLockMap const& lock)
     data << uint32(lock.size());                           // Size of lock dungeons
     for (lfg::LfgLockMap::const_iterator it = lock.begin(); it != lock.end(); ++it)
     {
-        data << uint32(it->first);                         // Dungeon entry (id + type)
-        data << uint32(it->second);                        // Lock status
-        data << uint32(0);                                 // Required itemLevel
-        data << uint32(0);                                 // Current itemLevel
+        TC_LOG_ERROR("misc", "DungeonID: %u Lock status: %u Required itemLevel: %u Current itemLevel: %f",
+            (it->first & 0x00FFFFFF), it->second.lockStatus, it->second.requiredItemLevel, it->second.currentItemLevel);
+
+        data << uint32(it->first);                      // Dungeon entry (id + type)
+        data << uint32(it->second.lockStatus);          // Lock status
+        data << uint32(it->second.requiredItemLevel);   // Required itemLevel
+        data << uint32(it->second.currentItemLevel);    // Current itemLevel
     }
 }
 
@@ -596,10 +599,13 @@ void WorldSession::SendLfgJoinResult(lfg::LfgJoinResultData const& joinData)
         ObjectGuid playerGuid = it->first;
         for (lfg::LfgLockMap::const_iterator itr = it->second.begin(); itr != it->second.end(); ++itr)
         {
-            data << uint32(itr->second);                       // Lock status
-            data << uint32(0);                                 // Current itemLevel
-            data << uint32(0);                                 // Required itemLevel
-            data << uint32(itr->first);                        // Dungeon entry (id + type)
+            TC_LOG_ERROR("misc", "DungeonID: %u Lock status: %u Required itemLevel: %u Current itemLevel: %f",
+                (itr->first & 0x00FFFFFF), itr->second.lockStatus, itr->second.requiredItemLevel, itr->second.currentItemLevel);
+
+            data << uint32(itr->second.lockStatus);             // Lock status
+            data << uint32(itr->second.currentItemLevel);       // Current itemLevel
+            data << uint32(itr->second.requiredItemLevel);      // Required itemLevel
+            data << uint32(itr->first);                         // Dungeon entry (id + type)
         }
 
         data.WriteByteSeq(playerGuid[2]);
