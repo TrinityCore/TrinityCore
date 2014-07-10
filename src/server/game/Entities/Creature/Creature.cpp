@@ -187,6 +187,9 @@ void Creature::AddToWorld()
     ///- Register the creature for guid lookup
     if (!IsInWorld())
     {
+#ifdef ELUNA
+        sEluna->OnAddToWorld(this);
+#endif
         if (GetZoneScript())
             GetZoneScript()->OnCreatureCreate(this);
         sObjectAccessor->AddObject(this);
@@ -202,6 +205,9 @@ void Creature::RemoveFromWorld()
 {
     if (IsInWorld())
     {
+#ifdef ELUNA
+        sEluna->OnRemoveFromWorld(this);
+#endif
         if (GetZoneScript())
             GetZoneScript()->OnCreatureRemove(this);
         if (m_formation)
