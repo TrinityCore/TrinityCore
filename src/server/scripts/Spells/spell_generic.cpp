@@ -449,9 +449,9 @@ class spell_gen_bonked : public SpellScriptLoader
                     target->CastSpell(target, SPELL_FOAM_SWORD_DEFEAT, true);
                     target->RemoveAurasDueToSpell(SPELL_BONKED);
 
-                    if (Aura const* aura = target->GetAura(SPELL_ON_GUARD))
+                    if (Aura const* auraOnGuard = target->GetAura(SPELL_ON_GUARD))
                     {
-                        if (Item* item = target->GetItemByGuid(aura->GetCastItemGUID()))
+                        if (Item* item = target->GetItemByGuid(auraOnGuard->GetCastItemGUID()))
                             target->DestroyItemCount(item->GetEntry(), 1, true);
                     }
                 }
