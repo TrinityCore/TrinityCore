@@ -1277,10 +1277,10 @@ struct BfWGGameObjectBuilding
             for (uint8 i = 0; i < AttackTowers[towerid - 4].nbObject; i++)
             {
                 WintergraspObjectPositionData gobData = AttackTowers[towerid - 4].GameObject[i];
-                if (GameObject* go = m_WG->SpawnGameObject(gobData.entryHorde, gobData.x, gobData.y, gobData.z, gobData.o))
-                    m_GameObjectList[TEAM_HORDE].insert(go->GetGUID());
-                if (GameObject* go = m_WG->SpawnGameObject(gobData.entryAlliance, gobData.x, gobData.y, gobData.z, gobData.o))
-                    m_GameObjectList[TEAM_ALLIANCE].insert(go->GetGUID());
+                if (GameObject* goHorde = m_WG->SpawnGameObject(gobData.entryHorde, gobData.x, gobData.y, gobData.z, gobData.o))
+                    m_GameObjectList[TEAM_HORDE].insert(goHorde->GetGUID());
+                if (GameObject* goAlliance = m_WG->SpawnGameObject(gobData.entryAlliance, gobData.x, gobData.y, gobData.z, gobData.o))
+                    m_GameObjectList[TEAM_ALLIANCE].insert(goAlliance->GetGUID());
             }
 
             // Spawn associate npc bottom
