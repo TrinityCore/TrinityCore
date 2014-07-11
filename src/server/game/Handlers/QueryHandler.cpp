@@ -116,7 +116,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
         }
 
         TC_LOG_DEBUG("network", "WORLD: CMSG_CREATURE_QUERY '%s' - Entry: %u.", creatureInfo->Name.c_str(), entry);
-                                                            
+
         WorldPacket data(SMSG_CREATURE_QUERY_RESPONSE, 100);          // guess size
         data << uint32(entry);                                        // creature entry
         data << Name;                                                 // Name

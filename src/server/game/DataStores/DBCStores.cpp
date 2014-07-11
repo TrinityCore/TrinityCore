@@ -1335,7 +1335,7 @@ SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, u
 
     return NULL;
 }
- 
+
 std::set<uint32> const& GetPhasesForGroup(uint32 group)
 {
     return sPhasesByGroup[group];

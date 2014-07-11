@@ -57,8 +57,8 @@ void WorldSession::SendTradeStatus(TradeStatus status, int8 clearSlot)
             data << uint32(0); // InventoryResult
             break;
         case TRADE_STATUS_ONLY_CONJURED: // Not Implemented
-        case TRADE_STATUS_NOT_ELIGIBLE: 
-            // Used when trading loot soulbound items with people that are not eligible (TRADE_STATUS_NOT_ELIGIBLE), 
+        case TRADE_STATUS_NOT_ELIGIBLE:
+            // Used when trading loot soulbound items with people that are not eligible (TRADE_STATUS_NOT_ELIGIBLE),
             // and when trying to trade items with players in other realms when in a cross realm BG, you can only trade conjured goods with them (TRADE_STATUS_ONLY_CONJURED)
             data.FlushBits();
             data << int8(clearSlot); // Trade slot to clear, -1 = Clear the money amount

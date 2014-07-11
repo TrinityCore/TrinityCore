@@ -2871,7 +2871,7 @@ void WorldObject::SetInPhase(uint32 id, bool update, bool apply)
         _phases.insert(id);
     else
         _phases.erase(id);
-    
+
     if (update && IsInWorld())
         UpdateObjectVisibility();
 }

@@ -487,7 +487,7 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
         object = _player;
     else
         object = ObjectAccessor::GetObjectByTypeMask(*_player, guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
-    
+
     if (!object)
         return;
 
