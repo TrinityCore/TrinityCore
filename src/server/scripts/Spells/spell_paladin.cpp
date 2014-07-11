@@ -1201,7 +1201,6 @@ class spell_pal_sacred_shield : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    AuraEffect const* dampening = NULL;
                     // +75.00% from sp bonus
                     float bonus = CalculatePct(caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()), 75.0f);
 
@@ -1212,11 +1211,11 @@ class spell_pal_sacred_shield : public SpellScriptLoader
                     amount += int32(bonus);
 
                     // Arena - Dampening
-                    if (dampening = caster->GetAuraEffect(SPELL_GENERIC_ARENA_DAMPENING, EFFECT_0))
-                        AddPct(amount, dampening->GetAmount());
+                    if (AuraEffect const* auraEffArenaDampening = caster->GetAuraEffect(SPELL_GENERIC_ARENA_DAMPENING, EFFECT_0))
+                        AddPct(amount, auraEffArenaDampening->GetAmount());
                     // Battleground - Dampening
-                    else if (dampening = caster->GetAuraEffect(SPELL_GENERIC_BATTLEGROUND_DAMPENING, EFFECT_0))
-                        AddPct(amount, dampening->GetAmount());
+                    else if (AuraEffect const* auraEffBattlegroudDampening = caster->GetAuraEffect(SPELL_GENERIC_BATTLEGROUND_DAMPENING, EFFECT_0))
+                        AddPct(amount, auraEffBattlegroudDampening->GetAmount());
                 }
             }
 
