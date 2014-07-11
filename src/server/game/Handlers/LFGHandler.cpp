@@ -28,7 +28,7 @@ void BuildPlayerLockDungeonBlock(WorldPacket& data, lfg::LfgLockMap const& lock)
     data << uint32(lock.size());                           // Size of lock dungeons
     for (lfg::LfgLockMap::const_iterator it = lock.begin(); it != lock.end(); ++it)
     {
-        TC_LOG_ERROR("misc", "DungeonID: %u Lock status: %u Required itemLevel: %u Current itemLevel: %f",
+        TC_LOG_TRACE("lfg", "BuildPlayerLockDungeonBlock:: DungeonID: %u Lock status: %u Required itemLevel: %u Current itemLevel: %f",
             (it->first & 0x00FFFFFF), it->second.lockStatus, it->second.requiredItemLevel, it->second.currentItemLevel);
 
         data << uint32(it->first);                      // Dungeon entry (id + type)
@@ -599,8 +599,8 @@ void WorldSession::SendLfgJoinResult(lfg::LfgJoinResultData const& joinData)
         ObjectGuid playerGuid = it->first;
         for (lfg::LfgLockMap::const_iterator itr = it->second.begin(); itr != it->second.end(); ++itr)
         {
-            TC_LOG_ERROR("misc", "DungeonID: %u Lock status: %u Required itemLevel: %u Current itemLevel: %f",
-                (itr->first & 0x00FFFFFF), itr->second.lockStatus, itr->second.requiredItemLevel, itr->second.currentItemLevel);
+            TC_LOG_TRACE("lfg", "SendLfgJoinResult:: PlayerGUID: " UI64FMTD " DungeonID: %u Lock status: %u Required itemLevel: %u Current itemLevel: %f",
+                playerGuid, (itr->first & 0x00FFFFFF), itr->second.lockStatus, itr->second.requiredItemLevel, itr->second.currentItemLevel);
 
             data << uint32(itr->second.lockStatus);             // Lock status
             data << uint32(itr->second.currentItemLevel);       // Current itemLevel

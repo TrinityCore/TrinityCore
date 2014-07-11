@@ -732,12 +732,12 @@ struct SmartAction
             uint32 apply;
         } ingamePhaseId;
 
-        struct  
+        struct
         {
             uint32 groupId;
             uint32 apply;
         } ingamePhaseGroup;
-        
+
         struct
         {
             uint32 field;

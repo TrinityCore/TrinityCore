@@ -1707,7 +1707,7 @@ void ObjectMgr::LoadCreatures()
         }
 
         // Skip spawnMask check for transport maps
-		if (!IsTransportMap(data.mapid) && data.spawnMask & ~spawnMasks[data.mapid])
+        if (!IsTransportMap(data.mapid) && data.spawnMask & ~spawnMasks[data.mapid])
             TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u Entry: %u) that have wrong spawn mask %u including not supported difficulty modes for map (Id: %u) spawnMasks[data.mapid]: %u.", guid, data.id, data.spawnMask, data.mapid, spawnMasks[data.mapid]);
 
         bool ok = true;
@@ -9338,7 +9338,7 @@ void ObjectMgr::LoadPhaseInfo()
 
     uint32 oldMSTime = getMSTime();
 
-    //                                               0       1                   2       
+    //                                               0       1                   2
     QueryResult result = WorldDatabase.Query("SELECT id, worldmapareaswap, terrainswapmap FROM `phase_info`");
 
     if (!result)

@@ -881,7 +881,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
             //! Following check does check 3d distance
             return IsInRange(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), dist2compare);
         }
-        
+
         GameObjectAI* m_AI;
 };
 #endif

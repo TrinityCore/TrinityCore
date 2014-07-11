@@ -803,7 +803,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     std::string account;
     SHA1Hash sha;
     BigNumber k;
-    bool wardenActive = sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED);    
+    bool wardenActive = sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED);
     WorldPacket addonsData;
 
     recvPacket.read_skip<uint32>();
