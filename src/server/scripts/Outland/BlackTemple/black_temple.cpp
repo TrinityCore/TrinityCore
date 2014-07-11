@@ -102,8 +102,8 @@ public:
         {
             _events.ScheduleEvent(EVENT_GET_CHANNELERS, 3000);
             _enteredCombat = false;
-            _bloodmage.clear();
-            _deathshaper.clear();
+            _bloodmageList.clear();
+            _deathshaperList.clear();
         }
 
         void JustDied(Unit* /*killer*/) override { }
@@ -134,7 +134,7 @@ public:
                             if (!BloodMageList.empty())
                                 for (std::list<Creature*>::const_iterator itr = BloodMageList.begin(); itr != BloodMageList.end(); ++itr)
                                 {
-                                    _bloodmage.push_back((*itr)->GetGUID());
+                                    _bloodmageList.push_back((*itr)->GetGUID());
                                     if ((*itr)->isDead())
                                         (*itr)->Respawn();
                                 }
@@ -145,7 +145,7 @@ public:
                             if (!DeathShaperList.empty())
                                 for (std::list<Creature*>::const_iterator itr = DeathShaperList.begin(); itr != DeathShaperList.end(); ++itr)
                                 {
-                                    _deathshaper.push_back((*itr)->GetGUID());
+                                    _deathshaperList.push_back((*itr)->GetGUID());
                                     if ((*itr)->isDead())
                                         (*itr)->Respawn();
                                 }
@@ -156,11 +156,11 @@ public:
                         }
                         case EVENT_SET_CHANNELERS:
                         {
-                            for (uint64 guid : _bloodmage)
+                            for (uint64 guid : _bloodmageList)
                                 if (Creature* bloodmage = ObjectAccessor::GetCreature(*me, guid))
                                     bloodmage->CastSpell((Unit*)NULL, SPELL_SUMMON_CHANNEL);
 
-                            for (uint64 guid : _deathshaper)
+                            for (uint64 guid : _deathshaperList)
                                 if (Creature* deathshaper = ObjectAccessor::GetCreature(*me, guid))
                                     deathshaper->CastSpell((Unit*)NULL, SPELL_SUMMON_CHANNEL);
 
@@ -202,8 +202,8 @@ public:
         private:
             InstanceScript* _instance;
             EventMap _events;
-            std::list<uint64> _bloodmage;
-            std::list<uint64> _deathshaper;
+            std::list<uint64> _bloodmageList;
+            std::list<uint64> _deathshaperList;
             bool _enteredCombat;
         };
 
