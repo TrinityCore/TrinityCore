@@ -400,6 +400,7 @@ public:
                 case 94:
                     if (Creature* Taretha = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TARETHA)))
                         Taretha->AI()->Talk(SAY_TA_ESCAPED, me);
+                    break;
                 case 95:
                     Talk(SAY_TH_MEET_TARETHA);
                     instance->SetData(TYPE_THRALL_PART3, DONE);
