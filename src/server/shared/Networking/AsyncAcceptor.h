@@ -26,8 +26,8 @@ template <class T>
 class AsyncAcceptor
 {
 public:
-    AsyncAcceptor(boost::asio::io_service& ioService, std::string bindIp, int port) : 
-        _socket(ioService), 
+    AsyncAcceptor(boost::asio::io_service& ioService, std::string bindIp, int port) :
+        _socket(ioService),
         _acceptor(ioService, tcp::endpoint(boost::asio::ip::address::from_string(bindIp), port))
     {
         AsyncAccept();
@@ -49,7 +49,8 @@ private:
         {
             if (!error)
             {
-                std::make_shared<T>(std::move(_socket))->Start();
+                // this-> is required here to fix an segmentation fault in gcc 4.7.2 - reason is lambdas in a templated class
+                std::make_shared<T>(std::move(this->_socket))->Start();
             }
 
             AsyncAccept();
