@@ -682,11 +682,10 @@ void BattlefieldWG::PromotePlayer(Player* killer)
 {
     if (!m_isActive)
         return;
-    Aura* aur = NULL;
     // Updating rank of player
-    if (aur = killer->GetAura(SPELL_RECRUIT))
+    if (Aura* auraRecruit = killer->GetAura(SPELL_RECRUIT))
     {
-        if (aur->GetStackAmount() >= 5)
+        if (auraRecruit->GetStackAmount() >= 5)
         {
             killer->RemoveAura(SPELL_RECRUIT);
             killer->CastSpell(killer, SPELL_CORPORAL, true);
@@ -695,9 +694,9 @@ void BattlefieldWG::PromotePlayer(Player* killer)
         else
             killer->CastSpell(killer, SPELL_RECRUIT, true);
     }
-    else if (aur = killer->GetAura(SPELL_CORPORAL))
+    else if (Aura* auraCorporal = killer->GetAura(SPELL_CORPORAL))
     {
-        if (aur->GetStackAmount() >= 5)
+        if (auraCorporal->GetStackAmount() >= 5)
         {
             killer->RemoveAura(SPELL_CORPORAL);
             killer->CastSpell(killer, SPELL_LIEUTENANT, true);
