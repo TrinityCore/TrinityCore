@@ -457,11 +457,39 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
                 if (InstanceScript* instance = GetTarget()->GetInstanceScript())
                     if (Creature* festergut = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_FESTERGUT)))
                         festergut->AI()->SetData(DATA_INOCULATED_STACK, GetStackAmount());
+
+                HandleResidue();
+            }
+
+            void HandleResidue()
+            {
+                Player* target = GetUnitOwner()->ToPlayer();
+                if (!target)
+                    return;
+
+                if (target->HasAura(SPELL_ORANGE_BLIGHT_RESIDUE))
+                    return;
+
+                if (target->GetMap() && !target->GetMap()->Is25ManRaid())
+                {
+                    if (target->GetQuestStatus(QUEST_RESIDUE_RENDEZVOUS_10) != QUEST_STATUS_INCOMPLETE)
+                        return;
+
+                    target->CastSpell(target, SPELL_ORANGE_BLIGHT_RESIDUE, TRIGGERED_FULL_MASK);
+                }
+
+                if (target->GetMap() && target->GetMap()->Is25ManRaid())
+                {
+                    if (target->GetQuestStatus(QUEST_RESIDUE_RENDEZVOUS_25) != QUEST_STATUS_INCOMPLETE)
+                        return;
+
+                    target->CastSpell(target, SPELL_ORANGE_BLIGHT_RESIDUE, TRIGGERED_FULL_MASK);
+                }
             }
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_festergut_blighted_spores_AuraScript::ExtraEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectRemove += AuraEffectApplyFn(spell_festergut_blighted_spores_AuraScript::ExtraEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
