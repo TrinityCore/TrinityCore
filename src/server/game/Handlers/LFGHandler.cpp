@@ -600,7 +600,7 @@ void WorldSession::SendLfgJoinResult(lfg::LfgJoinResultData const& joinData)
         for (lfg::LfgLockMap::const_iterator itr = it->second.begin(); itr != it->second.end(); ++itr)
         {
             TC_LOG_TRACE("lfg", "SendLfgJoinResult:: PlayerGUID: " UI64FMTD " DungeonID: %u Lock status: %u Required itemLevel: %u Current itemLevel: %f",
-                playerGuid, (itr->first & 0x00FFFFFF), itr->second.lockStatus, itr->second.requiredItemLevel, itr->second.currentItemLevel);
+                uint64(playerGuid), (itr->first & 0x00FFFFFF), itr->second.lockStatus, itr->second.requiredItemLevel, itr->second.currentItemLevel);
 
             data << uint32(itr->second.lockStatus);             // Lock status
             data << uint32(itr->second.currentItemLevel);       // Current itemLevel
