@@ -31,7 +31,7 @@ class ConfigMgr
 
 public:
     /// Method used only for loading main configuration files (authserver.conf and worldserver.conf)
-    bool LoadInitial(char const* file);
+    bool LoadInitial(std::string const& file);
 
     static ConfigMgr* instance()
     {
@@ -41,10 +41,10 @@ public:
 
     bool Reload();
 
-    std::string GetStringDefault(const char* name, const std::string& def);
-    bool GetBoolDefault(const char* name, bool def);
-    int GetIntDefault(const char* name, int def);
-    float GetFloatDefault(const char* name, float def);
+    std::string GetStringDefault(std::string const& name, const std::string& def);
+    bool GetBoolDefault(std::string const& name, bool def);
+    int GetIntDefault(std::string const& name, int def);
+    float GetFloatDefault(std::string const& name, float def);
 
     std::string const& GetFilename();
     std::list<std::string> GetKeysByString(std::string const& name);
