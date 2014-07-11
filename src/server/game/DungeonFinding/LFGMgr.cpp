@@ -1707,14 +1707,13 @@ void LFGMgr::RemoveGroupData(uint64 guid)
     LfgState state = GetState(guid);
     // If group is being formed after proposal success do nothing more
     LfgGuidSet const& players = it->second.GetPlayers();
-    for (LfgGuidSet::const_iterator it = players.begin(); it != players.end(); ++it)
+    for (uint64 playerGUID : players)
     {
-        uint64 guid = (*it);
-        SetGroup(*it, 0);
+        SetGroup(playerGUID, 0);
         if (state != LFG_STATE_PROPOSAL)
         {
-            SetState(*it, LFG_STATE_NONE);
-            SendLfgUpdateParty(guid, LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE));
+            SetState(playerGUID, LFG_STATE_NONE);
+            SendLfgUpdateParty(playerGUID, LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE));
         }
     }
     GroupsStore.erase(it);

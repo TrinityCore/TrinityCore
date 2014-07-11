@@ -95,7 +95,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            Unit* Terestian = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_TERESTIAN));
+            Creature* Terestian = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TERESTIAN));
             if (Terestian && Terestian->IsAlive())
                 DoCast(Terestian, SPELL_BROKEN_PACT, true);
         }
