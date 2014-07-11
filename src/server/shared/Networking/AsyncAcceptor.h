@@ -53,7 +53,8 @@ private:
                 std::make_shared<T>(std::move(this->_socket))->Start();
             }
 
-            AsyncAccept();
+            // lets slap some more this-> on this so we can fix this bug with gcc 4.7.2 throwing internals in yo face
+            this->AsyncAccept();
         });
     }
 
