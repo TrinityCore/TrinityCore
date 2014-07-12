@@ -2324,7 +2324,7 @@ void Guild::SendLoginInfo(WorldSession* session)
     for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)
         if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(i))
             if (entry->Level <= GetLevel())
-                player->learnSpell(entry->SpellId, true);
+                player->LearnSpell(entry->SpellId, true);
 
     SendGuildReputationWeeklyCap(session, member->GetWeekReputation());
 
@@ -2772,7 +2772,7 @@ void Guild::DeleteMember(uint64 guid, bool isDisbanding, bool isKicked, bool can
         for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)
             if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(i))
                 if (entry->Level <= GetLevel())
-                    player->removeSpell(entry->SpellId, false, false);
+                    player->RemoveSpell(entry->SpellId, false, false);
     }
 
     _DeleteMemberFromDB(lowguid);
@@ -3540,7 +3540,7 @@ void Guild::GiveXP(uint32 xp, Player* source)
             {
                 player->SetGuildLevel(GetLevel());
                 for (size_t i = 0; i < perksToLearn.size(); ++i)
-                    player->learnSpell(perksToLearn[i], true);
+                    player->LearnSpell(perksToLearn[i], true);
             }
         }
 
