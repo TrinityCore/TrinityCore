@@ -2373,7 +2373,7 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
     Player* player = unitTarget->ToPlayer();
 
     uint32 spellToLearn = (m_spellInfo->Id == 483 || m_spellInfo->Id == 55884) ? damage : m_spellInfo->Effects[effIndex].TriggerSpell;
-    player->learnSpell(spellToLearn, false);
+    player->LearnSpell(spellToLearn, false);
 
     TC_LOG_DEBUG("spells", "Spell: Player %u has learned spell %u from NpcGUID=%u", player->GetGUIDLow(), spellToLearn, m_caster->GetGUIDLow());
 }
