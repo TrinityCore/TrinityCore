@@ -1580,14 +1580,14 @@ class Player : public Unit, public GridObject<Player>
         void SendInitialSpells();
         bool AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, bool fromSkill = false);
         void LearnSpell(uint32 spell_id, bool dependent, bool fromSkill = false);
-        void removeSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
-        void resetSpells(bool myClassOnly = false);
+        void RemoveSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
+        void ResetSpells(bool myClassOnly = false);
         void LearnCustomSpells();
         void LearnDefaultSkills();
         void LearnDefaultSkill(uint32 skillId, uint16 rank);
-        void learnQuestRewardedSpells();
-        void learnQuestRewardedSpells(Quest const* quest);
-        void learnSpellHighRank(uint32 spellid);
+        void LearnQuestRewardedSpells();
+        void LearnQuestRewardedSpells(Quest const* quest);
+        void LearnSpellHighestRank(uint32 spellid);
         void AddTemporarySpell(uint32 spellId);
         void RemoveTemporarySpell(uint32 spellId);
         void SetReputation(uint32 factionentry, uint32 value);
@@ -1595,8 +1595,8 @@ class Player : public Unit, public GridObject<Player>
         std::string const& GetGuildName();
         uint32 GetFreeTalentPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS1); }
         void SetFreeTalentPoints(uint32 points);
-        bool resetTalents(bool no_cost = false);
-        uint32 resetTalentsCost() const;
+        bool ResetTalents(bool no_cost = false);
+        uint32 ResetTalentsCost() const;
         void InitTalentForLevel();
         void BuildPlayerTalentsInfoData(WorldPacket* data);
         void BuildPetTalentsInfoData(WorldPacket* data);
@@ -1890,7 +1890,7 @@ class Player : public Unit, public GridObject<Player>
         int16 GetSkillTempBonusValue(uint32 skill) const;
         uint16 GetSkillStep(uint16 skill) const;            // 0...6
         bool HasSkill(uint32 skill) const;
-        void learnSkillRewardedSpells(uint32 id, uint32 value);
+        void LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue);
 
         WorldLocation& GetTeleportDest() { return m_teleport_dest; }
         bool IsBeingTeleported() const { return mSemaphoreTeleport_Near || mSemaphoreTeleport_Far; }
