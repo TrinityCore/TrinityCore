@@ -580,6 +580,8 @@ if(NOT Boost_INCLUDE_DIR)
       C:/boost/include
       C:/boost
       /sw/local/include
+      /usr/local/include/boost
+      /usr/include/boost
       )
   endif()
 
