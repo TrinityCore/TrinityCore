@@ -3596,7 +3596,7 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
     return false;
 }
 
-bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/)
+bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, bool fromSkill /*= false*/)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -3759,7 +3759,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                     if (!rankSpellId || rankSpellId == spellId)
                         continue;
 
-                    removeSpell(rankSpellId, false, false);
+                    RemoveSpell(rankSpellId, false, false);
                 }
             }
         }
@@ -3767,9 +3767,9 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         else if (uint32 prev_spell = sSpellMgr->GetPrevSpellInChain(spellId))
         {
             if (!IsInWorld() || disabled)                    // at spells loading, no output, but allow save
-                addSpell(prev_spell, active, true, true, disabled);
+                AddSpell(prev_spell, active, true, true, disabled, false, fromSkill);
             else                                            // at normal learning
-                learnSpell(prev_spell, true);
+                LearnSpell(prev_spell, true, fromSkill);
         }
 
         PlayerSpell* newspell = new PlayerSpell;
@@ -3867,41 +3867,39 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         if (spellInfo->IsPrimaryProfessionFirstRank())
             SetFreePrimaryProfessions(freeProfs-1);
     }
-
-    // add dependent skills
-    uint16 maxskill = GetMaxSkillValueForLevel();
-
-    SpellLearnSkillNode const* spellLearnSkill = sSpellMgr->GetSpellLearnSkill(spellId);
-
+    
     SkillLineAbilityMapBounds skill_bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellId);
 
-    if (spellLearnSkill)
+    // add dependent skills if this spell is not learned from adding skill already
+    if (!fromSkill)
     {
-        uint32 skill_value = GetPureSkillValue(spellLearnSkill->skill);
-        uint32 skill_max_value = GetPureMaxSkillValue(spellLearnSkill->skill);
-
-        if (skill_value < spellLearnSkill->value)
-            skill_value = spellLearnSkill->value;
-
-        uint32 new_skill_max_value = spellLearnSkill->maxvalue == 0 ? maxskill : spellLearnSkill->maxvalue;
-
-        if (skill_max_value < new_skill_max_value)
-            skill_max_value = new_skill_max_value;
-
-        SetSkill(spellLearnSkill->skill, spellLearnSkill->step, skill_value, skill_max_value);
-    }
-
-    else
-    {
-        // not ranked skills
-        for (SkillLineAbilityMap::const_iterator _spell_idx = skill_bounds.first; _spell_idx != skill_bounds.second; ++_spell_idx)
+        if (SpellLearnSkillNode const* spellLearnSkill = sSpellMgr->GetSpellLearnSkill(spellId))
         {
-            SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(_spell_idx->second->skillId);
-            if (!pSkill)
-                continue;
+            uint32 skill_value = GetPureSkillValue(spellLearnSkill->skill);
+            uint32 skill_max_value = GetPureMaxSkillValue(spellLearnSkill->skill);
 
-            if (!HasSkill(pSkill->id))
-                LearnDefaultSkill(pSkill->id, 0);
+            if (skill_value < spellLearnSkill->value)
+                skill_value = spellLearnSkill->value;
+
+            uint32 new_skill_max_value = spellLearnSkill->maxvalue == 0 ? GetMaxSkillValueForLevel() : spellLearnSkill->maxvalue;
+
+            if (skill_max_value < new_skill_max_value)
+                skill_max_value = new_skill_max_value;
+
+            SetSkill(spellLearnSkill->skill, spellLearnSkill->step, skill_value, skill_max_value);
+        }
+        else
+        {
+            // not ranked skills
+            for (SkillLineAbilityMap::const_iterator _spell_idx = skill_bounds.first; _spell_idx != skill_bounds.second; ++_spell_idx)
+            {
+                SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(_spell_idx->second->skillId);
+                if (!pSkill)
+                    continue;
+
+                if (_spell_idx->second->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->id))
+                    LearnDefaultSkill(pSkill->id, 0);
+            }
         }
     }
 
@@ -3913,9 +3911,9 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         if (!itr2->second.autoLearned)
         {
             if (!IsInWorld() || !itr2->second.active)       // at spells loading, no output, but allow save
-                addSpell(itr2->second.spell, itr2->second.active, true, true, false);
+                AddSpell(itr2->second.spell, itr2->second.active, true, true, false);
             else                                            // at normal learning
-                learnSpell(itr2->second.spell, true);
+                LearnSpell(itr2->second.spell, true);
         }
     }
 
@@ -3985,14 +3983,14 @@ bool Player::IsCurrentSpecMasterySpell(SpellInfo const* spellInfo) const
     return false;
 }
 
-void Player::learnSpell(uint32 spell_id, bool dependent)
+void Player::LearnSpell(uint32 spell_id, bool dependent, bool fromSkill /*= false*/)
 {
     PlayerSpellMap::iterator itr = m_spells.find(spell_id);
 
     bool disabled = (itr != m_spells.end()) ? itr->second->disabled : false;
     bool active = disabled ? itr->second->active : true;
 
-    bool learning = addSpell(spell_id, active, true, dependent, false);
+    bool learning = AddSpell(spell_id, active, true, dependent, false, false, fromSkill);
 
     // prevent duplicated entires in spell book, also not send if not in world (loading)
     if (learning && IsInWorld())
@@ -4010,7 +4008,7 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
         {
             PlayerSpellMap::iterator iter = m_spells.find(nextSpell);
             if (iter != m_spells.end() && iter->second->disabled)
-                learnSpell(nextSpell, false);
+                LearnSpell(nextSpell, false, fromSkill);
         }
 
         SpellsRequiringSpellMapBounds spellsRequiringSpell = sSpellMgr->GetSpellsRequiringSpellBounds(spell_id);
@@ -4018,12 +4016,12 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
         {
             PlayerSpellMap::iterator iter2 = m_spells.find(itr2->second);
             if (iter2 != m_spells.end() && iter2->second->disabled)
-                learnSpell(itr2->second, false);
+                LearnSpell(itr2->second, false, fromSkill);
         }
     }
 }
 
-void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
+void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 {
     PlayerSpellMap::iterator itr = m_spells.find(spell_id);
     if (itr == m_spells.end())
@@ -4036,12 +4034,12 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     if (uint32 nextSpell = sSpellMgr->GetNextSpellInChain(spell_id))
     {
         if (HasSpell(nextSpell) && !GetTalentSpellPos(nextSpell))
-            removeSpell(nextSpell, disabled, false);
+            RemoveSpell(nextSpell, disabled, false);
     }
     //unlearn spells dependent from recently removed spells
     SpellsRequiringSpellMapBounds spellsRequiringSpell = sSpellMgr->GetSpellsRequiringSpellBounds(spell_id);
     for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequiringSpell.first; itr2 != spellsRequiringSpell.second; ++itr2)
-        removeSpell(itr2->second, disabled);
+        RemoveSpell(itr2->second, disabled);
 
     // re-search, it can be corrupted in prev loop
     itr = m_spells.find(spell_id);
@@ -4137,7 +4135,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     SpellLearnSpellMapBounds spell_bounds = sSpellMgr->GetSpellLearnSpellMapBounds(spell_id);
 
     for (SpellLearnSpellMap::const_iterator itr2 = spell_bounds.first; itr2 != spell_bounds.second; ++itr2)
-        removeSpell(itr2->second.spell, disabled);
+        RemoveSpell(itr2->second.spell, disabled);
 
     // activate lesser rank in spellbook/action bar, and cast it if need
     bool prev_activate = false;
@@ -4169,7 +4167,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
                 // now re-learn if need re-activate
                 if (cur_active && !prev_itr->second->active && learn_low_rank)
                 {
-                    if (addSpell(prev_id, true, false, prev_itr->second->dependent, prev_itr->second->disabled))
+                    if (AddSpell(prev_id, true, false, prev_itr->second->dependent, prev_itr->second->disabled))
                     {
                         // downgrade spell ranks in spellbook and action bar
                         WorldPacket data(SMSG_SUPERCEDED_SPELL, 4 + 4);
@@ -4449,11 +4447,11 @@ bool Player::ResetTalents(bool no_cost)
             const SpellInfo* _spellEntry = sSpellMgr->GetSpellInfo(talentInfo->RankID[rank]);
             if (!_spellEntry)
                 continue;
-            removeSpell(talentInfo->RankID[rank], true);
+            RemoveSpell(talentInfo->RankID[rank], true);
             // search for spells that the talent teaches and unlearn them
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                 if (_spellEntry->Effects[i].TriggerSpell > 0 && _spellEntry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
-                    removeSpell(_spellEntry->Effects[i].TriggerSpell, true);
+                    RemoveSpell(_spellEntry->Effects[i].TriggerSpell, true);
             // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
             PlayerTalentMap::iterator plrTalent = GetTalentMap(GetActiveSpec())->find(talentInfo->RankID[rank]);
             if (plrTalent != GetTalentMap(GetActiveSpec())->end())
@@ -4467,7 +4465,7 @@ bool Player::ResetTalents(bool no_cost)
     {
         if (std::vector<uint32> const* specSpells = GetTalentTreePrimarySpells(talentTabs[i]))
             for (size_t j = 0; j < specSpells->size(); ++j)
-                removeSpell(specSpells->at(j), true);
+                RemoveSpell(specSpells->at(j), true);
 
         TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentTabs[i]);
         for (uint32 j = 0; j < MAX_MASTERY_SPELLS; ++j)
@@ -6074,7 +6072,7 @@ bool Player::UpdateCraftSkill(uint32 spellid)
             if (spellEntry && spellEntry->Mechanic == MECHANIC_DISCOVERY)
             {
                 if (uint32 discoveredSpell = GetSkillDiscoverySpell(_spell_idx->second->skillId, spellid, this))
-                    learnSpell(discoveredSpell, false);
+                    LearnSpell(discoveredSpell, false);
             }
 
             uint32 craft_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
@@ -6180,7 +6178,7 @@ bool Player::UpdateSkillPro(uint16 skillId, int32 chance, uint32 step)
         uint32 bsl = bonusSkillLevels[i];
         if (value < bsl && new_value >= bsl)
         {
-            learnSkillRewardedSpells(skillId, new_value);
+            LearnSkillRewardedSpells(skillId, new_value);
             break;
         }
     }
@@ -6306,7 +6304,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             if (itr->second.uState != SKILL_NEW)
                 itr->second.uState = SKILL_CHANGED;
 
-            learnSkillRewardedSpells(id, newVal);
+            LearnSkillRewardedSpells(id, newVal);
             // if skill value is going up, update enchantments after setting the new value
             if (newVal > currVal)
                 UpdateSkillEnchantments(id, currVal, newVal);
@@ -6336,7 +6334,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
                 if (SkillLineAbilityEntry const* pAbility = sSkillLineAbilityStore.LookupEntry(j))
                     if (pAbility->skillId == id)
-                        removeSpell(sSpellMgr->GetFirstSpellInChain(pAbility->spellId));
+                        RemoveSpell(sSpellMgr->GetFirstSpellInChain(pAbility->spellId));
 
             // Clear profession lines
             if (GetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1) == id)
@@ -6391,7 +6389,6 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                 // apply skill bonuses
                 SetUInt16Value(PLAYER_SKILL_MODIFIER_0 + field, offset, 0);
                 SetUInt16Value(PLAYER_SKILL_TALENT_0 + field, offset, 0);
-
                 // temporary bonuses
                 AuraEffectList const& mModSkill = GetAuraEffectsByType(SPELL_AURA_MOD_SKILL);
                 for (AuraEffectList::const_iterator j = mModSkill.begin(); j != mModSkill.end(); ++j)
@@ -6405,7 +6402,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                         (*j)->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
 
                 // Learn all spells for skill
-                learnSkillRewardedSpells(id, newVal);
+                LearnSkillRewardedSpells(id, newVal);
                 return;
             }
         }
@@ -9946,7 +9943,7 @@ void Player::SetBindPoint(uint64 guid)
 
 void Player::SendTalentWipeConfirm(uint64 guid)
 {
-    WorldPacket data(MSG_TALENT_WIPE_CONFIRM, (8+4));
+    WorldPacket data(MSG_TALENT_WIPE_CONFIRM, 8 + 4);
     data << uint64(guid);
     uint32 cost = sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : GetNextResetTalentsCost();
     data << cost;
@@ -18661,7 +18658,7 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
             if (quest)
             {
                 // learn rewarded spell if unknown
-                learnQuestRewardedSpells(quest);
+                LearnQuestRewardedSpells(quest);
 
                 // set rewarded title if any
                 if (quest->GetCharTitleId())
@@ -18809,7 +18806,7 @@ void Player::_LoadSpells(PreparedQueryResult result)
     if (result)
     {
         do
-            addSpell((*result)[0].GetUInt32(), (*result)[1].GetBool(), false, false, (*result)[2].GetBool(), true);
+            AddSpell((*result)[0].GetUInt32(), (*result)[1].GetBool(), false, false, (*result)[2].GetBool(), true);
         while (result->NextRow());
     }
 }
@@ -23556,7 +23553,7 @@ void Player::ApplyEquipCooldown(Item* pItem)
     }
 }
 
-void Player::resetSpells(bool myClassOnly)
+void Player::ResetSpells(bool myClassOnly)
 {
     // not need after this call
     if (HasAtLoginFlag(AT_LOGIN_RESET_SPELLS))
@@ -23605,11 +23602,11 @@ void Player::resetSpells(bool myClassOnly)
     }
     else
         for (PlayerSpellMap::const_iterator iter = smap.begin(); iter != smap.end(); ++iter)
-            removeSpell(iter->first, false, false);           // only iter->first can be accessed, object by iter->second can be deleted already
+            RemoveSpell(iter->first, false, false);           // only iter->first can be accessed, object by iter->second can be deleted already
 
     LearnDefaultSkills();
     LearnCustomSpells();
-    learnQuestRewardedSpells();
+    LearnQuestRewardedSpells();
 }
 
 void Player::LearnCustomSpells()
@@ -23624,9 +23621,9 @@ void Player::LearnCustomSpells()
         uint32 tspell = *itr;
         TC_LOG_DEBUG("entities.player.loading", "PLAYER (Class: %u Race: %u): Adding initial spell, id = %u", uint32(getClass()), uint32(getRace()), tspell);
         if (!IsInWorld())                                    // will send in INITIAL_SPELLS in list anyway at map add
-            addSpell(tspell, true, true, true, false);
+            AddSpell(tspell, true, true, true, false);
         else                                                // but send in normal spell in game learn case
-            learnSpell(tspell, true);
+            LearnSpell(tspell, true);
     }
 }
 
@@ -23692,7 +23689,7 @@ void Player::LearnDefaultSkill(uint32 skillId, uint16 rank)
     }
 }
 
-void Player::learnQuestRewardedSpells(Quest const* quest)
+void Player::LearnQuestRewardedSpells(Quest const* quest)
 {
     int32 spell_id = quest->GetRewSpellCast();
     uint32 src_spell_id = quest->GetSrcSpell();
@@ -23772,7 +23769,7 @@ void Player::learnQuestRewardedSpells(Quest const* quest)
     CastSpell(this, spell_id, true);
 }
 
-void Player::learnQuestRewardedSpells()
+void Player::LearnQuestRewardedSpells()
 {
     // learn spells received from quest completing
     for (RewardedQuestSet::const_iterator itr = m_RewardedQuests.begin(); itr != m_RewardedQuests.end(); ++itr)
@@ -23781,43 +23778,42 @@ void Player::learnQuestRewardedSpells()
         if (!quest)
             continue;
 
-        learnQuestRewardedSpells(quest);
+        LearnQuestRewardedSpells(quest);
     }
 }
 
-void Player::learnSkillRewardedSpells(uint32 skill_id, uint32 skill_value)
+void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
 {
     uint32 raceMask  = getRaceMask();
     uint32 classMask = getClassMask();
     for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
     {
-        SkillLineAbilityEntry const* pAbility = sSkillLineAbilityStore.LookupEntry(j);
-        if (!pAbility || pAbility->skillId != skill_id)
+        SkillLineAbilityEntry const* ability = sSkillLineAbilityStore.LookupEntry(j);
+        if (!ability || ability->skillId != skillId)
             continue;
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(pAbility->spellId);
-        if (!spellInfo)
+        if (!sSpellMgr->GetSpellInfo(ability->spellId))
             continue;
 
-        if (pAbility->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE && pAbility->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
+        if (ability->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE && ability->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
             continue;
 
         // Check race if set
-        if (pAbility->racemask && !(pAbility->racemask & raceMask))
+        if (ability->racemask && !(ability->racemask & raceMask))
             continue;
 
         // Check class if set
-        if (pAbility->classmask && !(pAbility->classmask & classMask))
+        if (ability->classmask && !(ability->classmask & classMask))
             continue;
 
         // need unlearn spell
-        if (skill_value < pAbility->req_skill_value && pAbility->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE)
-            removeSpell(pAbility->spellId);
+        if (skillValue < ability->req_skill_value && ability->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE)
+            RemoveSpell(ability->spellId);
         // need learn
         else if (!IsInWorld())
-            addSpell(pAbility->spellId, true, true, true, false);
+            AddSpell(ability->spellId, true, true, true, false, false, true);
         else
-            learnSpell(pAbility->spellId, true);
+            LearnSpell(ability->spellId, true, true);
     }
 }
 
@@ -25524,12 +25520,12 @@ bool Player::IsKnowHowFlyIn(uint32 mapid, uint32 zone) const
     return v_map != 571 || HasSpell(54197); // Cold Weather Flying
 }
 
-void Player::learnSpellHighRank(uint32 spellid)
+void Player::LearnSpellHighestRank(uint32 spellid)
 {
-    learnSpell(spellid, false);
+    LearnSpell(spellid, false);
 
     if (uint32 next = sSpellMgr->GetNextSpellInChain(spellid))
-        learnSpellHighRank(next);
+        LearnSpellHighestRank(next);
 }
 
 void Player::_LoadSkills(PreparedQueryResult result)
@@ -25553,6 +25549,8 @@ void Player::_LoadSkills(PreparedQueryResult result)
             {
                 TC_LOG_ERROR("entities.player", "Character: %s (GUID: %u Race: %u Class: %u) has skill %u not allowed for his race/class combination",
                     GetName().c_str(), GetGUIDLow(), uint32(getRace()), uint32(getClass()), skill);
+
+                mSkillStatus.insert(SkillStatusMap::value_type(skill, SkillStatusData(0, SKILL_DELETED)));
                 continue;
             }
 
@@ -25614,7 +25612,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
 
             mSkillStatus.insert(SkillStatusMap::value_type(skill, SkillStatusData(count, SKILL_UNCHANGED)));
 
-            learnSkillRewardedSpells(skill, value);
+            LearnSkillRewardedSpells(skill, value);
 
             ++count;
 
@@ -25927,7 +25925,7 @@ bool Player::LearnTalent(uint32 talentId, uint32 talentRank)
         return false;
 
     // learn! (other talent ranks will unlearned at learning)
-    learnSpell(spellid, false);
+    LearnSpell(spellid, false);
     AddTalent(spellid, GetActiveSpec(), true);
 
     TC_LOG_INFO("misc", "TalentID: %u Rank: %u Spell: %u Spec: %u\n", talentId, talentRank, spellid, GetActiveSpec());
@@ -25939,7 +25937,7 @@ bool Player::LearnTalent(uint32 talentId, uint32 talentRank)
         std::vector<uint32> const* specSpells = GetTalentTreePrimarySpells(talentInfo->TalentTab);
         if (specSpells)
             for (size_t i = 0; i < specSpells->size(); ++i)
-                learnSpell(specSpells->at(i), false);
+                LearnSpell(specSpells->at(i), false);
 
         if (CanUseMastery())
             for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
@@ -26784,11 +26782,11 @@ void Player::ActivateSpec(uint8 spec)
             // skip non-existant talent ranks
             if (talentInfo->RankID[rank] == 0)
                 continue;
-            removeSpell(talentInfo->RankID[rank], true); // removes the talent, and all dependant, learned, and chained spells..
+            RemoveSpell(talentInfo->RankID[rank], true); // removes the talent, and all dependant, learned, and chained spells..
             if (const SpellInfo* _spellEntry = sSpellMgr->GetSpellInfo(talentInfo->RankID[rank]))
                 for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)                  // search through the SpellInfo for valid trigger spells
                     if (_spellEntry->Effects[i].TriggerSpell > 0 && _spellEntry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
-                        removeSpell(_spellEntry->Effects[i].TriggerSpell, true); // and remove any spells that the talent teaches
+                        RemoveSpell(_spellEntry->Effects[i].TriggerSpell, true); // and remove any spells that the talent teaches
             // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
             //PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->RankID[rank]);
             //if (plrTalent != m_talents[m_activeSpec]->end())
@@ -26803,12 +26801,12 @@ void Player::ActivateSpec(uint8 spec)
         std::vector<uint32> const* specSpells = GetTalentTreePrimarySpells(talentTabs[i]);
         if (specSpells)
             for (size_t i = 0; i < specSpells->size(); ++i)
-                removeSpell(specSpells->at(i), true);
+                RemoveSpell(specSpells->at(i), true);
 
         TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentTabs[i]);
         for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
             if (uint32 mastery = talentTabInfo->MasterySpellId[i])
-                removeSpell(mastery, true);
+                RemoveSpell(mastery, true);
     }
 
     // set glyphs
@@ -26846,7 +26844,7 @@ void Player::ActivateSpec(uint8 spec)
             // if the talent can be found in the newly activated PlayerTalentMap
             if (HasTalent(talentInfo->RankID[rank], GetActiveSpec()))
             {
-                learnSpell(talentInfo->RankID[rank], false); // add the talent to the PlayerSpellMap
+                LearnSpell(talentInfo->RankID[rank], false); // add the talent to the PlayerSpellMap
                 spentTalents += (rank + 1);                  // increment the spentTalents count
             }
         }
@@ -26855,13 +26853,13 @@ void Player::ActivateSpec(uint8 spec)
     std::vector<uint32> const* specSpells = GetTalentTreePrimarySpells(GetPrimaryTalentTree(GetActiveSpec()));
     if (specSpells)
         for (size_t i = 0; i < specSpells->size(); ++i)
-            learnSpell(specSpells->at(i), false);
+            LearnSpell(specSpells->at(i), false);
 
     if (CanUseMastery())
         if (TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(GetPrimaryTalentTree(GetActiveSpec())))
             for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
                 if (uint32 mastery = talentTabInfo->MasterySpellId[i])
-                    learnSpell(mastery, false);
+                    LearnSpell(mastery, false);
 
     // set glyphs
     for (uint8 slot = 0; slot < MAX_GLYPH_SLOT_INDEX; ++slot)

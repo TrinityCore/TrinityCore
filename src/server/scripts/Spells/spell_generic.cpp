@@ -2745,7 +2745,7 @@ class spell_gen_profession_research : public SpellScriptLoader
 
                 // learn random explicit discovery recipe (if any)
                 if (uint32 discoveredSpellId = GetExplicitDiscoverySpell(spellId, caster))
-                    caster->learnSpell(discoveredSpellId, false);
+                    caster->LearnSpell(discoveredSpellId, false);
 
                 caster->UpdateCraftSkill(spellId);
             }

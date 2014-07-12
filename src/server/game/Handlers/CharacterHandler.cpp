@@ -1094,7 +1094,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     // Apply at_login requests
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_RESET_SPELLS))
     {
-        pCurrChar->resetSpells();
+        pCurrChar->ResetSpells();
         SendNotification(LANG_RESET_SPELLS);
     }
 
