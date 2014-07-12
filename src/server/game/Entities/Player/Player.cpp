@@ -3525,7 +3525,7 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
     return false;
 }
 
-bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/)
+bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, bool fromSkill /*= false*/)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -3696,9 +3696,9 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         else if (uint32 prev_spell = sSpellMgr->GetPrevSpellInChain(spellId))
         {
             if (!IsInWorld() || disabled)                    // at spells loading, no output, but allow save
-                addSpell(prev_spell, active, true, true, disabled);
+                AddSpell(prev_spell, active, true, true, disabled, false, fromSkill);
             else                                            // at normal learning
-                learnSpell(prev_spell, true);
+                LearnSpell(prev_spell, true, fromSkill);
         }
 
         PlayerSpell* newspell = new PlayerSpell;
@@ -3797,45 +3797,44 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
             SetFreePrimaryProfessions(freeProfs-1);
     }
 
-    // add dependent skills
-    uint16 maxskill     = GetMaxSkillValueForLevel();
-
-    SpellLearnSkillNode const* spellLearnSkill = sSpellMgr->GetSpellLearnSkill(spellId);
-
     SkillLineAbilityMapBounds skill_bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellId);
 
-    if (spellLearnSkill)
+    // add dependent skills if this spell is not learned from adding skill already
+    if (!fromSkill)
     {
-        uint32 skill_value = GetPureSkillValue(spellLearnSkill->skill);
-        uint32 skill_max_value = GetPureMaxSkillValue(spellLearnSkill->skill);
-
-        if (skill_value < spellLearnSkill->value)
-            skill_value = spellLearnSkill->value;
-
-        uint32 new_skill_max_value = spellLearnSkill->maxvalue == 0 ? maxskill : spellLearnSkill->maxvalue;
-
-        if (skill_max_value < new_skill_max_value)
-            skill_max_value = new_skill_max_value;
-
-        SetSkill(spellLearnSkill->skill, spellLearnSkill->step, skill_value, skill_max_value);
-    }
-    else
-    {
-        // not ranked skills
-        for (SkillLineAbilityMap::const_iterator _spell_idx = skill_bounds.first; _spell_idx != skill_bounds.second; ++_spell_idx)
+        if (SpellLearnSkillNode const* spellLearnSkill = sSpellMgr->GetSpellLearnSkill(spellId))
         {
-            SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(_spell_idx->second->skillId);
-            if (!pSkill)
-                continue;
+            uint32 skill_value = GetPureSkillValue(spellLearnSkill->skill);
+            uint32 skill_max_value = GetPureMaxSkillValue(spellLearnSkill->skill);
 
-            if (_spell_idx->second->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->id))
-                LearnDefaultSkill(pSkill->id, 0);
+            if (skill_value < spellLearnSkill->value)
+                skill_value = spellLearnSkill->value;
 
-            if (pSkill->id == SKILL_MOUNTS && !Has310Flyer(false))
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                    if (spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED &&
-                        spellInfo->Effects[i].CalcValue() == 310)
-                        SetHas310Flyer(true);
+            uint32 new_skill_max_value = spellLearnSkill->maxvalue == 0 ? GetMaxSkillValueForLevel() : spellLearnSkill->maxvalue;
+
+            if (skill_max_value < new_skill_max_value)
+                skill_max_value = new_skill_max_value;
+
+            SetSkill(spellLearnSkill->skill, spellLearnSkill->step, skill_value, skill_max_value);
+        }
+        else
+        {
+            // not ranked skills
+            for (SkillLineAbilityMap::const_iterator _spell_idx = skill_bounds.first; _spell_idx != skill_bounds.second; ++_spell_idx)
+            {
+                SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(_spell_idx->second->skillId);
+                if (!pSkill)
+                    continue;
+
+                if (_spell_idx->second->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->id))
+                    LearnDefaultSkill(pSkill->id, 0);
+
+                if (pSkill->id == SKILL_MOUNTS && !Has310Flyer(false))
+                    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                        if (spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED &&
+                            spellInfo->Effects[i].CalcValue() == 310)
+                            SetHas310Flyer(true);
+            }
         }
     }
 
@@ -3847,9 +3846,9 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         if (!itr2->second.autoLearned)
         {
             if (!IsInWorld() || !itr2->second.active)       // at spells loading, no output, but allow save
-                addSpell(itr2->second.spell, itr2->second.active, true, true, false);
+                AddSpell(itr2->second.spell, itr2->second.active, true, true, false);
             else                                            // at normal learning
-                learnSpell(itr2->second.spell, true);
+                LearnSpell(itr2->second.spell, true);
         }
     }
 
@@ -3908,14 +3907,14 @@ bool Player::IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const
     return need_cast && (!spellInfo->CasterAuraState || HasAuraState(AuraStateType(spellInfo->CasterAuraState)));
 }
 
-void Player::learnSpell(uint32 spell_id, bool dependent)
+void Player::LearnSpell(uint32 spell_id, bool dependent, bool fromSkill /*= false*/)
 {
     PlayerSpellMap::iterator itr = m_spells.find(spell_id);
 
     bool disabled = (itr != m_spells.end()) ? itr->second->disabled : false;
     bool active = disabled ? itr->second->active : true;
 
-    bool learning = addSpell(spell_id, active, true, dependent, false);
+    bool learning = AddSpell(spell_id, active, true, dependent, false, false, fromSkill);
 
     // prevent duplicated entires in spell book, also not send if not in world (loading)
     if (learning && IsInWorld())
@@ -3933,7 +3932,7 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
         {
             PlayerSpellMap::iterator iter = m_spells.find(nextSpell);
             if (iter != m_spells.end() && iter->second->disabled)
-                learnSpell(nextSpell, false);
+                LearnSpell(nextSpell, false, fromSkill);
         }
 
         SpellsRequiringSpellMapBounds spellsRequiringSpell = sSpellMgr->GetSpellsRequiringSpellBounds(spell_id);
@@ -3941,7 +3940,7 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
         {
             PlayerSpellMap::iterator iter2 = m_spells.find(itr2->second);
             if (iter2 != m_spells.end() && iter2->second->disabled)
-                learnSpell(itr2->second, false);
+                LearnSpell(itr2->second, false, fromSkill);
         }
     }
 }
@@ -4121,7 +4120,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
                 // now re-learn if need re-activate
                 if (cur_active && !prev_itr->second->active && learn_low_rank)
                 {
-                    if (addSpell(prev_id, true, false, prev_itr->second->dependent, prev_itr->second->disabled))
+                    if (AddSpell(prev_id, true, false, prev_itr->second->dependent, prev_itr->second->disabled))
                     {
                         // downgrade spell ranks in spellbook and action bar
                         WorldPacket data(SMSG_SUPERCEDED_SPELL, 4 + 4);
@@ -6113,7 +6112,7 @@ bool Player::UpdateCraftSkill(uint32 spellid)
             if (spellEntry && spellEntry->Mechanic == MECHANIC_DISCOVERY)
             {
                 if (uint32 discoveredSpell = GetSkillDiscoverySpell(_spell_idx->second->skillId, spellid, this))
-                    learnSpell(discoveredSpell, false);
+                    LearnSpell(discoveredSpell, false);
             }
 
             uint32 craft_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
@@ -6456,48 +6455,50 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
     {
         currVal = 0;
         for (int i=0; i < PLAYER_MAX_SKILLS; ++i)
-            if (!GetUInt32Value(PLAYER_SKILL_INDEX(i)))
         {
-            SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(id);
-            if (!pSkill)
+            if (!GetUInt32Value(PLAYER_SKILL_INDEX(i)))
             {
-                TC_LOG_ERROR("entities.player.skills", "Skill not found in SkillLineStore: skill #%u", id);
+                SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(id);
+                if (!pSkill)
+                {
+                    TC_LOG_ERROR("entities.player.skills", "Skill not found in SkillLineStore: skill #%u", id);
+                    return;
+                }
+
+                SetUInt32Value(PLAYER_SKILL_INDEX(i), MAKE_PAIR32(id, step));
+                SetUInt32Value(PLAYER_SKILL_VALUE_INDEX(i), MAKE_SKILL_VALUE(newVal, maxVal));
+                UpdateSkillEnchantments(id, currVal, newVal);
+                UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, id);
+                UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL, id);
+
+                // insert new entry or update if not deleted old entry yet
+                if (itr != mSkillStatus.end())
+                {
+                    itr->second.pos = i;
+                    itr->second.uState = SKILL_CHANGED;
+                }
+                else
+                    mSkillStatus.insert(SkillStatusMap::value_type(id, SkillStatusData(i, SKILL_NEW)));
+
+                // apply skill bonuses
+                SetUInt32Value(PLAYER_SKILL_BONUS_INDEX(i), 0);
+
+                // temporary bonuses
+                AuraEffectList const& mModSkill = GetAuraEffectsByType(SPELL_AURA_MOD_SKILL);
+                for (AuraEffectList::const_iterator j = mModSkill.begin(); j != mModSkill.end(); ++j)
+                    if ((*j)->GetMiscValue() == int32(id))
+                        (*j)->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
+
+                // permanent bonuses
+                AuraEffectList const& mModSkillTalent = GetAuraEffectsByType(SPELL_AURA_MOD_SKILL_TALENT);
+                for (AuraEffectList::const_iterator j = mModSkillTalent.begin(); j != mModSkillTalent.end(); ++j)
+                    if ((*j)->GetMiscValue() == int32(id))
+                        (*j)->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
+
+                // Learn all spells for skill
+                learnSkillRewardedSpells(id, newVal);
                 return;
             }
-
-            SetUInt32Value(PLAYER_SKILL_INDEX(i), MAKE_PAIR32(id, step));
-            SetUInt32Value(PLAYER_SKILL_VALUE_INDEX(i), MAKE_SKILL_VALUE(newVal, maxVal));
-            UpdateSkillEnchantments(id, currVal, newVal);
-            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, id);
-            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL, id);
-
-            // insert new entry or update if not deleted old entry yet
-            if (itr != mSkillStatus.end())
-            {
-                itr->second.pos = i;
-                itr->second.uState = SKILL_CHANGED;
-            }
-            else
-                mSkillStatus.insert(SkillStatusMap::value_type(id, SkillStatusData(i, SKILL_NEW)));
-
-            // apply skill bonuses
-            SetUInt32Value(PLAYER_SKILL_BONUS_INDEX(i), 0);
-
-            // temporary bonuses
-            AuraEffectList const& mModSkill = GetAuraEffectsByType(SPELL_AURA_MOD_SKILL);
-            for (AuraEffectList::const_iterator j = mModSkill.begin(); j != mModSkill.end(); ++j)
-                if ((*j)->GetMiscValue() == int32(id))
-                        (*j)->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
-
-            // permanent bonuses
-            AuraEffectList const& mModSkillTalent = GetAuraEffectsByType(SPELL_AURA_MOD_SKILL_TALENT);
-            for (AuraEffectList::const_iterator j = mModSkillTalent.begin(); j != mModSkillTalent.end(); ++j)
-                if ((*j)->GetMiscValue() == int32(id))
-                        (*j)->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
-
-            // Learn all spells for skill
-            learnSkillRewardedSpells(id, newVal);
-            return;
         }
     }
 }
@@ -18650,7 +18651,7 @@ void Player::_LoadSpells(PreparedQueryResult result)
     if (result)
     {
         do
-            addSpell((*result)[0].GetUInt32(), (*result)[1].GetBool(), false, false, (*result)[2].GetBool(), true);
+            AddSpell((*result)[0].GetUInt32(), (*result)[1].GetBool(), false, false, (*result)[2].GetBool(), true);
         while (result->NextRow());
     }
 }
@@ -23106,9 +23107,9 @@ void Player::LearnCustomSpells()
         uint32 tspell = *itr;
         TC_LOG_DEBUG("entities.player.loading", "PLAYER (Class: %u Race: %u): Adding initial spell, id = %u", uint32(getClass()), uint32(getRace()), tspell);
         if (!IsInWorld())                                    // will send in INITIAL_SPELLS in list anyway at map add
-            addSpell(tspell, true, true, true, false);
+            AddSpell(tspell, true, true, true, false);
         else                                                // but send in normal spell in game learn case
-            learnSpell(tspell, true);
+            LearnSpell(tspell, true);
     }
 }
 
@@ -23297,9 +23298,9 @@ void Player::learnSkillRewardedSpells(uint32 skill_id, uint32 skill_value)
             removeSpell(pAbility->spellId);
         // need learn
         else if (!IsInWorld())
-            addSpell(pAbility->spellId, true, true, true, false);
+            AddSpell(pAbility->spellId, true, true, true, false, false, true);
         else
-            learnSpell(pAbility->spellId, true);
+            LearnSpell(pAbility->spellId, true, true);
     }
 }
 
@@ -24969,7 +24970,7 @@ bool Player::IsKnowHowFlyIn(uint32 mapid, uint32 zone) const
 
 void Player::learnSpellHighRank(uint32 spellid)
 {
-    learnSpell(spellid, false);
+    LearnSpell(spellid, false);
 
     if (uint32 next = sSpellMgr->GetNextSpellInChain(spellid))
         learnSpellHighRank(next);
@@ -24995,6 +24996,8 @@ void Player::_LoadSkills(PreparedQueryResult result)
             {
                 TC_LOG_ERROR("entities.player", "Character: %s (GUID: %u Race: %u Class: %u) has skill %u not allowed for his race/class combination",
                     GetName().c_str(), GetGUIDLow(), uint32(getRace()), uint32(getClass()), skill);
+
+                mSkillStatus.insert(SkillStatusMap::value_type(skill, SkillStatusData(0, SKILL_DELETED)));
                 continue;
             }
 
@@ -25355,7 +25358,7 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
         return;
 
     // learn! (other talent ranks will unlearned at learning)
-    learnSpell(spellid, false);
+    LearnSpell(spellid, false);
     AddTalent(spellid, m_activeSpec, true);
 
     TC_LOG_INFO("entities.player", "TalentID: %u Rank: %u Spell: %u Spec: %u\n", talentId, talentRank, spellid, m_activeSpec);
@@ -26213,7 +26216,7 @@ void Player::ActivateSpec(uint8 spec)
             // if the talent can be found in the newly activated PlayerTalentMap
             if (HasTalent(talentInfo->RankID[rank], m_activeSpec))
             {
-                learnSpell(talentInfo->RankID[rank], false); // add the talent to the PlayerSpellMap
+                LearnSpell(talentInfo->RankID[rank], false); // add the talent to the PlayerSpellMap
                 spentTalents += (rank + 1);                  // increment the spentTalents count
             }
         }
