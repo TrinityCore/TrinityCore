@@ -1717,10 +1717,10 @@ struct SkillRaceClassInfoEntry
     uint32 RaceMask;                                        // 2      m_raceMask
     uint32 ClassMask;                                       // 3      m_classMask
     uint32 Flags;                                           // 4      m_flags
-    //uint32 MinLevel;                                      // 5      m_minLevel
-    uint32 SkillTier;                                       // 6      m_skillTierID
-    //uint32 SkillCostType;                                 // 7      m_skillCostIndex
-    //uint32 Unk;                                           // 8      m_unk
+    //uint32 Unk;                                           // 5      m_unk
+    //uint32 MinLevel;                                      // 6      m_minLevel
+    uint32 SkillTier;                                       // 7      m_skillTierID
+    //uint32 SkillCostType;                                 // 8      m_skillCostIndex
 };
 
 #define MAX_SKILL_STEP 16
