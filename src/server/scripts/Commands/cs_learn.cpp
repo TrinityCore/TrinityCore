@@ -112,7 +112,7 @@ public:
         }
 
         if (allRanks)
-            targetPlayer->learnSpellHighRank(spell);
+            targetPlayer->LearnSpellHighestRank(spell);
         else
             targetPlayer->LearnSpell(spell, false);
 
@@ -228,7 +228,7 @@ public:
                 continue;
 
             // learn highest rank of talent and learn all non-talent spell ranks (recursive by tree)
-            player->learnSpellHighRank(spellId);
+            player->LearnSpellHighestRank(spellId);
             player->AddTalent(spellId, player->GetActiveSpec(), true);
         }
 
@@ -334,7 +334,7 @@ public:
 
         target->LearnDefaultSkills();
         target->LearnCustomSpells();
-        target->learnQuestRewardedSpells();
+        target->LearnQuestRewardedSpells();
 
         handler->PSendSysMessage(LANG_COMMAND_LEARN_ALL_DEFAULT_AND_QUEST, handler->GetNameLink(target).c_str());
         return true;
@@ -499,7 +499,7 @@ public:
             spellId = sSpellMgr->GetFirstSpellInChain(spellId);
 
         if (target->HasSpell(spellId))
-            target->removeSpell(spellId, false, !allRanks);
+            target->RemoveSpell(spellId, false, !allRanks);
         else
             handler->SendSysMessage(LANG_FORGET_SPELL);
 

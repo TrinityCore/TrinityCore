@@ -1230,7 +1230,7 @@ void Spell::EffectUnlearnSpecialization(SpellEffIndex effIndex)
     Player* player = unitTarget->ToPlayer();
     uint32 spellToUnlearn = m_spellInfo->Effects[effIndex].TriggerSpell;
 
-    player->removeSpell(spellToUnlearn);
+    player->RemoveSpell(spellToUnlearn);
 
     TC_LOG_DEBUG("spells", "Spell: Player %u has unlearned spell %u from NpcGUID: %u", player->GetGUIDLow(), spellToUnlearn, m_caster->GetGUIDLow());
 }
