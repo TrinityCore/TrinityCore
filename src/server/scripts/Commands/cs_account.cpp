@@ -51,8 +51,8 @@ public:
         };
         static ChatCommand accountLockCommandTable[] =
         {
-            { "country",        rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_COUNTRY,    true,  &HandleAccountLockCountryCommand,  "", NULL },
-            { "ip",             rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_IP,         true,  &HandleAccountLockIpCommand,       "", NULL },
+            { "country",        rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_COUNTRY,    false,  &HandleAccountLockCountryCommand,  "", NULL },
+            { "ip",             rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_IP,         false,  &HandleAccountLockIpCommand,       "", NULL },
             { NULL,             0,                                         false, NULL,                              "", NULL }
         };
         static ChatCommand accountCommandTable[] =
