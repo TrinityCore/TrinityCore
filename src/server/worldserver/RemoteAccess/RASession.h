@@ -41,7 +41,7 @@ public:
 
     void Start();
 
-    const std::string GetRemoteIpAddress() const { return _socket.remote_endpoint().address().to_string(); };
+    const std::string GetRemoteIpAddress() const { return _socket.remote_endpoint().address().to_string(); }
     unsigned short GetRemotePort() const { return _socket.remote_endpoint().port(); }
 
 private:
@@ -52,7 +52,7 @@ private:
     bool ProcessCommand(std::string& command);
 
     static void CommandPrint(void* callbackArg, const char* text);
-    static void CommandFinished(void* callbackArg, bool success);
+    static void CommandFinished(void* callbackArg, bool);
 
     tcp::socket _socket;
     boost::asio::streambuf _readBuffer;

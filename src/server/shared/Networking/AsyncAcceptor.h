@@ -34,8 +34,8 @@ public:
     };
 
     AsyncAcceptor(boost::asio::io_service& ioService, std::string bindIp, int port, bool tcpNoDelay) :
-        _socket(ioService),
-        _acceptor(ioService, tcp::endpoint(boost::asio::ip::address::from_string(bindIp), port))
+        _acceptor(ioService, tcp::endpoint(boost::asio::ip::address::from_string(bindIp), port)),
+        _socket(ioService)
     {
         _acceptor.set_option(boost::asio::ip::tcp::no_delay(tcpNoDelay));
 
