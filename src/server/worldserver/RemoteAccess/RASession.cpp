@@ -215,7 +215,7 @@ void RASession::CommandPrint(void* callbackArg, const char* text)
     session->Send(text);
 }
 
-void RASession::CommandFinished(void* callbackArg, bool success)
+void RASession::CommandFinished(void* callbackArg, bool /*success*/)
 {
     RASession* session = static_cast<RASession*>(callbackArg);
     session->_commandExecuting->set_value();
