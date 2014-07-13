@@ -176,8 +176,8 @@ namespace Trinity
     {
         WorldObject const* _searcher;
         WorldObject*& i_object;
-        uint32 i_mapTypeMask;
         Check &i_check;
+        uint32 i_mapTypeMask;
 
         WorldObjectSearcher(WorldObject const* searcher, WorldObject* & result, Check& check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
             : _searcher(searcher), i_object(result), i_check(check), i_mapTypeMask(mapTypeMask) { }
