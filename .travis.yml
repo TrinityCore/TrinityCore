@@ -13,7 +13,7 @@ before_install:
   - sudo apt-get install -qq build-essential autoconf libtool gcc-4.8 g++-4.8 make cmake libace-dev openssl libssl-dev libmysqlclient15-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev
   - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
-  
+
 script:
   - mkdir build
   - cd build
@@ -26,7 +26,6 @@ notifications:
   email: false
   webhooks:
     urls:
-      - http://irc.truewow.org:8080/travis
     on_success: always
     on_failure: always
     on_start: always
