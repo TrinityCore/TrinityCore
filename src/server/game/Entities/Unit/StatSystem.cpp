@@ -311,13 +311,20 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     float level = float(getLevel());
 
     ChrClassesEntry const* entry = sChrClassesStore.LookupEntry(getClass());
-    UnitMods unitMod = ranged ? UNIT_MOD_ATTACK_POWER_RANGED : UNIT_MOD_ATTACK_POWER;
+    UnitMods unitMod_pos = ranged ? UNIT_MOD_ATTACK_POWER_RANGED_POS : UNIT_MOD_ATTACK_POWER_POS;
+    UnitMods unitMod_neg = ranged ? UNIT_MOD_ATTACK_POWER_RANGED_NEG : UNIT_MOD_ATTACK_POWER_NEG;
 
     uint16 index = UNIT_FIELD_ATTACK_POWER;
+    uint16 index_mod_pos = UNIT_FIELD_ATTACK_POWER_MOD_POS;
+    uint16 index_mod_neg = UNIT_FIELD_ATTACK_POWER_MOD_NEG;
+    uint16 index_mult = UNIT_FIELD_ATTACK_POWER_MULTIPLIER;
 
     if (ranged)
     {
         index = UNIT_FIELD_RANGED_ATTACK_POWER;
+        index_mod_pos = UNIT_FIELD_RANGED_ATTACK_POWER_MOD_POS;
+        index_mod_neg = UNIT_FIELD_RANGED_ATTACK_POWER_MOD_NEG;
+        index_mult = UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER;
         val2 = (level + std::max(GetStat(STAT_AGILITY) - 10.0f, 0.0f)) * entry->RAPPerAgility;
     }
     else
@@ -333,21 +340,34 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
         val2 = strengthValue + agilityValue;
     }
 
-    SetModifierValue(unitMod, BASE_VALUE, val2);
+    SetModifierValue(unitMod_pos, BASE_VALUE, val2);
 
-    float base_attPower  = GetModifierValue(unitMod, BASE_VALUE) * GetModifierValue(unitMod, BASE_PCT);
-    float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
+    float base_attPower   = (GetModifierValue(unitMod_pos, BASE_VALUE) + GetModifierValue(unitMod_neg, BASE_VALUE)) * (GetModifierValue(unitMod_pos, BASE_PCT) + (GetModifierValue(unitMod_neg, BASE_PCT) - 1));
+    float attPowerMod_pos = GetModifierValue(unitMod_pos, TOTAL_VALUE);
+    float attPowerMod_neg = GetModifierValue(unitMod_neg, TOTAL_VALUE);
 
     //add dynamic flat mods
     if (!ranged)
     {
         AuraEffectList const& mAPbyArmor = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR);
         for (AuraEffectList::const_iterator iter = mAPbyArmor.begin(); iter != mAPbyArmor.end(); ++iter)
-            // always: ((*i)->GetModifier()->m_miscvalue == 1 == SPELL_SCHOOL_MASK_NORMAL)
-            attPowerMod += int32(GetArmor() / (*iter)->GetAmount());
+        {
+             // always: ((*i)->GetModifier()->m_miscvalue == 1 == SPELL_SCHOOL_MASK_NORMAL)
+            int32 temp = int32(GetArmor() / (*iter)->GetAmount());
+
+            if (temp > 0)
+                attPowerMod_pos += temp;
+            else
+                attPowerMod_neg += temp;
+        }
     }
 
-    SetInt32Value(index, (uint32)base_attPower);            //UNIT_FIELD_(RANGED)_ATTACK_POWER field
+    float attPowerMultiplier = ((GetModifierValue(unitMod_pos, TOTAL_PCT) - 1.0f) + (GetModifierValue(unitMod_neg, TOTAL_PCT) - 1.0f));
+
+    SetInt32Value(index, (int32)base_attPower);             //UNIT_FIELD_(RANGED)_ATTACK_POWER field
+    SetInt32Value(index_mod_pos, (int32)attPowerMod_pos);   //UNIT_FIELD_(RANGED)_ATTACK_POWER_MOD_POS field
+    SetInt32Value(index_mod_neg, (int32)attPowerMod_neg);   //UNIT_FIELD_(RANGED)_ATTACK_POWER_MOD_NEG field
+    SetFloatValue(index_mult, attPowerMultiplier);          //UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
 
     Pet* pet = GetPet();                                //update pet's AP
     Guardian* guardian = GetGuardianPet();
@@ -872,7 +892,7 @@ void Creature::UpdateMaxPower(Powers power)
 
 void Creature::UpdateAttackPowerAndDamage(bool ranged)
 {
-    UnitMods unitMod = ranged ? UNIT_MOD_ATTACK_POWER_RANGED : UNIT_MOD_ATTACK_POWER;
+    UnitMods unitMod = ranged ? UNIT_MOD_ATTACK_POWER_POS : UNIT_MOD_ATTACK_POWER_RANGED_POS;
 
     uint16 index = UNIT_FIELD_ATTACK_POWER;
     uint16 indexMulti = UNIT_FIELD_ATTACK_POWER_MULTIPLIER;
@@ -1141,7 +1161,8 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
 
     float val = 0.0f;
     float bonusAP = 0.0f;
-    UnitMods unitMod = UNIT_MOD_ATTACK_POWER;
+    UnitMods unitMod_pos = UNIT_MOD_ATTACK_POWER_POS;
+    UnitMods unitMod_neg = UNIT_MOD_ATTACK_POWER_NEG;
 
     if (GetEntry() == ENTRY_IMP)                                   // imp's attack power
         val = GetStat(STAT_STRENGTH) - 10.0f;
@@ -1191,14 +1212,26 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
         }
     }
 
-    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, val + bonusAP);
+    if (bonusAP > 0)
+    {
+        SetModifierValue(UNIT_MOD_ATTACK_POWER_POS, BASE_VALUE, val + bonusAP);
+    }
+    else
+    {
+        SetModifierValue(UNIT_MOD_ATTACK_POWER_POS, BASE_VALUE, val);
+        SetModifierValue(UNIT_MOD_ATTACK_POWER_NEG, BASE_VALUE, bonusAP);
+    }
 
     //in BASE_VALUE of UNIT_MOD_ATTACK_POWER for creatures we store data of meleeattackpower field in DB
-    float base_attPower  = GetModifierValue(unitMod, BASE_VALUE) * GetModifierValue(unitMod, BASE_PCT);
-    float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
+    float base_attPower   = (GetModifierValue(unitMod_pos, BASE_VALUE) + GetModifierValue(unitMod_neg, BASE_VALUE)) * (GetModifierValue(unitMod_pos, BASE_PCT) + (GetModifierValue(unitMod_neg, BASE_PCT) - 1));
+    float attPowerMod_pos = GetModifierValue(unitMod_pos, TOTAL_VALUE);
+    float attPowerMod_neg = GetModifierValue(unitMod_neg, TOTAL_VALUE);
+    float attPowerMultiplier = ((GetModifierValue(unitMod_pos, TOTAL_PCT) - 1.0f) + (GetModifierValue(unitMod_neg, TOTAL_PCT) - 1.0f));
 
-    //UNIT_FIELD_(RANGED)_ATTACK_POWER field
-    SetInt32Value(UNIT_FIELD_ATTACK_POWER, (int32)base_attPower);
+    //UNIT_FIELD_(RANGED)_ATTACK_POWER_MODS field
+    SetInt32Value(UNIT_FIELD_ATTACK_POWER_MOD_POS, (int32)attPowerMod_pos);
+    SetInt32Value(UNIT_FIELD_ATTACK_POWER_MOD_NEG, (int32)attPowerMod_neg);
+    //SetInt32Value(UNIT_FIELD_ATTACK_POWER_MODS, (int32)attPowerMod);
     //UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
     SetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER, attPowerMultiplier);
 
