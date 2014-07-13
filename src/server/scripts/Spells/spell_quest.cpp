@@ -223,6 +223,8 @@ class spell_q6124_6129_apply_salve : public SpellScriptLoader
                         {
                             creatureTarget->UpdateEntry(uiNewEntry);
                             creatureTarget->DespawnOrUnsummon(DESPAWN_TIME);
+                            caster->RewardPlayerAndGroupAtEvent(uiNewEntry, caster);
+                            std::cout << "Reward Should Happen" << std::endl;
                         }
                     }
             }
