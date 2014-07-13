@@ -45,7 +45,7 @@ class MapUpdateRequest
         }
 };
 
-MapUpdater::MapUpdater() : pending_requests(0), _cancelationToken(false) {}
+MapUpdater::MapUpdater() : _cancelationToken(false), pending_requests(0) {}
 
 MapUpdater::~MapUpdater()
 {

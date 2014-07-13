@@ -27,8 +27,8 @@ class AsyncAcceptor
 {
 public:
     AsyncAcceptor(boost::asio::io_service& ioService, std::string bindIp, int port) :
-        _socket(ioService),
-        _acceptor(ioService, tcp::endpoint(boost::asio::ip::address::from_string(bindIp), port))
+        _acceptor(ioService, tcp::endpoint(boost::asio::ip::address::from_string(bindIp), port)),
+        _socket(ioService)
     {
         AsyncAccept();
     };

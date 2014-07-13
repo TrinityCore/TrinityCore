@@ -40,7 +40,7 @@ void RASession::Start()
     {
         // Handle subnegotiation
         boost::array<char, 1024> buf;
-        std::size_t length = _socket.read_some(boost::asio::buffer(buf));
+        _socket.read_some(boost::asio::buffer(buf));
 
         // Send the end-of-negotiation packet
         uint8 const reply[2] = { 0xFF, 0xF0 };
