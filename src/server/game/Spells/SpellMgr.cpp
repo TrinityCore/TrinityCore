@@ -3795,6 +3795,10 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 74384:  // Intimidating Roar - Ruby Sanctum
                 spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_40_YARDS);
                 break;
+            case 59630: // Black Magic
+            case 72968: // Precious's Ribbon
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
+                break;
             default:
                 break;
         }
