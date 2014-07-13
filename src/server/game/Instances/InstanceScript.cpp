@@ -148,7 +148,7 @@ void InstanceScript::AddDoor(GameObject* door, bool add)
 
         if (add)
         {
-            data.bossInfo->door[data.type].insert(door);
+            data.bossInfo->door[data.type].insert(door->GetGUID());
             switch (data.boundary)
             {
                 default:
@@ -173,7 +173,7 @@ void InstanceScript::AddDoor(GameObject* door, bool add)
             }
         }
         else
-            data.bossInfo->door[data.type].erase(door);
+            data.bossInfo->door[data.type].erase(door->GetGUID());
     }
 
     if (add)
@@ -187,9 +187,9 @@ void InstanceScript::AddMinion(Creature* minion, bool add)
         return;
 
     if (add)
-        itr->second.bossInfo->minion.insert(minion);
+        itr->second.bossInfo->minion.insert(minion->GetGUID());
     else
-        itr->second.bossInfo->minion.erase(minion);
+        itr->second.bossInfo->minion.erase(minion->GetGUID());
 }
 
 bool InstanceScript::SetBossState(uint32 id, EncounterState state)
@@ -210,8 +210,9 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
             if (state == DONE)
                 for (MinionSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
-                    if ((*i)->isWorldBoss() && (*i)->IsAlive())
-                        return false;
+                    if (Creature* minion = instance->GetCreature(*i))
+                        if (minion->isWorldBoss() && minion->IsAlive())
+                            return false;
 
             bossInfo->state = state;
             SaveToDB();
@@ -219,10 +220,12 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
         for (uint32 type = 0; type < MAX_DOOR_TYPES; ++type)
             for (DoorSet::iterator i = bossInfo->door[type].begin(); i != bossInfo->door[type].end(); ++i)
-                UpdateDoorState(*i);
+                if (GameObject* door = instance->GetGameObject(*i))
+                    UpdateDoorState(door);
 
         for (MinionSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
-            UpdateMinionState(*i, state);
+            if (Creature* minion = instance->GetCreature(*i))
+                UpdateMinionState(minion, state);
 
         return true;
     }
