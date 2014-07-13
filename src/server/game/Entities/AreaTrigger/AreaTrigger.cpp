@@ -50,9 +50,6 @@ void AreaTrigger::RemoveFromWorld()
     ///- Remove the AreaTrigger from the accessor and from all lists of objects in world
     if (IsInWorld())
     {
-        if (!IsInWorld())
-            return;
-
         WorldObject::RemoveFromWorld();
         sObjectAccessor->RemoveObject(this);
     }
