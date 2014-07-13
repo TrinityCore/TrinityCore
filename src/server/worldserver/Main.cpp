@@ -45,7 +45,10 @@
 #include "SystemConfig.h"
 #include "WorldSocket.h"
 
-#define TRINITY_CORE_CONFIG  "worldserver.conf"
+#ifndef _TRINITY_CORE_CONFIG
+    #define _TRINITY_CORE_CONFIG  "worldserver.conf"
+#endif
+
 #define WORLD_SLEEP_CONST 50
 
 #ifdef _WIN32
@@ -86,7 +89,7 @@ void ClearOnlineAccounts();
 extern int main(int argc, char** argv)
 {
     ///- Command line parsing to get the configuration file name
-    char const* cfg_file = TRINITY_CORE_CONFIG;
+    char const* cfg_file = _TRINITY_CORE_CONFIG;
     int c = 1;
     while (c < argc)
     {
