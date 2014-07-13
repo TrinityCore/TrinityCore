@@ -57,6 +57,8 @@ class SQLOperation
 {
     public:
         SQLOperation(): m_conn(NULL) { }
+        virtual ~SQLOperation() { }
+
         virtual int call()
         {
             Execute();
