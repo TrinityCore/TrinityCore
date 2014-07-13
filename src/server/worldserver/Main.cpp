@@ -24,6 +24,7 @@
 #include <openssl/crypto.h>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/deadline_timer.hpp>
+#include <boost/program_options.hpp>
 
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -44,6 +45,8 @@
 #include "CliRunnable.h"
 #include "SystemConfig.h"
 #include "WorldSocket.h"
+
+using namespace boost::program_options;
 
 #define TRINITY_CORE_CONFIG  "worldserver.conf"
 #define WORLD_SLEEP_CONST 50
@@ -73,7 +76,6 @@ CharacterDatabaseWorkerPool CharacterDatabase;              ///< Accessor to the
 LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the realm/login database
 uint32 realmID;                                             ///< Id of the realm
 
-void usage(const char* prog);
 void SignalHandler(const boost::system::error_code& error, int signalNumber);
 void FreezeDetectorHandler(const boost::system::error_code& error);
 AsyncAcceptor<RASession>* StartRaSocketAcceptor(boost::asio::io_service& ioService);
@@ -81,61 +83,27 @@ bool StartDB();
 void StopDB();
 void WorldUpdateLoop();
 void ClearOnlineAccounts();
+variables_map GetConsoleArguments(int argc, char** argv, std::string& cfg_file, std::string& cfg_service);
 
 /// Launch the Trinity server
 extern int main(int argc, char** argv)
 {
-    ///- Command line parsing to get the configuration file name
-    char const* cfg_file = TRINITY_CORE_CONFIG;
-    int c = 1;
-    while (c < argc)
+    std::string cfg_file = TRINITY_CORE_CONFIG;
+    std::string cfg_service;
+
+    auto vm = GetConsoleArguments(argc, argv, cfg_file, cfg_service);
+    // exit if help is enabled
+    if (vm.count("help"))
+        return 0;
+
+    if (!cfg_service.empty())
     {
-        if (!strcmp(argv[c], "-c"))
-        {
-            if (++c >= argc)
-            {
-                printf("Runtime-Error: -c option requires an input argument");
-                usage(argv[0]);
-                return 1;
-            }
-            else
-                cfg_file = argv[c];
-        }
-
-#ifdef _WIN32
-        if (strcmp(argv[c], "-s") == 0) // Services
-        {
-            if (++c >= argc)
-            {
-                printf("Runtime-Error: -s option requires an input argument");
-                usage(argv[0]);
-                return 1;
-            }
-
-            if (strcmp(argv[c], "install") == 0)
-            {
-                if (WinServiceInstall())
-                    printf("Installing service\n");
-                return 1;
-            }
-            else if (strcmp(argv[c], "uninstall") == 0)
-            {
-                if (WinServiceUninstall())
-                    printf("Uninstalling service\n");
-                return 1;
-            }
-            else
-            {
-                printf("Runtime-Error: unsupported option %s", argv[c]);
-                usage(argv[0]);
-                return 1;
-            }
-        }
-
-        if (strcmp(argv[c], "--service") == 0)
+        if (cfg_service.compare("install") == 0)
+            return WinServiceInstall() == true ? 0 : 1;
+        else if (cfg_service.compare("uninstall") == 0)
+            return WinServiceUninstall() == true ? 0 : 1;
+        else if (cfg_service.compare("run") == 0)
             WinServiceRun();
-#endif
-        ++c;
     }
 
     if (!sConfigMgr->LoadInitial(cfg_file))
@@ -400,20 +368,6 @@ void WorldUpdateLoop()
     }
 }
 
-/// Print out the usage string for this program on the console.
-void usage(const char* prog)
-{
-    printf("Usage:\n");
-    printf(" %s [<options>]\n", prog);
-    printf("    -c config_file           use config_file as configuration file\n");
-#ifdef _WIN32
-    printf("    Running as service functions:\n");
-    printf("    --service                run as service\n");
-    printf("    -s install               install service\n");
-    printf("    -s uninstall             uninstall service\n");
-#endif
-}
-
 void SignalHandler(const boost::system::error_code& error, int signalNumber)
 {
     if (!error)
@@ -584,3 +538,35 @@ void ClearOnlineAccounts()
 }
 
 /// @}
+
+variables_map GetConsoleArguments(int argc, char** argv, std::string& cfg_file, std::string& cfg_service)
+{
+    options_description win("Windows platform specific options");
+    win.add_options()
+        ("service,s", value<std::string>(&cfg_service)->default_value(""), "Windows service options: [install | uninstall]")
+        ;
+
+    options_description all("Allowed options");
+    all.add_options()
+        ("help,h", "print usage message")
+        ("config,c", value<std::string>(&cfg_file)->default_value(TRINITY_CORE_CONFIG), "use <arg> as configuration file")
+        ;
+#ifdef _WIN32
+    all.add(win);
+#endif
+    variables_map vm;
+    try
+    {
+        store(command_line_parser(argc, argv).options(all).allow_unregistered().run(), vm);
+        notify(vm);
+    }
+    catch (std::exception& e) {
+        std::cerr << e.what() << "\n";
+    }
+
+    if (vm.count("help")) {
+        std::cout << all << "\n";
+    }
+
+    return vm;
+}
