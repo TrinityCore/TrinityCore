@@ -441,8 +441,8 @@ void CalendarMgr::SendCalendarEventInvite(CalendarInvite const& invite)
 
     if (!calendarEvent) // Pre-invite
     {
-        if (Player* player = ObjectAccessor::FindPlayer(invite.GetSenderGUID()))
-            player->SendDirectMessage(&data);
+        if (Player* playerSender = ObjectAccessor::FindPlayer(invite.GetSenderGUID()))
+            playerSender->SendDirectMessage(&data);
     }
     else
     {
