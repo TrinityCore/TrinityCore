@@ -34,6 +34,7 @@ enum ShamanSpells
     SPELL_SHAMAN_BIND_SIGHT                     = 6277,
     SPELL_SHAMAN_CLEANSING_TOTEM_EFFECT         = 52025,
     SPELL_SHAMAN_EARTH_SHIELD_HEAL              = 379,
+    SPELL_SHAMAN_ELEMENTAL_MASTERY              = 16166,
     SPELL_SHAMAN_EXHAUSTION                     = 57723,
     SPELL_SHAMAN_FIRE_NOVA_R1                   = 1535,
     SPELL_SHAMAN_FIRE_NOVA_TRIGGERED_R1         = 8349,
@@ -767,6 +768,42 @@ class spell_sha_item_mana_surge : public SpellScriptLoader
         }
 };
 
+// 70811 - Item - Shaman T10 Elemental 2P Bonus
+class spell_sha_item_t10_elemental_2p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_sha_item_t10_elemental_2p_bonus() : SpellScriptLoader("spell_sha_item_t10_elemental_2p_bonus") { }
+
+        class spell_sha_item_t10_elemental_2p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_item_t10_elemental_2p_bonus_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_MASTERY))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                if (Player* target = GetTarget()->ToPlayer())
+                    target->ModifySpellCooldown(SPELL_SHAMAN_ELEMENTAL_MASTERY, -aurEff->GetAmount());
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_item_t10_elemental_2p_bonus_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_sha_item_t10_elemental_2p_bonus_AuraScript();
+        }
+};
+
 // 60103 - Lava Lash
 class spell_sha_lava_lash : public SpellScriptLoader
 {
@@ -989,6 +1026,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_item_lightning_shield();
     new spell_sha_item_lightning_shield_trigger();
     new spell_sha_item_mana_surge();
+    new spell_sha_item_t10_elemental_2p_bonus();
     new spell_sha_lava_lash();
     new spell_sha_mana_spring_totem();
     new spell_sha_mana_tide_totem();

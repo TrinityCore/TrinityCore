@@ -85,7 +85,6 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Scholomance/boss_ras_frostwhisper.cpp
   EasternKingdoms/Scholomance/boss_kirtonos_the_herald.cpp
   EasternKingdoms/zone_isle_of_queldanas.cpp
-  EasternKingdoms/boss_kruul.cpp
   EasternKingdoms/ZulGurub/boss_hakkar.cpp
   EasternKingdoms/ZulGurub/boss_mandokir.cpp
   EasternKingdoms/ZulGurub/boss_marli.cpp
