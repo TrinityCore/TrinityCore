@@ -23,7 +23,6 @@
 #include "DBCEnums.h"
 #include "Battleground.h"
 #include "BattlegroundQueue.h"
-#include <ace/Singleton.h>
 
 typedef std::map<uint32, Battleground*> BattlegroundContainer;
 typedef std::set<uint32> BattlegroundClientIdsContainer;
@@ -58,13 +57,17 @@ struct BattlegroundTemplate
 
 class BattlegroundMgr
 {
-    friend class ACE_Singleton<BattlegroundMgr, ACE_Null_Mutex>;
-
     private:
         BattlegroundMgr();
         ~BattlegroundMgr();
 
     public:
+        static BattlegroundMgr* instance()
+        {
+            static BattlegroundMgr* instance = new BattlegroundMgr();
+            return instance;
+        }
+
         void Update(uint32 diff);
 
         /* Packet Building */
@@ -171,6 +174,6 @@ class BattlegroundMgr
         BattlegroundMapTemplateContainer _battlegroundMapTemplates;
 };
 
-#define sBattlegroundMgr ACE_Singleton<BattlegroundMgr, ACE_Null_Mutex>::instance()
+#define sBattlegroundMgr BattlegroundMgr::instance()
 
 #endif // __BATTLEGROUNDMGR_H
