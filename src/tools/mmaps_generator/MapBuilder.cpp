@@ -27,7 +27,6 @@
 #include "DetourCommon.h"
 
 #include "DisableMgr.h"
-#include <ace/OS_NS_unistd.h>
 
 uint32 GetLiquidFlags(uint32 /*liquidType*/) { return 0; }
 namespace DisableMgr
@@ -168,38 +167,40 @@ namespace MMAP
     /**************************************************************************/
     void MapBuilder::buildAllMaps(int threads)
     {
-        std::vector<BuilderThread*> _threads;
 
-        BuilderThreadPool* pool = threads > 0 ? new BuilderThreadPool() : NULL;
-
-        m_tiles.sort([](MapTiles a, MapTiles b)
-        {
-            return a.m_tiles->size() > b.m_tiles->size();
-        });
-
-        for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
-        {
-            uint32 mapID = it->m_mapId;
-            if (!shouldSkipMap(mapID))
-            {
-                if (threads > 0)
-                    pool->Enqueue(new MapBuildRequest(mapID));
-                else
-                    buildMap(mapID);
-            }
-        }
-
-        for (int i = 0; i < threads; ++i)
-            _threads.push_back(new BuilderThread(this, pool->Queue()));
-
-        // Free memory
-        for (std::vector<BuilderThread*>::iterator _th = _threads.begin(); _th != _threads.end(); ++_th)
-        {
-            (*_th)->wait();
-            delete *_th;
-        }
-
-        delete pool;
+// TODO fix that shit
+//         std::vector<BuilderThread*> _threads;
+// 
+//         BuilderThreadPool* pool = threads > 0 ? new BuilderThreadPool() : NULL;
+// 
+//         m_tiles.sort([](MapTiles a, MapTiles b)
+//         {
+//             return a.m_tiles->size() > b.m_tiles->size();
+//         });
+// 
+//         for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
+//         {
+//             uint32 mapID = it->m_mapId;
+//             if (!shouldSkipMap(mapID))
+//             {
+//                 if (threads > 0)
+//                     pool->Enqueue(new MapBuildRequest(mapID));
+//                 else
+//                     buildMap(mapID);
+//             }
+//         }
+// 
+//         for (int i = 0; i < threads; ++i)
+//             _threads.push_back(new BuilderThread(this, pool->Queue()));
+// 
+//         // Free memory
+//         for (std::vector<BuilderThread*>::iterator _th = _threads.begin(); _th != _threads.end(); ++_th)
+//         {
+//             (*_th)->wait();
+//             delete *_th;
+//         }
+// 
+//         delete pool;
     }
 
     /**************************************************************************/
@@ -349,7 +350,7 @@ namespace MMAP
     void MapBuilder::buildMap(uint32 mapID)
     {
 #ifndef __APPLE__
-        printf("[Thread %u] Building map %03u:\n", uint32(ACE_Thread::self()), mapID);
+        //printf("[Thread %u] Building map %03u:\n", uint32(ACE_Thread::self()), mapID);
 #endif
 
         std::set<uint32>* tiles = getTileList(mapID);
