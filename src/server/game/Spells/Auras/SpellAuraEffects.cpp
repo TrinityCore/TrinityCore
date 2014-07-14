@@ -4318,7 +4318,7 @@ void AuraEffect::HandleAuraModAttackPower(AuraApplication const* aurApp, uint8 m
 
     Unit* target = aurApp->GetTarget();
 
-    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(GetAmount()), apply);
+    target->HandleStatModifier((GetAmount() > 0) ? UNIT_MOD_ATTACK_POWER_POS : UNIT_MOD_ATTACK_POWER_NEG, TOTAL_VALUE, float(GetAmount()), apply);
 }
 
 void AuraEffect::HandleAuraModRangedAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4331,7 +4331,7 @@ void AuraEffect::HandleAuraModRangedAttackPower(AuraApplication const* aurApp, u
     if ((target->getClassMask() & CLASSMASK_WAND_USERS) != 0)
         return;
 
-    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(GetAmount()), apply);
+    target->HandleStatModifier((GetAmount() > 0) ? UNIT_MOD_ATTACK_POWER_RANGED_POS : UNIT_MOD_ATTACK_POWER_RANGED_NEG, TOTAL_VALUE, float(GetAmount()), apply);
 }
 
 void AuraEffect::HandleAuraModAttackPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4342,7 +4342,7 @@ void AuraEffect::HandleAuraModAttackPowerPercent(AuraApplication const* aurApp, 
     Unit* target = aurApp->GetTarget();
 
     //UNIT_FIELD_ATTACK_POWER_MULTIPLIER = multiplier - 1
-    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_PCT, float(GetAmount()), apply);
+    target->HandleStatModifier((GetAmount() > 0) ? UNIT_MOD_ATTACK_POWER_POS : UNIT_MOD_ATTACK_POWER_NEG, TOTAL_PCT, float(GetAmount()), apply);
 }
 
 void AuraEffect::HandleAuraModRangedAttackPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4356,7 +4356,7 @@ void AuraEffect::HandleAuraModRangedAttackPowerPercent(AuraApplication const* au
         return;
 
     //UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER = multiplier - 1
-    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_PCT, float(GetAmount()), apply);
+    target->HandleStatModifier((GetAmount() > 0) ? UNIT_MOD_ATTACK_POWER_RANGED_POS : UNIT_MOD_ATTACK_POWER_RANGED_NEG, TOTAL_PCT, float(GetAmount()), apply);
 }
 
 void AuraEffect::HandleAuraModAttackPowerOfArmor(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const

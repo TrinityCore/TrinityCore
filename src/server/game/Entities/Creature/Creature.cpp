@@ -1109,8 +1109,8 @@ void Creature::SelectLevel()
     SetBaseWeaponDamage(RANGED_ATTACK, MINDAMAGE, weaponBaseMinDamage);
     SetBaseWeaponDamage(RANGED_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);
 
-    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, stats->AttackPower);
-    SetModifierValue(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, stats->RangedAttackPower);
+    SetModifierValue(UNIT_MOD_ATTACK_POWER_POS, BASE_VALUE, stats->AttackPower);
+    SetModifierValue(UNIT_MOD_ATTACK_POWER_RANGED_POS, BASE_VALUE, stats->RangedAttackPower);
 }
 
 float Creature::_GetHealthMod(int32 Rank)

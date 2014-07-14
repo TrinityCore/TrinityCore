@@ -312,7 +312,7 @@ public:
                     {
                         if (AuraEffect* /* aurEff */ect = owner->GetAuraEffect(56246, EFFECT_0))
                         {
-                            float base_attPower = pet->GetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE) * pet->GetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_PCT);
+                            float base_attPower = pet->GetModifierValue(UNIT_MOD_ATTACK_POWER_POS, BASE_VALUE) * pet->GetModifierValue(UNIT_MOD_ATTACK_POWER_POS, BASE_PCT);
                             amount += CalculatePct(amount+base_attPower, /* aurEff */ect->GetAmount());
                         }
                     }

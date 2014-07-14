@@ -961,8 +961,43 @@ class spell_rog_tricks_of_the_trade_proc : public SpellScriptLoader
         }
 };
 
+//73981 - Redirect
+class spell_rog_redirect : public SpellScriptLoader
+{
+public:
+    spell_rog_redirect() : SpellScriptLoader("spell_rog_redirect") { }
+    
+    class spell_rog_redirect_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_redirect_SpellScript);
+        
+        void HandleRedirect(SpellEffIndex /*effIndex*/)
+        {
+            if(Player* caster = GetCaster()->m_movedPlayer)
+            {
+                if (Unit* unitTarget = GetHitUnit())
+                {
+                    if (caster->GetComboPoints() > 0 && caster->GetComboTarget())
+                        caster->AddComboPoints(unitTarget, caster->GetComboPoints());
+                }
+            }
+        }
+        
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_rog_redirect_SpellScript::HandleRedirect, EFFECT_0, SPELL_EFFECT_ADD_COMBO_POINTS);
+        }
+    };
+    
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_rog_redirect_SpellScript();
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_redirect();
     new spell_rog_blade_flurry();
     new spell_rog_cheat_death();
     new spell_rog_crippling_poison();

@@ -3285,8 +3285,12 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(PLAYER_FIELD_WEAPON_DMG_MULTIPLIERS, 1.0f);
 
     SetInt32Value(UNIT_FIELD_ATTACK_POWER,            0);
+    SetInt32Value(UNIT_FIELD_ATTACK_POWER_MOD_POS, 0);
+    SetInt32Value(UNIT_FIELD_ATTACK_POWER_MOD_NEG, 0);
     SetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER, 0.0f);
-    SetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER,     0);
+    SetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER, 0);
+    SetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER_MOD_POS, 0);
+    SetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER_MOD_NEG, 0);
     SetFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER, 0.0f);
 
     // Base crit values (will be recalculated in UpdateAllStats() at loading and in _ApplyAllStatBonuses() at reset
@@ -8218,11 +8222,11 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 ApplyRatingMod(CR_EXPERTISE, int32(val), apply);
                 break;
             case ITEM_MOD_ATTACK_POWER:
-                HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(val), apply);
-                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(val), apply);
+                HandleStatModifier((val > 0) ? UNIT_MOD_ATTACK_POWER_POS : UNIT_MOD_ATTACK_POWER_NEG, TOTAL_VALUE, float(val), apply);
+                HandleStatModifier((val > 0) ? UNIT_MOD_ATTACK_POWER_RANGED_POS : UNIT_MOD_ATTACK_POWER_RANGED_NEG, TOTAL_VALUE, float(val), apply);
                 break;
             case ITEM_MOD_RANGED_ATTACK_POWER:
-                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(val), apply);
+                HandleStatModifier((val > 0) ? UNIT_MOD_ATTACK_POWER_RANGED_POS : UNIT_MOD_ATTACK_POWER_RANGED_NEG, TOTAL_VALUE, float(val), apply);
                 break;
             case ITEM_MOD_MANA_REGENERATION:
                 ApplyManaRegenBonus(int32(val), apply);
@@ -13708,11 +13712,12 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
             ApplyRatingMod(CR_EXPERTISE, -int32(removeValue), apply);
             break;
         case ITEM_MOD_ATTACK_POWER:
-            HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, -removeValue, apply);
-            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, -removeValue, apply);
+            HandleStatModifier((removeValue > 0) ? UNIT_MOD_ATTACK_POWER_POS : UNIT_MOD_ATTACK_POWER_NEG, TOTAL_VALUE, float(removeValue), apply);
+            HandleStatModifier((removeValue > 0) ? UNIT_MOD_ATTACK_POWER_RANGED_POS : UNIT_MOD_ATTACK_POWER_RANGED_NEG, TOTAL_VALUE, float(removeValue), apply);
             break;
         case ITEM_MOD_RANGED_ATTACK_POWER:
-            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, -removeValue, apply);
+            HandleStatModifier((removeValue > 0) ? UNIT_MOD_ATTACK_POWER_RANGED_POS : UNIT_MOD_ATTACK_POWER_RANGED_NEG, TOTAL_VALUE, float(removeValue), apply);
+            break;
             break;
         case ITEM_MOD_MANA_REGENERATION:
             ApplyManaRegenBonus(-int32(removeValue), apply);
@@ -13821,11 +13826,12 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
             ApplyRatingMod(CR_EXPERTISE, int32(addValue), apply);
             break;
         case ITEM_MOD_ATTACK_POWER:
-            HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, addValue, apply);
-            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, addValue, apply);
+            HandleStatModifier((addValue > 0) ? UNIT_MOD_ATTACK_POWER_POS : UNIT_MOD_ATTACK_POWER_NEG, TOTAL_VALUE, float(addValue), apply);
+            HandleStatModifier((addValue > 0) ? UNIT_MOD_ATTACK_POWER_RANGED_POS : UNIT_MOD_ATTACK_POWER_RANGED_NEG, TOTAL_VALUE, float(addValue), apply);
             break;
         case ITEM_MOD_RANGED_ATTACK_POWER:
-            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, addValue, apply);
+            HandleStatModifier((addValue > 0) ? UNIT_MOD_ATTACK_POWER_RANGED_POS : UNIT_MOD_ATTACK_POWER_RANGED_NEG, TOTAL_VALUE, float(addValue), apply);
+            break;
             break;
         case ITEM_MOD_MANA_REGENERATION:
             ApplyManaRegenBonus(int32(addValue), apply);
@@ -14151,12 +14157,12 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             TC_LOG_DEBUG("entities.player.items", "+ %u EXPERTISE", enchant_amount);
                             break;
                         case ITEM_MOD_ATTACK_POWER:
-                            HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(enchant_amount), apply);
-                            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(enchant_amount), apply);
+                            HandleStatModifier((enchant_amount > 0) ? UNIT_MOD_ATTACK_POWER_POS : UNIT_MOD_ATTACK_POWER_NEG, TOTAL_VALUE, float(enchant_amount), apply);
+                            HandleStatModifier((enchant_amount > 0) ? UNIT_MOD_ATTACK_POWER_RANGED_POS : UNIT_MOD_ATTACK_POWER_RANGED_NEG, TOTAL_VALUE, float(enchant_amount), apply);
                             TC_LOG_DEBUG("entities.player.items", "+ %u ATTACK_POWER", enchant_amount);
                             break;
                         case ITEM_MOD_RANGED_ATTACK_POWER:
-                            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(enchant_amount), apply);
+                            HandleStatModifier((enchant_amount > 0) ? UNIT_MOD_ATTACK_POWER_RANGED_POS : UNIT_MOD_ATTACK_POWER_RANGED_NEG, TOTAL_VALUE, float(enchant_amount), apply);
                             TC_LOG_DEBUG("entities.player.items", "+ %u RANGED_ATTACK_POWER", enchant_amount);
                             break;
                         case ITEM_MOD_MANA_REGENERATION:

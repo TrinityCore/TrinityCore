@@ -6618,6 +6618,38 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 /*damage*/, Aura* triggeredByAura
             }
             break;
         }
+        case SPELLFAMILY_ROGUE:
+            switch(dummySpell->Id)
+            {
+                // Gouge
+                case 1776:
+                    *handled = true;
+                    // Check so gouge spell effect [1] (SPELL_EFFECT_SCHOOL_DAMAGE) cannot cancel stun effect
+                    if (procSpell && procSpell->Id == 1776)
+                        return false;
+                    Unit* caster = triggeredByAura->GetCaster();
+                    //rank2 Sanguinary Vein
+                    if (caster->HasAura(79147) && procSpell)
+                        switch(procSpell->Id){
+                            case 89775: // Hemorrhage glyph bleed
+                            case 703:   // Garrote bleed
+                            case 1943:  // Rupture bleed
+                                return false;
+                                break;
+                        }
+                    //rank1 Sanguinary Vein
+                    else if (caster->HasAura(79146) && procSpell)
+                        switch(procSpell->Id){
+                            case 89775: // Hemorrhage glyph bleed
+                            case 703:   // Garrote bleed
+                            case 1943:  // Rupture bleed
+                                return roll_chance_i(50); // 50% chance to break
+                                break;
+                        }
+                    return true;
+                    break;
+            }
+            break;
     }
     return false;
 }
@@ -11494,9 +11526,11 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
         case UNIT_MOD_RESISTANCE_FROST:
         case UNIT_MOD_RESISTANCE_SHADOW:
         case UNIT_MOD_RESISTANCE_ARCANE:   UpdateResistances(GetSpellSchoolByAuraGroup(unitMod));      break;
-
-        case UNIT_MOD_ATTACK_POWER:        UpdateAttackPowerAndDamage();         break;
-        case UNIT_MOD_ATTACK_POWER_RANGED: UpdateAttackPowerAndDamage(true);     break;
+      
+        case UNIT_MOD_ATTACK_POWER_POS:
+        case UNIT_MOD_ATTACK_POWER_NEG:        UpdateAttackPowerAndDamage();         break;
+        case UNIT_MOD_ATTACK_POWER_RANGED_POS:
+        case UNIT_MOD_ATTACK_POWER_RANGED_NEG: UpdateAttackPowerAndDamage(true);     break;
 
         case UNIT_MOD_DAMAGE_MAINHAND:     UpdateDamagePhysical(BASE_ATTACK);    break;
         case UNIT_MOD_DAMAGE_OFFHAND:      UpdateDamagePhysical(OFF_ATTACK);     break;
@@ -11615,14 +11649,14 @@ float Unit::GetTotalAttackPowerValue(WeaponAttackType attType) const
 {
     if (attType == RANGED_ATTACK)
     {
-        int32 ap = GetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER);
+        int32 ap = GetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER) + GetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER_MOD_POS) + GetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER_MOD_NEG);
         if (ap < 0)
             return 0.0f;
         return ap * (1.0f + GetFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER));
     }
     else
     {
-        int32 ap = GetInt32Value(UNIT_FIELD_ATTACK_POWER);
+        int32 ap = GetInt32Value(UNIT_FIELD_ATTACK_POWER) + GetInt32Value(UNIT_FIELD_ATTACK_POWER_MOD_POS) + GetInt32Value(UNIT_FIELD_ATTACK_POWER_MOD_NEG);
         if (ap < 0)
             return 0.0f;
         return ap * (1.0f + GetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER));
