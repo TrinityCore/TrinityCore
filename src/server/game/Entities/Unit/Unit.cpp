@@ -12961,7 +12961,7 @@ float Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration, 
         Unit const* source = casterOwner ? casterOwner : caster;
 
         if ((target->GetTypeId() == TYPEID_PLAYER
-            || ((Creature*)target)->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH)
+            || target->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH)
             && source->GetTypeId() == TYPEID_PLAYER)
             duration = limitduration;
     }
