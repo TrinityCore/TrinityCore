@@ -48,13 +48,11 @@ class instance_magisters_terrace : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
 
-                FelCrystals.clear();
                 DelrissaDeathCount = 0;
 
                 SelinGUID          = 0;
                 DelrissaGUID       = 0;
                 EscapeOrbGUID      = 0;
-                FelCristalIndex    = 0;
 
                 memset(KaelStatue, 0, 2 * sizeof(uint64));
             }
@@ -65,8 +63,6 @@ class instance_magisters_terrace : public InstanceMapScript
                 {
                     case DATA_DELRISSA_DEATH_COUNT:
                         return DelrissaDeathCount;
-                    case DATA_FEL_CRYSTAL_SIZE:
-                        return uint32(FelCrystals.size());
                     default:
                         break;
                 }
@@ -101,9 +97,6 @@ class instance_magisters_terrace : public InstanceMapScript
                         break;
                     case NPC_DELRISSA:
                         DelrissaGUID = creature->GetGUID();
-                        break;
-                    case NPC_FELCRYSTALS:
-                        FelCrystals.push_back(creature->GetGUID());
                         break;
                     default:
                         break;
@@ -224,35 +217,18 @@ class instance_magisters_terrace : public InstanceMapScript
                         return KaelStatue[1];
                     case DATA_ESCAPE_ORB:
                         return EscapeOrbGUID;
-                    case DATA_FEL_CRYSTAL:
-                        if (FelCrystals.size() < FelCristalIndex)
-                        {
-                            TC_LOG_ERROR("scripts", "Magisters Terrace: No Fel Crystals loaded in Inst Data");
-                            return 0;
-                        }
-
-                        return FelCrystals.at(FelCristalIndex);
                     default:
                         break;
                 }
                 return 0;
             }
 
-            void SetData64(uint32 type, uint64 value) override
-            {
-                if (type == DATA_FEL_CRYSTAL)
-                    FelCristalIndex = value;
-            }
-
         protected:
-            std::vector<uint64> FelCrystals;
-
             uint64 SelinGUID;
             uint64 DelrissaGUID;
             uint64 KaelStatue[2];
             uint64 EscapeOrbGUID;
             uint32 DelrissaDeathCount;
-            uint8 FelCristalIndex;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
