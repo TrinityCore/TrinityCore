@@ -601,10 +601,20 @@ class spell_mage_frostbolt : public SpellScriptLoader
                    }
                }
            }
+           
+           void HandleAfterCast()
+           {
+               //Talent Gel précoce
+               if (!GetCaster()->HasAura(83239) && GetCaster()->HasAura(83050))
+                   GetCaster()->AddAura(83239, GetCaster());
+               else if(!GetCaster()->HasAura(83162) && GetCaster()->HasAura(83049))
+                   GetCaster()->AddAura(83162, GetCaster());
+           }
 
            void Register()
            {
                OnEffectHitTarget += SpellEffectFn(spell_mage_frostbolt_SpellScript::RecalculateDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+               AfterCast += SpellCastFn(spell_mage_frostbolt_SpellScript::HandleAfterCast);
            }
        };
 
