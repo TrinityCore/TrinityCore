@@ -47,7 +47,7 @@ public:
         _condition.notify_one();
     }
 
-    bool Empty() const
+    bool Empty()
     {
         std::lock_guard<std::mutex> lock(_queueLock);
 

@@ -165,42 +165,59 @@ namespace MMAP
     }
 
     /**************************************************************************/
+
+    void MapBuilder::WorkerThread()
+    {
+        while (1)
+        {
+            uint32 mapId;
+
+            _queue.WaitAndPop(mapId);
+
+            if (_cancelationToken)
+                return;
+
+            buildMap(mapId);
+        }
+    }
+
     void MapBuilder::buildAllMaps(int threads)
     {
+        for (size_t i = 0; i < threads; ++i)
+        {
+            _workerThreads.push_back(std::thread(&MapBuilder::WorkerThread, this));
+        }
 
-// TODO fix that shit
-//         std::vector<BuilderThread*> _threads;
-// 
-//         BuilderThreadPool* pool = threads > 0 ? new BuilderThreadPool() : NULL;
-// 
-//         m_tiles.sort([](MapTiles a, MapTiles b)
-//         {
-//             return a.m_tiles->size() > b.m_tiles->size();
-//         });
-// 
-//         for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
-//         {
-//             uint32 mapID = it->m_mapId;
-//             if (!shouldSkipMap(mapID))
-//             {
-//                 if (threads > 0)
-//                     pool->Enqueue(new MapBuildRequest(mapID));
-//                 else
-//                     buildMap(mapID);
-//             }
-//         }
-// 
-//         for (int i = 0; i < threads; ++i)
-//             _threads.push_back(new BuilderThread(this, pool->Queue()));
-// 
-//         // Free memory
-//         for (std::vector<BuilderThread*>::iterator _th = _threads.begin(); _th != _threads.end(); ++_th)
-//         {
-//             (*_th)->wait();
-//             delete *_th;
-//         }
-// 
-//         delete pool;
+        m_tiles.sort([](MapTiles a, MapTiles b)
+        {
+            return a.m_tiles->size() > b.m_tiles->size();
+        });
+
+        for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
+        {
+            uint32 mapID = it->m_mapId;
+            if (!shouldSkipMap(mapID))
+            {
+                if (threads > 0)
+                    _queue.Push(mapID);
+                else
+                    buildMap(mapID);
+            }
+        }
+
+        while (!_queue.Empty())
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        }
+
+        _cancelationToken = true;
+
+        _queue.Cancel();
+
+        for (auto& thread : _workerThreads)
+        {
+            thread.join();
+        }
     }
 
     /**************************************************************************/

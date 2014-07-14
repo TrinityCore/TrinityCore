@@ -22,6 +22,7 @@ set(mmap_gen_Includes
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/Include
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
   ${CMAKE_SOURCE_DIR}/src/server/game/Conditions
   ${CMAKE_SOURCE_DIR}/src/server/collision
   ${CMAKE_SOURCE_DIR}/src/server/collision/Management
@@ -47,6 +48,7 @@ target_link_libraries(mmaps_generator
   Detour
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
+  ${Boost_LIBRARIES}
 )
 
 if( UNIX )
