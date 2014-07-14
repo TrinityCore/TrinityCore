@@ -1234,7 +1234,7 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
 
         // there is only one bg to select
         if (selectionWeights.size() == 1)
-            return bgTypeId;
+            return selectionWeights.begin()->first;
 
         if (weight)
         {
