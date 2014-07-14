@@ -26,6 +26,8 @@
 #include "Formulas.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
+#include "GuildMgr.h"
+#include "Guild.h"
 #include "MapManager.h"
 #include "Object.h"
 #include "ObjectMgr.h"
@@ -743,6 +745,7 @@ void Battleground::EndBattleground(uint32 winner)
     RemoveFromBGFreeSlotQueue();
 
     int32 winmsg_id = 0;
+    bool guildAwarded = false;
 
     if (winner == ALLIANCE)
     {
@@ -768,7 +771,7 @@ void Battleground::EndBattleground(uint32 winner)
     SetStatus(STATUS_WAIT_LEAVE);
     //we must set it this way, because end time is sent in packet!
     SetRemainingTime(TIME_AUTOCLOSE_BATTLEGROUND);
-    
+
     WorldPacket pvpLogData;
     BuildPvPLogDataPacket(pvpLogData);
 
@@ -822,6 +825,15 @@ void Battleground::EndBattleground(uint32 winner)
                 player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA, sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_CONQUEST_LAST));
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
+            if (!guildAwarded)
+            {
+                guildAwarded = true;
+                if (uint32 guildId = GetBgMap()->GetOwnerGuildId(player->GetTeam()))
+                {
+                    if (Guild* guild = sGuildMgr->GetGuildById(guildId))
+                        guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1, 0, 0, NULL, player);
+                }
+            }
         }
         else
         {

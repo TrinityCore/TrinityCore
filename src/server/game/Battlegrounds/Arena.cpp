@@ -143,7 +143,7 @@ void Arena::EndBattleground(uint32 winner)
         uint32 winnerMatchmakerRating = 0;
         int32  winnerChange           = 0;
         int32  winnerMatchmakerChange = 0;
-        bool guildAwarded             = false;
+        bool   guildAwarded           = false;
 
         ArenaTeam* winnerArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(winner));
         ArenaTeam* loserArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(winner)));
