@@ -18,7 +18,7 @@
 #ifndef __BATTLEGROUNDRV_H
 #define __BATTLEGROUNDRV_H
 
-#include "Battleground.h"
+#include "Arena.h"
 
 enum BattlegroundRVObjectTypes
 {
@@ -49,7 +49,7 @@ enum BattlegroundRVObjectTypes
     BG_RV_OBJECT_MAX
 };
 
-enum BattlegroundRVObjects
+enum BattlegroundRVGameObjects
 {
     BG_RV_OBJECT_TYPE_BUFF_1                     = 184663,
     BG_RV_OBJECT_TYPE_BUFF_2                     = 184664,
@@ -86,44 +86,29 @@ enum BattlegroundRVData
     BG_RV_FIRE_TO_PILLAR_TIMER                   = 20000,
     BG_RV_CLOSE_FIRE_TIMER                       =  5000,
     BG_RV_FIRST_TIMER                            = 20133,
-    BG_RV_WORLD_STATE_A                          = 0xe10,
-    BG_RV_WORLD_STATE_H                          = 0xe11,
+
     BG_RV_WORLD_STATE                            = 0xe1a
 };
 
-class BattlegroundRV : public Battleground
+class BattlegroundRV : public Arena
 {
     public:
         BattlegroundRV();
-        ~BattlegroundRV();
 
         /* inherited from BattlegroundClass */
-        void AddPlayer(Player* player);
-        void StartingEventCloseDoors();
         void StartingEventOpenDoors();
-        void Reset();
         void FillInitialWorldStates(WorldPacket &d);
 
-        void RemovePlayer(Player* player, uint64 guid, uint32 team);
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
         bool SetupBattleground();
-        void HandleKillPlayer(Player* player, Player* killer);
 
     private:
-        uint32 Timer;
-        uint32 State;
-        bool   PillarCollision;
-
         void PostUpdateImpl(uint32 diff);
 
-    protected:
-        uint32 getTimer() { return Timer; }
-        void setTimer(uint32 timer) { Timer = timer; }
-
-        uint32 getState() { return State; }
-        void setState(uint32 state) { State = state; }
         void TogglePillarCollision();
-        bool GetPillarCollision() { return PillarCollision; }
-        void SetPillarCollision(bool apply) { PillarCollision = apply; }
+
+        uint32 _timer;
+        uint32 _state;
+        bool   _pillarCollision;
 };
 #endif
