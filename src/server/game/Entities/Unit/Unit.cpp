@@ -6618,6 +6618,38 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 /*damage*/, Aura* triggeredByAura
             }
             break;
         }
+        case SPELLFAMILY_ROGUE:
+            switch(dummySpell->Id)
+            {
+                // Gouge
+                case 1776:
+                    *handled = true;
+                    // Check so gouge spell effect [1] (SPELL_EFFECT_SCHOOL_DAMAGE) cannot cancel stun effect
+                    if (procSpell && procSpell->Id == 1776)
+                        return false;
+                    Unit* caster = triggeredByAura->GetCaster();
+                    //rank2 Sanguinary Vein
+                    if (caster->HasAura(79147) && procSpell)
+                        switch(procSpell->Id){
+                            case 89775: // Hemorrhage glyph bleed
+                            case 703:   // Garrote bleed
+                            case 1943:  // Rupture bleed
+                                return false;
+                                break;
+                        }
+                    //rank1 Sanguinary Vein
+                    else if (caster->HasAura(79146) && procSpell)
+                        switch(procSpell->Id){
+                            case 89775: // Hemorrhage glyph bleed
+                            case 703:   // Garrote bleed
+                            case 1943:  // Rupture bleed
+                                return roll_chance_i(50); // 50% chance to break
+                                break;
+                        }
+                    return true;
+                    break;
+            }
+            break;
     }
     return false;
 }
