@@ -48,8 +48,8 @@
 #include "MovementPacketBuilder.h"
 #include "DynamicTree.h"
 #include "Group.h"
-#include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "Battleground.h"
 #include "Chat.h"
 
 uint32 GuidHigh2TypeId(uint32 guid_hi)
