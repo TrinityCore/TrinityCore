@@ -19,7 +19,9 @@
 #ifndef TRINITY_DEFINE_H
 #define TRINITY_DEFINE_H
 
-#if COMPILER_GNU == COMPILER_GNU
+#include "CompilerDefs.h"
+
+#if COMPILER == COMPILER_GNU
 #  if !defined(__STDC_FORMAT_MACROS)
 #    define __STDC_FORMAT_MACROS
 #  endif
@@ -27,7 +29,6 @@
 
 #include <cstddef>
 #include <cinttypes>
-#include "CompilerDefs.h"
 
 #define TRINITY_LITTLEENDIAN 0
 #define TRINITY_BIGENDIAN    1
