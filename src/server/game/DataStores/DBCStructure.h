@@ -655,7 +655,7 @@ struct BattlemasterListEntry
 {
     uint32  id;                                             // 0
     int32   mapid[8];                                       // 1-8 mapid
-    uint32  type;                                           // 9 (3 - BG, 4 - arena)
+    uint32  type;                                           // 9 map type (3 - BG, 4 - arena)
     //uint32 canJoinAsGroup;                                // 10 (0 or 1)
     char* name;                                             // 11
     uint32 maxGroupSize;                                    // 12 maxGroupSize, used for checking if queue as group

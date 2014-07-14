@@ -49,8 +49,8 @@
 #include "DynamicTree.h"
 #include "Unit.h"
 #include "Group.h"
-#include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "Battleground.h"
 #include "Chat.h"
 
 uint32 GuidHigh2TypeId(uint32 guid_hi)
@@ -732,7 +732,7 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
         case TYPEID_ITEM:
         case TYPEID_CONTAINER:
             flags = ItemUpdateFieldFlags;
-            if (((Item*)this)->GetOwnerGUID() == target->GetGUID())
+            if (((Item const*)this)->GetOwnerGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER | UF_FLAG_ITEM_OWNER;
             break;
         case TYPEID_UNIT:
@@ -758,7 +758,7 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
             break;
         case TYPEID_DYNAMICOBJECT:
             flags = DynamicObjectUpdateFieldFlags;
-            if (((DynamicObject*)this)->GetCasterGUID() == target->GetGUID())
+            if (ToDynObject()->GetCasterGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER;
             break;
         case TYPEID_CORPSE:

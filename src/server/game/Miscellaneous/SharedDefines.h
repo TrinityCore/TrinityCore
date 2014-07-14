@@ -3796,6 +3796,15 @@ enum BanReturn
     BAN_NOTFOUND
 };
 
+enum BattlegroundTeamId
+{
+    BG_TEAM_HORDE       = 0, // Battleground: Horde,    Arena: Green
+    BG_TEAM_ALLIANCE    = 1, // Battleground: Alliance, Arena: Gold
+    BG_TEAM_NEUTRAL     = 2  // Battleground: Neutral,  Arena: None
+};
+
+#define BG_TEAMS_COUNT  2
+
 // indexes of BattlemasterList.dbc
 enum BattlegroundTypeId
 {
@@ -3958,6 +3967,7 @@ enum DuelCompleteType
     DUEL_WON         = 1,
     DUEL_FLED        = 2
 };
+
 // handle the queue types and bg types separately to enable joining queue for different sized arenas at the same time
 enum BattlegroundQueueTypeId
 {

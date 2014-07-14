@@ -471,6 +471,7 @@ public:
         Player* target;
         uint64 targetGuid;
         std::string targetName;
+        PreparedStatement* stmt = NULL;
 
         if (!*args)
             return false;
@@ -485,35 +486,38 @@ public:
         else if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
             return false;
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_COUNT);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_COUNT);
         stmt->setUInt32(0, targetGuid);
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
-        if (result)
+        PreparedQueryResult queryResult = CharacterDatabase.Query(stmt);
+        if (queryResult)
         {
-            Field* fields = result->Fetch();
-            uint32 countMail = fields[0].GetUInt64();
+            Field* fields       = queryResult->Fetch();
+            uint32 countMail    = fields[0].GetUInt64();
+
             std::string nameLink = handler->playerLink(targetName);
             handler->PSendSysMessage(LANG_LIST_MAIL_HEADER, countMail, nameLink.c_str(), targetGuid);
             handler->PSendSysMessage(LANG_ACCOUNT_LIST_BAR);
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_INFO);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_INFO);
             stmt->setUInt32(0, targetGuid);
-            PreparedQueryResult result = CharacterDatabase.Query(stmt);
-            if (result)
+            PreparedQueryResult queryResult = CharacterDatabase.Query(stmt);
+
+            if (queryResult)
             {
                 do
                 {
-                    Field* fields           = result->Fetch();
-                    uint32 messageId        = fields[0].GetUInt32();
-                    uint32 senderId         = fields[1].GetUInt32();
-                    std::string sender      = fields[2].GetString();
-                    uint32 receiverId       = fields[3].GetUInt32();
-                    std::string receiver    = fields[4].GetString();
-                    std::string subject     = fields[5].GetString();
-                    uint64 deliverTime      = fields[6].GetUInt32();
-                    uint64 expireTime       = fields[7].GetUInt32();
-                    uint32 money            = fields[8].GetUInt32();
-                    int hasItem             = fields[9].GetUInt8();
-                    uint32 gold = money /GOLD;
+                    Field* queryFields      = queryResult->Fetch();
+                    uint32 messageId        = queryFields[0].GetUInt32();
+                    uint32 senderId         = queryFields[1].GetUInt32();
+                    std::string sender      = queryFields[2].GetString();
+                    uint32 receiverId       = queryFields[3].GetUInt32();
+                    std::string receiver    = queryFields[4].GetString();
+                    std::string subject     = queryFields[5].GetString();
+                    uint64 deliverTime      = queryFields[6].GetUInt32();
+                    uint64 expireTime       = queryFields[7].GetUInt32();
+                    uint32 money            = queryFields[8].GetUInt32();
+                    uint8 hasItem           = queryFields[9].GetUInt8();
+                    uint32 gold = money / GOLD;
                     uint32 silv = (money % GOLD) / SILVER;
                     uint32 copp = (money % GOLD) % SILVER;
                     std::string receiverStr = handler->playerLink(receiver);
@@ -521,6 +525,7 @@ public:
                     handler->PSendSysMessage(LANG_LIST_MAIL_INFO_1, messageId, subject.c_str(), gold, silv, copp);
                     handler->PSendSysMessage(LANG_LIST_MAIL_INFO_2, senderStr.c_str(), senderId, receiverStr.c_str(), receiverId);
                     handler->PSendSysMessage(LANG_LIST_MAIL_INFO_3, TimeToTimestampStr(deliverTime).c_str(), TimeToTimestampStr(expireTime).c_str());
+
                     if (hasItem == 1)
                     {
                         QueryResult result2;
@@ -529,17 +534,17 @@ public:
                         {
                             do
                             {
-                                uint32 item_guid        = (*result2)[0].GetUInt32();
-                                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_ITEMS);
+                                uint32 item_guid = (*result2)[0].GetUInt32();
+                                stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_ITEMS);
                                 stmt->setUInt32(0, item_guid);
                                 PreparedQueryResult result3 = CharacterDatabase.Query(stmt);
                                 if (result3)
                                 {
                                     do
                                     {
-                                        Field* fields           = result3->Fetch();
-                                        uint32 item_entry       = fields[0].GetUInt32();
-                                        uint32 item_count       = fields[1].GetUInt32();
+                                        Field* fields3          = result3->Fetch();
+                                        uint32 item_entry       = fields3[0].GetUInt32();
+                                        uint32 item_count       = fields3[1].GetUInt32();
                                         QueryResult result4;
                                         result4 = WorldDatabase.PQuery("SELECT name, quality FROM item_template WHERE entry = '%u'", item_entry);
                                         Field* fields1          = result4->Fetch();
@@ -563,7 +568,7 @@ public:
                     }
                     handler->PSendSysMessage(LANG_ACCOUNT_LIST_BAR);
                 }
-                while (result->NextRow());
+                while (queryResult->NextRow());
             }
             else
                 handler->PSendSysMessage(LANG_LIST_MAIL_NOT_FOUND);
