@@ -1229,7 +1229,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
     float attPowerMultiplier = ((GetModifierValue(unitMod_pos, TOTAL_PCT) - 1.0f) + (GetModifierValue(unitMod_neg, TOTAL_PCT) - 1.0f));
 
     //UNIT_FIELD_(RANGED)_ATTACK_POWER_MODS field
-    SetInt32Value(UNIT_FIELD_ATTACK_POWER_MOD_POS, (int32)attPowerMod_pos);
+    SetInt32Value(UNIT_FIELD_ATTACK_POWER_MOD_POS, (int32)attPowerMod_pos + base_attPower);
     SetInt32Value(UNIT_FIELD_ATTACK_POWER_MOD_NEG, (int32)attPowerMod_neg);
     //SetInt32Value(UNIT_FIELD_ATTACK_POWER_MODS, (int32)attPowerMod);
     //UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
