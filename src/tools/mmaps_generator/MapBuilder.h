@@ -23,12 +23,15 @@
 #include <set>
 #include <map>
 #include <list>
+#include <atomic>
+#include <thread>
 
 #include "TerrainBuilder.h"
 #include "IntermediateValues.h"
 
 #include "Recast.h"
 #include "DetourNavMesh.h"
+#include "ProducerConsumerQueue.h"
 
 using namespace VMAP;
 
@@ -96,6 +99,8 @@ namespace MMAP
             // builds list of maps, then builds all of mmap tiles (based on the skip settings)
             void buildAllMaps(int threads);
 
+            void MapBuilder::WorkerThread();
+
         private:
             // detect maps and tiles
             void discoverTiles();
@@ -138,6 +143,10 @@ namespace MMAP
 
             // build performance - not really used for now
             rcContext* m_rcContext;
+
+            std::vector<std::thread> _workerThreads;
+            ProducerConsumerQueue<uint32> _queue;
+            std::atomic<bool> _cancelationToken;
     };
 }
 
