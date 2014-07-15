@@ -26,6 +26,7 @@
 
 #include <cstdlib>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/program_options.hpp>
 #include <iostream>
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
@@ -42,6 +43,7 @@
 #include "Util.h"
 
 using boost::asio::ip::tcp;
+using namespace boost::program_options;
 
 #ifndef _TRINITY_REALM_CONFIG
 # define _TRINITY_REALM_CONFIG  "authserver.conf"
@@ -51,7 +53,7 @@ bool StartDB();
 void StopDB();
 void SignalHandler(const boost::system::error_code& error, int signalNumber);
 void KeepDatabaseAliveHandler(const boost::system::error_code& error);
-void usage(const char* prog);
+variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile);
 
 boost::asio::io_service _ioService;
 boost::asio::deadline_timer _dbPingTimer(_ioService);
@@ -60,36 +62,24 @@ LoginDatabaseWorkerPool LoginDatabase;
 
 int main(int argc, char** argv)
 {
-    // Command line parsing to get the configuration file name
-    char const* configFile = _TRINITY_REALM_CONFIG;
-    int count = 1;
-    while (count < argc)
-    {
-        if (strcmp(argv[count], "-c") == 0)
-        {
-            if (++count >= argc)
-            {
-                printf("Runtime-Error: -c option requires an input argument\n");
-                usage(argv[0]);
-                return 1;
-            }
-            else
-                configFile = argv[count];
-        }
-        ++count;
-    }
+    std::string configFile = _TRINITY_REALM_CONFIG;
+    auto vm = GetConsoleArguments(argc, argv, configFile);
+    // exit if help is enabled
+    if (vm.count("help"))
+        return 0;
 
     if (!sConfigMgr->LoadInitial(configFile))
     {
-        printf("Invalid or missing configuration file : %s\n", configFile);
+        printf("Invalid or missing configuration file : %s\n", configFile.c_str());
         printf("Verify that the file exists and has \'[authserver]\' written in the top of the file!\n");
         return 1;
     }
 
     TC_LOG_INFO("server.authserver", "%s (authserver)", _FULLVERSION);
     TC_LOG_INFO("server.authserver", "<Ctrl-C> to stop.\n");
-    TC_LOG_INFO("server.authserver", "Using configuration file %s.", configFile);
-    TC_LOG_INFO("server.authserver", "%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+    TC_LOG_INFO("server.authserver", "Using configuration file %s.", configFile.c_str());
+    TC_LOG_INFO("server.worldserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+    TC_LOG_INFO("server.worldserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
 
     // authserver PID file creation
     std::string pidFile = sConfigMgr->GetStringDefault("PidFile", "");
@@ -222,10 +212,26 @@ void KeepDatabaseAliveHandler(const boost::system::error_code& error)
     }
 }
 
-/// Print out the usage string for this program on the console.
-void usage(const char* prog)
+variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile)
 {
-    TC_LOG_INFO("server.authserver", "Usage: \n %s [<options>]\n"
-        "    -c config_file           use config_file as configuration file\n\r",
-        prog);
+    options_description all("Allowed options");
+    all.add_options()
+        ("help,h", "print usage message")
+        ("config,c", value<std::string>(&configFile)->default_value(_TRINITY_REALM_CONFIG), "use <arg> as configuration file")
+        ;
+    variables_map variablesMap;
+    try
+    {
+        store(command_line_parser(argc, argv).options(all).allow_unregistered().run(), variablesMap);
+        notify(variablesMap);
+    }
+    catch (std::exception& e) {
+        std::cerr << e.what() << "\n";
+    }
+
+    if (variablesMap.count("help")) {
+        std::cout << all << "\n";
+    }
+
+    return variablesMap;
 }

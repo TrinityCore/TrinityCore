@@ -24,6 +24,7 @@
 #include <openssl/crypto.h>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/deadline_timer.hpp>
+#include <boost/program_options.hpp>
 
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -44,6 +45,8 @@
 #include "CliRunnable.h"
 #include "SystemConfig.h"
 #include "WorldSocket.h"
+
+using namespace boost::program_options;
 
 #ifndef _TRINITY_CORE_CONFIG
     #define _TRINITY_CORE_CONFIG  "worldserver.conf"
@@ -76,7 +79,6 @@ CharacterDatabaseWorkerPool CharacterDatabase;              ///< Accessor to the
 LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the realm/login database
 uint32 realmID;                                             ///< Id of the realm
 
-void usage(const char* prog);
 void SignalHandler(const boost::system::error_code& error, int signalNumber);
 void FreezeDetectorHandler(const boost::system::error_code& error);
 AsyncAcceptor<RASession>* StartRaSocketAcceptor(boost::asio::io_service& ioService);
@@ -84,66 +86,32 @@ bool StartDB();
 void StopDB();
 void WorldUpdateLoop();
 void ClearOnlineAccounts();
+variables_map GetConsoleArguments(int argc, char** argv, std::string& cfg_file, std::string& cfg_service);
 
 /// Launch the Trinity server
 extern int main(int argc, char** argv)
 {
-    ///- Command line parsing to get the configuration file name
-    char const* cfg_file = _TRINITY_CORE_CONFIG;
-    int c = 1;
-    while (c < argc)
+    std::string configFile = _TRINITY_CORE_CONFIG;
+    std::string configService;
+
+    auto vm = GetConsoleArguments(argc, argv, configFile, configService);
+    // exit if help is enabled
+    if (vm.count("help"))
+        return 0;
+
+    if (!configService.empty())
     {
-        if (!strcmp(argv[c], "-c"))
-        {
-            if (++c >= argc)
-            {
-                printf("Runtime-Error: -c option requires an input argument");
-                usage(argv[0]);
-                return 1;
-            }
-            else
-                cfg_file = argv[c];
-        }
-
-#ifdef _WIN32
-        if (strcmp(argv[c], "-s") == 0) // Services
-        {
-            if (++c >= argc)
-            {
-                printf("Runtime-Error: -s option requires an input argument");
-                usage(argv[0]);
-                return 1;
-            }
-
-            if (strcmp(argv[c], "install") == 0)
-            {
-                if (WinServiceInstall())
-                    printf("Installing service\n");
-                return 1;
-            }
-            else if (strcmp(argv[c], "uninstall") == 0)
-            {
-                if (WinServiceUninstall())
-                    printf("Uninstalling service\n");
-                return 1;
-            }
-            else
-            {
-                printf("Runtime-Error: unsupported option %s", argv[c]);
-                usage(argv[0]);
-                return 1;
-            }
-        }
-
-        if (strcmp(argv[c], "--service") == 0)
+        if (configService.compare("install") == 0)
+            return WinServiceInstall() == true ? 0 : 1;
+        else if (configService.compare("uninstall") == 0)
+            return WinServiceUninstall() == true ? 0 : 1;
+        else if (configService.compare("run") == 0)
             WinServiceRun();
-#endif
-        ++c;
     }
 
-    if (!sConfigMgr->LoadInitial(cfg_file))
+    if (!sConfigMgr->LoadInitial(configFile))
     {
-        printf("Invalid or missing configuration file : %s\n", cfg_file);
+        printf("Invalid or missing configuration file : %s\n", configFile.c_str());
         printf("Verify that the file exists and has \'[worldserver]' written in the top of the file!\n");
         return 1;
     }
@@ -165,7 +133,7 @@ extern int main(int argc, char** argv)
     TC_LOG_INFO("server.worldserver", "      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\");
     TC_LOG_INFO("server.worldserver", "                                 C O R E  /\\___/");
     TC_LOG_INFO("server.worldserver", "http://TrinityCore.org                    \\/__/\n");
-    TC_LOG_INFO("server.worldserver", "Using configuration file %s.", cfg_file);
+    TC_LOG_INFO("server.worldserver", "Using configuration file %s.", configFile.c_str());
     TC_LOG_INFO("server.worldserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
     TC_LOG_INFO("server.worldserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
 
@@ -403,20 +371,6 @@ void WorldUpdateLoop()
     }
 }
 
-/// Print out the usage string for this program on the console.
-void usage(const char* prog)
-{
-    printf("Usage:\n");
-    printf(" %s [<options>]\n", prog);
-    printf("    -c config_file           use config_file as configuration file\n");
-#ifdef _WIN32
-    printf("    Running as service functions:\n");
-    printf("    --service                run as service\n");
-    printf("    -s install               install service\n");
-    printf("    -s uninstall             uninstall service\n");
-#endif
-}
-
 void SignalHandler(const boost::system::error_code& error, int signalNumber)
 {
     if (!error)
@@ -587,3 +541,35 @@ void ClearOnlineAccounts()
 }
 
 /// @}
+
+variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile, std::string& configService)
+{
+    options_description all("Allowed options");
+    all.add_options()
+        ("help,h", "print usage message")
+        ("config,c", value<std::string>(&configFile)->default_value(_TRINITY_CORE_CONFIG), "use <arg> as configuration file")
+        ;
+#ifdef _WIN32
+    options_description win("Windows platform specific options");
+    win.add_options()
+        ("service,s", value<std::string>(&configService)->default_value(""), "Windows service options: [install | uninstall]")
+        ;
+
+    all.add(win);
+#endif
+    variables_map vm;
+    try
+    {
+        store(command_line_parser(argc, argv).options(all).allow_unregistered().run(), vm);
+        notify(vm);
+    }
+    catch (std::exception& e) {
+        std::cerr << e.what() << "\n";
+    }
+
+    if (vm.count("help")) {
+        std::cout << all << "\n";
+    }
+
+    return vm;
+}
