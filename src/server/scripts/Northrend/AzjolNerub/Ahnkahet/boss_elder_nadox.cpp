@@ -221,33 +221,6 @@ class npc_ahnkahar_nerubian : public CreatureScript
         }
 };
 
-//HACK: No, AI. Replace with proper db content?
-class npc_nadox_eggs : public CreatureScript
-{
-public:
-    npc_nadox_eggs() : CreatureScript("npc_nadox_eggs") { }
-
-    struct npc_nadox_eggsAI : public ScriptedAI
-    {
-        npc_nadox_eggsAI(Creature* creature) : ScriptedAI(creature)
-        {
-            creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
-        }
-
-        void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
-        void AttackStart(Unit* /*victim*/) override { }
-        void MoveInLineOfSight(Unit* /*who*/) override { }
-
-        void UpdateAI(uint32 /*diff*/) override { }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_nadox_eggsAI(creature);
-    }
-};
-
 class GuardianCheck
 {
 public:
@@ -309,7 +282,6 @@ void AddSC_boss_elder_nadox()
 {
     new boss_elder_nadox();
     new npc_ahnkahar_nerubian();
-    new npc_nadox_eggs();
     new spell_elder_nadox_guardian();
     new achievement_respect_your_elders();
 }
