@@ -25,10 +25,8 @@
 
 using namespace boost::property_tree;
 
-bool ConfigMgr::LoadInitial(char const* file)
+bool ConfigMgr::LoadInitial(std::string const& file)
 {
-    ASSERT(file);
-
     std::lock_guard<std::mutex> lock(_configLock);
 
     _filename = file;
@@ -57,7 +55,7 @@ bool ConfigMgr::Reload()
     return LoadInitial(_filename.c_str());
 }
 
-std::string ConfigMgr::GetStringDefault(const char* name, const std::string& def)
+std::string ConfigMgr::GetStringDefault(std::string const& name, const std::string& def)
 {
     std::string value = _config.get<std::string>(ptree::path_type(name, '/'), def);
 
@@ -66,7 +64,7 @@ std::string ConfigMgr::GetStringDefault(const char* name, const std::string& def
     return value;
 }
 
-bool ConfigMgr::GetBoolDefault(const char* name, bool def)
+bool ConfigMgr::GetBoolDefault(std::string const& name, bool def)
 {
     try
     {
@@ -80,12 +78,12 @@ bool ConfigMgr::GetBoolDefault(const char* name, bool def)
     }
 }
 
-int ConfigMgr::GetIntDefault(const char* name, int def)
+int ConfigMgr::GetIntDefault(std::string const& name, int def)
 {
     return _config.get<int>(ptree::path_type(name, '/'), def);
 }
 
-float ConfigMgr::GetFloatDefault(const char* name, float def)
+float ConfigMgr::GetFloatDefault(std::string const& name, float def)
 {
     return _config.get<float>(ptree::path_type(name, '/'), def);
 }
