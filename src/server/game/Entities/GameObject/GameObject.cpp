@@ -1095,7 +1095,6 @@ void GameObject::TriggeringLinkedGameObject(uint32 trapEntry, Unit* target)
 	if (trapGO) {
 		if(trapInfo->trap.spellId)
 			trapGO->CastSpell(target, trapInfo->trap.spellId);
-		printf("asdfasfasfasf\n");
 		GameObjectTemplate const* goInfo = trapGO->GetGOInfo();
 		if (goInfo->trap.type == 1)         // Deactivate after trigger
 			trapGO->SetLootState(GO_JUST_DEACTIVATED);
