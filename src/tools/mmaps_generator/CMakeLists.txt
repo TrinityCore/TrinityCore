@@ -45,6 +45,7 @@ target_link_libraries(mmaps_generator
   g3dlib
   Recast
   Detour
+  pthread
   ${ACE_LIBRARY}
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}

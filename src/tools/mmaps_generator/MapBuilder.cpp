@@ -348,7 +348,7 @@ namespace MMAP
     /**************************************************************************/
     void MapBuilder::buildMap(uint32 mapID)
     {
-#ifndef __APPLE__
+#if !defined(__APPLE__) && !defined(__FreeBSD__)
         printf("[Thread %u] Building map %03u:\n", uint32(ACE_Thread::self()), mapID);
 #endif
 
