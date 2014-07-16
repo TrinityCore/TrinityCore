@@ -54,21 +54,38 @@ public:
         npc_lazy_peonAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 PlayerGUID;
-
         uint32 RebuffTimer;
-        bool work;
+        uint32 walktimer;
+        bool isInit;
+        int work;
 
         void Reset() override
         {
             PlayerGUID = 0;
             RebuffTimer = 0;
-            work = false;
+            work = 0;
+            uint32 ran = rand();
+            isInit = false;
+            if (ran % 2 == 0) {
+                work = 0;
+            } else {
+                work = 2;
+                RebuffTimer = 90000;
+                isInit = true;
+            }
         }
 
         void MovementInform(uint32 /*type*/, uint32 id) override
         {
-            if (id == 1)
-                work = true;
+            if (id == 1) {
+                work = 1;
+                RebuffTimer = 90000;
+            }
+            else if(id == 2) {
+                work = 0;
+                DoCast(me, SPELL_BUFF_SLEEP);
+                RebuffTimer = 90000;
+            }
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell) override
@@ -80,26 +97,45 @@ public:
             if (player && player->GetQuestStatus(QUEST_LAZY_PEONS) == QUEST_STATUS_INCOMPLETE)
             {
                 player->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
-                Talk(SAY_SPELL_HIT, caster);
-                me->RemoveAllAuras();
-                if (GameObject* Lumberpile = me->FindNearestGameObject(GO_LUMBERPILE, 20))
-                    me->GetMotionMaster()->MovePoint(1, Lumberpile->GetPositionX()-1, Lumberpile->GetPositionY(), Lumberpile->GetPositionZ());
+            }
+            Talk(SAY_SPELL_HIT, caster);
+            me->RemoveAllAuras();
+            if (GameObject* Lumberpile = me->FindNearestGameObject(GO_LUMBERPILE, 20)) {
+                me->SetWalk(false);
+                me->GetMotionMaster()->MovePoint(1, Lumberpile->GetPositionX() - 1, Lumberpile->GetPositionY(), Lumberpile->GetPositionZ());
             }
         }
 
         void UpdateAI(uint32 diff) override
         {
-            if (work == true)
-                me->HandleEmoteCommand(EMOTE_ONESHOT_WORK_CHOPWOOD);
-            if (RebuffTimer <= diff)
-            {
-                DoCast(me, SPELL_BUFF_SLEEP);
-                RebuffTimer = 300000;                 //Rebuff agian in 5 minutes
+            if (isInit) {
+                if (GameObject* Lumberpile = me->FindNearestGameObject(GO_LUMBERPILE, 20)) {
+                    me->RemoveAllAuras();
+                    me->SetWalk(true);
+                    me->GetMotionMaster()->MovePoint(1, Lumberpile->GetPositionX() - 1, Lumberpile->GetPositionY(), Lumberpile->GetPositionZ());
+                    isInit = false;
+                }
             }
-            else
-                RebuffTimer -= diff;
-            if (!UpdateVictim())
-                return;
+
+            if (work == 1) {
+                me->HandleEmoteCommand(EMOTE_STATE_WORK_CHOPWOOD);
+                if (RebuffTimer < diff) {
+                    float x, y, z;
+                    me->GetRespawnPosition(x, y, z);
+                    me->SetWalk(true);
+                    me->GetMotionMaster()->MovePoint(2, x, y, z);
+                    work = 2;
+                } else {
+                    RebuffTimer -= diff;
+                }
+            } else if(work == 0) {
+                if (RebuffTimer < diff) {
+                    isInit = true;
+                    work = 2;
+                } else {
+                    RebuffTimer -= diff;
+                }
+            }
             DoMeleeAttackIfReady();
         }
     };
