@@ -409,20 +409,49 @@ class boss_vazruden_the_herald : public CreatureScript
                         if ((Nazan && Nazan->IsAlive()) || (Vazruden && Vazruden->IsAlive()))
                         {
                             if ((Nazan && Nazan->GetVictim()) || (Vazruden && Vazruden->GetVictim()))
-                                return;
-                            else
                             {
-                                UnsummonAdds();
+                                if (Nazan->IsInCombat())
+                                return;
+                                else
+                                {
+                                const Position Nazan_FlyAggro = { -1380.425f, 1721.026f, 90.40f, 2.426f };
+                                if (Nazan)
+                                    Nazan->GetMotionMaster()->MoveTakeoff(0, Nazan_FlyAggro); //fly over party to gain aggro.
+                                }
+                            }
+                            else
+                            { //reset, if by chance the party wipes (1st boss)
+                                if (Vazruden && Vazruden->IsAlive())
+                                {
+                                if (phase != 1)
+                                    phase = 1;
+                                }
+                                else
+                                {
+                                if (phase != 2)//reset just Nazan, Vazruden is dead
+                                    phase = 2;
+                                }
+
+                                me->GetMotionMaster()->Clear(); //reset and move back into pos...
+                                me->GetMotionMaster()->MovePoint(0, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2]);
+
+                                if (phase > 2)
+                                {
                                 EnterEvadeMode();
+                                Reset();
+                                }
+
                                 return;
                             }
                         }
                         else if (!lootSpawned)
                         {
-                            me->SummonGameObject(DUNGEON_MODE(GO_FEL_IRON_CHEST_NORMAL, GO_FEL_IRON_CHECT_HEROIC), VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, 0, 0, 0, 0, 0);
-                            me->SetLootRecipient(NULL); // don't think this is necessary..
-                            //me->Kill(me);
+                            //spawn in the correct position, not sure why it was spawned under body
+                            me->SummonGameObject(DUNGEON_MODE(GO_FEL_IRON_CHEST_NORMAL, GO_FEL_IRON_CHECT_HEROIC), -1430.40f, 1771.90f, 82.022f, 5.100f, 0, 0, 0, 0, 0);
+                            me->SetLootRecipient(NULL);
                             lootSpawned = true;
+                            if (me->GetEntry() == NPC_VAZRUDEN_HERALD) //kill template boss to remove party aggro
+                            me->Kill(me);
                         }
                         check = 2000;
                     }
