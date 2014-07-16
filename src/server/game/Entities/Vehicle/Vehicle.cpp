@@ -730,6 +730,45 @@ void Vehicle::RemovePendingEventsForPassenger(Unit* passenger)
     }
 }
 
+/**
+* @fn Unit const* Vehicle::GetDriver() const
+*
+* @brief Returns unit capable of driving the vehicle
+*
+* @author Trisjdc
+* @date 5-5-2014
+*/
+
+Unit const* Vehicle::GetDriver() const
+{
+    for (SeatMap::const_iterator itr = Seats.begin(); itr != Seats.end(); ++itr)
+        if (itr->second.SeatInfo->CanControl())
+            return ObjectAccessor::GetUnit(*GetBase(), itr->second.Passenger.Guid);
+
+    return NULL;
+}
+
+/**
+* @fn bool Vehicle::HasPlayerDriver() const
+*
+* @brief Checks if the vehicle has a player who's driving it
+*
+* @author Trisjdc
+* @date 5-5-2014
+*
+* @return true if there's a player who's driving the vehicle, false otherwise
+*
+*/
+
+bool Vehicle::HasPlayerDriver() const
+{
+    for (SeatMap::const_iterator itr = Seats.begin(); itr != Seats.end(); ++itr)
+        if (itr->second.SeatInfo->CanControl() && IS_PLAYER_GUID(itr->second.Passenger.Guid))
+            return true;
+
+    return false;
+}
+
 VehicleJoinEvent::~VehicleJoinEvent()
 {
     if (Target)

@@ -30,7 +30,7 @@
 #include "SmartAI.h"
 #include "ScriptMgr.h"
 
-SmartAI::SmartAI(Creature* c) : CreatureAI(c)
+SmartAI::SmartAI(Creature* c) : VehicleAI(c)
 {
     // copy script to local (protection for table reload)
 
@@ -349,7 +349,9 @@ void SmartAI::UpdateAI(uint32 diff)
             mFollowArrivedTimer -= diff;
     }
 
-    if (!UpdateVictim())
+    VehicleAI::UpdateAI(diff);
+
+    if (!IsPlayerVehicle() && !UpdateVictim()) // while a player's vehicle, should not UpdateVictim
         return;
 
     if (mCanAutoAttack)
@@ -452,7 +454,7 @@ void SmartAI::EnterEvadeMode()
 
 void SmartAI::MoveInLineOfSight(Unit* who)
 {
-    if (!who)
+    if (!who || IsPlayerVehicle()) // should act passively while a player vehicle
         return;
 
     GetScript()->OnMoveInLineOfSight(who);
@@ -600,6 +602,9 @@ void SmartAI::JustSummoned(Creature* creature)
 
 void SmartAI::AttackStart(Unit* who)
 {
+    if (IsPlayerVehicle())
+        return;
+
     if (who && me->Attack(who, me->IsWithinMeleeRange(who)))
     {
         if (mCanCombatMove)
@@ -673,6 +678,9 @@ void SmartAI::InitializeAI()
 void SmartAI::OnCharmed(bool apply)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_CHARMED, NULL, 0, 0, apply);
+
+    if (me->IsVehicle())
+        VehicleAI::OnCharmed(apply);
 
     if (!apply && !me->IsInEvadeMode() && me->GetUInt64Value(UNIT_FIELD_CHARMEDBY))
         if (Unit* charmer = ObjectAccessor::GetUnit(*me, me->GetUInt64Value(UNIT_FIELD_CHARMEDBY)))

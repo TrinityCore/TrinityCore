@@ -2057,6 +2057,7 @@ struct VehicleSeatEntry
                                     || (m_flagsB & (VEHICLE_SEAT_FLAG_B_USABLE_FORCED | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2 |
                                         VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3 | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4))); }
     bool IsEjectable() const { return m_flagsB & VEHICLE_SEAT_FLAG_B_EJECTABLE; }
+    bool CanControl() const { return m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL; }
 };
 
 struct WMOAreaTableEntry
