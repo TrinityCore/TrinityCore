@@ -51,6 +51,7 @@ enum ScoreType
 
 struct BattlegroundScore
 {
+    friend class Arena;
     friend class Battleground;
 
     protected:
