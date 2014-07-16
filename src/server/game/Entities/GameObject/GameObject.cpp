@@ -1069,11 +1069,13 @@ void GameObject::TriggeringLinkedGameObject(uint32 trapEntry, Unit* target)
     if (!trapInfo || trapInfo->type != GAMEOBJECT_TYPE_TRAP)
         return;
 
+	float range = 0.0f;
     SpellInfo const* trapSpell = sSpellMgr->GetSpellInfo(trapInfo->trap.spellId);
-    if (!trapSpell)                                          // checked at load already
-        return;
-
-    float range = float(target->GetSpellMaxRangeForTarget(GetOwner(), trapSpell));
+	if (!trapSpell) {                                         // checked at load already
+		range = 5.0f;
+	} else {
+		range = float(target->GetSpellMaxRangeForTarget(GetOwner(), trapSpell));
+	}
 
     // search nearest linked GO
     GameObject* trapGO = NULL;
@@ -1090,8 +1092,15 @@ void GameObject::TriggeringLinkedGameObject(uint32 trapEntry, Unit* target)
     }
 
     // found correct GO
-    if (trapGO)
-        trapGO->CastSpell(target, trapInfo->trap.spellId);
+	if (trapGO) {
+		if(trapInfo->trap.spellId)
+			trapGO->CastSpell(target, trapInfo->trap.spellId);
+		printf("asdfasfasfasf\n");
+		GameObjectTemplate const* goInfo = trapGO->GetGOInfo();
+		if (goInfo->trap.type == 1)         // Deactivate after trigger
+			trapGO->SetLootState(GO_JUST_DEACTIVATED);
+		trapGO->UpdateObjectVisibility();
+	}
 }
 
 GameObject* GameObject::LookupFishingHoleAround(float range)
