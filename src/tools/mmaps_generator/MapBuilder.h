@@ -99,7 +99,7 @@ namespace MMAP
             // builds list of maps, then builds all of mmap tiles (based on the skip settings)
             void buildAllMaps(int threads);
 
-            void MapBuilder::WorkerThread();
+            void WorkerThread();
 
         private:
             // detect maps and tiles

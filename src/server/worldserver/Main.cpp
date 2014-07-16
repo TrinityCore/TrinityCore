@@ -99,15 +99,14 @@ extern int main(int argc, char** argv)
     if (vm.count("help"))
         return 0;
 
-    if (!configService.empty())
-    {
-        if (configService.compare("install") == 0)
-            return WinServiceInstall() == true ? 0 : 1;
-        else if (configService.compare("uninstall") == 0)
-            return WinServiceUninstall() == true ? 0 : 1;
-        else if (configService.compare("run") == 0)
-            WinServiceRun();
-    }
+#ifdef _WIN32
+    if (configService.compare("install") == 0)
+        return WinServiceInstall() == true ? 0 : 1;
+    else if (configService.compare("uninstall") == 0)
+        return WinServiceUninstall() == true ? 0 : 1;
+    else if (configService.compare("run") == 0)
+        WinServiceRun();
+#endif
 
     if (!sConfigMgr->LoadInitial(configFile))
     {
