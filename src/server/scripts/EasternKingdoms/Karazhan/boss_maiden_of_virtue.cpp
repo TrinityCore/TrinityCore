@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,13 +14,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* ScriptData
-SDName: Boss_Maiden_of_Virtue
-SD%Complete: 100
-SDComment:
-SDCategory: Karazhan
-EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -67,6 +59,11 @@ public:
     {
         boss_maiden_of_virtueAI(Creature* creature) : BossAI(creature, TYPE_MAIDEN) { }
 
+        void Reset() override
+        {
+            _Reset();
+        }
+
         void KilledUnit(Unit* /*Victim*/) override
         {
             if (urand(0, 1) == 0)
@@ -76,6 +73,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
+            _JustDied();
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -110,12 +108,12 @@ public:
                         events.ScheduleEvent(EVENT_REPENTANCE, urand(33, 45) * IN_MILLISECONDS);
                         break;
                     case EVENT_HOLYFIRE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true))
                             DoCast(target, SPELL_HOLYFIRE);
                         events.ScheduleEvent(EVENT_HOLYFIRE, 12 * IN_MILLISECONDS);
                         break;
                     case EVENT_HOLYWRATH:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
                             DoCast(target, SPELL_HOLYWRATH);
                         events.ScheduleEvent(EVENT_HOLYWRATH, urand(15, 25) * IN_MILLISECONDS);
                         break;
@@ -125,6 +123,8 @@ public:
                         break;
                     case EVENT_ENRAGE:
                         DoCast(me, SPELL_BERSERK, true);
+                        break;
+                    default:
                         break;
                 }
             }
