@@ -311,11 +311,8 @@ extern int main(int argc, char** argv)
         b[3].Event.KeyEvent.wRepeatCount = 1;
         DWORD numb;
         WriteConsoleInput(hStdIn, b, 4, &numb);
-
-        cliThread->join();
-
 #endif
-
+        cliThread->join();
         delete cliThread;
     }
 
