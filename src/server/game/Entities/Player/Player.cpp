@@ -26819,3 +26819,5 @@ void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell)
     WorldPacket data(SMSG_SUPERCEDED_SPELL, 8);
     data << uint32(oldSpell) << uint32(newSpell);
     GetSession()->SendPacket(&data);
+}
+
