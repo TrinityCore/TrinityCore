@@ -743,7 +743,7 @@ class spell_sha_item_mana_surge : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                return eventInfo.GetDamageInfo()->GetSpellInfo();
+                return eventInfo.GetDamageInfo()->GetSpellInfo() != nullptr;
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)

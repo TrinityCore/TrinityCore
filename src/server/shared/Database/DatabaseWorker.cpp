@@ -44,7 +44,7 @@ void DatabaseWorker::WorkerThread()
     if (!_queue)
         return;
 
-    while (1)
+    for (;;)
     {
         SQLOperation* operation = nullptr;
 

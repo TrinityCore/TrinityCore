@@ -59,7 +59,7 @@ bool ReputationMgr::IsAtWar(FactionEntry const* factionEntry) const
         return false;
 
     if (FactionState const* factionState = GetState(factionEntry))
-        return (factionState->Flags & FACTION_FLAG_AT_WAR);
+        return (factionState->Flags & FACTION_FLAG_AT_WAR) != 0;
     return false;
 }
 

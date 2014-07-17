@@ -158,7 +158,7 @@ void BattlegroundRV::TogglePillarCollision()
         {
             if (i >= BG_RV_OBJECT_PILAR_COLLISION_1)
             {
-                GOState state = (bool(go->GetGOInfo()->door.startOpen) == _pillarCollision) ? GO_STATE_ACTIVE : GO_STATE_READY;
+                GOState state = ((go->GetGOInfo()->door.startOpen != 0) == _pillarCollision) ? GO_STATE_ACTIVE : GO_STATE_READY;
                 go->SetGoState(state);
             }
 

@@ -68,7 +68,7 @@ class spell_rog_blade_flurry : public SpellScriptLoader
             bool CheckProc(ProcEventInfo& eventInfo)
             {
                 _procTarget = eventInfo.GetActor()->SelectNearbyTarget(eventInfo.GetProcTarget());
-                return _procTarget;
+                return _procTarget != nullptr;
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -119,7 +119,7 @@ class spell_rog_cheat_death : public SpellScriptLoader
             bool Load() override
             {
                 absorbChance = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
-                return GetUnitOwner()->ToPlayer();
+                return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
             }
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
@@ -637,7 +637,7 @@ class spell_rog_tricks_of_the_trade : public SpellScriptLoader
             bool CheckProc(ProcEventInfo& /*eventInfo*/)
             {
                 _redirectTarget = GetTarget()->GetRedirectThreatTarget();
-                return _redirectTarget;
+                return _redirectTarget != nullptr;
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)

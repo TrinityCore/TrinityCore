@@ -522,7 +522,7 @@ class npc_gothik_minion : public CreatureScript
 
             void DoAction(int32 param) override
             {
-                gateClose = param;
+                gateClose = param != 0;
             }
 
             void DamageTaken(Unit* attacker, uint32 &damage) override

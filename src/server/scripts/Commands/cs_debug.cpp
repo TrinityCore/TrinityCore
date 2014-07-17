@@ -909,7 +909,7 @@ public:
         handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, handler->GetSession()->GetPlayer()->GetObjectSize());
 
         if (!i)
-            return handler->GetSession()->GetPlayer()->SummonCreature(entry, x, y, z, o);
+            return handler->GetSession()->GetPlayer()->SummonCreature(entry, x, y, z, o) != nullptr;
 
         uint32 id = (uint32)atoi(i);
 
@@ -1108,28 +1108,28 @@ public:
 
         uint64 guid = target->GetGUID();
 
-        uint32 opcode = (uint32)atoi(x);
-        if (opcode >= target->GetValuesCount())
+        uint32 field = (uint32)atoi(x);
+        if (field >= target->GetValuesCount())
         {
-            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, opcode, GUID_LOPART(guid), target->GetValuesCount());
+            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, field, GUID_LOPART(guid), target->GetValuesCount());
             return false;
         }
 
         bool isInt32 = true;
         if (z)
-            isInt32 = (bool)atoi(z);
+            isInt32 = atoi(z) != 0;
 
         if (isInt32)
         {
             uint32 value = (uint32)atoi(y);
-            target->SetUInt32Value(opcode, value);
-            handler->PSendSysMessage(LANG_SET_UINT_FIELD, GUID_LOPART(guid), opcode, value);
+            target->SetUInt32Value(field, value);
+            handler->PSendSysMessage(LANG_SET_UINT_FIELD, GUID_LOPART(guid), field, value);
         }
         else
         {
             float value = (float)atof(y);
-            target->SetFloatValue(opcode, value);
-            handler->PSendSysMessage(LANG_SET_FLOAT_FIELD, GUID_LOPART(guid), opcode, value);
+            target->SetFloatValue(field, value);
+            handler->PSendSysMessage(LANG_SET_FLOAT_FIELD, GUID_LOPART(guid), field, value);
         }
 
         return true;
@@ -1165,7 +1165,7 @@ public:
 
         bool isInt32 = true;
         if (z)
-            isInt32 = (bool)atoi(z);
+            isInt32 = atoi(z) != 0;
 
         if (isInt32)
         {
@@ -1316,15 +1316,15 @@ public:
                                                     MOVEMENTFLAG_WALKING | MOVEMENTFLAG_SWIMMING |
                                                     MOVEMENTFLAG_SPLINE_ENABLED;
 
-            bool unhandledFlag = (moveFlags ^ target->GetUnitMovementFlags()) & ~FlagsWithHandlers;
+            bool unhandledFlag = ((moveFlags ^ target->GetUnitMovementFlags()) & ~FlagsWithHandlers) != 0;
 
-            target->SetWalk(moveFlags & MOVEMENTFLAG_WALKING);
-            target->SetDisableGravity(moveFlags & MOVEMENTFLAG_DISABLE_GRAVITY);
-            target->SetSwim(moveFlags & MOVEMENTFLAG_SWIMMING);
-            target->SetCanFly(moveFlags & MOVEMENTFLAG_CAN_FLY);
-            target->SetWaterWalking(moveFlags & MOVEMENTFLAG_WATERWALKING);
-            target->SetFeatherFall(moveFlags & MOVEMENTFLAG_FALLING_SLOW);
-            target->SetHover(moveFlags & MOVEMENTFLAG_HOVER);
+            target->SetWalk((moveFlags & MOVEMENTFLAG_WALKING) != 0);
+            target->SetDisableGravity((moveFlags & MOVEMENTFLAG_DISABLE_GRAVITY) != 0);
+            target->SetSwim((moveFlags & MOVEMENTFLAG_SWIMMING) != 0);
+            target->SetCanFly((moveFlags & MOVEMENTFLAG_CAN_FLY) != 0);
+            target->SetWaterWalking((moveFlags & MOVEMENTFLAG_WATERWALKING) != 0);
+            target->SetFeatherFall((moveFlags & MOVEMENTFLAG_FALLING_SLOW) != 0);
+            target->SetHover((moveFlags & MOVEMENTFLAG_HOVER) != 0);
 
             if (moveFlags & (MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_CAN_FLY))
                 moveFlags &= ~MOVEMENTFLAG_FALLING;

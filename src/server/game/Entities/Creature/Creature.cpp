@@ -1647,7 +1647,7 @@ bool Creature::isWorldBoss() const
     if (IsPet())
         return false;
 
-    return GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_BOSS;
+    return (GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_BOSS) != 0;
 }
 
 SpellInfo const* Creature::reachWithSpellAttack(Unit* victim)

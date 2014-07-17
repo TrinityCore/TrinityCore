@@ -6964,7 +6964,7 @@ void ObjectMgr::LoadReputationOnKill()
         repOnKill.IsTeamAward2        = fields[6].GetBool();
         repOnKill.ReputationMaxCap2  = fields[7].GetUInt8();
         repOnKill.RepValue2            = fields[8].GetInt32();
-        repOnKill.TeamDependent       = fields[9].GetUInt8();
+        repOnKill.TeamDependent       = fields[9].GetBool();
 
         if (!GetCreatureTemplate(creature_id))
         {
