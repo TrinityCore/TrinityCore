@@ -27897,6 +27897,6 @@ void Player::UpdatePhasing()
 void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell)
 {
     WorldPacket data(SMSG_SUPERCEDED_SPELL, 8);
-    data << uint32(oldSpell) << uint32(newSpell);
+    data << uint32(newSpell) << uint32(oldSpell);
     GetSession()->SendPacket(&data);
 }
