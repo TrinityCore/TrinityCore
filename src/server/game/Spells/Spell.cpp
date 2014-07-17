@@ -1759,8 +1759,8 @@ void Spell::SearchTargets(SEARCHER& searcher, uint32 containerMask, Unit* refere
         return;
 
     // search world and grid for possible targets
-    bool searchInGrid = containerMask & (GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_GAMEOBJECT);
-    bool searchInWorld = containerMask & (GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER | GRID_MAP_TYPE_MASK_CORPSE);
+    bool searchInGrid = (containerMask & (GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_GAMEOBJECT)) != 0;
+    bool searchInWorld = (containerMask & (GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER | GRID_MAP_TYPE_MASK_CORPSE)) != 0;
     if (searchInGrid || searchInWorld)
     {
         float x, y;
@@ -2537,7 +2537,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
             aura_effmask |= 1 << i;
 
     // Get Data Needed for Diminishing Returns, some effects may have multiple auras, so this must be done on spell hit, not aura add
-    m_diminishGroup = GetDiminishingReturnsGroupForSpell(m_spellInfo, m_triggeredByAuraSpell);
+    m_diminishGroup = GetDiminishingReturnsGroupForSpell(m_spellInfo, m_triggeredByAuraSpell != nullptr);
     if (m_diminishGroup && aura_effmask)
     {
         m_diminishLevel = unit->GetDiminishing(m_diminishGroup);
@@ -5516,7 +5516,7 @@ SpellCastResult Spell::CheckCasterAuras() const
             mechanic_immune = IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
     }
 
-    bool usableInStun = m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_STUNNED;
+    bool usableInStun = (m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_STUNNED) != 0;
 
     // Glyph of Pain Suppression
     // there is no other way to handle it
@@ -6472,7 +6472,7 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff) const
 
 bool Spell::IsNextMeleeSwingSpell() const
 {
-    return m_spellInfo->Attributes & SPELL_ATTR0_ON_NEXT_SWING;
+    return (m_spellInfo->Attributes & SPELL_ATTR0_ON_NEXT_SWING) != 0;
 }
 
 bool Spell::IsAutoActionResetSpell() const
@@ -6651,7 +6651,7 @@ void Spell::HandleLaunchPhase()
         if (m_applyMultiplierMask & (1 << i))
             multiplier[i] = m_spellInfo->Effects[i].CalcDamageMultiplier(m_originalCaster, this);
 
-    bool usesAmmo = m_spellInfo->AttributesCu & SPELL_ATTR0_CU_DIRECT_DAMAGE;
+    bool usesAmmo = (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_DIRECT_DAMAGE) != 0;
     Unit::AuraEffectList const& Auras = m_caster->GetAuraEffectsByType(SPELL_AURA_ABILITY_CONSUME_NO_AMMO);
     for (Unit::AuraEffectList::const_iterator j = Auras.begin(); j != Auras.end(); ++j)
     {

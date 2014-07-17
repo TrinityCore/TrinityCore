@@ -558,7 +558,7 @@ class boss_professor_putricide : public CreatureScript
             void SetData(uint32 id, uint32 data) override
             {
                 if (id == DATA_EXPERIMENT_STAGE)
-                    _experimentState = bool(data);
+                    _experimentState = data != 0;
             }
 
             void UpdateAI(uint32 diff) override

@@ -243,8 +243,8 @@ struct CalendarEvent
         void SetTimeZoneTime(time_t timezoneTime) { _timezoneTime = timezoneTime; }
         time_t GetTimeZoneTime() const { return _timezoneTime; }
 
-        bool IsGuildEvent() const { return _flags & CALENDAR_FLAG_GUILD_EVENT; }
-        bool IsGuildAnnouncement() const { return _flags & CALENDAR_FLAG_WITHOUT_INVITES; }
+        bool IsGuildEvent() const { return (_flags & CALENDAR_FLAG_GUILD_EVENT) != 0; }
+        bool IsGuildAnnouncement() const { return (_flags & CALENDAR_FLAG_WITHOUT_INVITES) != 0; }
 
         std::string BuildCalendarMailSubject(uint64 remover) const;
         std::string BuildCalendarMailBody() const;

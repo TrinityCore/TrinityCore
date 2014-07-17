@@ -1869,7 +1869,7 @@ void LFGMgr::Clean()
 
 bool LFGMgr::isOptionEnabled(uint32 option)
 {
-    return m_options & option;
+    return (m_options & option) != 0;
 }
 
 uint32 LFGMgr::GetOptions()

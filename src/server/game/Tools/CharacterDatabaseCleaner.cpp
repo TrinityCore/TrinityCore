@@ -108,7 +108,7 @@ void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table
 
 bool CharacterDatabaseCleaner::AchievementProgressCheck(uint32 criteria)
 {
-    return sAchievementMgr->GetAchievementCriteria(criteria);
+    return sAchievementMgr->GetAchievementCriteria(criteria) != nullptr;
 }
 
 void CharacterDatabaseCleaner::CleanCharacterAchievementProgress()
@@ -118,7 +118,7 @@ void CharacterDatabaseCleaner::CleanCharacterAchievementProgress()
 
 bool CharacterDatabaseCleaner::SkillCheck(uint32 skill)
 {
-    return sSkillLineStore.LookupEntry(skill);
+    return sSkillLineStore.LookupEntry(skill) != nullptr;
 }
 
 void CharacterDatabaseCleaner::CleanCharacterSkills()
@@ -142,7 +142,7 @@ bool CharacterDatabaseCleaner::TalentCheck(uint32 talent_id)
     if (!talentInfo)
         return false;
 
-    return sTalentTabStore.LookupEntry(talentInfo->TalentTab);
+    return sTalentTabStore.LookupEntry(talentInfo->TalentTab) != nullptr;
 }
 
 void CharacterDatabaseCleaner::CleanCharacterTalent()
