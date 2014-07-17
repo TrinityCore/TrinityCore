@@ -15,11 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <sstream>
+#if PLATFORM == PLATFORM_WINDOWS
+    #include <windows.h>
+#endif
+
 #include "AppenderConsole.h"
 #include "Config.h"
 #include "Util.h"
 
-#include <sstream>
 
 AppenderConsole::AppenderConsole(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags):
 Appender(id, name, APPENDER_CONSOLE, level, flags), _colored(false)
