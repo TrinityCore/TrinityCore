@@ -4154,7 +4154,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 bool Player::Has310Flyer(bool checkAllSpells, uint32 excludeSpellId)
 {
     if (!checkAllSpells)
-        return m_ExtraFlags & PLAYER_EXTRA_HAS_310_FLYER;
+        return (m_ExtraFlags & PLAYER_EXTRA_HAS_310_FLYER) != 0;
     else
     {
         SetHas310Flyer(false);
@@ -24151,7 +24151,7 @@ uint32 Player::GetCorpseReclaimDelay(bool pvp) const
 
 void Player::UpdateCorpseReclaimDelay()
 {
-    bool pvp = m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH;
+    bool pvp = (m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH) != 0;
 
     if ((pvp && !sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVP)) ||
         (!pvp && !sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE)))
@@ -24180,7 +24180,7 @@ int32 Player::CalculateCorpseReclaimDelay(bool load)
     if (load && !corpse)
         return -1;
 
-    bool pvp = corpse ? corpse->GetType() == CORPSE_RESURRECTABLE_PVP : m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH;
+    bool pvp = corpse ? corpse->GetType() == CORPSE_RESURRECTABLE_PVP : (m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH) != 0;
 
     uint32 delay;
 

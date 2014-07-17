@@ -1341,7 +1341,7 @@ public:
             return false;
         }
 
-        bool targetHasSkill = target->GetSkillValue(skill);
+        bool targetHasSkill = target->GetSkillValue(skill) != 0;
 
         // If our target does not yet have the skill they are trying to add to them, the chosen level also becomes
         // the max level of the new profession.

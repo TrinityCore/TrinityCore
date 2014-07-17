@@ -69,14 +69,14 @@ void RASession::Start()
         _socket.close();
         return;
     }
-    
+
     TC_LOG_INFO("commands.ra", "User %s (IP: %s) authenticated correctly to RA", username.c_str(), GetRemoteIpAddress().c_str());
 
     // Authentication successful, send the motd
     Send(std::string(std::string(sWorld->GetMotd()) + "\r\n").c_str());
 
     // Read commands
-    while (true)
+    for (;;)
     {
         Send("TC>");
         std::string command = ReadString();
@@ -113,7 +113,7 @@ std::string RASession::ReadString()
 
     if (*line.rbegin() == '\r')
         line.erase(line.length() - 1);
-    
+
     return line;
 }
 
@@ -202,7 +202,7 @@ bool RASession::ProcessCommand(std::string& command)
 
     // Wait for the command to finish
     _commandExecuting->get_future().wait();
-    
+
     return false;
 }
 

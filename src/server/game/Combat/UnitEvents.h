@@ -74,7 +74,7 @@ class UnitBaseEvent
     public:
         UnitBaseEvent(uint32 pType) { iType = pType; }
         uint32 getType() const { return iType; }
-        bool matchesTypeMask(uint32 pMask) const { return iType & pMask; }
+        bool matchesTypeMask(uint32 pMask) const { return (iType & pMask) != 0; }
 
         void setType(uint32 pType) { iType = pType; }
 };

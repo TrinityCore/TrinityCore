@@ -793,8 +793,8 @@ dtStatus PathGenerator::FindSmoothPath(float const* startPos, float const* endPo
         if (!GetSteerTarget(iterPos, targetPos, SMOOTH_PATH_SLOP, polys, npolys, steerPos, steerPosFlag, steerPosRef))
             break;
 
-        bool endOfPath = (steerPosFlag & DT_STRAIGHTPATH_END);
-        bool offMeshConnection = (steerPosFlag & DT_STRAIGHTPATH_OFFMESH_CONNECTION);
+        bool endOfPath = (steerPosFlag & DT_STRAIGHTPATH_END) != 0;
+        bool offMeshConnection = (steerPosFlag & DT_STRAIGHTPATH_OFFMESH_CONNECTION) != 0;
 
         // Find movement delta.
         float delta[VERTEX_SIZE];

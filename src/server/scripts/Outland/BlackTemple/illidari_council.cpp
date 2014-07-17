@@ -880,7 +880,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            return sSpellMgr->GetSpellInfo(SPELL_REFLECTIVE_SHIELD_T);
+            return sSpellMgr->GetSpellInfo(SPELL_REFLECTIVE_SHIELD_T) != nullptr;
         }
 
         void Trigger(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
