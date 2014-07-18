@@ -439,6 +439,7 @@ class StartMovementEvent : public BasicEvent
         bool Execute(uint64 /*time*/, uint32 /*diff*/)
         {
             _owner->SetReactState(REACT_AGGRESSIVE);
+            _owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             if (Unit* target = _summoner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(_summoner)))
                 _owner->AI()->AttackStart(target);
             return true;
@@ -719,6 +720,7 @@ class boss_the_lich_king : public CreatureScript
                         summon->CastSpell(summon, SPELL_RISEN_WITCH_DOCTOR_SPAWN, true);
                         summon->SetReactState(REACT_PASSIVE);
                         summon->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
+                        summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         summon->m_Events.AddEvent(new StartMovementEvent(me, summon), summon->m_Events.CalculateTime(5000));
                         break;
                     case NPC_ICE_SPHERE:
