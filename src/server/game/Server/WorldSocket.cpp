@@ -25,6 +25,7 @@
 #include "Opcodes.h"
 #include "ScriptMgr.h"
 #include "SHA1.h"
+#include "PacketLog.h"
 
 using boost::asio::ip::tcp;
 using boost::asio::streambuf;
@@ -53,10 +54,9 @@ void WorldSocket::HandleSendAuthSession()
     BigNumber seed2;
     seed2.SetRand(16 * 8);
     packet.append(seed2.AsByteArray(16).get(), 16);               // new encryption seeds
-    
+
     AsyncWrite(packet);
 }
-
 
 void WorldSocket::AsyncReadHeader()
 {
@@ -106,6 +106,11 @@ void WorldSocket::AsyncReadData(size_t dataSize)
                 std::memcpy(packet.contents(), &_readBuffer[sizeof(ClientPktHeader)], header->size);
             }
 
+            if (sPacketLog->CanLogPacket())
+                sPacketLog->LogPacket(packet, CLIENT_TO_SERVER);
+
+            TC_LOG_TRACE("network.opcode", "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress()).c_str(), GetOpcodeNameForLogging(opcode).c_str());
+
             switch (opcode)
             {
                 case CMSG_PING:
@@ -154,15 +159,20 @@ void WorldSocket::AsyncReadData(size_t dataSize)
 
 void WorldSocket::AsyncWrite(WorldPacket const& packet)
 {
+    if (sPacketLog->CanLogPacket())
+        sPacketLog->LogPacket(packet, SERVER_TO_CLIENT);
+
+    TC_LOG_TRACE("network.opcode", "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress()).c_str(), GetOpcodeNameForLogging(packet.GetOpcode()).c_str());
+
     ServerPktHeader header(packet.size() + 2, packet.GetOpcode());
     _authCrypt.EncryptSend((uint8*)header.header, header.getHeaderLength());
 
     auto data = new char[header.getHeaderLength() + packet.size()];
     std::memcpy(data, (char*)header.header, header.getHeaderLength());
-    
+
     if (!packet.empty())
         std::memcpy(data + header.getHeaderLength(), (char const*)packet.contents(), packet.size());
-    
+
     // Use a shared_ptr here to prevent leaking memory after the async operation has completed
     std::shared_ptr<char> buffer(data, [=](char* _b)
     {
