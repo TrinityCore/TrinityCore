@@ -2133,7 +2133,7 @@ class spell_item_complete_raptor_capture : public SpellScriptLoader
 enum ImpaleLeviroth
 {
     NPC_LEVIROTH                = 26452,
-    SPELL_LEVIROTH_SELF_IMPALE  = 49882,
+    SPELL_LEVIROTH_SELF_IMPALE  = 49882
 };
 
 class spell_item_impale_leviroth : public SpellScriptLoader
@@ -2152,11 +2152,14 @@ class spell_item_impale_leviroth : public SpellScriptLoader
                 return true;
             }
 
-            void HandleDummy(SpellEffIndex /* effIndex */)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* target = GetHitCreature())
+                if (Creature* target = GetHitCreature())
                     if (target->GetEntry() == NPC_LEVIROTH && !target->HealthBelowPct(95))
+                    {
                         target->CastSpell(target, SPELL_LEVIROTH_SELF_IMPALE, true);
+                        target->ResetPlayerDamageReq();
+                    }
             }
 
             void Register() override
