@@ -942,7 +942,7 @@ class npc_darkrune_guardian : public CreatureScript
             void SetData(uint32 type, uint32 value) override
             {
                 if (type == DATA_IRON_DWARF_MEDIUM_RARE)
-                    killedByBreath = value;
+                    killedByBreath = value != 0;
             }
 
             void KilledUnit(Unit* who) override

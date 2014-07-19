@@ -450,13 +450,13 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }
         uint32 GetCorpseDelay() const { return m_corpseDelay; }
         bool IsRacialLeader() const { return GetCreatureTemplate()->RacialLeader; }
-        bool IsCivilian() const { return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN; }
-        bool IsTrigger() const { return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER; }
-        bool IsGuard() const { return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD; }
-        bool IsIgnorePathfinding() const { return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING; }
-        bool CanWalk() const { return GetCreatureTemplate()->InhabitType & INHABIT_GROUND; }
-        bool CanSwim() const { return GetCreatureTemplate()->InhabitType & INHABIT_WATER || IsPet(); }
-        bool CanFly()  const { return GetCreatureTemplate()->InhabitType & INHABIT_AIR; }
+        bool IsCivilian() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN) != 0; }
+        bool IsTrigger() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER) != 0; }
+        bool IsGuard() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD) != 0; }
+        bool CanWalk() const { return (GetCreatureTemplate()->InhabitType & INHABIT_GROUND) != 0; }
+        bool CanSwim() const { return (GetCreatureTemplate()->InhabitType & INHABIT_WATER) != 0 || IsPet(); }
+        bool CanFly()  const { return (GetCreatureTemplate()->InhabitType & INHABIT_AIR) != 0; }
+        bool IsIgnorePathfinding() const {GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING; }
 
         void SetReactState(ReactStates st) { m_reactState = st; }
         ReactStates GetReactState() { return m_reactState; }
@@ -566,7 +566,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void AllLootRemovedFromCorpse();
 
         uint16 GetLootMode() { return m_LootMode; }
-        bool HasLootMode(uint16 lootMode) { return m_LootMode & lootMode; }
+        bool HasLootMode(uint16 lootMode) { return (m_LootMode & lootMode) != 0; }
         void SetLootMode(uint16 lootMode) { m_LootMode = lootMode; }
         void AddLootMode(uint16 lootMode) { m_LootMode |= lootMode; }
         void RemoveLootMode(uint16 lootMode) { m_LootMode &= ~lootMode; }

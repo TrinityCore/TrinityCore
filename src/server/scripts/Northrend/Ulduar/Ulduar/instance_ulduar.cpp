@@ -888,7 +888,7 @@ class instance_ulduar : public InstanceMapScript
                         }
                         break;
                     case DATA_UNBROKEN:
-                        Unbroken = bool(data);
+                        Unbroken = data != 0;
                         break;
                     case DATA_ILLUSION:
                         illusion = data;

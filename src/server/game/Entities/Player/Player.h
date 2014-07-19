@@ -1128,6 +1128,7 @@ class Player : public Unit, public GridObject<Player>
 
         void SendInitialPacketsBeforeAddToMap();
         void SendInitialPacketsAfterAddToMap();
+        void SendSupercededSpell(uint32 oldSpell, uint32 newSpell);
         void SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8 arg = 0);
         void SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint32 time);
 
@@ -1153,13 +1154,13 @@ class Player : public Unit, public GridObject<Player>
         void CleanupAfterTaxiFlight();
         void ContinueTaxiFlight();
                                                             // mount_id can be used in scripting calls
-        bool isAcceptWhispers() const { return m_ExtraFlags & PLAYER_EXTRA_ACCEPT_WHISPERS; }
+        bool isAcceptWhispers() const { return (m_ExtraFlags & PLAYER_EXTRA_ACCEPT_WHISPERS) != 0; }
         void SetAcceptWhispers(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_ACCEPT_WHISPERS; else m_ExtraFlags &= ~PLAYER_EXTRA_ACCEPT_WHISPERS; }
-        bool IsGameMaster() const { return m_ExtraFlags & PLAYER_EXTRA_GM_ON; }
+        bool IsGameMaster() const { return (m_ExtraFlags & PLAYER_EXTRA_GM_ON) != 0; }
         void SetGameMaster(bool on);
-        bool isGMChat() const { return m_ExtraFlags & PLAYER_EXTRA_GM_CHAT; }
+        bool isGMChat() const { return (m_ExtraFlags & PLAYER_EXTRA_GM_CHAT) != 0; }
         void SetGMChat(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_GM_CHAT; else m_ExtraFlags &= ~PLAYER_EXTRA_GM_CHAT; }
-        bool isTaxiCheater() const { return m_ExtraFlags & PLAYER_EXTRA_TAXICHEAT; }
+        bool isTaxiCheater() const { return (m_ExtraFlags & PLAYER_EXTRA_TAXICHEAT) != 0; }
         void SetTaxiCheater(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_TAXICHEAT; else m_ExtraFlags &= ~PLAYER_EXTRA_TAXICHEAT; }
         bool isGMVisible() const { return !(m_ExtraFlags & PLAYER_EXTRA_GM_INVISIBLE); }
         void SetGMVisible(bool on);
@@ -1173,7 +1174,7 @@ class Player : public Unit, public GridObject<Player>
         void InitStatsForLevel(bool reapplyMods = false);
 
         // .cheat command related
-        bool GetCommandStatus(uint32 command) const { return _activeCheats & command; }
+        bool GetCommandStatus(uint32 command) const { return (_activeCheats & command) != 0; }
         void SetCommandStatusOn(uint32 command) { _activeCheats |= command; }
         void SetCommandStatusOff(uint32 command) { _activeCheats &= ~command; }
 
@@ -1594,16 +1595,16 @@ class Player : public Unit, public GridObject<Player>
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask);
         void SendInitialSpells();
-        bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false);
-        void learnSpell(uint32 spell_id, bool dependent);
-        void removeSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
-        void resetSpells(bool myClassOnly = false);
+        bool AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, bool fromSkill = false);
+        void LearnSpell(uint32 spell_id, bool dependent, bool fromSkill = false);
+        void RemoveSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
+        void ResetSpells(bool myClassOnly = false);
         void LearnCustomSpells();
         void LearnDefaultSkills();
         void LearnDefaultSkill(uint32 skillId, uint16 rank);
-        void learnQuestRewardedSpells();
-        void learnQuestRewardedSpells(Quest const* quest);
-        void learnSpellHighRank(uint32 spellid);
+        void LearnQuestRewardedSpells();
+        void LearnQuestRewardedSpells(Quest const* quest);
+        void LearnSpellHighestRank(uint32 spellid);
         void AddTemporarySpell(uint32 spellId);
         void RemoveTemporarySpell(uint32 spellId);
         void SetReputation(uint32 factionentry, uint32 value);
@@ -1611,8 +1612,8 @@ class Player : public Unit, public GridObject<Player>
         std::string const& GetGuildName();
         uint32 GetFreeTalentPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS1); }
         void SetFreeTalentPoints(uint32 points);
-        bool resetTalents(bool no_cost = false);
-        uint32 resetTalentsCost() const;
+        bool ResetTalents(bool no_cost = false);
+        uint32 ResetTalentsCost() const;
         void InitTalentForLevel();
         void BuildPlayerTalentsInfoData(WorldPacket* data);
         void BuildPetTalentsInfoData(WorldPacket* data);
@@ -1663,6 +1664,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetSpellCooldownDelay(uint32 spell_id) const;
         void AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = NULL, bool infinityCooldown = false);
         void AddSpellCooldown(uint32 spell_id, uint32 itemid, time_t end_time);
+        void ModifySpellCooldown(uint32 spellId, int32 cooldown);
         void SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId = 0, Spell* spell = NULL, bool setCooldown = true);
         void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs);
         void RemoveSpellCooldown(uint32 spell_id, bool update = false);
@@ -1905,7 +1907,7 @@ class Player : public Unit, public GridObject<Player>
         int16 GetSkillTempBonusValue(uint32 skill) const;
         uint16 GetSkillStep(uint16 skill) const;            // 0...6
         bool HasSkill(uint32 skill) const;
-        void learnSkillRewardedSpells(uint32 id, uint32 value);
+        void LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue);
 
         WorldLocation& GetTeleportDest() { return m_teleport_dest; }
         bool IsBeingTeleported() const { return mSemaphoreTeleport_Near || mSemaphoreTeleport_Far; }
@@ -1953,8 +1955,8 @@ class Player : public Unit, public GridObject<Player>
         bool RewardHonor(Unit* victim, uint32 groupsize, int32 honor = -1, bool pvptoken = false);
         uint32 GetHonorPoints() const { return GetUInt32Value(PLAYER_FIELD_HONOR_CURRENCY); }
         uint32 GetArenaPoints() const { return GetUInt32Value(PLAYER_FIELD_ARENA_CURRENCY); }
-        void ModifyHonorPoints(int32 value, SQLTransaction* trans = NULL);      //! If trans is specified, honor save query will be added to trans
-        void ModifyArenaPoints(int32 value, SQLTransaction* trans = NULL);      //! If trans is specified, arena point save query will be added to trans
+        void ModifyHonorPoints(int32 value, SQLTransaction trans = SQLTransaction(nullptr));      //! If trans is specified, honor save query will be added to trans
+        void ModifyArenaPoints(int32 value, SQLTransaction trans = SQLTransaction(nullptr));      //! If trans is specified, arena point save query will be added to trans
         uint32 GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const;
         void SetHonorPoints(uint32 value);
         void SetArenaPoints(uint32 value);
@@ -2176,7 +2178,7 @@ class Player : public Unit, public GridObject<Player>
 
         uint8 m_forced_speed_changes[MAX_MOVE_TYPE];
 
-        bool HasAtLoginFlag(AtLoginFlags f) const { return m_atLoginFlags & f; }
+        bool HasAtLoginFlag(AtLoginFlags f) const { return (m_atLoginFlags & f) != 0; }
         void SetAtLoginFlag(AtLoginFlags f) { m_atLoginFlags |= f; }
         void RemoveAtLoginFlag(AtLoginFlags flags, bool persist = false);
 

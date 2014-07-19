@@ -364,7 +364,7 @@ void Unit::Update(uint32 p_time)
 bool Unit::haveOffhandWeapon() const
 {
     if (Player const* player = ToPlayer())
-        return player->GetWeaponForAttack(OFF_ATTACK, true);
+        return player->GetWeaponForAttack(OFF_ATTACK, true) != nullptr;
 
     return CanDualWield();
 }
@@ -2363,7 +2363,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
 
     bool canDodge = true;
     bool canParry = true;
-    bool canBlock = spellInfo->AttributesEx3 & SPELL_ATTR3_BLOCKABLE_SPELL;
+    bool canBlock = (spellInfo->AttributesEx3 & SPELL_ATTR3_BLOCKABLE_SPELL) != 0;
 
     // Same spells cannot be parry/dodge
     if (spellInfo->Attributes & SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK)
@@ -3798,7 +3798,7 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit*
                 }
             }
 
-            bool stealCharge = aura->GetSpellInfo()->AttributesEx7 & SPELL_ATTR7_DISPEL_CHARGES;
+            bool stealCharge = (aura->GetSpellInfo()->AttributesEx7 & SPELL_ATTR7_DISPEL_CHARGES) != 0;
             // Cast duration to unsigned to prevent permanent aura's such as Righteous Fury being permanently added to caster
             uint32 dur = std::min(2u * MINUTE * IN_MILLISECONDS, uint32(aura->GetDuration()));
 
@@ -4318,7 +4318,7 @@ void Unit::GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelCharges
             // The charges / stack amounts don't count towards the total number of auras that can be dispelled.
             // Ie: A dispel on a target with 5 stacks of Winters Chill and a Polymorph has 1 / (1 + 1) -> 50% chance to dispell
             // Polymorph instead of 1 / (5 + 1) -> 16%.
-            bool dispel_charges = aura->GetSpellInfo()->AttributesEx7 & SPELL_ATTR7_DISPEL_CHARGES;
+            bool dispel_charges = (aura->GetSpellInfo()->AttributesEx7 & SPELL_ATTR7_DISPEL_CHARGES) != 0;
             uint8 charges = dispel_charges ? aura->GetCharges() : aura->GetStackAmount();
             if (charges > 0)
                 dispelList.push_back(std::make_pair(aura, charges));
@@ -6900,31 +6900,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     }
                     break;
                 }
-                // Item - Shaman T10 Elemental 2P Bonus
-                case 70811:
-                {
-                    // Lightning Bolt & Chain Lightning
-                    if (procSpell->SpellFamilyFlags[0] & 0x3)
-                    {
-                        if (ToPlayer()->HasSpellCooldown(16166))
-                        {
-                            uint32 newCooldownDelay = ToPlayer()->GetSpellCooldownDelay(16166);
-                            if (newCooldownDelay < 3)
-                                newCooldownDelay = 0;
-                            else
-                                newCooldownDelay -= 2;
-                            ToPlayer()->AddSpellCooldown(16166, 0, uint32(time(NULL) + newCooldownDelay));
-
-                            WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                            data << uint32(16166);                  // Spell ID
-                            data << uint64(GetGUID());              // Player GUID
-                            data << int32(-2000);                   // Cooldown mod in milliseconds
-                            ToPlayer()->GetSession()->SendPacket(&data);
-                            return true;
-                        }
-                    }
-                    return false;
-                }
                 // Item - Shaman T10 Elemental 4P Bonus
                 case 70817:
                 {
@@ -7581,7 +7556,7 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
 
                     CastSpell(this, 28682, true);
 
-                    return (procEx & PROC_EX_CRITICAL_HIT);
+                    return (procEx & PROC_EX_CRITICAL_HIT) != 0;
                 }
                 // Empowered Fire
                 case 31656:
@@ -7766,7 +7741,8 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         ? ToPlayer()->GetItemByGuid(triggeredByAura->GetBase()->GetCastItemGUID()) : NULL;
 
     // Try handle unknown trigger spells
-    if (sSpellMgr->GetSpellInfo(trigger_spell_id) == NULL)
+    // triggered spells exists only in serverside spell_dbc
+    /// @todo: reverify and move these spells to spellscripts
     {
         switch (auraSpellInfo->SpellFamilyName)
         {
@@ -11217,6 +11193,9 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) cons
     if (!spellInfo || !spellInfo->Effects[index].IsEffect())
         return false;
 
+    if (spellInfo->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
+        return false;
+
     // If m_immuneToEffect type contain this effect type, IMMUNE effect.
     uint32 effect = spellInfo->Effects[index].Effect;
     SpellImmuneList const& effectList = m_spellImmune[IMMUNITY_EFFECT];
@@ -12058,8 +12037,8 @@ bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) co
     }
 
     // can't assist non-friendly targets
-    if (GetReactionTo(target) <= REP_NEUTRAL
-        && target->GetReactionTo(this) <= REP_NEUTRAL
+    if (GetReactionTo(target) < REP_NEUTRAL
+        && target->GetReactionTo(this) < REP_NEUTRAL
         && (!ToCreature() || !(ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_PARTY_MEMBER)))
         return false;
 
@@ -13044,7 +13023,7 @@ float Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration, 
         Unit const* source = casterOwner ? casterOwner : caster;
 
         if ((target->GetTypeId() == TYPEID_PLAYER
-            || ((Creature*)target)->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH)
+            || target->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH)
             && source->GetTypeId() == TYPEID_PLAYER)
             duration = limitduration;
     }
@@ -15318,7 +15297,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
 
         if (group)
         {
-            group->BroadcastPacket(&data, group->GetMemberGroup(player->GetGUID()));
+            group->BroadcastPacket(&data, group->GetMemberGroup(player->GetGUID()) != 0);
 
             if (creature)
             {

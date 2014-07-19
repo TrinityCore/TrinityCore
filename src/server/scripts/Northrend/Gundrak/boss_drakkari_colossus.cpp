@@ -205,7 +205,7 @@ class boss_drakkari_colossus : public CreatureScript
             void SetData(uint32 type, uint32 data) override
             {
                 if (type == DATA_INTRO_DONE)
-                    introDone = data;
+                    introDone = data != 0;
             }
 
             void UpdateAI(uint32 diff) override

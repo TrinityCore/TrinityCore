@@ -84,8 +84,8 @@ class instance_magisters_terrace : public InstanceMapScript
                             DelrissaDeathCount = 0;
                         break;
                     case DATA_KAELTHAS_STATUES:
-                        HandleGameObject(KaelStatue[0], data);
-                        HandleGameObject(KaelStatue[1], data);
+                        HandleGameObject(KaelStatue[0], data != 0);
+                        HandleGameObject(KaelStatue[1], data != 0);
                         break;
                     default:
                         break;
@@ -159,7 +159,7 @@ class instance_magisters_terrace : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_DELRISSA:
-                        if (type == IN_PROGRESS)
+                        if (state == IN_PROGRESS)
                             DelrissaDeathCount = 0;
                         break;
                     default:

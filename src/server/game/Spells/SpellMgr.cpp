@@ -3340,9 +3340,12 @@ void SpellMgr::LoadSpellInfoCorrections()
                 /// @todo: remove this when basepoints of all Ride Vehicle auras are calculated correctly
                 spellInfo->Effects[EFFECT_0].BasePoints = 1;
                 break;
+            case 59630: // Black Magic
+                spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
+                break;
             case  50452: // Bloodworm summon
                 spellInfo->Effects[EFFECT_0].DieSides = 3;
-                break;
+                break;                
             case 59578: // The Art of War (Rank 2) - FOL or Exorcism don't reset swing timer
                 spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_IGNORE_MELEE_RESET;
