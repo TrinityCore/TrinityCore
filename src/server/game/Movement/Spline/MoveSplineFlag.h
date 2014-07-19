@@ -86,9 +86,9 @@ namespace Movement
 
         // Constant interface
 
-        bool isSmooth() const { return raw() & Catmullrom; }
+        bool isSmooth() const { return (raw() & Catmullrom) != 0; }
         bool isLinear() const { return !isSmooth(); }
-        bool isFacing() const { return raw() & Mask_Final_Facing; }
+        bool isFacing() const { return (raw() & Mask_Final_Facing) != 0; }
 
         uint8 getAnimationId() const { return animId; }
         bool hasAllFlags(uint32 f) const { return (raw() & f) == f; }

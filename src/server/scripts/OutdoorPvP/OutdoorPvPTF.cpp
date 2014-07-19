@@ -49,9 +49,9 @@ OPvPCapturePointTF::OPvPCapturePointTF(OutdoorPvP* pvp, OutdoorPvPTF_TowerType t
 
 void OPvPCapturePointTF::FillInitialWorldStates(WorldPacket &data)
 {
-    data << uint32(TFTowerWorldStates[m_TowerType].n) << uint32(bool(m_TowerState & TF_TOWERSTATE_N));
-    data << uint32(TFTowerWorldStates[m_TowerType].h) << uint32(bool(m_TowerState & TF_TOWERSTATE_H));
-    data << uint32(TFTowerWorldStates[m_TowerType].a) << uint32(bool(m_TowerState & TF_TOWERSTATE_A));
+    data << uint32(TFTowerWorldStates[m_TowerType].n) << uint32((m_TowerState & TF_TOWERSTATE_N) != 0);
+    data << uint32(TFTowerWorldStates[m_TowerType].h) << uint32((m_TowerState & TF_TOWERSTATE_H) != 0);
+    data << uint32(TFTowerWorldStates[m_TowerType].a) << uint32((m_TowerState & TF_TOWERSTATE_A) != 0);
 }
 
 void OutdoorPvPTF::FillInitialWorldStates(WorldPacket &data)
@@ -106,9 +106,9 @@ void OutdoorPvPTF::SendRemoveWorldStates(Player* player)
 
 void OPvPCapturePointTF::UpdateTowerState()
 {
-    m_PvP->SendUpdateWorldState(uint32(TFTowerWorldStates[m_TowerType].n), uint32(bool(m_TowerState & TF_TOWERSTATE_N)));
-    m_PvP->SendUpdateWorldState(uint32(TFTowerWorldStates[m_TowerType].h), uint32(bool(m_TowerState & TF_TOWERSTATE_H)));
-    m_PvP->SendUpdateWorldState(uint32(TFTowerWorldStates[m_TowerType].a), uint32(bool(m_TowerState & TF_TOWERSTATE_A)));
+    m_PvP->SendUpdateWorldState(uint32(TFTowerWorldStates[m_TowerType].n), uint32((m_TowerState & TF_TOWERSTATE_N) != 0));
+    m_PvP->SendUpdateWorldState(uint32(TFTowerWorldStates[m_TowerType].h), uint32((m_TowerState & TF_TOWERSTATE_H) != 0));
+    m_PvP->SendUpdateWorldState(uint32(TFTowerWorldStates[m_TowerType].a), uint32((m_TowerState & TF_TOWERSTATE_A) != 0));
 }
 
 bool OPvPCapturePointTF::HandlePlayerEnter(Player* player)

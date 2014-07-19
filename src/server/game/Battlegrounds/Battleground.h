@@ -481,8 +481,8 @@ class Battleground
         void PlayerAddedToBGCheckIfBGIsRunning(Player* player);
 
         Player* _GetPlayer(uint64 guid, bool offlineRemove, const char* context) const;
-        Player* _GetPlayer(BattlegroundPlayerMap::iterator itr, const char* context) { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime, context); }
-        Player* _GetPlayer(BattlegroundPlayerMap::const_iterator itr, const char* context) const { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime, context); }
+        Player* _GetPlayer(BattlegroundPlayerMap::iterator itr, const char* context) { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime != 0, context); }
+        Player* _GetPlayer(BattlegroundPlayerMap::const_iterator itr, const char* context) const { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime != 0, context); }
         Player* _GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::const_iterator itr, const char* context) const;
 
         void _ProcessOfflineQueue();

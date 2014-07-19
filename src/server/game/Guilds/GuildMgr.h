@@ -22,13 +22,17 @@
 
 class GuildMgr
 {
-    friend class ACE_Singleton<GuildMgr, ACE_Null_Mutex>;
-
 private:
     GuildMgr();
     ~GuildMgr();
 
 public:
+    static GuildMgr* instance()
+    {
+        static GuildMgr* instance = new GuildMgr();
+        return instance;
+    }
+
     Guild* GetGuildByLeader(uint64 guid) const;
     Guild* GetGuildById(uint32 guildId) const;
     Guild* GetGuildByGuid(uint64 guid) const;
@@ -61,6 +65,6 @@ protected:
     std::vector<GuildReward> GuildRewards;
 };
 
-#define sGuildMgr ACE_Singleton<GuildMgr, ACE_Null_Mutex>::instance()
+#define sGuildMgr GuildMgr::instance()
 
 #endif

@@ -198,7 +198,7 @@ class Object
         virtual void SetObjectScale(float scale) { SetFloatValue(OBJECT_FIELD_SCALE_X, scale); }
 
         TypeID GetTypeId() const { return m_objectTypeId; }
-        bool isType(uint16 mask) const { return (mask & m_objectType); }
+        bool isType(uint16 mask) const { return (mask & m_objectType) != 0; }
 
         virtual void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const;
         void SendUpdateToPlayer(Player* player);
@@ -530,13 +530,13 @@ struct MovementInfo
     void SetMovementFlags(uint32 flag) { flags = flag; }
     void AddMovementFlag(uint32 flag) { flags |= flag; }
     void RemoveMovementFlag(uint32 flag) { flags &= ~flag; }
-    bool HasMovementFlag(uint32 flag) const { return flags & flag; }
+    bool HasMovementFlag(uint32 flag) const { return (flags & flag) != 0; }
 
     uint16 GetExtraMovementFlags() const { return flags2; }
     void SetExtraMovementFlags(uint16 flag) { flags2 = flag; }
     void AddExtraMovementFlag(uint16 flag) { flags2 |= flag; }
     void RemoveExtraMovementFlag(uint16 flag) { flags2 &= ~flag; }
-    bool HasExtraMovementFlag(uint16 flag) const { return flags2 & flag; }
+    bool HasExtraMovementFlag(uint16 flag) const { return (flags2 & flag) != 0; }
 
     void SetFallTime(uint32 time) { jump.fallTime = time; }
 
@@ -679,7 +679,7 @@ class WorldObject : public Object, public WorldLocation
         virtual void SetInPhase(uint32 id, bool update, bool apply);
         uint32 GetPhaseMask() const { return m_phaseMask; }
         bool InSamePhase(WorldObject const* obj) const;
-        bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask); }
+        bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask) != 0; }
         bool IsInPhase(uint32 phase) const { return _phases.find(phase) != _phases.end(); }
         bool IsInPhase(WorldObject const* obj) const;
         std::set<uint32> const& GetPhases() const { return _phases; }
@@ -795,9 +795,9 @@ class WorldObject : public Object, public WorldLocation
 
         //relocation and visibility system functions
         void AddToNotify(uint16 f) { m_notifyflags |= f;}
-        bool isNeedNotify(uint16 f) const { return m_notifyflags & f;}
+        bool isNeedNotify(uint16 f) const { return (m_notifyflags & f) != 0; }
         uint16 GetNotifyFlags() const { return m_notifyflags; }
-        bool NotifyExecuted(uint16 f) const { return m_executed_notifies & f;}
+        bool NotifyExecuted(uint16 f) const { return (m_executed_notifies & f) != 0; }
         void SetNotified(uint16 f) { m_executed_notifies |= f;}
         void ResetAllNotifies() { m_notifyflags = 0; m_executed_notifies = 0; }
 

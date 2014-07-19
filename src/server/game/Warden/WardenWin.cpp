@@ -206,7 +206,7 @@ void WardenWin::RequestData()
     ByteBuffer buff;
     buff << uint8(WARDEN_SMSG_CHEAT_CHECKS_REQUEST);
 
-    ACE_READ_GUARD(ACE_RW_Mutex, g, sWardenCheckMgr->_checkStoreLock);
+    boost::shared_lock<boost::shared_mutex> lock(sWardenCheckMgr->_checkStoreLock);
 
     for (uint32 i = 0; i < sWorld->getIntConfig(CONFIG_WARDEN_NUM_OTHER_CHECKS); ++i)
     {
@@ -369,7 +369,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
     uint8 type;
     uint16 checkFailed = 0;
 
-    ACE_READ_GUARD(ACE_RW_Mutex, g, sWardenCheckMgr->_checkStoreLock);
+    boost::shared_lock<boost::shared_mutex> lock(sWardenCheckMgr->_checkStoreLock);
 
     for (std::list<uint16>::iterator itr = _currentChecks.begin(); itr != _currentChecks.end(); ++itr)
     {

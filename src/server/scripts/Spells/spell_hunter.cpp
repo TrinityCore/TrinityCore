@@ -494,7 +494,7 @@ class spell_hun_misdirection : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& /*eventInfo*/)
             {
-                return GetTarget()->GetRedirectThreatTarget();
+                return GetTarget()->GetRedirectThreatTarget() != nullptr;
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)

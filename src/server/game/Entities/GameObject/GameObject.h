@@ -407,8 +407,8 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_CHEST:  return chest.consumable;
-            case GAMEOBJECT_TYPE_GOOBER: return goober.consumable;
+            case GAMEOBJECT_TYPE_CHEST:  return chest.consumable != 0;
+            case GAMEOBJECT_TYPE_GOOBER: return goober.consumable != 0;
             default: return false;
         }
     }
@@ -417,10 +417,10 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.allowMounted;
-            case GAMEOBJECT_TYPE_TEXT: return text.allowMounted;
-            case GAMEOBJECT_TYPE_GOOBER: return goober.allowMounted;
-            case GAMEOBJECT_TYPE_SPELLCASTER: return spellcaster.allowMounted;
+            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.allowMounted != 0;
+            case GAMEOBJECT_TYPE_TEXT: return text.allowMounted != 0;
+            case GAMEOBJECT_TYPE_GOOBER: return goober.allowMounted != 0;
+            case GAMEOBJECT_TYPE_SPELLCASTER: return spellcaster.allowMounted != 0;
             default: return false;
         }
     }
@@ -448,12 +448,12 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_DOOR:       return door.noDamageImmune;
-            case GAMEOBJECT_TYPE_BUTTON:     return button.noDamageImmune;
-            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.noDamageImmune;
-            case GAMEOBJECT_TYPE_GOOBER:     return goober.noDamageImmune;
-            case GAMEOBJECT_TYPE_FLAGSTAND:  return flagstand.noDamageImmune;
-            case GAMEOBJECT_TYPE_FLAGDROP:   return flagdrop.noDamageImmune;
+            case GAMEOBJECT_TYPE_DOOR:       return door.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_BUTTON:     return button.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_GOOBER:     return goober.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_FLAGSTAND:  return flagstand.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_FLAGDROP:   return flagdrop.noDamageImmune != 0;
             default: return true;
         }
     }
@@ -737,7 +737,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void SetLootState(LootState s, Unit* unit = NULL);
 
         uint16 GetLootMode() { return m_LootMode; }
-        bool HasLootMode(uint16 lootMode) { return m_LootMode & lootMode; }
+        bool HasLootMode(uint16 lootMode) { return (m_LootMode & lootMode) != 0; }
         void SetLootMode(uint16 lootMode) { m_LootMode = lootMode; }
         void AddLootMode(uint16 lootMode) { m_LootMode |= lootMode; }
         void RemoveLootMode(uint16 lootMode) { m_LootMode &= ~lootMode; }

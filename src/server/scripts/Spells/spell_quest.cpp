@@ -1810,12 +1810,11 @@ class spell_q13011_bear_flank_master : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                bool failed = RAND(0, 1); // 50% chance
-                Creature* creature = GetCaster()->ToCreature();
                 if (Player* player = GetHitPlayer())
                 {
-                    if (failed)
+                    if (roll_chance_i(50))
                     {
+                        Creature* creature = GetCaster()->ToCreature();
                         player->CastSpell(creature, SPELL_BEAR_FLANK_FAIL);
                         creature->AI()->Talk(0, player);
                     }

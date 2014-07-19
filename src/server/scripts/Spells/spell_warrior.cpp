@@ -855,7 +855,7 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
             bool CheckProc(ProcEventInfo& eventInfo)
             {
                 _procTarget = eventInfo.GetActor()->SelectNearbyTarget(eventInfo.GetProcTarget());
-                return _procTarget;
+                return _procTarget != nullptr;
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)

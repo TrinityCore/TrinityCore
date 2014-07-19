@@ -677,7 +677,7 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
     dwMachineType = IMAGE_FILE_MACHINE_AMD64;
 #endif
 
-    while (1)
+    for (;;)
     {
         // Get the next stack frame
         if (! StackWalk64(dwMachineType,

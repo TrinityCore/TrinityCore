@@ -1377,5 +1377,5 @@ void WorldSession::HandleOptOutOfLootOpcode(WorldPacket& recvData)
         return;
     }
 
-    GetPlayer()->SetPassOnGroupLoot(passOnLoot);
+    GetPlayer()->SetPassOnGroupLoot(passOnLoot != 0);
 }
