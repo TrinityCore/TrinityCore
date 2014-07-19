@@ -25,6 +25,7 @@
 #include "Opcodes.h"
 #include "ScriptMgr.h"
 #include "SHA1.h"
+#include "PacketLog.h"
 #include "BattlenetAccountMgr.h"
 
 using boost::asio::ip::tcp;
@@ -110,6 +111,11 @@ void WorldSocket::AsyncReadData(size_t dataSize)
                 std::memcpy(packet.contents(), &_readBuffer[sizeof(ClientPktHeader)], header->size);
             }
 
+            if (sPacketLog->CanLogPacket())
+                sPacketLog->LogPacket(packet, CLIENT_TO_SERVER);
+
+            TC_LOG_TRACE("network.opcode", "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress()).c_str(), GetOpcodeNameForLogging(opcode).c_str());
+
             switch (opcode)
             {
                 case CMSG_PING:
@@ -188,6 +194,11 @@ void WorldSocket::AsyncReadData(size_t dataSize)
 
 void WorldSocket::AsyncWrite(WorldPacket const& packet)
 {
+    if (sPacketLog->CanLogPacket())
+        sPacketLog->LogPacket(packet, SERVER_TO_CLIENT);
+
+    TC_LOG_TRACE("network.opcode", "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress()).c_str(), GetOpcodeNameForLogging(packet.GetOpcode()).c_str());
+
     ServerPktHeader header(packet.size() + 2, packet.GetOpcode());
     _authCrypt.EncryptSend((uint8*)header.header, header.getHeaderLength());
 

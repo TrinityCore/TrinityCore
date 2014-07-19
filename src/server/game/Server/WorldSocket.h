@@ -51,8 +51,8 @@ public:
 
     void Start();
 
-    const std::string GetRemoteIpAddress() const { return _socket.remote_endpoint().address().to_string(); };
-    unsigned short GetRemotePort() const { return _socket.remote_endpoint().port(); }
+    std::string GetRemoteIpAddress() const { return _socket.remote_endpoint().address().to_string(); };
+    uint16 GetRemotePort() const { return _socket.remote_endpoint().port(); }
 
     void CloseSocket() { _socket.close(); };
     bool IsOpen() { return _socket.is_open(); };
