@@ -8320,7 +8320,7 @@ void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, ScalingSt
     if (ssv)
     {
         float damageMultiplier = 0.0f;
-        extraDPS = ssv->GetDPSAndDamageMultiplier(proto->SubClass, proto->Flags2 & ITEM_FLAGS_EXTRA_CASTER_WEAPON, &damageMultiplier);
+        extraDPS = ssv->GetDPSAndDamageMultiplier(proto->SubClass, (proto->Flags2 & ITEM_FLAGS_EXTRA_CASTER_WEAPON) != 0, &damageMultiplier);
         if (extraDPS)
         {
             float average = extraDPS * proto->Delay / 1000.0f;

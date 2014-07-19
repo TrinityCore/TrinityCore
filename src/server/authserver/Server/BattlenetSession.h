@@ -18,12 +18,13 @@
 #ifndef _BATTLENETSOCKET_H
 #define _BATTLENETSOCKET_H
 
-#include "RealmSocket.h"
 #include "BattlenetPackets.h"
 #include "BattlenetPacketCrypt.h"
 #include "BigNumber.h"
+#include <memory>
+#include <boost/asio/ip/tcp.hpp>
 
-class ACE_INET_Addr;
+using boost::asio::ip::tcp;
 
 namespace Battlenet
 {
@@ -42,15 +43,21 @@ namespace Battlenet
         MODULE_COUNT
     };
 
-    class Socket : public RealmSocket::Session
+    enum class BufferSizes : uint32
+    {
+        SRP_6_V = 0x80,
+        SRP_6_S = 0x20,
+        Read = 0x4000
+    };
+
+    class Session : public std::enable_shared_from_this<Session>
     {
     public:
-        static uint32 const SRP6_V_Size;
-        static uint32 const SRP6_S_Size;
 
-        explicit Socket(RealmSocket& socket);
+        explicit Session(tcp::socket&& socket);
+        ~Session();
 
-        typedef bool(Socket::*PacketHandler)(PacketHeader& socket, BitStream& packet);
+        typedef bool(Session::*PacketHandler)(PacketHeader& socket, BitStream& packet);
 
         // Auth
         bool HandleAuthChallenge(PacketHeader& header, BitStream& packet);
@@ -66,16 +73,15 @@ namespace Battlenet
         bool HandleRealmUpdateSubscribe(PacketHeader& header, BitStream& packet);
         bool HandleRealmJoinRequest(PacketHeader& header, BitStream& packet);
 
-        void OnRead() override;
-        void OnAccept() override;
-        void OnClose() override;
+        void Start();
+        void AsyncRead();
 
-        void Send(ServerPacket& packet);
+        void AsyncWrite(ServerPacket* packet);
 
     private:
         void _SetVSFields(std::string const& rI);
 
-        typedef bool(Socket::*ModuleHandler)(BitStream* dataStream, ServerPacket** response);
+        typedef bool(Session::*ModuleHandler)(BitStream* dataStream, ServerPacket** response);
         static ModuleHandler const ModuleHandlers[MODULE_COUNT];
 
         bool HandlePasswordModule(BitStream* dataStream, ServerPacket** response);
@@ -84,7 +90,11 @@ namespace Battlenet
         bool HandleResumeModule(BitStream* dataStream, ServerPacket** response);
         bool UnhandledModule(BitStream* dataStream, ServerPacket** response);
 
-        RealmSocket& _socket;
+        std::string GetRemoteAddress() const { return _socket.remote_endpoint().address().to_string(); }
+        uint16 GetRemotePort() const { return _socket.remote_endpoint().port(); }
+
+        tcp::socket _socket;
+        uint8 _readBuffer[BufferSizes::Read];
 
         uint32 _accountId;
         std::string _accountName;

@@ -33,6 +33,8 @@
 
 #include "AsyncAcceptor.h"
 #include "AuthSession.h"
+#include "BattlenetManager.h"
+#include "BattlenetSession.h"
 #include "Common.h"
 #include "Configuration/Config.h"
 #include "Database/DatabaseEnv.h"
@@ -117,7 +119,7 @@ int main(int argc, char** argv)
 
     std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
     AsyncAcceptor<AuthSession> authServer(_ioService, bindIp, port);
-    AsyncAcceptor<Battlenet::Socket> bnetServer(_ioService, bindIp, 1119);
+    AsyncAcceptor<Battlenet::Session> bnetServer(_ioService, bindIp, 1119);
 
     // Set signal handlers
     boost::asio::signal_set signals(_ioService, SIGINT, SIGTERM);
