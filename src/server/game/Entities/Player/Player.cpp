@@ -15346,7 +15346,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                     SQLTransaction trans = CharacterDatabase.BeginTransaction();
                     if (Item* item = Item::CreateItem(quest->RewardItemId[i], quest->RewardItemIdCount[i], 0))
                     {
-                        item->SaveToDB(trans);                               
+                        item->SaveToDB(trans);
                         draft.AddItem(item);
                     }
                     draft.SendMailTo(trans, MailReceiver(this, this->GetGUIDLow()), sender);
@@ -21263,24 +21263,27 @@ void Player::SetRestBonus(float rest_bonus_new)
         m_rest_bonus = rest_bonus_new;
 
     // update data for client
+    bool m_raf_bonus = false; // set to default
     if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
+        m_raf_bonus = true;
+
+    switch(m_raf_bonus)
     {
-        // This function can check distance and returns true or false
-        if(GetsRecruitAFriendBonus(true))
-            SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_RAF_LINKED);
-        else
-        {
+        case 1: // raf is set
+            // This function can check distance and returns true or false
+            if(GetsRecruitAFriendBonus(true))
+            {
+                SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_RAF_LINKED);
+                break;
+            }
+        case 0:
             if (m_rest_bonus > 10)
                 SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_RESTED);              // Set Reststate = Rested
             else if (m_rest_bonus <= 1)
                 SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_NOT_RAF_LINKED);              // Set Reststate = Normal
-        }
+            break;
     }
-    else if (m_rest_bonus > 10)
-        SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_RESTED);              // Set Reststate = Rested
-    else if (m_rest_bonus <= 1)
-        SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_NOT_RAF_LINKED);              // Set Reststate = Normal
-
+    
     //RestTickUpdate
     SetUInt32Value(PLAYER_REST_STATE_EXPERIENCE, uint32(m_rest_bonus));
 }
