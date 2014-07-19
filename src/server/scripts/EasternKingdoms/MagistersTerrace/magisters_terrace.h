@@ -28,8 +28,6 @@ enum DataTypes
     DATA_DELRISSA,
     DATA_KAELTHAS,
 
-    DATA_FEL_CRYSTAL,
-    DATA_FEL_CRYSTAL_SIZE,
     DATA_KAEL_STATUE_LEFT,
     DATA_KAEL_STATUE_RIGHT,
 
@@ -42,7 +40,7 @@ enum CreatureIds
 {
     NPC_SELIN               = 24723,
     NPC_DELRISSA            = 24560,
-    NPC_FELCRYSTALS         = 24722
+    NPC_FEL_CRYSTAL         = 24722
 };
 
 enum GameObjectIds
