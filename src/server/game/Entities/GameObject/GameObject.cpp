@@ -306,6 +306,8 @@ void GameObject::Update(uint32 diff)
                     else if (Unit* owner = GetOwner())
                         if (owner->IsInCombat())
                             m_cooldownTime = time(NULL) + goInfo->trap.startDelay;
+                        else
+                            m_cooldownTime = time(NULL) + 1; // Workaround for traps being instantly activated when out of combat. SHOULD add 1 sec delay. Not tested and not sure if correct.
 
                     SetLootState(GO_READY);
                     break;
