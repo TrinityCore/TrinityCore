@@ -229,9 +229,9 @@ namespace Battlenet
         uint32 _readPos;
         uint32 _writePos;
     };
-}
 
-template<>
-bool Battlenet::BitStream::Read<bool>(uint32 bitCount);
+    template<>
+    bool BitStream::Read<bool>(uint32 bitCount);
+}
 
 #endif // __BATTLENETBITSTREAM_H__
