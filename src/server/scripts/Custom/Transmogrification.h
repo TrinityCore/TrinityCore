@@ -1,0 +1,161 @@
+#ifndef DEF_TRANSMOGRIFICATION_H
+#define DEF_TRANSMOGRIFICATION_H
+
+#define PRESETS // comment this line to disable preset feature totally
+#define MAX_OPTIONS 25 // do not alter
+
+#include "Player.h"
+
+class Item;
+class WorldSession;
+struct ItemTemplate;
+
+enum TransmogTrinityStrings // Language.h might have same entries, appears when executing SQL, change if needed
+{
+    LANG_ERR_TRANSMOG_OK = 11100, // change this
+    LANG_ERR_TRANSMOG_INVALID_SLOT,
+    LANG_ERR_TRANSMOG_INVALID_SRC_ENTRY,
+    LANG_ERR_TRANSMOG_MISSING_SRC_ITEM,
+    LANG_ERR_TRANSMOG_MISSING_DEST_ITEM,
+    LANG_ERR_TRANSMOG_INVALID_ITEMS,
+    LANG_ERR_TRANSMOG_NOT_ENOUGH_MONEY,
+    LANG_ERR_TRANSMOG_NOT_ENOUGH_TOKENS,
+
+    LANG_ERR_UNTRANSMOG_OK,
+    LANG_ERR_UNTRANSMOG_NO_TRANSMOGS,
+
+#ifdef PRESETS
+    LANG_PRESET_ERR_INVALID_NAME,
+#endif
+};
+
+class TransmogData : public PlayerData
+{
+public:
+    typedef std::unordered_map<uint64, uint32> transmogMapType;
+    transmogMapType transmogMap; // transmogMap[iGUID] = entry
+
+#ifdef PRESETS
+    typedef std::map<uint8, uint32> presetslotMapType;
+    struct presetData
+    {
+        std::string name;
+        presetslotMapType slotMap; // slotMap[slotId] = entry
+    };
+    typedef std::map<uint8, presetData> presetMapType;
+    presetMapType presetMap; // presetMap[presetId] = presetData
+#endif
+};
+
+class Transmogrification
+{
+private:
+    Transmogrification() { CustomDataId = 0; };
+    ~Transmogrification() {};
+    Transmogrification(const Transmogrification&);
+    Transmogrification& operator=(const Transmogrification&);
+
+public:
+    static Transmogrification* instance()
+    {
+        static Transmogrification *instance = new Transmogrification();
+        return instance;
+    }
+
+#ifdef PRESETS
+    //typedef std::map<uint8, uint32> presetslotMap;
+    //struct presetData
+    //{
+    //    std::string name;
+    //    presetslotMap slotMap;
+    //};
+    //typedef std::map<uint8, presetData> presetIdMap; // remember to lock
+    // typedef KVRWHashMap<uint64, presetIdMap> presetPlayers;
+    // presetPlayers presetMap; // presetByName[pGUID][presetID] = presetData
+
+    bool EnableSetInfo;
+    uint32 SetNpcText;
+
+    bool EnableSets;
+    uint8 MaxSets;
+    float SetCostModifier;
+    int32 SetCopperCost;
+
+    void LoadPlayerSets(Player* player);
+
+    void PresetTransmog(Player* player, Item* itemTransmogrified, uint32 fakeEntry, uint8 slot);
+#endif
+
+    //typedef std::unordered_map<uint64, uint32> transmogData; // remember to lock
+    //typedef KVRWHashMap<uint64, transmogData> transmogMap;
+    //// typedef KVRWHashMap<uint64, uint64> transmogPlayers;
+    //transmogMap entryMap; // entryMap[pGUID][iGUID] = entry
+    //// transmogPlayers playerMap; // dataMap[iGUID] = pGUID
+
+    bool EnableTransmogInfo;
+    uint32 TransmogNpcText;
+
+    // Use IsAllowed() and IsNotAllowed()
+    // these are thread unsafe, but assumed to be static data so it should be safe
+    std::set<uint32> Allowed;
+    std::set<uint32> NotAllowed;
+
+    float ScaledCostModifier;
+    int32 CopperCost;
+
+    bool RequireToken;
+    uint32 TokenEntry;
+    uint32 TokenAmount;
+
+    bool AllowPoor;
+    bool AllowCommon;
+    bool AllowUncommon;
+    bool AllowRare;
+    bool AllowEpic;
+    bool AllowLegendary;
+    bool AllowArtifact;
+    bool AllowHeirloom;
+
+    bool AllowMixedArmorTypes;
+    bool AllowMixedWeaponTypes;
+    bool AllowFishingPoles;
+
+    bool IgnoreReqRace;
+    bool IgnoreReqClass;
+    bool IgnoreReqSkill;
+    bool IgnoreReqSpell;
+    bool IgnoreReqLevel;
+    bool IgnoreReqEvent;
+    bool IgnoreReqStats;
+
+    bool IsAllowed(uint32 entry) const;
+    bool IsNotAllowed(uint32 entry) const;
+    bool IsAllowedQuality(uint32 quality) const;
+    bool IsRangedWeapon(uint32 Class, uint32 SubClass) const;
+
+    uint32 CustomDataId;
+    TransmogData& GetTransmogData(Player* player);
+
+    void LoadConfig(bool reload); // thread unsafe
+
+    std::string GetItemIcon(uint32 entry, uint32 width, uint32 height, int x, int y) const;
+    std::string GetSlotIcon(uint8 slot, uint32 width, uint32 height, int x, int y) const;
+    const char * GetSlotName(uint8 slot, WorldSession* session) const;
+    std::string GetItemLink(Item* item, WorldSession* session) const;
+    std::string GetItemLink(uint32 entry, WorldSession* session) const;
+    uint32 GetFakeEntry(const Item* item);
+    void UpdateItem(Player* player, Item* item) const;
+    void DeleteFakeEntry(Player* player, Item* item);
+    void SetFakeEntry(Player* player, Item* item, uint32 entry);
+
+    TransmogTrinityStrings Transmogrify(Player* player, uint64 itemGUID, uint8 slot, bool no_cost = false);
+    bool CanTransmogrifyItemWithItem(Player* player, ItemTemplate const* destination, ItemTemplate const* source) const;
+    bool SuitableForTransmogrification(Player* player, ItemTemplate const* proto) const;
+    // bool CanBeTransmogrified(Item const* item);
+    // bool CanTransmogrify(Item const* item);
+    uint32 GetSpecialPrice(ItemTemplate const* proto) const;
+    std::vector<uint64> GetItemList(const Player* player) const;
+};
+#define sTransmogrification Transmogrification::instance()
+
+#endif

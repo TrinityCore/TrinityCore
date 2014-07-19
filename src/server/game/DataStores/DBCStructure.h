@@ -1151,7 +1151,7 @@ struct ItemDisplayInfoEntry
     uint32      ID;                                         // 0        m_ID
                                                             // 1        m_modelName[2]
                                                             // 2        m_modelTexture[2]
-                                                            // 3        m_inventoryIcon
+    char*       inventoryIcon;                              // 3        m_inventoryIcon
                                                             // 4        m_geosetGroup[3]
                                                             // 5        m_flags
                                                             // 6        m_spellVisualID
