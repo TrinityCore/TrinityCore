@@ -961,9 +961,11 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
 
                             if (Creature* lichking = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_THE_LICH_KING_ESCAPE)))
                             {
+                                me->CastSpell(lichking, SPELL_TAUNT_ARTHAS, true);
+                                lichking->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+                                lichking->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
                                 AttackStart(lichking);
                                 lichking->AI()->AttackStart(me);
-                                me->CastSpell(lichking, SPELL_TAUNT_ARTHAS, true);
                             }
                             me->SetHealth(JAINA_SYLVANAS_MAX_HEALTH);
                             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
