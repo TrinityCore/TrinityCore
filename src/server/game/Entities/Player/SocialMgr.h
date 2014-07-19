@@ -129,8 +129,8 @@ class SocialMgr
     public:
         static SocialMgr* instance()
         {
-            static SocialMgr* instance = new SocialMgr();
-            return instance;
+            static SocialMgr instance;
+            return &instance;
         }
 
         // Misc

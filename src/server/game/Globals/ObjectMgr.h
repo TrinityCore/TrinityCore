@@ -694,8 +694,8 @@ class ObjectMgr
     public:
         static ObjectMgr* instance()
         {
-            static ObjectMgr* instance = new ObjectMgr();
-            return instance;
+            static ObjectMgr instance;
+            return &instance;
         }
 
         typedef std::unordered_map<uint32, Item*> ItemMap;
