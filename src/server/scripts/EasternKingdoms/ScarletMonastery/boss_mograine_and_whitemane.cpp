@@ -101,7 +101,7 @@ public:
             _bHasDied = false;
             _bHeal = false;
             _bFakeDeath = false;
-            _BRevived = false;
+            _bRevived = false;
         }
 
         void JustReachedHome() override
