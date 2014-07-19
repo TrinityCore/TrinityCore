@@ -20,7 +20,6 @@
 
 #include "Define.h"
 #include <string>
-#include <ace/Singleton.h>
 
 enum class AccountOpResult : uint8;
 

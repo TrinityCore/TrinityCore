@@ -619,7 +619,7 @@ class spell_dk_death_strike_enabler : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                return eventInfo.GetDamageInfo();
+                return eventInfo.GetDamageInfo() != nullptr;
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)

@@ -108,9 +108,8 @@ bool Battlenet::AccountMgr::CheckPassword(uint32 accountId, std::string password
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHECK_PASSWORD);
     stmt->setUInt32(0, accountId);
     stmt->setString(1, CalculateShaPassHash(username, password));
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
 
-    return !result.null();
+    return LoginDatabase.Query(stmt) != nullptr;
 }
 
 std::string Battlenet::AccountMgr::CalculateShaPassHash(std::string const& name, std::string const& password)

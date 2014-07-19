@@ -19,7 +19,6 @@
 #define __BATTLENETMANAGER_H__
 
 #include "Define.h"
-#include <ace/Singleton.h>
 #include <string>
 #include <set>
 #include <map>
@@ -85,16 +84,21 @@ namespace Battlenet
 
 class BattlenetMgr
 {
-    friend class ACE_Singleton<BattlenetMgr, ACE_Null_Mutex>;
     BattlenetMgr() { }
     ~BattlenetMgr();
 
 public:
     void Load();
     bool HasComponent(Battlenet::Component const* component) const;
-    bool HasProgram(std::string const& program) const { return _programs.count(program); }
-    bool HasPlatform(std::string const& platform) const { return _platforms.count(platform); }
+    bool HasProgram(std::string const& program) const { return _programs.count(program) != 0; }
+    bool HasPlatform(std::string const& platform) const { return _platforms.count(platform) != 0; }
     Battlenet::ModuleInfo* CreateModule(std::string const& os, std::string const& name) const;
+
+    static BattlenetMgr* instance()
+    {
+        static BattlenetMgr instance;
+        return &instance;
+    }
 
 private:
     void LoadComponents();
@@ -106,6 +110,6 @@ private:
     std::map<Battlenet::ModuleKey, Battlenet::ModuleInfo*> _modules;
 };
 
-#define sBattlenetMgr ACE_Singleton<BattlenetMgr, ACE_Null_Mutex>::instance()
+#define sBattlenetMgr BattlenetMgr::instance()
 
 #endif // __BATTLENETMANAGER_H__

@@ -23,8 +23,10 @@
 #include "BattlenetManager.h"
 #include "Define.h"
 #include "Errors.h"
-#include <ace/INET_Addr.h>
 #include <string>
+#include <boost/asio/ip/tcp.hpp>
+
+using boost::asio::ip::tcp;
 
 namespace Battlenet
 {
@@ -315,7 +317,7 @@ namespace Battlenet
         uint32 Type;
         std::string Name;
         std::string Version;
-        ACE_INET_Addr Address;
+        ip::tcp::endpoint Address;
         uint8 Flags;
         uint8 Region;
         uint8 Battlegroup;
@@ -361,7 +363,8 @@ namespace Battlenet
         std::string ToString() const override;
 
         uint32 ServerSeed;
-        std::vector<ACE_INET_Addr> IPv4;
+        std::vector<ip::tcp::endpoint> IPv4;
+        std::vector<ip::tcp::endpoint> IPv6;
     };
 }
 
