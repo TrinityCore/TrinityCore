@@ -12,8 +12,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_minigob_manabonk' WHERE `entry`
 -- creature spawn
 DELETE FROM `creature` WHERE `guid`=@GUID_MINIGOB;
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `MovementType`) VALUES
-(@GUID_MINIGOB, @ENTRY_MINIGOB, 571, 1, 1, 0, 1, 5877.88, 662.895, 644.53, 1.66366, 300, 0, 0, 3367, 8139, 0, 0, 0, 0);
-
+(@GUID_MINIGOB, @ENTRY_MINIGOB, 571, 1, 1, 5877.88, 662.895, 644.53, 1.66366, 300, 0, 0);
 
 -- game event to spawn the npc
 DELETE FROM `game_event` WHERE `eventEntry`=@EVENT_ID;
