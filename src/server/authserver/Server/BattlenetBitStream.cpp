@@ -18,7 +18,7 @@
 #include "BattlenetBitStream.h"
 
 template<>
-bool Battlenet::BitStream::Read(uint32 /*bitCount*/)
+bool Battlenet::BitStream::Read<bool>(uint32 /*bitCount*/)
 {
     return Read<uint8>(1) != 0;
 }
