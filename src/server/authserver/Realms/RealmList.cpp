@@ -16,35 +16,51 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/asio/ip/tcp.hpp>
 #include "Common.h"
 #include "RealmList.h"
 #include "BattlenetManager.h"
 #include "Database/DatabaseEnv.h"
 #include "Util.h"
 
-namespace boost { namespace asio { namespace ip { class address; } } }
-ACE_INET_Addr const& Realm::GetAddressForClient(ACE_INET_Addr const& clientAddr) const
+tcp::endpoint Realm::GetAddressForClient(ip::address const& clientAddr) const
 {
+    ip::address realmIp;
+
     // Attempt to send best address for client
     if (clientAddr.is_loopback())
-        // Assume that user connecting from the machine that authserver is located on
-        // has all realms available in his local network
-        return LocalAddress;
+    {
+        // Try guessing if realm is also connected locally
+        if (LocalAddress.is_loopback() || ExternalAddress.is_loopback())
+            realmIp = clientAddr;
+        else
+        {
+            // Assume that user connecting from the machine that authserver is located on
+            // has all realms available in his local network
+            realmIp = LocalAddress;
+        }
+    }
+    else
+    {
+        if (clientAddr.is_v4() &&
+            (clientAddr.to_v4().to_ulong() & LocalSubnetMask.to_v4().to_ulong()) ==
+            (LocalAddress.to_v4().to_ulong() & LocalSubnetMask.to_v4().to_ulong()))
+        {
+            realmIp = LocalAddress;
+        }
+        else
+            realmIp = ExternalAddress;
+    }
 
-    // Check if connecting client is in the same network
-    if (IsIPAddrInNetwork(LocalAddress, clientAddr, LocalSubnetMask))
-        return LocalAddress;
+    tcp::endpoint endpoint(realmIp, port);
 
     // Return external IP
-    return ExternalAddress;
+    return endpoint;
 }
 
-RealmList::RealmList() : m_UpdateInterval(0), m_NextUpdateTime(time(NULL))
+RealmList::RealmList() : m_UpdateInterval(0), m_NextUpdateTime(time(NULL)), _resolver(nullptr)
 {
 }
 
-RealmList::RealmList() : m_UpdateInterval(0), m_NextUpdateTime(time(NULL)), _resolver(nullptr) { }
 RealmList::~RealmList()
 {
     delete _resolver;
@@ -60,7 +76,7 @@ void RealmList::Initialize(boost::asio::io_service& ioService, uint32 updateInte
     UpdateRealms(true);
 }
 
-void RealmList::UpdateRealm(uint32 id, const std::string& name, ip::address const& address, ip::address const& localAddr, 
+void RealmList::UpdateRealm(uint32 id, const std::string& name, ip::address const& address, ip::address const& localAddr,
     ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population, uint32 build, uint8 region, uint8 battlegroup)
 {
     // Create new if not exist or update existed
@@ -156,8 +172,8 @@ void RealmList::UpdateRealms(bool init)
                 uint8 allowedSecurityLevel = fields[9].GetUInt8();
                 float pop = fields[10].GetFloat();
                 uint32 build = fields[11].GetUInt32();
-                uint8 region                = fields[12].GetUInt8();
-                uint8 battlegroup           = fields[13].GetUInt8();
+                uint8 region = fields[12].GetUInt8();
+                uint8 battlegroup = fields[13].GetUInt8();
 
                 UpdateRealm(realmId, name, externalAddress, localAddress, localSubmask, port, icon, flag, timezone,
                     (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop, build, region, battlegroup);

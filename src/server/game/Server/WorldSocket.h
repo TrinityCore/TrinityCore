@@ -74,7 +74,7 @@ private:
     char _readBuffer[4096];
 
     uint32 _authSeed;
-    AuthCrypt _authCrypt;
+    WorldPacketCrypt _authCrypt;
 
     std::chrono::steady_clock::time_point _LastPingTime;
     uint32 _OverSpeedPings;

@@ -270,7 +270,6 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     recvPacket.ReadBit();
     uint32 accountNameLength = recvPacket.ReadBits(12);
     account = recvPacket.ReadString(accountNameLength);
-
     if (sWorld->IsClosed())
     {
         SendAuthResponseError(AUTH_REJECT);
@@ -463,7 +462,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     _worldSession->LoadGlobalAccountData();
     _worldSession->LoadTutorialsData();
-    _worldSession->ReadAddonsInfo(recvPacket);
+    _worldSession->ReadAddonsInfo(addonsData);
     _worldSession->LoadPermissions();
 
     // At this point, we can safely hook a successful login
