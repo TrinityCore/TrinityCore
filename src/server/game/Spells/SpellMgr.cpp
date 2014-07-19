@@ -3342,8 +3342,9 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 59630: // Black Magic
                 spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
                 break;
-            case  50452: // Bloodworm summon
+            case 50452: // Bloodworm summon
                 spellInfo->Effects[EFFECT_0].DieSides = 3;
                 break;                
             case 59578: // The Art of War (Rank 2) - FOL or Exorcism don't reset swing timer
@@ -3798,7 +3799,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 74384:  // Intimidating Roar - Ruby Sanctum
                 spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_40_YARDS);
                 break;
-            case 59630: // Black Magic
             case 72968: // Precious's Ribbon
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
                 break;

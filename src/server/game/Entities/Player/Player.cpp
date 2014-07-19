@@ -3692,7 +3692,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
         else if (spellId == 16954 || spellId == 16961)
         {
             if (uint32 prev_spell = sSpellMgr->GetPrevSpellInChain(spellId))
-                removeSpell(prev_spell, false, false);
+                RemoveSpell(prev_spell, false, false);
         }
         // non talent spell: learn low ranks (recursive call)
         else if (uint32 prev_spell = sSpellMgr->GetPrevSpellInChain(spellId))

@@ -456,7 +456,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool CanWalk() const { return (GetCreatureTemplate()->InhabitType & INHABIT_GROUND) != 0; }
         bool CanSwim() const { return (GetCreatureTemplate()->InhabitType & INHABIT_WATER) != 0 || IsPet(); }
         bool CanFly()  const { return (GetCreatureTemplate()->InhabitType & INHABIT_AIR) != 0; }
-        bool IsIgnorePathfinding() const {GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING; }
+        bool IsIgnorePathfinding() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING) != 0; }
 
         void SetReactState(ReactStates st) { m_reactState = st; }
         ReactStates GetReactState() { return m_reactState; }
