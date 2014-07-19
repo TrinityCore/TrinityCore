@@ -35,8 +35,8 @@ public:
 
     static ConfigMgr* instance()
     {
-        static ConfigMgr *instance = new ConfigMgr();
-        return instance;
+        static ConfigMgr instance;
+        return &instance;
     }
 
     bool Reload();

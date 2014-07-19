@@ -29,8 +29,8 @@ private:
 public:
     static ArenaTeamMgr* instance()
     {
-        static ArenaTeamMgr* instance = new ArenaTeamMgr();
-        return instance;
+        static ArenaTeamMgr instance;
+        return &instance;
     }
 
     typedef std::unordered_map<uint32, ArenaTeam*> ArenaTeamContainer;

@@ -310,8 +310,8 @@ class AchievementGlobalMgr
     public:
         static AchievementGlobalMgr* instance()
         {
-            static AchievementGlobalMgr* instance = new AchievementGlobalMgr();
-            return instance;
+            static AchievementGlobalMgr instance;
+            return &instance;
         }
 
         AchievementCriteriaEntryList const& GetAchievementCriteriaByType(AchievementCriteriaTypes type) const

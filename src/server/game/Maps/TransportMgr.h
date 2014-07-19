@@ -100,8 +100,8 @@ class TransportMgr
     public:
         static TransportMgr* instance()
         {
-            static TransportMgr* instance = new TransportMgr();
-            return instance;
+            static TransportMgr instance;
+            return &instance;
         }
 
         void Unload();

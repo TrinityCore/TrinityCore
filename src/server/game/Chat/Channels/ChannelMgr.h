@@ -37,8 +37,8 @@ class ChannelMgr
     public:
         static ChannelMgr* instance()
         {
-            static ChannelMgr* instance = new ChannelMgr();
-            return instance;
+            static ChannelMgr instance;
+            return &instance;
         }
 
         static ChannelMgr * forTeam(uint32 team);
