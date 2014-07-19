@@ -83,6 +83,7 @@ public:
         bool _bHasDied;
         bool _bHeal;
         bool _bFakeDeath;
+        bool _bRevived;
 
         void Reset() override
         {
@@ -100,6 +101,7 @@ public:
             _bHasDied = false;
             _bHeal = false;
             _bFakeDeath = false;
+            _BRevived = false;
         }
 
         void JustReachedHome() override
@@ -162,8 +164,7 @@ public:
             {
                 Talk(SAY_MO_RESURRECTED);
                 _bFakeDeath = false;
-
-                instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, SPECIAL);
+                _bRevived = true;
             }
         }
 
@@ -172,7 +173,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (_bHasDied && !_bHeal && instance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT) == SPECIAL)
+            if (_bHasDied && !_bHeal && _bRevived)
             {
                 //On resurrection, stop fake death and heal whitemane and resume fight
                 if (Unit* Whitemane = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_WHITEMANE)))
