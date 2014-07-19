@@ -739,41 +739,6 @@ bool AuthSession::_HandleReconnectProof()
     }
 }
 
-tcp::endpoint const GetAddressForClient(Realm const& realm, ip::address const& clientAddr)
-{
-    ip::address realmIp;
-
-    // Attempt to send best address for client
-    if (clientAddr.is_loopback())
-    {
-        // Try guessing if realm is also connected locally
-        if (realm.LocalAddress.is_loopback() || realm.ExternalAddress.is_loopback())
-            realmIp = clientAddr;
-        else
-        {
-            // Assume that user connecting from the machine that authserver is located on
-            // has all realms available in his local network
-            realmIp = realm.LocalAddress;
-        }
-    }
-    else
-    {
-        if (clientAddr.is_v4() &&
-            (clientAddr.to_v4().to_ulong() & realm.LocalSubnetMask.to_v4().to_ulong()) ==
-            (realm.LocalAddress.to_v4().to_ulong() & realm.LocalSubnetMask.to_v4().to_ulong()))
-        {
-            realmIp = realm.LocalAddress;
-        }
-        else
-            realmIp = realm.ExternalAddress;
-    }
-
-    tcp::endpoint endpoint(realmIp, realm.port);
-
-    // Return external IP
-    return endpoint;
-}
-
 bool AuthSession::_HandleRealmList()
 {
     TC_LOG_DEBUG("server.authserver", "Entering _HandleRealmList");
@@ -843,7 +808,7 @@ bool AuthSession::_HandleRealmList()
             pkt << lock;                                    // if 1, then realm locked
         pkt << uint8(flag);                                 // RealmFlags
         pkt << name;
-        pkt << boost::lexical_cast<std::string>(GetAddressForClient(realm, _socket.remote_endpoint().address()));
+        pkt << boost::lexical_cast<std::string>(realm.GetAddressForClient(_socket.remote_endpoint().address()));
         pkt << realm.populationLevel;
         pkt << AmountOfCharacters;
         pkt << realm.timezone;                              // realm category
@@ -918,17 +883,9 @@ void AuthSession::SetVSFields(const std::string& rI)
     x.SetBinary(sha.GetDigest(), sha.GetLength());
     v = g.ModExp(x, N);
 
-    // No SQL injection (username escaped)
-    char *v_hex, *s_hex;
-    v_hex = v.AsHexStr();
-    s_hex = s.AsHexStr();
-
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_VS);
-    stmt->setString(0, v_hex);
-    stmt->setString(1, s_hex);
+    stmt->setString(0, v.AsHexStr());
+    stmt->setString(1, s.AsHexStr());
     stmt->setString(2, _login);
     LoginDatabase.Execute(stmt);
-
-    OPENSSL_free(v_hex);
-    OPENSSL_free(s_hex);
 }

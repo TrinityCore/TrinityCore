@@ -57,7 +57,7 @@ struct Realm
     uint8 Region;
     uint8 Battlegroup;
 
-    ACE_INET_Addr const& GetAddressForClient(ACE_INET_Addr const& clientAddr) const;
+    ip::tcp::endpoint GetAddressForClient(ip::address const& clientAddr) const;
 };
 
 namespace Battlenet
@@ -76,7 +76,7 @@ public:
         static RealmList *instance = new RealmList();
         return *instance;
     }
-    
+
     ~RealmList();
 
     void Initialize(boost::asio::io_service& ioService, uint32 updateInterval);

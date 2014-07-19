@@ -76,9 +76,10 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
         // sort problematic db2 to (1) non compatible and (2) nonexistent
         if (FILE* f = fopen(db2_filename.c_str(), "rb"))
         {
-            char buf[100];
-            snprintf(buf, 100,"(exist, but have %d fields instead " SIZEFMTD ") Wrong client version DBC file?", storage.GetFieldCount(), strlen(storage.GetFormat()));
-            errlist.push_back(db2_filename + buf);
+            std::ostringstream stream;
+            stream << db2_filename << " exists, and has " << storage.GetFieldCount() << " field(s) (expected " << strlen(storage.GetFormat()) << "). Extracted file might be from wrong client version.";
+            std::string buf = stream.str();
+            errlist.push_back(buf);
             fclose(f);
         }
         else
