@@ -19,8 +19,8 @@
 #ifndef _AUTH_BIGNUMBER_H
 #define _AUTH_BIGNUMBER_H
 
+#include <memory>
 #include "Define.h"
-#include <ace/Auto_Ptr.h>
 #include <string>
 
 struct bignum_st;
@@ -88,7 +88,7 @@ class BigNumber
 
         uint32 AsDword();
 
-        ACE_Auto_Array_Ptr<uint8> AsByteArray(int32 minSize = 0, bool littleEndian = true);
+        std::unique_ptr<uint8[]> AsByteArray(int32 minSize = 0, bool littleEndian = true);
 
         std::string AsHexStr() const;
         std::string AsDecStr() const;

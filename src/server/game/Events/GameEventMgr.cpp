@@ -1164,7 +1164,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
 
     if (internal_event_id < 0 || internal_event_id >= int32(mGameEventCreatureGuids.size()))
     {
-        TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventSpawn attempt access to out of range mGameEventCreatureGuids element %i (size: " SIZEFMTD ")",
+        TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventSpawn attempt access to out of range mGameEventCreatureGuids element %i (size: %zu)",
             internal_event_id, mGameEventCreatureGuids.size());
         return;
     }
@@ -1191,7 +1191,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
 
     if (internal_event_id < 0 || internal_event_id >= int32(mGameEventGameobjectGuids.size()))
     {
-        TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventSpawn attempt access to out of range mGameEventGameobjectGuids element %i (size: " SIZEFMTD ")",
+        TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventSpawn attempt access to out of range mGameEventGameobjectGuids element %i (size: %zu)",
             internal_event_id, mGameEventGameobjectGuids.size());
         return;
     }
@@ -1224,7 +1224,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
 
     if (internal_event_id < 0 || internal_event_id >= int32(mGameEventPoolIds.size()))
     {
-        TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventSpawn attempt access to out of range mGameEventPoolIds element %u (size: " SIZEFMTD ")",
+        TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventSpawn attempt access to out of range mGameEventPoolIds element %u (size: %zu)",
             internal_event_id, mGameEventPoolIds.size());
         return;
     }
@@ -1239,7 +1239,7 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
 
     if (internal_event_id < 0 || internal_event_id >= int32(mGameEventCreatureGuids.size()))
     {
-        TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventUnspawn attempt access to out of range mGameEventCreatureGuids element %i (size: " SIZEFMTD ")",
+        TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventUnspawn attempt access to out of range mGameEventCreatureGuids element %i (size: %zu)",
             internal_event_id, mGameEventCreatureGuids.size());
         return;
     }
@@ -1261,7 +1261,7 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
 
     if (internal_event_id < 0 || internal_event_id >= int32(mGameEventGameobjectGuids.size()))
     {
-        TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventUnspawn attempt access to out of range mGameEventGameobjectGuids element %i (size: " SIZEFMTD ")",
+        TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventUnspawn attempt access to out of range mGameEventGameobjectGuids element %i (size: %zu)",
             internal_event_id, mGameEventGameobjectGuids.size());
         return;
     }
@@ -1282,7 +1282,7 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
     }
     if (internal_event_id < 0 || internal_event_id >= int32(mGameEventPoolIds.size()))
     {
-        TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventUnspawn attempt access to out of range mGameEventPoolIds element %u (size: " SIZEFMTD ")", internal_event_id, mGameEventPoolIds.size());
+        TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventUnspawn attempt access to out of range mGameEventPoolIds element %u (size: %zu)", internal_event_id, mGameEventPoolIds.size());
         return;
     }
 
@@ -1601,14 +1601,14 @@ void GameEventMgr::RunSmartAIScripts(uint16 event_id, bool activate)
     //! Iterate over every supported source type (creature and gameobject)
     //! Not entirely sure how this will affect units in non-loaded grids.
     {
-        TRINITY_READ_GUARD(HashMapHolder<Creature>::LockType, *HashMapHolder<Creature>::GetLock());
+        boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Creature>::GetLock());
         HashMapHolder<Creature>::MapType const& m = ObjectAccessor::GetCreatures();
         for (HashMapHolder<Creature>::MapType::const_iterator iter = m.begin(); iter != m.end(); ++iter)
             if (iter->second->IsInWorld())
                 iter->second->AI()->sOnGameEvent(activate, event_id);
     }
     {
-        TRINITY_READ_GUARD(HashMapHolder<GameObject>::LockType, *HashMapHolder<GameObject>::GetLock());
+        boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<GameObject>::GetLock());
         HashMapHolder<GameObject>::MapType const& m = ObjectAccessor::GetGameObjects();
         for (HashMapHolder<GameObject>::MapType::const_iterator iter = m.begin(); iter != m.end(); ++iter)
             if (iter->second->IsInWorld())

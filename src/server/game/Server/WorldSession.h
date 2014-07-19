@@ -215,7 +215,7 @@ struct PacketCounter
 class WorldSession
 {
     public:
-        WorldSession(uint32 id, uint32 battlenetAccountId, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
+        WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
 
         bool PlayerLoading() const { return m_playerLoading; }
@@ -379,10 +379,11 @@ class WorldSession
         void SetLatency(uint32 latency) { m_latency = latency; }
         void ResetClientTimeDelay() { m_clientTimeDelay = 0; }
 
-        ACE_Atomic_Op<ACE_Thread_Mutex, time_t> m_timeOutTime;
+        std::atomic<time_t> m_timeOutTime;
+
         void UpdateTimeOutTime(uint32 diff)
         {
-            if (time_t(diff) > m_timeOutTime.value())
+            if (time_t(diff) > m_timeOutTime)
                 m_timeOutTime = 0;
             else
                 m_timeOutTime -= diff;
@@ -1038,7 +1039,7 @@ class WorldSession
 
         uint32 m_GUIDLow;                                   // set logined or recently logout player (while m_playerRecentlyLogout set)
         Player* _player;
-        WorldSocket* m_Socket;
+        std::shared_ptr<WorldSocket> m_Socket;
         std::string m_Address;                              // Current Remote Address
      // std::string m_LAddress;                             // Last Attempted Remote Adress - we can not set attempted ip for a non-existing session!
 
@@ -1060,8 +1061,8 @@ class WorldSession
         bool m_playerSave;
         LocaleConstant m_sessionDbcLocale;
         LocaleConstant m_sessionDbLocaleIndex;
-        uint32 m_latency;
-        uint32 m_clientTimeDelay;
+        std::atomic<uint32> m_latency;
+        std::atomic<uint32> m_clientTimeDelay;
         AccountData m_accountData[NUM_ACCOUNT_DATA_TYPES];
         uint32 m_Tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];
         bool   m_TutorialsChanged;
@@ -1070,7 +1071,7 @@ class WorldSession
         bool _filterAddonMessages;
         uint32 recruiterId;
         bool isRecruiter;
-        ACE_Based::LockedQueue<WorldPacket*, ACE_Thread_Mutex> _recvQueue;
+        LockedQueue<WorldPacket*> _recvQueue;
         z_stream_s* _compressionStream;
         rbac::RBACData* _RBACData;
         uint32 expireTime;

@@ -23,7 +23,6 @@
 #include <string>
 
 #include "Common.h"
-#include <ace/Singleton.h>
 #include "DatabaseEnv.h"
 #include "DBCEnums.h"
 #include "DBCStores.h"
@@ -299,13 +298,18 @@ class AchievementMgr
 
 class AchievementGlobalMgr
 {
-        friend class ACE_Singleton<AchievementGlobalMgr, ACE_Null_Mutex>;
         AchievementGlobalMgr() { }
         ~AchievementGlobalMgr() { }
 
     public:
         static char const* GetCriteriaTypeString(AchievementCriteriaTypes type);
         static char const* GetCriteriaTypeString(uint32 type);
+
+        static AchievementGlobalMgr* instance()
+        {
+            static AchievementGlobalMgr* instance = new AchievementGlobalMgr();
+            return instance;
+        }
 
         AchievementCriteriaEntryList const& GetAchievementCriteriaByType(AchievementCriteriaTypes type, bool guild = false) const
         {
@@ -405,6 +409,6 @@ class AchievementGlobalMgr
         AchievementRewardLocales m_achievementRewardLocales;
 };
 
-#define sAchievementMgr ACE_Singleton<AchievementGlobalMgr, ACE_Null_Mutex>::instance()
+#define sAchievementMgr AchievementGlobalMgr::instance()
 
 #endif

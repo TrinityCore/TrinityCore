@@ -19,10 +19,8 @@
 #ifndef SC_SCRIPTMGR_H
 #define SC_SCRIPTMGR_H
 
+#include <atomic>
 #include "Common.h"
-#include <ace/Singleton.h>
-#include <ace/Atomic_Op.h>
-
 #include "DBCStores.h"
 #include "QuestDef.h"
 #include "SharedDefines.h"
@@ -215,30 +213,30 @@ class ServerScript : public ScriptObject
 
     public:
 
-        // Called when reactive socket I/O is started (WorldSocketMgr).
+        // Called when reactive socket I/O is started (WorldTcpSessionMgr).
         virtual void OnNetworkStart() { }
 
         // Called when reactive I/O is stopped.
         virtual void OnNetworkStop() { }
 
         // Called when a remote socket establishes a connection to the server. Do not store the socket object.
-        virtual void OnSocketOpen(WorldSocket* /*socket*/) { }
+        virtual void OnSocketOpen(std::shared_ptr<WorldSocket> /*socket*/) { }
 
         // Called when a socket is closed. Do not store the socket object, and do not rely on the connection
         // being open; it is not.
-        virtual void OnSocketClose(WorldSocket* /*socket*/, bool /*wasNew*/) { }
+        virtual void OnSocketClose(std::shared_ptr<WorldSocket> /*socket*/, bool /*wasNew*/) { }
 
         // Called when a packet is sent to a client. The packet object is a copy of the original packet, so reading
         // and modifying it is safe.
-        virtual void OnPacketSend(WorldSocket* /*socket*/, WorldPacket& /*packet*/) { }
+        virtual void OnPacketSend(std::shared_ptr<WorldSocket> /*socket*/, WorldPacket& /*packet*/) { }
 
         // Called when a (valid) packet is received by a client. The packet object is a copy of the original packet, so
         // reading and modifying it is safe.
-        virtual void OnPacketReceive(WorldSocket* /*socket*/, WorldPacket& /*packet*/) { }
+        virtual void OnPacketReceive(std::shared_ptr<WorldSocket> /*socket*/, WorldPacket& /*packet*/) { }
 
         // Called when an invalid (unknown opcode) packet is received by a client. The packet is a reference to the orignal
         // packet; not a copy. This allows you to actually handle unknown packets (for whatever purpose).
-        virtual void OnUnknownPacketReceive(WorldSocket* /*socket*/, WorldPacket& /*packet*/) { }
+        virtual void OnUnknownPacketReceive(std::shared_ptr<WorldSocket> /*socket*/, WorldPacket& /*packet*/) { }
 };
 
 class WorldScript : public ScriptObject
@@ -868,20 +866,23 @@ class GroupScript : public ScriptObject
 };
 
 // Placed here due to ScriptRegistry::AddScript dependency.
-#define sScriptMgr ACE_Singleton<ScriptMgr, ACE_Null_Mutex>::instance()
+#define sScriptMgr ScriptMgr::instance()
 
 // Manages registration, loading, and execution of scripts.
 class ScriptMgr
 {
-    friend class ACE_Singleton<ScriptMgr, ACE_Null_Mutex>;
     friend class ScriptObject;
 
     private:
-
         ScriptMgr();
         virtual ~ScriptMgr();
 
     public: /* Initialization */
+        static ScriptMgr* instance()
+        {
+            static ScriptMgr* instance = new ScriptMgr();
+            return instance;
+        }
 
         void Initialize();
         void LoadDatabase();
@@ -906,11 +907,11 @@ class ScriptMgr
 
         void OnNetworkStart();
         void OnNetworkStop();
-        void OnSocketOpen(WorldSocket* socket);
-        void OnSocketClose(WorldSocket* socket, bool wasNew);
-        void OnPacketReceive(WorldSocket* socket, WorldPacket packet);
-        void OnPacketSend(WorldSocket* socket, WorldPacket packet);
-        void OnUnknownPacketReceive(WorldSocket* socket, WorldPacket packet);
+        void OnSocketOpen(std::shared_ptr<WorldSocket> socket);
+        void OnSocketClose(std::shared_ptr<WorldSocket> socket, bool wasNew);
+        void OnPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket packet);
+        void OnPacketSend(std::shared_ptr<WorldSocket> socket, WorldPacket packet);
+        void OnUnknownPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket packet);
 
     public: /* WorldScript */
 
@@ -1125,7 +1126,7 @@ class ScriptMgr
         uint32 _scriptCount;
 
         //atomic op counter for active scripts amount
-        ACE_Atomic_Op<ACE_Thread_Mutex, long> _scheduledScripts;
+        std::atomic_long _scheduledScripts;
 };
 
 #endif

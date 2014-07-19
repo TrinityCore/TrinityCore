@@ -110,7 +110,7 @@ void Arena::RemovePlayerAtLeave(uint64 guid, bool transport, bool sendPacket)
             // left a rated match while the encounter was in progress, consider as loser
             if (winnerArenaTeam && loserArenaTeam && winnerArenaTeam != loserArenaTeam)
             {
-                if (Player* player = _GetPlayer(itr->first, itr->second.OfflineRemoveTime, "Arena::RemovePlayerAtLeave"))
+                if (Player* player = _GetPlayer(itr->first, itr->second.OfflineRemoveTime != 0, "Arena::RemovePlayerAtLeave"))
                     loserArenaTeam->MemberLost(player, GetArenaMatchmakerRating(GetOtherTeam(team)));
                 else
                     loserArenaTeam->OfflineMemberLost(guid, GetArenaMatchmakerRating(GetOtherTeam(team)));
@@ -213,7 +213,7 @@ void Arena::EndBattleground(uint32 winner)
                     continue;
                 }
 
-                Player* player = _GetPlayer(i.first, i.second.OfflineRemoveTime, "Arena::EndBattleground");
+                Player* player = _GetPlayer(i.first, i.second.OfflineRemoveTime != 0, "Arena::EndBattleground");
                 if (!player)
                     continue;
 

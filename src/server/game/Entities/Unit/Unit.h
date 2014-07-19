@@ -1360,18 +1360,18 @@ class Unit : public WorldObject
         void SendMeleeAttackStart(Unit* victim);
 
         void AddUnitState(uint32 f) { m_state |= f; }
-        bool HasUnitState(const uint32 f) const { return (m_state & f); }
+        bool HasUnitState(const uint32 f) const { return (m_state & f) != 0; }
         void ClearUnitState(uint32 f) { m_state &= ~f; }
         bool CanFreeMove() const;
 
         uint32 HasUnitTypeMask(uint32 mask) const { return mask & m_unitTypeMask; }
         void AddUnitTypeMask(uint32 mask) { m_unitTypeMask |= mask; }
-        bool IsSummon() const   { return m_unitTypeMask & UNIT_MASK_SUMMON; }
-        bool IsGuardian() const { return m_unitTypeMask & UNIT_MASK_GUARDIAN; }
-        bool IsPet() const      { return m_unitTypeMask & UNIT_MASK_PET; }
-        bool IsHunterPet() const{ return m_unitTypeMask & UNIT_MASK_HUNTER_PET; }
-        bool IsTotem() const    { return m_unitTypeMask & UNIT_MASK_TOTEM; }
-        bool IsVehicle() const  { return m_unitTypeMask & UNIT_MASK_VEHICLE; }
+        bool IsSummon() const   { return (m_unitTypeMask & UNIT_MASK_SUMMON) != 0; }
+        bool IsGuardian() const { return (m_unitTypeMask & UNIT_MASK_GUARDIAN) != 0; }
+        bool IsPet() const      { return (m_unitTypeMask & UNIT_MASK_PET) != 0; }
+        bool IsHunterPet() const{ return (m_unitTypeMask & UNIT_MASK_HUNTER_PET) != 0; }
+        bool IsTotem() const    { return (m_unitTypeMask & UNIT_MASK_TOTEM) != 0; }
+        bool IsVehicle() const  { return (m_unitTypeMask & UNIT_MASK_VEHICLE) != 0; }
 
         uint8 getLevel() const { return uint8(GetUInt32Value(UNIT_FIELD_LEVEL)); }
         uint8 getLevelForTarget(WorldObject const* /*target*/) const { return getLevel(); }

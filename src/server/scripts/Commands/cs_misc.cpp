@@ -30,7 +30,6 @@
 #include "SpellAuras.h"
 #include "TargetedMovementGenerator.h"
 #include "WeatherMgr.h"
-#include "ace/INET_Addr.h"
 #include "Player.h"
 #include "Pet.h"
 #include "LFG.h"
@@ -1343,7 +1342,7 @@ public:
             return false;
         }
 
-        bool targetHasSkill = target->GetSkillValue(skill);
+        bool targetHasSkill = target->GetSkillValue(skill) != 0;
 
         // If our target does not yet have the skill they are trying to add to them, the chosen level also becomes
         // the max level of the new profession.

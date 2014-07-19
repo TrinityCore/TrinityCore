@@ -20,7 +20,6 @@
 #include "Common.h"
 #include "Log.h"
 
-#include <ace/Stack_Trace.h>
 #include <sstream>
 
 ByteBufferPositionException::ByteBufferPositionException(bool add, size_t pos,

@@ -84,7 +84,7 @@ bool BattlefieldWG::SetupBattlefield()
         sWorld->setWorldState(ClockWorldState[0], uint64(m_NoWarBattleTime));
     }
 
-    m_isActive = bool(sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_ACTIVE));
+    m_isActive = sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_ACTIVE) != 0;
     m_DefenderTeam = TeamId(sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_DEFENDER));
 
     m_Timer = sWorld->getWorldState(ClockWorldState[0]);

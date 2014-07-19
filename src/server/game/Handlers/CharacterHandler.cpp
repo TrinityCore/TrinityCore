@@ -312,10 +312,10 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
             switch (team)
             {
                 case ALLIANCE:
-                    disabled = mask & (1 << 0);
+                    disabled = (mask & (1 << 0)) != 0;
                     break;
                 case HORDE:
-                    disabled = mask & (1 << 1);
+                    disabled = (mask & (1 << 1)) != 0;
                     break;
             }
 
@@ -1152,7 +1152,7 @@ void WorldSession::HandleSetFactionAtWar(WorldPacket& recvData)
     recvData >> repListID;
     recvData >> flag;
 
-    GetPlayer()->GetReputationMgr().SetAtWar(repListID, flag);
+    GetPlayer()->GetReputationMgr().SetAtWar(repListID, flag != 0);
 }
 
 //I think this function is never used :/ I dunno, but i guess this opcode not exists
@@ -1205,7 +1205,7 @@ void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket& recvData)
     uint8 inactive;
     recvData >> replistid >> inactive;
 
-    _player->GetReputationMgr().SetInactive(replistid, inactive);
+    _player->GetReputationMgr().SetInactive(replistid, inactive != 0);
 }
 
 void WorldSession::HandleShowingHelmOpcode(WorldPacket& recvData)
