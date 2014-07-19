@@ -298,8 +298,8 @@ class LFGMgr
     public:
         static LFGMgr* instance()
         {
-            static LFGMgr* instance = new LFGMgr();
-            return instance;
+            static LFGMgr instance;
+            return &instance;
         }
 
         // Functions used outside lfg namespace

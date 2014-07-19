@@ -610,9 +610,8 @@ class SpellMgr
     public:
         static SpellMgr* instance()
         {
-            static SpellMgr* instance = new SpellMgr();
-
-            return instance;
+            static SpellMgr instance;
+            return &instance;
         }
 
         // Spell correctness for client using
