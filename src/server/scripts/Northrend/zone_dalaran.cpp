@@ -172,8 +172,97 @@ public:
     }
 };
 
+/*######
+## npc_archmage_landalock
+######*/
+
+enum ArchmageLandalockQuests
+{
+    QUEST_SARTHARION_MUST_DIE               = 24579,
+    QUEST_ANUBREKHAN_MUST_DIE               = 24580,
+    QUEST_NOTH_THE_PLAGUEBINGER_MUST_DIE    = 24581,
+    QUEST_INSTRUCTOR_RAZUVIOUS_MUST_DIE     = 24582,
+    QUEST_PATCHWERK_MUST_DIE                = 24583,
+    QUEST_MALYGOS_MUST_DIE                  = 24584,
+    QUEST_FLAME_LEVIATHAN_MUST_DIE          = 24585,
+    QUEST_RAZORSCALE_MUST_DIE               = 24586,
+    QUEST_IGNIS_THE_FURNACE_MASTER_MUST_DIE = 24587,
+    QUEST_XT_002_DECONSTRUCTOR_MUST_DIE     = 24588,
+    QUEST_LORD_JARAXXUS_MUST_DIE            = 24589,
+    QUEST_LORD_MARROWGAR_MUST_DIE           = 24590
+};
+
+enum ArchmageLandalockImages
+{
+    NPC_SARTHARION_IMAGE                = 37849,
+    NPC_ANUBREKHAN_IMAGE                = 37850,
+    NPC_NOTH_THE_PLAGUEBINGER_IMAGE     = 37851,
+    NPC_INSTRUCTOR_RAZUVIOUS_IMAGE      = 37853,
+    NPC_PATCHWERK_IMAGE                 = 37854,
+    NPC_MALYGOS_IMAGE                   = 37855,
+    NPC_FLAME_LEVIATHAN_IMAGE           = 37856,
+    NPC_RAZORSCALE_IMAGE                = 37858,
+    NPC_IGNIS_THE_FURNACE_MASTER_IMAGE  = 37859,
+    NPC_XT_002_DECONSTRUCTOR_IMAGE      = 37861,
+    NPC_LORD_JARAXXUS_IMAGE             = 37862,
+    NPC_LORD_MARROWGAR_IMAGE            = 37864
+};
+
+std::map<uint32, uint32> const ImageData =
+{
+    { QUEST_SARTHARION_MUST_DIE,                NPC_SARTHARION_IMAGE },
+    { QUEST_ANUBREKHAN_MUST_DIE,                NPC_ANUBREKHAN_IMAGE },
+    { QUEST_NOTH_THE_PLAGUEBINGER_MUST_DIE,     NPC_NOTH_THE_PLAGUEBINGER_IMAGE },
+    { QUEST_INSTRUCTOR_RAZUVIOUS_MUST_DIE,      NPC_INSTRUCTOR_RAZUVIOUS_IMAGE },
+    { QUEST_PATCHWERK_MUST_DIE,                 NPC_PATCHWERK_IMAGE },
+    { QUEST_MALYGOS_MUST_DIE,                   NPC_MALYGOS_IMAGE },
+    { QUEST_FLAME_LEVIATHAN_MUST_DIE,           NPC_FLAME_LEVIATHAN_IMAGE },
+    { QUEST_RAZORSCALE_MUST_DIE,                NPC_RAZORSCALE_IMAGE },
+    { QUEST_IGNIS_THE_FURNACE_MASTER_MUST_DIE,  NPC_IGNIS_THE_FURNACE_MASTER_IMAGE },
+    { QUEST_XT_002_DECONSTRUCTOR_MUST_DIE,      NPC_XT_002_DECONSTRUCTOR_IMAGE },
+    { QUEST_LORD_JARAXXUS_MUST_DIE,             NPC_LORD_JARAXXUS_IMAGE },
+    { QUEST_LORD_MARROWGAR_MUST_DIE,            NPC_LORD_MARROWGAR_IMAGE }
+};
+
+Position const ImageSpawnPos = { 5703.077f, 583.9757f, 656.9372f, 3.926991f };
+
+class npc_archmage_landalock : public CreatureScript
+{
+public:
+    npc_archmage_landalock() : CreatureScript("npc_archmage_landalock")
+    {
+        _currentImageGUID = 0;
+    }
+
+    bool OnQuestReward(Player* /*player*/, Creature* creature, Quest const* quest, uint32 /*opt*/) override
+    {
+        std::map<uint32, uint32>::const_iterator itr = ImageData.find(quest->GetQuestId());
+
+        if (itr == ImageData.end())
+            return true;
+
+        if (Creature* spawnedImage = Creature::GetCreature(*creature, _currentImageGUID))
+        {
+            if (spawnedImage->GetEntry() == itr->second)
+                return true;
+
+            spawnedImage->DespawnOrUnsummon();
+            _currentImageGUID = 0;
+        }
+
+        if (Creature* image = creature->SummonCreature(itr->second, ImageSpawnPos))
+            _currentImageGUID = image->GetGUID();
+
+        return true;
+    }
+
+private:
+    uint64 _currentImageGUID;
+};
+
 void AddSC_dalaran()
 {
-    new npc_mageguard_dalaran;
-    new npc_hira_snowdawn;
+    new npc_mageguard_dalaran();
+    new npc_hira_snowdawn();
+    new npc_archmage_landalock();
 }
