@@ -16,7 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <G3D/Quat.h>
 #include "GameObjectAI.h"
 #include "Battleground.h"
 #include "CellImpl.h"
@@ -34,6 +33,7 @@
 #include "UpdateFieldFlags.h"
 #include "World.h"
 #include "Transport.h"
+#include <G3D/Quat.h>
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
     m_model(NULL), m_goValue(), m_AI(NULL)
