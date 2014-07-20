@@ -89,8 +89,8 @@ class CreatureTextMgr
     public:
         static CreatureTextMgr* instance()
         {
-            static CreatureTextMgr* instance = new CreatureTextMgr();
-            return instance;
+            static CreatureTextMgr instance;
+            return &instance;
         }
 
         void LoadCreatureTexts();

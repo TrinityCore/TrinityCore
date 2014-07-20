@@ -35,8 +35,8 @@ class ObjectRegistry
 
         static ObjectRegistry<T, Key>* instance()
         {
-            static ObjectRegistry<T, Key>* instance = new ObjectRegistry<T, Key>();
-            return instance;
+            static ObjectRegistry<T, Key> instance;
+            return &instance;
         }
 
         /// Returns a registry item

@@ -37,8 +37,8 @@ class PacketLog
     public:
         static PacketLog* instance()
         {
-            static PacketLog* instance = new PacketLog();
-            return instance;
+            static PacketLog instance;
+            return &instance;
         }
 
         void Initialize();

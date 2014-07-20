@@ -43,15 +43,15 @@ class Log
 
         static Log* instance(boost::asio::io_service* ioService = nullptr)
         {
-            static Log* instance = new Log();
+            static Log instance;
 
             if (ioService != nullptr)
             {
-                instance->_ioService = ioService;
-                instance->_strand = new boost::asio::strand(*ioService);
+                instance._ioService = ioService;
+                instance._strand = new boost::asio::strand(*ioService);
             }
             
-            return instance;
+            return &instance;
         }
 
         void LoadFromConfig();

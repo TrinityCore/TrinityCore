@@ -39,8 +39,8 @@ class WaypointMgr
     public:
         static WaypointMgr* instance()
         {
-            static WaypointMgr* instance = new WaypointMgr();
-            return instance;
+            static WaypointMgr instance;
+            return &instance;
         }
 
         // Attempts to reload a single path from database

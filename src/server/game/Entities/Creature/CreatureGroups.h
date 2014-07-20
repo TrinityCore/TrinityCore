@@ -47,8 +47,8 @@ class FormationMgr
     public:
         static FormationMgr* instance()
         {
-            static FormationMgr* instance = new FormationMgr();
-            return instance;
+            static FormationMgr instance;
+            return &instance;
         }
 
         void AddCreatureToGroup(uint32 group_id, Creature* creature);

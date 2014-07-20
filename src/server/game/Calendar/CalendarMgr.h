@@ -283,8 +283,8 @@ class CalendarMgr
     public:
         static CalendarMgr* instance()
         {
-            static CalendarMgr* instance = new CalendarMgr();
-            return instance;
+            static CalendarMgr instance;
+            return &instance;
         }
 
         void LoadFromDB();

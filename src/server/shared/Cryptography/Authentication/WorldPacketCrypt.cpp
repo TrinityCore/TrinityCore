@@ -20,6 +20,8 @@
 #include "Cryptography/HmacHash.h"
 #include "Cryptography/BigNumber.h"
 
+#include <cstring>
+
 WorldPacketCrypt::WorldPacketCrypt() : PacketCrypt(SHA_DIGEST_LENGTH)
 {
 }

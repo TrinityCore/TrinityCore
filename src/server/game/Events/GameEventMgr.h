@@ -102,8 +102,8 @@ class GameEventMgr
     public:
         static GameEventMgr* instance()
         {
-            static GameEventMgr* instance = new GameEventMgr();
-            return instance;
+            static GameEventMgr instance;
+            return &instance;
         }
 
         typedef std::set<uint16> ActiveEvents;
