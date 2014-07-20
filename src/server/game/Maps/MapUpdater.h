@@ -32,7 +32,7 @@ class MapUpdater
 {
     public:
 
-        MapUpdater::MapUpdater() : _cancelationToken(false), pending_requests(0) {}
+        MapUpdater() : _cancelationToken(false), pending_requests(0) {}
         ~MapUpdater() { };
 
         friend class MapUpdateRequest;
