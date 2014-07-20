@@ -317,7 +317,7 @@ namespace Battlenet
         uint32 Type;
         std::string Name;
         std::string Version;
-        ip::tcp::endpoint Address;
+        tcp::endpoint Address;
         uint8 Flags;
         uint8 Region;
         uint8 Battlegroup;
@@ -363,8 +363,8 @@ namespace Battlenet
         std::string ToString() const override;
 
         uint32 ServerSeed;
-        std::vector<ip::tcp::endpoint> IPv4;
-        std::vector<ip::tcp::endpoint> IPv6;
+        std::vector<tcp::endpoint> IPv4;
+        std::vector<tcp::endpoint> IPv6;
     };
 }
 

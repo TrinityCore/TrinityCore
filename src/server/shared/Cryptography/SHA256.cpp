@@ -17,6 +17,7 @@
 
 #include "SHA256.h"
 #include "BigNumber.h"
+#include <cstring>
 #include <stdarg.h>
 
 SHA256Hash::SHA256Hash()

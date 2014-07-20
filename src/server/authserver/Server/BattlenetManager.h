@@ -19,6 +19,7 @@
 #define __BATTLENETMANAGER_H__
 
 #include "Define.h"
+#include <cstring>
 #include <string>
 #include <set>
 #include <map>

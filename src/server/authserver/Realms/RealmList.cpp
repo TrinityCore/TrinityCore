@@ -22,7 +22,7 @@
 #include "Database/DatabaseEnv.h"
 #include "Util.h"
 
-tcp::endpoint Realm::GetAddressForClient(ip::address const& clientAddr) const
+ip::tcp::endpoint Realm::GetAddressForClient(ip::address const& clientAddr) const
 {
     ip::address realmIp;
 
@@ -51,7 +51,7 @@ tcp::endpoint Realm::GetAddressForClient(ip::address const& clientAddr) const
             realmIp = ExternalAddress;
     }
 
-    tcp::endpoint endpoint(realmIp, port);
+    ip::tcp::endpoint endpoint(realmIp, port);
 
     // Return external IP
     return endpoint;
