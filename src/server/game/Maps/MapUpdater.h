@@ -32,8 +32,8 @@ class MapUpdater
 {
     public:
 
-        MapUpdater();
-        virtual ~MapUpdater();
+        MapUpdater() : _cancelationToken(false), pending_requests(0) {}
+        ~MapUpdater() { };
 
         friend class MapUpdateRequest;
 
