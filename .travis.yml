@@ -18,6 +18,7 @@ branches:
   only:
     - master
     - 4.3.4
+    - coverity_scan
 
 git:
   depth: 1
