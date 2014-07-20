@@ -21,14 +21,15 @@
 
 #include "CompilerDefs.h"
 
+#include <cstddef>
+#include <cinttypes>
+#include <climits>
+
 #if COMPILER == COMPILER_GNU
 #  if !defined(__STDC_FORMAT_MACROS)
 #    define __STDC_FORMAT_MACROS
 #  endif
 #endif
-
-#include <cstddef>
-#include <cinttypes>
 
 #define TRINITY_LITTLEENDIAN 0
 #define TRINITY_BIGENDIAN    1
