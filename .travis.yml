@@ -7,21 +7,19 @@ compiler:
   - gcc
 
 before_install:
+  - sudo add-apt-repository ppa:kalakris/cmake -y
+  - sudo add-apt-repository ppa:boost-latest/ppa -y
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-  - sudo add-apt-repository ppa:kubuntu-ppa/backports -y
-  - sudo add-apt-repository ppa:boost-latest/ppa -y 
   - sudo apt-get update -qq
-  - sudo apt-get install -qq build-essential autoconf libtool gcc-4.8 g++-4.8 make cmake libace-dev openssl libssl-dev libmysqlclient15-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev gsoap libjemalloc-dev libboost1.54-all-dev
+  - sudo apt-get install build-essential libtool make cmake openssl libssl-dev libmysqlclient15-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev libboost1.55-dev libboost-thread1.55-dev libboost-system1.55-dev libboost-program-options1.55-dev
   - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
-  
+
 script:
   - mkdir build
   - cd build
-  - declare -x CFLAGS="-std=c++11"
-  - declare -x CXXFLAGS="-std=c++11"
-  - cmake .. -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=0 -DSCRIPTS=1 -DSERVERS=1
-  - make -j16
+  - cmake .. -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=0 -DSCRIPTS=1 -DSERVERS=1
+  - make -j12
 
 notifications:
   email: false
