@@ -16,14 +16,14 @@
  */
 
 #include <sstream>
-#if PLATFORM == PLATFORM_WINDOWS
-    #include <windows.h>
-#endif
 
 #include "AppenderConsole.h"
 #include "Config.h"
 #include "Util.h"
 
+#if PLATFORM == PLATFORM_WINDOWS
+  #include <Windows.h>
+#endif
 
 AppenderConsole::AppenderConsole(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags):
 Appender(id, name, APPENDER_CONSOLE, level, flags), _colored(false)
