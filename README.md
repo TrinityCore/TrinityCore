@@ -1,5 +1,6 @@
 # ![logo](http://www.trinitycore.org/f/public/style_images/1_trinitycore.png) TrinityCore
 
+[![Build Status](https://travis-ci.org/TrinityCore/TrinityCore.svg?branch=master)](https://travis-ci.org/TrinityCore/TrinityCore)
 
 ## Introduction
 
