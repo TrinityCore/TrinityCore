@@ -438,7 +438,7 @@ void Battlenet::RealmJoinResult::Write()
     }
 
     _stream.Write(IPv4.size(), 5);
-    for (ip::tcp::endpoint const& addr : IPv4)
+    for (tcp::endpoint const& addr : IPv4)
     {
         boost::asio::ip::address_v4::bytes_type ip = addr.address().to_v4().to_bytes();
         uint16 port = addr.port();
@@ -454,10 +454,10 @@ std::string Battlenet::RealmJoinResult::ToString() const
 {
     std::ostringstream stream;
     stream << "Battlenet::RealmJoinResult ServerSeed " << ServerSeed << " IPv4 Addresses " << IPv4.size() << " IPv6 Addresses " << IPv6.size();
-    for (ip::tcp::endpoint const& addr : IPv4)
+    for (tcp::endpoint const& addr : IPv4)
         stream << std::endl << "Battlenet::RealmJoinResult::Address " << boost::lexical_cast<std::string>(addr);
 
-    for (ip::tcp::endpoint const& addr : IPv6)
+    for (tcp::endpoint const& addr : IPv6)
         stream << std::endl << "Battlenet::RealmJoinResult::Address " << boost::lexical_cast<std::string>(addr);
 
     return stream.str().c_str();

@@ -94,7 +94,7 @@ namespace Battlenet
         uint16 GetRemotePort() const { return _socket.remote_endpoint().port(); }
 
         tcp::socket _socket;
-        uint8 _readBuffer[BufferSizes::Read];
+        uint8 _readBuffer[size_t(BufferSizes::Read)];
 
         uint32 _accountId;
         std::string _accountName;
