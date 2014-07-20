@@ -142,8 +142,8 @@ class AuctionHouseMgr
     public:
         static AuctionHouseMgr* instance()
         {
-            static AuctionHouseMgr* instance = new AuctionHouseMgr();
-            return instance;
+            static AuctionHouseMgr instance;
+            return &instance;
         }
 
         typedef std::unordered_map<uint32, Item*> ItemMap;

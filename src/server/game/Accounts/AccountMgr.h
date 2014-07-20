@@ -58,8 +58,8 @@ class AccountMgr
     public:
         static AccountMgr* instance()
         {
-            static AccountMgr* instance = new AccountMgr();
-            return instance;
+            static AccountMgr instance;
+            return &instance;
         }
 
         AccountOpResult CreateAccount(std::string username, std::string password, std::string email = "");

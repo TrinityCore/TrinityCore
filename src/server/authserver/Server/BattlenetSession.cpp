@@ -430,7 +430,7 @@ bool Battlenet::Session::HandleDisconnect(PacketHeader& /*header*/, BitStream& /
 
 bool Battlenet::Session::HandleRealmUpdateSubscribe(PacketHeader& /*header*/, BitStream& /*packet*/)
 {
-    sRealmList.UpdateIfNeed();
+    sRealmList->UpdateIfNeed();
 
     RealmCharacterCounts* counts = new RealmCharacterCounts();
 
@@ -447,7 +447,7 @@ bool Battlenet::Session::HandleRealmUpdateSubscribe(PacketHeader& /*header*/, Bi
         } while (countResult->NextRow());
     }
 
-    for (RealmList::RealmMap::const_iterator i = sRealmList.begin(); i != sRealmList.end(); ++i)
+    for (RealmList::RealmMap::const_iterator i = sRealmList->begin(); i != sRealmList->end(); ++i)
     {
         Realm const& realm = i->second;
 
@@ -501,7 +501,7 @@ bool Battlenet::Session::HandleRealmJoinRequest(PacketHeader& header, BitStream&
     join.Read();
 
     RealmJoinResult* result = new RealmJoinResult();
-    Realm const* realm = sRealmList.GetRealm(join.Realm);
+    Realm const* realm = sRealmList->GetRealm(join.Realm);
     if (!realm || realm->flag & (REALM_FLAG_INVALID | REALM_FLAG_OFFLINE))
     {
         AsyncWrite(result);

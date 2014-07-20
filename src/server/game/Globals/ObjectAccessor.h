@@ -94,8 +94,8 @@ class ObjectAccessor
 
         static ObjectAccessor* instance()
         {
-            static ObjectAccessor *instance = new ObjectAccessor();
-            return instance;
+            static ObjectAccessor instance;
+            return &instance;
         }
 
         template<class T> static T* GetObjectInOrOutOfWorld(uint64 guid, T* /*typeSpecifier*/)

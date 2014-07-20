@@ -160,8 +160,8 @@ class InstanceSaveManager
 
         static InstanceSaveManager* instance()
         {
-            static InstanceSaveManager *instance = new InstanceSaveManager();
-            return instance;
+            static InstanceSaveManager instance;
+            return &instance;
         }
 
         /* resetTime is a global propery of each (raid/heroic) map
