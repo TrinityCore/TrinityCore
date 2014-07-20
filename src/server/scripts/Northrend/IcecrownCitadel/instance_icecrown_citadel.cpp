@@ -936,6 +936,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 pillars->SetRespawnTime(7 * DAY);
                             if (GameObject* pillars = instance->GetGameObject(PillarsUnchainedGUID))
                                 pillars->SetRespawnTime(7 * DAY);
+
+                            instance->SummonCreature(NPC_LADY_JAINA_PROUDMOORE_QUEST, JainaSpawnPos);
+                            instance->SummonCreature(NPC_MURADIN_BRONZEBEARD_QUEST, MuradinSpawnPos);
+                            instance->SummonCreature(NPC_UTHER_THE_LIGHTBRINGER_QUEST, UtherSpawnPos);
+                            instance->SummonCreature(NPC_LADY_SYLVANAS_WINDRUNNER_QUEST, SylvanasSpawnPos);
                         }
                         break;
                     }
