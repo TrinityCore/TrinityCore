@@ -7,12 +7,12 @@ before_install:
   - echo "yes" | sudo add-apt-repository ppa:boost-latest/ppa
   - echo "yes" | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
   - sudo apt-get update -qq
-  - sudo apt-get install build-essential autoconf libtool gcc-4.8 g++-4.8 make cmake libace-dev openssl libssl-dev libmysqlclient15-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev libboost1.55-dev libboost-thread1.55-dev libboost-system1.55-dev libboost-program-options1.55-dev
+  - sudo apt-get install build-essential libtool gcc-4.8 g++-4.8 make cmake openssl libssl-dev libmysqlclient15-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev libboost1.55-dev libboost-thread1.55-dev libboost-system1.55-dev libboost-program-options1.55-dev
   - mkdir bin
   - cd bin
   - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=1 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=1 -DSERVERS=1
 
-script: make CFLAGS='-O0' CXXFLAGS='-O0' -j8
+script: make CFLAGS='-O0' CXXFLAGS='-O0' -j12
 
 branches:
   only:
@@ -21,3 +21,10 @@ branches:
 
 git:
   depth: 1
+
+notifications:
+  irc:
+    channels:
+      - "irc.rizon.net#trinity"
+    on_success: change
+    on_failure: always
