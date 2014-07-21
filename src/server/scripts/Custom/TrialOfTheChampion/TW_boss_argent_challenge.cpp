@@ -937,7 +937,7 @@ class TW_achievement_toc5_the_faceroller : public AchievementCriteriaScript
         bool OnCheck(Player* /*source*/, Unit* target) override
         {
             if (target && target->GetMap()->ToInstanceMap()->IsHeroic())
-                return target->GetAI()->GetData(DATA_THE_FACEROLLER);
+                return target->GetAI()->GetData(DATA_THE_FACEROLLER) == 1;
 
             return false;
         }
