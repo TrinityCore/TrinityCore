@@ -67,7 +67,7 @@ public:
         static RealmList instance;
         return &instance;
     }
-    
+
     ~RealmList();
 
     void Initialize(boost::asio::io_service& ioService, uint32 updateInterval);

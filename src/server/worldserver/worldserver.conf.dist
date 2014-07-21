@@ -145,7 +145,7 @@ BindIP = "0.0.0.0"
 
 #
 #    ThreadPool
-#        Description: Number of threads to be used for the global thread pool 
+#        Description: Number of threads to be used for the global thread pool
 #                     The thread pool is currently used for the signal handler and remote access
 #        Default:     1
 
@@ -169,7 +169,7 @@ UseProcessors = 0
 #
 #    ProcessPriority
 #        Description: Process priority setting for Windows and Linux based systems.
-#        Details:     On Linux, a nice value of -15 is used. (requires superuser). 
+#        Details:     On Linux, a nice value of -15 is used. (requires superuser).
 #                     On Windows, process is set to HIGH class.
 #        Default:     0 - (Normal)
 #                     1 - (High)
@@ -1078,7 +1078,7 @@ Account.PasswordChangeSecurity = 0
 
 #
 #   BirthdayTime
-#        Description: Set to date of project's birth in UNIX time. By default the date when 
+#        Description: Set to date of project's birth in UNIX time. By default the date when
 #                     TrinityCore was started (Thu Oct 2, 2008)
 #        Default:     1222964635
 #
@@ -2637,9 +2637,9 @@ UI.ShowQuestLevelsInDialogs = 0
 #                         1 - Prefix Timestamp to the text
 #                         2 - Prefix Log Level to the text
 #                         4 - Prefix Log Filter type to the text
-#                         8 - Append timestamp to the log file name. Format: YYYY-MM-DD_HH-MM-SS 
+#                         8 - Append timestamp to the log file name. Format: YYYY-MM-DD_HH-MM-SS
 #                             (Only used with Type = 2)
-#                        16 - Make a backup of existing file before overwrite 
+#                        16 - Make a backup of existing file before overwrite
 #                             (Only used with Mode = w)
 #
 #                     Colors (read as optional1 if Type = Console)
@@ -2756,7 +2756,7 @@ Log.Async.Enable = 0
 
 #
 #    Allow.IP.Based.Action.Logging
-#        Description: Logs actions, e.g. account login and logout to name a few, based on IP of 
+#        Description: Logs actions, e.g. account login and logout to name a few, based on IP of
 #                     current session.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)

@@ -32,7 +32,7 @@ class BattlefieldMgr
             static BattlefieldMgr instance;
             return &instance;
         }
-        
+
         // create battlefield events
         void InitBattlefield();
 

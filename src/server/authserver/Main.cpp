@@ -114,7 +114,7 @@ int main(int argc, char** argv)
         TC_LOG_ERROR("server.authserver", "Specified port out of allowed range (1-65535)");
         return 1;
     }
-    
+
     std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
     AsyncAcceptor<AuthSession> authServer(_ioService, bindIp, port);
 
