@@ -59,6 +59,11 @@ class DatabaseWorkerPool
 
         ~DatabaseWorkerPool()
         {
+            _queue->Cancel();
+
+            delete _queue;
+
+            delete _connectionInfo;
         }
 
         bool Open(const std::string& infoString, uint8 async_threads, uint8 synch_threads)
@@ -122,12 +127,7 @@ class DatabaseWorkerPool
             for (uint8 i = 0; i < _connectionCount[IDX_SYNCH]; ++i)
                 _connections[IDX_SYNCH][i]->Close();
 
-            delete _queue;
-
             TC_LOG_INFO("sql.driver", "All connections on DatabasePool '%s' closed.", GetDatabaseName());
-
-            delete _connectionInfo;
-            _connectionInfo = NULL;
         }
 
         /**
