@@ -786,7 +786,7 @@ class achievement_rubble_and_roll : public AchievementCriteriaScript
         bool OnCheck(Player* /*source*/, Unit* target) override
         {
             if (target && target->IsAIEnabled)
-                return target->GetAI()->GetData(DATA_RUBBLE_AND_ROLL);
+                return target->GetAI()->GetData(DATA_RUBBLE_AND_ROLL) == 1;
 
             return false;
         }
@@ -814,7 +814,7 @@ public:
     bool OnCheck(Player* /*source*/, Unit* target) override
     {
         if (target)
-            return target->GetAI()->GetData(DATA_IF_LOOKS_COULD_KILL);
+            return target->GetAI()->GetData(DATA_IF_LOOKS_COULD_KILL) == 1;
         return false;
     }
 };

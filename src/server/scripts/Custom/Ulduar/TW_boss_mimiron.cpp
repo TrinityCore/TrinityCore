@@ -873,7 +873,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_MIMIRON) : 0))
-                MimironHardMode = Mimiron->AI()->GetData(DATA_GET_HARD_MODE);
+                MimironHardMode = Mimiron->AI()->GetData(DATA_GET_HARD_MODE) == 1;
 
             if (MimironHardMode)
             {
@@ -1180,7 +1180,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_MIMIRON) : 0))
-                MimironHardMode = Mimiron->AI()->GetData(DATA_GET_HARD_MODE);
+                MimironHardMode = Mimiron->AI()->GetData(DATA_GET_HARD_MODE) == 1;
 
             if (MimironHardMode)
             {
@@ -1523,7 +1523,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_MIMIRON) : 0))
-                MimironHardMode = Mimiron->AI()->GetData(DATA_GET_HARD_MODE);
+                MimironHardMode = Mimiron->AI()->GetData(DATA_GET_HARD_MODE) == 1;
 
             if (MimironHardMode)
                 DoCast(me, SPELL_EMERGENCY_MODE, true);

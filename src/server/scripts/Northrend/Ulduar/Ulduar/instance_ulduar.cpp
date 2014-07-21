@@ -1137,15 +1137,15 @@ class instance_ulduar : public InstanceMapScript
                     case CRITERIA_COOLEST_FRIENDS_10:
                     case CRITERIA_COOLEST_FRIENDS_25:
                         if (Creature* Hodir = instance->GetCreature(HodirGUID))
-                            return Hodir->AI()->GetData(DATA_COOLEST_FRIENDS);
+                            return Hodir->AI()->GetData(DATA_COOLEST_FRIENDS) == 1;
                     case CRITERIA_CHEESE_THE_FREEZE_10:
                     case CRITERIA_CHEESE_THE_FREEZE_25:
                         if (Creature* Hodir = instance->GetCreature(HodirGUID))
-                            return Hodir->AI()->GetData(DATA_CHEESE_THE_FREEZE);
+                            return Hodir->AI()->GetData(DATA_CHEESE_THE_FREEZE) == 1;
                     case CRITERIA_GETTING_COLD_IN_HERE_10:
                     case CRITERIA_GETTING_COLD_IN_HERE_25:
                         if (Creature* Hodir = instance->GetCreature(HodirGUID))
-                            return Hodir->AI()->GetData(DATA_GETTING_COLD_IN_HERE);
+                            return Hodir->AI()->GetData(DATA_GETTING_COLD_IN_HERE) == 1;
                     case CRITERIA_LUMBERJACKED_10:
                     case CRITERIA_LUMBERJACKED_25:
                         return lumberjacked == 1;

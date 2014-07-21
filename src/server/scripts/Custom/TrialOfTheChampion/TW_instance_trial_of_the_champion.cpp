@@ -277,7 +277,7 @@ public:
             {
                 case CRITERIA_IVE_HAD_WORSE:
                     if (Creature* knight = instance->GetCreature(blackknightGUID))
-                        return knight->AI()->GetData(DATA_IVE_HAD_WORSE);
+                        return knight->AI()->GetData(DATA_IVE_HAD_WORSE) == 1;
                     break;
                 default:
                     break;
