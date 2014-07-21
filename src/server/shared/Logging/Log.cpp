@@ -278,7 +278,7 @@ void Log::write(LogMessage* msg) const
         auto logOperation = std::shared_ptr<LogOperation>(new LogOperation(logger, msg));
 
         _ioService->post(_strand->wrap([logOperation](){ logOperation->call(); }));
-       
+
     }
     else
     {
