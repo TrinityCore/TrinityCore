@@ -50,7 +50,7 @@ class Log
                 instance._ioService = ioService;
                 instance._strand = new boost::asio::strand(*ioService);
             }
-            
+
             return &instance;
         }
 
