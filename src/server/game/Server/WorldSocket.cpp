@@ -201,16 +201,24 @@ void WorldSocket::AsyncWrite(WorldPacket const& packet)
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(packet, SERVER_TO_CLIENT);
 
-    TC_LOG_TRACE("network.opcode", "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress()).c_str(), GetOpcodeNameForLogging(packet.GetOpcode()).c_str());
+    WorldPacket* pkt = &packet;
+    WorldPacket buff;   // Empty buffer used in case packet should be compressed
+    if (_worldSession && packet.size() > 0x400)
+    {
+        buff.Compress(_worldSession->GetCompressionStream(), pkt);
+        pkt = &buff;
+    }
 
-    ServerPktHeader header(packet.size() + 2, packet.GetOpcode());
+    TC_LOG_TRACE("network.opcode", "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress()).c_str(), GetOpcodeNameForLogging(pkt->GetOpcode()).c_str());
+
+    ServerPktHeader header(pkt->size() + 2, pkt->GetOpcode());
     _authCrypt.EncryptSend((uint8*)header.header, header.getHeaderLength());
 
-    auto data = new char[header.getHeaderLength() + packet.size()];
+    auto data = new char[header.getHeaderLength() + pkt->size()];
     std::memcpy(data, (char*)header.header, header.getHeaderLength());
 
-    if (!packet.empty())
-        std::memcpy(data + header.getHeaderLength(), (char const*)packet.contents(), packet.size());
+    if (!pkt->empty())
+        std::memcpy(data + header.getHeaderLength(), (char const*)pkt->contents(), pkt->size());
 
     // Use a shared_ptr here to prevent leaking memory after the async operation has completed
     std::shared_ptr<char> buffer(data, [=](char* _b)
@@ -220,7 +228,7 @@ void WorldSocket::AsyncWrite(WorldPacket const& packet)
 
     auto self(shared_from_this());
 
-    boost::asio::async_write(_socket, boost::asio::buffer(buffer.get(), header.getHeaderLength() + packet.size()), [this, self, buffer](boost::system::error_code error, std::size_t /*length*/)
+    boost::asio::async_write(_socket, boost::asio::buffer(buffer.get(), header.getHeaderLength() + pkt->size()), [this, self, buffer](boost::system::error_code error, std::size_t /*length*/)
     {
         if (error)
         {
