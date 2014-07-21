@@ -128,7 +128,6 @@ class custom_commandscript : public CommandScript
             {
                 Field* fields = result->Fetch();
 
-                bool active = false;
                 handler->PSendSysMessage("| Mute Date: %s | Mutetime: %u Minute(s) | Reason: %s | Set by: %s |",
                     fields[0].GetCString(), fields[1].GetUInt32(), fields[2].GetCString(), fields[3].GetCString());
             }

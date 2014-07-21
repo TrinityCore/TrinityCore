@@ -609,7 +609,7 @@ public:
                 case TYPE_CHAMPION:
                 {
                     who->CastSpell(who, SPELL_MOUNTED_MELEE_VICTORY_C, true);
-                    uint32 creditSpell;
+                    uint32 creditSpell = 0;
                     switch (me->GetEntry())
                     {
                         case NPC_EXODAR_CHAMPION:
@@ -755,12 +755,9 @@ public:
 
         void SetGUID(uint64 guid, int32) override
         {
-            if (Player* plr = ObjectAccessor::GetPlayer(*me, guid))
-            {
-                guidAttacker = guid;
-                me->Mount(28652);
-                me->GetMotionMaster()->MovePoint(0, 8430.947f, 966.5736f, 546.3145f);
-            }
+            guidAttacker = guid;
+            me->Mount(28652);
+            me->GetMotionMaster()->MovePoint(0, 8430.947f, 966.5736f, 546.3145f);
         }
 
         void JustDied(Unit* /*killer*/) override

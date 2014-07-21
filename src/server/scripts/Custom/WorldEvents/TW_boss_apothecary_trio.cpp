@@ -116,7 +116,7 @@ class TW_npc_apothecary_hummel : public CreatureScript
             return true;
         }
 
-        /*bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*opt)
+        /*bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
         {
             InstanceScript* instanceScript = creature->GetInstanceScript();
             if (!instanceScript)
@@ -673,7 +673,7 @@ class TW_npc_crazed_apothecary : public CreatureScript
         {
             TW_npc_crazed_apothecaryAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void MovementInform(uint32 type, uint32 id) override
+            void MovementInform(uint32 type, uint32 /*id*/) override
             {
                 if (type != POINT_MOTION_TYPE)
                     return;

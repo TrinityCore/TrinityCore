@@ -267,7 +267,6 @@ class HadronoxEventDespawner : public BasicEvent
             }
 
             uint32 corpseDelay = creature->GetCorpseDelay();
-            uint32 respawnDelay = creature->GetRespawnDelay();
             creature->SetCorpseDelay(1);
 
             if (CreatureData const* data = creature->GetCreatureData())
@@ -645,7 +644,7 @@ class TW_npc_anub_ar_crusher : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void WaypointReached(uint32 waypointId)
+            void WaypointReached(uint32 /*waypointId*/)
             {
             }
 
