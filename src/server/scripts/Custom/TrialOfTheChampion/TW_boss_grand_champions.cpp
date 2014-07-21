@@ -274,7 +274,7 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
             }
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             hasBeenInCombat = true;
             DoCastSpellDefend();
@@ -501,7 +501,7 @@ class TW_boss_warrior_toc5 : public CreatureScript
             bHome = false;
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             hasBeenInCombat = true;
@@ -660,7 +660,7 @@ class TW_boss_mage_toc5 : public CreatureScript
             bHome = false;
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             hasBeenInCombat = true;
@@ -996,7 +996,7 @@ class TW_boss_hunter_toc5 : public CreatureScript
             bHome = false;
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             hasBeenInCombat = true;
@@ -1197,7 +1197,7 @@ class TW_boss_rogue_toc5 : public CreatureScript
             bHome = false;
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             hasBeenInCombat = true;
@@ -1309,7 +1309,7 @@ class TW_achievement_toc5_grand_champions : public AchievementCriteriaScript
             creature_entry = original_entry;
         }
 
-        bool OnCheck(Player* source, Unit* target) override
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             if (!target)
                 return false;

@@ -275,7 +275,7 @@ public:
             return 0;
         }
 
-        void OnPlayerEnter(Player* player) override
+        void OnPlayerEnter(Player* /*player*/) override
         {
             Map::PlayerList const& players = instance->GetPlayers();
             if (!players.isEmpty() && !isApothecaryTrioSpawned)

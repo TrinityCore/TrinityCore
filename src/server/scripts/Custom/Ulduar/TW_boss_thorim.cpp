@@ -1516,7 +1516,7 @@ class TW_go_thorim_lever : public GameObjectScript
     public:
        TW_go_thorim_lever() : GameObjectScript("TW_go_thorim_lever") { }
 
-       bool OnGossipHello(Player* player, GameObject* go) override
+       bool OnGossipHello(Player* /*player*/, GameObject* go) override
        {
            if (GameObject* porticullis = go->FindNearestGameObject(GO_THORIM_DARK_IRON_PROTCULLIS, 50.0f))
                go->GetInstanceScript()->DoUseDoorOrButton(porticullis->GetGUID());
