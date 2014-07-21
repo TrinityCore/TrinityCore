@@ -10,9 +10,9 @@ before_install:
   - sudo apt-get install build-essential libtool gcc-4.8 g++-4.8 make cmake openssl libssl-dev libmysqlclient15-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev libboost1.55-dev libboost-thread1.55-dev libboost-system1.55-dev libboost-program-options1.55-dev
   - mkdir bin
   - cd bin
-  - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=1 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=1 -DSERVERS=1 -DCMAKE_BUILD_TYPE=Release
+  - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=1 -DUSE_COREPCH=0 -DUSE_SCRIPTPCH=0 -DTOOLS=1 -DSCRIPTS=1 -DSERVERS=1 -DCMAKE_BUILD_TYPE=Release
 
-script: make -j 16
+script: make -j 8
 
 branches:
   only:
