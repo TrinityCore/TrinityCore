@@ -37,6 +37,10 @@ extern Position const SindragosaSpawnPos;
 extern Position const TerenasSpawn;
 extern Position const TerenasSpawnHeroic;
 extern Position const SpiritWardenSpawn;
+extern Position const JainaSpawnPos;
+extern Position const MuradinSpawnPos;
+extern Position const UtherSpawnPos;
+extern Position const SylvanasSpawnPos;
 
 // Shared spells used by more than one script
 enum SharedSpells
@@ -142,6 +146,10 @@ enum CreaturesIds
     NPC_GARROSH_HELLSCREAM                      = 39372,
     NPC_KING_VARIAN_WRYNN                       = 39371,
     NPC_DEATHBOUND_WARD                         = 37007,
+    NPC_LADY_JAINA_PROUDMOORE_QUEST             = 38606,
+    NPC_MURADIN_BRONZEBEARD_QUEST               = 38607,
+    NPC_UTHER_THE_LIGHTBRINGER_QUEST            = 38608,
+    NPC_LADY_SYLVANAS_WINDRUNNER_QUEST          = 38609,
 
     // Weekly quests
     NPC_INFILTRATOR_MINCHAR                     = 38471,
