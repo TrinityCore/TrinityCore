@@ -110,8 +110,8 @@ class PoolMgr
     public:
         static PoolMgr* instance()
         {
-            static PoolMgr* instance = new PoolMgr();
-            return instance;
+            static PoolMgr instance;
+            return &instance;
         }
 
         void LoadFromDB();

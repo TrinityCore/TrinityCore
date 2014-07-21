@@ -99,9 +99,9 @@ int main(int argc, char** argv)
         return 1;
 
     // Get the list of realms for the server
-    sRealmList.Initialize(_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 20));
+    sRealmList->Initialize(_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 20));
 
-    if (sRealmList.size() == 0)
+    if (sRealmList->size() == 0)
     {
         TC_LOG_ERROR("server.authserver", "No valid realms specified.");
         return 1;
@@ -114,7 +114,7 @@ int main(int argc, char** argv)
         TC_LOG_ERROR("server.authserver", "Specified port out of allowed range (1-65535)");
         return 1;
     }
-    
+
     std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
     AsyncAcceptor<AuthSession> authServer(_ioService, bindIp, port);
 

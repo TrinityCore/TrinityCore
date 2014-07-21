@@ -39,7 +39,7 @@ void RealmList::Initialize(boost::asio::io_service& ioService, uint32 updateInte
     UpdateRealms(true);
 }
 
-void RealmList::UpdateRealm(uint32 id, const std::string& name, ip::address const& address, ip::address const& localAddr, 
+void RealmList::UpdateRealm(uint32 id, const std::string& name, ip::address const& address, ip::address const& localAddr,
     ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population, uint32 build)
 {
     // Create new if not exist or update existed

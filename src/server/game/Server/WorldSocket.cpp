@@ -77,7 +77,9 @@ void WorldSocket::AsyncReadHeader()
         }
         else
         {
-            _socket.close();
+            // _socket.is_open() till returns true even after calling close()
+            boost::system::error_code socketError;
+            _socket.close(socketError);
         }
     });
 }
@@ -152,7 +154,9 @@ void WorldSocket::AsyncReadData(size_t dataSize)
         }
         else
         {
-            _socket.close();
+            // _socket.is_open() till returns true even after calling close()
+            boost::system::error_code socketError;
+            _socket.close(socketError);
         }
     });
 }

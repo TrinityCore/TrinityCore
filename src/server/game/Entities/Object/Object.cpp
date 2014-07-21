@@ -2643,7 +2643,6 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     float destx, desty, destz;
     destx = pos.m_positionX + dist * std::cos(angle);
     desty = pos.m_positionY + dist * std::sin(angle);
-    destz = NormalizeZforCollision(this, destx, desty, pos.GetPositionZ());
 
     // Prevent invalid coordinates here, position is unchanged
     if (!Trinity::IsValidMapCoord(destx, desty))
@@ -2652,6 +2651,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         return;
     }
 
+    destz = NormalizeZforCollision(this, destx, desty, pos.GetPositionZ());
     bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(), pos.m_positionX, pos.m_positionY, pos.m_positionZ + 0.5f, destx, desty, destz + 0.5f, destx, desty, destz, -0.5f);
 
     // collision occured

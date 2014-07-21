@@ -32,8 +32,8 @@ class MapManager
     public:
         static MapManager* instance()
         {
-            static MapManager* instance = new MapManager();
-            return instance;
+            static MapManager instance;
+            return &instance;
         }
 
         Map* CreateBaseMap(uint32 mapId);

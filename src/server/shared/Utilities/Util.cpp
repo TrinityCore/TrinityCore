@@ -21,7 +21,14 @@
 #include "utf8.h"
 #include "SFMT.h"
 #include "Errors.h" // for ASSERT
+#include <stdarg.h>
 #include <boost/thread/tss.hpp>
+
+#if PLATFORM == PLATFORM_UNIX
+  #include <sys/socket.h>
+  #include <netinet/in.h>
+  #include <arpa/inet.h>
+#endif
 
 static boost::thread_specific_ptr<SFMTRand> sfmtRand;
 

@@ -18,6 +18,7 @@
 
 #include "Errors.h"
 
+#include <cstdio>
 #include <cstdlib>
 #include <thread>
 

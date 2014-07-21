@@ -893,21 +893,39 @@ class spell_rotface_slime_spray : public SpellScriptLoader
         {
             PrepareSpellScript(spell_rotface_slime_spray_SpellScript);
 
-            void ChangeOrientation()
+            void HandleResidue()
             {
-                Unit* caster = GetCaster();
-                // find stalker and set caster orientation to face it
-                if (Creature* target = caster->FindNearestCreature(NPC_OOZE_SPRAY_STALKER, 200.0f))
-                    caster->SetOrientation(caster->GetAngle(target));
+                Player* target = GetHitPlayer();
+                if (!target)
+                    return;
+
+                if (target->HasAura(SPELL_GREEN_BLIGHT_RESIDUE))
+                    return;
+
+                if (target->GetMap() && !target->GetMap()->Is25ManRaid())
+                {
+                    if (target->GetQuestStatus(QUEST_RESIDUE_RENDEZVOUS_10) != QUEST_STATUS_INCOMPLETE)
+                        return;
+
+                    target->CastSpell(target, SPELL_GREEN_BLIGHT_RESIDUE, TRIGGERED_FULL_MASK);
+                }
+
+                if (target->GetMap() && target->GetMap()->Is25ManRaid())
+                {
+                    if (target->GetQuestStatus(QUEST_RESIDUE_RENDEZVOUS_25) != QUEST_STATUS_INCOMPLETE)
+                        return;
+
+                    target->CastSpell(target, SPELL_GREEN_BLIGHT_RESIDUE, TRIGGERED_FULL_MASK);
+                }
             }
 
-            void Register()
+            void Register() override
             {
-                BeforeCast += SpellCastFn(spell_rotface_slime_spray_SpellScript::ChangeOrientation);
+                OnHit += SpellHitFn(spell_rotface_slime_spray_SpellScript::HandleResidue);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_rotface_slime_spray_SpellScript();
         }

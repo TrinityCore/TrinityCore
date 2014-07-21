@@ -1,5 +1,7 @@
 # ![logo](http://www.trinitycore.org/f/public/style_images/1_trinitycore.png) TrinityCore
 
+[![Build Status](https://travis-ci.org/TrinityCore/TrinityCore.svg?branch=master)](https://travis-ci.org/TrinityCore/TrinityCore)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/435/badge.svg)](https://scan.coverity.com/projects/435)
 
 ## Introduction
 
@@ -34,9 +36,9 @@ website at [TrinityCore.org](http://www.trinitycore.org).
 ## Install
 
 Detailed installation guides are available in the wiki for
-[Windows](http://collab.kpsn.org/display/tc/How-to_Win),
-[Linux](http://collab.kpsn.org/display/tc/How-to_Linux) and
-[Mac OSX](http://collab.kpsn.org/display/tc/How-to_Mac).
+[Windows](http://collab.kpsn.org/display/tc/Win),
+[Linux](http://collab.kpsn.org/display/tc/Linux) and
+[Mac OSX](http://collab.kpsn.org/display/tc/Mac).
 
 
 ## Reporting issues

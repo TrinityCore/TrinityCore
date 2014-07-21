@@ -180,8 +180,8 @@ private:
 public:
     static TicketMgr* instance()
     {
-        static TicketMgr* instance = new TicketMgr();
-        return instance;
+        static TicketMgr instance;
+        return &instance;
     }
 
     void LoadTickets();

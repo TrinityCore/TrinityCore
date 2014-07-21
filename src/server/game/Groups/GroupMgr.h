@@ -29,8 +29,8 @@ private:
 public:
     static GroupMgr* instance()
     {
-        static GroupMgr* instance = new GroupMgr();
-        return instance;
+        static GroupMgr instance;
+        return &instance;
     }
 
     typedef std::map<uint32, Group*> GroupContainer;

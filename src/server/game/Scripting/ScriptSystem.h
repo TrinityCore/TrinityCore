@@ -54,8 +54,8 @@ class SystemMgr
     public:
         static SystemMgr* instance()
         {
-            static SystemMgr* instance = new SystemMgr();
-            return instance;
+            static SystemMgr instance;
+            return &instance;
         }
 
         typedef std::unordered_map<uint32, ScriptPointVector> PointMoveMap;

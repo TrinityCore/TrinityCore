@@ -29,10 +29,10 @@ class BattlefieldMgr
     public:
         static BattlefieldMgr* instance()
         {
-            static BattlefieldMgr* instance = new BattlefieldMgr();
-            return instance;
+            static BattlefieldMgr instance;
+            return &instance;
         }
-        
+
         // create battlefield events
         void InitBattlefield();
 

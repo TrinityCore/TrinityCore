@@ -64,8 +64,8 @@ class BattlegroundMgr
     public:
         static BattlegroundMgr* instance()
         {
-            static BattlegroundMgr* instance = new BattlegroundMgr();
-            return instance;
+            static BattlegroundMgr instance;
+            return &instance;
         }
 
         void Update(uint32 diff);
