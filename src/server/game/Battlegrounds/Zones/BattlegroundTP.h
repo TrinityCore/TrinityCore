@@ -24,17 +24,17 @@
 class BattlegroundTPScore final : public BattlegroundScore
 {
     protected:
-        BattlegroundTPScore(uint64 playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), BasesAssaulted(0), BasesDefended(0) { }
+        BattlegroundTPScore(uint64 playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), FlagCaptures(0), FlagReturns(0) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {
             switch (type)
             {
-                case SCORE_BASES_ASSAULTED:
-                    BasesAssaulted += value;
+                case SCORE_FLAG_CAPTURES:
+                    FlagCaptures += value;
                     break;
-                case SCORE_BASES_DEFENDED:
-                    BasesDefended += value;
+                case SCORE_FLAG_RETURNS:
+                    FlagReturns += value;
                     break;
                 default:
                     BattlegroundScore::UpdateScore(type, value);
@@ -42,8 +42,15 @@ class BattlegroundTPScore final : public BattlegroundScore
             }
         }
 
-        uint32 BasesAssaulted;
-        uint32 BasesDefended;
+        void BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content) final
+        {
+            data.WriteBits(2, 24); // Objectives Count
+            content << uint32(FlagCaptures);
+            content << uint32(FlagReturns);
+        }
+
+        uint32 FlagCaptures;
+        uint32 FlagReturns;
 };
 
 class BattlegroundTP : public Battleground

@@ -31,7 +31,7 @@ enum ScoreType
     SCORE_DAMAGE_DONE           = 5,
     SCORE_HEALING_DONE          = 6,
 
-    // WS and EY
+    // WS, EY and TP
     SCORE_FLAG_CAPTURES         = 7,
     SCORE_FLAG_RETURNS          = 8,
 
