@@ -1,3 +1,5 @@
+#Transmogrification [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=transmog)](https://travis-ci.org/Rochet2/TrinityCore)
+
 ####About
 Transmogrification allows you to change the display of an item to something else.
 You can use any item in your bags as source of display, as long as it fits the requirements.
@@ -10,6 +12,7 @@ Source: http://rochet2.github.io/?page=Transmogrification
 Video: http://youtu.be/xtH4ogz12iM
 
 ####Installation
+
 Available as:
 - Direct merge: https://github.com/Rochet2/TrinityCore/tree/transmog
 - Diff: https://github.com/Rochet2/TrinityCore/compare/transmog.diff
