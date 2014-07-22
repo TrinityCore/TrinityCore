@@ -201,7 +201,7 @@ void WorldSocket::AsyncWrite(WorldPacket const& packet)
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(packet, SERVER_TO_CLIENT);
 
-    WorldPacket* pkt = &packet;
+    WorldPacket const* pkt = &packet;
     WorldPacket buff;   // Empty buffer used in case packet should be compressed
     if (_worldSession && packet.size() > 0x400)
     {
