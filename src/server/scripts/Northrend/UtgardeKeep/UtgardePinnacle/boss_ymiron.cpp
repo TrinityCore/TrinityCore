@@ -111,7 +111,7 @@ public:
                 m_uiActiveOrder[i] = i;
             for (int i = 0; i < 3; ++i)
             {
-                int r = i + (rand() % (4 - i));
+                int r = i + (rand32() % (4 - i));
                 int temp = m_uiActiveOrder[i];
                 m_uiActiveOrder[i] = m_uiActiveOrder[r];
                 m_uiActiveOrder[r] = temp;
@@ -275,7 +275,7 @@ public:
                 if (m_bIsActiveWithBJORN && m_uiAbility_BJORN_Timer <= diff)
                 {
                     //DoCast(me, SPELL_SUMMON_SPIRIT_FOUNT); // works fine, but using summon has better control
-                    if (Creature* temp = me->SummonCreature(NPC_SPIRIT_FOUNT, 385.0f + rand() % 10, -330.0f + rand() % 10, 104.756f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000))
+                    if (Creature* temp = me->SummonCreature(NPC_SPIRIT_FOUNT, 385.0f + rand32() % 10, -330.0f + rand32() % 10, 104.756f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000))
                     {
                         temp->SetSpeed(MOVE_RUN, 0.4f);
                         temp->CastSpell(temp, DUNGEON_MODE(SPELL_SPIRIT_FOUNT, H_SPELL_SPIRIT_FOUNT), true);
@@ -307,7 +307,7 @@ public:
                     for (uint8 i = 0; i < 4; ++i)
                     {
                         //DoCast(me, SPELL_SUMMON_AVENGING_SPIRIT); // works fine, but using summon has better control
-                        if (Creature* temp = me->SummonCreature(NPC_AVENGING_SPIRIT, x + rand() % 10, y + rand() % 10, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
+                        if (Creature* temp = me->SummonCreature(NPC_AVENGING_SPIRIT, x + rand32() % 10, y + rand32() % 10, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {

@@ -169,7 +169,7 @@ public:
         {
             for (int t = 0; t < 2; ++t)
             {
-                for (int i = !t ? (rand()%9) : 0; i < 9; ++i)
+                for (int i = !t ? (rand32()%9) : 0; i < 9; ++i)
                 {
                     if (!chosenAbilities[i])
                     {

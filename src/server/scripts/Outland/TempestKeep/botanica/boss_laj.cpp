@@ -88,7 +88,7 @@ class boss_laj : public CreatureScript
 
             void DoTransform()
             {
-                switch (rand()%5)
+                switch (rand32() % 5)
                 {
                     case 0:
                         me->SetDisplayId(MODEL_DEFAULT);
@@ -135,7 +135,7 @@ class boss_laj : public CreatureScript
 
             void DoSummons()
             {
-                switch (rand()%4)
+                switch (rand32() % 4)
                 {
                     case 0:
                         DoCast(me, SPELL_SUMMON_LASHER_1, true);
@@ -187,7 +187,7 @@ class boss_laj : public CreatureScript
                 if (Allergic_Timer <= diff)
                 {
                     DoCastVictim(SPELL_ALLERGIC_REACTION);
-                    Allergic_Timer = 25000+rand()%15000;
+                    Allergic_Timer = 25000 + rand32() % 15000;
                 }
                 else
                     Allergic_Timer -= diff;
@@ -195,7 +195,7 @@ class boss_laj : public CreatureScript
                 if (Teleport_Timer <= diff)
                 {
                     DoCast(me, SPELL_TELEPORT_SELF);
-                    Teleport_Timer = 30000+rand()%10000;
+                    Teleport_Timer = 30000 + rand32() % 10000;
                     CanSummon = true;
                 }
                 else
@@ -204,7 +204,7 @@ class boss_laj : public CreatureScript
                 if (Transform_Timer <= diff)
                 {
                     DoTransform();
-                    Transform_Timer = 25000+rand()%15000;
+                    Transform_Timer = 25000 + rand32() % 15000;
                 }
                 else
                     Transform_Timer -= diff;

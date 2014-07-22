@@ -155,7 +155,7 @@ public:
 
         void TeleportPlayers()
         {
-            uint32 random = rand()%7;
+            uint32 random = rand32() % 7;
             float X = TeleportPoint[random].x;
             float Y = TeleportPoint[random].y;
             float Z = TeleportPoint[random].z;
@@ -211,14 +211,14 @@ public:
                 uint32 Beam = CurrentBeam;
                 if (BeamCount > 3)
                     while (CurrentBeam == Beam)
-                        CurrentBeam = rand()%3;
+                        CurrentBeam = rand32() % 3;
 
             } else BeamTimer -= diff;
 
             // Random Prismatic Shield every 15 seconds.
             if (PrismaticShieldTimer <= diff)
             {
-                uint32 random = rand()%6;
+                uint32 random = rand32() % 6;
                 if (PrismaticAuras[random])
                     DoCast(me, PrismaticAuras[random]);
                 PrismaticShieldTimer = 15000;
@@ -264,13 +264,13 @@ public:
             if (ShriekTimer <= diff)
             {
                 DoCastVictim(SPELL_SILENCING_SHRIEK);
-                ShriekTimer = 25000+rand()%10 * 1000;
+                ShriekTimer = 25000 + rand32() % 10 * 1000;
             } else ShriekTimer -= diff;
 
             if (SaberTimer <= diff)
             {
                 DoCastVictim(SPELL_SABER_LASH);
-                SaberTimer = 25000+rand()%10 * 1000;
+                SaberTimer = 25000 + rand32() % 10 * 1000;
             } else SaberTimer -= diff;
 
             //Enrage

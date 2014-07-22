@@ -131,7 +131,7 @@ public:
             BerserkTimer = 720000;
             CloseDoorTimer = 15000;
 
-            LastSuperSpell = rand()%3;
+            LastSuperSpell = rand32() % 3;
 
             FlameWreathTimer = 0;
             FlameWreathCheckTime = 0;
@@ -192,7 +192,7 @@ public:
 
             //cut down to size if we have more than 3 targets
             while (targets.size() > 3)
-                targets.erase(targets.begin()+rand()%targets.size());
+                targets.erase(targets.begin() + rand32() % targets.size());
 
             uint32 i = 0;
             for (std::vector<Unit*>::const_iterator itr = targets.begin(); itr!= targets.end(); ++itr)
@@ -322,7 +322,7 @@ public:
                     //If no available spells wait 1 second and try again
                     if (AvailableSpells)
                     {
-                        CurrentNormalSpell = Spells[rand() % AvailableSpells];
+                        CurrentNormalSpell = Spells[rand32() % AvailableSpells];
                         DoCast(target, CurrentNormalSpell);
                     }
                 }
@@ -514,7 +514,7 @@ public:
 
         void Reset() override
         {
-            CastTimer = 2000 + (rand()%3000);
+            CastTimer = 2000 + (rand32() % 3000);
         }
 
         void EnterCombat(Unit* /*who*/) override { }

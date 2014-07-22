@@ -419,7 +419,7 @@ public:
 
         void KilledUnit(Unit* victim) override
         {
-            if (rand()%5)
+            if (rand32() % 5)
                 return;
 
             Talk(SAY_SLAY, victim);
