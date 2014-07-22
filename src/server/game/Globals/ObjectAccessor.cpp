@@ -218,7 +218,7 @@ Unit* ObjectAccessor::FindUnit(uint64 guid)
 Player* ObjectAccessor::FindPlayerByName(std::string const& name)
 {
     boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
-    
+
     std::string nameStr = name;
     std::transform(nameStr.begin(), nameStr.end(), nameStr.begin(), ::tolower);
     HashMapHolder<Player>::MapType const& m = GetPlayers();

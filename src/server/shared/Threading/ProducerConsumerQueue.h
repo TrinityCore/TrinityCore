@@ -76,7 +76,7 @@ public:
         {
             _condition.wait(lock);
         }
-        
+
         if (_queue.empty())
             return;
 
@@ -106,6 +106,6 @@ public:
     }
 };
 
-#endif 
+#endif
 
 

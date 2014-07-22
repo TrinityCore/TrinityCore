@@ -446,8 +446,8 @@ std::string MySQLPreparedStatement::getQueryString(std::string const& sqlPattern
 
 //- Execution
 PreparedStatementTask::PreparedStatementTask(PreparedStatement* stmt, bool async) :
-m_stmt(stmt)
-{ 
+m_stmt(stmt), m_result(nullptr)
+{
     m_has_result = async; // If it's async, then there's a result
     if (async)
         m_result = new PreparedQueryResultPromise();

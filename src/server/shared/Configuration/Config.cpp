@@ -103,6 +103,6 @@ std::list<std::string> ConfigMgr::GetKeysByString(std::string const& name)
     for (const ptree::value_type& child : _config)
         if (child.first.compare(0, name.length(), name) == 0)
             keys.push_back(child.first);
-   
+
     return keys;
 }
