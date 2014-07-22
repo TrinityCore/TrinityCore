@@ -14,10 +14,5 @@ before_install:
 
 script: make -j 8
 
-branches:
-  only:
-    - master
-    - 4.3.4
-
 git:
   depth: 1
