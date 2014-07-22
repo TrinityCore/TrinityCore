@@ -28,6 +28,7 @@
 #include "QuestDef.h"
 #include "SpellMgr.h"
 #include "Unit.h"
+#include "../../scripts/Custom/Transmogrification.h"
 
 #include <limits>
 #include <string>
@@ -122,11 +123,17 @@ struct SpellModifier
     Aura* const ownerAura;
 };
 
-class PlayerData
+typedef std::unordered_map<uint64, uint32> TransmogMapType;
+
+#ifdef PRESETS
+typedef std::map<uint8, uint32> PresetslotMapType;
+struct PresetData
 {
-public:
-    virtual ~PlayerData() {};
+    std::string name;
+    PresetslotMapType slotMap; // slotMap[slotId] = entry
 };
+typedef std::map<uint8, PresetData> PresetMapType;
+#endif
 
 typedef std::unordered_map<uint32, PlayerTalent*> PlayerTalentMap;
 typedef std::unordered_map<uint32, PlayerSpell*> PlayerSpellMap;
@@ -2324,11 +2331,10 @@ class Player : public Unit, public GridObject<Player>
 
         bool IsLoading() const;
 
-        static uint32 GenCustomDataId() { return ++_customDataId; }
-        bool HasCustomData(uint32 id) const { return _customData.find(id) != _customData.end(); }
-        PlayerData& GetCustomData(uint32 id) { return _customData[id]; }
-        PlayerData& SetCustomData(uint32 id, const PlayerData& data) { _customData[id] = data; return _customData[id]; }
-        void DeleteCustomData(uint32 id) { _customData.erase(id); }
+        TransmogMapType transmogMap; // transmogMap[iGUID] = entry
+#ifdef PRESETS
+        PresetMapType presetMap; // presetMap[presetId] = presetData
+#endif
 
     protected:
         // Gamemaster whisper whitelist
@@ -2658,9 +2664,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 _pendingBindTimer;
 
         uint32 _activeCheats;
-
-        static uint32 _customDataId;
-        std::map<uint32, PlayerData> _customData;
 };
 
 void AddItemsSetItem(Player* player, Item* item);

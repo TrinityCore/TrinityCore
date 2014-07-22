@@ -30,8 +30,7 @@ void Transmogrification::LoadPlayerSets(Player* player)
 {
     TC_LOG_DEBUG("custom.transmog", "Transmogrification::LoadPlayerSets");
 
-    TransmogData& data = GetTransmogData(player);
-    data.presetMap.clear();
+    player->presetMap.clear();
 
     QueryResult result = CharacterDatabase.PQuery("SELECT `PresetID`, `SetName`, `SetData` FROM `custom_transmogrification_sets` WHERE Owner = %u", player->GetGUIDLow());
     if (!result)
@@ -44,7 +43,7 @@ void Transmogrification::LoadPlayerSets(Player* player)
         std::string SetName = field[1].GetString();
         std::istringstream SetData(field[2].GetString());
 
-        data.presetMap[PresetID].name = SetName;
+        player->presetMap[PresetID].name = SetName;
 
         while (SetData.good())
         {
@@ -60,16 +59,16 @@ void Transmogrification::LoadPlayerSets(Player* player)
             }
             if (sObjectMgr->GetItemTemplate(entry))
             {
-                data.presetMap[PresetID].slotMap[slot] = entry;
+                player->presetMap[PresetID].slotMap[slot] = entry;
             }
             else
                 TC_LOG_ERROR("custom.transmog", "Item entry (FakeEntry: %u, playerGUID: %u, slot: %u, presetId: %u) does not exist, ignoring.", entry, player->GetGUIDLow(), uint32(slot), uint32(PresetID));
         }
 
-        if (data.presetMap[PresetID].slotMap.empty())
+        if (player->presetMap[PresetID].slotMap.empty())
         {
             // Should never happen
-            data.presetMap.erase(PresetID);
+            player->presetMap.erase(PresetID);
             CharacterDatabase.PExecute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = %u AND PresetID = %u", player->GetGUIDLow(), uint32(PresetID));
             return;
         }
@@ -221,11 +220,15 @@ uint32 Transmogrification::GetFakeEntry(const Item* item)
 {
     TC_LOG_DEBUG("custom.transmog", "Transmogrification::GetFakeEntry");
 
-    if (!item->GetOwner()->HasCustomData(CustomDataId))
+    Player* owner = item->GetOwner();
+
+    if (!owner)
         return 0;
-    TransmogData& data = GetTransmogData(item->GetOwner());
-    TransmogData::transmogMapType::const_iterator it = data.transmogMap.find(item->GetGUID());
-    if (it == data.transmogMap.end())
+    if (owner->transmogMap.empty())
+        return 0;
+
+    TransmogMapType::const_iterator it = owner->transmogMap.find(item->GetGUID());
+    if (it == owner->transmogMap.end())
         return 0;
     return it->second;
 }
@@ -246,19 +249,15 @@ void Transmogrification::DeleteFakeEntry(Player* player, Item* item)
 {
     TC_LOG_DEBUG("custom.transmog", "Transmogrification::DeleteFakeEntry");
 
-    if (!player->HasCustomData(CustomDataId))
-        return;
-    TransmogData& data = GetTransmogData(player);
-    data.transmogMap.erase(item->GetGUID());
-    UpdateItem(player, item);
+    if (player->transmogMap.erase(item->GetGUID()) != 0)
+        UpdateItem(player, item);
 }
 
 void Transmogrification::SetFakeEntry(Player* player, Item* item, uint32 entry)
 {
     TC_LOG_DEBUG("custom.transmog", "Transmogrification::SetFakeEntry");
 
-    TransmogData& data = GetTransmogData(player);
-    data.transmogMap[item->GetGUID()] = entry;
+    player->transmogMap[item->GetGUID()] = entry;
     UpdateItem(player, item);
 }
 
@@ -592,14 +591,6 @@ bool Transmogrification::IsAllowedQuality(uint32 quality) const
     }
 }
 
-// Return existing or create a new data and return that
-TransmogData& Transmogrification::GetTransmogData(Player* player)
-{
-    if (player->HasCustomData(CustomDataId))
-        return (TransmogData&)player->GetCustomData(CustomDataId);
-    return (TransmogData&)player->SetCustomData(CustomDataId, TransmogData());
-}
-
 void Transmogrification::LoadConfig(bool reload)
 {
     TC_LOG_DEBUG("custom.transmog", "Transmogrification::LoadConfig");
@@ -687,9 +678,6 @@ void Transmogrification::LoadConfig(bool reload)
         TC_LOG_INFO("custom.transmog", "Transmogrification.TokenEntry (%u) does not exist. Using default (%u).", TokenEntry, 49426);
         TokenEntry = 49426;
     }
-
-    if (!CustomDataId)
-        CustomDataId = Player::GenCustomDataId();
 }
 
 std::vector<uint64> Transmogrification::GetItemList(const Player* player) const
@@ -734,36 +722,39 @@ namespace
 
         void OnSave(Player* player) override
         {
+            uint32 lowguid = player->GetGUIDLow();
             SQLTransaction trans = CharacterDatabase.BeginTransaction();
-            trans->PAppend("DELETE FROM `custom_transmogrification` WHERE `Owner` = %u", player->GetGUIDLow());
+            trans->PAppend("DELETE FROM `custom_transmogrification` WHERE `Owner` = %u", lowguid);
 #ifdef PRESETS
-            trans->PAppend("DELETE FROM `custom_transmogrification_sets` WHERE `Owner` = %u", player->GetGUIDLow());
+            trans->PAppend("DELETE FROM `custom_transmogrification_sets` WHERE `Owner` = %u", lowguid);
 #endif
 
-            if (player->HasCustomData(sTransmogrification->CustomDataId))
+            if (!player->transmogMap.empty())
             {
-                TransmogData& data = sTransmogrification->GetTransmogData(player);
                 // Only save items that are in inventory / bank / etc
                 std::vector<uint64> items = sTransmogrification->GetItemList(player);
                 for (std::vector<uint64>::const_iterator it = items.begin(); it != items.end(); ++it)
                 {
-                    TransmogData::transmogMapType::const_iterator it2 = data.transmogMap.find(*it);
-                    if (it2 == data.transmogMap.end())
+                    TransmogMapType::const_iterator it2 = player->transmogMap.find(*it);
+                    if (it2 == player->transmogMap.end())
                         continue;
 
-                    trans->PAppend("REPLACE INTO custom_transmogrification (GUID, FakeEntry, Owner) VALUES (%u, %u, %u)", GUID_LOPART(it2->first), it2->second, player->GetGUIDLow());
+                    trans->PAppend("REPLACE INTO custom_transmogrification (GUID, FakeEntry, Owner) VALUES (%u, %u, %u)", GUID_LOPART(it2->first), it2->second, lowguid);
                 }
+            }
 
 #ifdef PRESETS
-                for (TransmogData::presetMapType::const_iterator it = data.presetMap.begin(); it != data.presetMap.end(); ++it)
+            if (!player->presetMap.empty())
+            {
+                for (PresetMapType::const_iterator it = player->presetMap.begin(); it != player->presetMap.end(); ++it)
                 {
                     std::ostringstream ss;
-                    for (TransmogData::presetslotMapType::const_iterator it2 = it->second.slotMap.begin(); it2 != it->second.slotMap.end(); ++it2)
+                    for (PresetslotMapType::const_iterator it2 = it->second.slotMap.begin(); it2 != it->second.slotMap.end(); ++it2)
                         ss << uint32(it2->first) << ' ' << it2->second << ' ';
-                    trans->PAppend("REPLACE INTO `custom_transmogrification_sets` (`Owner`, `PresetID`, `SetName`, `SetData`) VALUES (%u, %u, \"%s\", \"%s\")", player->GetGUIDLow(), uint32(it->first), it->second.name.c_str(), ss.str().c_str());
+                    trans->PAppend("REPLACE INTO `custom_transmogrification_sets` (`Owner`, `PresetID`, `SetName`, `SetData`) VALUES (%u, %u, \"%s\", \"%s\")", lowguid, uint32(it->first), it->second.name.c_str(), ss.str().c_str());
                 }
-#endif
             }
+#endif
 
             if (trans->GetSize()) // basically never false
                 CharacterDatabase.CommitTransaction(trans);
@@ -775,7 +766,6 @@ namespace
 
             if (result)
             {
-                TransmogData::transmogMapType transmogs;
                 do
                 {
                     Field* field = result->Fetch();
@@ -784,7 +774,7 @@ namespace
                     // Only load items that are in inventory / bank / etc
                     if (sObjectMgr->GetItemTemplate(fakeEntry) && player->GetItemByGuid(itemGUID))
                     {
-                        transmogs[itemGUID] = fakeEntry;
+                        player->transmogMap[itemGUID] = fakeEntry;
                     }
                     else
                     {
@@ -795,19 +785,16 @@ namespace
                     }
                 } while (result->NextRow());
 
-                if (!transmogs.empty())
+                if (!player->transmogMap.empty())
                 {
-                    TransmogData& data = sTransmogrification->GetTransmogData(player);
-                    data.transmogMap = transmogs;
-                }
-
-                for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
-                {
-                    if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+                    for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
                     {
-                        player->SetVisibleItemSlot(slot, item);
-                        if (player->IsInWorld())
-                            item->SendUpdateToPlayer(player);
+                        if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+                        {
+                            player->SetVisibleItemSlot(slot, item);
+                            if (player->IsInWorld())
+                                item->SendUpdateToPlayer(player);
+                        }
                     }
                 }
             }

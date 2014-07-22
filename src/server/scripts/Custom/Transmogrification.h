@@ -4,9 +4,8 @@
 #define PRESETS // comment this line to disable preset feature totally
 #define MAX_OPTIONS 25 // do not alter
 
-#include "Player.h"
-
 class Item;
+class Player;
 class WorldSession;
 struct ItemTemplate;
 
@@ -29,28 +28,10 @@ enum TransmogTrinityStrings // Language.h might have same entries, appears when 
 #endif
 };
 
-class TransmogData : public PlayerData
-{
-public:
-    typedef std::unordered_map<uint64, uint32> transmogMapType;
-    transmogMapType transmogMap; // transmogMap[iGUID] = entry
-
-#ifdef PRESETS
-    typedef std::map<uint8, uint32> presetslotMapType;
-    struct presetData
-    {
-        std::string name;
-        presetslotMapType slotMap; // slotMap[slotId] = entry
-    };
-    typedef std::map<uint8, presetData> presetMapType;
-    presetMapType presetMap; // presetMap[presetId] = presetData
-#endif
-};
-
 class Transmogrification
 {
 private:
-    Transmogrification() { CustomDataId = 0; };
+    Transmogrification() {};
     ~Transmogrification() {};
     Transmogrification(const Transmogrification&);
     Transmogrification& operator=(const Transmogrification&);
@@ -132,9 +113,6 @@ public:
     bool IsNotAllowed(uint32 entry) const;
     bool IsAllowedQuality(uint32 quality) const;
     bool IsRangedWeapon(uint32 Class, uint32 SubClass) const;
-
-    uint32 CustomDataId;
-    TransmogData& GetTransmogData(Player* player);
 
     void LoadConfig(bool reload); // thread unsafe
 

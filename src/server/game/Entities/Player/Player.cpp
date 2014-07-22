@@ -26826,4 +26826,3 @@ void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell)
     GetSession()->SendPacket(&data);
 }
 
-uint32 Player::_customDataId = 0;
