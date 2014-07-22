@@ -37,7 +37,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "Vehicle.h"
-#include "../Custom/Transmogrification.h"
+#include "../Custom/Transmog/Transmogrification.h"
 
 class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
 {

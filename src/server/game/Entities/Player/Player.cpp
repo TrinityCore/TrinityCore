@@ -79,7 +79,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "GameObjectAI.h"
-#include "../../../scripts/Custom/Transmogrification.h"
+#include "../../../scripts/Custom/Transmog/Transmogrification.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
