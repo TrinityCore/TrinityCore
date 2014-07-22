@@ -103,12 +103,19 @@ bool BattlegroundSA::ResetObjs()
     for (uint8 i = 0; i < 6; i++)
         GateStatus[i] = BG_SA_GATE_OK;
 
-    AddCreature(BG_SA_NpcEntries[BG_SA_NPC_KANRETHAD], BG_SA_NPC_KANRETHAD, BG_SA_NpcSpawnlocs[BG_SA_NPC_KANRETHAD]);
+    if (!AddCreature(BG_SA_NpcEntries[BG_SA_NPC_KANRETHAD], BG_SA_NPC_KANRETHAD, BG_SA_NpcSpawnlocs[BG_SA_NPC_KANRETHAD]))
+    {
+        TC_LOG_ERROR("bg.battleground", "SOTA: couldn't spawn Kanrethad, aborted. Entry: %u", BG_SA_NpcEntries[BG_SA_NPC_KANRETHAD]);
+        return false;
+    }
 
     for (uint8 i = 0; i <= BG_SA_PORTAL_DEFFENDER_RED; i++)
     {
         if (!AddObject(i, BG_SA_ObjEntries[i], BG_SA_ObjSpawnlocs[i], 0, 0, 0, 0, RESPAWN_ONE_DAY))
-            return false;
+        {
+            TC_LOG_ERROR("bg.battleground", "SOTA: couldn't spawn BG_SA_PORTAL_DEFFENDER_RED, Entry: %u", BG_SA_ObjEntries[i]);
+            continue;
+        }
     }
 
     for (uint8 i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
@@ -129,13 +136,19 @@ bool BattlegroundSA::ResetObjs()
           BG_SA_ObjSpawnlocs[i].GetPositionY(),
           BG_SA_ObjSpawnlocs[i].GetPositionZ() + (Attackers ? -3.750f: 0),
           BG_SA_ObjSpawnlocs[i].GetOrientation(), 0, 0, 0, 0, RESPAWN_ONE_DAY))
-            return false;
+        {
+            TC_LOG_ERROR("bg.battleground", "SOTA: couldn't spawn one of the BG_SA_BOAT, Entry: %u", boatid);
+            continue;
+        }
     }
 
     for (uint8 i = BG_SA_SIGIL_1; i <= BG_SA_LEFT_FLAGPOLE; i++)
     {
         if (!AddObject(i, BG_SA_ObjEntries[i], BG_SA_ObjSpawnlocs[i], 0, 0, 0, 0, RESPAWN_ONE_DAY))
-            return false;
+        {
+            TC_LOG_ERROR("bg.battleground", "SOTA: couldn't spawn Sigil, Entry: %u", BG_SA_ObjEntries[i]);
+            continue;
+        }
     }
 
     // MAD props for Kiper for discovering those values - 4 hours of his work.
@@ -149,7 +162,10 @@ bool BattlegroundSA::ResetObjs()
     for (uint8 i = 0; i < BG_SA_DEMOLISHER_5; i++)
     {
         if (!AddCreature(BG_SA_NpcEntries[i], i, BG_SA_NpcSpawnlocs[i], Attackers == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE, 600))
-            return false;
+        {
+            TC_LOG_ERROR("bg.battleground", "SOTA: couldn't spawn Cannon or demolisher, Entry: %u, Attackers: %s", BG_SA_NpcEntries[i], Attackers == TEAM_ALLIANCE ? "Horde(1)" : "Alliance(0)");
+            continue;
+        }
     }
 
     OverrideGunFaction();
@@ -198,13 +214,21 @@ bool BattlegroundSA::ResetObjs()
     //GY capture points
     for (uint8 i = BG_SA_CENTRAL_FLAG; i <= BG_SA_LEFT_FLAG; i++)
     {
-        AddObject(i, (BG_SA_ObjEntries[i] - (Attackers == TEAM_ALLIANCE ? 1 : 0)), BG_SA_ObjSpawnlocs[i], 0, 0, 0, 0, RESPAWN_ONE_DAY);
+        if (!AddObject(i, (BG_SA_ObjEntries[i] - (Attackers == TEAM_ALLIANCE ? 1 : 0)), BG_SA_ObjSpawnlocs[i], 0, 0, 0, 0, RESPAWN_ONE_DAY))
+        {
+            TC_LOG_ERROR("bg.battleground", "SOTA: couldn't spawn Central Flag Entry: %u", BG_SA_ObjEntries[i] - (Attackers == TEAM_ALLIANCE ? 1 : 0));
+            continue;
+        }
         GetBGObject(i)->SetFaction(atF);
     }
 
     for (uint8 i = BG_SA_BOMB; i < BG_SA_MAXOBJ; i++)
     {
-        AddObject(i, BG_SA_ObjEntries[BG_SA_BOMB], BG_SA_ObjSpawnlocs[i], 0, 0, 0, 0, RESPAWN_ONE_DAY);
+        if (!AddObject(i, BG_SA_ObjEntries[BG_SA_BOMB], BG_SA_ObjSpawnlocs[i], 0, 0, 0, 0, RESPAWN_ONE_DAY))
+        {
+            TC_LOG_ERROR("bg.battleground", "SOTA: couldn't spawn SA Bomb Entry: %u", BG_SA_ObjEntries[BG_SA_BOMB] + i);
+            continue;
+        }
         GetBGObject(i)->SetFaction(atF);
     }
 

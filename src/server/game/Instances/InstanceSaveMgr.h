@@ -80,10 +80,10 @@ class InstanceSave
 
         /* online players bound to the instance (perm/solo)
            does not include the members of the group unless they have permanent saves */
-        void AddPlayer(Player* player) 
-        { 
+        void AddPlayer(Player* player)
+        {
             std::lock_guard<std::mutex> lock(_playerListLock);
-            m_playerList.push_back(player); 
+            m_playerList.push_back(player);
         }
 
         bool RemovePlayer(Player* player)
