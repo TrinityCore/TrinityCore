@@ -80,7 +80,7 @@ namespace
                     }
                 }
                 if (removed)
-                    session->SendAreaTriggerMessage(GTS(LANG_ERR_UNTRANSMOG_OK));
+                    session->SendAreaTriggerMessage("%s", GTS(LANG_ERR_UNTRANSMOG_OK));
                 else
                     session->SendNotification(LANG_ERR_UNTRANSMOG_NO_TRANSMOGS);
                 OnGossipHello(player, creature);
@@ -92,7 +92,7 @@ namespace
                     if (sTransmogrification->GetFakeEntry(newItem))
                     {
                         sTransmogrification->DeleteFakeEntry(player, newItem);
-                        session->SendAreaTriggerMessage(GTS(LANG_ERR_UNTRANSMOG_OK));
+                        session->SendAreaTriggerMessage("%s", GTS(LANG_ERR_UNTRANSMOG_OK));
                     }
                     else
                         session->SendNotification(LANG_ERR_UNTRANSMOG_NO_TRANSMOGS);
@@ -240,7 +240,7 @@ namespace
                 // sender = slot, action = display
                 TransmogTrinityStrings res = sTransmogrification->Transmogrify(player, MAKE_NEW_GUID(action, 0, HIGHGUID_ITEM), sender);
                 if (res == LANG_ERR_TRANSMOG_OK)
-                    session->SendAreaTriggerMessage(GTS(LANG_ERR_TRANSMOG_OK));
+                    session->SendAreaTriggerMessage("%s", GTS(LANG_ERR_TRANSMOG_OK));
                 else
                     session->SendNotification(res);
                 OnGossipSelect(player, creature, EQUIPMENT_SLOT_END, sender);
@@ -261,8 +261,8 @@ namespace
                 return true;
             }
             std::string name(code);
-            std::regex regex("^[_ [:alnum:][:punct:][:print:][:alpha:][:graph:]]+$");
-            if (!std::regex_match(name, regex) || name.find('"') != std::string::npos || name.find('\\') != std::string::npos || name.find('\n') != std::string::npos)
+            std::regex regex("^[[:print:]]+$");
+            if (!std::regex_match(name, regex) || name.find('"') != std::string::npos || name.find('\\') != std::string::npos)
                 player->GetSession()->SendNotification(LANG_PRESET_ERR_INVALID_NAME);
             else
             {
@@ -301,7 +301,7 @@ namespace
                         uint8 presetID = sTransmogrification->MaxSets;
                         if (player->presetMap.size() < sTransmogrification->MaxSets)
                         {
-                            for (uint8 i = 0; presetID < sTransmogrification->MaxSets; ++i) // should never reach over max
+                            for (uint8 i = 0; i < sTransmogrification->MaxSets; ++i) // should never reach over max
                             {
                                 if (player->presetMap.find(i) == player->presetMap.end())
                                 {
