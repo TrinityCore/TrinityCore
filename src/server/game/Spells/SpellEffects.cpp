@@ -3760,7 +3760,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         return;
 
                     uint32 spellId = 0;
-                    switch (rand() % 4)
+                    switch (rand32() % 4)
                     {
                         case 0: spellId = 46740; break;
                         case 1: spellId = 46739; break;

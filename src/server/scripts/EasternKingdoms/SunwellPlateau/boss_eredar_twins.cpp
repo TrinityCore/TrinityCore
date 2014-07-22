@@ -136,7 +136,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/) override
         {
-            if (rand()%4 == 0)
+            if (rand32() % 4 == 0)
                 Talk(YELL_SAC_KILL);
         }
 
@@ -222,7 +222,7 @@ public:
                         me->InterruptSpell(CURRENT_GENERIC_SPELL);
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_CONFLAGRATION);
-                        ConflagrationTimer = 30000+(rand()%5000);
+                        ConflagrationTimer = 30000 + (rand32() % 5000);
                     }
                 } else ConflagrationTimer -= diff;
             }
@@ -242,7 +242,7 @@ public:
                                 Talk(EMOTE_SHADOW_NOVA, target);
                             Talk(YELL_SHADOW_NOVA);
                         }
-                        ShadownovaTimer = 30000+(rand()%5000);
+                        ShadownovaTimer = 30000 + (rand32() % 5000);
                     }
                 } else ShadownovaTimer -=diff;
             }
@@ -253,7 +253,7 @@ public:
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_CONFOUNDING_BLOW);
-                    ConfoundingblowTimer = 20000 + (rand()%5000);
+                    ConfoundingblowTimer = 20000 + (rand32() % 5000);
                 }
             } else ConfoundingblowTimer -=diff;
 
@@ -407,7 +407,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/) override
         {
-            if (rand()%4 == 0)
+            if (rand32() % 4 == 0)
                 Talk(YELL_ALY_KILL);
         }
 
@@ -552,7 +552,7 @@ public:
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_SHADOW_NOVA);
-                        ShadownovaTimer= 30000+(rand()%5000);
+                        ShadownovaTimer = 30000 + (rand32() % 5000);
                     }
                 } else ShadownovaTimer -=diff;
             }
@@ -566,7 +566,7 @@ public:
                         Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (target)
                             DoCast(target, SPELL_CONFLAGRATION);
-                        ConflagrationTimer = 30000+(rand()%5000);
+                        ConflagrationTimer = 30000 + (rand32() % 5000);
 
                         if (!SisterDeath)
                         {
@@ -644,7 +644,7 @@ public:
         void Reset() override
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            ShadowfuryTimer = 5000 + (rand()%15000);
+            ShadowfuryTimer = 5000 + (rand32() % 15000);
             DarkstrikeTimer = 3000;
             KillTimer = 15000;
         }

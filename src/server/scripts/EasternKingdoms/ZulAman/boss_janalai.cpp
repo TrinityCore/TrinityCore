@@ -385,7 +385,7 @@ class boss_janalai : public CreatureScript
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                         if (Player* i_pl = i->GetSource())
                             if (i_pl->IsAlive())
-                                DoTeleportPlayer(i_pl, JanalainPos[0][0]-5+rand()%10, JanalainPos[0][1]-5+rand()%10, JanalainPos[0][2], 0);
+                                DoTeleportPlayer(i_pl, JanalainPos[0][0] - 5 + rand32() % 10, JanalainPos[0][1] - 5 + rand32() % 10, JanalainPos[0][2], 0);
                     //DoCast(Temp, SPELL_SUMMON_PLAYERS, true) // core bug, spell does not work if too far
                     return;
                 } else BombTimer -= diff;
@@ -636,9 +636,9 @@ class npc_janalai_hatchling : public CreatureScript
             {
                 BuffetTimer = 7000;
                 if (me->GetPositionY() > 1150)
-                    me->GetMotionMaster()->MovePoint(0, hatcherway[0][3][0]+rand()%4-2, 1150.0f+rand()%4-2, hatcherway[0][3][2]);
+                    me->GetMotionMaster()->MovePoint(0, hatcherway[0][3][0] + rand32() % 4 - 2, 1150.0f + rand32() % 4 - 2, hatcherway[0][3][2]);
                 else
-                    me->GetMotionMaster()->MovePoint(0, hatcherway[1][3][0]+rand()%4-2, 1150.0f+rand()%4-2, hatcherway[1][3][2]);
+                    me->GetMotionMaster()->MovePoint(0, hatcherway[1][3][0] + rand32() % 4 - 2, 1150.0f + rand32() % 4 - 2, hatcherway[1][3][2]);
 
                 me->SetDisableGravity(true);
             }

@@ -98,7 +98,7 @@ class boss_high_botanist_freywinn : public CreatureScript
 
             void DoSummonSeedling()
             {
-                switch (rand()%4)
+                switch (rand32() % 4)
                 {
                     case 0: DoCast(me, SPELL_PLANT_WHITE); break;
                     case 1: DoCast(me, SPELL_PLANT_GREEN); break;

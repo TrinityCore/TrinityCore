@@ -330,7 +330,7 @@ struct boss_twinemperorsAI : public ScriptedAI
                 }
                 if (c->IsWithinDistInMap(me, ABUSE_BUG_RANGE))
                 {
-                    if (!nearb || (rand()%4) == 0)
+                    if (!nearb || (rand32() % 4) == 0)
                         nearb = c;
                 }
             }
@@ -437,7 +437,7 @@ public:
             if (UnbalancingStrike_Timer <= diff)
             {
                 DoCastVictim(SPELL_UNBALANCING_STRIKE);
-                UnbalancingStrike_Timer = 8000+rand()%12000;
+                UnbalancingStrike_Timer = 8000 + rand32() % 12000;
             } else UnbalancingStrike_Timer -= diff;
 
             if (UpperCut_Timer <= diff)
@@ -445,7 +445,7 @@ public:
                 Unit* randomMelee = SelectTarget(SELECT_TARGET_RANDOM, 0, NOMINAL_MELEE_RANGE, true);
                 if (randomMelee)
                     DoCast(randomMelee, SPELL_UPPERCUT);
-                UpperCut_Timer = 15000+rand()%15000;
+                UpperCut_Timer = 15000 + rand32() % 15000;
             } else UpperCut_Timer -= diff;
 
             HandleBugs(diff);
@@ -542,7 +542,7 @@ public:
                 target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45, true);
                 if (target)
                     DoCast(target, SPELL_BLIZZARD);
-                Blizzard_Timer = 15000+rand()%15000;
+                Blizzard_Timer = 15000 + rand32() % 15000;
             } else Blizzard_Timer -= diff;
 
             if (ArcaneBurst_Timer <= diff)

@@ -358,7 +358,7 @@ struct boss_moroes_guestAI : public ScriptedAI
 
     Unit* SelectGuestTarget()
     {
-        uint64 TempGUID = GuestGUID[rand()%4];
+        uint64 TempGUID = GuestGUID[rand32() % 4];
         if (TempGUID)
         {
             Unit* unit = ObjectAccessor::GetUnit(*me, TempGUID);

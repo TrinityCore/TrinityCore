@@ -131,7 +131,7 @@ public:
         {
             CataclysmicBolt_Timer = 10000;
             Enrage_Timer = 600000;                              //10 minutes
-            SearNova_Timer = 20000+rand()%40000; // 20 - 60 seconds
+            SearNova_Timer = 20000 + rand32() % 40000; // 20 - 60 seconds
 
             BlessingOfTides = false;
 
@@ -253,7 +253,7 @@ public:
             if (SearNova_Timer <= diff)
             {
                 DoCastVictim(SPELL_SEAR_NOVA);
-                SearNova_Timer = 20000+rand()%40000;
+                SearNova_Timer = 20000 + rand32() % 40000;
             } else SearNova_Timer -= diff;
 
             //Enrage_Timer
@@ -508,7 +508,7 @@ public:
             if (FrostShock_Timer <= diff)
             {
                 DoCastVictim(SPELL_FROST_SHOCK);
-                FrostShock_Timer = 25000+rand()%5000;
+                FrostShock_Timer = 25000 + rand32() % 5000;
             } else FrostShock_Timer -= diff;
 
             //Spitfire_Timer
@@ -575,9 +575,9 @@ public:
         void Reset() override
         {
             WaterBoltVolley_Timer = 35000;
-            TidalSurge_Timer = 15000+rand()%5000;
+            TidalSurge_Timer = 15000 + rand32() % 5000;
             Heal_Timer = 55000;
-            Cyclone_Timer = 30000+rand()%10000;
+            Cyclone_Timer = 30000 + rand32() % 10000;
 
             instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
         }
@@ -628,16 +628,16 @@ public:
                 // Hacky way to do it - won't trigger elseways
                 if (me->GetVictim())
                     me->EnsureVictim()->CastSpell(me->GetVictim(), SPELL_TIDAL_SURGE_FREEZE, true);
-                TidalSurge_Timer = 15000+rand()%5000;
+                TidalSurge_Timer = 15000 + rand32() % 5000;
             } else TidalSurge_Timer -= diff;
 
             //Cyclone_Timer
             if (Cyclone_Timer <= diff)
             {
                 //DoCast(me, SPELL_SUMMON_CYCLONE); // Doesn't work
-                Cyclone_Timer = 30000+rand()%10000;
+                Cyclone_Timer = 30000 + rand32() % 10000;
 
-                if (Creature* Cyclone = me->SummonCreature(CREATURE_CYCLONE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand()%5), TEMPSUMMON_TIMED_DESPAWN, 15000))
+                if (Creature* Cyclone = me->SummonCreature(CREATURE_CYCLONE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand32() % 5), TEMPSUMMON_TIMED_DESPAWN, 15000))
                 {
                     Cyclone->SetObjectScale(3.0f);
                     Cyclone->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -672,7 +672,7 @@ public:
         Unit* selectAdvisorUnit()
         {
             Unit* unit = NULL;
-            switch (rand()%4)
+            switch (rand32() % 4)
             {
             case 0:
                 unit = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_KARATHRESS));
