@@ -145,7 +145,7 @@ void AuthSession::AsyncReadHeader()
                 if ((uint8)entry.cmd == _readBuffer[0] && (entry.status == STATUS_CONNECTED || (_isAuthenticated && entry.status == STATUS_AUTHED)))
                 {
                     // Handle dynamic size packet
-                    if (_readBuffer[0] == AUTH_LOGON_CHALLENGE)
+                    if (_readBuffer[0] == AUTH_LOGON_CHALLENGE || _readBuffer[0] == AUTH_RECONNECT_CHALLENGE)
                     {
                         _socket.read_some(boost::asio::buffer(&_readBuffer[1], sizeof(uint8) + sizeof(uint16))); //error + size
 
