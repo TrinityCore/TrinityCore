@@ -73,7 +73,7 @@ public:
             Levitate_Timer = 12000;
             ChainLightning_Timer = 6000;
             StaticCharge_Timer = 10000;
-            SporeStriders_Timer = 10000+rand()%5000;
+            SporeStriders_Timer = 10000 + rand32() % 5000;
             check_Timer = 5000;
             LevitatedTarget = 0;
             LevitatedTarget_Timer = 0;
@@ -124,7 +124,7 @@ public:
             if (IsHeroic() && SporeStriders_Timer <= diff)
             {
                 DoCast(me, SPELL_SUMMON_SPORE_STRIDER);
-                SporeStriders_Timer = 10000+rand()%5000;
+                SporeStriders_Timer = 10000 + rand32() % 5000;
             } else SporeStriders_Timer -= diff;
 
             // Levitate
@@ -164,7 +164,7 @@ public:
                     LevitatedTarget_Timer = 2000;
                     InAir = false;
                 }
-                Levitate_Timer = 12000+rand()%3000;
+                Levitate_Timer = 12000 + rand32() % 3000;
             } else Levitate_Timer -= diff;
 
             // Chain Lightning

@@ -320,7 +320,7 @@ class boss_kaelthas : public CreatureScript
 
             void Reset() override
             {
-                Fireball_Timer = 5000+rand()%10000;
+                Fireball_Timer = 5000 + rand32() % 10000;
                 ArcaneDisruption_Timer = 45000;
                 MindControl_Timer = 40000;
                 Phoenix_Timer = 50000;
@@ -746,7 +746,7 @@ class boss_kaelthas : public CreatureScript
                                     {
                                         //interruptable
                                         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, false);
-                                        int32 dmg = 20000+rand()%5000;
+                                        int32 dmg = 20000 + rand32() % 5000;
                                         me->CastCustomSpell(me->GetVictim(), SPELL_FIREBALL, &dmg, 0, 0, false);
                                         IsCastingFireball = true;
                                         Fireball_Timer = 2500;
@@ -757,7 +757,7 @@ class boss_kaelthas : public CreatureScript
                                     //apply resistance
                                     me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
                                     IsCastingFireball = false;
-                                    Fireball_Timer = 5000+rand()%10000;
+                                    Fireball_Timer = 5000 + rand32() % 10000;
                                 }
                             }
                             else
@@ -1089,7 +1089,7 @@ class boss_thaladred_the_darkener : public CreatureScript
                 if (PsychicBlow_Timer <= diff)
                 {
                     DoCastVictim(SPELL_PSYCHIC_BLOW);
-                    PsychicBlow_Timer = 20000+rand()%5000;
+                    PsychicBlow_Timer = 20000 + rand32() % 5000;
                 }
                 else
                     PsychicBlow_Timer -= diff;
@@ -1158,7 +1158,7 @@ class boss_lord_sanguinar : public CreatureScript
                 if (Fear_Timer <= diff)
                 {
                     DoCastVictim(SPELL_BELLOWING_ROAR);
-                    Fear_Timer = 25000+rand()%10000;                //approximately every 30 seconds
+                    Fear_Timer = 25000 + rand32() % 10000;                //approximately every 30 seconds
                 }
                 else
                     Fear_Timer -= diff;
@@ -1275,7 +1275,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
                     else
                         DoCastVictim(SPELL_CONFLAGRATION);
 
-                    Conflagration_Timer = 10000+rand()%5000;
+                    Conflagration_Timer = 10000 + rand32() % 5000;
                 }
                 else
                     Conflagration_Timer -= diff;
@@ -1301,7 +1301,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
                     if (InMeleeRange)
                         DoCast(target, SPELL_ARCANE_EXPLOSION);
 
-                    ArcaneExplosion_Timer = 4000+rand()%2000;
+                    ArcaneExplosion_Timer = 4000 + rand32() % 2000;
                 }
                 else
                     ArcaneExplosion_Timer -= diff;
@@ -1384,7 +1384,7 @@ class boss_master_engineer_telonicus : public CreatureScript
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_REMOTE_TOY);
 
-                    RemoteToy_Timer = 10000+rand()%5000;
+                    RemoteToy_Timer = 10000 + rand32() % 5000;
                 }
                 else
                     RemoteToy_Timer -= diff;

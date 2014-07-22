@@ -583,7 +583,7 @@ public:
                             if (!unitList.empty())
                             {
                                 std::vector<Unit*>::const_iterator itr = unitList.begin();
-                                advance(itr, rand()%unitList.size());
+                                advance(itr, rand32() % unitList.size());
                                 DoCast(*itr, SPELL_MANA_DETONATION);
                                 Talk(SAY_SPECIAL);
                             }
@@ -599,7 +599,7 @@ public:
                         case EVENT_BLAST:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, RAID_MODE(1, 0), 0, true))
                                 DoCast(target, SPELL_FROST_BLAST);
-                            if (rand()%2)
+                            if (rand32() % 2)
                                 Talk(SAY_FROST_BLAST);
                             events.Repeat(30000, 90000);
                             break;

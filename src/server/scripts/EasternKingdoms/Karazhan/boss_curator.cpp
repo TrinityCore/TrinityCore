@@ -136,7 +136,7 @@ public:
                 if (AddTimer <= diff)
                 {
                     //Summon Astral Flare
-                    Creature* AstralFlare = DoSpawnCreature(17096, float(rand()%37), float(rand()%37), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    Creature* AstralFlare = DoSpawnCreature(17096, float(rand32() % 37), float(rand32() % 37), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                     Unit* target = NULL;
                     target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 

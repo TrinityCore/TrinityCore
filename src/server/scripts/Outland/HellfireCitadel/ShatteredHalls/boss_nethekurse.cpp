@@ -243,7 +243,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                     if (Cleave_Timer <= diff)
                     {
                         DoCastVictim(SPELL_SHADOW_CLEAVE);
-                        Cleave_Timer = 6000+rand()%2500;
+                        Cleave_Timer = 6000 + rand32() % 2500;
                     }
                     else
                         Cleave_Timer -= diff;

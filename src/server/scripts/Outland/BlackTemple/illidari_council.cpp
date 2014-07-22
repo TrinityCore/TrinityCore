@@ -489,7 +489,7 @@ public:
             Unit* unit = me;
             uint32 member = 0;                                  // He chooses Lady Malande most often
 
-            if (rand()%10 == 0)                                  // But there is a chance he picks someone else.
+            if (rand32() % 10 == 0)                                  // But there is a chance he picks someone else.
                 member = urand(1, 3);
 
             if (member != 2)                                     // No need to create another pointer to us using Unit::GetUnit

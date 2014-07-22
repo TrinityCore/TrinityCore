@@ -64,9 +64,9 @@ public:
 
         void Reset() override
         {
-            Repentance_Timer    = 25000+(rand()%15000);
-            Holyfire_Timer      = 8000+(rand()%17000);
-            Holywrath_Timer     = 15000+(rand()%10000);
+            Repentance_Timer = 25000 + (rand32() % 15000);
+            Holyfire_Timer = 8000 + (rand32() % 17000);
+            Holywrath_Timer = 15000 + (rand32() % 10000);
             Holyground_Timer    = 3000;
             Enrage_Timer        = 600000;
 
