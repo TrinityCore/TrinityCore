@@ -326,8 +326,8 @@ enum MapFlags
 
 enum AbilytyLearnType
 {
-    ABILITY_LEARNED_ON_GET_PROFESSION_SKILL     = 1,
-    ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL  = 2
+    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE  = 1, // Spell state will update depending on skill value
+    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN  = 2  // Spell will be learned/removed together with entire skill
 };
 
 enum ItemEnchantmentType
@@ -356,7 +356,7 @@ enum SkillRaceClassInfoFlags
     SKILL_FLAG_UNLEARNABLE              = 0x20,     // Skill can be unlearned
     SKILL_FLAG_INCLUDE_IN_SORT          = 0x80,     // Spells belonging to a skill with this flag will additionally compare skill ids when sorting spellbook in client
     SKILL_FLAG_NOT_TRAINABLE            = 0x100,
-    SKILL_FLAG_MONO_VALUE               = 0x400     // Skill always has value 1
+    SKILL_FLAG_MONO_VALUE               = 0x400     // Skill always has value 1 - clientside display flag, real value can be different
 };
 
 enum SpellCategoryFlags

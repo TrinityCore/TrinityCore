@@ -20,6 +20,7 @@
 #define __BATTLEGROUNDAB_H
 
 #include "Battleground.h"
+#include "BattlegroundScore.h"
 #include "Object.h"
 
 enum BG_AB_WorldStates
@@ -236,12 +237,38 @@ struct BG_AB_BannerTimer
     uint8       teamIndex;
 };
 
-struct BattlegroundABScore : public BattlegroundScore
+struct BattlegroundABScore final : public BattlegroundScore
 {
-    BattlegroundABScore(): BasesAssaulted(0), BasesDefended(0) { }
-    ~BattlegroundABScore() { }
-    uint32 BasesAssaulted;
-    uint32 BasesDefended;
+    friend class BattlegroundAB;
+
+    protected:
+        BattlegroundABScore(uint64 playerGuid) : BattlegroundScore(playerGuid), BasesAssaulted(0), BasesDefended(0) { }
+
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case SCORE_BASES_ASSAULTED:
+                    BasesAssaulted += value;
+                    break;
+                case SCORE_BASES_DEFENDED:
+                    BasesDefended += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
+
+        void BuildObjectivesBlock(WorldPacket& data) final
+        {
+            data << uint32(2);
+            data << uint32(BasesAssaulted);
+            data << uint32(BasesDefended);
+        }
+
+        uint32 BasesAssaulted;
+        uint32 BasesDefended;
 };
 
 class BattlegroundAB : public Battleground
@@ -261,7 +288,7 @@ class BattlegroundAB : public Battleground
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
         /* Scorekeeping */
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
 
         void FillInitialWorldStates(WorldPacket& data);
 

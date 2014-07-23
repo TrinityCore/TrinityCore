@@ -1171,7 +1171,7 @@ public:
             c = 0;
             mx = ShieldOrbLocations[0][0];
             my = ShieldOrbLocations[0][1];
-            bClockwise = urand(0, 1);
+            bClockwise = roll_chance_i(50);
         }
 
         void UpdateAI(uint32 diff) override

@@ -17,30 +17,12 @@
  */
 
 #include "BattlegroundRL.h"
-#include "Language.h"
-#include "Object.h"
-#include "ObjectMgr.h"
 #include "Player.h"
 #include "WorldPacket.h"
 
 BattlegroundRL::BattlegroundRL()
 {
     BgObjects.resize(BG_RL_OBJECT_MAX);
-
-    StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_1M;
-    StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_30S;
-    StartDelayTimes[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_15S;
-    StartDelayTimes[BG_STARTING_EVENT_FOURTH] = BG_START_DELAY_NONE;
-    //we must set messageIds
-    StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_ARENA_ONE_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_ARENA_THIRTY_SECONDS;
-    StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_ARENA_FIFTEEN_SECONDS;
-    StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_ARENA_HAS_BEGUN;
-}
-
-BattlegroundRL::~BattlegroundRL()
-{
-
 }
 
 void BattlegroundRL::StartingEventCloseDoors()
@@ -56,39 +38,6 @@ void BattlegroundRL::StartingEventOpenDoors()
 
     for (uint32 i = BG_RL_OBJECT_BUFF_1; i <= BG_RL_OBJECT_BUFF_2; ++i)
         SpawnBGObject(i, 60);
-}
-
-void BattlegroundRL::AddPlayer(Player* player)
-{
-    Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUID()] = new BattlegroundScore;
-    UpdateArenaWorldState();
-}
-
-void BattlegroundRL::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
-{
-    if (GetStatus() == STATUS_WAIT_LEAVE)
-        return;
-
-    UpdateArenaWorldState();
-    CheckArenaWinConditions();
-}
-
-void BattlegroundRL::HandleKillPlayer(Player* player, Player* killer)
-{
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
-    if (!killer)
-    {
-        TC_LOG_ERROR("bg.battleground", "Killer player not found");
-        return;
-    }
-
-    Battleground::HandleKillPlayer(player, killer);
-
-    UpdateArenaWorldState();
-    CheckArenaWinConditions();
 }
 
 void BattlegroundRL::HandleAreaTrigger(Player* player, uint32 trigger)
@@ -107,16 +56,10 @@ void BattlegroundRL::HandleAreaTrigger(Player* player, uint32 trigger)
     }
 }
 
-void BattlegroundRL::FillInitialWorldStates(WorldPacket &data)
+void BattlegroundRL::FillInitialWorldStates(WorldPacket& data)
 {
-    data << uint32(0xbba) << uint32(1);           // 9
-    UpdateArenaWorldState();
-}
-
-void BattlegroundRL::Reset()
-{
-    //call parent's reset
-    Battleground::Reset();
+    data << uint32(0xbba) << uint32(1);     // 9 show
+    Arena::FillInitialWorldStates(data);
 }
 
 bool BattlegroundRL::SetupBattleground()

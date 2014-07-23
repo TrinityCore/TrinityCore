@@ -153,7 +153,7 @@ public:
         //this mean she at some point evaded
         void JustReachedHome() override
         {
-            instance->SetData(DATA_DELRISSA_EVENT, FAIL);
+            instance->SetBossState(DATA_DELRISSA, FAIL);
         }
 
         void EnterCombat(Unit* who) override
@@ -172,7 +172,7 @@ public:
                 }
             }
 
-            instance->SetData(DATA_DELRISSA_EVENT, IN_PROGRESS);
+            instance->SetBossState(DATA_DELRISSA, IN_PROGRESS);
         }
 
         void InitializeLackeys()
@@ -240,7 +240,7 @@ public:
             Talk(SAY_DEATH);
 
             if (instance->GetData(DATA_DELRISSA_DEATH_COUNT) == MAX_ACTIVE_LACKEY)
-                instance->SetData(DATA_DELRISSA_EVENT, DONE);
+                instance->SetBossState(DATA_DELRISSA, DONE);
             else
             {
                 if (me->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE))
@@ -434,7 +434,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
                 if (!pDelrissa->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE))
                     pDelrissa->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
-                instance->SetData(DATA_DELRISSA_EVENT, DONE);
+                instance->SetBossState(DATA_DELRISSA, DONE);
             }
         }
     }

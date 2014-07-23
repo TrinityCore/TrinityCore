@@ -1368,7 +1368,7 @@ class achievement_unbroken : public AchievementCriteriaScript
         {
             if (target)
                 if (InstanceScript* instance = target->GetInstanceScript())
-                    return instance->GetData(DATA_UNBROKEN);
+                    return instance->GetData(DATA_UNBROKEN) != 0;
 
             return false;
         }

@@ -27,7 +27,6 @@
 #include <vector>
 #include <list>
 #include <map>
-#include <ace/INET_Addr.h>
 
 // Searcher for map of structs
 template<typename T, class S> struct Finder
@@ -70,6 +69,8 @@ private:
 void stripLineInvisibleChars(std::string &src);
 
 int32 MoneyStringToMoney(const std::string& moneyString);
+
+struct tm* localtime_r(const time_t* time, struct tm *result);
 
 std::string secsToTimeString(uint64 timeInSecs, bool shortText = false, bool hoursOnly = false);
 uint32 TimeStringToSecs(const std::string& timestring);
@@ -347,20 +348,9 @@ void vutf8printf(FILE* out, const char *str, va_list* ap);
 
 bool IsIPAddress(char const* ipaddress);
 
-/// Checks if address belongs to the a network with specified submask
-bool IsIPAddrInNetwork(ACE_INET_Addr const& net, ACE_INET_Addr const& addr, ACE_INET_Addr const& subnetMask);
-
-/// Transforms ACE_INET_Addr address into string format "dotted_ip:port"
-std::string GetAddressString(ACE_INET_Addr const& addr);
-
 uint32 CreatePIDFile(const std::string& filename);
 
 std::string ByteArrayToHexStr(uint8 const* bytes, uint32 length, bool reverse = false);
-#endif
-
-//handler for operations on large flags
-#ifndef _FLAG96
-#define _FLAG96
 
 // simple class for not-modifyable list
 template <typename T>
@@ -405,13 +395,6 @@ public:
         part[0] = p1;
         part[1] = p2;
         part[2] = p3;
-    }
-
-    flag96(uint64 p1, uint32 p2)
-    {
-        part[0] = (uint32)(p1 & UI64LIT(0x00000000FFFFFFFF));
-        part[1] = (uint32)((p1 >> 32) & UI64LIT(0x00000000FFFFFFFF));
-        part[2] = p2;
     }
 
     inline bool IsEqual(uint32 p1 = 0, uint32 p2 = 0, uint32 p3 = 0) const

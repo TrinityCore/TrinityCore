@@ -1,29 +1,25 @@
-language:
-    cpp
-
+language: cpp
 compiler:
-    - gcc
-    - clang
-
-# Only get newest commit
-git:
-    depth: 1
+  - gcc
+  - clang
 
 before_install:
-    # Get latest code for testing
-    - git submodule init
-    - git submodule update
-    - git submodule foreach git pull origin master
-    
-    - echo "yes" | sudo add-apt-repository ppa:kalakris/cmake
-    - echo "yes" | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-    - sudo apt-get update -qq
-    - sudo apt-get install build-essential libtool gcc-4.8 g++-4.8 make cmake openssl libssl-dev libmysqlclient15-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev libace-dev
-    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 90 --slave /usr/bin/g++ g++ /usr/bin/g++-4.8
-    - mkdir bin
-    - cd bin
-    # -DWITH_COREDEBUG=1 fails build
-    - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=1 -DSERVERS=1 -DCMAKE_BUILD_TYPE=Release
+  # Get latest code for testing
+  - git submodule init
+  - git submodule update
+  - git submodule foreach git pull origin master
 
-script:
-    - make -j 8
+  - echo "yes" | sudo add-apt-repository ppa:kalakris/cmake
+  - echo "yes" | sudo add-apt-repository ppa:boost-latest/ppa
+  - echo "yes" | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+  - sudo apt-get update -qq
+  - sudo apt-get install build-essential libtool gcc-4.8 g++-4.8 make cmake openssl libssl-dev libmysqlclient15-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev libboost1.55-dev libboost-thread1.55-dev libboost-system1.55-dev libboost-program-options1.55-dev
+  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 90 --slave /usr/bin/g++ g++ /usr/bin/g++-4.8
+  - mkdir bin
+  - cd bin
+  - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=0 -DUSE_SCRIPTPCH=0 -DTOOLS=1 -DSCRIPTS=1 -DSERVERS=1 -DCMAKE_BUILD_TYPE=Release
+
+script: make -j 8
+
+git:
+  depth: 1
