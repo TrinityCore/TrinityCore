@@ -117,14 +117,14 @@ public:
             if (ImpendingDeath_Timer <= diff)
             {
                 DoCastVictim(SPELL_IMPENDING_DEATH);
-                ImpendingDeath_Timer = 25000+rand()%5000;
+                ImpendingDeath_Timer = 25000 + rand32() % 5000;
             } else ImpendingDeath_Timer -= diff;
 
             if (WingBuffet_Timer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_WING_BUFFET);
-                WingBuffet_Timer = 25000+rand()%10000;
+                WingBuffet_Timer = 25000 + rand32() % 10000;
             } else WingBuffet_Timer -= diff;
 
             if (Mda_Timer <= diff)

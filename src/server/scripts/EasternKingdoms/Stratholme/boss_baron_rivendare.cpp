@@ -134,14 +134,14 @@ public:
             {
                 DoCastVictim(SPELL_CLEAVE);
                 //13 seconds until we should cast this again
-                Cleave_Timer = 7000 + (rand()%10000);
+                Cleave_Timer = 7000 + (rand32() % 10000);
             } else Cleave_Timer -= diff;
 
             //MortalStrike
             if (MortalStrike_Timer <= diff)
             {
                 DoCastVictim(SPELL_MORTALSTRIKE);
-                MortalStrike_Timer = 10000 + (rand()%15000);
+                MortalStrike_Timer = 10000 + (rand32() % 15000);
             } else MortalStrike_Timer -= diff;
 
             //RaiseDead

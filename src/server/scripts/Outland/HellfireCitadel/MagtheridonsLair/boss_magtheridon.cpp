@@ -180,7 +180,7 @@ class npc_abyssal : public CreatureScript
                 if (FireBlast_Timer <= diff)
                 {
                     DoCastVictim(SPELL_FIRE_BLAST);
-                    FireBlast_Timer = 5000+rand()%10000;
+                    FireBlast_Timer = 5000 + rand32() % 10000;
                 }
                 else FireBlast_Timer -= diff;
 
@@ -232,7 +232,7 @@ class boss_magtheridon : public CreatureScript
                 Berserk_Timer = 1320000;
                 Quake_Timer = 40000;
                 Debris_Timer = 10000;
-                Blaze_Timer = 10000+rand()%20000;
+                Blaze_Timer = 10000 + rand32() % 20000;
                 BlastNova_Timer = 60000;
                 Cleave_Timer = 15000;
                 RandChat_Timer = 90000;
@@ -538,7 +538,7 @@ class npc_hellfire_channeler : public CreatureScript
                 {
                     if (HealthBelowPct(50))
                         DoCast(me, SPELL_DARK_MENDING);
-                    DarkMending_Timer = 10000 +(rand() % 10000);
+                    DarkMending_Timer = 10000 + (rand32() % 10000);
                 }
                 else
                     DarkMending_Timer -= diff;

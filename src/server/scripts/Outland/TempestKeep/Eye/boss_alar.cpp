@@ -245,7 +245,7 @@ class boss_alar : public CreatureScript
                             switch (WaitEvent)
                             {
                             case WE_PLATFORM:
-                                Platforms_Move_Timer = 30000+rand()%5000;
+                                Platforms_Move_Timer = 30000 + rand32() % 5000;
                                 break;
                             case WE_QUILL:
                                 DoCast(me, SPELL_FLAME_QUILLS, true);
@@ -268,7 +268,7 @@ class boss_alar : public CreatureScript
                                 DoCast(me, SPELL_REBIRTH, true);
                                 MeltArmor_Timer = 60000;
                                 Charge_Timer = 7000;
-                                DiveBomb_Timer = 40000+rand()%5000;
+                                DiveBomb_Timer = 40000 + rand32() % 5000;
                                 FlamePatch_Timer = 30000;
                                 Phase1 = false;
                                 break;
@@ -391,7 +391,7 @@ class boss_alar : public CreatureScript
                         me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 50);
                         WaitEvent = WE_METEOR;
                         WaitTimer = 0;
-                        DiveBomb_Timer = 40000+rand()%5000;
+                        DiveBomb_Timer = 40000 + rand32() % 5000;
                         return;
                     }
                     else

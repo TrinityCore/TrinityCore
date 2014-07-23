@@ -132,7 +132,7 @@ public:
             if (Pummel_Timer <= diff)
             {
                 //Cast
-                if (rand()%100 < 90) //90% chance to cast
+                if (rand32() % 100 < 90) //90% chance to cast
                 {
                     DoCastVictim(SPELL_PUMMEL);
                 }
@@ -144,7 +144,7 @@ public:
             if (KnockAway_Timer <= diff)
             {
                 //Cast
-                if (rand()%100 < 80) //80% chance to cast
+                if (rand32() % 100 < 80) //80% chance to cast
                 {
                     DoCastVictim(SPELL_KNOCKAWAY);
                 }
@@ -165,7 +165,7 @@ public:
             if (SummonRifleman_Timer <= diff)
             {
                 //Cast
-                switch (rand()%9)
+                switch (rand32() % 9)
                 {
                 case 0:
                     me->SummonCreature(11054, ADD_1X, ADD_1Y, ADD_1Z, ADD_1O, TEMPSUMMON_TIMED_DESPAWN, 240000);

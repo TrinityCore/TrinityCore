@@ -118,7 +118,7 @@ public:
                             if (dist < 15)
                                 me->AddAura(SPELL_INHIBITMAGIC, i_pl);
                         }
-                Inhibitmagic_Timer = 3000+(rand()%1000);
+                Inhibitmagic_Timer = 3000 + (rand32() % 1000);
             } else Inhibitmagic_Timer -= diff;
 
             //Return since we have no target
@@ -151,7 +151,7 @@ public:
                     me->SummonCreature(NPC_FOCUS_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5500);
                     Talk(EMOTE_FOCUSED, target);
                 }
-                FocusFire_Timer = 15000+(rand()%5000);
+                FocusFire_Timer = 15000 + (rand32() % 5000);
             } else FocusFire_Timer -= diff;
 
             DoMeleeAttackIfReady();
@@ -181,7 +181,7 @@ public:
 
         void Reset() override
         {
-            FieryBlast_Timer = 3000+(rand()%1000);
+            FieryBlast_Timer = 3000 + (rand32() % 1000);
             fiery1 = fiery2 = true;
         }
 

@@ -101,7 +101,7 @@ public:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_LIGHTNING_CLOUD);
 
-                LightningCloud_Timer = 15000+rand()%10000;
+                LightningCloud_Timer = 15000 + rand32() % 10000;
             } else LightningCloud_Timer -=diff;
 
             //LungBurst_Timer
@@ -109,7 +109,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_LUNG_BURST);
-                LungBurst_Timer = 7000+rand()%5000;
+                LungBurst_Timer = 7000 + rand32() % 5000;
             } else LungBurst_Timer -=diff;
 
             //EnvelopingWinds_Timer
@@ -122,7 +122,7 @@ public:
                 if (IsHeroic())
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_ENVELOPING_WINDS);
-                EnvelopingWinds_Timer = 10000+rand()%5000;
+                EnvelopingWinds_Timer = 10000 + rand32() % 5000;
             } else EnvelopingWinds_Timer -=diff;
 
             DoMeleeAttackIfReady();
@@ -149,7 +149,7 @@ public:
 
         void Reset() override
         {
-            WaterBoltVolley_Timer = 3000+rand()%3000;
+            WaterBoltVolley_Timer = 3000 + rand32() % 3000;
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -162,7 +162,7 @@ public:
             if (WaterBoltVolley_Timer <= diff)
             {
                 DoCast(me, SPELL_WATER_BOLT_VOLLEY);
-                WaterBoltVolley_Timer = 7000+rand()%5000;
+                WaterBoltVolley_Timer = 7000 + rand32() % 5000;
             } else WaterBoltVolley_Timer -= diff;
 
             DoMeleeAttackIfReady();

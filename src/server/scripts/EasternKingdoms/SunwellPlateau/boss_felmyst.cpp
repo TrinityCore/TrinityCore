@@ -288,7 +288,7 @@ public:
                         return;
                     }
 
-                    if (Creature* Vapor = me->SummonCreature(NPC_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000))
+                    if (Creature* Vapor = me->SummonCreature(NPC_VAPOR, target->GetPositionX() - 5 + rand32() % 10, target->GetPositionY() - 5 + rand32() % 10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000))
                     {
                         Vapor->AI()->AttackStart(target);
                         me->InterruptNonMeleeSpells(false);
@@ -315,7 +315,7 @@ public:
                     }
 
                     //target->CastSpell(target, SPELL_VAPOR_SUMMON, true); need core support
-                    if (Creature* pVapor = me->SummonCreature(NPC_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000))
+                    if (Creature* pVapor = me->SummonCreature(NPC_VAPOR, target->GetPositionX() - 5 + rand32() % 10, target->GetPositionY() - 5 + rand32() % 10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000))
                     {
                         if (pVapor->AI())
                             pVapor->AI()->AttackStart(target);

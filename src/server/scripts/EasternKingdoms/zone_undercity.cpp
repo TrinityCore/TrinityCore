@@ -170,7 +170,7 @@ public:
                 DoCast(me, SPELL_FADE);
                 // add a blink to simulate a stealthed movement and reappearing elsewhere
                 DoCast(me, SPELL_FADE_BLINK);
-                FadeTimer = 30000 + rand()%5000;
+                FadeTimer = 30000 + rand32() % 5000;
                 // if the victim is out of melee range she cast multi shot
                 if (Unit* victim = me->GetVictim())
                     if (me->GetDistance(victim) > 10.0f)
@@ -180,7 +180,7 @@ public:
             if (SummonSkeletonTimer <= diff)
             {
                 DoCast(me, SPELL_SUMMON_SKELETON);
-                SummonSkeletonTimer = 20000 + rand()%10000;
+                SummonSkeletonTimer = 20000 + rand32() % 10000;
             } else SummonSkeletonTimer -= diff;
 
             if (BlackArrowTimer <= diff)
@@ -188,7 +188,7 @@ public:
                 if (Unit* victim = me->GetVictim())
                 {
                     DoCast(victim, SPELL_BLACK_ARROW);
-                    BlackArrowTimer = 15000 + rand()%5000;
+                    BlackArrowTimer = 15000 + rand32() % 5000;
                 }
             } else BlackArrowTimer -= diff;
 
@@ -197,7 +197,7 @@ public:
                 if (Unit* victim = me->GetVictim())
                 {
                     DoCast(victim, SPELL_SHOT);
-                    ShotTimer = 8000 + rand()%2000;
+                    ShotTimer = 8000 + rand32() % 2000;
                 }
             } else ShotTimer -= diff;
 
@@ -206,7 +206,7 @@ public:
                 if (Unit* victim = me->GetVictim())
                 {
                     DoCast(victim, SPELL_MULTI_SHOT);
-                    MultiShotTimer = 10000 + rand()%3000;
+                    MultiShotTimer = 10000 + rand32() % 3000;
                 }
             } else MultiShotTimer -= diff;
 

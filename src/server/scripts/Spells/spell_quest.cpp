@@ -426,7 +426,7 @@ class spell_q11587_arcane_prisoner_rescue : public SpellScriptLoader
                 if (Unit* unitTarget = GetHitUnit())
                 {
                     uint32 spellId = SPELL_SUMMON_ARCANE_PRISONER_MALE;
-                    if (rand() % 2)
+                    if (rand32() % 2)
                         spellId = SPELL_SUMMON_ARCANE_PRISONER_FEMALE;
                     caster->CastSpell(caster, spellId, true);
                     unitTarget->CastSpell(caster, SPELL_ARCANE_PRISONER_KILL_CREDIT, true);
