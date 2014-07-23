@@ -693,7 +693,7 @@ std::string IRCCmd::AcctIsBanned(std::string ACCT)
         
         return "IP Banned. Reason:" + banned;
     }
-    QueryResult result2 = LoginDatabase.PQuery("SELECT banreason FROM account_banned WHERE id='%i'", acctid);
+    QueryResult result2 = LoginDatabase.PQuery("SELECT banreason FROM account_banned WHERE id='%i' AND active =1", acctid);
     if (result2)
     {
         banned = (*result2)[0].GetCString();
