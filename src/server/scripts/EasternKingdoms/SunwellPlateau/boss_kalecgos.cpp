@@ -285,7 +285,7 @@ public:
 
                 if (WildMagicTimer <= diff)
                 {
-                    DoCastAOE(WildMagic[rand()%6]);
+                    DoCastAOE(WildMagic[rand32() % 6]);
                     WildMagicTimer = 20000;
                 } else WildMagicTimer -= diff;
 
@@ -312,11 +312,11 @@ public:
                     }
 
                     std::list<Unit*>::const_iterator i = targetList.begin();
-                    advance(i, rand()%targetList.size());
+                    advance(i, rand32() % targetList.size());
                     if ((*i))
                     {
                         (*i)->CastSpell((*i), SPELL_SPECTRAL_BLAST, true);
-                        SpectralBlastTimer = 20000+rand()%5000;
+                        SpectralBlastTimer = 20000 + rand32() % 5000;
                     } else SpectralBlastTimer = 1000;
                 } else SpectralBlastTimer -= diff;
 
@@ -775,10 +775,10 @@ public:
 
             if (ShadowBoltTimer <= diff)
             {
-                if (!(rand()%5))
+                if (!(rand32() % 5))
                     Talk(SAY_SATH_SPELL1);
                 DoCast(me, SPELL_SHADOW_BOLT);
-                ShadowBoltTimer = 7000+(rand()%3000);
+                ShadowBoltTimer = 7000 + (rand32() % 3000);
             } else ShadowBoltTimer -= diff;
 
             if (AgonyCurseTimer <= diff)
@@ -792,7 +792,7 @@ public:
 
             if (CorruptionStrikeTimer <= diff)
             {
-                if (!(rand()%5))Talk(SAY_SATH_SPELL2);
+                if (!(rand32() % 5))Talk(SAY_SATH_SPELL2);
                 DoCastVictim(SPELL_CORRUPTION_STRIKE);
                 CorruptionStrikeTimer = 13000;
             } else CorruptionStrikeTimer -= diff;

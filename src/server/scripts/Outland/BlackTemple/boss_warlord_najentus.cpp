@@ -132,7 +132,7 @@ public:
             Talk(SAY_AGGRO);
             DoZoneInCombat();
             events.ScheduleEvent(EVENT_BERSERK, 480000, GCD_CAST);
-            events.ScheduleEvent(EVENT_YELL, 45000 + (rand()%76)*1000, GCD_YELL);
+            events.ScheduleEvent(EVENT_YELL, 45000 + (rand32() % 76) * 1000, GCD_YELL);
             ResetTimer();
         }
 

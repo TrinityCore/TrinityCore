@@ -137,7 +137,7 @@ public:
                         break;
                     case EVENT_SUMMON:
                         for (int32 i = 0; i < RAID_MODE(1, 2); ++i)
-                            DoSummon(NPC_ZOMBIE, PosSummon[rand() % RAID_MODE(1, 3)]);
+                            DoSummon(NPC_ZOMBIE, PosSummon[rand32() % RAID_MODE(1, 3)]);
                         // There's probably a better way to handle this
                         for (SummonList::iterator itr = summons.begin(); itr != summons.end(); ++itr)
                             if(Unit* unit = ObjectAccessor::GetUnit(*me, *itr))

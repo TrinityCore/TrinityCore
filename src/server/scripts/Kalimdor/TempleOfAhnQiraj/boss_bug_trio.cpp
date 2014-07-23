@@ -309,7 +309,7 @@ public:
                         break;
                 }
 
-                Heal_Timer = 15000+rand()%15000;
+                Heal_Timer = 15000 + rand32() % 15000;
             } else Heal_Timer -= diff;
 
             //Checking if Vem is dead. If yes we will enrage.

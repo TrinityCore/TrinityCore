@@ -201,7 +201,7 @@ class boss_skarvald_the_constructor : public CreatureScript
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, SkarvaldChargePredicate(me)))
                         DoCast(target, SPELL_CHARGE);
-                    Charge_Timer = 5000+rand()%5000;
+                    Charge_Timer = 5000 + rand32() % 5000;
                 }
                 else
                     Charge_Timer -= diff;
@@ -209,7 +209,7 @@ class boss_skarvald_the_constructor : public CreatureScript
                 if (StoneStrike_Timer <= diff)
                 {
                     DoCastVictim(SPELL_STONE_STRIKE);
-                    StoneStrike_Timer = 5000+rand()%5000;
+                    StoneStrike_Timer = 5000 + rand32() % 5000;
                 }
                 else
                     StoneStrike_Timer -= diff;
@@ -374,7 +374,7 @@ class boss_dalronn_the_controller : public CreatureScript
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             DoCast(target, SPELL_DEBILITATE);
-                        Debilitate_Timer = 5000+rand()%5000;
+                        Debilitate_Timer = 5000 + rand32() % 5000;
                     }
                 }
                 else
@@ -387,7 +387,7 @@ class boss_dalronn_the_controller : public CreatureScript
                         if (!me->IsNonMeleeSpellCast(false))
                         {
                             DoCast(me, H_SPELL_SUMMON_SKELETONS);
-                            Summon_Timer = (rand()%10000) + 20000;
+                            Summon_Timer = (rand32() % 10000) + 20000;
                         }
                     }
                     else

@@ -205,7 +205,7 @@ public:
 
         bool SummonSoul()
         {
-            uint32 random = rand()%6;
+            uint32 random = rand32() % 6;
             float x = Coords[random].x;
             float y = Coords[random].y;
 
@@ -478,7 +478,7 @@ public:
                 {
                     CastFixate();
                     FixateTimer = 5000;
-                    if (!(rand()%16))
+                    if (!(rand32() % 16))
                     {
                         Talk(SUFF_SAY_AGGRO);
                     }
@@ -599,7 +599,7 @@ public:
                 me->InterruptNonMeleeSpells(false);
                 DoCastVictim(SPELL_DEADEN);
                 DeadenTimer = urand(25000, 35000);
-                if (!(rand()%2))
+                if (!(rand32() % 2))
                 {
                     Talk(DESI_SAY_SPEC);
                 }
@@ -692,7 +692,7 @@ public:
             {
                 DoCastVictim(SPELL_SOUL_SCREAM);
                 SoulScreamTimer = urand(9000, 11000);
-                if (!(rand()%3))
+                if (!(rand32() % 3))
                 {
                     Talk(ANGER_SAY_SPEC);
                 }
