@@ -153,7 +153,7 @@ endif()
 
 add_dependencies(worldserver revision.h)
 
-if( UNIX AND NOT NOJEM )
+if( UNIX AND NOT NOJEM AND NOT APPLE )
   set(worldserver_LINK_FLAGS "-pthread -lncurses ${worldserver_LINK_FLAGS}")
 endif()
 
