@@ -535,6 +535,9 @@ void ClearOnlineAccounts()
 
 variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile, std::string& configService)
 {
+    // Silences warning about configService not be used if the OS is not Windows
+    (void)configService;
+    
     options_description all("Allowed options");
     all.add_options()
         ("help,h", "print usage message")
