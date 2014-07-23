@@ -61,7 +61,7 @@ public:
 
         void Reset() override
         {
-            VoidBlast_Timer = 8000+rand()%15000;
+            VoidBlast_Timer = 8000 + rand32() % 15000;
             DarkShell_Timer = 20000;
             VoidBlast_Counter = 0;
         }
@@ -97,7 +97,7 @@ public:
 
                 if (VoidBlast_Counter == 5)
                 {
-                    VoidBlast_Timer = 15000+rand()%10000;
+                    VoidBlast_Timer = 15000 + rand32() % 10000;
                     VoidBlast_Counter = 0;
                 }
             } else VoidBlast_Timer -= diff;

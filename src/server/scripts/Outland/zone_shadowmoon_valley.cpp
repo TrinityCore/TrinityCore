@@ -1051,7 +1051,7 @@ public:
         void EnterCombat(Unit* who) override
         {
             //don't always use
-            if (rand()%5)
+            if (rand32() % 5)
                 return;
 
             //only aggro text if not player
@@ -1290,19 +1290,19 @@ public:
                 if (SpellTimer1 <= diff)
                 {
                     DoCastVictim(SpawnCast[6].SpellId);//Cleave
-                    SpellTimer1 = SpawnCast[6].Timer2 + (rand()%10 * 1000);
+                    SpellTimer1 = SpawnCast[6].Timer2 + (rand32() % 10 * 1000);
                 } else SpellTimer1 -= diff;
 
                 if (SpellTimer2 <= diff)
                 {
                     DoCastVictim(SpawnCast[7].SpellId);//Shadowfury
-                    SpellTimer2 = SpawnCast[7].Timer2 + (rand()%5 * 1000);
+                    SpellTimer2 = SpawnCast[7].Timer2 + (rand32() % 5 * 1000);
                 } else SpellTimer2 -= diff;
 
                 if (SpellTimer3 <= diff)
                 {
                     DoCast(me, SpawnCast[8].SpellId);
-                    SpellTimer3 = SpawnCast[8].Timer2 + (rand()%7 * 1000);//Spell Reflection
+                    SpellTimer3 = SpawnCast[8].Timer2 + (rand32() % 7 * 1000);//Spell Reflection
                 } else SpellTimer3 -= diff;
             }
 
@@ -1521,18 +1521,18 @@ public:
             {
                 if (me->GetEntry() == 22075)//Illidari Soldier
                 {
-                    SpellTimer1 = SpawnCast[0].Timer1 + (rand()%4 * 1000);
+                    SpellTimer1 = SpawnCast[0].Timer1 + (rand32() % 4 * 1000);
                 }
                 if (me->GetEntry() == 22074)//Illidari Mind Breaker
                 {
-                    SpellTimer1 = SpawnCast[1].Timer1 + (rand()%10 * 1000);
-                    SpellTimer2 = SpawnCast[2].Timer1 + (rand()%4 * 1000);
-                    SpellTimer3 = SpawnCast[3].Timer1 + (rand()%4 * 1000);
+                    SpellTimer1 = SpawnCast[1].Timer1 + (rand32() % 10 * 1000);
+                    SpellTimer2 = SpawnCast[2].Timer1 + (rand32() % 4 * 1000);
+                    SpellTimer3 = SpawnCast[3].Timer1 + (rand32() % 4 * 1000);
                 }
                 if (me->GetEntry() == 19797)// Illidari Highlord
                 {
-                    SpellTimer1 = SpawnCast[4].Timer1 + (rand()%4 * 1000);
-                    SpellTimer2 = SpawnCast[5].Timer1 + (rand()%4 * 1000);
+                    SpellTimer1 = SpawnCast[4].Timer1 + (rand32() % 4 * 1000);
+                    SpellTimer2 = SpawnCast[5].Timer1 + (rand32() % 4 * 1000);
                 }
                 Timers = true;
             }
@@ -1542,7 +1542,7 @@ public:
                 if (SpellTimer1 <= diff)
                 {
                     DoCastVictim(SpawnCast[0].SpellId);//Spellbreaker
-                    SpellTimer1 = SpawnCast[0].Timer2 + (rand()%5 * 1000);
+                    SpellTimer1 = SpawnCast[0].Timer2 + (rand32() % 5 * 1000);
                 } else SpellTimer1 -= diff;
             }
             //Illidari Mind Breaker
@@ -1555,7 +1555,7 @@ public:
                         if (target->GetTypeId() == TYPEID_PLAYER)
                         {
                             DoCast(target, SpawnCast[1].SpellId); //Focused Bursts
-                            SpellTimer1 = SpawnCast[1].Timer2 + (rand()%5 * 1000);
+                            SpellTimer1 = SpawnCast[1].Timer2 + (rand32() % 5 * 1000);
                         } else SpellTimer1 = 2000;
                     }
                 } else SpellTimer1 -= diff;
@@ -1563,13 +1563,13 @@ public:
                 if (SpellTimer2 <= diff)
                 {
                     DoCastVictim(SpawnCast[2].SpellId);//Psychic Scream
-                    SpellTimer2 = SpawnCast[2].Timer2 + (rand()%13 * 1000);
+                    SpellTimer2 = SpawnCast[2].Timer2 + (rand32() % 13 * 1000);
                 } else SpellTimer2 -= diff;
 
                 if (SpellTimer3 <= diff)
                 {
                     DoCastVictim(SpawnCast[3].SpellId);//Mind Blast
-                    SpellTimer3 = SpawnCast[3].Timer2 + (rand()%8 * 1000);
+                    SpellTimer3 = SpawnCast[3].Timer2 + (rand32() % 8 * 1000);
                 } else SpellTimer3 -= diff;
             }
             //Illidari Highlord
@@ -1578,13 +1578,13 @@ public:
                 if (SpellTimer1 <= diff)
                 {
                     DoCastVictim(SpawnCast[4].SpellId);//Curse Of Flames
-                    SpellTimer1 = SpawnCast[4].Timer2 + (rand()%10 * 1000);
+                    SpellTimer1 = SpawnCast[4].Timer2 + (rand32() % 10 * 1000);
                 } else SpellTimer1 -= diff;
 
                 if (SpellTimer2 <= diff)
                 {
                     DoCastVictim(SpawnCast[5].SpellId);//Flamestrike
-                    SpellTimer2 = SpawnCast[5].Timer2 + (rand()%7 * 13000);
+                    SpellTimer2 = SpawnCast[5].Timer2 + (rand32() % 7 * 13000);
                 } else SpellTimer2 -= diff;
             }
 
@@ -1616,7 +1616,7 @@ void npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI::SummonNextWave()
 
             if (WaveCount == 0)//1 Wave
             {
-                if (rand()%3 == 1 && FelguardCount<2)
+                if (rand32() % 3 == 1 && FelguardCount<2)
                 {
                     Spawn->SetDisplayId(18654);
                     ++FelguardCount;

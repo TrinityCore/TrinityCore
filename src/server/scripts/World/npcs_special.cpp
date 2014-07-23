@@ -365,7 +365,7 @@ public:
             switch (emote)
             {
                 case TEXT_EMOTE_CHICKEN:
-                    if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_NONE && rand() % 30 == 1)
+                    if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_NONE && rand32() % 30 == 1)
                     {
                         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                         me->setFaction(FACTION_FRIENDLY);
@@ -835,16 +835,16 @@ void npc_doctor::npc_doctorAI::UpdateAI(uint32 diff)
             if (Coordinates.empty())
                 return;
 
-            std::vector<Location*>::iterator itr = Coordinates.begin() + rand() % Coordinates.size();
+            std::vector<Location*>::iterator itr = Coordinates.begin() + rand32() % Coordinates.size();
             uint32 patientEntry = 0;
 
             switch (me->GetEntry())
             {
                 case DOCTOR_ALLIANCE:
-                    patientEntry = AllianceSoldierId[rand() % 3];
+                    patientEntry = AllianceSoldierId[rand32() % 3];
                     break;
                 case DOCTOR_HORDE:
-                    patientEntry = HordeSoldierId[rand() % 3];
+                    patientEntry = HordeSoldierId[rand32() % 3];
                     break;
                 default:
                     TC_LOG_ERROR("scripts", "Invalid entry for Triage doctor. Please check your database");

@@ -174,7 +174,7 @@ public:
                     //If one of the adds is dead spawn heals faster
                     Creature* pGuard1 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EREKEM_GUARD_1));
                     Creature* pGuard2 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EREKEM_GUARD_2));
-                    uiChainHealTimer = ((pGuard1 && !pGuard1->IsAlive()) || (pGuard2 && !pGuard2->IsAlive()) ? 3000 : 8000) + rand()%3000;
+                    uiChainHealTimer = ((pGuard1 && !pGuard1->IsAlive()) || (pGuard2 && !pGuard2->IsAlive()) ? 3000 : 8000) + rand32() % 3000;
                 }
             } else uiChainHealTimer -= diff;
 

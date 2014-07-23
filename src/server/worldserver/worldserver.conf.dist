@@ -147,10 +147,15 @@ BindIP = "0.0.0.0"
 #
 #    ThreadPool
 #        Description: Number of threads to be used for the global thread pool
-#                     The thread pool is currently used for the signal handler and remote access
-#        Default:     1
+#                     The thread pool is currently used for:
+#                      - Signal handling
+#                      - Remote access
+#                      - Database keep-alive ping
+#                      - Core freeze check
+#                      - World socket networking
+#        Default:     2
 
-ThreadPool = 1
+ThreadPool = 2
 
 #
 ###################################################################################################

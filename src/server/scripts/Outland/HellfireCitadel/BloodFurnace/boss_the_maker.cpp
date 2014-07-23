@@ -91,7 +91,7 @@ class boss_the_maker : public CreatureScript
                 if (AcidSpray_Timer <= diff)
                 {
                     DoCastVictim(SPELL_ACID_SPRAY);
-                    AcidSpray_Timer = 15000+rand()%8000;
+                    AcidSpray_Timer = 15000 + rand32() % 8000;
                 }
                 else
                     AcidSpray_Timer -=diff;
@@ -100,7 +100,7 @@ class boss_the_maker : public CreatureScript
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_EXPLODING_BREAKER);
-                    ExplodingBreaker_Timer = 4000+rand()%8000;
+                    ExplodingBreaker_Timer = 4000 + rand32() % 8000;
                 }
                 else
                     ExplodingBreaker_Timer -=diff;
@@ -120,7 +120,7 @@ class boss_the_maker : public CreatureScript
                 if (Knockdown_Timer <= diff)
                 {
                     DoCastVictim(SPELL_KNOCKDOWN);
-                    Knockdown_Timer = 4000+rand()%8000;
+                    Knockdown_Timer = 4000 + rand32() % 8000;
                 }
                 else
                     Knockdown_Timer -=diff;

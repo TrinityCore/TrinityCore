@@ -322,7 +322,7 @@ public:
 
             //cut down to size if we have more than 5 targets
             while (targets.size() > 5)
-                targets.erase(targets.begin()+rand()%targets.size());
+                targets.erase(targets.begin() + rand32() % targets.size());
 
             uint32 i = 0;
             for (std::vector<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter, ++i)
