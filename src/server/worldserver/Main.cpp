@@ -158,6 +158,9 @@ extern int main(int argc, char** argv)
 
     // Set signal handlers (this must be done before starting io_service threads, because otherwise they would unblock and exit)
     boost::asio::signal_set signals(_ioService, SIGINT, SIGTERM);
+#if PLATFORM == PLATFORM_WINDOWS
+    signals.add(SIGBREAK);
+#endif
     signals.async_wait(SignalHandler);
 
     // Start the Boost based thread pool
@@ -367,18 +370,10 @@ void WorldUpdateLoop()
     }
 }
 
-void SignalHandler(const boost::system::error_code& error, int signalNumber)
+void SignalHandler(const boost::system::error_code& error, int /*signalNumber*/)
 {
     if (!error)
-    {
-        switch (signalNumber)
-        {
-            case SIGINT:
-            case SIGTERM:
-                World::StopNow(SHUTDOWN_EXIT_CODE);
-                break;
-        }
-    }
+        World::StopNow(SHUTDOWN_EXIT_CODE);
 }
 
 void FreezeDetectorHandler(const boost::system::error_code& error)
