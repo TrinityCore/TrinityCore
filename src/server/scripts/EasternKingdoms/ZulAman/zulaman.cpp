@@ -75,7 +75,7 @@ class npc_forest_frog : public CreatureScript
             void DoSpawnRandom()
             {
                 uint32 cEntry = 0;
-                switch (rand()%10)
+                switch (rand32() % 10)
                 {
                     case 0: cEntry = 24397; break;          //Mannuth
                     case 1: cEntry = 24403; break;          //Deez
@@ -90,9 +90,9 @@ class npc_forest_frog : public CreatureScript
                 }
 
                 if (!instance->GetData(TYPE_RAND_VENDOR_1))
-                    if (rand()%10 == 1) cEntry = 24408;      //Gunter
+                    if (rand32() % 10 == 1) cEntry = 24408;      //Gunter
                 if (!instance->GetData(TYPE_RAND_VENDOR_2))
-                    if (rand()%10 == 1) cEntry = 24409;      //Kyren
+                    if (rand32() % 10 == 1) cEntry = 24409;      //Kyren
 
                 if (cEntry) me->UpdateEntry(cEntry);
 
@@ -105,7 +105,7 @@ class npc_forest_frog : public CreatureScript
                 if (spell->Id == SPELL_REMOVE_AMANI_CURSE && caster->GetTypeId() == TYPEID_PLAYER && me->GetEntry() == NPC_FOREST_FROG)
                 {
                     //increase or decrease chance of mojo?
-                    if (rand()%99 == 50) DoCast(caster, SPELL_PUSH_MOJO, true);
+                    if (rand32() % 99 == 50) DoCast(caster, SPELL_PUSH_MOJO, true);
                     else DoSpawnRandom();
                 }
             }

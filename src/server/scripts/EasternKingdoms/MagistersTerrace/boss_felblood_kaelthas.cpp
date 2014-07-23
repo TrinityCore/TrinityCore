@@ -150,14 +150,14 @@ public:
 
             Phase = 0;
 
-            instance->SetData(DATA_KAELTHAS_EVENT, NOT_STARTED);
+            instance->SetBossState(DATA_KAELTHAS, NOT_STARTED);
         }
 
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
 
-            instance->SetData(DATA_KAELTHAS_EVENT, DONE);
+            instance->SetBossState(DATA_KAELTHAS, DONE);
 
             // Enable the Translocation Orb Exit
             if (GameObject* escapeOrb = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_ESCAPE_ORB)))
@@ -172,7 +172,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            instance->SetData(DATA_KAELTHAS_EVENT, IN_PROGRESS);
+            instance->SetBossState(DATA_KAELTHAS, IN_PROGRESS);
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -515,7 +515,7 @@ public:
                 return;
             }
             //Don't really die in all phases of Kael'Thas
-            if (instance->GetData(DATA_KAELTHAS_EVENT) == 0)
+            if (instance->GetBossState(DATA_KAELTHAS) == 0)
             {
                 //prevent death
                 damage = 0;

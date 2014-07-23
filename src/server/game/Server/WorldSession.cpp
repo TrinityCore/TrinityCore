@@ -20,7 +20,7 @@
     \ingroup u2w
 */
 
-#include "WorldSocket.h"                                    // must be first to make ACE happy with ACE includes in it
+#include "WorldSocket.h"
 #include "Config.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -97,7 +97,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
+WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
     m_muteTime(mute_time),
     m_timeOutTime(0),
     AntiDOS(this),
@@ -121,15 +121,16 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
     m_TutorialsChanged(false),
     recruiterId(recruiter),
     isRecruiter(isARecruiter),
-    timeLastWhoCommand(0),
-    _RBACData(NULL)
+    _RBACData(NULL),
+    expireTime(60000), // 1 min after socket loss, session is deleted
+    forceExit(false),
+    m_currentBankerGUID(0)
 {
     memset(m_Tutorials, 0, sizeof(m_Tutorials));
 
     if (sock)
     {
-        m_Address = sock->GetRemoteAddress();
-        sock->AddReference();
+        m_Address = sock->GetRemoteIpAddress();
         ResetTimeOutTime();
         LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
     }
@@ -148,8 +149,7 @@ WorldSession::~WorldSession()
     if (m_Socket)
     {
         m_Socket->CloseSocket();
-        m_Socket->RemoveReference();
-        m_Socket = NULL;
+        m_Socket = nullptr;
     }
 
     delete _warden;
@@ -225,8 +225,7 @@ void WorldSession::SendPacket(WorldPacket const* packet)
     }
 #endif                                                      // !TRINITY_DEBUG
 
-    if (m_Socket->SendPacket(*packet) == -1)
-        m_Socket->CloseSocket();
+    m_Socket->AsyncWrite(*packet);
 }
 
 /// Add an incoming packet to the queue
@@ -279,9 +278,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     uint32 processedPackets = 0;
     time_t currentTime = time(NULL);
 
-    while (m_Socket && !m_Socket->IsClosed() &&
-            !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket &&
-            _recvQueue.next(packet, updater))
+    while (m_Socket && !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket && _recvQueue.next(packet, updater))
     {
         if (!AntiDOS.EvaluateOpcode(*packet, currentTime))
         {
@@ -295,7 +292,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         }
         else
         {
-            OpcodeHandler &opHandle = opcodeTable[packet->GetOpcode()];
+            OpcodeHandler& opHandle = opcodeTable[packet->GetOpcode()];
             try
             {
                 switch (opHandle.status)
@@ -400,7 +397,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             break;
     }
 
-    if (m_Socket && !m_Socket->IsClosed() && _warden)
+    if (m_Socket && m_Socket->IsOpen() && _warden)
         _warden->Update();
 
     ProcessQueryCallbacks();
@@ -418,10 +415,13 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             _warden->Update();
 
         ///- Cleanup socket pointer if need
-        if (m_Socket && m_Socket->IsClosed())
+        if (m_Socket && !m_Socket->IsOpen())
         {
-            m_Socket->RemoveReference();
-            m_Socket = NULL;
+            expireTime -= expireTime > diff ? diff : expireTime;
+            if (expireTime < diff || forceExit)
+            {
+                m_Socket = nullptr;
+            }
         }
 
         if (!m_Socket)
@@ -447,7 +447,6 @@ void WorldSession::LogoutPlayer(bool save)
             DoLootRelease(lguid);
 
         ///- If the player just died before logging out, make him appear as a ghost
-        //FIXME: logout must be delayed in case lost connection with client in time of combat
         if (_player->GetDeathTimer())
         {
             _player->getHostileRefManager().deleteReferences();
@@ -570,7 +569,6 @@ void WorldSession::LogoutPlayer(bool save)
     m_playerLogout = false;
     m_playerSave = false;
     m_playerRecentlyLogout = true;
-    AntiDOS.AllowOpcode(CMSG_CHAR_ENUM, true);
     LogoutRequest(0);
 }
 
@@ -578,7 +576,10 @@ void WorldSession::LogoutPlayer(bool save)
 void WorldSession::KickPlayer()
 {
     if (m_Socket)
+    {
         m_Socket->CloseSocket();
+        forceExit = true;
+    }
 }
 
 void WorldSession::SendNotification(const char *format, ...)
@@ -773,7 +774,7 @@ void WorldSession::SaveTutorialsData(SQLTransaction &trans)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_HAS_TUTORIALS);
     stmt->setUInt32(0, GetAccountId());
-    bool hasTutorials = !CharacterDatabase.Query(stmt).null();
+    bool hasTutorials = bool(CharacterDatabase.Query(stmt));
     // Modify data in DB
     stmt = CharacterDatabase.GetPreparedStatement(hasTutorials ? CHAR_UPD_TUTORIALS : CHAR_INS_TUTORIALS);
     for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
@@ -1098,27 +1099,23 @@ void WorldSession::ProcessQueryCallbacks()
     PreparedQueryResult result;
 
     //! HandleCharEnumOpcode
-    if (_charEnumCallback.ready())
+    if (_charEnumCallback.valid() && _charEnumCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
-        _charEnumCallback.get(result);
+        result = _charEnumCallback.get();
         HandleCharEnum(result);
-        _charEnumCallback.cancel();
     }
 
     if (_charCreateCallback.IsReady())
     {
         _charCreateCallback.GetResult(result);
         HandleCharCreateCallback(result, _charCreateCallback.GetParam());
-        // Don't call FreeResult() here, the callback handler will do that depending on the events in the callback chain
     }
 
     //! HandlePlayerLoginOpcode
-    if (_charLoginCallback.ready())
+    if (_charLoginCallback.valid() && _charLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
-        SQLQueryHolder* param;
-        _charLoginCallback.get(param);
+        SQLQueryHolder* param = _charLoginCallback.get();
         HandlePlayerLogin((LoginQueryHolder*)param);
-        _charLoginCallback.cancel();
     }
 
     //! HandleAddFriendOpcode
@@ -1140,11 +1137,10 @@ void WorldSession::ProcessQueryCallbacks()
     }
 
     //- HandleCharAddIgnoreOpcode
-    if (_addIgnoreCallback.ready())
+    if (_addIgnoreCallback.valid() && _addIgnoreCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
-        _addIgnoreCallback.get(result);
+        result = _addIgnoreCallback.get();
         HandleAddIgnoreOpcodeCallBack(result);
-        _addIgnoreCallback.cancel();
     }
 
     //- SendStabledPet
@@ -1157,11 +1153,10 @@ void WorldSession::ProcessQueryCallbacks()
     }
 
     //- HandleStablePet
-    if (_stablePetCallback.ready())
+    if (_stablePetCallback.valid() && _stablePetCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
-        _stablePetCallback.get(result);
+        result = _stablePetCallback.get();
         HandleStablePetCallback(result);
-        _stablePetCallback.cancel();
     }
 
     //- HandleUnstablePet
@@ -1239,6 +1234,12 @@ void WorldSession::InvalidateRBACData()
 
 bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) const
 {
+    uint32 maxPacketCounterAllowed = GetMaxPacketCounterAllowed(p.GetOpcode());
+
+    // Return true if there no limit for the opcode
+    if (!maxPacketCounterAllowed)
+        return true;
+
     PacketCounter& packetCounter = _PacketThrottlingMap[p.GetOpcode()];
     if (packetCounter.lastReceiveTime != time)
     {
@@ -1246,29 +1247,13 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
         packetCounter.amountCounter = 0;
     }
 
-    uint32 maxPacketCounterAllowed = GetMaxPacketCounterAllowed(p.GetOpcode());
-
-    bool dosTriggered = false;
     // Check if player is flooding some packets
-    if (++packetCounter.amountCounter > maxPacketCounterAllowed)
-    {
-        dosTriggered = true;
-        TC_LOG_WARN("network", "AntiDOS: Account %u, IP: %s, flooding packet (opc: %u, size: %u)",
-            Session->GetAccountId(), Session->GetRemoteAddress().c_str(), p.GetOpcode(), (uint32)p.size());
-    }
-    
-    // Then check if player is sending packets not allowed
-    if (!IsOpcodeAllowed(p.GetOpcode()))
-    {
-        dosTriggered = true;
-        // Opcode not allowed, let the punishment begin
-        TC_LOG_WARN("network", "AntiDOS: Account %u, IP: %s, sent unacceptable packet (opc: %u, size: %u)",
-            Session->GetAccountId(), Session->GetRemoteAddress().c_str(), p.GetOpcode(), (uint32)p.size());
-    }
-
-    // Return true if everything is fine, otherwise apply the configured policy
-    if (!dosTriggered)
+    if (++packetCounter.amountCounter <= maxPacketCounterAllowed)
         return true;
+
+    TC_LOG_WARN("network", "AntiDOS: Account %u, IP: %s, Ping: %u, Character: %s, flooding packet (opc: %s (0x%X), count: %u)",
+        Session->GetAccountId(), Session->GetRemoteAddress().c_str(), Session->GetLatency(), Session->GetPlayerName().c_str(),
+        opcodeTable[p.GetOpcode()].name, p.GetOpcode(), packetCounter.amountCounter);
 
     switch (_policy)
     {
@@ -1304,198 +1289,220 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
     uint32 maxPacketCounterAllowed;
     switch (opcode)
     {
-        case CMSG_ITEM_QUERY_SINGLE:
-        case CMSG_ITEM_NAME_QUERY:
-        case CMSG_GUILD_QUERY:
-        case CMSG_NAME_QUERY:
-        case CMSG_PET_NAME_QUERY:
-        case CMSG_GAMEOBJECT_QUERY:
-        case CMSG_CREATURE_QUERY:
-        case CMSG_NPC_TEXT_QUERY:
-        case CMSG_ARENA_TEAM_QUERY:
-        case CMSG_TAXINODE_STATUS_QUERY:
-        case CMSG_TAXIQUERYAVAILABLENODES:
-        case CMSG_QUESTGIVER_QUERY_QUEST:
-        case CMSG_QUEST_QUERY:
-        case CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY:
-        case CMSG_QUERY_QUESTS_COMPLETED:
-        case CMSG_QUEST_POI_QUERY:
-        case CMSG_QUERY_TIME:
-        case CMSG_PAGE_TEXT_QUERY:
-        case CMSG_PETITION_QUERY:
-        case CMSG_QUERY_INSPECT_ACHIEVEMENTS:
-        case CMSG_AREA_SPIRIT_HEALER_QUERY:
-        case CMSG_CORPSE_MAP_POSITION_QUERY:
-        case CMSG_MOVE_TIME_SKIPPED:
-        case CMSG_GUILD_BANK_QUERY_TAB:
-        case MSG_GUILD_BANK_LOG_QUERY:
-        case MSG_QUERY_GUILD_BANK_TEXT:
-        case MSG_CORPSE_QUERY:
-        case MSG_QUERY_NEXT_MAIL_TIME:
-        case MSG_GUILD_EVENT_LOG_QUERY:
-        case MSG_MOVE_SET_FACING:
+        // CPU usage sending 2000 packets/second on a 3.70 GHz 4 cores on Win x64
+        //                                              [% CPU mysqld]   [%CPU worldserver RelWithDebInfo]
+        case CMSG_PLAYER_LOGIN:                         //   0               0.5
+        case CMSG_NAME_QUERY:                           //   0               1
+        case CMSG_PET_NAME_QUERY:                       //   0               1
+        case CMSG_NPC_TEXT_QUERY:                       //   0               1
+        case CMSG_ATTACKSTOP:                           //   0               1
+        case CMSG_QUERY_QUESTS_COMPLETED:               //   0               1
+        case CMSG_QUERY_TIME:                           //   0               1
+        case CMSG_CORPSE_MAP_POSITION_QUERY:            //   0               1
+        case CMSG_MOVE_TIME_SKIPPED:                    //   0               1
+        case MSG_QUERY_NEXT_MAIL_TIME:                  //   0               1
+        case CMSG_SETSHEATHED:                          //   0               1
+        case MSG_RAID_TARGET_UPDATE:                    //   0               1
+        case CMSG_PLAYER_LOGOUT:                        //   0               1
+        case CMSG_LOGOUT_REQUEST:                       //   0               1
+        case CMSG_PET_RENAME:                           //   0               1
+        case CMSG_QUESTGIVER_CANCEL:                    //   0               1
+        case CMSG_QUESTGIVER_REQUEST_REWARD:            //   0               1
+        case CMSG_COMPLETE_CINEMATIC:                   //   0               1
+        case CMSG_BANKER_ACTIVATE:                      //   0               1
+        case CMSG_BUY_BANK_SLOT:                        //   0               1
+        case CMSG_OPT_OUT_OF_LOOT:                      //   0               1
+        case CMSG_DUEL_ACCEPTED:                        //   0               1
+        case CMSG_DUEL_CANCELLED:                       //   0               1
+        case CMSG_CALENDAR_COMPLAIN:                    //   0               1
+        case CMSG_QUEST_QUERY:                          //   0               1.5
+        case CMSG_ITEM_QUERY_SINGLE:                    //   0               1.5
+        case CMSG_ITEM_NAME_QUERY:                      //   0               1.5
+        case CMSG_GAMEOBJECT_QUERY:                     //   0               1.5
+        case CMSG_CREATURE_QUERY:                       //   0               1.5
+        case CMSG_QUESTGIVER_STATUS_QUERY:              //   0               1.5
+        case CMSG_GUILD_QUERY:                          //   0               1.5
+        case CMSG_ARENA_TEAM_QUERY:                     //   0               1.5
+        case CMSG_TAXINODE_STATUS_QUERY:                //   0               1.5
+        case CMSG_TAXIQUERYAVAILABLENODES:              //   0               1.5
+        case CMSG_QUESTGIVER_QUERY_QUEST:               //   0               1.5
+        case CMSG_PAGE_TEXT_QUERY:                      //   0               1.5
+        case MSG_QUERY_GUILD_BANK_TEXT:                 //   0               1.5
+        case MSG_CORPSE_QUERY:                          //   0               1.5
+        case MSG_MOVE_SET_FACING:                       //   0               1.5
+        case CMSG_REQUEST_PARTY_MEMBER_STATS:           //   0               1.5
+        case CMSG_QUESTGIVER_COMPLETE_QUEST:            //   0               1.5
+        case CMSG_SET_ACTION_BUTTON:                    //   0               1.5
+        case CMSG_RESET_INSTANCES:                      //   0               1.5
+        case CMSG_HEARTH_AND_RESURRECT:                 //   0               1.5
+        case CMSG_TOGGLE_PVP:                           //   0               1.5
+        case CMSG_PET_ABANDON:                          //   0               1.5
+        case CMSG_ACTIVATETAXIEXPRESS:                  //   0               1.5
+        case CMSG_ACTIVATETAXI:                         //   0               1.5
+        case CMSG_SELF_RES:                             //   0               1.5
+        case CMSG_UNLEARN_SKILL:                        //   0               1.5
+        case CMSG_EQUIPMENT_SET_SAVE:                   //   0               1.5
+        case CMSG_DELETEEQUIPMENT_SET:                  //   0               1.5
+        case CMSG_DISMISS_CRITTER:                      //   0               1.5
+        case CMSG_REPOP_REQUEST:                        //   0               1.5
+        case CMSG_GROUP_INVITE:                         //   0               1.5
+        case CMSG_GROUP_DECLINE:                        //   0               1.5
+        case CMSG_GROUP_ACCEPT:                         //   0               1.5
+        case CMSG_GROUP_UNINVITE_GUID:                  //   0               1.5
+        case CMSG_GROUP_UNINVITE:                       //   0               1.5
+        case CMSG_GROUP_DISBAND:                        //   0               1.5
+        case CMSG_BATTLEMASTER_JOIN_ARENA:              //   0               1.5
+        case CMSG_LEAVE_BATTLEFIELD:                    //   0               1.5
+        case MSG_GUILD_BANK_LOG_QUERY:                  //   0               2
+        case CMSG_LOGOUT_CANCEL:                        //   0               2
+        case CMSG_REALM_SPLIT:                          //   0               2
+        case CMSG_ALTER_APPEARANCE:                     //   0               2
+        case CMSG_QUEST_CONFIRM_ACCEPT:                 //   0               2
+        case MSG_GUILD_EVENT_LOG_QUERY:                 //   0               2.5
+        case CMSG_READY_FOR_ACCOUNT_DATA_TIMES:         //   0               2.5
+        case CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY:     //   0               2.5
+        case CMSG_BEGIN_TRADE:                          //   0               2.5
+        case CMSG_INITIATE_TRADE:                       //   0               3
+        case CMSG_MESSAGECHAT:                          //   0               3.5
+        case CMSG_INSPECT:                              //   0               3.5
+        case CMSG_AREA_SPIRIT_HEALER_QUERY:             // not profiled
+        {
+            // "0" is a magic number meaning there's no limit for the opcode.
+            // All the opcodes above must cause little CPU usage and no sync/async database queries at all
+            maxPacketCounterAllowed = 0;
+            break;
+        }
+
+        case CMSG_QUESTGIVER_ACCEPT_QUEST:              //   0               4
+        case CMSG_QUESTLOG_REMOVE_QUEST:                //   0               4
+        case CMSG_QUESTGIVER_CHOOSE_REWARD:             //   0               4
+        case CMSG_CONTACT_LIST:                         //   0               5
+        case CMSG_LEARN_PREVIEW_TALENTS:                //   0               6
+        case CMSG_AUTOBANK_ITEM:                        //   0               6
+        case CMSG_AUTOSTORE_BANK_ITEM:                  //   0               6
+        case CMSG_WHO:                                  //   0               7
+        case CMSG_PLAYER_VEHICLE_ENTER:                 //   0               8
+        case CMSG_LEARN_PREVIEW_TALENTS_PET:            // not profiled
+        case MSG_MOVE_HEARTBEAT:
         {
             maxPacketCounterAllowed = 200;
             break;
         }
 
-        case CMSG_MESSAGECHAT:
+        case CMSG_GUILD_SET_PUBLIC_NOTE:                //   1               2         1 async db query
+        case CMSG_GUILD_SET_OFFICER_NOTE:               //   1               2         1 async db query
+        case CMSG_SET_CONTACT_NOTES:                    //   1               2.5       1 async db query
+        case CMSG_CALENDAR_GET_CALENDAR:                //   0               1.5       medium upload bandwidth usage
+        case CMSG_GUILD_BANK_QUERY_TAB:                 //   0               3.5       medium upload bandwidth usage
+        case CMSG_QUERY_INSPECT_ACHIEVEMENTS:           //   0              13         high upload bandwidth usage
         {
             maxPacketCounterAllowed = 50;
             break;
         }
 
-        case CMSG_CONTACT_LIST:
+        case CMSG_QUEST_POI_QUERY:                      //   0              25         very high upload bandwidth usage
+        {
+            maxPacketCounterAllowed = MAX_QUEST_LOG_SIZE;
+            break;
+        }
+
+        case CMSG_GM_REPORT_LAG:                        //   1               3         1 async db query
+        case CMSG_SPELLCLICK:                           // not profiled
+        case CMSG_GAMEOBJ_USE:                          // not profiled
+        case CMSG_GAMEOBJ_REPORT_USE:                   // not profiled
+        case CMSG_REMOVE_GLYPH:                         // not profiled
+        {
+            maxPacketCounterAllowed = 20;
+            break;
+        }
+
+        case CMSG_PETITION_SIGN:                        //   9               4         2 sync 1 async db queries
+        case CMSG_TURN_IN_PETITION:                     //   8               5.5       2 sync db query
+        case CMSG_GROUP_CHANGE_SUB_GROUP:               //   6               5         1 sync 1 async db queries
+        case CMSG_PETITION_QUERY:                       //   4               3.5       1 sync db query
+        case CMSG_CHAR_RACE_CHANGE:                     //   5               4         1 sync db query
+        case CMSG_CHAR_CUSTOMIZE:                       //   5               5         1 sync db query
+        case CMSG_CHAR_FACTION_CHANGE:                  //   5               5         1 sync db query
+        case CMSG_CHAR_DELETE:                          //   4               4         1 sync db query
+        case CMSG_DEL_FRIEND:                           //   7               5         1 async db query
+        case CMSG_ADD_FRIEND:                           //   6               4         1 async db query
+        case CMSG_CHAR_RENAME:                          //   5               3         1 async db query
+        case CMSG_GMSURVEY_SUBMIT:                      //   2               3         1 async db query
+        case CMSG_BUG:                                  //   1               1         1 async db query
+        case CMSG_GROUP_SET_LEADER:                     //   1               2         1 async db query
+        case CMSG_GROUP_RAID_CONVERT:                   //   1               5         1 async db query
+        case CMSG_GROUP_ASSISTANT_LEADER:               //   1               2         1 async db query
+        case CMSG_CALENDAR_ADD_EVENT:                   //  21              10         2 async db query
+        case CMSG_PETITION_BUY:                         // not profiled                1 sync 1 async db queries
+        case CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE:   // not profiled
+        case CMSG_REQUEST_VEHICLE_PREV_SEAT:            // not profiled
+        case CMSG_REQUEST_VEHICLE_NEXT_SEAT:            // not profiled
+        case CMSG_REQUEST_VEHICLE_SWITCH_SEAT:          // not profiled
+        case CMSG_DISMISS_CONTROLLED_VEHICLE:           // not profiled
+        case CMSG_REQUEST_VEHICLE_EXIT:                 // not profiled
+        case CMSG_CONTROLLER_EJECT_PASSENGER:           // not profiled
+        case CMSG_ITEM_REFUND:                          // not profiled
+        case CMSG_SOCKET_GEMS:                          // not profiled
+        case CMSG_WRAP_ITEM:                            // not profiled
+        case CMSG_REPORT_PVP_AFK:                       // not profiled
         {
             maxPacketCounterAllowed = 10;
             break;
         }
 
-        case CMSG_WHO:
-        case CMSG_GAMEOBJ_USE:
-        case CMSG_GAMEOBJ_REPORT_USE:
-        case CMSG_SPELLCLICK:
-        case CMSG_PLAYER_LOGOUT:
-        case CMSG_LOGOUT_REQUEST:
-        case CMSG_LOGOUT_CANCEL:
-        case CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE:
-        case CMSG_REQUEST_VEHICLE_PREV_SEAT:
-        case CMSG_REQUEST_VEHICLE_NEXT_SEAT:
-        case CMSG_REQUEST_VEHICLE_SWITCH_SEAT:
-        case CMSG_TOGGLE_PVP:
-        case CMSG_ADD_FRIEND:
-        case CMSG_DEL_FRIEND:
-        case CMSG_SET_CONTACT_NOTES:
-        case CMSG_RESET_INSTANCES:
-        case CMSG_HEARTH_AND_RESURRECT:
-        case CMSG_CHAR_CREATE:
-        case CMSG_READY_FOR_ACCOUNT_DATA_TIMES:
-        case CMSG_CHAR_ENUM:
-        case CMSG_REALM_SPLIT:
-        case CMSG_CHAR_DELETE:
-        case CMSG_PLAYER_LOGIN:
-        case CMSG_PET_ABANDON:
-        case CMSG_PET_RENAME:
-        case CMSG_CHAR_RENAME:
-        case CMSG_CHAR_CUSTOMIZE:
-        case CMSG_CHAR_RACE_CHANGE:
-        case CMSG_CHAR_FACTION_CHANGE:
-        case CMSG_GMTICKET_CREATE:
-        case CMSG_GMTICKET_UPDATETEXT:
-        case CMSG_GMTICKET_DELETETICKET:
-        case CMSG_GMSURVEY_SUBMIT:
-        case CMSG_GM_REPORT_LAG:
-        case CMSG_BUG:
-        case CMSG_GMRESPONSE_RESOLVE:
-        case CMSG_ACTIVATETAXIEXPRESS:
-        case CMSG_ACTIVATETAXI:
-        case CMSG_SELF_RES:
-        case CMSG_INITIATE_TRADE:
-        case CMSG_BEGIN_TRADE:
-        case CMSG_UNLEARN_SKILL:
-        case CMSG_DISMISS_CONTROLLED_VEHICLE:
-        case CMSG_REQUEST_VEHICLE_EXIT:
-        case CMSG_LEARN_PREVIEW_TALENTS:
-        case CMSG_LEARN_PREVIEW_TALENTS_PET:
-        case CMSG_PLAYER_VEHICLE_ENTER:
-        case CMSG_CONTROLLER_EJECT_PASSENGER:
-        case CMSG_EQUIPMENT_SET_SAVE:
-        case CMSG_DELETEEQUIPMENT_SET:
-        case CMSG_REMOVE_GLYPH:
-        case CMSG_ALTER_APPEARANCE:
-        case CMSG_QUESTGIVER_ACCEPT_QUEST:
-        case CMSG_QUESTGIVER_CHOOSE_REWARD:
-        case CMSG_QUESTGIVER_REQUEST_REWARD:
-        case CMSG_QUESTGIVER_CANCEL:
-        case CMSG_QUESTLOG_REMOVE_QUEST:
-        case CMSG_QUEST_CONFIRM_ACCEPT:
-        case CMSG_QUESTGIVER_COMPLETE_QUEST:
-        case CMSG_DISMISS_CRITTER:
-        case CMSG_REPOP_REQUEST:
-        case CMSG_PETITION_BUY:
-        case CMSG_PETITION_SIGN:
-        case CMSG_TURN_IN_PETITION:
-        case CMSG_COMPLETE_CINEMATIC:
-        case CMSG_ITEM_REFUND:
-        case CMSG_SOCKET_GEMS:
-        case CMSG_WRAP_ITEM:
-        case CMSG_BUY_BANK_SLOT:
-        case CMSG_GROUP_ACCEPT:
-        case CMSG_GROUP_DECLINE:
-        case CMSG_GROUP_UNINVITE_GUID:
-        case CMSG_GROUP_UNINVITE:
-        case CMSG_GROUP_SET_LEADER:
-        case CMSG_GROUP_DISBAND:
-        case CMSG_GROUP_RAID_CONVERT:
-        case CMSG_GROUP_CHANGE_SUB_GROUP:
-        case CMSG_GROUP_ASSISTANT_LEADER:
-        case CMSG_REQUEST_PARTY_MEMBER_STATS:
-        case CMSG_OPT_OUT_OF_LOOT:
-        case CMSG_BATTLEMASTER_JOIN_ARENA:
-        case CMSG_LEAVE_BATTLEFIELD:
-        case CMSG_REPORT_PVP_AFK:
-        case CMSG_DUEL_ACCEPTED:
-        case CMSG_DUEL_CANCELLED:
-        case CMSG_SETSHEATHED:
-        case CMSG_CALENDAR_GET_CALENDAR:
-        case CMSG_CALENDAR_ADD_EVENT:
-        case CMSG_CALENDAR_UPDATE_EVENT:
-        case CMSG_CALENDAR_REMOVE_EVENT:
-        case CMSG_CALENDAR_COPY_EVENT:
-        case CMSG_CALENDAR_EVENT_INVITE:
-        case CMSG_CALENDAR_EVENT_SIGNUP:
-        case CMSG_CALENDAR_EVENT_RSVP:
-        case CMSG_CALENDAR_EVENT_REMOVE_INVITE:
-        case CMSG_CALENDAR_EVENT_MODERATOR_STATUS:
-        case CMSG_CALENDAR_COMPLAIN:
-        case CMSG_ARENA_TEAM_INVITE:
-        case CMSG_ARENA_TEAM_ACCEPT:
-        case CMSG_ARENA_TEAM_DECLINE:
-        case CMSG_ARENA_TEAM_LEAVE:
-        case CMSG_ARENA_TEAM_DISBAND:
-        case CMSG_ARENA_TEAM_REMOVE:
-        case CMSG_ARENA_TEAM_LEADER:
-        case CMSG_LOOT_METHOD:
-        case CMSG_GUILD_INVITE:
-        case CMSG_GUILD_ACCEPT:
-        case CMSG_GUILD_DECLINE:
-        case CMSG_GUILD_LEAVE:
-        case CMSG_GUILD_DISBAND:
-        case CMSG_GUILD_LEADER:
-        case CMSG_GUILD_MOTD:
-        case CMSG_GUILD_SET_PUBLIC_NOTE:
-        case CMSG_GUILD_SET_OFFICER_NOTE:
-        case CMSG_GUILD_RANK:
-        case CMSG_GUILD_ADD_RANK:
-        case CMSG_GUILD_DEL_RANK:
-        case CMSG_GUILD_INFO_TEXT:
-        case CMSG_GUILD_BANK_DEPOSIT_MONEY:
-        case CMSG_GUILD_BANK_WITHDRAW_MONEY:
-        case CMSG_GUILD_BANK_BUY_TAB:
-        case CMSG_GUILD_BANK_UPDATE_TAB:
-        case CMSG_SET_GUILD_BANK_TEXT:
-        case MSG_SAVE_GUILD_EMBLEM:
-        case MSG_PETITION_RENAME:
-        case MSG_PETITION_DECLINE:
-        case MSG_TALENT_WIPE_CONFIRM:
-        case MSG_SET_DUNGEON_DIFFICULTY:
-        case MSG_SET_RAID_DIFFICULTY:
-        case MSG_RANDOM_ROLL:
-        case MSG_RAID_TARGET_UPDATE:
-        case MSG_PARTY_ASSIGNMENT:
-        case MSG_RAID_READY_CHECK:
+        case CMSG_CHAR_CREATE:                          //   7               5         3 async db queries
+        case CMSG_CHAR_ENUM:                            //  22               3         2 async db queries
+        case CMSG_GMTICKET_CREATE:                      //   1              25         1 async db query
+        case CMSG_GMTICKET_UPDATETEXT:                  //   0              15         1 async db query
+        case CMSG_GMTICKET_DELETETICKET:                //   1              25         1 async db query
+        case CMSG_GMRESPONSE_RESOLVE:                   //   1              25         1 async db query
+        case CMSG_CALENDAR_UPDATE_EVENT:                // not profiled
+        case CMSG_CALENDAR_REMOVE_EVENT:                // not profiled
+        case CMSG_CALENDAR_COPY_EVENT:                  // not profiled
+        case CMSG_CALENDAR_EVENT_INVITE:                // not profiled
+        case CMSG_CALENDAR_EVENT_SIGNUP:                // not profiled
+        case CMSG_CALENDAR_EVENT_RSVP:                  // not profiled
+        case CMSG_CALENDAR_EVENT_REMOVE_INVITE:         // not profiled
+        case CMSG_CALENDAR_EVENT_MODERATOR_STATUS:      // not profiled
+        case CMSG_ARENA_TEAM_INVITE:                    // not profiled
+        case CMSG_ARENA_TEAM_ACCEPT:                    // not profiled
+        case CMSG_ARENA_TEAM_DECLINE:                   // not profiled
+        case CMSG_ARENA_TEAM_LEAVE:                     // not profiled
+        case CMSG_ARENA_TEAM_DISBAND:                   // not profiled
+        case CMSG_ARENA_TEAM_REMOVE:                    // not profiled
+        case CMSG_ARENA_TEAM_LEADER:                    // not profiled
+        case CMSG_LOOT_METHOD:                          // not profiled
+        case CMSG_GUILD_INVITE:                         // not profiled
+        case CMSG_GUILD_ACCEPT:                         // not profiled
+        case CMSG_GUILD_DECLINE:                        // not profiled
+        case CMSG_GUILD_LEAVE:                          // not profiled
+        case CMSG_GUILD_DISBAND:                        // not profiled
+        case CMSG_GUILD_LEADER:                         // not profiled
+        case CMSG_GUILD_MOTD:                           // not profiled
+        case CMSG_GUILD_RANK:                           // not profiled
+        case CMSG_GUILD_ADD_RANK:                       // not profiled
+        case CMSG_GUILD_DEL_RANK:                       // not profiled
+        case CMSG_GUILD_INFO_TEXT:                      // not profiled
+        case CMSG_GUILD_BANK_DEPOSIT_MONEY:             // not profiled
+        case CMSG_GUILD_BANK_WITHDRAW_MONEY:            // not profiled
+        case CMSG_GUILD_BANK_BUY_TAB:                   // not profiled
+        case CMSG_GUILD_BANK_UPDATE_TAB:                // not profiled
+        case CMSG_SET_GUILD_BANK_TEXT:                  // not profiled
+        case MSG_SAVE_GUILD_EMBLEM:                     // not profiled
+        case MSG_PETITION_RENAME:                       // not profiled
+        case MSG_PETITION_DECLINE:                      // not profiled
+        case MSG_TALENT_WIPE_CONFIRM:                   // not profiled
+        case MSG_SET_DUNGEON_DIFFICULTY:                // not profiled
+        case MSG_SET_RAID_DIFFICULTY:                   // not profiled
+        case MSG_RANDOM_ROLL:                           // not profiled
+        case MSG_PARTY_ASSIGNMENT:                      // not profiled
+        case MSG_RAID_READY_CHECK:                      // not profiled
         {
             maxPacketCounterAllowed = 3;
             break;
         }
 
-        case CMSG_SET_ACTION_BUTTON:
-        {
-            maxPacketCounterAllowed = MAX_ACTION_BUTTONS;
-            break;
-        }
-
-        case CMSG_ITEM_REFUND_INFO:
+        case CMSG_ITEM_REFUND_INFO:                     // not profiled
         {
             maxPacketCounterAllowed = PLAYER_SLOTS_COUNT;
             break;

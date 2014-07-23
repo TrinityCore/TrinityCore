@@ -125,7 +125,7 @@ public:
         npc_grimstoneAI(Creature* creature) : npc_escortAI(creature)
         {
             instance = creature->GetInstanceScript();
-            MobSpawnId = rand()%6;
+            MobSpawnId = rand32() % 6;
         }
 
         InstanceScript* instance;
@@ -175,7 +175,7 @@ public:
         /// @todo move them to center
         void SummonRingBoss()
         {
-            if (Creature* tmp = me->SummonCreature(RingBoss[rand()%6], 644.300f, -175.989f, -53.739f, 3.418f, TEMPSUMMON_DEAD_DESPAWN, 0))
+            if (Creature* tmp = me->SummonCreature(RingBoss[rand32() % 6], 644.300f, -175.989f, -53.739f, 3.418f, TEMPSUMMON_DEAD_DESPAWN, 0))
                 RingBossGUID = tmp->GetGUID();
 
             MobDeath_Timer = 2500;

@@ -153,7 +153,7 @@ public:
         //this mean she at some point evaded
         void JustReachedHome() override
         {
-            instance->SetData(DATA_DELRISSA_EVENT, FAIL);
+            instance->SetBossState(DATA_DELRISSA, FAIL);
         }
 
         void EnterCombat(Unit* who) override
@@ -172,7 +172,7 @@ public:
                 }
             }
 
-            instance->SetData(DATA_DELRISSA_EVENT, IN_PROGRESS);
+            instance->SetBossState(DATA_DELRISSA, IN_PROGRESS);
         }
 
         void InitializeLackeys()
@@ -195,7 +195,7 @@ public:
 
                 //remove random entries
                 while (LackeyEntryList.size() > MAX_ACTIVE_LACKEY)
-                    LackeyEntryList.erase(LackeyEntryList.begin() + rand()%LackeyEntryList.size());
+                    LackeyEntryList.erase(LackeyEntryList.begin() + rand32() % LackeyEntryList.size());
 
                 //summon all the remaining in vector
                 for (std::vector<uint32>::const_iterator itr = LackeyEntryList.begin(); itr != LackeyEntryList.end(); ++itr)
@@ -240,7 +240,7 @@ public:
             Talk(SAY_DEATH);
 
             if (instance->GetData(DATA_DELRISSA_DEATH_COUNT) == MAX_ACTIVE_LACKEY)
-                instance->SetData(DATA_DELRISSA_EVENT, DONE);
+                instance->SetBossState(DATA_DELRISSA, DONE);
             else
             {
                 if (me->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE))
@@ -287,7 +287,7 @@ public:
                 Unit* target = me;
 
                 if (urand(0, 1))
-                    if (Unit* pAdd = ObjectAccessor::GetUnit(*me, m_auiLackeyGUID[rand()%MAX_ACTIVE_LACKEY]))
+                    if (Unit* pAdd = ObjectAccessor::GetUnit(*me, m_auiLackeyGUID[rand32() % MAX_ACTIVE_LACKEY]))
                         if (pAdd->IsAlive())
                             target = pAdd;
 
@@ -300,7 +300,7 @@ public:
                 Unit* target = me;
 
                 if (urand(0, 1))
-                    if (Unit* pAdd = ObjectAccessor::GetUnit(*me, m_auiLackeyGUID[rand()%MAX_ACTIVE_LACKEY]))
+                    if (Unit* pAdd = ObjectAccessor::GetUnit(*me, m_auiLackeyGUID[rand32() % MAX_ACTIVE_LACKEY]))
                         if (pAdd->IsAlive() && !pAdd->HasAura(SPELL_SHIELD))
                             target = pAdd;
 
@@ -319,7 +319,7 @@ public:
                     if (urand(0, 1))
                         target = me;
                     else
-                        if (Unit* pAdd = ObjectAccessor::GetUnit(*me, m_auiLackeyGUID[rand()%MAX_ACTIVE_LACKEY]))
+                        if (Unit* pAdd = ObjectAccessor::GetUnit(*me, m_auiLackeyGUID[rand32() % MAX_ACTIVE_LACKEY]))
                             if (pAdd->IsAlive())
                                 target = pAdd;
                 }
@@ -434,7 +434,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
                 if (!pDelrissa->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE))
                     pDelrissa->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
-                instance->SetData(DATA_DELRISSA_EVENT, DONE);
+                instance->SetBossState(DATA_DELRISSA, DONE);
             }
         }
     }
@@ -1167,17 +1167,8 @@ public:
 
             if (Healing_Wave_Timer <= diff)
             {
-                // std::vector<Add*>::const_iterator itr = Group.begin() + rand()%Group.size();
-                // uint64 guid = (*itr)->guid;
-                // if (guid)
-                // {
-                //   Unit* pAdd = ObjectAccessor::GetUnit(*me, (*itr)->guid);
-                //   if (pAdd && pAdd->IsAlive())
-                //   {
                 DoCast(me, SPELL_LESSER_HEALING_WAVE);
                 Healing_Wave_Timer = 5000;
-                //    }
-                // }
             } else Healing_Wave_Timer -= diff;
 
             DoMeleeAttackIfReady();

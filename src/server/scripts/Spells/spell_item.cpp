@@ -166,7 +166,7 @@ class spell_item_blessing_of_ancient_kings : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                return eventInfo.GetProcTarget();
+                return eventInfo.GetProcTarget() != nullptr;
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -380,6 +380,45 @@ class spell_item_echoes_of_light : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_item_echoes_of_light_SpellScript();
+        }
+};
+
+// 7434 - Fate Rune of Unsurpassed Vigor
+enum FateRuneOfUnsurpassedVigor
+{
+    SPELL_UNSURPASSED_VIGOR = 25733
+};
+
+class spell_item_fate_rune_of_unsurpassed_vigor : public SpellScriptLoader
+{
+    public:
+        spell_item_fate_rune_of_unsurpassed_vigor() : SpellScriptLoader("spell_item_fate_rune_of_unsurpassed_vigor") { }
+
+        class spell_item_fate_rune_of_unsurpassed_vigor_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_fate_rune_of_unsurpassed_vigor_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_UNSURPASSED_VIGOR))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                GetTarget()->CastSpell(GetTarget(), SPELL_UNSURPASSED_VIGOR, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_item_fate_rune_of_unsurpassed_vigor_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_fate_rune_of_unsurpassed_vigor_AuraScript();
         }
 };
 
@@ -1413,7 +1452,7 @@ class spell_item_book_of_glyph_mastery : public SpellScriptLoader
 
                 // learn random explicit discovery recipe (if any)
                 if (uint32 discoveredSpellId = GetExplicitDiscoverySpell(spellId, caster))
-                    caster->learnSpell(discoveredSpellId, false);
+                    caster->LearnSpell(discoveredSpellId, false);
             }
 
             void Register() override
@@ -2094,7 +2133,7 @@ class spell_item_complete_raptor_capture : public SpellScriptLoader
 enum ImpaleLeviroth
 {
     NPC_LEVIROTH                = 26452,
-    SPELL_LEVIROTH_SELF_IMPALE  = 49882,
+    SPELL_LEVIROTH_SELF_IMPALE  = 49882
 };
 
 class spell_item_impale_leviroth : public SpellScriptLoader
@@ -2113,11 +2152,14 @@ class spell_item_impale_leviroth : public SpellScriptLoader
                 return true;
             }
 
-            void HandleDummy(SpellEffIndex /* effIndex */)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* target = GetHitCreature())
+                if (Creature* target = GetHitCreature())
                     if (target->GetEntry() == NPC_LEVIROTH && !target->HealthBelowPct(95))
+                    {
                         target->CastSpell(target, SPELL_LEVIROTH_SELF_IMPALE, true);
+                        target->ResetPlayerDamageReq();
+                    }
             }
 
             void Register() override
@@ -2607,6 +2649,7 @@ void AddSC_item_spell_scripts()
     new spell_item_desperate_defense();
     new spell_item_deviate_fish();
     new spell_item_echoes_of_light();
+    new spell_item_fate_rune_of_unsurpassed_vigor();
     new spell_item_flask_of_the_north();
     new spell_item_gnomish_death_ray();
     new spell_item_make_a_wish();

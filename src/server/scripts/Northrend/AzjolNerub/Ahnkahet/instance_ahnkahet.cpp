@@ -141,9 +141,9 @@ class instance_ahnkahet : public InstanceMapScript
                         SwitchTrigger = data;
                         break;
                     case DATA_JEDOGA_RESET_INITIANDS:
-                        for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
+                        for (uint64 guid : InitiandGUIDs)
                         {
-                            if (Creature* creature = instance->GetCreature(*itr))
+                            if (Creature* creature = instance->GetCreature(guid))
                             {
                                 creature->Respawn();
                                 if (!creature->IsInEvadeMode())
@@ -164,9 +164,9 @@ class instance_ahnkahet : public InstanceMapScript
                     case DATA_SPHERE_2:
                         return SpheresState[type - DATA_SPHERE_1];
                     case DATA_ALL_INITIAND_DEAD:
-                        for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
+                        for (uint64 guid : InitiandGUIDs)
                         {
-                            Creature* cr = instance->GetCreature(*itr);
+                            Creature* cr = instance->GetCreature(guid);
                             if (!cr || cr->IsAlive())
                                 return 0;
                         }
@@ -214,11 +214,11 @@ class instance_ahnkahet : public InstanceMapScript
                     {
                         std::vector<uint64> vInitiands;
                         vInitiands.clear();
-                        for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
+                        for (uint64 guid : InitiandGUIDs)
                         {
-                            Creature* cr = instance->GetCreature(*itr);
+                            Creature* cr = instance->GetCreature(guid);
                             if (cr && cr->IsAlive())
-                                vInitiands.push_back(*itr);
+                                vInitiands.push_back(guid);
                         }
                         if (vInitiands.empty())
                             return 0;
@@ -245,9 +245,9 @@ class instance_ahnkahet : public InstanceMapScript
                     case DATA_JEDOGA_SHADOWSEEKER:
                         if (state == DONE)
                         {
-                            for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
+                            for (uint64 guid : InitiandGUIDs)
                             {
-                                if (Creature* cr = instance->GetCreature(*itr))
+                                if (Creature* cr = instance->GetCreature(guid))
                                     cr->DespawnOrUnsummon();
                             }
                         }

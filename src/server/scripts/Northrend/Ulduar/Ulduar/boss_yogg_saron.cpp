@@ -1137,7 +1137,7 @@ class npc_ominous_cloud : public CreatureScript
             void DoAction(int32 action) override
             {
                 Movement::MoveSplineInit init(me);
-                FillCirclePath(YoggSaronSpawnPos, me->GetDistance2d(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY()), me->GetPositionZ(), init.Path(), action);
+                FillCirclePath(YoggSaronSpawnPos, me->GetDistance2d(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY()), me->GetPositionZ(), init.Path(), action != 0);
                 init.SetWalk(true);
                 init.SetCyclic();
                 init.Launch();

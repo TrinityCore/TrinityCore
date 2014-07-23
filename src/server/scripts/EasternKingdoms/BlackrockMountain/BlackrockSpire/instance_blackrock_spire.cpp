@@ -26,7 +26,7 @@
 #include "ScriptedCreature.h"
 #include "blackrock_spire.h"
 
-uint32 const DragonspireRunes[7] = { GO_HALL_RUNE_1, GO_HALL_RUNE_2, GO_HALL_RUNE_3, GO_HALL_RUNE_4, GO_HALL_RUNE_5, GO_HALL_RUNE_6, GO_HALL_RUNE_7 };
+//uint32 const DragonspireRunes[7] = { GO_HALL_RUNE_1, GO_HALL_RUNE_2, GO_HALL_RUNE_3, GO_HALL_RUNE_4, GO_HALL_RUNE_5, GO_HALL_RUNE_6, GO_HALL_RUNE_7 };
 
 uint32 const DragonspireMobs[3] = { NPC_BLACKHAND_DREADWEAVER, NPC_BLACKHAND_SUMMONER, NPC_BLACKHAND_VETERAN };
 
@@ -410,24 +410,24 @@ public:
 
         void Dragonspireroomstore()
         {
-            uint8 creaturecount;
+            uint8 creatureCount;
 
             for (uint8 i = 0; i < 7; ++i)
             {
-                creaturecount = 0;
+                creatureCount = 0;
 
                 if (GameObject* rune = instance->GetGameObject(go_roomrunes[i]))
                 {
-                    for (uint8 ii = 0; ii < 3; ++ii)
+                    for (uint8 j = 0; j < 3; ++j)
                     {
                         std::list<Creature*> creatureList;
-                        GetCreatureListWithEntryInGrid(creatureList, rune, DragonspireMobs[ii], 15.0f);
+                        GetCreatureListWithEntryInGrid(creatureList, rune, DragonspireMobs[j], 15.0f);
                         for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
                         {
-                            if (Creature* creatureList = *itr)
+                            if (Creature* creature = *itr)
                             {
-                                runecreaturelist[i] [creaturecount] = creatureList->GetGUID();
-                                ++creaturecount;
+                                runecreaturelist[i][creatureCount] = creature->GetGUID();
+                                ++creatureCount;
                             }
                         }
                     }

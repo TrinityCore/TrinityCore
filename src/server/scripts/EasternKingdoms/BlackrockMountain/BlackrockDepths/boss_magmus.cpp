@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,75 +17,96 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "blackrock_depths.h"
 
 enum Spells
 {
-    SPELL_FIERYBURST                                       = 13900,
-    SPELL_WARSTOMP                                         = 24375
+    SPELL_FIERYBURST        = 13900,
+    SPELL_WARSTOMP          = 24375
 };
 
-enum Misc
+enum Events
 {
-    DATA_THRONE_DOOR                                       = 24 // not id or guid of doors but number of enum in blackrock_depths.h
+    EVENT_FIERY_BURST       = 1,
+    EVENT_WARSTOMP          = 2
+};
+
+enum Phases
+{
+    PHASE_ONE               = 1,
+    PHASE_TWO               = 2
 };
 
 class boss_magmus : public CreatureScript
 {
-public:
-    boss_magmus() : CreatureScript("boss_magmus") { }
+    public:
+        boss_magmus() : CreatureScript("boss_magmus") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new boss_magmusAI(creature);
-    }
-
-    struct boss_magmusAI : public ScriptedAI
-    {
-        boss_magmusAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 FieryBurst_Timer;
-        uint32 WarStomp_Timer;
-
-        void Reset() override
+        struct boss_magmusAI : public ScriptedAI
         {
-            FieryBurst_Timer = 5000;
-            WarStomp_Timer =0;
-        }
+            boss_magmusAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void UpdateAI(uint32 diff) override
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            //FieryBurst_Timer
-            if (FieryBurst_Timer <= diff)
+            void Reset() override
             {
-                DoCastVictim(SPELL_FIERYBURST);
-                FieryBurst_Timer = 6000;
-            } else FieryBurst_Timer -= diff;
-
-            //WarStomp_Timer
-            if (HealthBelowPct(51))
-            {
-                if (WarStomp_Timer <= diff)
-                {
-                    DoCastVictim(SPELL_WARSTOMP);
-                    WarStomp_Timer = 8000;
-                } else WarStomp_Timer -= diff;
+                _events.Reset();
             }
 
-            DoMeleeAttackIfReady();
-        }
-        // When he die open door to last chamber
-        void JustDied(Unit* killer) override
+            void EnterCombat(Unit* /*who*/) override
+            {
+                _events.SetPhase(PHASE_ONE);
+                _events.ScheduleEvent(EVENT_FIERY_BURST, 5000);
+            }
+
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            {
+                if (me->HealthBelowPctDamaged(50, damage) && _events.IsInPhase(PHASE_ONE))
+                {
+                    _events.SetPhase(PHASE_TWO);
+                    _events.ScheduleEvent(EVENT_WARSTOMP, 0, 0, PHASE_TWO);
+                }
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_FIERY_BURST:
+                            DoCastVictim(SPELL_FIERYBURST);
+                            _events.ScheduleEvent(EVENT_FIERY_BURST, 6000);
+                            break;
+                        case EVENT_WARSTOMP:
+                            DoCastVictim(SPELL_WARSTOMP);
+                            _events.ScheduleEvent(EVENT_WARSTOMP, 8000, 0, PHASE_TWO);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                if (InstanceScript* instance = me->GetInstanceScript())
+                    instance->HandleGameObject(instance->GetData64(DATA_THRONE_DOOR), true);
+            }
+
+        private:
+            EventMap _events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            if (InstanceScript* instance = killer->GetInstanceScript())
-                instance->HandleGameObject(instance->GetData64(DATA_THRONE_DOOR), true);
+            return new boss_magmusAI(creature);
         }
-    };
 };
 
 void AddSC_boss_magmus()

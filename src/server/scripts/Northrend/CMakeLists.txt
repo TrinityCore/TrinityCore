@@ -20,7 +20,6 @@ set(scripts_STAT_SRCS
   Northrend/Ulduar/HallsOfLightning/boss_volkhan.cpp
   Northrend/Ulduar/HallsOfLightning/boss_loken.cpp
   Northrend/Ulduar/Ulduar/boss_general_vezax.cpp
-  Northrend/Ulduar/Ulduar/ulduar_teleporter.cpp
   Northrend/Ulduar/Ulduar/boss_thorim.cpp
   Northrend/Ulduar/Ulduar/boss_ignis.cpp
   Northrend/Ulduar/Ulduar/boss_algalon_the_observer.cpp

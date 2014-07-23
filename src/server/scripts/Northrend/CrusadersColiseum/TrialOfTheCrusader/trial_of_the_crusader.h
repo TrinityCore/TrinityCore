@@ -40,7 +40,7 @@ enum SpellIds
 
 enum MiscData
 {
-    DESPAWN_TIME                = 300000,
+    DESPAWN_TIME                = 1200000,
 
     DISPLAYID_DESTROYED_FLOOR   = 9060
 };

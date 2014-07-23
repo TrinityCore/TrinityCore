@@ -19,16 +19,15 @@
 #ifndef SC_SCRIPTMGR_H
 #define SC_SCRIPTMGR_H
 
+#include <atomic>
 #include "Common.h"
-#include <ace/Singleton.h>
-#include <ace/Atomic_Op.h>
-
 #include "DBCStores.h"
 #include "QuestDef.h"
 #include "SharedDefines.h"
 #include "World.h"
 #include "Weather.h"
 
+class AccountMgr;
 class AuctionHouseObject;
 class AuraScript;
 class Battleground;
@@ -215,30 +214,30 @@ class ServerScript : public ScriptObject
 
     public:
 
-        // Called when reactive socket I/O is started (WorldSocketMgr).
+        // Called when reactive socket I/O is started (WorldTcpSessionMgr).
         virtual void OnNetworkStart() { }
 
         // Called when reactive I/O is stopped.
         virtual void OnNetworkStop() { }
 
         // Called when a remote socket establishes a connection to the server. Do not store the socket object.
-        virtual void OnSocketOpen(WorldSocket* /*socket*/) { }
+        virtual void OnSocketOpen(std::shared_ptr<WorldSocket> /*socket*/) { }
 
         // Called when a socket is closed. Do not store the socket object, and do not rely on the connection
         // being open; it is not.
-        virtual void OnSocketClose(WorldSocket* /*socket*/, bool /*wasNew*/) { }
+        virtual void OnSocketClose(std::shared_ptr<WorldSocket> /*socket*/, bool /*wasNew*/) { }
 
         // Called when a packet is sent to a client. The packet object is a copy of the original packet, so reading
         // and modifying it is safe.
-        virtual void OnPacketSend(WorldSocket* /*socket*/, WorldPacket& /*packet*/) { }
+        virtual void OnPacketSend(std::shared_ptr<WorldSocket> /*socket*/, WorldPacket& /*packet*/) { }
 
         // Called when a (valid) packet is received by a client. The packet object is a copy of the original packet, so
         // reading and modifying it is safe.
-        virtual void OnPacketReceive(WorldSocket* /*socket*/, WorldPacket& /*packet*/) { }
+        virtual void OnPacketReceive(std::shared_ptr<WorldSocket> /*socket*/, WorldPacket& /*packet*/) { }
 
         // Called when an invalid (unknown opcode) packet is received by a client. The packet is a reference to the orignal
         // packet; not a copy. This allows you to actually handle unknown packets (for whatever purpose).
-        virtual void OnUnknownPacketReceive(WorldSocket* /*socket*/, WorldPacket& /*packet*/) { }
+        virtual void OnUnknownPacketReceive(std::shared_ptr<WorldSocket> /*socket*/, WorldPacket& /*packet*/) { }
 };
 
 class WorldScript : public ScriptObject
@@ -744,7 +743,7 @@ class PlayerScript : public UnitScript
         virtual void OnSpellCast(Player* /*player*/, Spell* /*spell*/, bool /*skipCheck*/) { }
 
         // Called when a player logs in.
-        virtual void OnLogin(Player* /*player*/) { }
+        virtual void OnLogin(Player* /*player*/, bool /*firstLogin*/) { }
 
         // Called when a player logs out.
         virtual void OnLogout(Player* /*player*/) { }
@@ -753,7 +752,10 @@ class PlayerScript : public UnitScript
         virtual void OnCreate(Player* /*player*/) { }
 
         // Called when a player is deleted.
-        virtual void OnDelete(uint64 /*guid*/) { }
+        virtual void OnDelete(uint64 /*guid*/, uint32 /*accountId*/) { }
+
+        // Called when a player delete failed
+        virtual void OnFailedDelete(uint64 /*guid*/, uint32 /*accountId*/) { }
 
         // Called when a player is about to be saved.
         virtual void OnSave(Player* /*player*/) { }
@@ -766,6 +768,33 @@ class PlayerScript : public UnitScript
 
         // Called when a player changes to a new map (after moving to new map)
         virtual void OnMapChanged(Player* /*player*/) { }
+};
+
+class AccountScript : public ScriptObject
+{
+    protected:
+
+        AccountScript(const char* name);
+
+    public:
+
+        // Called when an account logged in succesfully
+        virtual void OnAccountLogin(uint32 /*accountId*/) {}
+
+        // Called when an account login failed
+        virtual void OnFailedAccountLogin(uint32 /*accountId*/) {}
+
+        // Called when Email is successfully changed for Account
+        virtual void OnEmailChange(uint32 /*accountId*/) {}
+
+        // Called when Email failed to change for Account
+        virtual void OnFailedEmailChange(uint32 /*accountId*/) {}
+
+        // Called when Password is successfully changed for Account
+        virtual void OnPasswordChange(uint32 /*accountId*/) {}
+
+        // Called when Password failed to change for Account
+        virtual void OnFailedPasswordChange(uint32 /*accountId*/) {}
 };
 
 class GuildScript : public ScriptObject
@@ -838,20 +867,23 @@ class GroupScript : public ScriptObject
 };
 
 // Placed here due to ScriptRegistry::AddScript dependency.
-#define sScriptMgr ACE_Singleton<ScriptMgr, ACE_Null_Mutex>::instance()
+#define sScriptMgr ScriptMgr::instance()
 
 // Manages registration, loading, and execution of scripts.
 class ScriptMgr
 {
-    friend class ACE_Singleton<ScriptMgr, ACE_Null_Mutex>;
     friend class ScriptObject;
 
     private:
-
         ScriptMgr();
         virtual ~ScriptMgr();
 
     public: /* Initialization */
+        static ScriptMgr* instance()
+        {
+            static ScriptMgr instance;
+            return &instance;
+        }
 
         void Initialize();
         void LoadDatabase();
@@ -876,11 +908,11 @@ class ScriptMgr
 
         void OnNetworkStart();
         void OnNetworkStop();
-        void OnSocketOpen(WorldSocket* socket);
-        void OnSocketClose(WorldSocket* socket, bool wasNew);
-        void OnPacketReceive(WorldSocket* socket, WorldPacket packet);
-        void OnPacketSend(WorldSocket* socket, WorldPacket packet);
-        void OnUnknownPacketReceive(WorldSocket* socket, WorldPacket packet);
+        void OnSocketOpen(std::shared_ptr<WorldSocket> socket);
+        void OnSocketClose(std::shared_ptr<WorldSocket> socket, bool wasNew);
+        void OnPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket packet);
+        void OnPacketSend(std::shared_ptr<WorldSocket> socket, WorldPacket packet);
+        void OnUnknownPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket packet);
 
     public: /* WorldScript */
 
@@ -1034,13 +1066,23 @@ class ScriptMgr
         void OnPlayerEmote(Player* player, uint32 emote);
         void OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, uint64 guid);
         void OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck);
-        void OnPlayerLogin(Player* player);
+        void OnPlayerLogin(Player* player, bool firstLogin);
         void OnPlayerLogout(Player* player);
         void OnPlayerCreate(Player* player);
-        void OnPlayerDelete(uint64 guid);
+        void OnPlayerDelete(uint64 guid, uint32 accountId);
+        void OnPlayerFailedDelete(uint64 guid, uint32 accountId);
         void OnPlayerSave(Player* player);
         void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent);
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
+
+    public: /* AccountScript */
+
+        void OnAccountLogin(uint32 accountId);
+        void OnFailedAccountLogin(uint32 accountId);
+        void OnEmailChange(uint32 accountId);
+        void OnFailedEmailChange(uint32 accountId);
+        void OnPasswordChange(uint32 accountId);
+        void OnFailedPasswordChange(uint32 accountId);
 
     public: /* GuildScript */
 
@@ -1085,7 +1127,7 @@ class ScriptMgr
         uint32 _scriptCount;
 
         //atomic op counter for active scripts amount
-        ACE_Atomic_Op<ACE_Thread_Mutex, long> _scheduledScripts;
+        std::atomic_long _scheduledScripts;
 };
 
 #endif

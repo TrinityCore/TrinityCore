@@ -125,21 +125,21 @@ class Channel
         uint64 player;
         uint8 flags;
 
-        bool HasFlag(uint8 flag) const { return flags & flag; }
-        void SetFlag(uint8 flag) { if (!HasFlag(flag)) flags |= flag; }
-        bool IsOwner() const { return flags & MEMBER_FLAG_OWNER; }
+        bool HasFlag(uint8 flag) const { return (flags & flag) != 0; }
+        void SetFlag(uint8 flag) { flags |= flag; }
+        bool IsOwner() const { return (flags & MEMBER_FLAG_OWNER) != 0; }
         void SetOwner(bool state)
         {
             if (state) flags |= MEMBER_FLAG_OWNER;
             else flags &= ~MEMBER_FLAG_OWNER;
         }
-        bool IsModerator() const { return flags & MEMBER_FLAG_MODERATOR; }
+        bool IsModerator() const { return (flags & MEMBER_FLAG_MODERATOR) != 0; }
         void SetModerator(bool state)
         {
             if (state) flags |= MEMBER_FLAG_MODERATOR;
             else flags &= ~MEMBER_FLAG_MODERATOR;
         }
-        bool IsMuted() const { return flags & MEMBER_FLAG_MUTED; }
+        bool IsMuted() const { return (flags & MEMBER_FLAG_MUTED) != 0; }
         void SetMuted(bool state)
         {
             if (state) flags |= MEMBER_FLAG_MUTED;
@@ -153,13 +153,13 @@ class Channel
         uint32 GetChannelId() const { return _channelId; }
         bool IsConstant() const { return _channelId != 0; }
         bool IsAnnounce() const { return _announce; }
-        bool IsLFG() const { return GetFlags() & CHANNEL_FLAG_LFG; }
+        bool IsLFG() const { return (GetFlags() & CHANNEL_FLAG_LFG) != 0; }
         std::string const& GetPassword() const { return _password; }
         void SetPassword(std::string const& npassword) { _password = npassword; }
         void SetAnnounce(bool nannounce) { _announce = nannounce; }
         uint32 GetNumPlayers() const { return playersStore.size(); }
         uint8 GetFlags() const { return _flags; }
-        bool HasFlag(uint8 flag) const { return _flags & flag; }
+        bool HasFlag(uint8 flag) const { return (_flags & flag) != 0; }
 
         void JoinChannel(Player* player, std::string const& pass);
         void LeaveChannel(Player* player, bool send = true);

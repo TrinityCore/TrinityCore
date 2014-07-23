@@ -56,7 +56,7 @@ class npc_pet_hunter_snake_trap : public CreatureScript
 
                 me->SetMaxHealth(uint32(107 * (me->getLevel() - 40) * 0.025f));
                 // Add delta to make them not all hit the same time
-                uint32 delta = (rand() % 7) * 100;
+                uint32 delta = (rand32() % 7) * 100;
                 me->SetAttackTime(BASE_ATTACK, Info->baseattacktime + delta);
                 //me->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER, float(Info->attackpower));
 
@@ -81,10 +81,10 @@ class npc_pet_hunter_snake_trap : public CreatureScript
                     float attackRadius = me->GetAttackDistance(who);
                     if (me->IsWithinDistInMap(who, attackRadius) && me->IsWithinLOSInMap(who))
                     {
-                        if (!(rand() % 5))
+                        if (!(rand32() % 5))
                         {
-                            me->setAttackTimer(BASE_ATTACK, (rand() % 10) * 100);
-                            _spellTimer = (rand() % 10) * 100;
+                            me->setAttackTimer(BASE_ATTACK, (rand32() % 10) * 100);
+                            _spellTimer = (rand32() % 10) * 100;
                             AttackStart(who);
                         }
                     }

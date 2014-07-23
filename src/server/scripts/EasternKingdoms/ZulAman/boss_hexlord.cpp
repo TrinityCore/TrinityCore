@@ -352,7 +352,7 @@ class boss_hexlord_malacrass : public CreatureScript
                     AddList.push_back(AddEntryList[i]);
 
                 while (AddList.size() > 4)
-                    AddList.erase(AddList.begin()+rand()%AddList.size());
+                    AddList.erase(AddList.begin() + rand32() % AddList.size());
 
                 uint8 i = 0;
                 for (std::vector<uint32>::const_iterator itr = AddList.begin(); itr != AddList.end(); ++itr, ++i)

@@ -19,10 +19,10 @@
 #ifndef _VMAPMANAGER2_H
 #define _VMAPMANAGER2_H
 
+#include <mutex>
+#include <unordered_map>
 #include "Define.h"
 #include "IVMapManager.h"
-#include <unordered_map>
-#include <ace/Thread_Mutex.h>
 
 //===========================================================
 
@@ -73,7 +73,7 @@ namespace VMAP
             ModelFileMap iLoadedModelFiles;
             InstanceTreeMap iInstanceMapTrees;
             // Mutex for iLoadedModelFiles
-            ACE_Thread_Mutex LoadedModelFilesLock;
+            std::mutex LoadedModelFilesLock;
 
             bool _loadMap(uint32 mapId, const std::string& basePath, uint32 tileX, uint32 tileY);
             /* void _unloadMap(uint32 pMapId, uint32 x, uint32 y); */

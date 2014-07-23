@@ -118,7 +118,8 @@ public:
 
 enum GildedBrazier
 {
-    NPC_STILLBLADE  = 17716,
+    NPC_STILLBLADE        = 17716,
+    QUEST_THE_FIRST_TRIAL = 9678
 };
 
 class go_gilded_brazier : public GameObjectScript
@@ -130,7 +131,7 @@ public:
     {
         if (go->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
         {
-            if (player->GetQuestStatus(9678) == QUEST_STATUS_INCOMPLETE)
+            if (player->GetQuestStatus(QUEST_THE_FIRST_TRIAL) == QUEST_STATUS_INCOMPLETE)
             {
                 if (Creature* Stillblade = player->SummonCreature(NPC_STILLBLADE, 8106.11f, -7542.06f, 151.775f, 3.02598f, TEMPSUMMON_DEAD_DESPAWN, 60000))
                     Stillblade->AI()->AttackStart(player);
@@ -244,7 +245,7 @@ public:
     bool OnGossipHello(Player* player, GameObject* go) override
     {
         go->UseDoorOrButton();
-        int Random = rand() % (sizeof(NpcPrisonEntry) / sizeof(uint32));
+        int Random = rand32() % (sizeof(NpcPrisonEntry) / sizeof(uint32));
 
         if (Creature* creature = player->SummonCreature(NpcPrisonEntry[Random], go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), go->GetAngle(player),
             TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
@@ -294,7 +295,7 @@ public:
     bool OnGossipHello(Player* player, GameObject* go) override
     {
         go->UseDoorOrButton();
-        int Random = rand() % (sizeof(NpcStasisEntry) / sizeof(uint32));
+        int Random = rand32() % (sizeof(NpcStasisEntry) / sizeof(uint32));
 
         player->SummonCreature(NpcStasisEntry[Random], go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), go->GetAngle(player),
             TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);

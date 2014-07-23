@@ -22,8 +22,8 @@
 #include "Define.h"
 #include "Errors.h"
 #include "ByteConverter.h"
+#include "Util.h"
 
-#include <ace/OS_NS_time.h>
 #include <exception>
 #include <list>
 #include <map>
@@ -382,18 +382,18 @@ class ByteBuffer
             return *this;
         }
 
-        uint8 * contents() 
-        { 
+        uint8 * contents()
+        {
             if (_storage.empty())
                 throw ByteBufferException();
-            return &_storage[0]; 
+            return &_storage[0];
         }
 
-        const uint8 *contents() const 
-        { 
+        const uint8 *contents() const
+        {
             if (_storage.empty())
                 throw ByteBufferException();
-            return &_storage[0]; 
+            return &_storage[0];
         }
 
         size_t size() const { return _storage.size(); }
@@ -476,7 +476,7 @@ class ByteBuffer
         void AppendPackedTime(time_t time)
         {
             tm lt;
-            ACE_OS::localtime_r(&time, &lt);
+            localtime_r(&time, &lt);
             append<uint32>((lt.tm_year - 100) << 24 | lt.tm_mon  << 20 | (lt.tm_mday - 1) << 14 | lt.tm_wday << 11 | lt.tm_hour << 6 | lt.tm_min);
         }
 

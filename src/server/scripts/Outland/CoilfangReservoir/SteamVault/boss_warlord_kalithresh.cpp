@@ -123,7 +123,7 @@ public:
         void Reset() override
         {
             Reflection_Timer = 10000;
-            Impale_Timer = 7000+rand()%7000;
+            Impale_Timer = 7000 + rand32() % 7000;
             Rage_Timer = 45000;
             CanRage = false;
 
@@ -170,14 +170,14 @@ public:
                     DoCast(me, SPELL_WARLORDS_RAGE);
                     CAST_AI(npc_naga_distiller::npc_naga_distillerAI, distiller->AI())->StartRageGen(me);
                 }
-                Rage_Timer = 3000+rand()%15000;
+                Rage_Timer = 3000 + rand32() % 15000;
             } else Rage_Timer -= diff;
 
             //Reflection_Timer
             if (Reflection_Timer <= diff)
             {
                 DoCast(me, SPELL_SPELL_REFLECTION);
-                Reflection_Timer = 15000+rand()%10000;
+                Reflection_Timer = 15000 + rand32() % 10000;
             } else Reflection_Timer -= diff;
 
             //Impale_Timer
@@ -186,7 +186,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_IMPALE);
 
-                Impale_Timer = 7500+rand()%5000;
+                Impale_Timer = 7500 + rand32() % 5000;
             } else Impale_Timer -= diff;
 
             DoMeleeAttackIfReady();

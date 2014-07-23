@@ -75,7 +75,7 @@ public:
 
         void KilledUnit(Unit* /*Victim*/) override
         {
-            if (!(rand()%5))
+            if (!(rand32() % 5))
                 Talk(SAY_SLAY);
         }
 

@@ -1,0 +1,448 @@
+From b84e9ffbd1d1e1fb2f5d78cc53d2bb7b56c3fce3 Mon Sep 17 00:00:00 2001
+From: jackpoz <giacomopoz@gmail.com>
+Date: Fri, 20 Jun 2014 23:15:04 +0200
+Subject: [PATCH] Add custom trinitycore changes
+
+---
+ Detour/Include/DetourNavMesh.h                 | 76 ++++++++------------------
+ Detour/Source/DetourCommon.cpp                 |  4 +-
+ Detour/Source/DetourNavMesh.cpp                | 32 ++++-------
+ Detour/Source/DetourNavMeshBuilder.cpp         |  6 +-
+ Detour/Source/DetourNavMeshQuery.cpp           |  9 +--
+ Detour/Source/DetourNode.cpp                   | 29 +++-------
+ DetourCrowd/Source/DetourObstacleAvoidance.cpp |  6 +-
+ Recast/Include/Recast.h                        |  8 +--
+ 8 files changed, 59 insertions(+), 111 deletions(-)
+
+diff --git a/Detour/Include/DetourNavMesh.h b/Detour/Include/DetourNavMesh.h
+index 1060845..782ddbc 100644
+--- a/Detour/Include/DetourNavMesh.h
++++ b/Detour/Include/DetourNavMesh.h
+@@ -22,39 +22,35 @@
+ #include "DetourAlloc.h"
+ #include "DetourStatus.h"
+ 
+-// Undefine (or define in a build cofnig) the following line to use 64bit polyref.
+-// Generally not needed, useful for very large worlds.
+-// Note: tiles build using 32bit refs are not compatible with 64bit refs!
+-//#define DT_POLYREF64 1
+-
+-#ifdef DT_POLYREF64
+-// TODO: figure out a multiplatform version of uint64_t
+-// - maybe: https://code.google.com/p/msinttypes/
+-// - or: http://www.azillionmonkeys.com/qed/pstdint.h
++
++// Edited by TC
++#if defined(WIN32) && !defined(__MINGW32__)
++/// Do not rename back to uint64. Otherwise mac complains about typedef redefinition
++typedef unsigned __int64    uint64_d;
++#else
+ #include <stdint.h>
++#ifndef uint64_t
++#ifdef __linux__
++#include <linux/types.h>
++#endif
+ #endif
++/// Do not rename back to uint64. Otherwise mac complains about typedef redefinition
++typedef uint64_t            uint64_d;
++#endif 
+ 
+ // Note: If you want to use 64-bit refs, change the types of both dtPolyRef & dtTileRef.
+ // It is also recommended that you change dtHashRef() to a proper 64-bit hash.
+ 
++// Edited by TC
++// We cannot have over 31 bits for either tile nor poly
++// without changing polyCount to use 64bits too.
+ /// A handle to a polygon within a navigation mesh tile.
+ /// @ingroup detour
+-#ifdef DT_POLYREF64
+-static const unsigned int DT_SALT_BITS = 16;
+-static const unsigned int DT_TILE_BITS = 28;
+-static const unsigned int DT_POLY_BITS = 20;
+-typedef uint64_t dtPolyRef;
+-#else
+-typedef unsigned int dtPolyRef;
+-#endif
++typedef uint64_d dtPolyRef; // Edited by TC
+ 
+ /// A handle to a tile within a navigation mesh.
+ /// @ingroup detour
+-#ifdef DT_POLYREF64
+-typedef uint64_t dtTileRef;
+-#else
+-typedef unsigned int dtTileRef;
+-#endif
++typedef uint64_d dtTileRef; // Edited by TC
+ 
+ /// The maximum number of vertices per navigation polygon.
+ /// @ingroup detour
+@@ -94,6 +90,12 @@ static const unsigned int DT_OFFMESH_CON_BIDIR = 1;
+ /// @ingroup detour
+ static const int DT_MAX_AREAS = 64;
+ 
++static const int STATIC_SALT_BITS = 12;
++static const int STATIC_TILE_BITS = 21;
++static const int STATIC_POLY_BITS = 31;
++// we cannot have over 31 bits for either tile nor poly
++// without changing polyCount to use 64bits too.
++
+ /// Tile flags used for various functions and fields.
+ /// For an example, see dtNavMesh::addTile().
+ enum dtTileFlags
+@@ -511,11 +513,7 @@ public:
+ 	///  @param[in]	ip		The index of the polygon within the tile.
+ 	inline dtPolyRef encodePolyId(unsigned int salt, unsigned int it, unsigned int ip) const
+ 	{
+-#ifdef DT_POLYREF64
+-		return ((dtPolyRef)salt << (DT_POLY_BITS+DT_TILE_BITS)) | ((dtPolyRef)it << DT_POLY_BITS) | (dtPolyRef)ip;
+-#else
+ 		return ((dtPolyRef)salt << (m_polyBits+m_tileBits)) | ((dtPolyRef)it << m_polyBits) | (dtPolyRef)ip;
+-#endif
+ 	}
+ 	
+ 	/// Decodes a standard polygon reference.
+@@ -527,21 +525,12 @@ public:
+ 	///  @see #encodePolyId
+ 	inline void decodePolyId(dtPolyRef ref, unsigned int& salt, unsigned int& it, unsigned int& ip) const
+ 	{
+-#ifdef DT_POLYREF64
+-		const dtPolyRef saltMask = ((dtPolyRef)1<<DT_SALT_BITS)-1;
+-		const dtPolyRef tileMask = ((dtPolyRef)1<<DT_TILE_BITS)-1;
+-		const dtPolyRef polyMask = ((dtPolyRef)1<<DT_POLY_BITS)-1;
+-		salt = (unsigned int)((ref >> (DT_POLY_BITS+DT_TILE_BITS)) & saltMask);
+-		it = (unsigned int)((ref >> DT_POLY_BITS) & tileMask);
+-		ip = (unsigned int)(ref & polyMask);
+-#else
+ 		const dtPolyRef saltMask = ((dtPolyRef)1<<m_saltBits)-1;
+ 		const dtPolyRef tileMask = ((dtPolyRef)1<<m_tileBits)-1;
+ 		const dtPolyRef polyMask = ((dtPolyRef)1<<m_polyBits)-1;
+ 		salt = (unsigned int)((ref >> (m_polyBits+m_tileBits)) & saltMask);
+ 		it = (unsigned int)((ref >> m_polyBits) & tileMask);
+ 		ip = (unsigned int)(ref & polyMask);
+-#endif
+ 	}
+ 
+ 	/// Extracts a tile's salt value from the specified polygon reference.
+@@ -550,13 +539,8 @@ public:
+ 	///  @see #encodePolyId
+ 	inline unsigned int decodePolyIdSalt(dtPolyRef ref) const
+ 	{
+-#ifdef DT_POLYREF64
+-		const dtPolyRef saltMask = ((dtPolyRef)1<<DT_SALT_BITS)-1;
+-		return (unsigned int)((ref >> (DT_POLY_BITS+DT_TILE_BITS)) & saltMask);
+-#else
+ 		const dtPolyRef saltMask = ((dtPolyRef)1<<m_saltBits)-1;
+ 		return (unsigned int)((ref >> (m_polyBits+m_tileBits)) & saltMask);
+-#endif
+ 	}
+ 	
+ 	/// Extracts the tile's index from the specified polygon reference.
+@@ -565,13 +549,8 @@ public:
+ 	///  @see #encodePolyId
+ 	inline unsigned int decodePolyIdTile(dtPolyRef ref) const
+ 	{
+-#ifdef DT_POLYREF64
+-		const dtPolyRef tileMask = ((dtPolyRef)1<<DT_TILE_BITS)-1;
+-		return (unsigned int)((ref >> DT_POLY_BITS) & tileMask);
+-#else
+ 		const dtPolyRef tileMask = ((dtPolyRef)1<<m_tileBits)-1;
+ 		return (unsigned int)((ref >> m_polyBits) & tileMask);
+-#endif
+ 	}
+ 	
+ 	/// Extracts the polygon's index (within its tile) from the specified polygon reference.
+@@ -580,13 +559,8 @@ public:
+ 	///  @see #encodePolyId
+ 	inline unsigned int decodePolyIdPoly(dtPolyRef ref) const
+ 	{
+-#ifdef DT_POLYREF64
+-		const dtPolyRef polyMask = ((dtPolyRef)1<<DT_POLY_BITS)-1;
+-		return (unsigned int)(ref & polyMask);
+-#else
+ 		const dtPolyRef polyMask = ((dtPolyRef)1<<m_polyBits)-1;
+ 		return (unsigned int)(ref & polyMask);
+-#endif
+ 	}
+ 
+ 	/// @}
+@@ -645,11 +619,9 @@ private:
+ 	dtMeshTile* m_nextFree;				///< Freelist of tiles.
+ 	dtMeshTile* m_tiles;				///< List of tiles.
+ 		
+-#ifndef DT_POLYREF64
+ 	unsigned int m_saltBits;			///< Number of salt bits in the tile ID.
+ 	unsigned int m_tileBits;			///< Number of tile bits in the tile ID.
+ 	unsigned int m_polyBits;			///< Number of poly bits in the tile ID.
+-#endif
+ };
+ 
+ /// Allocates a navigation mesh object using the Detour allocator.
+diff --git a/Detour/Source/DetourCommon.cpp b/Detour/Source/DetourCommon.cpp
+index a98d8c8..b5700f5 100644
+--- a/Detour/Source/DetourCommon.cpp
++++ b/Detour/Source/DetourCommon.cpp
+@@ -16,14 +16,14 @@
+ // 3. This notice may not be removed or altered from any source distribution.
+ //
+ 
++#include <math.h>
+ #include "DetourCommon.h"
+-#include "DetourMath.h"
+ 
+ //////////////////////////////////////////////////////////////////////////////////////////
+ 
+ float dtSqrt(float x)
+ {
+-	return dtMathSqrtf(x);
++	return sqrtf(x);
+ }
+ 
+ void dtClosestPtPointTriangle(float* closest, const float* p,
+diff --git a/Detour/Source/DetourNavMesh.cpp b/Detour/Source/DetourNavMesh.cpp
+index 9d627be..5174050 100644
+--- a/Detour/Source/DetourNavMesh.cpp
++++ b/Detour/Source/DetourNavMesh.cpp
+@@ -16,13 +16,13 @@
+ // 3. This notice may not be removed or altered from any source distribution.
+ //
+ 
++#include <math.h>
+ #include <float.h>
+ #include <string.h>
+ #include <stdio.h>
+ #include "DetourNavMesh.h"
+ #include "DetourNode.h"
+ #include "DetourCommon.h"
+-#include "DetourMath.h"
+ #include "DetourAlloc.h"
+ #include "DetourAssert.h"
+ #include <new>
+@@ -193,13 +193,11 @@ dtNavMesh::dtNavMesh() :
+ 	m_tileLutMask(0),
+ 	m_posLookup(0),
+ 	m_nextFree(0),
+-	m_tiles(0)
++	m_tiles(0),
++	m_saltBits(0),
++	m_tileBits(0),
++	m_polyBits(0)
+ {
+-#ifndef DT_POLYREF64
+-	m_saltBits = 0;
+-	m_tileBits = 0;
+-	m_polyBits = 0;
+-#endif
+ 	memset(&m_params, 0, sizeof(dtNavMeshParams));
+ 	m_orig[0] = 0;
+ 	m_orig[1] = 0;
+@@ -250,17 +248,11 @@ dtStatus dtNavMesh::init(const dtNavMeshParams* params)
+ 		m_nextFree = &m_tiles[i];
+ 	}
+ 	
+-	// Init ID generator values.
+-#ifndef DT_POLYREF64
+-	m_tileBits = dtIlog2(dtNextPow2((unsigned int)params->maxTiles));
+-	m_polyBits = dtIlog2(dtNextPow2((unsigned int)params->maxPolys));
+-	// Only allow 31 salt bits, since the salt mask is calculated using 32bit uint and it will overflow.
+-	m_saltBits = dtMin((unsigned int)31, 32 - m_tileBits - m_polyBits);
+-
+-	if (m_saltBits < 10)
+-		return DT_FAILURE | DT_INVALID_PARAM;
+-#endif
+-	
++    // Edited by TC
++    m_tileBits = STATIC_TILE_BITS;
++    m_polyBits = STATIC_POLY_BITS; 
++    m_saltBits = STATIC_SALT_BITS; 
++
+ 	return DT_SUCCESS;
+ }
+ 
+@@ -1242,11 +1234,7 @@ dtStatus dtNavMesh::removeTile(dtTileRef ref, unsigned char** data, int* dataSiz
+ 	tile->offMeshCons = 0;
+ 
+ 	// Update salt, salt should never be zero.
+-#ifdef DT_POLYREF64
+-	tile->salt = (tile->salt+1) & ((1<<DT_SALT_BITS)-1);
+-#else
+ 	tile->salt = (tile->salt+1) & ((1<<m_saltBits)-1);
+-#endif
+ 	if (tile->salt == 0)
+ 		tile->salt++;
+ 
+diff --git a/Detour/Source/DetourNavMeshBuilder.cpp b/Detour/Source/DetourNavMeshBuilder.cpp
+index 1bf271b..9d8471b 100644
+--- a/Detour/Source/DetourNavMeshBuilder.cpp
++++ b/Detour/Source/DetourNavMeshBuilder.cpp
+@@ -16,13 +16,13 @@
+ // 3. This notice may not be removed or altered from any source distribution.
+ //
+ 
++#include <math.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <float.h>
+ #include "DetourNavMesh.h"
+ #include "DetourCommon.h"
+-#include "DetourMath.h"
+ #include "DetourNavMeshBuilder.h"
+ #include "DetourAlloc.h"
+ #include "DetourAssert.h"
+@@ -202,8 +202,8 @@ static int createBVTree(const unsigned short* verts, const int /*nverts*/,
+ 			if (z > it.bmax[2]) it.bmax[2] = z;
+ 		}
+ 		// Remap y
+-		it.bmin[1] = (unsigned short)dtMathFloorf((float)it.bmin[1]*ch/cs);
+-		it.bmax[1] = (unsigned short)dtMathCeilf((float)it.bmax[1]*ch/cs);
++		it.bmin[1] = (unsigned short)floorf((float)it.bmin[1]*ch/cs);
++		it.bmax[1] = (unsigned short)ceilf((float)it.bmax[1]*ch/cs);
+ 	}
+ 	
+ 	int curNode = 0;
+diff --git a/Detour/Source/DetourNavMeshQuery.cpp b/Detour/Source/DetourNavMeshQuery.cpp
+index 9debb4d..ec3a294 100644
+--- a/Detour/Source/DetourNavMeshQuery.cpp
++++ b/Detour/Source/DetourNavMeshQuery.cpp
+@@ -16,13 +16,13 @@
+ // 3. This notice may not be removed or altered from any source distribution.
+ //
+ 
++#include <math.h>
+ #include <float.h>
+ #include <string.h>
+ #include "DetourNavMeshQuery.h"
+ #include "DetourNavMesh.h"
+ #include "DetourNode.h"
+ #include "DetourCommon.h"
+-#include "DetourMath.h"
+ #include "DetourAlloc.h"
+ #include "DetourAssert.h"
+ #include <new>
+@@ -99,8 +99,9 @@ inline float dtQueryFilter::getCost(const float* pa, const float* pb,
+ 	return dtVdist(pa, pb) * m_areaCost[curPoly->getArea()];
+ }
+ #endif	
+-	
+-static const float H_SCALE = 0.999f; // Search heuristic scale.
++
++// Edited by TC
++static const float H_SCALE = 2.0f; // Search heuristic scale. 
+ 
+ 
+ dtNavMeshQuery* dtAllocNavMeshQuery()
+@@ -3504,7 +3505,7 @@ dtStatus dtNavMeshQuery::findDistanceToWall(dtPolyRef startRef, const float* cen
+ 	dtVsub(hitNormal, centerPos, hitPos);
+ 	dtVnormalize(hitNormal);
+ 	
+-	*hitDist = dtMathSqrtf(radiusSqr);
++	*hitDist = sqrtf(radiusSqr);
+ 	
+ 	return status;
+ }
+diff --git a/Detour/Source/DetourNode.cpp b/Detour/Source/DetourNode.cpp
+index 5cf6548..1d18977 100644
+--- a/Detour/Source/DetourNode.cpp
++++ b/Detour/Source/DetourNode.cpp
+@@ -22,30 +22,17 @@
+ #include "DetourCommon.h"
+ #include <string.h>
+ 
+-#ifdef DT_POLYREF64
+-// From Thomas Wang, https://gist.github.com/badboy/6267743
+ inline unsigned int dtHashRef(dtPolyRef a)
+ {
+-	a = (~a) + (a << 18); // a = (a << 18) - a - 1;
+-	a = a ^ (a >> 31);
+-	a = a * 21; // a = (a + (a << 2)) + (a << 4);
+-	a = a ^ (a >> 11);
+-	a = a + (a << 6);
+-	a = a ^ (a >> 22);
+-	return (unsigned int)a;
++    // Edited by TC
++    a = (~a) + (a << 18);
++    a = a ^ (a >> 31);
++    a = a * 21;
++    a = a ^ (a >> 11);
++    a = a + (a << 6);
++    a = a ^ (a >> 22);
++    return (unsigned int)a;
+ }
+-#else
+-inline unsigned int dtHashRef(dtPolyRef a)
+-{
+-	a += ~(a<<15);
+-	a ^=  (a>>10);
+-	a +=  (a<<3);
+-	a ^=  (a>>6);
+-	a += ~(a<<11);
+-	a ^=  (a>>16);
+-	return (unsigned int)a;
+-}
+-#endif
+ 
+ //////////////////////////////////////////////////////////////////////////////////////////
+ dtNodePool::dtNodePool(int maxNodes, int hashSize) :
+diff --git a/DetourCrowd/Source/DetourObstacleAvoidance.cpp b/DetourCrowd/Source/DetourObstacleAvoidance.cpp
+index 0fad9ef..d3f90b7 100644
+--- a/DetourCrowd/Source/DetourObstacleAvoidance.cpp
++++ b/DetourCrowd/Source/DetourObstacleAvoidance.cpp
+@@ -18,10 +18,10 @@
+ 
+ #include "DetourObstacleAvoidance.h"
+ #include "DetourCommon.h"
+-#include "DetourMath.h"
+ #include "DetourAlloc.h"
+ #include "DetourAssert.h"
+ #include <string.h>
++#include <math.h>
+ #include <float.h>
+ #include <new>
+ 
+@@ -58,7 +58,7 @@ static int isectRaySeg(const float* ap, const float* u,
+ 	dtVsub(v,bq,bp);
+ 	dtVsub(w,ap,bp);
+ 	float d = dtVperp2D(u,v);
+-	if (dtMathFabs(d) < 1e-6f) return 0;
++	if (fabsf(d) < 1e-6f) return 0;
+ 	d = 1.0f/d;
+ 	t = dtVperp2D(v,w) * d;
+ 	if (t < 0 || t > 1) return 0;
+@@ -482,7 +482,7 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
+ 	const int nd = dtClamp(ndivs, 1, DT_MAX_PATTERN_DIVS);
+ 	const int nr = dtClamp(nrings, 1, DT_MAX_PATTERN_RINGS);
+ 	const float da = (1.0f/nd) * DT_PI*2;
+-	const float dang = dtMathAtan2f(dvel[2], dvel[0]);
++	const float dang = atan2f(dvel[2], dvel[0]);
+ 	
+ 	// Always add sample at zero
+ 	pat[npat*2+0] = 0;
+diff --git a/Recast/Include/Recast.h b/Recast/Include/Recast.h
+index 83ca606..66974cd 100644
+--- a/Recast/Include/Recast.h
++++ b/Recast/Include/Recast.h
+@@ -243,7 +243,7 @@ struct rcConfig
+ };
+ 
+ /// Defines the number of bits allocated to rcSpan::smin and rcSpan::smax.
+-static const int RC_SPAN_HEIGHT_BITS = 13;
++static const int RC_SPAN_HEIGHT_BITS = 16; // EDITED BY TC
+ /// Defines the maximum value for rcSpan::smin and rcSpan::smax.
+ static const int RC_SPAN_MAX_HEIGHT = (1<<RC_SPAN_HEIGHT_BITS)-1;
+ 
+@@ -255,9 +255,9 @@ static const int RC_SPANS_PER_POOL = 2048;
+ /// @see rcHeightfield
+ struct rcSpan
+ {
+-	unsigned int smin : 13;			///< The lower limit of the span. [Limit: < #smax]
+-	unsigned int smax : 13;			///< The upper limit of the span. [Limit: <= #RC_SPAN_MAX_HEIGHT]
+-	unsigned int area : 6;			///< The area id assigned to the span.
++	unsigned int smin : 16;			///< The lower limit of the span. [Limit: < #smax]
++	unsigned int smax : 16;			///< The upper limit of the span. [Limit: <= #RC_SPAN_MAX_HEIGHT]
++	unsigned char area;			    ///< The area id assigned to the span.
+ 	rcSpan* next;					///< The next span higher up in column.
+ };
+ 
+-- 
+1.9.0.msysgit.0
+

@@ -21,20 +21,23 @@
 
 #include "Common.h"
 #include "Config.h"
-#include <ace/Singleton.h>
 #include "WorldPacket.h"
 
 class AddonHandler
 {
-    /* Construction */
-    friend class ACE_Singleton<AddonHandler, ACE_Null_Mutex>;
-    AddonHandler();
-
     public:
-        ~AddonHandler();
-                                                            //build addon packet
+        static AddonHandler* instance()
+        {
+            static AddonHandler instance;
+            return &instance;
+        }
+
         bool BuildAddonPacket(WorldPacket* Source, WorldPacket* Target);
+
+    private:
+        AddonHandler() { }
+        ~AddonHandler() { }
 };
-#define sAddOnHandler ACE_Singleton<AddonHandler, ACE_Null_Mutex>::instance()
+#define sAddOnHandler AddonHandler::instance()
 #endif
 

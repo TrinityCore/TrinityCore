@@ -132,24 +132,24 @@ public:
             if (FrostArmorTimer <= diff)
             {
                 DoCast(me, SPELL_FROST_ARMOR);
-                FrostArmorTimer = 40000+rand()%20000;
+                FrostArmorTimer = 40000 + rand32() % 20000;
             } else FrostArmorTimer -= diff;
             if (DecayTimer <= diff)
             {
                 DoCastVictim(SPELL_DEATH_AND_DECAY);
-                DecayTimer = 60000+rand()%20000;
+                DecayTimer = 60000 + rand32() % 20000;
                 Talk(SAY_DECAY);
             } else DecayTimer -= diff;
             if (NovaTimer <= diff)
             {
                 DoCastVictim(SPELL_FROST_NOVA);
-                NovaTimer = 30000+rand()%15000;
+                NovaTimer = 30000 + rand32() % 15000;
                 Talk(SAY_NOVA);
             } else NovaTimer -= diff;
             if (IceboltTimer <= diff)
             {
                 DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true), SPELL_ICEBOLT);
-                IceboltTimer = 11000+rand()%20000;
+                IceboltTimer = 11000 + rand32() % 20000;
             } else IceboltTimer -= diff;
 
             DoMeleeAttackIfReady();
