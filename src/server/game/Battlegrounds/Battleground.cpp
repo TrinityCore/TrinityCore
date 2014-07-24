@@ -686,6 +686,7 @@ void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, 
             continue;
 
         uint32 repGain = Reputation;
+        AddPct(repGain, player->GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN));
         AddPct(repGain, player->GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_FACTION_REPUTATION_GAIN, faction_id));
         player->GetReputationMgr().ModifyReputation(factionEntry, repGain);
     }
