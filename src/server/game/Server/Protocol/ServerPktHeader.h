@@ -21,6 +21,8 @@
 
 #include "Log.h"
 
+#pragma pack(push, 1)
+
 struct ServerPktHeader
 {
     /**
@@ -55,5 +57,7 @@ struct ServerPktHeader
     const uint32 size;
     uint8 header[5];
 };
+
+#pragma pack(pop)
 
 #endif
