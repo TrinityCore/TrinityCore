@@ -23641,6 +23641,8 @@ void Player::LearnDefaultSkill(uint32 skillId, uint16 rank)
                 skillValue = maxValue;
             else if (getClass() == CLASS_DEATH_KNIGHT)
                 skillValue = std::min(std::max<uint16>({ 1, uint16((getLevel() - 1) * 5) }), maxValue);
+            else if (skillId == SKILL_FIST_WEAPONS)
+                skillValue = std::max<uint16>(1, GetSkillValue(SKILL_UNARMED));
 
             SetSkill(skillId, 0, skillValue, maxValue);
             break;
@@ -25609,6 +25611,9 @@ void Player::_LoadSkills(PreparedQueryResult result)
     {
         uint16 field = count / 2;
         uint8 offset = count & 1;
+
+    if (HasSkill(SKILL_FIST_WEAPONS))
+        SetSkill(SKILL_FIST_WEAPONS, 0, GetSkillValue(SKILL_UNARMED), GetMaxSkillValueForLevel());
 
         SetUInt16Value(PLAYER_SKILL_LINEID_0 + field, offset, 0);
         SetUInt16Value(PLAYER_SKILL_STEP_0 + field, offset, 0);
