@@ -100,6 +100,12 @@ WeeklyQuest const WeeklyQuestData[WeeklyNPCs] =
     {NPC_VALITHRIA_DREAMWALKER_QUEST, {QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_10, QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_25}}  // Respite for a Tormented Soul
 };
 
+// NPCs spawned at Light's Hammer on Lich King dead
+Position const JainaSpawnPos    = { -48.65278f, 2211.026f, 27.98586f, 3.124139f };
+Position const MuradinSpawnPos  = { -47.34549f, 2208.087f, 27.98586f, 3.106686f };
+Position const UtherSpawnPos    = { -26.58507f, 2211.524f, 30.19898f, 3.124139f };
+Position const SylvanasSpawnPos = { -41.45833f, 2222.891f, 27.98586f, 3.647738f };
+
 class instance_icecrown_citadel : public InstanceMapScript
 {
     public:
@@ -932,6 +938,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 pillars->SetRespawnTime(7 * DAY);
                             if (GameObject* pillars = instance->GetGameObject(PillarsUnchainedGUID))
                                 pillars->SetRespawnTime(7 * DAY);
+
+                            instance->SummonCreature(NPC_LADY_JAINA_PROUDMOORE_QUEST, JainaSpawnPos);
+                            instance->SummonCreature(NPC_MURADIN_BRONZEBEARD_QUEST, MuradinSpawnPos);
+                            instance->SummonCreature(NPC_UTHER_THE_LIGHTBRINGER_QUEST, UtherSpawnPos);
+                            instance->SummonCreature(NPC_LADY_SYLVANAS_WINDRUNNER_QUEST, SylvanasSpawnPos);
                         }
                         break;
                     }
