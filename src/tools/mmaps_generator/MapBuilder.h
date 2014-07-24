@@ -143,7 +143,7 @@ namespace MMAP
             rcContext* m_rcContext;
 
             std::vector<std::thread> _workerThreads;
-            ProducerConsumerQueue<uint32> _queue;
+            ProducerConsumerQueue<uint32*> _queue;
             std::atomic<bool> _cancelationToken;
     };
 }
