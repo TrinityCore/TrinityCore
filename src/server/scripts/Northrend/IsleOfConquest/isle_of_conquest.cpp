@@ -157,7 +157,7 @@ class spell_ioc_parachute_ic : public AuraScript
     {
         PreventDefaultAction();
         if (Player* target = GetTarget()->ToPlayer())
-            if (target->m_movementInfo.fallTime > 2000 && !target->GetTransport())
+            if (target->m_movementInfo.GetFallTime() > 2000 && !target->GetTransport())
                 target->CastSpell(target, SPELL_PARACHUTE_IC, true);
     }
 
