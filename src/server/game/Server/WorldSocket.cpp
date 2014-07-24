@@ -128,7 +128,8 @@ void WorldSocket::AsyncReadData(size_t dataSize)
 
                     sScriptMgr->OnPacketReceive(shared_from_this(), packet);
 #ifdef ELUNA
-                    sEluna->OnPacketReceive(_worldSession, packet);
+                    if (!sEluna->OnPacketReceive(_worldSession, packet))
+                        break;
 #endif
                     HandleAuthSession(packet);
                     break;
@@ -171,16 +172,15 @@ void WorldSocket::AsyncReadData(size_t dataSize)
 void WorldSocket::AsyncWrite(WorldPacket const& const_packet)
 {
     WorldPacket packet = const_packet;
+#ifdef ELUNA
+    if (!sEluna->OnPacketSend(_worldSession, packet))
+        return;
+#endif
 
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(packet, SERVER_TO_CLIENT);
 
     TC_LOG_TRACE("network.opcode", "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress()).c_str(), GetOpcodeNameForLogging(packet.GetOpcode()).c_str());
-
-#ifdef ELUNA
-    if (!sEluna->OnPacketSend(_worldSession, packet))
-        return;
-#endif
 
     ServerPktHeader header(packet.size() + 2, packet.GetOpcode());
     _authCrypt.EncryptSend((uint8*)header.header, header.getHeaderLength());

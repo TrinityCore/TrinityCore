@@ -45,6 +45,7 @@
 #include "CliRunnable.h"
 #include "SystemConfig.h"
 #include "WorldSocket.h"
+#include "LuaEngine.h"
 
 using namespace boost::program_options;
 
@@ -250,6 +251,9 @@ extern int main(int argc, char** argv)
 
     sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
     sObjectAccessor->UnloadAll();             // unload 'i_player2corpse' storage and remove from world
+#ifdef ELUNA
+    Eluna::Uninitialize();
+#endif
     sScriptMgr->Unload();
     sOutdoorPvPMgr->Die();
 
