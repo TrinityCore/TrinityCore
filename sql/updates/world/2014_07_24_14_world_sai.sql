@@ -30,3 +30,9 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `use
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=18 AND `SourceGroup`=26503;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
 (18, 26503, 47121, 0, 0, 9, 0, 11476, 0, 0, 0, 0, 0, '', 'Required quest active for spellclick');
+
+UPDATE `creature_text` SET `BroadcastTextID`=25732 WHERE  `entry`=26531 AND `groupid`=0 AND `id`=0;
+UPDATE `creature_text` SET `BroadcastTextID`=25733 WHERE  `entry`=26531 AND `groupid`=1 AND `id`=0;
+UPDATE `creature_text` SET `BroadcastTextID`=25734 WHERE  `entry`=24525 AND `groupid`=0 AND `id`=0;
+UPDATE `creature_text` SET `BroadcastTextID`=23581 WHERE  `entry`=24525 AND `groupid`=1 AND `id`=0;
+UPDATE `smart_scripts` SET `target_type`=1, `target_param1`=0 WHERE  `entryorguid`=36913 AND `source_type`=0 AND `id`=2;
