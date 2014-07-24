@@ -19,15 +19,16 @@
 #ifndef __WORLDSOCKET_H__
 #define __WORLDSOCKET_H__
 
-#include <memory>
-#include <chrono>
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/streambuf.hpp>
 #include "Common.h"
 #include "WorldPacketCrypt.h"
 #include "Util.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include <memory>
+#include <chrono>
+#include <mutex>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/streambuf.hpp>
 
 using boost::asio::ip::tcp;
 
@@ -68,10 +69,13 @@ private:
 
     void AsyncReadHeader();
     void AsyncReadData(size_t dataSize);
+    void AsyncWrite(std::vector<uint8> const& data);
 
     tcp::socket _socket;
 
     char _readBuffer[4096];
+    std::mutex _writeLock;
+    std::queue<std::vector<uint8> > _writeQueue;
 
     uint32 _authSeed;
     WorldPacketCrypt _authCrypt;

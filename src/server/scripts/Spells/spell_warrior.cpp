@@ -506,7 +506,7 @@ class spell_warr_overpower : public SpellScriptLoader
                     return;
 
                 if (Player* target = GetHitPlayer())
-                    if (target->HasUnitState(UNIT_STATE_CASTING))
+                    if (target->IsNonMeleeSpellCast(false, false, true)) // UNIT_STATE_CASTING should not be used here, it's present during a tick for instant casts
                         target->CastSpell(target, spellId, true);
             }
 

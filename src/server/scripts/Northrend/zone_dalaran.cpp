@@ -158,7 +158,7 @@ class npc_minigob_manabonk : public CreatureScript
                 me->setActive(true);
             }
 
-            void Reset()
+            void Reset() override
             {
                 me->SetVisible(false);
                 events.ScheduleEvent(EVENT_SELECT_TARGET, IN_MILLISECONDS);
@@ -188,7 +188,7 @@ class npc_minigob_manabonk : public CreatureScript
                 CharacterDatabase.CommitTransaction(trans);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 events.Update(diff);
 
@@ -232,7 +232,7 @@ class npc_minigob_manabonk : public CreatureScript
             EventMap events;
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_minigob_manabonkAI(creature);
     }
