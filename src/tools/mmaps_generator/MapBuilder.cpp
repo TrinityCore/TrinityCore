@@ -171,14 +171,16 @@ namespace MMAP
     {
         while (1)
         {
-            uint32 mapId;
+            uint32* mapId;
 
             _queue.WaitAndPop(mapId);
 
             if (_cancelationToken)
                 return;
 
-            buildMap(mapId);
+            buildMap(*mapId);
+
+            delete mapId;
         }
     }
 
@@ -196,13 +198,13 @@ namespace MMAP
 
         for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
         {
-            uint32 mapID = it->m_mapId;
-            if (!shouldSkipMap(mapID))
+            uint32* mapID = new uint32(it->m_mapId);
+            if (!shouldSkipMap(*mapID))
             {
                 if (threads > 0)
                     _queue.Push(mapID);
                 else
-                    buildMap(mapID);
+                    buildMap(*mapID);
             }
         }
 
