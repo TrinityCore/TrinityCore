@@ -349,7 +349,7 @@ public:
             if (Player* pHolder = GetLeaderForFollower())
                 AttackStart(pHolder);
 
-            SetFollowComplete();
+            SetFollowComplete(true);
         }
     };
 
