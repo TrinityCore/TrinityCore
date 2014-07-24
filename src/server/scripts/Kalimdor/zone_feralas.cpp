@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Feralas
 SD%Complete: 100
-SDComment: Quest support: 3520, 2767, Special vendor Gregan Brewspewer
+SDComment: Quest support: 2767, Special vendor Gregan Brewspewer
 SDCategory: Feralas
 EndScriptData */
 
@@ -183,26 +183,6 @@ public:
 
 };
 
-/*######
-## npc_screecher_spirit
-######*/
-
-class npc_screecher_spirit : public CreatureScript
-{
-public:
-    npc_screecher_spirit() : CreatureScript("npc_screecher_spirit") { }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        player->SEND_GOSSIP_MENU(2039, creature->GetGUID());
-        player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
-        creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        creature->DespawnOrUnsummon(3*IN_MILLISECONDS);
-        return true;
-    }
-
-};
-
 enum GordunniTrap
 {
     GO_GORDUNNI_DIRT_MOUND = 144064,
@@ -247,6 +227,5 @@ void AddSC_feralas()
 {
     new npc_gregan_brewspewer();
     new npc_oox22fe();
-    new npc_screecher_spirit();
     new spell_gordunni_trap();
 }
