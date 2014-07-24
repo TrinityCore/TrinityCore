@@ -197,7 +197,7 @@ public:
         player->SEND_GOSSIP_MENU(2039, creature->GetGUID());
         player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
         creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
+        creature->DespawnOrUnsummon(3*IN_MILLISECONDS);
         return true;
     }
 
