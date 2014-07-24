@@ -73,14 +73,14 @@ class npc_four_car_garage : public CreatureScript
         }
 };
 
-class spell_gen_gunship_portal : public SpellScriptLoader
+class spell_ioc_gunship_portal : public SpellScriptLoader
 {
     public:
-        spell_gen_gunship_portal() : SpellScriptLoader("spell_gen_gunship_portal") { }
+        spell_ioc_gunship_portal() : SpellScriptLoader("spell_ioc_gunship_portal") { }
 
-        class spell_gen_gunship_portal_SpellScript : public SpellScript
+        class spell_ioc_gunship_portal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_gunship_portal_SpellScript);
+            PrepareSpellScript(spell_ioc_gunship_portal_SpellScript);
 
             bool Load() override
             {
@@ -97,13 +97,13 @@ class spell_gen_gunship_portal : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_gunship_portal_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_ioc_gunship_portal_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
         SpellScript* GetSpellScript() const override
         {
-            return new spell_gen_gunship_portal_SpellScript();
+            return new spell_ioc_gunship_portal_SpellScript();
         }
 };
 
@@ -112,14 +112,14 @@ enum ParachuteIC
     SPELL_PARACHUTE_IC      = 66657
 };
 
-class spell_gen_parachute_ic : public SpellScriptLoader
+class spell_ioc_parachute_ic : public SpellScriptLoader
 {
     public:
-        spell_gen_parachute_ic() : SpellScriptLoader("spell_gen_parachute_ic") { }
+        spell_ioc_parachute_ic() : SpellScriptLoader("spell_ioc_parachute_ic") { }
 
-        class spell_gen_parachute_ic_AuraScript : public AuraScript
+        class spell_ioc_parachute_ic_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_parachute_ic_AuraScript);
+            PrepareAuraScript(spell_ioc_parachute_ic_AuraScript);
 
             void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
             {
@@ -130,13 +130,13 @@ class spell_gen_parachute_ic : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_parachute_ic_AuraScript::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_ioc_parachute_ic_AuraScript::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
         AuraScript* GetAuraScript() const override
         {
-            return new spell_gen_parachute_ic_AuraScript();
+            return new spell_ioc_parachute_ic_AuraScript();
         }
 };
 
@@ -145,14 +145,14 @@ enum Launch
     SPELL_LAUNCH_NO_FALLING_DAMAGE  = 66251
 };
 
-class spell_gen_launch : public SpellScriptLoader
+class spell_ioc_launch : public SpellScriptLoader
 {
     public:
-        spell_gen_launch() : SpellScriptLoader("spell_gen_launch") { }
+        spell_ioc_launch() : SpellScriptLoader("spell_ioc_launch") { }
 
-        class spell_gen_launch_SpellScript : public SpellScript
+        class spell_ioc_launch_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_launch_SpellScript);
+            PrepareSpellScript(spell_ioc_launch_SpellScript);
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -181,21 +181,21 @@ class spell_gen_launch : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_launch_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_FORCE_CAST);
-                AfterHit += SpellHitFn(spell_gen_launch_SpellScript::Launch);
+                OnEffectHitTarget += SpellEffectFn(spell_ioc_launch_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_FORCE_CAST);
+                AfterHit += SpellHitFn(spell_ioc_launch_SpellScript::Launch);
             }
         };
 
         SpellScript* GetSpellScript() const override
         {
-            return new spell_gen_launch_SpellScript();
+            return new spell_ioc_launch_SpellScript();
         }
 };
 
 void AddSC_isle_of_conquest()
 {
     new npc_four_car_garage();
-    new spell_gen_gunship_portal();
-    new spell_gen_parachute_ic();
-    new spell_gen_launch();
+    new spell_ioc_gunship_portal();
+    new spell_ioc_parachute_ic();
+    new spell_ioc_launch();
 }
