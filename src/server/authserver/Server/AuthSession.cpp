@@ -161,7 +161,7 @@ void AuthSession::AsyncReadHeader()
         }
         else
         {
-            _socket.close();
+            CloseSocket();
         }
     });
 }
@@ -176,7 +176,7 @@ void AuthSession::AsyncReadData(bool (AuthSession::*handler)(), size_t dataSize,
         {
             if (!(*this.*handler)())
             {
-                _socket.close();
+                CloseSocket();
                 return;
             }
 
@@ -184,7 +184,7 @@ void AuthSession::AsyncReadData(bool (AuthSession::*handler)(), size_t dataSize,
         }
         else
         {
-            _socket.close();
+            CloseSocket();
         }
     });
 }
@@ -195,7 +195,7 @@ void AuthSession::AsyncWrite(std::size_t length)
     {
         if (error)
         {
-            _socket.close();
+            CloseSocket();
         }
     });
 }
@@ -934,4 +934,12 @@ void AuthSession::SetVSFields(const std::string& rI)
 
     OPENSSL_free(v_hex);
     OPENSSL_free(s_hex);
+}
+
+void AuthSession::CloseSocket()
+{
+    boost::system::error_code socketError;
+    _socket.close(socketError);
+    if (socketError)
+        TC_LOG_DEBUG("server.authserver", "Account '%s' errored when closing socket: %i (%s)", _login.c_str(), socketError.value(), socketError.message());
 }
