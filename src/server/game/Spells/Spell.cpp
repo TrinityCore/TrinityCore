@@ -4794,9 +4794,9 @@ SpellCastResult Spell::CheckCast(bool strict)
 
             if (m_caster->GetEntry() != WORLD_TRIGGER) // Ignore LOS for gameobjects casts (wrongly cast by a trigger)
             {
-                WorldObject* losTarget = target;
+                WorldObject* losTarget = m_caster;
                 if (IsTriggered() && m_triggeredByAuraSpell)
-                    if (DynamicObject* dynObj = m_caster->GetDynObject(m_triggeredByAuraSpell))
+                    if (DynamicObject* dynObj = m_caster->GetDynObject(m_triggeredByAuraSpell->Id))
                         losTarget = dynObj;
             
                 if (!(m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, NULL, SPELL_DISABLE_LOS) && !target->IsWithinLOSInMap(losTarget))
