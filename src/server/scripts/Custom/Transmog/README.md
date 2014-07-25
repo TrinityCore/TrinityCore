@@ -43,7 +43,7 @@ Have an item in your bags that is suitable to be used to transmogrify the equipp
 Talk to Transmogrifier and select the item slot. Then select the item you want to transmogrify to.
 Click to proceed when prompted and your items are transmogrified.
 
-####Changelog: [Changelog](CHANGELOG.md)
+####Changelog: [Changelog](https://github.com/Rochet2/TrinityCore/blob/transmog/src/server/scripts/Custom/Transmog/CHANGELOG.md)
 
 ####Bugs and Contact
 Report issues and similar to http://rochet2.github.io/
