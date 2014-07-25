@@ -25,13 +25,14 @@ Using direct merge:
 - use cmake and compile
 
 Using diff:
-- download the diff file as "Transmogrification.diff" and place to source root folder
+- download the diff by __right clicking__ the link and select __save as__
+- place the downloaded `Transmog.diff` to the source root folder
 - open git bash to source location
-- do `git apply Transmogrification.diff`
+- do `git apply Transmog.diff`
 - use cmake and compile
 
 After compiling:
-- Navigate to `\src\server\scripts\Custom\Transmogrification\sql\`
+- Navigate to `\src\server\scripts\Custom\Transmog\sql\`
 - Run `characters.sql` to your characters database
 - Run `world_texts.sql` to your world database
  - optionally you can also insert a transmogrifier NPC to your database by running `world_NPC.sql` to your world database.
