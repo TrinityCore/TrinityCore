@@ -23,6 +23,7 @@
 #include "Player.h"
 #include "World.h"
 #include "WorldSession.h"
+#include <openssl/md5.h>
 
 Arena::Arena()
 {
@@ -141,6 +142,8 @@ void Arena::EndBattleground(uint32 winner)
         uint32 winnerMatchmakerRating = 0;
         int32  winnerChange           = 0;
         int32  winnerMatchmakerChange = 0;
+        uint8 uniqueIdentifier[16]; // generate unique hash
+        uint32 duration = GetStartTime() - time(NULL); // match duration
 
         ArenaTeam* winnerArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(winner));
         ArenaTeam* loserArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(winner)));
@@ -172,8 +175,22 @@ void Arena::EndBattleground(uint32 winner)
                 _arenaTeamScores[winnerTeam].Assign(winnerChange, winnerMatchmakerRating, winnerArenaTeam->GetName());
                 _arenaTeamScores[loserTeam].Assign(loserChange, loserMatchmakerRating, loserArenaTeam->GetName());
 
+                // arena SQL logging
+                char str[32];
+                sprintf(str, UI64FMTD "%u%u", time(NULL), winnerArenaTeam->GetId(), loserArenaTeam->GetId());
+                MD5_CTX ctx;
+                MD5_Init(&ctx);
+                MD5_Update(&ctx, str, strlen(str));
+                MD5_Final(uniqueIdentifier, &ctx);
+                // arena SQL logging end section
+
                 TC_LOG_DEBUG("bg.arena", "Arena match Type: %u for Team1Id: %u - Team2Id: %u ended. WinnerTeamId: %u. Winner rating: +%d, Loser rating: %d",
                     GetArenaType(), GetArenaTeamIdByIndex(TEAM_ALLIANCE), GetArenaTeamIdByIndex(TEAM_HORDE), winnerArenaTeam->GetId(), winnerChange, loserChange);
+
+                // arena SQL logging
+                LoginDatabase.DirectPExecute("INSERT INTO arena_log VALUES (NULL, '%s', '%u', '%u', '%u', '%d', '%u', '%d', '%u', '%u', '%d', '%u', '%d', '%u')", uniqueIdentifier, GetArenaType(), winnerArenaTeam->GetId(), winnerTeamRating, winnerChange, winnerMatchmakerRating,
+                winnerMatchmakerChange, loserArenaTeam->GetId(), loserTeamRating, loserChange, loserMatchmakerRating, loserMatchmakerChange, (uint32)duration);
+                // arena SQL logging end section
 
                 if (sWorld->getBoolConfig(CONFIG_ARENA_LOG_EXTENDED_INFO))
                     for (auto const& score : PlayerScores)
@@ -182,6 +199,12 @@ void Arena::EndBattleground(uint32 winner)
                             TC_LOG_DEBUG("bg.arena", "Statistics match Type: %u for %s (GUID: %u, Team: %d, IP: %s): %s",
                                 GetArenaType(), player->GetName().c_str(), score.first, player->GetArenaTeamId(GetArenaType() == 5 ? 2 : GetArenaType() == 3),
                                 player->GetSession()->GetRemoteAddress().c_str(), score.second->ToString().c_str());
+                            // arena SQL logging
+                            LoginDatabase.DirectPExecute("INSERT INTO arena_log_member VALUES (NULL, '%s', '%s', " UI64FMTD ", '%d', '%s', '%u', '%u', '%u')", uniqueIdentifier, player->GetName().c_str(), score.first, player->GetArenaTeamId(GetArenaType() == 5 ? 2 : GetArenaType() == 3),
+                            player->GetSession()->GetRemoteAddress().c_str(), score.second->DamageDone, score.second->HealingDone,
+                            score.second->KillingBlows, winnerArenaTeam->GetId(), winnerTeamRating, winnerChange, winnerMatchmakerRating,
+                            winnerMatchmakerChange, loserArenaTeam->GetId(), loserTeamRating, loserChange, loserMatchmakerRating, loserMatchmakerChange, (uint32)duration);
+                            // arena SQL logging end section
                         }
             }
             // Deduct 16 points from each teams arena-rating if there are no winners after 45+2 minutes
