@@ -508,5 +508,5 @@ void WorldSocket::CloseSocket()
     if (socketError)
         TC_LOG_DEBUG("network", "WorldSocket::CloseSocket: Player '%s' (%s) errored when closing socket: %i (%s)",
             _worldSession ? _worldSession->GetPlayerInfo().c_str() : "unknown", GetRemoteIpAddress().c_str(),
-            socketError.value(), socketError.message());
+            socketError.value(), socketError.message().c_str());
 }
