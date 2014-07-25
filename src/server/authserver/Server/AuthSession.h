@@ -58,6 +58,7 @@ private:
     void AsyncReadData(bool (AuthSession::*handler)(), size_t dataSize, size_t bufferOffset);
     void AsyncWrite(size_t length);
 
+    void CloseSocket();
 
     void SetVSFields(const std::string& rI);
 
