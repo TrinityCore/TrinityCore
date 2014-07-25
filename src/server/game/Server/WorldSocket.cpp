@@ -31,7 +31,7 @@ using boost::asio::ip::tcp;
 using boost::asio::streambuf;
 
 WorldSocket::WorldSocket(tcp::socket&& socket)
-    : _socket(std::move(socket)), _authSeed(static_cast<uint32>(rand32())), _OverSpeedPings(0), _worldSession(nullptr)
+    : _socket(std::move(socket)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr)
 {
 }
 
