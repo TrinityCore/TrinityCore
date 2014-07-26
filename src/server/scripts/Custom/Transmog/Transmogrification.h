@@ -39,8 +39,8 @@ private:
 public:
     static Transmogrification* instance()
     {
-        static Transmogrification *instance = new Transmogrification();
-        return instance;
+        static Transmogrification instance;
+        return &instance;
     }
 
 #ifdef PRESETS
