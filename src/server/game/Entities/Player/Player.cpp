@@ -16031,6 +16031,8 @@ void Player::SetQuestStatus(uint32 questId, QuestStatus status, bool update /*= 
 
     if (update)
         SendQuestUpdate(questId);
+
+    sScriptMgr->OnQuestStatusChange(this, questId, status);
 }
 
 void Player::RemoveActiveQuest(uint32 questId, bool update /*= true*/)
