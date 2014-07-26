@@ -25,9 +25,9 @@
 #include <mutex>
 #include <queue>
 #include <memory>
+#include <functional>
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/placeholders.hpp>
-#include <boost/bind.hpp>
+#include <boost/asio/write.hpp>
 
 using boost::asio::ip::tcp;
 
@@ -44,12 +44,12 @@ public:
 
     void AsyncReadHeader()
     {
-        _socket.async_read_some(boost::asio::buffer(_readBuffer, _headerSize), boost::bind(&Socket::ReadHeaderHandlerInternal, shared_from_this(), boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+        _socket.async_read_some(boost::asio::buffer(_readBuffer, _headerSize), std::bind(&Socket<T>::ReadHeaderHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
     }
 
     void AsyncReadData(std::size_t size, std::size_t bufferOffset)
     {
-        _socket.async_read_some(boost::asio::buffer(&_readBuffer[bufferOffset], size), boost::bind(&Socket::ReadDataHandlerInternal, shared_from_this(), boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+        _socket.async_read_some(boost::asio::buffer(&_readBuffer[bufferOffset], size), std::bind(&Socket<T>::ReadDataHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
     }
 
     void ReadData(std::size_t size, std::size_t bufferOffset)
@@ -59,7 +59,7 @@ public:
 
     void AsyncWrite(std::vector<uint8> const& data)
     {
-        boost::asio::async_write(_socket, boost::asio::buffer(data), boost::bind(&Socket::WriteHandler, shared_from_this(), boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+        boost::asio::async_write(_socket, boost::asio::buffer(data), std::bind(&Socket<T>::WriteHandler, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
     }
 
     bool IsOpen() const { return _socket.is_open(); }

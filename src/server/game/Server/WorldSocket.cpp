@@ -16,8 +16,6 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/asio/write.hpp>
-#include <boost/asio/read_until.hpp>
 #include <memory>
 #include "WorldSocket.h"
 #include "ServerPktHeader.h"
@@ -28,7 +26,6 @@
 #include "PacketLog.h"
 
 using boost::asio::ip::tcp;
-using boost::asio::streambuf;
 
 WorldSocket::WorldSocket(tcp::socket&& socket)
     : Socket(std::move(socket), sizeof(ClientPktHeader)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr)
