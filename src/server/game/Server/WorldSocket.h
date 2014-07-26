@@ -21,6 +21,7 @@
 
 #include "Common.h"
 #include "AuthCrypt.h"
+#include "Socket.h"
 #include "Util.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -42,7 +43,7 @@ struct ClientPktHeader
 
 #pragma pack(pop)
 
-class WorldSocket : public std::enable_shared_from_this<WorldSocket>
+class WorldSocket : public Socket<WorldSocket>
 {
 public:
     WorldSocket(tcp::socket&& socket);
@@ -50,15 +51,15 @@ public:
     WorldSocket(WorldSocket const& right) = delete;
     WorldSocket& operator=(WorldSocket const& right) = delete;
 
-    void Start();
-
-    std::string GetRemoteIpAddress() const { return _socket.remote_endpoint().address().to_string(); };
-    uint16 GetRemotePort() const { return _socket.remote_endpoint().port(); }
-
-    void CloseSocket();
-    bool IsOpen() const { return _socket.is_open(); }
+    void Start() override;
 
     void AsyncWrite(WorldPacket const& packet);
+
+    using Socket<WorldSocket>::AsyncWrite;
+
+protected:
+    void ReadHeaderHandler(boost::system::error_code error, size_t transferedBytes) override;
+    void ReadDataHandler(boost::system::error_code error, size_t transferedBytes) override;
 
 private:
     void HandleSendAuthSession();
@@ -66,16 +67,6 @@ private:
     void SendAuthResponseError(uint8 code);
 
     void HandlePing(WorldPacket& recvPacket);
-
-    void AsyncReadHeader();
-    void AsyncReadData(size_t dataSize);
-    void AsyncWrite(std::vector<uint8> const& data);
-
-    tcp::socket _socket;
-
-    char _readBuffer[4096];
-    std::mutex _writeLock;
-    std::queue<std::vector<uint8> > _writeQueue;
 
     uint32 _authSeed;
     AuthCrypt _authCrypt;
