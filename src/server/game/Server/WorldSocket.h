@@ -25,11 +25,8 @@
 #include "Util.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include <memory>
 #include <chrono>
-#include <mutex>
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/streambuf.hpp>
 
 using boost::asio::ip::tcp;
 
@@ -54,7 +51,6 @@ public:
     void Start() override;
 
     void AsyncWrite(WorldPacket const& packet);
-
     using Socket<WorldSocket>::AsyncWrite;
 
 protected:

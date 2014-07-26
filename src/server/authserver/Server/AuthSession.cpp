@@ -16,11 +16,8 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <memory>
-#include <boost/lexical_cast.hpp>
-#include <boost/asio/write.hpp>
-#include <AuthSession.h>
-#include <Log.h>
+#include "AuthSession.h"
+#include "Log.h"
 #include "ByteBuffer.h"
 #include "AuthCodes.h"
 #include "Database/DatabaseEnv.h"
@@ -28,6 +25,7 @@
 #include "openssl/crypto.h"
 #include "Configuration/Config.h"
 #include "RealmList.h"
+#include <boost/lexical_cast.hpp>
 
 using boost::asio::ip::tcp;
 
