@@ -161,13 +161,28 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
     if (node->orientation && node->delay)
         init.SetFacing(node->orientation);
 
-    init.SetWalk(!node->run);
+    switch (node->move_type)
+    {
+        case WAYPOINT_MOVE_TYPE_LAND:
+            init.SetAnimation(Movement::ToGround);
+            break;
+        case WAYPOINT_MOVE_TYPE_TAKEOFF:
+            init.SetAnimation(Movement::ToFly);
+            break;
+        case WAYPOINT_MOVE_TYPE_RUN:
+            init.SetWalk(false);
+            break;
+        case WAYPOINT_MOVE_TYPE_WALK:
+            init.SetWalk(true);
+            break;
+    }
+
     init.Launch();
 
     //Call for creature group update
     if (creature->GetFormation() && creature->GetFormation()->getLeader() == creature)
     {
-        creature->SetWalk(!node->run);
+        creature->SetWalk(node->move_type != WAYPOINT_MOVE_TYPE_RUN);
         creature->GetFormation()->LeaderMoveTo(formationDest.x, formationDest.y, formationDest.z);
     }
 
