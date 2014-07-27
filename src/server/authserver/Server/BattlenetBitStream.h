@@ -234,4 +234,15 @@ namespace Battlenet
     bool BitStream::Read<bool>(uint32 bitCount);
 }
 
+namespace boost
+{
+    namespace asio
+    {
+        inline const_buffers_1 buffer(Battlenet::BitStream const& stream)
+        {
+            return buffer(stream.GetBuffer(), stream.GetSize());
+        }
+    }
+}
+
 #endif // __BATTLENETBITSTREAM_H__

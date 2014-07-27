@@ -33,15 +33,28 @@ class WorldPacket : public ByteBuffer
         {
         }
 
-        WorldPacket(Opcodes opcode, size_t res = 200) : ByteBuffer(res), m_opcode(opcode)
-        {
-        }
-                                                            // copy constructor
-        WorldPacket(WorldPacket const& packet) : ByteBuffer(packet), m_opcode(packet.m_opcode)
+        explicit WorldPacket(Opcodes opcode, size_t res=200) : ByteBuffer(res), m_opcode(opcode) { }
+
+        WorldPacket(WorldPacket&& packet) : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode)
         {
         }
 
-        void Initialize(Opcodes opcode, size_t newres = 200)
+        WorldPacket(WorldPacket const& right) : ByteBuffer(right), m_opcode(right.m_opcode)
+        {
+        }
+
+        WorldPacket& operator=(WorldPacket const& right)
+        {
+            if (this != &right)
+            {
+                m_opcode = right.m_opcode;
+                ByteBuffer::operator =(right);
+            }
+
+            return *this;
+        }
+
+        void Initialize(Opcodes opcode, size_t newres=200)
         {
             clear();
             _storage.reserve(newres);
@@ -58,5 +71,5 @@ class WorldPacket : public ByteBuffer
         void Compress(void* dst, uint32 *dst_size, const void* src, int src_size);
         z_stream_s* _compressionStream;
 };
-#endif
 
+#endif

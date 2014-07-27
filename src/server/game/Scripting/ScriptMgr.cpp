@@ -414,25 +414,37 @@ void ScriptMgr::OnSocketClose(std::shared_ptr<WorldSocket> socket, bool wasNew)
     FOREACH_SCRIPT(ServerScript)->OnSocketClose(socket, wasNew);
 }
 
-void ScriptMgr::OnPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket packet)
+void ScriptMgr::OnPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket const& packet)
 {
     ASSERT(socket);
 
-    FOREACH_SCRIPT(ServerScript)->OnPacketReceive(socket, packet);
+    if (SCR_REG_LST(ServerScript).empty())
+        return;
+
+    WorldPacket copy(packet);
+    FOREACH_SCRIPT(ServerScript)->OnPacketReceive(socket, copy);
 }
 
-void ScriptMgr::OnPacketSend(std::shared_ptr<WorldSocket> socket, WorldPacket packet)
+void ScriptMgr::OnPacketSend(std::shared_ptr<WorldSocket> socket, WorldPacket const& packet)
 {
     ASSERT(socket);
 
-    FOREACH_SCRIPT(ServerScript)->OnPacketSend(socket, packet);
+    if (SCR_REG_LST(ServerScript).empty())
+        return;
+
+    WorldPacket copy(packet);
+    FOREACH_SCRIPT(ServerScript)->OnPacketSend(socket, copy);
 }
 
-void ScriptMgr::OnUnknownPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket packet)
+void ScriptMgr::OnUnknownPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket const& packet)
 {
     ASSERT(socket);
 
-    FOREACH_SCRIPT(ServerScript)->OnUnknownPacketReceive(socket, packet);
+    if (SCR_REG_LST(ServerScript).empty())
+        return;
+
+    WorldPacket copy(packet);
+    FOREACH_SCRIPT(ServerScript)->OnUnknownPacketReceive(socket, copy);
 }
 
 void ScriptMgr::OnOpenStateChange(bool open)

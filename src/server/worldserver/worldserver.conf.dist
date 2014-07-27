@@ -196,11 +196,10 @@ Compression = 1
 #        Description: Maximum number of players in the world. Excluding Mods, GMs and Admins.
 #          Important: If you want to block players and only allow Mods, GMs or Admins to join the
 #                     server, use the DB field "auth.realmlist.allowedSecurityLevel".
-#            Default: 100 - (Enabled)
+#            Default: 0   - (Disabled, No limit)
 #                     1+  - (Enabled)
-#                     0   - (Disabled, No limit)
 
-PlayerLimit = 100
+PlayerLimit = 0
 
 #
 #    SaveRespawnTimeImmediately

@@ -100,7 +100,7 @@ enum GameObjects
 
 enum Misc
 {
-    AREA_TOMB_OF_THE_EARTHRAGER     = 5610,
+    AREA_TOMB_OF_THE_EARTHRAGER     = 4945,
     ACHIEV_VAULT_OF_LIGHTS_EVENT    = 24212, // Faster Than The Speed Of Light
     SPELL_VAULT_OF_LIGHTS_CREDIT    = 94067, // Not in DBC
 };
