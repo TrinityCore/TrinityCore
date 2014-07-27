@@ -20,9 +20,9 @@
 #define __AUTHSESSION_H__
 
 #include "Common.h"
+#include "ByteBuffer.h"
 #include "Socket.h"
 #include "BigNumber.h"
-#include "ByteBuffer.h"
 #include <memory>
 #include <boost/asio/ip/tcp.hpp>
 

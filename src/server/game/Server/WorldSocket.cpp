@@ -18,7 +18,6 @@
 
 #include <memory>
 #include "WorldSocket.h"
-#include "ServerPktHeader.h"
 #include "BigNumber.h"
 #include "Opcodes.h"
 #include "ScriptMgr.h"
@@ -140,7 +139,7 @@ void WorldSocket::ReadDataHandler(boost::system::error_code error, size_t transf
         CloseSocket();
 }
 
-void WorldSocket::AsyncWrite(WorldPacket const& packet)
+void WorldSocket::AsyncWrite(WorldPacket& packet)
 {
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(packet, SERVER_TO_CLIENT);
@@ -149,18 +148,12 @@ void WorldSocket::AsyncWrite(WorldPacket const& packet)
 
     ServerPktHeader header(packet.size() + 2, packet.GetOpcode());
 
-    std::vector<uint8> data(header.getHeaderLength() + packet.size());
-    std::memcpy(data.data(), header.header, header.getHeaderLength());
-
-    if (!packet.empty())
-        std::memcpy(&data[header.getHeaderLength()], packet.contents(), packet.size());
-
     std::lock_guard<std::mutex> guard(_writeLock);
 
     bool needsWriteStart = _writeQueue.empty();
-    _authCrypt.EncryptSend(data.data(), header.getHeaderLength());
+    _authCrypt.EncryptSend(header.header, header.getHeaderLength());
 
-    _writeQueue.push(std::move(data));
+    _writeQueue.emplace(header, std::move(packet));
 
     if (needsWriteStart)
         AsyncWrite(_writeQueue.front());
