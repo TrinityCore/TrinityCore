@@ -143,6 +143,7 @@ namespace Battlenet
 
         void Read() override final { ASSERT(!"Read not implemented for server packets."); }
 
+        uint8* GetData() { return _stream.GetBuffer(); }
         uint8 const* GetData() const { return _stream.GetBuffer(); }
         size_t GetSize() const { return _stream.GetSize(); }
     };
@@ -366,6 +367,17 @@ namespace Battlenet
         std::vector<tcp::endpoint> IPv4;
         std::vector<tcp::endpoint> IPv6;
     };
+}
+
+namespace boost
+{
+    namespace asio
+    {
+        inline const_buffers_1 buffer(Battlenet::ServerPacket const* packet)
+        {
+            return buffer(packet->GetData(), packet->GetSize());
+        }
+    }
 }
 
 #endif // __BATTLENETPACKETS_H__

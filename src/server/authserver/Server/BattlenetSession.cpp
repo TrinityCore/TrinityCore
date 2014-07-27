@@ -56,7 +56,7 @@ Battlenet::Session::ModuleHandler const Battlenet::Session::ModuleHandlers[MODUL
     &Battlenet::Session::HandleResumeModule,
 };
 
-Battlenet::Session::Session(tcp::socket&& socket) : _socket(std::move(socket)), _accountId(0), _accountName(), _locale(),
+Battlenet::Session::Session(tcp::socket&& socket) : Socket(std::move(socket), std::size_t(BufferSizes::Read)), _accountId(0), _accountName(), _locale(),
     _os(), _build(0), _gameAccountId(0), _gameAccountIndex(0), _accountSecurityLevel(SEC_PLAYER), I(), s(), v(), b(), B(), K(),
     _reconnectProof(), _crypt(), _authed(false)
 {
@@ -113,7 +113,7 @@ bool Battlenet::Session::HandleAuthChallenge(PacketHeader& header, BitStream& pa
     // Verify that this IP is not in the ip_banned table
     LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
 
-    std::string const& ip_address = GetRemoteAddress();
+    std::string ip_address = GetRemoteIpAddress().to_string();
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_BANNED);
     stmt->setString(0, ip_address);
     if (PreparedQueryResult result = LoginDatabase.Query(stmt))
@@ -477,7 +477,7 @@ bool Battlenet::Session::HandleRealmUpdateSubscribe(PacketHeader& /*header*/, Bi
             version << buildInfo->MajorVersion << '.' << buildInfo->MinorVersion << '.' << buildInfo->BugfixVersion << '.' << buildInfo->Build;
 
             update->Version = version.str();
-            update->Address = realm.GetAddressForClient(_socket.remote_endpoint().address());
+            update->Address = realm.GetAddressForClient(GetRemoteIpAddress());
             update->Build = buildInfo->Build;
         }
 
@@ -528,7 +528,7 @@ bool Battlenet::Session::HandleRealmJoinRequest(PacketHeader& header, BitStream&
     memcpy(sessionKey + hmac.GetLength(), hmac2.GetDigest(), hmac2.GetLength());
 
     LoginDatabase.DirectPExecute("UPDATE account SET sessionkey = '%s', last_ip = '%s', last_login = NOW(), locale = %u, failed_logins = 0, os = '%s' WHERE id = %u",
-        ByteArrayToHexStr(sessionKey, 40, true).c_str(), GetRemoteAddress().c_str(), GetLocaleByName(_locale), _os.c_str(), _gameAccountId);
+        ByteArrayToHexStr(sessionKey, 40, true).c_str(), GetRemoteIpAddress().to_string().c_str(), GetLocaleByName(_locale), _os.c_str(), _gameAccountId);
 
     result->IPv4.emplace_back(realm->ExternalAddress, realm->port);
     if (realm->ExternalAddress != realm->LocalAddress)
@@ -538,69 +538,64 @@ bool Battlenet::Session::HandleRealmJoinRequest(PacketHeader& header, BitStream&
     return true;
 }
 
-void Battlenet::Session::AsyncRead()
+void Battlenet::Session::ReadHeaderHandler(boost::system::error_code error, size_t transferedBytes)
 {
-    auto self(shared_from_this());
-
-    _socket.async_read_some(boost::asio::buffer(_readBuffer, size_t(BufferSizes::Read)), [this, self](boost::system::error_code error, size_t transferedBytes)
+    if (error)
     {
-        if (error)
+        CloseSocket();
+        return;
+    }
+
+    BitStream packet(transferedBytes);
+    std::memcpy(packet.GetBuffer(), GetReadBuffer(), transferedBytes);
+    _crypt.DecryptRecv(packet.GetBuffer(), transferedBytes);
+
+    while (!packet.IsRead())
+    {
+        try
         {
-            _socket.close();
-            return;
-        }
+            PacketHeader header;
+            header.Opcode = packet.Read<uint32>(6);
+            if (packet.Read<bool>(1))
+                header.Channel = packet.Read<int32>(4);
 
-        BitStream packet(transferedBytes);
-        std::memcpy(packet.GetBuffer(), _readBuffer, transferedBytes);
-        _crypt.DecryptRecv(packet.GetBuffer(), transferedBytes);
-
-        while (!packet.IsRead())
-        {
-            try
+            if (header.Channel != AUTHENTICATION && !_authed)
             {
-                PacketHeader header;
-                header.Opcode = packet.Read<uint32>(6);
-                if (packet.Read<bool>(1))
-                    header.Channel = packet.Read<int32>(4);
-
-                if (header.Channel != AUTHENTICATION && !_authed)
-                {
-                    TC_LOG_DEBUG("server.battlenet", "Battlenet::Session::AsyncRead Received not allowed packet %s", header.ToString().c_str());
-                    _socket.close();
-                    return;
-                }
-
-                TC_LOG_TRACE("server.battlenet", "Battlenet::Session::AsyncRead %s", header.ToString().c_str());
-                std::map<PacketHeader, PacketHandler>::const_iterator itr = Handlers.find(header);
-                if (itr != Handlers.end())
-                {
-                    if ((this->*(itr->second))(header, packet))
-                        break;
-                }
-                else
-                {
-                    TC_LOG_DEBUG("server.battlenet", "Battlenet::Session::AsyncRead Unhandled opcode %s", header.ToString().c_str());
-                    break;
-                }
-
-                packet.AlignToNextByte();
-            }
-            catch (BitStreamPositionException const& e)
-            {
-                TC_LOG_ERROR("server.battlenet", "Battlenet::Session::AsyncRead Exception: %s", e.what());
-                _socket.close();
+                TC_LOG_DEBUG("server.battlenet", "Battlenet::Session::AsyncRead Received not allowed packet %s", header.ToString().c_str());
+                CloseSocket();
                 return;
             }
-        }
 
-        AsyncRead();
-    });
+            TC_LOG_TRACE("server.battlenet", "Battlenet::Session::AsyncRead %s", header.ToString().c_str());
+            std::map<PacketHeader, PacketHandler>::const_iterator itr = Handlers.find(header);
+            if (itr != Handlers.end())
+            {
+                if ((this->*(itr->second))(header, packet))
+                    break;
+            }
+            else
+            {
+                TC_LOG_DEBUG("server.battlenet", "Battlenet::Session::AsyncRead Unhandled opcode %s", header.ToString().c_str());
+                break;
+            }
+
+            packet.AlignToNextByte();
+        }
+        catch (BitStreamPositionException const& e)
+        {
+            TC_LOG_ERROR("server.battlenet", "Battlenet::Session::AsyncRead Exception: %s", e.what());
+            CloseSocket();
+            return;
+        }
+    }
+
+    AsyncReadHeader();
 }
 
 void Battlenet::Session::Start()
 {
     TC_LOG_TRACE("server.battlenet", "Battlenet::Session::Start");
-    AsyncRead();
+    AsyncReadHeader();
 }
 
 void Battlenet::Session::AsyncWrite(ServerPacket* packet)
@@ -609,17 +604,16 @@ void Battlenet::Session::AsyncWrite(ServerPacket* packet)
 
     packet->Write();
 
-    _crypt.EncryptSend(const_cast<uint8*>(packet->GetData()), packet->GetSize());
+    std::lock_guard<std::mutex> guard(_writeLock);
 
-    auto self(shared_from_this());
+    _crypt.EncryptSend(packet->GetData(), packet->GetSize());
 
-    boost::asio::async_write(_socket, boost::asio::buffer(packet->GetData(), packet->GetSize()), [this, self, packet](boost::system::error_code error, std::size_t /*length*/)
-    {
-        if (error)
-            _socket.close();
+    bool needsWriteStart = _writeQueue.empty();
 
-        delete packet;
-    });
+    _writeQueue.push(packet);
+
+    if (needsWriteStart)
+        Base::AsyncWrite(_writeQueue.front());
 }
 
 inline void ReplaceResponse(Battlenet::ServerPacket** oldResponse, Battlenet::ServerPacket* newResponse)
@@ -809,12 +803,12 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
             if (fields[2].GetUInt32() == fields[3].GetUInt32())
             {
                 complete->SetAuthResult(LOGIN_BANNED);
-                TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::AuthChallenge] Banned account %s tried to login!", GetRemoteAddress().c_str(), GetRemotePort(), _accountName.c_str());
+                TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::AuthChallenge] Banned account %s tried to login!", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountName.c_str());
             }
             else
             {
                 complete->SetAuthResult(LOGIN_SUSPENDED);
-                TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::AuthChallenge] Temporarily banned account %s tried to login!", GetRemoteAddress().c_str(), GetRemotePort(), _accountName.c_str());
+                TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::AuthChallenge] Temporarily banned account %s tried to login!", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountName.c_str());
             }
 
             ReplaceResponse(response, complete);
@@ -873,12 +867,12 @@ bool Battlenet::Session::HandleSelectGameAccountModule(BitStream* dataStream, Se
         if (fields[1].GetUInt32() == fields[2].GetUInt32())
         {
             complete->SetAuthResult(LOGIN_BANNED);
-            TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::SelectGameAccount] Banned account %s tried to login!", GetRemoteAddress().c_str(), GetRemotePort(), _accountName.c_str());
+            TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::SelectGameAccount] Banned account %s tried to login!", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountName.c_str());
         }
         else
         {
             complete->SetAuthResult(LOGIN_SUSPENDED);
-            TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::SelectGameAccount] Temporarily banned account %s tried to login!", GetRemoteAddress().c_str(), GetRemotePort(), _accountName.c_str());
+            TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::SelectGameAccount] Temporarily banned account %s tried to login!", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountName.c_str());
         }
 
         ReplaceResponse(response, complete);
@@ -911,7 +905,7 @@ bool Battlenet::Session::HandleRiskFingerprintModule(BitStream* dataStream, Serv
         SQLTransaction trans = LoginDatabase.BeginTransaction();
 
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_LAST_LOGIN_INFO);
-        stmt->setString(0, GetRemoteAddress());
+        stmt->setString(0, GetRemoteIpAddress().to_string());
         stmt->setUInt8(1, GetLocaleByName(_locale));
         stmt->setString(2, _os);
         stmt->setUInt32(3, _accountId);
