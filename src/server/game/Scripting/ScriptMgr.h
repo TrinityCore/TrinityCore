@@ -910,9 +910,9 @@ class ScriptMgr
         void OnNetworkStop();
         void OnSocketOpen(std::shared_ptr<WorldSocket> socket);
         void OnSocketClose(std::shared_ptr<WorldSocket> socket, bool wasNew);
-        void OnPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket packet);
-        void OnPacketSend(std::shared_ptr<WorldSocket> socket, WorldPacket packet);
-        void OnUnknownPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket packet);
+        void OnPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket const& packet);
+        void OnPacketSend(std::shared_ptr<WorldSocket> socket, WorldPacket const& packet);
+        void OnUnknownPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket const& packet);
 
     public: /* WorldScript */
 
