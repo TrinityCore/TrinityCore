@@ -543,7 +543,7 @@ public:
         // Check
         // Remember: "show" must also be the name of a column!
         if ((show != "delay") && (show != "action") && (show != "action_chance")
-            && (show != "move_flag") && (show != "del") && (show != "move")
+            && (show != "move_type") && (show != "del") && (show != "move")
             )
         {
             return false;

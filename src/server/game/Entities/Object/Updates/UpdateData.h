@@ -53,6 +53,11 @@ class UpdateData
 {
     public:
         UpdateData();
+        UpdateData(UpdateData&& right) : m_blockCount(right.m_blockCount),
+            m_outOfRangeGUIDs(std::move(right.m_outOfRangeGUIDs)),
+            m_data(std::move(right.m_data))
+        {
+        }
 
         void AddOutOfRangeGUID(std::set<uint64>& guids);
         void AddOutOfRangeGUID(uint64 guid);
@@ -69,6 +74,9 @@ class UpdateData
         ByteBuffer m_data;
 
         void Compress(void* dst, uint32 *dst_size, void* src, int src_size);
+
+        UpdateData(UpdateData const& right) = delete;
+        UpdateData& operator=(UpdateData const& right) = delete;
 };
 #endif
 

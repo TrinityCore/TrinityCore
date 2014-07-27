@@ -178,7 +178,7 @@ class CharacterCreateInfo
     protected:
         CharacterCreateInfo(std::string const& name, uint8 race, uint8 cclass, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId,
         WorldPacket& data) : Name(name), Race(race), Class(cclass), Gender(gender), Skin(skin), Face(face), HairStyle(hairStyle), HairColor(hairColor), FacialHair(facialHair),
-        OutfitId(outfitId), Data(data), CharCount(0)
+        OutfitId(outfitId), Data(std::move(data)), CharCount(0)
         { }
 
         /// User specified variables
@@ -222,7 +222,7 @@ class WorldSession
         void ReadMovementInfo(WorldPacket& data, MovementInfo* mi);
         void WriteMovementInfo(WorldPacket* data, MovementInfo* mi);
 
-        void SendPacket(WorldPacket const* packet);
+        void SendPacket(WorldPacket* packet);
         void SendNotification(const char *format, ...) ATTR_PRINTF(2, 3);
         void SendNotification(uint32 string_id, ...);
         void SendPetNameInvalid(uint32 error, std::string const& name, DeclinedName *declinedName);
