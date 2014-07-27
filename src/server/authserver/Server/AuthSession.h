@@ -19,46 +19,52 @@
 #ifndef __AUTHSESSION_H__
 #define __AUTHSESSION_H__
 
+#include "Common.h"
+#include "Socket.h"
+#include "BigNumber.h"
 #include <memory>
 #include <boost/asio/ip/tcp.hpp>
-#include "Common.h"
-#include "BigNumber.h"
 
 using boost::asio::ip::tcp;
 
-const size_t bufferSize = 4096;
+struct AuthHandler;
+class ByteBuffer;
 
-#define BUFFER_SIZE 4096
-
-class AuthSession : public std::enable_shared_from_this < AuthSession >
+class AuthSession : public Socket<AuthSession>
 {
+
 public:
-    AuthSession(tcp::socket&& socket) : _socket(std::move(socket))
+    static std::unordered_map<uint8, AuthHandler> InitHandlers();
+
+    AuthSession(tcp::socket&& socket) : Socket(std::move(socket), 1)
     {
         N.SetHexStr("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
         g.SetDword(7);
     }
 
-    void Start()
+    void Start() override
     {
         AsyncReadHeader();
     }
 
-    bool _HandleLogonChallenge();
-    bool _HandleLogonProof();
-    bool _HandleReconnectChallenge();
-    bool _HandleReconnectProof();
-    bool _HandleRealmList();
+    using Socket<AuthSession>::AsyncWrite;
+    void AsyncWrite(ByteBuffer const& packet);
 
-    const std::string GetRemoteIpAddress() const { return _socket.remote_endpoint().address().to_string(); };
-    unsigned short GetRemotePort() const { return _socket.remote_endpoint().port(); }
+protected:
+    void ReadHeaderHandler(boost::system::error_code error, size_t transferedBytes) override;
+    void ReadDataHandler(boost::system::error_code error, size_t transferedBytes) override;
 
 private:
-    void AsyncReadHeader();
-    void AsyncReadData(bool (AuthSession::*handler)(), size_t dataSize, size_t bufferOffset);
-    void AsyncWrite(size_t length);
+    bool HandleLogonChallenge();
+    bool HandleLogonProof();
+    bool HandleReconnectChallenge();
+    bool HandleReconnectProof();
+    bool HandleRealmList();
 
-    void CloseSocket();
+    //data transfer handle for patch
+    bool HandleXferResume();
+    bool HandleXferCancel();
+    bool HandleXferAccept();
 
     void SetVSFields(const std::string& rI);
 
@@ -66,10 +72,6 @@ private:
     BigNumber b, B;
     BigNumber K;
     BigNumber _reconnectProof;
-
-    tcp::socket _socket;
-    char _readBuffer[BUFFER_SIZE];
-    char _writeBuffer[BUFFER_SIZE];
 
     bool _isAuthenticated;
     std::string _tokenKey;
@@ -81,5 +83,16 @@ private:
 
     AccountTypes _accountSecurityLevel;
 };
+
+#pragma pack(push, 1)
+
+struct AuthHandler
+{
+    uint32 status;
+    size_t packetSize;
+    bool (AuthSession::*handler)();
+};
+
+#pragma pack(pop)
 
 #endif
