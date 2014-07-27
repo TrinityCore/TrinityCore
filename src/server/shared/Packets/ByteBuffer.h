@@ -81,10 +81,26 @@ class ByteBuffer
             _storage.reserve(reserve);
         }
 
-        // copy constructor
-        ByteBuffer(const ByteBuffer &buf) : _rpos(buf._rpos), _wpos(buf._wpos),
-            _storage(buf._storage)
+        ByteBuffer(ByteBuffer&& buf) : _rpos(buf._rpos), _wpos(buf._wpos),
+            _storage(std::move(buf._storage))
         {
+        }
+
+        ByteBuffer(ByteBuffer const& right) : _rpos(right._rpos), _wpos(right._wpos),
+            _storage(right._storage)
+        {
+        }
+
+        ByteBuffer& operator=(ByteBuffer const& right)
+        {
+            if (this != &right)
+            {
+                _rpos = right._rpos;
+                _wpos = right._wpos;
+                _storage = right._storage;
+            }
+
+            return *this;
         }
 
         virtual ~ByteBuffer() { }
@@ -383,18 +399,18 @@ class ByteBuffer
             return *this;
         }
 
-        uint8 * contents()
+        uint8* contents()
         {
             if (_storage.empty())
                 throw ByteBufferException();
-            return &_storage[0];
+            return _storage.data();
         }
 
-        const uint8 *contents() const
+        uint8 const* contents() const
         {
             if (_storage.empty())
                 throw ByteBufferException();
-            return &_storage[0];
+            return _storage.data();
         }
 
         size_t size() const { return _storage.size(); }
