@@ -218,6 +218,7 @@ namespace Battlenet
         bool IsRead() const { return _readPos >= _numBits; }
 
         uint8* GetBuffer() { return _buffer.data(); }
+        uint8 const* GetBuffer() const { return _buffer.data(); }
 
         size_t GetSize() const { return _buffer.size(); }
 
@@ -232,17 +233,6 @@ namespace Battlenet
 
     template<>
     bool BitStream::Read<bool>(uint32 bitCount);
-}
-
-namespace boost
-{
-    namespace asio
-    {
-        inline const_buffers_1 buffer(Battlenet::BitStream const& stream)
-        {
-            return buffer(stream.GetBuffer(), stream.GetSize());
-        }
-    }
 }
 
 #endif // __BATTLENETBITSTREAM_H__

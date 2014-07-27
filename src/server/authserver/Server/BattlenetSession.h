@@ -51,10 +51,11 @@ namespace Battlenet
         Read = 0x4000
     };
 
-    class Session : public std::enable_shared_from_this<Session>
+    class Session : public Socket<Session, ServerPacket*>
     {
-    public:
+        typedef Socket<Session, ServerPacket*> Base;
 
+    public:
         explicit Session(tcp::socket&& socket);
         ~Session();
 
@@ -74,10 +75,13 @@ namespace Battlenet
         bool HandleRealmUpdateSubscribe(PacketHeader& header, BitStream& packet);
         bool HandleRealmJoinRequest(PacketHeader& header, BitStream& packet);
 
-        void Start();
-        void AsyncRead();
+        void Start() override;
 
         void AsyncWrite(ServerPacket* packet);
+
+    protected:
+        void ReadHeaderHandler(boost::system::error_code error, size_t transferedBytes) override;
+        void ReadDataHandler(boost::system::error_code /*error*/, size_t /*transferedBytes*/) override { }
 
     private:
         void _SetVSFields(std::string const& rI);
@@ -90,12 +94,6 @@ namespace Battlenet
         bool HandleRiskFingerprintModule(BitStream* dataStream, ServerPacket** response);
         bool HandleResumeModule(BitStream* dataStream, ServerPacket** response);
         bool UnhandledModule(BitStream* dataStream, ServerPacket** response);
-
-        std::string GetRemoteAddress() const { return _socket.remote_endpoint().address().to_string(); }
-        uint16 GetRemotePort() const { return _socket.remote_endpoint().port(); }
-
-        tcp::socket _socket;
-        uint8 _readBuffer[size_t(BufferSizes::Read)];
 
         uint32 _accountId;
         std::string _accountName;
