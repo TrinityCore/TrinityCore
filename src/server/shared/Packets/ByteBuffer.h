@@ -32,6 +32,7 @@
 #include <cstring>
 #include <time.h>
 #include <math.h>
+#include <boost/asio/buffer.hpp>
 
 // Root of ByteBuffer exception hierarchy
 class ByteBufferException : public std::exception
@@ -608,5 +609,15 @@ inline void ByteBuffer::read_skip<std::string>()
     read_skip<char*>();
 }
 
-#endif
+namespace boost
+{
+    namespace asio
+    {
+        inline const_buffers_1 buffer(ByteBuffer const& packet)
+        {
+            return buffer(packet.contents(), packet.size());
+        }
+    }
+}
 
+#endif

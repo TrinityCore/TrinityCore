@@ -18,7 +18,6 @@
 
 #include "AuthSession.h"
 #include "Log.h"
-#include "ByteBuffer.h"
 #include "AuthCodes.h"
 #include "Database/DatabaseEnv.h"
 #include "SHA1.h"
@@ -173,19 +172,16 @@ void AuthSession::ReadDataHandler(boost::system::error_code error, size_t transf
         CloseSocket();
 }
 
-void AuthSession::AsyncWrite(ByteBuffer const& packet)
+void AuthSession::AsyncWrite(ByteBuffer& packet)
 {
-    std::vector<uint8> data(packet.size());
-    std::memcpy(data.data(), packet.contents(), packet.size());
-
     std::lock_guard<std::mutex> guard(_writeLock);
 
     bool needsWriteStart = _writeQueue.empty();
 
-    _writeQueue.push(std::move(data));
+    _writeQueue.push(std::move(packet));
 
     if (needsWriteStart)
-        AsyncWrite(_writeQueue.front());
+        Base::AsyncWrite(_writeQueue.front());
 }
 
 bool AuthSession::HandleLogonChallenge()
