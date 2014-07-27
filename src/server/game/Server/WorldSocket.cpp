@@ -18,7 +18,6 @@
 
 #include <memory>
 #include "WorldSocket.h"
-#include "ServerPktHeader.h"
 #include "BigNumber.h"
 #include "Opcodes.h"
 #include "ScriptMgr.h"
@@ -175,35 +174,24 @@ void WorldSocket::ReadDataHandler(boost::system::error_code error, size_t transf
         CloseSocket();
 }
 
-void WorldSocket::AsyncWrite(WorldPacket const& packet)
+void WorldSocket::AsyncWrite(WorldPacket& packet)
 {
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(packet, SERVER_TO_CLIENT);
 
-    WorldPacket const* pkt = &packet;
-    WorldPacket buff;   // Empty buffer used in case packet should be compressed
     if (_worldSession && packet.size() > 0x400)
-    {
-        buff.Compress(_worldSession->GetCompressionStream(), pkt);
-        pkt = &buff;
-    }
+        packet.Compress(_worldSession->GetCompressionStream());
 
-    TC_LOG_TRACE("network.opcode", "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(pkt->GetOpcode()).c_str());
+    TC_LOG_TRACE("network.opcode", "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(packet.GetOpcode()).c_str());
 
-    ServerPktHeader header(pkt->size() + 2, pkt->GetOpcode());
-
-    std::vector<uint8> data(header.getHeaderLength() + pkt->size());
-    std::memcpy(data.data(), header.header, header.getHeaderLength());
-
-    if (!pkt->empty())
-        std::memcpy(&data[header.getHeaderLength()], pkt->contents(), pkt->size());
+    ServerPktHeader header(packet.size() + 2, packet.GetOpcode());
 
     std::lock_guard<std::mutex> guard(_writeLock);
 
     bool needsWriteStart = _writeQueue.empty();
-    _authCrypt.EncryptSend(data.data(), header.getHeaderLength());
+    _authCrypt.EncryptSend(header.header, header.getHeaderLength());
 
-    _writeQueue.push(std::move(data));
+    _writeQueue.emplace(header, std::move(packet));
 
     if (needsWriteStart)
         AsyncWrite(_writeQueue.front());

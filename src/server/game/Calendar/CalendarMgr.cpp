@@ -642,7 +642,7 @@ void CalendarMgr::SendCalendarCommandResult(uint64 guid, CalendarError err, char
     }
 }
 
-void CalendarMgr::SendPacketToAllEventRelatives(WorldPacket packet, CalendarEvent const& calendarEvent)
+void CalendarMgr::SendPacketToAllEventRelatives(WorldPacket& packet, CalendarEvent const& calendarEvent)
 {
     // Send packet to all guild members
     if (calendarEvent.IsGuildEvent() || calendarEvent.IsGuildAnnouncement())

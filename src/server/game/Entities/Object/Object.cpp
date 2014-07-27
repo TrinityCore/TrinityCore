@@ -712,7 +712,7 @@ void Object::BuildFieldsUpdate(Player* player, UpdateDataMapType& data_map) cons
 
     if (iter == data_map.end())
     {
-        std::pair<UpdateDataMapType::iterator, bool> p = data_map.insert(UpdateDataMapType::value_type(player, UpdateData(player->GetMapId())));
+        std::pair<UpdateDataMapType::iterator, bool> p = data_map.emplace(player, UpdateData(player->GetMapId()));
         ASSERT(p.second);
         iter = p.first;
     }

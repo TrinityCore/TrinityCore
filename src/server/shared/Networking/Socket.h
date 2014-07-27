@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,12 +25,13 @@
 #include <queue>
 #include <memory>
 #include <functional>
+#include <type_traits>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/write.hpp>
 
 using boost::asio::ip::tcp;
 
-template<class T>
+template<class T, class PacketType>
 class Socket : public std::enable_shared_from_this<T>
 {
 public:
@@ -44,31 +44,44 @@ public:
 
     void AsyncReadHeader()
     {
-        _socket.async_read_some(boost::asio::buffer(_readBuffer, _headerSize), std::bind(&Socket<T>::ReadHeaderHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+        _socket.async_read_some(boost::asio::buffer(_readBuffer, _headerSize), std::bind(&Socket<T, PacketType>::ReadHeaderHandlerInternal, this->shared_from_this(),
+            std::placeholders::_1, std::placeholders::_2));
     }
 
     void AsyncReadData(std::size_t size, std::size_t bufferOffset)
     {
-        _socket.async_read_some(boost::asio::buffer(&_readBuffer[bufferOffset], size), std::bind(&Socket<T>::ReadDataHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+        _socket.async_read_some(boost::asio::buffer(&_readBuffer[bufferOffset], size), std::bind(&Socket<T, PacketType>::ReadDataHandlerInternal, this->shared_from_this(),
+            std::placeholders::_1, std::placeholders::_2));
     }
 
     void ReadData(std::size_t size, std::size_t bufferOffset)
     {
-        _socket.read_some(boost::asio::buffer(&_readBuffer[bufferOffset], size));
+        boost::system::error_code error;
+
+        _socket.read_some(boost::asio::buffer(&_readBuffer[bufferOffset], size), error);
+
+        if (error)
+        {
+            TC_LOG_DEBUG("network", "Socket::ReadData: %s errored with: %i (%s)", GetRemoteIpAddress().to_string().c_str(), error.value(), error.message().c_str());
+
+            CloseSocket();
+        }
     }
 
-    void AsyncWrite(std::vector<uint8> const& data)
+    void AsyncWrite(PacketType const& data)
     {
-        boost::asio::async_write(_socket, boost::asio::buffer(data), std::bind(&Socket<T>::WriteHandler, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+        boost::asio::async_write(_socket, boost::asio::buffer(data), std::bind(&Socket<T, PacketType>::WriteHandler, this->shared_from_this(), std::placeholders::_1,
+            std::placeholders::_2));
     }
 
     bool IsOpen() const { return _socket.is_open(); }
     void CloseSocket()
     {
-        boost::system::error_code socketError;
-        _socket.close(socketError);
-        if (socketError)
-            TC_LOG_DEBUG("network", "Socket::CloseSocket: %s errored when closing socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(), socketError.value(), socketError.message().c_str());
+        boost::system::error_code error;
+        _socket.close(error);
+        if (error)
+            TC_LOG_DEBUG("network", "Socket::CloseSocket: %s errored when closing socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(),
+                error.value(), error.message().c_str());
     }
 
     uint8* GetReadBuffer() { return _readBuffer; }
@@ -78,7 +91,7 @@ protected:
     virtual void ReadDataHandler(boost::system::error_code error, size_t transferedBytes) = 0;
 
     std::mutex _writeLock;
-    std::queue<std::vector<uint8> > _writeQueue;
+    std::queue<PacketType> _writeQueue;
 
 private:
     void ReadHeaderHandlerInternal(boost::system::error_code error, size_t transferedBytes) { ReadHeaderHandler(error, transferedBytes); }
@@ -90,6 +103,7 @@ private:
         {
             std::lock_guard<std::mutex> deleteGuard(_writeLock);
 
+            DeletePacket(_writeQueue.front());
             _writeQueue.pop();
 
             if (!_writeQueue.empty())
@@ -98,6 +112,12 @@ private:
         else
             CloseSocket();
     }
+
+    template<typename Q = PacketType>
+    typename std::enable_if<std::is_pointer<Q>::value>::type DeletePacket(PacketType& packet) { delete packet; }
+
+    template<typename Q = PacketType>
+    typename std::enable_if<!std::is_pointer<Q>::value>::type DeletePacket(PacketType const& /*packet*/) { }
 
     tcp::socket _socket;
 

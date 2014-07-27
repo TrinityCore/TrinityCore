@@ -20,6 +20,7 @@
 #define __AUTHSESSION_H__
 
 #include "Common.h"
+#include "ByteBuffer.h"
 #include "Socket.h"
 #include "BigNumber.h"
 #include <memory>
@@ -28,10 +29,10 @@
 using boost::asio::ip::tcp;
 
 struct AuthHandler;
-class ByteBuffer;
 
-class AuthSession : public Socket<AuthSession>
+class AuthSession : public Socket<AuthSession, ByteBuffer>
 {
+    typedef Socket<AuthSession, ByteBuffer> Base;
 
 public:
     static std::unordered_map<uint8, AuthHandler> InitHandlers();
@@ -47,8 +48,8 @@ public:
         AsyncReadHeader();
     }
 
-    using Socket<AuthSession>::AsyncWrite;
-    void AsyncWrite(ByteBuffer const& packet);
+    using Base::AsyncWrite;
+    void AsyncWrite(ByteBuffer& packet);
 
 protected:
     void ReadHeaderHandler(boost::system::error_code error, size_t transferedBytes) override;

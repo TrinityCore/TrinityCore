@@ -32,6 +32,7 @@
 #include <cstring>
 #include <time.h>
 #include <math.h>
+#include <boost/asio/buffer.hpp>
 
 // Root of ByteBuffer exception hierarchy
 class ByteBufferException : public std::exception
@@ -80,10 +81,28 @@ class ByteBuffer
             _storage.reserve(reserve);
         }
 
-        // copy constructor
-        ByteBuffer(const ByteBuffer &buf) : _rpos(buf._rpos), _wpos(buf._wpos),
-            _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(buf._storage)
+        ByteBuffer(ByteBuffer&& buf) : _rpos(buf._rpos), _wpos(buf._wpos),
+            _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(std::move(buf._storage))
         {
+        }
+
+        ByteBuffer(ByteBuffer const& right) : _rpos(right._rpos), _wpos(right._wpos),
+            _bitpos(right._bitpos), _curbitval(right._curbitval), _storage(right._storage)
+        {
+        }
+
+        ByteBuffer& operator=(ByteBuffer const& right)
+        {
+            if (this != &right)
+            {
+                _rpos = right._rpos;
+                _wpos = right._wpos;
+                _bitpos = right._bitpos;
+                _curbitval = right._curbitval;
+                _storage = right._storage;
+            }
+
+            return *this;
         }
 
         virtual ~ByteBuffer() { }
@@ -510,18 +529,18 @@ class ByteBuffer
             return *this;
         }
 
-        uint8 * contents()
+        uint8* contents()
         {
             if (_storage.empty())
                 throw ByteBufferException();
-            return &_storage[0];
+            return _storage.data();
         }
 
-        const uint8 *contents() const
+        uint8 const* contents() const
         {
             if (_storage.empty())
                 throw ByteBufferException();
-            return &_storage[0];
+            return _storage.data();
         }
 
         size_t size() const { return _storage.size(); }
@@ -737,5 +756,15 @@ inline void ByteBuffer::read_skip<std::string>()
     read_skip<char*>();
 }
 
-#endif
+namespace boost
+{
+    namespace asio
+    {
+        inline const_buffers_1 buffer(ByteBuffer const& packet)
+        {
+            return buffer(packet.contents(), packet.size());
+        }
+    }
+}
 
+#endif

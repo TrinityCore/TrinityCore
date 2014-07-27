@@ -206,7 +206,7 @@ uint32 WorldSession::GetGuidLow() const
 }
 
 /// Send a packet to the client
-void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/)
+void WorldSession::SendPacket(WorldPacket* packet, bool forced /*= false*/)
 {
     if (!m_Socket)
         return;
@@ -350,7 +350,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     }
                     else if (_player->IsInWorld())
                     {
-                        sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+                        sScriptMgr->OnPacketReceive(m_Socket, *packet);
                         (this->*opHandle->Handler)(*packet);
                         LogUnprocessedTail(packet);
                     }
@@ -363,7 +363,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     else
                     {
                         // not expected _player or must checked in packet hanlder
-                        sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+                        sScriptMgr->OnPacketReceive(m_Socket, *packet);
                         (this->*opHandle->Handler)(*packet);
                         LogUnprocessedTail(packet);
                     }
@@ -375,7 +375,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         LogUnexpectedOpcode(packet, "STATUS_TRANSFER", "the player is still in world");
                     else
                     {
-                        sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+                        sScriptMgr->OnPacketReceive(m_Socket, *packet);
                         (this->*opHandle->Handler)(*packet);
                         LogUnprocessedTail(packet);
                     }
@@ -393,7 +393,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     if (packet->GetOpcode() == CMSG_CHAR_ENUM)
                         m_playerRecentlyLogout = false;
 
-                    sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+                    sScriptMgr->OnPacketReceive(m_Socket, *packet);
                     (this->*opHandle->Handler)(*packet);
                     LogUnprocessedTail(packet);
                     break;

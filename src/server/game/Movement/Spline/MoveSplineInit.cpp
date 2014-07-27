@@ -60,12 +60,12 @@ namespace Movement
     {
         MoveSpline& move_spline = *unit->movespline;
 
-        bool transport = unit->GetTransGUID();
+        bool transport = unit->GetTransGUID() != 0;
         Location real_position;
         // there is a big chance that current position is unknown if current state is not finalized, need compute it
         // this also allows calculate spline position and update map position in much greater intervals
         // Don't compute for transport movement if the unit is in a motion between two transports
-        if (!move_spline.Finalized() && move_spline.onTransport == (unit->GetTransGUID() != 0))
+        if (!move_spline.Finalized() && move_spline.onTransport == transport)
             real_position = move_spline.ComputePosition();
         else
         {
@@ -138,7 +138,7 @@ namespace Movement
         if (move_spline.Finalized())
             return;
 
-        bool transport = unit->GetTransGUID();
+        bool transport = unit->GetTransGUID() != 0;
         Location loc;
         if (move_spline.onTransport == transport)
             loc = move_spline.ComputePosition();
@@ -178,7 +178,7 @@ namespace Movement
     {
         args.splineId = splineIdGen.NewId();
         // Elevators also use MOVEMENTFLAG_ONTRANSPORT but we do not keep track of their position changes
-        args.TransformForTransport = unit->GetTransGUID();
+        args.TransformForTransport = unit->GetTransGUID() != 0;
         // mix existing state into new
         args.flags.walkmode = unit->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);
         args.flags.flying = unit->m_movementInfo.HasMovementFlag(MovementFlags(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY));

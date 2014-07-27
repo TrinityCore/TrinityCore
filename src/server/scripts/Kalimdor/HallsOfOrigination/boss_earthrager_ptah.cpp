@@ -112,26 +112,6 @@ public:
                 (*itr)->DespawnOrUnsummon();
         }
 
-        void SendWeather(WeatherState weather, float grade) const
-        {
-            WorldPacket data(SMSG_WEATHER, 9);
-            data << uint32(weather);
-            data << float(grade);
-            data << uint8(0);
-            SendPacketToPlayers(&data);
-        }
-
-        // Send packet to all players in Tomb of the Earthrager
-        void SendPacketToPlayers(WorldPacket const* data) const
-        {
-            Map::PlayerList const& players = me->GetMap()->GetPlayers();
-            if (!players.isEmpty())
-                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                    if (Player* player = itr->GetSource())
-                        if (player->GetAreaId() == AREA_TOMB_OF_THE_EARTHRAGER)
-                            player->GetSession()->SendPacket(data);
-        }
-
         void Reset() override
         {
             _summonDeaths = 0;
@@ -153,7 +133,7 @@ public:
 
                 me->AttackStop();
                 DoCast(me, SPELL_SANDSTORM);
-                SendWeather(WEATHER_STATE_LIGHT_SANDSTORM, 1.0f);
+                me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_LIGHT_SANDSTORM, 1.0f);
                 events.ScheduleEvent(EVENT_PTAH_EXPLODE, 6000, 0, PHASE_DISPERSE);
                 events.ScheduleEvent(EVENT_QUICKSAND, 10000, 0, PHASE_DISPERSE);
 
@@ -185,7 +165,7 @@ public:
                 ++_summonDeaths;
                 if (_summonDeaths == 11) // All summons died
                 {
-                    SendWeather(WEATHER_STATE_FOG, 0.0f);
+                    me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_FOG, 0.0f);
                     me->RemoveAurasDueToSpell(SPELL_PTAH_EXPLOSION);
                     events.SetPhase(PHASE_NORMAL);
                     events.ScheduleEvent(EVENT_RAGING_SMASH, urand(7000, 12000), 0, PHASE_NORMAL);

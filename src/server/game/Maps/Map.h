@@ -423,7 +423,7 @@ class Map : public GridRefManager<NGridType>
         void AddWorldObject(WorldObject* obj) { i_worldObjects.insert(obj); }
         void RemoveWorldObject(WorldObject* obj) { i_worldObjects.erase(obj); }
 
-        void SendToPlayers(WorldPacket const* data) const;
+        void SendToPlayers(WorldPacket* data) const;
 
         typedef MapRefManager PlayerList;
         PlayerList const& GetPlayers() const { return m_mapRefManager; }

@@ -20,6 +20,7 @@
 
 #include "BattlenetPackets.h"
 #include "BattlenetPacketCrypt.h"
+#include "Socket.h"
 #include "BigNumber.h"
 #include <memory>
 #include <boost/asio/ip/tcp.hpp>
