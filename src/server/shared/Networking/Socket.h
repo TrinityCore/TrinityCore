@@ -56,7 +56,16 @@ public:
 
     void ReadData(std::size_t size, std::size_t bufferOffset)
     {
-        _socket.read_some(boost::asio::buffer(&_readBuffer[bufferOffset], size));
+        boost::system::error_code error;
+
+        _socket.read_some(boost::asio::buffer(&_readBuffer[bufferOffset], size), error);
+
+        if (error)
+        {
+            TC_LOG_DEBUG("network", "Socket::ReadData: %s errored with: %i (%s)", GetRemoteIpAddress().to_string().c_str(), error.value(), error.message().c_str());
+
+            CloseSocket();
+        }
     }
 
     void AsyncWrite(PacketType const& data)
@@ -68,11 +77,11 @@ public:
     bool IsOpen() const { return _socket.is_open(); }
     void CloseSocket()
     {
-        boost::system::error_code socketError;
-        _socket.close(socketError);
-        if (socketError)
+        boost::system::error_code error;
+        _socket.close(error);
+        if (error)
             TC_LOG_DEBUG("network", "Socket::CloseSocket: %s errored when closing socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(),
-                socketError.value(), socketError.message().c_str());
+                error.value(), error.message().c_str());
     }
 
     uint8* GetReadBuffer() { return _readBuffer; }
