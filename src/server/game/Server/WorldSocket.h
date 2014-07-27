@@ -40,8 +40,10 @@ struct ClientPktHeader
 
 #pragma pack(pop)
 
-class WorldSocket : public Socket<WorldSocket>
+class WorldSocket : public Socket<WorldSocket, std::vector<uint8> >
 {
+    typedef Socket<WorldSocket, std::vector<uint8> > Base;
+
 public:
     WorldSocket(tcp::socket&& socket);
 
@@ -50,8 +52,8 @@ public:
 
     void Start() override;
 
+    using Base::AsyncWrite;
     void AsyncWrite(WorldPacket const& packet);
-    using Socket<WorldSocket>::AsyncWrite;
 
 protected:
     void ReadHeaderHandler(boost::system::error_code error, size_t transferedBytes) override;
