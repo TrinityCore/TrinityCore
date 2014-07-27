@@ -171,19 +171,14 @@ namespace MMAP
     {
         while (1)
         {
-            uint32* mapId = nullptr;
+            uint32 mapId;
 
             _queue.WaitAndPop(mapId);
 
             if (_cancelationToken)
                 return;
 
-            if (!mapId) // shouldn't happen?
-                continue;
-
-            buildMap(*mapId);
-
-            delete mapId;
+            buildMap(mapId);
         }
     }
 
@@ -205,7 +200,7 @@ namespace MMAP
             if (!shouldSkipMap(mapId))
             {
                 if (threads > 0)
-                    _queue.Push(new uint32(mapId));
+                    _queue.Push(mapId);
                 else
                     buildMap(mapId);
             }
