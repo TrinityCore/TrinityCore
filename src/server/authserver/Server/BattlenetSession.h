@@ -53,7 +53,7 @@ namespace Battlenet
 
     class Session : public Socket<Session, ServerPacket*>
     {
-        typedef Socket<Session, ServerPacket*> Base;
+        typedef Socket<Session, ServerPacket*> BattlenetSocket;
 
     public:
         explicit Session(tcp::socket&& socket);

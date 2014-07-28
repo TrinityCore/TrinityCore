@@ -32,7 +32,7 @@ struct AuthHandler;
 
 class AuthSession : public Socket<AuthSession, ByteBuffer>
 {
-    typedef Socket<AuthSession, ByteBuffer> Base;
+    typedef Socket<AuthSession, ByteBuffer> AuthSocket;
 
 public:
     static std::unordered_map<uint8, AuthHandler> InitHandlers();
@@ -48,7 +48,6 @@ public:
         AsyncReadHeader();
     }
 
-    using Base::AsyncWrite;
     void AsyncWrite(ByteBuffer& packet);
 
 protected:
