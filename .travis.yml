@@ -2,6 +2,9 @@ language: cpp
 compiler:
   - clang
 
+git:
+  depth: 1
+
 before_install:
   - echo "yes" | sudo add-apt-repository ppa:kalakris/cmake
   - echo "yes" | sudo add-apt-repository ppa:boost-latest/ppa
@@ -11,11 +14,19 @@ before_install:
   - sudo apt-get -qq install libssl-dev libmysqlclient15-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev
   - sudo apt-get -qq install libboost1.55-dev libboost-thread1.55-dev libboost-system1.55-dev libboost-program-options1.55-dev
 
-script:
+install:
+  - mysql -uroot -e 'create database test_mysql;'
   - mkdir bin
   - cd bin
   - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=1 -DUSE_COREPCH=0 -DUSE_SCRIPTPCH=0 -DTOOLS=1 -DSCRIPTS=1 -DSERVERS=1 -DCMAKE_BUILD_TYPE=Release
-  - make -j 8
 
-git:
-  depth: 1
+script:
+  - cd ..
+  - mysql -uroot < sql/create/create_mysql.sql
+  - mysql -uroot auth < sql/base/auth_database.sql
+  - mysql -uroot characters < sql/base/characters_database.sql
+  - mysql -uroot world < sql/base/world_database.sql
+  - for file in sql/updates/world/*.sql; do mysql -uroot world < $file; done
+  - mysql -uroot < sql/create/drop_mysql.sql
+  - cd bin
+  - make -j 8
