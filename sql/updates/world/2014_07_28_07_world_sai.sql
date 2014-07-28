@@ -72,7 +72,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,7,0,0,0,100,0,0,5,15000,26000,11,@SPELL4,0,0,0,0,0,2,0,0,0,0,0,0,0, 'Garwal - Combat - Cast Spell Broken Bone'); -- Duration 8 sec
 
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
-INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`delay`,`move_flag`,`action`,`action_chance`,`wpguid`) VALUES
+INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (@PATH,1,2724.867,-2996.879,91.80984,0,0,0,100,0),
 (@PATH,2,2751.252,-3001.074,89.98224,0,0,0,100,0),
 (@PATH,3,2779.356,-3012.149,91.01633,0,0,0,100,0),
