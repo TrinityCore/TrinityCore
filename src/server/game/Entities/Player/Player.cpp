@@ -26356,6 +26356,10 @@ void Player::ActivateSpec(uint8 spec)
         SetPower(POWER_MANA, 0); // Mana must be 0 even if it isn't the active power type.
 
     SetPower(pw, 0);
+
+    // /!\ Hack alert - for now this will do, gets rid of auras not getting removed after respec under some conditions
+    RemoveAurasDueToSpell(58427); // Rogue's Overkill
+    RemoveAurasDueToSpell(31665); // Rogue's Master of Subtlety
 }
 
 void Player::ResetTimeSync()
