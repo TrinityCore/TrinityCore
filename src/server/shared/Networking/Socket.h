@@ -39,8 +39,33 @@ public:
 
     virtual void Start() = 0;
 
-    boost::asio::ip::address GetRemoteIpAddress() const { return _socket.remote_endpoint().address(); };
-    uint16 GetRemotePort() const { return _socket.remote_endpoint().port(); }
+    boost::asio::ip::address GetRemoteIpAddress() const
+    {
+        boost::system::error_code error;
+        auto ep = _socket.remote_endpoint(error);
+
+        if (error)
+        {
+            TC_LOG_DEBUG("network", "Socket::GetRemoteIpAddress: errored with: %i (%s)", error.value(), error.message().c_str());
+            return boost::asio::ip::address();
+        }
+        else
+            return ep.address();
+    }
+
+    uint16 GetRemotePort() const
+    {
+        boost::system::error_code error;
+        auto ep = _socket.remote_endpoint(error);
+
+        if (error)
+        {
+            TC_LOG_DEBUG("network", "Socket::GetRemotePort: errored with: %i (%s)", error.value(), error.message().c_str());
+            return 0;
+        }
+        else
+            return ep.port();
+    }
 
     void AsyncReadHeader()
     {
