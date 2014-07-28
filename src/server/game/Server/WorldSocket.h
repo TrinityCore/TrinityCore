@@ -58,7 +58,7 @@ struct WorldPacketBuffer
 
     typedef boost::asio::const_buffer const* const_iterator;
 
-    WorldPacketBuffer(ServerPktHeader header, WorldPacket&& packet) : _header(header), _packet(std::move(packet))
+    WorldPacketBuffer(ServerPktHeader header, WorldPacket const& packet) : _header(header), _packet(packet)
     {
         _buffers[0] = boost::asio::const_buffer(_header.header, _header.getHeaderLength());
         if (!_packet.empty())
