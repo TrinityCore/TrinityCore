@@ -34,6 +34,8 @@ using boost::asio::ip::tcp;
 template<class T, class PacketType>
 class Socket : public std::enable_shared_from_this<T>
 {
+    typedef std::conditional<std::is_pointer<PacketType>::value, PacketType, PacketType const&>::type WritePacketType;
+
 public:
     Socket(tcp::socket&& socket, std::size_t headerSize) : _socket(std::move(socket)), _headerSize(headerSize) { }
 
@@ -93,7 +95,7 @@ public:
         }
     }
 
-    void AsyncWrite(PacketType const& data)
+    void AsyncWrite(WritePacketType data)
     {
         boost::asio::async_write(_socket, boost::asio::buffer(data), std::bind(&Socket<T, PacketType>::WriteHandler, this->shared_from_this(), std::placeholders::_1,
             std::placeholders::_2));
