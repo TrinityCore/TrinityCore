@@ -613,7 +613,7 @@ void Battlenet::Session::AsyncWrite(ServerPacket* packet)
     _writeQueue.push(packet);
 
     if (needsWriteStart)
-        Base::AsyncWrite(_writeQueue.front());
+        BattlenetSocket::AsyncWrite(_writeQueue.front());
 }
 
 inline void ReplaceResponse(Battlenet::ServerPacket** oldResponse, Battlenet::ServerPacket* newResponse)

@@ -181,7 +181,7 @@ void AuthSession::AsyncWrite(ByteBuffer& packet)
     _writeQueue.push(std::move(packet));
 
     if (needsWriteStart)
-        Base::AsyncWrite(_writeQueue.front());
+        AuthSocket::AsyncWrite(_writeQueue.front());
 }
 
 bool AuthSession::HandleLogonChallenge()
