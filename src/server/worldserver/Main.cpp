@@ -37,6 +37,7 @@
 #include "RealmList.h"
 #include "World.h"
 #include "MapManager.h"
+#include "InstanceSaveMgr.h"
 #include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "OutdoorPvP/OutdoorPvPMgr.h"
@@ -251,6 +252,7 @@ extern int main(int argc, char** argv)
     // unload battleground templates before different singletons destroyed
     sBattlegroundMgr->DeleteAllBattlegrounds();
 
+    sInstanceSaveMgr->Unload();
     sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
     sObjectAccessor->UnloadAll();             // unload 'i_player2corpse' storage and remove from world
     sScriptMgr->Unload();
@@ -537,7 +539,7 @@ variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile
 {
     // Silences warning about configService not be used if the OS is not Windows
     (void)configService;
-    
+
     options_description all("Allowed options");
     all.add_options()
         ("help,h", "print usage message")

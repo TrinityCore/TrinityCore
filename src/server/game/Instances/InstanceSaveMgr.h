@@ -164,6 +164,8 @@ class InstanceSaveManager
             return &instance;
         }
 
+        void Unload();
+
         /* resetTime is a global propery of each (raid/heroic) map
            all instances of that map reset at the same time */
         struct InstResetEvent
