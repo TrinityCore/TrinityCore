@@ -39,8 +39,10 @@ uint16 InstanceSaveManager::ResetTimeDelay[] = {3600, 900, 300, 60};
 
 InstanceSaveManager::~InstanceSaveManager()
 {
-    // it is undefined whether this or objectmgr will be unloaded first
-    // so we must be prepared for both cases
+}
+
+void InstanceSaveManager::Unload()
+{
     lock_instLists = true;
     for (InstanceSaveHashMap::iterator itr = m_instanceSaveById.begin(); itr != m_instanceSaveById.end(); ++itr)
     {
