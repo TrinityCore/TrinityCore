@@ -199,7 +199,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         unk3,
         clientSeed);
 
-    // Get the account information from the realmd database
+    // Get the account information from the auth database
     //         0           1        2       3          4         5       6          7   8
     // SELECT id, sessionkey, last_ip, locked, expansion, mutetime, locale, recruiter, os FROM account WHERE username = ?
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
@@ -239,7 +239,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     // id has to be fetched at this point, so that first actual account response that fails can be logged
     id = fields[0].GetUInt32();
 
-    ///- Re-check ip locking (same check as in realmd).
+    ///- Re-check ip locking (same check as in auth).
     if (fields[3].GetUInt8() == 1) // if ip is locked
     {
         if (strcmp(fields[2].GetCString(), address.c_str()))
@@ -299,7 +299,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         security = fields[0].GetUInt8();
     }
 
-    // Re-check account ban (same check as in realmd)
+    // Re-check account ban (same check as in auth)
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BANS);
 
     stmt->setUInt32(0, id);

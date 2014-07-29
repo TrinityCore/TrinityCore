@@ -84,6 +84,8 @@ class OutdoorPvPMgr
 
         void HandleDropFlag(Player* player, uint32 spellId);
 
+        std::string GetDefenseMessage(uint32 zoneId, uint32 id, LocaleConstant locale) const;
+
     private:
         typedef std::vector<OutdoorPvP*> OutdoorPvPSet;
         typedef std::map<uint32 /* zoneid */, OutdoorPvP*> OutdoorPvPMap;

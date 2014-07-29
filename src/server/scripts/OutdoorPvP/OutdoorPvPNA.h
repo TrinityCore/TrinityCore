@@ -20,6 +20,16 @@
 
 #include "OutdoorPvP.h"
 
+enum DefenseMessages
+{
+    TEXT_ALL_GUARDS_DEFEATED                = 15017, // (NYI) '|cffffff00All the guards have been defeated!|r'
+    TEXT_HALAA_TAKEN_ALLIANCE               = 15018, // '|cffffff00The Alliance has taken control of Halaa!|r'
+    TEXT_HALAA_TAKEN_HORDE                  = 15019, // '|cffffff00The Horde has taken control of Halaa!|r'
+    TEXT_HALAA_DEFENSELESS                  = 15020, // (NYI) '|cffffff00Halaa is defenseless!|r'
+    TEXT_HALAA_GAINING_CONTROL_HORDE        = 15493, // (NYI) '|cffffff00The Horde is gaining control of Halaa!|r'
+    TEXT_HALAA_GAINING_CONTROL_ALLIANCE     = 15494  // (NYI) '|cffffff00The Alliance is gaining control of Halaa!|r'
+};
+
 /// @todo "sometimes" set to neutral
 
 enum OutdoorPvPNASpells
