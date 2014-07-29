@@ -191,7 +191,7 @@ void WorldSocket::AsyncWrite(WorldPacket& packet)
     bool needsWriteStart = _writeQueue.empty();
     _authCrypt.EncryptSend(header.header, header.getHeaderLength());
 
-    _writeQueue.emplace(header, std::move(packet));
+    _writeQueue.emplace(header, packet);
 
     if (needsWriteStart)
         AsyncWrite(_writeQueue.front());
