@@ -68,10 +68,10 @@ int main(int argc, char** argv)
     if (vm.count("help"))
         return 0;
 
-    if (!sConfigMgr->LoadInitial(configFile))
+    std::string configError;
+    if (!sConfigMgr->LoadInitial(configFile, configError))
     {
-        printf("Invalid or missing configuration file : %s\n", configFile.c_str());
-        printf("Verify that the file exists and has \'[authserver]\' written in the top of the file!\n");
+        printf("Error in config file: %s\n", configError.c_str());
         return 1;
     }
 

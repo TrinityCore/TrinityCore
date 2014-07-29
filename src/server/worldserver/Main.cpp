@@ -109,10 +109,10 @@ extern int main(int argc, char** argv)
         WinServiceRun();
 #endif
 
-    if (!sConfigMgr->LoadInitial(configFile))
+    std::string configError;
+    if (!sConfigMgr->LoadInitial(configFile, configError))
     {
-        printf("Invalid or missing configuration file : %s\n", configFile.c_str());
-        printf("Verify that the file exists and has \'[worldserver]' written in the top of the file!\n");
+        printf("Error in config file: %s\n", configError.c_str());
         return 1;
     }
 
