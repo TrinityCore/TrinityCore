@@ -1756,9 +1756,9 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             }
 
             if (cond->ConditionValue2)
-                TC_LOG_ERROR("sql.sql", "Spell condition has useless data in value2 (%u)!", cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "Spell condition has useless data (spell Id: %d) in value2 (%u)!", cond->ConditionValue1, cond->ConditionValue2);
             if (cond->ConditionValue3)
-                TC_LOG_ERROR("sql.sql", "Spell condition has useless data in value3 (%u)!", cond->ConditionValue3);
+                TC_LOG_ERROR("sql.sql", "Spell condition has useless data (spell Id: %d) in value3 (%u)!", cond->ConditionValue1, cond->ConditionValue3);
             break;
         }
         case CONDITION_LEVEL:
