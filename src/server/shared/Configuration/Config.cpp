@@ -25,7 +25,7 @@
 
 using namespace boost::property_tree;
 
-bool ConfigMgr::LoadInitial(std::string const& file)
+bool ConfigMgr::LoadInitial(std::string const& file, std::string& error)
 {
     std::lock_guard<std::mutex> lock(_configLock);
 
@@ -34,25 +34,32 @@ bool ConfigMgr::LoadInitial(std::string const& file)
     try
     {
         ptree fullTree;
-        boost::property_tree::ini_parser::read_ini(file, fullTree);
+        ini_parser::read_ini(file, fullTree);
 
         if (fullTree.empty())
+        {
+            error = "empty file (" + file + ")";
             return false;
+        }
 
         // Since we're using only one section per config file, we skip the section and have direct property access
         _config = fullTree.begin()->second;
     }
-    catch (std::exception const&  /*ex*/)
+    catch (ini_parser::ini_parser_error const& e)
     {
+        if (e.line() == 0)
+            error = e.message() + " (" + e.filename() + ")";
+        else
+            error = e.message() + " (" + e.filename() + ":" + std::to_string(e.line()) + ")";
         return false;
     }
 
     return true;
 }
 
-bool ConfigMgr::Reload()
+bool ConfigMgr::Reload(std::string& error)
 {
-    return LoadInitial(_filename.c_str());
+    return LoadInitial(_filename.c_str(), error);
 }
 
 std::string ConfigMgr::GetStringDefault(std::string const& name, const std::string& def)
