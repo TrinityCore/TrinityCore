@@ -108,8 +108,13 @@ typedef struct AUTH_RECONNECT_PROOF_C
 
 #pragma pack(pop)
 
-#define BYTE_SIZE 32
-#define REALMLIST_SKIP_PACKETS 5
+enum class BufferSizes : uint32
+{
+    SRP_6_V = 0x20,
+    SRP_6_S = 0x20,
+};
+
+#define REALM_LIST_PACKET_SIZE 5
 #define XFER_ACCEPT_SIZE 1
 #define XFER_RESUME_SIZE 9
 #define XFER_CANCEL_SIZE 1
@@ -122,7 +127,7 @@ std::unordered_map<uint8, AuthHandler> AuthSession::InitHandlers()
     handlers[AUTH_LOGON_PROOF]         = { STATUS_CONNECTED, sizeof(AUTH_LOGON_PROOF_C),     &AuthSession::HandleLogonProof };
     handlers[AUTH_RECONNECT_CHALLENGE] = { STATUS_CONNECTED, sizeof(AUTH_LOGON_CHALLENGE_C), &AuthSession::HandleReconnectChallenge };
     handlers[AUTH_RECONNECT_PROOF]     = { STATUS_CONNECTED, sizeof(AUTH_RECONNECT_PROOF_C), &AuthSession::HandleReconnectProof };
-    handlers[REALM_LIST]               = { STATUS_AUTHED,    REALMLIST_SKIP_PACKETS,         &AuthSession::HandleRealmList };
+    handlers[REALM_LIST]               = { STATUS_AUTHED,    REALM_LIST_PACKET_SIZE,         &AuthSession::HandleRealmList };
     handlers[XFER_ACCEPT]              = { STATUS_AUTHED,    XFER_ACCEPT_SIZE,               &AuthSession::HandleXferAccept };
     handlers[XFER_RESUME]              = { STATUS_AUTHED,    XFER_RESUME_SIZE,               &AuthSession::HandleXferResume };
     handlers[XFER_CANCEL]              = { STATUS_AUTHED,    XFER_CANCEL_SIZE,               &AuthSession::HandleXferCancel };
@@ -318,7 +323,7 @@ bool AuthSession::HandleLogonChallenge()
                     TC_LOG_DEBUG("network", "database authentication values: v='%s' s='%s'", databaseV.c_str(), databaseS.c_str());
 
                     // multiply with 2 since bytes are stored as hexstring
-                    if (databaseV.size() != BYTE_SIZE * 2 || databaseS.size() != BYTE_SIZE * 2)
+                    if (databaseV.size() != size_t(BufferSizes::SRP_6_V) * 2 || databaseS.size() != size_t(BufferSizes::SRP_6_S) * 2)
                         SetVSFields(rI);
                     else
                     {
@@ -344,10 +349,10 @@ bool AuthSession::HandleLogonChallenge()
                     // B may be calculated < 32B so we force minimal length to 32B
                     pkt.append(B.AsByteArray(32).get(), 32);      // 32 bytes
                     pkt << uint8(1);
-                    pkt.append(g.AsByteArray().get(), 1);
+                    pkt.append(g.AsByteArray(1).get(), 1);
                     pkt << uint8(32);
                     pkt.append(N.AsByteArray(32).get(), 32);
-                    pkt.append(s.AsByteArray().get(), s.GetNumBytes());   // 32 bytes
+                    pkt.append(s.AsByteArray(int32(BufferSizes::SRP_6_S)).get(), size_t(BufferSizes::SRP_6_S));   // 32 bytes
                     pkt.append(unk3.AsByteArray(16).get(), 16);
                     uint8 securityFlags = 0;
 
@@ -488,10 +493,10 @@ bool AuthSession::HandleLogonProof()
     sha.UpdateBigNumbers(&s, &A, &B, &K, NULL);
     sha.Finalize();
     BigNumber M;
-    M.SetBinary(sha.GetDigest(), 20);
+    M.SetBinary(sha.GetDigest(), sha.GetLength());
 
     // Check if SRP6 results match (password is correct), else send an error
-    if (!memcmp(M.AsByteArray().get(), logonProof->M1, 20))
+    if (!memcmp(M.AsByteArray(sha.GetLength()).get(), logonProof->M1, 20))
     {
         TC_LOG_DEBUG("server.authserver", "'%s:%d' User '%s' successfully authenticated", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _login.c_str());
 
@@ -909,21 +914,19 @@ bool AuthSession::HandleXferAccept()
 // Make the SRP6 calculation from hash in dB
 void AuthSession::SetVSFields(const std::string& rI)
 {
-    s.SetRand(BYTE_SIZE * 8);
+    s.SetRand(int32(BufferSizes::SRP_6_S) * 8);
 
     BigNumber I;
     I.SetHexStr(rI.c_str());
 
     // In case of leading zeros in the rI hash, restore them
     uint8 mDigest[SHA_DIGEST_LENGTH];
-    memset(mDigest, 0, SHA_DIGEST_LENGTH);
-    if (I.GetNumBytes() <= SHA_DIGEST_LENGTH)
-        memcpy(mDigest, I.AsByteArray().get(), I.GetNumBytes());
+    memcpy(mDigest, I.AsByteArray(SHA_DIGEST_LENGTH).get(), SHA_DIGEST_LENGTH);
 
     std::reverse(mDigest, mDigest + SHA_DIGEST_LENGTH);
 
     SHA1Hash sha;
-    sha.UpdateData(s.AsByteArray().get(), s.GetNumBytes());
+    sha.UpdateData(s.AsByteArray(uint32(BufferSizes::SRP_6_S)).get(), (uint32(BufferSizes::SRP_6_S)));
     sha.UpdateData(mDigest, SHA_DIGEST_LENGTH);
     sha.Finalize();
     BigNumber x;
