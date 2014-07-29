@@ -18,8 +18,21 @@
 #ifndef OUTDOOR_PVP_ZM_
 #define OUTDOOR_PVP_ZM_
 
-#include "Language.h"
 #include "OutdoorPvP.h"
+
+enum DefenseMessages
+{
+    TEXT_WEST_BEACON_TAKEN_ALLIANCE         = 15541, // '|cffffff00The Alliance has taken control of the West Beacon!|r'
+    TEXT_WEST_BEACON_TAKEN_HORDE            = 15543, // '|cffffff00The Horde has taken control of the West Beacon!|r'
+    TEXT_EAST_BEACON_TAKEN_ALLIANCE         = 15546, // '|cffffff00The Alliance has taken control of the East Beacon!|r'
+    TEXT_EAST_BEACON_TAKEN_HORDE            = 15545, // '|cffffff00The Horde has taken control of the East Beacon!|r'
+    TEXT_TWIN_SPIRE_RUINS_TAKEN_ALLIANCE    = 15591, // '|cffffff00The Alliance has taken control of Twin Spire Ruins!|r'
+    TEXT_TWIN_SPIRE_RUINS_TAKEN_HORDE       = 15590, // '|cffffff00The Horde has taken control of Twin Spire Ruins!|r'
+    TEXT_BOTH_BEACONS_TAKEN_ALLIANCE        = 16284, // (NYI) '|cffffff00The Alliance has taken control of both beacons!|r'
+    TEXT_BOTH_BEACONS_TAKEN_HORDE           = 16285, // (NYI) '|cffffff00The Horde has taken control of both beacons!|r'
+    TEXT_BATTLE_STANDARDS_ALLIANCE          = 16287, // (NYI) '|cffffff00The Alliance Field Scout is now issuing battle standards.|r'
+    TEXT_BATTLE_STANDARDS_HORDE             = 16288  // (NYI) '|cffffff00The Horde Field Scout is now issuing battle standards.|r'
+};
 
 const uint8 OutdoorPvPZMBuffZonesNum = 5;
 
@@ -94,26 +107,14 @@ const zm_beacon ZMBeaconInfo[ZM_NUM_BEACONS] =
 
 const uint32 ZMBeaconCaptureA[ZM_NUM_BEACONS] =
 {
-    LANG_OPVP_ZM_CAPTURE_EAST_A,
-    LANG_OPVP_ZM_CAPTURE_WEST_A
+    TEXT_EAST_BEACON_TAKEN_ALLIANCE,
+    TEXT_WEST_BEACON_TAKEN_ALLIANCE
 };
 
 const uint32 ZMBeaconCaptureH[ZM_NUM_BEACONS] =
 {
-    LANG_OPVP_ZM_CAPTURE_EAST_H,
-    LANG_OPVP_ZM_CAPTURE_WEST_H
-};
-
-const uint32 ZMBeaconLoseA[ZM_NUM_BEACONS] =
-{
-    LANG_OPVP_ZM_LOSE_EAST_A,
-    LANG_OPVP_ZM_LOSE_WEST_A
-};
-
-const uint32 ZMBeaconLoseH[ZM_NUM_BEACONS] =
-{
-    LANG_OPVP_ZM_LOSE_EAST_H,
-    LANG_OPVP_ZM_LOSE_WEST_H
+    TEXT_EAST_BEACON_TAKEN_HORDE,
+    TEXT_WEST_BEACON_TAKEN_HORDE
 };
 
 const go_type ZMCapturePoints[ZM_NUM_BEACONS] =
