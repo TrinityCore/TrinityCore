@@ -228,3 +228,12 @@ void OutdoorPvPMgr::HandlePlayerResurrects(Player* player, uint32 zoneid)
     if (itr->second->HasPlayer(player))
         itr->second->HandlePlayerResurrects(player, zoneid);
 }
+
+std::string OutdoorPvPMgr::GetDefenseMessage(uint32 zoneId, uint32 id, LocaleConstant locale) const
+{
+    if (BroadcastText const* bct = sObjectMgr->GetBroadcastText(id))
+        return bct->GetText(locale);
+
+    TC_LOG_ERROR("outdoorpvp", "Can not find DefenseMessage (Zone: %u, Id: %u). BroadcastText (Id: %u) does not exist.", zoneId, id, id);
+    return "";
+}

@@ -20,6 +20,16 @@
 
 #include "OutdoorPvP.h"
 
+enum DefenseMessages
+{
+    TEXT_BONE_WASTES_TAKEN_ALLIANCE     = 16120, // (NYI) '|cffffff00The Alliance has taken control of The Bone Wastes!|r'
+    TEXT_BONE_WASTES_TAKEN_HORDE        = 16119, // (NYI) '|cffffff00The Horde has taken control of The Bone Wastes!|r'
+    TEXT_SPIRIT_TOWER_TAKEN_ALLIANCE    = 18285, // '|cffffff00The Alliance has taken control of a Spirit Tower!|r'
+    TEXT_SPIRIT_TOWER_TAKEN_HORDE       = 18286, // '|cffffff00The Horde has taken control of a Spirit Tower!|r'
+    TEXT_SPIRIT_TOWER_LOSE_ALLIANCE     = 18288, // '|cffffff00The Alliance has lost control of a Spirit Tower!|r'
+    TEXT_SPIRIT_TOWER_LOSE_HORDE        = 18287  // '|cffffff00The Horde has lost control of a Spirit Tower!|r'
+};
+
 const uint8 OutdoorPvPTFBuffZonesNum = 5;
 
 const uint32 OutdoorPvPTFBuffZones[OutdoorPvPTFBuffZonesNum] =

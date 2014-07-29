@@ -20,6 +20,16 @@
 
 #include "OutdoorPvP.h"
 
+enum DefenseMessages
+{
+    TEXT_OVERLOOK_TAKEN_ALLIANCE        = 14841, // '|cffffff00The Overlook has been taken by the Alliance!|r'
+    TEXT_OVERLOOK_TAKEN_HORDE           = 14842, // '|cffffff00The Overlook has been taken by the Horde!|r'
+    TEXT_STADIUM_TAKEN_ALLIANCE         = 14843, // '|cffffff00The Stadium has been taken by the Alliance!|r'
+    TEXT_STADIUM_TAKEN_HORDE            = 14844, // '|cffffff00The Stadium has been taken by the Horde!|r'
+    TEXT_BROKEN_HILL_TAKEN_ALLIANCE     = 14845, // '|cffffff00Broken Hill has been taken by the Alliance!|r'
+    TEXT_BROKEN_HILL_TAKEN_HORDE        = 14846, // '|cffffff00Broken Hill has been taken by the Horde!|r'
+};
+
 #define OutdoorPvPHPBuffZonesNum 6
                                                          //  HP, citadel, ramparts, blood furnace, shattered halls, mag's lair
 const uint32 OutdoorPvPHPBuffZones[OutdoorPvPHPBuffZonesNum] = { 3483, 3563, 3562, 3713, 3714, 3836 };

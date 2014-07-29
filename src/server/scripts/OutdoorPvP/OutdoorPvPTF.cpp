@@ -22,8 +22,6 @@
 #include "WorldPacket.h"
 #include "Player.h"
 #include "ObjectMgr.h"
-#include "Language.h"
-#include "World.h"
 
 OutdoorPvPTF::OutdoorPvPTF()
 {
@@ -286,14 +284,14 @@ void OPvPCapturePointTF::ChangeState()
     {
         if (uint32 alliance_towers = ((OutdoorPvPTF*)m_PvP)->GetAllianceTowersControlled())
             ((OutdoorPvPTF*)m_PvP)->SetAllianceTowersControlled(--alliance_towers);
-        sWorld->SendZoneText(OutdoorPvPTFBuffZones[0], sObjectMgr->GetTrinityStringForDBCLocale(LANG_OPVP_TF_LOSE_A));
+        m_PvP->SendDefenseMessage(OutdoorPvPTFBuffZones[0], TEXT_SPIRIT_TOWER_LOSE_ALLIANCE);
     }
     // if changing from controlling horde to alliance
     else if (m_OldState == OBJECTIVESTATE_HORDE)
     {
         if (uint32 horde_towers = ((OutdoorPvPTF*)m_PvP)->GetHordeTowersControlled())
             ((OutdoorPvPTF*)m_PvP)->SetHordeTowersControlled(--horde_towers);
-        sWorld->SendZoneText(OutdoorPvPTFBuffZones[0], sObjectMgr->GetTrinityStringForDBCLocale(LANG_OPVP_TF_LOSE_H));
+        m_PvP->SendDefenseMessage(OutdoorPvPTFBuffZones[0], TEXT_SPIRIT_TOWER_LOSE_HORDE);
     }
 
     uint32 artkit = 21;
@@ -308,7 +306,7 @@ void OPvPCapturePointTF::ChangeState()
         if (alliance_towers < TF_TOWER_NUM)
             ((OutdoorPvPTF*)m_PvP)->SetAllianceTowersControlled(++alliance_towers);
 
-        sWorld->SendZoneText(OutdoorPvPTFBuffZones[0], sObjectMgr->GetTrinityStringForDBCLocale(LANG_OPVP_TF_CAPTURE_A));
+        m_PvP->SendDefenseMessage(OutdoorPvPTFBuffZones[0], TEXT_SPIRIT_TOWER_TAKEN_ALLIANCE);
 
         for (PlayerSet::iterator itr = m_activePlayers[0].begin(); itr != m_activePlayers[0].end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
@@ -323,7 +321,7 @@ void OPvPCapturePointTF::ChangeState()
         if (horde_towers < TF_TOWER_NUM)
             ((OutdoorPvPTF*)m_PvP)->SetHordeTowersControlled(++horde_towers);
 
-        sWorld->SendZoneText(OutdoorPvPTFBuffZones[0], sObjectMgr->GetTrinityStringForDBCLocale(LANG_OPVP_TF_CAPTURE_H));
+        m_PvP->SendDefenseMessage(OutdoorPvPTFBuffZones[0], TEXT_SPIRIT_TOWER_TAKEN_HORDE);
 
         for (PlayerSet::iterator itr = m_activePlayers[1].begin(); itr != m_activePlayers[1].end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
