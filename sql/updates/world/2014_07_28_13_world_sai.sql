@@ -28,13 +28,13 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (15,1443,0,0,0,25,0,13028,0,0,1,0,'','Show gossip option only if player does not already know goldthorn tea recipe'),
 (15,1443,0,0,0,7,0,185,180,0,1,0,'','Show Gossip only if player does not have at least 180 skill in cooking'),
 (15,1443,1,0,0,7,0,171,1,0,0,0,'','Show gossip option only if player has Alchemy'),
-(15,1443,1,0,0,25,0,3451,1,0,1,0,'','Show gossip option only if player does not already know Major Trolls Blood Elixir'),
+(15,1443,1,0,0,25,0,3451,0,0,1,0,'','Show gossip option only if player does not already know Major Trolls Blood Elixir'),
 (15,1443,1,0,0,7,0,171,175,0,1,0,'','Show gossip only if player does not have at least 175 skill in Alchemy'),
 (15,1443,2,0,0,7,0,185,1,0,0,0,'','Show gossip option only if player has cooking'),
 (15,1443,2,0,0,25,0,13028,0,0,1,0,'','Show gossip option only if player does not already know goldthorn tea recipe'),
 (15,1443,2,0,0,7,0,185,180,0,0,0,'','Show Gossip only if player has at least 180 skill in cooking'),
 (15,1443,3,0,0,7,0,171,1,0,0,0,'','Show gossip option only if player has Alchemy'),
-(15,1443,3,0,0,25,0,3451,1,0,1,0,'','Show gossip option only if player does not already know Major Trolls Blood Elixir'),
+(15,1443,3,0,0,25,0,3451,0,0,1,0,'','Show gossip option only if player does not already know Major Trolls Blood Elixir'),
 (15,1443,3,0,0,7,0,171,175,0,0,0,'','Show gossip only if player has at least 175 skill in Alchemy');
 
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=1443;
