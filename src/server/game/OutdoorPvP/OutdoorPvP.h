@@ -304,14 +304,7 @@ class OutdoorPvP : public ZoneScript
         void TeamCastSpell(TeamId team, int32 spellId);
 
         template<class Worker>
-        void BroadcastWorker(Worker& _worker, uint32 zoneId)
-        {
-            for (uint32 i = 0; i < BG_TEAMS_COUNT; ++i)
-                for (PlayerSet::iterator itr = m_players[i].begin(); itr != m_players[i].end(); ++itr)
-                    if (Player* player = ObjectAccessor::FindPlayer(*itr))
-                        if (player->GetZoneId() == zoneId)
-                            _worker(player);
-        }
+        void BroadcastWorker(Worker& _worker, uint32 zoneId);
 };
 
 #endif /*OUTDOOR_PVP_H_*/

@@ -642,3 +642,13 @@ void OutdoorPvP::SendDefenseMessage(uint32 zoneId, uint32 id)
     Trinity::LocalizedPacketDo<DefenseMessageBuilder> localizer(builder);
     BroadcastWorker(localizer, zoneId);
 }
+
+template<class Worker>
+void OutdoorPvP::BroadcastWorker(Worker& _worker, uint32 zoneId)
+{
+    for (uint32 i = 0; i < BG_TEAMS_COUNT; ++i)
+        for (PlayerSet::iterator itr = m_players[i].begin(); itr != m_players[i].end(); ++itr)
+            if (Player* player = ObjectAccessor::FindPlayer(*itr))
+                if (player->GetZoneId() == zoneId)
+                    _worker(player);
+}
