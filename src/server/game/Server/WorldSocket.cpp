@@ -97,7 +97,7 @@ void WorldSocket::ReadDataHandler(boost::system::error_code error, size_t transf
         }
 
         if (sPacketLog->CanLogPacket())
-            sPacketLog->LogPacket(packet, CLIENT_TO_SERVER);
+            sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
 
         TC_LOG_TRACE("network.opcode", "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(opcode).c_str());
 
@@ -177,7 +177,7 @@ void WorldSocket::ReadDataHandler(boost::system::error_code error, size_t transf
 void WorldSocket::AsyncWrite(WorldPacket& packet)
 {
     if (sPacketLog->CanLogPacket())
-        sPacketLog->LogPacket(packet, SERVER_TO_CLIENT);
+        sPacketLog->LogPacket(packet, SERVER_TO_CLIENT, GetRemoteIpAddress(), GetRemotePort());
 
     if (_worldSession && packet.size() > 0x400)
         packet.Compress(_worldSession->GetCompressionStream());
@@ -260,7 +260,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         return;
     }
 
-    // Get the account information from the realmd database
+    // Get the account information from the auth database
     //         0           1        2       3          4         5       6          7   8
     // SELECT id, sessionkey, last_ip, locked, expansion, mutetime, locale, recruiter, os FROM account WHERE username = ?
     PreparedStatement* stmt;
@@ -311,7 +311,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     // id has to be fetched at this point, so that first actual account response that fails can be logged
     id = fields[0].GetUInt32();
 
-    ///- Re-check ip locking (same check as in realmd).
+    ///- Re-check ip locking (same check as in auth).
     if (fields[3].GetUInt8() == 1) // if ip is locked
     {
         if (strcmp(fields[2].GetCString(), address.c_str()))
@@ -371,7 +371,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         security = fields[0].GetUInt8();
     }
 
-    // Re-check account ban (same check as in realmd)
+    // Re-check account ban (same check as in auth)
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BANS);
 
     stmt->setUInt32(0, id);

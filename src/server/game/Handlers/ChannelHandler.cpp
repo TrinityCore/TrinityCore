@@ -21,6 +21,8 @@
 #include "Player.h"
 #include "WorldSession.h"
 
+#include <cctype>
+
 void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
 {
     uint32 channelId;
@@ -50,6 +52,9 @@ void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
     }
 
     if (channelName.empty())
+        return;
+
+    if (isdigit(channelName[0]))
         return;
 
     if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
