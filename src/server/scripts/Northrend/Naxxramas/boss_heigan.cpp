@@ -75,7 +75,7 @@ public:
 
         void KilledUnit(Unit* who) override
         {
-            if (!(rand()%5))
+            if (!(rand32() % 5))
                 Talk(SAY_SLAY);
             if (who->GetTypeId() == TYPEID_PLAYER)
                 safetyDance = false;

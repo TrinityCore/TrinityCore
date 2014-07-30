@@ -131,7 +131,7 @@ WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, Account
 
     if (sock)
     {
-        m_Address = sock->GetRemoteIpAddress();
+        m_Address = sock->GetRemoteIpAddress().to_string();
         ResetTimeOutTime();
         LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
     }
@@ -187,7 +187,7 @@ uint32 WorldSession::GetGuidLow() const
 }
 
 /// Send a packet to the client
-void WorldSession::SendPacket(WorldPacket const* packet)
+void WorldSession::SendPacket(WorldPacket* packet)
 {
     if (!m_Socket)
         return;
@@ -289,7 +289,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         {
             TC_LOG_ERROR("network.opcode", "Received non-existed opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str()
                             , GetPlayerInfo().c_str());
-            sScriptMgr->OnUnknownPacketReceive(m_Socket, WorldPacket(*packet));
+            sScriptMgr->OnUnknownPacketReceive(m_Socket, *packet);
         }
         else
         {
@@ -319,7 +319,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         }
                         else if (_player->IsInWorld())
                         {
-                            sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+                            sScriptMgr->OnPacketReceive(m_Socket, *packet);
 #ifdef ELUNA
                             if (!sEluna->OnPacketReceive(this, *packet))
                                 break;
@@ -336,7 +336,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         else
                         {
                             // not expected _player or must checked in packet handler
-                            sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+                            sScriptMgr->OnPacketReceive(m_Socket, *packet);
 #ifdef ELUNA
                             if (!sEluna->OnPacketReceive(this, *packet))
                                 break;
@@ -352,7 +352,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                             LogUnexpectedOpcode(packet, "STATUS_TRANSFER", "the player is still in world");
                         else
                         {
-                            sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+                            sScriptMgr->OnPacketReceive(m_Socket, *packet);
 #ifdef ELUNA
                             if (!sEluna->OnPacketReceive(this, *packet))
                                 break;
@@ -374,7 +374,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         if (packet->GetOpcode() == CMSG_CHAR_ENUM)
                             m_playerRecentlyLogout = false;
 
-                        sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+                        sScriptMgr->OnPacketReceive(m_Socket, *packet);
 #ifdef ELUNA
                         if (!sEluna->OnPacketReceive(this, *packet))
                             break;

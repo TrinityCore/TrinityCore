@@ -190,9 +190,9 @@ public:
             soulholder = 0;
             soulclass = 0;
 
-            Fear_timer = 15000 + rand()% 5000;
+            Fear_timer = 15000 + rand32() % 5000;
             Ribbon_of_Souls_timer = 5000;
-            StolenSoul_Timer = 25000 + rand()% 10000;
+            StolenSoul_Timer = 25000 + rand32() % 10000;
 
             Avatar_summoned = false;
         }
@@ -234,7 +234,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/) override
         {
-            if (rand()%2)
+            if (rand32() % 2)
                 return;
 
             Talk(SAY_SLAY);
@@ -261,7 +261,7 @@ public:
 
                 DoCast(me, SPELL_SUMMON_AVATAR);
                 Avatar_summoned = true;
-                StolenSoul_Timer = 15000 + rand()% 15000;
+                StolenSoul_Timer = 15000 + rand32() % 15000;
             }
 
             if (StolenSoul_Timer <= diff)
@@ -282,7 +282,7 @@ public:
                         DoCast(target, SPELL_STOLEN_SOUL);
                         me->SummonCreature(ENTRY_STOLEN_SOUL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
 
-                        StolenSoul_Timer = 20000 + rand()% 10000;
+                        StolenSoul_Timer = 20000 + rand32() % 10000;
                     } else StolenSoul_Timer = 1000;
                 }
             } else StolenSoul_Timer -= diff;
@@ -292,13 +292,13 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_RIBBON_OF_SOULS);
 
-                Ribbon_of_Souls_timer = 5000 + (rand()%20 * 1000);
+                Ribbon_of_Souls_timer = 5000 + (rand32() % 20 * 1000);
             } else Ribbon_of_Souls_timer -= diff;
 
             if (Fear_timer <= diff)
             {
                 DoCast(me, SPELL_SOUL_SCREAM);
-                Fear_timer = 15000 + rand()% 15000;
+                Fear_timer = 15000 + rand32() % 15000;
             } else Fear_timer -= diff;
 
             DoMeleeAttackIfReady();

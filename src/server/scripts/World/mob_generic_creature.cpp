@@ -107,7 +107,7 @@ public:
                     else info = SelectSpell(me->GetVictim(), 0, 0, SELECT_TARGET_ANY_ENEMY, 0, 0, 0, 0, SELECT_EFFECT_DONTCARE);
 
                     //50% chance if elite or higher, 20% chance if not, to replace our white hit with a spell
-                    if (info && (rand() % (me->GetCreatureTemplate()->rank > 1 ? 2 : 5) == 0) && !GlobalCooldown)
+                    if (info && (rand32() % (me->GetCreatureTemplate()->rank > 1 ? 2 : 5) == 0) && !GlobalCooldown)
                     {
                         //Cast the spell
                         if (Healing)DoCastSpell(me, info);
@@ -130,7 +130,7 @@ public:
                     SpellInfo const* info = NULL;
 
                     //Select a healing spell if less than 30% hp ONLY 33% of the time
-                    if (HealthBelowPct(30) && rand() % 3 == 0)
+                    if (HealthBelowPct(30) && rand32() % 3 == 0)
                         info = SelectSpell(me, 0, 0, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_HEALING);
 
                     //No healing spell available, See if we can cast a ranged spell (Range must be greater than ATTACK_DISTANCE)

@@ -245,7 +245,7 @@ public:
     bool OnGossipHello(Player* player, GameObject* go) override
     {
         go->UseDoorOrButton();
-        int Random = rand() % (sizeof(NpcPrisonEntry) / sizeof(uint32));
+        int Random = rand32() % (sizeof(NpcPrisonEntry) / sizeof(uint32));
 
         if (Creature* creature = player->SummonCreature(NpcPrisonEntry[Random], go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), go->GetAngle(player),
             TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
@@ -295,7 +295,7 @@ public:
     bool OnGossipHello(Player* player, GameObject* go) override
     {
         go->UseDoorOrButton();
-        int Random = rand() % (sizeof(NpcStasisEntry) / sizeof(uint32));
+        int Random = rand32() % (sizeof(NpcStasisEntry) / sizeof(uint32));
 
         player->SummonCreature(NpcStasisEntry[Random], go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), go->GetAngle(player),
             TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);

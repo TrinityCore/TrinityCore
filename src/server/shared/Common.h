@@ -101,7 +101,6 @@
 #define snprintf _snprintf
 #define atoll _atoi64
 #define vsnprintf _vsnprintf
-#define finite(X) _finite(X)
 #define llabs _abs64
 
 #else
@@ -111,7 +110,7 @@
 
 #endif
 
-inline float finiteAlways(float f) { return finite(f) ? f : 0.0f; }
+inline float finiteAlways(float f) { return std::isfinite(f) ? f : 0.0f; }
 
 #define STRINGIZE(a) #a
 

@@ -161,7 +161,7 @@ public:
         void EnterCombat(Unit* who) override
         {
             //not always use
-            if (rand()%4)
+            if (rand32() % 4)
                 return;
 
             //only aggro text if not player and only in this area
