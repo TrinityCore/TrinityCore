@@ -329,7 +329,7 @@ class CalendarMgr
         void SendCalendarClearPendingAction(uint64 guid);
         void SendCalendarCommandResult(uint64 guid, CalendarError err, char const* param = NULL);
 
-        void SendPacketToAllEventRelatives(WorldPacket packet, CalendarEvent const& calendarEvent);
+        void SendPacketToAllEventRelatives(WorldPacket& packet, CalendarEvent const& calendarEvent);
 };
 
 #define sCalendarMgr CalendarMgr::instance()

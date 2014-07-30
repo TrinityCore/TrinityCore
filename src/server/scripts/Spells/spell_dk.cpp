@@ -36,6 +36,7 @@ enum DeathKnightSpells
     SPELL_DK_BLOOD_PRESENCE                     = 48266,
     SPELL_DK_CORPSE_EXPLOSION_TRIGGERED         = 43999,
     SPELL_DK_CORPSE_EXPLOSION_VISUAL            = 51270,
+    SPELL_DK_DEATH_AND_DECAY_DAMAGE             = 52212,
     SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
     SPELL_DK_DEATH_COIL_HEAL                    = 47633,
     SPELL_DK_DEATH_STRIKE_HEAL                  = 45470,
@@ -442,6 +443,33 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_dk_corpse_explosion_SpellScript();
+        }
+};
+
+class spell_dk_death_and_decay : public SpellScriptLoader
+{
+    public:
+        spell_dk_death_and_decay() : SpellScriptLoader("spell_dk_death_and_decay") { }
+
+        class spell_dk_death_and_decay_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_death_and_decay_AuraScript);
+
+            void HandleDummyTick(AuraEffect const* aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastCustomSpell(SPELL_DK_DEATH_AND_DECAY_DAMAGE, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, NULL, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_death_and_decay_AuraScript::HandleDummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_death_and_decay_AuraScript();
         }
 };
 
@@ -1545,6 +1573,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_blood_boil();
     new spell_dk_blood_gorged();
     new spell_dk_corpse_explosion();
+    new spell_dk_death_and_decay();
     new spell_dk_death_coil();
     new spell_dk_death_gate();
     new spell_dk_death_grip();

@@ -37,6 +37,7 @@
 #include "RealmList.h"
 #include "World.h"
 #include "MapManager.h"
+#include "InstanceSaveMgr.h"
 #include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "OutdoorPvP/OutdoorPvPMgr.h"
@@ -108,10 +109,10 @@ extern int main(int argc, char** argv)
         WinServiceRun();
 #endif
 
-    if (!sConfigMgr->LoadInitial(configFile))
+    std::string configError;
+    if (!sConfigMgr->LoadInitial(configFile, configError))
     {
-        printf("Invalid or missing configuration file : %s\n", configFile.c_str());
-        printf("Verify that the file exists and has \'[worldserver]' written in the top of the file!\n");
+        printf("Error in config file: %s\n", configError.c_str());
         return 1;
     }
 
@@ -158,6 +159,9 @@ extern int main(int argc, char** argv)
 
     // Set signal handlers (this must be done before starting io_service threads, because otherwise they would unblock and exit)
     boost::asio::signal_set signals(_ioService, SIGINT, SIGTERM);
+#if PLATFORM == PLATFORM_WINDOWS
+    signals.add(SIGBREAK);
+#endif
     signals.async_wait(SignalHandler);
 
     // Start the Boost based thread pool
@@ -248,6 +252,7 @@ extern int main(int argc, char** argv)
     // unload battleground templates before different singletons destroyed
     sBattlegroundMgr->DeleteAllBattlegrounds();
 
+    sInstanceSaveMgr->Unload();
     sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
     sObjectAccessor->UnloadAll();             // unload 'i_player2corpse' storage and remove from world
     sScriptMgr->Unload();
@@ -367,18 +372,10 @@ void WorldUpdateLoop()
     }
 }
 
-void SignalHandler(const boost::system::error_code& error, int signalNumber)
+void SignalHandler(const boost::system::error_code& error, int /*signalNumber*/)
 {
     if (!error)
-    {
-        switch (signalNumber)
-        {
-            case SIGINT:
-            case SIGTERM:
-                World::StopNow(SHUTDOWN_EXIT_CODE);
-                break;
-        }
-    }
+        World::StopNow(SHUTDOWN_EXIT_CODE);
 }
 
 void FreezeDetectorHandler(const boost::system::error_code& error)
@@ -540,6 +537,9 @@ void ClearOnlineAccounts()
 
 variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile, std::string& configService)
 {
+    // Silences warning about configService not be used if the OS is not Windows
+    (void)configService;
+
     options_description all("Allowed options");
     all.add_options()
         ("help,h", "print usage message")

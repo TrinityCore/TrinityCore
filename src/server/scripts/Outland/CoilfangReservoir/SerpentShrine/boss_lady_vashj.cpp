@@ -182,15 +182,15 @@ public:
         void Reset() override
         {
             AggroTimer = 19000;
-            ShockBlastTimer = 1+rand()%60000;
+            ShockBlastTimer = 1 + rand32() % 60000;
             EntangleTimer = 30000;
-            StaticChargeTimer = 10000+rand()%15000;
+            StaticChargeTimer = 10000 + rand32() % 15000;
             ForkedLightningTimer = 2000;
             CheckTimer = 15000;
             EnchantedElementalTimer = 5000;
             TaintedElementalTimer = 50000;
-            CoilfangEliteTimer = 45000+rand()%5000;
-            CoilfangStriderTimer = 60000+rand()%10000;
+            CoilfangEliteTimer = 45000 + rand32() % 5000;
+            CoilfangStriderTimer = 60000 + rand32() % 10000;
             SummonSporebatTimer = 10000;
             SummonSporebatStaticTimer = 30000;
             EnchantedElementalPos = 0;
@@ -304,7 +304,7 @@ public:
                     DoCastVictim(SPELL_MULTI_SHOT);
                     break;
             }
-            if (rand()%3)
+            if (rand32() % 3)
             {
                 Talk(SAY_BOWSHOT);
             }
@@ -346,7 +346,7 @@ public:
                     DoCastVictim(SPELL_SHOCK_BLAST);
                     me->TauntApply(me->GetVictim());
 
-                    ShockBlastTimer = 1000+rand()%14000;       // random cooldown
+                    ShockBlastTimer = 1000 + rand32() % 14000;       // random cooldown
                 } else ShockBlastTimer -= diff;
 
                 // StaticChargeTimer
@@ -358,7 +358,7 @@ public:
                     if (target && !target->HasAura(SPELL_STATIC_CHARGE_TRIGGER))
                         DoCast(target, SPELL_STATIC_CHARGE_TRIGGER); // cast Static Charge every 2 seconds for 20 seconds
 
-                    StaticChargeTimer = 10000+rand()%20000;
+                    StaticChargeTimer = 10000 + rand32() % 20000;
                 } else StaticChargeTimer -= diff;
 
                 // EntangleTimer
@@ -376,7 +376,7 @@ public:
                     {
                         CastShootOrMultishot();
                         Entangle = false;
-                        EntangleTimer = 20000+rand()%5000;
+                        EntangleTimer = 20000 + rand32() % 5000;
                     }
                 } else EntangleTimer -= diff;
 
@@ -461,7 +461,7 @@ public:
 
                     DoCast(target, SPELL_FORKED_LIGHTNING);
 
-                    ForkedLightningTimer = 2000+rand()%6000;
+                    ForkedLightningTimer = 2000 + rand32() % 6000;
                 } else ForkedLightningTimer -= diff;
 
                 // EnchantedElementalTimer
@@ -474,13 +474,13 @@ public:
                     else
                         ++EnchantedElementalPos;
 
-                    EnchantedElementalTimer = 10000+rand()%5000;
+                    EnchantedElementalTimer = 10000 + rand32() % 5000;
                 } else EnchantedElementalTimer -= diff;
 
                 // TaintedElementalTimer
                 if (TaintedElementalTimer <= diff)
                 {
-                    uint32 pos = rand()%8;
+                    uint32 pos = rand32() % 8;
                     me->SummonCreature(TAINTED_ELEMENTAL, ElementPos[pos][0], ElementPos[pos][1], ElementPos[pos][2], ElementPos[pos][3], TEMPSUMMON_DEAD_DESPAWN, 0);
 
                     TaintedElementalTimer = 120000;
@@ -489,7 +489,7 @@ public:
                 // CoilfangEliteTimer
                 if (CoilfangEliteTimer <= diff)
                 {
-                    uint32 pos = rand()%3;
+                    uint32 pos = rand32() % 3;
                     Creature* coilfangElite = me->SummonCreature(COILFANG_ELITE, CoilfangElitePos[pos][0], CoilfangElitePos[pos][1], CoilfangElitePos[pos][2], CoilfangElitePos[pos][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                     if (coilfangElite)
                     {
@@ -498,13 +498,13 @@ public:
                         else if (me->GetVictim())
                             coilfangElite->AI()->AttackStart(me->GetVictim());
                     }
-                    CoilfangEliteTimer = 45000+rand()%5000;
+                    CoilfangEliteTimer = 45000 + rand32() % 5000;
                 } else CoilfangEliteTimer -= diff;
 
                 // CoilfangStriderTimer
                 if (CoilfangStriderTimer <= diff)
                 {
-                    uint32 pos = rand()%3;
+                    uint32 pos = rand32() % 3;
                     if (Creature* CoilfangStrider = me->SummonCreature(COILFANG_STRIDER, CoilfangStriderPos[pos][0], CoilfangStriderPos[pos][1], CoilfangStriderPos[pos][2], CoilfangStriderPos[pos][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -512,7 +512,7 @@ public:
                         else if (me->GetVictim())
                             CoilfangStrider->AI()->AttackStart(me->GetVictim());
                     }
-                    CoilfangStriderTimer = 60000+rand()%10000;
+                    CoilfangStriderTimer = 60000 + rand32() % 10000;
                 } else CoilfangStriderTimer -= diff;
 
                 // CheckTimer
@@ -656,7 +656,7 @@ public:
 
         void Reset() override
         {
-            PoisonBoltTimer = 5000+rand()%5000;
+            PoisonBoltTimer = 5000 + rand32() % 5000;
             DespawnTimer = 30000;
         }
 
@@ -681,7 +681,7 @@ public:
                 if (target && target->IsWithinDistInMap(me, 30))
                     DoCast(target, SPELL_POISON_BOLT);
 
-                PoisonBoltTimer = 5000+rand()%5000;
+                PoisonBoltTimer = 5000 + rand32() % 5000;
             } else PoisonBoltTimer -= diff;
 
             // DespawnTimer
@@ -754,7 +754,7 @@ public:
             // Random movement
             if (MovementTimer <= diff)
             {
-                uint32 rndpos = rand()%8;
+                uint32 rndpos = rand32() % 8;
                 me->GetMotionMaster()->MovePoint(1, SporebatWPPos[rndpos][0], SporebatWPPos[rndpos][1], SporebatWPPos[rndpos][2]);
                 MovementTimer = 6000;
             } else MovementTimer -= diff;
@@ -770,7 +770,7 @@ public:
                         trig->CastSpell(trig, SPELL_TOXIC_SPORES, true);
                     }
                 }
-                BoltTimer = 10000+rand()%5000;
+                BoltTimer = 10000 + rand32() % 5000;
             }
             else BoltTimer -= diff;
 

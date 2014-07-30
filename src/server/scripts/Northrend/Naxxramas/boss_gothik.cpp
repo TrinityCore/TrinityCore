@@ -236,7 +236,7 @@ class boss_gothik : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/) override
             {
-                if (!(rand()%5))
+                if (!(rand32() % 5))
                     Talk(SAY_KILL);
             }
 
@@ -359,7 +359,7 @@ class boss_gothik : public CreatureScript
                 if (spellId && me->IsInCombat())
                 {
                     me->HandleEmoteCommand(EMOTE_ONESHOT_SPELL_CAST);
-                    if (Creature* pRandomDeadTrigger = ObjectAccessor::GetCreature(*me, DeadTriggerGUID[rand() % POS_DEAD]))
+                    if (Creature* pRandomDeadTrigger = ObjectAccessor::GetCreature(*me, DeadTriggerGUID[rand32() % POS_DEAD]))
                         me->CastSpell(pRandomDeadTrigger, spellId, true);
                 }
             }

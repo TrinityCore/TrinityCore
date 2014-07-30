@@ -197,7 +197,7 @@ public:
                     }
                     Talk(EMOTE_EARTHQUAKE);
                     Earthquake = false;
-                    Earthquake_Timer = 40000+rand()%5000;
+                    Earthquake_Timer = 40000 + rand32() % 5000;
                 }
             } else Earthquake_Timer -= diff;
 

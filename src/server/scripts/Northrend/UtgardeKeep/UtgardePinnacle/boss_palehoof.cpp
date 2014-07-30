@@ -297,19 +297,19 @@ public:
             if (uiChainLightingTimer <= diff)
             {
                 DoCastVictim(SPELL_CHAIN_LIGHTING);
-                uiChainLightingTimer = 5000 + rand() % 5000;
+                uiChainLightingTimer = 5000 + rand32() % 5000;
             } else uiChainLightingTimer -=  diff;
 
             if (uiCrazedTimer <= diff)
             {
                 DoCast(me, SPELL_CRAZED);
-                uiCrazedTimer = 8000 + rand() % 4000;
+                uiCrazedTimer = 8000 + rand32() % 4000;
             } else uiCrazedTimer -=  diff;
 
             if (uiTerrifyingRoarTimer <= diff)
             {
                 DoCast(me, SPELL_TERRIFYING_ROAR);
-                uiTerrifyingRoarTimer = 10000 + rand() % 10000;
+                uiTerrifyingRoarTimer = 10000 + rand32() % 10000;
             } else uiTerrifyingRoarTimer -=  diff;
 
             DoMeleeAttackIfReady();
@@ -405,7 +405,7 @@ public:
             if (uiMortalWoundTimer <= diff)
             {
                 DoCastVictim(SPELL_MORTAL_WOUND);
-                uiMortalWoundTimer = 3000 + rand() % 4000;
+                uiMortalWoundTimer = 3000 + rand32() % 4000;
             } else uiMortalWoundTimer -= diff;
 
             if (uiEnrage1Timer <= diff)
@@ -515,20 +515,20 @@ public:
             if (uiStompTimer <= diff)
             {
                 DoCastVictim(SPELL_STOMP);
-                uiStompTimer = 8000 + rand() % 4000;
+                uiStompTimer = 8000 + rand32() % 4000;
             } else uiStompTimer -= diff;
 
             if (uiGoreTimer <= diff)
             {
                 DoCastVictim(SPELL_GORE);
-                uiGoreTimer = 13000 + rand() % 4000;
+                uiGoreTimer = 13000 + rand32() % 4000;
             } else uiGoreTimer -= diff;
 
             if (uiGrievousWoundTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(target, SPELL_GRIEVOUS_WOUND);
-                uiGrievousWoundTimer = 18000 + rand() % 4000;
+                uiGrievousWoundTimer = 18000 + rand32() % 4000;
             } else uiGrievousWoundTimer -= diff;
 
             DoMeleeAttackIfReady();
@@ -631,20 +631,20 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(target, SPELL_ACID_SPIT);
-                uiAcidSpitTimer = 2000 + rand() % 2000;
+                uiAcidSpitTimer = 2000 + rand32() % 2000;
             } else uiAcidSpitTimer -= diff;
 
             if (uiAcidSplatterTimer <= diff)
             {
                 DoCast(me, SPELL_POISON_BREATH);
-                uiAcidSplatterTimer = 10000 + rand() % 4000;
+                uiAcidSplatterTimer = 10000 + rand32() % 4000;
             } else uiAcidSplatterTimer -= diff;
 
             if (uiPoisonBreathTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(target, SPELL_POISON_BREATH);
-                uiPoisonBreathTimer = 8000 + rand() % 4000;
+                uiPoisonBreathTimer = 8000 + rand32() % 4000;
             } else uiPoisonBreathTimer -= diff;
 
             DoMeleeAttackIfReady();

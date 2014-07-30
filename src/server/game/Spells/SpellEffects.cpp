@@ -625,8 +625,13 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 // Hammer of the Righteous
                 if (m_spellInfo->SpellFamilyFlags[1]&0x00040000)
                 {
+                    float min_damage = m_caster->GetFloatValue(UNIT_FIELD_MINDAMAGE);
+                    float max_damage = m_caster->GetFloatValue(UNIT_FIELD_MAXDAMAGE);
+                    if (Player* player = m_caster->ToPlayer()) // UNIT_FIELD_MINDAMAGE/MAXDAMAGE already include damage bonuses, so try to get them without damage bonuses
+                        player->CalculateMinMaxDamage(BASE_ATTACK, false, false, min_damage, max_damage);
+
+                    float average = (min_damage + max_damage) / 2;
                     // Add main hand dps * effect[2] amount
-                    float average = (m_caster->GetFloatValue(UNIT_FIELD_MINDAMAGE) + m_caster->GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2;
                     int32 count = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, EFFECT_2);
                     damage += count * int32(average * IN_MILLISECONDS) / m_caster->GetAttackTime(BASE_ATTACK);
                     break;
@@ -974,10 +979,14 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
             case 52349: // Overtake
                 unitTarget->CastCustomSpell(unitTarget, spellInfo->Id, &damage, NULL, NULL, true, NULL, NULL, m_originalCasterGUID);
                 return;
-            case 72299: // Malleable Goo Summon Trigger
-                unitTarget->CastSpell(unitTarget, spellInfo->Id, true, NULL, NULL, m_originalCasterGUID);
-                return;
         }
+    }
+
+    switch (spellInfo->Id)
+    {
+        case 72298: // Malleable Goo Summon
+            unitTarget->CastSpell(unitTarget, spellInfo->Id, true, NULL, NULL, m_originalCasterGUID);
+            return;
     }
 
     CustomSpellValues values;
@@ -3760,7 +3769,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         return;
 
                     uint32 spellId = 0;
-                    switch (rand() % 4)
+                    switch (rand32() % 4)
                     {
                         case 0: spellId = 46740; break;
                         case 1: spellId = 46739; break;

@@ -182,10 +182,11 @@ class boss_akilzon : public CreatureScript
                     // visual
                     float x, y, z;
                     z = me->GetPositionZ();
-                    for (uint8 i = 0; i < 5+rand()%5; ++i)
+                    uint8 maxCount = 5 + rand32() % 5;
+                    for (uint8 i = 0; i < maxCount; ++i)
                     {
-                        x = 343.0f+rand()%60;
-                        y = 1380.0f+rand()%60;
+                        x = 343.0f + rand32() % 60;
+                        y = 1380.0f + rand32() % 60;
                         if (Unit* trigger = me->SummonTrigger(x, y, z, 0, 2000))
                         {
                             trigger->setFaction(35);

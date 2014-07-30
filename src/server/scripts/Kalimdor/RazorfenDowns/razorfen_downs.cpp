@@ -38,73 +38,6 @@ EndContentData */
 #include "CellImpl.h"
 
 /*###
-# npc_henry_stern
-####*/
-
-enum Spells
-{
-    SPELL_TEACHING_GOLDTHORN_TEA                = 13029,
-    SPELL_TEACHING_MIGHTY_TROLLS_BLOOD_POTION   = 13030
-};
-
-enum Gossips
-{
-    GOSSIP_COOKING_SKILL_HIGH                   = 1444,
-    GOSSIP_COOKING_SKILL_LOW                    = 1501,
-    GOSSIP_ALCHEMY_SKILL_HIGH                   = 1442,
-    GOSSIP_ALCHEMY_SKILL_LOW                    = 1502
-};
-
-class npc_henry_stern : public CreatureScript
-{
-public:
-    npc_henry_stern() : CreatureScript("npc_henry_stern") { }
-
-    struct npc_henry_sternAI : public ScriptedAI
-    {
-        npc_henry_sternAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action) override
-        {
-            if (action == 0)
-            {
-                if (player->GetBaseSkillValue(SKILL_COOKING) >= 175)
-                {
-                    player->PrepareGossipMenu(me, GOSSIP_COOKING_SKILL_HIGH);
-                    player->SendPreparedGossip(me);
-                    DoCast(player, SPELL_TEACHING_GOLDTHORN_TEA);
-                }
-                else
-                {
-                    player->PrepareGossipMenu(me, GOSSIP_COOKING_SKILL_LOW);
-                    player->SendPreparedGossip(me);
-                }
-            }
-
-            if (action == 1)
-            {
-                if (player->GetBaseSkillValue(SKILL_ALCHEMY) >= 180)
-                {
-                    player->PrepareGossipMenu(me, GOSSIP_ALCHEMY_SKILL_HIGH);
-                    player->SendPreparedGossip(me);
-                    DoCast(player, SPELL_TEACHING_MIGHTY_TROLLS_BLOOD_POTION);
-                }
-                else
-                {
-                    player->PrepareGossipMenu(me, GOSSIP_ALCHEMY_SKILL_LOW);
-                    player->SendPreparedGossip(me);
-                }
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_henry_sternAI(creature);
-    }
-};
-
-/*######
 ## npc_belnistrasz for Quest 3525 "Extinguishing the Idol"
 ######*/
 
@@ -460,7 +393,6 @@ public:
 
 void AddSC_razorfen_downs()
 {
-    new npc_henry_stern();
     new npc_belnistrasz();
     new npc_idol_room_spawner();
     new npc_tomb_creature();

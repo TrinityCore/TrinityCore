@@ -93,7 +93,7 @@ public:
         void KilledUnit(Unit* victim) override
         {
             /// Force the player to spawn corpse scarabs via spell, @todo Check percent chance for scarabs, 20% at the moment
-            if (!(rand()%5))
+            if (!(rand32() % 5))
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     victim->CastSpell(victim, SPELL_SUMMON_CORPSE_SCARABS_PLR, true, NULL, NULL, me->GetGUID());
 

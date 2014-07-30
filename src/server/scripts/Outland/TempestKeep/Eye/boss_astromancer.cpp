@@ -143,7 +143,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 AppearDelay_Timer = 2000;
                 BlindingLight = false;
                 AppearDelay = false;
-                Wrath_Timer = 20000+rand()%5000;//twice in phase one
+                Wrath_Timer = 20000 + rand32() % 5000;//twice in phase one
                 Phase = 1;
 
                 instance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, NOT_STARTED);
@@ -195,7 +195,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 if (urand(0, 1))
                     radius = -radius;
 
-                return radius * (float)(rand()%100)/100.0f + CENTER_X;
+                return radius * (float)(rand32() % 100) / 100.0f + CENTER_X;
             }
 
             float Portal_Y(float x, float radius)
@@ -241,7 +241,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                         me->InterruptNonMeleeSpells(false);
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                             DoCast(target, SPELL_WRATH_OF_THE_ASTROMANCER, true);
-                        Wrath_Timer = 20000+rand()%5000;
+                        Wrath_Timer = 20000 + rand32() % 5000;
                     }
                     else
                         Wrath_Timer -= diff;
@@ -359,7 +359,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                             {
                                 Phase = 1;
                                 //15 seconds later Solarian reappears out of one of the 3 portals. Simultaneously, 2 healers appear in the two other portals.
-                                int i = rand()%3;
+                                int i = rand32() % 3;
                                 me->GetMotionMaster()->Clear();
                                 me->SetPosition(Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O);
 

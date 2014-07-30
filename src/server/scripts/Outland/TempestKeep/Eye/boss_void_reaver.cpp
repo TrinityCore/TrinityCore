@@ -132,7 +132,7 @@ class boss_void_reaver : public CreatureScript
                     }
 
                     if (!target_list.empty())
-                        target = *(target_list.begin()+rand()%target_list.size());
+                        target = *(target_list.begin() + rand32() % target_list.size());
                     else
                         target = me->GetVictim();
 

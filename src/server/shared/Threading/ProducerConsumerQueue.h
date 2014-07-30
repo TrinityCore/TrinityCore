@@ -22,6 +22,7 @@
 #include <mutex>
 #include <queue>
 #include <atomic>
+#include <type_traits>
 
 template <typename T>
 class ProducerConsumerQueue
@@ -38,11 +39,10 @@ public:
 
     void Push(const T& value)
     {
-        _queueLock.lock();
-
-        _queue.push(std::move(value));
-
-        _queueLock.unlock();
+        {
+            std::lock_guard<std::mutex> lock(_queueLock);
+            _queue.push(std::move(value));
+        }
 
         _condition.notify_one();
     }
@@ -93,7 +93,7 @@ public:
         {
             T& value = _queue.front();
 
-            delete &value;
+            DeleteQueuedObject(value);
 
             _queue.pop();
         }
@@ -104,8 +104,13 @@ public:
 
         _condition.notify_all();
     }
+
+private:
+    template<typename E = T>
+    typename std::enable_if<std::is_pointer<E>::value>::type DeleteQueuedObject(E& obj) { delete obj; }
+
+    template<typename E = T>
+    typename std::enable_if<!std::is_pointer<E>::value>::type DeleteQueuedObject(E const& /*packet*/) { }
 };
 
 #endif
-
-
