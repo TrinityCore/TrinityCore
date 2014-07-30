@@ -51,25 +51,6 @@ void OPvPCapturePointZM_Beacon::UpdateTowerState()
     m_PvP->SendUpdateWorldState(uint32(ZMBeaconInfo[m_TowerType].map_tower_h), uint32((m_TowerState & ZM_TOWERSTATE_H) != 0));
 }
 
-bool OPvPCapturePointZM_Beacon::HandlePlayerEnter(Player* player)
-{
-    if (OPvPCapturePoint::HandlePlayerEnter(player))
-    {
-        player->SendUpdateWorldState(ZMBeaconInfo[m_TowerType].slider_disp, 1);
-        uint32 phase = (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f);
-        player->SendUpdateWorldState(ZMBeaconInfo[m_TowerType].slider_pos, phase);
-        player->SendUpdateWorldState(ZMBeaconInfo[m_TowerType].slider_n, m_neutralValuePct);
-        return true;
-    }
-    return false;
-}
-
-void OPvPCapturePointZM_Beacon::HandlePlayerLeave(Player* player)
-{
-    player->SendUpdateWorldState(ZMBeaconInfo[m_TowerType].slider_disp, 0);
-    OPvPCapturePoint::HandlePlayerLeave(player);
-}
-
 void OPvPCapturePointZM_Beacon::ChangeState()
 {
     // if changing from controlling alliance to horde
@@ -115,16 +96,6 @@ void OPvPCapturePointZM_Beacon::ChangeState()
     }
 
     UpdateTowerState();
-}
-
-void OPvPCapturePointZM_Beacon::SendChangePhase()
-{
-    // send this too, sometimes the slider disappears, dunno why :(
-    SendUpdateWorldState(ZMBeaconInfo[m_TowerType].slider_disp, 1);
-    // send these updates to only the ones in this objective
-    uint32 phase = (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f);
-    SendUpdateWorldState(ZMBeaconInfo[m_TowerType].slider_pos, phase);
-    SendUpdateWorldState(ZMBeaconInfo[m_TowerType].slider_n, m_neutralValuePct);
 }
 
 bool OutdoorPvPZM::Update(uint32 diff)
@@ -408,20 +379,13 @@ void OutdoorPvPZM::SetHordeTowersControlled(uint32 count)
 void OutdoorPvPZM::FillInitialWorldStates(WorldPacket &data)
 {
     data << ZM_WORLDSTATE_UNK_1 << uint32(1);
+
     for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-    {
         itr->second->FillInitialWorldStates(data);
-    }
 }
 
 void OutdoorPvPZM::SendRemoveWorldStates(Player* player)
 {
-    player->SendUpdateWorldState(ZM_UI_TOWER_SLIDER_N_W, 0);
-    player->SendUpdateWorldState(ZM_UI_TOWER_SLIDER_POS_W, 0);
-    player->SendUpdateWorldState(ZM_UI_TOWER_SLIDER_DISPLAY_W, 0);
-    player->SendUpdateWorldState(ZM_UI_TOWER_SLIDER_N_E, 0);
-    player->SendUpdateWorldState(ZM_UI_TOWER_SLIDER_POS_E, 0);
-    player->SendUpdateWorldState(ZM_UI_TOWER_SLIDER_DISPLAY_E, 0);
     player->SendUpdateWorldState(ZM_WORLDSTATE_UNK_1, 1);
     player->SendUpdateWorldState(ZM_UI_TOWER_EAST_N, 0);
     player->SendUpdateWorldState(ZM_UI_TOWER_EAST_H, 0);
