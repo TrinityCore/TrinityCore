@@ -108,10 +108,6 @@ const uint32 TFTowerPlayerLeaveEvents[TF_TOWER_NUM] =
 
 enum TFWorldStates
 {
-    TF_UI_TOWER_SLIDER_POS = 0xa41,
-    TF_UI_TOWER_SLIDER_N = 0xa40,
-    TF_UI_TOWER_SLIDER_DISPLAY = 0xa3f,
-
     TF_UI_TOWER_COUNT_H = 0xa3e,
     TF_UI_TOWER_COUNT_A = 0xa3d,
     TF_UI_TOWERS_CONTROLLED_DISPLAY = 0xa3c,
@@ -134,25 +130,17 @@ enum TFTowerStates
 class OPvPCapturePointTF : public OPvPCapturePoint
 {
     public:
-
         OPvPCapturePointTF(OutdoorPvP* pvp, OutdoorPvPTF_TowerType type);
 
         bool Update(uint32 diff);
 
         void ChangeState();
 
-        void SendChangePhase();
-
         void FillInitialWorldStates(WorldPacket & data);
-
-        // used when player is activated/inactivated in the area
-        bool HandlePlayerEnter(Player* player);
-        void HandlePlayerLeave(Player* player);
 
         void UpdateTowerState();
 
     protected:
-
         OutdoorPvPTF_TowerType m_TowerType;
 
         uint32 m_TowerState;
@@ -161,7 +149,6 @@ class OPvPCapturePointTF : public OPvPCapturePoint
 class OutdoorPvPTF : public OutdoorPvP
 {
     public:
-
         OutdoorPvPTF();
 
         bool SetupOutdoorPvP();
@@ -184,7 +171,6 @@ class OutdoorPvPTF : public OutdoorPvP
         bool IsLocked() const;
 
     private:
-
         bool m_IsLocked;
         uint32 m_LockTimer;
         uint32 m_LockTimerUpdate;

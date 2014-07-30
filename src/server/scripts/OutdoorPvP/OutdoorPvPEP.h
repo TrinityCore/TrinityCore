@@ -97,10 +97,6 @@ enum EP_CrownGuardTowerWorldStates
 
 enum EP_WorldStates
 {
-    EP_UI_TOWER_SLIDER_DISPLAY = 2426,
-    EP_UI_TOWER_SLIDER_POS = 2427,
-    EP_UI_TOWER_SLIDER_N = 2428,
-
     EP_UI_TOWER_COUNT_A = 2327,
     EP_UI_TOWER_COUNT_H = 2328
 };
@@ -198,27 +194,18 @@ class OutdoorPvPEP;
 class OPvPCapturePointEP_EWT : public OPvPCapturePoint
 {
     public:
-
         OPvPCapturePointEP_EWT(OutdoorPvP* pvp);
 
         void ChangeState();
 
-        void SendChangePhase();
-
         void FillInitialWorldStates(WorldPacket & data);
 
-        // used when player is activated/inactivated in the area
-        bool HandlePlayerEnter(Player* player);
-        void HandlePlayerLeave(Player* player);
-
     protected:
-
         void SummonSupportUnitAtNorthpassTower(uint32 team);
 
         void UpdateTowerState();
 
     protected:
-
         uint32 m_TowerState;
 
         uint32 m_UnitsSummonedSide;
@@ -227,27 +214,18 @@ class OPvPCapturePointEP_EWT : public OPvPCapturePoint
 class OPvPCapturePointEP_NPT : public OPvPCapturePoint
 {
     public:
-
         OPvPCapturePointEP_NPT(OutdoorPvP* pvp);
 
         void ChangeState();
 
-        void SendChangePhase();
-
         void FillInitialWorldStates(WorldPacket & data);
 
-        // used when player is activated/inactivated in the area
-        bool HandlePlayerEnter(Player* player);
-        void HandlePlayerLeave(Player* player);
-
     protected:
-
         void SummonGO(uint32 team);
 
         void UpdateTowerState();
 
     protected:
-
         uint32 m_TowerState;
 
         uint32 m_SummonedGOSide;
@@ -256,27 +234,18 @@ class OPvPCapturePointEP_NPT : public OPvPCapturePoint
 class OPvPCapturePointEP_CGT : public OPvPCapturePoint
 {
     public:
-
         OPvPCapturePointEP_CGT(OutdoorPvP* pvp);
 
         void ChangeState();
 
-        void SendChangePhase();
-
         void FillInitialWorldStates(WorldPacket & data);
 
-        // used when player is activated/inactivated in the area
-        bool HandlePlayerEnter(Player* player);
-        void HandlePlayerLeave(Player* player);
-
     protected:
-
         void LinkGraveYard(uint32 team);
 
         void UpdateTowerState();
 
     protected:
-
         uint32 m_TowerState;
 
         uint32 m_GraveyardSide;
@@ -285,27 +254,18 @@ class OPvPCapturePointEP_CGT : public OPvPCapturePoint
 class OPvPCapturePointEP_PWT : public OPvPCapturePoint
 {
     public:
-
         OPvPCapturePointEP_PWT(OutdoorPvP* pvp);
 
         void ChangeState();
 
-        void SendChangePhase();
-
         void FillInitialWorldStates(WorldPacket & data);
 
-        // used when player is activated/inactivated in the area
-        bool HandlePlayerEnter(Player* player);
-        void HandlePlayerLeave(Player* player);
-
     protected:
-
         void SummonFlightMaster(uint32 team);
 
         void UpdateTowerState();
 
     protected:
-
         uint32 m_FlightMasterSpawned;
 
         uint32 m_TowerState;
@@ -314,7 +274,6 @@ class OPvPCapturePointEP_PWT : public OPvPCapturePoint
 class OutdoorPvPEP : public OutdoorPvP
 {
     public:
-
         OutdoorPvPEP();
 
         bool SetupOutdoorPvP();
@@ -333,7 +292,6 @@ class OutdoorPvPEP : public OutdoorPvP
         void SetControlledState(uint32 index, uint32 state);
 
     private:
-
         // how many towers are controlled
         uint32 EP_Controls[EP_TOWER_NUM];
 
