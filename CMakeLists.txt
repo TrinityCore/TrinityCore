@@ -14,6 +14,7 @@ project(TrinityCore)
 # CMake policies (can not be handled elsewhere)
 cmake_minimum_required(VERSION 2.8.9)
 cmake_policy(SET CMP0005 OLD)
+cmake_policy(SET CMP0043 OLD) # Disable 'Ignore COMPILE_DEFINITIONS_<Config> properties'
 
 # add this options before PROJECT keyword
 set(CMAKE_DISABLE_SOURCE_CHANGES ON)
