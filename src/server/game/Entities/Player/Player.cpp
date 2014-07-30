@@ -3822,10 +3822,16 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
                     LearnDefaultSkill(pSkill->id, 0);
 
                 if (pSkill->id == SKILL_MOUNTS && !Has310Flyer(false))
+                {
+                    // Big Love Rocket & Invincible should also SetHas310Flyer true
+                    if (spellInfo->Id == 71342 || spellInfo->Id == 72286)
+                        SetHas310Flyer(true);
+
                     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                         if (spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED &&
                             spellInfo->Effects[i].CalcValue() == 310)
                             SetHas310Flyer(true);
+                }
             }
         }
     }
