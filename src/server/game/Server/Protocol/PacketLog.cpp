@@ -38,11 +38,19 @@ struct LogHeader
 
 struct PacketHeader
 {
+    // used to uniquely identify a connection
+    struct OptionalData
+    {
+        uint8 SocketIPBytes[16];
+        uint32 SocketPort;
+    };
+
     char Direction[4];
     uint32 ConnectionId;
     uint32 ArrivalTicks;
     uint32 OptionalDataSize;
     uint32 Length;
+    OptionalData OptionalData;
     uint32 Opcode;
 };
 
@@ -89,14 +97,28 @@ void PacketLog::Initialize()
     }
 }
 
-void PacketLog::LogPacket(WorldPacket const& packet, Direction direction)
+void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost::asio::ip::address addr, uint16 port)
 {
     PacketHeader header;
     *reinterpret_cast<uint32*>(header.Direction) = direction == CLIENT_TO_SERVER ? 0x47534d43 : 0x47534d53;
     header.ConnectionId = 0;
     header.ArrivalTicks = getMSTime();
-    header.OptionalDataSize = 0;
-    header.Length = packet.size() + 4;
+
+    header.OptionalDataSize = sizeof(header.OptionalData);
+    memset(header.OptionalData.SocketIPBytes, 0, sizeof(header.OptionalData.SocketIPBytes));
+    if (addr.is_v4())
+    {
+        auto bytes = addr.to_v4().to_bytes();
+        memcpy(header.OptionalData.SocketIPBytes, bytes.data(), bytes.size());
+    }
+    else if (addr.is_v6())
+    {
+        auto bytes = addr.to_v6().to_bytes();
+        memcpy(header.OptionalData.SocketIPBytes, bytes.data(), bytes.size());
+    }
+
+    header.OptionalData.SocketPort = port;
+    header.Length = packet.size() + sizeof(header.Opcode);
     header.Opcode = packet.GetOpcode();
 
     fwrite(&header, sizeof(header), 1, _file);
