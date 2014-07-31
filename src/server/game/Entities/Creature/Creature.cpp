@@ -547,15 +547,6 @@ void Creature::Update(uint32 diff)
             if (!IsAlive())
                 break;
 
-            time_t now = time(NULL);
-
-            // Check if we should refill the pickpocketing loot
-            if (loot.loot_type == LOOT_PICKPOCKETING && _pickpocketLootRestore && _pickpocketLootRestore <= now)
-            {
-                loot.clear();
-                _pickpocketLootRestore = 0;
-            }
-
             if (m_regenTimer > 0)
             {
                 if (diff >= m_regenTimer)
@@ -1531,7 +1522,7 @@ void Creature::Respawn(bool force)
         TC_LOG_DEBUG("entities.unit", "Respawning creature %s (GuidLow: %u, Full GUID: " UI64FMTD " Entry: %u)",
             GetName().c_str(), GetGUIDLow(), GetGUID(), GetEntry());
         m_respawnTime = 0;
-        _pickpocketLootRestore = 0;
+        ResetPickPocketRefillTimer();
         loot.clear();
         if (m_originalEntry != GetEntry())
             UpdateEntry(m_originalEntry);

@@ -553,6 +553,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         Loot loot;
         void StartPickPocketRefillTimer();
         void ResetPickPocketRefillTimer() { _pickpocketLootRestore = 0; }
+        bool CanGeneratePickPocketLoot() const { return _pickpocketLootRestore <= time(NULL); }
         void SetSkinner(uint64 guid) { _skinner = guid; }
         uint64 GetSkinner() const { return _skinner; } // Returns the player who skinned this creature
         Player* GetLootRecipient() const;
