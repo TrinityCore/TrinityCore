@@ -987,7 +987,6 @@ void AddEasternKingdomsScripts()
     AddSC_burning_steppes();
     AddSC_duskwood();
     AddSC_eastern_plaguelands();
-    AddSC_eversong_woods();
     AddSC_ghostlands();
     AddSC_hinterlands();
     AddSC_isle_of_queldanas();
