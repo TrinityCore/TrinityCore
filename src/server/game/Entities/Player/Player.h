@@ -2018,6 +2018,7 @@ class Player : public Unit, public GridObject<Player>
         std::vector<ItemSetEffect*> ItemSetEff;
 
         void SendLoot(uint64 guid, LootType loot_type);
+        void SendLootError(uint64 guid, LootError error);
         void SendLootRelease(uint64 guid);
         void SendNotifyLootItemRemoved(uint8 lootSlot);
         void SendNotifyLootMoneyRemoved();
