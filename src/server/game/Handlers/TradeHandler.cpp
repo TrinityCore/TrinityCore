@@ -52,6 +52,8 @@ void WorldSession::SendTradeStatus(TradeStatusInfo const& info)
         case TRADE_STATUS_NOT_ON_TAPLIST:
             data << uint8(info.Slot);                       // Trade slot; -1 here clears CGTradeInfo::m_tradeMoney
             break;
+        default:
+            break;
     }
 
     SendPacket(&data);
