@@ -63,7 +63,9 @@ enum PaladinSpells
     SPELL_PALADIN_SANCTIFIED_WRATH               = 57318,
     SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1     = 53375,
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
-    SPELL_PALADIN_SWIFT_RETRIBUTION_R1           = 53379
+    SPELL_PALADIN_SWIFT_RETRIBUTION_R1           = 53379,
+    SPELL_PALADIN_COMMUNION                      = 31876,
+    SPELL_PALADIN_RETRIBUTION_AURA_OVERFLOW      = 63531,
 };
 
 enum MiscSpells
@@ -1192,6 +1194,66 @@ class spell_pal_seal_of_righteousness : public SpellScriptLoader
         }
 };
 
+class spell_pal_communion : public SpellScriptLoader
+{
+public:
+    spell_pal_communion() : SpellScriptLoader("spell_pal_communion") { }
+
+    class spell_pal_communion_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pal_communion_AuraScript);
+
+        void ApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (GetCaster()->HasAura(SPELL_PALADIN_COMMUNION))
+                GetCaster()->CastSpell(GetCaster(), SPELL_PALADIN_RETRIBUTION_AURA_OVERFLOW, true);
+        }
+
+        void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (GetCaster()->HasAura(SPELL_PALADIN_COMMUNION))
+                GetCaster()->RemoveAura(SPELL_PALADIN_RETRIBUTION_AURA_OVERFLOW);
+        }
+
+        void Register()
+        {
+            switch (m_scriptSpellId)
+            {
+                case 465:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_communion_AuraScript::ApplyEffect, EFFECT_0, SPELL_AURA_MOD_RESISTANCE, AURA_EFFECT_HANDLE_REAL);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_pal_communion_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_RESISTANCE, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case 7294:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_communion_AuraScript::ApplyEffect, EFFECT_0, SPELL_AURA_DAMAGE_SHIELD, AURA_EFFECT_HANDLE_REAL);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_pal_communion_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DAMAGE_SHIELD, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case 19746:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_communion_AuraScript::ApplyEffect, EFFECT_0, SPELL_AURA_REDUCE_PUSHBACK, AURA_EFFECT_HANDLE_REAL);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_pal_communion_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_REDUCE_PUSHBACK, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case 19891:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_communion_AuraScript::ApplyEffect, EFFECT_0, SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE, AURA_EFFECT_HANDLE_REAL);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_pal_communion_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case 32223:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_communion_AuraScript::ApplyEffect, EFFECT_0, SPELL_AURA_MOD_MOUNTED_SPEED_NOT_STACK, AURA_EFFECT_HANDLE_REAL);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_pal_communion_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_MOUNTED_SPEED_NOT_STACK, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case 63510:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_communion_AuraScript::ApplyEffect, EFFECT_0, SPELL_AURA_MECHANIC_DURATION_MOD_NOT_STACK, AURA_EFFECT_HANDLE_REAL);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_pal_communion_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MECHANIC_DURATION_MOD_NOT_STACK, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_pal_communion_AuraScript();
+    }
+};
 
 void AddSC_paladin_spell_scripts()
 {
@@ -1220,4 +1282,5 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_sacred_shield();
     new spell_pal_templar_s_verdict();
     new spell_pal_seal_of_righteousness();
+    new spell_pal_communion();
 }
