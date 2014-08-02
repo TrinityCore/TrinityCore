@@ -61,7 +61,11 @@ enum PriestSpells
     SPELL_PRIEST_TWIN_DISCIPLINES_RANK_1            = 47586,
     SPELL_PRIEST_T9_HEALING_2P                      = 67201,
     SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL              = 15290,
-    SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085
+    SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
+    SPELL_PRIEST_SERENDIPITY_R1                     = 63730,
+    SPELL_PRIEST_SERENDIPITY_R2                     = 63733,
+    SPELL_PRIEST_SERENDIPITY_R1_CAST                = 63731,
+    SPELL_PRIEST_SERENDIPITY_R2_CAST                = 63735,
 };
 
 enum PriestSpellIcons
@@ -1228,6 +1232,39 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
         }
 };
 
+class spell_pri_binding_heal : public SpellScriptLoader
+{
+public:
+    spell_pri_binding_heal() : SpellScriptLoader("spell_pri_binding_heal") { }
+
+    class spell_pri_binding_heal_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_binding_heal_SpellScript);
+
+        void HandleSerendipity(SpellEffIndex effIndex)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (caster->HasAura(SPELL_PRIEST_SERENDIPITY_R1))
+                    caster->CastSpell(caster, SPELL_PRIEST_SERENDIPITY_R1_CAST, true);
+
+                if (caster->HasAura(SPELL_PRIEST_SERENDIPITY_R2))
+                    caster->CastSpell(caster, SPELL_PRIEST_SERENDIPITY_R2_CAST, true);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHit += SpellEffectFn(spell_pri_binding_heal_SpellScript::HandleSerendipity, EFFECT_0, SPELL_EFFECT_HEAL);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_pri_binding_heal_SpellScript();
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_body_and_soul();
@@ -1256,4 +1293,5 @@ void AddSC_priest_spell_scripts()
     new spell_pri_vampiric_embrace();
     new spell_pri_vampiric_embrace_target();
     new spell_pri_vampiric_touch();
+    new spell_pri_binding_heal();
 }
