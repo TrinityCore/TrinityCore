@@ -4736,11 +4736,20 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
             {
                 mana += spellInfo->ManaCost;
                 mana += int32(CalculatePct(m_caster->GetCreateMana(), spellInfo->ManaCostPercentage));
+
+                // Mental Quickness
+                if (m_caster->HasAura(30814))
+                    mana -= int32(CalculatePct(CalculatePct(m_caster->GetCreateMana(), spellInfo->ManaCostPercentage), 75));
             }
             totem->ToTotem()->UnSummon();
         }
     }
+
+    if (m_caster->HasAura(55438)) // Glyph of Totemic Recall
+        damage += 50;
+
     ApplyPct(mana, damage);
+
     if (mana)
         m_caster->CastCustomSpell(m_caster, 39104, &mana, NULL, NULL, true);
 }
