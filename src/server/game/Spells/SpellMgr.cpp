@@ -3026,6 +3026,9 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         switch (spellInfo->Id)
         {
+            case 40647: // Illidan: Shadow Prison Client Crash
+                spellInfo->MaxAffectedTargets = 100;
+                break;
             case 42436: // Drink! (Brewfest)
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
                 break;
