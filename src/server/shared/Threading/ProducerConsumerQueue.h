@@ -58,7 +58,7 @@ public:
     {
         std::lock_guard<std::mutex> lock(_queueLock);
 
-        if (_queue.empty())
+        if (_queue.empty() || _shutdown)
             return false;
 
         value = _queue.front();
@@ -77,7 +77,7 @@ public:
             _condition.wait(lock);
         }
 
-        if (_queue.empty())
+        if (_queue.empty() || _shutdown)
             return;
 
         value = _queue.front();
