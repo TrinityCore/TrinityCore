@@ -60,7 +60,7 @@ namespace Trinity
         private:
             Player const* _player;
             ChatMsg _msgType;
-            int32 _textId;
+            uint32 _textId;
             uint32 _achievementId;
     };
 } // namespace Trinity

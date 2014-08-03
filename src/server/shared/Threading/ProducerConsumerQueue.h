@@ -22,12 +22,11 @@
 #include <mutex>
 #include <queue>
 #include <atomic>
+#include <type_traits>
 
 template <typename T>
 class ProducerConsumerQueue
 {
-    static_assert(std::is_pointer<T>::value, "T for ProducerConsumerQueue must be a pointer");
-
 private:
     std::mutex _queueLock;
     std::queue<T> _queue;
@@ -59,7 +58,7 @@ public:
     {
         std::lock_guard<std::mutex> lock(_queueLock);
 
-        if (_queue.empty())
+        if (_queue.empty() || _shutdown)
             return false;
 
         value = _queue.front();
@@ -78,7 +77,7 @@ public:
             _condition.wait(lock);
         }
 
-        if (_queue.empty())
+        if (_queue.empty() || _shutdown)
             return;
 
         value = _queue.front();
@@ -94,7 +93,7 @@ public:
         {
             T& value = _queue.front();
 
-            delete value;
+            DeleteQueuedObject(value);
 
             _queue.pop();
         }
@@ -105,8 +104,13 @@ public:
 
         _condition.notify_all();
     }
+
+private:
+    template<typename E = T>
+    typename std::enable_if<std::is_pointer<E>::value>::type DeleteQueuedObject(E& obj) { delete obj; }
+
+    template<typename E = T>
+    typename std::enable_if<!std::is_pointer<E>::value>::type DeleteQueuedObject(E const& /*packet*/) { }
 };
 
 #endif
-
-

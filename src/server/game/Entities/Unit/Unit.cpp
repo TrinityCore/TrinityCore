@@ -2234,7 +2234,11 @@ void Unit::SendMeleeAttackStop(Unit* victim)
 {
     WorldPacket data(SMSG_ATTACKSTOP, (8+8+4));
     data.append(GetPackGUID());
-    data.append(victim ? victim->GetPackGUID() : 0);
+    if (victim)
+        data.append(victim->GetPackGUID());
+    else
+        data << uint8(0);
+
     data << uint32(0);                                     //! Can also take the value 0x01, which seems related to updating rotation
     SendMessageToSet(&data, true);
     TC_LOG_DEBUG("entities.unit", "WORLD: Sent SMSG_ATTACKSTOP");
@@ -15330,8 +15334,6 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
         if (creature)
         {
             Loot* loot = &creature->loot;
-            if (creature->loot.loot_type == LOOT_PICKPOCKETING)
-                creature->ResetPickPocketRefillTimer();
 
             loot->clear();
             if (uint32 lootid = creature->GetCreatureTemplate()->lootid)

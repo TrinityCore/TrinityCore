@@ -48,6 +48,7 @@ target_link_libraries(mmaps_generator
   Detour
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
+  ${CMAKE_THREAD_LIBS_INIT}
   ${Boost_LIBRARIES}
 )
 

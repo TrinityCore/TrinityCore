@@ -19,16 +19,26 @@
 #ifndef __WORLDSOCKET_H__
 #define __WORLDSOCKET_H__
 
+// Forward declare buffer function here - Socket.h must know about it
+struct WorldPacketBuffer;
+namespace boost
+{
+    namespace asio
+    {
+        WorldPacketBuffer const& buffer(WorldPacketBuffer const& buf);
+    }
+}
+
 #include "Common.h"
 #include "AuthCrypt.h"
+#include "ServerPktHeader.h"
+#include "Socket.h"
 #include "Util.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include <memory>
 #include <chrono>
-#include <mutex>
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/streambuf.hpp>
+#include <boost/asio/buffer.hpp>
 
 using boost::asio::ip::tcp;
 
@@ -42,23 +52,64 @@ struct ClientPktHeader
 
 #pragma pack(pop)
 
-class WorldSocket : public std::enable_shared_from_this<WorldSocket>
+struct WorldPacketBuffer
 {
+    typedef boost::asio::const_buffer value_type;
+
+    typedef boost::asio::const_buffer const* const_iterator;
+
+    WorldPacketBuffer(ServerPktHeader header, WorldPacket const& packet) : _header(header), _packet(packet)
+    {
+        _buffers[0] = boost::asio::const_buffer(_header.header, _header.getHeaderLength());
+        if (!_packet.empty())
+            _buffers[1] = boost::asio::const_buffer(_packet.contents(), _packet.size());
+    }
+
+    const_iterator begin() const
+    {
+        return _buffers;
+    }
+
+    const_iterator end() const
+    {
+        return _buffers + (_packet.empty() ? 1 : 2);
+    }
+
+private:
+    boost::asio::const_buffer _buffers[2];
+    ServerPktHeader _header;
+    WorldPacket _packet;
+};
+
+namespace boost
+{
+    namespace asio
+    {
+        inline WorldPacketBuffer const& buffer(WorldPacketBuffer const& buf)
+        {
+            return buf;
+        }
+    }
+}
+
+class WorldSocket : public Socket<WorldSocket, WorldPacketBuffer>
+{
+    typedef Socket<WorldSocket, WorldPacketBuffer> Base;
+
 public:
     WorldSocket(tcp::socket&& socket);
 
     WorldSocket(WorldSocket const& right) = delete;
     WorldSocket& operator=(WorldSocket const& right) = delete;
 
-    void Start();
+    void Start() override;
 
-    std::string GetRemoteIpAddress() const { return _socket.remote_endpoint().address().to_string(); };
-    uint16 GetRemotePort() const { return _socket.remote_endpoint().port(); }
+    using Base::AsyncWrite;
+    void AsyncWrite(WorldPacket& packet);
 
-    void CloseSocket() { _socket.close(); };
-    bool IsOpen() { return _socket.is_open(); };
-
-    void AsyncWrite(WorldPacket const& packet);
+protected:
+    void ReadHeaderHandler(boost::system::error_code error, size_t transferedBytes) override;
+    void ReadDataHandler(boost::system::error_code error, size_t transferedBytes) override;
 
 private:
     void HandleSendAuthSession();
@@ -66,16 +117,6 @@ private:
     void SendAuthResponseError(uint8 code);
 
     void HandlePing(WorldPacket& recvPacket);
-
-    void AsyncReadHeader();
-    void AsyncReadData(size_t dataSize);
-    void AsyncWrite(std::vector<uint8> const& data);
-
-    tcp::socket _socket;
-
-    char _readBuffer[4096];
-    std::mutex _writeLock;
-    std::queue<std::vector<uint8> > _writeQueue;
 
     uint32 _authSeed;
     AuthCrypt _authCrypt;

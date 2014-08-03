@@ -63,17 +63,17 @@ float frand(float min, float max)
     return float(GetRng()->Random() * (max - min) + min);
 }
 
-int32 rand32()
+uint32 rand32()
 {
-    return int32(GetRng()->BRandom());
+    return GetRng()->BRandom();
 }
 
-double rand_norm(void)
+double rand_norm()
 {
     return GetRng()->Random();
 }
 
-double rand_chance(void)
+double rand_chance()
 {
     return GetRng()->Random() * 100.0;
 }
