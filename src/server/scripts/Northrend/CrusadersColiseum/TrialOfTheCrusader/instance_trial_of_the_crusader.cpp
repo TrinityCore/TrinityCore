@@ -731,10 +731,12 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 continue;
 
                             if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+                            {
                                 if (item->GetTemplate()->ItemLevel < 245 || in_array(item->GetTemplate()->ItemId, AllowedItems))
                                     continue;
                                 else
                                     return false;
+                            }
                         }
                     }
                 }

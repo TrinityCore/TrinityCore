@@ -366,16 +366,18 @@ class TW_boss_mimiron : public CreatureScript
                     _enrageTimer -= diff;
 
                 if (_mimironHardMode)
+                {
                     if (_flameTimer <= diff)
                     {
                         for (uint8 i = 0; i < 3; ++i)
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                                DoCast(target, SPELL_SUMMON_FLAMES_INITIAL, true);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            DoCast(target, SPELL_SUMMON_FLAMES_INITIAL, true);
 
                         _flameTimer = 30000;
                     }
                     else
                         _flameTimer -= diff;
+                }
 
                 // All sections need to die within 15 seconds, else they respawn
                 if (_checkBotAlive)

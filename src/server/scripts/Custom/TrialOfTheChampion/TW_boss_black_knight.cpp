@@ -373,13 +373,16 @@ public:
                     }
 
                     if (!bDeathArmyDone)
+                    {
                         if (uiDeathArmyCheckTimer <= uiDiff)
                         {
                             me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             uiDeathArmyCheckTimer = 0;
                             bDeathArmyDone = true;
-                        } else uiDeathArmyCheckTimer -= uiDiff;
+                        }
+                        else uiDeathArmyCheckTimer -= uiDiff;
+                    }
                     
                     if (uiDesecrationTimer <= uiDiff)
                     {

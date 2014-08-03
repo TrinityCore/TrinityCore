@@ -396,7 +396,7 @@ public:
             inChase = false;
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (!inChase)
             {
