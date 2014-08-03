@@ -912,50 +912,10 @@ public:
     }
 };
 
-class TWChatLogScript : public PlayerScript
-{
-public:
-    TWChatLogScript() : PlayerScript("TWChatLogScript") { }
-
-    void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Channel* channel)
-    {
-        bool isSystem = channel &&
-                        (channel->HasFlag(CHANNEL_FLAG_TRADE) ||
-                         channel->HasFlag(CHANNEL_FLAG_GENERAL) ||
-                         channel->HasFlag(CHANNEL_FLAG_CITY) ||
-                         channel->HasFlag(CHANNEL_FLAG_LFG));
-
-        std::string chan = channel->GetName();
-        //std::transform(chan.begin(), chan.end(), chan.begin(), ::tolower);
-        std::transform(chan.begin(), chan.end(), chan.begin(), std::bind2nd(std::ptr_fun(&std::tolower<char>), std::locale("")));
-
-        if (!isSystem && (chan == "world"))
-        {
-            if (player->GetTeam() == ALLIANCE)
-                TC_LOG_INFO("chat.world", "[A] %s : %s",
-                    player->GetName().c_str(), msg.c_str());
-            else
-                TC_LOG_INFO("chat.world", "[H] %s : %s",
-                    player->GetName().c_str(), msg.c_str());
-        }
-        else
-            if (channel->HasFlag(CHANNEL_FLAG_LFG))
-            {
-                if (player->GetTeam() == ALLIANCE)
-                TC_LOG_INFO("chat.lfg", "[A] %s : %s",
-                    player->GetName().c_str(), msg.c_str());
-            else
-                TC_LOG_INFO("chat.lfg", "[H] %s : %s",
-                    player->GetName().c_str(), msg.c_str());
-            }
-    }
-};
-
 void AddSC_custom_scripts()
 {
     new TW_npc_argent_squire();
     new TW_npc_argent_champion();
     new TW_npc_argent_faction_rider();
     new TW_npc_the_black_knight();
-    new TWChatLogScript();
 }
