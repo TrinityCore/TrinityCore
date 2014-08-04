@@ -1144,4 +1144,5 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_target_only_pet_and_owner();
     new spell_hun_thrill_of_the_hunt();
     new spell_hun_tnt();
+    new spell_hun_serpent_spread();
 }
