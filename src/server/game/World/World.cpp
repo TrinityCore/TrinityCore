@@ -20,6 +20,7 @@
     \ingroup world
 */
 
+#include "World.h"
 #include "AchievementMgr.h"
 #include "ArenaTeamMgr.h"
 #include "AuctionHouseMgr.h"
