@@ -1217,35 +1217,8 @@ public:
 
         void Register()
         {
-            switch (m_scriptSpellId)
-            {
-                case 465:
-                    OnEffectApply += AuraEffectApplyFn(spell_pal_communion_AuraScript::ApplyEffect, EFFECT_0, SPELL_AURA_MOD_RESISTANCE, AURA_EFFECT_HANDLE_REAL);
-                    OnEffectRemove += AuraEffectRemoveFn(spell_pal_communion_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_RESISTANCE, AURA_EFFECT_HANDLE_REAL);
-                    break;
-                case 7294:
-                    OnEffectApply += AuraEffectApplyFn(spell_pal_communion_AuraScript::ApplyEffect, EFFECT_0, SPELL_AURA_DAMAGE_SHIELD, AURA_EFFECT_HANDLE_REAL);
-                    OnEffectRemove += AuraEffectRemoveFn(spell_pal_communion_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DAMAGE_SHIELD, AURA_EFFECT_HANDLE_REAL);
-                    break;
-                case 19746:
-                    OnEffectApply += AuraEffectApplyFn(spell_pal_communion_AuraScript::ApplyEffect, EFFECT_0, SPELL_AURA_REDUCE_PUSHBACK, AURA_EFFECT_HANDLE_REAL);
-                    OnEffectRemove += AuraEffectRemoveFn(spell_pal_communion_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_REDUCE_PUSHBACK, AURA_EFFECT_HANDLE_REAL);
-                    break;
-                case 19891:
-                    OnEffectApply += AuraEffectApplyFn(spell_pal_communion_AuraScript::ApplyEffect, EFFECT_0, SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE, AURA_EFFECT_HANDLE_REAL);
-                    OnEffectRemove += AuraEffectRemoveFn(spell_pal_communion_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE, AURA_EFFECT_HANDLE_REAL);
-                    break;
-                case 32223:
-                    OnEffectApply += AuraEffectApplyFn(spell_pal_communion_AuraScript::ApplyEffect, EFFECT_0, SPELL_AURA_MOD_MOUNTED_SPEED_NOT_STACK, AURA_EFFECT_HANDLE_REAL);
-                    OnEffectRemove += AuraEffectRemoveFn(spell_pal_communion_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_MOUNTED_SPEED_NOT_STACK, AURA_EFFECT_HANDLE_REAL);
-                    break;
-                case 63510:
-                    OnEffectApply += AuraEffectApplyFn(spell_pal_communion_AuraScript::ApplyEffect, EFFECT_0, SPELL_AURA_MECHANIC_DURATION_MOD_NOT_STACK, AURA_EFFECT_HANDLE_REAL);
-                    OnEffectRemove += AuraEffectRemoveFn(spell_pal_communion_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MECHANIC_DURATION_MOD_NOT_STACK, AURA_EFFECT_HANDLE_REAL);
-                    break;
-                default:
-                    break;
-            }
+            OnEffectApply += AuraEffectApplyFn(spell_pal_communionAuraScript::ApplyEffect, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_pal_communionAuraScript::AfterRemove, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
