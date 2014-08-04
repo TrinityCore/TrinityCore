@@ -61,7 +61,10 @@ enum PriestSpells
     SPELL_PRIEST_TWIN_DISCIPLINES_RANK_1            = 47586,
     SPELL_PRIEST_T9_HEALING_2P                      = 67201,
     SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL              = 15290,
-    SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085
+    SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
+    SPELL_PRIEST_GLYPH_SHADOW_WORD_DEATH            = 55682,
+    SPELL_PRIEST_GLYPH_SHADOW_WORD_DEATH_CD         = 95652,
+    SPELL_PRIEST_SHADOW_WORD_DEATH_2                = 32379,
 };
 
 enum PriestSpellIcons
@@ -1228,6 +1231,39 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
         }
 };
 
+class spell_pri_glyph_shadow_word_death : public SpellScriptLoader
+{
+public:
+    spell_pri_glyph_shadow_word_death() : SpellScriptLoader("spell_pri_glyph_shadow_word_death") { }
+
+    class spell_pri_glyph_shadow_word_death_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_glyph_shadow_word_death_SpellScript);
+
+        void HandleGlyph()
+        {
+            if (GetCaster()->HasAura(SPELL_PRIEST_GLYPH_SHADOW_WORD_DEATH) && !GetCaster()->HasAura(SPELL_PRIEST_GLYPH_SHADOW_WORD_DEATH_CD))
+            {
+                if (GetHitUnit()->GetHealthPct() <= 25 && GetHitUnit()->GetHealth() > GetHitDamage())
+                {
+                    GetCaster()->AddAura(SPELL_PRIEST_GLYPH_SHADOW_WORD_DEATH_CD, GetCaster());
+                    GetCaster()->ToPlayer()->RemoveSpellCooldown(SPELL_PRIEST_SHADOW_WORD_DEATH_2, true);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_pri_glyph_shadow_word_death_SpellScript::HandleGlyph);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_pri_glyph_shadow_word_death_SpellScript();
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_body_and_soul();
@@ -1256,4 +1292,5 @@ void AddSC_priest_spell_scripts()
     new spell_pri_vampiric_embrace();
     new spell_pri_vampiric_embrace_target();
     new spell_pri_vampiric_touch();
+    new spell_pri_glyph_shadow_word_death();
 }
