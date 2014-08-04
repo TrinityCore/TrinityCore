@@ -53,7 +53,11 @@ enum HunterSpells
     SPELL_HUNTER_SNIPER_TRAINING_R1                 = 53302,
     SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1            = 64418,
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
-    SPELL_HUNTER_THRILL_OF_THE_HUNT                 = 34720
+    SPELL_HUNTER_THRILL_OF_THE_HUNT                 = 34720,
+    SPELL_HUNTER_SERPENT_SPREAD_R1                  = 87934,
+    SPELL_HUNTER_SERPENT_SPREAD_R2                  = 87935,
+    SPELL_HUNTER_SERPENT_STING_SS_R1                = 88453,
+    SPELL_HUNTER_SERPENT_STING_SS_R2                = 88466,
 };
 
 enum MiscSpells
@@ -1079,6 +1083,39 @@ class spell_hun_tnt : public SpellScriptLoader
         {
             return new spell_hun_tnt_AuraScript();
         }
+};
+
+class spell_hun_serpent_spread : public SpellScriptLoader
+{
+public:
+    spell_hun_serpent_spread() : SpellScriptLoader("spell_hun_serpent_spread") { }
+
+    class spell_hun_serpent_spread_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_serpent_spread_SpellScript);
+
+        void HandleTalent()
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (caster->HasSpell(SPELL_HUNTER_SERPENT_SPREAD_R1))
+                    caster->AddAura(SPELL_HUNTER_SERPENT_STING_SS_R1, GetHitUnit());
+
+                if (caster->HasSpell(SPELL_HUNTER_SERPENT_SPREAD_R2))
+                    caster->AddAura(SPELL_HUNTER_SERPENT_STING_SS_R2, GetHitUnit());
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_hun_serpent_spread_SpellScript::HandleTalent);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_hun_serpent_spread_SpellScript();
+    }
 };
 
 void AddSC_hunter_spell_scripts()
