@@ -4387,7 +4387,12 @@ void Spell::TakeAmmo()
         if (!pItem  || pItem->IsBroken() || pItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_WAND)
             return;
 
-        if (pItem->GetTemplate()->InventoryType == INVTYPE_THROWN)
+
+        if (pItem->GetTemplate()->InventoryType == INVTYPE_THROWN ||
+            pItem->GetTemplate()->InventoryType == INVTYPE_RANGED ||
+            pItem->GetTemplate()->InventoryType == INVTYPE_RANGEDRIGHT)
+
+        if (roll_chance_f(sWorld->getRate(RATE_DURABILITY_LOSS_DAMAGE)))
         {
             if (pItem->GetMaxStackCount() == 1)
             {
