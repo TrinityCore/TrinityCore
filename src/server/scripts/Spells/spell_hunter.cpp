@@ -53,7 +53,10 @@ enum HunterSpells
     SPELL_HUNTER_SNIPER_TRAINING_R1                 = 53302,
     SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1            = 64418,
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
-    SPELL_HUNTER_THRILL_OF_THE_HUNT                 = 34720
+    SPELL_HUNTER_THRILL_OF_THE_HUNT                 = 34720,
+    SPELL_HUNTER_GLYPH_KILL_SHOT                    = 63067,
+    SPELL_HUNTER_GLYPH_KILL_SHOT_CD                 = 90967,
+    SPELL_HUNTER_KILL_SHOT                          = 53351,
 };
 
 enum MiscSpells
@@ -1081,6 +1084,40 @@ class spell_hun_tnt : public SpellScriptLoader
         }
 };
 
+
+class spell_hun_glyph_kill_shot : public SpellScriptLoader
+{
+public:
+    spell_hun_glyph_kill_shot() : SpellScriptLoader("spell_hun_glyph_kill_shot") { }
+
+    class spell_hun_glyph_kill_shot_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_glyph_kill_shot_SpellScript);
+
+        void HandleGlyph()
+        {
+            if (GetCaster()->HasAura(SPELL_HUNTER_GLYPH_KILL_SHOT) && !GetCaster()->HasAura(SPELL_HUNTER_GLYPH_KILL_SHOT_CD))
+            {
+                if (GetHitUnit()->GetHealthPct() <= 20 && GetHitUnit()->GetHealth() > GetHitDamage())
+                {
+                    GetCaster()->AddAura(SPELL_HUNTER_GLYPH_KILL_SHOT_CD, GetCaster());
+                    GetCaster()->ToPlayer()->RemoveSpellCooldown(SPELL_HUNTER_KILL_SHOT, true);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_hun_glyph_kill_shot_SpellScript::HandleGlyph);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_hun_glyph_kill_shot_SpellScript();
+    }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_ancient_hysteria();
@@ -1107,4 +1144,5 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_target_only_pet_and_owner();
     new spell_hun_thrill_of_the_hunt();
     new spell_hun_tnt();
+    new spell_hun_glyph_kill_shot();
 }
