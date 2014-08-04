@@ -384,7 +384,10 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
         SetUInt32Value(UNIT_NPC_FLAGS, npcflag);
 
     SetUInt32Value(UNIT_FIELD_FLAGS, unit_flags);
-    SetUInt32Value(UNIT_FIELD_FLAGS_2, cInfo->unit_flags2);
+    if (HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE))
+        SetUInt32Value(UNIT_FIELD_FLAGS_2, cInfo->unit_flags2 | UNIT_FLAG2_MIRROR_IMAGE);
+    else
+        SetUInt32Value(UNIT_FIELD_FLAGS_2, cInfo->unit_flags2);
 
     SetUInt32Value(UNIT_DYNAMIC_FLAGS, dynamicflags);
 
@@ -2664,14 +2667,7 @@ void Creature::SetObjectScale(float scale)
 
 void Creature::SetDisplayId(uint32 modelId)
 {
-    modelId = sObjectMgr->GetCreatureDisplay((int32)modelId);
-
     Unit::SetDisplayId(modelId);
-
-    if ((int32)modelId < 0)
-        SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
-    else
-        RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
 
     if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(modelId))
     {

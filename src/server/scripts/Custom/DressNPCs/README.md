@@ -32,8 +32,8 @@ After compiling:
 
 ####Usage
 Create a row to creature_template_outfits table with your desired race, gender and equipped items.
-Create an NPC. Set the creature_template_outfits entry to the modelID slots in creature_template
+Create an NPC. Set the creature_template_outfits entry to the modelID column in creature_template, but __make it negative__.
 Clear wow cache folder, restart server and spawn the NPC.
 The patch also adds `.reload creature_template_outfit` command. You can use it to reload the creature outfit table again for testing.
 You should be able to reload the table with new entries of ingame creatures. Relog to update the visual look of creatures with the reloaded data.
-Using reload is not recommended. (outfit nor template)
+__Using reload is not recommended.__ (not outfit nor template)

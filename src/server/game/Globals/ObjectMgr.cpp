@@ -765,7 +765,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     // used later for scale
     CreatureDisplayInfoEntry const* displayScaleEntry = NULL;
 
-    if (sObjectMgr->GetCreatureDisplay(cInfo->Modelid1))
+    if (cInfo->Modelid1)
     {
         CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(sObjectMgr->GetCreatureDisplay(cInfo->Modelid1));
         if (!displayEntry)
@@ -781,7 +781,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
             TC_LOG_ERROR("sql.sql", "No model data exist for `Modelid1` = %i listed by creature (Entry: %u).", cInfo->Modelid1, cInfo->Entry);
     }
 
-    if (sObjectMgr->GetCreatureDisplay(cInfo->Modelid2))
+    if (cInfo->Modelid2)
     {
         CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(sObjectMgr->GetCreatureDisplay(cInfo->Modelid2));
         if (!displayEntry)
@@ -797,7 +797,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
             TC_LOG_ERROR("sql.sql", "No model data exist for `Modelid2` = %i listed by creature (Entry: %u).", cInfo->Modelid2, cInfo->Entry);
     }
 
-    if (sObjectMgr->GetCreatureDisplay(cInfo->Modelid3))
+    if (cInfo->Modelid3)
     {
         CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(sObjectMgr->GetCreatureDisplay(cInfo->Modelid3));
         if (!displayEntry)
@@ -813,7 +813,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
             TC_LOG_ERROR("sql.sql", "No model data exist for `Modelid3` = %i listed by creature (Entry: %u).", cInfo->Modelid3, cInfo->Entry);
     }
 
-    if (sObjectMgr->GetCreatureDisplay(cInfo->Modelid4))
+    if (cInfo->Modelid4)
     {
         CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(sObjectMgr->GetCreatureDisplay(cInfo->Modelid4));
         if (!displayEntry)
