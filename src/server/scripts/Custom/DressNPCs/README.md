@@ -1,3 +1,5 @@
+#DressNPCs [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=dressnpcs)](https://travis-ci.org/Rochet2/TrinityCore)
+
 ####About
 You can make an NPC, set the displays or items you want him to have and his race and gender (defines displayID) as well as facial features and skin color.
 All this is done in the database.
@@ -37,3 +39,6 @@ Clear wow cache folder, restart server and spawn the NPC.
 The patch also adds `.reload creature_template_outfit` command. You can use it to reload the creature outfit table again for testing.
 You should be able to reload the table with new entries of ingame creatures. Relog to update the visual look of creatures with the reloaded data.
 __Using reload is not recommended.__ (not outfit nor template)
+
+####Bugs and Contact
+Report issues and similar to http://rochet2.github.io/
