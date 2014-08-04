@@ -60,7 +60,7 @@ namespace Trinity
         private:
             Player const* _player;
             ChatMsg _msgType;
-            int32 _textId;
+            uint32 _textId;
             uint32 _achievementId;
     };
 } // namespace Trinity
@@ -425,7 +425,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
         {
             time_t birthday_start = time_t(sWorld->getIntConfig(CONFIG_BIRTHDAY_TIME));
             tm birthday_tm;
-            ACE_OS::localtime_r(&birthday_start, &birthday_tm);
+            localtime_r(&birthday_start, &birthday_tm);
 
             // exactly N birthday
             birthday_tm.tm_year += birthday_login.nth_birthday;
@@ -1026,7 +1026,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     continue;
 
                 //FIXME: work only for instances where max == min for players
-                if (((InstanceMap*)map)->GetMaxPlayers() != achievementCriteria->death_in_dungeon.manLimit)
+                if (map->ToInstanceMap()->GetMaxPlayers() != achievementCriteria->death_in_dungeon.manLimit)
                     continue;
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;

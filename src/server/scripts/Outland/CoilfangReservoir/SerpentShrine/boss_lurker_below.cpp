@@ -127,7 +127,7 @@ public:
             SpoutTimer = 45000;
             WhirlTimer = 18000; // after avery spout
             PhaseTimer = 120000;
-            GeyserTimer = rand()%5000 + 15000;
+            GeyserTimer = rand32() % 5000 + 15000;
             CheckTimer = 15000; // give time to get in range when fight starts
             WaitTimer = 60000; // never reached
             WaitTimer2 = 60000; // never reached
@@ -299,7 +299,7 @@ public:
                         target = me->GetVictim();
                     if (target)
                         DoCast(target, SPELL_GEYSER, true);
-                    GeyserTimer = rand()%5000 + 15000;
+                    GeyserTimer = rand32() % 5000 + 15000;
                 } else GeyserTimer -= diff;
 
                 if (!InRange) // if on players in melee range cast Waterbolt
@@ -403,7 +403,7 @@ public:
                 if (me->GetVictim())
                     DoCastVictim(SPELL_SPREAD_SHOT, true);
 
-                MultiShotTimer = 10000+rand()%10000;
+                MultiShotTimer = 10000 + rand32() % 10000;
                 ShootBowTimer += 1500; // add global cooldown
             } else MultiShotTimer -= diff;
 
@@ -412,7 +412,7 @@ public:
                 int bp0 = 1100;
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     me->CastCustomSpell(target, SPELL_SHOOT, &bp0, NULL, NULL, true);
-                ShootBowTimer = 4000+rand()%5000;
+                ShootBowTimer = 4000 + rand32() % 5000;
                 MultiShotTimer += 1500; // add global cooldown
             } else ShootBowTimer -= diff;
         }

@@ -306,10 +306,10 @@ public:
             switch (urand(0, 1))
             {
                 case 0:
-                    coord += rand()%radius;
+                    coord += rand32() % radius;
                     break;
                 case 1:
-                    coord -= rand()%radius;
+                    coord -= rand32() % radius;
                     break;
             }
             return coord;

@@ -294,7 +294,7 @@ void boss_attumen::boss_attumenAI::UpdateAI(uint32 diff)
                 target = NULL;
             }
             if (!target_list.empty())
-                target = *(target_list.begin()+rand()%target_list.size());
+                target = *(target_list.begin() + rand32() % target_list.size());
 
             DoCast(target, SPELL_BERSERKER_CHARGE);
             ChargeTimer = 20000;

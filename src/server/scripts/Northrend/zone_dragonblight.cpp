@@ -433,7 +433,7 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            uint32 roll = rand() % 2;
+            uint32 roll = rand32() % 2;
 
             Creature* tree = GetHitCreature();
             Player* player = GetCaster()->ToPlayer();

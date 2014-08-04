@@ -72,7 +72,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/) override
         {
-            if (!(rand()%3))
+            if (!(rand32() % 3))
                 DoPlaySoundToSet(me, SOUND_SLAY);
         }
 

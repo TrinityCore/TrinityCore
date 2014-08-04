@@ -637,7 +637,7 @@ public:
                 break;
             case PHASE_FLIGHT:
                 Timer[EVENT_FIREBALL] = 1000;
-                if (!(rand()%4))
+                if (!(rand32() % 4))
                     Timer[EVENT_DARK_BARRAGE] = 10000;
                 Timer[EVENT_EYE_BLAST] = urand(10, 25) * 1000;
                 Timer[EVENT_MOVE_POINT] = urand(20, 40) * 1000;
@@ -993,7 +993,7 @@ public:
                 case EVENT_SHEAR:
                     // no longer exists in 3.0f.2
                     // DoCastVictim(SPELL_SHEAR);
-                    Timer[EVENT_SHEAR] = 25000 + (rand()%16 * 1000);
+                    Timer[EVENT_SHEAR] = 25000 + (rand32() % 16 * 1000);
                     break;
 
                 case EVENT_FLAME_CRASH:
@@ -1062,7 +1062,7 @@ public:
                 case EVENT_MOVE_POINT:
                     Phase = PHASE_FLIGHT_SEQUENCE;
                     Timer[EVENT_FLIGHT_SEQUENCE] = 0; // do not start Event when changing hover point
-                    HoverPoint += (rand()%3 + 1);
+                    HoverPoint += (rand32() % 3 + 1);
                     if (HoverPoint > 3)
                         HoverPoint -= 4;
                     me->GetMotionMaster()->MovePoint(0, HoverPosition[HoverPoint].x, HoverPosition[HoverPoint].y, HoverPosition[HoverPoint].z);
@@ -1254,7 +1254,7 @@ public:
 
                 if (!target || !me->IsWithinDistInMap(target, 80) || illidan->IsWithinDistInMap(target, 20))
                 {
-                    uint8 pos = rand()%4;
+                    uint8 pos = rand32() % 4;
                     BlinkTo(HoverPosition[pos].x, HoverPosition[pos].y, HoverPosition[pos].z);
                 }
                 else
@@ -1720,7 +1720,7 @@ public:
                     {
                         float x, y, z;
                         me->GetPosition(x, y, z);
-                        Creature* Elite = me->SummonCreature(ILLIDARI_ELITE, x+rand()%10, y+rand()%10, z, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000);
+                        Creature* Elite = me->SummonCreature(ILLIDARI_ELITE, x + rand32() % 10, y + rand32() % 10, z, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000);
                         // Creature* Elite = me->SummonCreature(ILLIDARI_ELITE, x, y, z, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000);
                         if (Elite)
                         {

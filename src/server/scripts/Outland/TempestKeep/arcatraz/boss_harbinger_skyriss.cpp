@@ -238,7 +238,7 @@ class boss_harbinger_skyriss : public CreatureScript
                     else
                         DoCastVictim(SPELL_DOMINATION);
 
-                    Domination_Timer = 16000+rand()%16000;
+                    Domination_Timer = 16000 + rand32() % 16000;
                 }
                 else
                     Domination_Timer -=diff;
@@ -253,7 +253,7 @@ class boss_harbinger_skyriss : public CreatureScript
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                             DoCast(target, H_SPELL_MANA_BURN);
 
-                        ManaBurn_Timer = 16000+rand()%16000;
+                        ManaBurn_Timer = 16000 + rand32() % 16000;
                     }
                     else
                         ManaBurn_Timer -=diff;

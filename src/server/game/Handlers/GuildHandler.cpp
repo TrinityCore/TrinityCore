@@ -463,7 +463,7 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket& recvData)
         if (!Player::IsInventoryPos(playerBag, playerSlotId) && !(playerBag == NULL_BAG && playerSlotId == NULL_SLOT))
             GetPlayer()->SendEquipError(EQUIP_ERR_NONE, NULL);
         else
-            guild->SwapItemsWithInventory(GetPlayer(), toChar, tabId, slotId, playerBag, playerSlotId, splitedAmount);
+            guild->SwapItemsWithInventory(GetPlayer(), toChar != 0, tabId, slotId, playerBag, playerSlotId, splitedAmount);
     }
 }
 

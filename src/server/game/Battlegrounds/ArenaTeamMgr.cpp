@@ -159,7 +159,7 @@ void ArenaTeamMgr::DistributeArenaPoints()
     {
         // Add points to player if online
         if (Player* player = HashMapHolder<Player>::Find(playerItr->first))
-            player->ModifyArenaPoints(playerItr->second, &trans);
+            player->ModifyArenaPoints(playerItr->second, trans);
         else    // Update database
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_CHAR_ARENA_POINTS);

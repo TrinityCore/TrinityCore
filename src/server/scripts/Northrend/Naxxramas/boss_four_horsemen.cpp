@@ -288,7 +288,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/) override
         {
-            if (!(rand()%5))
+            if (!(rand32() % 5))
                 Talk(SAY_SLAY);
         }
 
@@ -318,7 +318,7 @@ public:
             Talk(SAY_AGGRO);
 
             events.ScheduleEvent(EVENT_MARK, 15000);
-            events.ScheduleEvent(EVENT_CAST, 20000+rand()%5000);
+            events.ScheduleEvent(EVENT_CAST, 20000 + rand32() % 5000);
             events.ScheduleEvent(EVENT_BERSERK, 15*100*1000);
         }
 
@@ -343,18 +343,18 @@ public:
                 switch (eventId)
                 {
                     case EVENT_MARK:
-                        if (!(rand()%5))
+                        if (!(rand32() % 5))
                             Talk(SAY_SPECIAL);
                         DoCastAOE(SPELL_MARK[id]);
                         events.ScheduleEvent(EVENT_MARK, 15000);
                         break;
                     case EVENT_CAST:
-                        if (!(rand()%5))
+                        if (!(rand32() % 5))
                             Talk(SAY_TAUNT);
 
                         if (caster)
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
                                 DoCast(target, SPELL_PRIMARY(id));
                         }
                         else

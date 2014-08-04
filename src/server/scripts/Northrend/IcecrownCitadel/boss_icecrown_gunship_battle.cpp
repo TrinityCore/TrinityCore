@@ -626,7 +626,8 @@ protected:
         {
             if (Unit* victim = me->SelectVictim())
                 AttackStart(victim);
-            return me->GetVictim();
+
+            return me->GetVictim() != nullptr;
         }
         else if (me->getThreatManager().isThreatListEmpty())
         {
@@ -1872,7 +1873,7 @@ class spell_igb_rocket_pack_useable : public SpellScriptLoader
 
             bool Load()
             {
-                return GetOwner()->GetInstanceScript();
+                return GetOwner()->GetInstanceScript() != nullptr;
             }
 
             bool CheckAreaTarget(Unit* target)
@@ -2328,7 +2329,7 @@ class spell_igb_gunship_fall_teleport : public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetInstanceScript();
+                return GetCaster()->GetInstanceScript() != nullptr;
             }
 
             void SelectTransport(WorldObject*& target)
@@ -2417,7 +2418,7 @@ class spell_igb_teleport_players_on_victory : public SpellScriptLoader
 
             bool Load() override
             {
-                return GetCaster()->GetInstanceScript();
+                return GetCaster()->GetInstanceScript() != nullptr;
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)

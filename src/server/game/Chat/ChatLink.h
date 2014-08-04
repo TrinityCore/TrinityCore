@@ -21,6 +21,7 @@
 #include "SharedDefines.h"
 #include <sstream>
 #include <list>
+#include <cstring>
 
 struct ItemLocale;
 struct ItemTemplate;

@@ -148,9 +148,9 @@ public:
                             if (Player* target = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                                 AttackStart(target);
 
-                            switchFactionIfAlive(instance, ENTRY_RAVEN);
-                            switchFactionIfAlive(instance, ENTRY_ORO);
-                            switchFactionIfAlive(instance, ENTRY_MURTA);
+                            switchFactionIfAlive(ENTRY_RAVEN);
+                            switchFactionIfAlive(ENTRY_ORO);
+                            switchFactionIfAlive(ENTRY_MURTA);
                     }
                     postGossipStep++;
                 }
@@ -185,9 +185,9 @@ public:
             Text_Timer = 0;
         }
 
-        void switchFactionIfAlive(InstanceScript* instance, uint32 entry)
+        void switchFactionIfAlive(uint32 entry)
         {
-           if (Creature* crew = instance->instance->GetCreature(instance->GetData64(entry)))
+           if (Creature* crew = ObjectAccessor::GetCreature(*me, instance->GetData64(entry)))
                if (crew->IsAlive())
                    crew->setFaction(FACTION_HOSTILE);
         }

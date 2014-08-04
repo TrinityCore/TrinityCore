@@ -652,7 +652,7 @@ struct boss_faction_championsAI : public BossAI
         std::list<Creature*>::const_iterator itr = lst.begin();
         if (lst.empty())
             return NULL;
-        advance(itr, rand() % lst.size());
+        advance(itr, rand32() % lst.size());
         return (*itr);
     }
 

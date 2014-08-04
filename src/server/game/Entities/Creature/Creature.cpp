@@ -553,15 +553,6 @@ void Creature::Update(uint32 diff)
             if (!IsAlive())
                 break;
 
-            time_t now = time(NULL);
-
-            // Check if we should refill the pickpocketing loot
-            if (loot.loot_type == LOOT_PICKPOCKETING && _pickpocketLootRestore && _pickpocketLootRestore <= now)
-            {
-                loot.clear();
-                _pickpocketLootRestore = 0;
-            }
-
             if (m_regenTimer > 0)
             {
                 if (diff >= m_regenTimer)
@@ -1537,7 +1528,7 @@ void Creature::Respawn(bool force)
         TC_LOG_DEBUG("entities.unit", "Respawning creature %s (GuidLow: %u, Full GUID: " UI64FMTD " Entry: %u)",
             GetName().c_str(), GetGUIDLow(), GetGUID(), GetEntry());
         m_respawnTime = 0;
-        _pickpocketLootRestore = 0;
+        ResetPickPocketRefillTimer();
         loot.clear();
         if (m_originalEntry != GetEntry())
             UpdateEntry(m_originalEntry);
@@ -1653,7 +1644,7 @@ bool Creature::isWorldBoss() const
     if (IsPet())
         return false;
 
-    return GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_BOSS;
+    return (GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_BOSS) != 0;
 }
 
 SpellInfo const* Creature::reachWithSpellAttack(Unit* victim)
@@ -2282,6 +2273,7 @@ void Creature::AllLootRemovedFromCorpse()
             SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
 
     time_t now = time(NULL);
+    // Do not reset corpse remove time if corpse is already removed
     if (m_corpseRemoveTime <= now)
         return;
 
@@ -2289,7 +2281,7 @@ void Creature::AllLootRemovedFromCorpse()
 
     // corpse skinnable, but without skinning flag, and then skinned, corpse will despawn next update
     if (loot.loot_type == LOOT_SKINNING)
-        m_corpseRemoveTime = time(NULL);
+        m_corpseRemoveTime = now;
     else
         m_corpseRemoveTime = now + m_corpseDelay * decayRate;
 
