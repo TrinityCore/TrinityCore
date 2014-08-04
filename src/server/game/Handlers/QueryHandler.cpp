@@ -127,10 +127,10 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
         data << uint32(ci->rank);                           // Creature Rank (elite, boss, etc)
         data << uint32(ci->KillCredit[0]);                  // new in 3.1, kill credit
         data << uint32(ci->KillCredit[1]);                  // new in 3.1, kill credit
-        data << uint32(ci->Modelid1);                       // Modelid1
-        data << uint32(ci->Modelid2);                       // Modelid2
-        data << uint32(ci->Modelid3);                       // Modelid3
-        data << uint32(ci->Modelid4);                       // Modelid4
+        data << uint32(sObjectMgr->GetCreatureDisplay(ci->Modelid1));   // Modelid1
+        data << uint32(sObjectMgr->GetCreatureDisplay(ci->Modelid2));   // Modelid2
+        data << uint32(sObjectMgr->GetCreatureDisplay(ci->Modelid3));   // Modelid3
+        data << uint32(sObjectMgr->GetCreatureDisplay(ci->Modelid4));   // Modelid4
         data << float(ci->ModHealth);                       // dmg/hp modifier
         data << float(ci->ModMana);                         // dmg/mana modifier
         data << uint8(ci->RacialLeader);

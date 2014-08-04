@@ -87,10 +87,10 @@ VendorItem const* VendorItemData::FindItemCostPair(uint32 item_id, uint32 extend
     return NULL;
 }
 
-uint32 CreatureTemplate::GetRandomValidModelId() const
+int32 CreatureTemplate::GetRandomValidModelId() const
 {
     uint8 c = 0;
-    uint32 modelIDs[4];
+    int32 modelIDs[4];
 
     if (Modelid1) modelIDs[c++] = Modelid1;
     if (Modelid2) modelIDs[c++] = Modelid2;
@@ -100,7 +100,7 @@ uint32 CreatureTemplate::GetRandomValidModelId() const
     return ((c>0) ? modelIDs[urand(0, c-1)] : 0);
 }
 
-uint32 CreatureTemplate::GetFirstValidModelId() const
+int32 CreatureTemplate::GetFirstValidModelId() const
 {
     if (Modelid1) return Modelid1;
     if (Modelid2) return Modelid2;
@@ -308,7 +308,13 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
         return false;
     }
 
-    uint32 displayID = ObjectMgr::ChooseDisplayId(GetCreatureTemplate(), data);
+    int32 outfitId = ObjectMgr::ChooseDisplayId(GetCreatureTemplate(), data);
+    uint32 displayID = displayID = sObjectMgr->GetCreatureDisplay(outfitId);
+    if (outfitId < 0 && displayID)
+        SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
+    else
+        RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
+
     CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelRandomGender(&displayID);
     if (!minfo)                                             // Cancel load if no model defined
     {
@@ -959,8 +965,8 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     CreatureTemplate const* cinfo = GetCreatureTemplate();
     if (cinfo)
     {
-        if (displayId == cinfo->Modelid1 || displayId == cinfo->Modelid2 ||
-            displayId == cinfo->Modelid3 || displayId == cinfo->Modelid4)
+        if (displayId == sObjectMgr->GetCreatureDisplay(cinfo->Modelid1) || displayId == sObjectMgr->GetCreatureDisplay(cinfo->Modelid2) ||
+            displayId == sObjectMgr->GetCreatureDisplay(cinfo->Modelid3) || displayId == sObjectMgr->GetCreatureDisplay(cinfo->Modelid4))
             displayId = 0;
 
         if (npcflag == cinfo->npcflag)
@@ -2666,7 +2672,14 @@ void Creature::SetObjectScale(float scale)
 
 void Creature::SetDisplayId(uint32 modelId)
 {
+    modelId = sObjectMgr->GetCreatureDisplay((int32)modelId);
+
     Unit::SetDisplayId(modelId);
+
+    if ((int32)modelId < 0)
+        SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
+    else
+        RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
 
     if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(modelId))
     {

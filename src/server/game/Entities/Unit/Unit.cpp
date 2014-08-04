@@ -17677,15 +17677,15 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
                     {
                         if (target->IsGameMaster())
                         {
-                            if (cinfo->Modelid1)
-                                displayId = cinfo->Modelid1;    // Modelid1 is a visible model for gms
+                            if (uint32 modelid = sObjectMgr->GetCreatureDisplay(cinfo->Modelid1))
+                                displayId = modelid;            // Modelid1 is a visible model for gms
                             else
                                 displayId = 17519;              // world visible trigger's model
                         }
                         else
                         {
-                            if (cinfo->Modelid2)
-                                displayId = cinfo->Modelid2;    // Modelid2 is an invisible model for players
+                            if (uint32 modelid = sObjectMgr->GetCreatureDisplay(cinfo->Modelid2))
+                                displayId = modelid;            // Modelid2 is an invisible model for players
                             else
                                 displayId = 11686;              // world invisible trigger's model
                         }

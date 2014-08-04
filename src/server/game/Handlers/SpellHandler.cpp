@@ -568,6 +568,51 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     if (!unit)
         return;
 
+    if (Creature* creature = unit->ToCreature())
+    {
+        if (const CreatureTemplate* temp = creature->GetCreatureTemplate())
+        {
+            uint32 display = creature->GetDisplayId();
+            int32 outfitEntry = 0;
+            if (temp->Modelid1 < 0 && sObjectMgr->GetCreatureDisplay(temp->Modelid1) == display)
+                outfitEntry = -temp->Modelid1;
+            else if (temp->Modelid2 < 0 && sObjectMgr->GetCreatureDisplay(temp->Modelid2) == display)
+                outfitEntry = -temp->Modelid2;
+            else if (temp->Modelid3 < 0 && sObjectMgr->GetCreatureDisplay(temp->Modelid3) == display)
+                outfitEntry = -temp->Modelid3;
+            else if (temp->Modelid4 < 0 && sObjectMgr->GetCreatureDisplay(temp->Modelid4) == display)
+                outfitEntry = -temp->Modelid4;
+
+            if (outfitEntry > 0)
+            {
+                const CreatureOutfitContainer* outfits = sObjectMgr->GetCreatureOutfitMap();
+                CreatureOutfitContainer::const_iterator it = outfits->find(outfitEntry);
+                if (it != outfits->end())
+                {
+                    WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
+                    data << uint64(guid);
+                    data << uint32(display);                // displayId
+                    data << uint8(it->second.race);         // race
+                    data << uint8(it->second.gender);       // gender
+                    data << uint8(1);                       // class
+                    data << uint8(it->second.skin);         // skin
+                    data << uint8(it->second.face);         // face
+                    data << uint8(it->second.hair);         // hair
+                    data << uint8(it->second.haircolor);    // haircolor
+                    data << uint8(it->second.facialhair);   // facialhair
+                    data << uint32(0);                      // guildId
+
+                    // item displays
+                    for (uint32 i = 0; i < MAX_CREATURE_OUTFIT_DISPLAYS; ++i)
+                        data << uint32(it->second.outfit[i]);
+
+                    SendPacket(&data);
+                    return;
+                }
+            }
+        }
+    }
+
     if (!unit->HasAuraType(SPELL_AURA_CLONE_CASTER))
         return;
 

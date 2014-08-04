@@ -86,6 +86,7 @@ public:
             { "creature_queststarter",         rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_QUESTSTARTER,            true,  &HandleReloadCreatureQuestStarterCommand,       "", NULL },
             { "creature_summon_groups",        rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_SUMMON_GROUPS,           true,  &HandleReloadCreatureSummonGroupsCommand,       "", NULL },
             { "creature_template",             rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_TEMPLATE,                true,  &HandleReloadCreatureTemplateCommand,           "", NULL },
+            { "creature_template_outfits",     rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_TEMPLATE,                true,  &HandleReloadCreatureTemplateOutfitsCommand,    "", NULL },
             //{ "db_script_string",              rbac::RBAC_PERM_COMMAND_RELOAD_,                                 true,  &HandleReloadDbScriptStringCommand,             "", NULL },
             { "disables",                      rbac::RBAC_PERM_COMMAND_RELOAD_DISABLES,                         true,  &HandleReloadDisablesCommand,                   "", NULL },
             { "disenchant_loot_template",      rbac::RBAC_PERM_COMMAND_RELOAD_DISENCHANT_LOOT_TEMPLATE,         true,  &HandleReloadLootTemplatesDisenchantCommand,    "", NULL },
@@ -195,6 +196,7 @@ public:
         HandleReloadGameTeleCommand(handler, "");
 
         HandleReloadCreatureSummonGroupsCommand(handler, "");
+        HandleReloadCreatureTemplateOutfitsCommand(handler, "");
 
         HandleReloadVehicleAccessoryCommand(handler, "");
         HandleReloadVehicleTemplateAccessoryCommand(handler, "");
@@ -445,10 +447,10 @@ public:
             cInfo->DifficultyEntry[2] = fields[2].GetUInt32();
             cInfo->KillCredit[0]      = fields[3].GetUInt32();
             cInfo->KillCredit[1]      = fields[4].GetUInt32();
-            cInfo->Modelid1           = fields[5].GetUInt32();
-            cInfo->Modelid2           = fields[6].GetUInt32();
-            cInfo->Modelid3           = fields[7].GetUInt32();
-            cInfo->Modelid4           = fields[8].GetUInt32();
+            cInfo->Modelid1           = fields[5].GetInt32();
+            cInfo->Modelid2           = fields[6].GetInt32();
+            cInfo->Modelid3           = fields[7].GetInt32();
+            cInfo->Modelid4           = fields[8].GetInt32();
             cInfo->Name               = fields[9].GetString();
             cInfo->SubName            = fields[10].GetString();
             cInfo->IconName           = fields[11].GetString();
@@ -526,6 +528,14 @@ public:
         }
 
         handler->SendGlobalGMSysMessage("Creature template reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadCreatureTemplateOutfitsCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        TC_LOG_INFO("misc", "Loading Creature Outfits... (`creature_template_outfits`)");
+        sObjectMgr->LoadCreatureOutfits();
+        handler->SendGlobalGMSysMessage("DB table `creature_template_outfits` reloaded.");
         return true;
     }
 
