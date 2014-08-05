@@ -61,7 +61,14 @@ enum WarriorSpells
     SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_1     = 64849,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_2     = 64850,
     SPELL_WARRIOR_VIGILANCE_PROC                    = 50725,
-    SPELL_WARRIOR_VENGEANCE                         = 76691
+    SPELL_WARRIOR_VENGEANCE                         = 76691,
+    SPELL_WARRIOR_MEAT_CLEAVER_R1                   = 12329,
+    SPELL_WARRIOR_MEAT_CLEAVER_R2                   = 12950,
+    SPELL_WARRIOR_MEAT_CLEAVER_R1_PROC              = 85738,
+    SPELL_WARRIOR_MEAT_CLEAVER_R2_PROC              = 85739,
+    SPELL_WARRIOR_EXECUTIONER_R1                    = 20502,
+    SPELL_WARRIOR_EXECUTIONER_R2                    = 20503,
+    SPELL_WARRIOR_EXECUTIONER_PROC                  = 90806,
 };
 
 enum WarriorSpellIcons
@@ -302,6 +309,10 @@ class spell_warr_execute : public SpellScriptLoader
                     /// Formula taken from the DBC: "${$ap*0.874*$m1/100-1} = 20 rage"
                     int32 moreDamage = int32(rageUsed * (caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.874f * GetEffectValue() / 100.0f - 1) / 200);
                     SetHitDamage(baseDamage + moreDamage);
+
+                    // Not possible over Spell Proc Event because SetHitDamage
+                    if ((caster->HasAura(SPELL_WARRIOR_EXECUTIONER_R1) && roll_chance_i(50)) || (caster->HasAura(SPELL_WARRIOR_EXECUTIONER_R2) && roll_chance_i(100)))
+                        caster->CastSpell(caster, SPELL_WARRIOR_EXECUTIONER_PROC, true);
                 }
             }
 
@@ -1053,6 +1064,51 @@ class spell_warr_vigilance_trigger : public SpellScriptLoader
         }
 };
 
+class spell_warr_cleave : public SpellScriptLoader
+{
+public:
+    spell_warr_cleave() : SpellScriptLoader("spell_warr_cleave") { }
+
+    class spell_warr_cleave_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_cleave_SpellScript);
+
+        bool Load() OVERRIDE
+        {
+            meatCleaverCount = 0;
+            return true;
+        }
+
+        void HandleMeatCleaver(SpellEffIndex effect)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (++meatCleaverCount == 1)
+                {
+                    if (caster->HasAura(SPELL_WARRIOR_MEAT_CLEAVER_R1))
+                        caster->CastSpell(caster, SPELL_WARRIOR_MEAT_CLEAVER_R1_PROC, true);
+
+                    if (caster->HasAura(SPELL_WARRIOR_MEAT_CLEAVER_R2))
+                        caster->CastSpell(caster, SPELL_WARRIOR_MEAT_CLEAVER_R2_PROC, true);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_warr_cleave::spell_warr_cleave_SpellScript::HandleMeatCleaver, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+
+    private:
+        int8 meatCleaverCount;
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warr_cleave_SpellScript();
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_bloodthirst();
@@ -1080,4 +1136,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_victorious();
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
+    new spell_warr_cleave();
 }
