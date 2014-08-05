@@ -9241,7 +9241,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
 
                 masteryBonus = (1 - (victim->GetHealthPct() / 100)) * masteryBonus;
 
-                AddPct(DoneTotalMod, masteryBonus);
+                AddPct(DoneTotal, masteryBonus);
             }
             break;
         }
