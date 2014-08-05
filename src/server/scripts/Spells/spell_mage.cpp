@@ -84,6 +84,8 @@ enum MageSpells
 
     SPELL_MAGE_FINGERS_OF_FROST                  = 44544,
     SPELL_MAGE_TEMPORAL_DISPLACEMENT             = 80354,
+
+    SPELL_MAGE_HOT_STREAK_PROC                   = 48108,
 };
 
 enum MageIcons
@@ -1464,6 +1466,42 @@ class spell_mage_water_elemental_freeze : public SpellScriptLoader
        }
 };
 
+class spell_mage_hot_streak : public SpellScriptLoader
+{
+public:
+    spell_mage_hot_streak() : SpellScriptLoader("spell_mage_hot_streak") { }
+
+    class spell_mage_hot_streakAuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_hot_streakAuraScript);
+
+        bool CheckProc(ProcEventInfo &procInfo)
+        {
+            float CritChance = procInfo.GetActor()->GetUnitCriticalChance(RANGED_ATTACK, procInfo.GetActionTarget());
+
+            float chance = -1.7106f * CritChance + 78.93f;
+
+            return roll_chance_f(chance);
+        }
+
+        void HandleProc(ProcEventInfo &procInfo)
+        {
+            procInfo.GetActor()->CastSpell(GetCaster(), SPELL_MAGE_HOT_STREAK_PROC, true);
+        }
+
+        void Register()
+        {
+            DoCheckProc += AuraCheckProcFn(spell_mage_hot_streakAuraScript::CheckProc);
+            OnProc += AuraProcFn(spell_mage_hot_streakAuraScript::HandleProc);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_mage_hot_streakAuraScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_arcane_potency();
@@ -1494,4 +1532,5 @@ void AddSC_mage_spell_scripts()
     new spell_mage_ring_of_frost_freeze();
     new spell_mage_time_warp();
     new spell_mage_water_elemental_freeze();
+    new spell_mage_hot_streak();
 }
