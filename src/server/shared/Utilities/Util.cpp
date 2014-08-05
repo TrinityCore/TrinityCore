@@ -18,13 +18,14 @@
 
 #include "Util.h"
 #include "Common.h"
+#include "CompilerDefs.h"
 #include "utf8.h"
 #include "SFMT.h"
 #include "Errors.h" // for ASSERT
 #include <stdarg.h>
 #include <boost/thread/tss.hpp>
 
-#if PLATFORM == PLATFORM_UNIX
+#if COMPILER == COMPILER_GNU
   #include <sys/socket.h>
   #include <netinet/in.h>
   #include <arpa/inet.h>

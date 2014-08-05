@@ -28,6 +28,9 @@
 #  if !defined(__STDC_CONSTANT_MACROS)
 #    define __STDC_CONSTANT_MACROS
 #  endif
+#  if !defined(_GLIBCXX_USE_NANOSLEEP)
+#    define _GLIBCXX_USE_NANOSLEEP
+#  endif
 #endif
 
 #include <cstddef>
