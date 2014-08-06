@@ -69,8 +69,8 @@ void ByteBuffer::textlike() const
     o << "STORAGE_SIZE: " << size();
     for (uint32 i = 0; i < size(); ++i)
     {
-        char buf[1];
-        snprintf(buf, 1, "%c", read<uint8>(i));
+        char buf[2];
+        snprintf(buf, 2, "%c", read<uint8>(i));
         o << buf;
     }
     o << " ";
@@ -90,7 +90,7 @@ void ByteBuffer::hexlike() const
     for (uint32 i = 0; i < size(); ++i)
     {
         char buf[3];
-        snprintf(buf, 1, "%2X ", read<uint8>(i));
+        snprintf(buf, 3, "%2X ", read<uint8>(i));
         if ((i == (j * 8)) && ((i != (k * 16))))
         {
             o << "| ";
