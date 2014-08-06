@@ -37,36 +37,22 @@ class Socket : public std::enable_shared_from_this<T>
     typedef typename std::conditional<std::is_pointer<PacketType>::value, PacketType, PacketType const&>::type WritePacketType;
 
 public:
-    Socket(tcp::socket&& socket, std::size_t headerSize) : _socket(std::move(socket)), _headerSize(headerSize) { }
+    Socket(tcp::socket&& socket, std::size_t headerSize) : _socket(std::move(socket)), _headerSize(headerSize)
+    {
+        _remotePort = socket.remote_endpoint().port();
+        _remoteAddress = socket.remote_endpoint().address();
+    }
 
     virtual void Start() = 0;
 
     boost::asio::ip::address GetRemoteIpAddress() const
     {
-        boost::system::error_code error;
-        auto ep = _socket.remote_endpoint(error);
-
-        if (error)
-        {
-            TC_LOG_DEBUG("network", "Socket::GetRemoteIpAddress: errored with: %i (%s)", error.value(), error.message().c_str());
-            return boost::asio::ip::address();
-        }
-        else
-            return ep.address();
+        return _remoteAddress;
     }
 
     uint16 GetRemotePort() const
     {
-        boost::system::error_code error;
-        auto ep = _socket.remote_endpoint(error);
-
-        if (error)
-        {
-            TC_LOG_DEBUG("network", "Socket::GetRemotePort: errored with: %i (%s)", error.value(), error.message().c_str());
-            return 0;
-        }
-        else
-            return ep.port();
+        return _remotePort;
     }
 
     void AsyncReadHeader()
@@ -104,6 +90,12 @@ public:
     bool IsOpen() const { return _socket.is_open(); }
     void CloseSocket()
     {
+        boost::system::error_code shutdownError;
+        _socket.shutdown(socket_base::shutdown_both, shutdownError);
+        if (shutdownError)
+            TC_LOG_DEBUG("network", "Socket::CloseSocket: %s errored when shutting down socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(),
+            shutdownError.value(), shutdownError.message().c_str());
+
         boost::system::error_code error;
         _socket.close(error);
         if (error)
@@ -149,6 +141,9 @@ private:
     tcp::socket _socket;
 
     uint8 _readBuffer[4096];
+
+    uint16 _remotePort;
+    boost::asio::ip::address _remoteAddress;
 
     std::size_t _headerSize;
 };
