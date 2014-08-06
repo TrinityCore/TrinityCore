@@ -13,6 +13,8 @@ file(GLOB_RECURSE sources_Events Events/*.cpp Events/*.h)
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   ${sources_Events}
+  Events/midsummer.cpp
+  Events/childrens_week.cpp
 )
 
 message("  -> Prepared: Events")

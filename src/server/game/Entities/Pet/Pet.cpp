@@ -935,8 +935,34 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
             SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
             SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
-
             //SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, float(cinfo->attackpower));
+
+            /* You might ask the reason behind this. SUMMON_PET is used for generic summons and I'm not sure if all of them
+            should scale as this so keeping track of affected minions like this. */
+
+            switch (GetEntry())
+            {
+                case 416:   // Imp
+                case 417:   // Felhunter
+                case 1860:  // Voidwalker
+                case 1863:  // Succubus
+                case 17252: // Felguard
+                    m_modMeleeHitChance = m_owner->m_modMeleeHitChance;
+                    m_modSpellHitChance = m_owner->m_modSpellHitChance;               
+                    break;
+                case 26125: // Unholy DK ghoul
+                {
+                    // Let them inherit their master's hit and haste rating.
+                    m_modMeleeHitChance = m_owner->m_modMeleeHitChance;
+                    m_modSpellHitChance = m_owner->m_modSpellHitChance;
+                    float ownerHaste = ((Player*)m_owner)->GetRatingBonusValue(CR_HASTE_MELEE);
+                    ApplyAttackTimePercentMod(BASE_ATTACK, ownerHaste, true);
+                    break;
+                }
+                default:
+                    break;
+            }
+
             break;
         }
         case HUNTER_PET:
@@ -948,6 +974,11 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
             //damage range is then petlevel / 2
             SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
             //damage is increased afterwards as strength and pet scaling modify attack power
+
+            // Let hunter pets inherit their master's hit rating
+            m_modMeleeHitChance = m_owner->m_modMeleeHitChance;
+            m_modSpellHitChance = m_owner->m_modSpellHitChance;
+
             break;
         }
         default:
@@ -957,6 +988,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                 case 510: // mage Water Elemental
                 {
                     SetBonusDamage(int32(GetOwner()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FROST) * 0.33f));
+                    m_modSpellHitChance = m_owner->m_modSpellHitChance; // Let Water Elementals inherit spell hit from their master
                     break;
                 }
                 case 1964: //force of nature
@@ -999,6 +1031,10 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float((petlevel * 4 - petlevel) + bonus_dmg));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float((petlevel * 4 + petlevel) + bonus_dmg));
 
+                    // Let summons inherit their master's hit rating.
+                    m_modMeleeHitChance = m_owner->m_modMeleeHitChance;
+                    m_modSpellHitChance = m_owner->m_modSpellHitChance;
+
                     break;
                 }
                 case 19833: //Snake Trap - Venomous Snake
@@ -1021,6 +1057,10 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     // wolf attack speed is 1.5s
                     SetAttackTime(BASE_ATTACK, cinfo->baseattacktime);
 
+                    // Wolf should inherit 100% of the master's hit rating
+                    m_modMeleeHitChance = m_owner->m_modMeleeHitChance;
+                    m_modSpellHitChance = m_owner->m_modSpellHitChance;
+
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float((petlevel * 4 - petlevel)));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float((petlevel * 4 + petlevel)));
 
@@ -1039,6 +1079,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                         SetCreateMana(28 + 30*petlevel);
                         SetCreateHealth(28 + 10*petlevel);
                     }
+                    // Let mirror images inherit their master's spell hit rating
+                    m_modSpellHitChance = m_owner->m_modSpellHitChance;
                     break;
                 }
                 case 27829: // Ebon Gargoyle
@@ -1048,6 +1090,16 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                         SetCreateMana(28 + 10*petlevel);
                         SetCreateHealth(28 + 30*petlevel);
                     }
+                    // Convert DK haste and hit into the gargoyle's haste/hit
+                    float ownerHaste = ((Player*)m_owner)->GetRatingBonusValue(CR_HASTE_MELEE);
+                    ApplyPercentModFloatValue(UNIT_MOD_CAST_SPEED, ownerHaste, false);
+                    m_modSpellHitChance = m_owner->m_modSpellHitChance;
+                    m_modMeleeHitChance = m_owner->m_modMeleeHitChance;
+
+                    // also make gargoyle benefit from haste auras, like unholy presence
+                    int meleeHaste = ((Player*)m_owner)->GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE);
+                    ApplyCastTimePercentMod(meleeHaste, true);
+
                     SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.5f));
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));

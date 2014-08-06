@@ -528,6 +528,16 @@ class boss_twilight_halion : public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
+            void UpdateAI(uint32 diff) override
+            {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                    ExecuteEvent(eventId);
+
+                generic_halionAI::UpdateAI(diff);
+            }
+
             void DamageTaken(Unit* attacker, uint32& damage) override
             {
                 if (me->HealthBelowPctDamaged(50, damage) && events.IsInPhase(PHASE_TWO))

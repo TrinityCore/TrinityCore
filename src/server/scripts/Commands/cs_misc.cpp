@@ -1864,6 +1864,12 @@ public:
         stmt->setString(2, muteBy.c_str());
         stmt->setUInt32(3, accountId);
         LoginDatabase.Execute(stmt);
+		stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_MUTE);
+		stmt->setUInt32(0, accountId);
+		stmt->setUInt64(1, notSpeakTime);
+		stmt->setString(2, muteBy.c_str());
+		stmt->setString(3, muteReasonStr.c_str());
+		LoginDatabase.Execute(stmt);
         std::string nameLink = handler->playerLink(targetName);
 
             if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD) && !target)

@@ -18,7 +18,7 @@
 #ifndef TRINITY_SPELLAURADEFINES_H
 #define TRINITY_SPELLAURADEFINES_H
 
-#define MAX_AURAS 64                                        // client support up to 255, but it will cause problems with group auras updating
+#define MAX_AURAS 128                                        // client support up to 255, but it will cause problems with group auras updating
 
 enum AURA_FLAGS
 {

@@ -1,32 +1,31 @@
 language: cpp
-compiler:
-  - clang
 
 git:
   depth: 1
 
-before_install:
-  - echo "yes" | sudo add-apt-repository ppa:kalakris/cmake
-  - echo "yes" | sudo add-apt-repository ppa:boost-latest/ppa
-  - echo "yes" | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-  - sudo apt-get -qq update
-  - sudo apt-get -qq install build-essential libtool gcc-4.8 g++-4.8 make cmake openssl
-  - sudo apt-get -qq install libssl-dev libmysqlclient15-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev
-  - sudo apt-get -qq install libboost1.55-dev libboost-thread1.55-dev libboost-system1.55-dev libboost-program-options1.55-dev
+compiler:
+  - gcc
 
-install:
-  - mysql -uroot -e 'create database test_mysql;'
-  - mkdir bin
-  - cd bin
-  - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=1 -DUSE_COREPCH=0 -DUSE_SCRIPTPCH=0 -DTOOLS=1 -DSCRIPTS=1 -DSERVERS=1 -DNOJEM=1 -DCMAKE_BUILD_TYPE=Release
+before_install:
+  - sudo add-apt-repository ppa:kalakris/cmake -y
+  - sudo add-apt-repository ppa:boost-latest/ppa -y
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+  - sudo apt-get update -qq
+  - sudo apt-get install build-essential libtool make cmake openssl libssl-dev libmysqlclient15-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev libboost1.55-dev libboost-thread1.55-dev libboost-system1.55-dev libboost-program-options1.55-dev
+  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 
 script:
-  - cd ..
-  - mysql -uroot < sql/create/create_mysql.sql
-  - mysql -uroot auth < sql/base/auth_database.sql
-  - mysql -uroot characters < sql/base/characters_database.sql
-  - mysql -uroot world < sql/base/dev/world_database.sql
-  - for file in sql/updates/world/*.sql; do mysql -uroot world < $file; done
-  - mysql -uroot < sql/create/drop_mysql.sql
-  - cd bin
+  - mkdir build
+  - cd build
+  - cmake .. -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=0 -DSCRIPTS=1 -DSERVERS=1 -DNOJEM=1
   - make -j 8
+
+notifications:
+  email: false
+  webhooks:
+    urls:
+      - http://irc.truewow.org:8080/travis
+    on_success: always
+    on_failure: always
+    on_start: always
