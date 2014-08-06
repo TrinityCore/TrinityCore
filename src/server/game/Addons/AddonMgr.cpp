@@ -112,9 +112,8 @@ void SaveAddon(AddonInfo const& addon)
 
 SavedAddon const* GetAddonInfo(const std::string& name)
 {
-    for (SavedAddonsList::const_iterator it = m_knownAddons.begin(); it != m_knownAddons.end(); ++it)
+    for (SavedAddon addon : m_knownAddons)
     {
-        SavedAddon const& addon = (*it);
         if (addon.Name == name)
             return &addon;
     }

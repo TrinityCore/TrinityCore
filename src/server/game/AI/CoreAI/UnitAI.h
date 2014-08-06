@@ -150,9 +150,9 @@ class UnitAI
                 return NULL;
 
             std::list<Unit*> targetList;
-            for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                if (predicate((*itr)->getTarget()))
-                    targetList.push_back((*itr)->getTarget());
+            for (HostileReference* threat : threatlist)
+                if (predicate(threat->getTarget()))
+                    targetList.push_back(threat->getTarget());
 
             if (position >= targetList.size())
                 return NULL;
@@ -199,9 +199,9 @@ class UnitAI
             if (threatlist.empty())
                 return;
 
-            for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                if (predicate((*itr)->getTarget()))
-                    targetList.push_back((*itr)->getTarget());
+            for (HostileReference* threat : threatlist)
+                if (predicate(threat->getTarget()))
+                    targetList.push_back(threat->getTarget());
 
             if (targetList.size() < maxTargets)
                 return;

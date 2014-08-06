@@ -408,21 +408,21 @@ void ArenaTeam::Roster(WorldSession* session)
     data << uint32(GetMembersSize());                           // members count
     data << uint32(GetType());                                  // arena team type?
 
-    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
+    for (ArenaTeamMember itr : Members)
     {
-        player = ObjectAccessor::FindPlayer(itr->Guid);
+        player = ObjectAccessor::FindPlayer(itr.Guid);
 
-        data << uint64(itr->Guid);                              // guid
+        data << uint64(itr.Guid);                              // guid
         data << uint8((player ? 1 : 0));                        // online flag
-        data << itr->Name;                                      // member name
-        data << uint32((itr->Guid == GetCaptain() ? 0 : 1));    // captain flag 0 captain 1 member
+        data << itr.Name;                                      // member name
+        data << uint32((itr.Guid == GetCaptain() ? 0 : 1));    // captain flag 0 captain 1 member
         data << uint8((player ? player->getLevel() : 0));       // unknown, level?
-        data << uint8(itr->Class);                              // class
-        data << uint32(itr->WeekGames);                         // played this week
-        data << uint32(itr->WeekWins);                          // wins this week
-        data << uint32(itr->SeasonGames);                       // played this season
-        data << uint32(itr->SeasonWins);                        // wins this season
-        data << uint32(itr->PersonalRating);                    // personal rating
+        data << uint8(itr.Class);                              // class
+        data << uint32(itr.WeekGames);                         // played this week
+        data << uint32(itr.WeekWins);                          // wins this week
+        data << uint32(itr.SeasonGames);                       // played this season
+        data << uint32(itr.SeasonWins);                        // wins this season
+        data << uint32(itr.PersonalRating);                    // personal rating
         //if (unk308)
         //{
         //    data << float(0.0f);                              // 308 unk
@@ -466,8 +466,8 @@ void ArenaTeam::NotifyStatsChanged()
 {
     // This is called after a rated match ended
     // Updates arena team stats for every member of the team (not only the ones who participated!)
-    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
-        if (Player* player = ObjectAccessor::FindPlayer(itr->Guid))
+    for (ArenaTeamMember itr : Members)
+        if (Player* player = ObjectAccessor::FindPlayer(itr.Guid))
             SendStats(player->GetSession());
 }
 
@@ -513,8 +513,8 @@ void ArenaTeamMember::ModifyMatchmakerRating(int32 mod, uint32 /*slot*/)
 
 void ArenaTeam::BroadcastPacket(WorldPacket* packet)
 {
-    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
-        if (Player* player = ObjectAccessor::FindPlayer(itr->Guid))
+    for (ArenaTeamMember itr : Members)
+        if (Player* player = ObjectAccessor::FindPlayer(itr.Guid))
             player->GetSession()->SendPacket(packet);
 }
 
@@ -554,11 +554,11 @@ void ArenaTeam::MassInviteToEvent(WorldSession* session)
     WorldPacket data(SMSG_CALENDAR_ARENA_TEAM, (Members.size() - 1) * (4 + 8 + 1));
     data << uint32(Members.size() - 1);
 
-    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
+    for (ArenaTeamMember itr : Members)
     {
-        if (itr->Guid != session->GetPlayer()->GetGUID())
+        if (itr.Guid != session->GetPlayer()->GetGUID())
         {
-            data.appendPackGUID(itr->Guid);
+            data.appendPackGUID(itr.Guid);
             data << uint8(0); // unk
         }
     }
@@ -582,8 +582,8 @@ uint8 ArenaTeam::GetSlotByType(uint32 type)
 
 bool ArenaTeam::IsMember(uint64 guid) const
 {
-    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
-        if (itr->Guid == guid)
+    for (ArenaTeamMember itr : Members)
+        if (itr.Guid == guid)
             return true;
 
     return false;
@@ -622,17 +622,17 @@ uint32 ArenaTeam::GetAverageMMR(Group* group) const
 
     uint32 matchMakerRating = 0;
     uint32 playerDivider = 0;
-    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
+    for (ArenaTeamMember itr : Members)
     {
         // Skip if player is not online
-        if (!ObjectAccessor::FindPlayer(itr->Guid))
+        if (!ObjectAccessor::FindPlayer(itr.Guid))
             continue;
 
         // Skip if player is not member of group
-        if (!group->IsMember(itr->Guid))
+        if (!group->IsMember(itr.Guid))
             continue;
 
-        matchMakerRating += itr->MatchMakerRating;
+        matchMakerRating += itr.MatchMakerRating;
         ++playerDivider;
     }
 
@@ -853,22 +853,22 @@ void ArenaTeam::UpdateArenaPointsHelper(std::map<uint32, uint32>& playerPoints)
     // To get points, a player has to participate in at least 30% of the matches
     uint32 requiredGames = (uint32)ceil(Stats.WeekGames * 0.3f);
 
-    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
+    for (ArenaTeamMember itr : Members)
     {
         // The player participated in enough games, update his points
         uint32 pointsToAdd = 0;
-        if (itr->WeekGames >= requiredGames)
-            pointsToAdd = GetPoints(itr->PersonalRating);
+        if (itr.WeekGames >= requiredGames)
+            pointsToAdd = GetPoints(itr.PersonalRating);
 
-        std::map<uint32, uint32>::iterator plr_itr = playerPoints.find(GUID_LOPART(itr->Guid));
+        std::map<uint32, uint32>::iterator plr_itr = playerPoints.find(GUID_LOPART(itr.Guid));
         if (plr_itr != playerPoints.end())
         {
             // Check if there is already more points
             if (plr_itr->second < pointsToAdd)
-                playerPoints[GUID_LOPART(itr->Guid)] = pointsToAdd;
+                playerPoints[GUID_LOPART(itr.Guid)] = pointsToAdd;
         }
         else
-            playerPoints[GUID_LOPART(itr->Guid)] = pointsToAdd;
+            playerPoints[GUID_LOPART(itr.Guid)] = pointsToAdd;
     }
 }
 
@@ -889,22 +889,22 @@ void ArenaTeam::SaveToDB()
     stmt->setUInt32(6, GetId());
     trans->Append(stmt);
 
-    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
+    for (ArenaTeamMember itr : Members)
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ARENA_TEAM_MEMBER);
-        stmt->setUInt16(0, itr->PersonalRating);
-        stmt->setUInt16(1, itr->WeekGames);
-        stmt->setUInt16(2, itr->WeekWins);
-        stmt->setUInt16(3, itr->SeasonGames);
-        stmt->setUInt16(4, itr->SeasonWins);
+        stmt->setUInt16(0, itr.PersonalRating);
+        stmt->setUInt16(1, itr.WeekGames);
+        stmt->setUInt16(2, itr.WeekWins);
+        stmt->setUInt16(3, itr.SeasonGames);
+        stmt->setUInt16(4, itr.SeasonWins);
         stmt->setUInt32(5, GetId());
-        stmt->setUInt32(6, GUID_LOPART(itr->Guid));
+        stmt->setUInt32(6, GUID_LOPART(itr.Guid));
         trans->Append(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHARACTER_ARENA_STATS);
-        stmt->setUInt32(0, GUID_LOPART(itr->Guid));
+        stmt->setUInt32(0, GUID_LOPART(itr.Guid));
         stmt->setUInt8(1, GetSlot());
-        stmt->setUInt16(2, itr->MatchMakerRating);
+        stmt->setUInt16(2, itr.MatchMakerRating);
         trans->Append(stmt);
     }
 
@@ -927,8 +927,8 @@ void ArenaTeam::FinishWeek()
 
 bool ArenaTeam::IsFighting() const
 {
-    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
-        if (Player* player = ObjectAccessor::FindPlayer(itr->Guid))
+    for (ArenaTeamMember itr : Members)
+        if (Player* player = ObjectAccessor::FindPlayer(itr.Guid))
             if (player->GetMap()->IsBattleArena())
                 return true;
 
