@@ -484,12 +484,12 @@ void AuctionHouseObject::Update()
 
 void AuctionHouseObject::BuildListBidderItems(WorldPacket& data, Player* player, uint32& count, uint32& totalcount)
 {
-    for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
+    for (std::pair<const uint32, AuctionEntry*> itr : AuctionsMap)
     {
-        AuctionEntry* Aentry = itr->second;
+        AuctionEntry* Aentry = itr.second;
         if (Aentry && Aentry->bidder == player->GetGUIDLow())
         {
-            if (itr->second->BuildAuctionInfo(data))
+            if (itr.second->BuildAuctionInfo(data))
                 ++count;
 
             ++totalcount;
@@ -499,9 +499,9 @@ void AuctionHouseObject::BuildListBidderItems(WorldPacket& data, Player* player,
 
 void AuctionHouseObject::BuildListOwnerItems(WorldPacket& data, Player* player, uint32& count, uint32& totalcount)
 {
-    for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
+    for (std::pair<const uint32, AuctionEntry*> itr : AuctionsMap)
     {
-        AuctionEntry* Aentry = itr->second;
+        AuctionEntry* Aentry = itr.second;
         if (Aentry && Aentry->owner == player->GetGUIDLow())
         {
             if (Aentry->BuildAuctionInfo(data))
@@ -520,9 +520,9 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
     int loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
     int locdbc_idx = player->GetSession()->GetSessionDbcLocale();
 
-    for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
+    for (std::pair<const uint32, AuctionEntry*> itr : AuctionsMap)
     {
-        AuctionEntry* Aentry = itr->second;
+        AuctionEntry* Aentry = itr.second;
         Item* item = sAuctionMgr->GetAItem(Aentry->itemGUIDLow);
         if (!item)
             continue;

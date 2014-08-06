@@ -514,12 +514,12 @@ public:
 
             if (!FlagList.empty())
             {
-                for (std::list<GameObject*>::const_iterator itr = FlagList.begin(); itr != FlagList.end(); ++itr)
+                for (GameObject* flag : FlagList)
                 {
                     if (despawn)
-                        (*itr)->SetLootState(GO_JUST_DEACTIVATED);
+                        flag->SetLootState(GO_JUST_DEACTIVATED);
                     else
-                        (*itr)->Respawn();
+                        flag->Respawn();
                 }
             }
             else

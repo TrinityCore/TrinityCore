@@ -2271,11 +2271,10 @@ public:
                     {
                         if (!orbList.empty())
                         {
-                            for (std::list<Creature*>::const_iterator itr = orbList.begin(); itr != orbList.end(); ++itr)
+                            for (Creature* orb : orbList)
                             {
-                                if (Creature* pOrb = *itr)
-                                    if (pOrb->GetPositionY() > 6680)
-                                        DoCast(pOrb, SPELL_TRANSITUS_SHIELD_BEAM);
+                                if (orb->GetPositionY() > 6680)
+                                    DoCast(orb, SPELL_TRANSITUS_SHIELD_BEAM);
                             }
                         }
                         m_uiTimer = urand(90000, 120000);
@@ -2285,11 +2284,10 @@ public:
                     {
                         if (!orbList.empty())
                         {
-                            for (std::list<Creature*>::const_iterator itr = orbList.begin(); itr != orbList.end(); ++itr)
+                            for (Creature* orb : orbList)
                             {
-                                if (Creature* pOrb = *itr)
-                                    if ((pOrb->GetPositionY() < 6680) && (pOrb->GetPositionY() > 6630))
-                                        DoCast(pOrb, SPELL_TRANSITUS_SHIELD_BEAM);
+                                if ((orb->GetPositionY() < 6680) && (orb->GetPositionY() > 6630))
+                                    DoCast(orb, SPELL_TRANSITUS_SHIELD_BEAM);
                             }
                         }
                         m_uiTimer = urand(90000, 120000);
@@ -2299,11 +2297,10 @@ public:
                     {
                         if (!orbList.empty())
                         {
-                            for (std::list<Creature*>::const_iterator itr = orbList.begin(); itr != orbList.end(); ++itr)
+                            for (Creature* orb : orbList)
                             {
-                                if (Creature* pOrb = *itr)
-                                    if (pOrb->GetPositionY() < 6630)
-                                        DoCast(pOrb, SPELL_TRANSITUS_SHIELD_BEAM);
+                                if (orb->GetPositionY() < 6630)
+                                    DoCast(orb, SPELL_TRANSITUS_SHIELD_BEAM);
                             }
                         }
                         m_uiTimer = urand(90000, 120000);

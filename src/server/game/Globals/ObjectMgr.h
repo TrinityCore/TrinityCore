@@ -1055,10 +1055,9 @@ class ObjectMgr
             MailLevelRewardContainer::const_iterator map_itr = _mailLevelRewardStore.find(level);
             if (map_itr == _mailLevelRewardStore.end())
                 return NULL;
-
-            for (MailLevelRewardList::const_iterator set_itr = map_itr->second.begin(); set_itr != map_itr->second.end(); ++set_itr)
-                if (set_itr->raceMask & raceMask)
-                    return &*set_itr;
+            for (MailLevelReward reward : map_itr->second)
+                if (reward.raceMask & raceMask)
+                    return &reward; // Not too sure about this one, please check it!
 
             return NULL;
         }

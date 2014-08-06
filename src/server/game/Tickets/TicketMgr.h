@@ -198,18 +198,18 @@ public:
 
     GmTicket* GetTicketByPlayer(uint64 playerGuid)
     {
-        for (GmTicketList::const_iterator itr = _ticketList.begin(); itr != _ticketList.end(); ++itr)
-            if (itr->second && itr->second->IsFromPlayer(playerGuid) && !itr->second->IsClosed())
-                return itr->second;
+        for (std::pair<uint32, GmTicket*> itr : _ticketList)
+            if (itr.second && itr.second->IsFromPlayer(playerGuid) && !itr.second->IsClosed())
+                return itr.second;
 
         return NULL;
     }
 
     GmTicket* GetOldestOpenTicket()
     {
-        for (GmTicketList::const_iterator itr = _ticketList.begin(); itr != _ticketList.end(); ++itr)
-            if (itr->second && !itr->second->IsClosed() && !itr->second->IsCompleted())
-                return itr->second;
+        for (std::pair<uint32, GmTicket*> itr : _ticketList)
+            if (itr.second && !itr.second->IsClosed() && !itr.second->IsCompleted())
+                return itr.second;
 
         return NULL;
     }

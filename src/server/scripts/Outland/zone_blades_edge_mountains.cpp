@@ -864,8 +864,8 @@ class npc_simon_bunny : public CreatureScript
                 for (uint8 i = 0; i <= gameLevel; i++)
                     colorSequence.push_back(RAND(SIMON_BLUE, SIMON_RED, SIMON_GREEN, SIMON_YELLOW));
 
-                for (std::list<uint8>::const_iterator i = colorSequence.begin(); i != colorSequence.end(); ++i)
-                    playableSequence.push_back(*i);
+                for (uint8 i : colorSequence)
+                    playableSequence.push_back(i);
             }
 
 

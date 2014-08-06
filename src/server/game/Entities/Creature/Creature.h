@@ -364,8 +364,8 @@ struct VendorItemData
     VendorItem const* FindItemCostPair(uint32 item_id, uint32 extendedCost) const;
     void Clear()
     {
-        for (VendorItemList::const_iterator itr = m_items.begin(); itr != m_items.end(); ++itr)
-            delete (*itr);
+        for (VendorItem* item : m_items)
+            delete item;
         m_items.clear();
     }
 };
