@@ -111,7 +111,6 @@ enum NPCs
     NPC_INFINITE_ADVERSARY                     = 27742,
     NPC_INFINITE_HUNTER                        = 27743,
     NPC_INFINITE_AGENT                         = 27744,
-    NPC_TIME_RIFT                              = 28409,
     NPC_ZOMBIE                                 = 27737,
     NPC_GHOUL                                  = 28249,
     NPC_NECROMANCER                            = 28200,
@@ -309,10 +308,11 @@ public:
                 case 0: //This one is a workaround since the very beggining of the script is wrong.
                 {
                     QuestStatus status = player->GetQuestStatus(13149);
-                    if (status != QUEST_STATUS_COMPLETE && status != QUEST_STATUS_REWARDED)
-                        return false;
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                    player->SEND_GOSSIP_MENU(907, creature->GetGUID());
+                    if (status == QUEST_STATUS_COMPLETE || status == QUEST_STATUS_REWARDED)
+                    {
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                        player->SEND_GOSSIP_MENU(907, creature->GetGUID());
+                    }
                     break;
                 }
                 case 1:
@@ -357,6 +357,7 @@ public:
 
         InstanceScript* instance;
 
+        bool HasStartedTimer;
         bool bStepping;
         uint32 step;
         uint32 phaseTimer;
@@ -364,6 +365,7 @@ public:
         uint32 playerFaction;
         uint32 bossEvent;
         uint32 wave;
+        uint32 waveCount;
 
         uint64 utherGUID;
         uint64 jainaGUID;
@@ -398,6 +400,7 @@ public:
             epochGUID = 0;
             malganisGUID = 0;
             infiniteGUID = 0;
+            waveCount = 0;
 
             instance->SetData(DATA_ARTHAS_EVENT, NOT_STARTED);
             switch (instance->GetData(DATA_ARTHAS_EVENT))
@@ -413,6 +416,8 @@ public:
             phaseTimer = 1000;
             exorcismTimer = 7300;
             wave = 0;
+
+                HasStartedTimer = false;
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -579,6 +584,7 @@ public:
                     break;
                 case 54:
                     gossipStep = 5;
+                    SetDespawnAtFar(false);
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     SetHoldState(true);
                     break;
@@ -898,10 +904,18 @@ public:
                         case 53:
                         case 55:
                         case 57:
+                            if (instance && !HasStartedTimer) // Check if event has already happened, so it doesn't repeat itself
+                            {
+                                instance->SetData(DATA_INFINITE_COUNTER, IN_PROGRESS);
+                                HasStartedTimer = true;
+                            }
+
                             if (instance->GetData(bossEvent) != DONE)
                             {
                                 SpawnWaveGroup(wave, waveGUID);
                                 wave++;
+                                waveCount++;
+                                instance->DoUpdateWorldState(WORLDSTATE_WAVE_COUNT, waveCount);
                             }
                             JumpToNextStep(500);
                             break;
@@ -947,9 +961,11 @@ public:
 
                                 if (Unit* pBoss = me->SummonCreature(uiBossID, 2232.19f, 1331.933f, 126.662f, 3.15f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000))
                                 {
+                                    waveCount++;
                                     bossGUID = pBoss->GetGUID();
                                     pBoss->SetWalk(true);
                                     pBoss->GetMotionMaster()->MovePoint(0, 2194.110f, 1332.00f, 130.00f);
+                                    instance->DoUpdateWorldState(WORLDSTATE_WAVE_COUNT, waveCount);
                                 }
                             }
                             JumpToNextStep(30000);
@@ -963,6 +979,8 @@ public:
                                     bossEvent = DATA_SALRAMM_EVENT;
                                 else if (bossEvent == DATA_SALRAMM_EVENT)
                                 {
+                                        if (instance)
+                                            instance->DoUpdateWorldState(WORLDSTATE_WAVE_COUNT, 0);
                                     SetHoldState(false);
                                     bStepping = false;
                                     bossEvent = DATA_EPOCH_EVENT;

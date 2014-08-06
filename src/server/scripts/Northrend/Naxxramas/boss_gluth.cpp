@@ -49,7 +49,12 @@ enum Events
     EVENT_SUMMON,
 };
 
-#define EMOTE_NEARBY    " spots a nearby zombie to devour!"
+enum Emotes
+{
+    EMOTE_ZOMBIE,
+    EMOTE_ENRAGE,
+    EMOTE_DECIMATE
+};
 
 class boss_gluth : public CreatureScript
 {
@@ -74,8 +79,9 @@ public:
             if (who->GetEntry() == NPC_ZOMBIE && me->IsWithinDistInMap(who, 7))
             {
                 SetGazeOn(who);
-                /// @todo use a script text
-                me->MonsterTextEmote(EMOTE_NEARBY, NULL, true);
+                Talk(EMOTE_ZOMBIE);
+                me->Kill(who);
+                me->ModifyHealth(me->CountPctFromMaxHealth(5));
             }
             else
                 BossAI::MoveInLineOfSight(who);
@@ -90,12 +96,14 @@ public:
             events.ScheduleEvent(EVENT_BERSERK, 8*60000);
             events.ScheduleEvent(EVENT_SUMMON, 15000);
         }
-
-        void JustSummoned(Creature* summon) override
+        
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
         {
-            if (summon->GetEntry() == NPC_ZOMBIE)
-                summon->AI()->AttackStart(me);
-            summons.Summon(summon);
+            if (target->GetTypeId() == TYPEID_UNIT && target->GetEntry() == NPC_ZOMBIE && spell->Id == SPELL_DECIMATE)
+            {
+                target->ToCreature()->AI()->AttackStart(me);
+                target->ToCreature()->SetReactState(REACT_PASSIVE);
+            }
         }
 
         void UpdateAI(uint32 diff) override
@@ -114,12 +122,12 @@ public:
                         events.ScheduleEvent(EVENT_WOUND, 10000);
                         break;
                     case EVENT_ENRAGE:
-                        /// @todo Add missing text
+                        Talk(EMOTE_ENRAGE);
                         DoCast(me, SPELL_ENRAGE);
                         events.ScheduleEvent(EVENT_ENRAGE, 15000);
                         break;
                     case EVENT_DECIMATE:
-                        /// @todo Add missing text
+                        Talk(EMOTE_DECIMATE);
                         DoCastAOE(SPELL_DECIMATE);
                         events.ScheduleEvent(EVENT_DECIMATE, 105000);
                         break;
@@ -130,20 +138,15 @@ public:
                     case EVENT_SUMMON:
                         for (int32 i = 0; i < RAID_MODE(1, 2); ++i)
                             DoSummon(NPC_ZOMBIE, PosSummon[rand32() % RAID_MODE(1, 3)]);
+                        // There's probably a better way to handle this
+                        for (SummonList::iterator itr = summons.begin(); itr != summons.end(); ++itr)
+                            if(Unit* unit = ObjectAccessor::GetUnit(*me, *itr))
+                                if (unit->GetEntry() == NPC_ZOMBIE)
+                                    unit->ToCreature()->AI()->AttackStart(me);
                         events.ScheduleEvent(EVENT_SUMMON, 10000);
                         break;
                 }
             }
-
-            if (me->GetVictim() && me->EnsureVictim()->GetEntry() == NPC_ZOMBIE)
-            {
-                if (me->IsWithinMeleeRange(me->GetVictim()))
-                {
-                    me->Kill(me->GetVictim());
-                    me->ModifyHealth(int32(me->CountPctFromMaxHealth(5)));
-                }
-            }
-            else
                 DoMeleeAttackIfReady();
         }
     };

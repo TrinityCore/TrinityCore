@@ -45,10 +45,10 @@ public:
     {
         static ChatCommand lfgCommandTable[] =
         {
-            {  "player", rbac::RBAC_PERM_COMMAND_LFG_PLAYER,  false, &HandleLfgPlayerInfoCommand, "", NULL },
-            {   "group", rbac::RBAC_PERM_COMMAND_LFG_GROUP,   false, &HandleLfgGroupInfoCommand,  "", NULL },
-            {   "queue", rbac::RBAC_PERM_COMMAND_LFG_QUEUE,   false, &HandleLfgQueueInfoCommand,  "", NULL },
-            {   "clean", rbac::RBAC_PERM_COMMAND_LFG_CLEAN,   false, &HandleLfgCleanCommand,      "", NULL },
+            {  "player", rbac::RBAC_PERM_COMMAND_LFG_PLAYER,  true,  &HandleLfgPlayerInfoCommand, "", NULL },
+            {   "group", rbac::RBAC_PERM_COMMAND_LFG_GROUP,   true,  &HandleLfgGroupInfoCommand,  "", NULL },
+            {   "queue", rbac::RBAC_PERM_COMMAND_LFG_QUEUE,   true,  &HandleLfgQueueInfoCommand,  "", NULL },
+            {   "clean", rbac::RBAC_PERM_COMMAND_LFG_CLEAN,   true,  &HandleLfgCleanCommand,      "", NULL },
             { "options", rbac::RBAC_PERM_COMMAND_LFG_OPTIONS, false, &HandleLfgOptionsCommand,    "", NULL },
             {      NULL, 0, false,                       NULL, "", NULL }
         };

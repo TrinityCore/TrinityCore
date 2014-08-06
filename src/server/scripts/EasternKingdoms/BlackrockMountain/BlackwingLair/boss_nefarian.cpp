@@ -337,7 +337,7 @@ public:
 
                                 if (++SpawnedAdds >= 42)
                                 {
-                                    if (Creature* nefarian = me->SummonCreature(NPC_NEFARIAN, NefarianLoc[0]))
+                                    if (Creature* nefarian = me->SummonCreature(NPC_NEFARIAN, NefarianLoc[0].GetPositionX(), NefarianLoc[0].GetPositionY(), NefarianLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 12*MINUTE*IN_MILLISECONDS))
                                     {
                                         nefarian->setActive(true);
                                         nefarian->SetCanFly(true);

@@ -59,9 +59,9 @@ public:
         return GetInstanceAI<boss_salrammAI>(creature);
     }
 
-    struct boss_salrammAI : public ScriptedAI
+    struct boss_salrammAI : public BossAI
     {
-        boss_salrammAI(Creature* creature) : ScriptedAI(creature)
+        boss_salrammAI(Creature* creature) : BossAI(creature, DATA_SALRAMM_EVENT)
         {
             instance = creature->GetInstanceScript();
             Talk(SAY_SPAWN);
@@ -77,6 +77,7 @@ public:
 
         void Reset() override
         {
+             _Reset();
              uiCurseFleshTimer = 30000;  //30s DBM
              uiExplodeGhoulTimer = urand(25000, 28000); //approx 6 sec after summon ghouls
              uiShadowBoltTimer = urand(8000, 12000); // approx 10s
@@ -88,6 +89,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
+            _EnterCombat();
             Talk(SAY_AGGRO);
 
             instance->SetData(DATA_SALRAMM_EVENT, IN_PROGRESS);
@@ -137,9 +139,11 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
+            _JustDied();
             Talk(SAY_DEATH);
 
             instance->SetData(DATA_SALRAMM_EVENT, DONE);
+            instance->SetBossState(DATA_SALRAMM_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim) override

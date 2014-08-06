@@ -35,10 +35,27 @@
 
 enum Texts
 {
-    SAY_CRATES_COMPLETED    = 0,
+    SAY_CRATES_COMPLETED    = 0, // Chromie
+
+    SAY_INFINITE_START      = 0, // Chromie - On Infinite Corruptor event start
+    SAY_INFINITE            = 1, // Chromie - On Infinite Corruptor event at 5 minutes
+    SAY_INFINITE_FAIL       = 2, // Chromie - On Infinite Corruptor event fail
+
+    SAY_FAIL                = 2  // Infinite Corruptor - On Infinite Corruptor event fail
+
 };
 
-Position const ChromieSummonPos = {1813.298f, 1283.578f, 142.3258f, 3.878161f};
+enum Events
+{
+    EVENT_INFINITE_TIMER   = 1,
+    EVENT_RESET_ZOMBIE_COUNTER = 2
+};
+
+Position const ChromieSummonPos[] = 
+{
+    {1813.298f, 1283.578f, 142.3258f, 3.878161f},
+    {2273.725f, 1483.684f, 128.7205f, 6.057528f}
+};
 
 class instance_culling_of_stratholme : public InstanceMapScript
 {
@@ -54,6 +71,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
         {
             instance_culling_of_stratholme_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetBossNumber(MAX_ENCOUNTER);
                 _arthasGUID = 0;
                 _meathookGUID = 0;
                 _salrammGUID = 0;
@@ -66,12 +84,16 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 _exitGateGUID = 0;
                 _malGanisChestGUID = 0;
                 _genericBunnyGUID = 0;
-                memset(&_encounterState[0], 0, sizeof(uint32) * MAX_ENCOUNTER);
+                _chromieGUID = 0;
                 _crateCount = 0;
+                _eventMinute = 0;
+                _zombieCounter = 0;
+                _zombieTimerStarted = false;
             }
 
             bool IsEncounterInProgress() const override
             {
+
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     if (_encounterState[i] == IN_PROGRESS)
                         return true;
@@ -113,6 +135,9 @@ class instance_culling_of_stratholme : public InstanceMapScript
                     case NPC_GENERIC_BUNNY:
                         _genericBunnyGUID = creature->GetGUID();
                         break;
+                    case NPC_CHROMIE:
+                        _chromieGUID = creature->GetGUID();
+                        break;
                 }
             }
 
@@ -143,6 +168,35 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 }
             }
 
+            void OnUnitDeath(Unit* unit) override
+            {
+                Creature* creature = unit->ToCreature();
+                if (!creature)
+                    return;
+
+                if (creature->GetEntry() == NPC_RISEN_ZOMBIE)
+                {
+                    _zombieCounter++;
+                    
+                    if (!_zombieTimerStarted)
+                    {
+                        events.ScheduleEvent(EVENT_RESET_ZOMBIE_COUNTER, 1*MINUTE*IN_MILLISECONDS);
+                        _zombieTimerStarted = true;
+                    }
+                    
+                    if (_zombieCounter >= 100)
+                        DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, NPC_RISEN_ZOMBIE, 1);
+                }
+            }
+
+            bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*, Unit const* /* = NULL */, uint32 /* = 0 */) override
+            {
+                if (criteriaId == CRITERIA_ZOMBIEFEST)
+                    return _zombieCounter >= 100 ? true : false;
+
+                return false;
+            }
+
             void SetData(uint32 type, uint32 data) override
             {
                 switch (type)
@@ -171,11 +225,17 @@ class instance_culling_of_stratholme : public InstanceMapScript
                                 HandleGameObject(_exitGateGUID, true);
                                 if (GameObject* go = instance->GetGameObject(_malGanisChestGUID))
                                     go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                                instance->SummonCreature(NPC_CHROMIE_3, ChromieSummonPos[1]);
                                 break;
                         }
                         break;
                     case DATA_INFINITE_EVENT:
                         _encounterState[4] = data;
+                        if(data == DONE)
+                        {
+                            DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 0);
+                            events.CancelEvent(EVENT_INFINITE_TIMER);
+                        }
                         break;
                     case DATA_CRATE_COUNT:
                         _crateCount = data;
@@ -185,14 +245,21 @@ class instance_culling_of_stratholme : public InstanceMapScript
                                 bunny->CastSpell(bunny, SPELL_CRATES_CREDIT, true);
 
                             // Summon Chromie and global whisper
-                            if (Creature* chromie = instance->SummonCreature(NPC_CHROMIE_2, ChromieSummonPos))
+                            if (Creature* chromie = instance->SummonCreature(NPC_CHROMIE_2, ChromieSummonPos[0]))
                                 if (!instance->GetPlayers().isEmpty())
                                     chromie->AI()->TalkToMap(SAY_CRATES_COMPLETED);
                         }
                         DoUpdateWorldState(WORLDSTATE_CRATES_REVEALED, _crateCount);
                         break;
-                }
-
+                    case DATA_INFINITE_COUNTER:
+                        _eventCounterState = data;
+                        if (data == IN_PROGRESS)
+                            if (_infiniteGUID != 0)
+                            {
+                                events.ScheduleEvent(EVENT_INFINITE_TIMER, 1);
+                                _eventMinute = 25;
+                            }
+                    }
                 if (data == DONE)
                     SaveToDB();
             }
@@ -213,6 +280,8 @@ class instance_culling_of_stratholme : public InstanceMapScript
                         return _encounterState[4];
                     case DATA_CRATE_COUNT:
                         return _crateCount;
+                    case DATA_INFINITE_COUNTER:
+                        return _eventCounterState;
                 }
                 return 0;
             }
@@ -247,13 +316,20 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 return 0;
             }
 
+            bool SetBossState(uint32 type, EncounterState state) override
+            {
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+
+                return true;
+            }
+
             std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << "C S " << _encounterState[0] << ' ' << _encounterState[1] << ' '
-                    << _encounterState[2] << ' ' << _encounterState[3] << ' ' << _encounterState[4];
+                saveStream << "C S " << GetBossSaveData();
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -283,10 +359,14 @@ class instance_culling_of_stratholme : public InstanceMapScript
                     _encounterState[3] = data3;
                     _encounterState[4] = data4;
 
-                    for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                        if (_encounterState[i] == IN_PROGRESS)
-                            _encounterState[i] = NOT_STARTED;
-
+                    for (uint32 i = 0; i < MAX_ENCOUNTER; ++i)
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
+                    }
                 }
                 else
                     OUT_LOAD_INST_DATA_FAIL;
@@ -294,6 +374,74 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
 
+            void Update(uint32 diff) override
+            {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch(eventId)
+                    {
+                        case EVENT_INFINITE_TIMER:
+                        {
+                            DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 1);
+                            DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN, _eventMinute);
+                            events.ScheduleEvent(EVENT_INFINITE_TIMER, MINUTE*IN_MILLISECONDS);
+
+                            switch(_eventMinute)
+                            {
+                                case 25:
+                                    if (!instance->GetPlayers().isEmpty())
+                                        if (Player* player = instance->GetPlayers().getFirst()->GetSource())
+                                            if (Creature* chromie = instance->GetCreature(_chromieGUID))
+                                                sCreatureTextMgr->SendChat(chromie, SAY_INFINITE_START, player, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                                    break;
+                                case 5:
+                                    if (!instance->GetPlayers().isEmpty())
+                                        if (Player* player = instance->GetPlayers().getFirst()->GetSource())
+                                            if (Creature* chromie = instance->GetCreature(_chromieGUID))
+                                                sCreatureTextMgr->SendChat(chromie, SAY_INFINITE, player, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                                    break;
+                                case 0:
+                                    if (!instance->GetPlayers().isEmpty())
+                                        if (Player* player = instance->GetPlayers().getFirst()->GetSource())
+                                            if (Creature* chromie = instance->GetCreature(_chromieGUID))
+                                                sCreatureTextMgr->SendChat(chromie, SAY_INFINITE_FAIL, player, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+
+                                    if (Creature* infinite = instance->GetCreature(_infiniteGUID))
+                                    {
+                                        if (Creature* rift = infinite->FindNearestCreature(NPC_TIME_RIFT, 100.0f))
+                                        {
+                                            infinite->Kill(infinite->FindNearestCreature(NPC_GUARDIAN_OF_TIME, 100.0f));
+                                            infinite->GetMotionMaster()->MovePoint(0, rift->GetPositionX(), rift->GetPositionY(), rift->GetPositionZ());
+                                            infinite->AI()->Talk(SAY_FAIL);
+                                            rift->DespawnOrUnsummon();
+                                            infinite->DespawnOrUnsummon(3*IN_MILLISECONDS);     
+                                            events.CancelEvent(EVENT_INFINITE_TIMER);
+                                            DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 0);
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        }
+                        case EVENT_RESET_ZOMBIE_COUNTER:
+                        {
+                            // if by whichever reasons the players have got skipped... award them
+                            if (_zombieCounter >= 100)
+                                DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, NPC_RISEN_ZOMBIE, _zombieCounter);
+
+                            _zombieCounter = 0;
+                            _zombieTimerStarted = false;
+                        }
+                        break;
+                    } 
+                    --_eventMinute;
+                }
+
+            }
         private:
             uint64 _arthasGUID;
             uint64 _meathookGUID;
@@ -307,8 +455,15 @@ class instance_culling_of_stratholme : public InstanceMapScript
             uint64 _exitGateGUID;
             uint64 _malGanisChestGUID;
             uint64 _genericBunnyGUID;
+            uint64 _chromieGUID;
             uint32 _encounterState[MAX_ENCOUNTER];
+            uint32 _eventCounterState;
             uint32 _crateCount;
+            uint32 _eventMinute;
+            uint32 _zombieCounter;
+            bool _zombieTimerStarted;
+
+            EventMap events;
         };
 };
 

@@ -1349,6 +1349,221 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                 }
                 break;
+            case SPELLFAMILY_WARLOCK:
+                if (!caster)
+                    break;
+                if (Unit *owner = caster->GetOwner())
+                    if (owner->HasAura(56250)) // Glyph of Succubus
+                    {
+                        target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, target->GetAura(32409)); // SW:D shall not be removed.
+                        target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+                        target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
+                    }
+                break;
+            case SPELLFAMILY_POTION:
+                if (target->GetTypeId() == TYPEID_PLAYER)
+                {
+                    if (sSpellMgr->IsSpellMemberOfSpellGroup(GetId(), SPELL_GROUP_ELIXIR_BATTLE) ||
+                        sSpellMgr->IsSpellMemberOfSpellGroup(GetId(), SPELL_GROUP_ELIXIR_GUARDIAN))
+                    {
+                        if (target->HasAura(53042) && target->HasSpell(GetSpellInfo()->Effects[0].TriggerSpell))
+                        {
+                            switch (GetId())
+                            {
+                                case 673: // Elixir of Minor Defense
+                                case 2367: // Elixir of Lion's Strength
+                                case 2374: // Elixir of Minor Agility
+                                case 3219: // Weak Troll's Blood
+                                case 3223: // Major Troll's Blood Elixir
+                                case 7844: // Elixir of Firepower
+                                case 11474: // Elixir of Shadow Power
+                                case 17626: // Flask of the Titans
+                                case 24361: // Mighty Troll's Blood Elixir
+                                case 39626: // Earthen Elixir
+                                case 53758: // Flask of Stoneblood
+                                case 63729: // Elixir of Minor Accuracy
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.5f);
+                                    break;
+                                case 2378: // Elixir of Minor Fortitude
+                                case 11349: // Elixir of Greater Defense
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.56f);
+                                    break;
+                                case 3164: // Elixir of Ogre's Strength
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.625f);
+                                    break;
+                                case 3160: // Elixir of Lesser Agility
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.75f);
+                                    break;
+                                case 3166: // Elixir of Wisdom
+                                case 3593: // Elixir of Fortitude
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.83f);
+                                    break;
+                                case 3220: // Elixir of Defense
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.467f);
+                                    break;
+                                case 3222: // Strong Troll's Blood Elixir
+                                case 11328: // Elixir of Agility
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.667f);
+                                    break;
+                                case 8212: // Elixir of Giant Growth, Missing growth effect 1
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.625f);
+                                    break;
+                                case 11334: // Elixir of Greater Agility
+                                case 28497: // Elixir of Mighty Agility
+                                case 54212: // Flask of Pure Mojo
+                                case 60340: // Elixir of Accuracy
+                                case 60341: // Elixir of Deadly Strikes
+                                case 60343: // Elixir of Mighty Defense
+                                case 60344: // Elixir of Expertise 
+                                case 60345: // Elixir of Armor Piercing
+                                case 60346: // Elixir of Lightning Speed
+                                case 60347: // Elixir of Mighty Thoughts
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.44f);
+                                    break;
+                                case 11348: // Elixir of Superior Defense
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.311f);
+                                    break;
+                                case 11390: // Arcane Elixir
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.6f);
+                                    break;
+                                case 11405: // Elixir of the Giants
+                                case 11396: // Elixir of Greater Intellect
+                                case 33726: // Elixir of Mastery
+                                case 53747: // Elixir of Spirit
+                                case 53749: // Guru's Elixir
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.4f);
+                                    break;
+                                case 11406: // Elixir of Demonslaying
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.476f);
+                                    GetEffect(1)->SetAmount(GetEffect(1)->GetBaseAmount() * 1.476f);
+                                    break;
+                                case 17535: // Elixir of the Sages
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.556f);
+                                    GetEffect(1)->SetAmount(GetEffect(1)->GetBaseAmount() * 1.556f);
+                                    break;
+                                case 17537: // Elixir of Brute Force
+                                case 26276: // Elixir of Greater Firepower
+                                case 54494: // Elixir of Major Agility
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.5f);
+                                    GetEffect(1)->SetAmount(GetEffect(1)->GetBaseAmount() * 1.5f);
+                                    break;
+                                case 17538: // Elixir of the Mongoose
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.2f);
+                                    GetEffect(1)->SetAmount(GetEffect(1)->GetBaseAmount() * 1.5f);
+                                    break;
+                                case 17539: // Greater Arcane Elixir
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.543f);
+                                    GetEffect(1)->SetAmount(GetEffect(1)->GetBaseAmount() * 1.543f);
+                                    GetEffect(2)->SetAmount(GetEffect(2)->GetBaseAmount() * 1.5f);
+                                    break;
+                                case 17627: // Flask of Distilled Wisdom
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.308f);
+                                    break;
+                                case 17628: // Flask of Supreme Power
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.329f);
+                                    GetEffect(1)->SetAmount(GetEffect(1)->GetBaseAmount() * 1.329f);
+                                    break;
+                                case 17629: // Flask of Chromatic Resistance
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.68f);
+                                    break;
+                                case 21920: // Elixir of Frost Power
+                                case 53752: // Lesser Flask of Toughness
+                                case 62380: // Lesser Flask of Resistance
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.8f);
+                                    break;
+                                case 24363: // Mageblood Elixir
+                                case 28514: // Elixir of Empowerment
+                                case 39628: // Elixir of Ironskin
+                                case 53764: // Elixir of Mighty Mageblood
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.333f);
+                                    break;
+                                case 28490: // Elixir of Major Strength
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.457f);
+                                    break;
+                                case 28491: // Elixir of Healing Power
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.375f);
+                                    GetEffect(1)->SetAmount(GetEffect(1)->GetBaseAmount() * 1.333f);
+                                    GetEffect(2)->SetAmount(GetEffect(2)->GetBaseAmount() * 1.375f);
+                                    break;
+                                case 28493: // Elixir of Major Frost Power
+                                case 28501: // Elixir of Major Firepower
+                                case 28503: // Elixir of Major Shadow Power
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.527f);
+                                    break;
+                                case 28502: // Elixir of Major Defense
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.364f);
+                                    break;
+                                case 28509: // Elixir of Major Mageblood
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.3f);
+                                    break;
+                                case 28518: // Flask of Fortification
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.442f);
+                                    GetEffect(1)->SetAmount(GetEffect(1)->GetBaseAmount() * 1.5f);
+                                    break;
+                                case 28519: // Flask of Mighty Restoration
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.419f);
+                                    break;
+                                case 28520: // Flask of Relentless Assault
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.333f);
+                                    GetEffect(1)->SetAmount(GetEffect(1)->GetBaseAmount() * 1.333f);
+                                    break;
+                                case 28521: // Flask of Blinding Light
+                                case 28540: // Flask of Pure Death
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.288f);
+                                    break;
+                                case 33720: // Onslaught Elixir
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.533f);
+                                    GetEffect(1)->SetAmount(GetEffect(1)->GetBaseAmount() * 1.533f);
+                                    break;
+                                case 33721: // Spellpower Elixir
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.4f);
+                                    GetEffect(1)->SetAmount(GetEffect(1)->GetBaseAmount() * 1.4f);
+                                    break;
+                                case 38954: // Fel Strength Elixir
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.444f);
+                                    GetEffect(1)->SetAmount(GetEffect(1)->GetBaseAmount() * 1.444f);
+                                    break;
+                                case 39267: // Elixir of Draenic Wisdom
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.267f);
+                                    GetEffect(1)->SetAmount(GetEffect(1)->GetBaseAmount() * 1.267f);
+                                    break;
+                                case 39625: // Elixir of Major Fortitude, Missing data effect 1 health regen
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.64f);
+                                    break;
+                                case 42735: // Flask of Chromatic Wonder
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.114f);
+                                    GetEffect(1)->SetAmount(GetEffect(1)->GetBaseAmount() * 1.222f);
+                                    break;
+                                case 53746: // Wrath Elixir
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.356f);
+                                    GetEffect(1)->SetAmount(GetEffect(1)->GetBaseAmount() * 1.356f);
+                                    break;
+                                case 53751: // Elixir of Mighty Fortitude
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.572f);
+                                    GetEffect(1)->SetAmount(GetEffect(1)->GetBaseAmount() * 1.3f);
+                                    break;
+                                case 53755: // Flask of the Frost Wyrm
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.376f);
+                                    GetEffect(1)->SetAmount(GetEffect(1)->GetBaseAmount() * 1.376f);
+                                    break;
+                                case 53760: // Flask of Endless Rage
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.456f);
+                                    GetEffect(1)->SetAmount(GetEffect(1)->GetBaseAmount() * 1.456f);
+                                    break;
+                                case 53763: // Elixir of Protection
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.35f);
+                                    break;
+                                case 54452: // Adept's Elixir
+                                    GetEffect(0)->SetAmount(GetEffect(0)->GetBaseAmount() * 1.545f);
+                                    GetEffect(1)->SetAmount(GetEffect(1)->GetBaseAmount() * 1.545f);
+                                    GetEffect(2)->SetAmount(GetEffect(2)->GetBaseAmount() * 1.333f);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
         }
     }
     // mods at aura remove
@@ -1395,7 +1610,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 if (!caster)
                     break;
                 // Ice barrier - dispel/absorb remove
-                if (removeMode == AURA_REMOVE_BY_ENEMY_SPELL && GetSpellInfo()->SpellFamilyFlags[1] & 0x1)
+                if (removeMode == AURA_REMOVE_BY_ENEMY_SPELL  && GetSpellInfo()->SpellFamilyFlags[1] & 0x1 && GetEffect(EFFECT_0)->GetAmount() <= 0)
                 {
                     // Shattered Barrier
                     if (AuraEffect* dummy = caster->GetDummyAuraEffect(SPELLFAMILY_MAGE, 2945, 0))

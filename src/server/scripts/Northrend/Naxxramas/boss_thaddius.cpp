@@ -147,6 +147,17 @@ public:
         bool polaritySwitch;
         uint32 uiAddsTimer;
 
+        void Reset() override
+        {
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+            me->SetReactState(REACT_PASSIVE);
+            
+            if (Creature* Feugen = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
+                Feugen->Respawn();
+            if (Creature* Stalagg = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_STALAGG)))
+                Stalagg->Respawn();
+        }
+
         void KilledUnit(Unit* /*victim*/) override
         {
             if (!(rand32() % 5))
@@ -325,6 +336,8 @@ public:
             if (Creature* pThaddius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
                 if (pThaddius->AI())
                     pThaddius->AI()->DoAction(ACTION_STALAGG_DIED);
+
+            me->DespawnOrUnsummon();
         }
 
         void UpdateAI(uint32 uiDiff) override
@@ -415,6 +428,8 @@ public:
             if (Creature* pThaddius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
                 if (pThaddius->AI())
                     pThaddius->AI()->DoAction(ACTION_FEUGEN_DIED);
+
+            me->DespawnOrUnsummon();
         }
 
         void UpdateAI(uint32 uiDiff) override
@@ -458,7 +473,7 @@ class spell_thaddius_pos_neg_charge : public SpellScriptLoader
 
             bool Load() override
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetOriginalCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
             void HandleTargets(std::list<WorldObject*>& targets)
@@ -489,7 +504,7 @@ class spell_thaddius_pos_neg_charge : public SpellScriptLoader
                     return;
 
                 Unit* target = GetHitUnit();
-                Unit* caster = GetCaster();
+                Unit* caster = GetOriginalCaster();
 
                 if (target->HasAura(GetTriggeringSpell()->Id))
                     SetHitDamage(0);

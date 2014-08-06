@@ -51,6 +51,7 @@ enum Spells
     SPELL_MOLTEN                = 62373,
     SPELL_BRITTLE               = 62382,
     SPELL_SHATTER               = 62383,
+    SPELL_SHATTER_HC            = 67114,
     SPELL_GROUND                = 62548,
 };
 
@@ -163,7 +164,10 @@ class boss_ignis : public CreatureScript
             void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
+                {
                     Talk(SAY_SLAY);
+                    instance->SetData(DATA_CRITERIA_IGNIS, 1);
+                }
             }
 
             void JustSummoned(Creature* summon) override
@@ -308,7 +312,7 @@ class npc_iron_construct : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
-                if (me->HasAura(SPELL_BRITTLE) && damage >= 5000)
+                if (me->HasAura(RAID_MODE(SPELL_BRITTLE, SPELL_SHATTER_HC)) && damage >= 5000)
                 {
                     DoCast(SPELL_SHATTER);
                     if (Creature* ignis = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_IGNIS)))
@@ -317,6 +321,12 @@ class npc_iron_construct : public CreatureScript
 
                     me->DespawnOrUnsummon(1000);
                 }
+            }
+            
+            void KilledUnit(Unit* who) override
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    me->GetInstanceScript()->SetData(DATA_CRITERIA_IGNIS, 1);
             }
 
             void UpdateAI(uint32 /*uiDiff*/) override

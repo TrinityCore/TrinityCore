@@ -593,6 +593,17 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
         else
             victim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE, 0);
+        
+        // interrupt spells with SPELL_INTERRUPT_FLAG_ABORT_ON_DMG on absorbed damage (no dots)
+        if (!damage && damagetype != DOT && cleanDamage && cleanDamage->absorbed_damage)
+            if (victim != this && victim->GetTypeId() == TYPEID_PLAYER)
+                if (Spell* spell = victim->m_currentSpells[CURRENT_GENERIC_SPELL])
+                    if (spell->getState() == SPELL_STATE_PREPARING)
+                    {
+                        uint32 interruptFlags = spell->m_spellInfo->InterruptFlags;
+                        if (interruptFlags & SPELL_INTERRUPT_FLAG_ABORT_ON_DMG)
+                            victim->InterruptNonMeleeSpells(false);
+                    }
 
         // We're going to call functions which can modify content of the list during iteration over it's elements
         // Let's copy the list so we can prevent iterator invalidation
@@ -2403,6 +2414,15 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
                 canParry = false;
         }
     }
+    // Spells with these attributes can't be dodged parried or blocked even if the player has turned since the ability was used (Shred, Backstab, etc)
+    else if (victim->GetTypeId() == TYPEID_PLAYER && 
+        spellInfo->AttributesEx & SPELL_ATTR1_UNK27 && 
+        spellInfo->AttributesEx2 & SPELL_ATTR2_UNK20 && 
+        spellInfo->AttributesCu & SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET)
+    {
+        return SPELL_MISS_NONE;
+    }
+
     // Check creatures flags_extra for disable parry
     if (victim->GetTypeId() == TYPEID_UNIT)
     {
@@ -5838,16 +5858,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = 37378;
                     break;
                 }
-                // Glyph of Succubus
-                case 56250:
-                {
-                    if (!target)
-                        return false;
-                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, target->GetAura(32409)); // SW:D shall not be removed.
-                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
-                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
-                    return true;
-                }
             }
             break;
         }
@@ -6338,27 +6348,28 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 }
                 else
                 {    // Check Party/Raid Group
-                    if (Group* group = ToPlayer()->GetGroup())
-                    {
+                    if (Group* group = IsPet() ? GetOwner()->ToPlayer()->GetGroup() : ToPlayer()->GetGroup())
                         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
-                        {
                             if (Player* member = itr->GetSource())
                             {
                                 // check if it was heal by paladin which cast this beacon of light
                                 if (member->GetAura(53563, victim->GetGUID()))
-                                {
-                                    // do not proc when target of beacon of light is healed
-                                    if (member == this)
-                                        return false;
-
                                     beaconTarget = member;
+                                else if (Pet* pet = member->GetPet())
+                                    if (pet->GetAura(53563, victim->GetGUID()))
+                                        beaconTarget = pet;
+
+                                // do not proc when target of beacon of light is healed
+                                if (beaconTarget == this)
+                                    return false;
+
+                                if (beaconTarget)
+                                {
                                     basepoints0 = int32(damage);
                                     triggered_spell_id = procSpell->IsRankOf(sSpellMgr->GetSpellInfo(635)) ? 53652 : 53654;
                                     break;
                                 }
                             }
-                        }
-                    }
                 }
 
                 if (triggered_spell_id && beaconTarget)
@@ -7517,6 +7528,17 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                 }
                 return true;
             }
+            else if (dummySpell->Id == 53486 || dummySpell->Id == 53488)             // The Art of War
+                if (!(procEx & PROC_EX_CRITICAL_HIT))
+                    *handled = true;
+            break;
+        }
+        case SPELLFAMILY_PRIEST:
+        {
+            // Blessed Recovery
+            if (dummySpell->SpellIconID == 1875 && dummySpell->SchoolMask == SPELL_SCHOOL_MASK_NORMAL)
+                if (procEx & PROC_EX_ABSORB && damage <= 0)
+                    *handled = true;
             break;
         }
         case SPELLFAMILY_MAGE:
@@ -7554,7 +7576,24 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                     CastCustomSpell(this, 67545, &bp0, NULL, NULL, true, NULL, triggeredByAura->GetEffect(EFFECT_0), GetGUID());
                     return true;
                 }
+                case 11119: // Ignite
+                case 11120:
+                case 12846:
+                case 12847:
+                case 12848:
+                {
+                    // dont proc Ignite on Molten Armor crits.
+                    if (procSpell && procSpell->SpellIconID == 2307 && procSpell->SpellVisual[0] == 0)
+                        *handled = true;
+                    break;
+                }
+                default:
+                    break;
             }
+            // Molten Armor
+            if (dummySpell->SpellIconID == 2307 && dummySpell->SpellVisual[0] == 7757)
+                if (procEx & PROC_EX_ABSORB && damage <= 0) // dont proc if damage is fully absorbed.
+                    *handled = true;
             break;
         }
         case SPELLFAMILY_DEATHKNIGHT:
@@ -7636,6 +7675,21 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                     if (procSpell && procSpell->Dispel == DISPEL_DISEASE)
                         return false;
                     return true;
+            }
+            break;
+        }
+        case SPELLFAMILY_SHAMAN:
+        {
+            switch (dummySpell->SpellIconID)
+            {
+                // Should not proc if the damage is full absorbed
+                case 2287: // Water Shield
+                case 19:   // Lightning Shield
+                    if (procEx & PROC_EX_ABSORB && dummySpell->DmgClass == SPELL_DAMAGE_CLASS_MAGIC && damage <= 0)
+                        *handled = true;
+                    break;
+                default:
+                    break;
             }
             break;
         }
@@ -7969,7 +8023,13 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                                 break;
                         }
 
+                        if (cooldown && GetTypeId() == TYPEID_PLAYER && ToPlayer()->HasSpellCooldown(stack_spell_id))
+                            return false;
+
                         CastSpell(this, stack_spell_id, true, NULL, triggeredByAura);
+
+                        if (cooldown && GetTypeId() == TYPEID_PLAYER)
+                            ToPlayer()->AddSpellCooldown(stack_spell_id, 0, time(NULL) + cooldown);
 
                         Aura* dummy = GetAura(stack_spell_id);
                         if (!dummy || dummy->GetStackAmount() < triggerAmount)
@@ -8315,11 +8375,13 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
 
             if (cooldown && target->GetTypeId() == TYPEID_PLAYER && target->ToPlayer()->HasSpellCooldown(trigger_spell_id))
                 return false;
+            if (trigger_spell_id == 52916)
+                CastSpell(target, trigger_spell_id, true, castItem, triggeredByAura);
+            else
+                target->CastSpell(target, trigger_spell_id, true, castItem, triggeredByAura);
 
-            target->CastSpell(target, trigger_spell_id, true, castItem, triggeredByAura);
-
-            if (cooldown && GetTypeId() == TYPEID_PLAYER)
-                ToPlayer()->AddSpellCooldown(trigger_spell_id, 0, time(NULL) + cooldown);
+            if (cooldown && target->GetTypeId() == TYPEID_PLAYER)
+                target->ToPlayer()->AddSpellCooldown(trigger_spell_id, 0, time(NULL) + cooldown);
             return true;
         }
         // Cast positive spell on enemy target
@@ -14073,6 +14135,27 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
         SpellInfo const* spellProto = itr->second->GetBase()->GetSpellInfo();
 
+        // !TW - Exception for seal procs, they should all be able to proc on full absorbs.    
+        if (spellProto && (procExtra & PROC_EX_BLOCK || procExtra & PROC_EX_ABSORB))
+        {
+            switch (spellProto->Id)
+            {
+                case 21084: // Seal of Righteousness
+                case 20166: // Seal of Wisdom
+                case 20165: // Seal of Light
+                case 20164: // Seal of Justice
+                case 20375: // Seal of Command 
+                case 31801: // Seal of Vengeance
+                case 53736: // Seal of Corruption
+                case 53486: // The Art of War (Rank 1)
+                case 53488: // The Art of War (Rank 2)
+                    active = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         // only auras that has triggered spell should proc from fully absorbed damage
         if (procExtra & PROC_EX_ABSORB && isVictim)
             if (damage || spellProto->Effects[EFFECT_0].TriggerSpell || spellProto->Effects[EFFECT_1].TriggerSpell || spellProto->Effects[EFFECT_2].TriggerSpell)
@@ -15402,7 +15485,10 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
                 if (instanceMap->IsRaidOrHeroicDungeon())
                 {
                     if (creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
+                    {
                         ((InstanceMap*)instanceMap)->PermBindAllPlayers(creditedPlayer);
+                        creditedPlayer->CreateWowarmoryFeed(3, creature->GetCreatureTemplate()->Entry, 0, 0);
+                    }
                 }
                 else
                 {
@@ -16158,7 +16244,7 @@ Aura* Unit::AddAura(uint32 spellId, Unit* target)
     if (!spellInfo)
         return NULL;
 
-    if (!target->IsAlive() && !(spellInfo->Attributes & SPELL_ATTR0_PASSIVE) && !(spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_DEAD))
+    if (!target->IsAlive() && !(spellInfo->Attributes & SPELL_ATTR0_PASSIVE) && !(spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_DEAD) && !(target->getDeathState() == JUST_RESPAWNED))
         return NULL;
 
     return AddAura(spellInfo, MAX_EFFECT_MASK, target);

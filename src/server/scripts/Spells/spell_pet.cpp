@@ -1452,7 +1452,7 @@ public:
                         amount = -90;
                     // Night of the dead
                     else if (Aura* aur = owner->GetAuraOfRankedSpell(SPELL_NIGHT_OF_THE_DEAD))
-                        amount = aur->GetSpellInfo()->Effects[EFFECT_2].CalcValue();
+                        amount = -aur->GetSpellInfo()->Effects[EFFECT_2].CalcValue();
                 }
             }
         }
@@ -1740,4 +1740,6 @@ public:
 void AddSC_pet_spell_scripts()
 {
     new spell_gen_pet_calculate();
+    new spell_hun_animal_handler();
+    new spell_dk_avoidance_passive();
 }

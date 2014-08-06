@@ -134,7 +134,10 @@ class boss_auriaya : public CreatureScript
             void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
+                {
+                    instance->SetData(DATA_CRITERIA_AURIAYA, 1);
                     Talk(SAY_SLAY);
+                }
             }
 
             void JustSummoned(Creature* summoned) override
@@ -303,6 +306,12 @@ class npc_auriaya_seeping_trigger : public CreatureScript
                 DoCast(me, SPELL_SEEPING_ESSENCE);
             }
 
+            void KilledUnit(Unit* who) override
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    me->GetInstanceScript()->SetData(DATA_CRITERIA_AURIAYA, 1);
+            }
+
             void UpdateAI(uint32 /*diff*/) override
             {
                 if (instance->GetBossState(BOSS_AURIAYA) != IN_PROGRESS)
@@ -340,6 +349,13 @@ class npc_sanctum_sentry : public CreatureScript
             void EnterCombat(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_STRENGHT_PACK, true);
+            }
+
+            
+            void KilledUnit(Unit* who) override
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    me->GetInstanceScript()->SetData(DATA_CRITERIA_AURIAYA, 1);
             }
 
             void UpdateAI(uint32 diff) override
@@ -410,6 +426,12 @@ class npc_feral_defender : public CreatureScript
             {
                 events.ScheduleEvent(EVENT_FERAL_POUNCE, 5000);
                 events.ScheduleEvent(EVENT_RUSH, 10000);
+            }
+
+            void KilledUnit(Unit* who) override
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    me->GetInstanceScript()->SetData(DATA_CRITERIA_AURIAYA, 1);
             }
 
             void UpdateAI(uint32 diff) override

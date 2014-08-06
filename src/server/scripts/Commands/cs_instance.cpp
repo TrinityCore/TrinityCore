@@ -41,9 +41,11 @@ public:
         {
             { "listbinds", rbac::RBAC_PERM_COMMAND_INSTANCE_LISTBINDS, false, &HandleInstanceListBindsCommand,    "", NULL },
             { "unbind",    rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,    false, &HandleInstanceUnbindCommand,       "", NULL },
-            { "stats",     rbac::RBAC_PERM_COMMAND_INSTANCE_STATS,      true, &HandleInstanceStatsCommand,        "", NULL },
+            { "stats",     rbac::RBAC_PERM_COMMAND_INSTANCE_STATS,     true,  &HandleInstanceStatsCommand,        "", NULL },
             { "savedata",  rbac::RBAC_PERM_COMMAND_INSTANCE_SAVEDATA,  false, &HandleInstanceSaveDataCommand,     "", NULL },
-            { NULL,        0,                                    false, NULL,                               "", NULL }
+            { "setdata",   rbac::RBAC_PERM_COMMAND_INSTANCE_SETDATA,   false, &HandleInstanceSetDataCommand,      "", NULL },
+            { "getdata",   rbac::RBAC_PERM_COMMAND_INSTANCE_GETDATA,   false, &HandleInstanceGetDataCommand,      "", NULL },
+            { NULL,        0,                                          false, NULL,                               "", NULL }
         };
 
         static ChatCommand commandTable[] =
@@ -184,6 +186,104 @@ public:
 
         ((InstanceMap*)map)->GetInstanceScript()->SaveToDB();
 
+        return true;
+    }
+
+    static bool HandleInstanceSetDataCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        Player* player = handler->GetSession()->GetPlayer();
+        Map* map = player->GetMap();
+        if (!map->IsDungeon())
+        {
+            handler->PSendSysMessage("Map is not a dungeon.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!((InstanceMap*)map)->GetInstanceScript())
+        {
+            handler->PSendSysMessage("Map has no instance data.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        char* field_str = strtok((char*) args, " ");
+        char* value_str = strtok(NULL, "");
+
+        if (!field_str || !value_str)
+            return false;
+
+        int32 field = atoi(field_str);
+        int32 value = atoi(value_str);
+
+        if (value > 5)
+        {
+            handler->PSendSysMessage("State index out of range.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        ((InstanceMap*)map)->GetInstanceScript()->SetBossState(field, (EncounterState)value);
+        handler->PSendSysMessage("Instance data field %i is now set to %i.", field, value);
+        return true;
+    }
+
+    static bool HandleInstanceGetDataCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        Player* player = handler->GetSession()->GetPlayer();
+        Map* map = player->GetMap();
+        if (!map->IsDungeon())
+        {
+            handler->PSendSysMessage("Map is not a dungeon.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!((InstanceMap*)map)->GetInstanceScript())
+        {
+            handler->PSendSysMessage("Map has no instance data.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        int32 field = atoi (args);
+
+        int32 value = ((InstanceMap*)map)->GetInstanceScript()->GetBossState(field);
+        std::string output;
+
+        // Funky way to do this - improve if you can!
+        switch (value)
+        {
+            case NOT_STARTED:
+                output = "0 - (NOT_STARTED)";
+                break;
+            case IN_PROGRESS:
+                output = "1 - (IN_PROGRESS)";
+                break;
+            case FAIL:
+                output = "2 - (FAIL)";
+                break;
+            case DONE:
+                output = "3 - (DONE)";
+                break;
+            case SPECIAL:
+                output = "4 - (SPECIAL)";
+                break;
+            case TO_BE_DECIDED:
+                output = "5 - (TO_BE_DECIDED)";
+                break;
+            default: 
+                output = "Unknown";
+                break;
+        }
+
+        handler->PSendSysMessage("Instance data for field %i is %s.", field, output.c_str());
         return true;
     }
 };

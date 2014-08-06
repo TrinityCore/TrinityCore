@@ -28,8 +28,16 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "shadowfang_keep.h"
 #include "TemporarySummon.h"
+#include "Group.h"
+#include "GameEventMgr.h"
 
-#define MAX_ENCOUNTER              4
+#define MAX_ENCOUNTER              6
+
+enum Apothecary
+{
+    ACTION_SPAWN_CRAZED      = 3,
+    EVENT_LOVE_IS_IN_THE_AIR = 8
+};
 
 enum Yells
 {
@@ -66,6 +74,14 @@ const Position SpawnLocation[] =
     {-140.794f, 2178.037f, 128.448f, 4.090f},
     {-138.640f, 2170.159f, 136.577f, 2.737f}
 };
+
+const Position ApothecarySpawnLocation[] =
+{
+    {-205.196f, 2214.55f, 79.8469f, 2.40855f},
+    {-208.09f, 2217.39f, 79.8469f, 4.81711f},
+    {-210.359f, 2214.61f, 79.8476f, 1.0472f},
+};
+
 class instance_shadowfang_keep : public InstanceMapScript
 {
 public:
@@ -91,8 +107,15 @@ public:
         uint64 DoorSorcererGUID;
         uint64 DoorArugalGUID;
 
+        uint64 fryeGUID;
+        uint64 hummelGUID;
+        uint64 baxterGUID;
+        uint32 spawnCrazedTimer;
+
         uint8 uiPhase;
         uint16 uiTimer;
+
+        bool isApothecaryTrioSpawned;
 
         void Initialize() override
         {
@@ -106,8 +129,14 @@ public:
             DoorSorcererGUID = 0;
             DoorArugalGUID = 0;
 
+            fryeGUID = 0;
+            hummelGUID = 0;
+            baxterGUID = 0;
+
             uiPhase = 0;
             uiTimer = 0;
+
+            isApothecaryTrioSpawned = false;
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -117,6 +146,10 @@ public:
                 case NPC_ASH: uiAshGUID = creature->GetGUID(); break;
                 case NPC_ADA: uiAdaGUID = creature->GetGUID(); break;
                 case NPC_ARCHMAGE_ARUGAL: uiArchmageArugalGUID = creature->GetGUID(); break;
+                    
+                case NPC_FRYE: fryeGUID = creature->GetGUID(); break;
+                case NPC_HUMMEL: hummelGUID = creature->GetGUID(); break;
+                case NPC_BAXTER: baxterGUID = creature->GetGUID(); break;
             }
         }
 
@@ -186,6 +219,14 @@ public:
                         DoUseDoorOrButton(DoorArugalGUID);
                     m_auiEncounter[3] = data;
                     break;
+                case TYPE_CROWN:
+                    if (data == NOT_STARTED)
+                        spawnCrazedTimer = urand(7000, 14000);
+                    m_auiEncounter[4] = data;
+                    break;
+                case TYPE_BATTLE:
+                    m_auiEncounter[5] = data;
+                    break;
             }
 
             if (data == DONE)
@@ -214,8 +255,40 @@ public:
                     return m_auiEncounter[2];
                 case TYPE_NANDOS:
                     return m_auiEncounter[3];
+                case TYPE_CROWN:
+                    return m_auiEncounter[4];
+                case TYPE_BATTLE:
+                    return m_auiEncounter[5];
             }
             return 0;
+        }
+
+        uint64 GetData64(uint32 id) const
+        {
+            switch(id)
+            {
+                case DATA_DOOR:   return DoorCourtyardGUID;
+                case DATA_FRYE:   return fryeGUID;
+                case DATA_HUMMEL: return hummelGUID;
+                case DATA_BAXTER: return baxterGUID;
+            }
+            return 0;
+        }
+
+        void OnPlayerEnter(Player* /*player*/) override
+        {
+            Map::PlayerList const& players = instance->GetPlayers();
+            if (!players.isEmpty() && !isApothecaryTrioSpawned)
+            {
+                if (Group* group = players.begin()->GetSource()->GetGroup())
+                    if (group->isLFGGroup() && sGameEventMgr->IsActiveEvent(EVENT_LOVE_IS_IN_THE_AIR))
+                    {
+                        instance->SummonCreature(NPC_FRYE, ApothecarySpawnLocation[0]);
+                        instance->SummonCreature(NPC_HUMMEL, ApothecarySpawnLocation[1]);
+                        instance->SummonCreature(NPC_BAXTER, ApothecarySpawnLocation[2]);
+                        isApothecaryTrioSpawned = true;
+                    }
+            } 
         }
 
         std::string GetSaveData() override
@@ -246,7 +319,19 @@ public:
         }
 
         void Update(uint32 uiDiff)
-        {
+        {          
+            if (GetData(TYPE_CROWN) == IN_PROGRESS)
+            {
+                if (spawnCrazedTimer <= uiDiff)
+                {
+                    if (Creature* hummel = instance->GetCreature(hummelGUID))
+                        hummel->AI()->DoAction(ACTION_SPAWN_CRAZED);
+                    spawnCrazedTimer = urand(2000, 5000);
+                }
+                else
+                    spawnCrazedTimer -= uiDiff;
+            }
+
             if (GetData(TYPE_FENRUS) != DONE)
                 return;
 

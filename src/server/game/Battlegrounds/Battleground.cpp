@@ -34,6 +34,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "Util.h"
+#include <openssl/md5.h>
 #include "WorldPacket.h"
 
 namespace Trinity
@@ -151,6 +152,9 @@ Battleground::Battleground()
 
     m_ArenaTeamIds[TEAM_ALLIANCE]   = 0;
     m_ArenaTeamIds[TEAM_HORDE]      = 0;
+
+    m_ArenaTeamStartMMR[TEAM_ALLIANCE] = 0;
+    m_ArenaTeamStartMMR[TEAM_HORDE] = 0;
 
     m_ArenaTeamMMR[TEAM_ALLIANCE]   = 0;
     m_ArenaTeamMMR[TEAM_HORDE]      = 0;
