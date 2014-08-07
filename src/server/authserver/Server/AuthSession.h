@@ -53,8 +53,8 @@ public:
     void AsyncWrite(ByteBuffer& packet);
 
 protected:
-    void ReadHeaderHandler(boost::system::error_code error, size_t transferedBytes) override;
-    void ReadDataHandler(boost::system::error_code error, size_t transferedBytes) override;
+    void ReadHeaderHandler() override;
+    void ReadDataHandler() override;
 
 private:
     bool HandleLogonChallenge();
