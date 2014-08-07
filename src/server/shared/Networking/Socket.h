@@ -91,7 +91,7 @@ public:
     void CloseSocket()
     {
         boost::system::error_code shutdownError;
-        _socket.shutdown(socket_base::shutdown_both, shutdownError);
+        _socket.shutdown(boost::asio::socket_base::shutdown_both, shutdownError);
         if (shutdownError)
             TC_LOG_DEBUG("network", "Socket::CloseSocket: %s errored when shutting down socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(),
             shutdownError.value(), shutdownError.message().c_str());
