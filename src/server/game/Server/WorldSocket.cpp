@@ -54,89 +54,72 @@ void WorldSocket::HandleSendAuthSession()
     AsyncWrite(packet);
 }
 
-void WorldSocket::ReadHeaderHandler(boost::system::error_code error, size_t transferedBytes)
+void WorldSocket::ReadHeaderHandler()
 {
-    if (!error && transferedBytes == sizeof(ClientPktHeader))
-    {
-        _authCrypt.DecryptRecv(GetReadBuffer(), sizeof(ClientPktHeader));
+    _authCrypt.DecryptRecv(GetHeaderBuffer(), sizeof(ClientPktHeader));
 
-        ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(GetReadBuffer());
-        EndianConvertReverse(header->size);
-        EndianConvert(header->cmd);
+    ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(GetHeaderBuffer());
+    EndianConvertReverse(header->size);
+    EndianConvert(header->cmd);
 
-        AsyncReadData(header->size - sizeof(header->cmd), sizeof(ClientPktHeader));
-    }
-    else
-        CloseSocket();
+    AsyncReadData(header->size - sizeof(header->cmd));
 }
 
-void WorldSocket::ReadDataHandler(boost::system::error_code error, size_t transferedBytes)
+void WorldSocket::ReadDataHandler()
 {
-    ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(GetReadBuffer());
+    ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(GetHeaderBuffer());
 
-    if (!error && transferedBytes == (header->size - sizeof(header->cmd)))
+    header->size -= sizeof(header->cmd);
+
+    uint16 opcode = uint16(header->cmd);
+
+    std::string opcodeName = GetOpcodeNameForLogging(opcode);
+
+    WorldPacket packet(opcode, MoveData());
+
+    if (sPacketLog->CanLogPacket())
+        sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
+
+    TC_LOG_TRACE("network.opcode", "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), opcodeName.c_str());
+
+    switch (opcode)
     {
-        header->size -= sizeof(header->cmd);
-
-        uint16 opcode = uint16(header->cmd);
-
-        std::string opcodeName = GetOpcodeNameForLogging(opcode);
-
-        WorldPacket packet(opcode, header->size);
-
-        if (header->size > 0)
-        {
-            packet.resize(header->size);
-
-            std::memcpy(packet.contents(), &(GetReadBuffer()[sizeof(ClientPktHeader)]), header->size);
-        }
-
-        if (sPacketLog->CanLogPacket())
-            sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
-
-        TC_LOG_TRACE("network.opcode", "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(opcode).c_str());
-
-        switch (opcode)
-        {
-            case CMSG_PING:
-                HandlePing(packet);
-                break;
-            case CMSG_AUTH_SESSION:
-                if (_worldSession)
-                {
-                    TC_LOG_ERROR("network", "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerInfo().c_str());
-                    break;
-                }
-
-                sScriptMgr->OnPacketReceive(shared_from_this(), packet);
-                HandleAuthSession(packet);
-                break;
-            case CMSG_KEEP_ALIVE:
-                TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
-                sScriptMgr->OnPacketReceive(shared_from_this(), packet);
-                break;
-            default:
+        case CMSG_PING:
+            HandlePing(packet);
+            break;
+        case CMSG_AUTH_SESSION:
+            if (_worldSession)
             {
-                if (!_worldSession)
-                {
-                    TC_LOG_ERROR("network.opcode", "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
-                    break;
-                }
-
-                // Our Idle timer will reset on any non PING opcodes.
-                // Catches people idling on the login screen and any lingering ingame connections.
-                _worldSession->ResetTimeOutTime();
-
-                // Copy the packet to the heap before enqueuing
-                _worldSession->QueuePacket(new WorldPacket(packet));
+                TC_LOG_ERROR("network", "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerInfo().c_str());
                 break;
             }
-        }
 
-        AsyncReadHeader();
+            sScriptMgr->OnPacketReceive(shared_from_this(), packet);
+            HandleAuthSession(packet);
+            break;
+        case CMSG_KEEP_ALIVE:
+            TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
+            sScriptMgr->OnPacketReceive(shared_from_this(), packet);
+            break;
+        default:
+        {
+            if (!_worldSession)
+            {
+                TC_LOG_ERROR("network.opcode", "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
+                break;
+            }
+
+            // Our Idle timer will reset on any non PING opcodes.
+            // Catches people idling on the login screen and any lingering ingame connections.
+            _worldSession->ResetTimeOutTime();
+
+            // Copy the packet to the heap before enqueuing
+            _worldSession->QueuePacket(new WorldPacket(std::move(packet)));
+            break;
+        }
     }
-    else
-        CloseSocket();
+
+    AsyncReadHeader();
 }
 
 void WorldSocket::AsyncWrite(WorldPacket& packet)
