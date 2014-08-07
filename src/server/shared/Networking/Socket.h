@@ -39,8 +39,8 @@ class Socket : public std::enable_shared_from_this<T>
 public:
     Socket(tcp::socket&& socket, std::size_t headerSize) : _socket(std::move(socket)), _headerSize(headerSize)
     {
-        _remotePort = socket.remote_endpoint().port();
-        _remoteAddress = socket.remote_endpoint().address();
+        _remotePort = _socket.remote_endpoint().port();
+        _remoteAddress = _socket.remote_endpoint().address();
     }
 
     virtual void Start() = 0;
