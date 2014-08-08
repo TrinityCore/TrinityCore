@@ -529,7 +529,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_EFTW_H || quest->GetQuestId() == QUEST_EFTW_A)
         {
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+            ENSURE_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
             creature->setFaction(113);
         }
         return true;

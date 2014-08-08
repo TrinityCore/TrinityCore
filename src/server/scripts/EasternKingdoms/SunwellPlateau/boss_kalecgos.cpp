@@ -650,8 +650,8 @@ public:
                 TeleportAllPlayersBack();
                 if (Creature* Kalecgos = ObjectAccessor::GetCreature(*me, KalecgosGUID))
                 {
-                    CAST_AI(boss_kalecgos::boss_kalecgosAI, Kalecgos->AI())->TalkTimer = 1;
-                    CAST_AI(boss_kalecgos::boss_kalecgosAI, Kalecgos->AI())->isFriendly = false;
+                    ENSURE_AI(boss_kalecgos::boss_kalecgosAI, Kalecgos->AI())->TalkTimer = 1;
+                    ENSURE_AI(boss_kalecgos::boss_kalecgosAI, Kalecgos->AI())->isFriendly = false;
                 }
                 EnterEvadeMode();
                 return;
@@ -666,8 +666,8 @@ public:
             TeleportAllPlayersBack();
             if (Creature* Kalecgos = ObjectAccessor::GetCreature(*me, KalecgosGUID))
             {
-                CAST_AI(boss_kalecgos::boss_kalecgosAI, Kalecgos->AI())->TalkTimer = 1;
-                CAST_AI(boss_kalecgos::boss_kalecgosAI, Kalecgos->AI())->isFriendly = true;
+                ENSURE_AI(boss_kalecgos::boss_kalecgosAI, Kalecgos->AI())->TalkTimer = 1;
+                ENSURE_AI(boss_kalecgos::boss_kalecgosAI, Kalecgos->AI())->isFriendly = true;
             }
 
             instance->SetBossState(DATA_KALECGOS, DONE);

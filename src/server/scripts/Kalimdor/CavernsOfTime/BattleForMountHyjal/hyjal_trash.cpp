@@ -1184,7 +1184,7 @@ public:
 
             if (IsEvent || IsOverrun)
             {
-                CAST_AI(hyjal_trashAI, me->AI())->SetCanAttack(false);
+                ENSURE_AI(hyjal_trashAI, me->AI())->SetCanAttack(false);
                 npc_escortAI::UpdateAI(diff);
             }
 
@@ -1301,7 +1301,7 @@ public:
 
             if (IsEvent || IsOverrun)
             {
-                CAST_AI(hyjal_trashAI, me->AI())->SetCanAttack(false);
+                ENSURE_AI(hyjal_trashAI, me->AI())->SetCanAttack(false);
                 npc_escortAI::UpdateAI(diff);
             }
 
