@@ -524,8 +524,16 @@ enum AtLoginFlags
 typedef std::map<uint32, QuestStatusData> QuestStatusMap;
 typedef std::set<uint32> RewardedQuestSet;
 
-//               quest,  keep
-typedef std::map<uint32, bool> QuestStatusSaveMap;
+enum QuestSaveType
+{
+    QUEST_DEFAULT_SAVE_TYPE = 0,
+    QUEST_DELETE_SAVE_TYPE,
+    QUEST_FORCE_DELETE_SAVE_TYPE
+};
+
+//               quest
+typedef std::map<uint32, QuestSaveType> QuestStatusSaveMap;
+
 
 enum QuestSlotOffsets
 {
