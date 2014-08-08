@@ -450,7 +450,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         if (Creature* Delrissa = (ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_DELRISSA))))
         {
             for (uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
-                m_auiLackeyGUIDs[i] = CAST_AI(boss_priestess_delrissa::boss_priestess_delrissaAI, Delrissa->AI())->m_auiLackeyGUID[i];
+                m_auiLackeyGUIDs[i] = ENSURE_AI(boss_priestess_delrissa::boss_priestess_delrissaAI, Delrissa->AI())->m_auiLackeyGUID[i];
         }
     }
 

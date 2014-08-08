@@ -70,7 +70,7 @@ public:
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             player->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_sergeant_bly::npc_sergeant_blyAI, creature->AI())->PlayerGUID = player->GetGUID();
+            ENSURE_AI(npc_sergeant_bly::npc_sergeant_blyAI, creature->AI())->PlayerGUID = player->GetGUID();
             creature->AI()->DoAction(0);
         }
         return true;

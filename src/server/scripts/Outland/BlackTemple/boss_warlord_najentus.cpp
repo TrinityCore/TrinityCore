@@ -226,7 +226,7 @@ public:
     {
         if (InstanceScript* instance = go->GetInstanceScript())
             if (Creature* Najentus = ObjectAccessor::GetCreature(*go, instance->GetData64(DATA_HIGH_WARLORD_NAJENTUS)))
-                if (CAST_AI(boss_najentus::boss_najentusAI, Najentus->AI())->RemoveImpalingSpine())
+                if (ENSURE_AI(boss_najentus::boss_najentusAI, Najentus->AI())->RemoveImpalingSpine())
                 {
                     player->CastSpell(player, SPELL_CREATE_NAJENTUS_SPINE, true);
                     go->Delete();

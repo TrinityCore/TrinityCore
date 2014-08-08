@@ -291,7 +291,7 @@ class npc_shadowmoon_channeler : public CreatureScript
             void EnterCombat(Unit* who) override
             {
                 if (Creature* Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
-                    CAST_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->ChannelerEngaged(who);
+                    ENSURE_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->ChannelerEngaged(who);
                 if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(true);
                 DoStartMovement(who);
@@ -300,7 +300,7 @@ class npc_shadowmoon_channeler : public CreatureScript
             void JustDied(Unit* killer) override
             {
                if (Creature* Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
-                   CAST_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->ChannelerDied(killer);
+                   ENSURE_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->ChannelerDied(killer);
             }
 
             void UpdateAI(uint32 diff) override
@@ -312,7 +312,7 @@ class npc_shadowmoon_channeler : public CreatureScript
                         if (!me->IsNonMeleeSpellCast(false))
                             if (Creature* Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
                             {
-                                uint64 channeler = CAST_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->GetChanneled(me);
+                                uint64 channeler = ENSURE_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->GetChanneled(me);
                                 if (Unit* channeled = ObjectAccessor::GetUnit(*me, channeler))
                                     DoCast(channeled, SPELL_CHANNELING);
                             }

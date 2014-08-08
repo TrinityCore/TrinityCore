@@ -168,7 +168,7 @@ public:
                 {
                     Talk(SAY_REGEN);
                     DoCast(me, SPELL_WARLORDS_RAGE);
-                    CAST_AI(npc_naga_distiller::npc_naga_distillerAI, distiller->AI())->StartRageGen(me);
+                    ENSURE_AI(npc_naga_distiller::npc_naga_distillerAI, distiller->AI())->StartRageGen(me);
                 }
                 Rage_Timer = 3000 + rand32() % 15000;
             } else Rage_Timer -= diff;
