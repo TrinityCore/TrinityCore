@@ -18,6 +18,7 @@
 #ifndef __ASYNCACCEPT_H_
 #define __ASYNCACCEPT_H_
 
+#include "Log.h"
 #include <boost/asio.hpp>
 
 using boost::asio::ip::tcp;
@@ -49,8 +50,15 @@ private:
         {
             if (!error)
             {
-                // this-> is required here to fix an segmentation fault in gcc 4.7.2 - reason is lambdas in a templated class
-                std::make_shared<T>(std::move(this->_socket))->Start();
+                try
+                {
+                    // this-> is required here to fix an segmentation fault in gcc 4.7.2 - reason is lambdas in a templated class
+                    std::make_shared<T>(std::move(this->_socket))->Start();
+                }
+                catch (boost::system::system_error const& err)
+                {
+                    TC_LOG_INFO("network", "Failed to retrieve client's remote address %s", err.what());
+                }
             }
 
             // lets slap some more this-> on this so we can fix this bug with gcc 4.7.2 throwing internals in yo face
