@@ -624,7 +624,7 @@ class spell_krick_pursuit : public SpellScriptLoader
                         {
                             ick->AI()->Talk(SAY_ICK_CHASE_1, target);
                             ick->AddAura(GetSpellInfo()->Id, target);
-                            CAST_AI(boss_ick::boss_ickAI, ick->AI())->SetTempThreat(ick->getThreatManager().getThreat(target));
+                            ENSURE_AI(boss_ick::boss_ickAI, ick->AI())->SetTempThreat(ick->getThreatManager().getThreat(target));
                             ick->AddThreat(target, float(GetEffectValue()));
                             target->AddThreat(ick, float(GetEffectValue()));
                         }
@@ -645,7 +645,7 @@ class spell_krick_pursuit : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     if (Creature* creCaster = caster->ToCreature())
-                        CAST_AI(boss_ick::boss_ickAI, creCaster->AI())->_ResetThreat(GetTarget());
+                        ENSURE_AI(boss_ick::boss_ickAI, creCaster->AI())->_ResetThreat(GetTarget());
             }
 
             void Register() override

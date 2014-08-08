@@ -67,7 +67,7 @@ public:
                     creature->setFaction(FACTION_ESCORTEE_H);
                     break;
             }
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+            ENSURE_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
         }
         return true;
     }
