@@ -711,7 +711,7 @@ class npc_expedition_commander : public CreatureScript
             {
                 case GOSSIP_ACTION_INFO_DEF:
                     player->CLOSE_GOSSIP_MENU();
-                    CAST_AI(npc_expedition_commanderAI, creature->AI())->Phase = 1;
+                    ENSURE_AI(npc_expedition_commanderAI, creature->AI())->Phase = 1;
                     break;
             }
             return true;

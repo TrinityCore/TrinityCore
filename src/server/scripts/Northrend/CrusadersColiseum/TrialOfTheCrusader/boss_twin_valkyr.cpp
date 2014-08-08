@@ -837,7 +837,7 @@ class spell_power_of_the_twins : public SpellScriptLoader
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                 {
                     if (Creature* Valk = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(GetCaster()->GetEntry())))
-                        CAST_AI(boss_twin_baseAI, Valk->AI())->EnableDualWield(true);
+                        ENSURE_AI(boss_twin_baseAI, Valk->AI())->EnableDualWield(true);
                 }
             }
 
@@ -846,7 +846,7 @@ class spell_power_of_the_twins : public SpellScriptLoader
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                 {
                     if (Creature* Valk = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(GetCaster()->GetEntry())))
-                        CAST_AI(boss_twin_baseAI, Valk->AI())->EnableDualWield(false);
+                        ENSURE_AI(boss_twin_baseAI, Valk->AI())->EnableDualWield(false);
                 }
             }
 

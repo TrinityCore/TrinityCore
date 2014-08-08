@@ -347,8 +347,8 @@ public:
 
         if (manaforge)
         {
-            CAST_AI(npc_manaforge_control_console::npc_manaforge_control_consoleAI, manaforge->AI())->someplayer = player->GetGUID();
-            CAST_AI(npc_manaforge_control_console::npc_manaforge_control_consoleAI, manaforge->AI())->goConsole = go->GetGUID();
+            ENSURE_AI(npc_manaforge_control_console::npc_manaforge_control_consoleAI, manaforge->AI())->someplayer = player->GetGUID();
+            ENSURE_AI(npc_manaforge_control_console::npc_manaforge_control_consoleAI, manaforge->AI())->goConsole = go->GetGUID();
             go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
         }
         return true;
@@ -638,7 +638,7 @@ public:
             if (!Dawnforge)
                 return false;
 
-            if (CAST_AI(npc_commander_dawnforge::npc_commander_dawnforgeAI, Dawnforge->AI())->CanStartEvent(player))
+            if (ENSURE_AI(npc_commander_dawnforge::npc_commander_dawnforgeAI, Dawnforge->AI())->CanStartEvent(player))
                 return true;
         }
         return false;
@@ -860,7 +860,7 @@ public:
         {
             creature->setFaction(113);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+            ENSURE_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
         }
         return true;
     }

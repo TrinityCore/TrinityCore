@@ -52,6 +52,7 @@ struct AuctionEntry;
 struct DeclinedName;
 struct ItemTemplate;
 struct MovementInfo;
+struct TradeStatusInfo;
 
 namespace lfg
 {
@@ -297,7 +298,7 @@ class WorldSession
 
         void SendBattleGroundList(uint64 guid, BattlegroundTypeId bgTypeId = BATTLEGROUND_RB);
 
-        void SendTradeStatus(TradeStatus status);
+        void SendTradeStatus(TradeStatusInfo const& status);
         void SendUpdateTrade(bool trader_data = true);
         void SendCancelTrade();
 

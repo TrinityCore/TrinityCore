@@ -257,7 +257,7 @@ public:
                 Creature* Dorothee = (ObjectAccessor::GetCreature((*me), DorotheeGUID));
                 if (Dorothee && Dorothee->IsAlive())
                 {
-                    CAST_AI(boss_dorothee::boss_dorotheeAI, Dorothee->AI())->TitoDied = true;
+                    ENSURE_AI(boss_dorothee::boss_dorotheeAI, Dorothee->AI())->TitoDied = true;
                     Talk(SAY_DOROTHEE_TITO_DEATH, Dorothee);
                 }
             }
@@ -284,7 +284,7 @@ void boss_dorothee::boss_dorotheeAI::SummonTito()
     if (Creature* pTito = me->SummonCreature(CREATURE_TITO, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
     {
         Talk(SAY_DOROTHEE_SUMMON);
-        CAST_AI(npc_tito::npc_titoAI, pTito->AI())->DorotheeGUID = me->GetGUID();
+        ENSURE_AI(npc_tito::npc_titoAI, pTito->AI())->DorotheeGUID = me->GetGUID();
         pTito->AI()->AttackStart(me->GetVictim());
         SummonedTito = true;
         TitoDied = false;
@@ -1188,8 +1188,8 @@ public:
 
                 if (Creature* Julianne = (ObjectAccessor::GetCreature((*me), JulianneGUID)))
                 {
-                    CAST_AI(boss_julianne::boss_julianneAI, Julianne->AI())->RomuloDead = true;
-                    CAST_AI(boss_julianne::boss_julianneAI, Julianne->AI())->ResurrectSelfTimer = 10000;
+                    ENSURE_AI(boss_julianne::boss_julianneAI, Julianne->AI())->RomuloDead = true;
+                    ENSURE_AI(boss_julianne::boss_julianneAI, Julianne->AI())->ResurrectSelfTimer = 10000;
                 }
 
                 damage = 0;
@@ -1216,8 +1216,8 @@ public:
                 {
                     PretendToDie(me);
                     IsFakingDeath = true;
-                    CAST_AI(boss_julianne::boss_julianneAI, Julianne->AI())->ResurrectTimer = 10000;
-                    CAST_AI(boss_julianne::boss_julianneAI, Julianne->AI())->RomuloDead = true;
+                    ENSURE_AI(boss_julianne::boss_julianneAI, Julianne->AI())->ResurrectTimer = 10000;
+                    ENSURE_AI(boss_julianne::boss_julianneAI, Julianne->AI())->RomuloDead = true;
                     damage = 0;
                     return;
                 }
@@ -1276,11 +1276,11 @@ public:
                 if (ResurrectTimer <= diff)
                 {
                     Creature* Julianne = (ObjectAccessor::GetCreature((*me), JulianneGUID));
-                    if (Julianne && CAST_AI(boss_julianne::boss_julianneAI, Julianne->AI())->IsFakingDeath)
+                    if (Julianne && ENSURE_AI(boss_julianne::boss_julianneAI, Julianne->AI())->IsFakingDeath)
                     {
                         Talk(SAY_ROMULO_RESURRECT);
                         Resurrect(Julianne);
-                        CAST_AI(boss_julianne::boss_julianneAI, Julianne->AI())->IsFakingDeath = false;
+                        ENSURE_AI(boss_julianne::boss_julianneAI, Julianne->AI())->IsFakingDeath = false;
                         JulianneDead = false;
                         ResurrectTimer = 10000;
                     }
@@ -1362,8 +1362,8 @@ void boss_julianne::boss_julianneAI::UpdateAI(uint32 diff)
             if (Creature* pRomulo = me->SummonCreature(CREATURE_ROMULO, ROMULO_X, ROMULO_Y, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
             {
                 RomuloGUID = pRomulo->GetGUID();
-                CAST_AI(boss_romulo::boss_romuloAI, pRomulo->AI())->JulianneGUID = me->GetGUID();
-                CAST_AI(boss_romulo::boss_romuloAI, pRomulo->AI())->Phase = PHASE_ROMULO;
+                ENSURE_AI(boss_romulo::boss_romuloAI, pRomulo->AI())->JulianneGUID = me->GetGUID();
+                ENSURE_AI(boss_romulo::boss_romuloAI, pRomulo->AI())->Phase = PHASE_ROMULO;
                 DoZoneInCombat(pRomulo);
 
                 pRomulo->setFaction(16);
@@ -1396,11 +1396,11 @@ void boss_julianne::boss_julianneAI::UpdateAI(uint32 diff)
         if (ResurrectTimer <= diff)
         {
             Creature* Romulo = (ObjectAccessor::GetCreature((*me), RomuloGUID));
-            if (Romulo && CAST_AI(boss_romulo::boss_romuloAI, Romulo->AI())->IsFakingDeath)
+            if (Romulo && ENSURE_AI(boss_romulo::boss_romuloAI, Romulo->AI())->IsFakingDeath)
             {
                 Talk(SAY_JULIANNE_RESURRECT);
                 Resurrect(Romulo);
-                CAST_AI(boss_romulo::boss_romuloAI, Romulo->AI())->IsFakingDeath = false;
+                ENSURE_AI(boss_romulo::boss_romuloAI, Romulo->AI())->IsFakingDeath = false;
                 RomuloDead = false;
                 ResurrectTimer = 10000;
             }
@@ -1494,8 +1494,8 @@ void boss_julianne::boss_julianneAI::DamageTaken(Unit* /*done_by*/, uint32 &dama
         {
             PretendToDie(me);
             IsFakingDeath = true;
-            CAST_AI(boss_romulo::boss_romuloAI, Romulo->AI())->ResurrectTimer = 10000;
-            CAST_AI(boss_romulo::boss_romuloAI, Romulo->AI())->JulianneDead = true;
+            ENSURE_AI(boss_romulo::boss_romuloAI, Romulo->AI())->ResurrectTimer = 10000;
+            ENSURE_AI(boss_romulo::boss_romuloAI, Romulo->AI())->JulianneDead = true;
             damage = 0;
             return;
         }

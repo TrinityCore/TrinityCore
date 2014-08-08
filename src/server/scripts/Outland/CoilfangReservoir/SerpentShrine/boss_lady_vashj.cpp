@@ -621,7 +621,7 @@ public:
                         DoCast(me, SPELL_SURGE);
                 }
                 if (Creature* vashj = ObjectAccessor::GetCreature(*me, VashjGUID))
-                    if (!vashj->IsInCombat() || CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->Phase != 2 || vashj->isDead())
+                    if (!vashj->IsInCombat() || ENSURE_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->Phase != 2 || vashj->isDead())
                         me->Kill(me);
                 Move = 1000;
             } else Move -= diff;
@@ -663,7 +663,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (Creature* vashj = ObjectAccessor::GetCreature((*me), instance->GetData64(DATA_LADYVASHJ)))
-                CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->EventTaintedElementalDeath();
+                ENSURE_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->EventTaintedElementalDeath();
         }
 
         void EnterCombat(Unit* who) override
@@ -779,7 +779,7 @@ public:
             {
                 // check if vashj is death
                 Unit* Vashj = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_LADYVASHJ));
-                if (!Vashj || !Vashj->IsAlive() || CAST_AI(boss_lady_vashj::boss_lady_vashjAI, Vashj->ToCreature()->AI())->Phase != 3)
+                if (!Vashj || !Vashj->IsAlive() || ENSURE_AI(boss_lady_vashj::boss_lady_vashjAI, Vashj->ToCreature()->AI())->Phase != 3)
                 {
                     // remove
                     me->setDeathState(DEAD);
@@ -866,7 +866,7 @@ public:
         }
 
         Creature* vashj = ObjectAccessor::GetCreature((*player), instance->GetData64(DATA_LADYVASHJ));
-        if (vashj && (CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->Phase == 2))
+        if (vashj && (ENSURE_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->Phase == 2))
         {
             if (GameObject* gObj = targets.GetGOTarget())
             {
@@ -901,7 +901,7 @@ public:
                 }
 
                 // get and remove channel
-                if (Unit* channel = ObjectAccessor::GetCreature(*vashj, CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->ShieldGeneratorChannel[channelIdentifier]))
+                if (Unit* channel = ObjectAccessor::GetCreature(*vashj, ENSURE_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->ShieldGeneratorChannel[channelIdentifier]))
                     channel->setDeathState(JUST_DIED); // call Unsummon()
 
                 instance->SetData(identifier, 1);
