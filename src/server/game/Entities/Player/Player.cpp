@@ -13524,7 +13524,7 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
                 // found empty
                 if (!m_items[i])
                 {
-                    slot = i;
+                    oldest_slot = i;
                     break;
                 }
 
