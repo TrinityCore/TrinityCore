@@ -43,11 +43,11 @@ class BattlegroundRL : public Arena
         BattlegroundRL();
 
         /* inherited from BattlegroundClass */
-        void FillInitialWorldStates(WorldPacket &d);
-        void StartingEventCloseDoors();
-        void StartingEventOpenDoors();
+        void FillInitialWorldStates(WorldPacket &d) override;
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
 
-        void HandleAreaTrigger(Player* Source, uint32 Trigger);
-        bool SetupBattleground();
+        void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
+        bool SetupBattleground() override;
 };
 #endif

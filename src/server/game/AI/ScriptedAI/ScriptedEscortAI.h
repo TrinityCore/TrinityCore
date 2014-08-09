@@ -56,22 +56,22 @@ struct npc_escortAI : public ScriptedAI
         ~npc_escortAI() { }
 
         // CreatureAI functions
-        void AttackStart(Unit* who);
+        void AttackStart(Unit* who) override;
 
-        void MoveInLineOfSight(Unit* who);
+        void MoveInLineOfSight(Unit* who) override;
 
-        void JustDied(Unit*);
+        void JustDied(Unit*) override;
 
-        void JustRespawned();
+        void JustRespawned() override;
 
         void ReturnToLastPoint();
 
-        void EnterEvadeMode();
+        void EnterEvadeMode() override;
 
-        void UpdateAI(uint32 diff);                   //the "internal" update, calls UpdateEscortAI()
+        void UpdateAI(uint32 diff) override;                   //the "internal" update, calls UpdateEscortAI()
         virtual void UpdateEscortAI(uint32 const diff);     //used when it's needed to add code in update (abilities, scripted events, etc)
 
-        void MovementInform(uint32, uint32);
+        void MovementInform(uint32, uint32) override;
 
         // EscortAI functions
         void AddWaypoint(uint32 id, float x, float y, float z, uint32 waitTime = 0);    // waitTime is in ms
@@ -94,7 +94,7 @@ struct npc_escortAI : public ScriptedAI
         void SetEscortPaused(bool on);
 
         bool HasEscortState(uint32 escortState) { return (m_uiEscortState & escortState) != 0; }
-        virtual bool IsEscorted() { return (m_uiEscortState & STATE_ESCORT_ESCORTING); }
+        virtual bool IsEscorted() override { return (m_uiEscortState & STATE_ESCORT_ESCORTING); }
 
         void SetMaxPlayerDistance(float newMax) { MaxPlayerDistance = newMax; }
         float GetMaxPlayerDistance() { return MaxPlayerDistance; }
