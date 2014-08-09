@@ -112,7 +112,7 @@ bool MySQLConnection::Open()
     else                                                    // generic case
     {
         port = atoi(m_connectionInfo.port_or_socket.c_str());
-        unix_socket = 0;
+        unix_socket = nullptr;
     }
     #endif
 

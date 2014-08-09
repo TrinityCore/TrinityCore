@@ -531,7 +531,7 @@ struct BattlegroundSAScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data) final
+        void BuildObjectivesBlock(WorldPacket& data) final override
         {
             data << uint32(2); // Objectives Count
             data << uint32(DemolishersDestroyed);
