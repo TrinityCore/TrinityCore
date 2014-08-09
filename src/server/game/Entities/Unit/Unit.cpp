@@ -13145,6 +13145,11 @@ bool Unit::IsInFeralForm() const
 
 bool Unit::IsInDisallowedMountForm() const
 {
+    // !Hack alert - this might not be valid
+    if (SpellInfo const* transformSpellInfo = sSpellMgr->GetSpellInfo(getTransForm()))
+        if (transformSpellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_MOUNTED)
+            return false;
+
     if (ShapeshiftForm form = GetShapeshiftForm())
     {
         SpellShapeshiftEntry const* shapeshift = sSpellShapeshiftStore.LookupEntry(form);
