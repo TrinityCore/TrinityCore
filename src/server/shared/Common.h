@@ -85,6 +85,13 @@
 
 #if PLATFORM == PLATFORM_WINDOWS
 #  include <ws2tcpip.h>
+
+#  if defined(__INTEL_COMPILER)
+#    if !defined(BOOST_ASIO_HAS_MOVE)
+#      define BOOST_ASIO_HAS_MOVE
+#    endif // !defined(BOOST_ASIO_HAS_MOVE)
+#  endif // if defined(__INTEL_COMPILER)
+
 #else
 #  include <sys/types.h>
 #  include <sys/ioctl.h>
