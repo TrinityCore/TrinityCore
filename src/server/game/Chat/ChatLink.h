@@ -106,8 +106,8 @@ public:
     {
         memset(_data, 0, sizeof(_data));
     }
-    virtual bool Initialize(std::istringstream& iss);
-    virtual bool ValidateName(char* buffer, const char* context);
+    virtual bool Initialize(std::istringstream& iss) override;
+    virtual bool ValidateName(char* buffer, const char* context) override;
 
 protected:
     uint32 _guid;
@@ -120,7 +120,7 @@ class TradeChatLink : public SpellChatLink
 {
 public:
     TradeChatLink() : SpellChatLink(), _minSkillLevel(0), _maxSkillLevel(0), _guid(0) { }
-    virtual bool Initialize(std::istringstream& iss);
+    virtual bool Initialize(std::istringstream& iss) override;
 private:
     int32 _minSkillLevel;
     int32 _maxSkillLevel;

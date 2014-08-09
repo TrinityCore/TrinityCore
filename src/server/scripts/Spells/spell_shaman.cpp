@@ -871,7 +871,7 @@ class spell_sha_mana_spring_totem : public SpellScriptLoader
                 if (Unit* target = GetHitUnit())
                     if (Unit* caster = GetCaster())
                         if (target->getPowerType() == POWER_MANA)
-                            caster->CastCustomSpell(target, SPELL_SHAMAN_MANA_SPRING_TOTEM_ENERGIZE, &damage, 0, 0, true, 0, 0, GetOriginalCaster()->GetGUID());
+                            caster->CastCustomSpell(target, SPELL_SHAMAN_MANA_SPRING_TOTEM_ENERGIZE, &damage, nullptr, nullptr, true, nullptr, nullptr, GetOriginalCaster()->GetGUID());
             }
 
             void Register() override

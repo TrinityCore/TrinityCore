@@ -619,17 +619,17 @@ private:
         BankMoveItemData(Guild* guild, Player* player, uint8 container, uint8 slotId) :
             MoveItemData(guild, player, container, slotId) { }
 
-        bool IsBank() const { return true; }
-        bool InitItem();
-        bool HasStoreRights(MoveItemData* pOther) const;
-        bool HasWithdrawRights(MoveItemData* pOther) const;
-        void RemoveItem(SQLTransaction& trans, MoveItemData* pOther, uint32 splitedAmount);
-        Item* StoreItem(SQLTransaction& trans, Item* pItem);
-        void LogBankEvent(SQLTransaction& trans, MoveItemData* pFrom, uint32 count) const;
-        void LogAction(MoveItemData* pFrom) const;
+        bool IsBank() const override { return true; }
+        bool InitItem() override;
+        bool HasStoreRights(MoveItemData* pOther) const override;
+        bool HasWithdrawRights(MoveItemData* pOther) const override;
+        void RemoveItem(SQLTransaction& trans, MoveItemData* pOther, uint32 splitedAmount) override;
+        Item* StoreItem(SQLTransaction& trans, Item* pItem) override;
+        void LogBankEvent(SQLTransaction& trans, MoveItemData* pFrom, uint32 count) const override;
+        void LogAction(MoveItemData* pFrom) const override;
 
     protected:
-        InventoryResult CanStore(Item* pItem, bool swap);
+        InventoryResult CanStore(Item* pItem, bool swap) override;
 
     private:
         Item* _StoreItem(SQLTransaction& trans, BankTab* pTab, Item* pItem, ItemPosCount& pos, bool clone) const;

@@ -1489,7 +1489,7 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         bool LoadFromDB(uint32 guid, SQLQueryHolder *holder);
-        bool isBeingLoaded() const;
+        bool isBeingLoaded() const override;
 
         void Initialize(uint32 guid);
         static uint32 GetUInt32ValueFromArray(Tokenizer const& data, uint16 index);
@@ -1592,7 +1592,7 @@ class Player : public Unit, public GridObject<Player>
         void PossessSpellInitialize();
         void VehicleSpellInitialize();
         void SendRemoveControlBar();
-        bool HasSpell(uint32 spell) const;
+        bool HasSpell(uint32 spell) const override;
         bool HasActiveSpell(uint32 spell) const;            // show in spellbook
         TrainerSpellState GetTrainerSpellState(TrainerSpell const* trainer_spell) const;
         bool IsSpellFitByClassAndRace(uint32 spell_id) const;

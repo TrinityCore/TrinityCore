@@ -47,9 +47,9 @@ void UpdateData::Compress(void* dst, uint32 *dst_size, void* src, int src_size)
 {
     z_stream c_stream;
 
-    c_stream.zalloc = (alloc_func)0;
-    c_stream.zfree = (free_func)0;
-    c_stream.opaque = (voidpf)0;
+    c_stream.zalloc = (alloc_func)nullptr;
+    c_stream.zfree = (free_func)nullptr;
+    c_stream.opaque = (voidpf)nullptr;
 
     // default Z_BEST_SPEED (1)
     int z_res = deflateInit(&c_stream, sWorld->getIntConfig(CONFIG_COMPRESSION));
