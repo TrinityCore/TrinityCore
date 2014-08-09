@@ -418,7 +418,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         if (m_Socket && !m_Socket->IsOpen())
         {
             expireTime -= expireTime > diff ? diff : expireTime;
-            if (expireTime < diff || forceExit)
+            if (expireTime < diff || forceExit || !GetPlayer())
             {
                 m_Socket = nullptr;
             }
