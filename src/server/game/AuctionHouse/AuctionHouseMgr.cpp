@@ -31,7 +31,9 @@
 #include "Language.h"
 #include "Log.h"
 #include <vector>
+#ifdef ELUNA
 #include "LuaEngine.h"
+#endif
 
 enum eAuctionHouse
 {

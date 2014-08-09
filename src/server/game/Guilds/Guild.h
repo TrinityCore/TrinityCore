@@ -658,7 +658,9 @@ public:
     std::string const& GetMOTD() const { return m_motd; }
     std::string const& GetInfo() const { return m_info; }
 
+#ifdef ELUNA
     uint32 GetMemberSize() const { return m_members.size(); }
+#endif
 
     bool SetName(std::string const& name);
 

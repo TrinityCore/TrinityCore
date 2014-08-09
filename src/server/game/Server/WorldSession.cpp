@@ -46,7 +46,9 @@
 #include "Transport.h"
 #include "WardenWin.h"
 #include "WardenMac.h"
+#ifdef ELUNA
 #include "LuaEngine.h"
+#endif
 #include "MoveSpline.h"
 
 namespace {

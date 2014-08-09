@@ -31,7 +31,9 @@
 #include "Battleground.h"
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
+#ifdef ELUNA
 #include "LuaEngine.h"
+#endif
 
 void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket& recvData)
 {

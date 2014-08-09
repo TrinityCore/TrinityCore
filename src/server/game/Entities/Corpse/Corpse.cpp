@@ -25,7 +25,9 @@
 #include "Opcodes.h"
 #include "GossipDef.h"
 #include "World.h"
+#ifdef ELUNA
 #include "LuaEngine.h"
+#endif
 
 Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type)
 {

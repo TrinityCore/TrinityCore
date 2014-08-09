@@ -35,7 +35,9 @@
 #include "Transport.h"
 #include "Vehicle.h"
 #include "VMapFactory.h"
+#ifdef ELUNA
 #include "LuaEngine.h"
+#endif
 
 u_map_magic MapMagic        = { {'M','A','P','S'} };
 u_map_magic MapVersionMagic = { {'v','1','.','3'} };

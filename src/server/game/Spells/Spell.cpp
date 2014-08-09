@@ -55,7 +55,9 @@
 #include "SpellInfo.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#ifdef ELUNA
 #include "LuaEngine.h"
+#endif
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 

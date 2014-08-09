@@ -35,7 +35,9 @@
 #include "SpellMgr.h"
 #include "ScriptMgr.h"
 #include "ChatLink.h"
+#ifdef ELUNA
 #include "LuaEngine.h"
+#endif
 
 bool ChatHandler::load_command_table = true;
 

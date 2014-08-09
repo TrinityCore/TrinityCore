@@ -23,7 +23,9 @@
 #include "ScriptMgr.h"
 #include "SHA1.h"
 #include "PacketLog.h"
+#ifdef ELUNA
 #include "LuaEngine.h"
+#endif
 
 using boost::asio::ip::tcp;
 

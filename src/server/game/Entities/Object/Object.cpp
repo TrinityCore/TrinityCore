@@ -51,7 +51,9 @@
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
 #include "Chat.h"
+#ifdef ELUNA
 #include "LuaEngine.h"
+#endif
 
 uint32 GuidHigh2TypeId(uint32 guid_hi)
 {

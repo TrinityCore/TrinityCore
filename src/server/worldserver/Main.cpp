@@ -46,7 +46,9 @@
 #include "CliRunnable.h"
 #include "SystemConfig.h"
 #include "WorldSocket.h"
+#ifdef ELUNA
 #include "LuaEngine.h"
+#endif
 
 using namespace boost::program_options;
 

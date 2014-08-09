@@ -51,7 +51,9 @@
 #include "WaypointMovementGenerator.h"
 #include "World.h"
 #include "WorldPacket.h"
+#ifdef ELUNA
 #include "LuaEngine.h"
+#endif
 
 #include "Transport.h"
 

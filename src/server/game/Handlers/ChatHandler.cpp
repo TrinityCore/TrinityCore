@@ -39,7 +39,9 @@
 #include "Util.h"
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
+#ifdef ELUNA
 #include "LuaEngine.h"
+#endif
 
 void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 {

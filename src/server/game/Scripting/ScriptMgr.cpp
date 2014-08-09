@@ -32,7 +32,9 @@
 #include "CreatureAIImpl.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#ifdef ELUNA
 #include "LuaEngine.h"
+#endif
 
 namespace
 {
@@ -1027,7 +1029,6 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, GameObject* go)
     }
 #endif
 
-    /// @todo 100 is a funny magic number to have hanging around here...
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, DIALOG_STATUS_SCRIPTED_NO_STATUS);
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->GetDialogStatus(player, go);
