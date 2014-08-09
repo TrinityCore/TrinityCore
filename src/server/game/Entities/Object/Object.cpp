@@ -119,7 +119,7 @@ Object::~Object()
     }
 
     delete [] m_uint32Values;
-    m_uint32Values = 0;
+    m_uint32Values = nullptr;
 }
 
 void Object::_InitValues()

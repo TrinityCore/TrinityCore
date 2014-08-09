@@ -47,11 +47,11 @@ class BattlegroundNA : public Arena
         BattlegroundNA();
 
         /* inherited from BattlegroundClass */
-        void StartingEventCloseDoors();
-        void StartingEventOpenDoors();
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
 
-        void HandleAreaTrigger(Player* Source, uint32 Trigger);
-        bool SetupBattleground();
-        void FillInitialWorldStates(WorldPacket &d);
+        void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
+        bool SetupBattleground() override;
+        void FillInitialWorldStates(WorldPacket &d) override;
 };
 #endif
