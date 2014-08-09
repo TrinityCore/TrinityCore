@@ -96,14 +96,14 @@ class BattlegroundRV : public Arena
         BattlegroundRV();
 
         /* inherited from BattlegroundClass */
-        void StartingEventOpenDoors();
-        void FillInitialWorldStates(WorldPacket &d);
+        void StartingEventOpenDoors() override;
+        void FillInitialWorldStates(WorldPacket &d) override;
 
-        void HandleAreaTrigger(Player* Source, uint32 Trigger);
-        bool SetupBattleground();
+        void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
+        bool SetupBattleground() override;
 
     private:
-        void PostUpdateImpl(uint32 diff);
+        void PostUpdateImpl(uint32 diff) override;
 
         void TogglePillarCollision();
 

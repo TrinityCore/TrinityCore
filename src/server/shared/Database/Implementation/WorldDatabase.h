@@ -29,7 +29,7 @@ class WorldDatabaseConnection : public MySQLConnection
         WorldDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
 
         //- Loads database type specific prepared statements
-        void DoPrepareStatements();
+        void DoPrepareStatements() override;
 };
 
 typedef DatabaseWorkerPool<WorldDatabaseConnection> WorldDatabaseWorkerPool;
