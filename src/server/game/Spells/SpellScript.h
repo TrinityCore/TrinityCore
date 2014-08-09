@@ -187,7 +187,7 @@ class SpellScript : public _SpellScript
             public:
                 EffectHandler(SpellEffectFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName);
                 std::string ToString();
-                bool CheckEffect(SpellInfo const* spellInfo, uint8 effIndex);
+                bool CheckEffect(SpellInfo const* spellInfo, uint8 effIndex) override;
                 void Call(SpellScript* spellScript, SpellEffIndex effIndex);
             private:
                 SpellEffectFnType pEffectHandlerScript;
@@ -206,7 +206,7 @@ class SpellScript : public _SpellScript
         {
             public:
                 TargetHook(uint8 _effectIndex, uint16 _targetType, bool _area, bool _dest);
-                bool CheckEffect(SpellInfo const* spellInfo, uint8 effIndex);
+                bool CheckEffect(SpellInfo const* spellInfo, uint8 effIndex) override;
                 std::string ToString();
                 uint16 GetTarget() const { return targetType; }
             protected:
@@ -253,7 +253,7 @@ class SpellScript : public _SpellScript
 
         #define PrepareSpellScript(CLASSNAME) SPELLSCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) SPELLSCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME)
     public:
-        bool _Validate(SpellInfo const* entry);
+        bool _Validate(SpellInfo const* entry) override;
         bool _Load(Spell* spell);
         void _InitHit();
         bool _IsEffectPrevented(SpellEffIndex effIndex) { return (m_hitPreventEffectMask & (1 << effIndex)) != 0; }
@@ -509,7 +509,7 @@ class AuraScript : public _SpellScript
             public:
                 EffectBase(uint8 _effIndex, uint16 _effName);
                 std::string ToString();
-                bool CheckEffect(SpellInfo const* spellInfo, uint8 effIndex);
+                bool CheckEffect(SpellInfo const* spellInfo, uint8 effIndex) override;
         };
         class EffectPeriodicHandler : public EffectBase
         {
@@ -630,7 +630,7 @@ class AuraScript : public _SpellScript
     public:
         AuraScript() : _SpellScript(), m_aura(NULL), m_auraApplication(NULL), m_defaultActionPrevented(false)
         { }
-        bool _Validate(SpellInfo const* entry);
+        bool _Validate(SpellInfo const* entry) override;
         bool _Load(Aura* aura);
         void _PrepareScriptCall(AuraScriptHookType hookType, AuraApplication const* aurApp = NULL);
         void _FinishScriptCall();

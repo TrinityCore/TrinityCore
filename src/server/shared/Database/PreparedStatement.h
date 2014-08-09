@@ -163,7 +163,7 @@ class PreparedStatementTask : public SQLOperation
         PreparedStatementTask(PreparedStatement* stmt, bool async = false);
         ~PreparedStatementTask();
 
-        bool Execute();
+        bool Execute() override;
         PreparedQueryResultFuture GetFuture() { return m_result->get_future(); }
 
     protected:

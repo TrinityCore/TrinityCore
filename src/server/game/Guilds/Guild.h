@@ -394,8 +394,8 @@ private:
 
         ~EventLogEntry() { }
 
-        void SaveToDB(SQLTransaction& trans) const;
-        void WritePacket(WorldPacket& data) const;
+        void SaveToDB(SQLTransaction& trans) const override;
+        void WritePacket(WorldPacket& data) const override;
 
     private:
         GuildEventLogTypes m_eventType;
@@ -426,8 +426,8 @@ private:
 
         ~BankEventLogEntry() { }
 
-        void SaveToDB(SQLTransaction& trans) const;
-        void WritePacket(WorldPacket& data) const;
+        void SaveToDB(SQLTransaction& trans) const override;
+        void WritePacket(WorldPacket& data) const override;
 
     private:
         GuildBankEventLogTypes m_eventType;
@@ -604,13 +604,13 @@ private:
         PlayerMoveItemData(Guild* guild, Player* player, uint8 container, uint8 slotId) :
             MoveItemData(guild, player, container, slotId) { }
 
-        bool IsBank() const { return false; }
-        bool InitItem();
-        void RemoveItem(SQLTransaction& trans, MoveItemData* pOther, uint32 splitedAmount = 0);
-        Item* StoreItem(SQLTransaction& trans, Item* pItem);
-        void LogBankEvent(SQLTransaction& trans, MoveItemData* pFrom, uint32 count) const;
+        bool IsBank() const override { return false; }
+        bool InitItem() override;
+        void RemoveItem(SQLTransaction& trans, MoveItemData* pOther, uint32 splitedAmount = 0) override;
+        Item* StoreItem(SQLTransaction& trans, Item* pItem) override;
+        void LogBankEvent(SQLTransaction& trans, MoveItemData* pFrom, uint32 count) const override;
     protected:
-        InventoryResult CanStore(Item* pItem, bool swap);
+        InventoryResult CanStore(Item* pItem, bool swap) override;
     };
 
     class BankMoveItemData : public MoveItemData

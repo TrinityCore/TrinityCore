@@ -52,7 +52,7 @@ class SQLQueryHolderTask : public SQLOperation
         SQLQueryHolderTask(SQLQueryHolder* holder)
             : m_holder(holder) { };
 
-        bool Execute();
+        bool Execute() override;
         QueryResultHolderFuture GetFuture() { return m_result.get_future(); }
 
 };
