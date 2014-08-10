@@ -1,11 +1,28 @@
+#Multivendor [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=multivendor)](https://travis-ci.org/Rochet2/TrinityCore)
+
 ####About
 Allows you to show gossip options that show different vendors from npc_vendor.<br />
 Source: http://rochet2.github.io/?page=Multivendor
 
 ####Installation
-Download gist<br />
-Apply the the diff with git bash using command `git apply MultiVendor.diff`<br />
-Supported TC version: https://github.com/TrinityCore/TrinityCore/commit/2042b095266cabd79b26d8325d4dee600260d4c9
+
+Available as:
+- Direct merge: https://github.com/Rochet2/TrinityCore/tree/multivendor
+- Diff: https://github.com/Rochet2/TrinityCore/compare/multivendor.diff
+- Patch: https://github.com/Rochet2/TrinityCore/compare/multivendor.patch
+
+Using direct merge:
+- open git bash to source location
+- do `git remote add rochet2 https://github.com/Rochet2/TrinityCore.git`
+- do `git pull rochet2 multivendor`
+- use cmake and compile
+
+Using diff:
+- download the diff by __right clicking__ the link and select __save as__
+- place the downloaded `multivendor.diff` to the source root folder
+- open git bash to source location
+- do `git apply multivendor.diff`
+- use cmake and compile
 
 ####Usage
 Set your NPC to have gossip and vendor NPCflags (129)<br />
