@@ -26,9 +26,9 @@ Using direct merge:
 
 Using diff:
 - download the diff by __right clicking__ the link and select __save as__
-- place the downloaded `Transmog.diff` to the source root folder
+- place the downloaded `transmog.diff` to the source root folder
 - open git bash to source location
-- do `git apply Transmog.diff`
+- do `git apply transmog.diff`
 - use cmake and compile
 
 After compiling:
