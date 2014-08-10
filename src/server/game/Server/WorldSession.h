@@ -245,6 +245,9 @@ class WorldSession
         std::string const& GetPlayerName() const;
         std::string GetPlayerInfo() const;
 
+        uint32 GetCurrentVendor() const { return m_currentVendorEntry; }
+        void SetCurrentVendor(uint32 vendorEntry) { m_currentVendorEntry = vendorEntry; }
+
         uint32 GetGuidLow() const;
         void SetSecurity(AccountTypes security) { _security = security; }
         std::string const& GetRemoteAddress() { return m_Address; }
@@ -285,7 +288,7 @@ class WorldSession
 
         void SendTrainerList(uint64 guid);
         void SendTrainerList(uint64 guid, std::string const& strTitle);
-        void SendListInventory(uint64 guid);
+        void SendListInventory(uint64 guid, uint32 vendorEntry = 0);
         void SendShowBank(uint64 guid);
         bool CanOpenMailBox(uint64 guid);
         void SendShowMailBox(uint64 guid);
@@ -1014,6 +1017,7 @@ class WorldSession
         uint32 expireTime;
         bool forceExit;
         uint64 m_currentBankerGUID;
+        uint32 m_currentVendorEntry;
 
         WorldSession(WorldSession const& right) = delete;
         WorldSession& operator=(WorldSession const& right) = delete;
