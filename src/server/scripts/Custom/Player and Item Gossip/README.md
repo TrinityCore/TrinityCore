@@ -1,4 +1,4 @@
-#Transmogrification [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=playeritemgossip)](https://travis-ci.org/Rochet2/TrinityCore)
+#Player and Item Gossip [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=playeritemgossip)](https://travis-ci.org/Rochet2/TrinityCore)
 
 ####About
 Enables Item and Player gossip for TrinityCore.<br />
