@@ -40,10 +40,9 @@ class Socket : public std::enable_shared_from_this<T>
     typedef typename std::conditional<std::is_pointer<PacketType>::value, PacketType, PacketType const&>::type WritePacketType;
 
 public:
-    Socket(tcp::socket&& socket, std::size_t headerSize) : _socket(std::move(socket))
+    Socket(tcp::socket&& socket, std::size_t headerSize) : _socket(std::move(socket)), _remoteAddress(_socket.remote_endpoint().address()),
+        _remotePort(_socket.remote_endpoint().port()), _readHeaderBuffer(), _readDataBuffer(), _closed(false)
     {
-        _remoteAddress = _socket.remote_endpoint().address();
-        _remotePort = _socket.remote_endpoint().port();
         _readHeaderBuffer.Grow(headerSize);
     }
 
@@ -105,9 +104,13 @@ public:
             std::placeholders::_1, std::placeholders::_2));
     }
 
-    bool IsOpen() const { return _socket.is_open(); }
+    bool IsOpen() const { return !_closed; }
+
     void CloseSocket()
     {
+        if (_closed.exchange(true))
+            return;
+
         boost::system::error_code shutdownError;
         _socket.shutdown(boost::asio::socket_base::shutdown_both, shutdownError);
         if (shutdownError)
@@ -217,6 +220,8 @@ private:
 
     MessageBuffer _readHeaderBuffer;
     MessageBuffer _readDataBuffer;
+
+    std::atomic<bool> _closed;
 };
 
 #endif // __SOCKET_H__
