@@ -20,6 +20,7 @@
 
 #include "MessageBuffer.h"
 #include "Log.h"
+#include <atomic> 
 #include <vector>
 #include <mutex>
 #include <queue>
