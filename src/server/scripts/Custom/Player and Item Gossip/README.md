@@ -1,13 +1,33 @@
+#Transmogrification [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=playeritemgossip)](https://travis-ci.org/Rochet2/TrinityCore)
+
 ####About
 Enables Item and Player gossip for TrinityCore.<br />
 Source: http://rochet2.github.io/?page=Player_and_Item_Gossip
 
 ####Installation
-Download gist<br/>
-Apply the the diff with git bash using command `git apply ItemPlayerGossip.diff`<br/>
-Supported TC version: https://github.com/TrinityCore/TrinityCore/commit/2042b095266cabd79b26d8325d4dee600260d4c9
+
+Available as:
+- Direct merge: https://github.com/Rochet2/TrinityCore/tree/transmog
+- Diff: https://github.com/Rochet2/TrinityCore/compare/transmog.diff
+- Patch: https://github.com/Rochet2/TrinityCore/compare/transmog.patch
+
+Using direct merge:
+- open git bash to source location
+- do `git remote add rochet2 https://github.com/Rochet2/TrinityCore.git`
+- do `git pull rochet2 playeritemgossip`
+- use cmake and compile
+
+Using diff:
+- download the diff by __right clicking__ the link and select __save as__
+- place the downloaded `playeritemgossip.diff` to the source root folder
+- open git bash to source location
+- do `git apply playeritemgossip.diff`
+- use cmake and compile
 
 ####Usage
 Make a gossip script for player or item like the example scripts.<br/>
 If making item script, add the scriptname to DB.<br/>
 Compile and test.
+
+####Bugs and Contact
+Report issues and similar to http://rochet2.github.io/
