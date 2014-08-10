@@ -515,10 +515,9 @@ bool AuthSession::HandleLogonProof()
             ReadData(1);
             uint8 size = *(GetDataBuffer() + sizeof(sAuthLogonProof_C));
             ReadData(size);
-            char* token = reinterpret_cast<char*>(GetDataBuffer() + sizeof(sAuthLogonProof_C) + sizeof(size));
-            token[size] = '\0';
-            unsigned int validToken = TOTP::GenerateToken(_tokenKey.c_str());
-            unsigned int incomingToken = atoi(token);
+            std::string token(reinterpret_cast<char*>(GetDataBuffer() + sizeof(sAuthLogonProof_C) + sizeof(size)), size);
+            uint32 validToken = TOTP::GenerateToken(_tokenKey.c_str());
+            uint32 incomingToken = atoi(token.c_str());
             if (validToken != incomingToken)
             {
                 ByteBuffer packet;
