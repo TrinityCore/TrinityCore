@@ -7,9 +7,9 @@ Source: http://rochet2.github.io/?page=Player_and_Item_Gossip
 ####Installation
 
 Available as:
-- Direct merge: https://github.com/Rochet2/TrinityCore/tree/transmog
-- Diff: https://github.com/Rochet2/TrinityCore/compare/transmog.diff
-- Patch: https://github.com/Rochet2/TrinityCore/compare/transmog.patch
+- Direct merge: https://github.com/Rochet2/TrinityCore/tree/playeritemgossip
+- Diff: https://github.com/Rochet2/TrinityCore/compare/playeritemgossip.diff
+- Patch: https://github.com/Rochet2/TrinityCore/compare/playeritemgossip.patch
 
 Using direct merge:
 - open git bash to source location
