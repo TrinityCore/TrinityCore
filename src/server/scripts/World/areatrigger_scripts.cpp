@@ -236,11 +236,11 @@ class AreaTrigger_at_sholazar_waygate : public AreaTriggerScript
                 switch (trigger->id)
                 {
                     case AT_SHOLAZAR:
-                        player->CastSpell(player, SPELL_SHOLAZAR_TO_UNGORO_TELEPORT, false);
+                        player->CastSpell(player, SPELL_SHOLAZAR_TO_UNGORO_TELEPORT, true);
                         break;
 
                     case AT_UNGORO:
-                        player->CastSpell(player, SPELL_UNGORO_TO_SHOLAZAR_TELEPORT, false);
+                        player->CastSpell(player, SPELL_UNGORO_TO_SHOLAZAR_TELEPORT, true);
                         break;
                 }
             }

@@ -20,7 +20,7 @@
     \ingroup u2w
 */
 
-#include "WorldSocket.h"                                    // must be first to make ACE happy with ACE includes in it
+#include "WorldSocket.h"
 #include "Config.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -97,7 +97,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
+WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
     m_muteTime(mute_time),
     m_timeOutTime(0),
     AntiDOS(this),
@@ -130,8 +130,7 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
 
     if (sock)
     {
-        m_Address = sock->GetRemoteAddress();
-        sock->AddReference();
+        m_Address = sock->GetRemoteIpAddress().to_string();
         ResetTimeOutTime();
         LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
     }
@@ -150,8 +149,7 @@ WorldSession::~WorldSession()
     if (m_Socket)
     {
         m_Socket->CloseSocket();
-        m_Socket->RemoveReference();
-        m_Socket = NULL;
+        m_Socket = nullptr;
     }
 
     delete _warden;
@@ -188,7 +186,7 @@ uint32 WorldSession::GetGuidLow() const
 }
 
 /// Send a packet to the client
-void WorldSession::SendPacket(WorldPacket const* packet)
+void WorldSession::SendPacket(WorldPacket* packet)
 {
     if (!m_Socket)
         return;
@@ -227,8 +225,7 @@ void WorldSession::SendPacket(WorldPacket const* packet)
     }
 #endif                                                      // !TRINITY_DEBUG
 
-    if (m_Socket->SendPacket(*packet) == -1)
-        m_Socket->CloseSocket();
+    m_Socket->AsyncWrite(*packet);
 }
 
 /// Add an incoming packet to the queue
@@ -281,9 +278,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     uint32 processedPackets = 0;
     time_t currentTime = time(NULL);
 
-    while (m_Socket && !m_Socket->IsClosed() &&
-            !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket &&
-            _recvQueue.next(packet, updater))
+    while (m_Socket && !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket && _recvQueue.next(packet, updater))
     {
         if (!AntiDOS.EvaluateOpcode(*packet, currentTime))
         {
@@ -293,11 +288,11 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         {
             TC_LOG_ERROR("network.opcode", "Received non-existed opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str()
                             , GetPlayerInfo().c_str());
-            sScriptMgr->OnUnknownPacketReceive(m_Socket, WorldPacket(*packet));
+            sScriptMgr->OnUnknownPacketReceive(m_Socket, *packet);
         }
         else
         {
-            OpcodeHandler &opHandle = opcodeTable[packet->GetOpcode()];
+            OpcodeHandler& opHandle = opcodeTable[packet->GetOpcode()];
             try
             {
                 switch (opHandle.status)
@@ -323,7 +318,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         }
                         else if (_player->IsInWorld())
                         {
-                            sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+                            sScriptMgr->OnPacketReceive(m_Socket, *packet);
                             (this->*opHandle.handler)(*packet);
                             LogUnprocessedTail(packet);
                         }
@@ -336,7 +331,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         else
                         {
                             // not expected _player or must checked in packet handler
-                            sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+                            sScriptMgr->OnPacketReceive(m_Socket, *packet);
                             (this->*opHandle.handler)(*packet);
                             LogUnprocessedTail(packet);
                         }
@@ -348,7 +343,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                             LogUnexpectedOpcode(packet, "STATUS_TRANSFER", "the player is still in world");
                         else
                         {
-                            sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+                            sScriptMgr->OnPacketReceive(m_Socket, *packet);
                             (this->*opHandle.handler)(*packet);
                             LogUnprocessedTail(packet);
                         }
@@ -366,7 +361,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         if (packet->GetOpcode() == CMSG_CHAR_ENUM)
                             m_playerRecentlyLogout = false;
 
-                        sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+                        sScriptMgr->OnPacketReceive(m_Socket, *packet);
                         (this->*opHandle.handler)(*packet);
                         LogUnprocessedTail(packet);
                         break;
@@ -402,7 +397,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             break;
     }
 
-    if (m_Socket && !m_Socket->IsClosed() && _warden)
+    if (m_Socket && m_Socket->IsOpen() && _warden)
         _warden->Update();
 
     ProcessQueryCallbacks();
@@ -420,13 +415,12 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             _warden->Update();
 
         ///- Cleanup socket pointer if need
-        if (m_Socket && m_Socket->IsClosed())
+        if (m_Socket && !m_Socket->IsOpen())
         {
             expireTime -= expireTime > diff ? diff : expireTime;
-            if (expireTime < diff || forceExit)
+            if (expireTime < diff || forceExit || !GetPlayer())
             {
-                m_Socket->RemoveReference();
-                m_Socket = NULL;
+                m_Socket = nullptr;
             }
         }
 
@@ -780,7 +774,7 @@ void WorldSession::SaveTutorialsData(SQLTransaction &trans)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_HAS_TUTORIALS);
     stmt->setUInt32(0, GetAccountId());
-    bool hasTutorials = !CharacterDatabase.Query(stmt).null();
+    bool hasTutorials = bool(CharacterDatabase.Query(stmt));
     // Modify data in DB
     stmt = CharacterDatabase.GetPreparedStatement(hasTutorials ? CHAR_UPD_TUTORIALS : CHAR_INS_TUTORIALS);
     for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
@@ -1105,27 +1099,23 @@ void WorldSession::ProcessQueryCallbacks()
     PreparedQueryResult result;
 
     //! HandleCharEnumOpcode
-    if (_charEnumCallback.ready())
+    if (_charEnumCallback.valid() && _charEnumCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
-        _charEnumCallback.get(result);
+        result = _charEnumCallback.get();
         HandleCharEnum(result);
-        _charEnumCallback.cancel();
     }
 
     if (_charCreateCallback.IsReady())
     {
         _charCreateCallback.GetResult(result);
         HandleCharCreateCallback(result, _charCreateCallback.GetParam());
-        // Don't call FreeResult() here, the callback handler will do that depending on the events in the callback chain
     }
 
     //! HandlePlayerLoginOpcode
-    if (_charLoginCallback.ready())
+    if (_charLoginCallback.valid() && _charLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
-        SQLQueryHolder* param;
-        _charLoginCallback.get(param);
+        SQLQueryHolder* param = _charLoginCallback.get();
         HandlePlayerLogin((LoginQueryHolder*)param);
-        _charLoginCallback.cancel();
     }
 
     //! HandleAddFriendOpcode
@@ -1147,11 +1137,10 @@ void WorldSession::ProcessQueryCallbacks()
     }
 
     //- HandleCharAddIgnoreOpcode
-    if (_addIgnoreCallback.ready())
+    if (_addIgnoreCallback.valid() && _addIgnoreCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
-        _addIgnoreCallback.get(result);
+        result = _addIgnoreCallback.get();
         HandleAddIgnoreOpcodeCallBack(result);
-        _addIgnoreCallback.cancel();
     }
 
     //- SendStabledPet
@@ -1164,11 +1153,10 @@ void WorldSession::ProcessQueryCallbacks()
     }
 
     //- HandleStablePet
-    if (_stablePetCallback.ready())
+    if (_stablePetCallback.valid() && _stablePetCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
-        _stablePetCallback.get(result);
+        result = _stablePetCallback.get();
         HandleStablePetCallback(result);
-        _stablePetCallback.cancel();
     }
 
     //- HandleUnstablePet
@@ -1378,6 +1366,10 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_MESSAGECHAT:                          //   0               3.5
         case CMSG_INSPECT:                              //   0               3.5
         case CMSG_AREA_SPIRIT_HEALER_QUERY:             // not profiled
+        case CMSG_STANDSTATECHANGE:                     // not profiled
+        case MSG_RANDOM_ROLL:                           // not profiled
+        case CMSG_TIME_SYNC_RESP:                       // not profiled
+        case CMSG_TRAINER_BUY_SPELL:                    // not profiled
         {
             // "0" is a magic number meaning there's no limit for the opcode.
             // All the opcodes above must cause little CPU usage and no sync/async database queries at all
@@ -1407,6 +1399,9 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_CALENDAR_GET_CALENDAR:                //   0               1.5       medium upload bandwidth usage
         case CMSG_GUILD_BANK_QUERY_TAB:                 //   0               3.5       medium upload bandwidth usage
         case CMSG_QUERY_INSPECT_ACHIEVEMENTS:           //   0              13         high upload bandwidth usage
+        case CMSG_GAMEOBJ_REPORT_USE:                   // not profiled
+        case CMSG_GAMEOBJ_USE:                          // not profiled
+        case MSG_PETITION_DECLINE:                      // not profiled
         {
             maxPacketCounterAllowed = 50;
             break;
@@ -1420,9 +1415,8 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
 
         case CMSG_GM_REPORT_LAG:                        //   1               3         1 async db query
         case CMSG_SPELLCLICK:                           // not profiled
-        case CMSG_GAMEOBJ_USE:                          // not profiled
-        case CMSG_GAMEOBJ_REPORT_USE:                   // not profiled
         case CMSG_REMOVE_GLYPH:                         // not profiled
+        case CMSG_DISMISS_CONTROLLED_VEHICLE:           // not profiled
         {
             maxPacketCounterAllowed = 20;
             break;
@@ -1450,7 +1444,6 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_REQUEST_VEHICLE_PREV_SEAT:            // not profiled
         case CMSG_REQUEST_VEHICLE_NEXT_SEAT:            // not profiled
         case CMSG_REQUEST_VEHICLE_SWITCH_SEAT:          // not profiled
-        case CMSG_DISMISS_CONTROLLED_VEHICLE:           // not profiled
         case CMSG_REQUEST_VEHICLE_EXIT:                 // not profiled
         case CMSG_CONTROLLER_EJECT_PASSENGER:           // not profiled
         case CMSG_ITEM_REFUND:                          // not profiled
@@ -1502,11 +1495,9 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_SET_GUILD_BANK_TEXT:                  // not profiled
         case MSG_SAVE_GUILD_EMBLEM:                     // not profiled
         case MSG_PETITION_RENAME:                       // not profiled
-        case MSG_PETITION_DECLINE:                      // not profiled
         case MSG_TALENT_WIPE_CONFIRM:                   // not profiled
         case MSG_SET_DUNGEON_DIFFICULTY:                // not profiled
         case MSG_SET_RAID_DIFFICULTY:                   // not profiled
-        case MSG_RANDOM_ROLL:                           // not profiled
         case MSG_PARTY_ASSIGNMENT:                      // not profiled
         case MSG_RAID_READY_CHECK:                      // not profiled
         {

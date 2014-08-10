@@ -205,7 +205,7 @@ public:
 
         bool SummonSoul()
         {
-            uint32 random = rand()%6;
+            uint32 random = rand32() % 6;
             float x = Coords[random].x;
             float y = Coords[random].y;
 
@@ -215,7 +215,7 @@ public:
 
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
             {
-                CAST_AI(npc_enslaved_soul::npc_enslaved_soulAI, Soul->AI())->ReliquaryGUID = me->GetGUID();
+                ENSURE_AI(npc_enslaved_soul::npc_enslaved_soulAI, Soul->AI())->ReliquaryGUID = me->GetGUID();
                 Soul->AI()->AttackStart(target);
             } else EnterEvadeMode();
             return true;
@@ -379,7 +379,7 @@ void npc_enslaved_soul::npc_enslaved_soulAI::JustDied(Unit* /*killer*/)
 {
     if (ReliquaryGUID)
         if (Creature* Reliquary = (ObjectAccessor::GetCreature((*me), ReliquaryGUID)))
-            ++(CAST_AI(boss_reliquary_of_souls::boss_reliquary_of_soulsAI, Reliquary->AI())->SoulDeathCount);
+            ++(ENSURE_AI(boss_reliquary_of_souls::boss_reliquary_of_soulsAI, Reliquary->AI())->SoulDeathCount);
 
     DoCast(me, SPELL_SOUL_RELEASE, true);
 }
@@ -478,7 +478,7 @@ public:
                 {
                     CastFixate();
                     FixateTimer = 5000;
-                    if (!(rand()%16))
+                    if (!(rand32() % 16))
                     {
                         Talk(SUFF_SAY_AGGRO);
                     }
@@ -599,7 +599,7 @@ public:
                 me->InterruptNonMeleeSpells(false);
                 DoCastVictim(SPELL_DEADEN);
                 DeadenTimer = urand(25000, 35000);
-                if (!(rand()%2))
+                if (!(rand32() % 2))
                 {
                     Talk(DESI_SAY_SPEC);
                 }
@@ -692,7 +692,7 @@ public:
             {
                 DoCastVictim(SPELL_SOUL_SCREAM);
                 SoulScreamTimer = urand(9000, 11000);
-                if (!(rand()%3))
+                if (!(rand32() % 3))
                 {
                     Talk(ANGER_SAY_SPEC);
                 }

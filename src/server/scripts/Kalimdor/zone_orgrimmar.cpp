@@ -51,8 +51,8 @@ public:
     {
         if (quest->GetQuestId() == QUEST_SHATTERED_SALUTE)
         {
-            CAST_AI(npc_shenthul::npc_shenthulAI, creature->AI())->CanTalk = true;
-            CAST_AI(npc_shenthul::npc_shenthulAI, creature->AI())->PlayerGUID = player->GetGUID();
+            ENSURE_AI(npc_shenthul::npc_shenthulAI, creature->AI())->CanTalk = true;
+            ENSURE_AI(npc_shenthul::npc_shenthulAI, creature->AI())->PlayerGUID = player->GetGUID();
         }
         return true;
     }

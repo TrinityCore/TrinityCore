@@ -312,7 +312,7 @@ class boss_sapphiron : public CreatureScript
                                 else
                                 {
                                     std::vector<Unit*>::const_iterator itr = targets.begin();
-                                    advance(itr, rand()%targets.size());
+                                    advance(itr, rand32() % targets.size());
                                     _iceblocks.insert(std::make_pair((*itr)->GetGUID(), 0));
                                     DoCast(*itr, SPELL_ICEBOLT);
                                     --_iceboltCount;

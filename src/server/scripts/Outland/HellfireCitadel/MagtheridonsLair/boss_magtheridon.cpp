@@ -180,7 +180,7 @@ class npc_abyssal : public CreatureScript
                 if (FireBlast_Timer <= diff)
                 {
                     DoCastVictim(SPELL_FIRE_BLAST);
-                    FireBlast_Timer = 5000+rand()%10000;
+                    FireBlast_Timer = 5000 + rand32() % 10000;
                 }
                 else FireBlast_Timer -= diff;
 
@@ -232,7 +232,7 @@ class boss_magtheridon : public CreatureScript
                 Berserk_Timer = 1320000;
                 Quake_Timer = 40000;
                 Debris_Timer = 10000;
-                Blaze_Timer = 10000+rand()%20000;
+                Blaze_Timer = 10000 + rand32() % 20000;
                 BlastNova_Timer = 60000;
                 Cleave_Timer = 15000;
                 RandChat_Timer = 90000;
@@ -405,7 +405,7 @@ class boss_magtheridon : public CreatureScript
                         Creature* summon = me->SummonCreature(NPC_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                         if (summon)
                         {
-                            CAST_AI(npc_abyssal::npc_abyssalAI, summon->AI())->SetTrigger(2);
+                            ENSURE_AI(npc_abyssal::npc_abyssalAI, summon->AI())->SetTrigger(2);
                             DoCast(summon, SPELL_BLAZE_TARGET, true);
                             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         }
@@ -437,7 +437,7 @@ class boss_magtheridon : public CreatureScript
                             target->GetPosition(x, y, z);
                             Creature* summon = me->SummonCreature(NPC_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                             if (summon)
-                                CAST_AI(npc_abyssal::npc_abyssalAI, summon->AI())->SetTrigger(1);
+                                ENSURE_AI(npc_abyssal::npc_abyssalAI, summon->AI())->SetTrigger(1);
                         }
                         Debris_Timer = 10000;
                     }
@@ -538,7 +538,7 @@ class npc_hellfire_channeler : public CreatureScript
                 {
                     if (HealthBelowPct(50))
                         DoCast(me, SPELL_DARK_MENDING);
-                    DarkMending_Timer = 10000 +(rand() % 10000);
+                    DarkMending_Timer = 10000 + (rand32() % 10000);
                 }
                 else
                     DarkMending_Timer -= diff;
@@ -599,7 +599,7 @@ public:
         player->InterruptNonMeleeSpells(false);
         player->CastSpell(player, SPELL_SHADOW_GRASP, true);
         player->CastSpell(player, SPELL_SHADOW_GRASP_VISUAL, false);
-        CAST_AI(boss_magtheridon::boss_magtheridonAI, Magtheridon->AI())->SetClicker(go->GetGUID(), player->GetGUID());
+        ENSURE_AI(boss_magtheridon::boss_magtheridonAI, Magtheridon->AI())->SetClicker(go->GetGUID(), player->GetGUID());
         return true;
     }
 };

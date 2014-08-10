@@ -18,13 +18,8 @@
 #ifndef BATTLEFIELD_H_
 #define BATTLEFIELD_H_
 
-#include "Utilities/Util.h"
 #include "SharedDefines.h"
 #include "ZoneScript.h"
-#include "WorldPacket.h"
-#include "GameObject.h"
-#include "Battleground.h"
-#include "ObjectAccessor.h"
 
 enum BattlefieldTypes
 {
@@ -110,7 +105,7 @@ class BfCapturePoint
         bool DelCapturePoint();
 
         // active Players in the area of the objective, 0 - alliance, 1 - horde
-        GuidSet m_activePlayers[2];
+        GuidSet m_activePlayers[BG_TEAMS_COUNT];
 
         // Total shift needed to capture the objective
         float m_maxValue;
@@ -182,7 +177,7 @@ class BfGraveyard
     protected:
         TeamId m_ControlTeam;
         uint32 m_GraveyardId;
-        uint64 m_SpiritGuide[2];
+        uint64 m_SpiritGuide[BG_TEAMS_COUNT];
         GuidSet m_ResurrectQueue;
         Battlefield* m_Bf;
 };
@@ -250,12 +245,12 @@ class Battlefield : public ZoneScript
         void HandlePlayerLeaveZone(Player* player, uint32 zone);
 
         // All-purpose data storage 64 bit
-        virtual uint64 GetData64(uint32 dataId) const { return m_Data64[dataId]; }
-        virtual void SetData64(uint32 dataId, uint64 value) { m_Data64[dataId] = value; }
+        virtual uint64 GetData64(uint32 dataId) const override { return m_Data64[dataId]; }
+        virtual void SetData64(uint32 dataId, uint64 value) override { m_Data64[dataId] = value; }
 
         // All-purpose data storage 32 bit
-        virtual uint32 GetData(uint32 dataId) const { return m_Data32[dataId]; }
-        virtual void SetData(uint32 dataId, uint32 value) { m_Data32[dataId] = value; }
+        virtual uint32 GetData(uint32 dataId) const override { return m_Data32[dataId]; }
+        virtual void SetData(uint32 dataId, uint32 value) override { m_Data32[dataId] = value; }
         virtual void UpdateData(uint32 index, int32 pad) { m_Data32[index] += pad; }
 
         // Battlefield - generic methods
@@ -285,8 +280,8 @@ class Battlefield : public ZoneScript
         BfGraveyard* GetGraveyardById(uint32 id) const;
 
         // Misc methods
-        virtual Creature* SpawnCreature(uint32 entry, float x, float y, float z, float o, TeamId team);
-        Creature* SpawnCreature(uint32 entry, const Position& pos, TeamId team);
+        virtual Creature* SpawnCreature(uint32 entry, float x, float y, float z, float o, TeamId /*teamId*/);
+        Creature* SpawnCreature(uint32 entry, Position const& pos, TeamId /*teamId*/);
         GameObject* SpawnGameObject(uint32 entry, float x, float y, float z, float o);
 
         Creature* GetCreature(uint64 GUID);
@@ -344,7 +339,7 @@ class Battlefield : public ZoneScript
         void InvitePlayerToQueue(Player* player);
         void InvitePlayerToWar(Player* player);
 
-        void InitStalker(uint32 entry, float x, float y, float z, float o);
+        void InitStalker(uint32 entry, Position const& pos);
 
     protected:
         uint64 StalkerGuid;

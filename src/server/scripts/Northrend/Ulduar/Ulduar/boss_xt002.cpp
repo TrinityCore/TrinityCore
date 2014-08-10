@@ -1066,7 +1066,7 @@ class achievement_heartbreaker : public AchievementCriteriaScript
             if (!target || !target->GetAI())
                 return false;
 
-            return target->GetAI()->GetData(DATA_HARD_MODE);
+            return target->GetAI()->GetData(DATA_HARD_MODE) != 0;
         }
 };
 

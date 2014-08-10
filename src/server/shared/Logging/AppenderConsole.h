@@ -18,8 +18,8 @@
 #ifndef APPENDERCONSOLE_H
 #define APPENDERCONSOLE_H
 
-#include "Appender.h"
 #include <string>
+#include "Appender.h"
 
 enum ColorTypes
 {
@@ -51,7 +51,7 @@ class AppenderConsole: public Appender
     private:
         void SetColor(bool stdout_stream, ColorTypes color);
         void ResetColor(bool stdout_stream);
-        void _write(LogMessage const& message);
+        void _write(LogMessage const& message) override;
         bool _colored;
         ColorTypes _colors[MaxLogLevels];
 };

@@ -143,7 +143,8 @@ public:
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (player->GetQuestStatus(QUEST_SUBTERFUGE) == QUEST_STATUS_COMPLETE &&
-            !player->GetQuestRewardStatus(QUEST_IN_DREAMS) && !player->HasAura(SPELL_SCARLET_ILLUSION))
+            player->GetQuestStatus(QUEST_IN_DREAMS) != QUEST_STATUS_COMPLETE &&
+            !player->HasAura(SPELL_SCARLET_ILLUSION))
         {
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ILLUSION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             player->SEND_GOSSIP_MENU(4773, creature->GetGUID());
@@ -303,10 +304,11 @@ public:
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
-        npc_escortAI* pEscortAI = CAST_AI(npc_anchorite_truuen::npc_anchorite_truuenAI, creature->AI());
-
         if (quest->GetQuestId() == QUEST_TOMB_LIGHTBRINGER)
+        {
+            npc_escortAI* pEscortAI = ENSURE_AI(npc_anchorite_truuen::npc_anchorite_truuenAI, creature->AI());
             pEscortAI->Start(true, true, player->GetGUID());
+        }
         return false;
     }
 

@@ -19,14 +19,12 @@
 /* ScriptData
 SDName: Bloodmyst_Isle
 SD%Complete: 80
-SDComment: Quest support: 9670, 9667
+SDComment: Quest support: 9670
 SDCategory: Bloodmyst Isle
 EndScriptData */
 
 /* ContentData
 npc_webbed_creature
-npc_princess_stillpine
-go_princess_stillpines_cage
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -85,64 +83,7 @@ public:
     }
 };
 
-/*######
-## Quest 9667: Saving Princess Stillpine
-######*/
-
-enum Stillpine
-{
-    QUEST_SAVING_PRINCESS_STILLPINE               = 9667,
-    NPC_PRINCESS_STILLPINE                        = 17682,
-    GO_PRINCESS_STILLPINES_CAGE                   = 181928,
-    SPELL_OPENING_PRINCESS_STILLPINE_CREDIT       = 31003,
-    SAY_DIRECTION                                 = 0
-};
-
-class go_princess_stillpines_cage : public GameObjectScript
-{
-public:
-    go_princess_stillpines_cage() : GameObjectScript("go_princess_stillpines_cage") { }
-
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        go->SetGoState(GO_STATE_READY);
-        if (Creature* stillpine = go->FindNearestCreature(NPC_PRINCESS_STILLPINE, 25, true))
-        {
-            stillpine->GetMotionMaster()->MovePoint(1, go->GetPositionX(), go->GetPositionY()-15, go->GetPositionZ());
-            player->KilledMonsterCredit(NPC_PRINCESS_STILLPINE, stillpine->GetGUID());
-        }
-        return true;
-    }
-};
-
-class npc_princess_stillpine : public CreatureScript
-{
-public:
-    npc_princess_stillpine() : CreatureScript("npc_princess_stillpine") { }
-
-    struct npc_princess_stillpineAI : public ScriptedAI
-    {
-        npc_princess_stillpineAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void MovementInform(uint32 type, uint32 id) override
-        {
-            if (type == POINT_MOTION_TYPE && id == 1)
-            {
-                Talk(SAY_DIRECTION);
-                me->DespawnOrUnsummon();
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_princess_stillpineAI(creature);
-    }
-};
-
 void AddSC_bloodmyst_isle()
 {
     new npc_webbed_creature();
-    new npc_princess_stillpine();
-    new go_princess_stillpines_cage();
 }

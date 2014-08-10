@@ -149,7 +149,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/) override
         {
-            if (!(rand()%5))
+            if (!(rand32() % 5))
                 Talk(SAY_SLAY);
         }
 
@@ -309,7 +309,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/) override
         {
-            if (!(rand()%5))
+            if (!(rand32() % 5))
                 Talk(SAY_STAL_SLAY);
         }
 
@@ -399,7 +399,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/) override
         {
-            if (!(rand()%5))
+            if (!(rand32() % 5))
                 Talk(SAY_FEUG_SLAY);
         }
 

@@ -25,18 +25,18 @@
 class MapReference : public Reference<Map, Player>
 {
     protected:
-        void targetObjectBuildLink()
+        void targetObjectBuildLink() override
         {
             // called from link()
             getTarget()->m_mapRefManager.insertFirst(this);
             getTarget()->m_mapRefManager.incSize();
         }
-        void targetObjectDestroyLink()
+        void targetObjectDestroyLink() override
         {
             // called from unlink()
             if (isValid()) getTarget()->m_mapRefManager.decSize();
         }
-        void sourceObjectDestroyLink()
+        void sourceObjectDestroyLink() override
         {
             // called from invalidate()
             getTarget()->m_mapRefManager.decSize();

@@ -426,7 +426,7 @@ class spell_q11587_arcane_prisoner_rescue : public SpellScriptLoader
                 if (Unit* unitTarget = GetHitUnit())
                 {
                     uint32 spellId = SPELL_SUMMON_ARCANE_PRISONER_MALE;
-                    if (rand() % 2)
+                    if (rand32() % 2)
                         spellId = SPELL_SUMMON_ARCANE_PRISONER_FEMALE;
                     caster->CastSpell(caster, spellId, true);
                     unitTarget->CastSpell(caster, SPELL_ARCANE_PRISONER_KILL_CREDIT, true);
@@ -1773,7 +1773,7 @@ class spell_q12847_summon_soul_moveto_bunny : public SpellScriptLoader
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript *GetSpellScript() const override
         {
             return new spell_q12847_summon_soul_moveto_bunny_SpellScript();
         }
@@ -1810,12 +1810,11 @@ class spell_q13011_bear_flank_master : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                bool failed = RAND(0, 1); // 50% chance
-                Creature* creature = GetCaster()->ToCreature();
                 if (Player* player = GetHitPlayer())
                 {
-                    if (failed)
+                    if (roll_chance_i(50))
                     {
+                        Creature* creature = GetCaster()->ToCreature();
                         player->CastSpell(creature, SPELL_BEAR_FLANK_FAIL);
                         creature->AI()->Talk(0, player);
                     }

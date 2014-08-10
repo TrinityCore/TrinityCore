@@ -218,9 +218,9 @@ class OutdoorPvP : public ZoneScript
         // setup stuff
         virtual bool SetupOutdoorPvP() {return true;}
 
-        void OnGameObjectCreate(GameObject* go);
-        void OnGameObjectRemove(GameObject* go);
-        void OnCreatureCreate(Creature*) { }
+        void OnGameObjectCreate(GameObject* go) override;
+        void OnGameObjectRemove(GameObject* go) override;
+        void OnCreatureCreate(Creature*) override { }
 
         // send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
@@ -261,6 +261,8 @@ class OutdoorPvP : public ZoneScript
             }
         }
 
+        void SendDefenseMessage(uint32 zoneId, uint32 id);
+
     protected:
 
         // the map of the objectives belonging to this outdoorpvp
@@ -300,6 +302,9 @@ class OutdoorPvP : public ZoneScript
         bool HasPlayer(Player const* player) const;
 
         void TeamCastSpell(TeamId team, int32 spellId);
+
+        template<class Worker>
+        void BroadcastWorker(Worker& _worker, uint32 zoneId);
 };
 
 #endif /*OUTDOOR_PVP_H_*/

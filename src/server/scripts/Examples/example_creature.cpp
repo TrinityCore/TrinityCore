@@ -199,7 +199,7 @@ class example_creature : public CreatureScript
                 if (m_uiSpell1Timer <= uiDiff)
                 {
                     //Cast spell one on our current target.
-                    if (rand()%50 > 10)
+                    if (rand32() % 50 > 10)
                         DoCastVictim(SPELL_ONE_ALT);
                     else if (me->IsWithinDist(me->GetVictim(), 25.0f))
                         DoCastVictim(SPELL_ONE);

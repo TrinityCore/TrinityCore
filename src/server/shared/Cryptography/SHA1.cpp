@@ -18,6 +18,7 @@
 
 #include "SHA1.h"
 #include "BigNumber.h"
+#include <cstring>
 #include <stdarg.h>
 
 SHA1Hash::SHA1Hash()

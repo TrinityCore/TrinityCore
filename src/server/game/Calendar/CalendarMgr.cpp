@@ -441,8 +441,8 @@ void CalendarMgr::SendCalendarEventInvite(CalendarInvite const& invite)
 
     if (!calendarEvent) // Pre-invite
     {
-        if (Player* player = ObjectAccessor::FindPlayer(invite.GetSenderGUID()))
-            player->SendDirectMessage(&data);
+        if (Player* playerSender = ObjectAccessor::FindPlayer(invite.GetSenderGUID()))
+            playerSender->SendDirectMessage(&data);
     }
     else
     {
@@ -636,7 +636,7 @@ void CalendarMgr::SendCalendarCommandResult(uint64 guid, CalendarError err, char
     }
 }
 
-void CalendarMgr::SendPacketToAllEventRelatives(WorldPacket packet, CalendarEvent const& calendarEvent)
+void CalendarMgr::SendPacketToAllEventRelatives(WorldPacket& packet, CalendarEvent const& calendarEvent)
 {
     // Send packet to all guild members
     if (calendarEvent.IsGuildEvent() || calendarEvent.IsGuildAnnouncement())

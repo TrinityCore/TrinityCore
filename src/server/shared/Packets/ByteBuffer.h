@@ -22,8 +22,8 @@
 #include "Define.h"
 #include "Errors.h"
 #include "ByteConverter.h"
+#include "Util.h"
 
-#include <ace/OS_NS_time.h>
 #include <exception>
 #include <list>
 #include <map>
@@ -32,6 +32,9 @@
 #include <cstring>
 #include <time.h>
 #include <math.h>
+#include <boost/asio/buffer.hpp>
+
+class MessageBuffer;
 
 // Root of ByteBuffer exception hierarchy
 class ByteBufferException : public std::exception
@@ -39,7 +42,7 @@ class ByteBufferException : public std::exception
 public:
     ~ByteBufferException() throw() { }
 
-    char const* what() const throw() { return msg_.c_str(); }
+    char const* what() const throw() override { return msg_.c_str(); }
 
 protected:
     std::string & message() throw() { return msg_; }
@@ -80,10 +83,24 @@ class ByteBuffer
             _storage.reserve(reserve);
         }
 
-        // copy constructor
-        ByteBuffer(const ByteBuffer &buf) : _rpos(buf._rpos), _wpos(buf._wpos),
-            _storage(buf._storage)
+        ByteBuffer(ByteBuffer&& buf) : _rpos(buf._rpos), _wpos(buf._wpos),
+            _storage(std::move(buf._storage)) { }
+
+        ByteBuffer(ByteBuffer const& right) : _rpos(right._rpos), _wpos(right._wpos),
+            _storage(right._storage) { }
+
+        ByteBuffer(MessageBuffer&& buffer);
+
+        ByteBuffer& operator=(ByteBuffer const& right)
         {
+            if (this != &right)
+            {
+                _rpos = right._rpos;
+                _wpos = right._wpos;
+                _storage = right._storage;
+            }
+
+            return *this;
         }
 
         virtual ~ByteBuffer() { }
@@ -382,18 +399,18 @@ class ByteBuffer
             return *this;
         }
 
-        uint8 * contents()
+        uint8* contents()
         {
             if (_storage.empty())
                 throw ByteBufferException();
-            return &_storage[0];
+            return _storage.data();
         }
 
-        const uint8 *contents() const
+        uint8 const* contents() const
         {
             if (_storage.empty())
                 throw ByteBufferException();
-            return &_storage[0];
+            return _storage.data();
         }
 
         size_t size() const { return _storage.size(); }
@@ -476,7 +493,7 @@ class ByteBuffer
         void AppendPackedTime(time_t time)
         {
             tm lt;
-            ACE_OS::localtime_r(&time, &lt);
+            localtime_r(&time, &lt);
             append<uint32>((lt.tm_year - 100) << 24 | lt.tm_mon  << 20 | (lt.tm_mday - 1) << 14 | lt.tm_wday << 11 | lt.tm_hour << 6 | lt.tm_min);
         }
 
@@ -608,5 +625,15 @@ inline void ByteBuffer::read_skip<std::string>()
     read_skip<char*>();
 }
 
-#endif
+namespace boost
+{
+    namespace asio
+    {
+        inline const_buffers_1 buffer(ByteBuffer const& packet)
+        {
+            return buffer(packet.contents(), packet.size());
+        }
+    }
+}
 
+#endif

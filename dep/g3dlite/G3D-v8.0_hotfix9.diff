@@ -1,0 +1,13 @@
+diff --git a/dep/g3dlite/include/G3D/g3dmath.h b/dep/g3dlite/include/G3D/g3dmath.h
+index b0c98ae..4be723c 100644
+--- a/dep/g3dlite/include/G3D/g3dmath.h
++++ b/dep/g3dlite/include/G3D/g3dmath.h
+@@ -30,7 +30,7 @@
+ #include <limits>
+ #include <stdlib.h>
+ 
+-#ifdef _MSC_VER
++#if defined(_MSC_VER) && (_MSC_VER < 1000)
+     // Visual Studio is missing inttypes.h
+ #   ifndef PRId64
+ #       define PRId64 "I64d"

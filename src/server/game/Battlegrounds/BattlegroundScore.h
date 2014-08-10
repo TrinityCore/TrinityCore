@@ -51,6 +51,7 @@ enum ScoreType
 
 struct BattlegroundScore
 {
+    friend class Arena;
     friend class Battleground;
 
     protected:
@@ -87,7 +88,7 @@ struct BattlegroundScore
             }
         }
 
-        virtual void AppendToPacket(WorldPacket& data) 
+        virtual void AppendToPacket(WorldPacket& data)
         {
             data << uint64(PlayerGuid);
 
@@ -108,7 +109,7 @@ struct BattlegroundScore
 
         uint64 PlayerGuid;
 
-        // Default score, present in every type 
+        // Default score, present in every type
         uint32 KillingBlows;
         uint32 Deaths;
         uint32 HonorableKills;

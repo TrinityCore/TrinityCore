@@ -230,7 +230,7 @@ public:
 
         void SetMidnight(Creature* pAttumen, uint64 value)
         {
-            CAST_AI(boss_attumen::boss_attumenAI, pAttumen->AI())->Midnight = value;
+            ENSURE_AI(boss_attumen::boss_attumenAI, pAttumen->AI())->Midnight = value;
         }
     };
 };
@@ -294,7 +294,7 @@ void boss_attumen::boss_attumenAI::UpdateAI(uint32 diff)
                 target = NULL;
             }
             if (!target_list.empty())
-                target = *(target_list.begin()+rand()%target_list.size());
+                target = *(target_list.begin() + rand32() % target_list.size());
 
             DoCast(target, SPELL_BERSERKER_CHARGE);
             ChargeTimer = 20000;
@@ -307,7 +307,7 @@ void boss_attumen::boss_attumenAI::UpdateAI(uint32 diff)
             Creature* pMidnight = ObjectAccessor::GetCreature(*me, Midnight);
             if (pMidnight && pMidnight->GetTypeId() == TYPEID_UNIT)
             {
-                CAST_AI(boss_midnight::boss_midnightAI, (pMidnight->AI()))->Mount(me);
+                ENSURE_AI(boss_midnight::boss_midnightAI, (pMidnight->AI()))->Mount(me);
                 me->SetHealth(pMidnight->GetHealth());
                 DoResetThreat();
             }

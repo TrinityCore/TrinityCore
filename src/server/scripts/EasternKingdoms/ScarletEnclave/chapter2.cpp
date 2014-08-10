@@ -514,7 +514,7 @@ public:
 
         void Shout()
         {
-            if (rand()%100 < 15)
+            if (rand32() % 100 < 15)
                 Talk(SAY_VALROTH_RAND);
         }
 
