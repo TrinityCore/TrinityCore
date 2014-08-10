@@ -153,7 +153,7 @@ public:
             if (MightyBlow_Timer <= diff)
             {
                 DoCastVictim(SPELL_MIGHTY_BLOW);
-                MightyBlow_Timer = 30000+rand()%10000;
+                MightyBlow_Timer = 30000 + rand32() % 10000;
             } else MightyBlow_Timer -= diff;
 
             //Entering Phase 2
@@ -186,7 +186,7 @@ public:
                 if (Roar_Timer <= diff)
                 {
                     DoCast(me, SPELL_ROAR);
-                    Roar_Timer = 40000+(rand()%10000);
+                    Roar_Timer = 40000 + (rand32() % 10000);
                 } else Roar_Timer -= diff;
             }
 
@@ -537,7 +537,7 @@ public:
                     target = NULL;
                 }
                 if (!target_list.empty())
-                    target = *(target_list.begin()+rand()%target_list.size());
+                    target = *(target_list.begin() + rand32() % target_list.size());
 
                 me->InterruptNonMeleeSpells(false);
                 DoCast(target, SPELL_BLAST_WAVE);

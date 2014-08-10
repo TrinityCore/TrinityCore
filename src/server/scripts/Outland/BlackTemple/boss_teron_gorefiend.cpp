@@ -306,10 +306,10 @@ public:
             switch (urand(0, 1))
             {
                 case 0:
-                    coord += rand()%radius;
+                    coord += rand32() % radius;
                     break;
                 case 1:
-                    coord -= rand()%radius;
+                    coord -= rand32() % radius;
                     break;
             }
             return coord;
@@ -366,7 +366,7 @@ public:
                     {
                         Construct->CastSpell(Construct, SPELL_PASSIVE_SHADOWFORM, true);
                         SetThreatList(Construct);               // Use same function as Doom Blossom to set Threat List.
-                        CAST_AI(npc_shadowy_construct::npc_shadowy_constructAI, Construct->AI())->GhostGUID = GhostGUID;
+                        ENSURE_AI(npc_shadowy_construct::npc_shadowy_constructAI, Construct->AI())->GhostGUID = GhostGUID;
                         Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
                         if (!target)                             // someone's trying to solo.
                             target = me->GetVictim();
@@ -444,7 +444,7 @@ public:
                         DoomBlossom->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         DoomBlossom->setFaction(me->getFaction());
                         DoomBlossom->AddThreat(target, 1.0f);
-                        CAST_AI(npc_doom_blossom::npc_doom_blossomAI, DoomBlossom->AI())->SetTeronGUID(me->GetGUID());
+                        ENSURE_AI(npc_doom_blossom::npc_doom_blossomAI, DoomBlossom->AI())->SetTeronGUID(me->GetGUID());
                         target->CombatStart(DoomBlossom);
                         SetThreatList(DoomBlossom);
                         SummonDoomBlossomTimer = 35000;

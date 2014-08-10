@@ -444,7 +444,7 @@ void hyjalAI::MoveInLineOfSight(Unit* who)
 
 void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
 {
-    uint32 random = rand()%4;
+    uint32 random = rand32() % 4;
     float SpawnLoc[3];
 
     for (uint8 i = 0; i < 3; ++i)
@@ -460,7 +460,7 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
                 {//summon at tower
                     creature = me->SummonCreature(entry, SpawnPointSpecial[SPAWN_NEAR_TOWER][0]+irand(-20, 20), SpawnPointSpecial[SPAWN_NEAR_TOWER][1]+irand(-20, 20), SpawnPointSpecial[SPAWN_NEAR_TOWER][2]+irand(-10, 10), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
                     if (creature)
-                        CAST_AI(hyjal_trashAI, creature->AI())->useFlyPath = true;
+                        ENSURE_AI(hyjal_trashAI, creature->AI())->useFlyPath = true;
                 }
                 else
                 {//summon at gate
@@ -474,7 +474,7 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
                 {
                     creature = me->SummonCreature(entry, SpawnPointSpecial[SPAWN_NEAR_TOWER][0], SpawnPointSpecial[SPAWN_NEAR_TOWER][1], SpawnPointSpecial[SPAWN_NEAR_TOWER][2], 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
                     if (creature)
-                        CAST_AI(hyjal_trashAI, creature->AI())->useFlyPath = true;
+                        ENSURE_AI(hyjal_trashAI, creature->AI())->useFlyPath = true;
                 }
                 break;
             case 17908:    //GIANT_INFERNAL
@@ -511,7 +511,7 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
             case ANETHERON:
             case KAZROGAL:
             case AZGALOR:
-                CAST_AI(hyjal_trashAI, creature->AI())->IsEvent = true;
+                ENSURE_AI(hyjal_trashAI, creature->AI())->IsEvent = true;
                 break;
         }
         if (instance->GetData(DATA_RAIDDAMAGE) < MINRAIDDAMAGE)
@@ -529,7 +529,7 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
 void hyjalAI::SummonNextWave(const Wave wave[18], uint32 Count, float Base[4][3])
 {
     // 1 in 4 chance we give a rally yell. Not sure if the chance is offilike.
-    if (rand()%4 == 0)
+    if (rand32() % 4 == 0)
         Talk(RALLY);
 
     InfernalCount = 0;//reset infernal count every new wave
@@ -623,7 +623,7 @@ void hyjalAI::Retreat()
         if (JainaDummy)
         {
             JainaDummy->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            CAST_AI(hyjalAI, JainaDummy->AI())->IsDummy = true;
+            ENSURE_AI(hyjalAI, JainaDummy->AI())->IsDummy = true;
             DummyGuid = JainaDummy->GetGUID();
         }
         AddWaypoint(0, JainaDummySpawn[1][0], JainaDummySpawn[1][1], JainaDummySpawn[1][2]);
@@ -939,7 +939,7 @@ void hyjalAI::WaypointReached(uint32 waypointId)
         {
             if (Creature* creature = ObjectAccessor::GetCreature(*me, DummyGuid))
             {
-                hyjalAI* ai = CAST_AI(hyjalAI, creature->AI());
+                hyjalAI* ai = ENSURE_AI(hyjalAI, creature->AI());
                 ai->DoMassTeleport = true;
                 ai->MassTeleportTimer = 20000;
                 creature->CastSpell(me, SPELL_MASS_TELEPORT, false);
@@ -1032,25 +1032,25 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
 
             for (uint8 i = 0; i < 25; ++i)//summon 25 ghouls
             {
-                uint8 r = rand()%4;
+                uint8 r = rand32() % 4;
                 Creature* unit = me->SummonCreature(GHOUL, AllianceBase[r][0]+irand(-15, 15), AllianceBase[r][1]+irand(-15, 15), AllianceBase[r][2], 0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
                 if (unit)
                 {
-                    CAST_AI(hyjal_trashAI, unit->AI())->faction = Faction;
-                    CAST_AI(hyjal_trashAI, unit->AI())->IsOverrun = true;
-                    CAST_AI(hyjal_trashAI, unit->AI())->OverrunType = i;
+                    ENSURE_AI(hyjal_trashAI, unit->AI())->faction = Faction;
+                    ENSURE_AI(hyjal_trashAI, unit->AI())->IsOverrun = true;
+                    ENSURE_AI(hyjal_trashAI, unit->AI())->OverrunType = i;
                     unit->setActive(true);
                 }
             }
             for (uint8 i = 0; i < 3; ++i)//summon 3 abominations
             {
-                uint8 r = rand()%4;
+                uint8 r = rand32() % 4;
                 Creature* unit = me->SummonCreature(ABOMINATION, AllianceBase[r][0]+irand(-15, 15), AllianceBase[r][1]+irand(-15, 15), AllianceBase[r][2], 0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
                 if (unit)
                 {
-                    CAST_AI(hyjal_trashAI, unit->AI())->faction = Faction;
-                    CAST_AI(hyjal_trashAI, unit->AI())->IsOverrun = true;
-                    CAST_AI(hyjal_trashAI, unit->AI())->OverrunType = i;
+                    ENSURE_AI(hyjal_trashAI, unit->AI())->faction = Faction;
+                    ENSURE_AI(hyjal_trashAI, unit->AI())->IsOverrun = true;
+                    ENSURE_AI(hyjal_trashAI, unit->AI())->OverrunType = i;
                     unit->setActive(true);
                 }
             }
@@ -1060,9 +1060,9 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                 if (unit)
                 {
                     unit->SetHomePosition(AllianceOverrunGargPos[i][0], AllianceOverrunGargPos[i][1], AllianceOverrunGargPos[i][2], AllianceOverrunGargPos[i][3]);
-                    CAST_AI(hyjal_trashAI, unit->AI())->faction = Faction;
-                    CAST_AI(hyjal_trashAI, unit->AI())->IsOverrun = true;
-                    CAST_AI(hyjal_trashAI, unit->AI())->OverrunType = i;
+                    ENSURE_AI(hyjal_trashAI, unit->AI())->faction = Faction;
+                    ENSURE_AI(hyjal_trashAI, unit->AI())->IsOverrun = true;
+                    ENSURE_AI(hyjal_trashAI, unit->AI())->OverrunType = i;
                     unit->setActive(true);
                 }
             }
@@ -1077,33 +1077,33 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                 if (unit)
                 {
                     unit->SetHomePosition(InfernalSPWP[i][0], InfernalSPWP[i][1], InfernalSPWP[i][2], InfernalSPWP[i][3]);
-                    CAST_AI(hyjal_trashAI, unit->AI())->faction = Faction;
-                    CAST_AI(hyjal_trashAI, unit->AI())->IsOverrun = true;
-                    CAST_AI(hyjal_trashAI, unit->AI())->OverrunType = i;
+                    ENSURE_AI(hyjal_trashAI, unit->AI())->faction = Faction;
+                    ENSURE_AI(hyjal_trashAI, unit->AI())->IsOverrun = true;
+                    ENSURE_AI(hyjal_trashAI, unit->AI())->OverrunType = i;
                     unit->setActive(true);
                 }
             }
             for (uint8 i = 0; i < 25; ++i)//summon 25 ghouls
             {
-                uint8 r = rand()%4;
+                uint8 r = rand32() % 4;
                 Creature* unit = me->SummonCreature(GHOUL, HordeBase[r][0]+irand(-15, 15), HordeBase[r][1]+irand(-15, 15), HordeBase[r][2], 0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
                 if (unit)
                 {
-                    CAST_AI(hyjal_trashAI, unit->AI())->faction = Faction;
-                    CAST_AI(hyjal_trashAI, unit->AI())->IsOverrun = true;
-                    CAST_AI(hyjal_trashAI, unit->AI())->OverrunType = i;
+                    ENSURE_AI(hyjal_trashAI, unit->AI())->faction = Faction;
+                    ENSURE_AI(hyjal_trashAI, unit->AI())->IsOverrun = true;
+                    ENSURE_AI(hyjal_trashAI, unit->AI())->OverrunType = i;
                     unit->setActive(true);
                 }
             }
             for (uint8 i = 0; i < 5; ++i)//summon 5 abominations
             {
-                uint8 r = rand()%4;
+                uint8 r = rand32() % 4;
                 Creature* unit = me->SummonCreature(ABOMINATION, HordeBase[r][0]+irand(-15, 15), HordeBase[r][1]+irand(-15, 15), HordeBase[r][2], 0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
                 if (unit)
                 {
-                    CAST_AI(hyjal_trashAI, unit->AI())->faction = Faction;
-                    CAST_AI(hyjal_trashAI, unit->AI())->IsOverrun = true;
-                    CAST_AI(hyjal_trashAI, unit->AI())->OverrunType = i;
+                    ENSURE_AI(hyjal_trashAI, unit->AI())->faction = Faction;
+                    ENSURE_AI(hyjal_trashAI, unit->AI())->IsOverrun = true;
+                    ENSURE_AI(hyjal_trashAI, unit->AI())->OverrunType = i;
                     unit->setActive(true);
                 }
             }

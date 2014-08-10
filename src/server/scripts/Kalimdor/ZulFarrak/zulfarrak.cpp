@@ -70,7 +70,7 @@ public:
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             player->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_sergeant_bly::npc_sergeant_blyAI, creature->AI())->PlayerGUID = player->GetGUID();
+            ENSURE_AI(npc_sergeant_bly::npc_sergeant_blyAI, creature->AI())->PlayerGUID = player->GetGUID();
             creature->AI()->DoAction(0);
         }
         return true;
@@ -148,9 +148,9 @@ public:
                             if (Player* target = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                                 AttackStart(target);
 
-                            switchFactionIfAlive(instance, ENTRY_RAVEN);
-                            switchFactionIfAlive(instance, ENTRY_ORO);
-                            switchFactionIfAlive(instance, ENTRY_MURTA);
+                            switchFactionIfAlive(ENTRY_RAVEN);
+                            switchFactionIfAlive(ENTRY_ORO);
+                            switchFactionIfAlive(ENTRY_MURTA);
                     }
                     postGossipStep++;
                 }
@@ -185,9 +185,9 @@ public:
             Text_Timer = 0;
         }
 
-        void switchFactionIfAlive(InstanceScript* instance, uint32 entry)
+        void switchFactionIfAlive(uint32 entry)
         {
-           if (Creature* crew = instance->instance->GetCreature(instance->GetData64(entry)))
+           if (Creature* crew = ObjectAccessor::GetCreature(*me, instance->GetData64(entry)))
                if (crew->IsAlive())
                    crew->setFaction(FACTION_HOSTILE);
         }

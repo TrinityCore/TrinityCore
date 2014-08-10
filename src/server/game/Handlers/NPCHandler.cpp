@@ -288,7 +288,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
     if (trainer_spell->IsCastable())
         _player->CastSpell(_player, trainer_spell->spell, true);
     else
-        _player->learnSpell(spellId, false);
+        _player->LearnSpell(spellId, false);
 
     WorldPacket data(SMSG_TRAINER_BUY_SUCCEEDED, 12);
     data << uint64(guid);
@@ -888,12 +888,12 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
 
         Item* item = _player->GetItemByGuid(itemGUID);
         if (item)
-            _player->DurabilityRepair(item->GetPos(), true, discountMod, guildBank);
+            _player->DurabilityRepair(item->GetPos(), true, discountMod, guildBank != 0);
     }
     else
     {
         TC_LOG_DEBUG("network", "ITEM: Repair all items, npcGUID = %u", GUID_LOPART(npcGUID));
-        _player->DurabilityRepairAll(true, discountMod, guildBank);
+        _player->DurabilityRepairAll(true, discountMod, guildBank != 0);
     }
 }
 

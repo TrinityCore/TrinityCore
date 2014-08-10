@@ -703,7 +703,7 @@ public:
             instance->SetData64(DATA_LEOTHERAS_EVENT_STARTER, 0);
             Creature* leotheras = ObjectAccessor::GetCreature(*me, leotherasGUID);
             if (leotheras && leotheras->IsAlive())
-                CAST_AI(boss_leotheras_the_blind::boss_leotheras_the_blindAI, leotheras->AI())->CheckChannelers(/*false*/);
+                ENSURE_AI(boss_leotheras_the_blind::boss_leotheras_the_blindAI, leotheras->AI())->CheckChannelers(/*false*/);
         }
 
         void EnterCombat(Unit* who) override

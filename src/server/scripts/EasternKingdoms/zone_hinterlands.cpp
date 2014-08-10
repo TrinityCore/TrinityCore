@@ -207,7 +207,7 @@ public:
                     _IsByOutrunner = true;
                 }
 
-                if (rand()%4)
+                if (rand32() % 4)
                     return;
 
                 //only if attacked and escorter is not in combat?

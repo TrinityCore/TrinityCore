@@ -77,15 +77,15 @@ public:
             if (!victim)
                 return;
 
-            Rand = 10 + (rand()%10);
-            switch (rand()%2)
+            Rand = 10 + (rand32() % 10);
+            switch (rand32() % 2)
             {
                 case 0: RandX = 0.0f - Rand; break;
                 case 1: RandX = 0.0f + Rand; break;
             }
 
-            Rand = 10 + (rand()%10);
-            switch (rand()%2)
+            Rand = 10 + (rand32() % 10);
+            switch (rand32() % 2)
             {
                 case 0: RandY = 0.0f - Rand; break;
                 case 1: RandY = 0.0f + Rand; break;

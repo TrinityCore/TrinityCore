@@ -322,7 +322,7 @@ public:
 
             //cut down to size if we have more than 5 targets
             while (targets.size() > 5)
-                targets.erase(targets.begin()+rand()%targets.size());
+                targets.erase(targets.begin() + rand32() % targets.size());
 
             uint32 i = 0;
             for (std::vector<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter, ++i)
@@ -367,8 +367,8 @@ public:
                 infernal->SetDisplayId(INFERNAL_MODEL_INVISIBLE);
                 infernal->setFaction(me->getFaction());
                 if (point)
-                    CAST_AI(netherspite_infernal::netherspite_infernalAI, infernal->AI())->point=point;
-                CAST_AI(netherspite_infernal::netherspite_infernalAI, infernal->AI())->malchezaar=me->GetGUID();
+                    ENSURE_AI(netherspite_infernal::netherspite_infernalAI, infernal->AI())->point = point;
+                ENSURE_AI(netherspite_infernal::netherspite_infernalAI, infernal->AI())->malchezaar = me->GetGUID();
 
                 infernals.push_back(infernal->GetGUID());
                 DoCast(infernal, SPELL_INFERNAL_RELAY);
@@ -586,7 +586,7 @@ void netherspite_infernal::netherspite_infernalAI::Cleanup()
     Creature* pMalchezaar = ObjectAccessor::GetCreature(*me, malchezaar);
 
     if (pMalchezaar && pMalchezaar->IsAlive())
-        CAST_AI(boss_malchezaar::boss_malchezaarAI, pMalchezaar->AI())->Cleanup(me, point);
+        ENSURE_AI(boss_malchezaar::boss_malchezaarAI, pMalchezaar->AI())->Cleanup(me, point);
 }
 
 void AddSC_boss_malchezaar()

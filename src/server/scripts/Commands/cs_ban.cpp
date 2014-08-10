@@ -377,7 +377,9 @@ public:
 
     static bool HandleBanListAccountCommand(ChatHandler* handler, char const* args)
     {
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS);
+        PreparedStatement* stmt = NULL;
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS);
         LoginDatabase.Execute(stmt);
 
         char* filterStr = strtok((char*)args, " ");
@@ -387,12 +389,12 @@ public:
 
         if (filter.empty())
         {
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BANNED_ALL);
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BANNED_ALL);
             result = LoginDatabase.Query(stmt);
         }
         else
         {
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BANNED_BY_USERNAME);
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BANNED_BY_USERNAME);
             stmt->setString(0, filter);
             result = LoginDatabase.Query(stmt);
         }
@@ -457,7 +459,7 @@ public:
                     {
                         time_t timeBan = time_t(fields2[0].GetUInt32());
                         tm tmBan;
-                        ACE_OS::localtime_r(&timeBan, &tmBan);
+                        localtime_r(&timeBan, &tmBan);
 
                         if (fields2[0].GetUInt32() == fields2[1].GetUInt32())
                         {
@@ -469,7 +471,7 @@ public:
                         {
                             time_t timeUnban = time_t(fields2[1].GetUInt32());
                             tm tmUnban;
-                            ACE_OS::localtime_r(&timeUnban, &tmUnban);
+                            localtime_r(&timeUnban, &tmUnban);
                             handler->PSendSysMessage("|%-15.15s|%02d-%02d-%02d %02d:%02d|%02d-%02d-%02d %02d:%02d|%-15.15s|%-15.15s|",
                                 accountName.c_str(), tmBan.tm_year%100, tmBan.tm_mon+1, tmBan.tm_mday, tmBan.tm_hour, tmBan.tm_min,
                                 tmUnban.tm_year%100, tmUnban.tm_mon+1, tmUnban.tm_mday, tmUnban.tm_hour, tmUnban.tm_min,
@@ -546,7 +548,7 @@ public:
                     {
                         time_t timeBan = time_t(banFields[0].GetUInt32());
                         tm tmBan;
-                        ACE_OS::localtime_r(&timeBan, &tmBan);
+                        localtime_r(&timeBan, &tmBan);
 
                         if (banFields[0].GetUInt32() == banFields[1].GetUInt32())
                         {
@@ -558,7 +560,7 @@ public:
                         {
                             time_t timeUnban = time_t(banFields[1].GetUInt32());
                             tm tmUnban;
-                            ACE_OS::localtime_r(&timeUnban, &tmUnban);
+                            localtime_r(&timeUnban, &tmUnban);
                             handler->PSendSysMessage("|%-15.15s|%02d-%02d-%02d %02d:%02d|%02d-%02d-%02d %02d:%02d|%-15.15s|%-15.15s|",
                                 char_name.c_str(), tmBan.tm_year%100, tmBan.tm_mon+1, tmBan.tm_mday, tmBan.tm_hour, tmBan.tm_min,
                                 tmUnban.tm_year%100, tmUnban.tm_mon+1, tmUnban.tm_mday, tmUnban.tm_hour, tmUnban.tm_min,
@@ -577,7 +579,8 @@ public:
 
     static bool HandleBanListIPCommand(ChatHandler* handler, char const* args)
     {
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS);
+        PreparedStatement* stmt = NULL;
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS);
         LoginDatabase.Execute(stmt);
 
         char* filterStr = strtok((char*)args, " ");
@@ -588,12 +591,12 @@ public:
 
         if (filter.empty())
         {
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_BANNED_ALL);
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_BANNED_ALL);
             result = LoginDatabase.Query(stmt);
         }
         else
         {
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_BANNED_BY_IP);
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_BANNED_BY_IP);
             stmt->setString(0, filter);
             result = LoginDatabase.Query(stmt);
         }
@@ -627,7 +630,7 @@ public:
                 Field* fields = result->Fetch();
                 time_t timeBan = time_t(fields[1].GetUInt32());
                 tm tmBan;
-                ACE_OS::localtime_r(&timeBan, &tmBan);
+                localtime_r(&timeBan, &tmBan);
                 if (fields[1].GetUInt32() == fields[2].GetUInt32())
                 {
                     handler->PSendSysMessage("|%-15.15s|%02d-%02d-%02d %02d:%02d|   permanent  |%-15.15s|%-15.15s|",
@@ -638,7 +641,7 @@ public:
                 {
                     time_t timeUnban = time_t(fields[2].GetUInt32());
                     tm tmUnban;
-                    ACE_OS::localtime_r(&timeUnban, &tmUnban);
+                    localtime_r(&timeUnban, &tmUnban);
                     handler->PSendSysMessage("|%-15.15s|%02d-%02d-%02d %02d:%02d|%02d-%02d-%02d %02d:%02d|%-15.15s|%-15.15s|",
                         fields[0].GetCString(), tmBan.tm_year%100, tmBan.tm_mon+1, tmBan.tm_mday, tmBan.tm_hour, tmBan.tm_min,
                         tmUnban.tm_year%100, tmUnban.tm_mon+1, tmUnban.tm_mday, tmUnban.tm_hour, tmUnban.tm_min,

@@ -178,7 +178,7 @@ class boss_warbringer_omrogg : public CreatureScript
                 if (!LeftHead || !RightHead)
                     return;
 
-                ithreat = rand()%4;
+                ithreat = rand32() % 4;
 
                 Creature* source = (LeftHead->GetEntry() == Threat[ithreat].creature ? LeftHead : RightHead);
 
@@ -195,7 +195,7 @@ class boss_warbringer_omrogg : public CreatureScript
 
                 if (Creature* LeftHead = ObjectAccessor::GetCreature(*me, LeftHeadGUID))
                 {
-                    iaggro = rand()%3;
+                    iaggro = rand32() % 3;
 
                     LeftHead->AI()->Talk(GoCombat[iaggro].id);
 
@@ -227,7 +227,7 @@ class boss_warbringer_omrogg : public CreatureScript
                 if (!LeftHead || !RightHead)
                     return;
 
-                ikilling = rand()%2;
+                ikilling = rand32() % 2;
 
                 Creature* source = (LeftHead->GetEntry() == Killing[ikilling].creature ? LeftHead : RightHead);
 
@@ -338,7 +338,7 @@ class boss_warbringer_omrogg : public CreatureScript
                         DoResetThreat();
                         me->AddThreat(target, 0.0f);
                     }
-                    ResetThreat_Timer = 25000+rand()%15000;
+                    ResetThreat_Timer = 25000 + rand32() % 15000;
                 }
                 else
                     ResetThreat_Timer -= diff;
@@ -346,7 +346,7 @@ class boss_warbringer_omrogg : public CreatureScript
                 if (Fear_Timer <= diff)
                 {
                     DoCast(me, SPELL_FEAR);
-                    Fear_Timer = 15000+rand()%20000;
+                    Fear_Timer = 15000 + rand32() % 20000;
                 }
                 else
                     Fear_Timer -= diff;
@@ -354,7 +354,7 @@ class boss_warbringer_omrogg : public CreatureScript
                 if (ThunderClap_Timer <= diff)
                 {
                     DoCast(me, SPELL_THUNDERCLAP);
-                    ThunderClap_Timer = 15000+rand()%15000;
+                    ThunderClap_Timer = 15000 + rand32() % 15000;
                 }
                 else
                     ThunderClap_Timer -= diff;

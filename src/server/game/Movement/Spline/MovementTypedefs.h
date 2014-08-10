@@ -23,14 +23,12 @@
 
 namespace G3D
 {
-    class Vector2;
     class Vector3;
     class Vector4;
 }
 
 namespace Movement
 {
-    using G3D::Vector2;
     using G3D::Vector3;
     using G3D::Vector4;
 
