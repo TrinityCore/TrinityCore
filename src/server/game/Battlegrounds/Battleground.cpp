@@ -862,10 +862,6 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
     }
     else // try to resurrect the offline player. If he is alive nothing will happen
         sObjectAccessor->ConvertCorpseForPlayer(guid);
-    
-    if (player)
-        if (player->HasAuraType(SPELL_AURA_MOUNTED))
-            player->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     RemovePlayer(player, guid, team);                           // BG subclass specific code
 
