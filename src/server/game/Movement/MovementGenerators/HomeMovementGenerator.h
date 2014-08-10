@@ -38,7 +38,7 @@ class HomeMovementGenerator<Creature> : public MovementGeneratorMedium< Creature
         void DoFinalize(Creature*);
         void DoReset(Creature*);
         bool DoUpdate(Creature*, const uint32);
-        MovementGeneratorType GetMovementGeneratorType() { return HOME_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() override { return HOME_MOTION_TYPE; }
 
     private:
         void _setTargetLocation(Creature*);

@@ -29,7 +29,7 @@ class LoginDatabaseConnection : public MySQLConnection
         LoginDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
 
         //- Loads database type specific prepared statements
-        void DoPrepareStatements();
+        void DoPrepareStatements() override;
 };
 
 typedef DatabaseWorkerPool<LoginDatabaseConnection> LoginDatabaseWorkerPool;

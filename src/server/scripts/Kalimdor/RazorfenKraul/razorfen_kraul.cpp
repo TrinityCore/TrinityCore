@@ -51,7 +51,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_WILLIX_THE_IMPORTER)
         {
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+            ENSURE_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
             creature->AI()->Talk(SAY_READY, player);
             creature->setFaction(113);
         }

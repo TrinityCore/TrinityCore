@@ -272,7 +272,7 @@ public:
         if (action == GOSSIP_ACTION_INFO_DEF+1 || action == GOSSIP_ACTION_INFO_DEF+2)
         {
             player->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_brann_hos::npc_brann_hosAI, creature->AI())->StartWP();
+            ENSURE_AI(npc_brann_hos::npc_brann_hosAI, creature->AI())->StartWP();
         }
 
         return true;
@@ -347,7 +347,7 @@ public:
                     {
                         if (!creature->IsAlive())
                             creature->Respawn();
-                        CAST_AI(npc_tribuna_controller::npc_tribuna_controllerAI, creature->AI())->UpdateFacesList();
+                        ENSURE_AI(npc_tribuna_controller::npc_tribuna_controllerAI, creature->AI())->UpdateFacesList();
                         uiControllerGUID = creature->GetGUID();
                     }
                     break;
@@ -463,7 +463,7 @@ public:
                         Talk(SAY_EVENT_A_3);
                         instance->HandleGameObject(instance->GetData64(DATA_GO_KADDRAK), true);
                         if (Creature* temp = ObjectAccessor::GetCreature(*me, uiControllerGUID))
-                            CAST_AI(npc_tribuna_controller::npc_tribuna_controllerAI, temp->AI())->bKaddrakActivated = true;
+                            ENSURE_AI(npc_tribuna_controller::npc_tribuna_controllerAI, temp->AI())->bKaddrakActivated = true;
                         JumpToNextStep(5000);
                         break;
                     case 9:
@@ -485,7 +485,7 @@ public:
                         Talk(SAY_EVENT_B_3);
                         instance->HandleGameObject(instance->GetData64(DATA_GO_MARNAK), true);
                         if (Creature* temp = ObjectAccessor::GetCreature(*me, uiControllerGUID))
-                            CAST_AI(npc_tribuna_controller::npc_tribuna_controllerAI, temp->AI())->bMarnakActivated = true;
+                            ENSURE_AI(npc_tribuna_controller::npc_tribuna_controllerAI, temp->AI())->bMarnakActivated = true;
                         JumpToNextStep(10000);
                         break;
                     case 13:
@@ -515,7 +515,7 @@ public:
                         Talk(SAY_EVENT_C_3);
                         instance->HandleGameObject(instance->GetData64(DATA_GO_ABEDNEUM), true);
                         if (Creature* temp = ObjectAccessor::GetCreature(*me, uiControllerGUID))
-                            CAST_AI(npc_tribuna_controller::npc_tribuna_controllerAI, temp->AI())->bAbedneumActivated = true;
+                            ENSURE_AI(npc_tribuna_controller::npc_tribuna_controllerAI, temp->AI())->bAbedneumActivated = true;
                         JumpToNextStep(5000);
                         break;
                     case 19:

@@ -403,7 +403,7 @@ class go_prince_taldaram_sphere : public GameObjectScript
                         break;
                 }
 
-                CAST_AI(boss_prince_taldaram::boss_prince_taldaramAI, PrinceTaldaram->AI())->CheckSpheres();
+                ENSURE_AI(boss_prince_taldaram::boss_prince_taldaramAI, PrinceTaldaram->AI())->CheckSpheres();
             }
             return true;
         }

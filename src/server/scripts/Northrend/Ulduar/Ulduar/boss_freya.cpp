@@ -1126,7 +1126,7 @@ class npc_ancient_water_spirit : public CreatureScript
             {
                 instance = me->GetInstanceScript();
                 if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_FREYA)))
-                    waveCount = CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->trioWaveCount;
+                    waveCount = ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->trioWaveCount;
             }
 
             void Reset() override
@@ -1164,8 +1164,8 @@ class npc_ancient_water_spirit : public CreatureScript
             {
                 if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                 {
-                    CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->checkElementalAlive[waveCount] = false;
-                    CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->LasherDead(1);
+                    ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->checkElementalAlive[waveCount] = false;
+                    ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->LasherDead(1);
                 }
             }
 
@@ -1192,7 +1192,7 @@ class npc_storm_lasher : public CreatureScript
             {
                 instance = me->GetInstanceScript();
                 if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_FREYA)))
-                    waveCount = CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->trioWaveCount;
+                    waveCount = ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->trioWaveCount;
             }
 
             void Reset() override
@@ -1236,8 +1236,8 @@ class npc_storm_lasher : public CreatureScript
             {
                 if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                 {
-                    CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->checkElementalAlive[waveCount] = false;
-                    CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->LasherDead(2);
+                    ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->checkElementalAlive[waveCount] = false;
+                    ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->LasherDead(2);
                 }
             }
 
@@ -1265,7 +1265,7 @@ class npc_snaplasher : public CreatureScript
             {
                 instance = me->GetInstanceScript();
                 if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_FREYA)))
-                    waveCount = CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->trioWaveCount;
+                    waveCount = ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->trioWaveCount;
             }
 
             void KilledUnit(Unit* who) override
@@ -1289,8 +1289,8 @@ class npc_snaplasher : public CreatureScript
             {
                 if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                 {
-                    CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->checkElementalAlive[waveCount] = false;
-                    CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->LasherDead(4);
+                    ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->checkElementalAlive[waveCount] = false;
+                    ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->LasherDead(4);
                 }
             }
 

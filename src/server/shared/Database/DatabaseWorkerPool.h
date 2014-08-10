@@ -35,7 +35,7 @@
 class PingOperation : public SQLOperation
 {
     //! Operation for idle delaythreads
-    bool Execute()
+    bool Execute() override
     {
         m_conn->Ping();
         return true;
