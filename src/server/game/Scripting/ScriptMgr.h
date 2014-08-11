@@ -59,6 +59,7 @@ class Vehicle;
 class WorldPacket;
 class WorldSocket;
 class WorldObject;
+class WorldSession;
 
 struct AchievementCriteriaData;
 struct AuctionEntry;
@@ -225,19 +226,19 @@ class ServerScript : public ScriptObject
 
         // Called when a socket is closed. Do not store the socket object, and do not rely on the connection
         // being open; it is not.
-        virtual void OnSocketClose(std::shared_ptr<WorldSocket> /*socket*/, bool /*wasNew*/) { }
+        virtual void OnSocketClose(std::shared_ptr<WorldSocket> /*socket*/) { }
 
         // Called when a packet is sent to a client. The packet object is a copy of the original packet, so reading
         // and modifying it is safe.
-        virtual void OnPacketSend(std::shared_ptr<WorldSocket> /*socket*/, WorldPacket& /*packet*/) { }
+        virtual void OnPacketSend(WorldSession* /*session*/, WorldPacket& /*packet*/) { }
 
         // Called when a (valid) packet is received by a client. The packet object is a copy of the original packet, so
-        // reading and modifying it is safe.
-        virtual void OnPacketReceive(std::shared_ptr<WorldSocket> /*socket*/, WorldPacket& /*packet*/) { }
+        // reading and modifying it is safe. Make sure to check WorldSession pointer before usage, it might be null in case of auth packets
+        virtual void OnPacketReceive(WorldSession* /*session*/, WorldPacket& /*packet*/) { }
 
         // Called when an invalid (unknown opcode) packet is received by a client. The packet is a reference to the orignal
         // packet; not a copy. This allows you to actually handle unknown packets (for whatever purpose).
-        virtual void OnUnknownPacketReceive(std::shared_ptr<WorldSocket> /*socket*/, WorldPacket& /*packet*/) { }
+        virtual void OnUnknownPacketReceive(WorldSession* /*session*/, WorldPacket& /*packet*/) { }
 };
 
 class WorldScript : public ScriptObject
@@ -909,10 +910,10 @@ class ScriptMgr
         void OnNetworkStart();
         void OnNetworkStop();
         void OnSocketOpen(std::shared_ptr<WorldSocket> socket);
-        void OnSocketClose(std::shared_ptr<WorldSocket> socket, bool wasNew);
-        void OnPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket const& packet);
-        void OnPacketSend(std::shared_ptr<WorldSocket> socket, WorldPacket const& packet);
-        void OnUnknownPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket const& packet);
+        void OnSocketClose(std::shared_ptr<WorldSocket> socket);
+        void OnPacketReceive(WorldSession* session, WorldPacket const& packet);
+        void OnPacketSend(WorldSession* session, WorldPacket const& packet);
+        void OnUnknownPacketReceive(WorldSession* session, WorldPacket const& packet);
 
     public: /* WorldScript */
 
