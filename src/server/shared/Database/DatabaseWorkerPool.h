@@ -470,6 +470,8 @@ class DatabaseWorkerPool
                     t = new T(_queue, *_connectionInfo);
                 else if (type == IDX_SYNCH)
                     t = new T(*_connectionInfo);
+                else
+                    ASSERT(false);
 
                 _connections[type][i] = t;
                 ++_connectionCount[type];
