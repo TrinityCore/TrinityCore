@@ -977,10 +977,10 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
 
         if (weight && bgTypeId == BATTLEGROUND_RB)
         {
-    		uint32 playersInBG;
-    		uint32 playersInBG1;
-    		uint32 playersInBG2;
-    		uint32 playersInBG3;
+    		uint32 playersInBG  = 0;
+    		uint32 playersInBG1 = 0;
+    		uint32 playersInBG2 = 0;
+    		uint32 playersInBG3 = 0;
     		QueryResult result = CharacterDatabase.Query("select count(guid) from characters where level=80 and online=1 and (map=489 or map=566 or map=529 or map=607 or map=30 or map=628)");
     		if (result)
     		{
@@ -1024,8 +1024,6 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
     		if (playersInBG>25 && playersInBG3<20)
     		{
     			uint32 selectedWeight = 0;
-    			// Select a random value
-    			selectedWeight = urand(0, 0);
     			// Select the correct bg (if we have in DB A(10), B(20), C(10), D(15) --> [0---A---9|10---B---29|30---C---39|40---D---54])
     			weight = 0;
     			for (auto it : selectionWeights)
@@ -1040,8 +1038,6 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
     		else if (playersInBG<16 || (((playersInBG2>30 && playersInBG2<46) || (playersInBG2>60 && playersInBG2<76) || (playersInBG2>90 && playersInBG2<106) || (playersInBG2>120 && playersInBG2<136) || (playersInBG2>150 && playersInBG2<166) || (playersInBG>80 && (playersInBG2<16 || (playersInBG2>30 && playersInBG2<46) || (playersInBG2>60 && playersInBG2<76) || (playersInBG2>90 && playersInBG2<106)))) && playersInBG1<6))
     		{
     			uint32 selectedWeight = 0;
-    			// Select a random value
-    			selectedWeight = urand(0, 0);
     			// Select the correct bg (if we have in DB A(10), B(20), C(10), D(15) --> [0---A---9|10---B---29|30---C---39|40---D---54])
     			weight = 0;
     			for (auto it : selectionWeights)
