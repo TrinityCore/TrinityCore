@@ -30,7 +30,7 @@ struct ArenaScore : public BattlegroundScore
     protected:
         ArenaScore(uint64 playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), TeamId(team == ALLIANCE ? BG_TEAM_ALLIANCE : BG_TEAM_HORDE) { }
 
-        void AppendToPacket(WorldPacket& data, ByteBuffer& content) final
+        void AppendToPacket(WorldPacket& data, ByteBuffer& content) final override
         {
             uint32 primaryTree = 0;
             if (Player* player = ObjectAccessor::FindPlayer(PlayerGuid))
@@ -87,7 +87,7 @@ struct ArenaScore : public BattlegroundScore
             content.WriteByteSeq(PlayerGuid[2]);
         }
 
-        void BuildObjectivesBlock(WorldPacket& data, ByteBuffer& /*content*/) final
+        void BuildObjectivesBlock(WorldPacket& data, ByteBuffer& /*content*/) final override
         {
             data.WriteBits(0, 24); // Objectives Count
         }

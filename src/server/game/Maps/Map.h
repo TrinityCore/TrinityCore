@@ -334,16 +334,16 @@ class Map : public GridRefManager<NGridType>
         // can return INVALID_HEIGHT if under z+2 z coord not found height
         float GetHeight(float x, float y, float z, bool checkVMap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const;
 
-        ZLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = 0) const;
+        ZLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = nullptr) const;
 
-        uint16 GetAreaFlag(float x, float y, float z, bool *isOutdoors=0) const;
+        uint16 GetAreaFlag(float x, float y, float z, bool *isOutdoors=nullptr) const;
         bool GetAreaInfo(float x, float y, float z, uint32 &mogpflags, int32 &adtId, int32 &rootId, int32 &groupId) const;
 
         bool IsOutdoors(float x, float y, float z) const;
 
         uint8 GetTerrainType(float x, float y) const;
         float GetWaterLevel(float x, float y) const;
-        bool IsInWater(float x, float y, float z, LiquidData* data = 0) const;
+        bool IsInWater(float x, float y, float z, LiquidData* data = nullptr) const;
         bool IsUnderWater(float x, float y, float z) const;
 
         static uint32 GetAreaIdByAreaFlag(uint16 areaflag, uint32 map_id);
@@ -680,23 +680,23 @@ class InstanceMap : public Map
     public:
         InstanceMap(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode, Map* _parent);
         ~InstanceMap();
-        bool AddPlayerToMap(Player*);
-        void RemovePlayerFromMap(Player*, bool);
-        void Update(const uint32);
+        bool AddPlayerToMap(Player*) override;
+        void RemovePlayerFromMap(Player*, bool) override;
+        void Update(const uint32) override;
         void CreateInstanceData(bool load);
         bool Reset(uint8 method);
         uint32 GetScriptId() { return i_script_id; }
         InstanceScript* GetInstanceScript() { return i_data; }
         void PermBindAllPlayers(Player* source);
-        void UnloadAll();
-        bool CanEnter(Player* player);
+        void UnloadAll() override;
+        bool CanEnter(Player* player) override;
         void SendResetWarnings(uint32 timeLeft) const;
         void SetResetSchedule(bool on);
 
         uint32 GetMaxPlayers() const;
         uint32 GetMaxResetDelay() const;
 
-        virtual void InitVisibilityDistance();
+        virtual void InitVisibilityDistance() override;
     private:
         bool m_resetAfterUnload;
         bool m_unloadWhenEmpty;
@@ -710,14 +710,14 @@ class BattlegroundMap : public Map
         BattlegroundMap(uint32 id, time_t, uint32 InstanceId, Map* _parent, uint8 spawnMode);
         ~BattlegroundMap();
 
-        bool AddPlayerToMap(Player*);
-        void RemovePlayerFromMap(Player*, bool);
-        bool CanEnter(Player* player);
+        bool AddPlayerToMap(Player*) override;
+        void RemovePlayerFromMap(Player*, bool) override;
+        bool CanEnter(Player* player) override;
         void SetUnload();
         //void UnloadAll(bool pForce);
-        void RemoveAllPlayers();
+        void RemoveAllPlayers() override;
 
-        virtual void InitVisibilityDistance();
+        virtual void InitVisibilityDistance() override;
         Battleground* GetBG() { return m_bg; }
         void SetBG(Battleground* bg) { m_bg = bg; }
     private:

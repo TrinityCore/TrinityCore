@@ -405,7 +405,7 @@ class boss_magtheridon : public CreatureScript
                         Creature* summon = me->SummonCreature(NPC_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                         if (summon)
                         {
-                            CAST_AI(npc_abyssal::npc_abyssalAI, summon->AI())->SetTrigger(2);
+                            ENSURE_AI(npc_abyssal::npc_abyssalAI, summon->AI())->SetTrigger(2);
                             DoCast(summon, SPELL_BLAZE_TARGET, true);
                             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         }
@@ -437,7 +437,7 @@ class boss_magtheridon : public CreatureScript
                             target->GetPosition(x, y, z);
                             Creature* summon = me->SummonCreature(NPC_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                             if (summon)
-                                CAST_AI(npc_abyssal::npc_abyssalAI, summon->AI())->SetTrigger(1);
+                                ENSURE_AI(npc_abyssal::npc_abyssalAI, summon->AI())->SetTrigger(1);
                         }
                         Debris_Timer = 10000;
                     }
@@ -599,7 +599,7 @@ public:
         player->InterruptNonMeleeSpells(false);
         player->CastSpell(player, SPELL_SHADOW_GRASP, true);
         player->CastSpell(player, SPELL_SHADOW_GRASP_VISUAL, false);
-        CAST_AI(boss_magtheridon::boss_magtheridonAI, Magtheridon->AI())->SetClicker(go->GetGUID(), player->GetGUID());
+        ENSURE_AI(boss_magtheridon::boss_magtheridonAI, Magtheridon->AI())->SetClicker(go->GetGUID(), player->GetGUID());
         return true;
     }
 };

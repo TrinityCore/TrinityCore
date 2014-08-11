@@ -34,7 +34,7 @@ class message_commandscript : public CommandScript
 public:
     message_commandscript() : CommandScript("message_commandscript") { }
 
-    ChatCommand* GetCommands() const
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand channelSetCommandTable[] =
         {

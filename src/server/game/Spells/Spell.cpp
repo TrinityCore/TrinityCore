@@ -1200,7 +1200,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
         for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
         {
             if (Unit* unitTarget = (*itr)->ToUnit())
-                AddUnitTarget(unitTarget, effMask, false);
+                AddUnitTarget(unitTarget, effMask, false, true, center);
             else if (GameObject* gObjTarget = (*itr)->ToGameObject())
                 AddGOTarget(gObjTarget, effMask);
         }
@@ -1997,10 +1997,10 @@ void Spell::CleanupTargetList()
     m_delayMoment = 0;
 }
 
-void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*= true*/, bool implicit /*= true*/)
+void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*= true*/, bool implicit /*= true*/, Position const* losPosition /*= nullptr*/)
 {
     for (uint32 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
-        if (!m_spellInfo->Effects[effIndex].IsEffect() || !CheckEffectTarget(target, effIndex))
+        if (!m_spellInfo->Effects[effIndex].IsEffect() || !CheckEffectTarget(target, effIndex, losPosition))
             effectMask &= ~(1 << effIndex);
 
     // no effects left
@@ -2707,7 +2707,7 @@ void Spell::DoTriggersOnSpellHit(Unit* unit, uint8 effMask)
             if (*i < 0)
                 unit->RemoveAurasDueToSpell(-(*i));
             else
-                unit->CastSpell(unit, *i, true, 0, 0, m_caster->GetGUID());
+                unit->CastSpell(unit, *i, true, nullptr, nullptr, m_caster->GetGUID());
         }
     }
 }
@@ -3432,7 +3432,14 @@ void Spell::SendSpellCooldown()
 {
     Player* _player = m_caster->ToPlayer();
     if (!_player)
+    {
+        // Handle pet cooldowns here if needed instead of in PetAI to avoid hidden cooldown restarts
+        Creature* _creature = m_caster->ToCreature();
+        if (_creature && _creature->IsPet())
+            _creature->AddCreatureSpellCooldown(m_spellInfo->Id);
+
         return;
+    }
 
     // mana/health/etc potions, disabled by client (until combat out as declarate)
     if (m_CastItem && (m_CastItem->IsPotion() || m_spellInfo->IsCooldownStartedOnEvent()))
@@ -3979,7 +3986,7 @@ void Spell::WriteSpellGoTargets(WorldPacket* data)
     uint32 hit = 0;
     size_t hitPos = data->wpos();
     *data << (uint8)0; // placeholder
-    for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end() && hit <= 255; ++ihit)
+    for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end() && hit < 255; ++ihit)
     {
         if ((*ihit).missCondition == SPELL_MISS_NONE)       // Add only hits
         {
@@ -3989,7 +3996,7 @@ void Spell::WriteSpellGoTargets(WorldPacket* data)
         }
     }
 
-    for (std::list<GOTargetInfo>::const_iterator ighit = m_UniqueGOTargetInfo.begin(); ighit != m_UniqueGOTargetInfo.end() && hit <= 255; ++ighit)
+    for (std::list<GOTargetInfo>::const_iterator ighit = m_UniqueGOTargetInfo.begin(); ighit != m_UniqueGOTargetInfo.end() && hit < 255; ++ighit)
     {
         *data << uint64(ighit->targetGUID);                 // Always hits
         ++hit;
@@ -3998,7 +4005,7 @@ void Spell::WriteSpellGoTargets(WorldPacket* data)
     uint32 miss = 0;
     size_t missPos = data->wpos();
     *data << (uint8)0; // placeholder
-    for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end() && miss <= 255; ++ihit)
+    for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end() && miss < 255; ++ihit)
     {
         if (ihit->missCondition != SPELL_MISS_NONE)        // Add only miss
         {
@@ -4863,7 +4870,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (IsTriggered() && m_triggeredByAuraSpell)
                     if (DynamicObject* dynObj = m_caster->GetDynObject(m_triggeredByAuraSpell->Id))
                         losTarget = dynObj;
-            
+
                 if (!(m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, NULL, SPELL_DISABLE_LOS) && !target->IsWithinLOSInMap(losTarget))
                     return SPELL_FAILED_LINE_OF_SIGHT;
             }
@@ -6449,7 +6456,7 @@ CurrentSpellTypes Spell::GetCurrentContainer() const
         return(CURRENT_GENERIC_SPELL);
 }
 
-bool Spell::CheckEffectTarget(Unit const* target, uint32 eff) const
+bool Spell::CheckEffectTarget(Unit const* target, uint32 eff, Position const* losPosition) const
 {
     switch (m_spellInfo->Effects[eff].ApplyAuraName)
     {
@@ -6499,15 +6506,22 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff) const
             // all ok by some way or another, skip normal check
             break;
         default:                                            // normal case
-            // Get GO cast coordinates if original caster -> GO
-            WorldObject* caster = NULL;
-            if (IS_GAMEOBJECT_GUID(m_originalCasterGUID))
-                caster = m_caster->GetMap()->GetGameObject(m_originalCasterGUID);
-            if (!caster)
-                caster = m_caster;
-            if (target != m_caster && !target->IsWithinLOSInMap(caster))
-                return false;
+        {
+            if (losPosition)
+                return target->IsWithinLOS(losPosition->GetPositionX(), losPosition->GetPositionY(), losPosition->GetPositionZ());
+            else
+            {
+                // Get GO cast coordinates if original caster -> GO
+                WorldObject* caster = NULL;
+                if (IS_GAMEOBJECT_GUID(m_originalCasterGUID))
+                    caster = m_caster->GetMap()->GetGameObject(m_originalCasterGUID);
+                if (!caster)
+                    caster = m_caster;
+                if (target != m_caster && !target->IsWithinLOSInMap(caster))
+                    return false;
+            }
             break;
+        }
     }
 
     return true;

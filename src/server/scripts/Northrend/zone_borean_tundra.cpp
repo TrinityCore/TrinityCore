@@ -1263,8 +1263,8 @@ public:
         switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
-                CAST_AI(npc_escortAI, (creature->AI()))->SetMaxPlayerDistance(200.0f);
+                ENSURE_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+                ENSURE_AI(npc_escortAI, (creature->AI()))->SetMaxPlayerDistance(200.0f);
                 break;
         }
         return true;
@@ -1301,7 +1301,7 @@ public:
 
             if (me->IsSummon())
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                    CAST_AI(npc_thassarian::npc_thassarianAI, summoner->ToCreature()->AI())->arthasInPosition = true;
+                    ENSURE_AI(npc_thassarian::npc_thassarianAI, summoner->ToCreature()->AI())->arthasInPosition = true;
         }
     };
 
@@ -1333,7 +1333,7 @@ public:
             me->CastSpell(me, SPELL_STUN, true);
             if (me->IsSummon())
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                    CAST_AI(npc_thassarian::npc_thassarianAI, summoner->ToCreature()->AI())->arlosInPosition = true;
+                    ENSURE_AI(npc_thassarian::npc_thassarianAI, summoner->ToCreature()->AI())->arlosInPosition = true;
         }
     };
 
@@ -1387,7 +1387,7 @@ public:
 
             if (me->IsSummon())
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                    CAST_AI(npc_thassarian::npc_thassarianAI, summoner->ToCreature()->AI())->talbotInPosition = true;
+                    ENSURE_AI(npc_thassarian::npc_thassarianAI, summoner->ToCreature()->AI())->talbotInPosition = true;
         }
 
         void UpdateAI(uint32 diff) override
@@ -1491,14 +1491,14 @@ public:
             if (!bDone)
             {
                 if (Creature* talbot = me->FindNearestCreature(NPC_PRINCE_VALANAR, 50.0f, true))
-                    CAST_AI(npc_counselor_talbot::npc_counselor_talbotAI, talbot->GetAI())->bCheck = true;
+                    ENSURE_AI(npc_counselor_talbot::npc_counselor_talbotAI, talbot->GetAI())->bCheck = true;
 
                 me->AddUnitState(UNIT_STATE_STUNNED);
                 me->CastSpell(me, SPELL_STUN, true);
 
                 if (me->IsSummon())
                     if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                        CAST_AI(npc_thassarian::npc_thassarianAI, summoner->GetAI())->leryssaInPosition = true;
+                        ENSURE_AI(npc_thassarian::npc_thassarianAI, summoner->GetAI())->leryssaInPosition = true;
                 bDone = true;
             }
             else
@@ -1566,7 +1566,7 @@ public:
                                 if (Creature* thassarian = summoner->ToCreature())
                                 {
                                     thassarian->AI()->Talk(SAY_THASSARIAN_7);
-                                    CAST_AI(npc_thassarian::npc_thassarianAI, thassarian->GetAI())->phase = 16;
+                                    ENSURE_AI(npc_thassarian::npc_thassarianAI, thassarian->GetAI())->phase = 16;
                                 }
                         phaseTimer = 5000;
                         phase = 0;
@@ -1812,7 +1812,7 @@ public:
             }
             creature->SetStandState(UNIT_STAND_STATE_STAND);
             creature->AI()->Talk(SAY_1);
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+            ENSURE_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
         }
         return true;
     }
@@ -1893,7 +1893,7 @@ public:
         {
             creature->SetStandState(UNIT_STAND_STATE_STAND);
             creature->AI()->Talk(SAY_BONKER_2, player);
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, player->GetGUID());
+            ENSURE_AI(npc_escortAI, (creature->AI()))->Start(true, true, player->GetGUID());
         }
         return true;
     }

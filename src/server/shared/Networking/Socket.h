@@ -18,8 +18,9 @@
 #ifndef __SOCKET_H__
 #define __SOCKET_H__
 
-#include "Define.h"
+#include "MessageBuffer.h"
 #include "Log.h"
+#include <atomic>
 #include <vector>
 #include <mutex>
 #include <queue>
@@ -28,8 +29,11 @@
 #include <type_traits>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/write.hpp>
+#include <boost/asio/read.hpp>
 
 using boost::asio::ip::tcp;
+
+#define READ_BLOCK_SIZE 4096
 
 template<class T, class PacketType>
 class Socket : public std::enable_shared_from_this<T>
@@ -37,59 +41,80 @@ class Socket : public std::enable_shared_from_this<T>
     typedef typename std::conditional<std::is_pointer<PacketType>::value, PacketType, PacketType const&>::type WritePacketType;
 
 public:
-    Socket(tcp::socket&& socket, std::size_t headerSize) : _socket(std::move(socket)), _headerSize(headerSize) { }
+    Socket(tcp::socket&& socket, std::size_t headerSize) : _socket(std::move(socket)), _remoteAddress(_socket.remote_endpoint().address()),
+        _remotePort(_socket.remote_endpoint().port()), _readHeaderBuffer(), _readDataBuffer(), _closed(false)
+    {
+        _readHeaderBuffer.Grow(headerSize);
+    }
+
+    virtual ~Socket()
+    {
+        boost::system::error_code error;
+        _socket.close(error);
+
+        while (!_writeQueue.empty())
+        {
+            DeletePacket(_writeQueue.front());
+            _writeQueue.pop();
+        }
+    }
 
     virtual void Start() = 0;
 
     boost::asio::ip::address GetRemoteIpAddress() const
     {
-        boost::system::error_code error;
-        auto ep = _socket.remote_endpoint(error);
-
-        if (error)
-        {
-            TC_LOG_DEBUG("network", "Socket::GetRemoteIpAddress: errored with: %i (%s)", error.value(), error.message().c_str());
-            return boost::asio::ip::address();
-        }
-        else
-            return ep.address();
+        return _remoteAddress;
     }
 
     uint16 GetRemotePort() const
     {
-        boost::system::error_code error;
-        auto ep = _socket.remote_endpoint(error);
-
-        if (error)
-        {
-            TC_LOG_DEBUG("network", "Socket::GetRemotePort: errored with: %i (%s)", error.value(), error.message().c_str());
-            return 0;
-        }
-        else
-            return ep.port();
+        return _remotePort;
     }
 
     void AsyncReadHeader()
     {
-        _socket.async_read_some(boost::asio::buffer(_readBuffer, _headerSize), std::bind(&Socket<T, PacketType>::ReadHeaderHandlerInternal, this->shared_from_this(),
-            std::placeholders::_1, std::placeholders::_2));
+        if (!IsOpen())
+            return;
+
+        _readHeaderBuffer.ResetWritePointer();
+        _readDataBuffer.Reset();
+
+        AsyncReadMissingHeaderData();
     }
 
-    void AsyncReadData(std::size_t size, std::size_t bufferOffset)
+    void AsyncReadData(std::size_t size)
     {
-        _socket.async_read_some(boost::asio::buffer(&_readBuffer[bufferOffset], size), std::bind(&Socket<T, PacketType>::ReadDataHandlerInternal, this->shared_from_this(),
-            std::placeholders::_1, std::placeholders::_2));
+        if (!IsOpen())
+            return;
+
+        if (!size)
+        {
+            // if this is a packet with 0 length body just invoke handler directly
+            ReadDataHandler();
+            return;
+        }
+
+        _readDataBuffer.Grow(size);
+        AsyncReadMissingData();
     }
 
-    void ReadData(std::size_t size, std::size_t bufferOffset)
+    void ReadData(std::size_t size)
     {
+        if (!IsOpen())
+            return;
+
         boost::system::error_code error;
 
-        _socket.read_some(boost::asio::buffer(&_readBuffer[bufferOffset], size), error);
+        _readDataBuffer.Grow(size);
 
-        if (error)
+        std::size_t bytesRead = boost::asio::read(_socket, boost::asio::buffer(_readDataBuffer.GetWritePointer(), size), error);
+
+        _readDataBuffer.WriteCompleted(bytesRead);
+
+        if (error || !_readDataBuffer.IsMessageReady())
         {
-            TC_LOG_DEBUG("network", "Socket::ReadData: %s errored with: %i (%s)", GetRemoteIpAddress().to_string().c_str(), error.value(), error.message().c_str());
+            TC_LOG_DEBUG("network", "Socket::ReadData: %s errored with: %i (%s)", GetRemoteIpAddress().to_string().c_str(), error.value(),
+                error.message().c_str());
 
             CloseSocket();
         }
@@ -97,32 +122,93 @@ public:
 
     void AsyncWrite(WritePacketType data)
     {
-        boost::asio::async_write(_socket, boost::asio::buffer(data), std::bind(&Socket<T, PacketType>::WriteHandler, this->shared_from_this(), std::placeholders::_1,
-            std::placeholders::_2));
+        boost::asio::async_write(_socket, boost::asio::buffer(data), std::bind(&Socket<T, PacketType>::WriteHandler, this->shared_from_this(),
+            std::placeholders::_1, std::placeholders::_2));
     }
 
-    bool IsOpen() const { return _socket.is_open(); }
-    void CloseSocket()
+    bool IsOpen() const { return !_closed; }
+
+    virtual void CloseSocket()
     {
-        boost::system::error_code error;
-        _socket.close(error);
-        if (error)
-            TC_LOG_DEBUG("network", "Socket::CloseSocket: %s errored when closing socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(),
-                error.value(), error.message().c_str());
+        if (_closed.exchange(true))
+            return;
+
+        boost::system::error_code shutdownError;
+        _socket.shutdown(boost::asio::socket_base::shutdown_send, shutdownError);
+        if (shutdownError)
+            TC_LOG_DEBUG("network", "Socket::CloseSocket: %s errored when shutting down socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(),
+                shutdownError.value(), shutdownError.message().c_str());
     }
 
-    uint8* GetReadBuffer() { return _readBuffer; }
+    virtual bool IsHeaderReady() const { return _readHeaderBuffer.IsMessageReady(); }
+    virtual bool IsDataReady() const { return _readDataBuffer.IsMessageReady(); }
+
+    uint8* GetHeaderBuffer() { return _readHeaderBuffer.Data(); }
+    uint8* GetDataBuffer() { return _readDataBuffer.Data(); }
+
+    size_t GetHeaderSize() const { return _readHeaderBuffer.GetSize(); }
+    size_t GetDataSize() const { return _readDataBuffer.GetSize(); }
+
+    MessageBuffer&& MoveHeader() { return std::move(_readHeaderBuffer); }
+    MessageBuffer&& MoveData() { return std::move(_readDataBuffer); }
 
 protected:
-    virtual void ReadHeaderHandler(boost::system::error_code error, size_t transferedBytes) = 0;
-    virtual void ReadDataHandler(boost::system::error_code error, size_t transferedBytes) = 0;
+    virtual void ReadHeaderHandler() = 0;
+    virtual void ReadDataHandler() = 0;
 
     std::mutex _writeLock;
     std::queue<PacketType> _writeQueue;
 
 private:
-    void ReadHeaderHandlerInternal(boost::system::error_code error, size_t transferedBytes) { ReadHeaderHandler(error, transferedBytes); }
-    void ReadDataHandlerInternal(boost::system::error_code error, size_t transferedBytes) { ReadDataHandler(error, transferedBytes); }
+    void AsyncReadMissingHeaderData()
+    {
+        _socket.async_read_some(boost::asio::buffer(_readHeaderBuffer.GetWritePointer(), std::min<std::size_t>(READ_BLOCK_SIZE, _readHeaderBuffer.GetMissingSize())),
+            std::bind(&Socket<T, PacketType>::ReadHeaderHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+    }
+
+    void AsyncReadMissingData()
+    {
+        _socket.async_read_some(boost::asio::buffer(_readDataBuffer.GetWritePointer(), std::min<std::size_t>(READ_BLOCK_SIZE, _readDataBuffer.GetMissingSize())),
+            std::bind(&Socket<T, PacketType>::ReadDataHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+    }
+
+    void ReadHeaderHandlerInternal(boost::system::error_code error, size_t transferredBytes)
+    {
+        if (error)
+        {
+            CloseSocket();
+            return;
+        }
+
+        _readHeaderBuffer.WriteCompleted(transferredBytes);
+        if (!IsHeaderReady())
+        {
+            // incomplete, read more
+            AsyncReadMissingHeaderData();
+            return;
+        }
+
+        ReadHeaderHandler();
+    }
+
+    void ReadDataHandlerInternal(boost::system::error_code error, size_t transferredBytes)
+    {
+        if (error)
+        {
+            CloseSocket();
+            return;
+        }
+
+        _readDataBuffer.WriteCompleted(transferredBytes);
+        if (!IsDataReady())
+        {
+            // incomplete, read more
+            AsyncReadMissingData();
+            return;
+        }
+
+        ReadDataHandler();
+    }
 
     void WriteHandler(boost::system::error_code error, size_t /*transferedBytes*/)
     {
@@ -148,9 +234,13 @@ private:
 
     tcp::socket _socket;
 
-    uint8 _readBuffer[4096];
+    boost::asio::ip::address _remoteAddress;
+    uint16 _remotePort;
 
-    std::size_t _headerSize;
+    MessageBuffer _readHeaderBuffer;
+    MessageBuffer _readDataBuffer;
+
+    std::atomic<bool> _closed;
 };
 
 #endif // __SOCKET_H__

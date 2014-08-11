@@ -255,7 +255,7 @@ class WintergraspCapturePoint : public BfCapturePoint
 
         void LinkToWorkshop(WGWorkshop* workshop) { m_Workshop = workshop; }
 
-        void ChangeTeam(TeamId oldteam);
+        void ChangeTeam(TeamId oldteam) override;
         TeamId GetTeam() const { return m_team; }
 
     protected:
@@ -276,7 +276,7 @@ class BattlefieldWG : public Battlefield
          * - Rebuild tower and wall
          * - Invite player to war
          */
-        void OnBattleStart();
+        void OnBattleStart() override;
 
         /**
          * \brief Called when battle end
@@ -287,13 +287,13 @@ class BattlefieldWG : public Battlefield
          * - Remove vehicle
          * \param endByTimer : true if battle ended when timer is at 00:00, false if battle ended by clicking on relic
          */
-        void OnBattleEnd(bool endByTimer);
+        void OnBattleEnd(bool endByTimer) override;
 
         /**
          * \brief Called when grouping starts (15 minutes before battlestart)
          * - Invite all player in zone to join queue
          */
-        void OnStartGrouping();
+        void OnStartGrouping() override;
 
         /**
          * \brief Called when player accept invite to join battle
@@ -303,20 +303,20 @@ class BattlefieldWG : public Battlefield
          * - Update tenacity
          * \param player: Player who accepted invite
          */
-        void OnPlayerJoinWar(Player* player);
+        void OnPlayerJoinWar(Player* player) override;
 
         /**
          * \brief Called when player left the battle
          * - Update player aura
          * \param player : Player who left the battle
          */
-        void OnPlayerLeaveWar(Player* player);
+        void OnPlayerLeaveWar(Player* player) override;
 
         /**
          * \brief Called when player left the WG zone
          * \param player : Player who left the zone
          */
-        void OnPlayerLeaveZone(Player* player);
+        void OnPlayerLeaveZone(Player* player) override;
 
         /**
          * \brief Called when player enters in WG zone
@@ -324,7 +324,7 @@ class BattlefieldWG : public Battlefield
          * - Update worldstate
          * \param player : Player who enters the zone
          */
-        void OnPlayerEnterZone(Player* player);
+        void OnPlayerEnterZone(Player* player) override;
 
         /**
          * \brief Called for update battlefield data
@@ -332,24 +332,24 @@ class BattlefieldWG : public Battlefield
          * - Update imunity aura from graveyard
          * \param diff : time elapsed since the last call (in ms)
          */
-        bool Update(uint32 diff);
+        bool Update(uint32 diff) override;
 
         /**
          * \brief Called when a creature is created
          * - Update vehicle count
          */
-        void OnCreatureCreate(Creature* creature);
+        void OnCreatureCreate(Creature* creature) override;
 
         /**
          * \brief Called when a creature is removed
          * - Update vehicle count
          */
-        void OnCreatureRemove(Creature* creature);
+        void OnCreatureRemove(Creature* creature) override;
 
         /**
          * \brief Called when a gameobject is created
          */
-        void OnGameObjectCreate(GameObject* go);
+        void OnGameObjectCreate(GameObject* go) override;
 
         /**
          * \brief Called when a wall/tower is broken
@@ -370,14 +370,14 @@ class BattlefieldWG : public Battlefield
          */
         void UpdatedDestroyedTowerCount(TeamId team);
 
-        void DoCompleteOrIncrementAchievement(uint32 achievement, Player* player, uint8 incrementNumber = 1);
+        void DoCompleteOrIncrementAchievement(uint32 achievement, Player* player, uint8 incrementNumber = 1) override;
 
         void RemoveAurasFromPlayer(Player* player);
 
         /**
          * \brief Called when battlefield is setup, at server start
          */
-        bool SetupBattlefield();
+        bool SetupBattlefield() override;
 
         /// Return pointer to relic object
         GameObject* GetRelic() { return GetGameObject(m_titansRelicGUID); }
@@ -395,22 +395,22 @@ class BattlefieldWG : public Battlefield
         void UpdateCounterVehicle(bool init);
 
         void SendInitWorldStatesTo(Player* player);
-        void SendInitWorldStatesToAll();
-        void FillInitialWorldStates(WorldPacket& data);
+        void SendInitWorldStatesToAll() override;
+        void FillInitialWorldStates(WorldPacket& data) override;
 
-        void HandleKill(Player* killer, Unit* victim);
-        void OnUnitDeath(Unit* unit);
+        void HandleKill(Player* killer, Unit* victim) override;
+        void OnUnitDeath(Unit* unit) override;
         void PromotePlayer(Player* killer);
 
         void UpdateTenacity();
-        void ProcessEvent(WorldObject* obj, uint32 eventId);
+        void ProcessEvent(WorldObject* obj, uint32 eventId) override;
 
         bool FindAndRemoveVehicleFromList(Unit* vehicle);
 
         // returns the graveyardId in the specified area.
         uint8 GetSpiritGraveyardId(uint32 areaId) const;
 
-        uint32 GetData(uint32 data) const;
+        uint32 GetData(uint32 data) const override;
 
     protected:
         bool m_isRelicInteractible;

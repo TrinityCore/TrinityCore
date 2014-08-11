@@ -51,7 +51,7 @@ namespace
 Weather* FindWeather(uint32 id)
 {
     WeatherMap::const_iterator itr = m_weathers.find(id);
-    return (itr != m_weathers.end()) ? itr->second.get() : 0;
+    return (itr != m_weathers.end()) ? itr->second.get() : nullptr;
 }
 
 /// Remove a Weather object for the given zoneid

@@ -304,10 +304,11 @@ public:
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
-        npc_escortAI* pEscortAI = CAST_AI(npc_anchorite_truuen::npc_anchorite_truuenAI, creature->AI());
-
         if (quest->GetQuestId() == QUEST_TOMB_LIGHTBRINGER)
+        {
+            npc_escortAI* pEscortAI = ENSURE_AI(npc_anchorite_truuen::npc_anchorite_truuenAI, creature->AI());
             pEscortAI->Start(true, true, player->GetGUID());
+        }
         return false;
     }
 

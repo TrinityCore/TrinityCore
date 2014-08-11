@@ -266,6 +266,8 @@ void WorldSession::SendPacket(WorldPacket* packet, bool forced /*= false*/)
     }
 #endif                                                      // !TRINITY_DEBUG
 
+    sScriptMgr->OnPacketSend(this, *packet);
+
     m_Socket->AsyncWrite(*packet);
 }
 
@@ -350,7 +352,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     }
                     else if (_player->IsInWorld())
                     {
-                        sScriptMgr->OnPacketReceive(m_Socket, *packet);
+                        sScriptMgr->OnPacketReceive(this, *packet);
                         (this->*opHandle->Handler)(*packet);
                         LogUnprocessedTail(packet);
                     }
@@ -363,7 +365,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     else
                     {
                         // not expected _player or must checked in packet hanlder
-                        sScriptMgr->OnPacketReceive(m_Socket, *packet);
+                        sScriptMgr->OnPacketReceive(this, *packet);
                         (this->*opHandle->Handler)(*packet);
                         LogUnprocessedTail(packet);
                     }
@@ -375,7 +377,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         LogUnexpectedOpcode(packet, "STATUS_TRANSFER", "the player is still in world");
                     else
                     {
-                        sScriptMgr->OnPacketReceive(m_Socket, *packet);
+                        sScriptMgr->OnPacketReceive(this, *packet);
                         (this->*opHandle->Handler)(*packet);
                         LogUnprocessedTail(packet);
                     }
@@ -393,7 +395,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     if (packet->GetOpcode() == CMSG_CHAR_ENUM)
                         m_playerRecentlyLogout = false;
 
-                    sScriptMgr->OnPacketReceive(m_Socket, *packet);
+                    sScriptMgr->OnPacketReceive(this, *packet);
                     (this->*opHandle->Handler)(*packet);
                     LogUnprocessedTail(packet);
                     break;
@@ -449,7 +451,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         if (m_Socket && !m_Socket->IsOpen())
         {
             expireTime -= expireTime > diff ? diff : expireTime;
-            if (expireTime < diff || forceExit)
+            if (expireTime < diff || forceExit || !GetPlayer())
             {
                 m_Socket = nullptr;
             }
@@ -1320,6 +1322,10 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_MESSAGECHAT_YELL:                     //   0               3.5
         case CMSG_INSPECT:                              //   0               3.5
         case CMSG_AREA_SPIRIT_HEALER_QUERY:             // not profiled
+        case CMSG_STANDSTATECHANGE:                     // not profiled
+        case MSG_RANDOM_ROLL:                           // not profiled
+        case CMSG_TIME_SYNC_RESP:                       // not profiled
+        case CMSG_TRAINER_BUY_SPELL:                    // not profiled
         {
             // "0" is a magic number meaning there's no limit for the opcode.
             // All the opcodes above must cause little CPU usage and no sync/async database queries at all
@@ -1348,6 +1354,9 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_CALENDAR_GET_CALENDAR:                //   0               1.5       medium upload bandwidth usage
         case CMSG_GUILD_BANK_QUERY_TAB:                 //   0               3.5       medium upload bandwidth usage
         case CMSG_QUERY_INSPECT_ACHIEVEMENTS:           //   0              13         high upload bandwidth usage
+        case CMSG_GAMEOBJ_REPORT_USE:                   // not profiled
+        case CMSG_GAMEOBJ_USE:                          // not profiled
+        case MSG_PETITION_DECLINE:                      // not profiled
         {
             maxPacketCounterAllowed = 50;
             break;
@@ -1361,8 +1370,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
 
         case CMSG_GM_REPORT_LAG:                        //   1               3         1 async db query
         case CMSG_SPELLCLICK:                           // not profiled
-        case CMSG_GAMEOBJ_USE:                          // not profiled
-        case CMSG_GAMEOBJ_REPORT_USE:                   // not profiled
+        case CMSG_DISMISS_CONTROLLED_VEHICLE:           // not profiled
         {
             maxPacketCounterAllowed = 20;
             break;
@@ -1390,7 +1398,6 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_REQUEST_VEHICLE_PREV_SEAT:            // not profiled
         case CMSG_REQUEST_VEHICLE_NEXT_SEAT:            // not profiled
         case CMSG_REQUEST_VEHICLE_SWITCH_SEAT:          // not profiled
-        case CMSG_DISMISS_CONTROLLED_VEHICLE:           // not profiled
         case CMSG_REQUEST_VEHICLE_EXIT:                 // not profiled
         case CMSG_EJECT_PASSENGER:                      // not profiled
         case CMSG_ITEM_REFUND:                          // not profiled
@@ -1442,11 +1449,9 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_SET_GUILD_BANK_TEXT:                  // not profiled
         case MSG_SAVE_GUILD_EMBLEM:                     // not profiled
         case MSG_PETITION_RENAME:                       // not profiled
-        case MSG_PETITION_DECLINE:                      // not profiled
         case MSG_TALENT_WIPE_CONFIRM:                   // not profiled
         case MSG_SET_DUNGEON_DIFFICULTY:                // not profiled
         case MSG_SET_RAID_DIFFICULTY:                   // not profiled
-        case MSG_RANDOM_ROLL:                           // not profiled
         case MSG_PARTY_ASSIGNMENT:                      // not profiled
         case MSG_RAID_READY_CHECK:                      // not profiled
         {

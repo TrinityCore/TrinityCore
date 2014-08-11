@@ -422,7 +422,7 @@ class Spell
         void DoCreateItem(uint32 i, uint32 itemtype);
         void WriteSpellGoTargets(WorldPacket* data);
 
-        bool CheckEffectTarget(Unit const* target, uint32 eff) const;
+        bool CheckEffectTarget(Unit const* target, uint32 eff, Position const* losPosition) const;
         bool CanAutoCast(Unit* target);
         void CheckSrc() { if (!m_targets.HasSrc()) m_targets.SetSrc(*m_caster); }
         void CheckDst() { if (!m_targets.HasDst()) m_targets.SetDst(*m_caster); }
@@ -612,7 +612,7 @@ class Spell
 
         SpellDestination m_destTargets[MAX_SPELL_EFFECTS];
 
-        void AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid = true, bool implicit = true);
+        void AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid = true, bool implicit = true, Position const* losPosition = nullptr);
         void AddGOTarget(GameObject* target, uint32 effectMask);
         void AddItemTarget(Item* item, uint32 effectMask);
         void AddDestTarget(SpellDestination const& dest, uint32 effIndex);
@@ -757,9 +757,9 @@ class SpellEvent : public BasicEvent
         SpellEvent(Spell* spell);
         virtual ~SpellEvent();
 
-        virtual bool Execute(uint64 e_time, uint32 p_time);
-        virtual void Abort(uint64 e_time);
-        virtual bool IsDeletable() const;
+        virtual bool Execute(uint64 e_time, uint32 p_time) override;
+        virtual void Abort(uint64 e_time) override;
+        virtual bool IsDeletable() const override;
     protected:
         Spell* m_Spell;
 };

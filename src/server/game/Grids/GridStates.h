@@ -34,24 +34,24 @@ class GridState
 class InvalidState : public GridState
 {
     public:
-        void Update(Map &, NGridType &, GridInfo &, uint32 t_diff) const;
+        void Update(Map &, NGridType &, GridInfo &, uint32 t_diff) const override;
 };
 
 class ActiveState : public GridState
 {
     public:
-        void Update(Map &, NGridType &, GridInfo &, uint32 t_diff) const;
+        void Update(Map &, NGridType &, GridInfo &, uint32 t_diff) const override;
 };
 
 class IdleState : public GridState
 {
     public:
-        void Update(Map &, NGridType &, GridInfo &, uint32 t_diff) const;
+        void Update(Map &, NGridType &, GridInfo &, uint32 t_diff) const override;
 };
 
 class RemovalState : public GridState
 {
     public:
-        void Update(Map &, NGridType &, GridInfo &, uint32 t_diff) const;
+        void Update(Map &, NGridType &, GridInfo &, uint32 t_diff) const override;
 };
 #endif

@@ -720,7 +720,7 @@ class go_bristlelimb_cage : public GameObjectScript
                 if (Creature* capitive = go->FindNearestCreature(NPC_STILLPINE_CAPITIVE, 5.0f, true))
                 {
                     go->ResetDoorOrButton();
-                    CAST_AI(npc_stillpine_capitive::npc_stillpine_capitiveAI, capitive->AI())->StartMoving(player);
+                    ENSURE_AI(npc_stillpine_capitive::npc_stillpine_capitiveAI, capitive->AI())->StartMoving(player);
                     return false;
                 }
             }

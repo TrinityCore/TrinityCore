@@ -538,17 +538,10 @@ bool Battlenet::Session::HandleRealmJoinRequest(PacketHeader& header, BitStream&
     return true;
 }
 
-void Battlenet::Session::ReadHeaderHandler(boost::system::error_code error, size_t transferedBytes)
+void Battlenet::Session::ReadDataHandler()
 {
-    if (error)
-    {
-        CloseSocket();
-        return;
-    }
-
-    BitStream packet(transferedBytes);
-    std::memcpy(packet.GetBuffer(), GetReadBuffer(), transferedBytes);
-    _crypt.DecryptRecv(packet.GetBuffer(), transferedBytes);
+    BitStream packet(MoveData());
+    _crypt.DecryptRecv(packet.GetBuffer(), packet.GetSize());
 
     while (!packet.IsRead())
     {
@@ -589,17 +582,23 @@ void Battlenet::Session::ReadHeaderHandler(boost::system::error_code error, size
         }
     }
 
-    AsyncReadHeader();
+    AsyncReadData(size_t(BufferSizes::Read));
 }
 
 void Battlenet::Session::Start()
 {
     TC_LOG_TRACE("server.battlenet", "Battlenet::Session::Start");
-    AsyncReadHeader();
+    AsyncReadData(size_t(BufferSizes::Read));
 }
 
 void Battlenet::Session::AsyncWrite(ServerPacket* packet)
 {
+    if (!IsOpen())
+    {
+        delete packet;
+        return;
+    }
+
     TC_LOG_TRACE("server.battlenet", "Battlenet::Session::AsyncWrite %s", packet->ToString().c_str());
 
     packet->Write();
