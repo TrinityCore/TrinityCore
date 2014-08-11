@@ -79,9 +79,11 @@ namespace Battlenet
 
         void AsyncWrite(ServerPacket* packet);
 
+        bool IsDataReady() const override { return GetDataSize() > 0; }
+
     protected:
-        void ReadHeaderHandler(boost::system::error_code error, size_t transferedBytes) override;
-        void ReadDataHandler(boost::system::error_code /*error*/, size_t /*transferedBytes*/) override { }
+        void ReadHeaderHandler() override { }
+        void ReadDataHandler() override;
 
     private:
         void _SetVSFields(std::string const& rI);

@@ -36,7 +36,7 @@ class ticket_commandscript : public CommandScript
 public:
     ticket_commandscript() : CommandScript("ticket_commandscript") { }
 
-    ChatCommand* GetCommands() const
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand ticketResponseCommandTable[] =
         {

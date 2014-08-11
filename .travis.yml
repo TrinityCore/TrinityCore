@@ -18,14 +18,14 @@ install:
   - mysql -uroot -e 'create database test_mysql;'
   - mkdir bin
   - cd bin
-  - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=1 -DUSE_COREPCH=0 -DUSE_SCRIPTPCH=0 -DTOOLS=1 -DSCRIPTS=1 -DSERVERS=1 -DCMAKE_BUILD_TYPE=Release
+  - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=1 -DUSE_COREPCH=0 -DUSE_SCRIPTPCH=0 -DTOOLS=1 -DSCRIPTS=1 -DSERVERS=1 -DNOJEM=1 -DCMAKE_BUILD_TYPE=Release
 
 script:
   - cd ..
   - mysql -uroot < sql/create/create_mysql.sql
   - mysql -uroot auth < sql/base/auth_database.sql
   - mysql -uroot characters < sql/base/characters_database.sql
-  - mysql -uroot world < sql/base/world_database.sql
+  - mysql -uroot world < sql/base/dev/world_database.sql
   - for file in sql/updates/world/*.sql; do mysql -uroot world < $file; done
   - mysql -uroot < sql/create/drop_mysql.sql
   - cd bin

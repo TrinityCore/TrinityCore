@@ -3889,7 +3889,7 @@ enum TradeStatus
 {
     TRADE_STATUS_OPEN_WINDOW = 0,
     // 1 - Related to EVENT_PLAYER_MONEY
-    TRADE_STATUS_NOT_ELIGIBLE = 2,           // Related to trading soulbound loot items
+    TRADE_STATUS_NOT_ON_TAPLIST = 2,           // Related to trading soulbound loot items
     TRADE_STATUS_YOU_LOGOUT = 3,
     TRADE_STATUS_IGNORE_YOU = 4,
     TRADE_STATUS_TARGET_DEAD = 5,
@@ -3913,7 +3913,7 @@ enum TradeStatus
     TRADE_STATUS_TRADE_CANCELED = 23,
     TRADE_STATUS_CURRENCY = 24,              // new 4.x
     TRADE_STATUS_BACK_TO_TRADE = 25,
-    TRADE_STATUS_ONLY_CONJURED = 26,         // You can only trade conjured items... (cross realm BG related).
+    TRADE_STATUS_WRONG_REALM = 26,         // You can only trade conjured items... (cross realm BG related).
     TRADE_STATUS_YOU_STUNNED = 27,
     // 28 - nonexistent
     TRADE_STATUS_TARGET_STUNNED = 29,

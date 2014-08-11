@@ -57,12 +57,14 @@ m_connectionFlags(CONNECTION_ASYNC)
 
 MySQLConnection::~MySQLConnection()
 {
-    ASSERT (m_Mysql); /// MySQL context must be present at this point
-
     for (size_t i = 0; i < m_stmts.size(); ++i)
         delete m_stmts[i];
 
-    mysql_close(m_Mysql);
+    if (m_Mysql)
+        mysql_close(m_Mysql);
+
+    if (m_worker)
+        delete m_worker;
 }
 
 void MySQLConnection::Close()
@@ -112,7 +114,7 @@ bool MySQLConnection::Open()
     else                                                    // generic case
     {
         port = atoi(m_connectionInfo.port_or_socket.c_str());
-        unix_socket = 0;
+        unix_socket = nullptr;
     }
     #endif
 

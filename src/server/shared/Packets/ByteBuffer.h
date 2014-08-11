@@ -34,13 +34,15 @@
 #include <math.h>
 #include <boost/asio/buffer.hpp>
 
+class MessageBuffer;
+
 // Root of ByteBuffer exception hierarchy
 class ByteBufferException : public std::exception
 {
 public:
     ~ByteBufferException() throw() { }
 
-    char const* what() const throw() { return msg_.c_str(); }
+    char const* what() const throw() override { return msg_.c_str(); }
 
 protected:
     std::string & message() throw() { return msg_; }
@@ -82,14 +84,12 @@ class ByteBuffer
         }
 
         ByteBuffer(ByteBuffer&& buf) : _rpos(buf._rpos), _wpos(buf._wpos),
-            _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(std::move(buf._storage))
-        {
-        }
+            _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(std::move(buf._storage)) { }
 
         ByteBuffer(ByteBuffer const& right) : _rpos(right._rpos), _wpos(right._wpos),
-            _bitpos(right._bitpos), _curbitval(right._curbitval), _storage(right._storage)
-        {
-        }
+            _bitpos(right._bitpos), _curbitval(right._curbitval), _storage(right._storage) { }
+
+        ByteBuffer(MessageBuffer&& buffer);
 
         ByteBuffer& operator=(ByteBuffer const& right)
         {

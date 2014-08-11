@@ -519,7 +519,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                                 mana < spellInfo->CalcPowerCost(me, spellInfo->GetSchoolMask()))
                                 _allowMove = true;
 
-                            CAST_AI(SmartAI, me->AI())->SetCombatMove(_allowMove);
+                            ENSURE_AI(SmartAI, me->AI())->SetCombatMove(_allowMove);
                         }
 
                         me->CastSpell((*itr)->ToUnit(), e.action.cast.spell, (e.action.cast.flags & SMARTCAST_TRIGGERED) != 0);
@@ -707,7 +707,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!IsSmart())
                 break;
 
-            CAST_AI(SmartAI, me->AI())->SetAutoAttack(e.action.autoAttack.attack != 0);
+            ENSURE_AI(SmartAI, me->AI())->SetAutoAttack(e.action.autoAttack.attack != 0);
             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_AUTO_ATTACK: Creature: %u bool on = %u",
                 me->GetGUIDLow(), e.action.autoAttack.attack);
             break;
@@ -718,7 +718,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             bool move = e.action.combatMove.move != 0;
-            CAST_AI(SmartAI, me->AI())->SetCombatMove(move);
+            ENSURE_AI(SmartAI, me->AI())->SetCombatMove(move);
             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_ALLOW_COMBAT_MOVEMENT: Creature %u bool on = %u",
                 me->GetGUIDLow(), e.action.combatMove.move);
             break;
@@ -817,7 +817,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             ObjectList* targets = GetTargets(e, unit);
             if (!targets)
             {
-                CAST_AI(SmartAI, me->AI())->StopFollow();
+                ENSURE_AI(SmartAI, me->AI())->StopFollow();
                 break;
             }
 
@@ -825,7 +825,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             {
                 if (IsUnit(*itr))
                 {
-                    CAST_AI(SmartAI, me->AI())->SetFollow((*itr)->ToUnit(), (float)e.action.follow.dist, (float)e.action.follow.angle, e.action.follow.credit, e.action.follow.entry, e.action.follow.creditType);
+                    ENSURE_AI(SmartAI, me->AI())->SetFollow((*itr)->ToUnit(), (float)e.action.follow.dist, (float)e.action.follow.angle, e.action.follow.credit, e.action.follow.entry, e.action.follow.creditType);
                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_FOLLOW: Creature %u following target %u",
                         me->GetGUIDLow(), (*itr)->GetGUIDLow());
                     break;
@@ -1035,8 +1035,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                 if ((*itr)->ToUnit()->IsAlive() && IsSmart((*itr)->ToCreature()))
                 {
-                    CAST_AI(SmartAI, (*itr)->ToCreature()->AI())->SetDespawnTime(e.action.forceDespawn.delay + 1); // Next tick
-                    CAST_AI(SmartAI, (*itr)->ToCreature()->AI())->StartDespawn();
+                    ENSURE_AI(SmartAI, (*itr)->ToCreature()->AI())->SetDespawnTime(e.action.forceDespawn.delay + 1); // Next tick
+                    ENSURE_AI(SmartAI, (*itr)->ToCreature()->AI())->StartDespawn();
                 }
                 else
                     (*itr)->ToCreature()->DespawnOrUnsummon(e.action.forceDespawn.delay);
@@ -1331,7 +1331,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!IsSmart())
                 break;
 
-            CAST_AI(SmartAI, me->AI())->SetFly(e.action.setFly.fly != 0);
+            ENSURE_AI(SmartAI, me->AI())->SetFly(e.action.setFly.fly != 0);
             break;
         }
         case SMART_ACTION_SET_RUN:
@@ -1339,7 +1339,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!IsSmart())
                 break;
 
-            CAST_AI(SmartAI, me->AI())->SetRun(e.action.setRun.run != 0);
+            ENSURE_AI(SmartAI, me->AI())->SetRun(e.action.setRun.run != 0);
             break;
         }
         case SMART_ACTION_SET_SWIM:
@@ -1347,7 +1347,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!IsSmart())
                 break;
 
-            CAST_AI(SmartAI, me->AI())->SetSwim(e.action.setSwim.swim != 0);
+            ENSURE_AI(SmartAI, me->AI())->SetSwim(e.action.setSwim.swim != 0);
             break;
         }
         case SMART_ACTION_WP_START:
@@ -1361,12 +1361,12 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             ObjectList* targets = GetTargets(e, unit);
             StoreTargetList(targets, SMART_ESCORT_TARGETS);
             me->SetReactState((ReactStates)e.action.wpStart.reactState);
-            CAST_AI(SmartAI, me->AI())->StartPath(run, entry, repeat, unit);
+            ENSURE_AI(SmartAI, me->AI())->StartPath(run, entry, repeat, unit);
 
             uint32 quest = e.action.wpStart.quest;
             uint32 DespawnTime = e.action.wpStart.despawnTime;
-            CAST_AI(SmartAI, me->AI())->mEscortQuestID = quest;
-            CAST_AI(SmartAI, me->AI())->SetDespawnTime(DespawnTime);
+            ENSURE_AI(SmartAI, me->AI())->mEscortQuestID = quest;
+            ENSURE_AI(SmartAI, me->AI())->SetDespawnTime(DespawnTime);
             break;
         }
         case SMART_ACTION_WP_PAUSE:
@@ -1375,7 +1375,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             uint32 delay = e.action.wpPause.delay;
-            CAST_AI(SmartAI, me->AI())->PausePath(delay, e.GetEventType() == SMART_EVENT_WAYPOINT_REACHED ? false : true);
+            ENSURE_AI(SmartAI, me->AI())->PausePath(delay, e.GetEventType() == SMART_EVENT_WAYPOINT_REACHED ? false : true);
             break;
         }
         case SMART_ACTION_WP_STOP:
@@ -1386,7 +1386,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             uint32 DespawnTime = e.action.wpStop.despawnTime;
             uint32 quest = e.action.wpStop.quest;
             bool fail = e.action.wpStop.fail != 0;
-            CAST_AI(SmartAI, me->AI())->StopPath(DespawnTime, quest, fail);
+            ENSURE_AI(SmartAI, me->AI())->StopPath(DespawnTime, quest, fail);
             break;
         }
         case SMART_ACTION_WP_RESUME:
@@ -1394,7 +1394,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!IsSmart())
                 break;
 
-            CAST_AI(SmartAI, me->AI())->ResumePath();
+            ENSURE_AI(SmartAI, me->AI())->ResumePath();
             break;
         }
         case SMART_ACTION_SET_ORIENTATION:
@@ -1630,7 +1630,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 for (ObjectList::iterator itr = targets->begin(); itr != targets->end(); ++itr)
                     if (Creature* target = (*itr)->ToCreature())
                         if (IsSmart(target) && target->GetVictim())
-                            if (CAST_AI(SmartAI, target->AI())->CanCombatMove())
+                            if (ENSURE_AI(SmartAI, target->AI())->CanCombatMove())
                                 target->GetMotionMaster()->MoveChase(target->GetVictim(), attackDistance, attackAngle);
 
                 delete targets;
@@ -1652,12 +1652,12 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (Creature* target = (*itr)->ToCreature())
                     {
                         if (IsSmart(target))
-                            CAST_AI(SmartAI, target->AI())->SetScript9(e, e.action.timedActionList.id, GetLastInvoker());
+                            ENSURE_AI(SmartAI, target->AI())->SetScript9(e, e.action.timedActionList.id, GetLastInvoker());
                     }
                     else if (GameObject* goTarget = (*itr)->ToGameObject())
                     {
                         if (IsSmartGO(goTarget))
-                            CAST_AI(SmartGameObjectAI, goTarget->AI())->SetScript9(e, e.action.timedActionList.id, GetLastInvoker());
+                            ENSURE_AI(SmartGameObjectAI, goTarget->AI())->SetScript9(e, e.action.timedActionList.id, GetLastInvoker());
                     }
                 }
 
@@ -1788,12 +1788,12 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (Creature* target = (*itr)->ToCreature())
                     {
                         if (IsSmart(target))
-                            CAST_AI(SmartAI, target->AI())->SetScript9(e, id, GetLastInvoker());
+                            ENSURE_AI(SmartAI, target->AI())->SetScript9(e, id, GetLastInvoker());
                     }
                     else if (GameObject* goTarget = (*itr)->ToGameObject())
                     {
                         if (IsSmartGO(goTarget))
-                            CAST_AI(SmartGameObjectAI, goTarget->AI())->SetScript9(e, id, GetLastInvoker());
+                            ENSURE_AI(SmartGameObjectAI, goTarget->AI())->SetScript9(e, id, GetLastInvoker());
                     }
                 }
 
@@ -1818,12 +1818,12 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (Creature* target = (*itr)->ToCreature())
                     {
                         if (IsSmart(target))
-                            CAST_AI(SmartAI, target->AI())->SetScript9(e, id, GetLastInvoker());
+                            ENSURE_AI(SmartAI, target->AI())->SetScript9(e, id, GetLastInvoker());
                     }
                     else if (GameObject* goTarget = (*itr)->ToGameObject())
                     {
                         if (IsSmartGO(goTarget))
-                            CAST_AI(SmartGameObjectAI, goTarget->AI())->SetScript9(e, id, GetLastInvoker());
+                            ENSURE_AI(SmartGameObjectAI, goTarget->AI())->SetScript9(e, id, GetLastInvoker());
                     }
                 }
 

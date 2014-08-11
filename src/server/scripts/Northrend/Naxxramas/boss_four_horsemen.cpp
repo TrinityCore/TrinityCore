@@ -147,15 +147,15 @@ public:
             {
                 if (attack && who)
                 {
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->encounterActionAttack = true;
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->encounterActionAttack = true;
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->encounterActionAttack = true;
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->encounterActionAttack = true;
+                    ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->encounterActionAttack = true;
+                    ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->encounterActionAttack = true;
+                    ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->encounterActionAttack = true;
+                    ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->encounterActionAttack = true;
 
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->AttackStart(who);
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->AttackStart(who);
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->AttackStart(who);
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->AttackStart(who);
+                    ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->AttackStart(who);
+                    ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->AttackStart(who);
+                    ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->AttackStart(who);
+                    ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->AttackStart(who);
                 }
 
                 if (reset)
@@ -174,15 +174,15 @@ public:
                         if (!Sir->IsAlive())
                             Sir->Respawn();
 
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->encounterActionReset = true;
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->encounterActionReset = true;
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->encounterActionReset = true;
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->encounterActionReset = true;
+                        ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->encounterActionReset = true;
+                        ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->encounterActionReset = true;
+                        ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->encounterActionReset = true;
+                        ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->encounterActionReset = true;
 
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->EnterEvadeMode();
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->EnterEvadeMode();
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->EnterEvadeMode();
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->EnterEvadeMode();
+                        ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->EnterEvadeMode();
+                        ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->EnterEvadeMode();
+                        ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->EnterEvadeMode();
+                        ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->EnterEvadeMode();
                     }
                 }
 

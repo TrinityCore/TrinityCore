@@ -18,8 +18,9 @@
 #ifndef __BATTLENETBITSTREAM_H__
 #define __BATTLENETBITSTREAM_H__
 
-#include "ByteConverter.h"
 #include "Common.h"
+#include "ByteConverter.h"
+#include "MessageBuffer.h"
 #include <exception>
 #include <vector>
 #include <type_traits>
@@ -61,6 +62,10 @@ namespace Battlenet
         BitStream(uint32 length) : _numBits(length * 8), _readPos(0), _writePos(0)
         {
             _buffer.resize(length, 0);
+        }
+
+        BitStream(MessageBuffer&& buffer) : _buffer(buffer.Move()), _numBits(_buffer.size() * 8), _readPos(0), _writePos(0)
+        {
         }
 
         BitStream() : _numBits(0), _readPos(0), _writePos(0)

@@ -92,6 +92,23 @@ enum LootType
     LOOT_FISHING_JUNK           = 22                        // unsupported by client, sending LOOT_FISHING instead
 };
 
+enum LootError
+{
+    LOOT_ERROR_DIDNT_KILL               = 0,    // You don't have permission to loot that corpse.
+    LOOT_ERROR_TOO_FAR                  = 4,    // You are too far away to loot that corpse.
+    LOOT_ERROR_BAD_FACING               = 5,    // You must be facing the corpse to loot it.
+    LOOT_ERROR_LOCKED                   = 6,    // Someone is already looting that corpse.
+    LOOT_ERROR_NOTSTANDING              = 8,    // You need to be standing up to loot something!
+    LOOT_ERROR_STUNNED                  = 9,    // You can't loot anything while stunned!
+    LOOT_ERROR_PLAYER_NOT_FOUND         = 10,   // Player not found
+    LOOT_ERROR_PLAY_TIME_EXCEEDED       = 11,   // Maximum play time exceeded
+    LOOT_ERROR_MASTER_INV_FULL          = 12,   // That player's inventory is full
+    LOOT_ERROR_MASTER_UNIQUE_ITEM       = 13,   // Player has too many of that item already
+    LOOT_ERROR_MASTER_OTHER             = 14,   // Can't assign item to that player
+    LOOT_ERROR_ALREADY_PICKPOCKETED     = 15,   // Your target has already had its pockets picked
+    LOOT_ERROR_NOT_WHILE_SHAPESHIFTED   = 16    // You can't do that while shapeshifted.
+};
+
 // type of Loot Item in Loot View
 enum LootSlotType
 {
@@ -263,8 +280,8 @@ class LootValidatorRef :  public Reference<Loot, LootValidatorRef>
 {
     public:
         LootValidatorRef() { }
-        void targetObjectDestroyLink() { }
-        void sourceObjectDestroyLink() { }
+        void targetObjectDestroyLink() override { }
+        void sourceObjectDestroyLink() override { }
 };
 
 //=====================================================

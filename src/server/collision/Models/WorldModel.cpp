@@ -108,7 +108,7 @@ namespace VMAP
         iFlags = new uint8[width*height];
     }
 
-    WmoLiquid::WmoLiquid(const WmoLiquid &other): iHeight(0), iFlags(0)
+    WmoLiquid::WmoLiquid(const WmoLiquid &other): iHeight(nullptr), iFlags(nullptr)
     {
         *this = other; // use assignment operator...
     }
@@ -135,14 +135,14 @@ namespace VMAP
             memcpy(iHeight, other.iHeight, (iTilesX+1)*(iTilesY+1)*sizeof(float));
         }
         else
-            iHeight = 0;
+            iHeight = nullptr;
         if (other.iFlags)
         {
             iFlags = new uint8[iTilesX * iTilesY];
             memcpy(iFlags, other.iFlags, iTilesX * iTilesY);
         }
         else
-            iFlags = 0;
+            iFlags = nullptr;
         return *this;
     }
 
@@ -254,7 +254,7 @@ namespace VMAP
 
     GroupModel::GroupModel(const GroupModel &other):
         iBound(other.iBound), iMogpFlags(other.iMogpFlags), iGroupWMOID(other.iGroupWMOID),
-        vertices(other.vertices), triangles(other.triangles), meshTree(other.meshTree), iLiquid(0)
+        vertices(other.vertices), triangles(other.triangles), meshTree(other.meshTree), iLiquid(nullptr)
     {
         if (other.iLiquid)
             iLiquid = new WmoLiquid(*other.iLiquid);

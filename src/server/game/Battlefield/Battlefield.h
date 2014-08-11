@@ -247,12 +247,12 @@ class Battlefield : public ZoneScript
         void HandlePlayerLeaveZone(Player* player, uint32 zone);
 
         // All-purpose data storage 64 bit
-        virtual uint64 GetData64(uint32 dataId) const { return m_Data64[dataId]; }
-        virtual void SetData64(uint32 dataId, uint64 value) { m_Data64[dataId] = value; }
+        virtual uint64 GetData64(uint32 dataId) const override { return m_Data64[dataId]; }
+        virtual void SetData64(uint32 dataId, uint64 value) override { m_Data64[dataId] = value; }
 
         // All-purpose data storage 32 bit
-        virtual uint32 GetData(uint32 dataId) const { return m_Data32[dataId]; }
-        virtual void SetData(uint32 dataId, uint32 value) { m_Data32[dataId] = value; }
+        virtual uint32 GetData(uint32 dataId) const override { return m_Data32[dataId]; }
+        virtual void SetData(uint32 dataId, uint32 value) override { m_Data32[dataId] = value; }
         virtual void UpdateData(uint32 index, int32 pad) { m_Data32[index] += pad; }
 
         // Battlefield - generic methods

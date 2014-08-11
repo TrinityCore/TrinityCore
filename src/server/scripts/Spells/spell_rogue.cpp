@@ -645,7 +645,7 @@ class spell_rog_prey_on_the_weak : public SpellScriptLoader
                     if (!target->HasAura(SPELL_ROGUE_PREY_ON_THE_WEAK))
                     {
                         int32 bp = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
-                        target->CastCustomSpell(target, SPELL_ROGUE_PREY_ON_THE_WEAK, &bp, 0, 0, true);
+                        target->CastCustomSpell(target, SPELL_ROGUE_PREY_ON_THE_WEAK, &bp, nullptr, nullptr, true);
                     }
                 }
                 else

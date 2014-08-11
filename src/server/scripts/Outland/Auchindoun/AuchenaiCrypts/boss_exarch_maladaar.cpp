@@ -225,9 +225,8 @@ public:
 
                 if (Unit* target = ObjectAccessor::GetUnit(*me, soulholder))
                 {
-
-                CAST_AI(npc_stolen_soul::npc_stolen_soulAI, summoned->AI())->SetMyClass(soulclass);
-                 summoned->AI()->AttackStart(target);
+                    ENSURE_AI(npc_stolen_soul::npc_stolen_soulAI, summoned->AI())->SetMyClass(soulclass);
+                    summoned->AI()->AttackStart(target);
                 }
             }
         }

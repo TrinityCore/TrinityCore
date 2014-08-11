@@ -272,7 +272,7 @@ public:
                 {
                     if (Creature* pPortal = ObjectAccessor::GetCreature(*me, PortalGUID[i]))
                     {
-                        CAST_AI(npc_fiendish_portal::npc_fiendish_portalAI, pPortal->AI())->DespawnAllImp();
+                        ENSURE_AI(npc_fiendish_portal::npc_fiendish_portalAI, pPortal->AI())->DespawnAllImp();
                         pPortal->DespawnOrUnsummon();
                     }
 
@@ -362,7 +362,7 @@ public:
 
                     if (Creature* Chains = me->FindNearestCreature(NPC_DEMONCHAINS, 5000))
                     {
-                        CAST_AI(npc_demon_chain::npc_demon_chainAI, Chains->AI())->SacrificeGUID = target->GetGUID();
+                        ENSURE_AI(npc_demon_chain::npc_demon_chainAI, Chains->AI())->SacrificeGUID = target->GetGUID();
                         Chains->CastSpell(Chains, SPELL_DEMON_CHAINS, true);
                         Talk(SAY_SACRIFICE);
                         SacrificeTimer = 30000;

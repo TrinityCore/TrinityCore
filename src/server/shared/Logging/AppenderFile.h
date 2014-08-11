@@ -30,7 +30,7 @@ class AppenderFile: public Appender
 
     private:
         void CloseFile();
-        void _write(LogMessage const& message);
+        void _write(LogMessage const& message) override;
         FILE* logfile;
         std::string filename;
         std::string logDir;

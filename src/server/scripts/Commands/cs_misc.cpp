@@ -1460,7 +1460,6 @@ public:
         std::string raceStr, classStr   = "None";
         uint8 gender                    = 0;
         int8 locale                     = handler->GetSessionDbcLocale();
-        std::string genderStr           = handler->GetTrinityString(LANG_ERROR);
         uint32 totalPlayerTime          = 0;
         uint8 level                     = 0;
         std::string alive               = handler->GetTrinityString(LANG_ERROR);

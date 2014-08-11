@@ -531,7 +531,7 @@ struct BattlegroundSAScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content) final
+        void BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content) final override
         {
             data.WriteBits(2, 24); // Objectives Count
             content << uint32(DemolishersDestroyed);
@@ -554,27 +554,27 @@ class BattlegroundSA : public Battleground
          * -Update timer
          * -Round switch
          */
-        void PostUpdateImpl(uint32 diff);
+        void PostUpdateImpl(uint32 diff) override;
 
         /* inherited from BattlegroundClass */
         /// Called when a player join battle
-        void AddPlayer(Player* player);
+        void AddPlayer(Player* player) override;
         /// Called when battle start
-        void StartingEventCloseDoors();
-        void StartingEventOpenDoors();
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
         /// Called for ini battleground, after that the first player be entered
-        bool SetupBattleground();
-        void Reset();
+        bool SetupBattleground() override;
+        void Reset() override;
         /// Called for generate packet contain worldstate data
-        void FillInitialWorldStates(WorldPacket& data);
+        void FillInitialWorldStates(WorldPacket& data) override;
         /// Called when a player kill a unit in bg
-        void HandleKillUnit(Creature* creature, Player* killer);
+        void HandleKillUnit(Creature* creature, Player* killer) override;
         /// Return the nearest graveyard where player can respawn
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
         /// Called when someone activates an event
         void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/, WorldObject* /*invoker*/ = NULL) override;
         /// Called when a player click on flag (graveyard flag)
-        void EventPlayerClickedOnFlag(Player* source, GameObject* go);
+        void EventPlayerClickedOnFlag(Player* source, GameObject* go) override;
         /// Called when a player clicked on relic
         void TitanRelicActivated(Player* clicker);
 
@@ -588,11 +588,11 @@ class BattlegroundSA : public Battleground
         }
 
         /// Called on battleground ending
-        void EndBattleground(uint32 winner);
+        void EndBattleground(uint32 winner) override;
 
         /// Called when a player leave battleground
-        void RemovePlayer(Player* player, uint64 guid, uint32 team);
-        void HandleAreaTrigger(Player* Source, uint32 Trigger);
+        void RemovePlayer(Player* player, uint64 guid, uint32 team) override;
+        void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
 
         /* Scorekeeping */
 
@@ -630,7 +630,7 @@ class BattlegroundSA : public Battleground
          * -Update worldstate
          * -Delete gameobject in front of door (lighting object, with different colours for each door)
          */
-        void DestroyGate(Player* player, GameObject* go);
+        void DestroyGate(Player* player, GameObject* go) override;
         /// Update timer worldstate
         void SendTime();
         /**

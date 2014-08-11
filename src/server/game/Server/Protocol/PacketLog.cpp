@@ -58,7 +58,7 @@ struct PacketHeader
 
 PacketLog::PacketLog() : _file(NULL)
 {
-    Initialize();
+    std::call_once(_initializeFlag, &PacketLog::Initialize, this);
 }
 
 PacketLog::~PacketLog()
@@ -99,6 +99,8 @@ void PacketLog::Initialize()
 
 void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost::asio::ip::address addr, uint16 port)
 {
+    std::lock_guard<std::mutex> lock(_logPacketLock);
+
     PacketHeader header;
     *reinterpret_cast<uint32*>(header.Direction) = direction == CLIENT_TO_SERVER ? 0x47534d43 : 0x47534d53;
     header.ConnectionId = 0;

@@ -1211,7 +1211,6 @@ struct CharmInfo
         CharmSpellInfo _charmspells[4];
         CommandStates _CommandState;
         uint32 _petnumber;
-        bool _barInit;
 
         //for restoration after charmed
         ReactStates     _oldReactState;
@@ -1302,8 +1301,8 @@ class Unit : public WorldObject
         UnitAI* GetAI() { return i_AI; }
         void SetAI(UnitAI* newAI) { i_AI = newAI; }
 
-        void AddToWorld();
-        void RemoveFromWorld();
+        void AddToWorld() override;
+        void RemoveFromWorld() override;
 
         void CleanupBeforeRemoveFromMap(bool finalCleanup);
         void CleanupsBeforeDelete(bool finalCleanup = true) override;                        // used in ~Creature/~Player (or before mass creature delete to remove cross-references to already deleted units)
@@ -1318,7 +1317,7 @@ class Unit : public WorldObject
         float GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
         float GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
 
-        virtual void Update(uint32 time);
+        virtual void Update(uint32 time) override;
 
         void setAttackTimer(WeaponAttackType type, uint32 time) { m_attackTimer[type] = time; }
         void resetAttackTimer(WeaponAttackType type = BASE_ATTACK);
@@ -1374,7 +1373,7 @@ class Unit : public WorldObject
         bool IsVehicle() const  { return (m_unitTypeMask & UNIT_MASK_VEHICLE) != 0; }
 
         uint8 getLevel() const { return uint8(GetUInt32Value(UNIT_FIELD_LEVEL)); }
-        uint8 getLevelForTarget(WorldObject const* /*target*/) const { return getLevel(); }
+        uint8 getLevelForTarget(WorldObject const* /*target*/) const override { return getLevel(); }
         void SetLevel(uint8 lvl);
         uint8 getRace() const { return GetByteValue(UNIT_FIELD_BYTES_0, 0); }
         uint32 getRaceMask() const { return 1 << (getRace()-1); }
@@ -1929,7 +1928,7 @@ class Unit : public WorldObject
 
         // common function for visibility checks for player/creatures with detection code
         void SetInPhase(uint32 id, bool update, bool apply);
-        void UpdateObjectVisibility(bool forced = true);
+        void UpdateObjectVisibility(bool forced = true) override;
 
         SpellImmuneList m_spellImmune[MAX_SPELL_IMMUNITY];
         uint32 m_lastSanctuaryTime;
@@ -2114,7 +2113,7 @@ class Unit : public WorldObject
         bool IsOnVehicle(const Unit* vehicle) const;
         Unit* GetVehicleBase()  const;
         Creature* GetVehicleCreatureBase() const;
-        uint64 GetTransGUID()   const;
+        uint64 GetTransGUID()   const override;
         /// Returns the transport this unit is on directly (if on vehicle and transport, return vehicle)
         TransportBase* GetDirectTransport() const;
 
@@ -2170,7 +2169,7 @@ class Unit : public WorldObject
     protected:
         explicit Unit (bool isWorldObject);
 
-        void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
+        void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const override;
 
         UnitAI* i_AI, *i_disabledAI;
 
@@ -2239,8 +2238,8 @@ class Unit : public WorldObject
         uint32 m_unitTypeMask;
         LiquidTypeEntry const* _lastLiquid;
 
-        bool IsAlwaysVisibleFor(WorldObject const* seer) const;
-        bool IsAlwaysDetectableFor(WorldObject const* seer) const;
+        bool IsAlwaysVisibleFor(WorldObject const* seer) const override;
+        bool IsAlwaysDetectableFor(WorldObject const* seer) const override;
 
         void DisableSpline();
     private:

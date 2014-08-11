@@ -35,7 +35,7 @@ class guild_commandscript : public CommandScript
 public:
     guild_commandscript() : CommandScript("guild_commandscript") { }
 
-    ChatCommand* GetCommands() const
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand guildCommandTable[] =
         {
