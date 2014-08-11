@@ -20,7 +20,7 @@
 
 #include "MessageBuffer.h"
 #include "Log.h"
-#include <atomic> 
+#include <atomic>
 #include <vector>
 #include <mutex>
 #include <queue>
@@ -47,6 +47,18 @@ public:
         _readHeaderBuffer.Grow(headerSize);
     }
 
+    virtual ~Socket()
+    {
+        boost::system::error_code error;
+        _socket.close(error);
+
+        while (!_writeQueue.empty())
+        {
+            DeletePacket(_writeQueue.front());
+            _writeQueue.pop();
+        }
+    }
+
     virtual void Start() = 0;
 
     boost::asio::ip::address GetRemoteIpAddress() const
@@ -61,6 +73,9 @@ public:
 
     void AsyncReadHeader()
     {
+        if (!IsOpen())
+            return;
+
         _readHeaderBuffer.ResetWritePointer();
         _readDataBuffer.Reset();
 
@@ -69,6 +84,9 @@ public:
 
     void AsyncReadData(std::size_t size)
     {
+        if (!IsOpen())
+            return;
+
         if (!size)
         {
             // if this is a packet with 0 length body just invoke handler directly
@@ -82,6 +100,9 @@ public:
 
     void ReadData(std::size_t size)
     {
+        if (!IsOpen())
+            return;
+
         boost::system::error_code error;
 
         _readDataBuffer.Grow(size);
@@ -113,16 +134,10 @@ public:
             return;
 
         boost::system::error_code shutdownError;
-        _socket.shutdown(boost::asio::socket_base::shutdown_both, shutdownError);
+        _socket.shutdown(boost::asio::socket_base::shutdown_send, shutdownError);
         if (shutdownError)
             TC_LOG_DEBUG("network", "Socket::CloseSocket: %s errored when shutting down socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(),
                 shutdownError.value(), shutdownError.message().c_str());
-
-        boost::system::error_code error;
-        _socket.close(error);
-        if (error)
-            TC_LOG_DEBUG("network", "Socket::CloseSocket: %s errored when closing socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(),
-                error.value(), error.message().c_str());
     }
 
     virtual bool IsHeaderReady() const { return _readHeaderBuffer.IsMessageReady(); }

@@ -124,6 +124,9 @@ void WorldSocket::ReadDataHandler()
 
 void WorldSocket::AsyncWrite(WorldPacket& packet)
 {
+    if (!IsOpen())
+        return;
+
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(packet, SERVER_TO_CLIENT, GetRemoteIpAddress(), GetRemotePort());
 
