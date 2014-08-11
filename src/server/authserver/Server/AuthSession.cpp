@@ -169,6 +169,9 @@ void AuthSession::ReadDataHandler()
 
 void AuthSession::AsyncWrite(ByteBuffer& packet)
 {
+    if (!IsOpen())
+        return;
+
     std::lock_guard<std::mutex> guard(_writeLock);
 
     bool needsWriteStart = _writeQueue.empty();
