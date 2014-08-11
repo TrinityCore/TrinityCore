@@ -221,7 +221,7 @@ extern int main(int argc, char** argv)
 
     AsyncAcceptor<WorldSocket> worldAcceptor(_ioService, worldListener, worldPort, tcpNoDelay);
 
-    sScriptMgr->OnStartup();
+    sScriptMgr->OnNetworkStart();
 
     // Set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmID);
@@ -236,6 +236,8 @@ extern int main(int argc, char** argv)
     }
 
     TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", _FULLVERSION);
+
+    sScriptMgr->OnStartup();
 
     WorldUpdateLoop();
 
@@ -296,6 +298,8 @@ extern int main(int argc, char** argv)
 
 void ShutdownThreadPool(std::vector<std::thread>& threadPool)
 {
+    sScriptMgr->OnNetworkStop();
+
     _ioService.stop();
 
     for (auto& thread : threadPool)

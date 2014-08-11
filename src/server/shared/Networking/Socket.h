@@ -107,7 +107,7 @@ public:
 
     bool IsOpen() const { return !_closed; }
 
-    void CloseSocket()
+    virtual void CloseSocket()
     {
         if (_closed.exchange(true))
             return;
