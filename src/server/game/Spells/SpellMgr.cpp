@@ -3381,16 +3381,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 65042: // Prison of Yogg-Saron Teleport
                 spellInfo->Effects[0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
                 break;
-            case 63241: // Mangrove Ent 10 - Tranquility
-            case 63554: // Mangrove Ent 25 - Tranquility
-                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_SRC_CASTER);
-                spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ALLY);
-                break;
-            case 62584: // Lifebinder's Gift
-            case 64185: // Lifebinder's Gift
-                spellInfo->Effects[EFFECT_1].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_NEARBY_ENTRY);
-                spellInfo->Effects[EFFECT_2].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_NEARBY_ENTRY);
-                break;
             case 62711: // Ignis - Grab
                 spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
