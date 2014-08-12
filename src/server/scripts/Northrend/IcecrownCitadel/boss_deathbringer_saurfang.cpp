@@ -299,6 +299,12 @@ class boss_deathbringer_saurfang : public CreatureScript
 
                 _introDone = true;
 
+                if (GameObject* teleporter = GameObject::GetGameObject(*me, instance->GetData64(GO_SCOURGE_TRANSPORTER_DEATHBRINGER)))
+                {
+                    instance->HandleGameObject(0, false, teleporter);
+                    teleporter->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                }
+
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 30000, 0, PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 360000 : 480000, 0, PHASE_COMBAT);
@@ -538,12 +544,6 @@ class boss_deathbringer_saurfang : public CreatureScript
                     case PHASE_INTRO_A:
                     case PHASE_INTRO_H:
                     {
-                        if (GameObject* teleporter = GameObject::GetGameObject(*me, instance->GetData64(GO_SCOURGE_TRANSPORTER_SAURFANG)))
-                        {
-                            instance->HandleGameObject(0, false, teleporter);
-                            teleporter->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-                        }
-
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         // controls what events will execute
                         events.SetPhase(uint32(action));
