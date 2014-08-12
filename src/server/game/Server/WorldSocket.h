@@ -104,6 +104,8 @@ public:
 
     void Start() override;
 
+    void CloseSocket() override;
+
     using Base::AsyncWrite;
     void AsyncWrite(WorldPacket& packet);
 
