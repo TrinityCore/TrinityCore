@@ -262,7 +262,7 @@ namespace
 
             // Allow only alnum
             std::string name = code;
-            if (name.length() && !std::all_of(name.begin(), name.end(), std::isalnum))
+            if (name.length() && !std::all_of(name.begin(), name.end(), &std::isalnum))
             {
                 player->GetSession()->SendNotification(LANG_PRESET_ERR_INVALID_NAME);
                 OnGossipSelect(player, creature, EQUIPMENT_SLOT_END + 4, 0);
