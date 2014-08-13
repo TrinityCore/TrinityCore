@@ -994,6 +994,15 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
+            // hack to give kill credit for achievement 489
+            if (instance)
+            {
+                Map::PlayerList const &PlayerList = instance->instance->GetPlayers();
+                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                if (Player* player = i->GetSource())
+                    player->KilledMonsterCredit(28859, 0);
+            }
+            // hack over
             _JustDied();
             Talk(SAY_DEATH);
             if (Creature* alexstraszaGiftBoxBunny = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GIFT_BOX_BUNNY_GUID)))
