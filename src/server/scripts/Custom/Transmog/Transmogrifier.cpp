@@ -260,15 +260,13 @@ namespace
                 return true;
             }
 
-            const char* it = code;
-            for (const char* it = code; it; ++it)
+            // Allow only alnum
+            std::string name = code;
+            if (name.length() && !std::all_of(name.begin(), name.end(), std::isalnum))
             {
-                if (!std::isalnum(*it))
-                {
-                    player->GetSession()->SendNotification(LANG_PRESET_ERR_INVALID_NAME);
-                    OnGossipSelect(player, creature, EQUIPMENT_SLOT_END + 4, 0);
-                    return true;
-                }
+                player->GetSession()->SendNotification(LANG_PRESET_ERR_INVALID_NAME);
+                OnGossipSelect(player, creature, EQUIPMENT_SLOT_END + 4, 0);
+                return true;
             }
 
             int32 cost = 0;
@@ -320,7 +318,7 @@ namespace
                     if (presetID < sTransmogrification->MaxSets)
                     {
                         // Make sure code doesnt mess up SQL!
-                        player->presetMap[presetID].name = code;
+                        player->presetMap[presetID].name = name;
                         player->presetMap[presetID].slotMap = items;
 
                         if (cost)
