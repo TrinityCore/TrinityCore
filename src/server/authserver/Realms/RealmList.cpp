@@ -97,8 +97,10 @@ void RealmList::UpdateRealms(bool init)
                 uint32 realmId = fields[0].GetUInt32();
                 std::string name = fields[1].GetString();
                 boost::asio::ip::tcp::resolver::query externalAddressQuery(ip::tcp::v4(), fields[2].GetString(), "");
-                boost::asio::ip::tcp::resolver::iterator endPoint = _resolver->resolve(externalAddressQuery);
-                if (endPoint == end)
+
+                boost::system::error_code ec;
+                boost::asio::ip::tcp::resolver::iterator endPoint = _resolver->resolve(externalAddressQuery, ec);
+                if (endPoint == end || ec)
                 {
                     TC_LOG_ERROR("server.authserver", "Could not resolve address %s", fields[2].GetString().c_str());
                     return;
@@ -107,8 +109,8 @@ void RealmList::UpdateRealms(bool init)
                 ip::address externalAddress = (*endPoint).endpoint().address();
 
                 boost::asio::ip::tcp::resolver::query localAddressQuery(ip::tcp::v4(), fields[3].GetString(), "");
-                endPoint = _resolver->resolve(localAddressQuery);
-                if (endPoint == end)
+                endPoint = _resolver->resolve(localAddressQuery, ec);
+                if (endPoint == end || ec)
                 {
                     TC_LOG_ERROR("server.authserver", "Could not resolve address %s", fields[3].GetString().c_str());
                     return;
@@ -117,8 +119,8 @@ void RealmList::UpdateRealms(bool init)
                 ip::address localAddress = (*endPoint).endpoint().address();
 
                 boost::asio::ip::tcp::resolver::query localSubmaskQuery(ip::tcp::v4(), fields[4].GetString(), "");
-                endPoint = _resolver->resolve(localSubmaskQuery);
-                if (endPoint == end)
+                endPoint = _resolver->resolve(localSubmaskQuery, ec);
+                if (endPoint == end || ec)
                 {
                     TC_LOG_ERROR("server.authserver", "Could not resolve address %s", fields[4].GetString().c_str());
                     return;
