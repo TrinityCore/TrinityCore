@@ -262,7 +262,7 @@ namespace
 
             // Allow only alnum
             std::string name = code;
-            static const char* allowedcharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖabcdefghijklmnopqrstuvwxyzåäö _.,'1234567890";
+            static const char* allowedcharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz _.,'1234567890";
             if (name.length() && name.find_first_not_of(allowedcharacters) != std::string::npos)
             {
                 player->GetSession()->SendNotification(LANG_PRESET_ERR_INVALID_NAME);
