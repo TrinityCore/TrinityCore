@@ -3353,6 +3353,9 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_CASTER;
                 spellInfo->Effects[EFFECT_1].SpellClassMask = flag96(0x40000000, 0x00000002, 0x00000000);
                 break;
+            case 44535: // Spirit Heal, abilities also have no cost
+                spellInfo->Effects[EFFECT_0].MiscValue = 127;
+                break;
             // ULDUAR SPELLS
             //
             case 62374: // Pursued (Flame Leviathan)
