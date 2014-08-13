@@ -39,6 +39,7 @@ private:
 public:
     static Transmogrification* instance()
     {
+        // Thread safe in C++11 standard
         static Transmogrification instance;
         return &instance;
     }

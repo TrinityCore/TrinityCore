@@ -14,7 +14,6 @@ Cant transmogrify rediculus items // Foereaper: would be fun to stab people with
 -- Cant think of any good way to handle this easily, could rip flagged items from cata DB
 */
 
-#include <regex>
 #include "ScriptPCH.h"
 #include "Config.h"
 #include "Language.h"
@@ -260,69 +259,76 @@ namespace
                 OnGossipHello(player, creature);
                 return true;
             }
-            std::string name(code);
-            std::regex regex("^[[:print:]]+$");
-            if (!std::regex_match(name, regex) || name.find('"') != std::string::npos || name.find('\\') != std::string::npos)
-                player->GetSession()->SendNotification(LANG_PRESET_ERR_INVALID_NAME);
-            else
-            {
-                int32 cost = 0;
-                PresetslotMapType items;
-                for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
-                {
-                    if (!sTransmogrification->GetSlotName(slot, player->GetSession()))
-                        continue;
-                    if (Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
-                    {
-                        uint32 entry = sTransmogrification->GetFakeEntry(newItem);
-                        if (!entry)
-                            continue;
-                        const ItemTemplate* temp = sObjectMgr->GetItemTemplate(entry);
-                        if (!temp)
-                            continue;
-                        if (!sTransmogrification->SuitableForTransmogrification(player, temp))
-                            continue;
-                        cost += sTransmogrification->GetSpecialPrice(temp);
-                        items[slot] = entry;
-                    }
-                }
-                if (!items.empty())
-                {
-                    // transmogrified items were found to be saved
-                    cost *= sTransmogrification->SetCostModifier;
-                    cost += sTransmogrification->SetCopperCost;
 
-                    if (!player->HasEnoughMoney(cost))
+            const char* it = code;
+            for (const char* it = code; it; ++it)
+            {
+                if (!std::isalnum(*it))
+                {
+                    player->GetSession()->SendNotification(LANG_PRESET_ERR_INVALID_NAME);
+                    OnGossipSelect(player, creature, EQUIPMENT_SLOT_END + 4, 0);
+                    return true;
+                }
+            }
+
+            int32 cost = 0;
+            PresetslotMapType items;
+            for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
+            {
+                if (!sTransmogrification->GetSlotName(slot, player->GetSession()))
+                    continue;
+                if (Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+                {
+                    uint32 entry = sTransmogrification->GetFakeEntry(newItem);
+                    if (!entry)
+                        continue;
+                    const ItemTemplate* temp = sObjectMgr->GetItemTemplate(entry);
+                    if (!temp)
+                        continue;
+                    if (!sTransmogrification->SuitableForTransmogrification(player, temp))
+                        continue;
+                    cost += sTransmogrification->GetSpecialPrice(temp);
+                    items[slot] = entry;
+                }
+            }
+
+            if (!items.empty())
+            {
+                // transmogrified items were found to be saved
+                cost *= sTransmogrification->SetCostModifier;
+                cost += sTransmogrification->SetCopperCost;
+
+                if (!player->HasEnoughMoney(cost))
+                {
+                    player->GetSession()->SendNotification(LANG_ERR_TRANSMOG_NOT_ENOUGH_MONEY);
+                }
+                else
+                {
+                    uint8 presetID = sTransmogrification->MaxSets;
+                    if (player->presetMap.size() < sTransmogrification->MaxSets)
                     {
-                        player->GetSession()->SendNotification(LANG_ERR_TRANSMOG_NOT_ENOUGH_MONEY);
-                    }
-                    else
-                    {
-                        uint8 presetID = sTransmogrification->MaxSets;
-                        if (player->presetMap.size() < sTransmogrification->MaxSets)
+                        for (uint8 i = 0; i < sTransmogrification->MaxSets; ++i) // should never reach over max
                         {
-                            for (uint8 i = 0; i < sTransmogrification->MaxSets; ++i) // should never reach over max
+                            if (player->presetMap.find(i) == player->presetMap.end())
                             {
-                                if (player->presetMap.find(i) == player->presetMap.end())
-                                {
-                                    presetID = i;
-                                    break;
-                                }
+                                presetID = i;
+                                break;
                             }
                         }
+                    }
 
-                        if (presetID < sTransmogrification->MaxSets)
-                        {
-                            // Make sure code doesnt mess up SQL!
-                            player->presetMap[presetID].name = name;
-                            player->presetMap[presetID].slotMap = items;
+                    if (presetID < sTransmogrification->MaxSets)
+                    {
+                        // Make sure code doesnt mess up SQL!
+                        player->presetMap[presetID].name = code;
+                        player->presetMap[presetID].slotMap = items;
 
-                            if (cost)
-                                player->ModifyMoney(-cost);
-                        }
+                        if (cost)
+                            player->ModifyMoney(-cost);
                     }
                 }
             }
+
             OnGossipSelect(player, creature, EQUIPMENT_SLOT_END + 4, 0);
             return true;
         }
