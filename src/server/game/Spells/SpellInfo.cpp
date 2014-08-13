@@ -1217,7 +1217,10 @@ bool SpellInfo::CanPierceImmuneAura(SpellInfo const* aura) const
 bool SpellInfo::CanDispelAura(SpellInfo const* aura) const
 {
     // These spells (like Mass Dispel) can dispell all auras
-    if (Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
+    // This bool check is only used in HandleAuraModSchoolImmunity currently
+    // This causes spells like Divine Intervention that have SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY + SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY + SPELL_SCHOOL_MASK_ALL,
+    // which are needed to remove debuffs like Exaustion/Sated to remove all negative auras including ones with SPELL_ATTR3_DEATH_PERSISTENT
+    if (Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY && !(aura->AttributesEx3 & SPELL_ATTR3_DEATH_PERSISTENT))
         return true;
 
     // These auras (like Divine Shield) can't be dispelled
