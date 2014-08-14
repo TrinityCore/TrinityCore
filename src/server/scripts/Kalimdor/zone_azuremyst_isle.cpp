@@ -423,7 +423,8 @@ public:
         {
             SparkGUID = 0;
             Step = 0;
-            StartEvent();
+            if (!EventStarted)
+                StartEvent();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
