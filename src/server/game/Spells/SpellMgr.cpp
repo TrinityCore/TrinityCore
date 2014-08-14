@@ -3544,9 +3544,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 71357: // Order Whelp
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);   // 200yd
                 break;
-            case 70117: // Icy Grip (Sindragosa)
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_30_YARDS);
-                break;
             case 70598: // Sindragosa's Fury
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
                 break;
