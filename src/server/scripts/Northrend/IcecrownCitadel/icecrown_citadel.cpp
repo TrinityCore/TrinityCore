@@ -2102,7 +2102,15 @@ class at_icc_shutdown_traps : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                instance->SetData(DATA_COLDFLAME_JETS, DONE);
+            {
+                instance->SetData(DATA_UPPERSPIRE_TELE_ACT, DONE);
+                uint64 teleporterGUID = instance->GetData64(GO_SCOURGE_TRANSPORTER_UPPERSPIRE);
+                if (GameObject* go = instance->instance->GetGameObject(teleporterGUID))
+                {
+                    go->SetGoState(GO_STATE_ACTIVE);
+                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                }
+            }
             return true;
         }
 };
