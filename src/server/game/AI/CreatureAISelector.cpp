@@ -68,7 +68,7 @@ namespace FactorySelector
                 else
                     ai_factory = ai_registry.GetRegistryItem("NullCreatureAI");
             }
-            else if (creature->GetCreatureType() == CREATURE_TYPE_CRITTER && !creature->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
+            else if (creature->IsCritter() && !creature->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
                 ai_factory = ai_registry.GetRegistryItem("CritterAI");
         }
 
