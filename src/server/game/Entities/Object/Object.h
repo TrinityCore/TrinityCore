@@ -805,14 +805,16 @@ namespace Trinity
     class ObjectDistanceOrderPred
     {
         public:
-            ObjectDistanceOrderPred(WorldObject const* pRefObj, bool ascending = true) : m_refObj(pRefObj), m_ascending(ascending) { }
-            bool operator()(WorldObject const* pLeft, WorldObject const* pRight) const
+            ObjectDistanceOrderPred(WorldObject const* refObj, bool ascending = true) : _refObj(refObj), _ascending(ascending) { }
+
+            bool operator()(WorldObject const* left, WorldObject const* right) const
             {
-                return m_ascending ? m_refObj->GetDistanceOrder(pLeft, pRight) : !m_refObj->GetDistanceOrder(pLeft, pRight);
+                return _refObj->GetDistanceOrder(left, right) == _ascending;
             }
+
         private:
-            WorldObject const* m_refObj;
-            const bool m_ascending;
+            WorldObject const* _refObj;
+            bool _ascending;
     };
 }
 
