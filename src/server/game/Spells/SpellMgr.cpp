@@ -3149,6 +3149,13 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 29809: // Desecration Arm - 36 instead of 37 - typo? :/
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_7_YARDS);
                 break;
+            case 14910: // Mind Melt should also affect Mind Flay
+            case 33371: 
+                spellInfo->Effects[EFFECT_0].SpellClassMask[2] |= 0x00000440;
+                break;
+            case 17364: // Stormstrike
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
             // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
             // To prevent aura staying on target after talent unlearned
             case 48420:
@@ -3316,6 +3323,14 @@ void SpellMgr::LoadSpellInfoCorrections()
             //
             case 62374: // Pursued (Flame Leviathan)
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS);   // 50000yd
+                break;
+            case 62711: // Ignis - Grab
+                spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
+                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
+                break;
+            case 61915: // Lightning Whirl (Brundir)
+            case 63483: // Lightning Whirl (Brundir)
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
             case 63342: // Focused Eyebeam Summon Trigger (Kologarn)
                 spellInfo->MaxAffectedTargets = 1;
@@ -3528,6 +3543,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 72706: // Achievement Check (Valithria Dreamwalker)
             case 71357: // Order Whelp
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);   // 200yd
+                break;
+            case 70117: // Icy Grip (Sindragosa)
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_30_YARDS);
                 break;
             case 70598: // Sindragosa's Fury
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
