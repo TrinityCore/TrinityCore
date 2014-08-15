@@ -40,6 +40,10 @@ public:
 
     bool IsMessageReady() const { return _wpos == _storage.size(); }
 
+    size_type GetSize() const { return _storage.size(); }
+
+    size_type GetReadyDataSize() const { return _wpos; }
+
     size_type GetMissingSize() const { return _storage.size() - _wpos; }
 
     uint8* Data() { return _storage.data(); }
@@ -54,8 +58,6 @@ public:
     void WriteCompleted(size_type bytes) { _wpos += bytes; }
 
     void ResetWritePointer() { _wpos = 0; }
-
-    size_type GetSize() const { return _storage.size(); }
 
     std::vector<uint8>&& Move()
     {

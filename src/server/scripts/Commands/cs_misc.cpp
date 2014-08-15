@@ -1610,16 +1610,7 @@ public:
             banReason     = fields[3].GetString();
         }
 
-        // Can be used to query data from World database
-        stmt2 = WorldDatabase.GetPreparedStatement(WORLD_SEL_REQ_XP);
-        stmt2->setUInt8(0, level);
-        PreparedQueryResult result3 = WorldDatabase.Query(stmt2);
 
-        if (result3)
-        {
-            Field* fields = result3->Fetch();
-            xptotal       = fields[0].GetUInt32();
-        }
 
         // Can be used to query data from Characters database
         stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PINFO_XP);
@@ -1631,6 +1622,7 @@ public:
             Field* fields = result4->Fetch();
             xp            = fields[0].GetUInt32(); // Used for "current xp" output and "%u XP Left" calculation
             uint32 gguid  = fields[1].GetUInt32(); // We check if have a guild for the person, so we might not require to query it at all
+            xptotal = sObjectMgr->GetXPForLevel(level);
 
             if (gguid != 0)
             {
@@ -1767,10 +1759,10 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
 
         // accept only explicitly selected target (not implicitly self targeting case)
-        Unit* target = handler->getSelectedUnit();
-        if (player->GetTarget() && target)
+        Creature* target = player->GetTarget() ? handler->getSelectedCreature() : nullptr;
+        if (target)
         {
-            if (target->GetTypeId() != TYPEID_UNIT || target->IsPet())
+            if (target->IsPet())
             {
                 handler->SendSysMessage(LANG_SELECT_CREATURE);
                 handler->SetSentErrorMessage(true);
@@ -1778,19 +1770,13 @@ public:
             }
 
             if (target->isDead())
-                target->ToCreature()->Respawn();
+                target->Respawn();
             return true;
         }
 
-        CellCoord p(Trinity::ComputeCellCoord(player->GetPositionX(), player->GetPositionY()));
-        Cell cell(p);
-        cell.SetNoCreate();
-
         Trinity::RespawnDo u_do;
         Trinity::WorldObjectWorker<Trinity::RespawnDo> worker(player, u_do);
-
-        TypeContainerVisitor<Trinity::WorldObjectWorker<Trinity::RespawnDo>, GridTypeMapContainer > obj_worker(worker);
-        cell.Visit(p, obj_worker, *player->GetMap(), *player, player->GetGridActivationRange());
+        player->VisitNearbyGridObject(player->GetGridActivationRange(), worker);
 
         return true;
     }
@@ -1844,14 +1830,9 @@ public:
             std::string nameLink = handler->playerLink(targetName);
 
             if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD))
-            {
-                sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, (handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : "Server"), nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
-                ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteBy.c_str(), muteReasonStr.c_str());
-            }
-            else
-            {
-                ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteBy.c_str(), muteReasonStr.c_str());
-            }
+                sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, muteBy.c_str(), nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
+
+            ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteBy.c_str(), muteReasonStr.c_str());
         }
         else
         {
@@ -1866,10 +1847,11 @@ public:
         LoginDatabase.Execute(stmt);
         std::string nameLink = handler->playerLink(targetName);
 
-            if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD) && !target)
-                sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, handler->GetSession()->GetPlayerName().c_str(), nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
-            else
-                handler->PSendSysMessage(target ? LANG_YOU_DISABLE_CHAT : LANG_COMMAND_DISABLE_CHAT_DELAYED, nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
+        if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD) && !target)
+            sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, muteBy.c_str(), nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
+        else
+            handler->PSendSysMessage(target ? LANG_YOU_DISABLE_CHAT : LANG_COMMAND_DISABLE_CHAT_DELAYED, nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
+
         return true;
     }
 

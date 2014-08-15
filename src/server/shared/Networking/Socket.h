@@ -146,8 +146,8 @@ public:
     uint8* GetHeaderBuffer() { return _readHeaderBuffer.Data(); }
     uint8* GetDataBuffer() { return _readDataBuffer.Data(); }
 
-    size_t GetHeaderSize() const { return _readHeaderBuffer.GetSize(); }
-    size_t GetDataSize() const { return _readDataBuffer.GetSize(); }
+    size_t GetHeaderSize() const { return _readHeaderBuffer.GetReadyDataSize(); }
+    size_t GetDataSize() const { return _readDataBuffer.GetReadyDataSize(); }
 
     MessageBuffer&& MoveHeader() { return std::move(_readHeaderBuffer); }
     MessageBuffer&& MoveData() { return std::move(_readDataBuffer); }
