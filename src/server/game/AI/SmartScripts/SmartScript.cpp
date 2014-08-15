@@ -3223,7 +3223,7 @@ void SmartScript::InitTimer(SmartScriptHolder& e)
 void SmartScript::RecalcTimer(SmartScriptHolder& e, uint32 min, uint32 max)
 {
     // min/max was checked at loading!
-    e.timer = urand(uint32(min), uint32(max));
+    e.timer = urand(min, max);
     e.active = e.timer ? false : true;
 }
 

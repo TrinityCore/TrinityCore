@@ -554,12 +554,12 @@ void Battlenet::Session::ReadDataHandler()
 
             if (header.Channel != AUTHENTICATION && !_authed)
             {
-                TC_LOG_DEBUG("server.battlenet", "Battlenet::Session::AsyncRead Received not allowed packet %s", header.ToString().c_str());
+                TC_LOG_DEBUG("server.battlenet", "Battlenet::Session::ReadDataHandler Received not allowed packet %s", header.ToString().c_str());
                 CloseSocket();
                 return;
             }
 
-            TC_LOG_TRACE("server.battlenet", "Battlenet::Session::AsyncRead %s", header.ToString().c_str());
+            TC_LOG_TRACE("server.battlenet", "Battlenet::Session::ReadDataHandler %s", header.ToString().c_str());
             std::map<PacketHeader, PacketHandler>::const_iterator itr = Handlers.find(header);
             if (itr != Handlers.end())
             {
@@ -568,7 +568,7 @@ void Battlenet::Session::ReadDataHandler()
             }
             else
             {
-                TC_LOG_DEBUG("server.battlenet", "Battlenet::Session::AsyncRead Unhandled opcode %s", header.ToString().c_str());
+                TC_LOG_DEBUG("server.battlenet", "Battlenet::Session::ReadDataHandler Unhandled opcode %s", header.ToString().c_str());
                 break;
             }
 
@@ -576,7 +576,7 @@ void Battlenet::Session::ReadDataHandler()
         }
         catch (BitStreamPositionException const& e)
         {
-            TC_LOG_ERROR("server.battlenet", "Battlenet::Session::AsyncRead Exception: %s", e.what());
+            TC_LOG_ERROR("server.battlenet", "Battlenet::Session::ReadDataHandler Exception: %s", e.what());
             CloseSocket();
             return;
         }

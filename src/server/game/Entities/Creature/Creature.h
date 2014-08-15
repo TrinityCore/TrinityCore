@@ -65,12 +65,12 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_NO_SKILLGAIN | CREATURE_FLAG_EXTRA_TAUNT_DIMINISH | CREATURE_FLAG_EXTRA_ALL_DIMINISH | \
     CREATURE_FLAG_EXTRA_GUARD | CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING)
 
-#define MAX_KILL_CREDIT 2
 #define CREATURE_REGEN_INTERVAL 2 * IN_MILLISECONDS
 
+#define MAX_KILL_CREDIT 2
+#define MAX_CREATURE_MODELS 4
 #define MAX_CREATURE_QUEST_ITEMS 6
-
-#define MAX_EQUIPMENT_ITEMS 3
+#define CREATURE_MAX_SPELLS 8
 
 // from `creature_template` table
 struct CreatureTemplate
@@ -97,13 +97,11 @@ struct CreatureTemplate
     float   speed_run;
     float   scale;
     uint32  rank;
-    float   mindmg;
-    float   maxdmg;
     uint32  dmgschool;
-    uint32  attackpower;
-    float   dmg_multiplier;
-    uint32  baseattacktime;
-    uint32  rangeattacktime;
+    uint32  BaseAttackTime;
+    uint32  RangeAttackTime;
+    float   BaseVariance;
+    float   RangeVariance;
     uint32  unit_class;                                     // enum Classes. Note only 4 classes are known for creatures.
     uint32  unit_flags;                                     // enum UnitFlags mask values
     uint32  unit_flags2;                                    // enum UnitFlags2 mask values
@@ -112,9 +110,6 @@ struct CreatureTemplate
     uint32  trainer_type;
     uint32  trainer_class;
     uint32  trainer_race;
-    float   minrangedmg;
-    float   maxrangedmg;
-    uint32  rangedattackpower;
     uint32  type;                                           // enum CreatureType values
     uint32  type_flags;                                     // enum CreatureTypeFlags mask values
     uint32  type_flags2;                                    // unknown enum, only set for 4 creatures (with value 1)
@@ -135,6 +130,8 @@ struct CreatureTemplate
     float   ModMana;
     float   ModManaExtra;                                   // Added in 4.x, this value is usually 2 for a small group of creatures with double mana
     float   ModArmor;
+    float   ModDamage;
+    float   ModExperience;
     bool    RacialLeader;
     uint32  questItems[MAX_CREATURE_QUEST_ITEMS];
     uint32  movementId;
@@ -241,6 +238,8 @@ struct PointOfInterestLocale
 {
     StringVector IconName;
 };
+
+#define MAX_EQUIPMENT_ITEMS 3
 
 struct EquipmentInfo
 {
