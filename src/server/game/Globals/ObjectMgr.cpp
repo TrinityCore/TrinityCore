@@ -7757,7 +7757,7 @@ bool ObjectMgr::LoadTrinityStrings(const char* table, int32 min_value, int32 max
         data.Content.resize(1);
         ++count;
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
+        for (int8 i = TOTAL_LOCALES - 1; i >= 0; --i)
             AddLocaleString(fields[i + 1].GetString(), LocaleConstant(i), data.Content);
     } while (result->NextRow());
 
