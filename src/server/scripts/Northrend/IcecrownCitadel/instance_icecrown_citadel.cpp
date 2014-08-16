@@ -127,7 +127,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                 DeathbringerSaurfangDoorGUID = 0;
                 DeathbringerSaurfangEventGUID = 0;
                 DeathbringersCacheGUID = 0;
-                SaurfangTeleportGUID = 0;
+                TeleporterLichKingGUID = 0;
+                TeleporterUpperSpireGUID = 0;
+                TeleporterLightsHammerGUID = 0;
+                TeleporterRampartsGUID = 0;
+                TeleporterDeathBringerGUID = 0;
+                TeleporterOratoryGUID = 0;
+                TeleporterSindragosaGUID = 0;
                 PlagueSigilGUID = 0;
                 BloodwingSigilGUID = 0;
                 FrostwingSigilGUID = 0;
@@ -164,8 +170,24 @@ class instance_icecrown_citadel : public InstanceMapScript
                 IsNauseaEligible = true;
                 IsOrbWhispererEligible = true;
                 ColdflameJetsState = NOT_STARTED;
+                UpperSpireTeleporterActiveState = NOT_STARTED;
                 BloodQuickeningState = NOT_STARTED;
                 BloodQuickeningMinutes = 0;
+            }
+
+            // A function to help reduce the number of lines for teleporter management.
+            void SetTeleporterState(GameObject* go, bool usable)
+            {
+                if (usable)
+                {
+                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    go->SetGoState(GO_STATE_ACTIVE);
+                }
+                else
+                {
+                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    go->SetGoState(GO_STATE_READY);
+                }
             }
 
             void FillInitialWorldStates(WorldPacket& data) override
@@ -542,8 +564,37 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_DEATHBRINGER_S_CACHE_25H:
                         DeathbringersCacheGUID = go->GetGUID();
                         break;
-                    case GO_SCOURGE_TRANSPORTER_SAURFANG:
-                        SaurfangTeleportGUID = go->GetGUID();
+                    case GO_SCOURGE_TRANSPORTER_LICHKING:
+                        TeleporterLichKingGUID = go->GetGUID();
+                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE && GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE && GetBossState(DATA_SINDRAGOSA) == DONE)
+                            go->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    case GO_SCOURGE_TRANSPORTER_UPPERSPIRE:
+                        TeleporterUpperSpireGUID = go->GetGUID();
+                        if (GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE || GetData(DATA_UPPERSPIRE_TELE_ACT) != DONE)
+                            SetTeleporterState(go, false);
+                        else
+                            SetTeleporterState(go, true);
+                        break;
+                    case GO_SCOURGE_TRANSPORTER_LIGHTSHAMMER:
+                        TeleporterLightsHammerGUID = go->GetGUID();
+                        SetTeleporterState(go, GetBossState(DATA_LORD_MARROWGAR) == DONE);
+                        break;
+                    case GO_SCOURGE_TRANSPORTER_RAMPART:
+                        TeleporterRampartsGUID = go->GetGUID();
+                        SetTeleporterState(go, GetBossState(DATA_LADY_DEATHWHISPER) == DONE);
+                        break;
+                    case GO_SCOURGE_TRANSPORTER_DEATHBRINGER:
+                        TeleporterDeathBringerGUID = go->GetGUID();
+                        SetTeleporterState(go, GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) == DONE);
+                        break;
+                    case GO_SCOURGE_TRANSPORTER_ORATORY:
+                        TeleporterOratoryGUID = go->GetGUID();
+                        SetTeleporterState(go, GetBossState(DATA_LORD_MARROWGAR) == DONE);
+                        break;
+                    case GO_SCOURGE_TRANSPORTER_SINDRAGOSA:
+                        TeleporterSindragosaGUID = go->GetGUID();
+                        SetTeleporterState(go, GetBossState(DATA_VALITHRIA_DREAMWALKER) == DONE);
                         break;
                     case GO_PLAGUE_SIGIL:
                         PlagueSigilGUID = go->GetGUID();
@@ -599,11 +650,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (Creature* valithria = instance->GetCreature(ValithriaDreamwalkerGUID))
                             go->SetLootRecipient(valithria->GetLootRecipient());
                         go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
-                        break;
-                    case GO_SCOURGE_TRANSPORTER_LK:
-                        TheLichKingTeleportGUID = go->GetGUID();
-                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE && GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE && GetBossState(DATA_SINDRAGOSA) == DONE)
-                            go->SetGoState(GO_STATE_ACTIVE);
                         break;
                     case GO_ARTHAS_PLATFORM:
                         // this enables movement at The Frozen Throne, when printed this value is 0.000000f
@@ -694,6 +740,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return RimefangTrash.size();
                     case DATA_COLDFLAME_JETS:
                         return ColdflameJetsState;
+                    case DATA_UPPERSPIRE_TELE_ACT:
+                        return UpperSpireTeleporterActiveState;
                     case DATA_TEAM_IN_INSTANCE:
                         return TeamInInstance;
                     case DATA_BLOOD_QUICKENING_STATE:
@@ -721,8 +769,20 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return DeathbringerSaurfangEventGUID;
                     case GO_SAURFANG_S_DOOR:
                         return DeathbringerSaurfangDoorGUID;
-                    case GO_SCOURGE_TRANSPORTER_SAURFANG:
-                        return SaurfangTeleportGUID;
+                    case GO_SCOURGE_TRANSPORTER_LICHKING:
+                        return TeleporterLichKingGUID;
+                    case GO_SCOURGE_TRANSPORTER_UPPERSPIRE:
+                        return TeleporterUpperSpireGUID;
+                    case GO_SCOURGE_TRANSPORTER_LIGHTSHAMMER:
+                        return TeleporterLightsHammerGUID;
+                    case GO_SCOURGE_TRANSPORTER_RAMPART:
+                        return TeleporterRampartsGUID;
+                    case GO_SCOURGE_TRANSPORTER_DEATHBRINGER:
+                        return TeleporterDeathBringerGUID;
+                    case GO_SCOURGE_TRANSPORTER_ORATORY:
+                        return TeleporterOratoryGUID;
+                    case GO_SCOURGE_TRANSPORTER_SINDRAGOSA:
+                        return TeleporterSindragosaGUID;
                     case DATA_FESTERGUT:
                         return FestergutGUID;
                     case DATA_ROTFACE:
@@ -784,10 +844,24 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                 switch (type)
                 {
+                    case DATA_LORD_MARROWGAR:
+                    {
+                        if (state == DONE)
+                        {
+                            if (GameObject* teleporter = instance->GetGameObject(TeleporterLightsHammerGUID))
+                                SetTeleporterState(teleporter, true);
+                            if (GameObject* teleporter = instance->GetGameObject(TeleporterOratoryGUID))
+                                SetTeleporterState(teleporter, true);
+                        }
+                        break;
+                    }
                     case DATA_LADY_DEATHWHISPER:
                     {
                         if (state == DONE)
                         {
+                            if (GameObject* teleporter = instance->GetGameObject(TeleporterRampartsGUID))
+                                SetTeleporterState(teleporter, true);
+
                             if (GameObject* elevator = instance->GetGameObject(LadyDeathwisperElevatorGUID))
                             {
                                 elevator->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
@@ -801,6 +875,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_ICECROWN_GUNSHIP_BATTLE:
                         if (state == DONE)
                         {
+                            if (GameObject* teleporter = instance->GetGameObject(TeleporterDeathBringerGUID))
+                                SetTeleporterState(teleporter, true);
+
                             if (GameObject* loot = instance->GetGameObject(GunshipArmoryGUID))
                                 loot->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
                         }
@@ -811,20 +888,28 @@ class instance_icecrown_citadel : public InstanceMapScript
                         switch (state)
                         {
                             case DONE:
+                            {
                                 if (GameObject* loot = instance->GetGameObject(DeathbringersCacheGUID))
                                 {
                                     if (Creature* deathbringer = instance->GetCreature(DeathbringerSaurfangGUID))
                                         loot->SetLootRecipient(deathbringer->GetLootRecipient());
                                     loot->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
                                 }
-                                // no break
-                            case NOT_STARTED:
-                                if (GameObject* teleporter = instance->GetGameObject(SaurfangTeleportGUID))
-                                {
-                                    HandleGameObject(SaurfangTeleportGUID, true, teleporter);
-                                    teleporter->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-                                }
+
+                                if (GameObject* teleporter = instance->GetGameObject(TeleporterUpperSpireGUID))
+                                    SetTeleporterState(teleporter, true);
+
+                                if (GameObject* teleporter = instance->GetGameObject(TeleporterDeathBringerGUID))
+                                    SetTeleporterState(teleporter, true);
                                 break;
+                            }
+                            case NOT_STARTED:
+                            {
+                                if (GameObject* teleporter = instance->GetGameObject(TeleporterDeathBringerGUID))
+                                    SetTeleporterState(teleporter, true);
+
+                                break;
+                            }
                             default:
                                 break;
                         }
@@ -894,8 +979,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                         }
                         break;
                     case DATA_VALITHRIA_DREAMWALKER:
-                        if (state == DONE && sPoolMgr->IsSpawnedObject<Quest>(WeeklyQuestData[8].questId[instance->GetSpawnMode() & 1]))
-                            instance->SummonCreature(NPC_VALITHRIA_DREAMWALKER_QUEST, ValithriaSpawnPos);
+                        if (state == DONE)
+                        {
+                            if (sPoolMgr->IsSpawnedObject<Quest>(WeeklyQuestData[8].questId[instance->GetSpawnMode() & 1]))
+                                instance->SummonCreature(NPC_VALITHRIA_DREAMWALKER_QUEST, ValithriaSpawnPos);
+                            if (GameObject* teleporter = instance->GetGameObject(TeleporterSindragosaGUID))
+                                SetTeleporterState(teleporter, true);
+                        }
                         break;
                     case DATA_SINDRAGOSA:
                         HandleGameObject(FrostwingSigilGUID, state != DONE);
@@ -1029,6 +1119,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                         SaveToDB();
                         break;
                     }
+                    case DATA_UPPERSPIRE_TELE_ACT:
+                        UpperSpireTeleporterActiveState = data;
+                        if (UpperSpireTeleporterActiveState == DONE)
+                            SaveToDB();
+                        break;
                     default:
                         break;
                 }
@@ -1235,7 +1330,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                 std::ostringstream saveStream;
                 saveStream << "I C " << GetBossSaveData() << HeroicAttempts << ' '
-                    << ColdflameJetsState << ' ' << BloodQuickeningState << ' ' << BloodQuickeningMinutes;
+                    << ColdflameJetsState << ' ' << BloodQuickeningState << ' ' << BloodQuickeningMinutes << ' ' << UpperSpireTeleporterActiveState;
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -1271,11 +1366,17 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                     uint32 temp = 0;
                     loadStream >> temp;
-                    ColdflameJetsState = temp ? DONE : NOT_STARTED;
+                    if (temp == IN_PROGRESS)
+                        ColdflameJetsState = NOT_STARTED;
+                    else
+                        ColdflameJetsState = temp ? DONE : NOT_STARTED;
 
                     loadStream >> temp;
                     BloodQuickeningState = temp ? DONE : NOT_STARTED;   // DONE means finished (not success/fail)
                     loadStream >> BloodQuickeningMinutes;
+
+                    loadStream >> temp;
+                    UpperSpireTeleporterActiveState = temp ? DONE : NOT_STARTED;
                 }
                 else
                     OUT_LOAD_INST_DATA_FAIL;
@@ -1416,7 +1517,13 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 DeathbringerSaurfangDoorGUID;
             uint64 DeathbringerSaurfangEventGUID;   // Muradin Bronzebeard or High Overlord Saurfang
             uint64 DeathbringersCacheGUID;
-            uint64 SaurfangTeleportGUID;
+            uint64 TeleporterLichKingGUID;
+            uint64 TeleporterUpperSpireGUID;
+            uint64 TeleporterLightsHammerGUID;
+            uint64 TeleporterRampartsGUID;
+            uint64 TeleporterDeathBringerGUID;
+            uint64 TeleporterOratoryGUID;
+            uint64 TeleporterSindragosaGUID;
             uint64 PlagueSigilGUID;
             uint64 BloodwingSigilGUID;
             uint64 FrostwingSigilGUID;
@@ -1453,6 +1560,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 PillarsUnchainedGUID;
             uint32 TeamInInstance;
             uint32 ColdflameJetsState;
+            uint32 UpperSpireTeleporterActiveState;
             std::set<uint32> FrostwyrmGUIDs;
             std::set<uint32> SpinestalkerTrash;
             std::set<uint32> RimefangTrash;

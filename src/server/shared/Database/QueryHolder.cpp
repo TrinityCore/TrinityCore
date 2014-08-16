@@ -166,8 +166,16 @@ void SQLQueryHolder::SetSize(size_t size)
     m_queries.resize(size);
 }
 
+SQLQueryHolderTask::~SQLQueryHolderTask()
+{
+    if (!m_executed)
+        delete m_holder;
+}
+
 bool SQLQueryHolderTask::Execute()
 {
+    m_executed = true;
+
     if (!m_holder)
         return false;
 
