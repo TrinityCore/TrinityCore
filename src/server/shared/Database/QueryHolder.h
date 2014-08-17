@@ -47,14 +47,16 @@ class SQLQueryHolderTask : public SQLOperation
     private:
         SQLQueryHolder* m_holder;
         QueryResultHolderPromise m_result;
+        bool m_executed;
 
     public:
         SQLQueryHolderTask(SQLQueryHolder* holder)
-            : m_holder(holder) { };
+            : m_holder(holder), m_executed(false) { }
+
+        ~SQLQueryHolderTask();
 
         bool Execute() override;
         QueryResultHolderFuture GetFuture() { return m_result.get_future(); }
-
 };
 
 #endif

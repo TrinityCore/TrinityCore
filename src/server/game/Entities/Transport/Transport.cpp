@@ -35,7 +35,8 @@
 
 Transport::Transport() : GameObject(),
     _transportInfo(NULL), _isMoving(true), _pendingStop(false),
-    _triggeredArrivalEvent(false), _triggeredDepartureEvent(false), _passengerTeleportItr(_passengers.begin())
+    _triggeredArrivalEvent(false), _triggeredDepartureEvent(false),
+    _passengerTeleportItr(_passengers.begin()), _delayedAddModel(false)
 {
     m_updateFlag = UPDATEFLAG_TRANSPORT | UPDATEFLAG_LOWGUID | UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION;
 }
@@ -184,6 +185,14 @@ void Transport::Update(uint32 diff)
         if (_currentFrame->IsTeleportFrame())
             if (TeleportTransport(_nextFrame->Node->mapid, _nextFrame->Node->x, _nextFrame->Node->y, _nextFrame->Node->z, _nextFrame->InitialOrientation))
                 return; // Update more in new map thread
+    }
+
+    // Add model to map after we are fully done with moving maps
+    if (_delayedAddModel)
+    {
+        _delayedAddModel = false;
+        if (m_model)
+            GetMap()->InsertGameObjectModel(*m_model);
     }
 
     // Set position
@@ -635,7 +644,6 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z, fl
         }
 
         Relocate(x, y, z, o);
-        UpdateModelPosition();
         GetMap()->AddToMap<Transport>(this);
         return true;
     }
