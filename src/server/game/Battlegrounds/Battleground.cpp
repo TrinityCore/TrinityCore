@@ -727,7 +727,7 @@ void Battleground::EndBattleground(uint32 winner)
         SetWinner(BG_TEAM_ALLIANCE);
         
         if (isBattleground())
-            CharacterDatabase.PQuery("INSERT INTO pvpstats_faction (faction, level, date) VALUES (469, %d, NOW());", level);
+            CharacterDatabase.PQuery("INSERT INTO pvpstats_faction (faction, level, date) VALUES (0, %d, NOW());", level);
     }
     else if (winner == HORDE)
     {
@@ -738,7 +738,7 @@ void Battleground::EndBattleground(uint32 winner)
         SetWinner(BG_TEAM_HORDE);
         
         if (isBattleground())
-            CharacterDatabase.PQuery("INSERT INTO pvpstats_faction (faction, level, date) VALUES (67, %d, NOW());", level);
+            CharacterDatabase.PQuery("INSERT INTO pvpstats_faction (faction, level, date) VALUES (1, %d, NOW());", level);
     }
     else
     {
