@@ -4766,8 +4766,9 @@ void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
     {
         Position pos = destTarget->GetPosition();
         float angle = m_caster->GetRelativeAngle(pos.GetPositionX(), pos.GetPositionY());
-        float dist = m_caster->GetDistance(pos);
-        pos = m_caster->GetFirstCollisionPosition(dist, angle);
+        // get 2d distance since if unit casting is flying close to the target collison Position will return wrong x or y coordinate
+        float dist = m_caster->GetDistance2d(pos.GetPositionX(), pos.GetPositionY());
+        pos = m_caster->GetFirstCollisionPosition(dist, angle, pos.m_positionZ);
 
         m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
     }
