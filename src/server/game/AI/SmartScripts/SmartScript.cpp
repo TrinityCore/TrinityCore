@@ -477,7 +477,19 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                 if (IsPlayer(*itr))
                 {
-                    (*itr)->ToPlayer()->AreaExploredOrEventHappens(e.action.quest.quest);
+                    if (Group* group = (*itr)->ToPlayer()->GetGroup())
+                    {
+                        for (GroupReference* group_itr = group->GetFirstMember(); group_itr != NULL; group_itr = group_itr->next())
+                        {
+                            Player* player = group_itr->GetSource();
+
+                            if (player)
+                                player->AreaExploredOrEventHappens(e.action.quest.quest);
+                        }
+                    }
+                    else
+                        (*itr)->ToPlayer()->AreaExploredOrEventHappens(e.action.quest.quest);
+                    
                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS: Player guidLow %u credited quest %u",
                         (*itr)->GetGUIDLow(), e.action.quest.quest);
                 }
