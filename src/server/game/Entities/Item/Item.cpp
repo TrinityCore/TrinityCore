@@ -1265,6 +1265,14 @@ void Item::ItemContainerSaveLootToDB()
             //  but we don't want to resave it.
             if (!_li->canSave)
                 continue;
+            // Conditions are not checked when loot is generated, it is checked when loot is sent to a player.
+	    // For items that are lootable, loot is saved to the DB immediately, that means that loot can be
+	    // saved to the DB that the player never should have gotten. This check prevents that, so that only
+	    // items that the player should get in loot are in the DB.
+	    // IE: Horde items are not saved to the DB for Ally players.
+            Player* const guid = GetOwner();
+            if (!_li->AllowedForPlayer(guid))
+               continue;
 
             stmt_items = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEMCONTAINER_ITEMS);
 
