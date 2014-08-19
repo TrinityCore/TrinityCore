@@ -16,13 +16,14 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <memory>
 #include "WorldSocket.h"
 #include "BigNumber.h"
 #include "Opcodes.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "SHA1.h"
 #include "PacketLog.h"
+#include <memory>
 
 using boost::asio::ip::tcp;
 
@@ -62,6 +63,22 @@ void WorldSocket::ReadHeaderHandler()
     ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(GetHeaderBuffer());
     EndianConvertReverse(header->size);
     EndianConvert(header->cmd);
+
+    if (!header->IsValid())
+    {
+        if (_worldSession)
+        {
+            Player* player = _worldSession->GetPlayer();
+            TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %hu, cmd: %u)",
+                _worldSession->GetAccountId(), player ? player->GetGUIDLow() : 0, player ? player->GetName().c_str() : "<none>", header->size, header->cmd);
+        }
+        else
+            TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %hu, cmd: %u)",
+                GetRemoteIpAddress().to_string().c_str(), header->size, header->cmd);
+
+        CloseSocket();
+        return;
+    }
 
     AsyncReadData(header->size - sizeof(header->cmd));
 }
@@ -106,7 +123,8 @@ void WorldSocket::ReadDataHandler()
             if (!_worldSession)
             {
                 TC_LOG_ERROR("network.opcode", "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
-                break;
+                CloseSocket();
+                return;
             }
 
             // Our Idle timer will reset on any non PING opcodes.
