@@ -1905,6 +1905,20 @@ void Aura::HandleAuraSpecificPeriodics(AuraApplication const* aurApp, Unit* cast
                 break;
             }
             case SPELL_AURA_PERIODIC_HEAL:
+            {
+                AuraEffect* aurEff = GetEffect(i);
+                
+                // ignore non positive values (can be result apply spellmods to aura damage
+                uint32 damage = std::max(aurEff->GetAmount(), 0);
+                
+                // Script Hook For HandlePeriodicDamageAurasTick -- Allow scripts to change the Damage pre class mitigation calculations
+                sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
+                
+                aurEff->SetDonePct(caster->SpellHealingPctDone(target, m_spellInfo)); // Calculate done percentage first!
+                aurEff->SetDamage(caster->SpellHealingBonusDone(target, m_spellInfo, damage, DOT, GetStackAmount()) * aurEff->GetDonePct());
+                aurEff->SetCritChance(caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()));
+                break;
+            }
             case SPELL_AURA_OBS_MOD_HEALTH:
             {
                 AuraEffect* aurEff = GetEffect(i);
@@ -1916,7 +1930,8 @@ void Aura::HandleAuraSpecificPeriodics(AuraApplication const* aurApp, Unit* cast
                 sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
 
                 aurEff->SetDonePct(caster->SpellHealingPctDone(target, m_spellInfo)); // Calculate done percentage first!
-                aurEff->SetDamage(caster->SpellHealingBonusDone(target, m_spellInfo, damage, DOT, GetStackAmount()) * aurEff->GetDonePct());
+                damage = target->CountPctFromMaxHealth(damage) * aurEff->GetDonePct();
+                aurEff->SetDamage(caster->SpellHealingBonusDone(target, m_spellInfo, damage, DOT, GetStackAmount()));
                 aurEff->SetCritChance(caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()));
                 break;
             }

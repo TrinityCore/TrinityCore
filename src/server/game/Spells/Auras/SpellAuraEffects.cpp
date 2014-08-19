@@ -6120,8 +6120,6 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
             AddPct(TakenTotalMod, maxval_hot);
 
         TakenTotalMod = std::max(TakenTotalMod, 0.0f);
-
-        damage = uint32(target->CountPctFromMaxHealth(damage));
         damage = uint32(damage * TakenTotalMod);
     }
     else
