@@ -1741,6 +1741,15 @@ Rate.XP.Quest   = 1
 Rate.XP.Explore = 1
 
 #
+#    Rate.Quest.Money.Reward
+#    Rate.Quest.Money.Max.Level.Reward
+#        Description: Multiplier for money quest rewards. Can not be below 0.
+#        Default:     1
+
+Rate.Quest.Money.Reward = 1
+Rate.Quest.Money.Max.Level.Reward = 1
+
+#
 #    Rate.RepairCost
 #        Description: Repair cost rate.
 #        Default:     1
