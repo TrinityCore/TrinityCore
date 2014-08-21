@@ -531,8 +531,8 @@ struct npc_unleashed_ballAI : public ScriptedAI
         float x0 = ToCCommonLoc[1].GetPositionX(), y0 = ToCCommonLoc[1].GetPositionY(), r = 47.0f;
         float y = y0;
         float x = frand(x0 - r, x0 + r);
-        float sq = pow(r, 2) - pow(x - x0, 2);
-        float rt = sqrtf(fabs(sq));
+        float sq = std::pow(r, 2.f) - std::pow(x - x0, 2.f);
+        float rt = std::sqrt(std::fabs(sq));
         if (urand(0, 1))
             y = y0 + rt;
         else
@@ -756,7 +756,7 @@ class spell_valkyr_essences : public SpellScriptLoader
                             // Twin Vortex part
                             uint32 lightVortex = sSpellMgr->GetSpellIdForDifficulty(SPELL_LIGHT_VORTEX_DAMAGE, owner);
                             uint32 darkVortex = sSpellMgr->GetSpellIdForDifficulty(SPELL_DARK_VORTEX_DAMAGE, owner);
-                            int32 stacksCount = int32(dmgInfo.GetSpellInfo()->Effects[EFFECT_0].CalcValue()) * 0.001 - 1;
+                            int32 stacksCount = dmgInfo.GetSpellInfo()->Effects[EFFECT_0].CalcValue() / 1000 - 1;
 
                             if (lightVortex && darkVortex && stacksCount)
                             {

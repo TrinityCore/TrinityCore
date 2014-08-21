@@ -604,7 +604,7 @@ uint32 ArenaTeam::GetPoints(uint32 memberRating)
             points = 344;
     }
     else
-        points = 1511.26f / (1.0f + 1639.28f * exp(-0.00412f * (float)rating));
+        points = 1511.26f / (1.0f + 1639.28f * std::exp(-0.00412f * float(rating)));
 
     // Type penalties for teams < 5v5
     if (Type == ARENA_TEAM_2v2)
@@ -649,7 +649,7 @@ float ArenaTeam::GetChanceAgainst(uint32 ownRating, uint32 opponentRating)
 {
     // Returns the chance to win against a team with the given rating, used in the rating adjustment calculation
     // ELO system
-    return 1.0f / (1.0f + exp(log(10.0f) * (float)((float)opponentRating - (float)ownRating) / 650.0f));
+    return 1.0f / (1.0f + std::exp(std::log(10.0f) * (float(opponentRating) - float(ownRating)) / 650.0f));
 }
 
 int32 ArenaTeam::GetMatchmakerRatingMod(uint32 ownRating, uint32 opponentRating, bool won /*, float& confidence_factor*/)

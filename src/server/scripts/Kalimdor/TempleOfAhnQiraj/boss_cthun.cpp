@@ -334,9 +334,9 @@ public:
                         {
                             //Set angle and cast
                             if (ClockWise)
-                                me->SetOrientation(DarkGlareAngle + DarkGlareTick * M_PI / 35);
+                                me->SetOrientation(DarkGlareAngle + DarkGlareTick * float(M_PI) / 35);
                             else
-                                me->SetOrientation(DarkGlareAngle - DarkGlareTick * M_PI / 35);
+                                me->SetOrientation(DarkGlareAngle - DarkGlareTick * float(M_PI) / 35);
 
                             me->StopMoving();
 

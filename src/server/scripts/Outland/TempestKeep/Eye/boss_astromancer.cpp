@@ -202,7 +202,7 @@ class boss_high_astromancer_solarian : public CreatureScript
             {
                 float z = RAND(1.0f, -1.0f);
 
-                return (z*sqrt(radius*radius - (x - CENTER_X)*(x - CENTER_X)) + CENTER_Y);
+                return (z*std::sqrt(radius*radius - (x - CENTER_X)*(x - CENTER_X)) + CENTER_Y);
             }
 
             void UpdateAI(uint32 diff) override

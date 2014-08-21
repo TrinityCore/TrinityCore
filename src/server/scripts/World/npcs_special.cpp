@@ -2233,7 +2233,7 @@ public:
             if (GameObject* launcher = FindNearestLauncher())
             {
                 launcher->SendCustomAnim(ANIM_GO_LAUNCH_FIREWORK);
-                me->SetOrientation(launcher->GetOrientation() + M_PI/2);
+                me->SetOrientation(launcher->GetOrientation() + float(M_PI) / 2);
             }
             else
                 return;
