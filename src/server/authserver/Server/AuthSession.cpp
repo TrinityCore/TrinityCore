@@ -83,8 +83,8 @@ typedef struct AUTH_LOGON_PROOF_S
     uint8   cmd;
     uint8   error;
     uint8   M2[20];
-    uint32  unk1;
-    uint32  unk2;
+    uint32  AccountFlags;
+    uint32  SurveyId;
     uint16  unk3;
 } sAuthLogonProof_S;
 
@@ -537,9 +537,9 @@ bool AuthSession::HandleLogonProof()
             memcpy(proof.M2, sha.GetDigest(), 20);
             proof.cmd = AUTH_LOGON_PROOF;
             proof.error = 0;
-            proof.unk1 = GAMEACCOUNT_FLAG_PROPASS_LOCK;
-            proof.unk2 = 0x00;          // SurveyId
-            proof.unk3 = 0x00;
+            proof.AccountFlags = GAMEACCOUNT_FLAG_PROPASS_LOCK;
+            proof.SurveyId = 0;
+            proof.unk3 = 0;
 
             packet.resize(sizeof(proof));
             std::memcpy(packet.contents(), &proof, sizeof(proof));

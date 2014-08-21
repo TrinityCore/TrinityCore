@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,15 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Houndmaster_Loksey
-SD%Complete: 100
-SDComment:
-SDCategory: Scarlet Monastery
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "scarlet_monastery.h"
 
 enum Yells
 {
@@ -37,47 +30,60 @@ enum Spells
     SPELL_BLOODLUST                 = 6742
 };
 
+enum Events
+{
+    EVENT_BLOODLUST                 = 1
+};
+
 class boss_houndmaster_loksey : public CreatureScript
 {
-public:
-    boss_houndmaster_loksey() : CreatureScript("boss_houndmaster_loksey") { }
+    public:
+        boss_houndmaster_loksey() : CreatureScript("boss_houndmaster_loksey") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new boss_houndmaster_lokseyAI(creature);
-    }
-
-    struct boss_houndmaster_lokseyAI : public ScriptedAI
-    {
-        boss_houndmaster_lokseyAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 BloodLust_Timer;
-
-        void Reset() override
+        struct boss_houndmaster_lokseyAI : public BossAI
         {
-            BloodLust_Timer = 20000;
-        }
+            boss_houndmaster_lokseyAI(Creature* creature) : BossAI(creature, DATA_HOUNDMASTER_LOKSEY) { }
 
-        void EnterCombat(Unit* /*who*/) override
-        {
-            Talk(SAY_AGGRO);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (BloodLust_Timer <= diff)
+            void Reset() override
             {
-                DoCast(me, SPELL_BLOODLUST);
-                BloodLust_Timer = 20000;
+                _Reset();
             }
-            else BloodLust_Timer -= diff;
 
-            DoMeleeAttackIfReady();
+            void EnterCombat(Unit* /*who*/) override
+            {
+                Talk(SAY_AGGRO);
+                _EnterCombat();
+                events.ScheduleEvent(EVENT_BLOODLUST, 20000);
+            }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                _JustDied();
+            }
+
+            void ExecuteEvent(uint32 eventId) override
+            {
+                switch (eventId)
+                {
+                    case EVENT_BLOODLUST:
+                        DoCast(me, SPELL_BLOODLUST);
+                        events.ScheduleEvent(EVENT_BLOODLUST, 20000);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                BossAI::UpdateAI(diff);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetInstanceAI<boss_houndmaster_lokseyAI>(creature);
         }
-    };
 };
 
 void AddSC_boss_houndmaster_loksey()
