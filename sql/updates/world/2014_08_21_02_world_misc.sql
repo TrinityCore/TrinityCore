@@ -1,4 +1,4 @@
-SET @CGuid :=    29974;
+SET @CGuid :=    74504;
 
 -- These two gossip menus on Injured rainspeaker oracle are not meant to be linked, they are two
 -- seperate gossips the first one for Just Following Orders to help the injured rainspeaker oracle and start event
@@ -42,7 +42,7 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spe
 UPDATE `creature_template` SET `ainame`='SmartAI', `scriptname`='' WHERE `entry` IN(28217,28325,28327);
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN(28217,28325,28327) AND `source_type`=0;
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN(28077) AND `source_type`=0 and `id`>14;
-DELETE FROM `smart_scripts` WHERE `entryorguid` IN(28133) AND `source_type`=0 and `id`=4;
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN(28113) AND `source_type`=0 and `id`=4;
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN(2811301) AND `source_type`=9 and `id`>0;
 UPDATE `smart_scripts` SET `event_param1`=290 WHERE  `entryorguid`=28308 AND `source_type`=0 AND `id`=2 AND `link`=3;
 
