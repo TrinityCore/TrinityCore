@@ -83,8 +83,8 @@ typedef struct AUTH_LOGON_PROOF_S
     uint8   cmd;
     uint8   error;
     uint8   M2[20];
-    uint32  unk1;
-    uint32  unk2;
+    uint32  AccountFlags;
+    uint32  SurveyId;
     uint16  unk3;
 } sAuthLogonProof_S;
 
@@ -540,9 +540,9 @@ bool AuthSession::HandleLogonProof()
             memcpy(proof.M2, sha.GetDigest(), 20);
             proof.cmd = AUTH_LOGON_PROOF;
             proof.error = 0;
-            proof.unk1 = 0x00800000;    // Accountflags. 0x01 = GM, 0x08 = Trial, 0x00800000 = Pro pass (arena tournament)
-            proof.unk2 = 0x00;          // SurveyId
-            proof.unk3 = 0x00;
+            proof.AccountFlags = 0x00800000;    // 0x01 = GM, 0x08 = Trial, 0x00800000 = Pro pass (arena tournament)
+            proof.SurveyId = 0;
+            proof.unk3 = 0;
 
             packet.resize(sizeof(proof));
             std::memcpy(packet.contents(), &proof, sizeof(proof));
@@ -831,7 +831,7 @@ bool AuthSession::HandleRealmList()
         pkt << AmountOfCharacters;
         pkt << realm.timezone;                              // realm category
         if (_expversion & POST_BC_EXP_FLAG)                 // 2.x and 3.x clients
-            pkt << uint8(0x2C);                             // unk, may be realm number/id?
+            pkt << uint8(realm.m_ID);
         else
             pkt << uint8(0x0);                              // 1.12.1 and 1.12.2 clients
 
