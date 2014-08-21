@@ -498,7 +498,7 @@ class spell_ulduar_squeezed_lifeless : public SpellScriptLoader
                 pos.m_positionX = 1756.25f + irand(-3, 3);
                 pos.m_positionY = -8.3f + irand(-3, 3);
                 pos.m_positionZ = 448.8f;
-                pos.SetOrientation(M_PI);
+                pos.SetOrientation(float(M_PI));
                 GetHitPlayer()->DestroyForNearbyPlayers();
                 GetHitPlayer()->ExitVehicle(&pos);
                 GetHitPlayer()->UpdateObjectVisibility(false);

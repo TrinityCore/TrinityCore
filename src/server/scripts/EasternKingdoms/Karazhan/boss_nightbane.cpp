@@ -328,7 +328,7 @@ public:
                 if (TailSweepTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        if (!me->HasInArc(M_PI, target))
+                        if (!me->HasInArc(float(M_PI), target))
                             DoCast(target, SPELL_TAIL_SWEEP);
                     TailSweepTimer = 15000;
                 } else TailSweepTimer -= diff;

@@ -31,7 +31,7 @@
 #include <vector>
 #include <cstring>
 #include <time.h>
-#include <math.h>
+#include <cmath>
 #include <boost/asio/buffer.hpp>
 
 class MessageBuffer;
