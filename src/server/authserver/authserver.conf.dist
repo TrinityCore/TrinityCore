@@ -54,6 +54,13 @@ MaxPingTime = 30
 RealmServerPort = 3724
 
 #
+#    BattlenetPort
+#        Description: TCP port to reach the auth server for battle.net connections.
+#        Default:     1119
+
+BattlenetPort = 1119
+
+#
 #
 #    BindIP
 #        Description: Bind auth server to IP/hostname

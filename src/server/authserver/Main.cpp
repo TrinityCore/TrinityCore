@@ -24,12 +24,6 @@
 * authentication server
 */
 
-#include <cstdlib>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/program_options.hpp>
-#include <iostream>
-#include <openssl/opensslv.h>
-#include <openssl/crypto.h>
 
 #include "AsyncAcceptor.h"
 #include "AuthSession.h"
@@ -43,6 +37,12 @@
 #include "RealmList.h"
 #include "SystemConfig.h"
 #include "Util.h"
+#include <cstdlib>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/program_options.hpp>
+#include <iostream>
+#include <openssl/opensslv.h>
+#include <openssl/crypto.h>
 
 using boost::asio::ip::tcp;
 using namespace boost::program_options;
@@ -119,9 +119,17 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    int32 bnport = sConfigMgr->GetIntDefault("BattlenetPort", 1119);
+    if (bnport < 0 || bnport > 0xFFFF)
+    {
+        TC_LOG_ERROR("server.authserver", "Specified battle.net port (%d) out of allowed range (1-65535)", bnport);
+        StopDB();
+        return 1;
+    }
+
     std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
     AsyncAcceptor<AuthSession> authServer(_ioService, bindIp, port);
-    AsyncAcceptor<Battlenet::Session> bnetServer(_ioService, bindIp, 1119);
+    AsyncAcceptor<Battlenet::Session> bnetServer(_ioService, bindIp, bnport);
 
     // Set signal handlers
     boost::asio::signal_set signals(_ioService, SIGINT, SIGTERM);
