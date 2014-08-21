@@ -42,7 +42,7 @@ namespace VMAP
         const Vector3 p(ray.direction().cross(e2));
         const float a = e1.dot(p);
 
-        if (fabs(a) < EPS) {
+        if (std::fabs(a) < EPS) {
             // Determinant is ill-conditioned; abort early
             return false;
         }
@@ -388,7 +388,7 @@ namespace VMAP
             return false;
         GModelRayCallback callback(triangles, vertices);
         Vector3 rPos = pos - 0.1f * down;
-        float dist = G3D::inf();
+        float dist = G3D::finf();
         G3D::Ray ray(rPos, down);
         bool hit = IntersectRay(ray, dist, false);
         if (hit)
@@ -446,7 +446,7 @@ namespace VMAP
     class WModelAreaCallback {
         public:
             WModelAreaCallback(const std::vector<GroupModel> &vals, const Vector3 &down):
-                prims(vals.begin()), hit(vals.end()), minVol(G3D::inf()), zDist(G3D::inf()), zVec(down) { }
+                prims(vals.begin()), hit(vals.end()), minVol(G3D::finf()), zDist(G3D::finf()), zVec(down) { }
             std::vector<GroupModel>::const_iterator prims;
             std::vector<GroupModel>::const_iterator hit;
             float minVol;

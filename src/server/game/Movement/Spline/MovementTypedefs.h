@@ -69,7 +69,7 @@ namespace Movement
 
     typedef counter<uint32, 0xFFFFFFFF> UInt32Counter;
 
-    extern double gravity;
+    extern float gravity;
     extern UInt32Counter splineIdGen;
 }
 

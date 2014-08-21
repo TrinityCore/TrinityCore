@@ -225,7 +225,7 @@ namespace VMAP
 
     float StaticMapTree::getHeight(const Vector3& pPos, float maxSearchDist) const
     {
-        float height = G3D::inf();
+        float height = G3D::finf();
         Vector3 dir = Vector3(0, 0, -1);
         G3D::Ray ray(pPos, dir);   // direction with length of 1
         float maxDist = maxSearchDist;

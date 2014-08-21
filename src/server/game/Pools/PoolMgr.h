@@ -33,7 +33,7 @@ struct PoolObject
 {
     uint32  guid;
     float   chance;
-    PoolObject(uint32 _guid, float _chance): guid(_guid), chance(fabs(_chance)) { }
+    PoolObject(uint32 _guid, float _chance) : guid(_guid), chance(std::fabs(_chance)) { }
 };
 
 class Pool                                                  // for Pool of Pool case
