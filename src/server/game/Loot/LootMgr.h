@@ -280,8 +280,8 @@ class LootValidatorRef :  public Reference<Loot, LootValidatorRef>
 {
     public:
         LootValidatorRef() { }
-        void targetObjectDestroyLink() { }
-        void sourceObjectDestroyLink() { }
+        void targetObjectDestroyLink() override { }
+        void sourceObjectDestroyLink() override { }
 };
 
 //=====================================================

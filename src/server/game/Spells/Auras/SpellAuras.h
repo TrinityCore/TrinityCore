@@ -274,12 +274,12 @@ class UnitAura : public Aura
     protected:
         explicit UnitAura(SpellInfo const* spellproto, uint8 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID);
     public:
-        void _ApplyForTarget(Unit* target, Unit* caster, AuraApplication * aurApp);
-        void _UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * aurApp);
+        void _ApplyForTarget(Unit* target, Unit* caster, AuraApplication * aurApp) override;
+        void _UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * aurApp) override;
 
-        void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) override;
 
-        void FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster);
+        void FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster) override;
 
         // Allow Apply Aura Handler to modify and access m_AuraDRGroup
         void SetDiminishGroup(DiminishingGroup group) { m_AuraDRGroup = group; }
@@ -295,8 +295,8 @@ class DynObjAura : public Aura
     protected:
         explicit DynObjAura(SpellInfo const* spellproto, uint8 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID);
     public:
-        void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) override;
 
-        void FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster);
+        void FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster) override;
 };
 #endif

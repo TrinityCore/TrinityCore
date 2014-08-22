@@ -1636,7 +1636,7 @@ void Player::Update(uint32 p_time)
             else
             {
                 q_status.Timer -= p_time;
-                m_QuestStatusSave[*iter] = true;
+                m_QuestStatusSave[*iter] = QUEST_DEFAULT_SAVE_TYPE;
                 ++iter;
             }
         }
@@ -13181,13 +13181,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
 
     // SRC checks
 
-    if (pSrcItem->m_lootGenerated)                           // prevent swap looting item
-    {
-        //best error message found for attempting to swap while looting
-        SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pSrcItem, NULL);
-        return;
-    }
-
     // check unequip potability for equipped items and bank bags
     if (IsEquipmentPos(src) || IsBagPos(src))
     {
@@ -13218,13 +13211,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
 
     if (pDstItem)
     {
-        if (pDstItem->m_lootGenerated)                       // prevent swap looting item
-        {
-            //best error message found for attempting to swap while looting
-            SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pDstItem, NULL);
-            return;
-        }
-
         // check unequip potability for equipped items and bank bags
         if (IsEquipmentPos(dst) || IsBagPos(dst))
         {
@@ -15225,7 +15211,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     SetQuestSlot(log_slot, quest_id, qtime);
 
-    m_QuestStatusSave[quest_id] = true;
+    m_QuestStatusSave[quest_id] = QUEST_DEFAULT_SAVE_TYPE;
 
     StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_QUEST, quest_id);
 
@@ -15397,7 +15383,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
     RemoveActiveQuest(quest_id, false);
     m_RewardedQuests.insert(quest_id);
-    m_RewardedQuestsSave[quest_id] = true;
+    m_RewardedQuestsSave[quest_id] = QUEST_DEFAULT_SAVE_TYPE;
 
     // StoreNewItem, mail reward, etc. save data directly to the database
     // to prevent exploitable data desynchronisation we save the quest status to the database too
@@ -16045,7 +16031,7 @@ void Player::SetQuestStatus(uint32 questId, QuestStatus status, bool update /*= 
     if (sObjectMgr->GetQuestTemplate(questId))
     {
         m_QuestStatus[questId].Status = status;
-        m_QuestStatusSave[questId] = true;
+        m_QuestStatusSave[questId] = QUEST_DEFAULT_SAVE_TYPE;
     }
 
     if (update)
@@ -16058,7 +16044,7 @@ void Player::RemoveActiveQuest(uint32 questId, bool update /*= true*/)
     if (itr != m_QuestStatus.end())
     {
         m_QuestStatus.erase(itr);
-        m_QuestStatusSave[questId] = false;
+        m_QuestStatusSave[questId] = QUEST_DELETE_SAVE_TYPE;
     }
 
     if (update)
@@ -16071,7 +16057,7 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
     if (rewItr != m_RewardedQuests.end())
     {
         m_RewardedQuests.erase(rewItr);
-        m_RewardedQuestsSave[questId] = false;
+        m_RewardedQuestsSave[questId] = QUEST_FORCE_DELETE_SAVE_TYPE;
     }
 
     if (update)
@@ -16237,7 +16223,7 @@ void Player::AdjustQuestReqItemCount(Quest const* quest, QuestStatusData& questS
                 uint32 curitemcount = GetItemCount(quest->RequiredItemId[i], true);
 
                 questStatusData.ItemCount[i] = std::min(curitemcount, reqitemcount);
-                m_QuestStatusSave[quest->GetQuestId()] = true;
+                m_QuestStatusSave[quest->GetQuestId()] = QUEST_DEFAULT_SAVE_TYPE;
             }
         }
     }
@@ -16328,7 +16314,7 @@ void Player::AreaExploredOrEventHappens(uint32 questId)
             if (!q_status.Explored)
             {
                 q_status.Explored = true;
-                m_QuestStatusSave[questId] = true;
+                m_QuestStatusSave[questId] = QUEST_DEFAULT_SAVE_TYPE;
             }
         }
         if (CanCompleteQuest(questId))
@@ -16381,7 +16367,7 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
                 if (curitemcount < reqitemcount)
                 {
                     q_status.ItemCount[j] = std::min<uint16>(q_status.ItemCount[j] + count, reqitemcount);
-                    m_QuestStatusSave[questid] = true;
+                    m_QuestStatusSave[questid] = QUEST_DEFAULT_SAVE_TYPE;
                 }
                 if (CanCompleteQuest(questid))
                     CompleteQuest(questid);
@@ -16425,7 +16411,7 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 count)
                 if (newItemCount != q_status.ItemCount[j])
                 {
                     q_status.ItemCount[j] = newItemCount;
-                    m_QuestStatusSave[questid] = true;
+                    m_QuestStatusSave[questid] = QUEST_DEFAULT_SAVE_TYPE;
                     IncompleteQuest(questid);
                 }
                 return;
@@ -16493,7 +16479,7 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid /*= 0*/)
                         {
                             q_status.CreatureOrGOCount[j] = curkillcount + addkillcount;
 
-                            m_QuestStatusSave[questid] = true;
+                            m_QuestStatusSave[questid] = QUEST_DEFAULT_SAVE_TYPE;
 
                             SendQuestUpdateAddCreatureOrGo(qInfo, guid, j, curkillcount, addkillcount);
                         }
@@ -16535,7 +16521,7 @@ void Player::KilledPlayerCredit()
                 {
                     q_status.PlayerCount = curkill + addkillcount;
 
-                    m_QuestStatusSave[questid] = true;
+                    m_QuestStatusSave[questid] = QUEST_DEFAULT_SAVE_TYPE;
 
                     SendQuestUpdateAddPlayer(qInfo, curkill, addkillcount);
                 }
@@ -16587,7 +16573,7 @@ void Player::KillCreditGO(uint32 entry, uint64 guid)
                     {
                         q_status.CreatureOrGOCount[j] = curCastCount + addCastCount;
 
-                        m_QuestStatusSave[questid] = true;
+                        m_QuestStatusSave[questid] = QUEST_DEFAULT_SAVE_TYPE;
 
                         SendQuestUpdateAddCreatureOrGo(qInfo, guid, j, curCastCount, addCastCount);
                     }
@@ -16644,7 +16630,7 @@ void Player::TalkedToCreature(uint32 entry, uint64 guid)
                         {
                             q_status.CreatureOrGOCount[j] = curTalkCount + addTalkCount;
 
-                            m_QuestStatusSave[questid] = true;
+                            m_QuestStatusSave[questid] = QUEST_DEFAULT_SAVE_TYPE;
 
                             SendQuestUpdateAddCreatureOrGo(qInfo, guid, j, curTalkCount, addTalkCount);
                         }
@@ -19783,7 +19769,7 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
 
     for (saveItr = m_QuestStatusSave.begin(); saveItr != m_QuestStatusSave.end(); ++saveItr)
     {
-        if (saveItr->second)
+        if (saveItr->second == QUEST_DEFAULT_SAVE_TYPE)
         {
             statusItr = m_QuestStatus.find(saveItr->first);
             if (statusItr != m_QuestStatus.end() && (keepAbandoned || statusItr->second.Status != QUEST_STATUS_NONE))
@@ -19820,7 +19806,7 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
 
     for (saveItr = m_RewardedQuestsSave.begin(); saveItr != m_RewardedQuestsSave.end(); ++saveItr)
     {
-        if (saveItr->second)
+        if (saveItr->second == QUEST_DEFAULT_SAVE_TYPE)
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_QUESTSTATUS_REWARDED);
             stmt->setUInt32(0, GetGUIDLow());
@@ -19828,7 +19814,7 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
             trans->Append(stmt);
 
         }
-        else if (!keepAbandoned)
+        else if (saveItr->second == QUEST_FORCE_DELETE_SAVE_TYPE || !keepAbandoned)
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_REWARDED_BY_QUEST);
             stmt->setUInt32(0, GetGUIDLow());

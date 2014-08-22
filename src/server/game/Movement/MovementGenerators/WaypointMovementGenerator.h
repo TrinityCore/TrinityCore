@@ -72,7 +72,7 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium< Crea
 
         void MovementInform(Creature*);
 
-        MovementGeneratorType GetMovementGeneratorType() { return WAYPOINT_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() override { return WAYPOINT_MOTION_TYPE; }
 
         // now path movement implmementation
         void LoadPath(Creature*);
@@ -126,7 +126,7 @@ class FlightPathMovementGenerator : public MovementGeneratorMedium< Player, Flig
         void DoReset(Player*);
         void DoFinalize(Player*);
         bool DoUpdate(Player*, uint32);
-        MovementGeneratorType GetMovementGeneratorType() { return FLIGHT_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() override { return FLIGHT_MOTION_TYPE; }
 
         TaxiPathNodeList const& GetPath() { return *i_path; }
         uint32 GetPathAtMapEnd() const;

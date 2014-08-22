@@ -18,6 +18,7 @@
 #ifndef DEF_ULDUAR_H
 #define DEF_ULDUAR_H
 
+#include "InstanceScript.h"
 #include "ObjectMgr.h"
 #define UlduarScriptName "instance_ulduar"
 
@@ -83,6 +84,18 @@ enum UlduarNPCs
     NPC_LEVIATHAN_MKII                      = 33432,
     NPC_VX_001                              = 33651,
     NPC_AERIAL_COMMAND_UNIT                 = 33670,
+    NPC_ASSAULT_BOT                         = 34057,
+    NPC_BOMB_BOT                            = 33836,
+    NPC_JUNK_BOT                            = 33855,
+    NPC_EMERGENCY_FIRE_BOT                  = 34147,
+    NPC_FROST_BOMB                          = 34149,
+    NPC_BURST_TARGET                        = 34211,
+    NPC_FLAME                               = 34363,
+    NPC_FLAME_SPREAD                        = 34121,
+    NPC_DB_TARGET                           = 33576,
+    NPC_ROCKET_MIMIRON_VISUAL               = 34050,
+    NPC_WORLD_TRIGGER_MIMIRON               = 21252,
+    NPC_COMPUTER                            = 34143,
 
     // Freya's Keepers
     NPC_IRONBRANCH                          = 32913,
@@ -204,6 +217,18 @@ enum UlduarGameObjects
     GO_THORIM_CHEST_HERO                    = 194315,
     GO_THORIM_CHEST                         = 194314,
 
+    // Mimiron
+    GO_MIMIRON_TRAM                         = 194675,
+    GO_MIMIRON_ELEVATOR                     = 194749,
+    GO_MIMIRON_BUTTON                       = 194739,
+    GO_MIMIRON_DOOR_1                       = 194774,
+    GO_MIMIRON_DOOR_2                       = 194775,
+    GO_MIMIRON_DOOR_3                       = 194776,
+    GO_CACHE_OF_INNOVATION                  = 194789,
+    GO_CACHE_OF_INNOVATION_FIREFIGHTER      = 194957,
+    GO_CACHE_OF_INNOVATION_HERO             = 194956,
+    GO_CACHE_OF_INNOVATION_FIREFIGHTER_HERO = 194958,
+
     // Vezax
     GO_VEZAX_DOOR                           = 194750,
 
@@ -291,6 +316,16 @@ enum UlduarData
 
     // Hodir
     DATA_HODIR_RARE_CACHE,
+
+    // Mimiron
+    DATA_LEVIATHAN_MK_II,
+    DATA_VX_001,
+    DATA_AERIAL_COMMAND_UNIT,
+    DATA_COMPUTER,
+    DATA_MIMIRON_WORLD_TRIGGER,
+    DATA_MIMIRON_ELEVATOR,
+    DATA_MIMIRON_TRAM,
+    DATA_MIMIRON_BUTTON,
 
     // Yogg-Saron
     DATA_VOICE_OF_YOGG_SARON,

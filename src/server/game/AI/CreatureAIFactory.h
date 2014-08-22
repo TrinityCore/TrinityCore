@@ -34,9 +34,9 @@ struct CreatureAIFactory : public SelectableAI
 {
     CreatureAIFactory(const char* name) : SelectableAI(name) { }
 
-    CreatureAI* Create(void*) const;
+    CreatureAI* Create(void*) const override;
 
-    int Permit(const Creature* c) const { return REAL_AI::Permissible(c); }
+    int Permit(const Creature* c) const override { return REAL_AI::Permissible(c); }
 };
 
 template<class REAL_AI>
@@ -61,9 +61,9 @@ struct GameObjectAIFactory : public SelectableGameObjectAI
 {
     GameObjectAIFactory(const char* name) : SelectableGameObjectAI(name) { }
 
-    GameObjectAI* Create(void*) const;
+    GameObjectAI* Create(void*) const override;
 
-    int Permit(const GameObject* g) const { return REAL_GO_AI::Permissible(g); }
+    int Permit(const GameObject* g) const override { return REAL_GO_AI::Permissible(g); }
 };
 
 template<class REAL_GO_AI>

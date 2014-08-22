@@ -27,8 +27,8 @@ class Unit;
 class FollowerReference : public Reference<Unit, TargetedMovementGeneratorBase>
 {
     protected:
-        void targetObjectBuildLink();
-        void targetObjectDestroyLink();
-        void sourceObjectDestroyLink();
+        void targetObjectBuildLink() override;
+        void targetObjectDestroyLink() override;
+        void sourceObjectDestroyLink() override;
 };
 #endif

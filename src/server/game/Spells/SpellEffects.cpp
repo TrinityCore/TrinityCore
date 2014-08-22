@@ -478,7 +478,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             int chance = (*i)->GetSpellInfo()->Effects[EFFECT_1].CalcValue(m_caster);
                             if (roll_chance_i(chance))
                                 // Mind Trauma
-                                m_caster->CastSpell(unitTarget, 48301, true, 0);
+                                m_caster->CastSpell(unitTarget, 48301, true, nullptr);
                             break;
                         }
                     }
