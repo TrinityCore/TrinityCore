@@ -263,7 +263,7 @@ namespace
             // Allow only alnum
             std::string name = code;
             static const char* allowedcharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz _.,'1234567890";
-            if (name.length() && name.find_first_not_of(allowedcharacters) != std::string::npos)
+            if (!name.length() || name.find_first_not_of(allowedcharacters) != std::string::npos)
             {
                 player->GetSession()->SendNotification(LANG_PRESET_ERR_INVALID_NAME);
                 OnGossipSelect(player, creature, EQUIPMENT_SLOT_END + 4, 0);
