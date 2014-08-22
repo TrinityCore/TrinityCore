@@ -2,7 +2,7 @@
 
 ####About
 Allows you to show gossip options that show different vendors from npc_vendor.<br />
-Source: http://rochet2.github.io/?page=Multivendor
+Source: https://rochet2.github.io/?page=Multivendor
 
 ####Installation
 
@@ -18,7 +18,8 @@ Using direct merge:
 - use cmake and compile
 
 Using diff:
-- download the diff by __right clicking__ the link and select __save as__
+- DO NOT COPY THE DIFF DIRECTLY! It causes apply to fail.
+- download the diff by __right clicking__ the link and select __Save link as__
 - place the downloaded `multivendor.diff` to the source root folder
 - open git bash to source location
 - do `git apply multivendor.diff`
