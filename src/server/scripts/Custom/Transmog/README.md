@@ -7,7 +7,7 @@ Requirements can be tweaked in the server configuration file.
 Basically any item should work with transmogrification. Custom items as well. No item is hardcoded to the system.
 Has a feature to store sets of displays. This can be removed before compiling or in the configuration file.
 Made for 3.3.5a.<br />
-Source: http://rochet2.github.io/?page=Transmogrification
+Source: https://rochet2.github.io/?page=Transmogrification
 
 Video: http://youtu.be/xtH4ogz12iM
 
@@ -25,7 +25,8 @@ Using direct merge:
 - use cmake and compile
 
 Using diff:
-- download the diff by __right clicking__ the link and select __save as__
+- DO NOT COPY THE DIFF DIRECTLY! It causes apply to fail.
+- download the diff by __right clicking__ the link and select __Save link as__
 - place the downloaded `transmog.diff` to the source root folder
 - open git bash to source location
 - do `git apply transmog.diff`
@@ -47,4 +48,4 @@ Click to proceed when prompted and your items are transmogrified.
 ####Changelog: [Changelog](https://github.com/Rochet2/TrinityCore/blob/transmog/src/server/scripts/Custom/Transmog/CHANGELOG.md)
 
 ####Bugs and Contact
-Report issues and similar to http://rochet2.github.io/
+Report issues and similar to https://rochet2.github.io/
