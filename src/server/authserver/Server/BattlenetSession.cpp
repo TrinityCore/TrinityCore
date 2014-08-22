@@ -17,7 +17,7 @@
 
 #include "AuthCodes.h"
 #include "BattlenetBitStream.h"
-#include "BattlenetSession.h"
+#include "BattlenetSessionManager.h"
 #include "Database/DatabaseEnv.h"
 #include "HmacHash.h"
 #include "Log.h"
@@ -57,7 +57,7 @@ Battlenet::Session::ModuleHandler const Battlenet::Session::ModuleHandlers[MODUL
 };
 
 Battlenet::Session::Session(tcp::socket&& socket) : Socket(std::move(socket), std::size_t(BufferSizes::Read)), _accountId(0), _accountName(), _locale(),
-    _os(), _build(0), _gameAccountId(0), _gameAccountIndex(0), _accountSecurityLevel(SEC_PLAYER), I(), s(), v(), b(), B(), K(),
+    _os(), _build(0), _gameAccountId(0), _gameAccountName(), _accountSecurityLevel(SEC_PLAYER), I(), s(), v(), b(), B(), K(),
     _reconnectProof(), _crypt(), _authed(false)
 {
     static uint8 const N_Bytes[] =
@@ -83,6 +83,7 @@ Battlenet::Session::Session(tcp::socket&& socket) : Socket(std::move(socket), st
 
 Battlenet::Session::~Session()
 {
+    sBattlenetSessionMgr.RemoveSession(this);
     TC_LOG_TRACE("server.battlenet", "Battlenet::Session::OnClose");
 }
 
@@ -330,12 +331,10 @@ bool Battlenet::Session::HandleAuthReconnect(PacketHeader& header, BitStream& pa
     if (baseComponent != reconnect.Components.end())
         _build = baseComponent->Build;
 
-    uint8 accountIndex = atol(reconnect.GameAccountName.substr(reconnect.GameAccountName.find_last_of('#') + 1).c_str());
-
     Utf8ToUpperOnlyLatin(_accountName);
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_RECONNECT_INFO);
     stmt->setString(0, _accountName);
-    stmt->setUInt8(1, accountIndex);
+    stmt->setString(1, reconnect.GameAccountName);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
     if (!result)
     {
@@ -350,7 +349,7 @@ bool Battlenet::Session::HandleAuthReconnect(PacketHeader& header, BitStream& pa
     _accountId = fields[0].GetUInt32();
     K.SetHexStr(fields[1].GetString().c_str());
     _gameAccountId = fields[2].GetUInt32();
-    _gameAccountIndex = accountIndex;
+    _gameAccountName = reconnect.GameAccountName;
 
     ModuleInfo* thumbprint = sBattlenetMgr->CreateModule(_os, "Thumbprint");
     ModuleInfo* resume = sBattlenetMgr->CreateModule(_os, "Resume");
@@ -780,7 +779,12 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
         {
             fields = result->Fetch();
             std::ostringstream name;
-            name << "WoW" << uint32(fields[0].GetUInt8());
+            std::string originalName = fields[1].GetString();
+            if (originalName.find('#') != std::string::npos)
+                name << "WoW" << uint32(fields[0].GetUInt8());
+            else
+                name << originalName;
+
             accounts.Write(2, 8);
             accounts.WriteString(name.str(), 8);
         } while (result->NextRow());
@@ -814,8 +818,8 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
             return false;
         }
 
-        _gameAccountId = fields[1].GetUInt32();
-        _gameAccountIndex = fields[0].GetUInt8();
+        _gameAccountId = fields[0].GetUInt32();
+        _gameAccountName = fields[1].GetString();
 
         request->Modules.push_back(sBattlenetMgr->CreateModule(_os, "RiskFingerprint"));
         _modulesWaitingForData.push(MODULE_RISK_FINGERPRINT);
@@ -837,7 +841,7 @@ bool Battlenet::Session::HandleSelectGameAccountModule(BitStream* dataStream, Se
 
     dataStream->Read<uint8>(8);
     std::string account = dataStream->ReadString(8);
-    if (account.length() < 4)
+    if (account.empty())
     {
         AuthComplete* complete = new AuthComplete();
         complete->SetAuthResult(LOGIN_NO_GAME_ACCOUNT);
@@ -845,10 +849,18 @@ bool Battlenet::Session::HandleSelectGameAccountModule(BitStream* dataStream, Se
         return false;
     }
 
-    uint8 accountIndex = atol(account.substr(3).c_str());
+    PreparedStatement* stmt;
+    if (account.substr(0, 3) != "WoW")
+    {
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_GAME_ACCOUNT);
+        stmt->setString(0, account);
+    }
+    else
+    {
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_GAME_ACCOUNT_UNNAMED);
+        stmt->setUInt8(0, atol(account.substr(3).c_str()));
+    }
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_GAME_ACCOUNT);
-    stmt->setUInt8(0, accountIndex);
     stmt->setUInt32(1, _accountId);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
     if (!result)
@@ -860,10 +872,10 @@ bool Battlenet::Session::HandleSelectGameAccountModule(BitStream* dataStream, Se
     }
 
     Field* fields = result->Fetch();
-    if (fields[3].GetBool())
+    if (fields[4].GetBool())
     {
         AuthComplete* complete = new AuthComplete();
-        if (fields[1].GetUInt32() == fields[2].GetUInt32())
+        if (fields[2].GetUInt32() == fields[3].GetUInt32())
         {
             complete->SetAuthResult(LOGIN_BANNED);
             TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::SelectGameAccount] Banned account %s tried to login!", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountName.c_str());
@@ -879,7 +891,7 @@ bool Battlenet::Session::HandleSelectGameAccountModule(BitStream* dataStream, Se
     }
 
     _gameAccountId = fields[0].GetUInt32();
-    _gameAccountIndex = accountIndex;
+    _gameAccountName = fields[1].GetString();
 
     ProofRequest* request = new ProofRequest();
     request->Modules.push_back(sBattlenetMgr->CreateModule(_os, "RiskFingerprint"));
@@ -894,11 +906,8 @@ bool Battlenet::Session::HandleRiskFingerprintModule(BitStream* dataStream, Serv
     AuthComplete* complete = new AuthComplete();
     if (dataStream->Read<uint8>(8) == 1)
     {
-        std::ostringstream str;
-        str << _accountId << "#" << uint32(_gameAccountIndex);
-
         complete->AccountId = _accountId;
-        complete->GameAccountName = str.str();
+        complete->GameAccountName = _gameAccountName;
         complete->GameAccountFlags = GAMEACCOUNT_FLAG_PROPASS_LOCK;
 
         SQLTransaction trans = LoginDatabase.BeginTransaction();
@@ -919,6 +928,7 @@ bool Battlenet::Session::HandleRiskFingerprintModule(BitStream* dataStream, Serv
         LoginDatabase.CommitTransaction(trans);
 
         _authed = true;
+        sBattlenetSessionMgr.AddSession(this);
     }
     else
         complete->SetAuthResult(AUTH_BAD_VERSION_HASH);
@@ -942,8 +952,8 @@ bool Battlenet::Session::HandleResumeModule(BitStream* dataStream, ServerPacket*
 
     std::unique_ptr<uint8[]> clientChallenge = dataStream->ReadBytes(16);
     std::unique_ptr<uint8[]> clientProof = dataStream->ReadBytes(32);
-    std::unique_ptr<uint8[]> serverChallenge = _reconnectProof.AsByteArray();
-    std::unique_ptr<uint8[]> sessionKey = K.AsByteArray();
+    std::unique_ptr<uint8[]> serverChallenge = _reconnectProof.AsByteArray(16);
+    std::unique_ptr<uint8[]> sessionKey = K.AsByteArray(64);
 
     HmacSha256 clientPart(64, sessionKey.get());
     clientPart.UpdateData(&ResumeClient, 1);
@@ -1005,6 +1015,7 @@ bool Battlenet::Session::HandleResumeModule(BitStream* dataStream, ServerPacket*
     result->Modules.push_back(resume);
     ReplaceResponse(response, result);
     _authed = true;
+    sBattlenetSessionMgr.AddSession(this);
     return true;
 }
 
