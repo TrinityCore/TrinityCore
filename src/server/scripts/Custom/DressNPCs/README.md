@@ -5,7 +5,7 @@ You can make an NPC, set the displays or items you want him to have and his race
 All this is done in the database.
 The values for skins and features range from 0 to 12 or something .. not quite sure how many there are. (it varies for races)<br />
 ***Note*** The items can use positive value as item entry and negative for displayid.<br />
-Source: http://rochet2.github.io/?page=Dress_NPCs
+Source: https://rochet2.github.io/?page=Dress_NPCs
 
 Known bugs: Portraits dont work properly - a client side visual bug
 
@@ -23,7 +23,8 @@ Using direct merge:
 - use cmake and compile
 
 Using diff:
-- download the diff by __right clicking__ the link and select __save as__
+- DO NOT COPY THE DIFF DIRECTLY! It causes apply to fail.
+- download the diff by __right clicking__ the link and select __Save link as__
 - place the downloaded `dressnpcs.diff` to the source root folder
 - open git bash to source location
 - do `git apply dressnpcs.diff`
@@ -41,4 +42,4 @@ You should be able to reload the table with new entries of ingame creatures. Rel
 __Using reload is not recommended.__ (not outfit nor template)
 
 ####Bugs and Contact
-Report issues and similar to http://rochet2.github.io/
+Report issues and similar to https://rochet2.github.io/
