@@ -20,70 +20,54 @@
     \ingroup world
 */
 
-#include "Common.h"
-#include "Memory.h"
-#include "DatabaseEnv.h"
-#include "Config.h"
-#include "SystemConfig.h"
-#include "Log.h"
-#include "Opcodes.h"
-#include "WorldSession.h"
-#include "WorldPacket.h"
-#include "Player.h"
-#include "Vehicle.h"
-#include "SkillExtraItems.h"
-#include "SkillDiscovery.h"
 #include "World.h"
-#include "AccountMgr.h"
 #include "AchievementMgr.h"
-#include "AuctionHouseMgr.h"
-#include "ObjectMgr.h"
 #include "ArenaTeamMgr.h"
-#include "GuildMgr.h"
-#include "TicketMgr.h"
-#include "SpellMgr.h"
-#include "GroupMgr.h"
-#include "Chat.h"
-#include "DBCStores.h"
-#include "LootMgr.h"
-#include "ItemEnchantmentMgr.h"
-#include "MapManager.h"
-#include "CreatureAIRegistry.h"
-#include "BattlegroundMgr.h"
-#include "OutdoorPvPMgr.h"
-#include "TemporarySummon.h"
-#include "WaypointMovementGenerator.h"
-#include "VMapFactory.h"
-#include "MMapFactory.h"
-#include "GameEventMgr.h"
-#include "PoolMgr.h"
-#include "GridNotifiersImpl.h"
-#include "CellImpl.h"
-#include "InstanceSaveMgr.h"
-#include "Util.h"
-#include "Language.h"
-#include "CreatureGroups.h"
-#include "Transport.h"
-#include "ScriptMgr.h"
-#include "AddonMgr.h"
-#include "LFGMgr.h"
-#include "ConditionMgr.h"
-#include "DisableMgr.h"
-#include "CharacterDatabaseCleaner.h"
-#include "ScriptMgr.h"
-#include "WeatherMgr.h"
-#include "CreatureTextMgr.h"
-#include "SmartAI.h"
-#include "Channel.h"
-#include "WardenCheckMgr.h"
-#include "Warden.h"
-#include "CalendarMgr.h"
+#include "AuctionHouseMgr.h"
 #include "BattlefieldMgr.h"
+#include "BattlegroundMgr.h"
+#include "CalendarMgr.h"
+#include "Channel.h"
+#include "CharacterDatabaseCleaner.h"
+#include "Chat.h"
+#include "Config.h"
+#include "CreatureAIRegistry.h"
+#include "CreatureGroups.h"
+#include "CreatureTextMgr.h"
+#include "DatabaseEnv.h"
+#include "DisableMgr.h"
+#include "GameEventMgr.h"
+#include "GridNotifiersImpl.h"
+#include "GroupMgr.h"
+#include "GuildMgr.h"
+#include "InstanceSaveMgr.h"
+#include "Language.h"
+#include "LFGMgr.h"
+#include "MapManager.h"
+#include "Memory.h"
+#include "MMapFactory.h"
+#include "ObjectMgr.h"
+#include "OutdoorPvPMgr.h"
+#include "Player.h"
+#include "PoolMgr.h"
+#include "ScriptMgr.h"
+#include "SkillDiscovery.h"
+#include "SkillExtraItems.h"
+#include "SmartAI.h"
+#include "SystemConfig.h"
+#include "TicketMgr.h"
 #include "TransportMgr.h"
+#include "Unit.h"
+#include "VMapFactory.h"
+#include "WardenCheckMgr.h"
+#include "WaypointMovementGenerator.h"
+#include "WeatherMgr.h"
+#include "WorldSession.h"
 
-ACE_Atomic_Op<ACE_Thread_Mutex, bool> World::m_stopEvent = false;
+
+std::atomic<bool> World::m_stopEvent(false);
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
-ACE_Atomic_Op<ACE_Thread_Mutex, uint32> World::m_worldLoopCounter = 0;
+std::atomic<uint32> World::m_worldLoopCounter(0);
 
 float World::m_MaxVisibleDistanceOnContinents = DEFAULT_VISIBILITY_DISTANCE;
 float World::m_MaxVisibleDistanceInInstances  = DEFAULT_VISIBILITY_INSTANCE;
@@ -406,9 +390,10 @@ void World::LoadConfigSettings(bool reload)
 {
     if (reload)
     {
-        if (!sConfigMgr->Reload())
+        std::string configError;
+        if (!sConfigMgr->Reload(configError))
         {
-            TC_LOG_ERROR("misc", "World settings reload fail: can't read settings from %s.", sConfigMgr->GetFilename().c_str());
+            TC_LOG_ERROR("misc", "World settings reload fail: %s.", configError.c_str());
             return;
         }
         sLog->LoadFromConfig();
@@ -668,7 +653,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP]   = sConfigMgr->GetBoolDefault("AllowTwoSide.Interaction.Group", false);
     m_bool_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD]   = sConfigMgr->GetBoolDefault("AllowTwoSide.Interaction.Guild", false);
     m_bool_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION] = sConfigMgr->GetBoolDefault("AllowTwoSide.Interaction.Auction", false);
-    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_TRADE]               = sConfigMgr->GetBoolDefault("AllowTwoSide.trade", false);
+    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_TRADE]               = sConfigMgr->GetBoolDefault("AllowTwoSide.Trade", false);
     m_int_configs[CONFIG_STRICT_PLAYER_NAMES]                 = sConfigMgr->GetIntDefault ("StrictPlayerNames",  0);
     m_int_configs[CONFIG_STRICT_CHARTER_NAMES]                = sConfigMgr->GetIntDefault ("StrictCharterNames", 0);
     m_int_configs[CONFIG_STRICT_PET_NAMES]                    = sConfigMgr->GetIntDefault ("StrictPetNames",     0);
@@ -955,7 +940,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_CHATFLOOD_MESSAGE_DELAY] = sConfigMgr->GetIntDefault("ChatFlood.MessageDelay", 1);
     m_int_configs[CONFIG_CHATFLOOD_MUTE_TIME]     = sConfigMgr->GetIntDefault("ChatFlood.MuteTime", 10);
 
-    m_bool_configs[CONFIG_EVENT_ANNOUNCE] = sConfigMgr->GetIntDefault("Event.Announce", false);
+    m_bool_configs[CONFIG_EVENT_ANNOUNCE] = sConfigMgr->GetBoolDefault("Event.Announce", false);
 
     m_float_configs[CONFIG_CREATURE_FAMILY_FLEE_ASSISTANCE_RADIUS] = sConfigMgr->GetFloatDefault("CreatureFamilyFleeAssistanceRadius", 30.0f);
     m_float_configs[CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS] = sConfigMgr->GetFloatDefault("CreatureFamilyAssistanceRadius", 10.0f);
@@ -1043,6 +1028,8 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_ARENA_LOG_EXTENDED_INFO]                   = sConfigMgr->GetBoolDefault("ArenaLog.ExtendedInfo", false);
 
     m_bool_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN]            = sConfigMgr->GetBoolDefault("OffhandCheckAtSpellUnlearn", true);
+
+    m_int_configs[CONFIG_CREATURE_PICKPOCKET_REFILL] = sConfigMgr->GetIntDefault("Creature.PickPocketRefillDelay", 10 * MINUTE);
 
     if (int32 clientCacheId = sConfigMgr->GetIntDefault("ClientCacheVersion", 0))
     {
@@ -1177,17 +1164,6 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_NUMTHREADS] = sConfigMgr->GetIntDefault("MapUpdate.Threads", 1);
     m_int_configs[CONFIG_MAX_RESULTS_LOOKUP_COMMANDS] = sConfigMgr->GetIntDefault("Command.LookupMaxResults", 0);
 
-    // chat logging
-    m_bool_configs[CONFIG_CHATLOG_CHANNEL] = sConfigMgr->GetBoolDefault("ChatLogs.Channel", false);
-    m_bool_configs[CONFIG_CHATLOG_WHISPER] = sConfigMgr->GetBoolDefault("ChatLogs.Whisper", false);
-    m_bool_configs[CONFIG_CHATLOG_SYSCHAN] = sConfigMgr->GetBoolDefault("ChatLogs.SysChan", false);
-    m_bool_configs[CONFIG_CHATLOG_PARTY] = sConfigMgr->GetBoolDefault("ChatLogs.Party", false);
-    m_bool_configs[CONFIG_CHATLOG_RAID] = sConfigMgr->GetBoolDefault("ChatLogs.Raid", false);
-    m_bool_configs[CONFIG_CHATLOG_GUILD] = sConfigMgr->GetBoolDefault("ChatLogs.Guild", false);
-    m_bool_configs[CONFIG_CHATLOG_PUBLIC] = sConfigMgr->GetBoolDefault("ChatLogs.Public", false);
-    m_bool_configs[CONFIG_CHATLOG_ADDON] = sConfigMgr->GetBoolDefault("ChatLogs.Addon", false);
-    m_bool_configs[CONFIG_CHATLOG_BGROUND] = sConfigMgr->GetBoolDefault("ChatLogs.Battleground", false);
-
     // Warden
     m_bool_configs[CONFIG_WARDEN_ENABLED]              = sConfigMgr->GetBoolDefault("Warden.Enabled", false);
     m_int_configs[CONFIG_WARDEN_NUM_MEM_CHECKS]        = sConfigMgr->GetIntDefault("Warden.NumMemChecks", 3);
@@ -1263,6 +1239,8 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_PACKET_SPOOF_BANDURATION] = sConfigMgr->GetIntDefault("PacketSpoof.BanDuration", 86400);
 
     m_int_configs[CONFIG_BIRTHDAY_TIME] = sConfigMgr->GetIntDefault("BirthdayTime", 1222964635);
+
+    m_bool_configs[CONFIG_IP_BASED_ACTION_LOGGING] = sConfigMgr->GetBoolDefault("Allow.IP.Based.Action.Logging", false);
 
     // call ScriptMgr if we're reloading the configuration
     if (reload)
@@ -1362,6 +1340,10 @@ void World::SetInitialWorldSettings()
     // Must be called before `creature_respawn`/`gameobject_respawn` tables
     TC_LOG_INFO("server.loading", "Loading instances...");
     sInstanceSaveMgr->LoadInstances();
+
+    TC_LOG_INFO("server.loading", "Loading Broadcast texts...");
+    sObjectMgr->LoadBroadcastTexts();
+    sObjectMgr->LoadBroadcastTextLocales();
 
     TC_LOG_INFO("server.loading", "Loading Localization strings...");
     uint32 oldMSTime = getMSTime();
@@ -1752,7 +1734,7 @@ void World::SetInitialWorldSettings()
     //one second is 1000 -(tested on win system)
     /// @todo Get rid of magic numbers
     tm localTm;
-    ACE_OS::localtime_r(&m_gameTime, &localTm);
+    localtime_r(&m_gameTime, &localTm);
     mail_timer = ((((localTm.tm_hour + 20) % 24)* HOUR * IN_MILLISECONDS) / m_timers[WUPDATE_AUCTIONS].GetInterval());
                                                             //1440
     mail_timer_expires = ((DAY * IN_MILLISECONDS) / (m_timers[WUPDATE_AUCTIONS].GetInterval()));
@@ -1782,7 +1764,7 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize Battlegrounds
     TC_LOG_INFO("server.loading", "Starting Battleground System");
-    sBattlegroundMgr->CreateInitialBattlegrounds();
+    sBattlegroundMgr->LoadBattlegroundTemplates();
     sBattlegroundMgr->InitAutomaticArenaPointDistribution();
 
     ///- Initialize outdoor pvp
@@ -2595,7 +2577,7 @@ void World::ShutdownMsg(bool show, Player* player)
 void World::ShutdownCancel()
 {
     // nothing cancel or too later
-    if (!m_ShutdownTimer || m_stopEvent.value())
+    if (!m_ShutdownTimer || m_stopEvent)
         return;
 
     ServerMessageType msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_CANCELLED : SERVER_MSG_SHUTDOWN_CANCELLED;
@@ -2733,8 +2715,7 @@ void World::UpdateRealmCharCount(uint32 accountId)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_COUNT);
     stmt->setUInt32(0, accountId);
-    PreparedQueryResultFuture result = CharacterDatabase.AsyncQuery(stmt);
-    m_realmCharCallbacks.insert(result);
+    m_realmCharCallbacks.push_back(CharacterDatabase.AsyncQuery(stmt));
 }
 
 void World::_UpdateRealmCharCount(PreparedQueryResult resultCharCount)
@@ -2782,7 +2763,7 @@ void World::InitDailyQuestResetTime()
     // FIX ME: client not show day start time
     time_t curTime = time(NULL);
     tm localTm;
-    ACE_OS::localtime_r(&curTime, &localTm);
+    localtime_r(&curTime, &localTm);
     localTm.tm_hour = 6;
     localTm.tm_min  = 0;
     localTm.tm_sec  = 0;
@@ -2816,7 +2797,7 @@ void World::InitRandomBGResetTime()
     // generate time by config
     time_t curTime = time(NULL);
     tm localTm;
-    ACE_OS::localtime_r(&curTime, &localTm);
+    localtime_r(&curTime, &localTm);
     localTm.tm_hour = getIntConfig(CONFIG_RANDOM_BG_RESET_HOUR);
     localTm.tm_min = 0;
     localTm.tm_sec = 0;
@@ -2844,7 +2825,7 @@ void World::InitGuildResetTime()
     // generate time by config
     time_t curTime = time(NULL);
     tm localTm;
-    ACE_OS::localtime_r(&curTime, &localTm);
+    localtime_r(&curTime, &localTm);
     localTm.tm_hour = getIntConfig(CONFIG_GUILD_RESET_HOUR);
     localTm.tm_min = 0;
     localTm.tm_sec = 0;
@@ -2929,7 +2910,7 @@ void World::ResetMonthlyQuests()
     // generate time
     time_t curTime = time(NULL);
     tm localTm;
-    ACE_OS::localtime_r(&curTime, &localTm);
+    localtime_r(&curTime, &localTm);
 
     int month   = localTm.tm_mon;
     int year    = localTm.tm_year;
@@ -3091,19 +3072,17 @@ void World::ProcessQueryCallbacks()
 {
     PreparedQueryResult result;
 
-    while (!m_realmCharCallbacks.is_empty())
+    for (std::deque<std::future<PreparedQueryResult>>::iterator itr = m_realmCharCallbacks.begin(); itr != m_realmCharCallbacks.end(); )
     {
-        ACE_Future<PreparedQueryResult> lResult;
-        ACE_Time_Value timeout = ACE_Time_Value::zero;
-        if (m_realmCharCallbacks.next_readable(lResult, &timeout) != 1)
-            break;
-
-        if (lResult.ready())
+        if ((*itr).wait_for(std::chrono::seconds(0)) != std::future_status::ready)
         {
-            lResult.get(result);
-            _UpdateRealmCharCount(result);
-            lResult.cancel();
+            ++itr;
+            continue;
         }
+
+        result = (*itr).get();
+        _UpdateRealmCharCount(result);
+        itr = m_realmCharCallbacks.erase(itr);
     }
 }
 

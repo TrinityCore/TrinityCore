@@ -47,7 +47,7 @@ public:
     {
         npc_corporal_keeshanAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             timer = 0;
             phase = 0;
@@ -64,7 +64,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -91,7 +91,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (HasEscortState(STATE_ESCORT_NONE))
                 return;
@@ -160,7 +160,7 @@ public:
         uint32 shieldBashTimer;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_corporal_keeshanAI(creature);
     }

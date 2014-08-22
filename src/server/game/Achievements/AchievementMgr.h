@@ -23,7 +23,6 @@
 #include <string>
 
 #include "Common.h"
-#include <ace/Singleton.h>
 #include "DatabaseEnv.h"
 #include "DBCEnums.h"
 #include "DBCStores.h"
@@ -35,8 +34,8 @@ class WorldPacket;
 typedef std::vector<AchievementCriteriaEntry const*> AchievementCriteriaEntryList;
 typedef std::vector<AchievementEntry const*>         AchievementEntryList;
 
-typedef UNORDERED_MAP<uint32, AchievementCriteriaEntryList> AchievementCriteriaListByAchievement;
-typedef UNORDERED_MAP<uint32, AchievementEntryList>         AchievementListByReferencedId;
+typedef std::unordered_map<uint32, AchievementCriteriaEntryList> AchievementCriteriaListByAchievement;
+typedef std::unordered_map<uint32, AchievementEntryList>         AchievementListByReferencedId;
 
 struct CriteriaProgress
 {
@@ -236,7 +235,7 @@ struct AchievementReward
     uint32 mailTemplate;
 };
 
-typedef UNORDERED_MAP<uint32, AchievementReward> AchievementRewards;
+typedef std::unordered_map<uint32, AchievementReward> AchievementRewards;
 
 struct AchievementRewardLocale
 {
@@ -244,7 +243,7 @@ struct AchievementRewardLocale
     std::vector<std::string> text;
 };
 
-typedef UNORDERED_MAP<uint32, AchievementRewardLocale> AchievementRewardLocales;
+typedef std::unordered_map<uint32, AchievementRewardLocale> AchievementRewardLocales;
 
 struct CompletedAchievementData
 {
@@ -252,8 +251,8 @@ struct CompletedAchievementData
     bool changed;
 };
 
-typedef UNORDERED_MAP<uint32, CriteriaProgress> CriteriaProgressMap;
-typedef UNORDERED_MAP<uint32, CompletedAchievementData> CompletedAchievementMap;
+typedef std::unordered_map<uint32, CriteriaProgress> CriteriaProgressMap;
+typedef std::unordered_map<uint32, CompletedAchievementData> CompletedAchievementMap;
 
 enum ProgressType
 {
@@ -305,11 +304,16 @@ class AchievementMgr
 
 class AchievementGlobalMgr
 {
-        friend class ACE_Singleton<AchievementGlobalMgr, ACE_Null_Mutex>;
         AchievementGlobalMgr() { }
         ~AchievementGlobalMgr() { }
 
     public:
+        static AchievementGlobalMgr* instance()
+        {
+            static AchievementGlobalMgr instance;
+            return &instance;
+        }
+
         AchievementCriteriaEntryList const& GetAchievementCriteriaByType(AchievementCriteriaTypes type) const
         {
             return m_AchievementCriteriasByType[type];
@@ -389,6 +393,6 @@ class AchievementGlobalMgr
         AchievementRewardLocales m_achievementRewardLocales;
 };
 
-#define sAchievementMgr ACE_Singleton<AchievementGlobalMgr, ACE_Null_Mutex>::instance()
+#define sAchievementMgr AchievementGlobalMgr::instance()
 
 #endif

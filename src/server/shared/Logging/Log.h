@@ -22,29 +22,41 @@
 #include "Define.h"
 #include "Appender.h"
 #include "Logger.h"
-#include "LogWorker.h"
-#include "Dynamic/UnorderedMap.h"
+#include <stdarg.h>
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/strand.hpp>
 
+#include <unordered_map>
 #include <string>
-#include <ace/Singleton.h>
 
 #define LOGGER_ROOT "root"
 
 class Log
 {
-    friend class ACE_Singleton<Log, ACE_Thread_Mutex>;
-
-    typedef UNORDERED_MAP<std::string, Logger> LoggerMap;
-    typedef UNORDERED_MAP<std::string, Logger const*> CachedLoggerContainer;
+    typedef std::unordered_map<std::string, Logger> LoggerMap;
 
     private:
         Log();
         ~Log();
 
     public:
+
+        static Log* instance(boost::asio::io_service* ioService = nullptr)
+        {
+            static Log instance;
+
+            if (ioService != nullptr)
+            {
+                instance._ioService = ioService;
+                instance._strand = new boost::asio::strand(*ioService);
+            }
+
+            return &instance;
+        }
+
         void LoadFromConfig();
         void Close();
-        bool ShouldLog(std::string const& type, LogLevel level);
+        bool ShouldLog(std::string const& type, LogLevel level) const;
         bool SetLogLevel(std::string const& name, char const* level, bool isLogger = true);
 
         void outMessage(std::string const& f, LogLevel level, char const* str, ...) ATTR_PRINTF(4, 5);
@@ -57,9 +69,9 @@ class Log
     private:
         static std::string GetTimestampStr();
         void vlog(std::string const& f, LogLevel level, char const* str, va_list argptr);
-        void write(LogMessage* msg);
+        void write(LogMessage* msg) const;
 
-        Logger const* GetLoggerByType(std::string const& type);
+        Logger const* GetLoggerByType(std::string const& type) const;
         Appender* GetAppenderByName(std::string const& name);
         uint8 NextAppenderId();
         void CreateAppenderFromConfig(std::string const& name);
@@ -69,45 +81,33 @@ class Log
 
         AppenderMap appenders;
         LoggerMap loggers;
-        CachedLoggerContainer cachedLoggers;
         uint8 AppenderId;
 
         std::string m_logsDir;
         std::string m_logsTimestamp;
 
-        LogWorker* worker;
+        boost::asio::io_service* _ioService;
+        boost::asio::strand* _strand;
 };
 
-inline Logger const* Log::GetLoggerByType(std::string const& originalType)
+inline Logger const* Log::GetLoggerByType(std::string const& type) const
 {
-    // Check if already cached
-    CachedLoggerContainer::const_iterator itCached = cachedLoggers.find(originalType);
-    if (itCached != cachedLoggers.end())
-        return itCached->second;
+    LoggerMap::const_iterator it = loggers.find(type);
+    if (it != loggers.end())
+        return &(it->second);
 
-    Logger const* logger = NULL;
-    std::string type(originalType);
+    if (type == LOGGER_ROOT)
+        return NULL;
 
-    do
-    {
-        // Search for the logger "type.subtype"
-        LoggerMap::const_iterator it = loggers.find(type);
-        if (it == loggers.end())
-        {
-            // Search for the logger "type", if our logger contains '.', otherwise search for LOGGER_ROOT
-            size_t found = type.find_last_of(".");
-            type = found != std::string::npos ? type.substr(0, found) : LOGGER_ROOT;
-        }
-        else
-            logger = &(it->second);
-    }
-    while (!logger);
+    std::string parentLogger = LOGGER_ROOT;
+    size_t found = type.find_last_of(".");
+    if (found != std::string::npos)
+        parentLogger = type.substr(0,found);
 
-    cachedLoggers[type] = logger;
-    return logger;
+    return GetLoggerByType(parentLogger);
 }
 
-inline bool Log::ShouldLog(std::string const& type, LogLevel level)
+inline bool Log::ShouldLog(std::string const& type, LogLevel level) const
 {
     // TODO: Use cache to store "Type.sub1.sub2": "Type" equivalence, should
     // Speed up in cases where requesting "Type.sub1.sub2" but only configured
@@ -131,7 +131,7 @@ inline void Log::outMessage(std::string const& filter, LogLevel level, const cha
     va_end(ap);
 }
 
-#define sLog ACE_Singleton<Log, ACE_Thread_Mutex>::instance()
+#define sLog Log::instance()
 
 #if PLATFORM != PLATFORM_WINDOWS
 #define TC_LOG_MESSAGE_BODY(filterType__, level__, ...)                 \

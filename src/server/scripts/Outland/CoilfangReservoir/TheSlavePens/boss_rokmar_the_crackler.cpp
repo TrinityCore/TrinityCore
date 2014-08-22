@@ -50,18 +50,18 @@ class boss_rokmar_the_crackler : public CreatureScript
         {
             boss_rokmar_the_cracklerAI(Creature* creature) : BossAI(creature, DATA_MENNU_THE_BETRAYER) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
                 rokmarFrenzy = false;
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_GRIEVOUS_WOUND, 10000);
@@ -69,9 +69,9 @@ class boss_rokmar_the_crackler : public CreatureScript
                 events.ScheduleEvent(EVENT_WATER_SPIT, 14000);
             }
 
-            void KilledUnit(Unit* /*victim*/) OVERRIDE { }
+            void KilledUnit(Unit* /*victim*/) override { }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -115,7 +115,7 @@ class boss_rokmar_the_crackler : public CreatureScript
                 bool   rokmarFrenzy;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_rokmar_the_cracklerAI(creature);
         }

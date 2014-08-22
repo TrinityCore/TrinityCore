@@ -50,7 +50,7 @@ class npc_archmage_malin : public CreatureScript
 public:
     npc_archmage_malin() : CreatureScript("npc_archmage_malin") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF)
@@ -62,7 +62,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -91,7 +91,7 @@ class npc_bartleby : public CreatureScript
 public:
     npc_bartleby() : CreatureScript("npc_bartleby") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_BEAT)
         {
@@ -101,7 +101,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_bartlebyAI(creature);
     }
@@ -115,13 +115,13 @@ public:
 
         uint32 m_uiNormalFaction;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             if (me->getFaction() != m_uiNormalFaction)
                 me->setFaction(m_uiNormalFaction);
         }
 
-        void AttackedBy(Unit* pAttacker) OVERRIDE
+        void AttackedBy(Unit* pAttacker) override
         {
             if (me->GetVictim())
                 return;
@@ -132,7 +132,7 @@ public:
             AttackStart(pAttacker);
         }
 
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage) OVERRIDE
+        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage) override
         {
             if (uiDamage > me->GetHealth() || me->HealthBelowPctDamaged(15, uiDamage))
             {
@@ -161,7 +161,7 @@ class npc_lady_katrana_prestor : public CreatureScript
 public:
     npc_lady_katrana_prestor() : CreatureScript("npc_lady_katrana_prestor") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -186,7 +186,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -226,7 +226,7 @@ class npc_lord_gregor_lescovar : public CreatureScript
 public:
     npc_lord_gregor_lescovar() : CreatureScript("npc_lord_gregor_lescovar") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_lord_gregor_lescovarAI(creature);
     }
@@ -240,7 +240,7 @@ public:
 
         uint64 MarzonGUID;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiTimer = 0;
             uiPhase = 0;
@@ -248,27 +248,27 @@ public:
             MarzonGUID = 0;
         }
 
-        void EnterEvadeMode() OVERRIDE
+        void EnterEvadeMode() override
         {
             me->DisappearAndDie();
 
-            if (Creature* pMarzon = Unit::GetCreature(*me, MarzonGUID))
+            if (Creature* pMarzon = ObjectAccessor::GetCreature(*me, MarzonGUID))
             {
                 if (pMarzon->IsAlive())
                     pMarzon->DisappearAndDie();
             }
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
-            if (Creature* pMarzon = Unit::GetCreature(*me, MarzonGUID))
+            if (Creature* pMarzon = ObjectAccessor::GetCreature(*me, MarzonGUID))
             {
                 if (pMarzon->IsAlive() && !pMarzon->IsInCombat())
                     pMarzon->AI()->AttackStart(who);
             }
         }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             switch (waypointId)
             {
@@ -305,7 +305,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (uiPhase)
             {
@@ -335,7 +335,7 @@ public:
                             uiPhase = 0;
                             break;
                         case 5:
-                            if (Creature* pMarzon = Unit::GetCreature(*me, MarzonGUID))
+                            if (Creature* pMarzon = ObjectAccessor::GetCreature(*me, MarzonGUID))
                                 pMarzon->AI()->Talk(SAY_MARZON_1);
                             uiTimer = 3000;
                             uiPhase = 6;
@@ -350,7 +350,7 @@ public:
                         case 7:
                             if (Creature* pTyrion = me->FindNearestCreature(NPC_TYRION, 20.0f, true))
                                 pTyrion->AI()->Talk(SAY_TYRION_2);
-                            if (Creature* pMarzon = Unit::GetCreature(*me, MarzonGUID))
+                            if (Creature* pMarzon = ObjectAccessor::GetCreature(*me, MarzonGUID))
                                 pMarzon->setFaction(14);
                             me->setFaction(14);
                             uiTimer = 0;
@@ -378,7 +378,7 @@ class npc_marzon_silent_blade : public CreatureScript
 public:
     npc_marzon_silent_blade() : CreatureScript("npc_marzon_silent_blade") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_marzon_silent_bladeAI(creature);
     }
@@ -390,12 +390,12 @@ public:
             me->SetWalk(true);
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             me->RestoreFaction();
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             Talk(SAY_MARZON_2);
 
@@ -409,7 +409,7 @@ public:
             }
         }
 
-        void EnterEvadeMode() OVERRIDE
+        void EnterEvadeMode() override
         {
             me->DisappearAndDie();
 
@@ -423,7 +423,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 uiType, uint32 /*uiId*/) OVERRIDE
+        void MovementInform(uint32 uiType, uint32 /*uiId*/) override
         {
             if (uiType != POINT_MOTION_TYPE)
                 return;
@@ -445,7 +445,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (!UpdateVictim())
                 return;
@@ -479,7 +479,7 @@ class npc_tyrion_spybot : public CreatureScript
 public:
     npc_tyrion_spybot() : CreatureScript("npc_tyrion_spybot") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_tyrion_spybotAI(creature);
     }
@@ -491,13 +491,13 @@ public:
         uint32 uiTimer;
         uint32 uiPhase;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiTimer = 0;
             uiPhase = 0;
         }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             switch (waypointId)
             {
@@ -521,7 +521,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (uiPhase)
             {
@@ -541,7 +541,7 @@ public:
                             uiPhase = 3;
                             break;
                         case 3:
-                            me->UpdateEntry(NPC_PRIESTESS_TYRIONA, ALLIANCE);
+                            me->UpdateEntry(NPC_PRIESTESS_TYRIONA);
                             uiTimer = 2000;
                             uiPhase = 4;
                             break;
@@ -582,8 +582,8 @@ public:
                             {
                                 if (Player* player = GetPlayerForEscort())
                                 {
-                                    CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, pLescovar->AI())->Start(false, false, player->GetGUID());
-                                    CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, pLescovar->AI())->SetMaxPlayerDistance(200.0f);
+                                    ENSURE_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, pLescovar->AI())->Start(false, false, player->GetGUID());
+                                    ENSURE_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, pLescovar->AI())->SetMaxPlayerDistance(200.0f);
                                 }
                             }
                             me->DisappearAndDie();
@@ -617,14 +617,14 @@ class npc_tyrion : public CreatureScript
 public:
     npc_tyrion() : CreatureScript("npc_tyrion") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_THE_ATTACK)
         {
             if (Creature* pSpybot = creature->FindNearestCreature(NPC_TYRION_SPYBOT, 5.0f, true))
             {
-                CAST_AI(npc_tyrion_spybot::npc_tyrion_spybotAI, pSpybot->AI())->Start(false, false, player->GetGUID());
-                CAST_AI(npc_tyrion_spybot::npc_tyrion_spybotAI, pSpybot->AI())->SetMaxPlayerDistance(200.0f);
+                ENSURE_AI(npc_tyrion_spybot::npc_tyrion_spybotAI, pSpybot->AI())->Start(false, false, player->GetGUID());
+                ENSURE_AI(npc_tyrion_spybot::npc_tyrion_spybotAI, pSpybot->AI())->SetMaxPlayerDistance(200.0f);
             }
             return true;
         }

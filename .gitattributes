@@ -13,4 +13,5 @@
 *.txt        whitespace=trailing-space,space-before-tab,cr-at-eol
 
 # special files which must ignore whitespace
-*.patch      whitespace=-trailing-space
+*.patch      whitespace=-trailing-space eol=lf
+*.diff       whitespace=-trailing-space eol=lf

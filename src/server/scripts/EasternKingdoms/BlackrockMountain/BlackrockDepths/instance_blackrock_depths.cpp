@@ -69,7 +69,7 @@ class instance_blackrock_depths : public InstanceMapScript
 public:
     instance_blackrock_depths() : InstanceMapScript("instance_blackrock_depths", 230) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_blackrock_depths_InstanceMapScript(map);
     }
@@ -115,7 +115,7 @@ public:
         uint32 TombTimer;
         uint32 TombEventCounter;
 
-        void Initialize() OVERRIDE
+        void Initialize() override
         {
             memset(&encounter, 0, sizeof(encounter));
 
@@ -156,7 +156,7 @@ public:
                 TombBossGUIDs[i] = 0;
         }
 
-        void OnCreatureCreate(Creature* creature) OVERRIDE
+        void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
@@ -178,7 +178,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go) OVERRIDE
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
@@ -212,7 +212,7 @@ public:
             }
         }
 
-        void SetData64(uint32 type, uint64 data) OVERRIDE
+        void SetData64(uint32 type, uint64 data) override
         {
             TC_LOG_DEBUG("scripts", "Instance Blackrock Depths: SetData64 update (Type: %u Data " UI64FMTD ")", type, data);
 
@@ -228,7 +228,7 @@ public:
             }
         }
 
-        void SetData(uint32 type, uint32 data) OVERRIDE
+        void SetData(uint32 type, uint32 data) override
         {
             TC_LOG_DEBUG("scripts", "Instance Blackrock Depths: SetData update (Type: %u Data %u)", type, data);
 
@@ -275,7 +275,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type) const OVERRIDE
+        uint32 GetData(uint32 type) const override
         {
             switch (type)
             {
@@ -300,7 +300,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 data) const OVERRIDE
+        uint64 GetData64(uint32 data) const override
         {
             switch (data)
             {
@@ -342,12 +342,12 @@ public:
             return 0;
         }
 
-        std::string GetSaveData() OVERRIDE
+        std::string GetSaveData() override
         {
             return str_data;
         }
 
-        void Load(const char* in) OVERRIDE
+        void Load(const char* in) override
         {
             if (!in)
             {
@@ -429,7 +429,7 @@ public:
             TombEventStarterGUID = 0;
             SetData(TYPE_TOMB_OF_SEVEN, DONE);
         }
-        void Update(uint32 diff) OVERRIDE
+        void Update(uint32 diff) override
         {
             if (TombEventStarterGUID && GhostKillCount < 7)
             {

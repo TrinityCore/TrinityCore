@@ -47,28 +47,21 @@ class npc_willix : public CreatureScript
 public:
     npc_willix() : CreatureScript("npc_willix") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
-    {
-        if (quest->GetQuestId() == QUEST_WILLIX_THE_IMPORTER)
-        {
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
-            creature->AI()->Talk(SAY_READY, player);
-            creature->setFaction(113);
-        }
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_willixAI(creature);
-    }
-
     struct npc_willixAI : public npc_escortAI
     {
         npc_willixAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void sQuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_WILLIX_THE_IMPORTER)
+            {
+                Start(true, false, player->GetGUID());
+                Talk(SAY_READY, player);
+                me->setFaction(113);
+            }
+        }
+
+        void WaypointReached(uint32 waypointId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -118,25 +111,29 @@ public:
             }
         }
 
-        void Reset() OVERRIDE { }
+        void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO1);
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             summoned->AI()->AttackStart(me);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (Player* player = GetPlayerForEscort())
                 player->FailQuest(QUEST_WILLIX_THE_IMPORTER);
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_willixAI(creature);
+    }
 };
 
 enum SnufflenoseGopher
@@ -147,24 +144,12 @@ enum SnufflenoseGopher
     POINT_TUBBER                 = 0
 };
 
-struct DistanceOrder : public std::binary_function<GameObject, GameObject, bool>
-{
-    DistanceOrder(Creature* me) : me(me) { }
-
-    bool operator() (GameObject* first, GameObject* second)
-    {
-        return me->GetDistanceOrder(first, second);
-    }
-
-    Creature* me;
-};
-
 struct npc_snufflenose_gopher : public CreatureScript
 {
 public:
     npc_snufflenose_gopher() : CreatureScript("npc_snufflenose_gopher") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_snufflenose_gopherAI(creature);
     }
@@ -177,13 +162,13 @@ public:
             TargetTubberGUID = 0;
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             IsMovementActive = false;
             TargetTubberGUID = 0;
         }
 
-        void MovementInform(uint32 type, uint32 id) OVERRIDE
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type == POINT_MOTION_TYPE && id == POINT_TUBBER)
             {
@@ -208,18 +193,14 @@ public:
             if (tubbersInRange.empty())
                 return;
 
-            tubbersInRange.sort(DistanceOrder(me));
-            GameObject* nearestTubber = NULL;
-
-            for (std::list<GameObject*>::const_iterator itr = tubbersInRange.begin(); itr != tubbersInRange.end(); ++itr)
+            tubbersInRange.remove_if([](GameObject* go)
             {
-                if (!(*itr)->isSpawned() && (*itr)->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND))
-                {
-                    nearestTubber = *itr;
-                    break;
-                }
-            }
+                return go->isSpawned() || !go->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+            });
 
+            tubbersInRange.sort(Trinity::ObjectDistanceOrderPred(me));
+
+            GameObject* nearestTubber = tubbersInRange.front();
             if (!nearestTubber)
                 return;
 
@@ -232,13 +213,13 @@ public:
             IsMovementActive = true;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!IsMovementActive)
                 PetAI::UpdateAI(diff);
         }
 
-        void DoAction(int32 action) OVERRIDE
+        void DoAction(int32 action) override
         {
             if (action == ACTION_FIND_NEW_TUBBER)
                 DoFindNewTubber();
@@ -259,25 +240,20 @@ class spell_snufflenose_command : public SpellScriptLoader
         {
             PrepareSpellScript(spell_snufflenose_commandSpellScript);
 
-            bool Load() OVERRIDE
+            void HandleEffect(SpellEffIndex /*effIndex*/)
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            void HandleAfterCast()
-            {
-                if (Unit* target = GetCaster()->ToPlayer()->GetSelectedUnit())
+                if (Creature* target = GetHitCreature())
                     if (target->GetEntry() == NPC_SNUFFLENOSE_GOPHER)
-                        target->ToCreature()->AI()->DoAction(ACTION_FIND_NEW_TUBBER);
+                        target->AI()->DoAction(ACTION_FIND_NEW_TUBBER);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
-                AfterCast += SpellCastFn(spell_snufflenose_commandSpellScript::HandleAfterCast);
+                OnEffectHitTarget += SpellEffectFn(spell_snufflenose_commandSpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_snufflenose_commandSpellScript();
         }

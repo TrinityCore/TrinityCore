@@ -87,7 +87,7 @@ class boss_four_horsemen : public CreatureScript
 public:
     boss_four_horsemen() : CreatureScript("boss_four_horsemen") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_four_horsemenAI>(creature);
     }
@@ -116,7 +116,7 @@ public:
         bool encounterActionReset;
         bool doDelayPunish;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             if (!encounterActionReset)
                 DoEncounteraction(NULL, false, true, false);
@@ -138,24 +138,24 @@ public:
 
         bool DoEncounteraction(Unit* who, bool attack, bool reset, bool checkAllDead)
         {
-            Creature* Thane = Unit::GetCreature(*me, instance->GetData64(DATA_THANE));
-            Creature* Lady = Unit::GetCreature(*me, instance->GetData64(DATA_LADY));
-            Creature* Baron = Unit::GetCreature(*me, instance->GetData64(DATA_BARON));
-            Creature* Sir = Unit::GetCreature(*me, instance->GetData64(DATA_SIR));
+            Creature* Thane = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_THANE));
+            Creature* Lady = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LADY));
+            Creature* Baron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BARON));
+            Creature* Sir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SIR));
 
             if (Thane && Lady && Baron && Sir)
             {
                 if (attack && who)
                 {
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->encounterActionAttack = true;
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->encounterActionAttack = true;
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->encounterActionAttack = true;
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->encounterActionAttack = true;
+                    ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->encounterActionAttack = true;
+                    ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->encounterActionAttack = true;
+                    ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->encounterActionAttack = true;
+                    ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->encounterActionAttack = true;
 
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->AttackStart(who);
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->AttackStart(who);
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->AttackStart(who);
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->AttackStart(who);
+                    ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->AttackStart(who);
+                    ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->AttackStart(who);
+                    ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->AttackStart(who);
+                    ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->AttackStart(who);
                 }
 
                 if (reset)
@@ -174,15 +174,15 @@ public:
                         if (!Sir->IsAlive())
                             Sir->Respawn();
 
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->encounterActionReset = true;
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->encounterActionReset = true;
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->encounterActionReset = true;
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->encounterActionReset = true;
+                        ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->encounterActionReset = true;
+                        ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->encounterActionReset = true;
+                        ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->encounterActionReset = true;
+                        ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->encounterActionReset = true;
 
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->EnterEvadeMode();
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->EnterEvadeMode();
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->EnterEvadeMode();
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->EnterEvadeMode();
+                        ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->EnterEvadeMode();
+                        ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->EnterEvadeMode();
+                        ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->EnterEvadeMode();
+                        ENSURE_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->EnterEvadeMode();
                     }
                 }
 
@@ -216,7 +216,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 id) OVERRIDE
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -226,7 +226,7 @@ public:
                 movementCompleted = true;
                 me->SetReactState(REACT_AGGRESSIVE);
 
-                Unit* eventStarter = Unit::GetUnit(*me, uiEventStarterGUID);
+                Unit* eventStarter = ObjectAccessor::GetUnit(*me, uiEventStarterGUID);
 
                 if (eventStarter && me->IsValidAttackTarget(eventStarter))
                     AttackStart(eventStarter);
@@ -259,7 +259,7 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
 
         {
             BossAI::MoveInLineOfSight(who);
@@ -267,7 +267,7 @@ public:
                 SelectNearestTarget(who);
         }
 
-        void AttackStart(Unit* who) OVERRIDE
+        void AttackStart(Unit* who) override
         {
             if (!movementCompleted && !movementStarted)
             {
@@ -286,13 +286,13 @@ public:
             }
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
-            if (!(rand()%5))
+            if (!(rand32() % 5))
                 Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             events.Reset();
             summons.DespawnAll();
@@ -312,17 +312,17 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             Talk(SAY_AGGRO);
 
             events.ScheduleEvent(EVENT_MARK, 15000);
-            events.ScheduleEvent(EVENT_CAST, 20000+rand()%5000);
+            events.ScheduleEvent(EVENT_CAST, 20000 + rand32() % 5000);
             events.ScheduleEvent(EVENT_BERSERK, 15*100*1000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (nextWP && movementStarted && !movementCompleted && !nextMovementStarted)
             {
@@ -343,18 +343,18 @@ public:
                 switch (eventId)
                 {
                     case EVENT_MARK:
-                        if (!(rand()%5))
+                        if (!(rand32() % 5))
                             Talk(SAY_SPECIAL);
                         DoCastAOE(SPELL_MARK[id]);
                         events.ScheduleEvent(EVENT_MARK, 15000);
                         break;
                     case EVENT_CAST:
-                        if (!(rand()%5))
+                        if (!(rand32() % 5))
                             Talk(SAY_TAUNT);
 
                         if (caster)
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
                                 DoCast(target, SPELL_PRIMARY(id));
                         }
                         else
@@ -431,13 +431,13 @@ class spell_four_horsemen_mark : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_four_horsemen_mark_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_four_horsemen_mark_AuraScript();
         }

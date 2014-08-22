@@ -438,7 +438,7 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket& recvData)
 
     // everything's fine, do it
     group->SetLootMethod((LootMethod)lootMethod);
-    group->SetLooterGuid(lootMaster);
+    group->SetMasterLooterGuid(lootMaster);
     group->SetLootThreshold((ItemQualities)lootThreshold);
     group->SendUpdate();
 }
@@ -638,8 +638,6 @@ void WorldSession::HandleGroupAssistantLeaderOpcode(WorldPacket& recvData)
     recvData >> apply;
 
     group->SetGroupMemberFlag(guid, apply, MEMBER_FLAG_ASSISTANT);
-
-    group->SendUpdate();
 }
 
 void WorldSession::HandlePartyAssignmentOpcode(WorldPacket& recvData)
@@ -1070,5 +1068,5 @@ void WorldSession::HandleOptOutOfLootOpcode(WorldPacket& recvData)
         return;
     }
 
-    GetPlayer()->SetPassOnGroupLoot(passOnLoot);
+    GetPlayer()->SetPassOnGroupLoot(passOnLoot != 0);
 }

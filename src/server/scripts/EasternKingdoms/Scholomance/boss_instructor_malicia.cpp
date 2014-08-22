@@ -55,14 +55,14 @@ class boss_instructor_malicia : public CreatureScript
             uint32 FlashCounter;
             uint32 TouchCounter;
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
                 FlashCounter = 0;
                 TouchCounter = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_CALLOFGRAVES, 4000);
@@ -72,7 +72,7 @@ class boss_instructor_malicia : public CreatureScript
                 events.ScheduleEvent(EVENT_HEALINGTOUCH, 45000);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -135,7 +135,7 @@ class boss_instructor_malicia : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_instructormaliciaAI(creature);
         }

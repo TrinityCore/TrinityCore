@@ -40,7 +40,7 @@ enum SpellIds
 
 enum MiscData
 {
-    DESPAWN_TIME                = 300000,
+    DESPAWN_TIME                = 1200000,
 
     DISPLAYID_DESTROYED_FLOOR   = 9060
 };
@@ -184,8 +184,7 @@ enum CreatureIds
     NPC_FIZZLEBANG              = 35458,
     NPC_GARROSH                 = 34995,
     NPC_VARIAN                  = 34990,
-    NPC_LICH_KING_0             = 16980,
-    NPC_LICH_KING_1             = 35877,
+    NPC_LICH_KING               = 35877,
 
     NPC_THRALL                  = 34994,
     NPC_PROUDMOORE              = 34992,

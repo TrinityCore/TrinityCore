@@ -15,11 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "InstanceScript.h"
 #include "ulduar.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellScript.h"
 #include "WorldPacket.h"
 
 static DoorData const doorData[] =
@@ -31,6 +31,9 @@ static DoorData const doorData[] =
     { GO_HODIR_ENTRANCE,                BOSS_HODIR,             DOOR_TYPE_ROOM,         BOUNDARY_E      },
     { GO_HODIR_DOOR,                    BOSS_HODIR,             DOOR_TYPE_PASSAGE,      BOUNDARY_NONE   },
     { GO_HODIR_ICE_DOOR,                BOSS_HODIR,             DOOR_TYPE_PASSAGE,      BOUNDARY_W      },
+    { GO_MIMIRON_DOOR_1,                BOSS_MIMIRON,           DOOR_TYPE_ROOM,         BOUNDARY_W      },
+    { GO_MIMIRON_DOOR_2,                BOSS_MIMIRON,           DOOR_TYPE_ROOM,         BOUNDARY_E      },
+    { GO_MIMIRON_DOOR_3,                BOSS_MIMIRON,           DOOR_TYPE_ROOM,         BOUNDARY_S      },
     { GO_VEZAX_DOOR,                    BOSS_VEZAX,             DOOR_TYPE_PASSAGE,      BOUNDARY_E      },
     { GO_YOGG_SARON_DOOR,               BOSS_YOGG_SARON,        DOOR_TYPE_ROOM,         BOUNDARY_S      },
     { GO_DOODAD_UL_SIGILDOOR_03,        BOSS_ALGALON,           DOOR_TYPE_ROOM,         BOUNDARY_W      },
@@ -69,11 +72,14 @@ class instance_ulduar : public InstanceMapScript
             uint64 AssemblyGUIDs[3];
             uint64 KologarnGUID;
             uint64 AuriayaGUID;
-            uint64 MimironGUID;
             uint64 HodirGUID;
             uint64 ThorimGUID;
             uint64 FreyaGUID;
             uint64 ElderGUIDs[3];
+            uint64 MimironGUID;
+            uint64 MimironVehicleGUIDs[3];
+            uint64 MimironComputerGUID;
+            uint64 MimironWorldTriggerGUID;
             uint64 VezaxGUID;
             uint64 YoggSaronGUID;
             uint64 VoiceOfYoggSaronGUID;
@@ -91,6 +97,9 @@ class instance_ulduar : public InstanceMapScript
             uint64 ThorimChestGUID;
             uint64 HodirRareCacheGUID;
             uint64 HodirChestGUID;
+            uint64 MimironTramGUID;
+            uint64 MimironElevatorGUID;
+            uint64 MimironButtonGUID;
             uint64 BrainRoomDoorGUIDs[3];
             uint64 AlgalonSigilDoorGUID[3];
             uint64 AlgalonFloorGUID[2];
@@ -111,11 +120,12 @@ class instance_ulduar : public InstanceMapScript
 
             std::set<uint64> mRubbleSpawns;
 
-            void Initialize() OVERRIDE
+            void Initialize() override
             {
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doorData);
                 LoadMinionData(minionData);
+                LeviathanGUID                    = 0;
                 IgnisGUID                        = 0;
                 RazorscaleGUID                   = 0;
                 RazorscaleController             = 0;
@@ -124,6 +134,8 @@ class instance_ulduar : public InstanceMapScript
                 KologarnGUID                     = 0;
                 AuriayaGUID                      = 0;
                 MimironGUID                      = 0;
+                MimironComputerGUID              = 0;
+                MimironWorldTriggerGUID          = 0;
                 HodirGUID                        = 0;
                 ThorimGUID                       = 0;
                 FreyaGUID                        = 0;
@@ -138,6 +150,9 @@ class instance_ulduar : public InstanceMapScript
                 ThorimChestGUID                  = 0;
                 HodirRareCacheGUID               = 0;
                 HodirChestGUID                   = 0;
+                MimironTramGUID                  = 0;
+                MimironElevatorGUID              = 0;
+                MimironButtonGUID                = 0;
                 LeviathanGateGUID                = 0;
                 AlgalonUniverseGUID              = 0;
                 AlgalonTrapdoorGUID              = 0;
@@ -154,6 +169,7 @@ class instance_ulduar : public InstanceMapScript
                 keepersCount                     = 0;
                 conSpeedAtory                    = false;
                 Unbroken                         = true;
+                IsDriveMeCrazyEligible           = true;
                 _algalonSummoned                 = false;
                 _summonAlgalon                   = false;
 
@@ -163,19 +179,20 @@ class instance_ulduar : public InstanceMapScript
                 memset(AssemblyGUIDs, 0, sizeof(AssemblyGUIDs));
                 memset(RazorHarpoonGUIDs, 0, sizeof(RazorHarpoonGUIDs));
                 memset(ElderGUIDs, 0, sizeof(ElderGUIDs));
+                memset(MimironVehicleGUIDs, 0, sizeof(MimironVehicleGUIDs));
                 memset(BrainRoomDoorGUIDs, 0, sizeof(BrainRoomDoorGUIDs));
                 memset(KeeperGUIDs, 0, sizeof(KeeperGUIDs));
                 memset(_summonObservationRingKeeper, false, sizeof(_summonObservationRingKeeper));
                 memset(_summonYSKeeper, false, sizeof(_summonYSKeeper));
             }
 
-            void FillInitialWorldStates(WorldPacket& packet) OVERRIDE
+            void FillInitialWorldStates(WorldPacket& packet) override
             {
                 packet << uint32(WORLD_STATE_ALGALON_TIMER_ENABLED) << uint32(_algalonTimer && _algalonTimer <= 60);
                 packet << uint32(WORLD_STATE_ALGALON_DESPAWN_TIMER) << uint32(std::min<uint32>(_algalonTimer, 60));
             }
 
-            void OnPlayerEnter(Player* player) OVERRIDE
+            void OnPlayerEnter(Player* player) override
             {
                 if (!TeamInInstance)
                     TeamInInstance = player->GetTeam();
@@ -223,7 +240,7 @@ class instance_ulduar : public InstanceMapScript
                     instance->SummonCreature(NPC_MIMIRON_YS, YSKeepersPos[3]);
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 if (!TeamInInstance)
                 {
@@ -286,9 +303,6 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_AURIAYA:
                         AuriayaGUID = creature->GetGUID();
                         break;
-                    case NPC_MIMIRON:
-                        MimironGUID = creature->GetGUID();
-                        break;
 
                     // Hodir
                     case NPC_HODIR:
@@ -296,35 +310,35 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case NPC_EIVI_NIGHTFEATHER:
                         if (TeamInInstance == HORDE)
-                            creature->UpdateEntry(NPC_TOR_GREYCLOUD, HORDE);
+                            creature->UpdateEntry(NPC_TOR_GREYCLOUD);
                         break;
                     case NPC_ELLIE_NIGHTFEATHER:
                         if (TeamInInstance == HORDE)
-                            creature->UpdateEntry(NPC_KAR_GREYCLOUD, HORDE);
+                            creature->UpdateEntry(NPC_KAR_GREYCLOUD);
                         break;
                     case NPC_ELEMENTALIST_MAHFUUN:
                         if (TeamInInstance == HORDE)
-                            creature->UpdateEntry(NPC_SPIRITWALKER_TARA, HORDE);
+                            creature->UpdateEntry(NPC_SPIRITWALKER_TARA);
                         break;
                     case NPC_ELEMENTALIST_AVUUN:
                         if (TeamInInstance == HORDE)
-                            creature->UpdateEntry(NPC_SPIRITWALKER_YONA, HORDE);
+                            creature->UpdateEntry(NPC_SPIRITWALKER_YONA);
                         break;
                     case NPC_MISSY_FLAMECUFFS:
                         if (TeamInInstance == HORDE)
-                            creature->UpdateEntry(NPC_AMIRA_BLAZEWEAVER, HORDE);
+                            creature->UpdateEntry(NPC_AMIRA_BLAZEWEAVER);
                         break;
                     case NPC_SISSY_FLAMECUFFS:
                         if (TeamInInstance == HORDE)
-                            creature->UpdateEntry(NPC_VEESHA_BLAZEWEAVER, HORDE);
+                            creature->UpdateEntry(NPC_VEESHA_BLAZEWEAVER);
                         break;
                     case NPC_FIELD_MEDIC_PENNY:
                         if (TeamInInstance == HORDE)
-                            creature->UpdateEntry(NPC_BATTLE_PRIEST_ELIZA, HORDE);
+                            creature->UpdateEntry(NPC_BATTLE_PRIEST_ELIZA);
                         break;
                     case NPC_FIELD_MEDIC_JESSI:
                         if (TeamInInstance == HORDE)
-                            creature->UpdateEntry(NPC_BATTLE_PRIEST_GINA, HORDE);
+                            creature->UpdateEntry(NPC_BATTLE_PRIEST_GINA);
                         break;
 
                     case NPC_THORIM:
@@ -350,6 +364,26 @@ class instance_ulduar : public InstanceMapScript
                         if (GetBossState(BOSS_FREYA) == DONE)
                             creature->DespawnOrUnsummon();
                          break;
+
+                    // Mimiron
+                    case NPC_MIMIRON:
+                        MimironGUID = creature->GetGUID();
+                        break;
+                    case NPC_LEVIATHAN_MKII:
+                        MimironVehicleGUIDs[0] = creature->GetGUID();
+                        break;
+                    case NPC_VX_001:
+                        MimironVehicleGUIDs[1] = creature->GetGUID();
+                        break;
+                    case NPC_AERIAL_COMMAND_UNIT:
+                        MimironVehicleGUIDs[2] = creature->GetGUID();
+                        break;
+                    case NPC_COMPUTER:
+                        MimironComputerGUID = creature->GetGUID();
+                        break;
+                    case NPC_WORLD_TRIGGER_MIMIRON:
+                        MimironWorldTriggerGUID = creature->GetGUID();
+                        break;
 
                     case NPC_VEZAX:
                         VezaxGUID = creature->GetGUID();
@@ -416,7 +450,7 @@ class instance_ulduar : public InstanceMapScript
                 }
             }
 
-            void OnCreatureRemove(Creature* creature) OVERRIDE
+            void OnCreatureRemove(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -467,6 +501,15 @@ class instance_ulduar : public InstanceMapScript
                     case GO_HODIR_CHEST:
                         HodirChestGUID = gameObject->GetGUID();
                         break;
+                    case GO_MIMIRON_TRAM:
+                        MimironTramGUID = gameObject->GetGUID();
+                        break;
+                    case GO_MIMIRON_ELEVATOR:
+                        MimironElevatorGUID = gameObject->GetGUID();
+                        break;
+                    case GO_MIMIRON_BUTTON:
+                        MimironButtonGUID = gameObject->GetGUID();
+                        break;
                     case GO_LEVIATHAN_GATE:
                         LeviathanGateGUID = gameObject->GetGUID();
                         if (GetBossState(BOSS_LEVIATHAN) == DONE)
@@ -479,6 +522,9 @@ class instance_ulduar : public InstanceMapScript
                     case GO_HODIR_ENTRANCE:
                     case GO_HODIR_DOOR:
                     case GO_HODIR_ICE_DOOR:
+                    case GO_MIMIRON_DOOR_1:
+                    case GO_MIMIRON_DOOR_2:
+                    case GO_MIMIRON_DOOR_3:
                     case GO_VEZAX_DOOR:
                     case GO_YOGG_SARON_DOOR:
                         AddDoor(gameObject, true);
@@ -552,7 +598,7 @@ class instance_ulduar : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* gameObject) OVERRIDE
+            void OnGameObjectRemove(GameObject* gameObject) override
             {
                 switch (gameObject->GetEntry())
                 {
@@ -563,6 +609,9 @@ class instance_ulduar : public InstanceMapScript
                     case GO_HODIR_ENTRANCE:
                     case GO_HODIR_DOOR:
                     case GO_HODIR_ICE_DOOR:
+                    case GO_MIMIRON_DOOR_1:
+                    case GO_MIMIRON_DOOR_2:
+                    case GO_MIMIRON_DOOR_3:
                     case GO_VEZAX_DOOR:
                     case GO_YOGG_SARON_DOOR:
                     case GO_DOODAD_UL_SIGILDOOR_03:
@@ -577,7 +626,7 @@ class instance_ulduar : public InstanceMapScript
                 }
             }
 
-            void OnUnitDeath(Unit* unit) OVERRIDE
+            void OnUnitDeath(Unit* unit) override
             {
                 Creature* creature = unit->ToCreature();
                 if (!creature)
@@ -604,7 +653,7 @@ class instance_ulduar : public InstanceMapScript
                 }
             }
 
-            void ProcessEvent(WorldObject* /*gameObject*/, uint32 eventId) OVERRIDE
+            void ProcessEvent(WorldObject* /*gameObject*/, uint32 eventId) override
             {
                 // Flame Leviathan's Tower Event triggers
                 Creature* FlameLeviathan = instance->GetCreature(LeviathanGUID);
@@ -638,7 +687,7 @@ class instance_ulduar : public InstanceMapScript
                 }
             }
 
-            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
+            bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -745,7 +794,7 @@ class instance_ulduar : public InstanceMapScript
                 return true;
             }
 
-            void SetData(uint32 type, uint32 data) OVERRIDE
+            void SetData(uint32 type, uint32 data) override
             {
                 switch (type)
                 {
@@ -770,7 +819,11 @@ class instance_ulduar : public InstanceMapScript
                         }
                         break;
                     case DATA_UNBROKEN:
-                        Unbroken = bool(data);
+                        Unbroken = data != 0;
+                        break;                    
+                    case DATA_MIMIRON_ELEVATOR:
+                        if (GameObject* gameObject = instance->GetGameObject(MimironElevatorGUID))
+                            gameObject->SetGoState((GOState)data);
                         break;
                     case DATA_ILLUSION:
                         illusion = data;
@@ -793,11 +846,11 @@ class instance_ulduar : public InstanceMapScript
                 }
             }
 
-            void SetData64(uint32 /*type*/, uint64 /*data*/) OVERRIDE
+            void SetData64(uint32 /*type*/, uint64 /*data*/) override
             {
             }
 
-            uint64 GetData64(uint32 data) const OVERRIDE
+            uint64 GetData64(uint32 data) const override
             {
                 switch (data)
                 {
@@ -843,8 +896,6 @@ class instance_ulduar : public InstanceMapScript
                         return KologarnGUID;
                     case BOSS_AURIAYA:
                         return AuriayaGUID;
-                    case BOSS_MIMIRON:
-                        return MimironGUID;
                     case BOSS_HODIR:
                         return HodirGUID;
                     case BOSS_THORIM:
@@ -859,6 +910,22 @@ class instance_ulduar : public InstanceMapScript
                         return ElderGUIDs[1];
                     case BOSS_STONEBARK:
                         return ElderGUIDs[2];
+
+                    // Mimiron
+                    case BOSS_MIMIRON:
+                        return MimironGUID;
+                    case DATA_LEVIATHAN_MK_II:
+                        return MimironVehicleGUIDs[0];
+                    case DATA_VX_001:
+                        return MimironVehicleGUIDs[1];
+                    case DATA_AERIAL_COMMAND_UNIT:
+                        return MimironVehicleGUIDs[2];
+                    case DATA_COMPUTER:
+                        return MimironComputerGUID;
+                    case DATA_MIMIRON_WORLD_TRIGGER:
+                        return MimironWorldTriggerGUID;
+                    case DATA_MIMIRON_BUTTON:
+                        return MimironButtonGUID;
 
                     case BOSS_VEZAX:
                         return VezaxGUID;
@@ -911,7 +978,7 @@ class instance_ulduar : public InstanceMapScript
                 return 0;
             }
 
-            uint32 GetData(uint32 type) const OVERRIDE
+            uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -932,7 +999,7 @@ class instance_ulduar : public InstanceMapScript
                 return 0;
             }
 
-            bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*, Unit const* /* = NULL */, uint32 /* = 0 */) OVERRIDE
+            bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*, Unit const* /* = NULL */, uint32 /* = 0 */) override
             {
                 switch (criteriaId)
                 {
@@ -967,7 +1034,7 @@ class instance_ulduar : public InstanceMapScript
                 return false;
             }
 
-            std::string GetSaveData() OVERRIDE
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -981,7 +1048,7 @@ class instance_ulduar : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(char const* strIn) OVERRIDE
+            void Load(char const* strIn) override
             {
                 if (!strIn)
                 {
@@ -1047,7 +1114,7 @@ class instance_ulduar : public InstanceMapScript
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
 
-            void Update(uint32 diff) OVERRIDE
+            void Update(uint32 diff) override
             {
                 if (_events.Empty())
                     return;
@@ -1086,13 +1153,49 @@ class instance_ulduar : public InstanceMapScript
             uint32 _maxWeaponItemLevel;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_ulduar_InstanceMapScript(map);
+        }
+};
+
+class spell_ulduar_teleporter : public SpellScriptLoader
+{
+    public:
+        spell_ulduar_teleporter() : SpellScriptLoader("spell_ulduar_teleporter") { }
+
+        class spell_ulduar_teleporter_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ulduar_teleporter_SpellScript);
+
+            SpellCastResult CheckRequirement()
+            {
+                if (GetExplTargetUnit()->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (GetExplTargetUnit()->IsInCombat())
+                {
+                    Spell::SendCastResult(GetExplTargetUnit()->ToPlayer(), GetSpellInfo(), 0, SPELL_FAILED_AFFECTING_COMBAT);
+                    return SPELL_FAILED_AFFECTING_COMBAT;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_ulduar_teleporter_SpellScript::CheckRequirement);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_ulduar_teleporter_SpellScript();
         }
 };
 
 void AddSC_instance_ulduar()
 {
     new instance_ulduar();
+    new spell_ulduar_teleporter();
 }

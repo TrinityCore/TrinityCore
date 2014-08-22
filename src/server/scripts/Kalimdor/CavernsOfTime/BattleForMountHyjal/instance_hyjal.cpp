@@ -48,7 +48,7 @@ class instance_hyjal : public InstanceMapScript
 public:
     instance_hyjal() : InstanceMapScript("instance_hyjal", 534) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_mount_hyjal_InstanceMapScript(map);
     }
@@ -57,7 +57,7 @@ public:
     {
         instance_mount_hyjal_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
-        void Initialize() OVERRIDE
+        void Initialize() override
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
@@ -81,7 +81,7 @@ public:
             ArchiYell          = false;
         }
 
-        bool IsEncounterInProgress() const OVERRIDE
+        bool IsEncounterInProgress() const override
         {
             for (uint8 i = 0; i < EncounterCount; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
@@ -90,7 +90,7 @@ public:
             return false;
         }
 
-        void OnGameObjectCreate(GameObject* go) OVERRIDE
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
@@ -114,7 +114,7 @@ public:
             }
         }
 
-        void OnCreatureCreate(Creature* creature) OVERRIDE
+        void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
@@ -129,7 +129,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 identifier) const OVERRIDE
+        uint64 GetData64(uint32 identifier) const override
         {
             switch (identifier)
             {
@@ -146,7 +146,7 @@ public:
             return 0;
         }
 
-        void SetData(uint32 type, uint32 data) OVERRIDE
+        void SetData(uint32 type, uint32 data) override
         {
             switch (type)
             {
@@ -266,7 +266,7 @@ public:
 
         }
 
-        uint32 GetData(uint32 type) const OVERRIDE
+        uint32 GetData(uint32 type) const override
         {
             switch (type)
             {
@@ -283,12 +283,12 @@ public:
             return 0;
         }
 
-        std::string GetSaveData() OVERRIDE
+        std::string GetSaveData() override
         {
             return str_data;
         }
 
-        void Load(const char* in) OVERRIDE
+        void Load(const char* in) override
         {
             if (!in)
             {

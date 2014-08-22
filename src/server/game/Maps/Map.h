@@ -20,8 +20,6 @@
 #define TRINITY_MAP_H
 
 #include "Define.h"
-#include <ace/RW_Thread_Mutex.h>
-#include <ace/Thread_Mutex.h>
 
 #include "DBCStructure.h"
 #include "GridDefines.h"
@@ -51,6 +49,7 @@ struct ScriptAction;
 struct Position;
 class Battleground;
 class MapInstanced;
+class BattlegroundMap;
 class InstanceMap;
 class Transport;
 namespace Trinity { struct ObjectUpdater; }
@@ -255,7 +254,7 @@ struct ZoneDynamicInfo
 
 typedef std::map<uint32/*leaderDBGUID*/, CreatureGroup*>        CreatureGroupHolderType;
 
-typedef UNORDERED_MAP<uint32 /*zoneId*/, ZoneDynamicInfo> ZoneDynamicInfoMap;
+typedef std::unordered_map<uint32 /*zoneId*/, ZoneDynamicInfo> ZoneDynamicInfoMap;
 
 class Map : public GridRefManager<NGridType>
 {
@@ -335,16 +334,16 @@ class Map : public GridRefManager<NGridType>
         // can return INVALID_HEIGHT if under z+2 z coord not found height
         float GetHeight(float x, float y, float z, bool checkVMap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const;
 
-        ZLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = 0) const;
+        ZLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = nullptr) const;
 
-        uint16 GetAreaFlag(float x, float y, float z, bool *isOutdoors=0) const;
+        uint16 GetAreaFlag(float x, float y, float z, bool *isOutdoors=nullptr) const;
         bool GetAreaInfo(float x, float y, float z, uint32 &mogpflags, int32 &adtId, int32 &rootId, int32 &groupId) const;
 
         bool IsOutdoors(float x, float y, float z) const;
 
         uint8 GetTerrainType(float x, float y) const;
         float GetWaterLevel(float x, float y) const;
-        bool IsInWater(float x, float y, float z, LiquidData* data = 0) const;
+        bool IsInWater(float x, float y, float z, LiquidData* data = nullptr) const;
         bool IsUnderWater(float x, float y, float z) const;
 
         static uint32 GetAreaIdByAreaFlag(uint16 areaflag, uint32 map_id);
@@ -424,7 +423,7 @@ class Map : public GridRefManager<NGridType>
         void AddWorldObject(WorldObject* obj) { i_worldObjects.insert(obj); }
         void RemoveWorldObject(WorldObject* obj) { i_worldObjects.erase(obj); }
 
-        void SendToPlayers(WorldPacket const* data) const;
+        void SendToPlayers(WorldPacket* data) const;
 
         typedef MapRefManager PlayerList;
         PlayerList const& GetPlayers() const { return m_mapRefManager; }
@@ -457,11 +456,15 @@ class Map : public GridRefManager<NGridType>
         Transport* GetTransport(uint64 guid);
         DynamicObject* GetDynamicObject(uint64 guid);
 
-        MapInstanced* ToMapInstanced(){ if (Instanceable())  return reinterpret_cast<MapInstanced*>(this); else return NULL;  }
-        const MapInstanced* ToMapInstanced() const { if (Instanceable())  return (const MapInstanced*)((MapInstanced*)this); else return NULL;  }
+        MapInstanced* ToMapInstanced() { if (Instanceable()) return reinterpret_cast<MapInstanced*>(this); return NULL; }
+        MapInstanced const* ToMapInstanced() const { if (Instanceable()) return reinterpret_cast<MapInstanced const*>(this); return NULL; }
 
-        InstanceMap* ToInstanceMap(){ if (IsDungeon())  return reinterpret_cast<InstanceMap*>(this); else return NULL;  }
-        const InstanceMap* ToInstanceMap() const { if (IsDungeon())  return (const InstanceMap*)((InstanceMap*)this); else return NULL;  }
+        InstanceMap* ToInstanceMap() { if (IsDungeon()) return reinterpret_cast<InstanceMap*>(this); else return NULL;  }
+        InstanceMap const* ToInstanceMap() const { if (IsDungeon()) return reinterpret_cast<InstanceMap const*>(this); return NULL; }
+
+        BattlegroundMap* ToBattlegroundMap() { if (IsBattlegroundOrArena()) return reinterpret_cast<BattlegroundMap*>(this); else return NULL;  }
+        BattlegroundMap const* ToBattlegroundMap() const { if (IsBattlegroundOrArena()) return reinterpret_cast<BattlegroundMap const*>(this); return NULL; }
+
         float GetWaterOrGroundLevel(float x, float y, float z, float* ground = NULL, bool swim = false) const;
         float GetHeight(uint32 phasemask, float x, float y, float z, bool vmap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const;
         bool isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask) const;
@@ -477,7 +480,7 @@ class Map : public GridRefManager<NGridType>
         time_t GetLinkedRespawnTime(uint64 guid) const;
         time_t GetCreatureRespawnTime(uint32 dbGuid) const
         {
-            UNORDERED_MAP<uint32 /*dbGUID*/, time_t>::const_iterator itr = _creatureRespawnTimes.find(dbGuid);
+            std::unordered_map<uint32 /*dbGUID*/, time_t>::const_iterator itr = _creatureRespawnTimes.find(dbGuid);
             if (itr != _creatureRespawnTimes.end())
                 return itr->second;
 
@@ -486,7 +489,7 @@ class Map : public GridRefManager<NGridType>
 
         time_t GetGORespawnTime(uint32 dbGuid) const
         {
-            UNORDERED_MAP<uint32 /*dbGUID*/, time_t>::const_iterator itr = _goRespawnTimes.find(dbGuid);
+            std::unordered_map<uint32 /*dbGUID*/, time_t>::const_iterator itr = _goRespawnTimes.find(dbGuid);
             if (itr != _goRespawnTimes.end())
                 return itr->second;
 
@@ -509,6 +512,8 @@ class Map : public GridRefManager<NGridType>
         void SetZoneMusic(uint32 zoneId, uint32 musicId);
         void SetZoneWeather(uint32 zoneId, uint32 weatherId, float weatherGrade);
         void SetZoneOverrideLight(uint32 zoneId, uint32 lightId, uint32 fadeInTime);
+
+        void UpdateAreaDependentAuras();
 
     private:
         void LoadMapAndVMap(int gx, int gy);
@@ -567,8 +572,8 @@ class Map : public GridRefManager<NGridType>
     protected:
         void SetUnloadReferenceLock(const GridCoord &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadReferenceLock(on); }
 
-        ACE_Thread_Mutex Lock;
-        ACE_Thread_Mutex GridLock;
+        std::mutex _mapLock;
+        std::mutex _gridLock;
 
         MapEntry const* i_mapEntry;
         uint8 i_spawnMode;
@@ -651,8 +656,8 @@ class Map : public GridRefManager<NGridType>
                 m_activeNonPlayers.erase(obj);
         }
 
-        UNORDERED_MAP<uint32 /*dbGUID*/, time_t> _creatureRespawnTimes;
-        UNORDERED_MAP<uint32 /*dbGUID*/, time_t> _goRespawnTimes;
+        std::unordered_map<uint32 /*dbGUID*/, time_t> _creatureRespawnTimes;
+        std::unordered_map<uint32 /*dbGUID*/, time_t> _goRespawnTimes;
 
         ZoneDynamicInfoMap _zoneDynamicInfo;
         uint32 _defaultLight;
@@ -673,23 +678,23 @@ class InstanceMap : public Map
     public:
         InstanceMap(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode, Map* _parent);
         ~InstanceMap();
-        bool AddPlayerToMap(Player*);
-        void RemovePlayerFromMap(Player*, bool);
-        void Update(const uint32);
+        bool AddPlayerToMap(Player*) override;
+        void RemovePlayerFromMap(Player*, bool) override;
+        void Update(const uint32) override;
         void CreateInstanceData(bool load);
         bool Reset(uint8 method);
         uint32 GetScriptId() { return i_script_id; }
         InstanceScript* GetInstanceScript() { return i_data; }
         void PermBindAllPlayers(Player* source);
-        void UnloadAll();
-        bool CanEnter(Player* player);
+        void UnloadAll() override;
+        bool CanEnter(Player* player) override;
         void SendResetWarnings(uint32 timeLeft) const;
         void SetResetSchedule(bool on);
 
         uint32 GetMaxPlayers() const;
         uint32 GetMaxResetDelay() const;
 
-        virtual void InitVisibilityDistance();
+        virtual void InitVisibilityDistance() override;
     private:
         bool m_resetAfterUnload;
         bool m_unloadWhenEmpty;
@@ -703,14 +708,14 @@ class BattlegroundMap : public Map
         BattlegroundMap(uint32 id, time_t, uint32 InstanceId, Map* _parent, uint8 spawnMode);
         ~BattlegroundMap();
 
-        bool AddPlayerToMap(Player*);
-        void RemovePlayerFromMap(Player*, bool);
-        bool CanEnter(Player* player);
+        bool AddPlayerToMap(Player*) override;
+        void RemovePlayerFromMap(Player*, bool) override;
+        bool CanEnter(Player* player) override;
         void SetUnload();
         //void UnloadAll(bool pForce);
-        void RemoveAllPlayers();
+        void RemoveAllPlayers() override;
 
-        virtual void InitVisibilityDistance();
+        virtual void InitVisibilityDistance() override;
         Battleground* GetBG() { return m_bg; }
         void SetBG(Battleground* bg) { m_bg = bg; }
     private:

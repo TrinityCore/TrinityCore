@@ -42,7 +42,7 @@ class boss_rage_winterchill : public CreatureScript
 public:
     boss_rage_winterchill() : CreatureScript("boss_rage_winterchill") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_rage_winterchillAI>(creature);
     }
@@ -61,7 +61,7 @@ public:
         uint32 IceboltTimer;
         bool go;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             damageTaken = 0;
             FrostArmorTimer = 37000;
@@ -73,29 +73,29 @@ public:
                 instance->SetData(DATA_RAGEWINTERCHILLEVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             if (IsEvent)
                 instance->SetData(DATA_RAGEWINTERCHILLEVENT, IN_PROGRESS);
             Talk(SAY_ONAGGRO);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_ONSLAY);
         }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             if (waypointId == 7 && instance)
             {
-                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_JAINAPROUDMOORE));
+                Unit* target = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_JAINAPROUDMOORE));
                 if (target && target->IsAlive())
                     me->AddThreat(target, 0.0f);
             }
         }
 
-        void JustDied(Unit* killer) OVERRIDE
+        void JustDied(Unit* killer) override
         {
             hyjal_trashAI::JustDied(killer);
             if (IsEvent)
@@ -103,7 +103,7 @@ public:
             Talk(SAY_ONDEATH);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (IsEvent)
             {
@@ -132,24 +132,24 @@ public:
             if (FrostArmorTimer <= diff)
             {
                 DoCast(me, SPELL_FROST_ARMOR);
-                FrostArmorTimer = 40000+rand()%20000;
+                FrostArmorTimer = 40000 + rand32() % 20000;
             } else FrostArmorTimer -= diff;
             if (DecayTimer <= diff)
             {
                 DoCastVictim(SPELL_DEATH_AND_DECAY);
-                DecayTimer = 60000+rand()%20000;
+                DecayTimer = 60000 + rand32() % 20000;
                 Talk(SAY_DECAY);
             } else DecayTimer -= diff;
             if (NovaTimer <= diff)
             {
                 DoCastVictim(SPELL_FROST_NOVA);
-                NovaTimer = 30000+rand()%15000;
+                NovaTimer = 30000 + rand32() % 15000;
                 Talk(SAY_NOVA);
             } else NovaTimer -= diff;
             if (IceboltTimer <= diff)
             {
                 DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true), SPELL_ICEBOLT);
-                IceboltTimer = 11000+rand()%20000;
+                IceboltTimer = 11000 + rand32() % 20000;
             } else IceboltTimer -= diff;
 
             DoMeleeAttackIfReady();

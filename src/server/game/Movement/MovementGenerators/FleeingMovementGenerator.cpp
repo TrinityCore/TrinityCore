@@ -45,8 +45,7 @@ void FleeingMovementGenerator<T>::_setTargetLocation(T* owner)
     _getPoint(owner, x, y, z);
 
     // Add LOS check for target point
-    Position mypos;
-    owner->GetPosition(&mypos);
+    Position mypos = owner->GetPosition();
     bool isInLOS = VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(owner->GetMapId(),
                                                                                 mypos.m_positionX,
                                                                                 mypos.m_positionY,
@@ -109,8 +108,7 @@ void FleeingMovementGenerator<T>::_getPoint(T* owner, float &x, float &y, float 
         angle = frand(0, 2*static_cast<float>(M_PI));
     }
 
-    Position pos;
-    owner->GetFirstCollisionPosition(pos, dist, angle);
+    Position pos = owner->GetFirstCollisionPosition(dist, angle);
     x = pos.m_positionX;
     y = pos.m_positionY;
     z = pos.m_positionZ;
@@ -141,7 +139,7 @@ void FleeingMovementGenerator<Creature>::DoFinalize(Creature* owner)
     owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
     owner->ClearUnitState(UNIT_STATE_FLEEING|UNIT_STATE_FLEEING_MOVE);
     if (owner->GetVictim())
-        owner->SetTarget(owner->GetVictim()->GetGUID());
+        owner->SetTarget(owner->EnsureVictim()->GetGUID());
 }
 
 template<class T>

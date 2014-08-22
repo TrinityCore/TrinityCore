@@ -73,7 +73,7 @@ class boss_volkhan : public CreatureScript
 public:
     boss_volkhan() : CreatureScript("boss_volkhan") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_volkhanAI>(creature);
     }
@@ -102,7 +102,7 @@ public:
 
         uint32 m_uiHealthAmountModifier;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             m_bIsStriking = false;
             m_bHasTemper = false;
@@ -123,14 +123,14 @@ public:
             instance->SetBossState(DATA_VOLKHAN, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
             instance->SetBossState(DATA_VOLKHAN, IN_PROGRESS);
         }
 
-        void AttackStart(Unit* who) OVERRIDE
+        void AttackStart(Unit* who) override
         {
             if (me->Attack(who, true))
             {
@@ -143,7 +143,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
             DespawnGolem();
@@ -151,7 +151,7 @@ public:
             instance->SetBossState(DATA_VOLKHAN, DONE);
         }
 
-        void KilledUnit(Unit* who) OVERRIDE
+        void KilledUnit(Unit* who) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_SLAY);
@@ -162,13 +162,11 @@ public:
             if (m_lGolemGUIDList.empty())
                 return;
 
-            for (std::list<uint64>::const_iterator itr = m_lGolemGUIDList.begin(); itr != m_lGolemGUIDList.end(); ++itr)
+            for (uint64 guid : m_lGolemGUIDList)
             {
-                if (Creature* temp = Unit::GetCreature(*me, *itr))
-                {
+                if (Creature* temp = ObjectAccessor::GetCreature(*me, guid))
                     if (temp->IsAlive())
                         temp->DespawnOrUnsummon();
-                }
             }
 
             m_lGolemGUIDList.clear();
@@ -179,9 +177,9 @@ public:
             if (m_lGolemGUIDList.empty())
                 return;
 
-            for (std::list<uint64>::const_iterator itr = m_lGolemGUIDList.begin(); itr != m_lGolemGUIDList.end(); ++itr)
+            for (uint64 guid : m_lGolemGUIDList)
             {
-                if (Creature* temp = Unit::GetCreature(*me, *itr))
+                if (Creature* temp = ObjectAccessor::GetCreature(*me, guid))
                 {
                     // Only shatter brittle golems
                     if (temp->IsAlive() && temp->GetEntry() == NPC_BRITTLE_GOLEM)
@@ -193,7 +191,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             if (summoned->GetEntry() == NPC_MOLTEN_GOLEM)
             {
@@ -207,7 +205,7 @@ public:
             }
         }
 
-        void JustReachedHome() OVERRIDE
+        void JustReachedHome() override
         {
             if (m_uiSummonPhase == 2)
             {
@@ -216,7 +214,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 data) const OVERRIDE
+        uint32 GetData(uint32 data) const override
         {
             if (data == DATA_SHATTER_RESISTANT)
                 return GolemsShattered;
@@ -224,7 +222,7 @@ public:
             return 0;
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -305,7 +303,7 @@ public:
 
                 case 2:
                     // 2 - Check if reached Anvil
-                    // This is handled in: void JustReachedHome() OVERRIDE
+                    // This is handled in: void JustReachedHome() override
                     break;
 
                 case 3:
@@ -361,7 +359,7 @@ class npc_molten_golem : public CreatureScript
 public:
     npc_molten_golem() : CreatureScript("npc_molten_golem") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_molten_golemAI(creature);
     }
@@ -376,7 +374,7 @@ public:
         uint32 m_uiDeathDelay_Timer;
         uint32 m_uiImmolation_Timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             m_bIsFrozen = false;
 
@@ -385,7 +383,7 @@ public:
             m_uiImmolation_Timer = 5000;
         }
 
-        void AttackStart(Unit* who) OVERRIDE
+        void AttackStart(Unit* who) override
         {
             if (me->Attack(who, true))
             {
@@ -398,7 +396,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) OVERRIDE
+        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) override
         {
             if (uiDamage > me->GetHealth())
             {
@@ -417,7 +415,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*pCaster*/, const SpellInfo* pSpell) OVERRIDE
+        void SpellHit(Unit* /*pCaster*/, const SpellInfo* pSpell) override
         {
             // This is the dummy effect of the spells
             if (pSpell->Id == SPELL_SHATTER_N || pSpell->Id == SPELL_SHATTER_H)
@@ -425,7 +423,7 @@ public:
                     me->DespawnOrUnsummon();
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             // Return since we have no target or if we are frozen
             if (!UpdateVictim() || m_bIsFrozen)
@@ -457,7 +455,7 @@ class achievement_shatter_resistant : public AchievementCriteriaScript
     public:
         achievement_shatter_resistant() : AchievementCriteriaScript("achievement_shatter_resistant") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             return target && target->GetAI()->GetData(DATA_SHATTER_RESISTANT) < 5;
         }

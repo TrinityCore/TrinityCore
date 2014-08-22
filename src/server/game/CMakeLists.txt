@@ -103,7 +103,9 @@ set(game_STAT_SRCS
 include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour
+  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/Include
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Recast
+  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Recast/Include
   ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
   ${CMAKE_SOURCE_DIR}/dep/SFMT
   ${CMAKE_SOURCE_DIR}/dep/zlib
@@ -121,6 +123,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic/LinkedReference
   ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic
   ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Networking
   ${CMAKE_SOURCE_DIR}/src/server/shared/Packets
   ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
   ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
@@ -195,7 +198,6 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Weather
   ${CMAKE_CURRENT_SOURCE_DIR}/World
   ${CMAKE_SOURCE_DIR}/src/server/scripts/PrecompiledHeaders
-  ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
 )

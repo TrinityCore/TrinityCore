@@ -38,7 +38,7 @@ class boss_landslide : public CreatureScript
 public:
     boss_landslide() : CreatureScript("boss_landslide") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_landslideAI(creature);
     }
@@ -51,18 +51,18 @@ public:
         uint32 TrampleTimer;
         uint32 LandslideTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             KnockAwayTimer = 8000;
             TrampleTimer = 2000;
             LandslideTimer = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

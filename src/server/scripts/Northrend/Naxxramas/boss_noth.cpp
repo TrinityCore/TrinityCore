@@ -74,14 +74,14 @@ public:
     {
         boss_nothAI(Creature* creature) : BossAI(creature, BOSS_NOTH) { }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             me->SetReactState(REACT_AGGRESSIVE);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             Talk(SAY_AGGRO);
@@ -100,27 +100,27 @@ public:
             else
             {
                 events.ScheduleEvent(EVENT_BALCONY, 110000);
-                events.ScheduleEvent(EVENT_CURSE, 10000+rand()%15000);
+                events.ScheduleEvent(EVENT_CURSE, 10000 + rand32() % 15000);
                 events.ScheduleEvent(EVENT_WARRIOR, 30000);
                 if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
                     events.ScheduleEvent(EVENT_BLINK, urand(20000, 40000));
             }
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
-            if (!(rand()%5))
+            if (!(rand32() % 5))
                 Talk(SAY_SLAY);
         }
 
-        void JustSummoned(Creature* summon) OVERRIDE
+        void JustSummoned(Creature* summon) override
         {
             summons.Summon(summon);
             summon->setActive(true);
             summon->AI()->DoZoneInCombat();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
             Talk(SAY_DEATH);
@@ -129,10 +129,10 @@ public:
         void SummonUndead(uint32 entry, uint32 num)
         {
             for (uint32 i = 0; i < num; ++i)
-                me->SummonCreature(entry, SummonPos[rand()%MAX_SUMMON_POS], TEMPSUMMON_CORPSE_DESPAWN, 60000);
+                me->SummonCreature(entry, SummonPos[rand32() % MAX_SUMMON_POS], TEMPSUMMON_CORPSE_DESPAWN, 60000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim() || !CheckInRoom())
                 return;
@@ -215,7 +215,7 @@ public:
             uint32 balconyCount;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_nothAI>(creature);
     }

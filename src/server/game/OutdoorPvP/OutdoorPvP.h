@@ -68,7 +68,6 @@ struct go_type
 struct creature_type
 {
     uint32 entry;
-    uint32 teamval;
     uint32 map;
     float x;
     float y;
@@ -145,7 +144,7 @@ class OPvPCapturePoint
 
         bool AddObject(uint32 type, uint32 entry, uint32 map, float x, float y, float z, float o,
             float rotation0, float rotation1, float rotation2, float rotation3);
-        bool AddCreature(uint32 type, uint32 entry, uint32 teamval, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0);
+        virtual bool AddCreature(uint32 type, uint32 entry, uint32 map, float x, float y, float z, float o, TeamId teamId = TEAM_NEUTRAL, uint32 spawntimedelay = 0);
 
         bool DelCreature(uint32 type);
         bool DelObject(uint32 type);
@@ -219,9 +218,9 @@ class OutdoorPvP : public ZoneScript
         // setup stuff
         virtual bool SetupOutdoorPvP() {return true;}
 
-        void OnGameObjectCreate(GameObject* go);
-        void OnGameObjectRemove(GameObject* go);
-        void OnCreatureCreate(Creature*) { }
+        void OnGameObjectCreate(GameObject* go) override;
+        void OnGameObjectRemove(GameObject* go) override;
+        void OnCreatureCreate(Creature*) override { }
 
         // send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
@@ -248,6 +247,21 @@ class OutdoorPvP : public ZoneScript
         virtual bool CanTalkTo(Player* player, Creature* c, GossipMenuItems const& gso);
 
         void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
+
+        static TeamId GetTeamIdByTeam(uint32 team)
+        {
+            switch (team)
+            {
+                case ALLIANCE:
+                    return TEAM_ALLIANCE;
+                case HORDE:
+                    return TEAM_HORDE;
+                default:
+                    return TEAM_NEUTRAL;
+            }
+        }
+
+        void SendDefenseMessage(uint32 zoneId, uint32 id);
 
     protected:
 
@@ -288,6 +302,9 @@ class OutdoorPvP : public ZoneScript
         bool HasPlayer(Player const* player) const;
 
         void TeamCastSpell(TeamId team, int32 spellId);
+
+        template<class Worker>
+        void BroadcastWorker(Worker& _worker, uint32 zoneId);
 };
 
 #endif /*OUTDOOR_PVP_H_*/

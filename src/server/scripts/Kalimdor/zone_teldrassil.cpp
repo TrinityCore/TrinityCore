@@ -50,7 +50,7 @@ class npc_mist : public CreatureScript
 public:
     npc_mist() : CreatureScript("npc_mist") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_MIST)
             if (npc_mistAI* pMistAI = CAST_AI(npc_mist::npc_mistAI, creature->AI()))
@@ -59,7 +59,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_mistAI(creature);
     }
@@ -68,9 +68,9 @@ public:
     {
         npc_mistAI(Creature* creature) : FollowerAI(creature) { }
 
-        void Reset() OVERRIDE { }
+        void Reset() override { }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
 
         {
             FollowerAI::MoveInLineOfSight(who);
@@ -98,7 +98,7 @@ public:
         }
 
         //call not needed here, no known abilities
-        /*void UpdateFollowerAI(const uint32 Diff) OVERRIDE
+        /*void UpdateFollowerAI(const uint32 Diff) override
         {
             if (!UpdateVictim())
                 return;

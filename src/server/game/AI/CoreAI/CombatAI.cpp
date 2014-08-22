@@ -76,7 +76,7 @@ void CombatAI::EnterCombat(Unit* who)
         if (AISpellInfo[*i].condition == AICOND_AGGRO)
             me->CastSpell(who, *i, false);
         else if (AISpellInfo[*i].condition == AICOND_COMBAT)
-            events.ScheduleEvent(*i, AISpellInfo[*i].cooldown + rand()%AISpellInfo[*i].cooldown);
+            events.ScheduleEvent(*i, AISpellInfo[*i].cooldown + rand32() % AISpellInfo[*i].cooldown);
     }
 }
 
@@ -93,7 +93,7 @@ void CombatAI::UpdateAI(uint32 diff)
     if (uint32 spellId = events.ExecuteEvent())
     {
         DoCast(spellId);
-        events.ScheduleEvent(spellId, AISpellInfo[spellId].cooldown + rand()%AISpellInfo[spellId].cooldown);
+        events.ScheduleEvent(spellId, AISpellInfo[spellId].cooldown + rand32() % AISpellInfo[spellId].cooldown);
     }
     else
         DoMeleeAttackIfReady();
@@ -125,7 +125,7 @@ void CasterAI::EnterCombat(Unit* who)
     if (spells.empty())
         return;
 
-    uint32 spell = rand()%spells.size();
+    uint32 spell = rand32() % spells.size();
     uint32 count = 0;
     for (SpellVct::iterator itr = spells.begin(); itr != spells.end(); ++itr, ++count)
     {
@@ -151,7 +151,7 @@ void CasterAI::UpdateAI(uint32 diff)
 
     events.Update(diff);
 
-    if (me->GetVictim()->HasBreakableByDamageCrowdControlAura(me))
+    if (me->GetVictim() && me->EnsureVictim()->HasBreakableByDamageCrowdControlAura(me))
     {
         me->InterruptNonMeleeSpells(false);
         return;

@@ -56,7 +56,7 @@ class npc_erozion : public CreatureScript
 public:
     npc_erozion() : CreatureScript("npc_erozion") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF+1)
@@ -76,7 +76,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -185,12 +185,12 @@ class npc_thrall_old_hillsbrad : public CreatureScript
 public:
     npc_thrall_old_hillsbrad() : CreatureScript("npc_thrall_old_hillsbrad") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_thrall_old_hillsbradAI>(creature);
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         InstanceScript* instance = creature->GetInstanceScript();
@@ -209,9 +209,9 @@ public:
                 if (npc_escortAI* pEscortAI = CAST_AI(npc_thrall_old_hillsbrad::npc_thrall_old_hillsbradAI, creature->AI()))
                     pEscortAI->Start(true, true, player->GetGUID());
 
-                CAST_AI(npc_escortAI, (creature->AI()))->SetMaxPlayerDistance(100.0f);//not really needed, because it will not despawn if player is too far
-                CAST_AI(npc_escortAI, (creature->AI()))->SetDespawnAtEnd(false);
-                CAST_AI(npc_escortAI, (creature->AI()))->SetDespawnAtFar(false);
+                ENSURE_AI(npc_escortAI, (creature->AI()))->SetMaxPlayerDistance(100.0f);//not really needed, because it will not despawn if player is too far
+                ENSURE_AI(npc_escortAI, (creature->AI()))->SetDespawnAtEnd(false);
+                ENSURE_AI(npc_escortAI, (creature->AI()))->SetDespawnAtFar(false);
                 break;
 
             case GOSSIP_ACTION_INFO_DEF+2:
@@ -227,20 +227,20 @@ public:
 
                 creature->AI()->Talk(SAY_TH_START_EVENT_PART2);
 
-                CAST_AI(npc_thrall_old_hillsbrad::npc_thrall_old_hillsbradAI, creature->AI())->StartWP();
+                ENSURE_AI(npc_thrall_old_hillsbrad::npc_thrall_old_hillsbradAI, creature->AI())->StartWP();
                 break;
 
             case GOSSIP_ACTION_INFO_DEF+3:
                 player->CLOSE_GOSSIP_MENU();
                 if (instance)
                     instance->SetData(TYPE_THRALL_PART3, IN_PROGRESS);
-                CAST_AI(npc_thrall_old_hillsbrad::npc_thrall_old_hillsbradAI, creature->AI())->StartWP();
+                ENSURE_AI(npc_thrall_old_hillsbrad::npc_thrall_old_hillsbradAI, creature->AI())->StartWP();
                 break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
         {
@@ -283,12 +283,10 @@ public:
 
         InstanceScript* instance;
 
-        uint64 TarethaGUID;
-
         bool LowHp;
         bool HadMount;
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             switch (waypointId)
             {
@@ -400,11 +398,8 @@ public:
                     me->SummonCreature(NPC_INN_GUARDSMAN, 2656.39f, 659.77f, 61.93f, 2.61f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                     break;
                 case 94:
-                    if (uint64 TarethaGUID = instance->GetData64(DATA_TARETHA))
-                    {
-                        if (Creature* Taretha = Creature::GetCreature(*me, TarethaGUID))
-                            Taretha->AI()->Talk(SAY_TA_ESCAPED, me);
-                    }
+                    if (Creature* Taretha = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TARETHA)))
+                        Taretha->AI()->Talk(SAY_TA_ESCAPED, me);
                     break;
                 case 95:
                     Talk(SAY_TH_MEET_TARETHA);
@@ -428,7 +423,7 @@ public:
                         if (Creature* Taretha = instance->instance->GetCreature(instance->GetData64(DATA_TARETHA)))
                         {
                             if (Player* player = GetPlayerForEscort())
-                                CAST_AI(npc_escortAI, (Taretha->AI()))->Start(false, true, player->GetGUID());
+                                ENSURE_AI(npc_escortAI, (Taretha->AI()))->Start(false, true, player->GetGUID());
                         }
 
                         //kill credit Creature for quest
@@ -454,7 +449,7 @@ public:
             }
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             LowHp = false;
 
@@ -489,7 +484,7 @@ public:
             me->Dismount();
             me->SetSpeed(MOVE_RUN, SPEED_RUN);
         }
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_TH_RANDOM_AGGRO);
             if (me->IsMounted())
@@ -499,7 +494,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
              switch (summoned->GetEntry())
              {
@@ -516,11 +511,11 @@ public:
              }
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_TH_RANDOM_KILL);
         }
-        void JustDied(Unit* slayer) OVERRIDE
+        void JustDied(Unit* slayer) override
         {
             instance->SetData(TYPE_THRALL_EVENT, FAIL);
 
@@ -531,7 +526,7 @@ public:
             Talk(SAY_TH_RANDOM_DIE);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             npc_escortAI::UpdateAI(diff);
 
@@ -566,12 +561,12 @@ class npc_taretha : public CreatureScript
 public:
     npc_taretha() : CreatureScript("npc_taretha") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_tarethaAI>(creature);
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         InstanceScript* instance = creature->GetInstanceScript();
@@ -590,14 +585,14 @@ public:
                 if (instance->GetData64(DATA_EPOCH) == 0)
                      creature->SummonCreature(ENTRY_EPOCH, 2639.13f, 698.55f, 65.43f, 4.59f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
 
-                if (Creature* thrall = (Unit::GetCreature(*creature, instance->GetData64(DATA_THRALL))))
-                    CAST_AI(npc_thrall_old_hillsbrad::npc_thrall_old_hillsbradAI, thrall->AI())->StartWP();
+                if (Creature* thrall = (ObjectAccessor::GetCreature(*creature, instance->GetData64(DATA_THRALL))))
+                    ENSURE_AI(npc_thrall_old_hillsbrad::npc_thrall_old_hillsbradAI, thrall->AI())->StartWP();
             }
         }
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         InstanceScript* instance = creature->GetInstanceScript();
         if (instance->GetData(TYPE_THRALL_PART3) == DONE && instance->GetData(TYPE_THRALL_PART4) == NOT_STARTED)
@@ -617,7 +612,7 @@ public:
 
         InstanceScript* instance;
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             switch (waypointId)
             {
@@ -630,10 +625,10 @@ public:
             }
         }
 
-        void Reset() OVERRIDE { }
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void Reset() override { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             npc_escortAI::UpdateAI(diff);
         }

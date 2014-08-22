@@ -26,7 +26,7 @@
 #include "ScriptedCreature.h"
 #include "blackrock_spire.h"
 
-uint32 const DragonspireRunes[7] = { GO_HALL_RUNE_1, GO_HALL_RUNE_2, GO_HALL_RUNE_3, GO_HALL_RUNE_4, GO_HALL_RUNE_5, GO_HALL_RUNE_6, GO_HALL_RUNE_7 };
+//uint32 const DragonspireRunes[7] = { GO_HALL_RUNE_1, GO_HALL_RUNE_2, GO_HALL_RUNE_3, GO_HALL_RUNE_4, GO_HALL_RUNE_5, GO_HALL_RUNE_6, GO_HALL_RUNE_7 };
 
 uint32 const DragonspireMobs[3] = { NPC_BLACKHAND_DREADWEAVER, NPC_BLACKHAND_SUMMONER, NPC_BLACKHAND_VETERAN };
 
@@ -77,7 +77,7 @@ public:
             memset(go_emberseerrunes, 0, sizeof(go_emberseerrunes));
         }
 
-        void OnCreatureCreate(Creature* creature) OVERRIDE
+        void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
@@ -135,7 +135,7 @@ public:
              }
          }
 
-        void OnGameObjectCreate(GameObject* go) OVERRIDE
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
@@ -242,7 +242,7 @@ public:
             }
         }
 
-        bool SetBossState(uint32 type, EncounterState state) OVERRIDE
+        bool SetBossState(uint32 type, EncounterState state) override
         {
             if (!InstanceScript::SetBossState(type, state))
                 return false;
@@ -272,7 +272,7 @@ public:
              return true;
         }
 
-        void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) OVERRIDE
+        void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
         {
             switch (eventId)
             {
@@ -294,7 +294,7 @@ public:
             }
         }
 
-        void SetData(uint32 type, uint32 data) OVERRIDE
+        void SetData(uint32 type, uint32 data) override
         {
             switch (type)
             {
@@ -309,7 +309,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 type) const OVERRIDE
+        uint64 GetData64(uint32 type) const override
         {
             switch (type)
             {
@@ -385,7 +385,7 @@ public:
             return 0;
         }
 
-        void Update(uint32 diff) OVERRIDE
+        void Update(uint32 diff) override
         {
             Events.Update(diff);
 
@@ -410,24 +410,24 @@ public:
 
         void Dragonspireroomstore()
         {
-            uint8 creaturecount;
+            uint8 creatureCount;
 
             for (uint8 i = 0; i < 7; ++i)
             {
-                creaturecount = 0;
+                creatureCount = 0;
 
                 if (GameObject* rune = instance->GetGameObject(go_roomrunes[i]))
                 {
-                    for (uint8 ii = 0; ii < 3; ++ii)
+                    for (uint8 j = 0; j < 3; ++j)
                     {
                         std::list<Creature*> creatureList;
-                        GetCreatureListWithEntryInGrid(creatureList, rune, DragonspireMobs[ii], 15.0f);
+                        GetCreatureListWithEntryInGrid(creatureList, rune, DragonspireMobs[j], 15.0f);
                         for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
                         {
-                            if (Creature* creatureList = *itr)
+                            if (Creature* creature = *itr)
                             {
-                                runecreaturelist[i] [creaturecount] = creatureList->GetGUID();
-                                ++creaturecount;
+                                runecreaturelist[i][creatureCount] = creature->GetGUID();
+                                ++creatureCount;
                             }
                         }
                     }
@@ -502,7 +502,7 @@ public:
             }
         }
 
-        std::string GetSaveData() OVERRIDE
+        std::string GetSaveData() override
         {
             OUT_SAVE_INST_DATA;
 
@@ -513,7 +513,7 @@ public:
             return saveStream.str();
         }
 
-        void Load(const char* strIn) OVERRIDE
+        void Load(const char* strIn) override
         {
             if (!strIn)
             {
@@ -574,7 +574,7 @@ public:
             uint64 go_portcullis_tobossrooms;
     };
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_blackrock_spireMapScript(map);
     }
@@ -589,7 +589,7 @@ class at_dragonspire_hall : public AreaTriggerScript
 public:
     at_dragonspire_hall() : AreaTriggerScript("at_dragonspire_hall") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) OVERRIDE
+    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
     {
         if (player && player->IsAlive())
         {
@@ -613,7 +613,7 @@ class at_blackrock_stadium : public AreaTriggerScript
 public:
     at_blackrock_stadium() : AreaTriggerScript("at_blackrock_stadium") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) OVERRIDE
+    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
     {
         if (player && player->IsAlive())
         {

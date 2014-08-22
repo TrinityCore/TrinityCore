@@ -35,7 +35,7 @@ class boss_lavanthor : public CreatureScript
 public:
     boss_lavanthor() : CreatureScript("boss_lavanthor") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_lavanthorAI>(creature);
     }
@@ -54,7 +54,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiFireboltTimer = 1000;
             uiFlameBreathTimer = 5000;
@@ -66,7 +66,7 @@ public:
                 instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_LAVANTHOR_CELL)))
                     if (pDoor->GetGoState() == GO_STATE_READY)
@@ -80,7 +80,7 @@ public:
                     instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
         }
 
-        void AttackStart(Unit* who) OVERRIDE
+        void AttackStart(Unit* who) override
         {
             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                 return;
@@ -94,10 +94,10 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
+        void MoveInLineOfSight(Unit* /*who*/) override { }
 
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -133,7 +133,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
             {

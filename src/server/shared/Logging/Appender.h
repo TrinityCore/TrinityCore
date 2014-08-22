@@ -18,11 +18,10 @@
 #ifndef APPENDER_H
 #define APPENDER_H
 
-#include "Define.h"
-#include <time.h>
-#include "Dynamic/UnorderedMap.h"
-
+#include <unordered_map>
 #include <string>
+#include <time.h>
+#include "Define.h"
 
 // Values assigned have their equivalent in enum ACE_Log_Priority
 enum LogLevel
@@ -105,6 +104,6 @@ class Appender
         AppenderFlags flags;
 };
 
-typedef UNORDERED_MAP<uint8, Appender*> AppenderMap;
+typedef std::unordered_map<uint8, Appender*> AppenderMap;
 
 #endif

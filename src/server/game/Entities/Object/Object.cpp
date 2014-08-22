@@ -48,8 +48,8 @@
 #include "MovementPacketBuilder.h"
 #include "DynamicTree.h"
 #include "Group.h"
-#include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "Battleground.h"
 #include "Chat.h"
 
 uint32 GuidHigh2TypeId(uint32 guid_hi)
@@ -119,7 +119,7 @@ Object::~Object()
     }
 
     delete [] m_uint32Values;
-    m_uint32Values = 0;
+    m_uint32Values = nullptr;
 }
 
 void Object::_InitValues()
@@ -343,13 +343,14 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     if (isType(TYPEMASK_UNIT))
         unit = ToUnit();
     else
-        object = ((WorldObject*)this);
+        object = (WorldObject const*)this;
 
     *data << uint16(flags);                                  // update flags
 
     // 0x20
     if (flags & UPDATEFLAG_LIVING)
     {
+        ASSERT(unit);
         unit->BuildMovementPacket(data);
 
         *data << unit->GetSpeed(MOVE_WALK)
@@ -547,7 +548,7 @@ void Object::BuildFieldsUpdate(Player* player, UpdateDataMapType& data_map) cons
 
     if (iter == data_map.end())
     {
-        std::pair<UpdateDataMapType::iterator, bool> p = data_map.insert(UpdateDataMapType::value_type(player, UpdateData()));
+        std::pair<UpdateDataMapType::iterator, bool> p = data_map.emplace(player, UpdateData());
         ASSERT(p.second);
         iter = p.first;
     }
@@ -567,7 +568,7 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
         case TYPEID_ITEM:
         case TYPEID_CONTAINER:
             flags = ItemUpdateFieldFlags;
-            if (((Item*)this)->GetOwnerGUID() == target->GetGUID())
+            if (((Item const*)this)->GetOwnerGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER | UF_FLAG_ITEM_OWNER;
             break;
         case TYPEID_UNIT:
@@ -593,7 +594,7 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
             break;
         case TYPEID_DYNAMICOBJECT:
             flags = DynamicObjectUpdateFieldFlags;
-            if (((DynamicObject*)this)->GetCasterGUID() == target->GetGUID())
+            if (ToDynObject()->GetCasterGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER;
             break;
         case TYPEID_CORPSE:
@@ -1162,6 +1163,9 @@ void WorldObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
 {
     if (IsInWorld())
         RemoveFromWorld();
+
+    if (Transport* transport = GetTransport())
+        transport->RemovePassenger(this);
 }
 
 void WorldObject::_Create(uint32 guidlow, HighGuid guidhigh, uint32 phaseMask)
@@ -1214,7 +1218,7 @@ bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool
     float sizefactor = GetObjectSize() + obj->GetObjectSize();
     float maxdist = dist2compare + sizefactor;
 
-    if (m_transport && obj->GetTransport() &&  obj->GetTransport()->GetGUIDLow() == m_transport->GetGUIDLow())
+    if (GetTransport() && obj->GetTransport() && obj->GetTransport()->GetGUIDLow() == GetTransport()->GetGUIDLow())
     {
         float dtx = m_movementInfo.transport.pos.m_positionX - obj->m_movementInfo.transport.pos.m_positionX;
         float dty = m_movementInfo.transport.pos.m_positionY - obj->m_movementInfo.transport.pos.m_positionY;
@@ -1554,11 +1558,11 @@ void WorldObject::GetRandomPoint(const Position &pos, float distance, float &ran
     UpdateGroundPositionZ(rand_x, rand_y, rand_z);            // update to LOS height if available
 }
 
-void WorldObject::GetRandomPoint(const Position &srcPos, float distance, Position &pos) const
+Position WorldObject::GetRandomPoint(const Position &srcPos, float distance) const
 {
     float x, y, z;
     GetRandomPoint(srcPos, distance, x, y, z);
-    pos.Relocate(x, y, z, GetOrientation());
+    return Position(x, y, z, GetOrientation());
 }
 
 void WorldObject::UpdateGroundPositionZ(float x, float y, float &z) const
@@ -2170,13 +2174,8 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     }
 
     uint32 phase = PHASEMASK_NORMAL;
-    uint32 team = 0;
     if (summoner)
-    {
         phase = summoner->GetPhaseMask();
-        if (summoner->GetTypeId() == TYPEID_PLAYER)
-            team = summoner->ToPlayer()->GetTeam();
-    }
 
     TempSummon* summon = NULL;
     switch (mask)
@@ -2198,7 +2197,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             break;
     }
 
-    if (!summon->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), this, phase, entry, vehId, team, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()))
+    if (!summon->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), this, phase, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), nullptr, vehId))
     {
         delete summon;
         return NULL;
@@ -2488,125 +2487,36 @@ void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float 
 {
     GetNearPoint2D(x, y, distance2d+searcher_size, absAngle);
     z = GetPositionZ();
+    // Should "searcher" be used instead of "this" when updating z coordinate ?
     UpdateAllowedPositionZ(x, y, z);
 
-    /*
     // if detection disabled, return first point
-    if (!sWorld->getIntConfig(CONFIG_DETECT_POS_COLLISION))
-    {
-        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
+    if (!sWorld->getBoolConfig(CONFIG_DETECT_POS_COLLISION))
         return;
-    }
 
-    // or remember first point
+    // return if the point is already in LoS
+    if (IsWithinLOS(x, y, z))
+        return;
+
+    // remember first point
     float first_x = x;
     float first_y = y;
-    bool first_los_conflict = false;                        // first point LOS problems
+    float first_z = z;
 
-    // prepare selector for work
-    ObjectPosSelector selector(GetPositionX(), GetPositionY(), GetObjectSize(), distance2d+searcher_size);
-
-    // adding used positions around object
+    // loop in a circle to look for a point in LoS using small steps
+    for (float angle = M_PI / 8; angle < M_PI * 2; angle += M_PI / 8)
     {
-        CellCoord p(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
-        Cell cell(p);
-        cell.SetNoCreate();
-
-        Trinity::NearUsedPosDo u_do(*this, searcher, absAngle, selector);
-        Trinity::WorldObjectWorker<Trinity::NearUsedPosDo> worker(this, u_do);
-
-        TypeContainerVisitor<Trinity::WorldObjectWorker<Trinity::NearUsedPosDo>, GridTypeMapContainer  > grid_obj_worker(worker);
-        TypeContainerVisitor<Trinity::WorldObjectWorker<Trinity::NearUsedPosDo>, WorldTypeMapContainer > world_obj_worker(worker);
-
-        CellLock<GridReadGuard> cell_lock(cell, p);
-        cell_lock->Visit(cell_lock, grid_obj_worker,  *GetMap(), *this, distance2d);
-        cell_lock->Visit(cell_lock, world_obj_worker, *GetMap(), *this, distance2d);
-    }
-
-    // maybe can just place in primary position
-    if (selector.CheckOriginal())
-    {
-        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
-
-        if (IsWithinLOS(x, y, z))
-            return;
-
-        first_los_conflict = true;                          // first point have LOS problems
-    }
-
-    float angle;                                            // candidate of angle for free pos
-
-    // special case when one from list empty and then empty side preferred
-    if (selector.FirstAngle(angle))
-    {
-        GetNearPoint2D(x, y, distance2d, absAngle+angle);
+        GetNearPoint2D(x, y, distance2d + searcher_size, absAngle + angle);
         z = GetPositionZ();
-        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
-
+        UpdateAllowedPositionZ(x, y, z);
         if (IsWithinLOS(x, y, z))
             return;
     }
 
-    // set first used pos in lists
-    selector.InitializeAngle();
-
-    // select in positions after current nodes (selection one by one)
-    while (selector.NextAngle(angle))                        // angle for free pos
-    {
-        GetNearPoint2D(x, y, distance2d, absAngle+angle);
-        z = GetPositionZ();
-        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
-
-        if (IsWithinLOS(x, y, z))
-            return;
-    }
-
-    // BAD NEWS: not free pos (or used or have LOS problems)
-    // Attempt find _used_ pos without LOS problem
-
-    if (!first_los_conflict)
-    {
-        x = first_x;
-        y = first_y;
-
-        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
-        return;
-    }
-
-    // special case when one from list empty and then empty side preferred
-    if (selector.IsNonBalanced())
-    {
-        if (!selector.FirstAngle(angle))                     // _used_ pos
-        {
-            GetNearPoint2D(x, y, distance2d, absAngle+angle);
-            z = GetPositionZ();
-            UpdateGroundPositionZ(x, y, z);                   // update to LOS height if available
-
-            if (IsWithinLOS(x, y, z))
-                return;
-        }
-    }
-
-    // set first used pos in lists
-    selector.InitializeAngle();
-
-    // select in positions after current nodes (selection one by one)
-    while (selector.NextUsedAngle(angle))                    // angle for used pos but maybe without LOS problem
-    {
-        GetNearPoint2D(x, y, distance2d, absAngle+angle);
-        z = GetPositionZ();
-        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
-
-        if (IsWithinLOS(x, y, z))
-            return;
-    }
-
-    // BAD BAD NEWS: all found pos (free and used) have LOS problem :(
+    // still not in LoS, give up and return first position found
     x = first_x;
     y = first_y;
-
-    UpdateGroundPositionZ(x, y, z);                           // update to LOS height if available
-    */
+    z = first_z;
 }
 
 void WorldObject::GetClosePoint(float &x, float &y, float &z, float size, float distance2d /*= 0*/, float angle /*= 0*/) const
@@ -2615,22 +2525,25 @@ void WorldObject::GetClosePoint(float &x, float &y, float &z, float size, float 
     GetNearPoint(NULL, x, y, z, size, distance2d, GetOrientation() + angle);
 }
 
-void WorldObject::GetNearPosition(Position &pos, float dist, float angle)
+Position WorldObject::GetNearPosition(float dist, float angle)
 {
-    GetPosition(&pos);
+    Position pos = GetPosition();
     MovePosition(pos, dist, angle);
+    return pos;
 }
 
-void WorldObject::GetFirstCollisionPosition(Position &pos, float dist, float angle)
+Position WorldObject::GetFirstCollisionPosition(float dist, float angle)
 {
-    GetPosition(&pos);
+    Position pos = GetPosition();
     MovePositionToFirstCollision(pos, dist, angle);
+    return pos;
 }
 
-void WorldObject::GetRandomNearPosition(Position &pos, float radius)
+Position WorldObject::GetRandomNearPosition(float radius)
 {
-    GetPosition(&pos);
+    Position pos = GetPosition();
     MovePosition(pos, radius * (float)rand_norm(), (float)rand_norm() * static_cast<float>(2 * M_PI));
+    return pos;
 }
 
 void WorldObject::GetContactPoint(const WorldObject* obj, float &x, float &y, float &z, float distance2d /*= CONTACT_DISTANCE*/) const
@@ -2690,11 +2603,36 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
     pos.SetOrientation(GetOrientation());
 }
 
+// @todo: replace with WorldObject::UpdateAllowedPositionZ
+float NormalizeZforCollision(WorldObject* obj, float x, float y, float z)
+{
+    float ground = obj->GetMap()->GetHeight(obj->GetPhaseMask(), x, y, MAX_HEIGHT, true);
+    float floor = obj->GetMap()->GetHeight(obj->GetPhaseMask(), x, y, z + 2.0f, true);
+    float helper = fabs(ground - z) <= fabs(floor - z) ? ground : floor;
+    if (z > helper) // must be above ground
+    {
+        if (Unit* unit = obj->ToUnit())
+        {
+            if (unit->CanFly())
+                return z;
+        }
+        LiquidData liquid_status;
+        ZLiquidStatus res = obj->GetMap()->getLiquidStatus(x, y, z, MAP_ALL_LIQUIDS, &liquid_status);
+        if (res && liquid_status.level > helper) // water must be above ground
+        {
+            if (liquid_status.level > z) // z is underwater
+                return z;
+            else
+                return fabs(liquid_status.level - z) <= fabs(helper - z) ? liquid_status.level : helper;
+        }
+    }
+    return helper;
+}
+
 void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float angle)
 {
     angle += GetOrientation();
-    float destx, desty, destz, ground, floor;
-    pos.m_positionZ += 2.0f;
+    float destx, desty, destz;
     destx = pos.m_positionX + dist * std::cos(angle);
     desty = pos.m_positionY + dist * std::sin(angle);
 
@@ -2705,11 +2643,8 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         return;
     }
 
-    ground = GetMap()->GetHeight(GetPhaseMask(), destx, desty, MAX_HEIGHT, true);
-    floor = GetMap()->GetHeight(GetPhaseMask(), destx, desty, pos.m_positionZ, true);
-    destz = fabs(ground - pos.m_positionZ) <= fabs(floor - pos.m_positionZ) ? ground : floor;
-
-    bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(), pos.m_positionX, pos.m_positionY, pos.m_positionZ+0.5f, destx, desty, destz+0.5f, destx, desty, destz, -0.5f);
+    destz = NormalizeZforCollision(this, destx, desty, pos.GetPositionZ());
+    bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(), pos.m_positionX, pos.m_positionY, pos.m_positionZ + 0.5f, destx, desty, destz + 0.5f, destx, desty, destz, -0.5f);
 
     // collision occured
     if (col)
@@ -2721,7 +2656,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     }
 
     // check dynamic collision
-    col = GetMap()->getObjectHitPos(GetPhaseMask(), pos.m_positionX, pos.m_positionY, pos.m_positionZ+0.5f, destx, desty, destz+0.5f, destx, desty, destz, -0.5f);
+    col = GetMap()->getObjectHitPos(GetPhaseMask(), pos.m_positionX, pos.m_positionY, pos.m_positionZ + 0.5f, destx, desty, destz + 0.5f, destx, desty, destz, -0.5f);
 
     // Collided with a gameobject
     if (col)
@@ -2731,18 +2666,16 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         dist = sqrt((pos.m_positionX - destx)*(pos.m_positionX - destx) + (pos.m_positionY - desty)*(pos.m_positionY - desty));
     }
 
-    float step = dist/10.0f;
+    float step = dist / 10.0f;
 
     for (uint8 j = 0; j < 10; ++j)
     {
         // do not allow too big z changes
-        if (fabs(pos.m_positionZ - destz) > 6)
+        if (fabs(pos.m_positionZ - destz) > 6.0f)
         {
             destx -= step * std::cos(angle);
             desty -= step * std::sin(angle);
-            ground = GetMap()->GetHeight(GetPhaseMask(), destx, desty, MAX_HEIGHT, true);
-            floor = GetMap()->GetHeight(GetPhaseMask(), destx, desty, pos.m_positionZ, true);
-            destz = fabs(ground - pos.m_positionZ) <= fabs(floor - pos.m_positionZ) ? ground : floor;
+            destz = NormalizeZforCollision(this, destx, desty, pos.GetPositionZ());
         }
         // we have correct destz now
         else
@@ -2754,7 +2687,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
 
     Trinity::NormalizeMapCoord(pos.m_positionX);
     Trinity::NormalizeMapCoord(pos.m_positionY);
-    UpdateAllowedPositionZ(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+    pos.m_positionZ = NormalizeZforCollision(this, destx, desty, pos.GetPositionZ());
     pos.SetOrientation(GetOrientation());
 }
 

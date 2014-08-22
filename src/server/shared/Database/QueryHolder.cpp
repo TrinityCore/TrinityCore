@@ -166,10 +166,15 @@ void SQLQueryHolder::SetSize(size_t size)
     m_queries.resize(size);
 }
 
+SQLQueryHolderTask::~SQLQueryHolderTask()
+{
+    if (!m_executed)
+        delete m_holder;
+}
+
 bool SQLQueryHolderTask::Execute()
 {
-    //the result can't be ready as we are processing it right now
-    ASSERT(!m_result.ready());
+    m_executed = true;
 
     if (!m_holder)
         return false;
@@ -202,6 +207,6 @@ bool SQLQueryHolderTask::Execute()
         }
     }
 
-    m_result.set(m_holder);
+    m_result.set_value(m_holder);
     return true;
 }

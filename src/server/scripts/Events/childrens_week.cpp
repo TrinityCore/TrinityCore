@@ -160,7 +160,7 @@ class npc_winterfin_playmate : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who) OVERRIDE
+            void MoveInLineOfSight(Unit* who) override
 
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
@@ -259,7 +259,7 @@ class npc_snowfall_glade_playmate : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who) OVERRIDE
+            void MoveInLineOfSight(Unit* who) override
 
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
@@ -308,7 +308,7 @@ class npc_snowfall_glade_playmate : public CreatureScript
                             break;
                         case 4:
                             orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_2);
-                            orphan->AI()->DoCast(me, SPELL_SNOWBALL);
+                            orphan->CastSpell(me, SPELL_SNOWBALL);
                             timer = 5000;
                             break;
                         case 5:
@@ -360,7 +360,7 @@ class npc_the_biggest_tree : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who) OVERRIDE
+            void MoveInLineOfSight(Unit* who) override
 
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
@@ -447,7 +447,7 @@ class npc_high_oracle_soo_roo : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who) OVERRIDE
+            void MoveInLineOfSight(Unit* who) override
 
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
@@ -536,7 +536,7 @@ class npc_elder_kekek : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who) OVERRIDE
+            void MoveInLineOfSight(Unit* who) override
 
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
@@ -625,7 +625,7 @@ class npc_the_etymidian : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who) OVERRIDE
+            void MoveInLineOfSight(Unit* who) override
 
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
@@ -721,7 +721,7 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void SetData(uint32 type, uint32 data) OVERRIDE
+            void SetData(uint32 type, uint32 data) override
             {
                 // Existing SmartAI
                 if (type == 0)
@@ -738,7 +738,7 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
                 }
             }
 
-            void MoveInLineOfSight(Unit* who) OVERRIDE
+            void MoveInLineOfSight(Unit* who) override
 
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
@@ -933,7 +933,7 @@ class npc_cw_area_trigger : public CreatureScript
                 me->SetDisplayId(DISPLAY_INVISIBLE);
             }
 
-            void MoveInLineOfSight(Unit* who) OVERRIDE
+            void MoveInLineOfSight(Unit* who) override
 
             {
                 if (who && me->GetDistance2d(who) < 20.0f)
@@ -1030,13 +1030,13 @@ class npc_grizzlemaw_cw_trigger : public CreatureScript
                 me->SetDisplayId(DISPLAY_INVISIBLE);
             }
 
-            void MoveInLineOfSight(Unit* who) OVERRIDE
+            void MoveInLineOfSight(Unit* who) override
 
             {
                 if (who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
                         if (player->GetQuestStatus(QUEST_HOME_OF_THE_BEAR_MEN) == QUEST_STATUS_INCOMPLETE)
-                            if (Creature* orphan = Creature::GetCreature(*me, getOrphanGUID(player, ORPHAN_WOLVAR)))
+                            if (Creature* orphan = ObjectAccessor::GetCreature(*me, getOrphanGUID(player, ORPHAN_WOLVAR)))
                             {
                                 player->AreaExploredOrEventHappens(QUEST_HOME_OF_THE_BEAR_MEN);
                                 orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_10);

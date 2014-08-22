@@ -68,13 +68,16 @@ enum PermissionTypes
     ALL_PERMISSION              = 0,
     GROUP_PERMISSION            = 1,
     MASTER_PERMISSION           = 2,
-    ROUND_ROBIN_PERMISSION      = 3,
-    OWNER_PERMISSION            = 4,
-    NONE_PERMISSION             = 5
+    RESTRICTED_PERMISSION       = 3,
+    ROUND_ROBIN_PERMISSION      = 4,
+    OWNER_PERMISSION            = 5,
+    NONE_PERMISSION             = 6
 };
 
 enum LootType
 {
+    LOOT_NONE                   = 0,
+
     LOOT_CORPSE                 = 1,
     LOOT_PICKPOCKETING          = 2,
     LOOT_FISHING                = 3,
@@ -85,7 +88,25 @@ enum LootType
     LOOT_MILLING                = 8,
 
     LOOT_FISHINGHOLE            = 20,                       // unsupported by client, sending LOOT_FISHING instead
-    LOOT_INSIGNIA               = 21                        // unsupported by client, sending LOOT_CORPSE instead
+    LOOT_INSIGNIA               = 21,                       // unsupported by client, sending LOOT_CORPSE instead
+    LOOT_FISHING_JUNK           = 22                        // unsupported by client, sending LOOT_FISHING instead
+};
+
+enum LootError
+{
+    LOOT_ERROR_DIDNT_KILL               = 0,    // You don't have permission to loot that corpse.
+    LOOT_ERROR_TOO_FAR                  = 4,    // You are too far away to loot that corpse.
+    LOOT_ERROR_BAD_FACING               = 5,    // You must be facing the corpse to loot it.
+    LOOT_ERROR_LOCKED                   = 6,    // Someone is already looting that corpse.
+    LOOT_ERROR_NOTSTANDING              = 8,    // You need to be standing up to loot something!
+    LOOT_ERROR_STUNNED                  = 9,    // You can't loot anything while stunned!
+    LOOT_ERROR_PLAYER_NOT_FOUND         = 10,   // Player not found
+    LOOT_ERROR_PLAY_TIME_EXCEEDED       = 11,   // Maximum play time exceeded
+    LOOT_ERROR_MASTER_INV_FULL          = 12,   // That player's inventory is full
+    LOOT_ERROR_MASTER_UNIQUE_ITEM       = 13,   // Player has too many of that item already
+    LOOT_ERROR_MASTER_OTHER             = 14,   // Can't assign item to that player
+    LOOT_ERROR_ALREADY_PICKPOCKETED     = 15,   // Your target has already had its pockets picked
+    LOOT_ERROR_NOT_WHILE_SHAPESHIFTED   = 16    // You can't do that while shapeshifted.
 };
 
 // type of Loot Item in Loot View
@@ -177,7 +198,7 @@ typedef std::vector<QuestItem> QuestItemList;
 typedef std::vector<LootItem> LootItemList;
 typedef std::map<uint32, QuestItemList*> QuestItemMap;
 typedef std::list<LootStoreItem*> LootStoreItemList;
-typedef UNORDERED_MAP<uint32, LootTemplate*> LootTemplateMap;
+typedef std::unordered_map<uint32, LootTemplate*> LootTemplateMap;
 
 typedef std::set<uint32> LootIdSet;
 
@@ -259,8 +280,8 @@ class LootValidatorRef :  public Reference<Loot, LootValidatorRef>
 {
     public:
         LootValidatorRef() { }
-        void targetObjectDestroyLink() { }
-        void sourceObjectDestroyLink() { }
+        void targetObjectDestroyLink() override { }
+        void sourceObjectDestroyLink() override { }
 };
 
 //=====================================================
@@ -339,6 +360,7 @@ struct Loot
         gold = 0;
         unlootedCount = 0;
         roundRobinPlayer = 0;
+        loot_type = LOOT_NONE;
         i_LootValidatorRefManager.clearReferences();
     }
 

@@ -24,18 +24,17 @@
 #include "Weather.h"
 #include "Log.h"
 #include "ObjectMgr.h"
-#include "AutoPtr.h"
 #include "Player.h"
 #include "WorldPacket.h"
-#include "Opcodes.h"
+#include "WorldSession.h"
 
 namespace WeatherMgr
 {
 
 namespace
 {
-    typedef UNORDERED_MAP<uint32, Trinity::AutoPtr<Weather, ACE_Null_Mutex> > WeatherMap;
-    typedef UNORDERED_MAP<uint32, WeatherData> WeatherZoneMap;
+    typedef std::unordered_map<uint32, std::shared_ptr<Weather> > WeatherMap;
+    typedef std::unordered_map<uint32, WeatherData> WeatherZoneMap;
 
     WeatherMap m_weathers;
     WeatherZoneMap mWeatherZoneMap;
@@ -51,7 +50,7 @@ namespace
 Weather* FindWeather(uint32 id)
 {
     WeatherMap::const_iterator itr = m_weathers.find(id);
-    return (itr != m_weathers.end()) ? itr->second.get() : 0;
+    return (itr != m_weathers.end()) ? itr->second.get() : nullptr;
 }
 
 /// Remove a Weather object for the given zoneid

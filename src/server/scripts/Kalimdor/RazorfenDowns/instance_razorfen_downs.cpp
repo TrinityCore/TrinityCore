@@ -56,7 +56,7 @@ public:
             SetBossNumber(EncounterCount);
         }
 
-        void Initialize() OVERRIDE
+        void Initialize() override
         {
             goGongGUID      = 0;
             gongWave        = 0;
@@ -67,7 +67,7 @@ public:
             summonCreature  = 0;
         }
 
-        void OnGameObjectCreate(GameObject* gameObject) OVERRIDE
+        void OnGameObjectCreate(GameObject* gameObject) override
         {
             switch (gameObject->GetEntry())
             {
@@ -87,7 +87,7 @@ public:
             }
         }
 
-        bool SetBossState(uint32 type, EncounterState state) OVERRIDE
+        bool SetBossState(uint32 type, EncounterState state) override
         {
             if (!InstanceScript::SetBossState(type, state))
                  return false;
@@ -108,7 +108,7 @@ public:
             return true;
         }
 
-        void SetData(uint32 type, uint32 data) OVERRIDE
+        void SetData(uint32 type, uint32 data) override
         {
             if (type == DATA_WAVE)
             {
@@ -172,7 +172,7 @@ public:
 
         }
 
-        std::string GetSaveData() OVERRIDE
+        std::string GetSaveData() override
         {
             OUT_SAVE_INST_DATA;
 
@@ -183,7 +183,7 @@ public:
             return saveStream.str();
         }
 
-        void Load(const char* str) OVERRIDE
+        void Load(const char* str) override
         {
             if (!str)
             {
@@ -225,7 +225,7 @@ public:
             uint32 summonCreature;
     };
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_razorfen_downs_InstanceMapScript(map);
     }

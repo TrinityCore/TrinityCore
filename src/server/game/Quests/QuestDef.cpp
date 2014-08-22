@@ -137,7 +137,7 @@ Quest::Quest(Field* questRecord)
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
         OfferRewardEmoteDelay[i] = questRecord[136+i].GetInt32();
 
-    //int32 WDBVerified = questRecord[140].GetInt32();
+    //int32 VerifiedBuild = questRecord[140].GetInt32();
 
     if (SpecialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
         Flags |= QUEST_FLAGS_AUTO_ACCEPT;
@@ -213,12 +213,12 @@ uint32 Quest::GetRewMoneyMaxLevel() const
 
 bool Quest::IsAutoAccept() const
 {
-    return sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT) ? false : (Flags & QUEST_FLAGS_AUTO_ACCEPT);
+    return !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT) && HasFlag(QUEST_FLAGS_AUTO_ACCEPT);
 }
 
 bool Quest::IsAutoComplete() const
 {
-    return sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE) ? false : (Method == 0 || HasFlag(QUEST_FLAGS_AUTOCOMPLETE));
+    return !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE) && (Method == 0 || HasFlag(QUEST_FLAGS_AUTOCOMPLETE));
 }
 
 bool Quest::IsRaidQuest(Difficulty difficulty) const

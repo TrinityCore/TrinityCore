@@ -159,10 +159,15 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
             if (TransportBase* transport = owner->GetDirectTransport())
                 transport->CalculatePassengerPosition(dest.x, dest.y, dest.z);
 
+        // First check distance
         if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->CanFly())
             targetMoved = !i_target->IsWithinDist3d(dest.x, dest.y, dest.z, allowed_dist);
         else
             targetMoved = !i_target->IsWithinDist2d(dest.x, dest.y, allowed_dist);
+
+        // then, if the target is in range, check also Line of Sight.
+        if (!targetMoved)
+            targetMoved = !i_target->IsWithinLOSInMap(owner);
     }
 
     if (i_recalculateTravel || targetMoved)

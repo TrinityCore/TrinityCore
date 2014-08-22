@@ -37,15 +37,23 @@ void WorldSession::HandleInspectArenaTeamsOpcode(WorldPacket& recvData)
     recvData >> guid;
     TC_LOG_DEBUG("network", "Inspect Arena stats (GUID: %u TypeId: %u)", GUID_LOPART(guid), GuidHigh2TypeId(GUID_HIPART(guid)));
 
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    Player* player = ObjectAccessor::FindPlayer(guid);
+
+    if (!player)
+        return;
+
+    if (!GetPlayer()->IsWithinDistInMap(player, INSPECT_DISTANCE, false))
+        return;
+
+    if (GetPlayer()->IsValidAttackTarget(player))
+        return;
+
+    for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
     {
-        for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
+        if (uint32 a_id = player->GetArenaTeamId(i))
         {
-            if (uint32 a_id = player->GetArenaTeamId(i))
-            {
-                if (ArenaTeam* arenaTeam = sArenaTeamMgr->GetArenaTeamById(a_id))
-                    arenaTeam->Inspect(this, player->GetGUID());
-            }
+            if (ArenaTeam* arenaTeam = sArenaTeamMgr->GetArenaTeamById(a_id))
+                arenaTeam->Inspect(this, player->GetGUID());
         }
     }
 }
@@ -110,6 +118,12 @@ void WorldSession::HandleArenaTeamInviteOpcode(WorldPacket& recvData)
     if (!arenaTeam)
     {
         SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", "", ERR_ARENA_TEAM_PLAYER_NOT_IN_TEAM);
+        return;
+    }
+
+    if (GetPlayer()->GetArenaTeamId(arenaTeam->GetSlot()) != arenaTeamId)
+    {
+        SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", "", ERR_ARENA_TEAM_PERMISSIONS);
         return;
     }
 
@@ -297,6 +311,10 @@ void WorldSession::HandleArenaTeamRemoveOpcode(WorldPacket& recvData)
         SendArenaTeamCommandResult(ERR_ARENA_TEAM_QUIT_S, "", "", ERR_ARENA_TEAM_LEADER_LEAVE_S);
         return;
     }
+    
+    // Player cannot be removed during fights
+    if (arenaTeam->IsFighting())
+        return;
 
     arenaTeam->DelMember(member->Guid, true);
 

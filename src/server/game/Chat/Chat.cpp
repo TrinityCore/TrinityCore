@@ -782,6 +782,24 @@ Creature* ChatHandler::getSelectedCreature()
     return ObjectAccessor::GetCreatureOrPetOrVehicle(*m_session->GetPlayer(), m_session->GetPlayer()->GetTarget());
 }
 
+Player* ChatHandler::getSelectedPlayerOrSelf()
+{
+    if (!m_session)
+        return NULL;
+
+    uint64 selected = m_session->GetPlayer()->GetTarget();
+    if (!selected)
+        return m_session->GetPlayer();
+
+    // first try with selected target
+    Player* targetPlayer = ObjectAccessor::FindPlayer(selected);
+    // if the target is not a player, then return self
+    if (!targetPlayer)
+        targetPlayer = m_session->GetPlayer();
+
+    return targetPlayer;
+}
+
 char* ChatHandler::extractKeyFromLink(char* text, char const* linkType, char** something1)
 {
     // skip empty
@@ -948,7 +966,7 @@ static char const* const spellKeys[] =
     "Henchant",                                             // enchanting recipe spell
     "Htrade",                                               // profession/skill spell
     "Hglyph",                                               // glyph
-    0
+    nullptr
 };
 
 uint32 ChatHandler::extractSpellIdFromLink(char* text)
@@ -1032,7 +1050,7 @@ static char const* const guidKeys[] =
     "Hplayer",
     "Hcreature",
     "Hgameobject",
-    0
+    nullptr
 };
 
 uint64 ChatHandler::extractGuidFromLink(char* text)
@@ -1180,10 +1198,34 @@ char* ChatHandler::extractQuotedArg(char* args)
         return strtok(args+1, "\"");
     else
     {
-        char* space = strtok(args, "\"");
-        if (!space)
+        // skip spaces
+        while (*args == ' ')
+        {
+            args += 1;
+            continue;
+        }
+
+        // return NULL if we reached the end of the string
+        if (!*args)
             return NULL;
-        return strtok(NULL, "\"");
+
+        // since we skipped all spaces, we expect another token now
+        if (*args == '"')
+        {
+            // return an empty string if there are 2 "" in a row.
+            // strtok doesn't handle this case
+            if (*(args + 1) == '"')
+            {
+                strtok(args, " ");
+                static char arg[1];
+                arg[0] = '\0';
+                return arg;
+            }
+            else
+                return strtok(args + 1, "\"");
+        }
+        else
+            return NULL;
     }
 }
 

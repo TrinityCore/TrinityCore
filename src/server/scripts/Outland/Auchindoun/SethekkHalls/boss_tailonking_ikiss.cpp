@@ -60,19 +60,19 @@ public:
     {
         boss_talon_king_ikissAI(Creature* creature) : BossAI(creature, DATA_TALON_KING_IKISS) { }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             _Reset();
             ArcaneVolley_Timer = 5000;
             Sheep_Timer = 8000;
             Blink_Timer = 35000;
-            Slow_Timer = 15000+rand()%15000;
+            Slow_Timer = 15000 + rand32() % 15000;
             Blink = false;
             Intro = false;
             ManaShield = false;
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
         {
             if (!me->GetVictim() && me->CanCreatureAttack(who))
             {
@@ -94,25 +94,25 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             Talk(SAY_AGGRO);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
             Talk(SAY_DEATH);
         }
 
-        void KilledUnit(Unit* who) OVERRIDE
+        void KilledUnit(Unit* who) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_SLAY);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -127,7 +127,7 @@ public:
             if (ArcaneVolley_Timer <= diff)
             {
                 DoCast(me, SPELL_ARCANE_VOLLEY);
-                ArcaneVolley_Timer = 7000+rand()%5000;
+                ArcaneVolley_Timer = 7000 + rand32() % 5000;
             } else ArcaneVolley_Timer -= diff;
 
             if (Sheep_Timer <= diff)
@@ -142,7 +142,7 @@ public:
 
                 if (target)
                     DoCast(target, SPELL_POLYMORPH);
-                Sheep_Timer = 15000+rand()%2500;
+                Sheep_Timer = 15000 + rand32() % 2500;
             } else Sheep_Timer -= diff;
 
             //may not be correct time to cast
@@ -157,7 +157,7 @@ public:
                 if (Slow_Timer <= diff)
                 {
                     DoCast(me, H_SPELL_SLOW);
-                    Slow_Timer = 15000+rand()%25000;
+                    Slow_Timer = 15000 + rand32() % 25000;
                 } else Slow_Timer -= diff;
             }
 
@@ -182,7 +182,7 @@ public:
                     DoCast(target, SPELL_BLINK_TELEPORT);
                     Blink = true;
                 }
-                Blink_Timer = 35000+rand()%5000;
+                Blink_Timer = 35000 + rand32() % 5000;
             } else Blink_Timer -= diff;
 
             if (!Blink)
@@ -200,7 +200,7 @@ public:
             bool Intro;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetSethekkHallsAI<boss_talon_king_ikissAI>(creature);
     }

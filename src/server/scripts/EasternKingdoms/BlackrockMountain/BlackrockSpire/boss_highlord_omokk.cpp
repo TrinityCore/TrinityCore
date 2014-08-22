@@ -37,7 +37,7 @@ class boss_highlord_omokk : public CreatureScript
 public:
     boss_highlord_omokk() : CreatureScript("boss_highlord_omokk") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_highlordomokkAI(creature);
     }
@@ -46,24 +46,24 @@ public:
     {
         boss_highlordomokkAI(Creature* creature) : BossAI(creature, DATA_HIGHLORD_OMOKK) { }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             events.ScheduleEvent(EVENT_FRENZY,      20000);
             events.ScheduleEvent(EVENT_KNOCK_AWAY,  18000);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

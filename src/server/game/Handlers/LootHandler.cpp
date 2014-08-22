@@ -81,11 +81,10 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
     {
         Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
 
-        bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
-
+        bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->loot.loot_type == LOOT_PICKPOCKETING);
         if (!lootAllowed || !creature->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
         {
-            player->SendLootRelease(lguid);
+            player->SendLootError(lguid, lootAllowed ? LOOT_ERROR_TOO_FAR : LOOT_ERROR_DIDNT_KILL);
             return;
         }
 
@@ -148,13 +147,15 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
         case HIGHGUID_VEHICLE:
         {
             Creature* creature = player->GetMap()->GetCreature(guid);
-            bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
+            bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->loot.loot_type == LOOT_PICKPOCKETING);
             if (lootAllowed && creature->IsWithinDistInMap(player, INTERACTION_DISTANCE))
             {
                 loot = &creature->loot;
                 if (creature->IsAlive())
                     shareMoney = false;
             }
+            else
+                player->SendLootError(guid, lootAllowed ? LOOT_ERROR_TOO_FAR : LOOT_ERROR_DIDNT_KILL);
             break;
         }
         default:
@@ -297,17 +298,7 @@ void WorldSession::DoLootRelease(uint64 lguid)
 
             // if the round robin player release, reset it.
             if (player->GetGUID() == loot->roundRobinPlayer)
-            {
-                if (Group* group = player->GetGroup())
-                {
-                    if (group->GetLootMethod() != MASTER_LOOT)
-                    {
-                        loot->roundRobinPlayer = 0;
-                    }
-                }
-                else
-                    loot->roundRobinPlayer = 0;
-            }
+                loot->roundRobinPlayer = 0;
         }
     }
     else if (IS_CORPSE_GUID(lguid))        // ONLY remove insignia at BG
@@ -348,7 +339,8 @@ void WorldSession::DoLootRelease(uint64 lguid)
         }
         else
         {
-            if (pItem->loot.isLooted()) // Only delete item if no loot or money (unlooted loot is saved to db)
+            // Only delete item if no loot or money (unlooted loot is saved to db) or if it isn't an openable item
+            if (pItem->loot.isLooted() || !(proto->Flags & ITEM_PROTO_FLAG_OPENABLE))
                 player->DestroyItem(pItem->GetBagSlot(), pItem->GetSlot(), true);
         }
         return;                                             // item can be looted only single player
@@ -357,18 +349,19 @@ void WorldSession::DoLootRelease(uint64 lguid)
     {
         Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
 
-        bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
+        bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->loot.loot_type == LOOT_PICKPOCKETING);
         if (!lootAllowed || !creature->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
             return;
 
         loot = &creature->loot;
         if (loot->isLooted())
         {
+            creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+
             // skip pickpocketing loot for speed, skinning timer reduction is no-op in fact
             if (!creature->IsAlive())
                 creature->AllLootRemovedFromCorpse();
 
-            creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             loot->clear();
         }
         else
@@ -376,19 +369,15 @@ void WorldSession::DoLootRelease(uint64 lguid)
             // if the round robin player release, reset it.
             if (player->GetGUID() == loot->roundRobinPlayer)
             {
+                loot->roundRobinPlayer = 0;
+
                 if (Group* group = player->GetGroup())
                 {
-                    if (group->GetLootMethod() != MASTER_LOOT)
-                    {
-                        loot->roundRobinPlayer = 0;
-                        group->SendLooter(creature, NULL);
+                    group->SendLooter(creature, NULL);
 
-                        // force update of dynamic flags, otherwise other group's players still not able to loot.
-                        creature->ForceValuesUpdateAtIndex(UNIT_DYNAMIC_FLAGS);
-                    }
+                    // force update of dynamic flags, otherwise other group's players still not able to loot.
+                    creature->ForceValuesUpdateAtIndex(UNIT_DYNAMIC_FLAGS);
                 }
-                else
-                    loot->roundRobinPlayer = 0;
             }
         }
     }
@@ -404,27 +393,33 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 
     recvData >> lootguid >> slotid >> target_playerguid;
 
-    if (!_player->GetGroup() || _player->GetGroup()->GetLooterGuid() != _player->GetGUID())
+    if (!_player->GetGroup() || _player->GetGroup()->GetMasterLooterGuid() != _player->GetGUID() || _player->GetGroup()->GetLootMethod() != MASTER_LOOT)
     {
-        _player->SendLootRelease(GetPlayer()->GetLootGUID());
+        _player->SendLootError(lootguid, LOOT_ERROR_DIDNT_KILL);
         return;
     }
 
     Player* target = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(target_playerguid, 0, HIGHGUID_PLAYER));
     if (!target)
+    {
+        _player->SendLootError(lootguid, LOOT_ERROR_PLAYER_NOT_FOUND);
         return;
+    }
 
     TC_LOG_DEBUG("network", "WorldSession::HandleLootMasterGiveOpcode (CMSG_LOOT_MASTER_GIVE, 0x02A3) Target = [%s].", target->GetName().c_str());
 
     if (_player->GetLootGUID() != lootguid)
-        return;
-
-    if (!_player->IsInRaidWith(target) || !_player->IsInMap(target))
     {
-        TC_LOG_INFO("loot", "MasterLootItem: Player %s tried to give an item to ineligible player %s !", GetPlayer()->GetName().c_str(), target->GetName().c_str());
+        _player->SendLootError(lootguid, LOOT_ERROR_DIDNT_KILL);
         return;
     }
 
+    if (!_player->IsInRaidWith(target) || !_player->IsInMap(target))
+    {
+        _player->SendLootError(lootguid, LOOT_ERROR_MASTER_OTHER);
+        TC_LOG_INFO("loot", "MasterLootItem: Player %s tried to give an item to ineligible player %s !", GetPlayer()->GetName().c_str(), target->GetName().c_str());
+        return;
+    }
 
     Loot* loot = NULL;
 
@@ -463,16 +458,21 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         msg = EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM;
     if (msg != EQUIP_ERR_OK)
     {
+        if (msg == EQUIP_ERR_CANT_CARRY_MORE_OF_THIS)
+            _player->SendLootError(lootguid, LOOT_ERROR_MASTER_UNIQUE_ITEM);
+        else if (msg == EQUIP_ERR_INVENTORY_FULL)
+            _player->SendLootError(lootguid, LOOT_ERROR_MASTER_INV_FULL);
+        else
+            _player->SendLootError(lootguid, LOOT_ERROR_MASTER_OTHER);
+
         target->SendEquipError(msg, NULL, NULL, item.itemid);
-        // send duplicate of error massage to master looter
-        _player->SendEquipError(msg, NULL, NULL, item.itemid);
         return;
     }
 
     // list of players allowed to receive this item in trade
     AllowedLooterSet looters = item.GetAllowedLooters();
 
-    // not move item from loot to target inventory
+    // now move item from loot to target inventory
     Item* newitem = target->StoreNewItem(dest, item.itemid, true, item.randomPropertyId, looters);
     target->SendNewItem(newitem, uint32(item.count), false, false, true);
     target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item.itemid, item.count);
@@ -480,8 +480,8 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item.itemid, item.count);
 
     // mark as looted
-    item.count=0;
-    item.is_looted=true;
+    item.count = 0;
+    item.is_looted = true;
 
     loot->NotifyItemRemoved(slotid);
     --loot->unlootedCount;

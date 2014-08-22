@@ -68,7 +68,7 @@ class NullGameObjectAI : public GameObjectAI
     public:
         explicit NullGameObjectAI(GameObject* g);
 
-        void UpdateAI(uint32 /*diff*/) { }
+        void UpdateAI(uint32 /*diff*/) override { }
 
         static int Permissible(GameObject const* /*go*/) { return PERMIT_BASE_IDLE; }
 };

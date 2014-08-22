@@ -157,8 +157,7 @@ namespace VMAP
     {
         float maxDist = (pos2 - pos1).magnitude();
         // return false if distance is over max float, in case of cheater teleporting to the end of the universe
-        if (maxDist == std::numeric_limits<float>::max() ||
-            maxDist == std::numeric_limits<float>::infinity())
+        if (maxDist == std::numeric_limits<float>::max() || !std::isfinite(maxDist))
             return false;
 
         // valid map coords should *never ever* produce float overflow, but this would produce NaNs too
@@ -296,7 +295,7 @@ namespace VMAP
             success = readChunk(rf, chunk, "GOBJ", 4);
         }
 
-        iIsTiled = bool(tiled);
+        iIsTiled = tiled != '\0';
 
         // global model spawns
         // only non-tiled maps have them, and if so exactly one (so far at least...)

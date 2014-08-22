@@ -216,7 +216,7 @@ class SmartScript
         }
 
         void DecPhase(int32 p = 1) { mEventPhase  -= (mEventPhase < (uint32)p ? (uint32)p - mEventPhase : (uint32)p); }
-        bool IsInPhase(uint32 p) const { return (1 << (mEventPhase - 1)) & p; }
+        bool IsInPhase(uint32 p) const { return ((1 << (mEventPhase - 1)) & p) != 0; }
         void SetPhase(uint32 p = 0) { mEventPhase = p; }
 
         SmartAIEventList mEvents;
@@ -231,7 +231,7 @@ class SmartScript
         SmartScriptType mScriptType;
         uint32 mEventPhase;
 
-        UNORDERED_MAP<int32, int32> mStoredDecimals;
+        std::unordered_map<int32, int32> mStoredDecimals;
         uint32 mPathId;
         SmartAIEventList mStoredEvents;
         std::list<uint32>mRemIDs;

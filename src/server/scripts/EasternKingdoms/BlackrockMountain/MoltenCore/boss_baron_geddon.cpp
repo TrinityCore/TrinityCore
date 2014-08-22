@@ -59,7 +59,7 @@ class boss_baron_geddon : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* victim) OVERRIDE
+            void EnterCombat(Unit* victim) override
             {
                 BossAI::EnterCombat(victim);
                 events.ScheduleEvent(EVENT_INFERNO, 45000);
@@ -67,7 +67,7 @@ class boss_baron_geddon : public CreatureScript
                 events.ScheduleEvent(EVENT_LIVING_BOMB, 35000);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -113,7 +113,7 @@ class boss_baron_geddon : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_baron_geddonAI(creature);
         }

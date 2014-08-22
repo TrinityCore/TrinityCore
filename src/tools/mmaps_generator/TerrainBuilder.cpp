@@ -18,13 +18,11 @@
 
 #include "TerrainBuilder.h"
 
-#include "PathCommon.h"
 #include "MapBuilder.h"
 
 #include "VMapManager2.h"
 #include "MapTree.h"
 #include "ModelInstance.h"
-#include <vector>
 
 // ******************************************
 // Map file format defines
@@ -906,7 +904,7 @@ namespace MMAP
             float p0[3], p1[3];
             uint32 mid, tx, ty;
             float size;
-            if (sscanf(buf, "%d %d,%d (%f %f %f) (%f %f %f) %f", &mid, &tx, &ty,
+            if (sscanf(buf, "%u %u,%u (%f %f %f) (%f %f %f) %f", &mid, &tx, &ty,
                 &p0[0], &p0[1], &p0[2], &p1[0], &p1[1], &p1[2], &size) != 10)
                 continue;
 

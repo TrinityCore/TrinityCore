@@ -33,7 +33,7 @@ class quest_commandscript : public CommandScript
 public:
     quest_commandscript() : CommandScript("quest_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand questCommandTable[] =
         {
@@ -91,12 +91,7 @@ public:
 
         // ok, normal (creature/GO starting) quest
         if (player->CanAddQuest(quest, true))
-        {
             player->AddQuestAndCheckCompletion(quest, NULL);
-
-            if (player->CanCompleteQuest(entry))
-                player->CompleteQuest(entry);
-        }
 
         return true;
     }

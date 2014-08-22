@@ -37,7 +37,8 @@ enum Says
     SAY_WATCH                 = 2,
     SAY_WATCH_WHISPER         = 3,
     SAY_OHGAN_DEAD            = 4,
-    SAY_GRATS_JINDO           = 0,
+
+    SAY_GRATS_JINDO           = 0
 };
 
 enum Spells
@@ -106,21 +107,22 @@ Position const PosMandokir[2] =
 
 class boss_mandokir : public CreatureScript
 {
-    public: boss_mandokir() : CreatureScript("boss_mandokir") { }
+    public:
+        boss_mandokir() : CreatureScript("boss_mandokir") { }
 
         struct boss_mandokirAI : public BossAI
         {
             boss_mandokirAI(Creature* creature) : BossAI(creature, DATA_MANDOKIR) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 if (me->GetPositionZ() > 140.0f)
                 {
                     _Reset();
                     killCount = 0;
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                     events.ScheduleEvent(EVENT_CHECK_START, 1000);
-                    if (Creature* speaker = Creature::GetCreature(*me, instance->GetData64(NPC_VILEBRANCH_SPEAKER)))
+                    if (Creature* speaker = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_VILEBRANCH_SPEAKER)))
                         if (!speaker->IsAlive())
                             speaker->Respawn(true);
                 }
@@ -128,17 +130,17 @@ class boss_mandokir : public CreatureScript
                 me->Mount(MODEL_OHGAN_MOUNT);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 // Do not want to unsummon Ohgan
                 for (int i = 0; i < CHAINED_SPIRT_COUNT; ++i)
-                    if (Creature* unsummon = Creature::GetCreature(*me, chainedSpirtGUIDs[i]))
+                    if (Creature* unsummon = ObjectAccessor::GetCreature(*me, chainedSpirtGUIDs[i]))
                         unsummon->DespawnOrUnsummon();
                 instance->SetBossState(DATA_MANDOKIR, DONE);
                 instance->SaveToDB();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_OVERPOWER, urand(7000, 9000));
@@ -161,7 +163,7 @@ class boss_mandokir : public CreatureScript
                 DoZoneInCombat();
             }
 
-            void KilledUnit(Unit* victim) OVERRIDE
+            void KilledUnit(Unit* victim) override
             {
                 if (victim->GetTypeId() != TYPEID_PLAYER)
                     return;
@@ -169,7 +171,7 @@ class boss_mandokir : public CreatureScript
                 if (++killCount == 3)
                 {
                     Talk(SAY_DING_KILL);
-                    if (Creature* jindo = Creature::GetCreature(*me, instance->GetData64(DATA_JINDO)))
+                    if (Creature* jindo = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_JINDO)))
                         if (jindo->IsAlive())
                             jindo->AI()->Talk(SAY_GRATS_JINDO);
                     DoCast(me, SPELL_LEVEL_UP, true);
@@ -177,7 +179,7 @@ class boss_mandokir : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 type, uint32 id) OVERRIDE
+            void MovementInform(uint32 type, uint32 id) override
             {
                 if (type == WAYPOINT_MOTION_TYPE)
                 {
@@ -191,7 +193,7 @@ class boss_mandokir : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 events.Update(diff);
 
@@ -213,7 +215,7 @@ class boss_mandokir : public CreatureScript
                                         events.ScheduleEvent(EVENT_CHECK_START, 1000);
                                     break;
                                 case EVENT_STARTED:
-                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
+                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                                     me->GetMotionMaster()->MovePath(PATH_MANDOKIR, false);
                                     break;
                                 default:
@@ -236,7 +238,7 @@ class boss_mandokir : public CreatureScript
                             events.ScheduleEvent(EVENT_OVERPOWER, urand(6000, 12000));
                             break;
                         case EVENT_MORTAL_STRIKE:
-                            if (me->GetVictim() && me->GetVictim()->HealthBelowPct(50))
+                            if (me->GetVictim() && me->EnsureVictim()->HealthBelowPct(50))
                                 DoCastVictim(SPELL_MORTAL_STRIKE, true);
                             events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(12000, 18000));
                             break;
@@ -278,7 +280,7 @@ class boss_mandokir : public CreatureScript
             uint64 chainedSpirtGUIDs[CHAINED_SPIRT_COUNT];
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetZulGurubAI<boss_mandokirAI>(creature);
         }
@@ -293,25 +295,26 @@ enum OhganSpells
 
 class npc_ohgan : public CreatureScript
 {
-    public: npc_ohgan() : CreatureScript("npc_ohgan") { }
+    public:
+        npc_ohgan() : CreatureScript("npc_ohgan") { }
 
         struct npc_ohganAI : public ScriptedAI
         {
             npc_ohganAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 SunderArmor_Timer = 5000;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE { }
+            void EnterCombat(Unit* /*who*/) override { }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 instance->SetBossState(DATA_OHGAN, DONE);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 // Return since we have no target
                 if (!UpdateVictim())
@@ -331,7 +334,7 @@ class npc_ohgan : public CreatureScript
             InstanceScript* instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetZulGurubAI<npc_ohganAI>(creature);
         }
@@ -345,26 +348,27 @@ enum VilebranchSpells
 
 class npc_vilebranch_speaker : public CreatureScript
 {
-    public: npc_vilebranch_speaker() : CreatureScript("npc_vilebranch_speaker") { }
+    public:
+        npc_vilebranch_speaker() : CreatureScript("npc_vilebranch_speaker") { }
 
         struct npc_vilebranch_speakerAI : public ScriptedAI
         {
             npc_vilebranch_speakerAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 demoralizing_Shout_Timer = urand(2000, 4000);
                 cleave_Timer = urand(5000, 8000);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE { }
+            void EnterCombat(Unit* /*who*/) override { }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 instance->SetBossState(DATA_MANDOKIR, SPECIAL);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 // Return since we have no target
                 if (!UpdateVictim())
@@ -391,7 +395,7 @@ class npc_vilebranch_speaker : public CreatureScript
             InstanceScript* instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<npc_vilebranch_speakerAI>(creature);
         }
@@ -414,13 +418,13 @@ class spell_threatening_gaze : public SpellScriptLoader
                             caster->CastSpell(target, SPELL_WATCH_CHARGE);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectRemove += AuraEffectRemoveFn(spell_threatening_gaze_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_threatening_gaze_AuraScript();
         }

@@ -70,7 +70,7 @@ class boss_laj : public CreatureScript
             uint32 Transform_Timer;
             uint32 Allergic_Timer;
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 me->SetDisplayId(MODEL_DEFAULT);
                 me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, true);
@@ -88,7 +88,7 @@ class boss_laj : public CreatureScript
 
             void DoTransform()
             {
-                switch (rand()%5)
+                switch (rand32() % 5)
                 {
                     case 0:
                         me->SetDisplayId(MODEL_DEFAULT);
@@ -135,7 +135,7 @@ class boss_laj : public CreatureScript
 
             void DoSummons()
             {
-                switch (rand()%4)
+                switch (rand32() % 4)
                 {
                     case 0:
                         DoCast(me, SPELL_SUMMON_LASHER_1, true);
@@ -157,17 +157,17 @@ class boss_laj : public CreatureScript
                 CanSummon = false;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
             }
 
-            void JustSummoned(Creature* summon) OVERRIDE
+            void JustSummoned(Creature* summon) override
             {
                 if (summon && me->GetVictim())
                     summon->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -187,7 +187,7 @@ class boss_laj : public CreatureScript
                 if (Allergic_Timer <= diff)
                 {
                     DoCastVictim(SPELL_ALLERGIC_REACTION);
-                    Allergic_Timer = 25000+rand()%15000;
+                    Allergic_Timer = 25000 + rand32() % 15000;
                 }
                 else
                     Allergic_Timer -= diff;
@@ -195,7 +195,7 @@ class boss_laj : public CreatureScript
                 if (Teleport_Timer <= diff)
                 {
                     DoCast(me, SPELL_TELEPORT_SELF);
-                    Teleport_Timer = 30000+rand()%10000;
+                    Teleport_Timer = 30000 + rand32() % 10000;
                     CanSummon = true;
                 }
                 else
@@ -204,7 +204,7 @@ class boss_laj : public CreatureScript
                 if (Transform_Timer <= diff)
                 {
                     DoTransform();
-                    Transform_Timer = 25000+rand()%15000;
+                    Transform_Timer = 25000 + rand32() % 15000;
                 }
                 else
                     Transform_Timer -= diff;
@@ -213,7 +213,7 @@ class boss_laj : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_lajAI(creature);
         }

@@ -50,7 +50,7 @@ class boss_illucia_barov : public CreatureScript
         {
             boss_illuciabarovAI(Creature* creature) : BossAI(creature, DATA_LADYILLUCIABAROV) { }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_CURSEOFAGONY, 18000);
@@ -59,7 +59,7 @@ class boss_illucia_barov : public CreatureScript
                 events.ScheduleEvent(EVENT_FEAR, 30000);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -98,7 +98,7 @@ class boss_illucia_barov : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_illuciabarovAI(creature);
         }

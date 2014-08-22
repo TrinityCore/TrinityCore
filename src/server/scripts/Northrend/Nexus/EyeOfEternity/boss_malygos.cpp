@@ -346,7 +346,7 @@ public:
             _flySpeed = me->GetSpeed(MOVE_FLIGHT); // Get initial fly speed, otherwise on each wipe fly speed would add up if we get it
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             // EnterEvadeMode and Reset() links are cut for the sake of properly functioning despawner.
             if (!_despawned)
@@ -379,7 +379,7 @@ public:
             instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
-        uint32 GetData(uint32 data) const OVERRIDE
+        uint32 GetData(uint32 data) const override
         {
             switch (data)
             {
@@ -392,7 +392,7 @@ public:
             return 0;
         }
 
-        void SetData(uint32 data, uint32 value) OVERRIDE
+        void SetData(uint32 data, uint32 value) override
         {
             if (data == DATA_SUMMON_DEATHS && _phase == PHASE_TWO && !_despawned)
             {
@@ -417,7 +417,7 @@ public:
             }
         }
 
-        uint64 GetGUID(int32 type) const OVERRIDE
+        uint64 GetGUID(int32 type) const override
         {
             if (type >= DATA_FIRST_SURGE_TARGET_GUID && type < DATA_FIRST_SURGE_TARGET_GUID + NUM_MAX_SURGE_TARGETS)
                 return _surgeTargetGUID[type - DATA_FIRST_SURGE_TARGET_GUID];
@@ -427,7 +427,7 @@ public:
             return 0;
         }
 
-        void SetGUID(uint64 guid, int32 type) OVERRIDE
+        void SetGUID(uint64 guid, int32 type) override
         {
             switch (type)
             {
@@ -444,7 +444,7 @@ public:
             }
         }
 
-        void DoAction(int32 action) OVERRIDE
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -469,8 +469,8 @@ public:
                     DoCast(me, SPELL_VORTEX_3, true);
                     break;
                 case ACTION_LIFT_IN_AIR:
-                    Position _zToLift;
-                    me->GetPosition(&_zToLift);
+                {
+                    Position _zToLift = me->GetPosition();
                     if (_phase == PHASE_ONE)
                     {
                         _zToLift.m_positionZ += 20.0f;
@@ -482,6 +482,7 @@ public:
                         me->GetMotionMaster()->MoveTakeoff(POINT_PHASE_ONE_TO_TWO_TRANSITION, _zToLift);
                     }
                     break;
+                }
                 case ACTION_HANDLE_P_THREE_INTRO:
                     events.CancelEventGroup(0);
                     events.CancelEventGroup(1);
@@ -544,7 +545,7 @@ public:
                     break;
                 case PHASE_TWO:
                     events.ScheduleEvent(EVENT_MOVE_TO_POINT_SURGE_P_TWO, 60*IN_MILLISECONDS, 0, _phase);
-                    me->AI()->DoAction(ACTION_LIFT_IN_AIR);
+                    DoAction(ACTION_LIFT_IN_AIR);
                     break;
                 case PHASE_THREE:
                     events.ScheduleEvent(EVENT_ARCANE_PULSE, 7*IN_MILLISECONDS, 0, _phase);
@@ -556,13 +557,13 @@ public:
         }
 
         // There are moments where boss will do nothing while being attacked
-        void AttackStart(Unit* target) OVERRIDE
+        void AttackStart(Unit* target) override
         {
             if (_canAttack)
                BossAI::AttackStart(target);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             // We can't call full function here since it includes DoZoneInCombat(),
             // if someone does it will be returned with a warning.
@@ -580,7 +581,7 @@ public:
             instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
-        void EnterEvadeMode() OVERRIDE
+        void EnterEvadeMode() override
         {
             instance->SetBossState(DATA_MALYGOS_EVENT, FAIL);
 
@@ -625,7 +626,7 @@ public:
             instance->SetBossState(DATA_MALYGOS_EVENT, NOT_STARTED);
         }
 
-        void KilledUnit(Unit* victim) OVERRIDE
+        void KilledUnit(Unit* victim) override
         {
             if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -653,7 +654,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) OVERRIDE
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_POWER_SPARK_MALYGOS)
             {
@@ -663,10 +664,10 @@ public:
                 Talk(SAY_BUFF_SPARK);
             }
             else if (spell->Id == SPELL_MALYGOS_BERSERK)
-                sCreatureTextMgr->SendChat(me, EMOTE_HIT_BERSERKER_TIMER, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                TalkToMap(EMOTE_HIT_BERSERKER_TIMER);
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
 
         {
             if (!me->IsInCombat() || _phase != PHASE_ONE)
@@ -677,7 +678,7 @@ public:
                     who->CastSpell(me, SPELL_POWER_SPARK_MALYGOS, true);
         }
 
-        void MovementInform(uint32 type, uint32 id) OVERRIDE
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
                 return;
@@ -748,7 +749,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!instance || (!UpdateVictim() && _phase != PHASE_NOT_STARTED && _phase != PHASE_TWO))
                 return;
@@ -991,7 +992,7 @@ public:
                 DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
             Talk(SAY_DEATH);
@@ -1046,7 +1047,7 @@ public:
         float _flySpeed; // Used to store base fly speed to prevent stacking on each evade.
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_malygosAI>(creature);
     }
@@ -1064,7 +1065,7 @@ public:
             _instance = creature->GetInstanceScript();
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) OVERRIDE
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_PORTAL_OPENED)
             {
@@ -1076,7 +1077,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE
+        void UpdateAI(uint32 /*diff*/) override
         {
             // When duration of opened riff visual ends, closed one should be cast
             if (!me->HasAura(SPELL_PORTAL_VISUAL_CLOSED) && !me->HasAura(SPELL_PORTAL_OPENED))
@@ -1096,7 +1097,7 @@ public:
         InstanceScript* _instance;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_portal_eoeAI>(creature);
     }
@@ -1112,8 +1113,7 @@ public:
         npc_power_sparkAI(Creature* creature) : ScriptedAI(creature)
         {
             _instance = creature->GetInstanceScript();
-            // Talk range was not enough for this encounter
-            sCreatureTextMgr->SendChat(me, EMOTE_POWER_SPARK_SUMMONED, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+            TalkToMap(EMOTE_POWER_SPARK_SUMMONED);
             MoveToMalygos();
         }
 
@@ -1125,7 +1125,7 @@ public:
                 me->GetMotionMaster()->MoveFollow(malygos, 0.0f, 0.0f);
         }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (!_instance)
                 return;
@@ -1149,7 +1149,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             me->CastSpell(me, SPELL_POWER_SPARK_DEATH, true); // not supposed to hide the fact it's there by not selectable
         }
@@ -1158,7 +1158,7 @@ public:
         InstanceScript* _instance;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_power_sparkAI>(creature);
     }
@@ -1179,14 +1179,14 @@ public:
             me->SetSpeed(MOVE_FLIGHT, 1.25f);
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             VehicleAI::Reset();
 
             _wpCount = 0;
         }
 
-        void PassengerBoarded(Unit* unit, int8 /*seat*/, bool apply) OVERRIDE
+        void PassengerBoarded(Unit* unit, int8 /*seat*/, bool apply) override
         {
             if (apply)
             {
@@ -1219,7 +1219,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             _events.Update(diff);
 
@@ -1227,7 +1227,7 @@ public:
                 me->GetMotionMaster()->MovePoint(eventId, MeleeHoverDisksWaypoints[eventId]);
         }
 
-        void DoAction(int32 /*action*/) OVERRIDE
+        void DoAction(int32 /*action*/) override
         {
             if (Vehicle* vehicleTemp = me->GetVehicleKit())
                 if (vehicleTemp->GetPassenger(0) && vehicleTemp->GetPassenger(0)->GetTypeId() == TYPEID_PLAYER)
@@ -1239,7 +1239,7 @@ public:
                 me->DespawnOrUnsummon(3*IN_MILLISECONDS);
         }
 
-        void MovementInform(uint32 type, uint32 id) OVERRIDE
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -1260,7 +1260,7 @@ public:
         EventMap _events;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_melee_hover_diskAI>(creature);
     }
@@ -1282,16 +1282,16 @@ public:
             me->SetSpeed(MOVE_FLIGHT, 0.45f);
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             VehicleAI::Reset();
         }
 
-        void EnterEvadeMode() OVERRIDE
+        void EnterEvadeMode() override
         {
         }
 
-        void PassengerBoarded(Unit* unit, int8 /*seat*/, bool apply) OVERRIDE
+        void PassengerBoarded(Unit* unit, int8 /*seat*/, bool apply) override
         {
             if (apply)
             {
@@ -1307,7 +1307,7 @@ public:
             }
         }
 
-        void DoAction(int32 action) OVERRIDE
+        void DoAction(int32 action) override
         {
             if (action < ACTION_DELAYED_DESPAWN)
             {
@@ -1342,7 +1342,7 @@ public:
         InstanceScript* _instance;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_caster_hover_diskAI>(creature);
     }
@@ -1360,23 +1360,23 @@ class npc_nexus_lord : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _events.Reset();
             }
 
-            void EnterEvadeMode() OVERRIDE
+            void EnterEvadeMode() override
             {
             }
 
-            void DoAction(int32 /*action*/) OVERRIDE
+            void DoAction(int32 /*action*/) override
             {
                 _events.ScheduleEvent(EVENT_NUKE_DUMMY, 1);
                 _events.ScheduleEvent(EVENT_ARCANE_SHOCK, 2*IN_MILLISECONDS);
                 _events.ScheduleEvent(EVENT_HASTE_BUFF, 12*IN_MILLISECONDS);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -1407,7 +1407,7 @@ class npc_nexus_lord : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 if (Creature* malygos = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_MALYGOS)))
                     malygos->AI()->SetData(DATA_SUMMON_DEATHS, malygos->AI()->GetData(DATA_SUMMON_DEATHS) + 1);
@@ -1418,7 +1418,7 @@ class npc_nexus_lord : public CreatureScript
             EventMap _events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<npc_nexus_lordAI>(creature);
         }
@@ -1436,29 +1436,29 @@ class npc_scion_of_eternity : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _events.Reset();
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) OVERRIDE
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(14, 29)*IN_MILLISECONDS);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
             }
 
-            void AttackStart(Unit* /*target*/) OVERRIDE
+            void AttackStart(Unit* /*target*/) override
             {
             }
 
-            void EnterEvadeMode() OVERRIDE
+            void EnterEvadeMode() override
             {
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 _events.Update(diff);
 
@@ -1474,7 +1474,7 @@ class npc_scion_of_eternity : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 if (Creature* malygos = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_MALYGOS)))
                     malygos->AI()->SetData(DATA_SUMMON_DEATHS, malygos->AI()->GetData(DATA_SUMMON_DEATHS) + 1);
@@ -1485,7 +1485,7 @@ class npc_scion_of_eternity : public CreatureScript
             EventMap _events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<npc_scion_of_eternityAI>(creature);
         }
@@ -1504,7 +1504,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void IsSummonedBy(Unit* summoner) OVERRIDE
+        void IsSummonedBy(Unit* summoner) override
         {
             if (Creature* creature = summoner->ToCreature())
             {
@@ -1517,7 +1517,7 @@ public:
         {
         }
 
-        void DoAction(int32 /*action*/) OVERRIDE
+        void DoAction(int32 /*action*/) override
         {
             if (Creature* malygos = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_MALYGOS)))
             {
@@ -1529,7 +1529,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) OVERRIDE
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_ARCANE_BOMB_TRIGGER)
             {
@@ -1543,7 +1543,7 @@ public:
         InstanceScript* _instance;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_arcane_overloadAI>(creature);
     }
@@ -1561,7 +1561,7 @@ public:
         {
         }
 
-        void IsSummonedBy(Unit* summoner) OVERRIDE
+        void IsSummonedBy(Unit* summoner) override
         {
             _summoner = NULL;
             if (Player* player = summoner->ToPlayer())
@@ -1571,7 +1571,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             VehicleAI::UpdateAI(diff);
             _events.Update(diff);
@@ -1587,15 +1587,14 @@ public:
             }
         }
 
-        void PassengerBoarded(Unit* /*unit*/, int8 /*seat*/, bool apply) OVERRIDE
+        void PassengerBoarded(Unit* /*unit*/, int8 /*seat*/, bool apply) override
         {
             if (!apply)
             {
                 me->DespawnOrUnsummon(2050);
                 me->SetOrientation(2.5f);
                 me->SetSpeed(MOVE_FLIGHT, 1.0f, true);
-                Position pos;
-                me->GetPosition(&pos);
+                Position pos = me->GetPosition();
                 pos.m_positionX += 10.0f;
                 pos.m_positionY += 10.0f;
                 pos.m_positionZ += 12.0f;
@@ -1608,7 +1607,7 @@ public:
         EventMap _events;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_wyrmrest_skytalonAI(creature);
     }
@@ -1627,14 +1626,14 @@ class npc_static_field : public CreatureScript
             {
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) OVERRIDE
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 // For some great reason the spell doesn't time it...
                 me->DespawnOrUnsummon(30*IN_MILLISECONDS);
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_static_fieldAI(creature);
         }
@@ -1649,12 +1648,12 @@ class spell_malygos_portal_beam : public SpellScriptLoader
         {
             PrepareAuraScript(spell_malygos_portal_beam_AuraScript);
 
-            bool Load() OVERRIDE
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PORTAL_OPENED))
                     return false;
@@ -1674,14 +1673,14 @@ class spell_malygos_portal_beam : public SpellScriptLoader
                     target->RemoveAura(SPELL_PORTAL_OPENED);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectApply += AuraEffectApplyFn(spell_malygos_portal_beam_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_malygos_portal_beam_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_malygos_portal_beam_AuraScript();
         }
@@ -1696,7 +1695,7 @@ class spell_malygos_random_portal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_malygos_random_portal_SpellScript);
 
-            bool Load() OVERRIDE
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
@@ -1713,13 +1712,13 @@ class spell_malygos_random_portal : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_malygos_random_portal_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_malygos_random_portal_SpellScript();
         }
@@ -1752,12 +1751,12 @@ class spell_malygos_arcane_storm : public SpellScriptLoader
         {
             PrepareSpellScript(spell_malygos_arcane_storm_SpellScript);
 
-            bool Load() OVERRIDE
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_ARCANE_STORM_EXTRA_VISUAL))
                     return false;
@@ -1790,14 +1789,14 @@ class spell_malygos_arcane_storm : public SpellScriptLoader
                 GetCaster()->CastSpell(GetHitUnit(), SPELL_ARCANE_STORM_EXTRA_VISUAL, true);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_malygos_arcane_storm_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnEffectLaunchTarget += SpellEffectFn(spell_malygos_arcane_storm_SpellScript::HandleVisual, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_malygos_arcane_storm_SpellScript();
         }
@@ -1810,9 +1809,9 @@ public:
 
     class spell_malygos_vortex_dummy_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_malygos_vortex_dummy_SpellScript)
+        PrepareSpellScript(spell_malygos_vortex_dummy_SpellScript);
 
-        bool Load() OVERRIDE
+        bool Load() override
         {
             return GetCaster()->GetTypeId() == TYPEID_UNIT;
         }
@@ -1828,13 +1827,13 @@ public:
             // the rest of the vortex execution continues when SPELL_VORTEX_2 is removed.
         }
 
-        void Register() OVERRIDE
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_malygos_vortex_dummy_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
-    SpellScript* GetSpellScript() const OVERRIDE
+    SpellScript* GetSpellScript() const override
     {
         return new spell_malygos_vortex_dummy_SpellScript();
     }
@@ -1849,12 +1848,12 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
         {
             PrepareAuraScript(spell_malygos_vortex_visual_AuraScript);
 
-            bool Load() OVERRIDE
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_VORTEX_1) || !sSpellMgr->GetSpellInfo(SPELL_VORTEX_6))
                     return false;
@@ -1892,13 +1891,13 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_malygos_vortex_visual_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_malygos_vortex_visual_AuraScript();
         }
@@ -1928,7 +1927,7 @@ class spell_arcane_overload : public SpellScriptLoader
         {
             PrepareSpellScript(spell_arcane_overload_SpellScript);
 
-            bool Load() OVERRIDE
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
@@ -1940,13 +1939,13 @@ class spell_arcane_overload : public SpellScriptLoader
                     GetSpellInfo()->Effects[EFFECT_0].CalcRadius(arcaneOverload) * arcaneOverload->GetObjectScale()));
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_arcane_overload_SpellScript::ResizeEffectRadiusTargetChecker, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_arcane_overload_SpellScript();
         }
@@ -1961,7 +1960,7 @@ class spell_nexus_lord_align_disk_aggro : public SpellScriptLoader
         {
             PrepareSpellScript(spell_nexus_lord_align_disk_aggro_SpellScript);
 
-            bool Load() OVERRIDE
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
@@ -1973,13 +1972,13 @@ class spell_nexus_lord_align_disk_aggro : public SpellScriptLoader
                     target->GetMotionMaster()->MoveChase(caster->GetVictim());
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_nexus_lord_align_disk_aggro_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_nexus_lord_align_disk_aggro_SpellScript();
         }
@@ -2012,7 +2011,7 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_scion_of_eternity_arcane_barrage_SpellScript);
 
-            bool Load() OVERRIDE
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT && GetCaster()->GetInstanceScript() != NULL;
             }
@@ -2074,14 +2073,14 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_scion_of_eternity_arcane_barrage_SpellScript::FilterMeleeHoverDiskPassangers, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnHit += SpellHitFn(spell_scion_of_eternity_arcane_barrage_SpellScript::TriggerDamageSpellFromPlayer);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_scion_of_eternity_arcane_barrage_SpellScript();
         }
@@ -2096,12 +2095,12 @@ class spell_malygos_destroy_platform_channel : public SpellScriptLoader
         {
             PrepareAuraScript(spell_malygos_destroy_platform_channel_AuraScript);
 
-            bool Load() OVERRIDE
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DESTROY_PLATFORM_BOOM_VISUAL))
                     return false;
@@ -2117,13 +2116,13 @@ class spell_malygos_destroy_platform_channel : public SpellScriptLoader
                             platformTrigger->CastSpell(platformTrigger, SPELL_DESTROY_PLATFORM_BOOM_VISUAL);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_malygos_destroy_platform_channel_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_malygos_destroy_platform_channel_AuraScript();
         }
@@ -2138,12 +2137,12 @@ class spell_alexstrasza_bunny_destroy_platform_boom_visual : public SpellScriptL
         {
             PrepareSpellScript(spell_alexstrasza_bunny_destroy_platform_boom_visual_SpellScript);
 
-            bool Load() OVERRIDE
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DESTROY_PLATFORM_EVENT))
                     return false;
@@ -2157,13 +2156,13 @@ class spell_alexstrasza_bunny_destroy_platform_boom_visual : public SpellScriptL
                     target->CastSpell(target, SPELL_DESTROY_PLATFORM_EVENT);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_alexstrasza_bunny_destroy_platform_boom_visual_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_alexstrasza_bunny_destroy_platform_boom_visual_SpellScript();
         }
@@ -2178,7 +2177,7 @@ class spell_alexstrasza_bunny_destroy_platform_event : public SpellScriptLoader
         {
             PrepareSpellScript(spell_alexstrasza_bunny_destroy_platform_event_SpellScript);
 
-            bool Load() OVERRIDE
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
@@ -2196,14 +2195,14 @@ class spell_alexstrasza_bunny_destroy_platform_event : public SpellScriptLoader
                 GetCaster()->CastSpell((Unit*)NULL, SPELL_SUMMON_RED_DRAGON_BUDDY_F_CAST);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_alexstrasza_bunny_destroy_platform_event_SpellScript::HandleSendEvent, EFFECT_0, SPELL_EFFECT_SEND_EVENT);
                 OnEffectHit += SpellEffectFn(spell_alexstrasza_bunny_destroy_platform_event_SpellScript::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_alexstrasza_bunny_destroy_platform_event_SpellScript();
         }
@@ -2219,7 +2218,7 @@ class spell_wyrmrest_skytalon_summon_red_dragon_buddy : public SpellScriptLoader
         {
             PrepareSpellScript(spell_wyrmrest_skytalon_summon_red_dragon_buddy_SpellScript);
 
-            bool Load() OVERRIDE
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
@@ -2231,13 +2230,13 @@ class spell_wyrmrest_skytalon_summon_red_dragon_buddy : public SpellScriptLoader
                 dest.RelocateOffset(offset);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_wyrmrest_skytalon_summon_red_dragon_buddy_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER_RADIUS);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_wyrmrest_skytalon_summon_red_dragon_buddy_SpellScript();
         }
@@ -2252,7 +2251,7 @@ class spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger : public SpellScript
         {
             PrepareSpellScript(spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger_SpellScript);
 
-            bool Load() OVERRIDE
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
@@ -2263,13 +2262,13 @@ class spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger : public SpellScript
                     target->CastSpell(GetCaster(), GetEffectValue(), true);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger_SpellScript();
         }
@@ -2282,14 +2281,14 @@ class spell_malygos_surge_of_power_warning_selector_25 : public SpellScriptLoade
 
         class spell_malygos_surge_of_power_warning_selector_25_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_malygos_surge_of_power_warning_selector_25_SpellScript)
+            PrepareSpellScript(spell_malygos_surge_of_power_warning_selector_25_SpellScript);
 
-            bool Load() OVERRIDE
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SURGE_OF_POWER_PHASE_3_25))
                     return false;
@@ -2325,17 +2324,17 @@ class spell_malygos_surge_of_power_warning_selector_25 : public SpellScriptLoade
 
             void ExecuteMainSpell()
             {
-                GetCaster()->ToCreature()->AI()->DoCastAOE(SPELL_SURGE_OF_POWER_PHASE_3_25);
+                GetCaster()->ToCreature()->CastSpell((Unit*)NULL, SPELL_SURGE_OF_POWER_PHASE_3_25);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_malygos_surge_of_power_warning_selector_25_SpellScript::SendThreeTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 AfterHit += SpellHitFn(spell_malygos_surge_of_power_warning_selector_25_SpellScript::ExecuteMainSpell);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_malygos_surge_of_power_warning_selector_25_SpellScript();
         }
@@ -2348,9 +2347,9 @@ class spell_malygos_surge_of_power_25 : public SpellScriptLoader
 
         class spell_malygos_surge_of_power_25_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_malygos_surge_of_power_25_SpellScript)
+            PrepareSpellScript(spell_malygos_surge_of_power_25_SpellScript);
 
-            bool Load() OVERRIDE
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
@@ -2380,13 +2379,13 @@ class spell_malygos_surge_of_power_25 : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_malygos_surge_of_power_25_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_malygos_surge_of_power_25_SpellScript();
         }
@@ -2401,12 +2400,12 @@ class spell_alexstrasza_gift_beam : public SpellScriptLoader
         {
             PrepareAuraScript(spell_alexstrasza_gift_beam_AuraScript);
 
-            bool Load() OVERRIDE
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_ALEXSTRASZAS_GIFT_BEAM_VISUAL))
                     return false;
@@ -2426,14 +2425,14 @@ class spell_alexstrasza_gift_beam : public SpellScriptLoader
                     target->RemoveAura(SPELL_ALEXSTRASZAS_GIFT_BEAM_VISUAL);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectApply += AuraEffectApplyFn(spell_alexstrasza_gift_beam_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_alexstrasza_gift_beam_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_alexstrasza_gift_beam_AuraScript();
         }
@@ -2448,7 +2447,7 @@ class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
         {
             PrepareAuraScript(spell_alexstrasza_gift_beam_visual_AuraScript);
 
-            bool Load() OVERRIDE
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
@@ -2480,7 +2479,7 @@ class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
                     }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectApply += AuraEffectApplyFn(spell_alexstrasza_gift_beam_visual_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_alexstrasza_gift_beam_visual_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
@@ -2489,7 +2488,7 @@ class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
             GameObject* _alexstraszaGift;
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_alexstrasza_gift_beam_visual_AuraScript();
         }
@@ -2500,7 +2499,7 @@ class achievement_denyin_the_scion : public AchievementCriteriaScript
     public:
         achievement_denyin_the_scion() : AchievementCriteriaScript("achievement_denyin_the_scion") { }
 
-        bool OnCheck(Player* source, Unit* /*target*/) OVERRIDE
+        bool OnCheck(Player* source, Unit* /*target*/) override
         {
             // Only melee disks can be used
             if (Unit* disk = source->GetVehicleBase())

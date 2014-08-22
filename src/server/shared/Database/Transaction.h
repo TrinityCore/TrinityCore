@@ -50,7 +50,7 @@ class Transaction
         bool _cleanedUp;
 
 };
-typedef Trinity::AutoPtr<Transaction, ACE_Thread_Mutex> SQLTransaction;
+typedef std::shared_ptr<Transaction> SQLTransaction;
 
 /*! Low level class*/
 class TransactionTask : public SQLOperation
@@ -63,7 +63,7 @@ class TransactionTask : public SQLOperation
         ~TransactionTask(){ };
 
     protected:
-        bool Execute();
+        bool Execute() override;
 
         SQLTransaction m_trans;
 };

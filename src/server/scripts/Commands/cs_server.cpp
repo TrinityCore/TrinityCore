@@ -35,7 +35,7 @@ class server_commandscript : public CommandScript
 public:
     server_commandscript() : CommandScript("server_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand serverIdleRestartCommandTable[] =
         {

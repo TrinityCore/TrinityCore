@@ -19,9 +19,7 @@
 #ifndef QUERYRESULT_H
 #define QUERYRESULT_H
 
-#include "AutoPtr.h"
-#include <ace/Thread_Mutex.h>
-
+#include <memory>
 #include "Field.h"
 
 #ifdef _WIN32
@@ -55,9 +53,12 @@ class ResultSet
         void CleanUp();
         MYSQL_RES* _result;
         MYSQL_FIELD* _fields;
+
+        ResultSet(ResultSet const& right) = delete;
+        ResultSet& operator=(ResultSet const& right) = delete;
 };
 
-typedef Trinity::AutoPtr<ResultSet, ACE_Thread_Mutex> QueryResult;
+typedef std::shared_ptr<ResultSet> QueryResult;
 
 class PreparedResultSet
 {
@@ -100,9 +101,11 @@ class PreparedResultSet
         void CleanUp();
         bool _NextRow();
 
+        PreparedResultSet(PreparedResultSet const& right) = delete;
+        PreparedResultSet& operator=(PreparedResultSet const& right) = delete;
 };
 
-typedef Trinity::AutoPtr<PreparedResultSet, ACE_Thread_Mutex> PreparedQueryResult;
+typedef std::shared_ptr<PreparedResultSet> PreparedQueryResult;
 
 #endif
 

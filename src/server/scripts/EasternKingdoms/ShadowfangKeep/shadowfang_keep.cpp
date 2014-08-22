@@ -70,12 +70,12 @@ class npc_shadowfang_prisoner : public CreatureScript
 public:
     npc_shadowfang_prisoner() : CreatureScript("npc_shadowfang_prisoner") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_shadowfang_prisonerAI>(creature);
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF+1)
@@ -88,7 +88,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         InstanceScript* instance = creature->GetInstanceScript();
 
@@ -109,7 +109,7 @@ public:
 
         InstanceScript* instance;
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             switch (waypointId)
             {
@@ -144,8 +144,8 @@ public:
             }
         }
 
-        void Reset() OVERRIDE { }
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void Reset() override { }
+        void EnterCombat(Unit* /*who*/) override { }
     };
 
 };
@@ -155,7 +155,7 @@ class npc_arugal_voidwalker : public CreatureScript
 public:
     npc_arugal_voidwalker() : CreatureScript("npc_arugal_voidwalker") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_arugal_voidwalkerAI>(creature);
     }
@@ -171,12 +171,12 @@ public:
 
         uint32 uiDarkOffering;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiDarkOffering = urand(200, 1000);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -193,7 +193,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             instance->SetData(TYPE_FENRUS, instance->GetData(TYPE_FENRUS) + 1);
         }
@@ -226,7 +226,7 @@ class spell_shadowfang_keep_haunting_spirits : public SpellScriptLoader
                 aurEff->CalculatePeriodic(GetCaster());
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_shadowfang_keep_haunting_spirits_AuraScript::CalcPeriodic, EFFECT_0, SPELL_AURA_DUMMY);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_shadowfang_keep_haunting_spirits_AuraScript::HandleDummyTick, EFFECT_0, SPELL_AURA_DUMMY);
@@ -234,7 +234,7 @@ class spell_shadowfang_keep_haunting_spirits : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_shadowfang_keep_haunting_spirits_AuraScript();
         }

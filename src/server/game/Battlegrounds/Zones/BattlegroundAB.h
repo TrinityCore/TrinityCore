@@ -20,6 +20,8 @@
 #define __BATTLEGROUNDAB_H
 
 #include "Battleground.h"
+#include "BattlegroundScore.h"
+#include "Object.h"
 
 enum BG_AB_WorldStates
 {
@@ -184,8 +186,7 @@ enum BG_AB_Objectives
 
 #define AB_EVENT_START_BATTLE               9158 // Achievement: Let's Get This Done
 
-// x, y, z, o
-const float BG_AB_NodePositions[BG_AB_DYNAMIC_NODES_COUNT][4] =
+Position const BG_AB_NodePositions[BG_AB_DYNAMIC_NODES_COUNT] =
 {
     {1166.785f, 1200.132f, -56.70859f, 0.9075713f},         // stables
     {977.0156f, 1046.616f, -44.80923f, -2.600541f},         // blacksmith
@@ -218,8 +219,7 @@ const float BG_AB_BuffPositions[BG_AB_DYNAMIC_NODES_COUNT][4] =
     {1146.62f, 816.94f, -98.49f, 6.14f}                     // gold mine
 };
 
-// x, y, z, o
-const float BG_AB_SpiritGuidePos[BG_AB_ALL_NODES_COUNT][4] =
+Position const BG_AB_SpiritGuidePos[BG_AB_ALL_NODES_COUNT] =
 {
     {1200.03f, 1171.09f, -56.47f, 5.15f},                   // stables
     {1017.43f, 960.61f, -42.95f, 4.88f},                    // blacksmith
@@ -237,12 +237,38 @@ struct BG_AB_BannerTimer
     uint8       teamIndex;
 };
 
-struct BattlegroundABScore : public BattlegroundScore
+struct BattlegroundABScore final : public BattlegroundScore
 {
-    BattlegroundABScore(): BasesAssaulted(0), BasesDefended(0) { }
-    ~BattlegroundABScore() { }
-    uint32 BasesAssaulted;
-    uint32 BasesDefended;
+    friend class BattlegroundAB;
+
+    protected:
+        BattlegroundABScore(uint64 playerGuid) : BattlegroundScore(playerGuid), BasesAssaulted(0), BasesDefended(0) { }
+
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case SCORE_BASES_ASSAULTED:
+                    BasesAssaulted += value;
+                    break;
+                case SCORE_BASES_DEFENDED:
+                    BasesDefended += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
+
+        void BuildObjectivesBlock(WorldPacket& data) final override
+        {
+            data << uint32(2);
+            data << uint32(BasesAssaulted);
+            data << uint32(BasesDefended);
+        }
+
+        uint32 BasesAssaulted;
+        uint32 BasesDefended;
 };
 
 class BattlegroundAB : public Battleground
@@ -251,31 +277,31 @@ class BattlegroundAB : public Battleground
         BattlegroundAB();
         ~BattlegroundAB();
 
-        void AddPlayer(Player* player);
-        void StartingEventCloseDoors();
-        void StartingEventOpenDoors();
-        void RemovePlayer(Player* player, uint64 guid, uint32 team);
-        void HandleAreaTrigger(Player* Source, uint32 Trigger);
-        bool SetupBattleground();
-        void Reset();
-        void EndBattleground(uint32 winner);
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+        void AddPlayer(Player* player) override;
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
+        void RemovePlayer(Player* player, uint64 guid, uint32 team) override;
+        void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
+        bool SetupBattleground() override;
+        void Reset() override;
+        void EndBattleground(uint32 winner) override;
+        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
 
         /* Scorekeeping */
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
 
-        void FillInitialWorldStates(WorldPacket& data);
+        void FillInitialWorldStates(WorldPacket& data) override;
 
         /* Nodes occupying */
-        void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
+        void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj) override;
 
         /* achievement req. */
-        bool IsAllNodesControlledByTeam(uint32 team) const;
-        bool CheckAchievementCriteriaMeet(uint32 /*criteriaId*/, Player const* /*player*/, Unit const* /*target*/ = NULL, uint32 /*miscvalue1*/ = 0);
+        bool IsAllNodesControlledByTeam(uint32 team) const override;
+        bool CheckAchievementCriteriaMeet(uint32 /*criteriaId*/, Player const* /*player*/, Unit const* /*target*/ = nullptr, uint32 /*miscvalue1*/ = 0) override;
 
-        uint32 GetPrematureWinner();
+        uint32 GetPrematureWinner() override;
     private:
-        void PostUpdateImpl(uint32 diff);
+        void PostUpdateImpl(uint32 diff) override;
         /* Gameobject spawning/despawning */
         void _CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay);
         void _DelBanner(uint8 node, uint8 type, uint8 teamIndex);

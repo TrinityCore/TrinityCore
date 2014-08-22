@@ -65,7 +65,7 @@ class boss_toravon : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_FROZEN_MALLET);
 
@@ -76,7 +76,7 @@ class boss_toravon : public CreatureScript
                 _EnterCombat();
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -112,7 +112,7 @@ class boss_toravon : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_toravonAI(creature);
         }
@@ -130,12 +130,12 @@ class npc_frost_warder : public CreatureScript
         {
             npc_frost_warderAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 DoZoneInCombat();
 
@@ -144,7 +144,7 @@ class npc_frost_warder : public CreatureScript
                 events.ScheduleEvent(EVENT_FROST_BLAST, 5000);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -167,7 +167,7 @@ class npc_frost_warder : public CreatureScript
             EventMap events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_frost_warderAI(creature);
         }
@@ -187,18 +187,18 @@ public:
         {
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             done = false;
             killTimer = 60000; // if after this time there is no victim -> destroy!
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             DoZoneInCombat();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!done)
             {
@@ -222,7 +222,7 @@ public:
         bool done;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_frozen_orbAI(creature);
     }
@@ -250,7 +250,7 @@ class npc_frozen_orb_stalker : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (spawned)
                     return;
@@ -275,7 +275,7 @@ class npc_frozen_orb_stalker : public CreatureScript
             bool spawned;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<npc_frozen_orb_stalkerAI>(creature);
         }

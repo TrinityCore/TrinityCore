@@ -50,7 +50,7 @@ class boss_epoch : public CreatureScript
 public:
     boss_epoch() : CreatureScript("boss_epoch") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_epochAI>(creature);
     }
@@ -72,7 +72,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiStep = 1;
             uiStepTimer = 26000;
@@ -84,14 +84,14 @@ public:
             instance->SetData(DATA_EPOCH_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
             instance->SetData(DATA_EPOCH_EVENT, IN_PROGRESS);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -126,14 +126,14 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
 
             instance->SetData(DATA_EPOCH_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* victim) OVERRIDE
+        void KilledUnit(Unit* victim) override
         {
             if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;

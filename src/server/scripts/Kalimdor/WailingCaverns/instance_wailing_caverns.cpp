@@ -34,7 +34,7 @@ class instance_wailing_caverns : public InstanceMapScript
 public:
     instance_wailing_caverns() : InstanceMapScript("instance_wailing_caverns", 43) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_wailing_caverns_InstanceMapScript(map);
     }
@@ -48,7 +48,7 @@ public:
         bool yelled;
         uint64 NaralexGUID;
 
-        void Initialize() OVERRIDE
+        void Initialize() override
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
@@ -56,13 +56,13 @@ public:
             NaralexGUID = 0;
         }
 
-        void OnCreatureCreate(Creature* creature) OVERRIDE
+        void OnCreatureCreate(Creature* creature) override
         {
             if (creature->GetEntry() == DATA_NARALEX)
                 NaralexGUID = creature->GetGUID();
         }
 
-        void SetData(uint32 type, uint32 data) OVERRIDE
+        void SetData(uint32 type, uint32 data) override
         {
             switch (type)
             {
@@ -80,7 +80,7 @@ public:
             if (data == DONE)SaveToDB();
         }
 
-        uint32 GetData(uint32 type) const OVERRIDE
+        uint32 GetData(uint32 type) const override
         {
             switch (type)
             {
@@ -98,13 +98,13 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 data) const OVERRIDE
+        uint64 GetData64(uint32 data) const override
         {
             if (data == DATA_NARALEX)return NaralexGUID;
             return 0;
         }
 
-        std::string GetSaveData() OVERRIDE
+        std::string GetSaveData() override
         {
             OUT_SAVE_INST_DATA;
 
@@ -117,7 +117,7 @@ public:
             return saveStream.str();
         }
 
-        void Load(const char* in) OVERRIDE
+        void Load(const char* in) override
         {
             if (!in)
             {

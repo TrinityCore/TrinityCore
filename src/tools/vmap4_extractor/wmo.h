@@ -67,12 +67,16 @@ struct WMOLiquidHeader
     short type;
 };
 
+#pragma pack(push, 1)
+
 struct WMOLiquidVert
 {
     uint16 unk1;
     uint16 unk2;
     float height;
 };
+
+#pragma pack(pop)
 
 class WMOGroup
 {

@@ -17,21 +17,24 @@
  */
 
 #include "ByteBuffer.h"
+#include "MessageBuffer.h"
 #include "Common.h"
 #include "Log.h"
 
-#include <ace/Stack_Trace.h>
 #include <sstream>
+
+ByteBuffer::ByteBuffer(MessageBuffer&& buffer) : _rpos(0), _wpos(0), _storage(buffer.Move())
+{
+}
 
 ByteBufferPositionException::ByteBufferPositionException(bool add, size_t pos,
                                                          size_t size, size_t valueSize)
 {
     std::ostringstream ss;
-    ACE_Stack_Trace trace;
 
     ss << "Attempted to " << (add ? "put" : "get") << " value with size: "
        << valueSize << " in ByteBuffer (pos: " << pos << " size: " << size
-       << ")\n\n" << trace.c_str();
+       << ")";
 
     message().assign(ss.str());
 }
@@ -40,12 +43,10 @@ ByteBufferSourceException::ByteBufferSourceException(size_t pos, size_t size,
                                                      size_t valueSize)
 {
     std::ostringstream ss;
-    ACE_Stack_Trace trace;
 
     ss << "Attempted to put a "
        << (valueSize > 0 ? "NULL-pointer" : "zero-sized value")
-       << " in ByteBuffer (pos: " << pos << " size: " << size << ")\n\n"
-       << trace.c_str();
+       << " in ByteBuffer (pos: " << pos << " size: " << size << ")";
 
     message().assign(ss.str());
 }
@@ -73,8 +74,8 @@ void ByteBuffer::textlike() const
     o << "STORAGE_SIZE: " << size();
     for (uint32 i = 0; i < size(); ++i)
     {
-        char buf[1];
-        snprintf(buf, 1, "%c", read<uint8>(i));
+        char buf[2];
+        snprintf(buf, 2, "%c", read<uint8>(i));
         o << buf;
     }
     o << " ";
@@ -94,7 +95,7 @@ void ByteBuffer::hexlike() const
     for (uint32 i = 0; i < size(); ++i)
     {
         char buf[3];
-        snprintf(buf, 1, "%2X ", read<uint8>(i));
+        snprintf(buf, 3, "%2X ", read<uint8>(i));
         if ((i == (j * 8)) && ((i != (k * 16))))
         {
             o << "| ";

@@ -535,7 +535,7 @@ struct AreaTableEntry
     {
         if (mapid == 609)
             return true;
-        return (flags & AREA_FLAG_SANCTUARY);
+        return (flags & AREA_FLAG_SANCTUARY) != 0;
     }
 };
 
@@ -623,7 +623,7 @@ struct BattlemasterListEntry
 {
     uint32  id;                                             // 0
     int32   mapid[8];                                       // 1-8 mapid
-    uint32  type;                                           // 9 (3 - BG, 4 - arena)
+    uint32  type;                                           // 9 map type (3 - BG, 4 - arena)
     //uint32 canJoinAsGroup;                                // 10 (0 or 1)
     char*   name[16];                                       // 11-26
     //uint32 nameFlags                                      // 27 string flag, unused
@@ -690,7 +690,7 @@ struct ChrClassesEntry
 struct ChrRacesEntry
 {
     uint32      RaceID;                                     // 0
-                                                            // 1 unused
+    uint32      Flags;                                      // 1
     uint32      FactionID;                                  // 2 facton template id
                                                             // 3 unused
     uint32      model_m;                                    // 4
@@ -736,7 +736,7 @@ struct CreatureDisplayInfoEntry
     uint32      Displayid;                                  // 0        m_ID
     uint32      ModelId;                                    // 1        m_modelID
                                                             // 2        m_soundID
-                                                            // 3        m_extendedDisplayInfoID
+    uint32      ExtraId;                                    // 3        m_extendedDisplayInfoID
     float       scale;                                      // 4        m_creatureModelScale
                                                             // 5        m_creatureModelAlpha
                                                             // 6-8      m_textureVariation[3]
@@ -747,6 +747,31 @@ struct CreatureDisplayInfoEntry
                                                             // 13       m_particleColorID
                                                             // 14       m_creatureGeosetData
                                                             // 15       m_objectEffectPackageID
+};
+
+struct CreatureDisplayInfoExtraEntry
+{
+    //uint32 Id;                                            // 0
+    uint32 Race;                                            // 1
+    uint32 Gender;                                          // 2
+    //uint32 SkinColor;                                     // 3
+    //uint32 FaceType;                                      // 4
+    //uint32 HairType;                                      // 5
+    //uint32 HairStyle;                                     // 6
+    //uint32 FacialHair;                                    // 7
+    //uint32 HelmDisplayId;                                 // 8
+    //uint32 ShoulderDisplayId;                             // 9
+    //uint32 ShirtDisplayId;                                // 10
+    //uint32 ChestDisplayId;                                // 11
+    //uint32 BeltDisplayId;                                 // 12
+    //uint32 LegsDisplayId;                                 // 13
+    //uint32 BootsDisplayId;                                // 14
+    //uint32 WristDisplayId;                                // 15
+    //uint32 GlovesDisplayId;                               // 16
+    //uint32 TabardDisplayId;                               // 17
+    //uint32 CloakDisplayId;                                // 18
+    //uint32 CanEquip;                                      // 19
+    //char const* Texture;                                  // 20
 };
 
 struct CreatureFamilyEntry
@@ -768,7 +793,7 @@ struct CreatureFamilyEntry
 struct CreatureModelDataEntry
 {
     uint32 Id;
-    //uint32 Flags;
+    uint32 Flags;
     //char* ModelPath[16]
     //uint32 Unk1;
     float Scale;                                             // Used in calculation of unit collision data
@@ -1296,7 +1321,7 @@ struct MapEntry
     uint32  MapID;                                          // 0
     //char*       internalname;                             // 1 unused
     uint32  map_type;                                       // 2
-    //uint32 unk_330;                                       // 3
+    uint32  Flags;                                          // 3
                                                             // 4 0 or 1 for battlegrounds (not arenas)
     char*   name[16];                                       // 5-20
                                                             // 21 name flags, unused
@@ -1306,14 +1331,14 @@ struct MapEntry
     //char*     allianceIntro[16];                          // 40-55 text for PvP Zones
                                                             // 56 intro text flags
     uint32  multimap_id;                                    // 57
-                                                            // 58
+    //float BattlefieldMapIconScale;                        // 58
     int32   entrance_map;                                   // 59 map_id of entrance map
     float   entrance_x;                                     // 60 entrance x coordinate (if exist single entry)
     float   entrance_y;                                     // 61 entrance y coordinate (if exist single entry)
-                                                            // 62 -1, 0 and 720
+    //uint32 TimeOfDayOverride;                             // 62 -1, 0 and 720
     uint32  addon;                                          // 63 (0-original maps, 1-tbc addon)
     uint32  unk_time;                                       // 64 some kind of time?
-    //uint32 maxPlayers;                                    // 65 max players
+    uint32  maxPlayers;                                     // 65 max players, fallback if not present in MapDifficulty.dbc
 
     // Helpers
     uint32 Expansion() const { return addon; }
@@ -1341,6 +1366,8 @@ struct MapEntry
     {
         return MapID == 0 || MapID == 1 || MapID == 530 || MapID == 571;
     }
+
+    bool IsDynamicDifficultyMap() const { return (Flags & MAP_FLAG_DYNAMIC_DIFFICULTY) != 0; }
 };
 
 struct MapDifficultyEntry
@@ -1369,6 +1396,16 @@ struct OverrideSpellDataEntry
     uint32      id;                                         // 0
     uint32      spellId[MAX_OVERRIDE_SPELL];                // 1-10
     //uint32      unk0;                                     // 11
+};
+
+struct PowerDisplayEntry
+{
+    uint32 Id;                                              // 0
+    uint32 PowerType;                                       // 1
+    //char*  Name;                                          // 2
+    //uint32 R;                                             // 3
+    //uint32 G;                                             // 4
+    //uint32 B;                                             // 5
 };
 
 struct PvPDifficultyEntry
@@ -1498,23 +1535,6 @@ struct ScalingStatValuesEntry
 //    uint32    displayOrder;                               // 19     m_sortIndex
 //};
 
-//struct SkillRaceClassInfoEntry{
-//    uint32    id;                                         // 0      m_ID
-//    uint32    skillId;                                    // 1      m_skillID
-//    uint32    raceMask;                                   // 2      m_raceMask
-//    uint32    classMask;                                  // 3      m_classMask
-//    uint32    flags;                                      // 4      m_flags
-//    uint32    reqLevel;                                   // 5      m_minLevel
-//    uint32    skillTierId;                                // 6      m_skillTierID
-//    uint32    skillCostID;                                // 7      m_skillCostIndex
-//};
-
-//struct SkillTiersEntry{
-//    uint32    id;                                         // 0      m_ID
-//    uint32    skillValue[16];                             // 1-17   m_cost
-//    uint32    maxSkillValue[16];                          // 18-32  m_valueMax
-//};
-
 struct SkillLineEntry
 {
     uint32    id;                                           // 0        m_ID
@@ -1541,10 +1561,31 @@ struct SkillLineAbilityEntry
     //uint32    classmaskNot;                               // 6        m_excludeClass
     uint32    req_skill_value;                              // 7        m_minSkillLineRank
     uint32    forward_spellid;                              // 8        m_supercededBySpell
-    uint32    learnOnGetSkill;                              // 9        m_acquireMethod
+    uint32    AutolearnType;                                // 9        m_acquireMethod
     uint32    max_value;                                    // 10       m_trivialSkillLineRankHigh
     uint32    min_value;                                    // 11       m_trivialSkillLineRankLow
     //uint32    characterPoints[2];                         // 12-13    m_characterPoints[2]
+};
+
+struct SkillRaceClassInfoEntry
+{
+    //uint32 Id;                                            // 0
+    uint32 SkillId;                                         // 1
+    uint32 RaceMask;                                        // 2
+    uint32 ClassMask;                                       // 3
+    uint32 Flags;                                           // 4
+    //uint32 MinLevel;                                      // 5
+    uint32 SkillTier;                                       // 6
+    //uint32 SkillCostType;                                 // 7
+};
+
+#define MAX_SKILL_STEP 16
+
+struct SkillTiersEntry
+{
+    uint32 Id;                                              // 0
+    //uint32 StepCost[MAX_SKILL_STEP];                      // 1-16
+    uint32 MaxSkill[MAX_SKILL_STEP];                        // 17-32
 };
 
 struct SoundEntriesEntry
@@ -1955,7 +1996,7 @@ struct VehicleEntry
     uint32  m_uiLocomotionType;                             // 34
     float   m_msslTrgtImpactTexRadius;                      // 35
     uint32  m_uiSeatIndicatorType;                          // 36
-    uint32  m_powerType;                                    // 37, new in 3.1
+    uint32  m_powerDisplayId;                               // 37, new in 3.1
                                                             // 38, new in 3.1
                                                             // 39, new in 3.1
 };
@@ -2010,12 +2051,12 @@ struct VehicleSeatEntry
     uint32  m_flagsB;                                       // 45
                                                             // 46-57 added in 3.1, floats mostly
 
-    bool CanEnterOrExit() const { return m_flags & VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT; }
-    bool CanSwitchFromSeat() const { return m_flags & VEHICLE_SEAT_FLAG_CAN_SWITCH; }
+    bool CanEnterOrExit() const { return (m_flags & VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT) != 0; }
+    bool CanSwitchFromSeat() const { return (m_flags & VEHICLE_SEAT_FLAG_CAN_SWITCH) != 0; }
     bool IsUsableByOverride() const { return (m_flags & (VEHICLE_SEAT_FLAG_UNCONTROLLED | VEHICLE_SEAT_FLAG_UNK18)
                                     || (m_flagsB & (VEHICLE_SEAT_FLAG_B_USABLE_FORCED | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2 |
                                         VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3 | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4))); }
-    bool IsEjectable() const { return m_flagsB & VEHICLE_SEAT_FLAG_B_EJECTABLE; }
+    bool IsEjectable() const { return (m_flagsB & VEHICLE_SEAT_FLAG_B_EJECTABLE) != 0; }
 };
 
 struct WMOAreaTableEntry

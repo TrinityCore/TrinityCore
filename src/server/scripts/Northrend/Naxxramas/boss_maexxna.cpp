@@ -63,7 +63,7 @@ class boss_maexxna : public CreatureScript
 public:
     boss_maexxna() : CreatureScript("boss_maexxna") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_maexxnaAI(creature);
     }
@@ -74,7 +74,7 @@ public:
 
         bool enraged;
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             enraged = false;
@@ -85,7 +85,7 @@ public:
             events.ScheduleEvent(EVENT_SUMMON, 30000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim() || !CheckInRoom())
                 return;
@@ -109,7 +109,7 @@ public:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, -SPELL_WEB_WRAP))
                             {
                                 target->RemoveAura(RAID_MODE(SPELL_WEB_SPRAY_10, SPELL_WEB_SPRAY_25));
-                                uint8 pos = rand()%MAX_POS_WRAP;
+                                uint8 pos = rand32() % MAX_POS_WRAP;
                                 target->GetMotionMaster()->MoveJump(PosWrap[pos].GetPositionX(), PosWrap[pos].GetPositionY(), PosWrap[pos].GetPositionZ(), 20, 20);
                                 if (Creature* wrap = DoSummon(NPC_WEB_WRAP, PosWrap[pos], 0, TEMPSUMMON_CORPSE_DESPAWN))
                                     wrap->AI()->SetGUID(target->GetGUID());
@@ -154,7 +154,7 @@ class npc_webwrap : public CreatureScript
 public:
     npc_webwrap() : CreatureScript("npc_webwrap") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_webwrapAI(creature);
     }
@@ -165,18 +165,18 @@ public:
 
         uint64 victimGUID;
 
-        void SetGUID(uint64 guid, int32 /*param*/) OVERRIDE
+        void SetGUID(uint64 guid, int32 /*param*/) override
         {
             victimGUID = guid;
             if (me->m_spells[0] && victimGUID)
-                if (Unit* victim = Unit::GetUnit(*me, victimGUID))
+                if (Unit* victim = ObjectAccessor::GetUnit(*me, victimGUID))
                     victim->CastSpell(victim, me->m_spells[0], true, NULL, NULL, me->GetGUID());
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (me->m_spells[0] && victimGUID)
-                if (Unit* victim = Unit::GetUnit(*me, victimGUID))
+                if (Unit* victim = ObjectAccessor::GetUnit(*me, victimGUID))
                     victim->RemoveAurasDueToSpell(me->m_spells[0], me->GetGUID());
         }
     };

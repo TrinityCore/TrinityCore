@@ -84,7 +84,7 @@ class boss_shade_of_aran : public CreatureScript
 public:
     boss_shade_of_aran() : CreatureScript("boss_shade_of_aran") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_aranAI>(creature);
     }
@@ -123,7 +123,7 @@ public:
         bool Drinking;
         bool DrinkInturrupted;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             SecondarySpellTimer = 5000;
             NormalCastTimer = 0;
@@ -131,7 +131,7 @@ public:
             BerserkTimer = 720000;
             CloseDoorTimer = 15000;
 
-            LastSuperSpell = rand()%3;
+            LastSuperSpell = rand32() % 3;
 
             FlameWreathTimer = 0;
             FlameWreathCheckTime = 0;
@@ -152,12 +152,12 @@ public:
             instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), true);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_KILL);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
 
@@ -165,7 +165,7 @@ public:
             instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), true);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -184,7 +184,7 @@ public:
             //store the threat list in a different container
             for (ThreatContainer::StorageType::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
-                Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
                 //only on alive players
                 if (target && target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
                     targets.push_back(target);
@@ -192,7 +192,7 @@ public:
 
             //cut down to size if we have more than 3 targets
             while (targets.size() > 3)
-                targets.erase(targets.begin()+rand()%targets.size());
+                targets.erase(targets.begin() + rand32() % targets.size());
 
             uint32 i = 0;
             for (std::vector<Unit*>::const_iterator itr = targets.begin(); itr!= targets.end(); ++itr)
@@ -208,7 +208,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -322,7 +322,7 @@ public:
                     //If no available spells wait 1 second and try again
                     if (AvailableSpells)
                     {
-                        CurrentNormalSpell = Spells[rand() % AvailableSpells];
+                        CurrentNormalSpell = Spells[rand32() % AvailableSpells];
                         DoCast(target, CurrentNormalSpell);
                     }
                 }
@@ -450,7 +450,7 @@ public:
                         if (!FlameWreathTarget[i])
                             continue;
 
-                        Unit* unit = Unit::GetUnit(*me, FlameWreathTarget[i]);
+                        Unit* unit = ObjectAccessor::GetUnit(*me, FlameWreathTarget[i]);
                         if (unit && !unit->IsWithinDist2d(FWTargPosX[i], FWTargPosY[i], 3))
                         {
                             unit->CastSpell(unit, 20476, true, 0, 0, me->GetGUID());
@@ -466,13 +466,13 @@ public:
                 DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*pAttacker*/, uint32 &damage) OVERRIDE
+        void DamageTaken(Unit* /*pAttacker*/, uint32 &damage) override
         {
             if (!DrinkInturrupted && Drinking && damage)
                 DrinkInturrupted = true;
         }
 
-        void SpellHit(Unit* /*pAttacker*/, const SpellInfo* Spell) OVERRIDE
+        void SpellHit(Unit* /*pAttacker*/, const SpellInfo* Spell) override
         {
             //We only care about interrupt effects and only if they are durring a spell currently being cast
             if ((Spell->Effects[0].Effect != SPELL_EFFECT_INTERRUPT_CAST &&
@@ -501,7 +501,7 @@ class npc_aran_elemental : public CreatureScript
 public:
     npc_aran_elemental() : CreatureScript("npc_aran_elemental") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new water_elementalAI(creature);
     }
@@ -512,14 +512,14 @@ public:
 
         uint32 CastTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
-            CastTimer = 2000 + (rand()%3000);
+            CastTimer = 2000 + (rand32() % 3000);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

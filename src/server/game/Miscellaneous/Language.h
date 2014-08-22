@@ -19,6 +19,13 @@
 #ifndef __TRINITY_LANGUAGE_H
 #define __TRINITY_LANGUAGE_H
 
+enum BroadcastTextIds
+{
+    BROADCAST_TEXT_ACHIEVEMENT_EARNED   = 29245,
+    BROADCAST_TEXT_CALL_FOR_HELP        = 2541,
+    BROADCAST_TEXT_FLEE_FOR_ASSIST      = 1150
+};
+
 enum TrinityStrings
 {
     // for chat commands
@@ -753,7 +760,7 @@ enum TrinityStrings
     LANG_NEED_CHARACTER_NAME            = 807,
     LANG_PLAYER_NOT_EXIST_OR_OFFLINE    = 808,
     LANG_ACCOUNT_FOR_PLAYER_NOT_FOUND   = 809,
-    LANG_ACHIEVEMENT_EARNED             = 810,
+    // unused                           = 810,
     LANG_GUILD_MASTER                   = 811,
     LANG_GUILD_OFFICER                  = 812,
     LANG_GUILD_VETERAN                  = 813,
@@ -1074,12 +1081,12 @@ enum TrinityStrings
     LANG_GOINFO_NAME                    = 5027,
     LANG_GOINFO_LOOTID                  = 5028,
     LANG_COMMAND_LOOKUP_MAX_RESULTS     = 5029,
-    LANG_FLEE                           = 5030,
+    // unused                           = 5030,
     LANG_NPCINFO_AIINFO                 = 5031,
     LANG_COMMAND_NO_BATTLEGROUND_FOUND  = 5032,
     LANG_COMMAND_NO_ACHIEVEMENT_CRITERIA_FOUND = 5033,
     LANG_COMMAND_NO_OUTDOOR_PVP_FORUND  = 5034,
-    LANG_CALL_FOR_HELP                  = 5035,
+    // unused                           = 5035,
     LANG_NPCINFO_EQUIPMENT              = 5036,
     LANG_NPCINFO_MECHANIC_IMMUNE        = 5037,
     LANG_NPCINFO_UNIT_FIELD_FLAGS       = 5038,
@@ -1129,59 +1136,6 @@ enum TrinityStrings
 
     // Use for not-in-offcial-sources patches
     //                                    10000-10999
-    // opvp hp
-    LANG_OPVP_HP_CAPTURE_OVERLOOK_H     = 10001,
-    LANG_OPVP_HP_CAPTURE_OVERLOOK_A     = 10002,
-    LANG_OPVP_HP_CAPTURE_STADIUM_H      = 10003,
-    LANG_OPVP_HP_CAPTURE_STADIUM_A      = 10004,
-    LANG_OPVP_HP_CAPTURE_BROKENHILL_H   = 10005,
-    LANG_OPVP_HP_CAPTURE_BROKENHILL_A   = 10006,
-    LANG_OPVP_HP_LOSE_OVERLOOK_H       = 10007,
-    LANG_OPVP_HP_LOSE_OVERLOOK_A       = 10008,
-    LANG_OPVP_HP_LOSE_STADIUM_H        = 10009,
-    LANG_OPVP_HP_LOSE_STADIUM_A        = 10010,
-    LANG_OPVP_HP_LOSE_BROKENHILL_H     = 10011,
-    LANG_OPVP_HP_LOSE_BROKENHILL_A     = 10012,
-    // opvp zm
-    LANG_OPVP_ZM_CAPTURE_WEST_H         = 10013,
-    LANG_OPVP_ZM_CAPTURE_WEST_A         = 10014,
-    LANG_OPVP_ZM_CAPTURE_EAST_H         = 10015,
-    LANG_OPVP_ZM_CAPTURE_EAST_A         = 10016,
-    LANG_OPVP_ZM_CAPTURE_GY_H           = 10017,
-    LANG_OPVP_ZM_CAPTURE_GY_A           = 10018,
-    LANG_OPVP_ZM_LOSE_WEST_H           = 10019,
-    LANG_OPVP_ZM_LOSE_WEST_A           = 10020,
-    LANG_OPVP_ZM_LOSE_EAST_H           = 10021,
-    LANG_OPVP_ZM_LOSE_EAST_A           = 10022,
-    LANG_OPVP_ZM_LOSE_GY_H             = 10023,
-    LANG_OPVP_ZM_LOSE_GY_A             = 10024,
-    // opvp na
-    LANG_OPVP_NA_CAPTURE_H              = 10025,
-    LANG_OPVP_NA_CAPTURE_A              = 10026,
-    LANG_OPVP_NA_LOSE_H                = 10027,
-    LANG_OPVP_NA_LOSE_A                = 10028,
-    // opvp tf
-    LANG_OPVP_TF_CAPTURE_H              = 10029,
-    LANG_OPVP_TF_CAPTURE_A              = 10030,
-    LANG_OPVP_TF_LOSE_H                = 10031,
-    LANG_OPVP_TF_LOSE_A                = 10032,
-    // opvp ep
-    LANG_OPVP_EP_CAPTURE_NPT_H          = 10033,
-    LANG_OPVP_EP_CAPTURE_NPT_A          = 10034,
-    LANG_OPVP_EP_CAPTURE_EWT_H          = 10035,
-    LANG_OPVP_EP_CAPTURE_EWT_A          = 10036,
-    LANG_OPVP_EP_CAPTURE_CGT_H          = 10037,
-    LANG_OPVP_EP_CAPTURE_CGT_A          = 10038,
-    LANG_OPVP_EP_CAPTURE_PWT_H          = 10039,
-    LANG_OPVP_EP_CAPTURE_PWT_A          = 10040,
-    LANG_OPVP_EP_LOSE_NPT_H            = 10041,
-    LANG_OPVP_EP_LOSE_NPT_A            = 10042,
-    LANG_OPVP_EP_LOSE_EWT_H            = 10043,
-    LANG_OPVP_EP_LOSE_EWT_A            = 10044,
-    LANG_OPVP_EP_LOSE_CGT_H            = 10045,
-    LANG_OPVP_EP_LOSE_CGT_A            = 10046,
-    LANG_OPVP_EP_LOSE_PWT_H            = 10047,
-    LANG_OPVP_EP_LOSE_PWT_A            = 10048,
     // opvp si
     LANG_OPVP_SI_CAPTURE_H              = 10049,
     LANG_OPVP_SI_CAPTURE_A              = 10050,
@@ -1195,21 +1149,11 @@ enum TrinityStrings
     LANG_BG_SA_START_TWO_MINUTES            = 10056,
     LANG_BG_SA_START_ONE_MINUTE             = 10057,
     LANG_BG_SA_START_HALF_MINUTE            = 10058,
-    LANG_BG_SA_HAS_BEGUN                    = 10059,
-    LANG_BG_SA_IS_UNDER_ATTACK              = 10060, //The %s is under attack!
-    LANG_BG_SA_WAS_DESTROYED                = 10061, //The %s was destroyed!
-    LANG_BG_SA_ROUND_ONE_END                = 10062, //Round 1 - finished!
+    // unused                                 10059-10062
     LANG_BG_SA_ALLIANCE_CAPTURED_RELIC      = 10063, //The Alliance captured the titan portal!
     LANG_BG_SA_HORDE_CAPTURED_RELIC         = 10064, //The Horde captured the titan portal!
     LANG_BG_SA_ROUND_TWO_ONE_MINUTE         = 10065, //Round 2 of the Battle for the Strand of the Ancients begins in 1 minute.
     LANG_BG_SA_ROUND_TWO_START_HALF_MINUTE  = 10066, //Round 2 begins in 30 seconds. Prepare yourselves!
-    LANG_BG_SA_CHAMBER_BREACHED             = 10067, //The chamber has been breached! The titan relic is vulnerable!
-    LANG_BG_SA_A_GY_SOUTH                   = 10068, //The Alliance captured the South Graveyard!
-    LANG_BG_SA_A_GY_WEST                    = 10069, //The Alliance captured the West Graveyard!
-    LANG_BG_SA_A_GY_EAST                    = 10070, //The Alliance captured the East Graveyard!
-    LANG_BG_SA_H_GY_SOUTH                   = 10071, //The Horde captured the South Graveyard!
-    LANG_BG_SA_H_GY_WEST                    = 10072, //The Horde captured the West Graveyard!
-    LANG_BG_SA_H_GY_EAST                    = 10073, //The Horde captured the East Graveyard!
 
     // Use for custom patches             11000-11999
     LANG_AUTO_BROADCAST                 = 11000,
@@ -1226,6 +1170,9 @@ enum TrinityStrings
     LANG_BAN_CHARACTER_YOUPERMBANNEDMESSAGE_WORLD = 11005,
     LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD       = 11006,
     LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD   = 11007,
+
+    LANG_NPCINFO_INHABIT_TYPE                     = 11008,
+    LANG_NPCINFO_FLAGS_EXTRA                      = 11009
 
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)

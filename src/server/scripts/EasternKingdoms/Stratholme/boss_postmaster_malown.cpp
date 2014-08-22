@@ -61,9 +61,9 @@ class boss_postmaster_malown : public CreatureScript
         {
             boss_postmaster_malownAI(Creature* creature) : BossAI(creature, TYPE_MALOWN) { }
 
-            void Reset() OVERRIDE { }
+            void Reset() override { }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_WAILINGDEAD, 19000);     // lasts 6 sec
                 events.ScheduleEvent(EVENT_BACKHAND, 8000);         // 2 sec stun
@@ -72,12 +72,12 @@ class boss_postmaster_malown : public CreatureScript
                 events.ScheduleEvent(EVENT_CALLOFTHEGRAVE, 25000);
             }
 
-            void KilledUnit(Unit* /*victim*/) OVERRIDE
+            void KilledUnit(Unit* /*victim*/) override
             {
                 Talk(SAY_KILL);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -92,27 +92,27 @@ class boss_postmaster_malown : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_WAILINGDEAD:
-                            if (rand()%100 < 65) //65% chance to cast
+                            if (rand32() % 100 < 65) //65% chance to cast
                                 DoCastVictim(SPELL_WAILINGDEAD, true);
                             events.ScheduleEvent(EVENT_WAILINGDEAD, 19000);
                             break;
                         case EVENT_BACKHAND:
-                            if (rand()%100 < 45) //45% chance to cast
+                            if (rand32() % 100 < 45) //45% chance to cast
                                 DoCastVictim(SPELL_BACKHAND, true);
                             events.ScheduleEvent(EVENT_WAILINGDEAD, 8000);
                             break;
                         case EVENT_CURSEOFWEAKNESS:
-                            if (rand()%100 < 3) //3% chance to cast
+                            if (rand32() % 100 < 3) //3% chance to cast
                                 DoCastVictim(SPELL_CURSEOFWEAKNESS, true);
                             events.ScheduleEvent(EVENT_WAILINGDEAD, 20000);
                             break;
                         case EVENT_CURSEOFTONGUES:
-                            if (rand()%100 < 3) //3% chance to cast
+                            if (rand32() % 100 < 3) //3% chance to cast
                                 DoCastVictim(SPELL_CURSEOFTONGUES, true);
                             events.ScheduleEvent(EVENT_WAILINGDEAD, 22000);
                             break;
                         case EVENT_CALLOFTHEGRAVE:
-                            if (rand()%100 < 5) //5% chance to cast
+                            if (rand32() % 100 < 5) //5% chance to cast
                                 DoCastVictim(SPELL_CALLOFTHEGRAVE, true);
                             events.ScheduleEvent(EVENT_WAILINGDEAD, 25000);
                             break;
@@ -124,7 +124,7 @@ class boss_postmaster_malown : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_postmaster_malownAI(creature);
         }

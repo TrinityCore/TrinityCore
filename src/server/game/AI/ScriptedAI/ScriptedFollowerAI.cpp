@@ -74,7 +74,7 @@ bool FollowerAI::AssistPlayerInCombat(Unit* who)
         return false;
 
     //not a player
-    if (!who->GetVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
+    if (!who->EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
         return false;
 
     //never attack friendly
@@ -165,8 +165,8 @@ void FollowerAI::JustRespawned()
     if (!IsCombatMovementAllowed())
         SetCombatMovement(true);
 
-    if (me->getFaction() != me->GetCreatureTemplate()->faction_A)
-        me->setFaction(me->GetCreatureTemplate()->faction_A);
+    if (me->getFaction() != me->GetCreatureTemplate()->faction)
+        me->setFaction(me->GetCreatureTemplate()->faction);
 
     Reset();
 }

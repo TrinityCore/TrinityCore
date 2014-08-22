@@ -50,7 +50,7 @@ public:
         uint32 ResetTimer;
         uint32 YellTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             AvatarTimer        = 3 * IN_MILLISECONDS;
             ThunderclapTimer   = 4 * IN_MILLISECONDS;
@@ -59,12 +59,12 @@ public:
             YellTimer = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(YELL_AGGRO);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -108,7 +108,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_vanndarAI(creature);
     }

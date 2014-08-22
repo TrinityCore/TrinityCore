@@ -18,7 +18,6 @@
 #ifndef TRANSPORTMGR_H
 #define TRANSPORTMGR_H
 
-#include <ace/Singleton.h>
 #include <G3D/Quat.h>
 #include "Spline.h"
 #include "DBCStores.h"
@@ -31,10 +30,10 @@ class Map;
 
 typedef Movement::Spline<double>                 TransportSpline;
 typedef std::vector<KeyFrame>                    KeyFrameVec;
-typedef UNORDERED_MAP<uint32, TransportTemplate> TransportTemplates;
+typedef std::unordered_map<uint32, TransportTemplate> TransportTemplates;
 typedef std::set<Transport*>                     TransportSet;
-typedef UNORDERED_MAP<uint32, TransportSet>      TransportMap;
-typedef UNORDERED_MAP<uint32, std::set<uint32> > TransportInstanceMap;
+typedef std::unordered_map<uint32, TransportSet>      TransportMap;
+typedef std::unordered_map<uint32, std::set<uint32> > TransportInstanceMap;
 
 struct KeyFrame
 {
@@ -96,10 +95,15 @@ typedef std::map<uint32, TransportAnimation> TransportAnimationContainer;
 
 class TransportMgr
 {
-        friend class ACE_Singleton<TransportMgr, ACE_Thread_Mutex>;
         friend void LoadDBCStores(std::string const&);
 
     public:
+        static TransportMgr* instance()
+        {
+            static TransportMgr instance;
+            return &instance;
+        }
+
         void Unload();
 
         void LoadTransportTemplates();
@@ -155,6 +159,6 @@ class TransportMgr
         TransportAnimationContainer _transportAnimations;
 };
 
-#define sTransportMgr ACE_Singleton<TransportMgr, ACE_Thread_Mutex>::instance()
+#define sTransportMgr TransportMgr::instance()
 
 #endif // TRANSPORTMGR_H

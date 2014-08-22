@@ -30,7 +30,6 @@
 #include "SpellAuras.h"
 #include "TargetedMovementGenerator.h"
 #include "WeatherMgr.h"
-#include "ace/INET_Addr.h"
 #include "Player.h"
 #include "Pet.h"
 #include "LFG.h"
@@ -42,7 +41,7 @@ class misc_commandscript : public CommandScript
 public:
     misc_commandscript() : CommandScript("misc_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand commandTable[] =
         {
@@ -1342,7 +1341,7 @@ public:
             return false;
         }
 
-        bool targetHasSkill = target->GetSkillValue(skill);
+        bool targetHasSkill = target->GetSkillValue(skill) != 0;
 
         // If our target does not yet have the skill they are trying to add to them, the chosen level also becomes
         // the max level of the new profession.
@@ -1383,6 +1382,7 @@ public:
         Player* target;
         uint64 targetGuid;
         std::string targetName;
+        PreparedStatement* stmt = NULL;
 
         // To make sure we get a target, we convert our guid to an omniversal...
         uint32 parseGUID = MAKE_NEW_GUID(atol((char*)args), 0, HIGHGUID_PLAYER);
@@ -1459,7 +1459,6 @@ public:
         std::string raceStr, classStr   = "None";
         uint8 gender                    = 0;
         int8 locale                     = handler->GetSessionDbcLocale();
-        std::string genderStr           = handler->GetTrinityString(LANG_ERROR);
         uint32 totalPlayerTime          = 0;
         uint8 level                     = 0;
         std::string alive               = handler->GetTrinityString(LANG_ERROR);
@@ -1512,7 +1511,7 @@ public:
                 return false;
 
             // Query informations from the DB
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PINFO);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PINFO);
             stmt->setUInt32(0, lowguid);
             PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -1539,7 +1538,7 @@ public:
         }
 
         // Query the prepared statement for login data
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PINFO);
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PINFO);
         stmt->setInt32(0, int32(realmID));
         stmt->setUInt32(1, accId);
         PreparedQueryResult result = LoginDatabase.Query(stmt);
@@ -1563,7 +1562,7 @@ public:
                 EndianConvertReverse(ip);
 
                 // If ip2nation table is populated, it displays the country
-                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP2NATION_COUNTRY);
+                stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP2NATION_COUNTRY);
                 stmt->setUInt32(0, ip);
                 if (PreparedQueryResult result2 = LoginDatabase.Query(stmt))
                 {
@@ -1610,16 +1609,7 @@ public:
             banReason     = fields[3].GetString();
         }
 
-        // Can be used to query data from World database
-        stmt2 = WorldDatabase.GetPreparedStatement(WORLD_SEL_REQ_XP);
-        stmt2->setUInt8(0, level);
-        PreparedQueryResult result3 = WorldDatabase.Query(stmt2);
 
-        if (result3)
-        {
-            Field* fields = result3->Fetch();
-            xptotal       = fields[0].GetUInt32();
-        }
 
         // Can be used to query data from Characters database
         stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PINFO_XP);
@@ -1631,6 +1621,7 @@ public:
             Field* fields = result4->Fetch();
             xp            = fields[0].GetUInt32(); // Used for "current xp" output and "%u XP Left" calculation
             uint32 gguid  = fields[1].GetUInt32(); // We check if have a guild for the person, so we might not require to query it at all
+            xptotal = sObjectMgr->GetXPForLevel(level);
 
             if (gguid != 0)
             {
@@ -1640,13 +1631,13 @@ public:
                 PreparedQueryResult result5 = CharacterDatabase.Query(stmt3);
                 if (result5)
                 {
-                    Field* fields  = result5->Fetch();
-                    guildId        = fields[0].GetUInt32();
-                    guildName      = fields[1].GetString();
-                    guildRank      = fields[2].GetString();
-                    guildRankId    = fields[3].GetUInt8();
-                    note           = fields[4].GetString();
-                    officeNote     = fields[5].GetString();
+                    Field* fields5  = result5->Fetch();
+                    guildId         = fields5[0].GetUInt32();
+                    guildName       = fields5[1].GetString();
+                    guildRank       = fields5[2].GetString();
+                    guildRankId     = fields5[3].GetUInt8();
+                    note            = fields5[4].GetString();
+                    officeNote      = fields5[5].GetString();
                 }
             }
         }
@@ -1767,10 +1758,10 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
 
         // accept only explicitly selected target (not implicitly self targeting case)
-        Unit* target = handler->getSelectedUnit();
-        if (player->GetTarget() && target)
+        Creature* target = player->GetTarget() ? handler->getSelectedCreature() : nullptr;
+        if (target)
         {
-            if (target->GetTypeId() != TYPEID_UNIT || target->IsPet())
+            if (target->IsPet())
             {
                 handler->SendSysMessage(LANG_SELECT_CREATURE);
                 handler->SetSentErrorMessage(true);
@@ -1778,19 +1769,13 @@ public:
             }
 
             if (target->isDead())
-                target->ToCreature()->Respawn();
+                target->Respawn();
             return true;
         }
 
-        CellCoord p(Trinity::ComputeCellCoord(player->GetPositionX(), player->GetPositionY()));
-        Cell cell(p);
-        cell.SetNoCreate();
-
         Trinity::RespawnDo u_do;
         Trinity::WorldObjectWorker<Trinity::RespawnDo> worker(player, u_do);
-
-        TypeContainerVisitor<Trinity::WorldObjectWorker<Trinity::RespawnDo>, GridTypeMapContainer > obj_worker(worker);
-        cell.Visit(p, obj_worker, *player->GetMap(), *player, player->GetGridActivationRange());
+        player->VisitNearbyGridObject(player->GetGridActivationRange(), worker);
 
         return true;
     }
@@ -1844,14 +1829,9 @@ public:
             std::string nameLink = handler->playerLink(targetName);
 
             if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD))
-            {
-                sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, (handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : "Server"), nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
-                ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteBy.c_str(), muteReasonStr.c_str());
-            }
-            else
-            {
-                ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteBy.c_str(), muteReasonStr.c_str());
-            }
+                sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, muteBy.c_str(), nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
+
+            ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteBy.c_str(), muteReasonStr.c_str());
         }
         else
         {
@@ -1866,10 +1846,11 @@ public:
         LoginDatabase.Execute(stmt);
         std::string nameLink = handler->playerLink(targetName);
 
-            if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD) && !target)
-                sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, handler->GetSession()->GetPlayerName().c_str(), nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
-            else
-                handler->PSendSysMessage(target ? LANG_YOU_DISABLE_CHAT : LANG_COMMAND_DISABLE_CHAT_DELAYED, nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
+        if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD) && !target)
+            sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, muteBy.c_str(), nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
+        else
+            handler->PSendSysMessage(target ? LANG_YOU_DISABLE_CHAT : LANG_COMMAND_DISABLE_CHAT_DELAYED, nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
+
         return true;
     }
 

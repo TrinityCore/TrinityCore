@@ -22,24 +22,39 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <list>
+#include <atomic>
+#include <thread>
 
 #include "TerrainBuilder.h"
 #include "IntermediateValues.h"
 
 #include "Recast.h"
 #include "DetourNavMesh.h"
-
-#include <ace/Task.h>
-#include <ace/Activation_Queue.h>
-#include <ace/Method_Request.h>
+#include "ProducerConsumerQueue.h"
 
 using namespace VMAP;
 
-// G3D namespace typedefs conflicts with ACE typedefs
-
 namespace MMAP
 {
-    typedef std::map<uint32, std::set<uint32>*> TileList;
+    struct MapTiles
+    {
+        MapTiles() : m_mapId(uint32(-1)), m_tiles(NULL) {}
+
+        MapTiles(uint32 id, std::set<uint32>* tiles) : m_mapId(id), m_tiles(tiles) {}
+        ~MapTiles() {}
+
+        uint32 m_mapId;
+        std::set<uint32>* m_tiles;
+
+        bool operator==(uint32 id)
+        {
+            return m_mapId == id;
+        }
+    };
+
+    typedef std::list<MapTiles> TileList;
+
     struct Tile
     {
         Tile() : chf(NULL), solid(NULL), cset(NULL), pmesh(NULL), dmesh(NULL) {}
@@ -61,7 +76,7 @@ namespace MMAP
     class MapBuilder
     {
         public:
-            MapBuilder(float maxWalkableAngle   = 55.f,
+            MapBuilder(float maxWalkableAngle   = 70.f,
                 bool skipLiquid          = false,
                 bool skipContinents      = false,
                 bool skipJunkMaps        = true,
@@ -81,6 +96,8 @@ namespace MMAP
 
             // builds list of maps, then builds all of mmap tiles (based on the skip settings)
             void buildAllMaps(int threads);
+
+            void WorkerThread();
 
         private:
             // detect maps and tiles
@@ -124,63 +141,10 @@ namespace MMAP
 
             // build performance - not really used for now
             rcContext* m_rcContext;
-    };
 
-    class MapBuildRequest : public ACE_Method_Request
-    {
-        public:
-            MapBuildRequest(uint32 mapId) : _mapId(mapId) {}
-
-            virtual int call()
-            {
-                /// @ Actually a creative way of unabstracting the class and returning a member variable
-                return (int)_mapId;
-            }
-
-        private:
-            uint32 _mapId;
-    };
-
-    class BuilderThread : public ACE_Task_Base
-    {
-    private:
-        MapBuilder* _builder;
-        ACE_Activation_Queue* _queue;
-
-    public:
-        BuilderThread(MapBuilder* builder, ACE_Activation_Queue* queue) : _builder(builder), _queue(queue) { activate(); }
-
-        int svc()
-        {
-            /// @ Set a timeout for dequeue attempts (only used when the queue is empty) as it will never get populated after thread starts
-            ACE_Time_Value timeout(5);
-            ACE_Method_Request* request = NULL;
-            while ((request = _queue->dequeue(&timeout)) != NULL)
-            {
-                _builder->buildMap(request->call());
-                delete request;
-                request = NULL;
-            }
-
-            return 0;
-        }
-    };
-
-    class BuilderThreadPool
-    {
-        public:
-            BuilderThreadPool() : _queue(new ACE_Activation_Queue()) {}
-            ~BuilderThreadPool() { _queue->queue()->close(); delete _queue; }
-
-            void Enqueue(MapBuildRequest* request)
-            {
-                _queue->enqueue(request);
-            }
-
-            ACE_Activation_Queue* Queue() { return _queue; }
-
-        private:
-            ACE_Activation_Queue* _queue;
+            std::vector<std::thread> _workerThreads;
+            ProducerConsumerQueue<uint32> _queue;
+            std::atomic<bool> _cancelationToken;
     };
 }
 

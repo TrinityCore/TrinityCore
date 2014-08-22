@@ -46,7 +46,7 @@ class boss_magistrate_barthilas : public CreatureScript
 public:
     boss_magistrate_barthilas() : CreatureScript("boss_magistrate_barthilas") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_magistrate_barthilasAI(creature);
     }
@@ -61,7 +61,7 @@ public:
         uint32 FuriousAnger_Timer;
         uint32 AngerCount;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             DrainingBlow_Timer = 20000;
             CrowdPummel_Timer = 15000;
@@ -75,7 +75,7 @@ public:
                 me->SetDisplayId(MODEL_HUMAN);
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
 
         {
             //nothing to see here yet
@@ -83,16 +83,16 @@ public:
             ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             me->SetDisplayId(MODEL_HUMAN);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())

@@ -19,8 +19,10 @@
 #ifndef __BATTLEGROUNDEY_H
 #define __BATTLEGROUNDEY_H
 
-#include "Language.h"
 #include "Battleground.h"
+#include "BattlegroundScore.h"
+#include "Language.h"
+#include "Object.h"
 
 enum BG_EY_Misc
 {
@@ -255,8 +257,7 @@ struct BattlegroundEYPointIconsStruct
     uint32 WorldStateHordeControlledIndex;
 };
 
-// x, y, z, o
-const float BG_EY_TriggerPositions[EY_POINTS_MAX][4] =
+Position const BG_EY_TriggerPositions[EY_POINTS_MAX] =
 {
     {2044.28f, 1729.68f, 1189.96f, 0.017453f},  // FEL_REAVER center
     {2048.83f, 1393.65f, 1194.49f, 0.20944f},   // BLOOD_ELF center
@@ -322,11 +323,33 @@ const BattlegroundEYCapturingPointStruct m_CapturingPointTypes[EY_POINTS_MAX] =
     BattlegroundEYCapturingPointStruct(BG_EY_OBJECT_N_BANNER_MAGE_TOWER_CENTER, BG_EY_OBJECT_A_BANNER_MAGE_TOWER_CENTER, LANG_BG_EY_HAS_TAKEN_A_M_TOWER, BG_EY_OBJECT_H_BANNER_MAGE_TOWER_CENTER, LANG_BG_EY_HAS_TAKEN_H_M_TOWER, EY_GRAVEYARD_MAGE_TOWER)
 };
 
-struct BattlegroundEYScore : public BattlegroundScore
+struct BattlegroundEYScore final : public BattlegroundScore
 {
-    BattlegroundEYScore() : FlagCaptures(0) { }
-    ~BattlegroundEYScore() { }
-    uint32 FlagCaptures;
+    friend class BattlegroundEY;
+
+    protected:
+        BattlegroundEYScore(uint64 playerGuid) : BattlegroundScore(playerGuid), FlagCaptures(0) { }
+
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case SCORE_FLAG_CAPTURES:   // Flags captured
+                    FlagCaptures += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
+
+        void BuildObjectivesBlock(WorldPacket& data) final override
+        {
+            data << uint32(1); // Objectives Count
+            data << uint32(FlagCaptures);
+        }
+
+        uint32 FlagCaptures;
 };
 
 class BattlegroundEY : public Battleground
@@ -336,42 +359,42 @@ class BattlegroundEY : public Battleground
         ~BattlegroundEY();
 
         /* inherited from BattlegroundClass */
-        void AddPlayer(Player* player);
-        void StartingEventCloseDoors();
-        void StartingEventOpenDoors();
+        void AddPlayer(Player* player) override;
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
 
         /* BG Flags */
-        uint64 GetFlagPickerGUID(int32 /*team*/ = -1) const    { return m_FlagKeeper; }
+        uint64 GetFlagPickerGUID(int32 /*team*/ = -1) const override    { return m_FlagKeeper; }
         void SetFlagPicker(uint64 guid)     { m_FlagKeeper = guid; }
         bool IsFlagPickedup() const         { return m_FlagKeeper != 0; }
         uint8 GetFlagState() const          { return m_FlagState; }
         void RespawnFlag(bool send_message);
         void RespawnFlagAfterDrop();
 
-        void RemovePlayer(Player* player, uint64 guid, uint32 team);
+        void RemovePlayer(Player* player, uint64 guid, uint32 team) override;
         void HandleBuffUse(uint64 buff_guid);
-        void HandleAreaTrigger(Player* Source, uint32 Trigger);
-        void HandleKillPlayer(Player* player, Player* killer);
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
-        bool SetupBattleground();
-        void Reset();
+        void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
+        void HandleKillPlayer(Player* player, Player* killer) override;
+        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        bool SetupBattleground() override;
+        void Reset() override;
         void UpdateTeamScore(uint32 Team);
-        void EndBattleground(uint32 winner);
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
-        void FillInitialWorldStates(WorldPacket& data);
-        void SetDroppedFlagGUID(uint64 guid, int32 /*TeamID*/ = -1)  { m_DroppedFlagGUID = guid;}
+        void EndBattleground(uint32 winner) override;
+        bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
+        void FillInitialWorldStates(WorldPacket& data) override;
+        void SetDroppedFlagGUID(uint64 guid, int32 /*TeamID*/ = -1) override  { m_DroppedFlagGUID = guid;}
         uint64 GetDroppedFlagGUID() const          { return m_DroppedFlagGUID;}
 
         /* Battleground Events */
-        void EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj);
-        void EventPlayerDroppedFlag(Player* Source);
+        void EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj) override;
+        void EventPlayerDroppedFlag(Player* Source) override;
 
         /* achievement req. */
-        bool IsAllNodesControlledByTeam(uint32 team) const;
+        bool IsAllNodesControlledByTeam(uint32 team) const override;
 
-        uint32 GetPrematureWinner();
+        uint32 GetPrematureWinner() override;
     private:
-        void PostUpdateImpl(uint32 diff);
+        void PostUpdateImpl(uint32 diff) override;
 
         void EventPlayerCapturedFlag(Player* Source, uint32 BgObjectType);
         void EventTeamCapturedPoint(Player* Source, uint32 Point);

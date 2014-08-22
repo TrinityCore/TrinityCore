@@ -28,7 +28,7 @@ class group_commandscript : public CommandScript
 public:
     group_commandscript() : CommandScript("group_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand groupCommandTable[] =
         {

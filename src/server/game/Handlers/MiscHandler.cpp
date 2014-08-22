@@ -186,11 +186,6 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_WHO Message");
 
-    time_t now = time(NULL);
-    if (now - timeLastWhoCommand < 5)
-        return;
-    else timeLastWhoCommand = now;
-
     uint32 matchcount = 0;
 
     uint32 level_min, level_max, racemask, classmask, zones_count, str_count;
@@ -260,7 +255,8 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
     data << uint32(matchcount);                           // placeholder, count of players matching criteria
     data << uint32(displaycount);                         // placeholder, count of players displayed
 
-    TRINITY_READ_GUARD(HashMapHolder<Player>::LockType, *HashMapHolder<Player>::GetLock());
+    boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
+
     HashMapHolder<Player>::MapType const& m = sObjectAccessor->GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
     {
@@ -505,10 +501,9 @@ void WorldSession::HandleZoneUpdateOpcode(WorldPacket& recvData)
 
     TC_LOG_DEBUG("network", "WORLD: Recvd ZONE_UPDATE: %u", newZone);
 
-    // use server size data
-    uint32 newzone, newarea;
-    GetPlayer()->GetZoneAndAreaId(newzone, newarea);
-    GetPlayer()->UpdateZone(newzone, newarea);
+    // use server side data, but only after update the player position. See Player::UpdatePosition().
+    GetPlayer()->SetNeedsZoneUpdate(true);
+
     //GetPlayer()->SendInitWorldStates(true, newZone);
 }
 
@@ -793,10 +788,10 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (!GetPlayer()->isRessurectRequestedBy(guid))
+    if (!GetPlayer()->isResurrectRequestedBy(guid))
         return;
 
-    GetPlayer()->ResurectUsingRequestData();
+    GetPlayer()->ResurrectUsingRequestData();
 }
 
 void WorldSession::SendAreaTriggerMessage(const char* Text, ...)
@@ -1184,6 +1179,12 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
         return;
     }
 
+    if (!GetPlayer()->IsWithinDistInMap(player, INSPECT_DISTANCE, false))
+        return;
+
+    if (GetPlayer()->IsValidAttackTarget(player))
+        return;
+
     uint32 talent_points = 0x47;
     uint32 guid_size = player->GetPackGUID().wpos();
     WorldPacket data(SMSG_INSPECT_TALENT, guid_size+4+talent_points);
@@ -1214,6 +1215,12 @@ void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
         TC_LOG_DEBUG("network", "MSG_INSPECT_HONOR_STATS: No player found from GUID: " UI64FMTD, guid);
         return;
     }
+
+    if (!GetPlayer()->IsWithinDistInMap(player, INSPECT_DISTANCE, false))
+        return;
+
+    if (GetPlayer()->IsValidAttackTarget(player))
+        return;
 
     WorldPacket data(MSG_INSPECT_HONOR_STATS, 8+1+4*4);
     data << uint64(player->GetGUID());
@@ -1639,6 +1646,12 @@ void WorldSession::HandleQueryInspectAchievements(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "CMSG_QUERY_INSPECT_ACHIEVEMENTS [" UI64FMTD "] Inspected Player [" UI64FMTD "]", _player->GetGUID(), guid);
     Player* player = ObjectAccessor::FindPlayer(guid);
     if (!player)
+        return;
+
+    if (!GetPlayer()->IsWithinDistInMap(player, INSPECT_DISTANCE, false))
+        return;
+
+    if (GetPlayer()->IsValidAttackTarget(player))
         return;
 
     player->SendRespondInspectAchievements(_player);

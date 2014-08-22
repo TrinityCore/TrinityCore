@@ -265,7 +265,6 @@ enum UnitRename
     UNIT_CAN_BE_ABANDONED   = 0x02
 };
 
-#define CREATURE_MAX_SPELLS     8
 #define MAX_SPELL_CHARM         4
 #define MAX_SPELL_VEHICLE       6
 #define MAX_SPELL_POSSESS       8
@@ -1040,7 +1039,7 @@ struct GlobalCooldown
     uint32 cast_time;
 };
 
-typedef UNORDERED_MAP<uint32 /*category*/, GlobalCooldown> GlobalCooldownList;
+typedef std::unordered_map<uint32 /*category*/, GlobalCooldown> GlobalCooldownList;
 
 class GlobalCooldownMgr                                     // Shared by Player and CharmInfo
 {
@@ -1194,7 +1193,6 @@ struct CharmInfo
         CharmSpellInfo _charmspells[4];
         CommandStates _CommandState;
         uint32 _petnumber;
-        bool _barInit;
 
         //for restoration after charmed
         ReactStates     _oldReactState;
@@ -1247,7 +1245,7 @@ enum SpellCooldownFlags
     SPELL_COOLDOWN_FLAG_INCLUDE_EVENT_COOLDOWNS = 0x2   ///< Starts GCD for spells that should start their cooldown on events, requires SPELL_COOLDOWN_FLAG_INCLUDE_GCD set
 };
 
-typedef UNORDERED_MAP<uint32, uint32> PacketCooldowns;
+typedef std::unordered_map<uint32, uint32> PacketCooldowns;
 
 // delay time next attack to prevent client attack animation problems
 #define ATTACK_DISPLAY_DELAY 200
@@ -1285,11 +1283,11 @@ class Unit : public WorldObject
         UnitAI* GetAI() { return i_AI; }
         void SetAI(UnitAI* newAI) { i_AI = newAI; }
 
-        void AddToWorld();
-        void RemoveFromWorld();
+        void AddToWorld() override;
+        void RemoveFromWorld() override;
 
         void CleanupBeforeRemoveFromMap(bool finalCleanup);
-        void CleanupsBeforeDelete(bool finalCleanup = true);                        // used in ~Creature/~Player (or before mass creature delete to remove cross-references to already deleted units)
+        void CleanupsBeforeDelete(bool finalCleanup = true) override;                        // used in ~Creature/~Player (or before mass creature delete to remove cross-references to already deleted units)
 
         DiminishingLevels GetDiminishing(DiminishingGroup  group);
         void IncrDiminishing(DiminishingGroup group);
@@ -1301,7 +1299,7 @@ class Unit : public WorldObject
         float GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
         float GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
 
-        virtual void Update(uint32 time);
+        virtual void Update(uint32 time) override;
 
         void setAttackTimer(WeaponAttackType type, uint32 time) { m_attackTimer[type] = time; }
         void resetAttackTimer(WeaponAttackType type = BASE_ATTACK);
@@ -1328,6 +1326,12 @@ class Unit : public WorldObject
         AttackerSet const& getAttackers() const { return m_attackers; }
         bool isAttackingPlayer() const;
         Unit* GetVictim() const { return m_attacking; }
+        // Use this only when 100% sure there is a victim
+        Unit* EnsureVictim() const
+        {
+            ASSERT(m_attacking);
+            return m_attacking;
+        }
 
         void CombatStop(bool includingCast = false);
         void CombatStopWithPets(bool includingCast = false);
@@ -1337,21 +1341,21 @@ class Unit : public WorldObject
         void SendMeleeAttackStart(Unit* victim);
 
         void AddUnitState(uint32 f) { m_state |= f; }
-        bool HasUnitState(const uint32 f) const { return (m_state & f); }
+        bool HasUnitState(const uint32 f) const { return (m_state & f) != 0; }
         void ClearUnitState(uint32 f) { m_state &= ~f; }
         bool CanFreeMove() const;
 
         uint32 HasUnitTypeMask(uint32 mask) const { return mask & m_unitTypeMask; }
         void AddUnitTypeMask(uint32 mask) { m_unitTypeMask |= mask; }
-        bool IsSummon() const   { return m_unitTypeMask & UNIT_MASK_SUMMON; }
-        bool IsGuardian() const { return m_unitTypeMask & UNIT_MASK_GUARDIAN; }
-        bool IsPet() const      { return m_unitTypeMask & UNIT_MASK_PET; }
-        bool IsHunterPet() const{ return m_unitTypeMask & UNIT_MASK_HUNTER_PET; }
-        bool IsTotem() const    { return m_unitTypeMask & UNIT_MASK_TOTEM; }
-        bool IsVehicle() const  { return m_unitTypeMask & UNIT_MASK_VEHICLE; }
+        bool IsSummon() const   { return (m_unitTypeMask & UNIT_MASK_SUMMON) != 0; }
+        bool IsGuardian() const { return (m_unitTypeMask & UNIT_MASK_GUARDIAN) != 0; }
+        bool IsPet() const      { return (m_unitTypeMask & UNIT_MASK_PET) != 0; }
+        bool IsHunterPet() const{ return (m_unitTypeMask & UNIT_MASK_HUNTER_PET) != 0; }
+        bool IsTotem() const    { return (m_unitTypeMask & UNIT_MASK_TOTEM) != 0; }
+        bool IsVehicle() const  { return (m_unitTypeMask & UNIT_MASK_VEHICLE) != 0; }
 
         uint8 getLevel() const { return uint8(GetUInt32Value(UNIT_FIELD_LEVEL)); }
-        uint8 getLevelForTarget(WorldObject const* /*target*/) const { return getLevel(); }
+        uint8 getLevelForTarget(WorldObject const* /*target*/) const override { return getLevel(); }
         void SetLevel(uint8 lvl);
         uint8 getRace() const { return GetByteValue(UNIT_FIELD_BYTES_0, 0); }
         uint32 getRaceMask() const { return 1 << (getRace()-1); }
@@ -1523,6 +1527,7 @@ class Unit : public WorldObject
         bool IsArmorer()      const { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_REPAIR); }
         bool IsServiceProvider() const;
         bool IsSpiritService() const { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPIRITHEALER | UNIT_NPC_FLAG_SPIRITGUIDE); }
+        bool IsCritter() const { return GetCreatureType() == CREATURE_TYPE_CRITTER; }
 
         bool IsInFlight()  const { return HasUnitState(UNIT_STATE_IN_FLIGHT); }
 
@@ -1911,8 +1916,8 @@ class Unit : public WorldObject
         void SetVisible(bool x);
 
         // common function for visibility checks for player/creatures with detection code
-        void SetPhaseMask(uint32 newPhaseMask, bool update);// overwrite WorldObject::SetPhaseMask
-        void UpdateObjectVisibility(bool forced = true);
+        void SetPhaseMask(uint32 newPhaseMask, bool update) override;// overwrite WorldObject::SetPhaseMask
+        void UpdateObjectVisibility(bool forced = true) override;
 
         SpellImmuneList m_spellImmune[MAX_SPELL_IMMUNITY];
         uint32 m_lastSanctuaryTime;
@@ -1966,13 +1971,15 @@ class Unit : public WorldObject
         Unit* GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo);
         Unit* GetMeleeHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo = NULL);
 
-        int32 SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const;
-        int32 SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask) const;
+        int32  SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const;
+        int32  SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask) const;
         uint32 SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack = 1) const;
+        float  SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, DamageEffectType damagetype) const;
         uint32 SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack = 1) const;
-        int32 SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const;
-        int32 SpellBaseHealingBonusTaken(SpellSchoolMask schoolMask) const;
+        int32  SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const;
+        int32  SpellBaseHealingBonusTaken(SpellSchoolMask schoolMask) const;
         uint32 SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack = 1) const;
+        float SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const;
         uint32 SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack = 1) const;
 
         uint32 MeleeDamageBonusDone(Unit* pVictim, uint32 damage, WeaponAttackType attType, SpellInfo const* spellProto = NULL);
@@ -1980,7 +1987,8 @@ class Unit : public WorldObject
 
         bool   isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType = BASE_ATTACK);
         bool   isBlockCritical();
-        bool   isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = BASE_ATTACK) const;
+        bool   IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = BASE_ATTACK) const;
+        float  GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = BASE_ATTACK) const;
         uint32 SpellCriticalDamageBonus(SpellInfo const* spellProto, uint32 damage, Unit* victim);
         uint32 SpellCriticalHealingBonus(SpellInfo const* spellProto, uint32 damage, Unit* victim);
 
@@ -2022,9 +2030,6 @@ class Unit : public WorldObject
 
         void addFollower(FollowerReference* pRef) { m_FollowingRefManager.insertFirst(pRef); }
         void removeFollower(FollowerReference* /*pRef*/) { /* nothing to do yet */ }
-        static Unit* GetUnit(WorldObject& object, uint64 guid);
-        static Player* GetPlayer(WorldObject& object, uint64 guid);
-        static Creature* GetCreature(WorldObject& object, uint64 guid);
 
         MotionMaster* GetMotionMaster() { return i_motionMaster; }
         const MotionMaster* GetMotionMaster() const { return i_motionMaster; }
@@ -2099,7 +2104,7 @@ class Unit : public WorldObject
         bool IsOnVehicle(const Unit* vehicle) const;
         Unit* GetVehicleBase()  const;
         Creature* GetVehicleCreatureBase() const;
-        uint64 GetTransGUID()   const;
+        uint64 GetTransGUID()   const override;
         /// Returns the transport this unit is on directly (if on vehicle and transport, return vehicle)
         TransportBase* GetDirectTransport() const;
 
@@ -2149,10 +2154,13 @@ class Unit : public WorldObject
         time_t GetLastDamagedTime() const { return _lastDamagedTime; }
         void SetLastDamagedTime(time_t val) { _lastDamagedTime = val; }
 
+        int32 GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEff, AuraType auraType, bool checkMiscValue = false, int32 miscValue = 0) const;
+        bool IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplications = false);
+
     protected:
         explicit Unit (bool isWorldObject);
 
-        void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
+        void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const override;
 
         UnitAI* i_AI, *i_disabledAI;
 
@@ -2221,8 +2229,8 @@ class Unit : public WorldObject
         uint32 m_unitTypeMask;
         LiquidTypeEntry const* _lastLiquid;
 
-        bool IsAlwaysVisibleFor(WorldObject const* seer) const;
-        bool IsAlwaysDetectableFor(WorldObject const* seer) const;
+        bool IsAlwaysVisibleFor(WorldObject const* seer) const override;
+        bool IsAlwaysDetectableFor(WorldObject const* seer) const override;
 
         void DisableSpline();
     private:

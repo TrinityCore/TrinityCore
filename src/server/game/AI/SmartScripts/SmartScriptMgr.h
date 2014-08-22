@@ -452,7 +452,7 @@ enum SMART_ACTION
     SMART_ACTION_CALL_KILLEDMONSTER                 = 33,     // CreatureId,
     SMART_ACTION_SET_INST_DATA                      = 34,     // Field, Data
     SMART_ACTION_SET_INST_DATA64                    = 35,     // Field,
-    SMART_ACTION_UPDATE_TEMPLATE                    = 36,     // Entry, Team
+    SMART_ACTION_UPDATE_TEMPLATE                    = 36,     // Entry
     SMART_ACTION_DIE                                = 37,     // No Params
     SMART_ACTION_SET_IN_COMBAT_WITH_ZONE            = 38,     // No Params
     SMART_ACTION_CALL_FOR_HELP                      = 39,     // Radius, With Emote
@@ -701,7 +701,6 @@ struct SmartAction
         struct
         {
             uint32 creature;
-            uint32 team;
         } updateTemplate;
 
         struct
@@ -1339,7 +1338,7 @@ struct SmartScriptHolder
     bool enableTimed;
 };
 
-typedef UNORDERED_MAP<uint32, WayPoint*> WPPath;
+typedef std::unordered_map<uint32, WayPoint*> WPPath;
 
 typedef std::list<WorldObject*> ObjectList;
 typedef std::list<uint64> GuidList;
@@ -1393,14 +1392,20 @@ public:
         delete m_guidList;
     }
 };
-typedef UNORDERED_MAP<uint32, ObjectGuidList*> ObjectListMap;
+typedef std::unordered_map<uint32, ObjectGuidList*> ObjectListMap;
 
 class SmartWaypointMgr
 {
-    friend class ACE_Singleton<SmartWaypointMgr, ACE_Null_Mutex>;
-    SmartWaypointMgr() { }
-    public:
+    private:
+        SmartWaypointMgr() { }
         ~SmartWaypointMgr();
+
+    public:
+        static SmartWaypointMgr* instance()
+        {
+            static SmartWaypointMgr instance;
+            return &instance;
+        }
 
         void LoadFromDB();
 
@@ -1408,18 +1413,18 @@ class SmartWaypointMgr
         {
             if (waypoint_map.find(id) != waypoint_map.end())
                 return waypoint_map[id];
-            else return 0;
+            else return nullptr;
         }
 
     private:
-        UNORDERED_MAP<uint32, WPPath*> waypoint_map;
+        std::unordered_map<uint32, WPPath*> waypoint_map;
 };
 
 // all events for a single entry
 typedef std::vector<SmartScriptHolder> SmartAIEventList;
 
 // all events for all entries / guids
-typedef UNORDERED_MAP<int32, SmartAIEventList> SmartAIEventMap;
+typedef std::unordered_map<int32, SmartAIEventList> SmartAIEventMap;
 
 // Helper Stores
 typedef std::map<uint32 /*entry*/, std::pair<uint32 /*spellId*/, SpellEffIndex /*effIndex*/> > CacheSpellContainer;
@@ -1427,10 +1432,16 @@ typedef std::pair<CacheSpellContainer::const_iterator, CacheSpellContainer::cons
 
 class SmartAIMgr
 {
-    friend class ACE_Singleton<SmartAIMgr, ACE_Null_Mutex>;
-    SmartAIMgr() { }
-    public:
+    private:
+        SmartAIMgr() { }
         ~SmartAIMgr() { }
+
+    public:
+        static SmartAIMgr* instance()
+        {
+            static SmartAIMgr instance;
+            return &instance;
+        }
 
         void LoadSmartAIFromDB();
 
@@ -1599,6 +1610,6 @@ class SmartAIMgr
         CacheSpellContainer KillCreditSpellStore;
 };
 
-#define sSmartScriptMgr ACE_Singleton<SmartAIMgr, ACE_Null_Mutex>::instance()
-#define sSmartWaypointMgr ACE_Singleton<SmartWaypointMgr, ACE_Null_Mutex>::instance()
+#define sSmartScriptMgr SmartAIMgr::instance()
+#define sSmartWaypointMgr SmartWaypointMgr::instance()
 #endif

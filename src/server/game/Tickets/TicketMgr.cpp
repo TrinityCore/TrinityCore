@@ -233,7 +233,7 @@ void GmTicket::SetChatLog(std::list<uint32> time, std::string const& log)
     std::stringstream ss(log);
     std::stringstream newss;
     std::string line;
-    while (std::getline(ss, line))
+    while (std::getline(ss, line) && !time.empty())
     {
         newss << secsToTimeString(time.front()) << ": " << line << "\n";
         time.pop_front();

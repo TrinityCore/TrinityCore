@@ -56,7 +56,7 @@ class boss_the_maker : public CreatureScript
             uint32 Domination_Timer;
             uint32 Knockdown_Timer;
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
                 AcidSpray_Timer = 15000;
@@ -65,25 +65,25 @@ class boss_the_maker : public CreatureScript
                 Knockdown_Timer = 10000;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_DIE);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -91,7 +91,7 @@ class boss_the_maker : public CreatureScript
                 if (AcidSpray_Timer <= diff)
                 {
                     DoCastVictim(SPELL_ACID_SPRAY);
-                    AcidSpray_Timer = 15000+rand()%8000;
+                    AcidSpray_Timer = 15000 + rand32() % 8000;
                 }
                 else
                     AcidSpray_Timer -=diff;
@@ -100,7 +100,7 @@ class boss_the_maker : public CreatureScript
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_EXPLODING_BREAKER);
-                    ExplodingBreaker_Timer = 4000+rand()%8000;
+                    ExplodingBreaker_Timer = 4000 + rand32() % 8000;
                 }
                 else
                     ExplodingBreaker_Timer -=diff;
@@ -120,7 +120,7 @@ class boss_the_maker : public CreatureScript
                 if (Knockdown_Timer <= diff)
                 {
                     DoCastVictim(SPELL_KNOCKDOWN);
-                    Knockdown_Timer = 4000+rand()%8000;
+                    Knockdown_Timer = 4000 + rand32() % 8000;
                 }
                 else
                     Knockdown_Timer -=diff;
@@ -129,7 +129,7 @@ class boss_the_maker : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetBloodFurnaceAI<boss_the_makerAI>(creature);
         }

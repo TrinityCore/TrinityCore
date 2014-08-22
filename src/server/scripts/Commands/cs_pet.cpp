@@ -27,7 +27,7 @@ class pet_commandscript : public CommandScript
 public:
     pet_commandscript() : CommandScript("pet_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand petCommandTable[] =
         {

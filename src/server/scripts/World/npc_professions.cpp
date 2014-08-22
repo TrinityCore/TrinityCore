@@ -260,90 +260,90 @@ void ProfessionUnlearnSpells(Player* player, uint32 type)
     switch (type)
     {
         case S_UNLEARN_WEAPON:                              // S_UNLEARN_WEAPON
-            player->removeSpell(36125);                     // Light Earthforged Blade
-            player->removeSpell(36128);                     // Light Emberforged Hammer
-            player->removeSpell(36126);                     // Light Skyforged Axe
+            player->RemoveSpell(36125);                     // Light Earthforged Blade
+            player->RemoveSpell(36128);                     // Light Emberforged Hammer
+            player->RemoveSpell(36126);                     // Light Skyforged Axe
             break;
         case S_UNLEARN_ARMOR:                               // S_UNLEARN_ARMOR
-            player->removeSpell(36122);                     // Earthforged Leggings
-            player->removeSpell(36129);                     // Heavy Earthforged Breastplate
-            player->removeSpell(36130);                     // Stormforged Hauberk
-            player->removeSpell(34533);                     // Breastplate of Kings
-            player->removeSpell(34529);                     // Nether Chain Shirt
-            player->removeSpell(34534);                     // Bulwark of Kings
-            player->removeSpell(36257);                     // Bulwark of the Ancient Kings
-            player->removeSpell(36256);                     // Embrace of the Twisting Nether
-            player->removeSpell(34530);                     // Twisting Nether Chain Shirt
-            player->removeSpell(36124);                     // Windforged Leggings
+            player->RemoveSpell(36122);                     // Earthforged Leggings
+            player->RemoveSpell(36129);                     // Heavy Earthforged Breastplate
+            player->RemoveSpell(36130);                     // Stormforged Hauberk
+            player->RemoveSpell(34533);                     // Breastplate of Kings
+            player->RemoveSpell(34529);                     // Nether Chain Shirt
+            player->RemoveSpell(34534);                     // Bulwark of Kings
+            player->RemoveSpell(36257);                     // Bulwark of the Ancient Kings
+            player->RemoveSpell(36256);                     // Embrace of the Twisting Nether
+            player->RemoveSpell(34530);                     // Twisting Nether Chain Shirt
+            player->RemoveSpell(36124);                     // Windforged Leggings
             break;
         case S_UNLEARN_HAMMER:                              // S_UNLEARN_HAMMER
-            player->removeSpell(36262);                     // Dragonstrike
-            player->removeSpell(34546);                     // Dragonmaw
-            player->removeSpell(34545);                     // Drakefist Hammer
-            player->removeSpell(36136);                     // Lavaforged Warhammer
-            player->removeSpell(34547);                     // Thunder
-            player->removeSpell(34567);                     // Deep Thunder
-            player->removeSpell(36263);                     // Stormherald
-            player->removeSpell(36137);                     // Great Earthforged Hammer
+            player->RemoveSpell(36262);                     // Dragonstrike
+            player->RemoveSpell(34546);                     // Dragonmaw
+            player->RemoveSpell(34545);                     // Drakefist Hammer
+            player->RemoveSpell(36136);                     // Lavaforged Warhammer
+            player->RemoveSpell(34547);                     // Thunder
+            player->RemoveSpell(34567);                     // Deep Thunder
+            player->RemoveSpell(36263);                     // Stormherald
+            player->RemoveSpell(36137);                     // Great Earthforged Hammer
             break;
         case S_UNLEARN_AXE:                                 // S_UNLEARN_AXE
-            player->removeSpell(36260);                     // Wicked Edge of the Planes
-            player->removeSpell(34562);                     // Black Planar Edge
-            player->removeSpell(34541);                     // The Planar Edge
-            player->removeSpell(36134);                     // Stormforged Axe
-            player->removeSpell(36135);                     // Skyforged Great Axe
-            player->removeSpell(36261);                     // Bloodmoon
-            player->removeSpell(34543);                     // Lunar Crescent
-            player->removeSpell(34544);                     // Mooncleaver
+            player->RemoveSpell(36260);                     // Wicked Edge of the Planes
+            player->RemoveSpell(34562);                     // Black Planar Edge
+            player->RemoveSpell(34541);                     // The Planar Edge
+            player->RemoveSpell(36134);                     // Stormforged Axe
+            player->RemoveSpell(36135);                     // Skyforged Great Axe
+            player->RemoveSpell(36261);                     // Bloodmoon
+            player->RemoveSpell(34543);                     // Lunar Crescent
+            player->RemoveSpell(34544);                     // Mooncleaver
             break;
         case S_UNLEARN_SWORD:                               // S_UNLEARN_SWORD
-            player->removeSpell(36258);                     // Blazefury
-            player->removeSpell(34537);                     // Blazeguard
-            player->removeSpell(34535);                     // Fireguard
-            player->removeSpell(36131);                     // Windforged Rapier
-            player->removeSpell(36133);                     // Stoneforged Claymore
-            player->removeSpell(34538);                     // Lionheart Blade
-            player->removeSpell(34540);                     // Lionheart Champion
-            player->removeSpell(36259);                     // Lionheart Executioner
+            player->RemoveSpell(36258);                     // Blazefury
+            player->RemoveSpell(34537);                     // Blazeguard
+            player->RemoveSpell(34535);                     // Fireguard
+            player->RemoveSpell(36131);                     // Windforged Rapier
+            player->RemoveSpell(36133);                     // Stoneforged Claymore
+            player->RemoveSpell(34538);                     // Lionheart Blade
+            player->RemoveSpell(34540);                     // Lionheart Champion
+            player->RemoveSpell(36259);                     // Lionheart Executioner
             break;
         case S_UNLEARN_DRAGON:                              // S_UNLEARN_DRAGON
-            player->removeSpell(36076);                     // Dragonstrike Leggings
-            player->removeSpell(36079);                     // Golden Dragonstrike Breastplate
-            player->removeSpell(35576);                     // Ebon Netherscale Belt
-            player->removeSpell(35577);                     // Ebon Netherscale Bracers
-            player->removeSpell(35575);                     // Ebon Netherscale Breastplate
-            player->removeSpell(35582);                     // Netherstrike Belt
-            player->removeSpell(35584);                     // Netherstrike Bracers
-            player->removeSpell(35580);                     // Netherstrike Breastplate
+            player->RemoveSpell(36076);                     // Dragonstrike Leggings
+            player->RemoveSpell(36079);                     // Golden Dragonstrike Breastplate
+            player->RemoveSpell(35576);                     // Ebon Netherscale Belt
+            player->RemoveSpell(35577);                     // Ebon Netherscale Bracers
+            player->RemoveSpell(35575);                     // Ebon Netherscale Breastplate
+            player->RemoveSpell(35582);                     // Netherstrike Belt
+            player->RemoveSpell(35584);                     // Netherstrike Bracers
+            player->RemoveSpell(35580);                     // Netherstrike Breastplate
             break;
         case S_UNLEARN_ELEMENTAL:                           // S_UNLEARN_ELEMENTAL
-            player->removeSpell(36074);                     // Blackstorm Leggings
-            player->removeSpell(36077);                     // Primalstorm Breastplate
-            player->removeSpell(35590);                     // Primalstrike Belt
-            player->removeSpell(35591);                     // Primalstrike Bracers
-            player->removeSpell(35589);                     // Primalstrike Vest
+            player->RemoveSpell(36074);                     // Blackstorm Leggings
+            player->RemoveSpell(36077);                     // Primalstorm Breastplate
+            player->RemoveSpell(35590);                     // Primalstrike Belt
+            player->RemoveSpell(35591);                     // Primalstrike Bracers
+            player->RemoveSpell(35589);                     // Primalstrike Vest
             break;
         case S_UNLEARN_TRIBAL:                              // S_UNLEARN_TRIBAL
-            player->removeSpell(35585);                     // Windhawk Hauberk
-            player->removeSpell(35587);                     // Windhawk Belt
-            player->removeSpell(35588);                     // Windhawk Bracers
-            player->removeSpell(36075);                     // Wildfeather Leggings
-            player->removeSpell(36078);                     // Living Crystal Breastplate
+            player->RemoveSpell(35585);                     // Windhawk Hauberk
+            player->RemoveSpell(35587);                     // Windhawk Belt
+            player->RemoveSpell(35588);                     // Windhawk Bracers
+            player->RemoveSpell(36075);                     // Wildfeather Leggings
+            player->RemoveSpell(36078);                     // Living Crystal Breastplate
             break;
         case S_UNLEARN_SPELLFIRE:                           // S_UNLEARN_SPELLFIRE
-            player->removeSpell(26752);                     // Spellfire Belt
-            player->removeSpell(26753);                     // Spellfire Gloves
-            player->removeSpell(26754);                     // Spellfire Robe
+            player->RemoveSpell(26752);                     // Spellfire Belt
+            player->RemoveSpell(26753);                     // Spellfire Gloves
+            player->RemoveSpell(26754);                     // Spellfire Robe
             break;
         case S_UNLEARN_MOONCLOTH:                           // S_UNLEARN_MOONCLOTH
-            player->removeSpell(26760);                     // Primal Mooncloth Belt
-            player->removeSpell(26761);                     // Primal Mooncloth Shoulders
-            player->removeSpell(26762);                     // Primal Mooncloth Robe
+            player->RemoveSpell(26760);                     // Primal Mooncloth Belt
+            player->RemoveSpell(26761);                     // Primal Mooncloth Shoulders
+            player->RemoveSpell(26762);                     // Primal Mooncloth Robe
             break;
         case S_UNLEARN_SHADOWEAVE:                          // S_UNLEARN_SHADOWEAVE
-            player->removeSpell(26756);                     // Frozen Shadoweave Shoulders
-            player->removeSpell(26757);                     // Frozen Shadoweave Boots
-            player->removeSpell(26758);                     // Frozen Shadoweave Robe
+            player->RemoveSpell(26756);                     // Frozen Shadoweave Shoulders
+            player->RemoveSpell(26757);                     // Frozen Shadoweave Boots
+            player->RemoveSpell(26758);                     // Frozen Shadoweave Robe
             break;
     }
 }
@@ -382,7 +382,7 @@ public:
         return (player->HasSpell(S_TRANSMUTE) || player->HasSpell(S_ELIXIR) || player->HasSpell(S_POTION));
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -508,7 +508,7 @@ public:
         }
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (sender)
@@ -547,7 +547,7 @@ public:
         return (player->HasSpell(S_HAMMER) || player->HasSpell(S_AXE) || player->HasSpell(S_SWORD));
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -738,7 +738,7 @@ public:
         }
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (sender)
@@ -808,7 +808,7 @@ public:
         return res;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         uint32 npcTextId = 0;
         std::string gossipItem;
@@ -848,7 +848,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
@@ -886,7 +886,7 @@ class npc_prof_leather : public CreatureScript
 public:
     npc_prof_leather() : CreatureScript("npc_prof_leather") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -974,7 +974,7 @@ public:
         }
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (sender)
@@ -1009,7 +1009,7 @@ public:
         return (player->HasSpell(S_MOONCLOTH) || player->HasSpell(S_SHADOWEAVE) || player->HasSpell(S_SPELLFIRE));
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -1136,7 +1136,7 @@ public:
         }
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (sender)

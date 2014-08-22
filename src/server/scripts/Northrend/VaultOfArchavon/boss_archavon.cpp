@@ -76,7 +76,7 @@ class boss_archavon : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_ROCK_SHARDS, 15000);
                 events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30000);
@@ -87,7 +87,7 @@ class boss_archavon : public CreatureScript
             }
 
             // Below UpdateAI may need review/debug.
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -132,7 +132,7 @@ class boss_archavon : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_archavonAI(creature);
         }
@@ -154,7 +154,7 @@ class npc_archavon_warder : public CreatureScript
 
             EventMap events;
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 events.Reset();
                 events.ScheduleEvent(EVENT_ROCK_SHOWER, 2000);
@@ -162,12 +162,12 @@ class npc_archavon_warder : public CreatureScript
                 events.ScheduleEvent(EVENT_WHIRL, 7500);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 DoZoneInCombat();
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -203,7 +203,7 @@ class npc_archavon_warder : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_archavon_warderAI(creature);
         }
@@ -219,7 +219,7 @@ class spell_archavon_rock_shards : public SpellScriptLoader
         {
             PrepareSpellScript(spell_archavon_rock_shards_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_ROCK_SHARDS_VISUAL_L)
                     || !sSpellMgr->GetSpellInfo(SPELL_ROCK_SHARDS_VISUAL_R)
@@ -243,13 +243,13 @@ class spell_archavon_rock_shards : public SpellScriptLoader
                 caster->CastSpell((Unit*)NULL, SPELL_ROCK_SHARDS_DAMAGE_R, true);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_archavon_rock_shards_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_archavon_rock_shards_SpellScript();
         }

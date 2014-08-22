@@ -806,7 +806,7 @@ void Map::ScriptsProcess()
                     if (!sWaypointMgr->GetPath(step.script->LoadPath.PathID))
                         TC_LOG_ERROR("scripts", "%s source object has an invalid path (%u), skipping.", step.script->GetDebugInfo().c_str(), step.script->LoadPath.PathID);
                     else
-                        unit->GetMotionMaster()->MovePath(step.script->LoadPath.PathID, step.script->LoadPath.IsRepeatable);
+                        unit->GetMotionMaster()->MovePath(step.script->LoadPath.PathID, step.script->LoadPath.IsRepeatable != 0);
                 }
                 break;
 
@@ -824,10 +824,9 @@ void Map::ScriptsProcess()
                 }
 
                 Creature* cTarget = NULL;
-                if (source) //using grid searcher
+                WorldObject* wSource = dynamic_cast <WorldObject*> (source);
+                if (wSource) //using grid searcher
                 {
-                    WorldObject* wSource = dynamic_cast <WorldObject*> (source);
-
                     CellCoord p(Trinity::ComputeCellCoord(wSource->GetPositionX(), wSource->GetPositionY()));
                     Cell cell(p);
 

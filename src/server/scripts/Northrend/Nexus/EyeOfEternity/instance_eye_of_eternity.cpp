@@ -26,7 +26,7 @@ class instance_eye_of_eternity : public InstanceMapScript
 public:
     instance_eye_of_eternity() : InstanceMapScript("instance_eye_of_eternity", 616) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_eye_of_eternity_InstanceMapScript(map);
     }
@@ -48,7 +48,7 @@ public:
             alexstraszaBunnyGUID = 0;
         };
 
-        bool SetBossState(uint32 type, EncounterState state) OVERRIDE
+        bool SetBossState(uint32 type, EncounterState state) override
         {
             if (!InstanceScript::SetBossState(type, state))
                 return false;
@@ -94,7 +94,7 @@ public:
             instance->AddToMap(go);
         }
 
-        void OnGameObjectCreate(GameObject* go) OVERRIDE
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
@@ -105,19 +105,19 @@ public:
                     if (instance->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
                     {
                         irisGUID = go->GetGUID();
-                        go->GetPosition(&focusingIrisPosition);
+                        focusingIrisPosition = go->GetPosition();
                     }
                     break;
                 case GO_FOCUSING_IRIS_25:
                     if (instance->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
                     {
                         irisGUID = go->GetGUID();
-                        go->GetPosition(&focusingIrisPosition);
+                        focusingIrisPosition = go->GetPosition();
                     }
                     break;
                 case GO_EXIT_PORTAL:
                     exitPortalGUID = go->GetGUID();
-                    go->GetPosition(&exitPortalPosition);
+                    exitPortalPosition = go->GetPosition();
                     break;
                 case GO_HEART_OF_MAGIC_10:
                     if (instance->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
@@ -130,7 +130,7 @@ public:
             }
         }
 
-        void OnCreatureCreate(Creature* creature) OVERRIDE
+        void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
@@ -152,7 +152,7 @@ public:
             }
         }
 
-        void OnUnitDeath(Unit* unit) OVERRIDE
+        void OnUnitDeath(Unit* unit) override
         {
             if (unit->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -165,7 +165,7 @@ public:
             unit->SetControlled(true, UNIT_STATE_ROOT);
         }
 
-        void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) OVERRIDE
+        void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
         {
             if (eventId == EVENT_FOCUSING_IRIS)
             {
@@ -239,7 +239,7 @@ public:
             }
         }
 
-        void SetData(uint32 data, uint32 /*value*/) OVERRIDE
+        void SetData(uint32 data, uint32 /*value*/) override
         {
             switch (data)
             {
@@ -255,7 +255,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 data) const OVERRIDE
+        uint64 GetData64(uint32 data) const override
         {
             switch (data)
             {
@@ -278,7 +278,7 @@ public:
             return 0;
         }
 
-        std::string GetSaveData() OVERRIDE
+        std::string GetSaveData() override
         {
             OUT_SAVE_INST_DATA;
 
@@ -289,7 +289,7 @@ public:
             return saveStream.str();
         }
 
-        void Load(const char* str) OVERRIDE
+        void Load(const char* str) override
         {
             if (!str)
             {

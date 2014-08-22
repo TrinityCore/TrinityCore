@@ -11,7 +11,6 @@
 file(GLOB_RECURSE sources_CommandLine CommandLine/*.cpp CommandLine/*.h)
 file(GLOB_RECURSE sources_RemoteAccess RemoteAccess/*.cpp RemoteAccess/*.h)
 file(GLOB_RECURSE sources_TCSoap TCSoap/*.cpp TCSoap/*.h)
-file(GLOB_RECURSE sources_WorldThread WorldThread/*.cpp WorldThread/*.h)
 file(GLOB sources_localdir *.cpp *.h)
 
 if (USE_COREPCH)
@@ -24,7 +23,6 @@ set(worldserver_SRCS
   ${sources_CommandLine}
   ${sources_RemoteAccess}
   ${sources_TCSoap}
-  ${sources_WorldThread}
   ${sources_localdir}
 )
 
@@ -45,6 +43,7 @@ include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour
+  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/Include
   ${CMAKE_SOURCE_DIR}/dep/gsoap
   ${CMAKE_SOURCE_DIR}/dep/sockets/include
   ${CMAKE_SOURCE_DIR}/dep/SFMT
@@ -61,6 +60,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic/LinkedReference
   ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic
   ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Networking
   ${CMAKE_SOURCE_DIR}/src/server/shared/Packets
   ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
   ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
@@ -136,8 +136,6 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/CommandLine
   ${CMAKE_CURRENT_SOURCE_DIR}/RemoteAccess
   ${CMAKE_CURRENT_SOURCE_DIR}/TCSoap
-  ${CMAKE_CURRENT_SOURCE_DIR}/WorldThread
-  ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
 )
@@ -155,7 +153,7 @@ endif()
 
 add_dependencies(worldserver revision.h)
 
-if( UNIX AND NOT NOJEM )
+if( UNIX AND NOT NOJEM AND NOT APPLE )
   set(worldserver_LINK_FLAGS "-pthread -lncurses ${worldserver_LINK_FLAGS}")
 endif()
 
@@ -172,11 +170,11 @@ target_link_libraries(worldserver
   ${JEMALLOC_LIBRARY}
   ${READLINE_LIBRARY}
   ${TERMCAP_LIBRARY}
-  ${ACE_LIBRARY}
   ${MYSQL_LIBRARY}
   ${OPENSSL_LIBRARIES}
   ${ZLIB_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
+  ${Boost_LIBRARIES}
 )
 
 if( WIN32 )

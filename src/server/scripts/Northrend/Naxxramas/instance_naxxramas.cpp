@@ -131,7 +131,7 @@ class instance_naxxramas : public InstanceMapScript
                 memset(PortalsGUID, 0, sizeof(PortalsGUID));
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -175,12 +175,12 @@ class instance_naxxramas : public InstanceMapScript
                 AddMinion(creature, true);
             }
 
-            void OnCreatureRemove(Creature* creature) OVERRIDE
+            void OnCreatureRemove(Creature* creature) override
             {
                 AddMinion(creature, false);
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 if (go->GetGOInfo()->displayId == 6785 || go->GetGOInfo()->displayId == 1287)
                 {
@@ -220,7 +220,7 @@ class instance_naxxramas : public InstanceMapScript
                 AddDoor(go, true);
             }
 
-            void OnGameObjectRemove(GameObject* go) OVERRIDE
+            void OnGameObjectRemove(GameObject* go) override
             {
                 if (go->GetGOInfo()->displayId == 6785 || go->GetGOInfo()->displayId == 1287)
                 {
@@ -247,7 +247,7 @@ class instance_naxxramas : public InstanceMapScript
                 AddDoor(go, false);
             }
 
-            void OnUnitDeath(Unit* unit) OVERRIDE
+            void OnUnitDeath(Unit* unit) override
             {
                 if (unit->GetTypeId() == TYPEID_PLAYER && IsEncounterInProgress())
                 {
@@ -256,7 +256,7 @@ class instance_naxxramas : public InstanceMapScript
                 }
             }
 
-            void SetData(uint32 id, uint32 value) OVERRIDE
+            void SetData(uint32 id, uint32 value) override
             {
                 switch (id)
                 {
@@ -292,7 +292,7 @@ class instance_naxxramas : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 id) const OVERRIDE
+            uint32 GetData(uint32 id) const override
             {
                 switch (id)
                 {
@@ -305,7 +305,7 @@ class instance_naxxramas : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 id) const OVERRIDE
+            uint64 GetData64(uint32 id) const override
             {
                 switch (id)
                 {
@@ -344,7 +344,7 @@ class instance_naxxramas : public InstanceMapScript
                 return 0;
             }
 
-            bool SetBossState(uint32 id, EncounterState state) OVERRIDE
+            bool SetBossState(uint32 id, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(id, state))
                     return false;
@@ -368,9 +368,9 @@ class instance_naxxramas : public InstanceMapScript
                     if (i == section)
                         continue;
 
-                    for (std::set<uint64>::const_iterator itr = HeiganEruptionGUID[i].begin(); itr != HeiganEruptionGUID[i].end(); ++itr)
+                    for (uint64 guid : HeiganEruptionGUID[i])
                     {
-                        if (GameObject* heiganEruption = instance->GetGameObject(*itr))
+                        if (GameObject* heiganEruption = instance->GetGameObject(guid))
                         {
                             heiganEruption->SendCustomAnim(heiganEruption->GetGoAnimProgress());
                             heiganEruption->CastSpell(NULL, SPELL_ERUPTION);
@@ -427,7 +427,7 @@ class instance_naxxramas : public InstanceMapScript
                 return false;
             }
 
-            std::string GetSaveData() OVERRIDE
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -438,7 +438,7 @@ class instance_naxxramas : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* strIn) OVERRIDE
+            void Load(const char* strIn) override
             {
                 if (!strIn)
                 {
@@ -513,7 +513,7 @@ class instance_naxxramas : public InstanceMapScript
             uint32 playerDied;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_naxxramas_InstanceMapScript(map);
         }

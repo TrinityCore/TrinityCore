@@ -32,7 +32,7 @@ class instance_auchenai_crypts : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_auchenai_crypts_InstanceMapScript(map);
         }

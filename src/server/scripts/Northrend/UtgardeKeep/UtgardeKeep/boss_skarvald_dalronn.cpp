@@ -89,7 +89,7 @@ class boss_skarvald_the_constructor : public CreatureScript
             bool Dalronn_isDead;
             bool Enraged;
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 Charge_Timer = 5000;
                 StoneStrike_Timer = 10000;
@@ -103,7 +103,7 @@ class boss_skarvald_the_constructor : public CreatureScript
                     _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 if (!ghost)
                 {
@@ -112,7 +112,7 @@ class boss_skarvald_the_constructor : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) OVERRIDE
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (!Enraged && !ghost && me->HealthBelowPctDamaged(15, damage))
                 {
@@ -126,7 +126,7 @@ class boss_skarvald_the_constructor : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void JustDied(Unit* killer) OVERRIDE
+            void JustDied(Unit* killer) override
             {
                 if (!ghost)
                 {
@@ -155,13 +155,13 @@ class boss_skarvald_the_constructor : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (!ghost && who->GetTypeId() == TYPEID_PLAYER)
                     Talk(YELL_SKARVALD_KILL);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -201,7 +201,7 @@ class boss_skarvald_the_constructor : public CreatureScript
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, SkarvaldChargePredicate(me)))
                         DoCast(target, SPELL_CHARGE);
-                    Charge_Timer = 5000+rand()%5000;
+                    Charge_Timer = 5000 + rand32() % 5000;
                 }
                 else
                     Charge_Timer -= diff;
@@ -209,7 +209,7 @@ class boss_skarvald_the_constructor : public CreatureScript
                 if (StoneStrike_Timer <= diff)
                 {
                     DoCastVictim(SPELL_STONE_STRIKE);
-                    StoneStrike_Timer = 5000+rand()%5000;
+                    StoneStrike_Timer = 5000 + rand32() % 5000;
                 }
                 else
                     StoneStrike_Timer -= diff;
@@ -219,7 +219,7 @@ class boss_skarvald_the_constructor : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetUtgardeKeepAI<boss_skarvald_the_constructorAI>(creature);
         }
@@ -244,7 +244,7 @@ class boss_dalronn_the_controller : public CreatureScript
             uint32 AggroYell_Timer;
             bool Skarvald_isDead;
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 ShadowBolt_Timer = 1000;
                 Debilitate_Timer = 5000;
@@ -259,7 +259,7 @@ class boss_dalronn_the_controller : public CreatureScript
                     _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 if (!ghost)
                 {
@@ -273,7 +273,7 @@ class boss_dalronn_the_controller : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void JustDied(Unit* killer) OVERRIDE
+            void JustDied(Unit* killer) override
             {
                 if (!ghost)
                 {
@@ -302,13 +302,13 @@ class boss_dalronn_the_controller : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (!ghost && who->GetTypeId() == TYPEID_PLAYER)
                     Talk(YELL_DALRONN_KILL);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -374,7 +374,7 @@ class boss_dalronn_the_controller : public CreatureScript
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             DoCast(target, SPELL_DEBILITATE);
-                        Debilitate_Timer = 5000+rand()%5000;
+                        Debilitate_Timer = 5000 + rand32() % 5000;
                     }
                 }
                 else
@@ -387,7 +387,7 @@ class boss_dalronn_the_controller : public CreatureScript
                         if (!me->IsNonMeleeSpellCast(false))
                         {
                             DoCast(me, H_SPELL_SUMMON_SKELETONS);
-                            Summon_Timer = (rand()%10000) + 20000;
+                            Summon_Timer = (rand32() % 10000) + 20000;
                         }
                     }
                     else
@@ -398,7 +398,7 @@ class boss_dalronn_the_controller : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetUtgardeKeepAI<boss_dalronn_the_controllerAI>(creature);
         }

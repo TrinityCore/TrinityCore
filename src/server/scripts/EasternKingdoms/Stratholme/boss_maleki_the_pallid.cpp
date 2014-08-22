@@ -41,7 +41,7 @@ class boss_maleki_the_pallid : public CreatureScript
 public:
     boss_maleki_the_pallid() : CreatureScript("boss_maleki_the_pallid") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_maleki_the_pallidAI>(creature);
     }
@@ -59,23 +59,23 @@ public:
         uint32 IceTomb_Timer;
         uint32 DrainLife_Timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             Frostbolt_Timer = 1000;
             IceTomb_Timer = 16000;
             DrainLife_Timer = 31000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             instance->SetData(TYPE_PALLID, IN_PROGRESS);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -84,7 +84,7 @@ public:
             //Frostbolt
             if (Frostbolt_Timer <= diff)
             {
-                 if (rand()%100 < 90)
+                if (rand32() % 100 < 90)
                     DoCastVictim(SPELL_FROSTBOLT);
                 Frostbolt_Timer = 3500;
             } else Frostbolt_Timer -= diff;
@@ -92,7 +92,7 @@ public:
             //IceTomb
             if (IceTomb_Timer <= diff)
             {
-                if (rand()%100 < 65)
+                if (rand32() % 100 < 65)
                     DoCastVictim(SPELL_ICETOMB);
                 IceTomb_Timer = 28000;
             } else IceTomb_Timer -= diff;
@@ -100,7 +100,7 @@ public:
             //DrainLife
             if (DrainLife_Timer <= diff)
             {
-                  if (rand()%100 < 55)
+                if (rand32() % 100 < 55)
                     DoCastVictim(SPELL_DRAINLIFE);
                 DrainLife_Timer = 31000;
             } else DrainLife_Timer -= diff;
