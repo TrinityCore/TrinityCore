@@ -653,7 +653,6 @@ enum Opcodes
     MSG_START_MOVE_FORWARD                            = 0x0000,
     MSG_TABARDVENDOR_ACTIVATE                         = 0x6926,
     MSG_TALENT_WIPE_CONFIRM                           = 0x0107,
-    MSG_VERIFY_CONNECTIVITY                           = 0x4F57,
     SMSG_ACCOUNT_DATA_TIMES                           = 0x4B05,
     SMSG_ACCOUNT_INFO_RESPONSE                        = 0x10A7,
     SMSG_ACCOUNT_RESTRICTED_WARNING                   = 0x51A7,
