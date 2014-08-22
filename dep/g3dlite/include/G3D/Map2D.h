@@ -87,7 +87,7 @@ namespace G3D {
 
   G3D::GImage - Supports file formats, fast, Color3uint8 and Color4uint8 formats.  No interpolation.
 
-  G3D::Texture::Ref - Represents image on the graphics card (not directly readable on the CPU).  Supports 2D, 3D, and a variety of interpolation methods, loads file formats.
+  G3D::shared_ptr<Texture> - Represents image on the graphics card (not directly readable on the CPU).  Supports 2D, 3D, and a variety of interpolation methods, loads file formats.
 
   G3D::Image3 - A subclass of Map2D<Color3> that supports image loading and saving and conversion to Texture.
 
@@ -181,7 +181,7 @@ public:
     typedef Storage StorageType;
     typedef Compute ComputeType;
     typedef Map2D<Storage, Compute> Type;
-    typedef ReferenceCountedPointer<Map2D> Ref;
+    typedef shared_ptr<Map2D> Ref;
 
 protected:
     
@@ -296,7 +296,7 @@ public:
     GMutex mutex;
 
     static Ref create(int w = 0, int h = 0, WrapMode wrap = WrapMode::ERROR) {
-        return new Map2D(w, h, wrap);
+        return Ref(new Map2D(w, h, wrap));
     }
 
     /** Resizes without clearing, leaving garbage.
@@ -372,7 +372,7 @@ public:
             // (we're returning a const reference so this is ok)
             return const_cast<Type*>(this)->slowGet(x, y, wrap);
         }
-#       ifndef G3D_WIN32
+#       ifndef G3D_WINDOWS
             // gcc gives a useless warning that the above code might reach the end of the function;
             // we use this line to supress the warning.
             return ZERO;
@@ -393,7 +393,7 @@ public:
 
     inline Storage& get(int x, int y, WrapMode wrap) {
         return const_cast<Storage&>(const_cast<const Type*>(this)->get(x, y, wrap));
-#       ifndef G3D_WIN32
+#       ifndef G3D_WINDOWS
             // gcc gives a useless warning that the above code might reach the end of the function;
             // we use this line to supress the warning.
             return ZERO;
@@ -402,7 +402,7 @@ public:
 
     inline Storage& get(int x, int y) {
         return const_cast<Storage&>(const_cast<const Type*>(this)->get(x, y));
-#       ifndef G3D_WIN32
+#       ifndef G3D_WINDOWS
             // gcc gives a useless warning that the above code might reach the end of the function;
             // we use this line to supress the warning.
             return ZERO;
@@ -441,6 +441,19 @@ public:
         setChanged(true);
     }
 
+    /** Copy values from \a src, which must have the same size */
+    template<class T>
+    void set(const shared_ptr<Map2D<Storage, T> >& src) {
+        debugAssert(src->width() == width());
+        debugAssert(src->height() == height());
+        const Array<Storage>& s = src->data;
+        int N = w * h;
+        for (int i = 0; i < N; ++i) {
+            data[i] = s[i];
+        }
+        setChanged(true);
+    }
+
     /** flips if @a flip is true*/
     void maybeFlipVertical(bool flip) {
         if (flip) {
@@ -448,38 +461,38 @@ public:
         }
     }
 
-	virtual void flipVertical() {
-		int halfHeight = h/2;
-		Storage* d = data.getCArray();
-		for (int y = 0; y < halfHeight; ++y) {
-			int o1 = y * w;
-			int o2 = (h - y - 1) * w;
-			for (int x = 0; x < (int)w; ++x) {
-				int i1 = o1 + x;
-				int i2 = o2 + x;
-				Storage temp = d[i1];
-				d[i1] = d[i2];
-				d[i2] = temp;
-			}
-		}
+    virtual void flipVertical() {
+        int halfHeight = h/2;
+        Storage* d = data.getCArray();
+        for (int y = 0; y < halfHeight; ++y) {
+            int o1 = y * w;
+            int o2 = (h - y - 1) * w;
+            for (int x = 0; x < (int)w; ++x) {
+                int i1 = o1 + x;
+                int i2 = o2 + x;
+                Storage temp = d[i1];
+                d[i1] = d[i2];
+                d[i2] = temp;
+            }
+        }
         setChanged(true);
-	}
-
-	virtual void flipHorizontal() {
-		int halfWidth = w / 2;
-		Storage* d = data.getCArray();
-		for (int x = 0; x < halfWidth; ++x) {
-			for (int y = 0; y < (int)h; ++y) {
-				int i1 = y * w + x;
-				int i2 = y * w + (w - x - 1);
-				Storage temp = d[i1];
-				d[i1] = d[i2];
-				d[i2] = temp;
-			}
-		}
+    }
+    
+    virtual void flipHorizontal() {
+        int halfWidth = w / 2;
+        Storage* d = data.getCArray();
+        for (int x = 0; x < halfWidth; ++x) {
+            for (int y = 0; y < (int)h; ++y) {
+                int i1 = y * w + x;
+                int i2 = y * w + (w - x - 1);
+                Storage temp = d[i1];
+                d[i1] = d[i2];
+                d[i2] = temp;
+            }
+        }
         setChanged(true);
-	}
-
+    }
+    
     /**
      Crops this map so that it only contains pixels between (x, y) and (x + w - 1, y + h - 1) inclusive.
      */
