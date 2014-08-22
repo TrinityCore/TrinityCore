@@ -9,7 +9,7 @@ Has a feature to store sets of displays. This can be removed before compiling or
 Made for 3.3.5a.<br />
 Source: https://rochet2.github.io/?page=Transmogrification
 
-Video: http://youtu.be/xtH4ogz12iM
+Video: https://youtu.be/xtH4ogz12iM
 
 ####Installation
 
