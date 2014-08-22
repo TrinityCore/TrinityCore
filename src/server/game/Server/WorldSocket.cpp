@@ -261,31 +261,10 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     account = recvPacket.ReadString(accountNameLength);
 
     // Get the account information from the auth database
-    //         0           1        2       3          4         5       6          7   8
-    // SELECT id, sessionkey, last_ip, locked, expansion, mutetime, locale, recruiter, os FROM account WHERE username = ?
-    PreparedStatement* stmt;
-    uint32 battlenetAccountId = 0;
-    uint8 battlenetAccountIndex = 0;
-    if (loginServerType == 1)
-    {
-        if (!Battlenet::AccountMgr::GetAccountIdAndIndex(account, &battlenetAccountId, &battlenetAccountIndex))
-        {
-            // We can not log here, as we do not know the account. Thus, no accountId.
-            SendAuthResponseError(AUTH_UNKNOWN_ACCOUNT);
-            TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Sent Auth Response (unknown account).");
-            DelayedCloseSocket();
-            return;
-        }
-
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_BNET);
-        stmt->setUInt32(0, battlenetAccountId);
-        stmt->setUInt8(1, battlenetAccountIndex);
-    }
-    else
-    {
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
-        stmt->setString(0, account);
-    }
+    //         0           1        2       3          4         5       6          7   8                  9
+    // SELECT id, sessionkey, last_ip, locked, expansion, mutetime, locale, recruiter, os, battlenet_account FROM account WHERE username = ?
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
+    stmt->setString(0, account);
 
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
@@ -392,7 +371,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     {
         mutetime = time(NULL) + llabs(mutetime);
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME_LOGIN);
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME_LOGIN);
 
         stmt->setInt64(0, mutetime);
         stmt->setUInt32(1, id);
@@ -405,6 +384,11 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         locale = LOCALE_enUS;
 
     uint32 recruiter = fields[7].GetUInt32();
+
+    uint32 battlenetAccountId = 0;
+    if (loginServerType == 1)
+        battlenetAccountId = fields[9].GetUInt32();
+
     // Checks gmlevel per Realm
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
 

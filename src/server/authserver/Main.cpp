@@ -28,7 +28,7 @@
 #include "AsyncAcceptor.h"
 #include "AuthSession.h"
 #include "BattlenetManager.h"
-#include "BattlenetSession.h"
+#include "BattlenetSessionManager.h"
 #include "Common.h"
 #include "Configuration/Config.h"
 #include "Database/DatabaseEnv.h"
