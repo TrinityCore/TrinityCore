@@ -7804,6 +7804,20 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
     if (only_level_scale && !ssv)
         return;
 
+    uint32 statcount = proto->StatsCount;
+    uint32 lowGUID = 0;
+    bool decreased = false;
+    if (statcount < MAX_ITEM_PROTO_STATS)
+    {
+        if (Item* invItem = GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+        {
+            if (sObjectMgr->_itemFakeStatStore.find(invItem->GetGUIDLow()) != sObjectMgr->_itemFakeStatStore.end())
+            {
+                lowGUID = invItem->GetGUIDLow();
+                statcount++;
+            }
+        }
+    }
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
         uint32 statType = 0;
@@ -7818,10 +7832,24 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
         }
         else
         {
-            if (i >= proto->StatsCount)
+            if (i >= statcount)
                 continue;
             statType = proto->ItemStat[i].ItemStatType;
             val = proto->ItemStat[i].ItemStatValue;
+
+            if (lowGUID)
+            {
+                if(i == statcount-1)
+                {
+                    statType = sObjectMgr->_itemFakeStatStore[lowGUID].increase;
+                    val = sObjectMgr->_itemFakeStatStore[lowGUID].stat_value;
+                }
+                else if(!decreased && sObjectMgr->_itemFakeStatStore[lowGUID].decrease == statType)
+                {
+                    val -= sObjectMgr->_itemFakeStatStore[lowGUID].stat_value;
+                    decreased = true;
+                }
+            }
         }
 
         if (val == 0)
