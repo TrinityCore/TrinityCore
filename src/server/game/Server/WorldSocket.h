@@ -49,7 +49,7 @@ struct ClientPktHeader
     uint16 size;
     uint32 cmd;
 
-    bool IsValid() const { return size >= 4 && size < 10240 && (cmd < NUM_OPCODE_HANDLERS || (cmd >> 16) == 0x4C52); }
+    bool IsValid() const { return size >= 4 && size < 10240 && cmd < NUM_OPCODE_HANDLERS; }
 };
 
 #pragma pack(pop)
@@ -60,11 +60,18 @@ struct WorldPacketBuffer
 
     typedef boost::asio::const_buffer const* const_iterator;
 
-    WorldPacketBuffer(ServerPktHeader header, WorldPacket const& packet) : _header(header), _packet(packet)
+    WorldPacketBuffer(ServerPktHeader header, WorldPacket const& packet) : _header(header), _packet(packet), _bufferCount(0)
     {
-        _buffers[0] = boost::asio::const_buffer(_header.header, _header.getHeaderLength());
+        _buffers[_bufferCount++] = boost::asio::const_buffer(_header.header, _header.getHeaderLength());
         if (!_packet.empty())
-            _buffers[1] = boost::asio::const_buffer(_packet.contents(), _packet.size());
+            _buffers[_bufferCount++] = boost::asio::const_buffer(_packet.contents(), _packet.size());
+    }
+
+    WorldPacketBuffer(std::string const& str) : _header(str.length() + 1 /*null terminator*/, 0), _packet(), _bufferCount(0)
+    {
+        _buffers[_bufferCount++] = boost::asio::const_buffer(_header.header, _header.getHeaderLength() - 2 /*sizeof(opcode)*/);
+        if (!str.empty())
+            _buffers[_bufferCount++] = boost::asio::const_buffer(str.c_str(), _header.size);
     }
 
     const_iterator begin() const
@@ -74,13 +81,14 @@ struct WorldPacketBuffer
 
     const_iterator end() const
     {
-        return _buffers + (_packet.empty() ? 1 : 2);
+        return _buffers + _bufferCount;
     }
 
 private:
     boost::asio::const_buffer _buffers[2];
     ServerPktHeader _header;
     WorldPacket _packet;
+    uint32 _bufferCount;
 };
 
 namespace boost
@@ -97,6 +105,10 @@ namespace boost
 class WorldSocket : public Socket<WorldSocket, WorldPacketBuffer>
 {
     typedef Socket<WorldSocket, WorldPacketBuffer> Base;
+
+    static std::string const ServerConnectionInitialize;
+
+    static std::string const ClientConnectionInitialize;
 
 public:
     WorldSocket(tcp::socket&& socket);
@@ -129,6 +141,7 @@ private:
     uint32 _OverSpeedPings;
 
     WorldSession* _worldSession;
+    bool _initialized;
 };
 
 #endif
