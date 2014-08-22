@@ -48,6 +48,8 @@ struct ClientPktHeader
 {
     uint16 size;
     uint32 cmd;
+
+    bool IsValid() const { return size >= 4 && size < 10240 && cmd < NUM_MSG_TYPES; }
 };
 
 #pragma pack(pop)
@@ -104,12 +106,14 @@ public:
 
     void Start() override;
 
+    void CloseSocket() override;
+
     using Base::AsyncWrite;
     void AsyncWrite(WorldPacket& packet);
 
 protected:
-    void ReadHeaderHandler(boost::system::error_code error, size_t transferedBytes) override;
-    void ReadDataHandler(boost::system::error_code error, size_t transferedBytes) override;
+    void ReadHeaderHandler() override;
+    void ReadDataHandler() override;
 
 private:
     void HandleSendAuthSession();

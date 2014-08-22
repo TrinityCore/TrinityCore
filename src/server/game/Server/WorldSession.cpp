@@ -226,6 +226,8 @@ void WorldSession::SendPacket(WorldPacket* packet)
     }
 #endif                                                      // !TRINITY_DEBUG
 
+    sScriptMgr->OnPacketSend(this, *packet);
+
     m_Socket->AsyncWrite(*packet);
 }
 
@@ -289,7 +291,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         {
             TC_LOG_ERROR("network.opcode", "Received non-existed opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str()
                             , GetPlayerInfo().c_str());
-            sScriptMgr->OnUnknownPacketReceive(m_Socket, *packet);
+            sScriptMgr->OnUnknownPacketReceive(this, *packet);
         }
         else
         {
@@ -319,7 +321,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         }
                         else if (_player->IsInWorld())
                         {
-                            sScriptMgr->OnPacketReceive(m_Socket, *packet);
+                            sScriptMgr->OnPacketReceive(this, *packet);
                             (this->*opHandle.handler)(*packet);
                             LogUnprocessedTail(packet);
                         }
@@ -332,7 +334,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         else
                         {
                             // not expected _player or must checked in packet handler
-                            sScriptMgr->OnPacketReceive(m_Socket, *packet);
+                            sScriptMgr->OnPacketReceive(this, *packet);
                             (this->*opHandle.handler)(*packet);
                             LogUnprocessedTail(packet);
                         }
@@ -344,7 +346,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                             LogUnexpectedOpcode(packet, "STATUS_TRANSFER", "the player is still in world");
                         else
                         {
-                            sScriptMgr->OnPacketReceive(m_Socket, *packet);
+                            sScriptMgr->OnPacketReceive(this, *packet);
                             (this->*opHandle.handler)(*packet);
                             LogUnprocessedTail(packet);
                         }
@@ -362,7 +364,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         if (packet->GetOpcode() == CMSG_CHAR_ENUM)
                             m_playerRecentlyLogout = false;
 
-                        sScriptMgr->OnPacketReceive(m_Socket, *packet);
+                        sScriptMgr->OnPacketReceive(this, *packet);
                         (this->*opHandle.handler)(*packet);
                         LogUnprocessedTail(packet);
                         break;
@@ -419,7 +421,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         if (m_Socket && !m_Socket->IsOpen())
         {
             expireTime -= expireTime > diff ? diff : expireTime;
-            if (expireTime < diff || forceExit)
+            if (expireTime < diff || forceExit || !GetPlayer())
             {
                 m_Socket = nullptr;
             }

@@ -70,6 +70,11 @@ class boss_arcanist_doan : public CreatureScript
                 events.ScheduleEvent(EVENT_POLYMORPH,       30 * IN_MILLISECONDS);
             }
 
+            void JustDied(Unit* /*killer*/) override
+            {
+                _JustDied();
+            }
+
             void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
@@ -119,7 +124,7 @@ class boss_arcanist_doan : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_arcanist_doanAI(creature);
+            return GetInstanceAI<boss_arcanist_doanAI>(creature);
         }
 };
 

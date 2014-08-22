@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,146 +15,205 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance_Scarlet_Monastery
-SD%Complete: 50
-SDComment:
-SDCategory: Scarlet Monastery
-EndScriptData */
-
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "scarlet_monastery.h"
 
-enum Entry
+DoorData const doorData[] =
 {
-    ENTRY_PUMPKIN_SHRINE    = 186267,
-    ENTRY_HORSEMAN          = 23682,
-    ENTRY_HEAD              = 23775,
-    ENTRY_PUMPKIN           = 23694
+    { GO_HIGH_INQUISITORS_DOOR, DATA_MOGRAINE_AND_WHITE_EVENT, DOOR_TYPE_ROOM, BOUNDARY_NONE },
+    { 0,                        0,                             DOOR_TYPE_ROOM, BOUNDARY_NONE } // END
 };
-
-#define MAX_ENCOUNTER 2
 
 class instance_scarlet_monastery : public InstanceMapScript
 {
-public:
-    instance_scarlet_monastery() : InstanceMapScript("instance_scarlet_monastery", 189) { }
+    public:
+        instance_scarlet_monastery() : InstanceMapScript("instance_scarlet_monastery", 189) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const override
-    {
-        return new instance_scarlet_monastery_InstanceMapScript(map);
-    }
-
-    struct instance_scarlet_monastery_InstanceMapScript : public InstanceScript
-    {
-        instance_scarlet_monastery_InstanceMapScript(Map* map) : InstanceScript(map) { }
-
-        uint64 PumpkinShrineGUID;
-        uint64 HorsemanGUID;
-        uint64 HeadGUID;
-        std::set<uint64> HorsemanAdds;
-
-        uint64 MograineGUID;
-        uint64 WhitemaneGUID;
-        uint64 VorrelGUID;
-        uint64 DoorHighInquisitorGUID;
-
-        uint32 encounter[MAX_ENCOUNTER];
-
-        void Initialize() override
+        struct instance_scarlet_monastery_InstanceMapScript : public InstanceScript
         {
-            memset(&encounter, 0, sizeof(encounter));
-
-            PumpkinShrineGUID  = 0;
-            HorsemanGUID = 0;
-            HeadGUID = 0;
-            HorsemanAdds.clear();
-
-            MograineGUID = 0;
-            WhitemaneGUID = 0;
-            VorrelGUID = 0;
-            DoorHighInquisitorGUID = 0;
-        }
-
-        void OnGameObjectCreate(GameObject* go) override
-        {
-            switch (go->GetEntry())
+            instance_scarlet_monastery_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-            case ENTRY_PUMPKIN_SHRINE: PumpkinShrineGUID = go->GetGUID();break;
-            case 104600: DoorHighInquisitorGUID = go->GetGUID(); break;
+                SetBossNumber(EncounterCount);
+                LoadDoorData(doorData);
+
+                PumpkinShrineGUID      = 0;
+                HorsemanGUID           = 0;
+                HeadGUID               = 0;
+                MograineGUID           = 0;
+                WhitemaneGUID          = 0;
+                VorrelGUID             = 0;
+
+                HorsemanAdds.clear();
             }
-        }
 
-        void OnCreatureCreate(Creature* creature) override
-        {
-            switch (creature->GetEntry())
+            void OnGameObjectCreate(GameObject* go) override
             {
-                case ENTRY_HORSEMAN:    HorsemanGUID = creature->GetGUID(); break;
-                case ENTRY_HEAD:        HeadGUID = creature->GetGUID(); break;
-                case ENTRY_PUMPKIN:     HorsemanAdds.insert(creature->GetGUID());break;
-                case 3976: MograineGUID = creature->GetGUID(); break;
-                case 3977: WhitemaneGUID = creature->GetGUID(); break;
-                case 3981: VorrelGUID = creature->GetGUID(); break;
-            }
-        }
-
-        void SetData(uint32 type, uint32 data) override
-        {
-            switch (type)
-            {
-            case TYPE_MOGRAINE_AND_WHITE_EVENT:
-                if (data == IN_PROGRESS)
-                    DoUseDoorOrButton(DoorHighInquisitorGUID);
-                if (data == FAIL)
-                    DoUseDoorOrButton(DoorHighInquisitorGUID);
-
-                encounter[0] = data;
-                break;
-            case GAMEOBJECT_PUMPKIN_SHRINE:
-                HandleGameObject(PumpkinShrineGUID, false);
-                break;
-            case DATA_HORSEMAN_EVENT:
-                encounter[1] = data;
-                if (data == DONE)
+                switch (go->GetEntry())
                 {
-                    for (std::set<uint64>::const_iterator itr = HorsemanAdds.begin(); itr != HorsemanAdds.end(); ++itr)
-                    {
-                        Creature* add = instance->GetCreature(*itr);
-                        if (add && add->IsAlive())
-                            add->Kill(add);
-                    }
-                    HorsemanAdds.clear();
-                    HandleGameObject(PumpkinShrineGUID, false);
+                    case GO_PUMPKIN_SHRINE:
+                        PumpkinShrineGUID = go->GetGUID();
+                        break;
+                    case GO_HIGH_INQUISITORS_DOOR:
+                        AddDoor(go, true);
+                        break;
+                    default:
+                        break;
                 }
-                break;
             }
-        }
 
-        uint64 GetData64(uint32 type) const override
-        {
-            switch (type)
+            void OnGameObjectRemove(GameObject* go) override
             {
-                //case GAMEOBJECT_PUMPKIN_SHRINE:   return PumpkinShrineGUID;
-                //case DATA_HORSEMAN:               return HorsemanGUID;
-                //case DATA_HEAD:                   return HeadGUID;
-                case DATA_MOGRAINE:             return MograineGUID;
-                case DATA_WHITEMANE:            return WhitemaneGUID;
-                case DATA_VORREL:               return VorrelGUID;
-                case DATA_DOOR_WHITEMANE:       return DoorHighInquisitorGUID;
+                switch (go->GetEntry())
+                {
+                    case GO_HIGH_INQUISITORS_DOOR:
+                        AddDoor(go, false);
+                        break;
+                    default:
+                        break;
+                }
             }
-            return 0;
-        }
 
-        uint32 GetData(uint32 type) const override
+            void OnCreatureCreate(Creature* creature) override
+            {
+                switch (creature->GetEntry())
+                {
+                    case NPC_HORSEMAN:
+                        HorsemanGUID = creature->GetGUID();
+                        break;
+                    case NPC_HEAD:
+                        HeadGUID = creature->GetGUID();
+                        break;
+                    case NPC_PUMPKIN:
+                        HorsemanAdds.insert(creature->GetGUID());
+                        break;
+                    case NPC_MOGRAINE:
+                        MograineGUID = creature->GetGUID();
+                        break;
+                    case NPC_WHITEMANE:
+                        WhitemaneGUID = creature->GetGUID();
+                        break;
+                    case NPC_VORREL:
+                        VorrelGUID = creature->GetGUID();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void SetData(uint32 type, uint32 /*data*/) override
+            {
+                switch (type)
+                {
+                    case DATA_PUMPKIN_SHRINE:
+                        HandleGameObject(PumpkinShrineGUID, false);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            bool SetBossState(uint32 type, EncounterState state) override
+            {
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+
+                switch (type)
+                {
+                    case DATA_HORSEMAN_EVENT:
+                        if (state == DONE)
+                        {
+                            for (uint64 guid : HorsemanAdds)
+                            {
+                                Creature* add = instance->GetCreature(guid);
+                                if (add && add->IsAlive())
+                                    add->Kill(add);
+                            }
+                            HorsemanAdds.clear();
+                            HandleGameObject(PumpkinShrineGUID, false);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                return true;
+            }
+
+            uint64 GetData64(uint32 type) const override
+            {
+                switch (type)
+                {
+                    case DATA_MOGRAINE:
+                        return MograineGUID;
+                    case DATA_WHITEMANE:
+                        return WhitemaneGUID;
+                    case DATA_VORREL:
+                        return VorrelGUID;
+                    default:
+                        break;
+                }
+                return 0;
+            }
+
+            std::string GetSaveData() override
+            {
+                OUT_SAVE_INST_DATA;
+
+                std::ostringstream saveStream;
+                saveStream << "S M " << GetBossSaveData();
+
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return saveStream.str();
+            }
+
+            void Load(const char* str) override
+            {
+                if (!str)
+                {
+                    OUT_LOAD_INST_DATA_FAIL;
+                    return;
+                }
+
+                OUT_LOAD_INST_DATA(str);
+
+                char dataHead1, dataHead2;
+
+                std::istringstream loadStream(str);
+                loadStream >> dataHead1 >> dataHead2;
+
+                if (dataHead1 == 'S' && dataHead2 == 'M')
+                {
+                    for (uint8 i = 0; i < EncounterCount; ++i)
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+
+                        SetBossState(i, EncounterState(tmpState));
+                    }
+                }
+                else
+                    OUT_LOAD_INST_DATA_FAIL;
+
+                OUT_LOAD_INST_DATA_COMPLETE;
+            }
+
+        protected:
+            uint64 PumpkinShrineGUID;
+            uint64 HorsemanGUID;
+            uint64 HeadGUID;
+            uint64 MograineGUID;
+            uint64 WhitemaneGUID;
+            uint64 VorrelGUID;
+
+            std::set<uint64> HorsemanAdds;
+        };
+
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
-            if (type == TYPE_MOGRAINE_AND_WHITE_EVENT)
-                return encounter[0];
-            if (type == DATA_HORSEMAN_EVENT)
-                return encounter[1];
-            return 0;
+            return new instance_scarlet_monastery_InstanceMapScript(map);
         }
-    };
 };
 
 void AddSC_instance_scarlet_monastery()

@@ -69,11 +69,13 @@ public:
             ShadowWordPain_Timer = 5000;
             Yell60 = false;
             Yell30 = false;
+            instance->SetBossState(DATA_INTERROGATOR_VISHAS, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
+            instance->SetBossState(DATA_INTERROGATOR_VISHAS, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*Victim*/) override
@@ -86,6 +88,7 @@ public:
             //Any other Actions to do with vorrel? setStandState?
             if (Creature* vorrel = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VORREL)))
                 vorrel->AI()->Talk(SAY_TRIGGER_VORREL);
+            instance->SetBossState(DATA_INTERROGATOR_VISHAS, DONE);
         }
 
         void UpdateAI(uint32 diff) override
