@@ -47,26 +47,19 @@ class npc_willix : public CreatureScript
 public:
     npc_willix() : CreatureScript("npc_willix") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_WILLIX_THE_IMPORTER)
-        {
-            ENSURE_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
-            creature->AI()->Talk(SAY_READY, player);
-            creature->setFaction(113);
-        }
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_willixAI(creature);
-    }
-
     struct npc_willixAI : public npc_escortAI
     {
         npc_willixAI(Creature* creature) : npc_escortAI(creature) { }
+
+        void sQuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_WILLIX_THE_IMPORTER)
+            {
+                Start(true, false, player->GetGUID());
+                Talk(SAY_READY, player);
+                me->setFaction(113);
+            }
+        }
 
         void WaypointReached(uint32 waypointId) override
         {
@@ -137,6 +130,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_willixAI(creature);
+    }
 };
 
 enum SnufflenoseGopher
@@ -145,18 +142,6 @@ enum SnufflenoseGopher
     GO_BLUELEAF_TUBBER           = 20920,
     ACTION_FIND_NEW_TUBBER       = 0,
     POINT_TUBBER                 = 0
-};
-
-struct DistanceOrder : public std::binary_function<GameObject, GameObject, bool>
-{
-    DistanceOrder(Creature* me) : me(me) { }
-
-    bool operator() (GameObject* first, GameObject* second)
-    {
-        return me->GetDistanceOrder(first, second);
-    }
-
-    Creature* me;
 };
 
 struct npc_snufflenose_gopher : public CreatureScript
@@ -208,18 +193,14 @@ public:
             if (tubbersInRange.empty())
                 return;
 
-            tubbersInRange.sort(DistanceOrder(me));
-            GameObject* nearestTubber = NULL;
-
-            for (std::list<GameObject*>::const_iterator itr = tubbersInRange.begin(); itr != tubbersInRange.end(); ++itr)
+            tubbersInRange.remove_if([](GameObject* go)
             {
-                if (!(*itr)->isSpawned() && (*itr)->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND))
-                {
-                    nearestTubber = *itr;
-                    break;
-                }
-            }
+                return go->isSpawned() || !go->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+            });
 
+            tubbersInRange.sort(Trinity::ObjectDistanceOrderPred(me));
+
+            GameObject* nearestTubber = tubbersInRange.front();
             if (!nearestTubber)
                 return;
 
@@ -259,21 +240,16 @@ class spell_snufflenose_command : public SpellScriptLoader
         {
             PrepareSpellScript(spell_snufflenose_commandSpellScript);
 
-            bool Load() override
+            void HandleEffect(SpellEffIndex /*effIndex*/)
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            void HandleAfterCast()
-            {
-                if (Unit* target = GetCaster()->ToPlayer()->GetSelectedUnit())
+                if (Creature* target = GetHitCreature())
                     if (target->GetEntry() == NPC_SNUFFLENOSE_GOPHER)
-                        target->ToCreature()->AI()->DoAction(ACTION_FIND_NEW_TUBBER);
+                        target->AI()->DoAction(ACTION_FIND_NEW_TUBBER);
             }
 
             void Register() override
             {
-                AfterCast += SpellCastFn(spell_snufflenose_commandSpellScript::HandleAfterCast);
+                OnEffectHitTarget += SpellEffectFn(spell_snufflenose_commandSpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 

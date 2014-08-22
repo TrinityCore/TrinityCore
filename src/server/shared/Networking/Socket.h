@@ -20,6 +20,7 @@
 
 #include "MessageBuffer.h"
 #include "Log.h"
+#include <atomic>
 #include <vector>
 #include <mutex>
 #include <queue>
@@ -40,11 +41,22 @@ class Socket : public std::enable_shared_from_this<T>
     typedef typename std::conditional<std::is_pointer<PacketType>::value, PacketType, PacketType const&>::type WritePacketType;
 
 public:
-    Socket(tcp::socket&& socket, std::size_t headerSize) : _socket(std::move(socket))
+    Socket(tcp::socket&& socket, std::size_t headerSize) : _socket(std::move(socket)), _remoteAddress(_socket.remote_endpoint().address()),
+        _remotePort(_socket.remote_endpoint().port()), _readHeaderBuffer(), _readDataBuffer(), _closed(false), _closing(false)
     {
-        _remoteAddress = _socket.remote_endpoint().address();
-        _remotePort = _socket.remote_endpoint().port();
         _readHeaderBuffer.Grow(headerSize);
+    }
+
+    virtual ~Socket()
+    {
+        boost::system::error_code error;
+        _socket.close(error);
+
+        while (!_writeQueue.empty())
+        {
+            DeletePacket(_writeQueue.front());
+            _writeQueue.pop();
+        }
     }
 
     virtual void Start() = 0;
@@ -61,6 +73,9 @@ public:
 
     void AsyncReadHeader()
     {
+        if (!IsOpen())
+            return;
+
         _readHeaderBuffer.ResetWritePointer();
         _readDataBuffer.Reset();
 
@@ -69,6 +84,9 @@ public:
 
     void AsyncReadData(std::size_t size)
     {
+        if (!IsOpen())
+            return;
+
         if (!size)
         {
             // if this is a packet with 0 length body just invoke handler directly
@@ -82,6 +100,9 @@ public:
 
     void ReadData(std::size_t size)
     {
+        if (!IsOpen())
+            return;
+
         boost::system::error_code error;
 
         _readDataBuffer.Grow(size);
@@ -105,27 +126,31 @@ public:
             std::placeholders::_1, std::placeholders::_2));
     }
 
-    bool IsOpen() const { return _socket.is_open(); }
-    void CloseSocket()
+    bool IsOpen() const { return !_closed && !_closing; }
+
+    virtual void CloseSocket()
     {
+        if (_closed.exchange(true))
+            return;
+
         boost::system::error_code shutdownError;
-        _socket.shutdown(boost::asio::socket_base::shutdown_both, shutdownError);
+        _socket.shutdown(boost::asio::socket_base::shutdown_send, shutdownError);
         if (shutdownError)
             TC_LOG_DEBUG("network", "Socket::CloseSocket: %s errored when shutting down socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(),
                 shutdownError.value(), shutdownError.message().c_str());
-
-        boost::system::error_code error;
-        _socket.close(error);
-        if (error)
-            TC_LOG_DEBUG("network", "Socket::CloseSocket: %s errored when closing socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(),
-                error.value(), error.message().c_str());
     }
+
+    /// Marks the socket for closing after write buffer becomes empty
+    void DelayedCloseSocket() { _closing = true; }
 
     virtual bool IsHeaderReady() const { return _readHeaderBuffer.IsMessageReady(); }
     virtual bool IsDataReady() const { return _readDataBuffer.IsMessageReady(); }
 
     uint8* GetHeaderBuffer() { return _readHeaderBuffer.Data(); }
     uint8* GetDataBuffer() { return _readDataBuffer.Data(); }
+
+    size_t GetHeaderSize() const { return _readHeaderBuffer.GetReadyDataSize(); }
+    size_t GetDataSize() const { return _readDataBuffer.GetReadyDataSize(); }
 
     MessageBuffer&& MoveHeader() { return std::move(_readHeaderBuffer); }
     MessageBuffer&& MoveData() { return std::move(_readDataBuffer); }
@@ -199,6 +224,8 @@ private:
 
             if (!_writeQueue.empty())
                 AsyncWrite(_writeQueue.front());
+            else if (_closing)
+                CloseSocket();
         }
         else
             CloseSocket();
@@ -217,6 +244,9 @@ private:
 
     MessageBuffer _readHeaderBuffer;
     MessageBuffer _readDataBuffer;
+
+    std::atomic<bool> _closed;
+    std::atomic<bool> _closing;
 };
 
 #endif // __SOCKET_H__

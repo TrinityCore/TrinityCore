@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,79 +24,104 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "scarlet_monastery.h"
 
 enum Spells
 {
-    SPELL_CALLOFTHEGRAVE            = 17831,
+    SPELL_CALL_OF_THE_GRAVE         = 17831,
     SPELL_TERRIFY                   = 7399,
-    SPELL_SOULSIPHON                = 7290
+    SPELL_SOUL_SIPHON               = 7290
+};
+
+enum Events
+{
+    EVENT_CALL_OF_GRAVE             = 1,
+    EVENT_TERRIFY,
+    EVENT_SOUL_SIPHON 
 };
 
 class boss_azshir_the_sleepless : public CreatureScript
 {
-public:
-    boss_azshir_the_sleepless() : CreatureScript("boss_azshir_the_sleepless") { }
+    public:
+        boss_azshir_the_sleepless() : CreatureScript("boss_azshir_the_sleepless") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new boss_azshir_the_sleeplessAI(creature);
-    }
-
-    struct boss_azshir_the_sleeplessAI : public ScriptedAI
-    {
-        boss_azshir_the_sleeplessAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 SoulSiphon_Timer;
-        uint32 CallOftheGrave_Timer;
-        uint32 Terrify_Timer;
-
-        void Reset() override
+        struct boss_azshir_the_sleeplessAI : public BossAI
         {
-            SoulSiphon_Timer = 1;
-            CallOftheGrave_Timer = 30000;
-            Terrify_Timer = 20000;
-        }
-
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            //If we are <50% hp cast Soul Siphon rank 1
-            if (!HealthAbovePct(50) && !me->IsNonMeleeSpellCast(false))
+            boss_azshir_the_sleeplessAI(Creature* creature) : BossAI(creature, DATA_AZSHIR)
             {
-                //SoulSiphon_Timer
-                if (SoulSiphon_Timer <= diff)
+                _siphon = false;
+            }
+
+            void Reset() override
+            {
+                _Reset();
+                _siphon = false;
+            }
+
+            void EnterCombat(Unit* /*who*/) override
+            {
+                _EnterCombat();
+                events.ScheduleEvent(EVENT_CALL_OF_GRAVE, 30000);
+                events.ScheduleEvent(EVENT_TERRIFY, 20000);
+            }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                _JustDied();
+            }
+
+            void DamageTaken(Unit* /*done_by*/, uint32& /*damage*/) override
+            {
+                if (HealthBelowPct(50) && !_siphon)
                 {
-                    DoCastVictim(SPELL_SOULSIPHON);
+                    DoCastVictim(SPELL_SOUL_SIPHON);
+                    events.ScheduleEvent(EVENT_SOUL_SIPHON, 20000);
+                    _siphon = true;
+                }
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+                    
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                    //SoulSiphon_Timer = 20000;
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_CALL_OF_GRAVE:
+                            DoCastVictim(SPELL_CALL_OF_THE_GRAVE);
+                            events.ScheduleEvent(EVENT_CALL_OF_GRAVE, 30000);
+                            break;
+                        case EVENT_TERRIFY:
+                            DoCastVictim(SPELL_TERRIFY);
+                            events.ScheduleEvent(EVENT_TERRIFY, 20000);
+                            break;
+                        case EVENT_SOUL_SIPHON:
+                            DoCastVictim(SPELL_SOUL_SIPHON);
+                            events.ScheduleEvent(EVENT_SOUL_SIPHON, 20000);
+                            break;
+                        default:
+                            break;
+                    }
                 }
-                else SoulSiphon_Timer -= diff;
+
+                DoMeleeAttackIfReady();
             }
 
-            //CallOfTheGrave_Timer
-            if (CallOftheGrave_Timer <= diff)
-            {
-                DoCastVictim(SPELL_CALLOFTHEGRAVE);
-                CallOftheGrave_Timer = 30000;
-            }
-            else CallOftheGrave_Timer -= diff;
+        private:
+            bool _siphon;
+        };
 
-            //Terrify_Timer
-            if (Terrify_Timer <= diff)
-            {
-                DoCastVictim(SPELL_TERRIFY);
-                Terrify_Timer = 20000;
-            }
-            else Terrify_Timer -= diff;
-
-            DoMeleeAttackIfReady();
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetInstanceAI<boss_azshir_the_sleeplessAI>(creature);
         }
-    };
 };
 
 void AddSC_boss_azshir_the_sleepless()

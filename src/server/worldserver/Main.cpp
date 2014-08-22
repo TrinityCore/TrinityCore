@@ -87,6 +87,7 @@ bool StartDB();
 void StopDB();
 void WorldUpdateLoop();
 void ClearOnlineAccounts();
+void ShutdownThreadPool(std::vector<std::thread>& threadPool);
 variables_map GetConsoleArguments(int argc, char** argv, std::string& cfg_file, std::string& cfg_service);
 
 /// Launch the Trinity server
@@ -179,7 +180,10 @@ extern int main(int argc, char** argv)
 
     // Start the databases
     if (!StartDB())
+    {
+        ShutdownThreadPool(threadPool);
         return 1;
+    }
 
     // Set server offline (not connectable)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = (flag & ~%u) | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, REALM_FLAG_INVALID, realmID);
@@ -217,7 +221,7 @@ extern int main(int argc, char** argv)
 
     AsyncAcceptor<WorldSocket> worldAcceptor(_ioService, worldListener, worldPort, tcpNoDelay);
 
-    sScriptMgr->OnStartup();
+    sScriptMgr->OnNetworkStart();
 
     // Set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmID);
@@ -233,16 +237,12 @@ extern int main(int argc, char** argv)
 
     TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", _FULLVERSION);
 
+    sScriptMgr->OnStartup();
+
     WorldUpdateLoop();
 
     // Shutdown starts here
-
-    _ioService.stop();
-
-    for (auto& thread : threadPool)
-    {
-        thread.join();
-    }
+    ShutdownThreadPool(threadPool);
 
     sScriptMgr->OnShutdown();
 
@@ -294,6 +294,18 @@ extern int main(int argc, char** argv)
     // 2 - restart command used, this code can be used by restarter for restart Trinityd
 
     return World::GetExitCode();
+}
+
+void ShutdownThreadPool(std::vector<std::thread>& threadPool)
+{
+    sScriptMgr->OnNetworkStop();
+
+    _ioService.stop();
+
+    for (auto& thread : threadPool)
+    {
+        thread.join();
+    }
 }
 
 void WorldUpdateLoop()
