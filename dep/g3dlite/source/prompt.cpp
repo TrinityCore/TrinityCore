@@ -14,7 +14,7 @@
 
 #include <stdio.h>
 
-#ifdef G3D_WIN32
+#ifdef G3D_WINDOWS
 #    include <sstream>
 #    include <conio.h>
 #else
@@ -29,7 +29,7 @@
 #endif
 */
 
-#    include <Carbon/Carbon.h>
+#    include "G3D/prompt_cocoa.h"
 
 /*
 #ifdef G3D_64BIT
@@ -43,7 +43,7 @@
 namespace G3D {
 
 #if 0 /* G3DFIX: exclude GUI prompt code */
-#ifdef G3D_WIN32
+#ifdef G3D_WINDOWS
 
 namespace _internal {
 /**
@@ -360,8 +360,8 @@ static int guiPrompt(
     const char**        choice,
     int                 numChoices) {
 
-    int width = 280;
-    int height = 128;
+    int width = 340;
+    int height = 220;
 
     const int buttonSpacing = 2;
     const int buttonWidth = 
@@ -381,7 +381,7 @@ static int guiPrompt(
         2, 2, width - 4, height - buttonHeight - 7, IDC_MESSAGE);
 
     int i;
-    for (i = 0; i < numChoices; i++) {
+    for (i = 0; i < numChoices; ++i) {
 
         int x = buttonSpacing + i * (buttonWidth + buttonSpacing);
         int y = height - buttonHeight - buttonSpacing;
@@ -429,7 +429,7 @@ static int guiPrompt(
     params.title    = windowTitle;
 
     HMODULE module = GetModuleHandle(0);
-    int ret = DialogBoxIndirectParam(module, dialogTemplate, NULL, (DLGPROC) PromptDlgProc, (DWORD)&params);
+    int ret = (int)DialogBoxIndirectParam(module, dialogTemplate, NULL, (DLGPROC) PromptDlgProc, (DWORD)&params);
 
     free(newStr);
 
@@ -500,7 +500,7 @@ static int textPrompt(
         while ((c < 0) || (c >= numChoices)) { 
             printf("\n");
 
-            for (int i = 0; i < numChoices; i++) {
+            for (int i = 0; i < numChoices; ++i) {
                 if (numChoices <= 3) {
                     printf("  (%d) %s ", i, choice[i]);
                 } else {
@@ -536,167 +536,20 @@ static int textPrompt(
 }
 
 #if 0 /* G3DFIX: exclude GUI prompt code */
-
 #ifdef G3D_OSX
-
-// See http://developer.apple.com/documentation/Carbon/Reference/Carbon_Event_Manager_Ref/index.html
-
-#define CARBON_COMMANDID_START	128
-#define CARBON_BUTTON_SPACING	12
-#define CARBON_BUTTON_HEIGHT	20
-#define CARBON_BUTTON_MINWIDTH	69
-#define CARBON_WINDOW_PADDING	20
-
-struct CallbackData {
-    WindowRef	refWindow;
-
-    /** Index of this particular button */
-    int         myIndex;
-
-    /** Buttons store their index into here when pressed. */
-    int*        whichButton;
-};
-
-/**
- Assumes that userData is a pointer to a carbon_evt_data_t.
- 
- */
-static pascal OSStatus DoCommandEvent(EventHandlerCallRef handlerRef, EventRef event, void* userData) {
-    // See http://developer.apple.com/documentation/Carbon/Conceptual/HandlingWindowsControls/index.html
-
-    CallbackData& callbackData = *(CallbackData*)userData;
-
-#   pragma unused(handlerRef)
-	
-    callbackData.whichButton[0] = callbackData.myIndex;
-	
-    // If we get here we can close the window
-    ::QuitAppModalLoopForWindow(callbackData.refWindow);
-	
-    // Return noErr to indicate that we handled the event
-    return noErr;
-}
 
 static int guiPrompt
 (const char*         windowTitle,
  const char*         prompt,
  const char**        choice,
  int                 numChoices) {
-
-    WindowRef	 window;
-
-    int          iNumButtonRows	= 0;
-    int          iButtonWidth   = -1;
-    OSStatus	 err            = noErr;
-    
-    // Determine number of rows of buttons
-    while (iButtonWidth < CARBON_BUTTON_MINWIDTH) {
-        ++iNumButtonRows;
-        iButtonWidth = 
-            (550 - (CARBON_WINDOW_PADDING*2 + 
-                    (CARBON_BUTTON_SPACING*numChoices))) / 
-            (numChoices/iNumButtonRows);
-    }
-	
-    // Window Variables
-    Rect	rectWin = {0, 0, 200 + ((iNumButtonRows-1) * (CARBON_BUTTON_HEIGHT+CARBON_BUTTON_SPACING)), 550};			// top, left, bottom, right
-    CFStringRef	szWindowTitle = CFStringCreateWithCString(kCFAllocatorDefault, windowTitle, kCFStringEncodingUTF8);
-
-    window = NULL;
-
-    err = CreateNewWindow(kMovableAlertWindowClass, kWindowStandardHandlerAttribute|kWindowCompositingAttribute, &rectWin, &window);
-    err = SetWindowTitleWithCFString(window, szWindowTitle);
-    err = SetThemeWindowBackground(window, kThemeBrushAlertBackgroundActive, false);
-    assert(err == noErr);
-    
-    // Event Handler Variables
-    EventTypeSpec	buttonSpec[] = {{ kEventClassControl, kEventControlHit }, { kEventClassCommand, kEventCommandProcess }};
-    EventHandlerUPP	buttonHandler = NewEventHandlerUPP(DoCommandEvent);
-    
-    // Static Text Variables
-    Rect		rectStatic = {20, 20, 152, 530};
-    CFStringRef		szStaticText = CFStringCreateWithCString(kCFAllocatorDefault, prompt, kCFStringEncodingUTF8);
-    ControlRef		refStaticText = NULL;
-    err = CreateStaticTextControl(window, &rectStatic, szStaticText, NULL, &refStaticText);
-    
-    // Button Variables
-    Rect		bounds[numChoices];
-    CFStringRef		caption[numChoices];
-    ControlRef		button[numChoices];
-
-    int whichButton=-1;
-    CallbackData        callbackData[numChoices];
-	
-    // Create the Buttons and assign event handlers
-    for (int i = 0; i < numChoices; ++i) {
-        bounds[i].top	 = 160 + ((CARBON_BUTTON_HEIGHT+CARBON_BUTTON_SPACING)*(i%iNumButtonRows));
-        bounds[i].right	 = 530 - ((iButtonWidth+CARBON_BUTTON_SPACING)*(i/iNumButtonRows));
-        bounds[i].left	 = bounds[i].right - iButtonWidth;
-        bounds[i].bottom = bounds[i].top + CARBON_BUTTON_HEIGHT;
-        
-        // Convert the button captions to Apple strings
-        caption[i] = CFStringCreateWithCString(kCFAllocatorDefault, choice[i], kCFStringEncodingUTF8);
-    
-        err = CreatePushButtonControl(window, &bounds[i], caption[i], &button[i]);
-        assert(err == noErr);
-
-        err = SetControlCommandID(button[i], CARBON_COMMANDID_START + i);
-        assert(err == noErr);
-
-        callbackData[i].refWindow   = window;
-        callbackData[i].myIndex     = i;
-        callbackData[i].whichButton = &whichButton;
-
-        err = InstallControlEventHandler(button[i], buttonHandler, 
-                                         GetEventTypeCount(buttonSpec), buttonSpec,
-                                         &callbackData[i], NULL);
-        assert(err == noErr);
-    }
-    
-    // Show Dialog
-    err = RepositionWindow(window, NULL, kWindowCenterOnMainScreen);
-    ShowWindow(window);
-    BringToFront(window);
-    err = ActivateWindow(window, true);
-    
-    // Hack to get our window/process to the front...
-    ProcessSerialNumber psn = { 0, kCurrentProcess};    
-    TransformProcessType(&psn, kProcessTransformToForegroundApplication);
-    SetFrontProcess (&psn);
-    
-    // Run in Modal State
-    err = RunAppModalLoopForWindow(window);
-
-    // Dispose of Button Related Data
-    for (int i = 0; i < numChoices; ++i) {
-        // Dispose of controls
-        DisposeControl(button[i]);
-        
-        // Release CFStrings
-        CFRelease(caption[i]);
-    }
-    
-    // Dispose of Other Controls
-    DisposeControl(refStaticText);
-    
-    // Dispose of Event Handlers
-    DisposeEventHandlerUPP(buttonHandler);
-    
-    // Dispose of Window
-    DisposeWindow(window);
-    
-    // Release CFStrings
-    CFRelease(szWindowTitle);
-    CFRelease(szStaticText);
-    
-    // Return Selection
-    return whichButton;
+  
+  return prompt_cocoa(windowTitle, prompt, choice, numChoices);
 }
 
 #endif
 
 #endif /* G3DFIX: exclude GUI prompt code */
-
 int prompt(
     const char*      windowTitle,
     const char*      prompt, 
@@ -704,7 +557,7 @@ int prompt(
     int              numChoices,
     bool             useGui) {
 #if 0 /* G3DFIX: exclude GUI prompt code */
-    #ifdef G3D_WIN32
+    #ifdef G3D_WINDOWS
         if (useGui) {
             // Build the message box
             return guiPrompt(windowTitle, prompt, choice, numChoices);
@@ -713,8 +566,10 @@ int prompt(
     
         #ifdef G3D_OSX
                 if (useGui){
-                        //Will default to text prompt if numChoices > 4
-                        return guiPrompt(windowTitle, prompt, choice, numChoices);
+                    //Will default to text prompt if numChoices > 4
+		  int result = guiPrompt(windowTitle, prompt, choice, numChoices);
+		  fprintf(stderr, "%d\n", result);
+		  return result;
                 }
         #endif
 #endif /* G3DFIX: exclude GUI prompt code */
@@ -730,9 +585,9 @@ void msgBox(
     prompt(title.c_str(), message.c_str(), choice, 1, true); 
 }
 
-#ifndef G3D_WIN32
+#ifndef G3D_WINDOWS
     #undef _getch
 #endif
 
-};// namespace
+}// namespace
 

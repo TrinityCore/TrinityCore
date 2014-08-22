@@ -10,3 +10,4 @@ G3D-v8.0_hotfix6.diff - 2013-03-08 - fix compilation in mingw
 G3D-v8.0_hotfix7.diff - 2013-08-31 - fix typo in Matrix4 == operator
 G3D-v8.0_hotfix8.diff - 2013-09-01 - fix typo in Vector3int32 += operator
 G3D-v8.0_hotfix9.diff - 2014-06-01 - only VS < 10 don't ship inttypes.h
+G3D-v9.0 hotfix1.diff - 2014-08-22 - updated to G3D9, reapplied previous patches and removed unneeded changes
