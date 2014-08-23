@@ -9228,6 +9228,25 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
             DoneTotal = 0;
     }
 
+    switch (spellProto->SpellFamilyName)
+    {
+        case SPELLFAMILY_SHAMAN:
+        {
+            if (spellProto->SpellFamilyFlags[0] & 0x000221C0 || spellProto->SpellFamilyFlags[1] & 0x00080000 || spellProto->SpellFamilyFlags[2] & 0x80850050)
+            {
+                int32 masteryBonus = 0;
+
+                if (AuraEffect* mastery = GetAuraEffect(77226, EFFECT_0, GetGUID()))
+                    masteryBonus += mastery->GetAmount();
+
+                masteryBonus = (1 - (victim->GetHealthPct() / 100)) * masteryBonus;
+
+                AddPct(DoneTotal, masteryBonus);
+            }
+            break;
+        }
+    }
+
     // Done Percentage for DOT is already calculated, no need to do it again. The percentage mod is applied in Aura::HandleAuraSpecificMods.
     float heal = float(int32(healamount) + DoneTotal) * (damagetype == DOT ? 1.0f : SpellHealingPctDone(victim, spellProto));
     // apply spellmod to Done amount

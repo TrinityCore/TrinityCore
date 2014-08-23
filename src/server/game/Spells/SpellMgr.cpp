@@ -3717,7 +3717,11 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000yd
                 break;
             // ENDOF ISLE OF CONQUEST SPELLS
-            //
+            // GUILD PERK SPELLS
+            case 83968: // Mass Resurrection
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;
+                break;
+            // ENDOF GUILD PERK SPELLS
             default:
                 break;
         }

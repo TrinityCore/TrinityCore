@@ -60,7 +60,9 @@ enum DruidSpells
     SPELL_DRUID_STAMPEDE_BAER_RANK_1        = 81016,
     SPELL_DRUID_STAMPEDE_CAT_RANK_1         = 81021,
     SPELL_DRUID_STAMPEDE_CAT_STATE          = 109881,
-    SPELL_DRUID_TIGER_S_FURY_ENERGIZE       = 51178
+    SPELL_DRUID_TIGER_S_FURY_ENERGIZE       = 51178,
+    SPELL_DRUID_MASTERY_HARMONY_PROC        = 100977,
+    SPELL_DRUID_MASTERY_HARMONY             = 77495,
 };
 
 // 1850 - Dash
@@ -1222,6 +1224,36 @@ class spell_dru_wild_growth : public SpellScriptLoader
         }
 };
 
+class spell_dru_mastery_harmony : public SpellScriptLoader
+{
+public:
+    spell_dru_mastery_harmony() : SpellScriptLoader("spell_dru_mastery_harmony") { }
+
+    class spell_dru_mastery_harmonyAuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_mastery_harmonyAuraScript);
+
+        void HandleProc(ProcEventInfo &eventInfo)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (AuraEffect* harmony = GetCaster()->GetAuraEffect(SPELL_DRUID_MASTERY_HARMONY, EFFECT_0))
+                    caster->CastCustomSpell(SPELL_DRUID_MASTERY_HARMONY_PROC, SPELLVALUE_BASE_POINT0, harmony->GetAmount(), caster, true);
+            }
+        }
+
+        void Register()
+        {
+            OnProc += AuraProcFn(spell_dru_mastery_harmonyAuraScript::HandleProc);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_dru_mastery_harmonyAuraScript();
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_dash();
@@ -1250,4 +1282,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_typhoon();
     new spell_dru_t10_restoration_4p_bonus();
     new spell_dru_wild_growth();
+    new spell_dru_mastery_harmony();
 }
