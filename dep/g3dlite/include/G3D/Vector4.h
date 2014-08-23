@@ -47,10 +47,11 @@ private:
 public:
 
     /** \param any Must either Vector4(#, #, #, #) or Vector3 {x = #, y = #, z = #, w =#}*/
-    Vector4(const Any& any);
+    explicit Vector4(const Any& any);
     
+    Vector4& operator=(const Any& a);
     /** Converts the Vector4 to an Any. */
-    operator Any() const;
+    Any toAny() const;
 
     // construction
     Vector4();
@@ -698,7 +699,11 @@ inline float Vector4::squaredLength() const {
     return x * x + y * y + z * z + w * w;
 }
 
-}
+
+void serialize(const Vector4& v, class BinaryOutput& b);
+void deserialize(Vector4& v, class BinaryInput& b);
+
+} // G3D
 
 template <> struct HashTrait<G3D::Vector4> {
     static size_t hashCode(const G3D::Vector4& key) { return key.hashCode(); }

@@ -63,7 +63,7 @@ class TransactionTask : public SQLOperation
         ~TransactionTask(){ };
 
     protected:
-        bool Execute();
+        bool Execute() override;
 
         SQLTransaction m_trans;
 };

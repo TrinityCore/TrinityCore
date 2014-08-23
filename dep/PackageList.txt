@@ -10,7 +10,7 @@ bzip2 (a freely available, patent free, high-quality data compressor)
 
 G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
   http://g3d.sourceforge.net/
-  Version: 8.01-Release
+  Version: 9.0-Release r4036
 
 jemalloc (a general-purpose scalable concurrent malloc-implementation)
   http://www.canonware.com/jemalloc/

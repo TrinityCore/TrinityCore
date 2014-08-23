@@ -143,8 +143,8 @@ class BGQueueInviteEvent : public BasicEvent
           { }
         virtual ~BGQueueInviteEvent() { }
 
-        virtual bool Execute(uint64 e_time, uint32 p_time);
-        virtual void Abort(uint64 e_time);
+        virtual bool Execute(uint64 e_time, uint32 p_time) override;
+        virtual void Abort(uint64 e_time) override;
     private:
         uint64 m_PlayerGuid;
         uint32 m_BgInstanceGUID;
@@ -167,8 +167,8 @@ class BGQueueRemoveEvent : public BasicEvent
 
         virtual ~BGQueueRemoveEvent() { }
 
-        virtual bool Execute(uint64 e_time, uint32 p_time);
-        virtual void Abort(uint64 e_time);
+        virtual bool Execute(uint64 e_time, uint32 p_time) override;
+        virtual void Abort(uint64 e_time) override;
     private:
         uint64 m_PlayerGuid;
         uint32 m_BgInstanceGUID;

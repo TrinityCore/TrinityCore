@@ -2711,7 +2711,7 @@ void Spell::DoTriggersOnSpellHit(Unit* unit, uint8 effMask)
             if (*i < 0)
                 unit->RemoveAurasDueToSpell(-(*i));
             else
-                unit->CastSpell(unit, *i, true, 0, 0, m_caster->GetGUID());
+                unit->CastSpell(unit, *i, true, nullptr, nullptr, m_caster->GetGUID());
         }
     }
 }
@@ -3427,7 +3427,14 @@ void Spell::SendSpellCooldown()
 {
     Player* _player = m_caster->ToPlayer();
     if (!_player)
+    {
+        // Handle pet cooldowns here if needed instead of in PetAI to avoid hidden cooldown restarts
+        Creature* _creature = m_caster->ToCreature();
+        if (_creature && _creature->IsPet())
+            _creature->AddCreatureSpellCooldown(m_spellInfo->Id);
+
         return;
+    }
 
     // mana/health/etc potions, disabled by client (until combat out as declarate)
     if (m_CastItem && (m_CastItem->IsPotion() || m_spellInfo->IsCooldownStartedOnEvent()))
@@ -5088,7 +5095,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_TARGET_UNSKINNABLE;
 
                 Creature* creature = m_targets.GetUnitTarget()->ToCreature();
-                if (creature->GetCreatureType() != CREATURE_TYPE_CRITTER && !creature->loot.isLooted())
+                if (!creature->IsCritter() && !creature->loot.isLooted())
                     return SPELL_FAILED_TARGET_NOT_LOOTED;
 
                 uint32 skill = creature->GetCreatureTemplate()->GetRequiredLootSkill();

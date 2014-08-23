@@ -761,7 +761,7 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (item->IsBindedNotWith(my_trade->GetTrader()))
+    if (slot != TRADE_SLOT_NONTRADED && item->IsBindedNotWith(my_trade->GetTrader()))
     {
         info.Status = TRADE_STATUS_NOT_ON_TAPLIST;
         info.Slot = tradeSlot;

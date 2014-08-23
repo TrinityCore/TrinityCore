@@ -39,10 +39,8 @@ public:
 
     void Push(const T& value)
     {
-        {
-            std::lock_guard<std::mutex> lock(_queueLock);
-            _queue.push(std::move(value));
-        }
+        std::lock_guard<std::mutex> lock(_queueLock);
+        _queue.push(std::move(value));
 
         _condition.notify_one();
     }
@@ -72,10 +70,7 @@ public:
     {
         std::unique_lock<std::mutex> lock(_queueLock);
 
-        while (_queue.empty() && !_shutdown)
-        {
-            _condition.wait(lock);
-        }
+        _condition.wait(lock, [this]() { return !_queue.empty() || _shutdown; });
 
         if (_queue.empty() || _shutdown)
             return;

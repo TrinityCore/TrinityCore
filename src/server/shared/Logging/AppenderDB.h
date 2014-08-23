@@ -31,7 +31,7 @@ class AppenderDB: public Appender
     private:
         uint32 realmId;
         bool enabled;
-        void _write(LogMessage const& message);
+        void _write(LogMessage const& message) override;
 };
 
 #endif

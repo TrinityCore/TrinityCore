@@ -35,6 +35,7 @@
 #ifdef ELUNA
 #include "LuaEngine.h"
 #endif
+#include "WorldSession.h"
 
 namespace
 {
@@ -414,44 +415,42 @@ void ScriptMgr::OnSocketOpen(std::shared_ptr<WorldSocket> socket)
     FOREACH_SCRIPT(ServerScript)->OnSocketOpen(socket);
 }
 
-void ScriptMgr::OnSocketClose(std::shared_ptr<WorldSocket> socket, bool wasNew)
+void ScriptMgr::OnSocketClose(std::shared_ptr<WorldSocket> socket)
 {
     ASSERT(socket);
 
-    FOREACH_SCRIPT(ServerScript)->OnSocketClose(socket, wasNew);
+    FOREACH_SCRIPT(ServerScript)->OnSocketClose(socket);
 }
 
-void ScriptMgr::OnPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket const& packet)
+void ScriptMgr::OnPacketReceive(WorldSession* session, WorldPacket const& packet)
 {
-    ASSERT(socket);
+    if (SCR_REG_LST(ServerScript).empty())
+        return;
+
+    WorldPacket copy(packet);
+    FOREACH_SCRIPT(ServerScript)->OnPacketReceive(session, copy);
+}
+
+void ScriptMgr::OnPacketSend(WorldSession* session, WorldPacket const& packet)
+{
+    ASSERT(session);
 
     if (SCR_REG_LST(ServerScript).empty())
         return;
 
     WorldPacket copy(packet);
-    FOREACH_SCRIPT(ServerScript)->OnPacketReceive(socket, copy);
+    FOREACH_SCRIPT(ServerScript)->OnPacketSend(session, copy);
 }
 
-void ScriptMgr::OnPacketSend(std::shared_ptr<WorldSocket> socket, WorldPacket const& packet)
+void ScriptMgr::OnUnknownPacketReceive(WorldSession* session, WorldPacket const& packet)
 {
-    ASSERT(socket);
+    ASSERT(session);
 
     if (SCR_REG_LST(ServerScript).empty())
         return;
 
     WorldPacket copy(packet);
-    FOREACH_SCRIPT(ServerScript)->OnPacketSend(socket, copy);
-}
-
-void ScriptMgr::OnUnknownPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket const& packet)
-{
-    ASSERT(socket);
-
-    if (SCR_REG_LST(ServerScript).empty())
-        return;
-
-    WorldPacket copy(packet);
-    FOREACH_SCRIPT(ServerScript)->OnUnknownPacketReceive(socket, copy);
+    FOREACH_SCRIPT(ServerScript)->OnUnknownPacketReceive(session, copy);
 }
 
 void ScriptMgr::OnOpenStateChange(bool open)

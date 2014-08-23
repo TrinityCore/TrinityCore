@@ -20,16 +20,31 @@ namespace G3D {
  */
 class PhysicsFrameSpline : public Spline<PhysicsFrame> {
 public:
+
     PhysicsFrameSpline();
 
     /** Accepts a table of properties, or any valid PhysicsFrame specification for a single control*/
     PhysicsFrameSpline(const Any& any);
 
-    /** Clear and then reset all values from the any */
-    PhysicsFrameSpline& operator=(const Any& any);
+    bool operator==(const PhysicsFrameSpline& a) const;
+ 
+    bool operator!=(const PhysicsFrameSpline& a) const {
+        return ! ((*this) == a);
+    }
+
+    /** Mutates all underlying PhysicsFrames by scaling their translation by \param scaleFactor */
+    void scaleControlPoints(float scaleFactor);
 
     virtual void correct(PhysicsFrame& frame) const;
     virtual void ensureShortestPath(PhysicsFrame* A, int N) const;
+
+    virtual Any toAny(const std::string& myName) const override {
+        return Spline<PhysicsFrame>::toAny(myName);
+    }
+
+    Any toAny() const {
+        return toAny("PFrameSpline");
+    }
 };
 
 }

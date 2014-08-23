@@ -15,13 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "InstanceScript.h"
-#include "Player.h"
-#include "WorldPacket.h"
-#include "SpellScript.h"
 #include "ulduar.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellScript.h"
+#include "WorldPacket.h"
 
 static DoorData const doorData[] =
 {
@@ -32,6 +31,9 @@ static DoorData const doorData[] =
     { GO_HODIR_ENTRANCE,                BOSS_HODIR,             DOOR_TYPE_ROOM,         BOUNDARY_E      },
     { GO_HODIR_DOOR,                    BOSS_HODIR,             DOOR_TYPE_PASSAGE,      BOUNDARY_NONE   },
     { GO_HODIR_ICE_DOOR,                BOSS_HODIR,             DOOR_TYPE_PASSAGE,      BOUNDARY_W      },
+    { GO_MIMIRON_DOOR_1,                BOSS_MIMIRON,           DOOR_TYPE_ROOM,         BOUNDARY_W      },
+    { GO_MIMIRON_DOOR_2,                BOSS_MIMIRON,           DOOR_TYPE_ROOM,         BOUNDARY_E      },
+    { GO_MIMIRON_DOOR_3,                BOSS_MIMIRON,           DOOR_TYPE_ROOM,         BOUNDARY_S      },
     { GO_VEZAX_DOOR,                    BOSS_VEZAX,             DOOR_TYPE_PASSAGE,      BOUNDARY_E      },
     { GO_YOGG_SARON_DOOR,               BOSS_YOGG_SARON,        DOOR_TYPE_ROOM,         BOUNDARY_S      },
     { GO_DOODAD_UL_SIGILDOOR_03,        BOSS_ALGALON,           DOOR_TYPE_ROOM,         BOUNDARY_W      },
@@ -70,11 +72,14 @@ class instance_ulduar : public InstanceMapScript
             uint64 AssemblyGUIDs[3];
             uint64 KologarnGUID;
             uint64 AuriayaGUID;
-            uint64 MimironGUID;
             uint64 HodirGUID;
             uint64 ThorimGUID;
             uint64 FreyaGUID;
             uint64 ElderGUIDs[3];
+            uint64 MimironGUID;
+            uint64 MimironVehicleGUIDs[3];
+            uint64 MimironComputerGUID;
+            uint64 MimironWorldTriggerGUID;
             uint64 VezaxGUID;
             uint64 YoggSaronGUID;
             uint64 VoiceOfYoggSaronGUID;
@@ -92,6 +97,9 @@ class instance_ulduar : public InstanceMapScript
             uint64 ThorimChestGUID;
             uint64 HodirRareCacheGUID;
             uint64 HodirChestGUID;
+            uint64 MimironTramGUID;
+            uint64 MimironElevatorGUID;
+            uint64 MimironButtonGUID;
             uint64 BrainRoomDoorGUIDs[3];
             uint64 AlgalonSigilDoorGUID[3];
             uint64 AlgalonFloorGUID[2];
@@ -126,6 +134,8 @@ class instance_ulduar : public InstanceMapScript
                 KologarnGUID                     = 0;
                 AuriayaGUID                      = 0;
                 MimironGUID                      = 0;
+                MimironComputerGUID              = 0;
+                MimironWorldTriggerGUID          = 0;
                 HodirGUID                        = 0;
                 ThorimGUID                       = 0;
                 FreyaGUID                        = 0;
@@ -140,6 +150,9 @@ class instance_ulduar : public InstanceMapScript
                 ThorimChestGUID                  = 0;
                 HodirRareCacheGUID               = 0;
                 HodirChestGUID                   = 0;
+                MimironTramGUID                  = 0;
+                MimironElevatorGUID              = 0;
+                MimironButtonGUID                = 0;
                 LeviathanGateGUID                = 0;
                 AlgalonUniverseGUID              = 0;
                 AlgalonTrapdoorGUID              = 0;
@@ -166,6 +179,7 @@ class instance_ulduar : public InstanceMapScript
                 memset(AssemblyGUIDs, 0, sizeof(AssemblyGUIDs));
                 memset(RazorHarpoonGUIDs, 0, sizeof(RazorHarpoonGUIDs));
                 memset(ElderGUIDs, 0, sizeof(ElderGUIDs));
+                memset(MimironVehicleGUIDs, 0, sizeof(MimironVehicleGUIDs));
                 memset(BrainRoomDoorGUIDs, 0, sizeof(BrainRoomDoorGUIDs));
                 memset(KeeperGUIDs, 0, sizeof(KeeperGUIDs));
                 memset(_summonObservationRingKeeper, false, sizeof(_summonObservationRingKeeper));
@@ -289,9 +303,6 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_AURIAYA:
                         AuriayaGUID = creature->GetGUID();
                         break;
-                    case NPC_MIMIRON:
-                        MimironGUID = creature->GetGUID();
-                        break;
 
                     // Hodir
                     case NPC_HODIR:
@@ -353,6 +364,26 @@ class instance_ulduar : public InstanceMapScript
                         if (GetBossState(BOSS_FREYA) == DONE)
                             creature->DespawnOrUnsummon();
                          break;
+
+                    // Mimiron
+                    case NPC_MIMIRON:
+                        MimironGUID = creature->GetGUID();
+                        break;
+                    case NPC_LEVIATHAN_MKII:
+                        MimironVehicleGUIDs[0] = creature->GetGUID();
+                        break;
+                    case NPC_VX_001:
+                        MimironVehicleGUIDs[1] = creature->GetGUID();
+                        break;
+                    case NPC_AERIAL_COMMAND_UNIT:
+                        MimironVehicleGUIDs[2] = creature->GetGUID();
+                        break;
+                    case NPC_COMPUTER:
+                        MimironComputerGUID = creature->GetGUID();
+                        break;
+                    case NPC_WORLD_TRIGGER_MIMIRON:
+                        MimironWorldTriggerGUID = creature->GetGUID();
+                        break;
 
                     case NPC_VEZAX:
                         VezaxGUID = creature->GetGUID();
@@ -470,6 +501,15 @@ class instance_ulduar : public InstanceMapScript
                     case GO_HODIR_CHEST:
                         HodirChestGUID = gameObject->GetGUID();
                         break;
+                    case GO_MIMIRON_TRAM:
+                        MimironTramGUID = gameObject->GetGUID();
+                        break;
+                    case GO_MIMIRON_ELEVATOR:
+                        MimironElevatorGUID = gameObject->GetGUID();
+                        break;
+                    case GO_MIMIRON_BUTTON:
+                        MimironButtonGUID = gameObject->GetGUID();
+                        break;
                     case GO_LEVIATHAN_GATE:
                         LeviathanGateGUID = gameObject->GetGUID();
                         if (GetBossState(BOSS_LEVIATHAN) == DONE)
@@ -482,6 +522,9 @@ class instance_ulduar : public InstanceMapScript
                     case GO_HODIR_ENTRANCE:
                     case GO_HODIR_DOOR:
                     case GO_HODIR_ICE_DOOR:
+                    case GO_MIMIRON_DOOR_1:
+                    case GO_MIMIRON_DOOR_2:
+                    case GO_MIMIRON_DOOR_3:
                     case GO_VEZAX_DOOR:
                     case GO_YOGG_SARON_DOOR:
                         AddDoor(gameObject, true);
@@ -566,6 +609,9 @@ class instance_ulduar : public InstanceMapScript
                     case GO_HODIR_ENTRANCE:
                     case GO_HODIR_DOOR:
                     case GO_HODIR_ICE_DOOR:
+                    case GO_MIMIRON_DOOR_1:
+                    case GO_MIMIRON_DOOR_2:
+                    case GO_MIMIRON_DOOR_3:
                     case GO_VEZAX_DOOR:
                     case GO_YOGG_SARON_DOOR:
                     case GO_DOODAD_UL_SIGILDOOR_03:
@@ -774,6 +820,10 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case DATA_UNBROKEN:
                         Unbroken = data != 0;
+                        break;                    
+                    case DATA_MIMIRON_ELEVATOR:
+                        if (GameObject* gameObject = instance->GetGameObject(MimironElevatorGUID))
+                            gameObject->SetGoState((GOState)data);
                         break;
                     case DATA_ILLUSION:
                         illusion = data;
@@ -846,8 +896,6 @@ class instance_ulduar : public InstanceMapScript
                         return KologarnGUID;
                     case BOSS_AURIAYA:
                         return AuriayaGUID;
-                    case BOSS_MIMIRON:
-                        return MimironGUID;
                     case BOSS_HODIR:
                         return HodirGUID;
                     case BOSS_THORIM:
@@ -862,6 +910,22 @@ class instance_ulduar : public InstanceMapScript
                         return ElderGUIDs[1];
                     case BOSS_STONEBARK:
                         return ElderGUIDs[2];
+
+                    // Mimiron
+                    case BOSS_MIMIRON:
+                        return MimironGUID;
+                    case DATA_LEVIATHAN_MK_II:
+                        return MimironVehicleGUIDs[0];
+                    case DATA_VX_001:
+                        return MimironVehicleGUIDs[1];
+                    case DATA_AERIAL_COMMAND_UNIT:
+                        return MimironVehicleGUIDs[2];
+                    case DATA_COMPUTER:
+                        return MimironComputerGUID;
+                    case DATA_MIMIRON_WORLD_TRIGGER:
+                        return MimironWorldTriggerGUID;
+                    case DATA_MIMIRON_BUTTON:
+                        return MimironButtonGUID;
 
                     case BOSS_VEZAX:
                         return VezaxGUID;
