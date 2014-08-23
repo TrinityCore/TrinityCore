@@ -12912,6 +12912,16 @@ void Unit::ModSpellCastTime(SpellInfo const* spellInfo, int32 & castTime, Spell*
         castTime = 500;
 }
 
+void Unit::ModChanneledSpellCastTime(SpellInfo const* spellInfo, int32 & castTime, Spell* spell)
+{
+    if (!spellInfo || castTime < 0)
+        return;
+
+    // called from caster
+    if (Player* modOwner = GetSpellModOwner())
+        modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_CASTING_TIME, castTime, spell);
+}
+
 DiminishingLevels Unit::GetDiminishing(DiminishingGroup group)
 {
     for (Diminishing::iterator i = m_Diminishing.begin(); i != m_Diminishing.end(); ++i)

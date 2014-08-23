@@ -2098,7 +2098,12 @@ uint32 SpellInfo::CalcCastTime(Spell* spell /*= NULL*/) const
     int32 castTime = CastTimeEntry->CastTime;
 
     if (spell)
+    {
         spell->GetCaster()->ModSpellCastTime(this, castTime, spell);
+
+        if (IsChanneled())
+            spell->GetCaster()->ModChanneledSpellCastTime(this, castTime, spell);
+    }
 
     if (Attributes & SPELL_ATTR0_REQ_AMMO && (!IsAutoRepeatRangedSpell()))
         castTime += 500;
