@@ -1,7 +1,7 @@
 /** 
-  @file System.cpp
+  \file System.cpp
  
-  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   Note: every routine must call init() first.
 
@@ -10,8 +10,8 @@
   can be used at all.  At runtime, processor detection is used to
   determine if we can safely call the routines that use that assembly.
 
-  @created 2003-01-25
-  @edited  2010-01-03
+  \created 2003-01-25
+  \edited  2012-01-05
  */
 
 #include "G3D/platform.h"
@@ -37,17 +37,14 @@
 // allocation and use the operating system's malloc.
 //#define NO_BUFFERPOOL
 
-#if defined(__i386__) || defined(__x86_64__) || defined(G3D_WIN32)
-#    define G3D_NOT_OSX_PPC
-#endif
-
 #include <cstdlib>
 
-#ifdef G3D_WIN32
+#ifdef G3D_WINDOWS
 
 #   include <conio.h>
 #   include <sys/timeb.h>
 #   include "G3D/RegistryUtil.h"
+#include <Ole2.h>
 
 #elif defined(G3D_LINUX) 
 
@@ -81,13 +78,11 @@
 #endif
 
 // SIMM include
-#ifdef __SSE__
 #include <xmmintrin.h>
-#endif
+
 
 namespace G3D {
-
-
+    
 /** Checks if the CPUID command is available on the processor (called from init) */
 static bool checkForCPUID();
 
@@ -173,10 +168,6 @@ void System::init() {
             m_cpuArch = "AMD Processor";
             break;
 
-        case 0x69727943:        // CyrixInstead
-            m_cpuArch = "Cyrix Processor";
-            break;
-
         default:
             m_cpuArch = "Unknown Processor Vendor";
             break;
@@ -195,43 +186,40 @@ void System::init() {
 
 
     // Get the operating system name (also happens to read some other information)
-#    ifdef G3D_WIN32
+#    ifdef G3D_WINDOWS
+	    HRESULT r = OleInitialize(NULL);
         // Note that this overrides some of the values computed above
         bool success = RegistryUtil::readInt32
             ("HKEY_LOCAL_MACHINE\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", 
              "~MHz", m_cpuSpeed);
-
+        HRESULT s = OleInitialize(NULL);
         SYSTEM_INFO systemInfo;
         GetSystemInfo(&systemInfo);
         const char* arch = NULL;
         switch (systemInfo.wProcessorArchitecture) {
         case PROCESSOR_ARCHITECTURE_INTEL:
-            arch = "Intel";
+            arch = "x86 Intel";
             break;
     
-        case PROCESSOR_ARCHITECTURE_MIPS:
-            arch = "MIPS";
-            break;
+		case PROCESSOR_ARCHITECTURE_AMD64:
+			arch = "x64 Intel/AMD";
+			break;
 
-        case PROCESSOR_ARCHITECTURE_ALPHA:
-            arch = "Alpha";
-            break;
-
-        case PROCESSOR_ARCHITECTURE_PPC:
-            arch = "Power PC";
-            break;
+		case PROCESSOR_ARCHITECTURE_ARM:
+			arch = "ARM";
+			break;
 
         default:
             arch = "Unknown";
+			break;
         }
 
         m_numCores = systemInfo.dwNumberOfProcessors;
-        uint32 maxAddr = (uint32)systemInfo.lpMaximumApplicationAddress;
+        uint64_t maxAddr = reinterpret_cast<uint64_t>(systemInfo.lpMaximumApplicationAddress);
         {
             char c[1024];
-            sprintf(c, "%d x %d-bit %s processor",
+            sprintf(c, "%d - %s cores",
                     systemInfo.dwNumberOfProcessors,
-                    (int)(::log((double)maxAddr) / ::log(2.0) + 2.0),
                     arch);
             m_cpuArch = c;
         }
@@ -261,12 +249,13 @@ void System::init() {
 
             int len = 100;
             char* r = (char*)::malloc(len * sizeof(char));
-            fgets(r, len, f);
+            (void)fgets(r, len, f);
             // Remove trailing newline
             if (r[strlen(r) - 1] == '\n') {
                 r[strlen(r) - 1] = '\0';
             }
             fclose(f);
+            f = NULL;
 
             m_operatingSystem = r;
             ::free(r);
@@ -294,72 +283,103 @@ void System::init() {
         m_secondsPerNS = 1.0 / 1.0e9;
         
         // System Architecture:
-	const NXArchInfo* pInfo = NXGetLocalArchInfo();
-		
-	if (pInfo) {
-	    m_cpuArch = pInfo->description;
-			
-	    switch (pInfo->cputype) {
-	    case CPU_TYPE_POWERPC:
-	        switch(pInfo->cpusubtype){
-		case CPU_SUBTYPE_POWERPC_750:
-		case CPU_SUBTYPE_POWERPC_7400:
-		case CPU_SUBTYPE_POWERPC_7450:
-		    m_cpuVendor = "Motorola";
-		    break;
-		case CPU_SUBTYPE_POWERPC_970:
-		    m_cpuVendor = "IBM";
-		    break;
-		}
-		break;
-	    
+    const NXArchInfo* pInfo = NXGetLocalArchInfo();
+        
+    if (pInfo) {
+        m_cpuArch = pInfo->description;
+            
+        switch (pInfo->cputype) {
+        case CPU_TYPE_POWERPC:
+            switch(pInfo->cpusubtype){
+        case CPU_SUBTYPE_POWERPC_750:
+        case CPU_SUBTYPE_POWERPC_7400:
+        case CPU_SUBTYPE_POWERPC_7450:
+            m_cpuVendor = "Motorola";
+            break;
+        case CPU_SUBTYPE_POWERPC_970:
+            m_cpuVendor = "IBM";
+            break;
+        }
+        break;
+        
             case CPU_TYPE_I386:
                 m_cpuVendor = "Intel";
                 break;
-	    }
-	}
+        }
+    }
 #   endif
 
     initTime();
 
     getStandardProcessorExtensions();
+
+    m_appDataDir = FilePath::parent(System::currentProgramFilename());
 }
 
 
 void getG3DVersion(std::string& s) {
+
+    const char* build = 
+#       ifdef G3D_64BIT
+            "64-bit";
+#       else
+            "32-bit";
+#       endif
+
+    const char* debug =
+#       ifdef G3D_DEBUG
+            " (Debug)";
+#       else
+            "";
+#       endif
+
     char cstr[100];
     if ((G3D_VER % 100) != 0) {
-        sprintf(cstr, "G3D %d.%02d beta %d",
+        sprintf(cstr, "G3D Innovation Engine %d.%02d beta %d, %s%s",
                 G3D_VER / 10000,
                 (G3D_VER / 100) % 100,
-                G3D_VER % 100);
+                G3D_VER % 100,
+                build,
+                debug);
     } else {
-        sprintf(cstr, "G3D %d.%02d",
+        sprintf(cstr, "G3D Innovation Engine %d.%02d, %s%s",
                 G3D_VER / 10000,
-                (G3D_VER / 100) % 100);
+                (G3D_VER / 100) % 100,
+                build,
+                debug);
     }
+
     s = cstr;
 }
 
+// Places where specific files were most recently found.  This is
+// used to cache seeking of common files.
+static Table<std::string, std::string> lastFound;
 
+// Places to look in findDataFile
+static Array<std::string> directoryArray;
+
+#define MARK_LOG()
+//#define MARK_LOG() logPrintf("%s(%d)\n", __FILE__, __LINE__)
 std::string System::findDataFile
-(const std::string&  full,
- bool                errorIfNotFound) {
+(const std::string&  _full,
+ bool                errorIfNotFound,
+ bool                caseSensitive) {
+MARK_LOG();
 
-    // Places where specific files were most recently found.  This is
-    // used to cache seeking of common files.
-    static Table<std::string, std::string> lastFound;
+    const std::string full = FilePath::expandEnvironmentVariables(_full);
 
     // First check if the file exists as requested.  This will go
     // through the FileSystemCache, so most calls do not touch disk.
-    if (FileSystem::exists(full)) {
+    if (FileSystem::exists(full, true, caseSensitive)) {
         return full;
     }
 
+MARK_LOG();
     // Now check where we previously found this file.
     std::string* last = lastFound.getPointer(full);
     if (last != NULL) {
-        if (FileSystem::exists(*last)) {
+        if (FileSystem::exists(*last, true, caseSensitive)) {
             // Even if cwd has changed the file is still present.
             // We won't notice if it has been deleted, however.
             return *last;
@@ -369,11 +389,10 @@ std::string System::findDataFile
         }
     }
 
-    // Places to look
-    static Array<std::string> directoryArray;
+MARK_LOG();
 
-    std::string initialAppDataDir(instance().m_appDataDir);
-    const char* g3dPath = getenv("G3DDATA");
+    const std::string initialAppDataDir(instance().m_appDataDir);
+    const char* g3dPath = getenv("G3D9DATA");
 
     if (directoryArray.size() == 0) {
         // Initialize the directory array
@@ -381,18 +400,27 @@ std::string System::findDataFile
 
         Array<std::string> baseDirArray;
         
-        baseDirArray.append("");
+        baseDirArray.append(FileSystem::currentDirectory());
+MARK_LOG();
         if (! initialAppDataDir.empty()) {
+MARK_LOG();
             baseDirArray.append(initialAppDataDir);
+            baseDirArray.append(pathConcat(initialAppDataDir, "data"));
+            baseDirArray.append(pathConcat(initialAppDataDir, "data.zip"));
+        } else {
+MARK_LOG();
+            baseDirArray.append("data");
+            baseDirArray.append("data.zip");
         }
+MARK_LOG();
 
-#       ifdef G3D_WIN32
+#       ifdef G3D_WINDOWS
         if (g3dPath == NULL) {
             // If running the demos under visual studio from the G3D.sln file,
             // this will locate the data directory.
             const char* paths[] = {"../data-files/", "../../data-files/", "../../../data-files/", NULL};
             for (int i = 0; paths[i]; ++i) {
-                if (FileSystem::exists(pathConcat(paths[i], "G3D-DATA-README.TXT"))) {
+                if (FileSystem::exists(pathConcat(paths[i], "G3D-DATA-README.TXT"), true, caseSensitive)) {
                     g3dPath = paths[i];
                     break;
                 }
@@ -405,96 +433,91 @@ std::string System::findDataFile
         }
 
         static const std::string subdirs[] = 
-            {"font", "gui", "SuperShader", "cubemap", "icon", "material", "image", "md2", "md3", "ifs", "3ds", "sky", ""};
+            {"font", "gui", "shader", "model", "cubemap", "icon", "material", "image", "md2", "md3", "ifs", "3ds", "sky", "music", "sound", "scene", ""};
         for (int j = 0; j < baseDirArray.size(); ++j) {
             std::string d = baseDirArray[j];
+//logPrintf("%s", d.c_str());
             if ((d == "") || FileSystem::exists(d)) {
+//logPrintf(" exists\n");
                 directoryArray.append(d);
                 for (int i = 0; ! subdirs[i].empty(); ++i) {
                     const std::string& p = pathConcat(d, subdirs[i]);
-                    if (FileSystem::exists(p)) {
+                    if (FileSystem::exists(p, true, caseSensitive)) {
                         directoryArray.append(p);
                     }
                 }
+            } else {
+//logPrintf(" does not exist\n");
             }
         }
 
         logLazyPrintf("Initializing System::findDataFile took %fs\n", System::time() - t0);
+
     }
+MARK_LOG();
 
     for (int i = 0; i < directoryArray.size(); ++i) {
         const std::string& p = pathConcat(directoryArray[i], full);
-        if (FileSystem::exists(p)) {
+        if (FileSystem::exists(p, true, caseSensitive)) {
             lastFound.set(full, p);
             return p;
         }
     }
+MARK_LOG();
 
     if (errorIfNotFound) {
-        // Generate an error message
+        // Generate an error message.  Delay this operation until we know that we need it;
+        // otherwise all of the string concatenation would run on each successful find.
         std::string locations;
         for (int i = 0; i < directoryArray.size(); ++i) {
             locations += "\'" + pathConcat(directoryArray[i], full) + "'\n";
         }
+MARK_LOG();
 
         std::string msg = "Could not find '" + full + "'.\n\n";
-        msg += "cwd = \'" + FileSystem::currentDirectory() + "\'\n";
+        msg +=     "  cwd                    = '" + FileSystem::currentDirectory() + "'\n";
         if (g3dPath) {
-            msg += "G3DDATA = ";
-            if (! FileSystem::exists(g3dPath)) {
-                msg += "(illegal path!) ";
+            msg += "  G3D9DATA               = '" + std::string(g3dPath) + "'";
+            if (! FileSystem::exists(g3dPath, true, caseSensitive)) {
+                msg += " (illegal path!)";
             }
-            msg += std::string(g3dPath) + "\'\n";
+            msg += "\n";
         } else {
-            msg += "(G3DDATA environment variable is undefined)\n";
+            msg += "  G3D9DATA               = (environment variable is not defined)\n";
         }
-        msg += "GApp::Settings.dataDir = ";
-        if (! FileSystem::exists(initialAppDataDir)) {
-            msg += "(illegal path!) ";
+MARK_LOG();
+        msg +=     "  GApp::Settings.dataDir = '" + initialAppDataDir + "'";
+        if (! FileSystem::exists(initialAppDataDir, true, caseSensitive)) {
+            msg += " (illegal path!)";
         }
-        msg += std::string(initialAppDataDir) + "\'\n";
+        msg += "\n";
 
-        msg += "\nLocations searched:\n" + locations;
+        msg += "\nFilenames tested:\n" + locations;
 
+MARK_LOG();
+logPrintf("%s\n", msg.c_str());
+        throw FileNotFound(full, msg);
         alwaysAssertM(false, msg);
     }
+MARK_LOG();
 
     // Not found
     return "";
 }
-
+#undef MARK_LOG
 
 void System::setAppDataDir(const std::string& path) {
     instance().m_appDataDir = path;
+
+    // Wipe the findDataFile cache
+    lastFound.clear();
+    directoryArray.clear();
 }
 
 
-std::string demoFindData(bool errorIfNotFound) {
-    static const char* g3dPath = getenv("G3DDATA");
-    if (g3dPath) {
-        return g3dPath;
-#   ifdef G3D_WIN32
-    } else if (FileSystem::exists("../data")) {
-        // G3D install on Windows
-        return "../data";
-    } else if (FileSystem::exists("../data-files")) {
-        // G3D source on Windows
-        return "../data-files";
-    } else if (FileSystem::exists("c:/libraries/G3D/data")) {
-        return "c:/libraries/G3D/data";
-#   else
-    } else if (FileSystem::exists("../../../../data")) {
-        // G3D install on Unix
-        return "../../../../data";
-    } else if (FileSystem::exists("../../../../data-files")) {
-        // G3D source on Unix
-        return "../../../../data-files";
-    } else if (FileSystem::exists("/usr/local/G3D/data")) {
-        return "/usr/local/G3D/data";
-#   endif
-    } else {
-        return "";
-    }
+void System::cleanup() {
+    lastFound.clear();
+    directoryArray.clear();
 }
 
 
@@ -564,11 +587,14 @@ void System::getStandardProcessorExtensions() {
 #endif
 }
 
-#if defined(G3D_WIN32) && !defined(G3D_64BIT) && !defined(__MINGW32__) /* G3DFIX: Don't check if on 64-bit Windows platforms or using MinGW */
-    #pragma message("Port System::memcpy SIMD to all platforms")
-/** Michael Herf's fast memcpy */
+#if defined(G3D_WINDOWS) && defined(_M_IX86) && !defined(__MINGW32__) /* G3DFIX: Don't check if on 64-bit Windows platforms or using MinGW */
+// 32-bit
+/** Michael Herf's fast memcpy.  Assumes 16-byte alignment */
 void memcpyMMX(void* dst, const void* src, int nbytes) {
     int remainingBytes = nbytes;
+
+    alwaysAssertM((int)dst % 16 == 0, format("Must be on 16-byte boundary.  dst = 0x%x", dst));
+    alwaysAssertM((int)src % 16 == 0, format("Must be on 16-byte boundary.  src = 0x%x", src));
 
     if (nbytes > 64) {
         _asm {
@@ -615,8 +641,13 @@ void memcpyMMX(void* dst, const void* src, int nbytes) {
 #endif
 
 void System::memcpy(void* dst, const void* src, size_t numBytes) {
-#if defined(G3D_WIN32) && !defined(G3D_64BIT) && !defined(__MINGW32__) /* G3DFIX: Don't check if on 64-bit Windows platforms or using MinGW */
-    memcpyMMX(dst, src, numBytes);
+#if defined(G3D_WINDOWS) && defined(_M_IX86) && !defined(__MINGW32__) /* G3DFIX: Don't check if on 64-bit Windows platforms or using MinGW */
+    // The overhead of our memcpy seems to only be worthwhile on large arrays
+    if (((size_t)dst % 16 == 0) && ((size_t)src % 16 == 0) && (numBytes > 3400000)) {
+        memcpyMMX(dst, src, numBytes);
+    } else {
+        ::memcpy(dst, src, numBytes);
+    }
 #else
     ::memcpy(dst, src, numBytes);
 #endif
@@ -625,9 +656,7 @@ void System::memcpy(void* dst, const void* src, size_t numBytes) {
 
 /** Michael Herf's fastest memset. n32 must be filled with the same
     character repeated. */
-#if defined(G3D_WIN32) && !defined(G3D_64BIT) && !defined(__MINGW32__) /* G3DFIX: Don't check if on 64-bit Windows platforms or using MinGW */
-    #pragma message("Port System::memfill SIMD to all platforms")
-
+#if defined(G3D_WINDOWS) && defined(_M_IX86) && !defined(__MINGW32__) /* G3DFIX: Don't check if on 64-bit Windows platforms or using MinGW */
 // On x86 processors, use MMX
 void memfill(void *dst, int n32, unsigned long i) {
 
@@ -664,10 +693,15 @@ void memfill(void *dst, int n32, unsigned long i) {
 
 
 void System::memset(void* dst, uint8 value, size_t numBytes) {
-#if defined(G3D_WIN32) && !defined(G3D_64BIT) && !defined(__MINGW32__) /* G3DFIX: Don't check if on 64-bit Windows platforms or using MinGW */
-    uint32 v = value;
-    v = v + (v << 8) + (v << 16) + (v << 24); 
-    G3D::memfill(dst, v, numBytes);
+    alwaysAssertM(dst != NULL, "Cannot memset NULL address.");
+#if defined(G3D_WINDOWS) && defined(_M_IX86) && !defined(__MINGW32__) /* G3DFIX: Don't check if on 64-bit Windows platforms or using MinGW */
+    if ((((size_t)dst % 16) == 0) && (numBytes >= 512*1024)) {
+        uint32 v = value;
+        v = v + (v << 8) + (v << 16) + (v << 24); 
+        G3D::memfill(dst, v, numBytes);
+    } else {
+        ::memset(dst, value, numBytes);
+    }
 #else
     ::memset(dst, value, numBytes);
 #endif
@@ -683,7 +717,7 @@ static std::string computeAppName(const std::string& start) {
     if (start[start.size() - 1] == 'd') {
         // Maybe remove the 'd'; see if ../ or ../../ has the same name
         char tmp[1024];
-        getcwd(tmp, sizeof(tmp));
+        (void)getcwd(tmp, sizeof(tmp));
         std::string drive, base, ext;
         Array<std::string> path;
         parseFilename(tmp, drive, path, base, ext);
@@ -712,7 +746,7 @@ std::string& System::appName() {
 std::string System::currentProgramFilename() {
     char filename[2048];
 
-#   ifdef G3D_WIN32
+#   ifdef G3D_WINDOWS
     {
         GetModuleFileNameA(NULL, filename, sizeof(filename));
     } 
@@ -730,6 +764,7 @@ std::string System::currentProgramFilename() {
         int s = fread(filename, 1, sizeof(filename), fd);
         // filename will contain a newline.  Overwrite it:
         filename[s - 1] = '\0';
+        pclose(fd);
     }
 #   else
     {
@@ -784,7 +819,7 @@ void System::sleep(RealTime t) {
         }
 
         if (sleepTime >= 0) {
-            #ifdef G3D_WIN32
+            #ifdef G3D_WINDOWS
                 // Translate to milliseconds
                 Sleep((int)(sleepTime * 1e3));
             #else
@@ -800,16 +835,16 @@ void System::sleep(RealTime t) {
 
 
 void System::consoleClearScreen() {
-#   ifdef G3D_WIN32
-        system("cls");
+#   ifdef G3D_WINDOWS
+        (void)system("cls");
 #   else
-        system("clear");
+        (void)system("clear");
 #   endif
 }
 
 
 bool System::consoleKeyPressed() {
-    #ifdef G3D_WIN32
+    #ifdef G3D_WINDOWS
     
         return _kbhit() != 0;
 
@@ -851,18 +886,18 @@ bool System::consoleKeyPressed() {
 
 
 int System::consoleReadKey() {
-#   ifdef G3D_WIN32
+#   ifdef G3D_WINDOWS
         return _getch();
 #   else
         char c;
-        read(0, &c, 1);
+        (void)read(0, &c, 1);
         return c;
 #   endif
 }
 
 
 void System::initTime() {
-    #ifdef G3D_WIN32
+    #ifdef G3D_WINDOWS
         if (QueryPerformanceFrequency(&m_counterFrequency)) {
             QueryPerformanceCounter(&m_start);
         }
@@ -888,11 +923,7 @@ void System::initTime() {
         
         if (localTimeVals) {
             // tm_gmtoff is already corrected for daylight savings.
-            #ifdef __CYGWIN__
-            local = local + _timezone;
-            #else
             local = local + localTimeVals->tm_gmtoff;
-            #endif
         }
         
         m_realWorldGetTickTime0 = local;
@@ -901,7 +932,7 @@ void System::initTime() {
 
 
 RealTime System::time() { 
-#   ifdef G3D_WIN32
+#   ifdef G3D_WINDOWS
         LARGE_INTEGER now;
         QueryPerformanceCounter(&now);
 
@@ -924,12 +955,11 @@ RealTime System::time() {
 
 ////////////////////////////////////////////////////////////////
 
-
-#define REALPTR_TO_USERPTR(x)   ((uint8*)(x) + sizeof(uint32))
-#define USERPTR_TO_REALPTR(x)   ((uint8*)(x) - sizeof(uint32))
-#define USERSIZE_TO_REALSIZE(x)       ((x) + sizeof(uint32))
-#define REALSIZE_FROM_USERPTR(u) (*(uint32*)USERPTR_TO_REALPTR(ptr) + sizeof(uint32))
-#define USERSIZE_FROM_USERPTR(u) (*(uint32*)USERPTR_TO_REALPTR(ptr))
+#define REALPTR_TO_USERPTR(x)   ((uint8*)(x) + sizeof(size_t))
+#define USERPTR_TO_REALPTR(x)   ((uint8*)(x) - sizeof(size_t))
+#define USERSIZE_TO_REALSIZE(x)       ((x) + sizeof(size_t))
+#define REALSIZE_FROM_USERPTR(u) (*(size_t*)USERPTR_TO_REALPTR(ptr) + sizeof(size_t))
+#define USERSIZE_FROM_USERPTR(u) (*(size_t*)USERPTR_TO_REALPTR(ptr))
 
 class BufferPool {
 public:
@@ -942,15 +972,20 @@ public:
         Tiny buffers are 128 bytes long because that seems to align well with
         cache sizes on many machines.
       */
+#ifdef G3D_64BIT
+    // 64-bit machines have larger pointers...and probably have more memory as well
+    enum {tinyBufferSize = 256, smallBufferSize = 2048, medBufferSize = 8192};
+#else
     enum {tinyBufferSize = 128, smallBufferSize = 1024, medBufferSize = 4096};
+#endif
 
     /** 
        Most buffers we're allowed to store.
-       250000 * 128  = 32 MB (preallocated)
-        10000 * 1024 = 10 MB (allocated on demand)
-         1024 * 4096 =  4 MB (allocated on demand)
+       250000 * { 128 |  256} = {32 | 64} MB (preallocated)
+        40000 * {1024 | 2048} = {40 | 80} MB (allocated on demand)
+         5000 * {4096 | 8192} = {20 | 40} MB (allocated on demand)
      */
-    enum {maxTinyBuffers = 250000, maxSmallBuffers = 10000, maxMedBuffers = 1024};
+    enum {maxTinyBuffers = 250000, maxSmallBuffers = 40000, maxMedBuffers = 5000};
 
 private:
 
@@ -994,31 +1029,6 @@ private:
     void unlock() {
         m_lock.unlock();
     }
-
-#if 0 //-----------------------------------------------old mutex
-#   ifdef G3D_WIN32
-    CRITICAL_SECTION    mutex;
-#   else
-    pthread_mutex_t     mutex;
-#   endif
-
-    /** Provide synchronization between threads */
-    void lock() {
-#       ifdef G3D_WIN32
-            EnterCriticalSection(&mutex);
-#       else
-            pthread_mutex_lock(&mutex);
-#       endif
-    }
-
-    void unlock() {
-#       ifdef G3D_WIN32
-            LeaveCriticalSection(&mutex);
-#       else
-            pthread_mutex_unlock(&mutex);
-#       endif
-    }
-#endif //-------------------------------------------old mutex
 
     /** 
      Malloc out of the tiny heap. Returns NULL if allocation failed.
@@ -1133,7 +1143,7 @@ public:
         of a buffer.
         Primarily useful for detecting leaks.*/
     // TODO: make me an atomic int!
-    volatile int bytesAllocated;
+    volatile size_t bytesAllocated;
 
     BufferPool() {
         totalMallocs         = 0;
@@ -1142,7 +1152,7 @@ public:
         mallocsFromSmallPool = 0;
         mallocsFromMedPool   = 0;
 
-        bytesAllocated       = true;
+        bytesAllocated       = 0;
 
         tinyPoolSize         = 0;
         tinyHeap             = NULL;
@@ -1161,7 +1171,7 @@ public:
         tinyPoolSize = maxTinyBuffers;
 
 #if 0        ///---------------------------------- old mutex
-#       ifdef G3D_WIN32
+#       ifdef G3D_WINDOWS
             InitializeCriticalSection(&mutex);
 #       else
             pthread_mutex_init(&mutex, NULL);
@@ -1175,7 +1185,7 @@ public:
         flushPool(smallPool, smallPoolSize);
         flushPool(medPool, medPoolSize);
 #if 0 //-------------------------------- old mutex
-#       ifdef G3D_WIN32
+#       ifdef G3D_WINDOWS
             DeleteCriticalSection(&mutex);
 #       else
             // No destruction on pthreads
@@ -1274,6 +1284,11 @@ public:
         RealPtr ptr = ::malloc(USERSIZE_TO_REALSIZE(bytes));
 
         if (ptr == NULL) {
+#           ifdef G3D_WINDOWS
+                // Check for memory corruption
+                alwaysAssertM(_CrtCheckMemory() == TRUE, "Heap corruption detected.");
+#           endif
+
             // Flush memory pools to try and recover space
             flushPool(smallPool, smallPoolSize);
             flushPool(medPool, medPoolSize);
@@ -1303,7 +1318,7 @@ public:
             return NULL;
         }
 
-        *(uint32*)ptr = bytes;
+        ((size_t*)ptr)[0] = bytes;
 
         return REALPTR_TO_USERPTR(ptr);
     }
@@ -1324,7 +1339,7 @@ public:
             return;
         }
 
-        uint32 bytes = USERSIZE_FROM_USERPTR(ptr);
+        size_t bytes = USERSIZE_FROM_USERPTR(ptr);
 
         lock();
         if (bytes <= smallBufferSize) {
@@ -1466,14 +1481,17 @@ void System::free(void* p) {
 
 void* System::alignedMalloc(size_t bytes, size_t alignment) {
 
-    alwaysAssertM(isPow2(alignment), "alignment must be a power of 2");
+    alwaysAssertM(isPow2((uint32)alignment), "alignment must be a power of 2");
 
     // We must align to at least a word boundary.
-    alignment = iMax(alignment, sizeof(void *));
+    alignment = max(alignment, sizeof(void *));
 
-    // Pad the allocation size with the alignment size and the
-    // size of the redirect pointer.
-    size_t totalBytes = bytes + alignment + sizeof(void*);
+    // Pad the allocation size with the alignment size and the size of
+    // the redirect pointer.  This is the worst-case size we'll need.
+    // Since the alignment size is at least teh word size, we don't
+    // need to allocate space for the redirect pointer.  We repeat the max here
+    // for clarity.
+    size_t totalBytes = bytes + max(alignment, sizeof(void*));
 
     size_t truePtr = (size_t)System::malloc(totalBytes);
 
@@ -1483,25 +1501,31 @@ void* System::alignedMalloc(size_t bytes, size_t alignment) {
     }
 
     debugAssert(isValidHeapPointer((void*)truePtr));
-    #ifdef G3D_WIN32
+    #ifdef G3D_WINDOWS
     // The blocks we return will not be valid Win32 debug heap
     // pointers because they are offset 
     //  debugAssert(_CrtIsValidPointer((void*)truePtr, totalBytes, TRUE) );
     #endif
 
-    // The return pointer will be the next aligned location (we must at least
-    // leave space for the redirect pointer, however).
-    size_t  alignedPtr = truePtr + sizeof(void*);
 
-    // 2^n - 1 has the form 1111... in binary.
-    uint32 bitMask = (alignment - 1);
+    // We want alignedPtr % alignment == 0, which we'll compute with a
+    // binary AND because 2^n - 1 has the form 1111... in binary.
+    const size_t bitMask = (alignment - 1);
 
-    // Advance forward until we reach an aligned location.
-    while ((alignedPtr & bitMask) != 0) {
-        alignedPtr += sizeof(void*);
-    }
+    // The return pointer will be the next aligned location that is at
+    // least sizeof(void*) after the true pointer. We need the padding
+    // to have a place to write the redirect pointer.
+    size_t alignedPtr = truePtr + sizeof(void*);
 
-    debugAssert(alignedPtr - truePtr + bytes <= totalBytes);
+    const size_t remainder = alignedPtr & bitMask;
+    
+    // Add what we need to make it to the next alignment boundary, but
+    // if the remainder was zero, let it wrap to zero and don't add
+    // anything.
+    alignedPtr += ((alignment - remainder) & bitMask);
+
+    debugAssert((alignedPtr & bitMask) == 0);
+    debugAssert((alignedPtr - truePtr + bytes) <= totalBytes);
 
     // Immediately before the aligned location, write the true array location
     // so that we can free it correctly.
@@ -1510,8 +1534,10 @@ void* System::alignedMalloc(size_t bytes, size_t alignment) {
 
     debugAssert(isValidHeapPointer((void*)truePtr));
 
-    #ifdef G3D_WIN32
-        debugAssert( _CrtIsValidPointer((void*)alignedPtr, bytes, TRUE) );
+    #if defined(G3D_WINDOWS) && defined(G3D_DEBUG)
+        if (bytes < 0xFFFFFFFF) { 
+            debugAssert( _CrtIsValidPointer((void*)alignedPtr, (int)bytes, TRUE) );
+        }
     #endif
     return (void *)alignedPtr;
 }
@@ -1539,7 +1565,7 @@ void System::alignedFree(void* _ptr) {
 
 void System::setEnv(const std::string& name, const std::string& value) {
     std::string cmd = name + "=" + value;
-#   ifdef G3D_WIN32
+#   ifdef G3D_WINDOWS
         _putenv(cmd.c_str());
 #   else
         // Many linux implementations of putenv expect char*
@@ -1590,7 +1616,7 @@ void System::describeSystem(
     {
         var(t, "Name", System::currentProgramFilename());
         char cwd[1024];
-        getcwd(cwd, 1024);
+        (void)getcwd(cwd, 1024);
         var(t, "cwd", std::string(cwd));
     }
     t.popIndent();
@@ -1633,57 +1659,16 @@ void System::describeSystem(
     t.writeNewline();
     t.pushIndent();
     {
+        const char* g3dPath = getenv("G3D9DATA");
         var(t, "Link version", G3D_VER);
         var(t, "Compile version", System::version());
+        var(t, "G3D9DATA", std::string(g3dPath ? g3dPath : ""));
     }
     t.popIndent();
     t.writeSymbols("}");
     t.writeNewline();
     t.writeNewline();
 }
-
-
-void System::setClipboardText(const std::string& s) {
-#   ifdef G3D_WIN32
-        if (OpenClipboard(NULL)) {
-            HGLOBAL hMem = GlobalAlloc(GHND | GMEM_DDESHARE, s.size() + 1);
-            if (hMem) {
-                char *pMem = (char*)GlobalLock(hMem);
-                strcpy(pMem, s.c_str());
-                GlobalUnlock(hMem);
-
-                EmptyClipboard();
-                SetClipboardData(CF_TEXT, hMem);
-            }
-
-            CloseClipboard();
-            GlobalFree(hMem);
-        }
-#   endif
-}
-
-
-std::string System::getClipboardText() {
-    std::string s;
-
-#   ifdef G3D_WIN32
-        if (OpenClipboard(NULL)) {
-            HANDLE h = GetClipboardData(CF_TEXT);
-
-            if (h) {
-                char* temp = (char*)GlobalLock(h);
-                if (temp) {
-    	            s = temp;
-                }
-                temp = NULL;
-                GlobalUnlock(h);
-            }
-            CloseClipboard();
-        }
-#   endif
-    return s;
-}
-
 
 std::string System::currentDateString() {
     time_t t1;
@@ -1692,46 +1677,23 @@ std::string System::currentDateString() {
     return format("%d-%02d-%02d", t->tm_year + 1900, t->tm_mon + 1, t->tm_mday); 
 }
 
-#ifdef _MSC_VER
-
-// VC on Intel
-void System::cpuid(CPUIDFunction func, uint32& areg, uint32& breg, uint32& creg, uint32& dreg) {
-#if !defined(G3D_64BIT) && !defined(__MINGW32__) /* G3DFIX: Don't check if on 64-bit platforms or using MinGW */
-    // Can't copy from assembler direct to a function argument (which is on the stack) in VC.
-    uint32 a,b,c,d;
-
-    // Intel assembler syntax
-    __asm {
-        mov	  eax, func      //  eax <- func
-        mov   ecx, 0
-        cpuid              
-        mov   a, eax   
-        mov   b, ebx   
-        mov   c, ecx   
-        mov   d, edx
-    }
-    areg = a;
-    breg = b; 
-    creg = c;
-    dreg = d;
-#else
-    int CPUInfo[4];
-    __cpuid(CPUInfo, func);
-    memcpy(&areg, &CPUInfo[0], 4);
-    memcpy(&breg, &CPUInfo[1], 4);
-    memcpy(&creg, &CPUInfo[2], 4);
-    memcpy(&dreg, &CPUInfo[3], 4);
-#endif
+std::string System::currentTimeString() {
+    time_t t1;
+    ::time(&t1);
+    tm* t = localtime(&t1);
+    return format("%02d:%02d:%02d", t->tm_hour, t->tm_min, t->tm_sec);
 }
 
-#elif defined(G3D_OSX) && ! defined(G3D_OSX_INTEL)
+#if defined(_MSC_VER)
 
-// non-intel OS X; no CPUID
+// Windows 64-bit
 void System::cpuid(CPUIDFunction func, uint32& eax, uint32& ebx, uint32& ecx, uint32& edx) {
-    eax = 0;
-    ebx = 0;
-    ecx = 0;
-    edx = 0;
+	int regs[4] = {eax, ebx, ecx, edx};
+	__cpuid(regs, func);
+	eax = regs[0];
+	ebx = regs[1];
+	ecx = regs[2];
+	edx = regs[3];
 }
 
 #else

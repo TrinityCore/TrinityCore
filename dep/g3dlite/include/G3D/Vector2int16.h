@@ -4,14 +4,14 @@
   @maintainer Morgan McGuire, matrix@brown.edu
 
   @created 2003-08-09
-  @edited  2004-01-03
+  @edited  2010-01-03
 
-  Copyright 2000-2006, Morgan McGuire.
+  Copyright 2000-2012, Morgan McGuire.
   All rights reserved.
  */
 
-#ifndef VECTOR2INT16_H
-#define VECTOR2INT16_H
+#ifndef Vector2int16_h
+#define Vector2int16_h
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
@@ -19,12 +19,13 @@
 
 namespace G3D {
 
+class Any;
 /**
  \class Vector2int16 
- A Vector2 that packs its fields into uint16s.
+ A Vector2 that packs its fields into G3D::int16 s.
  */
 G3D_BEGIN_PACKED_CLASS(2)
-class Vector2int16 {
+Vector2int16 {
 private:
     // Hidden operators
     bool operator<(const Vector2int16&) const;
@@ -38,8 +39,14 @@ public:
 
     Vector2int16() : x(0), y(0) {}
     Vector2int16(G3D::int16 _x, G3D::int16 _y) : x(_x), y(_y){}
-    Vector2int16(const class Vector2& v);
-    Vector2int16(class BinaryInput& bi);
+    explicit Vector2int16(const class Vector2& v);
+    explicit Vector2int16(class BinaryInput& bi);
+    explicit Vector2int16(const class Any& a);
+    explicit Vector2int16(const class Vector2int32& v);
+
+    Any toAny() const;
+    
+    Vector2int16& operator=(const Any& a);
 
     inline G3D::int16& operator[] (int i) {
         debugAssert(((unsigned int)i) <= 1);
@@ -63,6 +70,10 @@ public:
         return Vector2int16(x * other.x, y * other.y);
     }
 
+    Vector2int16 operator-() const {
+        return Vector2int16(-x, -y);
+    }
+
     inline Vector2int16 operator*(const int s) const {
         return Vector2int16(x * s, y * s);
     }
@@ -71,6 +82,10 @@ public:
         x += other.x;
         y += other.y;
         return *this;
+    }
+
+    bool isZero() const {
+        return (x == 0) && (y == 0);
     }
 
     /** Shifts both x and y */
@@ -117,6 +132,8 @@ public:
     void deserialize(class BinaryInput& bi);
 }
 G3D_END_PACKED_CLASS(2)
+
+typedef Vector2int16 Point2int16;    
 
 }
 
