@@ -28,7 +28,7 @@ namespace G3D {
  */
 class AtomicInt32 {
 private:
-#   if defined(G3D_WIN32) 
+#   if defined(G3D_WINDOWS) 
     volatile long           m_value;
 #   elif defined(G3D_OSX)
     int32_t                 m_value;
@@ -70,7 +70,7 @@ public:
 
     /** Returns the old value, before the add. */
     int32 add(const int32 x) {
-#       if defined(G3D_WIN32)
+#       if defined(G3D_WINDOWS)
 
             return InterlockedExchangeAdd(&m_value, x);
 
@@ -98,7 +98,7 @@ public:
     }
 
     void increment() {
-#       if defined(G3D_WIN32)
+#       if defined(G3D_WINDOWS)
             // Note: returns the newly incremented value
             InterlockedIncrement(&m_value);
 #       elif defined(G3D_LINUX) || defined(G3D_FREEBSD)
@@ -111,7 +111,7 @@ public:
 
     /** Returns zero if the result is zero after decrement, non-zero otherwise.*/
     int32 decrement() {
-#       if defined(G3D_WIN32)
+#       if defined(G3D_WINDOWS)
             // Note: returns the newly decremented value
             return InterlockedDecrement(&m_value);
 #       elif defined(G3D_LINUX)  || defined(G3D_FREEBSD)
@@ -140,7 +140,7 @@ public:
         Under VC6 the sign bit may be lost.
      */ 
     int32 compareAndSet(const int32 comperand, const int32 exchange) {
-#       if defined(G3D_WIN32)
+#       if defined(G3D_WINDOWS)
             return InterlockedCompareExchange(&m_value, exchange, comperand);
 #       elif defined(G3D_LINUX) || defined(G3D_FREEBSD) || defined(G3D_OSX)
             // Based on Apache Portable Runtime

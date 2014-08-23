@@ -80,19 +80,19 @@ bool LineSegment::intersectsSolidSphere(const class Sphere& s) const {
 
 
 LineSegment::LineSegment(class BinaryInput& b) {
-	deserialize(b);
+    deserialize(b);
 }
 
 
 void LineSegment::serialize(class BinaryOutput& b) const {
-	_point.serialize(b);
-	direction.serialize(b);
+    _point.serialize(b);
+    direction.serialize(b);
 }
 
 
 void LineSegment::deserialize(class BinaryInput& b) {
-	_point.deserialize(b);
-	direction.deserialize(b);
+    _point.deserialize(b);
+    direction.deserialize(b);
 }
 
 

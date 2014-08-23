@@ -1,14 +1,14 @@
 /**
-  @file Matrix3.h
+  \file Matrix3.h
  
   3x3 matrix class
  
-  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
-  @cite Portions based on Dave Eberly's Magic Software Library at <A HREF="http://www.magic-software.com">http://www.magic-software.com</A>
+  \cite Portions based on Dave Eberly's Magic Software Library at <A HREF="http://www.magic-software.com">http://www.magic-software.com</A>
  
-  @created 2001-06-02
-  @edited  2006-04-05
+  \created 2001-06-02
+  \edited  2011-05-05
  */
 
 #ifndef G3D_Matrix3_h
@@ -32,11 +32,12 @@ namespace G3D {
 class Any;
 
 /**
-  3x3 matrix.  Do not subclass.
+  A 3x3 matrix.  Do not subclass.  Data is unitializd when default constructed.
  */
 class Matrix3 {
 private:
 
+    // Row, column
     float elt[3][3];
 
     // Hidden operators
@@ -47,13 +48,39 @@ private:
 
 public:
 
+    /** Must be in one of the following forms:
+        - Matrix3(#, #, # .... #)
+        - Matrix3::fromAxisAngle(#, #)
+        - Matrix3::diagonal(#, #, #)
+        - Matrix3::identity()
+    */
     Matrix3(const Any& any);
 
-    operator Any() const;
+    static Matrix3 fromColumns(const Vector3& c0, const Vector3& c1, const Vector3& c2) {
+        Matrix3 m;
+        for (int r = 0; r < 3; ++r) {
+            m.elt[r][0] = c0[r];
+            m.elt[r][1] = c1[r];
+            m.elt[r][2] = c2[r];
+        }
+        return m;
+    }
 
-    /** Initial values are undefined for performance.  See also 
-        Matrix3::zero(), Matrix3::identity(), Matrix3::fromAxisAngle, etc.*/
-    inline Matrix3() {}
+    static Matrix3 fromRows(const Vector3& r0, const Vector3& r1, const Vector3& r2) {
+        Matrix3 m;
+        for (int c = 0; c < 3; ++c) {
+            m.elt[0][c] = r0[c];
+            m.elt[1][c] = r1[c];
+            m.elt[2][c] = r2[c];
+        }
+        return m;
+    }
+
+    Any toAny() const;
+
+    /** Initial values are undefined for performance. 
+        \sa Matrix3::zero, Matrix3::identity, Matrix3::fromAxisAngle, etc.*/
+    Matrix3() {}
 
     Matrix3 (class BinaryInput& b);
     Matrix3 (const float aafEntry[3][3]);
@@ -62,12 +89,18 @@ public:
              float fEntry10, float fEntry11, float fEntry12,
              float fEntry20, float fEntry21, float fEntry22);
 
-	bool fuzzyEq(const Matrix3& b) const;
+    bool fuzzyEq(const Matrix3& b) const;
 
     /** Constructs a matrix from a quaternion.
         @cite Graphics Gems II, p. 351--354
- 	    @cite Implementation from Watt and Watt, pg 362*/
+         @cite Implementation from Watt and Watt, pg 362*/
     Matrix3(const class Quat& q);
+
+    static Matrix3 diagonal(float e00, float e11, float e22) {
+        return Matrix3(e00, 0, 0, 
+                       0, e11, 0,
+                       0, 0, e22);
+    }
 
     void serialize(class BinaryOutput& b) const;
     void deserialize(class BinaryInput& b);
@@ -83,7 +116,7 @@ public:
              float fEntry20, float fEntry21, float fEntry22);
 
     /**
-     * member access, allows use of construct mat[r][c]
+     Member access, allows use of construct mat[r][c]
      */
     inline float* operator[] (int iRow) {
         debugAssert(iRow >= 0);
@@ -267,7 +300,11 @@ public:
                        0, 0, d.z);
     }
 
+    /** \sa fromUnitAxisAngle */
     static Matrix3 fromAxisAngle(const Vector3& rkAxis, float fRadians);
+
+    /** Assumes that rkAxis has unit length */
+    static Matrix3 fromUnitAxisAngle(const Vector3& rkAxis, float fRadians);
 
     /**
      * The matrix must be orthonormal.  The decomposition is yaw*pitch*roll

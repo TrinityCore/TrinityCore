@@ -1,16 +1,16 @@
 /**
- @file Color3.h
+ \file Color3.h
  
  Color class
  
- @maintainer Morgan McGuire, http://graphics.cs.williams.edu
- @cite Portions based on Dave Eberly's Magic Software Library
+ \maintainer Morgan McGuire, http://graphics.cs.williams.edu
+ \cite Portions based on Dave Eberly's Magic Software Library
       at <A HREF="http://www.magic-software.com">http://www.magic-software.com</A>
  
- @created 2001-06-02
- @edited  2009-04-28
+ \created 2001-06-02
+ \edited  2013-03-29
 
- Copyright 2000-2009, Morgan McGuire.
+ Copyright 2000-2013, Morgan McGuire.
  All rights reserved.
  */
 
@@ -40,26 +40,41 @@ private:
 
 public:
     /**
-     Does not initialize fields.
+     \brief Initializes to all zero.
      */
-    Color3();
+    Color3() : r(0), g(0), b(0) {}
+
+    bool nonZero() const {
+        return (r != 0) || (g != 0) || (b != 0);
+    }
 
     /** \param any Must be in one of the following forms: 
         - Color3(#, #, #)
+        - Color3(#)
         - Color3::fromARGB(#)
+        - Color3::fromASRGB(#)
         - Color3{r = #, g = #, b = #)
         - Color3::one()
         - Color3::zero()
+
+        In the current implementation, G3D::Power3, G3D::Radiance3,
+        and G3D::Irradiance3 are typedefs for Color3, so Color3
+        accepts "Power3" and "Radiance3" as a prefixes as well, e.g.,
+        Power3(1,0,0).
         */
-    Color3(const Any& any);
+    explicit Color3(const Any& any);
     
+    Color3& operator=(const Any& a);
+
     /** Converts the Color3 to an Any. */
-    operator Any() const;
+    Any toAny() const;
 
     explicit Color3(class BinaryInput& bi);
 
     Color3(float r, float g, float b);
-    Color3(float v) : r(v), g(v), b(v) {}
+
+    /** \brief Initializes all channels to \a v */
+    explicit Color3(float v) : r(v), g(v), b(v) {}
 
     explicit Color3(const class Vector3& v);
     
@@ -75,7 +90,7 @@ public:
      */
     Color3 (const Color3& other);
 
-    Color3 (const class Color3uint8& other);
+    Color3 (const class Color3unorm8& other);
 
     inline bool isZero() const {
         return (r == 0.0f) && (g == 0.0f) && (b == 0.0f);
@@ -91,6 +106,12 @@ public:
      Initialize from an HTML-style color (e.g. 0xFF0000 == RED)
      */
     static Color3 fromARGB(uint32);
+
+    /**
+     Initialize from an HTML-style color (e.g. 0xFF0000 == RED) by converting from sRGB to RGB.
+
+     */
+    static Color3 fromASRGB(uint32);
 
     /** Returns one of the color wheel colors (e.g. RED, GREEN, CYAN).
         Does not include white, black, or gray. */
@@ -140,10 +161,15 @@ public:
     inline Color3 operator* (float s) const {
         return Color3(r * s, g * s, b * s);
     }
+    inline Color3 operator/ (const Color3& rkVector) const {
+        return Color3(r / rkVector.r, g / rkVector.g, b / rkVector.b);
+    }
+
     Color3 operator* (const Color3& rkVector) const;
     inline Color3 operator/ (float fScalar) const {
         return (*this) * (1.0f / fScalar);
     }
+    
     Color3 operator- () const;
 
     // arithmetic updates
@@ -258,10 +284,10 @@ inline G3D::Color3 operator* (const G3D::Color3& c, G3D::Color1& s) {
     return c * s.value;
 }
 
-
-//----------------------------------------------------------------------------
-inline Color3::Color3 () {
+inline G3D::Color3 operator/ (float s, const G3D::Color3& c) {
+    return c * (1.0f/s);
 }
+
 
 //----------------------------------------------------------------------------
 
@@ -414,11 +440,36 @@ inline Color3 Color3::cross (const Color3& rkVector) const {
 inline Color3 Color3::unitCross (const Color3& rkVector) const {
     Color3 kCross(g*rkVector.b - b*rkVector.g, b*rkVector.r - r*rkVector.b,
                   r*rkVector.g - g*rkVector.r);
-    kCross.unitize();
-    return kCross;
+    return kCross.direction();
 }
 
 
+/** Radiance * measure(Solid Angle) between two points, measured at the receiver orthogonal to the axis between them; W/m^2 */
+typedef Color3 Biradiance3;
+
+/** Power per (measure(SolidAngle) * measure(Area));  W / (m^2 sr) */
+typedef Color3 Radiance3;
+
+/** Power per area; J / m^2 */
+typedef Color3 Radiosity3;
+
+/** Force * distance; J */
+typedef Color3 Energy3;
+
+/** Incident power per area;  W/m^2*/
+typedef Color3 Irradiance3;
+
+/** Energy per time; W*/
+typedef Color3 Power3;
+
+#if 0 // Disabled to avoid taking these useful names from the namespace
+typedef float Power;
+typedef float Biradiance;
+typedef float Radiance;
+typedef float Radiosity;
+typedef float Energy;
+typedef float Irradiance;
+#endif
 } // namespace
 
 
