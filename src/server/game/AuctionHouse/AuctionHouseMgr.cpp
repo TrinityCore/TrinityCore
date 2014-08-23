@@ -544,16 +544,8 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
         if (levelmin != 0x00 && (proto->RequiredLevel < levelmin || (levelmax != 0x00 && proto->RequiredLevel > levelmax)))
             continue;
 
-        if (usable != 0x00)
-        {
-            if (player->CanUseItem(item) != EQUIP_ERR_OK)
-                continue;
-
-            if (proto->Class == ITEM_CLASS_RECIPE)
-                if (SpellEntry const* spell = sSpellStore.LookupEntry(proto->Spells[0].SpellId))
-                    if (player->HasSpell(spell->EffectTriggerSpell[EFFECT_INDEX_0]))
-                        continue;
-        }
+        if (usable != 0x00 && player->CanUseItem(item) != EQUIP_ERR_OK)
+            continue;
 
         // Allow search by suffix (ie: of the Monkey) or partial name (ie: Monkey)
         // No need to do any of this if no search term was entered
