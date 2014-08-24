@@ -336,7 +336,7 @@ class spell_mimiron_bomb_bot : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (GetHitPlayer()) 
+                if (GetHitPlayer())
                     if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                         if (Creature* mkii = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_LEVIATHAN_MK_II)))
                             mkii->AI()->SetData(DATA_SETUP_BOMB, 0);
@@ -425,15 +425,15 @@ class spell_mimiron_fire_search : public SpellScriptLoader
 {
     public:
         spell_mimiron_fire_search() : SpellScriptLoader("spell_mimiron_fire_search") { }
-    
+
         class spell_mimiron_fire_search_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_mimiron_fire_search_SpellScript);
-            
+
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WATER_SPRAY))
-                    return false; 
+                    return false;
                 return true;
             }
 
@@ -459,7 +459,7 @@ class spell_mimiron_fire_search : public SpellScriptLoader
                 if (_noTarget)
                     GetCaster()->GetMotionMaster()->MoveRandom(15.0f);
             }
- 
+
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
@@ -490,7 +490,7 @@ class spell_mimiron_fire_search : public SpellScriptLoader
         private:
             bool _noTarget;
         };
-    
+
         SpellScript* GetSpellScript() const override
         {
             return new spell_mimiron_fire_search_SpellScript();
@@ -530,7 +530,7 @@ class spell_mimiron_magnetic_core : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MAGNETIC_CORE_VISUAL))
-                    return false; 
+                    return false;
                 return true;
             }
 
@@ -585,7 +585,7 @@ class spell_mimiron_napalm_shell : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_NAPALM_SHELL))
-                    return false; 
+                    return false;
                 return true;
             }
 
@@ -663,7 +663,7 @@ class spell_mimiron_plasma_blast : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PLASMA_BLAST))
-                    return false; 
+                    return false;
                 return true;
             }
 
@@ -701,7 +701,7 @@ class spell_mimiron_proximity_explosion : public SpellScriptLoader
             PrepareSpellScript(spell_mimiron_proximity_explosion_SpellScript);
 
             void OnHit(SpellEffIndex /*effIndex*/)
-            {                
+            {
                 if (GetHitPlayer())
                     if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                         if (Creature* mkII = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_LEVIATHAN_MK_II)))
@@ -709,7 +709,7 @@ class spell_mimiron_proximity_explosion : public SpellScriptLoader
             }
 
             void HandleAura(SpellEffIndex /*effIndex*/)
-            {                
+            {
                 GetCaster()->RemoveAurasDueToSpell(SPELL_PROXIMITY_MINE_PERIODIC_TRIGGER);
             }
 
@@ -859,7 +859,7 @@ class spell_mimiron_rocket_strike : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SCRIPT_EFFECT_ROCKET_STRIKE))
-                    return false; 
+                    return false;
                 return true;
             }
 
@@ -907,7 +907,7 @@ class spell_mimiron_rocket_strike_damage : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_NOT_SO_FRIENDLY_FIRE))
-                    return false; 
+                    return false;
                 return true;
             }
 
@@ -919,7 +919,7 @@ class spell_mimiron_rocket_strike_damage : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (GetHitPlayer()) 
+                if (GetHitPlayer())
                     if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                         if (Creature* mkii = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_LEVIATHAN_MK_II)))
                             mkii->AI()->SetData(DATA_SETUP_ROCKET, 0);
@@ -957,7 +957,7 @@ class spell_mimiron_rocket_strike_target_select : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_ROCKET_STRIKE))
-                    return false; 
+                    return false;
                 return true;
             }
 
@@ -1067,7 +1067,7 @@ class spell_mimiron_summon_assault_bot : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_ASSAULT_BOT))
-                    return false; 
+                    return false;
                 return true;
             }
 
@@ -1104,7 +1104,7 @@ class spell_mimiron_summon_assault_bot_target : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_ASSAULT_BOT_DUMMY))
-                    return false; 
+                    return false;
                 return true;
             }
 
@@ -1176,7 +1176,7 @@ class spell_mimiron_summon_fire_bot_target : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_FIRE_BOT_DUMMY))
-                    return false; 
+                    return false;
                 return true;
             }
 
@@ -1202,7 +1202,7 @@ class spell_mimiron_summon_flames_spread : public SpellScriptLoader
 {
     public:
         spell_mimiron_summon_flames_spread() : SpellScriptLoader("spell_mimiron_summon_flames_spread") { }
- 
+
         class spell_mimiron_summon_flames_spread_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_mimiron_summon_flames_spread_SpellScript);
@@ -1224,7 +1224,7 @@ class spell_mimiron_summon_flames_spread : public SpellScriptLoader
             }
 
             void OnHit(SpellEffIndex /*effIndex*/)
-            {                
+            {
                 GetCaster()->SetInFront(GetHitUnit());
             }
 
@@ -1247,7 +1247,7 @@ class spell_mimiron_summon_flames_spread : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_FLAMES_SPREAD))
-                    return false; 
+                    return false;
                 return true;
             }
 
@@ -1284,7 +1284,7 @@ class spell_mimiron_summon_frost_bomb_target : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_FROST_BOMB))
-                    return false; 
+                    return false;
                 return true;
             }
 
@@ -1335,7 +1335,7 @@ class spell_mimiron_summon_junk_bot : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_JUNK_BOT))
-                    return false; 
+                    return false;
                 return true;
             }
 
@@ -1372,7 +1372,7 @@ class spell_mimiron_summon_junk_bot_target : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_JUNK_BOT_DUMMY))
-                    return false; 
+                    return false;
                 return true;
             }
 
