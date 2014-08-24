@@ -11845,7 +11845,7 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
     if (proto->RequiredSkill != 0)
     {
         if (GetSkillValue(proto->RequiredSkill) == 0)
-            return EQUIP_ERR_NO_REQUIRED_PROFICIENCY;
+            return EQUIP_ERR_PROFICIENCY_NEEDED;
         else if (GetSkillValue(proto->RequiredSkill) < proto->RequiredSkillRank)
             return EQUIP_ERR_CANT_EQUIP_SKILL;
     }
@@ -11863,7 +11863,7 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
     // learning (recipes, mounts, pets, etc.)
     if (proto->Spells[0].SpellId == 483 || proto->Spells[0].SpellId == 55884)
         if (HasSpell(proto->Spells[1].SpellId))
-            return EQUIP_ERR_NONE;
+            return EQUIP_ERR_INTERNAL_BAG_ERROR;
 
     return EQUIP_ERR_OK;
 }
