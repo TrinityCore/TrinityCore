@@ -187,7 +187,7 @@ public:
     Color3 direction() const;
     float squaredLength () const;
     float dot (const Color3& rkVector) const;
-    float unitize (float fTolerance = 1e-06);
+    float unitize (float fTolerance = 1e-06f);
     Color3 cross (const Color3& rkVector) const;
     Color3 unitCross (const Color3& rkVector) const;
 

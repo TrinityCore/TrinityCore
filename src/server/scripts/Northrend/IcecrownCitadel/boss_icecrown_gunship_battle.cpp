@@ -205,8 +205,8 @@ enum EncounterActions
     ACTION_SHIP_VISITS      = 5
 };
 
-Position const SkybreakerAddsSpawnPos = { 15.91131f, 0.0f, 20.4628f, M_PI };
-Position const OrgrimsHammerAddsSpawnPos = { 60.728395f, 0.0f, 38.93467f, M_PI };
+Position const SkybreakerAddsSpawnPos = { 15.91131f, 0.0f, 20.4628f, float(M_PI) };
+Position const OrgrimsHammerAddsSpawnPos = { 60.728395f, 0.0f, 38.93467f, float(M_PI) };
 
 // Horde encounter
 Position const SkybreakerTeleportPortal  = { 6.666975f, 0.013001f, 20.87888f, 0.0f };
@@ -439,7 +439,7 @@ private:
     Position SelectSpawnPoint() const
     {
         Position newPos;
-        float angle = frand(-M_PI * 0.5f, M_PI * 0.5f);
+        float angle = frand(float(-M_PI) * 0.5f, float(M_PI) * 0.5f);
         newPos.m_positionX = _spawnPoint->GetPositionX() + 2.0f * std::cos(angle);
         newPos.m_positionY = _spawnPoint->GetPositionY() + 2.0f * std::sin(angle);
         newPos.m_positionZ = _spawnPoint->GetPositionZ();
@@ -1455,7 +1455,7 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
                 if (Transport* destTransport = go->ToTransport())
                     destTransport->CalculatePassengerPosition(x, y, z, &o);
 
-            float angle = frand(0, M_PI * 2.0f);
+            float angle = frand(0, float(M_PI) * 2.0f);
             x += 2.0f * std::cos(angle);
             y += 2.0f * std::sin(angle);
 

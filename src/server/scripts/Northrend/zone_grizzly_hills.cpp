@@ -718,7 +718,7 @@ public:
                         if (me->GetEntry() == NPC_LAKE_FROG)
                         {
                             me->AddAura(SPELL_FROG_LOVE, me);
-                            me->GetMotionMaster()->MoveFollow(player, 0.3f, frand(M_PI/2, M_PI + (M_PI/2)));
+                            me->GetMotionMaster()->MoveFollow(player, 0.3f, frand(float(M_PI) / 2, float(M_PI) + (float(M_PI) / 2)));
                             _following = true;
                         }
                         else if (me->GetEntry() == NPC_LAKE_FROG_QUEST)

@@ -1601,7 +1601,7 @@ class spell_gen_gift_of_naaru : public SpellScriptLoader
                         break;
                 }
 
-                int32 healTick = floor(heal / aurEff->GetTotalTicks());
+                int32 healTick = std::floor(heal / aurEff->GetTotalTicks());
                 amount += int32(std::max(healTick, 0));
             }
 

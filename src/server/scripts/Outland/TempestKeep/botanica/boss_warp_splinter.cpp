@@ -179,7 +179,7 @@ class boss_warp_splinter : public CreatureScript
             {
                 for (uint8 i = 0; i < 6; ++i)
                 {
-                    float angle = (M_PI / 3) * i;
+                    float angle = (float(M_PI) / 3) * i;
 
                     float X = Treant_Spawn_Pos_X + TREANT_SPAWN_DIST * std::cos(angle);
                     float Y = Treant_Spawn_Pos_Y + TREANT_SPAWN_DIST * std::sin(angle);

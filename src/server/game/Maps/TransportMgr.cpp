@@ -139,7 +139,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
                 KeyFrame k(node_i);
                 G3D::Vector3 h;
                 orientationSpline.evaluate_derivative(i + 1, 0.0f, h);
-                k.InitialOrientation = Position::NormalizeOrientation(atan2(h.y, h.x) + M_PI);
+                k.InitialOrientation = Position::NormalizeOrientation(std::atan2(h.y, h.x) + float(M_PI));
 
                 keyFrames.push_back(k);
                 splinePath.push_back(G3D::Vector3(node_i.x, node_i.y, node_i.z));
@@ -213,7 +213,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
             for (size_t j = start; j < i + extra; ++j)
             {
                 keyFrames[j].Index = j - start + 1;
-                keyFrames[j].DistFromPrev = spline->length(j - start, j + 1 - start);
+                keyFrames[j].DistFromPrev = float(spline->length(j - start, j + 1 - start));
                 if (j > 0)
                     keyFrames[j - 1].NextDistFromPrev = keyFrames[j].DistFromPrev;
                 keyFrames[j].Spline = spline;
@@ -276,22 +276,22 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
             if (keyFrames[i].DistSinceStop < keyFrames[i].DistUntilStop) // is still accelerating
             {
                 // calculate accel+brake time for this short segment
-                float segment_time = 2.0f * sqrt((keyFrames[i].DistUntilStop + keyFrames[i].DistSinceStop) / accel);
+                float segment_time = 2.0f * std::sqrt((keyFrames[i].DistUntilStop + keyFrames[i].DistSinceStop) / accel);
                 // substract acceleration time
-                keyFrames[i].TimeTo = segment_time - sqrt(2 * keyFrames[i].DistSinceStop / accel);
+                keyFrames[i].TimeTo = segment_time - std::sqrt(2 * keyFrames[i].DistSinceStop / accel);
             }
             else // slowing down
-                keyFrames[i].TimeTo = sqrt(2 * keyFrames[i].DistUntilStop / accel);
+                keyFrames[i].TimeTo = std::sqrt(2 * keyFrames[i].DistUntilStop / accel);
         }
         else if (keyFrames[i].DistSinceStop < accel_dist) // still accelerating (but will reach full speed)
         {
             // calculate accel + cruise + brake time for this long segment
             float segment_time = (keyFrames[i].DistUntilStop + keyFrames[i].DistSinceStop) / speed + (speed / accel);
             // substract acceleration time
-            keyFrames[i].TimeTo = segment_time - sqrt(2 * keyFrames[i].DistSinceStop / accel);
+            keyFrames[i].TimeTo = segment_time - std::sqrt(2 * keyFrames[i].DistSinceStop / accel);
         }
         else if (keyFrames[i].DistUntilStop < accel_dist) // already slowing down (but reached full speed)
-            keyFrames[i].TimeTo = sqrt(2 * keyFrames[i].DistUntilStop / accel);
+            keyFrames[i].TimeTo = std::sqrt(2 * keyFrames[i].DistUntilStop / accel);
         else // at full speed
             keyFrames[i].TimeTo = (keyFrames[i].DistUntilStop / speed) + (0.5f * speed / accel);
     }

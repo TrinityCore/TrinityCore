@@ -750,7 +750,7 @@ void Player::UpdateManaRegen()
 
     // SpiritRegen(SPI, INT, LEVEL) = (0.001 + (SPI x sqrt(INT) x BASE_REGEN[LEVEL])) x 5
     if (GetStat(STAT_INTELLECT) > 0.0f)
-        spirit_regen *= sqrt(GetStat(STAT_INTELLECT));
+        spirit_regen *= std::sqrt(GetStat(STAT_INTELLECT));
 
     // CombatRegen = 5% of Base Mana
     float base_regen = GetCreateMana() * 0.01f + GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f;

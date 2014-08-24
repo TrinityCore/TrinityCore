@@ -242,8 +242,8 @@ public:
     bool isOrthonormal() const;
 
     Matrix3 transpose () const;
-    bool inverse (Matrix3& rkInverse, float fTolerance = 1e-06) const;
-    Matrix3 inverse (float fTolerance = 1e-06) const;
+    bool inverse (Matrix3& rkInverse, float fTolerance = 1e-06f) const;
+    Matrix3 inverse (float fTolerance = 1e-06f) const;
     float determinant () const;
 
     /** singular value decomposition */

@@ -1270,7 +1270,7 @@ void GameObject::Use(Unit* user)
 
             // the object orientation + 1/2 pi
             // every slot will be on that straight line
-            float orthogonalOrientation = GetOrientation()+M_PI*0.5f;
+            float orthogonalOrientation = GetOrientation() + float(M_PI) * 0.5f;
             // find nearest slot
             bool found_free_slot = false;
             for (ChairSlotAndUser::iterator itr = ChairListSlots.begin(); itr != ChairListSlots.end(); ++itr)
@@ -1835,7 +1835,7 @@ bool GameObject::IsInRange(float x, float y, float z, float radius) const
     float dx = x - GetPositionX();
     float dy = y - GetPositionY();
     float dz = z - GetPositionZ();
-    float dist = sqrt(dx*dx + dy*dy);
+    float dist = std::sqrt(dx*dx + dy*dy);
     //! Check if the distance between the 2 objects is 0, can happen if both objects are on the same position.
     //! The code below this check wont crash if dist is 0 because 0/0 in float operations is valid, and returns infinite
     if (G3D::fuzzyEq(dist, 0.0f))

@@ -50,6 +50,7 @@
 
 #if PLATFORM == PLATFORM_WINDOWS
 #  define TRINITY_PATH_MAX MAX_PATH
+#  define _USE_MATH_DEFINES
 #  ifndef DECLSPEC_NORETURN
 #    define DECLSPEC_NORETURN __declspec(noreturn)
 #  endif //DECLSPEC_NORETURN

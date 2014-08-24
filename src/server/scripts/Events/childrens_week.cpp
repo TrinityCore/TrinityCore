@@ -193,7 +193,7 @@ class npc_winterfin_playmate : public CreatureScript
                     switch (phase)
                     {
                         case 1:
-                            orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + cos(me->GetOrientation()) * 5, me->GetPositionY() + sin(me->GetOrientation()) * 5, me->GetPositionZ());
+                            orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + std::cos(me->GetOrientation()) * 5, me->GetPositionY() + std::sin(me->GetOrientation()) * 5, me->GetPositionZ());
                             orphan->AI()->Talk(TEXT_ORACLE_ORPHAN_1);
                             timer = 3000;
                             break;
@@ -292,7 +292,7 @@ class npc_snowfall_glade_playmate : public CreatureScript
                     switch (phase)
                     {
                         case 1:
-                            orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + cos(me->GetOrientation()) * 5, me->GetPositionY() + sin(me->GetOrientation()) * 5, me->GetPositionZ());
+                            orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + std::cos(me->GetOrientation()) * 5, me->GetPositionY() + std::sin(me->GetOrientation()) * 5, me->GetPositionZ());
                             orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_1);
                             timer = 5000;
                             break;
@@ -393,7 +393,7 @@ class npc_the_biggest_tree : public CreatureScript
                     switch (phase)
                     {
                         case 1:
-                            orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + cos(me->GetOrientation()) * 5, me->GetPositionY() + sin(me->GetOrientation()) * 5, me->GetPositionZ());
+                            orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + std::cos(me->GetOrientation()) * 5, me->GetPositionY() + std::sin(me->GetOrientation()) * 5, me->GetPositionZ());
                             timer = 2000;
                             break;
                         case 2:
@@ -480,7 +480,7 @@ class npc_high_oracle_soo_roo : public CreatureScript
                     switch (phase)
                     {
                         case 1:
-                            orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + cos(me->GetOrientation()) * 5, me->GetPositionY() + sin(me->GetOrientation()) * 5, me->GetPositionZ());
+                            orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + std::cos(me->GetOrientation()) * 5, me->GetPositionY() + std::sin(me->GetOrientation()) * 5, me->GetPositionZ());
                             orphan->AI()->Talk(TEXT_ORACLE_ORPHAN_5);
                             timer = 3000;
                             break;
@@ -569,7 +569,7 @@ class npc_elder_kekek : public CreatureScript
                     switch (phase)
                     {
                         case 1:
-                            orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + cos(me->GetOrientation()) * 5, me->GetPositionY() + sin(me->GetOrientation()) * 5, me->GetPositionZ());
+                            orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + std::cos(me->GetOrientation()) * 5, me->GetPositionY() + std::sin(me->GetOrientation()) * 5, me->GetPositionZ());
                             orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_4);
                             timer = 3000;
                             break;
@@ -658,7 +658,7 @@ class npc_the_etymidian : public CreatureScript
                     switch (phase)
                     {
                         case 1:
-                            orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + cos(me->GetOrientation()) * 5, me->GetPositionY() + sin(me->GetOrientation()) * 5, me->GetPositionZ());
+                            orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + std::cos(me->GetOrientation()) * 5, me->GetPositionY() + std::sin(me->GetOrientation()) * 5, me->GetPositionZ());
                             orphan->AI()->Talk(TEXT_ORACLE_ORPHAN_7);
                             timer = 5000;
                             break;
@@ -780,7 +780,7 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
                     switch (phase)
                     {
                         case 1:
-                            orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + cos(me->GetOrientation()) * 5, me->GetPositionY() + sin(me->GetOrientation()) * 5, me->GetPositionZ());
+                            orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + std::cos(me->GetOrientation()) * 5, me->GetPositionY() + std::sin(me->GetOrientation()) * 5, me->GetPositionZ());
                             orphan->AI()->Talk(TEXT_ORACLE_ORPHAN_11);
                             timer = 5000;
                             break;
@@ -811,7 +811,7 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
                             Reset();
                             return;
                         case 7:
-                            orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + cos(me->GetOrientation()) * 5, me->GetPositionY() + sin(me->GetOrientation()) * 5, me->GetPositionZ());
+                            orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + std::cos(me->GetOrientation()) * 5, me->GetPositionY() + std::sin(me->GetOrientation()) * 5, me->GetPositionZ());
                             orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_11);
                             timer = 5000;
                             break;

@@ -107,7 +107,7 @@ void FormationMgr::LoadCreatureFormations()
         if (group_member->leaderGUID != memberGUID)
         {
             group_member->follow_dist       = fields[2].GetFloat();
-            group_member->follow_angle      = fields[3].GetFloat() * M_PI / 180;
+            group_member->follow_angle      = fields[3].GetFloat() * float(M_PI) / 180;
         }
         else
         {
@@ -218,7 +218,7 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
     if (!m_leader)
         return;
 
-    float pathangle = atan2(m_leader->GetPositionY() - y, m_leader->GetPositionX() - x);
+    float pathangle = std::atan2(m_leader->GetPositionY() - y, m_leader->GetPositionX() - x);
 
     for (CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
@@ -229,9 +229,9 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
         if (itr->second->point_1)
         {
             if (m_leader->GetCurrentWaypointID() == itr->second->point_1)
-                itr->second->follow_angle = (2 * M_PI) - itr->second->follow_angle;
+                itr->second->follow_angle = (2 * float(M_PI)) - itr->second->follow_angle;
             if (m_leader->GetCurrentWaypointID() == itr->second->point_2)
-                itr->second->follow_angle = (2 * M_PI) + itr->second->follow_angle;
+                itr->second->follow_angle = (2 * float(M_PI)) + itr->second->follow_angle;
         }
 
         float angle = itr->second->follow_angle;

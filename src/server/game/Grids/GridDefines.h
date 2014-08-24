@@ -201,8 +201,8 @@ namespace Trinity
 
         int x_val = int(x_offset + CENTER_GRID_CELL_ID + 0.5f);
         int y_val = int(y_offset + CENTER_GRID_CELL_ID + 0.5f);
-        x_off = (float(x_offset) - x_val + CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL;
-        y_off = (float(y_offset) - y_val + CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL;
+        x_off = (float(x_offset) - float(x_val) + CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL;
+        y_off = (float(y_offset) - float(y_val) + CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL;
         return CellCoord(x_val, y_val);
     }
 
