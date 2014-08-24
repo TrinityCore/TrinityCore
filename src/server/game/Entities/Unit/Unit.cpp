@@ -35,6 +35,7 @@
 #include "InstanceScript.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "MMapFactory.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
@@ -3148,10 +3149,27 @@ bool Unit::isInBackInMap(Unit const* target, float distance, float arc) const
 
 bool Unit::isInAccessiblePlaceFor(Creature const* c) const
 {
-    if (IsInWater())
+    if (IsInWater())                                // Only swimming creatures can reach units in water
         return c->CanSwim();
-    else
-        return c->CanWalk() || c->CanFly();
+    else if (c->CanFly())                           // Flying creatures can reach any unit not in water
+        return true;
+    else if (c->CanWalk())                          // Walking creatures need to find a path
+    {
+        if (MMAP::MMapFactory::IsPathfindingEnabled(GetMapId()))
+        {
+            PathGenerator path(c);
+
+            // Get our position for calculations
+            float x, y, z;
+            GetPosition(x, y, z);
+
+            return path.CalculatePath(x, y, z) && !(path.GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE));
+        }
+        else                                        // Without mmaps walking creatures can reach any unit not in water
+            return true;
+    }
+
+    return false;
 }
 
 bool Unit::IsInWater() const
