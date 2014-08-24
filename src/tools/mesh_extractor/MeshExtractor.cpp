@@ -290,7 +290,7 @@ bool HandleArgs(int argc, char** argv, uint32& threads, std::set<uint32>& mapLis
                 mapList.insert(atoi(token));
                 token = strtok(NULL, ",");
             }
-            
+
             free(copy);
 
             printf("Extracting only provided list of maps (%u).\n", uint32(mapList.size()));
@@ -448,7 +448,7 @@ int main(int argc, char* argv[])
                 LoadTile(navMesh, buff);
             }
         }
-        
+
         navMeshQuery->init(navMesh, 2048);
 
         float nearestPt[3];
@@ -465,7 +465,7 @@ int main(int argc, char* argv[])
         int hops;
         dtPolyRef* hopBuffer = new dtPolyRef[8192];
         dtStatus status = navMeshQuery->findPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter, hopBuffer, &hops, 8192);
-        
+
         int resultHopCount;
         float* straightPath = new float[2048*3];
         unsigned char* pathFlags = new unsigned char[2048];

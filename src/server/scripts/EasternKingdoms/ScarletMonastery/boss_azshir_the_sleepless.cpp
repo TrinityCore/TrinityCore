@@ -37,7 +37,7 @@ enum Events
 {
     EVENT_CALL_OF_GRAVE             = 1,
     EVENT_TERRIFY,
-    EVENT_SOUL_SIPHON 
+    EVENT_SOUL_SIPHON
 };
 
 class boss_azshir_the_sleepless : public CreatureScript
@@ -84,7 +84,7 @@ class boss_azshir_the_sleepless : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
-                    
+
                 events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))

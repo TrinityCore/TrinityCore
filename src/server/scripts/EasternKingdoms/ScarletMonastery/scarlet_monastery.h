@@ -45,7 +45,7 @@ enum CreatureIds
     NPC_MOGRAINE                    = 3976,
     NPC_WHITEMANE                   = 3977,
     NPC_VORREL                      = 3981,
-    
+
     NPC_HORSEMAN                    = 23682,
     NPC_HEAD                        = 23775,
     NPC_PUMPKIN                     = 23694
