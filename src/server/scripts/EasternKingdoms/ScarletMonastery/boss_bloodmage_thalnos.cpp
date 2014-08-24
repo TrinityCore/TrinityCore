@@ -39,7 +39,7 @@ enum Events
     EVENT_FLAME_SHOCK       = 1,
     EVENT_SHADOW_BOLT,
     EVENT_FLAME_SPIKE,
-    EVENT_FIRE_NOVA 
+    EVENT_FIRE_NOVA
 };
 
 class boss_bloodmage_thalnos : public CreatureScript

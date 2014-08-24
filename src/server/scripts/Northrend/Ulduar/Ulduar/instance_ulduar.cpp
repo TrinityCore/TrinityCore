@@ -820,7 +820,7 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case DATA_UNBROKEN:
                         Unbroken = data != 0;
-                        break;                    
+                        break;
                     case DATA_MIMIRON_ELEVATOR:
                         if (GameObject* gameObject = instance->GetGameObject(MimironElevatorGUID))
                             gameObject->SetGoState((GOState)data);

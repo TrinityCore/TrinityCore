@@ -311,7 +311,7 @@ void WorldSession::HandleArenaTeamRemoveOpcode(WorldPacket& recvData)
         SendArenaTeamCommandResult(ERR_ARENA_TEAM_QUIT_S, "", "", ERR_ARENA_TEAM_LEADER_LEAVE_S);
         return;
     }
-    
+
     // Player cannot be removed during fights
     if (arenaTeam->IsFighting())
         return;

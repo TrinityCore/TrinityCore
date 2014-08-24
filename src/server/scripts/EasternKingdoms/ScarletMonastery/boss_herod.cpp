@@ -133,7 +133,7 @@ class boss_herod : public CreatureScript
             {
                 BossAI::UpdateAI(diff);
             }
-            
+
             private:
                 bool _enrage;
         };
