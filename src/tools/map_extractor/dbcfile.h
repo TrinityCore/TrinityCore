@@ -87,7 +87,7 @@ class DBCFile
                 friend class DBCFile;
                 friend class DBCFile::Iterator;
 
-				Record& operator=(Record const& right);
+                Record& operator=(Record const& right);
         };
         /** Iterator that iterates over records
         */
@@ -121,7 +121,7 @@ class DBCFile
             private:
                 Record record;
 
-				Iterator& operator=(Iterator const& right);
+                Iterator& operator=(Iterator const& right);
         };
 
         // Get record by id
