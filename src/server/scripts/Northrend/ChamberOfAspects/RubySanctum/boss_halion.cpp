@@ -577,9 +577,6 @@ class boss_twilight_halion : public CreatureScript
                         break;
                 }
             }
-
-        private:
-            EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

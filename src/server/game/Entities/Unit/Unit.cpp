@@ -14651,8 +14651,6 @@ void Unit::SetInPhase(uint32 id, bool update, bool apply)
     if (!IsInWorld())
         return;
 
-    RemoveNotOwnSingleTargetAuras(0, true);
-
     if (GetTypeId() == TYPEID_UNIT || (!ToPlayer()->IsGameMaster() && !ToPlayer()->GetSession()->PlayerLogout()))
     {
         HostileRefManager& refManager = getHostileRefManager();
@@ -14692,6 +14690,8 @@ void Unit::SetInPhase(uint32 id, bool update, bool apply)
         if (m_SummonSlot[i])
             if (Creature* summon = GetMap()->GetCreature(m_SummonSlot[i]))
                 summon->SetInPhase(id, true, apply);
+
+    RemoveNotOwnSingleTargetAuras(0, true);
 }
 
 void Unit::UpdateObjectVisibility(bool forced)
