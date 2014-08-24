@@ -21,6 +21,7 @@
 #include "Define.h"
 #include <mutex>
 #include <future>
+#include <string>
 
 void process_message(struct soap* soap_message);
 void TCSoapThread(const std::string& host, uint16 port);

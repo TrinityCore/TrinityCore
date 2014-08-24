@@ -26,7 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <math.h>
+#include <cmath>
 #include <errno.h>
 #include <signal.h>
 #include <assert.h>
@@ -153,7 +153,7 @@ struct LocalizedString
 #endif
 
 #ifndef M_PI
-#define M_PI            3.14159265358979323846f
+#define M_PI            3.14159265358979323846
 #endif
 
 #define MAX_QUERY_LEN 32*1024

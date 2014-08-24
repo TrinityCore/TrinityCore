@@ -712,7 +712,7 @@ WorldSafeLocsEntry const* BattlegroundSA::GetClosestGraveYard(Player* player)
         safeloc = BG_SA_GYEntries[BG_SA_DEFENDER_LAST_GY];
 
     closest = sWorldSafeLocsStore.LookupEntry(safeloc);
-    nearest = sqrt((closest->x - x)*(closest->x - x) + (closest->y - y)*(closest->y - y) + (closest->z - z)*(closest->z - z));
+    nearest = std::sqrt((closest->x - x)*(closest->x - x) + (closest->y - y)*(closest->y - y) + (closest->z - z)*(closest->z - z));
 
     for (uint8 i = BG_SA_RIGHT_CAPTURABLE_GY; i < BG_SA_MAX_GY; i++)
     {
@@ -720,7 +720,7 @@ WorldSafeLocsEntry const* BattlegroundSA::GetClosestGraveYard(Player* player)
             continue;
 
         ret = sWorldSafeLocsStore.LookupEntry(BG_SA_GYEntries[i]);
-        dist = sqrt((ret->x - x)*(ret->x - x) + (ret->y - y)*(ret->y - y) + (ret->z - z)*(ret->z - z));
+        dist = std::sqrt((ret->x - x)*(ret->x - x) + (ret->y - y)*(ret->y - y) + (ret->z - z)*(ret->z - z));
         if (dist < nearest)
         {
             closest = ret;

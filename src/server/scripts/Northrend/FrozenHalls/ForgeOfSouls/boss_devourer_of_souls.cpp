@@ -292,7 +292,7 @@ class boss_devourer_of_souls : public CreatureScript
 
                             beamAngle = me->GetOrientation();
 
-                            beamAngleDiff = M_PI/30.0f; // PI/2 in 15 sec = PI/30 per tick
+                            beamAngleDiff = float(M_PI)/30.0f; // PI/2 in 15 sec = PI/30 per tick
                             if (RAND(true, false))
                                 beamAngleDiff = -beamAngleDiff;
 

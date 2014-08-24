@@ -1668,7 +1668,7 @@ void Player::Update(uint32 p_time)
                     }
                 }
                 //120 degrees of radiant range
-                else if (!HasInArc(2*M_PI/3, victim))
+                else if (!HasInArc(2 * float(M_PI) / 3, victim))
                 {
                     setAttackTimer(BASE_ATTACK, 100);
                     if (m_swingErrorMsg != 2)               // send single time (client auto repeat)
@@ -1696,7 +1696,7 @@ void Player::Update(uint32 p_time)
             {
                 if (!IsWithinMeleeRange(victim))
                     setAttackTimer(OFF_ATTACK, 100);
-                else if (!HasInArc(2*M_PI/3, victim))
+                else if (!HasInArc(2 * float(M_PI) / 3, victim))
                     setAttackTimer(OFF_ATTACK, 100);
                 else
                 {
@@ -2660,7 +2660,7 @@ void Player::Regenerate(Powers power)
         return;
 
     addvalue += m_powerFraction[powerIndex];
-    uint32 integerValue = uint32(fabs(addvalue));
+    uint32 integerValue = uint32(std::fabs(addvalue));
 
     if (addvalue < 0.0f)
     {
@@ -7107,7 +7107,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             else
                 victim_guid = 0;                        // Don't show HK: <rank> message, only log.
 
-            honor_f = ceil(Trinity::Honor::hk_honor_at_level_f(k_level) * (v_level - k_grey) / (k_level - k_grey));
+            honor_f = std::ceil(Trinity::Honor::hk_honor_at_level_f(k_level) * (v_level - k_grey) / (k_level - k_grey));
 
             // count the number of playerkills in one day
             ApplyModUInt32Value(PLAYER_FIELD_KILLS, 1, true);
@@ -9087,7 +9087,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
                     loot->FillLoot(1, LootTemplates_Creature, this, true);
             // It may need a better formula
             // Now it works like this: lvl10: ~6copper, lvl70: ~9silver
-            bones->loot.gold = uint32(urand(50, 150) * 0.016f * pow(float(pLevel)/5.76f, 2.5f) * sWorld->getRate(RATE_DROP_MONEY));
+            bones->loot.gold = uint32(urand(50, 150) * 0.016f * std::pow(float(pLevel) / 5.76f, 2.5f) * sWorld->getRate(RATE_DROP_MONEY));
         }
 
         if (bones->lootRecipient != this)
@@ -11830,39 +11830,42 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
 {
     // Used by group, function NeedBeforeGreed, to know if a prototype can be used by a player
 
-    if (proto)
+    if (!proto)
+        return EQUIP_ERR_ITEM_NOT_FOUND;
+
+    if ((proto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY) && GetTeam() != HORDE)
+        return EQUIP_ERR_CANT_EQUIP_EVER;
+
+    if ((proto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && GetTeam() != ALLIANCE)
+        return EQUIP_ERR_CANT_EQUIP_EVER;
+
+    if ((proto->AllowableClass & getClassMask()) == 0 || (proto->AllowableRace & getRaceMask()) == 0)
+        return EQUIP_ERR_CANT_EQUIP_EVER;
+
+    if (proto->RequiredSkill != 0)
     {
-        if ((proto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY) && GetTeam() != HORDE)
-            return EQUIP_ERR_CANT_EQUIP_EVER;
-
-        if ((proto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && GetTeam() != ALLIANCE)
-            return EQUIP_ERR_CANT_EQUIP_EVER;
-
-        if ((proto->AllowableClass & getClassMask()) == 0 || (proto->AllowableRace & getRaceMask()) == 0)
-            return EQUIP_ERR_CANT_EQUIP_EVER;
-
-        if (proto->RequiredSkill != 0)
-        {
-            if (GetSkillValue(proto->RequiredSkill) == 0)
-                return EQUIP_ERR_PROFICIENCY_NEEDED;
-            else if (GetSkillValue(proto->RequiredSkill) < proto->RequiredSkillRank)
-                return EQUIP_ERR_CANT_EQUIP_SKILL;
-        }
-
-        if (proto->RequiredSpell != 0 && !HasSpell(proto->RequiredSpell))
-            return EQUIP_ERR_PROFICIENCY_NEEDED;
-
-        if (getLevel() < proto->RequiredLevel)
-            return EQUIP_ERR_CANT_EQUIP_LEVEL_I;
-
-        // If World Event is not active, prevent using event dependant items
-        if (proto->HolidayId && !IsHolidayActive((HolidayIds)proto->HolidayId))
-            return EQUIP_ERR_CLIENT_LOCKED_OUT;
-
-        return EQUIP_ERR_OK;
+        if (GetSkillValue(proto->RequiredSkill) == 0)
+            return EQUIP_ERR_NO_REQUIRED_PROFICIENCY;
+        else if (GetSkillValue(proto->RequiredSkill) < proto->RequiredSkillRank)
+            return EQUIP_ERR_CANT_EQUIP_SKILL;
     }
 
-    return EQUIP_ERR_ITEM_NOT_FOUND;
+    if (proto->RequiredSpell != 0 && !HasSpell(proto->RequiredSpell))
+        return EQUIP_ERR_PROFICIENCY_NEEDED;
+
+    if (getLevel() < proto->RequiredLevel)
+        return EQUIP_ERR_CANT_EQUIP_LEVEL_I;
+
+    // If World Event is not active, prevent using event dependant items
+    if (proto->HolidayId && !IsHolidayActive((HolidayIds)proto->HolidayId))
+        return EQUIP_ERR_CLIENT_LOCKED_OUT;
+
+    // learning (recipes, mounts, pets, etc.)
+    if (proto->Spells[0].SpellId == 483 || proto->Spells[0].SpellId == 55884)
+        if (HasSpell(proto->Spells[1].SpellId))
+            return EQUIP_ERR_NONE;
+
+    return EQUIP_ERR_OK;
 }
 
 InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObject const* lootedObject) const

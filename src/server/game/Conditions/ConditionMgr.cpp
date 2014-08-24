@@ -211,10 +211,25 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
             condMeets = GetClosestGameObjectWithEntry(object, ConditionValue1, (float)ConditionValue2) ? true : false;
             break;
         }
-        case CONDITION_OBJECT_ENTRY:
+        case CONDITION_OBJECT_ENTRY_GUID:
         {
             if (uint32(object->GetTypeId()) == ConditionValue1)
-                condMeets = (!ConditionValue2) || (object->GetEntry() == ConditionValue2);
+            {
+                condMeets = !ConditionValue2 || (object->GetEntry() == ConditionValue2);
+
+                if (ConditionValue3)
+                {
+                    switch (object->GetTypeId())
+                    {
+                        case TYPEID_UNIT:
+                            condMeets &= object->ToCreature()->GetDBTableGUIDLow() == ConditionValue3;
+                            break;
+                        case TYPEID_GAMEOBJECT:
+                            condMeets &= object->ToGameObject()->GetDBTableGUIDLow() == ConditionValue3;
+                            break;
+                    }
+                }
+            }
             break;
         }
         case CONDITION_TYPE_MASK:
@@ -419,7 +434,7 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
         case CONDITION_NEAR_GAMEOBJECT:
             mask |= GRID_MAP_TYPE_MASK_ALL;
             break;
-        case CONDITION_OBJECT_ENTRY:
+        case CONDITION_OBJECT_ENTRY_GUID:
             switch (ConditionValue1)
             {
                 case TYPEID_UNIT:
@@ -1841,35 +1856,67 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 TC_LOG_ERROR("sql.sql", "NearGameObject condition has useless data in value3 (%u)!", cond->ConditionValue3);
             break;
         }
-        case CONDITION_OBJECT_ENTRY:
+        case CONDITION_OBJECT_ENTRY_GUID:
         {
             switch (cond->ConditionValue1)
             {
                 case TYPEID_UNIT:
                     if (cond->ConditionValue2 && !sObjectMgr->GetCreatureTemplate(cond->ConditionValue2))
                     {
-                        TC_LOG_ERROR("sql.sql", "ObjectEntry condition has non existing creature template entry  (%u), skipped", cond->ConditionValue2);
+                        TC_LOG_ERROR("sql.sql", "ObjectEntryGuid condition has non existing creature template entry (%u), skipped", cond->ConditionValue2);
                         return false;
+                    }
+                    if (cond->ConditionValue3)
+                    {
+                        if (CreatureData const* creatureData = sObjectMgr->GetCreatureData(cond->ConditionValue3))
+                        {
+                            if (cond->ConditionValue2 && creatureData->id != cond->ConditionValue2)
+                            {
+                                TC_LOG_ERROR("sql.sql", "ObjectEntryGuid condition has guid %u set but does not match creature entry (%u), skipped", cond->ConditionValue3, cond->ConditionValue2);
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            TC_LOG_ERROR("sql.sql", "ObjectEntryGuid condition has non existing creature guid (%u), skipped", cond->ConditionValue3);
+                            return false;
+                        }
                     }
                     break;
                 case TYPEID_GAMEOBJECT:
                     if (cond->ConditionValue2 && !sObjectMgr->GetGameObjectTemplate(cond->ConditionValue2))
                     {
-                        TC_LOG_ERROR("sql.sql", "ObjectEntry condition has non existing game object template entry  (%u), skipped", cond->ConditionValue2);
+                        TC_LOG_ERROR("sql.sql", "ObjectEntryGuid condition has non existing gameobject template entry (%u), skipped", cond->ConditionValue2);
                         return false;
+                    }
+                    if (cond->ConditionValue3)
+                    {
+                        if (GameObjectData const* goData = sObjectMgr->GetGOData(cond->ConditionValue3))
+                        {
+                            if (cond->ConditionValue2 && goData->id != cond->ConditionValue2)
+                            {
+                                TC_LOG_ERROR("sql.sql", "ObjectEntryGuid condition has guid %u set but does not match gameobject entry (%u), skipped", cond->ConditionValue3, cond->ConditionValue2);
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            TC_LOG_ERROR("sql.sql", "ObjectEntryGuid condition has non existing gameobject guid (%u), skipped", cond->ConditionValue3);
+                            return false;
+                        }
                     }
                     break;
                 case TYPEID_PLAYER:
                 case TYPEID_CORPSE:
                     if (cond->ConditionValue2)
-                        TC_LOG_ERROR("sql.sql", "ObjectEntry condition has useless data in value2 (%u)!", cond->ConditionValue2);
+                        TC_LOG_ERROR("sql.sql", "ObjectEntryGuid condition has useless data in value2 (%u)!", cond->ConditionValue2);
+                    if (cond->ConditionValue3)
+                        TC_LOG_ERROR("sql.sql", "ObjectEntryGuid condition has useless data in value3 (%u)!", cond->ConditionValue3);
                     break;
                 default:
-                    TC_LOG_ERROR("sql.sql", "ObjectEntry condition has wrong typeid set (%u), skipped", cond->ConditionValue1);
+                    TC_LOG_ERROR("sql.sql", "ObjectEntryGuid condition has wrong typeid set (%u), skipped", cond->ConditionValue1);
                     return false;
             }
-            if (cond->ConditionValue3)
-                TC_LOG_ERROR("sql.sql", "ObjectEntry condition has useless data in value3 (%u)!", cond->ConditionValue3);
             break;
         }
         case CONDITION_TYPE_MASK:

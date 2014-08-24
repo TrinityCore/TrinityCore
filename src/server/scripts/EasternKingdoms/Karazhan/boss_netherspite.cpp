@@ -124,7 +124,7 @@ public:
 
         float dist(float xa, float ya, float xb, float yb) // auxiliary method for distance
         {
-            return sqrt((xa-xb)*(xa-xb) + (ya-yb)*(ya-yb));
+            return std::sqrt((xa-xb)*(xa-xb) + (ya-yb)*(ya-yb));
         }
 
         void Reset() override

@@ -879,9 +879,9 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
         float dz = player->GetPositionZ() - atEntry->z;
         float dx = rotPlayerX - atEntry->x;
         float dy = rotPlayerY - atEntry->y;
-        if ((fabs(dx) > atEntry->box_x / 2 + delta) ||
-            (fabs(dy) > atEntry->box_y / 2 + delta) ||
-            (fabs(dz) > atEntry->box_z / 2 + delta))
+        if ((std::fabs(dx) > atEntry->box_x / 2 + delta) ||
+            (std::fabs(dy) > atEntry->box_y / 2 + delta) ||
+            (std::fabs(dz) > atEntry->box_z / 2 + delta))
         {
             TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) too far (1/2 box X: %f 1/2 box Y: %f 1/2 box Z: %f rotatedPlayerX: %f rotatedPlayerY: %f dZ:%f), ignore Area Trigger ID: %u",
                 player->GetName().c_str(), player->GetGUIDLow(), atEntry->box_x/2, atEntry->box_y/2, atEntry->box_z/2, rotPlayerX, rotPlayerY, dz, triggerId);

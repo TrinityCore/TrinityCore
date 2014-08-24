@@ -69,7 +69,7 @@ namespace Movement
 
     typedef counter<uint32, 0xFFFFFFFF> UInt32Counter;
 
-    extern double gravity;
+    extern float gravity;
     extern UInt32Counter splineIdGen;
     extern std::string MovementFlags_ToString(uint32 flags);
     extern std::string MovementFlagsExtra_ToString(uint32 flags);

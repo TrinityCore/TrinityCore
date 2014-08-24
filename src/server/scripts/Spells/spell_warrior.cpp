@@ -621,7 +621,7 @@ class spell_warr_retaliation : public SpellScriptLoader
             bool CheckProc(ProcEventInfo& eventInfo)
             {
                 // check attack comes not from behind and warrior is not stunned
-                return GetTarget()->isInFront(eventInfo.GetProcTarget(), M_PI) && !GetTarget()->HasUnitState(UNIT_STATE_STUNNED);
+                return GetTarget()->isInFront(eventInfo.GetActor(), float(M_PI)) && !GetTarget()->HasUnitState(UNIT_STATE_STUNNED);
             }
 
             void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)

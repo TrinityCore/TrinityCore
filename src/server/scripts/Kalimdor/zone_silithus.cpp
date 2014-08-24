@@ -1258,7 +1258,7 @@ class go_wind_stone : public GameObjectScript
         void SummonNPC(GameObject* go, Player* player, uint32 npc, uint32 spell)
         {
             go->CastSpell(player, spell);
-            TempSummon* summons = go->SummonCreature(npc, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), player->GetOrientation() - M_PI, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10 * 60 * 1000);
+            TempSummon* summons = go->SummonCreature(npc, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), player->GetOrientation() - float(M_PI), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10 * 60 * 1000);
             summons->CastSpell(summons, SPELL_SPAWN_IN, false);
             switch (summons->GetEntry())
             {

@@ -479,7 +479,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
             return;
     }
 
-    if (!_player->GetTransport() && fabs(_player->GetSpeed(move_type) - newspeed) > 0.01f)
+    if (!_player->GetTransport() && std::fabs(_player->GetSpeed(move_type) - newspeed) > 0.01f)
     {
         if (_player->GetSpeed(move_type) > newspeed)         // must be greater - just correct
         {

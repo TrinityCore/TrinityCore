@@ -1919,8 +1919,8 @@ class Unit : public WorldObject
         uint32 CalculateDamage(WeaponAttackType attType, bool normalized, bool addTotalPct);
         float GetAPMultiplier(WeaponAttackType attType, bool normalized);
 
-        bool isInFrontInMap(Unit const* target, float distance, float arc = M_PI) const;
-        bool isInBackInMap(Unit const* target, float distance, float arc = M_PI) const;
+        bool isInFrontInMap(Unit const* target, float distance, float arc = float(M_PI)) const;
+        bool isInBackInMap(Unit const* target, float distance, float arc = float(M_PI)) const;
 
         // Visibility system
         bool IsVisible() const;
