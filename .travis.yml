@@ -1,6 +1,6 @@
 language: cpp
 compiler:
-  - gcc
+  - clang
 
 git:
   depth: 1
@@ -18,8 +18,6 @@ install:
   - mysql -uroot -e 'create database test_mysql;'
   - mkdir bin
   - cd bin
-  - export CC=gcc-4.8
-  - export CXX=g++-4.8
   - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=1 -DUSE_COREPCH=0 -DUSE_SCRIPTPCH=0 -DTOOLS=1 -DSCRIPTS=1 -DSERVERS=1 -DNOJEM=1 -DCMAKE_BUILD_TYPE=Release
 
 script:
@@ -31,4 +29,4 @@ script:
   - for file in sql/updates/world/*.sql; do mysql -uroot world < $file; done
   - mysql -uroot < sql/create/drop_mysql.sql
   - cd bin
-  - make -j 8
+  - make -j 4
