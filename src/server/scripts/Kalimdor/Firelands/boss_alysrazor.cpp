@@ -574,12 +574,12 @@ class spell_alysrazor_turn_monstrosity : public SpellScriptLoader
                     case SPELL_RIGHT_SIDE_SMACK_R:
                     case SPELL_RIGHT_SIDE_SMACK_L:
                         spellId = SPELL_KNOCKBACK_RIGHT;
-                        angle -= M_PI * 0.5f;
+                        angle -= float(M_PI) * 0.5f;
                         break;
                     case SPELL_LEFT_SIDE_SMACK_R:
                     case SPELL_LEFT_SIDE_SMACK_L:
                         spellId = SPELL_KNOCKBACK_LEFT;
-                        angle += M_PI * 0.5f;
+                        angle += float(M_PI) * 0.5f;
                         break;
                     case SPELL_HEAD_BONK_R:
                     case SPELL_HEAD_BONK_L:
@@ -588,7 +588,7 @@ class spell_alysrazor_turn_monstrosity : public SpellScriptLoader
                     case SPELL_TICKLE_R:
                     case SPELL_TICKLE_L:
                         spellId = SPELL_KNOCKBACK_BACK;
-                        angle -= M_PI;
+                        angle -= float(M_PI);
                         break;
                 }
 
