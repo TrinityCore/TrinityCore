@@ -48,7 +48,9 @@ enum RogueSpells
     SPELL_ROGUE_SHIV_TRIGGERED                      = 5940,
     SPELL_ROGUE_SILCE_AND_DICE                      = 5171,
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST       = 57933,
-    SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC            = 59628
+    SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC            = 59628,
+    SPELL_ROGUE_SERRATED_BLADES_R1                  = 14171,
+    SPELL_ROGUE_RUPTURE                             = 1943,
 };
 
 enum RogueSpellIcons
@@ -961,6 +963,40 @@ class spell_rog_tricks_of_the_trade_proc : public SpellScriptLoader
         }
 };
 
+class spell_rog_serrated_blades : public SpellScriptLoader
+{
+public:
+    spell_rog_serrated_blades() : SpellScriptLoader("spell_rog_serrated_blades") { }
+
+    class spell_rog_serrated_blades_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_serrated_blades_SpellScript);
+
+        void HandleHit()
+        {
+            if (AuraEffect* blade = GetCaster()->GetAuraEffectOfRankedSpell(SPELL_ROGUE_SERRATED_BLADES_R1, EFFECT_0))
+            {
+                uint8 combo = GetCaster()->ToPlayer()->GetComboPoints();
+
+                if (roll_chance_i(blade->GetAmount() * combo))
+                    if (Aura* dot = GetHitUnit()->GetAura(SPELL_ROGUE_RUPTURE, GetCaster()->GetGUID()))
+                        dot->RefreshDuration();
+
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_rog_serrated_blades_SpellScript::HandleHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_rog_serrated_blades_SpellScript();
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
@@ -980,4 +1016,5 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_stealth();
     new spell_rog_tricks_of_the_trade();
     new spell_rog_tricks_of_the_trade_proc();
+    new spell_rog_serrated_blades();
 }
