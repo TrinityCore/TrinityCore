@@ -1,0 +1,180 @@
+
+UPDATE `creature_template` SET `ainame`='SmartAI', `scriptname`='' WHERE `entry` IN(28244,28333,28175,28176,28177,28178,28284);
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN(28244,28333,28175,28176,28177,28178,28284) AND `source_type`=0;
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN(2824400,2817500,2817600,2817700,2817800,2833300,2828400,2828401,2878000) AND `source_type`=9;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(28284, 0, 0, 0, 20, 0, 100, 0, 12553, 0, 0, 0, 80, 2828400, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Specialist Cogwheel - On Quest Reward (Skimmer Spinnerets) - Run Script 1'), 
+(28284, 0, 1, 0, 20, 0, 100, 0, 12583, 0, 0, 0, 80, 2828401, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Specialist Cogwheel - On Quest Reward (Crashed Sprayer) - Run Script 2'), 
+(28244, 0, 0, 1, 20, 0, 100, 0, 12584, 0, 0, 0, 1, 6, 0, 0, 0, 0, 0, 19, 28178, 0, 0, 0, 0, 0, 0, 'Eitrigg - On Quest Reward (Pure Evil) - Say Line 7 on Avenger Metz'), 
+(28244, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 53, 0, 28244, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Eitrigg - On Quest Reward (Pure Evil) - Start WP'), 
+(28244, 0, 2, 3, 40, 0, 100, 0, 1, 28244, 0, 0, 80, 2824400, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Eitrigg - On Reached WP2 - Run Script'), 
+(28244, 0, 3, 0, 61, 0, 100, 0, 0, 0, 0, 0, 54, 3000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Eitrigg - On Reached WP2 - Pause WP'), 
+(28244, 0, 4, 0, 40, 0, 100, 0, 3, 28244, 0, 0, 54, 100000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Eitrigg - On Reached WP3 - Pause WP'), 
+(28244, 0, 5, 0, 40, 0, 100, 0, 4, 28244, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 1.56042, 'Eitrigg - On Reached WP4 - Set Orientation'), 
+(28175, 0, 0, 1, 38, 0, 100, 0, 1, 1, 0, 0, 66, 0, 0, 0, 0, 0, 0, 19, 28244, 0, 0, 0, 0, 0, 0, 'Crusade Commander Korfax - On Data Set 1 1 - Set Orientation'), 
+(28175, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Crusade Commander Korfax - On Data Set 1 1 - Say Line 1'), 
+(28175, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 53, 0, 28175, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Crusade Commander Korfax - On Data Set 1 1 - Start WP'), 
+(28175, 0, 3, 0, 40, 0, 100, 0, 1, 28175, 0, 0, 80, 2817500, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Crusade Commander Korfax - On Reached WP4 - Run Script'), 
+(28175, 0, 4, 0, 40, 0, 100, 0, 1, 28175, 0, 0, 54, 18000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Crusade Commander Korfax - On Reached WP3 - Pause WP'), 
+(28175, 0, 5, 0, 40, 0, 100, 0, 5, 28175, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 1.54325, 'Crusade Commander Korfax - On Reached WP5 - Set Orientation'), 
+(28176, 0, 0, 0, 38, 0, 100, 0, 1, 1, 0, 0, 80, 2817600, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Rimblat Earthshatter - On Data Set - Run Script'), 
+(28177, 0, 0, 0, 38, 0, 100, 0, 1, 1, 0, 0, 80, 2817700, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Rayne - On Data Set - Run Script'), 
+(28178, 0, 0, 0, 38, 0, 100, 0, 1, 1, 0, 0, 80, 2817800, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Avenger Metz - On Data Set - Run Script'), 
+(28333, 0, 0, 0, 38, 0, 100, 0, 1, 1, 0, 0, 11, 32567, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'ELM General Purpose Bunny (scale x0.25) - On Data Set 1 1 - Cast Green Banish State'), 
+(28333, 0, 1, 0, 38, 0, 100, 0, 2, 2, 0, 0, 28, 32567, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'ELM General Purpose Bunny (scale x0.25) - On Data Set 2 2 - Remove Green Banish State'), 
+(28333, 0, 2, 0, 38, 0, 100, 0, 3, 3, 0, 0, 11, 51367, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'ELM General Purpose Bunny (scale x0.25) - On Data Set 3 3 - Cast Pure Evil: Entangling Roots Visual'), 
+(28333, 0, 3, 4, 38, 0, 100, 0, 4, 4, 0, 0, 28, 51367, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'ELM General Purpose Bunny (scale x0.25) - On Data Set 4 4 - Remove Pure Evil: Entangling Roots Visual'), 
+(28333, 0, 4, 0, 61, 0, 100, 0, 4, 4, 0, 0, 11, 35487, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'ELM General Purpose Bunny (scale x0.25) - On Data Set 4 4 - Cast Seed of Revitalization Lightning Cloud Visual'), 
+(28333, 0, 5, 0, 38, 0, 100, 0, 5, 5, 0, 0, 80, 2833300, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'ELM General Purpose Bunny (scale x0.25) - On Data Set 5 5 - Run Script'), 
+(2878000, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Explosive Charges Bunny - On Script - Say Line 0'),
+(2878000, 9, 1, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Explosive Charges Bunny - On Script - Say Line 1'),
+(2878000, 9, 2, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Explosive Charges Bunny - On Script - Say Line 2'),
+(2878000, 9, 3, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Explosive Charges Bunny - On Script - Say Line 3'),
+(2878000, 9, 4, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Explosive Charges Bunny - On Script - Say Line 4'),
+(2878000, 9, 5, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 11, 52322, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Explosive Charges Bunny - On Script - Cast \'Detonate Charges\''),
+(2878000, 9, 6, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 52346, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Explosive Charges Bunny - On Script - Cast \'Kill Credit\''),
+(2828400, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,0, 1, 0, 0, 0, 0, 0, 0, 0, 'Specialist Cogwheel - Script  1 - Say Line 0'), 
+(2828400, 9, 1, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 11, 51322, 0, 0, 0, 0,0, 1, 0, 0, 0, 0, 0, 0, 0, 'Specialist Cogwheel - Script  1 - Cast Webbed'), 
+(2828400, 9, 2, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 1, 0, 0, 0, 0,0, 1, 0, 0, 0, 0, 0, 0, 0, 'Specialist Cogwheel - Script  1 - Say Line 1'), 
+(2828400, 9, 3, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 28, 51322, 0, 0, 0, 0,0, 1, 0, 0, 0, 0, 0, 0, 0, 'Specialist Cogwheel - Script  1 - Remove Aura - Webbed'), 
+(2828401, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0,0, 1, 0, 0, 0, 0, 0, 0, 0, 'Specialist Cogwheel - Script  2 - Say Line 2'), 
+(2828401, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 5, 233, 0, 0, 0, 0,0, 1, 0, 0, 0, 0, 0, 0, 0, 'Specialist Cogwheel - Script  2 - Play emote 233'), 
+(2828401, 9, 2, 0, 0, 0, 100, 0, 7000, 7000, 0, 0, 1, 3, 0, 0, 0, 0,0, 1, 0, 0, 0, 0, 0, 0, 0, 'Specialist Cogwheel - Script  2 - Say Line 3'), 
+(2833300, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 51394, 0, 0, 0, 0,0, 1, 0, 0, 0, 0, 0, 0, 0, 'ELM General Purpose Bunny (scale x0.25) - Script - Cast Decimate State'), 
+(2833300, 9, 1, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 11, 51393, 0, 0,0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'ELM General Purpose Bunny (scale x0.25) - Script - Cast Pure Evil: Saronite Knockback'), 
+(2833300, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 51394, 0, 0, 0, 0,0, 1, 0, 0, 0, 0, 0, 0, 0, 'ELM General Purpose Bunny (scale x0.25) - Script - Remove Decimate State'), 
+(2817500, 9, 0, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 1, 1, 0, 0, 0, 0,0, 1, 0, 0, 0, 0, 0, 0, 0, 'Crusade Commander Korfax - Script - Say Line 2'), 
+(2817500, 9, 1, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 1, 2, 0, 0, 0, 0,0, 1, 0, 0, 0, 0, 0, 0, 0, 'Crusade Commander Korfax - Script - Say Line 3'), 
+(2817500, 9, 2, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 11, 51396, 0, 0, 0,0, 0, 19, 28333, 0, 0, 0, 0, 0, 0, 'Crusade Commander Korfax - Script - Cast Pure Evil: Korfaxs Cleave'), 
+(2817500, 9, 3, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 11, 51396, 0, 0, 0,0, 0, 19, 28333, 0, 0, 0, 0, 0, 0, 'Crusade Commander Korfax - Script - Cast Pure Evil: Korfaxs Cleave'), 
+(2817500, 9, 4, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 11, 51396, 0, 0, 0,0, 0, 19, 28333, 0, 0, 0, 0, 0, 0, 'Crusade Commander Korfax - Script - Cast Pure Evil: Korfaxs Cleave'), 
+(2817500, 9, 5, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 3, 0, 0, 0, 0,0, 1, 0, 0, 0, 0, 0, 0, 0, 'Crusade Commander Korfax - Script - Say Line 3'), 
+(2817600, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 51380, 0, 0, 0, 0,0, 10, 112373, 28333, 0, 0, 0, 0, 0, 'Rimblat Earthshatter - Script - Cast Lightning & Ice Channeling'), 
+(2817600, 9, 1, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 28, 51380, 0, 0, 0,0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Rimblat Earthshatter - Script - Remove Lightning & Ice Channeling'), 
+(2817600, 9, 2, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 1, 0, 0, 0, 0,0, 1, 0, 0, 0, 0, 0, 0, 0, 'Rimblat Earthshatter - Script - Say Line'), 
+(2817700, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 28892, 0, 0, 0, 0,0, 10, 112373, 28333, 0, 0, 0, 0, 0, 'Rayne - Script - Cast Nature Channeling'), 
+(2817700, 9, 1, 0, 0, 0, 100, 0, 500, 500, 0, 0, 45, 3, 3, 0, 0, 0,0, 10, 112373, 28333, 0, 0, 0, 0, 0, 'Rayne - Script - Set Data 3 3 ELM General Purpose Bunny (scale x0.25)'), 
+(2817700, 9, 2, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 28, 28892, 0, 0,0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Rayne - Script - Remove Nature Channeling'), 
+(2817700, 9, 3, 0, 0, 0, 100, 0, 100, 100, 0, 0, 45, 4, 4, 0, 0, 0,0, 10, 112373, 28333, 0, 0, 0, 0, 0, 'Rayne - Script - Set Data 4 4 ELM General Purpose Bunny (scale x0.25)'), 
+(2817700, 9, 4, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0,0, 1, 0, 0, 0, 0, 0, 0, 0, 'Rayne - Script - Say Line'), 
+(2817800, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0,0, 1, 0, 0, 0, 0, 0, 0, 0, 'Avenger Metz - Script - Say Line 4'), 
+(2817800, 9, 1, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 66, 0, 0, 0, 0, 0,0, 19, 28333, 0, 0, 0, 0, 0, 0, 'Avenger Metz - Script - Set Orientation'), 
+(2817800, 9, 2, 0, 0, 0, 100, 0, 500, 500, 0, 0, 11, 51384, 0, 0, 0, 0,0, 19, 28333, 0, 0, 0, 0, 0, 0, 'Avenger Metz - Script - Cast Hammer of Wrath'), 
+(2817800, 9, 4, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 45, 5, 5, 0, 0, 0,0, 10, 112373, 28333, 0, 0, 0, 0, 0, 'Rayne - Script - Set Data 5 5 ELM General Purpose Bunny (scale x0.25)'), 
+(2817800, 9, 5, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 1, 4, 0, 0, 0, 0,0, 1, 0, 0, 0, 0, 0, 0, 0, 'Avenger Metz - Script - Say Line 5'), 
+(2824400, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Say Line 1'), 
+(2824400, 9, 1, 0, 0, 0, 100, 0, 500, 500, 0, 0, 45, 1, 1, 0,0, 0, 0, 10, 112373, 28333, 0, 0, 0, 0, 0, 'Eitrigg - Script - Set Data 1 1 ELM General Purpose Bunny (scale x0.25)'), 
+(2824400, 9, 2, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 1, 1, 0, 0,0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Say Line 2'), 
+(2824400, 9, 3, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 45, 1, 1, 0,0, 0, 0, 19, 28175, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Set Data 1 1 on Crusade Commander Korfax'), 
+(2824400, 9, 4, 0, 0, 0, 100, 0, 16000, 16000, 0, 0, 1, 0, 0, 0, 0,0, 0, 19, 28178, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Say Line 1 on Avenger Metz'), 
+(2824400, 9, 5, 0, 0, 0, 100, 0, 17000, 17000, 0, 0, 1, 2, 0, 0, 0,0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Say Line 3'), 
+(2824400, 9, 6, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 1, 0, 0, 0, 0, 0,0, 19, 28176, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Say Line on Rimblat Earthshatter'), 
+(2824400, 9, 7, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 45, 1, 1, 0, 0, 0,0, 19, 28176, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Set Data on Rimblat Earthshatter'), 
+(2824400, 9, 8, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 45, 1, 1, 0, 0, 0,0, 19, 28177, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Set Data  on Rayne'), 
+(2824400, 9, 9, 0, 0, 0, 100, 0, 8000, 8000, 0, 0, 1, 1, 0, 0, 0, 0,0, 19, 28178, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Say Line 2 on Avenger Metz'), 
+(2824400, 9, 10, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 1, 3, 0, 0, 0, 0,0, 1, 0, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Say Line 4'), 
+(2824400, 9, 11, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 1, 2, 0, 0, 0, 0,0, 19, 28178, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Say Line 3 on Avenger Metz'), 
+(2824400, 9, 12, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 1, 4, 0, 0, 0, 0,0, 1, 0, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Say Line 5'), 
+(2824400, 9, 13, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 45, 1, 1, 0, 0, 0,0, 19, 28178, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Set Data on Avenger Metz'), 
+(2824400, 9, 14, 0, 0, 0, 100, 0, 11000, 11000, 0, 0, 1, 4, 0, 0, 0, 0,0, 19, 28175, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Say Line 5 on Crusade Commander Korfax'), 
+(2824400, 9, 15, 0, 0, 0, 100, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,0, 19, 28177, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Say Line 2 on Rayne'), 
+(2824400, 9, 16, 0, 0, 0, 100, 0, 0, 0, 0, 0, 1, 5, 0, 0, 0, 0,0, 19, 28178, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Say Line 6 on Avenger Metz'), 
+(2824400, 9, 17, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 1, 5, 0, 0,0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Say Line 6'), 
+(2824400, 9, 18, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 1, 6, 0, 0,0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Say Line 7'), 
+(2824400, 9, 19, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 1, 7, 0, 0,0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Say Line 8'), 
+(2824400, 9, 20, 0, 0, 0, 100, 0, 0, 0, 0, 0, 1, 6, 0, 0, 0, 0,0, 19, 28178, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Say Line 6 on Avenger Metz'),
+(2824400, 9, 21, 0, 0, 0, 100, 0, 500, 500, 0, 0, 45, 2, 2, 0,0, 0, 0, 10, 112373, 28333, 0, 0, 0, 0, 0, 'Eitrigg - Script - Set Data 2 2 ELM General Purpose Bunny (scale x0.25)');
+
+DELETE FROM `creature_text` WHERE `entry` IN(28176,28175,28177,28178,28244,28284,28780,28479,28514,28515,28516,28517, `BroadcastTextID`);
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(28479, 0, 0, 'Gods of old, we beseech you. What must we do? How can we save the gods of this land?', 15, 0, 100, 6, 0, 0, 'Witch Doctor Khufu',28431),
+(28514, 0, 0, 'But try they must or all will be lost. The Drakkari will be the death of both themselves and their gods!', 12, 0, 100, 0, 0, 473, 'Nalorakk',28435),
+(28515, 0, 0, 'The spotted one must be sought. Their fates are entwined.', 12, 0, 100, 0, 0, 9919, 'Jan''alai',28432),
+(28516, 0, 0, 'But she is chained. A way must be found to free her.', 12, 0, 100, 0, 0, 12196, 'Akil''zon',28433),
+(28517, 0, 0, 'To her altar this mortal must travel. What they must do will not be easy. In the end it may prove impossible.', 12, 0, 100, 0, 0, 643, 'Halazzi',28434),
+(28176, 0, 0, 'Let us see if it is truly impervious.', 12, 0, 100, 1, 0, 0, 'Rimblat Earthshatter',27783),
+(28176, 1, 0, 'Nothing.', 12, 0, 100, 1, 0, 0, 'Rimblat Earthshatter',27766),
+(28175, 0, 0, 'Saronite you say?', 12, 0, 100, 0, 0, 0, 'Crusade Commander Korfax',27779),
+(28175, 1, 0, 'Never heard of it. Looks like pure evil.', 12, 0, 100, 6, 0, 0, 'Crusade Commander Korfax',27748),
+(28175, 2, 0, 'Let''s see how it holds up to the might of my axe!', 12, 0, 100, 0, 0, 0, 'Crusade Commander Korfax',27749),
+(28175, 3, 0, 'What the? My reaper didn''t even scratch it! That''s the toughest ore I''ve ever seen!', 12, 0, 100, 0, 0, 0, 'Crusade Commander Korfax',27750),
+(28175, 4, 0, 'Oof!', 12, 0, 100, 0, 0, 9410, 'Crusade Commander Korfax',27788),
+(28177, 0, 0, 'By the Goddess. It''s as if Nature can''t touch it!', 12, 0, 100, 5, 0, 0, 'Rayne',27763),
+(28177, 1, 0, 'Gah!', 12, 0, 100, 0, 0, 9410, 'Rayne',27786),
+(28178, 0, 0, '%s rolls his eyes.', 16, 0, 100, 0, 0, 0, 'Avenger Metz',27784),
+(28178, 1, 0, 'No surprise there.', 12, 0, 100, 0, 0, 0, 'Avenger Metz',27769),
+(28178, 2, 0, 'What?', 12, 0, 100, 0, 0, 0, 'Avenger Metz',27770),
+(28178, 3, 0, 'Fine. Just remember though, the power of the Holy Light isn''t something to be invoked casually, brother.', 12, 0, 100, 1, 0, 0, 'Avenger Metz',27771),
+(28178, 4, 0, 'What''s it doing?!', 12, 0, 100, 5, 0, 0, 'Avenger Metz',27772),
+(28178, 5, 0, 'Whoa!', 12, 0, 100, 0, 0, 9410, 'Avenger Metz',27787),
+(28178, 6, 0, '%s grunts.', 16, 0, 100, 0, 0, 0, 'Avenger Metz',27776),
+(28244, 0, 0, 'Now we will see why this ore is so important to the Scourge.', 12, 0, 100, 16, 0, 0, 'Eitrigg',27746),
+(28244, 1, 0, 'Korfax, what can you tell from this saronite?', 12, 0, 100, 6, 0, 0, 'Eitrigg',27747),
+(28244, 2, 0, 'Rayne, Rimblat, what about the power of nature and the elements?', 12, 0, 100, 6, 0, 0, 'Eitrigg',27759),
+(28244, 3, 0, 'Metz?', 12, 0, 100, 6, 0, 0, 'Eitrigg',27767),
+(28244, 4, 0, 'You know what.', 12, 0, 100, 25, 0, 0, 'Eitrigg',27768),
+(28244, 5, 0, '%s dusts himself off.', 16, 0, 100, 0, 0, 9410, 'Eitrigg',27789),
+(28244, 6, 0, 'Clearly this is getting us nowhere. We need to get this saronite to Highlord Fordring for further study.', 12, 0, 100, 1, 0, 0, 'Eitrigg',27774),
+(28244, 7, 0, 'Thank you for trying, my friends. We''ll unlock its secrets. Hopefully before it''s too late.', 12, 0, 100, 1, 0, 0, 'Eitrigg',27775),
+(28284, 0, 0, 'Oh, these are sticky! I wonder how they shoot the webbing?', 12, 0, 100, 0, 0, 0, 'Specialist Cogwheel',27734),
+(28284, 1, 0, 'ACK! Oh no, I webbed myself! It''s sticky. MY HAIR!', 12, 0, 100, 15, 0, 6906, 'Specialist Cogwheel',27735),
+(28284, 2, 0, 'Okay! Let me just see if I can fashion these disgusting parts into something useful.', 12, 0, 100, 0, 0, 0, 'Specialist Cogwheel',27736),
+(28284, 3, 0, 'Eureka!', 12, 0, 100, 4, 0, 0, 'Specialist Cogwheel',27737),
+(28780, 0, 0, 'Explosive Charges will detonate in 5 seconds...', 16, 0, 100, 0, 0, 0, 'Explosive Charges Bunny',28816),
+(28780, 1, 0, 'Explosive Charges will detonate in 4 seconds...', 16, 0, 100, 0, 0, 0, 'Explosive Charges Bunny',28817),
+(28780, 2, 0, 'Explosive Charges will detonate in 3 seconds...', 16, 0, 100, 0, 0, 0, 'Explosive Charges Bunny',28818),
+(28780, 3, 0, 'Explosive Charges will detonate in 2 seconds...', 16, 0, 100, 0, 0, 0, 'Explosive Charges Bunny',28819),
+(28780, 4, 0, 'Explosive Charges will detonate in 1 seconds...', 16, 0, 100, 0, 0, 0, 'Explosive Charges Bunny',28820);
+
+DELETE FROM `waypoints` WHERE `entry` IN(28175,28244);
+
+INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES
+(28175, 1,5448.54, -2645.614, 305.619, 'Crusade Commander Korfax'),
+(28175, 2,5448.541, -2644.614, 305.619, 'Crusade Commander Korfax'),
+(28175, 3,5448.541, -2643.614, 305.869, 'Crusade Commander Korfax'),
+(28175, 4,5448.541, -2642.114, 306.119, 'Crusade Commander Korfax'),
+(28175, 5,5448.66, -2639.83, 306.551, 'Crusade Commander Korfax'),
+(28244, 1,5450.109, -2642.323, 306.6346, 'Eitrigg'),
+(28244, 2,5450.109, -2643.323, 306.1346, 'Eitrigg'),
+(28244, 3,5450.109, -2644.573, 305.8846, 'Eitrigg'),
+(28244, 4,5450.15, -2639.06, 306.551, 'Eitrigg');
+
+DELETE FROM `spell_scripts` WHERE `id`=51862;
+INSERT INTO `spell_scripts` (`id`,`effIndex`,`delay`,`command`,`datalong`,`datalong2`,`dataint`,`x`,`y`,`z`,`o`) VALUES
+(51862,0,0,15,51861,0,0,0,0,0,0),
+(51862,0,0,15,52452,0,0,0,0,0,0),
+(51862,0,0,15,52453,0,0,0,0,0,0),
+(51862,0,0,15,52454,0,0,0,0,0,0);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (51861,52452,52453,52454);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
+(13,1,51861,0,0,31,0,3,23837,98547,0,0,'','Spell Breaking Through Jin''Alai: Summon Akil''zon targets ELM General Purpose Bunny'),
+(13,1,52452,0,0,31,0,3,23837,98549,0,0,'','Spell Breaking Through Jin''Alai: Summon Jan''Alai targets ELM General Purpose Bunny'),
+(13,1,52453,0,0,31,0,3,23837,98546,0,0,'','Spell Breaking Through Jin''Alai: Summon Halazzi targets ELM General Purpose Bunny'),
+(13,1,52454,0,0,31,0,3,23837,98548,0,0,'','Spell Breaking Through Jin''Alai: Summon Nalorakk targets ELM General Purpose Bunny');
+
+DELETE FROM `creature_template_addon` WHERE `entry` IN (28514,28515,28516,28517);
+INSERT INTO `creature_template_addon` (`entry`,`bytes1`,`bytes2`) VALUES
+(28514,0,1),
+(28515,0,1),
+(28516,33554432,1),
+(28517,0,1);
+
+UPDATE `creature_template` SET `minlevel`=83, `maxlevel`=83, `unit_flags`=512|256 WHERE `entry` IN (28514,28515,28516,28517);
+UPDATE `creature_template` SET `AIName`='SmartAI', `ScriptName`='' WHERE `entry` IN(28479,28514,28515,28516,28517);
+DELETE FROM `smart_scripts` WHERE `entryorguid` =28479 AND `source_type`=0 AND `id` IN (6,7);
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN(28514,28515,28516,28517) AND `source_type`=0;
+DELETE FROM `smart_scripts` WHERE `entryorguid` =2847900 AND `source_type`=9;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(28479, 0, 6, 7, 20, 0, 100, 0, 12627, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Witch Doctor Khufu - On Quest Reward (Breaking Through Jin''Alai) - Say'), 
+(28479, 0, 7, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 2847900, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Witch Doctor Khufu - On Quest Reward (Breaking Through Jin''Alai) - Run Script'), 
+(28514, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 11, 35426, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Nalorakk - On Just Summoned - Cast Arcane Explosion Visual'), 
+(28515, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 11, 35426, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jan''alai - On Just Summoned - Cast Arcane Explosion Visual'), 
+(28516, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 11, 35426, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Akil''zon - On Just Summoned - Cast Arcane Explosion Visual'), 
+(28517, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 11, 35426, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Halazzi - On Just Summoned - Cast Arcane Explosion Visual'), 
+(2847900, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 81, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Witch Doctor Khufu - Script - Set NPC Flags'),  
+(2847900, 9, 5, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 19, 28515, 0, 0, 0, 0, 0, 0, 'Witch Doctor Khufu - Script - Say Line (Jan alai)'), 
+(2847900, 9, 6, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 19, 28516, 0, 0, 0, 0, 0, 0, 'Witch Doctor Khufu - Script - Say Line (Akil zon)'), 
+(2847900, 9, 7, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 19, 28517, 0, 0, 0, 0, 0, 0, 'Witch Doctor Khufu - Script - Say Line (Halazzi)'), 
+(2847900, 9, 8, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 19, 28514, 0, 0, 0, 0, 0, 0, 'Witch Doctor Khufu - Script - Say Line (Nalorakk)'), 
+(2847900, 9, 9, 0, 0, 0, 100, 0, 20000, 20000, 0, 0, 81, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Witch Doctor Khufu - Script - Set NPC Flags'); 
