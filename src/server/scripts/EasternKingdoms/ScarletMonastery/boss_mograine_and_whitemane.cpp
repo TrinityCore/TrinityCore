@@ -95,7 +95,7 @@ public:
             me->SetStandState(UNIT_STAND_STATE_STAND);
 
             if (me->IsAlive())
-                instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_MOGRAINE_AND_WHITE_EVENT, NOT_STARTED);
 
             _bHasDied = false;
             _bHeal = false;
@@ -104,8 +104,8 @@ public:
 
         void JustReachedHome() override
         {
-            if (instance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT) != NOT_STARTED)
-                instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, FAIL);
+            if (instance->GetBossState(DATA_MOGRAINE_AND_WHITE_EVENT) != NOT_STARTED)
+                instance->SetBossState(DATA_MOGRAINE_AND_WHITE_EVENT, FAIL);
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -129,7 +129,7 @@ public:
             //On first death, fake death and open door, as well as initiate whitemane if exist
             if (Unit* Whitemane = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_WHITEMANE)))
             {
-                instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_MOGRAINE_AND_WHITE_EVENT, IN_PROGRESS);
 
                 Whitemane->GetMotionMaster()->MovePoint(1, 1163.113370f, 1398.856812f, 32.527786f);
 
@@ -163,7 +163,7 @@ public:
                 Talk(SAY_MO_RESURRECTED);
                 _bFakeDeath = false;
 
-                instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, SPECIAL);
+                instance->SetBossState(DATA_MOGRAINE_AND_WHITE_EVENT, SPECIAL);
             }
         }
 
@@ -172,7 +172,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (_bHasDied && !_bHeal && instance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT) == SPECIAL)
+            if (_bHasDied && !_bHeal && instance->GetBossState(DATA_MOGRAINE_AND_WHITE_EVENT) == SPECIAL)
             {
                 //On resurrection, stop fake death and heal whitemane and resume fight
                 if (Unit* Whitemane = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_WHITEMANE)))
@@ -254,12 +254,12 @@ public:
             _bCanResurrect = false;
 
             if (me->IsAlive())
-                instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_MOGRAINE_AND_WHITE_EVENT, NOT_STARTED);
         }
 
         void AttackStart(Unit* who) override
         {
-            if (instance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT) == NOT_STARTED)
+            if (instance->GetBossState(DATA_MOGRAINE_AND_WHITE_EVENT) == NOT_STARTED)
                 return;
 
             ScriptedAI::AttackStart(who);

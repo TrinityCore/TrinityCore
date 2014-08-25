@@ -1191,8 +1191,8 @@ public:
                 bPointReached = false;
                 uiCheckTimer = 1000;
                 me->GetMotionMaster()->MovePoint(1, x, y, SHIELD_ORB_Z);
-                c += M_PI/32;
-                if (c >= 2*M_PI) c = 0;
+                c += float(M_PI)/32;
+                if (c >= 2 * float(M_PI)) c = 0;
             }
             else
             {

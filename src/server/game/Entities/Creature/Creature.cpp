@@ -1076,7 +1076,7 @@ void Creature::SelectLevel()
     float basedamage = stats->GenerateBaseDamage(cInfo);
 
     float weaponBaseMinDamage = basedamage;
-    float weaponBaseMaxDamage = basedamage * 1.5;
+    float weaponBaseMaxDamage = basedamage * 1.5f;
 
     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, weaponBaseMinDamage);
     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);
@@ -2277,7 +2277,7 @@ void Creature::AllLootRemovedFromCorpse()
     if (loot.loot_type == LOOT_SKINNING)
         m_corpseRemoveTime = now;
     else
-        m_corpseRemoveTime = now + m_corpseDelay * decayRate;
+        m_corpseRemoveTime = now + uint32(m_corpseDelay * decayRate);
 
     m_respawnTime = m_corpseRemoveTime + m_respawnDelay;
 }
