@@ -118,6 +118,9 @@ enum DataTypes
     DATA_TERENAS_MENETHIL           = 39,
     DATA_ENEMY_GUNSHIP              = 40,
     DATA_UPPERSPIRE_TELE_ACT        = 41,
+
+    // TW
+    DATA_CRIMSON_HALL_DOOR          = 42
 };
 
 enum CreaturesIds
@@ -319,7 +322,13 @@ enum CreaturesIds
     NPC_FROSTMOURNE_TRIGGER                     = 38584,
 
     // Generic
-    NPC_INVISIBLE_STALKER                       = 30298
+    NPC_INVISIBLE_STALKER                       = 30298,
+
+    // TW
+    NPC_DARKFALLEN_NOBLE                        = 37663,
+    NPC_DARKFALLEN_BLOODKNIGHT                  = 37595,
+    NPC_DARKFALLEN_ARCHMAGE                     = 37664,
+    NPC_DARKFALLEN_ADVISOR                      = 37571
 };
 
 enum GameObjectsIds
