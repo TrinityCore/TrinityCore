@@ -160,16 +160,7 @@ enum Actions
 
 enum Npcs
 {
-    //NPC_ROCKET                                  = 34050,
-    //NPC_BURST_TARGET                            = 34211,
-    //NPC_JUNK_BOT                                = 33855,
-    //NPC_ASSAULT_BOT                             = 34057,
-    //NPC_BOOM_BOT                                = 33836,
-    //NPC_EMERGENCY_BOT                           = 34147,
-    //NPC_FLAMES_INITIAL                          = 34363,
-    //NPC_FLAME_SPREAD                            = 34121,
-    //NPC_FROST_BOMB                              = 34149,
-    //NPC_MKII_TURRET                             = 34071,
+    NPC_MKII_TURRET                             = 34071,
     NPC_PROXIMITY_MINE                          = 34362
 };
 
@@ -254,14 +245,14 @@ class TW_boss_mimiron : public CreatureScript
                 botCriteria = true;
 
                 DespawnCreatures(NPC_FLAME, 100.0f);
-                //DespawnCreatures(NPC_PROXIMITY_MINE, 100.0f);
+                DespawnCreatures(NPC_PROXIMITY_MINE, 100.0f);
                 DespawnCreatures(NPC_ROCKET_MIMIRON_VISUAL, 100.0f);
                 DespawnCreatures(NPC_JUNK_BOT, 100.0f);
                 DespawnCreatures(NPC_ASSAULT_BOT, 100.0f);
                 DespawnCreatures(NPC_BOMB_BOT, 100.0f);
                 DespawnCreatures(NPC_EMERGENCY_FIRE_BOT, 100.0f);
 
-                for (uint8 data = DATA_LEVIATHAN_MK_II; data <= DATA_AERIAL_UNIT; ++data)
+                for (uint8 data = DATA_LEVIATHAN_MK_II; data <= DATA_AERIAL_COMMAND_UNIT; ++data)
                 if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetData64(data)))
                         if (creature->IsAlive())
                         {
@@ -350,7 +341,7 @@ class TW_boss_mimiron : public CreatureScript
                 if (_enrageTimer <= diff && !_enraged)
                 {
                     Talk(SAY_BERSERK, me);
-                    for (uint8 data = DATA_LEVIATHAN_MK_II; data <= DATA_AERIAL_UNIT; ++data)
+                    for (uint8 data = DATA_LEVIATHAN_MK_II; data <= DATA_AERIAL_COMMAND_UNIT; ++data)
                     if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetData64(data)))
                             creature->AI()->DoAction(DO_ENTER_ENRAGE);
 
@@ -391,7 +382,7 @@ class TW_boss_mimiron : public CreatureScript
                             Leviathan->AI()->DoAction(DO_LEVIATHAN_ASSEMBLED);
                         if (Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VX_001)))
                             VX_001->AI()->DoAction(DO_VX001_ASSEMBLED);
-                        if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
+                        if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_COMMAND_UNIT)))
                             AerialUnit->AI()->DoAction(DO_AERIAL_ASSEMBLED);
 
                         _checkBotAlive = true;
@@ -400,7 +391,7 @@ class TW_boss_mimiron : public CreatureScript
                     {
                         Creature* Leviathan = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II));
                         Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VX_001));
-                        Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT));
+                        Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_COMMAND_UNIT));
                         if (Leviathan && VX_001 && AerialUnit)
                         {
                             if (Leviathan->getStandState() == UNIT_STAND_STATE_DEAD &&
@@ -587,7 +578,7 @@ class TW_boss_mimiron : public CreatureScript
                             case 4:
                                 me->ExitVehicle();
                                 //me->GetMotionMaster()->MoveJump(2745.06f, 2569.36f, 379.90f, 10, 15);
-                                if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
+                                if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_COMMAND_UNIT)))
                                      me->EnterVehicle(AerialUnit, 0);
                                 JumpToNextStep(2000);
                                 break;
@@ -601,7 +592,7 @@ class TW_boss_mimiron : public CreatureScript
                                 //me->SetVisible(false);
                                 if (instance)
                                 {
-                                    if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
+                                    if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_COMMAND_UNIT)))
                                     {
                                         AerialUnit->AI()->DoAction(DO_START_AERIAL);
                                         _phase = PHASE_COMBAT;
@@ -651,7 +642,7 @@ class TW_boss_mimiron : public CreatureScript
                             case 3:
                                 if (instance)
                                 if (Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VX_001)))
-                                if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
+                                if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_COMMAND_UNIT)))
                                         {
                                             AerialUnit->SetDisableGravity(false);
                                             AerialUnit->EnterVehicle(VX_001, 3);
@@ -666,7 +657,7 @@ class TW_boss_mimiron : public CreatureScript
                                         Leviathan->AI()->DoAction(DO_LEVIATHAN_ASSEMBLED);
                                     if (Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VX_001)))
                                         VX_001->AI()->DoAction(DO_VX001_ASSEMBLED);
-                                    if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
+                                    if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_COMMAND_UNIT)))
                                         AerialUnit->AI()->DoAction(DO_AERIAL_ASSEMBLED);
                                     _phase = PHASE_COMBAT;
                                 }
