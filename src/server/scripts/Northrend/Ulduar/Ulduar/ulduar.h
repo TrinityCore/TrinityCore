@@ -272,12 +272,12 @@ enum UlduarGameObjects
     GO_THORIM_RUNIC_DOOR                    = 194557,
 
     // Mimiron - TW
-    GO_MIMIRON_TRAIN            = 194675,
-    GO_MIMIRON_ELEVATOR         = 194749,
-    GO_MIMIRON_DOOR_1           = 194776,
-    GO_MIMIRON_DOOR_2           = 194774,
-    GO_MIMIRON_DOOR_3           = 194775,
-    GO_BIG_RED_BUTTON           = 194739,
+    //GO_MIMIRON_TRAIN            = 194675,
+    //GO_MIMIRON_ELEVATOR         = 194749,
+    //GO_MIMIRON_DOOR_1           = 194776,
+    //GO_MIMIRON_DOOR_2           = 194774,
+    //GO_MIMIRON_DOOR_3           = 194775,
+    //GO_BIG_RED_BUTTON           = 194739,
 
     // The Ancient Gate of the Keepers
     GO_ANCIENT_GATE             = 194255    
@@ -428,10 +428,10 @@ enum UlduarData
 
     DATA_CALL_TRAM,
     // Mimiron - TW
-    DATA_LEVIATHAN_MK_II,
-    DATA_VX_001,
+    //DATA_LEVIATHAN_MK_II,
+    //DATA_VX_001,
     DATA_AERIAL_UNIT,
-    DATA_MIMIRON_ELEVATOR,
+    //DATA_MIMIRON_ELEVATOR,
 
     DATA_CRITERIA_FLAME_LEVIATHAN,  // Achievement IDs: 10042,10352
     DATA_CRITERIA_IGNIS,            // Achievement IDs: 10342,10355

@@ -480,13 +480,13 @@ class TW_npc_herald_toc5 : public CreatureScript
                         switch (i)
                         {
                             case 0:
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.5f, M_PI);
+                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.5f, float(M_PI));
                                 break;
                             case 1:
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.5f, M_PI / 2);
+                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.5f, float(M_PI) / 2);
                                 break;
                             case 2:
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.5f, M_PI / 2 + M_PI);
+                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.5f, float(M_PI) / 2 + float(M_PI));
                                 break;
                         }
                     }

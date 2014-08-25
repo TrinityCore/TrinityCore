@@ -160,16 +160,16 @@ enum Actions
 
 enum Npcs
 {
-    NPC_ROCKET                                  = 34050,
-    NPC_BURST_TARGET                            = 34211,
-    NPC_JUNK_BOT                                = 33855,
-    NPC_ASSAULT_BOT                             = 34057,
-    NPC_BOOM_BOT                                = 33836,
-    NPC_EMERGENCY_BOT                           = 34147,
-    NPC_FLAMES_INITIAL                          = 34363,
-    NPC_FLAME_SPREAD                            = 34121,
-    NPC_FROST_BOMB                              = 34149,
-    NPC_MKII_TURRET                             = 34071,
+    //NPC_ROCKET                                  = 34050,
+    //NPC_BURST_TARGET                            = 34211,
+    //NPC_JUNK_BOT                                = 33855,
+    //NPC_ASSAULT_BOT                             = 34057,
+    //NPC_BOOM_BOT                                = 33836,
+    //NPC_EMERGENCY_BOT                           = 34147,
+    //NPC_FLAMES_INITIAL                          = 34363,
+    //NPC_FLAME_SPREAD                            = 34121,
+    //NPC_FROST_BOMB                              = 34149,
+    //NPC_MKII_TURRET                             = 34071,
     NPC_PROXIMITY_MINE                          = 34362
 };
 
@@ -253,13 +253,13 @@ class TW_boss_mimiron : public CreatureScript
                 mineCriteria = true;
                 botCriteria = true;
 
-                DespawnCreatures(NPC_FLAMES_INITIAL, 100.0f);
-                DespawnCreatures(NPC_PROXIMITY_MINE, 100.0f);
-                DespawnCreatures(NPC_ROCKET, 100.0f);
+                DespawnCreatures(NPC_FLAME, 100.0f);
+                //DespawnCreatures(NPC_PROXIMITY_MINE, 100.0f);
+                DespawnCreatures(NPC_ROCKET_MIMIRON_VISUAL, 100.0f);
                 DespawnCreatures(NPC_JUNK_BOT, 100.0f);
                 DespawnCreatures(NPC_ASSAULT_BOT, 100.0f);
-                DespawnCreatures(NPC_BOOM_BOT, 100.0f);
-                DespawnCreatures(NPC_EMERGENCY_BOT, 100.0f);
+                DespawnCreatures(NPC_BOMB_BOT, 100.0f);
+                DespawnCreatures(NPC_EMERGENCY_FIRE_BOT, 100.0f);
 
                 for (uint8 data = DATA_LEVIATHAN_MK_II; data <= DATA_AERIAL_UNIT; ++data)
                 if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetData64(data)))
@@ -269,7 +269,7 @@ class TW_boss_mimiron : public CreatureScript
                             creature->AI()->EnterEvadeMode();
                         }
 
-                if (GameObject* go = me->FindNearestGameObject(GO_BIG_RED_BUTTON, 200))
+                        if (GameObject* go = me->FindNearestGameObject(GO_MIMIRON_BUTTON, 200))
                 {
                     go->SetGoState(GO_STATE_READY);
                     go->SetLootState(GO_JUST_DEACTIVATED);
@@ -318,7 +318,7 @@ class TW_boss_mimiron : public CreatureScript
 
                 HasBeenInCombat = true;
 
-                if (GameObject* go = me->FindNearestGameObject(GO_BIG_RED_BUTTON, 200))
+                if (GameObject* go = me->FindNearestGameObject(GO_MIMIRON_BUTTON, 200))
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
             }
 
@@ -411,9 +411,9 @@ class TW_boss_mimiron : public CreatureScript
                                 VX_001->DisappearAndDie();
                                 AerialUnit->DisappearAndDie();
                                 me->Kill(Leviathan);
-                                DespawnCreatures(NPC_FLAMES_INITIAL, 100.0f);
+                                DespawnCreatures(NPC_FLAME, 100.0f);
                                 DespawnCreatures(NPC_PROXIMITY_MINE, 100.0f);
-                                DespawnCreatures(NPC_ROCKET, 100);
+                                DespawnCreatures(NPC_ROCKET_MIMIRON_VISUAL, 100);
                                 me->ExitVehicle();
                                 EndEncounter();
                                 _checkBotAlive = true;
@@ -505,7 +505,7 @@ class TW_boss_mimiron : public CreatureScript
                                         VX_001->SetVisible(true);
                                         for (uint8 n = 5; n < 7; ++n)
                                         {
-                                            if (Creature* Rocket = me->SummonCreature(NPC_ROCKET, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN))
+                                            if (Creature* Rocket = me->SummonCreature(NPC_ROCKET_MIMIRON_VISUAL, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN))
                                             {
                                                 Rocket->setFaction(14);
                                                 Rocket->SetReactState(REACT_PASSIVE);
@@ -1216,7 +1216,7 @@ public:
                     phase = PHASE_VX001_ASSEMBLED;
                     events.SetPhase(PHASE_VX001_ASSEMBLED);
                     
-                    if (Creature* Rocket = me->SummonCreature(NPC_ROCKET, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN))
+                    if (Creature* Rocket = me->SummonCreature(NPC_ROCKET_MIMIRON_VISUAL, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN))
                     {
                         Rocket->setFaction(14);
                         Rocket->SetReactState(REACT_PASSIVE);
@@ -1645,10 +1645,10 @@ public:
                     me->SummonCreature(NPC_ASSAULT_BOT, SummonPos[rand()%9], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
                     if (MimironHardMode)
                         for (uint8 i = 0; i < 2; ++i)
-                            me->SummonCreature(NPC_EMERGENCY_BOT, SummonPos[rand()%9], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                            me->SummonCreature(NPC_EMERGENCY_FIRE_BOT, SummonPos[rand() % 9], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
                     break;
                 case 2:
-                    me->SummonCreature(NPC_BOOM_BOT, 2744.65f, 2569.46f, 364.397f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                    me->SummonCreature(NPC_BOMB_BOT, 2744.65f, 2569.46f, 364.397f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
                     break;
             }
 
@@ -1661,7 +1661,7 @@ public:
         {
             summons.Summon(summon);
 
-            if (summon->GetEntry() == NPC_EMERGENCY_BOT)
+            if (summon->GetEntry() == NPC_EMERGENCY_FIRE_BOT)
                 return;
 
             summon->AI()->DoZoneInCombat();
