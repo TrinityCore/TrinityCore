@@ -10768,6 +10768,10 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     if (spellProto->SpellFamilyName == SPELLFAMILY_POTION)
         return healamount;
 
+    // No bonus healing for these spells
+    if (spellProto->AttributesEx6 & SPELL_ATTR6_NO_HEALING_BONUS)
+        return healamount;
+
     int32 DoneTotal = 0;
 
     // done scripted mod (take it from owner)
@@ -10873,6 +10877,10 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
 
     // No bonus healing for potion spells
     if (spellProto->SpellFamilyName == SPELLFAMILY_POTION)
+        return 1.0f;
+
+    // No bonus healing for these spells
+    if (spellProto->AttributesEx6 & SPELL_ATTR6_NO_HEALING_BONUS)
         return 1.0f;
 
     float DoneTotalMod = 1.0f;

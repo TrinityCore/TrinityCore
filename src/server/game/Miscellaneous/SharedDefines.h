@@ -519,7 +519,7 @@ enum SpellAttr6
     SPELL_ATTR6_CAN_TARGET_UNTARGETABLE          = 0x01000000, // 24
     SPELL_ATTR6_UNK25                            = 0x02000000, // 25 Exorcism, Flash of Light
     SPELL_ATTR6_UNK26                            = 0x04000000, // 26 related to player castable positive buff
-    SPELL_ATTR6_UNK27                            = 0x08000000, // 27
+    SPELL_ATTR6_NO_HEALING_BONUS                 = 0x08000000, // 27 no healing bonus?
     SPELL_ATTR6_UNK28                            = 0x10000000, // 28 Death Grip
     SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS          = 0x20000000, // 29 ignores done percent damage mods?
     SPELL_ATTR6_UNK30                            = 0x40000000, // 30
