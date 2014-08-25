@@ -34,6 +34,7 @@ class Aura;
 class DynamicObject;
 class AuraScript;
 class ProcInfo;
+class ChargeDropEvent;
 
 // update aura target map every 500 ms instead of every update - reduce amount of grid searcher calls
 #define UPDATE_TARGET_MAP_INTERVAL 500
@@ -131,7 +132,7 @@ class Aura
         void SetDuration(int32 duration, bool withMods = false);
         void RefreshDuration(bool withMods = false);
         void RefreshTimers();
-        bool IsExpired() const { return !GetDuration();}
+        bool IsExpired() const { return !GetDuration() && !m_dropEvent; }
         bool IsPermanent() const { return GetMaxDuration() == -1; }
 
         uint8 GetCharges() const { return m_procCharges; }
@@ -140,6 +141,8 @@ class Aura
         uint8 CalcMaxCharges() const { return CalcMaxCharges(GetCaster()); }
         bool ModCharges(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
         bool DropCharge(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) { return ModCharges(-1, removeMode); }
+        void ModChargesDelayed(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        void DropChargeDelayed(uint32 delay, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
         uint8 GetStackAmount() const { return m_stackAmount; }
         void SetStackAmount(uint8 num);
@@ -264,6 +267,8 @@ class Aura
         bool m_isSingleTarget:1;                        // true if it's a single target spell and registered at caster - can change at spell steal for example
         bool m_isUsingCharges:1;
 
+        ChargeDropEvent* m_dropEvent;
+
     private:
         Unit::AuraApplicationList m_removedApplications;
 };
@@ -298,5 +303,17 @@ class DynObjAura : public Aura
         void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) override;
 
         void FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster) override;
+};
+
+class ChargeDropEvent : public BasicEvent
+{
+    friend class Aura;
+    protected:
+        ChargeDropEvent(Aura* base, AuraRemoveMode mode) : _base(base), _mode(mode) { }
+        bool Execute(uint64 /*e_time*/, uint32 /*p_time*/);
+
+    private:
+        Aura* _base;
+        AuraRemoveMode _mode;
 };
 #endif
