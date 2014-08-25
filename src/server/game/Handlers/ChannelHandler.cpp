@@ -112,6 +112,9 @@ void WorldSession::HandleChannelPassword(WorldPacket& recvPacket)
     TC_LOG_DEBUG("chat.system", "CMSG_CHANNEL_PASSWORD %s Channel: %s, Password: %s",
         GetPlayerInfo().c_str(), channelName.c_str(), password.c_str());
 
+    if (password.length() > MAX_CHANNEL_PASS_STR)
+        return;
+
     if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
         if (Channel* channel = cMgr->GetChannel(channelName, GetPlayer()))
             channel->Password(GetPlayer(), password);
