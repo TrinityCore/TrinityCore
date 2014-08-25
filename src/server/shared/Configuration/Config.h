@@ -26,6 +26,8 @@
 
 class ConfigMgr
 {
+// playerbot mod
+public:
     ConfigMgr() { }
     ~ConfigMgr() { }
 
