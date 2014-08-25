@@ -662,7 +662,7 @@ public:
 
     static bool HandleCooldownCommand(ChatHandler* handler, char const* args)
     {
-        Player* target = handler->getSelectedPlayer();
+        Player* target = handler->getSelectedPlayerOrSelf();
         if (!target)
         {
             handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
