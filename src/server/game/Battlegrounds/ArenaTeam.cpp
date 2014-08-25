@@ -242,7 +242,7 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult result)
         newMember.Name             = fields[6].GetString();
         newMember.Class            = fields[7].GetUInt8();
         newMember.PersonalRating   = fields[8].GetUInt16();
-        newMember.MatchMakerRating = fields[9].GetUInt16() > 0 ? fields[9].GetUInt16() : 1500;
+        newMember.MatchMakerRating = fields[9].GetUInt16() > 0 ? fields[9].GetUInt16() : sWorld->getIntConfig(CONFIG_ARENA_START_MATCHMAKER_RATING);
 
         // Delete member if character information is missing
         if (newMember.Name.empty())
