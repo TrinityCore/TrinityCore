@@ -989,7 +989,8 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
                     std::list<Unit*> tempTargets;
                     for (std::list<WorldObject*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
                         if ((*itr)->GetTypeId() == TYPEID_PLAYER && GetCaster()->IsInRaidWith((*itr)->ToUnit()))
-                            tempTargets.push_back((*itr)->ToUnit());
+                            if (!(*itr)->ToPlayer()->GetAuraOfRankedSpell(774, GetCaster()->GetGUID()))
+                                tempTargets.push_back((*itr)->ToUnit());
 
                     if (tempTargets.empty())
                     {
@@ -998,7 +999,8 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
                         return;
                     }
 
-                    Unit* target = Trinity::Containers::SelectRandomContainerElement(tempTargets);
+                    tempTargets.sort(Trinity::HealthPctOrderPred());
+                    WorldObject* target = tempTargets.front();
                     targets.clear();
                     targets.push_back(target);
                 }
