@@ -85,8 +85,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (2824400, 9, 20, 0, 0, 0, 100, 0, 0, 0, 0, 0, 1, 6, 0, 0, 0, 0,0, 19, 28178, 0, 0, 0, 0, 0, 0, 'Eitrigg - Script - Say Line 6 on Avenger Metz'),
 (2824400, 9, 21, 0, 0, 0, 100, 0, 500, 500, 0, 0, 45, 2, 2, 0,0, 0, 0, 10, 112373, 28333, 0, 0, 0, 0, 0, 'Eitrigg - Script - Set Data 2 2 ELM General Purpose Bunny (scale x0.25)');
 
-DELETE FROM `creature_text` WHERE `entry` IN(28176,28175,28177,28178,28244,28284,28780,28479,28514,28515,28516,28517, `BroadcastTextID`);
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+DELETE FROM `creature_text` WHERE `entry` IN(28176,28175,28177,28178,28244,28284,28780,28479,28514,28515,28516,28517);
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`, `BroadcastTextID`) VALUES
 (28479, 0, 0, 'Gods of old, we beseech you. What must we do? How can we save the gods of this land?', 15, 0, 100, 6, 0, 0, 'Witch Doctor Khufu',28431),
 (28514, 0, 0, 'But try they must or all will be lost. The Drakkari will be the death of both themselves and their gods!', 12, 0, 100, 0, 0, 473, 'Nalorakk',28435),
 (28515, 0, 0, 'The spotted one must be sought. Their fates are entwined.', 12, 0, 100, 0, 0, 9919, 'Jan''alai',28432),
