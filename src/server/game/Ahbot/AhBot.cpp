@@ -350,7 +350,7 @@ int AhBot::Answer(int auction, Category* category, ItemBag* inAuctionItems)
             sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "AhBot %d placed bid %d for %s (x%d) in auction %d",
                     bidder, entry->bid, item->GetTemplate()->Name1, item->GetCount(), auctionIds[auction]);
 
-            CharacterDatabase.PExecute("UPDATE auction SET buyguid = '%u',lastbid = '%u' WHERE id = '%u'",
+            CharacterDatabase.PExecute("UPDATE auctionhouse SET buyguid = '%u',lastbid = '%u' WHERE id = '%u'",
                 entry->bidder, entry->bid, entry->Id);
             AddToHistory(entry, AHBOT_WON_BID);
         }
@@ -500,7 +500,11 @@ int AhBot::AddAuction(int auction, Category* category, ItemTemplate const* proto
     }
 
 
-    Item* item = Item::CreateItem(proto->ItemId, 1, sObjectMgr->GetPlayerByLowGUID(owner));
+    Player* player = sObjectMgr->GetPlayerByLowGUID(owner);
+    if (!player)
+        return 0;
+
+    Item* item = Item::CreateItem(proto->ItemId, 1, player);
     if (!item)
         return 0;
 
