@@ -22,7 +22,6 @@
 enum Spells
 {
     SPELL_HATEFUL_STRIKE                        = 41926,
-    H_SPELL_HATEFUL_STRIKE                      = 59192,
     SPELL_FRENZY                                = 28131,
     SPELL_BERSERK                               = 26662,
     SPELL_SLIME_BOLT                            = 32309
@@ -127,7 +126,7 @@ public:
                         if (!pMostHPTarget)
                             pMostHPTarget = me->GetVictim();
 
-                        DoCast(pMostHPTarget, RAID_MODE(SPELL_HATEFUL_STRIKE, H_SPELL_HATEFUL_STRIKE), true);
+                        DoCast(pMostHPTarget, SPELL_HATEFUL_STRIKE, true);
 
                         events.ScheduleEvent(EVENT_HATEFUL, 1000);
                         break;
