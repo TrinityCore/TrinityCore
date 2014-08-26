@@ -52,7 +52,6 @@ enum GrandmasterVorpil
     SPELL_SACRIFICE             = 33587,
     SPELL_SHADOW_NOVA           = 33846,
     SPELL_EMPOWERING_SHADOWS    = 33783,
-    H_SPELL_EMPOWERING_SHADOWS  = 39364,
 
     NPC_VOID_PORTAL             = 19224,
     SPELL_SUMMON_PORTAL         = 33566,
@@ -245,7 +244,7 @@ class npc_voidtraveler : public CreatureScript
 
                     if (_sacrificed)
                     {
-                        DoCastAOE(DUNGEON_MODE(SPELL_EMPOWERING_SHADOWS, H_SPELL_EMPOWERING_SHADOWS), true);
+                        DoCastAOE(SPELL_EMPOWERING_SHADOWS, true);
                         DoCast(me, SPELL_SHADOW_NOVA, true);
                         me->Kill(me);
                         return;

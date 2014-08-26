@@ -50,7 +50,6 @@ enum AzureInvaderSpells
 {
     SPELL_CLEAVE                = 15496,
     SPELL_IMPALE                = 58459,
-    H_SPELL_IMPALE              = 59256,
     SPELL_BRUTAL_STRIKE         = 58460,
     SPELL_SUNDER_ARMOR          = 58461
 };
@@ -58,23 +57,17 @@ enum AzureInvaderSpells
 enum AzureSellbreakerSpells
 {
     SPELL_ARCANE_BLAST          = 58462,
-    H_SPELL_ARCANE_BLAST        = 59257,
     SPELL_SLOW                  = 25603,
     SPELL_CHAINS_OF_ICE         = 58464,
-    SPELL_CONE_OF_COLD          = 58463,
-    H_SPELL_CONE_OF_COLD        = 59258
+    SPELL_CONE_OF_COLD          = 58463
 };
 
 enum AzureBinderSpells
 {
     SPELL_ARCANE_BARRAGE        = 58456,
-    H_SPELL_ARCANE_BARRAGE      = 59248,
     SPELL_ARCANE_EXPLOSION      = 58455,
-    H_SPELL_ARCANE_EXPLOSION    = 59245,
     SPELL_FROST_NOVA            = 58458,
-    H_SPELL_FROST_NOVA          = 59253,
-    SPELL_FROSTBOLT             = 58457,
-    H_SPELL_FROSTBOLT           = 59251,
+    SPELL_FROSTBOLT             = 58457
 };
 
 enum AzureMageSlayerSpells
@@ -92,9 +85,7 @@ enum AzureCaptainSpells
 enum AzureSorcerorSpells
 {
     SPELL_ARCANE_STREAM         = 60181,
-    H_SPELL_ARCANE_STREAM       = 60204,
-    SPELL_MANA_DETONATION       = 60182,
-    H_SPELL_MANA_DETONATION     = 60205
+    SPELL_MANA_DETONATION       = 60182
 };
 
 enum AzureRaiderSpells
@@ -912,7 +903,7 @@ public:
             {
                 if (uiArcaneExplosionTimer <= diff)
                 {
-                    DoCast(DUNGEON_MODE(SPELL_ARCANE_EXPLOSION, H_SPELL_ARCANE_EXPLOSION));
+                    DoCast(SPELL_ARCANE_EXPLOSION);
                     uiArcaneExplosionTimer = 5000;
                 } else uiArcaneExplosionTimer -= diff;
 
@@ -920,7 +911,7 @@ public:
                 {
                         Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     if (target)
-                            DoCast(target, DUNGEON_MODE(SPELL_ARCANE_BARRAGE, H_SPELL_ARCANE_BARRAGE));
+                            DoCast(target, SPELL_ARCANE_BARRAGE);
                     uiArcainBarrageTimer = 6000;
                 } else uiArcainBarrageTimer -= diff;
             }
@@ -929,7 +920,7 @@ public:
             {
                 if (uiFrostNovaTimer <= diff)
                 {
-                    DoCast(DUNGEON_MODE(SPELL_FROST_NOVA, H_SPELL_FROST_NOVA));
+                    DoCast(SPELL_FROST_NOVA);
                     uiFrostNovaTimer = 5000;
                 } else uiFrostNovaTimer -= diff;
 
@@ -937,7 +928,7 @@ public:
                 {
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     if (target)
-                        DoCast(target, DUNGEON_MODE(SPELL_FROSTBOLT, H_SPELL_FROSTBOLT));
+                        DoCast(target, SPELL_FROSTBOLT);
                     uiFrostboltTimer = 6000;
                 } else uiFrostboltTimer -= diff;
             }
@@ -1164,7 +1155,7 @@ public:
                 {
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     if (target)
-                        DoCast(target, DUNGEON_MODE(SPELL_ARCANE_BLAST, H_SPELL_ARCANE_BLAST));
+                        DoCast(target, SPELL_ARCANE_BLAST);
                     uiArcaneBlastTimer = 6000;
                 } else uiArcaneBlastTimer -= diff;
 
@@ -1189,7 +1180,7 @@ public:
 
                 if (uiConeOfColdTimer <= diff)
                 {
-                   DoCast(DUNGEON_MODE(SPELL_CONE_OF_COLD, H_SPELL_CONE_OF_COLD));
+                   DoCast(SPELL_CONE_OF_COLD);
                     uiConeOfColdTimer = 5000;
                 } else uiConeOfColdTimer -= diff;
             }
@@ -1296,14 +1287,14 @@ public:
             {
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                 if (target)
-                    DoCast(target, DUNGEON_MODE(SPELL_ARCANE_STREAM, H_SPELL_ARCANE_STREAM));
+                    DoCast(target, SPELL_ARCANE_STREAM);
                 uiArcaneStreamTimer = urand(0, 5000)+5000;
                 uiArcaneStreamTimerStartingValueHolder = uiArcaneStreamTimer;
             } else uiArcaneStreamTimer -= diff;
 
             if (uiManaDetonationTimer <= diff && uiArcaneStreamTimer >=1500 && uiArcaneStreamTimer <= uiArcaneStreamTimerStartingValueHolder/2)
             {
-                DoCast(DUNGEON_MODE(SPELL_MANA_DETONATION, H_SPELL_MANA_DETONATION));
+                DoCast(SPELL_MANA_DETONATION);
                 uiManaDetonationTimer = urand(2000, 6000);
             } else uiManaDetonationTimer -= diff;
 
