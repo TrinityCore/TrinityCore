@@ -23,10 +23,10 @@ install:
 script:
   - cd ..
   - mysql -uroot < sql/create/create_mysql.sql
-  - mysql -utrinity auth < sql/base/auth_database.sql
-  - mysql -utrinity characters < sql/base/characters_database.sql
-  - mysql -utrinity world < sql/base/dev/world_database.sql
-  - for file in sql/updates/world/*.sql; do mysql -utrinity world < $file; done
+  - mysql -utrinity -ptrinity auth < sql/base/auth_database.sql
+  - mysql -utrinity -ptrinity characters < sql/base/characters_database.sql
+  - mysql -utrinity -ptrinity world < sql/base/dev/world_database.sql
+  - cat sql/updates/world/*.sql | mysql -utrinity -ptrinity world < $file
   - mysql -utrinity < sql/create/drop_mysql.sql
   - cd bin
   - make -j 10
