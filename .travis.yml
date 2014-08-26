@@ -29,4 +29,4 @@ script:
   - for file in sql/updates/world/*.sql; do mysql -uroot world < $file; done
   - mysql -uroot < sql/create/drop_mysql.sql
   - cd bin
-  - make -j 8
+  - make -j 4

@@ -126,7 +126,7 @@ public:
             {
                 float x, y, z, o;
                 me->GetHomePosition(x, y, z, o);
-                me->NearTeleportTo(x, y, z, o - G3D::halfPi());
+                me->NearTeleportTo(x, y, z, o - (float(M_PI) / 2));
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveIdle();
                 me->SetTarget(0);

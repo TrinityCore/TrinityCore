@@ -1023,11 +1023,11 @@ bool Position::operator==(Position const &a)
 
 bool Position::HasInLine(WorldObject const* target, float width) const
 {
-    if (!HasInArc(M_PI, target))
+    if (!HasInArc(float(M_PI), target))
         return false;
     width += target->GetObjectSize();
     float angle = GetRelativeAngle(target);
-    return fabs(sin(angle)) * GetExactDist2d(target->GetPositionX(), target->GetPositionY()) < width;
+    return std::fabs(std::sin(angle)) * GetExactDist2d(target->GetPositionX(), target->GetPositionY()) < width;
 }
 
 std::string Position::ToString() const
@@ -1207,7 +1207,7 @@ InstanceScript* WorldObject::GetInstanceScript()
 
 float WorldObject::GetDistanceZ(const WorldObject* obj) const
 {
-    float dz = fabs(GetPositionZ() - obj->GetPositionZ());
+    float dz = std::fabs(GetPositionZ() - obj->GetPositionZ());
     float sizefactor = GetObjectSize() + obj->GetObjectSize();
     float dist = dz - sizefactor;
     return (dist > 0 ? dist : 0);
@@ -1430,7 +1430,7 @@ bool WorldObject::IsInRange3d(float x, float y, float z, float minRange, float m
 
 void Position::RelocateOffset(const Position & offset)
 {
-    m_positionX = GetPositionX() + (offset.GetPositionX() * std::cos(GetOrientation()) + offset.GetPositionY() * std::sin(GetOrientation() + M_PI));
+    m_positionX = GetPositionX() + (offset.GetPositionX() * std::cos(GetOrientation()) + offset.GetPositionY() * std::sin(GetOrientation() + float(M_PI)));
     m_positionY = GetPositionY() + (offset.GetPositionY() * std::cos(GetOrientation()) + offset.GetPositionX() * std::sin(GetOrientation()));
     m_positionZ = GetPositionZ() + offset.GetPositionZ();
     SetOrientation(GetOrientation() + offset.GetOrientation());
@@ -1461,8 +1461,8 @@ float Position::GetAngle(const float x, const float y) const
     float dx = x - GetPositionX();
     float dy = y - GetPositionY();
 
-    float ang = atan2(dy, dx);
-    ang = (ang >= 0) ? ang : 2 * M_PI + ang;
+    float ang = std::atan2(dy, dx);
+    ang = (ang >= 0) ? ang : 2 * float(M_PI) + ang;
     return ang;
 }
 
@@ -1471,7 +1471,7 @@ void Position::GetSinCos(const float x, const float y, float &vsin, float &vcos)
     float dx = GetPositionX() - x;
     float dy = GetPositionY() - y;
 
-    if (fabs(dx) < 0.001f && fabs(dy) < 0.001f)
+    if (std::fabs(dx) < 0.001f && std::fabs(dy) < 0.001f)
     {
         float angle = (float)rand_norm()*static_cast<float>(2*M_PI);
         vcos = std::cos(angle);
@@ -1479,7 +1479,7 @@ void Position::GetSinCos(const float x, const float y, float &vsin, float &vcos)
     }
     else
     {
-        float dist = sqrt((dx*dx) + (dy*dy));
+        float dist = std::sqrt((dx*dx) + (dy*dy));
         vcos = dx / dist;
         vsin = dy / dist;
     }
@@ -1499,8 +1499,8 @@ bool Position::HasInArc(float arc, const Position* obj, float border) const
 
     // move angle to range -pi ... +pi
     angle = NormalizeOrientation(angle);
-    if (angle > M_PI)
-        angle -= 2.0f*M_PI;
+    if (angle > float(M_PI))
+        angle -= 2.0f * float(M_PI);
 
     float lborder = -1 * (arc/border);                        // in range -pi..0
     float rborder = (arc/border);                             // in range 0..pi
@@ -1534,7 +1534,7 @@ bool WorldObject::isInFront(WorldObject const* target,  float arc) const
 
 bool WorldObject::isInBack(WorldObject const* target, float arc) const
 {
-    return !HasInArc(2 * M_PI - arc, target);
+    return !HasInArc(2 * float(M_PI) - arc, target);
 }
 
 void WorldObject::GetRandomPoint(const Position &pos, float distance, float &rand_x, float &rand_y, float &rand_z) const
@@ -1837,7 +1837,7 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj) const
     if (distance < combatReach)
         return true;
 
-    if (!HasInArc(M_PI, obj))
+    if (!HasInArc(float(M_PI), obj))
         return false;
 
     GameObject const* go = ToGameObject();
@@ -2504,7 +2504,7 @@ void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float 
     float first_z = z;
 
     // loop in a circle to look for a point in LoS using small steps
-    for (float angle = M_PI / 8; angle < M_PI * 2; angle += M_PI / 8)
+    for (float angle = float(M_PI) / 8; angle < float(M_PI) * 2; angle += float(M_PI) / 8)
     {
         GetNearPoint2D(x, y, distance2d + searcher_size, absAngle + angle);
         z = GetPositionZ();
@@ -2574,20 +2574,20 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
 
     ground = GetMap()->GetHeight(GetPhaseMask(), destx, desty, MAX_HEIGHT, true);
     floor = GetMap()->GetHeight(GetPhaseMask(), destx, desty, pos.m_positionZ, true);
-    destz = fabs(ground - pos.m_positionZ) <= fabs(floor - pos.m_positionZ) ? ground : floor;
+    destz = std::fabs(ground - pos.m_positionZ) <= std::fabs(floor - pos.m_positionZ) ? ground : floor;
 
     float step = dist/10.0f;
 
     for (uint8 j = 0; j < 10; ++j)
     {
         // do not allow too big z changes
-        if (fabs(pos.m_positionZ - destz) > 6)
+        if (std::fabs(pos.m_positionZ - destz) > 6)
         {
             destx -= step * std::cos(angle);
             desty -= step * std::sin(angle);
             ground = GetMap()->GetHeight(GetPhaseMask(), destx, desty, MAX_HEIGHT, true);
             floor = GetMap()->GetHeight(GetPhaseMask(), destx, desty, pos.m_positionZ, true);
-            destz = fabs(ground - pos.m_positionZ) <= fabs(floor - pos.m_positionZ) ? ground : floor;
+            destz = std::fabs(ground - pos.m_positionZ) <= std::fabs(floor - pos.m_positionZ) ? ground : floor;
         }
         // we have correct destz now
         else
@@ -2608,7 +2608,7 @@ float NormalizeZforCollision(WorldObject* obj, float x, float y, float z)
 {
     float ground = obj->GetMap()->GetHeight(obj->GetPhaseMask(), x, y, MAX_HEIGHT, true);
     float floor = obj->GetMap()->GetHeight(obj->GetPhaseMask(), x, y, z + 2.0f, true);
-    float helper = fabs(ground - z) <= fabs(floor - z) ? ground : floor;
+    float helper = std::fabs(ground - z) <= std::fabs(floor - z) ? ground : floor;
     if (z > helper) // must be above ground
     {
         if (Unit* unit = obj->ToUnit())
@@ -2623,7 +2623,7 @@ float NormalizeZforCollision(WorldObject* obj, float x, float y, float z)
             if (liquid_status.level > z) // z is underwater
                 return z;
             else
-                return fabs(liquid_status.level - z) <= fabs(helper - z) ? liquid_status.level : helper;
+                return std::fabs(liquid_status.level - z) <= std::fabs(helper - z) ? liquid_status.level : helper;
         }
     }
     return helper;
@@ -2652,7 +2652,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         // move back a bit
         destx -= CONTACT_DISTANCE * std::cos(angle);
         desty -= CONTACT_DISTANCE * std::sin(angle);
-        dist = sqrt((pos.m_positionX - destx)*(pos.m_positionX - destx) + (pos.m_positionY - desty)*(pos.m_positionY - desty));
+        dist = std::sqrt((pos.m_positionX - destx)*(pos.m_positionX - destx) + (pos.m_positionY - desty)*(pos.m_positionY - desty));
     }
 
     // check dynamic collision
@@ -2663,7 +2663,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     {
         destx -= CONTACT_DISTANCE * std::cos(angle);
         desty -= CONTACT_DISTANCE * std::sin(angle);
-        dist = sqrt((pos.m_positionX - destx)*(pos.m_positionX - destx) + (pos.m_positionY - desty)*(pos.m_positionY - desty));
+        dist = std::sqrt((pos.m_positionX - destx)*(pos.m_positionX - destx) + (pos.m_positionY - desty)*(pos.m_positionY - desty));
     }
 
     float step = dist / 10.0f;
@@ -2671,7 +2671,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     for (uint8 j = 0; j < 10; ++j)
     {
         // do not allow too big z changes
-        if (fabs(pos.m_positionZ - destz) > 6.0f)
+        if (std::fabs(pos.m_positionZ - destz) > 6.0f)
         {
             destx -= step * std::cos(angle);
             desty -= step * std::sin(angle);

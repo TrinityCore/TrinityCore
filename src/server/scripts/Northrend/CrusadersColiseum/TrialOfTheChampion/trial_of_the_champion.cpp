@@ -289,13 +289,13 @@ public:
                         switch (i)
                         {
                             case 0:
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, M_PI);
+                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, float(M_PI));
                                 break;
                             case 1:
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, M_PI / 2);
+                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, float(M_PI) / 2);
                                 break;
                             case 2:
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, M_PI / 2 + M_PI);
+                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, float(M_PI) / 2 + float(M_PI));
                                 break;
                         }
                     }

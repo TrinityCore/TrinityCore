@@ -42,7 +42,7 @@ class Socket : public std::enable_shared_from_this<T>
 
 public:
     Socket(tcp::socket&& socket, std::size_t headerSize) : _socket(std::move(socket)), _remoteAddress(_socket.remote_endpoint().address()),
-        _remotePort(_socket.remote_endpoint().port()), _readHeaderBuffer(), _readDataBuffer(), _closed(false)
+        _remotePort(_socket.remote_endpoint().port()), _readHeaderBuffer(), _readDataBuffer(), _closed(false), _closing(false)
     {
         _readHeaderBuffer.Grow(headerSize);
     }
@@ -126,7 +126,7 @@ public:
             std::placeholders::_1, std::placeholders::_2));
     }
 
-    bool IsOpen() const { return !_closed; }
+    bool IsOpen() const { return !_closed && !_closing; }
 
     virtual void CloseSocket()
     {
@@ -140,11 +140,17 @@ public:
                 shutdownError.value(), shutdownError.message().c_str());
     }
 
+    /// Marks the socket for closing after write buffer becomes empty
+    void DelayedCloseSocket() { _closing = true; }
+
     virtual bool IsHeaderReady() const { return _readHeaderBuffer.IsMessageReady(); }
     virtual bool IsDataReady() const { return _readDataBuffer.IsMessageReady(); }
 
     uint8* GetHeaderBuffer() { return _readHeaderBuffer.Data(); }
     uint8* GetDataBuffer() { return _readDataBuffer.Data(); }
+
+    size_t GetHeaderSize() const { return _readHeaderBuffer.GetReadyDataSize(); }
+    size_t GetDataSize() const { return _readDataBuffer.GetReadyDataSize(); }
 
     MessageBuffer&& MoveHeader() { return std::move(_readHeaderBuffer); }
     MessageBuffer&& MoveData() { return std::move(_readDataBuffer); }
@@ -218,6 +224,8 @@ private:
 
             if (!_writeQueue.empty())
                 AsyncWrite(_writeQueue.front());
+            else if (_closing)
+                CloseSocket();
         }
         else
             CloseSocket();
@@ -238,6 +246,7 @@ private:
     MessageBuffer _readDataBuffer;
 
     std::atomic<bool> _closed;
+    std::atomic<bool> _closing;
 };
 
 #endif // __SOCKET_H__

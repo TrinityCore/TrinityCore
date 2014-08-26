@@ -39,10 +39,8 @@ enum Enums
     EMOTE_TO_ANVIL                          = 5,
     EMOTE_SHATTER                           = 6,
 
-    SPELL_HEAT_N                            = 52387,
-    SPELL_HEAT_H                            = 59528,
-    SPELL_SHATTERING_STOMP_N                = 52237,
-    SPELL_SHATTERING_STOMP_H                = 59529,
+    SPELL_HEAT                              = 52387,
+    SPELL_SHATTERING_STOMP                  = 52237,
 
     SPELL_TEMPER                            = 52238,
     SPELL_TEMPER_DUMMY                      = 52654,
@@ -51,10 +49,8 @@ enum Enums
 
     // Molten Golem
     SPELL_BLAST_WAVE                        = 23113,
-    SPELL_IMMOLATION_STRIKE_N               = 52433,
-    SPELL_IMMOLATION_STRIKE_H               = 59530,
-    SPELL_SHATTER_N                         = 52429,
-    SPELL_SHATTER_H                         = 59527,
+    SPELL_IMMOLATION_STRIKE                 = 52433,
+    SPELL_SHATTER                           = 52429,
 
     NPC_VOLKHAN_ANVIL                       = 28823,
     NPC_MOLTEN_GOLEM                        = 28695,
@@ -184,7 +180,7 @@ public:
                     // Only shatter brittle golems
                     if (temp->IsAlive() && temp->GetEntry() == NPC_BRITTLE_GOLEM)
                     {
-                        temp->CastSpell(temp, DUNGEON_MODE(SPELL_SHATTER_N, SPELL_SHATTER_H), false);
+                        temp->CastSpell(temp, SPELL_SHATTER, false);
                         GolemsShattered += 1;
                     }
                 }
@@ -201,7 +197,7 @@ public:
                     summoned->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
 
                 // Why healing when just summoned?
-                summoned->CastSpell(summoned, DUNGEON_MODE(SPELL_HEAT_N, SPELL_HEAT_H), false, NULL, NULL, me->GetGUID());
+                summoned->CastSpell(summoned, SPELL_HEAT, false, NULL, NULL, me->GetGUID());
             }
         }
 
@@ -253,7 +249,7 @@ public:
                     // Should he stomp even if he has no brittle golem to shatter?
                     Talk(SAY_STOMP);
 
-                    DoCast(me, SPELL_SHATTERING_STOMP_N);
+                    DoCast(me, SPELL_SHATTERING_STOMP);
 
                     Talk(EMOTE_SHATTER);
 
@@ -418,7 +414,7 @@ public:
         void SpellHit(Unit* /*pCaster*/, const SpellInfo* pSpell) override
         {
             // This is the dummy effect of the spells
-            if (pSpell->Id == SPELL_SHATTER_N || pSpell->Id == SPELL_SHATTER_H)
+            if (pSpell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SHATTER, me))
                 if (me->GetEntry() == NPC_BRITTLE_GOLEM)
                     me->DespawnOrUnsummon();
         }
@@ -439,7 +435,7 @@ public:
 
             if (m_uiImmolation_Timer <= uiDiff)
             {
-                DoCastVictim(SPELL_IMMOLATION_STRIKE_N);
+                DoCastVictim(SPELL_IMMOLATION_STRIKE);
                 m_uiImmolation_Timer = 5000;
             }
             else

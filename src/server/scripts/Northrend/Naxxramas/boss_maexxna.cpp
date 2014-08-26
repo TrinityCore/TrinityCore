@@ -23,14 +23,10 @@
 enum Spells
 {
     SPELL_WEB_WRAP              = 28622,
-    SPELL_WEB_SPRAY_10          = 29484,
-    SPELL_WEB_SPRAY_25          = 54125,
-    SPELL_POISON_SHOCK_10       = 28741,
-    SPELL_POISON_SHOCK_25       = 54122,
-    SPELL_NECROTIC_POISON_10    = 28776,
-    SPELL_NECROTIC_POISON_25    = 54121,
-    SPELL_FRENZY_10             = 54123,
-    SPELL_FRENZY_25             = 54124,
+    SPELL_WEB_SPRAY             = 29484,
+    SPELL_POISON_SHOCK          = 28741,
+    SPELL_NECROTIC_POISON       = 28776,
+    SPELL_FRENZY                = 54123
 };
 
 enum Creatures
@@ -108,7 +104,7 @@ public:
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, -SPELL_WEB_WRAP))
                             {
-                                target->RemoveAura(RAID_MODE(SPELL_WEB_SPRAY_10, SPELL_WEB_SPRAY_25));
+                                target->RemoveAura(sSpellMgr->GetSpellIdForDifficulty(SPELL_WEB_SPRAY, me));
                                 uint8 pos = rand32() % MAX_POS_WRAP;
                                 target->GetMotionMaster()->MoveJump(PosWrap[pos].GetPositionX(), PosWrap[pos].GetPositionY(), PosWrap[pos].GetPositionZ(), 20, 20);
                                 if (Creature* wrap = DoSummon(NPC_WEB_WRAP, PosWrap[pos], 0, TEMPSUMMON_CORPSE_DESPAWN))
@@ -118,19 +114,19 @@ public:
                         events.ScheduleEvent(EVENT_WRAP, 40000);
                         break;
                     case EVENT_SPRAY:
-                        DoCastAOE(RAID_MODE(SPELL_WEB_SPRAY_10, SPELL_WEB_SPRAY_25));
+                        DoCastAOE(SPELL_WEB_SPRAY);
                         events.ScheduleEvent(EVENT_SPRAY, 40000);
                         break;
                     case EVENT_SHOCK:
-                        DoCastAOE(RAID_MODE(SPELL_POISON_SHOCK_10, SPELL_POISON_SHOCK_25));
+                        DoCastAOE(SPELL_POISON_SHOCK);
                         events.ScheduleEvent(EVENT_SHOCK, urand(10000, 20000));
                         break;
                     case EVENT_POISON:
-                        DoCastVictim(RAID_MODE(SPELL_NECROTIC_POISON_10, SPELL_NECROTIC_POISON_25));
+                        DoCastVictim(SPELL_NECROTIC_POISON);
                         events.ScheduleEvent(EVENT_POISON, urand(10000, 20000));
                         break;
                     case EVENT_FRENZY:
-                        DoCast(me, RAID_MODE(SPELL_FRENZY_10, SPELL_FRENZY_25), true);
+                        DoCast(me, SPELL_FRENZY, true);
                         events.ScheduleEvent(EVENT_FRENZY, 600000);
                         break;
                     case EVENT_SUMMON:

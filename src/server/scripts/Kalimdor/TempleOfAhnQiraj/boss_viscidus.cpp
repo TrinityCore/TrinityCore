@@ -120,7 +120,7 @@ class boss_viscidus : public CreatureScript
                     uint8 NumGlobes = me->GetHealthPct() / 5.0f;
                     for (uint8 i = 0; i < NumGlobes; ++i)
                     {
-                        float Angle = i * 2 * M_PI / NumGlobes;
+                        float Angle = i * 2 * float(M_PI) / NumGlobes;
                         float X = ViscidusCoord.GetPositionX() + std::cos(Angle) * RoomRadius;
                         float Y = ViscidusCoord.GetPositionY() + std::sin(Angle) * RoomRadius;
                         float Z = -35.0f;

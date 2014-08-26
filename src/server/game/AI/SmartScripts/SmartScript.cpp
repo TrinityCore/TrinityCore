@@ -477,7 +477,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                 if (IsPlayer(*itr))
                 {
-                    (*itr)->ToPlayer()->AreaExploredOrEventHappens(e.action.quest.quest);
+                    (*itr)->ToPlayer()->GroupEventHappens(e.action.quest.quest, me);
+
                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS: Player guidLow %u credited quest %u",
                         (*itr)->GetGUIDLow(), e.action.quest.quest);
                 }
@@ -1612,7 +1613,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             float attackDistance = float(e.action.setRangedMovement.distance);
-            float attackAngle = float(e.action.setRangedMovement.angle) / 180.0f * M_PI;
+            float attackAngle = float(e.action.setRangedMovement.angle) / 180.0f * float(M_PI);
 
             ObjectList* targets = GetTargets(e, unit);
             if (targets)
@@ -3213,7 +3214,7 @@ void SmartScript::InitTimer(SmartScriptHolder& e)
 void SmartScript::RecalcTimer(SmartScriptHolder& e, uint32 min, uint32 max)
 {
     // min/max was checked at loading!
-    e.timer = urand(uint32(min), uint32(max));
+    e.timer = urand(min, max);
     e.active = e.timer ? false : true;
 }
 
