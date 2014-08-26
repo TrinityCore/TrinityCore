@@ -465,7 +465,7 @@ class npc_swarm_scarab : public CreatureScript
 
             void JustDied(Unit* killer) override
             {
-                DoCast(killer, RAID_MODE(SPELL_TRAITOR_KING_10, SPELL_TRAITOR_KING_25));
+                DoCast(killer, SPELL_TRAITOR_KING);
             }
 
             void UpdateAI(uint32 diff) override

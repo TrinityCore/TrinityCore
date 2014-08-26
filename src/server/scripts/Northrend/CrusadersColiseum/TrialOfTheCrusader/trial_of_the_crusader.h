@@ -293,8 +293,7 @@ enum AchievementData
     SPELL_WORMS_KILLED_IN_10_SECONDS        = 68523,
     SPELL_CHAMPIONS_KILLED_IN_MINUTE        = 68620,
     SPELL_DEFEAT_FACTION_CHAMPIONS          = 68184,
-    SPELL_TRAITOR_KING_10                   = 68186,
-    SPELL_TRAITOR_KING_25                   = 68515,
+    SPELL_TRAITOR_KING                      = 68186,
 
     // Timed events
     EVENT_START_TWINS_FIGHT                 = 21853

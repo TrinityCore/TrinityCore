@@ -36,17 +36,14 @@
 enum Spells
 {
     SPELL_TYMPANIC_TANTRUM                      = 62776,
-    SPELL_SEARING_LIGHT_10                      = 63018,
-    SPELL_SEARING_LIGHT_25                      = 65121,
+    SPELL_SEARING_LIGHT                         = 63018,
 
     SPELL_SUMMON_LIFE_SPARK                     = 64210,
     SPELL_SUMMON_VOID_ZONE                      = 64203,
 
-    SPELL_GRAVITY_BOMB_10                       = 63024,
-    SPELL_GRAVITY_BOMB_25                       = 64234,
+    SPELL_GRAVITY_BOMB                          = 63024,
 
-    SPELL_HEARTBREAK_10                         = 65737,
-    SPELL_HEARTBREAK_25                         = 64193,
+    SPELL_HEARTBREAK                            = 65737,
 
     // Cast by 33337 at Heartbreak:
     SPELL_RECHARGE_PUMMELER                     = 62831,    // Summons 33344
@@ -66,12 +63,10 @@ enum Spells
     SPELL_SUBMERGE                              = 37751,
 
     //------------------VOID ZONE--------------------
-    SPELL_VOID_ZONE_10                          = 64203,
-    SPELL_VOID_ZONE_25                          = 64235,
+    SPELL_VOID_ZONE                             = 64203,
 
     // Life Spark
-    SPELL_STATIC_CHARGED_10                     = 64227,
-    SPELL_STATIC_CHARGED_25                     = 64236,
+    SPELL_STATIC_CHARGED                        = 64227,
     SPELL_SHOCK                                 = 64230,
 
     //----------------XT-002 HEART-------------------
@@ -279,13 +274,13 @@ class boss_xt002 : public CreatureScript
                     {
                         case EVENT_SEARING_LIGHT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, RAID_MODE(SPELL_SEARING_LIGHT_10, SPELL_SEARING_LIGHT_25));
+                                DoCast(target, SPELL_SEARING_LIGHT);
 
                             events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT);
                             break;
                         case EVENT_GRAVITY_BOMB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, RAID_MODE(SPELL_GRAVITY_BOMB_10, SPELL_GRAVITY_BOMB_25));
+                                DoCast(target, SPELL_GRAVITY_BOMB);
 
                             events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB);
                             break;
@@ -304,7 +299,7 @@ class boss_xt002 : public CreatureScript
                             break;
                         case EVENT_ENTER_HARD_MODE:
                             me->SetFullHealth();
-                            DoCast(me, RAID_MODE(SPELL_HEARTBREAK_10, SPELL_HEARTBREAK_25), true);
+                            DoCast(me, SPELL_HEARTBREAK, true);
                             me->AddLootMode(LOOT_MODE_HARD_MODE_1);
                             _hardMode = true;
                             SetPhaseOne();
@@ -735,7 +730,7 @@ class npc_life_spark : public CreatureScript
 
             void Reset() override
             {
-                DoCast(me, RAID_MODE(SPELL_STATIC_CHARGED_10, SPELL_STATIC_CHARGED_25));
+                DoCast(me, SPELL_STATIC_CHARGED);
                 _shockTimer = 0; // first one is immediate.
             }
 

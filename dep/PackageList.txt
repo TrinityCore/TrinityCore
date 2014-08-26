@@ -15,10 +15,6 @@ G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
 jemalloc (a general-purpose scalable concurrent malloc-implementation)
   http://www.canonware.com/jemalloc/
   Version: 3.6.0
-  
-MySQL (the world's most popular open source database software)
-  http://www.mysql.com/
-  Version: 5.5.9 (GA)
 
 SFMT (SIMD-oriented Fast Mersenne Twister)
   Based on http://agner.org/random/

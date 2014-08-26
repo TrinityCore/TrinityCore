@@ -54,8 +54,7 @@ enum AssemblySpells
     SPELL_CHAIN_LIGHTNING                        = 61879,
     SPELL_OVERLOAD                               = 61869,
     SPELL_LIGHTNING_WHIRL                        = 61915,
-    SPELL_LIGHTNING_TENDRILS_10M                 = 61887,
-    SPELL_LIGHTNING_TENDRILS_25M                 = 63486,
+    SPELL_LIGHTNING_TENDRILS                     = 61887,
     SPELL_LIGHTNING_TENDRILS_VISUAL              = 61883,
     SPELL_STORMSHIELD                            = 64187
 };
@@ -561,8 +560,8 @@ class boss_stormcaller_brundir : public CreatureScript
                             break;
                         case EVENT_LIGHTNING_TENDRILS:
                             Talk(SAY_BRUNDIR_FLIGHT);
-                            DoCast(RAID_MODE(SPELL_LIGHTNING_TENDRILS_10M, SPELL_LIGHTNING_TENDRILS_25M));
-                            DoCast(SPELL_LIGHTNING_TENDRILS_VISUAL);
+                            DoCast(me, SPELL_LIGHTNING_TENDRILS);
+                            DoCast(me, SPELL_LIGHTNING_TENDRILS_VISUAL);
                             me->AttackStop();
                             //me->SetLevitate(true);
                             me->GetMotionMaster()->Initialize();
@@ -592,7 +591,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             break;
                         case EVENT_GROUND:
                             //me->SetLevitate(false);
-                            me->RemoveAurasDueToSpell(RAID_MODE(SPELL_LIGHTNING_TENDRILS_10M, SPELL_LIGHTNING_TENDRILS_25M));
+                            me->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_LIGHTNING_TENDRILS, me));
                             me->RemoveAurasDueToSpell(SPELL_LIGHTNING_TENDRILS_VISUAL);
                             DoStartMovement(me->GetVictim());
                             events.CancelEvent(EVENT_GROUND);

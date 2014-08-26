@@ -113,7 +113,7 @@ class ChatHandler
         GameTele const* extractGameTeleFromLink(char* text);
         bool GetPlayerGroupAndGUIDByName(const char* cname, Player* &player, Group* &group, uint64 &guid, bool offline = false);
         std::string extractPlayerNameFromLink(char* text);
-        // select by arg (name/link) or in-game selection online/offline player
+        // select by arg (name/link) or in-game selection online/offline player or self if a creature is selected
         bool extractPlayerTarget(char* args, Player** player, uint64* player_guid = NULL, std::string* player_name = NULL);
 
         std::string playerLink(std::string const& name) const { return m_session ? "|cffffffff|Hplayer:"+name+"|h["+name+"]|h|r" : name; }

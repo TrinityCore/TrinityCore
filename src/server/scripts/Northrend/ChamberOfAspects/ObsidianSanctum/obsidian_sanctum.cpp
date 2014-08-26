@@ -29,10 +29,7 @@ enum Enums
     SPELL_TWILIGHT_RESIDUE                      = 61885,    // makes immune to shadow damage, applied when leave phase
 
     //Miniboses (Vesperon, Shadron, Tenebron)
-    SPELL_SHADOW_BREATH_H                       = 59126,    // Inflicts 8788 to 10212 Fire damage to enemies in a cone in front of the caster.
     SPELL_SHADOW_BREATH                         = 57570,    // Inflicts 6938 to 8062 Fire damage to enemies in a cone in front of the caster.
-
-    SPELL_SHADOW_FISSURE_H                      = 59127,    // Deals 9488 to 13512 Shadow damage to any enemy within the Shadow fissure after 5 sec.
     SPELL_SHADOW_FISSURE                        = 57579,    // Deals 6188 to 8812 Shadow damage to any enemy within the Shadow fissure after 5 sec.
 
     //Vesperon
@@ -49,7 +46,6 @@ enum Enums
     SPELL_GIFT_OF_TWILIGTH_SHA                  = 57835,    // TARGET_SCRIPT shadron
     SPELL_GIFT_OF_TWILIGTH_SAR                  = 58766,    // TARGET_SCRIPT sartharion
     SPELL_VOID_BLAST                            = 57581,    // Twilight Fissure
-    SPELL_VOID_BLAST_H                          = 59128,
 
     //Tenebron
     //in the portal spawns 6 eggs, if not killed in time (approx. 20s)  they will hatch,  whelps can cast 60708
@@ -382,12 +378,12 @@ struct dummy_dragonAI : public ScriptedAI
         {
             case EVENT_SHADOW_FISSURE:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                    DoCast(target, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE));
+                    DoCast(target, SPELL_SHADOW_FISSURE);
                 events.ScheduleEvent(eventId, urand(15000, 20000));
                 break;
             case EVENT_SHADOW_BREATH:
                 Talk(SAY_BREATH);
-                DoCastVictim(RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
+                DoCastVictim(SPELL_SHADOW_BREATH);
                 events.ScheduleEvent(eventId, urand(20000, 25000));
                 break;
             default:
@@ -949,7 +945,7 @@ public:
 
             if (events.ExecuteEvent() == EVENT_VOID_BLAST)
             {
-                DoCastAOE(RAID_MODE(SPELL_VOID_BLAST, SPELL_VOID_BLAST_H));
+                DoCastAOE(SPELL_VOID_BLAST);
                 ////twilight realm
                 //DoCastVictim(57620, true);
                 //DoCastVictim(57874, true);
