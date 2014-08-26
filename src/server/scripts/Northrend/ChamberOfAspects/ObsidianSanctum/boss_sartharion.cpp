@@ -41,9 +41,7 @@ enum Enums
     SPELL_BERSERK                               = 61632,    // Increases the caster's attack speed by 150% and all damage it deals by 500% for 5 min.
     SPELL_CLEAVE                                = 56909,    // Inflicts 35% weapon damage to an enemy and its nearest allies, affecting up to 10 targets.
     SPELL_FLAME_BREATH                          = 56908,    // Inflicts 8750 to 11250 Fire damage to enemies in a cone in front of the caster.
-    SPELL_FLAME_BREATH_H                        = 58956,    // Inflicts 10938 to 14062 Fire damage to enemies in a cone in front of the caster.
     SPELL_TAIL_LASH                             = 56910,    // A sweeping tail strike hits all enemies behind the caster, inflicting 3063 to 3937 damage and stunning them for 2 sec.
-    SPELL_TAIL_LASH_H                           = 58957,    // A sweeping tail strike hits all enemies behind the caster, inflicting 4375 to 5625 damage and stunning them for 2 sec.
     SPELL_WILL_OF_SARTHARION                    = 61254,    // Sartharion's presence bolsters the resolve of the Twilight Drakes, increasing their total health by 25%. This effect also increases Sartharion's health by 25%.
     SPELL_LAVA_STRIKE                           = 57571,    // (Real spell cast should be 57578) 57571 then trigger visual missile, then summon Lava Blaze on impact(spell 57572)
     SPELL_TWILIGHT_REVENGE                      = 60639,
@@ -443,11 +441,11 @@ public:
                         break;
                     case EVENT_FLAME_BREATH:
                         Talk(SAY_SARTHARION_BREATH);
-                        DoCastVictim(RAID_MODE(SPELL_FLAME_BREATH, SPELL_FLAME_BREATH_H));
+                        DoCastVictim(SPELL_FLAME_BREATH);
                         events.ScheduleEvent(EVENT_FLAME_BREATH, urand(25000, 35000));
                         break;
                     case EVENT_TAIL_SWEEP:
-                        DoCastVictim(RAID_MODE(SPELL_TAIL_LASH, SPELL_TAIL_LASH_H));
+                        DoCastVictim(SPELL_TAIL_LASH);
                         events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(15000, 20000));
                         break;
                     case EVENT_CLEAVE_ATTACK:

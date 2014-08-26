@@ -43,9 +43,7 @@ enum Says
 enum Spells
 {
     SPELL_FIREBALL                = 34653,
-    SPELL_FIREBALL_H              = 36920,
     SPELL_CONE_OF_FIRE            = 30926,
-    SPELL_CONE_OF_FIRE_H          = 36921,
     SPELL_SUMMON_LIQUID_FIRE      = 23971,
     SPELL_SUMMON_LIQUID_FIRE_H    = 30928,
     SPELL_BELLOWING_ROAR          = 39427,
@@ -116,7 +114,7 @@ class boss_nazan : public CreatureScript
                 if (Fireball_Timer <= diff)
                 {
                     if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(victim, DUNGEON_MODE(SPELL_FIREBALL, SPELL_FIREBALL_H), true);
+                        DoCast(victim, SPELL_FIREBALL, true);
                     Fireball_Timer = urand(4000, 7000);
                 }
                 else
@@ -156,7 +154,7 @@ class boss_nazan : public CreatureScript
                 {
                     if (ConeOfFire_Timer <= diff)
                     {
-                        DoCast(me, DUNGEON_MODE(SPELL_CONE_OF_FIRE, SPELL_CONE_OF_FIRE_H));
+                        DoCast(me, SPELL_CONE_OF_FIRE);
                         ConeOfFire_Timer = 12000;
                         Fireball_Timer = 4000;
                     }
