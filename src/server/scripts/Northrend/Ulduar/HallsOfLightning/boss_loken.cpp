@@ -45,11 +45,9 @@ enum Yells
 enum Spells
 {
     SPELL_ARC_LIGHTNING                           = 52921,
-    SPELL_LIGHTNING_NOVA_N                        = 52960,
-    SPELL_LIGHTNING_NOVA_H                        = 59835,
+    SPELL_LIGHTNING_NOVA                          = 52960,
 
-    SPELL_PULSING_SHOCKWAVE_N                     = 52961,
-    SPELL_PULSING_SHOCKWAVE_H                     = 59836,
+    SPELL_PULSING_SHOCKWAVE                       = 52961,
     SPELL_PULSING_SHOCKWAVE_AURA                  = 59414
 };
 
@@ -134,7 +132,7 @@ public:
                     DoCast(me, SPELL_PULSING_SHOCKWAVE_AURA, true);
                     me->ClearUnitState(UNIT_STATE_CASTING); // this flag breaks movement
 
-                    DoCast(me, SPELL_PULSING_SHOCKWAVE_N, true);
+                    DoCast(me, SPELL_PULSING_SHOCKWAVE, true);
                     m_uiResumePulsingShockwave_Timer = 0;
                 }
                 else
@@ -155,9 +153,9 @@ public:
             {
                 Talk(SAY_NOVA);
                 Talk(EMOTE_NOVA);
-                DoCast(me, SPELL_LIGHTNING_NOVA_N);
+                DoCast(me, SPELL_LIGHTNING_NOVA);
 
-                me->RemoveAurasDueToSpell(DUNGEON_MODE<uint32>(SPELL_PULSING_SHOCKWAVE_N, SPELL_PULSING_SHOCKWAVE_H));
+                me->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_PULSING_SHOCKWAVE, me));
                 m_uiResumePulsingShockwave_Timer = DUNGEON_MODE(5000, 4000); // Pause Pulsing Shockwave aura
                 m_uiLightningNova_Timer = urand(20000, 21000);
             }

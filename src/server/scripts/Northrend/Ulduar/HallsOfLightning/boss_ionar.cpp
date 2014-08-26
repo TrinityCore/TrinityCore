@@ -28,17 +28,14 @@
 enum Spells
 {
     SPELL_BALL_LIGHTNING                          = 52780,
-    H_SPELL_BALL_LIGHTNING                        = 59800,
     SPELL_STATIC_OVERLOAD                         = 52658,
-    H_SPELL_STATIC_OVERLOAD                       = 59795,
 
     SPELL_DISPERSE                                = 52770,
     SPELL_SUMMON_SPARK                            = 52746,
     SPELL_SPARK_DESPAWN                           = 52776,
 
-    //Spark of Ionar
-    SPELL_SPARK_VISUAL_TRIGGER                    = 52667,
-    H_SPELL_SPARK_VISUAL_TRIGGER                  = 59833
+    // Spark of Ionar
+    SPELL_SPARK_VISUAL_TRIGGER                    = 52667
 };
 
 enum Yells
@@ -193,7 +190,7 @@ public:
             {
                 lSparkList.Summon(summoned);
 
-                summoned->CastSpell(summoned, DUNGEON_MODE(SPELL_SPARK_VISUAL_TRIGGER, H_SPELL_SPARK_VISUAL_TRIGGER), true);
+                summoned->CastSpell(summoned, SPELL_SPARK_VISUAL_TRIGGER, true);
 
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {

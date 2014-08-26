@@ -40,7 +40,6 @@ enum Spells
     WAR_STOMP          = 34716,
     SUMMON_TREANTS     = 34727, // DBC: 34727, 34731, 34733, 34734, 34736, 34739, 34741 (with Ancestral Life spell 34742)   // won't work (guardian summon)
     ARCANE_VOLLEY      = 36705,
-    ARCANE_VOLLEY_H    = 39133,
     SPELL_HEAL_FATHER  = 6262
 };
 
@@ -208,7 +207,7 @@ class boss_warp_splinter : public CreatureScript
                 //Check for Arcane Volley
                 if (Arcane_Volley_Timer <= diff)
                 {
-                    DoCastVictim(DUNGEON_MODE(ARCANE_VOLLEY, ARCANE_VOLLEY_H));
+                    DoCastVictim(ARCANE_VOLLEY);
                     Arcane_Volley_Timer = urand(20000, 35000);
                 }
                 else
