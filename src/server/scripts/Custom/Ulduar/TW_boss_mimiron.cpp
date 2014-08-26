@@ -2068,6 +2068,7 @@ class TW_npc_frost_bomb : public CreatureScript
                 {
                     DoCast(me, RAID_MODE(SPELL_FROST_BOMB_EXPLOSION_10, SPELL_FROST_BOMB_EXPLOSION_25), true);
                     _frostTimer = 10000;
+                    me->DisappearAndDie();
                 }
                 else _frostTimer -= diff;
             }
