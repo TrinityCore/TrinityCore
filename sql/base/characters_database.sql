@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.6.9-rc, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 5.5.38, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: characters
 -- ------------------------------------------------------
--- Server version	5.6.9-rc
+-- Server version	5.5.38-0ubuntu0.14.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -2379,6 +2379,55 @@ LOCK TABLES `pool_quest_save` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `pvpstats_faction`
+--
+
+DROP TABLE IF EXISTS `pvpstats_faction`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pvpstats_faction` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `faction` bit(1) NOT NULL,
+  `level` tinyint(3) unsigned NOT NULL,
+  `date` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `pvpstats_faction`
+--
+
+LOCK TABLES `pvpstats_faction` WRITE;
+/*!40000 ALTER TABLE `pvpstats_faction` DISABLE KEYS */;
+/*!40000 ALTER TABLE `pvpstats_faction` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `pvpstats_players`
+--
+
+DROP TABLE IF EXISTS `pvpstats_players`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pvpstats_players` (
+  `character_guid` int(10) unsigned NOT NULL,
+  `level` tinyint(3) unsigned NOT NULL,
+  `date` datetime NOT NULL,
+  PRIMARY KEY (`character_guid`,`date`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `pvpstats_players`
+--
+
+LOCK TABLES `pvpstats_players` WRITE;
+/*!40000 ALTER TABLE `pvpstats_players` DISABLE KEYS */;
+/*!40000 ALTER TABLE `pvpstats_players` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `reserved_name`
 --
 
@@ -2457,4 +2506,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-01-26 14:39:20
+-- Dump completed on 2014-08-26 19:52:03

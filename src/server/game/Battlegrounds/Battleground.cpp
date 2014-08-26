@@ -713,6 +713,7 @@ void Battleground::EndBattleground(uint32 winner)
     int32 winmsg_id = 0;
 
     int32 level = GetMaxLevel() / 10;
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_FACTION);
 
     if (winner == ALLIANCE)
     {
@@ -723,7 +724,11 @@ void Battleground::EndBattleground(uint32 winner)
         SetWinner(BG_TEAM_ALLIANCE);
 
         if (isBattleground())
-            CharacterDatabase.PQuery("INSERT INTO pvpstats_faction (faction, level, date) VALUES (0, %d, NOW());", level);
+        {
+            stmt->setBool(0, 0);
+            stmt->setUInt8(1, level);
+            CharacterDatabase.Execute(stmt);
+        }
     }
     else if (winner == HORDE)
     {
@@ -734,7 +739,11 @@ void Battleground::EndBattleground(uint32 winner)
         SetWinner(BG_TEAM_HORDE);
 
         if (isBattleground())
-            CharacterDatabase.PQuery("INSERT INTO pvpstats_faction (faction, level, date) VALUES (1, %d, NOW());", level);
+        {
+            stmt->setBool(0, 1);
+            stmt->setUInt8(1, level);
+            CharacterDatabase.Execute(stmt);
+        }
     }
     else
     {
@@ -793,7 +802,12 @@ void Battleground::EndBattleground(uint32 winner)
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
 
             if (isBattleground())
-                CharacterDatabase.PQuery("INSERT INTO pvpstats_players (character_guid, level, date) VALUES (%d, %d, NOW());", player->GetGUID(), level);
+            {
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_PLAYER);
+                stmt->setUInt32(0, player->GetGUIDLow());
+                stmt->setUInt8(1, level);
+                CharacterDatabase.Execute(stmt);
+            }
         }
         else
         {
