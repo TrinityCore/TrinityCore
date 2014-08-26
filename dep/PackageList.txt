@@ -20,10 +20,6 @@ libMPQ (a library for reading MPQ files)
   https://libmpq.org/
   Version: 1.0.4
 
-MySQL (the world's most popular open source database software)
-  http://www.mysql.com/
-  Version: 5.5.9 (GA)
-
 SFMT (SIMD-oriented Fast Mersenne Twister)
   Based on http://agner.org/random/
   Version: 2010-Aug-03
