@@ -27,6 +27,6 @@ script:
   - mysql -utrinity -ptrinity characters < sql/base/characters_database.sql
   - mysql -utrinity -ptrinity world < sql/base/dev/world_database.sql
   - cat sql/updates/world/*.sql | mysql -utrinity -ptrinity world
-  - mysql -utrinity < sql/create/drop_mysql.sql
+  - mysql -uroot < sql/create/drop_mysql.sql
   - cd bin
   - make -j 10
