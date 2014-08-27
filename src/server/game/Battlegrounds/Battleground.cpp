@@ -712,6 +712,9 @@ void Battleground::EndBattleground(uint32 winner)
 
     int32 winmsg_id = 0;
 
+    int32 level = GetMaxLevel() / 10;
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_FACTION);
+
     if (winner == ALLIANCE)
     {
         winmsg_id = isBattleground() ? LANG_BG_A_WINS : LANG_ARENA_GOLD_WINS;
@@ -719,6 +722,13 @@ void Battleground::EndBattleground(uint32 winner)
         PlaySoundToAll(SOUND_ALLIANCE_WINS);                // alliance wins sound
 
         SetWinner(BG_TEAM_ALLIANCE);
+
+        if (isBattleground())
+        {
+            stmt->setBool(0, 0);
+            stmt->setUInt8(1, level);
+            CharacterDatabase.Execute(stmt);
+        }
     }
     else if (winner == HORDE)
     {
@@ -727,6 +737,13 @@ void Battleground::EndBattleground(uint32 winner)
         PlaySoundToAll(SOUND_HORDE_WINS);                   // horde wins sound
 
         SetWinner(BG_TEAM_HORDE);
+
+        if (isBattleground())
+        {
+            stmt->setBool(0, 1);
+            stmt->setUInt8(1, level);
+            CharacterDatabase.Execute(stmt);
+        }
     }
     else
     {
@@ -783,6 +800,14 @@ void Battleground::EndBattleground(uint32 winner)
             }
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
+
+            if (isBattleground())
+            {
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_PLAYER);
+                stmt->setUInt32(0, player->GetGUIDLow());
+                stmt->setUInt8(1, level);
+                CharacterDatabase.Execute(stmt);
+            }
         }
         else
         {
