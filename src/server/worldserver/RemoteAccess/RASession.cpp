@@ -31,12 +31,12 @@ using boost::asio::ip::tcp;
 
 void RASession::Start()
 {
-    boost::asio::socket_base::bytes_readable command(true);
-    _socket.io_control(command);
-    std::size_t bytes_readable = command.get();
+    // wait 1 second for active connections to send negotiation request
+    for (int counter = 0; counter < 10 && _socket.available() == 0; counter++)
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     // Check if there are bytes available, if they are, then the client is requesting the negotiation
-    if (bytes_readable > 0)
+    if (_socket.available() > 0)
     {
         // Handle subnegotiation
         boost::array<char, 1024> buf;
