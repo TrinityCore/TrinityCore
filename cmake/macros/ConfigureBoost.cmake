@@ -20,7 +20,7 @@ if(WIN32)
   set(Boost_USE_STATIC_LIBS        ON)
   set(Boost_USE_MULTITHREADED      ON)
   set(Boost_USE_STATIC_RUNTIME     OFF)
-  
+
   get_WIN32_WINNT(ver)
   add_definitions(-D_WIN32_WINNT=${ver})
 endif()
