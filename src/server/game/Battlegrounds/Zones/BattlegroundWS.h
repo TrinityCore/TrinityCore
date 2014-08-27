@@ -177,6 +177,9 @@ struct BattlegroundWGScore final : public BattlegroundScore
             data << uint32(FlagReturns);
         }
 
+        uint32 GetAttr1() const { return FlagCaptures; }
+        uint32 GetAttr2() const { return FlagReturns; }
+
         uint32 FlagCaptures;
         uint32 FlagReturns;
 };

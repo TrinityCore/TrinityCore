@@ -878,6 +878,9 @@ struct BattlegroundICScore final : public BattlegroundScore
             data << uint32(BasesDefended);
         }
 
+        uint32 GetAttr1() const { return BasesAssaulted; }
+        uint32 GetAttr2() const { return BasesDefended; }
+
         uint32 BasesAssaulted;
         uint32 BasesDefended;
 };
