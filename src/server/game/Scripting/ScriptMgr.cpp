@@ -1180,6 +1180,11 @@ void ScriptMgr::OnPlayerMoneyChanged(Player* player, int32& amount)
     FOREACH_SCRIPT(PlayerScript)->OnMoneyChanged(player, amount);
 }
 
+void ScriptMgr::OnPlayerMoneyLimit(Player* player, int32 amount)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnMoneyLimit(player, amount);
+}
+
 void ScriptMgr::OnGivePlayerXP(Player* player, uint32& amount, Unit* victim)
 {
     FOREACH_SCRIPT(PlayerScript)->OnGiveXP(player, amount, victim);

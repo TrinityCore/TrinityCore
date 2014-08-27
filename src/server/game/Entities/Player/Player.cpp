@@ -22684,6 +22684,8 @@ bool Player::ModifyMoney(int32 amount, bool sendError /*= true*/)
             SetMoney(GetMoney() + amount);
         else
         {
+            sScriptMgr->OnPlayerMoneyLimit(this, amount);
+
             if (sendError)
                 SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD, NULL, NULL);
             return false;
