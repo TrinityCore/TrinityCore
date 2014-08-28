@@ -1021,7 +1021,7 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
     			}
     			while (result3->NextRow());
     		}
-    		if (playersInBG>25 && playersInBG3<20)
+    		if (playersInBG>29 && playersInBG3<20)
     		{
     			uint32 selectedWeight = 0;
     			// Select the correct bg (if we have in DB A(10), B(20), C(10), D(15) --> [0---A---9|10---B---29|30---C---39|40---D---54])
