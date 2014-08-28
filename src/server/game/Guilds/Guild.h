@@ -657,6 +657,9 @@ public:
     std::string const& GetName() const { return m_name; }
     std::string const& GetMOTD() const { return m_motd; }
     std::string const& GetInfo() const { return m_info; }
+    uint32 GetMemberCount() const { return m_members.size(); }
+    time_t GetCreatedDate() const { return m_createdDate; }
+    uint64 GetBankMoney() const { return m_bankMoney; }
 
     bool SetName(std::string const& name);
 
