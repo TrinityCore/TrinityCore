@@ -82,14 +82,10 @@ ObjectGuid AhBot::GetAHBplayerGUID()
     return ObjectGuid(sAhBotConfig.guid);
 }
 
-/*class AhbotThread: public ACE_Task <ACE_MT_SYNCH>
+void AhBotThread(AhBot* ahbot)
 {
-private:
-    AhBot* bot;
-public:
-    AhbotThread(AhBot* bot) : bot(bot) {}
-    int svc(void) { bot->ForceUpdate(); return 0; }
-};*/
+    ahbot->ForceUpdate();
+}
 
 void AhBot::Update()
 {
@@ -103,9 +99,8 @@ void AhBot::Update()
 
     nextAICheckTime = time(0) + sAhBotConfig.updateInterval;
 
-    ForceUpdate();
-    //AhbotThread *thread = new AhbotThread(this);
-    //thread->activate();
+    thread ahBotThread(AhBotThread, this);
+    ahBotThread.detach();
 }
 
 void AhBot::ForceUpdate()
@@ -579,9 +574,8 @@ void AhBot::HandleCommand(string command)
 
     if (command == "update")
     {
-        ForceUpdate();
-        /*AhbotThread *thread = new AhbotThread(this);
-        thread->activate();*/
+        thread ahBotThread(AhBotThread, this);
+        ahBotThread.detach();
         return;
     }
 
