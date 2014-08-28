@@ -349,7 +349,7 @@ struct BattlegroundEYScore final : public BattlegroundScore
             data << uint32(FlagCaptures);
         }
 
-        uint32 GetAttr1() const { return FlagCaptures; }
+        uint32 GetAttr1() const final override { return FlagCaptures; }
 
         uint32 FlagCaptures;
 };

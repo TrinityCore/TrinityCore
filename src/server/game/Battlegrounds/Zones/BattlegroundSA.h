@@ -538,8 +538,8 @@ struct BattlegroundSAScore final : public BattlegroundScore
             data << uint32(GatesDestroyed);
         }
 
-        uint32 GetAttr1() const { return DemolishersDestroyed; }
-        uint32 GetAttr2() const { return GatesDestroyed; }
+        uint32 GetAttr1() const final override { return DemolishersDestroyed; }
+        uint32 GetAttr2() const final override { return GatesDestroyed; }
 
         uint32 DemolishersDestroyed;
         uint32 GatesDestroyed;
