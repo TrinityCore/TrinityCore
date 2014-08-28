@@ -150,13 +150,13 @@ void AvailableItemsBag::Load()
           } while (results->NextRow());
       }
 
-      QueryResult result = WorldDatabase.Query("SELECT count(*) FROM item_template");
-      Field* fields = result->Fetch();
-      uint32 itemCount = fields[0].GetUInt32();
-
-      for (uint32 itemId = 0; itemId < itemCount; ++itemId)
+      ItemTemplateContainer const* itemTemplateContainer = sObjectMgr->GetItemTemplateStore();
+      for (ItemTemplateContainer::const_iterator i = itemTemplateContainer->begin(); i != itemTemplateContainer->end(); ++i)
       {
-          if (vendorItems.find(itemId) != vendorItems.end())
+          ItemTemplate const& itemTemplate = i->second;
+          uint32 itemId = i->first;
+
+          if (vendorItems.find(itemTemplate.ItemId) != vendorItems.end())
               continue;
 
         Add(sObjectMgr->GetItemTemplate(itemId));

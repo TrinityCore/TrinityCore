@@ -1286,13 +1286,12 @@ void PlayerbotFactory::InitMounts()
 
 void PlayerbotFactory::InitPotions()
 {
-    QueryResult result = WorldDatabase.Query("SELECT count(*) FROM item_template");
-    Field* fields = result->Fetch();
-    uint32 itemCount = fields[0].GetUInt32();
-
     map<uint32, vector<uint32> > items;
-    for (uint32 itemId = 0; itemId < itemCount; ++itemId)
+    ItemTemplateContainer const* itemTemplateContainer = sObjectMgr->GetItemTemplateStore();
+    for (ItemTemplateContainer::const_iterator i = itemTemplateContainer->begin(); i != itemTemplateContainer->end(); ++i)
     {
+        ItemTemplate const& itemTemplate = i->second;
+        uint32 itemId = i->first;
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId);
         if (!proto)
             continue;
@@ -1346,13 +1345,12 @@ void PlayerbotFactory::InitPotions()
 
 void PlayerbotFactory::InitFood()
 {
-    QueryResult result = WorldDatabase.Query("SELECT count(*) FROM item_template");
-    Field* fields = result->Fetch();
-    uint32 itemCount = fields[0].GetUInt32();
-
     map<uint32, vector<uint32> > items;
-    for (uint32 itemId = 0; itemId < itemCount; ++itemId)
+    ItemTemplateContainer const* itemTemplateContainer = sObjectMgr->GetItemTemplateStore();
+    for (ItemTemplateContainer::const_iterator i = itemTemplateContainer->begin(); i != itemTemplateContainer->end(); ++i)
     {
+        ItemTemplate const& itemTemplate = i->second;
+        uint32 itemId = i->first;
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId);
         if (!proto)
             continue;
@@ -1442,13 +1440,12 @@ Item* PlayerbotFactory::StoreItem(uint32 itemId, uint32 count)
 
 void PlayerbotFactory::InitInventoryTrade()
 {
-    QueryResult result = WorldDatabase.Query("SELECT count(*) FROM item_template");
-    Field* fields = result->Fetch();
-    uint32 itemCount = fields[0].GetUInt32();
-
     vector<uint32> ids;
-    for (uint32 itemId = 0; itemId < itemCount; ++itemId)
+    ItemTemplateContainer const* itemTemplateContainer = sObjectMgr->GetItemTemplateStore();
+    for (ItemTemplateContainer::const_iterator i = itemTemplateContainer->begin(); i != itemTemplateContainer->end(); ++i)
     {
+        ItemTemplate const& itemTemplate = i->second;
+        uint32 itemId = i->first;
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId);
         if (!proto)
             continue;
@@ -1513,11 +1510,11 @@ void PlayerbotFactory::InitInventoryEquip()
         desiredQuality--;
     }
 
-    QueryResult result = WorldDatabase.Query("SELECT count(*) FROM item_template");
-    Field* fields = result->Fetch();
-    uint32 itemCount = fields[0].GetUInt32();
-    for (uint32 itemId = 0; itemId < itemCount; ++itemId)
+    ItemTemplateContainer const* itemTemplateContainer = sObjectMgr->GetItemTemplateStore();
+    for (ItemTemplateContainer::const_iterator i = itemTemplateContainer->begin(); i != itemTemplateContainer->end(); ++i)
     {
+        ItemTemplate const& itemTemplate = i->second;
+        uint32 itemId = i->first;
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId);
         if (!proto)
             continue;
