@@ -2630,6 +2630,358 @@ UI.ShowQuestLevelsInDialogs = 0
 #
 ###################################################################################################
 
+###################################
+# Auction House Bot Configuration #
+###################################
+
+###################################################################################################################
+# AUCTION HOUSE BOT SETTINGS
+#
+#    AuctionHouseBot.Update.Interval
+#       Description: Interval in seconds for AHBot to get updated
+#       Default:     20
+#
+
+AuctionHouseBot.Update.Interval = 20
+
+#
+#    AuctionHouseBot.Seller.Enabled
+#       Description: General enable or disable AuctionHouseBot Seller functionality
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Seller.Enabled = 0
+
+#
+#    AuctionHouseBot.Alliance.Items.Amount.Ratio
+#       Description: Enable/Disable (disabled if 0) the part of AHBot that puts items up for auction on Alliance AH
+#       Default:     100 - (Enabled with 100% of items specified in AuctionHouse.Items.Amount.color section)
+
+AuctionHouseBot.Alliance.Items.Amount.Ratio = 100
+
+#
+#    AuctionHouseBot.Horde.Items.Amount.Ratio
+#        Enable/Disable (disabled if 0) the part of AHBot that puts items up for auction on Horde AH
+#       Default: 100 (Enabled with 100% of items specified in AuctionHouse.Items.Amount.color section)
+
+AuctionHouseBot.Horde.Items.Amount.Ratio = 100
+
+#
+#    AuctionHouseBot.Neutral.Items.Amount.Ratio
+#       Description: Enable/Disable (disabled if 0) the part of AHBot that puts items up for auction on Neutral AH
+#       Default:     100 - (Enabled with 100% of items specified in AuctionHouse.Items.Amount.color section)
+
+AuctionHouseBot.Neutral.Items.Amount.Ratio = 100
+
+#
+#    AuctionHouseBot.MinTime
+#       Description: Minimum time for the new auction in hours
+#       Default: 1 - (Hour)
+
+AuctionHouseBot.MinTime = 1
+
+#
+#    AuctionHouseBot.MaxTime
+#       Description: Maximum time for the new auction in hours
+#       Default:     72 - (Hours)
+
+AuctionHouseBot.MaxTime = 72
+
+#
+#    AuctionHouseBot.Items.Vendor
+#       Description: Include items that can be bought from vendors.
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Items.Vendor = 0
+
+#
+#    AuctionHouseBot.Items.Loot
+#       Description: Include items that can be looted or fished for.
+#       Default:     1 - (Enabled)
+#                    0 - (Disabled)
+
+AuctionHouseBot.Items.Loot = 1
+
+#
+#    AuctionHouseBot.Items.Misc
+#       Description: Include misc. items.
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Items.Misc = 0
+
+#
+#    AuctionHouseBot.Bind.*
+#       Description: Indicates which bonding types to allow the bot to put up for auction
+#                       No     - Items that don't bind            Default 1 (Allowed)
+#                       Pickup - Items that bind on pickup        Default 0 (Not Allowed)
+#                       Equip  - Items that bind on equip         Default 1 (Allowed)
+#                       Use    - Items that bind on use           Default 1 (Allowed)
+#                       Quest  - Quest Items                      Default 0 (Not Allowed)
+#       Values:      0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Bind.No = 1
+AuctionHouseBot.Bind.Pickup = 0
+AuctionHouseBot.Bind.Equip = 1
+AuctionHouseBot.Bind.Use = 1
+AuctionHouseBot.Bind.Quest = 0
+
+#
+#    AuctionHouseBot.LockBox.Enabled
+#       Description: Enable or not lockbox in auctionhouse
+#       Default      0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.LockBox.Enabled = 0
+
+#
+#    AuctionHouseBot.ItemsPerCycle.Boost
+#       Description: This value is used to fill DB faster than normal when there is more than this value on missed items (not auctioned items).
+#                    Normaly this value is only used once on server start with empty auction table.
+#       Default:     1000
+
+AuctionHouseBot.ItemsPerCycle.Boost = 1000
+
+#
+#    AuctionHouseBot.ItemsPerCycle.Normal
+#       Description: This value is used to fill DB with way with less cpu/db using.
+#                    Normaly this value is used always when auction table is already initialised.
+#       Default:     20
+
+AuctionHouseBot.ItemsPerCycle.Normal = 20
+
+#
+#    AuctionHouseBot.BuyPrice.Seller
+#       Description: Should the Seller use BuyPrice or SellPrice to determine Bid Prices
+#       Default:     1 - (use SellPrice)
+#                    0 - (use BuyPrice)
+
+AuctionHouseBot.BuyPrice.Seller = 1
+
+#
+#    AuctionHouseBot.Alliance.Price.Ratio
+#       Description: Percentage by which the price of items selled on Alliance Auction House is incremented / decreased
+#       Default:     100 - (Not modify)
+
+AuctionHouseBot.Alliance.Price.Ratio = 100
+
+#
+#    AuctionHouseBot.Horde.Price.Ratio
+#       Description: Percentage by which the price of items selled on Horde Auction House is incremented / decreased
+#       Default:     100 - (Not modify)
+
+AuctionHouseBot.Horde.Price.Ratio = 100
+
+#
+#    AuctionHouseBot.Neutral.Price.Ratio
+#       Description: Percentage by which the price of items selled on Neutral Auction House is incremented / decreased
+#       Default:     100 - (Not modify)
+
+AuctionHouseBot.Neutral.Price.Ratio = 100
+
+#
+#    AuctionHouseBot.Items.ItemLevel.*
+#       Description: Prevent seller from listing items below/above this item level
+#       Default:     0 - (Disabled)
+#                    1-80 (Levels)
+
+AuctionHouseBot.Items.ItemLevel.Min = 0
+AuctionHouseBot.Items.ItemLevel.Max = 0
+
+#
+#    AuctionHouseBot.Items.ReqLevel.*
+#        Prevent seller from listing items below/above this required level
+#    Default: - 0 (Disabled)
+
+AuctionHouseBot.Items.ReqLevel.Min = 0
+AuctionHouseBot.Items.ReqLevel.Max = 0
+
+#
+#    AuctionHouseBot.Items.ReqSkill.*
+#       Description: Prevent seller from listing items below/above this skill level
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Items.ReqSkill.Min = 0
+AuctionHouseBot.Items.ReqSkill.Max = 0
+
+#
+#    AuctionHouseBot.Items.Amount.*
+#       Description: Define here for every item qualities how many items you want to be shown in Auction House
+#                    This value will be adjusted by AuctionHouseBot.FACTION.Items.Amount.Ratio to define the exact amount of
+#                    items that will finally be shown on Auction House
+#       Default:     0, 2000, 2500, 1500, 1000, 0, 0 (Gray, white, green, blue, purple, orange, yellow)
+
+AuctionHouseBot.Items.Amount.Gray = 0
+AuctionHouseBot.Items.Amount.White = 2000
+AuctionHouseBot.Items.Amount.Green = 2500
+AuctionHouseBot.Items.Amount.Blue = 1500
+AuctionHouseBot.Items.Amount.Purple = 1000
+AuctionHouseBot.Items.Amount.Orange = 0
+AuctionHouseBot.Items.Amount.Yellow = 0
+
+#
+#    AustionHouseBot.Class.*
+#       Description: Here you can set the class of items you prefer to be show on AH
+#                    These value are sorted by preference, from 0 (disabled) to 10 (max. preference)
+#       Default:     Consumable: 6
+#                    Container: 4
+#                    Weapon: 8
+#                    Gem: 3
+#                    Armor: 8
+#                    Reagent: 1
+#                    Projectile: 2
+#                    TradeGod: 10
+#                    Generic: 1
+#                    Recipe: 6
+#                    Quiver: 1
+#                    Quest: 1
+#                    Key: 1
+#                    Misc: 5
+#                    Glyph: 3
+
+AuctionHouseBot.Class.Consumable = 6
+AuctionHouseBot.Class.Container = 4
+AuctionHouseBot.Class.Weapon = 8
+AuctionHouseBot.Class.Gem = 3
+AuctionHouseBot.Class.Armor = 8
+AuctionHouseBot.Class.Reagent = 1
+AuctionHouseBot.Class.Projectile = 2
+AuctionHouseBot.Class.TradeGood = 10
+AuctionHouseBot.Class.Generic = 1
+AuctionHouseBot.Class.Recipe = 6
+AuctionHouseBot.Class.Quiver = 1
+AuctionHouseBot.Class.Quest = 1
+AuctionHouseBot.Class.Key = 1
+AuctionHouseBot.Class.Misc = 5
+AuctionHouseBot.Class.Glyph = 3
+
+###################################################################################################################
+#
+# AHBot ITEM FINE TUNING
+#    The following are usefull for limiting what character levels can
+#    benefit from the auction house
+#
+#    AuctionHouseBot.Class.Misc.Mount.ReqLevel.*
+#       Description: Prevent seller from listing mounts below/above this required level
+#       Default:     0
+
+AuctionHouseBot.Class.Misc.Mount.ReqLevel.Min = 0
+AuctionHouseBot.Class.Misc.Mount.ReqLevel.Max = 0
+
+#
+#    AuctionHouseBot.Class.Misc.Mount.ReqSkill.*
+#       Description: Prevent seller from listing mounts below/above this skill level
+#       Default:     0
+
+AuctionHouseBot.Class.Misc.Mount.ReqSkill.Min = 0
+AuctionHouseBot.Class.Misc.Mount.ReqSkill.Max = 0
+
+#
+#    AuctionHouseBot.Class.Glyph.ReqLevel.*
+#       Description: Prevent seller from listing glyphs below/above this required level
+#       Default:     0
+
+AuctionHouseBot.Class.Glyph.ReqLevel.Min = 0
+AuctionHouseBot.Class.Glyph.ReqLevel.Max = 0
+
+#
+#    AuctionHouseBot.Class.Glyph.ItemLevel.*
+#       Description: Prevent seller from listing glyphs below/above this item level
+#       Default:     0
+
+AuctionHouseBot.Class.Glyph.ItemLevel.Min = 0
+AuctionHouseBot.Class.Glyph.ItemLevel.Max = 0
+
+#
+#    AuctionHouseBot.Class.TradeGood.ItemLevel.*
+#       Description: Prevent seller from listing trade good items below/above this item level
+#       Default:     0
+
+AuctionHouseBot.Class.TradeGood.ItemLevel.Min = 0
+AuctionHouseBot.Class.TradeGood.ItemLevel.Max = 0
+
+#
+#    AuctionHouseBot.Class.Container.ItemLevel.*
+#       Description: Prevent seller from listing contianers below/above this item level
+#       Default:     0
+
+AuctionHouseBot.Class.Container.ItemLevel.Min = 0
+AuctionHouseBot.Class.Container.ItemLevel.Max = 0
+
+#
+#    AuctionHouseBot.forceIncludeItems
+#       Description: Include these items and ignore ALL filters
+#                    List of ids with delimiter ','
+#       Default:     ""
+
+AuctionHouseBot.forceIncludeItems = ""
+
+#
+#    AuctionHouseBot.forceExcludeItems
+#       Description: Exclude these items even if they would pass the filters
+#                    List of ids with delimiter ','
+#       Example:     "21878,27774,27811,28117,28122,43949" (this removes old items)
+#       Default:     ""
+#
+
+AuctionHouseBot.forceExcludeItems = ""
+
+#
+###################################################################################################################
+
+###################################################################################################################
+#    AHBot Buyer config
+#
+#    AuctionHouseBot.Buyer.Enabled
+#       Description: General enable or disable AuctionHouseBot Buyer functionality
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Buyer.Enabled = 0
+
+#
+#    AuctionHouseBot.Buyer.FACTION.Enabled
+#       Description: Enable or disable buyer independently by faction
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Buyer.Alliance.Enabled = 0
+AuctionHouseBot.Buyer.Horde.Enabled = 0
+AuctionHouseBot.Buyer.Neutral.Enabled = 0
+
+#
+#    AuctionHouseBot.BuyPrice.Buyer
+#       Description: Should the Buyer use BuyPrice or SellPrice to determine Bid Prices
+#       Default:     1 - (use BuyPrice)
+#                    0 - (use SellPrice)
+
+AuctionHouseBot.Buyer.Buyprice = 1
+
+#
+#    AuctionHouseBot.Buyer.Recheck.Interval
+#       Description: This specifies the time interval (in minutes) between two evaluations of the same selled item.
+#                    The lesser this value is, the more chances you give for item to be bought by ahbot.
+#       Default:     20 (20min.)
+
+AuctionHouseBot.Buyer.Recheck.Interval = 20
+
+#
+#    AuctionHouseBot.Buyer.Alliance.Chance.Ratio
+#       Description: Chance ratio for the buyer to buy an item. Higher the value, lesser the probability
+#       Example:     3 (1 out of 3 change, that is, 33%).
+#       Default:     3
+#
+
+AuctionHouseBot.Buyer.Alliance.Chance.Ratio = 3
+AuctionHouseBot.Buyer.Horde.Chance.Ratio = 3
+AuctionHouseBot.Buyer.Neutral.Chance.Ratio = 3
+
+#
+###################################################################################################################
+
 ###################################################################################################
 #  LOGGING SYSTEM SETTINGS
 #
@@ -2726,6 +3078,7 @@ Logger.commands.gm=3,Console GM
 Logger.sql.sql=5,Console DBErrors
 
 #Logger.achievement=3,Console Server
+#Logger.ahbot=3,Console Server
 #Logger.auctionHouse=3,Console Server
 #Logger.bg.arena=3,Console Server
 #Logger.bg.battlefield=3,Console Server
