@@ -1568,6 +1568,12 @@ struct BattlegroundAVScore final : public BattlegroundScore
             data << uint32(MinesCaptured);
         }
 
+        uint32 GetAttr1() const { return GraveyardsAssaulted; }
+        uint32 GetAttr2() const { return GraveyardsDefended; }
+        uint32 GetAttr3() const { return TowersAssaulted; }
+        uint32 GetAttr4() const { return TowersDefended; }
+        uint32 GetAttr5() const { return MinesCaptured; }
+
         uint32 GraveyardsAssaulted;
         uint32 GraveyardsDefended;
         uint32 TowersAssaulted;

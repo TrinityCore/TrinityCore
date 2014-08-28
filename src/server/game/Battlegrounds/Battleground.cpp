@@ -712,6 +712,24 @@ void Battleground::EndBattleground(uint32 winner)
 
     int32 winmsg_id = 0;
 
+    PreparedStatement* stmt;
+    PreparedQueryResult result;
+    uint64 battleground_id = 1;
+
+    if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PVPSTATS_MAXID);
+        result = CharacterDatabase.Query(stmt);
+
+        if (result)
+        {
+            Field* fields = result->Fetch();
+            battleground_id = fields[0].GetInt64() + 1;
+        }
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_BATTLEGROUND);
+    }
+
     if (winner == ALLIANCE)
     {
         winmsg_id = isBattleground() ? LANG_BG_A_WINS : LANG_ARENA_GOLD_WINS;
@@ -719,6 +737,9 @@ void Battleground::EndBattleground(uint32 winner)
         PlaySoundToAll(SOUND_ALLIANCE_WINS);                // alliance wins sound
 
         SetWinner(BG_TEAM_ALLIANCE);
+
+        if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
+            stmt->setUInt8(1, BG_TEAM_ALLIANCE);
     }
     else if (winner == HORDE)
     {
@@ -727,10 +748,24 @@ void Battleground::EndBattleground(uint32 winner)
         PlaySoundToAll(SOUND_HORDE_WINS);                   // horde wins sound
 
         SetWinner(BG_TEAM_HORDE);
+
+        if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
+            stmt->setUInt8(1, BG_TEAM_HORDE);
     }
     else
     {
         SetWinner(BG_TEAM_NEUTRAL);
+
+        if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
+            stmt->setUInt8(1, BG_TEAM_NEUTRAL);
+    }
+
+    if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
+    {
+        stmt->setUInt64(0, battleground_id);
+        stmt->setUInt8(2, m_BracketId + 1);
+        stmt->setUInt8(3, GetTypeID());
+        CharacterDatabase.Execute(stmt);
     }
 
     SetStatus(STATUS_WAIT_LEAVE);
@@ -769,6 +804,30 @@ void Battleground::EndBattleground(uint32 winner)
         uint32 winner_kills = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_FIRST);
         uint32 loser_kills = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_FIRST);
         uint32 winner_arena = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_ARENA_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_ARENA_FIRST);
+
+        if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
+        {
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_PLAYER);
+            BattlegroundScoreMap::const_iterator score = PlayerScores.find(player->GetGUIDLow());
+
+            // battleground_id, character_guid, score_killing_blows, score_deaths, score_honorable_kills, score_bonus_honor, score_damage_done, score_healing_done
+
+            stmt->setUInt32(0, battleground_id);
+            stmt->setUInt32(1, player->GetGUIDLow());
+            stmt->setUInt32(2, score->second->GetKillingBlows());
+            stmt->setUInt32(3, score->second->GetDeaths());
+            stmt->setUInt32(4, score->second->GetHonorableKills());
+            stmt->setUInt32(5, score->second->GetBonusHonor());
+            stmt->setUInt32(6, score->second->GetDamageDone());
+            stmt->setUInt32(7, score->second->GetHealingDone());
+            stmt->setUInt32(8, score->second->GetAttr1());
+            stmt->setUInt32(9, score->second->GetAttr2());
+            stmt->setUInt32(10, score->second->GetAttr3());
+            stmt->setUInt32(11, score->second->GetAttr4());
+            stmt->setUInt32(12, score->second->GetAttr5());
+
+            CharacterDatabase.Execute(stmt);
+        }
 
         // Reward winner team
         if (team == winner)
