@@ -681,6 +681,22 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_MODIFY_CURRENCY                        = 775, // only 4.3.4
     RBAC_PERM_COMMAND_DEBUG_PHASE                            = 776, // only 4.3.4
     RBAC_PERM_COMMAND_MAILBOX                                = 777,
+    RBAC_PERM_COMMAND_AHBOT                                  = 778,
+    RBAC_PERM_COMMAND_AHBOT_ITEMS                            = 779,
+    RBAC_PERM_COMMAND_AHBOT_ITEMS_GRAY                       = 780,
+    RBAC_PERM_COMMAND_AHBOT_ITEMS_WHITE                      = 781,
+    RBAC_PERM_COMMAND_AHBOT_ITEMS_GREEN                      = 782,
+    RBAC_PERM_COMMAND_AHBOT_ITEMS_BLUE                       = 783,
+    RBAC_PERM_COMMAND_AHBOT_ITEMS_PURPLE                     = 784,
+    RBAC_PERM_COMMAND_AHBOT_ITEMS_ORANGE                     = 785,
+    RBAC_PERM_COMMAND_AHBOT_ITEMS_YELLOW                     = 786,
+    RBAC_PERM_COMMAND_AHBOT_RATIO                            = 787,
+    RBAC_PERM_COMMAND_AHBOT_RATIO_ALLIANCE                   = 788,
+    RBAC_PERM_COMMAND_AHBOT_RATIO_HORDE                      = 789,
+    RBAC_PERM_COMMAND_AHBOT_RATIO_NEUTRAL                    = 790,
+    RBAC_PERM_COMMAND_AHBOT_REBUILD                          = 791,
+    RBAC_PERM_COMMAND_AHBOT_RELOAD                           = 792,
+    RBAC_PERM_COMMAND_AHBOT_STATUS                           = 793,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
