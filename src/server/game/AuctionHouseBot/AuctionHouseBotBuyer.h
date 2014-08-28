@@ -47,7 +47,7 @@ typedef std::map<uint32, BuyerAuctionEval> CheckEntryMap;
 
 struct BuyerConfiguration
 {
-    BuyerConfiguration(): _houseType(AUCTION_HOUSE_NEUTRAL) {}
+    BuyerConfiguration(): FactionChance(3), BuyerEnabled(false), BuyerPriceRatio(100), _houseType(AUCTION_HOUSE_NEUTRAL) {}
 
     void Initialize(AuctionHouseType houseType)
     {

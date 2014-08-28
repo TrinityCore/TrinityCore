@@ -20,7 +20,7 @@
 #include "ItemPrototype.h"
 #include "AuctionHouseBotBuyer.h"
 
-AuctionBotBuyer::AuctionBotBuyer()
+AuctionBotBuyer::AuctionBotBuyer(): _checkInterval(20)
 {
     // Define faction for our main data class.
     for (int i = 0; i < MAX_AUCTION_HOUSE_TYPE; ++i)
@@ -50,7 +50,7 @@ bool AuctionBotBuyer::Initialize()
 
     //load Check interval
     _checkInterval = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYER_RECHECK_INTERVAL) * MINUTE;
-    TC_LOG_INFO("ahbot", "AHBot buyer interval between 2 check = %u", _checkInterval);
+    TC_LOG_DEBUG("ahbot", "AHBot buyer interval between 2 check = %u", _checkInterval);
     return true;
 }
 
@@ -150,8 +150,8 @@ uint32 AuctionBotBuyer::GetBuyableEntry(BuyerConfiguration& config)
         }
     }
 
-    TC_LOG_INFO("ahbot", "AHBot: %u items added to buyable vector for ah type: %u", count, config.GetHouseType());
-    TC_LOG_INFO("ahbot", "AHBot: SameItemInfo size = %u", (uint32)config.SameItemInfo.size());
+    TC_LOG_DEBUG("ahbot", "AHBot: %u items added to buyable vector for ah type: %u", count, config.GetHouseType());
+    TC_LOG_DEBUG("ahbot", "AHBot: SameItemInfo size = %u", (uint32)config.SameItemInfo.size());
     return count;
 }
 
@@ -167,7 +167,7 @@ void AuctionBotBuyer::PrepareListOfEntry(BuyerConfiguration& config)
             ++itr;
     }
 
-    TC_LOG_INFO("ahbot", "AHBot: CheckedEntry size = %u", (uint32)config.CheckedEntry.size());
+    TC_LOG_DEBUG("ahbot", "AHBot: CheckedEntry size = %u", (uint32)config.CheckedEntry.size());
 }
 
 bool AuctionBotBuyer::IsBuyableEntry(uint32 buyoutPrice, double inGameBuyPrice, double maxBuyablePrice, uint32 minBuyPrice, uint32 maxChance, uint32 chanceRatio)
@@ -227,12 +227,12 @@ bool AuctionBotBuyer::IsBuyableEntry(uint32 buyoutPrice, double inGameBuyPrice, 
 
     if (urand(1, chanceRatio) <= chance)
     {
-        TC_LOG_INFO("ahbot", "AHBot: WIN BUY! Chance = %u, num = %u.", chance, chanceRatio);
+        TC_LOG_DEBUG("ahbot", "AHBot: WIN BUY! Chance = %u, num = %u.", chance, chanceRatio);
         return true;
     }
     else
     {
-        TC_LOG_INFO("ahbot", "AHBot: LOOSE BUY! Chance = %u, num = %u.", chance, chanceRatio);
+        TC_LOG_DEBUG("ahbot", "AHBot: LOOSE BUY! Chance = %u, num = %u.", chance, chanceRatio);
         return false;
     }
 }
@@ -274,25 +274,25 @@ bool AuctionBotBuyer::IsBidableEntry(uint32 bidPrice, double inGameBuyPrice, dou
 
     if (urand(1, chanceRatio) <= chance)
     {
-        TC_LOG_INFO("ahbot", "AHBot: WIN BID! Chance = %u, num = %u.", chance, chanceRatio);
+        TC_LOG_DEBUG("ahbot", "AHBot: WIN BID! Chance = %u, num = %u.", chance, chanceRatio);
         return true;
     }
     else
     {
-        TC_LOG_INFO("ahbot", "AHBot: LOOSE BID! Chance = %u, num = %u.", chance, chanceRatio);
+        TC_LOG_DEBUG("ahbot", "AHBot: LOOSE BID! Chance = %u, num = %u.", chance, chanceRatio);
         return false;
     }
 }
 
 void AuctionBotBuyer::PlaceBidToEntry(AuctionEntry* auction, uint32 bidPrice)
 {
-    TC_LOG_INFO("ahbot", "AHBot: Bid placed to entry %u, %.2fg", auction->Id, float(bidPrice) / 10000.0f);
+    TC_LOG_DEBUG("ahbot", "AHBot: Bid placed to entry %u, %.2fg", auction->Id, float(bidPrice) / 10000.0f);
     auction->bid = bidPrice;
 }
 
 void AuctionBotBuyer::BuyEntry(AuctionEntry* auction)
 {
-    TC_LOG_INFO("ahbot", "AHBot: Entry %u bought at %.2fg", auction->Id, float(auction->buyout) / 10000.0f);
+    TC_LOG_DEBUG("ahbot", "AHBot: Entry %u bought at %.2fg", auction->Id, float(auction->buyout) / 10000.0f);
     auction->bid = auction->buyout;
 }
 
@@ -307,7 +307,7 @@ void AuctionBotBuyer::AddNewAuctionBuyerBotBid(BuyerConfiguration& config)
     if (config.CheckedEntry.size() > sAuctionBotConfig->GetItemPerCycleBoost())
     {
         buyCycles = sAuctionBotConfig->GetItemPerCycleBoost();
-        TC_LOG_INFO("ahbot", "AHBot: Boost value used for Buyer! (if this happens often adjust both ItemsPerCycle in worldserver.conf)");
+        TC_LOG_DEBUG("ahbot", "AHBot: Boost value used for Buyer! (if this happens often adjust both ItemsPerCycle in worldserver.conf)");
     }
     else
         buyCycles = sAuctionBotConfig->GetItemPerCycleNormal();
@@ -317,8 +317,8 @@ void AuctionBotBuyer::AddNewAuctionBuyerBotBid(BuyerConfiguration& config)
         AuctionEntry* auction = auctionHouse->GetAuction(itr->second.AuctionId);
         if (!auction) // is auction not active now
         {
-            TC_LOG_INFO("ahbot", "AHBot: Entry %u on ah %u doesn't exists, perhaps bought already?",
-                itr->second.AuctionId, auction->GetHouseId());
+            TC_LOG_DEBUG("ahbot", "AHBot: Entry %u doesn't exists, perhaps bought already?",
+                itr->second.AuctionId);
 
             config.CheckedEntry.erase(itr++);
             continue;
@@ -326,7 +326,7 @@ void AuctionBotBuyer::AddNewAuctionBuyerBotBid(BuyerConfiguration& config)
 
         if (itr->second.LastChecked != 0 && (now - itr->second.LastChecked) <= _checkInterval)
         {
-            TC_LOG_INFO("ahbot", "AHBot: In time interval wait for entry %u!", auction->Id);
+            TC_LOG_DEBUG("ahbot", "AHBot: In time interval wait for entry %u!", auction->Id);
             ++itr;
             continue;
         }
@@ -382,12 +382,12 @@ void AuctionBotBuyer::AddNewAuctionBuyerBotBid(BuyerConfiguration& config)
 
         double maxBidablePrice = maxBuyablePrice - (maxBuyablePrice / 30); // Max Bidable price defined to 70% of max buyable price
 
-        TC_LOG_INFO("ahbot", "AHBot: Auction added with data:");
-        TC_LOG_INFO("ahbot", "AHBot: MaxPrice of Entry %u is %.1fg.", itr->second.AuctionId, maxBuyablePrice / 10000);
-        TC_LOG_INFO("ahbot", "AHBot: GamePrice buy=%.1fg, bid=%.1fg.", inGameBuyPrice / 10000, inGameBidPrice / 10000);
-        TC_LOG_INFO("ahbot", "AHBot: Minimal price see in AH Buy=%ug, Bid=%ug.",
+        TC_LOG_DEBUG("ahbot", "AHBot: Auction added with data:");
+        TC_LOG_DEBUG("ahbot", "AHBot: MaxPrice of Entry %u is %.1fg.", itr->second.AuctionId, maxBuyablePrice / 10000);
+        TC_LOG_DEBUG("ahbot", "AHBot: GamePrice buy=%.1fg, bid=%.1fg.", inGameBuyPrice / 10000, inGameBidPrice / 10000);
+        TC_LOG_DEBUG("ahbot", "AHBot: Minimal price see in AH Buy=%ug, Bid=%ug.",
             sameItemItr->second.MinBuyPrice / 10000, sameItemItr->second.MinBidPrice / 10000);
-        TC_LOG_INFO("ahbot", "AHBot: Actual Entry price,  Buy=%ug, Bid=%ug.", buyoutPrice / 10000, bidPrice / 10000);
+        TC_LOG_DEBUG("ahbot", "AHBot: Actual Entry price,  Buy=%ug, Bid=%ug.", buyoutPrice / 10000, bidPrice / 10000);
 
         if (!auction->owner)                // Original auction owner
             maxChance = maxChance / 5;      // if Owner is AHBot this mean player placed bid on this auction. We divide by 5 chance for AhBuyer to place bid on it. (This make more challenge than ignore entry)
@@ -422,7 +422,7 @@ bool AuctionBotBuyer::Update(AuctionHouseType houseType)
 {
     if (sAuctionBotConfig->GetConfigBuyerEnabled(houseType))
     {
-        TC_LOG_INFO("ahbot", "AHBot: %s buying ...", AuctionBotConfig::GetHouseTypeName(houseType));
+        TC_LOG_DEBUG("ahbot", "AHBot: %s buying ...", AuctionBotConfig::GetHouseTypeName(houseType));
         if (GetBuyableEntry(_houseConfig[houseType]) > 0)
             AddNewAuctionBuyerBotBid(_houseConfig[houseType]);
         return true;

@@ -2738,16 +2738,16 @@ AuctionHouseBot.LockBox.Enabled = 0
 
 #
 #    AuctionHouseBot.ItemsPerCycle.Boost
-#       Description: This value is used to fill DB faster than normal when there is more than this value on missed items (not auctioned items).
-#                    Normaly this value is only used once on server start with empty auction table.
+#       Description: This value is used to fill AH faster than normal when there is more than this value on missed items (not auctioned items).
+#                    Usually this value is only used once on server start with empty auction table.
 #       Default:     1000
 
 AuctionHouseBot.ItemsPerCycle.Boost = 1000
 
 #
 #    AuctionHouseBot.ItemsPerCycle.Normal
-#       Description: This value is used to fill DB with way with less cpu/db using.
-#                    Normaly this value is used always when auction table is already initialised.
+#       Description: This value is used to fill AH for sold and expired items. A high value will be more resource intensive
+#                    Usually this value is used always when auction table is already initialised.
 #       Default:     20
 
 AuctionHouseBot.ItemsPerCycle.Normal = 20
@@ -2785,7 +2785,6 @@ AuctionHouseBot.Neutral.Price.Ratio = 100
 #    AuctionHouseBot.Items.ItemLevel.*
 #       Description: Prevent seller from listing items below/above this item level
 #       Default:     0 - (Disabled)
-#                    1-80 (Levels)
 
 AuctionHouseBot.Items.ItemLevel.Min = 0
 AuctionHouseBot.Items.ItemLevel.Max = 0
