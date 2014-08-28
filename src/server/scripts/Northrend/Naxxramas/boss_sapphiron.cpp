@@ -140,7 +140,7 @@ class boss_sapphiron : public CreatureScript
                     IceBlockMap::iterator itr = _iceblocks.find(target->GetGUID());
                     if (itr != _iceblocks.end() && !itr->second)
                     {
-                        if (GameObject* iceblock = me->SummonGameObject(GO_ICEBLOCK, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, 0, 0, 0, 0, 25000))
+                        if (GameObject* iceblock = me->SummonGameObject(GO_ICEBLOCK, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, 0, 0, 0, 0, 25))
                             itr->second = iceblock->GetGUID();
                     }
                 }

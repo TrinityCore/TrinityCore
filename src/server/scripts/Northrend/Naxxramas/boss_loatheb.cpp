@@ -27,9 +27,7 @@ enum Spells
     SPELL_WARN_NECROTIC_AURA                = 59481,
     SPELL_SUMMON_SPORE                      = 29234,
     SPELL_DEATHBLOOM                        = 29865,
-    H_SPELL_DEATHBLOOM                      = 55053,
-    SPELL_INEVITABLE_DOOM                   = 29204,
-    H_SPELL_INEVITABLE_DOOM                 = 55052
+    SPELL_INEVITABLE_DOOM                   = 29204
 };
 
 enum Texts
@@ -111,12 +109,12 @@ class boss_loatheb : public CreatureScript
                             events.ScheduleEvent(EVENT_NECROTIC_AURA_FADING, 14000);
                             break;
                         case EVENT_DEATHBLOOM:
-                            DoCastAOE(RAID_MODE(SPELL_DEATHBLOOM, H_SPELL_DEATHBLOOM));
+                            DoCastAOE(SPELL_DEATHBLOOM);
                             events.ScheduleEvent(EVENT_DEATHBLOOM, 30000);
                             break;
                         case EVENT_INEVITABLE_DOOM:
                             _doomCounter++;
-                            DoCastAOE(RAID_MODE(SPELL_INEVITABLE_DOOM, H_SPELL_INEVITABLE_DOOM));
+                            DoCastAOE(SPELL_INEVITABLE_DOOM);
                             events.ScheduleEvent(EVENT_INEVITABLE_DOOM, std::max(120000 - _doomCounter * 15000, 15000)); // needs to be confirmed
                             break;
                         case EVENT_SPORE:
