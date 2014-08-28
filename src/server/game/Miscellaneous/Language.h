@@ -961,7 +961,14 @@ enum TrinityStrings
     LANG_AHBOT_QUALITY_YELLOW           = 1174,
     LANG_AHBOT_ITEMS_AMOUNT             = 1175,
     LANG_AHBOT_ITEMS_RATIO              = 1176,
-    // Room for more level 3              1177-1199 not used
+    LANG_GUILD_INFO_NAME                = 1177,
+    LANG_GUILD_INFO_GUILD_MASTER        = 1178,
+    LANG_GUILD_INFO_CREATION_DATE       = 1179,
+    LANG_GUILD_INFO_MEMBER_COUNT        = 1180,
+    LANG_GUILD_INFO_BANK_GOLD           = 1181,
+    LANG_GUILD_INFO_MOTD                = 1182,
+    LANG_GUILD_INFO_EXTRA_INFO          = 1183,
+    // Room for more level 3              1184-1199 not used
 
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,
