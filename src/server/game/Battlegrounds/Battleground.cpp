@@ -748,7 +748,7 @@ void Battleground::EndBattleground(uint32 winner)
     int32 winmsg_id = 0;
     bool guildAwarded = false;
 
-    PreparedStatement* stmt;
+    PreparedStatement* stmt = nullptr;
     PreparedQueryResult result;
     uint64 battleground_id = 1;
 
