@@ -168,7 +168,7 @@ enum AuctionBotConfigBoolValues
 class AuctionBotConfig
 {
 private:
-    AuctionBotConfig() {}
+    AuctionBotConfig(): _itemsPerCycleBoost(1000), _itemsPerCycleNormal(20) {}
     ~AuctionBotConfig() {}
     AuctionBotConfig(const AuctionBotConfig&);
     AuctionBotConfig& operator=(const AuctionBotConfig&);
