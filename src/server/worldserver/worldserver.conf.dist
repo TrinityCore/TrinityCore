@@ -2028,6 +2028,14 @@ Battleground.QueueAnnouncer.Enable = 0
 Battleground.QueueAnnouncer.PlayerOnly = 0
 
 #
+#    Battleground.StoreStatistics.Enable
+#        Description: Store Battleground scores in the database.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Battleground.StoreStatistics.Enable = 0
+
+#
 #    Battleground.InvitationType
 #        Description: Set Battleground invitation type.
 #        Default:     0 - (Normal, Invite as much players to battlegrounds as queued,

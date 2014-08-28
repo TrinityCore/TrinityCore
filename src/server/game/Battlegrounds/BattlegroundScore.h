@@ -159,6 +159,19 @@ struct BattlegroundScore
         // For Logging purpose
         virtual std::string ToString() const { return ""; }
 
+        uint32 GetKillingBlows() const    { return KillingBlows; }
+        uint32 GetDeaths() const          { return Deaths; }
+        uint32 GetHonorableKills() const  { return HonorableKills; }
+        uint32 GetBonusHonor() const      { return BonusHonor; }
+        uint32 GetDamageDone() const      { return DamageDone; }
+        uint32 GetHealingDone() const     { return HealingDone; }
+
+        virtual uint32 GetAttr1() const { return 0; }
+        virtual uint32 GetAttr2() const { return 0; }
+        virtual uint32 GetAttr3() const { return 0; }
+        virtual uint32 GetAttr4() const { return 0; }
+        virtual uint32 GetAttr5() const { return 0; }
+
         ObjectGuid PlayerGuid;
         uint8 TeamId;
 

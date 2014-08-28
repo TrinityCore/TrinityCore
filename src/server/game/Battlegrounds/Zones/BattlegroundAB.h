@@ -267,6 +267,9 @@ struct BattlegroundABScore final : public BattlegroundScore
             content << uint32(BasesDefended);
         }
 
+        uint32 GetAttr1() const final override { return BasesAssaulted; }
+        uint32 GetAttr2() const final override { return BasesDefended; }
+
         uint32 BasesAssaulted;
         uint32 BasesDefended;
 };
