@@ -324,6 +324,12 @@ class boss_hodir : public CreatureScript
 
             void Reset() override
             {
+                gettingColdInHereTimer = 0;
+                gettingColdInHere = false;
+                cheeseTheFreeze = false;
+                iHaveTheCoolestFriends = false;
+                iCouldSayThatThisCacheWasRare = false;
+
                 _Reset();
                 me->SetReactState(REACT_PASSIVE);
 
