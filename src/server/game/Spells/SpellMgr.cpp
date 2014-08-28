@@ -3805,18 +3805,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 72968: // Precious's Ribbon
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
                 break;
-            // This is temporal but still necessary in order for Mimiron to work with our current setup.
-            // Revert it once Yesitsme's Mimiron is merged
-            case 63414: // Spinning Up (Mimiron)
-                spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
-                spellInfo->ChannelInterruptFlags = 0;
-                break;
-            case 63036: // Rocket Strike (Mimiron)
-                spellInfo->Speed = 0;
-                break;
-            case 64668: // Magnetic Field (Mimiron)
-                spellInfo->Mechanic = MECHANIC_NONE;
-                break;
             default:
                 break;
         }
