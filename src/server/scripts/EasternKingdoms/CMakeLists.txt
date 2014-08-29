@@ -72,6 +72,15 @@ set(scripts_STAT_SRCS
   EasternKingdoms/BlackrockMountain/MoltenCore/boss_sulfuron_harbinger.cpp
   EasternKingdoms/BlackrockMountain/MoltenCore/boss_magmadar.cpp
   EasternKingdoms/BlackrockMountain/MoltenCore/boss_shazzrah.cpp
+  EasternKingdoms/BlackwingDescent/blackwing_descent.cpp
+  EasternKingdoms/BlackwingDescent/blackwing_descent.h
+  EasternKingdoms/BlackwingDescent/boss_atramedes.cpp
+  EasternKingdoms/BlackwingDescent/boss_bd_nefarian.cpp
+  EasternKingdoms/BlackwingDescent/boss_chimaeron.cpp
+  EasternKingdoms/BlackwingDescent/boss_magmaw.cpp
+  EasternKingdoms/BlackwingDescent/boss_maloriak.cpp
+  EasternKingdoms/BlackwingDescent/boss_omnotron_defense_system.cpp
+  EasternKingdoms/BlackwingDescent/instance_blackwing_descent.cpp
   EasternKingdoms/Scholomance/boss_the_ravenian.cpp
   EasternKingdoms/Scholomance/boss_instructor_malicia.cpp
   EasternKingdoms/Scholomance/boss_death_knight_darkreaver.cpp

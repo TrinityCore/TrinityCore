@@ -7262,6 +7262,92 @@ FactionTemplateEntry const* Unit::GetFactionTemplateEntry() const
     return entry;
 }
 
+// Alt Power (Progress Bars).
+void Unit::SetAltPower(int32 power)
+{
+    alt = power;
+
+    if (HasAura(93103)) // Corruption Cho'gall. - Finished.
+    {
+        if (alt >= 25 && !HasAura(81836))
+           AddAura(81836, ToPlayer());
+        
+        if (alt >= 50 && !HasAura(81829))
+           AddAura(81829, ToPlayer());
+        
+        if (alt >= 75 && !HasAura(82125))
+        {
+           AddAura(82125, ToPlayer());
+           AddAura(82167, ToPlayer());
+           Creature* malformation = ToPlayer()->SummonCreature(43888, ToPlayer()->GetPositionX(), ToPlayer()->GetPositionY(), ToPlayer()->GetPositionZ(), ToPlayer()->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
+           malformation->CastSpell(ToPlayer(), 46598, true);
+        }
+
+        if (alt >= 100 && !HasAura(82193))
+        {
+            AddAura(82193, ToPlayer());
+            AddAura(82170, ToPlayer());
+        }
+    }
+    else if (HasAura(78949)) //Electricity Onyxia. - Finished.
+    {
+        if (alt >= 100)
+            CastSpell(ToUnit(), 78999, true);
+    }
+    else if (HasAura(88824)) //Sound Atramedes. - Finished.
+    {
+        if (alt >= 100)
+            CastSpell(ToPlayer(), 102133, true);
+    }
+    else if (HasAura(98229)) //Concentration Majordomo HC. - LOADING BAR NOT DONE.
+    {
+        if (alt >= 25 && !HasAura(98254))
+           AddAura(98254, ToPlayer());
+        
+        if (alt >= 50 && !HasAura(98253))
+        {
+           AddAura(98253, ToPlayer());
+           ToPlayer()->RemoveAurasDueToSpell(98254, true);
+        }
+        
+        if (alt >= 75 && !HasAura(98252))
+        {
+           AddAura(98252, ToPlayer());
+           RemoveAurasDueToSpell(98253, true);
+        }
+        
+        if (alt >= 100 && !HasAura(98245))
+        {
+           AddAura(98245, ToPlayer());
+           ToPlayer()->RemoveAurasDueToSpell(98252, true);
+        }
+    }
+    else if (HasAura(101410)) // Molten Feathers Alysrazor. - Finished.
+    {
+        if (alt >= 3)
+        {
+           CastSpell(ToUnit(), 98624, true);
+           alt = 0;
+           ToUnit()->SetPower(POWER_ALTERNATE_POWER, 0);
+           AddAura(101410, ToPlayer());
+        }
+    }
+
+    if (alt < 0)
+        alt = 0;
+
+    if (alt > 100)
+        alt = 100;
+
+
+    WorldPacket data(SMSG_POWER_UPDATE);
+    data.append(GetPackGUID());
+    data << int32(1);
+    data << int8(POWER_ALTERNATE_POWER);
+    data << int32(alt);
+    SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
+}
+
 // function based on function Unit::UnitReaction from 13850 client
 ReputationRank Unit::GetReactionTo(Unit const* target) const
 {
