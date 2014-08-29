@@ -98,9 +98,9 @@ public:
             { "wchange",          rbac::RBAC_PERM_COMMAND_WCHANGE,          false, &HandleChangeWeather,           "", NULL },
             { "mailbox",          rbac::RBAC_PERM_COMMAND_MAILBOX,          false, &HandleMailBoxCommand,          "", NULL },
             // playerbot mod
-            { "ahbot",            rbac::RBAC_PERM_COMMAND_GM       ,          true,  &ahbot::AhBot::HandleAhBotCommand,                             "", NULL },
+            { "ahbot",            rbac::RBAC_PERM_COMMAND_GM       ,          true,  &ahbot::AhBot::HandleAhBotCommand,                      "", NULL },
             { "rndbot",           rbac::RBAC_PERM_COMMAND_GM       ,          true,  &RandomPlayerbotMgr::HandlePlayerbotConsoleCommand,     "", NULL },
-            { "bot",              rbac::RBAC_PERM_COMMAND_MAILBOX  ,          false, &PlayerbotMgr::HandlePlayerbotMgrCommand,               "", NULL },
+            { "bot",              195                              ,          false, &PlayerbotMgr::HandlePlayerbotMgrCommand,               "", NULL },
             { NULL,               0,                                  false, NULL,                           "", NULL }
         };
         return commandTable;
