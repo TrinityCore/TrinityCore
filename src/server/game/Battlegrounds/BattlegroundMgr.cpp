@@ -871,12 +871,8 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
     if (!player)
         return;
 
-    BattlegroundDataContainer::iterator it = bgDataStore.find(bgTypeId);
-    if (it == bgDataStore.end())
-        return;
-
-    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(it->second.m_Battlegrounds.begin()->second->GetMapId(), player->getLevel());
-    if (!bracketEntry)
+    BattlegroundTemplate const* bgTemplate = GetBattlegroundTemplateByTypeId(bgTypeId);
+    if (!bgTemplate)
         return;
 
     uint32 winnerConquest = (player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_CONQUEST_FIRST) : sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_CONQUEST_LAST)) / CURRENCY_PRECISION;
@@ -893,8 +889,8 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
           << uint32(loserHonor)                 // Loser Honor Reward or Random Loser Honor Reward
           << uint32(winnerHonor)                // Winner Honor Reward or Random Winner Honor Reward
           << uint32(winnerHonor)                // Winner Honor Reward or Random Winner Honor Reward
-          << uint8(bracketEntry->maxLevel)      // max level
-          << uint8(bracketEntry->minLevel);     // min level
+          << uint8(bgTemplate->MaxLevel)        // max level
+          << uint8(bgTemplate->MinLevel);       // min level
 
     data->WriteBit(guidBytes[0]);
     data->WriteBit(guidBytes[1]);
@@ -921,15 +917,21 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
     data->WriteByteSeq(guidBytes[7]);
     data->WriteByteSeq(guidBytes[5]);
 
-    uint32 count = 0;
-    BattlegroundBracketId bracketId = bracketEntry->GetBracketId();
-    BattlegroundClientIdsContainer& clientIds = it->second.m_ClientBattlegroundIds[bracketId];
-    for (BattlegroundClientIdsContainer::const_iterator itr = clientIds.begin(); itr != clientIds.end(); ++itr)
+    BattlegroundDataContainer::iterator it = bgDataStore.find(bgTypeId);
+    if (it != bgDataStore.end())
     {
-        *data << uint32(*itr);
-        ++count;
+
+        PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(it->second.m_Battlegrounds.begin()->second->GetMapId(), player->getLevel());
+        if (bracketEntry)
+        {
+            BattlegroundBracketId bracketId = bracketEntry->GetBracketId();
+            BattlegroundClientIdsContainer& clientIds = it->second.m_ClientBattlegroundIds[bracketId];
+            for (BattlegroundClientIdsContainer::const_iterator itr = clientIds.begin(); itr != clientIds.end(); ++itr)
+                *data << uint32(*itr);
+
+            data->PutBits(count_pos, clientIds.size(), 24);                    // bg instance count
+        }
     }
-    data->PutBits(count_pos, count, 24);                    // bg instance count
 
     data->WriteByteSeq(guidBytes[0]);
     data->WriteByteSeq(guidBytes[2]);
