@@ -110,11 +110,6 @@ class boss_hydromancer_thespia : public CreatureScript
                         break;
                 }
             }
-
-            void UpdateAI(uint32 diff) override
-            {
-                BossAI::UpdateAI(diff);
-            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
