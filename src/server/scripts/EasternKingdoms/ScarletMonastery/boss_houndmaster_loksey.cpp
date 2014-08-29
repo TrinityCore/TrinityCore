@@ -73,16 +73,11 @@ class boss_houndmaster_loksey : public CreatureScript
                         break;
                 }
             }
-
-            void UpdateAI(uint32 diff) override
-            {
-                BossAI::UpdateAI(diff);
-            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_houndmaster_lokseyAI>(creature);
+            return GetScarletMonasteryAI<boss_houndmaster_lokseyAI>(creature);
         }
 };
 

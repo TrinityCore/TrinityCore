@@ -15480,6 +15480,10 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
 void Player::FailQuest(uint32 questId)
 {
+    // Already complete quests shouldn't turn failed.
+    if (GetQuestStatus(questId) == QUEST_STATUS_COMPLETE)
+        return;
+
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
     {
         SetQuestStatus(questId, QUEST_STATUS_FAILED);

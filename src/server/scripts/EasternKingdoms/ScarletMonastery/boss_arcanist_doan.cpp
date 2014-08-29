@@ -124,7 +124,7 @@ class boss_arcanist_doan : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_arcanist_doanAI>(creature);
+            return GetScarletMonasteryAI<boss_arcanist_doanAI>(creature);
         }
 };
 
