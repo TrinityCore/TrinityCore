@@ -229,7 +229,16 @@ void PlayerbotAI::HandleCommand(uint32 type, const string& text, Player& fromPla
     if (type == CHAT_MSG_ADDON)
         return;
 
-    string filtered = chatFilter.Filter(trim((string&)text));
+    string filtered = text;
+    if (!sPlayerbotAIConfig.commandPrefix.empty())
+    {
+        if (filtered.find(sPlayerbotAIConfig.commandPrefix) != 0)
+            return;
+
+        filtered = filtered.substr(sPlayerbotAIConfig.commandPrefix.size());
+    }
+
+    filtered = chatFilter.Filter(trim((string&)filtered));
     if (filtered.empty())
         return;
 
