@@ -55,7 +55,7 @@ struct SellerItemInfo
 class SellerConfiguration
 {
 public:
-    SellerConfiguration(): _houseType(AUCTION_HOUSE_NEUTRAL)
+    SellerConfiguration(): LastMissedItem(0), _houseType(AUCTION_HOUSE_NEUTRAL), _minTime(1), _maxTime(72)
     {
     }
 
