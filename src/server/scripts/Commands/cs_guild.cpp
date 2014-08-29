@@ -29,6 +29,7 @@ EndScriptData */
 #include "GuildMgr.h"
 #include "ObjectAccessor.h"
 #include "ScriptMgr.h"
+#include <iomanip>
 
 class guild_commandscript : public CommandScript
 {
@@ -248,45 +249,31 @@ public:
 
     static bool HandleGuildInfoCommand(ChatHandler* handler, char const* args)
     {
-        Player* target;
-        uint32 guildId;
-        std::string guildName;
-        std::string guildMasterName;
-        Guild* guild;
+        Guild* guild = nullptr;
 
-        if (!*args)
+        if (args && strlen(args) > 0)
         {
-            // Look for the guild of the selected player or ourselves
-            if (target = handler->getSelectedPlayerOrSelf())
-                guild = target->GetGuild();
+            if (isNumeric(args))
+            {
+                uint32 guildId = uint32(atoi(args));
+                guild = sGuildMgr->GetGuildById(guildId);
+            }
             else
-                // getSelectedPlayerOrSelf will return null if there is no session
-                // so target becomes nullptr if the command is ran through console
-                // without specifying args.
-                return false;
+            {
+                std::string guildName = args;
+                guild = sGuildMgr->GetGuildByName(guildName);
+            }
         }
-        else if (guildId = atoi(args)) // Try searching by Id
-            guild = sGuildMgr->GetGuildById(guildId);
-        else
-        {
-            // Try to extract a guild name
-            char* tailStr = *args != '"' ? strtok(NULL, "") : (char*)args;
-            if (!tailStr)
-                return false;
-
-            char* guildStr = handler->extractQuotedArg((char*)args);
-            if (!guildStr)
-                return false;
-
-            guildName = guildStr;
-            guild = sGuildMgr->GetGuildByName(guildName);
-        }
+        else if (Player* target = handler->getSelectedPlayerOrSelf())
+            guild = target->GetGuild();
 
         if (!guild)
             return false;
 
         // Display Guild Information
         handler->PSendSysMessage(LANG_GUILD_INFO_NAME, guild->GetName().c_str(), guild->GetId()); // Guild Id + Name
+
+        std::string guildMasterName;
         if (sObjectMgr->GetPlayerNameByGUID(guild->GetLeaderGUID(), guildMasterName))
             handler->PSendSysMessage(LANG_GUILD_INFO_GUILD_MASTER, guildMasterName.c_str(), guild->GetLeaderGUID()); // Guild Master
 
@@ -298,6 +285,7 @@ public:
         handler->PSendSysMessage(LANG_GUILD_INFO_CREATION_DATE, createdDateStr); // Creation Date
         handler->PSendSysMessage(LANG_GUILD_INFO_MEMBER_COUNT, guild->GetMemberCount()); // Number of Members
         handler->PSendSysMessage(LANG_GUILD_INFO_BANK_GOLD, guild->GetBankMoney() / 100 / 100); // Bank Gold (in gold coins)
+        handler->PSendSysMessage(LANG_GUILD_INFO_LEVEL, guild->GetLevel()); // Level
         handler->PSendSysMessage(LANG_GUILD_INFO_MOTD, guild->GetMOTD().c_str()); // Message of the Day
         handler->PSendSysMessage(LANG_GUILD_INFO_EXTRA_INFO, guild->GetInfo().c_str()); // Extra Information
         return true;
