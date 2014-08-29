@@ -294,8 +294,7 @@ void AuctionHouseBot::InitializeAgents()
 {
     if (sAuctionBotConfig->GetConfig(CONFIG_AHBOT_SELLER_ENABLED))
     {
-        if (_seller)
-            delete _seller;
+        delete _seller;
 
         _seller = new AuctionBotSeller();
         if (!_seller->Initialize())
@@ -307,8 +306,7 @@ void AuctionHouseBot::InitializeAgents()
 
     if (sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYER_ENABLED))
     {
-        if (_buyer)
-            delete _buyer;
+        delete _buyer;
 
         _buyer = new AuctionBotBuyer();
         if (!_buyer->Initialize())
