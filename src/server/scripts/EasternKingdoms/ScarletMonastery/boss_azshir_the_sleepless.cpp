@@ -15,13 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Azshir_the_Sleepless
-SD%Complete: 80
-SDComment:
-SDCategory: Scarlet Monastery
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "scarlet_monastery.h"
@@ -70,9 +63,9 @@ class boss_azshir_the_sleepless : public CreatureScript
                 _JustDied();
             }
 
-            void DamageTaken(Unit* /*done_by*/, uint32& /*damage*/) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
-                if (HealthBelowPct(50) && !_siphon)
+                if (!_siphon && me->HealthBelowPctDamaged(50, damage))
                 {
                     DoCastVictim(SPELL_SOUL_SIPHON);
                     events.ScheduleEvent(EVENT_SOUL_SIPHON, 20000);
@@ -120,7 +113,7 @@ class boss_azshir_the_sleepless : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_azshir_the_sleeplessAI>(creature);
+            return GetScarletMonasteryAI<boss_azshir_the_sleeplessAI>(creature);
         }
 };
 
