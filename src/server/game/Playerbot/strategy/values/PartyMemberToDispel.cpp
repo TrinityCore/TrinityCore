@@ -14,9 +14,12 @@ public:
 public:
     virtual bool Check(Unit* unit)
     {
-        Pet* pet = (Pet*)(unit);
-        if (pet && pet->getPetType() == SUMMON_PET)
-            return false;
+        if (unit->IsPet())
+        {
+            Pet* pet = (Pet*)(unit);
+            if (pet && pet->getPetType() == SUMMON_PET)
+                return false;
+        }
 
         return unit->IsAlive() && ai->HasAuraToDispel(unit, dispelType);
     }

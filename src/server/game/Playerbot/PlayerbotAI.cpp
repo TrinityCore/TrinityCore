@@ -710,15 +710,14 @@ bool PlayerbotAI::TellMaster(string text, PlayerbotSecurityLevel securityLevel)
     return true;
 }
 
-bool IsRealAura(Player* bot, AuraEffect const* auraEffect, Unit* unit)
+bool IsRealAura(Player* bot, Aura const* aura, Unit* unit)
 {
-    if (!auraEffect)
+    if (!aura)
         return false;
 
     if (!unit->IsHostileTo(bot))
         return true;
 
-    Aura* aura = auraEffect->GetBase();
     uint32 stacks = aura->GetStackAmount();
     if (stacks >= aura->GetSpellInfo()->StackAmount)
         return true;
@@ -744,22 +743,19 @@ bool PlayerbotAI::HasAura(string name, Unit* unit)
 
     wstrToLower(wnamepart);
 
-    for (uint32 auraType = SPELL_AURA_BIND_SIGHT; auraType < TOTAL_AURAS; auraType++)
+    Unit::AuraApplicationMap& map = unit->GetAppliedAuras();
+    for (Unit::AuraApplicationMap::iterator i = map.begin(); i != map.end(); ++i)
     {
-        Unit::AuraEffectList const& auras = unit->GetAuraEffectsByType((AuraType)auraType);
-		for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); i++)
-        {
-			AuraEffect const* aura = *i;
-            if (!aura)
-                continue;
+        Aura const* aura  = i->second->GetBase();
+        if (!aura)
+            continue;
 
-            const string auraName = aura->GetSpellInfo()->SpellName[0];
-            if (auraName.empty() || auraName.length() != wnamepart.length() || !Utf8FitTo(auraName, wnamepart))
-                continue;
+        const string auraName = aura->GetSpellInfo()->SpellName[0];
+        if (auraName.empty() || auraName.length() != wnamepart.length() || !Utf8FitTo(auraName, wnamepart))
+            continue;
 
-            if (IsRealAura(bot, aura, unit))
-                return true;
-        }
+        if (IsRealAura(bot, aura, unit))
+            return true;
     }
 
     return false;
@@ -772,7 +768,7 @@ bool PlayerbotAI::HasAura(uint32 spellId, const Unit* unit)
 
     for (uint32 effect = EFFECT_0; effect <= EFFECT_2; effect++)
     {
-        AuraEffect* aura = ((Unit*)unit)->GetAuraEffect(spellId, effect, unit->GetGUID());
+        Aura* aura = ((Unit*)unit)->GetAura(spellId);
 
         if (IsRealAura(bot, aura, (Unit*)unit))
             return true;
