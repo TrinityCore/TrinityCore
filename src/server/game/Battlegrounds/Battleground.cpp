@@ -764,7 +764,7 @@ void Battleground::EndBattleground(uint32 winner)
     {
         stmt->setUInt64(0, battleground_id);
         stmt->setUInt8(2, m_BracketId + 1);
-        stmt->setUInt8(3, GetTypeID());
+        stmt->setUInt8(3, GetTypeID(true));
         CharacterDatabase.Execute(stmt);
     }
 
