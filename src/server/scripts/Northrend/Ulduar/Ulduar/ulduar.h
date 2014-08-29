@@ -18,8 +18,6 @@
 #ifndef DEF_ULDUAR_H
 #define DEF_ULDUAR_H
 
-#include "InstanceScript.h"
-#include "ObjectMgr.h"
 #define UlduarScriptName "instance_ulduar"
 
 extern Position const ObservationRingKeepersPos[4];

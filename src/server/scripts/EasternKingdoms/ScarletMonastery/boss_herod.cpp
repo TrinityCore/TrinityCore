@@ -100,9 +100,9 @@ class boss_herod : public CreatureScript
                     me->SummonCreature(NPC_SCARLET_TRAINEE, ScarletTraineePos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
             }
 
-            void DamageTaken(Unit* /*done_by*/, uint32& /*damage*/) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
-                if (HealthBelowPct(30) && !_enrage)
+                if (!_enrage && me->HealthBelowPctDamaged(30, damage))
                 {
                     Talk(EMOTE_ENRAGE);
                     Talk(SAY_ENRAGE);
@@ -129,18 +129,13 @@ class boss_herod : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) override
-            {
-                BossAI::UpdateAI(diff);
-            }
-
             private:
                 bool _enrage;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_herodAI>(creature);
+            return GetScarletMonasteryAI<boss_herodAI>(creature);
         }
 };
 
