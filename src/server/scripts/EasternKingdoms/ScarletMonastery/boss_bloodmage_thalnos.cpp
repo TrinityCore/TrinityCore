@@ -80,9 +80,9 @@ class boss_bloodmage_thalnos : public CreatureScript
                 Talk(SAY_KILL);
             }
 
-            void DamageTaken(Unit* /*done_by*/, uint32& /*damage*/) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
-                if (HealthBelowPct(35) && !_hpYell)
+                if (!_hpYell && me->HealthBelowPctDamaged(35, damage))
                 {
                     Talk(SAY_HEALTH);
                     _hpYell = true;
@@ -114,18 +114,13 @@ class boss_bloodmage_thalnos : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) override
-            {
-                BossAI::UpdateAI(diff);
-            }
-
             private:
                 bool _hpYell;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_bloodmage_thalnosAI>(creature);
+            return GetScarletMonasteryAI<boss_bloodmage_thalnosAI>(creature);
         }
 };
 

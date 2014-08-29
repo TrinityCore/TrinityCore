@@ -247,16 +247,12 @@ public:
 
     static bool HandleGuildInfoCommand(ChatHandler* handler, char const* args)
     {
-        Player* target;
-        uint32 guildId;
-        std::string guildName;
-        std::string guildMasterName;
-        Guild* guild;
+        Guild* guild = nullptr;
 
         if (!*args)
         {
             // Look for the guild of the selected player or ourselves
-            if (target = handler->getSelectedPlayerOrSelf())
+            if (Player* target = handler->getSelectedPlayerOrSelf())
                 guild = target->GetGuild();
             else
                 // getSelectedPlayerOrSelf will return null if there is no session
@@ -264,7 +260,7 @@ public:
                 // without specifying args.
                 return false;
         }
-        else if (guildId = atoi(args)) // Try searching by Id
+        else if (uint32 guildId = atoi(args)) // Try searching by Id
             guild = sGuildMgr->GetGuildById(guildId);
         else
         {
@@ -277,12 +273,14 @@ public:
             if (!guildStr)
                 return false;
 
-            guildName = guildStr;
+            std::string guildName = guildStr;
             guild = sGuildMgr->GetGuildByName(guildName);
         }
 
         if (!guild)
             return false;
+
+        std::string guildMasterName;
 
         // Display Guild Information
         handler->PSendSysMessage(LANG_GUILD_INFO_NAME, guild->GetName().c_str(), guild->GetId()); // Guild Id + Name

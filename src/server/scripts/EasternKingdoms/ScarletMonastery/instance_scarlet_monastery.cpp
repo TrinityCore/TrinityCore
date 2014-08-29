@@ -28,7 +28,7 @@ DoorData const doorData[] =
 class instance_scarlet_monastery : public InstanceMapScript
 {
     public:
-        instance_scarlet_monastery() : InstanceMapScript("instance_scarlet_monastery", 189) { }
+        instance_scarlet_monastery() : InstanceMapScript(SMScriptName, 189) { }
 
         struct instance_scarlet_monastery_InstanceMapScript : public InstanceScript
         {
