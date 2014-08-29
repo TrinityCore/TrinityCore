@@ -15297,18 +15297,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                     SendNewItem(item, quest->RewardItemIdCount[i], true, false);
                 }
                 else if (quest->IsDFQuest())
-                {
-                    MailSender sender(MAIL_CREATURE, 34337 /* The Postmaster */ );
-                    MailDraft draft("Recovered Item", "We recovered a lost item in the twisting nether and noted that it was yours.$B$BPlease find said object enclosed."); // This is the text used in Cataclysm, it probably wasn't changed.
-                    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-                    if (Item* item = Item::CreateItem(quest->RewardItemId[i], quest->RewardItemIdCount[i], 0))
-                    {
-                        item->SaveToDB(trans);
-                        draft.AddItem(item);
-                    }
-                    draft.SendMailTo(trans, MailReceiver(this, this->GetGUIDLow()), sender);
-                    CharacterDatabase.CommitTransaction(trans);
-                }
+                    SendItemRetrievalMail(quest->RewardItemId[i], quest->RewardItemIdCount[i]);
             }
         }
     }
@@ -26498,6 +26487,22 @@ void Player::RefundItem(Item* item)
 
     SaveInventoryAndGoldToDB(trans);
 
+    CharacterDatabase.CommitTransaction(trans);
+}
+
+void Player::SendItemRetrievalMail(uint32 itemEntry, uint32 count)
+{
+    MailSender sender(MAIL_CREATURE, 34337 /* The Postmaster */);
+    MailDraft draft("Recovered Item", "We recovered a lost item in the twisting nether and noted that it was yours.$B$BPlease find said object enclosed."); // This is the text used in Cataclysm, it probably wasn't changed.
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    
+    if (Item* item = Item::CreateItem(itemEntry, count, 0))
+    {
+        item->SaveToDB(trans);
+        draft.AddItem(item);
+    }
+    
+    draft.SendMailTo(trans, MailReceiver(this, GetGUIDLow()), sender);
     CharacterDatabase.CommitTransaction(trans);
 }
 
