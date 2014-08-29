@@ -724,7 +724,7 @@ void Battleground::EndBattleground(uint32 winner)
         if (result)
         {
             Field* fields = result->Fetch();
-            battleground_id = fields[0].GetInt64() + 1;
+            battleground_id = fields[0].GetUInt64() + 1;
         }
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_BATTLEGROUND);
@@ -809,8 +809,6 @@ void Battleground::EndBattleground(uint32 winner)
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_PLAYER);
             BattlegroundScoreMap::const_iterator score = PlayerScores.find(player->GetGUIDLow());
-
-            // battleground_id, character_guid, score_killing_blows, score_deaths, score_honorable_kills, score_bonus_honor, score_damage_done, score_healing_done
 
             stmt->setUInt32(0, battleground_id);
             stmt->setUInt32(1, player->GetGUIDLow());
