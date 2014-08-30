@@ -30,6 +30,8 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "SystemConfig.h"
 
+#include <regex>
+
 class server_commandscript : public CommandScript
 {
 public:
@@ -201,145 +203,22 @@ public:
 
     static bool HandleServerShutDownCommand(ChatHandler* /*handler*/, char const* args)
     {
-        if (!*args)
-            return false;
-
-        char* timeStr = strtok((char*) args, " ");
-        char* exitCodeStr = strtok(NULL, "");
-
-        int32 time = atoi(timeStr);
-
-        // Prevent interpret wrong arg value as 0 secs shutdown time
-        if ((time == 0 && (timeStr[0] != '0' || timeStr[1] != '\0')) || time < 0)
-            return false;
-
-        if (exitCodeStr)
-        {
-            int32 exitCode = atoi(exitCodeStr);
-
-            // Handle atoi() errors
-            if (exitCode == 0 && (exitCodeStr[0] != '0' || exitCodeStr[1] != '\0'))
-                return false;
-
-            // Exit code should be in range of 0-125, 126-255 is used
-            // in many shells for their own return codes and code > 255
-            // is not supported in many others
-            if (exitCode < 0 || exitCode > 125)
-                return false;
-
-            sWorld->ShutdownServ(time, 0, exitCode);
-        }
-        else
-            sWorld->ShutdownServ(time, 0, SHUTDOWN_EXIT_CODE);
-
-        return true;
+        return ShutdownServer(args, 0, SHUTDOWN_EXIT_CODE);
     }
 
     static bool HandleServerRestartCommand(ChatHandler* /*handler*/, char const* args)
     {
-        if (!*args)
-            return false;
-
-        char* timeStr = strtok((char*) args, " ");
-        char* exitCodeStr = strtok(NULL, "");
-
-        int32 time = atoi(timeStr);
-
-        //  Prevent interpret wrong arg value as 0 secs shutdown time
-        if ((time == 0 && (timeStr[0] != '0' || timeStr[1] != '\0')) || time < 0)
-            return false;
-
-        if (exitCodeStr)
-        {
-            int32 exitCode = atoi(exitCodeStr);
-
-            // Handle atoi() errors
-            if (exitCode == 0 && (exitCodeStr[0] != '0' || exitCodeStr[1] != '\0'))
-                return false;
-
-            // Exit code should be in range of 0-125, 126-255 is used
-            // in many shells for their own return codes and code > 255
-            // is not supported in many others
-            if (exitCode < 0 || exitCode > 125)
-                return false;
-
-            sWorld->ShutdownServ(time, SHUTDOWN_MASK_RESTART, exitCode);
-        }
-        else
-            sWorld->ShutdownServ(time, SHUTDOWN_MASK_RESTART, RESTART_EXIT_CODE);
-
-            return true;
+        return ShutdownServer(args, SHUTDOWN_MASK_RESTART, RESTART_EXIT_CODE);
     }
 
     static bool HandleServerIdleRestartCommand(ChatHandler* /*handler*/, char const* args)
     {
-        if (!*args)
-            return false;
-
-        char* timeStr = strtok((char*) args, " ");
-        char* exitCodeStr = strtok(NULL, "");
-
-        int32 time = atoi(timeStr);
-
-        // Prevent interpret wrong arg value as 0 secs shutdown time
-        if ((time == 0 && (timeStr[0] != '0' || timeStr[1] != '\0')) || time < 0)
-            return false;
-
-        if (exitCodeStr)
-        {
-            int32 exitCode = atoi(exitCodeStr);
-
-            // Handle atoi() errors
-            if (exitCode == 0 && (exitCodeStr[0] != '0' || exitCodeStr[1] != '\0'))
-                return false;
-
-            // Exit code should be in range of 0-125, 126-255 is used
-            // in many shells for their own return codes and code > 255
-            // is not supported in many others
-            if (exitCode < 0 || exitCode > 125)
-                return false;
-
-            sWorld->ShutdownServ(time, SHUTDOWN_MASK_RESTART | SHUTDOWN_MASK_IDLE, exitCode);
-        }
-        else
-            sWorld->ShutdownServ(time, SHUTDOWN_MASK_RESTART | SHUTDOWN_MASK_IDLE, RESTART_EXIT_CODE);
-        return true;
+        return ShutdownServer(args, SHUTDOWN_MASK_RESTART | SHUTDOWN_MASK_IDLE, RESTART_EXIT_CODE);
     }
 
     static bool HandleServerIdleShutDownCommand(ChatHandler* /*handler*/, char const* args)
     {
-        if (!*args)
-            return false;
-
-        char* timeStr = strtok((char*) args, " ");
-        char* exitCodeStr = strtok(NULL, "");
-
-        int32 time = atoi(timeStr);
-
-        // Prevent interpret wrong arg value as 0 secs shutdown time
-        if ((time == 0 && (timeStr[0] != '0' || timeStr[1] != '\0')) || time < 0)
-            return false;
-
-        if (exitCodeStr)
-        {
-            int32 exitCode = atoi(exitCodeStr);
-
-            // Handle atoi() errors
-            if (exitCode == 0 && (exitCodeStr[0] != '0' || exitCodeStr[1] != '\0'))
-                return false;
-
-            // Exit code should be in range of 0-125, 126-255 is used
-            // in many shells for their own return codes and code > 255
-            // is not supported in many others
-            if (exitCode < 0 || exitCode > 125)
-                return false;
-
-            sWorld->ShutdownServ(time, SHUTDOWN_MASK_IDLE, exitCode);
-        }
-        else
-            sWorld->ShutdownServ(time, SHUTDOWN_MASK_IDLE, SHUTDOWN_EXIT_CODE);
-
-        return true;
+        return ShutdownServer(args, SHUTDOWN_MASK_IDLE, SHUTDOWN_EXIT_CODE);
     }
 
     // Exit the realm
@@ -412,6 +291,56 @@ public:
 
         sWorld->SetRecordDiffInterval(newTime);
         printf("Record diff every %u ms\n", newTime);
+
+        return true;
+    }
+
+private:
+    static bool ParseExitCode(std::string const& exitCodeStr, int32& exitCode)
+    {
+        exitCode = atoi(exitCodeStr.c_str());
+
+        // Handle atoi() errors
+        if (exitCode == 0 && (exitCodeStr[0] != '0' || exitCodeStr[1] != '\0'))
+            return false;
+
+        // Exit code should be in range of 0-125, 126-255 is used
+        // in many shells for their own return codes and code > 255
+        // is not supported in many others
+        if (exitCode < 0 || exitCode > 125)
+            return false;
+
+        return true;
+    }
+
+    static bool ShutdownServer(char const* args, uint32 shutdownMask, int32 defaultExitCode)
+    {
+        if (!*args)
+            return false;
+
+        // #delay [#exit_code] [reason]
+        std::regex regex("([0-9]+) ([0-9]*) ?(.*)");
+        std::cmatch cm;
+
+        if (!std::regex_match(args, cm, regex))
+            return false;
+
+        std::string delayStr = cm[1];
+        std::string exitCodeStr = cm[2];
+        std::string reason = cm[3];
+
+        int32 delay = atoi(delayStr.c_str());
+
+        // Prevent interpret wrong arg value as 0 secs shutdown time
+        if ((delay == 0 && (delayStr[0] != '0' || delayStr[1] != '\0')) || delay < 0)
+            return false;
+
+        int32 exitCode = defaultExitCode;
+        if (exitCodeStr.length() > 0)
+            if (!ParseExitCode(exitCodeStr, exitCode))
+                return false;
+
+        sWorld->ShutdownServ(delay, shutdownMask, static_cast<uint8>(exitCode), reason);
 
         return true;
     }
