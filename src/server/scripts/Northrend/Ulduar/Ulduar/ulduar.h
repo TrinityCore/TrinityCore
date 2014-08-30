@@ -18,8 +18,6 @@
 #ifndef DEF_ULDUAR_H
 #define DEF_ULDUAR_H
 
-#include "InstanceScript.h"
-#include "ObjectMgr.h"
 #define UlduarScriptName "instance_ulduar"
 
 extern Position const ObservationRingKeepersPos[4];
@@ -387,6 +385,9 @@ enum UlduarData
     DATA_BRUNDIR,
     DATA_STUNNED, 
 
+    // Hodir
+    DATA_HODIR_RARE_CACHE,
+
     // Mimiron
     DATA_LEVIATHAN_MK_II,
     DATA_VX_001,
@@ -449,7 +450,7 @@ enum UlduarData
 
     // Hodir
     DATA_GETTING_COLD_IN_HERE,
-    DATA_HODIR_RARE_CACHE,
+    //DATA_HODIR_RARE_CACHE,
     DATA_COOLEST_FRIENDS,
     DATA_CHEESE_THE_FREEZE,
 };

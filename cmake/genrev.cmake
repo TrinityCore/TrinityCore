@@ -41,7 +41,7 @@ else()
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
     )
-    
+
     # Also retrieve branch name
     execute_process(
       COMMAND "${GIT_EXEC}" rev-parse --abbrev-ref HEAD

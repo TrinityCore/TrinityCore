@@ -343,7 +343,6 @@ class Battleground
         virtual void FillInitialWorldStates(WorldPacket& /*data*/) { }
         void SendPacketToTeam(uint32 TeamID, WorldPacket* packet, Player* sender = NULL, bool self = true);
         void SendPacketToAll(WorldPacket* packet);
-        void YellToAll(Creature* creature, const char* text, uint32 language);
 
         void SendChatMessage(Creature* source, uint8 textId, WorldObject* target = NULL);
 

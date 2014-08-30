@@ -327,6 +327,12 @@ class boss_hodir : public CreatureScript
                 if (instance->GetBossState(BOSS_HODIR) == DONE)
                     return;
 
+                gettingColdInHereTimer = 0;
+                gettingColdInHere = false;
+                cheeseTheFreeze = false;
+                iHaveTheCoolestFriends = false;
+                iCouldSayThatThisCacheWasRare = false;
+
                 _Reset();
                 me->SetReactState(REACT_PASSIVE);
 

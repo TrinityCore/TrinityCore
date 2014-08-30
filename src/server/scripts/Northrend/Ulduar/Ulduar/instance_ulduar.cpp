@@ -15,14 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ulduar.h"
+#include "InstanceScript.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "WorldPacket.h"
+#include "ulduar.h"
 #include "AchievementMgr.h"
-
 
 static DoorData const doorData[] =
 {
@@ -913,10 +913,6 @@ class instance_ulduar : public InstanceMapScript
                     case DATA_UNBROKEN:
                         Unbroken = data != 0;
                         break;
-                    case DATA_MIMIRON_ELEVATOR:
-                        if (GameObject* gameObject = instance->GetGameObject(MimironElevatorGUID))
-                            gameObject->SetGoState((GOState)data);
-                        break;
                     case DATA_ILLUSION:
                         illusion = data;
                         break;
@@ -1053,6 +1049,8 @@ class instance_ulduar : public InstanceMapScript
                         return MimironComputerGUID;
                     case DATA_MIMIRON_WORLD_TRIGGER:
                         return MimironWorldTriggerGUID;
+                    case DATA_MIMIRON_ELEVATOR:
+                        return MimironElevatorGUID;
                     case DATA_MIMIRON_BUTTON:
                         return MimironButtonGUID;
 
