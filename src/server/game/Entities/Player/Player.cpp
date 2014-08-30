@@ -15338,8 +15338,8 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                 }
                 else if (quest->IsDFQuest())
                 {
-                    MailSender sender(MAIL_CREATURE, 34337 /* The Postmaster */ );
-                    MailDraft draft("Recovered Item", "We recovered a lost item in the twisting nether and noted that it was yours.$B$BPlease find said object enclosed."); // This seems to be the text used in Cata, it probably wasn't changed.
+                    MailSender sender(MAIL_NORMAL, 0, MAIL_STATIONERY_GM);
+                    MailDraft draft(quest->GetTitle(), quest->GetOfferRewardText()); // Probably not correct.
                     SQLTransaction trans = CharacterDatabase.BeginTransaction();
                     if (Item* item = Item::CreateItem(quest->RewardItemId[i], quest->RewardItemIdCount[i], 0))
                     {
