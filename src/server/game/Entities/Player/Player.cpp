@@ -15336,19 +15336,6 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                     Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
                     SendNewItem(item, quest->RewardItemIdCount[i], true, false);
                 }
-                else if (quest->IsDFQuest())
-                {
-                    MailSender sender(MAIL_NORMAL, 0, MAIL_STATIONERY_GM);
-                    MailDraft draft(quest->GetTitle(), quest->GetOfferRewardText()); // Probably not correct.
-                    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-                    if (Item* item = Item::CreateItem(quest->RewardItemId[i], quest->RewardItemIdCount[i], 0))
-                    {
-                        item->SaveToDB(trans);
-                        draft.AddItem(item);
-                    }
-                    draft.SendMailTo(trans, MailReceiver(this, this->GetGUIDLow()), sender);
-                    CharacterDatabase.CommitTransaction(trans);
-                }
             }
         }
     }
