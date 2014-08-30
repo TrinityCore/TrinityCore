@@ -1416,22 +1416,12 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                 }
                 else if (rollvote == DISENCHANT)
                 {
-                    ItemPosCountVec dest;
-                    InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count);
-                    if (msg == EQUIP_ERR_OK)
-                    {
-                        item->is_looted = true;
-                        roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
-                        roll->getLoot()->unlootedCount--;
-                        ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(roll->itemid);
-                        player->AutoStoreLoot(pProto->DisenchantID, LootTemplates_Disenchant, true);
-                        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, 13262); // Disenchant
-                    }
-                    else
-                    {
-                        item->is_blocked = false;
-                        player->SendEquipError(msg, NULL, NULL, roll->itemid);
-                    }
+                    item->is_looted = true;
+                    roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
+                    roll->getLoot()->unlootedCount--;
+                    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(roll->itemid);
+                    player->AutoStoreLoot(pProto->DisenchantID, LootTemplates_Disenchant, true);
+                    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, 13262); // Disenchant
                 }
             }
         }
