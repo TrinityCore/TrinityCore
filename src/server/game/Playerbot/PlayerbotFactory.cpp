@@ -132,25 +132,22 @@ void PlayerbotFactory::InitPet()
         if (!map)
             return;
 
-        QueryResult result = WorldDatabase.Query("SELECT count(*) FROM creature_template");
-        Field* fields = result->Fetch();
-        uint32 creatureCount = fields[0].GetUInt32();
-
 		vector<uint32> ids;
-        for (uint32 id = 0; id < creatureCount; ++id)
-        {
-            CreatureTemplate const* co = sObjectMgr->GetCreatureTemplate(id);
-            if (!co || !co->IsTameable(false))
+	    CreatureTemplateContainer const* creatureTemplateContainer = sObjectMgr->GetCreatureTemplates();
+	    for (CreatureTemplateContainer::const_iterator i = creatureTemplateContainer->begin(); i != creatureTemplateContainer->end(); ++i)
+	    {
+	        CreatureTemplate const& co = i->second;
+            if (!co.IsTameable(false))
                 continue;
 
-            if (co->minlevel > bot->getLevel())
+            if (co.minlevel > bot->getLevel())
                 continue;
 
-			PetLevelInfo const* petInfo = sObjectMgr->GetPetLevelInfo(co->Entry, bot->getLevel());
+			PetLevelInfo const* petInfo = sObjectMgr->GetPetLevelInfo(co.Entry, bot->getLevel());
             if (!petInfo)
                 continue;
 
-			ids.push_back(id);
+			ids.push_back(i->first);
 		}
 
         if (ids.empty())
@@ -1017,23 +1014,17 @@ void PlayerbotFactory::InitAvailableSpells()
 {
     bot->LearnDefaultSkills();
 
-    QueryResult result = WorldDatabase.Query("SELECT count(*) FROM creature_template");
-    Field* fields = result->Fetch();
-    uint32 creatureCount = fields[0].GetUInt32();
-
-    for (uint32 id = 0; id < creatureCount; ++id)
+    CreatureTemplateContainer const* creatureTemplateContainer = sObjectMgr->GetCreatureTemplates();
+    for (CreatureTemplateContainer::const_iterator i = creatureTemplateContainer->begin(); i != creatureTemplateContainer->end(); ++i)
     {
-        CreatureTemplate const* co = sObjectMgr->GetCreatureTemplate(id);
-        if (!co)
+        CreatureTemplate const& co = i->second;
+        if (co.trainer_type != TRAINER_TYPE_TRADESKILLS && co.trainer_type != TRAINER_TYPE_CLASS)
             continue;
 
-        if (co->trainer_type != TRAINER_TYPE_TRADESKILLS && co->trainer_type != TRAINER_TYPE_CLASS)
+        if (co.trainer_type == TRAINER_TYPE_CLASS && co.trainer_class != bot->getClass())
             continue;
 
-        if (co->trainer_type == TRAINER_TYPE_CLASS && co->trainer_class != bot->getClass())
-            continue;
-
-		uint32 trainerId = co->Entry;
+		uint32 trainerId = co.Entry;
 
 		TrainerSpellData const* trainer_spells = sObjectMgr->GetNpcTrainerSpells(trainerId);
         if (!trainer_spells)
@@ -1109,13 +1100,17 @@ void PlayerbotFactory::InitTalents(uint32 specNo)
         {
             int index = urand(0, spells.size() - 1);
             TalentEntry const *talentInfo = spells[index];
-            for (int rank = 0; rank < MAX_TALENT_RANK && bot->GetFreeTalentPoints(); ++rank)
+            int maxRank = 0;
+            for (int rank = 0; rank < min((uint32)MAX_TALENT_RANK, bot->GetFreeTalentPoints()); ++rank)
             {
                 uint32 spellId = talentInfo->RankID[rank];
                 if (!spellId)
                     continue;
-                bot->LearnSpell(spellId, false);
+
+                maxRank = rank;
             }
+
+            bot->LearnTalent(talentInfo->TalentID, maxRank);
 			spells.erase(spells.begin() + index);
         }
 

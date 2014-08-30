@@ -415,15 +415,20 @@ string ChatHelper::formatClass(Player* player, int spec)
     PlayerTalentMap& talentMap = player->GetTalentMap(0);
     for (PlayerTalentMap::iterator i = talentMap.begin(); i != talentMap.end(); ++i)
     {
-        uint32 talentId = i->first;
-        TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
+        uint32 spellId = i->first;
+        TalentSpellPos const* talentPos = GetTalentSpellPos(spellId);
+        if(!talentPos)
+            continue;
+
+        TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentPos->talent_id);
 
         if (!talentInfo)
             continue;
 
-        if (talentInfo->TalentTab == 0) c0++;
-        if (talentInfo->TalentTab == 1) c1++;
-        if (talentInfo->TalentTab == 2) c2++;
+        uint32 const* talentTabIds = GetTalentTabPages(player->getClass());
+        if (talentInfo->TalentTab == talentTabIds[0]) c0++;
+        if (talentInfo->TalentTab == talentTabIds[1]) c1++;
+        if (talentInfo->TalentTab == talentTabIds[2]) c2++;
     }
 
     out << (c0 ? "|h|cff00ff00" : "") << c0 << "|h|cffffffff/";
