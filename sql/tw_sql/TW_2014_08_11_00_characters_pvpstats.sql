@@ -1,6 +1,6 @@
 CREATE TABLE `pvpstats_faction` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `faction` BIT NOT NULL,
+  `faction` BIT UNSIGNED NOT NULL,
   `level` TINYINT UNSIGNED NOT NULL,
   `date` DATETIME NOT NULL,
   PRIMARY KEY (`id`)
