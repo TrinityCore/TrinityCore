@@ -6446,52 +6446,8 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff, Position const* lo
             break;
     }
 
-    if (m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS || DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, NULL, SPELL_DISABLE_LOS))
+    if (IsTriggered() || m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS || DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, NULL, SPELL_DISABLE_LOS))
         return true;
-
-    if (IsTriggered())
-    {
-        switch (m_spellInfo->Id)
-        {
-            case 42208:
-            case 42209:
-            case 42210:
-            case 42211:
-            case 42212:
-            case 42213:
-            case 42198:
-            case 42937:
-            case 42938: // blizzard
-            case 42218:
-            case 42223:
-            case 42224:
-            case 42225:
-            case 42226:
-            case 42227:
-            case 47817:
-            case 47818: // rain of fire
-            case 42230:
-            case 42231:
-            case 42232:
-            case 42233:
-            case 48466: // hurricane
-            case 42234:
-            case 42243:
-            case 42244:
-            case 42245:
-            case 58432:
-            case 58433: // volley
-                if (DynamicObject* dynobj = m_caster->GetDynObject(m_triggeredByAuraSpell->Id))
-                    if (!target->IsWithinLOSInMap(dynobj))
-                        return false;
-                return true;
-            case 50622:
-            case 44949: // blade storm, break to go through below check
-                break;
-            default:
-                return true;
-        }
-    }
 
     /// @todo shit below shouldn't be here, but it's temporary
     //Check targets for LOS visibility (except spells without range limitations)
@@ -6517,36 +6473,6 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff, Position const* lo
 
             // all ok by some way or another, skip normal check
             break;
-        case SPELL_EFFECT_SCHOOL_DAMAGE:
-        case SPELL_EFFECT_APPLY_AURA:
-            switch (m_spellInfo->Id)
-            {
-                case 30283:
-                case 30413:
-                case 30414:
-                case 47846:
-                case 47847: // Shadowfury
-                case 2120:
-                case 2121:
-                case 8422:
-                case 8423:
-                case 10215:
-                case 10216:
-                case 27086:
-                case 42925:
-                case 42926: // Flamestrike
-                    if (const WorldLocation *pos = m_targets.GetDstPos())
-                    {
-                        if (!target->IsWithinLOS(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ()))
-                            return false;
-                        else
-                            return true;
-                    }
-                    break;
-                default:
-                    break;
-            }
-            // no break go to normal check
         default:                                            // normal case
         {
             if (losPosition)

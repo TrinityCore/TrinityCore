@@ -627,35 +627,6 @@ class spell_mage_summon_water_elemental : public SpellScriptLoader
         }
 };
 
-// 2120 - Flamestrike
-class spell_mage_flamestrike : public SpellScriptLoader
-{
-public:
-    spell_mage_flamestrike() : SpellScriptLoader("spell_mage_flamestrike") { }
-
-    class spell_mage_flamestrike_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_mage_flamestrike_AuraScript);
-
-        bool CheckAreaTarget(Unit* target)
-        {
-            if (DynamicObject* dynobj = GetCaster()->GetDynObject(GetSpellInfo()->Id))
-                return target->IsWithinLOSInMap(dynobj);
-            return true;
-        }
-
-        void Register() override
-        {
-            DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_mage_flamestrike_AuraScript::CheckAreaTarget);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_mage_flamestrike_AuraScript();
-    }
-};
-
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_blast_wave();
@@ -670,5 +641,4 @@ void AddSC_mage_spell_scripts()
     new spell_mage_master_of_elements();
     new spell_mage_polymorph_cast_visual();
     new spell_mage_summon_water_elemental();
-    new spell_mage_flamestrike();
 }
