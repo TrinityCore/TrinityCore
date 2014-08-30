@@ -1418,16 +1418,16 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                 {
                     ItemPosCountVec dest;
                     InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count);
-                    item->is_looted = true;
-                    roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
-                    roll->getLoot()->unlootedCount--;
                     if (msg == EQUIP_ERR_OK)
                     {
+                        item->is_looted = true;
+                        roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
+                        roll->getLoot()->unlootedCount--;
                         ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(roll->itemid);
                         player->AutoStoreLoot(pProto->DisenchantID, LootTemplates_Disenchant, true);
                         player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, 13262); // Disenchant
                     }
-                    else // If the player's inventory is full, send the disenchant result in a mail.
+                    else
                     {
                         ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(roll->itemid);
                         Loot loot;
