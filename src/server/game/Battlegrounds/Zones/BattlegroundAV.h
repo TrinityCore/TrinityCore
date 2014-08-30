@@ -23,10 +23,6 @@
 #include "BattlegroundScore.h"
 #include "Object.h"
 
-#define LANG_BG_AV_A_CAPTAIN_BUFF       "Begone. Uncouth scum! The Alliance shall prevail in Alterac Valley!"
-#define LANG_BG_AV_H_CAPTAIN_BUFF       "Now is the time to attack! For the Horde!"
-#define LANG_BG_AV_S_MINE_BOSS_CLAIMS   "Snivvle is here! Snivvle claims the Coldtooth Mine!"
-
 #define BG_AV_CAPTIME                    240000  //4:00
 #define BG_AV_SNOWFALL_FIRSTCAP          300000  //5:00 but i also have seen 4:05
 
@@ -53,6 +49,11 @@
 #define BG_AV_REP_SURVIVING_CAPTAIN     125
 
 #define BG_AV_EVENT_START_BATTLE           9166 // Achievement: The Alterac Blitz
+
+enum SharedActions
+{
+    ACTION_BUFF_YELL    = -30001
+};
 
 enum BG_AV_Sounds
 { /// @todo: get out if there comes a sound when neutral team captures mine
@@ -1041,63 +1042,63 @@ enum BG_AV_CreatureIds
 
 //entry, team, minlevel, maxlevel
 /// @todo: this array should be removed, the only needed things are the entrys (for spawning(?) and handlekillunit)
-const uint32 BG_AV_CreatureInfo[AV_NPC_INFO_MAX][4] =
+const uint32 BG_AV_CreatureInfo[AV_NPC_INFO_MAX] =
 {
-    { 12050, 1216, 58, 58 }, //Stormpike Defender
-    { 13326, 1216, 59, 59 }, //Seasoned Defender
-    { 13331, 1216, 60, 60 }, //Veteran Defender
-    { 13422, 1216, 61, 61 }, //Champion Defender
-    { 13358, 1216, 59, 60 }, //Stormpike Bowman /// @todo: Confirm if this is correct. Author assumpted 60, 61 & 69, 70, but wouldn't work here
-    { 11949, 469, 0, 0}, //not spawned with this data, but used for handlekillunit
-    { 11948, 469, 0, 0}, //not spawned with this data, but used for handlekillunit
-    { 12053, 1214, 58, 58 }, //Frostwolf Guardian
-    { 13328, 1214, 59, 59 }, //Seasoned Guardian
-    { 13332, 1214, 60, 60 }, //Veteran Guardian
-    { 13421, 1214, 61, 61 }, //Champion Guardian
-    { 13359, 1214, 59, 60 }, //Frostwolf Bowman
-    { 11947, 67, 0, 0}, //not spawned with this data, but used for handlekillunit
-    { 11946, 67, 0, 0}, //not spawned with this data, but used for handlekillunit
-    { 14763, 1534, 60, 60 }, //Dun Baldar South Marshal
-    { 14762, 1534, 60, 60 }, //Dun Baldar North Marshal
-    { 14764, 1534, 60, 60 }, //Icewing Marshal
-    { 14765, 1534, 60, 60 }, //Stonehearth Marshal
+    12050, // Stormpike Defender
+    13326, // Seasoned Defender
+    13331, // Veteran Defender
+    13422, // Champion Defender
+    13358, // Stormpike Bowman /// @todo: Confirm if this is correct. Author assumpted 60, 61 & 69, 70, but wouldn't work here
+    11949, // not spawned with this data, but used for handlekillunit
+    11948, // not spawned with this data, but used for handlekillunit
+    12053, // Frostwolf Guardian
+    13328, // Seasoned Guardian
+    13332, // Veteran Guardian
+    13421, // Champion Guardian
+    13359, // Frostwolf Bowman
+    11947, // not spawned with this data, but used for handlekillunit
+    11946, // not spawned with this data, but used for handlekillunit
+    14763, // Dun Baldar South Marshal
+    14762, // Dun Baldar North Marshal
+    14764, // Icewing Marshal
+    14765, // Stonehearth Marshal
 
-    { 14773, 1214, 60, 60 }, //Iceblood Warmaster
-    { 14776, 1214, 60, 60 }, //Tower Point Warmaster
-    { 14772, 1214, 60, 60 }, //East Frostwolf Warmaster
-    { 14777, 1214, 60, 60 }, //West Frostwolf Warmaster
+    14773, // Iceblood Warmaster
+    14776, // Tower Point Warmaster
+    14772, // East Frostwolf Warmaster
+    14777, // West Frostwolf Warmaster
 
-    { 10987, 59, 52, 53 }, //Irondeep Trogg
-    { 11600, 59, 53, 54 }, //Irondeep Shaman
-    { 11602, 59, 54, 55 }, //Irondeep Skullthumper
-    { 11657, 59, 58, 58 }, //Morloch
+    10987, // Irondeep Trogg
+    11600, // Irondeep Shaman
+    11602, // Irondeep Skullthumper
+    11657, // Morloch
 
-    {13396, 469, 52, 53}, // irondeep alliance /// @todo: Correct and give correct ids
-    {13080, 469, 53, 54},
-    {13098, 469, 54, 55},
-    {13078, 469, 58, 58},
+    13396, // irondeep alliance /// @todo: Correct and give correct ids
+    13080,
+    13098,
+    13078,
 
-    {13397, 67, 52, 53}, //irondeep horde
-    {13099, 67, 53, 54},
-    {13081, 67, 54, 55},
-    {13079, 67, 58, 58},
+    13397, // irondeep horde
+    13099,
+    13081,
+    13079,
 
-    { 11603, 59, 52, 53 }, //south mine neutral
-    { 11604, 59, 53, 54 },
-    { 11605, 59, 54, 55 },
-    { 11677, 59, 58, 58 },
-    { 10982, 59, 52, 53 }, //vermin
+    11603, // south mine neutral
+    11604,
+    11605,
+    11677,
+    10982, // vermin
 
-    {13317, 469, 52, 53}, //alliance
-    {13096, 469, 54, 55}, //explorer
-    {13087, 469, 54, 55}, //invader
-    {13086, 469, 58, 58},
+    13317, // alliance
+    13096, // explorer
+    13087, // invader
+    13086,
 
-    {13316, 67, 52, 53}, //horde
-    {13097, 67, 54, 55}, //surveypr
-    {13089, 67, 54, 55}, //guard
-    {13088, 67, 58, 58},
-    {14848, 67, 58, 58} //Herald
+    13316, // horde
+    13097, // surveypr
+    13089, // guard
+    13088,
+    14848  // Herald
 };
 
 //x, y, z, o, static_creature_info-id
@@ -1444,41 +1445,6 @@ const uint32 BG_AV_MineWorldStates[2][3] =
     {1355, 1357, 1356}
 };
 
-//alliance_control alliance_assault h_control h_assault
-const uint32 BG_AV_NodeWorldStates[16][4] =
-{
-    //Stormpike first aid station
-    {1325, 1326, 1327, 1328},
-    //Stormpike Graveyard
-    {1333, 1335, 1334, 1336},
-    //Stoneheart Grave
-    {1302, 1304, 1301, 1303},
-    //Snowfall Grave
-    {1341, 1343, 1342, 1344},
-    //Iceblood grave
-    {1346, 1348, 1347, 1349},
-    //Frostwolf Grave
-    {1337, 1339, 1338, 1340},
-    //Frostwolf Hut
-    {1329, 1331, 1330, 1332},
-    //Dunbaldar South Bunker
-    {1361, 1375, 1370, 1378},
-    //Dunbaldar North Bunker
-    {1362, 1374, 1371, 1379},
-    //Icewing Bunker
-    {1363, 1376, 1372, 1380},
-    //Stoneheart Bunker
-    {1364, 1377, 1373, 1381},
-    //Iceblood Tower
-    {1368, 1390, 1385, 1395},
-    //Tower Point
-    {1367, 1389, 1384, 1394},
-    //Frostwolf East
-    {1366, 1388, 1383, 1393},
-    //Frostwolf West
-    {1365, 1387, 1382, 1392},
-};
-
 enum BG_AV_QuestIds
 {
     AV_QUEST_A_SCRAPS1      = 7223,
@@ -1513,6 +1479,63 @@ enum BG_AV_Objectives
     AV_OBJECTIVE_DEFEND_GRAVEYARD   = 65
 };
 
+struct StaticNodeInfo
+{
+    BG_AV_Nodes NodeId;
+
+    struct
+    {
+        uint8 AllianceCapture;
+        uint8 AllianceAttack;
+        uint8 HordeCapture;
+        uint8 HordeAttack;
+    } TextIds;
+
+    struct
+    {
+        uint32 AllianceControl;
+        uint32 AllianceAssault;
+        uint32 HordeControl;
+        uint32 HordeAssault;
+    } WorldStateIds;
+};
+
+static StaticNodeInfo const BGAVNodeInfo[] =
+{
+    { BG_AV_NODES_FIRSTAID_STATION,  { 47, 48, 45, 46 }, { 1325, 1326, 1327, 1328 } }, // Stormpike First Aid Station
+    { BG_AV_NODES_STORMPIKE_GRAVE,   {  1,  2,  3,  4 }, { 1333, 1335, 1334, 1336 } }, // Stormpike Graveyard
+    { BG_AV_NODES_STONEHEART_GRAVE,  { 55, 56, 53, 54 }, { 1302, 1304, 1301, 1303 } }, // Stoneheart Graveyard
+    { BG_AV_NODES_SNOWFALL_GRAVE,    {  5,  6,  7,  8 }, { 1341, 1343, 1342, 1344 } }, // Snowfall Graveyard
+    { BG_AV_NODES_ICEBLOOD_GRAVE,    { 59, 60, 57, 58 }, { 1346, 1348, 1347, 1349 } }, // Iceblood Graveyard
+    { BG_AV_NODES_FROSTWOLF_GRAVE,   {  9, 10, 11, 12 }, { 1337, 1339, 1338, 1340 } }, // Frostwolf Graveyard
+    { BG_AV_NODES_FROSTWOLF_HUT,     { 51, 52, 49, 50 }, { 1329, 1331, 1330, 1332 } }, // Frostwolf Hut
+    { BG_AV_NODES_DUNBALDAR_SOUTH,   { 16, 15, 14, 13 }, { 1361, 1375, 1370, 1378 } }, // Dunbaldar South Bunker
+    { BG_AV_NODES_DUNBALDAR_NORTH,   { 20, 19, 18, 17 }, { 1362, 1374, 1371, 1379 } }, // Dunbaldar North Bunker
+    { BG_AV_NODES_ICEWING_BUNKER,    { 24, 23, 22, 21 }, { 1363, 1376, 1372, 1380 } }, // Icewing Bunker
+    { BG_AV_NODES_STONEHEART_BUNKER, { 28, 27, 26, 25 }, { 1364, 1377, 1373, 1381 } }, // Stoneheart Bunker
+    { BG_AV_NODES_ICEBLOOD_TOWER,    { 44, 43, 42, 41 }, { 1368, 1390, 1385, 1395 } }, // Iceblood Tower
+    { BG_AV_NODES_TOWER_POINT,       { 40, 39, 38, 37 }, { 1367, 1389, 1384, 1394 } }, // Tower Point
+    { BG_AV_NODES_FROSTWOLF_ETOWER,  { 36, 35, 34, 33 }, { 1366, 1388, 1383, 1393 } }, // Frostwolf East Tower
+    { BG_AV_NODES_FROSTWOLF_WTOWER,  { 32, 31, 30, 29 }, { 1365, 1387, 1382, 1392 } }, // Frostwolf West Tower
+};
+
+enum Texts
+{
+    // Herold
+    // Towers/Graveyards = 1 - 60
+    TEXT_COLDTOOTH_MINE_ALLIANCE_TAKEN  = 61,
+    TEXT_IRONDEEP_MINE_ALLIANCE_TAKEN   = 62,
+    TEXT_COLDTOOTH_MINE_HORDE_TAKEN     = 63,
+    TEXT_IRONDEEP_MINE_HORDE_TAKEN      = 64,
+    TEXT_FROSTWOLF_GENERAL_DEAD         = 65, /// @todo: sound is missing
+    TEXT_STORMPIKE_GENERAL_DEAD         = 66, /// @todo: sound is missing
+    TEXT_ALLIANCE_WINS                  = 67, // NYI /// @todo: sound is missing
+    TEXT_HORDE_WINS                     = 68, // NYI /// @todo: sound is missing
+
+    // Taskmaster Snivvle
+    TEXT_SNIVVLE_RANDOM                 = 0
+};
+
 struct BG_AV_NodeInfo
 {
     BG_AV_States State;
@@ -1524,7 +1547,7 @@ struct BG_AV_NodeInfo
     bool         Tower;
 };
 
-inline BG_AV_Nodes &operator++(BG_AV_Nodes &i){ return i = BG_AV_Nodes(i + 1); }
+inline BG_AV_Nodes &operator++(BG_AV_Nodes& i) { return i = BG_AV_Nodes(i + 1); }
 
 struct BattlegroundAVScore final : public BattlegroundScore
 {
@@ -1633,9 +1656,16 @@ class BattlegroundAV : public Battleground
         void PopulateNode(BG_AV_Nodes node);
         void DePopulateNode(BG_AV_Nodes node);
 
+        StaticNodeInfo const* GetStaticNodeInfo(BG_AV_Nodes node) const
+        {
+            for (uint8 i = 0; i < BG_AV_NODES_MAX; ++i)
+                if (BGAVNodeInfo[i].NodeId == node)
+                    return &BGAVNodeInfo[i];
+            return nullptr;
+        }
+
         BG_AV_Nodes GetNodeThroughObject(uint32 object);
         uint32 GetObjectThroughNode(BG_AV_Nodes node);
-        char const* GetNodeName(BG_AV_Nodes node);
         bool IsTower(BG_AV_Nodes node) { return m_Nodes[node].Tower; }
 
         /*mine*/
@@ -1643,7 +1673,6 @@ class BattlegroundAV : public Battleground
 
         /*worldstates*/
         void FillInitialWorldStates(WorldPacket& data) override;
-        uint8 GetWorldStateType(uint8 state, uint16 team);
         void SendMineWorldStates(uint32 mine);
         void UpdateNodeWorldState(BG_AV_Nodes node);
 
