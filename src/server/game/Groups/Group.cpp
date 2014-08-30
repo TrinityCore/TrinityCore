@@ -1429,17 +1429,8 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     }
                     else
                     {
-                        ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(roll->itemid);
-                        Loot loot;
-                        loot.FillLoot(pProto->DisenchantID, LootTemplates_Disenchant, player, true);
-
-                        uint32 max_slot = loot.GetMaxSlotInLootFor(player);
-                        for (uint32 i = 0; i < max_slot; ++i)
-                        {
-                            LootItem* lootItem = loot.LootItemInSlot(i, player);
-                            player->SendEquipError(msg, NULL, NULL, lootItem->itemid);
-                            player->SendItemRetrievalMail(lootItem->itemid, lootItem->count);
-                        }
+                        item->is_blocked = false;
+                        player->SendEquipError(msg, NULL, NULL, roll->itemid);
                     }
                 }
             }

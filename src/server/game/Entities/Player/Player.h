@@ -1587,8 +1587,6 @@ class Player : public Unit, public GridObject<Player>
         PlayerMails::iterator GetMailBegin() { return m_mail.begin();}
         PlayerMails::iterator GetMailEnd() { return m_mail.end();}
 
-        void SendItemRetrievalMail(uint32 itemEntry, uint32 count); // The Postman item retrieval mails, used in multiple places.
-
         /*********************************************************/
         /*** MAILED ITEMS SYSTEM ***/
         /*********************************************************/
