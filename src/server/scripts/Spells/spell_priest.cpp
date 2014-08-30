@@ -44,6 +44,9 @@ enum PriestSpells
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409,
     SPELL_PRIEST_T9_HEALING_2P                      = 67201,
     SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
+    SPELL_SPIRITUAL_HEAL                            = 14898,
+    SPELL_DIVINE_PROVIDENCE                         = 47562,
+    SPELL_TWIN_DISC                                 = 47586,
 };
 
 enum PriestSpellIcons
@@ -549,39 +552,45 @@ class spell_pri_power_word_shield : public SpellScriptLoader
         }
 };
 
-// 33110 - Prayer of Mending Heal
+// Prayer of Mending Heal
 class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
 {
-    public:
-        spell_pri_prayer_of_mending_heal() : SpellScriptLoader("spell_pri_prayer_of_mending_heal") { }
+public:
+    spell_pri_prayer_of_mending_heal() : SpellScriptLoader("spell_pri_prayer_of_mending_heal") { }
 
-        class spell_pri_prayer_of_mending_heal_SpellScript : public SpellScript
+    class spell_pri_prayer_of_mending_heal_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_prayer_of_mending_heal_SpellScript);
+
+        void HandleHeal(SpellEffIndex /*effIndex*/)
         {
-            PrepareSpellScript(spell_pri_prayer_of_mending_heal_SpellScript);
-
-            void HandleHeal(SpellEffIndex /*effIndex*/)
+            if (Unit* caster = GetOriginalCaster())
             {
-                if (Unit* caster = GetOriginalCaster())
-                {
-                    if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_PRIEST_T9_HEALING_2P, EFFECT_0))
-                    {
-                        int32 heal = GetHitHeal();
-                        AddPct(heal, aurEff->GetAmount());
-                        SetHitHeal(heal);
-                    }
-                }
-            }
+                int32 heal = GetHitHeal();
 
-            void Register() OVERRIDE
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
-            }
-        };
+                if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_T9_HEALING_2_PIECE,EFFECT_0))
+                    AddPctN(heal, aurEff->GetAmount());
+                if (AuraEffect* aurEff = caster->GetAuraEffectOfRankedSpell(SPELL_SPIRITUAL_HEAL, EFFECT_0))
+                    AddPctN(heal, aurEff->GetAmount());
+                if (AuraEffect* aurEff = caster->GetAuraEffectOfRankedSpell(SPELL_DIVINE_PROVIDENCE, EFFECT_0))
+                    AddPctN(heal, aurEff->GetAmount());
+                if (AuraEffect* aurEff = caster->GetAuraEffectOfRankedSpell(SPELL_TWIN_DISC, EFFECT_0))
+                    AddPctN(heal, aurEff->GetAmount());
 
-        SpellScript* GetSpellScript() const OVERRIDE
-        {
-            return new spell_pri_prayer_of_mending_heal_SpellScript();
+                SetHitHeal(heal);
+            }
         }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_prayer_of_mending_heal_SpellScript();
+    }
 };
 
 // -139 - Renew
