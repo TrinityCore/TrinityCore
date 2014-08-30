@@ -568,7 +568,7 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
                 {
                     int32 heal = GetHitHeal();
 
-                    if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_T9_HEALING_2_PIECE,EFFECT_0))
+                    if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_T9_HEALING_2,EFFECT_0))
                         AddPctN(heal, aurEff->GetAmount());
                     if (AuraEffect* aurEff = caster->GetAuraEffectOfRankedSpell(SPELL_SPIRITUAL_HEAL, EFFECT_0))
                         AddPctN(heal, aurEff->GetAmount());
