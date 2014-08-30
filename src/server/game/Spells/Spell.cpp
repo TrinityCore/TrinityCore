@@ -6517,6 +6517,36 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff, Position const* lo
 
             // all ok by some way or another, skip normal check
             break;
+        case SPELL_EFFECT_SCHOOL_DAMAGE:
+        case SPELL_EFFECT_APPLY_AURA:
+            switch (m_spellInfo->Id)
+            {
+                case 30283:
+                case 30413:
+                case 30414:
+                case 47846:
+                case 47847: // Shadowfury
+                case 2120:
+                case 2121:
+                case 8422:
+                case 8423:
+                case 10215:
+                case 10216:
+                case 27086:
+                case 42925:
+                case 42926: // Flamestrike
+                    if (const WorldLocation *pos = m_targets.GetDstPos())
+                    {
+                        if (!target->IsWithinLOS(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ()))
+                            return false;
+                        else
+                            return true;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            // no break go to normal check
         default:                                            // normal case
         {
             if (losPosition)
