@@ -569,13 +569,13 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
                     int32 heal = GetHitHeal();
 
                     if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_PRIEST_T9_HEALING_2P,EFFECT_0))
-                        AddPctN(heal, aurEff->GetAmount());
+                        AddPct(heal, aurEff->GetAmount());
                     if (AuraEffect* aurEff = caster->GetAuraEffectOfRankedSpell(SPELL_SPIRITUAL_HEAL, EFFECT_0))
-                        AddPctN(heal, aurEff->GetAmount());
+                        AddPct(heal, aurEff->GetAmount());
                     if (AuraEffect* aurEff = caster->GetAuraEffectOfRankedSpell(SPELL_DIVINE_PROVIDENCE, EFFECT_0))
-                        AddPctN(heal, aurEff->GetAmount());
+                        AddPct(heal, aurEff->GetAmount());
                     if (AuraEffect* aurEff = caster->GetAuraEffectOfRankedSpell(SPELL_TWIN_DISC, EFFECT_0))
-                        AddPctN(heal, aurEff->GetAmount());
+                        AddPct(heal, aurEff->GetAmount());
 
                     SetHitHeal(heal);
                 }
