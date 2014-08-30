@@ -85,7 +85,7 @@ private:
     BuyerConfiguration _houseConfig[MAX_AUCTION_HOUSE_TYPE];
 
     void LoadBuyerValues(BuyerConfiguration& config);
-    bool IsBuyableEntry(uint32 buyoutPrice, double inGameBuyPrice, double maxBuyablePrice, uint32 minBuyPrice, uint32 maxChance, uint32 chanceRatio);
+    bool IsBuyableEntry(uint32 buyoutPrice, double inGameBuyPrice, uint32 maxBuyablePrice, uint32 minBuyPrice, uint32 maxChance, uint32 chanceRatio);
     bool IsBidableEntry(uint32 bidPrice, double inGameBuyPrice, double maxBidablePrice, uint32 minBidPrice, uint32 maxChance, uint32 chanceRatio);
     void PlaceBidToEntry(AuctionEntry* auction, uint32 bidPrice);
     void BuyEntry(AuctionEntry* auction);
