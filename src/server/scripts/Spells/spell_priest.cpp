@@ -557,17 +557,17 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
 {
     public:
         spell_pri_prayer_of_mending_heal() : SpellScriptLoader("spell_pri_prayer_of_mending_heal") { }
-    
+
         class spell_pri_prayer_of_mending_heal_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_pri_prayer_of_mending_heal_SpellScript);
-    
+
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetOriginalCaster())
                 {
                     int32 heal = GetHitHeal();
-    
+
                     if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_T9_HEALING_2_PIECE,EFFECT_0))
                         AddPctN(heal, aurEff->GetAmount());
                     if (AuraEffect* aurEff = caster->GetAuraEffectOfRankedSpell(SPELL_SPIRITUAL_HEAL, EFFECT_0))
@@ -576,17 +576,17 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
                         AddPctN(heal, aurEff->GetAmount());
                     if (AuraEffect* aurEff = caster->GetAuraEffectOfRankedSpell(SPELL_TWIN_DISC, EFFECT_0))
                         AddPctN(heal, aurEff->GetAmount());
-    
+
                     SetHitHeal(heal);
                 }
             }
-    
+
             void Register() OVERRIDE
             {
                 OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
-    
+
         SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_pri_prayer_of_mending_heal_SpellScript();
