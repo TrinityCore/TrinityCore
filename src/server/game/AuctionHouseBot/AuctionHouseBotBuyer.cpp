@@ -170,7 +170,7 @@ void AuctionBotBuyer::PrepareListOfEntry(BuyerConfiguration& config)
     TC_LOG_DEBUG("ahbot", "AHBot: CheckedEntry size = %u", (uint32)config.CheckedEntry.size());
 }
 
-bool AuctionBotBuyer::IsBuyableEntry(uint32 buyoutPrice, double inGameBuyPrice, double maxBuyablePrice, uint32 minBuyPrice, uint32 maxChance, uint32 chanceRatio)
+bool AuctionBotBuyer::IsBuyableEntry(uint32 buyoutPrice, double inGameBuyPrice, uint32 maxBuyablePrice, uint32 minBuyPrice, uint32 maxChance, uint32 chanceRatio)
 {
     double ratio = 0;
     uint32 chance = 0;
@@ -184,7 +184,7 @@ bool AuctionBotBuyer::IsBuyableEntry(uint32 buyoutPrice, double inGameBuyPrice, 
 
             if (buyoutPrice > 0 && maxBuyablePrice > 0)
             {
-                ratio = buyoutPrice / maxBuyablePrice;
+                ratio = double(buyoutPrice) / double(maxBuyablePrice);
                 if (ratio < 10)
                     chance = maxChance - (ratio * maxChance / 10);
                 else
@@ -201,7 +201,7 @@ bool AuctionBotBuyer::IsBuyableEntry(uint32 buyoutPrice, double inGameBuyPrice, 
 
             if (buyoutPrice > 0 && maxBuyablePrice > 0)
             {
-                ratio = buyoutPrice / maxBuyablePrice;
+                ratio = double(buyoutPrice) / double(maxBuyablePrice);
                 if (ratio < 10)
                     chance = (maxChance / 5) - (ratio * maxChance / 50);
                 else
@@ -215,7 +215,7 @@ bool AuctionBotBuyer::IsBuyableEntry(uint32 buyoutPrice, double inGameBuyPrice, 
     {
         if (buyoutPrice > 0 && maxBuyablePrice > 0)
         {
-            ratio = buyoutPrice / maxBuyablePrice;
+            ratio = double(buyoutPrice) / double(maxBuyablePrice);
             if (ratio < 10)
                 chance = (maxChance / 5) - (ratio* maxChance / 50);
             else
@@ -348,12 +348,13 @@ void AuctionBotBuyer::AddNewAuctionBuyerBotBid(BuyerConfiguration& config)
         uint32 basePrice = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYPRICE_BUYER) ? prototype->BuyPrice : prototype->SellPrice;
         basePrice *= item->GetCount();
 
-        double maxBuyablePrice = (basePrice * config.BuyerPriceRatio) / 100;
+        uint32 maxBuyablePrice = (basePrice * config.BuyerPriceRatio) / 100;
         BuyerItemInfoMap::iterator sameItemItr = config.SameItemInfo.find(item->GetEntry());
         uint32 buyoutPrice = auction->buyout / item->GetCount();
 
         uint32 bidPrice;
         uint32 bidPriceByItem;
+        uint32 minBidPrice;
         if (auction->bid >= auction->startbid)
         {
             bidPrice = auction->GetAuctionOutBid();
@@ -371,6 +372,7 @@ void AuctionBotBuyer::AddNewAuctionBuyerBotBid(BuyerConfiguration& config)
         {
             inGameBuyPrice = 0;
             inGameBidPrice = 0;
+            minBidPrice = 0;
         }
         else
         {
@@ -378,15 +380,16 @@ void AuctionBotBuyer::AddNewAuctionBuyerBotBid(BuyerConfiguration& config)
                 maxBuyablePrice = maxBuyablePrice * 5; // if only one item exist can be bought if the price is high too.
             inGameBuyPrice = sameItemItr->second.BuyPrice / sameItemItr->second.ItemCount;
             inGameBidPrice = sameItemItr->second.BidPrice / sameItemItr->second.ItemCount;
+            minBidPrice = sameItemItr->second.MinBidPrice;
         }
 
-        double maxBidablePrice = maxBuyablePrice - (maxBuyablePrice / 30); // Max Bidable price defined to 70% of max buyable price
+        uint32 maxBidablePrice = maxBuyablePrice - (maxBuyablePrice / 30); // Max Bidable price defined to 70% of max buyable price
 
         TC_LOG_DEBUG("ahbot", "AHBot: Auction added with data:");
-        TC_LOG_DEBUG("ahbot", "AHBot: MaxPrice of Entry %u is %.1fg.", itr->second.AuctionId, maxBuyablePrice / 10000);
+        TC_LOG_DEBUG("ahbot", "AHBot: MaxPrice of Entry %u is %.1fg.", itr->second.AuctionId, double(maxBuyablePrice) / 10000.0);
         TC_LOG_DEBUG("ahbot", "AHBot: GamePrice buy=%.1fg, bid=%.1fg.", inGameBuyPrice / 10000, inGameBidPrice / 10000);
         TC_LOG_DEBUG("ahbot", "AHBot: Minimal price see in AH Buy=%ug, Bid=%ug.",
-            sameItemItr->second.MinBuyPrice / 10000, sameItemItr->second.MinBidPrice / 10000);
+            sameItemItr->second.MinBuyPrice / 10000, minBidPrice / 10000);
         TC_LOG_DEBUG("ahbot", "AHBot: Actual Entry price,  Buy=%ug, Bid=%ug.", buyoutPrice / 10000, bidPrice / 10000);
 
         if (!auction->owner)                // Original auction owner
@@ -395,7 +398,7 @@ void AuctionBotBuyer::AddNewAuctionBuyerBotBid(BuyerConfiguration& config)
         {
             if (IsBuyableEntry(buyoutPrice, inGameBuyPrice, maxBuyablePrice, sameItemItr->second.MinBuyPrice, maxChance, config.FactionChance))
             {
-                if (IsBidableEntry(bidPriceByItem, inGameBuyPrice, maxBidablePrice, sameItemItr->second.MinBidPrice, maxChance / 2, config.FactionChance))
+                if (IsBidableEntry(bidPriceByItem, inGameBuyPrice, maxBidablePrice, minBidPrice, maxChance / 2, config.FactionChance))
                 {
                     if (urand(0, 5) == 0)
                         PlaceBidToEntry(auction, bidPrice);
@@ -405,10 +408,10 @@ void AuctionBotBuyer::AddNewAuctionBuyerBotBid(BuyerConfiguration& config)
                 else
                     BuyEntry(auction);
             }
-            else if (IsBidableEntry(bidPriceByItem, inGameBuyPrice, maxBidablePrice, sameItemItr->second.MinBidPrice, maxChance / 2, config.FactionChance))
+            else if (IsBidableEntry(bidPriceByItem, inGameBuyPrice, maxBidablePrice, minBidPrice, maxChance / 2, config.FactionChance))
                 PlaceBidToEntry(auction, bidPrice);
         }
-        else if (IsBidableEntry(bidPriceByItem, inGameBuyPrice, maxBidablePrice, sameItemItr->second.MinBidPrice, maxChance, config.FactionChance))
+        else if (IsBidableEntry(bidPriceByItem, inGameBuyPrice, maxBidablePrice, minBidPrice, maxChance, config.FactionChance))
             PlaceBidToEntry(auction, bidPrice);
 
         itr->second.LastChecked = now;
