@@ -968,12 +968,13 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target)
     {
         bot->SetFacingTo(bot->GetAngle(faceTo));
         delete spell;
+        SetNextCheckDelay(sPlayerbotAIConfig.reactDelay);
         return false;
     }
 
-    WaitForSpellCast(spell);
+	spell->prepare(&targets, false);
+	WaitForSpellCast(spell);
 
-    spell->prepare(&targets, false);
     if (oldSel)
         bot->SetSelection(oldSel->GetGUID());
 
