@@ -94,9 +94,10 @@ bool LfgJoinAction::JoinProposal()
     IterateItems(&visitor, ITERATE_ITEMS_IN_EQUIP);
 	bool heroic = urand(0, 100) < 50 && (visitor.count[ITEM_QUALITY_EPIC] >= 3 || visitor.count[ITEM_QUALITY_RARE] >= 10) && bot->getLevel() >= 70;
     bool random = urand(0, 100) < 25;
-    bool raid = urand(0, 100) < 50 && visitor.count[ITEM_QUALITY_EPIC] >= 5 && (bot->getLevel() == 60 || bot->getLevel() == 70 || bot->getLevel() == 80);
+    bool raid = !heroic && (urand(0, 100) < 50 && visitor.count[ITEM_QUALITY_EPIC] >= 5 && (bot->getLevel() == 60 || bot->getLevel() == 70 || bot->getLevel() == 80));
 
     LfgDungeonSet list;
+    vector<uint32> idx;
     for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
     {
         LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(i);
@@ -120,30 +121,44 @@ bool LfgJoinAction::JoinProposal()
         if (raid && dungeon->type != LFG_TYPE_RAID)
             continue;
 
-        list.insert(dungeon->ID);
-    }
+        if (random && dungeon->type != LFG_TYPE_RANDOM)
+            continue;
 
-    if (random)
-	{
-		sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Bot %s joined to LFG_TYPE_RANDOM", bot->GetName());
-	}
-    else if (heroic)
-	{
-		sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Bot %s joined to LFG_TYPE_HEROIC_DUNGEON", bot->GetName());
-	}
-    else if (raid)
-	{
-		sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Bot %s joined to LFG_TYPE_RAID", bot->GetName());
-	}
-    else
-	{
-		sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Bot %s joined to LFG_TYPE_DUNGEON", bot->GetName());
-	}
+        if (!random && !raid && !heroic && dungeon->type != LFG_TYPE_DUNGEON)
+            continue;
+
+        if (!random)
+            list.insert(dungeon->ID);
+        else
+            idx.push_back(dungeon->ID);
+    }
 
     if (list.empty())
         return false;
 
-    sLFGMgr->JoinLfg(bot, GetRoles(), list, "bot");
+    uint8 roles = GetRoles();
+    if (random)
+	{
+        list.insert(idx[urand(0, idx.size() - 1)]);
+        sLFGMgr->JoinLfg(bot, roles, list, "bot");
+
+        sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Bot %s joined to LFG_TYPE_RANDOM as %d", bot->GetName(), (uint32)roles);
+		return true;
+	}
+    else if (heroic)
+	{
+		sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Bot %s joined to LFG_TYPE_HEROIC_DUNGEON as %d", bot->GetName(), (uint32)roles);
+	}
+    else if (raid)
+	{
+		sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Bot %s joined to LFG_TYPE_RAID as %d", bot->GetName(), (uint32)roles);
+	}
+    else
+	{
+		sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Bot %s joined to LFG_TYPE_DUNGEON as %d", bot->GetName(), (uint32)roles);
+	}
+
+    sLFGMgr->JoinLfg(bot, roles, list, "bot");
     return true;
 }
 
