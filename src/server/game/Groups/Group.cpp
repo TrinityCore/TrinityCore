@@ -1453,8 +1453,25 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                     roll->getLoot()->unlootedCount--;
                     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(roll->itemid);
-                    player->AutoStoreLoot(pProto->DisenchantID, LootTemplates_Disenchant, true);
                     player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, 13262); // Disenchant
+
+                    ItemPosCountVec dest;
+                    InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count);
+                    if (msg == EQUIP_ERR_OK)
+                        player->AutoStoreLoot(pProto->DisenchantID, LootTemplates_Disenchant, true);
+                    else // If the player's inventory is full, send the disenchant result in a mail.
+                    {
+                        Loot loot;
+                        loot.FillLoot(pProto->DisenchantID, LootTemplates_Disenchant, player, true);
+
+                        uint32 max_slot = loot.GetMaxSlotInLootFor(player);
+                        for (uint32 i = 0; i < max_slot; ++i)
+                        {
+                            LootItem* lootItem = loot.LootItemInSlot(i, player);
+                            player->SendEquipError(msg, NULL, NULL, lootItem->itemid);
+                            player->SendItemRetrievalMail(lootItem->itemid, lootItem->count);
+                        }
+                    }
                 }
             }
         }
