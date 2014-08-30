@@ -27,7 +27,6 @@ set(scripts_STAT_SRCS
   Custom/TrialOfTheChampion/TW_boss_black_knight.cpp
   Custom/TrialOfTheChampion/TW_trial_of_the_champion.cpp
   Custom/Ulduar/TW_boss_thorim.cpp
-  Custom/Ulduar/TW_boss_mimiron.cpp
   ${scripts_STAT_SRCS}
 #  ${sources_Custom}
 )

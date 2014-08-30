@@ -12,7 +12,6 @@ void AddSC_TW_boss_black_knight();
 void AddSC_TW_boss_argent_challenge();
 void AddSC_TW_trial_of_the_champion();
 void AddSC_TW_boss_thorim();
-void AddSC_TW_boss_mimiron();
 void AddSC_custom_commandscript();
 void AddSC_TW_boss_apothecary_trio();
 void AddSC_TW_boss_hadronox();
@@ -31,7 +30,6 @@ void AddSC_custom()
     AddSC_TW_boss_grand_champions();
     AddSC_TW_trial_of_the_champion();
     AddSC_TW_boss_thorim();
-    AddSC_TW_boss_mimiron();
     AddSC_custom_commandscript();
     AddSC_TW_boss_apothecary_trio();
     AddSC_TW_boss_hadronox();

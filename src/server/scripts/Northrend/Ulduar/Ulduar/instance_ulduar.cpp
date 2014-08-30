@@ -127,14 +127,10 @@ class instance_ulduar : public InstanceMapScript
             uint64 RuneGiantGUID;
             uint64 SifGUID;
             uint64 ThorimLightningFieldGUID;
-            uint64 LeviathanMKIIGUID;
-            uint64 VX001GUID;
-            uint64 AerialUnitGUID;
             uint64 AncientGateGUID;
             bool lumberjacked;
             bool stunned;
 
-            std::list<uint64> MimironDoorGUIDList;
             std::set<uint64> mRubbleSpawns;
 
             void Initialize() override
@@ -198,9 +194,6 @@ class instance_ulduar : public InstanceMapScript
                 RuneGiantGUID                    = 0;
                 SifGUID                          = 0;
                 ThorimLightningFieldGUID         = 0;
-                LeviathanMKIIGUID                = 0;
-                VX001GUID                        = 0;
-                AerialUnitGUID                   = 0;
                 AncientGateGUID                  = 0;
                 stunned                          = true;
 
@@ -566,9 +559,9 @@ class instance_ulduar : public InstanceMapScript
                     case GO_HODIR_ENTRANCE:
                     case GO_HODIR_DOOR:
                     case GO_HODIR_ICE_DOOR:
-                    //case GO_MIMIRON_DOOR_1:
-                    //case GO_MIMIRON_DOOR_2:
-                    //case GO_MIMIRON_DOOR_3:
+                    case GO_MIMIRON_DOOR_1:
+                    case GO_MIMIRON_DOOR_2:
+                    case GO_MIMIRON_DOOR_3:
                     case GO_VEZAX_DOOR:
                     case GO_YOGG_SARON_DOOR:
                         AddDoor(gameObject, true);
@@ -637,7 +630,6 @@ class instance_ulduar : public InstanceMapScript
                     case GO_GIFT_OF_THE_OBSERVER_25:
                         GiftOfTheObserverGUID = gameObject->GetGUID();
                         break;
-
                     // TW
                     case GO_THORIM_RUNIC_DOOR:
                         RunicDoorGUID = gameObject->GetGUID();
@@ -647,20 +639,6 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case GO_THORIM_LIGHTNING_FIELD:
                         ThorimLightningFieldGUID = gameObject->GetGUID();
-                        break;
-                    case GO_MIMIRON_DOOR_1:
-                    case GO_MIMIRON_DOOR_2:
-                    case GO_MIMIRON_DOOR_3:
-                        AddDoor(gameObject, true);
-                        MimironDoorGUIDList.push_back(gameObject->GetGUID());
-                        break;
-                    case GO_ANCIENT_GATE:
-                        AncientGateGUID = gameObject->GetGUID();
-                        if (GetBossState(BOSS_FREYA) == DONE &&
-                            GetBossState(BOSS_MIMIRON) == DONE &&
-                            GetBossState(BOSS_HODIR) == DONE &&
-                            GetBossState(BOSS_THORIM) == DONE)
-                            gameObject->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
                         break;
                     default:
                         break;
@@ -690,6 +668,15 @@ class instance_ulduar : public InstanceMapScript
                     case GO_DOODAD_UL_ULDUAR_TRAPDOOR_03:
                         AddDoor(gameObject, false);
                         break;
+                    case GO_ANCIENT_GATE:
+                        AncientGateGUID = gameObject->GetGUID();
+                        if (GetBossState(BOSS_FREYA) == DONE &&
+                            GetBossState(BOSS_MIMIRON) == DONE &&
+                            GetBossState(BOSS_HODIR) == DONE &&
+                            GetBossState(BOSS_THORIM) == DONE)
+                            gameObject->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                        break;
+
                     default:
                         break;
                 }
@@ -784,9 +771,6 @@ class instance_ulduar : public InstanceMapScript
                     case BOSS_MIMIRON:
                         if (state == DONE)
                             instance->SummonCreature(NPC_MIMIRON_OBSERVATION_RING, ObservationRingKeepersPos[3]);
-                        for (std::list<uint64>::iterator i = MimironDoorGUIDList.begin(); i != MimironDoorGUIDList.end(); i++)
-                            if (GameObject* obj = instance->GetGameObject(*i))
-                                obj->SetGoState(state == IN_PROGRESS ? GO_STATE_READY : GO_STATE_ACTIVE);
                         break;
                     case BOSS_FREYA:
                         if (state == DONE)
@@ -958,14 +942,6 @@ class instance_ulduar : public InstanceMapScript
                         if (GameObject* go = instance->GetGameObject(StoneDoorGUID))
                             go->SetGoState(GOState(data));
                         break;
-                    //case DATA_CALL_TRAM:
-                        //if (GameObject* go = instance->GetGameObject(MimironTrainGUID))
-                            //go->UseDoorOrButton();
-                        //break;
-                    //case DATA_MIMIRON_ELEVATOR:
-                        //if (GameObject* go = instance->GetGameObject(MimironElevatorGUID))
-                            //go->SetGoState(GOState(data));
-                        //break;
                     default:
                         break;
                 }
