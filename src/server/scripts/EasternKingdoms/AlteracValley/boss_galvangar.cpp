@@ -30,7 +30,13 @@ enum Spells
 enum Yells
 {
     YELL_AGGRO                                    = 0,
-    YELL_EVADE                                    = 1
+    YELL_EVADE                                    = 1,
+    YELL_BUFF                                     = 2
+};
+
+enum Action
+{
+    ACTION_BUFF_YELL                              = -30001 // shared from Battleground
 };
 
 class boss_galvangar : public CreatureScript
@@ -67,6 +73,12 @@ public:
         void JustRespawned() override
         {
             Reset();
+        }
+
+        void DoAction(int32 actionId) override
+        {
+            if (actionId == ACTION_BUFF_YELL)
+                Talk(YELL_BUFF);
         }
 
         void UpdateAI(uint32 diff) override
