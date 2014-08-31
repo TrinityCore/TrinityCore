@@ -178,6 +178,11 @@ void PlayerbotFactory::InitPet()
             pet->setFaction(bot->getFaction());
             pet->SetLevel(bot->getLevel());
             bot->SetPetGUID(pet->GetGUID());
+            bot->GetMap()->AddToMap(pet->ToCreature());
+            bot->SetMinion(pet, true);
+            pet->InitTalentForLevel();
+            bot->PetSpellInitialize();
+            bot->InitTamedPet(pet, bot->getLevel(), 0);
 
             sLog->outMessage("playerbot", LOG_LEVEL_DEBUG,  "Bot %s: assign pet %d (%d level)", bot->GetName(), co->Entry, bot->getLevel());
             pet->SavePetToDB(PET_SAVE_AS_CURRENT);
