@@ -44,6 +44,7 @@ enum Spells
     SPELL_STONE_STRIKE                          = 48583,
     SPELL_ENRAGE                                = 48193,
     SPELL_SUMMON_SKARVALD_GHOST                 = 48613,
+
     // Spells of Dalronn and his Ghost
     SPELL_SHADOW_BOLT                           = 43649,
     SPELL_SUMMON_SKELETONS                      = 52611,
@@ -76,31 +77,30 @@ enum Actions
 
 class SkarvaldChargePredicate
 {
-   public:
-      SkarvaldChargePredicate(Unit* unit) : me(unit) { }
+    public:
+        SkarvaldChargePredicate(Unit* unit) : _me(unit) { }
 
-    bool operator() (WorldObject* object) const
-    {
-        return object->GetDistance2d(me) >= 5.0f && object->GetDistance2d(me) <= 30.0f;
-    }
+        bool operator() (WorldObject* target) const
+        {
+            return target->GetDistance2d(_me) >= 5.0f && target->GetDistance2d(_me) <= 30.0f;
+        }
 
     private:
-        Unit* me;
+        Unit* _me;
 };
 
 struct generic_boss_controllerAI : public BossAI
 {
-    generic_boss_controllerAI(Creature* creature) : BossAI(creature, DATA_SKARVALD_DALRONN) 
-    { 
+    generic_boss_controllerAI(Creature* creature) : BossAI(creature, DATA_SKARVALD_DALRONN)
+    {
         OtherBossData = 0;
-        IsInGhostForm = false;
+        IsInGhostForm = me->GetEntry() == NPC_SKARVALD_GHOST || me->GetEntry() == NPC_DALRONN_GHOST;
     }
 
     void Reset() override
     {
-        if (me->GetEntry() == NPC_SKARVALD_GHOST || me->GetEntry() == NPC_DALRONN_GHOST)
+        if (IsInGhostForm)
         {
-            IsInGhostForm = true;
             // Call this here since ghosts aren't set in combat as they spawn.
             DoZoneInCombat(me, 50.0f);
         }
@@ -160,7 +160,7 @@ struct generic_boss_controllerAI : public BossAI
         if (!IsInGhostForm && who->GetTypeId() == TYPEID_PLAYER)
             Talk(SAY_KILL);
     }
-    
+
     protected:
         uint32 OtherBossData;
         bool IsInGhostForm;
@@ -173,26 +173,27 @@ class boss_skarvald_the_constructor : public CreatureScript
 
         struct boss_skarvald_the_constructorAI : public generic_boss_controllerAI
         {
-            boss_skarvald_the_constructorAI(Creature* creature) : generic_boss_controllerAI(creature) 
-            { 
+            boss_skarvald_the_constructorAI(Creature* creature) : generic_boss_controllerAI(creature)
+            {
+                OtherBossData = DATA_DALRONN;
                 Enraged = false;
             }
 
             void Reset() override
             {
-                OtherBossData = DATA_DALRONN;
                 Enraged = false;
                 generic_boss_controllerAI::Reset();
             }
 
             void EnterCombat(Unit* who) override
             {
+                generic_boss_controllerAI::EnterCombat(who);
+
                 if (!IsInGhostForm)
                     Talk(SAY_AGGRO);
 
                 events.ScheduleEvent(EVENT_SKARVALD_CHARGE, 5000);
                 events.ScheduleEvent(EVENT_STONE_STRIKE, 10000);
-                generic_boss_controllerAI::EnterCombat(who);
             }
 
             void ExecuteEvent(uint32 eventId) override
@@ -239,26 +240,23 @@ class boss_dalronn_the_controller : public CreatureScript
 
         struct boss_dalronn_the_controllerAI : public generic_boss_controllerAI
         {
-            boss_dalronn_the_controllerAI(Creature* creature) : generic_boss_controllerAI(creature) { }
-
-            void Reset() override
+            boss_dalronn_the_controllerAI(Creature* creature) : generic_boss_controllerAI(creature)
             {
                 OtherBossData = DATA_SKARVALD;
-                generic_boss_controllerAI::Reset();
             }
 
             void EnterCombat(Unit* who) override
             {
+                generic_boss_controllerAI::EnterCombat(who);
+
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 1000);
                 events.ScheduleEvent(EVENT_DEBILITATE, 5000);
-                
-                if (!IsInGhostForm)                   
+
+                if (!IsInGhostForm)
                     events.ScheduleEvent(EVENT_DELAYED_AGGRO_SAY, 5000);
-                
-                if (IsHeroic())                   
+
+                if (IsHeroic())
                     events.ScheduleEvent(EVENT_SUMMON_SKELETONS, 10000);
-                
-                generic_boss_controllerAI::EnterCombat(who);
             }
 
             void ExecuteEvent(uint32 eventId) override
@@ -266,22 +264,17 @@ class boss_dalronn_the_controller : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_SHADOW_BOLT:
-                        if (!me->IsNonMeleeSpellCast(false))
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                                DoCast(target, SPELL_SHADOW_BOLT);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                            DoCast(target, SPELL_SHADOW_BOLT);
                         events.ScheduleEvent(EVENT_SHADOW_BOLT, 2100); //give a 100ms pause to try cast other spells
                         break;
                     case EVENT_DEBILITATE:
-                        if (!me->IsNonMeleeSpellCast(false))
-                        {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                                DoCast(target, SPELL_DEBILITATE);
-                        }
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                            DoCast(target, SPELL_DEBILITATE);
                         events.ScheduleEvent(EVENT_DEBILITATE, urand(5000, 10000));
                         break;
                     case EVENT_SUMMON_SKELETONS:
-                        if (!me->IsNonMeleeSpellCast(false))
-                            DoCast(SPELL_SUMMON_SKELETONS);
+                        DoCast(me, SPELL_SUMMON_SKELETONS);
                         events.ScheduleEvent(EVENT_SUMMON_SKELETONS, urand(10000, 30000));
                         break;
                     case EVENT_DELAYED_AGGRO_SAY:
