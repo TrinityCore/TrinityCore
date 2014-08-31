@@ -1231,7 +1231,7 @@ enum Opcodes
     SMSG_SET_AI_ANIM_KIT                              = 0x4626,
     SMSG_SET_DF_FAST_LAUNCH_RESULT                    = 0x35B6,
     SMSG_SET_FACTION_ATWAR                            = 0x4216,
-    SMSG_SET_FACTION_NOT_VISIBILE                     = 0x6737,
+    SMSG_SET_FACTION_NOT_VISIBLE                      = 0x6737,
     SMSG_SET_FACTION_STANDING                         = 0x0126,
     SMSG_SET_FACTION_VISIBLE                          = 0x2525,
     SMSG_SET_FLAT_SPELL_MODIFIER                      = 0x2834,
