@@ -72,21 +72,13 @@ public:
 
         void MoveInLineOfSight(Unit* who) override
         {
-            if (!me->GetVictim() && me->CanCreatureAttack(who))
+            if (!Intro && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 100.0f))
             {
-                if (!Intro && me->IsWithinDistInMap(who, 100))
-                {
-                    Intro = true;
-                    Talk(SAY_INTRO);
-                }
-
-                if (!me->CanFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
-                    return;
-
-                float attackRadius = me->GetAttackDistance(who);
-                if (me->IsWithinDistInMap(who, attackRadius) && me->IsWithinLOSInMap(who))
-                    AttackStart(who);
+                Intro = true;
+                Talk(SAY_INTRO);
             }
+
+            BossAI::MoveInLineOfSight(who);
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -175,41 +167,41 @@ class spell_talon_king_ikiss_blink : public SpellScriptLoader
     public:
         spell_talon_king_ikiss_blink() : SpellScriptLoader("spell_talon_king_ikiss_blink") { }
 
-    class spell_talon_king_ikiss_blink_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_talon_king_ikiss_blink_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        class spell_talon_king_ikiss_blink_SpellScript : public SpellScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_BLINK))
-                return false;
-            return true;
-        }
+            PrepareSpellScript(spell_talon_king_ikiss_blink_SpellScript);
 
-        void FilterTargets(std::list<WorldObject*>& targets)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_BLINK_TELEPORT))
+                    return false;
+                return true;
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                targets.clear();
+                targets.push_back(target);
+            }
+
+            void HandleDummyHitTarget(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                GetHitUnit()->CastSpell(GetCaster(), SPELL_BLINK_TELEPORT, true);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_talon_king_ikiss_blink_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_talon_king_ikiss_blink_SpellScript::HandleDummyHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            uint8 maxSize = 1;
-            if (targets.size() > maxSize)
-                Trinity::Containers::RandomResizeList(targets, maxSize);
+            return new spell_talon_king_ikiss_blink_SpellScript();
         }
-
-        void HandleDummyHitTarget(SpellEffIndex effIndex)
-        {
-            PreventHitDefaultEffect(effIndex);
-            GetHitUnit()->CastSpell(GetCaster(), SPELL_BLINK_TELEPORT, true);
-        }
-
-        void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_talon_king_ikiss_blink_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-            OnEffectHitTarget += SpellEffectFn(spell_talon_king_ikiss_blink_SpellScript::HandleDummyHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_talon_king_ikiss_blink_SpellScript();
-    }
 };
 
 void AddSC_boss_talon_king_ikiss()
