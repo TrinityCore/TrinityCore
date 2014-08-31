@@ -51,7 +51,17 @@ public:
 
     struct npc_crusade_persuadedAI : public ScriptedAI
     {
-        npc_crusade_persuadedAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_crusade_persuadedAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            speechTimer = 0;
+            speechCounter = 0;
+            playerGUID = 0;
+        }
 
         uint32 speechTimer;
         uint32 speechCounter;
@@ -59,9 +69,7 @@ public:
 
         void Reset() override
         {
-            speechTimer = 0;
-            speechCounter = 0;
-            playerGUID = 0;
+            Initialize();
             me->SetReactState(REACT_AGGRESSIVE);
             me->RestoreFaction();
         }
@@ -207,16 +215,22 @@ public:
     {
         npc_koltira_deathweaverAI(Creature* creature) : npc_escortAI(creature)
         {
+            Initialize();
             me->SetReactState(REACT_DEFENSIVE);
+        }
+
+        void Initialize()
+        {
+            wave = 0;
+            waveTimer = 3000;
+            valrothGUID = 0;
         }
 
         void Reset() override
         {
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
             {
-                wave = 0;
-                waveTimer = 3000;
-                valrothGUID = 0;
+                Initialize();
                 me->LoadEquipment(0, true);
                 me->RemoveAurasDueToSpell(SPELL_ANTI_MAGIC_ZONE);
                 me->RemoveAurasDueToSpell(SPELL_KOLTIRA_TRANSFORM);
@@ -467,7 +481,17 @@ public:
 
     struct npc_high_inquisitor_valrothAI : public ScriptedAI
     {
-        npc_high_inquisitor_valrothAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_high_inquisitor_valrothAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            uiRenew_timer = 1000;
+            uiInquisitor_Penance_timer = 2000;
+            uiValroth_Smite_timer = 1000;
+        }
 
         uint32 uiRenew_timer;
         uint32 uiInquisitor_Penance_timer;
@@ -475,9 +499,7 @@ public:
 
         void Reset() override
         {
-            uiRenew_timer = 1000;
-            uiInquisitor_Penance_timer = 2000;
-            uiValroth_Smite_timer = 1000;
+            Initialize();
         }
 
         void EnterCombat(Unit* who) override
@@ -603,7 +625,17 @@ public:
 
     struct npc_a_special_surpriseAI : public ScriptedAI
     {
-        npc_a_special_surpriseAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_a_special_surpriseAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            ExecuteSpeech_Timer = 0;
+            ExecuteSpeech_Counter = 0;
+            PlayerGUID = 0;
+        }
 
         uint32 ExecuteSpeech_Timer;
         uint32 ExecuteSpeech_Counter;
@@ -611,9 +643,7 @@ public:
 
         void Reset() override
         {
-            ExecuteSpeech_Timer = 0;
-            ExecuteSpeech_Counter = 0;
-            PlayerGUID = 0;
+            Initialize();
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
