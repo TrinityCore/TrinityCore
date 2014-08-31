@@ -39,11 +39,19 @@ class npc_pet_gen_mojo : public CreatureScript
 
         struct npc_pet_gen_mojoAI : public ScriptedAI
         {
-            npc_pet_gen_mojoAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_pet_gen_mojoAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _victimGUID = 0;
+            }
 
             void Reset() override
             {
-                _victimGUID = 0;
+                Initialize();
 
                 if (Unit* owner = me->GetOwner())
                     me->GetMotionMaster()->MoveFollow(owner, 0.0f, 0.0f);

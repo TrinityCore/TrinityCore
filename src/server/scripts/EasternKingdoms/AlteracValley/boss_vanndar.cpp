@@ -42,7 +42,19 @@ public:
 
     struct boss_vanndarAI : public ScriptedAI
     {
-        boss_vanndarAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_vanndarAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            AvatarTimer = 3 * IN_MILLISECONDS;
+            ThunderclapTimer = 4 * IN_MILLISECONDS;
+            StormboltTimer = 6 * IN_MILLISECONDS;
+            ResetTimer = 5 * IN_MILLISECONDS;
+            YellTimer = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS);
+        }
 
         uint32 AvatarTimer;
         uint32 ThunderclapTimer;
@@ -52,11 +64,7 @@ public:
 
         void Reset() override
         {
-            AvatarTimer        = 3 * IN_MILLISECONDS;
-            ThunderclapTimer   = 4 * IN_MILLISECONDS;
-            StormboltTimer     = 6 * IN_MILLISECONDS;
-            ResetTimer         = 5 * IN_MILLISECONDS;
-            YellTimer = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS);
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

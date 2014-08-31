@@ -102,9 +102,21 @@ public:
     {
         npc_unworthy_initiateAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             me->SetReactState(REACT_PASSIVE);
             if (!me->GetCurrentEquipmentId())
                 me->SetCurrentEquipmentId(me->GetOriginalEquipmentId());
+
+            playerGUID = 0;
+            wait_timer = 0;
+            anchorX = 0.f;
+            anchorY = 0.f;
+        }
+
+        void Initialize()
+        {
+            anchorGUID = 0;
+            phase = PHASE_CHAINED;
         }
 
         uint64 playerGUID;
@@ -117,8 +129,7 @@ public:
 
         void Reset() override
         {
-            anchorGUID = 0;
-            phase = PHASE_CHAINED;
+            Initialize();
             events.Reset();
             me->setFaction(7);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
@@ -516,7 +527,15 @@ public:
     {
         npc_death_knight_initiateAI(Creature* creature) : CombatAI(creature)
         {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            m_uiDuelerGUID = 0;
+            m_uiDuelTimer = 5000;
             m_bIsDuelInProgress = false;
+            lose = false;
         }
 
         bool lose;
@@ -526,15 +545,11 @@ public:
 
         void Reset() override
         {
-            lose = false;
+            Initialize();
+
             me->RestoreFaction();
             CombatAI::Reset();
-
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
-
-            m_uiDuelerGUID = 0;
-            m_uiDuelTimer = 5000;
-            m_bIsDuelInProgress = false;
         }
 
         void SpellHit(Unit* pCaster, const SpellInfo* pSpell) override
@@ -630,14 +645,22 @@ class npc_dark_rider_of_acherus : public CreatureScript
 
         struct npc_dark_rider_of_acherusAI : public ScriptedAI
         {
-            npc_dark_rider_of_acherusAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_dark_rider_of_acherusAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
 
-            void Reset() override
+            void Initialize()
             {
                 PhaseTimer = 4000;
                 Phase = 0;
                 Intro = false;
                 TargetGUID = 0;
+            }
+
+            void Reset() override
+            {
+                Initialize();
             }
 
             void UpdateAI(uint32 diff) override
@@ -1067,7 +1090,15 @@ class npc_scarlet_miner : public CreatureScript
         {
             npc_scarlet_minerAI(Creature* creature) : npc_escortAI(creature)
             {
+                Initialize();
                 me->SetReactState(REACT_PASSIVE);
+            }
+
+            void Initialize()
+            {
+                carGUID = 0;
+                IntroTimer = 0;
+                IntroPhase = 0;
             }
 
             uint32 IntroTimer;
@@ -1076,9 +1107,7 @@ class npc_scarlet_miner : public CreatureScript
 
             void Reset() override
             {
-                carGUID = 0;
-                IntroTimer = 0;
-                IntroPhase = 0;
+                Initialize();
             }
 
             void IsSummonedBy(Unit* summoner) override

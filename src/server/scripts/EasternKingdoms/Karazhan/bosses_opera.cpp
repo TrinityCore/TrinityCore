@@ -125,7 +125,20 @@ public:
     {
         boss_dorotheeAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            AggroTimer = 500;
+
+            WaterBoltTimer = 5000;
+            FearTimer = 15000;
+            SummonTitoTimer = 47500;
+
+            SummonedTito = false;
+            TitoDied = false;
         }
 
         InstanceScript* instance;
@@ -141,14 +154,7 @@ public:
 
         void Reset() override
         {
-            AggroTimer = 500;
-
-            WaterBoltTimer = 5000;
-            FearTimer = 15000;
-            SummonTitoTimer = 47500;
-
-            SummonedTito = false;
-            TitoDied = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -237,15 +243,23 @@ public:
 
     struct npc_titoAI : public ScriptedAI
     {
-        npc_titoAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_titoAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            DorotheeGUID = 0;
+            YipTimer = 10000;
+        }
 
         uint64 DorotheeGUID;
         uint32 YipTimer;
 
         void Reset() override
         {
-            DorotheeGUID = 0;
-            YipTimer = 10000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -305,7 +319,15 @@ public:
     {
         boss_strawmanAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            AggroTimer = 13000;
+            BrainBashTimer = 5000;
+            BrainWipeTimer = 7000;
         }
 
         InstanceScript* instance;
@@ -316,9 +338,7 @@ public:
 
         void Reset() override
         {
-            AggroTimer = 13000;
-            BrainBashTimer = 5000;
-            BrainWipeTimer = 7000;
+            Initialize();
         }
 
         void AttackStart(Unit* who) override
@@ -419,7 +439,17 @@ public:
     {
         boss_tinheadAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            AggroTimer = 15000;
+            CleaveTimer = 5000;
+            RustTimer = 30000;
+
+            RustCount = 0;
         }
 
         InstanceScript* instance;
@@ -432,11 +462,7 @@ public:
 
         void Reset() override
         {
-            AggroTimer = 15000;
-            CleaveTimer = 5000;
-            RustTimer   = 30000;
-
-            RustCount   = 0;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -528,7 +554,16 @@ public:
     {
         boss_roarAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            AggroTimer = 20000;
+            MangleTimer = 5000;
+            ShredTimer = 10000;
+            ScreamTimer = 15000;
         }
 
         InstanceScript* instance;
@@ -540,10 +575,7 @@ public:
 
         void Reset() override
         {
-            AggroTimer = 20000;
-            MangleTimer = 5000;
-            ShredTimer  = 10000;
-            ScreamTimer = 15000;
+            Initialize();
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -636,7 +668,14 @@ public:
     {
         boss_croneAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            CycloneTimer = 30000;
+            ChainLightningTimer = 10000;
         }
 
         InstanceScript* instance;
@@ -646,8 +685,7 @@ public:
 
         void Reset() override
         {
-            CycloneTimer = 30000;
-            ChainLightningTimer = 10000;
+            Initialize();
         }
 
         void JustReachedHome() override
@@ -717,13 +755,21 @@ public:
 
     struct npc_cycloneAI : public ScriptedAI
     {
-        npc_cycloneAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_cycloneAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            MoveTimer = 1000;
+        }
 
         uint32 MoveTimer;
 
         void Reset() override
         {
-            MoveTimer = 1000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -812,7 +858,20 @@ public:
     {
         boss_bigbadwolfAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            ChaseTimer = 30000;
+            FearTimer = urand(25000, 35000);
+            SwipeTimer = 5000;
+
+            HoodGUID = 0;
+            TempThreat = 0;
+
+            IsChasing = false;
         }
 
         InstanceScript* instance;
@@ -828,14 +887,7 @@ public:
 
         void Reset() override
         {
-            ChaseTimer = 30000;
-            FearTimer = urand(25000, 35000);
-            SwipeTimer = 5000;
-
-            HoodGUID = 0;
-            TempThreat = 0;
-
-            IsChasing = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -1011,10 +1063,28 @@ public:
     {
         boss_julianneAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             EntryYellTimer = 1000;
             AggroYellTimer = 10000;
             IsFakingDeath = false;
+        }
+
+        void Initialize()
+        {
+            RomuloGUID = 0;
+            Phase = PHASE_JULIANNE;
+
+            BlindingPassionTimer = 30000;
+            DevotionTimer = 15000;
+            EternalAffectionTimer = 25000;
+            PowerfulAttractionTimer = 5000;
+            SummonRomuloTimer = 10000;
+            DrinkPoisonTimer = 0;
+            ResurrectSelfTimer = 0;
+
+            SummonedRomulo = false;
+            RomuloDead = false;
         }
 
         InstanceScript* instance;
@@ -1041,25 +1111,12 @@ public:
 
         void Reset() override
         {
-            RomuloGUID = 0;
-            Phase = PHASE_JULIANNE;
-
-            BlindingPassionTimer = 30000;
-            DevotionTimer = 15000;
-            EternalAffectionTimer = 25000;
-            PowerfulAttractionTimer = 5000;
-            SummonRomuloTimer = 10000;
-            DrinkPoisonTimer = 0;
-            ResurrectSelfTimer = 0;
-
+            Initialize();
             if (IsFakingDeath)
             {
                 Resurrect(me);
                 IsFakingDeath = false;
             }
-
-            SummonedRomulo = false;
-            RomuloDead = false;
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -1131,9 +1188,25 @@ public:
     {
         boss_romuloAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             EntryYellTimer = 8000;
             AggroYellTimer = 15000;
+        }
+
+        void Initialize()
+        {
+            JulianneGUID = 0;
+            Phase = PHASE_ROMULO;
+
+            BackwardLungeTimer = 15000;
+            DaringTimer = 20000;
+            DeadlySwatheTimer = 25000;
+            PoisonThrustTimer = 10000;
+            ResurrectTimer = 10000;
+
+            IsFakingDeath = false;
+            JulianneDead = false;
         }
 
         InstanceScript* instance;
@@ -1154,17 +1227,7 @@ public:
 
         void Reset() override
         {
-            JulianneGUID = 0;
-            Phase = PHASE_ROMULO;
-
-            BackwardLungeTimer = 15000;
-            DaringTimer = 20000;
-            DeadlySwatheTimer = 25000;
-            PoisonThrustTimer = 10000;
-            ResurrectTimer = 10000;
-
-            IsFakingDeath = false;
-            JulianneDead = false;
+            Initialize();
         }
 
         void JustReachedHome() override
