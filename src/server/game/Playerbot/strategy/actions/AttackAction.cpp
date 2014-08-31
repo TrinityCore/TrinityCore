@@ -3,6 +3,7 @@
 #include "AttackAction.h"
 #include "../../../Movement/MovementGenerator.h"
 #include "../../../game/AI/CreatureAI.h"
+#include "../../../Entities/Pet/Pet.h"
 #include "../../LootObjectStack.h"
 
 using namespace ai;
@@ -81,9 +82,10 @@ bool AttackAction::Attack(Unit* target)
     Pet* pet = bot->GetPet();
     if (pet)
     {
-        CreatureAI* creatureAI = ((Creature*)pet)->AI();
-        if (creatureAI)
-            creatureAI->AttackStart(target);
+        pet->SetTarget(target->GetGUID());
+        pet->AI()->EnterCombat(target);
+		pet->GetCharmInfo()->SetIsCommandAttack(true);
+		pet->AI()->AttackStart(target);
     }
 
     bot->Attack(target, true);
