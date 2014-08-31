@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,15 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Talon_King_Ikiss
-SD%Complete: 80
-SDComment: Heroic supported. Some details missing, but most are spell related.
-SDCategory: Auchindoun, Sethekk Halls
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "sethekk_halls.h"
 
 enum Says
@@ -33,7 +26,7 @@ enum Says
     SAY_AGGRO                   = 1,
     SAY_SLAY                    = 2,
     SAY_DEATH                   = 3,
-    EMOTE_ARCANE_EXP            = 4
+    EMOTE_ARCANE_EXPLOSION      = 4
 };
 
 enum Spells
@@ -42,13 +35,19 @@ enum Spells
     SPELL_BLINK_TELEPORT        = 38203,
     SPELL_MANA_SHIELD           = 38151,
     SPELL_ARCANE_BUBBLE         = 9438,
-    H_SPELL_SLOW                = 35032,
+    SPELL_SLOW                  = 35032,
     SPELL_POLYMORPH             = 38245,
-    H_SPELL_POLYMORPH           = 43309,
     SPELL_ARCANE_VOLLEY         = 35059,
-    H_SPELL_ARCANE_VOLLEY       = 40424,
     SPELL_ARCANE_EXPLOSION      = 38197,
-    H_SPELL_ARCANE_EXPLOSION    = 40425
+};
+
+enum Events
+{
+    EVENT_POLYMORPH = 1,
+    EVENT_BLINK,
+    EVENT_SLOW,
+    EVENT_ARCANE_VOLLEY,
+    EVENT_ARCANE_EXPLOSION
 };
 
 class boss_talon_king_ikiss : public CreatureScript
@@ -58,16 +57,15 @@ public:
 
     struct boss_talon_king_ikissAI : public BossAI
     {
-        boss_talon_king_ikissAI(Creature* creature) : BossAI(creature, DATA_TALON_KING_IKISS) { }
+        boss_talon_king_ikissAI(Creature* creature) : BossAI(creature, DATA_TALON_KING_IKISS)
+        {
+            Intro = false;
+            ManaShield = false;
+        }
 
         void Reset() override
         {
             _Reset();
-            ArcaneVolley_Timer = 5000;
-            Sheep_Timer = 8000;
-            Blink_Timer = 35000;
-            Slow_Timer = 15000 + rand32() % 15000;
-            Blink = false;
             Intro = false;
             ManaShield = false;
         }
@@ -87,10 +85,7 @@ public:
 
                 float attackRadius = me->GetAttackDistance(who);
                 if (me->IsWithinDistInMap(who, attackRadius) && me->IsWithinLOSInMap(who))
-                {
-                    //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
                     AttackStart(who);
-                }
             }
         }
 
@@ -98,6 +93,57 @@ public:
         {
             _EnterCombat();
             Talk(SAY_AGGRO);
+            events.ScheduleEvent(EVENT_ARCANE_VOLLEY, 5000);
+            events.ScheduleEvent(EVENT_POLYMORPH, 8000);
+            events.ScheduleEvent(EVENT_BLINK, 35000);
+            if (IsHeroic())
+                events.ScheduleEvent(EVENT_SLOW, urand(15000, 30000));
+        }
+
+        void ExecuteEvent(uint32 eventId) override
+        {
+            switch (eventId)
+            {
+                case EVENT_POLYMORPH:
+                    // Second top aggro in normal, random target in heroic.
+                    if (IsHeroic())
+                        DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_POLYMORPH);
+                    else
+                        DoCast(SelectTarget(SELECT_TARGET_TOPAGGRO, 1), SPELL_POLYMORPH);
+                    events.ScheduleEvent(EVENT_POLYMORPH, urand(15000, 17500));
+                    break;
+                case EVENT_ARCANE_VOLLEY:
+                    DoCast(me, SPELL_ARCANE_VOLLEY);
+                    events.ScheduleEvent(EVENT_ARCANE_VOLLEY, urand(7000, 12000));
+                    break;
+                case EVENT_SLOW:
+                    DoCast(me, SPELL_SLOW);
+                    events.ScheduleEvent(EVENT_SLOW, urand(15000, 40000));
+                    break;
+                case EVENT_BLINK:
+                    if (me->IsNonMeleeSpellCast(false))
+                        me->InterruptNonMeleeSpells(false);
+                    Talk(EMOTE_ARCANE_EXPLOSION);
+                    DoCastAOE(SPELL_BLINK);
+                    events.ScheduleEvent(EVENT_BLINK, urand(35000, 40000));
+                    events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 1000);
+                    break;
+                case EVENT_ARCANE_EXPLOSION:
+                    DoCast(me, SPELL_ARCANE_EXPLOSION);
+                    DoCast(me, SPELL_ARCANE_BUBBLE, true);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void DamageTaken(Unit* /*who*/, uint32& damage) override
+        {
+            if (!ManaShield && me->HealthBelowPctDamaged(20, damage))
+            {
+                DoCast(me, SPELL_MANA_SHIELD);
+                ManaShield = true;
+            }
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -112,91 +158,8 @@ public:
                 Talk(SAY_SLAY);
         }
 
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (Blink)
-            {
-                DoCast(me, SPELL_ARCANE_EXPLOSION);
-                DoCast(me, SPELL_ARCANE_BUBBLE, true);
-                Blink = false;
-            }
-
-            if (ArcaneVolley_Timer <= diff)
-            {
-                DoCast(me, SPELL_ARCANE_VOLLEY);
-                ArcaneVolley_Timer = 7000 + rand32() % 5000;
-            } else ArcaneVolley_Timer -= diff;
-
-            if (Sheep_Timer <= diff)
-            {
-                Unit* target;
-
-                //second top aggro target in normal, random target in heroic correct?
-                if (IsHeroic())
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                else
-                    target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
-
-                if (target)
-                    DoCast(target, SPELL_POLYMORPH);
-                Sheep_Timer = 15000 + rand32() % 2500;
-            } else Sheep_Timer -= diff;
-
-            //may not be correct time to cast
-            if (!ManaShield && HealthBelowPct(20))
-            {
-                DoCast(me, SPELL_MANA_SHIELD);
-                ManaShield = true;
-            }
-
-            if (IsHeroic())
-            {
-                if (Slow_Timer <= diff)
-                {
-                    DoCast(me, H_SPELL_SLOW);
-                    Slow_Timer = 15000 + rand32() % 25000;
-                } else Slow_Timer -= diff;
-            }
-
-            if (Blink_Timer <= diff)
-            {
-                Talk(EMOTE_ARCANE_EXP);
-
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                {
-                    if (me->IsNonMeleeSpellCast(false))
-                        me->InterruptNonMeleeSpells(false);
-
-                    //Spell doesn't work, but we use for visual effect at least
-                    DoCast(target, SPELL_BLINK);
-
-                    float X = target->GetPositionX();
-                    float Y = target->GetPositionY();
-                    float Z = target->GetPositionZ();
-
-                    DoTeleportTo(X, Y, Z);
-
-                    DoCast(target, SPELL_BLINK_TELEPORT);
-                    Blink = true;
-                }
-                Blink_Timer = 35000 + rand32() % 5000;
-            } else Blink_Timer -= diff;
-
-            if (!Blink)
-                DoMeleeAttackIfReady();
-        }
-
         private:
-            uint32 ArcaneVolley_Timer;
-            uint32 Sheep_Timer;
-            uint32 Blink_Timer;
-            uint32 Slow_Timer;
-
             bool ManaShield;
-            bool Blink;
             bool Intro;
     };
 
@@ -206,7 +169,51 @@ public:
     }
 };
 
+// 38194 - Blink
+class spell_talon_king_ikiss_blink : public SpellScriptLoader
+{
+    public:
+        spell_talon_king_ikiss_blink() : SpellScriptLoader("spell_talon_king_ikiss_blink") { }
+
+    class spell_talon_king_ikiss_blink_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_talon_king_ikiss_blink_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_BLINK))
+                return false;
+            return true;
+        }
+
+        void FilterTargets(std::list<WorldObject*>& targets)
+        {
+            uint8 maxSize = 1;
+            if (targets.size() > maxSize)
+                Trinity::Containers::RandomResizeList(targets, maxSize);
+        }
+
+        void HandleDummyHitTarget(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+            GetHitUnit()->CastSpell(GetCaster(), SPELL_BLINK_TELEPORT, true);
+        }
+
+        void Register() override
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_talon_king_ikiss_blink_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            OnEffectHitTarget += SpellEffectFn(spell_talon_king_ikiss_blink_SpellScript::HandleDummyHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_talon_king_ikiss_blink_SpellScript();
+    }
+};
+
 void AddSC_boss_talon_king_ikiss()
 {
     new boss_talon_king_ikiss();
+    new spell_talon_king_ikiss_blink();
 }
