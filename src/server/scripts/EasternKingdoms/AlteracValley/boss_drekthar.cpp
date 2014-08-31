@@ -45,7 +45,20 @@ public:
 
     struct boss_drektharAI : public ScriptedAI
     {
-        boss_drektharAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_drektharAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            WhirlwindTimer = urand(1 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
+            Whirlwind2Timer = urand(1 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
+            KnockdownTimer = 12 * IN_MILLISECONDS;
+            FrenzyTimer = 6 * IN_MILLISECONDS;
+            ResetTimer = 5 * IN_MILLISECONDS;
+            YellTimer = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS); //20 to 30 seconds
+        }
 
         uint32 WhirlwindTimer;
         uint32 Whirlwind2Timer;
@@ -56,12 +69,7 @@ public:
 
         void Reset() override
         {
-            WhirlwindTimer    = urand(1 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
-            Whirlwind2Timer   = urand(1 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
-            KnockdownTimer    = 12 * IN_MILLISECONDS;
-            FrenzyTimer       = 6 * IN_MILLISECONDS;
-            ResetTimer        = 5 * IN_MILLISECONDS;
-            YellTimer         = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS); //20 to 30 seconds
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

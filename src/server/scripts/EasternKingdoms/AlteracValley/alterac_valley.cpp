@@ -84,10 +84,20 @@ class npc_av_marshal_or_warmaster : public CreatureScript
 
         struct npc_av_marshal_or_warmasterAI : public ScriptedAI
         {
-            npc_av_marshal_or_warmasterAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_av_marshal_or_warmasterAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _hasAura = false;
+            }
 
             void Reset() override
             {
+                Initialize();
+
                 events.Reset();
                 events.ScheduleEvent(EVENT_CHARGE_TARGET, urand(2 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_CLEAVE, urand(1 * IN_MILLISECONDS, 11 * IN_MILLISECONDS));
@@ -95,8 +105,6 @@ class npc_av_marshal_or_warmaster : public CreatureScript
                 events.ScheduleEvent(EVENT_WHIRLWIND, urand(5 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_ENRAGE, urand(5 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_CHECK_RESET, 5000);
-
-                _hasAura = false;
             }
 
             void JustRespawned() override

@@ -68,13 +68,21 @@ public:
 
     struct boss_razorgoreAI : public BossAI
     {
-        boss_razorgoreAI(Creature* creature) : BossAI(creature, BOSS_RAZORGORE) { }
+        boss_razorgoreAI(Creature* creature) : BossAI(creature, BOSS_RAZORGORE)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            secondPhase = false;
+        }
 
         void Reset() override
         {
             _Reset();
 
-            secondPhase = false;
+            Initialize();
             instance->SetData(DATA_EGG_EVENT, NOT_STARTED);
         }
 

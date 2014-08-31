@@ -43,12 +43,20 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
 
         struct npc_pet_dk_ebon_gargoyleAI : CasterAI
         {
-            npc_pet_dk_ebon_gargoyleAI(Creature* creature) : CasterAI(creature) { }
+            npc_pet_dk_ebon_gargoyleAI(Creature* creature) : CasterAI(creature)
+            {
+                Initialize();
+            }
 
-            void InitializeAI() override
+            void Initialize()
             {
                 // Not needed to be despawned now
                 _despawnTimer = 0;
+            }
+
+            void InitializeAI() override
+            {
+                Initialize();
 
                 CasterAI::InitializeAI();
                 uint64 ownerGuid = me->GetOwnerGUID();

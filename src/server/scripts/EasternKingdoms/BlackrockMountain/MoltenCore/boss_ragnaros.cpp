@@ -82,18 +82,24 @@ class boss_ragnaros : public CreatureScript
         {
             boss_ragnarosAI(Creature* creature) : BossAI(creature, BOSS_RAGNAROS)
             {
+                Initialize();
                 _introState = 0;
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void Reset() override
+            void Initialize()
             {
-                BossAI::Reset();
                 _emergeTimer = 90000;
                 _hasYelledMagmaBurst = false;
                 _hasSubmergedOnce = false;
                 _isBanished = false;
+            }
+
+            void Reset() override
+            {
+                BossAI::Reset();
+                Initialize();
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
             }
 
