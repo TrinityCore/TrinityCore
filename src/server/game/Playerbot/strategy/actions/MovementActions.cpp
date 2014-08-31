@@ -191,6 +191,10 @@ bool MovementAction::Follow(Unit* target, float distance, float angle)
         {
             bot->TeleportTo(target->GetMapId(), x, y, z, bot->GetOrientation());
         }
+        else
+        {
+            bot->Relocate(x, y, z, bot->GetOrientation());
+        }
         AI_VALUE(LastMovement&, "last movement").Set(target);
         return true;
     }
