@@ -244,8 +244,8 @@ void ReputationMgr::SendVisible(FactionState const* faction, bool visible /* = t
     if (_player->GetSession()->PlayerLoading())
         return;
 
-    // make faction visible in reputation list at client
-    WorldPacket data(visible ? SMSG_SET_FACTION_VISIBLE : SMSG_SET_FACTION_NOT_VISIBILE, 4);
+    // make faction visible/not visible in reputation list at client
+    WorldPacket data(visible ? SMSG_SET_FACTION_VISIBLE : SMSG_SET_FACTION_NOT_VISIBLE, 4);
     data << faction->ReputationListID;
     _player->SendDirectMessage(&data);
 }
