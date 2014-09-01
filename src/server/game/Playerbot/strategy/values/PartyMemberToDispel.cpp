@@ -16,7 +16,7 @@ public:
     {
         if (unit->IsPet())
         {
-            Pet* pet = (Pet*)(unit);
+            Pet* pet = unit->ToPet();
             if (pet && pet->getPetType() == SUMMON_PET)
                 return false;
         }

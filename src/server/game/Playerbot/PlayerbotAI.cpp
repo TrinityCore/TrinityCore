@@ -889,7 +889,8 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target)
     const SpellInfo* const pSpellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (pet && pet->HasSpell(spellId))
     {
-        pet->ToggleAutocast(pSpellInfo, true);
+        pet->GetCharmInfo()->SetSpellAutocast(pSpellInfo, true);
+        pet->GetCharmInfo()->ToggleCreatureAutocast(pSpellInfo, true);
         TellMaster("My pet will auto-cast this spell");
         return true;
     }
@@ -964,11 +965,11 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target)
     }
 
 
-    if (!bot->isInFront(faceTo, sPlayerbotAIConfig.sightDistance))
+    if (!bot->isInFront(faceTo, M_PI / 2))
     {
         bot->SetFacingTo(bot->GetAngle(faceTo));
         delete spell;
-        SetNextCheckDelay(sPlayerbotAIConfig.reactDelay);
+        SetNextCheckDelay(sPlayerbotAIConfig.globalCoolDown);
         return false;
     }
 
