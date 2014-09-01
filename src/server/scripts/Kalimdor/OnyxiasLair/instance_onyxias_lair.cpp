@@ -53,6 +53,8 @@ public:
             SetBossNumber(EncounterCount);
 
             onyxiaGUID               = 0;
+            triggerGUID              = 0;
+            tankGUID                 = 0;
             onyxiaLiftoffTimer       = 0;
             manyWhelpsCounter        = 0;
             eruptTimer               = 0;
@@ -181,6 +183,12 @@ public:
                     FloorEruptionGUIDQueue.push(data);
                     eruptTimer = 2500;
                     break;
+                case DATA_TRIGGER_GUID:
+                    triggerGUID = data;
+                    break;
+                case DATA_TANK_GUID:
+                    tankGUID = data;
+                    break;
             }
         }
 
@@ -190,6 +198,13 @@ public:
             {
                 case NPC_ONYXIA:
                     return onyxiaGUID;
+                    break;
+                case DATA_TRIGGER_GUID:
+                    return triggerGUID;
+                    break;
+                case DATA_TANK_GUID:
+                    return tankGUID;
+                    break;
             }
 
             return 0;
@@ -298,6 +313,8 @@ public:
             std::map<uint64, uint32> FloorEruptionGUID[2];
             std::queue<uint64> FloorEruptionGUIDQueue;
             uint64 onyxiaGUID;
+            uint64 triggerGUID;
+            uint64 tankGUID;
             uint32 onyxiaLiftoffTimer;
             uint32 manyWhelpsCounter;
             uint32 eruptTimer;
