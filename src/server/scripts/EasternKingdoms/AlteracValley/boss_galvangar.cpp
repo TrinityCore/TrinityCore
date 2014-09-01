@@ -46,7 +46,20 @@ public:
 
     struct boss_galvangarAI : public ScriptedAI
     {
-        boss_galvangarAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_galvangarAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            CleaveTimer = urand(1 * IN_MILLISECONDS, 9 * IN_MILLISECONDS);
+            FrighteningShoutTimer = urand(2 * IN_MILLISECONDS, 19 * IN_MILLISECONDS);
+            Whirlwind1Timer = urand(1 * IN_MILLISECONDS, 13 * IN_MILLISECONDS);
+            Whirlwind2Timer = urand(5 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
+            MortalStrikeTimer = urand(5 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
+            ResetTimer = 5 * IN_MILLISECONDS;
+        }
 
         uint32 CleaveTimer;
         uint32 FrighteningShoutTimer;
@@ -57,12 +70,7 @@ public:
 
         void Reset() override
         {
-            CleaveTimer                     = urand(1 * IN_MILLISECONDS, 9 * IN_MILLISECONDS);
-            FrighteningShoutTimer           = urand(2 * IN_MILLISECONDS, 19 * IN_MILLISECONDS);
-            Whirlwind1Timer                 = urand(1 * IN_MILLISECONDS, 13 * IN_MILLISECONDS);
-            Whirlwind2Timer                 = urand(5 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
-            MortalStrikeTimer               = urand(5 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
-            ResetTimer                      = 5 * IN_MILLISECONDS;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

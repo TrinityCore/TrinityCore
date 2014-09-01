@@ -78,8 +78,30 @@ public:
     {
         boss_nightbaneAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             Intro = true;
+        }
+
+        void Initialize()
+        {
+            BellowingRoarTimer = 30000;
+            CharredEarthTimer = 15000;
+            DistractingAshTimer = 20000;
+            SmolderingBreathTimer = 10000;
+            TailSweepTimer = 12000;
+            RainofBonesTimer = 10000;
+            SmokingBlastTimer = 20000;
+            FireballBarrageTimer = 13000;
+            SearingCindersTimer = 14000;
+            WaitTimer = 1000;
+
+            Phase = 1;
+            FlyCount = 0;
+            MovePhase = 0;
+
+            Flying = false;
+            Movement = false;
         }
 
         InstanceScript* instance;
@@ -111,20 +133,7 @@ public:
 
         void Reset() override
         {
-            BellowingRoarTimer = 30000;
-            CharredEarthTimer = 15000;
-            DistractingAshTimer = 20000;
-            SmolderingBreathTimer = 10000;
-            TailSweepTimer = 12000;
-            RainofBonesTimer = 10000;
-            SmokingBlastTimer = 20000;
-            FireballBarrageTimer = 13000;
-            SearingCindersTimer = 14000;
-            WaitTimer = 1000;
-
-            Phase =1;
-            FlyCount = 0;
-            MovePhase = 0;
+            Initialize();
 
             me->SetSpeed(MOVE_RUN, 2.0f);
             me->SetDisableGravity(true);
@@ -137,9 +146,6 @@ public:
                 instance->SetData(TYPE_NIGHTBANE, NOT_STARTED);
 
             HandleTerraceDoors(true);
-
-            Flying = false;
-            Movement = false;
 
             if (!Intro)
             {

@@ -110,7 +110,20 @@ public:
 
     struct boss_balindaAI : public ScriptedAI
     {
-        boss_balindaAI(Creature* creature) : ScriptedAI(creature), summons(me) { }
+        boss_balindaAI(Creature* creature) : ScriptedAI(creature), summons(me)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            arcaneExplosionTimer = urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
+            coneOfColdTimer = 8 * IN_MILLISECONDS;
+            fireBoltTimer = 1 * IN_MILLISECONDS;
+            frostboltTimer = 4 * IN_MILLISECONDS;
+            resetTimer = 5 * IN_MILLISECONDS;
+            waterElementalTimer = 0;
+        }
 
         uint32 arcaneExplosionTimer;
         uint32 coneOfColdTimer;
@@ -123,12 +136,7 @@ public:
 
         void Reset() override
         {
-            arcaneExplosionTimer      = urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
-            coneOfColdTimer           = 8 * IN_MILLISECONDS;
-            fireBoltTimer             = 1 * IN_MILLISECONDS;
-            frostboltTimer            = 4 * IN_MILLISECONDS;
-            resetTimer                = 5 * IN_MILLISECONDS;
-            waterElementalTimer       = 0;
+            Initialize();
 
             summons.DespawnAll();
         }
