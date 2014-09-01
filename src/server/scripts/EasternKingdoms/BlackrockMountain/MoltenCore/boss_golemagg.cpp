@@ -131,12 +131,18 @@ class npc_core_rager : public CreatureScript
         {
             npc_core_ragerAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                mangleTimer = 7 * IN_MILLISECONDS;                 // These times are probably wrong
             }
 
             void Reset() override
             {
-                mangleTimer = 7*IN_MILLISECONDS;                 // These times are probably wrong
+                Initialize();
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override

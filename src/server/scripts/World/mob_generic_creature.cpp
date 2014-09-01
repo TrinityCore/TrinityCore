@@ -36,7 +36,17 @@ public:
 
     struct generic_creatureAI : public ScriptedAI
     {
-        generic_creatureAI(Creature* creature) : ScriptedAI(creature) { }
+        generic_creatureAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            GlobalCooldown = 0;
+            BuffTimer = 0;          //Rebuff as soon as we can
+            IsSelfRooted = false;
+        }
 
         uint32 GlobalCooldown;      //This variable acts like the global cooldown that players have (1.5 seconds)
         uint32 BuffTimer;           //This variable keeps track of buffs
@@ -44,9 +54,7 @@ public:
 
         void Reset() override
         {
-            GlobalCooldown = 0;
-            BuffTimer = 0;          //Rebuff as soon as we can
-            IsSelfRooted = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* who) override

@@ -329,13 +329,21 @@ public:
 
     struct npc_chicken_cluckAI : public ScriptedAI
     {
-        npc_chicken_cluckAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_chicken_cluckAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            ResetFlagTimer = 120000;
+        }
 
         uint32 ResetFlagTimer;
 
         void Reset() override
         {
-            ResetFlagTimer = 120000;
+            Initialize();
             me->setFaction(FACTION_CHICKEN);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
         }
@@ -424,15 +432,23 @@ public:
 
     struct npc_dancing_flamesAI : public ScriptedAI
     {
-        npc_dancing_flamesAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_dancing_flamesAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Active = true;
+            CanIteract = 3500;
+        }
 
         bool Active;
         uint32 CanIteract;
 
         void Reset() override
         {
-            Active = true;
-            CanIteract = 3500;
+            Initialize();
             DoCast(me, SPELL_BRAZIER, true);
             DoCast(me, SPELL_FIERY_AURA, false);
             float x, y, z;
@@ -569,7 +585,25 @@ public:
 
     struct npc_doctorAI : public ScriptedAI
     {
-        npc_doctorAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_doctorAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            PlayerGUID = 0;
+
+            SummonPatientTimer = 10000;
+            SummonPatientCount = 0;
+            PatientDiedCount = 0;
+            PatientSavedCount = 0;
+
+            Patients.clear();
+            Coordinates.clear();
+
+            Event = false;
+        }
 
         uint64 PlayerGUID;
 
@@ -585,18 +619,7 @@ public:
 
         void Reset() override
         {
-            PlayerGUID = 0;
-
-            SummonPatientTimer = 10000;
-            SummonPatientCount = 0;
-            PatientDiedCount = 0;
-            PatientSavedCount = 0;
-
-            Patients.clear();
-            Coordinates.clear();
-
-            Event = false;
-
+            Initialize();
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
@@ -714,15 +737,23 @@ public:
 
     struct npc_injured_patientAI : public ScriptedAI
     {
-        npc_injured_patientAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_injured_patientAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            DoctorGUID = 0;
+            Coord = NULL;
+        }
 
         uint64 DoctorGUID;
         Location* Coord;
 
         void Reset() override
         {
-            DoctorGUID = 0;
-            Coord = NULL;
+            Initialize();
 
             //no select
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -1447,14 +1478,20 @@ public:
     {
         npc_tonk_mineAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             me->SetReactState(REACT_PASSIVE);
+        }
+
+        void Initialize()
+        {
+            ExplosionTimer = 3000;
         }
 
         uint32 ExplosionTimer;
 
         void Reset() override
         {
-            ExplosionTimer = 3000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -1649,11 +1686,19 @@ class npc_wormhole : public CreatureScript
 
         struct npc_wormholeAI : public PassiveAI
         {
-            npc_wormholeAI(Creature* creature) : PassiveAI(creature) { }
+            npc_wormholeAI(Creature* creature) : PassiveAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _showUnderground = urand(0, 100) == 0; // Guessed value, it is really rare though
+            }
 
             void InitializeAI() override
             {
-                _showUnderground = urand(0, 100) == 0; // Guessed value, it is really rare though
+                Initialize();
             }
 
             uint32 GetData(uint32 type) const override
@@ -2303,7 +2348,19 @@ public:
 
     struct npc_spring_rabbitAI : public ScriptedAI
     {
-        npc_spring_rabbitAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_spring_rabbitAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            inLove = false;
+            rabbitGUID = 0;
+            jumpTimer = urand(5000, 10000);
+            bunnyTimer = urand(10000, 20000);
+            searchTimer = urand(5000, 10000);
+        }
 
         bool inLove;
         uint32 jumpTimer;
@@ -2313,11 +2370,7 @@ public:
 
         void Reset() override
         {
-            inLove = false;
-            rabbitGUID = 0;
-            jumpTimer = urand(5000, 10000);
-            bunnyTimer = urand(10000, 20000);
-            searchTimer = urand(5000, 10000);
+            Initialize();
             if (Unit* owner = me->GetOwner())
                 me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
         }

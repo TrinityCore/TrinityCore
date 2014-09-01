@@ -19,12 +19,11 @@
 /* ScriptData
 SDName: Nagrand
 SD%Complete: 90
-SDComment: Quest support: 9868, 9874, 10044, 10172, 10085. TextId's unknown for altruis_the_sufferer and greatmother_geyah (npc_text)
+SDComment: Quest support: 9868, 9874, 10085. TextId's unknown for altruis_the_sufferer and greatmother_geyah (npc_text)
 SDCategory: Nagrand
 EndScriptData */
 
 /* ContentData
-npc_greatmother_geyah
 npc_maghar_captive
 npc_creditmarker_visit_with_ancestors
 EndContentData */
@@ -36,114 +35,6 @@ EndContentData */
 #include "SpellInfo.h"
 
 /*######
-## npc_greatmother_geyah
-######*/
-
-#define GOSSIP_HGG1 "Hello, Greatmother. Garrosh told me that you wanted to speak with me."
-#define GOSSIP_HGG2 "Garrosh is beyond redemption, Greatmother. I fear that in helping the Mag'har, I have convinced Garrosh that he is unfit to lead."
-
-#define GOSSIP_SGG1 "You raised all of the orcs here, Greatmother?"
-#define GOSSIP_SGG2 "Do you believe that?"
-#define GOSSIP_SGG3 "What can be done? I have tried many different things. I have done my best to help the people of Nagrand. Each time I have approached Garrosh, he has dismissed me."
-#define GOSSIP_SGG4 "Left? How can you choose to leave?"
-#define GOSSIP_SGG5 "What is this duty?"
-#define GOSSIP_SGG6 "Is there anything I can do for you, Greatmother?"
-#define GOSSIP_SGG7 "I have done all that I could, Greatmother. I thank you for your kind words."
-#define GOSSIP_SGG8 "Greatmother, you are the mother of Durotan?"
-#define GOSSIP_SGG9 "Greatmother, I never had the honor. Durotan died long before my time, but his heroics are known to all on my world. The orcs of Azeroth reside in a place known as Durotar, named after your son. And ... (You take a moment to breathe and think through what you are about to tell the Greatmother.)"
-#define GOSSIP_SGG10 "It is my Warchief, Greatmother. The leader of my people. From my world. He ... He is the son of Durotan. He is your grandchild."
-#define GOSSIP_SGG11 "I will return to Azeroth at once, Greatmother."
-
-//all the textId's for the below is unknown, but i do believe the gossip item texts are proper.
-class npc_greatmother_geyah : public CreatureScript
-{
-public:
-    npc_greatmother_geyah() : CreatureScript("npc_greatmother_geyah") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 2:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 3:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 4:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 5:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 6:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 7:
-                player->AreaExploredOrEventHappens(10044);
-                player->CLOSE_GOSSIP_MENU();
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 10:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 11:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG8, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 12:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG9, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 13:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG10, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 14:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG11, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 15);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 15:
-                player->AreaExploredOrEventHappens(10172);
-                player->CLOSE_GOSSIP_MENU();
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(10044) == QUEST_STATUS_INCOMPLETE)
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HGG1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        }
-        else if (player->GetQuestStatus(10172) == QUEST_STATUS_INCOMPLETE)
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HGG2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        }
-        else
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-};
-
-/*#####
 ## npc_maghar_captive
 #####*/
 
@@ -714,7 +605,6 @@ class go_warmaul_prison : public GameObjectScript
 
 void AddSC_nagrand()
 {
-    new npc_greatmother_geyah();
     new npc_maghar_captive();
     new npc_creditmarker_visit_with_ancestors();
     new npc_corki();

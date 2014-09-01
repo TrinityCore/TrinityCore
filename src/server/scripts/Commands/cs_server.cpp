@@ -30,8 +30,6 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "SystemConfig.h"
 
-#include <regex>
-
 class server_commandscript : public CommandScript
 {
 public:
@@ -296,9 +294,9 @@ public:
     }
 
 private:
-    static bool ParseExitCode(std::string const& exitCodeStr, int32& exitCode)
+    static bool ParseExitCode(char const* exitCodeStr, int32& exitCode)
     {
-        exitCode = atoi(exitCodeStr.c_str());
+        exitCode = atoi(exitCodeStr);
 
         // Handle atoi() errors
         if (exitCode == 0 && (exitCodeStr[0] != '0' || exitCodeStr[1] != '\0'))
@@ -319,28 +317,42 @@ private:
             return false;
 
         // #delay [#exit_code] [reason]
-        std::regex regex("([0-9]+) ([0-9]*) ?(.*)");
-        std::cmatch cm;
-
-        if (!std::regex_match(args, cm, regex))
+        char* delayStr = strtok((char*)args, " ");
+        if (!delayStr || !isNumeric(delayStr))
             return false;
 
-        std::string delayStr = cm[1];
-        std::string exitCodeStr = cm[2];
-        std::string reason = cm[3];
+        char* exitCodeStr = nullptr;
 
-        int32 delay = atoi(delayStr.c_str());
+        if (strlen(args) > 255)
+            return false;
+
+        char reason[255] = { 0 };
+
+        while (char* nextToken = strtok(nullptr, " "))
+        {
+            if (isNumeric(nextToken))
+                exitCodeStr = nextToken;
+            else
+            {
+                strcat(reason, nextToken);
+                strcat(reason, " ");
+                strcat(reason, strtok(nullptr, "\0"));
+                break;
+            }
+        }
+
+        int32 delay = atoi(delayStr);
 
         // Prevent interpret wrong arg value as 0 secs shutdown time
         if ((delay == 0 && (delayStr[0] != '0' || delayStr[1] != '\0')) || delay < 0)
             return false;
 
         int32 exitCode = defaultExitCode;
-        if (exitCodeStr.length() > 0)
+        if (exitCodeStr)
             if (!ParseExitCode(exitCodeStr, exitCode))
                 return false;
 
-        sWorld->ShutdownServ(delay, shutdownMask, static_cast<uint8>(exitCode), reason);
+        sWorld->ShutdownServ(delay, shutdownMask, static_cast<uint8>(exitCode), std::string(reason));
 
         return true;
     }
