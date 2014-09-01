@@ -429,20 +429,22 @@ void WorldSession::HandleQuestNPCQuery(WorldPacket& recvData)
         uint32 questId;
         recvData >> questId;
 
-        /// @todo verify if we should only send completed quests questgivers
-        if (_player->GetQuestStatus(questId) == QUEST_STATUS_COMPLETE)
+        if (!sObjectMgr->GetQuestTemplate(questId))
         {
-            auto creatures = sObjectMgr->GetCreatureQuestInvolvedRelationReverseBounds(questId);
-            for (auto it = creatures.first; it != creatures.second; ++it)
-                quests[questId].push_back(it->second);
-
-            auto gos = sObjectMgr->GetGOQuestInvolvedRelationReverseBounds(questId);
-            for (auto it = gos.first; it != gos.second; ++it)
-                quests[questId].push_back(it->second | 0x80000000); // GO mask
+            TC_LOG_DEBUG("network", "WORLD: Unknown quest %u in CMSG_QUEST_NPC_QUERY by player %u", questId, m_GUIDLow);
+            continue;
         }
+
+        auto creatures = sObjectMgr->GetCreatureQuestInvolvedRelationReverseBounds(questId);
+        for (auto it = creatures.first; it != creatures.second; ++it)
+            quests[questId].push_back(it->second);
+
+        auto gos = sObjectMgr->GetGOQuestInvolvedRelationReverseBounds(questId);
+        for (auto it = gos.first; it != gos.second; ++it)
+            quests[questId].push_back(it->second | 0x80000000); // GO mask
     }
 
-    WorldPacket data(SMSG_QUEST_NPC_QUERY_RESPONSE, 3 + count * 14);
+    WorldPacket data(SMSG_QUEST_NPC_QUERY_RESPONSE, 3 + quests.size() * 14);
     data.WriteBits(quests.size(), 23);
 
     for (auto it = quests.begin(); it != quests.end(); ++it)
