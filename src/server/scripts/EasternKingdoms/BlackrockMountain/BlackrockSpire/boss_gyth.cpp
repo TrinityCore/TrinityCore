@@ -53,13 +53,21 @@ public:
 
     struct boss_gythAI : public BossAI
     {
-        boss_gythAI(Creature* creature) : BossAI(creature, DATA_GYTH) { }
+        boss_gythAI(Creature* creature) : BossAI(creature, DATA_GYTH)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            SummonedRend = false;
+        }
 
         bool SummonedRend;
 
         void Reset() override
         {
-            SummonedRend = false;
+            Initialize();
             if (instance->GetBossState(DATA_GYTH) == IN_PROGRESS)
             {
                 instance->SetBossState(DATA_GYTH, DONE);

@@ -7355,13 +7355,13 @@ void ObjectMgr::LoadNPCSpellClickSpells()
         SpellInfo const* spellinfo = sSpellMgr->GetSpellInfo(spellid);
         if (!spellinfo)
         {
-            TC_LOG_ERROR("sql.sql", "Table npc_spellclick_spells references unknown spellid %u. Skipping entry.", spellid);
+            TC_LOG_ERROR("sql.sql", "Table npc_spellclick_spells creature: %u references unknown spellid %u. Skipping entry.", npc_entry, spellid);
             continue;
         }
 
         uint8 userType = fields[3].GetUInt16();
         if (userType >= SPELL_CLICK_USER_MAX)
-            TC_LOG_ERROR("sql.sql", "Table npc_spellclick_spells references unknown user type %u. Skipping entry.", uint32(userType));
+            TC_LOG_ERROR("sql.sql", "Table npc_spellclick_spells creature: %u  references unknown user type %u. Skipping entry.", npc_entry, uint32(userType));
 
         uint8 castFlags = fields[2].GetUInt8();
         SpellClickInfo info;
@@ -7423,7 +7423,7 @@ void ObjectMgr::DeleteCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_
     cell_guids.corpses.erase(player_guid);
 }
 
-void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string const& table, bool starter, bool go)
+void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, QuestRelationsReverse* reverseMap, std::string const& table, bool starter, bool go)
 {
     uint32 oldMSTime = getMSTime();
 
@@ -7456,7 +7456,11 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string const&
         }
 
         if (!poolId || !starter)
+        {
             map.insert(QuestRelations::value_type(id, quest));
+            if (reverseMap)
+                reverseMap->insert(QuestRelationsReverse::value_type(quest, id));
+        }
         else if (starter)
             poolRelationMap->insert(PooledQuestRelation::value_type(quest, id));
 
@@ -7468,7 +7472,7 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string const&
 
 void ObjectMgr::LoadGameobjectQuestStarters()
 {
-    LoadQuestRelationsHelper(_goQuestRelations, "gameobject_queststarter", true, true);
+    LoadQuestRelationsHelper(_goQuestRelations, nullptr, "gameobject_queststarter", true, true);
 
     for (QuestRelations::iterator itr = _goQuestRelations.begin(); itr != _goQuestRelations.end(); ++itr)
     {
@@ -7482,7 +7486,7 @@ void ObjectMgr::LoadGameobjectQuestStarters()
 
 void ObjectMgr::LoadGameobjectQuestEnders()
 {
-    LoadQuestRelationsHelper(_goQuestInvolvedRelations, "gameobject_questender", false, true);
+    LoadQuestRelationsHelper(_goQuestInvolvedRelations, &_goQuestInvolvedRelationsReverse, "gameobject_questender", false, true);
 
     for (QuestRelations::iterator itr = _goQuestInvolvedRelations.begin(); itr != _goQuestInvolvedRelations.end(); ++itr)
     {
@@ -7496,7 +7500,7 @@ void ObjectMgr::LoadGameobjectQuestEnders()
 
 void ObjectMgr::LoadCreatureQuestStarters()
 {
-    LoadQuestRelationsHelper(_creatureQuestRelations, "creature_queststarter", true, false);
+    LoadQuestRelationsHelper(_creatureQuestRelations, nullptr, "creature_queststarter", true, false);
 
     for (QuestRelations::iterator itr = _creatureQuestRelations.begin(); itr != _creatureQuestRelations.end(); ++itr)
     {
@@ -7510,7 +7514,7 @@ void ObjectMgr::LoadCreatureQuestStarters()
 
 void ObjectMgr::LoadCreatureQuestEnders()
 {
-    LoadQuestRelationsHelper(_creatureQuestInvolvedRelations, "creature_questender", false, false);
+    LoadQuestRelationsHelper(_creatureQuestInvolvedRelations, &_creatureQuestInvolvedRelationsReverse, "creature_questender", false, false);
 
     for (QuestRelations::iterator itr = _creatureQuestInvolvedRelations.begin(); itr != _creatureQuestInvolvedRelations.end(); ++itr)
     {

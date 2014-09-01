@@ -124,8 +124,25 @@ public:
     {
         npc_grimstoneAI(Creature* creature) : npc_escortAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             MobSpawnId = rand32() % 6;
+        }
+
+        void Initialize()
+        {
+            EventPhase = 0;
+            Event_Timer = 1000;
+
+            MobCount = 0;
+            MobDeath_Timer = 0;
+
+            for (uint8 i = 0; i < MAX_NPC_AMOUNT; ++i)
+                RingMobGUID[i] = 0;
+
+            RingBossGUID = 0;
+
+            CanWalk = false;
         }
 
         InstanceScript* instance;
@@ -144,20 +161,9 @@ public:
 
         void Reset() override
         {
+            Initialize();
+
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-
-            EventPhase = 0;
-            Event_Timer = 1000;
-
-            MobCount = 0;
-            MobDeath_Timer = 0;
-
-            for (uint8 i = 0; i < MAX_NPC_AMOUNT; ++i)
-                RingMobGUID[i] = 0;
-
-            RingBossGUID = 0;
-
-            CanWalk = false;
         }
 
         /// @todo move them to center
@@ -353,7 +359,17 @@ public:
 
     struct npc_phalanxAI : public ScriptedAI
     {
-        npc_phalanxAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_phalanxAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            ThunderClap_Timer = 12000;
+            FireballVolley_Timer = 0;
+            MightyBlow_Timer = 15000;
+        }
 
         uint32 ThunderClap_Timer;
         uint32 FireballVolley_Timer;
@@ -361,9 +377,7 @@ public:
 
         void Reset() override
         {
-            ThunderClap_Timer = 12000;
-            FireballVolley_Timer = 0;
-            MightyBlow_Timer = 15000;
+            Initialize();
         }
 
         void UpdateAI(uint32 diff) override
@@ -1238,7 +1252,14 @@ public:
     {
         npc_rocknotAI(Creature* creature) : npc_escortAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            BreakKeg_Timer = 0;
+            BreakDoor_Timer = 0;
         }
 
         InstanceScript* instance;
@@ -1251,8 +1272,7 @@ public:
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 return;
 
-            BreakKeg_Timer = 0;
-            BreakDoor_Timer = 0;
+            Initialize();
         }
 
         void DoGo(uint32 id, uint32 state)
