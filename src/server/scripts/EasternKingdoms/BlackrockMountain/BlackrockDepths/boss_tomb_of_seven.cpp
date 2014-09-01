@@ -157,12 +157,18 @@ class boss_doomrel : public CreatureScript
         {
             boss_doomrelAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 _instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                _voidwalkers = false;
             }
 
             void Reset() override
             {
-                _voidwalkers = false;
+                Initialize();
 
                 me->setFaction(FACTION_FRIEND);
 

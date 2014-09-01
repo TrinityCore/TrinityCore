@@ -52,7 +52,20 @@ public:
     {
         boss_mr_smiteAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiTrashTimer = urand(5000, 9000);
+            uiSlamTimer = 9000;
+            uiNimbleReflexesTimer = urand(15500, 31600);
+
+            uiHealth = 0;
+
+            uiPhase = 0;
+            uiTimer = 0;
         }
 
         InstanceScript* instance;
@@ -68,14 +81,7 @@ public:
 
         void Reset() override
         {
-            uiTrashTimer = urand(5000, 9000);
-            uiSlamTimer = 9000;
-            uiNimbleReflexesTimer = urand(15500, 31600);
-
-            uiHealth = 0;
-
-            uiPhase = 0;
-            uiTimer = 0;
+            Initialize();
 
             SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
         }
