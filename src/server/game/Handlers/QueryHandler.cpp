@@ -424,7 +424,7 @@ void WorldSession::HandleQuestNPCQuery(WorldPacket& recvData)
     uint32 count = recvData.ReadBits(24);
     std::map<uint32, std::vector<uint32>> quests;
 
-    for (int i = 0; i < count; ++i)
+    for (uint32 i = 0; i < count; ++i)
     {
         uint32 questId;
         recvData >> questId;
