@@ -2153,6 +2153,7 @@ void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achieve
         // send empty packet
         WorldPacket data(SMSG_GUILD_CRITERIA_DATA, 3);
         data.WriteBits(0, 21);
+        data.FlushBits();
         receiver->GetSession()->SendPacket(&data);
         return;
     }
