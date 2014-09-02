@@ -278,7 +278,7 @@ public:
                 if (me->IsWithinDistInMap(who, attackRadius))
                 {
                     // Check first that object is in an angle in front of this one before LoS check
-                    if (me->HasInArc(M_PI/2.0f, who) && me->IsWithinLOSInMap(who))
+                    if (me->HasInArc(float(M_PI) / 2.0f, who) && me->IsWithinLOSInMap(who))
                     {
                         AttackStart(who);
                     }
@@ -703,7 +703,7 @@ public:
             instance->SetData64(DATA_LEOTHERAS_EVENT_STARTER, 0);
             Creature* leotheras = ObjectAccessor::GetCreature(*me, leotherasGUID);
             if (leotheras && leotheras->IsAlive())
-                CAST_AI(boss_leotheras_the_blind::boss_leotheras_the_blindAI, leotheras->AI())->CheckChannelers(/*false*/);
+                ENSURE_AI(boss_leotheras_the_blind::boss_leotheras_the_blindAI, leotheras->AI())->CheckChannelers(/*false*/);
         }
 
         void EnterCombat(Unit* who) override

@@ -39,11 +39,8 @@ enum Spells
     SPELL_SPHERE_VISUAL                           = 56075,
     SPELL_GIFT_OF_THE_HERALD                      = 56219,
     SPELL_CYCLONE_STRIKE                          = 56855, // Self
-    SPELL_CYCLONE_STRIKE_H                        = 60030,
     SPELL_LIGHTNING_BOLT                          = 56891, // 40Y
-    SPELL_LIGHTNING_BOLT_H                        = 60032, // 40Y
-    SPELL_THUNDERSHOCK                            = 56926, // 30Y
-    SPELL_THUNDERSHOCK_H                          = 60029  // 30Y
+    SPELL_THUNDERSHOCK                            = 56926  // 30Y
 };
 
 const Position JedogaPosition[2] =
@@ -296,7 +293,7 @@ public:
                 if (uiBoltTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        me->CastSpell(target, DUNGEON_MODE(SPELL_LIGHTNING_BOLT, SPELL_LIGHTNING_BOLT_H), false);
+                        me->CastSpell(target, SPELL_LIGHTNING_BOLT, false);
 
                     uiBoltTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
                 } else uiBoltTimer -= diff;
@@ -304,7 +301,7 @@ public:
                 if (uiThunderTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        me->CastSpell(target, DUNGEON_MODE(SPELL_THUNDERSHOCK, SPELL_THUNDERSHOCK_H), false);
+                        me->CastSpell(target, SPELL_THUNDERSHOCK, false);
 
                     uiThunderTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
                 } else uiThunderTimer -= diff;
@@ -373,8 +370,8 @@ public:
             {
                 if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_JEDOGA_SHADOWSEEKER)))
                 {
-                    if (!CAST_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok)
-                        CAST_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerokFail = true;
+                    if (!ENSURE_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok)
+                        ENSURE_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerokFail = true;
 
                     if (killer->GetTypeId() == TYPEID_PLAYER)
                         boss->AI()->DoAction(ACTION_INITIAND_KILLED);
@@ -421,8 +418,8 @@ public:
                         Creature* boss = me->GetMap()->GetCreature(instance->GetData64(DATA_JEDOGA_SHADOWSEEKER));
                         if (boss)
                         {
-                            CAST_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok = true;
-                            CAST_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerokFail = false;
+                            ENSURE_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok = true;
+                            ENSURE_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerokFail = false;
                             me->Kill(me);
                         }
                     }

@@ -60,10 +60,10 @@ struct ObjectPosSelector
         float angle_step2  = GetAngle(nextUsedPos.second);
 
         float next_angle = nextUsedPos.first;
-        if (nextUsedPos.second.sign * sign < 0)              // last node from diff. list (-pi+alpha)
-            next_angle = 2*M_PI-next_angle;                 // move to positive
+        if (nextUsedPos.second.sign * sign < 0)                       // last node from diff. list (-pi+alpha)
+            next_angle = 2 * float(M_PI) - next_angle;   // move to positive
 
-        return fabs(angle)+angle_step2 <= next_angle;
+        return std::fabs(angle) + angle_step2 <= next_angle;
     }
 
     bool CheckOriginal() const
@@ -105,7 +105,7 @@ struct ObjectPosSelector
         // next possible angle
         angle  = m_smallStepAngle[uptype] + m_anglestep * sign;
 
-        if (fabs(angle) > M_PI)
+        if (std::fabs(angle) > float(M_PI))
         {
             m_smallStepOk[uptype] = false;
             return false;
@@ -113,7 +113,7 @@ struct ObjectPosSelector
 
         if (m_smallStepNextUsedPos[uptype])
         {
-            if (fabs(angle) >= m_smallStepNextUsedPos[uptype]->first)
+            if (std::fabs(angle) >= m_smallStepNextUsedPos[uptype]->first)
             {
                 m_smallStepOk[uptype] = false;
                 return false;
@@ -136,7 +136,7 @@ struct ObjectPosSelector
     UsedPosList::value_type const* nextUsedPos(UsedPosType uptype);
 
     // angle from used pos to next possible free pos
-    float GetAngle(UsedPos const& usedPos) const { return acos(m_dist/(usedPos.dist+usedPos.size+m_size)); }
+    float GetAngle(UsedPos const& usedPos) const { return std::acos(m_dist/(usedPos.dist+usedPos.size+m_size)); }
 
     float m_center_x;
     float m_center_y;

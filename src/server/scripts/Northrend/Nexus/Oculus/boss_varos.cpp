@@ -310,12 +310,12 @@ class spell_varos_energize_core_area_enemy : public SpellScriptLoader
                 if (varos->GetEntry() != NPC_VAROS)
                     return;
 
-                float orientation = CAST_AI(boss_varos::boss_varosAI, varos->AI())->GetCoreEnergizeOrientation();
+                float orientation = ENSURE_AI(boss_varos::boss_varosAI, varos->AI())->GetCoreEnergizeOrientation();
 
                 for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
                 {
                     float angle = varos->GetAngle((*itr)->GetPositionX(), (*itr)->GetPositionY());
-                    float diff = fabs(orientation - angle);
+                    float diff = std::fabs(orientation - angle);
 
                     if (diff > 1.0f)
                         itr = targets.erase(itr);
@@ -354,12 +354,12 @@ class spell_varos_energize_core_area_entry : public SpellScriptLoader
                 if (varos->GetEntry() != NPC_VAROS)
                     return;
 
-                float orientation = CAST_AI(boss_varos::boss_varosAI, varos->AI())->GetCoreEnergizeOrientation();
+                float orientation = ENSURE_AI(boss_varos::boss_varosAI, varos->AI())->GetCoreEnergizeOrientation();
 
                 for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
                 {
                     float angle = varos->GetAngle((*itr)->GetPositionX(), (*itr)->GetPositionY());
-                    float diff = fabs(orientation - angle);
+                    float diff = std::fabs(orientation - angle);
 
                     if (diff > 1.0f)
                         itr = targets.erase(itr);

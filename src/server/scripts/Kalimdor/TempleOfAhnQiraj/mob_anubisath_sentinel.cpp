@@ -122,7 +122,7 @@ public:
 
         void GiveBuddyMyList(Creature* c)
         {
-            aqsentinelAI* cai = CAST_AI(aqsentinelAI, (c)->AI());
+            aqsentinelAI* cai = ENSURE_AI(aqsentinelAI, (c)->AI());
             for (int i=0; i<3; ++i)
                 if (NearbyGUID[i] && NearbyGUID[i] != c->GetGUID())
                     cai->AddBuddyToList(NearbyGUID[i]);
@@ -200,8 +200,8 @@ public:
                     break;
 
                 AddSentinelsNear(pNearby);
-                CAST_AI(aqsentinelAI, pNearby->AI())->gatherOthersWhenAggro = false;
-                CAST_AI(aqsentinelAI, pNearby->AI())->selectAbility(pickAbilityRandom(chosenAbilities));
+                ENSURE_AI(aqsentinelAI, pNearby->AI())->gatherOthersWhenAggro = false;
+                ENSURE_AI(aqsentinelAI, pNearby->AI())->selectAbility(pickAbilityRandom(chosenAbilities));
             }
             /*if (bli < 3)
                 DoYell("I dont have enough buddies.", LANG_NEUTRAL, 0);*/
@@ -256,7 +256,7 @@ public:
                 if (sent->isDead())
                     continue;
                 sent->ModifyHealth(int32(sent->CountPctFromMaxHealth(50)));
-                CAST_AI(aqsentinelAI, sent->AI())->GainSentinelAbility(ability);
+                ENSURE_AI(aqsentinelAI, sent->AI())->GainSentinelAbility(ability);
             }
         }
     };

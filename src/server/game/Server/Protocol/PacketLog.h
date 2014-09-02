@@ -20,6 +20,9 @@
 
 #include "Common.h"
 
+#include <boost/asio/ip/address.hpp>
+#include <mutex>
+
 enum Direction
 {
     CLIENT_TO_SERVER,
@@ -33,6 +36,8 @@ class PacketLog
     private:
         PacketLog();
         ~PacketLog();
+        std::mutex _logPacketLock;
+        std::once_flag _initializeFlag;
 
     public:
         static PacketLog* instance()
@@ -43,7 +48,7 @@ class PacketLog
 
         void Initialize();
         bool CanLogPacket() const { return (_file != NULL); }
-        void LogPacket(WorldPacket const& packet, Direction direction);
+        void LogPacket(WorldPacket const& packet, Direction direction, boost::asio::ip::address addr, uint16 port);
 
     private:
         FILE* _file;

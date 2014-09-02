@@ -697,7 +697,7 @@ class boss_kaelthas : public CreatureScript
                                 if (!Advisor)
                                     TC_LOG_ERROR("scripts", "SD2: Kael'Thas Advisor %u does not exist. Possibly despawned? Incorrectly Killed?", i);
                                 else
-                                    CAST_AI(advisorbase_ai, Advisor->AI())->Revive(target);
+                                    ENSURE_AI(advisorbase_ai, Advisor->AI())->Revive(target);
                             }
 
                             PhaseSubphase = 1;

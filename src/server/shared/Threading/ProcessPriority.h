@@ -32,7 +32,7 @@ void SetProcessPriority(const std::string logChannel)
 #if PLATFORM_APPLE
     (void)logChannel;
 #endif
-    
+
 #if defined(_WIN32) || defined(__linux__)
 
     ///- Handle affinity for multiple processors and process priority

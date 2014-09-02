@@ -323,6 +323,33 @@ class spell_dk_blood_gorged : public SpellScriptLoader
         }
 };
 
+// -49027 - Bloodworms
+class spell_dk_bloodworms : public SpellScriptLoader
+{
+    public:
+        spell_dk_bloodworms() : SpellScriptLoader("spell_dk_bloodworms") { }
+
+        class spell_dk_bloodworms_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_bloodworms_AuraScript);
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                aurEff->GetBase()->RecalculateAmountOfEffects();
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_bloodworms_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_bloodworms_AuraScript();
+        }
+};
+
 class CorpseExplosionCheck
 {
 public:
@@ -1572,6 +1599,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_anti_magic_zone();
     new spell_dk_blood_boil();
     new spell_dk_blood_gorged();
+    new spell_dk_bloodworms();
     new spell_dk_corpse_explosion();
     new spell_dk_death_and_decay();
     new spell_dk_death_coil();

@@ -25,9 +25,28 @@
 #include "WorldPacket.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "CellImpl.h"
+
+class DefenseMessageBuilder
+{
+    public:
+        DefenseMessageBuilder(uint32 zoneId, uint32 id)
+            : _zoneId(zoneId), _id(id) { }
+
+        void operator()(WorldPacket& data, LocaleConstant locale) const
+        {
+            std::string text = sOutdoorPvPMgr->GetDefenseMessage(_zoneId, _id, locale);
+
+            data.Initialize(SMSG_DEFENSE_MESSAGE, 4 + 4 + text.length());
+            data.append<uint32>(_zoneId);
+            data.append<uint32>(text.length());
+            data << text;
+        }
+
+    private:
+        uint32 _zoneId; ///< ZoneId
+        uint32 _id;     ///< BroadcastTextId
+};
 
 OPvPCapturePoint::OPvPCapturePoint(OutdoorPvP* pvp):
     m_capturePointGUID(0), m_capturePoint(NULL), m_maxValue(0.0f), m_minValue(0.0f), m_maxSpeed(0),
@@ -615,4 +634,21 @@ void OutdoorPvP::OnGameObjectRemove(GameObject* go)
 
     if (OPvPCapturePoint *cp = GetCapturePoint(go->GetDBTableGUIDLow()))
         cp->m_capturePoint = NULL;
+}
+
+void OutdoorPvP::SendDefenseMessage(uint32 zoneId, uint32 id)
+{
+    DefenseMessageBuilder builder(zoneId, id);
+    Trinity::LocalizedPacketDo<DefenseMessageBuilder> localizer(builder);
+    BroadcastWorker(localizer, zoneId);
+}
+
+template<class Worker>
+void OutdoorPvP::BroadcastWorker(Worker& _worker, uint32 zoneId)
+{
+    for (uint32 i = 0; i < BG_TEAMS_COUNT; ++i)
+        for (PlayerSet::iterator itr = m_players[i].begin(); itr != m_players[i].end(); ++itr)
+            if (Player* player = ObjectAccessor::FindPlayer(*itr))
+                if (player->GetZoneId() == zoneId)
+                    _worker(player);
 }

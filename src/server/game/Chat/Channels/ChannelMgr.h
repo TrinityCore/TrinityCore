@@ -26,6 +26,8 @@
 
 #include "World.h"
 
+#define MAX_CHANNEL_PASS_STR 31
+
 class ChannelMgr
 {
     typedef std::map<std::wstring, Channel*> ChannelMap;
@@ -35,13 +37,7 @@ class ChannelMgr
         ~ChannelMgr();
 
     public:
-        static ChannelMgr* instance()
-        {
-            static ChannelMgr instance;
-            return &instance;
-        }
-
-        static ChannelMgr * forTeam(uint32 team);
+        static ChannelMgr* forTeam(uint32 team);
         void setTeam(uint32 newTeam) { team = newTeam; }
 
         Channel* GetJoinChannel(std::string const& name, uint32 channel_id);
@@ -54,8 +50,5 @@ class ChannelMgr
 
         void MakeNotOnPacket(WorldPacket* data, std::string const& name);
 };
-
-class AllianceChannelMgr : public ChannelMgr { };
-class HordeChannelMgr    : public ChannelMgr { };
 
 #endif

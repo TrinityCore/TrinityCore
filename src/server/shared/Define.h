@@ -28,6 +28,9 @@
 #  if !defined(__STDC_CONSTANT_MACROS)
 #    define __STDC_CONSTANT_MACROS
 #  endif
+#  if !defined(_GLIBCXX_USE_NANOSLEEP)
+#    define _GLIBCXX_USE_NANOSLEEP
+#  endif
 #endif
 
 #include <cstddef>
@@ -47,6 +50,7 @@
 
 #if PLATFORM == PLATFORM_WINDOWS
 #  define TRINITY_PATH_MAX MAX_PATH
+#  define _USE_MATH_DEFINES
 #  ifndef DECLSPEC_NORETURN
 #    define DECLSPEC_NORETURN __declspec(noreturn)
 #  endif //DECLSPEC_NORETURN

@@ -1014,7 +1014,7 @@ public:
         // Used to generate perfect cyclic movements (Enter Circle).
         void FillCirclePath(Position const& centerPos, float radius, float z, Movement::PointsArray& path, bool clockwise)
         {
-            float step = clockwise ? -M_PI / 8.0f : M_PI / 8.0f;
+            float step = clockwise ? float(-M_PI) / 8.0f : float(M_PI) / 8.0f;
             float angle = centerPos.GetAngle(me->GetPositionX(), me->GetPositionY());
 
             for (uint8 i = 0; i < 16; angle += step, ++i)
@@ -1326,7 +1326,7 @@ public:
     private:
         void FillCirclePath(Position const& centerPos, float radius, float z, Movement::PointsArray& path, bool clockwise)
         {
-            float step = clockwise ? -M_PI / 9.0f : M_PI / 9.0f;
+            float step = clockwise ? float(-M_PI) / 9.0f : float(M_PI) / 9.0f;
             float angle = centerPos.GetAngle(me->GetPositionX(), me->GetPositionY());
 
             for (uint8 i = 0; i < 18; angle += step, ++i)

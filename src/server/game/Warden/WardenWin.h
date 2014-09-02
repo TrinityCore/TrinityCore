@@ -76,13 +76,13 @@ class WardenWin : public Warden
         WardenWin();
         ~WardenWin();
 
-        void Init(WorldSession* session, BigNumber* K);
-        ClientWardenModule* GetModuleForClient();
-        void InitializeModule();
-        void RequestHash();
-        void HandleHashResult(ByteBuffer &buff);
-        void RequestData();
-        void HandleData(ByteBuffer &buff);
+        void Init(WorldSession* session, BigNumber* K) override;
+        ClientWardenModule* GetModuleForClient() override;
+        void InitializeModule() override;
+        void RequestHash() override;
+        void HandleHashResult(ByteBuffer &buff) override;
+        void RequestData() override;
+        void HandleData(ByteBuffer &buff) override;
 
     private:
         uint32 _serverTicks;

@@ -311,6 +311,13 @@ class spell_sha_earth_shield : public SpellScriptLoader
                     amount = caster->SpellHealingBonusDone(GetUnitOwner(), GetSpellInfo(), amount, HEAL);
                     amount = GetUnitOwner()->SpellHealingBonusTaken(caster, GetSpellInfo(), amount, HEAL);
 
+                    //! WORKAROUND
+                    // If target is affected by healing reduction, modifier is guaranteed to be negative
+                    // value (e.g. -50). To revert the effect, multiply amount with reciprocal of relative value:
+                    // (100 / ((-1) * modifier)) * 100 = (-1) * 100 * 100 / modifier = -10000 / modifier
+                    if (int32 modifier = GetUnitOwner()->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HEALING_PCT))
+                        ApplyPct(amount, -10000.0f / float(modifier));
+
                     // Glyph of Earth Shield
                     //! WORKAROUND
                     //! this glyph is a proc
@@ -871,7 +878,7 @@ class spell_sha_mana_spring_totem : public SpellScriptLoader
                 if (Unit* target = GetHitUnit())
                     if (Unit* caster = GetCaster())
                         if (target->getPowerType() == POWER_MANA)
-                            caster->CastCustomSpell(target, SPELL_SHAMAN_MANA_SPRING_TOTEM_ENERGIZE, &damage, 0, 0, true, 0, 0, GetOriginalCaster()->GetGUID());
+                            caster->CastCustomSpell(target, SPELL_SHAMAN_MANA_SPRING_TOTEM_ENERGIZE, &damage, nullptr, nullptr, true, nullptr, nullptr, GetOriginalCaster()->GetGUID());
             }
 
             void Register() override

@@ -197,18 +197,22 @@ uint32 Quest::XPValue(Player* player) const
 
 int32 Quest::GetRewOrReqMoney() const
 {
+    // RequiredMoney: the amount is the negative copper sum.
     if (RewardOrRequiredMoney <= 0)
         return RewardOrRequiredMoney;
 
-    return int32(RewardOrRequiredMoney * sWorld->getRate(RATE_DROP_MONEY));
+    // RewardMoney: the positive amount
+    return int32(RewardOrRequiredMoney * sWorld->getRate(RATE_MONEY_QUEST));
 }
 
 uint32 Quest::GetRewMoneyMaxLevel() const
 {
+    // If Quest has flag to not give money on max level, it's 0
     if (HasFlag(QUEST_FLAGS_NO_MONEY_FROM_XP))
         return 0;
 
-    return RewardMoneyMaxLevel;
+    // Else, return the rewarded copper sum modified by the rate
+    return uint32(RewardMoneyMaxLevel * sWorld->getRate(RATE_MONEY_MAX_LEVEL_QUEST));
 }
 
 bool Quest::IsAutoAccept() const

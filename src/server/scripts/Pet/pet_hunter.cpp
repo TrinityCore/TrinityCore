@@ -42,13 +42,22 @@ class npc_pet_hunter_snake_trap : public CreatureScript
 
         struct npc_pet_hunter_snake_trapAI : public ScriptedAI
         {
-            npc_pet_hunter_snake_trapAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_pet_hunter_snake_trapAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _spellTimer = 0;
+                _isViper = false;
+            }
 
             void EnterCombat(Unit* /*who*/) override { }
 
             void Reset() override
             {
-                _spellTimer = 0;
+                Initialize();
 
                 CreatureTemplate const* Info = me->GetCreatureTemplate();
 
@@ -57,7 +66,7 @@ class npc_pet_hunter_snake_trap : public CreatureScript
                 me->SetMaxHealth(uint32(107 * (me->getLevel() - 40) * 0.025f));
                 // Add delta to make them not all hit the same time
                 uint32 delta = (rand32() % 7) * 100;
-                me->SetAttackTime(BASE_ATTACK, Info->baseattacktime + delta);
+                me->SetAttackTime(BASE_ATTACK, Info->BaseAttackTime + delta);
                 //me->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER, float(Info->attackpower));
 
                 // Start attacking attacker of owner on first ai update after spawn - move in line of sight may choose better target

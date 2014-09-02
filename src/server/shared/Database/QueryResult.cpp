@@ -124,7 +124,7 @@ m_length(NULL)
                                                            *m_rBind[fIndex].length);
                     break;
                     default:
-                    m_rows[uint32(m_rowPosition)][fIndex].SetByteValue(0,
+                    m_rows[uint32(m_rowPosition)][fIndex].SetByteValue(nullptr,
                                                             m_rBind[fIndex].buffer_length,
                                                             m_rBind[fIndex].buffer_type,
                                                            *m_rBind[fIndex].length);

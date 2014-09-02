@@ -257,7 +257,7 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
     }
 
     OutputDebugVertices();
-    
+
     uint32 numVerts = _Geometry->Vertices.size();
     uint32 numTris = _Geometry->Triangles.size();
     float* vertices;

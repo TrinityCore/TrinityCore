@@ -20,6 +20,8 @@
 #include "ChannelMgr.h"
 #include "Player.h"
 
+#include <cctype>
+
 void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
 {
     uint32 channelId;
@@ -43,6 +45,9 @@ void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
     }
 
     if (channelName.empty())
+        return;
+
+    if (isdigit(channelName[0]))
         return;
 
     if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
@@ -94,6 +99,9 @@ void WorldSession::HandleChannelPassword(WorldPacket& recvPacket)
 
     TC_LOG_DEBUG("chat.system", "CMSG_CHANNEL_PASSWORD %s Channel: %s, Password: %s",
         GetPlayerInfo().c_str(), channelName.c_str(), password.c_str());
+
+    if (password.length() > MAX_CHANNEL_PASS_STR)
+        return;
 
     if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
         if (Channel* channel = cMgr->GetChannel(channelName, GetPlayer()))

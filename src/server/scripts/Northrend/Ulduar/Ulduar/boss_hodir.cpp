@@ -324,6 +324,12 @@ class boss_hodir : public CreatureScript
 
             void Reset() override
             {
+                gettingColdInHereTimer = 0;
+                gettingColdInHere = false;
+                cheeseTheFreeze = false;
+                iHaveTheCoolestFriends = false;
+                iCouldSayThatThisCacheWasRare = false;
+
                 _Reset();
                 me->SetReactState(REACT_PASSIVE);
 
@@ -985,7 +991,7 @@ public:
             if (!caster)
                 return;
 
-            int32 damage = int32(200 * pow(2.0f, GetStackAmount()));
+            int32 damage = int32(200 * std::pow(2.0f, GetStackAmount()));
             caster->CastCustomSpell(caster, SPELL_BITING_COLD_DAMAGE, &damage, NULL, NULL, true);
 
             if (caster->isMoving())

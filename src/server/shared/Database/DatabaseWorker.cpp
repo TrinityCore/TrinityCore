@@ -50,7 +50,7 @@ void DatabaseWorker::WorkerThread()
 
         _queue->WaitAndPop(operation);
 
-        if (_cancelationToken)
+        if (_cancelationToken || !operation)
             return;
 
         operation->SetConnection(_connection);

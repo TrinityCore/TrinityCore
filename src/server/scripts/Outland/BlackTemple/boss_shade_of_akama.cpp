@@ -244,8 +244,8 @@ public:
 
             if (me->GetAuraCount(SPELL_SHADE_SOUL_CHANNEL_2) <= 3)
             {
-                moveSpeed = (2.0 - (0.6 * me->GetAuraCount(SPELL_SHADE_SOUL_CHANNEL_2)));
-                me->SetSpeed(MOVE_WALK, moveSpeed / 2.5);
+                moveSpeed = (2.0f - (0.6f * me->GetAuraCount(SPELL_SHADE_SOUL_CHANNEL_2)));
+                me->SetSpeed(MOVE_WALK, moveSpeed / 2.5f);
                 me->SetSpeed(MOVE_RUN, (moveSpeed * 2) / 7);
                 me->ClearUnitState(UNIT_STATE_ROOT);
             }
@@ -439,7 +439,7 @@ public:
         {
             if (Creature* Shade = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADE_OF_AKAMA)))
                 if (Shade->IsAlive())
-                    CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->HasKilledAkama = true;
+                    ENSURE_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->HasKilledAkama = true;
             me->GetMotionMaster()->Clear(true);
             me->GetMotionMaster()->MoveIdle();
         }
@@ -778,7 +778,7 @@ public:
         void IsSummonedBy(Unit* /*summoner*/) override
         {
             if (Creature* summoner = (ObjectAccessor::GetCreature((*me), summonerGuid)))
-                CAST_AI(npc_creature_generator_akama::npc_creature_generator_akamaAI, summoner->AI())->JustSummoned(me);
+                ENSURE_AI(npc_creature_generator_akama::npc_creature_generator_akamaAI, summoner->AI())->JustSummoned(me);
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -884,7 +884,7 @@ public:
         void IsSummonedBy(Unit* /*summoner*/) override
         {
             if (Creature* summoner = (ObjectAccessor::GetCreature((*me), summonerGuid)))
-                CAST_AI(npc_creature_generator_akama::npc_creature_generator_akamaAI, summoner->AI())->JustSummoned(me);
+                ENSURE_AI(npc_creature_generator_akama::npc_creature_generator_akamaAI, summoner->AI())->JustSummoned(me);
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -974,7 +974,7 @@ public:
         void IsSummonedBy(Unit* /*summoner*/) override
         {
             if (Creature* summoner = (ObjectAccessor::GetCreature((*me), summonerGuid)))
-                CAST_AI(npc_creature_generator_akama::npc_creature_generator_akamaAI, summoner->AI())->JustSummoned(me);
+                ENSURE_AI(npc_creature_generator_akama::npc_creature_generator_akamaAI, summoner->AI())->JustSummoned(me);
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -1054,7 +1054,7 @@ public:
         void IsSummonedBy(Unit* /*summoner*/) override
         {
             if (Creature* summoner = (ObjectAccessor::GetCreature((*me), summonerGuid)))
-                CAST_AI(npc_creature_generator_akama::npc_creature_generator_akamaAI, summoner->AI())->JustSummoned(me);
+                ENSURE_AI(npc_creature_generator_akama::npc_creature_generator_akamaAI, summoner->AI())->JustSummoned(me);
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -1136,7 +1136,7 @@ public:
         void IsSummonedBy(Unit* /*summoner*/) override
         {
             if (Creature* summoner = (ObjectAccessor::GetCreature((*me), summonerGuid)))
-                CAST_AI(npc_creature_generator_akama::npc_creature_generator_akamaAI, summoner->AI())->JustSummoned(me);
+                ENSURE_AI(npc_creature_generator_akama::npc_creature_generator_akamaAI, summoner->AI())->JustSummoned(me);
         }
 
         void EnterCombat(Unit* /*who*/) override

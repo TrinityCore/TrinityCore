@@ -236,7 +236,7 @@ void PetAI::UpdateAI(uint32 diff)
             SpellCastTargets targets;
             targets.SetUnitTarget(target);
 
-            if (!me->HasInArc(M_PI, target))
+            if (!me->HasInArc(float(M_PI), target))
             {
                 me->SetInFront(target);
                 if (target && target->GetTypeId() == TYPEID_PLAYER)
@@ -245,8 +245,6 @@ void PetAI::UpdateAI(uint32 diff)
                 if (owner && owner->GetTypeId() == TYPEID_PLAYER)
                     me->SendUpdateToPlayer(owner->ToPlayer());
             }
-
-            me->AddCreatureSpellCooldown(spell->m_spellInfo->Id);
 
             spell->prepare(&targets);
         }

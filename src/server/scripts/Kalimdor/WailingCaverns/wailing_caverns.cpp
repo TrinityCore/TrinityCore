@@ -99,9 +99,9 @@ public:
             creature->setFaction(250);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(false, false, player->GetGUID());
-            CAST_AI(npc_escortAI, (creature->AI()))->SetDespawnAtFar(false);
-            CAST_AI(npc_escortAI, (creature->AI()))->SetDespawnAtEnd(false);
+            ENSURE_AI(npc_escortAI, (creature->AI()))->Start(false, false, player->GetGUID());
+            ENSURE_AI(npc_escortAI, (creature->AI()))->SetDespawnAtFar(false);
+            ENSURE_AI(npc_escortAI, (creature->AI()))->SetDespawnAtEnd(false);
         }
         return true;
     }

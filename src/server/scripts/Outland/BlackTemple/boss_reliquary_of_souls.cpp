@@ -215,7 +215,7 @@ public:
 
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
             {
-                CAST_AI(npc_enslaved_soul::npc_enslaved_soulAI, Soul->AI())->ReliquaryGUID = me->GetGUID();
+                ENSURE_AI(npc_enslaved_soul::npc_enslaved_soulAI, Soul->AI())->ReliquaryGUID = me->GetGUID();
                 Soul->AI()->AttackStart(target);
             } else EnterEvadeMode();
             return true;
@@ -379,7 +379,7 @@ void npc_enslaved_soul::npc_enslaved_soulAI::JustDied(Unit* /*killer*/)
 {
     if (ReliquaryGUID)
         if (Creature* Reliquary = (ObjectAccessor::GetCreature((*me), ReliquaryGUID)))
-            ++(CAST_AI(boss_reliquary_of_souls::boss_reliquary_of_soulsAI, Reliquary->AI())->SoulDeathCount);
+            ++(ENSURE_AI(boss_reliquary_of_souls::boss_reliquary_of_soulsAI, Reliquary->AI())->SoulDeathCount);
 
     DoCast(me, SPELL_SOUL_RELEASE, true);
 }

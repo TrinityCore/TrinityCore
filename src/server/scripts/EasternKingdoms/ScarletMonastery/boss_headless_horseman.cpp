@@ -155,13 +155,13 @@ public:
     {
         npc_wisp_invisAI(Creature* creature) : ScriptedAI(creature)
         {
-            Creaturetype = delay = spell = spell2 = 0;
+            Creaturetype = delay = _spell = _spell2 = 0;
         }
 
         uint32 Creaturetype;
         uint32 delay;
-        uint32 spell;
-        uint32 spell2;
+        uint32 _spell;
+        uint32 _spell2;
         void Reset() override { }
         void EnterCombat(Unit* /*who*/) override { }
         void SetType(uint32 _type)
@@ -169,24 +169,24 @@ public:
             switch (Creaturetype = _type)
             {
                 case 1:
-                    spell = SPELL_PUMPKIN_AURA_GREEN;
+                    _spell = SPELL_PUMPKIN_AURA_GREEN;
                     break;
                 case 2:
                     delay = 15000;
-                    spell = SPELL_BODY_FLAME;
-                    spell2 = SPELL_DEATH;
+                    _spell = SPELL_BODY_FLAME;
+                    _spell2 = SPELL_DEATH;
                     break;
                 case 3:
                     delay = 15000;
-                    spell = SPELL_SMOKE;
+                    _spell = SPELL_SMOKE;
                     break;
                 case 4:
                     delay = 7000;
-                    spell2 = SPELL_WISP_BLUE;
+                    _spell2 = SPELL_WISP_BLUE;
                     break;
             }
-            if (spell)
-                DoCast(me, spell);
+            if (_spell)
+                DoCast(me, _spell);
         }
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
@@ -196,7 +196,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) override
-
         {
             if (!who || Creaturetype != 1 || !who->isTargetableForAttack())
                 return;
@@ -212,8 +211,8 @@ public:
                 if (delay <= diff)
                 {
                     me->RemoveAurasDueToSpell(SPELL_SMOKE);
-                    if (spell2)
-                        DoCast(me, spell2);
+                    if (_spell2)
+                        DoCast(me, _spell2);
                     delay = 0;
                 } else delay -= diff;
             }
@@ -435,7 +434,7 @@ public:
             }
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            //instance->SetData(DATA_HORSEMAN_EVENT, NOT_STARTED);
+            //instance->SetBossState(DATA_HORSEMAN_EVENT, NOT_STARTED);
         }
 
         void FlyMode()
@@ -466,12 +465,12 @@ public:
                 case 1:
                 {
                     if (Creature* smoke = me->SummonCreature(HELPER, Spawn[1].x, Spawn[1].y, Spawn[1].z, 0, TEMPSUMMON_TIMED_DESPAWN, 20000))
-                        CAST_AI(npc_wisp_invis::npc_wisp_invisAI, smoke->AI())->SetType(3);
+                        ENSURE_AI(npc_wisp_invis::npc_wisp_invisAI, smoke->AI())->SetType(3);
                     DoCast(me, SPELL_RHYME_BIG);
                     break;
                 }
                 case 6:
-                    instance->SetData(GAMEOBJECT_PUMPKIN_SHRINE, 0);   //hide gameobject
+                    instance->SetData(DATA_PUMPKIN_SHRINE, 0);   //hide gameobject
                     break;
                 case 19:
                     me->SetDisableGravity(false);
@@ -493,7 +492,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            instance->SetData(DATA_HORSEMAN_EVENT, IN_PROGRESS);
+            instance->SetBossState(DATA_HORSEMAN_EVENT, IN_PROGRESS);
             DoZoneInCombat();
         }
 
@@ -503,7 +502,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) override
-
         {
             if (withhead && Phase != 0)
                 ScriptedAI::MoveInLineOfSight(who);
@@ -517,7 +515,7 @@ public:
                     SaySound(SAY_PLAYER_DEATH);
                 //maybe possible when player dies from conflagration
                 else if (Creature* Head = ObjectAccessor::GetCreature((*me), headGUID))
-                    CAST_AI(npc_head::npc_headAI, Head->AI())->SaySound(SAY_PLAYER_DEATH);
+                    ENSURE_AI(npc_head::npc_headAI, Head->AI())->SaySound(SAY_PLAYER_DEATH);
             }
         }
 
@@ -566,8 +564,8 @@ public:
             if (Creature* flame = DoSpawnCreature(HELPER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000))
                 flame->CastSpell(flame, SPELL_BODY_FLAME, false);
             if (Creature* wisp = DoSpawnCreature(WISP_INVIS, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000))
-                CAST_AI(npc_wisp_invis::npc_wisp_invisAI, wisp->AI())->SetType(4);
-            instance->SetData(DATA_HORSEMAN_EVENT, DONE);
+                ENSURE_AI(npc_wisp_invis::npc_wisp_invisAI, wisp->AI())->SetType(4);
+            instance->SetBossState(DATA_HORSEMAN_EVENT, DONE);
 
             Map::PlayerList const& players = me->GetMap()->GetPlayers();
             if (!players.isEmpty())
@@ -690,7 +688,7 @@ public:
                         if (burn <= diff)
                         {
                             if (Creature* flame = me->SummonCreature(HELPER, Spawn[0].x, Spawn[0].y, Spawn[0].z, 0, TEMPSUMMON_TIMED_DESPAWN, 17000))
-                                CAST_AI(npc_wisp_invis::npc_wisp_invisAI, flame->AI())->SetType(2);
+                                ENSURE_AI(npc_wisp_invis::npc_wisp_invisAI, flame->AI())->SetType(2);
                             burned = true;
                         }
                         else burn -= diff;
@@ -749,8 +747,8 @@ public:
                         Creature* Head = ObjectAccessor::GetCreature((*me), headGUID);
                         if (Head && Head->IsAlive())
                         {
-                            CAST_AI(npc_head::npc_headAI, Head->AI())->Phase = Phase;
-                            CAST_AI(npc_head::npc_headAI, Head->AI())->Disappear();
+                            ENSURE_AI(npc_head::npc_headAI, Head->AI())->Phase = Phase;
+                            ENSURE_AI(npc_head::npc_headAI, Head->AI())->Disappear();
                         }
                         return;
                     }
@@ -808,7 +806,7 @@ public:
             {
                 debuff->SetDisplayId(me->GetDisplayId());
                 debuff->CastSpell(debuff, SPELL_PUMPKIN_AURA_GREEN, false);
-                CAST_AI(npc_wisp_invis::npc_wisp_invisAI, debuff->AI())->SetType(1);
+                ENSURE_AI(npc_wisp_invis::npc_wisp_invisAI, debuff->AI())->SetType(1);
                 debuffGUID = debuff->GetGUID();
             }
             sprouted = false;
@@ -852,7 +850,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) override
-
         {
             if (!who || !me->IsValidAttackTarget(who) || me->GetVictim())
                 return;
@@ -880,9 +877,9 @@ public:
         InstanceScript* instance = player->GetInstanceScript();
         if (instance)
         {
-            if (instance->GetData(DATA_HORSEMAN_EVENT) != NOT_STARTED)
+            if (instance->GetBossState(DATA_HORSEMAN_EVENT) != NOT_STARTED)
                 return true;
-            instance->SetData(DATA_HORSEMAN_EVENT, IN_PROGRESS);
+            instance->SetBossState(DATA_HORSEMAN_EVENT, IN_PROGRESS);
         }
     /*  if (soil->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER && player->getLevel() > 64)
         {
@@ -894,8 +891,8 @@ public:
             player->AreaExploredOrEventHappens(11405);
             if (Creature* horseman = soil->SummonCreature(HH_MOUNTED, FlightPoint[20].x, FlightPoint[20].y, FlightPoint[20].z, 0, TEMPSUMMON_MANUAL_DESPAWN, 0))
             {
-                CAST_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->PlayerGUID = player->GetGUID();
-                CAST_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->FlyMode();
+                ENSURE_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->PlayerGUID = player->GetGUID();
+                ENSURE_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->FlyMode();
             }
         //}
         return true;
@@ -920,7 +917,7 @@ void npc_head::npc_headAI::Disappear()
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->GetMotionMaster()->MoveIdle();
-            CAST_AI(boss_headless_horseman::boss_headless_horsemanAI, body->AI())->returned = true;
+            ENSURE_AI(boss_headless_horseman::boss_headless_horsemanAI, body->AI())->returned = true;
         }
     }
 }

@@ -59,6 +59,7 @@ class Vehicle;
 class WorldPacket;
 class WorldSocket;
 class WorldObject;
+class WorldSession;
 
 struct AchievementCriteriaData;
 struct AuctionEntry;
@@ -197,7 +198,7 @@ class SpellScriptLoader : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const final { return true; }
+        bool IsDatabaseBound() const final override { return true; }
 
         // Should return a fully valid SpellScript pointer.
         virtual SpellScript* GetSpellScript() const { return NULL; }
@@ -225,19 +226,19 @@ class ServerScript : public ScriptObject
 
         // Called when a socket is closed. Do not store the socket object, and do not rely on the connection
         // being open; it is not.
-        virtual void OnSocketClose(std::shared_ptr<WorldSocket> /*socket*/, bool /*wasNew*/) { }
+        virtual void OnSocketClose(std::shared_ptr<WorldSocket> /*socket*/) { }
 
         // Called when a packet is sent to a client. The packet object is a copy of the original packet, so reading
         // and modifying it is safe.
-        virtual void OnPacketSend(std::shared_ptr<WorldSocket> /*socket*/, WorldPacket& /*packet*/) { }
+        virtual void OnPacketSend(WorldSession* /*session*/, WorldPacket& /*packet*/) { }
 
         // Called when a (valid) packet is received by a client. The packet object is a copy of the original packet, so
-        // reading and modifying it is safe.
-        virtual void OnPacketReceive(std::shared_ptr<WorldSocket> /*socket*/, WorldPacket& /*packet*/) { }
+        // reading and modifying it is safe. Make sure to check WorldSession pointer before usage, it might be null in case of auth packets
+        virtual void OnPacketReceive(WorldSession* /*session*/, WorldPacket& /*packet*/) { }
 
         // Called when an invalid (unknown opcode) packet is received by a client. The packet is a reference to the orignal
         // packet; not a copy. This allows you to actually handle unknown packets (for whatever purpose).
-        virtual void OnUnknownPacketReceive(std::shared_ptr<WorldSocket> /*socket*/, WorldPacket& /*packet*/) { }
+        virtual void OnUnknownPacketReceive(WorldSession* /*session*/, WorldPacket& /*packet*/) { }
 };
 
 class WorldScript : public ScriptObject
@@ -355,7 +356,7 @@ class InstanceMapScript : public ScriptObject, public MapScript<InstanceMap>
 
     public:
 
-        bool IsDatabaseBound() const final { return true; }
+        bool IsDatabaseBound() const final override { return true; }
 
         // Gets an InstanceScript object for this instance.
         virtual InstanceScript* GetInstanceScript(InstanceMap* /*map*/) const { return NULL; }
@@ -376,7 +377,7 @@ class ItemScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const final { return true; }
+        bool IsDatabaseBound() const final override { return true; }
 
         // Called when a dummy spell effect is triggered on the item.
         virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/, Item* /*target*/) { return false; }
@@ -425,7 +426,7 @@ class CreatureScript : public UnitScript, public UpdatableScript<Creature>
 
     public:
 
-        bool IsDatabaseBound() const final { return true; }
+        bool IsDatabaseBound() const final override { return true; }
 
         // Called when a dummy spell effect is triggered on the creature.
         virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/, Creature* /*target*/) { return false; }
@@ -445,10 +446,7 @@ class CreatureScript : public UnitScript, public UpdatableScript<Creature>
         // Called when a player selects a quest in the creature's quest menu.
         virtual bool OnQuestSelect(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) { return false; }
 
-        // Called when a player completes a quest with the creature.
-        virtual bool OnQuestComplete(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) { return false; }
-
-        // Called when a player selects a quest reward.
+        // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
         virtual bool OnQuestReward(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
 
         // Called when the dialog status between a player and the creature is requested.
@@ -466,7 +464,7 @@ class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
 
     public:
 
-        bool IsDatabaseBound() const final { return true; }
+        bool IsDatabaseBound() const final override { return true; }
 
         // Called when a dummy spell effect is triggered on the gameobject.
         virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/, GameObject* /*target*/) { return false; }
@@ -483,7 +481,7 @@ class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
         // Called when a player accepts a quest from the gameobject.
         virtual bool OnQuestAccept(Player* /*player*/, GameObject* /*go*/, Quest const* /*quest*/) { return false; }
 
-        // Called when a player selects a quest reward.
+        // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
         virtual bool OnQuestReward(Player* /*player*/, GameObject* /*go*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
 
         // Called when the dialog status between a player and the gameobject is requested.
@@ -513,7 +511,7 @@ class AreaTriggerScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const final { return true; }
+        bool IsDatabaseBound() const final override { return true; }
 
         // Called when the area trigger is activated by a player.
         virtual bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/) { return false; }
@@ -527,7 +525,7 @@ class BattlegroundScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const final { return true; }
+        bool IsDatabaseBound() const final override { return true; }
 
         // Should return a fully valid Battleground object for the type ID.
         virtual Battleground* GetBattleground() const = 0;
@@ -541,7 +539,7 @@ class OutdoorPvPScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const final { return true; }
+        bool IsDatabaseBound() const final override { return true; }
 
         // Should return a fully valid OutdoorPvP object for the type ID.
         virtual OutdoorPvP* GetOutdoorPvP() const = 0;
@@ -567,7 +565,7 @@ class WeatherScript : public ScriptObject, public UpdatableScript<Weather>
 
     public:
 
-        bool IsDatabaseBound() const final { return true; }
+        bool IsDatabaseBound() const final override { return true; }
 
         // Called when the weather changes in the zone this script is associated with.
         virtual void OnChange(Weather* /*weather*/, WeatherState /*state*/, float /*grade*/) { }
@@ -602,7 +600,7 @@ class ConditionScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const final { return true; }
+        bool IsDatabaseBound() const final override { return true; }
 
         // Called when a single condition is checked for a player.
         virtual bool OnConditionCheck(Condition* /*condition*/, ConditionSourceInfo& /*sourceInfo*/) { return true; }
@@ -650,7 +648,7 @@ class TransportScript : public ScriptObject, public UpdatableScript<Transport>
 
     public:
 
-        bool IsDatabaseBound() const final { return true; }
+        bool IsDatabaseBound() const final override { return true; }
 
         // Called when a player boards the transport.
         virtual void OnAddPassenger(Transport* /*transport*/, Player* /*player*/) { }
@@ -673,7 +671,7 @@ class AchievementCriteriaScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const final { return true; }
+        bool IsDatabaseBound() const final override { return true; }
 
         // Called when an additional criteria is checked.
         virtual bool OnCheck(Player* source, Unit* target) = 0;
@@ -707,6 +705,9 @@ class PlayerScript : public UnitScript
 
         // Called when a player's money is modified (before the modification is done)
         virtual void OnMoneyChanged(Player* /*player*/, int32& /*amount*/) { }
+
+        // Called when a player's money is at limit (amount = money tried to add)
+        virtual void OnMoneyLimit(Player* /*player*/, int32 /*amount*/) { }
 
         // Called when a player gains XP (before anything is given)
         virtual void OnGiveXP(Player* /*player*/, uint32& /*amount*/, Unit* /*victim*/) { }
@@ -768,6 +769,9 @@ class PlayerScript : public UnitScript
 
         // Called when a player changes to a new map (after moving to new map)
         virtual void OnMapChanged(Player* /*player*/) { }
+
+        // Called after a player's quest status has been changed
+        virtual void OnQuestStatusChange(Player* /*player*/, uint32 /*questId*/, QuestStatus /*status*/) { }
 };
 
 class AccountScript : public ScriptObject
@@ -805,7 +809,7 @@ class GuildScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const final { return false; }
+        bool IsDatabaseBound() const final override { return false; }
 
         // Called when a member is added to the guild.
         virtual void OnAddMember(Guild* /*guild*/, Player* /*player*/, uint8& /*plRank*/) { }
@@ -848,7 +852,7 @@ class GroupScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const final { return false; }
+        bool IsDatabaseBound() const final override { return false; }
 
         // Called when a member is added to a group.
         virtual void OnAddMember(Group* /*group*/, uint64 /*guid*/) { }
@@ -909,10 +913,10 @@ class ScriptMgr
         void OnNetworkStart();
         void OnNetworkStop();
         void OnSocketOpen(std::shared_ptr<WorldSocket> socket);
-        void OnSocketClose(std::shared_ptr<WorldSocket> socket, bool wasNew);
-        void OnPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket const& packet);
-        void OnPacketSend(std::shared_ptr<WorldSocket> socket, WorldPacket const& packet);
-        void OnUnknownPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket const& packet);
+        void OnSocketClose(std::shared_ptr<WorldSocket> socket);
+        void OnPacketReceive(WorldSession* session, WorldPacket const& packet);
+        void OnPacketSend(WorldSession* session, WorldPacket const& packet);
+        void OnUnknownPacketReceive(WorldSession* session, WorldPacket const& packet);
 
     public: /* WorldScript */
 
@@ -965,7 +969,6 @@ class ScriptMgr
         bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, const char* code);
         bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest);
         bool OnQuestSelect(Player* player, Creature* creature, Quest const* quest);
-        bool OnQuestComplete(Player* player, Creature* creature, Quest const* quest);
         bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt);
         uint32 GetDialogStatus(Player* player, Creature* creature);
         CreatureAI* GetCreatureAI(Creature* creature);
@@ -1053,6 +1056,7 @@ class ScriptMgr
         void OnPlayerFreeTalentPointsChanged(Player* player, uint32 newPoints);
         void OnPlayerTalentsReset(Player* player, bool noCost);
         void OnPlayerMoneyChanged(Player* player, int32& amount);
+        void OnPlayerMoneyLimit(Player* player, int32 amount);
         void OnGivePlayerXP(Player* player, uint32& amount, Unit* victim);
         void OnPlayerReputationChange(Player* player, uint32 factionID, int32& standing, bool incremental);
         void OnPlayerDuelRequest(Player* target, Player* challenger);
@@ -1074,6 +1078,7 @@ class ScriptMgr
         void OnPlayerSave(Player* player);
         void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent);
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
+        void OnQuestStatusChange(Player* player, uint32 questId, QuestStatus status);
 
     public: /* AccountScript */
 

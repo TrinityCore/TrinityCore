@@ -62,13 +62,20 @@ public:
     {
         boss_attumenAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
+
             Phase = 1;
 
             CleaveTimer = urand(10000, 15000);
             CurseTimer = 30000;
             RandomYellTimer = urand(30000, 60000);              //Occasionally yell
             ChargeTimer = 20000;
+         }
+
+        void Initialize()
+        {
             ResetTimer = 0;
+            Midnight = 0;
         }
 
         uint64 Midnight;
@@ -81,8 +88,7 @@ public:
 
         void Reset() override
         {
-            ResetTimer = 0;
-            Midnight = 0;
+            Initialize();
         }
 
         void EnterEvadeMode() override
@@ -127,7 +133,17 @@ public:
 
     struct boss_midnightAI : public ScriptedAI
     {
-        boss_midnightAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_midnightAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Phase = 1;
+            Attumen = 0;
+            Mount_Timer = 0;
+        }
 
         uint64 Attumen;
         uint8 Phase;
@@ -135,9 +151,7 @@ public:
 
         void Reset() override
         {
-            Phase = 1;
-            Attumen = 0;
-            Mount_Timer = 0;
+            Initialize();
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetVisible(true);
@@ -230,7 +244,7 @@ public:
 
         void SetMidnight(Creature* pAttumen, uint64 value)
         {
-            CAST_AI(boss_attumen::boss_attumenAI, pAttumen->AI())->Midnight = value;
+            ENSURE_AI(boss_attumen::boss_attumenAI, pAttumen->AI())->Midnight = value;
         }
     };
 };
@@ -307,7 +321,7 @@ void boss_attumen::boss_attumenAI::UpdateAI(uint32 diff)
             Creature* pMidnight = ObjectAccessor::GetCreature(*me, Midnight);
             if (pMidnight && pMidnight->GetTypeId() == TYPEID_UNIT)
             {
-                CAST_AI(boss_midnight::boss_midnightAI, (pMidnight->AI()))->Mount(me);
+                ENSURE_AI(boss_midnight::boss_midnightAI, (pMidnight->AI()))->Mount(me);
                 me->SetHealth(pMidnight->GetHealth());
                 DoResetThreat();
             }
