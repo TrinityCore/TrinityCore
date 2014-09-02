@@ -356,8 +356,8 @@ void WorldSession::HandleGuildFinderPostRequest(WorldPacket& /*recvPacket*/)
 
     if (isGuildMaster)
     {
-        data.WriteBit(settings.IsListed());
         data.WriteBits(settings.GetComment().size(), 11);
+        data.WriteBit(settings.IsListed());
         data << uint32(settings.GetLevel());
         data.WriteString(settings.GetComment());
         data << uint32(0); // Unk Int32

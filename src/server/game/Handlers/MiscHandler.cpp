@@ -508,6 +508,37 @@ void WorldSession::HandleReturnToGraveyard(WorldPacket& /*recvPacket*/)
     GetPlayer()->RepopAtGraveyard();
 }
 
+void WorldSession::HandleRequestCemeteryList(WorldPacket& /*recvPacket*/)
+{
+    uint32 zoneId = _player->GetZoneId();
+    uint32 team = _player->GetTeam();
+
+    std::vector<uint32> graveyardIds;
+    auto range = sObjectMgr->GraveYardStore.equal_range(zoneId);
+
+    for (auto it = range.first; it != range.second && graveyardIds.size() < 16; ++it) // client max
+    {
+        if (it->second.team == 0 || it->second.team == team)
+            graveyardIds.push_back(it->first);
+    }
+
+    if (graveyardIds.empty())
+    {
+        TC_LOG_DEBUG("network", "No graveyards found for zone %u for player %u (team %u) in CMSG_REQUEST_CEMETERY_LIST",
+            zoneId, m_GUIDLow, team);
+        return;
+    }
+
+    WorldPacket data(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, 4 + 4 * graveyardIds.size());
+    data.WriteBit(0); // Is MicroDungeon (WorldMapFrame.lua)
+
+    data.WriteBits(graveyardIds.size(), 24);
+    for (auto id : graveyardIds)
+        data << uint32(graveyardIds);
+
+    SendPacket(&data);
+}
+
 void WorldSession::HandleSetSelectionOpcode(WorldPacket& recvData)
 {
     uint64 guid;
