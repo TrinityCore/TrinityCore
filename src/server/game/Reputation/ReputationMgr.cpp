@@ -239,13 +239,13 @@ void ReputationMgr::SendStates()
         SendState(&(itr->second));
 }
 
-void ReputationMgr::SendVisible(FactionState const* faction) const
+void ReputationMgr::SendVisible(FactionState const* faction, bool visible /* = true*/) const
 {
     if (_player->GetSession()->PlayerLoading())
         return;
 
-    // make faction visible in reputation list at client
-    WorldPacket data(SMSG_SET_FACTION_VISIBLE, 4);
+    // make faction visible/not visible in reputation list at client
+    WorldPacket data(visible ? SMSG_SET_FACTION_VISIBLE : SMSG_SET_FACTION_NOT_VISIBLE, 4);
     data << faction->ReputationListID;
     _player->SendDirectMessage(&data);
 }

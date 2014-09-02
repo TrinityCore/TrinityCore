@@ -419,6 +419,47 @@ void WorldSession::HandleCorpseMapPositionQuery(WorldPacket& recvData)
     SendPacket(&data);
 }
 
+void WorldSession::HandleQuestNPCQuery(WorldPacket& recvData)
+{
+    uint32 count = recvData.ReadBits(24);
+    std::map<uint32, std::vector<uint32>> quests;
+
+    for (uint32 i = 0; i < count; ++i)
+    {
+        uint32 questId;
+        recvData >> questId;
+
+        if (!sObjectMgr->GetQuestTemplate(questId))
+        {
+            TC_LOG_DEBUG("network", "WORLD: Unknown quest %u in CMSG_QUEST_NPC_QUERY by player %u", questId, m_GUIDLow);
+            continue;
+        }
+
+        auto creatures = sObjectMgr->GetCreatureQuestInvolvedRelationReverseBounds(questId);
+        for (auto it = creatures.first; it != creatures.second; ++it)
+            quests[questId].push_back(it->second);
+
+        auto gos = sObjectMgr->GetGOQuestInvolvedRelationReverseBounds(questId);
+        for (auto it = gos.first; it != gos.second; ++it)
+            quests[questId].push_back(it->second | 0x80000000); // GO mask
+    }
+
+    WorldPacket data(SMSG_QUEST_NPC_QUERY_RESPONSE, 3 + quests.size() * 14);
+    data.WriteBits(quests.size(), 23);
+
+    for (auto it = quests.begin(); it != quests.end(); ++it)
+        data.WriteBits(it->second.size(), 24);
+
+    for (auto it = quests.begin(); it != quests.end(); ++it)
+    {
+        data << uint32(it->first);
+        for (const auto& entry : it->second)
+            data << uint32(entry);
+    }
+
+    SendPacket(&data);
+}
+
 void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
 {
     uint32 count;
