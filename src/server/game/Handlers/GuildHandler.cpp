@@ -823,3 +823,19 @@ void WorldSession::HandleGuildSetGuildMaster(WorldPacket& recvPacket)
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleSetNewGuildMaster(this, playerName);
 }
+
+void WorldSession::HandleGuildSetAchievementTracking(WorldPacket& recvPacket)
+{
+    uint32 count = recvPacket.ReadBits(24);
+    std::set<uint32> criteriaIds;
+
+    for (int i = 0; i < count; ++i)
+    {
+        uint32 criteriaId;
+        recvPacket >> criteriaId;
+        criteriaIds.insert(criteriaId);
+    }
+
+    if (Guild* guild = GetPlayer()->GetGuild())
+        guild->HandleSetAchievementTracking(this, criteriaIds);
+}

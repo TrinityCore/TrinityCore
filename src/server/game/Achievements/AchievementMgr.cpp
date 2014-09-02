@@ -1018,7 +1018,7 @@ void AchievementMgr<Guild>::SendCriteriaUpdate(AchievementCriteriaEntry const* e
     data.WriteByteSeq(counter[2]);
     data.WriteByteSeq(guid[0]);
 
-    SendPacket(&data);
+    GetOwner()->BroadcastPacketIfTrackingAchievement(&data, entry->ID);
 }
 
 /**
