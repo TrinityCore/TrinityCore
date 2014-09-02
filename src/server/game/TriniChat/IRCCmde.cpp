@@ -396,7 +396,7 @@ void IRCCmd::Char_Player(_CDATA *CD)
             {
                 QueryResult item_max = WorldDatabase.PQuery("SELECT MAX(entry) FROM item_template");
                 Quest const* pQuest = sObjectMgr->GetQuestTemplate(qId);
-                for (uint32 id = 0; id < item_max; id++)
+                for (uint32 id = 0; id < item_max->Fetch()->GetInt32(); id++)
                 {
                     ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(id);
                     if (!pProto)
@@ -1746,7 +1746,11 @@ void IRCCmd::Mute_Player(_CDATA *CD)
 void IRCCmd::Online_Players(_CDATA *CD)
 {
         sIRC->Script_Lock[MCS_Players_Online] = true;
-        ACE_Based::Thread script(new mcs_OnlinePlayers(CD));
+        std::thread script([CD](){
+            mcs_OnlinePlayers mcs(CD);
+            
+            mcs.run();
+        });
 }
 
 void IRCCmd::PM_Player(_CDATA *CD)
@@ -1887,12 +1891,12 @@ void IRCCmd::Spell_Player(_CDATA *CD)
             }
             if (_PARAMS[1] == "learn")
             {
-                plr->learnSpell(spell, true);
+                plr->LearnSpell(spell, true);
                 Send_IRCA(ChanOrPM(CD), "\00313["+_PARAMS[0]+"] : Has Learned Spell "+name+".", true, CD->TYPE);
             }
             if (_PARAMS[1] == "unlearn")
             {
-                plr->removeSpell(spell);
+                plr->RemoveSpell(spell);
                 Send_IRCA(ChanOrPM(CD), "\00313["+_PARAMS[0]+"] : Has Unlearned Spell "+name+".", true, CD->TYPE);
             }
         }

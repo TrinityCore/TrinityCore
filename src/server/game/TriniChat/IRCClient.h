@@ -21,7 +21,6 @@
 #ifndef _IRC_CLIENT_H
 #define _IRC_CLIENT_H
 
-#include "ace/Singleton.h"
 #include "Player.h"
 #include "IRCLog.h"
 #include "IRCCmd.h"
@@ -61,18 +60,22 @@ enum script_Names
 };
 
 // IRCClient main class
-class IRCClient : public ACE_Based::Runnable
+class IRCClient
 {
-    friend class ACE_Singleton<IRCClient, ACE_Null_Mutex>;
-    
-    public:
+    private:
         // IRCClient Constructor
         IRCClient();
         // IRCClient Destructor
         ~IRCClient();
-        // ZThread Entry
-        void run() override;
     public:
+        static IRCClient* instance()
+        {
+            static IRCClient instance;
+            return &instance;
+        }
+        
+        void run();
+
         // AH Function
         void AHCancel(uint64 itmid, std::string itmnme, std::string plname, uint32 faction);
         //bool BeenToGMI(float posx, float posy, std::string player, std::string from);
@@ -263,5 +266,5 @@ private:
         void SockRecv();
 };
 
-#define sIRC ACE_Singleton<IRCClient, ACE_Null_Mutex>::instance()
+#define sIRC IRCClient::instance()
 #endif

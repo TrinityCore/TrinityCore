@@ -24,7 +24,7 @@
 #include "IRCClient.h"
 #include "IRCCmd.h"
 
-class mcs_OnlinePlayers : public ACE_Based::Runnable
+class mcs_OnlinePlayers
 {
     public:
         mcs_OnlinePlayers();

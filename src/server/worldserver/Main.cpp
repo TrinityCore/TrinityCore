@@ -215,6 +215,15 @@ extern int main(int argc, char** argv)
         soapThread = new std::thread(TCSoapThread, sConfigMgr->GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetIntDefault("SOAP.Port", 7878)));
     }
 
+    // Start up TriniChat
+    std::thread* triniChatThread = nullptr;
+    if (sIRC->Active == 1)
+    {
+        triniChatThread = new std::thread(&IRCClient::run, sIRC);
+    }
+    else
+        TC_LOG_ERROR("misc", "*** TriniChat Is Disabled. *");
+
     // Launch the worldserver listener socket
     uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
     std::string worldListener = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
@@ -267,6 +276,13 @@ extern int main(int argc, char** argv)
     {
         soapThread->join();
         delete soapThread;
+    }
+
+    // Clean TrinityChat
+    if (triniChatThread != nullptr)
+    {
+        triniChatThread->join();
+        delete triniChatThread;
     }
 
     if (raAcceptor != nullptr)

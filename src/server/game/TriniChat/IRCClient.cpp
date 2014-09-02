@@ -22,6 +22,7 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "MapManager.h"
+#include <thread>
 
 #ifdef WIN32
     #define Delay(x) Sleep(x)
@@ -44,7 +45,7 @@ void IRCClient::run()
 
     // before we begin we wait a few 
     // mangos is still starting up.
-    ACE_Based::Thread::Sleep(500);
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     TC_LOG_ERROR("misc", "\n%s\n%s\n%s\n%s",
         "***************************************",
         "**   TriniChat2 Threaded IRC Client   **",
@@ -87,7 +88,7 @@ void IRCClient::run()
                 sIRC->Active = false;
             // If we need to reattempt a connection wait WAIT_CONNECT_TIME milli seconds before we try again
             if (sIRC->Active)
-                ACE_Based::Thread::Sleep(sIRC->_wct);
+                std::this_thread::sleep_for(std::chrono::milliseconds(_wct));
         }
         else
         {
