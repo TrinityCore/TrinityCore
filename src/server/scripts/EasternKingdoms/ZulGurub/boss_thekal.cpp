@@ -83,7 +83,16 @@ class boss_thekal : public CreatureScript
 
         struct boss_thekalAI : public BossAI
         {
-            boss_thekalAI(Creature* creature) : BossAI(creature, DATA_THEKAL) { }
+            boss_thekalAI(Creature* creature) : BossAI(creature, DATA_THEKAL)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                Enraged = false;
+                WasDead = false;
+            }
 
             bool Enraged;
             bool WasDead;
@@ -93,8 +102,7 @@ class boss_thekal : public CreatureScript
                 if (events.IsInPhase(PHASE_TWO))
                     me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 35.0f, false); // hack
                 _Reset();
-                Enraged = false;
-                WasDead = false;
+                Initialize();
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -264,7 +272,19 @@ class npc_zealot_lorkhan : public CreatureScript
         {
             npc_zealot_lorkhanAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                Shield_Timer = 1000;
+                BloodLust_Timer = 16000;
+                GreaterHeal_Timer = 32000;
+                Disarm_Timer = 6000;
+                Check_Timer = 10000;
+
+                FakeDeath = false;
             }
 
             uint32 Shield_Timer;
@@ -279,13 +299,7 @@ class npc_zealot_lorkhan : public CreatureScript
 
             void Reset() override
             {
-                Shield_Timer = 1000;
-                BloodLust_Timer = 16000;
-                GreaterHeal_Timer = 32000;
-                Disarm_Timer = 6000;
-                Check_Timer = 10000;
-
-                FakeDeath = false;
+                Initialize();
 
                 instance->SetBossState(DATA_LORKHAN, NOT_STARTED);
 
@@ -412,7 +426,20 @@ class npc_zealot_zath : public CreatureScript
         {
             npc_zealot_zathAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                SweepingStrikes_Timer = 13000;
+                SinisterStrike_Timer = 8000;
+                Gouge_Timer = 25000;
+                Kick_Timer = 18000;
+                Blind_Timer = 5000;
+                Check_Timer = 10000;
+
+                FakeDeath = false;
             }
 
             uint32 SweepingStrikes_Timer;
@@ -428,14 +455,7 @@ class npc_zealot_zath : public CreatureScript
 
             void Reset() override
             {
-                SweepingStrikes_Timer = 13000;
-                SinisterStrike_Timer = 8000;
-                Gouge_Timer = 25000;
-                Kick_Timer = 18000;
-                Blind_Timer = 5000;
-                Check_Timer = 10000;
-
-                FakeDeath = false;
+                Initialize();
 
                 instance->SetBossState(DATA_ZATH, NOT_STARTED);
 

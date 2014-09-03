@@ -243,7 +243,14 @@ public:
     {
         boss_kalecgos_kjAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            OrbsEmpowered = 0;
+            EmpowerCount = 0;
         }
 
         InstanceScript* instance;
@@ -252,8 +259,7 @@ public:
 
         void Reset() override
         {
-            OrbsEmpowered = 0;
-            EmpowerCount = 0;
+            Initialize();
             me->SetDisableGravity(true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->setActive(true);
@@ -393,9 +399,19 @@ public:
     {
         npc_kiljaeden_controllerAI(Creature* creature) : ScriptedAI(creature), summons(me)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
 
             SetCombatMovement(false);
+        }
+
+        void Initialize()
+        {
+            phase = PHASE_DECEIVERS;
+            deceiverDeathCount = 0;
+            bSummonedDeceivers = false;
+            bKiljaedenDeath = false;
+            uiRandomSayTimer = 30000;
         }
 
         InstanceScript* instance;
@@ -419,14 +435,10 @@ public:
 
         void Reset() override
         {
-            phase = PHASE_DECEIVERS;
+            Initialize();
 
             if (Creature* pKalecKJ = ObjectAccessor::GetCreature((*me), instance->GetData64(DATA_KALECGOS_KJ)))
                 ENSURE_AI(boss_kalecgos_kj::boss_kalecgos_kjAI, pKalecKJ->AI())->ResetOrbs();
-            deceiverDeathCount = 0;
-            bSummonedDeceivers = false;
-            bKiljaedenDeath = false;
-            uiRandomSayTimer = 30000;
             summons.DespawnAll();
         }
 
@@ -489,9 +501,45 @@ public:
     {
         boss_kiljaedenAI(Creature* creature) : ScriptedAI(creature), summons(me)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
 
             SetCombatMovement(false);
+        }
+
+        void Initialize()
+        {
+            TimerIsDeactivated[TIMER_SPEECH] = false;
+            Timer[TIMER_SPEECH] = 0;
+
+            //Phase 2 Timer
+            Timer[TIMER_SOUL_FLAY] = 11000;
+            Timer[TIMER_LEGION_LIGHTNING] = 30000;
+            Timer[TIMER_FIRE_BLOOM] = 20000;
+            Timer[TIMER_SUMMON_SHILEDORB] = 35000;
+
+            //Phase 3 Timer
+            Timer[TIMER_SHADOW_SPIKE] = 4000;
+            Timer[TIMER_FLAME_DART] = 3000;
+            Timer[TIMER_DARKNESS] = 45000;
+            Timer[TIMER_ORBS_EMPOWER] = 35000;
+
+            //Phase 4 Timer
+            Timer[TIMER_ARMAGEDDON] = 2000;
+
+            ActiveTimers = 5;
+            WaitTimer = 0;
+            speechCount = 0;
+            SpeechTimer = 0;
+
+            Phase = PHASE_NORMAL;
+
+            IsInDarkness = false;
+            IsWaiting = false;
+            OrbActivated = false;
+            SpeechBegins = true;
+
+            ChangeTimers(false, 0);
         }
 
         InstanceScript* instance;
@@ -520,41 +568,12 @@ public:
 
         void Reset() override
         {
-            TimerIsDeactivated[TIMER_SPEECH] = false;
-            Timer[TIMER_SPEECH]           = 0;
-
-            //Phase 2 Timer
-            Timer[TIMER_SOUL_FLAY]        = 11000;
-            Timer[TIMER_LEGION_LIGHTNING] = 30000;
-            Timer[TIMER_FIRE_BLOOM]       = 20000;
-            Timer[TIMER_SUMMON_SHILEDORB] = 35000;
-
-            //Phase 3 Timer
-            Timer[TIMER_SHADOW_SPIKE]     = 4000;
-            Timer[TIMER_FLAME_DART]       = 3000;
-            Timer[TIMER_DARKNESS]         = 45000;
-            Timer[TIMER_ORBS_EMPOWER]     = 35000;
-
-            //Phase 4 Timer
-            Timer[TIMER_ARMAGEDDON]       = 2000;
-
-            ActiveTimers = 5;
-            WaitTimer    = 0;
-            speechCount = 0;
-            SpeechTimer = 0;
-
-            Phase = PHASE_NORMAL;
-
-            IsInDarkness  = false;
-            IsWaiting     = false;
-            OrbActivated  = false;
-            SpeechBegins  = true;
+            Initialize();
 
             if (Creature* pKalec = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KALECGOS_KJ)))
                 pKalec->RemoveDynObject(SPELL_RING_OF_BLUE_FLAMES);
 
             me->SetFloatValue(UNIT_FIELD_COMBATREACH, 12);
-            ChangeTimers(false, 0);
             summons.DespawnAll();
         }
 
@@ -890,7 +909,15 @@ public:
     {
         npc_hand_of_the_deceiverAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            /// @todo Timers!
+            ShadowBoltVolleyTimer = urand(8000, 14000); // So they don't all cast it in the same moment.
+            FelfirePortalTimer = 20000;
         }
 
         InstanceScript* instance;
@@ -900,9 +927,7 @@ public:
 
         void Reset() override
         {
-            /// @todo Timers!
-            ShadowBoltVolleyTimer = urand(8000, 14000); // So they don't all cast it in the same moment.
-            FelfirePortalTimer = 20000;
+            Initialize();
             instance->SetBossState(DATA_KILJAEDEN, NOT_STARTED);
         }
 
@@ -989,14 +1014,20 @@ public:
     {
         npc_felfire_portalAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             SetCombatMovement(false);
+        }
+
+        void Initialize()
+        {
+            uiSpawnFiendTimer = 5000;
         }
 
         uint32 uiSpawnFiendTimer;
 
         void Reset() override
         {
-            uiSpawnFiendTimer = 5000;
+            Initialize();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
         }
 
@@ -1034,7 +1065,16 @@ public:
 
     struct npc_volatile_felfire_fiendAI : public ScriptedAI
     {
-        npc_volatile_felfire_fiendAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_volatile_felfire_fiendAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            uiExplodeTimer = 2000;
+            bLockedTarget = false;
+        }
 
         uint32 uiExplodeTimer;
 
@@ -1042,8 +1082,7 @@ public:
 
         void Reset() override
         {
-            uiExplodeTimer = 2000;
-            bLockedTarget = false;
+            Initialize();
         }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
@@ -1093,7 +1132,14 @@ public:
     {
         npc_armageddonAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             SetCombatMovement(false);
+        }
+
+        void Initialize()
+        {
+            spell = 0;
+            uiTimer = 0;
         }
 
         uint8 spell;
@@ -1101,8 +1147,7 @@ public:
 
         void Reset() override
         {
-            spell = 0;
-            uiTimer = 0;
+            Initialize();
         }
 
         void UpdateAI(uint32 diff) override
@@ -1150,7 +1195,22 @@ public:
     {
         npc_shield_orbAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+            x = 0.f;
+            y = 0.f;
+        }
+
+        void Initialize()
+        {
+            bPointReached = true;
+            uiTimer = urand(500, 1000);
+            uiCheckTimer = 1000;
+            r = 17;
+            c = 0;
+            mx = ShieldOrbLocations[0][0];
+            my = ShieldOrbLocations[0][1];
+            bClockwise = roll_chance_i(50);
         }
 
         InstanceScript* instance;
@@ -1164,14 +1224,7 @@ public:
         void Reset() override
         {
             me->SetDisableGravity(true);
-            bPointReached = true;
-            uiTimer = urand(500, 1000);
-            uiCheckTimer = 1000;
-            r = 17;
-            c = 0;
-            mx = ShieldOrbLocations[0][0];
-            my = ShieldOrbLocations[0][1];
-            bClockwise = roll_chance_i(50);
+            Initialize();
         }
 
         void UpdateAI(uint32 diff) override
@@ -1235,17 +1288,25 @@ public:
 
     struct npc_sinster_reflectionAI : public ScriptedAI
     {
-        npc_sinster_reflectionAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_sinster_reflectionAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            uiTimer[0] = 0;
+            uiTimer[1] = 0;
+            uiTimer[2] = 0;
+            victimClass = 0;
+        }
 
         uint8 victimClass;
         uint32 uiTimer[3];
 
         void Reset() override
         {
-            uiTimer[0] = 0;
-            uiTimer[1] = 0;
-            uiTimer[2] = 0;
-            victimClass = 0;
+            Initialize();
         }
 
         void UpdateAI(uint32 diff) override

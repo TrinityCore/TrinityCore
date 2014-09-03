@@ -92,15 +92,25 @@ class boss_arlokk : public CreatureScript
 
         struct boss_arlokkAI : public BossAI
         {
-            boss_arlokkAI(Creature* creature) : BossAI(creature, DATA_ARLOKK) { }
+            boss_arlokkAI(Creature* creature) : BossAI(creature, DATA_ARLOKK)
+            {
+                Initialize();
+                memset(_triggersSideAGUID, 0, sizeof(_triggersSideAGUID));
+                memset(_triggersSideBGUID, 0, sizeof(_triggersSideBGUID));
+            }
+
+            void Initialize()
+            {
+                _summonCountA = 0;
+                _summonCountB = 0;
+            }
 
             void Reset() override
             {
                 if (events.IsInPhase(PHASE_TWO))
                     me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 35.0f, false); // hack
                 _Reset();
-                _summonCountA = 0;
-                _summonCountB = 0;
+                Initialize();
                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_DAGGER));
                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(WEAPON_DAGGER));
                 me->SetWalk(false);
@@ -332,7 +342,10 @@ class npc_zulian_prowler : public CreatureScript
 
         struct npc_zulian_prowlerAI : public ScriptedAI
         {
-            npc_zulian_prowlerAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+            npc_zulian_prowlerAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+            {
+                _sideData = 0;
+            }
 
             void Reset() override
             {
