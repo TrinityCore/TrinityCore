@@ -594,6 +594,7 @@ class WorldSession
         void HandleGuildChangeInfoTextOpcode(WorldPacket& recvPacket);
         void HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket);
         void HandleGuildRequestPartyState(WorldPacket& recvPacket);
+        void HandleGuildRequestChallengeUpdate(WorldPacket& recvPacket);
         void HandleGuildRequestMaxDailyXP(WorldPacket& recvPacket);
         void HandleAutoDeclineGuildInvites(WorldPacket& recvPacket);
 

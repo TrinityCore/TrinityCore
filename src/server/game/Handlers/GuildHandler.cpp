@@ -709,6 +709,12 @@ void WorldSession::HandleGuildRequestPartyState(WorldPacket& recvPacket)
         guild->HandleGuildPartyRequest(this);
 }
 
+void WorldSession::HandleGuildRequestChallengeUpdate(WorldPacket& /*recvPacket*/)
+{
+    if (Guild* guild = _player->GetGuild())
+        guild->HandleGuildRequestChallengeUpdate(this);
+}
+
 void WorldSession::HandleGuildRequestMaxDailyXP(WorldPacket& recvPacket)
 {
     ObjectGuid guid;
