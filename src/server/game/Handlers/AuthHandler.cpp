@@ -18,6 +18,7 @@
 #include "Opcodes.h"
 #include "WorldSession.h"
 #include "WorldPacket.h"
+#include "Config.h"
 
 void WorldSession::SendAuthResponse(uint8 code, bool shortForm, uint32 queuePos)
 {
@@ -40,6 +41,7 @@ void WorldSession::SendAuthResponse(uint8 code, bool shortForm, uint32 queuePos)
 void WorldSession::SendClientCacheVersion(uint32 version)
 {
     WorldPacket data(SMSG_CLIENTCACHE_VERSION, 4);
-    data << uint32(version);
+    bool regenerate = sConfigMgr->GetBoolDefault("Cache.Version.Regenerate", false);
+    data << uint32(regenerate ? rand() : version);
     SendPacket(&data);
 }
