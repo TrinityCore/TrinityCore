@@ -990,6 +990,13 @@ SkillChance.Milling = 0
 OffhandCheckAtSpellUnlearn = 1
 
 #
+#    Cache.Version.Regenerate
+#        Description: Generate a new client cache version, this will ignore 'ClientCacheVersion'
+#
+
+Cache.Version.Regenerate = 1
+
+#
 #    ClientCacheVersion
 #        Description: Client cache version for client cache data reset. Use any value different
 #                     from DB and not recently been used to trigger client side cache reset.
