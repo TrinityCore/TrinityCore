@@ -389,7 +389,16 @@ public:
 
     struct npc_scarlet_courierAI : public ScriptedAI
     {
-        npc_scarlet_courierAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_scarlet_courierAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            uiStage = 1;
+            uiStage_timer = 3000;
+        }
 
         uint32 uiStage;
         uint32 uiStage_timer;
@@ -397,8 +406,7 @@ public:
         void Reset() override
         {
             me->Mount(14338); // not sure about this id
-            uiStage = 1;
-            uiStage_timer = 3000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override
