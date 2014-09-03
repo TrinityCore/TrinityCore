@@ -126,7 +126,7 @@ public:
         ticket->SaveToDB(trans);
         sTicketMgr->UpdateLastChange();
 
-        std::string msg = ticket->FormatMessageString(*handler, NULL, target.c_str(), NULL, NULL);
+        std::string msg = ticket->FormatMessageString(*handler, NULL, target.c_str(), NULL, NULL, NULL);
         handler->SendGlobalGMSysMessage(msg.c_str());
         return true;
     }
@@ -156,7 +156,7 @@ public:
         sTicketMgr->CloseTicket(ticket->GetId(), player ? player->GetGUID() : -1);
         sTicketMgr->UpdateLastChange();
 
-        std::string msg = ticket->FormatMessageString(*handler, player ? player->GetName().c_str() : "Console", NULL, NULL, NULL);
+        std::string msg = ticket->FormatMessageString(*handler, player ? player->GetName().c_str() : "Console", NULL, NULL, NULL, NULL);
         handler->SendGlobalGMSysMessage(msg.c_str());
 
         // Inform player, who submitted this ticket, that it is closed
@@ -205,7 +205,7 @@ public:
         ticket->SaveToDB(trans);
         sTicketMgr->UpdateLastChange();
 
-        std::string msg = ticket->FormatMessageString(*handler, NULL, ticket->GetAssignedToName().c_str(), NULL, NULL);
+        std::string msg = ticket->FormatMessageString(*handler, NULL, ticket->GetAssignedToName().c_str(), NULL, NULL, NULL);
         msg += handler->PGetParseString(LANG_COMMAND_TICKETLISTADDCOMMENT, player ? player->GetName().c_str() : "Console", comment);
         handler->SendGlobalGMSysMessage(msg.c_str());
 
@@ -239,6 +239,9 @@ public:
         ticket->SetCompleted();
         ticket->SaveToDB(trans);
 
+        std::string msg = ticket->FormatMessageString(*handler, NULL, NULL, 
+            NULL, NULL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console");
+        handler->SendGlobalGMSysMessage(msg.c_str());
         sTicketMgr->UpdateLastChange();
         return true;
     }
@@ -262,7 +265,7 @@ public:
             return true;
         }
 
-        std::string msg = ticket->FormatMessageString(*handler, NULL, NULL, NULL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console");
+        std::string msg = ticket->FormatMessageString(*handler, NULL, NULL, NULL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console", NULL);
         handler->SendGlobalGMSysMessage(msg.c_str());
 
         sTicketMgr->RemoveTicket(ticket->GetId());
@@ -394,7 +397,7 @@ public:
         sTicketMgr->UpdateLastChange();
 
         std::string msg = ticket->FormatMessageString(*handler, NULL, assignedTo.c_str(),
-            handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console", NULL);
+            handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console", NULL, NULL);
         handler->SendGlobalGMSysMessage(msg.c_str());
 
         return true;
