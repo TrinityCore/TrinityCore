@@ -2156,6 +2156,28 @@ void Guild::HandleGuildPartyRequest(WorldSession* session)
     TC_LOG_DEBUG("guild", "SMSG_GUILD_PARTY_STATE_RESPONSE [%s]", session->GetPlayerInfo().c_str());
 }
 
+void Guild::HandleGuildRequestChallengeUpdate(WorldSession* session)
+{
+    WorldPacket data(SMSG_GUILD_CHALLENGE_UPDATED, 4 * GUILD_CHALLENGES_TYPES * 5);
+
+    for (int i = 0; i < GUILD_CHALLENGES_TYPES; ++i)
+        data << uint32(GuildChallengeXPReward[i]);
+
+    for (int i = 0; i < GUILD_CHALLENGES_TYPES; ++i)
+        data << uint32(GuildChallengeGoldReward[i]);
+
+    for (int i = 0; i < GUILD_CHALLENGES_TYPES; ++i)
+        data << uint32(GuildChallengesPerWeek[i]);
+
+    for (int i = 0; i < GUILD_CHALLENGES_TYPES; ++i)
+        data << uint32(GuildChallengeMaxLevelGoldReward[i]);
+
+    for (int i = 0; i < GUILD_CHALLENGES_TYPES; ++i)
+        data << uint32(0); /// @todo current count
+
+    session->SendPacket(&data);
+}
+
 void Guild::SendEventLog(WorldSession* session) const
 {
     WorldPacket data(SMSG_GUILD_EVENT_LOG_QUERY_RESULT, 1 + m_eventLog->GetSize() * (1 + 8 + 4));
