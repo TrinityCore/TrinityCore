@@ -143,8 +143,6 @@ class IRCClient
         int _ldefc;
         // Wait Connect Time
         int _wct;
-        // BotMask Options
-        int Botmask;
         // Ticket Channel
         string ticann;
         // Ticket Channel Password
@@ -223,9 +221,9 @@ class IRCClient
         int CTOP;
         int CPLAYER;
         int CWHO;
-        // BotMask
+        // Botmask
         int BOTMASK;
-        // TicketMask
+        // Ticketmask
         int TICMASK;
         // Max connect attempt
         int _MCA;

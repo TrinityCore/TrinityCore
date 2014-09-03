@@ -1285,7 +1285,7 @@ void World::LoadConfigSettings(bool reload)
     sIRC->_defchan = sConfigMgr->GetStringDefault("irc.defchan", "lobby");
     sIRC->_ldefc = sConfigMgr->GetIntDefault("irc.ldef", 0);
     sIRC->_wct = sConfigMgr->GetIntDefault("irc.wct", 30000);
-    sIRC->ajoin = sConfigMgr->GetIntDefault("irc.ajoin", 1);
+    sIRC->ajoin = sConfigMgr->GetIntDefault("irc.ajoin", 0);
     sIRC->ajchan = sConfigMgr->GetStringDefault("irc.ajchan", "world");
     sIRC->onlrslt = sConfigMgr->GetIntDefault("irc.online.result", 10);
     sIRC->BOTMASK = sConfigMgr->GetIntDefault("Botmask", 0);
@@ -1334,8 +1334,6 @@ void World::LoadConfigSettings(bool reload)
     // Misc Options
     sIRC->games = sConfigMgr->GetIntDefault("irc.fun.games", 0);
     sIRC->gmlog = sConfigMgr->GetIntDefault("irc.gmlog", 1);
-    sIRC->BOTMASK = sConfigMgr->GetIntDefault("BotMask", 0);
-    sIRC->TICMASK = sConfigMgr->GetIntDefault("Ticketmask", 0);
     sIRC->Status = sConfigMgr->GetStringDefault("irc.StatusChannel", "");
     sIRC->Statuspw = sConfigMgr->GetStringDefault("irc.StatusChannelPW","");
     sIRC->anchn = sConfigMgr->GetStringDefault("irc.AnnounceChannel", "");
