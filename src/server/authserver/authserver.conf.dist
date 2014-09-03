@@ -121,12 +121,6 @@ WrongPass.BanTime = 600
 
 WrongPass.BanType = 0
 
-#    Cache.Version.Regenerate
-#        Description: Generate a new client cache version
-#
-
-Cache.Version.Regenerate = 0
-
 #
 ###################################################################################################
 

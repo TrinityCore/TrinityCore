@@ -190,6 +190,12 @@ ProcessPriority = 0
 
 Compression = 1
 
+#    Cache.Version.Regenerate
+#        Description: Regenerate client cache version
+#
+
+Cache.Version.Regenerate = 0
+
 #
 #    PlayerLimit
 #        Description: Maximum number of players in the world. Excluding Mods, GMs and Admins.
