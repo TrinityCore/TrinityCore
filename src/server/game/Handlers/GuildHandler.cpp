@@ -835,7 +835,7 @@ void WorldSession::HandleGuildSetAchievementTracking(WorldPacket& recvPacket)
     uint32 count = recvPacket.ReadBits(24);
     std::set<uint32> criteriaIds;
 
-    for (int i = 0; i < count; ++i)
+    for (uint32 i = 0; i < count; ++i)
     {
         uint32 criteriaId;
         recvPacket >> criteriaId;
