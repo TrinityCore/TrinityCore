@@ -188,7 +188,16 @@ public:
     {
         pyrewood_ambushAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
-           QuestInProgress = false;
+            Initialize();
+            WaitTimer = WAIT_SECS;
+            QuestInProgress = false;
+        }
+
+        void Initialize()
+        {
+            Phase = 0;
+            KillCount = 0;
+            PlayerGUID = 0;
         }
 
         uint32 Phase;
@@ -205,9 +214,7 @@ public:
 
             if (!QuestInProgress) //fix reset values (see UpdateVictim)
             {
-                Phase = 0;
-                KillCount = 0;
-                PlayerGUID = 0;
+                Initialize();
                 Summons.DespawnAll();
             }
         }

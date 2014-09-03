@@ -88,19 +88,24 @@ class boss_akilzon : public CreatureScript
         {
             boss_akilzonAI(Creature* creature) : BossAI(creature, DATA_AKILZONEVENT)
             {
-                memset(BirdGUIDs, 0, sizeof(BirdGUIDs));
+                Initialize();
             }
 
-            void Reset() override
+            void Initialize()
             {
-                _Reset();
-
                 TargetGUID = 0;
                 CloudGUID = 0;
                 CycloneGUID = 0;
                 memset(BirdGUIDs, 0, sizeof(BirdGUIDs));
                 StormCount = 0;
                 isRaining = false;
+            }
+
+            void Reset() override
+            {
+                _Reset();
+
+                Initialize();
 
                 SetWeather(WEATHER_STATE_FINE, 0.0f);
             }
@@ -380,7 +385,17 @@ class npc_akilzon_eagle : public CreatureScript
 
         struct npc_akilzon_eagleAI : public ScriptedAI
         {
-            npc_akilzon_eagleAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_akilzon_eagleAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                EagleSwoop_Timer = urand(5000, 10000);
+                arrived = true;
+                TargetGUID = 0;
+            }
 
             uint32 EagleSwoop_Timer;
             bool arrived;
@@ -388,9 +403,7 @@ class npc_akilzon_eagle : public CreatureScript
 
             void Reset() override
             {
-                EagleSwoop_Timer = urand(5000, 10000);
-                arrived = true;
-                TargetGUID = 0;
+                Initialize();
                 me->SetDisableGravity(true);
             }
 

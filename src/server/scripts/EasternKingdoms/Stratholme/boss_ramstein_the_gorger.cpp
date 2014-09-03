@@ -52,7 +52,14 @@ public:
     {
         boss_ramstein_the_gorgerAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = me->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            Trample_Timer = 3000;
+            Knockout_Timer = 12000;
         }
 
         InstanceScript* instance;
@@ -62,8 +69,7 @@ public:
 
         void Reset() override
         {
-            Trample_Timer = 3000;
-            Knockout_Timer = 12000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

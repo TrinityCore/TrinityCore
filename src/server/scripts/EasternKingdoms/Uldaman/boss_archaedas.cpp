@@ -64,7 +64,19 @@ class boss_archaedas : public CreatureScript
         {
             boss_archaedasAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = me->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                uiTremorTimer = 60000;
+                iAwakenTimer = 0;
+                uiWallMinionTimer = 10000;
+
+                bWakingUp = false;
+                bGuardiansAwake = false;
+                bVaultWalkersAwake = false;
             }
 
             uint32 uiTremorTimer;
@@ -78,13 +90,7 @@ class boss_archaedas : public CreatureScript
 
             void Reset() override
             {
-                uiTremorTimer = 60000;
-                iAwakenTimer = 0;
-                uiWallMinionTimer = 10000;
-
-                bWakingUp = false;
-                bGuardiansAwake = false;
-                bVaultWalkersAwake = false;
+                Initialize();
 
                 instance->SetData(0, 5);    // respawn any dead minions
                 me->setFaction(35);
@@ -224,7 +230,17 @@ class npc_archaedas_minions : public CreatureScript
         {
             npc_archaedas_minionsAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = me->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                uiArcing_Timer = 3000;
+                iAwakenTimer = 0;
+
+                bWakingUp = false;
+                bAmIAwake = false;
             }
 
             uint32 uiArcing_Timer;
@@ -236,11 +252,7 @@ class npc_archaedas_minions : public CreatureScript
 
             void Reset() override
             {
-                uiArcing_Timer = 3000;
-                iAwakenTimer = 0;
-
-                bWakingUp = false;
-                bAmIAwake = false;
+                Initialize();
 
                 me->setFaction(35);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

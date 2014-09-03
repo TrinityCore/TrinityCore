@@ -121,7 +121,27 @@ class boss_janalai : public CreatureScript
         {
             boss_janalaiAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                FireBreathTimer = 8000;
+                BombTimer = 30000;
+                BombSequenceTimer = 1000;
+                BombCount = 0;
+                HatcherTimer = 10000;
+                EnrageTimer = MINUTE * 5 * IN_MILLISECONDS;
+
+                noeggs = false;
+                isBombing = false;
+                enraged = false;
+
+                isFlameBreathing = false;
+
+                for (uint8 i = 0; i < 40; ++i)
+                    FireBombGUIDs[i] = 0;
             }
 
             InstanceScript* instance;
@@ -145,21 +165,7 @@ class boss_janalai : public CreatureScript
             {
                 instance->SetData(DATA_JANALAIEVENT, NOT_STARTED);
 
-                FireBreathTimer = 8000;
-                BombTimer = 30000;
-                BombSequenceTimer = 1000;
-                BombCount = 0;
-                HatcherTimer = 10000;
-                EnrageTimer = MINUTE*5*IN_MILLISECONDS;
-
-                noeggs = false;
-                isBombing =false;
-                enraged = false;
-
-                isFlameBreathing = false;
-
-                for (uint8 i = 0; i < 40; ++i)
-                    FireBombGUIDs[i] = 0;
+                Initialize();
 
                 HatchAllEggs(1);
             }
@@ -493,7 +499,18 @@ class npc_janalai_hatcher : public CreatureScript
         {
             npc_janalai_hatcherAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                waypoint = 0;
+                isHatching = false;
+                hasChangedSide = false;
+                WaitTimer = 1;
+                HatchNum = 0;
+                side = false;
             }
 
             InstanceScript* instance;
@@ -509,12 +526,8 @@ class npc_janalai_hatcher : public CreatureScript
             void Reset() override
             {
                 me->SetWalk(true);
+                Initialize();
                 side =(me->GetPositionY() < 1150);
-                waypoint = 0;
-                isHatching = false;
-                hasChangedSide = false;
-                WaitTimer = 1;
-                HatchNum = 0;
             }
 
             bool HatchEggs(uint32 num)
@@ -626,7 +639,13 @@ class npc_janalai_hatchling : public CreatureScript
         {
             npc_janalai_hatchlingAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                BuffetTimer = 7000;
             }
 
             InstanceScript* instance;
@@ -634,7 +653,7 @@ class npc_janalai_hatchling : public CreatureScript
 
             void Reset() override
             {
-                BuffetTimer = 7000;
+                Initialize();
                 if (me->GetPositionY() > 1150)
                     me->GetMotionMaster()->MovePoint(0, hatcherway[0][3][0] + rand32() % 4 - 2, 1150.0f + rand32() % 4 - 2, hatcherway[0][3][2]);
                 else
