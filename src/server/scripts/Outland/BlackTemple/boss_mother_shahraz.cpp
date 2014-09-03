@@ -278,7 +278,6 @@ public:
     {
         return GetBlackTempleAI<boss_shahrazAI>(creature);
     }
-
 };
 
 void AddSC_boss_mother_shahraz()

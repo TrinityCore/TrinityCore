@@ -1,6 +1,6 @@
 -- SWP: Move Muru summons to database
-DELETE FROM `creature_summon_groups` WHERE `summonerId` = 25741 AND `entry` IN (25798, 25799, 25744);
 SET @MURU := 25741;
+DELETE FROM `creature_summon_groups` WHERE `summonerId` = @MURU AND `entry` IN (25798, 25799, 25744);
 INSERT INTO `creature_summon_groups` (`summonerId`, `summonerType`, `groupId`, `entry`, `position_x`, `position_y`, `position_z`, `orientation`, `summonType`, `summonTime`) VALUES
 (@MURU, 0, 0, 25799, 1780.16, 666.83, 71.19, 5.21, 5, 0), -- Shadowsword Fury Mage
 (@MURU, 0, 0, 25799, 1847.93, 600.30, 71.30, 2.57, 5, 0),
