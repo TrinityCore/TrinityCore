@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +18,7 @@
 /* ScriptData
 SDName: Boss_Mother_Shahraz
 SD%Complete: 80
-SDComment: Saber Lash missing, Fatal Attraction slightly incorrect; need to damage only if affected players are within range of each other
+SDComment: Fatal Attraction slightly incorrect; need to damage only if affected players are within range of each other
 SDCategory: Black Temple
 EndScriptData */
 
@@ -27,17 +26,19 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "black_temple.h"
 
-enum MotherShahraz
+enum Texts
 {
     //Speech'n'Sounds
-    SAY_TAUNT               = 0,
-    SAY_AGGRO               = 1,
-    SAY_SPELL               = 2,
-    SAY_SLAY                = 3,
-    SAY_ENRAGE              = 4,
-    SAY_DEATH               = 5,
+    SAY_TAUNT    = 0,
+    SAY_AGGRO    = 1,
+    SAY_SPELL    = 2,
+    SAY_SLAY     = 3,
+    SAY_ENRAGE   = 4,
+    SAY_DEATH    = 5
+};
 
-    //Spells
+enum Spells
+{
     SPELL_BEAM_SINISTER     = 40859,
     SPELL_BEAM_VILE         = 40860,
     SPELL_BEAM_WICKED       = 40861,
@@ -49,6 +50,26 @@ enum MotherShahraz
     SPELL_SABER_LASH_IMM    = 43690,
     SPELL_TELEPORT_VISUAL   = 40869,
     SPELL_BERSERK           = 45078
+};
+
+enum Events
+{
+    EVENT_RANDOM_BEAM       = 1,
+    EVENT_PRISMATIC_SHIELD,
+    EVENT_FATAL_ATTRACTION,
+    EVENT_FATAL_ATTRACTION_EXPLOSION,
+    EVENT_SABER_SLASH,
+    EVENT_SILENCING_SHRIEK,
+    EVENT_RANDOM_TAUNT,
+    EVENT_BERSERK
+};
+
+enum Beams
+{
+    SINISTER_BEAM,
+    VILE_BEAM,
+    WICKED_BEAM,
+    SINFUL_BEAM
 };
 
 uint32 PrismaticAuras[]=
@@ -82,62 +103,41 @@ class boss_mother_shahraz : public CreatureScript
 public:
     boss_mother_shahraz() : CreatureScript("boss_mother_shahraz") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    struct boss_shahrazAI : public BossAI
     {
-        return GetInstanceAI<boss_shahrazAI>(creature);
-    }
-
-    struct boss_shahrazAI : public ScriptedAI
-    {
-        boss_shahrazAI(Creature* creature) : ScriptedAI(creature)
+        boss_shahrazAI(Creature* creature) : BossAI(creature, DATA_MOTHER_SHAHRAZ)
         {
-            instance = creature->GetInstanceScript();
+            Initialize();
         }
 
-        InstanceScript* instance;
-
-        uint64 TargetGUID[3];
-        uint32 BeamTimer;
-        uint32 BeamCount;
-        uint32 CurrentBeam;
-        uint32 PrismaticShieldTimer;
-        uint32 FatalAttractionTimer;
-        uint32 FatalAttractionExplodeTimer;
-        uint32 ShriekTimer;
-        uint32 SaberTimer;
-        uint32 RandomYellTimer;
-        uint32 EnrageTimer;
-        uint32 ExplosionCount;
-
-        bool Enraged;
-
-        void Reset() override
+        void Initialize()
         {
-            instance->SetBossState(DATA_MOTHER_SHAHRAZ, NOT_STARTED);
-
             for (uint8 i = 0; i<3; ++i)
                 TargetGUID[i] = 0;
 
-            BeamTimer = 20000; // Timers may be incorrect
             BeamCount = 0;
-            CurrentBeam = 0;                                    // 0 - Sinister, 1 - Vile, 2 - Wicked, 3 - Sinful
-            PrismaticShieldTimer = 0;
-            FatalAttractionTimer = 60000;
-            FatalAttractionExplodeTimer = 70000;
-            ShriekTimer = 30000;
-            SaberTimer = 35000;
-            RandomYellTimer = urand(70, 111) * 1000;
-            EnrageTimer = 600000;
+            CurrentBeam = SINISTER_BEAM;   // 0 - Sinister, 1 - Vile, 2 - Wicked, 3 - Sinful
             ExplosionCount = 0;
-
             Enraged = false;
+        }
+
+        void Reset() override
+        {
+            Initialize();
+            _Reset();
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
-            instance->SetBossState(DATA_MOTHER_SHAHRAZ, IN_PROGRESS);
-
-            DoZoneInCombat();
+            _EnterCombat();
+            events.ScheduleEvent(EVENT_RANDOM_BEAM, 20000); // Timers may be incorrect
+            events.ScheduleEvent(EVENT_FATAL_ATTRACTION, 60000);
+            events.ScheduleEvent(EVENT_FATAL_ATTRACTION_EXPLOSION, 70000);
+            events.ScheduleEvent(EVENT_SILENCING_SHRIEK, 30000);
+            events.ScheduleEvent(EVENT_SABER_SLASH, 35000);
+            events.ScheduleEvent(EVENT_RANDOM_TAUNT, urand(70000, 111000));
+            events.ScheduleEvent(EVENT_PRISMATIC_SHIELD, 1000);
+            events.ScheduleEvent(EVENT_BERSERK, 600000);
             Talk(SAY_AGGRO);
         }
 
@@ -148,151 +148,136 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetBossState(DATA_MOTHER_SHAHRAZ, DONE);
-
+            _JustDied();
             Talk(SAY_DEATH);
         }
 
         void TeleportPlayers()
         {
-            uint32 random = rand32() % 7;
+            uint32 random = urand(0, 7);
             float X = TeleportPoint[random].x;
             float Y = TeleportPoint[random].y;
             float Z = TeleportPoint[random].z;
             for (uint8 i = 0; i < 3; ++i)
             {
-                Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                if (unit && unit->IsAlive() && (unit->GetTypeId() == TYPEID_PLAYER))
-                {
-                    TargetGUID[i] = unit->GetGUID();
-                    unit->CastSpell(unit, SPELL_TELEPORT_VISUAL, true);
-                    DoTeleportPlayer(unit, X, Y, Z, unit->GetOrientation());
-                }
+                if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    if (unit->IsAlive() && unit->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        TargetGUID[i] = unit->GetGUID();
+                        unit->CastSpell(unit, SPELL_TELEPORT_VISUAL, true);
+                        DoTeleportPlayer(unit, X, Y, Z, unit->GetOrientation());
+                    }
             }
         }
 
-        void UpdateAI(uint32 diff) override
+        void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
         {
-            if (!UpdateVictim())
-                return;
-
-            if (HealthBelowPct(10) && !Enraged)
+            if (!Enraged && me->HealthBelowPctDamaged(10, damage))
             {
                 Enraged = true;
                 DoCast(me, SPELL_ENRAGE, true);
                 Talk(SAY_ENRAGE);
             }
+        }
 
-            //Randomly cast one beam.
-            if (BeamTimer <= diff)
+        void ExecuteEvent(uint32 eventId) override
+        {
+            switch (eventId)
             {
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (!target || !target->IsAlive())
-                    return;
-
-                BeamTimer = 9000;
-
-                switch (CurrentBeam)
-                {
-                    case 0:
-                        DoCast(target, SPELL_BEAM_SINISTER);
-                        break;
-                    case 1:
-                        DoCast(target, SPELL_BEAM_VILE);
-                        break;
-                    case 2:
-                        DoCast(target, SPELL_BEAM_WICKED);
-                        break;
-                    case 3:
-                        DoCast(target, SPELL_BEAM_SINFUL);
-                        break;
-                }
-                ++BeamCount;
-                uint32 Beam = CurrentBeam;
-                if (BeamCount > 3)
-                    while (CurrentBeam == Beam)
-                        CurrentBeam = rand32() % 3;
-
-            } else BeamTimer -= diff;
-
-            // Random Prismatic Shield every 15 seconds.
-            if (PrismaticShieldTimer <= diff)
-            {
-                uint32 random = rand32() % 6;
-                if (PrismaticAuras[random])
-                    DoCast(me, PrismaticAuras[random]);
-                PrismaticShieldTimer = 15000;
-            } else PrismaticShieldTimer -= diff;
-
-            // Select 3 random targets (can select same target more than once), teleport to a random location then make them cast explosions until they get away from each other.
-            if (FatalAttractionTimer <= diff)
-            {
-                ExplosionCount = 0;
-
-                TeleportPlayers();
-
-                Talk(SAY_SPELL);
-                FatalAttractionExplodeTimer = 2000;
-                FatalAttractionTimer = urand(40, 71) * 1000;
-            } else FatalAttractionTimer -= diff;
-
-            if (FatalAttractionExplodeTimer <= diff)
-            {
-                // Just make them explode three times... they're supposed to keep exploding while they are in range, but it'll take too much code. I'll try to think of an efficient way for it later.
-                if (ExplosionCount < 3)
-                {
-                    for (uint8 i = 0; i < 3; ++i)
+                case EVENT_RANDOM_BEAM:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
-                        if (TargetGUID[i])
+                        switch (CurrentBeam)
                         {
-                            if (Unit* unit = ObjectAccessor::GetUnit(*me, TargetGUID[i]))
-                                unit->CastSpell(unit, SPELL_ATTRACTION, true);
-                            TargetGUID[i] = 0;
+                            case SINISTER_BEAM:
+                                DoCast(target, SPELL_BEAM_SINISTER);
+                                break;
+                            case VILE_BEAM:
+                                DoCast(target, SPELL_BEAM_VILE);
+                                break;
+                            case WICKED_BEAM:
+                                DoCast(target, SPELL_BEAM_WICKED);
+                                break;
+                            case SINFUL_BEAM:
+                                DoCast(target, SPELL_BEAM_SINFUL);
+                                break;
+                            default:
+                                break;
                         }
+                        
+                        ++BeamCount;
+                        uint32 Beam = CurrentBeam;
+                        if (BeamCount > 3)
+                            while (CurrentBeam == Beam)
+                                CurrentBeam = urand(0, 3);
                     }
-
-                    ++ExplosionCount;
-                    FatalAttractionExplodeTimer = 1000;
-                }
-                else
-                {
-                    FatalAttractionExplodeTimer = FatalAttractionTimer + 2000;
+                    events.ScheduleEvent(EVENT_RANDOM_BEAM, 9000);
+                    break;
+                case EVENT_PRISMATIC_SHIELD:
+                    // Random Prismatic Shield every 15 seconds.
+                    DoCast(me, PrismaticAuras[urand(0, 6)]);
+                    events.ScheduleEvent(EVENT_PRISMATIC_SHIELD, 15000);
+                    break;
+                case EVENT_FATAL_ATTRACTION:
+                    // Select 3 random targets (can select same target more than once), teleport to a random location then make them cast explosions until they get away from each other.
                     ExplosionCount = 0;
-                }
-            } else FatalAttractionExplodeTimer -= diff;
-
-            if (ShriekTimer <= diff)
-            {
-                DoCastVictim(SPELL_SILENCING_SHRIEK);
-                ShriekTimer = 25000 + rand32() % 10 * 1000;
-            } else ShriekTimer -= diff;
-
-            if (SaberTimer <= diff)
-            {
-                DoCastVictim(SPELL_SABER_LASH);
-                SaberTimer = 25000 + rand32() % 10 * 1000;
-            } else SaberTimer -= diff;
-
-            //Enrage
-            if (!me->HasAura(SPELL_BERSERK))
-            {
-                if (EnrageTimer <= diff)
-                {
+                    TeleportPlayers();
+                    Talk(SAY_SPELL);
+                    events.ScheduleEvent(EVENT_FATAL_ATTRACTION_EXPLOSION, 2000);
+                    events.ScheduleEvent(EVENT_FATAL_ATTRACTION, 40000, 71000);
+                    break;
+                case EVENT_FATAL_ATTRACTION_EXPLOSION:
+                    // Just make them explode three times... they're supposed to keep exploding while they are in range, but it'll take too much code. I'll try to think of an efficient way for it later.
+                    if (ExplosionCount < 3)
+                    {
+                        for (uint8 i = 0; i < 3; ++i)
+                        {
+                            if (TargetGUID[i])
+                            {
+                                if (Unit* unit = ObjectAccessor::GetUnit(*me, TargetGUID[i]))
+                                    unit->CastSpell(unit, SPELL_ATTRACTION, true);
+                                TargetGUID[i] = 0;
+                            }
+                        }
+                        ++ExplosionCount;
+                    }
+                    else
+                        ExplosionCount = 0;
+                    events.ScheduleEvent(EVENT_FATAL_ATTRACTION_EXPLOSION, ExplosionCount < 3 ? 1000 : events.GetTimeUntilEvent(EVENT_FATAL_ATTRACTION) + 2000);
+                    break;
+                case EVENT_SILENCING_SHRIEK:
+                    DoCastVictim(SPELL_SILENCING_SHRIEK);
+                    events.ScheduleEvent(EVENT_SILENCING_SHRIEK, urand(25000, 35000));
+                    break;
+                case EVENT_SABER_SLASH:
+                    DoCastVictim(SPELL_SABER_LASH);
+                    events.ScheduleEvent(EVENT_SABER_SLASH, urand(25000, 35000));
+                    break;
+                case EVENT_RANDOM_TAUNT:
+                    Talk(SAY_TAUNT);
+                    events.ScheduleEvent(EVENT_RANDOM_TAUNT, urand(60000, 151000));
+                    break;
+                case EVENT_BERSERK:
                     DoCast(me, SPELL_BERSERK);
                     Talk(SAY_ENRAGE);
-                } else EnrageTimer -= diff;
+                    break;
+                default:
+                    break;
             }
-
-            //Random taunts
-            if (RandomYellTimer <= diff)
-            {
-                Talk(SAY_TAUNT);
-                RandomYellTimer = urand(60, 151) * 1000;
-            } else RandomYellTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
+    
+    private:
+        uint64 TargetGUID[3];
+        uint32 BeamCount;
+        uint32 CurrentBeam;
+        uint32 ExplosionCount;
+        bool Enraged;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetBlackTempleAI<boss_shahrazAI>(creature);
+    }
 
 };
 
