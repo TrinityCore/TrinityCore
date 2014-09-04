@@ -56,15 +56,23 @@ public:
 
     struct npc_converted_sentryAI : public ScriptedAI
     {
-        npc_converted_sentryAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_converted_sentryAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Credit = false;
+            Timer = 2500;
+        }
 
         bool Credit;
         uint32 Timer;
 
         void Reset() override
         {
-            Credit = false;
-            Timer = 2500;
+            Initialize();
         }
 
         void MoveInLineOfSight(Unit* /*who*/) override { }

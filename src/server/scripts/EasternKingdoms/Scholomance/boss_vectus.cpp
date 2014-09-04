@@ -51,7 +51,17 @@ public:
 
     struct boss_vectusAI : public ScriptedAI
     {
-        boss_vectusAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_vectusAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            m_uiFireShield_Timer = 2000;
+            m_uiBlastWave_Timer = 14000;
+            m_uiFrenzy_Timer = 0;
+        }
 
         uint32 m_uiFireShield_Timer;
         uint32 m_uiBlastWave_Timer;
@@ -59,9 +69,7 @@ public:
 
         void Reset() override
         {
-            m_uiFireShield_Timer = 2000;
-            m_uiBlastWave_Timer = 14000;
-            m_uiFrenzy_Timer = 0;
+            Initialize();
         }
 
         void UpdateAI(uint32 uiDiff) override

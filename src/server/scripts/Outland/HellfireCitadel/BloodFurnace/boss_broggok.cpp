@@ -43,6 +43,13 @@ enum Spells
     SPELL_POISON_CLOUD_PASSIVE  = 30914
 };
 
+enum Events
+{
+    EVENT_SLIME_SPRAY = 1,
+    EVENT_POISON_BOLT,
+    EVENT_POISON_CLOUD,
+};
+
 class boss_broggok : public CreatureScript
 {
     public:
@@ -52,17 +59,9 @@ class boss_broggok : public CreatureScript
         {
             boss_broggokAI(Creature* creature) : BossAI(creature, DATA_BROGGOK) { }
 
-            uint32 AcidSpray_Timer;
-            uint32 PoisonSpawn_Timer;
-            uint32 PoisonBolt_Timer;
-            bool canAttack;
-
             void Reset() override
             {
                 _Reset();
-                AcidSpray_Timer = 10000;
-                PoisonSpawn_Timer = 5000;
-                PoisonBolt_Timer = 7000;
                 DoAction(ACTION_RESET_BROGGOK);
             }
 
@@ -72,44 +71,35 @@ class boss_broggok : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void UpdateAI(uint32 diff) override
+            void JustSummoned(Creature* summoned) override
             {
-                if (!UpdateVictim())
-                    return;
-
-                if (!canAttack)
-                    return;
-
-                if (AcidSpray_Timer <= diff)
+                if (summoned->GetEntry() == NPC_BROGGOK_POISON_CLOUD)
                 {
-                    DoCastVictim(SPELL_SLIME_SPRAY);
-                    AcidSpray_Timer = 4000 + rand32() % 8000;
+                    summoned->SetReactState(REACT_PASSIVE);
+                    summoned->CastSpell(summoned, SPELL_POISON_CLOUD_PASSIVE, true);
+                    summons.Summon(summoned);
                 }
-                else
-                    AcidSpray_Timer -=diff;
-
-                if (PoisonBolt_Timer <= diff)
-                {
-                    DoCastVictim(SPELL_POISON_BOLT);
-                    PoisonBolt_Timer = 4000 + rand32() % 8000;
-                }
-                else
-                    PoisonBolt_Timer -=diff;
-
-                if (PoisonSpawn_Timer <= diff)
-                {
-                    DoCast(me, SPELL_POISON_CLOUD);
-                    PoisonSpawn_Timer = 20000;
-                }
-                else
-                    PoisonSpawn_Timer -=diff;
-
-                DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*killer*/) override
+            void ExecuteEvent(uint32 eventId) override
             {
-                _JustDied();
+                switch (eventId)
+                {
+                    case EVENT_SLIME_SPRAY:
+                        DoCastVictim(SPELL_SLIME_SPRAY);
+                        events.ScheduleEvent(EVENT_SLIME_SPRAY, urand(4000, 12000));
+                        break;
+                    case EVENT_POISON_BOLT:
+                        DoCastVictim(SPELL_POISON_BOLT);
+                        events.ScheduleEvent(EVENT_POISON_BOLT, urand(4000, 12000));
+                        break;
+                    case EVENT_POISON_CLOUD:
+                        DoCast(me, SPELL_POISON_CLOUD);
+                        events.ScheduleEvent(EVENT_POISON_CLOUD, 20000);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             void DoAction(int32 action) override
@@ -122,12 +112,13 @@ class boss_broggok : public CreatureScript
                     case ACTION_ACTIVATE_BROGGOK:
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
-                        canAttack = true;
+                        events.ScheduleEvent(EVENT_SLIME_SPRAY, 10000);
+                        events.ScheduleEvent(EVENT_POISON_BOLT, 7000);
+                        events.ScheduleEvent(EVENT_POISON_CLOUD, 5000);
                         break;
                     case ACTION_RESET_BROGGOK:
                         me->SetReactState(REACT_PASSIVE);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
-                        canAttack = false;
                         break;
                 }
             }
@@ -137,33 +128,6 @@ class boss_broggok : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetBloodFurnaceAI<boss_broggokAI>(creature);
-        }
-};
-
-class npc_broggok_poison_cloud : public CreatureScript
-{
-    public:
-        npc_broggok_poison_cloud() : CreatureScript("npc_broggok_poison_cloud") { }
-
-        struct npc_broggok_poison_cloudAI : public ScriptedAI
-        {
-            npc_broggok_poison_cloudAI(Creature* creature) : ScriptedAI(creature)
-            {
-                SetCombatMovement(false);
-                creature->SetReactState(REACT_PASSIVE);
-            }
-
-            void IsSummonedBy(Unit* /*summoner*/) override
-            {
-                DoCast(me, SPELL_POISON_CLOUD_PASSIVE, true);
-            }
-
-            void UpdateAI(uint32 /*diff*/) override { }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_broggok_poison_cloudAI(creature);
         }
 };
 
@@ -228,7 +192,6 @@ class spell_broggok_poison_cloud : public SpellScriptLoader
 void AddSC_boss_broggok()
 {
     new boss_broggok();
-    new npc_broggok_poison_cloud();
     new go_broggok_lever();
     new spell_broggok_poison_cloud();
 }

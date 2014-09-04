@@ -92,7 +92,18 @@ public:
 
     struct boss_cannon_master_willeyAI : public ScriptedAI
     {
-        boss_cannon_master_willeyAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_cannon_master_willeyAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Shoot_Timer = 1000;
+            Pummel_Timer = 7000;
+            KnockAway_Timer = 11000;
+            SummonRifleman_Timer = 15000;
+        }
 
         uint32 KnockAway_Timer;
         uint32 Pummel_Timer;
@@ -101,10 +112,7 @@ public:
 
         void Reset() override
         {
-            Shoot_Timer = 1000;
-            Pummel_Timer = 7000;
-            KnockAway_Timer = 11000;
-            SummonRifleman_Timer = 15000;
+            Initialize();
         }
 
         void JustDied(Unit* /*killer*/) override
