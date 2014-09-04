@@ -48,7 +48,23 @@ public:
 
     struct boss_ouroAI : public ScriptedAI
     {
-        boss_ouroAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_ouroAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Sweep_Timer = urand(5000, 10000);
+            SandBlast_Timer = urand(20000, 35000);
+            Submerge_Timer = urand(90000, 150000);
+            Back_Timer = urand(30000, 45000);
+            ChangeTarget_Timer = urand(5000, 8000);
+            Spawn_Timer = urand(10000, 20000);
+
+            Enrage = false;
+            Submerged = false;
+        }
 
         uint32 Sweep_Timer;
         uint32 SandBlast_Timer;
@@ -62,15 +78,7 @@ public:
 
         void Reset() override
         {
-            Sweep_Timer = urand(5000, 10000);
-            SandBlast_Timer = urand(20000, 35000);
-            Submerge_Timer = urand(90000, 150000);
-            Back_Timer = urand(30000, 45000);
-            ChangeTarget_Timer = urand(5000, 8000);
-            Spawn_Timer = urand(10000, 20000);
-
-            Enrage = false;
-            Submerged = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

@@ -64,9 +64,25 @@ public:
     {
         boss_jedoga_shadowseekerAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             bFirstTime = true;
             bPreDone = false;
+        }
+
+        void Initialize()
+        {
+            uiOpFerTimer = urand(15 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
+
+            uiCycloneTimer = 3 * IN_MILLISECONDS;
+            uiBoltTimer = 7 * IN_MILLISECONDS;
+            uiThunderTimer = 12 * IN_MILLISECONDS;
+
+            bOpFerok = false;
+            bOpFerokFail = false;
+            bOnGround = false;
+            bCanDown = false;
+            volunteerWork = true;
         }
 
         InstanceScript* instance;
@@ -86,17 +102,7 @@ public:
 
         void Reset() override
         {
-            uiOpFerTimer = urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS);
-
-            uiCycloneTimer = 3*IN_MILLISECONDS;
-            uiBoltTimer = 7*IN_MILLISECONDS;
-            uiThunderTimer = 12*IN_MILLISECONDS;
-
-            bOpFerok = false;
-            bOpFerokFail = false;
-            bOnGround = false;
-            bCanDown = false;
-            volunteerWork = true;
+            Initialize();
 
             if (!bFirstTime)
                 instance->SetBossState(DATA_JEDOGA_SHADOWSEEKER, FAIL);
@@ -331,7 +337,14 @@ public:
     {
         npc_jedoga_initiandAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            bWalking = false;
+            bCheckTimer = 2 * IN_MILLISECONDS;
         }
 
         InstanceScript* instance;
@@ -342,8 +355,7 @@ public:
 
         void Reset() override
         {
-            bWalking = false;
-            bCheckTimer = 2*IN_MILLISECONDS;
+            Initialize();
 
             if (instance->GetBossState(DATA_JEDOGA_SHADOWSEEKER) != IN_PROGRESS)
             {

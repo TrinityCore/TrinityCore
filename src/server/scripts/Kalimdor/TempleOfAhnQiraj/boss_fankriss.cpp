@@ -53,23 +53,28 @@ public:
 
     struct boss_fankrissAI : public ScriptedAI
     {
-        boss_fankrissAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_fankrissAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            MortalWound_Timer = urand(10000, 15000);
+            SpawnHatchlings_Timer = urand(6000, 12000);
+            SpawnSpawns_Timer = urand(15000, 45000);
+        }
 
         uint32 MortalWound_Timer;
         uint32 SpawnHatchlings_Timer;
         uint32 SpawnSpawns_Timer;
-        int Rand;
-        float RandX;
-        float RandY;
 
         Creature* Hatchling;
         Creature* Spawn;
 
         void Reset() override
         {
-            MortalWound_Timer = urand(10000, 15000);
-            SpawnHatchlings_Timer = urand(6000, 12000);
-            SpawnSpawns_Timer = urand(15000, 45000);
+            Initialize();
         }
 
         void SummonSpawn(Unit* victim)
@@ -77,7 +82,10 @@ public:
             if (!victim)
                 return;
 
-            Rand = 10 + (rand32() % 10);
+            int Rand = 10 + (rand32() % 10);
+            float RandX = 0.f;
+            float RandY = 0.f;
+
             switch (rand32() % 2)
             {
                 case 0: RandX = 0.0f - Rand; break;

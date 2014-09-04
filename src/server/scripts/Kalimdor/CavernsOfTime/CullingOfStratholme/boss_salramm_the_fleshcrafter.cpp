@@ -63,8 +63,18 @@ public:
     {
         boss_salrammAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             Talk(SAY_SPAWN);
+        }
+
+        void Initialize()
+        {
+            uiCurseFleshTimer = 30000;  //30s DBM
+            uiExplodeGhoulTimer = urand(25000, 28000); //approx 6 sec after summon ghouls
+            uiShadowBoltTimer = urand(8000, 12000); // approx 10s
+            uiStealFleshTimer = 12345;
+            uiSummonGhoulsTimer = urand(19000, 24000); //on a video approx 24s after aggro
         }
 
         uint32 uiCurseFleshTimer;
@@ -77,13 +87,9 @@ public:
 
         void Reset() override
         {
-             uiCurseFleshTimer = 30000;  //30s DBM
-             uiExplodeGhoulTimer = urand(25000, 28000); //approx 6 sec after summon ghouls
-             uiShadowBoltTimer = urand(8000, 12000); // approx 10s
-             uiStealFleshTimer = 12345;
-             uiSummonGhoulsTimer = urand(19000, 24000); //on a video approx 24s after aggro
+            Initialize();
 
-             instance->SetData(DATA_SALRAMM_EVENT, NOT_STARTED);
+            instance->SetData(DATA_SALRAMM_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) override

@@ -73,7 +73,21 @@ public:
     {
         boss_mal_ganisAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+            uiOutroStep = 0;
+        }
+
+        void Initialize()
+        {
+            bYelled = false;
+            bYelled2 = false;
+            Phase = COMBAT;
+            uiCarrionSwarmTimer = 6000;
+            uiMindBlastTimer = 11000;
+            uiVampiricTouchTimer = urand(10000, 15000);
+            uiSleepTimer = urand(15000, 20000);
+            uiOutroTimer = 1000;
         }
 
         uint32 uiCarrionSwarmTimer;
@@ -93,16 +107,9 @@ public:
 
         void Reset() override
         {
-             bYelled = false;
-             bYelled2 = false;
-             Phase = COMBAT;
-             uiCarrionSwarmTimer = 6000;
-             uiMindBlastTimer = 11000;
-             uiVampiricTouchTimer = urand(10000, 15000);
-             uiSleepTimer = urand(15000, 20000);
-             uiOutroTimer = 1000;
+            Initialize();
 
-             instance->SetData(DATA_MAL_GANIS_EVENT, NOT_STARTED);
+            instance->SetData(DATA_MAL_GANIS_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) override

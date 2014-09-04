@@ -55,8 +55,20 @@ public:
     {
         boss_azgalorAI(Creature* creature) : hyjal_trashAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             go = false;
+        }
+
+        void Initialize()
+        {
+            damageTaken = 0;
+            RainTimer = 20000;
+            DoomTimer = 50000;
+            HowlTimer = 30000;
+            CleaveTimer = 10000;
+            EnrageTimer = 600000;
+            enraged = false;
         }
 
         uint32 RainTimer;
@@ -70,13 +82,7 @@ public:
 
         void Reset() override
         {
-            damageTaken = 0;
-            RainTimer = 20000;
-            DoomTimer = 50000;
-            HowlTimer = 30000;
-            CleaveTimer = 10000;
-            EnrageTimer = 600000;
-            enraged = false;
+            Initialize();
 
             if (IsEvent)
                 instance->SetData(DATA_AZGALOREVENT, NOT_STARTED);
