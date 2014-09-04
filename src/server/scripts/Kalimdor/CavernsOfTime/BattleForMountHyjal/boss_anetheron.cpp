@@ -54,8 +54,18 @@ public:
     {
         boss_anetheronAI(Creature* creature) : hyjal_trashAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             go = false;
+        }
+
+        void Initialize()
+        {
+            SwarmTimer = 45000;
+            SleepTimer = 60000;
+            AuraTimer = 5000;
+            InfernoTimer = 45000;
+            damageTaken = 0;
         }
 
         uint32 SwarmTimer;
@@ -66,11 +76,7 @@ public:
 
         void Reset() override
         {
-            damageTaken = 0;
-            SwarmTimer = 45000;
-            SleepTimer = 60000;
-            AuraTimer = 5000;
-            InfernoTimer = 45000;
+            Initialize();
 
             if (IsEvent)
                 instance->SetData(DATA_ANETHERONEVENT, NOT_STARTED);
