@@ -65,12 +65,15 @@ enum CreatureIds
     NPC_ILLIDARI_COUNCIL            = 23426,
     NPC_BLOOD_ELF_COUNCIL_VOICE     = 23499,
 
-    NPC_ILLIDAN_STORMRAGE           = 22917
+    NPC_ILLIDAN_STORMRAGE           = 22917,
+
+    NPC_SUPREMUS_VOLCANO            = 23085
 };
 
 enum GameObjectIds
 {
     GO_NAJENTUS_GATE                = 185483,
+    GO_NAJENTUS_SPINE               = 185584,
     GO_SUPREMUS_GATE                = 185882,
     GO_SHADE_OF_AKAMA_DOOR          = 185478,
     GO_TERON_DOOR_1                 = 185480,
