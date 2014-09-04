@@ -90,8 +90,8 @@ public:
 
     struct boss_supremusAI : public BossAI
     {
-        boss_supremusAI(Creature* creature) : BossAI(creature, DATA_SUPREMUS) 
-        { 
+        boss_supremusAI(Creature* creature) : BossAI(creature, DATA_SUPREMUS)
+        {
             phase = 0;
         }
 
@@ -219,11 +219,6 @@ class npc_volcano : public CreatureScript
 public:
     npc_volcano() : CreatureScript("npc_volcano") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_volcanoAI(creature);
-    }
-
     struct npc_volcanoAI : public ScriptedAI
     {
         npc_volcanoAI(Creature* creature) : ScriptedAI(creature)
@@ -245,7 +240,6 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
-
         void DoAction(int32 /*info*/) override
         {
             me->RemoveAura(SPELL_VOLCANIC_ERUPTION);
@@ -261,6 +255,11 @@ public:
             else wait -= diff;
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_volcanoAI(creature);
+    }
 };
 
 void AddSC_boss_supremus()
