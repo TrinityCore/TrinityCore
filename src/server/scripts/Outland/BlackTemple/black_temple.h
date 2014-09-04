@@ -73,6 +73,7 @@ enum CreatureIds
 enum GameObjectIds
 {
     GO_NAJENTUS_GATE                = 185483,
+    GO_NAJENTUS_SPINE               = 185584,
     GO_SUPREMUS_GATE                = 185882,
     GO_SHADE_OF_AKAMA_DOOR          = 185478,
     GO_TERON_DOOR_1                 = 185480,
