@@ -50,14 +50,22 @@ public:
 
     struct boss_amnennar_the_coldbringerAI : public BossAI
     {
-        boss_amnennar_the_coldbringerAI(Creature* creature) : BossAI(creature, DATA_AMNENNAR_THE_COLD_BRINGER) { }
+        boss_amnennar_the_coldbringerAI(Creature* creature) : BossAI(creature, DATA_AMNENNAR_THE_COLD_BRINGER)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            hp60Spectrals = false;
+            hp30Spectrals = false;
+            hp50 = false;
+        }
 
         void Reset() override
         {
             _Reset();
-            hp60Spectrals = false;
-            hp30Spectrals = false;
-            hp50          = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

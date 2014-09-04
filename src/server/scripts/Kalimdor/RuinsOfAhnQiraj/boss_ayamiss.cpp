@@ -80,13 +80,19 @@ class boss_ayamiss : public CreatureScript
         {
             boss_ayamissAI(Creature* creature) : BossAI(creature, DATA_AYAMISS)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _phase = PHASE_AIR;
+                _enraged = false;
             }
 
             void Reset() override
             {
                 _Reset();
-                _phase = PHASE_AIR;
-                _enraged = false;
+                Initialize();
                 SetCombatMovement(false);
             }
 

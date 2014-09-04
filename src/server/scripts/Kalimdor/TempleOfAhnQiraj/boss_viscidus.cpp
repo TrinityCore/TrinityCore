@@ -91,13 +91,21 @@ class boss_viscidus : public CreatureScript
 
         struct boss_viscidusAI : public BossAI
         {
-            boss_viscidusAI(Creature* creature) : BossAI(creature, DATA_VISCIDUS) { }
+            boss_viscidusAI(Creature* creature) : BossAI(creature, DATA_VISCIDUS)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _hitcounter = 0;
+                _phase = PHASE_FROST;
+            }
 
             void Reset() override
             {
                 _Reset();
-                _hitcounter = 0;
-                _phase = PHASE_FROST;
+                Initialize();
             }
 
             void DamageTaken(Unit* attacker, uint32& /*damage*/) override

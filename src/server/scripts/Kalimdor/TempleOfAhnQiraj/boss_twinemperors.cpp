@@ -69,7 +69,22 @@ struct boss_twinemperorsAI : public ScriptedAI
 {
     boss_twinemperorsAI(Creature* creature): ScriptedAI(creature)
     {
+        Initialize();
         instance = creature->GetInstanceScript();
+    }
+
+    void Initialize()
+    {
+        Heal_Timer = 0;                                     // first heal immediately when they get close together
+        Teleport_Timer = TELEPORTTIME;
+        AfterTeleport = false;
+        tspellcast = false;
+        AfterTeleportTimer = 0;
+        Abuse_Bug_Timer = urand(10000, 17000);
+        BugsTimer = 2000;
+
+        DontYellWhenDead = false;
+        EnrageTimer = 15 * 60000;
     }
 
     InstanceScript* instance;
@@ -89,16 +104,8 @@ struct boss_twinemperorsAI : public ScriptedAI
 
     void TwinReset()
     {
-        Heal_Timer = 0;                                     // first heal immediately when they get close together
-        Teleport_Timer = TELEPORTTIME;
-        AfterTeleport = false;
-        tspellcast = false;
-        AfterTeleportTimer = 0;
-        Abuse_Bug_Timer = urand(10000, 17000);
-        BugsTimer = 2000;
+        Initialize();
         me->ClearUnitState(UNIT_STATE_STUNNED);
-        DontYellWhenDead = false;
-        EnrageTimer = 15*60000;
     }
 
     Creature* GetOtherBoss()
@@ -394,24 +401,28 @@ public:
     struct boss_veknilashAI : public boss_twinemperorsAI
     {
         bool IAmVeklor() {return false;}
-        boss_veknilashAI(Creature* creature) : boss_twinemperorsAI(creature) { }
+        boss_veknilashAI(Creature* creature) : boss_twinemperorsAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            UpperCut_Timer = urand(14000, 29000);
+            UnbalancingStrike_Timer = urand(8000, 18000);
+            Scarabs_Timer = urand(7000, 14000);
+        }
 
         uint32 UpperCut_Timer;
         uint32 UnbalancingStrike_Timer;
         uint32 Scarabs_Timer;
-        int Rand;
-        int RandX;
-        int RandY;
 
         Creature* Summoned;
 
         void Reset() override
         {
             TwinReset();
-            UpperCut_Timer = urand(14000, 29000);
-            UnbalancingStrike_Timer = urand(8000, 18000);
-            Scarabs_Timer = urand(7000, 14000);
-
+            Initialize();
                                                                 //Added. Can be removed if its included in DB.
             me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
         }
@@ -480,25 +491,30 @@ public:
     struct boss_veklorAI : public boss_twinemperorsAI
     {
         bool IAmVeklor() {return true;}
-        boss_veklorAI(Creature* creature) : boss_twinemperorsAI(creature) { }
+        boss_veklorAI(Creature* creature) : boss_twinemperorsAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            ShadowBolt_Timer = 0;
+            Blizzard_Timer = urand(15000, 20000);
+            ArcaneBurst_Timer = 1000;
+            Scorpions_Timer = urand(7000, 14000);
+        }
 
         uint32 ShadowBolt_Timer;
         uint32 Blizzard_Timer;
         uint32 ArcaneBurst_Timer;
         uint32 Scorpions_Timer;
-        int Rand;
-        int RandX;
-        int RandY;
 
         Creature* Summoned;
 
         void Reset() override
         {
             TwinReset();
-            ShadowBolt_Timer = 0;
-            Blizzard_Timer = urand(15000, 20000);
-            ArcaneBurst_Timer = 1000;
-            Scorpions_Timer = urand(7000, 14000);
+            Initialize();
 
             //Added. Can be removed if its included in DB.
             me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);

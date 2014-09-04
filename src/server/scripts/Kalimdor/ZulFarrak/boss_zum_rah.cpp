@@ -59,14 +59,22 @@ public:
 
     struct boss_zum_rahAI : public BossAI
     {
-        boss_zum_rahAI(Creature* creature) : BossAI(creature, DATA_ZUM_RAH) { }
+        boss_zum_rahAI(Creature* creature) : BossAI(creature, DATA_ZUM_RAH)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            _ward80 = false;
+            _ward40 = false;
+            _heal30 = false;
+        }
 
         void Reset() override
         {
             me->setFaction(ZUMRAH_FRIENDLY_FACTION); // areatrigger sets faction to enemy
-            _ward80 = false;
-            _ward40 = false;
-            _heal30 = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override
