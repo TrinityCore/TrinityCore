@@ -33,7 +33,10 @@ enum DataTypes
     // Additional Data
     DATA_WATCHER_GASHRA             = 3,
     DATA_WATCHER_SILTHIK            = 4,
-    DATA_WATCHER_NARJIL             = 5
+    DATA_WATCHER_NARJIL             = 5,
+    DATA_FRONT_DOOR_TRIGGER_A       = 6,
+    DATA_FRONT_DOOR_TRIGGER_B       = 7, // Closer to tunnel
+    DATA_SIDE_DOOR_TRIGGER          = 8
 };
 
 enum CreatureIds
@@ -44,7 +47,9 @@ enum CreatureIds
 
     NPC_WATCHER_NARJIL              = 28729,
     NPC_WATCHER_GASHRA              = 28730,
-    NPC_WATCHER_SILTHIK             = 28731
+    NPC_WATCHER_SILTHIK             = 28731,
+
+    NPC_WORLD_TRIGGER_LARGE_AOI     = 23472
 };
 
 enum GameObjectIds
