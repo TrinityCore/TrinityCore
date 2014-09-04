@@ -164,7 +164,13 @@ public:
     {
         npc_arugal_voidwalkerAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiDarkOffering = urand(200, 1000);
         }
 
         InstanceScript* instance;
@@ -173,7 +179,7 @@ public:
 
         void Reset() override
         {
-            uiDarkOffering = urand(200, 1000);
+            Initialize();
         }
 
         void UpdateAI(uint32 uiDiff) override

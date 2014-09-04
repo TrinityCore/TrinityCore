@@ -48,7 +48,20 @@ public:
 
     struct boss_rasfrostAI : public ScriptedAI
     {
-        boss_rasfrostAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_rasfrostAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            IceArmor_Timer = 2000;
+            Frostbolt_Timer = 8000;
+            ChillNova_Timer = 12000;
+            Freeze_Timer = 18000;
+            FrostVolley_Timer = 24000;
+            Fear_Timer = 45000;
+        }
 
         uint32 IceArmor_Timer;
         uint32 Frostbolt_Timer;
@@ -59,12 +72,7 @@ public:
 
         void Reset() override
         {
-            IceArmor_Timer = 2000;
-            Frostbolt_Timer = 8000;
-            ChillNova_Timer = 12000;
-            Freeze_Timer = 18000;
-            FrostVolley_Timer = 24000;
-            Fear_Timer = 45000;
+            Initialize();
 
             DoCast(me, SPELL_ICEARMOR, true);
         }

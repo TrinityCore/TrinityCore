@@ -49,7 +49,16 @@ public:
     {
         boss_baroness_anastariAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = me->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            BansheeWail_Timer = 1000;
+            BansheeCurse_Timer = 11000;
+            Silence_Timer = 13000;
+            //Possess_Timer = 35000;
         }
 
         InstanceScript* instance;
@@ -61,10 +70,7 @@ public:
 
         void Reset() override
         {
-            BansheeWail_Timer = 1000;
-            BansheeCurse_Timer = 11000;
-            Silence_Timer = 13000;
-            //Possess_Timer = 35000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override
