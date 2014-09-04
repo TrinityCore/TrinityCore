@@ -65,7 +65,9 @@ enum CreatureIds
     NPC_ILLIDARI_COUNCIL            = 23426,
     NPC_BLOOD_ELF_COUNCIL_VOICE     = 23499,
 
-    NPC_ILLIDAN_STORMRAGE           = 22917
+    NPC_ILLIDAN_STORMRAGE           = 22917,
+
+    NPC_SUPREMUS_VOLCANO            = 23085
 };
 
 enum GameObjectIds
