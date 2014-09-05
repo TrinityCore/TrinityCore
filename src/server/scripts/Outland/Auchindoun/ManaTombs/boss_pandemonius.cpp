@@ -25,18 +25,26 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "mana_tombs.h"
 
-enum Pandemonius
+enum Texts
 {
     SAY_AGGRO                       = 0,
     SAY_KILL                        = 1,
     SAY_DEATH                       = 2,
-    EMOTE_DARK_SHELL                = 3,
+    EMOTE_DARK_SHELL                = 3
+};
 
-    SPELL_VOID_BLAST                = 32325,
-    H_SPELL_VOID_BLAST              = 38760,
-    SPELL_DARK_SHELL                = 32358,
-    H_SPELL_DARK_SHELL              = 38759
+enum Spells
+{
+    SPELL_VOID_BLAST = 32325,
+    SPELL_DARK_SHELL = 32358
+};
+
+enum Events
+{
+    EVENT_VOID_BLAST = 1,
+    EVENT_DARK_SHELL
 };
 
 
@@ -45,26 +53,17 @@ class boss_pandemonius : public CreatureScript
 public:
     boss_pandemonius() : CreatureScript("boss_pandemonius") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    struct boss_pandemoniusAI : public BossAI
     {
-        return new boss_pandemoniusAI(creature);
-    }
-
-    struct boss_pandemoniusAI : public ScriptedAI
-    {
-        boss_pandemoniusAI(Creature* creature) : ScriptedAI(creature)
+        boss_pandemoniusAI(Creature* creature) : BossAI(creature, DATA_PANDEMONIUS)
         {
+            VoidBlastCounter = 0;
         }
-
-        uint32 VoidBlast_Timer;
-        uint32 DarkShell_Timer;
-        uint32 VoidBlast_Counter;
 
         void Reset() override
         {
-            VoidBlast_Timer = 8000 + rand32() % 15000;
-            DarkShell_Timer = 20000;
-            VoidBlast_Counter = 0;
+            _Reset();
+            VoidBlastCounter = 0;
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -79,48 +78,54 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
+            _EnterCombat();
             Talk(SAY_AGGRO);
+            events.ScheduleEvent(EVENT_DARK_SHELL, 20000);
+            events.ScheduleEvent(EVENT_VOID_BLAST, urand(8000, 23000));
         }
 
-        void UpdateAI(uint32 diff) override
+        void ExecuteEvent(uint32 eventId) override
         {
-            if (!UpdateVictim())
-                return;
-
-            if (VoidBlast_Timer <= diff)
+            switch (eventId)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                {
-                    DoCast(target, SPELL_VOID_BLAST);
-                    VoidBlast_Timer = 500;
-                    ++VoidBlast_Counter;
-                }
+                case EVENT_VOID_BLAST:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    {
+                        DoCast(target, SPELL_VOID_BLAST);
+                        ++VoidBlastCounter;
+                    }
 
-                if (VoidBlast_Counter == 5)
-                {
-                    VoidBlast_Timer = 15000 + rand32() % 10000;
-                    VoidBlast_Counter = 0;
-                }
-            } else VoidBlast_Timer -= diff;
-
-            if (!VoidBlast_Counter)
-            {
-                if (DarkShell_Timer <= diff)
-                {
+                    if (VoidBlastCounter == 5)
+                    {
+                        VoidBlastCounter = 0;
+                        events.ScheduleEvent(EVENT_VOID_BLAST, urand(15000, 25000));
+                    }
+                    else
+                    {
+                        events.ScheduleEvent(EVENT_VOID_BLAST, 500);
+                        events.DelayEvents(EVENT_DARK_SHELL, 500);
+                    }
+                    break;
+                case EVENT_DARK_SHELL:
                     if (me->IsNonMeleeSpellCast(false))
                         me->InterruptNonMeleeSpells(true);
-
                     Talk(EMOTE_DARK_SHELL);
-
                     DoCast(me, SPELL_DARK_SHELL);
-                    DarkShell_Timer = 20000;
-                } else DarkShell_Timer -= diff;
+                    events.ScheduleEvent(EVENT_DARK_SHELL, 20000);
+                    break;
+                default:
+                    break;
             }
-
-            DoMeleeAttackIfReady();
         }
+
+        private:
+            uint32 VoidBlastCounter;
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetManaTombsAI<boss_pandemoniusAI>(creature);
+    }
 };
 
 void AddSC_boss_pandemonius()
