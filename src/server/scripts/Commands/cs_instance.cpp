@@ -216,7 +216,9 @@ public:
         {
             value = atoi(param2);
             field = atoi(param1);
-            target = handler->GetSession()->GetPlayer();
+            
+            if (handler->GetSession())
+                target = handler->GetSession()->GetPlayer();
         }
         else
         {
@@ -275,8 +277,6 @@ public:
 
         std::string playerName;
         std::string output;
-
-        char* player_str = strtok((char*)args, "'");
 
         if (!param1)
         {
