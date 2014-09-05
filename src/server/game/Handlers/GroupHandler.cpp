@@ -582,8 +582,12 @@ void WorldSession::HandleGroupSetRolesOpcode(WorldPacket& recvData)
     data.WriteByteSeq(guid1[1]);
     data << uint32(0);                  // Old Role
 
-    if (GetPlayer()->GetGroup())
-        GetPlayer()->GetGroup()->BroadcastPacket(&data, false);
+    if (Group* group = GetPlayer()->GetGroup())
+    {
+        /// @todo probably should be sent only if (oldRole != newRole)
+        group->BroadcastPacket(&data, false);
+        group->SetLfgRoles(guid2, newRole);
+    }
     else
         SendPacket(&data);
 }
@@ -1391,4 +1395,41 @@ void WorldSession::HandleOptOutOfLootOpcode(WorldPacket& recvData)
     }
 
     GetPlayer()->SetPassOnGroupLoot(passOnLoot != 0);
+}
+
+void WorldSession::HandleRolePollBeginOpcode(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_ROLE_POLL_BEGIN");
+
+    Group* group = GetPlayer()->GetGroup();
+    if (!group)
+        return;
+
+    if (recvData.empty())
+    {
+        if (!group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()))
+            return;
+
+        ObjectGuid guid = GetPlayer()->GetGUID();
+
+        WorldPacket data(SMSG_ROLE_POLL_BEGIN, 8);
+        data.WriteBit(guid[1]);
+        data.WriteBit(guid[5]);
+        data.WriteBit(guid[7]);
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[2]);
+        data.WriteBit(guid[4]);
+        data.WriteBit(guid[0]);
+        data.WriteBit(guid[6]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[3]);
+
+        GetPlayer()->GetGroup()->BroadcastPacket(&data, true);
+    }
 }
