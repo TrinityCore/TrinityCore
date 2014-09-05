@@ -2025,14 +2025,14 @@ void World::Update(uint32 diff)
     // playerbot mod
     sRandomPlayerbotMgr.UpdateAI(diff);
     sRandomPlayerbotMgr.UpdateSessions(diff);
-    // end of playerbot mod
 
     /// <li> Handle AHBot operations
-    if (m_timers[WUPDATE_AHBOT].Passed())
-    {
-        sAuctionBot->Update();
-        m_timers[WUPDATE_AHBOT].Reset();
-    }
+    // if (m_timers[WUPDATE_AHBOT].Passed())
+    //{
+    //    sAuctionBot->Update();
+    //    m_timers[WUPDATE_AHBOT].Reset();
+    //}
+    // end of playerbot mod
 
     /// <li> Handle session updates when the timer has passed
     RecordTimeDiff(NULL);
