@@ -1178,6 +1178,5 @@ enum TrinityStrings
     //custom on TW
     LANG_NOT_ONLINE                     = 11500,
     LANG_LOOKUP_ONLINE                  = 11501,
-    LANG_COMMAND_TICKETCOMPLETED        = 11502,
 };
 #endif
