@@ -43,8 +43,8 @@ public:
             { "unbind",    rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,    false, &HandleInstanceUnbindCommand,       "", NULL },
             { "stats",     rbac::RBAC_PERM_COMMAND_INSTANCE_STATS,     true,  &HandleInstanceStatsCommand,        "", NULL },
             { "savedata",  rbac::RBAC_PERM_COMMAND_INSTANCE_SAVEDATA,  false, &HandleInstanceSaveDataCommand,     "", NULL },
-            { "setdata",   rbac::RBAC_PERM_COMMAND_INSTANCE_SETDATA,   false, &HandleInstanceSetDataCommand,      "", NULL },
-            { "getdata",   rbac::RBAC_PERM_COMMAND_INSTANCE_GETDATA,   false, &HandleInstanceGetDataCommand,      "", NULL },
+            { "setdata",   rbac::RBAC_PERM_COMMAND_INSTANCE_SETDATA,   true, &HandleInstanceSetDataCommand,      "", NULL },
+            { "getdata",   rbac::RBAC_PERM_COMMAND_INSTANCE_GETDATA,   true, &HandleInstanceGetDataCommand,      "", NULL },
             { NULL,        0,                                          false, NULL,                               "", NULL }
         };
 
@@ -194,8 +194,47 @@ public:
         if (!*args)
             return false;
 
-        Player* player = handler->GetSession()->GetPlayer();
-        Map* map = player->GetMap();
+        char* param1 = strtok((char*)args, " ");
+        char* param2 = strtok(NULL, " ");
+        char* param3 = strtok(NULL, " ");
+
+        int32 field = 0;
+        int32 value = 0;
+
+        Player* target;
+
+        std::string playerName;
+
+        if (!param2 || !param1)
+        {
+            handler->PSendSysMessage("Missing parameters.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!param3)
+        {
+            value = atoi(param2);
+            field = atoi(param1);
+            target = handler->GetSession()->GetPlayer();
+        }
+        else
+        {
+            value = atoi(param2);
+            field = atoi(param1);
+            playerName = param3;
+            if (normalizePlayerName(playerName))
+                target = sObjectAccessor->FindPlayerByName(playerName);
+        }
+
+        if (!target)
+        {
+            handler->PSendSysMessage("Player not found.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Map* map = target->GetMap();
         if (!map->IsDungeon())
         {
             handler->PSendSysMessage("Map is not a dungeon.");
@@ -209,15 +248,6 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
-        char* field_str = strtok((char*) args, " ");
-        char* value_str = strtok(NULL, "");
-
-        if (!field_str || !value_str)
-            return false;
-
-        int32 field = atoi(field_str);
-        int32 value = atoi(value_str);
 
         if (value > 5)
         {
@@ -236,8 +266,46 @@ public:
         if (!*args)
             return false;
 
-        Player* player = handler->GetSession()->GetPlayer();
-        Map* map = player->GetMap();
+        char* param1 = strtok((char*)args, " ");
+        char* param2 = strtok(NULL, " ");
+
+        int32 field = 0;
+
+        Player* target;
+
+        std::string playerName;
+        std::string output;
+
+        char* player_str = strtok((char*)args, "'");
+
+        if (!param1)
+        {
+            handler->PSendSysMessage("Missing parameters.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!param2)
+        {
+            field = atoi(param1);
+            target = handler->GetSession()->GetPlayer();
+        }
+        else
+        {
+            field = atoi(param1);
+            playerName = param2;
+            if (normalizePlayerName(playerName))
+                target = sObjectAccessor->FindPlayerByName(playerName);
+        }
+
+        if (!target)
+        {
+            handler->PSendSysMessage("Player not found.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Map* map = target->GetMap();
         if (!map->IsDungeon())
         {
             handler->PSendSysMessage("Map is not a dungeon.");
@@ -252,10 +320,7 @@ public:
             return false;
         }
 
-        int32 field = atoi (args);
-
         int32 value = ((InstanceMap*)map)->GetInstanceScript()->GetBossState(field);
-        std::string output;
 
         // Funky way to do this - improve if you can!
         switch (value)
@@ -279,7 +344,6 @@ public:
                 output = "5 - (TO_BE_DECIDED)";
                 break;
             default: 
-                output = "Unknown";
                 break;
         }
 
