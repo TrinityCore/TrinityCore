@@ -15,5 +15,7 @@ if(TOOLS)
   add_subdirectory(tools)
 endif(TOOLS)
 
-add_subdirectory(test)
+if(TESTS)
+  add_subdirectory(test)
+endif(TESTS)
 
