@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Shadowmoon_Valley
 SD%Complete: 100
-SDComment: Quest support: 10519, 10583, 10601, 10804, 10854, 10458, 10481, 10480, 10781, 10451. Vendor Drake Dealer Hurlunk.
+SDComment: Quest support: 10583, 10601, 10804, 10854, 10458, 10481, 10480, 10781, 10451. Vendor Drake Dealer Hurlunk.
 SDCategory: Shadowmoon Valley
 EndScriptData */
 
@@ -29,7 +29,6 @@ npc_enslaved_netherwing_drake
 npc_drake_dealer_hurlunk
 npcs_flanis_swiftwing_and_kagrosh
 npc_karynaku
-npc_oronok_tornheart
 npc_overlord_morghor
 npc_earthmender_wilda
 npc_torloth_the_magnificent
@@ -492,81 +491,6 @@ public:
 };
 
 /*######
-## npc_oronok
-######*/
-
-#define GOSSIP_ORONOK1 "I am ready to hear your story, Oronok."
-#define GOSSIP_ORONOK2 "How do I find the cipher?"
-#define GOSSIP_ORONOK3 "How do you know all of this?"
-#define GOSSIP_ORONOK4 "Yet what? What is it, Oronok?"
-#define GOSSIP_ORONOK5 "Continue, please."
-#define GOSSIP_ORONOK6 "So what of the cipher now? And your boys?"
-#define GOSSIP_ORONOK7 "I will find your boys and the cipher, Oronok."
-
-class npc_oronok_tornheart : public CreatureScript
-{
-public:
-    npc_oronok_tornheart() : CreatureScript("npc_oronok_tornheart") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_TRADE:
-                player->GetSession()->SendListInventory(creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF:
-                player->ADD_GOSSIP_ITEM(0, GOSSIP_ORONOK2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                player->SEND_GOSSIP_MENU(10313, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(0, GOSSIP_ORONOK3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                player->SEND_GOSSIP_MENU(10314, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                player->ADD_GOSSIP_ITEM(0, GOSSIP_ORONOK4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                player->SEND_GOSSIP_MENU(10315, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+3:
-                player->ADD_GOSSIP_ITEM(0, GOSSIP_ORONOK5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                player->SEND_GOSSIP_MENU(10316, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+4:
-                player->ADD_GOSSIP_ITEM(0, GOSSIP_ORONOK6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-                player->SEND_GOSSIP_MENU(10317, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+5:
-                player->ADD_GOSSIP_ITEM(0, GOSSIP_ORONOK7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
-                player->SEND_GOSSIP_MENU(10318, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+6:
-                player->CLOSE_GOSSIP_MENU();
-                player->AreaExploredOrEventHappens(10519);
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-        if (creature->IsVendor())
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
-        if (player->GetQuestStatus(10519) == QUEST_STATUS_INCOMPLETE)
-        {
-            player->ADD_GOSSIP_ITEM(0, GOSSIP_ORONOK1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            player->SEND_GOSSIP_MENU(10312, creature->GetGUID());
-        }else
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-};
-
-/*####
 # npc_karynaku
 ####*/
 
@@ -1909,7 +1833,6 @@ void AddSC_shadowmoon_valley()
     new npc_drake_dealer_hurlunk();
     new npcs_flanis_swiftwing_and_kagrosh();
     new npc_karynaku();
-    new npc_oronok_tornheart();
     new npc_overlord_morghor();
     new npc_earthmender_wilda();
     new npc_lord_illidan_stormrage();
