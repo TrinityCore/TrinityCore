@@ -726,6 +726,27 @@ void Battleground::EndBattleground(uint32 winner)
         SetWinner(BG_TEAM_NEUTRAL);
     }
 
+    if (isBattleground() && BattlegroundMgr::IsBGWeekend(GetTypeID()) && !IsRandom() && (winner == ALLIANCE || winner == HORDE))
+    {
+        switch (GetTypeID())
+        {
+            case BATTLEGROUND_AB:
+                CastSpellOnTeam(SPELL_AB_QUEST_REWARD, winner);
+                break;
+            case BATTLEGROUND_AV:
+                CastSpellOnTeam(SPELL_AV_QUEST_REWARD, winner);
+                break;
+            case BATTLEGROUND_EY:
+                CastSpellOnTeam(SPELL_EY_QUEST_REWARD, winner);
+                break;
+            case BATTLEGROUND_WS:
+                CastSpellOnTeam(SPELL_WS_QUEST_REWARD, winner);
+                break;
+            default:
+                break;
+        }
+    }
+
     PreparedStatement* stmt = nullptr;
     uint64 battlegroundId = 1;
     if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
