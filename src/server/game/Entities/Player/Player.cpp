@@ -5848,13 +5848,13 @@ float Player::OCTRegenMPPerSpirit()
 
 void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
 {
+    float oldRating = m_baseRatingValue[cr];
     m_baseRatingValue[cr] += (apply ? value : -value);
 
     // explicit affected values
     float const mult = GetRatingMultiplier(cr);
-    float const oldVal = m_baseRatingValue[cr] * mult;
+    float const oldVal = oldRating * mult;
     float const newVal = m_baseRatingValue[cr] * mult;
-
     switch (cr)
     {
         case CR_HASTE_MELEE:
@@ -5862,6 +5862,8 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
             ApplyAttackTimePercentMod(OFF_ATTACK, oldVal, false);
             ApplyAttackTimePercentMod(BASE_ATTACK, newVal, true);
             ApplyAttackTimePercentMod(OFF_ATTACK, newVal, true);
+            if (getClass() == CLASS_DEATH_KNIGHT)
+                UpdateAllRunesRegen();
             break;
         case CR_HASTE_RANGED:
             ApplyAttackTimePercentMod(RANGED_ATTACK, oldVal, false);
