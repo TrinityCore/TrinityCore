@@ -35,7 +35,9 @@ enum Data32
 enum Data64
 {
     DATA_ONYXIA_GUID            = 0,
-    DATA_FLOOR_ERUPTION_GUID    = 1
+    DATA_FLOOR_ERUPTION_GUID    = 1,
+    DATA_TRIGGER_GUID           = 2,
+    DATA_TANK_GUID              = 3
 };
 
 enum OnyxiaPhases
@@ -49,7 +51,8 @@ enum CreatureIds
 {
     NPC_WHELP                   = 11262,
     NPC_LAIRGUARD               = 36561,
-    NPC_ONYXIA                  = 10184
+    NPC_ONYXIA                  = 10184,
+    NPC_TRIGGER                 = 14495
 };
 
 enum GameObjectIds
