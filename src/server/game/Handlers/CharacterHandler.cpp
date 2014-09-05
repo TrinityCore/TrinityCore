@@ -128,7 +128,7 @@ void PlayerbotHolder::AddPlayerBot(uint64 playerGuid, uint32 masterAccount)
     else if (masterSession)
     {
         ChatHandler ch(masterSession);
-        ch.PSendSysMessage("You are not allowed to control bot %s...", bot->GetName());
+        ch.PSendSysMessage("You are not allowed to control bot %s...", bot->GetName().c_str());
         LogoutPlayerBot(bot->GetGUID());
     }
 }

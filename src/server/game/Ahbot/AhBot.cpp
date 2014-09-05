@@ -8,8 +8,8 @@
 #include "../AuctionHouse/AuctionHouseMgr.h"
 #include "../WorldSession.h"
 #include "../../game/Entities/Player/Player.h"
-#include "../playerbot/PlayerbotAIConfig.h"
-#include "../playerbot/playerbot.h"
+#include "../Playerbot/PlayerbotAIConfig.h"
+#include "../Playerbot/playerbot.h"
 
 using namespace ahbot;
 
@@ -179,7 +179,7 @@ vector<AuctionEntry*> AhBot::LoadAuctions(AuctionHouseObject* auctionHouse,
         if (!price || !item->GetCount())
         {
             sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "%s (x%d) in auction %d: price cannot be determined",
-                    item->GetTemplate()->Name1, item->GetCount(), auctionIds[auction]);
+                    item->GetTemplate()->Name1.c_str(), item->GetCount(), auctionIds[auction]);
             continue;
         }
 
@@ -244,7 +244,7 @@ int AhBot::Answer(int auction, Category* category, ItemBag* inAuctionItems)
         if (find(items.begin(), items.end(), proto->ItemId) == items.end())
         {
             sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "%s (x%d) in auction %d: unavailable item",
-                    item->GetTemplate()->Name1, item->GetCount(), auctionIds[auction]);
+                    item->GetTemplate()->Name1.c_str(), item->GetCount(), auctionIds[auction]);
             continue;
         }
 
@@ -253,14 +253,14 @@ int AhBot::Answer(int auction, Category* category, ItemBag* inAuctionItems)
         if (maxAnswerCount && answerCount > maxAnswerCount)
         {
             sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "%s (x%d) in auction %d: answer count %d > %d (max)",
-                    item->GetTemplate()->Name1, item->GetCount(), auctionIds[auction], answerCount, maxAnswerCount);
+                    item->GetTemplate()->Name1.c_str(), item->GetCount(), auctionIds[auction], answerCount, maxAnswerCount);
             continue;
         }
 
         if (proto->RequiredLevel > sAhBotConfig.maxRequiredLevel || proto->ItemLevel > sAhBotConfig.maxItemLevel)
         {
             sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "%s (x%d) in auction %d: above max required or item level",
-                    item->GetTemplate()->Name1, item->GetCount(), auctionIds[auction]);
+                    item->GetTemplate()->Name1.c_str(), item->GetCount(), auctionIds[auction]);
             continue;
         }
 
@@ -268,7 +268,7 @@ int AhBot::Answer(int auction, Category* category, ItemBag* inAuctionItems)
         if (!price)
         {
             sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "%s (x%d) in auction %d: cannot determine price",
-                    item->GetTemplate()->Name1, item->GetCount(), auctionIds[auction]);
+                    item->GetTemplate()->Name1.c_str(), item->GetCount(), auctionIds[auction]);
             continue;
         }
 
@@ -282,14 +282,14 @@ int AhBot::Answer(int auction, Category* category, ItemBag* inAuctionItems)
         if (curPrice > buyoutPrice)
         {
             sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "%s (x%d) in auction %d: price %d > %d (buyout price)",
-                    proto->Name1, item->GetCount(), auctionIds[auction], curPrice, buyoutPrice);
+                    proto->Name1.c_str(), item->GetCount(), auctionIds[auction], curPrice, buyoutPrice);
             continue;
         }
 
         if (availableMoney < curPrice)
         {
             sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "%s (x%d) in auction %d: price %d > %d (available money)",
-                    proto->Name1, item->GetCount(), auctionIds[auction], curPrice, availableMoney);
+                    proto->Name1.c_str(), item->GetCount(), auctionIds[auction], curPrice, availableMoney);
             continue;
         }
 
@@ -299,14 +299,14 @@ int AhBot::Answer(int auction, Category* category, ItemBag* inAuctionItems)
         if (minBid && entry->bid && minBid < entry->bid)
         {
             sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "%s (x%d) in auction %d: %d (bid) > %d (minBid)",
-                    proto->Name1, item->GetCount(), auctionIds[auction], entry->bid, minBid);
+                    proto->Name1.c_str(), item->GetCount(), auctionIds[auction], entry->bid, minBid);
             continue;
         }
 
         if (minBid && entry->startbid && minBid < entry->startbid)
         {
             sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "%s (x%d) in auction %d: %d (startbid) > %d (minBid)",
-                    proto->Name1, item->GetCount(), auctionIds[auction], entry->startbid, minBid);
+                    proto->Name1.c_str(), item->GetCount(), auctionIds[auction], entry->startbid, minBid);
             continue;
         }
 
@@ -315,7 +315,7 @@ int AhBot::Answer(int auction, Category* category, ItemBag* inAuctionItems)
         if (time(0) < buytime)
         {
             sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "%s (x%d) in auction %d: will buy/bid in %d seconds",
-                    proto->Name1, item->GetCount(), auctionIds[auction], buytime - time(0));
+                    proto->Name1.c_str(), item->GetCount(), auctionIds[auction], buytime - time(0));
             continue;
         }
 
@@ -336,14 +336,14 @@ int AhBot::Answer(int auction, Category* category, ItemBag* inAuctionItems)
                 !(minBuyout && entry->buyout && minBuyout < entry->buyout))
         {
             sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "AhBot %d won %s (x%d) in auction %d for %d",
-                    bidder, item->GetTemplate()->Name1, item->GetCount(), auctionIds[auction], entry->buyout);
+                    bidder, item->GetTemplate()->Name1.c_str(), item->GetCount(), auctionIds[auction], entry->buyout);
 
             entry->bid = entry->buyout;
         }
         else
         {
             sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "AhBot %d placed bid %d for %s (x%d) in auction %d",
-                    bidder, entry->bid, item->GetTemplate()->Name1, item->GetCount(), auctionIds[auction]);
+                    bidder, entry->bid, item->GetTemplate()->Name1.c_str(), item->GetCount(), auctionIds[auction]);
 
             CharacterDatabase.PExecute("UPDATE auctionhouse SET buyguid = '%u',lastbid = '%u' WHERE id = '%u'",
                 entry->bidder, entry->bid, entry->Id);
@@ -468,13 +468,13 @@ int AhBot::AddAuctions(int auction, Category* category, ItemBag* inAuctionItems)
         if (time(0) < sellTime)
         {
             sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "%s in auction %d: will add in %d seconds",
-                    proto->Name1, auctionIds[auction], sellTime - time(0));
+                    proto->Name1.c_str(), auctionIds[auction], sellTime - time(0));
             continue;
         }
         else if (time(0) - sellTime > sAhBotConfig.maxSellInterval)
         {
             sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "%s in auction %d: too old (%d secs)",
-                    proto->Name1, auctionIds[auction], time(0) - sellTime);
+                    proto->Name1.c_str(), auctionIds[auction], time(0) - sellTime);
             continue;
         }
 
@@ -547,7 +547,7 @@ int AhBot::AddAuction(int auction, Category* category, ItemTemplate const* proto
     sAuctionMgr->AddAItem(item);
     auctionHouse->AddAuction(auctionEntry);
 
-    sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "AhBot %d added %d of %s to auction %d for %d..%d", owner, stackCount, proto->Name1, auctionIds[auction], bidPrice, buyoutPrice);
+    sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "AhBot %d added %d of %s to auction %d for %d..%d", owner, stackCount, proto->Name1.c_str(), auctionIds[auction], bidPrice, buyoutPrice);
     return 1;
 }
 

@@ -142,20 +142,20 @@ bool LfgJoinAction::JoinProposal()
         list.insert(idx[urand(0, idx.size() - 1)]);
         sLFGMgr->JoinLfg(bot, roles, list, "bot");
 
-        sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Bot %s joined to LFG_TYPE_RANDOM as %d", bot->GetName(), (uint32)roles);
+        sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Bot %s joined to LFG_TYPE_RANDOM as %d", bot->GetName().c_str(), (uint32)roles);
 		return true;
 	}
     else if (heroic)
 	{
-		sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Bot %s joined to LFG_TYPE_HEROIC_DUNGEON as %d", bot->GetName(), (uint32)roles);
+		sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Bot %s joined to LFG_TYPE_HEROIC_DUNGEON as %d", bot->GetName().c_str(), (uint32)roles);
 	}
     else if (raid)
 	{
-		sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Bot %s joined to LFG_TYPE_RAID as %d", bot->GetName(), (uint32)roles);
+		sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Bot %s joined to LFG_TYPE_RAID as %d", bot->GetName().c_str(), (uint32)roles);
 	}
     else
 	{
-		sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Bot %s joined to LFG_TYPE_DUNGEON as %d", bot->GetName(), (uint32)roles);
+		sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Bot %s joined to LFG_TYPE_DUNGEON as %d", bot->GetName().c_str(), (uint32)roles);
 	}
 
     sLFGMgr->JoinLfg(bot, roles, list, "bot");
@@ -182,7 +182,7 @@ bool LfgAcceptAction::Execute(Event event)
         if (urand(0, 1 + 10 / sPlayerbotAIConfig.randomChangeMultiplier))
             return false;
 
-        sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Bot %s updated proposal %d", bot->GetName(), id);
+        sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Bot %s updated proposal %d", bot->GetName().c_str(), id);
         ai->GetAiObjectContext()->GetValue<uint32>("lfg proposal")->Set(0);
         sLFGMgr->UpdateProposal(id, bot->GetGUID(), true);
 

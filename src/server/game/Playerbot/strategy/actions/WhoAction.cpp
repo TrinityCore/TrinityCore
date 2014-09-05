@@ -3,7 +3,7 @@
 #include "WhoAction.h"
 #include "../../AiFactory.h"
 #include "../ItemVisitors.h"
-#include "../../../ahbot/AhBot.h"
+#include "../../../Ahbot/AhBot.h"
 #include "../../RandomPlayerbotMgr.h"
 
 using namespace ai;

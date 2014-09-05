@@ -4,7 +4,7 @@
 
 #include "../../../Grids/Notifiers/GridNotifiers.h"
 #include "../../../Grids/Notifiers/GridNotifiersImpl.h"
-
+#include "../../../Grids/Cells/CellImpl.h"
 
 using namespace ai;
 using namespace Trinity;

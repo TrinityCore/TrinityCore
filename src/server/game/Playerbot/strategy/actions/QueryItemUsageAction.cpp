@@ -1,7 +1,7 @@
 #include "../../../pchdef.h"
 #include "../../playerbot.h"
 #include "QueryItemUsageAction.h"
-#include "../../../ahbot/AhBot.h"
+#include "../../../Ahbot/AhBot.h"
 #include "../../RandomPlayerbotMgr.h"
 
 

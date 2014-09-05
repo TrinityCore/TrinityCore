@@ -49,7 +49,7 @@
 #include "MoveSpline.h"
 
 // Playerbot mod
-#include "playerbot/playerbot.h"
+#include "../Playerbot/playerbot.h"
 
 namespace {
 

@@ -4,7 +4,7 @@
 
 #include "../../LootObjectStack.h"
 #include "../../PlayerbotAIConfig.h"
-#include "../../../ahbot/AhBot.h"
+#include "../../../Ahbot/AhBot.h"
 #include "../../RandomPlayerbotMgr.h"
 
 using namespace ai;

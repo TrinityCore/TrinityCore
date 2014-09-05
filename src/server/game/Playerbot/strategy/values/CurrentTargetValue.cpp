@@ -18,5 +18,5 @@ Unit* CurrentTargetValue::Get()
 
 void CurrentTargetValue::Set(Unit* target)
 {
-    selection = target ? target->GetGUID() : ObjectGuid();
+    selection = target ? target->GetGUID() : (uint64)0;
 }
