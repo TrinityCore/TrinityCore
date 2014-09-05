@@ -79,8 +79,8 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         if (CDATA.CMD == "LOGIN")
         {
             if (FROM == sIRC->_Nick)
-            {             
-                if (ParamsValid(&CDATA, 2))  
+            {
+                if (ParamsValid(&CDATA, 2))
                     Handle_Login(&CDATA);
                 else
                     sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"login <Player> <Password>)", true, "ERROR");
@@ -586,7 +586,7 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
             }
             cValid = true;
         }
-		else if (CDATA.CMD == "WHO")
+        else if (CDATA.CMD == "WHO")
         {
             switch(ParamsValid(&CDATA, 0, sIRC->CWHO))
             {
@@ -690,14 +690,14 @@ std::string IRCCmd::AcctIsBanned(std::string ACCT)
     if (result)
     {
         banned = (*result)[0].GetCString();
-        
+
         return "IP Banned. Reason:" + banned;
     }
     QueryResult result2 = LoginDatabase.PQuery("SELECT banreason FROM account_banned WHERE id='%i' AND active =1", acctid);
     if (result2)
     {
         banned = (*result2)[0].GetCString();
-        
+
         return "Account Banned. Reason:" + banned;
     }
     return banned;
@@ -763,7 +763,7 @@ std::string IRCCmd::GetAcctNameFromID(uint32 acctid)
     if (result)
     {
         std::string name = (*result)[0].GetCString();
-        
+
         return name;
     }
 
@@ -776,14 +776,14 @@ std::string IRCCmd::GetIPFromPlayer(std::string player)
     if (result)
     {
         std::string acctid = (*result)[0].GetCString();
-        
+
         QueryResult result2 = LoginDatabase.PQuery("SELECT last_ip FROM account WHERE id = '%s'", acctid.c_str());
         if (result2)
         {
             std::string ip = (*result2)[0].GetCString();
-            
+
             return ip;
-        }       
+        }
     }
 
     return "";

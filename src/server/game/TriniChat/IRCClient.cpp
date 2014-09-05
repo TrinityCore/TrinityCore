@@ -43,7 +43,7 @@ void IRCClient::run()
 {
     iLog.WriteLog(" %s : ****** TrinityCore With TriniChat Has Been Started ******", iLog.GetLogDateTimeStr().c_str());
 
-    // before we begin we wait a few 
+    // before we begin we wait a few
     // mangos is still starting up.
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     TC_LOG_ERROR("misc", "\n%s\n%s\n%s\n%s",

@@ -73,7 +73,7 @@ class IRCClient
             static IRCClient instance;
             return &instance;
         }
-        
+
         void run();
 
         // AH Function

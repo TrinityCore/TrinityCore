@@ -175,8 +175,8 @@ void IRCClient::Handle_IRC(std::string sData)
             if (CMD == "nick" && (sIRC->BOTMASK & 128) != 0)
             {
                 MakeMsg(MakeMsg(GetChatLine(CHANGE_NICK), "$Name", szUser), "$NewName", sData.substr(sData.find(":", p2) + 1));
-                // If the user is logged in and changes their nick 
-                // then we want to either log them out or update 
+                // If the user is logged in and changes their nick
+                // then we want to either log them out or update
                 // their nick in the bot. I chose to update the bots user list.
                 if (Command.IsLoggedIn(szUser))
                 {
@@ -193,7 +193,7 @@ void IRCClient::Handle_IRC(std::string sData)
                         {
                             (*i)->Name     = NewNick;
                             sIRC->Send_IRC_Channel(NewNick.c_str(), "I Noticed You Changed Your Nick, I Have Updated My Internal Database Accordingly.", true, "NOTICE");
-                            
+
                             // Figure why not output to the logfile, makes tracing problems easier.
                             sIRC->iLog.WriteLog(" %s : %s Changed Nick To: %s", sIRC->iLog.GetLogDateTimeStr().c_str(), szUser.c_str(), NewNick.c_str());
                         }
@@ -472,7 +472,7 @@ void IRCClient::ResetIRC()
 void IRCClient::AutoJoinChannel(Player *plr)
 {
     //this will work if at least 1 player is logged in regrdless if he is on the channel or not
-    // the first person that login empty server is the one with bad luck and wont be invited, 
+    // the first person that login empty server is the one with bad luck and wont be invited,
     // if at least 1 player is online the player will be inited to the chanel
 
     std::string m_name = sIRC->ajchan;

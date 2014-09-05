@@ -49,7 +49,7 @@ void mcs_OnlinePlayers::run()
 {
     int OnlineCount = 0;
     std::string IRCOut = "";
-	HashMapHolder<Player>::MapType const& m = sObjectAccessor->GetPlayers();
+    HashMapHolder<Player>::MapType const& m = sObjectAccessor->GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
     {
         if (itr->second && itr->second->GetSession()->GetPlayer() && itr->second->GetSession()->GetPlayer()->IsInWorld())
@@ -65,9 +65,9 @@ void mcs_OnlinePlayers::run()
                   case 3: ChatTag.append("\0037"+sIRC->ojGM3);break;
                   case 4: ChatTag.append("\0037"+sIRC->ojGM4);break;
                   case 5: ChatTag.append("\0037"+sIRC->ojGM5);break;
-		   case 6: ChatTag.append("\0037"+sIRC->ojGM6);break;
-		   case 7: ChatTag.append("\0037"+sIRC->ojGM7);break;
-		   case 8: ChatTag.append("\0037"+sIRC->ojGM8);break;
+           case 6: ChatTag.append("\0037"+sIRC->ojGM6);break;
+           case 7: ChatTag.append("\0037"+sIRC->ojGM7);break;
+           case 8: ChatTag.append("\0037"+sIRC->ojGM8);break;
             }
             if (plr->isAFK())
                 ChatTag.append("\002\0037<AFK>\003\002");

@@ -30,7 +30,7 @@ std::string GetUser(std::string szU)
 std::string Delink(std::string msg)
 {
     std::size_t pos;
-    
+
         while((pos = msg.find("|Htrade")) != std::string::npos)
     {
         std::size_t find1 = msg.find("|h", pos);
@@ -147,7 +147,7 @@ std::string IRCcol2WoW(std::string msg)
         for (int I=0; I < 3; I++)
         {
             while ((pos = msg.find(Checker[I])) != std::string::npos)
-            {    
+            {
                 msg.replace(pos, 1, "");
             }
         }
@@ -216,25 +216,25 @@ std::string MakeMsgP(int CLINE, std::string Msg, Player *plr)
         sMsg = sIRC->MakeMsg(sMsg, "$Tag", "");
     sMsg = sIRC->MakeMsg(sMsg, "$Level", MakeMsgA("%d", plr->getLevel()));
     if (plr->getClass() == 1)
-		sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\0035WR\003"));
-	else if (plr->getClass() == 2)
-		sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\00313PA\003"));
-	else if (plr->getClass() == 3)
-		sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\0033HU\003"));
-	else if (plr->getClass() == 4)
-		sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\00310RO\003"));
-	else if (plr->getClass() == 5)
-		sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\00314PR\003"));
-	else if (plr->getClass() == 6)
-		sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\0034DK\003"));
-	else if (plr->getClass() == 7)
-		sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\00312SH\003"));
-	else if (plr->getClass() == 8)
-		sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\00311MA\003"));
-	else if (plr->getClass() == 9)
-		sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\0036WL\003"));
-	else if (plr->getClass() == 11)
-		sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\0037DR\003"));
+        sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\0035WR\003"));
+    else if (plr->getClass() == 2)
+        sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\00313PA\003"));
+    else if (plr->getClass() == 3)
+        sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\0033HU\003"));
+    else if (plr->getClass() == 4)
+        sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\00310RO\003"));
+    else if (plr->getClass() == 5)
+        sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\00314PR\003"));
+    else if (plr->getClass() == 6)
+        sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\0034DK\003"));
+    else if (plr->getClass() == 7)
+        sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\00312SH\003"));
+    else if (plr->getClass() == 8)
+        sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\00311MA\003"));
+    else if (plr->getClass() == 9)
+        sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\0036WL\003"));
+    else if (plr->getClass() == 11)
+        sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\0037DR\003"));
     sMsg = Delink(sMsg);
     sMsg = WoWcol2IRC(sMsg);
     return sMsg;

@@ -73,7 +73,7 @@ class IRCCmd
     public:
         IRCCmd();
         ~IRCCmd();
-        
+
         void    Handle_Logout(_CDATA *CD);
         bool    IsLoggedIn(std::string USER);
         bool    IsValid(std::string USER, std::string FROM, std::string CHAT, std::string TYPE);
@@ -101,18 +101,18 @@ class IRCCmd
         void    Help_IRC(_CDATA *CD);
         void    Inchan_Server(_CDATA *CD);
         void    Info_Server(_CDATA *CD);
-		void	Item_Player(_CDATA *CD);
+        void    Item_Player(_CDATA *CD);
         void    Jail_Player(_CDATA *CD);
         void    Kick_Player(_CDATA *CD);
         void    Kill_Player(_CDATA *CD);
         void    Player_Player(_CDATA *CD);
         void    Lookup_Player(_CDATA *CD);
-		void    Level_Player(_CDATA *CD);
+        void    Level_Player(_CDATA *CD);
         void    Money_Player(_CDATA *CD);
         void    Mute_Player(_CDATA *CD);
         void    Online_Players(_CDATA *CD);
         void    PM_Player(_CDATA *CD);
-		void    Restart_Trinity(_CDATA *CD);
+        void    Restart_Trinity(_CDATA *CD);
         void    Revive_Player(_CDATA *CD);
         void    Saveall_Player(_CDATA *CD);
         void    Server(_CDATA *CD);
