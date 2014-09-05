@@ -55,7 +55,15 @@ public:
     {
         boss_interrogator_vishasAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = me->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            ShadowWordPain_Timer = 5000;
+            Yell60 = false;
+            Yell30 = false;
         }
 
         InstanceScript* instance;
@@ -66,9 +74,7 @@ public:
 
         void Reset() override
         {
-            ShadowWordPain_Timer = 5000;
-            Yell60 = false;
-            Yell30 = false;
+            Initialize();
             instance->SetBossState(DATA_INTERROGATOR_VISHAS, NOT_STARTED);
         }
 

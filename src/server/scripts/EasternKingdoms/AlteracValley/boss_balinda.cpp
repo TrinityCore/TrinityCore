@@ -20,27 +20,32 @@
 
 enum Spells
 {
-    SPELL_ARCANE_EXPLOSION                        = 46608,
-    SPELL_CONE_OF_COLD                            = 38384,
-    SPELL_FIREBALL                                = 46988,
-    SPELL_FROSTBOLT                               = 46987
+    SPELL_ARCANE_EXPLOSION                  = 46608,
+    SPELL_CONE_OF_COLD                      = 38384,
+    SPELL_FIREBALL                          = 46988,
+    SPELL_FROSTBOLT                         = 46987
 };
 
 enum Yells
 {
-    YELL_AGGRO                                   = 0,
-    YELL_EVADE                                   = 1,
-    YELL_SALVATION                               = 2,
+    YELL_AGGRO                              = 0,
+    YELL_EVADE                              = 1,
+    YELL_SALVATION                          = 2,
 };
 
 enum Creatures
 {
-    NPC_WATER_ELEMENTAL                           = 25040
+    NPC_WATER_ELEMENTAL                     = 25040
+};
+
+enum Action
+{
+    ACTION_BUFF_YELL                        = -30001 // shared from Battleground
 };
 
 enum WaterElementalSpells
 {
-    SPELL_WATERBOLT                               = 46983
+    SPELL_WATERBOLT                         = 46983
 };
 
 class npc_water_elemental : public CreatureScript
@@ -105,7 +110,20 @@ public:
 
     struct boss_balindaAI : public ScriptedAI
     {
-        boss_balindaAI(Creature* creature) : ScriptedAI(creature), summons(me) { }
+        boss_balindaAI(Creature* creature) : ScriptedAI(creature), summons(me)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            arcaneExplosionTimer = urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
+            coneOfColdTimer = 8 * IN_MILLISECONDS;
+            fireBoltTimer = 1 * IN_MILLISECONDS;
+            frostboltTimer = 4 * IN_MILLISECONDS;
+            resetTimer = 5 * IN_MILLISECONDS;
+            waterElementalTimer = 0;
+        }
 
         uint32 arcaneExplosionTimer;
         uint32 coneOfColdTimer;
@@ -118,12 +136,7 @@ public:
 
         void Reset() override
         {
-            arcaneExplosionTimer      = urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
-            coneOfColdTimer           = 8 * IN_MILLISECONDS;
-            fireBoltTimer             = 1 * IN_MILLISECONDS;
-            frostboltTimer            = 4 * IN_MILLISECONDS;
-            resetTimer                = 5 * IN_MILLISECONDS;
-            waterElementalTimer       = 0;
+            Initialize();
 
             summons.DespawnAll();
         }
@@ -149,6 +162,12 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             summons.DespawnAll();
+        }
+
+        void DoAction(int32 actionId) override
+        {
+            if (actionId == ACTION_BUFF_YELL)
+                Talk(YELL_AGGRO);
         }
 
         void UpdateAI(uint32 diff) override

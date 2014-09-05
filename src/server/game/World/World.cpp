@@ -23,6 +23,7 @@
 #include "World.h"
 #include "AchievementMgr.h"
 #include "ArenaTeamMgr.h"
+#include "AuctionHouseBot.h"
 #include "AuctionHouseMgr.h"
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
@@ -1026,6 +1027,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_BATTLEGROUND_CAST_DESERTER]                = sConfigMgr->GetBoolDefault("Battleground.CastDeserter", true);
     m_bool_configs[CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE]       = sConfigMgr->GetBoolDefault("Battleground.QueueAnnouncer.Enable", false);
     m_bool_configs[CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_PLAYERONLY]   = sConfigMgr->GetBoolDefault("Battleground.QueueAnnouncer.PlayerOnly", false);
+    m_bool_configs[CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE]      = sConfigMgr->GetBoolDefault("Battleground.StoreStatistics.Enable", false);
     m_int_configs[CONFIG_BATTLEGROUND_INVITATION_TYPE]               = sConfigMgr->GetIntDefault ("Battleground.InvitationType", 0);
     m_int_configs[CONFIG_BATTLEGROUND_PREMATURE_FINISH_TIMER]        = sConfigMgr->GetIntDefault ("Battleground.PrematureFinishTimer", 5 * MINUTE * IN_MILLISECONDS);
     m_int_configs[CONFIG_BATTLEGROUND_PREMADE_GROUP_WAIT_FOR_MATCH]  = sConfigMgr->GetIntDefault ("Battleground.PremadeGroupWaitForMatch", 30 * MINUTE * IN_MILLISECONDS);
@@ -1258,6 +1260,9 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_BIRTHDAY_TIME] = sConfigMgr->GetIntDefault("BirthdayTime", 1222964635);
 
     m_bool_configs[CONFIG_IP_BASED_ACTION_LOGGING] = sConfigMgr->GetBoolDefault("Allow.IP.Based.Action.Logging", false);
+
+    // AHBot
+    m_int_configs[CONFIG_AHBOT_UPDATE_INTERVAL] = sConfigMgr->GetIntDefault("AuctionHouseBot.Update.Interval", 20);
 
     // call ScriptMgr if we're reloading the configuration
     if (reload)
@@ -1744,6 +1749,9 @@ void World::SetInitialWorldSettings()
     m_timers[WUPDATE_AUTOBROADCAST].SetInterval(getIntConfig(CONFIG_AUTOBROADCAST_INTERVAL));
     m_timers[WUPDATE_DELETECHARS].SetInterval(DAY*IN_MILLISECONDS); // check for chars to delete every day
 
+    // for AhBot
+    m_timers[WUPDATE_AHBOT].SetInterval(getIntConfig(CONFIG_AHBOT_UPDATE_INTERVAL) * IN_MILLISECONDS); // every 20 sec
+
     m_timers[WUPDATE_PINGDB].SetInterval(getIntConfig(CONFIG_DB_PING_INTERVAL)*MINUTE*IN_MILLISECONDS);    // Mysql ping time in minutes
 
     //to set mailtimer to return mails every day between 4 and 5 am
@@ -1770,6 +1778,9 @@ void World::SetInitialWorldSettings()
 
     // Delete all characters which have been deleted X days before
     Player::DeleteOldCharacters();
+
+    TC_LOG_INFO("server.loading", "Initialize AuctionHouseBot...");
+    sAuctionBot->Initialize();
 
     // Delete all custom channels which haven't been used for PreserveCustomChannelDuration days.
     Channel::CleanOldChannelsInDB();
@@ -2015,6 +2026,13 @@ void World::Update(uint32 diff)
     sRandomPlayerbotMgr.UpdateAI(diff);
     sRandomPlayerbotMgr.UpdateSessions(diff);
     // end of playerbot mod
+
+    /// <li> Handle AHBot operations
+    if (m_timers[WUPDATE_AHBOT].Passed())
+    {
+        sAuctionBot->Update();
+        m_timers[WUPDATE_AHBOT].Reset();
+    }
 
     /// <li> Handle session updates when the timer has passed
     RecordTimeDiff(NULL);
@@ -2552,7 +2570,7 @@ void World::_UpdateGameTime()
 }
 
 /// Shutdown the server
-void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode)
+void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std::string& reason)
 {
     // ignore if server shutdown at next tick
     if (IsStopped())
@@ -2573,7 +2591,7 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode)
     else
     {
         m_ShutdownTimer = time;
-        ShutdownMsg(true);
+        ShutdownMsg(true, nullptr, reason);
     }
 
     // playerbot mod
@@ -2584,7 +2602,7 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode)
 }
 
 /// Display a shutdown message to the user(s)
-void World::ShutdownMsg(bool show, Player* player)
+void World::ShutdownMsg(bool show, Player* player, const std::string& reason)
 {
     // not show messages for idle shutdown mode
     if (m_ShutdownMask & SHUTDOWN_MASK_IDLE)
@@ -2599,6 +2617,8 @@ void World::ShutdownMsg(bool show, Player* player)
         (m_ShutdownTimer > 12 * HOUR && (m_ShutdownTimer % (12 * HOUR)) == 0)) // > 12 h ; every 12 h
     {
         std::string str = secsToTimeString(m_ShutdownTimer);
+        if (!reason.empty())
+            str += " - " + reason;
 
         ServerMessageType msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_TIME : SERVER_MSG_SHUTDOWN_TIME;
 

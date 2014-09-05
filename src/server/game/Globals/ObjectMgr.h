@@ -492,8 +492,10 @@ typedef std::unordered_map<int32, TrinityStringLocale> TrinityStringLocaleContai
 typedef std::unordered_map<uint32, GossipMenuItemsLocale> GossipMenuItemsLocaleContainer;
 typedef std::unordered_map<uint32, PointOfInterestLocale> PointOfInterestLocaleContainer;
 
-typedef std::multimap<uint32, uint32> QuestRelations;
+typedef std::multimap<uint32, uint32> QuestRelations; // unit/go -> quest
+typedef std::multimap<uint32, uint32> QuestRelationsReverse; // quest -> unit/go
 typedef std::pair<QuestRelations::const_iterator, QuestRelations::const_iterator> QuestRelationBounds;
+typedef std::pair<QuestRelationsReverse::const_iterator, QuestRelationsReverse::const_iterator> QuestRelationReverseBounds;
 
 struct PetLevelInfo
 {
@@ -930,6 +932,11 @@ class ObjectMgr
             return _goQuestInvolvedRelations.equal_range(go_entry);
         }
 
+        QuestRelationReverseBounds GetGOQuestInvolvedRelationReverseBounds(uint32 questId)
+        {
+            return _goQuestInvolvedRelationsReverse.equal_range(questId);
+        }
+
         QuestRelations* GetCreatureQuestRelationMap()
         {
             return &_creatureQuestRelations;
@@ -943,6 +950,11 @@ class ObjectMgr
         QuestRelationBounds GetCreatureQuestInvolvedRelationBounds(uint32 creature_entry)
         {
             return _creatureQuestInvolvedRelations.equal_range(creature_entry);
+        }
+
+        QuestRelationReverseBounds GetCreatureQuestInvolvedRelationReverseBounds(uint32 questId)
+        {
+            return _creatureQuestInvolvedRelationsReverse.equal_range(questId);
         }
 
         void LoadEventScripts();
@@ -1347,8 +1359,10 @@ class ObjectMgr
 
         QuestRelations _goQuestRelations;
         QuestRelations _goQuestInvolvedRelations;
+        QuestRelationsReverse _goQuestInvolvedRelationsReverse;
         QuestRelations _creatureQuestRelations;
         QuestRelations _creatureQuestInvolvedRelations;
+        QuestRelationsReverse _creatureQuestInvolvedRelationsReverse;
 
         //character reserved names
         typedef std::set<std::wstring> ReservedNamesContainer;
@@ -1373,7 +1387,7 @@ class ObjectMgr
     private:
         void LoadScripts(ScriptsType type);
         void CheckScripts(ScriptsType type, std::set<int32>& ids);
-        void LoadQuestRelationsHelper(QuestRelations& map, std::string const& table, bool starter, bool go);
+        void LoadQuestRelationsHelper(QuestRelations& map, QuestRelationsReverse* reverseMap, std::string const& table, bool starter, bool go);
         void PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count);
 
         MailLevelRewardContainer _mailLevelRewardStore;

@@ -26,6 +26,7 @@
 #include "Player.h"
 #include "SpellInfo.h"
 #include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
 
 /*######
 ##Quest 12848
@@ -101,9 +102,21 @@ public:
     {
         npc_unworthy_initiateAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             me->SetReactState(REACT_PASSIVE);
             if (!me->GetCurrentEquipmentId())
                 me->SetCurrentEquipmentId(me->GetOriginalEquipmentId());
+
+            playerGUID = 0;
+            wait_timer = 0;
+            anchorX = 0.f;
+            anchorY = 0.f;
+        }
+
+        void Initialize()
+        {
+            anchorGUID = 0;
+            phase = PHASE_CHAINED;
         }
 
         uint64 playerGUID;
@@ -116,8 +129,7 @@ public:
 
         void Reset() override
         {
-            anchorGUID = 0;
-            phase = PHASE_CHAINED;
+            Initialize();
             events.Reset();
             me->setFaction(7);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
@@ -322,6 +334,117 @@ public:
 
 };
 
+ /*######
+## npc_eye_of_acherus
+######*/
+
+enum EyeOfAcherus
+{
+    SPELL_EYE_VISUAL            = 51892,
+    SPELL_EYE_FLIGHT_BOOST      = 51923,
+    SPELL_EYE_FLIGHT            = 51890,
+
+    EVENT_MOVE_START            = 1,
+
+    TALK_MOVE_START             = 0,
+    TALK_CONTROL                = 1,
+
+    POINT_EYE_FALL              = 1,
+    POINT_EYE_MOVE_END          = 3
+};
+
+Position const EyeOFAcherusFallPoint = { 2361.21f, -5660.45f, 496.7444f, 0.0f };
+
+class npc_eye_of_acherus : public CreatureScript
+{
+    public:
+        npc_eye_of_acherus() : CreatureScript("npc_eye_of_acherus") { }
+
+        struct npc_eye_of_acherusAI : public ScriptedAI
+        {
+            npc_eye_of_acherusAI(Creature* creature) : ScriptedAI(creature)
+            {
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
+                if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
+                    owner->SendAutoRepeatCancel(me);
+
+                me->SetReactState(REACT_PASSIVE);
+
+                me->GetMotionMaster()->MovePoint(POINT_EYE_FALL, EyeOFAcherusFallPoint, false);
+
+                Movement::MoveSplineInit init(me);
+                init.MoveTo(EyeOFAcherusFallPoint.GetPositionX(), EyeOFAcherusFallPoint.GetPositionY(), EyeOFAcherusFallPoint.GetPositionZ(), false);
+                init.SetFall();
+                init.Launch();
+            }
+
+            void OnCharmed(bool /*apply*/) override { }
+
+            void UpdateAI(uint32 diff) override
+            {
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_MOVE_START:
+                        {
+                            DoCast(me, SPELL_EYE_FLIGHT_BOOST);
+
+                            me->SetControlled(false, UNIT_STATE_ROOT);
+                            if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
+                            {
+                                for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
+                                    me->SetSpeed(UnitMoveType(i), owner->GetSpeedRate(UnitMoveType(i)), true);
+                                Talk(TALK_MOVE_START, owner);
+                            }
+                            me->GetMotionMaster()->MovePath(me->GetEntry() * 100, false);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void MovementInform(uint32 movementType, uint32 pointId) override
+            {
+                if (movementType == WAYPOINT_MOTION_TYPE && pointId == POINT_EYE_MOVE_END - 1)
+                {
+                    me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE); 
+                    me->RemoveAllAuras();
+
+                    if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
+                    {
+                        owner->RemoveAura(SPELL_EYE_FLIGHT_BOOST);
+                        for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
+                            me->SetSpeed(UnitMoveType(i), owner->GetSpeedRate(UnitMoveType(i)), true);
+
+                        TalkToMap(TALK_CONTROL, owner);
+                    }
+                    me->SetDisableGravity(false);
+                    DoCast(me, SPELL_EYE_FLIGHT);
+                }
+
+                if (movementType == POINT_MOTION_TYPE && pointId == POINT_EYE_FALL)
+                {
+                    me->SetDisableGravity(true);
+                    me->SetControlled(true, UNIT_STATE_ROOT);
+                    _events.ScheduleEvent(EVENT_MOVE_START, 5000);
+                }
+            }
+
+        private:
+            EventMap _events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_eye_of_acherusAI(creature);
+        }
+};
+
 /*######
 ## npc_death_knight_initiate
 ######*/
@@ -404,7 +527,15 @@ public:
     {
         npc_death_knight_initiateAI(Creature* creature) : CombatAI(creature)
         {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            m_uiDuelerGUID = 0;
+            m_uiDuelTimer = 5000;
             m_bIsDuelInProgress = false;
+            lose = false;
         }
 
         bool lose;
@@ -414,15 +545,11 @@ public:
 
         void Reset() override
         {
-            lose = false;
+            Initialize();
+
             me->RestoreFaction();
             CombatAI::Reset();
-
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
-
-            m_uiDuelerGUID = 0;
-            m_uiDuelTimer = 5000;
-            m_bIsDuelInProgress = false;
         }
 
         void SpellHit(Unit* pCaster, const SpellInfo* pSpell) override
@@ -518,14 +645,22 @@ class npc_dark_rider_of_acherus : public CreatureScript
 
         struct npc_dark_rider_of_acherusAI : public ScriptedAI
         {
-            npc_dark_rider_of_acherusAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_dark_rider_of_acherusAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
 
-            void Reset() override
+            void Initialize()
             {
                 PhaseTimer = 4000;
                 Phase = 0;
                 Intro = false;
                 TargetGUID = 0;
+            }
+
+            void Reset() override
+            {
+                Initialize();
             }
 
             void UpdateAI(uint32 diff) override
@@ -955,7 +1090,15 @@ class npc_scarlet_miner : public CreatureScript
         {
             npc_scarlet_minerAI(Creature* creature) : npc_escortAI(creature)
             {
+                Initialize();
                 me->SetReactState(REACT_PASSIVE);
+            }
+
+            void Initialize()
+            {
+                carGUID = 0;
+                IntroTimer = 0;
+                IntroPhase = 0;
             }
 
             uint32 IntroTimer;
@@ -964,9 +1107,7 @@ class npc_scarlet_miner : public CreatureScript
 
             void Reset() override
             {
-                carGUID = 0;
-                IntroTimer = 0;
-                IntroPhase = 0;
+                Initialize();
             }
 
             void IsSummonedBy(Unit* summoner) override
@@ -1079,6 +1220,7 @@ void AddSC_the_scarlet_enclave_c1()
     new npc_unworthy_initiate();
     new npc_unworthy_initiate_anchor();
     new go_acherus_soul_prison();
+    new npc_eye_of_acherus();
     new npc_death_knight_initiate();
     new npc_salanar_the_horseman();
     new npc_dark_rider_of_acherus();

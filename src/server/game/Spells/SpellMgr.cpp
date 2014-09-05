@@ -85,6 +85,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             // Black Plague
             else if (spellproto->Id == 64155)
                 return DIMINISHING_NONE;
+            // Screams of the Dead (King Ymiron)
+            else if (spellproto->Id == 51750)
+                return DIMINISHING_NONE;
             break;
         }
         // Event spells
@@ -3349,6 +3352,16 @@ void SpellMgr::LoadSpellInfoCorrections()
                 // may be db data bug, or blizz may keep reapplying area auras every update with checking immunity
                 // that will be clear if we get more spells with problem like this
                 spellInfo->AttributesEx |= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
+                break;
+            case 63414: // Spinning Up (Mimiron)
+                spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+                spellInfo->ChannelInterruptFlags = 0;
+                break;
+            case 63036: // Rocket Strike (Mimiron)
+                spellInfo->Speed = 0;
+                break;
+            case 64668: // Magnetic Field (Mimiron)
+                spellInfo->Mechanic = MECHANIC_NONE;
                 break;
             case 64468: // Empowering Shadows (Yogg-Saron)
             case 64486: // Empowering Shadows (Yogg-Saron)

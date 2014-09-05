@@ -44,7 +44,19 @@ public:
 
     struct boss_kormokAI : public ScriptedAI
     {
-        boss_kormokAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_kormokAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            ShadowVolley_Timer = 10000;
+            BoneShield_Timer = 2000;
+            Minion_Timer = 15000;
+            Mage_Timer = 0;
+            Mages = false;
+        }
 
         uint32 ShadowVolley_Timer;
         uint32 BoneShield_Timer;
@@ -54,11 +66,7 @@ public:
 
         void Reset() override
         {
-            ShadowVolley_Timer = 10000;
-            BoneShield_Timer = 2000;
-            Minion_Timer = 15000;
-            Mage_Timer = 0;
-            Mages = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

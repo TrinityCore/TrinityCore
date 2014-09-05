@@ -54,12 +54,20 @@ public:
 
     struct guard_genericAI : public GuardAI
     {
-        guard_genericAI(Creature* creature) : GuardAI(creature) { }
+        guard_genericAI(Creature* creature) : GuardAI(creature)
+        {
+            Initialize();
+        }
 
-        void Reset() override
+        void Initialize()
         {
             globalCooldown = 0;
             buffTimer = 0;
+        }
+
+        void Reset() override
+        {
+            Initialize();
         }
 
         void EnterCombat(Unit* who) override
@@ -263,14 +271,22 @@ public:
 
     struct guard_shattrath_scryerAI : public GuardAI
     {
-        guard_shattrath_scryerAI(Creature* creature) : GuardAI(creature) { }
+        guard_shattrath_scryerAI(Creature* creature) : GuardAI(creature)
+        {
+            Initialize();
+        }
 
-        void Reset() override
+        void Initialize()
         {
             banishTimer = 5000;
             exileTimer = 8500;
             playerGUID = 0;
             canTeleport = false;
+        }
+
+        void Reset() override
+        {
+            Initialize();
         }
 
         void UpdateAI(uint32 diff) override
@@ -328,14 +344,22 @@ public:
 
     struct guard_shattrath_aldorAI : public GuardAI
     {
-        guard_shattrath_aldorAI(Creature* creature) : GuardAI(creature) { }
+        guard_shattrath_aldorAI(Creature* creature) : GuardAI(creature)
+        {
+            Initialize();
+        }
 
-        void Reset() override
+        void Initialize()
         {
             banishTimer = 5000;
             exileTimer = 8500;
             playerGUID = 0;
             canTeleport = false;
+        }
+
+        void Reset() override
+        {
+            Initialize();
         }
 
         void UpdateAI(uint32 diff) override

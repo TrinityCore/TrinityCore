@@ -112,14 +112,23 @@ class boss_mandokir : public CreatureScript
 
         struct boss_mandokirAI : public BossAI
         {
-            boss_mandokirAI(Creature* creature) : BossAI(creature, DATA_MANDOKIR) { }
+            boss_mandokirAI(Creature* creature) : BossAI(creature, DATA_MANDOKIR)
+            {
+                Initialize();
+                memset(chainedSpirtGUIDs, 0, sizeof(chainedSpirtGUIDs));
+            }
+
+            void Initialize()
+            {
+                killCount = 0;
+            }
 
             void Reset() override
             {
                 if (me->GetPositionZ() > 140.0f)
                 {
                     _Reset();
-                    killCount = 0;
+                    Initialize();
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                     events.ScheduleEvent(EVENT_CHECK_START, 1000);
                     if (Creature* speaker = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_VILEBRANCH_SPEAKER)))
@@ -300,11 +309,19 @@ class npc_ohgan : public CreatureScript
 
         struct npc_ohganAI : public ScriptedAI
         {
-            npc_ohganAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
+            npc_ohganAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript())
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                SunderArmor_Timer = 5000;
+            }
 
             void Reset() override
             {
-                SunderArmor_Timer = 5000;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override { }
@@ -353,12 +370,20 @@ class npc_vilebranch_speaker : public CreatureScript
 
         struct npc_vilebranch_speakerAI : public ScriptedAI
         {
-            npc_vilebranch_speakerAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
+            npc_vilebranch_speakerAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript())
+            {
+                Initialize();
+            }
 
-            void Reset() override
+            void Initialize()
             {
                 demoralizing_Shout_Timer = urand(2000, 4000);
                 cleave_Timer = urand(5000, 8000);
+            }
+
+            void Reset() override
+            {
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override { }

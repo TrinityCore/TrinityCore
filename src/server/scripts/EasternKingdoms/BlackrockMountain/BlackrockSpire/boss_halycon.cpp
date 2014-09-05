@@ -45,12 +45,20 @@ public:
 
     struct boss_halyconAI : public BossAI
     {
-        boss_halyconAI(Creature* creature) : BossAI(creature, DATA_HALYCON) { }
+        boss_halyconAI(Creature* creature) : BossAI(creature, DATA_HALYCON)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Summoned = false;
+        }
 
         void Reset() override
         {
             _Reset();
-            Summoned = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

@@ -109,9 +109,26 @@ class boss_nalorakk : public CreatureScript
         {
             boss_nalorakkAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
+                inMove = false;
                 MoveEvent = true;
                 MovePhase = 0;
+                waitTimer = 0;
+                LaceratingSlash_Timer = 0;
+                RendFlesh_Timer = 0;
+                DeafeningRoar_Timer = 0;
                 instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                Surge_Timer = urand(15000, 20000);
+                BrutalSwipe_Timer = urand(7000, 12000);
+                Mangle_Timer = urand(10000, 15000);
+                ShapeShift_Timer = urand(45000, 50000);
+                Berserk_Timer = 600000;
+
+                inBearForm = false;
             }
 
             InstanceScript* instance;
@@ -150,13 +167,7 @@ class boss_nalorakk : public CreatureScript
 
                 instance->SetData(DATA_NALORAKKEVENT, NOT_STARTED);
 
-                Surge_Timer = urand(15000, 20000);
-                BrutalSwipe_Timer = urand(7000, 12000);
-                Mangle_Timer = urand(10000, 15000);
-                ShapeShift_Timer = urand(45000, 50000);
-                Berserk_Timer = 600000;
-
-                inBearForm = false;
+                Initialize();
                 // me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 5122);  /// @todo find the correct equipment id
             }
 
