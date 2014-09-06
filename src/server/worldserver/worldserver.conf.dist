@@ -3429,14 +3429,10 @@ irc.fun.games = 0
 # irc.gm#
 # GM tag to append to (GM onjoin / online command) IRC color codes are acceptable
 #
-irc.gm1 = "[VIP]"
-irc.gm2 = "[Donator]"
-irc.gm3 = "[Bug Tracker]"
-irc.gm4 = "[Moderator]"
-irc.gm5 = "[Game Master]"
-irc.gm6 = "[Admin]"
-irc.gm7 = "[Developer]"
-irc.gm8 = "[Owner]"
+irc.gm1 = "[Moderator]"
+irc.gm2 = "[GameMaster]"
+irc.gm3 = "[Developer]"
+irc.gm4 = "[Owner]"
 
 ###################################################################################################
 #

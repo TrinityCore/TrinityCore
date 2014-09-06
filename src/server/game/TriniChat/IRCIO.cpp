@@ -305,15 +305,11 @@ void IRCClient::Handle_WoW_Channel(std::string Channel, Player *plr, int nAction
             {
                 switch(plr->GetSession()->GetSecurity())    //switch case to determine what rank the "gm" is
                 {
-                    case 0: GMRank = "";break;
-                    case 1: GMRank = "\0037"+sIRC->ojGM1;break;
-                    case 2: GMRank = "\0037"+sIRC->ojGM2;break;
-                    case 3: GMRank = "\0037"+sIRC->ojGM3;break;
-                    case 4: GMRank = "\0037"+sIRC->ojGM4;break;
-                    case 5: GMRank = "\0037"+sIRC->ojGM5;break;
-                    case 6: GMRank = "\0037"+sIRC->ojGM6;break;
-                    case 7: GMRank = "\0037"+sIRC->ojGM7;break;
-                    case 8: GMRank = "\0037"+sIRC->ojGM8;break;
+                    case SEC_PLAYER: GMRank = ""; break;
+                    case SEC_MODERATOR: GMRank = "\0037" + sIRC->ojGM1; break;
+                    case SEC_GAMEMASTER: GMRank = "\0037" + sIRC->ojGM2; break;
+                    case SEC_ADMINISTRATOR: GMRank = "\0037" + sIRC->ojGM3; break;
+                    case SEC_CONSOLE: GMRank = "\0037" + sIRC->ojGM4; break;
                 }
             }
             std::string ChatTag = "";
