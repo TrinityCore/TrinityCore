@@ -35,6 +35,7 @@ class instance_vault_of_archavon : public InstanceMapScript
         {
             instance_vault_of_archavon_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
 
                 EmalonGUID      = 0;

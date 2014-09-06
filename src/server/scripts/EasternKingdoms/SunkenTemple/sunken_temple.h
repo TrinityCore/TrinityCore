@@ -19,6 +19,8 @@
 #ifndef DEF_SUNKEN_TEMPLE_H
 #define DEF_SUNKEN_TEMPLE_H
 
+#define DataHeader "ST"
+
 #define TROLLBOSS1_DEATH 1
 #define TROLLBOSS2_DEATH 2
 #define TROLLBOSS3_DEATH 3

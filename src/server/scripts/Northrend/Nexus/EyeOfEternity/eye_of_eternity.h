@@ -18,6 +18,8 @@
 #ifndef DEF_EYE_OF_ETERNITY_H
 #define DEF_EYE_OF_ETERNITY_H
 
+#define DataHeader "EOE"
+
 enum InstanceData
 {
     DATA_MALYGOS_EVENT,

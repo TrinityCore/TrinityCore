@@ -19,6 +19,7 @@
 #define PIT_OF_SARON_H_
 
 #define PoSScriptName "instance_pit_of_saron"
+#define DataHeader "POS"
 
 uint32 const EncounterCount = 3;
 

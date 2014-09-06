@@ -19,6 +19,7 @@
 #define ARCATRAZ_H
 
 #define ArcatrazScriptName "instance_arcatraz"
+#define DataHeader         "AZ"
 
 uint32 const EncounterCount = 4;
 

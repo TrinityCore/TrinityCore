@@ -94,6 +94,7 @@ public:
 
         void Initialize() override
         {
+            SetHeaders(DataHeader);
             _medivhGUID         = 0;
             Clear();
         }

@@ -21,6 +21,7 @@
 uint32 const EncounterCount               = 3;
 
 #define SPScriptName "instance_the_slave_pens"
+#define DataHeader "SP"
 
 enum DataTypes
 {
