@@ -5846,40 +5846,38 @@ float Player::OCTRegenMPPerSpirit()
     return regen;
 }
 
-void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
+void Player::ApplyRatingMod(CombatRating combatRating, int32 value, bool apply)
 {
-    float oldRating = m_baseRatingValue[cr];
-    m_baseRatingValue[cr]+=(apply ? value : -value);
+    float oldRating = m_baseRatingValue[combatRating];
+    m_baseRatingValue[combatRating] += (apply ? value : -value);
+    
     // explicit affected values
-    if (cr == CR_HASTE_MELEE || cr == CR_HASTE_RANGED || cr == CR_HASTE_SPELL)
+    float const multiplier = GetRatingMultiplier(combatRating);
+    float const oldVal = oldRating * multiplier;
+    float const newVal = m_baseRatingValue[combatRating] * multiplier;
+    switch (combatRating)
     {
-        float const mult = GetRatingMultiplier(cr);
-        float const oldVal = oldRating * mult;
-        float const newVal = m_baseRatingValue[cr] * mult;
-        switch (cr)
-        {
-            case CR_HASTE_MELEE:
-                ApplyAttackTimePercentMod(BASE_ATTACK, oldVal, false);
-                ApplyAttackTimePercentMod(OFF_ATTACK, oldVal, false);
-                ApplyAttackTimePercentMod(BASE_ATTACK, newVal, true);
-                ApplyAttackTimePercentMod(OFF_ATTACK, newVal, true);
+        case CR_HASTE_MELEE:
+            ApplyAttackTimePercentMod(BASE_ATTACK, oldVal, false);
+            ApplyAttackTimePercentMod(OFF_ATTACK, oldVal, false);
+            ApplyAttackTimePercentMod(BASE_ATTACK, newVal, true);
+            ApplyAttackTimePercentMod(OFF_ATTACK, newVal, true);
                 if (getClass() == CLASS_DEATH_KNIGHT)		
                     UpdateAllRunesRegen();
-                break;
-            case CR_HASTE_RANGED:
-                ApplyAttackTimePercentMod(RANGED_ATTACK, oldVal, false);
-                ApplyAttackTimePercentMod(RANGED_ATTACK, newVal, true);
-                break;
-            case CR_HASTE_SPELL:
-                ApplyCastTimePercentMod(oldVal, false);
-                ApplyCastTimePercentMod(newVal, true);
-                break;
-            default: // shut up compiler warnings
-                break;
-        }
+            break;
+        case CR_HASTE_RANGED:
+            ApplyAttackTimePercentMod(RANGED_ATTACK, oldVal, false);
+            ApplyAttackTimePercentMod(RANGED_ATTACK, newVal, true);
+            break;
+        case CR_HASTE_SPELL:
+            ApplyCastTimePercentMod(oldVal, false);
+            ApplyCastTimePercentMod(newVal, true);
+            break;
+        default:
+            break;
     }
 
-    UpdateRating(cr);
+    UpdateRating(combatRating);
 }
 
 void Player::UpdateRating(CombatRating cr)
