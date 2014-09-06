@@ -17,3 +17,4 @@ option(WITH_WARNINGS    "Show all warnings during compile"                      
 option(WITH_COREDEBUG   "Include additional debug-code in core"                       0)
 option(WITH_MESHEXTRACTOR "Build meshextractor (alpha)"                               0)
 option(WITHOUT_GIT      "Disable the GIT testing routines"                            0)
+option(TESTS            "Build cppunit tests"                                         0)
