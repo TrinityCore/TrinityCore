@@ -29,6 +29,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "MapManager.h"
 #include "Player.h"
+#include "Language.h"
 
 class instance_commandscript : public CommandScript
 {
@@ -81,11 +82,11 @@ public:
             {
                 InstanceSave* save = itr->second.save;
                 std::string timeleft = GetTimeString(save->GetResetTime() - time(NULL));
-                handler->PSendSysMessage("map: %d inst: %d perm: %s diff: %d canReset: %s TTR: %s", itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no",  save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
+                handler->PSendSysMessage(LANG_COMMAND_LIST_BIND_INFO, itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no",  save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
                 counter++;
             }
         }
-        handler->PSendSysMessage("player binds: %d", counter);
+        handler->PSendSysMessage(LANG_COMMAND_LIST_BIND_PLAYER_BINDS, counter);
 
         counter = 0;
         if (Group* group = player->GetGroup())
@@ -97,12 +98,12 @@ public:
                 {
                     InstanceSave* save = itr->second.save;
                     std::string timeleft = GetTimeString(save->GetResetTime() - time(NULL));
-                    handler->PSendSysMessage("map: %d inst: %d perm: %s diff: %d canReset: %s TTR: %s", itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no",  save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
+                    handler->PSendSysMessage(LANG_COMMAND_LIST_BIND_INFO, itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no", save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
                     counter++;
                 }
             }
         }
-        handler->PSendSysMessage("group binds: %d", counter);
+        handler->PSendSysMessage(LANG_COMMAND_LIST_BIND_GROUP_BINDS, counter);
 
         return true;
     }
@@ -140,7 +141,7 @@ public:
                 if (itr->first != player->GetMapId() && (!MapId || MapId == itr->first) && (diff == -1 || diff == save->GetDifficulty()))
                 {
                     std::string timeleft = GetTimeString(save->GetResetTime() - time(NULL));
-                    handler->PSendSysMessage("unbinding map: %d inst: %d perm: %s diff: %d canReset: %s TTR: %s", itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no", save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
+                    handler->PSendSysMessage(LANG_COMMAND_INST_UNBIND_UNBINDING, itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no", save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
                     player->UnbindInstance(itr, Difficulty(i));
                     counter++;
                 }
@@ -148,18 +149,18 @@ public:
                     ++itr;
             }
         }
-        handler->PSendSysMessage("instances unbound: %d", counter);
+        handler->PSendSysMessage(LANG_COMMAND_INST_UNBIND_UNBOUND, counter);
 
         return true;
     }
 
     static bool HandleInstanceStatsCommand(ChatHandler* handler, char const* /*args*/)
     {
-        handler->PSendSysMessage("instances loaded: %d", sMapMgr->GetNumInstances());
-        handler->PSendSysMessage("players in instances: %d", sMapMgr->GetNumPlayersInInstances());
-        handler->PSendSysMessage("instance saves: %d", sInstanceSaveMgr->GetNumInstanceSaves());
-        handler->PSendSysMessage("players bound: %d", sInstanceSaveMgr->GetNumBoundPlayersTotal());
-        handler->PSendSysMessage("groups bound: %d", sInstanceSaveMgr->GetNumBoundGroupsTotal());
+        handler->PSendSysMessage(LANG_COMMAND_INST_STAT_LOADED_INST, sMapMgr->GetNumInstances());
+        handler->PSendSysMessage(LANG_COMMAND_INST_STAT_PLAYERS_IN, sMapMgr->GetNumPlayersInInstances());
+        handler->PSendSysMessage(LANG_COMMAND_INST_STAT_SAVES, sInstanceSaveMgr->GetNumInstanceSaves());
+        handler->PSendSysMessage(LANG_COMMAND_INST_STAT_PLAYERSBOUND, sInstanceSaveMgr->GetNumBoundPlayersTotal());
+        handler->PSendSysMessage(LANG_COMMAND_INST_STAT_GROUPSBOUND, sInstanceSaveMgr->GetNumBoundGroupsTotal());
 
         return true;
     }
@@ -170,14 +171,14 @@ public:
         Map* map = player->GetMap();
         if (!map->IsDungeon())
         {
-            handler->PSendSysMessage("Map is not a dungeon.");
+            handler->PSendSysMessage(LANG_NOT_DUNGEON);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
         if (!((InstanceMap*)map)->GetInstanceScript())
         {
-            handler->PSendSysMessage("Map has no instance data.");
+            handler->PSendSysMessage(LANG_NO_INSTANCE_DATA);
             handler->SetSentErrorMessage(true);
             return false;
         }
