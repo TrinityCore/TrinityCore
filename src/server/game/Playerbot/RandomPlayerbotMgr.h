@@ -45,6 +45,7 @@ class RandomPlayerbotMgr : public PlayerbotHolder
         void SetLootAmount(Player* bot, uint32 value);
         uint32 GetTradeDiscount(Player* bot);
         void Refresh(Player* bot);
+        void RandomTeleportForLevel(Player* bot);
 
 	protected:
 	    virtual void OnBotLoginInternal(Player * const bot) {}
@@ -58,7 +59,6 @@ class RandomPlayerbotMgr : public PlayerbotHolder
         bool ProcessBot(uint32 bot);
         void ScheduleRandomize(uint32 bot, uint32 time);
         void RandomTeleport(Player* bot, uint32 mapId, float teleX, float teleY, float teleZ);
-        void RandomTeleportForLevel(Player* bot);
         void RandomTeleport(Player* bot, vector<WorldLocation> &locs);
         uint32 GetZoneLevel(uint32 mapId, float teleX, float teleY, float teleZ);
 

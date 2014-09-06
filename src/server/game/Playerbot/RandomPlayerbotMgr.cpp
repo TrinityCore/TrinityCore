@@ -232,7 +232,11 @@ void RandomPlayerbotMgr::RandomTeleport(Player* bot, vector<WorldLocation> &locs
             continue;
 
         sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Random teleporting bot %s to %s %f,%f,%f", bot->GetName().c_str(), area->area_name[0], x, y, z);
-        z = 0.05f + map->GetHeight(x, y, 0.05f + z, true, MAX_HEIGHT);
+        float height = map->GetWaterOrGroundLevel(x, y, 0.05f + z);
+        if (height == INVALID_HEIGHT)
+            continue;
+
+        z = 0.05f + height;
 
         bot->GetMotionMaster()->Clear();
         bot->TeleportTo(loc.GetMapId(), x, y, z, 0);
@@ -560,7 +564,7 @@ bool RandomPlayerbotMgr::HandlePlayerbotConsoleCommand(ChatHandler* handler, cha
         sRandomPlayerbotMgr.UpdateAIInternal(0);
         return true;
     }
-    else if (cmd == "init" || cmd == "refresh")
+    else if (cmd == "init" || cmd == "refresh" || cmd == "teleport")
     {
 		sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Randomizing bots for %d accounts", sPlayerbotAIConfig.randomBotAccounts.size());
         for (list<uint32>::iterator i = sPlayerbotAIConfig.randomBotAccounts.begin(); i != sPlayerbotAIConfig.randomBotAccounts.end(); ++i)
@@ -580,6 +584,11 @@ bool RandomPlayerbotMgr::HandlePlayerbotConsoleCommand(ChatHandler* handler, cha
                     {
                         sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Randomizing bot %s for account %u", bot->GetName().c_str(), account);
                         sRandomPlayerbotMgr.RandomizeFirst(bot);
+                    }
+                    else if (cmd == "teleport")
+                    {
+                        sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Random teleporting bot %s for account %u", bot->GetName().c_str(), account);
+                        sRandomPlayerbotMgr.RandomTeleportForLevel(bot);
                     }
                     else
                     {
