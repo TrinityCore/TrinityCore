@@ -276,9 +276,15 @@ public:
     {
         npc_thrall_old_hillsbradAI(Creature* creature) : npc_escortAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             HadMount = false;
             me->setActive(true);
+        }
+
+        void Initialize()
+        {
+            LowHp = false;
         }
 
         InstanceScript* instance;
@@ -451,7 +457,7 @@ public:
 
         void Reset() override
         {
-            LowHp = false;
+            Initialize();
 
             if (HadMount)
                 DoMount();

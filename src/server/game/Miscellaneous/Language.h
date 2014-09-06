@@ -412,8 +412,8 @@ enum TrinityStrings
     LANG_BANINFO_HISTORYENTRY           = 418,
     LANG_BANINFO_INFINITE               = 419,
     LANG_BANINFO_NEVER                  = 420,
-    LANG_BANINFO_YES                    = 421,
-    LANG_BANINFO_NO                     = 422,
+    LANG_YES                            = 421,
+    LANG_NO                             = 422,
     LANG_BANINFO_IPENTRY                = 423,
 
     LANG_BANLIST_NOIP                   = 424,
@@ -1024,7 +1024,7 @@ enum TrinityStrings
     LANG_BG_AV_START_TWO_MINUTES        = 1333,
     // FREE IDS                           1334-1999
 
-    // Ticket Strings 2000-2029
+    // Ticket Strings 2000-2030
     LANG_COMMAND_TICKETNEW              = 2000,
     LANG_COMMAND_TICKETUPDATED          = 2001,
     LANG_COMMAND_TICKETPLAYERABANDON    = 2002,
@@ -1055,6 +1055,7 @@ enum TrinityStrings
     LANG_COMMAND_TICKETPENDING          = 2027,
     LANG_COMMAND_TICKETRESET            = 2028,
     LANG_COMMAND_TICKETLISTRESPONSE     = 2029,
+    LANG_COMMAND_TICKETCOMPLETED        = 2030,
 
     // Trinity strings                    5000-9999
     LANG_COMMAND_FREEZE                 = 5000,
@@ -1088,16 +1089,22 @@ enum TrinityStrings
     LANG_GOINFO_NAME                    = 5027,
     LANG_GOINFO_LOOTID                  = 5028,
     LANG_COMMAND_LOOKUP_MAX_RESULTS     = 5029,
-    // unused                           = 5030,
+    LANG_UNAUTHORIZED                   = 5030,
     LANG_NPCINFO_AIINFO                 = 5031,
     LANG_COMMAND_NO_BATTLEGROUND_FOUND  = 5032,
     LANG_COMMAND_NO_ACHIEVEMENT_CRITERIA_FOUND = 5033,
     LANG_COMMAND_NO_OUTDOOR_PVP_FORUND  = 5034,
-    // unused                           = 5035,
+    LANG_NO_REASON                      = 5035,
     LANG_NPCINFO_EQUIPMENT              = 5036,
     LANG_NPCINFO_MECHANIC_IMMUNE        = 5037,
     LANG_NPCINFO_UNIT_FIELD_FLAGS       = 5038,
-    // Room for more Trinity strings      5039-9999
+    LANG_CONSOLE                        = 5039,
+    LANG_CHARACTER                      = 5040,
+    LANG_PERMANENTLY                    = 5041,
+    LANG_GPS_POSITION_OUTDOORS          = 5042,
+    LANG_GPS_POSITION_INDOORS           = 5043,
+    LANG_GPS_NO_VMAP                    = 5044,
+    // Room for more Trinity strings      5045-9999
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,

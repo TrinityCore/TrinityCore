@@ -317,6 +317,7 @@ float HordeFirePos[65][8]=//spawn points for the fire visuals (GO) in the horde 
 
 hyjalAI::hyjalAI(Creature* creature) : npc_escortAI(creature), Summons(me)
 {
+    Initialize();
     instance = creature->GetInstanceScript();
     VeinsSpawned[0] = false;
     VeinsSpawned[1] = false;
@@ -332,9 +333,43 @@ hyjalAI::hyjalAI(Creature* creature) : npc_escortAI(creature), Summons(me)
     InfernalPoint = 0;
     RespawnTimer = 10000;
     DoRespawn = false;
-    DoHide = false;
     MassTeleportTimer = 0;
     DoMassTeleport = false;
+}
+
+void hyjalAI::Initialize()
+{
+    IsDummy = false;
+
+    // GUIDs
+    PlayerGUID = 0;
+    BossGUID[0] = 0;
+    BossGUID[1] = 0;
+
+    // Timers
+    NextWaveTimer = 10000;
+    CheckTimer = 0;
+    RetreatTimer = 1000;
+
+    // Misc
+    WaveCount = 0;
+    EnemyCount = 0;
+
+    //Bools
+    EventBegun = false;
+    FirstBossDead = false;
+    SecondBossDead = false;
+    Summon = false;
+    bRetreat = false;
+    Debug = false;
+
+    //Visibility
+    DoHide = true;
+
+    //Initialize spells
+    memset(Spells, 0, sizeof(Spell) * HYJAL_AI_MAX_SPELLS);
+
+    Faction = 0;
 }
 
 void hyjalAI::JustSummoned(Creature* summoned)
@@ -349,21 +384,9 @@ void hyjalAI::SummonedCreatureDespawn(Creature* summoned)
 
 void hyjalAI::Reset()
 {
-    IsDummy = false;
     me->setActive(true);
-    // GUIDs
-    PlayerGUID = 0;
-    BossGUID[0] = 0;
-    BossGUID[1] = 0;
 
-    // Timers
-    NextWaveTimer = 10000;
-    CheckTimer = 0;
-    RetreatTimer = 1000;
-
-    // Misc
-    WaveCount = 0;
-    EnemyCount = 0;
+    Initialize();
 
     // Set faction properly based on Creature entry
     switch (me->GetEntry())
@@ -382,19 +405,8 @@ void hyjalAI::Reset()
             break;
     }
 
-    //Bools
-    EventBegun = false;
-    FirstBossDead = false;
-    SecondBossDead = false;
-    Summon = false;
-    bRetreat = false;
-    Debug = false;
-
     //Flags
     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-
-    //Initialize spells
-    memset(Spells, 0, sizeof(Spell) * HYJAL_AI_MAX_SPELLS);
 
     //Reset Instance Data for trash count
     if ((!instance->GetData(DATA_ALLIANCE_RETREAT) && me->GetEntry() == JAINA) || (instance->GetData(DATA_ALLIANCE_RETREAT) && me->GetEntry() == THRALL))
@@ -405,9 +417,6 @@ void hyjalAI::Reset()
         instance->DoUpdateWorldState(WORLD_STATE_ENEMYCOUNT, 0);
         instance->SetData(DATA_RESET_TRASH_COUNT, 0);
     }
-
-    //Visibility
-    DoHide = true;
 }
 
 void hyjalAI::EnterEvadeMode()

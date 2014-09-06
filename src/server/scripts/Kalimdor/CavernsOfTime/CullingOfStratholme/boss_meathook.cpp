@@ -58,8 +58,16 @@ public:
     {
         boss_meathookAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             Talk(SAY_SPAWN);
+        }
+
+        void Initialize()
+        {
+            uiChainTimer = urand(12000, 17000);   //seen on video 13, 17, 15, 12, 16
+            uiDiseaseTimer = urand(2000, 4000);   //approx 3s
+            uiFrenzyTimer = urand(21000, 26000);  //made it up
         }
 
         uint32 uiChainTimer;
@@ -70,9 +78,7 @@ public:
 
         void Reset() override
         {
-            uiChainTimer = urand(12000, 17000);   //seen on video 13, 17, 15, 12, 16
-            uiDiseaseTimer = urand(2000, 4000);   //approx 3s
-            uiFrenzyTimer = urand(21000, 26000);  //made it up
+            Initialize();
 
             instance->SetData(DATA_MEATHOOK_EVENT, NOT_STARTED);
         }

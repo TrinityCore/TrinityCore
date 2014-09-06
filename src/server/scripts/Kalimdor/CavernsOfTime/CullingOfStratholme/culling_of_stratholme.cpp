@@ -351,35 +351,15 @@ public:
     {
         npc_arthasAI(Creature* creature) : npc_escortAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
-            Reset();
+            bStepping = false;
+            step = 0;
+            gossipStep = 0;
+            bossEvent = 0;
         }
 
-        InstanceScript* instance;
-
-        bool bStepping;
-        uint32 step;
-        uint32 phaseTimer;
-        uint32 gossipStep;
-        uint32 playerFaction;
-        uint32 bossEvent;
-        uint32 wave;
-
-        uint64 utherGUID;
-        uint64 jainaGUID;
-        uint64 citymenGUID[2];
-        uint64 waveGUID[ENCOUNTER_WAVES_MAX_SPAWNS];
-        uint64 infiniteDraconianGUID[ENCOUNTER_DRACONIAN_NUMBER];
-        uint64 stalkerGUID;
-
-        uint64 bossGUID;
-        uint64 epochGUID;
-        uint64 malganisGUID;
-        uint64 infiniteGUID;
-
-        uint32 exorcismTimer;
-
-        void Reset() override
+        void Initialize()
         {
             utherGUID = 0;
             jainaGUID = 0;
@@ -399,6 +379,38 @@ public:
             malganisGUID = 0;
             infiniteGUID = 0;
 
+            phaseTimer = 1000;
+            exorcismTimer = 7300;
+            wave = 0;
+        }
+
+        InstanceScript* instance;
+
+        bool bStepping;
+        uint32 step;
+        uint32 phaseTimer;
+        uint32 gossipStep;
+        uint32 bossEvent;
+        uint32 wave;
+
+        uint64 utherGUID;
+        uint64 jainaGUID;
+        uint64 citymenGUID[2];
+        uint64 waveGUID[ENCOUNTER_WAVES_MAX_SPAWNS];
+        uint64 infiniteDraconianGUID[ENCOUNTER_DRACONIAN_NUMBER];
+        uint64 stalkerGUID;
+
+        uint64 bossGUID;
+        uint64 epochGUID;
+        uint64 malganisGUID;
+        uint64 infiniteGUID;
+
+        uint32 exorcismTimer;
+
+        void Reset() override
+        {
+            Initialize();
+
             instance->SetData(DATA_ARTHAS_EVENT, NOT_STARTED);
             switch (instance->GetData(DATA_ARTHAS_EVENT))
             {
@@ -410,9 +422,6 @@ public:
                     gossipStep = 0;
                     break;
             }
-            phaseTimer = 1000;
-            exorcismTimer = 7300;
-            wave = 0;
         }
 
         void EnterCombat(Unit* /*who*/) override

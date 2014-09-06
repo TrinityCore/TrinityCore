@@ -2400,6 +2400,20 @@ CharDelete.KeepDays = 30
 ###################################################################################################
 # CUSTOM SERVER OPTIONS
 #
+#     AllowTrackBothResources
+#        Description: Allows players to track herbs and minerals at the same time (if they have the skills)
+#        Default: 0 (do not allow)
+#                 1 (allow)
+#
+#        Note: The following are client limitations and cannot be coded for:
+#           * The minimap tracking icon will display whichever skill is activated second
+#           * The minimap tracking list will only show a check mark next to the last skill activated (sometimes this
+#              bugs out and doesn't switch the check mark. It has no effect on the actual tracking though).
+#           * The minimap dots are yellow for both resources
+
+AllowTrackBothResources = 0
+
+#
 #    PlayerStart.AllReputation
 #        Description: Players will start with most of the high level reputations that are needed
 #                     for items, mounts etc.

@@ -50,7 +50,17 @@ public:
 
     struct npc_lazy_peonAI : public ScriptedAI
     {
-        npc_lazy_peonAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_lazy_peonAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            PlayerGUID = 0;
+            RebuffTimer = 0;
+            work = false;
+        }
 
         uint64 PlayerGUID;
 
@@ -59,9 +69,7 @@ public:
 
         void Reset() override
         {
-            PlayerGUID = 0;
-            RebuffTimer = 0;
-            work = false;
+            Initialize();
         }
 
         void MovementInform(uint32 /*type*/, uint32 id)

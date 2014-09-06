@@ -87,7 +87,29 @@ public:
     {
         boss_anub_arakAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+            GuardianSummoned = false;
+            VenomancerSummoned = false;
+            DatterSummoned = false;
+            UndergroundTimer = 0;
+            VenomancerTimer = 0;
+            DatterTimer = 0;
+            DelayTimer = 0;
+            ImpaleTarget = 0;
+        }
+
+        void Initialize()
+        {
+            CarrionBeetlesTimer = 8 * IN_MILLISECONDS;
+            LeechingSwarmTimer = 20 * IN_MILLISECONDS;
+            ImpaleTimer = 9 * IN_MILLISECONDS;
+            PoundTimer = 15 * IN_MILLISECONDS;
+
+            Phase = PHASE_MELEE;
+            UndergroundPhase = 0;
+            Channeling = false;
+            ImpalePhase = IMPALE_PHASE_TARGET;
         }
 
         InstanceScript* instance;
@@ -101,7 +123,6 @@ public:
         uint32 CarrionBeetlesTimer;
         uint32 LeechingSwarmTimer;
         uint32 PoundTimer;
-        uint32 SubmergeTimer;
         uint32 UndergroundTimer;
         uint32 VenomancerTimer;
         uint32 DatterTimer;
@@ -115,15 +136,7 @@ public:
 
         void Reset() override
         {
-            CarrionBeetlesTimer = 8*IN_MILLISECONDS;
-            LeechingSwarmTimer = 20*IN_MILLISECONDS;
-            ImpaleTimer = 9*IN_MILLISECONDS;
-            PoundTimer = 15*IN_MILLISECONDS;
-
-            Phase = PHASE_MELEE;
-            UndergroundPhase = 0;
-            Channeling = false;
-            ImpalePhase = IMPALE_PHASE_TARGET;
+            Initialize();
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
             me->RemoveAura(SPELL_SUBMERGE);

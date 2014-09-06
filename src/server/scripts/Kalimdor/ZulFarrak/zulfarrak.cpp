@@ -104,8 +104,17 @@ public:
     {
         npc_sergeant_blyAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             postGossipStep = 0;
+            Text_Timer = 0;
+            PlayerGUID = 0;
+        }
+
+        void Initialize()
+        {
+            ShieldBash_Timer = 5000;
+            Revenge_Timer = 8000;
         }
 
         InstanceScript* instance;
@@ -118,8 +127,7 @@ public:
 
         void Reset() override
         {
-            ShieldBash_Timer = 5000;
-            Revenge_Timer = 8000;
+            Initialize();
 
             me->setFaction(FACTION_FRIENDLY);
         }

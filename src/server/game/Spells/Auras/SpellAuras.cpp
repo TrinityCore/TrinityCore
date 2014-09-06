@@ -35,6 +35,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
+#include "Config.h"
 
 AuraApplication::AuraApplication(Unit* target, Unit* caster, Aura* aura, uint8 effMask):
 _target(target), _base(aura), _removeMode(AURA_REMOVE_NONE), _slot(MAX_AURAS),
@@ -1612,6 +1613,15 @@ bool Aura::CanStackWith(Aura const* existingAura) const
             || m_spellInfo->Effects[i].TriggerSpell == existingAura->GetId())
             return true;
     }
+
+    // Check for custom server setting to allow tracking both Herbs and Minerals
+    // Note: The following are client limitations and cannot be coded for:
+    //  * The minimap tracking icon will display whichever skill is activated second
+    //  * The minimap tracking list will only show a check mark next to the last skill activated
+    //    Sometimes this bugs out and doesn't switch the check mark. It has no effect on the actual tracking though.
+    //  * The minimap dots are yellow for both resources
+    if (m_spellInfo->HasAura(SPELL_AURA_TRACK_RESOURCES) && existingSpellInfo->HasAura(SPELL_AURA_TRACK_RESOURCES))
+        return sWorld->getBoolConfig(CONFIG_ALLOW_TRACK_BOTH_RESOURCES);
 
     // check spell specific stack rules
     if (m_spellInfo->IsAuraExclusiveBySpecificWith(existingSpellInfo)

@@ -60,13 +60,19 @@ class boss_moam : public CreatureScript
         {
             boss_moamAI(Creature* creature) : BossAI(creature, DATA_MOAM)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _isStonePhase = false;
             }
 
             void Reset() override
             {
                 _Reset();
                 me->SetPower(POWER_MANA, 0);
-                _isStonePhase = false;
+                Initialize();
                 events.ScheduleEvent(EVENT_STONE_PHASE, 90000);
                 //events.ScheduleEvent(EVENT_WIDE_SLASH, 11000);
             }
