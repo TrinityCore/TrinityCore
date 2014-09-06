@@ -27,7 +27,7 @@ enum Orphans
     ORPHAN_BLOOD_ELF                        = 22817,
     ORPHAN_DRAENEI                          = 22818,
     ORPHAN_HUMAN                            = 14305,
-    ORPHAN_ORCISH                           = 14444,
+    ORPHAN_ORCISH                           = 14444
 };
 
 enum Texts
@@ -68,7 +68,7 @@ enum Texts
     TEXT_ELDER_KEKEK_1                      = 1,
 
     TEXT_ALEXSTRASZA_2                      = 2,
-    TEXT_KRASUS_8                           = 8,
+    TEXT_KRASUS_8                           = 8
 };
 
 enum Quests
@@ -99,7 +99,7 @@ enum Quests
     QUEST_NOW_WHEN_I_GROW_UP                = 11975,
     QUEST_HOME_OF_THE_BEAR_MEN              = 13930,
     QUEST_THE_DRAGON_QUEEN_ORACLE           = 13954,
-    QUEST_THE_DRAGON_QUEEN_WOLVAR           = 13955,
+    QUEST_THE_DRAGON_QUEEN_WOLVAR           = 13955
 };
 
 enum Areatriggers
@@ -120,7 +120,7 @@ enum Areatriggers
     NPC_SPOREGGAR_CW_TRIGGER                = 22829,
     NPC_THRONE_OF_ELEMENTS_CW_TRIGGER       = 22839,
     NPC_SILVERMOON_01_CW_TRIGGER            = 22866,
-    NPC_KRASUS                              = 27990,
+    NPC_KRASUS                              = 27990
 };
 
 enum Misc
@@ -128,7 +128,7 @@ enum Misc
     SPELL_SNOWBALL                          = 21343,
     SPELL_ORPHAN_OUT                        = 58818,
 
-    DISPLAY_INVISIBLE                       = 11686,
+    DISPLAY_INVISIBLE                       = 11686
 };
 
 uint64 getOrphanGUID(Player* player, uint32 orphan)
@@ -169,7 +169,6 @@ class npc_winterfin_playmate : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* who) override
-
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -347,7 +346,7 @@ class npc_snowfall_glade_playmate : public CreatureScript
             uint64 orphanGUID;
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_snowfall_glade_playmateAI(pCreature);
         }
@@ -574,7 +573,6 @@ class npc_elder_kekek : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* who) override
-
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -791,7 +789,6 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* who) override
-
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -1082,7 +1079,6 @@ class npc_grizzlemaw_cw_trigger : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* who) override
-
             {
                 if (who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
