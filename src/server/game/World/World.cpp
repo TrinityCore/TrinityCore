@@ -1341,14 +1341,10 @@ void World::LoadConfigSettings(bool reload)
     sIRC->ticann = sConfigMgr->GetStringDefault("irc.Tickets", "");
     sIRC->ticannpw = sConfigMgr->GetStringDefault("irc.TicketsPW","");
     sIRC->autoanc = sConfigMgr->GetIntDefault("irc.auto.announce", 30);
-    sIRC->ojGM1 = sConfigMgr->GetStringDefault("irc.gm1", "[VIP]");
-    sIRC->ojGM2 = sConfigMgr->GetStringDefault("irc.gm2", "[Donator]");
-    sIRC->ojGM3 = sConfigMgr->GetStringDefault("irc.gm3", "[Bug Tracker]");
-    sIRC->ojGM4 = sConfigMgr->GetStringDefault("irc.gm4", "[Moderator]");
-    sIRC->ojGM5 = sConfigMgr->GetStringDefault("irc.gm5", "[Game Master]");
-    sIRC->ojGM6 = sConfigMgr->GetStringDefault("irc.gm6", "[Admin]");
-    sIRC->ojGM7 = sConfigMgr->GetStringDefault("irc.gm7", "[Developer]");
-    sIRC->ojGM8 = sConfigMgr->GetStringDefault("irc.gm8", "[Owner]");
+    sIRC->ojGM1 = sConfigMgr->GetStringDefault("irc.gm1", "[Moderator]");
+    sIRC->ojGM2 = sConfigMgr->GetStringDefault("irc.gm2", "[GameMaster]");
+    sIRC->ojGM3 = sConfigMgr->GetStringDefault("irc.gm3", "[Developer]");
+    sIRC->ojGM4 = sConfigMgr->GetStringDefault("irc.gm4", "[Owner]");
 
     // REQUIRED GM LEVEL
     QueryResult result = WorldDatabase.PQuery("SELECT `Command`, `gmlevel` FROM `irc_commands` ORDER BY `Command`");
