@@ -5884,16 +5884,16 @@ float Player::OCTRegenMPPerSpirit()
     return regen;
 }
 
-void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
+void Player::ApplyRatingMod(CombatRating combatRating, int32 value, bool apply)
 {
-    float oldRating = m_baseRatingValue[cr];
-    m_baseRatingValue[cr] += (apply ? value : -value);
+    float oldRating = m_baseRatingValue[combatRating];
+    m_baseRatingValue[combatRating] += (apply ? value : -value);
     
     // explicit affected values
-    float const mult = GetRatingMultiplier(cr);
-    float const oldVal = oldRating * mult;
-    float const newVal = m_baseRatingValue[cr] * mult;
-    switch (cr)
+    float const multiplier = GetRatingMultiplier(combatRating);
+    float const oldVal = oldRating * multiplier;
+    float const newVal = m_baseRatingValue[combatRating] * multiplier;
+    switch (combatRating)
     {
         case CR_HASTE_MELEE:
             ApplyAttackTimePercentMod(BASE_ATTACK, oldVal, false);
@@ -5913,7 +5913,7 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
             break;
     }
 
-    UpdateRating(cr);
+    UpdateRating(combatRating);
 }
 
 void Player::UpdateRating(CombatRating cr)
