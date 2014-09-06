@@ -19,6 +19,7 @@
 #define AUCHENAI_CRYPTS_H_
 
 #define ACScriptName "instance_auchenai_crypts"
+#define DataHeader   "AC"
 
 uint32 const EncounterCount = 2;
 

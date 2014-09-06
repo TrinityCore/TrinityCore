@@ -19,6 +19,8 @@
 #ifndef DEF_STRATHOLME_H
 #define DEF_STRATHOLME_H
 
+#define DataHeader "STR"
+
 enum DataTypes
 {
     TYPE_BARON_RUN                      = 1,

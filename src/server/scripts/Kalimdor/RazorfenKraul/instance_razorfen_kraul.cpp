@@ -49,6 +49,7 @@ public:
 
         void Initialize() override
         {
+            SetHeaders(DataHeader);
             WardKeeperDeath = 0;
             DoorWardGUID = 0;
         }

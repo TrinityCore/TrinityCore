@@ -19,6 +19,7 @@
 #define AHNKAHET_H_
 
 #define AhnKahetScriptName "instance_ahnkahet"
+#define DataHeader         "AK"
 
 uint32 const EncounterCount = 5;
 

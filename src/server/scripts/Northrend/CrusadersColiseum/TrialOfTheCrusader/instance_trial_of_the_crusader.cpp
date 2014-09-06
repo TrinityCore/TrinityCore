@@ -33,6 +33,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
             void Initialize() override
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTERS);
                 TrialCounter = 50;
                 EventStage = 0;

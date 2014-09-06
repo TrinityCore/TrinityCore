@@ -18,6 +18,8 @@
 #ifndef DEF_GNOMEREGAN_H
 #define DEF_GNOMEREGAN_H
 
+#define DataHeader "GNO"
+
 enum GameObjectIds
 {
     GO_CAVE_IN_LEFT     = 146085,

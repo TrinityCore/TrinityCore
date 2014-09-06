@@ -18,6 +18,8 @@
 #ifndef DEF_DEADMINES_H
 #define DEF_DEADMINES_H
 
+#define DataHeader "DM"
+
 enum CannonState
 {
     CANNON_NOT_USED,

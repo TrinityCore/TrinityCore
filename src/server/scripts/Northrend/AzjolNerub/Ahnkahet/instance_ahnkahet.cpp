@@ -35,6 +35,7 @@ class instance_ahnkahet : public InstanceMapScript
         {
             instance_ahnkahet_InstanceScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
 
@@ -258,50 +259,15 @@ class instance_ahnkahet : public InstanceMapScript
                 return true;
             }
 
-            std::string GetSaveData() override
+            void WriteSaveDataMore(std::ostringstream& data) override
             {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "A K " << GetBossSaveData() << SpheresState[0] << ' ' << SpheresState[1];
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
+                data << SpheresState[0] << ' ' << SpheresState[1];
             }
 
-            void Load(char const* str) override
+            void ReadSaveDataMore(std::istringstream& data) override
             {
-                if (!str)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(str);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(str);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'A' && dataHead2 == 'K')
-                {
-                    for (uint32 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-
-                    loadStream >> SpheresState[0];
-                    loadStream >> SpheresState[1];
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
+                data >> SpheresState[0];
+                data >> SpheresState[1];
             }
 
         protected:
@@ -317,7 +283,7 @@ class instance_ahnkahet : public InstanceMapScript
 
             std::set<uint64> InitiandGUIDs;
 
-            uint8 SpheresState[2];
+            uint32 SpheresState[2];
             uint8 SwitchTrigger;
         };
 

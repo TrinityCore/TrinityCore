@@ -19,6 +19,8 @@
 #ifndef DEF_MAGTHERIDONS_LAIR_H
 #define DEF_MAGTHERIDONS_LAIR_H
 
+#define DataHeader "ML"
+
 enum DataTypes
 {
     DATA_MAGTHERIDON_EVENT         = 1,

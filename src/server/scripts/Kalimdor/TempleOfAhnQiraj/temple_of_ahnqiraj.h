@@ -19,6 +19,8 @@
 #ifndef DEF_TEMPLE_OF_AHNQIRAJ_H
 #define DEF_TEMPLE_OF_AHNQIRAJ_H
 
+#define DataHeader "AQT"
+
 enum DataTypes
 {
     DATA_SKERAM             = 1,
