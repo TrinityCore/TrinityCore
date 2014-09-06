@@ -61,7 +61,21 @@ public:
 
     struct npc_aquementasAI : public ScriptedAI
     {
-        npc_aquementasAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_aquementasAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            SendItemTimer = 0;
+            SwitchFactionTimer = 10000;
+
+            isFriendly = true;
+
+            AquaJetTimer = 5000;
+            FrostShockTimer = 1000;
+        }
 
         uint32 SendItemTimer;
         uint32 SwitchFactionTimer;
@@ -72,13 +86,8 @@ public:
 
         void Reset() override
         {
-            SendItemTimer = 0;
-            SwitchFactionTimer = 10000;
+            Initialize();
             me->setFaction(35);
-            isFriendly = true;
-
-            AquaJetTimer = 5000;
-            FrostShockTimer = 1000;
         }
 
         void SendItem(Unit* receiver)
@@ -458,7 +467,19 @@ public:
 
     struct npc_toogaAI : public FollowerAI
     {
-        npc_toogaAI(Creature* creature) : FollowerAI(creature) { }
+        npc_toogaAI(Creature* creature) : FollowerAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            CheckSpeechTimer = 2500;
+            PostEventTimer = 1000;
+            PhasePostEvent = 0;
+
+            TortaGUID = 0;
+        }
 
         uint32 CheckSpeechTimer;
         uint32 PostEventTimer;
@@ -468,11 +489,7 @@ public:
 
         void Reset() override
         {
-            CheckSpeechTimer = 2500;
-            PostEventTimer = 1000;
-            PhasePostEvent = 0;
-
-            TortaGUID = 0;
+            Initialize();
         }
 
         void MoveInLineOfSight(Unit* who)

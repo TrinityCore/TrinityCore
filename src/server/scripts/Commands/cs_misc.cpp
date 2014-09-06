@@ -191,17 +191,17 @@ public:
         if (haveVMap)
         {
             if (map->IsOutdoors(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ()))
-                handler->PSendSysMessage("You are outdoors");
+                handler->PSendSysMessage(LANG_GPS_POSITION_OUTDOORS);
             else
-                handler->PSendSysMessage("You are indoors");
+                handler->PSendSysMessage(LANG_GPS_POSITION_INDOORS);
         }
         else
-            handler->PSendSysMessage("no VMAP available for area info");
+            handler->PSendSysMessage(LANG_GPS_NO_VMAP);
 
         handler->PSendSysMessage(LANG_MAP_POSITION,
-            mapId, (mapEntry ? mapEntry->name : "<unknown>"),
-            zoneId, (zoneEntry ? zoneEntry->area_name : "<unknown>"),
-            areaId, (areaEntry ? areaEntry->area_name : "<unknown>"),
+            mapId, (mapEntry ? mapEntry->name : handler->GetTrinityString(LANG_UNKNOWN)),
+            zoneId, (zoneEntry ? zoneEntry->area_name : handler->GetTrinityString(LANG_UNKNOWN)),
+            areaId, (areaEntry ? areaEntry->area_name : handler->GetTrinityString(LANG_UNKNOWN)),
             object->GetPhaseMask(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation(),
             cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
@@ -809,7 +809,7 @@ public:
         if (handler->HasLowerSecurity(target, 0))
             return false;
 
-        std::string kickReasonStr = "No reason";
+        std::string kickReasonStr = handler->GetTrinityString(LANG_NO_REASON);
         if (*args != '\0')
         {
             char const* kickReason = strtok(NULL, "\r");
@@ -1442,22 +1442,22 @@ public:
         std::string lastLogin         = handler->GetTrinityString(LANG_ERROR);
         uint32 failedLogins           = 0;
         uint32 latency                = 0;
-        std::string OS                = "None";
+        std::string OS                = handler->GetTrinityString(LANG_UNKNOWN);
 
         // Mute data print variables
         int64 muteTime                = -1;
-        std::string muteReason        = "unknown";
-        std::string muteBy            = "unknown";
+        std::string muteReason        = handler->GetTrinityString(LANG_NO_REASON);
+        std::string muteBy            = handler->GetTrinityString(LANG_UNKNOWN);
 
         // Ban data print variables
         int64 banTime                 = -1;
-        std::string banType           = "None";
-        std::string banReason         = "Unknown";
-        std::string bannedBy          = "Unknown";
+        std::string banType           = handler->GetTrinityString(LANG_UNKNOWN);
+        std::string banReason         = handler->GetTrinityString(LANG_NO_REASON);
+        std::string bannedBy          = handler->GetTrinityString(LANG_UNKNOWN);
 
         // Character data print variables
         uint8 raceid, classid           = 0; //RACE_NONE, CLASS_NONE
-        std::string raceStr, classStr   = "None";
+        std::string raceStr, classStr   = handler->GetTrinityString(LANG_UNKNOWN);
         uint8 gender                    = 0;
         int8 locale                     = handler->GetSessionDbcLocale();
         uint32 totalPlayerTime          = 0;
@@ -1471,8 +1471,8 @@ public:
         uint32 mapId;
         uint32 areaId;
         uint32 phase            = 0;
-        std::string areaName    = "<unknown>";
-        std::string zoneName    = "<unknown>";
+        std::string areaName    = handler->GetTrinityString(LANG_UNKNOWN);
+        std::string zoneName    = handler->GetTrinityString(LANG_UNKNOWN);
 
         // Guild data print variables defined so that they exist, but are not necessarily used
         uint32 guildId           = 0;
@@ -1500,7 +1500,7 @@ public:
             muteTime          = target->GetSession()->m_muteTime;
             mapId             = target->GetMapId();
             areaId            = target->GetAreaId();
-            alive             = target->IsAlive() ? "Yes" : "No";
+            alive             = target->IsAlive() ? handler->GetTrinityString(LANG_YES) : handler->GetTrinityString(LANG_NO);
             gender            = target->getGender();
             phase             = target->GetPhaseMask();
         }
@@ -1533,9 +1533,9 @@ public:
             uint32 playerFlags = fields[10].GetUInt32();
 
             if (!health || playerFlags & PLAYER_FLAGS_GHOST)
-                alive = "No";
+                alive = handler->GetTrinityString(LANG_NO);
             else
-                alive = "Yes";
+                alive = handler->GetTrinityString(LANG_YES);
         }
 
         // Query the prepared statement for login data
@@ -1575,9 +1575,10 @@ public:
             }
             else
             {
-                eMail     = "Unauthorized";
-                lastIp    = "Unauthorized";
-                lastLogin = "Unauthorized";
+                eMail     = handler->GetTrinityString(LANG_UNAUTHORIZED);
+                regMail   = handler->GetTrinityString(LANG_UNAUTHORIZED);
+                lastIp    = handler->GetTrinityString(LANG_UNAUTHORIZED);
+                lastLogin = handler->GetTrinityString(LANG_UNAUTHORIZED);
             }
             muteTime      = fields[6].GetUInt64();
             muteReason    = fields[7].GetString();
@@ -1596,7 +1597,7 @@ public:
         PreparedQueryResult result2 = LoginDatabase.Query(stmt2);
         if (!result2)
         {
-            banType = "Character";
+            banType = handler->GetTrinityString(LANG_CHARACTER);
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PINFO_BANS);
             stmt->setUInt32(0, lowguid);
             result2 = CharacterDatabase.Query(stmt);
@@ -1653,7 +1654,7 @@ public:
 
         // Output III. LANG_PINFO_BANNED if ban exists and is applied
         if (banTime >= 0)
-            handler->PSendSysMessage(LANG_PINFO_BANNED, banType.c_str(), banReason.c_str(), banTime > 0 ? secsToTimeString(banTime - time(NULL), true).c_str() : "permanently", bannedBy.c_str());
+            handler->PSendSysMessage(LANG_PINFO_BANNED, banType.c_str(), banReason.c_str(), banTime > 0 ? secsToTimeString(banTime - time(NULL), true).c_str() : handler->GetTrinityString(LANG_PERMANENTLY), bannedBy.c_str());
 
         // Output IV. LANG_PINFO_MUTED if mute is applied
         if (muteTime > 0)
@@ -1672,7 +1673,7 @@ public:
         handler->PSendSysMessage(LANG_PINFO_ACC_REGMAILS, regMail.c_str(), eMail.c_str());
 
         // Output IX. LANG_PINFO_ACC_IP
-        handler->PSendSysMessage(LANG_PINFO_ACC_IP, lastIp.c_str(), locked ? "Yes" : "No");
+        handler->PSendSysMessage(LANG_PINFO_ACC_IP, lastIp.c_str(), locked ? handler->GetTrinityString(LANG_YES) : handler->GetTrinityString(LANG_NO));
 
         // Output X. LANG_PINFO_CHR_LEVEL
         if (level != sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
@@ -1711,7 +1712,7 @@ public:
         }
 
         if (target)
-            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->name, (!zoneName.empty() ? zoneName.c_str() : "<Unknown>"), (!areaName.empty() ? areaName.c_str() : "<Unknown>"));
+            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->name, (!zoneName.empty() ? zoneName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)), (!areaName.empty() ? areaName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)));
 
         // Output XVII. - XVIX. if they are not empty
         if (!guildName.empty())
@@ -1791,7 +1792,7 @@ public:
             return false;
 
         char const* muteReason = strtok(NULL, "\r");
-        std::string muteReasonStr = "No reason";
+        std::string muteReasonStr = handler->GetTrinityString(LANG_NO_REASON);
         if (muteReason != NULL)
             muteReasonStr = muteReason;
 
@@ -1819,7 +1820,7 @@ public:
         if (handler->GetSession())
             muteBy = handler->GetSession()->GetPlayerName();
         else
-            muteBy = "Console";
+            muteBy = handler->GetTrinityString(LANG_CONSOLE);
 
         if (target)
         {

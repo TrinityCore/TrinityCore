@@ -65,12 +65,18 @@ class boss_rajaxx : public CreatureScript
         {
             boss_rajaxxAI(Creature* creature) : BossAI(creature, DATA_RAJAXX)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                enraged = false;
             }
 
             void Reset() override
             {
                 _Reset();
-                enraged = false;
+                Initialize();
                 events.ScheduleEvent(EVENT_DISARM, 10000);
                 events.ScheduleEvent(EVENT_THUNDERCRASH, 12000);
             }

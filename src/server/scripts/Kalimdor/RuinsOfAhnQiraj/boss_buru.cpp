@@ -69,6 +69,7 @@ class boss_buru : public CreatureScript
         {
             boss_buruAI(Creature* creature) : BossAI(creature, DATA_BURU)
             {
+                _phase = 0;
             }
 
             void EnterEvadeMode() override

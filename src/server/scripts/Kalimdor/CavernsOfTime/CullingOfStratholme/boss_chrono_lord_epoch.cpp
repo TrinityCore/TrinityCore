@@ -59,7 +59,18 @@ public:
     {
         boss_epochAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiStep = 1;
+            uiStepTimer = 26000;
+            uiCurseOfExertionTimer = 9300;
+            uiTimeWarpTimer = 25300;
+            uiTimeStopTimer = 21300;
+            uiWoundingStrikeTimer = 5300;
         }
 
         uint8 uiStep;
@@ -74,12 +85,7 @@ public:
 
         void Reset() override
         {
-            uiStep = 1;
-            uiStepTimer = 26000;
-            uiCurseOfExertionTimer = 9300;
-            uiTimeWarpTimer = 25300;
-            uiTimeStopTimer = 21300;
-            uiWoundingStrikeTimer = 5300;
+            Initialize();
 
             instance->SetData(DATA_EPOCH_EVENT, NOT_STARTED);
         }

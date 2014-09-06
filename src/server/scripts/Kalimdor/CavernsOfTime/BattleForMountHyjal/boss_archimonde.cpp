@@ -90,7 +90,13 @@ public:
     {
         npc_ancient_wispAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            CheckTimer = 1000;
             ArchimondeGUID = 0;
         }
 
@@ -100,7 +106,7 @@ public:
 
         void Reset() override
         {
-            CheckTimer = 1000;
+            Initialize();
 
             ArchimondeGUID = instance->GetData64(DATA_ARCHIMONDE);
 
@@ -174,15 +180,23 @@ public:
 
     struct npc_doomfire_targettingAI : public ScriptedAI
     {
-        npc_doomfire_targettingAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_doomfire_targettingAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            TargetGUID = 0;
+            ChangeTargetTimer = 5000;
+        }
 
         uint64 TargetGUID;
         uint32 ChangeTargetTimer;
 
         void Reset() override
         {
-            TargetGUID = 0;
-            ChangeTargetTimer = 5000;
+            Initialize();
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -244,7 +258,34 @@ public:
     {
         boss_archimondeAI(Creature* creature) : hyjal_trashAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            DoomfireSpiritGUID = 0;
+            damageTaken = 0;
+            WorldTreeGUID = 0;
+
+            DrainNordrassilTimer = 0;
+            FearTimer = 42000;
+            AirBurstTimer = 30000;
+            GripOfTheLegionTimer = urand(5000, 25000);
+            DoomfireTimer = 20000;
+            SoulChargeTimer = urand(2000, 30000);
+            SoulChargeCount = 0;
+            MeleeRangeCheckTimer = 15000;
+            HandOfDeathTimer = 2000;
+            WispCount = 0;                                      // When ~30 wisps are summoned, Archimonde dies
+            EnrageTimer = 600000;                               // 10 minutes
+            CheckDistanceTimer = 30000;                         // This checks if he's too close to the World Tree (75 yards from a point on the tree), if true then he will enrage
+            SummonWispTimer = 0;
+
+            Enraged = false;
+            BelowTenPercent = false;
+            HasProtected = false;
+            IsChanneling = false;
         }
 
         InstanceScript* instance;
@@ -275,28 +316,7 @@ public:
         {
             instance->SetData(DATA_ARCHIMONDEEVENT, NOT_STARTED);
 
-            DoomfireSpiritGUID = 0;
-            damageTaken = 0;
-            WorldTreeGUID = 0;
-
-            DrainNordrassilTimer = 0;
-            FearTimer = 42000;
-            AirBurstTimer = 30000;
-            GripOfTheLegionTimer = urand(5000, 25000);
-            DoomfireTimer = 20000;
-            SoulChargeTimer = urand(2000, 30000);
-            SoulChargeCount = 0;
-            MeleeRangeCheckTimer = 15000;
-            HandOfDeathTimer = 2000;
-            WispCount = 0;                                      // When ~30 wisps are summoned, Archimonde dies
-            EnrageTimer = 600000;                               // 10 minutes
-            CheckDistanceTimer = 30000;                         // This checks if he's too close to the World Tree (75 yards from a point on the tree), if true then he will enrage
-            SummonWispTimer = 0;
-
-            Enraged = false;
-            BelowTenPercent = false;
-            HasProtected = false;
-            IsChanneling = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

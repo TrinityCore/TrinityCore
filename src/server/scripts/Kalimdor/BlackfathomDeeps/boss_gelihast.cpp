@@ -38,7 +38,13 @@ public:
     {
         boss_gelihastAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            netTimer = urand(2000, 4000);
         }
 
         uint32 netTimer;
@@ -47,7 +53,7 @@ public:
 
         void Reset() override
         {
-            netTimer = urand(2000, 4000);
+            Initialize();
             instance->SetData(TYPE_GELIHAST, NOT_STARTED);
         }
 
