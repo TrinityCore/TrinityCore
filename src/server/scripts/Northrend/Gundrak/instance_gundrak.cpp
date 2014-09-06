@@ -45,6 +45,7 @@ public:
     {
         instance_gundrak_InstanceMapScript(Map* map) : InstanceScript(map)
         {
+            SetHeaders(DataHeader);
             isHeroic = map->IsHeroic();
         }
 

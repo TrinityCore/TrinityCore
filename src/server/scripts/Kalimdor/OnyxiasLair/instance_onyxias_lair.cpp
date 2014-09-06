@@ -50,6 +50,7 @@ public:
 
         void Initialize() override
         {
+            SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
 
             onyxiaGUID               = 0;
@@ -265,61 +266,17 @@ public:
             return false;
         }
 
-        std::string GetSaveData() override
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-            saveStream << "O L " << GetBossSaveData();
-
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return saveStream.str();
-        }
-
-        void Load(const char* strIn) override
-        {
-            if (!strIn)
-            {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
-            }
-
-            OUT_LOAD_INST_DATA(strIn);
-
-            char dataHead1, dataHead2;
-
-            std::istringstream loadStream(strIn);
-            loadStream >> dataHead1 >> dataHead2;
-
-            if (dataHead1 == 'O' && dataHead2 == 'L')
-            {
-                for (uint8 i = 0; i < EncounterCount; ++i)
-                {
-                    uint32 tmpState;
-                    loadStream >> tmpState;
-                    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                        tmpState = NOT_STARTED;
-
-                    SetBossState(i, EncounterState(tmpState));
-                }
-            }
-            else
-                OUT_LOAD_INST_DATA_FAIL;
-
-            OUT_LOAD_INST_DATA_COMPLETE;
-        }
-
-        protected:
-            std::map<uint64, uint32> FloorEruptionGUID[2];
-            std::queue<uint64> FloorEruptionGUIDQueue;
-            uint64 onyxiaGUID;
-            uint64 triggerGUID;
-            uint64 tankGUID;
-            uint32 onyxiaLiftoffTimer;
-            uint32 manyWhelpsCounter;
-            uint32 eruptTimer;
-            bool   achievManyWhelpsHandleIt;
-            bool   achievSheDeepBreathMore;
+    protected:
+        std::map<uint64, uint32> FloorEruptionGUID[2];
+        std::queue<uint64> FloorEruptionGUIDQueue;
+        uint64 onyxiaGUID;
+        uint64 triggerGUID;
+        uint64 tankGUID;
+        uint32 onyxiaLiftoffTimer;
+        uint32 manyWhelpsCounter;
+        uint32 eruptTimer;
+        bool   achievManyWhelpsHandleIt;
+        bool   achievSheDeepBreathMore;
     };
 };
 

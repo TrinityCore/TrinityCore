@@ -18,6 +18,8 @@
 #ifndef DEF_GUNDRAK_H
 #define DEF_GUNDRAK_H
 
+#define DataHeader "GD"
+
 enum Data
 {
     DATA_SLAD_RAN_EVENT,

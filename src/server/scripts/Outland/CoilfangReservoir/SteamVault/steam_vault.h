@@ -19,6 +19,7 @@
 #define DEF_STEAM_VAULT_H
 
 #define SteamVaultScriptName "instance_steam_vault"
+#define DataHeader "SV"
 
 uint32 const EncounterCount = 3;
 

@@ -19,6 +19,8 @@
 #define BLOOD_FURNACE_H_
 
 #define BFScriptName "instance_blood_furnace"
+#define DataHeader   "BF"
+
 uint32 const EncounterCount = 3;
 
 enum DataTypes

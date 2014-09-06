@@ -18,6 +18,8 @@
 #ifndef DEF_SCHOLOMANCE_H
 #define DEF_SCHOLOMANCE_H
 
+#define DataHeader "SC"
+
 uint32 const EncounterCount             = 8;
 
 enum DataTypes
