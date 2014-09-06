@@ -76,9 +76,6 @@ class IRCClient
 
         void run();
 
-        // AH Function
-        void AHCancel(uint64 itmid, std::string itmnme, std::string plname, uint32 faction);
-        //bool BeenToGMI(float posx, float posy, std::string player, std::string from);
         // IRCClient active
         bool Active;
         // Connected to IRC
@@ -180,10 +177,6 @@ class IRCClient
         string ojGM2;
         string ojGM3;
         string ojGM4;
-        string ojGM5;
-        string ojGM6;
-        string ojGM7;
-        string ojGM8;
         string logfile;
         string logchan;
         string logchanpw;
