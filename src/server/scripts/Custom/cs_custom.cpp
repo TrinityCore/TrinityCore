@@ -110,19 +110,20 @@ class custom_commandscript : public CommandScript
 
         static bool HandleMuteInfoHelper(char const* type, uint32 accountId, char const* accountName, ChatHandler* handler)
         {
+            std::string param = (char*)type;
             QueryResult result = LoginDatabase.PQuery("SELECT FROM_UNIXTIME(mutedate), mutetime, mutereason, mutedby FROM account_muted WHERE guid = '%u' ORDER BY mutedate ASC", accountId);
             if (!result)
             {
-                if (type == "account")
+                if (param == "account")
                     handler->PSendSysMessage("No mutes for account: %s", accountName);
-                else if (type == "character")
+                else if (param == "character")
                     handler->PSendSysMessage("No mutes for character: %s", accountName);
                 return true;
             }
 
-            if (type == "account")
+            if (param == "account")
                 handler->PSendSysMessage("Mutes for account: %s", accountName);
-            else if (type == "character")
+            else if (param == "character")
                 handler->PSendSysMessage("Mutes for character: %s", accountName);
             do
             {
