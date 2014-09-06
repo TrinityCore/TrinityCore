@@ -200,8 +200,7 @@ public:
 
         int32 field = 0;
         int32 value = 0;
-
-        Player* target;
+        uint64 playerGuid = 0;
 
         std::string playerName;
 
@@ -216,51 +215,55 @@ public:
         {
             value = atoi(param2);
             field = atoi(param1);
-            
             if (handler->GetSession())
-                target = handler->GetSession()->GetPlayer();
+                playerGuid = handler->GetSession()->GetPlayer()->GetGUID();
         }
         else
         {
             value = atoi(param2);
             field = atoi(param1);
             playerName = param3;
+
             if (normalizePlayerName(playerName))
-                target = sObjectAccessor->FindPlayerByName(playerName);
+                if (Player* player = sObjectAccessor->FindPlayerByName(playerName))
+                    playerGuid = player->GetGUID();
         }
 
-        if (!target)
+        if (Player* player = sObjectAccessor->FindPlayer(playerGuid))
+        {
+            Map* map = player->GetMap();
+            if (!map->IsDungeon())
+            {
+                handler->PSendSysMessage("Map is not a dungeon.");
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (!((InstanceMap*)map)->GetInstanceScript())
+            {
+                handler->PSendSysMessage("Map has no instance data.");
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (value > 5)
+            {
+                handler->PSendSysMessage("State index out of range.");
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            ((InstanceMap*)map)->GetInstanceScript()->SetBossState(field, (EncounterState)value);
+            handler->PSendSysMessage("Instance data field %i is now set to %i.", field, value);
+            return true;
+        }
+        else
         {
             handler->PSendSysMessage("Player not found.");
             handler->SetSentErrorMessage(true);
             return false;
         }
-
-        Map* map = target->GetMap();
-        if (!map->IsDungeon())
-        {
-            handler->PSendSysMessage("Map is not a dungeon.");
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        if (!((InstanceMap*)map)->GetInstanceScript())
-        {
-            handler->PSendSysMessage("Map has no instance data.");
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        if (value > 5)
-        {
-            handler->PSendSysMessage("State index out of range.");
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        ((InstanceMap*)map)->GetInstanceScript()->SetBossState(field, (EncounterState)value);
-        handler->PSendSysMessage("Instance data field %i is now set to %i.", field, value);
-        return true;
+        return false;
     }
 
     static bool HandleInstanceGetDataCommand(ChatHandler* handler, char const* args)
@@ -272,8 +275,7 @@ public:
         char* param2 = strtok(NULL, " ");
 
         int32 field = 0;
-
-        Player* target;
+        uint64 playerGuid = 0;
 
         std::string playerName;
         std::string output;
@@ -288,67 +290,73 @@ public:
         if (!param2)
         {
             field = atoi(param1);
-            target = handler->GetSession()->GetPlayer();
+            if (handler->GetSession())
+                playerGuid = handler->GetSession()->GetPlayer()->GetGUID();
         }
         else
         {
             field = atoi(param1);
             playerName = param2;
+            
             if (normalizePlayerName(playerName))
-                target = sObjectAccessor->FindPlayerByName(playerName);
+                if (Player* player = sObjectAccessor->FindPlayerByName(playerName))
+                    playerGuid = player->GetGUID();
         }
 
-        if (!target)
+        if (Player* player = sObjectAccessor->FindPlayer(playerGuid))
+        {
+            Map* map = player->GetMap();
+            if (!map->IsDungeon())
+            {
+                handler->PSendSysMessage("Map is not a dungeon.");
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (!((InstanceMap*)map)->GetInstanceScript())
+            {
+                handler->PSendSysMessage("Map has no instance data.");
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            int32 value = ((InstanceMap*)map)->GetInstanceScript()->GetBossState(field);
+
+            // Funky way to do this - improve if you can!
+            switch (value)
+            {
+                case NOT_STARTED:
+                    output = "0 - (NOT_STARTED)";
+                    break;
+                case IN_PROGRESS:
+                    output = "1 - (IN_PROGRESS)";
+                    break;
+                case FAIL:
+                    output = "2 - (FAIL)";
+                    break;
+                case DONE:
+                    output = "3 - (DONE)";
+                    break;
+                case SPECIAL:
+                    output = "4 - (SPECIAL)";
+                    break;
+                case TO_BE_DECIDED:
+                    output = "5 - (TO_BE_DECIDED)";
+                    break;
+                default:
+                    break;
+            }
+
+            handler->PSendSysMessage("Instance data for field %i is %s.", field, output.c_str());
+            return true;
+        }
+        else
         {
             handler->PSendSysMessage("Player not found.");
             handler->SetSentErrorMessage(true);
             return false;
         }
-
-        Map* map = target->GetMap();
-        if (!map->IsDungeon())
-        {
-            handler->PSendSysMessage("Map is not a dungeon.");
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        if (!((InstanceMap*)map)->GetInstanceScript())
-        {
-            handler->PSendSysMessage("Map has no instance data.");
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        int32 value = ((InstanceMap*)map)->GetInstanceScript()->GetBossState(field);
-
-        // Funky way to do this - improve if you can!
-        switch (value)
-        {
-            case NOT_STARTED:
-                output = "0 - (NOT_STARTED)";
-                break;
-            case IN_PROGRESS:
-                output = "1 - (IN_PROGRESS)";
-                break;
-            case FAIL:
-                output = "2 - (FAIL)";
-                break;
-            case DONE:
-                output = "3 - (DONE)";
-                break;
-            case SPECIAL:
-                output = "4 - (SPECIAL)";
-                break;
-            case TO_BE_DECIDED:
-                output = "5 - (TO_BE_DECIDED)";
-                break;
-            default: 
-                break;
-        }
-
-        handler->PSendSysMessage("Instance data for field %i is %s.", field, output.c_str());
-        return true;
+        return false;
     }
 };
 
