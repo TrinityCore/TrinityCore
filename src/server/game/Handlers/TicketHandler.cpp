@@ -124,7 +124,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
             //begin // because newlines don't show on irc
             std::string tmsg = ticket->GetMessage().c_str();
             int position = tmsg.find( "\n" ); // find first newline
-            while ( position != string::npos ) 
+            while ( position != int(string::npos) ) 
             {
                 tmsg.replace( position, 1, "|" );
                 position = tmsg.find( "\n", position + 1 );
@@ -168,15 +168,16 @@ void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket& recvData)
             ircchan += sIRC->ticann;
             smsg << "[By: \00304" << GetPlayer()->GetName().c_str() << "\003 ][ID: \00304" << ticket->GetId() << "\003 ]";
             sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00304Ticket Updated\003] %s", " %s" , smsg.str().c_str()) , true);
-            //begin // because newlines don't show on irc
+            // begin
+            // because newlines don't show on irc
             std::string tmsg = ticket->GetMessage().c_str();
             int position = tmsg.find( "\n" ); // find first newline
-            while ( position != string::npos ) 
+            while ( position != int(string::npos) )
             {
                 tmsg.replace( position, 1, "|" );
                 position = tmsg.find( "\n", position + 1 );
             }
-            //end
+            // end
             if (tmsg.size() <= 400)
                 sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00304Ticket Message\003]: %s ", " %s", tmsg.c_str()), true);
             else

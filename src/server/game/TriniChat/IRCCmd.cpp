@@ -806,7 +806,7 @@ bool IRCCmd::ValidParams(std::string PARAMS, int nCount)
     if (nCount == 1 && PARAMS.size() == 0)
         return false;
     int pcount = 0;
-    size_t p = -1;
+    int p = -1;
     for (int i = 0;i < nCount;i++)
     {
         p = PARAMS.find(" ", p + 1);
@@ -827,7 +827,7 @@ std::string* IRCCmd::getArray(std::string PARAMS, int nCount)
     std::string *array = new std::string[nCount];
     if (PARAMS.size() > 0)
     {
-        int pcnt = 0;
+        //unused? int pcnt = 0;
         size_t ps = 0;
         size_t pc = -1;
         for (int i = 0;i < nCount;i++)

@@ -59,15 +59,15 @@ void mcs_OnlinePlayers::run()
             std::string ChatTag = " ";
             switch(plr->GetSession()->GetSecurity())
             {
-                  case 0: ChatTag.append("");break;
-                  case 1: ChatTag.append("\0037"+sIRC->ojGM1);break;
-                  case 2: ChatTag.append("\0037"+sIRC->ojGM2);break;
-                  case 3: ChatTag.append("\0037"+sIRC->ojGM3);break;
-                  case 4: ChatTag.append("\0037"+sIRC->ojGM4);break;
-                  case 5: ChatTag.append("\0037"+sIRC->ojGM5);break;
-           case 6: ChatTag.append("\0037"+sIRC->ojGM6);break;
-           case 7: ChatTag.append("\0037"+sIRC->ojGM7);break;
-           case 8: ChatTag.append("\0037"+sIRC->ojGM8);break;
+                case 0: ChatTag.append("");break;
+                case 1: ChatTag.append("\0037"+sIRC->ojGM1);break;
+                case 2: ChatTag.append("\0037"+sIRC->ojGM2);break;
+                case 3: ChatTag.append("\0037"+sIRC->ojGM3);break;
+                case 4: ChatTag.append("\0037"+sIRC->ojGM4);break;
+                case 5: ChatTag.append("\0037"+sIRC->ojGM5);break;
+                case 6: ChatTag.append("\0037"+sIRC->ojGM6);break;
+                case 7: ChatTag.append("\0037"+sIRC->ojGM7);break;
+                case 8: ChatTag.append("\0037"+sIRC->ojGM8);break;
             }
             if (plr->isAFK())
                 ChatTag.append("\002\0037<AFK>\003\002");

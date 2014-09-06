@@ -207,7 +207,7 @@ void IRCClient::Handle_IRC(std::string sData)
                 // extract the details
                 size_t p3 = sData.find(" ", p2 + 1);
                 size_t p4 = sData.find(" ", p3 + 1);
-                size_t p5 = sData.find(":", p4);
+                //unused? size_t p5 = sData.find(":", p4);
                 std::string CHAN = sData.substr(p2 + 1, p3 - p2 - 1);
                 std::string WHO = sData.substr(p3 + 1, p4 - p3 - 1);
                 std::string BY = sData.substr(p4 + 1, sData.size() - p4 - 1);
@@ -272,11 +272,11 @@ void IRCClient::Handle_IRC(std::string sData)
                 std::string CHAN = sData.substr(p2 + 1, p3 - p2 - 1);
                 std::string MODE = sData.substr(p3 + 1, p4 - p3 - 1);
                 std::string NICK = sData.substr(p4 + 1, p5 - p4 - 1);
-                bool _AmiOp;
+                //unused? bool _AmiOp;
                 _AmiOp = false;
                 //A mode was changed on us
                 if (NICK.c_str() == sIRC->_Nick)
-                    _AmiOp = true;
+                _AmiOp = true;
 
             }
         }
@@ -419,7 +419,7 @@ void IRCClient::Send_WoW_Channel(const char *channel, std::string chat)
         {
             if (ChannelMgr* cMgr = ChannelMgr::forTeam(itr->second->GetSession()->GetPlayer()->GetTeam()))
             {
-                if (Channel *chn = cMgr->GetChannel(channel, itr->second->GetSession()->GetPlayer()))
+                if (cMgr->GetChannel(channel, itr->second->GetSession()->GetPlayer()))
                 {
                     WorldPacket data;
                     data.Initialize(SMSG_MESSAGECHAT);

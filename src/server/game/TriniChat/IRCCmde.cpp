@@ -37,9 +37,9 @@
 #include "ReputationMgr.h"
 #include "ArenaTeamMgr.h"
 
-#pragma warning(disable:4018)
-#pragma warning(disable:4804)
-#pragma warning(disable:4700)
+//#pragma warning(disable:4018)
+//#pragma warning(disable:4804)
+//#pragma warning(disable:4700)
 
 #define Send_Player(p, m)           sIRC->Send_WoW_Player(p, m)
 #define Send_IRCA(c, m, b, t)       sIRC->Send_IRC_Channel(c, m, b, t)
@@ -129,7 +129,7 @@ void IRCCmd::Account_Player(_CDATA *CD)
     }
     normalizePlayerName(_PARAMS[0]);
     uint64 guid = sObjectMgr->GetPlayerGUIDByName(_PARAMS[0]);
-    uint32 account_id = 0;
+    int account_id = 0;
     account_id = sObjectMgr->GetPlayerAccountIdByGUID(guid);
     if (account_id)
     {
@@ -318,14 +318,14 @@ void IRCCmd::Char_Player(_CDATA *CD)
         }
         if (_PARAMS[1] == "setskill")
         {
-            std::string* _PARAMSA = getArray(_PARAMS[2], 4);
+            //unused? std::string* _PARAMSA = getArray(_PARAMS[2], 4);
             uint32 skill = atoi(_PARAMS[2].c_str());
             uint32 step = atoi(_PARAMS[3].c_str());
             uint32 level = atol(_PARAMS[4].c_str());
             int32 max   = _PARAMS[5].c_str() ? atol (_PARAMS[5].c_str()) : plr->GetPureMaxSkillValue(skill);
             SkillLineEntry const* skilllookup = sSkillLineStore.LookupEntry(skill);
             //if skillid entered is not a number and greater then 0 then the command is being used wrong
-            if (skill >= 0)
+            if (skill > 0)
             {
                 //does the skill even exist
                 if (skilllookup)
@@ -396,7 +396,7 @@ void IRCCmd::Char_Player(_CDATA *CD)
             {
                 QueryResult item_max = WorldDatabase.PQuery("SELECT MAX(entry) FROM item_template");
                 Quest const* pQuest = sObjectMgr->GetQuestTemplate(qId);
-                for (uint32 id = 0; id < item_max->Fetch()->GetInt32(); id++)
+                for (uint32 id = 0; id < item_max->Fetch()->GetUInt32(); id++)
                 {
                     ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(id);
                     if (!pProto)
@@ -582,7 +582,7 @@ void IRCCmd::Help_IRC(_CDATA *CD)
                 if (result)
                 {
                     Field *fields = result->Fetch();
-                    if (fields[1].GetUInt32() > GetLevel(CD->USER))
+                    if (fields[1].GetInt32() > GetLevel(CD->USER))
                     {
                         Send_IRCA(CD->USER, "You Do Not Have Access To That Command, So No Help Is Available.", true, CD->TYPE.c_str());
                         return;
@@ -668,7 +668,7 @@ void IRCCmd::Inchan_Server(_CDATA *CD)
 
 void IRCCmd::Info_Server(_CDATA *CD)
 {
-    std::string* _PARAMS = getArray(CD->PARAMS, 1);
+    //unused? std::string* _PARAMS = getArray(CD->PARAMS, 1);
     char clientsNum [50];
     sprintf(clientsNum, "%u", sWorld->GetActiveSessionCount());
     char maxClientsNum [50];
@@ -750,7 +750,7 @@ void IRCCmd::Item_Player(_CDATA *CD)
             Send_IRCA(CD->USER, ""+_PARAMS[0]+" Is Not Online!", true, "ERROR");
             return;
         }
-        ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(itemId);
+        //unused? ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(itemId);
         //Subtract
         if (count < 0)
         {
@@ -959,7 +959,7 @@ void IRCCmd::Player_Player(_CDATA *CD)
             ChrRacesEntry const* prace = sChrRacesStore.LookupEntry(praceid);
             ChrClassesEntry const* pclass = sChrClassesStore.LookupEntry(pclassid);
 
-            if (atoi(plevel.c_str()) < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+            if (uint32(atoi(plevel.c_str())) < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
                 plevel += " (" + pxp + ")";
             unsigned int gold = money / 10000;
             unsigned int silv = (money % 10000) / 100;
@@ -1131,7 +1131,7 @@ void IRCCmd::Lookup_Player(_CDATA *CD)
                 ChrRacesEntry const* prace = sChrRacesStore.LookupEntry(praceid);
                 ChrClassesEntry const* pclass = sChrClassesStore.LookupEntry(pclassid);
 
-                if (atoi(plevel.c_str()) < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+                if (uint32(atoi(plevel.c_str())) < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
                     plevel += " (" + pxp + ")";
                 unsigned int gold = money / 10000;
                 unsigned int silv = (money % 10000) / 100;
@@ -1558,12 +1558,12 @@ void IRCCmd::Level_Player(_CDATA *CD)
         return;
     } else if (i_newlvl < 1 || i_newlvl > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
-        Send_IRCA(CD->USER, MakeMsg("Level Must Be Between 1 And %i!",sConfigMgr->GetIntDefault("MaxPlayerLevel", 70)), true, "ERROR");
+        Send_IRCA(CD->USER, MakeMsg("Level Must Be Between 1 And %i!",sConfigMgr->GetIntDefault("MaxPlayerLevel", 80)), true, "ERROR");
         return;
     } else
     {
         Player *chr = ObjectAccessor::FindPlayer(guid);
-        uint64 level;
+        uint64 level = 1;
         int32 i_oldlvl = chr ? chr->getLevel() : Player::GetLevelFromDB(level);
         Player* plTarget = chr;
         if (!plTarget)
@@ -1595,7 +1595,7 @@ void IRCCmd::Level_Player(_CDATA *CD)
                          ss << "You have been leveled down" << i_newlvl-i_oldlvl;
                          //CH.FillSystemMessageData(&data, ss.str().c_str());
                          CH.BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, ss.str().c_str());
-             chr->GetSession()->SendPacket(&data);
+                         chr->GetSession()->SendPacket(&data);
                         }
         }
         else
@@ -1619,7 +1619,7 @@ void IRCCmd::Money_Player(_CDATA *CD)
     std::string player  = _PARAMS[0];
     normalizePlayerName(player);
     uint64 guid = sObjectMgr->GetPlayerGUIDByName(player.c_str());
-    Player *chr = ObjectAccessor::FindPlayer(guid);
+    //unused? Player *chr = ObjectAccessor::FindPlayer(guid);
 
     std::string s_money  = _PARAMS[1];
     int32 money = atoi(s_money.c_str());

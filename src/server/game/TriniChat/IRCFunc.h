@@ -46,14 +46,14 @@ std::string Delink(std::string msg)
     while((pos = msg.find("|Hitem")) != std::string::npos)
     {
         std::size_t find1 = msg.find("|h", pos);
-         std::size_t find2 = msg.find("|h", find1 + 2);
+        //unused? std::size_t find2 = msg.find("|h", find1 + 2);
         msg.replace(pos, find1 - pos + 2, "\x2");
         msg.replace(msg.find("|h", pos), 2, "\x2");
     }
     while((pos = msg.find("|Henchant")) != std::string::npos)
     {
         std::size_t find1 = msg.find("|h", pos);
-        std::size_t find2 = msg.find("|h", find1 + 2);
+        //unused? std::size_t find2 = msg.find("|h", find1 + 2);
         msg.replace(pos, find1 - pos + 2, "\x2");
         msg.replace(msg.find("|h", pos), 2, "\x2");
         //msg.replace(find2, 2, "\x2");
@@ -61,21 +61,21 @@ std::string Delink(std::string msg)
     while((pos = msg.find("|Hquest")) != std::string::npos)
     {
         std::size_t find1 = msg.find("|h", pos);
-         std::size_t find2 = msg.find("|h", find1 + 2);
+        //unused? std::size_t find2 = msg.find("|h", find1 + 2);
         msg.replace(pos, find1 - pos + 2, "\x2");
         msg.replace(msg.find("|h", pos), 2, "\x2");
     }
     while((pos = msg.find("|Hspell")) != std::string::npos)
     {
-         std::size_t find1 = msg.find("|h", pos);
-         std::size_t find2 = msg.find("|h", find1 + 2);
+        std::size_t find1 = msg.find("|h", pos);
+        //unused? std::size_t find2 = msg.find("|h", find1 + 2);
         msg.replace(pos, find1 - pos + 2, "\x2");
         msg.replace(msg.find("|h", pos), 2, "\x2");
     }
     while((pos = msg.find("|Htalent")) != std::string::npos)
     {
         std::size_t find1 = msg.find("|h", pos);
-        std::size_t find2 = msg.find("|h", find1 + 2);
+        //unused? std::size_t find2 = msg.find("|h", find1 + 2);
         msg.replace(pos, find1 - pos + 2, "\x2");
         msg.replace(msg.find("|h", pos), 2, "\x2");
     }
@@ -277,7 +277,7 @@ std::string* getArray(std::string PARAMS, int nCount, std::string)
     std::string *array = new std::string[nCount];
     if (PARAMS.size() > 0)
     {
-        int pcnt = 0;
+        //unused? int pcnt = 0;
         size_t ps = 0;
         size_t pc = -1;
         for (int i = 0;i < nCount;i++)
