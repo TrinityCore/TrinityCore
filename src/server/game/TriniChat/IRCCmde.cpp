@@ -37,10 +37,6 @@
 #include "ReputationMgr.h"
 #include "ArenaTeamMgr.h"
 
-//#pragma warning(disable:4018)
-//#pragma warning(disable:4804)
-//#pragma warning(disable:4700)
-
 #define Send_Player(p, m)           sIRC->Send_WoW_Player(p, m)
 #define Send_IRCA(c, m, b, t)       sIRC->Send_IRC_Channel(c, m, b, t)
 
@@ -318,7 +314,6 @@ void IRCCmd::Char_Player(_CDATA *CD)
         }
         if (_PARAMS[1] == "setskill")
         {
-            //unused? std::string* _PARAMSA = getArray(_PARAMS[2], 4);
             uint32 skill = atoi(_PARAMS[2].c_str());
             uint32 step = atoi(_PARAMS[3].c_str());
             uint32 level = atol(_PARAMS[4].c_str());
@@ -668,7 +663,6 @@ void IRCCmd::Inchan_Server(_CDATA *CD)
 
 void IRCCmd::Info_Server(_CDATA *CD)
 {
-    //unused? std::string* _PARAMS = getArray(CD->PARAMS, 1);
     char clientsNum [50];
     sprintf(clientsNum, "%u", sWorld->GetActiveSessionCount());
     char maxClientsNum [50];
@@ -750,7 +744,6 @@ void IRCCmd::Item_Player(_CDATA *CD)
             Send_IRCA(CD->USER, ""+_PARAMS[0]+" Is Not Online!", true, "ERROR");
             return;
         }
-        //unused? ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(itemId);
         //Subtract
         if (count < 0)
         {
@@ -982,10 +975,10 @@ void IRCCmd::Player_Player(_CDATA *CD)
             }
             std::string pinfo  = "\00310About Player: \xF"+pname+" |\00310 GM Level: \xF"+pgmlvl+" |\00310 AcctID: \xF"+pacct+" |\00310 CharID: \xF"+pguid+" |\00310 Played Time: \xF"+totaltim.c_str()+" |\00310 Latency: \xF"+templatency;
             std::string pinfo2 = "\00310Race: \xF"+(std::string)prace->name[sWorld->GetDefaultDbcLocale()]+" |\00310 Class: \xF"+(std::string)pclass->name[sWorld->GetDefaultDbcLocale()]+" |\00310 Level: \xF"+plevel+" |\00310 Money: \xF"+tempgold+"|\00310 Status: \xF"+ponline+" |\00310 Honor: \xF"+honor;
-            //        pinfo3 = " :" + " \x2Honor Kills:\x2\x3\x31\x30 " + hk;
+            // pinfo3 = " :" + " \x2Honor Kills:\x2\x3\x31\x30 " + hk;
             Send_IRCA(ChanOrPM(CD),pinfo , true, CD->TYPE);
             Send_IRCA(ChanOrPM(CD),pinfo2 , true, CD->TYPE);
-            //        Send_IRCA(ChanOrPM(CD),pinfo3 , true, CD->TYPE);
+            // Send_IRCA(ChanOrPM(CD),pinfo3 , true, CD->TYPE);
         }
         else
             Send_IRCA(CD->USER, "Unknown Character ID. (GUID)" ,true, "ERROR");
@@ -1154,10 +1147,10 @@ void IRCCmd::Lookup_Player(_CDATA *CD)
                 }
                 std::string pinfo  = "\x2 About Player:\x3\x31\x30 " +pname+ "\xF |\x2 GM Level:\x3\x31\x30 " +pgmlvl+ "\xF |\x2 AcctID:\x3\x31\x30 " +pacct+ "\xF |\x2 CharID:\x3\x31\x30 " +pguid+ " \xF |\x2 Played Time:\x2\x3\x31\x30 " +totaltim.c_str()+" \xF |\x2 Latency:\x2\x3\x31\x30 "+templatency;
                 std::string pinfo2 = "\x2 Race:\x2\x3\x31\x30 " + (std::string)prace->name[sWorld->GetDefaultDbcLocale()] + "\xF |\x2 Class:\x2\x3\x31\x30 " + (std::string)pclass->name[sWorld->GetDefaultDbcLocale()] + "\xF |\x2 Level:\x2\x3\x31\x30 " + plevel + "\xF |\x2 Money:\x2 " + tempgold + "\xF |\x2 Status:\x2 " + ponline;
-                //        pinfo3 = " :" + " \x2Honor Kills:\x2\x3\x31\x30 " + hk;
+                // pinfo3 = " :" + " \x2Honor Kills:\x2\x3\x31\x30 " + hk;
                 Send_IRCA(ChanOrPM(CD),pinfo , true, CD->TYPE);
                 Send_IRCA(ChanOrPM(CD),pinfo2 , true, CD->TYPE);
-                //        Send_IRCA(ChanOrPM(CD),pinfo3 , true, CD->TYPE);
+                // Send_IRCA(ChanOrPM(CD),pinfo3 , true, CD->TYPE);
             }
             else
                 Send_IRCA(CD->USER, "Unknown Character ID. (GUID)" ,true, "ERROR");
@@ -1619,7 +1612,6 @@ void IRCCmd::Money_Player(_CDATA *CD)
     std::string player  = _PARAMS[0];
     normalizePlayerName(player);
     uint64 guid = sObjectMgr->GetPlayerGUIDByName(player.c_str());
-    //unused? Player *chr = ObjectAccessor::FindPlayer(guid);
 
     std::string s_money  = _PARAMS[1];
     int32 money = atoi(s_money.c_str());
@@ -2213,8 +2205,6 @@ void IRCCmd::Tele_Player(_CDATA *CD)
     {
         if (MapManager::IsValidMapCoord(mapid, pX ,pY ,pZ))
         {
-            //if (!sIRC->BeenToGMI(pX, pY, _PARAMS[0], CD->USER))
-            //{
                 //if player is online teleport them in real time, if not set the DB to our coordinates.
                 if (plr)
                 {
@@ -2229,7 +2219,6 @@ void IRCCmd::Tele_Player(_CDATA *CD)
                     Player::SavePositionInDB(mapid,pX,pY,pZ,pO,sMapMgr->GetZoneId(mapid,pX,pY,pZ),guid);
                     sIRC->Send_IRC_Channel(ChanOrPM(CD), rMsg + " \0034*Offline Tele.* ", true, CD->TYPE);
                 }
-            //}
         }
         else
             Send_IRCA(CD->USER, "Invalid Location!", true, "ERROR");

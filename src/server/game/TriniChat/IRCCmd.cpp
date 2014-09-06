@@ -827,7 +827,6 @@ std::string* IRCCmd::getArray(std::string PARAMS, int nCount)
     std::string *array = new std::string[nCount];
     if (PARAMS.size() > 0)
     {
-        //unused? int pcnt = 0;
         size_t ps = 0;
         size_t pc = -1;
         for (int i = 0;i < nCount;i++)

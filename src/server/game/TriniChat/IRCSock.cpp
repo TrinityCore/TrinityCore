@@ -82,8 +82,6 @@ bool IRCClient::Connect(const char *cHost, int nPort)
         TC_LOG_ERROR("misc", "IRCLIENT: Cannot connect to %s", cHost);
         return false;
     }
-    //FD_ZERO(&sIRC->sfdset);
-    //FD_SET(sIRC->SOCKET,&sIRC->sfdset);
     sIRC->Connected = true;
     return true;
 }
@@ -107,7 +105,6 @@ bool IRCClient::SendData(const char *data)
         if (send(sIRC->SOCKET, data, strlen(data), 0) == -1)
         {
             TC_LOG_ERROR("misc", "IRC Error: Socket Receieve ** \n");
-            //Disconnect();
             return false;
         }
     }
@@ -126,7 +123,6 @@ void IRCClient::Disconnect()
     {
         #ifdef _WIN32
         closesocket(sIRC->SOCKET);
-        //WSACleanup();
         #else
         close(sIRC->SOCKET);
         #endif
@@ -135,8 +131,6 @@ void IRCClient::Disconnect()
 
 void IRCClient::SockRecv()
 {
-//    wchar_t bufferdata;
-
     char szBuffer[MAXDATASIZE];
 
     memset(szBuffer, 0, MAXDATASIZE);

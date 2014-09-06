@@ -32,7 +32,6 @@
 IRCCmd Command;
 void IRCClient::Handle_IRC(std::string sData)
 {
-    //sLog->outDebug(sData.c_str());
     // If first 5 chars are ERROR then something is wrong
     // either link is being closed, nickserv ghost command, etc...
     if (sData.substr(0, 5) == "ERROR")
@@ -207,7 +206,6 @@ void IRCClient::Handle_IRC(std::string sData)
                 // extract the details
                 size_t p3 = sData.find(" ", p2 + 1);
                 size_t p4 = sData.find(" ", p3 + 1);
-                //unused? size_t p5 = sData.find(":", p4);
                 std::string CHAN = sData.substr(p2 + 1, p3 - p2 - 1);
                 std::string WHO = sData.substr(p3 + 1, p4 - p3 - 1);
                 std::string BY = sData.substr(p4 + 1, sData.size() - p4 - 1);
@@ -272,11 +270,10 @@ void IRCClient::Handle_IRC(std::string sData)
                 std::string CHAN = sData.substr(p2 + 1, p3 - p2 - 1);
                 std::string MODE = sData.substr(p3 + 1, p4 - p3 - 1);
                 std::string NICK = sData.substr(p4 + 1, p5 - p4 - 1);
-                //unused? bool _AmiOp;
                 _AmiOp = false;
                 //A mode was changed on us
                 if (NICK.c_str() == sIRC->_Nick)
-                _AmiOp = true;
+                    _AmiOp = true;
 
             }
         }
@@ -467,7 +464,7 @@ void IRCClient::ResetIRC()
 // this function should be called on player login Player::AddToWorld
 void IRCClient::AutoJoinChannel(Player *plr)
 {
-    //this will work if at least 1 player is logged in regrdless if he is on the channel or not
+    // this will work if at least 1 player is logged in regrdless if he is on the channel or not
     // the first person that login empty server is the one with bad luck and wont be invited,
     // if at least 1 player is online the player will be inited to the chanel
 
