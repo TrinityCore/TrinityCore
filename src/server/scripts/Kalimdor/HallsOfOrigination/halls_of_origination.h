@@ -18,6 +18,7 @@
 #ifndef HALLS_OF_ORIGINATION_H
 #define HALLS_OF_ORIGINATION_H
 
+#define DataHeader "HOO"
 #define HoOScriptName "instance_halls_of_origination"
 
 uint32 const EncounterCount = 12;

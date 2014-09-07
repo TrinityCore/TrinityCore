@@ -28,10 +28,7 @@ class instance_firelands : public InstanceMapScript
         {
             instance_firelands_InstanceScript(InstanceMap* map) : InstanceScript(map)
             {
-            }
-
-            void Initialize() override
-            {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
             }
 

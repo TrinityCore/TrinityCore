@@ -267,18 +267,6 @@ class instance_zulaman : public InstanceMapScript
                 }
             }
 
-            std::string GetSaveData() override
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "Z A " << GetBossSaveData() << ZulAmanState
-                    << ' ' << SpeedRunTimer << ' ' << ZulAmanBossCount;
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
             void WriteSaveDataMore(std::ostringstream& data) override
             {
                 data << ZulAmanState  << ' '
