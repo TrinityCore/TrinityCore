@@ -177,9 +177,7 @@ public:
     private:
         EventMap events;
         SummonList summons;
-
         uint64 WaterElementalGUID;
-
         bool HasCastIceblock;
     };
 
