@@ -149,7 +149,7 @@ public:
         void JustSummoned(Creature* summoned) override
         {
             summoned->CastSpell(summoned, SPELL_SOUL_FREED, false);
-            
+
             if (Player* player = ObjectAccessor::GetPlayer(*me, Tagger))
                 summoned->GetMotionMaster()->MoveFollow(player, 0.0f, 0.0f);
         }
