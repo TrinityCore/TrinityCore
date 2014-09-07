@@ -105,7 +105,7 @@ public:
 
             DoMeleeAttackIfReady();
         }
-    
+
     private:
         EventMap events;
         SummonList Summons;

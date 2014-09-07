@@ -587,7 +587,7 @@ class boss_taerar : public CreatureScript
             void Reset() override
             {
                 me->RemoveAurasDueToSpell(SPELL_SHADE);
-                
+
                 Initialize();
 
                 emerald_dragonAI::Reset();
