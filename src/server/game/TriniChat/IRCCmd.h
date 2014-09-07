@@ -22,6 +22,9 @@
 #define _IRC_CMD_H
 
 #define MAX_CLIENTS 50
+//include boost
+#include "boost/thread.hpp"
+#include "boost/date_time.hpp"
 #include "Common.h"
 #include "Player.h"
 #include "ObjectAccessor.h"

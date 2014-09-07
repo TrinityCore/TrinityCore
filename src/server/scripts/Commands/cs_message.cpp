@@ -127,6 +127,12 @@ public:
             name = session->GetPlayer()->GetName();
 
         sWorld->SendGMText(LANG_GM_ANNOUNCE_COLOR, name.c_str(), args);
+        //send to irc
+        if(sIRC->_staffLink == 1)
+        {
+            std::string sMsg = "[<WoW>"+name+"]: "+args;
+            sIRC->Send_IRC_Channel(sIRC->_staffChan, sMsg, false, "PRIVMSG");
+        }
         return true;
     }
     // global announce

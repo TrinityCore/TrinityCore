@@ -3303,6 +3303,21 @@ wow.chan_1 = "world"
 irc.pass_1 = "pass"
 
 ##################################################
+# irc.staff_link
+# if set to 1 will link gm name announce to irc channel
+# Default: 0
+# irc.staff_chan
+# Print IRC messages to GM Name Announce and Gm Name Announce to IRC Channel
+# Default: "staff"
+# irc.ignore_bots
+* enter nicks of bots to ignore seprated by commas
+# Default: ""
+#
+irc.staff_link = 0
+irc.staff_chan = "staff"
+irc.ignore_bots = ""
+
+##################################################
 # irc.StatusChannel
 # Channel Name To Display Status Messages In (AuctionHouse, Levels, Deaths, Etc)
 # Default: ""

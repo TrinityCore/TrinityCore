@@ -1286,6 +1286,9 @@ void World::LoadConfigSettings(bool reload)
     sIRC->_ldefc = sConfigMgr->GetIntDefault("irc.ldef", 0);
     sIRC->_wct = sConfigMgr->GetIntDefault("irc.wct", 30000);
     sIRC->ajoin = sConfigMgr->GetIntDefault("irc.ajoin", 0);
+    sIRC->_staffLink = sConfigMgr->GetIntDefault("irc.staff_link", 1);
+    sIRC->_staffChan = sConfigMgr->GetStringDefault("irc.staff_chan", "staff");
+    sIRC->_bot_names = sConfigMgr->GetStringDefault("irc.ignore_bots", "");
     sIRC->ajchan = sConfigMgr->GetStringDefault("irc.ajchan", "world");
     sIRC->onlrslt = sConfigMgr->GetIntDefault("irc.online.result", 10);
     sIRC->BOTMASK = sConfigMgr->GetIntDefault("Botmask", 0);
@@ -1387,7 +1390,7 @@ void World::LoadConfigSettings(bool reload)
             if (command == "top") sIRC->CTOP = gmlvl;
             if (command == "who") sIRC->CWHO = gmlvl;
             result->NextRow();
-        }       
+        }
     }
     else
     {
@@ -2921,7 +2924,7 @@ void World::SendRNDBroadcastIRC()
     if (!result)
         return;
     msg = result->Fetch()[0].GetString();
-    
+
     sWorld->SendWorldText(6612,msg.c_str());
     std::string ircchan = "#";
     ircchan += sIRC->anchn;

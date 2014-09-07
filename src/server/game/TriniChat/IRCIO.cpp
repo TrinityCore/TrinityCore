@@ -254,7 +254,48 @@ void IRCClient::Handle_IRC(std::string sData)
                     // magchat is in. the first thing we do is check if it is a command or not
                     if (!Command.IsValid(szUser, FROM, CHAT, CMD))
                     {
-                        Send_WoW_Channel(GetWoWChannel(FROM).c_str(), IRCcol2WoW(MakeMsg(MakeMsg(GetChatLine(IRC_WOW), "$Name", szUser), "$Msg", CHAT)));
+                        std::string = fixStaffChan = "#"+sIRC->_staffChan;
+                        bool ignored = false;
+                        switch(sIRC->_staffLink)
+                        {
+                            case 1:
+                                if(fixStaffChan == FROM)
+                                {
+                                    for(uint8 i = 0;i<MAX_CONF_BOTS; i++)
+                                    {
+                                        if(sIRC->_ignore_bots[i] != "")
+                                        {
+                                            if(Command.MakeUpper(sIRC->_ignore_bots[i]) == Command.MakeUpper(szUser))
+                                                ignored = true;
+                                        }
+                                    }
+                                    if(!ignored)
+                                    {
+                                        szUser = "<IRC>"+szUser;
+                                        //setup gm chat
+                                        sWorld->SendGMText(LANG_GM_ANNOUNCE_COLOR, szUser.c_str(), CHAT.c_str());
+                                    }
+                                }
+                                else
+                                {
+                                    for(uint8 i = 0;i<MAX_CONF_BOTS; i++)
+                                    {
+                                        if(sIRC->_ignore_bots[i] != "")
+                                        {
+                                            if(Command.MakeUpper(sIRC->_ignore_bots[i]) == Command.MakeUpper(szUser))
+                                                ignored = true;
+                                        }
+                                    }
+                                    if(!ignored)
+                                    {
+                                        Send_WoW_Channel(GetWoWChannel(FROM).c_str(), IRCcol2WoW(MakeMsg(MakeMsg(GetChatLine(IRC_WOW), "$Name", szUser), "$Msg", CHAT)));
+                                    }
+                                }
+                                break;
+                            case 0:
+                                Send_WoW_Channel(GetWoWChannel(FROM).c_str(), IRCcol2WoW(MakeMsg(MakeMsg(GetChatLine(IRC_WOW), "$Name", szUser), "$Msg", CHAT)));
+                                break;
+                        }
                     }
                     // if we indeed receieved a command we do not want to display this to the players
                     // so only incanse the isvalid command returns false it will be sent to all player.

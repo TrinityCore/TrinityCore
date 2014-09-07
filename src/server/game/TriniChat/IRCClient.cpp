@@ -22,7 +22,7 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "MapManager.h"
-#include <thread>
+//#include <thread>
 
 #ifdef WIN32
     #define Delay(x) Sleep(x)
@@ -38,6 +38,14 @@ IRCClient::IRCClient()
 // IRCClient Destructor
 IRCClient::~IRCClient(){}
 
+void TrinityChatThread()
+{
+    //call irc bot
+    IRCClient* a;
+    // run the bot within a thread
+    a->run();
+}
+
 // ZThread Entry This function is called when the thread is created in Master.cpp (trinitycore)
 void IRCClient::run()
 {
@@ -45,6 +53,25 @@ void IRCClient::run()
 
     // before we begin we wait a few
     // mangos is still starting up.
+    std::stringstream ss(sIRC->_bot_names);
+    string temp = "";
+    uint8 counter = 0;
+    for(uint8 i=0;i<sIRC->_bot_names.length();i++)
+    {
+        if(sIRC->_bot_names[i] == ',')
+        {
+            sIRC->_ignore_bots[counter] = temp;
+            temp = "";
+            counter++;
+        }
+        else
+        {
+            temp += sIRC->_bot_names[i];
+        }
+    }
+    // check for hanging name
+    sIRC->_ignore_bots[counter] = temp;
+    TC_LOG_INFO("server.loading", ">> TrinityChat Ignore Bots set.");
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     TC_LOG_ERROR("misc", "\n%s\n%s\n%s\n%s",
         "***************************************",
@@ -88,7 +115,9 @@ void IRCClient::run()
                 sIRC->Active = false;
             // If we need to reattempt a connection wait WAIT_CONNECT_TIME milli seconds before we try again
             if (sIRC->Active)
+            {
                 std::this_thread::sleep_for(std::chrono::milliseconds(_wct));
+            }
         }
         else
         {
