@@ -66,7 +66,13 @@ public:
 
     struct boss_heiganAI : public BossAI
     {
-        boss_heiganAI(Creature* creature) : BossAI(creature, BOSS_HEIGAN) { }
+        boss_heiganAI(Creature* creature) : BossAI(creature, BOSS_HEIGAN)
+        {
+            eruptSection = 0;
+            eruptDirection = false;
+            safetyDance = false;
+            phase = PHASE_FIGHT;
+        }
 
         uint32 eruptSection;
         bool eruptDirection;

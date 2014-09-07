@@ -61,7 +61,17 @@ public:
     {
         boss_moorabiAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiGroundTremorTimer = 18 * IN_MILLISECONDS;
+            uiNumblingShoutTimer = 10 * IN_MILLISECONDS;
+            uiDeterminedStabTimer = 20 * IN_MILLISECONDS;
+            uiTransformationTImer = 12 * IN_MILLISECONDS;
+            bPhase = false;
         }
 
         InstanceScript* instance;
@@ -75,11 +85,7 @@ public:
 
         void Reset() override
         {
-            uiGroundTremorTimer = 18*IN_MILLISECONDS;
-            uiNumblingShoutTimer =  10*IN_MILLISECONDS;
-            uiDeterminedStabTimer = 20*IN_MILLISECONDS;
-            uiTransformationTImer = 12*IN_MILLISECONDS;
-            bPhase = false;
+            Initialize();
 
             instance->SetData(DATA_MOORABI_EVENT, NOT_STARTED);
         }

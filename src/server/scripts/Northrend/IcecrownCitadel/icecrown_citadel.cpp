@@ -385,15 +385,21 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
         {
             npc_highlord_tirion_fordringAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _theLichKing = 0;
+                _bolvarFordragon = 0;
+                _factionNPC = 0;
+                _damnedKills = 0;
             }
 
             void Reset() override
             {
                 _events.Reset();
-                _theLichKing = 0;
-                _bolvarFordragon = 0;
-                _factionNPC = 0;
-                _damnedKills = 0;
+                Initialize();
             }
 
             // IMPORTANT NOTE: This is triggered from per-GUID scripts
@@ -939,11 +945,18 @@ class npc_crok_scourgebane : public CreatureScript
                 _instance(creature->GetInstanceScript()), _respawnTime(creature->GetRespawnDelay()),
                 _corpseDelay(creature->GetCorpseDelay())
             {
+                Initialize();
                 SetDespawnAtEnd(false);
                 SetDespawnAtFar(false);
                 _isEventActive = false;
                 _isEventDone = _instance->GetBossState(DATA_SISTER_SVALNA) == DONE;
+                _currentWPid = 0;
+            }
+
+            void Initialize()
+            {
                 _didUnderTenPercentText = false;
+                _wipeCheckTimer = 1000;
             }
 
             void Reset() override
@@ -952,8 +965,7 @@ class npc_crok_scourgebane : public CreatureScript
                 _events.ScheduleEvent(EVENT_SCOURGE_STRIKE, urand(7500, 12500));
                 _events.ScheduleEvent(EVENT_DEATH_STRIKE, urand(25000, 30000));
                 me->SetReactState(REACT_DEFENSIVE);
-                _didUnderTenPercentText = false;
-                _wipeCheckTimer = 1000;
+                Initialize();
             }
 
             void DoAction(int32 action) override
@@ -1647,12 +1659,18 @@ class npc_impaling_spear : public CreatureScript
         {
             npc_impaling_spearAI(Creature* creature) : CreatureAI(creature)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _vehicleCheckTimer = 500;
             }
 
             void Reset() override
             {
                 me->SetReactState(REACT_PASSIVE);
-                _vehicleCheckTimer = 500;
+                Initialize();
             }
 
             void UpdateAI(uint32 diff) override

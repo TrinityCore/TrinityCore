@@ -5850,7 +5850,7 @@ void Player::ApplyRatingMod(CombatRating combatRating, int32 value, bool apply)
 {
     float oldRating = m_baseRatingValue[combatRating];
     m_baseRatingValue[combatRating] += (apply ? value : -value);
-    
+
     // explicit affected values
     float const multiplier = GetRatingMultiplier(combatRating);
     float const oldVal = oldRating * multiplier;
@@ -27219,13 +27219,13 @@ void Player::SendItemRetrievalMail(uint32 itemEntry, uint32 count)
     MailSender sender(MAIL_CREATURE, 34337 /* The Postmaster */);
     MailDraft draft("Recovered Item", "We recovered a lost item in the twisting nether and noted that it was yours.$B$BPlease find said object enclosed."); // This is the text used in Cataclysm, it probably wasn't changed.
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    
+
     if (Item* item = Item::CreateItem(itemEntry, count, 0))
     {
         item->SaveToDB(trans);
         draft.AddItem(item);
     }
-    
+
     draft.SendMailTo(trans, MailReceiver(this, GetGUIDLow()), sender);
     CharacterDatabase.CommitTransaction(trans);
 }

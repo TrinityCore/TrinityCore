@@ -81,38 +81,6 @@ public:
 };
 
 /*######
-## npc_freed_soul
-######*/
-enum FreedSoul
-{
-    SAY_ZAPPED = 0
-};
-
-class npc_freed_soul : public CreatureScript
-{
-public:
-    npc_freed_soul() : CreatureScript("npc_freed_soul") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_freed_soulAI(creature);
-    }
-
-    struct npc_freed_soulAI : public ScriptedAI
-    {
-        npc_freed_soulAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override
-        {
-            Talk(SAY_ZAPPED);
-        }
-
-        void EnterCombat(Unit* /*who*/) override { }
-    };
-
-};
-
-/*######
 ## npc_restless_soul
 ######*/
 
@@ -181,6 +149,9 @@ public:
         void JustSummoned(Creature* summoned) override
         {
             summoned->CastSpell(summoned, SPELL_SOUL_FREED, false);
+            
+            if (Player* player = ObjectAccessor::GetPlayer(*me, Tagger))
+                summoned->GetMotionMaster()->MoveFollow(player, 0.0f, 0.0f);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -318,7 +289,6 @@ public:
 void AddSC_stratholme()
 {
     new go_gauntlet_gate();
-    new npc_freed_soul();
     new npc_restless_soul();
     new npc_spectral_ghostly_citizen();
 }

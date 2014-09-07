@@ -36,7 +36,6 @@ go_jotunheim_cage
 go_table_theka
 go_soulwell
 go_bashir_crystalforge
-go_ethereal_teleport_pad
 go_soulwell
 go_dragonflayer_cage
 go_tadpole_cage
@@ -841,32 +840,6 @@ public:
 };
 
 /*######
-## go_ethereal_teleport_pad
-######*/
-
-enum EtherealTeleportPad
-{
-    NPC_IMAGE_WIND_TRADER               = 20518,
-    ITEM_TELEPORTER_POWER_PACK          = 28969,
-};
-
-class go_ethereal_teleport_pad : public GameObjectScript
-{
-public:
-    go_ethereal_teleport_pad() : GameObjectScript("go_ethereal_teleport_pad") { }
-
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        if (!player->HasItemCount(ITEM_TELEPORTER_POWER_PACK))
-            return false;
-
-        go->SummonCreature(NPC_IMAGE_WIND_TRADER, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), go->GetAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
-
-        return true;
-    }
-};
-
-/*######
 ## go_soulwell
 ######*/
 
@@ -1263,7 +1236,6 @@ void AddSC_go_scripts()
     new go_jotunheim_cage();
     new go_table_theka();
     new go_inconspicuous_landmark();
-    new go_ethereal_teleport_pad();
     new go_soulwell();
     new go_tadpole_cage();
     new go_dragonflayer_cage();

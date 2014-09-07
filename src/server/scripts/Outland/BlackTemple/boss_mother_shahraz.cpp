@@ -204,7 +204,7 @@ public:
                             default:
                                 break;
                         }
-                        
+
                         ++BeamCount;
                         uint32 Beam = CurrentBeam;
                         if (BeamCount > 3)
@@ -265,7 +265,7 @@ public:
                     break;
             }
         }
-    
+
     private:
         uint64 TargetGUID[3];
         uint32 BeamCount;

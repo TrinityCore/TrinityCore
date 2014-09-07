@@ -130,14 +130,15 @@ class boss_devourer_of_souls : public CreatureScript
         {
             boss_devourer_of_soulsAI(Creature* creature) : BossAI(creature, DATA_DEVOURER_EVENT)
             {
+                Initialize();
+                beamAngle = 0.f;
+                beamAngleDiff = 0.f;
+                wailingSoulTick = 0;
             }
 
-            void InitializeAI() override
+            void Initialize()
             {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(FoSScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
+                threeFaced = true;
             }
 
             void Reset() override
@@ -149,7 +150,7 @@ class boss_devourer_of_souls : public CreatureScript
                 events.Reset();
                 summons.DespawnAll();
 
-                threeFaced = true;
+                Initialize();
 
                 instance->SetData(DATA_DEVOURER_EVENT, NOT_STARTED);
             }
@@ -345,7 +346,7 @@ class boss_devourer_of_souls : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_devourer_of_soulsAI>(creature);
+            return GetInstanceAI<boss_devourer_of_soulsAI>(creature, FoSScriptName);
         }
 };
 
