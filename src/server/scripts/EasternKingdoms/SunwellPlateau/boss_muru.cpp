@@ -301,8 +301,17 @@ public:
     {
         npc_muru_portalAI(Creature* creature) : ScriptedAI(creature), Summons(creature)
         {
+            Initialize();
             SetCombatMovement(false);
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            SummonTimer = 5000;
+
+            InAction = false;
+            SummonSentinel = false;
         }
 
         InstanceScript* instance;
@@ -316,10 +325,7 @@ public:
 
         void Reset() override
         {
-            SummonTimer = 5000;
-
-            InAction = false;
-            SummonSentinel = false;
+            Initialize();
 
             me->AddUnitState(UNIT_STATE_STUNNED);
 
@@ -383,15 +389,23 @@ public:
 
     struct npc_dark_fiendAI : public ScriptedAI
     {
-        npc_dark_fiendAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_dark_fiendAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            WaitTimer = 2000;
+            InAction = false;
+        }
 
         uint32 WaitTimer;
         bool InAction;
 
         void Reset() override
         {
-            WaitTimer = 2000;
-            InAction = false;
+            Initialize();
 
             me->AddUnitState(UNIT_STATE_STUNNED);
         }
@@ -444,15 +458,23 @@ public:
 
     struct npc_void_sentinelAI : public ScriptedAI
     {
-        npc_void_sentinelAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_void_sentinelAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            PulseTimer = 3000;
+            VoidBlastTimer = 45000; //is this a correct timer?
+        }
 
         uint32 PulseTimer;
         uint32 VoidBlastTimer;
 
         void Reset() override
         {
-            PulseTimer = 3000;
-            VoidBlastTimer = 45000; //is this a correct timer?
+            Initialize();
 
             float x, y, z, o;
             me->GetHomePosition(x, y, z, o);
@@ -502,7 +524,16 @@ public:
     {
         npc_blackholeAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            DespawnTimer = 15000;
+            SpellTimer = 5000;
+            Phase = 0;
+            NeedForAHack = 0;
         }
 
         InstanceScript* instance;
@@ -514,10 +545,7 @@ public:
 
         void Reset() override
         {
-            DespawnTimer = 15000;
-            SpellTimer = 5000;
-            Phase = 0;
-            NeedForAHack = 0;
+            Initialize();
 
             me->AddUnitState(UNIT_STATE_STUNNED);
             DoCastAOE(SPELL_BLACKHOLE_SPAWN, true);

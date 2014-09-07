@@ -140,6 +140,7 @@ class boss_ick : public CreatureScript
             boss_ickAI(Creature* creature) : BossAI(creature, DATA_ICK), _vehicle(creature->GetVehicleKit())
             {
                 ASSERT(_vehicle);
+                _tempThreat = 0;
             }
 
             void Reset() override
@@ -286,14 +287,20 @@ class boss_krick : public CreatureScript
         {
             boss_krickAI(Creature* creature) : ScriptedAI(creature), _instanceScript(creature->GetInstanceScript()), _summons(creature)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _phase = PHASE_COMBAT;
+                _outroNpcGUID = 0;
+                _tyrannusGUID = 0;
             }
 
             void Reset() override
             {
                 _events.Reset();
-                _phase = PHASE_COMBAT;
-                _outroNpcGUID = 0;
-                _tyrannusGUID = 0;
+                Initialize();
 
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);

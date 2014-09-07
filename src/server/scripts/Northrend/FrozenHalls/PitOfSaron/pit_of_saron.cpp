@@ -113,11 +113,17 @@ class npc_iceborn_protodrake : public CreatureScript
             npc_iceborn_protodrakeAI(Creature* creature) : ScriptedAI(creature), _vehicle(creature->GetVehicleKit())
             {
                 ASSERT(_vehicle);
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _frostBreathCooldown = 5000;
             }
 
             void Reset() override
             {
-                _frostBreathCooldown = 5000;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -161,11 +167,17 @@ class npc_geist_ambusher : public CreatureScript
         {
             npc_geist_ambusherAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _leapingFaceMaulCooldown = 9000;
             }
 
             void Reset() override
             {
-                _leapingFaceMaulCooldown = 9000;
+                Initialize();
             }
 
             void EnterCombat(Unit* who) override

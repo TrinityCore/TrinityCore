@@ -503,6 +503,7 @@ public:
         {
             Initialize();
             instance = creature->GetInstanceScript();
+            speechPhaseEnd = 0;
 
             SetCombatMovement(false);
         }

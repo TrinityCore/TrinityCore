@@ -492,6 +492,18 @@ struct boss_jormungarAI : public BossAI
 {
     boss_jormungarAI(Creature* creature) : BossAI(creature, BOSS_BEASTS)
     {
+        OtherWormEntry = 0;
+        ModelStationary = 0;
+        ModelMobile = 0;
+
+        BiteSpell = 0;
+        SpewSpell = 0;
+        SpitSpell = 0;
+        SpraySpell = 0;
+
+        Phase = PHASE_MOBILE;
+        Enraged = false;
+        WasMobile = false;
     }
 
     void Reset() override
@@ -780,12 +792,18 @@ class npc_slime_pool : public CreatureScript
         {
             npc_slime_poolAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 _instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                _cast = false;
             }
 
             void Reset() override
             {
-                _cast = false;
+                Initialize();
                 me->SetReactState(REACT_PASSIVE);
             }
 
@@ -851,14 +869,11 @@ class boss_icehowl : public CreatureScript
         {
             boss_icehowlAI(Creature* creature) : BossAI(creature, BOSS_BEASTS)
             {
+                Initialize();
             }
 
-            void Reset() override
+            void Initialize()
             {
-                events.ScheduleEvent(EVENT_FEROCIOUS_BUTT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_WHIRL, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_MASSIVE_CRASH, 30*IN_MILLISECONDS);
                 _movementStarted = false;
                 _movementFinish = false;
                 _trampleCast = false;
@@ -867,6 +882,15 @@ class boss_icehowl : public CreatureScript
                 _trampleTargetY = 0;
                 _trampleTargetZ = 0;
                 _stage = 0;
+            }
+
+            void Reset() override
+            {
+                events.ScheduleEvent(EVENT_FEROCIOUS_BUTT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_WHIRL, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_MASSIVE_CRASH, 30*IN_MILLISECONDS);
+                Initialize();
             }
 
             void JustDied(Unit* /*killer*/) override

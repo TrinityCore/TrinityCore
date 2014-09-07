@@ -115,8 +115,6 @@ public:
         uint64 uiVehicle2GUID;
         uint64 uiVehicle3GUID;
 
-        uint64 uiGrandChampionBoss1;
-
         std::list<uint64> Champion1List;
         std::list<uint64> Champion2List;
         std::list<uint64> Champion3List;

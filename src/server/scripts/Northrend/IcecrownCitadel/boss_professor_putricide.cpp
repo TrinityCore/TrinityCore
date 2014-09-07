@@ -223,6 +223,7 @@ class boss_professor_putricide : public CreatureScript
                 _baseSpeed(creature->GetSpeedRate(MOVE_RUN)), _experimentState(EXPERIMENT_STATE_OOZE)
             {
                 _phase = PHASE_NONE;
+                _oozeFloodStage = 0;
             }
 
             void Reset() override
