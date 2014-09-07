@@ -335,6 +335,7 @@ hyjalAI::hyjalAI(Creature* creature) : npc_escortAI(creature), Summons(me)
     DoRespawn = false;
     MassTeleportTimer = 0;
     DoMassTeleport = false;
+    DummyGuid = 0;
 }
 
 void hyjalAI::Initialize()

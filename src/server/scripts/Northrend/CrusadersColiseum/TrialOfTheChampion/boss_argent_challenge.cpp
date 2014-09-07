@@ -156,9 +156,20 @@ public:
     {
         boss_eadricAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             creature->SetReactState(REACT_PASSIVE);
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        }
+
+        void Initialize()
+        {
+            uiVenganceTimer = 10000;
+            uiRadianceTimer = 16000;
+            uiHammerJusticeTimer = 25000;
+            uiResetTimer = 5000;
+
+            bDone = false;
         }
 
         InstanceScript* instance;
@@ -172,12 +183,7 @@ public:
 
         void Reset() override
         {
-            uiVenganceTimer = 10000;
-            uiRadianceTimer = 16000;
-            uiHammerJusticeTimer = 25000;
-            uiResetTimer = 5000;
-
-            bDone = false;
+            Initialize();
         }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
@@ -260,12 +266,25 @@ public:
     {
         boss_paletressAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
 
             MemoryGUID = 0;
             creature->SetReactState(REACT_PASSIVE);
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             creature->RestoreFaction();
+        }
+
+        void Initialize()
+        {
+            uiHolyFireTimer = urand(9000, 12000);
+            uiHolySmiteTimer = urand(5000, 7000);
+            uiRenewTimer = urand(2000, 5000);
+
+            uiResetTimer = 7000;
+
+            bHealth = false;
+            bDone = false;
         }
 
         InstanceScript* instance;
@@ -283,14 +302,7 @@ public:
         {
             me->RemoveAllAuras();
 
-            uiHolyFireTimer     = urand(9000, 12000);
-            uiHolySmiteTimer    = urand(5000, 7000);
-            uiRenewTimer        = urand(2000, 5000);
-
-            uiResetTimer        = 7000;
-
-            bHealth = false;
-            bDone = false;
+            Initialize();
 
             if (Creature* pMemory = ObjectAccessor::GetCreature(*me, MemoryGUID))
                 if (pMemory->IsAlive())
@@ -415,7 +427,17 @@ public:
 
     struct npc_memoryAI : public ScriptedAI
     {
-        npc_memoryAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_memoryAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            uiOldWoundsTimer = 12000;
+            uiShadowPastTimer = 5000;
+            uiWakingNightmare = 7000;
+        }
 
         uint32 uiOldWoundsTimer;
         uint32 uiShadowPastTimer;
@@ -423,9 +445,7 @@ public:
 
         void Reset() override
         {
-            uiOldWoundsTimer = 12000;
-            uiShadowPastTimer = 5000;
-            uiWakingNightmare = 7000;
+            Initialize();
         }
 
         void UpdateAI(uint32 uiDiff) override

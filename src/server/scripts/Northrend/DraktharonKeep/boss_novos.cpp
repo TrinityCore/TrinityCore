@@ -80,14 +80,23 @@ public:
 
     struct boss_novosAI : public BossAI
     {
-        boss_novosAI(Creature* creature) : BossAI(creature, DATA_NOVOS) { }
+        boss_novosAI(Creature* creature) : BossAI(creature, DATA_NOVOS)
+        {
+            Initialize();
+            _bubbled = false;
+        }
+
+        void Initialize()
+        {
+            _ohNovos = true;
+            _crystalHandlerCount = 0;
+        }
 
         void Reset() override
         {
             _Reset();
 
-            _ohNovos = true;
-            _crystalHandlerCount = 0;
+            Initialize();
             SetCrystalsStatus(false);
             SetSummonerStatus(false);
             SetBubbled(false);
@@ -280,13 +289,21 @@ public:
 
     struct npc_crystal_channel_targetAI : public ScriptedAI
     {
-        npc_crystal_channel_targetAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_crystal_channel_targetAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        void Reset() override
+        void Initialize()
         {
             _spell = 0;
             _timer = 0;
             _temp = 0;
+        }
+
+        void Reset() override
+        {
+            Initialize();
         }
 
         void UpdateAI(uint32 diff) override

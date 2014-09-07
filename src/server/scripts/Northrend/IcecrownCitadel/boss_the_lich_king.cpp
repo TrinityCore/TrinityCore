@@ -504,6 +504,13 @@ class boss_the_lich_king : public CreatureScript
         {
             boss_the_lich_kingAI(Creature* creature) : BossAI(creature, DATA_THE_LICH_KING)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _necroticPlagueStack = 0;
+                _vileSpiritExplosions = 0;
             }
 
             void Reset() override
@@ -511,8 +518,7 @@ class boss_the_lich_king : public CreatureScript
                 _Reset();
                 me->SetReactState(REACT_PASSIVE);
                 events.SetPhase(PHASE_INTRO);
-                _necroticPlagueStack = 0;
-                _vileSpiritExplosions = 0;
+                Initialize();
                 SetEquipmentSlots(true);
             }
 

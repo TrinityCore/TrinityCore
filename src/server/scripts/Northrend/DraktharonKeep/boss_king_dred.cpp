@@ -58,10 +58,19 @@ class boss_king_dred : public CreatureScript
 
         struct boss_king_dredAI : public BossAI
         {
-            boss_king_dredAI(Creature* creature) : BossAI(creature, DATA_KING_DRED) { }
+            boss_king_dredAI(Creature* creature) : BossAI(creature, DATA_KING_DRED)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                raptorsKilled = 0;
+            }
 
             void Reset() override
             {
+                Initialize();
                 _Reset();
             }
 
@@ -166,7 +175,13 @@ class npc_drakkari_gutripper : public CreatureScript
         {
             npc_drakkari_gutripperAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = me->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                GutRipTimer = urand(10000, 15000);
             }
 
             InstanceScript* instance;
@@ -175,7 +190,7 @@ class npc_drakkari_gutripper : public CreatureScript
 
             void Reset() override
             {
-                GutRipTimer = urand(10000, 15000);
+                Initialize();
             }
 
             void UpdateAI(uint32 diff) override
@@ -216,7 +231,13 @@ class npc_drakkari_scytheclaw : public CreatureScript
         {
             npc_drakkari_scytheclawAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = me->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                uiRendTimer = urand(10000, 15000);
             }
 
             InstanceScript* instance;
@@ -225,7 +246,7 @@ class npc_drakkari_scytheclaw : public CreatureScript
 
             void Reset() override
             {
-                uiRendTimer = urand(10000, 15000);
+                Initialize();
             }
 
             void UpdateAI(uint32 diff) override

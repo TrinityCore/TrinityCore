@@ -249,9 +249,16 @@ class boss_deathbringer_saurfang : public CreatureScript
         {
             boss_deathbringer_saurfangAI(Creature* creature) : BossAI(creature, DATA_DEATHBRINGER_SAURFANG)
             {
+                Initialize();
                 ASSERT(creature->GetVehicleKit()); // we dont actually use it, just check if exists
                 _introDone = false;
                 _fallenChampionCastCount = 0;
+            }
+
+            void Initialize()
+            {
+                _frenzied = false;
+                _dead = false;
             }
 
             void Reset() override
@@ -259,8 +266,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 _Reset();
                 me->SetReactState(REACT_DEFENSIVE);
                 events.SetPhase(PHASE_COMBAT);
-                _frenzied = false;
-                _dead = false;
+                Initialize();
                 me->SetPower(POWER_ENERGY, 0);
                 DoCast(me, SPELL_ZERO_POWER, true);
                 DoCast(me, SPELL_BLOOD_LINK, true);

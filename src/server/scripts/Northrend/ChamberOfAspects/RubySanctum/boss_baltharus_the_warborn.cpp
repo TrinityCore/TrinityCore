@@ -73,7 +73,13 @@ class boss_baltharus_the_warborn : public CreatureScript
         {
             boss_baltharus_the_warbornAI(Creature* creature) : BossAI(creature, DATA_BALTHARUS_THE_WARBORN)
             {
+                Initialize();
                 _introDone = false;
+            }
+
+            void Initialize()
+            {
+                _cloneCount = RAID_MODE<uint8>(1, 2, 2, 2);
             }
 
             void Reset() override
@@ -81,7 +87,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                 _Reset();
                 events.SetPhase(PHASE_INTRO);
                 events.ScheduleEvent(EVENT_OOC_CHANNEL, 0, 0, PHASE_INTRO);
-                _cloneCount = RAID_MODE<uint8>(1, 2, 2, 2);
+                Initialize();
                 instance->SetData(DATA_BALTHARUS_SHARED_HEALTH, me->GetMaxHealth());
             }
 

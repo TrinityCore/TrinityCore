@@ -80,8 +80,14 @@ public:
     {
         npc_sylvanas_fosAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = me->GetInstanceScript();
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        }
+
+        void Initialize()
+        {
+            phase = PHASE_NORMAL;
         }
 
         InstanceScript* instance;
@@ -92,7 +98,7 @@ public:
         void Reset() override
         {
             events.Reset();
-            phase = PHASE_NORMAL;
+            Initialize();
         }
 
         void DoAction(int32 actionId) override
@@ -203,8 +209,14 @@ public:
     {
         npc_jaina_fosAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = me->GetInstanceScript();
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        }
+
+        void Initialize()
+        {
+            phase = PHASE_NORMAL;
         }
 
         InstanceScript* instance;
@@ -215,7 +227,7 @@ public:
         void Reset() override
         {
             events.Reset();
-            phase = PHASE_NORMAL;
+            Initialize();
         }
 
         void DoAction(int32 actionId) override

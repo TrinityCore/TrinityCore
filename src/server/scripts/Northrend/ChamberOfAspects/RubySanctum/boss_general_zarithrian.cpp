@@ -204,12 +204,18 @@ class npc_onyx_flamecaller : public CreatureScript
         {
             npc_onyx_flamecallerAI(Creature* creature) : npc_escortAI(creature), _instance(creature->GetInstanceScript())
             {
+                Initialize();
                 npc_escortAI::SetDespawnAtEnd(false);
+            }
+
+            void Initialize()
+            {
+                _lavaGoutCount = 0;
             }
 
             void Reset() override
             {
-                _lavaGoutCount = 0;
+                Initialize();
                 me->setActive(true);
                 AddWaypoints();
                 Start(true, true);
