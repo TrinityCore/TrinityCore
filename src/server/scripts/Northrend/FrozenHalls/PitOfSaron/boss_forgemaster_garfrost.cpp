@@ -82,14 +82,22 @@ class boss_garfrost : public CreatureScript
 
         struct boss_garfrostAI : public BossAI
         {
-            boss_garfrostAI(Creature* creature) : BossAI(creature, DATA_GARFROST) { }
+            boss_garfrostAI(Creature* creature) : BossAI(creature, DATA_GARFROST)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _permafrostStack = 0;
+            }
 
             void Reset() override
             {
                 _Reset();
                 events.SetPhase(PHASE_ONE);
                 SetEquipmentSlots(true);
-                _permafrostStack = 0;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override

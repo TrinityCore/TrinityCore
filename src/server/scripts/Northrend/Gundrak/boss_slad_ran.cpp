@@ -83,7 +83,17 @@ public:
     {
         boss_slad_ranAI(Creature* creature) : ScriptedAI(creature), lSummons(me)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiPoisonNovaTimer = 10 * IN_MILLISECONDS;
+            uiPowerfullBiteTimer = 3 * IN_MILLISECONDS;
+            uiVenomBoltTimer = 15 * IN_MILLISECONDS;
+            uiSpawnTimer = 5 * IN_MILLISECONDS;
+            uiPhase = 0;
         }
 
         uint32 uiPoisonNovaTimer;
@@ -100,11 +110,7 @@ public:
 
         void Reset() override
         {
-            uiPoisonNovaTimer = 10*IN_MILLISECONDS;
-            uiPowerfullBiteTimer = 3*IN_MILLISECONDS;
-            uiVenomBoltTimer = 15*IN_MILLISECONDS;
-            uiSpawnTimer = 5*IN_MILLISECONDS;
-            uiPhase = 0;
+            Initialize();
             lWrappedPlayers.clear();
 
             lSummons.DespawnAll();

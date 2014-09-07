@@ -83,7 +83,29 @@ public:
     {
         boss_black_knightAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            bEventInProgress = false;
+            bEvent = false;
+            bSummonArmy = false;
+            bDeathArmyDone = false;
+
+            uiPhase = PHASE_UNDEAD;
+
+            uiIcyTouchTimer = urand(5000, 9000);
+            uiPlagueStrikeTimer = urand(10000, 13000);
+            uiDeathRespiteTimer = urand(15000, 16000);
+            uiObliterateTimer = urand(17000, 19000);
+            uiDesecration = urand(15000, 16000);
+            uiDeathArmyCheckTimer = 7000;
+            uiResurrectTimer = 4000;
+            uiGhoulExplodeTimer = 8000;
+            uiDeathBiteTimer = urand(2000, 4000);
+            uiMarkedDeathTimer = urand(5000, 7000);
         }
 
         InstanceScript* instance;
@@ -114,23 +136,7 @@ public:
             me->SetDisplayId(me->GetNativeDisplayId());
             me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
 
-            bEventInProgress = false;
-            bEvent = false;
-            bSummonArmy = false;
-            bDeathArmyDone = false;
-
-            uiPhase = PHASE_UNDEAD;
-
-            uiIcyTouchTimer = urand(5000, 9000);
-            uiPlagueStrikeTimer = urand(10000, 13000);
-            uiDeathRespiteTimer = urand(15000, 16000);
-            uiObliterateTimer = urand(17000, 19000);
-            uiDesecration = urand(15000, 16000);
-            uiDeathArmyCheckTimer = 7000;
-            uiResurrectTimer = 4000;
-            uiGhoulExplodeTimer = 8000;
-            uiDeathBiteTimer = urand(2000, 4000);
-            uiMarkedDeathTimer = urand(5000, 7000);
+            Initialize();
         }
 
         void RemoveSummons()
@@ -310,13 +316,21 @@ public:
 
     struct npc_risen_ghoulAI : public ScriptedAI
     {
-        npc_risen_ghoulAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_risen_ghoulAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            uiAttackTimer = 3500;
+        }
 
         uint32 uiAttackTimer;
 
         void Reset() override
         {
-            uiAttackTimer = 3500;
+            Initialize();
         }
 
         void UpdateAI(uint32 uiDiff) override

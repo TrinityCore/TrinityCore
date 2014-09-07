@@ -53,8 +53,8 @@ public:
             DoCast(me, SPELL_ICE_ARMOR);
         }
 
-        void EnterCombat(Unit* /*who*/) override 
-        { 
+        void EnterCombat(Unit* /*who*/) override
+        {
             events.ScheduleEvent(EVENT_ICE_ARMOR, 2000);
             events.ScheduleEvent(EVENT_FROSTBOLT, 8000);
             events.ScheduleEvent(EVENT_CHILL_NOVA, 12000);
@@ -108,7 +108,7 @@ public:
 
             DoMeleeAttackIfReady();
         }
-        
+
         private:
             EventMap events;
     };

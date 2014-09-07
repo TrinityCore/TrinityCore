@@ -23,19 +23,16 @@ enum Spells
     SPELL_ARCANE_EXPLOSION                  = 46608,
     SPELL_CONE_OF_COLD                      = 38384,
     SPELL_FIREBALL                          = 46988,
-    SPELL_FROSTBOLT                         = 46987
+    SPELL_FROSTBOLT                         = 46987,
+    SPELL_SUMMON_WATER_ELEMENTAL            = 45067,
+    SPELL_ICEBLOCK                          = 46604
 };
 
-enum Yells
+enum Texts
 {
-    YELL_AGGRO                              = 0,
-    YELL_EVADE                              = 1,
-    YELL_SALVATION                          = 2,
-};
-
-enum Creatures
-{
-    NPC_WATER_ELEMENTAL                     = 25040
+    SAY_AGGRO                              = 0,
+    SAY_EVADE                              = 1,
+    SAY_SALVATION                          = 2,
 };
 
 enum Action
@@ -43,64 +40,15 @@ enum Action
     ACTION_BUFF_YELL                        = -30001 // shared from Battleground
 };
 
-enum WaterElementalSpells
+enum Events
 {
-    SPELL_WATERBOLT                         = 46983
-};
-
-class npc_water_elemental : public CreatureScript
-{
-public:
-    npc_water_elemental() : CreatureScript("npc_water_elemental") { }
-
-    struct npc_water_elementalAI : public ScriptedAI
-    {
-        npc_water_elementalAI(Creature* creature) : ScriptedAI(creature)
-        {
-            waterBoltTimer = 3 * IN_MILLISECONDS;
-            resetTimer = 5 * IN_MILLISECONDS;
-            balindaGUID = 0;
-        }
-
-        uint32 waterBoltTimer;
-        uint64 balindaGUID;
-        uint32 resetTimer;
-
-        void Reset() override
-        {
-            waterBoltTimer            = 3 * IN_MILLISECONDS;
-            resetTimer                = 5 * IN_MILLISECONDS;
-            balindaGUID = 0;
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (waterBoltTimer < diff)
-            {
-                DoCastVictim(SPELL_WATERBOLT);
-                waterBoltTimer = 5 * IN_MILLISECONDS;
-            } else waterBoltTimer -= diff;
-
-            // check if creature is not outside of building
-            if (resetTimer < diff)
-            {
-                if (Creature* pBalinda = ObjectAccessor::GetCreature(*me, balindaGUID))
-                    if (me->GetDistance2d(pBalinda->GetHomePosition().GetPositionX(), pBalinda->GetHomePosition().GetPositionY()) > 50)
-                        EnterEvadeMode();
-                resetTimer = 5 * IN_MILLISECONDS;
-            } else resetTimer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_water_elementalAI(creature);
-    }
+    // Balinda
+    EVENT_ARCANE_EXPLOSION = 1,
+    EVENT_CONE_OF_COLD,
+    EVENT_FIREBOLT,
+    EVENT_FROSTBOLT,
+    EVENT_SUMMON_WATER_ELEMENTAL,
+    EVENT_CHECK_RESET,          // Checks if Balinda or the Water Elemental are outside of building.
 };
 
 class boss_balinda : public CreatureScript
@@ -117,22 +65,9 @@ public:
 
         void Initialize()
         {
-            arcaneExplosionTimer = urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
-            coneOfColdTimer = 8 * IN_MILLISECONDS;
-            fireBoltTimer = 1 * IN_MILLISECONDS;
-            frostboltTimer = 4 * IN_MILLISECONDS;
-            resetTimer = 5 * IN_MILLISECONDS;
-            waterElementalTimer = 0;
+            WaterElementalGUID = 0;
+            HasCastIceblock = false;
         }
-
-        uint32 arcaneExplosionTimer;
-        uint32 coneOfColdTimer;
-        uint32 fireBoltTimer;
-        uint32 frostboltTimer;
-        uint32 resetTimer;
-        uint32 waterElementalTimer;
-
-        SummonList summons;
 
         void Reset() override
         {
@@ -143,20 +78,26 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            Talk(YELL_AGGRO);
-        }
-
-        void JustRespawned() override
-        {
-            Reset();
+            Talk(SAY_AGGRO);
+            events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_CONE_OF_COLD, 8 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_FIREBOLT, 1 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_FROSTBOLT, 4 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SUMMON_WATER_ELEMENTAL, 3 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_CHECK_RESET, 5 * IN_MILLISECONDS);
         }
 
         void JustSummoned(Creature* summoned) override
         {
-            ENSURE_AI(npc_water_elemental::npc_water_elementalAI, summoned->AI())->balindaGUID = me->GetGUID();
             summoned->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true));
             summoned->setFaction(me->getFaction());
+            WaterElementalGUID = summoned->GetGUID();
             summons.Summon(summoned);
+        }
+
+        void SummonedCreatureDespawn(Creature* summoned) override
+        {
+            summons.Despawn(summoned);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -167,7 +108,16 @@ public:
         void DoAction(int32 actionId) override
         {
             if (actionId == ACTION_BUFF_YELL)
-                Talk(YELL_AGGRO);
+                Talk(SAY_AGGRO);
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        {
+            if (me->HealthBelowPctDamaged(40, damage) && !HasCastIceblock)
+            {
+                DoCast(SPELL_ICEBLOCK);
+                HasCastIceblock = true;
+            }
         }
 
         void UpdateAI(uint32 diff) override
@@ -175,50 +125,60 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (waterElementalTimer < diff)
-            {
-                if (summons.empty())
-                    me->SummonCreature(NPC_WATER_ELEMENTAL, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45 * IN_MILLISECONDS);
-                waterElementalTimer = 50 * IN_MILLISECONDS;
-            } else waterElementalTimer -= diff;
+            events.Update(diff);
 
-            if (arcaneExplosionTimer < diff)
-            {
-                DoCastVictim(SPELL_ARCANE_EXPLOSION);
-                arcaneExplosionTimer =  urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
-            } else arcaneExplosionTimer -= diff;
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
-            if (coneOfColdTimer < diff)
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                DoCastVictim(SPELL_CONE_OF_COLD);
-                coneOfColdTimer = urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
-            } else coneOfColdTimer -= diff;
-
-            if (fireBoltTimer < diff)
-            {
-                DoCastVictim(SPELL_FIREBALL);
-                fireBoltTimer = urand(5 * IN_MILLISECONDS, 9 * IN_MILLISECONDS);
-            } else fireBoltTimer -= diff;
-
-            if (frostboltTimer < diff)
-            {
-                DoCastVictim(SPELL_FROSTBOLT);
-                frostboltTimer = urand(4 * IN_MILLISECONDS, 12 * IN_MILLISECONDS);
-            } else frostboltTimer -= diff;
-
-            // check if creature is not outside of building
-            if (resetTimer < diff)
-            {
-                if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
+                switch (eventId)
                 {
-                    EnterEvadeMode();
-                    Talk(YELL_EVADE);
+                    case EVENT_ARCANE_EXPLOSION:
+                        DoCastVictim(SPELL_ARCANE_EXPLOSION);
+                        events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
+                        break;
+                    case EVENT_CONE_OF_COLD:
+                        DoCastVictim(SPELL_CONE_OF_COLD);
+                        events.ScheduleEvent(EVENT_CONE_OF_COLD, urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
+                        break;
+                    case EVENT_FIREBOLT:
+                        DoCastVictim(SPELL_FIREBALL);
+                        events.ScheduleEvent(EVENT_FIREBOLT, urand(5 * IN_MILLISECONDS, 9 * IN_MILLISECONDS));
+                        break;
+                    case EVENT_FROSTBOLT:
+                        DoCastVictim(SPELL_FROSTBOLT);
+                        events.ScheduleEvent(EVENT_FROSTBOLT, urand(4 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
+                        break;
+                    case EVENT_SUMMON_WATER_ELEMENTAL:
+                        if (summons.empty())
+                            DoCast(SPELL_SUMMON_WATER_ELEMENTAL);
+                        events.ScheduleEvent(EVENT_SUMMON_WATER_ELEMENTAL, 50 * IN_MILLISECONDS);
+                        break;
+                    case EVENT_CHECK_RESET:
+                        if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
+                        {
+                            EnterEvadeMode();
+                            Talk(SAY_EVADE);
+                        }
+                        if (Creature* elemental = ObjectAccessor::GetCreature(*me, WaterElementalGUID))
+                            if (elemental->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
+                                elemental->AI()->EnterEvadeMode();
+                        events.ScheduleEvent(EVENT_CHECK_RESET, 5 * IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
                 }
-                resetTimer = 5 * IN_MILLISECONDS;
-            } else resetTimer -= diff;
+            }
 
             DoMeleeAttackIfReady();
         }
+    
+    private:
+        EventMap events;
+        SummonList summons;
+        uint64 WaterElementalGUID;
+        bool HasCastIceblock;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -230,5 +190,4 @@ public:
 void AddSC_boss_balinda()
 {
     new boss_balinda;
-    new npc_water_elemental;
 }

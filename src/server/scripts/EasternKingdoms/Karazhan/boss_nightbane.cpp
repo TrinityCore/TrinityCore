@@ -81,6 +81,9 @@ public:
             Initialize();
             instance = creature->GetInstanceScript();
             Intro = true;
+            RainBones = false;
+            Skeletons = false;
+            FlyTimer = 0;
         }
 
         void Initialize()

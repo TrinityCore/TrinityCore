@@ -412,7 +412,7 @@ class npc_eye_of_acherus : public CreatureScript
             {
                 if (movementType == WAYPOINT_MOTION_TYPE && pointId == POINT_EYE_MOVE_END - 1)
                 {
-                    me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE); 
+                    me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
                     me->RemoveAllAuras();
 
                     if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())

@@ -182,14 +182,20 @@ class boss_blood_council_controller : public CreatureScript
         {
             boss_blood_council_controllerAI(Creature* creature) : BossAI(creature, DATA_BLOOD_PRINCE_COUNCIL)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _invocationStage = 0;
+                _resetCounter = 0;
             }
 
             void Reset() override
             {
                 events.Reset();
                 me->SetReactState(REACT_PASSIVE);
-                _invocationStage = 0;
-                _resetCounter = 0;
+                Initialize();
 
                 instance->SetBossState(DATA_BLOOD_PRINCE_COUNCIL, NOT_STARTED);
             }
@@ -1142,6 +1148,7 @@ class npc_ball_of_flame : public CreatureScript
             npc_ball_of_flameAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
                 _despawnTimer = 0;
+                _chaseGUID = 0;
             }
 
             void Reset() override
@@ -1224,7 +1231,12 @@ class npc_kinetic_bomb : public CreatureScript
 
         struct npc_kinetic_bombAI : public ScriptedAI
         {
-            npc_kinetic_bombAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_kinetic_bombAI(Creature* creature) : ScriptedAI(creature)
+            {
+                _x = 0.f;
+                _y = 0.f;
+                _groundZ = 0.f;
+            }
 
             void Reset() override
             {

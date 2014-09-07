@@ -1068,6 +1068,7 @@ public:
             EntryYellTimer = 1000;
             AggroYellTimer = 10000;
             IsFakingDeath = false;
+            ResurrectTimer = 0;
         }
 
         void Initialize()

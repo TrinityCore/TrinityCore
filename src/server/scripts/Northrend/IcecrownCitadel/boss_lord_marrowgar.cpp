@@ -133,6 +133,7 @@ class boss_lord_marrowgar : public CreatureScript
                 _coldflameLastPos.Relocate(creature);
                 _introDone = false;
                 _boneSlice = false;
+                _coldflameTarget = 0;
             }
 
             void Reset() override

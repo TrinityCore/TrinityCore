@@ -174,6 +174,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                 UpperSpireTeleporterActiveState = NOT_STARTED;
                 BloodQuickeningState = NOT_STARTED;
                 BloodQuickeningMinutes = 0;
+                FrozenBolvarGUID = 0;
+                PillarsChainedGUID = 0;
+                PillarsUnchainedGUID = 0;
             }
 
             // A function to help reduce the number of lines for teleporter management.
