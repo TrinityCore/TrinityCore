@@ -161,7 +161,7 @@ class spell_kormok_summon_bone_mages : SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
                 for (uint32 i = 0; i < 2; ++i)
-                    GetCaster()->CastSpell(GetCaster(), SummonMageSpells[urand(0, 4)], true);
+                    GetCaster()->CastSpell(GetCaster(), SummonMageSpells[urand(0, 3)], true);
             }
 
             void Register() override
