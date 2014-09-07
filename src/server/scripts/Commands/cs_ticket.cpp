@@ -239,7 +239,7 @@ public:
         ticket->SetCompleted();
         ticket->SaveToDB(trans);
 
-        std::string msg = ticket->FormatMessageString(*handler, NULL, NULL, 
+        std::string msg = ticket->FormatMessageString(*handler, NULL, NULL,
             NULL, NULL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console");
         handler->SendGlobalGMSysMessage(msg.c_str());
         sTicketMgr->UpdateLastChange();
