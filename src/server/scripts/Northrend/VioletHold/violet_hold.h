@@ -18,6 +18,8 @@
 #ifndef DEF_VIOLET_HOLD_H
 #define DEF_VIOLET_HOLD_H
 
+#define DataHeader "VIO"
+
 enum Data
 {
     DATA_1ST_BOSS_EVENT,

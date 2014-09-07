@@ -19,6 +19,7 @@
 #define DRAK_THARON_KEEP_H_
 
 #define DrakTharonKeepScriptName "instance_drak_tharon_keep"
+#define DataHeader               "DTK"
 
 uint32 const EncounterCount = 4;
 

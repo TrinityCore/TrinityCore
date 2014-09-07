@@ -15,9 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "ruby_sanctum.h"
 
@@ -245,7 +245,7 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 // Setting DATA_BALTHARUS_SHARED_HEALTH to 0 when killed would bug the boss.
-                if (_instance && me->GetHealth() > damage)
+                if (me->GetHealth() > damage)
                     _instance->SetData(DATA_BALTHARUS_SHARED_HEALTH, me->GetHealth() - damage);
             }
 

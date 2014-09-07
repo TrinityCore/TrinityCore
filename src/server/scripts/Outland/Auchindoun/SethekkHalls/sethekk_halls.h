@@ -19,6 +19,7 @@
 #define SETHEKK_HALLS_H_
 
 #define SHScriptName "instance_sethekk_halls"
+#define DataHeader "SH"
 
 uint32 const EncounterCount             = 3;
 

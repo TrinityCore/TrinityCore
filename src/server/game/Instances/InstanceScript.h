@@ -140,38 +140,38 @@ class InstanceScript : public ZoneScript
 
         Map* instance;
 
-        //On creation, NOT load.
+        // On creation, NOT load.
         virtual void Initialize() { }
 
-        //On load
-        virtual void Load(char const* data) { LoadBossState(data); }
+        // On load
+        virtual void Load(char const* data);
 
-        //When save is needed, this function generates the data
-        virtual std::string GetSaveData() { return GetBossSaveData(); }
+        // When save is needed, this function generates the data
+        virtual std::string GetSaveData();
 
         void SaveToDB();
 
         virtual void Update(uint32 /*diff*/) { }
 
-        //Used by the map's CanEnter function.
-        //This is to prevent players from entering during boss encounters.
+        // Used by the map's CanEnter function.
+        // This is to prevent players from entering during boss encounters.
         virtual bool IsEncounterInProgress() const;
 
-        //Called when a player successfully enters the instance.
+        // Called when a player successfully enters the instance.
         virtual void OnPlayerEnter(Player* /*player*/) { }
 
-        //Handle open / close objects
-        //use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
-        //use HandleGameObject(GUID, boolen, NULL); in any other script
-        void HandleGameObject(uint64 guid, bool open, GameObject* go = NULL);
+        // Handle open / close objects
+        // * use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
+        // * use HandleGameObject(GUID, boolen, NULL); in any other script
+        void HandleGameObject(uint64 guid, bool open, GameObject* go = nullptr);
 
-        //change active state of doors or buttons
+        // Change active state of doors or buttons
         void DoUseDoorOrButton(uint64 guid, uint32 withRestoreTime = 0, bool useAlternativeState = false);
 
-        //Respawns a GO having negative spawntimesecs in gameobject-table
+        // Respawns a GO having negative spawntimesecs in gameobject-table
         void DoRespawnGameObject(uint64 guid, uint32 timeToDespawn = MINUTE);
 
-        //sends world state update to all players in instance
+        // Sends world state update to all players in instance
         void DoUpdateWorldState(uint32 worldstateId, uint32 worldstateValue);
 
         // Send Notify to all players in instance
@@ -221,6 +221,7 @@ class InstanceScript : public ZoneScript
         void UpdatePhasing();
 
     protected:
+        void SetHeaders(std::string const& dataHeaders);
         void SetBossNumber(uint32 number) { bosses.resize(number); }
         void LoadDoorData(DoorData const* data);
         void LoadMinionData(MinionData const* data);
@@ -231,9 +232,16 @@ class InstanceScript : public ZoneScript
         void UpdateDoorState(GameObject* door);
         void UpdateMinionState(Creature* minion, EncounterState state);
 
-        std::string LoadBossState(char const* data);
-        std::string GetBossSaveData();
+        // Instance Load and Save
+        bool ReadSaveDataHeaders(std::istringstream& data);
+        void ReadSaveDataBossStates(std::istringstream& data);
+        virtual void ReadSaveDataMore(std::istringstream& /*data*/) { }
+        void WriteSaveDataHeaders(std::ostringstream& data);
+        void WriteSaveDataBossStates(std::ostringstream& data);
+        virtual void WriteSaveDataMore(std::ostringstream& /*data*/) { }
+
     private:
+        std::vector<char> headers;
         std::vector<BossInfo> bosses;
         DoorInfoMap doors;
         MinionInfoMap minions;

@@ -18,6 +18,8 @@
 #ifndef DEF_ONYXIAS_LAIR_H
 #define DEF_ONYXIAS_LAIR_H
 
+#define DataHeader "OL"
+
 uint32 const EncounterCount     = 1;
 
 enum DataTypes

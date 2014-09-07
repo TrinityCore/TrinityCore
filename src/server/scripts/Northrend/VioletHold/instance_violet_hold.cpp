@@ -170,6 +170,7 @@ public:
 
         void Initialize() override
         {
+            SetHeaders(DataHeader);
             uiMoragg = 0;
             uiErekem = 0;
             uiIchoron = 0;

@@ -35,6 +35,7 @@ public:
     {
         instance_eye_of_eternity_InstanceMapScript(Map* map) : InstanceScript(map)
         {
+            SetHeaders(DataHeader);
             SetBossNumber(MAX_ENCOUNTER);
 
             vortexTriggers.clear();
@@ -277,65 +278,23 @@ public:
             return 0;
         }
 
-        std::string GetSaveData() override
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-            saveStream << "E E " << GetBossSaveData();
-
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return saveStream.str();
-        }
-
-        void Load(const char* str) override
-        {
-            if (!str)
-            {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
-            }
-
-            OUT_LOAD_INST_DATA(str);
-
-            char dataHead1, dataHead2;
-
-            std::istringstream loadStream(str);
-            loadStream >> dataHead1 >> dataHead2;
-
-            if (dataHead1 == 'E' && dataHead2 == 'E')
-            {
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                {
-                    uint32 tmpState;
-                    loadStream >> tmpState;
-                    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                        tmpState = NOT_STARTED;
-                    SetBossState(i, EncounterState(tmpState));
-                }
-
-            } else OUT_LOAD_INST_DATA_FAIL;
-
-            OUT_LOAD_INST_DATA_COMPLETE;
-        }
-
-        private:
-            std::list<uint64> vortexTriggers;
-            std::list<uint64> portalTriggers;
-            uint64 malygosGUID;
-            uint64 irisGUID;
-            uint64 lastPortalGUID;
-            uint64 platformGUID;
-            uint64 exitPortalGUID;
-            uint64 heartOfMagicGUID;
-            uint64 alexstraszaBunnyGUID;
-            uint64 giftBoxBunnyGUID;
-            Position focusingIrisPosition;
-            Position exitPortalPosition;
+    private:
+        std::list<uint64> vortexTriggers;
+        std::list<uint64> portalTriggers;
+        uint64 malygosGUID;
+        uint64 irisGUID;
+        uint64 lastPortalGUID;
+        uint64 platformGUID;
+        uint64 exitPortalGUID;
+        uint64 heartOfMagicGUID;
+        uint64 alexstraszaBunnyGUID;
+        uint64 giftBoxBunnyGUID;
+        Position focusingIrisPosition;
+        Position exitPortalPosition;
     };
 };
 
 void AddSC_instance_eye_of_eternity()
 {
-   new instance_eye_of_eternity();
+    new instance_eye_of_eternity();
 }

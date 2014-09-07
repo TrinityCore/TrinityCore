@@ -15,15 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "ObjectDefines.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "blackrock_spire.h"
 
 //uint32 const DragonspireRunes[7] = { GO_HALL_RUNE_1, GO_HALL_RUNE_2, GO_HALL_RUNE_3, GO_HALL_RUNE_4, GO_HALL_RUNE_5, GO_HALL_RUNE_6, GO_HALL_RUNE_7 };
@@ -51,6 +50,7 @@ public:
     {
         instance_blackrock_spireMapScript(InstanceMap* map) : InstanceScript(map)
         {
+            SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             HighlordOmokk             = 0;
             ShadowHunterVoshgajin     = 0;
@@ -500,50 +500,6 @@ public:
                 if (GameObject* door2 = instance->GetGameObject(go_doors))
                     HandleGameObject(0, true, door2);
             }
-        }
-
-        std::string GetSaveData() override
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-            saveStream << "B S " << GetBossSaveData();
-
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return saveStream.str();
-        }
-
-        void Load(const char* strIn) override
-        {
-            if (!strIn)
-            {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
-            }
-
-            OUT_LOAD_INST_DATA(strIn);
-
-            char dataHead1, dataHead2;
-
-            std::istringstream loadStream(strIn);
-            loadStream >> dataHead1 >> dataHead2;
-
-            if (dataHead1 == 'B' && dataHead2 == 'S')
-            {
-                for (uint8 i = 0; i < EncounterCount; ++i)
-                {
-                    uint32 tmpState;
-                    loadStream >> tmpState;
-                    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                        tmpState = NOT_STARTED;
-
-                    SetBossState(i, EncounterState(tmpState));
-                }
-            }
-            else
-                OUT_LOAD_INST_DATA_FAIL;
-
-            OUT_LOAD_INST_DATA_COMPLETE;
         }
 
         protected:

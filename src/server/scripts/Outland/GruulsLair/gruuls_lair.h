@@ -19,6 +19,7 @@
 #define GRUULS_LAIR_H_
 
 #define GLScriptName "instance_gruuls_lair"
+#define DataHeader   "GL"
 
 uint32 const EncounterCount = 2;
 
