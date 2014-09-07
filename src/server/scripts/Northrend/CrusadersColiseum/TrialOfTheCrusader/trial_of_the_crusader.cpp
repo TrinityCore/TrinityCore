@@ -201,7 +201,7 @@ class npc_announcer_toc10 : public CreatureScript
             }
             else if (instance->GetBossState(BOSS_LICH_KING) != DONE)
             {
-                if (GameObject* floor = GameObject::GetGameObject(*player, instance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
+                if (GameObject* floor = ObjectAccessor::GetGameObject(*player, instance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
                     floor->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
 
                 creature->CastSpell(creature, SPELL_CORPSE_TELEPORT, false);
@@ -318,7 +318,7 @@ class boss_lich_king_toc : public CreatureScript
                             break;
                         case 5080:
                         {
-                            if (GameObject* go = GameObject::GetGameObject(*me, _instance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
+                            if (GameObject* go = ObjectAccessor::GetGameObject(*me, _instance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
                             {
                                 go->SetDisplayId(DISPLAYID_DESTROYED_FLOOR);
                                 go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_NODESPAWN);
