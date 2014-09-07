@@ -18,6 +18,8 @@
 #ifndef DEF_ARCHAVON_H
 #define DEF_ARCHAVON_H
 
+#define DataHeader "VA"
+
 uint32 const EncounterCount = 4;
 
 enum Data

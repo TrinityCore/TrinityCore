@@ -19,6 +19,7 @@
 #define OBSIDIAN_SANCTUM_H_
 
 #define OSScriptName "instance_obsidian_sanctum"
+#define DataHeader "OS"
 
 uint32 const EncounterCount = 5;
 

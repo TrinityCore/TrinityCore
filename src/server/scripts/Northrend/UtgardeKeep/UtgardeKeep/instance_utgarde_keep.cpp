@@ -41,6 +41,7 @@ class instance_utgarde_keep : public InstanceMapScript
         {
             instance_utgarde_keep_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadMinionData(minionData);
@@ -191,53 +192,16 @@ class instance_utgarde_keep : public InstanceMapScript
                 }
             }
 
-            std::string GetSaveData() override
+            void WriteSaveDataMore(std::ostringstream& data) override
             {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "U K " << GetBossSaveData();
-
                 for (uint8 i = 0; i < 3; ++i)
-                    saveStream << Forges[i].Event << ' ';
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
+                    data << Forges[i].Event << ' ';
             }
 
-            void Load(char const* str) override
+            void ReadSaveDataMore(std::istringstream& data) override
             {
-                if (!str)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(str);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(str);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'U' && dataHead2 == 'K')
-                {
-                    for (uint32 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-
-                    for (uint8 i = 0; i < 3; ++i)
-                         loadStream >> Forges[i].Event;
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
+                for (uint8 i = 0; i < 3; ++i)
+                    data >> Forges[i].Event;
             }
 
         protected:

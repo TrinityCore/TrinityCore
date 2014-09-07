@@ -82,6 +82,7 @@ class instance_halls_of_reflection : public InstanceMapScript
         {
             instance_halls_of_reflection_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
 
                 JainaOrSylvanasIntroGUID  = 0;
@@ -709,61 +710,25 @@ class instance_halls_of_reflection : public InstanceMapScript
                 return 0;
             }
 
-            std::string GetSaveData() override
+            void WriteSaveDataMore(std::ostringstream& data) override
             {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "H R " << GetBossSaveData() << _introState << ' ' << _frostswornGeneralState;
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
+                data << _introState << ' ' << _frostswornGeneralState;
             }
 
-            void Load(char const* in) override
+            void ReadSaveDataMore(std::istringstream& data) override
             {
-                if (!in)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(in);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(in);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'H' && dataHead2 == 'R')
-                {
-                    for (uint8 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-
-                    uint32 temp = 0;
-                    loadStream >> temp;
-                    if (temp == DONE)
-                        SetData(DATA_INTRO_EVENT, DONE);
-                    else
-                        SetData(DATA_INTRO_EVENT, NOT_STARTED);
-
-                    loadStream >> temp;
-                    if (temp == DONE)
-                        SetData(DATA_FROSTSWORN_GENERAL, DONE);
-                    else
-                        SetData(DATA_FROSTSWORN_GENERAL, NOT_STARTED);
-                }
+                uint32 temp = 0;
+                data >> temp;
+                if (temp == DONE)
+                    SetData(DATA_INTRO_EVENT, DONE);
                 else
-                    OUT_LOAD_INST_DATA_FAIL;
+                    SetData(DATA_INTRO_EVENT, NOT_STARTED);
 
-                OUT_LOAD_INST_DATA_COMPLETE;
+                data >> temp;
+                if (temp == DONE)
+                    SetData(DATA_FROSTSWORN_GENERAL, DONE);
+                else
+                    SetData(DATA_FROSTSWORN_GENERAL, NOT_STARTED);
             }
 
         private:

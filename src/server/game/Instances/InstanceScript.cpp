@@ -43,16 +43,6 @@ void InstanceScript::SaveToDB()
     CharacterDatabase.Execute(stmt);
 }
 
-void InstanceScript::HandleGameObject(uint64 GUID, bool open, GameObject* go)
-{
-    if (!go)
-        go = instance->GetGameObject(GUID);
-    if (go)
-        go->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
-    else
-        TC_LOG_DEBUG("scripts", "InstanceScript: HandleGameObject failed");
-}
-
 bool InstanceScript::IsEncounterInProgress() const
 {
     for (std::vector<BossInfo>::const_iterator itr = bosses.begin(); itr != bosses.end(); ++itr)
@@ -60,6 +50,13 @@ bool InstanceScript::IsEncounterInProgress() const
             return true;
 
     return false;
+}
+
+void InstanceScript::SetHeaders(std::string const& dataHeaders)
+{
+    for (char header : dataHeaders)
+        if (isalpha(header))
+            headers.push_back(header);
 }
 
 void InstanceScript::LoadMinionData(const MinionData* data)
@@ -232,65 +229,140 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
     return false;
 }
 
-std::string InstanceScript::LoadBossState(const char * data)
+void InstanceScript::Load(char const* data)
 {
     if (!data)
-        return NULL;
+    {
+        OUT_LOAD_INST_DATA_FAIL;
+        return;
+    }
+
+    OUT_LOAD_INST_DATA(data);
+
     std::istringstream loadStream(data);
-    uint32 buff;
+
+    if (ReadSaveDataHeaders(loadStream))
+    {
+        ReadSaveDataBossStates(loadStream);
+        ReadSaveDataMore(loadStream);
+    }
+    else
+        OUT_LOAD_INST_DATA_FAIL;
+
+    OUT_LOAD_INST_DATA_COMPLETE;
+}
+
+bool InstanceScript::ReadSaveDataHeaders(std::istringstream& data)
+{
+    for (char header : headers)
+    {
+        char buff;
+        data >> buff;
+
+        if (header != buff)
+            return false;
+    }
+
+    return true;
+}
+
+void InstanceScript::ReadSaveDataBossStates(std::istringstream& data)
+{
     uint32 bossId = 0;
     for (std::vector<BossInfo>::iterator i = bosses.begin(); i != bosses.end(); ++i, ++bossId)
     {
-        loadStream >> buff;
+        uint32 buff;
+        data >> buff;
+        if (buff == IN_PROGRESS || buff == SPECIAL)
+            buff = NOT_STARTED;
+
         if (buff < TO_BE_DECIDED)
-            SetBossState(bossId, (EncounterState)buff);
+            SetBossState(bossId, EncounterState(buff));
     }
-    return loadStream.str();
 }
 
-std::string InstanceScript::GetBossSaveData()
+std::string InstanceScript::GetSaveData()
 {
+    OUT_SAVE_INST_DATA;
+
     std::ostringstream saveStream;
-    for (std::vector<BossInfo>::iterator i = bosses.begin(); i != bosses.end(); ++i)
-        saveStream << (uint32)i->state << ' ';
+
+    WriteSaveDataHeaders(saveStream);
+    WriteSaveDataBossStates(saveStream);
+    WriteSaveDataMore(saveStream);
+
+    OUT_SAVE_INST_DATA_COMPLETE;
+
     return saveStream.str();
 }
 
-void InstanceScript::DoUseDoorOrButton(uint64 uiGuid, uint32 uiWithRestoreTime, bool bUseAlternativeState)
+void InstanceScript::WriteSaveDataHeaders(std::ostringstream& data)
 {
-    if (!uiGuid)
+    for (char header : headers)
+        data << header << ' ';
+}
+
+void InstanceScript::WriteSaveDataBossStates(std::ostringstream& data)
+{
+    for (BossInfo const& bossInfo : bosses)
+        data << uint32(bossInfo.state) << ' ';
+}
+
+void InstanceScript::HandleGameObject(uint64 guid, bool open, GameObject* go /*= nullptr*/)
+{
+    if (!go)
+        go = instance->GetGameObject(guid);
+    if (go)
+        go->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
+    else
+        TC_LOG_DEBUG("scripts", "InstanceScript: HandleGameObject failed");
+}
+
+void InstanceScript::DoUseDoorOrButton(uint64 guid, uint32 withRestoreTime /*= 0*/, bool useAlternativeState /*= false*/)
+{
+    if (!guid)
         return;
 
-    GameObject* go = instance->GetGameObject(uiGuid);
-
-    if (go)
+    if (GameObject* go = instance->GetGameObject(guid))
     {
         if (go->GetGoType() == GAMEOBJECT_TYPE_DOOR || go->GetGoType() == GAMEOBJECT_TYPE_BUTTON)
         {
             if (go->getLootState() == GO_READY)
-                go->UseDoorOrButton(uiWithRestoreTime, bUseAlternativeState);
+                go->UseDoorOrButton(withRestoreTime, useAlternativeState);
             else if (go->getLootState() == GO_ACTIVATED)
                 go->ResetDoorOrButton();
         }
         else
-            TC_LOG_ERROR("misc", "SD2: Script call DoUseDoorOrButton, but gameobject entry %u is type %u.", go->GetEntry(), go->GetGoType());
+            TC_LOG_ERROR("scripts", "InstanceScript: DoUseDoorOrButton can't use gameobject entry %u, because type is %u.", go->GetEntry(), go->GetGoType());
     }
+    else
+        TC_LOG_DEBUG("scripts", "InstanceScript: HandleGameObject failed");
 }
 
-void InstanceScript::DoRespawnGameObject(uint64 uiGuid, uint32 uiTimeToDespawn)
+void InstanceScript::DoRespawnGameObject(uint64 guid, uint32 timeToDespawn /*= MINUTE*/)
 {
-    if (GameObject* go = instance->GetGameObject(uiGuid))
+    if (GameObject* go = instance->GetGameObject(guid))
     {
-        //not expect any of these should ever be handled
-        if (go->GetGoType() == GAMEOBJECT_TYPE_FISHINGNODE || go->GetGoType() == GAMEOBJECT_TYPE_DOOR ||
-            go->GetGoType() == GAMEOBJECT_TYPE_BUTTON || go->GetGoType() == GAMEOBJECT_TYPE_TRAP)
-            return;
+        switch (go->GetGoType())
+        {
+            case GAMEOBJECT_TYPE_DOOR:
+            case GAMEOBJECT_TYPE_BUTTON:
+            case GAMEOBJECT_TYPE_TRAP:
+            case GAMEOBJECT_TYPE_FISHINGNODE:
+                // not expect any of these should ever be handled
+                TC_LOG_ERROR("scripts", "InstanceScript: DoRespawnGameObject can't respawn gameobject entry %u, because type is %u.", go->GetEntry(), go->GetGoType());
+                return;
+            default:
+                break;
+        }
 
         if (go->isSpawned())
             return;
 
-        go->SetRespawnTime(uiTimeToDespawn);
+        go->SetRespawnTime(timeToDespawn);
     }
+    else
+        TC_LOG_DEBUG("scripts", "InstanceScript: DoRespawnGameObject failed");
 }
 
 void InstanceScript::DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData)
