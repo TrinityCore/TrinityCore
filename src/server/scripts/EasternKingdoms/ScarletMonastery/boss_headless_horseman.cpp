@@ -391,6 +391,10 @@ public:
             Initialize();
             instance = creature->GetInstanceScript();
             headGUID = 0;
+            PlayerGUID = 0;
+            id = 0;
+            whirlwind = 0;
+            wp_reached = false;
         }
 
         void Initialize()

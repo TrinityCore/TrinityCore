@@ -77,7 +77,24 @@ public:
     {
         boss_gal_darahAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiStampedeTimer = 10 * IN_MILLISECONDS;
+            uiWhirlingSlashTimer = 21 * IN_MILLISECONDS;
+            uiPunctureTimer = 10 * IN_MILLISECONDS;
+            uiEnrageTimer = 15 * IN_MILLISECONDS;
+            uiImpalingChargeTimer = 21 * IN_MILLISECONDS;
+            uiStompTimer = 25 * IN_MILLISECONDS;
+            uiTransformationTimer = 9 * IN_MILLISECONDS;
+            uiPhaseCounter = 0;
+
+            shareTheLove = 0;
+            bStartOfTransformation = true;
+            Phase = TROLL;
         }
 
         uint32 uiStampedeTimer;
@@ -100,21 +117,9 @@ public:
 
         void Reset() override
         {
-            uiStampedeTimer = 10*IN_MILLISECONDS;
-            uiWhirlingSlashTimer = 21*IN_MILLISECONDS;
-            uiPunctureTimer = 10*IN_MILLISECONDS;
-            uiEnrageTimer = 15*IN_MILLISECONDS;
-            uiImpalingChargeTimer = 21*IN_MILLISECONDS;
-            uiStompTimer = 25*IN_MILLISECONDS;
-            uiTransformationTimer = 9*IN_MILLISECONDS;
-            uiPhaseCounter = 0;
+            Initialize();
 
             impaledList.clear();
-            shareTheLove = 0;
-
-            bStartOfTransformation = true;
-
-            Phase = TROLL;
 
             me->SetDisplayId(DISPLAY_TROLL);
 

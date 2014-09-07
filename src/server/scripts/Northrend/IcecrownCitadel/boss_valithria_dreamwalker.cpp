@@ -282,6 +282,17 @@ class boss_valithria_dreamwalker : public CreatureScript
             boss_valithria_dreamwalkerAI(Creature* creature) : ScriptedAI(creature),
                 _instance(creature->GetInstanceScript()), _portalCount(RAID_MODE<uint32>(3, 8, 3, 8))
             {
+                Initialize();
+                _spawnHealth = me->GetHealth();
+            }
+
+            void Initialize()
+            {
+                _missedPortals = 0;
+                _under25PercentTalkDone = false;
+                _over75PercentTalkDone = false;
+                _justDied = false;
+                _done = false;
             }
 
             void InitializeAI() override
@@ -305,11 +316,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                 // Glyph of Dispel Magic - not a percent heal by effect, its cast with custom basepoints
                 me->ApplySpellImmune(0, IMMUNITY_ID, 56131, true);
                 _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                _missedPortals = 0;
-                _under25PercentTalkDone = false;
-                _over75PercentTalkDone = false;
-                _justDied = false;
-                _done = false;
+                Initialize();
             }
 
             void AttackStart(Unit* /*target*/) override
@@ -680,6 +687,12 @@ class npc_risen_archmage : public CreatureScript
             npc_risen_archmageAI(Creature* creature) : ScriptedAI(creature),
                 _instance(creature->GetInstanceScript())
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _canCallEnterCombat = true;
             }
 
             bool CanAIAttack(Unit const* target) const override
@@ -693,7 +706,7 @@ class npc_risen_archmage : public CreatureScript
                 _events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, urand(5000, 15000));
                 _events.ScheduleEvent(EVENT_MANA_VOID, urand(20000, 25000));
                 _events.ScheduleEvent(EVENT_COLUMN_OF_FROST, urand(10000, 20000));
-                _canCallEnterCombat = true;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*target*/) override

@@ -52,6 +52,7 @@ class instance_pit_of_saron : public InstanceMapScript
                 _jainaOrSylvanas1GUID = 0;
                 _jainaOrSylvanas2GUID = 0;
                 _teamInInstance = 0;
+                _tyrannusEventGUID = 0;
             }
 
             void OnPlayerEnter(Player* player) override

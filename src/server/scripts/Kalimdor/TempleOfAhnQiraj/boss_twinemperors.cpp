@@ -417,8 +417,6 @@ public:
         uint32 UnbalancingStrike_Timer;
         uint32 Scarabs_Timer;
 
-        Creature* Summoned;
-
         void Reset() override
         {
             TwinReset();
@@ -508,8 +506,6 @@ public:
         uint32 Blizzard_Timer;
         uint32 ArcaneBurst_Timer;
         uint32 Scorpions_Timer;
-
-        Creature* Summoned;
 
         void Reset() override
         {

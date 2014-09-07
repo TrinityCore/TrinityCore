@@ -96,12 +96,25 @@ public:
     {
         boss_four_horsemenAI(Creature* creature) : BossAI(creature, BOSS_HORSEMEN)
         {
+            Initialize();
             id = Horsemen(0);
             for (uint8 i = 0; i < 4; ++i)
                 if (me->GetEntry() == NPC_HORSEMEN[i])
                     id = Horsemen(i);
             caster = (id == HORSEMEN_LADY || id == HORSEMEN_SIR);
+        }
+
+        void Initialize()
+        {
+            uiEventStarterGUID = 0;
+            nextWP = 0;
+            punishTimer = 2000;
+            nextMovementStarted = false;
+            movementCompleted = false;
+            movementStarted = false;
+            encounterActionAttack = false;
             encounterActionReset = false;
+            doDelayPunish = false;
         }
 
         Horsemen id;
@@ -124,15 +137,7 @@ public:
             instance->SetData(DATA_HORSEMEN0 + id, NOT_STARTED);
 
             me->SetReactState(REACT_AGGRESSIVE);
-            uiEventStarterGUID = 0;
-            nextWP = 0;
-            punishTimer = 2000;
-            nextMovementStarted = false;
-            movementCompleted = false;
-            movementStarted = false;
-            encounterActionAttack = false;
-            encounterActionReset = false;
-            doDelayPunish = false;
+            Initialize();
             _Reset();
         }
 

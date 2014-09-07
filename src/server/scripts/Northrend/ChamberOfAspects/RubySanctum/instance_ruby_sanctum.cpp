@@ -54,6 +54,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 BaltharusSharedHealth    = 0;
                 FlameWallsGUID           = 0;
                 FlameRingGUID            = 0;
+                TwilightFlameRingGUID    = 0;
 
                 memset(ZarithrianSpawnStalkerGUID, 0, 2 * sizeof(uint64));
                 memset(BurningTreeGUID, 0, 4 * sizeof(uint64));

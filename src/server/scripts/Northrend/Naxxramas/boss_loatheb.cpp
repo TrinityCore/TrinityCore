@@ -60,13 +60,19 @@ class boss_loatheb : public CreatureScript
         {
             boss_loathebAI(Creature* creature) : BossAI(creature, BOSS_LOATHEB)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _doomCounter = 0;
+                _sporeLoserData = true;
             }
 
             void Reset() override
             {
                 _Reset();
-                _doomCounter = 0;
-                _sporeLoserData = true;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override

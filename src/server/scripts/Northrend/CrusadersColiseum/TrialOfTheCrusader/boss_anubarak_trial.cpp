@@ -166,6 +166,13 @@ class boss_anubarak_trial : public CreatureScript
         {
             boss_anubarak_trialAI(Creature* creature) : BossAI(creature, BOSS_ANUBARAK)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _intro = true;
+                _reachedPhase3 = false;
             }
 
             void Reset() override
@@ -183,8 +190,7 @@ class boss_anubarak_trial : public CreatureScript
                 if (!IsHeroic())
                     events.ScheduleEvent(EVENT_SUMMON_FROST_SPHERE, 20*IN_MILLISECONDS);
 
-                _intro = true;
-                _reachedPhase3 = false;
+                Initialize();
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 // clean up spawned Frost Spheres
                 std::list<Creature*> FrostSphereList;
@@ -436,13 +442,19 @@ class npc_swarm_scarab : public CreatureScript
         {
             npc_swarm_scarabAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 _instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                _determinationTimer = urand(5 * IN_MILLISECONDS, 60 * IN_MILLISECONDS);
             }
 
             void Reset() override
             {
                 me->SetCorpseDelay(0);
-                _determinationTimer = urand(5*IN_MILLISECONDS, 60*IN_MILLISECONDS);
+                Initialize();
                 DoCast(me, SPELL_ACID_MANDIBLE);
                 me->SetInCombatWithZone();
                 if (me->IsInCombat())
@@ -508,13 +520,19 @@ class npc_nerubian_burrower : public CreatureScript
         {
             npc_nerubian_burrowerAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 _instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                _submergeTimer = 30 * IN_MILLISECONDS;
             }
 
             void Reset() override
             {
                 me->SetCorpseDelay(10);
-                _submergeTimer = 30*IN_MILLISECONDS;
+                Initialize();
                 DoCast(me, SPELL_EXPOSE_WEAKNESS);
                 DoCast(me, SPELL_SPIDER_FRENZY);
                 DoCast(me, SPELL_AWAKENED);
@@ -669,12 +687,18 @@ class npc_anubarak_spike : public CreatureScript
         {
             npc_anubarak_spikeAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _phase = PHASE_NO_MOVEMENT;
+                _phaseSwitchTimer = 1;
             }
 
             void Reset() override
             {
-                _phase = PHASE_NO_MOVEMENT;
-                _phaseSwitchTimer = 1;
+                Initialize();
                 // make sure the spike has everyone on threat list
                 me->SetInCombatWithZone();
             }
