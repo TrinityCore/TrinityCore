@@ -91,7 +91,7 @@ class boss_interrogator_vishas : public CreatureScript
 
                 if (me->HealthBelowPctDamaged(30, damage) && _yellCount < 2)
                 {
-                    Talk(SAY_HEALTH1);
+                    Talk(SAY_HEALTH2);
                     ++_yellCount;
                 }
             }
