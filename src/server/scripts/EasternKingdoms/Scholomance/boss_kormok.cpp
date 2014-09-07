@@ -165,7 +165,7 @@ class spell_kormok_summon_bone_mages : SpellScriptLoader
                         GetCaster()->CastSpell(GetCaster(), SummonMageSpells[urand(0, 4)], true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_kormok_summon_bone_magesSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
@@ -203,7 +203,7 @@ class spell_kormok_summon_bone_minions : SpellScriptLoader
                 GetCaster()->SummonCreature(NPC_BONE_MINION, GetCaster()->GetPositionX() + float(irand(-7, 7)), GetCaster()->GetPositionY() + float(irand(-7, 7)), GetCaster()->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_kormok_summon_bone_minionsSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
