@@ -173,7 +173,7 @@ public:
 
             DoMeleeAttackIfReady();
         }
-    
+
     private:
         EventMap events;
         SummonList summons;
