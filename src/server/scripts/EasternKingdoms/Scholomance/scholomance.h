@@ -36,7 +36,8 @@ enum DataTypes
 
 enum CreatureIds
 {
-    NPC_DARKMASTER_GANDLING             = 1853
+    NPC_DARKMASTER_GANDLING             = 1853,
+    NPC_BONE_MINION                     = 16119
 };
 
 enum GameobjectIds
