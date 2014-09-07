@@ -21,6 +21,7 @@
 #include "Map.h"
 #include "CreatureAI.h"
 
+#define DataHeader "FL"
 #define FirelandsScriptName "instance_firelands"
 
 uint32 const EncounterCount = 7;
