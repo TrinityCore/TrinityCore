@@ -179,7 +179,7 @@ public:
                     break;
             }
         }
-    
+
     private:
         uint64 SpineTargetGUID;
     };

@@ -151,18 +151,17 @@ class spell_kormok_summon_bone_mages : SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                for (int i = 0; i < 4; ++i)
+                for (uint32 i = 0; i < 4; ++i)
                     if (!sSpellMgr->GetSpellInfo(SummonMageSpells[i]))
                         return false;
-                
-                    return true;
+                return true;
             }
 
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                for (int i = 0; i < 2; ++i)
-                        GetCaster()->CastSpell(GetCaster(), SummonMageSpells[urand(0, 4)], true);
+                for (uint32 i = 0; i < 2; ++i)
+                    GetCaster()->CastSpell(GetCaster(), SummonMageSpells[urand(0, 4)], true);
             }
 
             void Register() override
@@ -199,7 +198,7 @@ class spell_kormok_summon_bone_minions : SpellScriptLoader
             PreventHitDefaultEffect(effIndex);
 
             // Possible spells to handle this not found.
-            for (int i = 0; i < 4; ++i)
+            for (uint32 i = 0; i < 4; ++i)
                 GetCaster()->SummonCreature(NPC_BONE_MINION, GetCaster()->GetPositionX() + float(irand(-7, 7)), GetCaster()->GetPositionY() + float(irand(-7, 7)), GetCaster()->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000);
         }
 
