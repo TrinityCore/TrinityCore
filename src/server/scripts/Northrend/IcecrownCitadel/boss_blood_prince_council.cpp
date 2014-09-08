@@ -510,7 +510,7 @@ class boss_prince_keleseth_icc : public CreatureScript
                 }
             }
 
-            bool CheckRoom()
+            bool CheckInRoom() override
             {
                 if (!CheckBoundary(me))
                 {
@@ -529,7 +529,7 @@ class boss_prince_keleseth_icc : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || !CheckRoom())
+                if (!UpdateVictim() || !CheckInRoom())
                     return;
 
                 events.Update(diff);
@@ -729,7 +729,7 @@ class boss_prince_taldaram_icc : public CreatureScript
                 }
             }
 
-            bool CheckRoom()
+            bool CheckInRoom() override
             {
                 if (!CheckBoundary(me))
                 {
@@ -748,7 +748,7 @@ class boss_prince_taldaram_icc : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || !CheckRoom())
+                if (!UpdateVictim() || !CheckInRoom())
                     return;
 
                 events.Update(diff);
@@ -968,7 +968,7 @@ class boss_prince_valanar_icc : public CreatureScript
                 }
             }
 
-            bool CheckRoom()
+            bool CheckInRoom() override
             {
                 if (!CheckBoundary(me))
                 {
@@ -987,7 +987,7 @@ class boss_prince_valanar_icc : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || !CheckRoom())
+                if (!UpdateVictim() || !CheckInRoom())
                     return;
 
                 events.Update(diff);
