@@ -138,7 +138,7 @@ public:
                     break;
                 case DATA_IN_POSITION: //movement done.
                     me->GetMotionMaster()->MovePoint(1, 735.81f, 661.92f, 412.39f);
-                    if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
                         instance->HandleGameObject(go->GetGUID(), false);
                     NextStep(10000, false, 3);
                     break;

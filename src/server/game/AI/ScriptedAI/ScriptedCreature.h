@@ -371,7 +371,7 @@ class BossAI : public ScriptedAI
         void _JustReachedHome() { me->setActive(false); }
         void _DespawnAtEvade();
 
-        bool CheckInRoom()
+        virtual bool CheckInRoom()
         {
             if (CheckBoundary(me))
                 return true;
