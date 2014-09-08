@@ -1,4 +1,4 @@
-#pragma once;
+#pragma once
 
 #include "ListQuestsActions.h"
 #include "StatsAction.h"

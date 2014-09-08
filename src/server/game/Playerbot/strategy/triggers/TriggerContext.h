@@ -1,4 +1,4 @@
-#pragma once;
+#pragma once
 
 #include "HealthTriggers.h"
 #include "GenericTriggers.h"

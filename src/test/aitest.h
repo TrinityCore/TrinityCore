@@ -1,4 +1,4 @@
-#pragma once;
+#pragma once
 
 #include "../game/playerbot/PlayerbotAIAware.h"
 #include "../game/playerbot/PlayerbotMgr.h"

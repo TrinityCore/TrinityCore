@@ -1,4 +1,4 @@
-#pragma once;
+#pragma once
 
 #include "AcceptInvitationAction.h"
 #include "PassLeadershipToMasterAction.h"

@@ -1,4 +1,4 @@
-#pragma once;
+#pragma once
 
 #include "GenericActions.h"
 #include "NonCombatActions.h"

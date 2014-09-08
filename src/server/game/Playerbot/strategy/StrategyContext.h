@@ -1,4 +1,4 @@
-#pragma once;
+#pragma once
 
 #include "generic/NonCombatStrategy.h"
 #include "generic/RacialsStrategy.h"

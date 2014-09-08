@@ -1,4 +1,4 @@
-#pragma once;
+#pragma once
 
 #include "WorldPacketTrigger.h"
 #include "WithinAreaTrigger.h"

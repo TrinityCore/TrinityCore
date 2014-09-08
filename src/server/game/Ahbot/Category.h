@@ -1,4 +1,4 @@
-#pragma once;
+#pragma once
 #include "PricingStrategy.h"
 #include "../Entities/Item/ItemPrototype.h"
 

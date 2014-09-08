@@ -1,4 +1,4 @@
-#pragma once;
+#pragma once
 
 #include "NearestGameObjects.h"
 #include "LogLevelValue.h"

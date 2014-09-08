@@ -1,4 +1,4 @@
-#pragma once;
+#pragma once
 #include "../../game/Entities/Item/ItemPrototype.h"
 
 using namespace std;
