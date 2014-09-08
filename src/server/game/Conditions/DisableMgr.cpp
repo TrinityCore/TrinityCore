@@ -222,7 +222,7 @@ void LoadDisables()
                 }
                 break;
             }
-            case DISABLE_TYPE_MMAP:
+            case DISABLE_TYPE_PATHFINDING:
             {
                 MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
                 if (!mapEntry)
@@ -378,7 +378,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
         case DISABLE_TYPE_BATTLEGROUND:
         case DISABLE_TYPE_OUTDOORPVP:
         case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
-        case DISABLE_TYPE_MMAP:
+        case DISABLE_TYPE_PATHFINDING:
             return true;
         case DISABLE_TYPE_VMAP:
            return (flags & itr->second.flags) != 0;

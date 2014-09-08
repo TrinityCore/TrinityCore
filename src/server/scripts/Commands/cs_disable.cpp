@@ -174,7 +174,7 @@ public:
                 disableTypeStr = "vmap";
                 break;
             }
-            case DISABLE_TYPE_MMAP:
+            case DISABLE_TYPE_PATHFINDING:
             {
                 if (!sMapStore.LookupEntry(entry))
                 {
@@ -274,7 +274,7 @@ public:
         if (!*args)
             return false;
 
-        return HandleAddDisables(handler, args, DISABLE_TYPE_MMAP);
+        return HandleAddDisables(handler, args, DISABLE_TYPE_PATHFINDING);
     }
 
     static bool HandleRemoveDisables(ChatHandler* handler, char const* args, uint8 disableType)
@@ -310,7 +310,7 @@ public:
             case DISABLE_TYPE_VMAP:
                 disableTypeStr = "vmap";
                 break;
-            case DISABLE_TYPE_MMAP:
+            case DISABLE_TYPE_PATHFINDING:
                 disableTypeStr = "mmap";
                 break;
         }
@@ -397,7 +397,7 @@ public:
         if (!*args)
             return false;
 
-        return HandleRemoveDisables(handler, args, DISABLE_TYPE_MMAP);
+        return HandleRemoveDisables(handler, args, DISABLE_TYPE_PATHFINDING);
     }
 };
 
