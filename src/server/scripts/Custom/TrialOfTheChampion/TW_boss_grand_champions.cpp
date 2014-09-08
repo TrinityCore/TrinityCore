@@ -976,7 +976,7 @@ class TW_boss_hunter_toc5 : public CreatureScript
 
                 instance->SetData(BOSS_GRAND_CHAMPIONS, NOT_STARTED);
 
-                if (GameObject* gate = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
                     instance->HandleGameObject(gate->GetGUID(), true);
 
                 me->RemoveFromWorld();
@@ -1177,7 +1177,7 @@ class TW_boss_rogue_toc5 : public CreatureScript
 
                 instance->SetData(BOSS_GRAND_CHAMPIONS, NOT_STARTED);
 
-                if (GameObject* gate = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
                     instance->HandleGameObject(gate->GetGUID(),true);
 
                 events.SetPhase(PHASE_IDLE);

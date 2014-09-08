@@ -527,7 +527,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                     me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
                     me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MovePoint(1, 735.898f, 651.961f, 411.93f);
-                    if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                    if (GameObject* pGO = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
                         instance->HandleGameObject(pGO->GetGUID(), false);
                     events.ScheduleEvent(EVENT_AGGRO_FACTION, 15000, 0, PHASE_INPROGRESS);
                     break;
@@ -590,7 +590,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                 return;
 
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+            if (GameObject* pGO = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
                 instance->HandleGameObject(pGO->GetGUID(),false);
 
             if (instance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)

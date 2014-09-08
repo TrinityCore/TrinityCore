@@ -175,10 +175,10 @@ public:
             iveHadWorse = true;
             pAnnouncer = NULL;
 
-            if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
                 instance->HandleGameObject(go->GetGUID(), false);
 
-            if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
                 instance->HandleGameObject(go->GetGUID(), true);
 
             if (bEventInBattle)

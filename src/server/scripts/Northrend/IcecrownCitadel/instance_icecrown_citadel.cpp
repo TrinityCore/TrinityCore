@@ -1376,7 +1376,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 data >> temp;
                 UpperSpireTeleporterActiveState = temp ? DONE : NOT_STARTED;
 
-                    loadStream >> temp;
+                    data >> temp;
                     CrimsonHallBloodFallenKillCount = temp;
             }
 

@@ -1212,7 +1212,7 @@ class instance_ulduar : public InstanceMapScript
                 for (uint8 i = 0; i < 4; ++i)
                     data << ' ' << uint32(KeeperGUIDs[i] ? 1 : 0);
                 for (uint8 i = 0; i < 13; i++)
-                    saveStream << ' ' << champConqOfUlduar[i];
+                    data << ' ' << champConqOfUlduar[i];
 
             }
 
@@ -1254,7 +1254,7 @@ class instance_ulduar : public InstanceMapScript
                     _summonObservationRingKeeper[3] = true;
 
                     for (uint8 i = 0; i < 13; i++)
-                        loadStream >> champConqOfUlduar[i];
+                        data >> champConqOfUlduar[i];
             }
 
             void Update(uint32 diff) override
