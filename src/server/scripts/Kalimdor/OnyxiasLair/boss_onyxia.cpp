@@ -393,7 +393,7 @@ public:
                 }
 
                 if (!me->isMoving())
-                    if (Creature* trigger = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TRIGGER_GUID)))
+                    if (Creature* trigger = ObjectAccessor::GetCreature(*me, triggerGUID))
                         me->SetFacingToObject(trigger);
 
                 events.Update(diff);
