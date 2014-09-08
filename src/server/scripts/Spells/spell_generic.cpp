@@ -3609,6 +3609,36 @@ class spell_gen_eject_all_passengers : public SpellScriptLoader
         }
 };
 
+class spell_gen_interrupt : public SpellScriptLoader
+{
+public:
+    spell_gen_interrupt() : SpellScriptLoader("spell_gen_interrupt") { }
+
+    class spell_gen_interrupt_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_interrupt_SpellScript);
+
+        SpellCastResult CheckCast()
+        {
+            if (Unit* target = GetExplTargetUnit())
+                if (!target->ToCreature())
+                    return SPELL_FAILED_DONT_REPORT;
+
+            return SPELL_CAST_OK;
+        }
+
+        void Register() override
+        {
+            OnCheckCast += SpellCheckCastFn(spell_gen_interrupt_SpellScript::CheckCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_gen_interrupt_SpellScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3689,4 +3719,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_wg_water();
     new spell_gen_whisper_gulch_yogg_saron_whisper();
     new spell_gen_eject_all_passengers();
+    new spell_gen_interrupt();
 }
