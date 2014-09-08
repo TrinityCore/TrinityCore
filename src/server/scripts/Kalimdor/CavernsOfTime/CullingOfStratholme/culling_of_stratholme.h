@@ -18,6 +18,8 @@
 #ifndef DEF_CULLING_OF_STRATHOLME_H
 #define DEF_CULLING_OF_STRATHOLME_H
 
+#define DataHeader "CS"
+
 enum Data
 {
     DATA_MEATHOOK_EVENT,

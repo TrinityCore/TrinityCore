@@ -19,6 +19,8 @@
 #ifndef DEF_THEBLACKMORASS_H
 #define DEF_THEBLACKMORASS_H
 
+#define DataHeader "TBM"
+
 uint32 const EncounterCount             = 2;
 
 enum DataTypes

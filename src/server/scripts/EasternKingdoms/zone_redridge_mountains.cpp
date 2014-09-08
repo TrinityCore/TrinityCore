@@ -45,14 +45,22 @@ public:
 
     struct npc_corporal_keeshanAI : public npc_escortAI
     {
-        npc_corporal_keeshanAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_corporal_keeshanAI(Creature* creature) : npc_escortAI(creature)
+        {
+            Initialize();
+        }
 
-        void Reset() override
+        void Initialize()
         {
             timer = 0;
             phase = 0;
             mockingBlowTimer = 5000;
-            shieldBashTimer  = 8000;
+            shieldBashTimer = 8000;
+        }
+
+        void Reset() override
+        {
+            Initialize();
         }
 
         void sQuestAccept(Player* player, Quest const* quest)

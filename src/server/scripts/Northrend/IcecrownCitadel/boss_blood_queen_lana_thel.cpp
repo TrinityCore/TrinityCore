@@ -143,6 +143,14 @@ class boss_blood_queen_lana_thel : public CreatureScript
         {
             boss_blood_queen_lana_thelAI(Creature* creature) : BossAI(creature, DATA_BLOOD_QUEEN_LANA_THEL)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _offtankGUID = 0;
+                _creditBloodQuickening = false;
+                _killMinchar = false;
             }
 
             void Reset() override
@@ -157,10 +165,8 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 events.ScheduleEvent(EVENT_TWILIGHT_BLOODBOLT, urand(20000, 25000), EVENT_GROUP_NORMAL);
                 events.ScheduleEvent(EVENT_AIR_PHASE, 124000 + uint32(Is25ManRaid() ? 3000 : 0));
                 CleanAuras();
-                _offtankGUID = 0;
                 _vampires.clear();
-                _creditBloodQuickening = false;
-                _killMinchar = false;
+                Initialize();
             }
 
             void EnterCombat(Unit* who) override

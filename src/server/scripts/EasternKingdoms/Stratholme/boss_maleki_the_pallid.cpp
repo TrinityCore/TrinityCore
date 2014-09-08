@@ -50,7 +50,15 @@ public:
     {
         boss_maleki_the_pallidAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = me->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            Frostbolt_Timer = 1000;
+            IceTomb_Timer = 16000;
+            DrainLife_Timer = 31000;
         }
 
         InstanceScript* instance;
@@ -61,9 +69,7 @@ public:
 
         void Reset() override
         {
-            Frostbolt_Timer = 1000;
-            IceTomb_Timer = 16000;
-            DrainLife_Timer = 31000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

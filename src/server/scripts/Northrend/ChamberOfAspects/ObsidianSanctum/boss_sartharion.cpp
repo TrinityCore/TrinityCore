@@ -131,17 +131,25 @@ public:
 
     struct boss_sartharionAI : public BossAI
     {
-        boss_sartharionAI(Creature* creature) : BossAI(creature, DATA_SARTHARION) { }
-        
+        boss_sartharionAI(Creature* creature) : BossAI(creature, DATA_SARTHARION)
+        {
+            Initialize();
+        }
+
         std::list<uint64> gonnagowhenthevulcanoblowsList;
+        
+        void Initialize()
+        {
+            gonnagowhenthevulcanoblowsList.clear();
+            _isBerserk = false;
+            _isSoftEnraged = false;
+            _isHardEnraged = false;
+            drakeCount = 0;
+        }
 
         void Reset() override
         {
-            gonnagowhenthevulcanoblowsList.clear();
-            _isBerserk     = false;
-            _isSoftEnraged = false;
-            _isHardEnraged = false;
-            drakeCount     = 0;
+            Initialize();
 
             if (me->HasAura(SPELL_TWILIGHT_REVENGE))
                 me->RemoveAurasDueToSpell(SPELL_TWILIGHT_REVENGE);

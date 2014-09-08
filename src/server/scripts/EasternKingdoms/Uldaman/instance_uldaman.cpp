@@ -49,6 +49,7 @@ class instance_uldaman : public InstanceMapScript
 
             void Initialize() override
             {
+                SetHeaders(DataHeader);
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
                 archaedasGUID = 0;

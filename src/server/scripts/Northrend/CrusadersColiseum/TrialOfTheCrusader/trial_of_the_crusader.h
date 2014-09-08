@@ -5,6 +5,8 @@
 #ifndef DEF_CRUSADER_H
 #define DEF_CRUSADER_H
 
+#define DataHeader "TCR"
+
 enum DataTypes
 {
     BOSS_BEASTS                 = 0,

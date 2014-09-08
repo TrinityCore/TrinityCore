@@ -54,12 +54,20 @@ public:
         return GetInstanceAI<boss_meathookAI>(creature);
     }
 
-    struct boss_meathookAI : public BossAI
+    struct boss_meathookAI : public ScriptedAI
     {
-        boss_meathookAI(Creature* creature) : BossAI(creature, DATA_MEATHOOK_EVENT)
+        boss_meathookAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             Talk(SAY_SPAWN);
+        }
+
+        void Initialize()
+        {
+            uiChainTimer = urand(12000, 17000);   //seen on video 13, 17, 15, 12, 16
+            uiDiseaseTimer = urand(2000, 4000);   //approx 3s
+            uiFrenzyTimer = urand(21000, 26000);  //made it up
         }
 
         uint32 uiChainTimer;
@@ -70,17 +78,15 @@ public:
 
         void Reset() override
         {
-            _Reset();
-            uiChainTimer = urand(12000, 17000);   //seen on video 13, 17, 15, 12, 16
-            uiDiseaseTimer = urand(2000, 4000);   //approx 3s
-            uiFrenzyTimer = urand(21000, 26000);  //made it up
+            Initialize();
+
             instance->SetData(DATA_MEATHOOK_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
-            _EnterCombat();
             Talk(SAY_AGGRO);
+
             instance->SetData(DATA_MEATHOOK_EVENT, IN_PROGRESS);
         }
 
@@ -114,10 +120,9 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            _JustDied();
             Talk(SAY_DEATH);
+
             instance->SetData(DATA_MEATHOOK_EVENT, DONE);
-            instance->SetBossState(DATA_MEATHOOK_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim) override

@@ -55,6 +55,7 @@ class instance_steam_vault : public InstanceMapScript
         {
             instance_steam_vault_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
 
                 ThespiaGUID          = 0;
@@ -156,56 +157,13 @@ class instance_steam_vault : public InstanceMapScript
                 return true;
             }
 
-            std::string GetSaveData() override
-            {
-                OUT_SAVE_INST_DATA;
+        protected:
+            uint64 ThespiaGUID;
+            uint64 MekgineerGUID;
+            uint64 KalithreshGUID;
 
-                std::ostringstream saveStream;
-                saveStream << "S V " << GetBossSaveData();
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(char const* str) override
-            {
-                if (!str)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(str);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(str);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'S' && dataHead2 == 'V')
-                {
-                    for (uint32 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
-            }
-
-            protected:
-                uint64 ThespiaGUID;
-                uint64 MekgineerGUID;
-                uint64 KalithreshGUID;
-
-                uint64 MainChambersDoorGUID;
-                uint8 DistillerState;
+            uint64 MainChambersDoorGUID;
+            uint8 DistillerState;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

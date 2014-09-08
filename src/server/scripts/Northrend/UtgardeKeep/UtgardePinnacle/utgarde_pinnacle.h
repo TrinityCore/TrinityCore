@@ -19,6 +19,7 @@
 #define UTGARDE_PINNACLE_H_
 
 #define UPScriptName "instance_utgarde_pinnacle"
+#define DataHeader "UP"
 
 uint32 const EncounterCount = 4;
 

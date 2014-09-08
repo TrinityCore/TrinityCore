@@ -218,6 +218,17 @@ class boss_lady_deathwhisper : public CreatureScript
             boss_lady_deathwhisperAI(Creature* creature) : BossAI(creature, DATA_LADY_DEATHWHISPER),
                 _dominateMindCount(RAID_MODE<uint8>(0, 1, 1, 3)), _introDone(false)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _waveCounter = 0;
+                _nextVengefulShadeTargetGUID = 0;
+                // This was preventing Darnavan from despawning succesfully on reset, do this only when Darnavan is not present.
+                // Despwning and resetting GUID is handled in JustReachedHome after a wipe.
+                if (!ObjectAccessor::GetCreature(*me, _darnavanGUID))
+                _darnavanGUID = 0;
             }
 
             void Reset() override
@@ -225,12 +236,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 _Reset();
                 me->SetPower(POWER_MANA, me->GetMaxPower(POWER_MANA));
                 events.SetPhase(PHASE_ONE);
-                _waveCounter = 0;
-                _nextVengefulShadeTargetGUID = 0;
-                // This was preventing Darnavan from despawning succesfully on reset, do this only when Darnavan is not present.
-                // Despwning and resetting GUID is handled in JustReachedHome after a wipe.
-                if (!ObjectAccessor::GetCreature(*me, _darnavanGUID))
-                    _darnavanGUID = 0;
+                Initialize();
                 DoCast(me, SPELL_SHADOW_CHANNELING);
                 me->RemoveAurasDueToSpell(SPELL_BERSERK);
                 me->RemoveAurasDueToSpell(SPELL_MANA_BARRIER);
@@ -876,6 +882,13 @@ class npc_darnavan : public CreatureScript
         {
             npc_darnavanAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _canCharge = true;
+                _canShatter = true;
             }
 
             void Reset() override
@@ -885,8 +898,7 @@ class npc_darnavan : public CreatureScript
                 _events.ScheduleEvent(EVENT_DARNAVAN_INTIMIDATING_SHOUT, urand(20000, 25000));
                 _events.ScheduleEvent(EVENT_DARNAVAN_MORTAL_STRIKE, urand(25000, 30000));
                 _events.ScheduleEvent(EVENT_DARNAVAN_SUNDER_ARMOR, urand(5000, 8000));
-                _canCharge = true;
-                _canShatter = true;
+                Initialize();
             }
 
             void JustDied(Unit* killer) override

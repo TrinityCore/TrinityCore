@@ -62,6 +62,7 @@ class instance_the_eye : public InstanceMapScript
 
             void Initialize() override
             {
+                SetHeaders(DataHeader);
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
                 ThaladredTheDarkener = 0;

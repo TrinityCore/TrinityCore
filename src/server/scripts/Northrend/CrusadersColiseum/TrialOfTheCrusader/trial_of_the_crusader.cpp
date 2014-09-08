@@ -201,7 +201,7 @@ class npc_announcer_toc10 : public CreatureScript
             }
             else if (instance->GetBossState(BOSS_LICH_KING) != DONE)
             {
-                if (GameObject* floor = GameObject::GetGameObject(*player, instance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
+                if (GameObject* floor = ObjectAccessor::GetGameObject(*player, instance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
                     floor->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
 
                 creature->CastSpell(creature, SPELL_CORPSE_TELEPORT, false);
@@ -240,7 +240,6 @@ class boss_lich_king_toc : public CreatureScript
 
             void Reset() override
             {
-                _updateTimer = 0;
                 me->SetReactState(REACT_PASSIVE);
                 if (Creature* summoned = me->SummonCreature(NPC_TRIGGER, ToCCommonLoc[2].GetPositionX(), ToCCommonLoc[2].GetPositionY(), ToCCommonLoc[2].GetPositionZ(), 5, TEMPSUMMON_TIMED_DESPAWN, 1*MINUTE*IN_MILLISECONDS))
                 {
@@ -278,7 +277,7 @@ class boss_lich_king_toc : public CreatureScript
                 if (_instance->GetData(TYPE_EVENT_NPC) != NPC_LICH_KING)
                     return;
 
-                _updateTimer = _instance->GetData(TYPE_EVENT_TIMER);
+                uint32 _updateTimer = _instance->GetData(TYPE_EVENT_TIMER);
                 if (_updateTimer <= uiDiff)
                 {
                     switch (_instance->GetData(TYPE_EVENT))
@@ -319,7 +318,7 @@ class boss_lich_king_toc : public CreatureScript
                             break;
                         case 5080:
                         {
-                            if (GameObject* go = GameObject::GetGameObject(*me, _instance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
+                            if (GameObject* go = ObjectAccessor::GetGameObject(*me, _instance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
                             {
                                 go->SetDisplayId(DISPLAYID_DESTROYED_FLOOR);
                                 go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_NODESPAWN);
@@ -355,7 +354,6 @@ class boss_lich_king_toc : public CreatureScript
 
             private:
                 InstanceScript* _instance;
-                uint32 _updateTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -373,7 +371,14 @@ class npc_fizzlebang_toc : public CreatureScript
         {
             npc_fizzlebang_tocAI(Creature* creature) : ScriptedAI(creature), _summons(me)
             {
+                Initialize();
                 _instance = me->GetInstanceScript();
+                _triggerGUID = 0;
+            }
+
+            void Initialize()
+            {
+                _portalGUID = 0;
             }
 
             void JustDied(Unit* killer) override
@@ -391,7 +396,7 @@ class npc_fizzlebang_toc : public CreatureScript
             void Reset() override
             {
                 me->SetWalk(true);
-                _portalGUID = 0;
+                Initialize();
                 me->GetMotionMaster()->MovePoint(1, ToCCommonLoc[10].GetPositionX(), ToCCommonLoc[10].GetPositionY()-60, ToCCommonLoc[10].GetPositionZ());
             }
 
@@ -426,7 +431,7 @@ class npc_fizzlebang_toc : public CreatureScript
                 if (_instance->GetData(TYPE_EVENT_NPC) != NPC_FIZZLEBANG)
                     return;
 
-                _updateTimer = _instance->GetData(TYPE_EVENT_TIMER);
+                uint32 _updateTimer = _instance->GetData(TYPE_EVENT_TIMER);
                 if (_updateTimer <= uiDiff)
                 {
                     switch (_instance->GetData(TYPE_EVENT))
@@ -524,7 +529,6 @@ class npc_fizzlebang_toc : public CreatureScript
             private:
                 InstanceScript* _instance;
                 SummonList _summons;
-                uint32 _updateTimer;
                 uint64 _portalGUID;
                 uint64 _triggerGUID;
         };
@@ -559,7 +563,7 @@ class npc_tirion_toc : public CreatureScript
                 if (_instance->GetData(TYPE_EVENT_NPC) != NPC_TIRION)
                     return;
 
-                _updateTimer = _instance->GetData(TYPE_EVENT_TIMER);
+                uint32 _updateTimer = _instance->GetData(TYPE_EVENT_TIMER);
                 if (_updateTimer <= uiDiff)
                 {
                     switch (_instance->GetData(TYPE_EVENT))
@@ -814,7 +818,6 @@ class npc_tirion_toc : public CreatureScript
             }
             private:
                 InstanceScript* _instance;
-                uint32 _updateTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -847,7 +850,7 @@ class npc_garrosh_toc : public CreatureScript
                 if (_instance->GetData(TYPE_EVENT_NPC) != NPC_GARROSH)
                     return;
 
-                _updateTimer = _instance->GetData(TYPE_EVENT_TIMER);
+                uint32 _updateTimer = _instance->GetData(TYPE_EVENT_TIMER);
                 if (_updateTimer <= uiDiff)
                 {
                     switch (_instance->GetData(TYPE_EVENT))
@@ -898,7 +901,6 @@ class npc_garrosh_toc : public CreatureScript
             }
             private:
                 InstanceScript* _instance;
-                uint32 _updateTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -931,7 +933,7 @@ class npc_varian_toc : public CreatureScript
                 if (_instance->GetData(TYPE_EVENT_NPC) != NPC_VARIAN)
                     return;
 
-                _updateTimer = _instance->GetData(TYPE_EVENT_TIMER);
+                uint32 _updateTimer = _instance->GetData(TYPE_EVENT_TIMER);
                 if (_updateTimer <= uiDiff)
                 {
                     switch (_instance->GetData(TYPE_EVENT))
@@ -982,7 +984,6 @@ class npc_varian_toc : public CreatureScript
             }
             private:
                 InstanceScript* _instance;
-                uint32 _updateTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

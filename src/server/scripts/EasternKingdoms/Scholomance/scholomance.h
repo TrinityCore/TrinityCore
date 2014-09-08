@@ -18,6 +18,8 @@
 #ifndef DEF_SCHOLOMANCE_H
 #define DEF_SCHOLOMANCE_H
 
+#define DataHeader "SC"
+
 uint32 const EncounterCount             = 8;
 
 enum DataTypes
@@ -34,7 +36,8 @@ enum DataTypes
 
 enum CreatureIds
 {
-    NPC_DARKMASTER_GANDLING             = 1853
+    NPC_DARKMASTER_GANDLING             = 1853,
+    NPC_BONE_MINION                     = 16119
 };
 
 enum GameobjectIds

@@ -19,6 +19,7 @@
 #define HALLS_OF_REFLECTION_H_
 
 #define HoRScriptName "instance_halls_of_reflection"
+#define DataHeader    "HOR"
 
 uint32 const EncounterCount = 3;
 

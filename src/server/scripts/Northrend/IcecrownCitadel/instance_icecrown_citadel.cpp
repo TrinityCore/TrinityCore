@@ -115,6 +115,7 @@ class instance_icecrown_citadel : public InstanceMapScript
         {
             instance_icecrown_citadel_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 TeamInInstance = 0;
@@ -173,7 +174,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                 UpperSpireTeleporterActiveState = NOT_STARTED;
                 BloodQuickeningState = NOT_STARTED;
                 BloodQuickeningMinutes = 0;
-
+                FrozenBolvarGUID = 0;
+                PillarsChainedGUID = 0;
+                PillarsUnchainedGUID = 0;
                 // TW
                 CrimsonHallBloodFallenKillCount = 0;
                 CrimsonHallDoorGUID = 0;
@@ -794,20 +797,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return DeathbringerSaurfangEventGUID;
                     case GO_SAURFANG_S_DOOR:
                         return DeathbringerSaurfangDoorGUID;
-                    case GO_SCOURGE_TRANSPORTER_LICHKING:
-                        return TeleporterLichKingGUID;
-                    case GO_SCOURGE_TRANSPORTER_UPPERSPIRE:
-                        return TeleporterUpperSpireGUID;
-                    case GO_SCOURGE_TRANSPORTER_LIGHTSHAMMER:
-                        return TeleporterLightsHammerGUID;
-                    case GO_SCOURGE_TRANSPORTER_RAMPART:
-                        return TeleporterRampartsGUID;
-                    case GO_SCOURGE_TRANSPORTER_DEATHBRINGER:
-                        return TeleporterDeathBringerGUID;
-                    case GO_SCOURGE_TRANSPORTER_ORATORY:
-                        return TeleporterOratoryGUID;
-                    case GO_SCOURGE_TRANSPORTER_SINDRAGOSA:
-                        return TeleporterSindragosaGUID;
                     case DATA_FESTERGUT:
                         return FestergutGUID;
                     case DATA_ROTFACE:
@@ -934,7 +923,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                             {
                                 if (GameObject* teleporter = instance->GetGameObject(TeleporterDeathBringerGUID))
                                     SetTeleporterState(teleporter, true);
-
+                                break;
+                            }
+                            case IN_PROGRESS:
+                            {
+                                if (GameObject* teleporter = instance->GetGameObject(TeleporterDeathBringerGUID))
+                                    SetTeleporterState(teleporter, false);
                                 break;
                             }
                             default:
@@ -1149,7 +1143,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_UPPERSPIRE_TELE_ACT:
                         UpperSpireTeleporterActiveState = data;
                         if (UpperSpireTeleporterActiveState == DONE)
+                        {
+                            if (GameObject* go = instance->GetGameObject(TeleporterUpperSpireGUID))
+                                SetTeleporterState(go, true);
                             SaveToDB();
+                        }
                         break;
                     default:
                         break;
@@ -1351,67 +1349,35 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            std::string GetSaveData() override
+            void WriteSaveDataMore(std::ostringstream& data) override
             {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "I C " << GetBossSaveData() << HeroicAttempts << ' '
-                    << ColdflameJetsState << ' ' << BloodQuickeningState << ' ' << BloodQuickeningMinutes << ' ' << UpperSpireTeleporterActiveState << ' ' << CrimsonHallBloodFallenKillCount;
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
+                data << HeroicAttempts << ' '
+                    << ColdflameJetsState << ' '
+                    << BloodQuickeningState << ' '
+                    << BloodQuickeningMinutes << ' '
+                    << UpperSpireTeleporterActiveState << ' ' << CrimsonHallBloodFallenKillCount;
             }
 
-            void Load(const char* str) override
+            void ReadSaveDataMore(std::istringstream& data) override
             {
-                if (!str)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
+                data >> HeroicAttempts;
 
-                OUT_LOAD_INST_DATA(str);
+                uint32 temp = 0;
+                data >> temp;
+                if (temp == IN_PROGRESS)
+                    ColdflameJetsState = NOT_STARTED;
+                else
+                    ColdflameJetsState = temp ? DONE : NOT_STARTED;
 
-                char dataHead1, dataHead2;
+                data >> temp;
+                BloodQuickeningState = temp ? DONE : NOT_STARTED;   // DONE means finished (not success/fail)
+                data >> BloodQuickeningMinutes;
 
-                std::istringstream loadStream(str);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'I' && dataHead2 == 'C')
-                {
-                    for (uint32 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-
-                    loadStream >> HeroicAttempts;
-
-                    uint32 temp = 0;
-                    loadStream >> temp;
-                    if (temp == IN_PROGRESS)
-                        ColdflameJetsState = NOT_STARTED;
-                    else
-                        ColdflameJetsState = temp ? DONE : NOT_STARTED;
-
-                    loadStream >> temp;
-                    BloodQuickeningState = temp ? DONE : NOT_STARTED;   // DONE means finished (not success/fail)
-                    loadStream >> BloodQuickeningMinutes;
-
-                    loadStream >> temp;
-                    UpperSpireTeleporterActiveState = temp ? DONE : NOT_STARTED;
+                data >> temp;
+                UpperSpireTeleporterActiveState = temp ? DONE : NOT_STARTED;
 
                     loadStream >> temp;
                     CrimsonHallBloodFallenKillCount = temp;
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
             }
 
             void Update(uint32 diff) override

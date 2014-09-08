@@ -263,7 +263,18 @@ public:
     {
         boss_kelthuzadAI(Creature* creature) : BossAI(creature, BOSS_KELTHUZAD), spawns(creature)
         {
+            Initialize();
             uiFaction = me->getFaction();
+        }
+
+        void Initialize()
+        {
+            nGuardiansOfIcecrownCount = 0;
+            uiGuardiansOfIcecrownTimer = 5000; // 5 seconds for summoning each Guardian of Icecrown in phase 3
+
+            Phase = 0;
+            nAbomination = 0;
+            nWeaver = 0;
         }
 
         uint32 Phase;
@@ -315,12 +326,7 @@ public:
                         portal->ResetDoorOrButton();
             }
 
-            nGuardiansOfIcecrownCount = 0;
-            uiGuardiansOfIcecrownTimer = 5000; // 5 seconds for summoning each Guardian of Icecrown in phase 3
-
-            Phase = 0;
-            nAbomination = 0;
-            nWeaver = 0;
+            Initialize();
         }
 
         void KilledUnit(Unit* /*victim*/) override

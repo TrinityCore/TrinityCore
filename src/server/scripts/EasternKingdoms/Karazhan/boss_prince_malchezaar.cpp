@@ -186,8 +186,31 @@ public:
     {
         boss_malchezaarAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
+
             instance = creature->GetInstanceScript();
             memset(axes, 0, sizeof(axes));
+        }
+
+        void Initialize()
+        {
+            EnfeebleTimer = 30000;
+            EnfeebleResetTimer = 38000;
+            ShadowNovaTimer = 35500;
+            SWPainTimer = 20000;
+            AmplifyDamageTimer = 5000;
+            Cleave_Timer = 8000;
+            InfernalTimer = 40000;
+            InfernalCleanupTimer = 47000;
+            AxesTargetSwitchTimer = urand(7500, 20000);
+            SunderArmorTimer = urand(5000, 10000);
+            phase = 1;
+
+            for (uint8 i = 0; i < 5; ++i)
+            {
+                enfeeble_targets[i] = 0;
+                enfeeble_health[i] = 0;
+            }
         }
 
         InstanceScript* instance;
@@ -218,26 +241,10 @@ public:
             InfernalCleanup();
             positions.clear();
 
-            for (uint8 i = 0; i < 5; ++i)
-            {
-                enfeeble_targets[i] = 0;
-                enfeeble_health[i] = 0;
-            }
+            Initialize();
 
             for (uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
                 positions.push_back(&InfernalPoints[i]);
-
-            EnfeebleTimer = 30000;
-            EnfeebleResetTimer = 38000;
-            ShadowNovaTimer = 35500;
-            SWPainTimer = 20000;
-            AmplifyDamageTimer = 5000;
-            Cleave_Timer = 8000;
-            InfernalTimer = 40000;
-            InfernalCleanupTimer = 47000;
-            AxesTargetSwitchTimer = urand(7500, 20000);
-            SunderArmorTimer = urand(5000, 10000);
-            phase = 1;
 
             instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), true);
         }

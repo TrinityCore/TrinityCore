@@ -21,6 +21,7 @@
 uint32 const EncounterCount     = 8;
 
 #define BRLScriptName "instance_blackwing_lair"
+#define DataHeader    "BWL"
 
 enum BWLEncounter
 {

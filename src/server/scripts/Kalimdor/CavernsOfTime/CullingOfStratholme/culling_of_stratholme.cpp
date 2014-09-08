@@ -351,8 +351,40 @@ public:
     {
         npc_arthasAI(Creature* creature) : npc_escortAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
-            Reset();
+            bStepping = false;
+            step = 0;
+            gossipStep = 0;
+            bossEvent = 0;
+        }
+
+        void Initialize()
+        {
+            utherGUID = 0;
+            jainaGUID = 0;
+
+            for (uint8 i = 0; i < 2; ++i)
+                citymenGUID[i] = 0;
+
+            for (uint8 i = 0; i < ENCOUNTER_WAVES_MAX_SPAWNS; ++i)
+                waveGUID[i] = 0;
+
+            for (uint8 i = 0; i < ENCOUNTER_DRACONIAN_NUMBER; ++i)
+                infiniteDraconianGUID[i] = 0;
+
+            stalkerGUID = 0;
+            bossGUID = 0;
+            epochGUID = 0;
+            malganisGUID = 0;
+            infiniteGUID = 0;
+
+            phaseTimer = 1000;
+            exorcismTimer = 7300;
+            wave = 0;
+            
+            waveCount = 0;
+            HasStartedTimer = false;
         }
 
         InstanceScript* instance;
@@ -362,7 +394,6 @@ public:
         uint32 step;
         uint32 phaseTimer;
         uint32 gossipStep;
-        uint32 playerFaction;
         uint32 bossEvent;
         uint32 wave;
         uint32 waveCount;
@@ -383,24 +414,7 @@ public:
 
         void Reset() override
         {
-            utherGUID = 0;
-            jainaGUID = 0;
-
-            for (uint8 i = 0; i < 2; ++i)
-                citymenGUID[i] = 0;
-
-            for (uint8 i = 0; i < ENCOUNTER_WAVES_MAX_SPAWNS; ++i)
-                waveGUID[i] = 0;
-
-            for (uint8 i = 0; i < ENCOUNTER_DRACONIAN_NUMBER; ++i)
-                infiniteDraconianGUID[i] = 0;
-
-            stalkerGUID = 0;
-            bossGUID = 0;
-            epochGUID = 0;
-            malganisGUID = 0;
-            infiniteGUID = 0;
-            waveCount = 0;
+            Initialize();
 
             instance->SetData(DATA_ARTHAS_EVENT, NOT_STARTED);
             switch (instance->GetData(DATA_ARTHAS_EVENT))
@@ -413,11 +427,6 @@ public:
                     gossipStep = 0;
                     break;
             }
-            phaseTimer = 1000;
-            exorcismTimer = 7300;
-            wave = 0;
-
-                HasStartedTimer = false;
         }
 
         void EnterCombat(Unit* /*who*/) override

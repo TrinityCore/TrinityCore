@@ -233,7 +233,18 @@ public:
 
     struct npc_lord_gregor_lescovarAI : public npc_escortAI
     {
-        npc_lord_gregor_lescovarAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_lord_gregor_lescovarAI(Creature* creature) : npc_escortAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            uiTimer = 0;
+            uiPhase = 0;
+
+            MarzonGUID = 0;
+        }
 
         uint32 uiTimer;
         uint32 uiPhase;
@@ -242,10 +253,7 @@ public:
 
         void Reset() override
         {
-            uiTimer = 0;
-            uiPhase = 0;
-
-            MarzonGUID = 0;
+            Initialize();
         }
 
         void EnterEvadeMode() override
@@ -486,15 +494,23 @@ public:
 
     struct npc_tyrion_spybotAI : public npc_escortAI
     {
-        npc_tyrion_spybotAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_tyrion_spybotAI(Creature* creature) : npc_escortAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            uiTimer = 0;
+            uiPhase = 0;
+        }
 
         uint32 uiTimer;
         uint32 uiPhase;
 
         void Reset() override
         {
-            uiTimer = 0;
-            uiPhase = 0;
+            Initialize();
         }
 
         void WaypointReached(uint32 waypointId) override

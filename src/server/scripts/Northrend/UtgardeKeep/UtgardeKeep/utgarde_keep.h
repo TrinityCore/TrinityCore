@@ -19,6 +19,7 @@
 #define UTGARDE_KEEP_H_
 
 #define UKScriptName "instance_utgarde_keep"
+#define DataHeader "UK"
 
 uint32 const EncounterCount = 3;
 

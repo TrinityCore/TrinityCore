@@ -73,12 +73,20 @@ class boss_trollgore : public CreatureScript
 
         struct boss_trollgoreAI : public BossAI
         {
-            boss_trollgoreAI(Creature* creature) : BossAI(creature, DATA_TROLLGORE) { }
+            boss_trollgoreAI(Creature* creature) : BossAI(creature, DATA_TROLLGORE)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _consumptionJunction = true;
+            }
 
             void Reset() override
             {
                 _Reset();
-                _consumptionJunction = true;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override

@@ -19,11 +19,9 @@
 #define ICECROWN_CITADEL_H_
 
 #include "SpellScript.h"
-#include "Map.h"
-#include "Creature.h"
-#include "SpellMgr.h"
 
 #define ICCScriptName "instance_icecrown_citadel"
+#define DataHeader    "IC"
 
 uint32 const EncounterCount = 13;
 uint32 const WeeklyNPCs = 9;

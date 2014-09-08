@@ -19,6 +19,7 @@
 #define HALLS_OF_STONE_H_
 
 #define HoSScriptName "instance_halls_of_stone"
+#define DataHeader    "HOS"
 
 uint32 const EncounterCount = 4;
 

@@ -35,6 +35,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
             void Initialize() override
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTERS);
                 TrialCounter = 50;
                 EventStage = 0;
@@ -98,14 +99,13 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 // make sure Anub'arak isnt missing and floor is destroyed after a crash
                 if (GetBossState(BOSS_LICH_KING) == DONE && TrialCounter && GetBossState(BOSS_ANUBARAK) != DONE)
                 {
-                    Creature* anubArak = ObjectAccessor::GetCreature(*player, GetData64(NPC_ANUBARAK));
-                    if (!anubArak)
+                    if (Creature* anubArak = ObjectAccessor::GetCreature(*player, GetData64(NPC_ANUBARAK)))
                     {
                         anubArak = player->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
                         anubArak->SetRespawnDelay(7*DAY);
                     }
 
-                    if (GameObject* floor = GameObject::GetGameObject(*player, GetData64(GO_ARGENT_COLISEUM_FLOOR)))
+                    if (GameObject* floor = ObjectAccessor::GetGameObject(*player, GetData64(GO_ARGENT_COLISEUM_FLOOR)))
                         floor->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
                 }
             }
@@ -472,6 +472,9 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             ++MistressOfPainCount;
                         else if (data == DECREASE)
                             --MistressOfPainCount;
+                        break;
+                    case DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE:
+                        TributeToImmortalityEligible = false;
                         break;
                     default:
                         break;

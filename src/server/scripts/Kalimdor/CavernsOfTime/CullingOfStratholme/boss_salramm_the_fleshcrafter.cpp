@@ -59,12 +59,22 @@ public:
         return GetInstanceAI<boss_salrammAI>(creature);
     }
 
-    struct boss_salrammAI : public BossAI
+    struct boss_salrammAI : public ScriptedAI
     {
-        boss_salrammAI(Creature* creature) : BossAI(creature, DATA_SALRAMM_EVENT)
+        boss_salrammAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             Talk(SAY_SPAWN);
+        }
+
+        void Initialize()
+        {
+            uiCurseFleshTimer = 30000;  //30s DBM
+            uiExplodeGhoulTimer = urand(25000, 28000); //approx 6 sec after summon ghouls
+            uiShadowBoltTimer = urand(8000, 12000); // approx 10s
+            uiStealFleshTimer = 12345;
+            uiSummonGhoulsTimer = urand(19000, 24000); //on a video approx 24s after aggro
         }
 
         uint32 uiCurseFleshTimer;
@@ -77,19 +87,13 @@ public:
 
         void Reset() override
         {
-             _Reset();
-             uiCurseFleshTimer = 30000;  //30s DBM
-             uiExplodeGhoulTimer = urand(25000, 28000); //approx 6 sec after summon ghouls
-             uiShadowBoltTimer = urand(8000, 12000); // approx 10s
-             uiStealFleshTimer = 12345;
-             uiSummonGhoulsTimer = urand(19000, 24000); //on a video approx 24s after aggro
+            Initialize();
 
-             instance->SetData(DATA_SALRAMM_EVENT, NOT_STARTED);
+            instance->SetData(DATA_SALRAMM_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
-            _EnterCombat();
             Talk(SAY_AGGRO);
 
             instance->SetData(DATA_SALRAMM_EVENT, IN_PROGRESS);
@@ -139,11 +143,9 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            _JustDied();
             Talk(SAY_DEATH);
 
             instance->SetData(DATA_SALRAMM_EVENT, DONE);
-            instance->SetBossState(DATA_SALRAMM_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim) override

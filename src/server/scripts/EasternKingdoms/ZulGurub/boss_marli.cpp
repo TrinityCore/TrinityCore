@@ -217,13 +217,21 @@ class npc_spawn_of_marli : public CreatureScript
 
         struct npc_spawn_of_marliAI : public ScriptedAI
         {
-            npc_spawn_of_marliAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_spawn_of_marliAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                LevelUp_Timer = 3000;
+            }
 
             uint32 LevelUp_Timer;
 
             void Reset() override
             {
-                LevelUp_Timer = 3000;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override { }

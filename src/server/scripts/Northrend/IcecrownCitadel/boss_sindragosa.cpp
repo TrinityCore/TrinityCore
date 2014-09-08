@@ -226,6 +226,14 @@ class boss_sindragosa : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_ID, 72528, true);
                 me->ApplySpellImmune(0, IMMUNITY_ID, 72529, true);
                 me->ApplySpellImmune(0, IMMUNITY_ID, 72530, true);
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _mysticBuffetStack = 0;
+                _isInAirPhase = false;
+                _isThirdPhase = false;
             }
 
             void Reset() override
@@ -240,9 +248,7 @@ class boss_sindragosa : public CreatureScript
                 events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, urand(9000, 14000), EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_ICY_GRIP, 33500, EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_AIR_PHASE, 50000);
-                _mysticBuffetStack = 0;
-                _isInAirPhase = false;
-                _isThirdPhase = false;
+                Initialize();
 
                 if (!_summoned)
                 {
@@ -567,6 +573,7 @@ class npc_ice_tomb : public CreatureScript
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 _trappedPlayerGUID = 0;
+                _existenceCheckTimer = 0;
                 SetCombatMovement(false);
             }
 
@@ -793,6 +800,12 @@ class npc_rimefang : public CreatureScript
         {
             npc_rimefangAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summoned(false)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _icyBlastCounter = 0;
             }
 
             void InitializeAI() override
@@ -811,7 +824,7 @@ class npc_rimefang : public CreatureScript
                 _events.ScheduleEvent(EVENT_FROST_BREATH_RIMEFANG, urand(12000, 15000));
                 _events.ScheduleEvent(EVENT_ICY_BLAST, urand(30000, 35000));
                 me->SetReactState(REACT_DEFENSIVE);
-                _icyBlastCounter = 0;
+                Initialize();
 
                 if (!_summoned)
                 {
@@ -950,7 +963,14 @@ class npc_sindragosa_trash : public CreatureScript
         {
             npc_sindragosa_trashAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 _instance = creature->GetInstanceScript();
+                _frostwyrmId = 0;
+            }
+
+            void Initialize()
+            {
+                _isTaunted = false;
             }
 
             void InitializeAI() override
@@ -974,7 +994,7 @@ class npc_sindragosa_trash : public CreatureScript
                     _events.ScheduleEvent(EVENT_CONCUSSIVE_SHOCK, urand(8000, 10000));
                 }
 
-                _isTaunted = false;
+                Initialize();
             }
 
             void JustRespawned() override
