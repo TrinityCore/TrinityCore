@@ -30,3 +30,19 @@ script:
   - mysql -uroot < sql/create/drop_mysql.sql
   - cd bin
   - make -j 10
+
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "XUrrnxeJncH3aev+QoREszNWc/7V8/Bi+fML1ntimdcXoVIdMb5gYp+OE+ZV16ktiirBjMMGhQY6MCum+GVAub22FLVi/1p8/V64tUkqhMctNqvfn3dX6zFIeItSlXg6g6CI8xLYu2Csvh146k8ynUhU/C+YALbX8krjlqyEv1E="
+
+addons:
+  coverity_scan:
+    project:
+      name: "heihachi/TrinityCore"
+      description: "Build submitted via Travis CI"
+    notification_email: gamehacker953@gmail.com
+    build_command_prepend: "./configure; make clean"
+    build_command:   "make -j 4"
+    branch_pattern: trinitychat
