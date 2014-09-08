@@ -21,6 +21,7 @@
 #include "IRCClient.h"
 #include "IRCCmd.h"
 #include "IRCFunc.h"
+#include "Language.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
@@ -254,7 +255,7 @@ void IRCClient::Handle_IRC(std::string sData)
                     // magchat is in. the first thing we do is check if it is a command or not
                     if (!Command.IsValid(szUser, FROM, CHAT, CMD))
                     {
-                        std::string = fixStaffChan = "#"+sIRC->_staffChan;
+                        std::string fixStaffChan = "#"+sIRC->_staffChan;
                         bool ignored = false;
                         switch(sIRC->_staffLink)
                         {

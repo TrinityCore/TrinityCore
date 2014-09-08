@@ -49,7 +49,7 @@ void TrinityChatThread()
 // ZThread Entry This function is called when the thread is created in Master.cpp (trinitycore)
 void IRCClient::run()
 {
-    iLog.WriteLog(" %s : ****** TrinityCore With TriniChat Has Been Started ******", iLog.GetLogDateTimeStr().c_str());
+//    iLog.WriteLog(" %s : ****** TrinityCore With TriniChat Has Been Started ******", iLog.GetLogDateTimeStr().c_str());
 
     // before we begin we wait a few
     // mangos is still starting up.
