@@ -2241,69 +2241,100 @@ public:
 
     static bool HandleFreezeCommand(ChatHandler* handler, char const* args)
     {
-        std::string name;
-        Player* player;
-        char const* TargetName = strtok((char*)args, " "); // get entered name
-        if (!TargetName) // if no name entered use target
+        Player* player = handler->getSelectedPlayer(); // Selected player, if any. Might be null.
+        uint32 freezeDuration = 0; // Freeze Duration (in seconds)
+        bool canApplyFreeze = false; // Determines if every possible argument is set so Freeze can be applied
+        bool getDurationFromConfig = false; // If there's no given duration, we'll retrieve the world cfg value later
+
+        /*
+            Possible Freeze Command Scenarios:
+            case 1 - .freeze (without args and a selected player)
+            case 2 - .freeze duration (with a selected player)
+            case 3 - .freeze player duration
+            case 4 - .freeze player (without specifying duration)
+        */
+
+        // case 1: .freeze
+        if (!*args)
         {
-            player = handler->getSelectedPlayer();
-            if (player) //prevent crash with creature as target
+            // Might have a selected player. We'll check it later
+            // Get the duration from world cfg
+            getDurationFromConfig = true;
+        }
+        else
+        {
+            // Get the args that we might have (up to 2)
+            char const* arg1 = strtok((char*)args, " ");
+            char const* arg2 = strtok(NULL, " ");
+            
+            // Analyze them to see if we got either a playerName or duration or both
+            if (arg1)
             {
-                name = player->GetName();
-                normalizePlayerName(name);
-            }
-        }
-        else // if name entered
-        {
-            name = TargetName;
-            normalizePlayerName(name);
-            player = sObjectAccessor->FindPlayerByName(name);
-        }
-
-        if (!player)
-        {
-            handler->SendSysMessage(LANG_COMMAND_FREEZE_WRONG);
-            return true;
-        }
-
-        if (player == handler->GetSession()->GetPlayer())
-        {
-            handler->SendSysMessage(LANG_COMMAND_FREEZE_ERROR);
-            return true;
-        }
-
-        // effect
-        if (player && (player != handler->GetSession()->GetPlayer()))
-        {
-            handler->PSendSysMessage(LANG_COMMAND_FREEZE, name.c_str());
-
-            // stop combat + make player unattackable + duel stop + stop some spells
-            player->setFaction(35);
-            player->CombatStop();
-            if (player->IsNonMeleeSpellCast(true))
-                player->InterruptNonMeleeSpells(true);
-            player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-
-            // if player class = hunter || warlock remove pet if alive
-            if ((player->getClass() == CLASS_HUNTER) || (player->getClass() == CLASS_WARLOCK))
-            {
-                if (Pet* pet = player->GetPet())
+                if (isNumeric(arg1))
                 {
-                    pet->SavePetToDB(PET_SAVE_AS_CURRENT);
-                    // not let dismiss dead pet
-                    if (pet->IsAlive())
-                        player->RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
+                    // case 2: .freeze duration
+                    // We have a selected player. We'll check him later
+                    freezeDuration = uint32(atoi(arg1));
+                    canApplyFreeze = true;
+                }
+                else
+                {
+                    // case 3 or 4: .freeze player duration | .freeze player
+                    // find the player
+                    std::string name = arg1;
+                    normalizePlayerName(name);
+                    player = sObjectAccessor->FindPlayerByName(name);
+                    // Check if we have duration set
+                    if (arg2 && isNumeric(arg2))
+                    {
+                        freezeDuration = uint32(atoi(arg2));
+                        canApplyFreeze = true;
+                    }
+                    else
+                        getDurationFromConfig = true;
                 }
             }
-
-            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(9454))
-                Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
-
-            // save player
-            player->SaveToDB();
         }
 
-        return true;
+        // Check if duration needs to be retrieved from config
+        if (getDurationFromConfig)
+        {
+            freezeDuration = sWorld->getIntConfig(CONFIG_GM_FREEZE_DURATION);
+            canApplyFreeze = true;
+        }
+
+        // Player and duration retrieval is over
+        if (canApplyFreeze)
+        {
+            if (!player) // can be null if some previous selection failed
+            {
+                handler->SendSysMessage(LANG_COMMAND_FREEZE_WRONG);
+                return true;
+            }
+            else if (player == handler->GetSession()->GetPlayer())
+            {
+                // Can't freeze himself
+                handler->SendSysMessage(LANG_COMMAND_FREEZE_ERROR);
+                return true;
+            }
+            else // Apply the effect
+            {
+                // Add the freeze aura and set the proper duration
+                // Player combat status and flags are now handled
+                // in Freeze Spell AuraScript (OnApply)
+                Aura* freeze = player->AddAura(9454, player);
+                if (freeze)
+                {
+                    if (freezeDuration)
+                        freeze->SetDuration(freezeDuration * IN_MILLISECONDS);
+                    handler->PSendSysMessage(LANG_COMMAND_FREEZE, player->GetName().c_str());
+                    // save player
+                    player->SaveToDB();
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     static bool HandleUnFreezeCommand(ChatHandler* handler, char const*args)
@@ -2329,15 +2360,10 @@ public:
         {
             handler->PSendSysMessage(LANG_COMMAND_UNFREEZE, name.c_str());
 
-            // Reset player faction + allow combat + allow duels
-            player->setFactionForRace(player->getRace());
-            player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-
             // Remove Freeze spell (allowing movement and spells)
+            // Player Flags + Neutral faction removal is now
+            // handled on the Freeze Spell AuraScript (OnRemove)
             player->RemoveAurasDueToSpell(9454);
-
-            // Save player
-            player->SaveToDB();
         }
         else
         {
@@ -2394,7 +2420,17 @@ public:
         {
             Field* fields = result->Fetch();
             std::string player = fields[0].GetString();
-            handler->PSendSysMessage(LANG_COMMAND_FROZEN_PLAYERS, player.c_str());
+            int32 remaintime = fields[1].GetInt32();
+            // Save the frozen player to update remaining time in case of future .listfreeze uses
+            // before the frozen state expires
+            if (Player* frozen = sObjectAccessor->FindPlayerByName(player))
+                frozen->SaveToDB();
+            // Notify the freeze duration
+            if (remaintime == -1) // Permanent duration
+                handler->PSendSysMessage(LANG_COMMAND_PERMA_FROZEN_PLAYER, player.c_str());
+            else
+                // show time left (seconds)
+                handler->PSendSysMessage(LANG_COMMAND_TEMP_FROZEN_PLAYER, player.c_str(), remaintime / IN_MILLISECONDS);
         }
         while (result->NextRow());
 
