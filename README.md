@@ -1,6 +1,6 @@
 # ![logo](http://www.trinitycore.org/f/public/style_images/1_trinitycore.png) TrinityCore
 
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/435/badge.svg)](https://scan.coverity.com/projects/435)  
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/2949/badge.svg)](https://scan.coverity.com/projects/2949)  
 `Master`: [![Master Build Status](https://travis-ci.org/TrueWoW/TrinityCore.svg?branch=master)](https://travis-ci.org/TrueWoW/TrinityCore)
 `Live`: [![Live Build Status](https://travis-ci.org/TrueWoW/TrinityCore.svg?branch=live_stable)](https://travis-ci.org/TrueWoW/TrinityCore)
 
