@@ -370,7 +370,7 @@ class BossAI : public ScriptedAI
         void _JustDied();
         void _JustReachedHome() { me->setActive(false); }
 
-        bool CheckInRoom()
+        virtual bool CheckInRoom()
         {
             if (CheckBoundary(me))
                 return true;
