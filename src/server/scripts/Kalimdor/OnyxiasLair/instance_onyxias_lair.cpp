@@ -54,8 +54,6 @@ public:
             SetBossNumber(EncounterCount);
 
             onyxiaGUID               = 0;
-            triggerGUID              = 0;
-            tankGUID                 = 0;
             onyxiaLiftoffTimer       = 0;
             manyWhelpsCounter        = 0;
             eruptTimer               = 0;
@@ -184,12 +182,6 @@ public:
                     FloorEruptionGUIDQueue.push(data);
                     eruptTimer = 2500;
                     break;
-                case DATA_TRIGGER_GUID:
-                    triggerGUID = data;
-                    break;
-                case DATA_TANK_GUID:
-                    tankGUID = data;
-                    break;
             }
         }
 
@@ -199,13 +191,6 @@ public:
             {
                 case NPC_ONYXIA:
                     return onyxiaGUID;
-                    break;
-                case DATA_TRIGGER_GUID:
-                    return triggerGUID;
-                    break;
-                case DATA_TANK_GUID:
-                    return tankGUID;
-                    break;
             }
 
             return 0;

@@ -261,9 +261,21 @@ struct generic_halionAI : public BossAI
         }
     }
 
+    bool CheckInRoom() override
+    {
+        // Rough radius, it is not an exactly perfect circle
+        if (me->GetDistance2d(HalionControllerSpawnPos.GetPositionX(), HalionControllerSpawnPos.GetPositionY()) > 48.5f)
+        {
+            if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
+                controller->AI()->EnterEvadeMode();
+            return false;
+        }
+        return true;
+    }
+
     void UpdateAI(uint32 diff) override
     {
-        if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+        if (!UpdateVictim() || !CheckInRoom() || me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
         events.Update(diff);
@@ -392,13 +404,6 @@ class boss_halion : public CreatureScript
             {
                 if (events.IsInPhase(PHASE_TWO))
                     return;
-
-                // Rough radius, it is not an exactly perfect circle
-                if (me->GetDistance2d(HalionControllerSpawnPos.GetPositionX(), HalionControllerSpawnPos.GetPositionY()) > 48.5f)
-                {
-                    EnterEvadeMode();
-                    return;
-                }
 
                 generic_halionAI::UpdateAI(diff);
             }

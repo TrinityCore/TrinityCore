@@ -38,8 +38,6 @@ enum Data64
 {
     DATA_ONYXIA_GUID            = 0,
     DATA_FLOOR_ERUPTION_GUID    = 1,
-    DATA_TRIGGER_GUID           = 2,
-    DATA_TANK_GUID              = 3
 };
 
 enum OnyxiaPhases

@@ -769,20 +769,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return DeathbringerSaurfangEventGUID;
                     case GO_SAURFANG_S_DOOR:
                         return DeathbringerSaurfangDoorGUID;
-                    case GO_SCOURGE_TRANSPORTER_LICHKING:
-                        return TeleporterLichKingGUID;
-                    case GO_SCOURGE_TRANSPORTER_UPPERSPIRE:
-                        return TeleporterUpperSpireGUID;
-                    case GO_SCOURGE_TRANSPORTER_LIGHTSHAMMER:
-                        return TeleporterLightsHammerGUID;
-                    case GO_SCOURGE_TRANSPORTER_RAMPART:
-                        return TeleporterRampartsGUID;
-                    case GO_SCOURGE_TRANSPORTER_DEATHBRINGER:
-                        return TeleporterDeathBringerGUID;
-                    case GO_SCOURGE_TRANSPORTER_ORATORY:
-                        return TeleporterOratoryGUID;
-                    case GO_SCOURGE_TRANSPORTER_SINDRAGOSA:
-                        return TeleporterSindragosaGUID;
                     case DATA_FESTERGUT:
                         return FestergutGUID;
                     case DATA_ROTFACE:
@@ -907,7 +893,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                             {
                                 if (GameObject* teleporter = instance->GetGameObject(TeleporterDeathBringerGUID))
                                     SetTeleporterState(teleporter, true);
-
+                                break;
+                            }
+                            case IN_PROGRESS:
+                            {
+                                if (GameObject* teleporter = instance->GetGameObject(TeleporterDeathBringerGUID))
+                                    SetTeleporterState(teleporter, false);
                                 break;
                             }
                             default:
@@ -1122,7 +1113,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_UPPERSPIRE_TELE_ACT:
                         UpperSpireTeleporterActiveState = data;
                         if (UpperSpireTeleporterActiveState == DONE)
+                        {
+                            if (GameObject* go = instance->GetGameObject(TeleporterUpperSpireGUID))
+                                SetTeleporterState(go, true);
                             SaveToDB();
+                        }
                         break;
                     default:
                         break;
