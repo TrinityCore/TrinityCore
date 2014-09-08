@@ -262,9 +262,21 @@ struct generic_halionAI : public BossAI
         }
     }
 
+    bool CheckInRoom() override
+    {
+        // Rough radius, it is not an exactly perfect circle
+        if (me->GetDistance2d(HalionControllerSpawnPos.GetPositionX(), HalionControllerSpawnPos.GetPositionY()) > 48.5f)
+        {
+            if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
+                controller->AI()->EnterEvadeMode();
+            return false;
+        }
+        return true;
+    }
+
     void UpdateAI(uint32 diff) override
     {
-        if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+        if (!UpdateVictim() || !CheckInRoom() || me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
         events.Update(diff);
@@ -393,13 +405,6 @@ class boss_halion : public CreatureScript
             {
                 if (events.IsInPhase(PHASE_TWO))
                     return;
-
-                // Rough radius, it is not an exactly perfect circle
-                if (me->GetDistance2d(HalionControllerSpawnPos.GetPositionX(), HalionControllerSpawnPos.GetPositionY()) > 48.5f)
-                {
-                    EnterEvadeMode();
-                    return;
-                }
 
                 generic_halionAI::UpdateAI(diff);
             }
@@ -596,16 +601,22 @@ class npc_halion_controller : public CreatureScript
             npc_halion_controllerAI(Creature* creature) : ScriptedAI(creature),
                 _instance(creature->GetInstanceScript()), _summons(me)
             {
+                Initialize();
                 me->SetPhaseMask(me->GetPhaseMask() | 0x20, true);
+            }
+
+            void Initialize()
+            {
+                _materialCorporealityValue = 5;
+                _materialDamageTaken = 0;
+                _twilightDamageTaken = 0;
             }
 
             void Reset() override
             {
                 _summons.DespawnAll();
                 _events.Reset();
-                _materialCorporealityValue = 5;
-                _materialDamageTaken = 0;
-                _twilightDamageTaken = 0;
+                Initialize();
 
                 DoCast(me, SPELL_CLEAR_DEBUFFS);
             }
@@ -1208,11 +1219,20 @@ class npc_living_ember : public CreatureScript
 
         struct npc_living_emberAI : public ScriptedAI
         {
-            npc_living_emberAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_living_emberAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+                _enrageTimer = 0;
+            }
+
+            void Initialize()
+            {
+                _hasEnraged = false;
+            }
 
             void Reset() override
             {
-                _hasEnraged = false;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override

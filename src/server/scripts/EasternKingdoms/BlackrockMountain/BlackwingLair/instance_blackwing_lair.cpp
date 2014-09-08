@@ -56,6 +56,7 @@ public:
     {
         instance_blackwing_lair_InstanceMapScript(Map* map) : InstanceScript(map)
         {
+            SetHeaders(DataHeader);
             // Razorgore
             EggCount = 0;
             EggEvent = 0;

@@ -55,12 +55,20 @@ class boss_skeram : public CreatureScript
 
         struct boss_skeramAI : public BossAI
         {
-            boss_skeramAI(Creature* creature) : BossAI(creature, DATA_SKERAM) { }
+            boss_skeramAI(Creature* creature) : BossAI(creature, DATA_SKERAM)
+            {
+                Initialize();
+            }
 
-            void Reset() override
+            void Initialize()
             {
                 _flag = 0;
                 _hpct = 75.0f;
+            }
+
+            void Reset() override
+            {
+                Initialize();
                 me->SetVisible(true);
             }
 

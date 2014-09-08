@@ -126,6 +126,7 @@ public:
 
         void Initialize() override
         {
+            SetHeaders(DataHeader);
             GahzRillaEncounter = NOT_STARTED;
             ZumrahGUID = 0;
             BlyGUID = 0;

@@ -178,14 +178,20 @@ public:
     {
         npc_rinjiAI(Creature* creature) : npc_escortAI(creature)
         {
+            Initialize();
             _IsByOutrunner = false;
             spawnId = 0;
         }
 
-        void Reset() override
+        void Initialize()
         {
             postEventCount = 0;
             postEventTimer = 3000;
+        }
+
+        void Reset() override
+        {
+            Initialize();
         }
 
         void JustRespawned() override

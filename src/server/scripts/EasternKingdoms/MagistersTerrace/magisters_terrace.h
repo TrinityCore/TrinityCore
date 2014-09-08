@@ -19,6 +19,8 @@
 #ifndef DEF_MAGISTERS_TERRACE_H
 #define DEF_MAGISTERS_TERRACE_H
 
+#define DataHeader "MT"
+
 uint32 const EncounterCount = 4;
 
 enum DataTypes

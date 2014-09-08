@@ -44,7 +44,18 @@ public:
     {
         boss_eckAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiBerserkTimer = urand(60 * IN_MILLISECONDS, 90 * IN_MILLISECONDS); //60-90 secs according to wowwiki
+            uiBiteTimer = 5 * IN_MILLISECONDS;
+            uiSpitTimer = 10 * IN_MILLISECONDS;
+            uiSpringTimer = 8 * IN_MILLISECONDS;
+
+            bBerserk = false;
         }
 
         uint32 uiBerserkTimer;
@@ -58,12 +69,7 @@ public:
 
         void Reset() override
         {
-            uiBerserkTimer = urand(60*IN_MILLISECONDS, 90*IN_MILLISECONDS); //60-90 secs according to wowwiki
-            uiBiteTimer = 5*IN_MILLISECONDS;
-            uiSpitTimer = 10*IN_MILLISECONDS;
-            uiSpringTimer = 8*IN_MILLISECONDS;
-
-            bBerserk = false;
+            Initialize();
 
             instance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, NOT_STARTED);
         }

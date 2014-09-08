@@ -74,7 +74,21 @@ class boss_halazzi : public CreatureScript
         {
             boss_halazziAI(Creature* creature) : ScriptedAI(creature), summons(me)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+                Phase = PHASE_NONE;
+                FrenzyTimer = 0;
+                SaberlashTimer = 0;
+                ShockTimer = 0;
+                TotemTimer = 0;
+            }
+
+            void Initialize()
+            {
+                LynxGUID = 0;
+                TransformCount = 0;
+                BerserkTimer = 600000;
+                CheckTimer = 1000;
             }
 
             InstanceScript* instance;
@@ -96,10 +110,7 @@ class boss_halazzi : public CreatureScript
                 instance->SetData(DATA_HALAZZIEVENT, NOT_STARTED);
                 summons.DespawnAll();
 
-                LynxGUID = 0;
-                TransformCount = 0;
-                BerserkTimer = 600000;
-                CheckTimer = 1000;
+                Initialize();
 
                 DoCast(me, SPELL_DUAL_WIELD, true);
 
@@ -321,15 +332,23 @@ class npc_halazzi_lynx : public CreatureScript
 
         struct npc_halazzi_lynxAI : public ScriptedAI
         {
-            npc_halazzi_lynxAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_halazzi_lynxAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                FrenzyTimer = urand(30000, 50000);  //frenzy every 30-50 seconds
+                shredder_timer = 4000;
+            }
 
             uint32 FrenzyTimer;
             uint32 shredder_timer;
 
             void Reset() override
             {
-                FrenzyTimer = urand(30000, 50000);  //frenzy every 30-50 seconds
-                shredder_timer = 4000;
+                Initialize();
             }
 
             void DamageTaken(Unit* /*done_by*/, uint32 &damage) override

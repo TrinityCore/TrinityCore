@@ -45,7 +45,22 @@ class boss_renataki : public CreatureScript
 
         struct boss_renatakiAI : public BossAI
         {
-            boss_renatakiAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) { }
+            boss_renatakiAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                Invisible_Timer = urand(8000, 18000);
+                Ambush_Timer = 3000;
+                Visible_Timer = 4000;
+                Aggro_Timer = urand(15000, 25000);
+                ThousandBlades_Timer = urand(4000, 8000);
+
+                Invisible = false;
+                Ambushed = false;
+            }
 
             uint32 Invisible_Timer;
             uint32 Ambush_Timer;
@@ -59,14 +74,7 @@ class boss_renataki : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                Invisible_Timer = urand(8000, 18000);
-                Ambush_Timer = 3000;
-                Visible_Timer = 4000;
-                Aggro_Timer = urand(15000, 25000);
-                ThousandBlades_Timer = urand(4000, 8000);
-
-                Invisible = false;
-                Ambushed = false;
+                Initialize();
             }
 
             void JustDied(Unit* /*killer*/) override

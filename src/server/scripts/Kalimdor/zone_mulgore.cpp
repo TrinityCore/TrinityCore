@@ -62,7 +62,19 @@ public:
 
     struct npc_kyle_frenziedAI : public ScriptedAI
     {
-        npc_kyle_frenziedAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_kyle_frenziedAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            EventActive = false;
+            IsMovingToLunch = false;
+            PlayerGUID = 0;
+            EventTimer = 5000;
+            EventPhase = 0;
+        }
 
         bool EventActive;
         bool IsMovingToLunch;
@@ -72,11 +84,7 @@ public:
 
         void Reset() override
         {
-            EventActive = false;
-            IsMovingToLunch = false;
-            PlayerGUID = 0;
-            EventTimer = 5000;
-            EventPhase = 0;
+            Initialize();
 
             if (me->GetEntry() == NPC_KYLE_FRIENDLY)
                 me->UpdateEntry(NPC_KYLE_FRENZIED);
@@ -235,7 +243,17 @@ public:
 
     struct npc_plains_visionAI  : public ScriptedAI
     {
-        npc_plains_visionAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_plains_visionAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            WayPointId = 0;
+            newWaypoint = true;
+            amountWP = 49;
+        }
 
         bool newWaypoint;
         uint8 WayPointId;
@@ -243,9 +261,7 @@ public:
 
         void Reset() override
         {
-            WayPointId = 0;
-            newWaypoint = true;
-            amountWP  = 49;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }

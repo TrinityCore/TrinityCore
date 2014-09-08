@@ -161,7 +161,16 @@ struct dummy_dragonAI : public ScriptedAI
 {
     dummy_dragonAI(Creature* creature) : ScriptedAI(creature)
     {
+        Initialize();
         instance = creature->GetInstanceScript();
+    }
+
+    void Initialize()
+    {
+        waypointId = 0;
+        portalRespawnTime = 30000;
+        _canMoveFree = false;
+        _canLoot = true;
     }
 
     void Reset() override
@@ -170,10 +179,7 @@ struct dummy_dragonAI : public ScriptedAI
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
         events.Reset();
-        waypointId = 0;
-        portalRespawnTime = 30000;
-        _canMoveFree = false;
-        _canLoot = true;
+        Initialize();
     }
 
     void EnterCombat(Unit* /*who*/) override

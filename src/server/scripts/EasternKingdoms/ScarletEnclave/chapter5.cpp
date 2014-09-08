@@ -312,6 +312,8 @@ public:
         npc_highlord_darion_mograineAI(Creature* creature) : npc_escortAI(creature)
         {
             uiTirionGUID = 0;
+            uiAlexandrosGUID = 0;
+            uiDarionGUID = 0;
             uiKorfaxGUID = 0;
             uiMaxwellGUID = 0;
             uiEligorGUID = 0;

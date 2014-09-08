@@ -58,15 +58,23 @@ public:
 
     struct npc_spitelashesAI : public ScriptedAI
     {
-        npc_spitelashesAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_spitelashesAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            morphtimer = 0;
+            spellhit = false;
+        }
 
         uint32 morphtimer;
         bool spellhit;
 
         void Reset() override
         {
-            morphtimer = 0;
-            spellhit = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -292,9 +300,12 @@ public:
 
     struct npc_rizzle_sprysprocketAI : public ScriptedAI
     {
-        npc_rizzle_sprysprocketAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_rizzle_sprysprocketAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        void Reset() override
+        void Initialize()
         {
             SpellEscapeTimer = 1300;
             TeleportTimer = 3500;
@@ -309,6 +320,11 @@ public:
             Escape = false;
             ContinueWP = false;
             Reached = false;
+        }
+
+        void Reset() override
+        {
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -475,7 +491,16 @@ public:
 
     struct npc_depth_chargeAI : public ScriptedAI
     {
-        npc_depth_chargeAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_depth_chargeAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            WeMustDie = false;
+            WeMustDieTimer = 1000;
+        }
 
         bool WeMustDie;
         uint32 WeMustDieTimer;
@@ -485,8 +510,7 @@ public:
             me->SetHover(true);
             me->SetSwim(true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            WeMustDie = false;
-            WeMustDieTimer = 1000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }

@@ -19,6 +19,8 @@
 #ifndef DEF_THE_BOTANICA_H
 #define DEF_THE_BOTANICA_H
 
+#define DataHeader "BC"
+
 uint32 const EncounterCount = 5;
 
 enum DataTypes

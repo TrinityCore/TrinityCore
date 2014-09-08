@@ -19,6 +19,7 @@
 #define DEF_RAZORFEN_DOWNS_H
 
 #define RFDScriptName "instance_razorfen_downs"
+#define DataHeader "RFD"
 
 uint32 const EncounterCount = 5;
 

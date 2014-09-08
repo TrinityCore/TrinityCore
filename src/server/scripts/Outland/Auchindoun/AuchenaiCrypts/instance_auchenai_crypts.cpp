@@ -28,6 +28,7 @@ class instance_auchenai_crypts : public InstanceMapScript
         {
             instance_auchenai_crypts_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
             }
         };

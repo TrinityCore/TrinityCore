@@ -200,7 +200,15 @@ public:
     {
         npc_taskmaster_fizzuleAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             factionNorm = creature->getFaction();
+        }
+
+        void Initialize()
+        {
+            IsFriend = false;
+            ResetTimer = 120000;
+            FlareCount = 0;
         }
 
         uint32 factionNorm;
@@ -210,9 +218,7 @@ public:
 
         void Reset() override
         {
-            IsFriend = false;
-            ResetTimer = 120000;
-            FlareCount = 0;
+            Initialize();
             me->setFaction(factionNorm);
         }
 
@@ -314,20 +320,12 @@ public:
 
     struct npc_twiggy_flatheadAI : public ScriptedAI
     {
-        npc_twiggy_flatheadAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_twiggy_flatheadAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        bool EventInProgress;
-        bool EventGrate;
-        bool EventBigWill;
-        bool ChallengerDown[6];
-        uint8 Wave;
-        uint32 WaveTimer;
-        uint32 ChallengerChecker;
-        uint64 PlayerGUID;
-        uint64 AffrayChallenger[6];
-        uint64 BigWill;
-
-        void Reset() override
+        void Initialize()
         {
             EventInProgress = false;
             EventGrate = false;
@@ -343,6 +341,22 @@ public:
                 ChallengerDown[i] = false;
             }
             BigWill = 0;
+        }
+
+        bool EventInProgress;
+        bool EventGrate;
+        bool EventBigWill;
+        bool ChallengerDown[6];
+        uint8 Wave;
+        uint32 WaveTimer;
+        uint32 ChallengerChecker;
+        uint64 PlayerGUID;
+        uint64 AffrayChallenger[6];
+        uint64 BigWill;
+
+        void Reset() override
+        {
+            Initialize();
         }
 
         void MoveInLineOfSight(Unit* who) override

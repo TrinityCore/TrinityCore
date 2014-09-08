@@ -82,7 +82,20 @@ public:
     {
         boss_sacrolashAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            ShadowbladesTimer = 10000;
+            ShadownovaTimer = 30000;
+            ConfoundingblowTimer = 25000;
+            ShadowimageTimer = 20000;
+            ConflagrationTimer = 30000;
+            EnrageTimer = 360000;
+            SisterDeath = false;
+            Enraged = false;
         }
 
         InstanceScript* instance;
@@ -111,13 +124,7 @@ public:
 
             if (!me->IsInCombat())
             {
-                ShadowbladesTimer = 10000;
-                ShadownovaTimer = 30000;
-                ConfoundingblowTimer = 25000;
-                ShadowimageTimer = 20000;
-                ConflagrationTimer = 30000;
-                EnrageTimer = 360000;
-                SisterDeath = false;
+                Initialize();
             }
 
             instance->SetBossState(DATA_EREDAR_TWINS, NOT_STARTED);
@@ -319,10 +326,25 @@ public:
     {
         boss_alythessAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             SetCombatMovement(false);
 
             instance = creature->GetInstanceScript();
             IntroStepCounter = 10;
+        }
+
+        void Initialize()
+        {
+            ConflagrationTimer = 45000;
+            BlazeTimer = 100;
+            PyrogenicsTimer = 15000;
+            ShadownovaTimer = 40000;
+            EnrageTimer = 360000;
+            FlamesearTimer = 15000;
+            IntroYellTimer = 10000;
+
+            SisterDeath = false;
+            Enraged = false;
         }
 
         InstanceScript* instance;
@@ -354,15 +376,7 @@ public:
 
             if (!me->IsInCombat())
             {
-                ConflagrationTimer = 45000;
-                BlazeTimer = 100;
-                PyrogenicsTimer = 15000;
-                ShadownovaTimer = 40000;
-                EnrageTimer = 360000;
-                FlamesearTimer = 15000;
-                IntroYellTimer = 10000;
-
-                SisterDeath = false;
+                Initialize();
             }
 
             instance->SetBossState(DATA_EREDAR_TWINS, NOT_STARTED);
@@ -635,7 +649,17 @@ public:
 
     struct npc_shadow_imageAI : public ScriptedAI
     {
-        npc_shadow_imageAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_shadow_imageAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            ShadowfuryTimer = 5000 + (rand32() % 15000);
+            DarkstrikeTimer = 3000;
+            KillTimer = 15000;
+        }
 
         uint32 ShadowfuryTimer;
         uint32 KillTimer;
@@ -644,9 +668,7 @@ public:
         void Reset() override
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            ShadowfuryTimer = 5000 + (rand32() % 15000);
-            DarkstrikeTimer = 3000;
-            KillTimer = 15000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }

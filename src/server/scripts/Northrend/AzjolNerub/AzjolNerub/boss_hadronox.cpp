@@ -54,9 +54,20 @@ public:
     {
         boss_hadronoxAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             fMaxDistance = 50.0f;
             bFirstTime = true;
+        }
+
+        void Initialize()
+        {
+            uiAcidTimer = urand(10 * IN_MILLISECONDS, 14 * IN_MILLISECONDS);
+            uiLeechTimer = urand(3 * IN_MILLISECONDS, 9 * IN_MILLISECONDS);
+            uiPierceTimer = urand(1 * IN_MILLISECONDS, 3 * IN_MILLISECONDS);
+            uiGrabTimer = urand(15 * IN_MILLISECONDS, 19 * IN_MILLISECONDS);
+            uiDoorsTimer = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS);
+            uiCheckDistanceTimer = 2 * IN_MILLISECONDS;
         }
 
         InstanceScript* instance;
@@ -77,12 +88,7 @@ public:
             me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 9.0f);
             me->SetFloatValue(UNIT_FIELD_COMBATREACH, 9.0f);
 
-            uiAcidTimer = urand(10*IN_MILLISECONDS, 14*IN_MILLISECONDS);
-            uiLeechTimer = urand(3*IN_MILLISECONDS, 9*IN_MILLISECONDS);
-            uiPierceTimer = urand(1*IN_MILLISECONDS, 3*IN_MILLISECONDS);
-            uiGrabTimer = urand(15*IN_MILLISECONDS, 19*IN_MILLISECONDS);
-            uiDoorsTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            uiCheckDistanceTimer = 2*IN_MILLISECONDS;
+            Initialize();
 
             if (instance->GetBossState(DATA_HADRONOX) != DONE && !bFirstTime)
                 instance->SetBossState(DATA_HADRONOX, FAIL);
