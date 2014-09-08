@@ -3315,6 +3315,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 59630: // Black Magic
                 spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
                 break;
+            case 17364: // Stormstrike
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
             // ULDUAR SPELLS
             //
             case 62374: // Pursued (Flame Leviathan)
