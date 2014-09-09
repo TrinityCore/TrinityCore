@@ -15707,7 +15707,8 @@ void Unit::SetFeared(bool apply)
     }
 
     if (Player* player = ToPlayer())
-        player->SetClientControl(this, !apply);
+        if(!player->HasUnitState(UNIT_STATE_POSSESSED))
+            player->SetClientControl(this, !apply);
 }
 
 void Unit::SetConfused(bool apply)
@@ -15729,7 +15730,8 @@ void Unit::SetConfused(bool apply)
     }
 
     if (Player* player = ToPlayer())
-        player->SetClientControl(this, !apply);
+        if (!player->HasUnitState(UNIT_STATE_POSSESSED))
+            player->SetClientControl(this, !apply);
 }
 
 bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* aurApp)
