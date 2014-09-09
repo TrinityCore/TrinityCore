@@ -131,16 +131,11 @@ public:
     {
         boss_onyxiaAI(Creature* creature) : BossAI(creature, DATA_ONYXIA)
         {
-            Reset();
+            Initialize();
         }
 
-        void Reset() override
+        void Initialize()
         {
-            if (!IsCombatMovementAllowed())
-                SetCombatMovement(true);
-
-            _Reset();
-
             Phase = PHASE_START;
             MovePoint = urand(0, 5);
             PointData = GetMoveData();
@@ -148,6 +143,16 @@ public:
             triggerGUID = 0;
             tankGUID = 0;
             IsMoving = false;
+        }
+
+        void Reset() override
+        {
+            Initialize();
+
+            if (!IsCombatMovementAllowed())
+                SetCombatMovement(true);
+
+            _Reset();
 
             instance->SetData(DATA_ONYXIA_PHASE, Phase);
             instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
