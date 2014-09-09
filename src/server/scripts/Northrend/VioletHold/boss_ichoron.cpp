@@ -85,7 +85,17 @@ public:
     {
         boss_ichoronAI(Creature* creature) : ScriptedAI(creature), m_waterElements(creature)
         {
+            Initialize();
             instance  = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            bIsExploded = false;
+            bIsFrenzy = false;
+            dehydration = true;
+            uiBubbleCheckerTimer = 1000;
+            uiWaterBoltVolleyTimer = urand(10000, 15000);
         }
 
         bool bIsExploded;
@@ -101,11 +111,7 @@ public:
 
         void Reset() override
         {
-            bIsExploded = false;
-            bIsFrenzy = false;
-            dehydration = true;
-            uiBubbleCheckerTimer = 1000;
-            uiWaterBoltVolleyTimer = urand(10000, 15000);
+            Initialize();
 
             me->SetVisible(true);
             DespawnWaterElements();
@@ -340,7 +346,13 @@ public:
     {
         npc_ichor_globuleAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiRangeCheck_Timer = 1000;
         }
 
         InstanceScript* instance;
@@ -349,7 +361,7 @@ public:
 
         void Reset() override
         {
-            uiRangeCheck_Timer = 1000;
+            Initialize();
             DoCast(me, SPELL_WATER_GLOBULE);
         }
 

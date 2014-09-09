@@ -327,8 +327,19 @@ class boss_razorscale : public CreatureScript
         {
             boss_razorscaleAI(Creature* creature) : BossAI(creature, BOSS_RAZORSCALE)
             {
+                Initialize();
                 // Do not let Razorscale be affected by Battle Shout buff
                 me->ApplySpellImmune(0, IMMUNITY_ID, (SPELL_BATTLE_SHOUT), true);
+                FlyCount = 0;
+                EnrageTimer = 0;
+                Enraged = false;
+                phase = PHASE_GROUND;
+            }
+
+            void Initialize()
+            {
+                PermaGround = false;
+                HarpoonCounter = 0;
             }
 
             Phases phase;
@@ -345,8 +356,7 @@ class boss_razorscale : public CreatureScript
                 me->SetCanFly(true);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
-                PermaGround = false;
-                HarpoonCounter = 0;
+                Initialize();
                 if (Creature* commander = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EXPEDITION_COMMANDER)))
                     commander->AI()->DoAction(ACTION_COMMANDER_RESET);
             }
@@ -594,7 +604,16 @@ class npc_expedition_commander : public CreatureScript
         {
             npc_expedition_commanderAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = me->GetInstanceScript();
+                memset(Engineer, 0, sizeof(Engineer));
+                memset(Defender, 0, sizeof(Defender));
+            }
+
+            void Initialize()
+            {
+                AttackStartTimer = 0;
+                Phase = 0;
                 Greet = false;
             }
 
@@ -604,14 +623,12 @@ class npc_expedition_commander : public CreatureScript
             bool Greet;
             uint32 AttackStartTimer;
             uint8  Phase;
-            Creature* Engineer[4];
-            Creature* Defender[4];
+            uint64 Engineer[4];
+            uint64 Defender[4];
 
             void Reset() override
             {
-                AttackStartTimer = 0;
-                Phase = 0;
-                Greet = false;
+                Initialize();
                 summons.clear();
             }
 
@@ -659,31 +676,40 @@ class npc_expedition_commander : public CreatureScript
                         case 2:
                             for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
                             {
-                                Engineer[n] = me->SummonCreature(NPC_ENGINEER, PosEngSpawn, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                                Engineer[n]->SetWalk(false);
-                                Engineer[n]->SetSpeed(MOVE_RUN, 0.5f);
-                                Engineer[n]->SetHomePosition(PosEngRepair[n]);
-                                Engineer[n]->GetMotionMaster()->MoveTargetedHome();
+                                if (Creature* summonedEngineer = me->SummonCreature(NPC_ENGINEER, PosEngSpawn, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000))
+                                {
+                                    summonedEngineer->SetWalk(false);
+                                    summonedEngineer->SetSpeed(MOVE_RUN, 0.5f);
+                                    summonedEngineer->SetHomePosition(PosEngRepair[n]);
+                                    summonedEngineer->GetMotionMaster()->MoveTargetedHome();
+                                    Engineer[n] = summonedEngineer->GetGUID();
+                                }
                             }
-                            Engineer[0]->AI()->Talk(SAY_AGGRO_3);
+                            if (Creature* firstSummon = ObjectAccessor::GetCreature(*me, Engineer[0]))
+                                firstSummon->AI()->Talk(SAY_AGGRO_3);
                             Phase = 3;
                             AttackStartTimer = 14000;
                             break;
                         case 3:
                             for (uint8 n = 0; n < 4; n++)
                             {
-                                Defender[n] = me->SummonCreature(NPC_DEFENDER, PosDefSpawn[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                                Defender[n]->SetWalk(false);
-                                Defender[n]->SetHomePosition(PosDefCombat[n]);
-                                Defender[n]->GetMotionMaster()->MoveTargetedHome();
+                                if (Creature* summonedDefender = me->SummonCreature(NPC_DEFENDER, PosDefSpawn[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000))
+                                {
+                                    summonedDefender->SetWalk(false);
+                                    summonedDefender->SetHomePosition(PosDefCombat[n]);
+                                    summonedDefender->GetMotionMaster()->MoveTargetedHome();
+                                    Defender[n] = summonedDefender->GetGUID();
+                                }
                             }
                             Phase = 4;
                             break;
                         case 4:
                             for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
-                                Engineer[n]->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
+                                if (Creature* summonedEngineer = ObjectAccessor::GetCreature(*me, Engineer[n]))
+                                    summonedEngineer->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
                             for (uint8 n = 0; n < 4; ++n)
-                                Defender[n]->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
+                                if (Creature* summonedDefender = ObjectAccessor::GetCreature(*me, Defender[n]))
+                                    summonedDefender->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
                             Talk(SAY_AGGRO_2);
                             AttackStartTimer = 16000;
                             Phase = 5;
@@ -694,7 +720,8 @@ class npc_expedition_commander : public CreatureScript
                                 Razorscale->AI()->DoAction(ACTION_EVENT_START);
                                 me->SetInCombatWith(Razorscale);
                             }
-                            Engineer[0]->AI()->Talk(SAY_AGGRO_1);
+                            if (Creature* firstEngineer = ObjectAccessor::GetCreature(*me, Engineer[0]))
+                                firstEngineer->AI()->Talk(SAY_AGGRO_1);
                             Phase = 6;
                             break;
                     }
@@ -748,8 +775,18 @@ class npc_mole_machine_trigger : public CreatureScript
         {
             npc_mole_machine_triggerAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 SetCombatMovement(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
+            }
+
+            void Initialize()
+            {
+                SummonGobTimer = 2000;
+                SummonNpcTimer = 6000;
+                DissapearTimer = 10000;
+                GobSummoned = false;
+                NpcSummoned = false;
             }
 
             uint32 SummonGobTimer;
@@ -760,11 +797,7 @@ class npc_mole_machine_trigger : public CreatureScript
 
             void Reset() override
             {
-                SummonGobTimer = 2000;
-                SummonNpcTimer = 6000;
-                DissapearTimer = 10000;
-                GobSummoned = false;
-                NpcSummoned = false;
+                Initialize();
             }
 
             void UpdateAI(uint32 Diff) override
@@ -851,15 +884,23 @@ class npc_darkrune_watcher : public CreatureScript
 
         struct npc_darkrune_watcherAI : public ScriptedAI
         {
-            npc_darkrune_watcherAI(Creature* creature) : ScriptedAI(creature){ }
+            npc_darkrune_watcherAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                ChainTimer = urand(10000, 15000);
+                LightTimer = urand(1000, 3000);
+            }
 
             uint32 ChainTimer;
             uint32 LightTimer;
 
             void Reset() override
             {
-                ChainTimer = urand(10000, 15000);
-                LightTimer = urand(1000, 3000);
+                Initialize();
             }
 
             void UpdateAI(uint32 Diff) override
@@ -900,14 +941,22 @@ class npc_darkrune_guardian : public CreatureScript
 
         struct npc_darkrune_guardianAI : public ScriptedAI
         {
-            npc_darkrune_guardianAI(Creature* creature) : ScriptedAI(creature){ }
+            npc_darkrune_guardianAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                StormTimer = urand(3000, 6000);
+                killedByBreath = false;
+            }
 
             uint32 StormTimer;
 
             void Reset() override
             {
-                StormTimer = urand(3000, 6000);
-                killedByBreath = false;
+                Initialize();
             }
 
             uint32 GetData(uint32 type) const override
@@ -955,7 +1004,17 @@ class npc_darkrune_sentinel : public CreatureScript
 
         struct npc_darkrune_sentinelAI : public ScriptedAI
         {
-            npc_darkrune_sentinelAI(Creature* creature) : ScriptedAI(creature){ }
+            npc_darkrune_sentinelAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                HeroicTimer = urand(4000, 8000);
+                WhirlTimer = urand(20000, 25000);
+                ShoutTimer = urand(15000, 30000);
+            }
 
             uint32 HeroicTimer;
             uint32 WhirlTimer;
@@ -963,9 +1022,7 @@ class npc_darkrune_sentinel : public CreatureScript
 
             void Reset() override
             {
-                HeroicTimer = urand(4000, 8000);
-                WhirlTimer = urand(20000, 25000);
-                ShoutTimer = urand(15000, 30000);
+                Initialize();
             }
 
             void UpdateAI(uint32 Diff) override

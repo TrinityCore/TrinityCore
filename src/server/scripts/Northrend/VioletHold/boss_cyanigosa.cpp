@@ -57,7 +57,17 @@ public:
     {
         boss_cyanigosaAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiArcaneVacuumTimer = 10000;
+            uiBlizzardTimer = 15000;
+            uiManaDestructionTimer = 30000;
+            uiTailSweepTimer = 20000;
+            uiUncontrollableEnergyTimer = 25000;
         }
 
         uint32 uiArcaneVacuumTimer;
@@ -70,11 +80,7 @@ public:
 
         void Reset() override
         {
-            uiArcaneVacuumTimer = 10000;
-            uiBlizzardTimer = 15000;
-            uiManaDestructionTimer = 30000;
-            uiTailSweepTimer = 20000;
-            uiUncontrollableEnergyTimer = 25000;
+            Initialize();
             instance->SetData(DATA_CYANIGOSA_EVENT, NOT_STARTED);
         }
 

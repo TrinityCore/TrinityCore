@@ -115,7 +115,15 @@ class boss_keleseth : public CreatureScript
 
         struct boss_kelesethAI : public BossAI
         {
-            boss_kelesethAI(Creature* creature) : BossAI(creature, DATA_PRINCE_KELESETH) { }
+            boss_kelesethAI(Creature* creature) : BossAI(creature, DATA_PRINCE_KELESETH)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                onTheRocks = true;
+            }
 
             void Reset() override
             {
@@ -124,7 +132,7 @@ class boss_keleseth : public CreatureScript
                 events.ScheduleEvent(EVENT_FROST_TOMB, urand(14, 19)*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_SUMMON_SKELETONS, 6*IN_MILLISECONDS);
 
-                onTheRocks = true;
+                Initialize();
             }
 
             void EnterCombat(Unit* who) override

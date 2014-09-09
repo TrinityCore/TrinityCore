@@ -72,7 +72,32 @@ public:
     {
         boss_magus_telestraAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+            bFireMagusDead = false;
+            bFrostMagusDead = false;
+            bArcaneMagusDead = false;
+            uiIsWaitingToAppearTimer = 0;
+        }
+
+        void Initialize()
+        {
+            Phase = 0;
+            //These times are probably wrong
+            uiIceNovaTimer = 7 * IN_MILLISECONDS;
+            uiFireBombTimer = 0;
+            uiGravityWellTimer = 15 * IN_MILLISECONDS;
+            uiCooldown = 0;
+
+            uiFireMagusGUID = 0;
+            uiFrostMagusGUID = 0;
+            uiArcaneMagusGUID = 0;
+
+            for (uint8 n = 0; n < 3; ++n)
+                time[n] = 0;
+
+            splitPersonality = 0;
+            bIsWaitingToAppear = false;
         }
 
         InstanceScript* instance;
@@ -98,22 +123,7 @@ public:
 
         void Reset() override
         {
-            Phase = 0;
-            //These times are probably wrong
-            uiIceNovaTimer =  7*IN_MILLISECONDS;
-            uiFireBombTimer =  0;
-            uiGravityWellTimer = 15*IN_MILLISECONDS;
-            uiCooldown = 0;
-
-            uiFireMagusGUID = 0;
-            uiFrostMagusGUID = 0;
-            uiArcaneMagusGUID = 0;
-
-            for (uint8 n = 0; n < 3; ++n)
-                time[n] = 0;
-
-            splitPersonality = 0;
-            bIsWaitingToAppear = false;
+            Initialize();
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetVisible(true);

@@ -95,6 +95,7 @@ class boss_urom : public CreatureScript
         {
             boss_uromAI(Creature* creature) : BossAI(creature, DATA_UROM)
             {
+                Initialize();
                 platform = 0;
 
                 for (uint8 i = 0; i < 3; ++i)
@@ -103,24 +104,27 @@ class boss_urom : public CreatureScript
                 std::random_shuffle(group, group + 3);
             }
 
-            void Reset() override
+            void Initialize()
             {
-                me->CastSpell(me, SPELL_EVOCATE);
-
-                _Reset();
-
                 x = 0.0f;
                 y = 0.0f;
                 canCast = false;
                 canGoBack = false;
-
-                me->GetMotionMaster()->MoveIdle();
 
                 teleportTimer = urand(30000, 35000);
                 arcaneExplosionTimer = 9000;
                 castArcaneExplosionTimer = 2000;
                 frostBombTimer = urand(5000, 8000);
                 timeBombTimer = urand(20000, 25000);
+            }
+
+            void Reset() override
+            {
+                me->CastSpell(me, SPELL_EVOCATE);
+
+                _Reset();
+
+                me->GetMotionMaster()->MoveIdle();
             }
 
             void EnterCombat(Unit* /*who*/) override
