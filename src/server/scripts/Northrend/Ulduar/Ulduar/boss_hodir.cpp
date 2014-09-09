@@ -181,9 +181,16 @@ class npc_flash_freeze : public CreatureScript
         {
             npc_flash_freezeAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = me->GetInstanceScript();
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
+            }
+
+            void Initialize()
+            {
+                targetGUID = 0;
+                checkDespawnTimer = 1000;
             }
 
             InstanceScript* instance;
@@ -193,8 +200,7 @@ class npc_flash_freeze : public CreatureScript
 
             void Reset() override
             {
-                targetGUID = 0;
-                checkDespawnTimer = 1000;
+                Initialize();
             }
 
             void UpdateAI(uint32 diff) override
@@ -312,7 +318,17 @@ class boss_hodir : public CreatureScript
         {
             boss_hodirAI(Creature* creature) : BossAI(creature, BOSS_HODIR)
             {
+                Initialize();
                 me->SetReactState(REACT_PASSIVE);
+            }
+
+            void Initialize()
+            {
+                gettingColdInHereTimer = 0;
+                gettingColdInHere = false;
+                cheeseTheFreeze = false;
+                iHaveTheCoolestFriends = false;
+                iCouldSayThatThisCacheWasRare = false;
             }
 
             uint32 gettingColdInHereTimer;
@@ -324,11 +340,7 @@ class boss_hodir : public CreatureScript
 
             void Reset() override
             {
-                gettingColdInHereTimer = 0;
-                gettingColdInHere = false;
-                cheeseTheFreeze = false;
-                iHaveTheCoolestFriends = false;
-                iCouldSayThatThisCacheWasRare = false;
+                Initialize();
 
                 _Reset();
                 me->SetReactState(REACT_PASSIVE);
@@ -526,16 +538,22 @@ class npc_icicle : public CreatureScript
         {
             npc_icicleAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
+            }
+
+            void Initialize()
+            {
+                icicleTimer = 2500;
             }
 
             uint32 icicleTimer;
 
             void Reset() override
             {
-                icicleTimer = 2500;
+                Initialize();
             }
 
             void UpdateAI(uint32 diff) override
@@ -574,16 +592,22 @@ class npc_snowpacked_icicle : public CreatureScript
         {
             npc_snowpacked_icicleAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
                 me->SetReactState(REACT_PASSIVE);
+            }
+
+            void Initialize()
+            {
+                despawnTimer = 12000;
             }
 
             uint32 despawnTimer;
 
             void Reset() override
             {
-                despawnTimer = 12000;
+                Initialize();
             }
 
             void UpdateAI(uint32 diff) override

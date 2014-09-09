@@ -138,14 +138,22 @@ class boss_steelbreaker : public CreatureScript
 
         struct boss_steelbreakerAI : public BossAI
         {
-            boss_steelbreakerAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON) { }
+            boss_steelbreakerAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                phase = 0;
+            }
 
             uint32 phase;
 
             void Reset() override
             {
                 _Reset();
-                phase = 0;
+                Initialize();
                 me->RemoveAllAuras();
             }
 
@@ -275,14 +283,22 @@ class boss_runemaster_molgeim : public CreatureScript
 
         struct boss_runemaster_molgeimAI : public BossAI
         {
-            boss_runemaster_molgeimAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON) { }
+            boss_runemaster_molgeimAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                phase = 0;
+            }
 
             uint32 phase;
 
             void Reset() override
             {
                 _Reset();
-                phase = 0;
+                Initialize();
                 me->RemoveAllAuras();
             }
 
@@ -432,14 +448,22 @@ class boss_stormcaller_brundir : public CreatureScript
 
         struct boss_stormcaller_brundirAI : public BossAI
         {
-            boss_stormcaller_brundirAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON) { }
+            boss_stormcaller_brundirAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                phase = 0;
+            }
 
             uint32 phase;
 
             void Reset() override
             {
                 _Reset();
-                phase = 0;
+                Initialize();
                 me->RemoveAllAuras();
                 me->SetDisableGravity(false);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, false);  // Should be interruptable unless overridden by spell (Overload)

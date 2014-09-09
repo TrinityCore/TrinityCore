@@ -267,7 +267,35 @@ class boss_freya : public CreatureScript
 
         struct boss_freyaAI : public BossAI
         {
-            boss_freyaAI(Creature* creature) : BossAI(creature, BOSS_FREYA) { }
+            boss_freyaAI(Creature* creature) : BossAI(creature, BOSS_FREYA)
+            {
+                Initialize();
+                memset(elementalTimer, 0, sizeof(elementalTimer));
+                diffTimer = 0;
+                attunedToNature = 0;
+            }
+
+            void Initialize()
+            {
+                trioWaveCount = 0;
+                trioWaveController = 0;
+                waveCount = 0;
+                elderCount = 0;
+
+                for (uint8 i = 0; i < 3; ++i)
+                    for (uint8 n = 0; n < 2; ++n)
+                        ElementalGUID[i][n] = 0;
+                for (uint8 i = 0; i < 6; ++i)
+                    for (uint8 n = 0; n < 2; ++n)
+                        deforestation[i][n] = 0;
+                for (uint8 n = 0; n < 2; ++n)
+                {
+                    checkElementalAlive[n] = true;
+                    trioDefeated[n] = false;
+                }
+                for (uint8 n = 0; n < 3; ++n)
+                    random[n] = false;
+            }
 
             uint64 ElementalGUID[3][2];
 
@@ -287,24 +315,7 @@ class boss_freya : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                trioWaveCount = 0;
-                trioWaveController = 0;
-                waveCount = 0;
-                elderCount = 0;
-
-                for (uint8 i = 0; i < 3; ++i)
-                    for (uint8 n = 0; n < 2; ++n)
-                        ElementalGUID[i][n] = 0;
-                for (uint8 i = 0; i < 6; ++i)
-                    for (uint8 n = 0; n < 2; ++n)
-                        deforestation[i][n] = 0;
-                for (uint8 n = 0; n < 2; ++n)
-                {
-                    checkElementalAlive[n] = true;
-                    trioDefeated[n] = false;
-                }
-                for (uint8 n = 0; n < 3; ++n)
-                    random[n] = false;
+                Initialize();
             }
 
             void KilledUnit(Unit* who) override
@@ -689,8 +700,6 @@ class boss_elder_brightleaf : public CreatureScript
                 events.ScheduleEvent(EVENT_SOLAR_FLARE, urand(5000, 7000));
                 events.ScheduleEvent(EVENT_UNSTABLE_SUN_BEAM, urand(7000, 12000));
                 events.ScheduleEvent(EVENT_FLUX, 5000);
-                elderCount = 0;
-                lumberjack = false;
             }
 
             void KilledUnit(Unit* who) override
@@ -758,9 +767,6 @@ class boss_elder_brightleaf : public CreatureScript
                     }
                 }
 
-                if (lumberjack)
-                    lumberjackTimer += diff;
-
                 DoMeleeAttackIfReady();
             }
 
@@ -768,21 +774,12 @@ class boss_elder_brightleaf : public CreatureScript
             {
                 switch (action)
                 {
-                    case ACTION_ELDER_DEATH:
-                        ++elderCount;
-                        lumberjack = true;
-                        break;
                     case ACTION_ELDER_FREYA_KILLED:
                         me->DespawnOrUnsummon(10000);
                         _JustDied();
                         break;
                 }
             }
-
-        private:
-            uint32 lumberjackTimer;
-            uint8 elderCount;
-            bool lumberjack;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -810,8 +807,6 @@ class boss_elder_stonebark : public CreatureScript
                 events.ScheduleEvent(EVENT_TREMOR, urand(10000, 12000));
                 events.ScheduleEvent(EVENT_FISTS, urand(25000, 35000));
                 events.ScheduleEvent(EVENT_BARK, urand(37500, 40000));
-                elderCount = 0;
-                lumberjack = false;
             }
 
             void KilledUnit(Unit* who) override
@@ -885,9 +880,6 @@ class boss_elder_stonebark : public CreatureScript
                     }
                 }
 
-                if (lumberjack)
-                    lumberjackTimer += diff;
-
                 DoMeleeAttackIfReady();
             }
 
@@ -895,21 +887,12 @@ class boss_elder_stonebark : public CreatureScript
             {
                 switch (action)
                 {
-                    case ACTION_ELDER_DEATH:
-                        ++elderCount;
-                        lumberjack = true;
-                        break;
                     case ACTION_ELDER_FREYA_KILLED:
                         me->DespawnOrUnsummon(10000);
                         _JustDied();
                         break;
                 }
             }
-
-        private:
-            uint32 lumberjackTimer;
-            uint8 elderCount;
-            bool lumberjack;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -937,8 +920,6 @@ class boss_elder_ironbranch : public CreatureScript
                 events.ScheduleEvent(EVENT_IMPALE, urand(18000, 22000));
                 events.ScheduleEvent(EVENT_IRON_ROOTS, urand(12000, 17000));
                 events.ScheduleEvent(EVENT_THORN_SWARM, urand(7500, 12500));
-                elderCount = 0;
-                lumberjack = false;
             }
 
             void KilledUnit(Unit* who) override
@@ -999,9 +980,6 @@ class boss_elder_ironbranch : public CreatureScript
                     }
                 }
 
-                if (lumberjack)
-                    lumberjackTimer += diff;
-
                 DoMeleeAttackIfReady();
             }
 
@@ -1009,21 +987,12 @@ class boss_elder_ironbranch : public CreatureScript
             {
                 switch (action)
                 {
-                    case ACTION_ELDER_DEATH:
-                        ++elderCount;
-                        lumberjack = true;
-                        break;
                     case ACTION_ELDER_FREYA_KILLED:
                         me->DespawnOrUnsummon(10000);
                         _JustDied();
                         break;
                 }
             }
-
-        private:
-            uint32 lumberjackTimer;
-            uint8 elderCount;
-            bool lumberjack;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -1041,13 +1010,19 @@ class npc_detonating_lasher : public CreatureScript
         {
             npc_detonating_lasherAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+            }
+
+            void Initialize()
+            {
+                lashTimer = 5000;
+                changeTargetTimer = 7500;
             }
 
             void Reset() override
             {
-                lashTimer = 5000;
-                changeTargetTimer = 7500;
+                Initialize();
             }
 
             void UpdateAI(uint32 diff) override
@@ -1099,14 +1074,22 @@ class npc_ancient_water_spirit : public CreatureScript
         {
             npc_ancient_water_spiritAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = me->GetInstanceScript();
                 if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                     waveCount = ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->trioWaveCount;
+                else
+                    waveCount = 0;
+            }
+
+            void Initialize()
+            {
+                tidalWaveTimer = 10000;
             }
 
             void Reset() override
             {
-                tidalWaveTimer = 10000;
+                Initialize();
             }
 
             void UpdateAI(uint32 diff) override
@@ -1159,15 +1142,23 @@ class npc_storm_lasher : public CreatureScript
         {
             npc_storm_lasherAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = me->GetInstanceScript();
                 if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                     waveCount = ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->trioWaveCount;
+                else
+                    waveCount = 0;
+            }
+
+            void Initialize()
+            {
+                lightningLashTimer = 10000;
+                stormboltTimer = 5000;
             }
 
             void Reset() override
             {
-                lightningLashTimer = 10000;
-                stormboltTimer = 5000;
+                Initialize();
             }
 
             void UpdateAI(uint32 diff) override
@@ -1229,6 +1220,8 @@ class npc_snaplasher : public CreatureScript
                 instance = me->GetInstanceScript();
                 if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                     waveCount = ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->trioWaveCount;
+                else
+                    waveCount = 0;
             }
 
             void UpdateAI(uint32 /*diff*/) override
@@ -1271,12 +1264,18 @@ class npc_ancient_conservator : public CreatureScript
         {
             npc_ancient_conservatorAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                natureFuryTimer = 7500;
+                healthySporeTimer = 3500;
             }
 
             void Reset() override
             {
-                natureFuryTimer = 7500;
-                healthySporeTimer = 3500;
+                Initialize();
                 SummonHealthySpores(2);
             }
 
