@@ -114,7 +114,7 @@ protected:
     {
         TC_LOG_DEBUG("misc", "Network Thread Starting");
 
-        SocketSet::iterator i, t;
+        typename SocketSet::iterator i, t;
 
         uint32 sleepTime = 10;
         uint32 tickStart = 0, diff = 0;
