@@ -216,11 +216,13 @@ extern int main(int argc, char** argv)
     }
 
     // Start up TriniChat
-    std::thread* triniChatThread = nullptr;
+    //std::thread* triniChatThread = nullptr;
+    boost::thread* triniChatThread = nullptr;
     if (sIRC->Active == 1)
     {
         //triniChatThread = new std::thread(&IRCClient::run, sIRC); // OLD standard threading
-        triniChatThread = new std::thread(TrinityChatThread);
+        //triniChatThread = new std::thread(TrinityChatThread);
+	triniChatThread = new boost::thread(TrinityChatThread);
     }
     else
         TC_LOG_ERROR("misc", "*** TriniChat Is Disabled. *");

@@ -1738,11 +1738,10 @@ void IRCCmd::Mute_Player(_CDATA *CD)
 void IRCCmd::Online_Players(_CDATA *CD)
 {
         sIRC->Script_Lock[MCS_Players_Online] = true;
-        std::thread script([CD](){
-            mcs_OnlinePlayers mcs(CD);
-
-            mcs.run();
-        });
+        boost::thread script([CD](){
+		mcs_OnlinePlayers mcs(CD);
+		mcs.run();
+	});
 }
 
 void IRCCmd::PM_Player(_CDATA *CD)
