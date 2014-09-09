@@ -35,31 +35,39 @@ using boost::asio::ip::tcp;
 
 #define READ_BLOCK_SIZE 4096
 
-template<class T, class PacketType>
+template<class T>
 class Socket : public std::enable_shared_from_this<T>
 {
-    typedef typename std::conditional<std::is_pointer<PacketType>::value, PacketType, PacketType const&>::type WritePacketType;
-
 public:
-    Socket(tcp::socket&& socket, std::size_t headerSize) : _socket(std::move(socket)), _remoteAddress(_socket.remote_endpoint().address()),
-        _remotePort(_socket.remote_endpoint().port()), _readHeaderBuffer(), _readDataBuffer(), _closed(false), _closing(false)
+    explicit Socket(tcp::socket&& socket) : _socket(std::move(socket)), _remoteAddress(_socket.remote_endpoint().address()),
+        _remotePort(_socket.remote_endpoint().port()), _readBuffer(), _closed(false), _closing(false), _isWritingAsync(false)
     {
-        _readHeaderBuffer.Grow(headerSize);
+        _readBuffer.Resize(READ_BLOCK_SIZE);
     }
 
     virtual ~Socket()
     {
         boost::system::error_code error;
         _socket.close(error);
-
-        while (!_writeQueue.empty())
-        {
-            DeletePacket(_writeQueue.front());
-            _writeQueue.pop();
-        }
     }
 
     virtual void Start() = 0;
+
+    virtual bool Update()
+    {
+        if (!IsOpen())
+            return false;
+
+#ifndef BOOST_ASIO_HAS_IOCP
+        if (_isWritingAsync || (!_writeBuffer.GetActiveSize() && _writeQueue.empty()))
+            return true;
+
+        for (; WriteHandler(boost::system::error_code(), 0);)
+            ;
+#endif
+
+        return true;
+    }
 
     boost::asio::ip::address GetRemoteIpAddress() const
     {
@@ -71,31 +79,14 @@ public:
         return _remotePort;
     }
 
-    void AsyncReadHeader()
+    void AsyncRead()
     {
         if (!IsOpen())
             return;
 
-        _readHeaderBuffer.ResetWritePointer();
-        _readDataBuffer.Reset();
-
-        AsyncReadMissingHeaderData();
-    }
-
-    void AsyncReadData(std::size_t size)
-    {
-        if (!IsOpen())
-            return;
-
-        if (!size)
-        {
-            // if this is a packet with 0 length body just invoke handler directly
-            ReadDataHandler();
-            return;
-        }
-
-        _readDataBuffer.Grow(size);
-        AsyncReadMissingData();
+        _readBuffer.Normalize();
+        _socket.async_read_some(boost::asio::buffer(_readBuffer.GetWritePointer(), READ_BLOCK_SIZE),
+            std::bind(&Socket<T>::ReadHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
     }
 
     void ReadData(std::size_t size)
@@ -105,13 +96,11 @@ public:
 
         boost::system::error_code error;
 
-        _readDataBuffer.Grow(size);
+        std::size_t bytesRead = boost::asio::read(_socket, boost::asio::buffer(_readBuffer.GetWritePointer(), size), error);
 
-        std::size_t bytesRead = boost::asio::read(_socket, boost::asio::buffer(_readDataBuffer.GetWritePointer(), size), error);
+        _readBuffer.WriteCompleted(bytesRead);
 
-        _readDataBuffer.WriteCompleted(bytesRead);
-
-        if (error || !_readDataBuffer.IsMessageReady())
+        if (error || bytesRead != size)
         {
             TC_LOG_DEBUG("network", "Socket::ReadData: %s errored with: %i (%s)", GetRemoteIpAddress().to_string().c_str(), error.value(),
                 error.message().c_str());
@@ -120,15 +109,19 @@ public:
         }
     }
 
-    void AsyncWrite(WritePacketType data)
+    void QueuePacket(MessageBuffer&& buffer, std::unique_lock<std::mutex>& guard)
     {
-        boost::asio::async_write(_socket, boost::asio::buffer(data), std::bind(&Socket<T, PacketType>::WriteHandler, this->shared_from_this(),
-            std::placeholders::_1, std::placeholders::_2));
+
+        _writeQueue.push(std::move(buffer));
+
+#ifdef BOOST_ASIO_HAS_IOCP
+        AsyncProcessQueue(guard);
+#endif
     }
 
     bool IsOpen() const { return !_closed && !_closing; }
 
-    virtual void CloseSocket()
+    void CloseSocket()
     {
         if (_closed.exchange(true))
             return;
@@ -143,39 +136,37 @@ public:
     /// Marks the socket for closing after write buffer becomes empty
     void DelayedCloseSocket() { _closing = true; }
 
-    virtual bool IsHeaderReady() const { return _readHeaderBuffer.IsMessageReady(); }
-    virtual bool IsDataReady() const { return _readDataBuffer.IsMessageReady(); }
-
-    uint8* GetHeaderBuffer() { return _readHeaderBuffer.Data(); }
-    uint8* GetDataBuffer() { return _readDataBuffer.Data(); }
-
-    size_t GetHeaderSize() const { return _readHeaderBuffer.GetReadyDataSize(); }
-    size_t GetDataSize() const { return _readDataBuffer.GetReadyDataSize(); }
-
-    MessageBuffer&& MoveHeader() { return std::move(_readHeaderBuffer); }
-    MessageBuffer&& MoveData() { return std::move(_readDataBuffer); }
+    MessageBuffer& GetReadBuffer() { return _readBuffer; }
 
 protected:
-    virtual void ReadHeaderHandler() = 0;
-    virtual void ReadDataHandler() = 0;
+    virtual void ReadHandler() = 0;
+
+    bool AsyncProcessQueue(std::unique_lock<std::mutex>&)
+    {
+        if (_isWritingAsync)
+            return true;
+
+        _isWritingAsync = true;
+        
+#ifdef BOOST_ASIO_HAS_IOCP
+        MessageBuffer& buffer = _writeQueue.front();
+        _socket.async_write_some(boost::asio::buffer(buffer.GetReadPointer(), buffer.GetActiveSize()), std::bind(&Socket<T>::WriteHandler,
+            this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+#else
+        _socket.async_write_some(boost::asio::null_buffers(), std::bind(&Socket<T>::WriteHandler, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+#endif
+
+        return true;
+    }
 
     std::mutex _writeLock;
-    std::queue<PacketType> _writeQueue;
+    std::queue<MessageBuffer> _writeQueue;
+#ifndef BOOST_ASIO_HAS_IOCP
+    MessageBuffer _writeBuffer;
+#endif
 
 private:
-    void AsyncReadMissingHeaderData()
-    {
-        _socket.async_read_some(boost::asio::buffer(_readHeaderBuffer.GetWritePointer(), std::min<std::size_t>(READ_BLOCK_SIZE, _readHeaderBuffer.GetMissingSize())),
-            std::bind(&Socket<T, PacketType>::ReadHeaderHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
-    }
-
-    void AsyncReadMissingData()
-    {
-        _socket.async_read_some(boost::asio::buffer(_readDataBuffer.GetWritePointer(), std::min<std::size_t>(READ_BLOCK_SIZE, _readDataBuffer.GetMissingSize())),
-            std::bind(&Socket<T, PacketType>::ReadDataHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
-    }
-
-    void ReadHeaderHandlerInternal(boost::system::error_code error, size_t transferredBytes)
+    void ReadHandlerInternal(boost::system::error_code error, size_t transferredBytes)
     {
         if (error)
         {
@@ -183,47 +174,25 @@ private:
             return;
         }
 
-        _readHeaderBuffer.WriteCompleted(transferredBytes);
-        if (!IsHeaderReady())
-        {
-            // incomplete, read more
-            AsyncReadMissingHeaderData();
-            return;
-        }
-
-        ReadHeaderHandler();
+        _readBuffer.WriteCompleted(transferredBytes);
+        ReadHandler();
     }
 
-    void ReadDataHandlerInternal(boost::system::error_code error, size_t transferredBytes)
-    {
-        if (error)
-        {
-            CloseSocket();
-            return;
-        }
+#ifdef BOOST_ASIO_HAS_IOCP
 
-        _readDataBuffer.WriteCompleted(transferredBytes);
-        if (!IsDataReady())
-        {
-            // incomplete, read more
-            AsyncReadMissingData();
-            return;
-        }
-
-        ReadDataHandler();
-    }
-
-    void WriteHandler(boost::system::error_code error, size_t /*transferedBytes*/)
+    void WriteHandler(boost::system::error_code error, std::size_t transferedBytes)
     {
         if (!error)
         {
-            std::lock_guard<std::mutex> deleteGuard(_writeLock);
+            std::unique_lock<std::mutex> deleteGuard(_writeLock);
 
-            DeletePacket(_writeQueue.front());
-            _writeQueue.pop();
+            _isWritingAsync = false;
+            _writeQueue.front().ReadCompleted(transferedBytes);
+            if (!_writeQueue.front().GetActiveSize())
+                _writeQueue.pop();
 
             if (!_writeQueue.empty())
-                AsyncWrite(_writeQueue.front());
+                AsyncProcessQueue(deleteGuard);
             else if (_closing)
                 CloseSocket();
         }
@@ -231,22 +200,104 @@ private:
             CloseSocket();
     }
 
-    template<typename Q = PacketType>
-    typename std::enable_if<std::is_pointer<Q>::value>::type DeletePacket(PacketType& packet) { delete packet; }
+#else
 
-    template<typename Q = PacketType>
-    typename std::enable_if<!std::is_pointer<Q>::value>::type DeletePacket(PacketType const& /*packet*/) { }
+    bool WriteHandler(boost::system::error_code /*error*/, std::size_t /*transferedBytes*/)
+    {
+        std::unique_lock<std::mutex> guard(_writeLock, std::try_to_lock);
+        if (!guard)
+            return false;
+
+        if (!IsOpen())
+            return false;
+
+        std::size_t bytesToSend = _writeBuffer.GetActiveSize();
+
+        if (bytesToSend == 0)
+            return HandleQueue(guard);
+
+        boost::system::error_code error;
+        std::size_t bytesWritten = _socket.write_some(boost::asio::buffer(_writeBuffer.GetReadPointer(), bytesToSend), error);
+
+        if (error)
+        {
+            if (error == boost::asio::error::would_block || error == boost::asio::error::try_again)
+                return AsyncProcessQueue(guard);
+
+            return false;
+        }
+        else if (bytesWritten == 0)
+            return false;
+        else if (bytesWritten < bytesToSend) //now n > 0
+        {
+            _writeBuffer.ReadCompleted(bytesWritten);
+            _writeBuffer.Normalize();
+            return AsyncProcessQueue(guard);
+        }
+
+        // now bytesWritten == bytesToSend
+        _writeBuffer.Reset();
+
+        return HandleQueue(guard);
+    }
+
+    bool HandleQueue(std::unique_lock<std::mutex>& guard)
+    {
+        if (_writeQueue.empty())
+        {
+            _isWritingAsync = false;
+            return false;
+        }
+
+        MessageBuffer& queuedMessage = _writeQueue.front();
+
+        std::size_t bytesToSend = queuedMessage.GetActiveSize();
+
+        boost::system::error_code error;
+        std::size_t bytesSent = _socket.write_some(boost::asio::buffer(queuedMessage.GetReadPointer(), bytesToSend), error);
+
+        if (error)
+        {
+            if (error == boost::asio::error::would_block || error == boost::asio::error::try_again)
+                return AsyncProcessQueue(guard);
+
+            _writeQueue.pop();
+            return false;
+        }
+        else if (bytesSent == 0)
+        {
+            _writeQueue.pop();
+            return false;
+        }
+        else if (bytesSent < bytesToSend) // now n > 0
+        {
+            queuedMessage.ReadCompleted(bytesSent);
+            return AsyncProcessQueue(guard);
+        }
+
+        _writeQueue.pop();
+        if (_writeQueue.empty())
+        {
+            _isWritingAsync = false;
+            return false;
+        }
+
+        return true;
+    }
+
+#endif
 
     tcp::socket _socket;
 
     boost::asio::ip::address _remoteAddress;
     uint16 _remotePort;
 
-    MessageBuffer _readHeaderBuffer;
-    MessageBuffer _readDataBuffer;
+    MessageBuffer _readBuffer;
 
     std::atomic<bool> _closed;
     std::atomic<bool> _closing;
+
+    bool _isWritingAsync;
 };
 
 #endif // __SOCKET_H__
