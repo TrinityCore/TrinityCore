@@ -95,7 +95,7 @@ protected:
         if (_newSockets.empty())
             return;
 
-        for (SocketSet::const_iterator i = _newSockets.begin(); i != _newSockets.end(); ++i)
+        for (typename SocketSet::const_iterator i = _newSockets.begin(); i != _newSockets.end(); ++i)
         {
             if (!(*i)->IsOpen())
             {
