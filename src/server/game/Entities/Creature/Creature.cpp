@@ -814,6 +814,9 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 /*phaseMask*/, uint32 ent
         m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
     }
 
+    if (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING)
+        AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
+
     return true;
 }
 
