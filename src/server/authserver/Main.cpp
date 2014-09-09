@@ -118,7 +118,8 @@ int main(int argc, char** argv)
     }
 
     std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
-    AsyncAcceptor<AuthSession> authServer(_ioService, bindIp, port);
+    AsyncAcceptor authServer(_ioService, bindIp, port);
+    authServer.AsyncAccept<AuthSession>();
 
     // Set signal handlers
     boost::asio::signal_set signals(_ioService, SIGINT, SIGTERM);
