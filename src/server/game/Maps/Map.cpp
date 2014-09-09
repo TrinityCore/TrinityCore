@@ -119,7 +119,7 @@ bool Map::ExistVMap(uint32 mapid, int gx, int gy)
 
 void Map::LoadMMap(int gx, int gy)
 {
-    if (!MMAP::MMapFactory::IsPathfindingEnabled(GetId()))
+    if (!MMAP::MMapFactory::IsPathfindingEnabledForMap(GetId()))
         return;
 
     bool mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap((sWorld->GetDataPath() + "mmaps").c_str(), GetId(), gx, gy);

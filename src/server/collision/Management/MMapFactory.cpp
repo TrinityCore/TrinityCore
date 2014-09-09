@@ -35,10 +35,16 @@ namespace MMAP
         return g_MMapManager;
     }
 
-    bool MMapFactory::IsPathfindingEnabled(uint32 mapId)
+    bool MMapFactory::IsPathfindingEnabledForMap(uint32 mapId)
     {
         return sWorld->getBoolConfig(CONFIG_ENABLE_MMAPS)
-            && !DisableMgr::IsDisabledFor(DISABLE_TYPE_MMAP, mapId, NULL, MMAP_DISABLE_PATHFINDING);
+            && !DisableMgr::IsDisabledFor(DISABLE_TYPE_PATHFINDING, mapId, NULL, PATHFINDING_DISABLE_MAP);
+    }
+
+    bool MMapFactory::IsPathfindingEnabledForCreature(uint32 creatureEntry)
+    {
+        return (creatureEntry == 0 || (sWorld->getBoolConfig(CONFIG_ENABLE_MMAPS) 
+            && !DisableMgr::IsDisabledFor(DISABLE_TYPE_PATHFINDING, creatureEntry, NULL, PATHFINDING_DISABLE_CREATURE)));
     }
 
     void MMapFactory::clear()

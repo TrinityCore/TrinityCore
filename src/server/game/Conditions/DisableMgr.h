@@ -32,7 +32,7 @@ enum DisableType
     DISABLE_TYPE_ACHIEVEMENT_CRITERIA   = 4,
     DISABLE_TYPE_OUTDOORPVP             = 5,
     DISABLE_TYPE_VMAP                   = 6,
-    DISABLE_TYPE_MMAP                   = 7
+    DISABLE_TYPE_PATHFINDING            = 7
 };
 
 enum SpellDisableTypes
@@ -57,9 +57,10 @@ enum VmapDisableTypes
     VMAP_DISABLE_LIQUIDSTATUS   = 0x8
 };
 
-enum MMapDisableTypes
+enum PathfindingDisableTypes
 {
-    MMAP_DISABLE_PATHFINDING    = 0x0
+    PATHFINDING_DISABLE_MAP         = 0x1,
+    PATHFINDING_DISABLE_CREATURE    = 0x2
 };
 
 namespace DisableMgr

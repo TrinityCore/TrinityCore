@@ -43,7 +43,8 @@ namespace MMAP
         public:
             static MMapManager* createOrGetMMapManager();
             static void clear();
-            static bool IsPathfindingEnabled(uint32 mapId);
+            static bool IsPathfindingEnabledForMap(uint32 mapId);
+            static bool IsPathfindingEnabledForCreature(uint32 creatureEntry);
     };
 }
 

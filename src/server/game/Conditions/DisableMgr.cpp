@@ -222,31 +222,45 @@ void LoadDisables()
                 }
                 break;
             }
-            case DISABLE_TYPE_MMAP:
+            case DISABLE_TYPE_PATHFINDING:
             {
-                MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
-                if (!mapEntry)
+                if (flags & PATHFINDING_DISABLE_MAP)
                 {
-                    TC_LOG_ERROR("sql.sql", "Map entry %u from `disables` doesn't exist in dbc, skipped.", entry);
-                    continue;
+                    MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
+                    if (!mapEntry)
+                    {
+                        TC_LOG_ERROR("sql.sql", "Map entry %u from `disables` doesn't exist in dbc, skipped.", entry);
+                        continue;
+                    }
+                    switch (mapEntry->map_type)
+                    {
+                        case MAP_COMMON:
+                            TC_LOG_INFO("misc", "Pathfinding disabled for world map %u.", entry);
+                            break;
+                        case MAP_INSTANCE:
+                        case MAP_RAID:
+                            TC_LOG_INFO("misc", "Pathfinding disabled for instance map %u.", entry);
+                            break;
+                        case MAP_BATTLEGROUND:
+                            TC_LOG_INFO("misc", "Pathfinding disabled for battleground map %u.", entry);
+                            break;
+                        case MAP_ARENA:
+                            TC_LOG_INFO("misc", "Pathfinding disabled for arena map %u.", entry);
+                            break;
+                        default:
+                            break;
+                    }
                 }
-                switch (mapEntry->map_type)
+                if (flags & PATHFINDING_DISABLE_CREATURE)
                 {
-                    case MAP_COMMON:
-                        TC_LOG_INFO("misc", "Pathfinding disabled for world map %u.", entry);
-                        break;
-                    case MAP_INSTANCE:
-                    case MAP_RAID:
-                        TC_LOG_INFO("misc", "Pathfinding disabled for instance map %u.", entry);
-                        break;
-                    case MAP_BATTLEGROUND:
-                        TC_LOG_INFO("misc", "Pathfinding disabled for battleground map %u.", entry);
-                        break;
-                    case MAP_ARENA:
-                        TC_LOG_INFO("misc", "Pathfinding disabled for arena map %u.", entry);
-                        break;
-                    default:
-                        break;
+                    CreatureTemplate const* creatureEntry = sObjectMgr->GetCreatureTemplate(entry);
+                    if (!creatureEntry)
+                    {
+                        TC_LOG_ERROR("sql.sql", "Creature entry %u from `disables` doesn't exist, skipped.", entry);
+                        continue;
+                    }
+                    else 
+                        TC_LOG_INFO("misc", "Pathfinding disabled for creature entry %u.", entry);
                 }
                 break;
             }
@@ -378,7 +392,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
         case DISABLE_TYPE_BATTLEGROUND:
         case DISABLE_TYPE_OUTDOORPVP:
         case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
-        case DISABLE_TYPE_MMAP:
+        case DISABLE_TYPE_PATHFINDING:
             return true;
         case DISABLE_TYPE_VMAP:
            return (flags & itr->second.flags) != 0;
