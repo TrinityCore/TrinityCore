@@ -185,12 +185,18 @@ public:
     {
         npc_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            done = false;
+            killTimer = 60000; // if after this time there is no victim -> destroy!
         }
 
         void Reset() override
         {
-            done = false;
-            killTimer = 60000; // if after this time there is no victim -> destroy!
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

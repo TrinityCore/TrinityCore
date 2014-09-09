@@ -184,13 +184,19 @@ class npc_tempest_minion : public CreatureScript
         {
             npc_tempest_minionAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                OverchargedTimer = 0;
             }
 
             void Reset() override
             {
                 events.Reset();
-                OverchargedTimer = 0;
+                Initialize();
             }
 
             void JustDied(Unit* /*killer*/) override

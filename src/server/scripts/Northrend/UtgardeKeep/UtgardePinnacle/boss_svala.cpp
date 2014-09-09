@@ -137,13 +137,20 @@ class boss_svala : public CreatureScript
         {
             boss_svalaAI(Creature* creature) : BossAI(creature, DATA_SVALA_SORROWGRAVE)
             {
+                Initialize();
                 _introCompleted = false;
+            }
+
+            void Initialize()
+            {
+                _arthasGUID = 0;
+                _sacrificed = false;
             }
 
             void Reset() override
             {
                 _Reset();
-                _sacrificed = false;
+                
                 SetCombatMovement(true);
 
                 if (_introCompleted)
@@ -153,7 +160,7 @@ class boss_svala : public CreatureScript
 
                 me->SetDisableGravity(events.IsInPhase(NORMAL));
 
-                _arthasGUID = 0;
+                Initialize();
 
                 instance->SetData64(DATA_SACRIFICED_PLAYER, 0);
             }
@@ -398,9 +405,15 @@ class npc_ritual_channeler : public CreatureScript
         {
             npc_ritual_channelerAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
 
                 SetCombatMovement(false);
+            }
+
+            void Initialize()
+            {
+                paralyzeTimer = 1600;
             }
 
             InstanceScript* instance;
@@ -408,7 +421,7 @@ class npc_ritual_channeler : public CreatureScript
 
             void Reset() override
             {
-                paralyzeTimer = 1600;
+                Initialize();
 
                 if (IsHeroic())
                     DoCast(me, SPELL_SHADOWS_IN_THE_DARK);
@@ -514,16 +527,24 @@ class npc_scourge_hulk : public CreatureScript
 
         struct npc_scourge_hulkAI : public ScriptedAI
         {
-            npc_scourge_hulkAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_scourge_hulkAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                mightyBlow = urand(4000, 9000);
+                volatileInfection = urand(10000, 14000);
+                killedByRitualStrike = false;
+            }
 
             uint32 mightyBlow;
             uint32 volatileInfection;
 
             void Reset() override
             {
-                mightyBlow = urand(4000, 9000);
-                volatileInfection = urand(10000, 14000);
-                killedByRitualStrike = false;
+                Initialize();
             }
 
             uint32 GetData(uint32 type) const override

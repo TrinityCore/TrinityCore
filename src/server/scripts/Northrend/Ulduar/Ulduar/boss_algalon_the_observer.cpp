@@ -301,17 +301,23 @@ class boss_algalon_the_observer : public CreatureScript
         {
             boss_algalon_the_observerAI(Creature* creature) : BossAI(creature, BOSS_ALGALON)
             {
+                Initialize();
                 _firstPull = true;
                 _fedOnTears = false;
+            }
+
+            void Initialize()
+            {
+                _phaseTwo = false;
+                _fightWon = false;
+                _hasYelled = false;
             }
 
             void Reset() override
             {
                 _Reset();
                 me->SetReactState(REACT_PASSIVE);
-                _phaseTwo = false;
-                _fightWon = false;
-                _hasYelled = false;
+                Initialize();
             }
 
             void KilledUnit(Unit* victim) override
@@ -715,13 +721,19 @@ class npc_living_constellation : public CreatureScript
         {
             npc_living_constellationAI(Creature* creature) : CreatureAI(creature)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _isActive = false;
             }
 
             void Reset() override
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, 2500);
-                _isActive = false;
+                Initialize();
             }
 
             uint32 GetData(uint32 /*type*/) const override
@@ -858,6 +870,7 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
         {
             npc_brann_bronzebeard_algalonAI(Creature* creature) : CreatureAI(creature)
             {
+                _currentPoint = 0;
             }
 
             void DoAction(int32 action) override

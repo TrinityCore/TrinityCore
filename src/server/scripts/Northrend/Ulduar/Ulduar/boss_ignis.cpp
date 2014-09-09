@@ -118,7 +118,15 @@ class boss_ignis : public CreatureScript
         {
             boss_ignis_AI(Creature* creature) : BossAI(creature, BOSS_IGNIS), _vehicle(me->GetVehicleKit())
             {
+                Initialize();
                 ASSERT(_vehicle);
+            }
+
+            void Initialize()
+            {
+                _slagPotGUID = 0;
+                _shattered = false;
+                _firstConstructKill = 0;
             }
 
             void Reset() override
@@ -140,9 +148,7 @@ class boss_ignis : public CreatureScript
                 events.ScheduleEvent(EVENT_CONSTRUCT, 15000);
                 events.ScheduleEvent(EVENT_END_POT, 40000);
                 events.ScheduleEvent(EVENT_BERSERK, 480000);
-                _slagPotGUID = 0;
-                _shattered = false;
-                _firstConstructKill = 0;
+                Initialize();
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEVEMENT_IGNIS_START_EVENT);
             }
 
@@ -298,12 +304,18 @@ class npc_iron_construct : public CreatureScript
         {
             npc_iron_constructAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
+                Initialize();
                 creature->SetReactState(REACT_PASSIVE);
+            }
+
+            void Initialize()
+            {
+                _brittled = false;
             }
 
             void Reset() override
             {
-                _brittled = false;
+                Initialize();
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -365,12 +377,19 @@ class npc_scorch_ground : public CreatureScript
         {
             npc_scorch_groundAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE |UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
                 creature->SetDisplayId(16925); //model 2 in db cannot overwrite wdb fields
             }
 
-            void MoveInLineOfSight(Unit* who) override
+            void Initialize()
+            {
+                _heat = false;
+                _constructGUID = 0;
+                _heatTimer = 0;
+            }
 
+            void MoveInLineOfSight(Unit* who) override
             {
                 if (!_heat)
                 {
@@ -387,10 +406,8 @@ class npc_scorch_ground : public CreatureScript
 
             void Reset() override
             {
-                _heat = false;
+                Initialize();
                 DoCast(me, SPELL_GROUND);
-                _constructGUID = 0;
-                _heatTimer = 0;
             }
 
             void UpdateAI(uint32 uiDiff) override

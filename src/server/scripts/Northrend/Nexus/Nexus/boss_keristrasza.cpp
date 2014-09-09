@@ -68,7 +68,18 @@ public:
     {
         boss_keristraszaAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiCrystalfireBreathTimer = 14 * IN_MILLISECONDS;
+            uiCrystalChainsCrystalizeTimer = DUNGEON_MODE(30 * IN_MILLISECONDS, 11 * IN_MILLISECONDS);
+            uiTailSweepTimer = 5 * IN_MILLISECONDS;
+            bEnrage = false;
+
+            intenseCold = true;
         }
 
         InstanceScript* instance;
@@ -83,12 +94,7 @@ public:
 
         void Reset() override
         {
-            uiCrystalfireBreathTimer = 14*IN_MILLISECONDS;
-            uiCrystalChainsCrystalizeTimer = DUNGEON_MODE(30*IN_MILLISECONDS, 11*IN_MILLISECONDS);
-            uiTailSweepTimer = 5*IN_MILLISECONDS;
-            bEnrage = false;
-
-            intenseCold = true;
+            Initialize();
             intenseColdList.clear();
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
