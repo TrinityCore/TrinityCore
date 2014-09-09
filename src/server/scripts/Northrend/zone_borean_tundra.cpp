@@ -2112,65 +2112,6 @@ public:
 };
 
 /*######
-## Quest 11608: Bury Those Cockroaches!
-######*/
-
-enum BuryThoseCockroaches
-{
-    // Quest
-    QUEST_BURY_THOSE_COCKROACHES            = 11608,
-
-    // Spells
-    SPELL_SEAFORIUM_DEPTH_CHARGE_EXPLOSION  = 45502
-
-};
-
-class npc_seaforium_depth_charge : public CreatureScript
-{
-public:
-    npc_seaforium_depth_charge() : CreatureScript("npc_seaforium_depth_charge") { }
-
-    struct npc_seaforium_depth_chargeAI : public ScriptedAI
-    {
-        npc_seaforium_depth_chargeAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 uiExplosionTimer;
-
-        void Reset() override
-        {
-            uiExplosionTimer = urand(5000, 10000);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (uiExplosionTimer < diff)
-            {
-                DoCast(SPELL_SEAFORIUM_DEPTH_CHARGE_EXPLOSION);
-                for (uint8 i = 0; i < 4; ++i)
-                {
-                    if (Creature* cCredit = me->FindNearestCreature(25402 + i, 10.0f))//25402-25405 credit markers
-                    {
-                        if (Unit* uOwner = me->GetOwner())
-                        {
-                            Player* owner = uOwner->ToPlayer();
-                            if (owner && owner->GetQuestStatus(QUEST_BURY_THOSE_COCKROACHES) == QUEST_STATUS_INCOMPLETE)
-                                owner->KilledMonsterCredit(cCredit->GetEntry(), cCredit->GetGUID());
-                        }
-                    }
-                }
-                me->Kill(me);
-                return;
-            } else uiExplosionTimer -= diff;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_seaforium_depth_chargeAI(creature);
-    }
-};
-
-/*######
 ## Help Those That Cannot Help Themselves, Quest 11876
 ######*/
 
@@ -2593,7 +2534,6 @@ void AddSC_borean_tundra()
     new npc_bonker_togglevolt();
     new npc_trapped_mammoth_calf();
     new npc_magmoth_crusher();
-    new npc_seaforium_depth_charge();
     new npc_valiance_keep_cannoneer();
     new npc_warmage_coldarra();
     new npc_hidden_cultist();
