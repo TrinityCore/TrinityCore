@@ -227,7 +227,7 @@ void WorldSession::SendPacket(WorldPacket* packet)
 
     sScriptMgr->OnPacketSend(this, *packet);
 
-    m_Socket->AsyncWrite(*packet);
+    m_Socket->SendPacket(*packet);
 }
 
 /// Add an incoming packet to the queue
