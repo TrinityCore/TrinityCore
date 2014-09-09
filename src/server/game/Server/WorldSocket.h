@@ -19,16 +19,6 @@
 #ifndef __WORLDSOCKET_H__
 #define __WORLDSOCKET_H__
 
-// Forward declare buffer function here - Socket.h must know about it
-struct WorldPacketBuffer;
-namespace boost
-{
-    namespace asio
-    {
-        WorldPacketBuffer const& buffer(WorldPacketBuffer const& buf);
-    }
-}
-
 #include "Common.h"
 #include "AuthCrypt.h"
 #include "ServerPktHeader.h"
@@ -54,50 +44,8 @@ struct ClientPktHeader
 
 #pragma pack(pop)
 
-struct WorldPacketBuffer
+class WorldSocket : public Socket<WorldSocket>
 {
-    typedef boost::asio::const_buffer value_type;
-
-    typedef boost::asio::const_buffer const* const_iterator;
-
-    WorldPacketBuffer(ServerPktHeader header, WorldPacket const& packet) : _header(header), _packet(packet)
-    {
-        _buffers[0] = boost::asio::const_buffer(_header.header, _header.getHeaderLength());
-        if (!_packet.empty())
-            _buffers[1] = boost::asio::const_buffer(_packet.contents(), _packet.size());
-    }
-
-    const_iterator begin() const
-    {
-        return _buffers;
-    }
-
-    const_iterator end() const
-    {
-        return _buffers + (_packet.empty() ? 1 : 2);
-    }
-
-private:
-    boost::asio::const_buffer _buffers[2];
-    ServerPktHeader _header;
-    WorldPacket _packet;
-};
-
-namespace boost
-{
-    namespace asio
-    {
-        inline WorldPacketBuffer const& buffer(WorldPacketBuffer const& buf)
-        {
-            return buf;
-        }
-    }
-}
-
-class WorldSocket : public Socket<WorldSocket, WorldPacketBuffer>
-{
-    typedef Socket<WorldSocket, WorldPacketBuffer> Base;
-
 public:
     WorldSocket(tcp::socket&& socket);
 
@@ -106,14 +54,12 @@ public:
 
     void Start() override;
 
-    void CloseSocket() override;
-
-    using Base::AsyncWrite;
-    void AsyncWrite(WorldPacket& packet);
+    void SendPacket(WorldPacket& packet);
 
 protected:
-    void ReadHeaderHandler() override;
-    void ReadDataHandler() override;
+    void ReadHandler() override;
+    bool ReadHeaderHandler();
+    bool ReadDataHandler();
 
 private:
     void HandleSendAuthSession();
@@ -129,6 +75,9 @@ private:
     uint32 _OverSpeedPings;
 
     WorldSession* _worldSession;
+
+    MessageBuffer _headerBuffer;
+    MessageBuffer _packetBuffer;
 };
 
 #endif
