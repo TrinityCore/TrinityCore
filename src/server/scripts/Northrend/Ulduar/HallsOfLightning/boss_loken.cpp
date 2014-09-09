@@ -74,7 +74,17 @@ public:
     {
         boss_lokenAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            m_uiArcLightning_Timer = 15000;
+            m_uiLightningNova_Timer = 20000;
+            m_uiResumePulsingShockwave_Timer = 1000;
+
+            m_uiHealthAmountModifier = 1;
         }
 
         InstanceScript* instance;
@@ -87,11 +97,7 @@ public:
 
         void Reset() override
         {
-            m_uiArcLightning_Timer = 15000;
-            m_uiLightningNova_Timer = 20000;
-            m_uiResumePulsingShockwave_Timer = 1000;
-
-            m_uiHealthAmountModifier = 1;
+            Initialize();
 
             instance->SetBossState(DATA_LOKEN, NOT_STARTED);
             instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);

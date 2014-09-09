@@ -66,14 +66,22 @@ public:
 
     struct boss_maexxnaAI : public BossAI
     {
-        boss_maexxnaAI(Creature* creature) : BossAI(creature, BOSS_MAEXXNA) { }
+        boss_maexxnaAI(Creature* creature) : BossAI(creature, BOSS_MAEXXNA)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            enraged = false;
+        }
 
         bool enraged;
 
         void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
-            enraged = false;
+            Initialize();
             events.ScheduleEvent(EVENT_WRAP, 20000);
             events.ScheduleEvent(EVENT_SPRAY, 40000);
             events.ScheduleEvent(EVENT_SHOCK, urand(5000, 10000));

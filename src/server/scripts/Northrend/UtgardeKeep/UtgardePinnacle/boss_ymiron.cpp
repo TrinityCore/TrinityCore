@@ -102,6 +102,7 @@ public:
     {
         boss_ymironAI(Creature* creature) : BossAI(creature, DATA_KING_YMIRON)
         {
+            Initialize();
             for (int i = 0; i < 4; ++i)
                 m_uiActiveOrder[i] = i;
             for (int i = 0; i < 3; ++i)
@@ -111,6 +112,35 @@ public:
                 m_uiActiveOrder[i] = m_uiActiveOrder[r];
                 m_uiActiveOrder[r] = temp;
             }
+        }
+
+        void Initialize()
+        {
+            m_bIsWalking = false;
+            m_bIsPause = false;
+            m_bIsActiveWithBJORN = false;
+            m_bIsActiveWithHALDOR = false;
+            m_bIsActiveWithRANULF = false;
+            m_bIsActiveWithTORGYN = false;
+            kingsBane = true;
+
+            m_uiFetidRot_Timer = urand(8000, 13000);
+            m_uiBane_Timer = urand(18000, 23000);
+            m_uiDarkSlash_Timer = urand(28000, 33000);
+            m_uiAncestors_Vengeance_Timer = DUNGEON_MODE(60000, 45000);
+            m_uiPause_Timer = 0;
+
+            m_uiAbility_BJORN_Timer = 0;
+            m_uiAbility_HALDOR_Timer = 0;
+            m_uiAbility_RANULF_Timer = 0;
+            m_uiAbility_TORGYN_Timer = 0;
+
+            m_uiActivedNumber = 0;
+            m_uiHealthAmountModifier = 1;
+            m_uiHealthAmountMultipler = DUNGEON_MODE(20, 25);
+
+            m_uiActivedCreatureGUID = 0;
+            m_uiOrbGUID = 0;
         }
 
         bool m_bIsWalking;
@@ -144,31 +174,7 @@ public:
         void Reset() override
         {
             _Reset();
-            m_bIsWalking = false;
-            m_bIsPause = false;
-            m_bIsActiveWithBJORN = false;
-            m_bIsActiveWithHALDOR = false;
-            m_bIsActiveWithRANULF = false;
-            m_bIsActiveWithTORGYN = false;
-            kingsBane = true;
-
-            m_uiFetidRot_Timer            = urand(8000, 13000);
-            m_uiBane_Timer                = urand(18000, 23000);
-            m_uiDarkSlash_Timer           = urand(28000, 33000);
-            m_uiAncestors_Vengeance_Timer = DUNGEON_MODE(60000, 45000);
-            m_uiPause_Timer               = 0;
-
-            m_uiAbility_BJORN_Timer  = 0;
-            m_uiAbility_HALDOR_Timer = 0;
-            m_uiAbility_RANULF_Timer = 0;
-            m_uiAbility_TORGYN_Timer = 0;
-
-            m_uiActivedNumber        = 0;
-            m_uiHealthAmountModifier = 1;
-            m_uiHealthAmountMultipler = DUNGEON_MODE(20, 25);
-
-            m_uiActivedCreatureGUID = 0;
-            m_uiOrbGUID = 0;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

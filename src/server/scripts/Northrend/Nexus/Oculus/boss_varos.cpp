@@ -59,7 +59,16 @@ class boss_varos : public CreatureScript
 
         struct boss_varosAI : public BossAI
         {
-            boss_varosAI(Creature* creature) : BossAI(creature, DATA_VAROS) { }
+            boss_varosAI(Creature* creature) : BossAI(creature, DATA_VAROS)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                firstCoreEnergize = false;
+                coreEnergizeOrientation = 0.0f;
+            }
 
             void InitializeAI() override
             {
@@ -77,8 +86,7 @@ class boss_varos : public CreatureScript
                 // not sure if this is handled by a timer or hp percentage
                 events.ScheduleEvent(EVENT_CALL_AZURE, urand(15, 30) * IN_MILLISECONDS);
 
-                firstCoreEnergize = false;
-                coreEnergizeOrientation = 0.0f;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -170,12 +178,18 @@ class npc_azure_ring_captain : public CreatureScript
         {
             npc_azure_ring_captainAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                targetGUID = 0;
             }
 
             void Reset() override
             {
-                targetGUID = 0;
+                Initialize();
 
                 me->SetWalk(true);
                 //! HACK: Creature's can't have MOVEMENTFLAG_FLYING

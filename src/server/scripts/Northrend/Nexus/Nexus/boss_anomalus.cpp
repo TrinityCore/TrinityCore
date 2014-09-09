@@ -77,23 +77,28 @@ class boss_anomalus : public CreatureScript
         {
             boss_anomalusAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = me->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                Phase = 0;
+                uiSparkTimer = 5000;
+                uiChaoticRiftGUID = 0;
+                chaosTheory = true;
             }
 
             InstanceScript* instance;
 
             uint8 Phase;
             uint32 uiSparkTimer;
-            uint32 uiCreateRiftTimer;
             uint64 uiChaoticRiftGUID;
             bool chaosTheory;
 
             void Reset() override
             {
-                Phase = 0;
-                uiSparkTimer = 5000;
-                uiChaoticRiftGUID = 0;
-                chaosTheory = true;
+                Initialize();
 
                 instance->SetData(DATA_ANOMALUS_EVENT, NOT_STARTED);
             }
@@ -197,8 +202,15 @@ class npc_chaotic_rift : public CreatureScript
         {
             npc_chaotic_riftAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = me->GetInstanceScript();
                 SetCombatMovement(false);
+            }
+
+            void Initialize()
+            {
+                uiChaoticEnergyBurstTimer = 1000;
+                uiSummonCrazedManaWraithTimer = 5000;
             }
 
             InstanceScript* instance;
@@ -208,8 +220,7 @@ class npc_chaotic_rift : public CreatureScript
 
             void Reset() override
             {
-                uiChaoticEnergyBurstTimer = 1000;
-                uiSummonCrazedManaWraithTimer = 5000;
+                Initialize();
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 DoCast(me, SPELL_ARCANEFORM, false);
             }

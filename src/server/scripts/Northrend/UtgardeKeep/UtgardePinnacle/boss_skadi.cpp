@@ -169,8 +169,24 @@ public:
     {
         boss_skadiAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             m_uiGraufGUID = 0;
+            m_uiMovementTimer = 0;
+            m_uiSummonTimer = 0;
+        }
+
+        void Initialize()
+        {
+            m_uiCrushTimer = 8000;
+            m_uiPoisonedSpearTimer = 10000;
+            m_uiWhirlwindTimer = 20000;
+            m_uiMountTimer = 3000;
+            m_uiWaypointId = 0;
+            m_bSaidEmote = false;
+            m_uiSpellHitCount = 0;
+
+            Phase = SKADI;
         }
 
         InstanceScript* instance;
@@ -194,15 +210,7 @@ public:
         {
             triggersGUID.clear();
 
-            m_uiCrushTimer = 8000;
-            m_uiPoisonedSpearTimer = 10000;
-            m_uiWhirlwindTimer = 20000;
-            m_uiMountTimer = 3000;
-            m_uiWaypointId = 0;
-            m_bSaidEmote = false;
-            m_uiSpellHitCount = 0;
-
-            Phase = SKADI;
+            Initialize();
 
             Summons.DespawnAll();
             me->SetSpeed(MOVE_FLIGHT, 3.0f);

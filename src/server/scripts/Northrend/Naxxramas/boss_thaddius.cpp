@@ -137,6 +137,9 @@ public:
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
                 me->SetReactState(REACT_PASSIVE);
             }
+
+            polaritySwitch = false;
+            uiAddsTimer = 0;
         }
 
         bool checkStalaggAlive;
@@ -287,7 +290,14 @@ public:
     {
         npc_stalaggAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            powerSurgeTimer = urand(20000, 25000);
+            magneticPullTimer = 20000;
         }
 
         InstanceScript* instance;
@@ -300,8 +310,7 @@ public:
             if (Creature* pThaddius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
                 if (pThaddius->AI())
                     pThaddius->AI()->DoAction(ACTION_STALAGG_RESET);
-            powerSurgeTimer = urand(20000, 25000);
-            magneticPullTimer = 20000;
+            Initialize();
         }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -379,7 +388,13 @@ public:
     {
         npc_feugenAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            staticFieldTimer = 5000;
         }
 
         InstanceScript* instance;
@@ -391,7 +406,7 @@ public:
             if (Creature* pThaddius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
                 if (pThaddius->AI())
                     pThaddius->AI()->DoAction(ACTION_FEUGEN_RESET);
-            staticFieldTimer = 5000;
+            Initialize();
         }
 
         void KilledUnit(Unit* /*victim*/) override
