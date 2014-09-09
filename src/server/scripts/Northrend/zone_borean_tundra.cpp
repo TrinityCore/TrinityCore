@@ -26,7 +26,6 @@ EndScriptData */
 /* ContentData
 npc_iruk
 npc_corastrasza
-npc_jenny
 npc_sinkhole_kill_credit
 npc_khunok_the_behemoth
 npc_nerubar_victim
@@ -403,125 +402,6 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_nerubar_victimAI(creature);
-    }
-};
-
-/*######
-## npc_jenny
-######*/
-
-enum Jenny
-{
-    QUEST_LOADER_UP             = 11881,
-
-    NPC_FEZZIX_GEARTWIST        = 25849,
-    NPC_JENNY                   = 25969,
-
-    SPELL_GIVE_JENNY_CREDIT     = 46358,
-    SPELL_CRATES_CARRIED        = 46340,
-    SPELL_DROP_CRATE            = 46342
-};
-
-class npc_jenny : public CreatureScript
-{
-public:
-    npc_jenny() : CreatureScript("npc_jenny") { }
-
-    struct npc_jennyAI : public ScriptedAI
-    {
-        npc_jennyAI(Creature* creature) : ScriptedAI(creature)
-        {
-            setCrateNumber = false;
-        }
-
-        bool setCrateNumber;
-
-        void Reset() override
-        {
-            if (!setCrateNumber)
-                setCrateNumber = true;
-
-            me->SetReactState(REACT_PASSIVE);
-
-            if (!me->GetOwner())
-                return;
-
-            switch (me->GetOwner()->ToPlayer()->GetTeamId())
-            {
-                case TEAM_ALLIANCE:
-                    me->setFaction(FACTION_ESCORT_A_NEUTRAL_ACTIVE);
-                    break;
-                default:
-                case TEAM_HORDE:
-                    me->setFaction(FACTION_ESCORT_H_NEUTRAL_ACTIVE);
-                    break;
-            }
-        }
-
-        void DamageTaken(Unit* /*pDone_by*/, uint32& /*uiDamage*/) override
-        {
-            DoCast(me, SPELL_DROP_CRATE, true);
-        }
-
-        void UpdateAI(uint32 /*diff*/) override
-        {
-            if (setCrateNumber)
-            {
-                me->AddAura(SPELL_CRATES_CARRIED, me);
-                setCrateNumber = false;
-            }
-
-            if (!setCrateNumber && !me->HasAura(SPELL_CRATES_CARRIED))
-                me->DisappearAndDie();
-
-            if (!UpdateVictim())
-                return;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_jennyAI(creature);
-    }
-};
-
-/*######
-## npc_fezzix_geartwist
-######*/
-
-class npc_fezzix_geartwist : public CreatureScript
-{
-public:
-    npc_fezzix_geartwist() : CreatureScript("npc_fezzix_geartwist") { }
-
-    struct npc_fezzix_geartwistAI : public ScriptedAI
-    {
-        npc_fezzix_geartwistAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void MoveInLineOfSight(Unit* who) override
-
-        {
-            ScriptedAI::MoveInLineOfSight(who);
-
-            if (who->GetEntry() != NPC_JENNY || !who->HasAura(SPELL_CRATES_CARRIED))
-                return;
-
-            Unit* owner = who->GetOwner();
-            if (!owner || !me->IsWithinDistInMap(who, 10.0f))
-                return;
-
-            if (Player* player = owner->ToPlayer())
-            {
-                owner->CastSpell(owner, SPELL_GIVE_JENNY_CREDIT, true); // Maybe is not working.
-                player->CompleteQuest(QUEST_LOADER_UP);
-                who->ToCreature()->DisappearAndDie();
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_fezzix_geartwistAI(creature);
     }
 };
 
@@ -2518,8 +2398,6 @@ void AddSC_borean_tundra()
     new npc_corastrasza();
     new npc_iruk();
     new npc_nerubar_victim();
-    new npc_jenny();
-    new npc_fezzix_geartwist();
     new npc_nesingwary_trapper();
     new npc_lurgglbr();
     new npc_nexus_drake_hatchling();
