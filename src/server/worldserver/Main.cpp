@@ -48,7 +48,7 @@
 #include "WorldSocket.h"
 
 using namespace boost::program_options;
-#include "../TriniChat/IRCClient.h"
+#include "IRCClient.h"
 
 #ifndef _TRINITY_CORE_CONFIG
     #define _TRINITY_CORE_CONFIG  "worldserver.conf"
@@ -216,13 +216,10 @@ extern int main(int argc, char** argv)
     }
 
     // Start up TriniChat
-    //std::thread* triniChatThread = nullptr;
     boost::thread* triniChatThread = nullptr;
     if (sIRC->Active == 1)
     {
-        //triniChatThread = new std::thread(&IRCClient::run, sIRC); // OLD standard threading
-        //triniChatThread = new std::thread(TrinityChatThread);
-	triniChatThread = new boost::thread(TrinityChatThread);
+        triniChatThread = new boost::thread(TrinityChatThread);
     }
     else
         TC_LOG_ERROR("misc", "*** TriniChat Is Disabled. *");
@@ -284,6 +281,9 @@ extern int main(int argc, char** argv)
     // Clean TrinityChat
     if (triniChatThread != nullptr)
     {
+        // for some reason on win32 "sIRC->Active && !World::IsStopped()" fail to go false in time and the thread is stalled
+        // so we make sure the condition to live will fail from here, since we are shutting down...
+        sIRC->Active = 0;
         triniChatThread->join();
         delete triniChatThread;
     }
