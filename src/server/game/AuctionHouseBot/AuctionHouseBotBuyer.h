@@ -72,7 +72,7 @@ class AuctionBotBuyer : public AuctionBotAgent
 {
 public:
     AuctionBotBuyer();
-    ~AuctionBotBuyer() override;
+    ~AuctionBotBuyer();
 
     bool Initialize() override;
     bool Update(AuctionHouseType houseType) override;
