@@ -24,23 +24,21 @@
 * authentication server
 */
 
-#include <cstdlib>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/program_options.hpp>
-#include <iostream>
-#include <openssl/opensslv.h>
-#include <openssl/crypto.h>
-
-#include "AsyncAcceptor.h"
-#include "AuthSession.h"
+#include "AuthSocketMgr.h"
 #include "Common.h"
-#include "Configuration/Config.h"
-#include "Database/DatabaseEnv.h"
+#include "Config.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "ProcessPriority.h"
 #include "RealmList.h"
 #include "SystemConfig.h"
 #include "Util.h"
+#include <cstdlib>
+#include <iostream>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/program_options.hpp>
+#include <openssl/opensslv.h>
+#include <openssl/crypto.h>
 
 using boost::asio::ip::tcp;
 using namespace boost::program_options;
@@ -118,8 +116,8 @@ int main(int argc, char** argv)
     }
 
     std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
-    AsyncAcceptor authServer(_ioService, bindIp, port);
-    authServer.AsyncAccept<AuthSession>();
+
+    sAuthSocketMgr.StartNetwork(_ioService, bindIp, port);
 
     // Set signal handlers
     boost::asio::signal_set signals(_ioService, SIGINT, SIGTERM);
