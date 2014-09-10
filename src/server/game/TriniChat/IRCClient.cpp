@@ -22,7 +22,6 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "MapManager.h"
-//#include <thread>
 
 #ifdef WIN32
     #define Delay(x) Sleep(x)
@@ -41,7 +40,7 @@ IRCClient::~IRCClient(){}
 void TrinityChatThread()
 {
     //call irc bot
-    IRCClient* a;
+    IRCClient* a = nullptr;
     // run the bot within a thread
     a->run();
 }
@@ -53,6 +52,7 @@ void IRCClient::run()
 
     // before we begin we wait a few
     // mangos is still starting up.
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     std::stringstream ss(sIRC->_bot_names);
     string temp = "";
     uint8 counter = 0;
@@ -72,7 +72,6 @@ void IRCClient::run()
     // check for hanging name
     sIRC->_ignore_bots[counter] = temp;
     TC_LOG_INFO("server.loading", ">> TrinityChat Ignore Bots set.");
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     TC_LOG_ERROR("misc", "\n%s\n%s\n%s\n%s",
         "***************************************",
         "**   TriniChat2 Threaded IRC Client   **",

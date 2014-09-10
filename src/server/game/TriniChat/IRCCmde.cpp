@@ -1739,9 +1739,9 @@ void IRCCmd::Online_Players(_CDATA *CD)
 {
         sIRC->Script_Lock[MCS_Players_Online] = true;
         boost::thread script([CD](){
-		mcs_OnlinePlayers mcs(CD);
-		mcs.run();
-	});
+            mcs_OnlinePlayers mcs(CD);
+            mcs.run();
+        });
 }
 
 void IRCCmd::PM_Player(_CDATA *CD)

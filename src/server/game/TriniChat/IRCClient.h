@@ -21,13 +21,9 @@
 #ifndef _IRC_CLIENT_H
 #define _IRC_CLIENT_H
 
-//#include "ace/Singleton.h"
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/strand.hpp>
-#include <thread>
-#include <chrono>
-#include <sstream>
-#include <vector>
+#include "boost/thread.hpp"
 #include "Player.h"
 #include "IRCLog.h"
 #include "IRCCmd.h"
@@ -170,8 +166,6 @@ public:
     string _bot_names;
     // Number of bots to ignore
     string _ignore_bots[MAX_CONF_BOTS];
-	// BotMask Options
-	int Botmask;
 	// Ticket Channel
 	string ticann;
 	// Ticket Channel Password
@@ -209,10 +203,6 @@ public:
 	string ojGM2;
 	string ojGM3;
 	string ojGM4;
-	string ojGM5;
-	string ojGM6;
-	string ojGM7;
-	string ojGM8;
 	string logfile;
 	string logchan;
 	string logchanpw;
