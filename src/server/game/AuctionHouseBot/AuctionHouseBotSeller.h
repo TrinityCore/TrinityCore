@@ -118,7 +118,7 @@ public:
     typedef std::vector<uint32> ItemPool;
 
     AuctionBotSeller();
-    ~AuctionBotSeller() override;
+    ~AuctionBotSeller();
 
     bool Initialize() override;
     bool Update(AuctionHouseType houseType) override;
