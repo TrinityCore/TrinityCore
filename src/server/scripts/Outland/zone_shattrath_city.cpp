@@ -476,4 +476,4 @@ void AddSC_shattrath_city()
     new npc_zephyr();
     new npc_kservant();
     new npc_ishanah();
-    }
+-}
