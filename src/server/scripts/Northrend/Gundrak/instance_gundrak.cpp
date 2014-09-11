@@ -31,6 +31,8 @@
 4 - Eck the Ferocious
 */
 
+Position const EckSpawnPoint = { 1643.877930f, 936.278015f, 107.204948f, 0.668432f };
+
 class instance_gundrak : public InstanceMapScript
 {
 public:
@@ -134,7 +136,7 @@ public:
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
         }
 
-       bool IsEncounterInProgress() const override
+        bool IsEncounterInProgress() const override
         {
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
@@ -274,6 +276,17 @@ public:
             }
         }
 
+        void OnUnitDeath(Unit* unit) override
+        {
+            if (unit->GetEntry() == CREATURE_RUIN_DWELLER)
+            {
+                DwellerGUIDs.erase(unit->GetGUID());
+
+                if (DwellerGUIDs.empty())
+                    unit->SummonCreature(CREATURE_ECK, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300 * IN_MILLISECONDS);
+            }
+        }
+
         void SetData(uint32 type, uint32 data) override
         {
             switch (type)
@@ -329,9 +342,7 @@ public:
 
         void SetData64(uint32 type, uint64 data) override
         {
-            if (type == DATA_RUIN_DWELLER_DIED)
-                DwellerGUIDs.erase(data);
-            else if (type == DATA_STATUE_ACTIVATE)
+            if (type == DATA_STATUE_ACTIVATE)
             {
                 toActivate = data;
                 timer = 3500;
@@ -353,8 +364,6 @@ public:
                     return m_auiEncounter[3];
                 case DATA_ECK_THE_FEROCIOUS_EVENT:
                     return m_auiEncounter[4];
-                case DATA_ALIVE_RUIN_DWELLERS:
-                    return DwellerGUIDs.size();
             }
 
             return 0;
