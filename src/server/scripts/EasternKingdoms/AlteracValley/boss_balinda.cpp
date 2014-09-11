@@ -72,7 +72,7 @@ public:
         void Reset() override
         {
             Initialize();
-
+            events.Reset();
             summons.DespawnAll();
         }
 

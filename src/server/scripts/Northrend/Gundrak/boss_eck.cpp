@@ -45,13 +45,18 @@ public:
     {
         boss_eckAI(Creature* creature) : BossAI(creature, DATA_ECK_THE_FEROCIOUS_EVENT)
         {
+            Initialize();
+        }
+
+        void Initialize()
+        {
             Berserk = false;
         }
 
         void Reset() override
         {
             _Reset();
-            Berserk = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -85,9 +90,8 @@ public:
                     events.ScheduleEvent(EVENT_SPIT, urand(6 * IN_MILLISECONDS, 14 * IN_MILLISECONDS));
                     break;
                 case EVENT_SPRING:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                        if (target->GetTypeId() == TYPEID_PLAYER)
-                            DoCast(target, RAND(SPELL_ECK_SPRING_1, SPELL_ECK_SPRING_2));
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 35.0f, true))
+                        DoCast(target, RAND(SPELL_ECK_SPRING_1, SPELL_ECK_SPRING_2));
                     events.ScheduleEvent(EVENT_SPRING, urand(5 * IN_MILLISECONDS, 10 * IN_MILLISECONDS));
                     break;
                 case EVENT_BERSERK:
@@ -97,11 +101,6 @@ public:
                 default:
                     break;
             }
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
         }
 
         private:
