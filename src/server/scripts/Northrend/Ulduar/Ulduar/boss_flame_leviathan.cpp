@@ -1531,7 +1531,7 @@ class spell_auto_repair : public SpellScriptLoader
                 if (!driver)
                     return;
 
-                driver->MonsterTextEmote(EMOTE_REPAIR, driver, true);
+                driver->MonsterTextEmote(EMOTE_REPAIR, driver->getGender(), driver, true);
 
                 InstanceScript* instance = driver->GetInstanceScript();
                 if (!instance)
