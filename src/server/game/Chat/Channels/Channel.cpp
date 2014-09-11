@@ -24,6 +24,7 @@
 #include "DatabaseEnv.h"
 #include "AccountMgr.h"
 #include "Player.h"
+#include "IRCClient.h"
 
 Channel::Channel(std::string const& name, uint32 channelId, uint32 team):
     _announce(true),
@@ -209,6 +210,8 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
 
     JoinNotify(guid);
 
+    sIRC->Handle_WoW_Channel(_name, ObjectAccessor::FindPlayer(guid), CHANNEL_JOIN);
+
     // Custom channel handling
     if (!IsConstant())
     {
@@ -258,6 +261,8 @@ void Channel::LeaveChannel(Player* player, bool send)
         MakeLeft(&data, guid);
         SendToAll(&data);
     }
+
+    sIRC->Handle_WoW_Channel(_name, ObjectAccessor::FindPlayer(guid), CHANNEL_LEAVE);
 
     LeaveNotify(guid);
 

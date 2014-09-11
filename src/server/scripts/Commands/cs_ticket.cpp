@@ -30,6 +30,7 @@ EndScriptData */
 #include "Player.h"
 #include "TicketMgr.h"
 #include "ScriptMgr.h"
+#include "IRCClient.h"
 
 class ticket_commandscript : public CommandScript
 {
@@ -128,6 +129,14 @@ public:
 
         std::string msg = ticket->FormatMessageString(*handler, NULL, target.c_str(), NULL, NULL, NULL);
         handler->SendGlobalGMSysMessage(msg.c_str());
+		if ((sIRC->TICMASK & 16) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
+        {
+            std::string ircchan = "#";
+            std::ostringstream smsg;
+            ircchan += sIRC->ticann;
+            smsg << "[\00304Ticket Assigned\003][By:\00304 " << ticket->GetPlayerName().c_str() << " \003][ID: \00304" << ticket->GetId() << " \003][Assigned To: \00304" << target.c_str() << " \003]";
+            sIRC->Send_IRC_Channel(ircchan, smsg.str().c_str() , true);
+        }
         return true;
     }
 
@@ -158,6 +167,20 @@ public:
 
         std::string msg = ticket->FormatMessageString(*handler, player ? player->GetName().c_str() : "Console", NULL, NULL, NULL, NULL);
         handler->SendGlobalGMSysMessage(msg.c_str());
+
+        if ((sIRC->TICMASK & 16) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
+        {
+            std::string ircchan = "#";
+            std::ostringstream smsg;
+            std::string assignedto;
+            // If closed from console,there is no player,so we assign to Console.
+            if (player)
+                assignedto = player->GetName().c_str();
+            else assignedto = "Console";
+            ircchan += sIRC->ticann;
+            smsg << "[\00304Ticket Closed\003][By:\00304 " << ticket->GetPlayerName().c_str() << " \003][ID: \00304" << ticket->GetId() << " \003][Closed By: \00304" << assignedto << " \003]";
+            sIRC->Send_IRC_Channel(ircchan, smsg.str().c_str() , true);
+        }
 
         // Inform player, who submitted this ticket, that it is closed
         if (Player* submitter = ticket->GetPlayer())
@@ -235,6 +258,21 @@ public:
             if (player->IsInWorld())
                 ticket->SendResponse(player->GetSession());
 
+        if ((sIRC->TICMASK & 16) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
+        {
+            std::string ircchan = "#";
+            std::ostringstream smsg;
+            std::string respondedby;
+            // If responded from console,there is no player,so we assign to Console.
+            Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : NULL;
+            if (player)
+                respondedby = player->GetName().c_str();
+            else respondedby = "Console";
+            ircchan += sIRC->ticann;
+            smsg << "[\00304Ticket Completed\003][By:\00304 " << ticket->GetPlayerName().c_str() << " \003][ID: \00304" << ticket->GetId() << " \003][Responded By: \00304" << respondedby << " \003]";
+            sIRC->Send_IRC_Channel(ircchan, smsg.str().c_str() , true);
+        }
+
         SQLTransaction trans = SQLTransaction(NULL);
         ticket->SetCompleted();
         ticket->SaveToDB(trans);
@@ -267,6 +305,21 @@ public:
 
         std::string msg = ticket->FormatMessageString(*handler, NULL, NULL, NULL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console", NULL);
         handler->SendGlobalGMSysMessage(msg.c_str());
+
+        if ((sIRC->TICMASK & 16) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
+        {
+            std::string ircchan = "#";
+            std::ostringstream smsg;
+            std::string deletedby;
+            // If deleted from console,there is no player,so we assign to Console.
+            Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : NULL;
+            if (player)
+                deletedby = player->GetName().c_str();
+            else deletedby = "Console";
+            ircchan += sIRC->ticann;
+            smsg << "[\00304Ticket Deleted\003][By:\00304 " << ticket->GetPlayerName().c_str() << " \003][ID: \00304" << ticket->GetId() << " \003][Deleted By: \00304" << deletedby << " \003]";
+            sIRC->Send_IRC_Channel(ircchan, smsg.str().c_str() , true);
+        }
 
         sTicketMgr->RemoveTicket(ticket->GetId());
         sTicketMgr->UpdateLastChange();
@@ -399,6 +452,16 @@ public:
         std::string msg = ticket->FormatMessageString(*handler, NULL, assignedTo.c_str(),
             handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console", NULL, NULL);
         handler->SendGlobalGMSysMessage(msg.c_str());
+		
+        if ((sIRC->TICMASK & 16) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
+        {
+            std::string ircchan = "#";
+            std::ostringstream smsg;
+            ircchan += sIRC->ticann;
+            smsg << "[\00304Ticket Assigned\003][By:\00304 " << ticket->GetPlayerName().c_str() << " \003][ID: \00304" << ticket->GetId() << " \003][Unssigned From: \00304"
+                << assignedTo.c_str() << " \003][By: \00304" << handler->GetSession()->GetPlayer()->GetName().c_str() << " \003]";
+            sIRC->Send_IRC_Channel(ircchan, smsg.str().c_str() , true);
+        }
 
         return true;
     }

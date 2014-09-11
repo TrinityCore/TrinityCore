@@ -34,6 +34,7 @@
 #include "MapManager.h"
 #include "Player.h"
 #include "Util.h"
+#include "../TriniChat/IRCClient.h"
 
 #if PLATFORM != PLATFORM_WINDOWS
 #include <readline/readline.h>
@@ -113,6 +114,15 @@ void commandFinished(void*, bool /*success*/)
 {
     printf("TC> ");
     fflush(stdout);
+}
+
+//Reconnect TriniChat to IRC server via CLI command
+bool HandleIRCRelogCommand(bool, const char* /*args*/)
+{
+	TC_LOG_ERROR("misc", "TriniChat is dropping from IRC Server");
+	sIRC->ResetIRC();
+	TC_LOG_ERROR("misc", "TriniChat is reconnecting to IRC Server");
+	return true;
 }
 
 #ifdef linux

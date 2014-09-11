@@ -16,6 +16,5 @@ CMakeLists.txt.user
 *.BACKUP.*
 *.BASE.*
 *.LOCAL.*
-
-# any configs
 deployment-config.json
+

@@ -65,9 +65,9 @@ class Log
         void outCharDump(char const* str, uint32 account_id, uint32 guid, char const* name);
 
         void SetRealmId(uint32 id);
+        static std::string GetTimestampStr();
 
     private:
-        static std::string GetTimestampStr();
         void vlog(std::string const& f, LogLevel level, char const* str, va_list argptr);
         void write(LogMessage* msg) const;
 

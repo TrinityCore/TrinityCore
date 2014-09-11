@@ -33,6 +33,7 @@
 #include "Player.h"
 #include "Pet.h"
 #include "LFG.h"
+#include "IRCClient.h"
 #include "GroupMgr.h"
 #include "MMapFactory.h"
 
@@ -94,6 +95,7 @@ public:
             { "unstuck",          rbac::RBAC_PERM_COMMAND_UNSTUCK,           true, &HandleUnstuckCommand,          "", NULL },
             { "wchange",          rbac::RBAC_PERM_COMMAND_WCHANGE,          false, &HandleChangeWeather,           "", NULL },
             { "mailbox",          rbac::RBAC_PERM_COMMAND_MAILBOX,          false, &HandleMailBoxCommand,          "", NULL },
+            { "tccrecon",         SEC_MODERATOR,                            false, HandleIRCRelogCommand,          "", NULL },
             { NULL,               0,                                  false, NULL,                           "", NULL }
         };
         return commandTable;
@@ -518,6 +520,25 @@ public:
 
         return true;
     }
+
+	static bool HandleIRCpmCommand(ChatHandler* handler, const char* args)
+    {
+        std::string Msg = args;
+        if (Msg.find(" ") == std::string::npos)
+            return false;
+        std::string To = Msg.substr(0, Msg.find(" "));
+        Msg = Msg.substr(Msg.find(" ") + 1);
+        std::size_t pos;
+        while ((pos = To.find("||")) != std::string::npos)
+        {
+            std::size_t find1 = To.find("||", pos);
+            To.replace(pos, find1 - pos + 2, "|");
+        }    
+        sIRC->SendIRC("PRIVMSG "+To+" : <WoW>["+handler->GetSession()->GetPlayerName()+"] : " + Msg);
+        sIRC->Send_WoW_Player(handler->GetSession()->GetPlayer(), "|cffCC4ACCTo ["+To+"]: "+Msg);
+        return true;
+    }
+
 
     static bool HandleCommandsCommand(ChatHandler* handler, char const* /*args*/)
     {
@@ -2462,6 +2483,14 @@ public:
         sWorld->SendGlobalMessage(&data);
 
         handler->PSendSysMessage(LANG_COMMAND_PLAYED_TO_ALL, soundId);
+        return true;
+    }
+
+    static bool HandleIRCRelogCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        handler->SendSysMessage("TriniChat is dropping from IRC Server");
+        sIRC->ResetIRC();
+        handler->SendSysMessage("TriniChat is reconnecting to IRC Server");
         return true;
     }
 

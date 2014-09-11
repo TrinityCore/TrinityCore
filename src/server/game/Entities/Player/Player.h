@@ -2694,6 +2694,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 _pendingBindTimer;
 
         uint32 _activeCheats;
+	public:
+		QuestStatusSaveMap m_RewardedQuestsSave2;
 };
 
 void AddItemsSetItem(Player* player, Item* item);
