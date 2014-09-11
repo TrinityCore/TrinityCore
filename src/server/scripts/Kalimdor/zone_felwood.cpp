@@ -29,8 +29,45 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "SpellScript.h"
 #include "Player.h"
+
+
+enum BeesInfo
+{
+    EMOTE_SPELL_TEXT            = 47835,
+    SPELL_BEES_BEES_DAMAGE      = 88425
+};
+
+class spell_gen_bees : public SpellScriptLoader
+{
+public:
+    spell_gen_bees() : SpellScriptLoader("spell_gen_bees") { }
+
+    class spell_gen_bees_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_bees_SpellScript);
+
+        void ScriptedEffect(SpellEffIndex /* effIndex */)
+        {
+            if (Unit * target = GetHitUnit())
+                if (Creature * caster = GetCaster()->ToCreature())
+                    caster->MonsterTextEmote(EMOTE_SPELL_TEXT, target, true);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_gen_bees_SpellScript::ScriptedEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_gen_bees_SpellScript();
+    }
+};
 
 void AddSC_felwood()
 {
+    new spell_gen_bees();
 }
