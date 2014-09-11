@@ -114,7 +114,6 @@ class boss_broggok : public CreatureScript
                         break;
                 }
             }
-
         };
 
         CreatureAI* GetAI(Creature* creature) const override
