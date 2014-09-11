@@ -49,7 +49,16 @@ public:
     {
         boss_nerubenkanAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = me->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            CryptScarabs_Timer = 3000;
+            EncasingWebs_Timer = 7000;
+            PierceArmor_Timer = 19000;
+            RaiseUndeadScarab_Timer = 3000;
         }
 
         InstanceScript* instance;
@@ -61,10 +70,7 @@ public:
 
         void Reset() override
         {
-            CryptScarabs_Timer = 3000;
-            EncasingWebs_Timer = 7000;
-            PierceArmor_Timer = 19000;
-            RaiseUndeadScarab_Timer = 3000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

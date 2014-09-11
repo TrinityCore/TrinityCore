@@ -68,6 +68,7 @@ public:
 
         void Initialize() override
         {
+            SetHeaders(DataHeader);
             uiMovementDone = 0;
             uiGrandChampionsDeaths = 0;
             uiArgentSoldierDeaths = 0;

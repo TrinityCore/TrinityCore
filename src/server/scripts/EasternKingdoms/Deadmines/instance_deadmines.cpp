@@ -74,6 +74,7 @@ class instance_deadmines : public InstanceMapScript
 
             void Initialize() override
             {
+                SetHeaders(DataHeader);
                 FactoryDoorGUID = 0;
                 IronCladDoorGUID = 0;
                 DefiasCannonGUID = 0;

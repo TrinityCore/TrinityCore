@@ -59,14 +59,22 @@ public:
 
     struct npc_tapoke_slim_jahnAI : public npc_escortAI
     {
-        npc_tapoke_slim_jahnAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_tapoke_slim_jahnAI(Creature* creature) : npc_escortAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            IsFriendSummoned = false;
+        }
 
         bool IsFriendSummoned;
 
         void Reset() override
         {
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
-                IsFriendSummoned = false;
+                Initialize();
         }
 
         void WaypointReached(uint32 waypointId) override

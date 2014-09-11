@@ -58,6 +58,7 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
 
             void Initialize() override
             {
+                SetHeaders(DataHeader);
                 IsBossDied[0] = false;
                 IsBossDied[1] = false;
                 IsBossDied[2] = false;

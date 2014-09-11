@@ -123,6 +123,7 @@ class instance_ulduar : public InstanceMapScript
 
             void Initialize() override
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doorData);
                 LoadMinionData(minionData);
@@ -1033,84 +1034,50 @@ class instance_ulduar : public InstanceMapScript
                 return false;
             }
 
-            std::string GetSaveData() override
+            void WriteSaveDataMore(std::ostringstream& data) override
             {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "U U " << GetBossSaveData() << GetData(DATA_COLOSSUS) << ' ' << _algalonTimer << ' ' << (_algalonSummoned ? 1 : 0);
+                data << GetData(DATA_COLOSSUS) << ' ' << _algalonTimer << ' ' << uint32(_algalonSummoned ? 1 : 0);
 
                 for (uint8 i = 0; i < 4; ++i)
-                    saveStream << ' ' << (KeeperGUIDs[i] ? 1 : 0);
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
+                    data << ' ' << uint32(KeeperGUIDs[i] ? 1 : 0);
             }
 
-            void Load(char const* strIn) override
+            void ReadSaveDataMore(std::istringstream& data) override
             {
-                if (!strIn)
+                uint32 tempState;
+                data >> tempState;
+                if (tempState == IN_PROGRESS || tempState > SPECIAL)
+                    tempState = NOT_STARTED;
+                SetData(DATA_COLOSSUS, tempState);
+
+                data >> _algalonTimer;
+                data >> tempState;
+                _algalonSummoned = tempState != 0;
+                if (_algalonSummoned && GetBossState(BOSS_ALGALON) != DONE)
                 {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
+                    _summonAlgalon = true;
+                    if (_algalonTimer && _algalonTimer <= 60)
+                    {
+                        _events.ScheduleEvent(EVENT_UPDATE_ALGALON_TIMER, 60000);
+                        DoUpdateWorldState(WORLD_STATE_ALGALON_TIMER_ENABLED, 1);
+                        DoUpdateWorldState(WORLD_STATE_ALGALON_DESPAWN_TIMER, _algalonTimer);
+                    }
                 }
 
-                OUT_LOAD_INST_DATA(strIn);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(strIn);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'U' && dataHead2 == 'U')
+                for (uint8 i = 0; i < 4; ++i)
                 {
-                    for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-
-                    uint32 tempState;
-                    loadStream >> tempState;
-                    if (tempState == IN_PROGRESS || tempState > SPECIAL)
-                        tempState = NOT_STARTED;
-                    SetData(DATA_COLOSSUS, tempState);
-
-                    loadStream >> _algalonTimer;
-                    loadStream >> tempState;
-                    _algalonSummoned = tempState != 0;
-                    if (_algalonSummoned && GetBossState(BOSS_ALGALON) != DONE)
-                    {
-                        _summonAlgalon = true;
-                        if (_algalonTimer && _algalonTimer <= 60)
-                        {
-                            _events.ScheduleEvent(EVENT_UPDATE_ALGALON_TIMER, 60000);
-                            DoUpdateWorldState(WORLD_STATE_ALGALON_TIMER_ENABLED, 1);
-                            DoUpdateWorldState(WORLD_STATE_ALGALON_DESPAWN_TIMER, _algalonTimer);
-                        }
-                    }
-
-                    for (uint8 i = 0; i < 4; ++i)
-                    {
-                        loadStream >> tempState;
-                         _summonYSKeeper[i] = tempState != 0;
-                    }
-
-                    if (GetBossState(BOSS_FREYA) == DONE && !_summonYSKeeper[0])
-                        _summonObservationRingKeeper[0] = true;
-                    if (GetBossState(BOSS_HODIR) == DONE && !_summonYSKeeper[1])
-                        _summonObservationRingKeeper[1] = true;
-                    if (GetBossState(BOSS_THORIM) == DONE && !_summonYSKeeper[2])
-                        _summonObservationRingKeeper[2] = true;
-                    if (GetBossState(BOSS_MIMIRON) == DONE && !_summonYSKeeper[3])
-                        _summonObservationRingKeeper[3] = true;
+                    data >> tempState;
+                    _summonYSKeeper[i] = tempState != 0;
                 }
 
-                OUT_LOAD_INST_DATA_COMPLETE;
+                if (GetBossState(BOSS_FREYA) == DONE && !_summonYSKeeper[0])
+                    _summonObservationRingKeeper[0] = true;
+                if (GetBossState(BOSS_HODIR) == DONE && !_summonYSKeeper[1])
+                    _summonObservationRingKeeper[1] = true;
+                if (GetBossState(BOSS_THORIM) == DONE && !_summonYSKeeper[2])
+                    _summonObservationRingKeeper[2] = true;
+                if (GetBossState(BOSS_MIMIRON) == DONE && !_summonYSKeeper[3])
+                    _summonObservationRingKeeper[3] = true;
             }
 
             void Update(uint32 diff) override

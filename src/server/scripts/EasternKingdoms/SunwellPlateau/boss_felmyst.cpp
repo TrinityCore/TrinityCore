@@ -116,7 +116,17 @@ public:
     {
         boss_felmystAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+            uiBreathCount = 0;
+            breathX = 0.f;
+            breathY = 0.f;
+        }
+
+        void Initialize()
+        {
+            phase = PHASE_NONE;
+            uiFlightCount = 0;
         }
 
         InstanceScript* instance;
@@ -130,11 +140,9 @@ public:
 
         void Reset() override
         {
-            phase = PHASE_NONE;
+            Initialize();
 
             events.Reset();
-
-            uiFlightCount = 0;
 
             me->SetDisableGravity(true);
             me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);

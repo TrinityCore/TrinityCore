@@ -61,13 +61,21 @@ class boss_elder_nadox : public CreatureScript
 
         struct boss_elder_nadoxAI : public BossAI
         {
-            boss_elder_nadoxAI(Creature* creature) : BossAI(creature, DATA_ELDER_NADOX) { }
+            boss_elder_nadoxAI(Creature* creature) : BossAI(creature, DATA_ELDER_NADOX)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                GuardianSummoned = false;
+                GuardianDied = false;
+            }
 
             void Reset() override
             {
                 _Reset();
-                GuardianSummoned = false;
-                GuardianDied = false;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override

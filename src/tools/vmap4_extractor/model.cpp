@@ -143,7 +143,7 @@ Vec3D fixCoordSystem2(Vec3D v)
 }
 
 ModelInstance::ModelInstance(MPQFile& f, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE *pDirfile)
-    : scale(0), flags(0)
+    : id(0), scale(0), flags(0)
 {
     float ff[3];
     f.read(&id, 4);

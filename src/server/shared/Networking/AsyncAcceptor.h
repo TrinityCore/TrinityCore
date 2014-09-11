@@ -23,37 +23,32 @@
 
 using boost::asio::ip::tcp;
 
-template <class T>
 class AsyncAcceptor
 {
 public:
-    AsyncAcceptor(boost::asio::io_service& ioService, std::string bindIp, int port) :
+    typedef void(*ManagerAcceptHandler)(tcp::socket&& newSocket);
+
+    AsyncAcceptor(boost::asio::io_service& ioService, std::string const& bindIp, uint16 port) :
         _acceptor(ioService, tcp::endpoint(boost::asio::ip::address::from_string(bindIp), port)),
         _socket(ioService)
     {
-        AsyncAccept();
-    };
+        boost::system::error_code error;
+        _acceptor.non_blocking(true, error);
+    }
 
-    AsyncAcceptor(boost::asio::io_service& ioService, std::string bindIp, int port, bool tcpNoDelay) :
-        _acceptor(ioService, tcp::endpoint(boost::asio::ip::address::from_string(bindIp), port)),
-        _socket(ioService)
+    template <class T>
+    void AsyncAccept();
+
+    void AsyncAcceptManaged(ManagerAcceptHandler mgrHandler)
     {
-        _acceptor.set_option(boost::asio::ip::tcp::no_delay(tcpNoDelay));
-
-        AsyncAccept();
-    };
-
-private:
-    void AsyncAccept()
-    {
-        _acceptor.async_accept(_socket, [this](boost::system::error_code error)
+        _acceptor.async_accept(_socket, [this, mgrHandler](boost::system::error_code error)
         {
             if (!error)
             {
                 try
                 {
                     // this-> is required here to fix an segmentation fault in gcc 4.7.2 - reason is lambdas in a templated class
-                    std::make_shared<T>(std::move(this->_socket))->Start();
+                    mgrHandler(std::move(this->_socket));
                 }
                 catch (boost::system::system_error const& err)
                 {
@@ -61,13 +56,36 @@ private:
                 }
             }
 
-            // lets slap some more this-> on this so we can fix this bug with gcc 4.7.2 throwing internals in yo face
-            this->AsyncAccept();
+            AsyncAcceptManaged(mgrHandler);
         });
     }
 
+private:
     tcp::acceptor _acceptor;
     tcp::socket _socket;
 };
+
+template<class T>
+void AsyncAcceptor::AsyncAccept()
+{
+    _acceptor.async_accept(_socket, [this](boost::system::error_code error)
+    {
+        if (!error)
+        {
+            try
+            {
+                // this-> is required here to fix an segmentation fault in gcc 4.7.2 - reason is lambdas in a templated class
+                std::make_shared<T>(std::move(this->_socket))->Start();
+            }
+            catch (boost::system::system_error const& err)
+            {
+                TC_LOG_INFO("network", "Failed to retrieve client's remote address %s", err.what());
+            }
+        }
+
+        // lets slap some more this-> on this so we can fix this bug with gcc 4.7.2 throwing internals in yo face
+        this->AsyncAccept<T>();
+    });
+}
 
 #endif /* __ASYNCACCEPT_H_ */

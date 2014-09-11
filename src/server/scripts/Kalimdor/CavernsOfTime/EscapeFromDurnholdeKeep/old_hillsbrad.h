@@ -19,6 +19,8 @@
 #ifndef DEF_OLD_HILLSBRAD_H
 #define DEF_OLD_HILLSBRAD_H
 
+#define DataHeader "OH"
+
 enum DataTypes
 {
     TYPE_BARREL_DIVERSION   = 1,

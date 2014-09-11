@@ -143,6 +143,33 @@ struct boss_twin_baseAI : public BossAI
 {
     boss_twin_baseAI(Creature* creature) : BossAI(creature, BOSS_VALKIRIES)
     {
+        Initialize();
+        AuraState = AURA_STATE_NONE;
+
+        Stage = 0;
+
+        Weapon = 0;
+
+        VortexEmote = 0;
+        SisterNpcId = 0;
+        MyEmphatySpellId = 0;
+        OtherEssenceSpellId = 0;
+        SurgeSpellId = 0;
+        VortexSpellId = 0;
+        ShieldSpellId = 0;
+        TwinPactSpellId = 0;
+        SpikeSpellId = 0;
+        TouchSpellId = 0;
+    }
+
+    void Initialize()
+    {
+        IsBerserk = false;
+
+        SpecialAbilityTimer = 1 * MINUTE*IN_MILLISECONDS;
+        SpikeTimer = 20 * IN_MILLISECONDS;
+        TouchTimer = urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
+        BerserkTimer = IsHeroic() ? 6 * MINUTE*IN_MILLISECONDS : 10 * MINUTE*IN_MILLISECONDS;
     }
 
     void Reset() override
@@ -153,12 +180,7 @@ struct boss_twin_baseAI : public BossAI
         /* Uncomment this once that they are floating above the ground
         me->SetLevitate(true);
         me->SetFlying(true); */
-        IsBerserk = false;
-
-        SpecialAbilityTimer = 1*MINUTE*IN_MILLISECONDS;
-        SpikeTimer = 20*IN_MILLISECONDS;
-        TouchTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
-        BerserkTimer = IsHeroic() ? 6*MINUTE*IN_MILLISECONDS : 10*MINUTE*IN_MILLISECONDS;
+        Initialize();
 
         summons.DespawnAll();
     }
@@ -524,6 +546,12 @@ struct npc_unleashed_ballAI : public ScriptedAI
 {
     npc_unleashed_ballAI(Creature* creature) : ScriptedAI(creature)
     {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        RangeCheckTimer = 0.5*IN_MILLISECONDS;
     }
 
     void MoveToNextPoint()
@@ -548,7 +576,7 @@ struct npc_unleashed_ballAI : public ScriptedAI
         me->SetCanFly(true);
         SetCombatMovement(false);
         MoveToNextPoint();
-        RangeCheckTimer = 0.5*IN_MILLISECONDS;
+        Initialize();
     }
 
     void MovementInform(uint32 uiType, uint32 uiId) override

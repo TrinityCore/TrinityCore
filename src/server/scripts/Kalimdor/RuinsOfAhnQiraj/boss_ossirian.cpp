@@ -88,7 +88,15 @@ class boss_ossirian : public CreatureScript
         {
             boss_ossirianAI(Creature* creature) : BossAI(creature, DATA_OSSIRIAN)
             {
+                Initialize();
                 SaidIntro = false;
+            }
+
+            void Initialize()
+            {
+                CrystalIterator = 0;
+                TriggerGUID = 0;
+                CrystalGUID = 0;
             }
 
             uint64 TriggerGUID;
@@ -99,9 +107,7 @@ class boss_ossirian : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                CrystalIterator = 0;
-                TriggerGUID = 0;
-                CrystalGUID = 0;
+                Initialize();
             }
 
             void SpellHit(Unit* caster, SpellInfo const* spell) override

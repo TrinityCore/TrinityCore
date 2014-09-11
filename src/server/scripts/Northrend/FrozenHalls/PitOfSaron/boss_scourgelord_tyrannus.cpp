@@ -293,14 +293,20 @@ class boss_rimefang : public CreatureScript
             boss_rimefangAI(Creature* creature) : ScriptedAI(creature), _vehicle(creature->GetVehicleKit())
             {
                 ASSERT(_vehicle);
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _currentWaypoint = 0;
+                _hoarfrostTargetGUID = 0;
             }
 
             void Reset() override
             {
                 _events.Reset();
                 _events.SetPhase(PHASE_NONE);
-                _currentWaypoint = 0;
-                _hoarfrostTargetGUID = 0;
+                Initialize();
                 me->SetCanFly(true);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);

@@ -99,7 +99,23 @@ public:
 
     struct npc_lady_sylvanas_windrunnerAI : public ScriptedAI
     {
-        npc_lady_sylvanas_windrunnerAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_lady_sylvanas_windrunnerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            LamentEventTimer = 5000;
+            LamentEvent = false;
+            targetGUID = 0;
+
+            FadeTimer = 30000;
+            SummonSkeletonTimer = 20000;
+            BlackArrowTimer = 15000;
+            ShotTimer = 8000;
+            MultiShotTimer = 10000;
+        }
 
         uint32 LamentEventTimer;
         bool LamentEvent;
@@ -113,15 +129,7 @@ public:
 
         void Reset() override
         {
-            LamentEventTimer = 5000;
-            LamentEvent = false;
-            targetGUID = 0;
-
-            FadeTimer = 30000;
-            SummonSkeletonTimer = 20000;
-            BlackArrowTimer = 15000;
-            ShotTimer = 8000;
-            MultiShotTimer = 10000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -231,7 +239,18 @@ public:
 
     struct npc_highborne_lamenterAI : public ScriptedAI
     {
-        npc_highborne_lamenterAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_highborne_lamenterAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            EventMoveTimer = 10000;
+            EventCastTimer = 17500;
+            EventMove = true;
+            EventCast = true;
+        }
 
         uint32 EventMoveTimer;
         uint32 EventCastTimer;
@@ -240,10 +259,7 @@ public:
 
         void Reset() override
         {
-            EventMoveTimer = 10000;
-            EventCastTimer = 17500;
-            EventMove = true;
-            EventCast = true;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }

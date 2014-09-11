@@ -319,19 +319,24 @@ public:
 
     struct npc_anchorite_truuenAI : public npc_escortAI
     {
-        npc_anchorite_truuenAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_anchorite_truuenAI(Creature* creature) : npc_escortAI(creature)
+        {
+            Initialize();
+            UghostGUID = 0;
+        }
+
+        void Initialize()
+        {
+            m_uiChatTimer = 7000;
+        }
 
         uint32 m_uiChatTimer;
 
         uint64 UghostGUID;
-        uint64 TheldanisGUID;
-
-        Creature* Ughost;
-        Creature* Theldanis;
 
         void Reset() override
         {
-            m_uiChatTimer = 7000;
+            Initialize();
         }
 
         void JustSummoned(Creature* summoned) override
@@ -364,26 +369,25 @@ public:
                     Talk(SAY_WP_2);
                     break;
                 case 21:
-                    Theldanis = GetClosestCreatureWithEntry(me, NPC_THEL_DANIS, 150);
-                    if (Theldanis)
+                    if (Creature* Theldanis = GetClosestCreatureWithEntry(me, NPC_THEL_DANIS, 150))
                         Theldanis->AI()->Talk(SAY_WP_3);
                     break;
                 case 23:
-                    Ughost = me->SummonCreature(NPC_GHOST_UTHER, 971.86f, -1825.42f, 81.99f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                    if (Ughost)
+                    if (Creature* Ughost = me->SummonCreature(NPC_GHOST_UTHER, 971.86f, -1825.42f, 81.99f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
                     {
+                        UghostGUID = Ughost->GetGUID();
                         Ughost->SetDisableGravity(true);
                         Ughost->AI()->Talk(SAY_WP_4, me);
                     }
                     m_uiChatTimer = 4000;
                     break;
                 case 24:
-                    if (Ughost)
+                    if (Creature* Ughost = ObjectAccessor::GetCreature(*me, UghostGUID))
                         Ughost->AI()->Talk(SAY_WP_5, me);
                     m_uiChatTimer = 4000;
                     break;
                 case 25:
-                    if (Ughost)
+                    if (Creature* Ughost = ObjectAccessor::GetCreature(*me, UghostGUID))
                         Ughost->AI()->Talk(SAY_WP_6, me);
                     m_uiChatTimer = 4000;
                     break;

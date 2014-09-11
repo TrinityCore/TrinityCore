@@ -355,6 +355,7 @@ void AuctionBotBuyer::AddNewAuctionBuyerBotBid(BuyerConfiguration& config)
         uint32 bidPrice;
         uint32 bidPriceByItem;
         uint32 minBidPrice;
+        uint32 minBuyPrice;
         if (auction->bid >= auction->startbid)
         {
             bidPrice = auction->GetAuctionOutBid();
@@ -373,6 +374,7 @@ void AuctionBotBuyer::AddNewAuctionBuyerBotBid(BuyerConfiguration& config)
             inGameBuyPrice = 0;
             inGameBidPrice = 0;
             minBidPrice = 0;
+            minBuyPrice = 0;
         }
         else
         {
@@ -381,6 +383,7 @@ void AuctionBotBuyer::AddNewAuctionBuyerBotBid(BuyerConfiguration& config)
             inGameBuyPrice = sameItemItr->second.BuyPrice / sameItemItr->second.ItemCount;
             inGameBidPrice = sameItemItr->second.BidPrice / sameItemItr->second.ItemCount;
             minBidPrice = sameItemItr->second.MinBidPrice;
+            minBuyPrice = sameItemItr->second.MinBuyPrice;
         }
 
         uint32 maxBidablePrice = maxBuyablePrice - (maxBuyablePrice / 30); // Max Bidable price defined to 70% of max buyable price
@@ -389,14 +392,14 @@ void AuctionBotBuyer::AddNewAuctionBuyerBotBid(BuyerConfiguration& config)
         TC_LOG_DEBUG("ahbot", "AHBot: MaxPrice of Entry %u is %.1fg.", itr->second.AuctionId, double(maxBuyablePrice) / 10000.0);
         TC_LOG_DEBUG("ahbot", "AHBot: GamePrice buy=%.1fg, bid=%.1fg.", inGameBuyPrice / 10000, inGameBidPrice / 10000);
         TC_LOG_DEBUG("ahbot", "AHBot: Minimal price see in AH Buy=%ug, Bid=%ug.",
-            sameItemItr->second.MinBuyPrice / 10000, minBidPrice / 10000);
+            minBuyPrice / 10000, minBidPrice / 10000);
         TC_LOG_DEBUG("ahbot", "AHBot: Actual Entry price,  Buy=%ug, Bid=%ug.", buyoutPrice / 10000, bidPrice / 10000);
 
         if (!auction->owner)                // Original auction owner
             maxChance = maxChance / 5;      // if Owner is AHBot this mean player placed bid on this auction. We divide by 5 chance for AhBuyer to place bid on it. (This make more challenge than ignore entry)
         if (auction->buyout != 0)           // Is the item directly buyable?
         {
-            if (IsBuyableEntry(buyoutPrice, inGameBuyPrice, maxBuyablePrice, sameItemItr->second.MinBuyPrice, maxChance, config.FactionChance))
+            if (IsBuyableEntry(buyoutPrice, inGameBuyPrice, maxBuyablePrice, minBuyPrice, maxChance, config.FactionChance))
             {
                 if (IsBidableEntry(bidPriceByItem, inGameBuyPrice, maxBidablePrice, minBidPrice, maxChance / 2, config.FactionChance))
                 {

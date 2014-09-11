@@ -77,7 +77,17 @@ public:
     {
         npc_medivh_bmAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            SpellCorrupt_Timer = 0;
+            Check_Timer = 0;
+            Life75 = true;
+            Life50 = true;
+            Life25 = true;
         }
 
         InstanceScript* instance;
@@ -91,11 +101,7 @@ public:
 
         void Reset() override
         {
-            SpellCorrupt_Timer = 0;
-            Check_Timer = 0;
-            Life75 = true;
-            Life50 = true;
-            Life25 = true;
+            Initialize();
 
             if (instance->GetData(TYPE_MEDIVH) == IN_PROGRESS)
                 DoCast(me, SPELL_CHANNEL, true);
@@ -265,23 +271,28 @@ public:
     {
         npc_time_riftAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            TimeRiftWave_Timer = 15000;
+            mRiftWaveCount = 0;
+            mWaveId = 0;
         }
 
         InstanceScript* instance;
 
         uint32 TimeRiftWave_Timer;
         uint8 mRiftWaveCount;
-        uint8 mPortalCount;
         uint8 mWaveId;
 
         void Reset() override
         {
+            Initialize();
 
-            TimeRiftWave_Timer = 15000;
-            mRiftWaveCount = 0;
-
-            mPortalCount = instance->GetData(DATA_PORTAL_COUNT);
+            uint8 mPortalCount = instance->GetData(DATA_PORTAL_COUNT);
 
             if (mPortalCount < 6)
                 mWaveId = 0;
