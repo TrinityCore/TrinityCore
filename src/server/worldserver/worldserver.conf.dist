@@ -3332,7 +3332,7 @@ irc.pass_1 = "pass"
 # Print IRC messages to GM Name Announce and Gm Name Announce to IRC Channel
 # Default: "staff"
 # irc.ignore_bots
-* enter nicks of bots to ignore seprated by commas
+# enter nicks of bots to ignore seprated by commas
 # Default: ""
 #
 irc.staff_link = 0
