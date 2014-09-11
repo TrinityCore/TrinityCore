@@ -790,6 +790,19 @@ void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& recvData)
         group->ConvertToGroup();
 }
 
+void WorldSession::HandleGroupRequestJoinUpdates(WorldPacket& recvData)
+{
+    Group* group = GetPlayer()->GetGroup();
+    if (!group)
+        return;
+
+    WorldPacket data(SMSG_REAL_GROUP_UPDATE, 1 + 4 + 8);
+    data << uint8(group->GetGroupType());
+    data << uint32(group->GetMembersCount());
+    data << uint64(group->GetLeaderGUID());
+    SendPacket(&data);
+}
+
 void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_GROUP_CHANGE_SUB_GROUP");

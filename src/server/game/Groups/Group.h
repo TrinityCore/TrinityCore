@@ -241,6 +241,7 @@ class Group
         GroupReference* GetFirstMember() { return m_memberMgr.getFirst(); }
         GroupReference const* GetFirstMember() const { return m_memberMgr.getFirst(); }
         uint32 GetMembersCount() const { return m_memberSlots.size(); }
+        GroupType GetGroupType() const { return m_groupType; }
 
         uint8 GetMemberGroup(uint64 guid) const;
 
