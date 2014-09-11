@@ -28,146 +28,93 @@ enum Spells
     SPELL_ECK_SPRING_2                            = 55837  //Eck leaps at a distant target.
 };
 
-static Position EckSpawnPoint = { 1643.877930f, 936.278015f, 107.204948f, 0.668432f };
+enum Events
+{
+    EVENT_BITE = 1,
+    EVENT_SPIT,
+    EVENT_SPRING,
+    EVENT_BERSERK
+};
 
 class boss_eck : public CreatureScript
 {
 public:
     boss_eck() : CreatureScript("boss_eck") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    struct boss_eckAI : public BossAI
     {
-        return GetInstanceAI<boss_eckAI>(creature);
-    }
-
-    struct boss_eckAI : public ScriptedAI
-    {
-        boss_eckAI(Creature* creature) : ScriptedAI(creature)
+        boss_eckAI(Creature* creature) : BossAI(creature, DATA_ECK_THE_FEROCIOUS_EVENT)
         {
-            Initialize();
-            instance = creature->GetInstanceScript();
+            Berserk = false;
         }
-
-        void Initialize()
-        {
-            uiBerserkTimer = urand(60 * IN_MILLISECONDS, 90 * IN_MILLISECONDS); //60-90 secs according to wowwiki
-            uiBiteTimer = 5 * IN_MILLISECONDS;
-            uiSpitTimer = 10 * IN_MILLISECONDS;
-            uiSpringTimer = 8 * IN_MILLISECONDS;
-
-            bBerserk = false;
-        }
-
-        uint32 uiBerserkTimer;
-        uint32 uiBiteTimer;
-        uint32 uiSpitTimer;
-        uint32 uiSpringTimer;
-
-        bool bBerserk;
-
-        InstanceScript* instance;
 
         void Reset() override
         {
-            Initialize();
-
-            instance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, NOT_STARTED);
+            _Reset();
+            Berserk = false;
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
-            instance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, IN_PROGRESS);
+            _EnterCombat();
+            events.ScheduleEvent(EVENT_BITE, 5 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SPIT, 10 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SPRING, 8 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_BERSERK, urand(60 * IN_MILLISECONDS, 90 * IN_MILLISECONDS)); //60-90 secs according to wowwiki
         }
 
-        void UpdateAI(uint32 diff) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            if (uiBiteTimer <= diff)
+            if (me->HealthBelowPctDamaged(20, damage) && !Berserk)
             {
-                DoCastVictim(SPELL_ECK_BITE);
-                uiBiteTimer = urand(8*IN_MILLISECONDS, 12*IN_MILLISECONDS);
-            } else uiBiteTimer -= diff;
-
-            if (uiSpitTimer <= diff)
-            {
-                DoCastVictim(SPELL_ECK_SPIT);
-                uiSpitTimer = urand(6*IN_MILLISECONDS, 14*IN_MILLISECONDS);
-            } else uiSpitTimer -= diff;
-
-            if (uiSpringTimer <= diff)
-            {
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                if (target && target->GetTypeId() == TYPEID_PLAYER)
-                {
-                    DoCast(target, RAND(SPELL_ECK_SPRING_1, SPELL_ECK_SPRING_2));
-                    uiSpringTimer = urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS);
-                }
-            } else uiSpringTimer -= diff;
-
-            //Berserk on timer or 20% of health
-            if (!bBerserk)
-            {
-                if (uiBerserkTimer <= diff)
-                {
-                    DoCast(me, SPELL_ECK_BERSERK);
-                    bBerserk = true;
-                }
-                else
-                {
-                    uiBerserkTimer -= diff;
-                    if (HealthBelowPct(20))
-                    {
-                        DoCast(me, SPELL_ECK_BERSERK);
-                        bBerserk = true;
-                    }
-                }
+                events.RescheduleEvent(EVENT_BERSERK, 1000);
+                Berserk = true;
             }
+        }
 
-            DoMeleeAttackIfReady();
+        void ExecuteEvent(uint32 eventId) override
+        {
+            switch (eventId)
+            {
+                case EVENT_BITE:
+                    DoCastVictim(SPELL_ECK_BITE);
+                    events.ScheduleEvent(EVENT_BITE, urand(8 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
+                    break;
+                case EVENT_SPIT:
+                    DoCastVictim(SPELL_ECK_SPIT);
+                    events.ScheduleEvent(EVENT_SPIT, urand(6 * IN_MILLISECONDS, 14 * IN_MILLISECONDS));
+                    break;
+                case EVENT_SPRING:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                        if (target->GetTypeId() == TYPEID_PLAYER)
+                            DoCast(target, RAND(SPELL_ECK_SPRING_1, SPELL_ECK_SPRING_2));
+                    events.ScheduleEvent(EVENT_SPRING, urand(5 * IN_MILLISECONDS, 10 * IN_MILLISECONDS));
+                    break;
+                case EVENT_BERSERK:
+                    DoCast(me, SPELL_ECK_BERSERK);
+                    Berserk = true;
+                    break;
+                default:
+                    break;
+            }
         }
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, DONE);
+            _JustDied();
         }
+
+        private:
+            bool Berserk;
     };
-
-};
-
-class npc_ruins_dweller : public CreatureScript
-{
-public:
-    npc_ruins_dweller() : CreatureScript("npc_ruins_dweller") { }
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ruins_dwellerAI>(creature);
+        return GetInstanceAI<boss_eckAI>(creature);
     }
-
-    struct npc_ruins_dwellerAI : public ScriptedAI
-    {
-        npc_ruins_dwellerAI(Creature* creature) : ScriptedAI(creature)
-        {
-            instance = creature->GetInstanceScript();
-        }
-
-        InstanceScript* instance;
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SetData64(DATA_RUIN_DWELLER_DIED, me->GetGUID());
-            if (instance->GetData(DATA_ALIVE_RUIN_DWELLERS) == 0)
-                me->SummonCreature(CREATURE_ECK, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300*IN_MILLISECONDS);
-        }
-    };
-
 };
 
 void AddSC_boss_eck()
 {
     new boss_eck();
-    new npc_ruins_dweller();
 }
