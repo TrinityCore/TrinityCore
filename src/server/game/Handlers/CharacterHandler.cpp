@@ -252,11 +252,11 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
             if (!sWorld->HasCharacterNameData(guidLow)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
                 sWorld->AddCharacterNameData(guidLow, (*result)[1].GetString(), (*result)[4].GetUInt8(), (*result)[2].GetUInt8(), (*result)[3].GetUInt8(), (*result)[7].GetUInt8());
         } while (result->NextRow());
-
-        bitBuffer.FlushBits();
     }
     else
         bitBuffer.WriteBits(0, 17);
+
+    bitBuffer.FlushBits();
 
     WorldPacket data(SMSG_CHAR_ENUM, 7 + bitBuffer.size() + dataBuffer.size());
     data.append(bitBuffer);
