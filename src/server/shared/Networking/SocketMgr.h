@@ -60,7 +60,7 @@ public:
     virtual void StopNetwork()
     {
         if (_threadCount != 0)
-            for (size_t i = 0; i < _threadCount; ++i)
+            for (int32 i = 0; i < _threadCount; ++i)
                 _threads[i].Stop();
 
         Wait();
@@ -69,7 +69,7 @@ public:
     void Wait()
     {
         if (_threadCount != 0)
-            for (size_t i = 0; i < _threadCount; ++i)
+            for (int32 i = 0; i < _threadCount; ++i)
                 _threads[i].Wait();
     }
 
@@ -77,7 +77,7 @@ public:
     {
         size_t min = 0;
 
-        for (size_t i = 1; i < _threadCount; ++i)
+        for (int32 i = 1; i < _threadCount; ++i)
             if (_threads[i].GetConnectionCount() < _threads[min].GetConnectionCount())
                 min = i;
 
