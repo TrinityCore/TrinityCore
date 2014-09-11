@@ -31,7 +31,7 @@
 4 - Eck the Ferocious
 */
 
-static Position EckSpawnPoint = {1643.877930f, 936.278015f, 107.204948f, 0.668432f};
+Position const EckSpawnPoint = { 1643.877930f, 936.278015f, 107.204948f, 0.668432f };
 
 class instance_gundrak : public InstanceMapScript
 {
@@ -136,7 +136,7 @@ public:
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
         }
 
-       bool IsEncounterInProgress() const override
+        bool IsEncounterInProgress() const override
         {
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)

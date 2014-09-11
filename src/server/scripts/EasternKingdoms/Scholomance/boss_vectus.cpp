@@ -106,7 +106,6 @@ public:
             EventMap events;
     };
 
-
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_vectusAI(creature);
