@@ -432,6 +432,10 @@ void Unit::resetAttackTimer(WeaponAttackType type)
 float Unit::GetMeleeReach() const
 {
     float reach = m_floatValues[UNIT_FIELD_COMBATREACH];
+
+    if (IsHovering())
+        reach += m_floatValues[UNIT_FIELD_HOVERHEIGHT];
+
     return reach > MIN_MELEE_REACH ? reach : MIN_MELEE_REACH;
 }
 
