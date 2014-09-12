@@ -89,14 +89,14 @@ public:
         {
             Initialize();
 
-            instance->SetData(DATA_SALRAMM_EVENT, NOT_STARTED);
+            instance->SetBossState(DATA_SALRAMM, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
-            instance->SetData(DATA_SALRAMM_EVENT, IN_PROGRESS);
+            instance->SetBossState(DATA_SALRAMM, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 diff) override
@@ -145,7 +145,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            instance->SetData(DATA_SALRAMM_EVENT, DONE);
+            instance->SetBossState(DATA_SALRAMM, DONE);
         }
 
         void KilledUnit(Unit* victim) override
