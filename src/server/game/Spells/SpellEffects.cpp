@@ -2467,8 +2467,8 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
 
     WorldPacket dataSuccess(SMSG_SPELLDISPELLOG, 8+8+4+1+4+success_list.size()*5);
     // Send packet header
-    dataSuccess.append(unitTarget->GetPackGUID());         // Victim GUID
-    dataSuccess.append(m_caster->GetPackGUID());           // Caster GUID
+    dataSuccess << unitTarget->GetPackGUID();         // Victim GUID
+    dataSuccess << m_caster->GetPackGUID();           // Caster GUID
     dataSuccess << uint32(m_spellInfo->Id);                // dispel spell id
     dataSuccess << uint8(0);                               // not used
     dataSuccess << uint32(success_list.size());            // count
@@ -5411,8 +5411,8 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
         return;
 
     WorldPacket dataSuccess(SMSG_SPELLSTEALLOG, 8+8+4+1+4+damage*5);
-    dataSuccess.append(unitTarget->GetPackGUID());  // Victim GUID
-    dataSuccess.append(m_caster->GetPackGUID());    // Caster GUID
+    dataSuccess << unitTarget->GetPackGUID();  // Victim GUID
+    dataSuccess << m_caster->GetPackGUID();    // Caster GUID
     dataSuccess << uint32(m_spellInfo->Id);         // dispel spell id
     dataSuccess << uint8(0);                        // not used
     dataSuccess << uint32(success_list.size());     // count

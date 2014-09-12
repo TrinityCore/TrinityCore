@@ -417,7 +417,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
         GetPlayer()->SetStandState(UNIT_STAND_STATE_SIT);
 
         WorldPacket data(SMSG_FORCE_MOVE_ROOT, (8+4));    // guess size
-        data.append(GetPlayer()->GetPackGUID());
+        data << GetPlayer()->GetPackGUID();
         data << (uint32)2;
         SendPacket(&data);
         GetPlayer()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
@@ -449,7 +449,7 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
     {
         //!we can move again
         data.Initialize(SMSG_FORCE_MOVE_UNROOT, 8);       // guess size
-        data.append(GetPlayer()->GetPackGUID());
+        data << GetPlayer()->GetPackGUID();
         data << uint32(0);
         SendPacket(&data);
 
@@ -1188,7 +1188,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     uint32 talent_points = 0x47;
     uint32 guid_size = player->GetPackGUID().size();
     WorldPacket data(SMSG_INSPECT_TALENT, guid_size+4+talent_points);
-    data.append(player->GetPackGUID());
+    data << player->GetPackGUID();
 
     if (sWorld->getBoolConfig(CONFIG_TALENTS_INSPECTING) || _player->IsGameMaster())
         player->BuildPlayerTalentsInfoData(&data);

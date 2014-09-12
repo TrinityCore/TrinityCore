@@ -686,7 +686,7 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement) 
     }
 
     WorldPacket data(SMSG_ACHIEVEMENT_EARNED, 8+4+8);
-    data.append(GetPlayer()->GetPackGUID());
+    data << GetPlayer()->GetPackGUID();
     data << uint32(achievement->ID);
     data.AppendPackedTime(time(NULL));
     data << uint32(0);
@@ -701,7 +701,7 @@ void AchievementMgr::SendCriteriaUpdate(AchievementCriteriaEntry const* entry, C
     // the counter is packed like a packed Guid
     data.appendPackGUID(progress->counter);
 
-    data.append(GetPlayer()->GetPackGUID());
+    data << GetPlayer()->GetPackGUID();
     if (!entry->timeLimit)
         data << uint32(0);
     else
@@ -2125,7 +2125,7 @@ void AchievementMgr::SendAllAchievementData() const
 void AchievementMgr::SendRespondInspectAchievements(Player* player) const
 {
     WorldPacket data(SMSG_RESPOND_INSPECT_ACHIEVEMENTS, 9+m_completedAchievements.size()*8+4+m_criteriaProgress.size()*38+4);
-    data.append(GetPlayer()->GetPackGUID());
+    data << GetPlayer()->GetPackGUID();
     BuildAllDataPacket(&data);
     player->GetSession()->SendPacket(&data);
 }
@@ -2151,7 +2151,7 @@ void AchievementMgr::BuildAllDataPacket(WorldPacket* data) const
     {
         *data << uint32(iter->first);
         data->appendPackGUID(iter->second.counter);
-        data->append(GetPlayer()->GetPackGUID());
+        *data << GetPlayer()->GetPackGUID();
         *data << uint32(0);
         data->AppendPackedTime(iter->second.date);
         *data << uint32(0);
