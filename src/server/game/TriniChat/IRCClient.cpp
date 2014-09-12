@@ -52,7 +52,8 @@ void IRCClient::run()
 
     // before we begin we wait a few
     // mangos is still starting up.
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    //std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    boost::this_thread::sleep(boost::posix_time::milliseconds(500));
     std::stringstream ss(sIRC->_bot_names);
     string temp = "";
     uint8 counter = 0;

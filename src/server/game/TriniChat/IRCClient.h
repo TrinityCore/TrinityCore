@@ -23,7 +23,8 @@
 
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/strand.hpp>
-#include "boost/thread.hpp"
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/thread/thread.hpp> 
 #include "Player.h"
 #include "IRCLog.h"
 #include "IRCCmd.h"
