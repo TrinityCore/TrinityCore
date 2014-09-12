@@ -102,7 +102,8 @@ class instance_deadmines : public InstanceMapScript
                         CannonBlast_Timer = DATA_CANNON_BLAST_TIMER;
                         // it's a hack - Mr. Smite should do that but his too far away
                         pIronCladDoor->SetName("Mr. Smite");
-                        pIronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM1, LANG_UNIVERSAL, NULL);
+                        // Another hack: we force text to be shouted by a "male", as GameObjects usually do not call. Not overly bad here howwever.
+                        pIronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM1, GENDER_MALE, LANG_UNIVERSAL, NULL);
                         DoPlaySound(pIronCladDoor, SOUND_MR_SMITE_ALARM1);
                         State = CANNON_BLAST_INITIATED;
                         break;
@@ -114,7 +115,7 @@ class instance_deadmines : public InstanceMapScript
                             ShootCannon();
                             BlastOutDoor();
                             LeverStucked();
-                            pIronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM2, LANG_UNIVERSAL, NULL);
+                            pIronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM2, GENDER_MALE, LANG_UNIVERSAL, NULL);
                             DoPlaySound(pIronCladDoor, SOUND_MR_SMITE_ALARM2);
                             State = PIRATES_ATTACK;
                         } else CannonBlast_Timer -= diff;

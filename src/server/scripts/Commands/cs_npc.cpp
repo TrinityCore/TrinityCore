@@ -1222,7 +1222,9 @@ public:
             return false;
         }
 
-        creature->MonsterSay(args, LANG_UNIVERSAL, NULL);
+        uint8 gender = creature->getGender();
+
+        creature->MonsterSay(args, gender, LANG_UNIVERSAL, NULL);
 
         // make some emotes
         char lastchar = args[strlen(args) - 1];
@@ -1297,30 +1299,21 @@ public:
     static bool HandleNpcWhisperCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
+        {
+            handler->SendSysMessage(LANG_CMD_SYNTAX);
+            handler->SetSentErrorMessage(true);
             return false;
+        }
 
         char* receiver_str = strtok((char*)args, " ");
         char* text = strtok(NULL, "");
 
-        Creature* creature = handler->getSelectedCreature();
-        if (!creature || !receiver_str || !text)
+        if (!receiver_str || !text)
+        {
+            handler->SendSysMessage(LANG_CMD_SYNTAX);
+            handler->SetSentErrorMessage(true);
             return false;
-
-        uint64 receiver_guid = atol(receiver_str);
-
-        // check online security
-        Player* receiver = ObjectAccessor::FindPlayer(receiver_guid);
-        if (handler->HasLowerSecurity(receiver, 0))
-            return false;
-
-        creature->MonsterWhisper(text, receiver);
-        return true;
-    }
-
-    static bool HandleNpcYellCommand(ChatHandler* handler, char const* args)
-    {
-        if (!*args)
-            return false;
+        }
 
         Creature* creature = handler->getSelectedCreature();
         if (!creature)
@@ -1330,7 +1323,38 @@ public:
             return false;
         }
 
-        creature->MonsterYell(args, LANG_UNIVERSAL, NULL);
+        uint64 receiver_guid = atol(receiver_str);
+        uint8 gender = creature->getGender();
+
+        // check online security
+        Player* receiver = ObjectAccessor::FindPlayer(receiver_guid);
+        if (handler->HasLowerSecurity(receiver, 0))
+            return false;
+
+        creature->MonsterWhisper(text, gender, receiver);
+        return true;
+    }
+
+    static bool HandleNpcYellCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+        {
+            handler->SendSysMessage(LANG_CMD_SYNTAX);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Creature* creature = handler->getSelectedCreature();
+        if (!creature)
+        {
+            handler->SendSysMessage(LANG_SELECT_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        uint8 gender = creature->getGender();
+
+        creature->MonsterYell(args, gender, LANG_UNIVERSAL, NULL);
 
         // make an emote
         creature->HandleEmoteCommand(EMOTE_ONESHOT_SHOUT);

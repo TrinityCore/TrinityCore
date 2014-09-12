@@ -383,7 +383,9 @@ void Map::ScriptsProcess()
                     if (Player* player = _GetScriptPlayerSourceOrTarget(source, target, step.script))
                     {
                         LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
-                        std::string text(sObjectMgr->GetTrinityString(step.script->Talk.TextID, loc_idx));
+                        BroadcastText const* BroadcastText = sObjectMgr->GetBroadcastText(step.script->Talk.TextID);
+                        std::string text = BroadcastText->GetText(loc_idx, player->getGender());
+                        /*std::string text(sObjectMgr->GetTrinityString(step.script->Talk.TextID, loc_idx));*/
 
                         switch (step.script->Talk.ChatType)
                         {
@@ -418,31 +420,32 @@ void Map::ScriptsProcess()
                     if (Creature* cSource = _GetScriptCreatureSourceOrTarget(source, target, step.script))
                     {
                         uint64 targetGUID = target ? target->GetGUID() : 0;
+                        uint8 gender = cSource->getGender();
                         switch (step.script->Talk.ChatType)
                         {
                             case CHAT_TYPE_SAY:
-                                cSource->MonsterSay(step.script->Talk.TextID, LANG_UNIVERSAL, target);
+                                cSource->MonsterSay(step.script->Talk.TextID, gender, LANG_UNIVERSAL, target);
                                 break;
                             case CHAT_TYPE_YELL:
-                                cSource->MonsterYell(step.script->Talk.TextID, LANG_UNIVERSAL, target);
+                                cSource->MonsterYell(step.script->Talk.TextID, gender, LANG_UNIVERSAL, target);
                                 break;
                             case CHAT_TYPE_TEXT_EMOTE:
-                                cSource->MonsterTextEmote(step.script->Talk.TextID, target);
+                                cSource->MonsterTextEmote(step.script->Talk.TextID, gender, target);
                                 break;
                             case CHAT_TYPE_BOSS_EMOTE:
-                                cSource->MonsterTextEmote(step.script->Talk.TextID, target, true);
+                                cSource->MonsterTextEmote(step.script->Talk.TextID, gender, target, true);
                                 break;
                             case CHAT_TYPE_WHISPER:
                                 if (!targetGUID || !IS_PLAYER_GUID(targetGUID))
                                     TC_LOG_ERROR("scripts", "%s attempt to whisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
                                 else
-                                    cSource->MonsterWhisper(step.script->Talk.TextID, target->ToPlayer());
+                                    cSource->MonsterWhisper(step.script->Talk.TextID, gender, target->ToPlayer());
                                 break;
                             case CHAT_MSG_RAID_BOSS_WHISPER:
                                 if (!targetGUID || !IS_PLAYER_GUID(targetGUID))
                                     TC_LOG_ERROR("scripts", "%s attempt to raidbosswhisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
                                 else
-                                    cSource->MonsterWhisper(step.script->Talk.TextID, target->ToPlayer(), true);
+                                    cSource->MonsterWhisper(step.script->Talk.TextID, gender, target->ToPlayer(), true);
                                 break;
                             default:
                                 break;                              // must be already checked at load

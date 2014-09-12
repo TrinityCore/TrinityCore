@@ -652,14 +652,14 @@ class WorldObject : public Object, public WorldLocation
 
         virtual uint8 getLevelForTarget(WorldObject const* /*target*/) const { return 1; }
 
-        void MonsterSay(const char* text, uint32 language, WorldObject const* target);
-        void MonsterYell(const char* text, uint32 language, WorldObject const* target);
+        void MonsterSay(const char* text, uint8 gender, uint32 language, WorldObject const* target);
+        void MonsterYell(const char* text, uint8 gender, uint32 language, WorldObject const* target);
         void MonsterTextEmote(const char* text, WorldObject const* target, bool IsBossEmote = false);
-        void MonsterWhisper(const char* text, Player const* target, bool IsBossWhisper = false);
-        void MonsterSay(int32 textId, uint32 language, WorldObject const* target);
-        void MonsterYell(int32 textId, uint32 language, WorldObject const* target);
-        void MonsterTextEmote(int32 textId, WorldObject const* target, bool IsBossEmote = false);
-        void MonsterWhisper(int32 textId, Player const* target, bool IsBossWhisper = false);
+        void MonsterWhisper(const char* text, uint8 gender, Player const* target, bool IsBossWhisper = false);
+        void MonsterSay(int32 textId, uint8 gender, uint32 language, WorldObject const* target);
+        void MonsterYell(int32 textId, uint8 gender, uint32 language, WorldObject const* target);
+        void MonsterTextEmote(int32 textId, uint8 gender, WorldObject const* target, bool IsBossEmote = false);
+        void MonsterWhisper(int32 textId, uint8 gender, Player const* target, bool IsBossWhisper = false);
 
         void PlayDistanceSound(uint32 sound_id, Player* target = NULL);
         void PlayDirectSound(uint32 sound_id, Player* target = NULL);
