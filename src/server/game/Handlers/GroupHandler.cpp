@@ -790,7 +790,7 @@ void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& recvData)
         group->ConvertToGroup();
 }
 
-void WorldSession::HandleGroupRequestJoinUpdates(WorldPacket& recvData)
+void WorldSession::HandleGroupRequestJoinUpdates(WorldPacket& /*recvData*/)
 {
     Group* group = GetPlayer()->GetGroup();
     if (!group)
