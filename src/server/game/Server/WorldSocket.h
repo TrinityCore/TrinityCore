@@ -39,7 +39,8 @@ struct ClientPktHeader
     uint16 size;
     uint32 cmd;
 
-    bool IsValid() const { return size >= 4 && size < 10240 && cmd < NUM_OPCODE_HANDLERS; }
+    bool IsValidSize() const { return size >= 4 && size < 10240; }
+    bool IsValidOpcode() const { return cmd < NUM_OPCODE_HANDLERS; }
 };
 
 #pragma pack(pop)
