@@ -64,7 +64,7 @@ namespace Battlenet
             _buffer.resize(length, 0);
         }
 
-        BitStream(MessageBuffer&& buffer) : _writePos(buffer.GetReadyDataSize() * 8), _readPos(0), _buffer(buffer.Move())
+        BitStream(MessageBuffer&& buffer) : _writePos(buffer.GetActiveSize() * 8), _readPos(0), _buffer(buffer.Move())
         {
         }
 
