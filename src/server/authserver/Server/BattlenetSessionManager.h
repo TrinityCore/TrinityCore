@@ -19,6 +19,7 @@
 #define BattlenetSessionManager_h__
 
 #include "BattlenetSession.h"
+#include "SocketMgr.h"
 
 namespace Battlenet
 {
@@ -37,8 +38,10 @@ namespace Battlenet
 
 #pragma pack(pop)
 
-    class SessionManager
+    class SessionManager : SocketMgr<Session>
     {
+        typedef SocketMgr<Session> BaseSocketMgr;
+
     public:
         static SessionManager& Instance()
         {
@@ -46,12 +49,19 @@ namespace Battlenet
             return instance;
         }
 
+        bool StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port) override;
+
         // noop for now, will be needed later to broadcast realmlist updates for example
         void AddSession(Session* /*session*/) { }
 
         void RemoveSession(Session* /*session*/) { }
 
+    protected:
+        NetworkThread<Session>* CreateThreads() const override;
+
     private:
+        static void OnSocketAccept(tcp::socket&& sock);
+
         std::map<SessionInfo, Session> _sessions;
     };
 }

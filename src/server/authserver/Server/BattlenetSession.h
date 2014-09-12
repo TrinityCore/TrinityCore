@@ -51,9 +51,9 @@ namespace Battlenet
         Read = 0x4000
     };
 
-    class Session : public Socket<Session, ServerPacket*>
+    class Session : public Socket<Session>
     {
-        typedef Socket<Session, ServerPacket*> BattlenetSocket;
+        typedef Socket<Session> BattlenetSocket;
 
     public:
         explicit Session(tcp::socket&& socket);
@@ -79,11 +79,8 @@ namespace Battlenet
 
         void AsyncWrite(ServerPacket* packet);
 
-        bool IsDataReady() const override { return GetDataSize() > 0; }
-
     protected:
-        void ReadHeaderHandler() override { }
-        void ReadDataHandler() override;
+        void ReadHandler() override;
 
     private:
         void _SetVSFields(std::string const& rI);

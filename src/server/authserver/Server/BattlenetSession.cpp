@@ -56,7 +56,7 @@ Battlenet::Session::ModuleHandler const Battlenet::Session::ModuleHandlers[MODUL
     &Battlenet::Session::HandleResumeModule,
 };
 
-Battlenet::Session::Session(tcp::socket&& socket) : Socket(std::move(socket), std::size_t(BufferSizes::Read)), _accountId(0), _accountName(), _locale(),
+Battlenet::Session::Session(tcp::socket&& socket) : Socket(std::move(socket)), _accountId(0), _accountName(), _locale(),
     _os(), _build(0), _gameAccountId(0), _gameAccountName(), _accountSecurityLevel(SEC_PLAYER), I(), s(), v(), b(), B(), K(),
     _reconnectProof(), _crypt(), _authed(false)
 {
@@ -537,9 +537,9 @@ bool Battlenet::Session::HandleRealmJoinRequest(PacketHeader& header, BitStream&
     return true;
 }
 
-void Battlenet::Session::ReadDataHandler()
+void Battlenet::Session::ReadHandler()
 {
-    BitStream packet(MoveData());
+    BitStream packet(std::move(GetReadBuffer()));
     _crypt.DecryptRecv(packet.GetBuffer(), packet.GetSize());
 
     while (!packet.IsRead())
@@ -581,13 +581,14 @@ void Battlenet::Session::ReadDataHandler()
         }
     }
 
-    AsyncReadData(size_t(BufferSizes::Read));
+    GetReadBuffer().Resize(size_t(BufferSizes::Read));
+    AsyncRead();
 }
 
 void Battlenet::Session::Start()
 {
     TC_LOG_TRACE("server.battlenet", "Battlenet::Session::Start");
-    AsyncReadData(size_t(BufferSizes::Read));
+    AsyncRead();
 }
 
 void Battlenet::Session::AsyncWrite(ServerPacket* packet)
@@ -602,16 +603,15 @@ void Battlenet::Session::AsyncWrite(ServerPacket* packet)
 
     packet->Write();
 
-    std::lock_guard<std::mutex> guard(_writeLock);
+    MessageBuffer buffer;
+    buffer.Write(packet->GetData(), packet->GetSize());
+    delete packet;
 
-    _crypt.EncryptSend(packet->GetData(), packet->GetSize());
+    std::unique_lock<std::mutex> guard(_writeLock);
 
-    bool needsWriteStart = _writeQueue.empty();
+    _crypt.EncryptSend(buffer.GetReadPointer(), buffer.GetActiveSize());
 
-    _writeQueue.push(packet);
-
-    if (needsWriteStart)
-        BattlenetSocket::AsyncWrite(_writeQueue.front());
+    QueuePacket(std::move(buffer), guard);
 }
 
 inline void ReplaceResponse(Battlenet::ServerPacket** oldResponse, Battlenet::ServerPacket* newResponse)

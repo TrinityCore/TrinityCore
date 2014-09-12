@@ -126,9 +126,9 @@ int main(int argc, char** argv)
     }
 
     std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
-    AsyncAcceptor<Battlenet::Session> bnetServer(_ioService, bindIp, bnport);
 
     sAuthSocketMgr.StartNetwork(_ioService, bindIp, port);
+    sBattlenetSessionMgr.StartNetwork(_ioService, bindIp, bnport);
 
     // Set signal handlers
     boost::asio::signal_set signals(_ioService, SIGINT, SIGTERM);
