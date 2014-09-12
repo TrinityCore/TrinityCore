@@ -131,7 +131,7 @@ bool WorldSocket::ReadHeaderHandler()
     EndianConvertReverse(header->size);
     EndianConvert(header->cmd);
 
-    if (!header->IsValid())
+    if (!header->IsValidSize() || !header->IsValidOpcode())
     {
         if (_worldSession)
         {
@@ -141,7 +141,7 @@ bool WorldSocket::ReadHeaderHandler()
         }
         else
             TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %hu, cmd: %u)",
-            GetRemoteIpAddress().to_string().c_str(), header->size, header->cmd);
+                GetRemoteIpAddress().to_string().c_str(), header->size, header->cmd);
 
         CloseSocket();
         return false;
