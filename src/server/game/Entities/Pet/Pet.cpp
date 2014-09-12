@@ -300,8 +300,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     if (summonSpellId)
     {
         WorldPacket data(SMSG_SPELL_GO, (8+8+4+4+2));
-        data.append(owner->GetPackGUID());
-        data.append(owner->GetPackGUID());
+        data << owner->GetPackGUID();
+        data << owner->GetPackGUID();
         data << uint8(0);
         data << uint32(summonSpellId);
         data << uint32(256); // CAST_FLAG_UNKNOWN3

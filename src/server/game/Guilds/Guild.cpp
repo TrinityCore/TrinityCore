@@ -2194,7 +2194,7 @@ void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 max
 
         if (member->GetGUID() != session->GetPlayer()->GetGUID() && level >= minLevel && level <= maxLevel && member->IsRankNotLower(minRank))
         {
-            data.appendPackGUID(member->GetGUID());
+            data << member->GetPackGUID();
             data << uint8(0); // unk
             ++count;
         }
