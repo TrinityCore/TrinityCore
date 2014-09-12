@@ -432,10 +432,6 @@ void Unit::resetAttackTimer(WeaponAttackType type)
 float Unit::GetMeleeReach() const
 {
     float reach = m_floatValues[UNIT_FIELD_COMBATREACH];
-
-    if (IsHovering())
-        reach += m_floatValues[UNIT_FIELD_HOVERHEIGHT];
-
     return reach > MIN_MELEE_REACH ? reach : MIN_MELEE_REACH;
 }
 
@@ -462,7 +458,7 @@ bool Unit::IsWithinMeleeRange(const Unit* obj, float dist) const
 
     float dx = GetPositionX() - obj->GetPositionX();
     float dy = GetPositionY() - obj->GetPositionY();
-    float dz = GetPositionZ() - obj->GetPositionZ();
+    float dz = GetPositionZMinusOffset() - obj->GetPositionZMinusOffset();
     float distsq = dx*dx + dy*dy + dz*dz;
 
     float sizefactor = GetMeleeReach() + obj->GetMeleeReach();
