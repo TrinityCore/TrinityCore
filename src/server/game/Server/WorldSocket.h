@@ -19,16 +19,6 @@
 #ifndef __WORLDSOCKET_H__
 #define __WORLDSOCKET_H__
 
-// Forward declare buffer function here - Socket.h must know about it
-struct WorldPacketBuffer;
-namespace boost
-{
-    namespace asio
-    {
-        WorldPacketBuffer const& buffer(WorldPacketBuffer const& buf);
-    }
-}
-
 #include "Common.h"
 #include "WorldPacketCrypt.h"
 #include "ServerPktHeader.h"
@@ -54,58 +44,8 @@ struct ClientPktHeader
 
 #pragma pack(pop)
 
-struct WorldPacketBuffer
+class WorldSocket : public Socket<WorldSocket>
 {
-    typedef boost::asio::const_buffer value_type;
-
-    typedef boost::asio::const_buffer const* const_iterator;
-
-    WorldPacketBuffer(ServerPktHeader header, WorldPacket const& packet) : _header(header), _packet(packet), _bufferCount(0)
-    {
-        _buffers[_bufferCount++] = boost::asio::const_buffer(_header.header, _header.getHeaderLength());
-        if (!_packet.empty())
-            _buffers[_bufferCount++] = boost::asio::const_buffer(_packet.contents(), _packet.size());
-    }
-
-    WorldPacketBuffer(std::string const& str) : _header(str.length() + 1 /*null terminator*/, 0), _packet(), _bufferCount(0)
-    {
-        _buffers[_bufferCount++] = boost::asio::const_buffer(_header.header, _header.getHeaderLength() - 2 /*sizeof(opcode)*/);
-        if (!str.empty())
-            _buffers[_bufferCount++] = boost::asio::const_buffer(str.c_str(), _header.size);
-    }
-
-    const_iterator begin() const
-    {
-        return _buffers;
-    }
-
-    const_iterator end() const
-    {
-        return _buffers + _bufferCount;
-    }
-
-private:
-    boost::asio::const_buffer _buffers[2];
-    ServerPktHeader _header;
-    WorldPacket _packet;
-    uint32 _bufferCount;
-};
-
-namespace boost
-{
-    namespace asio
-    {
-        inline WorldPacketBuffer const& buffer(WorldPacketBuffer const& buf)
-        {
-            return buf;
-        }
-    }
-}
-
-class WorldSocket : public Socket<WorldSocket, WorldPacketBuffer>
-{
-    typedef Socket<WorldSocket, WorldPacketBuffer> Base;
-
     static std::string const ServerConnectionInitialize;
 
     static std::string const ClientConnectionInitialize;
@@ -118,14 +58,12 @@ public:
 
     void Start() override;
 
-    void CloseSocket() override;
-
-    using Base::AsyncWrite;
-    void AsyncWrite(WorldPacket& packet);
+    void SendPacket(WorldPacket& packet);
 
 protected:
-    void ReadHeaderHandler() override;
-    void ReadDataHandler() override;
+    void ReadHandler() override;
+    bool ReadHeaderHandler();
+    bool ReadDataHandler();
 
 private:
     void HandleSendAuthSession();
@@ -141,6 +79,10 @@ private:
     uint32 _OverSpeedPings;
 
     WorldSession* _worldSession;
+
+    MessageBuffer _headerBuffer;
+    MessageBuffer _packetBuffer;
+
     bool _initialized;
 };
 

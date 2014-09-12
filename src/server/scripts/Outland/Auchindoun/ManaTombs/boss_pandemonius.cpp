@@ -80,7 +80,7 @@ public:
             switch (eventId)
             {
                 case EVENT_VOID_BLAST:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                     {
                         DoCast(target, SPELL_VOID_BLAST);
                         ++VoidBlastCounter;

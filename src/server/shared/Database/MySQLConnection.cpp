@@ -57,14 +57,14 @@ m_connectionFlags(CONNECTION_ASYNC)
 
 MySQLConnection::~MySQLConnection()
 {
+    if (m_worker)
+        delete m_worker;
+
     for (size_t i = 0; i < m_stmts.size(); ++i)
         delete m_stmts[i];
 
     if (m_Mysql)
         mysql_close(m_Mysql);
-
-    if (m_worker)
-        delete m_worker;
 }
 
 void MySQLConnection::Close()

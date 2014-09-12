@@ -3878,7 +3878,8 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
                 if (!pSkill)
                     continue;
 
-                if (_spell_idx->second->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->id))
+                ///@todo: confirm if rogues start with lockpicking skill at level 1 but only receive the spell to use it at level 16
+                if ((_spell_idx->second->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->id)) || (pSkill->id == SKILL_LOCKPICKING && _spell_idx->second->max_value == 0))
                     LearnDefaultSkill(pSkill->id, 0);
             }
         }
@@ -17943,6 +17944,7 @@ bool Player::isAllowedToLoot(const Creature* creature)
 
     switch (thisGroup->GetLootMethod())
     {
+        case MASTER_LOOT:
         case FREE_FOR_ALL:
             return true;
         case ROUND_ROBIN:
@@ -17952,7 +17954,6 @@ bool Player::isAllowedToLoot(const Creature* creature)
                 return true;
 
             return loot->hasItemFor(this);
-        case MASTER_LOOT:
         case GROUP_LOOT:
         case NEED_BEFORE_GREED:
             // may only loot if the player is the loot roundrobin player
@@ -23664,6 +23665,8 @@ void Player::LearnDefaultSkill(uint32 skillId, uint16 rank)
                 skillValue = std::min(std::max<uint16>({ 1, uint16((getLevel() - 1) * 5) }), maxValue);
             else if (skillId == SKILL_FIST_WEAPONS)
                 skillValue = std::max<uint16>(1, GetSkillValue(SKILL_UNARMED));
+            else if (skillId == SKILL_LOCKPICKING)
+                skillValue = std::max<uint16>(1, GetSkillValue(SKILL_LOCKPICKING));
 
             SetSkill(skillId, 0, skillValue, maxValue);
             break;

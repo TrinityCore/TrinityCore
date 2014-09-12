@@ -310,10 +310,14 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                     {
                         if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true) && _player->CanTakeQuest(nextQuest, true))
                         {
-                            if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true) && _player->CanTakeQuest(nextQuest, true))
-                                _player->AddQuestAndCheckCompletion(nextQuest, object);
+                            // Only send the quest to the player if the conditions are met
+                            if (_player->CanTakeQuest(nextQuest, true))
+                            {
+                                if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
+                                    _player->AddQuestAndCheckCompletion(nextQuest, object);
 
-                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
+                                _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
+                            }
                         }
 
                         _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
@@ -334,10 +338,14 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                     {
                         if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true) && _player->CanTakeQuest(nextQuest, true))
                         {
-                            if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true) && _player->CanTakeQuest(nextQuest, true))
-                                _player->AddQuestAndCheckCompletion(nextQuest, object);
+                            // Only send the quest to the player if the conditions are met
+                            if (_player->CanTakeQuest(nextQuest, true))
+                            {
+                                if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
+                                    _player->AddQuestAndCheckCompletion(nextQuest, object);
 
-                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
+                                _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
+                            }
                         }
 
                         _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);

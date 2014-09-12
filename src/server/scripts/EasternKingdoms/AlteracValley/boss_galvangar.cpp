@@ -27,11 +27,20 @@ enum Spells
     SPELL_MORTAL_STRIKE                           = 16856
 };
 
-enum Yells
+enum Texts
 {
-    YELL_AGGRO                                    = 0,
-    YELL_EVADE                                    = 1,
-    YELL_BUFF                                     = 2
+    SAY_AGGRO                                    = 0,
+    SAY_EVADE                                    = 1,
+    SAY_BUFF                                     = 2
+};
+
+enum Events
+{
+    EVENT_CLEAVE = 1,
+    EVENT_FRIGHTENING_SHOUT,
+    EVENT_WHIRLWIND1,
+    EVENT_WHIRLWIND2,
+    EVENT_MORTAL_STRIKE
 };
 
 enum Action
@@ -46,97 +55,85 @@ public:
 
     struct boss_galvangarAI : public ScriptedAI
     {
-        boss_galvangarAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            CleaveTimer = urand(1 * IN_MILLISECONDS, 9 * IN_MILLISECONDS);
-            FrighteningShoutTimer = urand(2 * IN_MILLISECONDS, 19 * IN_MILLISECONDS);
-            Whirlwind1Timer = urand(1 * IN_MILLISECONDS, 13 * IN_MILLISECONDS);
-            Whirlwind2Timer = urand(5 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
-            MortalStrikeTimer = urand(5 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
-            ResetTimer = 5 * IN_MILLISECONDS;
-        }
-
-        uint32 CleaveTimer;
-        uint32 FrighteningShoutTimer;
-        uint32 Whirlwind1Timer;
-        uint32 Whirlwind2Timer;
-        uint32 MortalStrikeTimer;
-        uint32 ResetTimer;
+        boss_galvangarAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override
         {
-            Initialize();
+            events.Reset();
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
-            Talk(YELL_AGGRO);
-        }
-
-        void JustRespawned() override
-        {
-            Reset();
+            Talk(SAY_AGGRO);
+            events.ScheduleEvent(EVENT_CLEAVE, urand(1 * IN_MILLISECONDS, 9 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_FRIGHTENING_SHOUT, urand(2 * IN_MILLISECONDS, 19 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_WHIRLWIND1, urand(1 * IN_MILLISECONDS, 13 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_WHIRLWIND2, urand(5 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(5 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
         }
 
         void DoAction(int32 actionId) override
         {
             if (actionId == ACTION_BUFF_YELL)
-                Talk(YELL_BUFF);
+                Talk(SAY_BUFF);
+        }
+
+        bool CheckInRoom()
+        {
+            if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
+            {
+                EnterEvadeMode();
+                Talk(SAY_EVADE);
+                return false;
+            }
+
+            return true;
         }
 
         void UpdateAI(uint32 diff) override
         {
-            if (!UpdateVictim())
+            if (!UpdateVictim() || !CheckInRoom())
                 return;
 
-            if (CleaveTimer <= diff)
-            {
-                DoCastVictim(SPELL_CLEAVE);
-                CleaveTimer =  urand(10 * IN_MILLISECONDS, 16 * IN_MILLISECONDS);
-            } else CleaveTimer -= diff;
+            events.Update(diff);
 
-            if (FrighteningShoutTimer <= diff)
-            {
-                DoCastVictim(SPELL_FRIGHTENING_SHOUT);
-                FrighteningShoutTimer = urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
-            } else FrighteningShoutTimer -= diff;
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
-            if (Whirlwind1Timer <= diff)
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                DoCastVictim(SPELL_WHIRLWIND1);
-                Whirlwind1Timer = urand(6 * IN_MILLISECONDS, 10 * IN_MILLISECONDS);
-            } else Whirlwind1Timer -= diff;
-
-            if (Whirlwind2Timer <= diff)
-            {
-                DoCastVictim(SPELL_WHIRLWIND2);
-                Whirlwind2Timer = urand(10 * IN_MILLISECONDS, 25 * IN_MILLISECONDS);
-            } else Whirlwind2Timer -= diff;
-
-            if (MortalStrikeTimer <= diff)
-            {
-                DoCastVictim(SPELL_MORTAL_STRIKE);
-                MortalStrikeTimer = urand(10 * IN_MILLISECONDS, 30 * IN_MILLISECONDS);
-            } else MortalStrikeTimer -= diff;
-
-            // check if creature is not outside of building
-            if (ResetTimer <= diff)
-            {
-                if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
+                switch (eventId)
                 {
-                    EnterEvadeMode();
-                    Talk(YELL_EVADE);
+                    case EVENT_CLEAVE:
+                        DoCastVictim(SPELL_CLEAVE);
+                        events.ScheduleEvent(EVENT_CLEAVE, urand(10 * IN_MILLISECONDS, 16 * IN_MILLISECONDS));
+                        break;
+                    case EVENT_FRIGHTENING_SHOUT:
+                        DoCastVictim(SPELL_FRIGHTENING_SHOUT);
+                        events.ScheduleEvent(EVENT_FRIGHTENING_SHOUT, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
+                        break;
+                    case EVENT_WHIRLWIND1:
+                        DoCastVictim(SPELL_WHIRLWIND1);
+                        events.ScheduleEvent(EVENT_WHIRLWIND1, urand(6 * IN_MILLISECONDS, 10 * IN_MILLISECONDS));
+                        break;
+                    case EVENT_WHIRLWIND2:
+                        DoCastVictim(SPELL_WHIRLWIND2);
+                        events.ScheduleEvent(EVENT_WHIRLWIND2, urand(10 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
+                        break;
+                    case EVENT_MORTAL_STRIKE:
+                        DoCastVictim(SPELL_MORTAL_STRIKE);
+                        events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(10 * IN_MILLISECONDS, 30 * IN_MILLISECONDS));
+                        break;
+                    default:
+                        break;
                 }
-                ResetTimer = 5 * IN_MILLISECONDS;
-            } else ResetTimer -= diff;
+            }
 
             DoMeleeAttackIfReady();
         }
+
+    private:
+        EventMap events;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

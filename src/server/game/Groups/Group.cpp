@@ -226,7 +226,7 @@ void Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, 
 
 void Group::ConvertToLFG()
 {
-    m_groupType = GroupType(m_groupType | GROUPTYPE_LFG | GROUPTYPE_UNK1);
+    m_groupType = GroupType(m_groupType | GROUPTYPE_LFG | GROUPTYPE_LFG_RESTRICTED);
     m_lootMethod = NEED_BEFORE_GREED;
     if (!isBGGroup() && !isBFGroup())
     {
