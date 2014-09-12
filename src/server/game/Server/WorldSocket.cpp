@@ -32,19 +32,24 @@ std::string const WorldSocket::ServerConnectionInitialize("WORLD OF WARCRAFT CON
 
 std::string const WorldSocket::ClientConnectionInitialize("WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER");
 
-WorldSocket::WorldSocket(tcp::socket&& socket) : Socket(std::move(socket), sizeof(ClientPktHeader)),
-    _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr), _initialized(false)
+
+WorldSocket::WorldSocket(tcp::socket&& socket)
+    : Socket(std::move(socket)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr), _initialized(false)
 {
+    _headerBuffer.Resize(sizeof(ClientPktHeader));
 }
 
 void WorldSocket::Start()
 {
-    sScriptMgr->OnSocketOpen(shared_from_this());
+    AsyncRead();
 
-    AsyncReadData(ClientConnectionInitialize.length() + 2 /*sizeof(ClientPktHeader::size)*/ + 1 /*null terminator*/);
+    MessageBuffer initializer;
+    ServerPktHeader header(ServerConnectionInitialize.size(), 0);
+    initializer.Write(header.header, header.getHeaderLength() - 2);
+    initializer.Write((void*)ServerConnectionInitialize.c_str(), ServerConnectionInitialize.length());
 
-    _writeQueue.emplace(ServerConnectionInitialize);
-    AsyncWrite(_writeQueue.front());
+    std::unique_lock<std::mutex> dummy(_writeLock, std::defer_lock);
+    QueuePacket(std::move(initializer), dummy);
 }
 
 void WorldSocket::HandleSendAuthSession()
@@ -60,14 +65,69 @@ void WorldSocket::HandleSendAuthSession()
 
     packet << uint32(_authSeed);
     packet << uint8(1);
-    AsyncWrite(packet);
+    SendPacket(packet);
 }
 
-void WorldSocket::ReadHeaderHandler()
+void WorldSocket::ReadHandler()
 {
-    _authCrypt.DecryptRecv(GetHeaderBuffer(), sizeof(ClientPktHeader));
+    if (!IsOpen())
+        return;
 
-    ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(GetHeaderBuffer());
+    MessageBuffer& packet = GetReadBuffer();
+    while (packet.GetActiveSize() > 0)
+    {
+        if (_headerBuffer.GetRemainingSpace() > 0)
+        {
+            // need to receive the header
+            std::size_t readHeaderSize = std::min(packet.GetActiveSize(), _headerBuffer.GetRemainingSpace());
+            _headerBuffer.Write(packet.GetReadPointer(), readHeaderSize);
+            packet.ReadCompleted(readHeaderSize);
+
+            if (_headerBuffer.GetRemainingSpace() > 0)
+            {
+                // Couldn't receive the whole header this time.
+                ASSERT(packet.GetActiveSize() == 0);
+                break;
+            }
+
+            // We just received nice new header
+            if (!ReadHeaderHandler())
+                return;
+        }
+
+        // We have full read header, now check the data payload
+        if (_packetBuffer.GetRemainingSpace() > 0)
+        {
+            // need more data in the payload
+            std::size_t readDataSize = std::min(packet.GetActiveSize(), _packetBuffer.GetRemainingSpace());
+            _packetBuffer.Write(packet.GetReadPointer(), readDataSize);
+            packet.ReadCompleted(readDataSize);
+
+            if (_packetBuffer.GetRemainingSpace() > 0)
+            {
+                // Couldn't receive the whole data this time.
+                ASSERT(packet.GetActiveSize() == 0);
+                break;
+            }
+        }
+
+        // just received fresh new payload
+        if (!ReadDataHandler())
+            return;
+
+        _headerBuffer.Reset();
+    }
+
+    AsyncRead();
+}
+
+bool WorldSocket::ReadHeaderHandler()
+{
+    ASSERT(_headerBuffer.GetActiveSize() == sizeof(ClientPktHeader));
+
+    _authCrypt.DecryptRecv(_headerBuffer.GetReadPointer(), sizeof(ClientPktHeader));
+
+    ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
     EndianConvertReverse(header->size);
     EndianConvert(header->cmd);
 
@@ -81,26 +141,28 @@ void WorldSocket::ReadHeaderHandler()
         }
         else
             TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %hu, cmd: %u)",
-                GetRemoteIpAddress().to_string().c_str(), header->size, header->cmd);
+            GetRemoteIpAddress().to_string().c_str(), header->size, header->cmd);
 
         CloseSocket();
-        return;
+        return false;
     }
 
-    AsyncReadData(header->size - sizeof(header->cmd));
+    header->size -= sizeof(header->cmd);
+    _packetBuffer.Resize(header->size);
+    return true;
 }
 
-void WorldSocket::ReadDataHandler()
+bool WorldSocket::ReadDataHandler()
 {
     if (_initialized)
     {
-        ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(GetHeaderBuffer());
+        ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
 
         Opcodes opcode = PacketFilter::DropHighBytes(Opcodes(header->cmd));
 
         std::string opcodeName = GetOpcodeNameForLogging(opcode);
 
-        WorldPacket packet(opcode, MoveData());
+        WorldPacket packet(opcode, std::move(_packetBuffer));
 
         if (sPacketLog->CanLogPacket())
             sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
@@ -129,7 +191,7 @@ void WorldSocket::ReadDataHandler()
                 packet.rfinish();   // contains uint32 disconnectReason;
                 TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(_worldSession, packet);
-                return;
+                return true;
             case CMSG_ENABLE_NAGLE:
             {
                 TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
@@ -144,7 +206,7 @@ void WorldSocket::ReadDataHandler()
                 {
                     TC_LOG_ERROR("network.opcode", "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
                     CloseSocket();
-                    return;
+                    return false;
                 }
 
                 // Our Idle timer will reset on any non PING opcodes.
@@ -159,23 +221,23 @@ void WorldSocket::ReadDataHandler()
     }
     else
     {
-        ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(GetDataBuffer());
+        ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
 
-        std::string initializer(reinterpret_cast<char const*>(header) + sizeof(header->size));
+        std::string initializer(reinterpret_cast<char const*>(_packetBuffer.GetReadPointer()), header->size);
         if (initializer != ClientConnectionInitialize)
         {
             CloseSocket();
-            return;
+            return false;
         }
 
         _initialized = true;
         HandleSendAuthSession();
     }
 
-    AsyncReadHeader();
+    return true;
 }
 
-void WorldSocket::AsyncWrite(WorldPacket& packet)
+void WorldSocket::SendPacket(WorldPacket& packet)
 {
     if (!IsOpen())
         return;
@@ -190,15 +252,27 @@ void WorldSocket::AsyncWrite(WorldPacket& packet)
 
     ServerPktHeader header(packet.size() + 2, packet.GetOpcode());
 
-    std::lock_guard<std::mutex> guard(_writeLock);
+    std::unique_lock<std::mutex> guard(_writeLock);
 
-    bool needsWriteStart = _writeQueue.empty();
     _authCrypt.EncryptSend(header.header, header.getHeaderLength());
 
-    _writeQueue.emplace(header, packet);
+#ifndef BOOST_ASIO_HAS_IOCP
+    if (_writeQueue.empty() && _writeBuffer.GetRemainingSpace() >= header.getHeaderLength() + packet.size())
+    {
+        _writeBuffer.Write(header.header, header.getHeaderLength());
+        if (!packet.empty())
+            _writeBuffer.Write(packet.contents(), packet.size());
+    }
+    else
+#endif
+    {
+        MessageBuffer buffer(header.getHeaderLength() + packet.size());
+        buffer.Write(header.header, header.getHeaderLength());
+        if (!packet.empty())
+            buffer.Write(packet.contents(), packet.size());
 
-    if (needsWriteStart)
-        AsyncWrite(_writeQueue.front());
+        QueuePacket(std::move(buffer), guard);
+    }
 }
 
 void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
@@ -480,7 +554,7 @@ void WorldSocket::SendAuthResponseError(uint8 code)
     packet.WriteBit(0); // has account info
     packet << uint8(code);
 
-    AsyncWrite(packet);
+    SendPacket(packet);
 }
 
 void WorldSocket::HandlePing(WorldPacket& recvPacket)
@@ -541,12 +615,5 @@ void WorldSocket::HandlePing(WorldPacket& recvPacket)
 
     WorldPacket packet(SMSG_PONG, 4);
     packet << ping;
-    return AsyncWrite(packet);
-}
-
-void WorldSocket::CloseSocket()
-{
-    sScriptMgr->OnSocketClose(shared_from_this());
-
-    Socket::CloseSocket();
+    return SendPacket(packet);
 }

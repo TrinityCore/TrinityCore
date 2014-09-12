@@ -8,7 +8,7 @@ UPDATE `quest_template` SET `PrevQuestId`=0 WHERE  `Id` IN(13682,13809); -- Clea
 UPDATE `quest_template` SET `PrevQuestId`=0 WHERE  `Id` IN(13788,13812); -- Clear prev quest from Threat from above as this needs more than one quest complete to become available so will be dealt with by conditions instead
 UPDATE `quest_template` SET `PrevQuestId`=0 WHERE  `Id`=13664; -- Clear prev quest for the Black Knight's Fall as this quest had multiple requirements and will be dealt with by conditions instead
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN(19,20) AND `SourceId` IN(13794,13795,13682,13809,13788,13812,13664);
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN(19,20) AND `SourceEntry` IN(13794,13795,13682,13809,13788,13812,13664);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
 (19, 0, 13794, 0, 0, 8, 0, 13737, 0, 0, 0, 0, 0, '', 'Eadric the Pure requires A Champion Rises'),
 (20, 0, 13794, 0, 0, 8, 0, 13737, 0, 0, 0, 0, 0, '', 'Eadric the Pure requires A Champion Rises'),
