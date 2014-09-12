@@ -111,11 +111,12 @@ public:
 
     void QueuePacket(MessageBuffer&& buffer, std::unique_lock<std::mutex>& guard)
     {
-
         _writeQueue.push(std::move(buffer));
 
 #ifdef BOOST_ASIO_HAS_IOCP
         AsyncProcessQueue(guard);
+#else
+    (void)guard;
 #endif
     }
 
