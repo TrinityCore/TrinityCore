@@ -1186,7 +1186,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
         return;
 
     uint32 talent_points = 0x47;
-    uint32 guid_size = player->GetPackGUID().wpos();
+    uint32 guid_size = player->GetPackGUID().size();
     WorldPacket data(SMSG_INSPECT_TALENT, guid_size+4+talent_points);
     data.append(player->GetPackGUID());
 
