@@ -33,7 +33,7 @@ enum SwipeHoney
 {
     NPC_HONEY_BUNNY = 47308,
     ITEM_HONEY_GLOB = 62820,
-    SPELL_BEES = 94064
+    SPELL_BEES      = 94064
 };
 
 class spell_swipe_honey : public SpellScriptLoader
@@ -87,7 +87,7 @@ public:
 
 enum BeesBEES
 {
-    EMOTE_SPELL_TEXT = 47835,
+    BOSS_EMOTE_BEES = 0,
     SPELL_BEES_BEES = 88425
 };
 
@@ -105,7 +105,7 @@ public: spell_beesbees() : SpellScriptLoader("spell_beesbees") { }
                 {
                     if (Player* player = GetHitPlayer())
                     {
-                        honey->AI()->Talk(0, player);
+                        honey->AI()->Talk(BOSS_EMOTE_BEES, player);
                         honey->CastSpell(player, SPELL_BEES_BEES);
                         honey->DespawnOrUnsummon();
                     }
@@ -130,8 +130,8 @@ public: spell_beesbees() : SpellScriptLoader("spell_beesbees") { }
 
 enum RuumbosSillyDance
 {
-    NPC_DRIZZLE = 47556,
-    NPC_FERLI = 47558,
+    NPC_DRIZZLE  = 47556,
+    NPC_FERLI    = 47558,
     MAP_KALIMDOR = 1
 };
 
