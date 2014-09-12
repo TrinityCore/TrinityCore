@@ -214,7 +214,7 @@ void AuraApplication::ClientUpdate(bool remove)
     _needClientUpdate = false;
 
     WorldPacket data(SMSG_AURA_UPDATE);
-    data.append(GetTarget()->GetPackGUID());
+    data << GetTarget()->GetPackGUID();
     BuildUpdatePacket(data, remove);
 
     _target->SendMessageToSet(&data, true);

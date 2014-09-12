@@ -92,9 +92,9 @@ void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)
 void WorldSession::SendAttackStop(Unit const* enemy)
 {
     WorldPacket data(SMSG_ATTACKSTOP, (8+8+4));             // we guess size
-    data.append(GetPlayer()->GetPackGUID());
+    data << GetPlayer()->GetPackGUID();
     if (enemy)
-        data.append(enemy->GetPackGUID());
+        data << enemy->GetPackGUID();
     else
         data << uint8(0);
 

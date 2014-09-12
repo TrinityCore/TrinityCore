@@ -898,7 +898,7 @@ void Group::SendLooter(Creature* creature, Player* groupLooter)
         data << uint8(0);
 
     if (groupLooter)
-        data.append(groupLooter->GetPackGUID());
+        data << groupLooter->GetPackGUID();
     else
         data << uint8(0);
 
