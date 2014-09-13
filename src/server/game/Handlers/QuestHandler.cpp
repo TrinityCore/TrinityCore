@@ -299,7 +299,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                         if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
                         {
                             // Only send the quest to the player if the conditions are met
-                            if (_player->CanTakeQuest(nextQuest, true))
+                            if (_player->CanTakeQuest(nextQuest, false))
                             {
                                 if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
                                     _player->AddQuestAndCheckCompletion(nextQuest, object);
@@ -321,7 +321,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                         if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
                         {
                             // Only send the quest to the player if the conditions are met
-                            if (_player->CanTakeQuest(nextQuest, true))
+                            if (_player->CanTakeQuest(nextQuest, false))
                             {
                                 if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
                                     _player->AddQuestAndCheckCompletion(nextQuest, object);
