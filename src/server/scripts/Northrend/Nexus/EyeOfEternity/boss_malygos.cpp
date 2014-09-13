@@ -342,16 +342,13 @@ public:
     {
         boss_malygosAI(Creature* creature) : BossAI(creature, DATA_MALYGOS_EVENT)
         {
+            Initialize();
             _despawned = false; // We determine if Malygos will be realocated to spawning position on reset triggered by boss despawn on evade
             _flySpeed = me->GetSpeed(MOVE_FLIGHT); // Get initial fly speed, otherwise on each wipe fly speed would add up if we get it
         }
 
-        void Reset() override
+        void Initialize()
         {
-            // EnterEvadeMode and Reset() links are cut for the sake of properly functioning despawner.
-            if (!_despawned)
-                _Reset();
-
             _summonDeaths = 0;
             _preparingPulsesChecker = 0;
             _arcaneOverloadGUID = 0;
@@ -366,6 +363,15 @@ public:
             _firstCyclicMovementStarted = false;
             _performingSurgeOfPower = false;
             _performingDestroyPlatform = false;
+        }
+
+        void Reset() override
+        {
+            // EnterEvadeMode and Reset() links are cut for the sake of properly functioning despawner.
+            if (!_despawned)
+                _Reset();
+
+            Initialize();
 
             me->SetDisableGravity(true);
             me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
@@ -1173,17 +1179,23 @@ public:
     {
         npc_melee_hover_diskAI(Creature* creature) : VehicleAI(creature)
         {
+            Initialize();
             _instance = creature->GetInstanceScript();
             me->SetReactState(REACT_PASSIVE);
             // TO DO: These were a bit faster than what they should be. Not sure what is the reason.
             me->SetSpeed(MOVE_FLIGHT, 1.25f);
         }
 
+        void Initialize()
+        {
+            _wpCount = 0;
+        }
+
         void Reset() override
         {
             VehicleAI::Reset();
 
-            _wpCount = 0;
+            Initialize();
         }
 
         void PassengerBoarded(Unit* unit, int8 /*seat*/, bool apply) override
@@ -1507,10 +1519,7 @@ public:
         void IsSummonedBy(Unit* summoner) override
         {
             if (Creature* creature = summoner->ToCreature())
-            {
-                _malygos = creature;
-                _malygos->AI()->SetGUID(me->GetGUID(), DATA_LAST_OVERLOAD_GUID);
-            }
+                creature->AI()->SetGUID(me->GetGUID(), DATA_LAST_OVERLOAD_GUID);
         }
 
         void UpdateAI(uint32 /*diff*/) override
@@ -1539,7 +1548,6 @@ public:
         }
 
     private:
-        Creature* _malygos;
         InstanceScript* _instance;
     };
 
@@ -1559,6 +1567,7 @@ public:
     {
         npc_wyrmrest_skytalonAI(Creature* creature) : VehicleAI(creature)
         {
+            _summoner = NULL;
         }
 
         void IsSummonedBy(Unit* summoner) override

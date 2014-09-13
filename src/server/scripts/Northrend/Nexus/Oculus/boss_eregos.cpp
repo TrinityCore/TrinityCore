@@ -85,16 +85,24 @@ class boss_eregos : public CreatureScript
 
         struct boss_eregosAI : public BossAI
         {
-            boss_eregosAI(Creature* creature) : BossAI(creature, DATA_EREGOS) { }
-
-            void Reset() override
+            boss_eregosAI(Creature* creature) : BossAI(creature, DATA_EREGOS)
             {
-                _Reset();
+                Initialize();
+            }
+
+            void Initialize()
+            {
                 _phase = PHASE_NORMAL;
 
                 _rubyVoid = true;
                 _emeraldVoid = true;
                 _amberVoid = true;
+            }
+
+            void Reset() override
+            {
+                _Reset();
+                Initialize();
 
                 DoAction(ACTION_SET_NORMAL_EVENTS);
             }
