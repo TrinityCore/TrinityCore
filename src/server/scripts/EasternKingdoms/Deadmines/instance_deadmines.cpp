@@ -28,7 +28,6 @@ EndScriptData */
 #include "deadmines.h"
 #include "TemporarySummon.h"
 #include "WorldPacket.h"
-#include "Opcodes.h"
 
 enum Sounds
 {
@@ -101,9 +100,9 @@ class instance_deadmines : public InstanceMapScript
                     case CANNON_GUNPOWDER_USED:
                         CannonBlast_Timer = DATA_CANNON_BLAST_TIMER;
                         // it's a hack - Mr. Smite should do that but his too far away
-                        pIronCladDoor->SetName("Mr. Smite");
-                        pIronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM1, LANG_UNIVERSAL, NULL);
-                        DoPlaySound(pIronCladDoor, SOUND_MR_SMITE_ALARM1);
+                        //pIronCladDoor->SetName("Mr. Smite");
+                        //pIronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM1, LANG_UNIVERSAL, NULL);
+                        pIronCladDoor->PlayDirectSound(SOUND_MR_SMITE_ALARM1);
                         State = CANNON_BLAST_INITIATED;
                         break;
                     case CANNON_BLAST_INITIATED:
@@ -114,8 +113,8 @@ class instance_deadmines : public InstanceMapScript
                             ShootCannon();
                             BlastOutDoor();
                             LeverStucked();
-                            pIronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM2, LANG_UNIVERSAL, NULL);
-                            DoPlaySound(pIronCladDoor, SOUND_MR_SMITE_ALARM2);
+                            //pIronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM2, LANG_UNIVERSAL, NULL);
+                            pIronCladDoor->PlayDirectSound(SOUND_MR_SMITE_ALARM2);
                             State = PIRATES_ATTACK;
                         } else CannonBlast_Timer -= diff;
                         break;
@@ -170,7 +169,7 @@ class instance_deadmines : public InstanceMapScript
                 if (GameObject* pDefiasCannon = instance->GetGameObject(DefiasCannonGUID))
                 {
                     pDefiasCannon->SetGoState(GO_STATE_ACTIVE);
-                    DoPlaySound(pDefiasCannon, SOUND_CANNONFIRE);
+                    pDefiasCannon->PlayDirectSound(SOUND_CANNONFIRE);
                 }
             }
 
@@ -179,7 +178,7 @@ class instance_deadmines : public InstanceMapScript
                 if (GameObject* pIronCladDoor = instance->GetGameObject(IronCladDoorGUID))
                 {
                     pIronCladDoor->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-                    DoPlaySound(pIronCladDoor, SOUND_DESTROYDOOR);
+                    pIronCladDoor->PlayDirectSound(SOUND_DESTROYDOOR);
                 }
             }
 
@@ -237,13 +236,6 @@ class instance_deadmines : public InstanceMapScript
                 }
 
                 return 0;
-            }
-
-            void DoPlaySound(GameObject* unit, uint32 sound)
-            {
-                WorldPacket data(SMSG_PLAY_SOUND, 4);
-                data << uint32(sound);
-                unit->SendMessageToSet(&data, false);
             }
         };
 

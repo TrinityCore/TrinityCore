@@ -1564,11 +1564,11 @@ class spell_auto_repair : public SpellScriptLoader
                 if (!vehicle)
                     return;
 
-                Player* driver = vehicle->GetPassenger(0) ? vehicle->GetPassenger(0)->ToPlayer() : NULL;
+                Unit* driver = vehicle->GetPassenger(0);
                 if (!driver)
                     return;
 
-                driver->MonsterTextEmote(EMOTE_REPAIR, driver, true);
+                driver->TextEmote(EMOTE_REPAIR, driver, true);
 
                 InstanceScript* instance = driver->GetInstanceScript();
                 if (!instance)

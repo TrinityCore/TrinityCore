@@ -352,7 +352,7 @@ public:
                     Creature* speaker = DoSpawnCreature(HELPER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 1000);
                     if (speaker)
                         speaker->CastSpell(speaker, SPELL_HEAD_SPEAKS, false);
-                    me->MonsterTextEmote(EMOTE_LAUGHS, NULL);
+                    me->TextEmote(EMOTE_LAUGHS);
                 }
                 else laugh -= diff;
             }
@@ -670,14 +670,14 @@ public:
                                 if (count < 3)
                                 {
                                     if (player)
-                                        player->Say(Text[count], 0);
+                                        player->Say(Text[count], LANG_UNIVERSAL);
                                 }
                                 else
                                 {
                                     DoCast(me, SPELL_RHYME_BIG);
                                     if (player)
                                     {
-                                        player->Say(Text[count], 0);
+                                        player->Say(Text[count], LANG_UNIVERSAL);
                                         player->HandleEmoteCommand(ANIM_EMOTE_SHOUT);
                                     }
                                     wp_reached = true;
@@ -735,7 +735,7 @@ public:
                 if (laugh <= diff)
                 {
                     laugh = urand(11000, 22000);
-                    me->MonsterTextEmote(EMOTE_LAUGHS, NULL);
+                    me->TextEmote(EMOTE_LAUGHS);
                     DoPlaySoundToSet(me, RandomLaugh[rand32() % 3]);
                 }
                 else laugh -= diff;

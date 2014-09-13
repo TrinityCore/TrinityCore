@@ -214,7 +214,7 @@ public:
         target->LoadPath(pathid);
         target->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
         target->GetMotionMaster()->Initialize();
-        target->MonsterSay("Path loaded.", LANG_UNIVERSAL, NULL);
+        target->Say("Path loaded.", LANG_UNIVERSAL);
 
         return true;
     }
@@ -267,7 +267,7 @@ public:
                 target->SetDefaultMovementType(IDLE_MOTION_TYPE);
                 target->GetMotionMaster()->MoveTargetedHome();
                 target->GetMotionMaster()->Initialize();
-                target->MonsterSay("Path unloaded.", LANG_UNIVERSAL, NULL);
+                target->Say("Path unloaded.", LANG_UNIVERSAL);
 
                 return true;
             }
