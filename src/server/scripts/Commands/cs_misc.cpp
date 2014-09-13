@@ -2266,7 +2266,7 @@ public:
             // Get the args that we might have (up to 2)
             char const* arg1 = strtok((char*)args, " ");
             char const* arg2 = strtok(NULL, " ");
-            
+
             // Analyze them to see if we got either a playerName or duration or both
             if (arg1)
             {
@@ -2452,7 +2452,7 @@ public:
         }
 
         WorldPacket data(SMSG_PLAY_SOUND, 4);
-        data << uint32(soundId) << handler->GetSession()->GetPlayer()->GetGUID();
+        data << uint32(soundId);
         sWorld->SendGlobalMessage(&data);
 
         handler->PSendSysMessage(LANG_COMMAND_PLAYED_TO_ALL, soundId);

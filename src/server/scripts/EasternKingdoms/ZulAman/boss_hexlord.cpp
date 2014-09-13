@@ -306,7 +306,7 @@ class boss_hexlord_malacrass : public CreatureScript
                 instance->SetData(DATA_HEXLORDEVENT, IN_PROGRESS);
 
                 DoZoneInCombat();
-                me->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
+                me->Yell(YELL_AGGRO, LANG_UNIVERSAL);
                 DoPlaySoundToSet(me, SOUND_YELL_AGGRO);
 
                 for (uint8 i = 0; i < 4; ++i)
@@ -327,11 +327,11 @@ class boss_hexlord_malacrass : public CreatureScript
                 switch (urand(0, 1))
                 {
                     case 0:
-                        me->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, NULL);
+                        me->Yell(YELL_KILL_ONE, LANG_UNIVERSAL);
                         DoPlaySoundToSet(me, SOUND_YELL_KILL_ONE);
                         break;
                     case 1:
-                        me->MonsterYell(YELL_KILL_TWO, LANG_UNIVERSAL, NULL);
+                        me->Yell(YELL_KILL_TWO, LANG_UNIVERSAL);
                         DoPlaySoundToSet(me, SOUND_YELL_KILL_TWO);
                         break;
                 }
@@ -341,7 +341,7 @@ class boss_hexlord_malacrass : public CreatureScript
             {
                 instance->SetData(DATA_HEXLORDEVENT, DONE);
 
-                me->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, NULL);
+                me->Yell(YELL_DEATH, LANG_UNIVERSAL);
                 DoPlaySoundToSet(me, SOUND_YELL_DEATH);
 
                 for (uint8 i = 0; i < 4; ++i)
@@ -415,7 +415,7 @@ class boss_hexlord_malacrass : public CreatureScript
                 if (DrainPower_Timer <= diff)
                 {
                     DoCast(me, SPELL_DRAIN_POWER, true);
-                    me->MonsterYell(YELL_DRAIN_POWER, LANG_UNIVERSAL, NULL);
+                    me->Yell(YELL_DRAIN_POWER, LANG_UNIVERSAL);
                     DoPlaySoundToSet(me, SOUND_YELL_DRAIN_POWER);
                     DrainPower_Timer = urand(40000, 55000);    // must cast in 60 sec, or buff/debuff will disappear
                 } else DrainPower_Timer -= diff;
@@ -427,7 +427,7 @@ class boss_hexlord_malacrass : public CreatureScript
                     else
                     {
                         DoCast(me, SPELL_SPIRIT_BOLTS, false);
-                        me->MonsterYell(YELL_SPIRIT_BOLTS, LANG_UNIVERSAL, NULL);
+                        me->Yell(YELL_SPIRIT_BOLTS, LANG_UNIVERSAL);
                         DoPlaySoundToSet(me, SOUND_YELL_SPIRIT_BOLTS);
                         SpiritBolts_Timer = 40000;
                         SiphonSoul_Timer = 10000;    // ready to drain

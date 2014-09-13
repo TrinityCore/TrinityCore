@@ -2158,6 +2158,17 @@ class Unit : public WorldObject
         int32 GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEff, AuraType auraType, bool checkMiscValue = false, int32 miscValue = 0) const;
         bool IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplications = false);
 
+        virtual void Talk(std::string const& text, ChatMsg msgType, Language language, float textRange, WorldObject const* target);
+        virtual void Say(std::string const& text, Language language, WorldObject const* target = nullptr);
+        virtual void Yell(std::string const& text, Language language, WorldObject const* target = nullptr);
+        virtual void TextEmote(std::string const& text, WorldObject const* target = nullptr, bool isBossEmote = false);
+        virtual void Whisper(std::string const& text, Language language, Player* target, bool isBossWhisper = false);
+        void Talk(uint32 textId, ChatMsg msgType, float textRange, WorldObject const* target);
+        void Say(uint32 textId, WorldObject const* target = nullptr);
+        void Yell(uint32 textId, WorldObject const* target = nullptr);
+        void TextEmote(uint32 textId, WorldObject const* target = nullptr, bool isBossEmote = false);
+        void Whisper(uint32 textId, Player* target, bool isBossWhisper = false);
+
     protected:
         explicit Unit (bool isWorldObject);
 
