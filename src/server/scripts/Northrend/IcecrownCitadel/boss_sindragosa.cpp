@@ -1321,6 +1321,7 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
                     if (GameObject* go = summon->SummonGameObject(GO_ICE_BLOCK, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0))
                     {
                         go->SetSpellId(SPELL_ICE_TOMB_DAMAGE);
+                        go->CastSpell(GetHitUnit(), SPELL_ICE_TOMB_DAMAGE, true);
                         summon->AddGameObject(go);
                     }
                 }
