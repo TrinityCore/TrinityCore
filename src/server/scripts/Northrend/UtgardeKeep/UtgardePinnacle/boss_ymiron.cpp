@@ -309,34 +309,6 @@ public:
     }
 };
 
-// 48292 - Dark Slash
-class spell_ymiron_dark_slash : public SpellScriptLoader
-{
-    public:
-        spell_ymiron_dark_slash() : SpellScriptLoader("spell_ymiron_dark_slash") { }
-
-    class spell_ymiron_dark_slash_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_ymiron_dark_slash_SpellScript);
-
-        void HandleDamageCalc(SpellEffIndex /*effIndex*/)
-        {
-            if (Unit* target = GetHitUnit())
-                SetHitDamage(target->GetHealth() / 2);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_ymiron_dark_slash_SpellScript::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_ymiron_dark_slash_SpellScript();
-    }
-};
-
 class achievement_kings_bane : public AchievementCriteriaScript
 {
     public:
@@ -358,6 +330,5 @@ class achievement_kings_bane : public AchievementCriteriaScript
 void AddSC_boss_ymiron()
 {
     new boss_ymiron();
-    new spell_ymiron_dark_slash();
     new achievement_kings_bane();
 }
