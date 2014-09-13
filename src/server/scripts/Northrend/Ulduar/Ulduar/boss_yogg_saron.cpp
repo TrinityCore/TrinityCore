@@ -427,7 +427,15 @@ class boss_voice_of_yogg_saron : public CreatureScript
         {
             boss_voice_of_yogg_saronAI(Creature* creature) : BossAI(creature, BOSS_YOGG_SARON)
             {
+                Initialize();
                 SetCombatMovement(false);
+            }
+
+            void Initialize()
+            {
+                _guardiansCount = 0;
+                _guardianTimer = 20000;
+                _illusionShattered = false;
             }
 
             void MoveInLineOfSight(Unit* who) override
@@ -467,9 +475,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                 instance->SetData(DATA_DRIVE_ME_CRAZY, uint32(true));
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
 
-                _guardiansCount = 0;
-                _guardianTimer = 20000;
-                _illusionShattered = false;
+                Initialize();
 
                 bool clockwise = false;
                 std::list<TempSummon*> clouds;
@@ -1014,7 +1020,10 @@ class boss_brain_of_yogg_saron : public CreatureScript
 
         struct boss_brain_of_yogg_saronAI : public PassiveAI
         {
-            boss_brain_of_yogg_saronAI(Creature* creature) : PassiveAI(creature), _instance(creature->GetInstanceScript()), _summons(creature) { }
+            boss_brain_of_yogg_saronAI(Creature* creature) : PassiveAI(creature), _instance(creature->GetInstanceScript()), _summons(creature)
+            {
+                _tentaclesKilled = 0;
+            }
 
             void Reset() override
             {
@@ -1953,7 +1962,7 @@ class spell_yogg_saron_target_selectors : public SpellScriptLoader    // 63744, 
 class SanityReduction : public SpellScript
 {
     public:
-        SanityReduction() : SpellScript() { }
+        SanityReduction() : SpellScript(), _stacks(0) { }
         SanityReduction(uint8 stacks) : SpellScript(), _stacks(stacks) { }
 
     void RemoveSanity(SpellEffIndex /*effIndex*/)

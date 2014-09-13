@@ -76,7 +76,21 @@ public:
     {
         boss_ionarAI(Creature* creature) : ScriptedAI(creature), lSparkList(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            bIsSplitPhase = true;
+            bHasDispersed = false;
+
+            uiSplitTimer = 25 * IN_MILLISECONDS;
+
+            uiStaticOverloadTimer = urand(5 * IN_MILLISECONDS, 6 * IN_MILLISECONDS);
+            uiBallLightningTimer = urand(10 * IN_MILLISECONDS, 11 * IN_MILLISECONDS);
+
+            uiDisperseHealth = 45 + urand(0, 10);
         }
 
         InstanceScript* instance;
@@ -97,15 +111,7 @@ public:
         {
             lSparkList.DespawnAll();
 
-            bIsSplitPhase = true;
-            bHasDispersed = false;
-
-            uiSplitTimer = 25*IN_MILLISECONDS;
-
-            uiStaticOverloadTimer = urand(5*IN_MILLISECONDS, 6*IN_MILLISECONDS);
-            uiBallLightningTimer = urand(10*IN_MILLISECONDS, 11*IN_MILLISECONDS);
-
-            uiDisperseHealth = 45 + urand(0, 10);
+            Initialize();
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
 
@@ -297,7 +303,13 @@ public:
     {
         npc_spark_of_ionarAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiCheckTimer = 2 * IN_MILLISECONDS;
         }
 
         InstanceScript* instance;
@@ -306,7 +318,7 @@ public:
 
         void Reset() override
         {
-            uiCheckTimer = 2*IN_MILLISECONDS;
+            Initialize();
             me->SetReactState(REACT_PASSIVE);
         }
 
