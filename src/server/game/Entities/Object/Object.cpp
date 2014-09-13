@@ -1908,8 +1908,17 @@ namespace Trinity
                 : i_object(obj), i_msgtype(msgtype), i_textId(textId), i_language(Language(language)), i_target(target) { }
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
-                char const* text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
-                ChatHandler::BuildChatPacket(data, i_msgtype, i_language, i_object, i_target, text, 0, "", loc_idx);
+                if (BroadcastText const* broadcastText = sObjectMgr->GetBroadcastText(i_textId))
+                {
+                    uint8 gender = GENDER_MALE;
+                    if (Unit const* unit = i_object->ToUnit())
+                        gender = unit->getGender();
+
+                    std::string text = broadcastText->GetText(loc_idx, gender);
+                    ChatHandler::BuildChatPacket(data, i_msgtype, i_language, i_object, i_target, text, 0, "", loc_idx);
+                }
+                else
+                     TC_LOG_ERROR("entities.unit", "MonsterChatBuilder: `broadcast_text` id %i missing", i_textId);
             }
 
         private:
@@ -2034,10 +2043,15 @@ void WorldObject::MonsterWhisper(int32 textId, Player const* target, bool IsBoss
     if (!target)
         return;
 
+    uint8 gender = GENDER_MALE;
+    if (Unit const* unit = ToUnit())
+        gender = unit->getGender();
+
     LocaleConstant loc_idx = target->GetSession()->GetSessionDbLocaleIndex();
-    char const* text = sObjectMgr->GetTrinityString(textId, loc_idx);
+    BroadcastText const* broadcastText = sObjectMgr->GetBroadcastText(textId);
+    std::string text = broadcastText->GetText(loc_idx, gender);
     WorldPacket data;
-    ChatHandler::BuildChatPacket(data, IsBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, LANG_UNIVERSAL, this, target, text, 0, "", loc_idx);
+    ChatHandler::BuildChatPacket(data, IsBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, LANG_UNIVERSAL, this, target, text.c_str(), 0, "", loc_idx);
 
     target->GetSession()->SendPacket(&data);
 }
