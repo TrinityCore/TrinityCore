@@ -72,7 +72,11 @@ public:
 
     struct boss_nothAI : public BossAI
     {
-        boss_nothAI(Creature* creature) : BossAI(creature, BOSS_NOTH) { }
+        boss_nothAI(Creature* creature) : BossAI(creature, BOSS_NOTH)
+        {
+            balconyCount = 0;
+            waveCount = 0;
+        }
 
         void Reset() override
         {

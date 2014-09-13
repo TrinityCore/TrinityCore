@@ -81,7 +81,7 @@ public:
         }
     }
 
-    void Write(void* data, std::size_t size)
+    void Write(void const* data, std::size_t size)
     {
         if (size)
         {

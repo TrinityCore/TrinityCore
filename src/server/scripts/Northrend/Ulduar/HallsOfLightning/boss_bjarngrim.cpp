@@ -106,10 +106,33 @@ public:
     {
         boss_bjarngrimAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             m_uiStance = STANCE_DEFENSIVE;
             memset(&m_auiStormforgedLieutenantGUID, 0, sizeof(m_auiStormforgedLieutenantGUID));
             canBuff = true;
+        }
+
+        void Initialize()
+        {
+            m_bIsChangingStance = false;
+
+            m_uiChargingStatus = 0;
+            m_uiCharge_Timer = 1000;
+
+            m_uiChangeStance_Timer = urand(20000, 25000);
+
+            m_uiReflection_Timer = 8000;
+            m_uiKnockAway_Timer = 20000;
+            m_uiPummel_Timer = 10000;
+            m_uiIronform_Timer = 25000;
+
+            m_uiIntercept_Timer = 5000;
+            m_uiWhirlwind_Timer = 10000;
+            m_uiCleave_Timer = 8000;
+
+            m_uiMortalStrike_Timer = 8000;
+            m_uiSlam_Timer = 10000;
         }
 
         InstanceScript* instance;
@@ -143,24 +166,7 @@ public:
                 if (!me->HasAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE))
                     me->AddAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE, me);
 
-            m_bIsChangingStance = false;
-
-            m_uiChargingStatus = 0;
-            m_uiCharge_Timer = 1000;
-
-            m_uiChangeStance_Timer = urand(20000, 25000);
-
-            m_uiReflection_Timer = 8000;
-            m_uiKnockAway_Timer = 20000;
-            m_uiPummel_Timer = 10000;
-            m_uiIronform_Timer = 25000;
-
-            m_uiIntercept_Timer = 5000;
-            m_uiWhirlwind_Timer = 10000;
-            m_uiCleave_Timer = 8000;
-
-            m_uiMortalStrike_Timer = 8000;
-            m_uiSlam_Timer = 10000;
+            Initialize();
 
             for (uint8 i = 0; i < 2; ++i)
             {
@@ -393,7 +399,14 @@ public:
     {
         npc_stormforged_lieutenantAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            m_uiArcWeld_Timer = urand(20000, 21000);
+            m_uiRenewSteel_Timer = urand(10000, 11000);
         }
 
         InstanceScript* instance;
@@ -403,8 +416,7 @@ public:
 
         void Reset() override
         {
-            m_uiArcWeld_Timer = urand(20000, 21000);
-            m_uiRenewSteel_Timer = urand(10000, 11000);
+            Initialize();
         }
 
         void EnterCombat(Unit* who) override

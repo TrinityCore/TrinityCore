@@ -264,6 +264,9 @@ class npc_annhylde_the_caller : public CreatureScript
         {
             npc_annhylde_the_callerAI(Creature* creature) : ScriptedAI(creature)
             {
+                x = 0.f;
+                y = 0.f;
+                z = 0.f;
                 _instance = creature->GetInstanceScript();
             }
 
