@@ -53,6 +53,7 @@
 #include "Chat.h"
 #ifdef ELUNA
 #include "LuaEngine.h"
+#include "ElunaEventMgr.h"
 #endif
 
 uint32 GuidHigh2TypeId(uint32 guid_hi)
@@ -92,6 +93,7 @@ WorldObject::~WorldObject()
 {
 #ifdef ELUNA
     Eluna::RemoveRef(this);
+    delete elunaEvents;
 #endif
 
     // this may happen because there are many !create/delete
@@ -1110,6 +1112,9 @@ void MovementInfo::OutDebug()
 }
 
 WorldObject::WorldObject(bool isWorldObject) : WorldLocation(), LastUsedScriptID(0),
+#ifdef ELUNA
+elunaEvents(new ElunaEventProcessor(this)),
+#endif
 m_name(""), m_isActive(false), m_isWorldObject(isWorldObject), m_zoneScript(NULL),
 m_transport(NULL), m_currMap(NULL), m_InstanceId(0),
 m_phaseMask(PHASEMASK_NORMAL), m_notifyflags(0), m_executed_notifies(0)
@@ -1177,6 +1182,13 @@ void WorldObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
 
     if (Transport* transport = GetTransport())
         transport->RemovePassenger(this);
+}
+
+void WorldObject::Update (uint32 time_diff)
+{
+#ifdef ELUNA
+    elunaEvents->Update(time_diff);
+#endif
 }
 
 void WorldObject::_Create(uint32 guidlow, HighGuid guidhigh, uint32 phaseMask)
