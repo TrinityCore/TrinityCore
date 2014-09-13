@@ -59,7 +59,19 @@ enum CreatureIds
     NPC_RAVENOUS_FURBOLG            = 26684,
     NPC_MASSIVE_JORMUNGAR           = 26685,
     NPC_FEROCIOUS_RHINO             = 26686,
-    NPC_PALEHOOF_ORB                = 26688
+    NPC_PALEHOOF_ORB                = 26688,
+
+    // Ymiron
+    NPC_BJORN                       = 27303,
+    NPC_BJORN_VISUAL                = 27304,
+    NPC_HALDOR                      = 27307,
+    NPC_HALDOR_VISUAL               = 27310,
+    NPC_RANULF                      = 27308,
+    NPC_RANULF_VISUAL               = 27311,
+    NPC_TORGYN                      = 27309,
+    NPC_TORGYN_VISUAL               = 27312,
+    NPC_SPIRIT_FOUNT                = 27339,
+    NPC_AVENGING_SPIRIT             = 27386
 };
 
 enum GameObjectIds
