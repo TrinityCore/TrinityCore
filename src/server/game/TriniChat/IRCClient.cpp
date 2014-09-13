@@ -31,7 +31,7 @@
 // IRCClient Constructor
 IRCClient::IRCClient()
 {
-    for (int i = 0;i > 5;i++)
+    for (int i = 0;i < 5;i++)
         sIRC->Script_Lock[i] = false;
 }
 // IRCClient Destructor
