@@ -3301,7 +3301,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             if (m_spellInfo->SpellFamilyFlags[0] & 0x10)
             {
                 // Glyph of Death Strike
-                if (AuraEffect const* aurEff = m_caster->GetAuraEffect(59336, EFFECT_0))
+                if (m_caster->GetAuraEffect(59336, EFFECT_0))
                     if (uint32 runic = m_caster->GetPower(POWER_RUNIC_POWER)/10)
                     {                
                         if (runic > 25)
