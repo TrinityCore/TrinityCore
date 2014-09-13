@@ -1930,5 +1930,5 @@ bool Battleground::CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*
 
 uint8 Battleground::GetUniqueBracketId() const
 {
-    return GetMinLevel() / 10;
+    return uint8(GetMinLevel() / 5) - 1; // 10 - 1, 15 - 2, 20 - 3, etc.
 }
