@@ -10695,12 +10695,16 @@ uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* spellProto, uint32 damag
     return damage;
 }
 
-uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack) const
+uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack, SpellInfo const* triggeringAura) const
 {
     // For totems get healing bonus from owner (statue isn't totem in fact)
     if (GetTypeId() == TYPEID_UNIT && IsTotem())
         if (Unit* owner = GetOwner())
             return owner->SpellHealingBonusDone(victim, spellProto, healamount, damagetype, stack);
+
+    // These spells have their bonuses calculated in their respective spellscripts, this is needed to prevent double dipping of % done auras.
+    if (spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE && triggeringAura && triggeringAura->DmgClass != SPELL_DAMAGE_CLASS_NONE)
+        return healamount;
 
     // No bonus healing for potion spells
     if (spellProto->SpellFamilyName == SPELLFAMILY_POTION)
@@ -10874,8 +10878,12 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
     return DoneTotalMod;
 }
 
-uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack) const
+uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack, SpellInfo const* triggeringAura) const
 {
+    // These spells have their bonuses calculated in their respective spellscripts, this is needed to prevent double dipping of % taken auras.
+    if (spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE && triggeringAura && triggeringAura->DmgClass != SPELL_DAMAGE_CLASS_NONE)
+        return healamount;
+
     float TakenTotalMod = 1.0f;
 
     // Healing taken percent
