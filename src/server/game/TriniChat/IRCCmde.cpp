@@ -1594,7 +1594,7 @@ void IRCCmd::Level_Player(_CDATA *CD)
         else
         {
             Player::GetLevelFromDB(guid);
-            uint64 player_guid;
+            uint64 player_guid = 0;
             CharacterDatabase.PExecute("UPDATE characters SET level = '%u', xp = 0 WHERE guid = '%u'", i_newlvl, GUID_LOPART(player_guid));
         }
     }
