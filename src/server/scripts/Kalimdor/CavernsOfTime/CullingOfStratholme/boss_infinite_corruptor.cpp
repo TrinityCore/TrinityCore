@@ -23,7 +23,6 @@ enum Spells
 {
     SPELL_CORRUPTING_BLIGHT                     = 60588,
     SPELL_VOID_STRIKE                           = 60590,
-
     SPELL_CORRUPTION_OF_TIME_CHANNEL            = 60422,
     SPELL_CORRUPTION_OF_TIME_TARGET             = 60451
 };
@@ -32,98 +31,81 @@ enum Yells
 {
     SAY_AGGRO                                   = 0,
     SAY_DEATH                                   = 1,
-    SAY_FAIL                                    = 2,
-
-    SAY_SUCCESS                                 = 0
+    SAY_FAIL                                    = 2
 };
 
 enum Events
 {
     EVENT_CORRUPTING_BLIGHT                     = 1,
-    EVENT_VOID_STRIKE                           = 2
+    EVENT_VOID_STRIKE
 };
 
 class boss_infinite_corruptor : public CreatureScript
 {
-public:
-    boss_infinite_corruptor() : CreatureScript("boss_infinite_corruptor") { }
+    public:
+        boss_infinite_corruptor() : CreatureScript("boss_infinite_corruptor") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_infinite_corruptorAI>(creature);
-    }
-
-    struct boss_infinite_corruptorAI : public ScriptedAI
-    {
-        boss_infinite_corruptorAI(Creature* creature) : ScriptedAI(creature)
+        struct boss_infinite_corruptorAI : public BossAI
         {
-            instance = creature->GetInstanceScript();
-        }
+            boss_infinite_corruptorAI(Creature* creature) : BossAI(creature, DATA_INFINITE) { }
 
-        InstanceScript* instance;
-        EventMap events;
-
-        void Reset() override
-        {
-            instance->SetData(DATA_INFINITE_EVENT, NOT_STARTED);
-
-            if (Creature* guardian = me->FindNearestCreature(NPC_GUARDIAN_OF_TIME, 30.0f))
-                DoCast(guardian, SPELL_CORRUPTION_OF_TIME_CHANNEL, false);
-        }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
-            Talk(SAY_AGGRO);
-            instance->SetData(DATA_INFINITE_EVENT, IN_PROGRESS);
-
-            events.ScheduleEvent(EVENT_CORRUPTING_BLIGHT, 20*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_VOID_STRIKE, 15*IN_MILLISECONDS);         
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            void Reset() override
             {
-                switch(eventId)
+                _Reset();
+
+                if (Creature* guardian = me->FindNearestCreature(NPC_GUARDIAN_OF_TIME, 100.0f))
                 {
-                    case EVENT_CORRUPTING_BLIGHT:
-                        DoCast(SelectTarget(SELECT_TARGET_RANDOM), SPELL_CORRUPTING_BLIGHT);
-                        events.ScheduleEvent(EVENT_CORRUPTING_BLIGHT, 20*IN_MILLISECONDS);
-                        break;
-                    case EVENT_VOID_STRIKE:
-                        DoCastVictim(SPELL_VOID_STRIKE);
-                        events.ScheduleEvent(EVENT_VOID_STRIKE, 15*IN_MILLISECONDS);
-                        break;
+                    DoCast((Unit*)NULL, SPELL_CORRUPTION_OF_TIME_CHANNEL, false);
+                    guardian->CastSpell(guardian, SPELL_CORRUPTION_OF_TIME_TARGET, false);
                 }
             }
 
-            DoMeleeAttackIfReady();
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            Talk(SAY_DEATH);
-            instance->SetData(DATA_INFINITE_EVENT, DONE);
-            
-            if (Creature* guardian = me->FindNearestCreature(NPC_GUARDIAN_OF_TIME, 100.0f))
+            void EnterCombat(Unit* /*who*/) override
             {
-                guardian->RemoveAurasDueToSpell(SPELL_CORRUPTION_OF_TIME_TARGET);
-                guardian->AI()->Talk(SAY_SUCCESS);
-                guardian->DespawnOrUnsummon(5*IN_MILLISECONDS);
+                Talk(SAY_AGGRO);
+                _EnterCombat();
+                events.ScheduleEvent(EVENT_CORRUPTING_BLIGHT, 7000);
+                events.ScheduleEvent(EVENT_VOID_STRIKE, 5000);
             }
 
-            if (Creature* rift = me->FindNearestCreature(NPC_TIME_RIFT, 100.0f))
-                rift->DespawnOrUnsummon();
+            void JustDied(Unit* /*killer*/) override
+            {
+                Talk(SAY_DEATH);
+                _JustDied();
 
+                if (Creature* guardian = me->FindNearestCreature(NPC_GUARDIAN_OF_TIME, 100.0f))
+                {
+                    guardian->RemoveAurasDueToSpell(SPELL_CORRUPTION_OF_TIME_TARGET);
+                    guardian->DespawnOrUnsummon(5000);
+                }
+
+                if (Creature* rift = me->FindNearestCreature(NPC_TIME_RIFT, 100.0f))
+                    rift->DespawnOrUnsummon();
+            }
+
+            void ExecuteEvent(uint32 eventId) override
+            {
+                switch (eventId)
+                {
+                    case EVENT_CORRUPTING_BLIGHT:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
+                            DoCast(target, SPELL_CORRUPTING_BLIGHT);
+                        events.ScheduleEvent(EVENT_CORRUPTING_BLIGHT, 17000);
+                        break;
+                    case EVENT_VOID_STRIKE:
+                        DoCastVictim(SPELL_VOID_STRIKE);
+                        events.ScheduleEvent(EVENT_VOID_STRIKE, 5000);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetInstanceAI<boss_infinite_corruptorAI>(creature);
         }
-    };
-
 };
 
 void AddSC_boss_infinite_corruptor()

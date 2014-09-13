@@ -78,7 +78,24 @@ public:
     {
         boss_volkhanAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            m_bIsStriking = false;
+            m_bHasTemper = false;
+            m_bCanShatterGolem = false;
+
+            m_uiPause_Timer = 3500;
+            m_uiShatteringStomp_Timer = 0;
+            m_uiShatter_Timer = 5000;
+            m_uiDelay_Timer = 1000;
+            m_uiSummonPhase = 0;
+            GolemsShattered = 0;
+
+            m_uiHealthAmountModifier = 1;
         }
 
         InstanceScript* instance;
@@ -100,18 +117,7 @@ public:
 
         void Reset() override
         {
-            m_bIsStriking = false;
-            m_bHasTemper = false;
-            m_bCanShatterGolem = false;
-
-            m_uiPause_Timer = 3500;
-            m_uiShatteringStomp_Timer = 0;
-            m_uiShatter_Timer = 5000;
-            m_uiDelay_Timer = 1000;
-            m_uiSummonPhase = 0;
-            GolemsShattered = 0;
-
-            m_uiHealthAmountModifier = 1;
+            Initialize();
 
             DespawnGolem();
             m_lGolemGUIDList.clear();
@@ -362,7 +368,19 @@ public:
 
     struct npc_molten_golemAI : public ScriptedAI
     {
-        npc_molten_golemAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_molten_golemAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            m_bIsFrozen = false;
+
+            m_uiBlast_Timer = 20000;
+            m_uiDeathDelay_Timer = 0;
+            m_uiImmolation_Timer = 5000;
+        }
 
         bool m_bIsFrozen;
 
@@ -372,11 +390,7 @@ public:
 
         void Reset() override
         {
-            m_bIsFrozen = false;
-
-            m_uiBlast_Timer = 20000;
-            m_uiDeathDelay_Timer = 0;
-            m_uiImmolation_Timer = 5000;
+            Initialize();
         }
 
         void AttackStart(Unit* who) override

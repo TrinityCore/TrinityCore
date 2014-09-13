@@ -126,6 +126,9 @@ class instance_naxxramas : public InstanceMapScript
                 SapphironGUID           = 0;
                 KelthuzadGUID           = 0;
                 KelthuzadTriggerGUID    = 0;
+                minHorsemenDiedTime     = 0;
+                maxHorsemenDiedTime     = 0;
+                AbominationCount        = 0;
 
                 playerDied              = 0;
 
@@ -447,7 +450,6 @@ class instance_naxxramas : public InstanceMapScript
             uint64 BaronGUID;
             uint64 SirGUID;
             uint64 HorsemenChestGUID;
-            uint64 HorsemenTeleporterGUID;
             time_t minHorsemenDiedTime;
             time_t maxHorsemenDiedTime;
 

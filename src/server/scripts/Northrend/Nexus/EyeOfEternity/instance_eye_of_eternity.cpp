@@ -47,6 +47,8 @@ public:
             platformGUID = 0;
             exitPortalGUID = 0;
             alexstraszaBunnyGUID = 0;
+            heartOfMagicGUID = 0;
+            giftBoxBunnyGUID = 0;
         };
 
         bool SetBossState(uint32 type, EncounterState state) override

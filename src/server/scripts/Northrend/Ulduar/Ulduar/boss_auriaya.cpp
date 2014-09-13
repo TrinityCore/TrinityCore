@@ -107,15 +107,21 @@ class boss_auriaya : public CreatureScript
         {
             boss_auriayaAI(Creature* creature) : BossAI(creature, BOSS_AURIAYA)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                DefenderGUID = 0;
+                defenderLives = 8;
+                crazyCatLady = true;
+                nineLives = false;
             }
 
             void Reset() override
             {
                 _Reset();
-                DefenderGUID = 0;
-                defenderLives = 8;
-                crazyCatLady = true;
-                nineLives = false;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override

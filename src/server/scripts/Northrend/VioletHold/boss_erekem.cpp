@@ -56,7 +56,17 @@ public:
     {
         boss_erekemAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiBloodlustTimer = 15000;
+            uiChainHealTimer = 0;
+            uiEarthShockTimer = urand(2000, 8000);
+            uiLightningBoltTimer = urand(5000, 10000);
+            uiEarthShieldTimer = 20000;
         }
 
         uint32 uiBloodlustTimer;
@@ -69,11 +79,7 @@ public:
 
         void Reset() override
         {
-            uiBloodlustTimer = 15000;
-            uiChainHealTimer = 0;
-            uiEarthShockTimer = urand(2000, 8000);
-            uiLightningBoltTimer = urand(5000, 10000);
-            uiEarthShieldTimer = 20000;
+            Initialize();
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
                 instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)
@@ -264,7 +270,15 @@ public:
     {
         npc_erekem_guardAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiStrikeTimer = urand(4000, 8000);
+            uiHowlingScreechTimer = urand(8000, 13000);
+            uiGushingWoundTimer = urand(1000, 3000);
         }
 
         uint32 uiGushingWoundTimer;
@@ -275,9 +289,7 @@ public:
 
         void Reset() override
         {
-            uiStrikeTimer = urand(4000, 8000);
-            uiHowlingScreechTimer = urand(8000, 13000);
-            uiGushingWoundTimer = urand(1000, 3000);
+            Initialize();
         }
 
         void AttackStart(Unit* who) override

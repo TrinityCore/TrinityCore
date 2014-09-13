@@ -105,6 +105,15 @@ class boss_general_vezax : public CreatureScript
         {
             boss_general_vezaxAI(Creature* creature) : BossAI(creature, BOSS_VEZAX)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                shadowDodger = true;
+                smellSaronite = true;
+                animusDead = false;
+                vaporCount = 0;
             }
 
             bool shadowDodger;
@@ -116,10 +125,7 @@ class boss_general_vezax : public CreatureScript
             {
                 _Reset();
 
-                shadowDodger = true;
-                smellSaronite = true;
-                animusDead = false;
-                vaporCount = 0;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override

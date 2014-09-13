@@ -383,7 +383,8 @@ void Map::ScriptsProcess()
                     if (Player* player = _GetScriptPlayerSourceOrTarget(source, target, step.script))
                     {
                         LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
-                        std::string text(sObjectMgr->GetTrinityString(step.script->Talk.TextID, loc_idx));
+                        BroadcastText const* broadcastText = sObjectMgr->GetBroadcastText(step.script->Talk.TextID);
+                        std::string text = broadcastText->GetText(loc_idx, player->getGender());
 
                         switch (step.script->Talk.ChatType)
                         {

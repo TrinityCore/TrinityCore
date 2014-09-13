@@ -138,8 +138,20 @@ public:
     {
         npc_tribuna_controllerAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             SetCombatMovement(false);
+        }
+
+        void Initialize()
+        {
+            uiKaddrakEncounterTimer = 1500;
+            uiMarnakEncounterTimer = 10000;
+            uiAbedneumEncounterTimer = 10000;
+
+            bKaddrakActivated = false;
+            bMarnakActivated = false;
+            bAbedneumActivated = false;
         }
 
         InstanceScript* instance;
@@ -156,13 +168,7 @@ public:
 
         void Reset() override
         {
-            uiKaddrakEncounterTimer = 1500;
-            uiMarnakEncounterTimer = 10000;
-            uiAbedneumEncounterTimer = 10000;
-
-            bKaddrakActivated = false;
-            bMarnakActivated = false;
-            bAbedneumActivated = false;
+            Initialize();
 
             instance->HandleGameObject(instance->GetData64(DATA_GO_KADDRAK), false);
             instance->HandleGameObject(instance->GetData64(DATA_GO_MARNAK), false);
@@ -290,7 +296,18 @@ public:
     {
         npc_brann_hosAI(Creature* creature) : npc_escortAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            bIsLowHP = false;
+            bIsBattle = false;
+            uiStep = 0;
+            uiPhaseTimer = 0;
+            uiControllerGUID = 0;
+            brannSparklinNews = true;
         }
 
         uint32 uiStep;
@@ -309,12 +326,7 @@ public:
         {
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
             {
-                bIsLowHP = false;
-                bIsBattle = false;
-                uiStep = 0;
-                uiPhaseTimer = 0;
-                uiControllerGUID = 0;
-                brannSparklinNews = true;
+                Initialize();
 
                 DespawnDwarf();
 
