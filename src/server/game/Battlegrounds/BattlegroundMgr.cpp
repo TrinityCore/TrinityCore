@@ -435,7 +435,7 @@ void BattlegroundMgr::BuildUpdateWorldStatePacket(WorldPacket* data, uint32 fiel
 
 void BattlegroundMgr::BuildPlaySoundPacket(WorldPacket* data, uint32 soundid)
 {
-    data->Initialize(SMSG_PLAY_SOUND, 4);
+    data->Initialize(SMSG_PLAY_SOUND, 4 + 8);
     *data << uint32(soundid);
     *data << uint64(0);
 }
