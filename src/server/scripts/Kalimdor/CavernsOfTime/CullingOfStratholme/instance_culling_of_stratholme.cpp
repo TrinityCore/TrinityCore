@@ -76,6 +76,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 _genericBunnyGUID  = 0;
                 _crateCount        = 0;
                 _eventTimer        = 0;
+                _infiniteCouterState = NOT_STARTED;
             }
 
             void FillInitialWorldStates(WorldPacket& data) override
