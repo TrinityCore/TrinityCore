@@ -734,8 +734,8 @@ class boss_elder_brightleaf : public CreatureScript
                     if (Creature* Stonebark = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_STONEBARK)))
                         Stonebark->AI()->DoAction(ACTION_ELDER_DEATH);
                 }
-                if (elderCount >= 2 && lumberjackTimer < 15*IN_MILLISECONDS)
-                    DoCastAOE(SPELL_LUMBERJACKED);
+                //if (elderCount >= 2 && lumberjackTimer < 15*IN_MILLISECONDS)
+                //    DoCastAOE(SPELL_LUMBERJACKED);
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -843,8 +843,8 @@ class boss_elder_stonebark : public CreatureScript
                     if (Creature* Brightleaf = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF)))
                         Brightleaf->AI()->DoAction(ACTION_ELDER_DEATH);
                 }
-                if (elderCount >= 2 && lumberjackTimer < 15*IN_MILLISECONDS)
-                    DoCastAOE(SPELL_LUMBERJACKED);
+                //if (elderCount >= 2 && lumberjackTimer < 15*IN_MILLISECONDS)
+                //    DoCastAOE(SPELL_LUMBERJACKED);
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -958,8 +958,8 @@ class boss_elder_ironbranch : public CreatureScript
                     if (Creature* Stonebark = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_STONEBARK)))
                         Stonebark->AI()->DoAction(ACTION_ELDER_DEATH);
                 }
-                if (elderCount >= 2 && lumberjackTimer < 15*IN_MILLISECONDS)
-                    DoCastAOE(SPELL_LUMBERJACKED);
+                //if (elderCount >= 2 && lumberjackTimer < 15*IN_MILLISECONDS)
+                //    DoCastAOE(SPELL_LUMBERJACKED);
             }
 
             void EnterCombat(Unit* /*who*/) override

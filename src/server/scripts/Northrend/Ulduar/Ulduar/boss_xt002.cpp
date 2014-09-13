@@ -201,7 +201,6 @@ class boss_xt002 : public CreatureScript
             boss_xt002_AI(Creature* creature) : BossAI(creature, BOSS_XT002)
             {
                 Initialize();
-                _transferHealth = 0;
             }
 
             void Initialize()
