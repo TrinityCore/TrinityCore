@@ -1,4 +1,4 @@
-DROP TABLE `db_script_string`; -- RIP
+DROP TABLE IF EXISTS `db_script_string`; -- RIP
 
 UPDATE `waypoint_scripts` SET `dataint` = 5960 WHERE `dataint` = 2000005018;
 UPDATE `waypoint_scripts` SET `dataint` = 22392 WHERE `dataint` = 2000005019;
