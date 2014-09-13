@@ -116,7 +116,7 @@ public:
 #ifdef BOOST_ASIO_HAS_IOCP
         AsyncProcessQueue(guard);
 #else
-    (void)guard;
+        (void)guard;
 #endif
     }
 

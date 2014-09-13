@@ -15,14 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Script Data Start
-SDName: Boss salramm
-SDAuthor: Tartalo
-SD%Complete: 80
-SDComment: @todo Intro
-SDCategory:
-Script Data End */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "culling_of_stratholme.h"
@@ -31,9 +23,7 @@ enum Spells
 {
     SPELL_CURSE_OF_TWISTED_FLESH                = 58845,
     SPELL_EXPLODE_GHOUL                         = 52480,
-    H_SPELL_EXPLODE_GHOUL                       = 58825,
     SPELL_SHADOW_BOLT                           = 57725,
-    H_SPELL_SHADOW_BOLT                         = 58828,
     SPELL_STEAL_FLESH                           = 52708,
     SPELL_SUMMON_GHOULS                         = 52451
 };
@@ -49,114 +39,89 @@ enum Yells
     SAY_SUMMON_GHOULS                           = 6
 };
 
+enum Events
+{
+    EVENT_CURSE_FLESH                           = 1,
+    EVENT_EXPLODE_GHOUL,
+    EVENT_SHADOW_BOLT,
+    EVENT_STEAL_FLESH,
+    EVENT_SUMMON_GHOULS
+};
+
 class boss_salramm : public CreatureScript
 {
-public:
-    boss_salramm() : CreatureScript("boss_salramm") { }
+    public:
+        boss_salramm() : CreatureScript("boss_salramm") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_salrammAI>(creature);
-    }
-
-    struct boss_salrammAI : public ScriptedAI
-    {
-        boss_salrammAI(Creature* creature) : ScriptedAI(creature)
+        struct boss_salrammAI : public BossAI
         {
-            Initialize();
-            instance = creature->GetInstanceScript();
-            Talk(SAY_SPAWN);
-        }
-
-        void Initialize()
-        {
-            uiCurseFleshTimer = 30000;  //30s DBM
-            uiExplodeGhoulTimer = urand(25000, 28000); //approx 6 sec after summon ghouls
-            uiShadowBoltTimer = urand(8000, 12000); // approx 10s
-            uiStealFleshTimer = 12345;
-            uiSummonGhoulsTimer = urand(19000, 24000); //on a video approx 24s after aggro
-        }
-
-        uint32 uiCurseFleshTimer;
-        uint32 uiExplodeGhoulTimer;
-        uint32 uiShadowBoltTimer;
-        uint32 uiStealFleshTimer;
-        uint32 uiSummonGhoulsTimer;
-
-        InstanceScript* instance;
-
-        void Reset() override
-        {
-            Initialize();
-
-            instance->SetBossState(DATA_SALRAMM, NOT_STARTED);
-        }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
-            Talk(SAY_AGGRO);
-
-            instance->SetBossState(DATA_SALRAMM, IN_PROGRESS);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            //Curse of twisted flesh timer
-            if (uiCurseFleshTimer <= diff)
+            boss_salrammAI(Creature* creature) : BossAI(creature, DATA_SALRAMM)
             {
-                DoCastVictim(SPELL_CURSE_OF_TWISTED_FLESH);
-                uiCurseFleshTimer = 37000;
-            } else uiCurseFleshTimer -= diff;
+                Talk(SAY_SPAWN);
+            }
 
-            //Shadow bolt timer
-            if (uiShadowBoltTimer <= diff)
+            void EnterCombat(Unit* /*who*/) override
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_SHADOW_BOLT);
-                uiShadowBoltTimer = urand(8000, 12000);
-            } else uiShadowBoltTimer -= diff;
+                Talk(SAY_AGGRO);
+                _EnterCombat();
 
-            //Steal Flesh timer
-            if (uiStealFleshTimer <= diff)
+                events.ScheduleEvent(EVENT_CURSE_FLESH, 30000);
+                events.ScheduleEvent(EVENT_SUMMON_GHOULS, urand(19000, 24000));
+                events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(8000, 12000));
+                events.ScheduleEvent(EVENT_STEAL_FLESH, 12345); /// @todo: adjust timer 
+            }
+
+            void ExecuteEvent(uint32 eventId) override
             {
-                Talk(SAY_STEAL_FLESH);
-                if (Unit* random_pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(random_pTarget, SPELL_STEAL_FLESH);
-                uiStealFleshTimer = 10000;
-            } else uiStealFleshTimer -= diff;
+                switch (eventId)
+                {
+                    case EVENT_CURSE_FLESH:
+                        DoCastVictim(SPELL_CURSE_OF_TWISTED_FLESH);
+                        events.ScheduleEvent(EVENT_CURSE_FLESH, 37000);
+                        break;
+                    case EVENT_SUMMON_GHOULS:
+                        Talk(SAY_SUMMON_GHOULS);
+                        DoCast(me, SPELL_SUMMON_GHOULS);
+                        events.ScheduleEvent(EVENT_SUMMON_GHOULS, 10000);
+                        events.ScheduleEvent(EVENT_EXPLODE_GHOUL, 6000);
+                        break;
+                    case EVENT_SHADOW_BOLT:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                            DoCast(target, SPELL_SHADOW_BOLT);
+                        events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(8000, 12000));
+                        break;
+                    case EVENT_STEAL_FLESH:
+                        Talk(SAY_STEAL_FLESH);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                            DoCast(target, SPELL_STEAL_FLESH);
+                        events.ScheduleEvent(EVENT_STEAL_FLESH, 12345);
+                        break;
+                    case EVENT_EXPLODE_GHOUL:
+                        Talk(SAY_EXPLODE_GHOUL);
+                        DoCast(me, SPELL_EXPLODE_GHOUL, true);
+                        break;
+                    default:
+                        break;
+                }
+            }
 
-            //Summon ghouls timer
-            if (uiSummonGhoulsTimer <= diff)
+            void JustDied(Unit* /*killer*/) override
             {
-                Talk(SAY_SUMMON_GHOULS);
-                if (Unit* random_pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(random_pTarget, SPELL_SUMMON_GHOULS);
-                uiSummonGhoulsTimer = 10000;
-            } else uiSummonGhoulsTimer -= diff;
+                Talk(SAY_DEATH);
+                _JustDied();
+            }
 
-            DoMeleeAttackIfReady();
-        }
+            void KilledUnit(Unit* victim) override
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
+            }
+        };
 
-        void JustDied(Unit* /*killer*/) override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            Talk(SAY_DEATH);
-
-            instance->SetBossState(DATA_SALRAMM, DONE);
+            return GetInstanceAI<boss_salrammAI>(creature);
         }
-
-        void KilledUnit(Unit* victim) override
-        {
-            if (victim->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            Talk(SAY_SLAY);
-        }
-    };
-
 };
 
 void AddSC_boss_salramm()

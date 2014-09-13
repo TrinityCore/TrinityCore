@@ -234,7 +234,7 @@ public:
 
                 if (SpoutTimer <= diff)
                 {
-                    me->MonsterTextEmote(EMOTE_SPOUT, NULL, true);
+                    me->TextEmote(EMOTE_SPOUT, nullptr, true);
                     me->SetReactState(REACT_PASSIVE);
                     me->GetMotionMaster()->MoveRotate(20000, urand(0, 1) ? ROTATE_DIRECTION_LEFT : ROTATE_DIRECTION_RIGHT);
                     SpoutTimer = 45000;

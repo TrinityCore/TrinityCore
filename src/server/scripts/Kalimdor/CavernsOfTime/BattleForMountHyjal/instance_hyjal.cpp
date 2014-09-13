@@ -29,7 +29,6 @@ EndScriptData */
 #include "hyjal_trash.h"
 #include "Player.h"
 #include "WorldPacket.h"
-#include "Opcodes.h"
 #include "Chat.h"
 #include "WorldSession.h"
 
@@ -186,16 +185,13 @@ public:
 
                                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                                     {
-                                         if (i->GetSource())
+                                         if (Player* player = i->GetSource())
                                          {
                                             WorldPacket packet;
-                                            ChatHandler::BuildChatPacket(packet, CHAT_MSG_MONSTER_YELL, LANG_UNIVERSAL, unit, i->GetSource(), YELL_EFFORTS);
-                                            i->GetSource()->GetSession()->SendPacket(&packet);
 
-                                            WorldPacket data2(SMSG_PLAY_SOUND, 4);
-                                            data2 << uint32(10986);
-                                            data2 << uint64(unit->GetGUID());
-                                            i->GetSource()->GetSession()->SendPacket(&data2);
+                                            ChatHandler::BuildChatPacket(packet, CHAT_MSG_MONSTER_YELL, LANG_UNIVERSAL, unit, player, YELL_EFFORTS);
+                                            player->SendDirectMessage(&packet);
+                                            player->PlayDirectSound(10986, player);
                                          }
                                     }
                                 }
