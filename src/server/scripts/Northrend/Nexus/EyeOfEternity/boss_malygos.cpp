@@ -417,7 +417,7 @@ public:
             }
         }
 
-        uint64 GetGUID(int32 type) const override
+        ObjectGuid GetGUID(int32 type) const override
         {
             if (type >= DATA_FIRST_SURGE_TARGET_GUID && type < DATA_FIRST_SURGE_TARGET_GUID + NUM_MAX_SURGE_TARGETS)
                 return _surgeTargetGUID[type - DATA_FIRST_SURGE_TARGET_GUID];
@@ -427,7 +427,7 @@ public:
             return 0;
         }
 
-        void SetGUID(uint64 guid, int32 type) override
+        void SetGUID(ObjectGuid guid, int32 type) override
         {
             switch (type)
             {

@@ -76,8 +76,8 @@ class boss_buru : public CreatureScript
             {
                 BossAI::EnterEvadeMode();
 
-                for (std::list<uint64>::iterator i = Eggs.begin(); i != Eggs.end(); ++i)
-                    if (Creature* egg = me->GetMap()->GetCreature(*Eggs.begin()))
+                for (ObjectGuid eggGuid : Eggs)
+                    if (Creature* egg = me->GetMap()->GetCreature(eggGuid))
                         egg->Respawn();
 
                 Eggs.clear();
@@ -127,7 +127,7 @@ class boss_buru : public CreatureScript
                 }
             }
 
-            void ManageRespawn(uint64 EggGUID)
+            void ManageRespawn(ObjectGuid EggGUID)
             {
                 ChaseNewVictim();
                 Eggs.push_back(EggGUID);
@@ -183,8 +183,8 @@ class boss_buru : public CreatureScript
                 DoMeleeAttackIfReady();
             }
         private:
+            GuidList Eggs;
             uint8 _phase;
-            std::list<uint64> Eggs;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

@@ -94,7 +94,7 @@ class boss_doomwalker : public CreatureScript
 
             {
                 if (who && who->GetTypeId() == TYPEID_PLAYER && me->IsValidAttackTarget(who))
-                    if (who->HasAura(SPELL_MARK_DEATH, 0))
+                    if (who->HasAura(SPELL_MARK_DEATH))
                         who->CastSpell(who, SPELL_AURA_DEATH, 1);
             }
 

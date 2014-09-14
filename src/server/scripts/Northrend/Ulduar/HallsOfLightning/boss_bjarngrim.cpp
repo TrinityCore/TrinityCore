@@ -108,7 +108,6 @@ public:
         {
             instance = creature->GetInstanceScript();
             m_uiStance = STANCE_DEFENSIVE;
-            memset(&m_auiStormforgedLieutenantGUID, 0, sizeof(m_auiStormforgedLieutenantGUID));
             canBuff = true;
         }
 
@@ -135,7 +134,7 @@ public:
         uint32 m_uiMortalStrike_Timer;
         uint32 m_uiSlam_Timer;
 
-        uint64 m_auiStormforgedLieutenantGUID[2];
+        ObjectGuid m_auiStormforgedLieutenantGUID[2];
 
         void Reset() override
         {
@@ -164,6 +163,7 @@ public:
 
             for (uint8 i = 0; i < 2; ++i)
             {
+                // Something isn't right here - m_auiStormforgedLieutenantGUID is never assinged to
                 if (Creature* pStormforgedLieutenant = ObjectAccessor::GetCreature(*me, m_auiStormforgedLieutenantGUID[i]))
                     if (!pStormforgedLieutenant->IsAlive())
                         pStormforgedLieutenant->Respawn();

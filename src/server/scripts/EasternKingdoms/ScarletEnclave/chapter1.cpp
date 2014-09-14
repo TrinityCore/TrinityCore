@@ -300,17 +300,17 @@ public:
 
     struct npc_unworthy_initiate_anchorAI : public PassiveAI
     {
-        npc_unworthy_initiate_anchorAI(Creature* creature) : PassiveAI(creature), prisonerGUID(0) { }
+        npc_unworthy_initiate_anchorAI(Creature* creature) : PassiveAI(creature) { }
 
-        uint64 prisonerGUID;
+        ObjectGuid prisonerGUID;
 
-        void SetGUID(uint64 guid, int32 /*id*/) override
+        void SetGUID(ObjectGuid guid, int32 /*id*/) override
         {
             if (!prisonerGUID)
                 prisonerGUID = guid;
         }
 
-        uint64 GetGUID(int32 /*id*/) const override
+        ObjectGuid GetGUID(int32 /*id*/) const override
         {
             return prisonerGUID;
         }
@@ -1148,7 +1148,7 @@ class npc_scarlet_miner : public CreatureScript
                 }
             }
 
-            void SetGUID(uint64 guid, int32 /*id = 0*/) override
+            void SetGUID(ObjectGuid guid, int32 /*id = 0*/) override
             {
                 InitWaypoint();
                 Start(false, false, guid);

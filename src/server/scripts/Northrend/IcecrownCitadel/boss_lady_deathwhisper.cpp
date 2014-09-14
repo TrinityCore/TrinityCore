@@ -554,7 +554,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     summon->CastSpell(summon, SPELL_TELEPORT_VISUAL);
             }
 
-            void SetGUID(uint64 guid, int32 id/* = 0*/) override
+            void SetGUID(ObjectGuid guid, int32 id/* = 0*/) override
             {
                 if (id != GUID_CULTIST)
                     return;

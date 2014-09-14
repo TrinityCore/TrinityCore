@@ -617,7 +617,7 @@ class npc_simon_bunny : public CreatureScript
             uint8 gameLevel;
             uint8 fails;
             uint8 gameTicks;
-            uint64 playerGUID;
+            ObjectGuid playerGUID;
             uint32 clusterIds[SIMON_MAX_COLORS];
             float zCoordCorrection;
             float searchDistance;
@@ -727,7 +727,7 @@ class npc_simon_bunny : public CreatureScript
             }
 
             // Used for getting involved player guid. Parameter id is used for defining if is a large(Monument) or small(Relic) node
-            void SetGUID(uint64 guid, int32 id) override
+            void SetGUID(ObjectGuid guid, int32 id) override
             {
                 me->SetCanFly(true);
 

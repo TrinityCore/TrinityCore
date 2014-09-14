@@ -335,12 +335,12 @@ class boss_blood_council_controller : public CreatureScript
         private:
             struct InvocationData
             {
-                uint64 guid;
+                ObjectGuid guid;
                 uint32 spellId;
                 uint32 textId;
                 uint32 visualSpell;
 
-                InvocationData(uint64 _guid, uint32 _spellId, uint32 _textId, uint32 _visualSpell)
+                InvocationData(ObjectGuid _guid, uint32 _spellId, uint32 _textId, uint32 _visualSpell)
                 {
                     guid = _guid;
                     spellId = _spellId;
@@ -348,7 +348,7 @@ class boss_blood_council_controller : public CreatureScript
                     visualSpell = _visualSpell;
                 }
 
-                InvocationData() : guid(0), spellId(0), textId(0), visualSpell(0) { }
+                InvocationData() : spellId(0), textId(0), visualSpell(0) { }
             } _invocationOrder[3];
 
             uint32 _invocationStage;
@@ -1167,13 +1167,13 @@ class npc_ball_of_flame : public CreatureScript
                     me->RemoveAurasDueToSpell(SPELL_BALL_OF_FLAMES_PERIODIC);
                     DoCast(me, SPELL_FLAMES);
                     _despawnTimer = 1000;
-                    _chaseGUID = 0;
+                    _chaseGUID.Clear();
                 }
             }
 
-            void SetGUID(uint64 guid, int32 /*type*/) override
+            void SetGUID(ObjectGuid guid, int32 /*type*/) override
             {
-                _chaseGUID.Set(guid);
+                _chaseGUID = guid;
             }
 
             void DoAction(int32 action) override

@@ -137,8 +137,8 @@ class UnitAI
         virtual void DoAction(int32 /*param*/) { }
         virtual uint32 GetData(uint32 /*id = 0*/) const { return 0; }
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) { }
-        virtual void SetGUID(uint64 /*guid*/, int32 /*id*/ = 0) { }
-        virtual uint64 GetGUID(int32 /*id*/ = 0) const { return 0; }
+        virtual void SetGUID(ObjectGuid /*guid*/, int32 /*id*/ = 0) { }
+        virtual ObjectGuid GetGUID(int32 /*id*/ = 0) const { return ObjectGuid::Empty; }
 
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
         // Select the targets satisfying the predicate.

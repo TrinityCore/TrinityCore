@@ -157,7 +157,7 @@ public:
             }
         }
 
-        void SetGUID(uint64 guid, int32 id/* = 0 */) override
+        void SetGUID(ObjectGuid guid, int32 id/* = 0 */) override
         {
             if (id == DATA_INTENSE_COLD)
                 intenseColdList.push_back(guid);
