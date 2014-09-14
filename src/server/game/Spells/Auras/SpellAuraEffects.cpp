@@ -2751,8 +2751,12 @@ void AuraEffect::HandlePreventFleeing(AuraApplication const* aurApp, uint8 mode,
 
     Unit* target = aurApp->GetTarget();
 
-    if (target->HasAuraType(SPELL_AURA_MOD_FEAR))
-        target->SetControlled(!(apply), UNIT_STATE_FLEEING);
+    // Since patch 3.0.2 this mechanic no longer affects fear effects. It will ONLY prevent humanoids from fleeing due to low health.
+    if (!apply || target->HasAuraType(SPELL_AURA_MOD_FEAR))
+        return;
+    /// TODO: find a way to cancel fleeing for assistance.
+    /// Currently this will only stop creatures fleeing due to low health that could not find nearby allies to flee towards.
+    target->SetControlled(false, UNIT_STATE_FLEEING);
 }
 
 /***************************/
