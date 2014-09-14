@@ -27,7 +27,7 @@ void GetPlayerInfo(ChatHandler* handler, Player* player)
     if (!player)
         return;
 
-    uint64 guid = player->GetGUID();
+    ObjectGuid guid = player->GetGUID();
     lfg::LfgDungeonSet dungeons = sLFGMgr->GetSelectedDungeons(guid);
 
     std::string const& state = lfg::GetStateString(sLFGMgr->GetState(guid));
@@ -86,7 +86,7 @@ public:
             return true;
         }
 
-        uint64 guid = grp->GetGUID();
+        ObjectGuid guid = grp->GetGUID();
         std::string const& state = lfg::GetStateString(sLFGMgr->GetState(guid));
         handler->PSendSysMessage(LANG_LFG_GROUP_INFO, grp->isLFGGroup(),
             state.c_str(), sLFGMgr->GetDungeon(guid));
