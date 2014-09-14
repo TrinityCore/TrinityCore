@@ -382,7 +382,7 @@ class instance_uldaman : public InstanceMapScript
                 }
             }
 
-            void SetData64(uint32 type, uint64 data) override
+            void SetGuidData(uint32 type, ObjectGuid data) override
             {
                 // Archaedas
                 if (type == 0)
@@ -458,7 +458,7 @@ class instance_uldaman : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 identifier) const override
+            ObjectGuid GetGuidData(uint32 identifier) const override
             {
                 switch (identifier)
                 {
@@ -481,7 +481,7 @@ class instance_uldaman : public InstanceMapScript
                 }
 
                 return 0;
-            } // end GetData64
+            } // end GetGuidData
 
             void ProcessEvent(WorldObject* /*gameObject*/, uint32 eventId) override
             {

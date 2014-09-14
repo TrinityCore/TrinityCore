@@ -143,10 +143,10 @@ public:
 
         bool DoEncounteraction(Unit* who, bool attack, bool reset, bool checkAllDead)
         {
-            Creature* Thane = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_THANE));
-            Creature* Lady = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LADY));
-            Creature* Baron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BARON));
-            Creature* Sir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SIR));
+            Creature* Thane = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THANE));
+            Creature* Lady = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LADY));
+            Creature* Baron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BARON));
+            Creature* Sir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SIR));
 
             if (Thane && Lady && Baron && Sir)
             {

@@ -397,7 +397,7 @@ class boss_algalon_the_observer : public CreatureScript
                 {
                     _firstPull = false;
                     Talk(SAY_ALGALON_START_TIMER);
-                    if (Creature* brann = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BRANN_BRONZEBEARD_ALG)))
+                    if (Creature* brann = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BRANN_BRONZEBEARD_ALG)))
                         brann->AI()->DoAction(ACTION_FINISH_INTRO);
 
                     me->setActive(true);
@@ -995,10 +995,10 @@ class go_celestial_planetarium_access : public GameObjectScript
                 if (InstanceScript* instance = go->GetInstanceScript())
                 {
                     instance->SetData(DATA_ALGALON_SUMMON_STATE, 1);
-                    if (GameObject* sigil = ObjectAccessor::GetGameObject(*go, instance->GetData64(DATA_SIGILDOOR_01)))
+                    if (GameObject* sigil = ObjectAccessor::GetGameObject(*go, instance->GetGuidData(DATA_SIGILDOOR_01)))
                         sigil->SetGoState(GO_STATE_ACTIVE);
 
-                    if (GameObject* sigil = ObjectAccessor::GetGameObject(*go, instance->GetData64(DATA_SIGILDOOR_02)))
+                    if (GameObject* sigil = ObjectAccessor::GetGameObject(*go, instance->GetGuidData(DATA_SIGILDOOR_02)))
                         sigil->SetGoState(GO_STATE_ACTIVE);
                 }
 

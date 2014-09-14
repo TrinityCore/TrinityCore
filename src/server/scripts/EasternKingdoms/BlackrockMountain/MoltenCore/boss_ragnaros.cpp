@@ -153,7 +153,7 @@ class boss_ragnaros : public CreatureScript
                             break;
                         case EVENT_INTRO_4:
                             Talk(SAY_ARRIVAL5_RAG);
-                            if (Creature* executus = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MAJORDOMO_EXECUTUS)))
+                            if (Creature* executus = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_MAJORDOMO_EXECUTUS)))
                                 me->Kill(executus);
                             break;
                         case EVENT_INTRO_5:

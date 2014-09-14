@@ -247,7 +247,7 @@ class instance_serpent_shrine : public InstanceMapScript
                 }
             }
 
-            void SetData64(uint32 type, uint64 data) override
+            void SetGuidData(uint32 type, ObjectGuid data) override
             {
                 if (type == DATA_KARATHRESSEVENT_STARTER)
                     KarathressEvent_Starter = data;
@@ -255,7 +255,7 @@ class instance_serpent_shrine : public InstanceMapScript
                     LeotherasEventStarter = data;
             }
 
-            uint64 GetData64(uint32 identifier) const override
+            ObjectGuid GetGuidData(uint32 identifier) const override
             {
                 switch (identifier)
                 {

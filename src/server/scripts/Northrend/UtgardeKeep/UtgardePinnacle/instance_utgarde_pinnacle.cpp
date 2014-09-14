@@ -133,7 +133,7 @@ class instance_utgarde_pinnacle : public InstanceMapScript
                 }
             }
 
-            void SetData64(uint32 type, uint64 data) override
+            void SetGuidData(uint32 type, ObjectGuid data) override
             {
                 switch (type)
                 {
@@ -145,7 +145,7 @@ class instance_utgarde_pinnacle : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {

@@ -73,13 +73,13 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                 return true;
             }
 
-            void SetData64(uint32 type, uint64 data) override
+            void SetGuidData(uint32 type, ObjectGuid data) override
             {
                 if (type == DATA_PARALYZED)
                     _paralyzedGUID = data;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {

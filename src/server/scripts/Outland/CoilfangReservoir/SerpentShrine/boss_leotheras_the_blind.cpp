@@ -317,10 +317,10 @@ public:
                 // and reseting equipment
                 me->LoadEquipment();
 
-                if (instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
+                if (instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
                 {
                     Unit* victim = NULL;
-                    victim = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
+                    victim = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER));
                     if (victim)
                         me->getThreatManager().addThreat(victim, 1);
                     StartEvent();
@@ -700,7 +700,7 @@ public:
             Mindblast_Timer  = urand(3000, 8000);
             Earthshock_Timer = urand(5000, 10000);
 
-            instance->SetData64(DATA_LEOTHERAS_EVENT_STARTER, 0);
+            instance->SetGuidData(DATA_LEOTHERAS_EVENT_STARTER, 0);
             Creature* leotheras = ObjectAccessor::GetCreature(*me, leotherasGUID);
             if (leotheras && leotheras->IsAlive())
                 ENSURE_AI(boss_leotheras_the_blind::boss_leotheras_the_blindAI, leotheras->AI())->CheckChannelers(/*false*/);
@@ -709,7 +709,7 @@ public:
         void EnterCombat(Unit* who) override
         {
             me->InterruptNonMeleeSpells(false);
-            instance->SetData64(DATA_LEOTHERAS_EVENT_STARTER, who->GetGUID());
+            instance->SetGuidData(DATA_LEOTHERAS_EVENT_STARTER, who->GetGUID());
         }
 
         void JustRespawned() override
@@ -734,12 +734,12 @@ public:
         void UpdateAI(uint32 diff) override
         {
             if (!leotherasGUID)
-                leotherasGUID = instance->GetData64(DATA_LEOTHERAS);
+                leotherasGUID = instance->GetGuidData(DATA_LEOTHERAS);
 
-            if (!me->IsInCombat() && instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
+            if (!me->IsInCombat() && instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
             {
                 Unit* victim = NULL;
-                victim = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
+                victim = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER));
                 if (victim)
                     AttackStart(victim);
             }
@@ -750,7 +750,7 @@ public:
                 return;
             }
 
-            if (!instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
+            if (!instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
             {
                 EnterEvadeMode();
                 return;

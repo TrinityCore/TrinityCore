@@ -138,7 +138,7 @@ public:
                     break;
                 case DATA_IN_POSITION: //movement done.
                     me->GetMotionMaster()->MovePoint(1, 735.81f, 661.92f, 412.39f);
-                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                         instance->HandleGameObject(go->GetGUID(), false);
                     NextStep(10000, false, 3);
                     break;
@@ -234,8 +234,8 @@ public:
                         if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                             if (Unit* unit = pVehicle->GetPassenger(0))
                                 uiGrandChampionBoss1 = unit->GetGUID();
-                        instance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_1, uiVehicle1GUID);
-                        instance->SetData64(DATA_GRAND_CHAMPION_1, uiGrandChampionBoss1);
+                        instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_1, uiVehicle1GUID);
+                        instance->SetGuidData(DATA_GRAND_CHAMPION_1, uiGrandChampionBoss1);
                         pBoss->AI()->SetData(1, 0);
                         break;
                     }
@@ -246,8 +246,8 @@ public:
                         if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                             if (Unit* unit = pVehicle->GetPassenger(0))
                                 uiGrandChampionBoss2 = unit->GetGUID();
-                        instance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_2, uiVehicle2GUID);
-                        instance->SetData64(DATA_GRAND_CHAMPION_2, uiGrandChampionBoss2);
+                        instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_2, uiVehicle2GUID);
+                        instance->SetGuidData(DATA_GRAND_CHAMPION_2, uiGrandChampionBoss2);
                         pBoss->AI()->SetData(2, 0);
                         break;
                     }
@@ -258,8 +258,8 @@ public:
                         if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                             if (Unit* unit = pVehicle->GetPassenger(0))
                                 uiGrandChampionBoss3 = unit->GetGUID();
-                        instance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_3, uiVehicle3GUID);
-                        instance->SetData64(DATA_GRAND_CHAMPION_3, uiGrandChampionBoss3);
+                        instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_3, uiVehicle3GUID);
+                        instance->SetGuidData(DATA_GRAND_CHAMPION_3, uiGrandChampionBoss3);
                         pBoss->AI()->SetData(3, 0);
                         break;
                     }

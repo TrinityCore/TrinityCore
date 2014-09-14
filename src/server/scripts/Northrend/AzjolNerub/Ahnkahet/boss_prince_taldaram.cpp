@@ -263,7 +263,7 @@ class boss_prince_taldaram : public CreatureScript
                 me->SetDisableGravity(false);
                 me->GetMotionMaster()->MoveLand(0, me->GetHomePosition());
                 Talk(SAY_WARNING);
-                instance->HandleGameObject(instance->GetData64(DATA_PRINCE_TALDARAM_PLATFORM), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_PRINCE_TALDARAM_PLATFORM), true);
             }
 
         private:
@@ -385,7 +385,7 @@ class go_prince_taldaram_sphere : public GameObjectScript
             if (!instance)
                 return false;
 
-            Creature* PrinceTaldaram = ObjectAccessor::GetCreature(*go, instance->GetData64(DATA_PRINCE_TALDARAM));
+            Creature* PrinceTaldaram = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_PRINCE_TALDARAM));
             if (PrinceTaldaram && PrinceTaldaram->IsAlive())
             {
                 go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);

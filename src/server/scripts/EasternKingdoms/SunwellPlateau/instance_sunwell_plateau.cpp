@@ -158,7 +158,7 @@ class instance_sunwell_plateau : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 id) const override
+            ObjectGuid GetGuidData(uint32 id) const override
             {
                 switch (id)
                 {

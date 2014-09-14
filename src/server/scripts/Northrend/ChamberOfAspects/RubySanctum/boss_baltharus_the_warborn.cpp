@@ -132,7 +132,7 @@ class boss_baltharus_the_warborn : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
-                if (Creature* xerestrasza = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_XERESTRASZA)))
+                if (Creature* xerestrasza = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_XERESTRASZA)))
                     xerestrasza->AI()->DoAction(ACTION_BALTHARUS_DEATH);
             }
 
@@ -190,7 +190,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                             Talk(SAY_BALTHARUS_INTRO);
                             break;
                         case EVENT_OOC_CHANNEL:
-                            if (Creature* channelTarget = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_CRYSTAL_CHANNEL_TARGET)))
+                            if (Creature* channelTarget = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CRYSTAL_CHANNEL_TARGET)))
                                 DoCast(channelTarget, SPELL_BARRIER_CHANNEL);
                             events.ScheduleEvent(EVENT_OOC_CHANNEL, 7000, 0, PHASE_INTRO);
                             break;
@@ -258,7 +258,7 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
             void JustDied(Unit* killer) override
             {
                 // This is here because DamageTaken wont trigger if the damage is deadly.
-                if (Creature* baltharus = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_BALTHARUS_THE_WARBORN)))
+                if (Creature* baltharus = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_BALTHARUS_THE_WARBORN)))
                     killer->Kill(baltharus);
             }
 

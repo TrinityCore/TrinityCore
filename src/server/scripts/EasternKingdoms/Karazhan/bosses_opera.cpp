@@ -710,10 +710,10 @@ public:
             Talk(SAY_CRONE_DEATH);
 
             instance->SetData(TYPE_OPERA, DONE);
-            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORLEFT), true);
+            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORRIGHT), true);
 
-            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetGuidData(DATA_GO_SIDE_ENTRANCE_DOOR)))
                 pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
         }
 
@@ -910,10 +910,10 @@ public:
             DoPlaySoundToSet(me, SOUND_WOLF_DEATH);
 
             instance->SetData(TYPE_OPERA, DONE);
-            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORLEFT), true);
+            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORRIGHT), true);
 
-            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetGuidData(DATA_GO_SIDE_ENTRANCE_DOOR)))
                 pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
         }
 
@@ -1160,9 +1160,9 @@ public:
             Talk(SAY_JULIANNE_DEATH02);
 
             instance->SetData(TYPE_OPERA, DONE);
-            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
-            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORLEFT), true);
+            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORRIGHT), true);
+            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetGuidData(DATA_GO_SIDE_ENTRANCE_DOOR)))
                 pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
         }
 
@@ -1318,10 +1318,10 @@ public:
             Talk(SAY_ROMULO_DEATH);
 
             instance->SetData(TYPE_OPERA, DONE);
-            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORLEFT), true);
+            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORRIGHT), true);
 
-            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetGuidData(DATA_GO_SIDE_ENTRANCE_DOOR)))
                 pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
         }
 

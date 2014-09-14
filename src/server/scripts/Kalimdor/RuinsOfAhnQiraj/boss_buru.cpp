@@ -208,7 +208,7 @@ class npc_buru_egg : public CreatureScript
 
             void EnterCombat(Unit* attacker) override
             {
-                if (Creature* buru = me->GetMap()->GetCreature(_instance->GetData64(DATA_BURU)))
+                if (Creature* buru = me->GetMap()->GetCreature(_instance->GetGuidData(DATA_BURU)))
                     if (!buru->IsInCombat())
                         buru->AI()->AttackStart(attacker);
             }
@@ -216,7 +216,7 @@ class npc_buru_egg : public CreatureScript
             void JustSummoned(Creature* who) override
             {
                 if (who->GetEntry() == NPC_HATCHLING)
-                    if (Creature* buru = me->GetMap()->GetCreature(_instance->GetData64(DATA_BURU)))
+                    if (Creature* buru = me->GetMap()->GetCreature(_instance->GetGuidData(DATA_BURU)))
                         if (Unit* target = buru->AI()->SelectTarget(SELECT_TARGET_RANDOM))
                             who->AI()->AttackStart(target);
             }
@@ -227,7 +227,7 @@ class npc_buru_egg : public CreatureScript
                 DoCastAOE(SPELL_EXPLODE_2, true); // Unknown purpose
                 DoCast(me, SPELL_SUMMON_HATCHLING, true);
 
-                if (Creature* buru = me->GetMap()->GetCreature(_instance->GetData64(DATA_BURU)))
+                if (Creature* buru = me->GetMap()->GetCreature(_instance->GetGuidData(DATA_BURU)))
                     if (boss_buru::boss_buruAI* buruAI = dynamic_cast<boss_buru::boss_buruAI*>(buru->AI()))
                         buruAI->ManageRespawn(me->GetGUID());
             }

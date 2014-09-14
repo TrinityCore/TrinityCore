@@ -222,7 +222,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 uiIdentifier) const override
+        ObjectGuid GetGuidData(uint32 uiIdentifier) const override
         {
             switch (uiIdentifier)
             {

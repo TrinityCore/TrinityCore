@@ -173,7 +173,7 @@ public:
             }
         }
 
-        void SetData64(uint32 type, uint64 data) override
+        void SetGuidData(uint32 type, ObjectGuid data) override
         {
             switch (type)
             {
@@ -185,7 +185,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 data) const override
+        ObjectGuid GetGuidData(uint32 data) const override
         {
             switch (data)
             {
