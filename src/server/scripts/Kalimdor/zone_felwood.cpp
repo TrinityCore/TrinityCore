@@ -25,6 +25,94 @@
 #include "GridNotifiersImpl.h"
 #include "SpellScript.h"
 
+/*######
+## npc_whisperwind_lasher
+######*/
+
+enum WhisperwindLasher
+{
+    EVENT_CHECK_OOC        = 1,
+    SPELL_INFECTED_WOULD   = 52225,
+    SPELL_STAND            = 37752,
+    NPC_WHISPERWIND_LASHER = 47747,
+    NPC_CORRUPTED_LASHER   = 48387,
+    FACTION_HOSTILE        = 14,
+    CHANCE_HOSTILE         = 30
+};
+
+class npc_whisperwind_lasher : public CreatureScript
+{
+public:
+    npc_whisperwind_lasher() : CreatureScript("npc_whisperwind_lasher") { }
+
+    struct npc_whisperwind_lasherAI : public ScriptedAI
+    {
+        npc_whisperwind_lasherAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() override
+        {
+            lasher_clicked = false;
+        }
+
+        void OnSpellClick(Unit* clicker, bool& result) override
+        {
+            if (!result)
+                return;
+
+            if (roll_chance_i(CHANCE_HOSTILE))
+            {
+                me->CastSpell(me, SPELL_INFECTED_WOULD);
+                me->SetEntry(NPC_CORRUPTED_LASHER);
+                me->setFaction(FACTION_HOSTILE);
+            }
+            else
+            {
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            }
+
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            me->CastSpell(me, SPELL_STAND);
+            me->GetMotionMaster()->MoveRandom(8.0f);
+            events.ScheduleEvent(EVENT_CHECK_OOC, 20000);
+            lasher_clicked = true;
+
+            if (Player* player = clicker->ToPlayer())
+                player->KilledMonsterCredit(NPC_WHISPERWIND_LASHER, 0);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!lasher_clicked)
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_CHECK_OOC:
+                    if (!me->IsInCombat())
+                        me->DespawnOrUnsummon();
+                    else
+                        events.ScheduleEvent(EVENT_CHECK_OOC, 5000);
+                    break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        EventMap events;
+        bool lasher_clicked;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_whisperwind_lasherAI(creature);
+    }
+};
+
 /*#####
 # Spell 88254 "Swipe Honey" scripted for quest 27989 "Ruumbo Demands Honey"
 #####*/
@@ -174,6 +262,7 @@ public: spell_ruumbos_silly_dance() : SpellScriptLoader("spell_ruumbos_silly_dan
 
 void AddSC_felwood()
 {
+    new npc_whisperwind_lasher();
     new spell_swipe_honey();
     new spell_beesbees();
     new spell_ruumbos_silly_dance();
