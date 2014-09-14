@@ -1037,37 +1037,6 @@ class spell_xt002_submerged : public SpellScriptLoader
         }
 };
 
-class spell_xt002_stand : public SpellScriptLoader
-{
-    public:
-        spell_xt002_stand() : SpellScriptLoader("spell_xt002_stand") { }
-
-        class spell_xt002_stand_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_xt002_stand_SpellScript);
-
-            void HandleScript(SpellEffIndex /*eff*/)
-            {
-                Creature* target = GetHitCreature();
-                if (!target)
-                    return;
-
-                target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                target->SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_STAND);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_xt002_stand_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_xt002_stand_SpellScript();
-        }
-};
-
 class achievement_nerf_engineering : public AchievementCriteriaScript
 {
     public:
@@ -1126,7 +1095,6 @@ void AddSC_boss_xt002()
     new spell_xt002_heart_overload_periodic();
     new spell_xt002_tympanic_tantrum();
     new spell_xt002_submerged();
-    new spell_xt002_stand();
 
     new achievement_nerf_engineering();
     new achievement_heartbreaker();
