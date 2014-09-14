@@ -306,7 +306,7 @@ class instance_naxxramas : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 id) const override
+            ObjectGuid GetGuidData(uint32 id) const override
             {
                 switch (id)
                 {

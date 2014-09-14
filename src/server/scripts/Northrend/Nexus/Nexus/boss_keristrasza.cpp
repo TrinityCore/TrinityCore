@@ -121,9 +121,9 @@ public:
 
         bool CheckContainmentSpheres(bool remove_prison = false)
         {
-            auiContainmentSphereGUIDs[0] = instance->GetData64(ANOMALUS_CONTAINMET_SPHERE);
-            auiContainmentSphereGUIDs[1] = instance->GetData64(ORMOROKS_CONTAINMET_SPHERE);
-            auiContainmentSphereGUIDs[2] = instance->GetData64(TELESTRAS_CONTAINMET_SPHERE);
+            auiContainmentSphereGUIDs[0] = instance->GetGuidData(ANOMALUS_CONTAINMET_SPHERE);
+            auiContainmentSphereGUIDs[1] = instance->GetGuidData(ORMOROKS_CONTAINMET_SPHERE);
+            auiContainmentSphereGUIDs[2] = instance->GetGuidData(TELESTRAS_CONTAINMET_SPHERE);
 
             GameObject* ContainmentSpheres[DATA_CONTAINMENT_SPHERES];
 
@@ -213,7 +213,7 @@ public:
     {
         InstanceScript* instance = go->GetInstanceScript();
 
-        Creature* pKeristrasza = ObjectAccessor::GetCreature(*go, instance->GetData64(DATA_KERISTRASZA));
+        Creature* pKeristrasza = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_KERISTRASZA));
         if (pKeristrasza && pKeristrasza->IsAlive())
         {
             // maybe these are hacks :(

@@ -544,7 +544,7 @@ public:
             instance->SetBossState(DATA_ILLIDAN_STORMRAGE, DONE);
 
             for (uint8 i = DATA_GO_ILLIDAN_DOOR_R; i < DATA_GO_ILLIDAN_DOOR_L + 1; ++i)
-                instance->HandleGameObject(instance->GetData64(i), true);
+                instance->HandleGameObject(instance->GetGuidData(i), true);
         }
 
         void KilledUnit(Unit* victim) override
@@ -1367,10 +1367,10 @@ public:
             WalkCount = 0;
             instance->SetBossState(DATA_ILLIDAN_STORMRAGE, NOT_STARTED);
 
-            IllidanGUID = instance->GetData64(DATA_ILLIDAN_STORMRAGE);
-            GateGUID = instance->GetData64(DATA_GO_ILLIDAN_GATE);
-            DoorGUID[0] = instance->GetData64(DATA_GO_ILLIDAN_DOOR_R);
-            DoorGUID[1] = instance->GetData64(DATA_GO_ILLIDAN_DOOR_L);
+            IllidanGUID = instance->GetGuidData(DATA_ILLIDAN_STORMRAGE);
+            GateGUID = instance->GetGuidData(DATA_GO_ILLIDAN_GATE);
+            DoorGUID[0] = instance->GetGuidData(DATA_GO_ILLIDAN_DOOR_R);
+            DoorGUID[1] = instance->GetGuidData(DATA_GO_ILLIDAN_DOOR_L);
 
             if (JustCreated) // close all doors at create
             {
@@ -1988,7 +1988,7 @@ public:
                         DespawnTimer = 5000;
                         if (who->HasAura(SPELL_ENRAGE))
                             who->RemoveAurasDueToSpell(SPELL_ENRAGE); // Dispel his enrage
-                        // if (GameObject* CageTrap = instance->instance->GetGameObject(instance->GetData64(CageTrapGUID)))
+                        // if (GameObject* CageTrap = instance->instance->GetGameObject(instance->GetGuidData(CageTrapGUID)))
 
                         //    CageTrap->SetLootState(GO_JUST_DEACTIVATED);
                     }
@@ -2139,7 +2139,7 @@ public:
 
         void Reset() override
         {
-            IllidanGUID = instance->GetData64(DATA_ILLIDAN_STORMRAGE);
+            IllidanGUID = instance->GetGuidData(DATA_ILLIDAN_STORMRAGE);
 
             CheckTimer = 5000;
             DoCast(me, SPELL_SHADOWFIEND_PASSIVE, true);

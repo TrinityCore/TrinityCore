@@ -203,7 +203,7 @@ class npc_corrupted_soul_fragment : public CreatureScript
 
                 if (TempSummon* summ = me->ToTempSummon())
                 {
-                    ObjectGuid BronjahmGUID(instance->GetData64(DATA_BRONJAHM));
+                    ObjectGuid BronjahmGUID(instance->GetGuidData(DATA_BRONJAHM));
                     if (BronjahmGUID.GetCounter() != id)
                         return;
 

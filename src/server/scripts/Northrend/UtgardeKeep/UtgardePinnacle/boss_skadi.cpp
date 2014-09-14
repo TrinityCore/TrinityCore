@@ -469,7 +469,7 @@ public:
         if (!instance)
             return false;
 
-        if (Creature* pSkadi = ObjectAccessor::GetCreature(*go, instance->GetData64(DATA_SKADI_THE_RUTHLESS)))
+        if (Creature* pSkadi = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_SKADI_THE_RUTHLESS)))
             player->CastSpell(pSkadi, SPELL_RAPID_FIRE, true);
 
         return false;

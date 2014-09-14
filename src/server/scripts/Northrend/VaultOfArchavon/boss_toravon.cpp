@@ -256,7 +256,7 @@ class npc_frozen_orb_stalker : public CreatureScript
                     return;
 
                 spawned = true;
-                Unit* toravon = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TORAVON));
+                Unit* toravon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TORAVON));
                 if (!toravon)
                     return;
 

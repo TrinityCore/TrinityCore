@@ -387,7 +387,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         Initialize();
 
         // in case she is not alive and Reset was for some reason called, respawn her (most likely party wipe after killing her)
-        if (Creature* pDelrissa = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_DELRISSA)))
+        if (Creature* pDelrissa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA)))
         {
             if (!pDelrissa->IsAlive())
                 pDelrissa->Respawn();
@@ -411,7 +411,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
             }
         }
 
-        if (Creature* pDelrissa = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_DELRISSA)))
+        if (Creature* pDelrissa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA)))
         {
             if (pDelrissa->IsAlive() && !pDelrissa->GetVictim())
             {
@@ -423,7 +423,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        Creature* pDelrissa = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_DELRISSA));
+        Creature* pDelrissa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA));
         uint32 uiLackeyDeathCount = instance->GetData(DATA_DELRISSA_DEATH_COUNT);
 
         if (!pDelrissa)
@@ -452,13 +452,13 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
 
     void KilledUnit(Unit* victim) override
     {
-        if (Creature* Delrissa = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_DELRISSA)))
+        if (Creature* Delrissa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA)))
             Delrissa->AI()->KilledUnit(victim);
     }
 
     void AcquireGUIDs()
     {
-        if (Creature* Delrissa = (ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_DELRISSA))))
+        if (Creature* Delrissa = (ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA))))
         {
             for (uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
                 m_auiLackeyGUIDs[i] = ENSURE_AI(boss_priestess_delrissa::boss_priestess_delrissaAI, Delrissa->AI())->m_auiLackeyGUID[i];

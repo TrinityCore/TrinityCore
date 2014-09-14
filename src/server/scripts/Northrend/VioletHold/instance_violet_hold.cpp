@@ -410,7 +410,7 @@ public:
             }
         }
 
-        void SetData64(uint32 type, uint64 data) override
+        void SetGuidData(uint32 type, ObjectGuid data) override
         {
             switch (type)
             {
@@ -444,7 +444,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 identifier) const override
+        ObjectGuid GetGuidData(uint32 identifier) const override
         {
             switch (identifier)
             {
@@ -816,7 +816,7 @@ public:
             // visuals
             trigger->CastSpell(trigger, spellInfoLightning, true, 0, 0, trigger->GetGUID());
 
-            // Kill all mobs registered with SetData64(ADD_TRASH_MOB)
+            // Kill all mobs registered with SetGuidData(ADD_TRASH_MOB)
             for (std::set<uint64>::const_iterator itr = trashMobs.begin(); itr != trashMobs.end(); ++itr)
             {
                 Creature* creature = instance->GetCreature(*itr);

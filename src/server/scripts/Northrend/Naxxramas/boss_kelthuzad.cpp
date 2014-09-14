@@ -313,7 +313,7 @@ public:
 
             instance->SetData(DATA_ABOMINATION_KILLED, 0);
 
-            if (GameObject* trigger = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_KELTHUZAD_TRIGGER)))
+            if (GameObject* trigger = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_KELTHUZAD_TRIGGER)))
             {
                 trigger->ResetDoorOrButton();
                 trigger->SetPhaseMask(1, true);
@@ -321,7 +321,7 @@ public:
 
             for (uint8 i = 0; i <= 3; ++i)
             {
-                if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_KELTHUZAD_PORTAL01 + i)))
+                if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_KELTHUZAD_PORTAL01 + i)))
                     if (!((portal->getLootState() == GO_READY) || (portal->getLootState() == GO_NOT_READY)))
                         portal->ResetDoorOrButton();
             }
@@ -349,7 +349,7 @@ public:
             _EnterCombat();
             for (uint8 i = 0; i <= 3; ++i)
             {
-                if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_KELTHUZAD_PORTAL01 + i)))
+                if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_KELTHUZAD_PORTAL01 + i)))
                     portal->ResetDoorOrButton();
             }
             DoCast(me, SPELL_KELTHUZAD_CHANNEL, false);
@@ -399,7 +399,7 @@ public:
                             }
                             break;
                         case EVENT_TRIGGER:
-                            if (GameObject* trigger = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_KELTHUZAD_TRIGGER)))
+                            if (GameObject* trigger = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_KELTHUZAD_TRIGGER)))
                                 trigger->SetPhaseMask(2, true);
                             break;
                         case EVENT_PHASE:
@@ -439,7 +439,7 @@ public:
 
                         for (uint8 i = 0; i <= 3; ++i)
                         {
-                            if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_KELTHUZAD_PORTAL01 + i)))
+                            if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_KELTHUZAD_PORTAL01 + i)))
                                 if (portal->getLootState() == GO_READY)
                                     portal->UseDoorOrButton();
                         }
@@ -639,7 +639,7 @@ public:
         if (!instance || instance->IsEncounterInProgress() || instance->GetBossState(BOSS_KELTHUZAD) == DONE)
             return false;
 
-        Creature* pKelthuzad = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_KELTHUZAD));
+        Creature* pKelthuzad = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_KELTHUZAD));
         if (!pKelthuzad)
             return false;
 
@@ -648,7 +648,7 @@ public:
             return false;
 
         pKelthuzadAI->AttackStart(player);
-        if (GameObject* trigger = ObjectAccessor::GetGameObject(*player, instance->GetData64(DATA_KELTHUZAD_TRIGGER)))
+        if (GameObject* trigger = ObjectAccessor::GetGameObject(*player, instance->GetGuidData(DATA_KELTHUZAD_TRIGGER)))
         {
             if (trigger->getLootState() == GO_READY)
                 trigger->UseDoorOrButton();

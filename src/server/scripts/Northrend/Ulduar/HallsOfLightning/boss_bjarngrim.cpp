@@ -409,7 +409,7 @@ public:
 
         void EnterCombat(Unit* who) override
         {
-            if (Creature* pBjarngrim = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BJARNGRIM)))
+            if (Creature* pBjarngrim = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BJARNGRIM)))
             {
                 if (pBjarngrim->IsAlive() && !pBjarngrim->GetVictim())
                     pBjarngrim->AI()->AttackStart(who);
@@ -432,7 +432,7 @@ public:
 
             if (m_uiRenewSteel_Timer <= uiDiff)
             {
-                if (Creature* pBjarngrim = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BJARNGRIM)))
+                if (Creature* pBjarngrim = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BJARNGRIM)))
                 {
                     if (pBjarngrim->IsAlive())
                         DoCast(pBjarngrim, SPELL_RENEW_STEEL_N);

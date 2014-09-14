@@ -136,9 +136,9 @@ public:
             BlessingOfTides = false;
 
             uint64 RAdvisors[MAX_ADVISORS];
-            RAdvisors[0] = instance->GetData64(DATA_SHARKKIS);
-            RAdvisors[1] = instance->GetData64(DATA_TIDALVESS);
-            RAdvisors[2] = instance->GetData64(DATA_CARIBDIS);
+            RAdvisors[0] = instance->GetGuidData(DATA_SHARKKIS);
+            RAdvisors[1] = instance->GetGuidData(DATA_TIDALVESS);
+            RAdvisors[2] = instance->GetGuidData(DATA_CARIBDIS);
             // Respawn of the 3 Advisors
             for (uint8 i = 0; i < MAX_ADVISORS; ++i)
                 if (RAdvisors[i])
@@ -175,9 +175,9 @@ public:
 
         void GetAdvisors()
         {
-            Advisors[0] = instance->GetData64(DATA_SHARKKIS);
-            Advisors[1] = instance->GetData64(DATA_TIDALVESS);
-            Advisors[2] = instance->GetData64(DATA_CARIBDIS);
+            Advisors[0] = instance->GetGuidData(DATA_SHARKKIS);
+            Advisors[1] = instance->GetGuidData(DATA_TIDALVESS);
+            Advisors[2] = instance->GetGuidData(DATA_CARIBDIS);
         }
 
         void StartEvent(Unit* who)
@@ -187,7 +187,7 @@ public:
             Talk(SAY_AGGRO);
             DoZoneInCombat();
 
-            instance->SetData64(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
+            instance->SetGuidData(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
             instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
         }
 
@@ -216,7 +216,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->IsInCombat() && instance->GetData(DATA_KARATHRESSEVENT))
             {
-                if (Unit* target = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER)))
+                if (Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_KARATHRESSEVENT_STARTER)))
                 {
                     AttackStart(target);
                     GetAdvisors();
@@ -342,13 +342,13 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* Karathress = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KARATHRESS)))
+            if (Creature* Karathress = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KARATHRESS)))
                 ENSURE_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventSharkkisDeath();
         }
 
         void EnterCombat(Unit* who) override
         {
-            instance->SetData64(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
+            instance->SetGuidData(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
             instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
         }
 
@@ -357,7 +357,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->IsInCombat() && instance->GetData(DATA_KARATHRESSEVENT))
             {
-                if (Unit* target = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER)))
+                if (Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_KARATHRESSEVENT_STARTER)))
                     AttackStart(target);
             }
 
@@ -468,13 +468,13 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* Karathress = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KARATHRESS)))
+            if (Creature* Karathress = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KARATHRESS)))
                 ENSURE_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventTidalvessDeath();
         }
 
         void EnterCombat(Unit* who) override
         {
-            instance->SetData64(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
+            instance->SetGuidData(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
             instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
             DoCast(me, SPELL_WINDFURY_WEAPON);
         }
@@ -484,7 +484,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->IsInCombat() && instance->GetData(DATA_KARATHRESSEVENT))
             {
-                if (Unit* target = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER)))
+                if (Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_KARATHRESSEVENT_STARTER)))
                     AttackStart(target);
             }
 
@@ -584,13 +584,13 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* Karathress = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KARATHRESS)))
+            if (Creature* Karathress = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KARATHRESS)))
                 ENSURE_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventCaribdisDeath();
         }
 
         void EnterCombat(Unit* who) override
         {
-            instance->SetData64(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
+            instance->SetGuidData(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
             instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
         }
 
@@ -599,7 +599,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->IsInCombat() && instance->GetData(DATA_KARATHRESSEVENT))
             {
-                if (Unit* target = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER)))
+                if (Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_KARATHRESSEVENT_STARTER)))
                     AttackStart(target);
             }
 
@@ -675,13 +675,13 @@ public:
             switch (rand32() % 4)
             {
             case 0:
-                unit = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_KARATHRESS));
+                unit = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_KARATHRESS));
                 break;
             case 1:
-                unit = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_SHARKKIS));
+                unit = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_SHARKKIS));
                 break;
             case 2:
-                unit = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_TIDALVESS));
+                unit = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_TIDALVESS));
                 break;
             case 3:
                 unit = me;

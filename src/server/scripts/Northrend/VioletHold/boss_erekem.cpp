@@ -79,12 +79,12 @@ public:
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)
                 instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
 
-            if (Creature* pGuard1 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EREKEM_GUARD_1)))
+            if (Creature* pGuard1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_1)))
             {
                 if (!pGuard1->IsAlive())
                     pGuard1->Respawn();
             }
-            if (Creature* pGuard2 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EREKEM_GUARD_2)))
+            if (Creature* pGuard2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_2)))
             {
                 if (!pGuard2->IsAlive())
                     pGuard2->Respawn();
@@ -103,13 +103,13 @@ public:
                 who->SetInCombatWith(me);
                 DoStartMovement(who);
 
-                if (Creature* pGuard1 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EREKEM_GUARD_1)))
+                if (Creature* pGuard1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_1)))
                 {
                     pGuard1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE);
                     if (!pGuard1->GetVictim() && pGuard1->AI())
                         pGuard1->AI()->AttackStart(who);
                 }
-                if (Creature* pGuard2 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EREKEM_GUARD_2)))
+                if (Creature* pGuard2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_2)))
                 {
                     pGuard2->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE);
                     if (!pGuard2->GetVictim() && pGuard2->AI())
@@ -123,7 +123,7 @@ public:
             Talk(SAY_AGGRO);
             DoCast(me, SPELL_EARTH_SHIELD);
 
-            if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_EREKEM_CELL)))
+            if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetGuidData(DATA_EREKEM_CELL)))
                 if (pDoor->GetGoState() == GO_STATE_READY)
                 {
                     EnterEvadeMode();
@@ -148,9 +148,9 @@ public:
             //spam stormstrike in hc mode if spawns are dead
             if (IsHeroic())
             {
-                if (Creature* pGuard1 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EREKEM_GUARD_1)))
+                if (Creature* pGuard1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_1)))
                 {
-                    if (Creature* pGuard2 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EREKEM_GUARD_2)))
+                    if (Creature* pGuard2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_2)))
                     {
                         if (!pGuard1->IsAlive() && !pGuard2->IsAlive())
                             DoCastVictim(SPELL_STORMSTRIKE);
@@ -172,8 +172,8 @@ public:
                         DoCast(target, SPELL_CHAIN_HEAL);
 
                     //If one of the adds is dead spawn heals faster
-                    Creature* pGuard1 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EREKEM_GUARD_1));
-                    Creature* pGuard2 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EREKEM_GUARD_2));
+                    Creature* pGuard1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_1));
+                    Creature* pGuard2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_2));
                     uiChainHealTimer = ((pGuard1 && !pGuard1->IsAlive()) || (pGuard2 && !pGuard2->IsAlive()) ? 3000 : 8000) + rand32() % 3000;
                 }
             } else uiChainHealTimer -= diff;
@@ -229,11 +229,11 @@ public:
             if (HealthBelowPct(85))
                 return me->GetGUID();
 
-            Creature* pGuard1 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EREKEM_GUARD_1));
+            Creature* pGuard1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_1));
             if (pGuard1 && pGuard1->IsAlive() && !pGuard1->HealthAbovePct(75))
                 return pGuard1->GetGUID();
 
-            Creature* pGuard2 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EREKEM_GUARD_2));
+            Creature* pGuard2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_2));
             if (pGuard2 && pGuard2->IsAlive() && !pGuard2->HealthAbovePct(75))
                 return pGuard2->GetGUID();
 

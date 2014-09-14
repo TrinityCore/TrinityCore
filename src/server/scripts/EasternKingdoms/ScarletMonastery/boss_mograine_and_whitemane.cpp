@@ -132,7 +132,7 @@ public:
                 return;
 
             //On first death, fake death and open door, as well as initiate whitemane if exist
-            if (Unit* Whitemane = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_WHITEMANE)))
+            if (Unit* Whitemane = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_WHITEMANE)))
             {
                 instance->SetBossState(DATA_MOGRAINE_AND_WHITE_EVENT, IN_PROGRESS);
 
@@ -180,7 +180,7 @@ public:
             if (_bHasDied && !_bHeal && instance->GetBossState(DATA_MOGRAINE_AND_WHITE_EVENT) == SPECIAL)
             {
                 //On resurrection, stop fake death and heal whitemane and resume fight
-                if (Unit* Whitemane = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_WHITEMANE)))
+                if (Unit* Whitemane = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_WHITEMANE)))
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -302,7 +302,7 @@ public:
                 //When casting resuruction make sure to delay so on rez when reinstate battle deepsleep runs out
                 if (Wait_Timer <= diff)
                 {
-                    if (Creature* mograine = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MOGRAINE)))
+                    if (Creature* mograine = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MOGRAINE)))
                     {
                         DoCast(mograine, SPELL_SCARLETRESURRECTION);
                         Talk(SAY_WH_RESURRECT);
@@ -336,7 +336,7 @@ public:
                 if (!HealthAbovePct(75))
                     target = me;
 
-                if (Creature* mograine = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MOGRAINE)))
+                if (Creature* mograine = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MOGRAINE)))
                 {
                     // checking _bCanResurrectCheck prevents her healing Mograine while he is "faking death"
                     if (_bCanResurrectCheck && mograine->IsAlive() && !mograine->HealthAbovePct(75))

@@ -203,13 +203,13 @@ class boss_razorscale_controller : public CreatureScript
                 switch (spell->Id)
                 {
                     case SPELL_FLAMED:
-                        if (GameObject* Harpoon1 = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_RAZOR_HARPOON_1)))
+                        if (GameObject* Harpoon1 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_RAZOR_HARPOON_1)))
                             Harpoon1->RemoveFromWorld();
-                        if (GameObject* Harpoon2 = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_RAZOR_HARPOON_2)))
+                        if (GameObject* Harpoon2 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_RAZOR_HARPOON_2)))
                             Harpoon2->RemoveFromWorld();
-                        if (GameObject* Harpoon3 = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_RAZOR_HARPOON_3)))
+                        if (GameObject* Harpoon3 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_RAZOR_HARPOON_3)))
                             Harpoon3->RemoveFromWorld();
-                        if (GameObject* Harpoon4 = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_RAZOR_HARPOON_4)))
+                        if (GameObject* Harpoon4 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_RAZOR_HARPOON_4)))
                             Harpoon4->RemoveFromWorld();
                         DoAction(ACTION_HARPOON_BUILD);
                         DoAction(ACTION_PLACE_BROKEN_HARPOON);
@@ -312,7 +312,7 @@ class go_razorscale_harpoon : public GameObjectScript
         bool OnGossipHello(Player* /*player*/, GameObject* go) override
         {
             InstanceScript* instance = go->GetInstanceScript();
-            if (ObjectAccessor::GetCreature(*go, instance->GetData64(BOSS_RAZORSCALE)))
+            if (ObjectAccessor::GetCreature(*go, instance->GetGuidData(BOSS_RAZORSCALE)))
                 go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
             return false;
         }
@@ -347,14 +347,14 @@ class boss_razorscale : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 PermaGround = false;
                 HarpoonCounter = 0;
-                if (Creature* commander = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EXPEDITION_COMMANDER)))
+                if (Creature* commander = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EXPEDITION_COMMANDER)))
                     commander->AI()->DoAction(ACTION_COMMANDER_RESET);
             }
 
             void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
-                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RAZORSCALE_CONTROL)))
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAZORSCALE_CONTROL)))
                     controller->AI()->DoAction(ACTION_HARPOON_BUILD);
                 me->SetSpeed(MOVE_FLIGHT, 3.0f, true);
                 me->SetReactState(REACT_PASSIVE);
@@ -369,7 +369,7 @@ class boss_razorscale : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
-                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RAZORSCALE_CONTROL)))
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAZORSCALE_CONTROL)))
                     controller->AI()->Reset();
             }
 
@@ -445,7 +445,7 @@ class boss_razorscale : public CreatureScript
                                 me->SetCanFly(false);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
-                                if (Creature* commander = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EXPEDITION_COMMANDER)))
+                                if (Creature* commander = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EXPEDITION_COMMANDER)))
                                     commander->AI()->DoAction(ACTION_GROUND_PHASE);
                                 events.ScheduleEvent(EVENT_BREATH, 30000, 0, PHASE_GROUND);
                                 events.ScheduleEvent(EVENT_BUFFET, 33000, 0, PHASE_GROUND);
@@ -461,7 +461,7 @@ class boss_razorscale : public CreatureScript
                                 return;
                             case EVENT_BUFFET:
                                 DoCastAOE(SPELL_WINGBUFFET);
-                                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RAZORSCALE_CONTROL)))
+                                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAZORSCALE_CONTROL)))
                                     controller->CastSpell(controller, SPELL_FLAMED, true);
                                 events.CancelEvent(EVENT_BUFFET);
                                 return;
@@ -689,7 +689,7 @@ class npc_expedition_commander : public CreatureScript
                             Phase = 5;
                             break;
                         case 5:
-                            if (Creature* Razorscale = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_RAZORSCALE)))
+                            if (Creature* Razorscale = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_RAZORSCALE)))
                             {
                                 Razorscale->AI()->DoAction(ACTION_EVENT_START);
                                 me->SetInCombatWith(Razorscale);

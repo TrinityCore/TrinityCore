@@ -956,7 +956,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!targets)
                 break;
 
-            instance->SetData64(e.action.setInstanceData64.field, targets->front()->GetGUID().GetRawValue());
+            instance->SetGuidData(e.action.setInstanceData64.field, targets->front()->GetGUID());
             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_SET_INST_DATA64: Field: %u, data: " UI64FMTD,
                 e.action.setInstanceData64.field, targets->front()->GetGUID());
 

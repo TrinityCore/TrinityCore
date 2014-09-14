@@ -180,7 +180,7 @@ class instance_ahnkahet : public InstanceMapScript
                 return 0;
             }
 
-            void SetData64(uint32 type, uint64 data) override
+            void SetGuidData(uint32 type, ObjectGuid  data) override
             {
                 switch (type)
                 {
@@ -195,7 +195,7 @@ class instance_ahnkahet : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {

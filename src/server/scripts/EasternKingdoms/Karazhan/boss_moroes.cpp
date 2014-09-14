@@ -356,7 +356,7 @@ struct boss_moroes_guestAI : public ScriptedAI
 
     void AcquireGUID()
     {
-        if (Creature* Moroes = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MOROES)))
+        if (Creature* Moroes = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MOROES)))
             for (uint8 i = 0; i < 4; ++i)
                 if (uint64 GUID = ENSURE_AI(boss_moroes::boss_moroesAI, Moroes->AI())->AddGUID[i])
                     GuestGUID[i] = GUID;

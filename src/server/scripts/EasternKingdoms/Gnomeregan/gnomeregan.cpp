@@ -162,22 +162,22 @@ public:
                 }
             }
 
-            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(isRight ? DATA_GO_CAVE_IN_RIGHT : DATA_GO_CAVE_IN_LEFT)))
+            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(isRight ? DATA_GO_CAVE_IN_RIGHT : DATA_GO_CAVE_IN_LEFT)))
                 instance->HandleGameObject(0, false, go);
         }
 
         void SetInFace(bool isRight)
         {
-            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(isRight ? DATA_GO_CAVE_IN_RIGHT : DATA_GO_CAVE_IN_LEFT)))
+            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(isRight ? DATA_GO_CAVE_IN_RIGHT : DATA_GO_CAVE_IN_LEFT)))
                 me->SetFacingToObject(go);
         }
 
         void RestoreAll()
         {
-            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
+            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_RIGHT)))
                 instance->HandleGameObject(0, false, go);
 
-            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_LEFT)))
+            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_LEFT)))
                 instance->HandleGameObject(0, false, go);
 
             if (!GoSummonList.empty())
@@ -398,7 +398,7 @@ public:
                             SetInFace(true);
                             Talk(SAY_BLASTMASTER_5);
                             Summon(1);
-                            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
+                            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_RIGHT)))
                                 instance->HandleGameObject(0, true, go);
                             NextStep(3000, true);
                             break;
@@ -444,7 +444,7 @@ public:
                         case 16:
                             Talk(SAY_BLASTMASTER_14);
                             SetInFace(false);
-                            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_LEFT)))
+                            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_LEFT)))
                                 instance->HandleGameObject(0, true, go);
                             NextStep(2000, true);
                             break;

@@ -119,7 +119,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 uiType) const override
+        ObjectGuid GetGuidData(uint32 uiType) const override
         {
             switch (uiType)
             {

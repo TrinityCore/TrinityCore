@@ -373,7 +373,7 @@ class boss_professor_putricide : public CreatureScript
                         instance->SetBossState(DATA_FESTERGUT, IN_PROGRESS); // needed here for delayed gate close
                         me->SetSpeed(MOVE_RUN, _baseSpeed, true);
                         DoAction(ACTION_FESTERGUT_GAS);
-                        if (Creature* festergut = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FESTERGUT)))
+                        if (Creature* festergut = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FESTERGUT)))
                             festergut->CastSpell(festergut, SPELL_GASEOUS_BLIGHT_LARGE, false, NULL, NULL, festergut->GetGUID());
                         break;
                     case POINT_ROTFACE:
@@ -386,7 +386,7 @@ class boss_professor_putricide : public CreatureScript
                         // stop attack
                         me->GetMotionMaster()->MoveIdle();
                         me->SetSpeed(MOVE_RUN, _baseSpeed, true);
-                        if (GameObject* table = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_PUTRICIDE_TABLE)))
+                        if (GameObject* table = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_PUTRICIDE_TABLE)))
                             me->SetFacingToObject(table);
                         // operating on new phase already
                         switch (_phase)
@@ -443,7 +443,7 @@ class boss_professor_putricide : public CreatureScript
                         _oozeFloodStage = 0;
                         DoZoneInCombat(me);
                         // init random sequence of floods
-                        if (Creature* rotface = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ROTFACE)))
+                        if (Creature* rotface = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ROTFACE)))
                         {
                             std::list<Creature*> list;
                             GetCreatureListWithEntryInGrid(list, rotface, NPC_PUDDLE_STALKER, 50.0f);
@@ -1152,7 +1152,7 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
 
                 if (!GetHitUnit()->HasAura(plagueId))
                 {
-                    if (Creature* professor = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
+                    if (Creature* professor = ObjectAccessor::GetCreature(*GetCaster(), instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                     {
                         if (Aura* oldPlague = GetCaster()->GetAura(plagueId, professor->GetGUID()))
                         {
@@ -1307,7 +1307,7 @@ class spell_putricide_mutation_init : public SpellScriptLoader
                 if (!instance)
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
-                Creature* professor = ObjectAccessor::GetCreature(*GetExplTargetUnit(), instance->GetData64(DATA_PROFESSOR_PUTRICIDE));
+                Creature* professor = ObjectAccessor::GetCreature(*GetExplTargetUnit(), instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE));
                 if (!professor)
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
@@ -1428,7 +1428,7 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
                 if (!instance)
                     return;
 
-                Creature* putricide = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_PROFESSOR_PUTRICIDE));
+                Creature* putricide = ObjectAccessor::GetCreature(*caster, instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE));
                 if (!putricide)
                     return;
 

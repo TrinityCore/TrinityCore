@@ -152,7 +152,7 @@ public:
 
         void Reset() override
         {
-            SathGUID = instance->GetData64(DATA_SATHROVARR);
+            SathGUID = instance->GetGuidData(DATA_SATHROVARR);
             instance->SetBossState(DATA_KALECGOS, NOT_STARTED);
 
             if (Creature* Sath = ObjectAccessor::GetCreature(*me, SathGUID))
@@ -479,7 +479,7 @@ public:
 
         void Reset() override
         {
-            SathGUID = instance->GetData64(DATA_SATHROVARR);
+            SathGUID = instance->GetGuidData(DATA_SATHROVARR);
 
             Initialize();
         }
@@ -624,7 +624,7 @@ public:
         {
             me->SetFullHealth();//dunno why it does not resets health at evade..
             me->setActive(true);
-            KalecgosGUID = instance->GetData64(DATA_KALECGOS_DRAGON);
+            KalecgosGUID = instance->GetGuidData(DATA_KALECGOS_DRAGON);
             instance->SetBossState(DATA_KALECGOS, NOT_STARTED);
             if (KalecGUID)
             {

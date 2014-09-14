@@ -108,7 +108,7 @@ class instance_zulgurub : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 uiData) const override
+            ObjectGuid GetGuidData(uint32 uiData) const override
             {
                 switch (uiData)
                 {

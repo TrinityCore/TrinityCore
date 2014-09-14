@@ -94,7 +94,7 @@ class npc_frost_tomb : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* keleseth = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_PRINCE_KELESETH)))
+                if (Creature* keleseth = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_PRINCE_KELESETH)))
                     keleseth->AI()->SetData(DATA_ON_THE_ROCKS, false);
             }
 

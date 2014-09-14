@@ -246,7 +246,7 @@ public:
             for (uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
                 positions.push_back(&InfernalPoints[i]);
 
-            instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), true);
+            instance->HandleGameObject(instance->GetGuidData(DATA_GO_NETHER_DOOR), true);
         }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -266,14 +266,14 @@ public:
             for (uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
                 positions.push_back(&InfernalPoints[i]);
 
-            instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), true);
+            instance->HandleGameObject(instance->GetGuidData(DATA_GO_NETHER_DOOR), true);
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
-            instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), false); // Open the door leading further in
+            instance->HandleGameObject(instance->GetGuidData(DATA_GO_NETHER_DOOR), false); // Open the door leading further in
         }
 
         void InfernalCleanup()
