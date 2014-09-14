@@ -266,11 +266,14 @@ public:
                     break;
             }
 
+            /*
+            BEWARE - SHIT.
             if (creature->GetGUID() == uiFirstBoss || creature->GetGUID() == uiSecondBoss)
             {
                 creature->AllLootRemovedFromCorpse();
                 creature->RemoveLootMode(1);
             }
+            */
         }
 
         void OnGameObjectCreate(GameObject* go) override

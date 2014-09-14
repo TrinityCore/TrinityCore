@@ -119,7 +119,6 @@ public:
         {
             Initialize();
             instance = creature->GetInstanceScript();
-            memset(&m_auiLackeyGUID, 0, sizeof(m_auiLackeyGUID));
             LackeyEntryList.clear();
         }
 
@@ -138,7 +137,7 @@ public:
         InstanceScript* instance;
 
         std::vector<uint32> LackeyEntryList;
-        uint64 m_auiLackeyGUID[MAX_ACTIVE_LACKEY];
+        ObjectGuid m_auiLackeyGUID[MAX_ACTIVE_LACKEY];
 
         uint8 PlayersKilled;
 
@@ -1054,7 +1053,6 @@ public:
         boss_garaxxasAI(Creature* creature) : boss_priestess_lackey_commonAI(creature)
         {
             Initialize();
-            m_uiPetGUID = 0;
         }
 
         void Initialize()
@@ -1067,7 +1065,7 @@ public:
             Freezing_Trap_Timer = 15000;
         }
 
-        uint64 m_uiPetGUID;
+        ObjectGuid m_uiPetGUID;
 
         uint32 Aimed_Shot_Timer;
         uint32 Shoot_Timer;

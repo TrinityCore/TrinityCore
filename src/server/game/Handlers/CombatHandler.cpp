@@ -30,10 +30,10 @@
 
 void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
 {
-    uint64 guid;
+    ObjectGuid guid;
     recvData >> guid;
 
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_ATTACKSWING Message guidlow:%u guidhigh:%u", GUID_LOPART(guid), GUID_HIPART(guid));
+    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_ATTACKSWING Message %s", guid.ToString().c_str());
 
     Unit* pEnemy = ObjectAccessor::GetUnit(*_player, guid);
 

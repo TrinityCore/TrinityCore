@@ -41,19 +41,14 @@ public:
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-        uint64 uiCaveInLeftGUID;
-        uint64 uiCaveInRightGUID;
+        ObjectGuid uiCaveInLeftGUID;
+        ObjectGuid uiCaveInRightGUID;
 
-        uint64 uiBastmasterEmiShortfuseGUID;
+        ObjectGuid uiBastmasterEmiShortfuseGUID;
 
         void Initialize() override
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-            uiCaveInLeftGUID                = 0;
-            uiCaveInRightGUID               = 0;
-
-            uiBastmasterEmiShortfuseGUID    = 0;
         }
 
         void Load(const char* in) override

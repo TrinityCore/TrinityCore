@@ -797,7 +797,7 @@ class AuraScript : public _SpellScript
         uint32 GetId() const;
 
         // returns guid of object which cast the aura (m_originalCaster of the Spell class)
-        uint64 GetCasterGUID() const;
+        ObjectGuid GetCasterGUID() const;
         // returns unit which cast the aura or NULL if not avalible (caster logged out for example)
         Unit* GetCaster() const;
         // returns object on which aura was cast, target for non-area auras, area aura source for area auras

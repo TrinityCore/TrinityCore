@@ -96,11 +96,9 @@ enum LfgAnswer
 
 typedef std::set<uint32> LfgDungeonSet;
 typedef std::map<uint32, uint32> LfgLockMap;
-typedef std::map<uint64, LfgLockMap> LfgLockPartyMap;
-typedef std::set<uint64> LfgGuidSet;
-typedef std::list<uint64> LfgGuidList;
-typedef std::map<uint64, uint8> LfgRolesMap;
-typedef std::map<uint64, uint64> LfgGroupsMap;
+typedef std::map<ObjectGuid, LfgLockMap> LfgLockPartyMap;
+typedef std::map<ObjectGuid, uint8> LfgRolesMap;
+typedef std::map<ObjectGuid, ObjectGuid> LfgGroupsMap;
 
 std::string ConcatenateDungeons(LfgDungeonSet const& dungeons);
 std::string GetRolesString(uint8 roles);

@@ -45,9 +45,6 @@ class instance_molten_core : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
-                _golemaggTheIncineratorGUID = 0;
-                _majordomoExecutusGUID = 0;
-                _cacheOfTheFirelordGUID = 0;
                 _executusSchedule = false;
                 _ragnarosAddDeaths = 0;
             }
@@ -176,9 +173,9 @@ class instance_molten_core : public InstanceMapScript
             }
 
         private:
-            uint64 _golemaggTheIncineratorGUID;
-            uint64 _majordomoExecutusGUID;
-            uint64 _cacheOfTheFirelordGUID;
+            ObjectGuid _golemaggTheIncineratorGUID;
+            ObjectGuid _majordomoExecutusGUID;
+            ObjectGuid _cacheOfTheFirelordGUID;
             bool  _executusSchedule;
             uint8 _ragnarosAddDeaths;
         };

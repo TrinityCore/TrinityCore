@@ -95,8 +95,6 @@ class boss_arlokk : public CreatureScript
             boss_arlokkAI(Creature* creature) : BossAI(creature, DATA_ARLOKK)
             {
                 Initialize();
-                memset(_triggersSideAGUID, 0, sizeof(_triggersSideAGUID));
-                memset(_triggersSideBGUID, 0, sizeof(_triggersSideBGUID));
             }
 
             void Initialize()
@@ -305,8 +303,8 @@ class boss_arlokk : public CreatureScript
         private:
             uint8 _summonCountA;
             uint8 _summonCountB;
-            uint64 _triggersSideAGUID[5];
-            uint64 _triggersSideBGUID[5];
+            ObjectGuid _triggersSideAGUID[5];
+            ObjectGuid _triggersSideBGUID[5];
         };
 
         CreatureAI* GetAI(Creature* creature) const override

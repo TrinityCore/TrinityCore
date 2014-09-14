@@ -121,7 +121,7 @@ namespace Movement
         if (transport)
         {
             data.SetOpcode(SMSG_MONSTER_MOVE_TRANSPORT);
-            data.appendPackGUID(unit->GetTransGUID());
+            data << unit->GetTransGUID().WriteAsPacked();
             data << int8(unit->GetTransSeat());
         }
 
@@ -167,7 +167,7 @@ namespace Movement
         if (transport)
         {
             data.SetOpcode(SMSG_MONSTER_MOVE_TRANSPORT);
-            data.appendPackGUID(unit->GetTransGUID());
+            data << unit->GetTransGUID().WriteAsPacked();
             data << int8(unit->GetTransSeat());
         }
 
@@ -188,7 +188,7 @@ namespace Movement
     void MoveSplineInit::SetFacing(const Unit* target)
     {
         args.flags.EnableFacingTarget();
-        args.facing.target = target->GetGUID();
+        args.facing.target = target->GetGUID().GetRawValue();
     }
 
     void MoveSplineInit::SetFacing(float angle)

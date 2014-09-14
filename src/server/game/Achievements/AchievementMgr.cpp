@@ -480,7 +480,7 @@ void AchievementMgr::Reset()
 
     m_completedAchievements.clear();
     m_criteriaProgress.clear();
-    DeleteFromDB(m_player->GetGUIDLow());
+    DeleteFromDB(m_player->GetGUID());
 
     // re-fill data
     CheckAllAchievementCriteria();
@@ -518,16 +518,16 @@ void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaTypes type, uin
     }
 }
 
-void AchievementMgr::DeleteFromDB(uint32 lowguid)
+void AchievementMgr::DeleteFromDB(ObjectGuid guid)
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT);
-    stmt->setUInt32(0, lowguid);
+    stmt->setUInt32(0, guid.GetCounter());
     trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_PROGRESS);
-    stmt->setUInt32(0, lowguid);
+    stmt->setUInt32(0, guid.GetCounter());
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
@@ -544,11 +544,11 @@ void AchievementMgr::SaveToDB(SQLTransaction& trans)
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
             stmt->setUInt16(0, iter->first);
-            stmt->setUInt32(1, GetPlayer()->GetGUID());
+            stmt->setUInt32(1, GetPlayer()->GetGUIDLow());
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACHIEVEMENT);
-            stmt->setUInt32(0, GetPlayer()->GetGUID());
+            stmt->setUInt32(0, GetPlayer()->GetGUIDLow());
             stmt->setUInt16(1, iter->first);
             stmt->setUInt32(2, uint32(iter->second.date));
             trans->Append(stmt);
@@ -565,14 +565,14 @@ void AchievementMgr::SaveToDB(SQLTransaction& trans)
                 continue;
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_PROGRESS_BY_CRITERIA);
-            stmt->setUInt32(0, GetPlayer()->GetGUID());
+            stmt->setUInt32(0, GetPlayer()->GetGUIDLow());
             stmt->setUInt16(1, iter->first);
             trans->Append(stmt);
 
             if (iter->second.counter)
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACHIEVEMENT_PROGRESS);
-                stmt->setUInt32(0, GetPlayer()->GetGUID());
+                stmt->setUInt32(0, GetPlayer()->GetGUIDLow());
                 stmt->setUInt16(1, iter->first);
                 stmt->setUInt32(2, iter->second.counter);
                 stmt->setUInt32(3, uint32(iter->second.date));
