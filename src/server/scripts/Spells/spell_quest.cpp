@@ -2349,6 +2349,141 @@ class spell_q14100_q14111_make_player_destroy_totems : public SpellScriptLoader
         }
 };
 
+// ! THE BELOW IS TEMPORARY AND WILL BE REVERTED ONCE THE TESTS ARE DONE
+// ! INDENTATION IS FUXED DUE TO COPY-PASTE, BUT THIS SHOULD BE TEMPORARY EITHER WAY.
+enum Fumping
+{
+    SPELL_SUMMON_SAND_GNOME = 39240,
+    SPELL_SUMMON_BONE_SLICER = 39241
+};
+
+// 39238 - Fumping
+class spell_q10929_fumping : SpellScriptLoader
+{
+    public:
+    spell_q10929_fumping() : SpellScriptLoader("spell_q10929_fumping") { }
+
+    class spell_q10929_fumpingAuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_q10929_fumpingAuraScript);
+
+        bool Validate(SpellInfo const* /*spell*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_SAND_GNOME))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_BONE_SLICER))
+                return false;
+            return true;
+        }
+
+        void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                return;
+
+            if (Unit* caster = GetCaster())
+                caster->CastSpell(caster, urand(SPELL_SUMMON_SAND_GNOME, SPELL_SUMMON_BONE_SLICER), true);
+        }
+
+        void Register() override
+        {
+            OnEffectRemove += AuraEffectRemoveFn(spell_q10929_fumpingAuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_q10929_fumpingAuraScript();
+    }
+};
+
+enum TheBigBoneWorm
+{
+    SPELL_SUMMON_HALSHULUD = 39248,
+    SPELL_SUMMON_SAND_GNOMES = 39247,
+    SPELL_SUMMON_BONE_SLICERS = 39245,
+    SPELL_DESPAWN_CLEFTHOOF = 39250
+};
+
+uint32 const TheBigBoneWormSummonSpells[3] =
+{
+    SPELL_SUMMON_HALSHULUD,
+    SPELL_SUMMON_SAND_GNOMES,
+    SPELL_SUMMON_BONE_SLICERS
+};
+
+// 39246 - Fumping
+class spell_q10930_the_big_bone_worm : SpellScriptLoader
+{
+    public:
+    spell_q10930_the_big_bone_worm() : SpellScriptLoader("spell_q10930_the_big_bone_worm") { }
+
+    class spell_q10930_the_big_bone_wormSpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q10930_the_big_bone_wormSpellScript);
+
+        bool Validate(SpellInfo const* /*spell*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DESPAWN_CLEFTHOOF))
+                return false;
+            return true;
+        }
+
+        void HandleDummyHit(SpellEffIndex /*effIndex*/)
+        {
+            GetHitUnit()->CastSpell(GetHitUnit(), SPELL_DESPAWN_CLEFTHOOF, true);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_q10930_the_big_bone_wormSpellScript::HandleDummyHit, EFFECT_2, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_q10930_the_big_bone_wormSpellScript();
+    }
+
+    class spell_q10930_the_big_bone_wormAuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_q10930_the_big_bone_wormAuraScript);
+
+        bool Validate(SpellInfo const* /*spell*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_SAND_GNOMES))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_BONE_SLICERS))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_HALSHULUD))
+                return false;
+            return true;
+        }
+
+        void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                return;
+
+            if (Unit* caster = GetCaster())
+            {
+                caster->CastSpell(NULL, SPELL_DESPAWN_CLEFTHOOF);
+                caster->CastSpell(caster, TheBigBoneWormSummonSpells[urand(0, 2)], true);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectRemove += AuraEffectRemoveFn(spell_q10930_the_big_bone_wormAuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_q10930_the_big_bone_wormAuraScript();
+    }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2406,4 +2541,6 @@ void AddSC_quest_spell_scripts()
     new spell_q12919_gymers_throw();
     new spell_q13400_illidan_kill_master();
     new spell_q14100_q14111_make_player_destroy_totems();
+    new spell_q10929_fumping();
+    new spell_q10930_the_big_bone_worm();
 }
