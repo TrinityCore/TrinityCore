@@ -2404,13 +2404,6 @@ enum TheBigBoneWorm
     SPELL_SUMMON_BONE_SLICERS = 39245,
 };
 
-uint32 const TheBigBoneWormSummonSpells[3] =
-{
-    SPELL_SUMMON_HALSHULUD,
-    SPELL_SUMMON_SAND_GNOMES,
-    SPELL_SUMMON_BONE_SLICERS
-};
-
 // 39246 - Fumping
 class spell_q10930_the_big_bone_worm : SpellScriptLoader
 {
@@ -2438,7 +2431,15 @@ class spell_q10930_the_big_bone_worm : SpellScriptLoader
                 return;
 
             if (Unit* caster = GetCaster())
-                caster->CastSpell(caster, TheBigBoneWormSummonSpells[urand(0, 2)], true);
+            {
+                uint32 spellId = urand(0, 1) ? SPELL_SUMMON_BONE_SLICERS : SPELL_SUMMON_SAND_GNOMES;
+
+                // 5% chance to spawn Hal'Shulud.
+                if (roll_chance_i(5))
+                    spellId = SPELL_SUMMON_HALSHULUD;
+
+                caster->CastSpell(caster, spellId, true);
+            }
         }
 
         void Register() override
