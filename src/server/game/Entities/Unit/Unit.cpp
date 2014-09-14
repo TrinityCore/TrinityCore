@@ -10781,7 +10781,6 @@ void Unit::setDeathState(DeathState s)
         CombatStop();
         DeleteThreatList();
         getHostileRefManager().deleteReferences();
-        ClearComboPointHolders();                           // any combo points pointed to unit lost at it death
 
         if (IsNonMeleeSpellCast(false))
             InterruptNonMeleeSpells(false);
@@ -10823,7 +10822,10 @@ void Unit::setDeathState(DeathState s)
             zoneScript->OnUnitDeath(this);
     }
     else if (s == JUST_RESPAWNED)
+    {
         RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE); // clear skinnable for creature and player (at battleground)
+        ClearComboPointHolders();                          // any combo points pointed to unit lost at its respawn
+    }
 }
 
 /*########################################
