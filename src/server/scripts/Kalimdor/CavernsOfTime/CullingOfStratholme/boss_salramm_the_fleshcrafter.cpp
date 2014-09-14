@@ -68,7 +68,7 @@ class boss_salramm : public CreatureScript
                 events.ScheduleEvent(EVENT_CURSE_FLESH, 30000);
                 events.ScheduleEvent(EVENT_SUMMON_GHOULS, urand(19000, 24000));
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(8000, 12000));
-                events.ScheduleEvent(EVENT_STEAL_FLESH, 12345); /// @todo: adjust timer 
+                events.ScheduleEvent(EVENT_STEAL_FLESH, 12345); /// @todo: adjust timer
             }
 
             void ExecuteEvent(uint32 eventId) override
