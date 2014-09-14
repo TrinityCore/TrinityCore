@@ -302,7 +302,7 @@ class npc_prince_taldaram_flame_sphere : public CreatureScript
                 _events.ScheduleEvent(EVENT_DESPAWN, 13 * IN_MILLISECONDS);
             }
 
-            void SetGUID(uint64 guid, int32 /*id = 0*/) override
+            void SetGUID(ObjectGuid guid, int32 /*id = 0*/) override
             {
                 _flameSphereTargetGUID = guid;
             }
@@ -364,7 +364,7 @@ class npc_prince_taldaram_flame_sphere : public CreatureScript
 
         private:
             EventMap _events;
-            uint64 _flameSphereTargetGUID;
+            ObjectGuid _flameSphereTargetGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

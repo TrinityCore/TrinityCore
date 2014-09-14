@@ -289,7 +289,7 @@ class boss_lord_marrowgar : public CreatureScript
                 return &_coldflameLastPos;
             }
 
-            uint64 GetGUID(int32 type /*= 0 */) const override
+            ObjectGuid GetGUID(int32 type /*= 0 */) const override
             {
                 switch (type)
                 {
@@ -310,7 +310,7 @@ class boss_lord_marrowgar : public CreatureScript
                 return 0LL;
             }
 
-            void SetGUID(uint64 guid, int32 type /*= 0 */) override
+            void SetGUID(ObjectGuid guid, int32 type /*= 0 */) override
             {
                 switch (type)
                 {

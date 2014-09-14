@@ -97,17 +97,17 @@ public:
             Link_Timer = 1000;
         }
 
-        void SetGUID(uint64 guid, int32 id/* = 0 */) override
+        void SetGUID(ObjectGuid guid, int32 id/* = 0 */) override
         {
             if (id == INNER_DEMON_VICTIM)
                 victimGUID = guid;
         }
 
-        uint64 GetGUID(int32 id/* = 0 */) const override
+        ObjectGuid GetGUID(int32 id/* = 0 */) const override
         {
             if (id == INNER_DEMON_VICTIM)
                 return victimGUID;
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void JustDied(Unit* /*killer*/) override

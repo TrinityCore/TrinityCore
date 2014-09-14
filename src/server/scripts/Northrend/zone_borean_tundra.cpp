@@ -2225,7 +2225,7 @@ public:
             uiEventPhase = 1;
         }
 
-        void SetGUID(uint64 uiGuid, int32 /*iId*/) override
+        void SetGUID(ObjectGuid uiGuid, int32 /*iId*/) override
         {
             uiPlayerGUID = uiGuid;
         }

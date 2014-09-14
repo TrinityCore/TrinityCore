@@ -81,7 +81,7 @@ public:
 
     struct boss_black_knightAI : public ScriptedAI
     {
-        boss_black_knightAI(Creature* creature) : ScriptedAI(creature)
+        boss_black_knightAI(Creature* creature) : ScriptedAI(creature), summons(creature)
         {
             Initialize();
             instance = creature->GetInstanceScript();
@@ -110,7 +110,7 @@ public:
 
         InstanceScript* instance;
 
-        std::list<uint64> SummonList;
+        SummonList summons;
 
         bool bEventInProgress;
         bool bEvent;
@@ -132,31 +132,22 @@ public:
 
         void Reset() override
         {
-            RemoveSummons();
+            summons.DespawnAll();
             me->SetDisplayId(me->GetNativeDisplayId());
             me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
 
             Initialize();
         }
 
-        void RemoveSummons()
-        {
-            if (SummonList.empty())
-                return;
-
-            for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
-            {
-                if (Creature* temp = ObjectAccessor::GetCreature(*me, *itr))
-                    if (temp)
-                        temp->DisappearAndDie();
-            }
-            SummonList.clear();
-        }
-
         void JustSummoned(Creature* summon) override
         {
-            SummonList.push_back(summon->GetGUID());
+            summons.Summon(summon);
             summon->AI()->AttackStart(me->GetVictim());
+        }
+
+        void SummonedCreatureDespawn(Creature* summon) override
+        {
+            summons.Despawn(summon);
         }
 
         void UpdateAI(uint32 uiDiff) override
@@ -281,7 +272,7 @@ public:
                 uiDamage = 0;
                 me->SetHealth(0);
                 me->AddUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
-                RemoveSummons();
+                summons.DespawnAll();
                 switch (uiPhase)
                 {
                     case PHASE_UNDEAD:
@@ -367,20 +358,16 @@ public:
     {
         npc_black_knight_skeletal_gryphonAI(Creature* creature) : npc_escortAI(creature)
         {
-            Start(false, true, 0, NULL);
+            Start(false, true);
         }
 
-        void WaypointReached(uint32 /*waypointId*/) override
-        {
-
-        }
+        void WaypointReached(uint32 /*waypointId*/) override { }
 
         void UpdateAI(uint32 uiDiff) override
         {
             npc_escortAI::UpdateAI(uiDiff);
 
-            if (!UpdateVictim())
-                return;
+            UpdateVictim();
         }
 
     };
