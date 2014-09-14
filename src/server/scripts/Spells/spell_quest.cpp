@@ -2438,10 +2438,7 @@ class spell_q10930_the_big_bone_worm : SpellScriptLoader
                 return;
 
             if (Unit* caster = GetCaster())
-            {
-                caster->CastSpell(NULL, SPELL_DESPAWN_CLEFTHOOF);
                 caster->CastSpell(caster, TheBigBoneWormSummonSpells[urand(0, 2)], true);
-            }
         }
 
         void Register() override
