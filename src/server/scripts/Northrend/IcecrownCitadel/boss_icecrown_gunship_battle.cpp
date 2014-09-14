@@ -796,7 +796,7 @@ class npc_gunship : public CreatureScript
                 }
             }
 
-            void SetGUID(uint64 guid, int32 id/* = 0*/) override
+            void SetGUID(ObjectGuid guid, int32 id/* = 0*/) override
             {
                 if (id != ACTION_SHIP_VISITS)
                     return;
