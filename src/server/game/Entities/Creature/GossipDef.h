@@ -20,6 +20,7 @@
 #define TRINITYCORE_GOSSIP_H
 
 #include "Common.h"
+#include "ObjectGuid.h"
 #include "QuestDef.h"
 #include "NPCHandler.h"
 

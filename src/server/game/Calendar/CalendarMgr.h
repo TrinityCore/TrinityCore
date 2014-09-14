@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "WorldPacket.h"
+#include "ObjectGuid.h"
 
 enum CalendarMailAnswers
 {
