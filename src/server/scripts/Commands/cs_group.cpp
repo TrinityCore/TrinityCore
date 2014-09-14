@@ -57,7 +57,7 @@ public:
             return false;
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         Group* group = target->GetGroup();
@@ -95,7 +95,7 @@ public:
                 continue;
 
             // check online security
-            if (handler->HasLowerSecurity(player, 0))
+            if (handler->HasLowerSecurity(player, ObjectGuid::Empty))
                 return false;
 
             std::string plNameLink = handler->GetNameLink(player);
@@ -147,7 +147,7 @@ public:
     {
         Player* player = NULL;
         Group* group = NULL;
-        uint64 guid = 0;
+        ObjectGuid guid;
         char* nameStr = strtok((char*)args, " ");
 
         if (!handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid))
@@ -173,7 +173,7 @@ public:
     {
         Player* player = NULL;
         Group* group = NULL;
-        uint64 guid = 0;
+        ObjectGuid guid;
         char* nameStr = strtok((char*)args, " ");
 
         if (!handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid))
@@ -194,7 +194,7 @@ public:
     {
         Player* player = NULL;
         Group* group = NULL;
-        uint64 guid = 0;
+        ObjectGuid guid;
         char* nameStr = strtok((char*)args, " ");
 
         if (!handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid))
@@ -220,8 +220,8 @@ public:
         Player* playerTarget = NULL;
         Group* groupSource = NULL;
         Group* groupTarget = NULL;
-        uint64 guidSource = 0;
-        uint64 guidTarget = 0;
+        ObjectGuid guidSource;
+        ObjectGuid guidTarget;
         char* nameplgrStr = strtok((char*)args, " ");
         char* nameplStr = strtok(NULL, " ");
 

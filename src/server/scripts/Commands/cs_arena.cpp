@@ -232,7 +232,7 @@ public:
             return false;
 
         Player* target;
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
         if (!handler->extractPlayerTarget(nameStr, &target, &targetGuid))
             return false;
 
