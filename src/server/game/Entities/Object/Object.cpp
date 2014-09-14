@@ -135,8 +135,8 @@ void Object::_Create(uint32 guidlow, uint32 entry, HighGuid guidhigh)
 {
     if (!m_uint32Values) _InitValues();
 
-    uint64 guid = MAKE_NEW_GUID(guidlow, entry, guidhigh);
-    SetUInt64Value(OBJECT_FIELD_GUID, guid);
+    ObjectGuid guid(guidhigh, entry, guidlow);
+    SetGuidValue(OBJECT_FIELD_GUID, guid);
     SetUInt32Value(OBJECT_FIELD_TYPE, m_objectType);
     m_PackGUID.Set(guid);
 }
@@ -333,7 +333,7 @@ uint16 Object::GetUInt16Value(uint16 index, uint8 offset) const
     return *(((uint16*)&m_uint32Values[index])+offset);
 }
 
-ObjectGuid const& Object::GetGuidValue(uint16 index) const
+ObjectGuid Object::GetGuidValue(uint16 index) const
 {
     ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, false));
     return *((ObjectGuid*)&(m_uint32Values[index]));
@@ -690,13 +690,12 @@ void Object::SetUInt64Value(uint16 index, uint64 value)
     }
 }
 
-bool Object::AddUInt64Value(uint16 index, uint64 value)
+bool Object::AddGuidValue(uint16 index, ObjectGuid value)
 {
     ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
-    if (value && !*((uint64*)&(m_uint32Values[index])))
+    if (value && !*((ObjectGuid*)&(m_uint32Values[index])))
     {
-        m_uint32Values[index] = PAIR64_LOPART(value);
-        m_uint32Values[index + 1] = PAIR64_HIPART(value);
+        *((ObjectGuid*)&(m_uint32Values[index])) = value;
         _changesMask.SetBit(index);
         _changesMask.SetBit(index + 1);
 
@@ -712,10 +711,10 @@ bool Object::AddUInt64Value(uint16 index, uint64 value)
     return false;
 }
 
-bool Object::RemoveUInt64Value(uint16 index, uint64 value)
+bool Object::RemoveGuidValue(uint16 index, ObjectGuid value)
 {
     ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
-    if (value && *((uint64*)&(m_uint32Values[index])) == value)
+    if (value && *((ObjectGuid*)&(m_uint32Values[index])) == value)
     {
         m_uint32Values[index] = 0;
         m_uint32Values[index + 1] = 0;
@@ -790,6 +789,23 @@ void Object::SetUInt16Value(uint16 index, uint8 offset, uint16 value)
         m_uint32Values[index] &= ~uint32(uint32(0xFFFF) << (offset * 16));
         m_uint32Values[index] |= uint32(uint32(value) << (offset * 16));
         _changesMask.SetBit(index);
+
+        if (m_inWorld && !m_objectUpdated)
+        {
+            sObjectAccessor->AddUpdateObject(this);
+            m_objectUpdated = true;
+        }
+    }
+}
+
+void Object::SetGuidValue(uint16 index, ObjectGuid value)
+{
+    ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
+    if (*((ObjectGuid*)&(m_uint32Values[index])) != value)
+    {
+        *((ObjectGuid*)&(m_uint32Values[index])) = value;
+        _changesMask.SetBit(index);
+        _changesMask.SetBit(index + 1);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -2070,7 +2086,7 @@ void WorldObject::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr
     VisitNearbyWorldObject(GetVisibilityRange(), notifier);
 }
 
-void WorldObject::SendObjectDeSpawnAnim(uint64 guid)
+void WorldObject::SendObjectDeSpawnAnim(ObjectGuid guid)
 {
     WorldPacket data(SMSG_GAMEOBJECT_DESPAWN_ANIM, 8);
     data << uint64(guid);
@@ -2767,7 +2783,7 @@ struct WorldObjectChangeAccumulator
 {
     UpdateDataMapType& i_updateDatas;
     WorldObject& i_object;
-    std::set<uint64> plr_list;
+    GuidSet plr_list;
     WorldObjectChangeAccumulator(WorldObject &obj, UpdateDataMapType &d) : i_updateDatas(d), i_object(obj) { }
     void Visit(PlayerMapType &m)
     {
@@ -2808,13 +2824,13 @@ struct WorldObjectChangeAccumulator
         for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         {
             source = iter->GetSource();
-            uint64 guid = source->GetCasterGUID();
+            ObjectGuid guid = source->GetCasterGUID();
 
-            if (IS_PLAYER_GUID(guid))
+            if (guid.IsPlayer())
             {
                 //Caster may be NULL if DynObj is in removelist
                 if (Player* caster = ObjectAccessor::FindPlayer(guid))
-                    if (caster->GetUInt64Value(PLAYER_FARSIGHT) == source->GetGUID())
+                    if (caster->GetGuidValue(PLAYER_FARSIGHT) == source->GetGUID())
                         BuildPacket(caster);
             }
         }
@@ -2847,9 +2863,9 @@ void WorldObject::BuildUpdate(UpdateDataMapType& data_map)
     ClearUpdateMask(false);
 }
 
-uint64 WorldObject::GetTransGUID() const
+ObjectGuid WorldObject::GetTransGUID() const
 {
     if (GetTransport())
         return GetTransport()->GetGUID();
-    return 0;
+    return ObjectGuid::Empty;
 }

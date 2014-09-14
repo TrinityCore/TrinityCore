@@ -55,7 +55,7 @@ struct BattlegroundScore
     friend class Battleground;
 
     protected:
-        BattlegroundScore(uint64 playerGuid) : PlayerGuid(playerGuid), KillingBlows(0), Deaths(0),
+        BattlegroundScore(ObjectGuid playerGuid) : PlayerGuid(playerGuid), KillingBlows(0), Deaths(0),
             HonorableKills(0), BonusHonor(0), DamageDone(0), HealingDone(0) { }
 
         virtual ~BattlegroundScore() { }
@@ -120,7 +120,7 @@ struct BattlegroundScore
         virtual uint32 GetAttr4() const { return 0; }
         virtual uint32 GetAttr5() const { return 0; }
 
-        uint64 PlayerGuid;
+        ObjectGuid PlayerGuid;
 
         // Default score, present in every type
         uint32 KillingBlows;

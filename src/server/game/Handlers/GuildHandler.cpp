@@ -269,15 +269,14 @@ void WorldSession::HandleGuildChangeInfoTextOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
 {
-    uint64 vendorGuid;
+    ObjectGuid vendorGuid;
     recvPacket >> vendorGuid;
 
     EmblemInfo emblemInfo;
     emblemInfo.ReadPacket(recvPacket);
 
-    TC_LOG_DEBUG("guild", "MSG_SAVE_GUILD_EMBLEM [%s]: Guid: [" UI64FMTD
-        "] Style: %d, Color: %d, BorderStyle: %d, BorderColor: %d, BackgroundColor: %d"
-        , GetPlayerInfo().c_str(), vendorGuid, emblemInfo.GetStyle()
+    TC_LOG_DEBUG("guild", "MSG_SAVE_GUILD_EMBLEM [%s]: Guid: [%s] Style: %d, Color: %d, BorderStyle: %d, BorderColor: %d, BackgroundColor: %d"
+        , GetPlayerInfo().c_str(), vendorGuid.ToString().c_str(), emblemInfo.GetStyle()
         , emblemInfo.GetColor(), emblemInfo.GetBorderStyle()
         , emblemInfo.GetBorderColor(), emblemInfo.GetBackgroundColor());
 
@@ -323,12 +322,12 @@ void WorldSession::HandleGuildPermissions(WorldPacket& /* recvData */)
 // Called when clicking on Guild bank gameobject
 void WorldSession::HandleGuildBankerActivate(WorldPacket& recvData)
 {
-    uint64 guid;
+    ObjectGuid guid;
     bool sendAllSlots;
     recvData >> guid >> sendAllSlots;
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANKER_ACTIVATE [%s]: Go: [" UI64FMTD "] AllSlots: %u"
-        , GetPlayerInfo().c_str(), guid, sendAllSlots);
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANKER_ACTIVATE [%s]: [%s] AllSlots: %u"
+        , GetPlayerInfo().c_str(), guid.ToString().c_str(), sendAllSlots);
 
     Guild* const guild = GetPlayer()->GetGuild();
     if (!guild)
@@ -343,14 +342,14 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket& recvData)
 // Called when opening guild bank tab only (first one)
 void WorldSession::HandleGuildBankQueryTab(WorldPacket& recvData)
 {
-    uint64 guid;
+    ObjectGuid guid;
     uint8 tabId;
     bool full;
 
     recvData >> guid >> tabId >> full;
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_QUERY_TAB [%s]: Go: [" UI64FMTD "], TabId: %u, ShowTabs: %u"
-        , GetPlayerInfo().c_str(), guid, tabId, full);
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_QUERY_TAB [%s]: %s, TabId: %u, ShowTabs: %u"
+        , GetPlayerInfo().c_str(), guid.ToString().c_str(), tabId, full);
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = GetPlayer()->GetGuild())
@@ -359,12 +358,12 @@ void WorldSession::HandleGuildBankQueryTab(WorldPacket& recvData)
 
 void WorldSession::HandleGuildBankDepositMoney(WorldPacket& recvData)
 {
-    uint64 guid;
+    ObjectGuid guid;
     uint32 money;
     recvData >> guid >> money;
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_DEPOSIT_MONEY [%s]: Go: [" UI64FMTD "], money: %u",
-        GetPlayerInfo().c_str(), guid, money);
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_DEPOSIT_MONEY [%s]: [%s], money: %u",
+        GetPlayerInfo().c_str(), guid.ToString().c_str(), money);
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (money && GetPlayer()->HasEnoughMoney(money))
@@ -374,12 +373,12 @@ void WorldSession::HandleGuildBankDepositMoney(WorldPacket& recvData)
 
 void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket& recvData)
 {
-    uint64 guid;
+    ObjectGuid guid;
     uint32 money;
     recvData >> guid >> money;
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_WITHDRAW_MONEY [%s]: Go: [" UI64FMTD "], money: %u",
-        GetPlayerInfo().c_str(), guid, money);
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_WITHDRAW_MONEY [%s]: [%s], money: %u",
+        GetPlayerInfo().c_str(), guid.ToString().c_str(), money);
 
     if (money && GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = GetPlayer()->GetGuild())
@@ -390,7 +389,7 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_SWAP_ITEMS [%s]", GetPlayerInfo().c_str());
 
-    uint64 GoGuid;
+    ObjectGuid GoGuid;
     recvData >> GoGuid;
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
@@ -469,12 +468,12 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket& recvData)
 
 void WorldSession::HandleGuildBankBuyTab(WorldPacket& recvData)
 {
-    uint64 guid;
+    ObjectGuid guid;
     uint8 tabId;
 
     recvData >> guid >> tabId;
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_BUY_TAB [%s]: Go: [" UI64FMTD "], TabId: %u", GetPlayerInfo().c_str(), guid, tabId);
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_BUY_TAB [%s]: [%s[, TabId: %u", GetPlayerInfo().c_str(), guid.ToString().c_str(), tabId);
 
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
@@ -484,14 +483,14 @@ void WorldSession::HandleGuildBankBuyTab(WorldPacket& recvData)
 
 void WorldSession::HandleGuildBankUpdateTab(WorldPacket& recvData)
 {
-    uint64 guid;
+    ObjectGuid guid;
     uint8 tabId;
     std::string name, icon;
 
     recvData >> guid >> tabId >> name >> icon;
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_UPDATE_TAB [%s]: Go: [" UI64FMTD "], TabId: %u, Name: %s, Icon: %s"
-        , GetPlayerInfo().c_str(), guid, tabId, name.c_str(), icon.c_str());
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_UPDATE_TAB [%s]: [%s], TabId: %u, Name: %s, Icon: %s"
+        , GetPlayerInfo().c_str(), guid.ToString().c_str(), tabId, name.c_str(), icon.c_str());
 
     if (!name.empty() && !icon.empty())
         if (GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))

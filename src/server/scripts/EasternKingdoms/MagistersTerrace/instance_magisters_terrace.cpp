@@ -50,12 +50,6 @@ class instance_magisters_terrace : public InstanceMapScript
                 LoadDoorData(doorData);
 
                 DelrissaDeathCount = 0;
-
-                SelinGUID          = 0;
-                DelrissaGUID       = 0;
-                EscapeOrbGUID      = 0;
-
-                memset(KaelStatue, 0, 2 * sizeof(uint64));
             }
 
             uint32 GetData(uint32 type) const override
@@ -183,10 +177,10 @@ class instance_magisters_terrace : public InstanceMapScript
             }
 
         protected:
-            uint64 SelinGUID;
-            uint64 DelrissaGUID;
-            uint64 KaelStatue[2];
-            uint64 EscapeOrbGUID;
+            ObjectGuid SelinGUID;
+            ObjectGuid DelrissaGUID;
+            ObjectGuid KaelStatue[2];
+            ObjectGuid EscapeOrbGUID;
             uint32 DelrissaDeathCount;
         };
 

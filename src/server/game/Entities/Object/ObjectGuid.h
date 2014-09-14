@@ -79,13 +79,15 @@ struct PackedGuidReader
 
 class ObjectGuid
 {
-    public:                                                 // constructors
+    public:
+        static ObjectGuid const Empty;
+
         ObjectGuid() : m_guid(0) {}
         explicit ObjectGuid(uint64 guid) : m_guid(guid) {}
         ObjectGuid(HighGuid hi, uint32 entry, uint32 counter) : m_guid(counter ? uint64(counter) | (uint64(entry) << 24) | (uint64(hi) << 48) : 0) {}
         ObjectGuid(HighGuid hi, uint32 counter) : m_guid(counter ? uint64(counter) | (uint64(hi) << 48) : 0) {}
 
-        //operator uint64() const { return m_guid; }
+        explicit operator uint64() const { return m_guid; }
         PackedGuidReader ReadAsPacked() { return PackedGuidReader(*this); }
 
         void Set(uint64 guid) { m_guid = guid; }
@@ -94,7 +96,7 @@ class ObjectGuid
         PackedGuid WriteAsPacked() const;
 
         uint64   GetRawValue() const { return m_guid; }
-        HighGuid GetHigh() const { return HighGuid((m_guid >> 48) & 0x00000FFF); }
+        HighGuid GetHigh() const { return HighGuid((m_guid >> 48) & 0x0000FFFF); }
         uint32   GetEntry() const { return HasEntry() ? uint32((m_guid >> 24) & UI64LIT(0x0000000000FFFFFF)) : 0; }
         uint32   GetCounter()  const
         {
@@ -112,23 +114,24 @@ class ObjectGuid
 
         uint32 GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
 
-        bool IsEmpty()             const { return m_guid == 0;                                }
-        bool IsCreature()          const { return GetHigh() == HIGHGUID_UNIT;                 }
-        bool IsPet()               const { return GetHigh() == HIGHGUID_PET;                  }
-        bool IsVehicle()           const { return GetHigh() == HIGHGUID_VEHICLE;              }
-        bool IsCreatureOrPet()     const { return IsCreature() || IsPet();                    }
-        bool IsCreatureOrVehicle() const { return IsCreature() || IsVehicle();                }
-        bool IsAnyTypeCreature()   const { return IsCreature() || IsPet() || IsVehicle();     }
+        bool IsEmpty()             const { return m_guid == 0; }
+        bool IsCreature()          const { return GetHigh() == HIGHGUID_UNIT; }
+        bool IsPet()               const { return GetHigh() == HIGHGUID_PET; }
+        bool IsVehicle()           const { return GetHigh() == HIGHGUID_VEHICLE; }
+        bool IsCreatureOrPet()     const { return IsCreature() || IsPet(); }
+        bool IsCreatureOrVehicle() const { return IsCreature() || IsVehicle(); }
+        bool IsAnyTypeCreature()   const { return IsCreature() || IsPet() || IsVehicle(); }
         bool IsPlayer()            const { return !IsEmpty() && GetHigh() == HIGHGUID_PLAYER; }
-        bool IsUnit()              const { return IsAnyTypeCreature() || IsPlayer();          }
-        bool IsItem()              const { return GetHigh() == HIGHGUID_ITEM;                 }
-        bool IsGameObject()        const { return GetHigh() == HIGHGUID_GAMEOBJECT;           }
-        bool IsDynamicObject()     const { return GetHigh() == HIGHGUID_DYNAMICOBJECT;        }
-        bool IsCorpse()            const { return GetHigh() == HIGHGUID_CORPSE;               }
-        bool IsTransport()         const { return GetHigh() == HIGHGUID_TRANSPORT;            }
-        bool IsMOTransport()       const { return GetHigh() == HIGHGUID_MO_TRANSPORT;         }
-        bool IsInstance()          const { return GetHigh() == HIGHGUID_INSTANCE;             }
-        bool IsGroup()             const { return GetHigh() == HIGHGUID_GROUP;                }
+        bool IsUnit()              const { return IsAnyTypeCreature() || IsPlayer(); }
+        bool IsItem()              const { return GetHigh() == HIGHGUID_ITEM; }
+        bool IsGameObject()        const { return GetHigh() == HIGHGUID_GAMEOBJECT; }
+        bool IsDynamicObject()     const { return GetHigh() == HIGHGUID_DYNAMICOBJECT; }
+        bool IsCorpse()            const { return GetHigh() == HIGHGUID_CORPSE; }
+        bool IsTransport()         const { return GetHigh() == HIGHGUID_TRANSPORT; }
+        bool IsMOTransport()       const { return GetHigh() == HIGHGUID_MO_TRANSPORT; }
+        bool IsAnyTypeGameObject() const { return IsGameObject() || IsTransport() || IsMOTransport(); }
+        bool IsInstance()          const { return GetHigh() == HIGHGUID_INSTANCE; }
+        bool IsGroup()             const { return GetHigh() == HIGHGUID_GROUP; }
 
         static TypeID GetTypeId(HighGuid high)
         {
@@ -153,7 +156,7 @@ class ObjectGuid
 
         TypeID GetTypeId() const { return GetTypeId(GetHigh()); }
 
-        bool operator!() const { return IsEmpty(); }
+        //bool operator!() const { return IsEmpty(); }
         bool operator== (ObjectGuid const& guid) const { return GetRawValue() == guid.GetRawValue(); }
         bool operator!= (ObjectGuid const& guid) const { return GetRawValue() != guid.GetRawValue(); }
         bool operator< (ObjectGuid const& guid) const { return GetRawValue() < guid.GetRawValue(); }
@@ -193,6 +196,12 @@ class ObjectGuid
 
         uint64 m_guid;
 };
+
+// Some Shared defines
+typedef std::set<ObjectGuid> GuidSet;
+typedef std::list<ObjectGuid> GuidList;
+typedef std::deque<ObjectGuid> GuidDeque;
+typedef std::vector<ObjectGuid> GuidVector;
 
 // minimum buffer size for packed guid is 9 bytes
 #define PACKED_GUID_MIN_BUFFER_SIZE 9

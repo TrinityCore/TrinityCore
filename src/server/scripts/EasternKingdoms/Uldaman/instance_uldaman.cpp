@@ -52,18 +52,6 @@ class instance_uldaman : public InstanceMapScript
                 SetHeaders(DataHeader);
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-                archaedasGUID = 0;
-                ironayaGUID = 0;
-                whoWokeuiArchaedasGUID = 0;
-
-                altarOfTheKeeperTempleDoor = 0;
-                archaedasTempleDoor = 0;
-                ancientVaultDoor = 0;
-
-                ironayaSealDoor = 0;
-
-                keystoneGUID = 0;
-
                 ironayaSealDoorTimer = 27000; //animation time
                 keystoneCheck = false;
             }
@@ -77,25 +65,25 @@ class instance_uldaman : public InstanceMapScript
                 return false;
             }
 
-            uint64 archaedasGUID;
-            uint64 ironayaGUID;
-            uint64 whoWokeuiArchaedasGUID;
+            ObjectGuid archaedasGUID;
+            ObjectGuid ironayaGUID;
+            ObjectGuid whoWokeuiArchaedasGUID;
 
-            uint64 altarOfTheKeeperTempleDoor;
-            uint64 archaedasTempleDoor;
-            uint64 ancientVaultDoor;
-            uint64 ironayaSealDoor;
+            ObjectGuid altarOfTheKeeperTempleDoor;
+            ObjectGuid archaedasTempleDoor;
+            ObjectGuid ancientVaultDoor;
+            ObjectGuid ironayaSealDoor;
 
-            uint64 keystoneGUID;
+            ObjectGuid keystoneGUID;
 
             uint32 ironayaSealDoorTimer;
             bool keystoneCheck;
 
-            std::vector<uint64> stoneKeepers;
-            std::vector<uint64> altarOfTheKeeperCounts;
-            std::vector<uint64> vaultWalkers;
-            std::vector<uint64> earthenGuardians;
-            std::vector<uint64> archaedasWallMinions;    // minions lined up around the wall
+            GuidVector stoneKeepers;
+            GuidVector altarOfTheKeeperCounts;
+            GuidVector vaultWalkers;
+            GuidVector earthenGuardians;
+            GuidVector archaedasWallMinions;    // minions lined up around the wall
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
             std::string str_data;
@@ -177,7 +165,7 @@ class instance_uldaman : public InstanceMapScript
             {
                 if (GetData(DATA_ALTAR_DOORS) != DONE)
                 {
-                    for (std::vector<uint64>::const_iterator i = stoneKeepers.begin(); i != stoneKeepers.end(); ++i)
+                    for (GuidVector::const_iterator i = stoneKeepers.begin(); i != stoneKeepers.end(); ++i)
                     {
                         Creature* target = instance->GetCreature(*i);
                         if (!target || !target->IsAlive())
@@ -199,7 +187,7 @@ class instance_uldaman : public InstanceMapScript
                 if (!archaedas)
                     return;
 
-                for (std::vector<uint64>::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
+                for (GuidVector::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
                 {
                     Creature* target = instance->GetCreature(*i);
                     if (!target || !target->IsAlive() || target->getFaction() == 14)
@@ -217,7 +205,7 @@ class instance_uldaman : public InstanceMapScript
             void DeActivateMinions()
             {
                 // first despawn any aggroed wall minions
-                for (std::vector<uint64>::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
+                for (GuidVector::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
                 {
                     Creature* target = instance->GetCreature(*i);
                     if (!target || target->isDead() || target->getFaction() != 14)
@@ -227,7 +215,7 @@ class instance_uldaman : public InstanceMapScript
                 }
 
                 // Vault Walkers
-                for (std::vector<uint64>::const_iterator i = vaultWalkers.begin(); i != vaultWalkers.end(); ++i)
+                for (GuidVector::const_iterator i = vaultWalkers.begin(); i != vaultWalkers.end(); ++i)
                 {
                     Creature* target = instance->GetCreature(*i);
                     if (!target || target->isDead() || target->getFaction() != 14)
@@ -274,7 +262,7 @@ class instance_uldaman : public InstanceMapScript
             void RespawnMinions()
             {
                 // first respawn any aggroed wall minions
-                for (std::vector<uint64>::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
+                for (GuidVector::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
                 {
                     Creature* target = instance->GetCreature(*i);
                     if (target && target->isDead())
@@ -286,7 +274,7 @@ class instance_uldaman : public InstanceMapScript
                 }
 
                 // Vault Walkers
-                for (std::vector<uint64>::const_iterator i = vaultWalkers.begin(); i != vaultWalkers.end(); ++i)
+                for (GuidVector::const_iterator i = vaultWalkers.begin(); i != vaultWalkers.end(); ++i)
                 {
                     Creature* target = instance->GetCreature(*i);
                     if (target && target->isDead())
@@ -298,7 +286,7 @@ class instance_uldaman : public InstanceMapScript
                 }
 
                 // Earthen Guardians
-                for (std::vector<uint64>::const_iterator i = earthenGuardians.begin(); i != earthenGuardians.end(); ++i)
+                for (GuidVector::const_iterator i = earthenGuardians.begin(); i != earthenGuardians.end(); ++i)
                 {
                     Creature* target = instance->GetCreature(*i);
                     if (target && target->isDead())

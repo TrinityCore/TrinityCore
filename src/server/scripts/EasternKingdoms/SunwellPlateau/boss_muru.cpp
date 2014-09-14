@@ -183,7 +183,7 @@ public:
         {
             DarkFiend = false;
             HasEnraged = false;
-            EntropiusGUID = 0;
+            EntropiusGUID.Clear();
         }
 
         void Reset() override
@@ -278,7 +278,7 @@ public:
     private:
         bool DarkFiend;
         bool HasEnraged;
-        uint64 EntropiusGUID;
+        ObjectGuid EntropiusGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

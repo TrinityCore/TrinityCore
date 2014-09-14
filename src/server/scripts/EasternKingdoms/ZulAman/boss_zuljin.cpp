@@ -138,7 +138,6 @@ class boss_zuljin : public CreatureScript
             {
                 Initialize();
                 instance = creature->GetInstanceScript();
-                memset(SpiritGUID, 0, sizeof(SpiritGUID));
                 health_20 = 0;
             }
 
@@ -164,15 +163,15 @@ class boss_zuljin : public CreatureScript
                 Flame_Breath_Timer = 6000;
                 Pillar_Of_Fire_Timer = 7000;
 
-                ClawTargetGUID = 0;
-                TankGUID = 0;
+                ClawTargetGUID.Clear();
+                TankGUID.Clear();
             }
 
             InstanceScript* instance;
 
-            uint64 SpiritGUID[4];
-            uint64 ClawTargetGUID;
-            uint64 TankGUID;
+            ObjectGuid SpiritGUID[4];
+            ObjectGuid ClawTargetGUID;
+            ObjectGuid TankGUID;
 
             uint32 Phase;
             uint32 health_20;

@@ -38,15 +38,6 @@ class instance_scholomance : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                GateKirtonosGUID        = 0;
-                GateGandlingGUID        = 0;
-                GateMiliciaGUID         = 0;
-                GateTheolenGUID         = 0;
-                GatePolkeltGUID         = 0;
-                GateRavenianGUID        = 0;
-                GateBarovGUID           = 0;
-                GateIlluciaGUID         = 0;
-                BrazierOfTheHeraldGUID  = 0;
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -175,15 +166,15 @@ class instance_scholomance : public InstanceMapScript
             }
 
         protected:
-            uint64 GateKirtonosGUID;
-            uint64 GateGandlingGUID;
-            uint64 GateMiliciaGUID;
-            uint64 GateTheolenGUID;
-            uint64 GatePolkeltGUID;
-            uint64 GateRavenianGUID;
-            uint64 GateBarovGUID;
-            uint64 GateIlluciaGUID;
-            uint64 BrazierOfTheHeraldGUID;
+            ObjectGuid GateKirtonosGUID;
+            ObjectGuid GateGandlingGUID;
+            ObjectGuid GateMiliciaGUID;
+            ObjectGuid GateTheolenGUID;
+            ObjectGuid GatePolkeltGUID;
+            ObjectGuid GateRavenianGUID;
+            ObjectGuid GateBarovGUID;
+            ObjectGuid GateIlluciaGUID;
+            ObjectGuid BrazierOfTheHeraldGUID;
         };
 };
 

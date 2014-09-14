@@ -1296,7 +1296,7 @@ void ObjectMgr::LoadLinkedRespawn()
         uint32 linkedGuidLow = fields[1].GetUInt32();
         uint8  linkType = fields[2].GetUInt8();
 
-        uint64 guid = 0, linkedGuid = 0;
+        ObjectGuid guid, linkedGuid;
         bool error = false;
         switch (linkType)
         {
@@ -1333,8 +1333,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = MAKE_NEW_GUID(guidLow, slave->id, HIGHGUID_UNIT);
-                linkedGuid = MAKE_NEW_GUID(linkedGuidLow, master->id, HIGHGUID_UNIT);
+                guid = ObjectGuid(HIGHGUID_UNIT, slave->id, guidLow);
+                linkedGuid = ObjectGuid(HIGHGUID_UNIT, master->id, linkedGuidLow);
                 break;
             }
             case CREATURE_TO_GO:
@@ -1370,8 +1370,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = MAKE_NEW_GUID(guidLow, slave->id, HIGHGUID_UNIT);
-                linkedGuid = MAKE_NEW_GUID(linkedGuidLow, master->id, HIGHGUID_GAMEOBJECT);
+                guid = ObjectGuid(HIGHGUID_UNIT, slave->id, guidLow);
+                linkedGuid = ObjectGuid(HIGHGUID_GAMEOBJECT, master->id, linkedGuidLow);
                 break;
             }
             case GO_TO_GO:
@@ -1407,8 +1407,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = MAKE_NEW_GUID(guidLow, slave->id, HIGHGUID_GAMEOBJECT);
-                linkedGuid = MAKE_NEW_GUID(linkedGuidLow, master->id, HIGHGUID_GAMEOBJECT);
+                guid = ObjectGuid(HIGHGUID_GAMEOBJECT, slave->id, guidLow);
+                linkedGuid = ObjectGuid(HIGHGUID_GAMEOBJECT, master->id, linkedGuidLow);
                 break;
             }
             case GO_TO_CREATURE:
@@ -1444,8 +1444,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = MAKE_NEW_GUID(guidLow, slave->id, HIGHGUID_GAMEOBJECT);
-                linkedGuid = MAKE_NEW_GUID(linkedGuidLow, master->id, HIGHGUID_UNIT);
+                guid = ObjectGuid(HIGHGUID_GAMEOBJECT, slave->id, guidLow);
+                linkedGuid = ObjectGuid(HIGHGUID_UNIT, master->id, linkedGuidLow);
                 break;
             }
         }
@@ -1463,9 +1463,9 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guidLow, uint32 linkedGuidLow)
     if (!guidLow)
         return false;
 
-    const CreatureData* master = GetCreatureData(guidLow);
+    CreatureData const* master = GetCreatureData(guidLow);
     ASSERT(master);
-    uint64 guid = MAKE_NEW_GUID(guidLow, master->id, HIGHGUID_UNIT);
+    ObjectGuid guid(HIGHGUID_UNIT, master->id, guidLow);
 
     if (!linkedGuidLow) // we're removing the linking
     {
@@ -1476,14 +1476,14 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guidLow, uint32 linkedGuidLow)
         return true;
     }
 
-    const CreatureData* slave = GetCreatureData(linkedGuidLow);
+    CreatureData const* slave = GetCreatureData(linkedGuidLow);
     if (!slave)
     {
         TC_LOG_ERROR("sql.sql", "Creature '%u' linking to non-existent creature '%u'.", guidLow, linkedGuidLow);
         return false;
     }
 
-    const MapEntry* const map = sMapStore.LookupEntry(master->mapid);
+    MapEntry const* map = sMapStore.LookupEntry(master->mapid);
     if (!map || !map->Instanceable() || (master->mapid != slave->mapid))
     {
         TC_LOG_ERROR("sql.sql", "Creature '%u' linking to '%u' on an unpermitted map.", guidLow, linkedGuidLow);
@@ -1496,7 +1496,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guidLow, uint32 linkedGuidLow)
         return false;
     }
 
-    uint64 linkedGuid = MAKE_NEW_GUID(linkedGuidLow, slave->id, HIGHGUID_UNIT);
+    ObjectGuid linkedGuid(HIGHGUID_UNIT, slave->id, linkedGuidLow);
 
     _linkedRespawnStore[guid] = linkedGuid;
     PreparedStatement *stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_CREATURE_LINKED_RESPAWN);
@@ -2071,15 +2071,13 @@ void ObjectMgr::RemoveGameobjectFromGrid(uint32 guid, GameObjectData const* data
 
 Player* ObjectMgr::GetPlayerByLowGUID(uint32 lowguid) const
 {
-    uint64 guid = MAKE_NEW_GUID(lowguid, 0, HIGHGUID_PLAYER);
+    ObjectGuid guid(HIGHGUID_PLAYER, lowguid);
     return ObjectAccessor::FindPlayer(guid);
 }
 
 // name must be checked to correctness (if received) before call this function
-uint64 ObjectMgr::GetPlayerGUIDByName(std::string const& name) const
+ObjectGuid ObjectMgr::GetPlayerGUIDByName(std::string const& name) const
 {
-    uint64 guid = 0;
-
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
 
     stmt->setString(0, name);
@@ -2087,12 +2085,12 @@ uint64 ObjectMgr::GetPlayerGUIDByName(std::string const& name) const
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (result)
-        guid = MAKE_NEW_GUID((*result)[0].GetUInt32(), 0, HIGHGUID_PLAYER);
+        return ObjectGuid(HIGHGUID_PLAYER, (*result)[0].GetUInt32());
 
-    return guid;
+    return ObjectGuid::Empty;
 }
 
-bool ObjectMgr::GetPlayerNameByGUID(uint64 guid, std::string& name) const
+bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid guid, std::string& name) const
 {
     // prevent DB access for online player
     if (Player* player = ObjectAccessor::FindPlayer(guid))
@@ -2103,7 +2101,7 @@ bool ObjectMgr::GetPlayerNameByGUID(uint64 guid, std::string& name) const
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME);
 
-    stmt->setUInt32(0, GUID_LOPART(guid));
+    stmt->setUInt32(0, guid.GetCounter());
 
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -2116,7 +2114,7 @@ bool ObjectMgr::GetPlayerNameByGUID(uint64 guid, std::string& name) const
     return false;
 }
 
-uint32 ObjectMgr::GetPlayerTeamByGUID(uint64 guid) const
+uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid guid) const
 {
     // prevent DB access for online player
     if (Player* player = ObjectAccessor::FindPlayer(guid))
@@ -2126,7 +2124,7 @@ uint32 ObjectMgr::GetPlayerTeamByGUID(uint64 guid) const
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_RACE);
 
-    stmt->setUInt32(0, GUID_LOPART(guid));
+    stmt->setUInt32(0, guid.GetCounter());
 
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -2139,7 +2137,7 @@ uint32 ObjectMgr::GetPlayerTeamByGUID(uint64 guid) const
     return 0;
 }
 
-uint32 ObjectMgr::GetPlayerAccountIdByGUID(uint64 guid) const
+uint32 ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid guid) const
 {
     // prevent DB access for online player
     if (Player* player = ObjectAccessor::FindPlayer(guid))
@@ -2149,7 +2147,7 @@ uint32 ObjectMgr::GetPlayerAccountIdByGUID(uint64 guid) const
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_BY_GUID);
 
-    stmt->setUInt32(0, GUID_LOPART(guid));
+    stmt->setUInt32(0, guid.GetCounter());
 
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -5475,7 +5473,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 
         Player* player = NULL;
         if (serverUp)
-            player = ObjectAccessor::FindPlayer((uint64)m->receiver);
+            player = ObjectAccessor::FindPlayer(ObjectGuid(HIGHGUID_PLAYER, m->receiver));
 
         if (player && player->m_mailsLoaded)
         {                                                   // this code will run very improbably (the time is between 4 and 5 am, in game is online a player, who has old mail
