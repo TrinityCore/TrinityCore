@@ -2399,10 +2399,9 @@ class spell_q10929_fumping : SpellScriptLoader
 
 enum TheBigBoneWorm
 {
-    SPELL_SUMMON_HALSHULUD = 39248,
+    SPELL_SUMMON_HALSHULUD   = 39248,
     SPELL_SUMMON_SAND_GNOMES = 39247,
     SPELL_SUMMON_BONE_SLICERS = 39245,
-    SPELL_DESPAWN_CLEFTHOOF = 39250
 };
 
 uint32 const TheBigBoneWormSummonSpells[3] =
@@ -2417,33 +2416,6 @@ class spell_q10930_the_big_bone_worm : SpellScriptLoader
 {
     public:
     spell_q10930_the_big_bone_worm() : SpellScriptLoader("spell_q10930_the_big_bone_worm") { }
-
-    class spell_q10930_the_big_bone_wormSpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_q10930_the_big_bone_wormSpellScript);
-
-        bool Validate(SpellInfo const* /*spell*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DESPAWN_CLEFTHOOF))
-                return false;
-            return true;
-        }
-
-        void HandleDummyHit(SpellEffIndex /*effIndex*/)
-        {
-            GetHitUnit()->CastSpell(GetHitUnit(), SPELL_DESPAWN_CLEFTHOOF, true);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_q10930_the_big_bone_wormSpellScript::HandleDummyHit, EFFECT_2, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_q10930_the_big_bone_wormSpellScript();
-    }
 
     class spell_q10930_the_big_bone_wormAuraScript : public AuraScript
     {
