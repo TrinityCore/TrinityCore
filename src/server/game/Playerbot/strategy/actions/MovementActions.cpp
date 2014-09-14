@@ -259,7 +259,7 @@ bool MovementAction::Flee(Unit *target)
     if (!manager.CalculateDestination(&rx, &ry, &rz))
         return false;
 
-    return MoveTo(0, rx, ry, rz);
+    return MoveTo(target->GetMapId(), rx, ry, rz);
 }
 
 bool FleeAction::Execute(Event event)

@@ -92,22 +92,22 @@ void FleeManager::cleanup(list<FleePoint*> &points)
 
 bool FleePoint::isReasonable()
 {
-	return toAllPlayers.max <= sPlayerbotAIConfig.sightDistance && toCreatures.min >= sPlayerbotAIConfig.spellDistance;
+	return toAllPlayers.max <= sPlayerbotAIConfig.sightDistance && toCreatures.min >= sPlayerbotAIConfig.tooCloseDistance;
 }
 
 bool FleePoint::isBetterByCreatures(FleePoint* other)
 {
     return toCreatures.min > 0 && other->toCreatures.min > 0 &&
-            (toCreatures.min - other->toCreatures.min) >= 1.0f;
+            (toCreatures.min - other->toCreatures.min) >= 0;
 }
 
 bool FleePoint::isBetterByAll(FleePoint* other)
 {
     bool isFartherFromCreatures = isBetterByCreatures(other);
     bool isNearerToRangedPlayers = toRangedPlayers.max > 0 && other->toRangedPlayers.max > 0 &&
-            (toRangedPlayers.max - other->toRangedPlayers.max) <= 1.0f;
+            (toRangedPlayers.max - other->toRangedPlayers.max) <= 0;
     bool isFartherFromMeleePlayers = toMeleePlayers.min > 0 && other->toMeleePlayers.min > 0 &&
-            (toMeleePlayers.min - other->toMeleePlayers.min) >= 1.0f;
+            (toMeleePlayers.min - other->toMeleePlayers.min) >= 0;
 
     return isFartherFromCreatures && (isNearerToRangedPlayers || isFartherFromMeleePlayers);
 }
