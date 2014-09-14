@@ -213,7 +213,7 @@ class boss_akilzon : public CreatureScript
                     StormCount = 0; // finish
                     events.ScheduleEvent(EVENT_SUMMON_EAGLES, 5000);
                     me->InterruptNonMeleeSpells(false);
-                    CloudGUID = 0;
+                    CloudGUID.Clear();
                     if (Cloud)
                         Cloud->DealDamage(Cloud, Cloud->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     SetWeather(WEATHER_STATE_FINE, 0.0f);
@@ -424,7 +424,7 @@ class npc_akilzon_eagle : public CreatureScript
                 {
                     if (Unit* target = ObjectAccessor::GetUnit(*me, TargetGUID))
                         DoCast(target, SPELL_EAGLE_SWOOP, true);
-                    TargetGUID = 0;
+                    TargetGUID.Clear();
                     me->SetSpeed(MOVE_RUN, 1.2f);
                     EagleSwoop_Timer = urand(5000, 10000);
                 }

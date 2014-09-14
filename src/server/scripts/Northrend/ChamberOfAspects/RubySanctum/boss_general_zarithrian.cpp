@@ -163,10 +163,10 @@ class boss_general_zarithrian : public CreatureScript
                     {
                         case EVENT_SUMMON_ADDS:
                         {
-                            if (Creature* stalker1 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHRIAN_SPAWN_STALKER_1)))
+                            if (Creature* stalker1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ZARITHRIAN_SPAWN_STALKER_1)))
                                 stalker1->CastSpell(stalker1, SPELL_SUMMON_FLAMECALLER, false);
 
-                            if (Creature* stalker2 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHRIAN_SPAWN_STALKER_2)))
+                            if (Creature* stalker2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ZARITHRIAN_SPAWN_STALKER_2)))
                                 stalker2->CastSpell(stalker2, SPELL_SUMMON_FLAMECALLER, false);
 
                             Talk(SAY_ADDS);
@@ -236,7 +236,7 @@ class npc_onyx_flamecaller : public CreatureScript
             void IsSummonedBy(Unit* /*summoner*/) override
             {
                 // Let Zarithrian count as summoner.
-                if (Creature* zarithrian = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_GENERAL_ZARITHRIAN)))
+                if (Creature* zarithrian = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_GENERAL_ZARITHRIAN)))
                     zarithrian->AI()->JustSummoned(me);
             }
 

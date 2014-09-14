@@ -183,7 +183,7 @@ struct advisorbase_ai : public ScriptedAI
 
         //reset encounter
         if (instance->GetData(DATA_KAELTHASEVENT) == 1 || instance->GetData(DATA_KAELTHASEVENT) == 3)
-            if (Creature* Kaelthas = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KAELTHAS)))
+            if (Creature* Kaelthas = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KAELTHAS)))
                 Kaelthas->AI()->EnterEvadeMode();
     }
 
@@ -363,10 +363,10 @@ class boss_kaelthas : public CreatureScript
 
             void StartEvent()
             {
-                m_auiAdvisorGuid[0] = instance->GetData64(DATA_THALADREDTHEDARKENER);
-                m_auiAdvisorGuid[1] = instance->GetData64(DATA_LORDSANGUINAR);
-                m_auiAdvisorGuid[2] = instance->GetData64(DATA_GRANDASTROMANCERCAPERNIAN);
-                m_auiAdvisorGuid[3] = instance->GetData64(DATA_MASTERENGINEERTELONICUS);
+                m_auiAdvisorGuid[0] = instance->GetGuidData(DATA_THALADREDTHEDARKENER);
+                m_auiAdvisorGuid[1] = instance->GetGuidData(DATA_LORDSANGUINAR);
+                m_auiAdvisorGuid[2] = instance->GetGuidData(DATA_GRANDASTROMANCERCAPERNIAN);
+                m_auiAdvisorGuid[3] = instance->GetGuidData(DATA_MASTERENGINEERTELONICUS);
 
                 if (!m_auiAdvisorGuid[0] || !m_auiAdvisorGuid[1] || !m_auiAdvisorGuid[2] || !m_auiAdvisorGuid[3])
                 {

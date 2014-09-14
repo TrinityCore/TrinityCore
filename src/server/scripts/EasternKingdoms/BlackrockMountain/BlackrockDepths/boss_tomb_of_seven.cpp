@@ -76,7 +76,7 @@ public:
                 if (InstanceScript* instance = creature->GetInstanceScript())
                 {
                     //are 5 minutes expected? go template may have data to despawn when used at quest
-                    instance->DoRespawnGameObject(instance->GetData64(DATA_GO_CHALICE), MINUTE*5);
+                    instance->DoRespawnGameObject(instance->GetGuidData(DATA_GO_CHALICE), MINUTE*5);
                 }
                 break;
         }
@@ -139,7 +139,7 @@ class boss_doomrel : public CreatureScript
                     creature->AI()->AttackStart(player);
                     InstanceScript* instance = creature->GetInstanceScript();
                     if (instance)
-                        instance->SetData64(DATA_EVENSTARTER, player->GetGUID());
+                        instance->SetGuidData(DATA_EVENSTARTER, player->GetGUID());
                     break;
             }
             return true;
@@ -202,7 +202,7 @@ class boss_doomrel : public CreatureScript
             {
                 ScriptedAI::EnterEvadeMode();
 
-                _instance->SetData64(DATA_EVENSTARTER, 0);
+                _instance->SetGuidData(DATA_EVENSTARTER, 0);
             }
 
             void JustDied(Unit* /*killer*/) override

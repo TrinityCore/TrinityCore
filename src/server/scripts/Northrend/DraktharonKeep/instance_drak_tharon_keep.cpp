@@ -122,7 +122,7 @@ class instance_drak_tharon_keep : public InstanceMapScript
                     NovosSummonerGUIDs[3] = creature->GetGUID();
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {

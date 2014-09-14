@@ -767,7 +767,7 @@ class npc_gunship : public CreatureScript
 
                 if (isVictory)
                 {
-                    if (GameObject* go = HashMapHolder<GameObject>::Find(instance->GetData64(DATA_ICECROWN_GUNSHIP_BATTLE)))
+                    if (GameObject* go = HashMapHolder<GameObject>::Find(instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
                         if (Transport* otherTransport = go->ToTransport())
                             otherTransport->EnableMovement(true);
 
@@ -791,7 +791,7 @@ class npc_gunship : public CreatureScript
                 else
                 {
                     uint32 teleportSpellId = _teamInInstance == HORDE ? SPELL_TELEPORT_PLAYERS_ON_RESET_H : SPELL_TELEPORT_PLAYERS_ON_RESET_A;
-                    me->m_Events.AddEvent(new ResetEncounterEvent(me, teleportSpellId, me->GetInstanceScript()->GetData64(DATA_ENEMY_GUNSHIP)),
+                    me->m_Events.AddEvent(new ResetEncounterEvent(me, teleportSpellId, me->GetInstanceScript()->GetGuidData(DATA_ENEMY_GUNSHIP)),
                         me->m_Events.CalculateTime(8000));
                 }
             }
@@ -1032,7 +1032,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                             if (Transport* orgrimsHammer = me->GetTransport())
                                 orgrimsHammer->SummonPassenger(NPC_TELEPORT_PORTAL, OrgrimsHammerTeleportPortal, TEMPSUMMON_TIMED_DESPAWN, NULL, 21000);
 
-                            if (GameObject* go = HashMapHolder<GameObject>::Find(_instance->GetData64(DATA_ICECROWN_GUNSHIP_BATTLE)))
+                            if (GameObject* go = HashMapHolder<GameObject>::Find(_instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
                                 if (Transport* skybreaker = go->ToTransport())
                                     skybreaker->SummonPassenger(NPC_TELEPORT_EXIT, SkybreakerTeleportExit, TEMPSUMMON_TIMED_DESPAWN, NULL, 23000);
 
@@ -1305,7 +1305,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                             if (Transport* skybreaker = me->GetTransport())
                                 skybreaker->SummonPassenger(NPC_TELEPORT_PORTAL, SkybreakerTeleportPortal, TEMPSUMMON_TIMED_DESPAWN, NULL, 21000);
 
-                            if (GameObject* go = HashMapHolder<GameObject>::Find(_instance->GetData64(DATA_ICECROWN_GUNSHIP_BATTLE)))
+                            if (GameObject* go = HashMapHolder<GameObject>::Find(_instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
                                 if (Transport* orgrimsHammer = go->ToTransport())
                                     orgrimsHammer->SummonPassenger(NPC_TELEPORT_EXIT, OrgrimsHammerTeleportExit, TEMPSUMMON_TIMED_DESPAWN, NULL, 23000);
 
@@ -1451,7 +1451,7 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
             if (!myTransport)
                 return;
 
-            if (GameObject* go = HashMapHolder<GameObject>::Find(Instance->GetData64(DATA_ICECROWN_GUNSHIP_BATTLE)))
+            if (GameObject* go = HashMapHolder<GameObject>::Find(Instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
                 if (Transport* destTransport = go->ToTransport())
                     destTransport->CalculatePassengerPosition(x, y, z, &o);
 
@@ -2335,7 +2335,7 @@ class spell_igb_gunship_fall_teleport : public SpellScriptLoader
             void SelectTransport(WorldObject*& target)
             {
                 if (InstanceScript* instance = target->GetInstanceScript())
-                    target = HashMapHolder<GameObject>::Find(instance->GetData64(DATA_ICECROWN_GUNSHIP_BATTLE));
+                    target = HashMapHolder<GameObject>::Find(instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE));
             }
 
             void RelocateDest(SpellEffIndex /*effIndex*/)
@@ -2426,7 +2426,7 @@ class spell_igb_teleport_players_on_victory : public SpellScriptLoader
                 InstanceScript* instance = GetCaster()->GetInstanceScript();
                 targets.remove_if([instance](WorldObject* target) -> bool
                 {
-                    return target->GetTransGUID() != instance->GetData64(DATA_ENEMY_GUNSHIP);
+                    return target->GetTransGUID() != instance->GetGuidData(DATA_ENEMY_GUNSHIP);
                 });
             }
 

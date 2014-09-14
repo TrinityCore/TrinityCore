@@ -277,7 +277,7 @@ class npc_fel_crystal : public CreatureScript
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
                 {
-                    Creature* Selin = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SELIN));
+                    Creature* Selin = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SELIN));
                     if (Selin && Selin->IsAlive())
                         Selin->AI()->DoAction(ACTION_SWITCH_PHASE);
                 }

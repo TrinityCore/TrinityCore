@@ -155,7 +155,7 @@ class boss_svala : public CreatureScript
 
                 _arthasGUID = 0;
 
-                instance->SetData64(DATA_SACRIFICED_PLAYER, 0);
+                instance->SetGuidData(DATA_SACRIFICED_PLAYER, 0);
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -347,7 +347,7 @@ class boss_svala : public CreatureScript
                         case EVENT_RITUAL_PREPARATION:
                             if (Unit* sacrificeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80.0f, true))
                             {
-                                instance->SetData64(DATA_SACRIFICED_PLAYER, sacrificeTarget->GetGUID());
+                                instance->SetGuidData(DATA_SACRIFICED_PLAYER, sacrificeTarget->GetGUID());
                                 Talk(SAY_SACRIFICE_PLAYER);
                                 DoCast(sacrificeTarget, SPELL_RITUAL_PREPARATION);
                                 SetCombatMovement(false);
@@ -421,7 +421,7 @@ class npc_ritual_channeler : public CreatureScript
 
                 if (paralyzeTimer <= diff)
                 {
-                    if (Unit* victim = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_SACRIFICED_PLAYER)))
+                    if (Unit* victim = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_SACRIFICED_PLAYER)))
                         DoCast(victim, SPELL_PARALYZE, false);
 
                     paralyzeTimer = 200;
@@ -474,7 +474,7 @@ class RitualTargetCheck
         bool operator() (WorldObject* obj) const
         {
             if (InstanceScript* instance = obj->GetInstanceScript())
-                if (instance->GetData64(DATA_SACRIFICED_PLAYER) == obj->GetGUID())
+                if (instance->GetGuidData(DATA_SACRIFICED_PLAYER) == obj->GetGUID())
                     return false;
 
             return true;

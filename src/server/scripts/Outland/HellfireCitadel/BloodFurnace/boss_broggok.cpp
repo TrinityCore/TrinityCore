@@ -133,7 +133,7 @@ class go_broggok_lever : public GameObjectScript
                 if (instance->GetBossState(DATA_BROGGOK) != DONE && instance->GetBossState(DATA_BROGGOK) != IN_PROGRESS)
                 {
                     instance->SetBossState(DATA_BROGGOK, IN_PROGRESS);
-                    if (Creature* broggok = ObjectAccessor::GetCreature(*go, instance->GetData64(DATA_BROGGOK)))
+                    if (Creature* broggok = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_BROGGOK)))
                         broggok->AI()->DoAction(ACTION_PREPARE_BROGGOK);
                 }
 

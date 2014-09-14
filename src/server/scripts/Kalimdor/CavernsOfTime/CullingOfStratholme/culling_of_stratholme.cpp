@@ -568,7 +568,7 @@ public:
                     Talk(SAY_PHASE403);
                     break;
                 case 36:
-                    if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_SHKAF_GATE)))
+                    if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_SHKAF_GATE)))
                         gate->SetGoState(GO_STATE_ACTIVE);
                     break;
                 case 45:
@@ -1168,7 +1168,7 @@ public:
                                 malganisGUID = malganis->GetGUID();
                                 malganis->SetReactState(REACT_PASSIVE);
                             }
-                            if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAL_GANIS_GATE_1)))
+                            if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAL_GANIS_GATE_1)))
                                 gate->SetGoState(GO_STATE_ACTIVE);
                             SetHoldState(false);
                             bStepping = false;
@@ -1208,7 +1208,7 @@ public:
                             break;
                         case 90:
                             instance->SetBossState(DATA_ARTHAS, DONE); //Rewards: Achiev & Chest ;D
-                            me->SetTarget(instance->GetData64(DATA_MAL_GANIS_GATE_2)); //Look behind
+                            me->SetTarget(instance->GetGuidData(DATA_MAL_GANIS_GATE_2)); //Look behind
                             Talk(SAY_PHASE504);
                             bStepping = false;
                             break;

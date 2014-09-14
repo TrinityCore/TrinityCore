@@ -116,7 +116,7 @@ struct generic_boss_controllerAI : public BossAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (Creature* otherBoss = ObjectAccessor::GetCreature(*me, instance->GetData64(OtherBossData)))
+        if (Creature* otherBoss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(OtherBossData)))
         {
             if (otherBoss->IsAlive())
             {

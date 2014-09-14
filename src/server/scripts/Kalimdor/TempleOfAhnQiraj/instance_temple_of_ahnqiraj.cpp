@@ -134,7 +134,7 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 identifier) const override
+            ObjectGuid GetGuidData(uint32 identifier) const override
             {
                 switch (identifier)
                 {
@@ -152,7 +152,7 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
                     return ViscidusGUID;
                 }
                 return 0;
-            }                                                       // end GetData64
+            }                                                       // end GetGuidData
 
             void SetData(uint32 type, uint32 data) override
             {

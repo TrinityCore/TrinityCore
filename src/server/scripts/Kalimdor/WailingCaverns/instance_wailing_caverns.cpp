@@ -99,7 +99,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 data) const override
+        ObjectGuid GetGuidData(uint32 data) const override
         {
             if (data == DATA_NARALEX)return NaralexGUID;
             return 0;

@@ -340,7 +340,7 @@ public:
                 SaveToDB();
         }
 
-        void SetData64(uint32 type, uint64 data) override
+        void SetGuidData(uint32 type, ObjectGuid data) override
         {
             if (type == DATA_STATUE_ACTIVATE)
             {
@@ -369,7 +369,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 type) const override
+        ObjectGuid GetGuidData(uint32 type) const override
         {
             switch (type)
             {
@@ -528,7 +528,7 @@ public:
                      toActivate = 0;
 
                      if (phase == 3)
-                         SetData64(DATA_STATUE_ACTIVATE, bridgeGUID);
+                         SetGuidData(DATA_STATUE_ACTIVATE, bridgeGUID);
                      else
                          SaveToDB(); // Don't save in between last statue and bridge turning in case of crash leading to stuck instance
                 }
@@ -565,19 +565,19 @@ public:
             switch (go->GetEntry())
             {
                 case GO_SLADRAN_ALTAR:
-                    statueGUID = instance->GetData64(DATA_SLAD_RAN_STATUE);
+                    statueGUID = instance->GetGuidData(DATA_SLAD_RAN_STATUE);
                     break;
                 case GO_MOORABI_ALTAR:
-                    statueGUID = instance->GetData64(DATA_MOORABI_STATUE);
+                    statueGUID = instance->GetGuidData(DATA_MOORABI_STATUE);
                     break;
                 case GO_DRAKKARI_COLOSSUS_ALTAR:
-                    statueGUID = instance->GetData64(DATA_DRAKKARI_COLOSSUS_STATUE);
+                    statueGUID = instance->GetGuidData(DATA_DRAKKARI_COLOSSUS_STATUE);
                     break;
             }
 
-            if (!instance->GetData64(DATA_STATUE_ACTIVATE))
+            if (!instance->GetGuidData(DATA_STATUE_ACTIVATE))
             {
-                instance->SetData64(DATA_STATUE_ACTIVATE, statueGUID);
+                instance->SetGuidData(DATA_STATUE_ACTIVATE, statueGUID);
                 go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 go->SetGoState(GO_STATE_ACTIVE);
             }
