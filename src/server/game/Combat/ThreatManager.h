@@ -23,6 +23,7 @@
 #include "SharedDefines.h"
 #include "LinkedReference/Reference.h"
 #include "UnitEvents.h"
+#include "ObjectGuid.h"
 
 #include <list>
 

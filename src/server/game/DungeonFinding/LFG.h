@@ -19,6 +19,7 @@
 #define _LFG_H
 
 #include "Common.h"
+#include "ObjectGuid.h"
 
 namespace lfg
 {

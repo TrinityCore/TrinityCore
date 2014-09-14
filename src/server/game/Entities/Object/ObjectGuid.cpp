@@ -48,7 +48,7 @@ char const* ObjectGuid::GetTypeName(HighGuid high)
 std::string ObjectGuid::ToString() const
 {
     std::ostringstream str;
-    str << "GUID Full: 0x" << std::hex << std::setw(16) << std::setfill('0') << m_guid;
+    str << "GUID Full: 0x" << std::hex << std::setw(16) << std::setfill('0') << m_guid << std::dec;
     str << " Type: " << GetTypeName();
     if (HasEntry())
         str << (IsPet() ? " Pet number: " : " Entry: ") << GetEntry() << " ";

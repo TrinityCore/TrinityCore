@@ -20,6 +20,7 @@
 #define TRINITYCORE_ARENATEAM_H
 
 #include "QueryResult.h"
+#include "ObjectGuid.h"
 #include <list>
 #include <map>
 
