@@ -1,4 +1,4 @@
-SET @CGUID := 76522;
+SET @CGUID := 74512;
 
 UPDATE `creature_template` SET `gossip_menu_id`=10200 WHERE  `entry`=32239;
 UPDATE`creature_template` SET `gossip_menu_id`=9928, `minlevel`=82, `maxlevel`=82, `npcflag`=1, `speed_walk`=4.8, `speed_run`=3.142857, `unit_flags2`=2099200 WHERE  `entry`=30399;
