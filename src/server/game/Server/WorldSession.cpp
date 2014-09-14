@@ -172,9 +172,11 @@ std::string WorldSession::GetPlayerInfo() const
 {
     std::ostringstream ss;
 
-    ss << "[Player: " << GetPlayerName()
-       << " (Guid: " << (_player != NULL ? _player->GetGUID().ToString() : "")
-       << ", Account: " << GetAccountId() << ")]";
+    ss << "[Player: " << GetPlayerName() << " (";
+    if (_player != NULL)
+        ss << _player->GetGUID().ToString() << ", ";
+
+    ss << "Account: " << GetAccountId() << ")]";
 
     return ss.str();
 }

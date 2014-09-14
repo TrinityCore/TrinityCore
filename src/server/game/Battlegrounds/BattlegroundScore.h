@@ -19,6 +19,7 @@
 #define TRINITY_BATTLEGROUND_SCORE_H
 
 #include "WorldPacket.h"
+#include "ObjectGuid.h"
 
 enum ScoreType
 {
