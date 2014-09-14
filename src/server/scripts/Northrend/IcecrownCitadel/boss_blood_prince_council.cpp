@@ -1148,7 +1148,6 @@ class npc_ball_of_flame : public CreatureScript
             npc_ball_of_flameAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
                 _despawnTimer = 0;
-                _chaseGUID = 0;
             }
 
             void Reset() override
@@ -1163,7 +1162,7 @@ class npc_ball_of_flame : public CreatureScript
 
             void MovementInform(uint32 type, uint32 id) override
             {
-                if (type == CHASE_MOTION_TYPE && id == GUID_LOPART(_chaseGUID) && _chaseGUID)
+                if (type == CHASE_MOTION_TYPE && id == _chaseGUID.GetCounter() && _chaseGUID)
                 {
                     me->RemoveAurasDueToSpell(SPELL_BALL_OF_FLAMES_PERIODIC);
                     DoCast(me, SPELL_FLAMES);
@@ -1174,7 +1173,7 @@ class npc_ball_of_flame : public CreatureScript
 
             void SetGUID(uint64 guid, int32 /*type*/) override
             {
-                _chaseGUID = guid;
+                _chaseGUID.Set(guid);
             }
 
             void DoAction(int32 action) override
@@ -1213,7 +1212,7 @@ class npc_ball_of_flame : public CreatureScript
             }
 
         private:
-            uint64 _chaseGUID;
+            ObjectGuid _chaseGUID;
             InstanceScript* _instance;
             uint32 _despawnTimer;
         };

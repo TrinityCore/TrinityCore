@@ -20,6 +20,9 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include <sstream>
+#include <iomanip>
+
+ObjectGuid const ObjectGuid::Empty = ObjectGuid();
 
 char const* ObjectGuid::GetTypeName(HighGuid high)
 {
@@ -45,19 +48,12 @@ char const* ObjectGuid::GetTypeName(HighGuid high)
 std::string ObjectGuid::ToString() const
 {
     std::ostringstream str;
-    str << GetTypeName();
-
-    if (IsPlayer())
-    {
-        std::string name;
-        if (sObjectMgr->GetPlayerNameByGUID(m_guid, name))
-            str << " " << name;
-    }
-
-    str << " (";
+    str << "GUID Full: 0x" << std::hex << std::setw(16) << std::setfill('0') << m_guid;
+    str << " Type: " << GetTypeName();
     if (HasEntry())
-        str << (IsPet() ? "Petnumber: " : "Entry: ") << GetEntry() << " ";
-    str << "Guid: " << GetCounter() << ")";
+        str << (IsPet() ? " Pet number: " : " Entry: ") << GetEntry() << " ";
+
+    str << " Low: " << GetCounter();
     return str.str();
 }
 

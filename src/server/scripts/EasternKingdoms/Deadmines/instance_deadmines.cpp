@@ -59,32 +59,24 @@ class instance_deadmines : public InstanceMapScript
         {
             instance_deadmines_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
-            uint64 FactoryDoorGUID;
-            uint64 IronCladDoorGUID;
-            uint64 DefiasCannonGUID;
-            uint64 DoorLeverGUID;
-            uint64 DefiasPirate1GUID;
-            uint64 DefiasPirate2GUID;
-            uint64 DefiasCompanionGUID;
+            ObjectGuid FactoryDoorGUID;
+            ObjectGuid IronCladDoorGUID;
+            ObjectGuid DefiasCannonGUID;
+            ObjectGuid DoorLeverGUID;
+            ObjectGuid DefiasPirate1GUID;
+            ObjectGuid DefiasPirate2GUID;
+            ObjectGuid DefiasCompanionGUID;
 
             uint32 State;
             uint32 CannonBlast_Timer;
             uint32 PiratesDelay_Timer;
-            uint64 uiSmiteChestGUID;
+            ObjectGuid uiSmiteChestGUID;
 
             void Initialize() override
             {
                 SetHeaders(DataHeader);
-                FactoryDoorGUID = 0;
-                IronCladDoorGUID = 0;
-                DefiasCannonGUID = 0;
-                DoorLeverGUID = 0;
-                DefiasPirate1GUID = 0;
-                DefiasPirate2GUID = 0;
-                DefiasCompanionGUID = 0;
 
                 State = CANNON_NOT_USED;
-                uiSmiteChestGUID = 0;
             }
 
             virtual void Update(uint32 diff) override

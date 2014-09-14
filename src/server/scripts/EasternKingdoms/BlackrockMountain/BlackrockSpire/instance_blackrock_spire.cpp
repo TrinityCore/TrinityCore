@@ -52,29 +52,6 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            HighlordOmokk             = 0;
-            ShadowHunterVoshgajin     = 0;
-            WarMasterVoone            = 0;
-            MotherSmolderweb          = 0;
-            UrokDoomhowl              = 0;
-            QuartermasterZigris       = 0;
-            GizrultheSlavener         = 0;
-            Halycon                   = 0;
-            OverlordWyrmthalak        = 0;
-            PyroguardEmberseer        = 0;
-            WarchiefRendBlackhand     = 0;
-            Gyth                      = 0;
-            LordVictorNefarius        = 0;
-            TheBeast                  = 0;
-            GeneralDrakkisath         = 0;
-            go_emberseerin            = 0;
-            go_doors                  = 0;
-            go_emberseerout           = 0;
-            go_blackrockaltar         = 0;
-            go_portcullis_active      = 0;
-            go_portcullis_tobossrooms = 0;
-            memset(go_roomrunes, 0, sizeof(go_roomrunes));
-            memset(go_emberseerrunes, 0, sizeof(go_emberseerrunes));
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -504,30 +481,30 @@ public:
 
         protected:
             EventMap Events;
-            uint64 HighlordOmokk;
-            uint64 ShadowHunterVoshgajin;
-            uint64 WarMasterVoone;
-            uint64 MotherSmolderweb;
-            uint64 UrokDoomhowl;
-            uint64 QuartermasterZigris;
-            uint64 GizrultheSlavener;
-            uint64 Halycon;
-            uint64 OverlordWyrmthalak;
-            uint64 PyroguardEmberseer;
-            uint64 WarchiefRendBlackhand;
-            uint64 Gyth;
-            uint64 LordVictorNefarius;
-            uint64 TheBeast;
-            uint64 GeneralDrakkisath;
-            uint64 go_emberseerin;
-            uint64 go_doors;
-            uint64 go_emberseerout;
-            uint64 go_blackrockaltar;
-            uint64 go_roomrunes[7];
-            uint64 go_emberseerrunes[7];
-            uint64 runecreaturelist[7][5];
-            uint64 go_portcullis_active;
-            uint64 go_portcullis_tobossrooms;
+            ObjectGuid HighlordOmokk;
+            ObjectGuid ShadowHunterVoshgajin;
+            ObjectGuid WarMasterVoone;
+            ObjectGuid MotherSmolderweb;
+            ObjectGuid UrokDoomhowl;
+            ObjectGuid QuartermasterZigris;
+            ObjectGuid GizrultheSlavener;
+            ObjectGuid Halycon;
+            ObjectGuid OverlordWyrmthalak;
+            ObjectGuid PyroguardEmberseer;
+            ObjectGuid WarchiefRendBlackhand;
+            ObjectGuid Gyth;
+            ObjectGuid LordVictorNefarius;
+            ObjectGuid TheBeast;
+            ObjectGuid GeneralDrakkisath;
+            ObjectGuid go_emberseerin;
+            ObjectGuid go_doors;
+            ObjectGuid go_emberseerout;
+            ObjectGuid go_blackrockaltar;
+            ObjectGuid go_roomrunes[7];
+            ObjectGuid go_emberseerrunes[7];
+            ObjectGuid runecreaturelist[7][5];
+            ObjectGuid go_portcullis_active;
+            ObjectGuid go_portcullis_tobossrooms;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

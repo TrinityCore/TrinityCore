@@ -213,7 +213,7 @@ struct boss_horAI : BossAI
 class GameObjectDeleteDelayEvent : public BasicEvent
 {
     public:
-        GameObjectDeleteDelayEvent(Unit* owner, uint64 gameObjectGUID) : _owner(owner), _gameObjectGUID(gameObjectGUID) { }
+        GameObjectDeleteDelayEvent(Unit* owner, ObjectGuid gameObjectGUID) : _owner(owner), _gameObjectGUID(gameObjectGUID) { }
 
         void DeleteGameObject()
         {
@@ -234,7 +234,7 @@ class GameObjectDeleteDelayEvent : public BasicEvent
 
     private:
         Unit* _owner;
-        uint64 _gameObjectGUID;
+        ObjectGuid _gameObjectGUID;
 };
 
 template<class AI>

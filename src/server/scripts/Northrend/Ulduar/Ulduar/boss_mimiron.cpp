@@ -1028,7 +1028,7 @@ class boss_vx_001 : public CreatureScript
                 // Handle rotation during SPELL_SPINNING_UP, SPELL_P3WX2_LASER_BARRAGE, SPELL_RAPID_BURST, and SPELL_HAND_PULSE_LEFT/RIGHT
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                 {
-                    if (Creature* channelTarget = ObjectAccessor::GetCreature(*me, me->GetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT)))
+                    if (Creature* channelTarget = ObjectAccessor::GetCreature(*me, me->GetChannelObjectGuid()))
                         me->SetFacingToObject(channelTarget);
                     return;
                 }
@@ -1953,7 +1953,7 @@ class spell_mimiron_p3wx2_laser_barrage : public SpellScriptLoader
 
             void OnHit(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, GetHitUnit()->GetGUID());
+                GetCaster()->SetChannelObjectGuid(GetHitUnit()->GetGUID());
             }
 
             void Register() override
@@ -2357,7 +2357,7 @@ class spell_mimiron_spinning_up : public SpellScriptLoader
             void OnHit(SpellEffIndex /*effIndex*/)
             {
                 if (GetHitUnit() != GetCaster())
-                    GetCaster()->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, GetHitUnit()->GetGUID());
+                    GetCaster()->SetChannelObjectGuid(GetHitUnit()->GetGUID());
             }
 
             void Register() override

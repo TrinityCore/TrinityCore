@@ -138,9 +138,9 @@ public:
             MobDeath_Timer = 0;
 
             for (uint8 i = 0; i < MAX_NPC_AMOUNT; ++i)
-                RingMobGUID[i] = 0;
+                RingMobGUID[i].Clear();
 
-            RingBossGUID = 0;
+            RingBossGUID.Clear();
 
             CanWalk = false;
         }
@@ -154,8 +154,8 @@ public:
         uint8 MobCount;
         uint32 MobDeath_Timer;
 
-        uint64 RingMobGUID[4];
-        uint64 RingBossGUID;
+        ObjectGuid RingMobGUID[4];
+        ObjectGuid RingBossGUID;
 
         bool CanWalk;
 

@@ -263,18 +263,18 @@ public:
         // Get ALL the variables!
         Player* playerTarget;
         uint32 phase = 0;
-        uint64 guidTarget;
+        ObjectGuid guidTarget;
         std::string nameTarget;
         std::string zoneName;
         const char* onlineState = "";
 
         // Parse the guid to uint32...
-        uint32 parseGUID = MAKE_NEW_GUID(atol((char*)args), 0, HIGHGUID_PLAYER);
+        ObjectGuid parseGUID(HIGHGUID_PLAYER, uint32(atol((char*)args)));
 
         // ... and try to extract a player out of it.
         if (sObjectMgr->GetPlayerNameByGUID(parseGUID, nameTarget))
         {
-            playerTarget = sObjectMgr->GetPlayerByLowGUID(parseGUID);
+            playerTarget = ObjectAccessor::FindPlayer(parseGUID);
             guidTarget = parseGUID;
         }
         // If not, we return false and end right away.
@@ -292,7 +292,7 @@ public:
         if (!groupTarget)
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
-            stmt->setUInt32(0, guidTarget);
+            stmt->setUInt32(0, guidTarget.GetCounter());
             PreparedQueryResult resultGroup = CharacterDatabase.Query(stmt);
             if (resultGroup)
                 groupTarget = sGroupMgr->GetGroupByDbStoreId((*resultGroup)[0].GetUInt32());
@@ -368,7 +368,7 @@ public:
 
             // Now we can print those informations for every single member of each group!
             handler->PSendSysMessage(LANG_GROUP_PLAYER_NAME_GUID, slot.name.c_str(), onlineState,
-                zoneName.c_str(), phase, GUID_LOPART(slot.guid), flags.c_str(),
+                zoneName.c_str(), phase, slot.guid.GetCounter(), flags.c_str(),
                 lfg::GetRolesString(slot.roles).c_str());
         }
 

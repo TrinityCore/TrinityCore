@@ -93,10 +93,12 @@ class boss_akilzon : public CreatureScript
 
             void Initialize()
             {
-                TargetGUID = 0;
-                CloudGUID = 0;
-                CycloneGUID = 0;
-                memset(BirdGUIDs, 0, sizeof(BirdGUIDs));
+                TargetGUID.Clear();
+                CloudGUID.Clear();
+                CycloneGUID.Clear();
+                for (ObjectGuid& guid : BirdGUIDs)
+                    guid.Clear();
+
                 StormCount = 0;
                 isRaining = false;
             }
@@ -364,10 +366,10 @@ class boss_akilzon : public CreatureScript
             }
 
             private:
-                uint64 BirdGUIDs[8];
-                uint64 TargetGUID;
-                uint64 CycloneGUID;
-                uint64 CloudGUID;
+                ObjectGuid BirdGUIDs[8];
+                ObjectGuid TargetGUID;
+                ObjectGuid CycloneGUID;
+                ObjectGuid CloudGUID;
                 uint8  StormCount;
                 bool   isRaining;
         };
@@ -394,12 +396,12 @@ class npc_akilzon_eagle : public CreatureScript
             {
                 EagleSwoop_Timer = urand(5000, 10000);
                 arrived = true;
-                TargetGUID = 0;
+                TargetGUID.Clear();
             }
 
             uint32 EagleSwoop_Timer;
             bool arrived;
-            uint64 TargetGUID;
+            ObjectGuid TargetGUID;
 
             void Reset() override
             {

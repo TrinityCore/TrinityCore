@@ -60,25 +60,6 @@ public:
             // Razorgore
             EggCount = 0;
             EggEvent = 0;
-            RazorgoreTheUntamedGUID = 0;
-            RazorgoreDoorGUID = 0;
-            // Vaelastrasz the Corrupt
-            VaelastraszTheCorruptGUID = 0;
-            VaelastraszDoorGUID = 0;
-            // Broodlord Lashlayer
-            BroodlordLashlayerGUID = 0;
-            BroodlordDoorGUID = 0;
-            // 3 Dragons
-            FiremawGUID = 0;
-            EbonrocGUID = 0;
-            FlamegorGUID = 0;
-            ChrommagusDoorGUID = 0;
-            // Chormaggus
-            ChromaggusGUID = 0;
-            NefarianDoorGUID = 0;
-            // Nefarian
-            LordVictorNefariusGUID = 0;
-            NefarianGUID = 0;
             SetBossNumber(EncounterCount);
         }
 
@@ -87,26 +68,6 @@ public:
             // Razorgore
             EggCount = 0;
             EggEvent = 0;
-            RazorgoreTheUntamedGUID = 0;
-            RazorgoreDoorGUID = 0;
-            EggList.clear();
-            // Vaelastrasz the Corrupt
-            VaelastraszTheCorruptGUID = 0;
-            VaelastraszDoorGUID = 0;
-            // Broodlord Lashlayer
-            BroodlordLashlayerGUID = 0;
-            BroodlordDoorGUID = 0;
-            // 3 Dragons
-            FiremawGUID = 0;
-            EbonrocGUID = 0;
-            FlamegorGUID = 0;
-            ChrommagusDoorGUID = 0;
-            // Chormaggus
-            ChromaggusGUID = 0;
-            NefarianDoorGUID = 0;
-            // Nefarian
-            LordVictorNefariusGUID = 0;
-            NefarianGUID = 0;
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -340,31 +301,31 @@ public:
         // Razorgore
         uint8 EggCount;
         uint32 EggEvent;
-        uint64 RazorgoreTheUntamedGUID;
-        uint64 RazorgoreDoorGUID;
-        std::list<uint64> EggList;
+        ObjectGuid RazorgoreTheUntamedGUID;
+        ObjectGuid RazorgoreDoorGUID;
+        GuidList EggList;
 
         // Vaelastrasz the Corrupt
-        uint64 VaelastraszTheCorruptGUID;
-        uint64 VaelastraszDoorGUID;
+        ObjectGuid VaelastraszTheCorruptGUID;
+        ObjectGuid VaelastraszDoorGUID;
 
         // Broodlord Lashlayer
-        uint64 BroodlordLashlayerGUID;
-        uint64 BroodlordDoorGUID;
+        ObjectGuid BroodlordLashlayerGUID;
+        ObjectGuid BroodlordDoorGUID;
 
         // 3 Dragons
-        uint64 FiremawGUID;
-        uint64 EbonrocGUID;
-        uint64 FlamegorGUID;
-        uint64 ChrommagusDoorGUID;
+        ObjectGuid FiremawGUID;
+        ObjectGuid EbonrocGUID;
+        ObjectGuid FlamegorGUID;
+        ObjectGuid ChrommagusDoorGUID;
 
         // Chormaggus
-        uint64 ChromaggusGUID;
-        uint64 NefarianDoorGUID;
+        ObjectGuid ChromaggusGUID;
+        ObjectGuid NefarianDoorGUID;
 
         // Nefarian
-        uint64 LordVictorNefariusGUID;
-        uint64 NefarianGUID;
+        ObjectGuid LordVictorNefariusGUID;
+        ObjectGuid NefarianGUID;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

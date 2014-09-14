@@ -46,17 +46,6 @@ class instance_zulgurub : public InstanceMapScript
                 LoadDoorData(doorData);
             }
 
-            void Initialize() override
-            {
-                _zealotLorkhanGUID = 0;
-                _zealotZathGUID = 0;
-                _highPriestTekalGUID = 0;
-                _jindoTheHexxerGUID = 0;
-                _vilebranchSpeakerGUID = 0;
-                _arlokkGUID = 0;
-                _goGongOfBethekkGUID = 0;
-            }
-
             bool IsEncounterInProgress() const override
             {
                 // not active in Zul'Gurub
@@ -149,13 +138,13 @@ class instance_zulgurub : public InstanceMapScript
             //If all High Priest bosses were killed. Lorkhan, Zath and Ohgan are added too.
             //Storing Lorkhan, Zath and Thekal because we need to cast on them later. Jindo is needed for healfunction too.
 
-            uint64 _zealotLorkhanGUID;
-            uint64 _zealotZathGUID;
-            uint64 _highPriestTekalGUID;
-            uint64 _jindoTheHexxerGUID;
-            uint64 _vilebranchSpeakerGUID;
-            uint64 _arlokkGUID;
-            uint64 _goGongOfBethekkGUID;
+            ObjectGuid _zealotLorkhanGUID;
+            ObjectGuid _zealotZathGUID;
+            ObjectGuid _highPriestTekalGUID;
+            ObjectGuid _jindoTheHexxerGUID;
+            ObjectGuid _vilebranchSpeakerGUID;
+            ObjectGuid _arlokkGUID;
+            ObjectGuid _goGongOfBethekkGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

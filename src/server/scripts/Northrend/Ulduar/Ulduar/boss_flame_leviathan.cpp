@@ -1633,7 +1633,7 @@ class FlameLeviathanPursuedTargetSelector
             //! Vehicle must be in use by player
             bool playerFound = false;
             for (SeatMap::const_iterator itr = vehicle->Seats.begin(); itr != vehicle->Seats.end() && !playerFound; ++itr)
-                if (IS_PLAYER_GUID(itr->second.Passenger.Guid))
+                if (itr->second.Passenger.Guid.IsPlayer())
                     playerFound = true;
 
             return !playerFound;

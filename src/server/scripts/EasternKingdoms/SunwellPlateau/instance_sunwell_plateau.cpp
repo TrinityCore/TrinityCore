@@ -53,21 +53,7 @@ class instance_sunwell_plateau : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
 
-                KalecgosDragonGUID          = 0;
-                KalecgosHumanGUID           = 0;
-                SathrovarrGUID              = 0;
-                BrutallusGUID               = 0;
-                MadrigosaGUID               = 0;
-                FelmystGUID                 = 0;
-                AlythessGUID                = 0;
-                SacrolashGUID               = 0;
-                MuruGUID                    = 0;
-                KilJaedenGUID               = 0;
-                KilJaedenControllerGUID     = 0;
-                AnveenaGUID                 = 0;
-                KalecgosKjGUID              = 0;
                 SpectralPlayers             = 0;
-
                 SpectralRealmTimer          = 5000;
             }
 
@@ -214,23 +200,23 @@ class instance_sunwell_plateau : public InstanceMapScript
             }
 
         protected:
-            uint64 KalecgosDragonGUID;
-            uint64 KalecgosHumanGUID;
-            uint64 SathrovarrGUID;
-            uint64 BrutallusGUID;
-            uint64 MadrigosaGUID;
-            uint64 FelmystGUID;
-            uint64 AlythessGUID;
-            uint64 SacrolashGUID;
-            uint64 MuruGUID;
-            uint64 KilJaedenGUID;
-            uint64 KilJaedenControllerGUID;
-            uint64 AnveenaGUID;
-            uint64 KalecgosKjGUID;
-            uint32 SpectralPlayers;
+            ObjectGuid KalecgosDragonGUID;
+            ObjectGuid KalecgosHumanGUID;
+            ObjectGuid SathrovarrGUID;
+            ObjectGuid BrutallusGUID;
+            ObjectGuid MadrigosaGUID;
+            ObjectGuid FelmystGUID;
+            ObjectGuid AlythessGUID;
+            ObjectGuid SacrolashGUID;
+            ObjectGuid MuruGUID;
+            ObjectGuid KilJaedenGUID;
+            ObjectGuid KilJaedenControllerGUID;
+            ObjectGuid AnveenaGUID;
+            ObjectGuid KalecgosKjGUID;
+            ObjectGuid SpectralPlayers;
 
             uint32 SpectralRealmTimer;
-            std::vector<uint64> SpectralRealmList;
+            GuidVector SpectralRealmList;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

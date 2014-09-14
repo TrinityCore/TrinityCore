@@ -85,27 +85,6 @@ class instance_halls_of_reflection : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
 
-                JainaOrSylvanasIntroGUID  = 0;
-                KorelnOrLoralenGUID       = 0;
-                TheLichkingIntroGUID      = 0;
-                FalricGUID                = 0;
-                MarwynGUID                = 0;
-                FrostmourneAltarBunnyGUID = 0;
-                FrostswornGeneralGUID     = 0;
-                JainaOrSylvanasEscapeGUID = 0;
-                TheLichKingEscapeGUID     = 0;
-
-                FrostmourneGUID           = 0;
-                EntranceDoorGUID          = 0;
-                ImpenetrableDoorGUID      = 0;
-                ShadowThroneDoorGUID      = 0;
-                CaveInGUID                = 0;
-                GunshipGUID               = 0;
-                CaptainsChestGUID         = 0;
-                CaptainGUID               = 0;
-                IcewallGUID               = 0;
-                IcewallTargetGUID         = 0;
-
                 _teamInInstance           = 0;
                 _waveCount                = 0;
                 _introState               = NOT_STARTED;
@@ -200,7 +179,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                         break;
                     }
                     case NPC_ICE_WALL_TARGET:
-                        IcewallTargetGUID = 0;
+                        IcewallTargetGUID.Clear();
                         break;
                     case NPC_WORLD_TRIGGER:
                     case NPC_GUNSHIP_CANNON_HORDE:
@@ -256,11 +235,11 @@ class instance_halls_of_reflection : public InstanceMapScript
                         break;
                     case GO_IMPENETRABLE_DOOR:
                         ImpenetrableDoorGUID = go->GetGUID();
-                        HandleGameObject(0, GetBossState(DATA_MARWYN) == DONE, go);
+                        HandleGameObject(ObjectGuid::Empty, GetBossState(DATA_MARWYN) == DONE, go);
                         break;
                     case GO_SHADOW_THRONE_DOOR:
                         ShadowThroneDoorGUID = go->GetGUID();
-                        HandleGameObject(0, GetData(DATA_FROSTSWORN_GENERAL) == DONE, go);
+                        HandleGameObject(ObjectGuid::Empty, GetData(DATA_FROSTSWORN_GENERAL) == DONE, go);
                         break;
                     case GO_CAVE_IN:
                         CaveInGUID = go->GetGUID();
@@ -282,7 +261,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                         CaptainsChestGUID = go->GetGUID();
                         break;
                     case GO_ICE_WALL:
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                         IcewallGUID = go->GetGUID();
                         break;
                     default:
@@ -483,7 +462,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                     case NPC_WAVE_MAGE:
                     {
                         uint32 waveId = creature->AI()->GetData(0);
-                        for (uint64 guid : waveGuidList[waveId])
+                        for (ObjectGuid guid : waveGuidList[waveId])
                         {
                             if (Creature* npc = instance->GetCreature(guid))
                                 if (npc->IsAlive())
@@ -539,7 +518,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                             {
                                 tempList = possibilityList;
 
-                                uint64 bossGuid = i <= 3 ? FalricGUID : MarwynGUID;
+                                ObjectGuid bossGuid = i <= 3 ? FalricGUID : MarwynGUID;
 
                                 if (!i)
                                     Trinity::Containers::RandomResizeList(tempList, 3);
@@ -571,7 +550,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                         if (_waveCount % 5)
                         {
                             uint32 internalWaveId = _waveCount - ((_waveCount < 5) ? 1 : 2);
-                            for (uint64 guid : waveGuidList[internalWaveId])
+                            for (ObjectGuid guid : waveGuidList[internalWaveId])
                             {
                                 if (Creature* temp = instance->GetCreature(guid))
                                 {
@@ -610,7 +589,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                         // despawn wave npcs
                         for (uint8 i = 0; i < 8; ++i)
                         {
-                            for (uint64 guid : waveGuidList[i])
+                            for (ObjectGuid guid : waveGuidList[i])
                                 if (Creature* creature = instance->GetCreature(guid))
                                     creature->DespawnOrUnsummon(1);
                             waveGuidList[i].clear();
@@ -630,9 +609,9 @@ class instance_halls_of_reflection : public InstanceMapScript
                         if (Creature* captain = instance->GetCreature(CaptainGUID))
                             captain->AI()->Talk(SAY_CAPTAIN_FIRE);
 
-                        for (uint64 guid : GunshipCannonGUIDs)
+                        for (ObjectGuid guid : GunshipCannonGUIDs)
                         {
-                            uint32 entry = GUID_ENPART(guid);
+                            uint32 entry = guid.GetEntry();
                             if ((entry == NPC_WORLD_TRIGGER && _teamInInstance == ALLIANCE) || (entry == NPC_GUNSHIP_CANNON_HORDE && _teamInInstance == HORDE))
                                 if (Creature* cannon = instance->GetCreature(guid))
                                     cannon->CastSpell(cannon, SPELL_GUNSHIP_CANNON_FIRE, true);
@@ -642,7 +621,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                         if (Transport* gunship = instance->GetTransport(GunshipGUID))
                             gunship->EnableMovement(false);
 
-                        for (uint64 guid : GunshipStairGUIDs)
+                        for (ObjectGuid guid : GunshipStairGUIDs)
                             if (GameObject* stairs = instance->GetGameObject(guid))
                                 stairs->SetRespawnTime(DAY);
 
@@ -732,21 +711,21 @@ class instance_halls_of_reflection : public InstanceMapScript
             }
 
         private:
-            uint64 JainaOrSylvanasIntroGUID; // unused
-            uint64 KorelnOrLoralenGUID;
-            uint64 TheLichkingIntroGUID; // unused
-            uint64 FalricGUID;
-            uint64 MarwynGUID;
-            uint64 FrostmourneAltarBunnyGUID;
-            uint64 FrostswornGeneralGUID;
-            uint64 JainaOrSylvanasEscapeGUID;
-            uint64 TheLichKingEscapeGUID;
+            ObjectGuid JainaOrSylvanasIntroGUID; // unused
+            ObjectGuid KorelnOrLoralenGUID;
+            ObjectGuid TheLichkingIntroGUID; // unused
+            ObjectGuid FalricGUID;
+            ObjectGuid MarwynGUID;
+            ObjectGuid FrostmourneAltarBunnyGUID;
+            ObjectGuid FrostswornGeneralGUID;
+            ObjectGuid JainaOrSylvanasEscapeGUID;
+            ObjectGuid TheLichKingEscapeGUID;
 
-            uint64 FrostmourneGUID;
-            uint64 EntranceDoorGUID;
-            uint64 ImpenetrableDoorGUID;
-            uint64 ShadowThroneDoorGUID;
-            uint64 CaveInGUID;
+            ObjectGuid FrostmourneGUID;
+            ObjectGuid EntranceDoorGUID;
+            ObjectGuid ImpenetrableDoorGUID;
+            ObjectGuid ShadowThroneDoorGUID;
+            ObjectGuid CaveInGUID;
 
             uint32 _teamInInstance;
             uint32 _waveCount;
@@ -754,16 +733,16 @@ class instance_halls_of_reflection : public InstanceMapScript
             uint32 _frostswornGeneralState;
 
             EventMap events;
-            std::set<uint64> waveGuidList[8];
+            GuidSet waveGuidList[8];
 
-            uint64 GunshipGUID;
-            uint64 CaptainsChestGUID;
-            uint64 CaptainGUID;
-            uint64 IcewallGUID;
-            uint64 IcewallTargetGUID;
+            ObjectGuid GunshipGUID;
+            ObjectGuid CaptainsChestGUID;
+            ObjectGuid CaptainGUID;
+            ObjectGuid IcewallGUID;
+            ObjectGuid IcewallTargetGUID;
 
-            std::set<uint64> GunshipCannonGUIDs;
-            std::set<uint64> GunshipStairGUIDs;
+            GuidSet GunshipCannonGUIDs;
+            GuidSet GunshipStairGUIDs;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

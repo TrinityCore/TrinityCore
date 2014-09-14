@@ -383,7 +383,7 @@ class BattlefieldWG : public Battlefield
         GameObject* GetRelic() { return GetGameObject(m_titansRelicGUID); }
 
         /// Define relic object
-        void SetRelic(uint64 relicGUID) { m_titansRelicGUID = relicGUID; }
+        void SetRelic(ObjectGuid relicGUID) { m_titansRelicGUID = relicGUID; }
 
         /// Check if players can interact with the relic (Only if the last door has been broken)
         bool CanInteractWithRelic() { return m_isRelicInteractible; }
@@ -429,7 +429,7 @@ class BattlefieldWG : public Battlefield
         uint32 m_tenacityStack;
         uint32 m_saveTimer;
 
-        uint64 m_titansRelicGUID;
+        ObjectGuid m_titansRelicGUID;
 };
 
 uint32 const VehNumWorldState[]        = { 3680, 3490 };
@@ -578,7 +578,7 @@ struct WintergraspBuildingSpawnData
 
 struct WintergraspRebuildableBuildingData
 {
-    uint64 Guid;
+    ObjectGuid Guid;
     uint32 entry;
     uint32 WorldState;
     float x;
@@ -1068,7 +1068,7 @@ struct BfWGGameObjectBuilding
     BattlefieldWG* m_WG;
 
     // Linked gameobject
-    uint64 m_BuildGUID;
+    ObjectGuid m_BuildGUID;
 
     // eWGGameObjectBuildingType
     uint32 m_Type;
@@ -1132,7 +1132,7 @@ struct WGWorkshop
 struct WintergraspWorkshopData
 {
     BattlefieldWG* m_WG;                                    // Pointer to wintergrasp
-    uint64 m_BuildGUID;
+    ObjectGuid m_BuildGUID;
     uint32 m_Type;
     uint32 m_State;                                         // For worldstate
     uint32 m_WorldState;

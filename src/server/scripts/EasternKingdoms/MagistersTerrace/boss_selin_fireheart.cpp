@@ -71,7 +71,6 @@ class boss_selin_fireheart : public CreatureScript
         {
             boss_selin_fireheartAI(Creature* creature) : BossAI(creature, DATA_SELIN)
             {
-                CrystalGUID = 0;
                 _scheduledEvents = false;
             }
 
@@ -89,7 +88,7 @@ class boss_selin_fireheart : public CreatureScript
                 }
 
                 _Reset();
-                CrystalGUID = 0;
+                CrystalGUID.Clear();
                 _scheduledEvents = false;
             }
 
@@ -255,7 +254,7 @@ class boss_selin_fireheart : public CreatureScript
 
         private:
             std::list<Creature*> Crystals;
-            uint64 CrystalGUID;
+            ObjectGuid CrystalGUID;
             bool _scheduledEvents;
         };
 

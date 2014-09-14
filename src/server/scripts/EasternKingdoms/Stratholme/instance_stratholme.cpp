@@ -56,21 +56,21 @@ class instance_stratholme : public InstanceMapScript
 
             bool IsSilverHandDead[5];
 
-            uint64 serviceEntranceGUID;
-            uint64 gauntletGate1GUID;
-            uint64 ziggurat1GUID;
-            uint64 ziggurat2GUID;
-            uint64 ziggurat3GUID;
-            uint64 ziggurat4GUID;
-            uint64 ziggurat5GUID;
-            uint64 portGauntletGUID;
-            uint64 portSlaugtherGUID;
-            uint64 portElderGUID;
+            ObjectGuid serviceEntranceGUID;
+            ObjectGuid gauntletGate1GUID;
+            ObjectGuid ziggurat1GUID;
+            ObjectGuid ziggurat2GUID;
+            ObjectGuid ziggurat3GUID;
+            ObjectGuid ziggurat4GUID;
+            ObjectGuid ziggurat5GUID;
+            ObjectGuid portGauntletGUID;
+            ObjectGuid portSlaugtherGUID;
+            ObjectGuid portElderGUID;
 
-            uint64 baronGUID;
-            uint64 ysidaTriggerGUID;
-            std::set<uint64> crystalsGUID;
-            std::set<uint64> abomnationGUID;
+            ObjectGuid baronGUID;
+            ObjectGuid ysidaTriggerGUID;
+            GuidSet crystalsGUID;
+            GuidSet abomnationGUID;
             EventMap events;
 
             void Initialize() override
@@ -81,19 +81,6 @@ class instance_stratholme : public InstanceMapScript
                 for (uint8 i = 0; i < 5; ++i)
                     IsSilverHandDead[i] = false;
 
-                serviceEntranceGUID = 0;
-                gauntletGate1GUID = 0;
-                ziggurat1GUID = 0;
-                ziggurat2GUID = 0;
-                ziggurat3GUID = 0;
-                ziggurat4GUID = 0;
-                ziggurat5GUID = 0;
-                portGauntletGUID = 0;
-                portSlaugtherGUID = 0;
-                portElderGUID = 0;
-
-                baronGUID = 0;
-                ysidaTriggerGUID = 0;
                 crystalsGUID.clear();
                 abomnationGUID.clear();
             }
