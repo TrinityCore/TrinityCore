@@ -23,11 +23,11 @@
 #include "ObjectMgr.h"
 #include "MapManager.h"
 
-#ifdef WIN32
+/*#ifdef WIN32
     #define Delay(x) Sleep(x)
 #else
     #define Delay(x) sleep(x / 1000)
-#endif
+#endif*/
 // IRCClient Constructor
 IRCClient::IRCClient()
 {
@@ -116,7 +116,7 @@ void IRCClient::run()
             // If we need to reattempt a connection wait WAIT_CONNECT_TIME milli seconds before we try again
             if (sIRC->Active)
             {
-                boost::this_thread::sleep_for(std::chrono::milliseconds(_wct));
+                boost::this_thread::sleep(boost::posix_time::milliseconds(_wct));
             }
         }
         else
