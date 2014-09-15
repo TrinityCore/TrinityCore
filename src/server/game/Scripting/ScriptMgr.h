@@ -449,9 +449,6 @@ class CreatureScript : public UnitScript, public UpdatableScript<Creature>
         // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
         virtual bool OnQuestReward(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
 
-        // Called when a player completes a quest with the creature.
-        virtual bool OnQuestComplete(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) { return false; }
-
         // Called when the dialog status between a player and the creature is requested.
         virtual uint32 GetDialogStatus(Player* /*player*/, Creature* /*creature*/) { return DIALOG_STATUS_SCRIPTED_NO_STATUS; }
 
@@ -973,7 +970,6 @@ class ScriptMgr
         bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest);
         bool OnQuestSelect(Player* player, Creature* creature, Quest const* quest);
         bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt);
-        bool OnQuestComplete(Player* player, Creature* creature, Quest const* quest);
         uint32 GetDialogStatus(Player* player, Creature* creature);
         CreatureAI* GetCreatureAI(Creature* creature);
         void OnCreatureUpdate(Creature* creature, uint32 diff);

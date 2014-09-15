@@ -198,10 +198,6 @@ void ScriptMgr::Initialize()
     AddScripts();
 
     TC_LOG_INFO("server.loading", ">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
-
-#ifdef ELUNA
-    Eluna::Initialize();
-#endif
 }
 
 void ScriptMgr::Unload()
@@ -858,24 +854,6 @@ bool ScriptMgr::OnQuestSelect(Player* player, Creature* creature, Quest const* q
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->OnQuestSelect(player, creature, quest);
-}
-
-bool ScriptMgr::OnQuestComplete(Player* player, Creature* creature, Quest const* quest)
-{
-    ASSERT(player);
-    ASSERT(creature);
-    ASSERT(quest);
-#ifdef ELUNA
-    if (sEluna->OnQuestComplete(player, creature, quest))
-    {
-        player->PlayerTalkClass->ClearMenus();
-        return false;
-    }
-#endif
-
-    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnQuestComplete(player, creature, quest);
 }
 
 bool ScriptMgr::OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
