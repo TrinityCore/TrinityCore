@@ -267,7 +267,7 @@ public:
                 case DATA_IMAGE_OF_MEDIVH:          return ImageGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void Load(char const* chrIn)

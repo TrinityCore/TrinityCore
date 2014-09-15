@@ -94,20 +94,6 @@ class instance_serpent_shrine : public InstanceMapScript
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-                LurkerBelow = 0;
-                Sharkkis = 0;
-                Tidalvess = 0;
-                Caribdis = 0;
-                LadyVashj = 0;
-                Karathress = 0;
-                KarathressEvent_Starter = 0;
-                LeotherasTheBlind = 0;
-                LeotherasEventStarter = 0;
-
-                ControlConsole = 0;
-                BridgePart[0] = 0;
-                BridgePart[1] = 0;
-                BridgePart[2] = 0;
                 StrangePool = 0;
                 Water = WATERSTATE_FRENZY;
 
@@ -280,7 +266,7 @@ class instance_serpent_shrine : public InstanceMapScript
                     default:
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void SetData(uint32 type, uint32 data) override
@@ -297,7 +283,6 @@ class instance_serpent_shrine : public InstanceMapScript
                             HandleGameObject(BridgePart[0], true);
                             HandleGameObject(BridgePart[0], true);
                         }
-                        ControlConsole = data;
                         break;
                     case DATA_TRASH:
                         if (data == 1 && TrashCount < MIN_KILLS)
@@ -424,18 +409,18 @@ class instance_serpent_shrine : public InstanceMapScript
             }
 
         private:
-            uint64 LurkerBelow;
-            uint64 Sharkkis;
-            uint64 Tidalvess;
-            uint64 Caribdis;
-            uint64 LadyVashj;
-            uint64 Karathress;
-            uint64 KarathressEvent_Starter;
-            uint64 LeotherasTheBlind;
-            uint64 LeotherasEventStarter;
+            ObjectGuid LurkerBelow;
+            ObjectGuid Sharkkis;
+            ObjectGuid Tidalvess;
+            ObjectGuid Caribdis;
+            ObjectGuid LadyVashj;
+            ObjectGuid Karathress;
+            ObjectGuid KarathressEvent_Starter;
+            ObjectGuid LeotherasTheBlind;
+            ObjectGuid LeotherasEventStarter;
 
-            uint64 ControlConsole;
-            uint64 BridgePart[3];
+            ObjectGuid ControlConsole;
+            ObjectGuid BridgePart[3];
             uint32 StrangePool;
             uint32 FishingTimer;
             uint32 WaterCheckTimer;

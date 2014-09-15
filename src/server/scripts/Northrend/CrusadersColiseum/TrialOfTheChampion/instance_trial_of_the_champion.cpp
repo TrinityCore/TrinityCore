@@ -49,18 +49,18 @@ public:
         uint16 uiGrandChampionsDeaths;
         uint8 uiArgentSoldierDeaths;
 
-        uint64 uiAnnouncerGUID;
-        uint64 uiMainGateGUID;
-        uint64 uiGrandChampionVehicle1GUID;
-        uint64 uiGrandChampionVehicle2GUID;
-        uint64 uiGrandChampionVehicle3GUID;
-        uint64 uiGrandChampion1GUID;
-        uint64 uiGrandChampion2GUID;
-        uint64 uiGrandChampion3GUID;
-        uint64 uiChampionLootGUID;
-        uint64 uiArgentChampionGUID;
+        ObjectGuid uiAnnouncerGUID;
+        ObjectGuid uiMainGateGUID;
+        ObjectGuid uiGrandChampionVehicle1GUID;
+        ObjectGuid uiGrandChampionVehicle2GUID;
+        ObjectGuid uiGrandChampionVehicle3GUID;
+        ObjectGuid uiGrandChampion1GUID;
+        ObjectGuid uiGrandChampion2GUID;
+        ObjectGuid uiGrandChampion3GUID;
+        ObjectGuid uiChampionLootGUID;
+        ObjectGuid uiArgentChampionGUID;
 
-        std::list<uint64> VehicleList;
+        GuidList VehicleList;
 
         std::string str_data;
 
@@ -73,20 +73,7 @@ public:
             uiGrandChampionsDeaths = 0;
             uiArgentSoldierDeaths = 0;
 
-            uiAnnouncerGUID        = 0;
-            uiMainGateGUID         = 0;
-            uiGrandChampionVehicle1GUID   = 0;
-            uiGrandChampionVehicle2GUID   = 0;
-            uiGrandChampionVehicle3GUID   = 0;
-            uiGrandChampion1GUID          = 0;
-            uiGrandChampion2GUID          = 0;
-            uiGrandChampion3GUID          = 0;
-            uiChampionLootGUID            = 0;
-            uiArgentChampionGUID          = 0;
-
             bDone = false;
-
-            VehicleList.clear();
 
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
         }
@@ -183,7 +170,7 @@ public:
                     m_auiEncounter[0] = uiData;
                     if (uiData == IN_PROGRESS)
                     {
-                        for (std::list<uint64>::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
+                        for (GuidList::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
                             if (Creature* summon = instance->GetCreature(*itr))
                                 summon->RemoveFromWorld();
                     }else if (uiData == DONE)
@@ -264,7 +251,7 @@ public:
                 case DATA_GRAND_CHAMPION_3: return uiGrandChampion3GUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetGuidData(uint32 uiType, ObjectGuid uiData) override

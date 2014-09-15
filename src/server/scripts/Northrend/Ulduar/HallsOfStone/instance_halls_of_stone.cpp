@@ -39,22 +39,6 @@ class instance_halls_of_stone : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-
-                KrystallusGUID          = 0;
-                MaidenOfGriefGUID       = 0;
-                SjonnirGUID             = 0;
-
-                KaddrakGUID             = 0;
-                AbedneumGUID            = 0;
-                MarnakGUID              = 0;
-                BrannGUID               = 0;
-
-                TribunalConsoleGUID     = 0;
-                TribunalChestGUID       = 0;
-                TribunalSkyFloorGUID    = 0;
-                KaddrakGoGUID           = 0;
-                AbedneumGoGUID          = 0;
-                MarnakGoGUID            = 0;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -162,7 +146,7 @@ class instance_halls_of_stone : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -205,21 +189,21 @@ class instance_halls_of_stone : public InstanceMapScript
             }
 
         protected:
-            uint64 KrystallusGUID;
-            uint64 MaidenOfGriefGUID;
-            uint64 SjonnirGUID;
+            ObjectGuid KrystallusGUID;
+            ObjectGuid MaidenOfGriefGUID;
+            ObjectGuid SjonnirGUID;
 
-            uint64 KaddrakGUID;
-            uint64 AbedneumGUID;
-            uint64 MarnakGUID;
-            uint64 BrannGUID;
+            ObjectGuid KaddrakGUID;
+            ObjectGuid AbedneumGUID;
+            ObjectGuid MarnakGUID;
+            ObjectGuid BrannGUID;
 
-            uint64 TribunalConsoleGUID;
-            uint64 TribunalChestGUID;
-            uint64 TribunalSkyFloorGUID;
-            uint64 KaddrakGoGUID;
-            uint64 AbedneumGoGUID;
-            uint64 MarnakGoGUID;
+            ObjectGuid TribunalConsoleGUID;
+            ObjectGuid TribunalChestGUID;
+            ObjectGuid TribunalSkyFloorGUID;
+            ObjectGuid KaddrakGoGUID;
+            ObjectGuid AbedneumGoGUID;
+            ObjectGuid MarnakGoGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

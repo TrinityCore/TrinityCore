@@ -686,7 +686,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void WriteSaveDataMore(std::ostringstream& data) override

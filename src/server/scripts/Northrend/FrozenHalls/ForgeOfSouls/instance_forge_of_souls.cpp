@@ -38,8 +38,6 @@ class instance_forge_of_souls : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
-                bronjahm = 0;
-                devourerOfSouls = 0;
 
                 teamInInstance = 0;
             }
@@ -108,12 +106,12 @@ class instance_forge_of_souls : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
         private:
-            uint64 bronjahm;
-            uint64 devourerOfSouls;
+            ObjectGuid bronjahm;
+            ObjectGuid devourerOfSouls;
 
             uint32 teamInInstance;
         };

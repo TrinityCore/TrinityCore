@@ -146,7 +146,7 @@ class instance_scarlet_monastery : public InstanceMapScript
                     default:
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
         protected:

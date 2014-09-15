@@ -66,14 +66,14 @@ public:
     {
         instance_blackfathom_deeps_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
-        uint64 twilightLordKelrisGUID;
-        uint64 shrine1GUID;
-        uint64 shrine2GUID;
-        uint64 shrine3GUID;
-        uint64 shrine4GUID;
-        uint64 shrineOfGelihastGUID;
-        uint64 altarOfTheDeepsGUID;
-        uint64 mainDoorGUID;
+        ObjectGuid twilightLordKelrisGUID;
+        ObjectGuid shrine1GUID;
+        ObjectGuid shrine2GUID;
+        ObjectGuid shrine3GUID;
+        ObjectGuid shrine4GUID;
+        ObjectGuid shrineOfGelihastGUID;
+        ObjectGuid altarOfTheDeepsGUID;
+        ObjectGuid mainDoorGUID;
 
         uint8 encounter[MAX_ENCOUNTER];
         uint8 countFires;
@@ -84,14 +84,6 @@ public:
             SetHeaders(DataHeader);
             memset(&encounter, 0, sizeof(encounter));
 
-            twilightLordKelrisGUID = 0;
-            shrine1GUID = 0;
-            shrine2GUID = 0;
-            shrine3GUID = 0;
-            shrine4GUID = 0;
-            shrineOfGelihastGUID = 0;
-            altarOfTheDeepsGUID = 0;
-            mainDoorGUID = 0;
             countFires = 0;
             deathTimes = 0;
         }
@@ -254,7 +246,7 @@ public:
                     return mainDoorGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
     };
 };

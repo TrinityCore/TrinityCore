@@ -228,7 +228,7 @@ class instance_deadmines : public InstanceMapScript
                         return uiSmiteChestGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void DoPlaySound(GameObject* unit, uint32 sound)

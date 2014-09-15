@@ -63,50 +63,50 @@ class instance_ulduar : public InstanceMapScript
             instance_ulduar_InstanceMapScript(InstanceMap* map) : InstanceScript(map) { }
 
             // Creatures
-            uint64 LeviathanGUID;
-            uint64 IgnisGUID;
-            uint64 RazorscaleGUID;
-            uint64 RazorscaleController;
-            uint64 ExpeditionCommanderGUID;
-            uint64 XT002GUID;
-            uint64 XTToyPileGUIDs[4];
-            uint64 AssemblyGUIDs[3];
-            uint64 KologarnGUID;
-            uint64 AuriayaGUID;
-            uint64 HodirGUID;
-            uint64 ThorimGUID;
-            uint64 FreyaGUID;
-            uint64 ElderGUIDs[3];
-            uint64 MimironGUID;
-            uint64 MimironVehicleGUIDs[3];
-            uint64 MimironComputerGUID;
-            uint64 MimironWorldTriggerGUID;
-            uint64 VezaxGUID;
-            uint64 YoggSaronGUID;
-            uint64 VoiceOfYoggSaronGUID;
-            uint64 SaraGUID;
-            uint64 BrainOfYoggSaronGUID;
-            uint64 KeeperGUIDs[4];
-            uint64 AlgalonGUID;
-            uint64 BrannBronzebeardAlgGUID;
+            ObjectGuid LeviathanGUID;
+            ObjectGuid IgnisGUID;
+            ObjectGuid RazorscaleGUID;
+            ObjectGuid RazorscaleController;
+            ObjectGuid ExpeditionCommanderGUID;
+            ObjectGuid XT002GUID;
+            ObjectGuid XTToyPileGUIDs[4];
+            ObjectGuid AssemblyGUIDs[3];
+            ObjectGuid KologarnGUID;
+            ObjectGuid AuriayaGUID;
+            ObjectGuid HodirGUID;
+            ObjectGuid ThorimGUID;
+            ObjectGuid FreyaGUID;
+            ObjectGuid ElderGUIDs[3];
+            ObjectGuid MimironGUID;
+            ObjectGuid MimironVehicleGUIDs[3];
+            ObjectGuid MimironComputerGUID;
+            ObjectGuid MimironWorldTriggerGUID;
+            ObjectGuid VezaxGUID;
+            ObjectGuid YoggSaronGUID;
+            ObjectGuid VoiceOfYoggSaronGUID;
+            ObjectGuid SaraGUID;
+            ObjectGuid BrainOfYoggSaronGUID;
+            ObjectGuid KeeperGUIDs[4];
+            ObjectGuid AlgalonGUID;
+            ObjectGuid BrannBronzebeardAlgGUID;
 
             // GameObjects
-            uint64 LeviathanGateGUID;
-            uint64 RazorHarpoonGUIDs[4];
-            uint64 KologarnChestGUID;
-            uint64 KologarnBridgeGUID;
-            uint64 ThorimChestGUID;
-            uint64 HodirRareCacheGUID;
-            uint64 HodirChestGUID;
-            uint64 MimironTramGUID;
-            uint64 MimironElevatorGUID;
-            uint64 MimironButtonGUID;
-            uint64 BrainRoomDoorGUIDs[3];
-            uint64 AlgalonSigilDoorGUID[3];
-            uint64 AlgalonFloorGUID[2];
-            uint64 AlgalonUniverseGUID;
-            uint64 AlgalonTrapdoorGUID;
-            uint64 GiftOfTheObserverGUID;
+            ObjectGuid LeviathanGateGUID;
+            ObjectGuid RazorHarpoonGUIDs[4];
+            ObjectGuid KologarnChestGUID;
+            ObjectGuid KologarnBridgeGUID;
+            ObjectGuid ThorimChestGUID;
+            ObjectGuid HodirRareCacheGUID;
+            ObjectGuid HodirChestGUID;
+            ObjectGuid MimironTramGUID;
+            ObjectGuid MimironElevatorGUID;
+            ObjectGuid MimironButtonGUID;
+            ObjectGuid BrainRoomDoorGUIDs[3];
+            ObjectGuid AlgalonSigilDoorGUID[3];
+            ObjectGuid AlgalonFloorGUID[2];
+            ObjectGuid AlgalonUniverseGUID;
+            ObjectGuid AlgalonTrapdoorGUID;
+            ObjectGuid GiftOfTheObserverGUID;
 
             // Miscellaneous
             uint32 TeamInInstance;
@@ -119,47 +119,12 @@ class instance_ulduar : public InstanceMapScript
             bool Unbroken;
             bool IsDriveMeCrazyEligible;
 
-            std::set<uint64> mRubbleSpawns;
-
             void Initialize() override
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doorData);
                 LoadMinionData(minionData);
-                LeviathanGUID                    = 0;
-                IgnisGUID                        = 0;
-                RazorscaleGUID                   = 0;
-                RazorscaleController             = 0;
-                ExpeditionCommanderGUID          = 0;
-                XT002GUID                        = 0;
-                KologarnGUID                     = 0;
-                AuriayaGUID                      = 0;
-                MimironGUID                      = 0;
-                MimironComputerGUID              = 0;
-                MimironWorldTriggerGUID          = 0;
-                HodirGUID                        = 0;
-                ThorimGUID                       = 0;
-                FreyaGUID                        = 0;
-                VezaxGUID                        = 0;
-                YoggSaronGUID                    = 0;
-                VoiceOfYoggSaronGUID             = 0;
-                SaraGUID                         = 0;
-                BrainOfYoggSaronGUID             = 0;
-                AlgalonGUID                      = 0;
-                KologarnChestGUID                = 0;
-                KologarnBridgeGUID               = 0;
-                ThorimChestGUID                  = 0;
-                HodirRareCacheGUID               = 0;
-                HodirChestGUID                   = 0;
-                MimironTramGUID                  = 0;
-                MimironElevatorGUID              = 0;
-                MimironButtonGUID                = 0;
-                LeviathanGateGUID                = 0;
-                AlgalonUniverseGUID              = 0;
-                AlgalonTrapdoorGUID              = 0;
-                BrannBronzebeardAlgGUID          = 0;
-                GiftOfTheObserverGUID            = 0;
                 _algalonTimer                    = 61;
                 _maxArmorItemLevel               = 0;
                 _maxWeaponItemLevel              = 0;
@@ -175,15 +140,6 @@ class instance_ulduar : public InstanceMapScript
                 _algalonSummoned                 = false;
                 _summonAlgalon                   = false;
 
-                memset(AlgalonSigilDoorGUID, 0, sizeof(AlgalonSigilDoorGUID));
-                memset(AlgalonFloorGUID, 0, sizeof(AlgalonFloorGUID));
-                memset(XTToyPileGUIDs, 0, sizeof(XTToyPileGUIDs));
-                memset(AssemblyGUIDs, 0, sizeof(AssemblyGUIDs));
-                memset(RazorHarpoonGUIDs, 0, sizeof(RazorHarpoonGUIDs));
-                memset(ElderGUIDs, 0, sizeof(ElderGUIDs));
-                memset(MimironVehicleGUIDs, 0, sizeof(MimironVehicleGUIDs));
-                memset(BrainRoomDoorGUIDs, 0, sizeof(BrainRoomDoorGUIDs));
-                memset(KeeperGUIDs, 0, sizeof(KeeperGUIDs));
                 memset(_summonObservationRingKeeper, false, sizeof(_summonObservationRingKeeper));
                 memset(_summonYSKeeper, false, sizeof(_summonYSKeeper));
             }
@@ -460,7 +416,7 @@ class instance_ulduar : public InstanceMapScript
                         for (uint8 i = 0; i < 4; ++i)
                             if (XTToyPileGUIDs[i] == creature->GetGUID())
                             {
-                                XTToyPileGUIDs[i] = 0;
+                                XTToyPileGUIDs[i].Clear();
                                 break;
                             }
                         break;
@@ -471,7 +427,7 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case NPC_BRANN_BRONZBEARD_ALG:
                         if (BrannBronzebeardAlgGUID == creature->GetGUID())
-                            BrannBronzebeardAlgGUID = 0;
+                            BrannBronzebeardAlgGUID.Clear();
                         break;
                     default:
                         break;
@@ -975,7 +931,7 @@ class instance_ulduar : public InstanceMapScript
                         return BrannBronzebeardAlgGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             uint32 GetData(uint32 type) const override

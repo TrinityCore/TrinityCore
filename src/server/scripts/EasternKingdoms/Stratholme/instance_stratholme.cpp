@@ -100,7 +100,7 @@ class instance_stratholme : public InstanceMapScript
             }
 
             //if withRestoreTime true, then newState will be ignored and GO should be restored to original state after 10 seconds
-            void UpdateGoState(uint64 goGuid, uint32 newState, bool withRestoreTime)
+            void UpdateGoState(ObjectGuid goGuid, uint32 newState, bool withRestoreTime)
             {
                 if (!goGuid)
                     return;
@@ -263,7 +263,7 @@ class instance_stratholme : public InstanceMapScript
                             HandleGameObject(portGauntletGUID, false);
 
                             uint32 count = abomnationGUID.size();
-                            for (std::set<uint64>::const_iterator i = abomnationGUID.begin(); i != abomnationGUID.end(); ++i)
+                            for (GuidSet::const_iterator i = abomnationGUID.begin(); i != abomnationGUID.end(); ++i)
                             {
                                 if (Creature* pAbom = instance->GetCreature(*i))
                                     if (!pAbom->IsAlive())
@@ -414,7 +414,7 @@ class instance_stratholme : public InstanceMapScript
                     case DATA_YSIDA_TRIGGER:
                         return ysidaTriggerGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void Update(uint32 diff) override

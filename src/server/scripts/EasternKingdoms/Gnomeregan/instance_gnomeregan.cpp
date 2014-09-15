@@ -128,7 +128,7 @@ public:
                 case DATA_NPC_BASTMASTER_EMI_SHORTFUSE: return uiBastmasterEmiShortfuseGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
     };
 

@@ -31,15 +31,6 @@ class instance_drak_tharon_keep : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-
-                TrollgoreGUID       = 0;
-                NovosGUID           = 0;
-                KingDredGUID        = 0;
-                TharonJaGUID        = 0;
-
-                memset(TrollgoreInvaderSummonerGuids, 0, 3 * sizeof(uint64));
-                memset(NovosCrystalGUIDs, 0, 4 * sizeof(uint64));
-                memset(NovosSummonerGUIDs, 0, 4 * sizeof(uint64));
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -150,7 +141,7 @@ class instance_drak_tharon_keep : public InstanceMapScript
                         return NovosSummonerGUIDs[type - DATA_NOVOS_SUMMONER_1];
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void OnUnitDeath(Unit* unit) override
@@ -161,14 +152,14 @@ class instance_drak_tharon_keep : public InstanceMapScript
             }
 
         protected:
-            uint64 TrollgoreGUID;
-            uint64 NovosGUID;
-            uint64 KingDredGUID;
-            uint64 TharonJaGUID;
+            ObjectGuid TrollgoreGUID;
+            ObjectGuid NovosGUID;
+            ObjectGuid KingDredGUID;
+            ObjectGuid TharonJaGUID;
 
-            uint64 TrollgoreInvaderSummonerGuids[3];
-            uint64 NovosCrystalGUIDs[4];
-            uint64 NovosSummonerGUIDs[4];
+            ObjectGuid TrollgoreInvaderSummonerGuids[3];
+            ObjectGuid NovosCrystalGUIDs[4];
+            ObjectGuid NovosSummonerGUIDs[4];
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
