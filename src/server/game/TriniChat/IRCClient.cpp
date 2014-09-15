@@ -31,8 +31,8 @@
 // IRCClient Constructor
 IRCClient::IRCClient()
 {
-    for (int i = 0;i < 5;i++)
-        sIRC->Script_Lock[i] = false;
+//    for (int i = 0;i < 5;i++)
+//        sIRC->Script_Lock[i] = false;
 }
 // IRCClient Destructor
 IRCClient::~IRCClient(){}
@@ -116,7 +116,7 @@ void IRCClient::run()
             // If we need to reattempt a connection wait WAIT_CONNECT_TIME milli seconds before we try again
             if (sIRC->Active)
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(_wct));
+                boost::this_thread::sleep_for(std::chrono::milliseconds(_wct));
             }
         }
         else
