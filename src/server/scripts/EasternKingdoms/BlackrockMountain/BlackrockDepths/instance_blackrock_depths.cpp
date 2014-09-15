@@ -167,9 +167,9 @@ public:
             case GO_TOMB_EXIT:
                 GoTombExitGUID = go->GetGUID();
                 if (GhostKillCount >= 7)
-                    HandleGameObject(0, true, go);
+                    HandleGameObject(ObjectGuid::Empty, true, go);
                 else
-                    HandleGameObject(0, false, go);
+                    HandleGameObject(ObjectGuid::Empty, false, go);
                 break;
             case GO_LYCEUM: GoLyceumGUID = go->GetGUID(); break;
             case GO_SF_S: GoSFSGUID = go->GetGUID(); break;

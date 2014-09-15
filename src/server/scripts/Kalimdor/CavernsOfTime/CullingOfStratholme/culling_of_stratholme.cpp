@@ -360,23 +360,23 @@ public:
 
         void Initialize()
         {
-            utherGUID = 0;
-            jainaGUID = 0;
+            utherGUID.Clear();
+            jainaGUID.Clear();
 
             for (uint8 i = 0; i < 2; ++i)
-                citymenGUID[i] = 0;
+                citymenGUID[i].Clear();
 
             for (uint8 i = 0; i < ENCOUNTER_WAVES_MAX_SPAWNS; ++i)
-                waveGUID[i] = 0;
+                waveGUID[i].Clear();
 
             for (uint8 i = 0; i < ENCOUNTER_DRACONIAN_NUMBER; ++i)
-                infiniteDraconianGUID[i] = 0;
+                infiniteDraconianGUID[i].Clear();
 
-            stalkerGUID = 0;
-            bossGUID = 0;
-            epochGUID = 0;
-            malganisGUID = 0;
-            infiniteGUID = 0;
+            stalkerGUID.Clear();
+            bossGUID.Clear();
+            epochGUID.Clear();
+            malganisGUID.Clear();
+            infiniteGUID.Clear();
 
             phaseTimer = 1000;
             exorcismTimer = 7300;
@@ -393,17 +393,17 @@ public:
         uint32 wave;
         uint32 WavesCounter;
 
-        uint64 utherGUID;
-        uint64 jainaGUID;
-        uint64 citymenGUID[2];
-        uint64 waveGUID[ENCOUNTER_WAVES_MAX_SPAWNS];
-        uint64 infiniteDraconianGUID[ENCOUNTER_DRACONIAN_NUMBER];
-        uint64 stalkerGUID;
+        ObjectGuid utherGUID;
+        ObjectGuid jainaGUID;
+        ObjectGuid citymenGUID[2];
+        ObjectGuid waveGUID[ENCOUNTER_WAVES_MAX_SPAWNS];
+        ObjectGuid infiniteDraconianGUID[ENCOUNTER_DRACONIAN_NUMBER];
+        ObjectGuid stalkerGUID;
 
-        uint64 bossGUID;
-        uint64 epochGUID;
-        uint64 malganisGUID;
-        uint64 infiniteGUID;
+        ObjectGuid bossGUID;
+        ObjectGuid epochGUID;
+        ObjectGuid malganisGUID;
+        ObjectGuid infiniteGUID;
 
         uint32 exorcismTimer;
 
@@ -436,7 +436,7 @@ public:
             instance->SetBossState(DATA_ARTHAS, FAIL);
         }
 
-        void SpawnTimeRift(uint32 timeRiftID, uint64* guidVector)
+        void SpawnTimeRift(uint32 timeRiftID, ObjectGuid* guidVector)
         {
             me->SummonCreature((uint32)RiftAndSpawnsLocations[timeRiftID][0], RiftAndSpawnsLocations[timeRiftID][1], RiftAndSpawnsLocations[timeRiftID][2], RiftAndSpawnsLocations[timeRiftID][3], RiftAndSpawnsLocations[timeRiftID][4], TEMPSUMMON_TIMED_DESPAWN, 11000);
 
@@ -455,7 +455,7 @@ public:
             }
         }
 
-        void SpawnWaveGroup(uint32 waveID, uint64* guidVector)
+        void SpawnWaveGroup(uint32 waveID, ObjectGuid* guidVector)
         {
             for (uint32 i = 0; i < ENCOUNTER_WAVES_MAX_SPAWNS; ++i)
             {
@@ -736,7 +736,7 @@ public:
                         case 21:
                             SetEscortPaused(false);
                             bStepping = false;
-                            me->SetTarget(0);
+                            me->SetTarget(ObjectGuid::Empty);
                             JumpToNextStep(0);
                             break;
                         //After waypoint 3
@@ -756,7 +756,7 @@ public:
                             if (Creature* uther = ObjectAccessor::GetCreature(*me, utherGUID))
                                 uther->DisappearAndDie();
 
-                            me->SetTarget(0);
+                            me->SetTarget(ObjectGuid::Empty);
                             JumpToNextStep(0);
                             break;
                         //After Gossip 1 (waypoint 8)
@@ -779,7 +779,7 @@ public:
                             SetEscortPaused(false);
                             bStepping = false;
                             SetRun(false);
-                            me->SetTarget(0);
+                            me->SetTarget(ObjectGuid::Empty);
                             JumpToNextStep(0);
                             break;
                         //After waypoint 9
@@ -938,7 +938,7 @@ public:
                                 uint32 deadCounter = 0;
                                 for (uint8 i = 0; i < ENCOUNTER_WAVES_MAX_SPAWNS; ++i)
                                 {
-                                    if (waveGUID[i] == 0)
+                                    if (waveGUID[i].IsEmpty())
                                         break;
                                     ++mobCounter;
                                     Unit* temp = ObjectAccessor::GetCreature(*me, waveGUID[i]);

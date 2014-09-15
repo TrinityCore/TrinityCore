@@ -137,7 +137,7 @@ public:
                     break;
                 case GO_AKU_MAI_DOOR:
                     if (encounter[2] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     mainDoorGUID = go->GetGUID();
                     break;
             }

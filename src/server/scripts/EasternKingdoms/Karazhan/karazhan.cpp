@@ -139,7 +139,7 @@ public:
 
         void Initialize()
         {
-            m_uiSpotlightGUID = 0;
+            m_uiSpotlightGUID.Clear();
 
             TalkCount = 0;
             TalkTimer = 2000;
@@ -150,7 +150,7 @@ public:
 
         InstanceScript* instance;
 
-        uint64 m_uiSpotlightGUID;
+        ObjectGuid m_uiSpotlightGUID;
 
         uint32 TalkCount;
         uint32 TalkTimer;
@@ -491,14 +491,14 @@ public:
 
         void Initialize()
         {
-            ArcanagosGUID = 0;
+            ArcanagosGUID.Clear();
             EventStarted = false;
             YellTimer = 0;
         }
 
         InstanceScript* instance;
 
-        uint64 ArcanagosGUID;
+        ObjectGuid ArcanagosGUID;
 
         uint32 YellTimer;
         uint32 Step;

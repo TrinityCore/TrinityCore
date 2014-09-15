@@ -129,11 +129,9 @@ public:
     {
         npc_blood_elf_council_voice_triggerAI(Creature* creature) : ScriptedAI(creature)
         {
-            for (uint8 i = 0; i < 4; ++i)
-                Council[i] = 0;
         }
 
-        uint64 Council[4];
+        ObjectGuid Council[4];
 
         uint32 EnrageTimer;
         uint32 AggroYellTimer;
@@ -226,13 +224,11 @@ public:
         npc_illidari_councilAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            for (uint8 i = 0; i < 4; ++i)
-                Council[i] = 0;
         }
 
         InstanceScript* instance;
 
-        uint64 Council[4];
+        ObjectGuid Council[4];
 
         uint32 CheckTimer;
         uint32 EndEventTimer;
@@ -379,12 +375,10 @@ struct boss_illidari_councilAI : public ScriptedAI
     boss_illidari_councilAI(Creature* creature) : ScriptedAI(creature)
     {
         instance = creature->GetInstanceScript();
-        for (uint8 i = 0; i < 4; ++i)
-            Council[i] = 0;
         LoadedGUIDs = false;
     }
 
-    uint64 Council[4];
+    ObjectGuid Council[4];
 
     InstanceScript* instance;
 

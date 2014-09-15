@@ -107,7 +107,7 @@ class instance_utgarde_pinnacle : public InstanceMapScript
                         GortokPalehoofSphereGUID = go->GetGUID();
                         if (GetBossState(DATA_GORTOK_PALEHOOF) == DONE)
                         {
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                             go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         }
                         break;

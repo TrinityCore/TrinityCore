@@ -489,7 +489,7 @@ class instance_ulduar : public InstanceMapScript
                     case GO_KOLOGARN_BRIDGE:
                         KologarnBridgeGUID = gameObject->GetGUID();
                         if (GetBossState(BOSS_KOLOGARN) == DONE)
-                            HandleGameObject(0, false, gameObject);
+                            HandleGameObject(ObjectGuid::Empty, false, gameObject);
                         break;
                     case GO_THORIM_CHEST_HERO:
                     case GO_THORIM_CHEST:

@@ -368,14 +368,7 @@ class npc_fizzlebang_toc : public CreatureScript
         {
             npc_fizzlebang_tocAI(Creature* creature) : ScriptedAI(creature), _summons(me)
             {
-                Initialize();
                 _instance = me->GetInstanceScript();
-                _triggerGUID = 0;
-            }
-
-            void Initialize()
-            {
-                _portalGUID = 0;
             }
 
             void JustDied(Unit* killer) override
@@ -392,8 +385,8 @@ class npc_fizzlebang_toc : public CreatureScript
 
             void Reset() override
             {
+                _portalGUID.Clear();
                 me->SetWalk(true);
-                Initialize();
                 me->GetMotionMaster()->MovePoint(1, ToCCommonLoc[10].GetPositionX(), ToCCommonLoc[10].GetPositionY()-60, ToCCommonLoc[10].GetPositionZ());
             }
 
@@ -526,8 +519,8 @@ class npc_fizzlebang_toc : public CreatureScript
             private:
                 InstanceScript* _instance;
                 SummonList _summons;
-                uint64 _portalGUID;
-                uint64 _triggerGUID;
+                ObjectGuid _portalGUID;
+                ObjectGuid _triggerGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
