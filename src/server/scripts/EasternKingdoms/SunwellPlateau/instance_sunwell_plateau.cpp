@@ -66,7 +66,7 @@ class instance_sunwell_plateau : public InstanceMapScript
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
                         Player* player = itr->GetSource();
-                        if (player && !player->HasAura(45839, 0))
+                        if (player && !player->HasAura(45839))
                             return player;
                     }
                 }
@@ -191,12 +191,12 @@ class instance_sunwell_plateau : public InstanceMapScript
                     case DATA_PLAYER_GUID:
                     {
                         Player const* target = GetPlayerInMap();
-                        return target ? target->GetGUID() : 0;
+                        return target ? target->GetGUID() : ObjectGuid::Empty;
                     }
                     default:
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
         protected:
@@ -213,7 +213,7 @@ class instance_sunwell_plateau : public InstanceMapScript
             ObjectGuid KilJaedenControllerGUID;
             ObjectGuid AnveenaGUID;
             ObjectGuid KalecgosKjGUID;
-            ObjectGuid SpectralPlayers;
+            uint32 SpectralPlayers;
 
             uint32 SpectralRealmTimer;
             GuidVector SpectralRealmList;

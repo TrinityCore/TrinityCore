@@ -30,14 +30,6 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(NUM_ENCOUNTER);
-
-                _kurinaxxGUID   = 0;
-                _rajaxxGUID     = 0;
-                _moamGUID       = 0;
-                _buruGUID       = 0;
-                _ayamissGUID    = 0;
-                _ossirianGUID   = 0;
-                _paralyzedGUID  = 0;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -99,17 +91,17 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                         return _paralyzedGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
         private:
-            uint64 _kurinaxxGUID;
-            uint64 _rajaxxGUID;
-            uint64 _moamGUID;
-            uint64 _buruGUID;
-            uint64 _ayamissGUID;
-            uint64 _ossirianGUID;
-            uint64 _paralyzedGUID;
+            ObjectGuid _kurinaxxGUID;
+            ObjectGuid _rajaxxGUID;
+            ObjectGuid _moamGUID;
+            ObjectGuid _buruGUID;
+            ObjectGuid _ayamissGUID;
+            ObjectGuid _ossirianGUID;
+            ObjectGuid _paralyzedGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

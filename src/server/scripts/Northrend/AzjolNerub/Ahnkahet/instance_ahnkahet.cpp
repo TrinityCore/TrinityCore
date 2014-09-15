@@ -39,21 +39,10 @@ class instance_ahnkahet : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
 
-                ElderNadoxGUID              = 0;
-                PrinceTaldaramGUID          = 0;
-                JedogaShadowseekerGUID      = 0;
-                AmanitarGUID                = 0;
-                HeraldVolazjGUID            = 0;
-
-                PrinceTaldaramPlatformGUID  = 0;
-                JedogaSacrifices            = 0;
-                JedogaTarget                = 0;
                 SwitchTrigger               = 0;
 
                 SpheresState[0]             = 0;
                 SpheresState[1]             = 0;
-
-                InitiandGUIDs.clear();
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -142,7 +131,7 @@ class instance_ahnkahet : public InstanceMapScript
                         SwitchTrigger = data;
                         break;
                     case DATA_JEDOGA_RESET_INITIANDS:
-                        for (uint64 guid : InitiandGUIDs)
+                        for (ObjectGuid guid : InitiandGUIDs)
                         {
                             if (Creature* creature = instance->GetCreature(guid))
                             {
@@ -165,7 +154,7 @@ class instance_ahnkahet : public InstanceMapScript
                     case DATA_SPHERE_2:
                         return SpheresState[type - DATA_SPHERE_1];
                     case DATA_ALL_INITIAND_DEAD:
-                        for (uint64 guid : InitiandGUIDs)
+                        for (ObjectGuid guid : InitiandGUIDs)
                         {
                             Creature* cr = instance->GetCreature(guid);
                             if (!cr || cr->IsAlive())
@@ -213,16 +202,16 @@ class instance_ahnkahet : public InstanceMapScript
                         return PrinceTaldaramPlatformGUID;
                     case DATA_ADD_JEDOGA_INITIAND:
                     {
-                        std::vector<uint64> vInitiands;
-                        vInitiands.clear();
-                        for (uint64 guid : InitiandGUIDs)
+                        GuidVector vInitiands;
+                        vInitiands.reserve(InitiandGUIDs.size());
+                        for (ObjectGuid guid : InitiandGUIDs)
                         {
                             Creature* cr = instance->GetCreature(guid);
                             if (cr && cr->IsAlive())
                                 vInitiands.push_back(guid);
                         }
                         if (vInitiands.empty())
-                            return 0;
+                            return ObjectGuid::Empty;
 
                         return Trinity::Containers::SelectRandomContainerElement(vInitiands);
                     }
@@ -233,7 +222,7 @@ class instance_ahnkahet : public InstanceMapScript
                     default:
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -246,11 +235,9 @@ class instance_ahnkahet : public InstanceMapScript
                     case DATA_JEDOGA_SHADOWSEEKER:
                         if (state == DONE)
                         {
-                            for (uint64 guid : InitiandGUIDs)
-                            {
+                            for (ObjectGuid guid : InitiandGUIDs)
                                 if (Creature* cr = instance->GetCreature(guid))
                                     cr->DespawnOrUnsummon();
-                            }
                         }
                         break;
                     default:
@@ -271,17 +258,17 @@ class instance_ahnkahet : public InstanceMapScript
             }
 
         protected:
-            uint64 ElderNadoxGUID;
-            uint64 PrinceTaldaramGUID;
-            uint64 JedogaShadowseekerGUID;
-            uint64 AmanitarGUID;
-            uint64 HeraldVolazjGUID;
+            ObjectGuid ElderNadoxGUID;
+            ObjectGuid PrinceTaldaramGUID;
+            ObjectGuid JedogaShadowseekerGUID;
+            ObjectGuid AmanitarGUID;
+            ObjectGuid HeraldVolazjGUID;
 
-            uint64 PrinceTaldaramPlatformGUID;
-            uint64 JedogaSacrifices;
-            uint64 JedogaTarget;
+            ObjectGuid PrinceTaldaramPlatformGUID;
+            ObjectGuid JedogaSacrifices;
+            ObjectGuid JedogaTarget;
 
-            std::set<uint64> InitiandGUIDs;
+            GuidSet InitiandGUIDs;
 
             uint32 SpheresState[2];
             uint8 SwitchTrigger;

@@ -58,9 +58,9 @@ public:
         uint32 mBarrelCount;
         uint32 mThrallEventCount;
 
-        uint64 ThrallGUID;
-        uint64 TarethaGUID;
-        uint64 EpochGUID;
+        ObjectGuid ThrallGUID;
+        ObjectGuid TarethaGUID;
+        ObjectGuid EpochGUID;
 
         void Initialize() override
         {
@@ -69,9 +69,6 @@ public:
 
             mBarrelCount        = 0;
             mThrallEventCount   = 0;
-            ThrallGUID          = 0;
-            TarethaGUID         = 0;
-            EpochGUID        = 0;
         }
 
         Player* GetPlayerInMap()
@@ -100,7 +97,7 @@ public:
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
                     if (Player* player = itr->GetSource())
-                        player->KilledMonsterCredit(LODGE_QUEST_TRIGGER, 0);
+                        player->KilledMonsterCredit(LODGE_QUEST_TRIGGER);
                 }
             }
         }
@@ -115,9 +112,9 @@ public:
                 case TARETHA_ENTRY:
                     TarethaGUID = creature->GetGUID();
                     break;
-            case EPOCH_ENTRY:
-            EpochGUID = creature->GetGUID();
-            break;
+                case EPOCH_ENTRY:
+                    EpochGUID = creature->GetGUID();
+                    break;
             }
         }
 
@@ -232,10 +229,10 @@ public:
                     return ThrallGUID;
                 case DATA_TARETHA:
                     return TarethaGUID;
-            case DATA_EPOCH:
-            return EpochGUID;
+                case DATA_EPOCH:
+                    return EpochGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
     };
 

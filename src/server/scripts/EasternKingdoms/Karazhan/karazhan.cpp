@@ -511,7 +511,7 @@ public:
         {
             Initialize();
 
-            if (instance->GetGuidData(DATA_IMAGE_OF_MEDIVH) == 0)
+            if (instance->GetGuidData(DATA_IMAGE_OF_MEDIVH).IsEmpty())
             {
                 instance->SetGuidData(DATA_IMAGE_OF_MEDIVH, me->GetGUID());
                 (*me).GetMotionMaster()->MovePoint(1, MedivPos[0], MedivPos[1], MedivPos[2]);

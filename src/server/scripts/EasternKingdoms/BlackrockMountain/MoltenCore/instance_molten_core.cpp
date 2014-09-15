@@ -114,7 +114,7 @@ class instance_molten_core : public InstanceMapScript
                         return _majordomoExecutusGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 bossId, EncounterState state) override

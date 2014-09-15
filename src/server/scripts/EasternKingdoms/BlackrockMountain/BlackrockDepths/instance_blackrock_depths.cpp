@@ -309,7 +309,7 @@ public:
             case DATA_GO_CHALICE:
                 return GoSpectralChaliceGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData() override

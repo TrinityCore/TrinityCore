@@ -347,7 +347,7 @@ class instance_zulaman : public InstanceMapScript
                         return MassiveGateGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
         };

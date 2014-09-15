@@ -131,7 +131,7 @@ class instance_zulgurub : public InstanceMapScript
                         return _goGongOfBethekkGUID;
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
         private:

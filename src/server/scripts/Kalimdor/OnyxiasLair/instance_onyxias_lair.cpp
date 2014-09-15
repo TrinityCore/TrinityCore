@@ -53,7 +53,6 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
 
-            onyxiaGUID               = 0;
             onyxiaLiftoffTimer       = 0;
             manyWhelpsCounter        = 0;
             eruptTimer               = 0;
@@ -102,7 +101,7 @@ public:
             }
         }
 
-        void FloorEruption(uint64 floorEruptedGUID)
+        void FloorEruption(ObjectGuid floorEruptedGUID)
         {
             if (GameObject* floorEruption = instance->GetGameObject(floorEruptedGUID))
             {
@@ -121,7 +120,7 @@ public:
                 {
                     if (((*itr)->GetGOInfo()->displayId == 4392 || (*itr)->GetGOInfo()->displayId == 4472) && (*itr)->GetGOInfo()->trap.spellId == 17731)
                     {
-                        uint64 nearFloorGUID = (*itr)->GetGUID();
+                        ObjectGuid nearFloorGUID = (*itr)->GetGUID();
                         if (FloorEruptionGUID[1].find(nearFloorGUID) != FloorEruptionGUID[1].end() && (*FloorEruptionGUID[1].find(nearFloorGUID)).second == 0)
                         {
                             (*FloorEruptionGUID[1].find(nearFloorGUID)).second = (*FloorEruptionGUID[1].find(floorEruptedGUID)).second+1;
@@ -193,7 +192,7 @@ public:
                     return onyxiaGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void Update(uint32 diff) override
@@ -212,8 +211,8 @@ public:
             {
                 if (eruptTimer <= diff)
                 {
-                    uint64 frontGuid = FloorEruptionGUIDQueue.front();
-                    std::map<uint64, uint32>::iterator itr = FloorEruptionGUID[1].find(frontGuid);
+                    ObjectGuid frontGuid = FloorEruptionGUIDQueue.front();
+                    std::map<ObjectGuid, uint32>::iterator itr = FloorEruptionGUID[1].find(frontGuid);
                     if (itr != FloorEruptionGUID[1].end())
                     {
                         uint32 treeHeight = itr->second;
@@ -252,11 +251,9 @@ public:
         }
 
     protected:
-        std::map<uint64, uint32> FloorEruptionGUID[2];
-        std::queue<uint64> FloorEruptionGUIDQueue;
-        uint64 onyxiaGUID;
-        uint64 triggerGUID;
-        uint64 tankGUID;
+        std::map<ObjectGuid, uint32> FloorEruptionGUID[2];
+        std::queue<ObjectGuid> FloorEruptionGUIDQueue;
+        ObjectGuid onyxiaGUID;
         uint32 onyxiaLiftoffTimer;
         uint32 manyWhelpsCounter;
         uint32 eruptTimer;

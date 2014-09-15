@@ -45,29 +45,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 MistressOfPainCount = 0;
                 TributeToImmortalityEligible = true;
                 NeedSave = false;
-
-                TirionFordringGUID = 0;
-                BarrentGUID = 0;
-                TirionGUID = 0;
-                FizzlebangGUID = 0;
-                GarroshGUID = 0;
-                VarianGUID = 0;
-                GormokGUID = 0;
-                AcidmawGUID = 0;
-                DreadscaleGUID = 0;
-                IcehowlGUID = 0;
-                JaraxxusGUID = 0;
-                ChampionsControllerGUID = 0;
-                DarkbaneGUID = 0;
-                LightbaneGUID = 0;
-                AnubarakGUID = 0;
-
-                TributeChestGUID = 0;
-                MainGateDoorGUID = 0;
-                EastPortcullisGUID = 0;
-                WebDoorGUID = 0;
-                CrusadersCacheGUID = 0;
-                FloorGUID = 0;
             }
 
             bool IsEncounterInProgress() const override
@@ -104,7 +81,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 }
             }
 
-            void OpenDoor(uint64 guid)
+            void OpenDoor(ObjectGuid guid)
             {
                 if (!guid)
                     return;
@@ -113,7 +90,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
             }
 
-            void CloseDoor(uint64 guid)
+            void CloseDoor(ObjectGuid guid)
             {
                 if (!guid)
                     return;
@@ -520,7 +497,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             uint32 GetData(uint32 type) const override
@@ -742,29 +719,29 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 bool   NeedSave;
                 std::string SaveDataBuffer;
 
-                uint64 BarrentGUID;
-                uint64 TirionGUID;
-                uint64 TirionFordringGUID;
-                uint64 FizzlebangGUID;
-                uint64 GarroshGUID;
-                uint64 VarianGUID;
+                ObjectGuid BarrentGUID;
+                ObjectGuid TirionGUID;
+                ObjectGuid TirionFordringGUID;
+                ObjectGuid FizzlebangGUID;
+                ObjectGuid GarroshGUID;
+                ObjectGuid VarianGUID;
 
-                uint64 GormokGUID;
-                uint64 AcidmawGUID;
-                uint64 DreadscaleGUID;
-                uint64 IcehowlGUID;
-                uint64 JaraxxusGUID;
-                uint64 ChampionsControllerGUID;
-                uint64 DarkbaneGUID;
-                uint64 LightbaneGUID;
-                uint64 AnubarakGUID;
+                ObjectGuid GormokGUID;
+                ObjectGuid AcidmawGUID;
+                ObjectGuid DreadscaleGUID;
+                ObjectGuid IcehowlGUID;
+                ObjectGuid JaraxxusGUID;
+                ObjectGuid ChampionsControllerGUID;
+                ObjectGuid DarkbaneGUID;
+                ObjectGuid LightbaneGUID;
+                ObjectGuid AnubarakGUID;
 
-                uint64 CrusadersCacheGUID;
-                uint64 FloorGUID;
-                uint64 TributeChestGUID;
-                uint64 MainGateDoorGUID;
-                uint64 EastPortcullisGUID;
-                uint64 WebDoorGUID;
+                ObjectGuid CrusadersCacheGUID;
+                ObjectGuid FloorGUID;
+                ObjectGuid TributeChestGUID;
+                ObjectGuid MainGateDoorGUID;
+                ObjectGuid EastPortcullisGUID;
+                ObjectGuid WebDoorGUID;
 
                 // Achievement stuff
                 uint32 NotOneButTwoJormungarsTimer;

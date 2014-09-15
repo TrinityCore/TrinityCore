@@ -143,7 +143,7 @@ class instance_uldaman : public InstanceMapScript
                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
 
-            void SetDoor(uint64 guid, bool open)
+            void SetDoor(ObjectGuid guid, bool open)
             {
                 GameObject* go = instance->GetGameObject(guid);
                 if (!go)
@@ -152,7 +152,7 @@ class instance_uldaman : public InstanceMapScript
                 HandleGameObject(guid, open);
             }
 
-            void BlockGO(uint64 guid)
+            void BlockGO(ObjectGuid guid)
             {
                 GameObject* go = instance->GetGameObject(guid);
                 if (!go)
@@ -225,7 +225,7 @@ class instance_uldaman : public InstanceMapScript
                 }
 
                 // Earthen Guardians
-                for (std::vector<uint64>::const_iterator i = earthenGuardians.begin(); i != earthenGuardians.end(); ++i)
+                for (GuidVector::const_iterator i = earthenGuardians.begin(); i != earthenGuardians.end(); ++i)
                 {
                     Creature* target = instance->GetCreature(*i);
                     if (!target || target->isDead() || target->getFaction() != 14)
@@ -235,7 +235,7 @@ class instance_uldaman : public InstanceMapScript
                 }
             }
 
-            void ActivateArchaedas(uint64 target)
+            void ActivateArchaedas(ObjectGuid target)
             {
                 Creature* archaedas = instance->GetCreature(archaedasGUID);
                 if (!archaedas)
@@ -480,7 +480,7 @@ class instance_uldaman : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             } // end GetGuidData
 
             void ProcessEvent(WorldObject* /*gameObject*/, uint32 eventId) override
