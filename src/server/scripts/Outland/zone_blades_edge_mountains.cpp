@@ -115,13 +115,12 @@ public:
     {
         npc_bloodmaul_bruteAI(Creature* creature) : ScriptedAI(creature)
         {
-            PlayerGUID = 0;
             hp30 = false;
         }
 
         void Reset() override
         {
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
             hp30 = false;
         }
 
@@ -207,7 +206,7 @@ public:
 
         private:
             EventMap events;
-            uint64 PlayerGUID;
+            ObjectGuid PlayerGUID;
             bool hp30;
     };
 
@@ -1131,7 +1130,6 @@ public:
     {
         npc_oscillating_frequency_scanner_master_bunnyAI(Creature* creature) : ScriptedAI(creature)
         {
-            playerGuid = 0;
             timer = 500;
         }
 
@@ -1170,7 +1168,7 @@ public:
         }
 
         private:
-            uint64 playerGuid;
+            ObjectGuid playerGuid;
             uint32 timer;
     };
 

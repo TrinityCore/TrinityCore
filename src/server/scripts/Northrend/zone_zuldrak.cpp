@@ -51,7 +51,7 @@ public:
 
         void Reset() override
         {
-            _rageclawGUID = 0;
+            _rageclawGUID.Clear();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
             float x, y, z;
@@ -104,7 +104,7 @@ public:
         }
 
         private:
-            uint64 _rageclawGUID;
+            ObjectGuid _rageclawGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -455,13 +455,12 @@ public:
         {
             npc_alchemist_finklesteinAI(Creature* creature) : ScriptedAI(creature)
             {
-                _playerGUID = 0;
                 _getingredienttry = 0;
             }
 
             void Reset() override
             {
-                _playerGUID = 0;
+                _playerGUID.Clear();
                 _getingredienttry = 0;
                 _events.ScheduleEvent(EVENT_TURN_TO_POT, urand(15000, 26000));
             }
@@ -556,7 +555,7 @@ public:
 
         private:
             EventMap _events;
-            uint64   _playerGUID;
+            ObjectGuid _playerGUID;
             uint8    _getingredienttry;
         };
 

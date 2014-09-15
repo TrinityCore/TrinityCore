@@ -322,7 +322,6 @@ public:
         npc_anchorite_truuenAI(Creature* creature) : npc_escortAI(creature)
         {
             Initialize();
-            UghostGUID = 0;
         }
 
         void Initialize()
@@ -332,7 +331,7 @@ public:
 
         uint32 m_uiChatTimer;
 
-        uint64 UghostGUID;
+        ObjectGuid UghostGUID;
 
         void Reset() override
         {

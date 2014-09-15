@@ -64,7 +64,7 @@ public:
             {
                 case 0:
                     if (Player* player = killer->ToPlayer())
-                        player->KilledMonsterCredit(NPC_EXPEDITION_RESEARCHER, 0);
+                        player->KilledMonsterCredit(NPC_EXPEDITION_RESEARCHER);
                     break;
                 case 1:
                 case 2:
