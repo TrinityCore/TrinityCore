@@ -123,23 +123,23 @@ public:
                     break;
                 case 175946: // Door
                     RazorgoreDoorGUID = go->GetGUID();
-                    HandleGameObject(0, GetBossState(BOSS_RAZORGORE) == DONE, go);
+                    HandleGameObject(ObjectGuid::Empty, GetBossState(BOSS_RAZORGORE) == DONE, go);
                     break;
                 case 175185: // Door
                     VaelastraszDoorGUID = go->GetGUID();
-                    HandleGameObject(0, GetBossState(BOSS_VAELASTRAZ) == DONE, go);
+                    HandleGameObject(ObjectGuid::Empty, GetBossState(BOSS_VAELASTRAZ) == DONE, go);
                     break;
                 case 180424: // Door
                     BroodlordDoorGUID = go->GetGUID();
-                    HandleGameObject(0, GetBossState(BOSS_BROODLORD) == DONE, go);
+                    HandleGameObject(ObjectGuid::Empty, GetBossState(BOSS_BROODLORD) == DONE, go);
                     break;
                 case 185483: // Door
                     ChrommagusDoorGUID = go->GetGUID();
-                    HandleGameObject(0, GetBossState(BOSS_FIREMAW) == DONE && GetBossState(BOSS_EBONROC) == DONE && GetBossState(BOSS_FLAMEGOR) == DONE, go);
+                    HandleGameObject(ObjectGuid::Empty, GetBossState(BOSS_FIREMAW) == DONE && GetBossState(BOSS_EBONROC) == DONE && GetBossState(BOSS_FLAMEGOR) == DONE, go);
                     break;
                 case 181125: // Door
                     NefarianDoorGUID = go->GetGUID();
-                    HandleGameObject(0, GetBossState(BOSS_CHROMAGGUS) == DONE, go);
+                    HandleGameObject(ObjectGuid::Empty, GetBossState(BOSS_CHROMAGGUS) == DONE, go);
                     break;
             }
         }

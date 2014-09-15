@@ -152,7 +152,7 @@ public:
         bool bMarnakActivated;
         bool bAbedneumActivated;
 
-        std::list<uint64> KaddrakGUIDList;
+        GuidList KaddrakGUIDList;
 
         void Reset() override
         {
@@ -206,7 +206,7 @@ public:
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         if (!KaddrakGUIDList.empty())
-                            for (std::list<uint64>::const_iterator itr = KaddrakGUIDList.begin(); itr != KaddrakGUIDList.end(); ++itr)
+                            for (GuidList::const_iterator itr = KaddrakGUIDList.begin(); itr != KaddrakGUIDList.end(); ++itr)
                             {
                                 if (Creature* pKaddrak = ObjectAccessor::GetCreature(*me, *itr))
                                 {
@@ -296,8 +296,8 @@ public:
         uint32 uiStep;
         uint32 uiPhaseTimer;
 
-        uint64 uiControllerGUID;
-        std::list<uint64> lDwarfGUIDList;
+        ObjectGuid uiControllerGUID;
+        GuidList lDwarfGUIDList;
 
         InstanceScript* instance;
 
@@ -313,7 +313,7 @@ public:
                 bIsBattle = false;
                 uiStep = 0;
                 uiPhaseTimer = 0;
-                uiControllerGUID = 0;
+                uiControllerGUID.Clear();
                 brannSparklinNews = true;
 
                 DespawnDwarf();
@@ -326,9 +326,9 @@ public:
         {
             if (lDwarfGUIDList.empty())
                 return;
-            for (std::list<uint64>::const_iterator itr = lDwarfGUIDList.begin(); itr != lDwarfGUIDList.end(); ++itr)
+            for (GuidList::const_iterator itr = lDwarfGUIDList.begin(); itr != lDwarfGUIDList.end(); ++itr)
             {
-                Creature* temp = ObjectAccessor::GetCreature(*me, instance ? (*itr) : 0);
+                Creature* temp = ObjectAccessor::GetCreature(*me, instance ? (*itr) : ObjectGuid::Empty);
                 if (temp && temp->IsAlive())
                     temp->DespawnOrUnsummon();
             }

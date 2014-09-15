@@ -239,22 +239,22 @@ public:
                 case GO_ECK_THE_FEROCIOUS_DOOR:
                     eckTheFerociousDoorGUID = go->GetGUID();
                     if (isHeroic && m_auiEncounter[1] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_ECK_THE_FEROCIOUS_DOOR_BEHIND:
                     eckTheFerociousDoorBehindGUID = go->GetGUID();
                     if (isHeroic && m_auiEncounter[4] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_GALDARAH_DOOR1:
                     galDarahDoor1GUID = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_GALDARAH_DOOR2:
                     galDarahDoor2GUID = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_BRIDGE:
                     bridgeGUID = go->GetGUID();

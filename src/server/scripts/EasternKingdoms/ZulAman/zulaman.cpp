@@ -288,7 +288,7 @@ class npc_harrison_jones : public CreatureScript
                     me->RemoveAllAuras();
                     me->SetEntry(NPC_HARRISON_JONES_2);
                     me->SetDisplayId(MODEL_HARRISON_JONES_2);
-                    me->SetTarget(0);
+                    me->SetTarget(ObjectGuid::Empty);
                     me->SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_DEAD);
                     me->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                     instance->SetData(DATA_GONGEVENT, DONE);

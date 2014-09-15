@@ -122,97 +122,97 @@ public:
                 case GO_EMBERSEER_IN:
                     go_emberseerin = go->GetGUID();
                     if (GetBossState(DATA_DRAGONSPIRE_ROOM) == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_DOORS:
                     go_doors = go->GetGUID();
                     if (GetBossState(DATA_DRAGONSPIRE_ROOM) == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_EMBERSEER_OUT:
                     go_emberseerout = go->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_HALL_RUNE_1:
                     go_roomrunes[0] = go->GetGUID();
                     if (GetBossState(DATA_HALL_RUNE_1) == DONE)
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_HALL_RUNE_2:
                     go_roomrunes[1] = go->GetGUID();
                     if (GetBossState(DATA_HALL_RUNE_2) == DONE)
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_HALL_RUNE_3:
                     go_roomrunes[2] = go->GetGUID();
                     if (GetBossState(DATA_HALL_RUNE_3) == DONE)
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_HALL_RUNE_4:
                     go_roomrunes[3] = go->GetGUID();
                     if (GetBossState(DATA_HALL_RUNE_4) == DONE)
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_HALL_RUNE_5:
                     go_roomrunes[4] = go->GetGUID();
                     if (GetBossState(DATA_HALL_RUNE_5) == DONE)
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_HALL_RUNE_6:
                     go_roomrunes[5] = go->GetGUID();
                     if (GetBossState(DATA_HALL_RUNE_6) == DONE)
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_HALL_RUNE_7:
                     go_roomrunes[6] = go->GetGUID();
                     if (GetBossState(DATA_HALL_RUNE_7) == DONE)
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_EMBERSEER_RUNE_1:
                     go_emberseerrunes[0] = go->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_EMBERSEER_RUNE_2:
                     go_emberseerrunes[1] = go->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_EMBERSEER_RUNE_3:
                     go_emberseerrunes[2] = go->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_EMBERSEER_RUNE_4:
                     go_emberseerrunes[3] = go->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_EMBERSEER_RUNE_5:
                     go_emberseerrunes[4] = go->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_EMBERSEER_RUNE_6:
                     go_emberseerrunes[5] = go->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_EMBERSEER_RUNE_7:
                     go_emberseerrunes[6] = go->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_PORTCULLIS_ACTIVE:
                     go_portcullis_active = go->GetGUID();
                     if (GetBossState(DATA_GYTH) == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_PORTCULLIS_TOBOSSROOMS:
                     go_portcullis_tobossrooms = go->GetGUID();
                     if (GetBossState(DATA_GYTH) == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 default:
                     break;
@@ -436,7 +436,7 @@ public:
 
                 if (!_mobAlive && rune->GetGoState() == GO_STATE_ACTIVE)
                 {
-                    HandleGameObject(0, false, rune);
+                    HandleGameObject(ObjectGuid::Empty, false, rune);
 
                     switch (rune->GetEntry())
                     {
@@ -473,9 +473,9 @@ public:
             {
                 SetBossState(DATA_DRAGONSPIRE_ROOM, DONE);
                 if (GameObject* door1 = instance->GetGameObject(go_emberseerin))
-                    HandleGameObject(0, true, door1);
+                    HandleGameObject(ObjectGuid::Empty, true, door1);
                 if (GameObject* door2 = instance->GetGameObject(go_doors))
-                    HandleGameObject(0, true, door2);
+                    HandleGameObject(ObjectGuid::Empty, true, door2);
             }
         }
 
