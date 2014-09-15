@@ -220,7 +220,7 @@ class boss_selin_fireheart : public CreatureScript
                             if (CrystalChosen && CrystalChosen->IsAlive())
                                 CrystalChosen->Kill(CrystalChosen);
 
-                            CrystalGUID = 0;
+                            CrystalGUID.Clear();
 
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MoveChase(me->GetVictim());

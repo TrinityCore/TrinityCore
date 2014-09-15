@@ -298,7 +298,7 @@ class boss_zuljin : public CreatureScript
                             temp->setDeathState(DEAD);
                         }
                     }
-                    SpiritGUID[i] = 0;
+                    SpiritGUID[i].Clear();
                 }
             }
 
@@ -464,7 +464,7 @@ class boss_zuljin : public CreatureScript
                                             Claw_Rage_Timer = urand(15000, 20000);
                                             me->SetSpeed(MOVE_RUN, 1.2f);
                                             AttackStart(ObjectAccessor::GetUnit(*me, TankGUID));
-                                            TankGUID = 0;
+                                            TankGUID.Clear();
                                             return;
                                         }
                                         else
@@ -512,7 +512,7 @@ class boss_zuljin : public CreatureScript
                                         Lynx_Rush_Timer = urand(15000, 20000);
                                         me->SetSpeed(MOVE_RUN, 1.2f);
                                         AttackStart(ObjectAccessor::GetUnit(*me, TankGUID));
-                                        TankGUID = 0;
+                                        TankGUID.Clear();
                                     }
                                     else
                                         AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));

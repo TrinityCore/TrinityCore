@@ -574,7 +574,7 @@ public:
                     case 2:
                         SpellTimer = 400;
                         NeedForAHack = 3;
-                        me->RemoveAura(SPELL_BLACKHOLE_GROW, 1);
+                        me->RemoveAura(SPELL_BLACKHOLE_GROW);
                         break;
                     case 3:
                         SpellTimer = urand(400, 900);

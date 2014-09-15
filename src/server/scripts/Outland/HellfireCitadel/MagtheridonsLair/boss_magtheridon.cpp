@@ -85,7 +85,7 @@ enum Spells
 //count of clickers needed to interrupt blast nova
 #define CLICKERS_COUNT              5
 
-typedef std::map<uint64, uint64> CubeMap;
+typedef std::map<ObjectGuid, ObjectGuid> CubeMap;
 
 class npc_abyssal : public CreatureScript
 {
@@ -253,10 +253,10 @@ class boss_magtheridon : public CreatureScript
                 instance->SetData(DATA_COLLAPSE, false);
             }
 
-            void SetClicker(uint64 cubeGUID, uint64 clickerGUID)
+            void SetClicker(ObjectGuid cubeGUID, ObjectGuid clickerGUID)
             {
                 // to avoid multiclicks from 1 cube
-                if (uint64 guid = Cube[cubeGUID])
+                if (ObjectGuid guid = Cube[cubeGUID])
                     DebuffClicker(ObjectAccessor::GetUnit(*me, guid));
                 Cube[cubeGUID] = clickerGUID;
                 NeedCheckCube = true;
@@ -284,7 +284,7 @@ class boss_magtheridon : public CreatureScript
                     if (!clicker || !clicker->HasAura(SPELL_SHADOW_GRASP))
                     {
                         DebuffClicker(clicker);
-                        (*i).second = 0;
+                        (*i).second.Clear();
                     }
                     else
                         ++ClickerNum;

@@ -592,14 +592,14 @@ class npc_expedition_commander : public CreatureScript
 
         struct npc_expedition_commanderAI : public ScriptedAI
         {
-            npc_expedition_commanderAI(Creature* creature) : ScriptedAI(creature)
+            npc_expedition_commanderAI(Creature* creature) : ScriptedAI(creature), summons(creature)
             {
                 instance = me->GetInstanceScript();
                 Greet = false;
             }
 
             InstanceScript* instance;
-            std::list<uint64> summons;
+            SummonList summons;
 
             bool Greet;
             uint32 AttackStartTimer;
@@ -612,7 +612,7 @@ class npc_expedition_commander : public CreatureScript
                 AttackStartTimer = 0;
                 Phase = 0;
                 Greet = false;
-                summons.clear();
+                summons.DespawnAll();
             }
 
             void MoveInLineOfSight(Unit* who) override
@@ -627,7 +627,7 @@ class npc_expedition_commander : public CreatureScript
 
             void JustSummoned(Creature* summoned) override
             {
-                summons.push_back(summoned->GetGUID());
+                summons.Summon(summoned);
             }
 
             void DoAction(int32 action) override
@@ -638,7 +638,7 @@ class npc_expedition_commander : public CreatureScript
                         Talk(SAY_GROUND_PHASE);
                         break;
                     case ACTION_COMMANDER_RESET:
-                        summons.clear();
+                        summons.DespawnAll();
                         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         break;
                 }
@@ -652,7 +652,7 @@ class npc_expedition_commander : public CreatureScript
                     {
                         case 1:
                             instance->SetBossState(BOSS_RAZORSCALE, IN_PROGRESS);
-                            summons.clear();
+                            summons.DespawnAll();
                             AttackStartTimer = 1000;
                             Phase = 2;
                             break;

@@ -285,13 +285,13 @@ public:
         uint8  nAbomination;
         uint8  nWeaver;
 
-        std::map<uint64, float> chained;
+        std::map<ObjectGuid, float> chained;
 
         SummonList spawns; // adds spawn by the trigger. kept in separated list (i.e. not in summons)
 
         void ResetPlayerScale()
         {
-            std::map<uint64, float>::const_iterator itr;
+            std::map<ObjectGuid, float>::const_iterator itr;
             for (itr = chained.begin(); itr != chained.end(); ++itr)
             {
                 if (Player* charmed = ObjectAccessor::GetPlayer(*me, itr->first))
@@ -495,7 +495,7 @@ public:
                         }
                         case EVENT_CHAINED_SPELL:
                         {
-                            std::map<uint64, float>::iterator itr;
+                            std::map<ObjectGuid, float>::iterator itr;
                             for (itr = chained.begin(); itr != chained.end();)
                             {
                                 if (Unit* player = ObjectAccessor::GetPlayer(*me, itr->first))
@@ -503,7 +503,7 @@ public:
                                     if (!player->IsCharmed())
                                     {
                                         player->SetObjectScale(itr->second);
-                                        std::map<uint64, float>::iterator next = itr;
+                                        std::map<ObjectGuid, float>::iterator next = itr;
                                         ++next;
                                         chained.erase(itr);
                                         itr = next;

@@ -140,8 +140,8 @@ public:
             MovePoint = urand(0, 5);
             PointData = GetMoveData();
             SummonWhelpCount = 0;
-            triggerGUID = 0;
-            tankGUID = 0;
+            triggerGUID.Clear();
+            tankGUID.Clear();
             IsMoving = false;
         }
 
@@ -474,8 +474,8 @@ public:
             uint8 Phase;
             uint8 MovePoint;
             uint8 SummonWhelpCount;
-            uint64 triggerGUID;
-            uint64 tankGUID;
+            ObjectGuid triggerGUID;
+            ObjectGuid tankGUID;
             bool IsMoving;
     };
 

@@ -1433,7 +1433,7 @@ class npc_valkyr_shadowguard : public CreatureScript
         struct npc_valkyr_shadowguardAI : public ScriptedAI
         {
             npc_valkyr_shadowguardAI(Creature* creature) : ScriptedAI(creature),
-                _grabbedPlayer(0), _instance(creature->GetInstanceScript())
+                _instance(creature->GetInstanceScript())
             {
             }
 
@@ -1563,7 +1563,7 @@ class npc_valkyr_shadowguard : public CreatureScript
         private:
             EventMap _events;
             Position _dropPoint;
-            uint64 _grabbedPlayer;
+            ObjectGuid _grabbedPlayer;
             InstanceScript* _instance;
         };
 
@@ -1640,7 +1640,7 @@ class npc_strangulate_vehicle : public CreatureScript
                                     else
                                     {
                                         summoner->CastSpell(summoner, SPELL_HARVEST_SOULS_TELEPORT, true);
-                                        summoner->RemoveAurasDueToSpell(HARVEST_SOUL, 0, 0, AURA_REMOVE_BY_EXPIRE);
+                                        summoner->RemoveAurasDueToSpell(HARVEST_SOUL, ObjectGuid::Empty, 0, AURA_REMOVE_BY_EXPIRE);
                                     }
                                 }
                             }

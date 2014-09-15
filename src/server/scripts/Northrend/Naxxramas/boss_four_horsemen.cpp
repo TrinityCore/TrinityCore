@@ -106,7 +106,7 @@ public:
 
         void Initialize()
         {
-            uiEventStarterGUID = 0;
+            uiEventStarterGUID.Clear();
             nextWP = 0;
             punishTimer = 2000;
             nextMovementStarted = false;
@@ -118,7 +118,7 @@ public:
         }
 
         Horsemen id;
-        uint64 uiEventStarterGUID;
+        ObjectGuid uiEventStarterGUID;
         uint8 nextWP;
         uint32 punishTimer;
         bool caster;

@@ -162,7 +162,7 @@ public:
 
             Position pos = me->GetPosition();
 
-            for (uint64 guid : lSparkList)
+            for (ObjectGuid guid : lSparkList)
             {
                 if (Creature* pSpark = ObjectAccessor::GetCreature(*me, guid))
                 {

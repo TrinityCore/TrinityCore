@@ -174,7 +174,7 @@ class AbominationDespawner
     public:
         explicit AbominationDespawner(Unit* owner) : _owner(owner) { }
 
-        bool operator()(uint64 guid)
+        bool operator()(ObjectGuid guid)
         {
             if (Unit* summon = ObjectAccessor::GetUnit(*_owner, guid))
             {
@@ -702,7 +702,7 @@ class boss_professor_putricide : public CreatureScript
                 events.SetPhase(newPhase);
             }
 
-            uint64 _oozeFloodDummyGUIDs[4];
+            ObjectGuid _oozeFloodDummyGUIDs[4];
             Phases _phase;          // external of EventMap because event phase gets reset on evade
             float const _baseSpeed;
             uint8 _oozeFloodStage;

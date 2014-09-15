@@ -293,8 +293,8 @@ class boss_krick : public CreatureScript
             void Initialize()
             {
                 _phase = PHASE_COMBAT;
-                _outroNpcGUID = 0;
-                _tyrannusGUID = 0;
+                _outroNpcGUID.Clear();
+                _tyrannusGUID.Clear();
             }
 
             void Reset() override
@@ -494,8 +494,8 @@ class boss_krick : public CreatureScript
             EventMap _events;
 
             KrickPhase _phase;
-            uint64 _outroNpcGUID;
-            uint64 _tyrannusGUID;
+            ObjectGuid _outroNpcGUID;
+            ObjectGuid _tyrannusGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

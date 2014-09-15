@@ -188,12 +188,12 @@ class npc_flash_freeze : public CreatureScript
 
             InstanceScript* instance;
 
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             uint32 checkDespawnTimer;
 
             void Reset() override
             {
-                targetGUID = 0;
+                targetGUID.Clear();
                 checkDespawnTimer = 1000;
             }
 
@@ -254,12 +254,11 @@ class npc_ice_block : public CreatureScript
                 instance = me->GetInstanceScript();
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
-                targetGUID = 0;
             }
 
             InstanceScript* instance;
 
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
 
             void IsSummonedBy(Unit* summoner) override
             {
@@ -966,7 +965,7 @@ class spell_biting_cold : public SpellScriptLoader
             }
 
         private:
-            typedef std::list< std::pair<uint64, uint8> > TargetList;
+            typedef std::list<std::pair<ObjectGuid, uint8>> TargetList;
             TargetList listOfTargets;
         };
 

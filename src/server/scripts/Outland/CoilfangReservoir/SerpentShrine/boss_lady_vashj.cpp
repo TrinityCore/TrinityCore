@@ -151,13 +151,11 @@ public:
             Intro = false;
             JustCreated = true;
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // set it only once on Creature create (no need do intro if wiped)
-            for (uint8 i = 0; i < 4; ++i)
-                ShieldGeneratorChannel[i] = 0;
         }
 
         InstanceScript* instance;
 
-        uint64 ShieldGeneratorChannel[4];
+        ObjectGuid ShieldGeneratorChannel[4];
 
         uint32 AggroTimer;
         uint32 ShockBlastTimer;
@@ -210,7 +208,7 @@ public:
                     if (Unit* remo = ObjectAccessor::GetUnit(*me, ShieldGeneratorChannel[i]))
                     {
                         remo->setDeathState(JUST_DIED);
-                        ShieldGeneratorChannel[i] = 0;
+                        ShieldGeneratorChannel[i].Clear();
                     }
                 }
             }
@@ -565,7 +563,7 @@ public:
         uint32 Phase;
         float X, Y, Z;
 
-        uint64 VashjGUID;
+        ObjectGuid VashjGUID;
 
         void Reset() override
         {

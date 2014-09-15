@@ -698,7 +698,7 @@ void SmartAI::SetGUID(ObjectGuid /*guid*/, int32 /*id*/) { }
 
 ObjectGuid SmartAI::GetGUID(int32 /*id*/) const
 {
-    return 0;
+    return ObjectGuid::Empty;
 }
 
 void SmartAI::SetRun(bool run)
