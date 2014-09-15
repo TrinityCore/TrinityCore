@@ -17,7 +17,7 @@
 
 #include "Cell.h"
 #include "CellImpl.h"
-#include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
 #include "GossipDef.h"
@@ -37,26 +37,6 @@
 #include "Vehicle.h"
 #include "MoveSplineInit.h"
 #include "GameEventMgr.h"
-
-class BroadcastTextBuilder
-{
-    public:
-        BroadcastTextBuilder(WorldObject const* obj, ChatMsg msgtype, uint32 id, WorldObject const* target, uint32 gender = GENDER_MALE)
-            : _source(obj), _msgType(msgtype), _textId(id), _target(target), _gender(gender) { }
-
-        size_t operator()(WorldPacket* data, LocaleConstant locale) const
-        {
-            BroadcastText const* bct = sObjectMgr->GetBroadcastText(_textId);
-
-            return ChatHandler::BuildChatPacket(*data, _msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _gender) : "", 0, "", locale);
-        }
-
-        WorldObject const* _source;
-        ChatMsg _msgType;
-        uint32 _textId;
-        WorldObject const* _target;
-        uint32 _gender;
-};
 
 SmartScript::SmartScript()
 {
@@ -232,7 +212,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 {
                     if (IsUnit(*itr))
                     {
-                        (*itr)->SendPlaySound(e.action.sound.sound, e.action.sound.onlySelf > 0);
+                        (*itr)->PlayDirectSound(e.action.sound.sound, e.action.sound.onlySelf ? (*itr)->ToPlayer() : nullptr);
                         TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_SOUND: target: %s (GuidLow: %u), sound: %u, onlyself: %u",
                             (*itr)->GetName().c_str(), (*itr)->GetGUIDLow(), e.action.sound.sound, e.action.sound.onlySelf);
                     }
@@ -477,7 +457,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                 if (IsPlayer(*itr))
                 {
-                    (*itr)->ToPlayer()->AreaExploredOrEventHappens(e.action.quest.quest);
+                    (*itr)->ToPlayer()->GroupEventHappens(e.action.quest.quest, me);
+
                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS: Player guidLow %u credited quest %u",
                         (*itr)->GetGUIDLow(), e.action.quest.quest);
                 }
@@ -761,7 +742,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             me->DoFleeToGetAssistance();
             if (e.action.flee.withEmote)
             {
-                BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_FLEE_FOR_ASSIST, NULL, me->getGender());
+                Trinity::BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_FLEE_FOR_ASSIST);
                 sCreatureTextMgr->SendChatPacket(me, builder, CHAT_MSG_MONSTER_EMOTE);
             }
             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_FLEE_FOR_ASSIST: Creature %u DoFleeToGetAssistance", me->GetGUIDLow());
@@ -1004,7 +985,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 me->CallForHelp((float)e.action.callHelp.range);
                 if (e.action.callHelp.withEmote)
                 {
-                    BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_CALL_FOR_HELP, NULL, me->getGender());
+                    Trinity::BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_CALL_FOR_HELP);
                     sCreatureTextMgr->SendChatPacket(me, builder, CHAT_MSG_MONSTER_EMOTE);
                 }
                 TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_CALL_FOR_HELP: Creature %u", me->GetGUIDLow());
@@ -1612,7 +1593,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             float attackDistance = float(e.action.setRangedMovement.distance);
-            float attackAngle = float(e.action.setRangedMovement.angle) / 180.0f * M_PI;
+            float attackAngle = float(e.action.setRangedMovement.angle) / 180.0f * float(M_PI);
 
             ObjectList* targets = GetTargets(e, unit);
             if (targets)
@@ -2214,6 +2195,64 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
             }
             sGameEventMgr->StartEvent(eventId, true);
+            break;
+        }
+        case SMART_ACTION_START_CLOSEST_WAYPOINT:
+        {
+            uint32 waypoints[SMART_ACTION_PARAM_COUNT];
+            waypoints[0] = e.action.closestWaypointFromList.wp1;
+            waypoints[1] = e.action.closestWaypointFromList.wp2;
+            waypoints[2] = e.action.closestWaypointFromList.wp3;
+            waypoints[3] = e.action.closestWaypointFromList.wp4;
+            waypoints[4] = e.action.closestWaypointFromList.wp5;
+            waypoints[5] = e.action.closestWaypointFromList.wp6;
+            float distanceToClosest = std::numeric_limits<float>::max();
+            WayPoint* closestWp = NULL;
+
+            ObjectList* targets = GetTargets(e, unit);
+            if (targets)
+            {
+                for (ObjectList::iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                {
+                    if (Creature* target = (*itr)->ToCreature())
+                    {
+                        if (IsSmart(target))
+                        {
+                            for (uint8 i = 0; i < SMART_ACTION_PARAM_COUNT; i++)
+                            {
+                                if (!waypoints[i])
+                                    continue;
+
+                                WPPath* path = sSmartWaypointMgr->GetPath(waypoints[i]);
+
+                                if (!path || path->empty())
+                                    continue;
+
+                                WPPath::const_iterator itrWp = path->find(0);
+
+                                if (itrWp != path->end())
+                                {
+                                    if (WayPoint* wp = itrWp->second)
+                                    {
+                                        float distToThisPath = target->GetDistance(wp->x, wp->y, wp->z);
+
+                                        if (distToThisPath < distanceToClosest)
+                                        {
+                                            distanceToClosest = distToThisPath;
+                                            closestWp = wp;
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (closestWp)
+                                CAST_AI(SmartAI, target->AI())->StartPath(false, closestWp->id, true);
+                        }
+                    }
+                }
+
+                delete targets;
+            }
             break;
         }
         default:

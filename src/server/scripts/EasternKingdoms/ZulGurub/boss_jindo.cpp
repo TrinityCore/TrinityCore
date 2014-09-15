@@ -175,7 +175,13 @@ class npc_healing_ward : public CreatureScript
         {
             npc_healing_wardAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                Heal_Timer = 2000;
             }
 
             uint32 Heal_Timer;
@@ -183,7 +189,7 @@ class npc_healing_ward : public CreatureScript
 
             void Reset() override
             {
-                Heal_Timer = 2000;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override { }
@@ -216,13 +222,21 @@ class npc_shade_of_jindo : public CreatureScript
 
         struct npc_shade_of_jindoAI : public ScriptedAI
         {
-            npc_shade_of_jindoAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_shade_of_jindoAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                ShadowShock_Timer = 1000;
+            }
 
             uint32 ShadowShock_Timer;
 
             void Reset() override
             {
-                ShadowShock_Timer = 1000;
+                Initialize();
                 DoCast(me, SPELL_INVISIBLE, true);
             }
 

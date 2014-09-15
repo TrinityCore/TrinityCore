@@ -232,7 +232,20 @@ public:
 
     struct npc_headAI : public ScriptedAI
     {
-        npc_headAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_headAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Phase = 0;
+            bodyGUID = 0;
+            die = false;
+            withbody = true;
+            wait = 1000;
+            laugh = urand(15000, 30000);
+        }
 
         uint64 bodyGUID;
 
@@ -245,12 +258,7 @@ public:
 
         void Reset() override
         {
-            Phase = 0;
-            bodyGUID = 0;
-            die = false;
-            withbody = true;
-            wait = 1000;
-            laugh = urand(15000, 30000);
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -344,7 +352,7 @@ public:
                     Creature* speaker = DoSpawnCreature(HELPER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 1000);
                     if (speaker)
                         speaker->CastSpell(speaker, SPELL_HEAD_SPEAKS, false);
-                    me->MonsterTextEmote(EMOTE_LAUGHS, NULL);
+                    me->TextEmote(EMOTE_LAUGHS);
                 }
                 else laugh -= diff;
             }
@@ -380,8 +388,31 @@ public:
     {
         boss_headless_horsemanAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             headGUID = 0;
+            PlayerGUID = 0;
+            id = 0;
+            whirlwind = 0;
+            wp_reached = false;
+        }
+
+        void Initialize()
+        {
+            Phase = 1;
+            conflagrate = 15000;
+            summonadds = 15000;
+            laugh = urand(16000, 20000);
+            cleave = 2000;
+            regen = 1000;
+            burn = 6000;
+            count = 0;
+            say_timer = 3000;
+
+            withhead = true;
+            returned = true;
+            burned = false;
+            IsFlying = false;
         }
 
         InstanceScript* instance;
@@ -410,20 +441,7 @@ public:
 
         void Reset() override
         {
-            Phase = 1;
-            conflagrate = 15000;
-            summonadds = 15000;
-            laugh = urand(16000, 20000);
-            cleave = 2000;
-            regen = 1000;
-            burn = 6000;
-            count = 0;
-            say_timer = 3000;
-
-            withhead = true;
-            returned = true;
-            burned = false;
-            IsFlying = false;
+            Initialize();
             DoCast(me, SPELL_HEAD);
             if (headGUID)
             {
@@ -652,14 +670,14 @@ public:
                                 if (count < 3)
                                 {
                                     if (player)
-                                        player->Say(Text[count], 0);
+                                        player->Say(Text[count], LANG_UNIVERSAL);
                                 }
                                 else
                                 {
                                     DoCast(me, SPELL_RHYME_BIG);
                                     if (player)
                                     {
-                                        player->Say(Text[count], 0);
+                                        player->Say(Text[count], LANG_UNIVERSAL);
                                         player->HandleEmoteCommand(ANIM_EMOTE_SHOUT);
                                     }
                                     wp_reached = true;
@@ -717,7 +735,7 @@ public:
                 if (laugh <= diff)
                 {
                     laugh = urand(11000, 22000);
-                    me->MonsterTextEmote(EMOTE_LAUGHS, NULL);
+                    me->TextEmote(EMOTE_LAUGHS);
                     DoPlaySoundToSet(me, RandomLaugh[rand32() % 3]);
                 }
                 else laugh -= diff;

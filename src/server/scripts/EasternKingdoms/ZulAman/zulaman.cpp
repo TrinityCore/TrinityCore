@@ -131,38 +131,6 @@ class npc_zulaman_hostage : public CreatureScript
     public:
         npc_zulaman_hostage() : CreatureScript("npc_zulaman_hostage") { }
 
-        struct npc_zulaman_hostageAI : public ScriptedAI
-        {
-            npc_zulaman_hostageAI(Creature* creature) : ScriptedAI(creature)
-            {
-                IsLoot = false;
-            }
-
-            bool IsLoot;
-            uint64 PlayerGUID;
-
-            void Reset() override { }
-
-            void EnterCombat(Unit* /*who*/) override { }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
-                    player->SendLoot(me->GetGUID(), LOOT_CORPSE);
-            }
-
-            void UpdateAI(uint32 /*diff*/) override
-            {
-                if (IsLoot)
-                    DoCast(me, 7, false);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_zulaman_hostageAI(creature);
-        }
-
         bool OnGossipHello(Player* player, Creature* creature) override
         {
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HOSTAGE1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -276,7 +244,15 @@ class npc_harrison_jones : public CreatureScript
         {
             npc_harrison_jonesAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                _gongEvent = 0;
+                _gongTimer = 0;
+                uiTargetGUID = 0;
             }
 
             InstanceScript* instance;
@@ -287,9 +263,7 @@ class npc_harrison_jones : public CreatureScript
 
             void Reset() override
             {
-                _gongEvent = 0;
-                _gongTimer = 0;
-                uiTargetGUID = 0;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override { }

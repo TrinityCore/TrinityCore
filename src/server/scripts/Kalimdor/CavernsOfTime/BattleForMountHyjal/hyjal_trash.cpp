@@ -1135,9 +1135,15 @@ public:
     {
         npc_frost_wyrmAI(Creature* creature) : hyjal_trashAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             go = false;
-            Reset();
+        }
+
+        void Initialize()
+        {
+            FrostBreathTimer = 5000;
+            MoveTimer = 0;
         }
 
         bool go;
@@ -1146,8 +1152,7 @@ public:
 
         void Reset() override
         {
-            FrostBreathTimer = 5000;
-            MoveTimer = 0;
+            Initialize();
             me->SetDisableGravity(true);
         }
 
@@ -1388,7 +1393,13 @@ public:
     {
         alliance_riflemanAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             SetCombatMovement(false);
+        }
+
+        void Initialize()
+        {
+            ExplodeTimer = 5000 + rand32() % 5000;
         }
 
         uint32 ExplodeTimer;
@@ -1399,7 +1410,7 @@ public:
 
         void Reset() override
         {
-            ExplodeTimer = 5000 + rand32() % 5000;
+            Initialize();
         }
 
         void MoveInLineOfSight(Unit* who) override

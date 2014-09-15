@@ -59,7 +59,18 @@ public:
     {
         boss_epochAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiStep = 1;
+            uiStepTimer = 26000;
+            uiCurseOfExertionTimer = 9300;
+            uiTimeWarpTimer = 25300;
+            uiTimeStopTimer = 21300;
+            uiWoundingStrikeTimer = 5300;
         }
 
         uint8 uiStep;
@@ -74,21 +85,16 @@ public:
 
         void Reset() override
         {
-            uiStep = 1;
-            uiStepTimer = 26000;
-            uiCurseOfExertionTimer = 9300;
-            uiTimeWarpTimer = 25300;
-            uiTimeStopTimer = 21300;
-            uiWoundingStrikeTimer = 5300;
+            Initialize();
 
-            instance->SetData(DATA_EPOCH_EVENT, NOT_STARTED);
+            instance->SetBossState(DATA_EPOCH, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
-            instance->SetData(DATA_EPOCH_EVENT, IN_PROGRESS);
+            instance->SetBossState(DATA_EPOCH, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 diff) override
@@ -130,7 +136,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            instance->SetData(DATA_EPOCH_EVENT, DONE);
+            instance->SetBossState(DATA_EPOCH, DONE);
         }
 
         void KilledUnit(Unit* victim) override

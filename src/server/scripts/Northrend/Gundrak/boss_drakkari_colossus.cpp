@@ -82,14 +82,14 @@ class boss_drakkari_colossus : public CreatureScript
         {
             boss_drakkari_colossusAI(Creature* creature) : BossAI(creature, DATA_DRAKKARI_COLOSSUS_EVENT)
             {
+                Initialize();
                 me->SetReactState(REACT_PASSIVE);
                 introDone = false;
             }
 
-            void InitializeAI() override
+            void Initialize()
             {
-                if (!me->isDead())
-                    Reset();
+                phase = COLOSSUS_PHASE_NORMAL;
             }
 
             void Reset() override
@@ -106,7 +106,7 @@ class boss_drakkari_colossus : public CreatureScript
                 //events.Reset(); -> done in _Reset();
                 events.ScheduleEvent(EVENT_MIGHTY_BLOW, urand(10000, 30000));
 
-                phase = COLOSSUS_PHASE_NORMAL;
+                Initialize();
 
                 // Note: This should not be called, but before use SetBossState function we should use BossAI
                 //        in all the bosses of the instance
@@ -393,13 +393,19 @@ public:
     {
         npc_living_mojoAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            mojoWaveTimer = 2 * IN_MILLISECONDS;
+            mojoPuddleTimer = 7 * IN_MILLISECONDS;
         }
 
         void Reset() override
         {
-            mojoWaveTimer = 2*IN_MILLISECONDS;
-            mojoPuddleTimer = 7*IN_MILLISECONDS;
+            Initialize();
         }
 
         void MoveMojos(Creature* boss)

@@ -21,15 +21,16 @@
  * Scriptnames of files in this file should be prefixed with "spell_q#questID_".
  */
 
+#include "CellImpl.h"
+#include "CreatureTextMgr.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "Vehicle.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "CellImpl.h"
 
 class spell_generic_quest_update_entry_SpellScript : public SpellScript
 {
@@ -279,8 +280,8 @@ class spell_q11396_11399_force_shield_arcane_purple_x3 : public SpellScriptLoade
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-            target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            target->AddUnitState(UNIT_STATE_ROOT);
+                target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                target->AddUnitState(UNIT_STATE_ROOT);
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1115,12 +1116,12 @@ class spell_q9452_cast_net: public SpellScriptLoader
         }
 };
 
-#define SAY_1 "Sons of Hodir! I humbly present to you..."
-#define SAY_2 "The Helm of Hodir!"
-
 enum HodirsHelm
 {
-    NPC_KILLCREDIT  = 30210 // Hodir's Helm KC Bunny
+    SAY_1               = 1,
+    SAY_2               = 2,
+    NPC_KILLCREDIT      = 30210, // Hodir's Helm KC Bunny
+    NPC_ICE_SPIKE_BUNNY = 30215
 };
 
 class spell_q12987_read_pronouncement : public SpellScriptLoader
@@ -1137,9 +1138,12 @@ public:
             // player must cast kill credit and do emote text, according to sniff
             if (Player* target = GetTarget()->ToPlayer())
             {
-                target->MonsterWhisper(SAY_1, target, true);
-                target->KilledMonsterCredit(NPC_KILLCREDIT, 0);
-                target->MonsterWhisper(SAY_2, target, true);
+                if (Creature* trigger = target->FindNearestCreature(NPC_ICE_SPIKE_BUNNY, 25.0f))
+                {
+                    sCreatureTextMgr->SendChat(trigger, SAY_1, target, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, target);
+                    target->KilledMonsterCredit(NPC_KILLCREDIT);
+                    sCreatureTextMgr->SendChat(trigger, SAY_2, target, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, target);
+                }
             }
         }
 
@@ -1773,7 +1777,7 @@ class spell_q12847_summon_soul_moveto_bunny : public SpellScriptLoader
             }
         };
 
-        SpellScript *GetSpellScript() const override
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q12847_summon_soul_moveto_bunny_SpellScript();
         }
@@ -2008,7 +2012,7 @@ class spell_q12308_escape_from_silverbrook_summon_worgen : public SpellScriptLoa
             void ModDest(SpellDestination& dest)
             {
                 float dist = GetSpellInfo()->Effects[EFFECT_0].CalcRadius(GetCaster());
-                float angle = frand(0.75f, 1.25f) * M_PI;
+                float angle = frand(0.75f, 1.25f) * float(M_PI);
 
                 Position pos = GetCaster()->GetNearPosition(dist, angle);
                 dest.Relocate(pos);
@@ -2025,7 +2029,6 @@ class spell_q12308_escape_from_silverbrook_summon_worgen : public SpellScriptLoa
             return new spell_q12308_escape_from_silverbrook_summon_worgen_SpellScript();
         }
 };
-
 
 enum DeathComesFromOnHigh
 {
@@ -2094,6 +2097,37 @@ class spell_q12641_death_comes_from_on_high : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_q12641_death_comes_from_on_high_SpellScript();
+        }
+};
+
+// 52694 - Recall Eye of Acherus
+class spell_q12641_recall_eye_of_acherus : public SpellScriptLoader
+{
+    public:
+        spell_q12641_recall_eye_of_acherus() : SpellScriptLoader("spell_q12641_recall_eye_of_acherus") { }
+
+        class spell_q12641_recall_eye_of_acherus_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12641_recall_eye_of_acherus_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Player* player = GetCaster()->GetCharmerOrOwner()->ToPlayer())
+                {
+                    player->StopCastingCharm();
+                    player->StopCastingBindSight();
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12641_recall_eye_of_acherus_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q12641_recall_eye_of_acherus_SpellScript();
         }
 };
 
@@ -2364,6 +2398,7 @@ void AddSC_quest_spell_scripts()
     new spell_q12308_escape_from_silverbrook_summon_worgen();
     new spell_q12308_escape_from_silverbrook();
     new spell_q12641_death_comes_from_on_high();
+    new spell_q12641_recall_eye_of_acherus();
     new spell_q12619_emblazon_runeblade();
     new spell_q12619_emblazon_runeblade_effect();
     new spell_q12919_gymers_grab();

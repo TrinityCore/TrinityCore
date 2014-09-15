@@ -68,6 +68,7 @@ class instance_magtheridons_lair : public InstanceMapScript
 
             void Initialize() override
             {
+                SetHeaders(DataHeader);
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
                 MagtheridonGUID = 0;
@@ -180,7 +181,7 @@ class instance_magtheridons_lair : public InstanceMapScript
                             Creature* Magtheridon = instance->GetCreature(MagtheridonGUID);
                             if (Magtheridon && Magtheridon->IsAlive())
                             {
-                                Magtheridon->MonsterTextEmote(EMOTE_BONDS_WEAKEN, NULL);
+                                Magtheridon->TextEmote(EMOTE_BONDS_WEAKEN);
                                 CageTimer = 120000;
                             }
                             HandleGameObject(DoorGUID, false);

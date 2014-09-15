@@ -178,8 +178,7 @@ class SmartAI : public CreatureAI
         void sGossipSelect(Player* player, uint32 sender, uint32 action) override;
         void sGossipSelectCode(Player* player, uint32 sender, uint32 action, const char* code) override;
         void sQuestAccept(Player* player, Quest const* quest) override;
-        //void sQuestSelect(Player* player, Quest const* quest);
-        //void sQuestComplete(Player* player, Quest const* quest);
+        //void sQuestSelect(Player* player, Quest const* quest) override;
         void sQuestReward(Player* player, Quest const* quest, uint32 opt) override;
         bool sOnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex) override;
         void sOnGameEvent(bool start, uint16 eventId) override;

@@ -51,7 +51,23 @@ public:
 
     struct boss_huhuranAI : public ScriptedAI
     {
-        boss_huhuranAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_huhuranAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Frenzy_Timer = urand(25000, 35000);
+            Wyvern_Timer = urand(18000, 28000);
+            Spit_Timer = 8000;
+            PoisonBolt_Timer = 4000;
+            NoxiousPoison_Timer = urand(10000, 20000);
+            FrenzyBack_Timer = 15000;
+
+            Frenzy = false;
+            Berserk = false;
+        }
 
         uint32 Frenzy_Timer;
         uint32 Wyvern_Timer;
@@ -65,15 +81,7 @@ public:
 
         void Reset() override
         {
-            Frenzy_Timer = urand(25000, 35000);
-            Wyvern_Timer = urand(18000, 28000);
-            Spit_Timer = 8000;
-            PoisonBolt_Timer = 4000;
-            NoxiousPoison_Timer = urand(10000, 20000);
-            FrenzyBack_Timer = 15000;
-
-            Frenzy = false;
-            Berserk = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

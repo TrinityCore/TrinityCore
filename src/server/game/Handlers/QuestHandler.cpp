@@ -301,10 +301,14 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                         // Send next quest
                         if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
                         {
-                            if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true) && _player->CanTakeQuest(nextQuest, true))
-                                _player->AddQuestAndCheckCompletion(nextQuest, object);
+                            // Only send the quest to the player if the conditions are met
+                            if (_player->CanTakeQuest(nextQuest, false))
+                            {
+                                if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
+                                    _player->AddQuestAndCheckCompletion(nextQuest, object);
 
-                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
+                                _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
+                            }
                         }
 
                         questgiver->AI()->sQuestReward(_player, quest, reward);
@@ -319,10 +323,14 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                         // Send next quest
                         if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
                         {
-                            if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true) && _player->CanTakeQuest(nextQuest, true))
-                                _player->AddQuestAndCheckCompletion(nextQuest, object);
+                            // Only send the quest to the player if the conditions are met
+                            if (_player->CanTakeQuest(nextQuest, false))
+                            {
+                                if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
+                                    _player->AddQuestAndCheckCompletion(nextQuest, object);
 
-                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
+                                _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
+                            }
                         }
 
                         questGiver->AI()->QuestReward(_player, quest, reward);

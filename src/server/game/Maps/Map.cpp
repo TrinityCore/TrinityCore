@@ -166,7 +166,7 @@ void Map::LoadMap(int gx, int gy, bool reload)
 
         // load grid map for base map
         if (!m_parentMap->GridMaps[gx][gy])
-            m_parentMap->EnsureGridCreated_i(GridCoord(63-gx, 63-gy));
+            m_parentMap->EnsureGridCreated(GridCoord(63-gx, 63-gy));
 
         ((MapInstanced*)(m_parentMap))->AddGridMapReference(GridCoord(gx, gy));
         GridMaps[gx][gy] = m_parentMap->GridMaps[gx][gy];
@@ -2178,7 +2178,7 @@ float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float
 
             // we are already under the surface or vmap height above map heigt
             // or if the distance of the vmap height is less the land height distance
-            if (z < mapHeight || vmapHeight > mapHeight || fabs(mapHeight-z) > fabs(vmapHeight-z))
+            if (z < mapHeight || vmapHeight > mapHeight || std::fabs(mapHeight - z) > std::fabs(vmapHeight - z))
                 return vmapHeight;
             else
                 return mapHeight;                           // better use .map surface height

@@ -51,7 +51,17 @@ public:
 
     struct npc_lazy_peonAI : public ScriptedAI
     {
-        npc_lazy_peonAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_lazy_peonAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            PlayerGUID = 0;
+            RebuffTimer = 0;
+            work = false;
+        }
 
         uint64 PlayerGUID;
 
@@ -60,9 +70,7 @@ public:
 
         void Reset() override
         {
-            PlayerGUID = 0;
-            RebuffTimer = 0;
-            work = false;
+            Initialize();
         }
 
         void MovementInform(uint32 /*type*/, uint32 id) override
@@ -360,6 +368,13 @@ class npc_troll_volunteer : public CreatureScript
         {
             npc_troll_volunteerAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
+                _mountModel = 0;
+            }
+
+            void Initialize()
+            {
+                _complete = false;
             }
 
             void InitializeAI() override
@@ -386,12 +401,12 @@ class npc_troll_volunteer : public CreatureScript
                 }
                 me->SetDisplayId(trollmodel[urand(0, 39)]);
                 if (Player* player = me->GetOwner()->ToPlayer())
-                    me->GetMotionMaster()->MoveFollow(player, 5.0f, float(rand_norm() + 1.0f) * M_PI / 3.0f * 4.0f);
+                    me->GetMotionMaster()->MoveFollow(player, 5.0f, float(rand_norm() + 1.0f) * float(M_PI) / 3.0f * 4.0f);
             }
 
             void Reset() override
             {
-                _complete = false;
+                Initialize();
                 me->AddAura(SPELL_VOLUNTEER_AURA, me);
                 me->AddAura(SPELL_MOUNTING_CHECK, me);
                 DoCast(me, SPELL_PETACT_AURA);

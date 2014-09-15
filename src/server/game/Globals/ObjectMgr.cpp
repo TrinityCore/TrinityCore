@@ -4602,16 +4602,10 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                         tableName.c_str(), tmp.Talk.ChatType, tmp.id);
                     continue;
                 }
-                if (!tmp.Talk.TextID)
+                if (!sObjectMgr->GetBroadcastText(uint32(tmp.Talk.TextID)))
                 {
                     TC_LOG_ERROR("sql.sql", "Table `%s` has invalid talk text id (dataint = %i) in SCRIPT_COMMAND_TALK for script id %u",
                         tableName.c_str(), tmp.Talk.TextID, tmp.id);
-                    continue;
-                }
-                if (tmp.Talk.TextID < MIN_DB_SCRIPT_STRING_ID || tmp.Talk.TextID >= MAX_DB_SCRIPT_STRING_ID)
-                {
-                    TC_LOG_ERROR("sql.sql", "Table `%s` has out of range text id (dataint = %i expected %u-%u) in SCRIPT_COMMAND_TALK for script id %u",
-                        tableName.c_str(), tmp.Talk.TextID, MIN_DB_SCRIPT_STRING_ID, MAX_DB_SCRIPT_STRING_ID, tmp.id);
                     continue;
                 }
 
@@ -7261,13 +7255,13 @@ void ObjectMgr::LoadNPCSpellClickSpells()
         SpellInfo const* spellinfo = sSpellMgr->GetSpellInfo(spellid);
         if (!spellinfo)
         {
-            TC_LOG_ERROR("sql.sql", "Table npc_spellclick_spells references unknown spellid %u. Skipping entry.", spellid);
+            TC_LOG_ERROR("sql.sql", "Table npc_spellclick_spells creature: %u references unknown spellid %u. Skipping entry.", npc_entry, spellid);
             continue;
         }
 
         uint8 userType = fields[3].GetUInt16();
         if (userType >= SPELL_CLICK_USER_MAX)
-            TC_LOG_ERROR("sql.sql", "Table npc_spellclick_spells references unknown user type %u. Skipping entry.", uint32(userType));
+            TC_LOG_ERROR("sql.sql", "Table npc_spellclick_spells creature: %u  references unknown user type %u. Skipping entry.", npc_entry, uint32(userType));
 
         uint8 castFlags = fields[2].GetUInt8();
         SpellClickInfo info;
@@ -7329,7 +7323,7 @@ void ObjectMgr::DeleteCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_
     cell_guids.corpses.erase(player_guid);
 }
 
-void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string const& table, bool starter, bool go)
+void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, QuestRelationsReverse* reverseMap, std::string const& table, bool starter, bool go)
 {
     uint32 oldMSTime = getMSTime();
 
@@ -7362,7 +7356,11 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string const&
         }
 
         if (!poolId || !starter)
+        {
             map.insert(QuestRelations::value_type(id, quest));
+            if (reverseMap)
+                reverseMap->insert(QuestRelationsReverse::value_type(quest, id));
+        }
         else if (starter)
             poolRelationMap->insert(PooledQuestRelation::value_type(quest, id));
 
@@ -7374,7 +7372,7 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string const&
 
 void ObjectMgr::LoadGameobjectQuestStarters()
 {
-    LoadQuestRelationsHelper(_goQuestRelations, "gameobject_queststarter", true, true);
+    LoadQuestRelationsHelper(_goQuestRelations, nullptr, "gameobject_queststarter", true, true);
 
     for (QuestRelations::iterator itr = _goQuestRelations.begin(); itr != _goQuestRelations.end(); ++itr)
     {
@@ -7388,7 +7386,7 @@ void ObjectMgr::LoadGameobjectQuestStarters()
 
 void ObjectMgr::LoadGameobjectQuestEnders()
 {
-    LoadQuestRelationsHelper(_goQuestInvolvedRelations, "gameobject_questender", false, true);
+    LoadQuestRelationsHelper(_goQuestInvolvedRelations, &_goQuestInvolvedRelationsReverse, "gameobject_questender", false, true);
 
     for (QuestRelations::iterator itr = _goQuestInvolvedRelations.begin(); itr != _goQuestInvolvedRelations.end(); ++itr)
     {
@@ -7402,7 +7400,7 @@ void ObjectMgr::LoadGameobjectQuestEnders()
 
 void ObjectMgr::LoadCreatureQuestStarters()
 {
-    LoadQuestRelationsHelper(_creatureQuestRelations, "creature_queststarter", true, false);
+    LoadQuestRelationsHelper(_creatureQuestRelations, nullptr, "creature_queststarter", true, false);
 
     for (QuestRelations::iterator itr = _creatureQuestRelations.begin(); itr != _creatureQuestRelations.end(); ++itr)
     {
@@ -7416,7 +7414,7 @@ void ObjectMgr::LoadCreatureQuestStarters()
 
 void ObjectMgr::LoadCreatureQuestEnders()
 {
-    LoadQuestRelationsHelper(_creatureQuestInvolvedRelations, "creature_questender", false, false);
+    LoadQuestRelationsHelper(_creatureQuestInvolvedRelations, &_creatureQuestInvolvedRelationsReverse, "creature_questender", false, false);
 
     for (QuestRelations::iterator itr = _creatureQuestInvolvedRelations.begin(); itr != _creatureQuestInvolvedRelations.end(); ++itr)
     {
@@ -8631,33 +8629,6 @@ uint32 ObjectMgr::GetScriptId(const char *name)
     return uint32(itr - _scriptNamesStore.begin());
 }
 
-void ObjectMgr::CheckScripts(ScriptsType type, std::set<int32>& ids)
-{
-    ScriptMapMap* scripts = GetScriptsMapByType(type);
-    if (!scripts)
-        return;
-
-    for (ScriptMapMap::const_iterator itrMM = scripts->begin(); itrMM != scripts->end(); ++itrMM)
-    {
-        for (ScriptMap::const_iterator itrM = itrMM->second.begin(); itrM != itrMM->second.end(); ++itrM)
-        {
-            switch (itrM->second.command)
-            {
-                case SCRIPT_COMMAND_TALK:
-                {
-                    if (!GetTrinityStringLocale (itrM->second.Talk.TextID))
-                        TC_LOG_ERROR("sql.sql", "Table `%s` references invalid text id %u from `db_script_string`, script id: %u.", GetScriptsTableNameByType(type).c_str(), itrM->second.Talk.TextID, itrMM->first);
-
-                    if (ids.find(itrM->second.Talk.TextID) != ids.end())
-                        ids.erase(itrM->second.Talk.TextID);
-                }
-                default:
-                    break;
-            }
-        }
-    }
-}
-
 void ObjectMgr::LoadBroadcastTexts()
 {
     uint32 oldMSTime = getMSTime();
@@ -8791,23 +8762,6 @@ void ObjectMgr::LoadBroadcastTextLocales()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u broadcast text locales in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-void ObjectMgr::LoadDbScriptStrings()
-{
-    LoadTrinityStrings("db_script_string", MIN_DB_SCRIPT_STRING_ID, MAX_DB_SCRIPT_STRING_ID);
-
-    std::set<int32> ids;
-
-    for (int32 i = MIN_DB_SCRIPT_STRING_ID; i < MAX_DB_SCRIPT_STRING_ID; ++i)
-        if (GetTrinityStringLocale(i))
-            ids.insert(i);
-
-    for (int type = SCRIPTS_FIRST; type < SCRIPTS_LAST; ++type)
-        CheckScripts(ScriptsType(type), ids);
-
-    for (std::set<int32>::const_iterator itr = ids.begin(); itr != ids.end(); ++itr)
-        TC_LOG_ERROR("sql.sql", "Table `db_script_string` has unused string id  %u", *itr);
 }
 
 CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unitClass)

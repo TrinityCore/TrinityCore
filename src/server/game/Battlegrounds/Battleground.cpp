@@ -655,17 +655,6 @@ void Battleground::RemoveAuraOnTeam(uint32 SpellID, uint32 TeamID)
             player->RemoveAura(SpellID);
 }
 
-void Battleground::YellToAll(Creature* creature, char const* text, uint32 language)
-{
-    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        if (Player* player = _GetPlayer(itr, "YellToAll"))
-        {
-            WorldPacket data;
-            ChatHandler::BuildChatPacket(data, CHAT_MSG_MONSTER_YELL, Language(language), creature, player, text);
-            player->SendDirectMessage(&data);
-        }
-}
-
 void Battleground::RewardHonorToTeam(uint32 Honor, uint32 TeamID)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
@@ -733,6 +722,27 @@ void Battleground::EndBattleground(uint32 winner)
         SetWinner(BG_TEAM_NEUTRAL);
     }
 
+    PreparedStatement* stmt = nullptr;
+    uint64 battlegroundId = 1;
+    if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PVPSTATS_MAXID);
+        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+        if (result)
+        {
+            Field* fields = result->Fetch();
+            battlegroundId = fields[0].GetUInt64() + 1;
+        }
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_BATTLEGROUND);
+        stmt->setUInt64(0, battlegroundId);
+        stmt->setUInt8(1, GetWinner());
+        stmt->setUInt8(2, GetUniqueBracketId());
+        stmt->setUInt8(3, GetTypeID(true));
+        CharacterDatabase.Execute(stmt);
+    }
+
     SetStatus(STATUS_WAIT_LEAVE);
     //we must set it this way, because end time is sent in packet!
     m_EndTime = TIME_TO_AUTOREMOVE;
@@ -769,6 +779,28 @@ void Battleground::EndBattleground(uint32 winner)
         uint32 winner_kills = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_FIRST);
         uint32 loser_kills = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_FIRST);
         uint32 winner_arena = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_ARENA_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_ARENA_FIRST);
+
+        if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
+        {
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_PLAYER);
+            BattlegroundScoreMap::const_iterator score = PlayerScores.find(player->GetGUIDLow());
+
+            stmt->setUInt32(0, battlegroundId);
+            stmt->setUInt32(1, player->GetGUIDLow());
+            stmt->setUInt32(2, score->second->GetKillingBlows());
+            stmt->setUInt32(3, score->second->GetDeaths());
+            stmt->setUInt32(4, score->second->GetHonorableKills());
+            stmt->setUInt32(5, score->second->GetBonusHonor());
+            stmt->setUInt32(6, score->second->GetDamageDone());
+            stmt->setUInt32(7, score->second->GetHealingDone());
+            stmt->setUInt32(8, score->second->GetAttr1());
+            stmt->setUInt32(9, score->second->GetAttr2());
+            stmt->setUInt32(10, score->second->GetAttr3());
+            stmt->setUInt32(11, score->second->GetAttr4());
+            stmt->setUInt32(12, score->second->GetAttr5());
+
+            CharacterDatabase.Execute(stmt);
+        }
 
         // Reward winner team
         if (team == winner)
@@ -1799,4 +1831,9 @@ bool Battleground::CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*
 {
     TC_LOG_ERROR("bg.battleground", "Battleground::CheckAchievementCriteriaMeet: No implementation for criteria %u", criteriaId);
     return false;
+}
+
+uint8 Battleground::GetUniqueBracketId() const
+{
+    return GetMinLevel() / 10;
 }

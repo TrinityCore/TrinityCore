@@ -76,6 +76,7 @@ enum WorldTimers
     WUPDATE_AUTOBROADCAST,
     WUPDATE_MAILBOXQUEUE,
     WUPDATE_DELETECHARS,
+    WUPDATE_AHBOT,
     WUPDATE_PINGDB,
     WUPDATE_COUNT
 };
@@ -121,6 +122,7 @@ enum WorldBoolConfigs
     CONFIG_BATTLEGROUND_CAST_DESERTER,
     CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE,
     CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_PLAYERONLY,
+    CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE,
     CONFIG_BG_XP_FOR_KILL,
     CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS,
     CONFIG_ARENA_QUEUE_ANNOUNCER_ENABLE,
@@ -154,6 +156,7 @@ enum WorldBoolConfigs
     CONFIG_STATS_LIMITS_ENABLE,
     CONFIG_INSTANCES_RESET_ANNOUNCE,
     CONFIG_IP_BASED_ACTION_LOGGING,
+    CONFIG_ALLOW_TRACK_BOTH_RESOURCES,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -224,6 +227,7 @@ enum WorldIntConfigs
     CONFIG_GM_ACCEPT_TICKETS,
     CONFIG_GM_CHAT,
     CONFIG_GM_WHISPERING_TO,
+    CONFIG_GM_FREEZE_DURATION,
     CONFIG_GM_LEVEL_IN_GM_LIST,
     CONFIG_GM_LEVEL_IN_WHO_LIST,
     CONFIG_START_GM_LEVEL,
@@ -332,6 +336,7 @@ enum WorldIntConfigs
     CONFIG_BG_REWARD_LOSER_HONOR_LAST,
     CONFIG_BIRTHDAY_TIME,
     CONFIG_CREATURE_PICKPOCKET_REFILL,
+    CONFIG_AHBOT_UPDATE_INTERVAL,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -399,6 +404,8 @@ enum Rates
     RATE_DURABILITY_LOSS_ABSORB,
     RATE_DURABILITY_LOSS_BLOCK,
     RATE_MOVESPEED,
+    RATE_MONEY_QUEST,
+    RATE_MONEY_MAX_LEVEL_QUEST,
     MAX_RATES
 };
 
@@ -632,9 +639,9 @@ class World
         /// Are we in the middle of a shutdown?
         bool IsShuttingDown() const { return m_ShutdownTimer > 0; }
         uint32 GetShutDownTimeLeft() const { return m_ShutdownTimer; }
-        void ShutdownServ(uint32 time, uint32 options, uint8 exitcode);
+        void ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std::string& reason = std::string());
         void ShutdownCancel();
-        void ShutdownMsg(bool show = false, Player* player = NULL);
+        void ShutdownMsg(bool show = false, Player* player = NULL, const std::string& reason = std::string());
         static uint8 GetExitCode() { return m_ExitCode; }
         static void StopNow(uint8 exitcode) { m_stopEvent = true; m_ExitCode = exitcode; }
         static bool IsStopped() { return m_stopEvent; }

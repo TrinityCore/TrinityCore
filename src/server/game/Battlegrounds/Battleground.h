@@ -343,7 +343,6 @@ class Battleground
         virtual void FillInitialWorldStates(WorldPacket& /*data*/) { }
         void SendPacketToTeam(uint32 TeamID, WorldPacket* packet, Player* sender = NULL, bool self = true);
         void SendPacketToAll(WorldPacket* packet);
-        void YellToAll(Creature* creature, const char* text, uint32 language);
 
         void SendChatMessage(Creature* source, uint8 textId, WorldObject* target = NULL);
 
@@ -469,6 +468,9 @@ class Battleground
         uint32 GetTeamScore(uint32 TeamID) const;
 
         virtual uint32 GetPrematureWinner();
+
+        // because BattleGrounds with different types and same level range has different m_BracketId
+        uint8 GetUniqueBracketId() const;
 
     protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground

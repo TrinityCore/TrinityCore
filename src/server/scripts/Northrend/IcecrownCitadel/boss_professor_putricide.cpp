@@ -223,6 +223,7 @@ class boss_professor_putricide : public CreatureScript
                 _baseSpeed(creature->GetSpeedRate(MOVE_RUN)), _experimentState(EXPERIMENT_STATE_OOZE)
             {
                 _phase = PHASE_NONE;
+                _oozeFloodStage = 0;
             }
 
             void Reset() override
@@ -1269,7 +1270,13 @@ class spell_putricide_mutated_plague : public SpellScriptLoader
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 uint32 healSpell = uint32(GetSpellInfo()->Effects[EFFECT_0].CalcValue());
-                GetTarget()->CastSpell(GetTarget(), healSpell, true, NULL, NULL, GetCasterGUID());
+                SpellInfo const* healSpellInfo = sSpellMgr->GetSpellInfo(healSpell);
+
+                if (!healSpellInfo)
+                    return;
+
+                int32 heal = healSpellInfo->Effects[0].CalcValue() * GetStackAmount();
+                GetTarget()->CastCustomSpell(healSpell, SPELLVALUE_BASE_POINT0, heal, GetTarget(), true, NULL, NULL, GetCasterGUID());
             }
 
             void Register() override

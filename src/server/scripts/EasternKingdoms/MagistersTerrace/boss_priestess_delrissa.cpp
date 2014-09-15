@@ -117,9 +117,22 @@ public:
     {
         boss_priestess_delrissaAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             memset(&m_auiLackeyGUID, 0, sizeof(m_auiLackeyGUID));
             LackeyEntryList.clear();
+        }
+
+        void Initialize()
+        {
+            PlayersKilled = 0;
+
+            HealTimer = 15000;
+            RenewTimer = 10000;
+            ShieldTimer = 2000;
+            SWPainTimer = 5000;
+            DispelTimer = 7500;
+            ResetTimer = 5000;
         }
 
         InstanceScript* instance;
@@ -138,14 +151,7 @@ public:
 
         void Reset() override
         {
-            PlayersKilled = 0;
-
-            HealTimer   = 15000;
-            RenewTimer  = 10000;
-            ShieldTimer = 2000;
-            SWPainTimer = 5000;
-            DispelTimer = 7500;
-            ResetTimer = 5000;
+            Initialize();
 
             InitializeLackeys();
         }
@@ -353,9 +359,21 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
 {
     boss_priestess_lackey_commonAI(Creature* creature) : ScriptedAI(creature)
     {
+        Initialize();
         instance = creature->GetInstanceScript();
         memset(&m_auiLackeyGUIDs, 0, sizeof(m_auiLackeyGUIDs));
         AcquireGUIDs();
+    }
+
+    void Initialize()
+    {
+        UsedPotion = false;
+
+        // These guys does not follow normal threat system rules
+        // For later development, some alternative threat system should be made
+        // We do not know what this system is based upon, but one theory is class (healers=high threat, dps=medium, etc)
+        // We reset their threat frequently as an alternative until such a system exist
+        ResetThreatTimer = urand(5000, 20000);
     }
 
     InstanceScript* instance;
@@ -367,13 +385,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
 
     void Reset() override
     {
-        UsedPotion = false;
-
-        // These guys does not follow normal threat system rules
-        // For later development, some alternative threat system should be made
-        // We do not know what this system is based upon, but one theory is class (healers=high threat, dps=medium, etc)
-        // We reset their threat frequently as an alternative until such a system exist
-        ResetThreatTimer = urand(5000, 20000);
+        Initialize();
 
         // in case she is not alive and Reset was for some reason called, respawn her (most likely party wipe after killing her)
         if (Creature* pDelrissa = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_DELRISSA)))
@@ -493,7 +505,20 @@ public:
     struct boss_kagani_nightstrikeAI : public boss_priestess_lackey_commonAI
     {
         //Rogue
-        boss_kagani_nightstrikeAI(Creature* creature) : boss_priestess_lackey_commonAI(creature) { }
+        boss_kagani_nightstrikeAI(Creature* creature) : boss_priestess_lackey_commonAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Gouge_Timer = 5500;
+            Kick_Timer = 7000;
+            Vanish_Timer = 2000;
+            Eviscerate_Timer = 6000;
+            Wait_Timer = 5000;
+            InVanish = false;
+        }
 
         uint32 Gouge_Timer;
         uint32 Kick_Timer;
@@ -504,12 +529,7 @@ public:
 
         void Reset() override
         {
-            Gouge_Timer = 5500;
-            Kick_Timer = 7000;
-            Vanish_Timer = 2000;
-            Eviscerate_Timer = 6000;
-            Wait_Timer = 5000;
-            InVanish = false;
+            Initialize();
             me->SetVisible(true);
 
             boss_priestess_lackey_commonAI::Reset();
@@ -597,7 +617,19 @@ public:
     struct boss_ellris_duskhallowAI : public boss_priestess_lackey_commonAI
     {
         //Warlock
-        boss_ellris_duskhallowAI(Creature* creature) : boss_priestess_lackey_commonAI(creature) { }
+        boss_ellris_duskhallowAI(Creature* creature) : boss_priestess_lackey_commonAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Immolate_Timer = 6000;
+            Shadow_Bolt_Timer = 3000;
+            Seed_of_Corruption_Timer = 2000;
+            Curse_of_Agony_Timer = 1000;
+            Fear_Timer = 10000;
+        }
 
         uint32 Immolate_Timer;
         uint32 Shadow_Bolt_Timer;
@@ -607,11 +639,7 @@ public:
 
         void Reset() override
         {
-            Immolate_Timer = 6000;
-            Shadow_Bolt_Timer = 3000;
-            Seed_of_Corruption_Timer = 2000;
-            Curse_of_Agony_Timer = 1000;
-            Fear_Timer = 10000;
+            Initialize();
 
             boss_priestess_lackey_commonAI::Reset();
         }
@@ -688,15 +716,23 @@ public:
     struct boss_eramas_brightblazeAI : public boss_priestess_lackey_commonAI
     {
         //Monk
-        boss_eramas_brightblazeAI(Creature* creature) : boss_priestess_lackey_commonAI(creature) { }
+        boss_eramas_brightblazeAI(Creature* creature) : boss_priestess_lackey_commonAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Knockdown_Timer = 6000;
+            Snap_Kick_Timer = 4500;
+        }
 
         uint32 Knockdown_Timer;
         uint32 Snap_Kick_Timer;
 
         void Reset() override
         {
-            Knockdown_Timer = 6000;
-            Snap_Kick_Timer = 4500;
+            Initialize();
 
             boss_priestess_lackey_commonAI::Reset();
         }
@@ -749,7 +785,24 @@ public:
     struct boss_yazzaiAI : public boss_priestess_lackey_commonAI
     {
         //Mage
-        boss_yazzaiAI(Creature* creature) : boss_priestess_lackey_commonAI(creature) { }
+        boss_yazzaiAI(Creature* creature) : boss_priestess_lackey_commonAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            HasIceBlocked = false;
+
+            Polymorph_Timer = 1000;
+            Ice_Block_Timer = 20000;
+            Wait_Timer = 10000;
+            Blizzard_Timer = 8000;
+            Ice_Lance_Timer = 12000;
+            Cone_of_Cold_Timer = 10000;
+            Frostbolt_Timer = 3000;
+            Blink_Timer = 8000;
+        }
 
         bool HasIceBlocked;
 
@@ -764,16 +817,7 @@ public:
 
         void Reset() override
         {
-            HasIceBlocked = false;
-
-            Polymorph_Timer = 1000;
-            Ice_Block_Timer = 20000;
-            Wait_Timer = 10000;
-            Blizzard_Timer = 8000;
-            Ice_Lance_Timer = 12000;
-            Cone_of_Cold_Timer = 10000;
-            Frostbolt_Timer = 3000;
-            Blink_Timer = 8000;
+            Initialize();
 
             boss_priestess_lackey_commonAI::Reset();
         }
@@ -879,7 +923,20 @@ public:
     struct boss_warlord_salarisAI : public boss_priestess_lackey_commonAI
     {
         //Warrior
-        boss_warlord_salarisAI(Creature* creature) : boss_priestess_lackey_commonAI(creature) { }
+        boss_warlord_salarisAI(Creature* creature) : boss_priestess_lackey_commonAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Intercept_Stun_Timer = 500;
+            Disarm_Timer = 6000;
+            Piercing_Howl_Timer = 10000;
+            Frightening_Shout_Timer = 18000;
+            Hamstring_Timer = 4500;
+            Mortal_Strike_Timer = 8000;
+        }
 
         uint32 Intercept_Stun_Timer;
         uint32 Disarm_Timer;
@@ -890,12 +947,7 @@ public:
 
         void Reset() override
         {
-            Intercept_Stun_Timer = 500;
-            Disarm_Timer = 6000;
-            Piercing_Howl_Timer = 10000;
-            Frightening_Shout_Timer = 18000;
-            Hamstring_Timer = 4500;
-            Mortal_Strike_Timer = 8000;
+            Initialize();
 
             boss_priestess_lackey_commonAI::Reset();
         }
@@ -1001,7 +1053,18 @@ public:
         //Hunter
         boss_garaxxasAI(Creature* creature) : boss_priestess_lackey_commonAI(creature)
         {
+            Initialize();
             m_uiPetGUID = 0;
+        }
+
+        void Initialize()
+        {
+            Aimed_Shot_Timer = 6000;
+            Shoot_Timer = 2500;
+            Concussive_Shot_Timer = 8000;
+            Multi_Shot_Timer = 10000;
+            Wing_Clip_Timer = 4000;
+            Freezing_Trap_Timer = 15000;
         }
 
         uint64 m_uiPetGUID;
@@ -1015,12 +1078,7 @@ public:
 
         void Reset() override
         {
-            Aimed_Shot_Timer = 6000;
-            Shoot_Timer = 2500;
-            Concussive_Shot_Timer = 8000;
-            Multi_Shot_Timer = 10000;
-            Wing_Clip_Timer = 4000;
-            Freezing_Trap_Timer = 15000;
+            Initialize();
 
             Unit* pPet = ObjectAccessor::GetUnit(*me, m_uiPetGUID);
             if (!pPet)
@@ -1110,7 +1168,20 @@ public:
     struct boss_apokoAI : public boss_priestess_lackey_commonAI
     {
         //Shaman
-        boss_apokoAI(Creature* creature) : boss_priestess_lackey_commonAI(creature) { }
+        boss_apokoAI(Creature* creature) : boss_priestess_lackey_commonAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Totem_Timer = 2000;
+            Totem_Amount = 1;
+            War_Stomp_Timer = 10000;
+            Purge_Timer = 8000;
+            Healing_Wave_Timer = 5000;
+            Frost_Shock_Timer = 7000;
+        }
 
         uint32 Totem_Timer;
         uint8  Totem_Amount;
@@ -1121,12 +1192,7 @@ public:
 
         void Reset() override
         {
-            Totem_Timer = 2000;
-            Totem_Amount = 1;
-            War_Stomp_Timer = 10000;
-            Purge_Timer = 8000;
-            Healing_Wave_Timer = 5000;
-            Frost_Shock_Timer = 7000;
+            Initialize();
 
             boss_priestess_lackey_commonAI::Reset();
         }
@@ -1199,7 +1265,19 @@ public:
     struct boss_zelfanAI : public boss_priestess_lackey_commonAI
     {
         //Engineer
-        boss_zelfanAI(Creature* creature) : boss_priestess_lackey_commonAI(creature) { }
+        boss_zelfanAI(Creature* creature) : boss_priestess_lackey_commonAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Goblin_Dragon_Gun_Timer = 20000;
+            Rocket_Launch_Timer = 7000;
+            Recombobulate_Timer = 4000;
+            High_Explosive_Sheep_Timer = 10000;
+            Fel_Iron_Bomb_Timer = 15000;
+        }
 
         uint32 Goblin_Dragon_Gun_Timer;
         uint32 Rocket_Launch_Timer;
@@ -1209,11 +1287,7 @@ public:
 
         void Reset() override
         {
-            Goblin_Dragon_Gun_Timer = 20000;
-            Rocket_Launch_Timer = 7000;
-            Recombobulate_Timer = 4000;
-            High_Explosive_Sheep_Timer = 10000;
-            Fel_Iron_Bomb_Timer = 15000;
+            Initialize();
 
             boss_priestess_lackey_commonAI::Reset();
         }

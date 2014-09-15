@@ -204,7 +204,7 @@ public:
                     case EVENT_COMPLETE:
                     {
                         DoCast(me, SPELL_IDOM_ROOM_CAMERA_SHAKE);
-                        me->SummonGameObject(GO_BELNISTRASZS_BRAZIER, 2577.196f, 947.0781f, 53.16757f, 2.356195f, 0, 0, 0.9238796f, 0.3826832f, 3600000);
+                        me->SummonGameObject(GO_BELNISTRASZS_BRAZIER, 2577.196f, 947.0781f, 53.16757f, 2.356195f, 0, 0, 0.9238796f, 0.3826832f, 3600);
                         std::list<WorldObject*> ClusterList;
                         Trinity::AllWorldObjectsInRange objects(me, 50.0f);
                         Trinity::WorldObjectListSearcher<Trinity::AllWorldObjectsInRange> searcher(me, ClusterList, objects);
@@ -280,8 +280,8 @@ public:
                 me->SummonCreature(NPC_WITHERED_BATTLE_BOAR, me->GetPositionX(),  me->GetPositionY(),  me->GetPositionZ(),  me->GetOrientation());
                 if (data > 0 && me->GetOrientation() < 4.0f)
                     me->SummonCreature(NPC_WITHERED_BATTLE_BOAR, me->GetPositionX(),  me->GetPositionY(),  me->GetPositionZ(),  me->GetOrientation());
-                me->SummonCreature(NPC_DEATHS_HEAD_GEOMANCER, me->GetPositionX() + (cos(me->GetOrientation() - (M_PI/2)) * 2), me->GetPositionY() + (sin(me->GetOrientation() - (M_PI/2)) * 2), me->GetPositionZ(),  me->GetOrientation());
-                me->SummonCreature(NPC_WITHERED_QUILGUARD, me->GetPositionX() + (cos(me->GetOrientation() + (M_PI/2)) * 2), me->GetPositionY() + (sin(me->GetOrientation() + (M_PI/2)) * 2), me->GetPositionZ(),  me->GetOrientation());
+                me->SummonCreature(NPC_DEATHS_HEAD_GEOMANCER, me->GetPositionX() + (std::cos(me->GetOrientation() - (float(M_PI) / 2)) * 2), me->GetPositionY() + (std::sin(me->GetOrientation() - (float(M_PI) / 2)) * 2), me->GetPositionZ(), me->GetOrientation());
+                me->SummonCreature(NPC_WITHERED_QUILGUARD, me->GetPositionX() + (std::cos(me->GetOrientation() + (float(M_PI) / 2)) * 2), me->GetPositionY() + (std::sin(me->GetOrientation() + (float(M_PI) / 2)) * 2), me->GetPositionZ(), me->GetOrientation());
             }
             else if (data == 7)
                 me->SummonCreature(NPC_PLAGUEMAW_THE_ROTTING, me->GetPositionX(),  me->GetPositionY(),  me->GetPositionZ(),  me->GetOrientation());

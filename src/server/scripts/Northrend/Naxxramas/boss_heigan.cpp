@@ -66,7 +66,13 @@ public:
 
     struct boss_heiganAI : public BossAI
     {
-        boss_heiganAI(Creature* creature) : BossAI(creature, BOSS_HEIGAN) { }
+        boss_heiganAI(Creature* creature) : BossAI(creature, BOSS_HEIGAN)
+        {
+            eruptSection = 0;
+            eruptDirection = false;
+            safetyDance = false;
+            phase = PHASE_FIGHT;
+        }
 
         uint32 eruptSection;
         bool eruptDirection;
@@ -126,7 +132,7 @@ public:
             {
                 float x, y, z, o;
                 me->GetHomePosition(x, y, z, o);
-                me->NearTeleportTo(x, y, z, o - G3D::halfPi());
+                me->NearTeleportTo(x, y, z, o - (float(M_PI) / 2));
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveIdle();
                 me->SetTarget(0);

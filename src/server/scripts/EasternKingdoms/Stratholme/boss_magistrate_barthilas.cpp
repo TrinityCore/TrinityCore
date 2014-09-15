@@ -53,7 +53,19 @@ public:
 
     struct boss_magistrate_barthilasAI : public ScriptedAI
     {
-        boss_magistrate_barthilasAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_magistrate_barthilasAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            DrainingBlow_Timer = 20000;
+            CrowdPummel_Timer = 15000;
+            MightyBlow_Timer = 10000;
+            FuriousAnger_Timer = 5000;
+            AngerCount = 0;
+        }
 
         uint32 DrainingBlow_Timer;
         uint32 CrowdPummel_Timer;
@@ -63,11 +75,7 @@ public:
 
         void Reset() override
         {
-            DrainingBlow_Timer = 20000;
-            CrowdPummel_Timer = 15000;
-            MightyBlow_Timer = 10000;
-            FuriousAnger_Timer = 5000;
-            AngerCount = 0;
+            Initialize();
 
             if (me->IsAlive())
                 me->SetDisplayId(MODEL_NORMAL);

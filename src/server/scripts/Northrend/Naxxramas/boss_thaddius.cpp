@@ -32,7 +32,6 @@ enum StalaggYells
 enum StalagSpells
 {
     SPELL_POWERSURGE        = 28134,
-    H_SPELL_POWERSURGE      = 54529,
     SPELL_MAGNETIC_PULL     = 28338,
     SPELL_STALAGG_TESLA     = 28097
 };
@@ -48,7 +47,6 @@ enum FeugenYells
 enum FeugenSpells
 {
     SPELL_STATICFIELD       = 28135,
-    H_SPELL_STATICFIELD     = 54528,
     SPELL_FEUGEN_TESLA      = 28109
 };
 
@@ -80,7 +78,6 @@ enum ThaddiusSpells
     SPELL_POLARITY_SHIFT        = 28089,
     SPELL_BALL_LIGHTNING        = 28299,
     SPELL_CHAIN_LIGHTNING       = 28167,
-    H_SPELL_CHAIN_LIGHTNING     = 54531,
     SPELL_BERSERK               = 27680,
     SPELL_POSITIVE_CHARGE       = 28062,
     SPELL_POSITIVE_CHARGE_STACK = 29659,
@@ -140,6 +137,9 @@ public:
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
                 me->SetReactState(REACT_PASSIVE);
             }
+
+            polaritySwitch = false;
+            uiAddsTimer = 0;
         }
 
         bool checkStalaggAlive;
@@ -258,7 +258,7 @@ public:
                         events.ScheduleEvent(EVENT_SHIFT, 30000);
                         return;
                     case EVENT_CHAIN:
-                        DoCastVictim(RAID_MODE(SPELL_CHAIN_LIGHTNING, H_SPELL_CHAIN_LIGHTNING));
+                        DoCastVictim(SPELL_CHAIN_LIGHTNING);
                         events.ScheduleEvent(EVENT_CHAIN, urand(10000, 20000));
                         return;
                     case EVENT_BERSERK:
@@ -290,7 +290,14 @@ public:
     {
         npc_stalaggAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            powerSurgeTimer = urand(20000, 25000);
+            magneticPullTimer = 20000;
         }
 
         InstanceScript* instance;
@@ -303,8 +310,7 @@ public:
             if (Creature* pThaddius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
                 if (pThaddius->AI())
                     pThaddius->AI()->DoAction(ACTION_STALAGG_RESET);
-            powerSurgeTimer = urand(20000, 25000);
-            magneticPullTimer = 20000;
+            Initialize();
         }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -358,7 +364,7 @@ public:
 
             if (powerSurgeTimer <= uiDiff)
             {
-                DoCast(me, RAID_MODE(SPELL_POWERSURGE, H_SPELL_POWERSURGE));
+                DoCast(me, SPELL_POWERSURGE);
                 powerSurgeTimer = urand(15000, 20000);
             } else powerSurgeTimer -= uiDiff;
 
@@ -382,7 +388,13 @@ public:
     {
         npc_feugenAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            staticFieldTimer = 5000;
         }
 
         InstanceScript* instance;
@@ -394,7 +406,7 @@ public:
             if (Creature* pThaddius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
                 if (pThaddius->AI())
                     pThaddius->AI()->DoAction(ACTION_FEUGEN_RESET);
-            staticFieldTimer = 5000;
+            Initialize();
         }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -424,7 +436,7 @@ public:
 
             if (staticFieldTimer <= uiDiff)
             {
-                DoCast(me, RAID_MODE(SPELL_STATICFIELD, H_SPELL_STATICFIELD));
+                DoCast(me, SPELL_STATICFIELD);
                 staticFieldTimer = 5000;
             } else staticFieldTimer -= uiDiff;
 

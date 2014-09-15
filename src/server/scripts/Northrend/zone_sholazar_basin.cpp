@@ -410,7 +410,7 @@ public:
                 switch (phase)
                 {
                     case 1:
-                        orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + cos(me->GetOrientation()) * 5, me->GetPositionY() + sin(me->GetOrientation()) * 5, me->GetPositionZ());
+                        orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + std::cos(me->GetOrientation()) * 5, me->GetPositionY() + std::sin(me->GetOrientation()) * 5, me->GetPositionZ());
                         orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_6);
                         timer = 5000;
                         break;
@@ -977,15 +977,15 @@ public:
 
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
-            if (Player* player = GetHitUnit()->ToPlayer())
+            if (Unit* target = GetHitUnit())
             {
                 switch (GetSpellInfo()->Id)
                 {
                     case SPELL_CORRECT_TRACKS:
-                        player->MonsterSay(sObjectMgr->GetTrinityStringForDBCLocale(SAY_CORRECT_TRACKS), LANG_UNIVERSAL, player);
+                        target->Say(SAY_CORRECT_TRACKS, target);
                         break;
                     case SPELL_INCORRECT_TRACKS:
-                        player->MonsterSay(sObjectMgr->GetTrinityStringForDBCLocale(SAY_INCORRECT_TRACKS), LANG_UNIVERSAL, player);
+                        target->Say(SAY_INCORRECT_TRACKS, target);
                         break;
                     default:
                         break;

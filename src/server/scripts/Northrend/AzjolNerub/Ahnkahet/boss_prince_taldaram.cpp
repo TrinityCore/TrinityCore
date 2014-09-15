@@ -50,7 +50,7 @@ enum Misc
 };
 
 #define DATA_SPHERE_DISTANCE                25.0f
-#define DATA_SPHERE_ANGLE_OFFSET            M_PI / 2
+#define DATA_SPHERE_ANGLE_OFFSET            float(M_PI) / 2
 #define DATA_GROUND_POSITION_Z              11.30809f
 
 enum Yells

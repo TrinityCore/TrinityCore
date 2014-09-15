@@ -1413,6 +1413,11 @@ void ScriptMgr::OnPlayerMoneyChanged(Player* player, int32& amount)
     FOREACH_SCRIPT(PlayerScript)->OnMoneyChanged(player, amount);
 }
 
+void ScriptMgr::OnPlayerMoneyLimit(Player* player, int32 amount)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnMoneyLimit(player, amount);
+}
+
 void ScriptMgr::OnGivePlayerXP(Player* player, uint32& amount, Unit* victim)
 {
 #ifdef ELUNA
@@ -1561,6 +1566,11 @@ void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newAre
     sEluna->OnUpdateZone(player, newZone, newArea);
 #endif
     FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(player, newZone, newArea);
+}
+
+void ScriptMgr::OnQuestStatusChange(Player* player, uint32 questId, QuestStatus status)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnQuestStatusChange(player, questId, status);
 }
 
 // Account

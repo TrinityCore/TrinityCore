@@ -317,7 +317,17 @@ public:
         npc_ranshallaAI(Creature* creature) : npc_escortAI(creature),
             DialogueHelper(introDialogue)
         {
-            Reset();
+            Initialize();
+            _firstPriestessGUID = 0;
+            _secondPriestessGUID = 0;
+            _guardEluneGUID = 0;
+            _voiceEluneGUID = 0;
+            _altarGUID = 0;
+        }
+
+        void Initialize()
+        {
+            _delayTimer = 0;
         }
 
         uint32 _delayTimer;
@@ -330,7 +340,7 @@ public:
 
         void Reset() override
         {
-            _delayTimer = 0;
+            Initialize();
         }
 
         // Called when the player activates the torch / altar

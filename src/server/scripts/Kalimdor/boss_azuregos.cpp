@@ -58,7 +58,10 @@ class boss_azuregos : public CreatureScript
 
         struct boss_azuregosAI : public WorldBossAI
         {
-            boss_azuregosAI(Creature* creature) : WorldBossAI(creature) { }
+            boss_azuregosAI(Creature* creature) : WorldBossAI(creature)
+            {
+                _enraged = false;
+            }
 
             void Reset() override
             {

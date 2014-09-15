@@ -909,7 +909,7 @@ void BfCapturePoint::SendChangePhase()
         // send this too, sometimes the slider disappears, dunno why :(
         SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldState1, 1);
         // send these updates to only the ones in this objective
-        SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldstate2, (uint32) ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f));
+        SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldstate2, (uint32) std::ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f));
         // send this too, sometimes it resets :S
         SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldstate3, m_neutralValuePct);
     }

@@ -446,11 +446,11 @@ class CreatureScript : public UnitScript, public UpdatableScript<Creature>
         // Called when a player selects a quest in the creature's quest menu.
         virtual bool OnQuestSelect(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) { return false; }
 
+        // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
+        virtual bool OnQuestReward(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
+
         // Called when a player completes a quest with the creature.
         virtual bool OnQuestComplete(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) { return false; }
-
-        // Called when a player selects a quest reward.
-        virtual bool OnQuestReward(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
 
         // Called when the dialog status between a player and the creature is requested.
         virtual uint32 GetDialogStatus(Player* /*player*/, Creature* /*creature*/) { return DIALOG_STATUS_SCRIPTED_NO_STATUS; }
@@ -484,7 +484,7 @@ class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
         // Called when a player accepts a quest from the gameobject.
         virtual bool OnQuestAccept(Player* /*player*/, GameObject* /*go*/, Quest const* /*quest*/) { return false; }
 
-        // Called when a player selects a quest reward.
+        // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
         virtual bool OnQuestReward(Player* /*player*/, GameObject* /*go*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
 
         // Called when the dialog status between a player and the gameobject is requested.
@@ -709,6 +709,9 @@ class PlayerScript : public UnitScript
         // Called when a player's money is modified (before the modification is done)
         virtual void OnMoneyChanged(Player* /*player*/, int32& /*amount*/) { }
 
+        // Called when a player's money is at limit (amount = money tried to add)
+        virtual void OnMoneyLimit(Player* /*player*/, int32 /*amount*/) { }
+
         // Called when a player gains XP (before anything is given)
         virtual void OnGiveXP(Player* /*player*/, uint32& /*amount*/, Unit* /*victim*/) { }
 
@@ -769,6 +772,9 @@ class PlayerScript : public UnitScript
 
         // Called when a player changes to a new map (after moving to new map)
         virtual void OnMapChanged(Player* /*player*/) { }
+
+        // Called after a player's quest status has been changed
+        virtual void OnQuestStatusChange(Player* /*player*/, uint32 /*questId*/, QuestStatus /*status*/) { }
 };
 
 class AccountScript : public ScriptObject
@@ -966,8 +972,8 @@ class ScriptMgr
         bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, const char* code);
         bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest);
         bool OnQuestSelect(Player* player, Creature* creature, Quest const* quest);
-        bool OnQuestComplete(Player* player, Creature* creature, Quest const* quest);
         bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt);
+        bool OnQuestComplete(Player* player, Creature* creature, Quest const* quest);
         uint32 GetDialogStatus(Player* player, Creature* creature);
         CreatureAI* GetCreatureAI(Creature* creature);
         void OnCreatureUpdate(Creature* creature, uint32 diff);
@@ -1054,6 +1060,7 @@ class ScriptMgr
         void OnPlayerFreeTalentPointsChanged(Player* player, uint32 newPoints);
         void OnPlayerTalentsReset(Player* player, bool noCost);
         void OnPlayerMoneyChanged(Player* player, int32& amount);
+        void OnPlayerMoneyLimit(Player* player, int32 amount);
         void OnGivePlayerXP(Player* player, uint32& amount, Unit* victim);
         void OnPlayerReputationChange(Player* player, uint32 factionID, int32& standing, bool incremental);
         void OnPlayerDuelRequest(Player* target, Player* challenger);
@@ -1075,6 +1082,7 @@ class ScriptMgr
         void OnPlayerSave(Player* player);
         void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent);
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
+        void OnQuestStatusChange(Player* player, uint32 questId, QuestStatus status);
 
     public: /* AccountScript */
 

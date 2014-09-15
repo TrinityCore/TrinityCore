@@ -466,8 +466,6 @@ typedef std::unordered_map<uint32/*(mapid, spawnMode) pair*/, CellObjectGuidsMap
 // Trinity string ranges
 #define MIN_TRINITY_STRING_ID           1                    // 'trinity_string'
 #define MAX_TRINITY_STRING_ID           2000000000
-#define MIN_DB_SCRIPT_STRING_ID        MAX_TRINITY_STRING_ID // 'db_script_string'
-#define MAX_DB_SCRIPT_STRING_ID        2000010000
 
 // Trinity Trainer Reference start range
 #define TRINITY_TRAINER_START_REF      200000
@@ -492,8 +490,10 @@ typedef std::unordered_map<int32, TrinityStringLocale> TrinityStringLocaleContai
 typedef std::unordered_map<uint32, GossipMenuItemsLocale> GossipMenuItemsLocaleContainer;
 typedef std::unordered_map<uint32, PointOfInterestLocale> PointOfInterestLocaleContainer;
 
-typedef std::multimap<uint32, uint32> QuestRelations;
+typedef std::multimap<uint32, uint32> QuestRelations; // unit/go -> quest
+typedef std::multimap<uint32, uint32> QuestRelationsReverse; // quest -> unit/go
 typedef std::pair<QuestRelations::const_iterator, QuestRelations::const_iterator> QuestRelationBounds;
+typedef std::pair<QuestRelationsReverse::const_iterator, QuestRelationsReverse::const_iterator> QuestRelationReverseBounds;
 
 struct PetLevelInfo
 {
@@ -930,6 +930,11 @@ class ObjectMgr
             return _goQuestInvolvedRelations.equal_range(go_entry);
         }
 
+        QuestRelationReverseBounds GetGOQuestInvolvedRelationReverseBounds(uint32 questId)
+        {
+            return _goQuestInvolvedRelationsReverse.equal_range(questId);
+        }
+
         QuestRelations* GetCreatureQuestRelationMap()
         {
             return &_creatureQuestRelations;
@@ -945,6 +950,11 @@ class ObjectMgr
             return _creatureQuestInvolvedRelations.equal_range(creature_entry);
         }
 
+        QuestRelationReverseBounds GetCreatureQuestInvolvedRelationReverseBounds(uint32 questId)
+        {
+            return _creatureQuestInvolvedRelationsReverse.equal_range(questId);
+        }
+
         void LoadEventScripts();
         void LoadSpellScripts();
         void LoadWaypointScripts();
@@ -956,7 +966,6 @@ class ObjectMgr
         void LoadBroadcastTextLocales();
         bool LoadTrinityStrings(char const* table, int32 min_value, int32 max_value);
         bool LoadTrinityStrings() { return LoadTrinityStrings("trinity_string", MIN_TRINITY_STRING_ID, MAX_TRINITY_STRING_ID); }
-        void LoadDbScriptStrings();
         void LoadCreatureClassLevelStats();
         void LoadCreatureLocales();
         void LoadCreatureTemplates();
@@ -1347,8 +1356,10 @@ class ObjectMgr
 
         QuestRelations _goQuestRelations;
         QuestRelations _goQuestInvolvedRelations;
+        QuestRelationsReverse _goQuestInvolvedRelationsReverse;
         QuestRelations _creatureQuestRelations;
         QuestRelations _creatureQuestInvolvedRelations;
+        QuestRelationsReverse _creatureQuestInvolvedRelationsReverse;
 
         //character reserved names
         typedef std::set<std::wstring> ReservedNamesContainer;
@@ -1372,8 +1383,7 @@ class ObjectMgr
 
     private:
         void LoadScripts(ScriptsType type);
-        void CheckScripts(ScriptsType type, std::set<int32>& ids);
-        void LoadQuestRelationsHelper(QuestRelations& map, std::string const& table, bool starter, bool go);
+        void LoadQuestRelationsHelper(QuestRelations& map, QuestRelationsReverse* reverseMap, std::string const& table, bool starter, bool go);
         void PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count);
 
         MailLevelRewardContainer _mailLevelRewardStore;

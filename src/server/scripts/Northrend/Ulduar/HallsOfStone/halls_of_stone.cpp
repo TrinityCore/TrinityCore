@@ -102,15 +102,12 @@ enum Spells
 
     // Kadrak
     SPELL_GLARE_OF_THE_TRIBUNAL         = 50988,
-    H_SPELL_GLARE_OF_THE_TRIBUNAL       = 59868,
 
     // Marnak
     SPELL_DARK_MATTER                   = 51012,
-    H_SPELL_DARK_MATTER                 = 59868,
 
     // Abedneum
     SPELL_SEARING_GAZE                  = 51136,
-    H_SPELL_SEARING_GAZE                = 59867,
 
     SPELL_REWARD_ACHIEVEMENT            = 59046,
 };
@@ -141,8 +138,20 @@ public:
     {
         npc_tribuna_controllerAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             SetCombatMovement(false);
+        }
+
+        void Initialize()
+        {
+            uiKaddrakEncounterTimer = 1500;
+            uiMarnakEncounterTimer = 10000;
+            uiAbedneumEncounterTimer = 10000;
+
+            bKaddrakActivated = false;
+            bMarnakActivated = false;
+            bAbedneumActivated = false;
         }
 
         InstanceScript* instance;
@@ -159,13 +168,7 @@ public:
 
         void Reset() override
         {
-            uiKaddrakEncounterTimer = 1500;
-            uiMarnakEncounterTimer = 10000;
-            uiAbedneumEncounterTimer = 10000;
-
-            bKaddrakActivated = false;
-            bMarnakActivated = false;
-            bAbedneumActivated = false;
+            Initialize();
 
             instance->HandleGameObject(instance->GetData64(DATA_GO_KADDRAK), false);
             instance->HandleGameObject(instance->GetData64(DATA_GO_MARNAK), false);
@@ -214,7 +217,7 @@ public:
                                 if (Creature* pKaddrak = ObjectAccessor::GetCreature(*me, *itr))
                                 {
                                     if (pKaddrak->IsAlive())
-                                        pKaddrak->CastSpell(target, DUNGEON_MODE(SPELL_GLARE_OF_THE_TRIBUNAL, H_SPELL_GLARE_OF_THE_TRIBUNAL), true);
+                                        pKaddrak->CastSpell(target, SPELL_GLARE_OF_THE_TRIBUNAL, true);
                                 }
                             }
                     uiKaddrakEncounterTimer = 1500;
@@ -230,7 +233,7 @@ public:
                         {
                             summon->SetDisplayId(11686);
                             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            summon->CastSpell(target, DUNGEON_MODE(SPELL_DARK_MATTER, H_SPELL_DARK_MATTER), true);
+                            summon->CastSpell(target, SPELL_DARK_MATTER, true);
                         }
                     }
                     uiMarnakEncounterTimer = urand(30000, 31000);
@@ -246,7 +249,7 @@ public:
                         {
                             summon->SetDisplayId(11686);
                             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            summon->CastSpell(target, DUNGEON_MODE(SPELL_SEARING_GAZE, H_SPELL_SEARING_GAZE), true);
+                            summon->CastSpell(target, SPELL_SEARING_GAZE, true);
                         }
                     }
                     uiAbedneumEncounterTimer = urand(30000, 31000);
@@ -293,7 +296,18 @@ public:
     {
         npc_brann_hosAI(Creature* creature) : npc_escortAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            bIsLowHP = false;
+            bIsBattle = false;
+            uiStep = 0;
+            uiPhaseTimer = 0;
+            uiControllerGUID = 0;
+            brannSparklinNews = true;
         }
 
         uint32 uiStep;
@@ -312,12 +326,7 @@ public:
         {
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
             {
-                bIsLowHP = false;
-                bIsBattle = false;
-                uiStep = 0;
-                uiPhaseTimer = 0;
-                uiControllerGUID = 0;
-                brannSparklinNews = true;
+                Initialize();
 
                 DespawnDwarf();
 

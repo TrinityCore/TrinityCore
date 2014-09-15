@@ -298,7 +298,18 @@ public:
     public:
         npc_clintar_spiritAI(Creature* creature) : npc_escortAI(creature)
         {
+            Initialize();
             PlayerGUID = 0;
+        }
+
+        void Initialize()
+        {
+            Step = 0;
+            CurrWP = 0;
+            EventTimer = 0;
+            PlayerGUID = 0;
+            checkPlayerTimer = 1000;
+            EventOnWait = false;
         }
 
         uint8 Step;
@@ -313,14 +324,7 @@ public:
         void Reset() override
         {
             if (!PlayerGUID)
-            {
-                Step = 0;
-                CurrWP = 0;
-                EventTimer = 0;
-                PlayerGUID = 0;
-                checkPlayerTimer = 1000;
-                EventOnWait = false;
-            }
+                Initialize();
         }
 
         void IsSummonedBy(Unit* /*summoner*/) override

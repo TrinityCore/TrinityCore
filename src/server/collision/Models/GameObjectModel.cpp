@@ -166,7 +166,7 @@ bool GameObjectModel::intersectRay(const G3D::Ray& ray, float& MaxDist, bool Sto
         return false;
 
     float time = ray.intersectionTime(iBound);
-    if (time == G3D::inf())
+    if (time == G3D::finf())
         return false;
 
     // child bounds are defined in object space:

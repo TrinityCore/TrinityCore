@@ -108,13 +108,21 @@ class npc_firesworn : public CreatureScript
 
         struct npc_fireswornAI : public ScriptedAI
         {
-            npc_fireswornAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_fireswornAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                immolateTimer = 4000;                              //These times are probably wrong
+            }
 
             uint32 immolateTimer;
 
             void Reset() override
             {
-                immolateTimer = 4000;                              //These times are probably wrong
+                Initialize();
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override

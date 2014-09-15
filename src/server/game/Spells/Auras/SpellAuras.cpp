@@ -35,6 +35,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
+#include "Config.h"
 #ifdef ELUNA
 #include "LuaEngine.h"
 #endif
@@ -338,7 +339,7 @@ m_spellInfo(spellproto), m_casterGuid(casterGUID ? casterGUID : caster->GetGUID(
 m_castItemGuid(castItem ? castItem->GetGUID() : 0), m_applyTime(time(NULL)),
 m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
 m_casterLevel(caster ? caster->getLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(1),
-m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false)
+m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_dropEvent(nullptr)
 {
     if (m_spellInfo->ManaPerSecond || m_spellInfo->ManaPerSecondPerLevel)
         m_timeCla = 1 * IN_MILLISECONDS;
@@ -473,6 +474,12 @@ void Aura::_Remove(AuraRemoveMode removeMode)
         Unit* target = aurApp->GetTarget();
         target->_UnapplyAura(aurApp, removeMode);
         appItr = m_applications.begin();
+    }
+
+    if (m_dropEvent)
+    {
+        m_dropEvent->to_Abort = true;
+        m_dropEvent = nullptr;
     }
 }
 
@@ -820,6 +827,26 @@ bool Aura::ModCharges(int32 num, AuraRemoveMode removeMode)
     }
 
     return false;
+}
+
+void Aura::ModChargesDelayed(int32 num, AuraRemoveMode removeMode)
+{
+    m_dropEvent = nullptr;
+    ModCharges(num, removeMode);
+}
+
+void Aura::DropChargeDelayed(uint32 delay, AuraRemoveMode removeMode)
+{
+    // aura is already during delayed charge drop
+    if (m_dropEvent)
+        return;
+    // only units have events
+    Unit* owner = m_owner->ToUnit();
+    if (!owner)
+        return;
+
+    m_dropEvent = new ChargeDropEvent(this, removeMode);
+    owner->m_Events.AddEvent(m_dropEvent, owner->m_Events.CalculateTime(delay));
 }
 
 void Aura::SetStackAmount(uint8 stackAmount)
@@ -1766,6 +1793,15 @@ bool Aura::CanStackWith(Aura const* existingAura) const
             return true;
     }
 
+    // Check for custom server setting to allow tracking both Herbs and Minerals
+    // Note: The following are client limitations and cannot be coded for:
+    //  * The minimap tracking icon will display whichever skill is activated second
+    //  * The minimap tracking list will only show a check mark next to the last skill activated
+    //    Sometimes this bugs out and doesn't switch the check mark. It has no effect on the actual tracking though.
+    //  * The minimap dots are yellow for both resources
+    if (m_spellInfo->HasAura(SPELL_AURA_TRACK_RESOURCES) && existingSpellInfo->HasAura(SPELL_AURA_TRACK_RESOURCES))
+        return sWorld->getBoolConfig(CONFIG_ALLOW_TRACK_BOTH_RESOURCES);
+
     // check spell specific stack rules
     if (m_spellInfo->IsAuraExclusiveBySpecificWith(existingSpellInfo)
         || (sameCaster && m_spellInfo->IsAuraExclusiveBySpecificPerCasterWith(existingSpellInfo)))
@@ -2545,3 +2581,9 @@ void DynObjAura::FillTargetMap(std::map<Unit*, uint8> & targets, Unit* /*caster*
     }
 }
 
+bool ChargeDropEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
+{
+    // _base is always valid (look in Aura::_Remove())
+    _base->ModChargesDelayed(-1, _mode);
+    return true;
+}

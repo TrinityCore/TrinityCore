@@ -19,6 +19,8 @@
 #define BLOOD_FURNACE_H_
 
 #define BFScriptName "instance_blood_furnace"
+#define DataHeader   "BF"
+
 uint32 const EncounterCount = 3;
 
 enum DataTypes
@@ -46,7 +48,8 @@ enum CreatureIds
     NPC_THE_MAKER               = 17381,
     NPC_BROGGOK                 = 17380,
     NPC_KELIDAN_THE_BREAKER     = 17377,
-    NPC_PRISONER                = 17398
+    NPC_PRISONER                = 17398,
+    NPC_BROGGOK_POISON_CLOUD    = 17662
 };
 
 enum GameObjectIds

@@ -19,6 +19,7 @@
 #define SUNWELL_PLATEAU_H
 
 #define SunwellPlateauScriptName "instance_sunwell_plateau"
+#define DataHeader "SWP"
 
 uint32 const EncounterCount = 6;
 

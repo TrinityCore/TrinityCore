@@ -427,7 +427,15 @@ class boss_voice_of_yogg_saron : public CreatureScript
         {
             boss_voice_of_yogg_saronAI(Creature* creature) : BossAI(creature, BOSS_YOGG_SARON)
             {
+                Initialize();
                 SetCombatMovement(false);
+            }
+
+            void Initialize()
+            {
+                _guardiansCount = 0;
+                _guardianTimer = 20000;
+                _illusionShattered = false;
             }
 
             void MoveInLineOfSight(Unit* who) override
@@ -467,9 +475,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                 instance->SetData(DATA_DRIVE_ME_CRAZY, uint32(true));
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
 
-                _guardiansCount = 0;
-                _guardianTimer = 20000;
-                _illusionShattered = false;
+                Initialize();
 
                 bool clockwise = false;
                 std::list<TempSummon*> clouds;
@@ -839,7 +845,7 @@ class boss_sara : public CreatureScript
                         {
                             Position pos;
                             float radius = frand(25.0f, 50.0f);
-                            float angle = frand(0.0f, 2.0f * M_PI);
+                            float angle = frand(0.0f, 2.0f * float(M_PI));
                             pos.m_positionX = YoggSaronSpawnPos.GetPositionX() + radius * cosf(angle);
                             pos.m_positionY = YoggSaronSpawnPos.GetPositionY() + radius * sinf(angle);
                             pos.m_positionZ = me->GetMap()->GetHeight(me->GetPhaseMask(), pos.GetPositionX(), pos.GetPositionY(), YoggSaronSpawnPos.GetPositionZ() + 5.0f);
@@ -1014,7 +1020,10 @@ class boss_brain_of_yogg_saron : public CreatureScript
 
         struct boss_brain_of_yogg_saronAI : public PassiveAI
         {
-            boss_brain_of_yogg_saronAI(Creature* creature) : PassiveAI(creature), _instance(creature->GetInstanceScript()), _summons(creature) { }
+            boss_brain_of_yogg_saronAI(Creature* creature) : PassiveAI(creature), _instance(creature->GetInstanceScript()), _summons(creature)
+            {
+                _tentaclesKilled = 0;
+            }
 
             void Reset() override
             {
@@ -1119,7 +1128,7 @@ class npc_ominous_cloud : public CreatureScript
 
             void FillCirclePath(Position const& centerPos, float radius, float z, Movement::PointsArray& path, bool clockwise)
             {
-                float step = clockwise ? -M_PI / 8.0f : M_PI / 8.0f;
+                float step = clockwise ? float(-M_PI) / 8.0f : float(M_PI) / 8.0f;
                 float angle = centerPos.GetAngle(me->GetPositionX(), me->GetPositionY());
 
                 for (uint8 i = 0; i < 16; angle += step, ++i)
@@ -1953,7 +1962,7 @@ class spell_yogg_saron_target_selectors : public SpellScriptLoader    // 63744, 
 class SanityReduction : public SpellScript
 {
     public:
-        SanityReduction() : SpellScript() { }
+        SanityReduction() : SpellScript(), _stacks(0) { }
         SanityReduction(uint8 stacks) : SpellScript(), _stacks(stacks) { }
 
     void RemoveSanity(SpellEffIndex /*effIndex*/)
@@ -2502,7 +2511,7 @@ class spell_yogg_saron_empowered : public SpellScriptLoader     // 64161
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 Unit* target = GetTarget();
-                float stack = ceil((target->GetHealthPct() / 10) - 1);
+                float stack = std::ceil((target->GetHealthPct() / 10) - 1);
                 target->RemoveAurasDueToSpell(SPELL_EMPOWERED_BUFF);
 
                 if (stack)

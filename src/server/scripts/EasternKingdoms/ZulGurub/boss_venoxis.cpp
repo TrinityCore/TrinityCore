@@ -90,7 +90,17 @@ class boss_venoxis : public CreatureScript
 
         struct boss_venoxisAI : public BossAI
         {
-            boss_venoxisAI(Creature* creature) : BossAI(creature, DATA_VENOXIS) { }
+            boss_venoxisAI(Creature* creature) : BossAI(creature, DATA_VENOXIS)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _inMeleeRange = 0;
+                _transformed = false;
+                _frenzied = false;
+            }
 
             void Reset() override
             {
@@ -99,9 +109,7 @@ class boss_venoxis : public CreatureScript
                 me->RemoveAllAuras();
                 me->SetReactState(REACT_PASSIVE);
                 // set some internally used variables to their defaults
-                _inMeleeRange = 0;
-                _transformed = false;
-                _frenzied = false;
+                Initialize();
                 events.SetPhase(PHASE_ONE);
             }
 
