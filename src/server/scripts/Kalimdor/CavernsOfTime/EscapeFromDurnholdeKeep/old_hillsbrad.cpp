@@ -588,7 +588,7 @@ public:
             if (instance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
             {
                 instance->SetData(TYPE_THRALL_PART4, IN_PROGRESS);
-                if (instance->GetGuidData(DATA_EPOCH))
+                if (instance->GetGuidData(DATA_EPOCH).IsEmpty())
                      creature->SummonCreature(ENTRY_EPOCH, 2639.13f, 698.55f, 65.43f, 4.59f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
 
                 if (Creature* thrall = (ObjectAccessor::GetCreature(*creature, instance->GetGuidData(DATA_THRALL))))

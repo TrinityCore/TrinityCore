@@ -71,13 +71,13 @@ public:
 
         uint32 phaseTimer;
         uint8  phase;
-        uint64 casterGuid;
+        ObjectGuid casterGuid;
 
         void Reset() override
         {
             phaseTimer = 500;
             phase = 0;
-            casterGuid = 0;
+            casterGuid.Clear();
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell) override
@@ -391,7 +391,7 @@ public:
                 if (uiRand < 25)
                 {
                     player->CastSpell(me, SPELL_FREED_WARSONG_PEON, true);
-                    player->KilledMonsterCredit(NPC_WARSONG_PEON, 0);
+                    player->KilledMonsterCredit(NPC_WARSONG_PEON);
                 }
                 else if (uiRand < 75)
                     player->CastSpell(me, nerubarVictims[urand(0, 2)], true);
@@ -449,7 +449,7 @@ public:
     {
         npc_nesingwary_trapperAI(Creature* creature) : ScriptedAI(creature) { creature->SetVisible(false); }
 
-        uint64 go_caribouGUID;
+        ObjectGuid go_caribouGUID;
         uint8  phase;
         uint32 phaseTimer;
 
@@ -458,7 +458,7 @@ public:
             me->SetVisible(false);
             phaseTimer = 2500;
             phase = 1;
-            go_caribouGUID = 0;
+            go_caribouGUID.Clear();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -474,7 +474,7 @@ public:
                 if (summon->IsSummon())
                     if (Unit* temp = summon->GetSummoner())
                         if (Player* player = temp->ToPlayer())
-                            player->KilledMonsterCredit(me->GetEntry(), 0);
+                            player->KilledMonsterCredit(me->GetEntry());
 
             if (GameObject* go_caribou = me->GetMap()->GetGameObject(go_caribouGUID))
                 go_caribou->SetGoState(GO_STATE_READY);
@@ -723,10 +723,9 @@ public:
     {
         npc_nexus_drake_hatchlingAI(Creature* creature) : FollowerAI(creature)
         {
-            HarpoonerGUID = 0;
         }
 
-        uint64 HarpoonerGUID;
+        ObjectGuid HarpoonerGUID;
         bool WithRedDragonBlood;
 
         void Reset() override
@@ -764,10 +763,10 @@ public:
                 {
                     if (Player* pHarpooner = ObjectAccessor::GetPlayer(*me, HarpoonerGUID))
                     {
-                        pHarpooner->KilledMonsterCredit(26175, 0);
+                        pHarpooner->KilledMonsterCredit(26175);
                         pHarpooner->RemoveAura(SPELL_DRAKE_HATCHLING_SUBDUED);
                         SetFollowComplete();
-                        HarpoonerGUID = 0;
+                        HarpoonerGUID.Clear();
                         me->DisappearAndDie();
                     }
                 }
@@ -793,7 +792,7 @@ public:
 
             if ((me->getFaction() == 35) && (!me->HasAura(SPELL_SUBDUED)))
             {
-                HarpoonerGUID = 0;
+                HarpoonerGUID.Clear();
                 me->DisappearAndDie();
             }
 
@@ -865,10 +864,10 @@ public:
     {
         npc_thassarianAI(Creature* creature) : npc_escortAI(creature) { }
 
-        uint64 arthasGUID;
-        uint64 talbotGUID;
-        uint64 leryssaGUID;
-        uint64 arlosGUID;
+        ObjectGuid arthasGUID;
+        ObjectGuid talbotGUID;
+        ObjectGuid leryssaGUID;
+        ObjectGuid arlosGUID;
 
         bool arthasInPosition;
         bool arlosInPosition;
@@ -883,10 +882,10 @@ public:
             me->RestoreFaction();
             me->RemoveStandFlags(UNIT_STAND_STATE_SIT);
 
-            arthasGUID = 0;
-            talbotGUID = 0;
-            leryssaGUID = 0;
-            arlosGUID = 0;
+            arthasGUID.Clear();
+            talbotGUID.Clear();
+            leryssaGUID.Clear();
+            arlosGUID.Clear();
 
             arthasInPosition = false;
             arlosInPosition = false;
@@ -1242,8 +1241,8 @@ public:
     {
         npc_counselor_talbotAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 leryssaGUID;
-        uint64 arlosGUID;
+        ObjectGuid leryssaGUID;
+        ObjectGuid arlosGUID;
 
         bool bCheck;
 
@@ -1253,8 +1252,8 @@ public:
 
         void Reset() override
         {
-            leryssaGUID         = 0;
-            arlosGUID           = 0;
+            leryssaGUID.Clear();
+            arlosGUID.Clear();
             bCheck              = false;
             shadowBoltTimer   = urand(5000, 12000);
             deflectionTimer   = urand(20000, 25000);
@@ -1609,15 +1608,11 @@ public:
         void SpellHit(Unit* unit, const SpellInfo* spell) override
         {
             if (spell->Id == SPELL_NEURAL_NEEDLE && unit->GetTypeId() == TYPEID_PLAYER)
-            {
                 if (Player* player = unit->ToPlayer())
-                {
                     GotStinged(player->GetGUID());
-                }
-            }
         }
 
-        void GotStinged(uint64 casterGUID)
+        void GotStinged(ObjectGuid casterGUID)
         {
             if (Player* caster = ObjectAccessor::GetPlayer(*me, casterGUID))
             {
@@ -1644,7 +1639,7 @@ public:
                         break;
                     case 7:
                         Talk(SAY_IMPRISIONED_BERYL_7);
-                        caster->KilledMonsterCredit(NPC_IMPRISONED_BERYL_SORCERER, 0);
+                        caster->KilledMonsterCredit(NPC_IMPRISONED_BERYL_SORCERER);
                         break;
                 }
             }
@@ -1980,7 +1975,7 @@ public:
             {
                 Quest const* qInfo = sObjectMgr->GetQuestTemplate(QUEST_YOU_RE_NOT_SO_BIG_NOW);
                 if (qInfo)
-                    player->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0], 0);
+                    player->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0]);
             }
         }
     };
@@ -2195,7 +2190,7 @@ public:
         uint32 uiEventTimer;
         uint8 uiEventPhase;
 
-        uint64 uiPlayerGUID;
+        ObjectGuid uiPlayerGUID;
 
         void Reset() override
         {
@@ -2208,7 +2203,7 @@ public:
             uiEventTimer = 0;
             uiEventPhase = 0;
 
-            uiPlayerGUID = 0;
+            uiPlayerGUID.Clear();
 
             DoCast(SPELL_SHROUD_OF_THE_DEATH_CULTIST);
 

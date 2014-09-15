@@ -83,9 +83,9 @@ public:
     {
         npc_commander_dawnforgeAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 PlayerGUID;
-        uint64 ardonisGUID;
-        uint64 pathaleonGUID;
+        ObjectGuid PlayerGUID;
+        ObjectGuid ardonisGUID;
+        ObjectGuid pathaleonGUID;
 
         uint32 Phase;
         uint32 PhaseSubphase;
@@ -94,9 +94,9 @@ public:
 
         void Reset() override
         {
-            PlayerGUID = 0;
-            ardonisGUID = 0;
-            pathaleonGUID = 0;
+            PlayerGUID.Clear();
+            ardonisGUID.Clear();
+            pathaleonGUID.Clear();
 
             Phase = 1;
             PhaseSubphase = 0;
@@ -415,7 +415,6 @@ public:
             Materialize = false;
             Drained = false;
             WeakPercent = 25;
-            PlayerGUID = 0;
             ManaBurnTimer = 5000;
         }
 
@@ -424,7 +423,7 @@ public:
         bool Drained;
         uint8 WeakPercent;
 
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         uint32 ManaBurnTimer;
 
@@ -435,7 +434,7 @@ public:
             Drained = false;
             WeakPercent = 25 + (rand32() % 16); // 25-40
 
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
 
             ManaBurnTimer = 5000 + (rand32() % 3 * 1000); // 5-8 sec cd
 
@@ -725,7 +724,7 @@ class go_captain_tyralius_prison : public GameObjectScript
             go->UseDoorOrButton();
             if (Creature* tyralius = go->FindNearestCreature(NPC_CAPTAIN_TYRALIUS, 1.0f))
             {
-                player->KilledMonsterCredit(NPC_CAPTAIN_TYRALIUS, 0);
+                player->KilledMonsterCredit(NPC_CAPTAIN_TYRALIUS);
                 tyralius->AI()->Talk(SAY_FREE);
                 tyralius->DespawnOrUnsummon(8000);
             }
