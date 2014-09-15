@@ -862,7 +862,7 @@ bool ScriptMgr::OnQuestReward(Player* player, Creature* creature, Quest const* q
     ASSERT(creature);
     ASSERT(quest);
 #ifdef ELUNA
-    if (sEluna->OnQuestReward(player, creature, quest))
+    if (sEluna->OnQuestReward(player, creature, quest, opt))
     {
         player->PlayerTalkClass->ClearMenus();
         return false;
@@ -985,7 +985,7 @@ bool ScriptMgr::OnQuestReward(Player* player, GameObject* go, Quest const* quest
     ASSERT(go);
     ASSERT(quest);
 #ifdef ELUNA
-    if (sEluna->OnQuestReward(player, go, quest))
+    if (sEluna->OnQuestReward(player, go, quest, opt))
         return false;
 #endif
 
