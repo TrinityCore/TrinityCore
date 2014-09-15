@@ -354,9 +354,10 @@ public:
 
             _summonDeaths = 0;
             _preparingPulsesChecker = 0;
-            _arcaneOverloadGUID = 0;
-            _lastHitByArcaneBarrageGUID = 0;
-            memset(_surgeTargetGUID, 0, sizeof(_surgeTargetGUID));
+            _arcaneOverloadGUID.Clear();
+            _lastHitByArcaneBarrageGUID.Clear();
+            for (ObjectGuid& guid : _surgeTargetGUID)
+                guid.Clear();
 
             _killSpamFilter = false;
             _canAttack = false;
@@ -424,7 +425,7 @@ public:
             else if (type == DATA_LAST_TARGET_BARRAGE_GUID)
                 return _lastHitByArcaneBarrageGUID;
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetGUID(ObjectGuid guid, int32 type) override
@@ -441,6 +442,7 @@ public:
                     break;
                 case DATA_LAST_TARGET_BARRAGE_GUID:
                     _lastHitByArcaneBarrageGUID = guid;
+                    break;
             }
         }
 
@@ -1030,9 +1032,9 @@ public:
         uint8 _phase; // Counter for phases used with a getter.
         uint8 _summonDeaths; // Keeps count of arcane trash.
         uint8 _preparingPulsesChecker; // In retail they use 2 preparing pulses with 7 sec CD, after they pass 2 seconds.
-        uint64 _arcaneOverloadGUID; // Last Arcane Overload summoned to know to which should visual be cast to (the purple ball, not bubble).
-        uint64 _lastHitByArcaneBarrageGUID; // Last hit player by Arcane Barrage, will be removed if targets > 1.
-        uint64 _surgeTargetGUID[3]; // All these three are used to keep current tagets to which warning should be sent.
+        ObjectGuid _arcaneOverloadGUID; // Last Arcane Overload summoned to know to which should visual be cast to (the purple ball, not bubble).
+        ObjectGuid _lastHitByArcaneBarrageGUID; // Last hit player by Arcane Barrage, will be removed if targets > 1.
+        ObjectGuid _surgeTargetGUID[3]; // All these three are used to keep current tagets to which warning should be sent.
 
         bool _killSpamFilter; // Prevent text spamming on killed player by helping implement a CD.
         bool _canAttack; // Used to control attacking (Move Chase not being applied after Stop Attack, only few times should act like this).

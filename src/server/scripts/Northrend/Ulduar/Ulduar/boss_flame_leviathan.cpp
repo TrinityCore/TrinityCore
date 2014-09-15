@@ -266,7 +266,7 @@ class boss_flame_leviathan : public CreatureScript
                 _Reset();
                 //resets shutdown counter to 0.  2 or 4 depending on raid mode
                 Shutdown = 0;
-                _pursueTarget = 0;
+                _pursueTarget.Clear();
 
                 me->SetReactState(REACT_DEFENSIVE);
             }
@@ -550,7 +550,7 @@ class boss_flame_leviathan : public CreatureScript
                     }
                 }
 
-                uint64 _pursueTarget;
+                ObjectGuid _pursueTarget;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -978,7 +978,7 @@ public:
             npc_escortAI::UpdateAI(diff);
 
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
-                Start(false, true, 0, NULL, false, true);
+                Start(false, true, ObjectGuid::Empty, NULL, false, true);
             else
             {
                 if (infernoTimer <= diff)

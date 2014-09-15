@@ -170,13 +170,11 @@ public:
         boss_skadiAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
             instance = creature->GetInstanceScript();
-            m_uiGraufGUID = 0;
         }
 
         InstanceScript* instance;
         SummonList Summons;
-        uint64 m_uiGraufGUID;
-        std::vector<uint64> triggersGUID;
+        ObjectGuid m_uiGraufGUID;
 
         uint32 m_uiCrushTimer;
         uint32 m_uiPoisonedSpearTimer;
@@ -192,8 +190,6 @@ public:
 
         void Reset() override
         {
-            triggersGUID.clear();
-
             m_uiCrushTimer = 8000;
             m_uiPoisonedSpearTimer = 10000;
             m_uiWhirlwindTimer = 20000;
@@ -266,7 +262,7 @@ public:
         void SummonedCreatureDespawn(Creature* summoned) override
         {
             if (summoned->GetEntry() == NPC_GRAUF)
-                m_uiGraufGUID = 0;
+                m_uiGraufGUID.Clear();
             Summons.Despawn(summoned);
         }
 

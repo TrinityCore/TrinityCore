@@ -103,7 +103,7 @@ public:
 
         uint8 uiPhase;
 
-        std::set<uint64> lWrappedPlayers;
+        GuidSet lWrappedPlayers;
         SummonList lSummons;
 
         InstanceScript* instance;
@@ -205,7 +205,7 @@ public:
                 lWrappedPlayers.insert(guid);
         }
 
-        bool WasWrapped(uint64 guid)
+        bool WasWrapped(ObjectGuid guid)
         {
             return lWrappedPlayers.count(guid) != 0;
         }

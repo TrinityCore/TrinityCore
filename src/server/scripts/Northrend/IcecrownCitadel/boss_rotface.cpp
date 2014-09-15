@@ -469,7 +469,7 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
                     return;
 
                 triggers.sort(Trinity::ObjectDistanceOrderPred(GetHitUnit()));
-                GetHitUnit()->CastSpell(triggers.back(), uint32(GetEffectValue()), false, NULL, NULL, GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : 0);
+                GetHitUnit()->CastSpell(triggers.back(), uint32(GetEffectValue()), false, NULL, NULL, GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : ObjectGuid::Empty);
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)

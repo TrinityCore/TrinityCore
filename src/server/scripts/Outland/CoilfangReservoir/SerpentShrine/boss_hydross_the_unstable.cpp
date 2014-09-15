@@ -94,13 +94,11 @@ public:
         boss_hydross_the_unstableAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
             instance = creature->GetInstanceScript();
-            beams[0] = 0;
-            beams[1] = 0;
         }
 
         InstanceScript* instance;
 
-        uint64 beams[2];
+        ObjectGuid beams[2];
         uint32 PosCheck_Timer;
         uint32 MarkOfHydross_Timer;
         uint32 MarkOfCorruption_Timer;
@@ -116,8 +114,8 @@ public:
         void Reset() override
         {
             DeSummonBeams();
-            beams[0] = 0;
-            beams[1] = 0;
+            beams[0].Clear();
+            beams[1].Clear();
             PosCheck_Timer = 2500;
             MarkOfHydross_Timer = 15000;
             MarkOfCorruption_Timer = 15000;
@@ -147,7 +145,7 @@ public:
                 beamer->CastSpell(me, SPELL_BLUE_BEAM, true);
                 beamer->SetDisplayId(11686);  //invisible
                 beamer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                beams[0]=beamer->GetGUID();
+                beams[0] = beamer->GetGUID();
             }
             beamer = me->SummonCreature(ENTRY_BEAM_DUMMY, -219.918f, -371.308f, 22.0042f, 2.73072f, TEMPSUMMON_CORPSE_DESPAWN, 0);
             if (beamer)
@@ -155,7 +153,7 @@ public:
                 beamer->CastSpell(me, SPELL_BLUE_BEAM, true);
                 beamer->SetDisplayId(11686);  //invisible
                 beamer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                beams[1]=beamer->GetGUID();
+                beams[1] = beamer->GetGUID();
             }
         }
         void DeSummonBeams()

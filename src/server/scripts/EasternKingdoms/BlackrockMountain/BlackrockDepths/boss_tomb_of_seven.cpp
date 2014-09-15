@@ -202,7 +202,7 @@ class boss_doomrel : public CreatureScript
             {
                 ScriptedAI::EnterEvadeMode();
 
-                _instance->SetGuidData(DATA_EVENSTARTER, 0);
+                _instance->SetGuidData(DATA_EVENSTARTER, ObjectGuid::Empty);
             }
 
             void JustDied(Unit* /*killer*/) override

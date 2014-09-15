@@ -1116,7 +1116,7 @@ class npc_combustion_consumption : public CreatureScript
         struct npc_combustion_consumptionAI : public ScriptedAI
         {
             npc_combustion_consumptionAI(Creature* creature) : ScriptedAI(creature),
-                   _instance(creature->GetInstanceScript()), _summonerGuid(0)
+                   _instance(creature->GetInstanceScript())
             {
                 SetCombatMovement(false);
 
@@ -1171,7 +1171,7 @@ class npc_combustion_consumption : public CreatureScript
             InstanceScript* _instance;
             uint32 _explosionSpell;
             uint32 _damageSpell;
-            uint64 _summonerGuid;
+            ObjectGuid _summonerGuid;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -1394,7 +1394,7 @@ class spell_halion_combustion_consumption : public SpellScriptLoader
                     return;
 
                 if (GetTarget()->HasAura(_markSpell))
-                    GetTarget()->RemoveAurasDueToSpell(_markSpell, 0, 0, AURA_REMOVE_BY_EXPIRE);
+                    GetTarget()->RemoveAurasDueToSpell(_markSpell, ObjectGuid::Empty, 0, AURA_REMOVE_BY_EXPIRE);
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1455,7 +1455,7 @@ class spell_halion_marks : public SpellScriptLoader
 
                 if (Unit* dispelledUnit = GetUnitOwner())
                     if (dispelledUnit->HasAura(_removeSpellId))
-                        dispelledUnit->RemoveAurasDueToSpell(_removeSpellId, 0, 0, AURA_REMOVE_BY_EXPIRE);
+                        dispelledUnit->RemoveAurasDueToSpell(_removeSpellId, ObjectGuid::Empty, 0, AURA_REMOVE_BY_EXPIRE);
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -1558,7 +1558,7 @@ class spell_halion_twilight_realm_handlers : public SpellScriptLoader
                 if (!target)
                     return;
 
-                target->RemoveAurasDueToSpell(_beforeHitSpellId, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
+                target->RemoveAurasDueToSpell(_beforeHitSpellId, ObjectGuid::Empty, 0, AURA_REMOVE_BY_ENEMY_SPELL);
                 if (InstanceScript* instance = target->GetInstanceScript())
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_UNK7);
             }

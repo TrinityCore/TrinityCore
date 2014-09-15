@@ -208,7 +208,7 @@ public:
             }
 
             if (uiType <= 3)
-                Start(false, true, 0, NULL);
+                Start(false, true);
         }
 
         void WaypointReached(uint32 waypointId) override
@@ -769,7 +769,7 @@ public:
             uiMultiShotTimer = 0;
             uiLightningArrowsTimer = 7000;
 
-            uiTargetGUID = 0;
+            uiTargetGUID.Clear();
 
             bShoot = false;
         }
@@ -783,7 +783,7 @@ public:
         uint32 uiMultiShotTimer;
         uint32 uiLightningArrowsTimer;
 
-        uint64 uiTargetGUID;
+        ObjectGuid uiTargetGUID;
 
         bool bShoot;
         bool bDone;

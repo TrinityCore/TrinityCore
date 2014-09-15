@@ -294,7 +294,6 @@ class npc_snobold_vassal : public CreatureScript
         {
             npc_snobold_vassalAI(Creature* creature) : ScriptedAI(creature)
             {
-                _targetGUID = 0;
                 _targetDied = false;
                 _instance = creature->GetInstanceScript();
                 _instance->SetData(DATA_SNOBOLD_COUNT, INCREASE);
@@ -305,7 +304,7 @@ class npc_snobold_vassal : public CreatureScript
                 _events.ScheduleEvent(EVENT_BATTER, 5*IN_MILLISECONDS);
                 _events.ScheduleEvent(EVENT_HEAD_CRACK, 25*IN_MILLISECONDS);
 
-                _targetGUID = 0;
+                _targetGUID.Clear();
                 _targetDied = false;
 
                 //Workaround for Snobold
@@ -442,7 +441,7 @@ class npc_snobold_vassal : public CreatureScript
             private:
                 EventMap _events;
                 InstanceScript* _instance;
-                uint64 _targetGUID;
+                ObjectGuid _targetGUID;
                 bool   _targetDied;
         };
 
@@ -877,7 +876,7 @@ class boss_icehowl : public CreatureScript
                 _movementStarted = false;
                 _movementFinish = false;
                 _trampleCast = false;
-                _trampleTargetGUID = 0;
+                _trampleTargetGUID.Clear();
                 _trampleTargetX = 0;
                 _trampleTargetY = 0;
                 _trampleTargetZ = 0;
@@ -1077,7 +1076,7 @@ class boss_icehowl : public CreatureScript
                         if (Player* target = ObjectAccessor::GetPlayer(*me, _trampleTargetGUID))
                             Talk(EMOTE_TRAMPLE_START, target);
                         me->GetMotionMaster()->MoveCharge(_trampleTargetX, _trampleTargetY, _trampleTargetZ, 42, 1);
-                        me->SetTarget(0);
+                        me->SetTarget(ObjectGuid::Empty);
                         _stage = 5;
                         break;
                     case 5:
@@ -1134,7 +1133,7 @@ class boss_icehowl : public CreatureScript
 
             private:
                 float  _trampleTargetX, _trampleTargetY, _trampleTargetZ;
-                uint64 _trampleTargetGUID;
+                ObjectGuid _trampleTargetGUID;
                 bool   _movementStarted;
                 bool   _movementFinish;
                 bool   _trampleCast;

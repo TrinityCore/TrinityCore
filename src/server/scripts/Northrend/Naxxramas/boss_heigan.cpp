@@ -135,7 +135,7 @@ public:
                 me->NearTeleportTo(x, y, z, o - (float(M_PI) / 2));
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveIdle();
-                me->SetTarget(0);
+                me->SetTarget(ObjectGuid::Empty);
                 DoCastAOE(SPELL_PLAGUE_CLOUD);
                 events.ScheduleEvent(EVENT_PHASE, 45000);
                 events.ScheduleEvent(EVENT_ERUPT, 8000);

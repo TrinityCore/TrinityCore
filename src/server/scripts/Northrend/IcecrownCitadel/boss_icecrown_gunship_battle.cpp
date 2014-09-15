@@ -383,7 +383,9 @@ public:
     void ResetSlots(uint32 team)
     {
         _transport = NULL;
-        memset(_controlledSlots, 0, sizeof(uint64)* MAX_SLOTS);
+        for (uint32 i = 0; i < MAX_SLOTS; ++i)
+            _controlledSlots[i].Clear();
+
         memset(_respawnCooldowns, 0, sizeof(time_t)* MAX_SLOTS);
         _spawnPoint = team == HORDE ? &OrgrimsHammerAddsSpawnPos : &SkybreakerAddsSpawnPos;
         _slotInfo = team == HORDE ? OrgrimsHammerSlotInfo : SkybreakerSlotInfo;
@@ -422,7 +424,7 @@ public:
 
     void ClearSlot(PassengerSlots slot)
     {
-        _controlledSlots[slot] = 0;
+        _controlledSlots[slot].Clear();
         _respawnCooldowns[slot] = time(NULL) + _slotInfo[slot].Cooldown;
     }
 
@@ -448,7 +450,7 @@ private:
     }
 
     Transport* _transport;
-    uint64 _controlledSlots[MAX_SLOTS];
+    ObjectGuid _controlledSlots[MAX_SLOTS];
     time_t _respawnCooldowns[MAX_SLOTS];
     Position const* _spawnPoint;
     SlotInfo const* _slotInfo;
@@ -482,7 +484,7 @@ private:
 class ResetEncounterEvent : public BasicEvent
 {
 public:
-    ResetEncounterEvent(Unit* caster, uint32 spellId, uint64 otherTransport) : _caster(caster), _spellId(spellId), _otherTransport(otherTransport) { }
+    ResetEncounterEvent(Unit* caster, uint32 spellId, ObjectGuid otherTransport) : _caster(caster), _spellId(spellId), _otherTransport(otherTransport) { }
 
     bool Execute(uint64, uint32) override
     {
@@ -498,7 +500,7 @@ public:
 private:
     Unit* _caster;
     uint32 _spellId;
-    uint64 _otherTransport;
+    ObjectGuid _otherTransport;
 };
 
 class BattleExperienceEvent : public BasicEvent
@@ -801,7 +803,7 @@ class npc_gunship : public CreatureScript
                 if (id != ACTION_SHIP_VISITS)
                     return;
 
-                std::map<uint64, uint32>::iterator itr = _shipVisits.find(guid);
+                std::map<ObjectGuid, uint32>::iterator itr = _shipVisits.find(guid);
                 if (itr == _shipVisits.end())
                     _shipVisits[guid] = 1;
                 else
@@ -814,7 +816,7 @@ class npc_gunship : public CreatureScript
                     return 0;
 
                 uint32 max = 0;
-                for (std::map<uint64, uint32>::const_iterator itr = _shipVisits.begin(); itr != _shipVisits.end(); ++itr)
+                for (std::map<ObjectGuid, uint32>::const_iterator itr = _shipVisits.begin(); itr != _shipVisits.end(); ++itr)
                     max = std::max(max, itr->second);
 
                 return max;
@@ -822,7 +824,7 @@ class npc_gunship : public CreatureScript
 
         private:
             uint32 _teamInInstance;
-            std::map<uint64, uint32> _shipVisits;
+            std::map<ObjectGuid, uint32> _shipVisits;
             bool _summonedFirstMage;
             bool _died;
         };

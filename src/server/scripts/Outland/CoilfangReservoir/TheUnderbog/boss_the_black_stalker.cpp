@@ -54,7 +54,7 @@ public:
 
     struct boss_the_black_stalkerAI : public ScriptedAI
     {
-        boss_the_black_stalkerAI(Creature* creature) : ScriptedAI(creature)
+        boss_the_black_stalkerAI(Creature* creature) : ScriptedAI(creature), Striders(creature)
         {
         }
 
@@ -62,11 +62,11 @@ public:
         uint32 Levitate_Timer;
         uint32 ChainLightning_Timer;
         uint32 StaticCharge_Timer;
-        uint64 LevitatedTarget;
+        ObjectGuid LevitatedTarget;
         uint32 LevitatedTarget_Timer;
         bool InAir;
         uint32 check_Timer;
-        std::list<uint64> Striders;
+        SummonList Striders;
 
         void Reset() override
         {
@@ -75,9 +75,9 @@ public:
             StaticCharge_Timer = 10000;
             SporeStriders_Timer = 10000 + rand32() % 5000;
             check_Timer = 5000;
-            LevitatedTarget = 0;
+            LevitatedTarget.Clear();
             LevitatedTarget_Timer = 0;
-            Striders.clear();
+            Striders.DespawnAll();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -86,7 +86,7 @@ public:
         {
             if (summon && summon->GetEntry() == ENTRY_SPORE_STRIDER)
             {
-                Striders.push_back(summon->GetGUID());
+                Striders.Summon(summon);
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                     summon->AI()->AttackStart(target);
                 else
@@ -97,9 +97,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            for (std::list<uint64>::const_iterator i = Striders.begin(); i != Striders.end(); ++i)
-                if (Creature* strider = ObjectAccessor::GetCreature(*me, *i))
-                    strider->DisappearAndDie();
+            Striders.DespawnAll();
         }
 
         void UpdateAI(uint32 diff) override
@@ -136,13 +134,13 @@ public:
                     {
                         if (!target->HasAura(SPELL_LEVITATE))
                         {
-                            LevitatedTarget = 0;
+                            LevitatedTarget.Clear();
                             return;
                         }
                         if (InAir)
                         {
                             target->AddAura(SPELL_SUSPENSION, target);
-                            LevitatedTarget = 0;
+                            LevitatedTarget.Clear();
                         }
                         else
                         {
@@ -152,7 +150,7 @@ public:
                         }
                     }
                     else
-                        LevitatedTarget = 0;
+                        LevitatedTarget.Clear();
                 } else LevitatedTarget_Timer -= diff;
             }
             if (Levitate_Timer <= diff)

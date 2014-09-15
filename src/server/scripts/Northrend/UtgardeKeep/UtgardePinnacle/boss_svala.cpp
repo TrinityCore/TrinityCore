@@ -153,9 +153,9 @@ class boss_svala : public CreatureScript
 
                 me->SetDisableGravity(events.IsInPhase(NORMAL));
 
-                _arthasGUID = 0;
+                _arthasGUID.Clear();
 
-                instance->SetGuidData(DATA_SACRIFICED_PLAYER, 0);
+                instance->SetGuidData(DATA_SACRIFICED_PLAYER, ObjectGuid::Empty);
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -181,7 +181,7 @@ class boss_svala : public CreatureScript
                     events.SetPhase(INTRO);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-                    if (GameObject* mirror = ObjectAccessor::GetGameObject(*me, DATA_UTGARDE_MIRROR))
+                    if (GameObject* mirror = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_UTGARDE_MIRROR)))
                         mirror->SetGoState(GO_STATE_READY);
 
                     if (Creature* arthas = me->SummonCreature(NPC_ARTHAS, ArthasPos, TEMPSUMMON_MANUAL_DESPAWN))
@@ -324,12 +324,12 @@ class boss_svala : public CreatureScript
                             break;
                         }
                         case EVENT_INTRO_DESPAWN_ARTHAS:
-                            if (GameObject* mirror = ObjectAccessor::GetGameObject(*me, DATA_UTGARDE_MIRROR))
+                            if (GameObject* mirror = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_UTGARDE_MIRROR)))
                                 mirror->SetGoState(GO_STATE_ACTIVE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             if (Creature* arthas = ObjectAccessor::GetCreature(*me, _arthasGUID))
                                 arthas->DespawnOrUnsummon();
-                            _arthasGUID = 0;
+                            _arthasGUID.Clear();
                             events.SetPhase(NORMAL);
                             _introCompleted = true;
                             events.ScheduleEvent(EVENT_SINISTER_STRIKE, 7 * IN_MILLISECONDS, 0, NORMAL);
@@ -378,7 +378,7 @@ class boss_svala : public CreatureScript
             }
 
         private:
-            uint64 _arthasGUID;
+            ObjectGuid _arthasGUID;
             bool _sacrificed;
             bool _introCompleted;
         };

@@ -101,7 +101,7 @@ class boss_emalon : public CreatureScript
             {
                 if (!summons.empty())
                 {
-                    for (std::list<uint64>::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
+                    for (SummonList::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
                     {
                         Creature* minion = ObjectAccessor::GetCreature(*me, *itr);
                         if (minion && minion->IsAlive() && !minion->GetVictim() && minion->AI())

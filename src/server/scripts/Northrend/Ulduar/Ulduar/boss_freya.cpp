@@ -226,7 +226,6 @@ class npc_iron_roots : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip
                 me->setFaction(14);
                 me->SetReactState(REACT_PASSIVE);
-                summonerGUID = 0;
             }
 
             void IsSummonedBy(Unit* summoner) override
@@ -251,7 +250,7 @@ class npc_iron_roots : public CreatureScript
             }
 
         private:
-            uint64 summonerGUID;
+            ObjectGuid summonerGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -269,7 +268,7 @@ class boss_freya : public CreatureScript
         {
             boss_freyaAI(Creature* creature) : BossAI(creature, BOSS_FREYA) { }
 
-            uint64 ElementalGUID[3][2];
+            ObjectGuid ElementalGUID[3][2];
 
             uint32 deforestation[6][2];
             uint32 elementalTimer[2];
@@ -294,7 +293,7 @@ class boss_freya : public CreatureScript
 
                 for (uint8 i = 0; i < 3; ++i)
                     for (uint8 n = 0; n < 2; ++n)
-                        ElementalGUID[i][n] = 0;
+                        ElementalGUID[i][n].Clear();
                 for (uint8 i = 0; i < 6; ++i)
                     for (uint8 n = 0; n < 2; ++n)
                         deforestation[i][n] = 0;
@@ -1544,17 +1543,17 @@ class spell_freya_attuned_to_nature_dose_reduction : public SpellScriptLoader
                     case SPELL_ATTUNED_TO_NATURE_2_DOSE_REDUCTION:
                         if (target->HasAura(GetEffectValue()))
                             for (uint8 n = 0; n < 2; ++n)
-                                target->RemoveAuraFromStack(GetEffectValue(), 0, AURA_REMOVE_BY_DEFAULT);
+                                target->RemoveAuraFromStack(GetEffectValue());
                         break;
                     case SPELL_ATTUNED_TO_NATURE_10_DOSE_REDUCTION:
                         if (target->HasAura(GetEffectValue()))
                             for (uint8 n = 0; n < 10; ++n)
-                                target->RemoveAuraFromStack(GetEffectValue(), 0, AURA_REMOVE_BY_DEFAULT);
+                                target->RemoveAuraFromStack(GetEffectValue());
                         break;
                     case SPELL_ATTUNED_TO_NATURE_25_DOSE_REDUCTION:
                         if (target->HasAura(GetEffectValue()))
                             for (uint8 n = 0; n < 25; ++n)
-                                target->RemoveAuraFromStack(GetEffectValue(), 0, AURA_REMOVE_BY_DEFAULT);
+                                target->RemoveAuraFromStack(GetEffectValue());
                         break;
                     default:
                         break;

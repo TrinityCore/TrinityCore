@@ -77,9 +77,9 @@ public:
 
         InstanceScript* instance;
 
-        uint64 uiFireMagusGUID;
-        uint64 uiFrostMagusGUID;
-        uint64 uiArcaneMagusGUID;
+        ObjectGuid uiFireMagusGUID;
+        ObjectGuid uiFrostMagusGUID;
+        ObjectGuid uiArcaneMagusGUID;
 
         bool bFireMagusDead;
         bool bFrostMagusDead;
@@ -105,9 +105,9 @@ public:
             uiGravityWellTimer = 15*IN_MILLISECONDS;
             uiCooldown = 0;
 
-            uiFireMagusGUID = 0;
-            uiFrostMagusGUID = 0;
-            uiArcaneMagusGUID = 0;
+            uiFireMagusGUID.Clear();
+            uiFrostMagusGUID.Clear();
+            uiArcaneMagusGUID.Clear();
 
             for (uint8 n = 0; n < 3; ++n)
                 time[n] = 0;
@@ -163,7 +163,7 @@ public:
             return 0;
         }
 
-        uint64 SplitPersonality(uint32 entry)
+        ObjectGuid SplitPersonality(uint32 entry)
         {
             if (Creature* Summoned = me->SummonCreature(entry, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILLISECONDS))
             {
@@ -189,7 +189,7 @@ public:
                     Summoned->AI()->AttackStart(target);
                 return Summoned->GetGUID();
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SummonedCreatureDespawn(Creature* summon) override
@@ -246,9 +246,9 @@ public:
                         Phase = 2;
                     if (Phase == 3)
                         Phase = 4;
-                    uiFireMagusGUID = 0;
-                    uiFrostMagusGUID = 0;
-                    uiArcaneMagusGUID = 0;
+                    uiFireMagusGUID.Clear();
+                    uiFrostMagusGUID.Clear();
+                    uiArcaneMagusGUID.Clear();
                     bIsWaitingToAppear = true;
                     uiIsWaitingToAppearTimer = 4*IN_MILLISECONDS;
                     Talk(SAY_MERGE);

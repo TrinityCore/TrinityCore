@@ -80,7 +80,7 @@ enum Misc
     MAX_FROST_RESISTANCE    = 100
 };
 
-typedef std::map<uint64, uint64> IceBlockMap;
+typedef std::map<ObjectGuid, ObjectGuid> IceBlockMap;
 
 class boss_sapphiron : public CreatureScript
 {
@@ -313,7 +313,7 @@ class boss_sapphiron : public CreatureScript
                                 {
                                     std::vector<Unit*>::const_iterator itr = targets.begin();
                                     advance(itr, rand32() % targets.size());
-                                    _iceblocks.insert(std::make_pair((*itr)->GetGUID(), 0));
+                                    _iceblocks.insert(std::make_pair((*itr)->GetGUID(), ObjectGuid::Empty));
                                     DoCast(*itr, SPELL_ICEBOLT);
                                     --_iceboltCount;
                                 }
