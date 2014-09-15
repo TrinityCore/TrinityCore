@@ -39,14 +39,8 @@ class instance_arcatraz : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
 
-                DalliahGUID       = 0;
-                SoccothratesGUID  = 0;
-                MellicharGUID     = 0;
-                WardensShieldGUID = 0;
-
                 ConversationState = NOT_STARTED;
 
-                memset(StasisPodGUIDs, 0, 5 * sizeof(uint64));
                 memset(StasisPodStates, NOT_STARTED, 5 * sizeof(uint8));
             }
 
@@ -166,7 +160,7 @@ class instance_arcatraz : public InstanceMapScript
                     default:
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -193,11 +187,11 @@ class instance_arcatraz : public InstanceMapScript
             }
 
         protected:
-            uint64 DalliahGUID;
-            uint64 SoccothratesGUID;
-            uint64 StasisPodGUIDs[5];
-            uint64 MellicharGUID;
-            uint64 WardensShieldGUID;
+            ObjectGuid DalliahGUID;
+            ObjectGuid SoccothratesGUID;
+            ObjectGuid StasisPodGUIDs[5];
+            ObjectGuid MellicharGUID;
+            ObjectGuid WardensShieldGUID;
 
             uint8 ConversationState;
             uint8 StasisPodStates[5];

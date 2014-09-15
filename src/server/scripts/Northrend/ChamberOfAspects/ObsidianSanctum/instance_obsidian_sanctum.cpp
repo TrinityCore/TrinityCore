@@ -35,10 +35,6 @@ public:
         void Initialize() override
         {
             SetHeaders(DataHeader);
-            sartharionGUID = 0;
-            tenebronGUID   = 0;
-            shadronGUID    = 0;
-            vesperonGUID   = 0;
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -96,14 +92,14 @@ public:
                 case DATA_VESPERON:
                     return vesperonGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
     protected:
-        uint64 sartharionGUID;
-        uint64 tenebronGUID;
-        uint64 shadronGUID;
-        uint64 vesperonGUID;
+        ObjectGuid sartharionGUID;
+        ObjectGuid tenebronGUID;
+        ObjectGuid shadronGUID;
+        ObjectGuid vesperonGUID;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

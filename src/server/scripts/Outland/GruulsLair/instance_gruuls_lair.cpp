@@ -48,8 +48,6 @@ class instance_gruuls_lair : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadMinionData(minionData);
-
-                MaulgarGUID = 0;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -121,11 +119,11 @@ class instance_gruuls_lair : public InstanceMapScript
                     default:
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
         protected:
-            uint64 MaulgarGUID;
+            ObjectGuid MaulgarGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

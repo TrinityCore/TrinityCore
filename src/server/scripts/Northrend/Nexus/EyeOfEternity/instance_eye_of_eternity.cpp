@@ -37,17 +37,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(MAX_ENCOUNTER);
-
-            vortexTriggers.clear();
-            portalTriggers.clear();
-
-            malygosGUID = 0;
-            irisGUID = 0;
-            lastPortalGUID = 0;
-            platformGUID = 0;
-            exitPortalGUID = 0;
-            alexstraszaBunnyGUID = 0;
-        };
+        }
 
         bool SetBossState(uint32 type, EncounterState state) override
         {
@@ -58,7 +48,7 @@ public:
             {
                 if (state == FAIL)
                 {
-                    for (std::list<uint64>::const_iterator itr_trigger = portalTriggers.begin(); itr_trigger != portalTriggers.end(); ++itr_trigger)
+                    for (GuidList::const_iterator itr_trigger = portalTriggers.begin(); itr_trigger != portalTriggers.end(); ++itr_trigger)
                     {
                         if (Creature* trigger = instance->GetCreature(*itr_trigger))
                         {
@@ -189,7 +179,7 @@ public:
             if (Creature* malygos = instance->GetCreature(malygosGUID))
             {
                 std::list<HostileReference*> m_threatlist = malygos->getThreatManager().getThreatList();
-                for (std::list<uint64>::const_iterator itr_vortex = vortexTriggers.begin(); itr_vortex != vortexTriggers.end(); ++itr_vortex)
+                for (GuidList::const_iterator itr_vortex = vortexTriggers.begin(); itr_vortex != vortexTriggers.end(); ++itr_vortex)
                 {
                     if (m_threatlist.empty())
                         return;
@@ -223,7 +213,7 @@ public:
         {
             bool next = (lastPortalGUID == portalTriggers.back() || !lastPortalGUID ? true : false);
 
-            for (std::list<uint64>::const_iterator itr_trigger = portalTriggers.begin(); itr_trigger != portalTriggers.end(); ++itr_trigger)
+            for (GuidList::const_iterator itr_trigger = portalTriggers.begin(); itr_trigger != portalTriggers.end(); ++itr_trigger)
             {
                 if (next)
                 {
@@ -276,20 +266,20 @@ public:
                     return giftBoxBunnyGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
     private:
-        std::list<uint64> vortexTriggers;
-        std::list<uint64> portalTriggers;
-        uint64 malygosGUID;
-        uint64 irisGUID;
-        uint64 lastPortalGUID;
-        uint64 platformGUID;
-        uint64 exitPortalGUID;
-        uint64 heartOfMagicGUID;
-        uint64 alexstraszaBunnyGUID;
-        uint64 giftBoxBunnyGUID;
+        GuidList vortexTriggers;
+        GuidList portalTriggers;
+        ObjectGuid malygosGUID;
+        ObjectGuid irisGUID;
+        ObjectGuid lastPortalGUID;
+        ObjectGuid platformGUID;
+        ObjectGuid exitPortalGUID;
+        ObjectGuid heartOfMagicGUID;
+        ObjectGuid alexstraszaBunnyGUID;
+        ObjectGuid giftBoxBunnyGUID;
         Position focusingIrisPosition;
         Position exitPortalPosition;
     };

@@ -124,7 +124,7 @@ class instance_scholomance : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool CheckPreBosses(uint32 bossId) const

@@ -173,7 +173,7 @@ class instance_magisters_terrace : public InstanceMapScript
                     default:
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
         protected:

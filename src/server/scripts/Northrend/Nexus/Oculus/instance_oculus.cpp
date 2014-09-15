@@ -44,20 +44,7 @@ class instance_oculus : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
 
-                DrakosGUID          = 0;
-                VarosGUID           = 0;
-                UromGUID            = 0;
-                EregosGUID          = 0;
-
                 CentrifugueConstructCounter = 0;
-
-                EregosCacheGUID     = 0;
-
-                GreaterWhelpList.clear();
-
-                BelgaristraszGUID   = 0;
-                EternosGUID         = 0;
-                VerdisaGUID         = 0;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -256,7 +243,7 @@ class instance_oculus : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void FreeDragons()
@@ -282,26 +269,26 @@ class instance_oculus : public InstanceMapScript
 
             void GreaterWhelps()
             {
-                for (uint64 guid : GreaterWhelpList)
+                for (ObjectGuid guid : GreaterWhelpList)
                     if (Creature* gwhelp = instance->GetCreature(guid))
                         gwhelp->SetPhaseMask(1, true);
             }
 
         protected:
-            uint64 DrakosGUID;
-            uint64 VarosGUID;
-            uint64 UromGUID;
-            uint64 EregosGUID;
+            ObjectGuid DrakosGUID;
+            ObjectGuid VarosGUID;
+            ObjectGuid UromGUID;
+            ObjectGuid EregosGUID;
 
-            uint64 BelgaristraszGUID;
-            uint64 EternosGUID;
-            uint64 VerdisaGUID;
+            ObjectGuid BelgaristraszGUID;
+            ObjectGuid EternosGUID;
+            ObjectGuid VerdisaGUID;
 
             uint8 CentrifugueConstructCounter;
 
-            uint64 EregosCacheGUID;
+            ObjectGuid EregosCacheGUID;
 
-            std::list<uint64> GreaterWhelpList;
+            GuidList GreaterWhelpList;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

@@ -359,7 +359,7 @@ public:
                 default:
                     break;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void Update(uint32 diff) override

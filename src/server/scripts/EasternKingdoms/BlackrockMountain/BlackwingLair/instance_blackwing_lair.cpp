@@ -161,7 +161,7 @@ public:
                     HandleGameObject(RazorgoreDoorGUID, state == DONE);
                     if (state == DONE)
                     {
-                        for (std::list<uint64>::const_iterator itr = EggList.begin(); itr != EggList.end(); ++itr)
+                        for (GuidList::const_iterator itr = EggList.begin(); itr != EggList.end(); ++itr)
                             if (GameObject* egg = instance->GetGameObject((*itr)))
                                 egg->SetPhaseMask(2, true);
                     }
@@ -215,7 +215,7 @@ public:
                 case DATA_NEFARIAN:               return NefarianGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data) override

@@ -45,11 +45,6 @@ class instance_utgarde_keep : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadMinionData(minionData);
-
-                PrinceKelesethGUID  = 0;
-                SkarvaldGUID        = 0;
-                DalronnGUID         = 0;
-                IngvarGUID          = 0;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -166,7 +161,7 @@ class instance_utgarde_keep : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void SetData(uint32 type, uint32 data) override
@@ -207,10 +202,10 @@ class instance_utgarde_keep : public InstanceMapScript
         protected:
             ForgeInfo Forges[3];
 
-            uint64 PrinceKelesethGUID;
-            uint64 SkarvaldGUID;
-            uint64 DalronnGUID;
-            uint64 IngvarGUID;
+            ObjectGuid PrinceKelesethGUID;
+            ObjectGuid SkarvaldGUID;
+            ObjectGuid DalronnGUID;
+            ObjectGuid IngvarGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

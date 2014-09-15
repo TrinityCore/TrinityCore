@@ -56,28 +56,28 @@ public:
 
         uint32 timer;
         uint32 phase;
-        uint64 toActivate;
+        ObjectGuid toActivate;
 
-        uint64 sladRanGUID;
-        uint64 moorabiGUID;
-        uint64 drakkariColossusGUID;
-        uint64 galDarahGUID;
-        uint64 eckTheFerociousGUID;
+        ObjectGuid sladRanGUID;
+        ObjectGuid moorabiGUID;
+        ObjectGuid drakkariColossusGUID;
+        ObjectGuid galDarahGUID;
+        ObjectGuid eckTheFerociousGUID;
 
-        uint64 sladRanAltarGUID;
-        uint64 moorabiAltarGUID;
-        uint64 drakkariColossusAltarGUID;
-        uint64 sladRanStatueGUID;
-        uint64 moorabiStatueGUID;
-        uint64 drakkariColossusStatueGUID;
-        uint64 galDarahStatueGUID;
-        uint64 eckTheFerociousDoorGUID;
-        uint64 eckTheFerociousDoorBehindGUID;
-        uint64 galDarahDoor1GUID;
-        uint64 galDarahDoor2GUID;
-        uint64 galDarahDoor3GUID;
-        uint64 bridgeGUID;
-        uint64 collisionGUID;
+        ObjectGuid sladRanAltarGUID;
+        ObjectGuid moorabiAltarGUID;
+        ObjectGuid drakkariColossusAltarGUID;
+        ObjectGuid sladRanStatueGUID;
+        ObjectGuid moorabiStatueGUID;
+        ObjectGuid drakkariColossusStatueGUID;
+        ObjectGuid galDarahStatueGUID;
+        ObjectGuid eckTheFerociousDoorGUID;
+        ObjectGuid eckTheFerociousDoorBehindGUID;
+        ObjectGuid galDarahDoor1GUID;
+        ObjectGuid galDarahDoor2GUID;
+        ObjectGuid galDarahDoor3GUID;
+        ObjectGuid bridgeGUID;
+        ObjectGuid collisionGUID;
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -88,7 +88,7 @@ public:
         GOState bridgeState;
         GOState collisionState;
 
-        std::set<uint64> DwellerGUIDs;
+        GuidSet DwellerGUIDs;
 
         std::string str_data;
 
@@ -98,31 +98,6 @@ public:
 
             timer = 0;
             phase = 0;
-            toActivate = 0;
-
-            sladRanGUID = 0;
-            moorabiGUID = 0;
-            drakkariColossusGUID = 0;
-            galDarahGUID = 0;
-            eckTheFerociousGUID = 0;
-
-            sladRanAltarGUID = 0;
-            moorabiAltarGUID = 0;
-            drakkariColossusAltarGUID = 0;
-
-            sladRanStatueGUID = 0;
-            moorabiStatueGUID = 0;
-            drakkariColossusStatueGUID = 0;
-            galDarahStatueGUID = 0;
-
-            eckTheFerociousDoorGUID = 0;
-            eckTheFerociousDoorBehindGUID = 0;
-            galDarahDoor1GUID = 0;
-            galDarahDoor2GUID = 0;
-            galDarahDoor3GUID = 0;
-
-            bridgeGUID = 0;
-            collisionGUID = 0;
 
             sladRanStatueState = GO_STATE_ACTIVE;
             moorabiStatueState = GO_STATE_ACTIVE;
@@ -130,8 +105,6 @@ public:
             galDarahStatueState = GO_STATE_READY;
             bridgeState = GO_STATE_ACTIVE;
             collisionState = GO_STATE_READY;
-
-            DwellerGUIDs.clear();
 
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
         }
@@ -391,7 +364,7 @@ public:
                     return toActivate;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData() override
@@ -476,7 +449,7 @@ public:
                      GameObject* drakkariColossusStatue = instance->GetGameObject(drakkariColossusStatueGUID);
                      GameObject* galDarahStatue = instance->GetGameObject(galDarahStatueGUID);
 
-                     toActivate = 0;
+                     toActivate.Clear();
 
                      if (bridge && collision && sladRanStatue && moorabiStatue && drakkariColossusStatue && galDarahStatue)
                      {
@@ -525,7 +498,7 @@ public:
                      if (GameObject* statueGO = instance->GetGameObject(toActivate))
                          statueGO->SetGoState(GO_STATE_READY);
 
-                     toActivate = 0;
+                     toActivate.Clear();
 
                      if (phase == 3)
                          SetGuidData(DATA_STATUE_ACTIVATE, bridgeGUID);
@@ -537,7 +510,7 @@ public:
                 timer -= diff;
         }
 
-         GOState GetObjState(uint64 guid)
+         GOState GetObjState(ObjectGuid guid)
          {
              if (GameObject* go = instance->GetGameObject(guid))
                  return go->GetGoState();
@@ -555,7 +528,7 @@ public:
     bool OnGossipHello(Player* /*player*/, GameObject* go) override
     {
         InstanceScript* instance = go->GetInstanceScript();
-        uint64 statueGUID = 0;
+        ObjectGuid statueGUID;
 
         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
         go->SetGoState(GO_STATE_ACTIVE);

@@ -114,35 +114,35 @@ public:
     {
         instance_violet_hold_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
-        uint64 uiMoragg;
-        uint64 uiErekem;
-        uint64 uiErekemGuard[2];
-        uint64 uiIchoron;
-        uint64 uiLavanthor;
-        uint64 uiXevozz;
-        uint64 uiZuramat;
-        uint64 uiCyanigosa;
-        uint64 uiSinclari;
+        ObjectGuid uiMoragg;
+        ObjectGuid uiErekem;
+        ObjectGuid uiErekemGuard[2];
+        ObjectGuid uiIchoron;
+        ObjectGuid uiLavanthor;
+        ObjectGuid uiXevozz;
+        ObjectGuid uiZuramat;
+        ObjectGuid uiCyanigosa;
+        ObjectGuid uiSinclari;
 
-        uint64 uiMoraggCell;
-        uint64 uiErekemCell;
-        uint64 uiErekemLeftGuardCell;
-        uint64 uiErekemRightGuardCell;
-        uint64 uiIchoronCell;
-        uint64 uiLavanthorCell;
-        uint64 uiXevozzCell;
-        uint64 uiZuramatCell;
-        uint64 uiMainDoor;
-        uint64 uiTeleportationPortal;
-        uint64 uiSaboteurPortal;
+        ObjectGuid uiMoraggCell;
+        ObjectGuid uiErekemCell;
+        ObjectGuid uiErekemLeftGuardCell;
+        ObjectGuid uiErekemRightGuardCell;
+        ObjectGuid uiIchoronCell;
+        ObjectGuid uiLavanthorCell;
+        ObjectGuid uiXevozzCell;
+        ObjectGuid uiZuramatCell;
+        ObjectGuid uiMainDoor;
+        ObjectGuid uiTeleportationPortal;
+        ObjectGuid uiSaboteurPortal;
 
-        uint64 uiActivationCrystal[4];
+        ObjectGuid uiActivationCrystal[4];
 
         uint32 uiActivationTimer;
         uint32 uiCyanigosaEventTimer;
         uint32 uiDoorSpellTimer;
 
-        std::set<uint64> trashMobs; // to kill with crystal
+        GuidSet trashMobs; // to kill with crystal
 
         uint8 uiWaveCount;
         uint8 uiLocation;
@@ -171,28 +171,6 @@ public:
         void Initialize() override
         {
             SetHeaders(DataHeader);
-            uiMoragg = 0;
-            uiErekem = 0;
-            uiIchoron = 0;
-            uiLavanthor = 0;
-            uiXevozz = 0;
-            uiZuramat = 0;
-            uiCyanigosa = 0;
-            uiSinclari = 0;
-
-            uiMoraggCell = 0;
-            uiErekemCell = 0;
-            uiErekemGuard[0] = 0;
-            uiErekemGuard[1] = 0;
-            uiIchoronCell = 0;
-            uiLavanthorCell = 0;
-            uiXevozzCell = 0;
-            uiZuramatCell = 0;
-            uiMainDoor = 0;
-            uiTeleportationPortal = 0;
-            uiSaboteurPortal = 0;
-
-            trashMobs.clear();
 
             uiRemoveNpc = 0;
 
@@ -471,7 +449,7 @@ public:
                 case DATA_SABOTEUR_PORTAL:          return uiSaboteurPortal;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SpawnPortal()
@@ -817,7 +795,7 @@ public:
             trigger->CastSpell(trigger, spellInfoLightning, true, 0, 0, trigger->GetGUID());
 
             // Kill all mobs registered with SetGuidData(ADD_TRASH_MOB)
-            for (std::set<uint64>::const_iterator itr = trashMobs.begin(); itr != trashMobs.end(); ++itr)
+            for (GuidSet::const_iterator itr = trashMobs.begin(); itr != trashMobs.end(); ++itr)
             {
                 Creature* creature = instance->GetCreature(*itr);
                 if (creature && creature->IsAlive())

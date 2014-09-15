@@ -62,18 +62,6 @@ public:
             SetHeaders(DataHeader);
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-            m_uiAncientGemGUID.clear();
-
-            RageWinterchill    = 0;
-            Anetheron          = 0;
-            Kazrogal           = 0;
-            Azgalor            = 0;
-            Archimonde         = 0;
-            JainaProudmoore    = 0;
-            Thrall             = 0;
-            TyrandeWhisperwind = 0;
-            HordeGate          = 0;
-            ElfGate            = 0;
             RaidDamage         = 0;
             Trash              = 0;
             hordeRetreat       = 0;
@@ -144,7 +132,7 @@ public:
                 case DATA_TYRANDEWHISPERWIND: return TyrandeWhisperwind;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data) override
@@ -219,7 +207,7 @@ public:
                     {
                         if (!m_uiAncientGemGUID.empty())
                         {
-                            for (std::list<uint64>::const_iterator itr = m_uiAncientGemGUID.begin(); itr != m_uiAncientGemGUID.end(); ++itr)
+                            for (GuidList::const_iterator itr = m_uiAncientGemGUID.begin(); itr != m_uiAncientGemGUID.end(); ++itr)
                             {
                                 //don't know how long it expected
                                 DoRespawnGameObject(*itr, DAY);
@@ -309,17 +297,17 @@ public:
         protected:
             uint32 m_auiEncounter[EncounterCount];
             std::string str_data;
-            std::list<uint64> m_uiAncientGemGUID;
-            uint64 RageWinterchill;
-            uint64 Anetheron;
-            uint64 Kazrogal;
-            uint64 Azgalor;
-            uint64 Archimonde;
-            uint64 JainaProudmoore;
-            uint64 Thrall;
-            uint64 TyrandeWhisperwind;
-            uint64 HordeGate;
-            uint64 ElfGate;
+            GuidList m_uiAncientGemGUID;
+            ObjectGuid RageWinterchill;
+            ObjectGuid Anetheron;
+            ObjectGuid Kazrogal;
+            ObjectGuid Azgalor;
+            ObjectGuid Archimonde;
+            ObjectGuid JainaProudmoore;
+            ObjectGuid Thrall;
+            ObjectGuid TyrandeWhisperwind;
+            ObjectGuid HordeGate;
+            ObjectGuid ElfGate;
             uint32 Trash;
             uint32 hordeRetreat;
             uint32 allianceRetreat;
