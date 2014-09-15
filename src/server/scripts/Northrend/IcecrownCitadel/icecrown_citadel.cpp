@@ -390,9 +390,9 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
 
             void Initialize()
             {
-                _theLichKing = 0;
-                _bolvarFordragon = 0;
-                _factionNPC = 0;
+                _theLichKing.Clear();
+                _bolvarFordragon.Clear();
+                _factionNPC.Clear();
                 _damnedKills = 0;
             }
 
@@ -581,9 +581,9 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
         private:
             EventMap _events;
             InstanceScript* const _instance;
-            uint64 _theLichKing;
-            uint64 _bolvarFordragon;
-            uint64 _factionNPC;
+            ObjectGuid _theLichKing;
+            ObjectGuid _bolvarFordragon;
+            ObjectGuid _factionNPC;
             uint16 _damnedKills;
         };
 
@@ -1206,7 +1206,7 @@ class npc_crok_scourgebane : public CreatureScript
 
         private:
             EventMap _events;
-            std::set<uint64> _aliveTrash;
+            GuidSet _aliveTrash;
             InstanceScript* _instance;
             uint32 _currentWPid;
             uint32 _wipeCheckTimer;

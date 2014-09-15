@@ -347,8 +347,6 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
             npc_jaina_or_sylvanas_intro_horAI(Creature* creature) : ScriptedAI(creature)
             {
                 _instance = me->GetInstanceScript();
-                _utherGUID = 0;
-                _lichkingGUID = 0;
             }
 
             void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
@@ -376,8 +374,8 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
             {
                 _events.Reset();
 
-                _utherGUID = 0;
-                _lichkingGUID = 0;
+                _utherGUID.Clear();
+                _lichkingGUID.Clear();
 
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -627,7 +625,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                         {
                             uther->CastSpell(uther, SPELL_UTHER_DESPAWN, true);
                             uther->DespawnOrUnsummon(5000);
-                            _utherGUID = 0;
+                            _utherGUID.Clear();
                         }
                         _events.ScheduleEvent(EVENT_INTRO_LK_4, 9000);
                         break;
@@ -719,7 +717,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                         if (Creature* lichking = ObjectAccessor::GetCreature(*me, _lichkingGUID))
                         {
                             lichking->DespawnOrUnsummon(5000);
-                            _lichkingGUID = 0;
+                            _lichkingGUID.Clear();
                         }
                         me->DespawnOrUnsummon(10000);
                         _events.ScheduleEvent(EVENT_CLOSE_IMPENETRABLE_DOOR, 7000);
@@ -762,8 +760,8 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
         private:
             InstanceScript* _instance;
             EventMap _events;
-            uint64 _utherGUID;
-            uint64 _lichkingGUID;
+            ObjectGuid _utherGUID;
+            ObjectGuid _lichkingGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -933,7 +931,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                 }
             }
 
-            void DeleteAllFromThreatList(Unit* target, uint64 except)
+            void DeleteAllFromThreatList(Unit* target, ObjectGuid except)
             {
                 ThreatContainer::StorageType threatlist = target->getThreatManager().getThreatList();
                 for (auto i : threatlist)

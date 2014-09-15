@@ -94,39 +94,39 @@ class instance_utgarde_keep : public InstanceMapScript
                 {
                     case GO_BELLOW_1:
                         Forges[0].BellowGUID = go->GetGUID();
-                        HandleGameObject(0, Forges[0].Event != NOT_STARTED, go);
+                        HandleGameObject(ObjectGuid::Empty, Forges[0].Event != NOT_STARTED, go);
                         break;
                     case GO_BELLOW_2:
                         Forges[1].BellowGUID = go->GetGUID();
-                        HandleGameObject(0, Forges[1].Event != NOT_STARTED, go);
+                        HandleGameObject(ObjectGuid::Empty, Forges[1].Event != NOT_STARTED, go);
                         break;
                     case GO_BELLOW_3:
                         Forges[2].BellowGUID = go->GetGUID();
-                        HandleGameObject(0, Forges[2].Event != NOT_STARTED, go);
+                        HandleGameObject(ObjectGuid::Empty, Forges[2].Event != NOT_STARTED, go);
                         break;
                     case GO_FORGEFIRE_1:
                         Forges[0].FireGUID = go->GetGUID();
-                        HandleGameObject(0, Forges[0].Event != NOT_STARTED, go);
+                        HandleGameObject(ObjectGuid::Empty, Forges[0].Event != NOT_STARTED, go);
                         break;
                     case GO_FORGEFIRE_2:
                         Forges[1].FireGUID = go->GetGUID();
-                        HandleGameObject(0, Forges[1].Event != NOT_STARTED, go);
+                        HandleGameObject(ObjectGuid::Empty, Forges[1].Event != NOT_STARTED, go);
                         break;
                     case GO_FORGEFIRE_3:
                         Forges[2].FireGUID = go->GetGUID();
-                        HandleGameObject(0, Forges[2].Event != NOT_STARTED, go);
+                        HandleGameObject(ObjectGuid::Empty, Forges[2].Event != NOT_STARTED, go);
                         break;
                     case GO_GLOWING_ANVIL_1:
                         Forges[0].AnvilGUID = go->GetGUID();
-                        HandleGameObject(0, Forges[0].Event != NOT_STARTED, go);
+                        HandleGameObject(ObjectGuid::Empty, Forges[0].Event != NOT_STARTED, go);
                         break;
                     case GO_GLOWING_ANVIL_2:
                         Forges[1].AnvilGUID = go->GetGUID();
-                        HandleGameObject(0, Forges[1].Event != NOT_STARTED, go);
+                        HandleGameObject(ObjectGuid::Empty, Forges[1].Event != NOT_STARTED, go);
                         break;
                     case GO_GLOWING_ANVIL_3:
                         Forges[2].AnvilGUID = go->GetGUID();
-                        HandleGameObject(0, Forges[2].Event != NOT_STARTED, go);
+                        HandleGameObject(ObjectGuid::Empty, Forges[2].Event != NOT_STARTED, go);
                         break;
                     case GO_GIANT_PORTCULLIS_1:
                     case GO_GIANT_PORTCULLIS_2:

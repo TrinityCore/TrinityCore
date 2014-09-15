@@ -90,7 +90,7 @@ class instance_ahnkahet : public InstanceMapScript
                     case GO_PRINCE_TALDARAM_PLATFORM:
                         PrinceTaldaramPlatformGUID = go->GetGUID();
                         if (GetBossState(DATA_PRINCE_TALDARAM) == DONE)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case GO_SPHERE_1:
                         if (SpheresState[0])
