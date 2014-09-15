@@ -107,8 +107,8 @@ public:
             if (!bFirstTime)
                 instance->SetBossState(DATA_JEDOGA_SHADOWSEEKER, FAIL);
 
-            instance->SetGuidData(DATA_PL_JEDOGA_TARGET, 0);
-            instance->SetGuidData(DATA_ADD_JEDOGA_OPFER, 0);
+            instance->SetGuidData(DATA_PL_JEDOGA_TARGET, ObjectGuid::Empty);
+            instance->SetGuidData(DATA_ADD_JEDOGA_OPFER, ObjectGuid::Empty);
             instance->SetData(DATA_JEDOGA_RESET_INITIANDS, 0);
             MoveUp();
 
@@ -248,13 +248,14 @@ public:
 
         void OpferRufen()
         {
-            uint64 opfer = instance->GetGuidData(DATA_ADD_JEDOGA_INITIAND);
+            ObjectGuid opfer = instance->GetGuidData(DATA_ADD_JEDOGA_INITIAND);
 
             if (opfer)
             {
                 Talk(TEXT_SACRIFICE_1);
                 instance->SetGuidData(DATA_ADD_JEDOGA_OPFER, opfer);
-            } else
+            }
+            else
                 bCanDown = true;
         }
 
@@ -389,7 +390,7 @@ public:
                         boss->AI()->DoAction(ACTION_INITIAND_KILLED);
                 }
 
-                instance->SetGuidData(DATA_ADD_JEDOGA_OPFER, 0);
+                instance->SetGuidData(DATA_ADD_JEDOGA_OPFER, ObjectGuid::Empty);
 
                 bWalking = false;
             }

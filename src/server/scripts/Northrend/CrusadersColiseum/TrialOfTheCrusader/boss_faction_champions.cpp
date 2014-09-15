@@ -483,7 +483,7 @@ class boss_toc_champion_controller : public CreatureScript
                         SummonChampions((Team)uiData);
                         break;
                     case 1:
-                        for (std::list<uint64>::iterator i = _summons.begin(); i != _summons.end(); ++i)
+                        for (SummonList::iterator i = _summons.begin(); i != _summons.end(); ++i)
                         {
                             if (Creature* temp = ObjectAccessor::GetCreature(*me, *i))
                             {

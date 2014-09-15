@@ -299,7 +299,7 @@ class boss_rimefang : public CreatureScript
             void Initialize()
             {
                 _currentWaypoint = 0;
-                _hoarfrostTargetGUID = 0;
+                _hoarfrostTargetGUID.Clear();
             }
 
             void Reset() override
@@ -366,7 +366,7 @@ class boss_rimefang : public CreatureScript
                             if (Unit* target = ObjectAccessor::GetUnit(*me, _hoarfrostTargetGUID))
                             {
                                 DoCast(target, SPELL_HOARFROST);
-                                _hoarfrostTargetGUID = 0;
+                                _hoarfrostTargetGUID.Clear();
                             }
                             break;
                         default:
@@ -377,7 +377,7 @@ class boss_rimefang : public CreatureScript
 
         private:
             Vehicle* _vehicle;
-            uint64 _hoarfrostTargetGUID;
+            ObjectGuid _hoarfrostTargetGUID;
             EventMap _events;
             uint8 _currentWaypoint;
         };
@@ -391,7 +391,7 @@ class boss_rimefang : public CreatureScript
 class player_overlord_brandAI : public PlayerAI
 {
     public:
-        player_overlord_brandAI(Player* player, uint64 casterGUID) : PlayerAI(player), _tyrannusGUID(casterGUID) { }
+        player_overlord_brandAI(Player* player, ObjectGuid casterGUID) : PlayerAI(player), _tyrannusGUID(casterGUID) { }
 
         void DamageDealt(Unit* /*victim*/, uint32& damage, DamageEffectType /*damageType*/) override
         {
@@ -409,7 +409,7 @@ class player_overlord_brandAI : public PlayerAI
         void UpdateAI(uint32 /*diff*/) override { }
 
     private:
-        uint64 _tyrannusGUID;
+        ObjectGuid _tyrannusGUID;
 };
 
 class spell_tyrannus_overlord_brand : public SpellScriptLoader

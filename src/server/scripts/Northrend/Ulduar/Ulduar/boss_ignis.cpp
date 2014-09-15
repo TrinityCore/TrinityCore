@@ -140,7 +140,7 @@ class boss_ignis : public CreatureScript
                 events.ScheduleEvent(EVENT_CONSTRUCT, 15000);
                 events.ScheduleEvent(EVENT_END_POT, 40000);
                 events.ScheduleEvent(EVENT_BERSERK, 480000);
-                _slagPotGUID = 0;
+                _slagPotGUID.Clear();
                 _shattered = false;
                 _firstConstructKill = 0;
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEVEMENT_IGNIS_START_EVENT);
@@ -245,7 +245,7 @@ class boss_ignis : public CreatureScript
                             {
                                 slagPotTarget->ExitVehicle();
                                 slagPotTarget = NULL;
-                                _slagPotGUID = 0;
+                                _slagPotGUID.Clear();
                                 events.CancelEvent(EVENT_END_POT);
                             }
                             break;
@@ -276,7 +276,7 @@ class boss_ignis : public CreatureScript
             }
 
         private:
-            uint64 _slagPotGUID;
+            ObjectGuid _slagPotGUID;
             Vehicle* _vehicle;
             time_t _firstConstructKill;
             bool _shattered;
@@ -370,7 +370,6 @@ class npc_scorch_ground : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* who) override
-
             {
                 if (!_heat)
                 {
@@ -389,7 +388,7 @@ class npc_scorch_ground : public CreatureScript
             {
                 _heat = false;
                 DoCast(me, SPELL_GROUND);
-                _constructGUID = 0;
+                _constructGUID.Clear();
                 _heatTimer = 0;
             }
 
@@ -412,7 +411,7 @@ class npc_scorch_ground : public CreatureScript
             }
 
         private:
-            uint64 _constructGUID;
+            ObjectGuid _constructGUID;
             uint32 _heatTimer;
             bool _heat;
         };

@@ -95,12 +95,12 @@ class boss_ossirian : public CreatureScript
             void Initialize()
             {
                 CrystalIterator = 0;
-                TriggerGUID = 0;
-                CrystalGUID = 0;
+                TriggerGUID.Clear();
+                CrystalGUID.Clear();
             }
 
-            uint64 TriggerGUID;
-            uint64 CrystalGUID;
+            ObjectGuid TriggerGUID;
+            ObjectGuid CrystalGUID;
             uint8 CrystalIterator;
             bool SaidIntro;
 

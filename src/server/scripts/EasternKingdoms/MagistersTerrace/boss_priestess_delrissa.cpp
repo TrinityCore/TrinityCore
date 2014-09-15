@@ -360,7 +360,6 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
     {
         Initialize();
         instance = creature->GetInstanceScript();
-        memset(&m_auiLackeyGUIDs, 0, sizeof(m_auiLackeyGUIDs));
         AcquireGUIDs();
     }
 
@@ -377,7 +376,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
 
     InstanceScript* instance;
 
-    uint64 m_auiLackeyGUIDs[MAX_ACTIVE_LACKEY];
+    ObjectGuid m_auiLackeyGUIDs[MAX_ACTIVE_LACKEY];
     uint32 ResetThreatTimer;
 
     bool UsedPotion;

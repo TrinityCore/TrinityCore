@@ -250,11 +250,11 @@ public:
 
         void Initialize()
         {
-            DorotheeGUID = 0;
+            DorotheeGUID.Clear();
             YipTimer = 10000;
         }
 
-        uint64 DorotheeGUID;
+        ObjectGuid DorotheeGUID;
         uint32 YipTimer;
 
         void Reset() override
@@ -868,7 +868,7 @@ public:
             FearTimer = urand(25000, 35000);
             SwipeTimer = 5000;
 
-            HoodGUID = 0;
+            HoodGUID.Clear();
             TempThreat = 0;
 
             IsChasing = false;
@@ -880,7 +880,7 @@ public:
         uint32 FearTimer;
         uint32 SwipeTimer;
 
-        uint64 HoodGUID;
+        ObjectGuid HoodGUID;
         float TempThreat;
 
         bool IsChasing;
@@ -947,7 +947,7 @@ public:
 
                     if (Unit* target = ObjectAccessor::GetUnit(*me, HoodGUID))
                     {
-                        HoodGUID = 0;
+                        HoodGUID.Clear();
                         if (DoGetThreat(target))
                             DoModifyThreatPercent(target, -100);
                         me->AddThreat(target, TempThreat);
@@ -1073,7 +1073,7 @@ public:
 
         void Initialize()
         {
-            RomuloGUID = 0;
+            RomuloGUID.Clear();
             Phase = PHASE_JULIANNE;
 
             BlindingPassionTimer = 30000;
@@ -1093,7 +1093,7 @@ public:
         uint32 EntryYellTimer;
         uint32 AggroYellTimer;
 
-        uint64 RomuloGUID;
+        ObjectGuid RomuloGUID;
 
         uint32 Phase;
 
@@ -1197,7 +1197,7 @@ public:
 
         void Initialize()
         {
-            JulianneGUID = 0;
+            JulianneGUID.Clear();
             Phase = PHASE_ROMULO;
 
             BackwardLungeTimer = 15000;
@@ -1212,7 +1212,7 @@ public:
 
         InstanceScript* instance;
 
-        uint64 JulianneGUID;
+        ObjectGuid JulianneGUID;
         uint32 Phase;
 
         uint32 EntryYellTimer;

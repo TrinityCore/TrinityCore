@@ -138,8 +138,8 @@ public:
         uint32 m_uiHealthAmountModifier;
         uint32 m_uiHealthAmountMultipler;
 
-        uint64 m_uiActivedCreatureGUID;
-        uint64 m_uiOrbGUID;
+        ObjectGuid m_uiActivedCreatureGUID;
+        ObjectGuid m_uiOrbGUID;
 
         void Reset() override
         {
@@ -167,8 +167,8 @@ public:
             m_uiHealthAmountModifier = 1;
             m_uiHealthAmountMultipler = DUNGEON_MODE(20, 25);
 
-            m_uiActivedCreatureGUID = 0;
-            m_uiOrbGUID = 0;
+            m_uiActivedCreatureGUID.Clear();
+            m_uiOrbGUID.Clear();
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -361,13 +361,13 @@ public:
                 Talk(SAY_SLAY);
         }
 
-        void DespawnBoatGhosts(uint64& m_uiCreatureGUID)
+        void DespawnBoatGhosts(ObjectGuid& m_uiCreatureGUID)
         {
             if (m_uiCreatureGUID)
                 if (Creature* temp = ObjectAccessor::GetCreature(*me, m_uiCreatureGUID))
                     temp->DisappearAndDie();
 
-            m_uiCreatureGUID = 0;
+            m_uiCreatureGUID.Clear();
         }
     };
 

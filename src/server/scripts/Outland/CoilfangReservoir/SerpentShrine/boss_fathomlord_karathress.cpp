@@ -112,9 +112,6 @@ public:
         boss_fathomlord_karathressAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            Advisors[0] = 0;
-            Advisors[1] = 0;
-            Advisors[2] = 0;
         }
 
         InstanceScript* instance;
@@ -125,7 +122,7 @@ public:
 
         bool BlessingOfTides;
 
-        uint64 Advisors[MAX_ADVISORS];
+        ObjectGuid Advisors[MAX_ADVISORS];
 
         void Reset() override
         {
@@ -135,7 +132,7 @@ public:
 
             BlessingOfTides = false;
 
-            uint64 RAdvisors[MAX_ADVISORS];
+            ObjectGuid RAdvisors[MAX_ADVISORS];
             RAdvisors[0] = instance->GetGuidData(DATA_SHARKKIS);
             RAdvisors[1] = instance->GetGuidData(DATA_TIDALVESS);
             RAdvisors[2] = instance->GetGuidData(DATA_CARIBDIS);
@@ -308,7 +305,6 @@ public:
         boss_fathomguard_sharkkisAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            SummonedPet = 0;
         }
 
         InstanceScript* instance;
@@ -320,7 +316,7 @@ public:
 
         bool pet;
 
-        uint64 SummonedPet;
+        ObjectGuid SummonedPet;
 
         void Reset() override
         {
@@ -335,7 +331,7 @@ public:
             if (Pet && Pet->IsAlive())
                 Pet->DealDamage(Pet, Pet->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 
-            SummonedPet = 0;
+            SummonedPet.Clear();
 
             instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
         }
@@ -515,7 +511,7 @@ public:
             if (Spitfire_Timer <= diff)
             {
                 DoCast(me, SPELL_SPITFIRE_TOTEM);
-                if (Unit* SpitfireTotem = ObjectAccessor::GetUnit(*me, CREATURE_SPITFIRE_TOTEM))
+                if (Unit* SpitfireTotem = me->FindNearestCreature(CREATURE_SPITFIRE_TOTEM, 100.0f))
                     SpitfireTotem->ToCreature()->AI()->AttackStart(me->GetVictim());
 
                 Spitfire_Timer = 60000;

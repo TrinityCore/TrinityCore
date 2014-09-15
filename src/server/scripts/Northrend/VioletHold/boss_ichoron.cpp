@@ -221,7 +221,7 @@ public:
                 {
                     if (!bIsExploded)
                     {
-                        if (!me->HasAura(SPELL_PROTECTIVE_BUBBLE, 0))
+                        if (!me->HasAura(SPELL_PROTECTIVE_BUBBLE))
                         {
                             Talk(SAY_SHATTER);
                             DoCast(me, SPELL_WATER_BLAST);
@@ -241,7 +241,7 @@ public:
                         bool bIsWaterElementsAlive = false;
                         if (!m_waterElements.empty())
                         {
-                            for (std::list<uint64>::const_iterator itr = m_waterElements.begin(); itr != m_waterElements.end(); ++itr)
+                            for (SummonList::const_iterator itr = m_waterElements.begin(); itr != m_waterElements.end(); ++itr)
                                 if (Creature* temp = ObjectAccessor::GetCreature(*me, *itr))
                                     if (temp->IsAlive())
                                     {

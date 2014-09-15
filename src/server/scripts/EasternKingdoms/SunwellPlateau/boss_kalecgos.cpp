@@ -115,7 +115,7 @@ public:
 
         void Initialize()
         {
-            SathGUID = 0;
+            SathGUID.Clear();
             ArcaneBuffetTimer = 8000;
             FrostBreathTimer = 15000;
             WildMagicTimer = 10000;
@@ -148,7 +148,7 @@ public:
         bool isBanished;
         bool bJustReset;
 
-        uint64 SathGUID;
+        ObjectGuid SathGUID;
 
         void Reset() override
         {
@@ -456,7 +456,7 @@ public:
         uint32 YellTimer;
         uint32 YellSequence;
 
-        uint64 SathGUID;
+        ObjectGuid SathGUID;
 
         bool isEnraged; // if demon is enraged
 
@@ -464,7 +464,6 @@ public:
         {
             Initialize();
             instance = creature->GetInstanceScript();
-            SathGUID = 0;
         }
 
         void Initialize()
