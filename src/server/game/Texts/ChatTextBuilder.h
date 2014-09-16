@@ -23,26 +23,31 @@
 
 namespace Trinity
 {
+    // Unit Text Builder
     class BroadcastTextBuilder
     {
         public:
             BroadcastTextBuilder(Unit const* obj, ChatMsg msgType, uint32 textId, WorldObject const* target = nullptr, uint32 achievementId = 0)
                 : _source(obj), _msgType(msgType), _textId(textId), _target(target), _achievementId(achievementId) { }
 
+            BroadcastTextBuilder(GameObject const* obj, ChatMsg msgType, uint32 textId, WorldObject const* target = nullptr, uint32 achievementId = 0)
+                : _source(obj), _msgType(msgType), _textId(textId), _target(target), _achievementId(achievementId) { }
+
+            // Note, Broadcasttexts for GameObjects have the same text for both genders. Thus, we force GENDER_MALE
             void operator()(WorldPacket& data, LocaleConstant locale)
             {
                 BroadcastText const* bct = sObjectMgr->GetBroadcastText(_textId);
-                ChatHandler::BuildChatPacket(data, _msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _source->getGender()) : "", _achievementId, "", locale);
+                ChatHandler::BuildChatPacket(data, _msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, (_source->GetTypeId() == TYPEID_PLAYER ? _source->ToUnit()->getGender() : GENDER_MALE)) : "", _achievementId, "", locale);
             }
 
             size_t operator()(WorldPacket* data, LocaleConstant locale) const
             {
                 BroadcastText const* bct = sObjectMgr->GetBroadcastText(_textId);
-                return ChatHandler::BuildChatPacket(*data, _msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _source->getGender()) : "", _achievementId, "", locale);
+                return ChatHandler::BuildChatPacket(*data, _msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, (_source->GetTypeId() == TYPEID_PLAYER ? _source->ToUnit()->getGender() : GENDER_MALE)) : "", _achievementId, "", locale);
             }
 
         private:
-            Unit const* _source;
+            WorldObject const* _source;
             ChatMsg _msgType;
             uint32 _textId;
             WorldObject const* _target;
