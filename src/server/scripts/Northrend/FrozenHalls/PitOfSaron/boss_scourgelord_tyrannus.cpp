@@ -153,7 +153,7 @@ class boss_tyrannus : public CreatureScript
 
             Creature* GetRimefang()
             {
-                return ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RIMEFANG));
+                return ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RIMEFANG));
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -235,7 +235,7 @@ class boss_tyrannus : public CreatureScript
                             me->GetMotionMaster()->MovePoint(0, miscPos);
                             break;
                         case EVENT_COMBAT_START:
-                            if (Creature* rimefang = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RIMEFANG)))
+                            if (Creature* rimefang = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RIMEFANG)))
                                 rimefang->AI()->DoAction(ACTION_START_RIMEFANG);    //set rimefang also infight
                             events.SetPhase(PHASE_COMBAT);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -299,7 +299,7 @@ class boss_rimefang : public CreatureScript
             void Initialize()
             {
                 _currentWaypoint = 0;
-                _hoarfrostTargetGUID = 0;
+                _hoarfrostTargetGUID.Clear();
             }
 
             void Reset() override
@@ -330,7 +330,7 @@ class boss_rimefang : public CreatureScript
                     _EnterEvadeMode();
             }
 
-            void SetGUID(uint64 guid, int32 type) override
+            void SetGUID(ObjectGuid guid, int32 type) override
             {
                 if (type == GUID_HOARFROST)
                 {
@@ -366,7 +366,7 @@ class boss_rimefang : public CreatureScript
                             if (Unit* target = ObjectAccessor::GetUnit(*me, _hoarfrostTargetGUID))
                             {
                                 DoCast(target, SPELL_HOARFROST);
-                                _hoarfrostTargetGUID = 0;
+                                _hoarfrostTargetGUID.Clear();
                             }
                             break;
                         default:
@@ -377,7 +377,7 @@ class boss_rimefang : public CreatureScript
 
         private:
             Vehicle* _vehicle;
-            uint64 _hoarfrostTargetGUID;
+            ObjectGuid _hoarfrostTargetGUID;
             EventMap _events;
             uint8 _currentWaypoint;
         };
@@ -391,7 +391,7 @@ class boss_rimefang : public CreatureScript
 class player_overlord_brandAI : public PlayerAI
 {
     public:
-        player_overlord_brandAI(Player* player, uint64 casterGUID) : PlayerAI(player), _tyrannusGUID(casterGUID) { }
+        player_overlord_brandAI(Player* player, ObjectGuid casterGUID) : PlayerAI(player), _tyrannusGUID(casterGUID) { }
 
         void DamageDealt(Unit* /*victim*/, uint32& damage, DamageEffectType /*damageType*/) override
         {
@@ -409,7 +409,7 @@ class player_overlord_brandAI : public PlayerAI
         void UpdateAI(uint32 /*diff*/) override { }
 
     private:
-        uint64 _tyrannusGUID;
+        ObjectGuid _tyrannusGUID;
 };
 
 class spell_tyrannus_overlord_brand : public SpellScriptLoader
@@ -480,7 +480,7 @@ class spell_tyrannus_mark_of_rimefang : public SpellScriptLoader
                     return;
 
                 if (InstanceScript* instance = caster->GetInstanceScript())
-                    if (Creature* rimefang = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_RIMEFANG)))
+                    if (Creature* rimefang = ObjectAccessor::GetCreature(*caster, instance->GetGuidData(DATA_RIMEFANG)))
                         rimefang->AI()->SetGUID(GetTarget()->GetGUID(), GUID_HOARFROST);
             }
 
@@ -545,7 +545,7 @@ class at_tyrannus_event_starter : public AreaTriggerScript
                 return false;
 
             if (instance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS && instance->GetBossState(DATA_TYRANNUS) != DONE)
-                if (Creature* tyrannus = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_TYRANNUS)))
+                if (Creature* tyrannus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_TYRANNUS)))
                 {
                     tyrannus->AI()->DoAction(ACTION_START_INTRO);
                     return true;

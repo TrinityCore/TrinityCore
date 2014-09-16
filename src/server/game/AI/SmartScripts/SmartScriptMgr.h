@@ -1352,7 +1352,7 @@ struct SmartScriptHolder
 typedef std::unordered_map<uint32, WayPoint*> WPPath;
 
 typedef std::list<WorldObject*> ObjectList;
-typedef std::list<uint64> GuidList;
+
 class ObjectGuidList
 {
     ObjectList* m_objectList;
@@ -1385,7 +1385,7 @@ public:
                 if (WorldObject* obj = ObjectAccessor::GetWorldObject(*m_baseObject, *itr))
                     m_objectList->push_back(obj);
                 else
-                    TC_LOG_DEBUG("scripts.ai", "SmartScript::mTargetStorage stores a guid to an invalid object: " UI64FMTD, *itr);
+                    TC_LOG_DEBUG("scripts.ai", "SmartScript::mTargetStorage stores a guid to an invalid object: %s", itr->ToString().c_str());
             }
         }
 

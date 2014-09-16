@@ -321,8 +321,6 @@ hyjalAI::hyjalAI(Creature* creature) : npc_escortAI(creature), Summons(me)
     instance = creature->GetInstanceScript();
     VeinsSpawned[0] = false;
     VeinsSpawned[1] = false;
-    for (uint8 i=0; i<14; ++i)
-        VeinGUID[i] = 0;
     InfernalCount = 0;
     TeleportTimer = 1000;
     Overrun = false;
@@ -335,7 +333,6 @@ hyjalAI::hyjalAI(Creature* creature) : npc_escortAI(creature), Summons(me)
     DoRespawn = false;
     MassTeleportTimer = 0;
     DoMassTeleport = false;
-    DummyGuid = 0;
 }
 
 void hyjalAI::Initialize()
@@ -343,9 +340,9 @@ void hyjalAI::Initialize()
     IsDummy = false;
 
     // GUIDs
-    PlayerGUID = 0;
-    BossGUID[0] = 0;
-    BossGUID[1] = 0;
+    PlayerGUID.Clear();
+    BossGUID[0].Clear();
+    BossGUID[1].Clear();
 
     // Timers
     NextWaveTimer = 10000;
@@ -651,21 +648,23 @@ void hyjalAI::SpawnVeins()
     {
         if (VeinsSpawned[0])//prevent any buggers
             return;
-        for (uint8 i = 0; i<7; ++i)
+        for (uint8 i = 0; i < 7; ++i)
         {
             GameObject* gem = me->SummonGameObject(GO_ANCIENT_VEIN, VeinPos[i][0], VeinPos[i][1], VeinPos[i][2], VeinPos[i][3], VeinPos[i][4], VeinPos[i][5], VeinPos[i][6], VeinPos[i][7], 0);
             if (gem)
                 VeinGUID[i]=gem->GetGUID();
         }
         VeinsSpawned[0] = true;
-    }else{
+    }
+    else
+    {
         if (VeinsSpawned[1])
             return;
-        for (uint8 i = 7; i<14; ++i)
+        for (uint8 i = 7; i < 14; ++i)
         {
             GameObject* gem = me->SummonGameObject(GO_ANCIENT_VEIN, VeinPos[i][0], VeinPos[i][1], VeinPos[i][2], VeinPos[i][3], VeinPos[i][4], VeinPos[i][5], VeinPos[i][6], VeinPos[i][7], 0);
             if (gem)
-                VeinGUID[i]=gem->GetGUID();
+                VeinGUID[i] = gem->GetGUID();
         }
         VeinsSpawned[1] = true;
     }
@@ -675,22 +674,25 @@ void hyjalAI::DeSpawnVeins()
 {
     if (Faction == 1)
     {
-        Creature* unit=ObjectAccessor::GetCreature((*me), instance->GetData64(DATA_JAINAPROUDMOORE));
+        Creature* unit=ObjectAccessor::GetCreature((*me), instance->GetGuidData(DATA_JAINAPROUDMOORE));
         if (!unit)return;
         hyjalAI* ai = CAST_AI(hyjalAI, unit->AI());
         if (!ai)return;
-        for (uint8 i = 0; i<7; ++i)
+        for (uint8 i = 0; i < 7; ++i)
         {
             if (GameObject* gem = instance->instance->GetGameObject(ai->VeinGUID[i]))
                 gem->Delete();
         }
-    } else if (Faction)
+    }
+    else if (Faction)
     {
-        Creature* unit=ObjectAccessor::GetCreature((*me), instance->GetData64(DATA_THRALL));
-        if (!unit)return;
+        Creature* unit=ObjectAccessor::GetCreature((*me), instance->GetGuidData(DATA_THRALL));
+        if (!unit)
+            return;
         hyjalAI* ai = CAST_AI(hyjalAI, unit->AI());
-        if (!ai)return;
-        for (uint8 i = 7; i<14; ++i)
+        if (!ai)
+            return;
+        for (uint8 i = 7; i < 14; ++i)
         {
             if (GameObject* gem = instance->instance->GetGameObject(ai->VeinGUID[i]))
                 gem->Delete();
@@ -706,7 +708,9 @@ void hyjalAI::UpdateAI(uint32 diff)
         {
             DoCast(me, SPELL_MASS_TELEPORT, false);
             DoMassTeleport = false;
-        } else MassTeleportTimer -= diff;
+        }
+        else
+            MassTeleportTimer -= diff;
         return;
     }
     if (DoHide)
@@ -830,7 +834,7 @@ void hyjalAI::UpdateAI(uint32 diff)
                     EventBegun = false;
                     CheckTimer = 0;
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    BossGUID[i] = 0;
+                    BossGUID[i].Clear();
                     instance->DoUpdateWorldState(WORLD_STATE_ENEMY, 0); // Reset world state for enemies to disable it
                 }
             }

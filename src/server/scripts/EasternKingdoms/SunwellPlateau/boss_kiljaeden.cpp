@@ -274,13 +274,13 @@ public:
             switch (index)
             {
                 case 0:
-                    return ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_1));
+                    return ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_1));
                 case 1:
-                    return ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_2));
+                    return ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_2));
                 case 2:
-                    return ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_3));
+                    return ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_3));
                 case 3:
-                    return ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_4));
+                    return ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_4));
             }
 
             return NULL;
@@ -375,7 +375,7 @@ public:
             player->CastSpell(player, SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, false);
             go->SetUInt32Value(GAMEOBJECT_FACTION, 0);
 
-            if (Creature* pKalec = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_KALECGOS_KJ)))
+            if (Creature* pKalec = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_KALECGOS_KJ)))
                 ENSURE_AI(boss_kalecgos_kj::boss_kalecgos_kjAI, pKalec->AI())->SetRingOfBlueFlames();
 
             go->Refresh();
@@ -437,7 +437,7 @@ public:
         {
             Initialize();
 
-            if (Creature* pKalecKJ = ObjectAccessor::GetCreature((*me), instance->GetData64(DATA_KALECGOS_KJ)))
+            if (Creature* pKalecKJ = ObjectAccessor::GetCreature((*me), instance->GetGuidData(DATA_KALECGOS_KJ)))
                 ENSURE_AI(boss_kalecgos_kj::boss_kalecgos_kjAI, pKalecKJ->AI())->ResetOrbs();
             summons.DespawnAll();
         }
@@ -571,7 +571,7 @@ public:
         {
             Initialize();
 
-            if (Creature* pKalec = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KALECGOS_KJ)))
+            if (Creature* pKalec = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KALECGOS_KJ)))
                 pKalec->RemoveDynObject(SPELL_RING_OF_BLUE_FLAMES);
 
             me->SetFloatValue(UNIT_FIELD_COMBATREACH, 12);
@@ -631,7 +631,7 @@ public:
             summons.DespawnAll();
 
             // Reset the controller
-            if (Creature* pControl = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KILJAEDEN_CONTROLLER)))
+            if (Creature* pControl = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KILJAEDEN_CONTROLLER)))
                 ENSURE_AI(npc_kiljaeden_controller::npc_kiljaeden_controllerAI, pControl->AI())->Reset();
         }
 
@@ -713,10 +713,10 @@ public:
                             if (Speeches[speechCount].timer < SpeechTimer)
                             {
                                 SpeechTimer = 0;
-                                if (Creature* speechCreature = ObjectAccessor::GetCreature(*me, instance->GetData64(Speeches[speechCount].creature)))
+                                if (Creature* speechCreature = ObjectAccessor::GetCreature(*me, instance->GetGuidData(Speeches[speechCount].creature)))
                                     speechCreature->AI()->Talk(Speeches[speechCount].textid);
                                 if (speechCount == 12)
-                                    if (Creature* pAnveena =  ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ANVEENA)))
+                                    if (Creature* pAnveena =  ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANVEENA)))
                                         pAnveena->CastSpell(me, SPELL_SACRIFICE_OF_ANVEENA, false);
                                 //   ChangeTimers(true, 10000); // Kil should do an emote while screaming without attacking for 10 seconds
                                 if (speechCount == speechPhaseEnd)
@@ -742,7 +742,7 @@ public:
                                 for (uint8 z = 0; z < 6; ++z)
                                 {
                                     pRandomPlayer = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                                    if (!pRandomPlayer || !pRandomPlayer->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, 0))
+                                    if (!pRandomPlayer || !pRandomPlayer->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT))
                                         break;
                                 }
 
@@ -815,7 +815,7 @@ public:
                             }
                             break;
                         case TIMER_ORBS_EMPOWER: //Phase 3
-                            if (Creature* pKalec = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KALECGOS_KJ)))
+                            if (Creature* pKalec = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KALECGOS_KJ)))
                             {
                                 switch (Phase)
                                 {
@@ -835,7 +835,7 @@ public:
                             for (uint8 z = 0; z < 6; ++z)
                             {
                                 target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                                if (!target || !target->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, 0)) break;
+                                if (!target || !target->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT)) break;
                             }
                             if (target)
                             {
@@ -941,7 +941,7 @@ public:
         void EnterCombat(Unit* who) override
         {
             instance->SetBossState(DATA_KILJAEDEN, IN_PROGRESS);
-            if (Creature* pControl = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KILJAEDEN_CONTROLLER)))
+            if (Creature* pControl = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KILJAEDEN_CONTROLLER)))
                 pControl->AddThreat(who, 1.0f);
 
             me->InterruptNonMeleeSpells(true);
@@ -949,7 +949,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* pControl = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KILJAEDEN_CONTROLLER)))
+            if (Creature* pControl = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KILJAEDEN_CONTROLLER)))
                 ++(ENSURE_AI(npc_kiljaeden_controller::npc_kiljaeden_controllerAI, pControl->AI())->deceiverDeathCount);
         }
 
@@ -962,7 +962,7 @@ public:
                 return;
 
             // Gain Shadow Infusion at 20% health
-            if (HealthBelowPct(20) && !me->HasAura(SPELL_SHADOW_INFUSION, 0))
+            if (HealthBelowPct(20) && !me->HasAura(SPELL_SHADOW_INFUSION))
                 DoCast(me, SPELL_SHADOW_INFUSION, true);
 
             // Shadow Bolt Volley - Shoots Shadow Bolts at all enemies within 30 yards, for ~2k Shadow damage.
@@ -1260,7 +1260,7 @@ public:
 
             if (uiTimer <= diff)
             {
-                if (Unit* random = ObjectAccessor::GetPlayer(*me, instance->GetData64(DATA_PLAYER_GUID)))
+                if (Unit* random = ObjectAccessor::GetPlayer(*me, instance->GetGuidData(DATA_PLAYER_GUID)))
                     DoCast(random, SPELL_SHADOW_BOLT, false);
                 uiTimer = urand(500, 1000);
             } else uiTimer -= diff;

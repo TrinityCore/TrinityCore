@@ -134,7 +134,7 @@ public:
 
         uint32 FlameWreathTimer;
         uint32 FlameWreathCheckTime;
-        uint64 FlameWreathTarget[3];
+        ObjectGuid FlameWreathTarget[3];
         float FWTargPosX[3];
         float FWTargPosY[3];
 
@@ -155,7 +155,7 @@ public:
 
             // Not in progress
             instance->SetData(TYPE_ARAN, NOT_STARTED);
-            instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), true);
+            instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), true);
         }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -168,7 +168,7 @@ public:
             Talk(SAY_DEATH);
 
             instance->SetData(TYPE_ARAN, DONE);
-            instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), true);
+            instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), true);
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -176,7 +176,7 @@ public:
             Talk(SAY_AGGRO);
 
             instance->SetData(TYPE_ARAN, IN_PROGRESS);
-            instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), false);
+            instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), false);
         }
 
         void FlameWreathEffect()
@@ -223,7 +223,7 @@ public:
             {
                 if (CloseDoorTimer <= diff)
                 {
-                    instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), false);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), false);
                     CloseDoorTimer = 0;
                 } else CloseDoorTimer -= diff;
             }
@@ -393,9 +393,9 @@ public:
                         FlameWreathTimer = 20000;
                         FlameWreathCheckTime = 500;
 
-                        FlameWreathTarget[0] = 0;
-                        FlameWreathTarget[1] = 0;
-                        FlameWreathTarget[2] = 0;
+                        FlameWreathTarget[0].Clear();
+                        FlameWreathTarget[1].Clear();
+                        FlameWreathTarget[2].Clear();
 
                         FlameWreathEffect();
                         break;
@@ -465,7 +465,7 @@ public:
                         {
                             unit->CastSpell(unit, 20476, true, 0, 0, me->GetGUID());
                             unit->CastSpell(unit, 11027, true);
-                            FlameWreathTarget[i] = 0;
+                            FlameWreathTarget[i].Clear();
                         }
                     }
                     FlameWreathCheckTime = 500;

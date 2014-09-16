@@ -106,7 +106,7 @@ public:
 
         void Initialize()
         {
-            uiEventStarterGUID = 0;
+            uiEventStarterGUID.Clear();
             nextWP = 0;
             punishTimer = 2000;
             nextMovementStarted = false;
@@ -118,7 +118,7 @@ public:
         }
 
         Horsemen id;
-        uint64 uiEventStarterGUID;
+        ObjectGuid uiEventStarterGUID;
         uint8 nextWP;
         uint32 punishTimer;
         bool caster;
@@ -143,10 +143,10 @@ public:
 
         bool DoEncounteraction(Unit* who, bool attack, bool reset, bool checkAllDead)
         {
-            Creature* Thane = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_THANE));
-            Creature* Lady = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LADY));
-            Creature* Baron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BARON));
-            Creature* Sir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SIR));
+            Creature* Thane = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THANE));
+            Creature* Lady = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LADY));
+            Creature* Baron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BARON));
+            Creature* Sir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SIR));
 
             if (Thane && Lady && Baron && Sir)
             {

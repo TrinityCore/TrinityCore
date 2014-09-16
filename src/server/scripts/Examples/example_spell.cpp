@@ -117,11 +117,11 @@ class spell_ex_5581 : public SpellScriptLoader
 
             void HandleDummyLaunchTarget(SpellEffIndex /*effIndex*/)
             {
-                uint64 targetGUID = 0;
+                ObjectGuid targetGUID;
                 if (Unit* unitTarget = GetHitUnit())
                     targetGUID = unitTarget->GetGUID();
                 // we're handling SPELL_EFFECT_DUMMY in effIndex 0 here
-                TC_LOG_INFO("misc", "Spell %u with SPELL_EFFECT_DUMMY is just launched at it's target: " UI64FMTD "!", GetSpellInfo()->Id, targetGUID);
+                TC_LOG_INFO("misc", "Spell %u with SPELL_EFFECT_DUMMY is just launched at it's target: " UI64FMTD "!", GetSpellInfo()->Id, targetGUID.GetRawValue());
             }
 
             void HandleDummyHit(SpellEffIndex /*effIndex*/)

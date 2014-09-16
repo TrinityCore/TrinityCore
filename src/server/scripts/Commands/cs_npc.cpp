@@ -521,7 +521,7 @@ public:
                 return false;
 
             if (CreatureData const* cr_data = sObjectMgr->GetCreatureData(lowguid))
-                unit = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(lowguid, cr_data->id, HIGHGUID_UNIT));
+                unit = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(ObjectGuid(HIGHGUID_UNIT, cr_data->id, lowguid));
         }
         else
             unit = handler->getSelectedCreature();
@@ -682,7 +682,7 @@ public:
 
         creature->AI()->SetData(data_1, data_2);
         std::string AIorScript = creature->GetAIName() != "" ? "AI type: " + creature->GetAIName() : (creature->GetScriptName() != "" ? "Script Name: " + creature->GetScriptName() : "No AI or Script Name Set");
-        handler->PSendSysMessage(LANG_NPC_SETDATA, creature->GetGUID(), creature->GetEntry(), creature->GetName().c_str(), data_1, data_2, AIorScript.c_str());
+        handler->PSendSysMessage(LANG_NPC_SETDATA, creature->GetGUID().GetCounter(), creature->GetEntry(), creature->GetName().c_str(), data_1, data_2, AIorScript.c_str());
         return true;
     }
 
@@ -1321,11 +1321,11 @@ public:
             return false;
         }
 
-        uint64 receiver_guid = atol(receiver_str);
+        ObjectGuid receiver_guid(HIGHGUID_PLAYER, uint32(atol(receiver_str)));
 
         // check online security
         Player* receiver = ObjectAccessor::FindPlayer(receiver_guid);
-        if (handler->HasLowerSecurity(receiver, 0))
+        if (handler->HasLowerSecurity(receiver, ObjectGuid::Empty))
             return false;
 
         creature->Whisper(text, LANG_UNIVERSAL, receiver);

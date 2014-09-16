@@ -504,7 +504,7 @@ class spell_pri_mind_sear : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
-                unitList.remove_if(Trinity::ObjectGUIDCheck(GetCaster()->GetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT)));
+                unitList.remove_if(Trinity::ObjectGUIDCheck(GetCaster()->GetChannelObjectGuid()));
             }
 
             void Register() override

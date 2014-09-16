@@ -216,7 +216,7 @@ public:
         void SetSummonerStatus(bool active)
         {
             for (uint8 i = 0; i < 4; i++)
-                if (uint64 guid = instance->GetData64(summoners[i].data))
+                if (ObjectGuid guid = instance->GetGuidData(summoners[i].data))
                     if (Creature* crystalChannelTarget = ObjectAccessor::GetCreature(*me, guid))
                     {
                         if (active)
@@ -229,7 +229,7 @@ public:
         void SetCrystalsStatus(bool active)
         {
             for (uint8 i = 0; i < 4; i++)
-                if (uint64 guid = instance->GetData64(DATA_NOVOS_CRYSTAL_1 + i))
+                if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_CRYSTAL_1 + i))
                     if (GameObject* crystal = ObjectAccessor::GetGameObject(*me, guid))
                         SetCrystalStatus(crystal, active);
         }
@@ -249,7 +249,7 @@ public:
         void CrystalHandlerDied()
         {
             for (uint8 i = 0; i < 4; i++)
-                if (uint64 guid = instance->GetData64(DATA_NOVOS_CRYSTAL_1 + i))
+                if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_CRYSTAL_1 + i))
                     if (GameObject* crystal = ObjectAccessor::GetGameObject(*me, guid))
                         if (crystal->GetGoState() == GO_STATE_ACTIVE)
                         {
@@ -266,7 +266,7 @@ public:
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15000);
             }
-            else if (uint64 guid = instance->GetData64(DATA_NOVOS_SUMMONER_4))
+            else if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_SUMMONER_4))
                 if (Creature* crystalChannelTarget = ObjectAccessor::GetCreature(*me, guid))
                     crystalChannelTarget->AI()->SetData(SPELL_SUMMON_CRYSTAL_HANDLER, 15000);
         }
@@ -330,7 +330,7 @@ public:
         void JustSummoned(Creature* summon) override
         {
             if (InstanceScript* instance = me->GetInstanceScript())
-                if (uint64 guid = instance->GetData64(DATA_NOVOS))
+                if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS))
                     if (Creature* novos = ObjectAccessor::GetCreature(*me, guid))
                         novos->AI()->JustSummoned(summon);
 

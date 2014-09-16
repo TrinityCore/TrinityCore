@@ -314,7 +314,7 @@ public:
             MustDieTimer = 3000;
             CurrWP = 0;
 
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
 
             MustDie = false;
             Escape = false;
@@ -453,7 +453,7 @@ public:
         }
 
     private:
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
         uint32 SpellEscapeTimer;
         uint32 TeleportTimer;
         uint32 CheckTimer;

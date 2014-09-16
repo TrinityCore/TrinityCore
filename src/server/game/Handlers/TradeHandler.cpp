@@ -94,13 +94,13 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
             data << uint32(item->GetCount());               // stack count
                                                             // wrapped: hide stats but show giftcreator name
             data << uint32(item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED) ? 1 : 0);
-            data << uint64(item->GetUInt64Value(ITEM_FIELD_GIFTCREATOR));
+            data << uint64(item->GetGuidValue(ITEM_FIELD_GIFTCREATOR));
                                                             // perm. enchantment and gems
             data << uint32(item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
             for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
                 data << uint32(item->GetEnchantmentId(EnchantmentSlot(enchant_slot)));
                                                             // creator
-            data << uint64(item->GetUInt64Value(ITEM_FIELD_CREATOR));
+            data << uint64(item->GetGuidValue(ITEM_FIELD_CREATOR));
             data << uint32(item->GetSpellCharges());        // charges
             data << uint32(item->GetItemSuffixFactor());    // SuffixFactor
             data << uint32(item->GetItemRandomPropertyId());// random properties id
@@ -475,12 +475,12 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
         {
             if (myItems[i])
             {
-                myItems[i]->SetUInt64Value(ITEM_FIELD_GIFTCREATOR, _player->GetGUID());
+                myItems[i]->SetGuidValue(ITEM_FIELD_GIFTCREATOR, _player->GetGUID());
                 _player->MoveItemFromInventory(myItems[i]->GetBagSlot(), myItems[i]->GetSlot(), true);
             }
             if (hisItems[i])
             {
-                hisItems[i]->SetUInt64Value(ITEM_FIELD_GIFTCREATOR, trader->GetGUID());
+                hisItems[i]->SetGuidValue(ITEM_FIELD_GIFTCREATOR, trader->GetGUID());
                 trader->MoveItemFromInventory(hisItems[i]->GetBagSlot(), hisItems[i]->GetSlot(), true);
             }
         }
@@ -584,7 +584,7 @@ void WorldSession::HandleCancelTradeOpcode(WorldPacket& /*recvPacket*/)
 
 void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
 {
-    uint64 ID;
+    ObjectGuid ID;
     recvPacket >> ID;
 
     if (GetPlayer()->m_trade)
@@ -750,7 +750,7 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    uint64 iGUID = item->GetGUID();
+    ObjectGuid iGUID = item->GetGUID();
 
     // prevent place single item into many trade slots using cheating and client bugs
     if (my_trade->HasItem(iGUID))

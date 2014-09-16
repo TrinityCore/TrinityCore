@@ -30,10 +30,10 @@
 
 void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
 {
-    uint64 guid;
+    ObjectGuid guid;
     recvData >> guid;
 
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_ATTACKSWING Message guidlow:%u guidhigh:%u", GUID_LOPART(guid), GUID_HIPART(guid));
+    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_ATTACKSWING Message %s", guid.ToString().c_str());
 
     Unit* pEnemy = ObjectAccessor::GetUnit(*_player, guid);
 
@@ -92,9 +92,9 @@ void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)
 void WorldSession::SendAttackStop(Unit const* enemy)
 {
     WorldPacket data(SMSG_ATTACKSTOP, (8+8+4));             // we guess size
-    data.append(GetPlayer()->GetPackGUID());
+    data << GetPlayer()->GetPackGUID();
     if (enemy)
-        data.append(enemy->GetPackGUID());
+        data << enemy->GetPackGUID();
     else
         data << uint8(0);
 

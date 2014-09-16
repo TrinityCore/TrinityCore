@@ -506,7 +506,7 @@ void BattlegroundSA::AddPlayer(Player* player)
     }
 }
 
-void BattlegroundSA::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/) { }
+void BattlegroundSA::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/) { }
 
 void BattlegroundSA::HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/)
 {
