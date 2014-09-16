@@ -199,7 +199,7 @@ public:
     {
         if (delInfo.accountName.empty())                    // account not exist
         {
-            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_ACCOUNT, delInfo.name.c_str(), delInfo.guid, delInfo.accountId);
+            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_ACCOUNT, delInfo.name.c_str(), delInfo.guid.GetCounter(), delInfo.accountId);
             return;
         }
 
@@ -207,13 +207,13 @@ public:
         uint32 charcount = AccountMgr::GetCharactersCount(delInfo.accountId);
         if (charcount >= 10)
         {
-            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_FULL, delInfo.name.c_str(), delInfo.guid, delInfo.accountId);
+            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_FULL, delInfo.name.c_str(), delInfo.guid.GetCounter(), delInfo.accountId);
             return;
         }
 
         if (sObjectMgr->GetPlayerGUIDByName(delInfo.name))
         {
-            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_NAME, delInfo.name.c_str(), delInfo.guid, delInfo.accountId);
+            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_NAME, delInfo.name.c_str(), delInfo.guid.GetCounter(), delInfo.accountId);
             return;
         }
 

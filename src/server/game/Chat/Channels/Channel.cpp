@@ -80,7 +80,7 @@ Channel::Channel(std::string const& name, uint32 channelId, uint32 team):
                     Tokenizer tokens(db_BannedList, ' ');
                     for (Tokenizer::const_iterator i = tokens.begin(); i != tokens.end(); ++i)
                     {
-                        ObjectGuid banned_guid(strtoull(*i, NULL, 10));
+                        ObjectGuid banned_guid(uint64(strtoull(*i, NULL, 10)));
                         if (banned_guid)
                         {
                             TC_LOG_DEBUG("chat.system", "Channel(%s) loaded bannedStore guid:" UI64FMTD "", name.c_str(), banned_guid);
