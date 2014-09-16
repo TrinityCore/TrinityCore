@@ -231,7 +231,6 @@ class SmartScript
         SmartScriptType mScriptType;
         uint32 mEventPhase;
 
-        std::unordered_map<int32, int32> mStoredDecimals;
         uint32 mPathId;
         SmartAIEventList mStoredEvents;
         std::list<uint32>mRemIDs;
