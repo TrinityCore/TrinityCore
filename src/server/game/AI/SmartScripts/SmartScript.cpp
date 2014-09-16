@@ -1263,13 +1263,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             delete targets;
             break;
         }
-        case SMART_ACTION_STORE_VARIABLE_DECIMAL:
-        {
-            if (mStoredDecimals.find(e.action.storeVar.id) != mStoredDecimals.end())
-                mStoredDecimals.erase(e.action.storeVar.id);
-            mStoredDecimals[e.action.storeVar.id] = e.action.storeVar.number;
-            break;
-        }
         case SMART_ACTION_STORE_TARGET_LIST:
         {
             ObjectList* targets = GetTargets(e, unit);
