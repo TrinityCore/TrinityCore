@@ -40,7 +40,6 @@ enum Says
 enum Spells
 {
     SPELL_MORTAL_WOUND     = 30641,
-    H_SPELL_MORTAL_WOUND   = 36814,
     SPELL_SURGE            = 34645,
     SPELL_RETALIATION      = 22857
 };
@@ -78,7 +77,6 @@ class boss_watchkeeper_gargolmar : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* who) override
-
             {
                 if (!me->GetVictim() && me->CanCreatureAttack(who))
                 {

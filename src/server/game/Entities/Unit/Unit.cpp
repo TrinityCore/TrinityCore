@@ -13949,11 +13949,18 @@ void Unit::SetControlled(bool apply, UnitState state)
         {
             case UNIT_STATE_STUNNED:
                 SetStunned(true);
+                // i need to stop fear on stun and root or i will get teleport to destination issue as MVMGEN for fear keeps going on
+                if (HasUnitState(UNIT_STATE_FLEEING))
+                    SetFeared(false);
                 CastStop();
                 break;
             case UNIT_STATE_ROOT:
                 if (!HasUnitState(UNIT_STATE_STUNNED))
+                {
                     SetRooted(true);
+                    if (HasUnitState(UNIT_STATE_FLEEING))
+                        SetFeared(false);
+                }
                 break;
             case UNIT_STATE_CONFUSED:
                 if (!HasUnitState(UNIT_STATE_STUNNED))
@@ -14014,16 +14021,17 @@ void Unit::SetControlled(bool apply, UnitState state)
 
         ClearUnitState(state);
 
-        if (HasUnitState(UNIT_STATE_STUNNED))
+        // Unit States might have been already cleared but auras still present. I need to check with HasAuraType
+        if (HasAuraType(SPELL_AURA_MOD_STUN))
             SetStunned(true);
         else
         {
-            if (HasUnitState(UNIT_STATE_ROOT))
+            if (HasAuraType(SPELL_AURA_MOD_ROOT))
                 SetRooted(true);
 
-            if (HasUnitState(UNIT_STATE_CONFUSED))
+            if (HasAuraType(SPELL_AURA_MOD_CONFUSE))
                 SetConfused(true);
-            else if (HasUnitState(UNIT_STATE_FLEEING))
+            else if (HasAuraType(SPELL_AURA_MOD_FEAR))
                 SetFeared(true);
         }
     }

@@ -397,8 +397,9 @@ class boss_xt002 : public CreatureScript
                 Talk(SAY_HEART_CLOSED);
                 Talk(EMOTE_HEART_CLOSED);
 
-                DoCast(me, SPELL_STAND);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
+                DoCast(me, SPELL_STAND);
 
                 _phase = 1;
 

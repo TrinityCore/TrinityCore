@@ -150,7 +150,7 @@ class boss_svala : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                
+
                 SetCombatMovement(true);
 
                 if (_introCompleted)
