@@ -258,8 +258,8 @@ class boss_hexlord_malacrass : public CreatureScript
                 instance = creature->GetInstanceScript();
                 SelectAddEntry();
                 for (uint8 i = 0; i < 4; ++i)
-                    AddGUID[i] = 0;
-                PlayerGUID = 0;
+                    AddGUID[i].Clear();
+                PlayerGUID.Clear();
                 PlayerClass = CLASS_NONE;
             }
 
@@ -275,10 +275,10 @@ class boss_hexlord_malacrass : public CreatureScript
 
             InstanceScript* instance;
 
-            uint64 AddGUID[4];
+            ObjectGuid AddGUID[4];
             uint32 AddEntry[4];
 
-            uint64 PlayerGUID;
+            ObjectGuid PlayerGUID;
 
             uint32 SpiritBolts_Timer;
             uint32 DrainPower_Timer;

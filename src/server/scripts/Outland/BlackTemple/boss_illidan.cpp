@@ -381,7 +381,7 @@ public:
         {
             FlameBlastTimer = 15000;
             CheckTimer = 5000;
-            GlaiveGUID = 0;
+            GlaiveGUID.Clear();
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -424,7 +424,7 @@ public:
             }
         }
 
-        void SetGlaiveGUID(uint64 guid)
+        void SetGlaiveGUID(ObjectGuid guid)
         {
             GlaiveGUID = guid;
         }
@@ -455,7 +455,7 @@ public:
     private:
         uint32 FlameBlastTimer;
         uint32 CheckTimer;
-        uint64 GlaiveGUID;
+        ObjectGuid GlaiveGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -476,7 +476,6 @@ public:
         {
             instance = creature->GetInstanceScript();
             DoCast(me, SPELL_DUAL_WIELD, true);
-            AkamaGUID = 0;
         }
 
         void Reset() override;
@@ -489,7 +488,7 @@ public:
             {
                 for (uint8 i = 0; i < 2; ++i)
                     if (summon->GetGUID() == FlameGUID[i])
-                        FlameGUID[i] = 0;
+                        FlameGUID[i].Clear();
 
                 if (!FlameGUID[0] && !FlameGUID[1] && Phase != PHASE_ILLIDAN_NULL)
                 {
@@ -542,7 +541,7 @@ public:
             instance->SetBossState(DATA_ILLIDAN_STORMRAGE, DONE);
 
             for (uint8 i = DATA_GO_ILLIDAN_DOOR_R; i < DATA_GO_ILLIDAN_DOOR_L + 1; ++i)
-                instance->HandleGameObject(instance->GetData64(i), true);
+                instance->HandleGameObject(instance->GetGuidData(i), true);
         }
 
         void KilledUnit(Unit* victim) override
@@ -573,7 +572,7 @@ public:
             }
         }
 
-        void DeleteFromThreatList(uint64 TargetGUID)
+        void DeleteFromThreatList(ObjectGuid TargetGUID)
         {
             ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
             for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
@@ -849,7 +848,7 @@ public:
                         if (Creature* glaive = ObjectAccessor::GetCreature(*me, GlaiveGUID[i]))
                             glaive->DespawnOrUnsummon();
 
-                        GlaiveGUID[i] = 0;
+                        GlaiveGUID[i].Clear();
                     }
                 }
                 Timer[EVENT_FLIGHT_SEQUENCE] = 2000;
@@ -1102,7 +1101,7 @@ public:
         }
 
     public:
-        uint64 AkamaGUID;
+        ObjectGuid AkamaGUID;
         uint32 Timer[EVENT_ENRAGE + 1];
         PhaseIllidan Phase;
     private:
@@ -1112,9 +1111,9 @@ public:
         uint32 TransformCount;
         uint32 FlightCount;
         uint32 HoverPoint;
-        uint64 MaievGUID;
-        uint64 FlameGUID[2];
-        uint64 GlaiveGUID[2];
+        ObjectGuid MaievGUID;
+        ObjectGuid FlameGUID[2];
+        ObjectGuid GlaiveGUID[2];
         SummonList Summons;
     };
 
@@ -1140,7 +1139,7 @@ public:
         {
             MaxTimer = 0;
             Phase = PHASE_NORMAL_MAIEV;
-            IllidanGUID = 0;
+            IllidanGUID.Clear();
             Timer[EVENT_MAIEV_STEALTH] = 0;
             Timer[EVENT_MAIEV_TAUNT] = urand(22, 43) * 1000;
             Timer[EVENT_MAIEV_SHADOW_STRIKE] = 30000;
@@ -1153,7 +1152,7 @@ public:
 
         void EnterEvadeMode() override { }
 
-        void GetIllidanGUID(uint64 guid)
+        void GetIllidanGUID(ObjectGuid guid)
         {
             IllidanGUID = guid;
         }
@@ -1333,7 +1332,7 @@ public:
         }
 
     private:
-        uint64 IllidanGUID;
+        ObjectGuid IllidanGUID;
         PhaseIllidan Phase;
         EventMaiev Event;
         uint32 Timer[5];
@@ -1364,10 +1363,10 @@ public:
             WalkCount = 0;
             instance->SetBossState(DATA_ILLIDAN_STORMRAGE, NOT_STARTED);
 
-            IllidanGUID = instance->GetData64(DATA_ILLIDAN_STORMRAGE);
-            GateGUID = instance->GetData64(DATA_GO_ILLIDAN_GATE);
-            DoorGUID[0] = instance->GetData64(DATA_GO_ILLIDAN_DOOR_R);
-            DoorGUID[1] = instance->GetData64(DATA_GO_ILLIDAN_DOOR_L);
+            IllidanGUID = instance->GetGuidData(DATA_ILLIDAN_STORMRAGE);
+            GateGUID = instance->GetGuidData(DATA_GO_ILLIDAN_GATE);
+            DoorGUID[0] = instance->GetGuidData(DATA_GO_ILLIDAN_DOOR_R);
+            DoorGUID[1] = instance->GetGuidData(DATA_GO_ILLIDAN_DOOR_L);
 
             if (JustCreated) // close all doors at create
             {
@@ -1385,9 +1384,9 @@ public:
                     instance->HandleGameObject(DoorGUID[i], true);
             }
 
-            ChannelGUID   = 0;
-            SpiritGUID[0] = 0;
-            SpiritGUID[1] = 0;
+            ChannelGUID.Clear();
+            SpiritGUID[0].Clear();
+            SpiritGUID[1].Clear();
 
             Phase         = PHASE_AKAMA_NULL;
             Timer         = 0;
@@ -1758,11 +1757,11 @@ public:
         PhaseAkama Phase;
         bool Event;
         uint32 Timer;
-        uint64 IllidanGUID;
-        uint64 ChannelGUID;
-        uint64 SpiritGUID[2];
-        uint64 GateGUID;
-        uint64 DoorGUID[2];
+        ObjectGuid IllidanGUID;
+        ObjectGuid ChannelGUID;
+        ObjectGuid SpiritGUID[2];
+        ObjectGuid GateGUID;
+        ObjectGuid DoorGUID[2];
         uint32 ChannelCount;
         uint32 WalkCount;
         uint32 TalkCount;
@@ -1787,11 +1786,11 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
             akama->AI()->EnterEvadeMode();
     }
 
-    MaievGUID = 0;
+    MaievGUID.Clear();
     for (uint8 i = 0; i < 2; ++i)
     {
-        FlameGUID[i] = 0;
-        GlaiveGUID[i] = 0;
+        FlameGUID[i].Clear();
+        GlaiveGUID[i].Clear();
     }
 
     Phase = PHASE_ILLIDAN_NULL;
@@ -1956,7 +1955,7 @@ public:
 
         void Reset() override
         {
-            IllidanGUID = 0;
+            IllidanGUID.Clear();
 
             Active = false;
             SummonedBeams = false;
@@ -1985,7 +1984,7 @@ public:
                         DespawnTimer = 5000;
                         if (who->HasAura(SPELL_ENRAGE))
                             who->RemoveAurasDueToSpell(SPELL_ENRAGE); // Dispel his enrage
-                        // if (GameObject* CageTrap = instance->instance->GetGameObject(instance->GetData64(CageTrapGUID)))
+                        // if (GameObject* CageTrap = instance->instance->GetGameObject(instance->GetGuidData(CageTrapGUID)))
 
                         //    CageTrap->SetLootState(GO_JUST_DEACTIVATED);
                     }
@@ -2014,7 +2013,7 @@ public:
     public:
         bool Active;
     private:
-        uint64 IllidanGUID;
+        ObjectGuid IllidanGUID;
         uint32 DespawnTimer;
         bool SummonedBeams;
     };
@@ -2059,7 +2058,7 @@ public:
 
         void Reset() override
         {
-            TargetGUID = 0;
+            TargetGUID.Clear();
             DoCast(me, SPELL_SHADOW_DEMON_PASSIVE, true);
         }
 
@@ -2090,7 +2089,7 @@ public:
         }
 
     private:
-        uint64 TargetGUID;
+        ObjectGuid TargetGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -2136,7 +2135,7 @@ public:
 
         void Reset() override
         {
-            IllidanGUID = instance->GetData64(DATA_ILLIDAN_STORMRAGE);
+            IllidanGUID = instance->GetGuidData(DATA_ILLIDAN_STORMRAGE);
 
             CheckTimer = 5000;
             DoCast(me, SPELL_SHADOWFIEND_PASSIVE, true);
@@ -2195,7 +2194,7 @@ public:
 
     private:
         InstanceScript* instance;
-        uint64 IllidanGUID;
+        ObjectGuid IllidanGUID;
         uint32 CheckTimer;
     };
 

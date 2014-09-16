@@ -124,7 +124,7 @@ class boss_ignis : public CreatureScript
 
             void Initialize()
             {
-                _slagPotGUID = 0;
+                _slagPotGUID.Clear();
                 _shattered = false;
                 _firstConstructKill = 0;
             }
@@ -251,7 +251,7 @@ class boss_ignis : public CreatureScript
                             {
                                 slagPotTarget->ExitVehicle();
                                 slagPotTarget = NULL;
-                                _slagPotGUID = 0;
+                                _slagPotGUID.Clear();
                                 events.CancelEvent(EVENT_END_POT);
                             }
                             break;
@@ -282,7 +282,7 @@ class boss_ignis : public CreatureScript
             }
 
         private:
-            uint64 _slagPotGUID;
+            ObjectGuid _slagPotGUID;
             Vehicle* _vehicle;
             time_t _firstConstructKill;
             bool _shattered;
@@ -323,7 +323,7 @@ class npc_iron_construct : public CreatureScript
                 if (me->HasAura(SPELL_BRITTLE) && damage >= 5000)
                 {
                     DoCast(SPELL_SHATTER);
-                    if (Creature* ignis = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_IGNIS)))
+                    if (Creature* ignis = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_IGNIS)))
                         if (ignis->AI())
                             ignis->AI()->DoAction(ACTION_REMOVE_BUFF);
 
@@ -385,7 +385,7 @@ class npc_scorch_ground : public CreatureScript
             void Initialize()
             {
                 _heat = false;
-                _constructGUID = 0;
+                _constructGUID.Clear();
                 _heatTimer = 0;
             }
 
@@ -429,7 +429,7 @@ class npc_scorch_ground : public CreatureScript
             }
 
         private:
-            uint64 _constructGUID;
+            ObjectGuid _constructGUID;
             uint32 _heatTimer;
             bool _heat;
         };

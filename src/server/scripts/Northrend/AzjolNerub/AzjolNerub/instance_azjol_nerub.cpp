@@ -40,13 +40,6 @@ class instance_azjol_nerub : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-
-                KrikthirGUID        = 0;
-                HadronoxGUID        = 0;
-                AnubarakGUID        = 0;
-                WatcherGashraGUID   = 0;
-                WatcherSilthikGUID  = 0;
-                WatcherNarjilGUID   = 0;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -106,7 +99,7 @@ class instance_azjol_nerub : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -126,16 +119,16 @@ class instance_azjol_nerub : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
         protected:
-            uint64 KrikthirGUID;
-            uint64 HadronoxGUID;
-            uint64 AnubarakGUID;
-            uint64 WatcherGashraGUID;
-            uint64 WatcherSilthikGUID;
-            uint64 WatcherNarjilGUID;
+            ObjectGuid KrikthirGUID;
+            ObjectGuid HadronoxGUID;
+            ObjectGuid AnubarakGUID;
+            ObjectGuid WatcherGashraGUID;
+            ObjectGuid WatcherSilthikGUID;
+            ObjectGuid WatcherNarjilGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

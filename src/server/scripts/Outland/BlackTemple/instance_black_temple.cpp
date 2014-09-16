@@ -47,23 +47,6 @@ class instance_black_temple : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-
-                NajentusGUID                = 0;
-                SupremusGUID                = 0;
-                ShadeOfAkamaGUID            = 0;
-                AkamaShadeGUID              = 0;
-                AkamaGUID                   = 0;
-                GathiosTheShattererGUID     = 0;
-                HighNethermancerZerevorGUID = 0;
-                LadyMalandeGUID             = 0;
-                VerasDarkshadowGUID         = 0;
-                IllidariCouncilGUID         = 0;
-                BloodElfCouncilVoiceGUID    = 0;
-                IllidanStormrageGUID        = 0;
-
-                IllidanGateGUID             = 0;
-
-                memset(IllidanDoorGUIDs, 0, 2 * sizeof(uint64));
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -162,7 +145,7 @@ class instance_black_temple : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -200,28 +183,28 @@ class instance_black_temple : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
         protected:
-            uint64 NajentusGUID;
-            uint64 SupremusGUID;
-            uint64 ShadeOfAkamaGUID;
-            uint64 AkamaShadeGUID;
-            uint64 AkamaGUID;
+            ObjectGuid NajentusGUID;
+            ObjectGuid SupremusGUID;
+            ObjectGuid ShadeOfAkamaGUID;
+            ObjectGuid AkamaShadeGUID;
+            ObjectGuid AkamaGUID;
 
-            uint64 GathiosTheShattererGUID;
-            uint64 HighNethermancerZerevorGUID;
-            uint64 LadyMalandeGUID;
-            uint64 VerasDarkshadowGUID;
+            ObjectGuid GathiosTheShattererGUID;
+            ObjectGuid HighNethermancerZerevorGUID;
+            ObjectGuid LadyMalandeGUID;
+            ObjectGuid VerasDarkshadowGUID;
 
-            uint64 IllidariCouncilGUID;
-            uint64 BloodElfCouncilVoiceGUID;
+            ObjectGuid IllidariCouncilGUID;
+            ObjectGuid BloodElfCouncilVoiceGUID;
 
-            uint64 IllidanStormrageGUID;
+            ObjectGuid IllidanStormrageGUID;
 
-            uint64 IllidanGateGUID;
-            uint64 IllidanDoorGUIDs[2];
+            ObjectGuid IllidanGateGUID;
+            ObjectGuid IllidanDoorGUIDs[2];
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

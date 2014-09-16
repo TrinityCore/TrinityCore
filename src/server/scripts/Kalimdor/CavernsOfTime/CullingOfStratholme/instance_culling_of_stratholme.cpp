@@ -61,19 +61,6 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
 
-                _chromieGUID       = 0;
-                _arthasGUID        = 0;
-                _meathookGUID      = 0;
-                _salrammGUID       = 0;
-                _epochGUID         = 0;
-                _malGanisGUID      = 0;
-                _infiniteGUID      = 0;
-                _shkafGateGUID     = 0;
-                _malGanisGate1GUID = 0;
-                _malGanisGate2GUID = 0;
-                _exitGateGUID      = 0;
-                _malGanisChestGUID = 0;
-                _genericBunnyGUID  = 0;
                 _crateCount        = 0;
                 _eventTimer        = 0;
                 _infiniteCouterState = NOT_STARTED;
@@ -242,7 +229,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 identifier) const override
+            ObjectGuid GetGuidData(uint32 identifier) const override
             {
                 switch (identifier)
                 {
@@ -271,7 +258,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                     default:
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void Update(uint32 diff) override
@@ -331,19 +318,19 @@ class instance_culling_of_stratholme : public InstanceMapScript
             }
 
         private:
-            uint64 _chromieGUID;
-            uint64 _arthasGUID;
-            uint64 _meathookGUID;
-            uint64 _salrammGUID;
-            uint64 _epochGUID;
-            uint64 _malGanisGUID;
-            uint64 _infiniteGUID;
-            uint64 _shkafGateGUID;
-            uint64 _malGanisGate1GUID;
-            uint64 _malGanisGate2GUID;
-            uint64 _exitGateGUID;
-            uint64 _malGanisChestGUID;
-            uint64 _genericBunnyGUID;
+            ObjectGuid _chromieGUID;
+            ObjectGuid _arthasGUID;
+            ObjectGuid _meathookGUID;
+            ObjectGuid _salrammGUID;
+            ObjectGuid _epochGUID;
+            ObjectGuid _malGanisGUID;
+            ObjectGuid _infiniteGUID;
+            ObjectGuid _shkafGateGUID;
+            ObjectGuid _malGanisGate1GUID;
+            ObjectGuid _malGanisGate2GUID;
+            ObjectGuid _exitGateGUID;
+            ObjectGuid _malGanisChestGUID;
+            ObjectGuid _genericBunnyGUID;
 
             uint32 _crateCount;
             uint32 _eventTimer;

@@ -140,7 +140,7 @@ public:
 
         Transport* transport = NULL;
 
-        if (Creature* creature = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(guid, id, HIGHGUID_UNIT), (Creature*)NULL))
+        if (Creature* creature = ObjectAccessor::GetObjectInWorld(ObjectGuid(HIGHGUID_UNIT, id, guid), (Creature*)NULL))
         {
             x = creature->GetPositionX();
             y = creature->GetPositionY();

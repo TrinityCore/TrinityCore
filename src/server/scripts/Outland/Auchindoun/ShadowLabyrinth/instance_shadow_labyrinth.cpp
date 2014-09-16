@@ -40,8 +40,6 @@ class instance_shadow_labyrinth : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
 
-                AmbassadorHellmawGUID = 0;
-                GrandmasterVorpilGUID = 0;
                 FelOverseerCount      = 0;
             }
 
@@ -123,7 +121,7 @@ class instance_shadow_labyrinth : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -132,12 +130,12 @@ class instance_shadow_labyrinth : public InstanceMapScript
                     default:
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
         protected:
-            uint64 AmbassadorHellmawGUID;
-            uint64 GrandmasterVorpilGUID;
+            ObjectGuid AmbassadorHellmawGUID;
+            ObjectGuid GrandmasterVorpilGUID;
             uint32 FelOverseerCount;
         };
 

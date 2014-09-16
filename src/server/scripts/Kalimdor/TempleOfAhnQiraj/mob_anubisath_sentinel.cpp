@@ -103,14 +103,16 @@ public:
             gatherOthersWhenAggro = true;
         }
 
-        uint64 NearbyGUID[3];
+        ObjectGuid NearbyGUID[3];
 
         void ClearBuddyList()
         {
-            NearbyGUID[0] = NearbyGUID[1] = NearbyGUID[2] = 0;
+            NearbyGUID[0].Clear();
+            NearbyGUID[1].Clear();
+            NearbyGUID[2].Clear();
         }
 
-        void AddBuddyToList(uint64 CreatureGUID)
+        void AddBuddyToList(ObjectGuid CreatureGUID)
         {
             if (CreatureGUID == me->GetGUID())
                 return;
@@ -130,7 +132,7 @@ public:
         void GiveBuddyMyList(Creature* c)
         {
             aqsentinelAI* cai = ENSURE_AI(aqsentinelAI, (c)->AI());
-            for (int i=0; i<3; ++i)
+            for (int32 i = 0; i < 3; ++i)
                 if (NearbyGUID[i] && NearbyGUID[i] != c->GetGUID())
                     cai->AddBuddyToList(NearbyGUID[i]);
             cai->AddBuddyToList(me->GetGUID());
@@ -138,14 +140,14 @@ public:
 
         void SendMyListToBuddies()
         {
-            for (int i=0; i<3; ++i)
+            for (int32 i = 0; i < 3; ++i)
                 if (Creature* pNearby = ObjectAccessor::GetCreature(*me, NearbyGUID[i]))
                     GiveBuddyMyList(pNearby);
         }
 
         void CallBuddiesToAttack(Unit* who)
         {
-            for (int i=0; i<3; ++i)
+            for (int32 i = 0; i < 3; ++i)
             {
                 Creature* c = ObjectAccessor::GetCreature(*me, NearbyGUID[i]);
                 if (c)
@@ -222,7 +224,7 @@ public:
         {
             if (!me->isDead())
             {
-                for (int i=0; i<3; ++i)
+                for (int i = 0; i < 3; ++i)
                 {
                     if (!NearbyGUID[i])
                         continue;
@@ -252,7 +254,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            for (int ni=0; ni<3; ++ni)
+            for (int ni = 0; ni < 3; ++ni)
             {
                 Creature* sent = ObjectAccessor::GetCreature(*me, NearbyGUID[ni]);
                 if (!sent)

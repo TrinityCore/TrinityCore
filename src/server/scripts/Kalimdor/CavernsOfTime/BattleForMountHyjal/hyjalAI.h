@@ -160,9 +160,9 @@ struct hyjalAI : public npc_escortAI
     public:
         InstanceScript* instance;
 
-        uint64 PlayerGUID;
-        uint64 BossGUID[2];
-        uint64 VeinGUID[14];
+        ObjectGuid PlayerGUID;
+        ObjectGuid BossGUID[2];
+        ObjectGuid VeinGUID[14];
 
         uint32 NextWaveTimer;
         uint32 WaveCount;
@@ -193,7 +193,7 @@ struct hyjalAI : public npc_escortAI
         bool IsDummy;
         uint32 MassTeleportTimer;
         bool DoMassTeleport;
-        uint64 DummyGuid;
+        ObjectGuid DummyGuid;
 
         struct Spell
         {

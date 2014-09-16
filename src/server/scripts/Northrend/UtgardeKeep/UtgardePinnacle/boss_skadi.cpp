@@ -171,7 +171,6 @@ public:
         {
             Initialize();
             instance = creature->GetInstanceScript();
-            m_uiGraufGUID = 0;
             m_uiMovementTimer = 0;
             m_uiSummonTimer = 0;
         }
@@ -191,8 +190,7 @@ public:
 
         InstanceScript* instance;
         SummonList Summons;
-        uint64 m_uiGraufGUID;
-        std::vector<uint64> triggersGUID;
+        ObjectGuid m_uiGraufGUID;
 
         uint32 m_uiCrushTimer;
         uint32 m_uiPoisonedSpearTimer;
@@ -208,8 +206,6 @@ public:
 
         void Reset() override
         {
-            triggersGUID.clear();
-
             Initialize();
 
             Summons.DespawnAll();
@@ -274,7 +270,7 @@ public:
         void SummonedCreatureDespawn(Creature* summoned) override
         {
             if (summoned->GetEntry() == NPC_GRAUF)
-                m_uiGraufGUID = 0;
+                m_uiGraufGUID.Clear();
             Summons.Despawn(summoned);
         }
 
@@ -477,7 +473,7 @@ public:
         if (!instance)
             return false;
 
-        if (Creature* pSkadi = ObjectAccessor::GetCreature(*go, instance->GetData64(DATA_SKADI_THE_RUTHLESS)))
+        if (Creature* pSkadi = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_SKADI_THE_RUTHLESS)))
             player->CastSpell(pSkadi, SPELL_RAPID_FIRE, true);
 
         return false;

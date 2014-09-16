@@ -168,7 +168,7 @@ public:
 
             Position pos = me->GetPosition();
 
-            for (uint64 guid : lSparkList)
+            for (ObjectGuid guid : lSparkList)
             {
                 if (Creature* pSpark = ObjectAccessor::GetCreature(*me, guid))
                 {
@@ -348,7 +348,7 @@ public:
             // Prevent them to follow players through the whole instance
             if (uiCheckTimer <= uiDiff)
             {
-                Creature* ionar = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IONAR));
+                Creature* ionar = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_IONAR));
                 if (ionar && ionar->IsAlive())
                 {
                     if (me->GetDistance(ionar) > DATA_MAX_SPARK_DISTANCE)

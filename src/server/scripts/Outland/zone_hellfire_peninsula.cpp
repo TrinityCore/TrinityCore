@@ -310,7 +310,7 @@ public:
         void Reset() override
         {
             checkTimer = 5000; //check for creature every 5 sec
-            helboarGUID = 0;
+            helboarGUID.Clear();
         }
 
         void MovementInform(uint32 type, uint32 id) override
@@ -352,7 +352,7 @@ public:
 
     private:
         uint32 checkTimer;
-        uint64 helboarGUID;
+        ObjectGuid helboarGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

@@ -103,8 +103,8 @@ public:
         uint8 uiPhase;
         uint32 uiTimer;
 
-        std::list<uint64> SummonList;
-        std::list<uint64> GoSummonList;
+        GuidList SummonList;
+        GuidList GoSummonList;
 
         void Reset() override
         {
@@ -147,7 +147,7 @@ public:
             if (GoSummonList.empty())
                 return;
 
-            for (std::list<uint64>::const_iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
+            for (GuidList::const_iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
             {
                 if (GameObject* go = ObjectAccessor::GetGameObject(*me, *itr))
                 {
@@ -162,33 +162,33 @@ public:
                 }
             }
 
-            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(isRight ? DATA_GO_CAVE_IN_RIGHT : DATA_GO_CAVE_IN_LEFT)))
-                instance->HandleGameObject(0, false, go);
+            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(isRight ? DATA_GO_CAVE_IN_RIGHT : DATA_GO_CAVE_IN_LEFT)))
+                instance->HandleGameObject(ObjectGuid::Empty, false, go);
         }
 
         void SetInFace(bool isRight)
         {
-            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(isRight ? DATA_GO_CAVE_IN_RIGHT : DATA_GO_CAVE_IN_LEFT)))
+            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(isRight ? DATA_GO_CAVE_IN_RIGHT : DATA_GO_CAVE_IN_LEFT)))
                 me->SetFacingToObject(go);
         }
 
         void RestoreAll()
         {
-            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
-                instance->HandleGameObject(0, false, go);
+            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_RIGHT)))
+                instance->HandleGameObject(ObjectGuid::Empty, false, go);
 
-            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_LEFT)))
-                instance->HandleGameObject(0, false, go);
+            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_LEFT)))
+                instance->HandleGameObject(ObjectGuid::Empty, false, go);
 
             if (!GoSummonList.empty())
-                for (std::list<uint64>::const_iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
+                for (GuidList::const_iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
                 {
                     if (GameObject* go = ObjectAccessor::GetGameObject(*me, *itr))
                         go->RemoveFromWorld();
                 }
 
             if (!SummonList.empty())
-                for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
+                for (GuidList::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                 {
                     if (Creature* summon = ObjectAccessor::GetCreature(*me, *itr))
                     {
@@ -398,8 +398,8 @@ public:
                             SetInFace(true);
                             Talk(SAY_BLASTMASTER_5);
                             Summon(1);
-                            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
-                                instance->HandleGameObject(0, true, go);
+                            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_RIGHT)))
+                                instance->HandleGameObject(ObjectGuid::Empty, true, go);
                             NextStep(3000, true);
                             break;
                         case 7:
@@ -444,8 +444,8 @@ public:
                         case 16:
                             Talk(SAY_BLASTMASTER_14);
                             SetInFace(false);
-                            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_LEFT)))
-                                instance->HandleGameObject(0, true, go);
+                            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_LEFT)))
+                                instance->HandleGameObject(ObjectGuid::Empty, true, go);
                             NextStep(2000, true);
                             break;
                         case 17:

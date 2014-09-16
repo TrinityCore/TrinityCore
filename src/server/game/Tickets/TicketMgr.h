@@ -84,19 +84,19 @@ public:
     GmTicket(Player* player);
     ~GmTicket();
 
-    bool IsClosed() const { return _closedBy != 0; }
+    bool IsClosed() const { return !_closedBy.IsEmpty(); }
     bool IsCompleted() const { return _completed; }
-    bool IsFromPlayer(uint64 guid) const { return guid == _playerGuid; }
-    bool IsAssigned() const { return _assignedTo != 0; }
-    bool IsAssignedTo(uint64 guid) const { return guid == _assignedTo; }
-    bool IsAssignedNotTo(uint64 guid) const { return IsAssigned() && !IsAssignedTo(guid); }
+    bool IsFromPlayer(ObjectGuid guid) const { return guid == _playerGuid; }
+    bool IsAssigned() const { return !_assignedTo.IsEmpty(); }
+    bool IsAssignedTo(ObjectGuid guid) const { return guid == _assignedTo; }
+    bool IsAssignedNotTo(ObjectGuid guid) const { return IsAssigned() && !IsAssignedTo(guid); }
 
     uint32 GetId() const { return _id; }
     Player* GetPlayer() const { return ObjectAccessor::FindPlayer(_playerGuid); }
     std::string const& GetPlayerName() const { return _playerName; }
     std::string const& GetMessage() const { return _message; }
     Player* GetAssignedPlayer() const { return ObjectAccessor::FindPlayer(_assignedTo); }
-    uint64 GetAssignedToGUID() const { return _assignedTo; }
+    ObjectGuid GetAssignedToGUID() const { return _assignedTo; }
     std::string GetAssignedToName() const
     {
         std::string name;
@@ -110,7 +110,7 @@ public:
     GMTicketEscalationStatus GetEscalatedStatus() const { return _escalatedStatus; }
 
     void SetEscalatedStatus(GMTicketEscalationStatus escalatedStatus) { _escalatedStatus = escalatedStatus; }
-    void SetAssignedTo(uint64 guid, bool isAdmin)
+    void SetAssignedTo(ObjectGuid guid, bool isAdmin)
     {
         _assignedTo = guid;
         if (isAdmin && _escalatedStatus == TICKET_IN_ESCALATION_QUEUE)
@@ -118,7 +118,7 @@ public:
         else if (_escalatedStatus == TICKET_UNASSIGNED)
             _escalatedStatus = TICKET_ASSIGNED;
     }
-    void SetClosedBy(int64 value) { _closedBy = value; }
+    void SetClosedBy(ObjectGuid value) { _closedBy = value; }
     void SetCompleted() { _completed = true; }
     void SetMessage(std::string const& message)
     {
@@ -149,7 +149,7 @@ public:
 
 private:
     uint32 _id;
-    uint64 _playerGuid;
+    ObjectGuid _playerGuid;
     std::string _playerName;
     float _posX;
     float _posY;
@@ -158,8 +158,8 @@ private:
     std::string _message;
     uint64 _createTime;
     uint64 _lastModifiedTime;
-    int64 _closedBy; // 0 = Open, -1 = Console, playerGuid = player abandoned ticket, other = GM who closed it.
-    uint64 _assignedTo;
+    ObjectGuid _closedBy; // 0 = Open, -1 = Console, playerGuid = player abandoned ticket, other = GM who closed it.
+    ObjectGuid _assignedTo;
     std::string _comment;
     bool _completed;
     GMTicketEscalationStatus _escalatedStatus;
@@ -196,7 +196,7 @@ public:
         return NULL;
     }
 
-    GmTicket* GetTicketByPlayer(uint64 playerGuid)
+    GmTicket* GetTicketByPlayer(ObjectGuid playerGuid)
     {
         for (GmTicketList::const_iterator itr = _ticketList.begin(); itr != _ticketList.end(); ++itr)
             if (itr->second && itr->second->IsFromPlayer(playerGuid) && !itr->second->IsClosed())
@@ -215,7 +215,7 @@ public:
     }
 
     void AddTicket(GmTicket* ticket);
-    void CloseTicket(uint32 ticketId, int64 source = -1);
+    void CloseTicket(uint32 ticketId, ObjectGuid source);
     void RemoveTicket(uint32 ticketId);
 
     bool GetStatus() const { return _status; }

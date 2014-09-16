@@ -201,7 +201,7 @@ class npc_faerlina_add : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 if (_instance && GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
-                    if (Creature* faerlina = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_FAERLINA)))
+                    if (Creature* faerlina = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_FAERLINA)))
                         DoCast(faerlina, SPELL_WIDOWS_EMBRACE);
             }
 

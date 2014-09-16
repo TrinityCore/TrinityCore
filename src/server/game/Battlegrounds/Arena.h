@@ -42,7 +42,7 @@ class Arena : public Battleground
         Arena();
 
         void AddPlayer(Player* player) override;
-        void RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/) override;
+        void RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/) override;
 
         void FillInitialWorldStates(WorldPacket& data) override;
         void UpdateArenaWorldState();
@@ -50,7 +50,7 @@ class Arena : public Battleground
         void HandleKillPlayer(Player* player, Player* killer) override;
 
     private:
-        void RemovePlayerAtLeave(uint64 guid, bool transport, bool sendPacket) override;
+        void RemovePlayerAtLeave(ObjectGuid guid, bool transport, bool sendPacket) override;
         void CheckWinConditions() override;
         void EndBattleground(uint32 winner) override;
 };

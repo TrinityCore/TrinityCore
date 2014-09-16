@@ -45,9 +45,6 @@ class instance_shattered_halls : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                nethekurseGUID      = 0;
-                nethekurseDoor1GUID = 0;
-                nethekurseDoor2GUID = 0;
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -98,7 +95,7 @@ class instance_shattered_halls : public InstanceMapScript
                 return true;
             }
 
-            uint64 GetData64(uint32 data) const override
+            ObjectGuid GetGuidData(uint32 data) const override
             {
                 switch (data)
                 {
@@ -112,13 +109,13 @@ class instance_shattered_halls : public InstanceMapScript
                         return nethekurseDoor2GUID;
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
         protected:
-            uint64 nethekurseGUID;
-            uint64 nethekurseDoor1GUID;
-            uint64 nethekurseDoor2GUID;
+            ObjectGuid nethekurseGUID;
+            ObjectGuid nethekurseDoor1GUID;
+            ObjectGuid nethekurseDoor2GUID;
         };
 };
 
