@@ -76,11 +76,11 @@ enum GameObjectIds
 
 struct ForgeInfo
 {
-    ForgeInfo() : AnvilGUID(0), BellowGUID(0), FireGUID(0), Event(NOT_STARTED) { };
+    ForgeInfo() : Event(NOT_STARTED) { };
 
-    uint64 AnvilGUID;
-    uint64 BellowGUID;
-    uint64 FireGUID;
+    ObjectGuid AnvilGUID;
+    ObjectGuid BellowGUID;
+    ObjectGuid FireGUID;
 
     uint32 Event;
 };

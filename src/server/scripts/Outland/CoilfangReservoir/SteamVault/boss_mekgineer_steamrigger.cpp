@@ -226,7 +226,7 @@ public:
             {
                 if (instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == IN_PROGRESS)
                 {
-                    if (Creature* mekgineer = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MEKGINEER_STEAMRIGGER)))
+                    if (Creature* mekgineer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MEKGINEER_STEAMRIGGER)))
                     {
                         if (me->IsWithinDistInMap(mekgineer, MAX_REPAIR_RANGE))
                         {

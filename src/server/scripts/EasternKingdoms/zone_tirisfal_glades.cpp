@@ -77,12 +77,12 @@ public:
         {
             m_uiPhase = 0;
             m_uiPhaseTimer = 5000;
-            m_uiPlayerGUID = 0;
+            m_uiPlayerGUID.Clear();
         }
 
         uint32 m_uiPhase;
         uint32 m_uiPhaseTimer;
-        uint64 m_uiPlayerGUID;
+        ObjectGuid m_uiPlayerGUID;
 
         void Reset() override
         {

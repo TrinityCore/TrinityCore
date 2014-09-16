@@ -107,8 +107,8 @@ public:
             if (!bFirstTime)
                 instance->SetBossState(DATA_JEDOGA_SHADOWSEEKER, FAIL);
 
-            instance->SetData64(DATA_PL_JEDOGA_TARGET, 0);
-            instance->SetData64(DATA_ADD_JEDOGA_OPFER, 0);
+            instance->SetGuidData(DATA_PL_JEDOGA_TARGET, ObjectGuid::Empty);
+            instance->SetGuidData(DATA_ADD_JEDOGA_OPFER, ObjectGuid::Empty);
             instance->SetData(DATA_JEDOGA_RESET_INITIANDS, 0);
             MoveUp();
 
@@ -215,7 +215,7 @@ public:
             }
             else
             {
-                if (Unit* target = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_PL_JEDOGA_TARGET)))
+                if (Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_PL_JEDOGA_TARGET)))
                 {
                     AttackStart(target);
                     instance->SetData(DATA_JEDOGA_RESET_INITIANDS, 0);
@@ -248,13 +248,14 @@ public:
 
         void OpferRufen()
         {
-            uint64 opfer = instance->GetData64(DATA_ADD_JEDOGA_INITIAND);
+            ObjectGuid opfer = instance->GetGuidData(DATA_ADD_JEDOGA_INITIAND);
 
             if (opfer)
             {
                 Talk(TEXT_SACRIFICE_1);
-                instance->SetData64(DATA_ADD_JEDOGA_OPFER, opfer);
-            } else
+                instance->SetGuidData(DATA_ADD_JEDOGA_OPFER, opfer);
+            }
+            else
                 bCanDown = true;
         }
 
@@ -380,7 +381,7 @@ public:
 
             if (bWalking)
             {
-                if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_JEDOGA_SHADOWSEEKER)))
+                if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JEDOGA_SHADOWSEEKER)))
                 {
                     if (!ENSURE_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok)
                         ENSURE_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerokFail = true;
@@ -389,12 +390,12 @@ public:
                         boss->AI()->DoAction(ACTION_INITIAND_KILLED);
                 }
 
-                instance->SetData64(DATA_ADD_JEDOGA_OPFER, 0);
+                instance->SetGuidData(DATA_ADD_JEDOGA_OPFER, ObjectGuid::Empty);
 
                 bWalking = false;
             }
             if (killer->GetTypeId() == TYPEID_PLAYER)
-                instance->SetData64(DATA_PL_JEDOGA_TARGET, killer->GetGUID());
+                instance->SetGuidData(DATA_PL_JEDOGA_TARGET, killer->GetGUID());
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -427,7 +428,7 @@ public:
             {
                 case 1:
                     {
-                        Creature* boss = me->GetMap()->GetCreature(instance->GetData64(DATA_JEDOGA_SHADOWSEEKER));
+                        Creature* boss = me->GetMap()->GetCreature(instance->GetGuidData(DATA_JEDOGA_SHADOWSEEKER));
                         if (boss)
                         {
                             ENSURE_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok = true;
@@ -443,7 +444,7 @@ public:
         {
             if (bCheckTimer <= diff)
             {
-                if (me->GetGUID() == instance->GetData64(DATA_ADD_JEDOGA_OPFER) && !bWalking)
+                if (me->GetGUID() == instance->GetGuidData(DATA_ADD_JEDOGA_OPFER) && !bWalking)
                 {
                     me->RemoveAurasDueToSpell(SPELL_SPHERE_VISUAL);
                     me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, false);

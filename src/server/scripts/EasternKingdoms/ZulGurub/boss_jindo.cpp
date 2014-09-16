@@ -199,7 +199,7 @@ class npc_healing_ward : public CreatureScript
                 // Heal_Timer
                 if (Heal_Timer <= diff)
                 {
-                    if (Unit* jindo = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_JINDO)))
+                    if (Unit* jindo = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_JINDO)))
                         DoCast(jindo, SPELL_HEAL);
                     Heal_Timer = 3000;
                 } else Heal_Timer -= diff;

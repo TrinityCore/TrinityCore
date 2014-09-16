@@ -526,7 +526,7 @@ public:
         {
             me->CastSpell(me, SABOTEUR_SHIELD_DISRUPTION, false);
             me->DisappearAndDie();
-            Creature* pSaboPort = ObjectAccessor::GetCreature((*me), instance->GetData64(DATA_SABOTEUR_PORTAL));
+            Creature* pSaboPort = ObjectAccessor::GetCreature((*me), instance->GetGuidData(DATA_SABOTEUR_PORTAL));
             if (pSaboPort)
                 pSaboPort->DisappearAndDie();
             instance->SetData(DATA_START_BOSS_ENCOUNTER, 1);
@@ -653,13 +653,13 @@ public:
         void JustSummoned(Creature* summoned) override
         {
             listOfMobs.Summon(summoned);
-            instance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
+            instance->SetGuidData(DATA_ADD_TRASH_MOB, summoned->GetGUID());
         }
 
         void SummonedCreatureDies(Creature* summoned, Unit* /*killer*/) override
         {
             listOfMobs.Despawn(summoned);
-            instance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
+            instance->SetGuidData(DATA_DEL_TRASH_MOB, summoned->GetGUID());
         }
     };
 

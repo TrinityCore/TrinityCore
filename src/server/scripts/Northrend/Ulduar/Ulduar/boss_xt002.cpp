@@ -460,7 +460,7 @@ class npc_xt002_heart : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                Creature* xt002 = _instance ? ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_XT002)) : NULL;
+                Creature* xt002 = _instance ? ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)) : NULL;
                 if (!xt002 || !xt002->AI())
                     return;
 
@@ -512,7 +512,7 @@ class npc_scrapbot : public CreatureScript
 
                 Initialize();
 
-                if (Creature* pXT002 = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                if (Creature* pXT002 = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)))
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
@@ -520,7 +520,7 @@ class npc_scrapbot : public CreatureScript
             {
                 if (_rangeCheckTimer <= diff)
                 {
-                    if (Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                    if (Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)))
                     {
                         if (me->IsWithinMeleeRange(xt002))
                         {
@@ -575,7 +575,7 @@ class npc_pummeller : public CreatureScript
             {
                 Initialize();
 
-                if (Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                if (Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)))
                 {
                     Position pos = xt002->GetPosition();
                     me->GetMotionMaster()->MovePoint(0, pos);
@@ -689,7 +689,7 @@ class npc_boombot : public CreatureScript
                 me->SetFloatValue(UNIT_FIELD_MAXDAMAGE, 18000.0f);
 
                 /// @todo proper waypoints?
-                if (Creature* pXT002 = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                if (Creature* pXT002 = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)))
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
@@ -939,7 +939,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
                 {
                     if (InstanceScript* instance = caster->GetInstanceScript())
                     {
-                        if (Unit* toyPile = ObjectAccessor::GetUnit(*caster, instance->GetData64(DATA_TOY_PILE_0 + urand(0, 3))))
+                        if (Unit* toyPile = ObjectAccessor::GetUnit(*caster, instance->GetGuidData(DATA_TOY_PILE_0 + urand(0, 3))))
                         {
                             caster->CastSpell(toyPile, SPELL_ENERGY_ORB, true);
 
@@ -952,7 +952,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
                             {
                                 uint8 a = urand(0, 4);
                                 uint32 spellId = spells[a];
-                                toyPile->CastSpell(toyPile, spellId, true, NULL, NULL, instance->GetData64(BOSS_XT002));
+                                toyPile->CastSpell(toyPile, spellId, true, NULL, NULL, instance->GetGuidData(BOSS_XT002));
                             }
                         }
                     }

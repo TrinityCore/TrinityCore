@@ -96,7 +96,6 @@ public:
             VenomancerTimer = 0;
             DatterTimer = 0;
             DelayTimer = 0;
-            ImpaleTarget = 0;
         }
 
         void Initialize()
@@ -110,6 +109,7 @@ public:
             UndergroundPhase = 0;
             Channeling = false;
             ImpalePhase = IMPALE_PHASE_TARGET;
+            ImpaleTarget.Clear();
         }
 
         InstanceScript* instance;
@@ -130,7 +130,7 @@ public:
 
         uint32 ImpaleTimer;
         uint32 ImpalePhase;
-        uint64 ImpaleTarget;
+        ObjectGuid ImpaleTarget;
 
         SummonList Summons;
 

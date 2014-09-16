@@ -353,7 +353,7 @@ class spell_dk_bloodworms : public SpellScriptLoader
 class CorpseExplosionCheck
 {
 public:
-    explicit CorpseExplosionCheck(uint64 casterGUID, bool allowGhoul) : _casterGUID(casterGUID),
+    explicit CorpseExplosionCheck(ObjectGuid casterGUID, bool allowGhoul) : _casterGUID(casterGUID),
         _allowGhoul(allowGhoul) { }
 
     bool operator()(WorldObject* obj) const
@@ -370,7 +370,7 @@ public:
     }
 
 private:
-    uint64 _casterGUID;
+    ObjectGuid _casterGUID;
     bool _allowGhoul;
 };
 

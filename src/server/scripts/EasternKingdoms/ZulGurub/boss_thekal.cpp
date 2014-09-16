@@ -180,7 +180,7 @@ class boss_thekal : public CreatureScript
                                 if (instance->GetBossState(DATA_LORKHAN) == SPECIAL)
                                 {
                                     //Resurrect LorKhan
-                                    if (Unit* pLorKhan = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_LORKHAN)))
+                                    if (Unit* pLorKhan = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_LORKHAN)))
                                     {
                                         pLorKhan->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                                         pLorKhan->setFaction(14);
@@ -193,7 +193,7 @@ class boss_thekal : public CreatureScript
                                 if (instance->GetBossState(DATA_ZATH) == SPECIAL)
                                 {
                                     //Resurrect Zath
-                                    if (Unit* pZath = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_ZATH)))
+                                    if (Unit* pZath = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_ZATH)))
                                     {
                                         pZath->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                                         pZath->setFaction(14);
@@ -333,8 +333,8 @@ class npc_zealot_lorkhan : public CreatureScript
                 //Casting Greaterheal to Thekal or Zath if they are in meele range.
                 if (GreaterHeal_Timer <= diff)
                 {
-                    Unit* pThekal = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_THEKAL));
-                    Unit* pZath = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_ZATH));
+                    Unit* pThekal = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THEKAL));
+                    Unit* pZath = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_ZATH));
 
                     if (!pThekal || !pZath)
                         return;
@@ -367,7 +367,7 @@ class npc_zealot_lorkhan : public CreatureScript
                     if (instance->GetBossState(DATA_THEKAL) == SPECIAL)
                     {
                         //Resurrect Thekal
-                        if (Unit* pThekal = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_THEKAL)))
+                        if (Unit* pThekal = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THEKAL)))
                         {
                             pThekal->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                             pThekal->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -379,7 +379,7 @@ class npc_zealot_lorkhan : public CreatureScript
                     if (instance->GetBossState(DATA_ZATH) == SPECIAL)
                     {
                         //Resurrect Zath
-                        if (Unit* pZath = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_ZATH)))
+                        if (Unit* pZath = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_ZATH)))
                         {
                             pZath->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                             pZath->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -517,7 +517,7 @@ class npc_zealot_zath : public CreatureScript
                     if (instance->GetBossState(DATA_LORKHAN) == SPECIAL)
                     {
                         //Resurrect LorKhan
-                        if (Unit* pLorKhan = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_LORKHAN)))
+                        if (Unit* pLorKhan = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_LORKHAN)))
                         {
                             pLorKhan->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                             pLorKhan->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -529,7 +529,7 @@ class npc_zealot_zath : public CreatureScript
                     if (instance->GetBossState(DATA_THEKAL) == SPECIAL)
                     {
                         //Resurrect Thekal
-                        if (Unit* pThekal = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_THEKAL)))
+                        if (Unit* pThekal = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THEKAL)))
                         {
                             pThekal->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                             pThekal->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

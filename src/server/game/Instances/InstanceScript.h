@@ -35,9 +35,6 @@ class Player;
 class GameObject;
 class Creature;
 
-typedef std::set<uint64> DoorSet;
-typedef std::set<uint64> MinionSet;
-
 enum EncounterFrameType
 {
     ENCOUNTER_FRAME_ENGAGE              = 0,
@@ -103,8 +100,8 @@ struct BossInfo
 {
     BossInfo() : state(TO_BE_DECIDED) { }
     EncounterState state;
-    DoorSet door[MAX_DOOR_TYPES];
-    MinionSet minion;
+    GuidSet door[MAX_DOOR_TYPES];
+    GuidSet minion;
     BossBoundaryMap boundary;
 };
 
@@ -160,13 +157,13 @@ class InstanceScript : public ZoneScript
         // Handle open / close objects
         // * use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
         // * use HandleGameObject(GUID, boolen, NULL); in any other script
-        void HandleGameObject(uint64 guid, bool open, GameObject* go = nullptr);
+        void HandleGameObject(ObjectGuid guid, bool open, GameObject* go = nullptr);
 
         // Change active state of doors or buttons
-        void DoUseDoorOrButton(uint64 guid, uint32 withRestoreTime = 0, bool useAlternativeState = false);
+        void DoUseDoorOrButton(ObjectGuid guid, uint32 withRestoreTime = 0, bool useAlternativeState = false);
 
         // Respawns a GO having negative spawntimesecs in gameobject-table
-        void DoRespawnGameObject(uint64 guid, uint32 timeToDespawn = MINUTE);
+        void DoRespawnGameObject(ObjectGuid guid, uint32 timeToDespawn = MINUTE);
 
         // Sends world state update to all players in instance
         void DoUpdateWorldState(uint32 worldstateId, uint32 worldstateValue);
