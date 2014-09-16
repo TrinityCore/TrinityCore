@@ -91,8 +91,8 @@ WorldObject::~WorldObject()
     {
         if (GetTypeId() == TYPEID_CORPSE)
         {
-            TC_LOG_FATAL("misc", "Object::~Object Corpse guid=" UI64FMTD ", type=%d, entry=%u deleted but still in map!!",
-                GetGUID(), ((Corpse*)this)->GetType(), GetEntry());
+            TC_LOG_FATAL("misc", "Object::~Object Corpse type=%d deleted but still in map!!",
+                GetGUID().ToString().c_str(), ((Corpse*)this)->GetType());
             ASSERT(false);
         }
         ResetMap();
@@ -103,7 +103,7 @@ Object::~Object()
 {
     if (IsInWorld())
     {
-        TC_LOG_FATAL("misc", "Object::~Object - guid=" UI64FMTD ", typeid=%d, entry=%u deleted but still in world!!", GetGUID(), GetTypeId(), GetEntry());
+        TC_LOG_FATAL("misc", "Object::~Object %s but still in world!!", GetGUID().ToString().c_str());
         if (isType(TYPEMASK_ITEM))
             TC_LOG_FATAL("misc", "Item slot %u", ((Item*)this)->GetSlot());
         ASSERT(false);
@@ -112,7 +112,7 @@ Object::~Object()
 
     if (m_objectUpdated)
     {
-        TC_LOG_FATAL("misc", "Object::~Object - guid=" UI64FMTD ", typeid=%d, entry=%u deleted but still in update list!!", GetGUID(), GetTypeId(), GetEntry());
+        TC_LOG_FATAL("misc", "Object::~Object %s deleted but still in update list!!", GetGUID().ToString().c_str());
         ASSERT(false);
         sObjectAccessor->RemoveUpdateObject(this);
     }
@@ -1091,7 +1091,7 @@ ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZOStreamer const& st
 void MovementInfo::OutDebug()
 {
     TC_LOG_INFO("misc", "MOVEMENT INFO");
-    TC_LOG_INFO("misc", "guid " UI64FMTD, guid);
+    TC_LOG_INFO("misc", "guid %s", guid.ToString().c_str());
     TC_LOG_INFO("misc", "flags %u", flags);
     TC_LOG_INFO("misc", "flags2 %u", flags2);
     TC_LOG_INFO("misc", "time %u current time " UI64FMTD "", flags2, uint64(::time(NULL)));
@@ -1099,7 +1099,7 @@ void MovementInfo::OutDebug()
     if (flags & MOVEMENTFLAG_ONTRANSPORT)
     {
         TC_LOG_INFO("misc", "TRANSPORT:");
-        TC_LOG_INFO("misc", "guid: " UI64FMTD, transport.guid);
+        TC_LOG_INFO("misc", "guid: %s", transport.guid.ToString().c_str());
         TC_LOG_INFO("misc", "position: `%s`", transport.pos.ToString().c_str());
         TC_LOG_INFO("misc", "seat: %i", transport.seat);
         TC_LOG_INFO("misc", "time: %u", transport.time);
