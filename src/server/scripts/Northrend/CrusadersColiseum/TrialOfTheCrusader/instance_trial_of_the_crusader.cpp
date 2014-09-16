@@ -173,6 +173,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         break;
                     case NPC_ANUBARAK:
                         AnubarakGUID = creature->GetGUID();
+                        creature->SetRespawnDelay(7 * DAY);
                         break;
                     default:
                         break;

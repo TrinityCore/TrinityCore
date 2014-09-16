@@ -148,7 +148,7 @@ protected:
             return true;
 
         _isWritingAsync = true;
-        
+
 #ifdef BOOST_ASIO_HAS_IOCP
         MessageBuffer& buffer = _writeQueue.front();
         _socket.async_write_some(boost::asio::buffer(buffer.GetReadPointer(), buffer.GetActiveSize()), std::bind(&Socket<T>::WriteHandler,

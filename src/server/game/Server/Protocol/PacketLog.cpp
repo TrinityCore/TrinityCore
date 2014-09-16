@@ -93,7 +93,8 @@ void PacketLog::Initialize()
         header.SniffStartTicks = getMSTime();
         header.OptionalDataSize = 0;
 
-        fwrite(&header, sizeof(header), 1, _file);
+        if (CanLogPacket())
+            fwrite(&header, sizeof(header), 1, _file);
     }
 }
 

@@ -769,8 +769,8 @@ public:
                 handler->PSendSysMessage(npcFlagTexts[i].Name, npcFlagTexts[i].Value);
 
         handler->PSendSysMessage(LANG_NPCINFO_MECHANIC_IMMUNE, mechanicImmuneMask);
-        for (uint8 i = 0; i < MAX_MECHANIC; ++i)
-            if ((mechanicImmuneMask << 1) & mechanicImmunes[i].Value)
+        for (uint8 i = 1; i < MAX_MECHANIC; ++i)
+            if (mechanicImmuneMask & (1 << (mechanicImmunes[i].Value - 1)))
                 handler->PSendSysMessage("%s (0x%X)", mechanicImmunes[i].Name, mechanicImmunes[i].Value);
 
         return true;

@@ -97,7 +97,7 @@ public:
     int32 GetNetworkThreadCount() const { return _threadCount; }
 
 protected:
-    SocketMgr() : _threads(nullptr), _threadCount(1)
+    SocketMgr() : _acceptor(nullptr), _threads(nullptr), _threadCount(1)
     {
     }
 
