@@ -441,7 +441,7 @@ class npc_watcher_gashra : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                Creature* krikthir = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_KRIKTHIR_THE_GATEWATCHER));
+                Creature* krikthir = _instance->GetCreature(DATA_KRIKTHIR_THE_GATEWATCHER);
                 if (krikthir && krikthir->IsAlive())
                     krikthir->AI()->Talk(SAY_PREFIGHT);
             }
@@ -514,7 +514,7 @@ class npc_watcher_narjil : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                Creature* krikthir = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_KRIKTHIR_THE_GATEWATCHER));
+                Creature* krikthir = _instance->GetCreature(DATA_KRIKTHIR_THE_GATEWATCHER);
                 if (krikthir && krikthir->IsAlive())
                     krikthir->AI()->Talk(SAY_PREFIGHT);
             }
@@ -591,7 +591,7 @@ class npc_watcher_silthik : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                Creature* krikthir = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_KRIKTHIR_THE_GATEWATCHER));
+                Creature* krikthir = _instance->GetCreature(DATA_KRIKTHIR_THE_GATEWATCHER);
                 if (krikthir && krikthir->IsAlive())
                     krikthir->AI()->Talk(SAY_PREFIGHT);
             }
@@ -645,9 +645,7 @@ class npc_watcher_silthik : public CreatureScript
 class achievement_watch_him_die : public AchievementCriteriaScript
 {
     public:
-        achievement_watch_him_die() : AchievementCriteriaScript("achievement_watch_him_die")
-        {
-        }
+        achievement_watch_him_die() : AchievementCriteriaScript("achievement_watch_him_die") { }
 
         bool OnCheck(Player* /*player*/, Unit* target) override
         {
@@ -660,7 +658,7 @@ class achievement_watch_him_die : public AchievementCriteriaScript
 
             for (uint8 n = 0; n < 3; ++n)
             {
-                if (Creature* watcher = ObjectAccessor::GetCreature(*target, instance->GetGuidData(DATA_WATCHER_GASHRA + n)))
+                if (Creature* watcher = instance->GetCreature(DATA_WATCHER_GASHRA + n))
                     if (!watcher->IsAlive())
                         return false;
             }

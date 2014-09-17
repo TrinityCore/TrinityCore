@@ -96,6 +96,12 @@ struct MinionData
     uint32 entry, bossId;
 };
 
+struct ObjectData
+{
+    uint32 entry;
+    uint32 type;
+};
+
 struct BossInfo
 {
     BossInfo() : state(TO_BE_DECIDED) { }
@@ -124,6 +130,8 @@ typedef std::multimap<uint32 /*entry*/, DoorInfo> DoorInfoMap;
 typedef std::pair<DoorInfoMap::const_iterator, DoorInfoMap::const_iterator> DoorInfoMapBounds;
 
 typedef std::map<uint32 /*entry*/, MinionInfo> MinionInfoMap;
+typedef std::map<uint32 /*type*/, ObjectGuid /*guid*/> ObjectGuidMap;
+typedef std::map<uint32 /*entry*/, uint32 /*type*/> ObjectInfoMap;
 
 class InstanceScript : public ZoneScript
 {
@@ -150,6 +158,26 @@ class InstanceScript : public ZoneScript
         // Used by the map's CanEnter function.
         // This is to prevent players from entering during boss encounters.
         virtual bool IsEncounterInProgress() const;
+
+        // Called when a creature/gameobject is added to map or removed from map.
+        // Insert/Remove objectguid to dynamic guid store
+        virtual void OnCreatureCreate(Creature* creature) override;
+        virtual void OnCreatureRemove(Creature* creature) override;
+
+        virtual void OnGameObjectCreate(GameObject* go) override;
+        virtual void OnGameObjectRemove(GameObject* go) override;
+
+        ObjectGuid GetObjectGuid(uint32 type) const;
+        virtual ObjectGuid GetGuidData(uint32 type) const override;
+
+        inline Creature* GetCreature(uint32 type)
+        {
+            return ObjectAccessor::GetObjectInMap<Creature>(GetObjectGuid(type), instance, nullptr);
+        }
+        inline GameObject* GetGameObject(uint32 type)
+        {
+            return ObjectAccessor::GetObjectInMap<GameObject>(GetObjectGuid(type), instance, nullptr);
+        }
 
         // Called when a player successfully enters the instance.
         virtual void OnPlayerEnter(Player* /*player*/) { }
@@ -196,7 +224,7 @@ class InstanceScript : public ZoneScript
         virtual bool CheckAchievementCriteriaMeet(uint32 /*criteria_id*/, Player const* /*source*/, Unit const* /*target*/ = NULL, uint32 /*miscvalue1*/ = 0);
 
         // Checks boss requirements (one boss required to kill other)
-        virtual bool CheckRequiredBosses(uint32 /*bossId*/, Player const* /*player*/ = NULL) const { return true; }
+        virtual bool CheckRequiredBosses(uint32 /*bossId*/, Player const* /*player*/ = nullptr) const { return true; }
 
         // Checks encounter state at kill/spellcast
         void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source);
@@ -216,6 +244,11 @@ class InstanceScript : public ZoneScript
         void SetBossNumber(uint32 number) { bosses.resize(number); }
         void LoadDoorData(DoorData const* data);
         void LoadMinionData(MinionData const* data);
+        void LoadObjectData(ObjectData const* creatureData, ObjectData const* gameObjectData);
+
+        void AddObject(Creature* obj, bool add);
+        void AddObject(GameObject* obj, bool add);
+        void AddObject(WorldObject* obj, uint32 type, bool add);
 
         void AddDoor(GameObject* door, bool add);
         void AddMinion(Creature* minion, bool add);
@@ -232,10 +265,15 @@ class InstanceScript : public ZoneScript
         virtual void WriteSaveDataMore(std::ostringstream& /*data*/) { }
 
     private:
+        static void LoadObjectData(ObjectData const* creatureData, ObjectInfoMap& objectInfo);
+
         std::vector<char> headers;
         std::vector<BossInfo> bosses;
         DoorInfoMap doors;
         MinionInfoMap minions;
+        ObjectInfoMap _creatureInfo;
+        ObjectInfoMap _gameObjectInfo;
+        ObjectGuidMap _objectGuids;
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
 };
 
