@@ -28,6 +28,15 @@ DoorData const doorData[] =
     { 0,                    0,                              DOOR_TYPE_ROOM,     BOUNDARY_NONE } // END
 };
 
+ObjectData const creatureData[] =
+{
+    { NPC_KRIKTHIR,        DATA_KRIKTHIR_THE_GATEWATCHER },
+    { NPC_WATCHER_NARJIL,  DATA_WATCHER_GASHRA           },
+    { NPC_WATCHER_GASHRA,  DATA_WATCHER_SILTHIK          },
+    { NPC_WATCHER_SILTHIK, DATA_WATCHER_NARJIL           },
+    { 0,                   0                             } // END
+};
+
 class instance_azjol_nerub : public InstanceMapScript
 {
     public:
@@ -40,95 +49,8 @@ class instance_azjol_nerub : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
+                LoadObjectData(creatureData, nullptr);
             }
-
-            void OnCreatureCreate(Creature* creature) override
-            {
-                switch (creature->GetEntry())
-                {
-                    case NPC_KRIKTHIR:
-                        KrikthirGUID = creature->GetGUID();
-                        break;
-                    case NPC_HADRONOX:
-                        HadronoxGUID = creature->GetGUID();
-                        break;
-                    case NPC_ANUBARAK:
-                        AnubarakGUID = creature->GetGUID();
-                        break;
-                    case NPC_WATCHER_NARJIL:
-                        WatcherNarjilGUID = creature->GetGUID();
-                        break;
-                    case NPC_WATCHER_GASHRA:
-                        WatcherGashraGUID = creature->GetGUID();
-                        break;
-                    case NPC_WATCHER_SILTHIK:
-                        WatcherSilthikGUID = creature->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_KRIKTHIR_DOOR:
-                    case GO_ANUBARAK_DOOR_1:
-                    case GO_ANUBARAK_DOOR_2:
-                    case GO_ANUBARAK_DOOR_3:
-                        AddDoor(go, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_KRIKTHIR_DOOR:
-                    case GO_ANUBARAK_DOOR_1:
-                    case GO_ANUBARAK_DOOR_2:
-                    case GO_ANUBARAK_DOOR_3:
-                        AddDoor(go, false);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            ObjectGuid GetGuidData(uint32 type) const override
-            {
-                switch (type)
-                {
-                    case DATA_KRIKTHIR_THE_GATEWATCHER:
-                        return KrikthirGUID;
-                    case DATA_HADRONOX:
-                        return HadronoxGUID;
-                    case DATA_ANUBARAK:
-                        return AnubarakGUID;
-                    case DATA_WATCHER_GASHRA:
-                        return WatcherGashraGUID;
-                    case DATA_WATCHER_SILTHIK:
-                        return WatcherSilthikGUID;
-                    case DATA_WATCHER_NARJIL:
-                        return WatcherNarjilGUID;
-                    default:
-                        break;
-                }
-
-                return ObjectGuid::Empty;
-            }
-
-        protected:
-            ObjectGuid KrikthirGUID;
-            ObjectGuid HadronoxGUID;
-            ObjectGuid AnubarakGUID;
-            ObjectGuid WatcherGashraGUID;
-            ObjectGuid WatcherSilthikGUID;
-            ObjectGuid WatcherNarjilGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

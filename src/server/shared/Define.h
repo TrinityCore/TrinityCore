@@ -88,6 +88,12 @@
 #define SI64FMTD "%" PRId64
 #define SI64LIT(N) INT64_C(N)
 
+#if COMPILER == COMPILER_MICROSOFT
+#  define SZFMTD "%Iu"
+#else
+#  define SZFMTD "%zu"
+#endif
+
 typedef int64_t int64;
 typedef int32_t int32;
 typedef int16_t int16;
