@@ -131,6 +131,8 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, ObjectGuid gui
             break;
         case HIGHGUID_CORPSE:
             break;
+        default:
+            break;
     }
 
     return NULL;

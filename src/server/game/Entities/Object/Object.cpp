@@ -91,7 +91,7 @@ WorldObject::~WorldObject()
     {
         if (GetTypeId() == TYPEID_CORPSE)
         {
-            TC_LOG_FATAL("misc", "Object::~Object Corpse type=%d deleted but still in map!!",
+            TC_LOG_FATAL("misc", "Object::~Object Corpse Guid: %s Type: %d deleted but still in map!!",
                 GetGUID().ToString().c_str(), ((Corpse*)this)->GetType());
             ASSERT(false);
         }
