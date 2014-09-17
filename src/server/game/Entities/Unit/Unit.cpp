@@ -8156,9 +8156,9 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             float averageDmg = 0;
             // now compute approximate weapon damage by formula from wowwiki.com
             if (procFlags & PROC_FLAG_DONE_OFFHAND_ATTACK)
-                averageDmg = (GetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE) + GetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE)) / 2;
+                averageDmg = (GetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE) + GetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE)) / 2.f;
             else
-                averageDmg = (GetFloatValue(UNIT_FIELD_MINDAMAGE) + GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2;
+                averageDmg = (GetFloatValue(UNIT_FIELD_MINDAMAGE) + GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2.f;
 
             basepoints0 = int32(averageDmg);
             break;
