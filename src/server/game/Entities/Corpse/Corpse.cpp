@@ -194,7 +194,7 @@ bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
 
     if (!IsPositionValid())
     {
-        TC_LOG_ERROR("entities.player", "Corpse (guid: %s, owner: %s) is not created, given coordinates are not valid (X: %f, Y: %f, Z: %f)",
+        TC_LOG_ERROR("entities.player", "Corpse (%s, owner: %s) is not created, given coordinates are not valid (X: %f, Y: %f, Z: %f)",
             GetGUID().ToString().c_str(), GetOwnerGUID().ToString().c_str(), posX, posY, posZ);
         return false;
     }

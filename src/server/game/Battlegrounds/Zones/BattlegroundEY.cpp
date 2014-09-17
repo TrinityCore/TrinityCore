@@ -593,7 +593,7 @@ void BattlegroundEY::RespawnFlagAfterDrop()
     if (obj)
         obj->Delete();
     else
-        TC_LOG_ERROR("bg.battleground", "BattlegroundEY: Unknown dropped flag guid: %s", GetDroppedFlagGUID().ToString().c_str());
+        TC_LOG_ERROR("bg.battleground", "BattlegroundEY: Unknown dropped flag (%s)", GetDroppedFlagGUID().ToString().c_str());
 
     SetDroppedFlagGUID(ObjectGuid::Empty);
 }
