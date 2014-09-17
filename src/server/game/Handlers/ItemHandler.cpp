@@ -617,7 +617,7 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleBuybackItem - Unit (GUID: %u) not found or you can not interact with him.", vendorguid.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleBuybackItem - Unit (GUID: %s) not found or you can not interact with him.", vendorguid.ToString().c_str());
         _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, ObjectGuid::Empty, 0);
         return;
     }
