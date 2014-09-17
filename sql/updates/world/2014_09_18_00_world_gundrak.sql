@@ -7,6 +7,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13,1,57072,0,0,31,0,3,30298,127033,0,0, '', 'Cosmetic - Fire Beam Elemental'),
 (13,1,54988,0,0,31,0,3,22517,0,0,0, '', 'Heart Beam Visual');
 
+UPDATE `creature_addon` SET `auras`=NULL WHERE `guid`=127213;
+
 UPDATE `creature_model_info` SET `bounding_radius`=0.3875, `combat_reach`=6.25 WHERE `modelid`=26278;
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (54956,59827);
