@@ -1250,7 +1250,7 @@ void ObjectMgr::LoadCreatureModelInfo()
         // Checks
 
         if (!sCreatureDisplayInfoStore.LookupEntry(modelId))
-            TC_LOG_ERROR("sql.sql", "Table `creature_model_info` has model for not existed display id (%u).", modelId);
+            TC_LOG_ERROR("sql.sql", "Table `creature_model_info` has model for nonexistent display id (%u).", modelId);
 
         if (modelInfo.gender > GENDER_NONE)
         {
@@ -1260,7 +1260,7 @@ void ObjectMgr::LoadCreatureModelInfo()
 
         if (modelInfo.modelid_other_gender && !sCreatureDisplayInfoStore.LookupEntry(modelInfo.modelid_other_gender))
         {
-            TC_LOG_ERROR("sql.sql", "Table `creature_model_info` has not existed alt.gender model (%u) for existed display id (%u).", modelInfo.modelid_other_gender, modelId);
+            TC_LOG_ERROR("sql.sql", "Table `creature_model_info` has nonexistent alt.gender model (%u) for existed display id (%u).", modelInfo.modelid_other_gender, modelId);
             modelInfo.modelid_other_gender = 0;
         }
 
@@ -1662,20 +1662,20 @@ void ObjectMgr::LoadCreatures()
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
         {
-            TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u) that spawned at not existed map (Id: %u), skipped.", guid, data.mapid);
+            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u) that spawned at nonexistent map (Id: %u), skipped.", guid, data.mapid);
             continue;
         }
 
         // Skip spawnMask check for transport maps
         if (!IsTransportMap(data.mapid) && data.spawnMask & ~spawnMasks[data.mapid])
-            TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u) that have wrong spawn mask %u including not supported difficulty modes for map (Id: %u).", guid, data.spawnMask, data.mapid);
+            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u) that have wrong spawn mask %u including unsupported difficulty modes for map (Id: %u).", guid, data.spawnMask, data.mapid);
 
         bool ok = true;
         for (uint32 diff = 0; diff < MAX_DIFFICULTY - 1 && ok; ++diff)
         {
             if (_difficultyEntries[diff].find(data.id) != _difficultyEntries[diff].end())
             {
-                TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u) that listed as difficulty %u template (entry: %u) in `creature_template`, skipped.",
+                TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u) that is listed as difficulty %u template (entry: %u) in `creature_template`, skipped.",
                     guid, diff + 1, data.id);
                 ok = false;
             }
@@ -1688,7 +1688,7 @@ void ObjectMgr::LoadCreatures()
         {
             if (!GetEquipmentInfo(data.id, data.equipmentId))
             {
-                TC_LOG_ERROR("sql.sql", "Table `creature` have creature (Entry: %u) with equipment_id %u not found in table `creature_equip_template`, set to no equipment.", data.id, data.equipmentId);
+                TC_LOG_ERROR("sql.sql", "Table `creature` has creature (Entry: %u) with equipment_id %u not found in table `creature_equip_template`, set to no equipment.", data.id, data.equipmentId);
                 data.equipmentId = 0;
             }
         }
@@ -1696,19 +1696,19 @@ void ObjectMgr::LoadCreatures()
         if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
         {
             if (!mapEntry || !mapEntry->IsDungeon())
-                TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u Entry: %u) with `creature_template`.`flags_extra` including CREATURE_FLAG_EXTRA_INSTANCE_BIND but creature are not in instance.", guid, data.id);
+                TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u Entry: %u) with `creature_template`.`flags_extra` including CREATURE_FLAG_EXTRA_INSTANCE_BIND but creature is not in instance.", guid, data.id);
         }
 
         if (data.spawndist < 0.0f)
         {
-            TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u Entry: %u) with `spawndist`< 0, set to 0.", guid, data.id);
+            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u Entry: %u) with `spawndist`< 0, set to 0.", guid, data.id);
             data.spawndist = 0.0f;
         }
         else if (data.movementType == RANDOM_MOTION_TYPE)
         {
             if (data.spawndist == 0.0f)
             {
-                TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u Entry: %u) with `MovementType`=1 (random movement) but with `spawndist`=0, replace by idle movement type (0).", guid, data.id);
+                TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u Entry: %u) with `MovementType`=1 (random movement) but with `spawndist`=0, replace by idle movement type (0).", guid, data.id);
                 data.movementType = IDLE_MOTION_TYPE;
             }
         }
@@ -1716,14 +1716,14 @@ void ObjectMgr::LoadCreatures()
         {
             if (data.spawndist != 0.0f)
             {
-                TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u Entry: %u) with `MovementType`=0 (idle) have `spawndist`<>0, set to 0.", guid, data.id);
+                TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u Entry: %u) with `MovementType`=0 (idle) have `spawndist`<>0, set to 0.", guid, data.id);
                 data.spawndist = 0.0f;
             }
         }
 
         if (data.phaseMask == 0)
         {
-            TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u Entry: %u) with `phaseMask`=0 (not visible for anyone), set to 1.", guid, data.id);
+            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u Entry: %u) with `phaseMask`=0 (not visible for anyone), set to 1.", guid, data.id);
             data.phaseMask = 1;
         }
 
@@ -2003,7 +2003,7 @@ void ObjectMgr::LoadGameobjects()
         data.spawnMask      = fields[14].GetUInt8();
 
         if (!IsTransportMap(data.mapid) && data.spawnMask & ~spawnMasks[data.mapid])
-            TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) that has wrong spawn mask %u including not supported difficulty modes for map (Id: %u), skip", guid, data.id, data.spawnMask, data.mapid);
+            TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) that has wrong spawn mask %u including unsupported difficulty modes for map (Id: %u), skip", guid, data.id, data.spawnMask, data.mapid);
 
         data.phaseMask      = fields[15].GetUInt32();
         int16 gameEvent     = fields[16].GetInt8();
@@ -4721,7 +4721,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                     info->type == GAMEOBJECT_TYPE_BUTTON      ||
                     info->type == GAMEOBJECT_TYPE_TRAP)
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `%s` have gameobject type (%u) unsupported by command SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id %u",
+                    TC_LOG_ERROR("sql.sql", "Table `%s` has gameobject type (%u) unsupported by command SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id %u",
                         tableName.c_str(), info->entry, tmp.id);
                     continue;
                 }
@@ -4767,7 +4767,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
 
                 if (info->type != GAMEOBJECT_TYPE_DOOR)
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `%s` has gameobject type (%u) non supported by command %s for script id %u",
+                    TC_LOG_ERROR("sql.sql", "Table `%s` has gameobject type (%u) unsupported by command %s for script id %u",
                         tableName.c_str(), info->entry, GetScriptCommandName(tmp.command).c_str(), tmp.id);
                     continue;
                 }
@@ -6278,7 +6278,7 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         _hiItemGuid = (*result)[0].GetUInt32()+1;
 
-    // Cleanup other tables from not existed guids ( >= _hiItemGuid)
+    // Cleanup other tables from nonexistent guids ( >= _hiItemGuid)
     CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", _hiItemGuid);      // One-time query
     CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", _hiItemGuid);          // One-time query
     CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", _hiItemGuid);         // One-time query
@@ -6961,7 +6961,7 @@ void ObjectMgr::LoadReputationOnKill()
 
         if (!GetCreatureTemplate(creature_id))
         {
-            TC_LOG_ERROR("sql.sql", "Table `creature_onkill_reputation` have data for not existed creature entry (%u), skipped", creature_id);
+            TC_LOG_ERROR("sql.sql", "Table `creature_onkill_reputation` has data for nonexistent creature entry (%u), skipped", creature_id);
             continue;
         }
 
@@ -7378,9 +7378,9 @@ void ObjectMgr::LoadGameobjectQuestStarters()
     {
         GameObjectTemplate const* goInfo = GetGameObjectTemplate(itr->first);
         if (!goInfo)
-            TC_LOG_ERROR("sql.sql", "Table `gameobject_queststarter` have data for not existed gameobject entry (%u) and existed quest %u", itr->first, itr->second);
+            TC_LOG_ERROR("sql.sql", "Table `gameobject_queststarter` has data for nonexistent gameobject entry (%u) and existed quest %u", itr->first, itr->second);
         else if (goInfo->type != GAMEOBJECT_TYPE_QUESTGIVER)
-            TC_LOG_ERROR("sql.sql", "Table `gameobject_queststarter` have data gameobject entry (%u) for quest %u, but GO is not GAMEOBJECT_TYPE_QUESTGIVER", itr->first, itr->second);
+            TC_LOG_ERROR("sql.sql", "Table `gameobject_queststarter` has data gameobject entry (%u) for quest %u, but GO is not GAMEOBJECT_TYPE_QUESTGIVER", itr->first, itr->second);
     }
 }
 
@@ -7392,9 +7392,9 @@ void ObjectMgr::LoadGameobjectQuestEnders()
     {
         GameObjectTemplate const* goInfo = GetGameObjectTemplate(itr->first);
         if (!goInfo)
-            TC_LOG_ERROR("sql.sql", "Table `gameobject_questender` have data for not existed gameobject entry (%u) and existed quest %u", itr->first, itr->second);
+            TC_LOG_ERROR("sql.sql", "Table `gameobject_questender` has data for nonexistent gameobject entry (%u) and existed quest %u", itr->first, itr->second);
         else if (goInfo->type != GAMEOBJECT_TYPE_QUESTGIVER)
-            TC_LOG_ERROR("sql.sql", "Table `gameobject_questender` have data gameobject entry (%u) for quest %u, but GO is not GAMEOBJECT_TYPE_QUESTGIVER", itr->first, itr->second);
+            TC_LOG_ERROR("sql.sql", "Table `gameobject_questender` has data gameobject entry (%u) for quest %u, but GO is not GAMEOBJECT_TYPE_QUESTGIVER", itr->first, itr->second);
     }
 }
 
@@ -7406,7 +7406,7 @@ void ObjectMgr::LoadCreatureQuestStarters()
     {
         CreatureTemplate const* cInfo = GetCreatureTemplate(itr->first);
         if (!cInfo)
-            TC_LOG_ERROR("sql.sql", "Table `creature_queststarter` have data for not existed creature entry (%u) and existed quest %u", itr->first, itr->second);
+            TC_LOG_ERROR("sql.sql", "Table `creature_queststarter` has data for nonexistent creature entry (%u) and existed quest %u", itr->first, itr->second);
         else if (!(cInfo->npcflag & UNIT_NPC_FLAG_QUESTGIVER))
             TC_LOG_ERROR("sql.sql", "Table `creature_queststarter` has creature entry (%u) for quest %u, but npcflag does not include UNIT_NPC_FLAG_QUESTGIVER", itr->first, itr->second);
     }
@@ -7420,7 +7420,7 @@ void ObjectMgr::LoadCreatureQuestEnders()
     {
         CreatureTemplate const* cInfo = GetCreatureTemplate(itr->first);
         if (!cInfo)
-            TC_LOG_ERROR("sql.sql", "Table `creature_questender` have data for not existed creature entry (%u) and existed quest %u", itr->first, itr->second);
+            TC_LOG_ERROR("sql.sql", "Table `creature_questender` has data for nonexistent creature entry (%u) and existed quest %u", itr->first, itr->second);
         else if (!(cInfo->npcflag & UNIT_NPC_FLAG_QUESTGIVER))
             TC_LOG_ERROR("sql.sql", "Table `creature_questender` has creature entry (%u) for quest %u, but npcflag does not include UNIT_NPC_FLAG_QUESTGIVER", itr->first, itr->second);
     }
@@ -7451,7 +7451,7 @@ void ObjectMgr::LoadReservedPlayersNames()
         std::wstring wstr;
         if (!Utf8toWStr (name, wstr))
         {
-            TC_LOG_ERROR("misc", "Table `reserved_name` have invalid name: %s", name.c_str());
+            TC_LOG_ERROR("misc", "Table `reserved_name` has invalid name: %s", name.c_str());
             continue;
         }
 
@@ -8088,25 +8088,25 @@ void ObjectMgr::LoadMailLevelRewards()
 
         if (level > MAX_LEVEL)
         {
-            TC_LOG_ERROR("sql.sql", "Table `mail_level_reward` have data for level %u that more supported by client (%u), ignoring.", level, MAX_LEVEL);
+            TC_LOG_ERROR("sql.sql", "Table `mail_level_reward` has data for level %u that more supported by client (%u), ignoring.", level, MAX_LEVEL);
             continue;
         }
 
         if (!(raceMask & RACEMASK_ALL_PLAYABLE))
         {
-            TC_LOG_ERROR("sql.sql", "Table `mail_level_reward` have raceMask (%u) for level %u that not include any player races, ignoring.", raceMask, level);
+            TC_LOG_ERROR("sql.sql", "Table `mail_level_reward` has raceMask (%u) for level %u that not include any player races, ignoring.", raceMask, level);
             continue;
         }
 
         if (!sMailTemplateStore.LookupEntry(mailTemplateId))
         {
-            TC_LOG_ERROR("sql.sql", "Table `mail_level_reward` have invalid mailTemplateId (%u) for level %u that invalid not include any player races, ignoring.", mailTemplateId, level);
+            TC_LOG_ERROR("sql.sql", "Table `mail_level_reward` has invalid mailTemplateId (%u) for level %u that invalid not include any player races, ignoring.", mailTemplateId, level);
             continue;
         }
 
         if (!GetCreatureTemplate(senderEntry))
         {
-            TC_LOG_ERROR("sql.sql", "Table `mail_level_reward` have not existed sender creature entry (%u) for level %u that invalid not include any player races, ignoring.", senderEntry, level);
+            TC_LOG_ERROR("sql.sql", "Table `mail_level_reward` has nonexistent sender creature entry (%u) for level %u that invalid not include any player races, ignoring.", senderEntry, level);
             continue;
         }
 
@@ -8496,7 +8496,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
         if (player)
             ChatHandler(player->GetSession()).SendSysMessage(LANG_COMMAND_VENDORSELECTION);
         else
-            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` have data for not existed creature template (Entry: %u), ignore", vendor_entry);
+            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has data for nonexistent creature template (Entry: %u), ignore", vendor_entry);
         return false;
     }
 
@@ -8507,7 +8507,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
             if (player)
                 ChatHandler(player->GetSession()).SendSysMessage(LANG_COMMAND_VENDORSELECTION);
             else
-                TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` have data for not creature template (Entry: %u) without vendor flag, ignore", vendor_entry);
+                TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has data for creature template (Entry: %u) without vendor flag, ignore", vendor_entry);
 
             if (skip_vendors)
                 skip_vendors->insert(vendor_entry);
@@ -8529,7 +8529,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
         if (player)
             ChatHandler(player->GetSession()).PSendSysMessage(LANG_EXTENDED_COST_NOT_EXIST, ExtendedCost);
         else
-            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` have Item (Entry: %u) with wrong ExtendedCost (%u) for vendor (%u), ignore", item_id, ExtendedCost, vendor_entry);
+            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has Item (Entry: %u) with wrong ExtendedCost (%u) for vendor (%u), ignore", item_id, ExtendedCost, vendor_entry);
         return false;
     }
 
