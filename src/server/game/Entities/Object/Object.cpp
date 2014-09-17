@@ -52,24 +52,6 @@
 #include "Battleground.h"
 #include "Chat.h"
 
-uint32 GuidHigh2TypeId(uint32 guid_hi)
-{
-    switch (guid_hi)
-    {
-        case HIGHGUID_ITEM:         return TYPEID_ITEM;
-        //case HIGHGUID_CONTAINER:    return TYPEID_CONTAINER; HIGHGUID_CONTAINER == HIGHGUID_ITEM currently
-        case HIGHGUID_UNIT:         return TYPEID_UNIT;
-        case HIGHGUID_PET:          return TYPEID_UNIT;
-        case HIGHGUID_PLAYER:       return TYPEID_PLAYER;
-        case HIGHGUID_GAMEOBJECT:   return TYPEID_GAMEOBJECT;
-        case HIGHGUID_DYNAMICOBJECT:return TYPEID_DYNAMICOBJECT;
-        case HIGHGUID_CORPSE:       return TYPEID_CORPSE;
-        case HIGHGUID_MO_TRANSPORT: return TYPEID_GAMEOBJECT;
-        case HIGHGUID_VEHICLE:      return TYPEID_UNIT;
-    }
-    return NUM_CLIENT_OBJECT_TYPES;                         // unknown
-}
-
 Object::Object() : m_PackGUID(sizeof(uint64)+1)
 {
     m_objectTypeId      = TYPEID_OBJECT;
@@ -91,8 +73,8 @@ WorldObject::~WorldObject()
     {
         if (GetTypeId() == TYPEID_CORPSE)
         {
-            TC_LOG_FATAL("misc", "Object::~Object Corpse Guid: %s Type: %d deleted but still in map!!",
-                GetGUID().ToString().c_str(), ((Corpse*)this)->GetType());
+            TC_LOG_FATAL("misc", "WorldObject::~WorldObject Corpse Type: %d (%s) deleted but still in map!!",
+                ToCorpse()->GetType(), GetGUID().ToString().c_str());
             ASSERT(false);
         }
         ResetMap();
@@ -103,7 +85,7 @@ Object::~Object()
 {
     if (IsInWorld())
     {
-        TC_LOG_FATAL("misc", "Object::~Object %s but still in world!!", GetGUID().ToString().c_str());
+        TC_LOG_FATAL("misc", "Object::~Object %s deleted but still in world!!", GetGUID().ToString().c_str());
         if (isType(TYPEMASK_ITEM))
             TC_LOG_FATAL("misc", "Item slot %u", ((Item*)this)->GetSlot());
         ASSERT(false);
@@ -1091,7 +1073,7 @@ ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZOStreamer const& st
 void MovementInfo::OutDebug()
 {
     TC_LOG_INFO("misc", "MOVEMENT INFO");
-    TC_LOG_INFO("misc", "guid %s", guid.ToString().c_str());
+    TC_LOG_INFO("misc", "%s", guid.ToString().c_str());
     TC_LOG_INFO("misc", "flags %u", flags);
     TC_LOG_INFO("misc", "flags2 %u", flags2);
     TC_LOG_INFO("misc", "time %u current time " UI64FMTD "", flags2, uint64(::time(NULL)));
@@ -1099,7 +1081,7 @@ void MovementInfo::OutDebug()
     if (flags & MOVEMENTFLAG_ONTRANSPORT)
     {
         TC_LOG_INFO("misc", "TRANSPORT:");
-        TC_LOG_INFO("misc", "guid: %s", transport.guid.ToString().c_str());
+        TC_LOG_INFO("misc", "%s", transport.guid.ToString().c_str());
         TC_LOG_INFO("misc", "position: `%s`", transport.pos.ToString().c_str());
         TC_LOG_INFO("misc", "seat: %i", transport.seat);
         TC_LOG_INFO("misc", "time: %u", transport.time);
