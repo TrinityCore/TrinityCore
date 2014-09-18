@@ -59,7 +59,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                 Initialize();
 
                 CasterAI::InitializeAI();
-                uint64 ownerGuid = me->GetOwnerGUID();
+                ObjectGuid ownerGuid = me->GetOwnerGUID();
                 if (!ownerGuid)
                     return;
 
@@ -69,7 +69,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                 Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
                 me->VisitNearbyObject(30.0f, searcher);
                 for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
-                    if ((*iter)->GetAura(SPELL_DK_SUMMON_GARGOYLE_1, ownerGuid))
+                    if ((*iter)->HasAura(SPELL_DK_SUMMON_GARGOYLE_1, ownerGuid))
                     {
                         me->Attack((*iter), false);
                         break;

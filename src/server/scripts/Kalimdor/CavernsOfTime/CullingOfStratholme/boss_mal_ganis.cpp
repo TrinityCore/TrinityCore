@@ -150,7 +150,7 @@ public:
                         return;
                     }
 
-                    if (Creature* pArthas = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARTHAS)))
+                    if (Creature* pArthas = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ARTHAS)))
                         if (pArthas->isDead())
                         {
                             EnterEvadeMode();
@@ -199,7 +199,7 @@ public:
                                 uiOutroTimer = 8000;
                                 break;
                             case 2:
-                                me->SetTarget(instance->GetData64(DATA_ARTHAS));
+                                me->SetTarget(instance->GetGuidData(DATA_ARTHAS));
                                 me->HandleEmoteCommand(29);
                                 Talk(SAY_ESCAPE_SPEECH_2);
                                 ++uiOutroStep;
@@ -229,7 +229,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             instance->SetBossState(DATA_MAL_GANIS, DONE);
-            DoCastAOE(SPELL_MAL_GANIS_KILL_CREDIT);
+            DoCastAOE(SPELL_MAL_GANIS_KILL_CREDIT, true);
             // give achievement credit and LFG rewards to players. criteria use spell 58630 which doesn't exist, but it was created in spell_dbc
             DoCastAOE(SPELL_KILL_CREDIT);
         }

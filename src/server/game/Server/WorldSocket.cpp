@@ -211,7 +211,7 @@ void WorldSocket::SendPacket(WorldPacket& packet)
 
     _authCrypt.EncryptSend(header.header, header.getHeaderLength());
 
-#ifndef BOOST_ASIO_HAS_IOCP
+#ifndef TC_SOCKET_USE_IOCP
     if (_writeQueue.empty() && _writeBuffer.GetRemainingSpace() >= header.getHeaderLength() + packet.size())
     {
         _writeBuffer.Write(header.header, header.getHeaderLength());

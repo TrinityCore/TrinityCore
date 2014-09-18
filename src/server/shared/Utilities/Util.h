@@ -876,7 +876,6 @@ class EventMap
         */
         EventStore _eventMap;
 
-
         /**
         * @name _lastEvent
         * @brief Stores information on the most recently executed event

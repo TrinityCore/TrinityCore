@@ -158,18 +158,18 @@ class boss_harbinger_skyriss : public CreatureScript
                         {
                         case 1:
                             Talk(SAY_INTRO);
-                            instance->HandleGameObject(instance->GetData64(DATA_WARDENS_SHIELD), true);
+                            instance->HandleGameObject(instance->GetGuidData(DATA_WARDENS_SHIELD), true);
                             ++Intro_Phase;
                             Intro_Timer = 25000;
                             break;
                         case 2:
                             Talk(SAY_AGGRO);
-                            if (Unit* mellic = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_MELLICHAR)))
+                            if (Unit* mellic = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_MELLICHAR)))
                             {
                                 //should have a better way to do this. possibly spell exist.
                                 mellic->setDeathState(JUST_DIED);
                                 mellic->SetHealth(0);
-                                instance->HandleGameObject(instance->GetData64(DATA_WARDENS_SHIELD), false);
+                                instance->HandleGameObject(instance->GetGuidData(DATA_WARDENS_SHIELD), false);
                             }
                             ++Intro_Phase;
                             Intro_Timer = 3000;

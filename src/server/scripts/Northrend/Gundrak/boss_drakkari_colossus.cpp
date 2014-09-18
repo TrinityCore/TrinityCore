@@ -24,6 +24,13 @@
 #include "gundrak.h"
 #include "SpellInfo.h"
 
+enum Texts
+{
+    // Drakkari Elemental
+    EMOTE_MOJO                                    = 0,
+    EMOTE_ACTIVATE_ALTAR                          = 1
+};
+
 enum Spells
 {
     SPELL_EMERGE                                  = 54850,
@@ -80,7 +87,7 @@ class boss_drakkari_colossus : public CreatureScript
 
         struct boss_drakkari_colossusAI : public BossAI
         {
-            boss_drakkari_colossusAI(Creature* creature) : BossAI(creature, DATA_DRAKKARI_COLOSSUS_EVENT)
+            boss_drakkari_colossusAI(Creature* creature) : BossAI(creature, DATA_DRAKKARI_COLOSSUS)
             {
                 Initialize();
                 me->SetReactState(REACT_PASSIVE);
@@ -103,41 +110,20 @@ class boss_drakkari_colossus : public CreatureScript
                     me->RemoveAura(SPELL_FREEZE_ANIM);
                 }
 
-                //events.Reset(); -> done in _Reset();
                 events.ScheduleEvent(EVENT_MIGHTY_BLOW, urand(10000, 30000));
 
                 Initialize();
-
-                // Note: This should not be called, but before use SetBossState function we should use BossAI
-                //        in all the bosses of the instance
-                instance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, NOT_STARTED);
             }
 
             void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
-
                 me->RemoveAura(SPELL_FREEZE_ANIM);
-
-                // Note: This should not be called, but before use SetBossState function we should use BossAI
-                //        in all the bosses of the instance
-                instance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, IN_PROGRESS);
             }
 
             void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
-
-                // Note: This should not be called, but before use SetBossState function we should use BossAI
-                //        in all the bosses of the instance
-                instance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, DONE);
-            }
-
-            void JustReachedHome() override
-            {
-                // Note: This should not be called, but before use SetBossState function we should use BossAI
-                //        in all the bosses of the instance
-                instance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, FAIL);
             }
 
             void DoAction(int32 action) override
@@ -181,13 +167,12 @@ class boss_drakkari_colossus : public CreatureScript
                 if (phase == COLOSSUS_PHASE_NORMAL ||
                     phase == COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON)
                 {
-                    if (HealthBelowPct( phase == COLOSSUS_PHASE_NORMAL ? 50 : 5))
+                    if (HealthBelowPct(phase == COLOSSUS_PHASE_NORMAL ? 50 : 5))
                     {
                         damage = 0;
                         phase = (phase == COLOSSUS_PHASE_NORMAL ? COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON : COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON);
                         DoAction(ACTION_FREEZE_COLOSSUS);
                         DoAction(ACTION_SUMMON_ELEMENTAL);
-
                     }
                 }
             }
@@ -248,7 +233,7 @@ class boss_drakkari_colossus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_drakkari_colossusAI>(creature);
+            return GetGundrakAI<boss_drakkari_colossusAI>(creature);
         }
 };
 
@@ -275,10 +260,9 @@ class boss_drakkari_elemental : public CreatureScript
 
             void JustDied(Unit* killer) override
             {
-                if (killer == me)
-                    return;
+                Talk(EMOTE_ACTIVATE_ALTAR);
 
-                if (Creature* colossus = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
+                if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
                     killer->Kill(colossus);
             }
 
@@ -313,8 +297,9 @@ class boss_drakkari_elemental : public CreatureScript
                 switch (action)
                 {
                     case ACTION_RETURN_TO_COLOSSUS:
+                        Talk(EMOTE_MOJO);
                         DoCast(SPELL_SURGE_VISUAL);
-                        if (Creature* colossus = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
+                        if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
                             // what if the elemental is more than 80 yards from drakkari colossus ?
                             DoCast(colossus, SPELL_MERGE, true);
                         break;
@@ -323,11 +308,11 @@ class boss_drakkari_elemental : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
-                if (HealthBelowPct(50) && instance)
+                if (HealthBelowPct(50))
                 {
-                    if (Creature* colossus = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
+                    if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
                     {
-                        if (colossus->AI()->GetData(DATA_COLOSSUS_PHASE) ==  COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON)
+                        if (colossus->AI()->GetData(DATA_COLOSSUS_PHASE) == COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON)
                         {
                             damage = 0;
 
@@ -375,7 +360,7 @@ class boss_drakkari_elemental : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_drakkari_elementalAI>(creature);
+            return GetGundrakAI<boss_drakkari_elementalAI>(creature);
         }
 };
 
@@ -386,7 +371,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_living_mojoAI>(creature);
+        return GetGundrakAI<npc_living_mojoAI>(creature);
     }
 
     struct npc_living_mojoAI : public ScriptedAI
@@ -429,7 +414,7 @@ public:
 
             if (id == 1)
             {
-                if (Creature* colossus = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
+                if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
                 {
                     colossus->AI()->DoAction(ACTION_UNFREEZE_COLOSSUS);
                     if (!colossus->AI()->GetData(DATA_INTRO_DONE))
@@ -446,13 +431,11 @@ public:
                 return;
 
             // we do this checks to see if the creature is one of the creatures that sorround the boss
-            if (Creature* colossus = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
+            if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
             {
                 Position homePosition = me->GetHomePosition();
 
-                Position colossusHomePosition = colossus->GetHomePosition();
-
-                float distance = homePosition.GetExactDist(colossusHomePosition.GetPositionX(), colossusHomePosition.GetPositionY(), colossusHomePosition.GetPositionZ());
+                float distance = homePosition.GetExactDist(&colossus->GetHomePosition());
 
                 if (distance < 12.0f)
                 {
@@ -484,6 +467,7 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
     private:
         InstanceScript* instance;
         uint32 mojoWaveTimer;

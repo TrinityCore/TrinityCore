@@ -79,7 +79,8 @@ public:
             if (who->GetEntry() == NPC_ZOMBIE && me->IsWithinDistInMap(who, 7))
             {
                 SetGazeOn(who);
-                Talk(EMOTE_ZOMBIE);
+                /// @todo use a script text
+                me->TextEmote(EMOTE_NEARBY, nullptr, true);
                 me->Kill(who);
                 me->ModifyHealth(me->CountPctFromMaxHealth(5));
             }

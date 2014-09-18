@@ -38,23 +38,6 @@ class instance_utgarde_pinnacle : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-
-                SvalaSorrowgraveGUID        = 0;
-                GortokPalehoofGUID          = 0;
-                SkadiTheRuthlessGUID        = 0;
-                KingYmironGUID              = 0;
-
-                UtgardeMirrorGUID           = 0;
-                GortokPalehoofSphereGUID    = 0;
-
-                FrenziedWorgenGUID          = 0;
-                RavenousFurbolgGUID         = 0;
-                FerociousRhinoGUID          = 0;
-                MassiveJormungarGUID        = 0;
-                PalehoofOrbGUID             = 0;
-
-                SvalaGUID                   = 0;
-                SacrificedPlayerGUID        = 0;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -107,7 +90,7 @@ class instance_utgarde_pinnacle : public InstanceMapScript
                         GortokPalehoofSphereGUID = go->GetGUID();
                         if (GetBossState(DATA_GORTOK_PALEHOOF) == DONE)
                         {
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                             go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         }
                         break;
@@ -133,7 +116,7 @@ class instance_utgarde_pinnacle : public InstanceMapScript
                 }
             }
 
-            void SetData64(uint32 type, uint64 data) override
+            void SetGuidData(uint32 type, ObjectGuid data) override
             {
                 switch (type)
                 {
@@ -145,7 +128,7 @@ class instance_utgarde_pinnacle : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -179,27 +162,27 @@ class instance_utgarde_pinnacle : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
         protected:
-            uint64 SvalaSorrowgraveGUID;
-            uint64 GortokPalehoofGUID;
-            uint64 SkadiTheRuthlessGUID;
-            uint64 KingYmironGUID;
+            ObjectGuid SvalaSorrowgraveGUID;
+            ObjectGuid GortokPalehoofGUID;
+            ObjectGuid SkadiTheRuthlessGUID;
+            ObjectGuid KingYmironGUID;
 
-            uint64 UtgardeMirrorGUID;
-            uint64 GortokPalehoofSphereGUID;
+            ObjectGuid UtgardeMirrorGUID;
+            ObjectGuid GortokPalehoofSphereGUID;
 
-            uint64 FrenziedWorgenGUID;
-            uint64 RavenousFurbolgGUID;
-            uint64 FerociousRhinoGUID;
-            uint64 MassiveJormungarGUID;
+            ObjectGuid FrenziedWorgenGUID;
+            ObjectGuid RavenousFurbolgGUID;
+            ObjectGuid FerociousRhinoGUID;
+            ObjectGuid MassiveJormungarGUID;
 
-            uint64 PalehoofOrbGUID;
+            ObjectGuid PalehoofOrbGUID;
 
-            uint64 SvalaGUID;
-            uint64 SacrificedPlayerGUID;
+            ObjectGuid SvalaGUID;
+            ObjectGuid SacrificedPlayerGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

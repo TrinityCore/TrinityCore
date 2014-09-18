@@ -89,13 +89,12 @@ public:
         uint8  mRiftWaveCount;
         uint8  mRiftWaveId;
 
-        uint64 _medivhGUID;
+        ObjectGuid _medivhGUID;
         uint8  _currentRiftId;
 
         void Initialize() override
         {
             SetHeaders(DataHeader);
-            _medivhGUID         = 0;
             Clear();
         }
 
@@ -253,12 +252,12 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 data) const override
+        ObjectGuid GetGuidData(uint32 data) const override
         {
             if (data == DATA_MEDIVH)
                 return _medivhGUID;
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         Creature* SummonedPortalBoss(Creature* me)

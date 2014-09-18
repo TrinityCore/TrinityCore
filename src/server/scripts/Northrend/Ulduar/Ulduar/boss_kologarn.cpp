@@ -122,7 +122,7 @@ class boss_kologarn : public CreatureScript
             }
 
             Vehicle* vehicle;
-            uint64 eyebeamTarget;
+            ObjectGuid eyebeamTarget;
             bool left, right, _armDied, _ifLooks;
 
             uint32 _rubbleCount;
@@ -152,7 +152,7 @@ class boss_kologarn : public CreatureScript
                 _ifLooks = true;
                 _rubbleCount = 0;
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                eyebeamTarget = 0;
+                eyebeamTarget.Clear();
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -424,7 +424,7 @@ class spell_ulduar_rubble_summon : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                uint64 originalCaster = caster->GetInstanceScript() ? caster->GetInstanceScript()->GetData64(BOSS_KOLOGARN) : 0;
+                ObjectGuid originalCaster = caster->GetInstanceScript() ? caster->GetInstanceScript()->GetGuidData(BOSS_KOLOGARN) : ObjectGuid::Empty;
                 uint32 spellId = GetEffectValue();
                 for (uint8 i = 0; i < 5; ++i)
                     caster->CastSpell(caster, spellId, true, NULL, NULL, originalCaster);

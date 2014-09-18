@@ -140,8 +140,8 @@ public:
             MovePoint = urand(0, 5);
             PointData = GetMoveData();
             SummonWhelpCount = 0;
-            triggerGUID = 0;
-            tankGUID = 0;
+            triggerGUID.Clear();
+            tankGUID.Clear();
             IsMoving = false;
         }
 
@@ -153,7 +153,7 @@ public:
                 SetCombatMovement(true);
 
             _Reset();
-
+            me->SetReactState(REACT_AGGRESSIVE);
             instance->SetData(DATA_ONYXIA_PHASE, Phase);
             instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
@@ -162,12 +162,10 @@ public:
         {
             _EnterCombat();
             Talk(SAY_AGGRO);
-
             events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 20000));
             events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(15000, 20000));
             events.ScheduleEvent(EVENT_CLEAVE, urand(2000, 5000));
             events.ScheduleEvent(EVENT_WING_BUFFET, urand(10000, 20000));
-
             instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
@@ -331,9 +329,10 @@ public:
                 {
                     if (HealthBelowPct(65))
                     {
+                        if (Unit* target = me->GetVictim())
+                            tankGUID = target->GetGUID();
                         SetCombatMovement(false);
                         Phase = PHASE_BREATH;
-                        tankGUID = me->GetVictim()->GetGUID();
                         me->SetReactState(REACT_PASSIVE);
                         me->AttackStop();
                         me->GetMotionMaster()->MovePoint(10, Phase2Location);
@@ -356,7 +355,7 @@ public:
                             Trinity::GameObjectLastSearcher<Trinity::GameObjectInRangeCheck> searcher(me, Floor, check);
                             me->VisitNearbyGridObject(30, searcher);
                             if (Floor)
-                                instance->SetData64(DATA_FLOOR_ERUPTION_GUID, Floor->GetGUID());
+                                instance->SetGuidData(DATA_FLOOR_ERUPTION_GUID, Floor->GetGUID());
                             events.ScheduleEvent(EVENT_BELLOWING_ROAR, 30000);
                             break;
                         }
@@ -474,8 +473,8 @@ public:
             uint8 Phase;
             uint8 MovePoint;
             uint8 SummonWhelpCount;
-            uint64 triggerGUID;
-            uint64 tankGUID;
+            ObjectGuid triggerGUID;
+            ObjectGuid tankGUID;
             bool IsMoving;
     };
 

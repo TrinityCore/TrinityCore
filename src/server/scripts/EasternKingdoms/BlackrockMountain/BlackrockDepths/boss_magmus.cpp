@@ -96,7 +96,7 @@ class boss_magmus : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
-                    instance->HandleGameObject(instance->GetData64(DATA_THRONE_DOOR), true);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_THRONE_DOOR), true);
             }
 
         private:

@@ -15,59 +15,85 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_GUNDRAK_H
-#define DEF_GUNDRAK_H
+#ifndef GUNDRAK_H_
+#define GUNDRAK_H_
 
+#define GundrakScriptName "instance_gundrak"
 #define DataHeader "GD"
 
-enum Data
+uint32 const EncounterCount = 5;
+
+enum DataTypes
 {
-    DATA_SLAD_RAN_EVENT,
-    DATA_MOORABI_EVENT,
-    DATA_DRAKKARI_COLOSSUS_EVENT,
-    DATA_GAL_DARAH_EVENT,
-    DATA_ECK_THE_FEROCIOUS_EVENT
+    // Encounter Ids // Encounter States // Boss GUIDs
+    DATA_SLAD_RAN                    = 0,
+    DATA_DRAKKARI_COLOSSUS           = 1,
+    DATA_MOORABI                     = 2,
+    DATA_GAL_DARAH                   = 3,
+    DATA_ECK_THE_FEROCIOUS           = 4,
+
+    // Additional Objects
+    DATA_SLAD_RAN_ALTAR              = 5,
+    DATA_DRAKKARI_COLOSSUS_ALTAR     = 6,
+    DATA_MOORABI_ALTAR               = 7,
+
+    DATA_SLAD_RAN_STATUE             = 8,
+    DATA_DRAKKARI_COLOSSUS_STATUE    = 9,
+    DATA_MOORABI_STATUE              = 10,
+    DATA_GAL_DARAH_STATUE            = 11,
+
+    DATA_TRAPDOOR                    = 12,
+    DATA_COLLISION                   = 13,
+    DATA_BRIDGE                      = 14,
+
+    DATA_STATUE_ACTIVATE             = 15,
 };
 
-enum Data64
+enum CreatureIds
 {
-    DATA_SLAD_RAN_ALTAR,
-    DATA_MOORABI_ALTAR,
-    DATA_DRAKKARI_COLOSSUS_ALTAR,
-    DATA_SLAD_RAN_STATUE,
-    DATA_MOORABI_STATUE,
-    DATA_DRAKKARI_COLOSSUS_STATUE,
-    DATA_DRAKKARI_COLOSSUS,
-    DATA_STATUE_ACTIVATE
+    NPC_SLAD_RAN                     = 29304,
+    NPC_MOORABI                      = 29305,
+    NPC_GAL_DARAH                    = 29306,
+    NPC_DRAKKARI_COLOSSUS            = 29307,
+    NPC_RUIN_DWELLER                 = 29920,
+    NPC_ECK_THE_FEROCIOUS            = 29932,
+    NPC_ALTAR_TRIGGER                = 30298
 };
 
-enum mainCreatures
+enum GameObjectIds
 {
-    CREATURE_RUIN_DWELLER               = 29920,
-    CREATURE_SLAD_RAN                   = 29304,
-    CREATURE_MOORABI                    = 29305,
-    CREATURE_GALDARAH                   = 29306,
-    CREATURE_DRAKKARICOLOSSUS           = 29307,
-    CREATURE_ECK                        = 29932
+    GO_SLAD_RAN_ALTAR                = 192518,
+    GO_MOORABI_ALTAR                 = 192519,
+    GO_DRAKKARI_COLOSSUS_ALTAR       = 192520,
+    GO_SLAD_RAN_STATUE               = 192564,
+    GO_MOORABI_STATUE                = 192565,
+    GO_GAL_DARAH_STATUE              = 192566,
+    GO_DRAKKARI_COLOSSUS_STATUE      = 192567,
+    GO_ECK_THE_FEROCIOUS_DOOR        = 192632,
+    GO_ECK_THE_FEROCIOUS_DOOR_BEHIND = 192569,
+    GO_GAL_DARAH_DOOR_1              = 193208,
+    GO_GAL_DARAH_DOOR_2              = 193209,
+    GO_GAL_DARAH_DOOR_3              = 192568,
+    GO_TRAPDOOR                      = 193188,
+    GO_COLLISION                     = 192633,
 };
 
-enum Gameobjects
+enum SpellIds
 {
-
-    GO_SLADRAN_ALTAR                    = 192518,
-    GO_MOORABI_ALTAR                    = 192519,
-    GO_DRAKKARI_COLOSSUS_ALTAR          = 192520,
-    GO_SLADRAN_STATUE                   = 192564,
-    GO_MOORABI_STATUE                   = 192565,
-    GO_GALDARAH_STATUE                  = 192566,
-    GO_DRAKKARI_COLOSSUS_STATUE         = 192567,
-    GO_ECK_THE_FEROCIOUS_DOOR           = 192632,
-    GO_ECK_THE_FEROCIOUS_DOOR_BEHIND    = 192569,
-    GO_GALDARAH_DOOR1                   = 193208,
-    GO_GALDARAH_DOOR2                   = 193209,
-    GO_GALDARAH_DOOR3                   = 192568,
-    GO_BRIDGE                           = 193188,
-    GO_COLLISION                        = 192633
+    SPELL_FIRE_BEAM_MAMMOTH          = 57068,
+    SPELL_FIRE_BEAM_SNAKE            = 57071,
+    SPELL_FIRE_BEAM_ELEMENTAL        = 57072
 };
 
-#endif
+enum InstanceMisc
+{
+    TIMER_STATUE_ACTIVATION          = 3500
+};
+
+template<class AI>
+inline AI* GetGundrakAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, GundrakScriptName);
+}
+
+#endif // GUNDRAK_H_

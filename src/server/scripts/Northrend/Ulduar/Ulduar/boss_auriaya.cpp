@@ -112,7 +112,7 @@ class boss_auriaya : public CreatureScript
 
             void Initialize()
             {
-                DefenderGUID = 0;
+                DefenderGUID.Clear();
                 defenderLives = 8;
                 crazyCatLady = true;
                 nineLives = false;
@@ -282,7 +282,7 @@ class boss_auriaya : public CreatureScript
             }
 
         private:
-            uint64 DefenderGUID;
+            ObjectGuid DefenderGUID;
             uint8 defenderLives;
             bool crazyCatLady;
             bool nineLives;
@@ -401,7 +401,7 @@ class npc_sanctum_sentry : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_AURIAYA)))
+                if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_AURIAYA)))
                     Auriaya->AI()->DoAction(ACTION_CRAZY_CAT_LADY);
             }
 
@@ -483,7 +483,7 @@ class npc_feral_defender : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 DoCast(me, SPELL_SUMMON_ESSENCE);
-                if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_AURIAYA)))
+                if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_AURIAYA)))
                     Auriaya->AI()->DoAction(ACTION_RESPAWN_DEFENDER);
             }
 

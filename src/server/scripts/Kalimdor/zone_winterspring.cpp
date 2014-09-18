@@ -318,11 +318,6 @@ public:
             DialogueHelper(introDialogue)
         {
             Initialize();
-            _firstPriestessGUID = 0;
-            _secondPriestessGUID = 0;
-            _guardEluneGUID = 0;
-            _voiceEluneGUID = 0;
-            _altarGUID = 0;
         }
 
         void Initialize()
@@ -332,11 +327,11 @@ public:
 
         uint32 _delayTimer;
 
-        uint64 _firstPriestessGUID;
-        uint64 _secondPriestessGUID;
-        uint64 _guardEluneGUID;
-        uint64 _voiceEluneGUID;
-        uint64 _altarGUID;
+        ObjectGuid _firstPriestessGUID;
+        ObjectGuid _secondPriestessGUID;
+        ObjectGuid _guardEluneGUID;
+        ObjectGuid _voiceEluneGUID;
+        ObjectGuid _altarGUID;
 
         void Reset() override
         {

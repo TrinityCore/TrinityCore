@@ -41,17 +41,11 @@ class npc_pet_gen_mojo : public CreatureScript
         {
             npc_pet_gen_mojoAI(Creature* creature) : ScriptedAI(creature)
             {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _victimGUID = 0;
             }
 
             void Reset() override
             {
-                Initialize();
+                _victimGUID.Clear();
 
                 if (Unit* owner = me->GetOwner())
                     me->GetMotionMaster()->MoveFollow(owner, 0.0f, 0.0f);
@@ -84,7 +78,7 @@ class npc_pet_gen_mojo : public CreatureScript
             }
 
         private:
-            uint64 _victimGUID;
+            ObjectGuid _victimGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

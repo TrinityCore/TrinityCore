@@ -215,8 +215,8 @@ public:
                 {
                     //Teleport 4 players under the waterfalls
                     Unit* target;
-                    std::set<uint64> list;
-                    std::set<uint64>::const_iterator itr;
+                    GuidSet targets;
+                    GuidSet::const_iterator itr;
                     for (uint8 i = 0; i < 4; ++i)
                     {
                         counter = 0;
@@ -226,13 +226,13 @@ public:
                             if (counter < Playercount)
                                 break;
                             if (target)
-                                itr = list.find(target->GetGUID());
+                                itr = targets.find(target->GetGUID());
                             ++counter;
-                        } while (itr != list.end());
+                        } while (itr != targets.end());
 
                         if (target)
                         {
-                            list.insert(target->GetGUID());
+                            targets.insert(target->GetGUID());
                             ApplyWateryGrave(target, i);
                         }
                     }
@@ -253,8 +253,8 @@ public:
                 if (WateryGlobules_Timer <= diff)
                 {
                     Unit* pGlobuleTarget;
-                    std::set<uint64> globulelist;
-                    std::set<uint64>::const_iterator itr;
+                    GuidSet globules;
+                    GuidSet::const_iterator itr;
                     for (uint8 g = 0; g < 4; g++)  //one unit can't cast more than one spell per update, so some players have to cast for us XD
                     {
                         counter = 0;
@@ -262,14 +262,14 @@ public:
                         {
                             pGlobuleTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true);
                             if (pGlobuleTarget)
-                                itr = globulelist.find(pGlobuleTarget->GetGUID());
+                                itr = globules.find(pGlobuleTarget->GetGUID());
                             if (counter > Playercount)
                                 break;
                             ++counter;
-                        } while (itr != globulelist.end());
+                        } while (itr != globules.end());
                         if (pGlobuleTarget)
                         {
-                            globulelist.insert(pGlobuleTarget->GetGUID());
+                            globules.insert(pGlobuleTarget->GetGUID());
                             pGlobuleTarget->CastSpell(pGlobuleTarget, globulespell[g], true);
                         }
                     }

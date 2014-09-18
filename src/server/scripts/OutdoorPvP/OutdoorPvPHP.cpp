@@ -255,7 +255,7 @@ void OPvPCapturePointHP::ChangeState()
 
     // complete quest objective
     if (m_State == OBJECTIVESTATE_ALLIANCE || m_State == OBJECTIVESTATE_HORDE)
-        SendObjectiveComplete(HP_CREDITMARKER[m_TowerType], 0);
+        SendObjectiveComplete(HP_CREDITMARKER[m_TowerType], ObjectGuid::Empty);
 }
 
 void OPvPCapturePointHP::FillInitialWorldStates(WorldPacket &data)

@@ -78,7 +78,7 @@ public:
 
         void Initialize()
         {
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
             HasYelled = false;
         }
 
@@ -231,7 +231,7 @@ public:
         }
 
         private:
-            uint64 PlayerGUID;
+            ObjectGuid PlayerGUID;
             bool HasYelled;
     };
 

@@ -428,8 +428,9 @@ class boss_xt002 : public CreatureScript
                 Talk(SAY_HEART_CLOSED);
                 Talk(EMOTE_HEART_CLOSED);
 
-                DoCast(me, SPELL_STAND);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
+                DoCast(me, SPELL_STAND);
 
                 _phase = 1;
 
@@ -485,7 +486,7 @@ class npc_xt002_heart : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                Creature* xt002 = _instance ? ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_XT002)) : NULL;
+                Creature* xt002 = _instance ? ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)) : NULL;
                 if (!xt002 || !xt002->AI())
                     return;
 
@@ -536,7 +537,7 @@ class npc_scrapbot : public CreatureScript
 
                 Initialize();
 
-                if (Creature* pXT002 = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                if (Creature* pXT002 = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)))
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
@@ -557,7 +558,7 @@ class npc_scrapbot : public CreatureScript
             {
                 if (_rangeCheckTimer <= diff)
                 {
-                    if (Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                    if (Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)))
                         if (me->IsWithinMeleeRange(xt002))
                             DoCast(xt002, SPELL_SCRAPBOT_RIDE_VEHICLE);
                 }
@@ -605,7 +606,7 @@ class npc_pummeller : public CreatureScript
             {
                 Initialize();
 
-                if (Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                if (Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)))
                 {
                     Position pos = xt002->GetPosition();
                     me->GetMotionMaster()->MovePoint(0, pos);
@@ -725,7 +726,7 @@ class npc_boombot : public CreatureScript
                 me->SetFloatValue(UNIT_FIELD_MAXDAMAGE, 18000.0f);
 
                 /// @todo proper waypoints?
-                if (Creature* pXT002 = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                if (Creature* pXT002 = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)))
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
@@ -991,7 +992,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
                 {
                     if (InstanceScript* instance = caster->GetInstanceScript())
                     {
-                        if (Unit* toyPile = ObjectAccessor::GetUnit(*caster, instance->GetData64(DATA_TOY_PILE_0 + urand(0, 3))))
+                        if (Unit* toyPile = ObjectAccessor::GetUnit(*caster, instance->GetGuidData(DATA_TOY_PILE_0 + urand(0, 3))))
                         {
                             caster->CastSpell(toyPile, SPELL_ENERGY_ORB, true);
 
@@ -1098,37 +1099,6 @@ class spell_xt002_submerged : public SpellScriptLoader
         }
 };
 
-class spell_xt002_stand : public SpellScriptLoader
-{
-    public:
-        spell_xt002_stand() : SpellScriptLoader("spell_xt002_stand") { }
-
-        class spell_xt002_stand_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_xt002_stand_SpellScript);
-
-            void HandleScript(SpellEffIndex /*eff*/)
-            {
-                Creature* target = GetHitCreature();
-                if (!target)
-                    return;
-
-                target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                target->SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_STAND);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_xt002_stand_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_xt002_stand_SpellScript();
-        }
-};
-
 class achievement_nerf_engineering : public AchievementCriteriaScript
 {
     public:
@@ -1187,7 +1157,6 @@ void AddSC_boss_xt002()
     new spell_xt002_heart_overload_periodic();
     new spell_xt002_tympanic_tantrum();
     new spell_xt002_submerged();
-    new spell_xt002_stand();
 
     new achievement_nerf_engineering();
     new achievement_heartbreaker();

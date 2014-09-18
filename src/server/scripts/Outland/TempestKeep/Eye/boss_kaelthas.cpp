@@ -163,7 +163,7 @@ struct advisorbase_ai : public ScriptedAI
     bool FakeDeath;
     bool m_bDoubled_Health;
     uint32 DelayRes_Timer;
-    uint64 DelayRes_Target;
+    ObjectGuid DelayRes_Target;
 
     void Reset() override
     {
@@ -175,7 +175,7 @@ struct advisorbase_ai : public ScriptedAI
 
         FakeDeath = false;
         DelayRes_Timer = 0;
-        DelayRes_Target = 0;
+        DelayRes_Target.Clear();
 
         me->SetStandState(UNIT_STAND_STATE_STAND);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -183,7 +183,7 @@ struct advisorbase_ai : public ScriptedAI
 
         //reset encounter
         if (instance->GetData(DATA_KAELTHASEVENT) == 1 || instance->GetData(DATA_KAELTHASEVENT) == 3)
-            if (Creature* Kaelthas = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KAELTHAS)))
+            if (Creature* Kaelthas = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KAELTHAS)))
                 Kaelthas->AI()->EnterEvadeMode();
     }
 
@@ -245,7 +245,7 @@ struct advisorbase_ai : public ScriptedAI
             me->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->ClearAllReactives();
-            me->SetTarget(0);
+            me->SetTarget(ObjectGuid::Empty);
             me->GetMotionMaster()->Clear();
             me->GetMotionMaster()->MoveIdle();
             me->SetStandState(UNIT_STAND_STATE_DEAD);
@@ -290,7 +290,6 @@ class boss_kaelthas : public CreatureScript
             boss_kaelthasAI(Creature* creature) : ScriptedAI(creature), summons(me)
             {
                 instance = creature->GetInstanceScript();
-                memset(&m_auiAdvisorGuid, 0, sizeof(m_auiAdvisorGuid));
             }
 
             InstanceScript* instance;
@@ -316,7 +315,7 @@ class boss_kaelthas : public CreatureScript
 
             SummonList summons;
 
-            uint64 m_auiAdvisorGuid[MAX_ADVISORS];
+            ObjectGuid m_auiAdvisorGuid[MAX_ADVISORS];
 
             void Reset() override
             {
@@ -363,10 +362,10 @@ class boss_kaelthas : public CreatureScript
 
             void StartEvent()
             {
-                m_auiAdvisorGuid[0] = instance->GetData64(DATA_THALADREDTHEDARKENER);
-                m_auiAdvisorGuid[1] = instance->GetData64(DATA_LORDSANGUINAR);
-                m_auiAdvisorGuid[2] = instance->GetData64(DATA_GRANDASTROMANCERCAPERNIAN);
-                m_auiAdvisorGuid[3] = instance->GetData64(DATA_MASTERENGINEERTELONICUS);
+                m_auiAdvisorGuid[0] = instance->GetGuidData(DATA_THALADREDTHEDARKENER);
+                m_auiAdvisorGuid[1] = instance->GetGuidData(DATA_LORDSANGUINAR);
+                m_auiAdvisorGuid[2] = instance->GetGuidData(DATA_GRANDASTROMANCERCAPERNIAN);
+                m_auiAdvisorGuid[3] = instance->GetGuidData(DATA_MASTERENGINEERTELONICUS);
 
                 if (!m_auiAdvisorGuid[0] || !m_auiAdvisorGuid[1] || !m_auiAdvisorGuid[2] || !m_auiAdvisorGuid[3])
                 {
@@ -927,7 +926,7 @@ class boss_kaelthas : public CreatureScript
 
                                                 //Using packet workaround
                                                 WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
-                                                data.append(unit->GetPackGUID());
+                                                data << unit->GetPackGUID();
                                                 data << uint32(0);
                                                 unit->SendMessageToSet(&data, true);
                                             }
@@ -953,7 +952,7 @@ class boss_kaelthas : public CreatureScript
                                             {
                                                 //Using packet workaround
                                                 WorldPacket data(SMSG_MOVE_UNSET_CAN_FLY, 12);
-                                                data.append(unit->GetPackGUID());
+                                                data << unit->GetPackGUID();
                                                 data << uint32(0);
                                                 unit->SendMessageToSet(&data, true);
                                             }

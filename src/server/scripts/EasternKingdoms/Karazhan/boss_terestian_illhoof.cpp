@@ -101,7 +101,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            Creature* Terestian = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TERESTIAN));
+            Creature* Terestian = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TERESTIAN));
             if (Terestian && Terestian->IsAlive())
                 DoCast(Terestian, SPELL_BROKEN_PACT, true);
         }
@@ -144,10 +144,10 @@ public:
 
         void Initialize()
         {
-            SacrificeGUID = 0;
+            SacrificeGUID.Clear();
         }
 
-        uint64 SacrificeGUID;
+        ObjectGuid SacrificeGUID;
 
         void Reset() override
         {
@@ -269,10 +269,8 @@ public:
     {
         boss_terestianAI(Creature* creature) : ScriptedAI(creature)
         {
-            Initialize();
-            for (uint8 i = 0; i < 2; ++i)
-                PortalGUID[i] = 0;
             instance = creature->GetInstanceScript();
+            Initialize();
         }
 
         void Initialize()
@@ -289,7 +287,7 @@ public:
 
         InstanceScript* instance;
 
-        uint64 PortalGUID[2];
+        ObjectGuid PortalGUID[2];
         uint8 PortalsCount;
 
         uint32 SacrificeTimer;
@@ -312,7 +310,7 @@ public:
                         pPortal->DespawnOrUnsummon();
                     }
 
-                    PortalGUID[i] = 0;
+                    PortalGUID[i].Clear();
                 }
             }
 
@@ -367,7 +365,7 @@ public:
                     if (Creature* pPortal = ObjectAccessor::GetCreature((*me), PortalGUID[i]))
                         pPortal->DespawnOrUnsummon();
 
-                    PortalGUID[i] = 0;
+                    PortalGUID[i].Clear();
                 }
             }
 
