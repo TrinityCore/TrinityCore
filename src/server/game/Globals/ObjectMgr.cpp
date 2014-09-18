@@ -3399,11 +3399,12 @@ void ObjectMgr::LoadPlayerInfo()
     {
         uint32 oldMSTime = getMSTime();
 
-        QueryResult result = WorldDatabase.PQuery("SELECT racemask, classmask, Spell FROM playercreateinfo_spell_custom");
+        std::string tableName = sWorld->getBoolConfig(CONFIG_START_ALL_SPELLS) ? "playercreateinfo_spell_custom" : "playercreateinfo_spell";
+        QueryResult result = WorldDatabase.PQuery("SELECT racemask, classmask, Spell FROM %s", tableName.c_str());
 
         if (!result)
         {
-            TC_LOG_ERROR("server.loading", ">> Loaded 0 player create spells. DB table `playercreateinfo_spell_custom` is empty.");
+            TC_LOG_ERROR("server.loading", ">> Loaded 0 player create spells. DB table `%s` is empty.", tableName.c_str());
         }
         else
         {
@@ -3418,13 +3419,13 @@ void ObjectMgr::LoadPlayerInfo()
 
                 if (raceMask != 0 && !(raceMask & RACEMASK_ALL_PLAYABLE))
                 {
-                    TC_LOG_ERROR("sql.sql", "Wrong race mask %u in `playercreateinfo_spell_custom` table, ignoring.", raceMask);
+                    TC_LOG_ERROR("sql.sql", "Wrong race mask %u in `%s` table, ignoring.", raceMask, tableName.c_str());
                     continue;
                 }
 
                 if (classMask != 0 && !(classMask & CLASSMASK_ALL_PLAYABLE))
                 {
-                    TC_LOG_ERROR("sql.sql", "Wrong class mask %u in `playercreateinfo_spell_custom` table, ignoring.", classMask);
+                    TC_LOG_ERROR("sql.sql", "Wrong class mask %u in `%s` table, ignoring.", classMask, tableName.c_str());
                     continue;
                 }
 
@@ -3438,7 +3439,7 @@ void ObjectMgr::LoadPlayerInfo()
                             {
                                 if (PlayerInfo* info = _playerInfo[raceIndex][classIndex])
                                 {
-                                    info->customSpells.push_back(spellId);
+                                    info->spells.push_back(spellId);
                                     ++count;
                                 }
                                 // We need something better here, the check is not accounting for spells used by multiple races/classes but not all of them.
@@ -3452,7 +3453,7 @@ void ObjectMgr::LoadPlayerInfo()
             }
             while (result->NextRow());
 
-            TC_LOG_INFO("server.loading", ">> Loaded %u custom player create spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            TC_LOG_INFO("server.loading", ">> Loaded %u player create spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
