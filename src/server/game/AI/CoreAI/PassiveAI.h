@@ -68,6 +68,7 @@ class CritterAI : public PassiveAI
     public:
         explicit CritterAI(Creature* c) : PassiveAI(c) { }
 
+        void UpdateAI(uint32) override;
         void DamageTaken(Unit* done_by, uint32& /*damage*/) override;
         void EnterEvadeMode() override;
 };

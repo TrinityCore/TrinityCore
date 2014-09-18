@@ -59,6 +59,15 @@ void PossessedAI::KilledUnit(Unit* victim)
         victim->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 }
 
+void CritterAI::UpdateAI(uint32)
+{
+    if (me->IsInCombat() && me->getAttackers().empty())
+    {
+        if (me->HasUnitState(UNIT_STATE_FLEEING) && !me->HasAuraType(SPELL_AURA_MOD_FEAR))
+            EnterEvadeMode();
+    }
+}
+
 void CritterAI::DamageTaken(Unit* /*done_by*/, uint32&)
 {
     if (!me->HasUnitState(UNIT_STATE_FLEEING))
