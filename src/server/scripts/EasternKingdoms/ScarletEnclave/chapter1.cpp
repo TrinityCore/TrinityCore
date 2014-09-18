@@ -420,7 +420,7 @@ class npc_eye_of_acherus : public CreatureScript
                         for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
                             me->SetSpeed(UnitMoveType(i), owner->GetSpeedRate(UnitMoveType(i)), true);
 
-                        TalkToMap(TALK_CONTROL, owner);
+                        Talk(TALK_CONTROL, owner);
                     }
                     me->SetDisableGravity(false);
                     DoCast(me, SPELL_EYE_FLIGHT);
