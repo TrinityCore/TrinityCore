@@ -628,9 +628,9 @@ class World
         void SetInitialWorldSettings();
         void LoadConfigSettings(bool reload = false);
 
-        void SendWorldText(int32 string_id, ...);
+        void SendWorldText(uint32 string_id, ...);
         void SendGlobalText(const char* text, WorldSession* self);
-        void SendGMText(int32 string_id, ...);
+        void SendGMText(uint32 string_id, ...);
         void SendServerMessage(ServerMessageType type, const char *text = "", Player* player = NULL);
         void SendGlobalMessage(WorldPacket* packet, WorldSession* self = nullptr, uint32 team = 0);
         void SendGlobalGMMessage(WorldPacket* packet, WorldSession* self = nullptr, uint32 team = 0);

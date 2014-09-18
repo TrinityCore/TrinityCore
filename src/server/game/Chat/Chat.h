@@ -64,13 +64,13 @@ class ChatHandler
         static char* LineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = NULL; return start; }
 
         // function with different implementation for chat/console
-        virtual const char *GetTrinityString(int32 entry) const;
-        virtual void SendSysMessage(const char *str);
+        virtual char const* GetTrinityString(uint32 entry) const;
+        virtual void SendSysMessage(char const* str);
 
-        void SendSysMessage(int32     entry);
-        void PSendSysMessage(const char *format, ...) ATTR_PRINTF(2, 3);
-        void PSendSysMessage(int32     entry, ...);
-        std::string PGetParseString(int32 entry, ...) const;
+        void SendSysMessage(uint32 entry);
+        void PSendSysMessage(char const* format, ...) ATTR_PRINTF(2, 3);
+        void PSendSysMessage(uint32 entry, ...);
+        std::string PGetParseString(uint32 entry, ...) const;
 
         bool ParseCommands(const char* text);
 
@@ -147,7 +147,7 @@ class CliHandler : public ChatHandler
         explicit CliHandler(void* callbackArg, Print* zprint) : m_callbackArg(callbackArg), m_print(zprint) { }
 
         // overwrite functions
-        const char *GetTrinityString(int32 entry) const override;
+        char const* GetTrinityString(uint32 entry) const override;
         bool isAvailable(ChatCommand const& cmd) const override;
         bool HasPermission(uint32 /*permission*/) const override { return true; }
         void SendSysMessage(const char *str) override;

@@ -621,7 +621,7 @@ void WorldSession::SendNotification(uint32 string_id, ...)
     }
 }
 
-const char *WorldSession::GetTrinityString(int32 entry) const
+char const* WorldSession::GetTrinityString(uint32 entry) const
 {
     return sObjectMgr->GetTrinityString(entry, GetSessionDbLocaleIndex());
 }
