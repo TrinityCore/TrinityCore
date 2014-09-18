@@ -269,7 +269,7 @@ struct PlayerInfo
     uint16 displayId_m;
     uint16 displayId_f;
     PlayerCreateInfoItems item;
-    PlayerCreateInfoSpells customSpells;
+    PlayerCreateInfoSpells spells;
     PlayerCreateInfoActions action;
     PlayerCreateInfoSkills skills;
 
@@ -1604,7 +1604,7 @@ class Player : public Unit, public GridObject<Player>
         void LearnSpell(uint32 spell_id, bool dependent, bool fromSkill = false);
         void RemoveSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
         void ResetSpells(bool myClassOnly = false);
-        void LearnCustomSpells();
+        void LearnDefaultSpells();
         void LearnDefaultSkills();
         void LearnDefaultSkill(uint32 skillId, uint16 rank);
         void LearnQuestRewardedSpells();

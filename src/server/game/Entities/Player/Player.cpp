@@ -1138,7 +1138,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 
     // original spells
     LearnDefaultSkills();
-    LearnCustomSpells();
+    LearnDefaultSpells();
 
     // original action bar
     for (PlayerCreateInfoActions::const_iterator action_itr = info->action.begin(); action_itr != info->action.end(); ++action_itr)
@@ -17693,7 +17693,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     // after spell and quest load
     InitTalentForLevel();
     LearnDefaultSkills();
-    LearnCustomSpells();
+    LearnDefaultSpells();
 
     // must be before inventory (some items required reputation check)
     m_reputationMgr->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_REPUTATION));
@@ -23091,18 +23091,15 @@ void Player::ResetSpells(bool myClassOnly)
             RemoveSpell(iter->first, false, false);           // only iter->first can be accessed, object by iter->second can be deleted already
 
     LearnDefaultSkills();
-    LearnCustomSpells();
+    LearnDefaultSpells();
     LearnQuestRewardedSpells();
 }
 
-void Player::LearnCustomSpells()
+void Player::LearnDefaultSpells()
 {
-    if (!sWorld->getBoolConfig(CONFIG_START_ALL_SPELLS))
-        return;
-
     // learn default race/class spells
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
-    for (PlayerCreateInfoSpells::const_iterator itr = info->customSpells.begin(); itr != info->customSpells.end(); ++itr)
+    for (PlayerCreateInfoSpells::const_iterator itr = info->spells.begin(); itr != info->spells.end(); ++itr)
     {
         uint32 tspell = *itr;
         TC_LOG_DEBUG("entities.player.loading", "PLAYER (Class: %u Race: %u): Adding initial spell, id = %u", uint32(getClass()), uint32(getRace()), tspell);
@@ -23285,7 +23282,7 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
         if (!sSpellMgr->GetSpellInfo(ability->spellId))
             continue;
 
-        if (ability->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE && ability->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
+        if (ability->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE /*&& ability->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN*/)
             continue;
 
         // Check race if set

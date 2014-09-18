@@ -333,7 +333,7 @@ public:
             return false;
 
         target->LearnDefaultSkills();
-        target->LearnCustomSpells();
+        target->LearnDefaultSpells();
         target->LearnQuestRewardedSpells();
 
         handler->PSendSysMessage(LANG_COMMAND_LEARN_ALL_DEFAULT_AND_QUEST, handler->GetNameLink(target).c_str());
