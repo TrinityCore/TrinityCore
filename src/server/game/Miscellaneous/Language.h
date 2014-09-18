@@ -1192,8 +1192,5 @@ enum TrinityStrings
 
     LANG_NPCINFO_INHABIT_TYPE                     = 11008,
     LANG_NPCINFO_FLAGS_EXTRA                      = 11009
-
-    // NOT RESERVED IDS                   12000-1999999999
-    // For other tables maybe             2000010000-2147483647 (max index)
 };
 #endif
