@@ -911,10 +911,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
 
     if (Battleground* bg = player->GetBattleground())
         if (bg->GetStatus() == STATUS_IN_PROGRESS)
-        {
             bg->HandleAreaTrigger(player, triggerId);
-            return;
-        }
 
     if (OutdoorPvP* pvp = player->GetOutdoorPvP())
         if (pvp->HandleAreaTrigger(_player, triggerId))
