@@ -1005,19 +1005,21 @@ class spell_pal_judgement : public SpellScriptLoader
                 uint32 spellId2 = SPELL_PALADIN_JUDGEMENT_DAMAGE;
 
                 // some seals have SPELL_AURA_DUMMY in EFFECT_2
+                AuraEffect* auraEffect = NULL;
                 Unit::AuraEffectList const& auras = GetCaster()->GetAuraEffectsByType(SPELL_AURA_DUMMY);
                 for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
                 {
                     if ((*i)->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_SEAL && (*i)->GetEffIndex() == EFFECT_2)
                         if (sSpellMgr->GetSpellInfo((*i)->GetAmount()))
                         {
+                            auraEffect = (*i);
                             spellId2 = (*i)->GetAmount();
                             break;
                         }
                 }
 
                 GetCaster()->CastSpell(GetHitUnit(), _spellId, true);
-                GetCaster()->CastSpell(GetHitUnit(), spellId2, true);
+                GetCaster()->CastSpell(GetHitUnit(), spellId2, true, NULL, auraEffect);
             }
 
             void Register() override
