@@ -269,8 +269,22 @@ class Group
         void SendUpdate();
         void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot = NULL);
         void UpdatePlayerOutOfRange(Player* player);
-                                                            // ignore: GUID of player that will be ignored
-        void BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int group = -1, ObjectGuid ignore = ObjectGuid::Empty);
+
+        template<class Worker>
+        void BroadcastWorker(Worker& worker)
+        {
+            for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
+                worker(itr->GetSource());
+        }
+
+        template<class Worker>
+        void BroadcastWorker(Worker const& worker) const
+        {
+            for (GroupReference const* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
+                worker(itr->GetSource());
+        }
+
+        void BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int group = -1, ObjectGuid ignoredPlayer = ObjectGuid::Empty);
         void BroadcastReadyCheck(WorldPacket* packet);
         void OfflineReadyCheck();
 
