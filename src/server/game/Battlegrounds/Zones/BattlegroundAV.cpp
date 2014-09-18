@@ -119,7 +119,7 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
         DelCreature(AV_CPLACE_TRIGGER16);
 
         if (Creature* herold = GetBGCreature(AV_CPLACE_HERALD))
-            herold->AI()->TalkToMap(TEXT_STORMPIKE_GENERAL_DEAD);
+            herold->AI()->Talk(TEXT_STORMPIKE_GENERAL_DEAD);
     }
     else if (entry == BG_AV_CreatureInfo[AV_NPC_H_CAPTAIN])
     {
@@ -138,7 +138,7 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
         DelCreature(AV_CPLACE_TRIGGER18);
 
         if (Creature* herold = GetBGCreature(AV_CPLACE_HERALD))
-            herold->AI()->TalkToMap(TEXT_FROSTWOLF_GENERAL_DEAD);
+            herold->AI()->Talk(TEXT_FROSTWOLF_GENERAL_DEAD);
     }
     else if (entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_N_4] || entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_A_4] || entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_H_4])
         ChangeMineOwner(AV_NORTH_MINE, killer->GetTeam());
@@ -603,7 +603,7 @@ void BattlegroundAV::EventPlayerDestroyedPoint(BG_AV_Nodes node)
 
     if (StaticNodeInfo const* nodeInfo = GetStaticNodeInfo(node))
         if (Creature* herold = GetBGCreature(AV_CPLACE_HERALD))
-            herold->AI()->TalkToMap(owner == ALLIANCE ? nodeInfo->TextIds.AllianceCapture : nodeInfo->TextIds.HordeCapture);
+            herold->AI()->Talk(owner == ALLIANCE ? nodeInfo->TextIds.AllianceCapture : nodeInfo->TextIds.HordeCapture);
 }
 
 void BattlegroundAV::ChangeMineOwner(uint8 mine, uint32 team, bool initial)
@@ -679,9 +679,9 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, uint32 team, bool initial)
         if (Creature* herold = GetBGCreature(AV_CPLACE_HERALD))
         {
             if (mine == AV_NORTH_MINE)
-                herold->AI()->TalkToMap(team == ALLIANCE ? TEXT_IRONDEEP_MINE_ALLIANCE_TAKEN : TEXT_IRONDEEP_MINE_HORDE_TAKEN);
+                herold->AI()->Talk(team == ALLIANCE ? TEXT_IRONDEEP_MINE_ALLIANCE_TAKEN : TEXT_IRONDEEP_MINE_HORDE_TAKEN);
             else if (mine == AV_SOUTH_MINE)
-                herold->AI()->TalkToMap(team == ALLIANCE ? TEXT_COLDTOOTH_MINE_ALLIANCE_TAKEN : TEXT_COLDTOOTH_MINE_HORDE_TAKEN);
+                herold->AI()->Talk(team == ALLIANCE ? TEXT_COLDTOOTH_MINE_ALLIANCE_TAKEN : TEXT_COLDTOOTH_MINE_HORDE_TAKEN);
         }
     }
     else
@@ -923,7 +923,7 @@ void BattlegroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
 
     if (StaticNodeInfo const* nodeInfo = GetStaticNodeInfo(node))
         if (Creature* herold = GetBGCreature(AV_CPLACE_HERALD))
-            herold->AI()->TalkToMap(team == ALLIANCE ? nodeInfo->TextIds.AllianceCapture : nodeInfo->TextIds.HordeCapture);
+            herold->AI()->Talk(team == ALLIANCE ? nodeInfo->TextIds.AllianceCapture : nodeInfo->TextIds.HordeCapture);
 
     // update the statistic for the defending player
     UpdatePlayerScore(player, IsTower(node) ? SCORE_TOWERS_DEFENDED : SCORE_GRAVEYARDS_DEFENDED, 1);
@@ -1014,7 +1014,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
 
     if (StaticNodeInfo const* nodeInfo = GetStaticNodeInfo(node))
         if (Creature* herold = GetBGCreature(AV_CPLACE_HERALD))
-            herold->AI()->TalkToMap(team == ALLIANCE ? nodeInfo->TextIds.AllianceAttack : nodeInfo->TextIds.HordeAttack);
+            herold->AI()->Talk(team == ALLIANCE ? nodeInfo->TextIds.AllianceAttack : nodeInfo->TextIds.HordeAttack);
 
     // update the statistic for the assaulting player
     UpdatePlayerScore(player, (IsTower(node)) ? SCORE_TOWERS_ASSAULTED : SCORE_GRAVEYARDS_ASSAULTED, 1);

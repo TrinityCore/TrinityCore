@@ -1591,12 +1591,12 @@ void Group::UpdatePlayerOutOfRange(Player* player)
     }
 }
 
-void Group::BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int group, ObjectGuid ignore)
+void Group::BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int group /*= -1*/, ObjectGuid ignoredPlayer /*= ObjectGuid::Empty*/)
 {
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player* player = itr->GetSource();
-        if (!player || (!ignore.IsEmpty() && player->GetGUID() == ignore) || (ignorePlayersInBGRaid && player->GetGroup() != this))
+        if (!player || (!ignoredPlayer.IsEmpty() && player->GetGUID() == ignoredPlayer) || (ignorePlayersInBGRaid && player->GetGroup() != this))
             continue;
 
         if (player->GetSession() && (group == -1 || itr->getSubGroup() == group))

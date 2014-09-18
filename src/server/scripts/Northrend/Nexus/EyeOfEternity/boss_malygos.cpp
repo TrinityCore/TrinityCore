@@ -672,7 +672,7 @@ public:
                 Talk(SAY_BUFF_SPARK);
             }
             else if (spell->Id == SPELL_MALYGOS_BERSERK)
-                TalkToMap(EMOTE_HIT_BERSERKER_TIMER);
+                Talk(EMOTE_HIT_BERSERKER_TIMER);
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -1121,7 +1121,7 @@ public:
         npc_power_sparkAI(Creature* creature) : ScriptedAI(creature)
         {
             _instance = creature->GetInstanceScript();
-            TalkToMap(EMOTE_POWER_SPARK_SUMMONED);
+            Talk(EMOTE_POWER_SPARK_SUMMONED);
             MoveToMalygos();
         }
 
