@@ -1,4 +1,4 @@
-SET @CGuid := 74517;
+SET @CGuid := 74518;
 
 DELETE FROM `creature` WHERE `id`IN(24014,29393)AND `guid` BETWEEN @CGUID AND @CGUID+3;
 UPDATE `creature_template` SET `faction`=21, `unit_flags`=33536, `unit_flags2`=2099200 WHERE  `entry`=29394;
