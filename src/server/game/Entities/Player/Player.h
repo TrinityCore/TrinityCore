@@ -1487,7 +1487,7 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         bool LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder);
-        bool isBeingLoaded() const override;
+        bool IsLoading() const override;
 
         void Initialize(uint32 guid);
         static uint32 GetUInt32ValueFromArray(Tokenizer const& data, uint16 index);

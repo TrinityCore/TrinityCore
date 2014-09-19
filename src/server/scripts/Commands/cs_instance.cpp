@@ -125,7 +125,7 @@ public:
         uint16 counter = 0;
         uint16 MapId = 0;
 
-        if (strcmp(map, "all"))
+        if (strcmp(map, "all") != 0)
         {
             MapId = uint16(atoi(map));
             if (!MapId)

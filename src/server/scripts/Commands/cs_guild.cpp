@@ -249,7 +249,7 @@ public:
     {
         Guild* guild = nullptr;
 
-        if (args && strlen(args) > 0)
+        if (args && args[0] != '\0')
         {
             if (isNumeric(args))
             {

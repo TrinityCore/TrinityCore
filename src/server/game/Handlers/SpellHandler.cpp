@@ -448,11 +448,11 @@ void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
             //  over AuraEffectList caused "incompatible iterator" errors on second pass
             std::list<uint32> spellIDs;
 
-            for (Unit::AuraEffectList::const_iterator auraEffect = auraEffects.begin(); auraEffect != auraEffects.end(); auraEffect++)
+            for (Unit::AuraEffectList::const_iterator auraEffect = auraEffects.begin(); auraEffect != auraEffects.end(); ++auraEffect)
                 spellIDs.push_back((*auraEffect)->GetId());
 
             // Remove all auras related to resource tracking (only Herbs and Minerals in 3.3.5a)
-            for (std::list<uint32>::iterator it = spellIDs.begin(); it != spellIDs.end(); it++)
+            for (std::list<uint32>::iterator it = spellIDs.begin(); it != spellIDs.end(); ++it)
                 _player->RemoveOwnedAura(*it, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
         }
     }
