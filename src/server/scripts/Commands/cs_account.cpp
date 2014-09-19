@@ -775,7 +775,7 @@ public:
         if (handler->HasLowerSecurityAccount(NULL, targetAccountId, true))
             return false;
 
-        if (strcmp(password, passwordConfirmation))
+        if (strcmp(password, passwordConfirmation) != 0)
         {
             handler->SendSysMessage(LANG_NEW_PASSWORDS_NOT_MATCH);
             handler->SetSentErrorMessage(true);

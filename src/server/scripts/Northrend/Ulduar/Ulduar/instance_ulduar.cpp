@@ -140,8 +140,8 @@ class instance_ulduar : public InstanceMapScript
                 _algalonSummoned                 = false;
                 _summonAlgalon                   = false;
 
-                memset(_summonObservationRingKeeper, false, sizeof(_summonObservationRingKeeper));
-                memset(_summonYSKeeper, false, sizeof(_summonYSKeeper));
+                memset(_summonObservationRingKeeper, 0, sizeof(_summonObservationRingKeeper));
+                memset(_summonYSKeeper, 0, sizeof(_summonYSKeeper));
             }
 
             void FillInitialWorldStates(WorldPacket& packet) override

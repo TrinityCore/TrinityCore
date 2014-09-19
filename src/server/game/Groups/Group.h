@@ -28,7 +28,6 @@
 class Battlefield;
 class Battleground;
 class Creature;
-class GroupReference;
 class InstanceSave;
 class Map;
 class Player;
