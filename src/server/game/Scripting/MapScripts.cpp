@@ -379,7 +379,6 @@ void Map::ScriptsProcess()
                     TC_LOG_ERROR("scripts", "%s invalid chat type (%u) specified, skipping.", step.script->GetDebugInfo().c_str(), step.script->Talk.ChatType);
                     break;
                 }
-                Unit* source = nullptr;
 
                 if (step.script->Talk.Flags & SF_TALK_USE_PLAYER)
                     source = _GetScriptPlayerSourceOrTarget(source, target, step.script);
@@ -388,17 +387,24 @@ void Map::ScriptsProcess()
 
                 if (source)
                 {
+                    Unit* sourceUnit = source->ToUnit();
+                    if (!sourceUnit)
+                    {
+                        TC_LOG_ERROR("scripts", "%s source object (%s) is not an unit, skipping.", step.script->GetDebugInfo().c_str(), source->GetGUID().ToString().c_str());
+                        break;
+                    }
+
                     switch (step.script->Talk.ChatType)
                     {
                         case CHAT_TYPE_SAY:
-                            source->Say(step.script->Talk.TextID, target);
+                            sourceUnit->Say(step.script->Talk.TextID, target);
                             break;
                         case CHAT_TYPE_YELL:
-                            source->Yell(step.script->Talk.TextID, target);
+                            sourceUnit->Yell(step.script->Talk.TextID, target);
                             break;
                         case CHAT_TYPE_TEXT_EMOTE:
                         case CHAT_TYPE_BOSS_EMOTE:
-                            source->TextEmote(step.script->Talk.TextID, target, step.script->Talk.ChatType == CHAT_TYPE_BOSS_EMOTE);
+                            sourceUnit->TextEmote(step.script->Talk.TextID, target, step.script->Talk.ChatType == CHAT_TYPE_BOSS_EMOTE);
                             break;
                         case CHAT_TYPE_WHISPER:
                         case CHAT_MSG_RAID_BOSS_WHISPER:
@@ -407,7 +413,7 @@ void Map::ScriptsProcess()
                             if (!receiver)
                                 TC_LOG_ERROR("scripts", "%s attempt to whisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
                             else
-                                source->Whisper(step.script->Talk.TextID, receiver, step.script->Talk.ChatType == CHAT_MSG_RAID_BOSS_WHISPER);
+                                sourceUnit->Whisper(step.script->Talk.TextID, receiver, step.script->Talk.ChatType == CHAT_MSG_RAID_BOSS_WHISPER);
                             break;
                         }
                         default:
