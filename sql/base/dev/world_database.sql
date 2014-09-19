@@ -620,8 +620,9 @@ CREATE TABLE `creature_text` (
   `emote` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `duration` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `sound` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `BroadcastTextId` mediumint(6) NOT NULL DEFAULT '0',
+  `TextRange` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `comment` varchar(255) DEFAULT '',
-  `BroadcastTextID` mediumint(6) NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`,`groupid`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -983,7 +984,7 @@ CREATE TABLE `game_tele` (
   `map` smallint(5) unsigned NOT NULL DEFAULT '0',
   `name` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1424 DEFAULT CHARSET=utf8 COMMENT='Tele Command';
+) ENGINE=MyISAM AUTO_INCREMENT=1425 DEFAULT CHARSET=utf8 COMMENT='Tele Command';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3634,4 +3635,4 @@ CREATE TABLE `waypoints` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-08-27 14:06:19
+-- Dump completed on 2014-09-19 18:15:42
