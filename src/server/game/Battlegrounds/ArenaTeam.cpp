@@ -17,12 +17,12 @@
  */
 
 #include "ObjectMgr.h"
+#include "Player.h"
 #include "WorldPacket.h"
 #include "ArenaTeam.h"
 #include "World.h"
 #include "Group.h"
 #include "ArenaTeamMgr.h"
-#include "Player.h"
 #include "WorldSession.h"
 #include "Opcodes.h"
 
