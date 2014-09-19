@@ -24,7 +24,6 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "CreatureTextMgr.h"
-#include "Group.h"
 
 class CreatureTextBuilder
 {
