@@ -1151,6 +1151,8 @@ void BfWGGameObjectBuilding::Destroyed()
             else
                 TC_LOG_ERROR("bg.battlefield.wg", "Titan Relic not found.");
             break;
+        default:
+            break;
     }
 
     _wg->BrokenWallOrTower(_teamControl);
@@ -1183,17 +1185,22 @@ void BfWGGameObjectBuilding::Init(GameObject* go)
     _state = WintergraspGameObjectState(sWorld->getWorldState(_worldState));
     switch (_state)
     {
+        case BATTLEFIELD_WG_OBJECTSTATE_NEUTRAL_INTACT:
         case BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT:
         case BATTLEFIELD_WG_OBJECTSTATE_HORDE_INTACT:
             go->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
             break;
+        case BATTLEFIELD_WG_OBJECTSTATE_NEUTRAL_DESTROY:
         case BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_DESTROY:
         case BATTLEFIELD_WG_OBJECTSTATE_HORDE_DESTROY:
             go->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
             break;
+        case BATTLEFIELD_WG_OBJECTSTATE_NEUTRAL_DAMAGE:
         case BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_DAMAGE:
         case BATTLEFIELD_WG_OBJECTSTATE_HORDE_DAMAGE:
             go->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
+            break;
+        default:
             break;
     }
 
