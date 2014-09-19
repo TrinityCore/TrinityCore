@@ -23,10 +23,10 @@ SDComment:
 SDCategory: Npc
 EndScriptData */
 
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "Group.h"
-#include "Player.h"
 
 enum Points
 {
