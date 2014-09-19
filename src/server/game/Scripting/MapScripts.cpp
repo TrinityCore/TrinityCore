@@ -374,7 +374,7 @@ void Map::ScriptsProcess()
         {
             case SCRIPT_COMMAND_TALK:
             {
-                if (step.script->Talk.ChatType > CHAT_TYPE_WHISPER && step.script->Talk.ChatType != CHAT_MSG_RAID_BOSS_WHISPER)
+                if (step.script->Talk.ChatType > CHAT_TYPE_BOSS_WHISPER)
                 {
                     TC_LOG_ERROR("scripts", "%s invalid chat type (%u) specified, skipping.", step.script->GetDebugInfo().c_str(), step.script->Talk.ChatType);
                     break;
@@ -407,13 +407,13 @@ void Map::ScriptsProcess()
                             sourceUnit->TextEmote(step.script->Talk.TextID, target, step.script->Talk.ChatType == CHAT_TYPE_BOSS_EMOTE);
                             break;
                         case CHAT_TYPE_WHISPER:
-                        case CHAT_MSG_RAID_BOSS_WHISPER:
+                        case CHAT_TYPE_BOSS_WHISPER:
                         {
                             Player* receiver = target ? target->ToPlayer() : nullptr;
                             if (!receiver)
                                 TC_LOG_ERROR("scripts", "%s attempt to whisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
                             else
-                                sourceUnit->Whisper(step.script->Talk.TextID, receiver, step.script->Talk.ChatType == CHAT_MSG_RAID_BOSS_WHISPER);
+                                sourceUnit->Whisper(step.script->Talk.TextID, receiver, step.script->Talk.ChatType == CHAT_TYPE_BOSS_WHISPER);
                             break;
                         }
                         default:
