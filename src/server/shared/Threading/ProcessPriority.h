@@ -26,7 +26,7 @@
 #define PROCESS_HIGH_PRIORITY -15 // [-20, 19], default is 0
 #endif
 
-void SetProcessPriority(const std::string logChannel)
+void SetProcessPriority(const std::string& logChannel)
 {
 // Suppresses Mac OS X Warning since logChannel isn't used.
 #if PLATFORM_APPLE
