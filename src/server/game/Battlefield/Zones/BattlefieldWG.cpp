@@ -268,7 +268,7 @@ void BattlefieldWG::OnBattleStart()
     // Initialize vehicle counter
     UpdateCounterVehicle(true);
     // Send start warning to all players
-    SendWarningToAllInZone(BATTLEFIELD_WG_TEXT_START);
+    SendWarning(BATTLEFIELD_WG_TEXT_START);
 }
 
 void BattlefieldWG::UpdateCounterVehicle(bool init)
@@ -409,9 +409,9 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
     }
 
     if (!endByTimer) // win alli/horde
-        SendWarningToAllInZone((GetDefenderTeam() == TEAM_ALLIANCE) ? BATTLEFIELD_WG_TEXT_WIN_KEEP : BATTLEFIELD_WG_TEXT_WIN_KEEP + 1);
+        SendWarning((GetDefenderTeam() == TEAM_ALLIANCE) ? BATTLEFIELD_WG_TEXT_WIN_KEEP : BATTLEFIELD_WG_TEXT_WIN_KEEP + 1);
     else // defend alli/horde
-        SendWarningToAllInZone((GetDefenderTeam() == TEAM_ALLIANCE) ? BATTLEFIELD_WG_TEXT_DEFEND_KEEP : BATTLEFIELD_WG_TEXT_DEFEND_KEEP + 1);
+        SendWarning((GetDefenderTeam() == TEAM_ALLIANCE) ? BATTLEFIELD_WG_TEXT_DEFEND_KEEP : BATTLEFIELD_WG_TEXT_DEFEND_KEEP + 1);
 }
 
 // *******************************************************
@@ -442,7 +442,7 @@ void BattlefieldWG::DoCompleteOrIncrementAchievement(uint32 achievement, Player*
 
 void BattlefieldWG::OnStartGrouping()
 {
-    SendWarningToAllInZone(BATTLEFIELD_WG_TEXT_WILL_START);
+    SendWarning(BATTLEFIELD_WG_TEXT_WILL_START);
 }
 
 uint8 BattlefieldWG::GetSpiritGraveyardId(uint32 areaId) const
@@ -689,7 +689,7 @@ void BattlefieldWG::PromotePlayer(Player* killer)
         {
             killer->RemoveAura(SPELL_RECRUIT);
             killer->CastSpell(killer, SPELL_CORPORAL, true);
-            SendWarningToPlayer(killer, BATTLEFIELD_WG_TEXT_FIRSTRANK);
+            SendWarning(BATTLEFIELD_WG_TEXT_FIRSTRANK, killer);
         }
         else
             killer->CastSpell(killer, SPELL_RECRUIT, true);
@@ -700,7 +700,7 @@ void BattlefieldWG::PromotePlayer(Player* killer)
         {
             killer->RemoveAura(SPELL_CORPORAL);
             killer->CastSpell(killer, SPELL_LIEUTENANT, true);
-            SendWarningToPlayer(killer, BATTLEFIELD_WG_TEXT_SECONDRANK);
+            SendWarning(BATTLEFIELD_WG_TEXT_SECONDRANK, killer);
         }
         else
             killer->CastSpell(killer, SPELL_CORPORAL, true);
@@ -1116,7 +1116,7 @@ void BfWGGameObjectBuilding::Damaged()
 
     // Send warning message
     if (m_NameId)                                       // tower damage + name
-        m_WG->SendWarningToAllInZone(m_NameId);
+        m_WG->SendWarning(m_NameId);
 
     for (ObjectGuid guid : m_CreatureTopList[m_WG->GetAttackerTeam()])
         if (Creature* creature = m_WG->GetCreature(guid))
@@ -1140,7 +1140,7 @@ void BfWGGameObjectBuilding::Destroyed()
 
     // Warn players
     if (m_NameId)
-        m_WG->SendWarningToAllInZone(m_NameId);
+        m_WG->SendWarning(m_NameId);
 
     switch (m_Type)
     {
@@ -1447,7 +1447,7 @@ void WGWorkshop::GiveControlTo(uint8 team, bool init)
         {
             // Send warning message to all player to inform a faction attack to a workshop
             // alliance / horde attacking a workshop
-            bf->SendWarningToAllInZone(teamControl ? WorkshopsData[workshopId].text : WorkshopsData[workshopId].text + 1);
+            bf->SendWarning(teamControl ? WorkshopsData[workshopId].text : WorkshopsData[workshopId].text + 1);
             break;
         }
         case BATTLEFIELD_WG_TEAM_ALLIANCE:
@@ -1459,7 +1459,7 @@ void WGWorkshop::GiveControlTo(uint8 team, bool init)
 
             // Warning message
             if (!init)                              // workshop taken - alliance
-                bf->SendWarningToAllInZone(team == BATTLEFIELD_WG_TEAM_ALLIANCE ? WorkshopsData[workshopId].text : WorkshopsData[workshopId].text + 1);
+                bf->SendWarning(team == BATTLEFIELD_WG_TEAM_ALLIANCE ? WorkshopsData[workshopId].text : WorkshopsData[workshopId].text + 1);
 
             // Found associate graveyard and update it
             if (workshopId < BATTLEFIELD_WG_WORKSHOP_KEEP_WEST)
@@ -1530,7 +1530,7 @@ void WintergraspWorkshopData::GiveControlTo(uint8 team, bool init)
         {
             // Send warning message to all player for inform a faction attack a workshop
             // alliance / horde attacking workshop
-            m_WG->SendWarningToAllInZone(m_TeamControl ? m_NameId : m_NameId + 1);
+            m_WG->SendWarning(m_TeamControl ? m_NameId : m_NameId + 1);
             break;
         }
         case BATTLEFIELD_WG_TEAM_ALLIANCE:
@@ -1562,7 +1562,7 @@ void WintergraspWorkshopData::GiveControlTo(uint8 team, bool init)
 
             // Warning message
             if (!init)                              // workshop taken - alliance
-                m_WG->SendWarningToAllInZone(m_NameId);
+                m_WG->SendWarning(m_NameId);
 
             // Found associate graveyard and update it
             if (m_Type < BATTLEFIELD_WG_WORKSHOP_KEEP_WEST)
@@ -1600,7 +1600,7 @@ void WintergraspWorkshopData::GiveControlTo(uint8 team, bool init)
 
             // Warning message
             if (!init)                              // workshop taken - horde
-                m_WG->SendWarningToAllInZone(m_NameId + 1);
+                m_WG->SendWarning(m_NameId + 1);
 
             // Update graveyard control
             if (m_Type < BATTLEFIELD_WG_WORKSHOP_KEEP_WEST)

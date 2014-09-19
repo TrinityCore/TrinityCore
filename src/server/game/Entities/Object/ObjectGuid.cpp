@@ -48,7 +48,7 @@ char const* ObjectGuid::GetTypeName(HighGuid high)
 std::string ObjectGuid::ToString() const
 {
     std::ostringstream str;
-    str << "GUID Full: 0x" << std::hex << std::setw(16) << std::setfill('0') << m_guid << std::dec;
+    str << "GUID Full: 0x" << std::hex << std::setw(16) << std::setfill('0') << _guid << std::dec;
     str << " Type: " << GetTypeName();
     if (HasEntry())
         str << (IsPet() ? " Pet number: " : " Entry: ") << GetEntry() << " ";
@@ -60,12 +60,12 @@ std::string ObjectGuid::ToString() const
 template<HighGuid high>
 uint32 ObjectGuidGenerator<high>::Generate()
 {
-    if (m_nextGuid >= ObjectGuid::GetMaxCounter(high) - 1)
+    if (_nextGuid >= ObjectGuid::GetMaxCounter(high) - 1)
     {
         TC_LOG_ERROR("", "%s guid overflow!! Can't continue, shutting down server. ", ObjectGuid::GetTypeName(high));
         World::StopNow(ERROR_EXIT_CODE);
     }
-    return m_nextGuid++;
+    return _nextGuid++;
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid)
@@ -82,13 +82,13 @@ ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid& guid)
 
 ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid)
 {
-    buf.append(guid.m_packedGuid);
+    buf.append(guid._packedGuid);
     return buf;
 }
 
 ByteBuffer& operator>>(ByteBuffer& buf, PackedGuidReader const& guid)
 {
-    buf.readPackGUID(*reinterpret_cast<uint64*>(guid.m_guidPtr));
+    buf.readPackGUID(*reinterpret_cast<uint64*>(guid.GuidPtr));
     return buf;
 }
 

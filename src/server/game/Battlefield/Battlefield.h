@@ -303,8 +303,7 @@ class Battlefield : public ZoneScript
         /// Called when a player enter in battlefield zone
         virtual void OnPlayerEnterZone(Player* /*player*/) { }
 
-        void SendWarningToAllInZone(uint32 entry);
-        void SendWarningToPlayer(Player* player, uint32 entry);
+        void SendWarning(uint8 id, WorldObject const* target = nullptr);
 
         void PlayerAcceptInviteToQueue(Player* player);
         void PlayerAcceptInviteToWar(Player* player);
