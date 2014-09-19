@@ -181,9 +181,8 @@ public:
 
         GridCoord gridCoord = Trinity::ComputeGridCoord(object->GetPositionX(), object->GetPositionY());
 
-        // 63? WHY?
-        int gridX = 63 - gridCoord.x_coord;
-        int gridY = 63 - gridCoord.y_coord;
+        int gridX = (MAX_NUMBER_OF_GRIDS - 1) - gridCoord.x_coord;
+        int gridY = (MAX_NUMBER_OF_GRIDS - 1) - gridCoord.y_coord;
 
         uint32 haveMap = Map::ExistMap(mapId, gridX, gridY) ? 1 : 0;
         uint32 haveVMap = Map::ExistVMap(mapId, gridX, gridY) ? 1 : 0;
