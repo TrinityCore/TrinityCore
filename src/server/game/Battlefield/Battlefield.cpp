@@ -322,8 +322,6 @@ void Battlefield::StartBattle()
     InvitePlayersInZoneToWar();
     InvitePlayersInQueueToWar();
 
-    DoPlaySoundToAll(BF_START);
-
     OnBattleStart();
 }
 
@@ -338,11 +336,6 @@ void Battlefield::EndBattle(bool endByTimer)
 
     if (!endByTimer)
         SetDefenderTeam(GetAttackerTeam());
-
-    if (GetDefenderTeam() == TEAM_ALLIANCE)
-        DoPlaySoundToAll(BF_ALLIANCE_WINS);
-    else
-        DoPlaySoundToAll(BF_HORDE_WINS);
 
     OnBattleEnd(endByTimer);
 
