@@ -14813,7 +14813,7 @@ void Player::SendPreparedQuest(ObjectGuid guid)
             {
                 qe._Delay = 0;                              //TEXTEMOTE_MESSAGE;              //zyg: player emote
                 qe._Emote = 0;                              //TEXTEMOTE_HELLO;                //zyg: NPC emote
-                title = "";
+                title.clear();
             }
             else
             {
@@ -17131,7 +17131,7 @@ float Player::GetFloatValueFromArray(Tokenizer const& data, uint16 index)
     return result;
 }
 
-bool Player::isBeingLoaded() const
+bool Player::IsLoading() const
 {
     return GetSession()->PlayerLoading();
 }
@@ -26849,11 +26849,6 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     //ObjectAccessor::UpdateObjectVisibility(pet);
 
     return pet;
-}
-
-bool Player::IsLoading() const
-{
-    return GetSession()->PlayerLoading();
 }
 
 void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell)

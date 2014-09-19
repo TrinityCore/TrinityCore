@@ -105,7 +105,7 @@ public:
                 ItemPosCountVec dest;
                 uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 11522, 1, NULL);
                 if (msg == EQUIP_ERR_OK)
-                    player->StoreNewItem(dest, 11522, 1, true);
+                    player->StoreNewItem(dest, 11522, true);
             }
         }
 

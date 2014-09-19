@@ -244,7 +244,7 @@ void WardenMac::HandleData(ByteBuffer &buff)
     uint8 sha1Hash[20];
     buff.read(sha1Hash, 20);
 
-    if (memcmp(sha1Hash, sha1.GetDigest(), 20))
+    if (memcmp(sha1Hash, sha1.GetDigest(), 20) != 0)
     {
         TC_LOG_DEBUG("warden", "Handle data failed: SHA1 hash is wrong!");
         //found = true;
@@ -259,7 +259,7 @@ void WardenMac::HandleData(ByteBuffer &buff)
     uint8 theirsMD5Hash[16];
     buff.read(theirsMD5Hash, 16);
 
-    if (memcmp(ourMD5Hash, theirsMD5Hash, 16))
+    if (memcmp(ourMD5Hash, theirsMD5Hash, 16) != 0)
     {
         TC_LOG_DEBUG("warden", "Handle data failed: MD5 hash is wrong!");
         //found = true;
