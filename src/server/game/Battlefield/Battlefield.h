@@ -44,9 +44,9 @@ enum BattlefieldObjectiveStates
 
 enum BattlefieldSounds
 {
-    BF_HORDE_WINS                                = 8454,
-    BF_ALLIANCE_WINS                             = 8455,
-    BF_START                                     = 3439
+    BF_SOUND_HORDE_WINS                          = 8454,
+    BF_SOUND_ALLIANCE_WINS                       = 8455,
+    BF_SOUND_START                               = 3439
 };
 
 enum BattlefieldTimers
@@ -97,9 +97,10 @@ class BfCapturePoint
 
         bool SetCapturePointData(GameObject* capturePoint);
         GameObject* GetCapturePointGo();
-        uint32 GetCapturePointEntry(){ return m_capturePointEntry; }
+        uint32 GetCapturePointEntry() const { return m_capturePointEntry; }
 
         TeamId GetTeamId() { return m_team; }
+
     protected:
         bool DelCapturePoint();
 
