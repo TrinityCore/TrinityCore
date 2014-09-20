@@ -140,8 +140,8 @@ public:
             MovePoint = urand(0, 5);
             PointData = GetMoveData();
             SummonWhelpCount = 0;
-            triggerGUID = 0;
-            tankGUID = 0;
+            triggerGUID.Clear();
+            tankGUID.Clear();
             IsMoving = false;
         }
 
@@ -355,7 +355,7 @@ public:
                             Trinity::GameObjectLastSearcher<Trinity::GameObjectInRangeCheck> searcher(me, Floor, check);
                             me->VisitNearbyGridObject(30, searcher);
                             if (Floor)
-                                instance->SetData64(DATA_FLOOR_ERUPTION_GUID, Floor->GetGUID());
+                                instance->SetGuidData(DATA_FLOOR_ERUPTION_GUID, Floor->GetGUID());
                             events.ScheduleEvent(EVENT_BELLOWING_ROAR, 30000);
                             break;
                         }
@@ -473,8 +473,8 @@ public:
             uint8 Phase;
             uint8 MovePoint;
             uint8 SummonWhelpCount;
-            uint64 triggerGUID;
-            uint64 tankGUID;
+            ObjectGuid triggerGUID;
+            ObjectGuid tankGUID;
             bool IsMoving;
     };
 

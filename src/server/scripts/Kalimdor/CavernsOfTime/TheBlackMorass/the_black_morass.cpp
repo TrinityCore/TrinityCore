@@ -321,7 +321,7 @@ public:
             pos.m_positionZ = std::max(me->GetMap()->GetHeight(pos.m_positionX, pos.m_positionY, MAX_HEIGHT), me->GetMap()->GetWaterLevel(pos.m_positionX, pos.m_positionY));
 
             if (Unit* Summon = DoSummon(creature_entry, pos, 30000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT))
-                if (Unit* temp = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_MEDIVH)))
+                if (Unit* temp = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_MEDIVH)))
                     Summon->AddThreat(temp, 0.0f);
         }
 

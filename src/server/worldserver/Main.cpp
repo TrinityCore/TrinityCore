@@ -274,8 +274,7 @@ extern int main(int argc, char** argv)
         delete soapThread;
     }
 
-    if (raAcceptor != nullptr)
-        delete raAcceptor;
+    delete raAcceptor;
 
     ///- Clean database before leaving
     ClearOnlineAccounts();

@@ -153,7 +153,7 @@ public:
 
         void EnterEvadeMode() override
         {
-            if (Creature* muru = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MURU)))
+            if (Creature* muru = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MURU)))
                 muru->AI()->Reset(); // Reset encounter.
             me->DisappearAndDie();
             summons.DespawnAll();
@@ -183,7 +183,7 @@ public:
         {
             DarkFiend = false;
             HasEnraged = false;
-            EntropiusGUID = 0;
+            EntropiusGUID.Clear();
         }
 
         void Reset() override
@@ -278,7 +278,7 @@ public:
     private:
         bool DarkFiend;
         bool HasEnraged;
-        uint64 EntropiusGUID;
+        ObjectGuid EntropiusGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -334,7 +334,7 @@ public:
 
         void JustSummoned(Creature* summoned) override
         {
-            if (Player* target = ObjectAccessor::GetPlayer(*me, instance->GetData64(DATA_PLAYER_GUID)))
+            if (Player* target = ObjectAccessor::GetPlayer(*me, instance->GetGuidData(DATA_PLAYER_GUID)))
                 summoned->AI()->AttackStart(target);
 
             Summons.Summon(summoned);
@@ -555,7 +555,7 @@ public:
         {
             if (SpellTimer <= diff)
             {
-                Unit* Victim = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_PLAYER_GUID));
+                Unit* Victim = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_PLAYER_GUID));
                 switch (NeedForAHack)
                 {
                     case 0:
@@ -574,7 +574,7 @@ public:
                     case 2:
                         SpellTimer = 400;
                         NeedForAHack = 3;
-                        me->RemoveAura(SPELL_BLACKHOLE_GROW, 1);
+                        me->RemoveAura(SPELL_BLACKHOLE_GROW);
                         break;
                     case 3:
                         SpellTimer = urand(400, 900);

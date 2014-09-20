@@ -85,7 +85,7 @@ void OPvPCapturePointEP_EWT::ChangeState()
 
     // complete quest objective
     if (m_TowerState == EP_TS_A || m_TowerState == EP_TS_H)
-        SendObjectiveComplete(EP_EWT_CM, 0);
+        SendObjectiveComplete(EP_EWT_CM, ObjectGuid::Empty);
 }
 
 void OPvPCapturePointEP_EWT::FillInitialWorldStates(WorldPacket &data)
@@ -195,7 +195,7 @@ void OPvPCapturePointEP_NPT::ChangeState()
 
     // complete quest objective
     if (m_TowerState == EP_TS_A || m_TowerState == EP_TS_H)
-        SendObjectiveComplete(EP_NPT_CM, 0);
+        SendObjectiveComplete(EP_NPT_CM, ObjectGuid::Empty);
 }
 
 void OPvPCapturePointEP_NPT::FillInitialWorldStates(WorldPacket &data)
@@ -289,7 +289,7 @@ void OPvPCapturePointEP_CGT::ChangeState()
 
     // complete quest objective
     if (m_TowerState == EP_TS_A || m_TowerState == EP_TS_H)
-        SendObjectiveComplete(EP_CGT_CM, 0);
+        SendObjectiveComplete(EP_CGT_CM, ObjectGuid::Empty);
 }
 
 void OPvPCapturePointEP_CGT::FillInitialWorldStates(WorldPacket &data)
@@ -390,7 +390,7 @@ void OPvPCapturePointEP_PWT::ChangeState()
 
     // complete quest objective
     if (m_TowerState == EP_TS_A || m_TowerState == EP_TS_H)
-        SendObjectiveComplete(EP_PWT_CM, 0);
+        SendObjectiveComplete(EP_PWT_CM, ObjectGuid::Empty);
 }
 
 void OPvPCapturePointEP_PWT::FillInitialWorldStates(WorldPacket &data)
@@ -537,7 +537,7 @@ void OutdoorPvPEP::HandlePlayerLeaveZone(Player* player, uint32 zone)
 
 void OutdoorPvPEP::BuffTeams()
 {
-    for (PlayerSet::iterator itr = m_players[0].begin(); itr != m_players[0].end(); ++itr)
+    for (GuidSet::iterator itr = m_players[0].begin(); itr != m_players[0].end(); ++itr)
     {
         if (Player* player = ObjectAccessor::FindPlayer(*itr))
         {
@@ -547,7 +547,7 @@ void OutdoorPvPEP::BuffTeams()
                 player->CastSpell(player, EP_AllianceBuffs[m_AllianceTowersControlled-1], true);
         }
     }
-    for (PlayerSet::iterator itr = m_players[1].begin(); itr != m_players[1].end(); ++itr)
+    for (GuidSet::iterator itr = m_players[1].begin(); itr != m_players[1].end(); ++itr)
     {
         if (Player* player = ObjectAccessor::FindPlayer(*itr))
         {

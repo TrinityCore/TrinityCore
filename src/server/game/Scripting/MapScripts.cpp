@@ -40,9 +40,9 @@ void Map::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source, O
         return;
 
     // prepare static data
-    uint64 sourceGUID = source ? source->GetGUID() : uint64(0); //some script commands doesn't have source
-    uint64 targetGUID = target ? target->GetGUID() : uint64(0);
-    uint64 ownerGUID  = (source && source->GetTypeId() == TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : uint64(0);
+    ObjectGuid sourceGUID = source ? source->GetGUID() : ObjectGuid::Empty; //some script commands doesn't have source
+    ObjectGuid targetGUID = target ? target->GetGUID() : ObjectGuid::Empty;
+    ObjectGuid ownerGUID = (source && source->GetTypeId() == TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : ObjectGuid::Empty;
 
     ///- Schedule script execution for all scripts in the script map
     ScriptMap const* s2 = &(s->second);
@@ -75,9 +75,9 @@ void Map::ScriptCommandStart(ScriptInfo const& script, uint32 delay, Object* sou
     // NOTE: script record _must_ exist until command executed
 
     // prepare static data
-    uint64 sourceGUID = source ? source->GetGUID() : uint64(0);
-    uint64 targetGUID = target ? target->GetGUID() : uint64(0);
-    uint64 ownerGUID  = (source && source->GetTypeId() == TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : uint64(0);
+    ObjectGuid sourceGUID = source ? source->GetGUID() : ObjectGuid::Empty;
+    ObjectGuid targetGUID = target ? target->GetGUID() : ObjectGuid::Empty;
+    ObjectGuid ownerGUID = (source && source->GetTypeId() == TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : ObjectGuid::Empty;
 
     ScriptAction sa;
     sa.sourceGUID = sourceGUID;
@@ -299,7 +299,7 @@ void Map::ScriptsProcess()
         Object* source = NULL;
         if (step.sourceGUID)
         {
-            switch (GUID_HIPART(step.sourceGUID))
+            switch (step.sourceGUID.GetHigh())
             {
                 case HIGHGUID_ITEM: // as well as HIGHGUID_CONTAINER
                     if (Player* player = HashMapHolder<Player>::Find(step.ownerGUID))
@@ -329,8 +329,8 @@ void Map::ScriptsProcess()
                     break;
                 }
                 default:
-                    TC_LOG_ERROR("scripts", "%s source with unsupported high guid (GUID: " UI64FMTD ", high guid: %u).",
-                        step.script->GetDebugInfo().c_str(), step.sourceGUID, GUID_HIPART(step.sourceGUID));
+                    TC_LOG_ERROR("scripts", "%s source with unsupported high guid %s.",
+                        step.script->GetDebugInfo().c_str(), step.sourceGUID.ToString().c_str());
                     break;
             }
         }
@@ -338,7 +338,7 @@ void Map::ScriptsProcess()
         WorldObject* target = NULL;
         if (step.targetGUID)
         {
-            switch (GUID_HIPART(step.targetGUID))
+            switch (step.targetGUID.GetHigh())
             {
                 case HIGHGUID_UNIT:
                 case HIGHGUID_VEHICLE:
@@ -364,8 +364,8 @@ void Map::ScriptsProcess()
                     break;
                 }
                 default:
-                    TC_LOG_ERROR("scripts", "%s target with unsupported high guid (GUID: " UI64FMTD ", high guid: %u).",
-                        step.script->GetDebugInfo().c_str(), step.targetGUID, GUID_HIPART(step.targetGUID));
+                    TC_LOG_ERROR("scripts", "%s target with unsupported high guid %s.",
+                        step.script->GetDebugInfo().c_str(), step.targetGUID.ToString().c_str());
                     break;
             }
         }
@@ -374,12 +374,11 @@ void Map::ScriptsProcess()
         {
             case SCRIPT_COMMAND_TALK:
             {
-                if (step.script->Talk.ChatType > CHAT_TYPE_WHISPER && step.script->Talk.ChatType != CHAT_MSG_RAID_BOSS_WHISPER)
+                if (step.script->Talk.ChatType > CHAT_TYPE_BOSS_WHISPER)
                 {
                     TC_LOG_ERROR("scripts", "%s invalid chat type (%u) specified, skipping.", step.script->GetDebugInfo().c_str(), step.script->Talk.ChatType);
                     break;
                 }
-                Unit* source = nullptr;
 
                 if (step.script->Talk.Flags & SF_TALK_USE_PLAYER)
                     source = _GetScriptPlayerSourceOrTarget(source, target, step.script);
@@ -388,26 +387,33 @@ void Map::ScriptsProcess()
 
                 if (source)
                 {
+                    Unit* sourceUnit = source->ToUnit();
+                    if (!sourceUnit)
+                    {
+                        TC_LOG_ERROR("scripts", "%s source object (%s) is not an unit, skipping.", step.script->GetDebugInfo().c_str(), source->GetGUID().ToString().c_str());
+                        break;
+                    }
+
                     switch (step.script->Talk.ChatType)
                     {
                         case CHAT_TYPE_SAY:
-                            source->Say(step.script->Talk.TextID, target);
+                            sourceUnit->Say(step.script->Talk.TextID, target);
                             break;
                         case CHAT_TYPE_YELL:
-                            source->Yell(step.script->Talk.TextID, target);
+                            sourceUnit->Yell(step.script->Talk.TextID, target);
                             break;
                         case CHAT_TYPE_TEXT_EMOTE:
                         case CHAT_TYPE_BOSS_EMOTE:
-                            source->TextEmote(step.script->Talk.TextID, target, step.script->Talk.ChatType == CHAT_TYPE_BOSS_EMOTE);
+                            sourceUnit->TextEmote(step.script->Talk.TextID, target, step.script->Talk.ChatType == CHAT_TYPE_BOSS_EMOTE);
                             break;
                         case CHAT_TYPE_WHISPER:
-                        case CHAT_MSG_RAID_BOSS_WHISPER:
+                        case CHAT_TYPE_BOSS_WHISPER:
                         {
                             Player* receiver = target ? target->ToPlayer() : nullptr;
                             if (!receiver)
                                 TC_LOG_ERROR("scripts", "%s attempt to whisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
                             else
-                                source->Whisper(step.script->Talk.TextID, receiver, step.script->Talk.ChatType == CHAT_MSG_RAID_BOSS_WHISPER);
+                                sourceUnit->Whisper(step.script->Talk.TextID, receiver, step.script->Talk.ChatType == CHAT_TYPE_BOSS_WHISPER);
                             break;
                         }
                         default:
@@ -434,9 +440,9 @@ void Map::ScriptsProcess()
                 {
                     // Validate field number.
                     if (step.script->FieldSet.FieldID <= OBJECT_FIELD_ENTRY || step.script->FieldSet.FieldID >= cSource->GetValuesCount())
-                        TC_LOG_ERROR("scripts", "%s wrong field %u (max count: %u) in object (TypeId: %u, Entry: %u, GUID: %u) specified, skipping.",
+                        TC_LOG_ERROR("scripts", "%s wrong field %u (max count: %u) in object (TypeId: %u, %s) specified, skipping.",
                             step.script->GetDebugInfo().c_str(), step.script->FieldSet.FieldID,
-                            cSource->GetValuesCount(), cSource->GetTypeId(), cSource->GetEntry(), cSource->GetGUIDLow());
+                            cSource->GetValuesCount(), cSource->GetTypeId(), cSource->GetGUID().ToString().c_str());
                     else
                         cSource->SetUInt32Value(step.script->FieldSet.FieldID, step.script->FieldSet.FieldValue);
                 }
@@ -565,7 +571,7 @@ void Map::ScriptsProcess()
                     if (step.script->KillCredit.Flags & SF_KILLCREDIT_REWARD_GROUP)
                         player->RewardPlayerAndGroupAtEvent(step.script->KillCredit.CreatureEntry, player);
                     else
-                        player->KilledMonsterCredit(step.script->KillCredit.CreatureEntry, 0);
+                        player->KilledMonsterCredit(step.script->KillCredit.CreatureEntry);
                 }
                 break;
 
@@ -805,7 +811,7 @@ void Map::ScriptsProcess()
                 else //check hashmap holders
                 {
                     if (CreatureData const* data = sObjectMgr->GetCreatureData(step.script->CallScript.CreatureEntry))
-                        cTarget = ObjectAccessor::GetObjectInWorld<Creature>(data->mapid, data->posX, data->posY, MAKE_NEW_GUID(step.script->CallScript.CreatureEntry, data->id, HIGHGUID_UNIT), cTarget);
+                        cTarget = ObjectAccessor::GetObjectInWorld<Creature>(data->mapid, data->posX, data->posY, ObjectGuid(HIGHGUID_UNIT, data->id, step.script->CallScript.CreatureEntry), cTarget);
                 }
 
                 if (!cTarget)

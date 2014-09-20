@@ -127,7 +127,7 @@ WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, Account
     _RBACData(NULL),
     expireTime(60000), // 1 min after socket loss, session is deleted
     forceExit(false),
-    m_currentBankerGUID(0)
+    m_currentBankerGUID()
 {
     memset(m_Tutorials, 0, sizeof(m_Tutorials));
 
@@ -175,9 +175,11 @@ std::string WorldSession::GetPlayerInfo() const
 {
     std::ostringstream ss;
 
-    ss << "[Player: " << GetPlayerName()
-       << " (Guid: " << (_player != NULL ? _player->GetGUID() : 0)
-       << ", Account: " << GetAccountId() << ")]";
+    ss << "[Player: " << GetPlayerName() << " (";
+    if (_player != NULL)
+        ss << _player->GetGUID().ToString() << ", ";
+
+    ss << "Account: " << GetAccountId() << ")]";
 
     return ss.str();
 }
@@ -468,7 +470,7 @@ void WorldSession::LogoutPlayer(bool save)
 
     if (_player)
     {
-        if (uint64 lguid = _player->GetLootGUID())
+        if (ObjectGuid lguid = _player->GetLootGUID())
             DoLootRelease(lguid);
 
         ///- If the player just died before logging out, make him appear as a ghost
@@ -535,7 +537,7 @@ void WorldSession::LogoutPlayer(bool save)
             for (int j = BUYBACK_SLOT_START; j < BUYBACK_SLOT_END; ++j)
             {
                 eslot = j - BUYBACK_SLOT_START;
-                _player->SetUInt64Value(PLAYER_FIELD_VENDORBUYBACK_SLOT_1 + (eslot * 2), 0);
+                _player->SetGuidValue(PLAYER_FIELD_VENDORBUYBACK_SLOT_1 + (eslot * 2), ObjectGuid::Empty);
                 _player->SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE_1 + eslot, 0);
                 _player->SetUInt32Value(PLAYER_FIELD_BUYBACK_TIMESTAMP_1 + eslot, 0);
             }
@@ -642,7 +644,7 @@ void WorldSession::SendNotification(uint32 string_id, ...)
     }
 }
 
-const char *WorldSession::GetTrinityString(int32 entry) const
+char const* WorldSession::GetTrinityString(uint32 entry) const
 {
     return sObjectMgr->GetTrinityString(entry, GetSessionDbLocaleIndex());
 }
@@ -819,8 +821,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
 
     if (mi->HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
     {
-        data.readPackGUID(mi->transport.guid);
-
+        data >> mi->transport.guid.ReadAsPacked();
         data >> mi->transport.pos.PositionXYZOStream();
         data >> mi->transport.time;
         data >> mi->transport.seat;
@@ -927,8 +928,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
 
 void WorldSession::WriteMovementInfo(WorldPacket* data, MovementInfo* mi)
 {
-    data->appendPackGUID(mi->guid);
-
+    *data << mi->guid.WriteAsPacked();
     *data << mi->flags;
     *data << mi->flags2;
     *data << mi->time;
@@ -936,8 +936,7 @@ void WorldSession::WriteMovementInfo(WorldPacket* data, MovementInfo* mi)
 
     if (mi->HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
     {
-       data->appendPackGUID(mi->transport.guid);
-
+       *data << mi->transport.guid.WriteAsPacked();
        *data << mi->transport.pos.PositionXYZOStream();
        *data << mi->transport.time;
        *data << mi->transport.seat;
@@ -1171,7 +1170,7 @@ void WorldSession::ProcessQueryCallbacks()
     //- SendStabledPet
     if (_sendStabledPetCallback.IsReady())
     {
-        uint64 param = _sendStabledPetCallback.GetParam();
+        ObjectGuid param = _sendStabledPetCallback.GetParam();
         _sendStabledPetCallback.GetResult(result);
         SendStablePetCallback(result, param);
         _sendStabledPetCallback.FreeResult();

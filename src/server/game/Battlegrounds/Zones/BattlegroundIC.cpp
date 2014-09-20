@@ -68,7 +68,7 @@ void BattlegroundIC::HandlePlayerResurrect(Player* player)
         player->CastSpell(player, SPELL_OIL_REFINERY, true);
 }
 
-void BattlegroundIC::DoAction(uint32 action, uint64 var)
+void BattlegroundIC::DoAction(uint32 action, ObjectGuid var)
 {
     if (action != ACTION_TELEPORT_PLAYER_TO_TRANSPORT)
         return;
@@ -282,7 +282,7 @@ void BattlegroundIC::AddPlayer(Player* player)
         player->CastSpell(player, SPELL_OIL_REFINERY, true);
 }
 
-void BattlegroundIC::RemovePlayer(Player* player, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundIC::RemovePlayer(Player* player, ObjectGuid /*guid*/, uint32 /*team*/)
 {
     if (player)
     {
@@ -865,7 +865,7 @@ bool BattlegroundIC::IsSpellAllowed(uint32 spellId, Player const* player) const
         case SPELL_QUARRY:
         {
             uint32 team = player->GetTeamId();
-            uint8 nodeType = spellId = SPELL_OIL_REFINERY ? NODE_TYPE_REFINERY : NODE_TYPE_QUARRY;
+            uint8 nodeType = spellId == SPELL_OIL_REFINERY ? NODE_TYPE_REFINERY : NODE_TYPE_QUARRY;
             uint8 nodeState = team == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H;
             return GetNodeState(nodeType) == nodeState;
         }

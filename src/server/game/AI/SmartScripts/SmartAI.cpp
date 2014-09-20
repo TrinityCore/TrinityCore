@@ -61,7 +61,7 @@ SmartAI::SmartAI(Creature* c) : CreatureAI(c)
     mDespawnState = 0;
 
     mEscortInvokerCheckTimer = 1000;
-    mFollowGuid = 0;
+    mFollowGuid.Clear();
     mFollowDist = 0;
     mFollowAngle = 0;
     mFollowCredit = 0;
@@ -540,7 +540,7 @@ void SmartAI::JustRespawned()
     mJustReset = true;
     JustReachedHome();
     GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
-    mFollowGuid = 0;//do not reset follower on Reset(), we need it after combat evade
+    mFollowGuid.Clear();//do not reset follower on Reset(), we need it after combat evade
     mFollowDist = 0;
     mFollowAngle = 0;
     mFollowCredit = 0;
@@ -674,8 +674,8 @@ void SmartAI::OnCharmed(bool apply)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_CHARMED, NULL, 0, 0, apply);
 
-    if (!apply && !me->IsInEvadeMode() && me->GetUInt64Value(UNIT_FIELD_CHARMEDBY))
-        if (Unit* charmer = ObjectAccessor::GetUnit(*me, me->GetUInt64Value(UNIT_FIELD_CHARMEDBY)))
+    if (!apply && !me->IsInEvadeMode() && me->GetCharmerGUID())
+        if (Unit* charmer = ObjectAccessor::GetUnit(*me, me->GetCharmerGUID()))
             AttackStart(charmer);
 }
 
@@ -694,11 +694,11 @@ void SmartAI::SetData(uint32 id, uint32 value)
     GetScript()->ProcessEventsFor(SMART_EVENT_DATA_SET, NULL, id, value);
 }
 
-void SmartAI::SetGUID(uint64 /*guid*/, int32 /*id*/) { }
+void SmartAI::SetGUID(ObjectGuid /*guid*/, int32 /*id*/) { }
 
-uint64 SmartAI::GetGUID(int32 /*id*/) const
+ObjectGuid SmartAI::GetGUID(int32 /*id*/) const
 {
-    return 0;
+    return ObjectGuid::Empty;
 }
 
 void SmartAI::SetRun(bool run)
@@ -800,7 +800,7 @@ void SmartAI::StopFollow()
             player->GroupEventHappens(mFollowCredit, me);
     }
 
-    mFollowGuid = 0;
+    mFollowGuid.Clear();
     mFollowDist = 0;
     mFollowAngle = 0;
     mFollowCredit = 0;

@@ -141,7 +141,7 @@ class boss_janalai : public CreatureScript
                 isFlameBreathing = false;
 
                 for (uint8 i = 0; i < 40; ++i)
-                    FireBombGUIDs[i] = 0;
+                    FireBombGUIDs[i].Clear();
             }
 
             InstanceScript* instance;
@@ -159,7 +159,7 @@ class boss_janalai : public CreatureScript
 
             bool isFlameBreathing;
 
-            uint64 FireBombGUIDs[40];
+            ObjectGuid FireBombGUIDs[40];
 
             void Reset() override
             {

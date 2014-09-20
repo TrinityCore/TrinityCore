@@ -204,7 +204,8 @@ void WINAPI ServiceMain(DWORD argc, char *argv[])
 
         GetModuleFileName(0, path, sizeof(path)/sizeof(path[0]));
 
-        for (i = 0; i < std::strlen(path); i++)
+        size_t pathLen = std::strlen(path);
+        for (i = 0; i < pathLen; i++)
         {
             if (path[i] == '\\') last_slash = i;
         }

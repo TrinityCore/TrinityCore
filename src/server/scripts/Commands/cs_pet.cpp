@@ -85,7 +85,7 @@ public:
         creatureTarget->RemoveCorpse();
         creatureTarget->SetHealth(0); // just for nice GM-mode view
 
-        pet->SetUInt64Value(UNIT_FIELD_CREATEDBY, player->GetGUID());
+        pet->SetGuidValue(UNIT_FIELD_CREATEDBY, player->GetGUID());
         pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->getFaction());
 
         if (!pet->InitStatsForLevel(creatureTarget->getLevel()))

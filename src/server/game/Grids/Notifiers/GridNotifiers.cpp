@@ -65,12 +65,12 @@ void VisibleNotifier::SendToSelf()
         }
     }
 
-    for (Player::ClientGUIDs::const_iterator it = vis_guids.begin();it != vis_guids.end(); ++it)
+    for (GuidSet::const_iterator it = vis_guids.begin(); it != vis_guids.end(); ++it)
     {
         i_player.m_clientGUIDs.erase(*it);
         i_data.AddOutOfRangeGUID(*it);
 
-        if (IS_PLAYER_GUID(*it))
+        if (it->IsPlayer())
         {
             Player* player = ObjectAccessor::FindPlayer(*it);
             if (player && player->IsInWorld() && !player->isNeedNotify(NOTIFY_VISIBILITY_CHANGED))

@@ -197,13 +197,13 @@ public:
         {
             Phase = 0;
             KillCount = 0;
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
         }
 
         uint32 Phase;
         int8 KillCount;
         uint32 WaitTimer;
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
         SummonList Summons;
 
         bool QuestInProgress;

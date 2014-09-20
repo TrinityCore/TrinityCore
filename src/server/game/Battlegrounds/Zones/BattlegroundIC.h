@@ -853,7 +853,7 @@ struct BattlegroundICScore final : public BattlegroundScore
     friend class BattlegroundIC;
 
     protected:
-        BattlegroundICScore(uint64 playerGuid) : BattlegroundScore(playerGuid), BasesAssaulted(0), BasesDefended(0) { }
+        BattlegroundICScore(ObjectGuid playerGuid) : BattlegroundScore(playerGuid), BasesAssaulted(0), BasesDefended(0) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {
@@ -897,7 +897,7 @@ class BattlegroundIC : public Battleground
         void StartingEventOpenDoors() override;
         void PostUpdateImpl(uint32 diff) override;
 
-        void RemovePlayer(Player* player, uint64 guid, uint32 team) override;
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
         void HandleAreaTrigger(Player* player, uint32 trigger) override;
         bool SetupBattleground() override;
         void SpawnLeader(uint32 teamid);
@@ -913,7 +913,7 @@ class BattlegroundIC : public Battleground
         /* Scorekeeping */
         void FillInitialWorldStates(WorldPacket& data) override;
 
-        void DoAction(uint32 action, uint64 var) override;
+        void DoAction(uint32 action, ObjectGuid var) override;
 
         void HandlePlayerResurrect(Player* player) override;
 

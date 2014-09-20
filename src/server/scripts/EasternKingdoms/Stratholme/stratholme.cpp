@@ -117,12 +117,12 @@ public:
 
         void Initialize()
         {
-            Tagger = 0;
+            Tagger.Clear();
             Die_Timer = 5000;
             Tagged = false;
         }
 
-        uint64 Tagger;
+        ObjectGuid Tagger;
         uint32 Die_Timer;
         bool Tagged;
 

@@ -143,7 +143,7 @@ class boss_svala : public CreatureScript
 
             void Initialize()
             {
-                _arthasGUID = 0;
+                _arthasGUID.Clear();
                 _sacrificed = false;
             }
 
@@ -162,7 +162,7 @@ class boss_svala : public CreatureScript
 
                 Initialize();
 
-                instance->SetData64(DATA_SACRIFICED_PLAYER, 0);
+                instance->SetGuidData(DATA_SACRIFICED_PLAYER, ObjectGuid::Empty);
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -188,7 +188,7 @@ class boss_svala : public CreatureScript
                     events.SetPhase(INTRO);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-                    if (GameObject* mirror = ObjectAccessor::GetGameObject(*me, DATA_UTGARDE_MIRROR))
+                    if (GameObject* mirror = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_UTGARDE_MIRROR)))
                         mirror->SetGoState(GO_STATE_READY);
 
                     if (Creature* arthas = me->SummonCreature(NPC_ARTHAS, ArthasPos, TEMPSUMMON_MANUAL_DESPAWN))
@@ -331,12 +331,12 @@ class boss_svala : public CreatureScript
                             break;
                         }
                         case EVENT_INTRO_DESPAWN_ARTHAS:
-                            if (GameObject* mirror = ObjectAccessor::GetGameObject(*me, DATA_UTGARDE_MIRROR))
+                            if (GameObject* mirror = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_UTGARDE_MIRROR)))
                                 mirror->SetGoState(GO_STATE_ACTIVE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             if (Creature* arthas = ObjectAccessor::GetCreature(*me, _arthasGUID))
                                 arthas->DespawnOrUnsummon();
-                            _arthasGUID = 0;
+                            _arthasGUID.Clear();
                             events.SetPhase(NORMAL);
                             _introCompleted = true;
                             events.ScheduleEvent(EVENT_SINISTER_STRIKE, 7 * IN_MILLISECONDS, 0, NORMAL);
@@ -354,7 +354,7 @@ class boss_svala : public CreatureScript
                         case EVENT_RITUAL_PREPARATION:
                             if (Unit* sacrificeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80.0f, true))
                             {
-                                instance->SetData64(DATA_SACRIFICED_PLAYER, sacrificeTarget->GetGUID());
+                                instance->SetGuidData(DATA_SACRIFICED_PLAYER, sacrificeTarget->GetGUID());
                                 Talk(SAY_SACRIFICE_PLAYER);
                                 DoCast(sacrificeTarget, SPELL_RITUAL_PREPARATION);
                                 SetCombatMovement(false);
@@ -385,7 +385,7 @@ class boss_svala : public CreatureScript
             }
 
         private:
-            uint64 _arthasGUID;
+            ObjectGuid _arthasGUID;
             bool _sacrificed;
             bool _introCompleted;
         };
@@ -434,7 +434,7 @@ class npc_ritual_channeler : public CreatureScript
 
                 if (paralyzeTimer <= diff)
                 {
-                    if (Unit* victim = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_SACRIFICED_PLAYER)))
+                    if (Unit* victim = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_SACRIFICED_PLAYER)))
                         DoCast(victim, SPELL_PARALYZE, false);
 
                     paralyzeTimer = 200;
@@ -487,7 +487,7 @@ class RitualTargetCheck
         bool operator() (WorldObject* obj) const
         {
             if (InstanceScript* instance = obj->GetInstanceScript())
-                if (instance->GetData64(DATA_SACRIFICED_PLAYER) == obj->GetGUID())
+                if (instance->GetGuidData(DATA_SACRIFICED_PLAYER) == obj->GetGUID())
                     return false;
 
             return true;

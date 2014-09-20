@@ -250,7 +250,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* maulgar = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MAULGAR)))
+            if (Creature* maulgar = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAULGAR)))
                 maulgar->AI()->DoAction(ACTION_ADD_DEATH);
 
             instance->SetBossState(DATA_MAULGAR, DONE);
@@ -333,7 +333,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* maulgar = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MAULGAR)))
+            if (Creature* maulgar = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAULGAR)))
                 maulgar->AI()->DoAction(ACTION_ADD_DEATH);
 
             instance->SetBossState(DATA_MAULGAR, DONE);
@@ -419,7 +419,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* maulgar = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MAULGAR)))
+            if (Creature* maulgar = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAULGAR)))
                 maulgar->AI()->DoAction(ACTION_ADD_DEATH);
 
             instance->SetBossState(DATA_MAULGAR, DONE);
@@ -496,7 +496,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* maulgar = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MAULGAR)))
+            if (Creature* maulgar = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAULGAR)))
                 maulgar->AI()->DoAction(ACTION_ADD_DEATH);
 
             instance->SetBossState(DATA_MAULGAR, DONE);

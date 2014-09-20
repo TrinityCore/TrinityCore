@@ -136,7 +136,7 @@ public:
         WorldObject* object = NULL;
         if (*args)
         {
-            uint64 guid = handler->extractGuidFromLink((char*)args);
+            ObjectGuid guid = handler->extractGuidFromLink((char*)args);
             if (guid)
                 object = (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*handler->GetSession()->GetPlayer(), guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
 
@@ -181,9 +181,8 @@ public:
 
         GridCoord gridCoord = Trinity::ComputeGridCoord(object->GetPositionX(), object->GetPositionY());
 
-        // 63? WHY?
-        int gridX = 63 - gridCoord.x_coord;
-        int gridY = 63 - gridCoord.y_coord;
+        int gridX = (MAX_NUMBER_OF_GRIDS - 1) - gridCoord.x_coord;
+        int gridY = (MAX_NUMBER_OF_GRIDS - 1) - gridCoord.y_coord;
 
         uint32 haveMap = Map::ExistMap(mapId, gridX, gridY) ? 1 : 0;
         uint32 haveVMap = Map::ExistVMap(mapId, gridX, gridY) ? 1 : 0;
@@ -199,10 +198,12 @@ public:
         else
             handler->PSendSysMessage(LANG_GPS_NO_VMAP);
 
+        char const* unknown = handler->GetTrinityString(LANG_UNKNOWN);
+
         handler->PSendSysMessage(LANG_MAP_POSITION,
-            mapId, (mapEntry ? mapEntry->name[handler->GetSessionDbcLocale()] : handler->GetTrinityString(LANG_UNKNOWN)),
-            zoneId, (zoneEntry ? zoneEntry->area_name[handler->GetSessionDbcLocale()] : handler->GetTrinityString(LANG_UNKNOWN)),
-            areaId, (areaEntry ? areaEntry->area_name[handler->GetSessionDbcLocale()] : handler->GetTrinityString(LANG_UNKNOWN)),
+            mapId, (mapEntry ? mapEntry->name[handler->GetSessionDbcLocale()] : unknown),
+            zoneId, (zoneEntry ? zoneEntry->area_name[handler->GetSessionDbcLocale()] : unknown),
+            areaId, (areaEntry ? areaEntry->area_name[handler->GetSessionDbcLocale()] : unknown),
             object->GetPhaseMask(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation(),
             cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
@@ -266,7 +267,7 @@ public:
     static bool HandleAppearCommand(ChatHandler* handler, char const* args)
     {
         Player* target;
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
         std::string targetName;
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
             return false;
@@ -282,7 +283,7 @@ public:
         if (target)
         {
             // check online security
-            if (handler->HasLowerSecurity(target, 0))
+            if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
                 return false;
 
             std::string chrNameLink = handler->playerLink(targetName);
@@ -408,7 +409,7 @@ public:
     static bool HandleSummonCommand(ChatHandler* handler, char const* args)
     {
         Player* target;
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
         std::string targetName;
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
             return false;
@@ -425,7 +426,7 @@ public:
         {
             std::string nameLink = handler->playerLink(targetName);
             // check online security
-            if (handler->HasLowerSecurity(target, 0))
+            if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
                 return false;
 
             if (target->IsBeingTeleported())
@@ -537,7 +538,7 @@ public:
         }
 
         if (Player* player = target->ToPlayer())
-            if (handler->HasLowerSecurity(player, 0, false))
+            if (handler->HasLowerSecurity(player, ObjectGuid::Empty, false))
                 return false;
 
         if (target->IsAlive())
@@ -554,7 +555,7 @@ public:
     static bool HandleReviveCommand(ChatHandler* handler, char const* args)
     {
         Player* target;
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid))
             return false;
 
@@ -597,16 +598,16 @@ public:
 
     static bool HandleGUIDCommand(ChatHandler* handler, char const* /*args*/)
     {
-        uint64 guid = handler->GetSession()->GetPlayer()->GetTarget();
+        ObjectGuid guid = handler->GetSession()->GetPlayer()->GetTarget();
 
-        if (guid == 0)
+        if (guid.IsEmpty())
         {
             handler->SendSysMessage(LANG_NO_SELECTION);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        handler->PSendSysMessage(LANG_OBJECT_GUID, GUID_LOPART(guid), GUID_HIPART(guid));
+        handler->PSendSysMessage(LANG_OBJECT_GUID, guid.GetCounter(), guid.GetHigh());
         return true;
     }
 
@@ -703,7 +704,7 @@ public:
 
         if (*args)
         {
-            uint64 guid = handler->extractGuidFromLink((char*)args);
+            ObjectGuid guid = handler->extractGuidFromLink((char*)args);
             if (guid)
                 obj = (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*handler->GetSession()->GetPlayer(), guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
 
@@ -737,7 +738,7 @@ public:
             return false;
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         if (target->IsBeingTeleported())
@@ -805,7 +806,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         std::string kickReasonStr = handler->GetTrinityString(LANG_NO_REASON);
@@ -1380,17 +1381,17 @@ public:
     {
         // Define ALL the player variables!
         Player* target;
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
         std::string targetName;
         PreparedStatement* stmt = NULL;
 
         // To make sure we get a target, we convert our guid to an omniversal...
-        uint32 parseGUID = MAKE_NEW_GUID(atol((char*)args), 0, HIGHGUID_PLAYER);
+        ObjectGuid parseGUID(HIGHGUID_PLAYER, uint32(atol((char*)args)));
 
         // ... and make sure we get a target, somehow.
         if (sObjectMgr->GetPlayerNameByGUID(parseGUID, targetName))
         {
-            target = sObjectMgr->GetPlayerByLowGUID(parseGUID);
+            target = ObjectAccessor::FindPlayer(parseGUID);
             targetGuid = parseGUID;
         }
         // if not, then return false. Which shouldn't happen, now should it ?
@@ -1432,7 +1433,7 @@ public:
         // Account data print variables
         std::string userName          = handler->GetTrinityString(LANG_ERROR);
         uint32 accId                  = 0;
-        uint32 lowguid                = GUID_LOPART(targetGuid);
+        uint32 lowguid                = targetGuid.GetCounter();
         std::string eMail             = handler->GetTrinityString(LANG_ERROR);
         std::string regMail           = handler->GetTrinityString(LANG_ERROR);
         uint32 security               = 0;
@@ -1486,7 +1487,7 @@ public:
         if (target)
         {
             // check online security
-            if (handler->HasLowerSecurity(target, 0))
+            if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
                 return false;
 
             accId             = target->GetSession()->GetAccountId();
@@ -1711,7 +1712,9 @@ public:
         }
 
         if (target)
-            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->name[locale], (!zoneName.empty() ? zoneName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)), (!areaName.empty() ? areaName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)));
+            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->name[locale],
+                (!zoneName.empty() ? zoneName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)),
+                (!areaName.empty() ? areaName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)));
 
         // Output XVII. - XVIX. if they are not empty
         if (!guildName.empty())
@@ -1796,7 +1799,7 @@ public:
             muteReasonStr = muteReason;
 
         Player* target;
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
         std::string targetName;
         if (!handler->extractPlayerTarget(nameStr, &target, &targetGuid, &targetName))
             return false;
@@ -1859,7 +1862,7 @@ public:
     static bool HandleUnmuteCommand(ChatHandler* handler, char const* args)
     {
         Player* target;
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
         std::string targetName;
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
             return false;
@@ -2115,7 +2118,7 @@ public:
         }
 
         if (Player* player = target->ToPlayer())
-            if (handler->HasLowerSecurity(player, 0, false))
+            if (handler->HasLowerSecurity(player, ObjectGuid::Empty, false))
                 return false;
 
         if (!target->IsAlive())
@@ -2187,7 +2190,7 @@ public:
     {
         Player* target = NULL;
 
-        if (args && strlen(args) > 0)
+        if (args && args[0] != '\0')
         {
             target = sObjectAccessor->FindPlayerByName(args);
             if (!target)
@@ -2205,7 +2208,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         target->CombatStop();
@@ -2226,7 +2229,7 @@ public:
             return false;
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         // Repair items
