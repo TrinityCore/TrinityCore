@@ -26,6 +26,7 @@
 #include "DatabaseEnv.h"
 #include "DBCEnums.h"
 #include "DBCStores.h"
+#include "ObjectGuid.h"
 
 class Unit;
 class Player;
@@ -41,7 +42,7 @@ struct CriteriaProgress
 {
     uint64 counter;
     time_t date;                                            // latest update time.
-    uint64 CompletedGUID;                                   // GUID of the player that completed this criteria (guild achievements)
+    ObjectGuid CompletedGUID;                               // GUID of the player that completed this criteria (guild achievements)
     bool changed;
 };
 
@@ -233,7 +234,7 @@ typedef std::unordered_map<uint32, AchievementRewardLocale> AchievementRewardLoc
 struct CompletedAchievementData
 {
     time_t date;
-    std::set<uint64> guids;
+    GuidSet guids;
     bool changed;
 };
 
@@ -255,7 +256,7 @@ class AchievementMgr
         ~AchievementMgr();
 
         void Reset();
-        static void DeleteFromDB(uint32 lowguid);
+        static void DeleteFromDB(ObjectGuid lowguid);
         void LoadFromDB(PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult);
         void SaveToDB(SQLTransaction& trans);
         void ResetAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, bool evenIfCriteriaComplete = false);

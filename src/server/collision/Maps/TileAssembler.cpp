@@ -236,7 +236,7 @@ namespace VMAP
             MapData::iterator map_iter = mapData.find(mapID);
             if (map_iter == mapData.end())
             {
-                printf("spawning Map %d\n", mapID);
+                printf("spawning Map %u\n", mapID);
                 mapData[mapID] = current = new MapSpawns();
             }
             else current = (*map_iter).second;

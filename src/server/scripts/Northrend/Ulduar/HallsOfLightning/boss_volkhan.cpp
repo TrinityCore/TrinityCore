@@ -100,7 +100,7 @@ public:
 
         InstanceScript* instance;
 
-        std::list<uint64> m_lGolemGUIDList;
+        GuidList m_lGolemGUIDList;
 
         bool m_bHasTemper;
         bool m_bIsStriking;
@@ -164,7 +164,7 @@ public:
             if (m_lGolemGUIDList.empty())
                 return;
 
-            for (uint64 guid : m_lGolemGUIDList)
+            for (ObjectGuid guid : m_lGolemGUIDList)
             {
                 if (Creature* temp = ObjectAccessor::GetCreature(*me, guid))
                     if (temp->IsAlive())
@@ -179,7 +179,7 @@ public:
             if (m_lGolemGUIDList.empty())
                 return;
 
-            for (uint64 guid : m_lGolemGUIDList)
+            for (ObjectGuid guid : m_lGolemGUIDList)
             {
                 if (Creature* temp = ObjectAccessor::GetCreature(*me, guid))
                 {

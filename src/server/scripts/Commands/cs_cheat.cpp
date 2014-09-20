@@ -228,7 +228,7 @@ public:
 
         if (!chr)
             chr = handler->GetSession()->GetPlayer();
-        else if (handler->HasLowerSecurity(chr, 0)) // check online security
+        else if (handler->HasLowerSecurity(chr, ObjectGuid::Empty)) // check online security
             return false;
 
         if (argstr == "on")

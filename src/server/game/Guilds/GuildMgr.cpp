@@ -63,12 +63,12 @@ Guild* GuildMgr::GetGuildById(uint32 guildId) const
     return NULL;
 }
 
-Guild* GuildMgr::GetGuildByGuid(uint64 guid) const
+Guild* GuildMgr::GetGuildByGuid(ObjectGuid guid) const
 {
     // Full guids are only used when receiving/sending data to client
     // everywhere else guild id is used
-    if (IS_GUILD_GUID(guid))
-        if (uint32 guildId = GUID_LOPART(guid))
+    if (guid.IsGuild())
+        if (uint32 guildId = guid.GetCounter())
             return GetGuildById(guildId);
 
     return NULL;
@@ -96,7 +96,7 @@ std::string GuildMgr::GetGuildNameById(uint32 guildId) const
     return "";
 }
 
-Guild* GuildMgr::GetGuildByLeader(uint64 guid) const
+Guild* GuildMgr::GetGuildByLeader(ObjectGuid guid) const
 {
     for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
         if (itr->second->GetLeaderGUID() == guid)

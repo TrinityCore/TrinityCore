@@ -68,7 +68,7 @@ class at_alizabal_intro : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                if (Creature* alizabal = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_ALIZABAL)))
+                if (Creature* alizabal = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_ALIZABAL)))
                     alizabal->AI()->DoAction(ACTION_INTRO);
             return true;
         }

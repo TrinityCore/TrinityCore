@@ -28,7 +28,7 @@ struct ArenaScore : public BattlegroundScore
     friend class Arena;
 
     protected:
-        ArenaScore(uint64 playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), TeamId(team == ALLIANCE ? BG_TEAM_ALLIANCE : BG_TEAM_HORDE) { }
+        ArenaScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), TeamId(team == ALLIANCE ? BG_TEAM_ALLIANCE : BG_TEAM_HORDE) { }
 
         void AppendToPacket(WorldPacket& data, ByteBuffer& content) final override
         {

@@ -129,11 +129,11 @@ public:
             me->GetMotionMaster()->MoveTargetedHome();
 
             for (uint8 i = DATA_FRENZIED_WORGEN; i <= DATA_FEROCIOUS_RHINO; ++i)
-                if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetData64(i)))
+                if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(i)))
                     if (!temp->IsAlive())
                         temp->Respawn();
 
-            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_GORTOK_PALEHOOF_SPHERE)))
+            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_GORTOK_PALEHOOF_SPHERE)))
             {
                 go->SetGoState(GO_STATE_READY);
                 go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
@@ -224,7 +224,7 @@ public:
                 move = Sequence[AddCount++];
 
             // send orb to summon spot
-            if (Creature* orb = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GORTOK_ORB)))
+            if (Creature* orb = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GORTOK_ORB)))
                 if (orb->IsAlive())
                     orb->GetMotionMaster()->MovePoint(move, moveLocs[move]);
 
@@ -293,7 +293,7 @@ public:
 
             if (instance->GetBossState(DATA_GORTOK_PALEHOOF) == IN_PROGRESS)
             {
-                Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GORTOK_PALEHOOF));
+                Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GORTOK_PALEHOOF));
                 if (palehoof && palehoof->IsAlive())
                     palehoof->AI()->Reset();
             }
@@ -345,7 +345,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GORTOK_PALEHOOF)))
+            if (Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GORTOK_PALEHOOF)))
                 palehoof->AI()->DoAction(ACTION_NEXT_PHASE);
         }
 
@@ -407,7 +407,7 @@ public:
 
             if (instance->GetBossState(DATA_GORTOK_PALEHOOF) == IN_PROGRESS)
             {
-                Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GORTOK_PALEHOOF));
+                Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GORTOK_PALEHOOF));
                 if (palehoof && palehoof->IsAlive())
                     palehoof->AI()->Reset();
             }
@@ -460,7 +460,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GORTOK_PALEHOOF)))
+            if (Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GORTOK_PALEHOOF)))
                 palehoof->AI()->DoAction(ACTION_NEXT_PHASE);
         }
 
@@ -523,7 +523,7 @@ public:
 
             if (instance->GetBossState(DATA_GORTOK_PALEHOOF) == IN_PROGRESS)
             {
-                Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GORTOK_PALEHOOF));
+                Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GORTOK_PALEHOOF));
                 if (palehoof && palehoof->IsAlive())
                     palehoof->AI()->Reset();
             }
@@ -576,7 +576,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GORTOK_PALEHOOF)))
+            if (Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GORTOK_PALEHOOF)))
                 palehoof->AI()->DoAction(ACTION_NEXT_PHASE);
         }
 
@@ -644,7 +644,7 @@ public:
 
             if (instance->GetBossState(DATA_GORTOK_PALEHOOF) == IN_PROGRESS)
             {
-                Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GORTOK_PALEHOOF));
+                Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GORTOK_PALEHOOF));
                 if (palehoof && palehoof->IsAlive())
                     palehoof->AI()->Reset();
             }
@@ -698,7 +698,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GORTOK_PALEHOOF)))
+            if (Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GORTOK_PALEHOOF)))
                 palehoof->AI()->DoAction(ACTION_NEXT_PHASE);
         }
 
@@ -778,7 +778,7 @@ public:
                         return;
                 }
 
-                if (Creature* nextBoss = ObjectAccessor::GetCreature(*me, instance->GetData64(nextBossId)))
+                if (Creature* nextBoss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(nextBossId)))
                 {
                     nextBoss->RemoveAurasDueToSpell(SPELL_FREEZE);
                     nextBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
@@ -822,7 +822,7 @@ public:
                     return;
             }
 
-            if (Creature* nextBoss = ObjectAccessor::GetCreature(*me, instance->GetData64(nextBossId)))
+            if (Creature* nextBoss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(nextBossId)))
                 DoCast(nextBoss, SPELL_ORB_CHANNEL, false);
 
             currentPhase = Phase(id);
@@ -843,7 +843,7 @@ class go_palehoof_sphere : public GameObjectScript
             if (!instance)
                 return false;
 
-            Creature* palehoof = ObjectAccessor::GetCreature(*go, instance->GetData64(DATA_GORTOK_PALEHOOF));
+            Creature* palehoof = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_GORTOK_PALEHOOF));
             if (palehoof && palehoof->IsAlive())
             {
                 go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);

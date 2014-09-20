@@ -447,8 +447,8 @@ public:
             handler->PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, aura->GetId(), (handler->GetSession() ? ss_name.str().c_str() : name),
                 aurApp->GetEffectMask(), aura->GetCharges(), aura->GetStackAmount(), aurApp->GetSlot(),
                 aura->GetDuration(), aura->GetMaxDuration(), (aura->IsPassive() ? passiveStr : ""),
-                (talent ? talentStr : ""), IS_PLAYER_GUID(aura->GetCasterGUID()) ? "player" : "creature",
-                GUID_LOPART(aura->GetCasterGUID()));
+                (talent ? talentStr : ""), aura->GetCasterGUID().IsPlayer() ? "player" : "creature",
+                aura->GetCasterGUID().GetCounter());
         }
 
         for (uint16 i = 0; i < TOTAL_AURAS; ++i)
@@ -469,25 +469,25 @@ public:
     static bool HandleListMailCommand(ChatHandler* handler, char const* args)
     {
         Player* target;
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
         std::string targetName;
         PreparedStatement* stmt = NULL;
 
         if (!*args)
             return false;
 
-        uint32 parseGUID = MAKE_NEW_GUID(atol((char*)args), 0, HIGHGUID_PLAYER);
+        ObjectGuid parseGUID(HIGHGUID_PLAYER, uint32(atol((char*)args)));
 
         if (sObjectMgr->GetPlayerNameByGUID(parseGUID, targetName))
         {
-            target = sObjectMgr->GetPlayerByLowGUID(parseGUID);
+            target = ObjectAccessor::FindPlayer(parseGUID);
             targetGuid = parseGUID;
         }
         else if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
             return false;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_COUNT);
-        stmt->setUInt32(0, targetGuid);
+        stmt->setUInt32(0, targetGuid.GetCounter());
         PreparedQueryResult queryResult = CharacterDatabase.Query(stmt);
         if (queryResult)
         {
@@ -495,11 +495,11 @@ public:
             uint32 countMail    = fields[0].GetUInt64();
 
             std::string nameLink = handler->playerLink(targetName);
-            handler->PSendSysMessage(LANG_LIST_MAIL_HEADER, countMail, nameLink.c_str(), targetGuid);
+            handler->PSendSysMessage(LANG_LIST_MAIL_HEADER, countMail, nameLink.c_str(), targetGuid.GetCounter());
             handler->PSendSysMessage(LANG_ACCOUNT_LIST_BAR);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_INFO);
-            stmt->setUInt32(0, targetGuid);
+            stmt->setUInt32(0, targetGuid.GetCounter());
             PreparedQueryResult queryResult = CharacterDatabase.Query(stmt);
 
             if (queryResult)

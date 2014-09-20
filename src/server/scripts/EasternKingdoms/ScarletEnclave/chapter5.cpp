@@ -311,25 +311,6 @@ public:
     {
         npc_highlord_darion_mograineAI(Creature* creature) : npc_escortAI(creature)
         {
-            uiTirionGUID = 0;
-            uiAlexandrosGUID = 0;
-            uiDarionGUID = 0;
-            uiKorfaxGUID = 0;
-            uiMaxwellGUID = 0;
-            uiEligorGUID = 0;
-            uiRayneGUID = 0;
-            uiKoltiraGUID = 0;
-            uiOrbazGUID = 0;
-            uiThassarianGUID = 0;
-            uiLichKingGUID = 0;
-
-            memset(uiDefenderGUID, 0, sizeof(uiDefenderGUID));
-            memset(uiEarthshatterGUID, 0, sizeof(uiEarthshatterGUID));
-            memset(uiAbominationGUID, 0, sizeof(uiAbominationGUID));
-            memset(uiBehemothGUID, 0, sizeof(uiBehemothGUID));
-            memset(uiGhoulGUID, 0, sizeof(uiGhoulGUID));
-            memset(uiWarriorGUID, 0, sizeof(uiWarriorGUID));
-
             Reset();
         }
 
@@ -352,25 +333,25 @@ public:
         uint32 uiTargetcheck;
 
         // Dawn
-        uint64 uiTirionGUID;
-        uint64 uiAlexandrosGUID;
-        uint64 uiDarionGUID;
-        uint64 uiKorfaxGUID;
-        uint64 uiMaxwellGUID;
-        uint64 uiEligorGUID;
-        uint64 uiRayneGUID;
-        uint64 uiDefenderGUID[ENCOUNTER_DEFENDER_NUMBER];
-        uint64 uiEarthshatterGUID[ENCOUNTER_EARTHSHATTER_NUMBER];
+        ObjectGuid uiTirionGUID;
+        ObjectGuid uiAlexandrosGUID;
+        ObjectGuid uiDarionGUID;
+        ObjectGuid uiKorfaxGUID;
+        ObjectGuid uiMaxwellGUID;
+        ObjectGuid uiEligorGUID;
+        ObjectGuid uiRayneGUID;
+        ObjectGuid uiDefenderGUID[ENCOUNTER_DEFENDER_NUMBER];
+        ObjectGuid uiEarthshatterGUID[ENCOUNTER_EARTHSHATTER_NUMBER];
 
         // Death
-        uint64 uiKoltiraGUID;
-        uint64 uiOrbazGUID;
-        uint64 uiThassarianGUID;
-        uint64 uiLichKingGUID;
-        uint64 uiAbominationGUID[ENCOUNTER_ABOMINATION_NUMBER];
-        uint64 uiBehemothGUID[ENCOUNTER_BEHEMOTH_NUMBER];
-        uint64 uiGhoulGUID[ENCOUNTER_GHOUL_NUMBER];
-        uint64 uiWarriorGUID[ENCOUNTER_WARRIOR_NUMBER];
+        ObjectGuid uiKoltiraGUID;
+        ObjectGuid uiOrbazGUID;
+        ObjectGuid uiThassarianGUID;
+        ObjectGuid uiLichKingGUID;
+        ObjectGuid uiAbominationGUID[ENCOUNTER_ABOMINATION_NUMBER];
+        ObjectGuid uiBehemothGUID[ENCOUNTER_BEHEMOTH_NUMBER];
+        ObjectGuid uiGhoulGUID[ENCOUNTER_GHOUL_NUMBER];
+        ObjectGuid uiWarriorGUID[ENCOUNTER_WARRIOR_NUMBER];
 
         void Reset() override
         {
@@ -413,23 +394,23 @@ public:
                 if (Creature* temp = ObjectAccessor::GetCreature(*me, uiRayneGUID))
                     temp->setDeathState(JUST_DIED);
 
-                uiTirionGUID = 0;
-                uiKorfaxGUID = 0;
-                uiMaxwellGUID = 0;
-                uiEligorGUID = 0;
-                uiRayneGUID = 0;
+                uiTirionGUID.Clear();
+                uiKorfaxGUID.Clear();
+                uiMaxwellGUID.Clear();
+                uiEligorGUID.Clear();
+                uiRayneGUID.Clear();
 
                 for (uint8 i = 0; i < ENCOUNTER_DEFENDER_NUMBER; ++i)
                 {
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, uiDefenderGUID[i]))
                         temp->setDeathState(JUST_DIED);
-                    uiDefenderGUID[i] = 0;
+                    uiDefenderGUID[i].Clear();
                 }
                 for (uint8 i = 0; i < ENCOUNTER_EARTHSHATTER_NUMBER; ++i)
                 {
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, uiEarthshatterGUID[i]))
                         temp->setDeathState(JUST_DIED);
-                    uiEarthshatterGUID[i] = 0;
+                    uiEarthshatterGUID[i].Clear();
                 }
 
                 if (Creature* temp = ObjectAccessor::GetCreature(*me, uiKoltiraGUID))
@@ -441,33 +422,33 @@ public:
                 if (Creature* temp = ObjectAccessor::GetCreature(*me, uiLichKingGUID))
                     temp->Respawn();
 
-                uiKoltiraGUID = 0;
-                uiOrbazGUID = 0;
-                uiThassarianGUID = 0;
-                uiLichKingGUID = 0;
+                uiKoltiraGUID.Clear();
+                uiOrbazGUID.Clear();
+                uiThassarianGUID.Clear();
+                uiLichKingGUID.Clear();
                 for (uint8 i = 0; i < ENCOUNTER_ABOMINATION_NUMBER; ++i)
                 {
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, uiAbominationGUID[i]))
                         temp->setDeathState(JUST_DIED);
-                    uiAbominationGUID[i] = 0;
+                    uiAbominationGUID[i].Clear();
                 }
                 for (uint8 i = 0; i < ENCOUNTER_BEHEMOTH_NUMBER; ++i)
                 {
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, uiBehemothGUID[i]))
                         temp->setDeathState(JUST_DIED);
-                    uiBehemothGUID[i] = 0;
+                    uiBehemothGUID[i].Clear();
                 }
                 for (uint8 i = 0; i < ENCOUNTER_GHOUL_NUMBER; ++i)
                 {
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, uiGhoulGUID[i]))
                         temp->setDeathState(JUST_DIED);
-                    uiGhoulGUID[i] = 0;
+                    uiGhoulGUID[i].Clear();
                 }
                 for (uint8 i = 0; i < ENCOUNTER_WARRIOR_NUMBER; ++i)
                 {
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, uiWarriorGUID[i]))
                         temp->setDeathState(JUST_DIED);
-                    uiWarriorGUID[i] = 0;
+                    uiWarriorGUID[i].Clear();
                 }
             }
         }
@@ -552,18 +533,18 @@ public:
                     //Unit* pTirion = ObjectAccessor::GetCreature(*me, uiTirionGUID);
 
                     Talk(EMOTE_LIGHT_OF_DAWN05);
-                    if (me->HasAura(SPELL_THE_LIGHT_OF_DAWN, 0))
+                    if (me->HasAura(SPELL_THE_LIGHT_OF_DAWN))
                         me->RemoveAurasDueToSpell(SPELL_THE_LIGHT_OF_DAWN);
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, uiKoltiraGUID))
                     {
-                        if (temp->HasAura(SPELL_THE_LIGHT_OF_DAWN, 0))
+                        if (temp->HasAura(SPELL_THE_LIGHT_OF_DAWN))
                             temp->RemoveAurasDueToSpell(SPELL_THE_LIGHT_OF_DAWN);
                         temp->SetWalk(true);
                         temp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[19].x, LightofDawnLoc[19].y, LightofDawnLoc[19].z);
                     }
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, uiThassarianGUID))
                     {
-                        if (temp->HasAura(SPELL_THE_LIGHT_OF_DAWN, 0))
+                        if (temp->HasAura(SPELL_THE_LIGHT_OF_DAWN))
                             temp->RemoveAurasDueToSpell(SPELL_THE_LIGHT_OF_DAWN);
                         temp->SetWalk(true);
                         temp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[21].x, LightofDawnLoc[21].y, LightofDawnLoc[21].z);
@@ -1143,7 +1124,7 @@ public:
                             me->SummonGameObject(GO_LIGHT_OF_DAWN, 2283.896f, -5287.914f, 83.066f, 0, 0, 0, 0, 0, 30);
                             if (Creature* temp = ObjectAccessor::GetCreature(*me, uiTirionGUID))
                             {
-                                if (temp->HasAura(SPELL_REBIRTH_OF_THE_ASHBRINGER, 0))
+                                if (temp->HasAura(SPELL_REBIRTH_OF_THE_ASHBRINGER))
                                     temp->RemoveAurasDueToSpell(SPELL_REBIRTH_OF_THE_ASHBRINGER);
                                 temp->CastSpell(temp, 41542, false); // workarounds, light expoded, makes it cool
                                 temp->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
@@ -1433,7 +1414,7 @@ public:
                     bIsBattle = false;
                     uiFight_duration = 300000;
 
-                    if (me->HasAura(SPELL_THE_MIGHT_OF_MOGRAINE, 0))
+                    if (me->HasAura(SPELL_THE_MIGHT_OF_MOGRAINE))
                         me->RemoveAurasDueToSpell(SPELL_THE_MIGHT_OF_MOGRAINE);
                     me->RemoveAllAuras();
                     me->DeleteThreatList();
@@ -1532,7 +1513,7 @@ public:
             ++uiStep;
         }
 
-        void NPCChangeTarget(uint64 ui_GUID)
+        void NPCChangeTarget(ObjectGuid ui_GUID)
         {
             if (Creature* temp = ObjectAccessor::GetCreature(*me, ui_GUID))
                 if (temp->IsAlive())
@@ -1651,7 +1632,7 @@ public:
             }
         }
 
-        void DespawnNPC(uint64 pGUID)
+        void DespawnNPC(ObjectGuid pGUID)
         {
             if (Creature* temp = ObjectAccessor::GetCreature(*me, pGUID))
                 if (temp->IsAlive())

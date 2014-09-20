@@ -42,16 +42,6 @@ class instance_zulgurub : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                venoxisGUID         = 0;
-                mandokirGUID        = 0;
-                kilnaraGUID         = 0;
-                zanzilGUID          = 0;
-                jindoGUID           = 0;
-                hazzarahGUID        = 0;
-                renatakiGUID        = 0;
-                wushoolayGUID       = 0;
-                grilekGUID          = 0;
-                jindoTiggerGUID     = 0;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -167,7 +157,7 @@ class instance_zulgurub : public InstanceMapScript
             }
             */
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -195,20 +185,20 @@ class instance_zulgurub : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
         protected:
-             uint64 venoxisGUID;
-             uint64 mandokirGUID;
-             uint64 kilnaraGUID;
-             uint64 zanzilGUID;
-             uint64 jindoGUID;
-             uint64 hazzarahGUID;
-             uint64 renatakiGUID;
-             uint64 wushoolayGUID;
-             uint64 grilekGUID;
-             uint64 jindoTiggerGUID;
+            ObjectGuid venoxisGUID;
+            ObjectGuid mandokirGUID;
+            ObjectGuid kilnaraGUID;
+            ObjectGuid zanzilGUID;
+            ObjectGuid jindoGUID;
+            ObjectGuid hazzarahGUID;
+            ObjectGuid renatakiGUID;
+            ObjectGuid wushoolayGUID;
+            ObjectGuid grilekGUID;
+            ObjectGuid jindoTiggerGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

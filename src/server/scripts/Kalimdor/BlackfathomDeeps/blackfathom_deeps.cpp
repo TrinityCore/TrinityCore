@@ -210,7 +210,7 @@ public:
         {
             Talk(SAY_MORRIDUNE_1);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            Start(false, false, 0);
+            Start(false);
         }
 
         void WaypointReached(uint32 waypointId) override

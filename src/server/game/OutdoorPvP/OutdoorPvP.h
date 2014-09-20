@@ -83,8 +83,6 @@ class Unit;
 struct GossipMenuItems;
 class OutdoorPvP;
 
-typedef std::set<uint64> PlayerSet;
-
 class OPvPCapturePoint
 {
     public:
@@ -99,7 +97,7 @@ class OPvPCapturePoint
         void SendUpdateWorldState(uint32 field, uint32 value);
 
         // send kill notify to players in the controlling faction
-        void SendObjectiveComplete(uint32 id, uint64 guid);
+        void SendObjectiveComplete(uint32 id, ObjectGuid guid);
 
         // used when player is activated/inactivated in the area
         virtual bool HandlePlayerEnter(Player* player);
@@ -110,7 +108,7 @@ class OPvPCapturePoint
 
         virtual bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go);
 
-        virtual int32 HandleOpenGo(Player* player, uint64 guid);
+        virtual int32 HandleOpenGo(Player* player, ObjectGuid guid);
 
         // returns true if the state of the objective has changed, in this case, the OutdoorPvP must send a world state ui update.
         virtual bool Update(uint32 diff);
@@ -121,7 +119,7 @@ class OPvPCapturePoint
 
         virtual void SendChangePhase();
 
-        virtual bool HandleGossipOption(Player* player, uint64 guid, uint32 gossipid);
+        virtual bool HandleGossipOption(Player* player, ObjectGuid guid, uint32 gossipid);
 
         virtual bool CanTalkTo(Player* player, Creature* c, GossipMenuItems const& gso);
 
@@ -129,7 +127,7 @@ class OPvPCapturePoint
 
         virtual void DeleteSpawns();
 
-        uint32 m_capturePointGUID;
+        ObjectGuid m_capturePointGUID;
 
         GameObject* m_capturePoint;
 
@@ -153,7 +151,7 @@ class OPvPCapturePoint
     protected:
 
         // active players in the area of the objective, 0 - alliance, 1 - horde
-        PlayerSet m_activePlayers[2];
+        GuidSet m_activePlayers[2];
 
         // total shift needed to capture the objective
         float m_maxValue;
@@ -179,10 +177,10 @@ class OPvPCapturePoint
 
         // map to store the various gameobjects and creatures spawned by the objective
         //        type, guid
-        std::map<uint32, uint64> m_Objects;
-        std::map<uint32, uint64> m_Creatures;
-        std::map<uint64, uint32> m_ObjectTypes;
-        std::map<uint64, uint32> m_CreatureTypes;
+        std::map<uint32, ObjectGuid> m_Objects;
+        std::map<uint32, ObjectGuid> m_Creatures;
+        std::map<ObjectGuid, uint32> m_ObjectTypes;
+        std::map<ObjectGuid, uint32> m_CreatureTypes;
 };
 
 // base class for specific outdoor pvp handlers
@@ -201,7 +199,7 @@ class OutdoorPvP : public ZoneScript
         // deletes all gos/creatures spawned by the pvp
         void DeleteSpawns();
 
-        typedef std::map<uint32/*lowguid*/, OPvPCapturePoint*> OPvPCapturePointMap;
+        typedef std::map<ObjectGuid/*guid*/, OPvPCapturePoint*> OPvPCapturePointMap;
 
         virtual void FillInitialWorldStates(WorldPacket & /*data*/) { }
 
@@ -212,7 +210,7 @@ class OutdoorPvP : public ZoneScript
         virtual bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go);
 
         // called on go use
-        virtual bool HandleOpenGo(Player* player, uint64 guid);
+        virtual bool HandleOpenGo(Player* player, ObjectGuid guid);
 
         // setup stuff
         virtual bool SetupOutdoorPvP() {return true;}
@@ -241,7 +239,7 @@ class OutdoorPvP : public ZoneScript
 
         virtual bool HandleDropFlag(Player* player, uint32 spellId);
 
-        virtual bool HandleGossipOption(Player* player, uint64 guid, uint32 gossipid);
+        virtual bool HandleGossipOption(Player* player, ObjectGuid guid, uint32 gossipid);
 
         virtual bool CanTalkTo(Player* player, Creature* c, GossipMenuItems const& gso);
 
@@ -267,7 +265,7 @@ class OutdoorPvP : public ZoneScript
         // the map of the objectives belonging to this outdoorpvp
         OPvPCapturePointMap m_capturePoints;
 
-        PlayerSet m_players[2];
+        GuidSet m_players[2];
 
         uint32 m_TypeId;
 
@@ -288,9 +286,9 @@ class OutdoorPvP : public ZoneScript
             m_capturePoints[cp->m_capturePointGUID] = cp;
         }
 
-        OPvPCapturePoint * GetCapturePoint(uint32 lowguid) const
+        OPvPCapturePoint * GetCapturePoint(ObjectGuid guid) const
         {
-            OutdoorPvP::OPvPCapturePointMap::const_iterator itr = m_capturePoints.find(lowguid);
+            OutdoorPvP::OPvPCapturePointMap::const_iterator itr = m_capturePoints.find(guid);
             if (itr != m_capturePoints.end())
                 return itr->second;
             return NULL;

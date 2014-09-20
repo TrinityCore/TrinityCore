@@ -2226,7 +2226,7 @@ namespace Trinity
     {
         public:
             typedef std::vector<WorldPacket*> WorldPacketList;
-            explicit WorldWorldTextBuilder(int32 textId, va_list* args = NULL) : i_textId(textId), i_args(args) { }
+            explicit WorldWorldTextBuilder(uint32 textId, va_list* args = NULL) : i_textId(textId), i_args(args) { }
             void operator()(WorldPacketList& data_list, LocaleConstant loc_idx)
             {
                 char const* text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
@@ -2259,13 +2259,13 @@ namespace Trinity
                 }
             }
 
-            int32 i_textId;
+            uint32 i_textId;
             va_list* i_args;
     };
 }                                                           // namespace Trinity
 
 /// Send a System Message to all players (except self if mentioned)
-void World::SendWorldText(int32 string_id, ...)
+void World::SendWorldText(uint32 string_id, ...)
 {
     va_list ap;
     va_start(ap, string_id);
@@ -2284,7 +2284,7 @@ void World::SendWorldText(int32 string_id, ...)
 }
 
 /// Send a System Message to all GMs (except self if mentioned)
-void World::SendGMText(int32 string_id, ...)
+void World::SendGMText(uint32 string_id, ...)
 {
     va_list ap;
     va_start(ap, string_id);
@@ -3206,15 +3206,15 @@ void World::ProcessQueryCallbacks()
 }
 
 /**
-* @brief Loads several pieces of information on server startup with the low GUID
+* @brief Loads several pieces of information on server startup with the GUID
 * There is no further database query necessary.
 * These are a number of methods that work into the calling function.
 *
-* @param guid Requires a lowGUID to call
+* @param guid Requires a guid to call
 * @return Name, Gender, Race, Class and Level of player character
 * Example Usage:
 * @code
-*    CharacterNameData const* nameData = sWorld->GetCharacterNameData(lowGUID);
+*    CharacterNameData const* nameData = sWorld->GetCharacterNameData(GUID);
 *    if (!nameData)
 *        return;
 *
@@ -3242,7 +3242,7 @@ void World::LoadCharacterNameData()
     do
     {
         Field* fields = result->Fetch();
-        AddCharacterNameData(fields[0].GetUInt32(), fields[1].GetString(),
+        AddCharacterNameData(ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt32()), fields[1].GetString(),
             fields[3].GetUInt8() /*gender*/, fields[2].GetUInt8() /*race*/, fields[4].GetUInt8() /*class*/, fields[5].GetUInt8() /*level*/);
         ++count;
     } while (result->NextRow());
@@ -3250,7 +3250,7 @@ void World::LoadCharacterNameData()
     TC_LOG_INFO("server.loading", "Loaded name data for %u characters", count);
 }
 
-void World::AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
+void World::AddCharacterNameData(ObjectGuid guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
 {
     CharacterNameData& data = _characterNameDataMap[guid];
     data.m_name = name;
@@ -3260,9 +3260,9 @@ void World::AddCharacterNameData(uint32 guid, std::string const& name, uint8 gen
     data.m_level = level;
 }
 
-void World::UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
+void World::UpdateCharacterNameData(ObjectGuid guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
 {
-    std::map<uint32, CharacterNameData>::iterator itr = _characterNameDataMap.find(guid);
+    std::map<ObjectGuid, CharacterNameData>::iterator itr = _characterNameDataMap.find(guid);
     if (itr == _characterNameDataMap.end())
         return;
 
@@ -3275,22 +3275,22 @@ void World::UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 
         itr->second.m_race = race;
 
     WorldPacket data(SMSG_INVALIDATE_PLAYER, 8);
-    data << MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER);
+    data << guid;
     SendGlobalMessage(&data);
 }
 
-void World::UpdateCharacterNameDataLevel(uint32 guid, uint8 level)
+void World::UpdateCharacterNameDataLevel(ObjectGuid guid, uint8 level)
 {
-    std::map<uint32, CharacterNameData>::iterator itr = _characterNameDataMap.find(guid);
+    std::map<ObjectGuid, CharacterNameData>::iterator itr = _characterNameDataMap.find(guid);
     if (itr == _characterNameDataMap.end())
         return;
 
     itr->second.m_level = level;
 }
 
-CharacterNameData const* World::GetCharacterNameData(uint32 guid) const
+CharacterNameData const* World::GetCharacterNameData(ObjectGuid guid) const
 {
-    std::map<uint32, CharacterNameData>::const_iterator itr = _characterNameDataMap.find(guid);
+    std::map<ObjectGuid, CharacterNameData>::const_iterator itr = _characterNameDataMap.find(guid);
     if (itr != _characterNameDataMap.end())
         return &itr->second;
     else

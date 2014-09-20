@@ -227,7 +227,7 @@ void BattlegroundAB::AddPlayer(Player* player)
     PlayerScores[player->GetGUIDLow()] = new BattlegroundABScore(player->GetGUID(), player->GetBGTeam());
 }
 
-void BattlegroundAB::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundAB::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
 {
 }
 
@@ -392,7 +392,7 @@ void BattlegroundAB::_NodeOccupied(uint8 node, Team team)
     if (capturedNodes >= 4)
         CastSpellOnTeam(SPELL_AB_QUEST_REWARD_4_BASES, team);
 
-    Creature* trigger = BgCreatures[node+7] ? GetBGCreature(node+7) : NULL; // 0-6 spirit guides
+    Creature* trigger = !BgCreatures[node + 7] ? GetBGCreature(node + 7) : NULL; // 0-6 spirit guides
     if (!trigger)
         trigger = AddCreature(WORLD_TRIGGER, node+7, BG_AB_NodePositions[node], GetTeamIndexByTeamId(team));
 

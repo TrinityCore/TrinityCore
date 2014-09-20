@@ -347,9 +347,7 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
 
 bool PlayerDumpWriter::GetDump(uint32 guid, std::string &dump)
 {
-    dump = "";
-
-    dump += "IMPORTANT NOTE: THIS DUMPFILE IS MADE FOR USE WITH THE 'PDUMP' COMMAND ONLY - EITHER THROUGH INGAME CHAT OR ON CONSOLE!\n";
+    dump =  "IMPORTANT NOTE: THIS DUMPFILE IS MADE FOR USE WITH THE 'PDUMP' COMMAND ONLY - EITHER THROUGH INGAME CHAT OR ON CONSOLE!\n";
     dump += "IMPORTANT NOTE: DO NOT apply it directly - it will irreversibly DAMAGE and CORRUPT your database! You have been warned!\n\n";
 
     for (int i = 0; i < DUMP_TABLE_COUNT; ++i)
@@ -430,7 +428,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
 
     // normalize the name if specified and check if it exists
     if (!normalizePlayerName(name))
-        name = "";
+        name.clear();
 
     if (ObjectMgr::CheckPlayerName(name, true) == CHAR_NAME_SUCCESS)
     {
@@ -439,10 +437,10 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
         if (result)
-            name = "";                                      // use the one from the dump
+            name.clear();                                       // use the one from the dump
     }
     else
-        name = "";
+        name.clear();
 
     // name encoded or empty
 
@@ -538,7 +536,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
                 playerClass = uint8(atol(getnth(line, 5).c_str()));
                 gender = uint8(atol(getnth(line, 6).c_str()));
                 level = uint8(atol(getnth(line, 7).c_str()));
-                if (name == "")
+                if (name.empty())
                 {
                     // check if the original name already exists
                     name = getnth(line, 3);
@@ -634,7 +632,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
                     snprintf(lastpetid, 20, "%s", currpetid);
                 if (strcmp(lastpetid, currpetid) != 0)
                 {
-                    snprintf(newpetid, 20, "%d", sObjectMgr->GeneratePetNumber());
+                    snprintf(newpetid, 20, "%u", sObjectMgr->GeneratePetNumber());
                     snprintf(lastpetid, 20, "%s", currpetid);
                 }
 
@@ -681,7 +679,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
     CharacterDatabase.CommitTransaction(trans);
 
     // in case of name conflict player has to rename at login anyway
-    sWorld->AddCharacterNameData(guid, name, gender, race, playerClass, level);
+    sWorld->AddCharacterNameData(ObjectGuid(HIGHGUID_PLAYER, guid), name, gender, race, playerClass, level);
 
     sObjectMgr->_hiItemGuid += items.size();
     sObjectMgr->_mailId     += mails.size();

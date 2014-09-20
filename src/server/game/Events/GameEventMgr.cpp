@@ -1123,7 +1123,7 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
         // get the creature data from the low guid to get the entry, to be able to find out the whole guid
         if (CreatureData const* data = sObjectMgr->GetCreatureData(itr->first))
         {
-            Creature* cr = HashMapHolder<Creature>::Find(MAKE_NEW_GUID(itr->first, data->id, HIGHGUID_UNIT));
+            Creature* cr = HashMapHolder<Creature>::Find(ObjectGuid(HIGHGUID_UNIT, data->id, itr->first));
             // if we found the creature, modify its npcflag
             if (cr)
             {
@@ -1254,7 +1254,7 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
         {
             sObjectMgr->RemoveCreatureFromGrid(*itr, data);
 
-            if (Creature* creature = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(*itr, data->id, HIGHGUID_UNIT), (Creature*)NULL))
+            if (Creature* creature = ObjectAccessor::GetObjectInWorld(ObjectGuid(HIGHGUID_UNIT, data->id, *itr), (Creature*)NULL))
                 creature->AddObjectToRemoveList();
         }
     }
@@ -1276,7 +1276,7 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
         {
             sObjectMgr->RemoveGameobjectFromGrid(*itr, data);
 
-            if (GameObject* pGameobject = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(*itr, data->id, HIGHGUID_GAMEOBJECT), (GameObject*)NULL))
+            if (GameObject* pGameobject = ObjectAccessor::GetObjectInWorld(ObjectGuid(HIGHGUID_GAMEOBJECT, data->id, *itr), (GameObject*)NULL))
                 pGameobject->AddObjectToRemoveList();
         }
     }
@@ -1302,7 +1302,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
             continue;
 
         // Update if spawned
-        Creature* creature = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(itr->first, data->id, HIGHGUID_UNIT), (Creature*)NULL);
+        Creature* creature = ObjectAccessor::GetObjectInWorld(ObjectGuid(HIGHGUID_UNIT, data->id, itr->first), (Creature*)NULL);
         if (creature)
         {
             if (activate)

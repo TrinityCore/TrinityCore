@@ -72,7 +72,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     if (GetPlayer()->IsInWorld())
     {
-        TC_LOG_ERROR("network", "Player %s (GUID: %u) is still in world when teleported from map %s (%u) to new map %s (%u)", GetPlayer()->GetName().c_str(), GUID_LOPART(GetPlayer()->GetGUID()), oldMap->GetMapName(), oldMap->GetId(), newMap ? newMap->GetMapName() : "Unknown", loc.GetMapId());
+        TC_LOG_ERROR("network", "%s %s is still in world when teleported from map %s (%u) to new map %s (%u)", GetPlayer()->GetGUID().ToString().c_str(), GetPlayer()->GetName().c_str(), oldMap->GetMapName(), oldMap->GetId(), newMap ? newMap->GetMapName() : "Unknown", loc.GetMapId());
         oldMap->RemovePlayerFromMap(GetPlayer(), false);
     }
 
@@ -341,7 +341,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
         {
             GameObject* go = mover->GetMap()->GetGameObject(movementInfo.transport.guid);
             if (!go || go->GetGoType() != GAMEOBJECT_TYPE_TRANSPORT)
-                movementInfo.transport.guid = 0;
+                movementInfo.transport.guid.Clear();
         }
     }
     else if (plrMover && plrMover->GetTransport())                // if we were on a transport, leave
@@ -423,8 +423,6 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 
 void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
 {
-    uint32 opcode = recvData.GetOpcode();
-
     /* extract packet */
     MovementInfo movementInfo;
     static MovementStatusElements const speedElement = MSEExtraFloat;
@@ -458,7 +456,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
         "PitchRate"
     };
 
-    switch (opcode)
+    switch (recvData.GetOpcode())
     {
         case CMSG_MOVE_FORCE_WALK_SPEED_CHANGE_ACK:        move_type = MOVE_WALK;        break;
         case CMSG_MOVE_FORCE_RUN_SPEED_CHANGE_ACK:         move_type = MOVE_RUN;         break;
@@ -470,7 +468,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
         case CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK: move_type = MOVE_FLIGHT_BACK; break;
         case CMSG_MOVE_FORCE_PITCH_RATE_CHANGE_ACK:        move_type = MOVE_PITCH_RATE;  break;
         default:
-            TC_LOG_ERROR("network", "WorldSession::HandleForceSpeedChangeAck: Unknown move type opcode: %u", opcode);
+            TC_LOG_ERROR("network", "WorldSession::HandleForceSpeedChangeAck: Unknown move type opcode: %u", recvData.GetOpcode());
             return;
     }
 
@@ -525,10 +523,8 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(guid[7]);
 
     if (GetPlayer()->IsInWorld())
-    {
         if (_player->m_mover->GetGUID() != guid)
-            TC_LOG_DEBUG("network", "HandleSetActiveMoverOpcode: incorrect mover guid: mover is " UI64FMTD " (%s - Entry: %u) and should be " UI64FMTD, uint64(guid), GetLogNameForGuid(guid), GUID_ENPART(guid), _player->m_mover->GetGUID());
-    }
+            TC_LOG_DEBUG("network", "HandleSetActiveMoverOpcode: incorrect mover guid: mover is %s and should be %s" , guid.ToString().c_str(), _player->m_mover->GetGUID().ToString().c_str());
 }
 
 void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
@@ -569,30 +565,30 @@ void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "CMSG_MOVE_HOVER_ACK");
 
-    uint64 guid;                                            // guid - unused
-    recvData.readPackGUID(guid);
+    ObjectGuid guid;                                        // guid - unused
+    recvData >> guid.ReadAsPacked();
 
-    recvData.read_skip<uint32>();                          // unk
+    recvData.read_skip<uint32>();                           // unk
 
     MovementInfo movementInfo;
     GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
 
-    recvData.read_skip<uint32>();                          // unk2
+    recvData.read_skip<uint32>();                           // unk2
 }
 
 void WorldSession::HandleMoveWaterWalkAck(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "CMSG_MOVE_WATER_WALK_ACK");
 
-    uint64 guid;                                            // guid - unused
-    recvData.readPackGUID(guid);
+    ObjectGuid guid;                                        // guid - unused
+    recvData >> guid.ReadAsPacked();
 
-    recvData.read_skip<uint32>();                          // unk
+    recvData.read_skip<uint32>();                           // unk
 
     MovementInfo movementInfo;
     GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
 
-    recvData.read_skip<uint32>();                          // unk2
+    recvData.read_skip<uint32>();                           // unk2
 }
 
 void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
@@ -600,9 +596,9 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
     if (!_player->IsAlive() || _player->IsInCombat())
         return;
 
-    uint64 summonerGuid;
+    ObjectGuid summoner_guid;
     bool agree;
-    recvData >> summonerGuid;
+    recvData >> summoner_guid;
     recvData >> agree;
 
     _player->SummonIfPossible(agree);

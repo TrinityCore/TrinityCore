@@ -143,7 +143,7 @@ class npc_voljin_zulaman : public CreatureScript
                             _events.ScheduleEvent(EVENT_BANGING_THE_GONG, 3000);
                         case EVENT_BANGING_THE_GONG:
                             DoCast(me, SPELL_BANGING_THE_GONG);
-                            if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetData64(DATA_STRANGE_GONG)))
+                            if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
                                 strangeGong->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, uint32(ITEM_VIRTUAL_ITEM));
                             break;
@@ -153,7 +153,7 @@ class npc_voljin_zulaman : public CreatureScript
                             break;
                         case EVENT_START_DOOR_OPENING_2:
                             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, uint32(0));
-                            if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetData64(DATA_STRANGE_GONG)))
+                            if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
                                 strangeGong->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                             _events.ScheduleEvent(EVENT_START_DOOR_OPENING_3, 500);
                             break;
@@ -162,7 +162,7 @@ class npc_voljin_zulaman : public CreatureScript
                             break;
                         case EVENT_START_DOOR_OPENING_4:
                             _instance->SetData(DATA_ZULAMAN_STATE, IN_PROGRESS);
-                            if (GameObject* masiveGate = ObjectAccessor::GetGameObject(*me, _instance->GetData64(DATA_MASSIVE_GATE)))
+                            if (GameObject* masiveGate = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_MASSIVE_GATE)))
                                 masiveGate->SetGoState(GO_STATE_ACTIVE);
                             _events.ScheduleEvent(EVENT_START_DOOR_OPENING_5, 3000);
                             break;
@@ -174,7 +174,7 @@ class npc_voljin_zulaman : public CreatureScript
                             _events.ScheduleEvent(EVENT_START_DOOR_OPENING_7, 6000);
                             break;
                         case EVENT_START_DOOR_OPENING_7:
-                            if (Creature* hexLordTrigger = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HEXLORD_TRIGGER)))
+                            if (Creature* hexLordTrigger = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HEXLORD_TRIGGER)))
                                 sCreatureTextMgr->SendChat(hexLordTrigger, SAY_HEXLOR_INTRO, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
                             break;
                         default:
@@ -191,7 +191,7 @@ class npc_voljin_zulaman : public CreatureScript
                 switch (pointId)
                 {
                     case POINT_STRANGE_GONG:
-                        if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetData64(DATA_STRANGE_GONG)))
+                        if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
                             me->SetFacingToObject(strangeGong); // setInFront
                         break;
                     case POINT_START_DOOR_OPENING_1:

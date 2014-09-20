@@ -28,7 +28,9 @@ TempSummon::TempSummon(SummonPropertiesEntry const* properties, Unit* owner, boo
 Creature(isWorldObject), m_Properties(properties), m_type(TEMPSUMMON_MANUAL_DESPAWN),
 m_timer(0), m_lifetime(0)
 {
-    m_summonerGUID = owner ? owner->GetGUID() : 0;
+    if (owner)
+        m_summonerGUID = owner->GetGUID();
+
     m_unitTypeMask |= UNIT_MASK_SUMMON;
 }
 
@@ -274,7 +276,7 @@ void TempSummon::RemoveFromWorld()
         if (slot > 0)
             if (Unit* owner = GetSummoner())
                 if (owner->m_SummonSlot[slot] == GetGUID())
-                    owner->m_SummonSlot[slot] = 0;
+                    owner->m_SummonSlot[slot].Clear();
     }
 
     //if (GetOwnerGUID())

@@ -224,8 +224,8 @@ class Item : public Object
 
         ItemTemplate const* GetTemplate() const;
 
-        uint64 GetOwnerGUID()    const { return GetUInt64Value(ITEM_FIELD_OWNER); }
-        void SetOwnerGUID(uint64 guid) { SetUInt64Value(ITEM_FIELD_OWNER, guid); }
+        ObjectGuid GetOwnerGUID()    const { return GetGuidValue(ITEM_FIELD_OWNER); }
+        void SetOwnerGUID(ObjectGuid guid) { SetGuidValue(ITEM_FIELD_OWNER, guid); }
         Player* GetOwner()const;
 
         void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_SOULBOUND, val); }
@@ -235,7 +235,7 @@ class Item : public Object
         bool IsBindedNotWith(Player const* player) const;
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
-        virtual bool LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entry);
+        virtual bool LoadFromDB(uint32 guid, ObjectGuid owner_guid, Field* fields, uint32 entry);
         static void DeleteFromDB(SQLTransaction& trans, uint32 itemGuid);
         virtual void DeleteFromDB(SQLTransaction& trans);
         static void DeleteFromInventoryDB(SQLTransaction& trans, uint32 itemGuid);
@@ -296,7 +296,7 @@ class Item : public Object
         void SetItemRandomProperties(int32 randomPropId);
         void UpdateItemSuffixFactor();
         static int32 GenerateItemRandomPropertyId(uint32 item_id);
-        void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges, uint64 caster = 0);
+        void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges, ObjectGuid caster = ObjectGuid::Empty);
         void SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player* owner);
         void SetEnchantmentCharges(EnchantmentSlot slot, uint32 charges);
         void ClearEnchantment(EnchantmentSlot slot);

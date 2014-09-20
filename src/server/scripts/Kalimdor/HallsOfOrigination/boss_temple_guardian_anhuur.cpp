@@ -126,7 +126,7 @@ public:
                 DoCastAOE(SPELL_ACTIVATE_BEACONS);
 
                 std::list<Creature*> stalkers;
-                GameObject* door = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_ANHUUR_DOOR));
+                GameObject* door = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_ANHUUR_DOOR));
                 GetCreatureListWithEntryInGrid(stalkers, me, NPC_CAVE_IN_STALKER, 100.0f);
 
                 stalkers.remove_if(Trinity::HeightDifferenceCheck(door, 0.0f, false)); // Target only the bottom ones
@@ -228,7 +228,7 @@ public:
 
                         std::list<Creature*> stalkers;
                         GetCreatureListWithEntryInGrid(stalkers, me, NPC_CAVE_IN_STALKER, 100.0f);
-                        stalkers.remove_if(Trinity::HeightDifferenceCheck(ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_ANHUUR_DOOR)), 5.0f, true));
+                        stalkers.remove_if(Trinity::HeightDifferenceCheck(ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_ANHUUR_DOOR)), 5.0f, true));
 
                         if (stalkers.empty())
                             break;
@@ -278,7 +278,7 @@ class spell_anhuur_shield_of_light : public SpellScriptLoader
                 {
                     if (InstanceScript* const script = instance->GetInstanceScript())
                     {
-                        if (GameObject* go = ObjectAccessor::GetGameObject(*GetCaster(), script->GetData64(DATA_ANHUUR_DOOR)))
+                        if (GameObject* go = ObjectAccessor::GetGameObject(*GetCaster(), script->GetGuidData(DATA_ANHUUR_DOOR)))
                         {
                             targets.remove_if(Trinity::HeightDifferenceCheck(go, 5.0f, false));
                             targets.remove(GetCaster());
@@ -319,7 +319,7 @@ class spell_anhuur_disable_beacon_beams : public SpellScriptLoader
             {
                 if (InstanceMap* instance = GetCaster()->GetMap()->ToInstanceMap())
                     if (InstanceScript* const script = instance->GetInstanceScript())
-                        if (Creature* anhuur = instance->GetCreature(script->GetData64(DATA_ANHUUR_GUID)))
+                        if (Creature* anhuur = instance->GetCreature(script->GetGuidData(DATA_ANHUUR_GUID)))
                             anhuur->AI()->DoAction(ACTION_DISABLE_BEACON);
             }
 

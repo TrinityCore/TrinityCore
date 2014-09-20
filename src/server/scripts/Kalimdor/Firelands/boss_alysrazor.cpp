@@ -179,7 +179,7 @@ class npc_harbinger_of_flame : public CreatureScript
 
             void EnterCombat(Unit* /*target*/)
             {
-                if (Creature* bird = ObjectAccessor::GetCreature(*me, me->GetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT)))
+                if (Creature* bird = ObjectAccessor::GetCreature(*me, me->GetChannelObjectGuid()))
                     DoZoneInCombat(bird, 200.0f);
 
                 me->InterruptSpell(CURRENT_CHANNELED_SPELL);

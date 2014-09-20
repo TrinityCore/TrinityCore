@@ -260,7 +260,7 @@ void WorldSocket::SendPacket(WorldPacket& packet)
 
     _authCrypt.EncryptSend(header.header, header.getHeaderLength());
 
-#ifndef BOOST_ASIO_HAS_IOCP
+#ifndef TC_SOCKET_USE_IOCP
     if (_writeQueue.empty() && _writeBuffer.GetRemainingSpace() >= header.getHeaderLength() + packet.size())
     {
         _writeBuffer.Write(header.header, header.getHeaderLength());
@@ -281,7 +281,7 @@ void WorldSocket::SendPacket(WorldPacket& packet)
 
 void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 {
-    uint8 digest[20];
+    uint8 digest[SHA_DIGEST_LENGTH];
     uint32 clientSeed;
     uint8 security;
     uint16 clientBuild;
@@ -421,7 +421,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     sha.UpdateBigNumbers(&k, NULL);
     sha.Finalize();
 
-    if (memcmp(sha.GetDigest(), digest, 20))
+    if (memcmp(sha.GetDigest(), digest, SHA_DIGEST_LENGTH) != 0)
     {
         SendAuthResponseError(AUTH_FAILED);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Authentication failed for account: %u ('%s') address: %s", id, account.c_str(), address.c_str());
@@ -432,7 +432,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     ///- Re-check ip locking (same check as in auth).
     if (fields[3].GetUInt8() == 1) // if ip is locked
     {
-        if (strcmp(fields[2].GetCString(), address.c_str()))
+        if (strcmp(fields[2].GetCString(), address.c_str()) != 0)
         {
             SendAuthResponseError(AUTH_FAILED);
             TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Sent Auth Response (Account IP differs. Original IP: %s, new IP: %s).", fields[2].GetCString(), address.c_str());

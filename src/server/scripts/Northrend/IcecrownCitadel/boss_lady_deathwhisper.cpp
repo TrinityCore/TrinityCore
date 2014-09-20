@@ -224,8 +224,8 @@ class boss_lady_deathwhisper : public CreatureScript
             void Initialize()
             {
                 _waveCounter = 0;
-                _nextVengefulShadeTargetGUID = 0;
-                _darnavanGUID = 0;
+                _nextVengefulShadeTargetGUID.Clear();
+                _darnavanGUID.Clear();
             }
 
             void Reset() override
@@ -329,10 +329,10 @@ class boss_lady_deathwhisper : public CreatureScript
                             {
                                 for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                                     if (Player* member = itr->GetSource())
-                                        member->KilledMonsterCredit(NPC_DARNAVAN_CREDIT, 0);
+                                        member->KilledMonsterCredit(NPC_DARNAVAN_CREDIT);
                             }
                             else
-                                owner->KilledMonsterCredit(NPC_DARNAVAN_CREDIT, 0);
+                                owner->KilledMonsterCredit(NPC_DARNAVAN_CREDIT);
                         }
                     }
                 }
@@ -349,7 +349,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 if (Creature* darnavan = ObjectAccessor::GetCreature(*me, _darnavanGUID))
                 {
                     darnavan->DespawnOrUnsummon();
-                    _darnavanGUID = 0;
+                    _darnavanGUID.Clear();
                 }
             }
 
@@ -396,7 +396,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 if (summon->GetEntry() == NPC_VENGEFUL_SHADE)
                 {
                     target = ObjectAccessor::GetUnit(*me, _nextVengefulShadeTargetGUID);   // Vengeful Shade
-                    _nextVengefulShadeTargetGUID = 0;
+                    _nextVengefulShadeTargetGUID.Clear();
                 }
                 else
                     target = SelectTarget(SELECT_TARGET_RANDOM);                        // Wave adds
@@ -554,7 +554,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     summon->CastSpell(summon, SPELL_TELEPORT_VISUAL);
             }
 
-            void SetGUID(uint64 guid, int32 id/* = 0*/) override
+            void SetGUID(ObjectGuid guid, int32 id/* = 0*/) override
             {
                 if (id != GUID_CULTIST)
                     return;
@@ -568,7 +568,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 if (_reanimationQueue.empty())
                     return;
 
-                uint64 cultistGUID = _reanimationQueue.front();
+                ObjectGuid cultistGUID = _reanimationQueue.front();
                 Creature* cultist = ObjectAccessor::GetCreature(*me, cultistGUID);
                 _reanimationQueue.pop_front();
                 if (!cultist)
@@ -615,9 +615,9 @@ class boss_lady_deathwhisper : public CreatureScript
             }
 
         private:
-            uint64 _nextVengefulShadeTargetGUID;
-            uint64 _darnavanGUID;
-            std::deque<uint64> _reanimationQueue;
+            ObjectGuid _nextVengefulShadeTargetGUID;
+            ObjectGuid _darnavanGUID;
+            GuidDeque _reanimationQueue;
             uint32 _waveCounter;
             uint8 const _dominateMindCount;
             bool _introDone;

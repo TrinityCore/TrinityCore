@@ -285,13 +285,13 @@ public:
         uint8  nAbomination;
         uint8  nWeaver;
 
-        std::map<uint64, float> chained;
+        std::map<ObjectGuid, float> chained;
 
         SummonList spawns; // adds spawn by the trigger. kept in separated list (i.e. not in summons)
 
         void ResetPlayerScale()
         {
-            std::map<uint64, float>::const_iterator itr;
+            std::map<ObjectGuid, float>::const_iterator itr;
             for (itr = chained.begin(); itr != chained.end(); ++itr)
             {
                 if (Player* charmed = ObjectAccessor::GetPlayer(*me, itr->first))
@@ -313,7 +313,7 @@ public:
 
             instance->SetData(DATA_ABOMINATION_KILLED, 0);
 
-            if (GameObject* trigger = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_KELTHUZAD_TRIGGER)))
+            if (GameObject* trigger = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_KELTHUZAD_TRIGGER)))
             {
                 trigger->ResetDoorOrButton();
                 trigger->SetLootState(GO_READY);
@@ -321,7 +321,7 @@ public:
 
             for (uint8 i = 0; i <= 3; ++i)
             {
-                if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_KELTHUZAD_PORTAL01 + i)))
+                if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_KELTHUZAD_PORTAL01 + i)))
                     if (!((portal->getLootState() == GO_READY) || (portal->getLootState() == GO_NOT_READY)))
                         portal->ResetDoorOrButton();
             }
@@ -349,7 +349,7 @@ public:
             _EnterCombat();
             for (uint8 i = 0; i <= 3; ++i)
             {
-                if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_KELTHUZAD_PORTAL01 + i)))
+                if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_KELTHUZAD_PORTAL01 + i)))
                     portal->ResetDoorOrButton();
             }
             DoCast(me, SPELL_KELTHUZAD_CHANNEL, false);
@@ -399,7 +399,7 @@ public:
                             }
                             break;
                         case EVENT_TRIGGER:
-                            if (GameObject* trigger = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_KELTHUZAD_TRIGGER)))
+                            if (GameObject* trigger = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_KELTHUZAD_TRIGGER)))
                                 trigger->SetLootState(GO_JUST_DEACTIVATED);
                             break;
                         case EVENT_PHASE:
@@ -439,7 +439,7 @@ public:
 
                         for (uint8 i = 0; i <= 3; ++i)
                         {
-                            if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_KELTHUZAD_PORTAL01 + i)))
+                            if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_KELTHUZAD_PORTAL01 + i)))
                                 if (portal->getLootState() == GO_READY)
                                     portal->UseDoorOrButton();
                         }
@@ -495,7 +495,7 @@ public:
                         }
                         case EVENT_CHAINED_SPELL:
                         {
-                            std::map<uint64, float>::iterator itr;
+                            std::map<ObjectGuid, float>::iterator itr;
                             for (itr = chained.begin(); itr != chained.end();)
                             {
                                 if (Unit* player = ObjectAccessor::GetPlayer(*me, itr->first))
@@ -503,7 +503,7 @@ public:
                                     if (!player->IsCharmed())
                                     {
                                         player->SetObjectScale(itr->second);
-                                        std::map<uint64, float>::iterator next = itr;
+                                        std::map<ObjectGuid, float>::iterator next = itr;
                                         ++next;
                                         chained.erase(itr);
                                         itr = next;
@@ -639,7 +639,7 @@ public:
         if (!instance || instance->IsEncounterInProgress() || instance->GetBossState(BOSS_KELTHUZAD) == DONE)
             return false;
 
-        Creature* pKelthuzad = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_KELTHUZAD));
+        Creature* pKelthuzad = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_KELTHUZAD));
         if (!pKelthuzad)
             return false;
 
@@ -648,7 +648,7 @@ public:
             return false;
 
         pKelthuzadAI->AttackStart(player);
-        if (GameObject* trigger = ObjectAccessor::GetGameObject(*player, instance->GetData64(DATA_KELTHUZAD_TRIGGER)))
+        if (GameObject* trigger = ObjectAccessor::GetGameObject(*player, instance->GetGuidData(DATA_KELTHUZAD_TRIGGER)))
         {
             if (trigger->getLootState() == GO_READY)
                 trigger->UseDoorOrButton();

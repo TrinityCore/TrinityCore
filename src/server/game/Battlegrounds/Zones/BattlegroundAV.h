@@ -1554,7 +1554,7 @@ struct BattlegroundAVScore final : public BattlegroundScore
     friend class BattlegroundAV;
 
     protected:
-        BattlegroundAVScore(uint64 playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), GraveyardsAssaulted(0), GraveyardsDefended(0), TowersAssaulted(0), TowersDefended(0), MinesCaptured(0) { }
+        BattlegroundAVScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), GraveyardsAssaulted(0), GraveyardsDefended(0), TowersAssaulted(0), TowersDefended(0), MinesCaptured(0) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {
@@ -1615,7 +1615,7 @@ class BattlegroundAV : public Battleground
         void StartingEventCloseDoors() override;
         void StartingEventOpenDoors() override;
 
-        void RemovePlayer(Player* player, uint64 guid, uint32 team) override;
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
         void HandleAreaTrigger(Player* player, uint32 trigger) override;
         bool SetupBattleground() override;
         void ResetBGSubclass() override;

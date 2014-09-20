@@ -227,7 +227,6 @@ class boss_flame_leviathan : public CreatureScript
             boss_flame_leviathanAI(Creature* creature) : BossAI(creature, BOSS_LEVIATHAN), vehicle(creature->GetVehicleKit())
             {
                 Initialize();
-                _pursueTarget = 0;
             }
 
             void Initialize()
@@ -273,7 +272,7 @@ class boss_flame_leviathan : public CreatureScript
                 _Reset();
                 //resets shutdown counter to 0.  2 or 4 depending on raid mode
                 Shutdown = 0;
-                _pursueTarget = 0;
+                _pursueTarget.Clear();
 
                 me->SetReactState(REACT_DEFENSIVE);
             }
@@ -557,7 +556,7 @@ class boss_flame_leviathan : public CreatureScript
                     }
                 }
 
-                uint64 _pursueTarget;
+                ObjectGuid _pursueTarget;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -1003,7 +1002,7 @@ public:
             npc_escortAI::UpdateAI(diff);
 
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
-                Start(false, true, 0, NULL, false, true);
+                Start(false, true, ObjectGuid::Empty, NULL, false, true);
             else
             {
                 if (infernoTimer <= diff)
@@ -1208,7 +1207,7 @@ class npc_lorekeeper : public CreatureScript
                     player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
                     break;
                 case GOSSIP_ACTION_INFO_DEF+2:
-                    if (Creature* leviathan = instance->instance->GetCreature(instance->GetData64(BOSS_LEVIATHAN)))
+                    if (Creature* leviathan = instance->instance->GetCreature(instance->GetGuidData(BOSS_LEVIATHAN)))
                     {
                         leviathan->AI()->DoAction(ACTION_START_HARD_MODE);
                         creature->SetVisible(false);
@@ -1670,7 +1669,7 @@ class FlameLeviathanPursuedTargetSelector
             //! Vehicle must be in use by player
             bool playerFound = false;
             for (SeatMap::const_iterator itr = vehicle->Seats.begin(); itr != vehicle->Seats.end() && !playerFound; ++itr)
-                if (IS_PLAYER_GUID(itr->second.Passenger.Guid))
+                if (itr->second.Passenger.Guid.IsPlayer())
                     playerFound = true;
 
             return !playerFound;

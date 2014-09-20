@@ -37,9 +37,9 @@
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recvData)
 {
-    uint64 guid;
+    ObjectGuid guid;
     recvData >> guid;
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEMASTER_HELLO Message from (GUID: %u TypeId:%u)", GUID_LOPART(guid), GuidHigh2TypeId(GUID_HIPART(guid)));
+    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEMASTER_HELLO Message from %s", guid.ToString().c_str());
 
     Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
     if (!unit)
@@ -63,7 +63,7 @@ void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recvData)
     SendBattleGroundList(guid, bgTypeId);
 }
 
-void WorldSession::SendBattleGroundList(uint64 guid, BattlegroundTypeId bgTypeId)
+void WorldSession::SendBattleGroundList(ObjectGuid guid, BattlegroundTypeId bgTypeId)
 {
     WorldPacket data;
     sBattlegroundMgr->BuildBattlegroundListPacket(&data, guid, _player, bgTypeId);
@@ -100,7 +100,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[1]);
 
     //extract from guid
-    bgTypeId_ = GUID_LOPART(guid);
+    bgTypeId_ = guid.GetCounter();
 
     if (!sBattlemasterListStore.LookupEntry(bgTypeId_))
     {
@@ -115,7 +115,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
     }
     BattlegroundTypeId bgTypeId = BattlegroundTypeId(bgTypeId_);
 
-    //TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEMASTER_JOIN Message from (GUID:"UI64FMTD" TypeId:%u)", guid, bgTypeId_);
+    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEMASTER_JOIN Message from %s", guid.ToString().c_str());
 
     // can do this, since it's battleground, not arena
     BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, 0);
@@ -279,22 +279,22 @@ void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recvDa
     Player* aplr = NULL;
     Player* hplr = NULL;
 
-    if (uint64 guid = bg->GetFlagPickerGUID(TEAM_ALLIANCE))
+    if (ObjectGuid guid = bg->GetFlagPickerGUID(TEAM_ALLIANCE))
     {
         aplr = ObjectAccessor::FindPlayer(guid);
         if (aplr)
             ++acount;
     }
 
-    if (uint64 guid = bg->GetFlagPickerGUID(TEAM_HORDE))
+    if (ObjectGuid guid = bg->GetFlagPickerGUID(TEAM_HORDE))
     {
         hplr = ObjectAccessor::FindPlayer(guid);
         if (hplr)
             ++hcount;
     }
 
-    ObjectGuid aguid = aplr ? aplr->GetGUID() : 0;
-    ObjectGuid hguid = hplr ? hplr->GetGUID() : 0;
+    ObjectGuid aguid = aplr ? aplr->GetGUID() : ObjectGuid::Empty;
+    ObjectGuid hguid = hplr ? hplr->GetGUID() : ObjectGuid::Empty;
 
     WorldPacket data(SMSG_BATTLEFIELD_PLAYER_POSITIONS);
 
@@ -391,7 +391,7 @@ void WorldSession::HandleBattlefieldListOpcode(WorldPacket& recvData)
     }
 
     WorldPacket data;
-    sBattlegroundMgr->BuildBattlegroundListPacket(&data, 0, _player, BattlegroundTypeId(bgTypeId));
+    sBattlegroundMgr->BuildBattlegroundListPacket(&data, ObjectGuid::Empty, _player, BattlegroundTypeId(bgTypeId));
     SendPacket(&data);
 }
 
@@ -567,7 +567,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
             ArenaTeam* at = sArenaTeamMgr->GetArenaTeamById(ginfo.Team);
             if (at)
             {
-                TC_LOG_DEBUG("bg.battleground", "UPDATING memberLost's personal arena rating for %u by opponents rating: %u, because he has left queue!", GUID_LOPART(_player->GetGUID()), ginfo.OpponentsTeamRating);
+                TC_LOG_DEBUG("bg.battleground", "UPDATING memberLost's personal arena rating for %s by opponents rating: %u, because he has left queue!", _player->GetGUID().ToString().c_str(), ginfo.OpponentsTeamRating);
                 at->MemberLost(_player, ginfo.OpponentsMatchmakerRating);
                 at->SaveToDB();
             }
@@ -772,7 +772,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
 
 void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
 {
-    uint64 playerGuid;
+    ObjectGuid playerGuid;
     recvData >> playerGuid;
     Player* reportedPlayer = ObjectAccessor::FindPlayer(playerGuid);
 

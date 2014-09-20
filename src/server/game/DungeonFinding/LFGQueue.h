@@ -78,7 +78,7 @@ struct LfgWaitTime
 
 typedef std::map<uint32, LfgWaitTime> LfgWaitTimesContainer;
 typedef std::map<std::string, LfgCompatibilityData> LfgCompatibleContainer;
-typedef std::map<uint64, LfgQueueData> LfgQueueDataContainer;
+typedef std::map<ObjectGuid, LfgQueueData> LfgQueueDataContainer;
 
 /**
     Stores all data related to queue
@@ -88,10 +88,10 @@ class LFGQueue
     public:
 
         // Add/Remove from queue
-        void AddToQueue(uint64 guid);
-        void RemoveFromQueue(uint64 guid);
-        void AddQueueData(uint64 guid, time_t joinTime, LfgDungeonSet const& dungeons, LfgRolesMap const& rolesMap);
-        void RemoveQueueData(uint64 guid);
+        void AddToQueue(ObjectGuid guid);
+        void RemoveFromQueue(ObjectGuid guid);
+        void AddQueueData(ObjectGuid guid, time_t joinTime, LfgDungeonSet const& dungeons, LfgRolesMap const& rolesMap);
+        void RemoveQueueData(ObjectGuid guid);
 
         // Update Timers (when proposal success)
         void UpdateWaitTimeAvg(int32 waitTime, uint32 dungeonId);
@@ -101,7 +101,7 @@ class LFGQueue
 
         // Update Queue timers
         void UpdateQueueTimers(uint8 queueId, time_t currTime);
-        time_t GetJoinTime(uint64 guid) const;
+        time_t GetJoinTime(ObjectGuid guid) const;
 
         // Find new group
         uint8 FindGroups();
@@ -112,24 +112,23 @@ class LFGQueue
 
     private:
         void SetQueueUpdateData(std::string const& strGuids, LfgRolesMap const& proposalRoles);
-        LfgRolesMap const& RemoveFromQueueUpdateData(uint64 guid);
 
-        void AddToNewQueue(uint64 guid);
-        void AddToCurrentQueue(uint64 guid);
-        void RemoveFromNewQueue(uint64 guid);
-        void RemoveFromCurrentQueue(uint64 guid);
+        void AddToNewQueue(ObjectGuid guid);
+        void AddToCurrentQueue(ObjectGuid guid);
+        void RemoveFromNewQueue(ObjectGuid guid);
+        void RemoveFromCurrentQueue(ObjectGuid guid);
 
         void SetCompatibles(std::string const& key, LfgCompatibility compatibles);
         LfgCompatibility GetCompatibles(std::string const& key);
-        void RemoveFromCompatibles(uint64 guid);
+        void RemoveFromCompatibles(ObjectGuid guid);
 
         void SetCompatibilityData(std::string const& key, LfgCompatibilityData const& compatibles);
         LfgCompatibilityData* GetCompatibilityData(std::string const& key);
         void FindBestCompatibleInQueue(LfgQueueDataContainer::iterator itrQueue);
         void UpdateBestCompatibleInQueue(LfgQueueDataContainer::iterator itrQueue, std::string const& key, LfgRolesMap const& roles);
 
-        LfgCompatibility FindNewGroups(LfgGuidList& check, LfgGuidList& all);
-        LfgCompatibility CheckCompatibility(LfgGuidList check);
+        LfgCompatibility FindNewGroups(GuidList& check, GuidList& all);
+        LfgCompatibility CheckCompatibility(GuidList check);
 
         // Queue
         LfgQueueDataContainer QueueDataStore;              ///< Queued groups
@@ -139,8 +138,8 @@ class LFGQueue
         LfgWaitTimesContainer waitTimesTankStore;          ///< Average wait time to find a group queuing as tank
         LfgWaitTimesContainer waitTimesHealerStore;        ///< Average wait time to find a group queuing as healer
         LfgWaitTimesContainer waitTimesDpsStore;           ///< Average wait time to find a group queuing as dps
-        LfgGuidList currentQueueStore;                     ///< Ordered list. Used to find groups
-        LfgGuidList newToQueueStore;                       ///< New groups to add to queue
+        GuidList currentQueueStore;                        ///< Ordered list. Used to find groups
+        GuidList newToQueueStore;                          ///< New groups to add to queue
 };
 
 } // namespace lfg

@@ -196,7 +196,7 @@ class boss_anubarak_trial : public CreatureScript
                 std::list<Creature*> FrostSphereList;
                 me->GetCreatureListWithEntryInGrid(FrostSphereList, NPC_FROST_SPHERE, 150.0f);
                 if (!FrostSphereList.empty())
-                    for (std::list<Creature*>::iterator itr = FrostSphereList.begin(); itr != FrostSphereList.end(); itr++)
+                    for (std::list<Creature*>::iterator itr = FrostSphereList.begin(); itr != FrostSphereList.end(); ++itr)
                         (*itr)->DespawnOrUnsummon();
 
                 _burrowGUID.clear();
@@ -243,7 +243,7 @@ class boss_anubarak_trial : public CreatureScript
                 me->GetCreatureListWithEntryInGrid(AddList, NPC_FROST_SPHERE, 150.0f);
                 me->GetCreatureListWithEntryInGrid(AddList, NPC_BURROWER, 150.0f);
                 if (!AddList.empty())
-                    for (std::list<Creature*>::iterator itr = AddList.begin(); itr != AddList.end(); itr++)
+                    for (std::list<Creature*>::iterator itr = AddList.begin(); itr != AddList.end(); ++itr)
                         (*itr)->DespawnOrUnsummon();
             }
 
@@ -346,7 +346,7 @@ class boss_anubarak_trial : public CreatureScript
                             /* WORKAROUND
                             * - The correct implementation is more likely the comment below but it needs spell knowledge
                             */
-                            std::list<uint64>::iterator i = _burrowGUID.begin();
+                            GuidList::iterator i = _burrowGUID.begin();
                             uint32 at = urand(0, _burrowGUID.size()-1);
                             for (uint32 k = 0; k < at; k++)
                                 ++i;
@@ -421,8 +421,8 @@ class boss_anubarak_trial : public CreatureScript
             }
 
             private:
-                std::list<uint64> _burrowGUID;
-                uint64 _sphereGUID[6];
+                GuidList _burrowGUID;
+                ObjectGuid _sphereGUID[6];
                 bool _intro;
                 bool _reachedPhase3;
         };
@@ -458,7 +458,7 @@ class npc_swarm_scarab : public CreatureScript
                 DoCast(me, SPELL_ACID_MANDIBLE);
                 me->SetInCombatWithZone();
                 if (me->IsInCombat())
-                    if (Creature* Anubarak = ObjectAccessor::GetCreature(*me, _instance->GetData64(NPC_ANUBARAK)))
+                    if (Creature* Anubarak = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_ANUBARAK)))
                         Anubarak->AI()->JustSummoned(me);
             }
 
@@ -538,7 +538,7 @@ class npc_nerubian_burrower : public CreatureScript
                 DoCast(me, SPELL_AWAKENED);
                 me->SetInCombatWithZone();
                 if (me->IsInCombat())
-                    if (Creature* Anubarak = ObjectAccessor::GetCreature(*me, _instance->GetData64(NPC_ANUBARAK)))
+                    if (Creature* Anubarak = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_ANUBARAK)))
                         Anubarak->AI()->JustSummoned(me);
             }
 

@@ -166,7 +166,7 @@ class npc_eyestalk : public CreatureScript
             void IsSummonedBy(Unit* /*summoner*/) override
             {
                 // player is the spellcaster so register summon manually
-                if (Creature* occuthar = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_OCCUTHAR)))
+                if (Creature* occuthar = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_OCCUTHAR)))
                     occuthar->AI()->JustSummoned(me);
             }
 
@@ -324,7 +324,7 @@ class spell_occuthar_eyes_of_occuthar_vehicle : public SpellScriptLoader
             {
                 Position pos = GetHitUnit()->GetPosition();
 
-                if (Creature* occuthar = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript()->GetData64(DATA_OCCUTHAR)))
+                if (Creature* occuthar = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript()->GetGuidData(DATA_OCCUTHAR)))
                 {
                     if (Creature* creature = occuthar->SummonCreature(NPC_EYE_OF_OCCUTHAR, pos))
                         creature->CastSpell(GetHitUnit(), SPELL_GAZE_OF_OCCUTHAR, false);

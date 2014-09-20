@@ -161,7 +161,7 @@ namespace Movement
         {
             case MoveSplineFlag::Final_Target:
             {
-                ObjectGuid targetGuid = moveSpline.facing.target;
+                ObjectGuid targetGuid(moveSpline.facing.target);
                 data.WriteBits(2, 2);
                 data.WriteBit(targetGuid[4]);
                 data.WriteBit(targetGuid[3]);
@@ -203,7 +203,7 @@ namespace Movement
                 data << moveSpline.facing.angle;
             else if (splineFlags.final_target)
             {
-                ObjectGuid facingGuid = moveSpline.facing.target;
+                ObjectGuid facingGuid(moveSpline.facing.target);
                 data.WriteByteSeq(facingGuid[5]);
                 data.WriteByteSeq(facingGuid[3]);
                 data.WriteByteSeq(facingGuid[7]);

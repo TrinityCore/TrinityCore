@@ -281,7 +281,7 @@ uint32 BattlegroundQueue::GetAverageQueueWaitTime(GroupQueueInfo* ginfo, Battleg
 }
 
 //remove player from queue and from group info, if group info is empty then remove it too
-void BattlegroundQueue::RemovePlayer(uint64 guid, bool decreaseInvitedCount)
+void BattlegroundQueue::RemovePlayer(ObjectGuid guid, bool decreaseInvitedCount)
 {
     int32 bracket_id = -1;                                     // signed for proper for-loop finish
     QueuedPlayersMap::iterator itr;
@@ -293,7 +293,7 @@ void BattlegroundQueue::RemovePlayer(uint64 guid, bool decreaseInvitedCount)
         std::string playerName = "Unknown";
         if (Player* player = ObjectAccessor::FindPlayer(guid))
             playerName = player->GetName();
-        TC_LOG_ERROR("bg.battleground", "BattlegroundQueue: couldn't find player %s (GUID: %u)", playerName.c_str(), GUID_LOPART(guid));
+        TC_LOG_ERROR("bg.battleground", "BattlegroundQueue: couldn't find player %s (GUID: %u)", playerName.c_str(), guid.GetCounter());
         return;
     }
 
@@ -328,10 +328,10 @@ void BattlegroundQueue::RemovePlayer(uint64 guid, bool decreaseInvitedCount)
     //player can't be in queue without group, but just in case
     if (bracket_id == -1)
     {
-        TC_LOG_ERROR("bg.battleground", "BattlegroundQueue: ERROR Cannot find groupinfo for player GUID: %u", GUID_LOPART(guid));
+        TC_LOG_ERROR("bg.battleground", "BattlegroundQueue: ERROR Cannot find groupinfo for player GUID: %u", guid.GetCounter());
         return;
     }
-    TC_LOG_DEBUG("bg.battleground", "BattlegroundQueue: Removing player GUID %u, from bracket_id %u", GUID_LOPART(guid), (uint32)bracket_id);
+    TC_LOG_DEBUG("bg.battleground", "BattlegroundQueue: Removing player GUID %u, from bracket_id %u", guid.GetCounter(), (uint32)bracket_id);
 
     // ALL variables are correctly set
     // We can ignore leveling up in queue - it should not cause crash
@@ -339,7 +339,7 @@ void BattlegroundQueue::RemovePlayer(uint64 guid, bool decreaseInvitedCount)
     // if only one player there, remove group
 
     // remove player queue info from group queue info
-    std::map<uint64, PlayerQueueInfo*>::iterator pitr = group->Players.find(guid);
+    std::map<ObjectGuid, PlayerQueueInfo*>::iterator pitr = group->Players.find(guid);
     if (pitr != group->Players.end())
         group->Players.erase(pitr);
 
@@ -361,7 +361,7 @@ void BattlegroundQueue::RemovePlayer(uint64 guid, bool decreaseInvitedCount)
     {
         if (ArenaTeam* at = sArenaTeamMgr->GetArenaTeamById(group->ArenaTeamId))
         {
-            TC_LOG_DEBUG("bg.battleground", "UPDATING memberLost's personal arena rating for %u by opponents rating: %u", GUID_LOPART(guid), group->OpponentsTeamRating);
+            TC_LOG_DEBUG("bg.battleground", "UPDATING memberLost's personal arena rating for %u by opponents rating: %u", guid.GetCounter(), group->OpponentsTeamRating);
             if (Player* player = ObjectAccessor::FindPlayer(guid))
                 at->MemberLost(player, group->OpponentsMatchmakerRating);
             else
@@ -403,7 +403,7 @@ void BattlegroundQueue::RemovePlayer(uint64 guid, bool decreaseInvitedCount)
 }
 
 //returns true when player pl_guid is in queue and is invited to bgInstanceGuid
-bool BattlegroundQueue::IsPlayerInvited(uint64 pl_guid, const uint32 bgInstanceGuid, const uint32 removeTime)
+bool BattlegroundQueue::IsPlayerInvited(ObjectGuid pl_guid, const uint32 bgInstanceGuid, const uint32 removeTime)
 {
     QueuedPlayersMap::const_iterator qItr = m_QueuedPlayers.find(pl_guid);
     return (qItr != m_QueuedPlayers.end()
@@ -411,7 +411,7 @@ bool BattlegroundQueue::IsPlayerInvited(uint64 pl_guid, const uint32 bgInstanceG
         && qItr->second.GroupInfo->RemoveInviteTime == removeTime);
 }
 
-bool BattlegroundQueue::GetPlayerGroupInfoData(uint64 guid, GroupQueueInfo* ginfo)
+bool BattlegroundQueue::GetPlayerGroupInfoData(ObjectGuid guid, GroupQueueInfo* ginfo)
 {
     QueuedPlayersMap::const_iterator qItr = m_QueuedPlayers.find(guid);
     if (qItr == m_QueuedPlayers.end())
@@ -447,7 +447,7 @@ bool BattlegroundQueue::InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg,
         ginfo->RemoveInviteTime = getMSTime() + INVITE_ACCEPT_WAIT_TIME;
 
         // loop through the players
-        for (std::map<uint64, PlayerQueueInfo*>::iterator itr = ginfo->Players.begin(); itr != ginfo->Players.end(); ++itr)
+        for (std::map<ObjectGuid, PlayerQueueInfo*>::iterator itr = ginfo->Players.begin(); itr != ginfo->Players.end(); ++itr)
         {
             // get the player
             Player* player = ObjectAccessor::FindPlayer(itr->first);

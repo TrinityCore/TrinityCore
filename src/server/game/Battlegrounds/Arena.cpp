@@ -62,7 +62,7 @@ void Arena::AddPlayer(Player* player)
     UpdateArenaWorldState();
 }
 
-void Arena::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
+void Arena::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
@@ -94,7 +94,7 @@ void Arena::HandleKillPlayer(Player* player, Player* killer)
     CheckWinConditions();
 }
 
-void Arena::RemovePlayerAtLeave(uint64 guid, bool transport, bool sendPacket)
+void Arena::RemovePlayerAtLeave(ObjectGuid guid, bool transport, bool sendPacket)
 {
     if (isRated() && GetStatus() == STATUS_IN_PROGRESS)
     {
@@ -180,7 +180,7 @@ void Arena::EndBattleground(uint32 winner)
 
                 if (sWorld->getBoolConfig(CONFIG_ARENA_LOG_EXTENDED_INFO))
                     for (auto const& score : PlayerScores)
-                        if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(score.first, 0, HIGHGUID_PLAYER)))
+                        if (Player* player = ObjectAccessor::FindPlayer(ObjectGuid(HIGHGUID_PLAYER, score.first)))
                         {
                             TC_LOG_DEBUG("bg.arena", "Statistics match Type: %u for %s (GUID: %u, Team: %d, IP: %s): %s",
                                 GetArenaType(), player->GetName().c_str(), score.first, player->GetArenaTeamId(GetArenaType() == 5 ? 2 : GetArenaType() == 3),

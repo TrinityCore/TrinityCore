@@ -268,7 +268,7 @@ void BattlefieldWG::OnBattleStart()
     // Initialize vehicle counter
     UpdateCounterVehicle(true);
     // Send start warning to all players
-    SendWarningToAllInZone(BATTLEFIELD_WG_TEXT_START);
+    SendWarning(BATTLEFIELD_WG_TEXT_START);
 }
 
 void BattlefieldWG::UpdateCounterVehicle(bool init)
@@ -301,7 +301,7 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
     if (m_titansRelicGUID)
         if (GameObject* relic = GetGameObject(m_titansRelicGUID))
             relic->RemoveFromWorld();
-    m_titansRelicGUID = 0;
+    m_titansRelicGUID.Clear();
 
     // Remove turret
     for (GuidSet::const_iterator itr = CanonList.begin(); itr != CanonList.end(); ++itr)
@@ -409,9 +409,9 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
     }
 
     if (!endByTimer) // win alli/horde
-        SendWarningToAllInZone((GetDefenderTeam() == TEAM_ALLIANCE) ? BATTLEFIELD_WG_TEXT_WIN_KEEP : BATTLEFIELD_WG_TEXT_WIN_KEEP + 1);
+        SendWarning((GetDefenderTeam() == TEAM_ALLIANCE) ? BATTLEFIELD_WG_TEXT_WIN_KEEP : BATTLEFIELD_WG_TEXT_WIN_KEEP + 1);
     else // defend alli/horde
-        SendWarningToAllInZone((GetDefenderTeam() == TEAM_ALLIANCE) ? BATTLEFIELD_WG_TEXT_DEFEND_KEEP : BATTLEFIELD_WG_TEXT_DEFEND_KEEP + 1);
+        SendWarning((GetDefenderTeam() == TEAM_ALLIANCE) ? BATTLEFIELD_WG_TEXT_DEFEND_KEEP : BATTLEFIELD_WG_TEXT_DEFEND_KEEP + 1);
 }
 
 // *******************************************************
@@ -442,7 +442,7 @@ void BattlefieldWG::DoCompleteOrIncrementAchievement(uint32 achievement, Player*
 
 void BattlefieldWG::OnStartGrouping()
 {
-    SendWarningToAllInZone(BATTLEFIELD_WG_TEXT_WILL_START);
+    SendWarning(BATTLEFIELD_WG_TEXT_WILL_START);
 }
 
 uint8 BattlefieldWG::GetSpiritGraveyardId(uint32 areaId) const
@@ -689,7 +689,7 @@ void BattlefieldWG::PromotePlayer(Player* killer)
         {
             killer->RemoveAura(SPELL_RECRUIT);
             killer->CastSpell(killer, SPELL_CORPORAL, true);
-            SendWarningToPlayer(killer, BATTLEFIELD_WG_TEXT_FIRSTRANK);
+            SendWarning(BATTLEFIELD_WG_TEXT_FIRSTRANK, killer);
         }
         else
             killer->CastSpell(killer, SPELL_RECRUIT, true);
@@ -700,7 +700,7 @@ void BattlefieldWG::PromotePlayer(Player* killer)
         {
             killer->RemoveAura(SPELL_CORPORAL);
             killer->CastSpell(killer, SPELL_LIEUTENANT, true);
-            SendWarningToPlayer(killer, BATTLEFIELD_WG_TEXT_SECONDRANK);
+            SendWarning(BATTLEFIELD_WG_TEXT_SECONDRANK, killer);
         }
         else
             killer->CastSpell(killer, SPELL_CORPORAL, true);
@@ -1065,7 +1065,6 @@ BfWGGameObjectBuilding::BfWGGameObjectBuilding(BattlefieldWG* wg)
 {
     m_WG = wg;
     m_Team = 0;
-    m_BuildGUID = 0;
     m_Type = 0;
     m_WorldState = 0;
     m_State = 0;
@@ -1117,13 +1116,13 @@ void BfWGGameObjectBuilding::Damaged()
 
     // Send warning message
     if (m_NameId)                                       // tower damage + name
-        m_WG->SendWarningToAllInZone(m_NameId);
+        m_WG->SendWarning(m_NameId);
 
-    for (uint64 guid : m_CreatureTopList[m_WG->GetAttackerTeam()])
+    for (ObjectGuid guid : m_CreatureTopList[m_WG->GetAttackerTeam()])
         if (Creature* creature = m_WG->GetCreature(guid))
             m_WG->HideNpc(creature);
 
-    for (uint64 guid : m_TurretTopList)
+    for (ObjectGuid guid : m_TurretTopList)
         if (Creature* creature = m_WG->GetCreature(guid))
             m_WG->HideNpc(creature);
 
@@ -1141,7 +1140,7 @@ void BfWGGameObjectBuilding::Destroyed()
 
     // Warn players
     if (m_NameId)
-        m_WG->SendWarningToAllInZone(m_NameId);
+        m_WG->SendWarning(m_NameId);
 
     switch (m_Type)
     {
@@ -1331,34 +1330,34 @@ void BfWGGameObjectBuilding::Init(GameObject* go, uint32 type, uint32 worldstate
 
 void BfWGGameObjectBuilding::UpdateCreatureAndGo()
 {
-    for (uint64 guid : m_CreatureTopList[m_WG->GetDefenderTeam()])
+    for (ObjectGuid guid : m_CreatureTopList[m_WG->GetDefenderTeam()])
         if (Creature* creature = m_WG->GetCreature(guid))
             m_WG->HideNpc(creature);
 
-    for (uint64 guid : m_CreatureTopList[m_WG->GetAttackerTeam()])
+    for (ObjectGuid guid : m_CreatureTopList[m_WG->GetAttackerTeam()])
         if (Creature* creature = m_WG->GetCreature(guid))
             m_WG->ShowNpc(creature, true);
 
-    for (uint64 guid : m_CreatureBottomList[m_WG->GetDefenderTeam()])
+    for (ObjectGuid guid : m_CreatureBottomList[m_WG->GetDefenderTeam()])
         if (Creature* creature = m_WG->GetCreature(guid))
             m_WG->HideNpc(creature);
 
-    for (uint64 guid : m_CreatureBottomList[m_WG->GetAttackerTeam()])
+    for (ObjectGuid guid : m_CreatureBottomList[m_WG->GetAttackerTeam()])
         if (Creature* creature = m_WG->GetCreature(guid))
             m_WG->ShowNpc(creature, true);
 
-    for (uint64 guid : m_GameObjectList[m_WG->GetDefenderTeam()])
+    for (ObjectGuid guid : m_GameObjectList[m_WG->GetDefenderTeam()])
         if (GameObject* object = m_WG->GetGameObject(guid))
             object->SetRespawnTime(RESPAWN_ONE_DAY);
 
-    for (uint64 guid : m_GameObjectList[m_WG->GetAttackerTeam()])
+    for (ObjectGuid guid : m_GameObjectList[m_WG->GetAttackerTeam()])
         if (GameObject* object = m_WG->GetGameObject(guid))
             object->SetRespawnTime(RESPAWN_IMMEDIATELY);
 }
 
 void BfWGGameObjectBuilding::UpdateTurretAttack(bool disable)
 {
-    for (uint64 guid : m_TowerCannonBottomList)
+    for (ObjectGuid guid : m_TowerCannonBottomList)
     {
         if (Creature* creature = m_WG->GetCreature(guid))
         {
@@ -1391,7 +1390,7 @@ void BfWGGameObjectBuilding::UpdateTurretAttack(bool disable)
         }
     }
 
-    for (uint64 guid : m_TurretTopList)
+    for (ObjectGuid guid : m_TurretTopList)
     {
         if (Creature* creature = m_WG->GetCreature(guid))
         {
@@ -1448,7 +1447,7 @@ void WGWorkshop::GiveControlTo(uint8 team, bool init)
         {
             // Send warning message to all player to inform a faction attack to a workshop
             // alliance / horde attacking a workshop
-            bf->SendWarningToAllInZone(teamControl ? WorkshopsData[workshopId].text : WorkshopsData[workshopId].text + 1);
+            bf->SendWarning(teamControl ? WorkshopsData[workshopId].text : WorkshopsData[workshopId].text + 1);
             break;
         }
         case BATTLEFIELD_WG_TEAM_ALLIANCE:
@@ -1460,7 +1459,7 @@ void WGWorkshop::GiveControlTo(uint8 team, bool init)
 
             // Warning message
             if (!init)                              // workshop taken - alliance
-                bf->SendWarningToAllInZone(team == BATTLEFIELD_WG_TEAM_ALLIANCE ? WorkshopsData[workshopId].text : WorkshopsData[workshopId].text + 1);
+                bf->SendWarning(team == BATTLEFIELD_WG_TEAM_ALLIANCE ? WorkshopsData[workshopId].text : WorkshopsData[workshopId].text + 1);
 
             // Found associate graveyard and update it
             if (workshopId < BATTLEFIELD_WG_WORKSHOP_KEEP_WEST)
@@ -1492,7 +1491,6 @@ void WGWorkshop::Save()
 WintergraspWorkshopData::WintergraspWorkshopData(BattlefieldWG* wg)
 {
     m_WG = wg;
-    m_BuildGUID = 0;
     m_Type = 0;
     m_State = 0;
     m_WorldState = 0;
@@ -1532,28 +1530,28 @@ void WintergraspWorkshopData::GiveControlTo(uint8 team, bool init)
         {
             // Send warning message to all player for inform a faction attack a workshop
             // alliance / horde attacking workshop
-            m_WG->SendWarningToAllInZone(m_TeamControl ? m_NameId : m_NameId + 1);
+            m_WG->SendWarning(m_TeamControl ? m_NameId : m_NameId + 1);
             break;
         }
         case BATTLEFIELD_WG_TEAM_ALLIANCE:
         {
             // Show Alliance creature
-            for (uint64 guid : m_CreatureOnPoint[TEAM_ALLIANCE])
+            for (ObjectGuid guid : m_CreatureOnPoint[TEAM_ALLIANCE])
                 if (Creature* creature = m_WG->GetCreature(guid))
                     m_WG->ShowNpc(creature, creature->GetEntry() != 30499);
 
             // Hide Horde creature
-            for (uint64 guid : m_CreatureOnPoint[TEAM_HORDE])
+            for (ObjectGuid guid : m_CreatureOnPoint[TEAM_HORDE])
                 if (Creature* creature = m_WG->GetCreature(guid))
                     m_WG->HideNpc(creature);
 
             // Show Alliance gameobject
-            for (uint64 guid : m_GameObjectOnPoint[TEAM_ALLIANCE])
+            for (ObjectGuid guid : m_GameObjectOnPoint[TEAM_ALLIANCE])
                 if (GameObject* object = m_WG->GetGameObject(guid))
                     object->SetRespawnTime(RESPAWN_IMMEDIATELY);
 
             // Hide Horde gameobject
-            for (uint64 guid : m_GameObjectOnPoint[TEAM_HORDE])
+            for (ObjectGuid guid : m_GameObjectOnPoint[TEAM_HORDE])
                 if (GameObject* object = m_WG->GetGameObject(guid))
                     object->SetRespawnTime(RESPAWN_ONE_DAY);
 
@@ -1564,7 +1562,7 @@ void WintergraspWorkshopData::GiveControlTo(uint8 team, bool init)
 
             // Warning message
             if (!init)                              // workshop taken - alliance
-                m_WG->SendWarningToAllInZone(m_NameId);
+                m_WG->SendWarning(m_NameId);
 
             // Found associate graveyard and update it
             if (m_Type < BATTLEFIELD_WG_WORKSHOP_KEEP_WEST)
@@ -1577,22 +1575,22 @@ void WintergraspWorkshopData::GiveControlTo(uint8 team, bool init)
         case BATTLEFIELD_WG_TEAM_HORDE:
         {
             // Show Horde creature
-            for (uint64 guid : m_CreatureOnPoint[TEAM_HORDE])
+            for (ObjectGuid guid : m_CreatureOnPoint[TEAM_HORDE])
                 if (Creature* creature = m_WG->GetCreature(guid))
                     m_WG->ShowNpc(creature, creature->GetEntry() != 30400);
 
             // Hide Alliance creature
-            for (uint64 guid : m_CreatureOnPoint[TEAM_ALLIANCE])
+            for (ObjectGuid guid : m_CreatureOnPoint[TEAM_ALLIANCE])
                 if (Creature* creature = m_WG->GetCreature(guid))
                     m_WG->HideNpc(creature);
 
             // Hide Alliance gameobject
-            for (uint64 guid : m_GameObjectOnPoint[TEAM_ALLIANCE])
+            for (ObjectGuid guid : m_GameObjectOnPoint[TEAM_ALLIANCE])
                 if (GameObject* object = m_WG->GetGameObject(guid))
                     object->SetRespawnTime(RESPAWN_ONE_DAY);
 
             // Show Horde gameobject
-            for (uint64 guid : m_GameObjectOnPoint[TEAM_HORDE])
+            for (ObjectGuid guid : m_GameObjectOnPoint[TEAM_HORDE])
                 if (GameObject* object = m_WG->GetGameObject(guid))
                     object->SetRespawnTime(RESPAWN_IMMEDIATELY);
 
@@ -1602,7 +1600,7 @@ void WintergraspWorkshopData::GiveControlTo(uint8 team, bool init)
 
             // Warning message
             if (!init)                              // workshop taken - horde
-                m_WG->SendWarningToAllInZone(m_NameId + 1);
+                m_WG->SendWarning(m_NameId + 1);
 
             // Update graveyard control
             if (m_Type < BATTLEFIELD_WG_WORKSHOP_KEEP_WEST)

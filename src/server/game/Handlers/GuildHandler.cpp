@@ -30,11 +30,11 @@
 
 void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
 {
-    uint64 guildGuid, playerGuid;
+    ObjectGuid guildGuid, playerGuid;
     recvPacket >> guildGuid >> playerGuid;
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_QUERY [%s]: Guild: %u Target: %u",
-        GetPlayerInfo().c_str(), GUID_LOPART(guildGuid), GUID_LOPART(playerGuid));
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_QUERY [%s]: Guild: %s Target: %s",
+        GetPlayerInfo().c_str(), guildGuid.ToString().c_str(), playerGuid.ToString().c_str());
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
         if (guild->IsMember(playerGuid))
@@ -74,7 +74,7 @@ void WorldSession::HandleGuildRemoveOpcode(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(playerGuid[3]);
     recvPacket.ReadByteSeq(playerGuid[0]);
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_REMOVE [%s]: Target: %u", GetPlayerInfo().c_str(), GUID_LOPART(playerGuid));
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_REMOVE [%s]: Target: %s", GetPlayerInfo().c_str(), playerGuid.ToString().c_str());
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleRemoveMember(this, playerGuid);
@@ -130,7 +130,7 @@ void WorldSession::HandleGuildPromoteOpcode(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(targetGuid[1]);
     recvPacket.ReadByteSeq(targetGuid[7]);
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_PROMOTE [%s]: Target: %u", GetPlayerInfo().c_str(), GUID_LOPART(targetGuid));
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_PROMOTE [%s]: Target: %s", GetPlayerInfo().c_str(), targetGuid.ToString().c_str());
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleUpdateMemberRank(this, targetGuid, false);
@@ -158,7 +158,7 @@ void WorldSession::HandleGuildDemoteOpcode(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(targetGuid[4]);
     recvPacket.ReadByteSeq(targetGuid[3]);
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_DEMOTE [%s]: Target: %u", GetPlayerInfo().c_str(), GUID_LOPART(targetGuid));
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_DEMOTE [%s]: Target: %s", GetPlayerInfo().c_str(), targetGuid.ToString().c_str());
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleUpdateMemberRank(this, targetGuid, true);
@@ -206,8 +206,8 @@ void WorldSession::HandleGuildAssignRankOpcode(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(targetGuid[6]);
     recvPacket.ReadByteSeq(setterGuid[7]);
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_ASSIGN_MEMBER_RANK [%s]: Target: %u Rank: %u, Issuer: %u",
-        GetPlayerInfo().c_str(), GUID_LOPART(targetGuid), rankId, GUID_LOPART(setterGuid));
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_ASSIGN_MEMBER_RANK [%s]: Target: %s Rank: %u, Issuer: %s",
+        GetPlayerInfo().c_str(), targetGuid.ToString().c_str(), rankId, setterGuid.ToString().c_str());
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleSetMemberRank(this, targetGuid, setterGuid, rankId);
@@ -264,8 +264,8 @@ void WorldSession::HandleGuildSetNoteOpcode(WorldPacket& recvPacket)
     std::string note = recvPacket.ReadString(noteLength);
     recvPacket.ReadByteSeq(playerGuid[2]);
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_SET_NOTE [%s]: Target: %u, Note: %s, Public: %u",
-        GetPlayerInfo().c_str(), GUID_LOPART(playerGuid), note.c_str(), ispublic);
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_SET_NOTE [%s]: Target: %s, Note: %s, Public: %u",
+        GetPlayerInfo().c_str(), playerGuid.ToString().c_str(), note.c_str(), ispublic);
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleSetMemberNote(this, note, playerGuid, ispublic);
@@ -293,8 +293,8 @@ void WorldSession::HandleGuildQueryRanksOpcode(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(guildGuid[6]);
     recvPacket.ReadByteSeq(guildGuid[2]);
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_QUERY_RANKS [%s]: Guild: %u",
-        GetPlayerInfo().c_str(), GUID_LOPART(guildGuid));
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_QUERY_RANKS [%s]: Guild: %s",
+        GetPlayerInfo().c_str(), guildGuid.ToString().c_str());
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
         if (guild->IsMember(_player->GetGUID()))
@@ -339,15 +339,14 @@ void WorldSession::HandleGuildChangeInfoTextOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
 {
-    uint64 vendorGuid;
+    ObjectGuid vendorGuid;
     recvPacket >> vendorGuid;
 
     EmblemInfo emblemInfo;
     emblemInfo.ReadPacket(recvPacket);
 
-    TC_LOG_DEBUG("guild", "MSG_SAVE_GUILD_EMBLEM [%s]: Guid: [" UI64FMTD
-        "] Style: %d, Color: %d, BorderStyle: %d, BorderColor: %d, BackgroundColor: %d"
-        , GetPlayerInfo().c_str(), vendorGuid, emblemInfo.GetStyle()
+    TC_LOG_DEBUG("guild", "MSG_SAVE_GUILD_EMBLEM [%s]: Guid: [%s] Style: %d, Color: %d, BorderStyle: %d, BorderColor: %d, BackgroundColor: %d"
+        , GetPlayerInfo().c_str(), vendorGuid.ToString().c_str(), emblemInfo.GetStyle()
         , emblemInfo.GetColor(), emblemInfo.GetBorderStyle()
         , emblemInfo.GetBorderColor(), emblemInfo.GetBackgroundColor());
 
@@ -393,12 +392,12 @@ void WorldSession::HandleGuildPermissions(WorldPacket& /* recvPacket */)
 // Called when clicking on Guild bank gameobject
 void WorldSession::HandleGuildBankerActivate(WorldPacket& recvPacket)
 {
-    uint64 guid;
+    ObjectGuid guid;
     bool sendAllSlots;
     recvPacket >> guid >> sendAllSlots;
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANKER_ACTIVATE [%s]: Go: [" UI64FMTD "] AllSlots: %u"
-        , GetPlayerInfo().c_str(), guid, sendAllSlots);
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANKER_ACTIVATE [%s]: [%s] AllSlots: %u"
+        , GetPlayerInfo().c_str(), guid.ToString().c_str(), sendAllSlots);
 
     GameObject const* const go = GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK);
     if (!go)
@@ -417,14 +416,14 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket& recvPacket)
 // Called when opening guild bank tab only (first one)
 void WorldSession::HandleGuildBankQueryTab(WorldPacket& recvPacket)
 {
-    uint64 guid;
+    ObjectGuid guid;
     uint8 tabId;
-    bool sendAllSlots;
+    bool full;
 
-    recvPacket >> guid >> tabId >> sendAllSlots;
+    recvPacket >> guid >> tabId >> full;
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_QUERY_TAB [%s]: Go: [" UI64FMTD "], TabId: %u, AllSlots: %u"
-        , GetPlayerInfo().c_str(), guid, tabId, sendAllSlots);
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_QUERY_TAB [%s]: %s, TabId: %u, ShowTabs: %u"
+        , GetPlayerInfo().c_str(), guid.ToString().c_str(), tabId, full);
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = GetPlayer()->GetGuild())
@@ -433,12 +432,12 @@ void WorldSession::HandleGuildBankQueryTab(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildBankDepositMoney(WorldPacket& recvPacket)
 {
-    uint64 guid;
+    ObjectGuid guid;
     uint64 money;
     recvPacket >> guid >> money;
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_DEPOSIT_MONEY [%s]: Go: [" UI64FMTD "], money: " UI64FMTD,
-        GetPlayerInfo().c_str(), guid, money);
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_DEPOSIT_MONEY [%s]: [%s], money: " UI64FMTD,
+        GetPlayerInfo().c_str(), guid.ToString().c_str(), money);
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (money && GetPlayer()->HasEnoughMoney(money))
@@ -448,12 +447,12 @@ void WorldSession::HandleGuildBankDepositMoney(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket& recvPacket)
 {
-    uint64 guid;
+    ObjectGuid guid;
     uint64 money;
     recvPacket >> guid >> money;
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_WITHDRAW_MONEY [%s]: Go: [" UI64FMTD "], money: " UI64FMTD,
-        GetPlayerInfo().c_str(), guid, money);
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_WITHDRAW_MONEY [%s]: [%s], money: " UI64FMTD,
+        GetPlayerInfo().c_str(), guid.ToString().c_str(), money);
 
     if (money && GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = GetPlayer()->GetGuild())
@@ -464,7 +463,7 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket& recvPacket)
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_SWAP_ITEMS [%s]", GetPlayerInfo().c_str());
 
-    uint64 GoGuid;
+    ObjectGuid GoGuid;
     recvPacket >> GoGuid;
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
@@ -544,13 +543,13 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildBankBuyTab(WorldPacket& recvPacket)
 {
-    uint64 guid;
+    ObjectGuid guid;
     recvPacket >> guid;
 
     uint8 tabId;
     recvPacket >> tabId;
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_BUY_TAB [%s]: Go: [" UI64FMTD "], TabId: %u", GetPlayerInfo().c_str(), guid, tabId);
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_BUY_TAB [%s]: [%s[, TabId: %u", GetPlayerInfo().c_str(), guid.ToString().c_str(), tabId);
 
     if (!guid || GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = GetPlayer()->GetGuild())
@@ -559,14 +558,14 @@ void WorldSession::HandleGuildBankBuyTab(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildBankUpdateTab(WorldPacket& recvPacket)
 {
-    uint64 guid;
+    ObjectGuid guid;
     uint8 tabId;
     std::string name, icon;
 
     recvPacket >> guid >> tabId >> name >> icon;
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_UPDATE_TAB [%s]: Go: [" UI64FMTD "], TabId: %u, Name: %s, Icon: %s"
-        , GetPlayerInfo().c_str(), guid, tabId, name.c_str(), icon.c_str());
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_UPDATE_TAB [%s]: [%s], TabId: %u, Name: %s, Icon: %s"
+        , GetPlayerInfo().c_str(), guid.ToString().c_str(), tabId, name.c_str(), icon.c_str());
     if (!name.empty() && !icon.empty())
         if (GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
             if (Guild* guild = GetPlayer()->GetGuild())
@@ -633,7 +632,7 @@ void WorldSession::HandleGuildQueryXPOpcode(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(guildGuid[0]);
     recvPacket.ReadByteSeq(guildGuid[4]);
 
-    TC_LOG_DEBUG("guild", "CMSG_QUERY_GUILD_XP [%s]: Guild: %u", GetPlayerInfo().c_str(), GUID_LOPART(guildGuid));
+    TC_LOG_DEBUG("guild", "CMSG_QUERY_GUILD_XP [%s]: Guild: %s", GetPlayerInfo().c_str(), guildGuid.ToString().c_str());
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
         if (guild->IsMember(_player->GetGUID()))

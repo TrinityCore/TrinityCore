@@ -77,7 +77,7 @@ public:
             lasher_clicked = true;
 
             if (Player* player = clicker->ToPlayer())
-                player->KilledMonsterCredit(NPC_WHISPERWIND_LASHER, 0);
+                player->KilledMonsterCredit(NPC_WHISPERWIND_LASHER);
         }
 
         void UpdateAI(uint32 diff) override

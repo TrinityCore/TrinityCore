@@ -38,14 +38,9 @@ void CreatureAI::OnCharmed(bool /*apply*/)
 AISpellInfoType* UnitAI::AISpellInfo;
 AISpellInfoType* GetAISpellInfo(uint32 i) { return &CreatureAI::AISpellInfo[i]; }
 
-void CreatureAI::Talk(uint8 id, WorldObject const* whisperTarget /*= NULL*/)
+void CreatureAI::Talk(uint8 id, WorldObject const* whisperTarget /*= nullptr*/)
 {
     sCreatureTextMgr->SendChat(me, id, whisperTarget);
-}
-
-void CreatureAI::TalkToMap(uint8 id, WorldObject const* whisperTarget /*= NULL*/)
-{
-    sCreatureTextMgr->SendChat(me, id, whisperTarget, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
 }
 
 void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/, float maxRangeToNearestTarget /* = 50.0f*/)

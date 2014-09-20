@@ -143,7 +143,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
 
             void removeAdds()
             {
-                for (std::vector<uint64>::const_iterator itr = adds.begin(); itr!= adds.end(); ++itr)
+                for (GuidVector::const_iterator itr = adds.begin(); itr!= adds.end(); ++itr)
                 {
                     Creature* creature = ObjectAccessor::GetCreature(*me, *itr);
                     if (creature && creature->IsAlive())
@@ -155,7 +155,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 }
                 adds.clear();
 
-                for (std::vector<uint64>::const_iterator itr = assassins.begin(); itr!= assassins.end(); ++itr)
+                for (GuidVector::const_iterator itr = assassins.begin(); itr!= assassins.end(); ++itr)
                 {
                     Creature* creature = ObjectAccessor::GetCreature(*me, *itr);
                     if (creature && creature->IsAlive())
@@ -295,8 +295,8 @@ class boss_warchief_kargath_bladefist : public CreatureScript
             }
 
             private:
-                std::vector<uint64> adds;
-                std::vector<uint64> assassins;
+                GuidVector adds;
+                GuidVector assassins;
                 uint32 Charge_timer;
                 uint32 Blade_Dance_Timer;
                 uint32 Summon_Assistant_Timer;
