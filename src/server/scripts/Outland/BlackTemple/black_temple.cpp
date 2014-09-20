@@ -95,13 +95,19 @@ public:
     {
         npc_wrathbone_flayerAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             _instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            _enteredCombat = false;
         }
 
         void Reset() override
         {
             _events.ScheduleEvent(EVENT_GET_CHANNELERS, 3000);
-            _enteredCombat = false;
+            Initialize();
             _bloodmageList.clear();
             _deathshaperList.clear();
         }

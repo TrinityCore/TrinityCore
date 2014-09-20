@@ -318,13 +318,21 @@ public:
 
     struct npc_avatar_of_martyredAI : public ScriptedAI
     {
-        npc_avatar_of_martyredAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_avatar_of_martyredAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Mortal_Strike_timer = 10000;
+        }
 
         uint32 Mortal_Strike_timer;
 
         void Reset() override
         {
-            Mortal_Strike_timer = 10000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

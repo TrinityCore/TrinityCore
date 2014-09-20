@@ -111,7 +111,17 @@ public:
     {
         boss_fathomlord_karathressAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            CataclysmicBolt_Timer = 10000;
+            Enrage_Timer = 600000;                              //10 minutes
+            SearNova_Timer = 20000 + rand32() % 40000; // 20 - 60 seconds
+
+            BlessingOfTides = false;
         }
 
         InstanceScript* instance;
@@ -126,11 +136,7 @@ public:
 
         void Reset() override
         {
-            CataclysmicBolt_Timer = 10000;
-            Enrage_Timer = 600000;                              //10 minutes
-            SearNova_Timer = 20000 + rand32() % 40000; // 20 - 60 seconds
-
-            BlessingOfTides = false;
+            Initialize();
 
             ObjectGuid RAdvisors[MAX_ADVISORS];
             RAdvisors[0] = instance->GetGuidData(DATA_SHARKKIS);
@@ -304,7 +310,18 @@ public:
     {
         boss_fathomguard_sharkkisAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            LeechingThrow_Timer = 20000;
+            TheBeastWithin_Timer = 30000;
+            Multishot_Timer = 15000;
+            Pet_Timer = 10000;
+
+            pet = false;
         }
 
         InstanceScript* instance;
@@ -320,12 +337,7 @@ public:
 
         void Reset() override
         {
-            LeechingThrow_Timer = 20000;
-            TheBeastWithin_Timer = 30000;
-            Multishot_Timer = 15000;
-            Pet_Timer = 10000;
-
-            pet = false;
+            Initialize();
 
             Creature* Pet = ObjectAccessor::GetCreature(*me, SummonedPet);
             if (Pet && Pet->IsAlive())
@@ -442,7 +454,16 @@ public:
     {
         boss_fathomguard_tidalvessAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            FrostShock_Timer = 25000;
+            Spitfire_Timer = 60000;
+            PoisonCleansing_Timer = 30000;
+            Earthbind_Timer = 45000;
         }
 
         InstanceScript* instance;
@@ -454,10 +475,7 @@ public:
 
         void Reset() override
         {
-            FrostShock_Timer = 25000;
-            Spitfire_Timer = 60000;
-            PoisonCleansing_Timer = 30000;
-            Earthbind_Timer = 45000;
+            Initialize();
 
             instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
         }
@@ -558,7 +576,16 @@ public:
     {
         boss_fathomguard_caribdisAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            WaterBoltVolley_Timer = 35000;
+            TidalSurge_Timer = 15000 + rand32() % 5000;
+            Heal_Timer = 55000;
+            Cyclone_Timer = 30000 + rand32() % 10000;
         }
 
         InstanceScript* instance;
@@ -570,10 +597,7 @@ public:
 
         void Reset() override
         {
-            WaterBoltVolley_Timer = 35000;
-            TidalSurge_Timer = 15000 + rand32() % 5000;
-            Heal_Timer = 55000;
-            Cyclone_Timer = 30000 + rand32() % 10000;
+            Initialize();
 
             instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
         }

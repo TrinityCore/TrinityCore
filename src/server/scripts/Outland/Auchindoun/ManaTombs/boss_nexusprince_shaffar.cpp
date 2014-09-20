@@ -78,7 +78,22 @@ public:
 
     struct boss_nexusprince_shaffarAI : public ScriptedAI
     {
-        boss_nexusprince_shaffarAI(Creature* creature) : ScriptedAI(creature), summons(me) { HasTaunted = false; }
+        boss_nexusprince_shaffarAI(Creature* creature) : ScriptedAI(creature), summons(me)
+        {
+            Initialize();
+            HasTaunted = false;
+        }
+
+        void Initialize()
+        {
+            Blink_Timer = 1500;
+            Beacon_Timer = 10000;
+            FireBall_Timer = 8000;
+            Frostbolt_Timer = 4000;
+            FrostNova_Timer = 15000;
+
+            CanBlink = false;
+        }
 
         uint32 Blink_Timer;
         uint32 Beacon_Timer;
@@ -93,13 +108,7 @@ public:
 
         void Reset() override
         {
-            Blink_Timer = 1500;
-            Beacon_Timer = 10000;
-            FireBall_Timer = 8000;
-            Frostbolt_Timer = 4000;
-            FrostNova_Timer = 15000;
-
-            CanBlink = false;
+            Initialize();
 
             float dist = 8.0f;
             float posX, posY, posZ, angle;
@@ -241,6 +250,14 @@ public:
     {
         npc_ethereal_beaconAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Apprentice_Timer = DUNGEON_MODE(20000, 10000);
+            ArcaneBolt_Timer = 1000;
+            Check_Timer = 1000;
         }
 
         uint32 Apprentice_Timer;
@@ -254,9 +271,7 @@ public:
 
         void Reset() override
         {
-            Apprentice_Timer = DUNGEON_MODE(20000, 10000);
-            ArcaneBolt_Timer = 1000;
-            Check_Timer = 1000;
+            Initialize();
         }
 
         void EnterCombat(Unit* who) override
@@ -331,7 +346,16 @@ public:
 
     struct npc_ethereal_apprenticeAI : public ScriptedAI
     {
-        npc_ethereal_apprenticeAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_ethereal_apprenticeAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Cast_Timer = 3000;
+            isFireboltTurn = true;
+        }
 
         uint32 Cast_Timer;
 
@@ -339,8 +363,7 @@ public:
 
         void Reset() override
         {
-            Cast_Timer = 3000;
-            isFireboltTurn = true;
+            Initialize();
         }
 
         void UpdateAI(uint32 diff) override

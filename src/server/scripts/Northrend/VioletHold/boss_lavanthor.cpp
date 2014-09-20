@@ -44,7 +44,16 @@ public:
     {
         boss_lavanthorAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiFireboltTimer = 1000;
+            uiFlameBreathTimer = 5000;
+            uiLavaBurnTimer = 10000;
+            uiCauterizingFlamesTimer = 3000;
         }
 
         uint32 uiFireboltTimer;
@@ -56,10 +65,7 @@ public:
 
         void Reset() override
         {
-            uiFireboltTimer = 1000;
-            uiFlameBreathTimer = 5000;
-            uiLavaBurnTimer = 10000;
-            uiCauterizingFlamesTimer = 3000;
+            Initialize();
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
                 instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)

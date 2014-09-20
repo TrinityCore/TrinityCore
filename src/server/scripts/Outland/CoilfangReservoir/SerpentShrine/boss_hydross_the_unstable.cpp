@@ -93,7 +93,25 @@ public:
     {
         boss_hydross_the_unstableAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            beams[0].Clear();
+            beams[1].Clear();
+            PosCheck_Timer = 2500;
+            MarkOfHydross_Timer = 15000;
+            MarkOfCorruption_Timer = 15000;
+            WaterTomb_Timer = 7000;
+            VileSludge_Timer = 7000;
+            MarkOfHydross_Count = 0;
+            MarkOfCorruption_Count = 0;
+            EnrageTimer = 600000;
+
+            CorruptedForm = false;
+            beam = false;
         }
 
         InstanceScript* instance;
@@ -114,18 +132,8 @@ public:
         void Reset() override
         {
             DeSummonBeams();
-            beams[0].Clear();
-            beams[1].Clear();
-            PosCheck_Timer = 2500;
-            MarkOfHydross_Timer = 15000;
-            MarkOfCorruption_Timer = 15000;
-            WaterTomb_Timer = 7000;
-            VileSludge_Timer = 7000;
-            MarkOfHydross_Count = 0;
-            MarkOfCorruption_Count = 0;
-            EnrageTimer = 600000;
+            Initialize();
 
-            CorruptedForm = false;
             me->SetMeleeDamageSchool(SPELL_SCHOOL_FROST);
             me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
             me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
@@ -133,7 +141,6 @@ public:
             me->SetDisplayId(MODEL_CLEAN);
 
             instance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, NOT_STARTED);
-            beam = false;
             Summons.DespawnAll();
         }
 

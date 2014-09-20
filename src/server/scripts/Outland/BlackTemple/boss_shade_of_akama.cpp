@@ -165,10 +165,19 @@ public:
 
     struct boss_shade_of_akamaAI : public ScriptedAI
     {
-        boss_shade_of_akamaAI(Creature* creature) : ScriptedAI(creature), HasKilledAkamaAndReseting(false)
+        boss_shade_of_akamaAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        }
+
+        void Initialize()
+        {
+            combatStarted = false;
+            akamaReached = false;
+            HasKilledAkama = false;
+            HasKilledAkamaAndReseting = false;
         }
 
         void Reset() override
@@ -190,10 +199,7 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 
             me->SetWalk(true);
-            combatStarted             = false;
-            akamaReached              = false;
-            HasKilledAkama            = false;
-            HasKilledAkamaAndReseting = false;
+            Initialize();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -417,7 +423,16 @@ public:
     {
         npc_akamaAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            StartChannel = false;
+            StartCombat = false;
+            HasYelledOnce = false;
+            ShadeHasDied = false;
         }
 
         void Reset() override
@@ -425,10 +440,7 @@ public:
             me->setFaction(FACTION_FRIENDLY);
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             DoCast(me, SPELL_STEALTH);
-            StartChannel  = false;
-            StartCombat   = false;
-            HasYelledOnce = false;
-            ShadeHasDied  = false;
+            Initialize();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -631,15 +643,21 @@ public:
     {
         npc_creature_generator_akamaAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            doSpawning = false;
+            leftSide = false;
         }
 
         void Reset() override
         {
             Summons.DespawnAll();
 
-            doSpawning = false;
-            leftSide   = false;
+            Initialize();
 
             if (me->GetPositionY() < 400.0f)
                 leftSide   = true;
@@ -739,8 +757,14 @@ public:
     {
         npc_ashtongue_sorcererAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
             startedBanishing = false;
+            switchToCombat = false;
         }
 
         void Reset() override
@@ -760,8 +784,7 @@ public:
             }
 
             summonerGuid.Clear();
-            startedBanishing = false;
-            switchToCombat   = false;
+            Initialize();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -1111,14 +1134,20 @@ public:
     {
         npc_ashtongue_spiritbinderAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            spiritMend = false;
+            chainHeal = false;
+            summonerGuid.Clear();
         }
 
         void Reset() override
         {
-            spiritMend = false;
-            chainHeal  = false;
-            summonerGuid.Clear();
+            Initialize();
 
             if (Unit* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AKAMA_SHADE)))
                 AttackStart(target);
