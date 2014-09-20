@@ -375,13 +375,21 @@ public:
 
     struct flame_of_azzinothAI : public ScriptedAI
     {
-        flame_of_azzinothAI(Creature* creature) : ScriptedAI(creature) { }
+        flame_of_azzinothAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        void Reset() override
+        void Initialize()
         {
             FlameBlastTimer = 15000;
             CheckTimer = 5000;
             GlaiveGUID.Clear();
+        }
+
+        void Reset() override
+        {
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -474,8 +482,28 @@ public:
     {
         boss_illidan_stormrageAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             DoCast(me, SPELL_DUAL_WIELD, true);
+        }
+
+        void Initialize()
+        {
+            MaievGUID.Clear();
+            for (uint8 i = 0; i < 2; ++i)
+            {
+                FlameGUID[i].Clear();
+                GlaiveGUID[i].Clear();
+            }
+
+            Phase = PHASE_ILLIDAN_NULL;
+            Event = EVENT_NULL;
+            Timer[EVENT_BERSERK] = 1500000;
+
+            HoverPoint = 0;
+            TalkCount = 0;
+            FlightCount = 0;
+            TransformCount = 0;
         }
 
         void Reset() override;
@@ -1133,9 +1161,12 @@ public:
 
     struct boss_maievAI : public ScriptedAI
     {
-        boss_maievAI(Creature* creature) : ScriptedAI(creature) { };
+        boss_maievAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        void Reset() override
+        void Initialize()
         {
             MaxTimer = 0;
             Phase = PHASE_NORMAL_MAIEV;
@@ -1143,6 +1174,11 @@ public:
             Timer[EVENT_MAIEV_STEALTH] = 0;
             Timer[EVENT_MAIEV_TAUNT] = urand(22, 43) * 1000;
             Timer[EVENT_MAIEV_SHADOW_STRIKE] = 30000;
+        }
+
+        void Reset() override
+        {
+            Initialize();
             SetEquipmentSlots(false, EQUIP_ID_MAIN_HAND_MAIEV, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, 45738);
         }
@@ -1268,7 +1304,7 @@ public:
                 && !Timer[EVENT_MAIEV_STEALTH])
                 return;
 
-            Event = EVENT_MAIEV_NULL;
+            EventMaiev Event = EVENT_MAIEV_NULL;
             for (uint8 i = 1; i <= MaxTimer; ++i)
                 if (Timer[i])
                 {
@@ -1334,7 +1370,6 @@ public:
     private:
         ObjectGuid IllidanGUID;
         PhaseIllidan Phase;
-        EventMaiev Event;
         uint32 Timer[5];
         uint32 MaxTimer;
     };
@@ -1354,13 +1389,29 @@ public:
     {
         npc_akama_illidanAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             JustCreated = true;
         }
 
+        void Initialize()
+        {
+            ChannelGUID.Clear();
+            SpiritGUID[0].Clear();
+            SpiritGUID[1].Clear();
+
+            Phase = PHASE_AKAMA_NULL;
+            Timer = 0;
+
+            ChannelCount = 0;
+            TalkCount = 0;
+            Check_Timer = 5000;
+            WalkCount = 0;
+        }
+
         void Reset() override
         {
-            WalkCount = 0;
+            Initialize();
             instance->SetBossState(DATA_ILLIDAN_STORMRAGE, NOT_STARTED);
 
             IllidanGUID = instance->GetGuidData(DATA_ILLIDAN_STORMRAGE);
@@ -1383,17 +1434,6 @@ public:
                 for (uint8 i = 0; i < 2; ++i)
                     instance->HandleGameObject(DoorGUID[i], true);
             }
-
-            ChannelGUID.Clear();
-            SpiritGUID[0].Clear();
-            SpiritGUID[1].Clear();
-
-            Phase         = PHASE_AKAMA_NULL;
-            Timer         = 0;
-
-            ChannelCount  = 0;
-            TalkCount     = 0;
-            Check_Timer   = 5000;
 
             KillAllElites();
 
@@ -1552,7 +1592,6 @@ public:
                 break;
             }
             Phase = NextPhase;
-            Event = false;
         }
 
         void HandleTalkSequence()
@@ -1674,7 +1713,7 @@ public:
                     Check_Timer = 5000;
                 } else Check_Timer -= diff;
             }
-            Event = false;
+            bool Event = false;
             if (Timer)
             {
                 if (Timer <= diff)
@@ -1755,7 +1794,6 @@ public:
         bool JustCreated;
         InstanceScript* instance;
         PhaseAkama Phase;
-        bool Event;
         uint32 Timer;
         ObjectGuid IllidanGUID;
         ObjectGuid ChannelGUID;
@@ -1786,21 +1824,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
             akama->AI()->EnterEvadeMode();
     }
 
-    MaievGUID.Clear();
-    for (uint8 i = 0; i < 2; ++i)
-    {
-        FlameGUID[i].Clear();
-        GlaiveGUID[i].Clear();
-    }
-
-    Phase = PHASE_ILLIDAN_NULL;
-    Event = EVENT_NULL;
-    Timer[EVENT_BERSERK] = 1500000;
-
-    HoverPoint = 0;
-    TalkCount = 0;
-    FlightCount = 0;
-    TransformCount = 0;
+    Initialize();
 
     me->SetDisplayId(MODEL_ILLIDAN);
     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
@@ -1951,9 +1975,12 @@ public:
 
     struct cage_trap_triggerAI : public ScriptedAI
     {
-        cage_trap_triggerAI(Creature* creature) : ScriptedAI(creature) { }
+        cage_trap_triggerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        void Reset() override
+        void Initialize()
         {
             IllidanGUID.Clear();
 
@@ -1961,6 +1988,11 @@ public:
             SummonedBeams = false;
 
             DespawnTimer = 0;
+        }
+
+        void Reset() override
+        {
+            Initialize();
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
@@ -2130,14 +2162,20 @@ public:
     {
         npc_parasitic_shadowfiendAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            CheckTimer = 5000;
         }
 
         void Reset() override
         {
             IllidanGUID = instance->GetGuidData(DATA_ILLIDAN_STORMRAGE);
 
-            CheckTimer = 5000;
+            Initialize();
             DoCast(me, SPELL_SHADOWFIEND_PASSIVE, true);
         }
 
