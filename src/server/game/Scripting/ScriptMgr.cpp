@@ -34,6 +34,7 @@
 #include "WorldPacket.h"
 #ifdef ELUNA
 #include "LuaEngine.h"
+#include "ElunaUtility.h"
 #endif
 #include "WorldSession.h"
 
