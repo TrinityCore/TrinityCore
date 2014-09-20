@@ -1430,14 +1430,14 @@ class npc_raging_spirit : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_THE_LICH_KING)))
+                if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THE_LICH_KING)))
                     if (!lichKing->AI()->GetData(DATA_HEROIC_FROSTMOURNE))
                         if (!UpdateVictim())
                             return;
 
                 _events.Update(diff);
 
-                if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_THE_LICH_KING)))
+                if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THE_LICH_KING)))
                     if (me->HasUnitState(UNIT_STATE_CASTING) || lichKing->AI()->GetData(DATA_HEROIC_FROSTMOURNE))
                         return;
 

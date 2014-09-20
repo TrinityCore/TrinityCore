@@ -201,7 +201,7 @@ public:
 
         int32 field = 0;
         int32 value = 0;
-        uint64 playerGuid = 0;
+        ObjectGuid playerGuid;
 
         std::string playerName;
 
@@ -276,7 +276,7 @@ public:
         char* param2 = strtok(NULL, " ");
 
         int32 field = 0;
-        uint64 playerGuid = 0;
+        ObjectGuid playerGuid;
 
         std::string playerName;
         std::string output;

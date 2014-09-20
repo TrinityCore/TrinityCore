@@ -1692,7 +1692,7 @@ void IRCCmd::Mute_Player(_CDATA *CD)
         return;
     }
     normalizePlayerName(_PARAMS[0]);
-    uint64 guid = sObjectMgr->GetPlayerGUIDByName(_PARAMS[0]);
+    ObjectGuid guid = sObjectMgr->GetPlayerGUIDByName(_PARAMS[0]);
     if (guid)
     {
         if (_PARAMS[1] == "release")
@@ -1762,7 +1762,7 @@ void IRCCmd::PM_Player(_CDATA *CD)
             data << sMsg;
             data << (uint8)0;
             plr->GetSession()->SendPacket(&data);
-            plr->SendPlaySound(3081, true);
+            plr->PlayDirectSound(3081);
             Send_IRCA(ChanOrPM(CD), "\00313To ["+_PARAMS[0]+"] : "+_PARAMS[1]+".", true, CD->TYPE);
         }
         else

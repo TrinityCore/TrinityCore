@@ -130,7 +130,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 BloodQuickeningMinutes = 0;
                 // TW
                 CrimsonHallBloodFallenKillCount = 0;
-                CrimsonHallDoorGUID = 0;
+                CrimsonHallDoorGUID.Clear();
             }
 
             // A function to help reduce the number of lines for teleporter management.
@@ -1521,7 +1521,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             // TW
             uint32 CrimsonHallBloodFallenKillCount;
-            uint64 CrimsonHallDoorGUID;
+            ObjectGuid CrimsonHallDoorGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

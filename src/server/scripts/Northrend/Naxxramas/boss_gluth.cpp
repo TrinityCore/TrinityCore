@@ -80,7 +80,7 @@ public:
             {
                 SetGazeOn(who);
                 /// @todo use a script text
-                me->TextEmote(EMOTE_NEARBY, nullptr, true);
+                //me->TextEmote(EMOTE_NEARBY, nullptr, true);
                 me->Kill(who);
                 me->ModifyHealth(me->CountPctFromMaxHealth(5));
             }

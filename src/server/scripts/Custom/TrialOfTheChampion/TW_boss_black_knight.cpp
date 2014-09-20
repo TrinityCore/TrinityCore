@@ -127,7 +127,7 @@ public:
 
         InstanceScript* instance;
 
-        std::list<uint64> SummonList;
+        GuidList SummonList;
 
         bool bEventInProgress;
         bool bEvent;
@@ -175,10 +175,10 @@ public:
             iveHadWorse = true;
             pAnnouncer = NULL;
 
-            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                 instance->HandleGameObject(go->GetGUID(), false);
 
-            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE1)))
                 instance->HandleGameObject(go->GetGUID(), true);
 
             if (bEventInBattle)
@@ -228,7 +228,7 @@ public:
             if (SummonList.empty())
                 return;
 
-            for(std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
+            for(GuidList::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
             {
                 if (Creature* temp = ObjectAccessor::GetCreature(*me, *itr))
                 {
@@ -272,7 +272,7 @@ public:
                             uiIntroTimer = 2000;
                             break;
                         case 2:
-                            if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ANNOUNCER)))
+                            if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
                                 announcer->DisappearAndDie();
 
                             me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
@@ -398,7 +398,7 @@ public:
                     {
                         if (!SummonList.empty())
                         {
-                            for(std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
+                            for(GuidList::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                             {
                                 if (Creature* temp = ObjectAccessor::GetCreature(*me, *itr))
                                 {
@@ -499,10 +499,10 @@ public:
                     varian->AI()->Talk(SAY_AGGRO_OUTRO);
             }
 
-            if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+            if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE1)))
                 instance->HandleGameObject(gate->GetGUID(), false);
 
-            if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+            if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                 instance->HandleGameObject(gate->GetGUID(), false);
 
             instance->SetData(BOSS_BLACK_KNIGHT, IN_PROGRESS);
@@ -566,7 +566,7 @@ public:
             instance->SetData(BOSS_BLACK_KNIGHT, DONE);
             instance->DoCastSpellOnPlayers(SPELL_KILL_CREDIT);
 
-            if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+            if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE1)))
                 instance->HandleGameObject(gate->GetGUID(), true);
         }
         private:
@@ -691,7 +691,7 @@ public:
     {
         TW_npc_black_knight_skeletal_gryphonAI(Creature* creature) : npc_escortAI(creature)
         {
-            Start(false, true, 0, NULL);
+            Start(false, true);
             instance = creature->GetInstanceScript();
         }
 
@@ -712,7 +712,7 @@ public:
                     break;
                 case 2:
                     me->SetSpeed(MOVE_FLIGHT, 2.0f);
-                    if (Creature* blackknight = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BLACK_KNIGHT)))
+                    if (Creature* blackknight = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
                         blackknight->AI()->Talk(SAY_INTRO_1);
                     break;
                 case 3:
@@ -722,7 +722,7 @@ public:
                     break;
                 case 6:
                     me->SetSpeed(MOVE_FLIGHT, 2.0f);
-                    if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HIGHLORD)))
+                    if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_HIGHLORD)))
                         tirion->AI()->Talk(SAY_INTRO_2);
                     break;
                 case 7:

@@ -121,13 +121,13 @@ class instance_ulduar : public InstanceMapScript
             bool IsDriveMeCrazyEligible;
 
             // TW 
-            uint64 RunicDoorGUID;
-            uint64 StoneDoorGUID;
-            uint64 RunicColossusGUID;
-            uint64 RuneGiantGUID;
-            uint64 SifGUID;
-            uint64 ThorimLightningFieldGUID;
-            uint64 AncientGateGUID;
+            ObjectGuid RunicDoorGUID;
+            ObjectGuid StoneDoorGUID;
+            ObjectGuid RunicColossusGUID;
+            ObjectGuid RuneGiantGUID;
+            ObjectGuid SifGUID;
+            ObjectGuid ThorimLightningFieldGUID;
+            ObjectGuid AncientGateGUID;
             bool lumberjacked;
             bool stunned;
 
@@ -154,13 +154,13 @@ class instance_ulduar : public InstanceMapScript
                 _summonAlgalon                   = false;
 
                 // TW
-                RunicDoorGUID                    = 0;
-                StoneDoorGUID                    = 0;
-                RunicColossusGUID                = 0;
-                RuneGiantGUID                    = 0;
-                SifGUID                          = 0;
-                ThorimLightningFieldGUID         = 0;
-                AncientGateGUID                  = 0;
+                RunicDoorGUID.Clear();
+                StoneDoorGUID.Clear();
+                RunicColossusGUID.Clear();
+                RuneGiantGUID.Clear();
+                SifGUID.Clear();
+                ThorimLightningFieldGUID.Clear();
+                AncientGateGUID.Clear();
                 stunned                          = true;
 
                 memset(champConqOfUlduar, 0, sizeof(champConqOfUlduar));

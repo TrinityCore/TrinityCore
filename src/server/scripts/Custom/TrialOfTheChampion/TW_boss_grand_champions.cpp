@@ -174,9 +174,9 @@ bool TW_GrandChampionsOutVehicle(Creature* me)
     if (!instance)
         return false;
 
-    Creature* pGrandChampion1 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GRAND_CHAMPION_1));
-    Creature* pGrandChampion2 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GRAND_CHAMPION_2));
-    Creature* pGrandChampion3 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GRAND_CHAMPION_3));
+    Creature* pGrandChampion1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_1));
+    Creature* pGrandChampion2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_2));
+    Creature* pGrandChampion3 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_3));
 
     if (pGrandChampion1 && pGrandChampion2 && pGrandChampion3)
     {
@@ -257,7 +257,7 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
             }
 
             if (uiType <= 3)
-                Start(false, true, 0, NULL);
+                Start(false, true);
         }
 
         void WaypointReached(uint32 i) override
@@ -387,7 +387,7 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
             }
 
             if (!CheckPlayersAlive())
-               if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ANNOUNCER)))
+                if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
                    announcer->AI()->DoAction(ACTION_RESET_GRAND_CHAMPIONS);
 
             npc_escortAI::UpdateAI(uiDiff);
@@ -950,7 +950,7 @@ class TW_boss_hunter_toc5 : public CreatureScript
 
         InstanceScript* instance;
 
-        uint64 uiTargetGUID;
+        ObjectGuid uiTargetGUID;
 
         bool bShoot;
         bool bDone;
@@ -960,7 +960,7 @@ class TW_boss_hunter_toc5 : public CreatureScript
 
         void Reset() override
         {
-            uiTargetGUID = 0;
+            uiTargetGUID.Clear();
 
             bShoot = false;
 
@@ -976,7 +976,7 @@ class TW_boss_hunter_toc5 : public CreatureScript
 
                 instance->SetData(BOSS_GRAND_CHAMPIONS, NOT_STARTED);
 
-                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE1)))
                     instance->HandleGameObject(gate->GetGUID(), true);
 
                 me->RemoveFromWorld();
@@ -1177,7 +1177,7 @@ class TW_boss_rogue_toc5 : public CreatureScript
 
                 instance->SetData(BOSS_GRAND_CHAMPIONS, NOT_STARTED);
 
-                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE1)))
                     instance->HandleGameObject(gate->GetGUID(),true);
 
                 events.SetPhase(PHASE_IDLE);

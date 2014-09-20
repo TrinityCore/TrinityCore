@@ -367,7 +367,7 @@ public:
         bool summonChampion;
         bool LightningAchievement;
         Position homePosition;
-        uint64 SifGUID;
+        ObjectGuid SifGUID;
 
         void Reset() override
         {
@@ -401,11 +401,11 @@ public:
 
             if (Creature* Sif = ObjectAccessor::GetCreature(*me, SifGUID))
                 Sif->DespawnOrUnsummon();
-            SifGUID = 0;
+            SifGUID.Clear();
 
             // Respawn Mini Bosses
             for (uint8 i = DATA_RUNIC_COLOSSUS; i <= DATA_RUNE_GIANT; ++i)
-            if (Creature* MiniBoss = ObjectAccessor::GetCreature(*me, instance->GetData64(i)))
+                if (Creature* MiniBoss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(i)))
                     MiniBoss->Respawn(true);
 
             // Spawn Pre-Phase Adds
@@ -480,7 +480,7 @@ public:
             events.ScheduleEvent(EVENT_BERSERK, 360000, 0, PHASE_1);
             events.ScheduleEvent(EVENT_SAY_AGGRO_2, 10000, 0, PHASE_1);
 
-            if (Creature* runic = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RUNIC_COLOSSUS)))
+            if (Creature* runic = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RUNIC_COLOSSUS)))
                 runic->AI()->DoAction(ACTION_RUNIC_SMASH);
 
             if (GameObject* go = me->FindNearestGameObject(GO_LEVER, 500.0f))
@@ -573,7 +573,7 @@ public:
                             Talk(SAY_BERSERK);
                             break;
                         case EVENT_CLOSE_ARENA_DOOR:
-                            instance->DoUseDoorOrButton(instance->GetData(GO_THORIM_DARK_IRON_PROTCULLIS));
+                            instance->DoUseDoorOrButton(instance->GetGuidData(GO_THORIM_DARK_IRON_PROTCULLIS));
                             break;
                     }
                 }
@@ -751,8 +751,8 @@ public:
 
             if (phase == PHASE_1 && attacker && instance)
             {
-                Creature* colossus = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RUNIC_COLOSSUS));
-                Creature* giant = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RUNE_GIANT));
+                Creature* colossus = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RUNIC_COLOSSUS));
+                Creature* giant = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RUNE_GIANT));
                 if (colossus && colossus->isDead() && giant && giant->isDead() && me->IsWithinDistInMap(attacker, 10.0f) && attacker->ToPlayer())
                 {
                     if (Creature* Sif = ObjectAccessor::GetCreature(*me, SifGUID))
@@ -823,7 +823,7 @@ public:
 
         void JustDied(Unit* /*victim*/) override
         {
-            if (Creature* pThorim = ObjectAccessor::GetCreature(*me, pInstance->GetData64(BOSS_THORIM)))
+            if (Creature* pThorim = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(BOSS_THORIM)))
                 pThorim->AI()->DoAction(ACTION_INCREASE_PREADDS_COUNT);
         }
 
@@ -933,7 +933,7 @@ class TW_npc_thorim_arena_phase : public CreatureScript
             // might be called by mind control release or controllers death?
             void EnterEvadeMode() override
             {
-                if (Creature* thorim = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(BOSS_THORIM) : 0))
+                if (Creature* thorim = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_THORIM)))
                     thorim->AI()->DoAction(ACTION_BERSERK);
                 _EnterEvadeMode();
                 me->GetMotionMaster()->MoveTargetedHome();
@@ -1143,7 +1143,7 @@ class TW_npc_runic_colossus : public CreatureScript
 
                 if (BarrierTimer <= diff)
                 {
-                    me->MonsterTextEmote(EMOTE_BARRIER, 0, true);
+                    me->TextEmote(EMOTE_BARRIER, 0, true);
                     DoCast(me, SPELL_RUNIC_BARRIER);
                     BarrierTimer = urand(35000, 45000);
                 }
@@ -1293,7 +1293,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            me->MonsterTextEmote(EMOTE_MIGHT, 0, true);
+            me->TextEmote(EMOTE_MIGHT, 0, true);
             DoCast(me, SPELL_RUNIC_FORTIFICATION, true);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }

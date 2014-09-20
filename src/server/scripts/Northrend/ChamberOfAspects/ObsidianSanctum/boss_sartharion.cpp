@@ -408,7 +408,7 @@ public:
             Trinity::Containers::SelectRandomContainerElement(fireCyclonesList)->CastSpell(target, SPELL_LAVA_STRIKE, true);
         }
         
-        void SetGUID(uint64 guid, int32 id/* = 0 */) override
+        void SetGUID(ObjectGuid guid, int32 id/* = 0 */) override
         {
             if (id == DATA_GONNA_GO_WHEN_THE_VULCANO_BLOWS)
                 gonnagowhenthevulcanoblowsList.push_back(guid);
@@ -543,7 +543,7 @@ class spell_lava_strike : public SpellScriptLoader
                 InstanceScript* instance = target->GetInstanceScript();
                 if (instance)
                 {
-                    Creature* sartharion = ObjectAccessor::GetCreature(*target, instance->GetData64(DATA_SARTHARION));
+                    Creature* sartharion = ObjectAccessor::GetCreature(*target, instance->GetGuidData(DATA_SARTHARION));
                     if (target->GetTypeId() == TYPEID_PLAYER && instance && sartharion)
                         sartharion->GetAI()->SetGUID(target->GetGUID(), DATA_GONNA_GO_WHEN_THE_VULCANO_BLOWS);
                 }

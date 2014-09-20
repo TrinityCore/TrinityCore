@@ -138,13 +138,13 @@ public:
         bool fireEffigy;
         bool off;
         EventMap events;
-        uint64 _playerGUID;
+        ObjectGuid _playerGUID;
 
         void Reset() override
         {
             off = false;
             fireEffigy = false;
-            _playerGUID = 0;
+            _playerGUID.Clear();
             events.Reset();
             // Mark the npc if is for handling effigy instead of horseman fires
             if (me->FindNearestGameObject(GO_FIRE_EFFIGY, 0.5f))
@@ -167,7 +167,7 @@ public:
                         {
                             effigy->SetGoState(GO_STATE_READY);
                             if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                                player->KilledMonsterCredit(me->GetEntry(),0);
+                                player->KilledMonsterCredit(me->GetEntry());
                             events.ScheduleEvent(EVENT_FIRE_GROW_FIRE, 22000);
                         }
                     } else {
@@ -205,7 +205,7 @@ public:
             }
         }
 
-        void SetGUID(uint64 guid, int32 id) override
+        void SetGUID(ObjectGuid guid, int32 id) override
         {
             if (off) return;
 
@@ -255,7 +255,7 @@ public:
         bool allFiresSet;
         bool firesOut;
         uint32 wpCount;
-        std::list<uint64> _playerList;
+        std::list<ObjectGuid> _playerList;
 
         void Reset() override
         {
@@ -367,7 +367,7 @@ public:
                     firesOut = true;
                     // Credit quest to players
                     if (!_playerList.empty())
-                        for (std::list<uint64>::const_iterator i = _playerList.begin();i != _playerList.end(); ++i)
+                        for (std::list<ObjectGuid>::const_iterator i = _playerList.begin(); i != _playerList.end(); ++i)
                         if (Player* player = ObjectAccessor::GetPlayer(*me, *i))
                                 player->CastSpell(player, SPELL_QUESTS_CREDITS, true);
                     return;
@@ -382,7 +382,7 @@ public:
                         me->GetMotionMaster()->MovePoint(wpCount, pos.GetPositionX(), pos.GetPositionY(), GetZForArea());
                         if (!_playerList.empty())
                         {
-                            for (std::list<uint64>::const_iterator i = _playerList.begin();i != _playerList.end(); ++i)
+                            for (std::list<ObjectGuid>::const_iterator i = _playerList.begin(); i != _playerList.end(); ++i)
                             {
                                 Player* player = ObjectAccessor::GetPlayer(*me, *i);
                                 if (player)
@@ -398,7 +398,7 @@ public:
                     case EVENT_HORSEMAN_CONFLAGRATION:
                         if (!_playerList.empty())
                         {
-                            for (std::list<uint64>::const_iterator i = _playerList.begin();i != _playerList.end(); ++i)
+                            for (std::list<ObjectGuid>::const_iterator i = _playerList.begin(); i != _playerList.end(); ++i)
                             {
                                 Player* player = ObjectAccessor::GetPlayer(*me, *i);
                                 if (player && player->GetDistance(me) <= 30.0f)
@@ -426,7 +426,7 @@ public:
                     case EVENT_HORSEMAN_CONFLAGRATION:
                         if (!_playerList.empty())
                         {
-                            for (std::list<uint64>::const_iterator i = _playerList.begin();i != _playerList.end(); ++i)
+                            for (std::list<ObjectGuid>::const_iterator i = _playerList.begin(); i != _playerList.end(); ++i)
                             {
                                 Player* player = ObjectAccessor::GetPlayer(*me, *i);
                                 if (player && player->GetAreaId() == me->GetAreaId() && player->GetDistance(me) <= 30.0f)
@@ -471,7 +471,7 @@ public:
             return 0.0f;
         }
 
-        void SetGUID(uint64 guid, int32 id) override
+        void SetGUID(ObjectGuid guid, int32 id) override
         {
             if (id == EVENT_FIRE_HIT_BY_BUCKET)
             {
@@ -493,7 +493,7 @@ class TW_npc_halloween_orphan_matron : public CreatureScript
 public:
     TW_npc_halloween_orphan_matron() : CreatureScript("TW_npc_halloween_orphan_matron") { }
 
-    uint64 _headlessHoresemanGUID;
+    ObjectGuid _headlessHoresemanGUID;
 
     bool OnGossipHello(Player* player, Creature* me)
     {

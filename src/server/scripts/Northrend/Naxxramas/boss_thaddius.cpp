@@ -152,9 +152,9 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
             me->SetReactState(REACT_PASSIVE);
             
-            if (Creature* Feugen = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
+            if (Creature* Feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
                 Feugen->Respawn();
-            if (Creature* Stalagg = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_STALAGG)))
+            if (Creature* Stalagg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
                 Stalagg->Respawn();
         }
 

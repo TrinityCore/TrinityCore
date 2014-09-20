@@ -1382,7 +1382,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 if (Unit *owner = caster->GetOwner())
                     if (owner->HasAura(56250)) // Glyph of Succubus
                     {
-                        target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, target->GetAura(32409)); // SW:D shall not be removed.
+                        target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, ObjectGuid::Empty, target->GetAura(32409)); // SW:D shall not be removed.
                         target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
                         target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
                     }

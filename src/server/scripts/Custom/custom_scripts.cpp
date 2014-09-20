@@ -398,7 +398,7 @@ public:
         bool bDefeated;
         Position arenaCenter;
 
-        uint32 challengeeGUID;
+        ObjectGuid challengeeGUID;
 
         void Reset() override
         {
@@ -414,7 +414,7 @@ public:
             bCharge = false;
             bDefeated = false;
 
-            challengeeGUID = 0;
+            challengeeGUID.Clear();
 
             if (GetCustomType() == TYPE_CHAMPION)
                 arenaCenter.Relocate(8428.757f, 945.349f, 544.675f);
@@ -436,7 +436,7 @@ public:
             return 0;
         }
 
-        void SetData(uint32 type, uint32 data) override
+        void SetGuidData(uint32 type, ObjectGuid data) override
         {
             if (type == DATA_PLAYER)
                 challengeeGUID = data;
@@ -734,7 +734,7 @@ public:
 
         uint32 uiChargeTimer;
         uint32 uiShieldBreakerTimer;
-        uint64 guidAttacker;
+        ObjectGuid guidAttacker;
         uint32 uireattackTimer;
 
         bool chargeing;
@@ -753,7 +753,7 @@ public:
             handDuel = false;
         }
 
-        void SetGUID(uint64 guid, int32) override
+        void SetGUID(ObjectGuid guid, int32) override
         {
             guidAttacker = guid;
             me->Mount(28652);
@@ -841,7 +841,7 @@ public:
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveIdle();                
                 if (Player* plr = ObjectAccessor::GetPlayer(*me, guidAttacker))
-                    me->MonsterYell(YELL_ATTACK_PHASE_1_END, LANG_UNIVERSAL, plr);
+                    me->Yell(YELL_ATTACK_PHASE_1_END, LANG_UNIVERSAL, plr);
                 uireattackTimer = 10000;
             }
         }
@@ -899,7 +899,7 @@ public:
                     me->SetMaxHealth(12500);
                     me->SetHealth(12500);
                     if (Player* plr = ObjectAccessor::GetPlayer(*me, guidAttacker))
-                        me->MonsterYell(YELL_ATTACK_PHASE_2,LANG_UNIVERSAL, plr);
+                        me->Yell(YELL_ATTACK_PHASE_2,LANG_UNIVERSAL, plr);
                     uireattackTimer = 99999999;
                 }else uireattackTimer -= uiDiff;
             }

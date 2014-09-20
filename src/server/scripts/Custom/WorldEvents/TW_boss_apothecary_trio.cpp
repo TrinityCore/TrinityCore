@@ -185,7 +185,7 @@ class TW_npc_apothecary_hummel : public CreatureScript
 
                 _instance->SetData(TYPE_CROWN, NOT_STARTED);
 
-                if (Creature* baxter = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_BAXTER)))
+                if (Creature* baxter = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_BAXTER)))
                 {
                     if (baxter->IsAlive())
                         baxter->AI()->EnterEvadeMode();
@@ -193,7 +193,7 @@ class TW_npc_apothecary_hummel : public CreatureScript
                         baxter->Respawn();
                 }
 
-                if (Creature* frye = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_FRYE)))
+                if (Creature* frye = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_FRYE)))
                 {
                     if (frye->IsAlive())
                         frye->AI()->EnterEvadeMode();
@@ -201,7 +201,7 @@ class TW_npc_apothecary_hummel : public CreatureScript
                         frye->Respawn();
                 }
 
-                if (GameObject* door = _instance->instance->GetGameObject(_instance->GetData64(DATA_DOOR)))
+                if (GameObject* door = _instance->instance->GetGameObject(_instance->GetGuidData(DATA_DOOR)))
                     _instance->HandleGameObject(door->GetGUID(), true);
             }
 
@@ -211,9 +211,9 @@ class TW_npc_apothecary_hummel : public CreatureScript
                 {
                     case START_INTRO:
                     {
-                        if (Creature* baxter = ObjectAccessor::GetCreature(*me, _instance? _instance->GetData64(DATA_BAXTER) : 0))
+                        if (Creature* baxter = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetGuidData(DATA_BAXTER) : ObjectGuid::Empty))
                             baxter->AI()->DoAction(START_INTRO);
-                        if (Creature* frye = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(DATA_FRYE) : 0))
+                        if (Creature* frye = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetGuidData(DATA_FRYE) : ObjectGuid::Empty))
                             frye->AI()->DoAction(START_INTRO);
 
                         _phase = PHASE_INTRO;
@@ -398,7 +398,7 @@ class TW_npc_apothecary_baxter : public CreatureScript
                 _phase = PHASE_NORMAL;
                 me->setFaction(35);
 
-                if (Creature* hummel = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(DATA_HUMMEL) : 0))
+                if (Creature* hummel = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetGuidData(DATA_HUMMEL) : ObjectGuid::Empty))
                 {
                     if (hummel->IsAlive())
                         hummel->AI()->EnterEvadeMode();
@@ -419,7 +419,7 @@ class TW_npc_apothecary_baxter : public CreatureScript
                     }
                     case START_FIGHT:
                     {
-                        if (Creature* hummel = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(DATA_HUMMEL) : 0))
+                        if (Creature* hummel = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetGuidData(DATA_HUMMEL) : ObjectGuid::Empty))
                             hummel->AI()->Talk(SAY_CALL_BAXTER);
 
                         _phase = PHASE_NORMAL;
@@ -482,7 +482,7 @@ class TW_npc_apothecary_baxter : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH_BAXTER);
-                if (Creature* hummel = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(DATA_HUMMEL) : 0))
+                if (Creature* hummel = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetGuidData(DATA_HUMMEL) : ObjectGuid::Empty))
                     hummel->AI()->DoAction(APOTHECARY_DIED);
                 _instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, 36565, NULL);
             }
@@ -528,7 +528,7 @@ class TW_npc_apothecary_frye : public CreatureScript
                 _phase = PHASE_NORMAL;
                 me->setFaction(35);
 
-                if (Creature* hummel = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(DATA_HUMMEL) : 0))
+                if (Creature* hummel = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetGuidData(DATA_HUMMEL) : ObjectGuid::Empty))
                 {
                     if (hummel->IsAlive())
                         hummel->AI()->EnterEvadeMode();
@@ -549,7 +549,7 @@ class TW_npc_apothecary_frye : public CreatureScript
                     }
                     case START_FIGHT:
                     {
-                        if (Creature* hummel = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(DATA_HUMMEL) : 0))
+                        if (Creature* hummel = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetGuidData(DATA_HUMMEL) : ObjectGuid::Empty))
                             hummel->AI()->Talk(SAY_CALL_FRYE);
 
                         _phase = PHASE_NORMAL;
@@ -639,7 +639,7 @@ class TW_npc_apothecary_frye : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH_FRYE);
-                if (Creature* hummel = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(DATA_HUMMEL) : 0))
+                if (Creature* hummel = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetGuidData(DATA_HUMMEL) : ObjectGuid::Empty))
                     hummel->AI()->DoAction(APOTHECARY_DIED);
 
                 _instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, 36272, NULL);

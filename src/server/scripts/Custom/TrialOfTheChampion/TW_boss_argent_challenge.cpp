@@ -192,10 +192,10 @@ class TW_boss_eadric : public CreatureScript
                          return;
                 }
                 
-                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE1)))
                     instance->HandleGameObject(gate->GetGUID(), true);
 
-                if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ANNOUNCER)))
+                if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
                     announcer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
                 instance->SetData(DATA_ARGENT_SOLDIER_DEFEATED, 0);
@@ -214,9 +214,9 @@ class TW_boss_eadric : public CreatureScript
                 Talk(SAY_EADRIC_DEFEATED);
                 me->setFaction(35);
                 bDone = true;
-                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                     instance->HandleGameObject(gate->GetGUID(),true);
-                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE1)))
                     instance->HandleGameObject(gate->GetGUID(),true);
                 instance->SetData(BOSS_ARGENT_CHALLENGE_E, DONE);
                 HandleInstanceBind(me);
@@ -269,7 +269,7 @@ class TW_boss_eadric : public CreatureScript
             {
                 me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
                 bDone = false;
-                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                     instance->HandleGameObject(gate->GetGUID(),false);
             } else uiResetTimer -= uiDiff;
             
@@ -340,7 +340,7 @@ class TW_boss_paletress : public CreatureScript
             hasBeenInCombat = false;
             _hasSummonedMemory = false;
             bCredit = false;
-            memoryGUID = 0;
+            memoryGUID.Clear();
         }
 
         void Reset()
@@ -365,10 +365,10 @@ class TW_boss_paletress : public CreatureScript
                         return;
                 }
 
-                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE1)))
                     instance->HandleGameObject(gate->GetGUID(), true);
 
-                if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ANNOUNCER)))
+                if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
                     announcer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
                 instance->SetData(DATA_ARGENT_SOLDIER_DEFEATED, 0);
@@ -407,9 +407,9 @@ class TW_boss_paletress : public CreatureScript
                 Talk(SAY_PALETRESS_DEFEATED);
                 me->setFaction(35);
                 bDone = true;
-                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                     instance->HandleGameObject(gate->GetGUID(),true);
-                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE1)))
                     instance->HandleGameObject(gate->GetGUID(),true);
                 instance->SetData(BOSS_ARGENT_CHALLENGE_P, DONE);
                 HandleInstanceBind(me);
@@ -431,7 +431,7 @@ class TW_boss_paletress : public CreatureScript
             {
                 me->GetMotionMaster()->MovePoint(0, 746.843f, 695.68f, 412.339f);
                 bDone = false;
-                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                     instance->HandleGameObject(gate->GetGUID(),false);
             } else uiResetTimer -= uiDiff;
 
@@ -505,7 +505,7 @@ class TW_boss_paletress : public CreatureScript
         }
     private:
         InstanceScript* instance;
-        uint64 memoryGUID;
+        ObjectGuid memoryGUID;
         bool _hasSummonedMemory;
         bool bDone;
         bool hasBeenInCombat;
@@ -608,7 +608,7 @@ class TW_npc_argent_soldier : public CreatureScript
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
             me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_SELECTABLE);
-            if (GameObject* gate = ObjectAccessor::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
+            if (GameObject* gate = ObjectAccessor::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE)))
                 pInstance->HandleGameObject(gate->GetGUID(),true);
             SetDespawnAtEnd(false);
             uiWaypoint = 0;
@@ -682,7 +682,7 @@ class TW_npc_argent_soldier : public CreatureScript
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                         bStarted = true;
-                        if (GameObject* gate = ObjectAccessor::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
+                        if (GameObject* gate = ObjectAccessor::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE)))
                             pInstance->HandleGameObject(gate->GetGUID(),false);
                         break;
                 }
@@ -745,7 +745,7 @@ class TW_npc_argent_soldier : public CreatureScript
                     break;
             }
 
-            Start(false,true,0);
+            Start(false,true);
             uiWaypoint = uiType;
         }
 

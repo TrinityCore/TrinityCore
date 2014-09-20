@@ -1008,7 +1008,7 @@ public:
                 Map::PlayerList const &PlayerList = instance->instance->GetPlayers();
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 if (Player* player = i->GetSource())
-                    player->KilledMonsterCredit(28859, 0);
+                    player->KilledMonsterCredit(28859, ObjectGuid::Empty);
             }
             // hack over
             _JustDied();

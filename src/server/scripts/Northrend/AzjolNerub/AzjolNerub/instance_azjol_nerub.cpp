@@ -50,21 +50,11 @@ class instance_azjol_nerub : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, nullptr);
-                frontDoorTriggerAGUID = 0;
-                frontDoorTriggerBGUID = 0;
-                    case NPC_WORLD_TRIGGER_LARGE_AOI:
-                        if (creature->GetPositionX() < 500.0f)
-                            frontDoorTriggerAGUID = creature->GetGUID();
-                        else
-                            frontDoorTriggerBGUID = creature->GetGUID();
-                        break;
-                    case DATA_FRONT_DOOR_TRIGGER_A_GUID: 
-                        return frontDoorTriggerAGUID;
-                    case DATA_FRONT_DOOR_TRIGGER_B_GUID: 
-                        return frontDoorTriggerBGUID;
+                frontDoorTriggerAGUID.Clear();
+                frontDoorTriggerBGUID.Clear();
             }
-            uint64 frontDoorTriggerAGUID;
-            uint64 frontDoorTriggerBGUID; // Closer to tunnel
+            ObjectGuid frontDoorTriggerAGUID;
+            ObjectGuid frontDoorTriggerBGUID; // Closer to tunnel
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

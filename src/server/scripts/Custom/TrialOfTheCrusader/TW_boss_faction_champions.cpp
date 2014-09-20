@@ -94,7 +94,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
     void JustReachedHome() override
     {
         if (instance)
-        if (Creature* pChampionController = ObjectAccessor::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+            if (Creature* pChampionController = ObjectAccessor::GetCreature((*me), instance->GetGuidData(NPC_CHAMPIONS_CONTROLLER)))
                 pChampionController->AI()->SetData(2, FAIL);
         me->DespawnOrUnsummon();
     }
@@ -152,7 +152,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
     {
         if (mAIType != AI_PET)
             if (instance)
-            if (Creature* pChampionController = ObjectAccessor::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+                if (Creature* pChampionController = ObjectAccessor::GetCreature((*me), instance->GetGuidData(NPC_CHAMPIONS_CONTROLLER)))
                     pChampionController->AI()->SetData(2, DONE);
     }
 
@@ -161,7 +161,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
         DoCast(me, SPELL_ANTI_AOE, true);
         me->SetInCombatWithZone();
         if (instance)
-        if (Creature* pChampionController = ObjectAccessor::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+            if (Creature* pChampionController = ObjectAccessor::GetCreature((*me), instance->GetGuidData(NPC_CHAMPIONS_CONTROLLER)))
                 pChampionController->AI()->SetData(2, IN_PROGRESS);
     }
 
@@ -180,11 +180,11 @@ struct TW_boss_faction_championsAI : public ScriptedAI
             {
                 if (TeamInInstance == ALLIANCE)
                 {
-                    if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_VARIAN)))
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_VARIAN)))
                         temp->AI()->Talk(SAY_KILL_PLAYER);
                 }
                 else
-                if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_GARROSH)))
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_GARROSH)))
                         temp->AI()->Talk(SAY_KILL_PLAYER);
 
 

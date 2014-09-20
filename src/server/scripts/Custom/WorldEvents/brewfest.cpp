@@ -95,7 +95,7 @@ class npc_coren_direbrew : public CreatureScript
                             creature->setFaction(FACTION_HOSTILE_CORE);
                             creature->SetInCombatWithZone();
                         }
-                        _add[i] = 0;
+                        _add[i].Clear();
                     }
                 }
             }
@@ -178,7 +178,7 @@ class npc_coren_direbrew : public CreatureScript
 
         private:
             SummonList _summons;
-            uint64 _add[3];
+            ObjectGuid _add[3];
             uint32 _addTimer;
             uint32 _disarmTimer;
             bool _spawnedIlsa;

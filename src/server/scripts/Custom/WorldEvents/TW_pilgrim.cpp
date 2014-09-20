@@ -46,19 +46,19 @@ class TW_spell_gen_turkey_tracker : public SpellScriptLoader
                     switch (aura->GetStackAmount())
                     {
                     case 10:
-                        target->MonsterTextEmote(THE_THUKINATOR_10, 0, true);
+                        target->TextEmote(THE_THUKINATOR_10, 0, true);
                         GetCaster()->CastSpell(target, SPELL_KILL_COUNTER_VISUAL);
                         break;
                     case 20:
-                        target->MonsterTextEmote(THE_THUKINATOR_20, 0, true);
+                        target->TextEmote(THE_THUKINATOR_20, 0, true);
                         GetCaster()->CastSpell(target, SPELL_KILL_COUNTER_VISUAL);
                         break;
                     case 30:
-                        target->MonsterTextEmote(THE_THUKINATOR_30, 0, true);
+                        target->TextEmote(THE_THUKINATOR_30, 0, true);
                         GetCaster()->CastSpell(target, SPELL_KILL_COUNTER_VISUAL);
                         break;
                     case 40:
-                        target->MonsterTextEmote(THE_THUKINATOR_40, 0, true);
+                        target->TextEmote(THE_THUKINATOR_40, 0, true);
                         GetCaster()->CastSpell(target, SPELL_KILL_COUNTER_VISUAL);
                         GetCaster()->CastSpell(target, SPELL_KILL_COUNTER_VISUAL_MAX); // Achievement Credit
                         break;

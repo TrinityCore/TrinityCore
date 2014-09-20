@@ -337,7 +337,7 @@ class TW_boss_hadronox : public CreatureScript
                     case ACTION_HANDLE_EVENT_START:
                         if (!_eventReseted)
                         {
-                            if (Creature* distantFrontDoorTrigger = me->GetMap()->GetCreature(instance->GetData64(DATA_FRONT_DOOR_TRIGGER_A_GUID)))
+                            if (Creature* distantFrontDoorTrigger = me->GetMap()->GetCreature(instance->GetGuidData(DATA_FRONT_DOOR_TRIGGER_A_GUID)))
                             {
                                 std::list<TempSummon*> reinforcementgroupA;
                                 distantFrontDoorTrigger->SummonCreatureGroup(CREATURE_GROUP_CRUSHER_REINFORCEMENTS_A, &reinforcementgroupA);
@@ -347,7 +347,7 @@ class TW_boss_hadronox : public CreatureScript
                                 events.ScheduleEvent(EVENT_TIMED_ATTACKERS_A, 20*IN_MILLISECONDS);
                             }
 
-                            if (Creature* closerFrontDoorTrigger = me->GetMap()->GetCreature(instance->GetData64(DATA_FRONT_DOOR_TRIGGER_B_GUID)))
+                            if (Creature* closerFrontDoorTrigger = me->GetMap()->GetCreature(instance->GetGuidData(DATA_FRONT_DOOR_TRIGGER_B_GUID)))
                             {
                                 std::list<TempSummon*> reinforcementgroupB;
                                 closerFrontDoorTrigger->SummonCreatureGroup(CREATURE_GROUP_CRUSHER_REINFORCEMENTS_B, &reinforcementgroupB);
@@ -458,7 +458,7 @@ class TW_boss_hadronox : public CreatureScript
                     switch (eventId)
                     {                      
                         case EVENT_TIMED_ATTACKERS_A:
-                            if (Creature* distantFrontDoorTrigger = me->GetMap()->GetCreature(instance->GetData64(DATA_FRONT_DOOR_TRIGGER_A_GUID)))
+                            if (Creature* distantFrontDoorTrigger = me->GetMap()->GetCreature(instance->GetGuidData(DATA_FRONT_DOOR_TRIGGER_A_GUID)))
                             {
                                 switch (_attackersCounterA)
                                 {
@@ -480,7 +480,7 @@ class TW_boss_hadronox : public CreatureScript
 
                             break;
                         case EVENT_TIMED_ATTACKERS_B:
-                            if (Creature* closerFrontDoorTrigger = me->GetMap()->GetCreature(instance->GetData64(DATA_FRONT_DOOR_TRIGGER_B_GUID)))
+                            if (Creature* closerFrontDoorTrigger = me->GetMap()->GetCreature(instance->GetGuidData(DATA_FRONT_DOOR_TRIGGER_B_GUID)))
                             {
                                 switch (_attackersCounterB)
                                 {
@@ -576,7 +576,7 @@ class TW_npc_anub_ar_crusher : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                if (Creature* hadronox = me->GetMap()->GetCreature(_instance->GetData64(DATA_HADRONOX)))
+                if (Creature* hadronox = me->GetMap()->GetCreature(_instance->GetGuidData(DATA_HADRONOX)))
                 {
                     if (hadronox->AI()->GetData(DATA_EVENT_STATUS) == NOT_STARTED)
                     {
@@ -590,7 +590,7 @@ class TW_npc_anub_ar_crusher : public CreatureScript
 
             void EnterEvadeMode()
             {
-                if (Creature* hadronox = me->GetMap()->GetCreature(_instance->GetData64(DATA_HADRONOX)))
+                if (Creature* hadronox = me->GetMap()->GetCreature(_instance->GetGuidData(DATA_HADRONOX)))
                     hadronox->AI()->DoAction(ACTION_RESET_EVENT);
             }
 
@@ -1392,10 +1392,10 @@ class TW_spell_hadronox_web_front_doors : public SpellScriptLoader
             {
                 Creature* hadronox = GetCaster()->ToCreature();
                 std::list<Creature*> triggersList;
-                if (Creature* frontTriggerA = hadronox->GetMap()->GetCreature(_instance->GetData64(DATA_FRONT_DOOR_TRIGGER_A_GUID)))
+                if (Creature* frontTriggerA = hadronox->GetMap()->GetCreature(_instance->GetGuidData(DATA_FRONT_DOOR_TRIGGER_A_GUID)))
                     triggersList.push_back(frontTriggerA);
 
-                if (Creature* frontTriggerB = hadronox->GetMap()->GetCreature(_instance->GetData64(DATA_FRONT_DOOR_TRIGGER_B_GUID)))
+                if (Creature* frontTriggerB = hadronox->GetMap()->GetCreature(_instance->GetGuidData(DATA_FRONT_DOOR_TRIGGER_B_GUID)))
                     triggersList.push_back(frontTriggerB);
 
                 for (std::list<Creature*>::iterator itr = triggersList.begin(); itr != triggersList.end(); ++itr)
@@ -1446,7 +1446,7 @@ class TW_spell_hadronox_web_side_door : public SpellScriptLoader
 
             void HandleSendEvent(SpellEffIndex /*effIndex*/)
             {
-                if (Creature* trigger = GetCaster()->GetMap()->GetCreature(_instance->GetData64(DATA_SIDE_DOOR_TRIGGER_GUID)))
+                if (Creature* trigger = GetCaster()->GetMap()->GetCreature(_instance->GetGuidData(DATA_SIDE_DOOR_TRIGGER_GUID)))
                 {
                     // There can be aura from being webbed so can't risk to remove all auras.
                     trigger->RemoveAurasDueToSpell(SPELL_SUMMON_ANUB_AR_CHAMPION_PERIODIC);
@@ -1491,7 +1491,7 @@ class TW_spell_hadronox_event_check_reset : public SpellScriptLoader
             {
                 Creature* creature = GetCaster()->ToCreature();
                 if (!creature->SelectNearestPlayer(200.0f))
-                    if (Creature* hadronox = creature->GetMap()->GetCreature(_instance->GetData64(DATA_HADRONOX)))
+                    if (Creature* hadronox = creature->GetMap()->GetCreature(_instance->GetGuidData(DATA_HADRONOX)))
                         hadronox->AI()->DoAction(ACTION_RESET_EVENT);
             }
 
@@ -1499,7 +1499,7 @@ class TW_spell_hadronox_event_check_reset : public SpellScriptLoader
             {
                 Creature* creature = GetCaster()->ToCreature();
                 if (!creature->SelectNearestPlayer(200.0f))
-                    if (Creature* hadronox = creature->GetMap()->GetCreature(_instance->GetData64(DATA_HADRONOX)))
+                    if (Creature* hadronox = creature->GetMap()->GetCreature(_instance->GetGuidData(DATA_HADRONOX)))
                         hadronox->AI()->DoAction(ACTION_RESET_EVENT);
             }
 

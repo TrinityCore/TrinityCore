@@ -259,11 +259,11 @@ class boss_kologarn : public CreatureScript
                 }
             }
 
-            uint64 GetGUID(int32 /*type = 0 */) const override
+            ObjectGuid GetGUID(int32 /*type = 0 */) const override
             {
                 if (DATA_EYEBEAM_TARGET)
                     return eyebeamTarget;
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void JustSummoned(Creature* summon) override
@@ -376,7 +376,7 @@ public:
         TW_npc_focused_eyebeamAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = me->GetInstanceScript();
-            kologarn = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_KOLOGARN));
+            kologarn = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_KOLOGARN));
             if (me->GetEntry() == NPC_FOCUSED_EYEBEAM)
                 me->CastSpell(kologarn, SPELL_FOCUSED_EYEBEAM_VISUAL_LEFT, true);
             else if (me->GetEntry() == NPC_FOCUSED_EYEBEAM_RIGHT)
@@ -762,7 +762,7 @@ public:
                 return;
 
             if (InstanceScript* instance = target->GetInstanceScript())
-                if (Creature* kologarn = ObjectAccessor::GetCreature(*target, instance->GetData64(BOSS_KOLOGARN)))
+                if (Creature* kologarn = ObjectAccessor::GetCreature(*target, instance->GetGuidData(BOSS_KOLOGARN)))
                     kologarn->GetAI()->SetData(DATA_IF_LOOKS_COULD_KILL, false);
         }
 

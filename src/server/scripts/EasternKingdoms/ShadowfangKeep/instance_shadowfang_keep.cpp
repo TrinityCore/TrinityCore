@@ -107,9 +107,9 @@ public:
         ObjectGuid DoorSorcererGUID;
         ObjectGuid DoorArugalGUID;
 
-        uint64 fryeGUID;
-        uint64 hummelGUID;
-        uint64 baxterGUID;
+        ObjectGuid fryeGUID;
+        ObjectGuid hummelGUID;
+        ObjectGuid baxterGUID;
         uint32 spawnCrazedTimer;
 
         uint8 uiPhase;
@@ -122,9 +122,9 @@ public:
             SetHeaders(DataHeader);
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-            fryeGUID = 0;
-            hummelGUID = 0;
-            baxterGUID = 0;
+            fryeGUID.Clear();
+            hummelGUID.Clear();
+            baxterGUID.Clear();
 
             uiPhase = 0;
             uiTimer = 0;

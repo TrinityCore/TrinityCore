@@ -195,13 +195,13 @@ class TW_npc_herald_toc5 : public CreatureScript
 
             ArgentChampion = 0;
 
-            uiVehicle1GUID = 0;
-            uiVehicle2GUID = 0;
-            uiVehicle3GUID = 0;
+            uiVehicle1GUID.Clear();
+            uiVehicle2GUID.Clear();
+            uiVehicle3GUID.Clear();
 
-            uiGrandChampionBoss1 = 0;
-            uiGrandChampionBoss2 = 0;
-            uiGrandChampionBoss3 = 0;
+            uiGrandChampionBoss1.Clear();
+            uiGrandChampionBoss2.Clear();
+            uiGrandChampionBoss3.Clear();
 
             Champion1List.clear();
             Champion2List.clear();
@@ -227,25 +227,25 @@ class TW_npc_herald_toc5 : public CreatureScript
         uint32 uiSecondBoss;
         uint32 uiThirdBoss;
 
-        uint64 thrallGUID;
-        uint64 garroshGUID;
-        uint64 varianGUID;
-        uint64 proudmooreGUID;
-        uint64 tirionGUID;
+        ObjectGuid thrallGUID;
+        ObjectGuid garroshGUID;
+        ObjectGuid varianGUID;
+        ObjectGuid proudmooreGUID;
+        ObjectGuid tirionGUID;
 
-        uint64 BlackKnightGUID;
-        uint64 uiVehicle1GUID;
-        uint64 uiVehicle2GUID;
-        uint64 uiVehicle3GUID;
-        uint64 GrandChampionBoss;
+        ObjectGuid BlackKnightGUID;
+        ObjectGuid uiVehicle1GUID;
+        ObjectGuid uiVehicle2GUID;
+        ObjectGuid uiVehicle3GUID;
+        ObjectGuid GrandChampionBoss;
 
-        uint64 uiGrandChampionBoss1;
-        uint64 uiGrandChampionBoss2;
-        uint64 uiGrandChampionBoss3;
+        ObjectGuid uiGrandChampionBoss1;
+        ObjectGuid uiGrandChampionBoss2;
+        ObjectGuid uiGrandChampionBoss3;
 
-        std::list<uint64> Champion1List;
-        std::list<uint64> Champion2List;
-        std::list<uint64> Champion3List;
+        GuidList Champion1List;
+        GuidList Champion2List;
+        GuidList Champion3List;
 
         bool _introDone;
 
@@ -274,9 +274,9 @@ class TW_npc_herald_toc5 : public CreatureScript
             switch (uiType)
             {
                 case DATA_START:
-                    if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                    if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                         instance->HandleGameObject(gate->GetGUID(),true);
-                    if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+                    if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE1)))
                         instance->HandleGameObject(gate->GetGUID(),false);
                     DoSummonGrandChampion(uiFirstBoss);
                     events.ScheduleEvent(EVENT_SUMMON_FACTION_2, 10000, 0, PHASE_INPROGRESS);
@@ -284,7 +284,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                 case DATA_LESSER_CHAMPIONS_DEFEATED:
                 {
                     ++uiLesserChampions;
-                    std::list<uint64> TempList;
+                    GuidList TempList;
                     if (uiLesserChampions == 3 || uiLesserChampions == 6)
                     {
                         switch(uiLesserChampions)
@@ -297,7 +297,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                                 break;
                         }
 
-                        for(std::list<uint64>::const_iterator itr = TempList.begin(); itr != TempList.end(); ++itr)
+                        for (GuidList::const_iterator itr = TempList.begin(); itr != TempList.end(); ++itr)
                         if (Creature* summon = ObjectAccessor::GetCreature(*me, *itr))
                                 AggroAllPlayers(summon);
                     } else if (uiLesserChampions == 9)
@@ -496,7 +496,7 @@ class TW_npc_herald_toc5 : public CreatureScript
 
         void DoStartArgentChampionEncounter()
         {
-            if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HIGHLORD)))
+            if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_HIGHLORD)))
                 tirion->AI()->Talk(SAY_ARGENT_CHAMP_ENTERS);
 
             if (ArgentChampion == NPC_PALETRESS)
@@ -527,7 +527,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                     me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
                     me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MovePoint(1, 735.898f, 651.961f, 411.93f);
-                    if (GameObject* pGO = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                    if (GameObject* pGO = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                         instance->HandleGameObject(pGO->GetGUID(), false);
                     events.ScheduleEvent(EVENT_AGGRO_FACTION, 15000, 0, PHASE_INPROGRESS);
                     break;
@@ -590,7 +590,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                 return;
 
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            if (GameObject* pGO = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1)))
+            if (GameObject* pGO = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE1)))
                 instance->HandleGameObject(pGO->GetGUID(),false);
 
             if (instance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
@@ -776,7 +776,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                     case EVENT_AGGRO_FACTION:
                         if (!Champion1List.empty())
                         {
-                            for(std::list<uint64>::const_iterator itr = Champion1List.begin(); itr != Champion1List.end(); ++itr)
+                            for (GuidList::const_iterator itr = Champion1List.begin(); itr != Champion1List.end(); ++itr)
                             if (Creature* summon = ObjectAccessor::GetCreature(*me, *itr))
                                     AggroAllPlayers(summon);
                         }
@@ -787,11 +787,11 @@ class TW_npc_herald_toc5 : public CreatureScript
                         events.ScheduleEvent(EVENT_PALETRESS_2, 5000, 0, PHASE_INPROGRESS);
                         break;
                     case EVENT_PALETRESS_2:
-                        if (Creature* argentchamp = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARGENT_CHAMPION)))
+                        if (Creature* argentchamp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ARGENT_CHAMPION)))
                             argentchamp->AI()->Talk(SAY_PALETRESS_INTRO_3);
                         events.ScheduleEvent(EVENT_PALETRESS_3, 5000);
                     case EVENT_PALETRESS_3:
-                        if (Creature* argentchamp = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARGENT_CHAMPION)))
+                        if (Creature* argentchamp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ARGENT_CHAMPION)))
                             argentchamp->AI()->Talk(SAY_PALETRESS_INTRO_4);
                         events.CancelEvent(EVENT_PALETRESS_3);
                         break;
@@ -801,7 +801,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                         events.ScheduleEvent(EVENT_EADRIC_2, 5000);
                         break;
                     case EVENT_EADRIC_2:
-                        if (Creature* argentchamp = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARGENT_CHAMPION)))
+                        if (Creature* argentchamp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ARGENT_CHAMPION)))
                             argentchamp->AI()->Talk(SAY_EADRIC_INTRO_3);
                         break;
                 }

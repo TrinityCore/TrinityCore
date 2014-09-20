@@ -265,7 +265,7 @@ class boss_ahune : public CreatureScript
                             if (events.GetPhaseMask() & PHASE_ONE)
                             {
                                 // Emote: Ahune retreats. His defenses diminish.
-                                me->MonsterTextEmote(EMOTE_SUBMERGE, 0, true);
+                                me->TextEmote(EMOTE_SUBMERGE, 0, true);
 
 
                                 events.SetPhase(PHASE_TWO);
@@ -440,7 +440,7 @@ class npc_frozen_core : public CreatureScript
                     {
                         case EVENT_RESURFACE_SOON:
                             // Emote: Ahune will soon resurface.
-                            me->MonsterTextEmote(EMOTE_EMERGE_SOON, 0, true);
+                            me->TextEmote(EMOTE_EMERGE_SOON, 0, true);
                             break;
                     }
                 }

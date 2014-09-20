@@ -550,7 +550,7 @@ class npc_scrapbot : public CreatureScript
             void JustDied(Unit* who) override
             {
                 if (who->GetEntry() == NPC_XE321_BOOMBOT)
-                    if (Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                    if (Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)))
                         xt002->AI()->DoAction(ACTION_INCREASE_SCRAPBOT_COUNT);
             }
 
@@ -1003,15 +1003,15 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
                                 switch(i)
                                 {   
                                     case 1: case 2: case 3: case 4: case 5:
-                                        toyPile->CastSpell(toyPile, SPELL_RECHARGE_SCRAPBOT, true, NULL, NULL, instance->GetData64(BOSS_XT002));
+                                        toyPile->CastSpell(toyPile, SPELL_RECHARGE_SCRAPBOT, true, NULL, NULL, instance->GetGuidData(BOSS_XT002));
                                         break;
                                     case 6:
-                                        toyPile->CastSpell(toyPile, SPELL_RECHARGE_BOOMBOT, true, NULL, NULL, instance->GetData64(BOSS_XT002));
+                                        toyPile->CastSpell(toyPile, SPELL_RECHARGE_BOOMBOT, true, NULL, NULL, instance->GetGuidData(BOSS_XT002));
                                         break;
                                     case 7:
                                         // 50% chance for Pummeler to spawn
                                         if(urand(0,1))
-                                            toyPile->CastSpell(toyPile, SPELL_RECHARGE_PUMMELER, true, NULL, NULL, instance->GetData64(BOSS_XT002));
+                                            toyPile->CastSpell(toyPile, SPELL_RECHARGE_PUMMELER, true, NULL, NULL, instance->GetGuidData(BOSS_XT002));
                                         break;
                                 }
                             }
