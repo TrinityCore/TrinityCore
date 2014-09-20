@@ -436,7 +436,7 @@ public:
             return 0;
         }
 
-        void SetGuidData(uint32 type, ObjectGuid data) override
+        void SetGuidData(uint32 type, ObjectGuid data)
         {
             if (type == DATA_PLAYER)
                 challengeeGUID = data;

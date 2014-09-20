@@ -26989,19 +26989,18 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     return pet;
 }
 
-}
-
 void Player::InitWowarmoryFeeds() {
     // Clear feeds
     m_wowarmory_feeds.clear();
 }
 
-void Player::CreateWowarmoryFeed(uint32 type, uint32 data, uint32 item_guid, uint32 item_quality) {
+void Player::CreateWowarmoryFeed(uint32 type, uint32 data, uint32 item_guid, uint32 item_quality)
+{
     /*
         1 - TYPE_ACHIEVEMENT_FEED
         2 - TYPE_ITEM_FEED
         3 - TYPE_BOSS_FEED
-    */
+        */
     if (GetGUIDLow() == 0)
     {
         TC_LOG_DEBUG("misc", "[Wowarmory]: player is not initialized, unable to create log entry!");
@@ -27022,12 +27021,14 @@ void Player::CreateWowarmoryFeed(uint32 type, uint32 data, uint32 item_guid, uin
     feed.type = type;
     feed.data = data;
     feed.difficulty = type == 3 ? GetMap()->GetDifficulty() : 0;
-    feed.item_guid  = item_guid;
+    feed.item_guid = item_guid;
     feed.item_quality = item_quality;
     feed.counter = 0;
     feed.date = time(NULL);
     TC_LOG_DEBUG("entities.unit", "[Wowarmory]: create wowarmory feed (GUID: %u, type: %d, data: %u).", feed.guid, feed.type, feed.data);
     m_wowarmory_feeds.push_back(feed);
+}
+
 void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell)
 {
     WorldPacket data(SMSG_SUPERCEDED_SPELL, 8);
