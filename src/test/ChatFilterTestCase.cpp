@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "aitest.h"
-#include "../game/playerbot/ChatFilter.h"
+#include "../../plugins/playerbot/ChatFilter.h"
 
 using namespace ai;
 

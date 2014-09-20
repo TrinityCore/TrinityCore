@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "../aitest.h"
-#include "../../game/playerbot/strategy/shaman/ShamanAiObjectContext.h"
+#include "../../../plugins/playerbot/strategy/shaman/ShamanAiObjectContext.h"
 #include "EfficiencyActionExecutionListener.h"
 #include "AbstractEfficiencyTestCase.h"
 

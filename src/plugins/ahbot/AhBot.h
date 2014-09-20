@@ -2,7 +2,7 @@
 
 #include "Category.h"
 #include "ItemBag.h"
-#include "../Playerbot/PlayerbotAIBase.h"
+#include "../playerbot/PlayerbotAIBase.h"
 #include "../AuctionHouse/AuctionHouseMgr.h"
 #include "../WorldSession.h"
 #include "../pchdef.h"

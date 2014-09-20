@@ -41,7 +41,7 @@
 #include "AccountMgr.h"
 
 // Playerbot mod
-#include "../Playerbot/playerbot.h"
+#include "../../plugins/playerbot/playerbot.h"
 
 void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 {

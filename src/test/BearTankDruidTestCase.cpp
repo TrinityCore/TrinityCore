@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "aitest.h"
-#include "../game/playerbot/strategy/druid/DruidAiObjectContext.h"
+#include "../../plugins/playerbot/strategy/druid/DruidAiObjectContext.h"
 
 using namespace ai;
 

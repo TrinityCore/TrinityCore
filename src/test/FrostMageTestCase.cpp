@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "aitest.h"
-#include "../game/playerbot/strategy/mage/MageAiObjectContext.h"
+#include "../../plugins/playerbot/strategy/mage/MageAiObjectContext.h"
 
 using namespace ai;
 

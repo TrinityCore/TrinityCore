@@ -2,15 +2,15 @@
 
 #include "aitest.h"
 #include "EngineTestBase.h"
-#include "../game/playerbot/strategy/druid/DruidAiObjectContext.h"
-#include "../game/playerbot/strategy/paladin/PaladinAiObjectContext.h"
-#include "../game/playerbot/strategy/warrior/WarriorAiObjectContext.h"
-#include "../game/playerbot/strategy/warlock/WarlockAiObjectContext.h"
-#include "../game/playerbot/strategy/mage/MageAiObjectContext.h"
-#include "../game/playerbot/strategy/hunter/HunterAiObjectContext.h"
-#include "../game/playerbot/strategy/priest/PriestAiObjectContext.h"
-#include "../game/playerbot/strategy/shaman/ShamanAiObjectContext.h"
-#include "../game/playerbot/PlayerbotAIConfig.h"
+#include "../../plugins/playerbot/strategy/druid/DruidAiObjectContext.h"
+#include "../../plugins/playerbot/strategy/paladin/PaladinAiObjectContext.h"
+#include "../../plugins/playerbot/strategy/warrior/WarriorAiObjectContext.h"
+#include "../../plugins/playerbot/strategy/warlock/WarlockAiObjectContext.h"
+#include "../../plugins/playerbot/strategy/mage/MageAiObjectContext.h"
+#include "../../plugins/playerbot/strategy/hunter/HunterAiObjectContext.h"
+#include "../../plugins/playerbot/strategy/priest/PriestAiObjectContext.h"
+#include "../../plugins/playerbot/strategy/shaman/ShamanAiObjectContext.h"
+#include "../../plugins/playerbot/PlayerbotAIConfig.h"
 
 using namespace ai;
 

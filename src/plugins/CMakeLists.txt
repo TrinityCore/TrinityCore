@@ -8,22 +8,19 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-file(GLOB_RECURSE sources_cppunit cppunit/*.cpp cppunit/*.h)
-file(GLOB_RECURSE sources_efficiency efficiency/*.cpp efficiency/*.h)
-file(GLOB_RECURSE sources_main *.cpp *.h)
+file(GLOB_RECURSE sources_Playerbot playerbot/*.cpp playerbot/*.h)
+file(GLOB_RECURSE sources_Ahbot ahbot/*.cpp ahbot/*.h)
 
-# Create game-libary
+# Create plugins-libary
 
 if (USE_COREPCH)
-  set(tests_STAT_PCH_HDR pch.h)
-  set(tests_STAT_PCH_SRC pch.cpp)
+  set(plugins_STAT_PCH_HDR pch/pch.h)
+  set(plugins_STAT_PCH_SRC pch/pch.cpp)
 endif ()
 
-set(tests_STAT_SRCS
-  ${tests_STAT_SRCS}
-  ${sources_cppunit}
-  ${sources_efficiency}
-  ${sources_main}
+set(plugins_STAT_SRCS
+  ${sources_Playerbot}
+  ${sources_Ahbot}
 )
 
 include_directories(
@@ -53,8 +50,8 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Packets
   ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
   ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
-  ${CMAKE_SOURCE_DIR}/src/test
-  ${CMAKE_SOURCE_DIR}/src/test/cppunit
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_SOURCE_DIR}/src/server/game
   ${CMAKE_SOURCE_DIR}/src/server/game/Accounts
   ${CMAKE_SOURCE_DIR}/src/server/game/Achievements
   ${CMAKE_SOURCE_DIR}/src/server/game/Addons
@@ -63,6 +60,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/AI/ScriptedAI
   ${CMAKE_SOURCE_DIR}/src/server/game/AI/SmartScripts
   ${CMAKE_SOURCE_DIR}/src/server/game/AuctionHouse
+  ${CMAKE_SOURCE_DIR}/src/server/game/AuctionHouseBot
   ${CMAKE_SOURCE_DIR}/src/server/game/Battlefield
   ${CMAKE_SOURCE_DIR}/src/server/game/Battlefield/Zones
   ${CMAKE_SOURCE_DIR}/src/server/game/Battlegrounds
@@ -79,6 +77,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Corpse
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/DynamicObject
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/GameObject
+  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/pluginsObject
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Item
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Item/Container
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Object
@@ -124,40 +123,19 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Warden/Modules
   ${CMAKE_SOURCE_DIR}/src/server/game/Weather
   ${CMAKE_SOURCE_DIR}/src/server/game/World
-  ${CMAKE_SOURCE_DIR}/src/server/game/Playerbot
   ${CMAKE_SOURCE_DIR}/src/server/scripts/PrecompiledHeaders
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
-  ${CMAKE_SOURCE_DIR}/src/test/cppunit
 )
 
-add_executable(tests
-  ${tests_STAT_SRCS}
-  ${tests_STAT_PCH_SRC}
+add_library(plugins STATIC
+  ${plugins_STAT_SRCS}
+  ${plugins_STAT_PCH_SRC}
 )
 
-add_dependencies(tests revision.h)
-
-target_link_libraries(tests
-  game
-  plugins
-  shared
-  scripts
-  collision
-  g3dlib
-  gsoap
-  Detour
-  ${JEMALLOC_LIBRARY}
-  ${READLINE_LIBRARY}
-  ${TERMCAP_LIBRARY}
-  ${MYSQL_LIBRARY}
-  ${OPENSSL_LIBRARIES}
-  ${ZLIB_LIBRARIES}
-  ${CMAKE_THREAD_LIBS_INIT}
-  ${Boost_LIBRARIES}
-)
+add_dependencies(plugins revision.h)
 
 # Generate precompiled header
 if (USE_COREPCH)
-  add_cxx_pch(tests ${tests_STAT_PCH_HDR} ${tests_STAT_PCH_SRC})
+  add_cxx_pch(plugins ${plugins_STAT_PCH_HDR} ${plugins_STAT_PCH_SRC})
 endif ()

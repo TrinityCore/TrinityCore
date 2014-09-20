@@ -2,7 +2,7 @@
 #include "aitest.h"
 
 #include "EngineTestBase.h"
-#include "../game/playerbot/strategy/druid/DruidAiObjectContext.h"
+#include "../../plugins/playerbot/strategy/druid/DruidAiObjectContext.h"
 
 using namespace ai;
 

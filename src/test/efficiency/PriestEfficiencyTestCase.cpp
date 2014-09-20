@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "../aitest.h"
-#include "../../game/playerbot/strategy/Priest/PriestAiObjectContext.h"
+#include "../../../plugins/playerbot/strategy/Priest/PriestAiObjectContext.h"
 #include "EfficiencyActionExecutionListener.h"
 #include "AbstractEfficiencyTestCase.h"
 

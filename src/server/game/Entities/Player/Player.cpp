@@ -81,7 +81,7 @@
 #include "GameObjectAI.h"
 
 // Playerbot mod:
-#include "../Playerbot/playerbot.h"
+#include "../../plugins/playerbot/playerbot.h"
 
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)

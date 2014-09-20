@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "aitest.h"
-#include "../game/playerbot/strategy/warlock/WarlockAiObjectContext.h"
+#include "../../plugins/playerbot/strategy/warlock/WarlockAiObjectContext.h"
 
 using namespace ai;
 

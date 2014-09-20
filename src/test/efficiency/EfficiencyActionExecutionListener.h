@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../game/playerbot/strategy/Action.h"
-#include "../game/playerbot/strategy/ActionBasket.h"
-#include "../game/playerbot/strategy/Queue.h"
-#include "../game/playerbot/strategy/Trigger.h"
-#include "../game/playerbot/strategy/Engine.h"
+#include "../../plugins/playerbot/strategy/Action.h"
+#include "../../plugins/playerbot/strategy/ActionBasket.h"
+#include "../../plugins/playerbot/strategy/Queue.h"
+#include "../../plugins/playerbot/strategy/Trigger.h"
+#include "../../plugins/playerbot/strategy/Engine.h"
 
 #include "../MockPlayerbotAIBase.h"
 

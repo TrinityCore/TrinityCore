@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "aitest.h"
-#include "../game/playerbot/strategy/rogue/RogueAiObjectContext.h"
+#include "../../plugins/playerbot/strategy/rogue/RogueAiObjectContext.h"
 
 using namespace ai;
 

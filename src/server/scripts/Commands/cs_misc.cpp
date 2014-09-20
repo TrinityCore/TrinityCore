@@ -36,8 +36,8 @@
 #include "GroupMgr.h"
 #include "MMapFactory.h"
 
-#include "../../game/Ahbot/AhBot.h"
-#include "../../game/Playerbot/playerbot.h"
+#include "../../../plugins/ahbot/AhBot.h"
+#include "../../../plugins/playerbot/playerbot.h"
 
 class misc_commandscript : public CommandScript
 {

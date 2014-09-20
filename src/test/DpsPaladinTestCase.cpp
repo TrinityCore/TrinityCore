@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "aitest.h"
-#include "../game/playerbot/strategy/paladin/PaladinAiObjectContext.h"
+#include "../../plugins/playerbot/strategy/paladin/PaladinAiObjectContext.h"
 
 using namespace ai;
 

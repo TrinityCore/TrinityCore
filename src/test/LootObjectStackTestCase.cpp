@@ -2,7 +2,7 @@
 
 #include "aitest.h"
 #include "MockPlayerbotAIBase.h"
-#include "../game/playerbot/LootObjectStack.h"
+#include "../../plugins/playerbot/LootObjectStack.h"
 
 using namespace ai;
 using namespace std;

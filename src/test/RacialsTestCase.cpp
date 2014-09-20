@@ -2,7 +2,7 @@
 
 #include "aitest.h"
 #include "EngineTestBase.h"
-#include "../game/playerbot/strategy/warrior/WarriorAiObjectContext.h"
+#include "../../plugins/playerbot/strategy/warrior/WarriorAiObjectContext.h"
 
 using namespace ai;
 

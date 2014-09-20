@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "aitest.h"
-#include "../game/playerbot/strategy/warrior/WarriorAiObjectContext.h"
+#include "../../plugins/playerbot/strategy/warrior/WarriorAiObjectContext.h"
 
 using namespace ai;
 

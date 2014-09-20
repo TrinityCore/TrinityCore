@@ -8,8 +8,8 @@
 #include "../AuctionHouse/AuctionHouseMgr.h"
 #include "../WorldSession.h"
 #include "../../game/Entities/Player/Player.h"
-#include "../Playerbot/PlayerbotAIConfig.h"
-#include "../Playerbot/playerbot.h"
+#include "../playerbot/PlayerbotAIConfig.h"
+#include "../playerbot/playerbot.h"
 
 using namespace ahbot;
 

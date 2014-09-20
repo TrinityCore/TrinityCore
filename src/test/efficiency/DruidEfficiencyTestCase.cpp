@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "../aitest.h"
-#include "../../game/playerbot/strategy/Druid/DruidAiObjectContext.h"
+#include "../../../plugins/playerbot/strategy/Druid/DruidAiObjectContext.h"
 #include "EfficiencyActionExecutionListener.h"
 #include "AbstractEfficiencyTestCase.h"
 

@@ -66,9 +66,9 @@
 #include "WorldSession.h"
 
 // playerbot mod
-#include "../Ahbot/AhBot.h"
-#include "../Playerbot/PlayerbotAIConfig.h"
-#include "../Playerbot/RandomPlayerbotMgr.h"
+#include "../../plugins/ahbot/AhBot.h"
+#include "../../plugins/playerbot/PlayerbotAIConfig.h"
+#include "../../plugins/playerbot/RandomPlayerbotMgr.h"
 
 
 std::atomic<bool> World::m_stopEvent(false);

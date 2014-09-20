@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "aitest.h"
-#include "../game/playerbot/strategy/priest/PriestAiObjectContext.h"
+#include "../../plugins/playerbot/strategy/priest/PriestAiObjectContext.h"
 
 using namespace ai;
 

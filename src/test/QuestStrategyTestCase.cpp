@@ -3,7 +3,7 @@
 #include "aitest.h"
 #include "MockAiObjectContext.h"
 #include "MockedAiObjectContextTestCase.h"
-#include "../game/playerbot/strategy/generic/ChatCommandHandlerStrategy.h"
+#include "../../plugins/playerbot/strategy/generic/ChatCommandHandlerStrategy.h"
 
 using namespace ai;
 

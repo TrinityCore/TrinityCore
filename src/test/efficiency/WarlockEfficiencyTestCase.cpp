@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "../aitest.h"
-#include "../../game/playerbot/strategy/Warlock/WarlockAiObjectContext.h"
+#include "../../../plugins/playerbot/strategy/Warlock/WarlockAiObjectContext.h"
 #include "EfficiencyActionExecutionListener.h"
 #include "AbstractEfficiencyTestCase.h"
 
