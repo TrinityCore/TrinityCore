@@ -143,6 +143,33 @@ struct boss_twin_baseAI : public BossAI
 {
     boss_twin_baseAI(Creature* creature) : BossAI(creature, BOSS_VALKIRIES)
     {
+        Initialize();
+        AuraState = AURA_STATE_NONE;
+
+        Stage = 0;
+
+        Weapon = 0;
+
+        VortexEmote = 0;
+        SisterNpcId = 0;
+        MyEmphatySpellId = 0;
+        OtherEssenceSpellId = 0;
+        SurgeSpellId = 0;
+        VortexSpellId = 0;
+        ShieldSpellId = 0;
+        TwinPactSpellId = 0;
+        SpikeSpellId = 0;
+        TouchSpellId = 0;
+    }
+
+    void Initialize()
+    {
+        IsBerserk = false;
+
+        SpecialAbilityTimer = 1 * MINUTE*IN_MILLISECONDS;
+        SpikeTimer = 20 * IN_MILLISECONDS;
+        TouchTimer = urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
+        BerserkTimer = IsHeroic() ? 6 * MINUTE*IN_MILLISECONDS : 10 * MINUTE*IN_MILLISECONDS;
     }
 
     void Reset() override
@@ -153,12 +180,7 @@ struct boss_twin_baseAI : public BossAI
         /* Uncomment this once that they are floating above the ground
         me->SetLevitate(true);
         me->SetFlying(true); */
-        IsBerserk = false;
-
-        SpecialAbilityTimer = 1*MINUTE*IN_MILLISECONDS;
-        SpikeTimer = 20*IN_MILLISECONDS;
-        TouchTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
-        BerserkTimer = IsHeroic() ? 6*MINUTE*IN_MILLISECONDS : 10*MINUTE*IN_MILLISECONDS;
+        Initialize();
 
         summons.DespawnAll();
     }
@@ -245,7 +267,7 @@ struct boss_twin_baseAI : public BossAI
     // Called when sister pointer needed
     Creature* GetSister()
     {
-        return ObjectAccessor::GetCreature((*me), instance->GetData64(SisterNpcId));
+        return ObjectAccessor::GetCreature((*me), instance->GetGuidData(SisterNpcId));
     }
 
     void EnterCombat(Unit* /*who*/) override
@@ -425,13 +447,13 @@ class boss_fjola : public CreatureScript
 
             void EnterEvadeMode() override
             {
-                instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
                 boss_twin_baseAI::EnterEvadeMode();
             }
 
             void JustReachedHome() override
             {
-                instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
 
                 boss_twin_baseAI::JustReachedHome();
             }
@@ -524,6 +546,12 @@ struct npc_unleashed_ballAI : public ScriptedAI
 {
     npc_unleashed_ballAI(Creature* creature) : ScriptedAI(creature)
     {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        RangeCheckTimer = 0.5*IN_MILLISECONDS;
     }
 
     void MoveToNextPoint()
@@ -548,7 +576,7 @@ struct npc_unleashed_ballAI : public ScriptedAI
         me->SetCanFly(true);
         SetCombatMovement(false);
         MoveToNextPoint();
-        RangeCheckTimer = 0.5*IN_MILLISECONDS;
+        Initialize();
     }
 
     void MovementInform(uint32 uiType, uint32 uiId) override
@@ -836,7 +864,7 @@ class spell_power_of_the_twins : public SpellScriptLoader
             {
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                 {
-                    if (Creature* Valk = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(GetCaster()->GetEntry())))
+                    if (Creature* Valk = ObjectAccessor::GetCreature(*GetCaster(), instance->GetGuidData(GetCaster()->GetEntry())))
                         ENSURE_AI(boss_twin_baseAI, Valk->AI())->EnableDualWield(true);
                 }
             }
@@ -845,7 +873,7 @@ class spell_power_of_the_twins : public SpellScriptLoader
             {
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                 {
-                    if (Creature* Valk = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(GetCaster()->GetEntry())))
+                    if (Creature* Valk = ObjectAccessor::GetCreature(*GetCaster(), instance->GetGuidData(GetCaster()->GetEntry())))
                         ENSURE_AI(boss_twin_baseAI, Valk->AI())->EnableDualWield(false);
                 }
             }

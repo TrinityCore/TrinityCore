@@ -166,7 +166,7 @@ class example_escort : public CreatureScript
                     {
                         if (m_uiChatTimer <= uiDiff)
                         {
-                            if (me->HasAura(SPELL_ELIXIR_OF_FORTITUDE, 0))
+                            if (me->HasAura(SPELL_ELIXIR_OF_FORTITUDE))
                             {
                                 Talk(SAY_RAND_1);
                                 DoCast(me, SPELL_BLUE_FIREWORK, false);

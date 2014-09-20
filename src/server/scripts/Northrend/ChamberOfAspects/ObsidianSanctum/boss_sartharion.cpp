@@ -130,14 +130,22 @@ public:
 
     struct boss_sartharionAI : public BossAI
     {
-        boss_sartharionAI(Creature* creature) : BossAI(creature, DATA_SARTHARION) { }
+        boss_sartharionAI(Creature* creature) : BossAI(creature, DATA_SARTHARION)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            _isBerserk = false;
+            _isSoftEnraged = false;
+            _isHardEnraged = false;
+            drakeCount = 0;
+        }
 
         void Reset() override
         {
-            _isBerserk     = false;
-            _isSoftEnraged = false;
-            _isHardEnraged = false;
-            drakeCount     = 0;
+            Initialize();
 
             if (me->HasAura(SPELL_TWILIGHT_REVENGE))
                 me->RemoveAurasDueToSpell(SPELL_TWILIGHT_REVENGE);
@@ -176,15 +184,15 @@ public:
             Talk(SAY_SARTHARION_DEATH);
             _JustDied();
 
-            if (Creature* tenebron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TENEBRON)))
+            if (Creature* tenebron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TENEBRON)))
                 if (tenebron->IsAlive())
                     tenebron->DisappearAndDie();
 
-            if (Creature* shadron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADRON)))
+            if (Creature* shadron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADRON)))
                 if (shadron->IsAlive())
                     shadron->DisappearAndDie();
 
-            if (Creature* vesperon = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VESPERON)))
+            if (Creature* vesperon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VESPERON)))
                 if (vesperon->IsAlive())
                     vesperon->DisappearAndDie();
         }
@@ -209,7 +217,7 @@ public:
 
         void DrakeRespawn() // Drakes respawning system
         {
-            if (Creature* tenebron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TENEBRON)))
+            if (Creature* tenebron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TENEBRON)))
             {
                 tenebron->SetHomePosition(3239.07f, 657.235f, 86.8775f, 4.74729f);
                 if (tenebron->IsAlive())
@@ -229,7 +237,7 @@ public:
                 }
             }
 
-            if (Creature* shadron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADRON)))
+            if (Creature* shadron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADRON)))
             {
                 shadron->SetHomePosition(3363.06f, 525.28f, 98.362f, 4.76475f);
                 if (shadron->IsAlive())
@@ -249,7 +257,7 @@ public:
                 }
             }
 
-            if (Creature* vesperon = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VESPERON)))
+            if (Creature* vesperon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VESPERON)))
             {
                 vesperon->SetHomePosition(3145.68f, 520.71f, 89.7f, 4.64258f);
                 if (vesperon->IsAlive())
@@ -278,7 +286,7 @@ public:
             //if at least one of the dragons are alive and are being called
             bool _canUseWill = false;
 
-            if (Creature* fetchTene = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TENEBRON)))
+            if (Creature* fetchTene = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TENEBRON)))
             {
                 if (fetchTene->IsAlive() && !fetchTene->GetVictim())
                 {
@@ -296,7 +304,7 @@ public:
                 }
             }
 
-            if (Creature* fetchShad = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADRON)))
+            if (Creature* fetchShad = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADRON)))
             {
                 if (fetchShad->IsAlive() && !fetchShad->GetVictim())
                 {
@@ -314,7 +322,7 @@ public:
                 }
             }
 
-            if (Creature* fetchVesp = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VESPERON)))
+            if (Creature* fetchVesp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VESPERON)))
             {
                 if (fetchVesp && fetchVesp->IsAlive() && !fetchVesp->GetVictim())
                 {
@@ -338,7 +346,7 @@ public:
 
         void CallDragon(uint32 dataId)
         {
-            if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetData64(dataId)))
+            if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(dataId)))
             {
                 if (temp->IsAlive() && !temp->GetVictim())
                 {

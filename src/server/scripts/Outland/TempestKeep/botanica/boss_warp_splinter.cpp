@@ -74,10 +74,9 @@ class npc_warp_splinter_treant : public CreatureScript
         {
             npc_warp_splinter_treantAI(Creature* creature) : ScriptedAI(creature)
             {
-                WarpGuid = 0;
             }
 
-            uint64 WarpGuid;
+            ObjectGuid WarpGuid;
             uint32 check_Timer;
 
             void Reset() override

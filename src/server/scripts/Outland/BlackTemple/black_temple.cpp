@@ -156,11 +156,11 @@ public:
                         }
                         case EVENT_SET_CHANNELERS:
                         {
-                            for (uint64 guid : _bloodmageList)
+                            for (ObjectGuid guid : _bloodmageList)
                                 if (Creature* bloodmage = ObjectAccessor::GetCreature(*me, guid))
                                     bloodmage->CastSpell((Unit*)NULL, SPELL_SUMMON_CHANNEL);
 
-                            for (uint64 guid : _deathshaperList)
+                            for (ObjectGuid guid : _deathshaperList)
                                 if (Creature* deathshaper = ObjectAccessor::GetCreature(*me, guid))
                                     deathshaper->CastSpell((Unit*)NULL, SPELL_SUMMON_CHANNEL);
 
@@ -202,8 +202,8 @@ public:
         private:
             InstanceScript* _instance;
             EventMap _events;
-            std::list<uint64> _bloodmageList;
-            std::list<uint64> _deathshaperList;
+            GuidList _bloodmageList;
+            GuidList _deathshaperList;
             bool _enteredCombat;
         };
 

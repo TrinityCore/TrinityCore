@@ -281,7 +281,7 @@ void OPvPCapturePointTF::ChangeState()
 
         m_PvP->SendDefenseMessage(OutdoorPvPTFBuffZones[0], TEXT_SPIRIT_TOWER_TAKEN_ALLIANCE);
 
-        for (PlayerSet::iterator itr = m_activePlayers[0].begin(); itr != m_activePlayers[0].end(); ++itr)
+        for (GuidSet::iterator itr = m_activePlayers[0].begin(); itr != m_activePlayers[0].end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 player->AreaExploredOrEventHappens(TF_ALLY_QUEST);
         break;
@@ -296,7 +296,7 @@ void OPvPCapturePointTF::ChangeState()
 
         m_PvP->SendDefenseMessage(OutdoorPvPTFBuffZones[0], TEXT_SPIRIT_TOWER_TAKEN_HORDE);
 
-        for (PlayerSet::iterator itr = m_activePlayers[1].begin(); itr != m_activePlayers[1].end(); ++itr)
+        for (GuidSet::iterator itr = m_activePlayers[1].begin(); itr != m_activePlayers[1].end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 player->AreaExploredOrEventHappens(TF_HORDE_QUEST);
         break;

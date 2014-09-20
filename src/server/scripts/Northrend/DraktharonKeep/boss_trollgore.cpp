@@ -73,12 +73,20 @@ class boss_trollgore : public CreatureScript
 
         struct boss_trollgoreAI : public BossAI
         {
-            boss_trollgoreAI(Creature* creature) : BossAI(creature, DATA_TROLLGORE) { }
+            boss_trollgoreAI(Creature* creature) : BossAI(creature, DATA_TROLLGORE)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _consumptionJunction = true;
+            }
 
             void Reset() override
             {
                 _Reset();
-                _consumptionJunction = true;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -127,7 +135,7 @@ class boss_trollgore : public CreatureScript
                             break;
                         case EVENT_SPAWN:
                             for (uint8 i = 0; i < 3; ++i)
-                                if (Creature* trigger = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TROLLGORE_INVADER_SUMMONER_1 + i)))
+                                if (Creature* trigger = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TROLLGORE_INVADER_SUMMONER_1 + i)))
                                     trigger->CastSpell(trigger, RAND(SPELL_SUMMON_INVADER_A, SPELL_SUMMON_INVADER_B, SPELL_SUMMON_INVADER_C), true, NULL, NULL, me->GetGUID());
 
                             events.ScheduleEvent(EVENT_SPAWN, urand(30000, 40000));

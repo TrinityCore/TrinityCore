@@ -51,7 +51,17 @@ public:
 
     struct npc_lazy_peonAI : public ScriptedAI
     {
-        npc_lazy_peonAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_lazy_peonAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            PlayerGUID = 0;
+            RebuffTimer = 0;
+            work = false;
+        }
 
         uint64 PlayerGUID;
 
@@ -60,9 +70,7 @@ public:
 
         void Reset() override
         {
-            PlayerGUID = 0;
-            RebuffTimer = 0;
-            work = false;
+            Initialize();
         }
 
         void MovementInform(uint32 /*type*/, uint32 id) override
@@ -234,8 +242,7 @@ class npc_tiger_matriarch : public CreatureScript
 
         struct npc_tiger_matriarchAI : public ScriptedAI
         {
-            npc_tiger_matriarchAI(Creature* creature) : ScriptedAI(creature),
-                _tigerGuid(0)
+            npc_tiger_matriarchAI(Creature* creature) : ScriptedAI(creature)
             {
             }
 
@@ -335,7 +342,7 @@ class npc_tiger_matriarch : public CreatureScript
 
         private:
             EventMap _events;
-            uint64 _tigerGuid;
+            ObjectGuid _tigerGuid;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -360,6 +367,13 @@ class npc_troll_volunteer : public CreatureScript
         {
             npc_troll_volunteerAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
+                _mountModel = 0;
+            }
+
+            void Initialize()
+            {
+                _complete = false;
             }
 
             void InitializeAI() override
@@ -391,7 +405,7 @@ class npc_troll_volunteer : public CreatureScript
 
             void Reset() override
             {
-                _complete = false;
+                Initialize();
                 me->AddAura(SPELL_VOLUNTEER_AURA, me);
                 me->AddAura(SPELL_MOUNTING_CHECK, me);
                 DoCast(me, SPELL_PETACT_AURA);

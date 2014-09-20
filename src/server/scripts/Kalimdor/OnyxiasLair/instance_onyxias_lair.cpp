@@ -50,9 +50,9 @@ public:
 
         void Initialize() override
         {
+            SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
 
-            onyxiaGUID               = 0;
             onyxiaLiftoffTimer       = 0;
             manyWhelpsCounter        = 0;
             eruptTimer               = 0;
@@ -101,7 +101,7 @@ public:
             }
         }
 
-        void FloorEruption(uint64 floorEruptedGUID)
+        void FloorEruption(ObjectGuid floorEruptedGUID)
         {
             if (GameObject* floorEruption = instance->GetGameObject(floorEruptedGUID))
             {
@@ -120,7 +120,7 @@ public:
                 {
                     if (((*itr)->GetGOInfo()->displayId == 4392 || (*itr)->GetGOInfo()->displayId == 4472) && (*itr)->GetGOInfo()->trap.spellId == 17731)
                     {
-                        uint64 nearFloorGUID = (*itr)->GetGUID();
+                        ObjectGuid nearFloorGUID = (*itr)->GetGUID();
                         if (FloorEruptionGUID[1].find(nearFloorGUID) != FloorEruptionGUID[1].end() && (*FloorEruptionGUID[1].find(nearFloorGUID)).second == 0)
                         {
                             (*FloorEruptionGUID[1].find(nearFloorGUID)).second = (*FloorEruptionGUID[1].find(floorEruptedGUID)).second+1;
@@ -172,7 +172,7 @@ public:
             }
         }
 
-        void SetData64(uint32 type, uint64 data) override
+        void SetGuidData(uint32 type, ObjectGuid data) override
         {
             switch (type)
             {
@@ -184,7 +184,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 data) const override
+        ObjectGuid GetGuidData(uint32 data) const override
         {
             switch (data)
             {
@@ -192,7 +192,7 @@ public:
                     return onyxiaGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void Update(uint32 diff) override
@@ -211,8 +211,8 @@ public:
             {
                 if (eruptTimer <= diff)
                 {
-                    uint64 frontGuid = FloorEruptionGUIDQueue.front();
-                    std::map<uint64, uint32>::iterator itr = FloorEruptionGUID[1].find(frontGuid);
+                    ObjectGuid frontGuid = FloorEruptionGUIDQueue.front();
+                    std::map<ObjectGuid, uint32>::iterator itr = FloorEruptionGUID[1].find(frontGuid);
                     if (itr != FloorEruptionGUID[1].end())
                     {
                         uint32 treeHeight = itr->second;
@@ -250,59 +250,15 @@ public:
             return false;
         }
 
-        std::string GetSaveData() override
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-            saveStream << "O L " << GetBossSaveData();
-
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return saveStream.str();
-        }
-
-        void Load(const char* strIn) override
-        {
-            if (!strIn)
-            {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
-            }
-
-            OUT_LOAD_INST_DATA(strIn);
-
-            char dataHead1, dataHead2;
-
-            std::istringstream loadStream(strIn);
-            loadStream >> dataHead1 >> dataHead2;
-
-            if (dataHead1 == 'O' && dataHead2 == 'L')
-            {
-                for (uint8 i = 0; i < EncounterCount; ++i)
-                {
-                    uint32 tmpState;
-                    loadStream >> tmpState;
-                    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                        tmpState = NOT_STARTED;
-
-                    SetBossState(i, EncounterState(tmpState));
-                }
-            }
-            else
-                OUT_LOAD_INST_DATA_FAIL;
-
-            OUT_LOAD_INST_DATA_COMPLETE;
-        }
-
-        protected:
-            std::map<uint64, uint32> FloorEruptionGUID[2];
-            std::queue<uint64> FloorEruptionGUIDQueue;
-            uint64 onyxiaGUID;
-            uint32 onyxiaLiftoffTimer;
-            uint32 manyWhelpsCounter;
-            uint32 eruptTimer;
-            bool   achievManyWhelpsHandleIt;
-            bool   achievSheDeepBreathMore;
+    protected:
+        std::map<ObjectGuid, uint32> FloorEruptionGUID[2];
+        std::queue<ObjectGuid> FloorEruptionGUIDQueue;
+        ObjectGuid onyxiaGUID;
+        uint32 onyxiaLiftoffTimer;
+        uint32 manyWhelpsCounter;
+        uint32 eruptTimer;
+        bool   achievManyWhelpsHandleIt;
+        bool   achievSheDeepBreathMore;
     };
 };
 

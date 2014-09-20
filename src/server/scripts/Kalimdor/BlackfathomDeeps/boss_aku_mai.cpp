@@ -38,11 +38,19 @@ public:
 
     struct boss_aku_maiAI : public BossAI
     {
-        boss_aku_maiAI(Creature* creature) : BossAI(creature, TYPE_AKU_MAI) { }
+        boss_aku_maiAI(Creature* creature) : BossAI(creature, TYPE_AKU_MAI)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            IsEnraged = false;
+        }
 
         void Reset() override
         {
-            IsEnraged = false;
+            Initialize();
             _Reset();
         }
 

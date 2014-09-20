@@ -34,15 +34,9 @@ class instance_scarlet_monastery : public InstanceMapScript
         {
             instance_scarlet_monastery_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-
-                PumpkinShrineGUID      = 0;
-                HorsemanGUID           = 0;
-                HeadGUID               = 0;
-                MograineGUID           = 0;
-                WhitemaneGUID          = 0;
-                VorrelGUID             = 0;
 
                 HorsemanAdds.clear();
             }
@@ -123,7 +117,7 @@ class instance_scarlet_monastery : public InstanceMapScript
                     case DATA_HORSEMAN_EVENT:
                         if (state == DONE)
                         {
-                            for (uint64 guid : HorsemanAdds)
+                            for (ObjectGuid guid : HorsemanAdds)
                             {
                                 Creature* add = instance->GetCreature(guid);
                                 if (add && add->IsAlive())
@@ -139,7 +133,7 @@ class instance_scarlet_monastery : public InstanceMapScript
                 return true;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -152,62 +146,18 @@ class instance_scarlet_monastery : public InstanceMapScript
                     default:
                         break;
                 }
-                return 0;
-            }
-
-            std::string GetSaveData() override
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "S M " << GetBossSaveData();
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(const char* str) override
-            {
-                if (!str)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(str);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(str);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'S' && dataHead2 == 'M')
-                {
-                    for (uint8 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
+                return ObjectGuid::Empty;
             }
 
         protected:
-            uint64 PumpkinShrineGUID;
-            uint64 HorsemanGUID;
-            uint64 HeadGUID;
-            uint64 MograineGUID;
-            uint64 WhitemaneGUID;
-            uint64 VorrelGUID;
+            ObjectGuid PumpkinShrineGUID;
+            ObjectGuid HorsemanGUID;
+            ObjectGuid HeadGUID;
+            ObjectGuid MograineGUID;
+            ObjectGuid WhitemaneGUID;
+            ObjectGuid VorrelGUID;
 
-            std::set<uint64> HorsemanAdds;
+            GuidSet HorsemanAdds;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

@@ -51,7 +51,7 @@ class TempSummon : public Creature
         void SaveToDB(uint32 /*mapid*/, uint8 /*spawnMask*/, uint32 /*phaseMask*/) override { }
         Unit* GetSummoner() const;
         Creature* GetSummonerCreatureBase() const;
-        uint64 GetSummonerGUID() const { return m_summonerGUID; }
+        ObjectGuid GetSummonerGUID() const { return m_summonerGUID; }
         TempSummonType const& GetSummonType() { return m_type; }
         uint32 GetTimer() { return m_timer; }
 
@@ -60,7 +60,7 @@ class TempSummon : public Creature
         TempSummonType m_type;
         uint32 m_timer;
         uint32 m_lifetime;
-        uint64 m_summonerGUID;
+        ObjectGuid m_summonerGUID;
 };
 
 class Minion : public TempSummon

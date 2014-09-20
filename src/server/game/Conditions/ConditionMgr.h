@@ -146,8 +146,9 @@ enum RelationType
 enum InstanceInfo
 {
     INSTANCE_INFO_DATA = 0,
-    INSTANCE_INFO_DATA64,
-    INSTANCE_INFO_BOSS_STATE
+    INSTANCE_INFO_GUID_DATA,
+    INSTANCE_INFO_BOSS_STATE,
+    INSTANCE_INFO_DATA64
 };
 
 enum MaxConditionTargets

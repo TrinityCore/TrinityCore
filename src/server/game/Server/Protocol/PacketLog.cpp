@@ -93,11 +93,12 @@ void PacketLog::Initialize()
         header.SniffStartTicks = getMSTime();
         header.OptionalDataSize = 0;
 
-        fwrite(&header, sizeof(header), 1, _file);
+        if (CanLogPacket())
+            fwrite(&header, sizeof(header), 1, _file);
     }
 }
 
-void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost::asio::ip::address addr, uint16 port)
+void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost::asio::ip::address const& addr, uint16 port)
 {
     std::lock_guard<std::mutex> lock(_logPacketLock);
 

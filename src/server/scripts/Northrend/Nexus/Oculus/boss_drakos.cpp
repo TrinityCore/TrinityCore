@@ -57,7 +57,15 @@ class boss_drakos : public CreatureScript
 
         struct boss_drakosAI : public BossAI
         {
-            boss_drakosAI(Creature* creature) : BossAI(creature, DATA_DRAKOS) { }
+            boss_drakosAI(Creature* creature) : BossAI(creature, DATA_DRAKOS)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                postPull = false;
+            }
 
             void Reset() override
             {
@@ -67,7 +75,7 @@ class boss_drakos : public CreatureScript
                 events.ScheduleEvent(EVENT_STOMP, 17000);
                 events.ScheduleEvent(EVENT_BOMB_SUMMON, 2000);
 
-                postPull = false;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -150,7 +158,15 @@ class npc_unstable_sphere : public CreatureScript
 
         struct npc_unstable_sphereAI : public ScriptedAI
         {
-            npc_unstable_sphereAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_unstable_sphereAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                pulseTimer = 3000;
+            }
 
             void Reset() override
             {
@@ -160,7 +176,7 @@ class npc_unstable_sphere : public CreatureScript
                 me->AddAura(SPELL_UNSTABLE_SPHERE_PASSIVE, me);
                 me->AddAura(SPELL_UNSTABLE_SPHERE_TIMER, me);
 
-                pulseTimer = 3000;
+                Initialize();
 
                 me->DespawnOrUnsummon(19000);
             }

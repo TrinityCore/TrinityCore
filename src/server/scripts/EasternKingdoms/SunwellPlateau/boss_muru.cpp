@@ -153,7 +153,7 @@ public:
 
         void EnterEvadeMode() override
         {
-            if (Creature* muru = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MURU)))
+            if (Creature* muru = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MURU)))
                 muru->AI()->Reset(); // Reset encounter.
             me->DisappearAndDie();
             summons.DespawnAll();
@@ -183,7 +183,7 @@ public:
         {
             DarkFiend = false;
             HasEnraged = false;
-            EntropiusGUID = 0;
+            EntropiusGUID.Clear();
         }
 
         void Reset() override
@@ -278,7 +278,7 @@ public:
     private:
         bool DarkFiend;
         bool HasEnraged;
-        uint64 EntropiusGUID;
+        ObjectGuid EntropiusGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -301,8 +301,17 @@ public:
     {
         npc_muru_portalAI(Creature* creature) : ScriptedAI(creature), Summons(creature)
         {
+            Initialize();
             SetCombatMovement(false);
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            SummonTimer = 5000;
+
+            InAction = false;
+            SummonSentinel = false;
         }
 
         InstanceScript* instance;
@@ -316,10 +325,7 @@ public:
 
         void Reset() override
         {
-            SummonTimer = 5000;
-
-            InAction = false;
-            SummonSentinel = false;
+            Initialize();
 
             me->AddUnitState(UNIT_STATE_STUNNED);
 
@@ -328,7 +334,7 @@ public:
 
         void JustSummoned(Creature* summoned) override
         {
-            if (Player* target = ObjectAccessor::GetPlayer(*me, instance->GetData64(DATA_PLAYER_GUID)))
+            if (Player* target = ObjectAccessor::GetPlayer(*me, instance->GetGuidData(DATA_PLAYER_GUID)))
                 summoned->AI()->AttackStart(target);
 
             Summons.Summon(summoned);
@@ -383,15 +389,23 @@ public:
 
     struct npc_dark_fiendAI : public ScriptedAI
     {
-        npc_dark_fiendAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_dark_fiendAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            WaitTimer = 2000;
+            InAction = false;
+        }
 
         uint32 WaitTimer;
         bool InAction;
 
         void Reset() override
         {
-            WaitTimer = 2000;
-            InAction = false;
+            Initialize();
 
             me->AddUnitState(UNIT_STATE_STUNNED);
         }
@@ -444,15 +458,23 @@ public:
 
     struct npc_void_sentinelAI : public ScriptedAI
     {
-        npc_void_sentinelAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_void_sentinelAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            PulseTimer = 3000;
+            VoidBlastTimer = 45000; //is this a correct timer?
+        }
 
         uint32 PulseTimer;
         uint32 VoidBlastTimer;
 
         void Reset() override
         {
-            PulseTimer = 3000;
-            VoidBlastTimer = 45000; //is this a correct timer?
+            Initialize();
 
             float x, y, z, o;
             me->GetHomePosition(x, y, z, o);
@@ -502,7 +524,16 @@ public:
     {
         npc_blackholeAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            DespawnTimer = 15000;
+            SpellTimer = 5000;
+            Phase = 0;
+            NeedForAHack = 0;
         }
 
         InstanceScript* instance;
@@ -514,10 +545,7 @@ public:
 
         void Reset() override
         {
-            DespawnTimer = 15000;
-            SpellTimer = 5000;
-            Phase = 0;
-            NeedForAHack = 0;
+            Initialize();
 
             me->AddUnitState(UNIT_STATE_STUNNED);
             DoCastAOE(SPELL_BLACKHOLE_SPAWN, true);
@@ -527,7 +555,7 @@ public:
         {
             if (SpellTimer <= diff)
             {
-                Unit* Victim = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_PLAYER_GUID));
+                Unit* Victim = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_PLAYER_GUID));
                 switch (NeedForAHack)
                 {
                     case 0:
@@ -546,7 +574,7 @@ public:
                     case 2:
                         SpellTimer = 400;
                         NeedForAHack = 3;
-                        me->RemoveAura(SPELL_BLACKHOLE_GROW, 1);
+                        me->RemoveAura(SPELL_BLACKHOLE_GROW);
                         break;
                     case 3:
                         SpellTimer = urand(400, 900);

@@ -22,7 +22,9 @@
 enum Spells
 {
     SPELL_CORRUPTING_BLIGHT                     = 60588,
-    SPELL_VOID_STRIKE                           = 60590
+    SPELL_VOID_STRIKE                           = 60590,
+    SPELL_CORRUPTION_OF_TIME_CHANNEL            = 60422,
+    SPELL_CORRUPTION_OF_TIME_TARGET             = 60451
 };
 
 enum Yells
@@ -32,52 +34,78 @@ enum Yells
     SAY_FAIL                                    = 2
 };
 
+enum Events
+{
+    EVENT_CORRUPTING_BLIGHT                     = 1,
+    EVENT_VOID_STRIKE
+};
+
 class boss_infinite_corruptor : public CreatureScript
 {
-public:
-    boss_infinite_corruptor() : CreatureScript("boss_infinite_corruptor") { }
+    public:
+        boss_infinite_corruptor() : CreatureScript("boss_infinite_corruptor") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_infinite_corruptorAI>(creature);
-    }
-
-    struct boss_infinite_corruptorAI : public ScriptedAI
-    {
-        boss_infinite_corruptorAI(Creature* creature) : ScriptedAI(creature)
+        struct boss_infinite_corruptorAI : public BossAI
         {
-            instance = creature->GetInstanceScript();
-        }
+            boss_infinite_corruptorAI(Creature* creature) : BossAI(creature, DATA_INFINITE) { }
 
-        InstanceScript* instance;
+            void Reset() override
+            {
+                _Reset();
 
-        void Reset() override
+                if (Creature* guardian = me->FindNearestCreature(NPC_GUARDIAN_OF_TIME, 100.0f))
+                {
+                    DoCast((Unit*)NULL, SPELL_CORRUPTION_OF_TIME_CHANNEL, false);
+                    guardian->CastSpell(guardian, SPELL_CORRUPTION_OF_TIME_TARGET, false);
+                }
+            }
+
+            void EnterCombat(Unit* /*who*/) override
+            {
+                Talk(SAY_AGGRO);
+                _EnterCombat();
+                events.ScheduleEvent(EVENT_CORRUPTING_BLIGHT, 7000);
+                events.ScheduleEvent(EVENT_VOID_STRIKE, 5000);
+            }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                Talk(SAY_DEATH);
+                _JustDied();
+
+                if (Creature* guardian = me->FindNearestCreature(NPC_GUARDIAN_OF_TIME, 100.0f))
+                {
+                    guardian->RemoveAurasDueToSpell(SPELL_CORRUPTION_OF_TIME_TARGET);
+                    guardian->DespawnOrUnsummon(5000);
+                }
+
+                if (Creature* rift = me->FindNearestCreature(NPC_TIME_RIFT, 100.0f))
+                    rift->DespawnOrUnsummon();
+            }
+
+            void ExecuteEvent(uint32 eventId) override
+            {
+                switch (eventId)
+                {
+                    case EVENT_CORRUPTING_BLIGHT:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
+                            DoCast(target, SPELL_CORRUPTING_BLIGHT);
+                        events.ScheduleEvent(EVENT_CORRUPTING_BLIGHT, 17000);
+                        break;
+                    case EVENT_VOID_STRIKE:
+                        DoCastVictim(SPELL_VOID_STRIKE);
+                        events.ScheduleEvent(EVENT_VOID_STRIKE, 5000);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            instance->SetData(DATA_INFINITE_EVENT, NOT_STARTED);
+            return GetInstanceAI<boss_infinite_corruptorAI>(creature);
         }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
-            Talk(SAY_AGGRO);
-            instance->SetData(DATA_INFINITE_EVENT, IN_PROGRESS);
-        }
-
-        void UpdateAI(uint32 /*diff*/) override
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            Talk(SAY_DEATH);
-            instance->SetData(DATA_INFINITE_EVENT, DONE);
-        }
-    };
-
 };
 
 void AddSC_boss_infinite_corruptor()

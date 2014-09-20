@@ -81,6 +81,9 @@ public:
             Initialize();
             instance = creature->GetInstanceScript();
             Intro = true;
+            RainBones = false;
+            Skeletons = false;
+            FlyTimer = 0;
         }
 
         void Initialize()
@@ -156,8 +159,8 @@ public:
 
         void HandleTerraceDoors(bool open)
         {
-            instance->HandleGameObject(instance->GetData64(DATA_MASTERS_TERRACE_DOOR_1), open);
-            instance->HandleGameObject(instance->GetData64(DATA_MASTERS_TERRACE_DOOR_2), open);
+            instance->HandleGameObject(instance->GetGuidData(DATA_MASTERS_TERRACE_DOOR_1), open);
+            instance->HandleGameObject(instance->GetGuidData(DATA_MASTERS_TERRACE_DOOR_2), open);
         }
 
         void EnterCombat(Unit* /*who*/) override

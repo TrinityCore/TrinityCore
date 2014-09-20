@@ -67,13 +67,13 @@ public:
 
         uint32 CheckTeronTimer;
         uint32 ShadowBoltTimer;
-        uint64 TeronGUID;
+        ObjectGuid TeronGUID;
 
         void Reset() override
         {
             CheckTeronTimer = 5000;
             ShadowBoltTimer = 12000;
-            TeronGUID = 0;
+            TeronGUID.Clear();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -113,7 +113,7 @@ public:
             return;
         }
 
-        void SetTeronGUID(uint64 guid)
+        void SetTeronGUID(ObjectGuid guid)
         {
             TeronGUID = guid;
         }
@@ -134,16 +134,16 @@ public:
     {
         npc_shadowy_constructAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 GhostGUID;
-        uint64 TeronGUID;
+        ObjectGuid GhostGUID;
+        ObjectGuid TeronGUID;
 
         uint32 CheckPlayerTimer;
         uint32 CheckTeronTimer;
 
         void Reset() override
         {
-            GhostGUID = 0;
-            TeronGUID = 0;
+            GhostGUID.Clear();
+            TeronGUID.Clear();
 
             CheckPlayerTimer = 2000;
             CheckTeronTimer = 5000;
@@ -238,8 +238,8 @@ public:
         uint32 RandomYellTimer;
         uint32 AggroTimer;
 
-        uint64 AggroTargetGUID;
-        uint64 GhostGUID;                                       // Player that gets killed by Shadow of Death and gets turned into a ghost
+        ObjectGuid AggroTargetGUID;
+        ObjectGuid GhostGUID;                                       // Player that gets killed by Shadow of Death and gets turned into a ghost
 
         bool Intro;
         bool Done;
@@ -260,7 +260,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
             AggroTimer = 20000;
-            AggroTargetGUID = 0;
+            AggroTargetGUID.Clear();
             Intro = false;
             Done = false;
         }

@@ -26,7 +26,6 @@ EndScriptData */
 /* ContentData
 npc_iruk
 npc_corastrasza
-npc_jenny
 npc_sinkhole_kill_credit
 npc_khunok_the_behemoth
 npc_nerubar_victim
@@ -72,13 +71,13 @@ public:
 
         uint32 phaseTimer;
         uint8  phase;
-        uint64 casterGuid;
+        ObjectGuid casterGuid;
 
         void Reset() override
         {
             phaseTimer = 500;
             phase = 0;
-            casterGuid = 0;
+            casterGuid.Clear();
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell) override
@@ -392,7 +391,7 @@ public:
                 if (uiRand < 25)
                 {
                     player->CastSpell(me, SPELL_FREED_WARSONG_PEON, true);
-                    player->KilledMonsterCredit(NPC_WARSONG_PEON, 0);
+                    player->KilledMonsterCredit(NPC_WARSONG_PEON);
                 }
                 else if (uiRand < 75)
                     player->CastSpell(me, nerubarVictims[urand(0, 2)], true);
@@ -403,125 +402,6 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_nerubar_victimAI(creature);
-    }
-};
-
-/*######
-## npc_jenny
-######*/
-
-enum Jenny
-{
-    QUEST_LOADER_UP             = 11881,
-
-    NPC_FEZZIX_GEARTWIST        = 25849,
-    NPC_JENNY                   = 25969,
-
-    SPELL_GIVE_JENNY_CREDIT     = 46358,
-    SPELL_CRATES_CARRIED        = 46340,
-    SPELL_DROP_CRATE            = 46342
-};
-
-class npc_jenny : public CreatureScript
-{
-public:
-    npc_jenny() : CreatureScript("npc_jenny") { }
-
-    struct npc_jennyAI : public ScriptedAI
-    {
-        npc_jennyAI(Creature* creature) : ScriptedAI(creature)
-        {
-            setCrateNumber = false;
-        }
-
-        bool setCrateNumber;
-
-        void Reset() override
-        {
-            if (!setCrateNumber)
-                setCrateNumber = true;
-
-            me->SetReactState(REACT_PASSIVE);
-
-            if (!me->GetOwner())
-                return;
-
-            switch (me->GetOwner()->ToPlayer()->GetTeamId())
-            {
-                case TEAM_ALLIANCE:
-                    me->setFaction(FACTION_ESCORT_A_NEUTRAL_ACTIVE);
-                    break;
-                default:
-                case TEAM_HORDE:
-                    me->setFaction(FACTION_ESCORT_H_NEUTRAL_ACTIVE);
-                    break;
-            }
-        }
-
-        void DamageTaken(Unit* /*pDone_by*/, uint32& /*uiDamage*/) override
-        {
-            DoCast(me, SPELL_DROP_CRATE, true);
-        }
-
-        void UpdateAI(uint32 /*diff*/) override
-        {
-            if (setCrateNumber)
-            {
-                me->AddAura(SPELL_CRATES_CARRIED, me);
-                setCrateNumber = false;
-            }
-
-            if (!setCrateNumber && !me->HasAura(SPELL_CRATES_CARRIED))
-                me->DisappearAndDie();
-
-            if (!UpdateVictim())
-                return;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_jennyAI(creature);
-    }
-};
-
-/*######
-## npc_fezzix_geartwist
-######*/
-
-class npc_fezzix_geartwist : public CreatureScript
-{
-public:
-    npc_fezzix_geartwist() : CreatureScript("npc_fezzix_geartwist") { }
-
-    struct npc_fezzix_geartwistAI : public ScriptedAI
-    {
-        npc_fezzix_geartwistAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void MoveInLineOfSight(Unit* who) override
-
-        {
-            ScriptedAI::MoveInLineOfSight(who);
-
-            if (who->GetEntry() != NPC_JENNY || !who->HasAura(SPELL_CRATES_CARRIED))
-                return;
-
-            Unit* owner = who->GetOwner();
-            if (!owner || !me->IsWithinDistInMap(who, 10.0f))
-                return;
-
-            if (Player* player = owner->ToPlayer())
-            {
-                owner->CastSpell(owner, SPELL_GIVE_JENNY_CREDIT, true); // Maybe is not working.
-                player->CompleteQuest(QUEST_LOADER_UP);
-                who->ToCreature()->DisappearAndDie();
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_fezzix_geartwistAI(creature);
     }
 };
 
@@ -569,7 +449,7 @@ public:
     {
         npc_nesingwary_trapperAI(Creature* creature) : ScriptedAI(creature) { creature->SetVisible(false); }
 
-        uint64 go_caribouGUID;
+        ObjectGuid go_caribouGUID;
         uint8  phase;
         uint32 phaseTimer;
 
@@ -578,7 +458,7 @@ public:
             me->SetVisible(false);
             phaseTimer = 2500;
             phase = 1;
-            go_caribouGUID = 0;
+            go_caribouGUID.Clear();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -594,7 +474,7 @@ public:
                 if (summon->IsSummon())
                     if (Unit* temp = summon->GetSummoner())
                         if (Player* player = temp->ToPlayer())
-                            player->KilledMonsterCredit(me->GetEntry(), 0);
+                            player->KilledMonsterCredit(me->GetEntry());
 
             if (GameObject* go_caribou = me->GetMap()->GetGameObject(go_caribouGUID))
                 go_caribou->SetGoState(GO_STATE_READY);
@@ -843,10 +723,9 @@ public:
     {
         npc_nexus_drake_hatchlingAI(Creature* creature) : FollowerAI(creature)
         {
-            HarpoonerGUID = 0;
         }
 
-        uint64 HarpoonerGUID;
+        ObjectGuid HarpoonerGUID;
         bool WithRedDragonBlood;
 
         void Reset() override
@@ -884,10 +763,10 @@ public:
                 {
                     if (Player* pHarpooner = ObjectAccessor::GetPlayer(*me, HarpoonerGUID))
                     {
-                        pHarpooner->KilledMonsterCredit(26175, 0);
+                        pHarpooner->KilledMonsterCredit(26175);
                         pHarpooner->RemoveAura(SPELL_DRAKE_HATCHLING_SUBDUED);
                         SetFollowComplete();
-                        HarpoonerGUID = 0;
+                        HarpoonerGUID.Clear();
                         me->DisappearAndDie();
                     }
                 }
@@ -913,7 +792,7 @@ public:
 
             if ((me->getFaction() == 35) && (!me->HasAura(SPELL_SUBDUED)))
             {
-                HarpoonerGUID = 0;
+                HarpoonerGUID.Clear();
                 me->DisappearAndDie();
             }
 
@@ -985,10 +864,10 @@ public:
     {
         npc_thassarianAI(Creature* creature) : npc_escortAI(creature) { }
 
-        uint64 arthasGUID;
-        uint64 talbotGUID;
-        uint64 leryssaGUID;
-        uint64 arlosGUID;
+        ObjectGuid arthasGUID;
+        ObjectGuid talbotGUID;
+        ObjectGuid leryssaGUID;
+        ObjectGuid arlosGUID;
 
         bool arthasInPosition;
         bool arlosInPosition;
@@ -1003,10 +882,10 @@ public:
             me->RestoreFaction();
             me->RemoveStandFlags(UNIT_STAND_STATE_SIT);
 
-            arthasGUID = 0;
-            talbotGUID = 0;
-            leryssaGUID = 0;
-            arlosGUID = 0;
+            arthasGUID.Clear();
+            talbotGUID.Clear();
+            leryssaGUID.Clear();
+            arlosGUID.Clear();
 
             arthasInPosition = false;
             arlosInPosition = false;
@@ -1362,8 +1241,8 @@ public:
     {
         npc_counselor_talbotAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 leryssaGUID;
-        uint64 arlosGUID;
+        ObjectGuid leryssaGUID;
+        ObjectGuid arlosGUID;
 
         bool bCheck;
 
@@ -1373,8 +1252,8 @@ public:
 
         void Reset() override
         {
-            leryssaGUID         = 0;
-            arlosGUID           = 0;
+            leryssaGUID.Clear();
+            arlosGUID.Clear();
             bCheck              = false;
             shadowBoltTimer   = urand(5000, 12000);
             deflectionTimer   = urand(20000, 25000);
@@ -1729,15 +1608,11 @@ public:
         void SpellHit(Unit* unit, const SpellInfo* spell) override
         {
             if (spell->Id == SPELL_NEURAL_NEEDLE && unit->GetTypeId() == TYPEID_PLAYER)
-            {
                 if (Player* player = unit->ToPlayer())
-                {
                     GotStinged(player->GetGUID());
-                }
-            }
         }
 
-        void GotStinged(uint64 casterGUID)
+        void GotStinged(ObjectGuid casterGUID)
         {
             if (Player* caster = ObjectAccessor::GetPlayer(*me, casterGUID))
             {
@@ -1764,7 +1639,7 @@ public:
                         break;
                     case 7:
                         Talk(SAY_IMPRISIONED_BERYL_7);
-                        caster->KilledMonsterCredit(NPC_IMPRISONED_BERYL_SORCERER, 0);
+                        caster->KilledMonsterCredit(NPC_IMPRISONED_BERYL_SORCERER);
                         break;
                 }
             }
@@ -2100,7 +1975,7 @@ public:
             {
                 Quest const* qInfo = sObjectMgr->GetQuestTemplate(QUEST_YOU_RE_NOT_SO_BIG_NOW);
                 if (qInfo)
-                    player->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0], 0);
+                    player->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0]);
             }
         }
     };
@@ -2108,65 +1983,6 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_magmoth_crusherAI(creature);
-    }
-};
-
-/*######
-## Quest 11608: Bury Those Cockroaches!
-######*/
-
-enum BuryThoseCockroaches
-{
-    // Quest
-    QUEST_BURY_THOSE_COCKROACHES            = 11608,
-
-    // Spells
-    SPELL_SEAFORIUM_DEPTH_CHARGE_EXPLOSION  = 45502
-
-};
-
-class npc_seaforium_depth_charge : public CreatureScript
-{
-public:
-    npc_seaforium_depth_charge() : CreatureScript("npc_seaforium_depth_charge") { }
-
-    struct npc_seaforium_depth_chargeAI : public ScriptedAI
-    {
-        npc_seaforium_depth_chargeAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 uiExplosionTimer;
-
-        void Reset() override
-        {
-            uiExplosionTimer = urand(5000, 10000);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (uiExplosionTimer < diff)
-            {
-                DoCast(SPELL_SEAFORIUM_DEPTH_CHARGE_EXPLOSION);
-                for (uint8 i = 0; i < 4; ++i)
-                {
-                    if (Creature* cCredit = me->FindNearestCreature(25402 + i, 10.0f))//25402-25405 credit markers
-                    {
-                        if (Unit* uOwner = me->GetOwner())
-                        {
-                            Player* owner = uOwner->ToPlayer();
-                            if (owner && owner->GetQuestStatus(QUEST_BURY_THOSE_COCKROACHES) == QUEST_STATUS_INCOMPLETE)
-                                owner->KilledMonsterCredit(cCredit->GetEntry(), cCredit->GetGUID());
-                        }
-                    }
-                }
-                me->Kill(me);
-                return;
-            } else uiExplosionTimer -= diff;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_seaforium_depth_chargeAI(creature);
     }
 };
 
@@ -2374,7 +2190,7 @@ public:
         uint32 uiEventTimer;
         uint8 uiEventPhase;
 
-        uint64 uiPlayerGUID;
+        ObjectGuid uiPlayerGUID;
 
         void Reset() override
         {
@@ -2387,7 +2203,7 @@ public:
             uiEventTimer = 0;
             uiEventPhase = 0;
 
-            uiPlayerGUID = 0;
+            uiPlayerGUID.Clear();
 
             DoCast(SPELL_SHROUD_OF_THE_DEATH_CULTIST);
 
@@ -2404,7 +2220,7 @@ public:
             uiEventPhase = 1;
         }
 
-        void SetGUID(uint64 uiGuid, int32 /*iId*/) override
+        void SetGUID(ObjectGuid uiGuid, int32 /*iId*/) override
         {
             uiPlayerGUID = uiGuid;
         }
@@ -2577,8 +2393,6 @@ void AddSC_borean_tundra()
     new npc_corastrasza();
     new npc_iruk();
     new npc_nerubar_victim();
-    new npc_jenny();
-    new npc_fezzix_geartwist();
     new npc_nesingwary_trapper();
     new npc_lurgglbr();
     new npc_nexus_drake_hatchling();
@@ -2593,7 +2407,6 @@ void AddSC_borean_tundra()
     new npc_bonker_togglevolt();
     new npc_trapped_mammoth_calf();
     new npc_magmoth_crusher();
-    new npc_seaforium_depth_charge();
     new npc_valiance_keep_cannoneer();
     new npc_warmage_coldarra();
     new npc_hidden_cultist();

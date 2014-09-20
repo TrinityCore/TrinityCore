@@ -143,6 +143,14 @@ class boss_blood_queen_lana_thel : public CreatureScript
         {
             boss_blood_queen_lana_thelAI(Creature* creature) : BossAI(creature, DATA_BLOOD_QUEEN_LANA_THEL)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _offtankGUID.Clear();
+                _creditBloodQuickening = false;
+                _killMinchar = false;
             }
 
             void Reset() override
@@ -157,10 +165,8 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 events.ScheduleEvent(EVENT_TWILIGHT_BLOODBOLT, urand(20000, 25000), EVENT_GROUP_NORMAL);
                 events.ScheduleEvent(EVENT_AIR_PHASE, 124000 + uint32(Is25ManRaid() ? 3000 : 0));
                 CleanAuras();
-                _offtankGUID = 0;
                 _vampires.clear();
-                _creditBloodQuickening = false;
-                _killMinchar = false;
+                Initialize();
             }
 
             void EnterCombat(Unit* who) override
@@ -204,7 +210,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         minchar->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
                         minchar->SetCanFly(false);
                         minchar->RemoveAllAuras();
-                        minchar->GetMotionMaster()->MoveCharge(4629.3711f, 2782.6089f, 401.5301f, SPEED_CHARGE/3.0f);
+                        minchar->GetMotionMaster()->MoveCharge(4629.3711f, 2782.6089f, 401.5301f, SPEED_CHARGE / 3.0f);
                     }
                 }
             }
@@ -272,7 +278,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void SetGUID(uint64 guid, int32 type = 0) override
+            void SetGUID(ObjectGuid guid, int32 type = 0) override
             {
                 switch (type)
                 {
@@ -384,7 +390,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                                     }
                                 }
                                 else
-                                    _offtankGUID = 0;
+                                    _offtankGUID.Clear();
                             }
                             events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500, EVENT_GROUP_CANCELLABLE);
                             break;
@@ -452,12 +458,12 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            bool WasVampire(uint64 guid)
+            bool WasVampire(ObjectGuid guid) const
             {
                 return _vampires.count(guid) != 0;
             }
 
-            bool WasBloodbolted(uint64 guid)
+            bool WasBloodbolted(ObjectGuid guid) const
             {
                 return _bloodboltedPlayers.count(guid) != 0;
             }
@@ -495,9 +501,9 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 return Trinity::Containers::SelectRandomContainerElement(tempTargets);
             }
 
-            std::set<uint64> _vampires;
-            std::set<uint64> _bloodboltedPlayers;
-            uint64 _offtankGUID;
+            GuidSet _vampires;
+            GuidSet _bloodboltedPlayers;
+            ObjectGuid _offtankGUID;
             bool _creditBloodQuickening;
             bool _killMinchar;
         };
@@ -548,7 +554,7 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
                     return;
 
                 uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(SPELL_FRENZIED_BLOODTHIRST, GetCaster());
-                GetCaster()->RemoveAura(spellId, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
+                GetCaster()->RemoveAura(spellId, ObjectGuid::Empty, 0, AURA_REMOVE_BY_ENEMY_SPELL);
                 GetCaster()->CastSpell(GetCaster(), SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_PLR, TRIGGERED_FULL_MASK);
 
                 // Shadowmourne questline
@@ -564,7 +570,7 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
                 }
 
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                    if (Creature* bloodQueen = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_BLOOD_QUEEN_LANA_THEL)))
+                    if (Creature* bloodQueen = ObjectAccessor::GetCreature(*GetCaster(), instance->GetGuidData(DATA_BLOOD_QUEEN_LANA_THEL)))
                         bloodQueen->AI()->SetGUID(GetHitUnit()->GetGUID(), GUID_VAMPIRE);
             }
 
@@ -600,7 +606,7 @@ class spell_blood_queen_frenzied_bloodthirst : public SpellScriptLoader
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (InstanceScript* instance = GetTarget()->GetInstanceScript())
-                    if (Creature* bloodQueen = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_BLOOD_QUEEN_LANA_THEL)))
+                    if (Creature* bloodQueen = ObjectAccessor::GetCreature(*GetTarget(), instance->GetGuidData(DATA_BLOOD_QUEEN_LANA_THEL)))
                         bloodQueen->AI()->Talk(EMOTE_BLOODTHIRST, GetTarget());
             }
 
@@ -609,7 +615,7 @@ class spell_blood_queen_frenzied_bloodthirst : public SpellScriptLoader
                 Unit* target = GetTarget();
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
                     if (InstanceScript* instance = target->GetInstanceScript())
-                        if (Creature* bloodQueen = ObjectAccessor::GetCreature(*target, instance->GetData64(DATA_BLOOD_QUEEN_LANA_THEL)))
+                        if (Creature* bloodQueen = ObjectAccessor::GetCreature(*target, instance->GetGuidData(DATA_BLOOD_QUEEN_LANA_THEL)))
                         {
                             // this needs to be done BEFORE charm aura or we hit an assert in Unit::SetCharmedBy
                             if (target->GetVehicleKit())

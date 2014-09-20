@@ -218,6 +218,14 @@ class boss_lady_deathwhisper : public CreatureScript
             boss_lady_deathwhisperAI(Creature* creature) : BossAI(creature, DATA_LADY_DEATHWHISPER),
                 _dominateMindCount(RAID_MODE<uint8>(0, 1, 1, 3)), _introDone(false)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _waveCounter = 0;
+                _nextVengefulShadeTargetGUID.Clear();
+                _darnavanGUID.Clear();
             }
 
             void Reset() override
@@ -225,9 +233,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 _Reset();
                 me->SetPower(POWER_MANA, me->GetMaxPower(POWER_MANA));
                 events.SetPhase(PHASE_ONE);
-                _waveCounter = 0;
-                _nextVengefulShadeTargetGUID = 0;
-                _darnavanGUID = 0;
+                Initialize();
                 DoCast(me, SPELL_SHADOW_CHANNELING);
                 me->RemoveAurasDueToSpell(SPELL_BERSERK);
                 me->RemoveAurasDueToSpell(SPELL_MANA_BARRIER);
@@ -323,10 +329,10 @@ class boss_lady_deathwhisper : public CreatureScript
                             {
                                 for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                                     if (Player* member = itr->GetSource())
-                                        member->KilledMonsterCredit(NPC_DARNAVAN_CREDIT, 0);
+                                        member->KilledMonsterCredit(NPC_DARNAVAN_CREDIT);
                             }
                             else
-                                owner->KilledMonsterCredit(NPC_DARNAVAN_CREDIT, 0);
+                                owner->KilledMonsterCredit(NPC_DARNAVAN_CREDIT);
                         }
                     }
                 }
@@ -343,7 +349,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 if (Creature* darnavan = ObjectAccessor::GetCreature(*me, _darnavanGUID))
                 {
                     darnavan->DespawnOrUnsummon();
-                    _darnavanGUID = 0;
+                    _darnavanGUID.Clear();
                 }
             }
 
@@ -390,7 +396,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 if (summon->GetEntry() == NPC_VENGEFUL_SHADE)
                 {
                     target = ObjectAccessor::GetUnit(*me, _nextVengefulShadeTargetGUID);   // Vengeful Shade
-                    _nextVengefulShadeTargetGUID = 0;
+                    _nextVengefulShadeTargetGUID.Clear();
                 }
                 else
                     target = SelectTarget(SELECT_TARGET_RANDOM);                        // Wave adds
@@ -548,7 +554,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     summon->CastSpell(summon, SPELL_TELEPORT_VISUAL);
             }
 
-            void SetGUID(uint64 guid, int32 id/* = 0*/) override
+            void SetGUID(ObjectGuid guid, int32 id/* = 0*/) override
             {
                 if (id != GUID_CULTIST)
                     return;
@@ -562,7 +568,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 if (_reanimationQueue.empty())
                     return;
 
-                uint64 cultistGUID = _reanimationQueue.front();
+                ObjectGuid cultistGUID = _reanimationQueue.front();
                 Creature* cultist = ObjectAccessor::GetCreature(*me, cultistGUID);
                 _reanimationQueue.pop_front();
                 if (!cultist)
@@ -609,9 +615,9 @@ class boss_lady_deathwhisper : public CreatureScript
             }
 
         private:
-            uint64 _nextVengefulShadeTargetGUID;
-            uint64 _darnavanGUID;
-            std::deque<uint64> _reanimationQueue;
+            ObjectGuid _nextVengefulShadeTargetGUID;
+            ObjectGuid _darnavanGUID;
+            GuidDeque _reanimationQueue;
             uint32 _waveCounter;
             uint8 const _dominateMindCount;
             bool _introDone;
@@ -837,6 +843,13 @@ class npc_darnavan : public CreatureScript
         {
             npc_darnavanAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _canCharge = true;
+                _canShatter = true;
             }
 
             void Reset() override
@@ -846,8 +859,7 @@ class npc_darnavan : public CreatureScript
                 _events.ScheduleEvent(EVENT_DARNAVAN_INTIMIDATING_SHOUT, urand(20000, 25000));
                 _events.ScheduleEvent(EVENT_DARNAVAN_MORTAL_STRIKE, urand(25000, 30000));
                 _events.ScheduleEvent(EVENT_DARNAVAN_SUNDER_ARMOR, urand(5000, 8000));
-                _canCharge = true;
-                _canShatter = true;
+                Initialize();
             }
 
             void JustDied(Unit* killer) override

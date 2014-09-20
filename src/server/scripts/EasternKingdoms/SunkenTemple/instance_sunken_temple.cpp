@@ -60,15 +60,16 @@ public:
     {
         instance_sunken_temple_InstanceMapScript(Map* map) : InstanceScript(map)
         {
+            SetHeaders(DataHeader);
         }
 
-        uint64 GOAtalaiStatue1;
-        uint64 GOAtalaiStatue2;
-        uint64 GOAtalaiStatue3;
-        uint64 GOAtalaiStatue4;
-        uint64 GOAtalaiStatue5;
-        uint64 GOAtalaiStatue6;
-        uint64 GOAtalaiIdol;
+        ObjectGuid GOAtalaiStatue1;
+        ObjectGuid GOAtalaiStatue2;
+        ObjectGuid GOAtalaiStatue3;
+        ObjectGuid GOAtalaiStatue4;
+        ObjectGuid GOAtalaiStatue5;
+        ObjectGuid GOAtalaiStatue6;
+        ObjectGuid GOAtalaiIdol;
 
         uint32 State;
 
@@ -81,13 +82,6 @@ public:
 
         void Initialize() override
         {
-            GOAtalaiStatue1 = 0;
-            GOAtalaiStatue2 = 0;
-            GOAtalaiStatue3 = 0;
-            GOAtalaiStatue4 = 0;
-            GOAtalaiStatue5 = 0;
-            GOAtalaiStatue6 = 0;
-            GOAtalaiIdol = 0;
 
             State = 0;
 

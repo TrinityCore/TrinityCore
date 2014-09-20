@@ -105,6 +105,15 @@ class boss_general_vezax : public CreatureScript
         {
             boss_general_vezaxAI(Creature* creature) : BossAI(creature, BOSS_VEZAX)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                shadowDodger = true;
+                smellSaronite = true;
+                animusDead = false;
+                vaporCount = 0;
             }
 
             bool shadowDodger;
@@ -116,10 +125,7 @@ class boss_general_vezax : public CreatureScript
             {
                 _Reset();
 
-                shadowDodger = true;
-                smellSaronite = true;
-                animusDead = false;
-                vaporCount = 0;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -332,7 +338,7 @@ class boss_saronite_animus : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* Vezax = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_VEZAX)))
+                if (Creature* Vezax = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_VEZAX)))
                     Vezax->AI()->DoAction(ACTION_ANIMUS_DIE);
             }
 
@@ -427,7 +433,7 @@ class npc_saronite_vapors : public CreatureScript
                     DoCast(me, SPELL_SARONITE_VAPORS);
                     me->DespawnOrUnsummon(30000);
 
-                    if (Creature* Vezax = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_VEZAX)))
+                    if (Creature* Vezax = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_VEZAX)))
                         Vezax->AI()->DoAction(ACTION_VAPORS_DIE);
                 }
             }

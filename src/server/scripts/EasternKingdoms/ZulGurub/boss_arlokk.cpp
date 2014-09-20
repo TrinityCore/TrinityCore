@@ -95,8 +95,6 @@ class boss_arlokk : public CreatureScript
             boss_arlokkAI(Creature* creature) : BossAI(creature, DATA_ARLOKK)
             {
                 Initialize();
-                memset(_triggersSideAGUID, 0, sizeof(_triggersSideAGUID));
-                memset(_triggersSideBGUID, 0, sizeof(_triggersSideBGUID));
             }
 
             void Initialize()
@@ -162,7 +160,7 @@ class boss_arlokk : public CreatureScript
             void EnterEvadeMode() override
             {
                 BossAI::EnterEvadeMode();
-                if (GameObject* object = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_GONG_OF_BETHEKK)))
+                if (GameObject* object = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_GONG_OF_BETHEKK)))
                     object->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 me->DespawnOrUnsummon(4000);
             }
@@ -305,8 +303,8 @@ class boss_arlokk : public CreatureScript
         private:
             uint8 _summonCountA;
             uint8 _summonCountB;
-            uint64 _triggersSideAGUID[5];
-            uint64 _triggersSideBGUID[5];
+            ObjectGuid _triggersSideAGUID[5];
+            ObjectGuid _triggersSideBGUID[5];
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -357,7 +355,7 @@ class npc_zulian_prowler : public CreatureScript
                 DoCast(me, SPELL_SNEAK_RANK_1_1);
                 DoCast(me, SPELL_SNEAK_RANK_1_2);
 
-                if (Unit* arlokk = ObjectAccessor::GetUnit(*me, _instance->GetData64(NPC_ARLOKK)))
+                if (Unit* arlokk = ObjectAccessor::GetUnit(*me, _instance->GetGuidData(NPC_ARLOKK)))
                     me->GetMotionMaster()->MovePoint(0, arlokk->GetPositionX(), arlokk->GetPositionY(), arlokk->GetPositionZ());
                 _events.ScheduleEvent(EVENT_ATTACK, 6000);
             }
@@ -377,7 +375,7 @@ class npc_zulian_prowler : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Unit* arlokk = ObjectAccessor::GetUnit(*me, _instance->GetData64(NPC_ARLOKK)))
+                if (Unit* arlokk = ObjectAccessor::GetUnit(*me, _instance->GetGuidData(NPC_ARLOKK)))
                 {
                     if (arlokk->IsAlive())
                         arlokk->GetAI()->SetData(_sideData, 0);

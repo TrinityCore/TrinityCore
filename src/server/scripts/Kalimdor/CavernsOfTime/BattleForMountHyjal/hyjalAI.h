@@ -119,6 +119,8 @@ struct hyjalAI : public npc_escortAI
 {
     hyjalAI(Creature* creature);
 
+    void Initialize();
+
     void Reset();                                           // Generically used to reset our variables. Do *not* call in EnterEvadeMode as this may make problems if the raid is still in combat
 
     void EnterEvadeMode();                                  // Send creature back to spawn location and evade.
@@ -158,9 +160,9 @@ struct hyjalAI : public npc_escortAI
     public:
         InstanceScript* instance;
 
-        uint64 PlayerGUID;
-        uint64 BossGUID[2];
-        uint64 VeinGUID[14];
+        ObjectGuid PlayerGUID;
+        ObjectGuid BossGUID[2];
+        ObjectGuid VeinGUID[14];
 
         uint32 NextWaveTimer;
         uint32 WaveCount;
@@ -191,7 +193,7 @@ struct hyjalAI : public npc_escortAI
         bool IsDummy;
         uint32 MassTeleportTimer;
         bool DoMassTeleport;
-        uint64 DummyGuid;
+        ObjectGuid DummyGuid;
 
         struct Spell
         {

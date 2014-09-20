@@ -62,7 +62,15 @@ public:
 
     struct boss_anubrekhanAI : public BossAI
     {
-        boss_anubrekhanAI(Creature* creature) : BossAI(creature, BOSS_ANUBREKHAN) { }
+        boss_anubrekhanAI(Creature* creature) : BossAI(creature, BOSS_ANUBREKHAN)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            hasTaunted = false;
+        }
 
         bool hasTaunted;
 
@@ -70,7 +78,7 @@ public:
         {
             _Reset();
 
-            hasTaunted = false;
+            Initialize();
 
             if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
             {

@@ -162,7 +162,18 @@ class boss_gothik : public CreatureScript
 
         struct boss_gothikAI : public BossAI
         {
-            boss_gothikAI(Creature* creature) : BossAI(creature, BOSS_GOTHIK) { }
+            boss_gothikAI(Creature* creature) : BossAI(creature, BOSS_GOTHIK)
+            {
+                Initialize();
+                waveCount = 0;
+            }
+
+            void Initialize()
+            {
+                mergedSides = false;
+                phaseTwo = false;
+                thirtyPercentReached = false;
+            }
 
             uint32 waveCount;
             typedef std::vector<Creature*> TriggerVct;
@@ -171,8 +182,8 @@ class boss_gothik : public CreatureScript
             bool phaseTwo;
             bool thirtyPercentReached;
 
-            std::vector<uint64> LiveTriggerGUID;
-            std::vector<uint64> DeadTriggerGUID;
+            GuidVector LiveTriggerGUID;
+            GuidVector DeadTriggerGUID;
 
             void Reset() override
             {
@@ -182,9 +193,7 @@ class boss_gothik : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
                 _Reset();
-                mergedSides = false;
-                phaseTwo = false;
-                thirtyPercentReached = false;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override

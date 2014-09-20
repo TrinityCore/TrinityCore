@@ -120,11 +120,11 @@ public:
             // Moreover, the adds may not yet be spawn. So just track down the status if mob is spawn
             // and each mob will send its status at reset (meaning that it is alive)
             checkFeugenAlive = false;
-            if (Creature* pFeugen = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
+            if (Creature* pFeugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
                 checkFeugenAlive = pFeugen->IsAlive();
 
             checkStalaggAlive = false;
-            if (Creature* pStalagg = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_STALAGG)))
+            if (Creature* pStalagg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
                 checkStalaggAlive = pStalagg->IsAlive();
 
             if (!checkFeugenAlive && !checkStalaggAlive)
@@ -137,6 +137,9 @@ public:
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
                 me->SetReactState(REACT_PASSIVE);
             }
+
+            polaritySwitch = false;
+            uiAddsTimer = 0;
         }
 
         bool checkStalaggAlive;
@@ -227,12 +230,12 @@ public:
                 {
                     if (!checkStalaggAlive)
                     {
-                        if (Creature* pStalagg = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_STALAGG)))
+                        if (Creature* pStalagg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
                             pStalagg->Respawn();
                     }
                     else
                     {
-                        if (Creature* pFeugen = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
+                        if (Creature* pFeugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
                             pFeugen->Respawn();
                     }
                 }
@@ -287,7 +290,14 @@ public:
     {
         npc_stalaggAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            powerSurgeTimer = urand(20000, 25000);
+            magneticPullTimer = 20000;
         }
 
         InstanceScript* instance;
@@ -297,11 +307,10 @@ public:
 
         void Reset() override
         {
-            if (Creature* pThaddius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
+            if (Creature* pThaddius = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
                 if (pThaddius->AI())
                     pThaddius->AI()->DoAction(ACTION_STALAGG_RESET);
-            powerSurgeTimer = urand(20000, 25000);
-            magneticPullTimer = 20000;
+            Initialize();
         }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -319,7 +328,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_STAL_DEATH);
-            if (Creature* pThaddius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
+            if (Creature* pThaddius = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
                 if (pThaddius->AI())
                     pThaddius->AI()->DoAction(ACTION_STALAGG_DIED);
         }
@@ -331,7 +340,7 @@ public:
 
             if (magneticPullTimer <= uiDiff)
             {
-                if (Creature* pFeugen = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
+                if (Creature* pFeugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
                 {
                     Unit* pStalaggVictim = me->GetVictim();
                     Unit* pFeugenVictim = pFeugen->GetVictim();
@@ -379,7 +388,13 @@ public:
     {
         npc_feugenAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            staticFieldTimer = 5000;
         }
 
         InstanceScript* instance;
@@ -388,10 +403,10 @@ public:
 
         void Reset() override
         {
-            if (Creature* pThaddius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
+            if (Creature* pThaddius = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
                 if (pThaddius->AI())
                     pThaddius->AI()->DoAction(ACTION_FEUGEN_RESET);
-            staticFieldTimer = 5000;
+            Initialize();
         }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -409,7 +424,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_FEUG_DEATH);
-            if (Creature* pThaddius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
+            if (Creature* pThaddius = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
                 if (pThaddius->AI())
                     pThaddius->AI()->DoAction(ACTION_FEUGEN_DIED);
         }

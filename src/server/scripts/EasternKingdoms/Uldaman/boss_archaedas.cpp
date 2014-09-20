@@ -98,7 +98,7 @@ class boss_archaedas : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
 
-            void ActivateMinion(uint64 uiGuid, bool flag)
+            void ActivateMinion(ObjectGuid uiGuid, bool flag)
             {
                 Unit* minion = ObjectAccessor::GetUnit(*me, uiGuid);
 
@@ -145,7 +145,7 @@ class boss_archaedas : public CreatureScript
                 } else if (bWakingUp && iAwakenTimer <= 0)
                 {
                     bWakingUp = false;
-                    AttackStart(ObjectAccessor::GetUnit(*me, instance->GetData64(0)));
+                    AttackStart(ObjectAccessor::GetUnit(*me, instance->GetGuidData(0)));
                     return;     // dont want to continue until we finish the AttackStart method
                 }
 
@@ -164,12 +164,12 @@ class boss_archaedas : public CreatureScript
                 //If we are <66 summon the guardians
                 if (!bGuardiansAwake && !HealthAbovePct(66))
                 {
-                    ActivateMinion(instance->GetData64(5), true);   // EarthenGuardian1
-                    ActivateMinion(instance->GetData64(6), true);   // EarthenGuardian2
-                    ActivateMinion(instance->GetData64(7), true);   // EarthenGuardian3
-                    ActivateMinion(instance->GetData64(8), true);   // EarthenGuardian4
-                    ActivateMinion(instance->GetData64(9), true);   // EarthenGuardian5
-                    ActivateMinion(instance->GetData64(10), false); // EarthenGuardian6
+                    ActivateMinion(instance->GetGuidData(5), true);   // EarthenGuardian1
+                    ActivateMinion(instance->GetGuidData(6), true);   // EarthenGuardian2
+                    ActivateMinion(instance->GetGuidData(7), true);   // EarthenGuardian3
+                    ActivateMinion(instance->GetGuidData(8), true);   // EarthenGuardian4
+                    ActivateMinion(instance->GetGuidData(9), true);   // EarthenGuardian5
+                    ActivateMinion(instance->GetGuidData(10), false); // EarthenGuardian6
                     Talk(SAY_SUMMON_GUARDIANS);
                     bGuardiansAwake = true;
                 }
@@ -177,10 +177,10 @@ class boss_archaedas : public CreatureScript
                 //If we are <33 summon the vault walkers
                 if (!bVaultWalkersAwake && !HealthAbovePct(33))
                 {
-                    ActivateMinion(instance->GetData64(1), true);    // VaultWalker1
-                    ActivateMinion(instance->GetData64(2), true);    // VaultWalker2
-                    ActivateMinion(instance->GetData64(3), true);    // VaultWalker3
-                    ActivateMinion(instance->GetData64(4), false);    // VaultWalker4
+                    ActivateMinion(instance->GetGuidData(1), true);    // VaultWalker1
+                    ActivateMinion(instance->GetGuidData(2), true);    // VaultWalker2
+                    ActivateMinion(instance->GetGuidData(3), true);    // VaultWalker3
+                    ActivateMinion(instance->GetGuidData(4), false);    // VaultWalker4
                     Talk(SAY_SUMMON_VAULT_WALKERS);
                     bVaultWalkersAwake = true;
                 }
@@ -297,7 +297,7 @@ class npc_archaedas_minions : public CreatureScript
                 {
                     bWakingUp = false;
                     bAmIAwake = true;
-                    // AttackStart(ObjectAccessor::GetUnit(*me, instance->GetData64(0))); // whoWokeArchaedasGUID
+                    // AttackStart(ObjectAccessor::GetUnit(*me, instance->GetGuidData(0))); // whoWokeArchaedasGUID
                     return;     // dont want to continue until we finish the AttackStart method
                 }
 
@@ -401,7 +401,7 @@ class go_altar_of_archaedas : public GameObjectScript
 
             player->CastSpell (player, SPELL_BOSS_OBJECT_VISUAL, false);
 
-            instance->SetData64(0, player->GetGUID());     // activate archaedas
+            instance->SetGuidData(0, player->GetGUID());     // activate archaedas
             return false;
         }
 };

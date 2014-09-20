@@ -68,12 +68,20 @@ public:
 
     struct boss_ormorokAI : public BossAI
     {
-        boss_ormorokAI(Creature* creature) : BossAI(creature, DATA_ORMOROK_EVENT) { }
+        boss_ormorokAI(Creature* creature) : BossAI(creature, DATA_ORMOROK_EVENT)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            frenzy = false;
+        }
 
         void Reset()
         {
             BossAI::Reset();
-            frenzy = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override
