@@ -70,7 +70,15 @@ public:
     {
         boss_xevozzAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance  = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiSummonEtherealSphere_Timer = urand(10000, 12000);
+            uiArcaneBarrageVolley_Timer = urand(20000, 22000);
+            uiArcaneBuffet_Timer = uiSummonEtherealSphere_Timer + urand(5000, 6000);
         }
 
         InstanceScript* instance;
@@ -86,9 +94,7 @@ public:
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)
                 instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
 
-            uiSummonEtherealSphere_Timer = urand(10000, 12000);
-            uiArcaneBarrageVolley_Timer = urand(20000, 22000);
-            uiArcaneBuffet_Timer = uiSummonEtherealSphere_Timer + urand(5000, 6000);
+            Initialize();
             DespawnSphere();
         }
 
@@ -229,7 +235,14 @@ public:
     {
         npc_ethereal_sphereAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance   = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiSummonPlayers_Timer = urand(33000, 35000);
+            uiRangeCheck_Timer = 1000;
         }
 
         InstanceScript* instance;
@@ -239,8 +252,7 @@ public:
 
         void Reset() override
         {
-            uiSummonPlayers_Timer = urand(33000, 35000);
-            uiRangeCheck_Timer = 1000;
+            Initialize();
         }
 
         void UpdateAI(uint32 uiDiff) override

@@ -147,10 +147,32 @@ public:
     {
         boss_lady_vashjAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             Intro = false;
             JustCreated = true;
+            CanAttack = false;
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // set it only once on Creature create (no need do intro if wiped)
+        }
+
+        void Initialize()
+        {
+            AggroTimer = 19000;
+            ShockBlastTimer = 1 + rand32() % 60000;
+            EntangleTimer = 30000;
+            StaticChargeTimer = 10000 + rand32() % 15000;
+            ForkedLightningTimer = 2000;
+            CheckTimer = 15000;
+            EnchantedElementalTimer = 5000;
+            TaintedElementalTimer = 50000;
+            CoilfangEliteTimer = 45000 + rand32() % 5000;
+            CoilfangStriderTimer = 60000 + rand32() % 10000;
+            SummonSporebatTimer = 10000;
+            SummonSporebatStaticTimer = 30000;
+            EnchantedElementalPos = 0;
+            Phase = 0;
+
+            Entangle = false;
         }
 
         InstanceScript* instance;
@@ -179,22 +201,8 @@ public:
 
         void Reset() override
         {
-            AggroTimer = 19000;
-            ShockBlastTimer = 1 + rand32() % 60000;
-            EntangleTimer = 30000;
-            StaticChargeTimer = 10000 + rand32() % 15000;
-            ForkedLightningTimer = 2000;
-            CheckTimer = 15000;
-            EnchantedElementalTimer = 5000;
-            TaintedElementalTimer = 50000;
-            CoilfangEliteTimer = 45000 + rand32() % 5000;
-            CoilfangStriderTimer = 60000 + rand32() % 10000;
-            SummonSporebatTimer = 10000;
-            SummonSporebatStaticTimer = 30000;
-            EnchantedElementalPos = 0;
-            Phase = 0;
+            Initialize();
 
-            Entangle = false;
             if (JustCreated)
             {
                 CanAttack = false;
@@ -555,7 +563,18 @@ public:
     {
         npc_enchanted_elementalAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            Move = 0;
+            Phase = 1;
+
+            X = ElementWPPos[0][0];
+            Y = ElementWPPos[0][1];
+            Z = ElementWPPos[0][2];
         }
 
         InstanceScript* instance;
@@ -569,12 +588,7 @@ public:
         {
             me->SetSpeed(MOVE_WALK, 0.6f); // walk
             me->SetSpeed(MOVE_RUN, 0.6f); // run
-            Move = 0;
-            Phase = 1;
-
-            X = ElementWPPos[0][0];
-            Y = ElementWPPos[0][1];
-            Z = ElementWPPos[0][2];
+            Initialize();
 
             //search for nearest waypoint (up on stairs)
             for (uint32 i = 1; i < 8; ++i)
@@ -644,7 +658,14 @@ public:
     {
         npc_tainted_elementalAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            PoisonBoltTimer = 5000 + rand32() % 5000;
+            DespawnTimer = 30000;
         }
 
         InstanceScript* instance;
@@ -654,8 +675,7 @@ public:
 
         void Reset() override
         {
-            PoisonBoltTimer = 5000 + rand32() % 5000;
-            DespawnTimer = 30000;
+            Initialize();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -712,8 +732,17 @@ public:
     {
         npc_toxic_sporebatAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             EnterEvadeMode();
+        }
+
+        void Initialize()
+        {
+            MovementTimer = 0;
+            ToxicSporeTimer = 5000;
+            BoltTimer = 5500;
+            CheckTimer = 1000;
         }
 
         InstanceScript* instance;
@@ -727,10 +756,7 @@ public:
         {
             me->SetDisableGravity(true);
             me->setFaction(14);
-            MovementTimer = 0;
-            ToxicSporeTimer = 5000;
-            BoltTimer = 5500;
-            CheckTimer = 1000;
+            Initialize();
         }
 
         void MoveInLineOfSight(Unit* /*who*/) override
@@ -808,7 +834,14 @@ public:
     {
         npc_shield_generator_channelAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            CheckTimer = 0;
+            Cast = false;
         }
 
         InstanceScript* instance;
@@ -817,8 +850,7 @@ public:
 
         void Reset() override
         {
-            CheckTimer = 0;
-            Cast = false;
+            Initialize();
             me->SetDisplayId(11686); // invisible
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

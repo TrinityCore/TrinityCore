@@ -73,13 +73,6 @@ public:
            }
         }
 
-        uint64 OgreGUID;
-
-        void Reset() override
-        {
-            OgreGUID = 0;
-        }
-
         void UpdateAI(uint32 /*diff*/) override { }
     };
 

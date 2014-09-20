@@ -57,12 +57,9 @@ public:
 
         void Initialize()
         {
-            PlayerGUID = 0;
             RebuffTimer = 0;
             work = false;
         }
-
-        uint64 PlayerGUID;
 
         uint32 RebuffTimer;
         bool work;
