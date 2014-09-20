@@ -393,7 +393,12 @@ class ByteBuffer
             lt.tm_mon = (packedDate >> 20) & 0xF;
             lt.tm_year = ((packedDate >> 24) & 0x1F) + 100;
 
+// To-Do: find a better way here
+#if !defined(timezone)
+            return uint32(mktime(&lt) + _timezone);
+#else
             return uint32(mktime(&lt) + timezone);
+#endif
         }
 
         ByteBuffer& ReadPackedTime(uint32& time)
