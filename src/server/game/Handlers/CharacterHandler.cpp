@@ -72,7 +72,7 @@ private:
 
 public:
     PlayerbotLoginQueryHolder(PlayerbotHolder* playerbotHolder, uint32 masterAccount, uint32 accountId, uint64 guid)
-        : LoginQueryHolder(accountId, guid), masterAccountId(masterAccount), playerbotHolder(playerbotHolder) { }
+        : LoginQueryHolder(accountId, ObjectGuid(guid)), masterAccountId(masterAccount), playerbotHolder(playerbotHolder) { }
 
 public:
     uint32 GetMasterAccountId() const { return masterAccountId; }
@@ -87,7 +87,7 @@ void PlayerbotHolder::AddPlayerBot(uint64 playerGuid, uint32 masterAccount)
 	if (bot && bot->IsInWorld())
         return;
 
-    uint32 accountId = sObjectMgr->GetPlayerAccountIdByGUID(playerGuid);
+    uint32 accountId = sObjectMgr->GetPlayerAccountIdByGUID(ObjectGuid(playerGuid));
     if (accountId == 0)
         return;
 
@@ -106,7 +106,7 @@ void PlayerbotHolder::AddPlayerBot(uint64 playerGuid, uint32 masterAccount)
     WorldSession *botSession = new WorldSession(botAccountId, NULL, SEC_PLAYER, 2, 0, LOCALE_enUS, 0, false);
 
     botSession->HandlePlayerLogin(holder); // will delete lqh
-	
+
 	bot = botSession->GetPlayer();
 	if (!bot)
 		return;

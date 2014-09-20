@@ -488,9 +488,9 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
         return LFG_COMPATIBLES_WITH_LESS_PLAYERS;
     }
 
-    ObjectGuid gguid = *check.begin();
+    // playerbot mod
     bool nonBotFound = false;
-    for (LfgGuidList::const_iterator it = check.begin(); it != check.end(); ++it)
+    for (GuidList::const_iterator it = check.begin(); it != check.end(); ++it)
     {
         Player *player = sObjectMgr->GetPlayerByLowGUID(*it);
         if (player && !player->GetPlayerbotAI())

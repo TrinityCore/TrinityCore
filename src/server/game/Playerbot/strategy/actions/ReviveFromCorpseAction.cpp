@@ -20,7 +20,7 @@ bool ReviveFromCorpseAction::Execute(Event event)
     bot->SpawnCorpseBones();
     bot->SaveToDB();
     context->GetValue<Unit*>("current target")->Set(NULL);
-    bot->SetSelection(0);
+    bot->SetSelection(ObjectGuid::Empty);
     return true;
 }
 
@@ -41,7 +41,7 @@ bool SpiritHealerAction::Execute(Event event)
             bot->SpawnCorpseBones();
             bot->SaveToDB();
             context->GetValue<Unit*>("current target")->Set(NULL);
-            bot->SetSelection(0);
+            bot->SetSelection(ObjectGuid::Empty);
             return true;
         }
     }

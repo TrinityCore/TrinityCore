@@ -46,7 +46,7 @@ bool WhoAction::Execute(Event event)
         return false;
 
     // ignore random bot chat filter
-	bot->Whisper(tell, LANG_UNIVERSAL, owner->GetGUID());
+	bot->Whisper(tell, LANG_UNIVERSAL, owner);
     return true;
 }
 

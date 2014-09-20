@@ -82,7 +82,7 @@ bool PartyMemberValue::IsTargetOfSpellCast(Player* target, SpellEntryPredicate &
 
     Group* group = bot->GetGroup();
     ObjectGuid targetGuid = target ? target->GetGUID() : bot->GetGUID();
-    ObjectGuid corpseGuid = target && target->GetCorpse() ? target->GetCorpse()->GetGUID() : (uint64)0;
+    ObjectGuid corpseGuid = target && target->GetCorpse() ? target->GetCorpse()->GetGUID() : ObjectGuid();
 
     for (GroupReference *gref = group->GetFirstMember(); gref; gref = gref->next())
     {

@@ -690,7 +690,7 @@ bool PlayerbotAI::TellMasterNoFacing(string text, PlayerbotSecurityLevel securit
             (bot->GetMapId() != master->GetMapId() || bot->GetDistance(master) > sPlayerbotAIConfig.whisperDistance))
         return false;
 
-    bot->Whisper(text, LANG_UNIVERSAL, master->GetGUID());
+    bot->Whisper(text, LANG_UNIVERSAL, master);
     return true;
 }
 
@@ -834,7 +834,7 @@ bool PlayerbotAI::CanCastSpell(uint32 spellid, Unit* target, bool checkHasSpell)
 
     Unit* oldSel = bot->GetSelectedUnit();
     bot->SetSelection(target->GetGUID());
-    Spell *spell = new Spell(bot, spellInfo, TRIGGERED_NONE, false );
+    Spell *spell = new Spell(bot, spellInfo, TRIGGERED_NONE);
 
     spell->m_targets.SetUnitTarget(target);
     spell->m_CastItem = aiObjectContext->GetValue<Item*>("item for spell", spellid)->Get();
@@ -908,7 +908,7 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target)
     Unit* oldSel = bot->GetSelectedUnit();
     bot->SetSelection(target->GetGUID());
 
-    Spell *spell = new Spell(bot, pSpellInfo, TRIGGERED_NONE, false);
+    Spell *spell = new Spell(bot, pSpellInfo, TRIGGERED_NONE);
     if (bot->isMoving() && spell->GetCastTime())
     {
         delete spell;

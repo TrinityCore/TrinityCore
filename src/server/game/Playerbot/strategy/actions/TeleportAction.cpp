@@ -28,7 +28,7 @@ bool TeleportAction::Execute(Event event)
 
         ai->ChangeStrategy("-follow,+stay", BOT_STATE_NON_COMBAT);
 
-        Spell *spell = new Spell(bot, pSpellInfo, TRIGGERED_NONE, false);
+        Spell *spell = new Spell(bot, pSpellInfo, TRIGGERED_NONE);
         SpellCastTargets targets;
         targets.SetUnitTarget(bot);
         spell->prepare(&targets, false);

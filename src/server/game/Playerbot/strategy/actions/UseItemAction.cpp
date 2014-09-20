@@ -203,7 +203,7 @@ bool UseItemAction::UseItem(Item* item, ObjectGuid goGuid, Item* itemTarget)
                 out << " on "<< chat->formatItem(itemForSpell->GetTemplate());
             }
 
-            Spell *spell = new Spell(bot, pSpellInfo, TRIGGERED_NONE, 0, true);
+            Spell *spell = new Spell(bot, pSpellInfo, TRIGGERED_NONE, ObjectGuid::Empty, true);
             ai->WaitForSpellCast(spell);
             delete spell;
         }

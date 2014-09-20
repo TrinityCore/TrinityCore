@@ -22,7 +22,7 @@ float CastTimeMultiplier::GetValue(Action* action)
         if (!pSpellInfo)
             return 1.0f;
 
-        Spell *spell = new Spell(bot, pSpellInfo, TRIGGERED_NONE, 0, false);
+        Spell *spell = new Spell(bot, pSpellInfo, TRIGGERED_NONE);
         int32 castTime = spell->GetCastTime();
         delete spell;
 

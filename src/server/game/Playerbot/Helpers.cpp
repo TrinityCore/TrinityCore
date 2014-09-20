@@ -88,15 +88,3 @@ std::string &rtrim(std::string &s) {
 std::string &trim(std::string &s) {
         return ltrim(rtrim(s));
 }
-
-ByteBuffer& operator<< (ByteBuffer& buf, ObjectGuid const& guid)
-{
-    buf << uint64(guid.GetRawValue());
-    return buf;
-}
-
-ByteBuffer &operator>>(ByteBuffer& buf, ObjectGuid& guid)
-{
-    guid.Set(buf.read<uint64>());
-    return buf;
-}

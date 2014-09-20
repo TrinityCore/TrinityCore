@@ -280,7 +280,7 @@ list<string> PlayerbotHolder::HandlePlayerbotCommand(char const* args, Player* m
         Group::MemberSlotList slots = group->GetMemberSlots();
         for (Group::member_citerator i = slots.begin(); i != slots.end(); i++)
         {
-			uint64 member = i->guid;
+			ObjectGuid member = i->guid;
 
 			if (member == master->GetGUID())
 				continue;
@@ -333,7 +333,7 @@ list<string> PlayerbotHolder::HandlePlayerbotCommand(char const* args, Player* m
         ostringstream out;
         out << cmdStr << ": " << bot << " - ";
 
-        uint64 member = sObjectMgr->GetPlayerGUIDByName(bot);
+        ObjectGuid member = sObjectMgr->GetPlayerGUIDByName(bot);
         bool result = false;
         if (master && member != master->GetGUID())
         {
