@@ -2114,8 +2114,7 @@ class spell_q12641_recall_eye_of_acherus : public SpellScriptLoader
             {
                 if (Player* player = GetCaster()->GetCharmerOrOwner()->ToPlayer())
                 {
-                    player->StopCastingCharm();
-                    player->StopCastingBindSight();
+                    player->RemoveAura(51852);
                 }
             }
 
