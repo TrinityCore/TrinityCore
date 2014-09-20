@@ -69,7 +69,7 @@ public:
         uint32 Carnivorousbite_Timer;
         uint32 FocusFire_Timer;
 
-        uint64 FocusedTargetGUID;
+        ObjectGuid FocusedTargetGUID;
 
         void Reset() override
         {
@@ -77,7 +77,7 @@ public:
             Attractmagic_Timer = 28000;
             Carnivorousbite_Timer = 10000;
             FocusFire_Timer = 17000;
-            FocusedTargetGUID = 0;
+            FocusedTargetGUID.Clear();
         }
 
         void EnterCombat(Unit* /*who*/) override

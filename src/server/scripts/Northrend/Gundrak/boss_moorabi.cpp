@@ -17,170 +17,165 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "gundrak.h"
+
+/// @todo: implement mojo frenzy
 
 enum Spells
 {
-    SPELL_DETERMINED_STAB                         = 55104,
-    SPELL_GROUND_TREMOR                           = 55142,
-    SPELL_NUMBING_SHOUT                           = 55106,
-    SPELL_DETERMINED_GORE                         = 55102,
-    H_SPELL_DETERMINED_GORE                       = 59444,
-    SPELL_QUAKE                                   = 55101,
-    SPELL_NUMBING_ROAR                            = 55100,
-    SPELL_MOJO_FRENZY                             = 55163,
-    SPELL_TRANSFORMATION                          = 55098, //Periodic, The caster transforms into a powerful mammoth, increasing Physical damage done by 25% and granting immunity to Stun effects.
+    SPELL_DETERMINED_GORE       = 55102,
+    SPELL_DETERMINED_STAB       = 55104,
+    SPELL_GROUND_TREMOR         = 55142,
+    SPELL_NUMBING_SHOUT         = 55106,
+    SPELL_QUAKE                 = 55101,
+    SPELL_NUMBING_ROAR          = 55100,
+    SPELL_MOJO_FRENZY           = 55163,
+    SPELL_TRANSFORMATION        = 55098, // Periodic, The caster transforms into a powerful mammoth, increasing Physical damage done by 25% and granting immunity to Stun effects.
 };
 
 enum Says
 {
-    SAY_AGGRO                                     = 0,
-    SAY_SLAY                                      = 1,
-    SAY_DEATH                                     = 2,
-    SAY_TRANSFORM                                 = 3,
-    SAY_QUAKE                                     = 4,
-    EMOTE_TRANSFORM                               = 5
+    SAY_AGGRO                   = 0,
+    SAY_SLAY                    = 1,
+    SAY_DEATH                   = 2,
+    SAY_TRANSFORM               = 3,
+    SAY_QUAKE                   = 4,
+    EMOTE_BEGIN_TRANSFORM       = 5,
+    EMOTE_TRANSFORMED           = 6,
+    EMOTE_ACTIVATE_ALTAR        = 7
+};
+
+enum Events
+{
+    EVENT_GROUND_TREMOR         = 1,
+    EVENT_NUMBLING_SHOUT,
+    EVENT_DETERMINED_STAB,
+    EVENT_TRANFORMATION
 };
 
 enum Misc
 {
-    DATA_LESS_RABI                                = 1
+    DATA_LESS_RABI              = 1
 };
 
 class boss_moorabi : public CreatureScript
 {
-public:
-    boss_moorabi() : CreatureScript("boss_moorabi") { }
+    public:
+        boss_moorabi() : CreatureScript("boss_moorabi") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_moorabiAI>(creature);
-    }
-
-    struct boss_moorabiAI : public ScriptedAI
-    {
-        boss_moorabiAI(Creature* creature) : ScriptedAI(creature)
+        struct boss_moorabiAI : public BossAI
         {
-            Initialize();
-            instance = creature->GetInstanceScript();
-        }
-
-        void Initialize()
-        {
-            uiGroundTremorTimer = 18 * IN_MILLISECONDS;
-            uiNumblingShoutTimer = 10 * IN_MILLISECONDS;
-            uiDeterminedStabTimer = 20 * IN_MILLISECONDS;
-            uiTransformationTImer = 12 * IN_MILLISECONDS;
-            bPhase = false;
-        }
-
-        InstanceScript* instance;
-
-        bool bPhase;
-
-        uint32 uiNumblingShoutTimer;
-        uint32 uiGroundTremorTimer;
-        uint32 uiDeterminedStabTimer;
-        uint32 uiTransformationTImer;
-
-        void Reset() override
-        {
-            Initialize();
-
-            instance->SetData(DATA_MOORABI_EVENT, NOT_STARTED);
-        }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
-            Talk(SAY_AGGRO);
-            DoCast(me, SPELL_MOJO_FRENZY, true);
-
-            instance->SetData(DATA_MOORABI_EVENT, IN_PROGRESS);
-        }
-
-        void UpdateAI(uint32 uiDiff) override
-        {
-            //Return since we have no target
-             if (!UpdateVictim())
-                 return;
-
-            if (!bPhase && me->HasAura(SPELL_TRANSFORMATION))
+            boss_moorabiAI(Creature* creature) : BossAI(creature, DATA_MOORABI)
             {
-                bPhase = true;
-                me->RemoveAura(SPELL_MOJO_FRENZY);
+                Initialize();
             }
 
-            if (uiGroundTremorTimer <= uiDiff)
+            void Initialize()
             {
-                Talk(SAY_QUAKE);
-                if (bPhase)
-                    DoCastVictim(SPELL_QUAKE, true);
-                else
-                    DoCastVictim(SPELL_GROUND_TREMOR, true);
-                uiGroundTremorTimer = 10*IN_MILLISECONDS;
-            } else uiGroundTremorTimer -= uiDiff;
+                _transformed = false;
+            }
 
-            if (uiNumblingShoutTimer <= uiDiff)
+            void Reset() override
             {
-                if (bPhase)
-                    DoCastVictim(SPELL_NUMBING_ROAR, true);
-                else
-                    DoCastVictim(SPELL_NUMBING_SHOUT, true);
-                uiNumblingShoutTimer = 10*IN_MILLISECONDS;
-            } else uiNumblingShoutTimer -=uiDiff;
+                Initialize();
+                _Reset();
+            }
 
-            if (uiDeterminedStabTimer <= uiDiff)
+            void EnterCombat(Unit* /*who*/) override
             {
-                if (bPhase)
-                    DoCastVictim(SPELL_DETERMINED_GORE);
-                else
-                    DoCastVictim(SPELL_DETERMINED_STAB, true);
-                uiDeterminedStabTimer = 8*IN_MILLISECONDS;
-            } else uiDeterminedStabTimer -=uiDiff;
+                _EnterCombat();
+                Talk(SAY_AGGRO);
+                DoCast(me, SPELL_MOJO_FRENZY, true);
 
-            if (!bPhase && uiTransformationTImer <= uiDiff)
+                events.ScheduleEvent(EVENT_GROUND_TREMOR, 18 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_NUMBLING_SHOUT, 10 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_DETERMINED_STAB, 20 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_TRANFORMATION, 12 * IN_MILLISECONDS);
+            }
+
+            uint32 GetData(uint32 type) const override
             {
-                Talk(EMOTE_TRANSFORM);
-                Talk(SAY_TRANSFORM);
-                DoCast(me, SPELL_TRANSFORMATION, false);
-                uiTransformationTImer = 10*IN_MILLISECONDS;
-            } else uiTransformationTImer -= uiDiff;
+                if (type == DATA_LESS_RABI)
+                    return _transformed ? 0 : 1;
+                return 0;
+            }
 
-            DoMeleeAttackIfReady();
-         }
+            void KilledUnit(Unit* victim) override
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
+            }
 
-        uint32 GetData(uint32 type) const override
+            void JustDied(Unit* /*killer*/) override
+            {
+                _JustDied();
+                Talk(SAY_DEATH);
+                Talk(EMOTE_ACTIVATE_ALTAR);
+            }
+
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+            {
+                if (spellInfo->Id == SPELL_TRANSFORMATION)
+                {
+                    _transformed = true;
+                    Talk(EMOTE_TRANSFORMED);
+                    events.CancelEvent(EVENT_TRANFORMATION);
+                    me->RemoveAurasDueToSpell(SPELL_MOJO_FRENZY);
+                }
+            }
+
+            void ExecuteEvent(uint32 eventId) override
+            {
+                switch (eventId)
+                {
+                    case EVENT_GROUND_TREMOR:
+                        Talk(SAY_QUAKE);
+                        if (_transformed)
+                            DoCastAOE(SPELL_QUAKE);
+                        else
+                            DoCastAOE(SPELL_GROUND_TREMOR);
+                        events.ScheduleEvent(eventId, 10 * IN_MILLISECONDS);
+                        break;
+                    case EVENT_NUMBLING_SHOUT:
+                        if (_transformed)
+                            DoCastAOE(SPELL_NUMBING_ROAR);
+                        else
+                            DoCastAOE(SPELL_NUMBING_SHOUT);
+                        events.ScheduleEvent(eventId, 10 * IN_MILLISECONDS);
+                        break;
+                    case EVENT_DETERMINED_STAB:
+                        if (_transformed)
+                            DoCastVictim(SPELL_DETERMINED_GORE);
+                        else
+                            DoCastVictim(SPELL_DETERMINED_STAB);
+                        events.ScheduleEvent(eventId, 8 * IN_MILLISECONDS);
+                        break;
+                    case EVENT_TRANFORMATION:
+                        Talk(EMOTE_BEGIN_TRANSFORM);
+                        Talk(SAY_TRANSFORM);
+                        DoCast(me, SPELL_TRANSFORMATION);
+                        events.ScheduleEvent(eventId, 10 * IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+        private:
+            bool _transformed;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            if (type == DATA_LESS_RABI)
-                return bPhase ? 0 : 1;
-
-            return 0;
+            return GetGundrakAI<boss_moorabiAI>(creature);
         }
-
-         void JustDied(Unit* /*killer*/) override
-         {
-            Talk(SAY_DEATH);
-
-            instance->SetData(DATA_MOORABI_EVENT, DONE);
-        }
-
-        void KilledUnit(Unit* victim) override
-        {
-            if (victim->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            Talk(SAY_SLAY);
-        }
-    };
-
 };
 
 class achievement_less_rabi : public AchievementCriteriaScript
 {
     public:
-        achievement_less_rabi() : AchievementCriteriaScript("achievement_less_rabi")
-        {
-        }
+        achievement_less_rabi() : AchievementCriteriaScript("achievement_less_rabi") { }
 
         bool OnCheck(Player* /*player*/, Unit* target) override
         {

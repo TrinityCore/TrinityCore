@@ -23,10 +23,10 @@ SDComment: This AI is under development
 SDCategory: Npc
 EndScriptData */
 
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedFollowerAI.h"
 #include "Group.h"
-#include "Player.h"
 
 const float MAX_PLAYER_DISTANCE = 100.0f;
 
@@ -36,7 +36,6 @@ enum Points
 };
 
 FollowerAI::FollowerAI(Creature* creature) : ScriptedAI(creature),
-    m_uiLeaderGUID(0),
     m_uiUpdateFollowTimer(2500),
     m_uiFollowState(STATE_FOLLOW_NONE),
     m_pQuestForFollow(NULL)
@@ -320,7 +319,7 @@ void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, const Qu
 
     me->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
-    TC_LOG_DEBUG("scripts", "FollowerAI start follow %s (GUID " UI64FMTD ")", player->GetName().c_str(), m_uiLeaderGUID);
+    TC_LOG_DEBUG("scripts", "FollowerAI start follow %s (%s)", player->GetName().c_str(), m_uiLeaderGUID.ToString().c_str());
 }
 
 Player* FollowerAI::GetLeaderForFollower()

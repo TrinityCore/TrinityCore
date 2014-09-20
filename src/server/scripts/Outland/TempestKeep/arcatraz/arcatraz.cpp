@@ -322,7 +322,7 @@ class npc_warden_mellichar : public CreatureScript
                 DoCast(me, SPELL_BUBBLE_VISUAL);
 
                 instance->SetBossState(DATA_HARBINGER_SKYRISS, IN_PROGRESS);
-                instance->HandleGameObject(instance->GetData64(DATA_WARDENS_SHIELD), false);
+                instance->HandleGameObject(instance->GetGuidData(DATA_WARDENS_SHIELD), false);
                 IsRunning = true;
             }
 
@@ -356,7 +356,7 @@ class npc_warden_mellichar : public CreatureScript
                     case 2:
                         DoCast(me, SPELL_TARGET_ALPHA);
                         instance->SetData(DATA_WARDEN_1, IN_PROGRESS);
-                        instance->HandleGameObject(instance->GetData64(DATA_WARDENS_SHIELD), false);
+                        instance->HandleGameObject(instance->GetGuidData(DATA_WARDENS_SHIELD), false);
                         break;
                     case 3:
                         DoCast(me, SPELL_TARGET_BETA);

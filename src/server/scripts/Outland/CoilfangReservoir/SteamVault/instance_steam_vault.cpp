@@ -58,11 +58,6 @@ class instance_steam_vault : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
 
-                ThespiaGUID          = 0;
-                MekgineerGUID        = 0;
-                KalithreshGUID       = 0;
-
-                MainChambersDoorGUID = 0;
                 DistillerState       = 0;
             }
 
@@ -96,7 +91,7 @@ class instance_steam_vault : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -109,7 +104,7 @@ class instance_steam_vault : public InstanceMapScript
                     default:
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void SetData(uint32 type, uint32 data) override
@@ -158,11 +153,11 @@ class instance_steam_vault : public InstanceMapScript
             }
 
         protected:
-            uint64 ThespiaGUID;
-            uint64 MekgineerGUID;
-            uint64 KalithreshGUID;
+            ObjectGuid ThespiaGUID;
+            ObjectGuid MekgineerGUID;
+            ObjectGuid KalithreshGUID;
 
-            uint64 MainChambersDoorGUID;
+            ObjectGuid MainChambersDoorGUID;
             uint8 DistillerState;
         };
 

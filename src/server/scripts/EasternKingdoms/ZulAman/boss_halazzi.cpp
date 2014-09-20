@@ -85,7 +85,7 @@ class boss_halazzi : public CreatureScript
 
             void Initialize()
             {
-                LynxGUID = 0;
+                LynxGUID.Clear();
                 TransformCount = 0;
                 BerserkTimer = 600000;
                 CheckTimer = 1000;
@@ -103,7 +103,7 @@ class boss_halazzi : public CreatureScript
             uint32 BerserkTimer;
             uint32 TransformCount;
 
-            uint64 LynxGUID;
+            ObjectGuid LynxGUID;
 
             void Reset() override
             {

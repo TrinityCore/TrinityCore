@@ -24,7 +24,7 @@
 #include "RefManager.h"
 #include "SharedDefines.h"
 #include "ConditionMgr.h"
-
+#include "ObjectGuid.h"
 #include <map>
 #include <vector>
 #include <list>
@@ -318,7 +318,7 @@ struct Loot
     std::vector<LootItem> quest_items;
     uint32 gold;
     uint8 unlootedCount;
-    uint64 roundRobinPlayer;                                // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
+    ObjectGuid roundRobinPlayer;                            // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     LootType loot_type;                                     // required for achievement system
     uint8 maxDuplicates;                                    // Max amount of items with the same entry that can drop (default is 1; on 25 man raid mode 3)
 
@@ -326,7 +326,7 @@ struct Loot
     //  Only set for inventory items that can be right-click looted
     uint32 containerID;
 
-    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), roundRobinPlayer(0), loot_type(LOOT_CORPSE), maxDuplicates(1), containerID(0) { }
+    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), roundRobinPlayer(), loot_type(LOOT_CORPSE), maxDuplicates(1), containerID(0) { }
     ~Loot() { clear(); }
 
     // For deleting items at loot removal since there is no backward interface to the Item()
@@ -359,7 +359,7 @@ struct Loot
         quest_items.clear();
         gold = 0;
         unlootedCount = 0;
-        roundRobinPlayer = 0;
+        roundRobinPlayer.Clear();
         loot_type = LOOT_NONE;
         i_LootValidatorRefManager.clearReferences();
     }
@@ -370,8 +370,8 @@ struct Loot
     void NotifyItemRemoved(uint8 lootIndex);
     void NotifyQuestItemRemoved(uint8 questIndex);
     void NotifyMoneyRemoved();
-    void AddLooter(uint64 GUID) { PlayersLooting.insert(GUID); }
-    void RemoveLooter(uint64 GUID) { PlayersLooting.erase(GUID); }
+    void AddLooter(ObjectGuid GUID) { PlayersLooting.insert(GUID); }
+    void RemoveLooter(ObjectGuid GUID) { PlayersLooting.erase(GUID); }
 
     void generateMoneyLoot(uint32 minAmount, uint32 maxAmount);
     bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT);
@@ -390,7 +390,7 @@ struct Loot
         QuestItemList* FillQuestLoot(Player* player);
         QuestItemList* FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);
 
-        std::set<uint64> PlayersLooting;
+        GuidSet PlayersLooting;
         QuestItemMap PlayerQuestItems;
         QuestItemMap PlayerFFAItems;
         QuestItemMap PlayerNonQuestNonFFAConditionalItems;

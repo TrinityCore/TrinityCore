@@ -101,7 +101,7 @@ class boss_emalon : public CreatureScript
             {
                 if (!summons.empty())
                 {
-                    for (std::list<uint64>::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
+                    for (SummonList::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
                     {
                         Creature* minion = ObjectAccessor::GetCreature(*me, *itr);
                         if (minion && minion->IsAlive() && !minion->GetVictim() && minion->AI())
@@ -184,18 +184,24 @@ class npc_tempest_minion : public CreatureScript
         {
             npc_tempest_minionAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                OverchargedTimer = 0;
             }
 
             void Reset() override
             {
                 events.Reset();
-                OverchargedTimer = 0;
+                Initialize();
             }
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* emalon = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EMALON)))
+                if (Creature* emalon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EMALON)))
                 {
                     if (emalon->IsAlive())
                     {
@@ -210,7 +216,7 @@ class npc_tempest_minion : public CreatureScript
                 DoZoneInCombat();
                 events.ScheduleEvent(EVENT_SHOCK, 20000);
 
-                if (Creature* pEmalon = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EMALON)))
+                if (Creature* pEmalon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EMALON)))
                 {
                     if (!pEmalon->GetVictim() && pEmalon->AI())
                         pEmalon->AI()->AttackStart(who);

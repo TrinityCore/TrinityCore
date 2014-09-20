@@ -418,7 +418,7 @@ class npc_spirit_shade : public CreatureScript
 
         struct npc_spirit_shadeAI : public PassiveAI
         {
-            npc_spirit_shadeAI(Creature* creature) : PassiveAI(creature), _summonerGuid(0)
+            npc_spirit_shadeAI(Creature* creature) : PassiveAI(creature), _summonerGuid()
             {
             }
 
@@ -430,7 +430,7 @@ class npc_spirit_shade : public CreatureScript
 
             void MovementInform(uint32 moveType, uint32 data) override
             {
-                if (moveType == FOLLOW_MOTION_TYPE && data == _summonerGuid)
+                if (moveType == FOLLOW_MOTION_TYPE && data == _summonerGuid.GetCounter())
                 {
                     me->CastSpell((Unit*)NULL, SPELL_DARK_OFFERING, false);
                     me->DespawnOrUnsummon(1000);
@@ -438,7 +438,7 @@ class npc_spirit_shade : public CreatureScript
             }
 
         private:
-            uint64 _summonerGuid;
+            ObjectGuid _summonerGuid;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

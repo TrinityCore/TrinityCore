@@ -217,7 +217,7 @@ class spell_gen_animal_blood : public SpellScriptLoader
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 // Remove all auras with spell id 46221, except the one currently being applied
-                while (Aura* aur = GetUnitOwner()->GetOwnedAura(SPELL_ANIMAL_BLOOD, 0, 0, 0, GetAura()))
+                while (Aura* aur = GetUnitOwner()->GetOwnedAura(SPELL_ANIMAL_BLOOD, ObjectGuid::Empty, ObjectGuid::Empty, 0, GetAura()))
                     GetUnitOwner()->RemoveOwnedAura(aur);
             }
 
@@ -1866,7 +1866,7 @@ class spell_gen_mount : public SpellScriptLoader
                 if (Player* target = GetHitPlayer())
                 {
                     // Prevent stacking of mounts and client crashes upon dismounting
-                    target->RemoveAurasByType(SPELL_AURA_MOUNTED, 0, GetHitAura());
+                    target->RemoveAurasByType(SPELL_AURA_MOUNTED, ObjectGuid::Empty, GetHitAura());
 
                     // Triggered spell id dependent on riding skill and zone
                     bool canFly = false;
@@ -3682,6 +3682,37 @@ class spell_gen_gm_freeze : public SpellScriptLoader
         }
 };
 
+class spell_gen_stand : public SpellScriptLoader
+{
+public:
+    spell_gen_stand() : SpellScriptLoader("spell_gen_stand") { }
+
+    class spell_gen_stand_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_stand_SpellScript);
+
+        void HandleScript(SpellEffIndex /*eff*/)
+        {
+            Creature* target = GetHitCreature();
+            if (!target)
+                return;
+
+            target->SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_STAND);
+            target->HandleEmoteCommand(EMOTE_STATE_NONE);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_gen_stand_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_gen_stand_SpellScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3763,4 +3794,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_whisper_gulch_yogg_saron_whisper();
     new spell_gen_eject_all_passengers();
     new spell_gen_gm_freeze();
+    new spell_gen_stand();
 }

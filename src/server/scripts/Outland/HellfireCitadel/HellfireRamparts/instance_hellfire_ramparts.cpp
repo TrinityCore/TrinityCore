@@ -40,7 +40,6 @@ class instance_ramparts : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                felIronChestGUID = 0;
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -74,7 +73,7 @@ class instance_ramparts : public InstanceMapScript
             }
 
         protected:
-            uint64 felIronChestGUID;
+            ObjectGuid felIronChestGUID;
             bool spawned;
         };
 

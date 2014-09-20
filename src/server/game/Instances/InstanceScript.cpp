@@ -52,6 +52,43 @@ bool InstanceScript::IsEncounterInProgress() const
     return false;
 }
 
+void InstanceScript::OnCreatureCreate(Creature* creature)
+{
+    AddObject(creature, true);
+    AddMinion(creature, true);
+}
+
+void InstanceScript::OnCreatureRemove(Creature* creature)
+{
+    AddObject(creature, false);
+    AddMinion(creature, false);
+}
+
+void InstanceScript::OnGameObjectCreate(GameObject* go)
+{
+    AddObject(go, true);
+    AddDoor(go, true);
+}
+
+void InstanceScript::OnGameObjectRemove(GameObject* go)
+{
+    AddObject(go, false);
+    AddDoor(go, false);
+}
+
+ObjectGuid InstanceScript::GetObjectGuid(uint32 type) const
+{
+    ObjectGuidMap::const_iterator i = _objectGuids.find(type);
+    if (i != _objectGuids.end())
+        return i->second;
+    return ObjectGuid::Empty;
+}
+
+ObjectGuid InstanceScript::GetGuidData(uint32 type) const
+{
+    return GetObjectGuid(type);
+}
+
 void InstanceScript::SetHeaders(std::string const& dataHeaders)
 {
     for (char header : dataHeaders)
@@ -81,6 +118,27 @@ void InstanceScript::LoadDoorData(const DoorData* data)
         ++data;
     }
     TC_LOG_DEBUG("scripts", "InstanceScript::LoadDoorData: " UI64FMTD " doors loaded.", uint64(doors.size()));
+}
+
+void InstanceScript::LoadObjectData(ObjectData const* creatureData, ObjectData const* gameObjectData)
+{
+    if (creatureData)
+        LoadObjectData(creatureData, _creatureInfo);
+
+    if (gameObjectData)
+        LoadObjectData(gameObjectData, _gameObjectInfo);
+
+    TC_LOG_ERROR("scripts", "InstanceScript::LoadObjectData: " SZFMTD " objects loaded.", _creatureInfo.size() + _gameObjectInfo.size());
+}
+
+void InstanceScript::LoadObjectData(ObjectData const* data, ObjectInfoMap& objectInfo)
+{
+    while (data->entry)
+    {
+        ASSERT(objectInfo.find(data->entry) == objectInfo.end());
+        objectInfo[data->entry] = data->type;
+        ++data;
+    }
 }
 
 void InstanceScript::UpdateMinionState(Creature* minion, EncounterState state)
@@ -131,6 +189,32 @@ void InstanceScript::UpdateDoorState(GameObject* door)
     }
 
     door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
+}
+
+void InstanceScript::AddObject(Creature* obj, bool add)
+{
+    ObjectInfoMap::const_iterator j = _creatureInfo.find(obj->GetEntry());
+    if (j != _creatureInfo.end())
+        AddObject(obj, j->second, add);
+}
+
+void InstanceScript::AddObject(GameObject* obj, bool add)
+{
+    ObjectInfoMap::const_iterator j = _gameObjectInfo.find(obj->GetEntry());
+    if (j != _gameObjectInfo.end())
+        AddObject(obj, j->second, add);
+}
+
+void InstanceScript::AddObject(WorldObject* obj, uint32 type, bool add)
+{
+    if (add)
+        _objectGuids[type] = obj->GetGUID();
+    else
+    {
+        ObjectGuidMap::iterator i = _objectGuids.find(type);
+        if (i != _objectGuids.end() && i->second == obj->GetGUID())
+            _objectGuids.erase(i);
+    }
 }
 
 void InstanceScript::AddDoor(GameObject* door, bool add)
@@ -206,7 +290,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                 return false;
 
             if (state == DONE)
-                for (MinionSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
+                for (GuidSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
                     if (Creature* minion = instance->GetCreature(*i))
                         if (minion->isWorldBoss() && minion->IsAlive())
                             return false;
@@ -216,11 +300,11 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
         }
 
         for (uint32 type = 0; type < MAX_DOOR_TYPES; ++type)
-            for (DoorSet::iterator i = bossInfo->door[type].begin(); i != bossInfo->door[type].end(); ++i)
+            for (GuidSet::iterator i = bossInfo->door[type].begin(); i != bossInfo->door[type].end(); ++i)
                 if (GameObject* door = instance->GetGameObject(*i))
                     UpdateDoorState(door);
 
-        for (MinionSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
+        for (GuidSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
             if (Creature* minion = instance->GetCreature(*i))
                 UpdateMinionState(minion, state);
 
@@ -308,7 +392,7 @@ void InstanceScript::WriteSaveDataBossStates(std::ostringstream& data)
         data << uint32(bossInfo.state) << ' ';
 }
 
-void InstanceScript::HandleGameObject(uint64 guid, bool open, GameObject* go /*= nullptr*/)
+void InstanceScript::HandleGameObject(ObjectGuid guid, bool open, GameObject* go /*= nullptr*/)
 {
     if (!go)
         go = instance->GetGameObject(guid);
@@ -318,7 +402,7 @@ void InstanceScript::HandleGameObject(uint64 guid, bool open, GameObject* go /*=
         TC_LOG_DEBUG("scripts", "InstanceScript: HandleGameObject failed");
 }
 
-void InstanceScript::DoUseDoorOrButton(uint64 guid, uint32 withRestoreTime /*= 0*/, bool useAlternativeState /*= false*/)
+void InstanceScript::DoUseDoorOrButton(ObjectGuid guid, uint32 withRestoreTime /*= 0*/, bool useAlternativeState /*= false*/)
 {
     if (!guid)
         return;
@@ -339,7 +423,7 @@ void InstanceScript::DoUseDoorOrButton(uint64 guid, uint32 withRestoreTime /*= 0
         TC_LOG_DEBUG("scripts", "InstanceScript: HandleGameObject failed");
 }
 
-void InstanceScript::DoRespawnGameObject(uint64 guid, uint32 timeToDespawn /*= MINUTE*/)
+void InstanceScript::DoRespawnGameObject(ObjectGuid guid, uint32 timeToDespawn /*= MINUTE*/)
 {
     if (GameObject* go = instance->GetGameObject(guid))
     {
@@ -480,7 +564,7 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
         case ENCOUNTER_FRAME_UPDATE_PRIORITY:
             if (!unit)
                 return;
-            data.append(unit->GetPackGUID());
+            data << unit->GetPackGUID();
             data << uint8(param1);
             break;
         case ENCOUNTER_FRAME_ADD_TIMER:

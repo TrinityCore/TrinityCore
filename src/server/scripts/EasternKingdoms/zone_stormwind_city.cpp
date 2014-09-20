@@ -243,13 +243,13 @@ public:
             uiTimer = 0;
             uiPhase = 0;
 
-            MarzonGUID = 0;
+            MarzonGUID.Clear();
         }
 
         uint32 uiTimer;
         uint32 uiPhase;
 
-        uint64 MarzonGUID;
+        ObjectGuid MarzonGUID;
 
         void Reset() override
         {

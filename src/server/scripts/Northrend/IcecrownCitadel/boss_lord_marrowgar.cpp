@@ -133,7 +133,6 @@ class boss_lord_marrowgar : public CreatureScript
                 _coldflameLastPos.Relocate(creature);
                 _introDone = false;
                 _boneSlice = false;
-                _coldflameTarget = 0;
             }
 
             void Reset() override
@@ -211,7 +210,7 @@ class boss_lord_marrowgar : public CreatureScript
                             break;
                         case EVENT_COLDFLAME:
                             _coldflameLastPos.Relocate(me);
-                            _coldflameTarget = 0LL;
+                            _coldflameTarget.Clear();
                             if (!me->HasAura(SPELL_BONE_STORM))
                                 DoCastAOE(SPELL_COLDFLAME_NORMAL);
                             else
@@ -289,7 +288,7 @@ class boss_lord_marrowgar : public CreatureScript
                 return &_coldflameLastPos;
             }
 
-            uint64 GetGUID(int32 type /*= 0 */) const override
+            ObjectGuid GetGUID(int32 type /*= 0 */) const override
             {
                 switch (type)
                 {
@@ -307,10 +306,10 @@ class boss_lord_marrowgar : public CreatureScript
                     }
                 }
 
-                return 0LL;
+                return ObjectGuid::Empty;
             }
 
-            void SetGUID(uint64 guid, int32 type /*= 0 */) override
+            void SetGUID(ObjectGuid guid, int32 type /*= 0 */) override
             {
                 switch (type)
                 {
@@ -333,8 +332,8 @@ class boss_lord_marrowgar : public CreatureScript
 
         private:
             Position _coldflameLastPos;
-            std::vector<uint64> _boneSpikeImmune;
-            uint64 _coldflameTarget;
+            GuidVector _boneSpikeImmune;
+            ObjectGuid _coldflameTarget;
             uint32 _boneStormDuration;
             float _baseSpeed;
             bool _introDone;

@@ -19,11 +19,11 @@
 #ifndef _GROUPREFMANAGER
 #define _GROUPREFMANAGER
 
+#include "GroupReference.h"
 #include "RefManager.h"
 
 class Group;
 class Player;
-class GroupReference;
 
 class GroupRefManager : public RefManager<Group, Player>
 {

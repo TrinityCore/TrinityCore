@@ -91,7 +91,7 @@ struct SpellDestination
     void RelocateOffset(Position const& offset);
 
     WorldLocation _position;
-    uint64 _transportGUID;
+    ObjectGuid _transportGUID;
     Position _transportOffset;
 };
 
@@ -109,22 +109,22 @@ class SpellCastTargets
 
         void SetTargetFlag(SpellCastTargetFlags flag) { m_targetMask |= flag; }
 
-        uint64 GetUnitTargetGUID() const;
+        ObjectGuid GetUnitTargetGUID() const;
         Unit* GetUnitTarget() const;
         void SetUnitTarget(Unit* target);
 
-        uint64 GetGOTargetGUID() const;
+        ObjectGuid GetGOTargetGUID() const;
         GameObject* GetGOTarget() const;
         void SetGOTarget(GameObject* target);
 
-        uint64 GetCorpseTargetGUID() const;
+        ObjectGuid GetCorpseTargetGUID() const;
         Corpse* GetCorpseTarget() const;
 
         WorldObject* GetObjectTarget() const;
-        uint64 GetObjectTargetGUID() const;
+        ObjectGuid GetObjectTargetGUID() const;
         void RemoveObjectTarget();
 
-        uint64 GetItemTargetGUID() const { return m_itemTargetGUID; }
+        ObjectGuid GetItemTargetGUID() const { return m_itemTargetGUID; }
         Item* GetItemTarget() const { return m_itemTarget; }
         uint32 GetItemTargetEntry() const { return m_itemTargetEntry; }
         void SetItemTarget(Item* item);
@@ -174,8 +174,8 @@ class SpellCastTargets
         Item* m_itemTarget;
 
         // object GUID/etc, can be used always
-        uint64 m_objectTargetGUID;
-        uint64 m_itemTargetGUID;
+        ObjectGuid m_objectTargetGUID;
+        ObjectGuid m_itemTargetGUID;
         uint32 m_itemTargetEntry;
 
         SpellDestination m_src;
@@ -211,6 +211,8 @@ enum SpellEffectHandleMode
     SPELL_EFFECT_HANDLE_HIT,
     SPELL_EFFECT_HANDLE_HIT_TARGET
 };
+
+typedef std::list<std::pair<uint32, ObjectGuid>> DispelList;
 
 class Spell
 {
@@ -346,7 +348,7 @@ class Spell
 
         typedef std::set<Aura*> UsedSpellMods;
 
-        Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, uint64 originalCasterGUID = 0, bool skipCheck = false);
+        Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID = ObjectGuid::Empty, bool skipCheck = false);
         ~Spell();
 
         void InitExplicitTargets(SpellCastTargets const& targets);
@@ -450,7 +452,7 @@ class Spell
 
         SpellInfo const* const m_spellInfo;
         Item* m_CastItem;
-        uint64 m_castItemGUID;
+        ObjectGuid m_castItemGUID;
         uint32 m_castItemEntry;
         uint8 m_cast_count;
         uint32 m_glyphIndex;
@@ -497,13 +499,13 @@ class Spell
         void TriggerGlobalCooldown();
         void CancelGlobalCooldown();
 
-        void SendLoot(uint64 guid, LootType loottype);
+        void SendLoot(ObjectGuid guid, LootType loottype);
 
         Unit* const m_caster;
 
         SpellValue* const m_spellValue;
 
-        uint64 m_originalCasterGUID;                        // real source of cast (aura caster/etc), used for spell targets selection
+        ObjectGuid m_originalCasterGUID;                    // real source of cast (aura caster/etc), used for spell targets selection
                                                             // e.g. damage around area spell trigered by victim aura and damage enemies of aura caster
         Unit* m_originalCaster;                             // cached pointer for m_originalCaster, updated at Spell::UpdatePointers()
 
@@ -576,7 +578,7 @@ class Spell
         // Targets store structures and data
         struct TargetInfo
         {
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             uint64 timeDelay;
             SpellMissInfo missCondition:8;
             SpellMissInfo reflectResult:8;
@@ -592,7 +594,7 @@ class Spell
 
         struct GOTargetInfo
         {
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             uint64 timeDelay;
             uint8  effectMask:8;
             bool   processed:1;

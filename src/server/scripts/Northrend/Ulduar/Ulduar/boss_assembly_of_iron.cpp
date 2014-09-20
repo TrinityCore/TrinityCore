@@ -138,14 +138,22 @@ class boss_steelbreaker : public CreatureScript
 
         struct boss_steelbreakerAI : public BossAI
         {
-            boss_steelbreakerAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON) { }
+            boss_steelbreakerAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                phase = 0;
+            }
 
             uint32 phase;
 
             void Reset() override
             {
                 _Reset();
-                phase = 0;
+                Initialize();
                 me->RemoveAllAuras();
             }
 
@@ -202,11 +210,11 @@ class boss_steelbreaker : public CreatureScript
                     Talk(SAY_STEELBREAKER_DEATH);
                     //DoCastAOE(SPELL_SUPERCHARGE, true);
 
-                    if (Creature* Brundir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BRUNDIR)))
+                    if (Creature* Brundir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BRUNDIR)))
                         if (Brundir->IsAlive())
                             Brundir->AI()->DoAction(ACTION_SUPERCHARGE);
 
-                    if (Creature* Molgeim = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MOLGEIM)))
+                    if (Creature* Molgeim = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MOLGEIM)))
                         if (Molgeim->IsAlive())
                             Molgeim->AI()->DoAction(ACTION_SUPERCHARGE);
                 }
@@ -275,14 +283,22 @@ class boss_runemaster_molgeim : public CreatureScript
 
         struct boss_runemaster_molgeimAI : public BossAI
         {
-            boss_runemaster_molgeimAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON) { }
+            boss_runemaster_molgeimAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                phase = 0;
+            }
 
             uint32 phase;
 
             void Reset() override
             {
                 _Reset();
-                phase = 0;
+                Initialize();
                 me->RemoveAllAuras();
             }
 
@@ -339,11 +355,11 @@ class boss_runemaster_molgeim : public CreatureScript
                     Talk(SAY_MOLGEIM_DEATH);
                     //DoCastAOE(SPELL_SUPERCHARGE, true);
 
-                    if (Creature* Brundir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BRUNDIR)))
+                    if (Creature* Brundir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BRUNDIR)))
                         if (Brundir->IsAlive())
                             Brundir->AI()->DoAction(ACTION_SUPERCHARGE);
 
-                    if (Creature* Steelbreaker = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_STEELBREAKER)))
+                    if (Creature* Steelbreaker = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STEELBREAKER)))
                         if (Steelbreaker->IsAlive())
                             Steelbreaker->AI()->DoAction(ACTION_SUPERCHARGE);
                 }
@@ -380,12 +396,12 @@ class boss_runemaster_molgeim : public CreatureScript
                             switch (urand(0, 2))
                             {
                                 case 1:
-                                    if (Creature* Steelbreaker = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_STEELBREAKER)))
+                                    if (Creature* Steelbreaker = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STEELBREAKER)))
                                         if (Steelbreaker->IsAlive())
                                             target = Steelbreaker;
                                     break;
                                 case 2:
-                                    if (Creature* Brundir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_STEELBREAKER)))
+                                    if (Creature* Brundir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STEELBREAKER)))
                                         if (Brundir->IsAlive())
                                             target = Brundir;
                                     break;
@@ -432,14 +448,22 @@ class boss_stormcaller_brundir : public CreatureScript
 
         struct boss_stormcaller_brundirAI : public BossAI
         {
-            boss_stormcaller_brundirAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON) { }
+            boss_stormcaller_brundirAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                phase = 0;
+            }
 
             uint32 phase;
 
             void Reset() override
             {
                 _Reset();
-                phase = 0;
+                Initialize();
                 me->RemoveAllAuras();
                 me->SetDisableGravity(false);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, false);  // Should be interruptable unless overridden by spell (Overload)
@@ -504,11 +528,11 @@ class boss_stormcaller_brundir : public CreatureScript
                     Talk(SAY_BRUNDIR_DEATH);
                     //DoCastAOE(SPELL_SUPERCHARGE, true);
 
-                    if (Creature* Molgeim = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MOLGEIM)))
+                    if (Creature* Molgeim = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MOLGEIM)))
                         if (Molgeim->IsAlive())
                             Molgeim->AI()->DoAction(ACTION_SUPERCHARGE);
 
-                    if (Creature* Steelbreaker = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_STEELBREAKER)))
+                    if (Creature* Steelbreaker = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STEELBREAKER)))
                         if (Steelbreaker->IsAlive())
                             Steelbreaker->AI()->DoAction(ACTION_SUPERCHARGE);
                 }
@@ -665,7 +689,7 @@ class spell_assembly_meltdown : public SpellScriptLoader
             void HandleInstaKill(SpellEffIndex /*effIndex*/)
             {
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                    if (Creature* Steelbreaker = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_STEELBREAKER)))
+                    if (Creature* Steelbreaker = ObjectAccessor::GetCreature(*GetCaster(), instance->GetGuidData(DATA_STEELBREAKER)))
                         Steelbreaker->AI()->DoAction(ACTION_ADD_CHARGE);
             }
 
@@ -700,7 +724,7 @@ class spell_assembly_rune_of_summoning : public SpellScriptLoader
             void HandlePeriodic(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_RUNE_OF_SUMMONING_SUMMON, true, NULL, aurEff, GetTarget()->IsSummon() ? GetTarget()->ToTempSummon()->GetSummonerGUID() : 0);
+                GetTarget()->CastSpell(GetTarget(), SPELL_RUNE_OF_SUMMONING_SUMMON, true, NULL, aurEff, GetTarget()->IsSummon() ? GetTarget()->ToTempSummon()->GetSummonerGUID() : ObjectGuid::Empty);
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

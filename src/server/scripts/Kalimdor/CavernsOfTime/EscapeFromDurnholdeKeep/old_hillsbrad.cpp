@@ -404,7 +404,7 @@ public:
                     me->SummonCreature(NPC_INN_GUARDSMAN, 2656.39f, 659.77f, 61.93f, 2.61f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                     break;
                 case 94:
-                    if (Creature* Taretha = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TARETHA)))
+                    if (Creature* Taretha = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TARETHA)))
                         Taretha->AI()->Talk(SAY_TA_ESCAPED, me);
                     break;
                 case 95:
@@ -426,7 +426,7 @@ public:
                 case 106:
                     {
                         //trigger taretha to run down outside
-                        if (Creature* Taretha = instance->instance->GetCreature(instance->GetData64(DATA_TARETHA)))
+                        if (Creature* Taretha = instance->instance->GetCreature(instance->GetGuidData(DATA_TARETHA)))
                         {
                             if (Player* player = GetPlayerForEscort())
                                 ENSURE_AI(npc_escortAI, (Taretha->AI()))->Start(false, true, player->GetGUID());
@@ -440,7 +440,7 @@ public:
                             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                             {
                                 if (Player* player = itr->GetSource())
-                                    player->KilledMonsterCredit(20156, 0);
+                                    player->KilledMonsterCredit(20156);
                             }
                         }
 
@@ -588,10 +588,10 @@ public:
             if (instance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
             {
                 instance->SetData(TYPE_THRALL_PART4, IN_PROGRESS);
-                if (instance->GetData64(DATA_EPOCH) == 0)
+                if (instance->GetGuidData(DATA_EPOCH).IsEmpty())
                      creature->SummonCreature(ENTRY_EPOCH, 2639.13f, 698.55f, 65.43f, 4.59f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
 
-                if (Creature* thrall = (ObjectAccessor::GetCreature(*creature, instance->GetData64(DATA_THRALL))))
+                if (Creature* thrall = (ObjectAccessor::GetCreature(*creature, instance->GetGuidData(DATA_THRALL))))
                     ENSURE_AI(npc_thrall_old_hillsbrad::npc_thrall_old_hillsbradAI, thrall->AI())->StartWP();
             }
         }

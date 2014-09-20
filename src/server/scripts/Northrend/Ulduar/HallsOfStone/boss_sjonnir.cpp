@@ -76,12 +76,20 @@ class boss_sjonnir : public CreatureScript
 
         struct boss_sjonnirAI : public BossAI
         {
-            boss_sjonnirAI(Creature* creature) : BossAI(creature, DATA_SJONNIR) { }
+            boss_sjonnirAI(Creature* creature) : BossAI(creature, DATA_SJONNIR)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                abuseTheOoze = 0;
+            }
 
             void Reset() override
             {
                 _Reset();
-                abuseTheOoze = 0;
+                Initialize();
             }
 
             void EnterCombat(Unit* who) override
@@ -211,11 +219,19 @@ class npc_malformed_ooze : public CreatureScript
 
         struct npc_malformed_oozeAI : public ScriptedAI
         {
-            npc_malformed_oozeAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_malformed_oozeAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _mergeTimer = 10000;
+            }
 
             void Reset() override
             {
-                _mergeTimer = 10000;
+                Initialize();
             }
 
             void UpdateAI(uint32 diff) override
@@ -265,7 +281,7 @@ class npc_iron_sludge : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* sjonnir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SJONNIR)))
+                if (Creature* sjonnir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SJONNIR)))
                     sjonnir->AI()->DoAction(ACTION_OOZE_DEAD);
             }
         };

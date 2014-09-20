@@ -32,8 +32,6 @@ public:
         _acceptor(ioService, tcp::endpoint(boost::asio::ip::address::from_string(bindIp), port)),
         _socket(ioService)
     {
-        boost::system::error_code error;
-        _acceptor.non_blocking(true, error);
     }
 
     template <class T>
@@ -47,12 +45,13 @@ public:
             {
                 try
                 {
-                    // this-> is required here to fix an segmentation fault in gcc 4.7.2 - reason is lambdas in a templated class
-                    mgrHandler(std::move(this->_socket));
+                    _socket.non_blocking(true);
+
+                    mgrHandler(std::move(_socket));
                 }
                 catch (boost::system::system_error const& err)
                 {
-                    TC_LOG_INFO("network", "Failed to retrieve client's remote address %s", err.what());
+                    TC_LOG_INFO("network", "Failed to initialize client's socket %s", err.what());
                 }
             }
 

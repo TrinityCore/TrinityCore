@@ -66,14 +66,22 @@ public:
 
     struct boss_maexxnaAI : public BossAI
     {
-        boss_maexxnaAI(Creature* creature) : BossAI(creature, BOSS_MAEXXNA) { }
+        boss_maexxnaAI(Creature* creature) : BossAI(creature, BOSS_MAEXXNA)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            enraged = false;
+        }
 
         bool enraged;
 
         void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
-            enraged = false;
+            Initialize();
             events.ScheduleEvent(EVENT_WRAP, 20000);
             events.ScheduleEvent(EVENT_SPRAY, 40000);
             events.ScheduleEvent(EVENT_SHOCK, urand(5000, 10000));
@@ -157,11 +165,11 @@ public:
 
     struct npc_webwrapAI : public NullCreatureAI
     {
-        npc_webwrapAI(Creature* creature) : NullCreatureAI(creature), victimGUID(0) { }
+        npc_webwrapAI(Creature* creature) : NullCreatureAI(creature) { }
 
-        uint64 victimGUID;
+        ObjectGuid victimGUID;
 
-        void SetGUID(uint64 guid, int32 /*param*/) override
+        void SetGUID(ObjectGuid guid, int32 /*param*/) override
         {
             victimGUID = guid;
             if (me->m_spells[0] && victimGUID)

@@ -85,8 +85,8 @@ public:
     }
 
 protected:
-    virtual void SocketAdded(std::shared_ptr<SocketType> sock) { }
-    virtual void SocketRemoved(std::shared_ptr<SocketType> sock) { }
+    virtual void SocketAdded(std::shared_ptr<SocketType> /*sock*/) { }
+    virtual void SocketRemoved(std::shared_ptr<SocketType> /*sock*/) { }
 
     void AddNewSockets()
     {

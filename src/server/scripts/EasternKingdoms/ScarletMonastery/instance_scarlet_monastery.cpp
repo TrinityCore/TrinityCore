@@ -38,13 +38,6 @@ class instance_scarlet_monastery : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
 
-                PumpkinShrineGUID      = 0;
-                HorsemanGUID           = 0;
-                HeadGUID               = 0;
-                MograineGUID           = 0;
-                WhitemaneGUID          = 0;
-                VorrelGUID             = 0;
-
                 HorsemanAdds.clear();
             }
 
@@ -124,7 +117,7 @@ class instance_scarlet_monastery : public InstanceMapScript
                     case DATA_HORSEMAN_EVENT:
                         if (state == DONE)
                         {
-                            for (uint64 guid : HorsemanAdds)
+                            for (ObjectGuid guid : HorsemanAdds)
                             {
                                 Creature* add = instance->GetCreature(guid);
                                 if (add && add->IsAlive())
@@ -140,7 +133,7 @@ class instance_scarlet_monastery : public InstanceMapScript
                 return true;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -153,18 +146,18 @@ class instance_scarlet_monastery : public InstanceMapScript
                     default:
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
         protected:
-            uint64 PumpkinShrineGUID;
-            uint64 HorsemanGUID;
-            uint64 HeadGUID;
-            uint64 MograineGUID;
-            uint64 WhitemaneGUID;
-            uint64 VorrelGUID;
+            ObjectGuid PumpkinShrineGUID;
+            ObjectGuid HorsemanGUID;
+            ObjectGuid HeadGUID;
+            ObjectGuid MograineGUID;
+            ObjectGuid WhitemaneGUID;
+            ObjectGuid VorrelGUID;
 
-            std::set<uint64> HorsemanAdds;
+            GuidSet HorsemanAdds;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

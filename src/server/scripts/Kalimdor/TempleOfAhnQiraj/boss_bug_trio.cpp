@@ -315,11 +315,11 @@ public:
                 switch (urand(0, 2))
                 {
                     case 0:
-                        if (Creature* kri = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KRI)))
+                        if (Creature* kri = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KRI)))
                             DoCast(kri, SPELL_HEAL);
                         break;
                     case 1:
-                        if (Creature* vem = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VEM)))
+                        if (Creature* vem = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VEM)))
                             DoCast(vem, SPELL_HEAL);
                         break;
                     case 2:
