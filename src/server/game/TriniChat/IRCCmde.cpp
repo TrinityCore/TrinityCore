@@ -124,7 +124,7 @@ void IRCCmd::Account_Player(_CDATA *CD)
         return;
     }
     normalizePlayerName(_PARAMS[0]);
-    uint64 guid = sObjectMgr->GetPlayerGUIDByName(_PARAMS[0]);
+    ObjectGuid guid = sObjectMgr->GetPlayerGUIDByName(_PARAMS[0]);
     int account_id = 0;
     account_id = sObjectMgr->GetPlayerAccountIdByGUID(guid);
     if (account_id)
@@ -264,7 +264,7 @@ void IRCCmd::Char_Player(_CDATA *CD)
         return;
     }
     normalizePlayerName(_PARAMS[0]);
-    uint64 guid = sObjectMgr->GetPlayerGUIDByName(_PARAMS[0]);
+    ObjectGuid guid = sObjectMgr->GetPlayerGUIDByName(_PARAMS[0]);
     Player* plr = ObjectAccessor::FindPlayer(guid);
     if (plr)
     {
@@ -452,7 +452,7 @@ void IRCCmd::Char_Player(_CDATA *CD)
                         {
                             if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(creature))
                                 for (uint16 z = 0; z < creaturecount; ++z)
-                                    plr->KilledMonster(cInfo,0);
+                                    plr->KilledMonster(cInfo, ObjectGuid::Empty);
                         }
                         /*else if (creature < 0)
                         {
@@ -539,7 +539,7 @@ void IRCCmd::Fun_Player(_CDATA *CD)
         if (_PARAMS[1] == "sound")
         {
             uint32 sndid = atoi(_PARAMS[2].c_str());
-            plr->SendPlaySound(sndid ,true);
+            plr->PlayDirectSound(sndid);
             Send_IRCA(ChanOrPM(CD), "\00313["+_PARAMS[0]+"] : Has Just Heard Sound ID: "+_PARAMS[2]+".", true, CD->TYPE);
         }
     }
@@ -561,7 +561,7 @@ void IRCCmd::Help_IRC(_CDATA *CD)
                 if (result)
                 {
                     std::string output = "\002TriniChat IRC Commands:\017 ";
-                    for (uint64 i=0; i < result->GetRowCount(); i++)
+                    for (uint64 i = 0; i < result->GetRowCount(); i++)
                     {
                         Field *fields = result->Fetch();
                         output += fields[0].GetString() + ", ";
@@ -601,7 +601,7 @@ void IRCCmd::Help_IRC(_CDATA *CD)
                 if (result)
                 {
                     std::string output = "\002TriniChat IRC Commands:\017 ";
-                    for (uint64 i=0; i < result->GetRowCount(); i++)
+                    for (uint64 i = 0; i < result->GetRowCount(); i++)
                     {
                         Field *fields = result->Fetch();
                         output += fields[0].GetString() + ", ";
@@ -649,7 +649,7 @@ void IRCCmd::Inchan_Server(_CDATA *CD)
     {
         Field *fields = result->Fetch();
         std::string output = "\0031Players In The \xF["+fields[2].GetString()+"] \0031Channel:\017 ";
-        for (uint64 i=0; i < result->GetRowCount(); i++)
+        for (uint64 i = 0; i < result->GetRowCount(); i++)
         {
             output += fields[1].GetString() + ", ";
             result->NextRow();
@@ -906,7 +906,7 @@ void IRCCmd::Kill_Player(_CDATA *CD)
 void IRCCmd::Player_Player(_CDATA *CD)
 {
     std::string* _PARAMS = getArray(CD->PARAMS, CD->PCOUNT);
-    uint32 plguid = atoi(_PARAMS[0].c_str());
+    ObjectGuid plguid;
     if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC->BOTMASK & 512)!= 0)
     {
         Send_IRCA(CD->USER, MakeMsg("You do not have access to do this to a higher ranked GM [%i]", AcctLevel(_PARAMS[0])), true, "ERROR");
@@ -1083,7 +1083,7 @@ void IRCCmd::Lookup_Player(_CDATA *CD)
     }
     if (_PARAMS[0] == "char")
     {
-        uint32 plguid = atoi(_PARAMS[1].c_str());
+        ObjectGuid plguid;
         if (sObjectMgr->GetPlayerGUIDByName(_PARAMS[1].c_str()))
             plguid = sObjectMgr->GetPlayerGUIDByName(_PARAMS[1].c_str());
         if (plguid > 0)
@@ -1542,7 +1542,7 @@ void IRCCmd::Level_Player(_CDATA *CD)
     }
     std::string player  = _PARAMS[0];
     normalizePlayerName(player);
-    uint64 guid = sObjectMgr->GetPlayerGUIDByName(player.c_str());
+    ObjectGuid guid = sObjectMgr->GetPlayerGUIDByName(player.c_str());
     std::string s_newlevel  = _PARAMS[1];
     uint8 i_newlvl = atoi(s_newlevel.c_str());
     if (!guid)
@@ -1556,8 +1556,7 @@ void IRCCmd::Level_Player(_CDATA *CD)
     } else
     {
         Player *chr = ObjectAccessor::FindPlayer(guid);
-        uint64 level = 1;
-        int32 i_oldlvl = chr ? chr->getLevel() : Player::GetLevelFromDB(level);
+        int32 i_oldlvl = chr ? chr->getLevel() : Player::GetLevelFromDB(guid);
         Player* plTarget = chr;
         if (!plTarget)
         {
@@ -1594,8 +1593,8 @@ void IRCCmd::Level_Player(_CDATA *CD)
         else
         {
             Player::GetLevelFromDB(guid);
-            uint64 player_guid = 0;
-            CharacterDatabase.PExecute("UPDATE characters SET level = '%u', xp = 0 WHERE guid = '%u'", i_newlvl, GUID_LOPART(player_guid));
+            ObjectGuid player_guid;
+            CharacterDatabase.PExecute("UPDATE characters SET level = '%u', xp = 0 WHERE guid = '%u'", i_newlvl, player_guid.ToString().c_str());
         }
     }
     Send_IRCA(ChanOrPM(CD), "\00313[" + _PARAMS[0]+ "] : Has Been Leveled To " + _PARAMS[1] + ". By: "+CD->USER+".", true, CD->TYPE);
@@ -1611,7 +1610,7 @@ void IRCCmd::Money_Player(_CDATA *CD)
     }
     std::string player  = _PARAMS[0];
     normalizePlayerName(player);
-    uint64 guid = sObjectMgr->GetPlayerGUIDByName(player.c_str());
+    ObjectGuid guid = sObjectMgr->GetPlayerGUIDByName(player.c_str());
 
     std::string s_money  = _PARAMS[1];
     int32 money = atoi(s_money.c_str());
@@ -1692,7 +1691,7 @@ void IRCCmd::Mute_Player(_CDATA *CD)
         return;
     }
     normalizePlayerName(_PARAMS[0]);
-    uint64 guid = sObjectMgr->GetPlayerGUIDByName(_PARAMS[0]);
+    ObjectGuid guid = sObjectMgr->GetPlayerGUIDByName(_PARAMS[0]);
     if (guid)
     {
         if (_PARAMS[1] == "release")
@@ -1755,14 +1754,14 @@ void IRCCmd::PM_Player(_CDATA *CD)
             WorldPacket data(SMSG_MESSAGECHAT, 200);
             data << (uint8)CHAT_MSG_SYSTEM;
             data << (uint32)LANG_UNIVERSAL;
-            data << (uint64)plr->GetGUID();
+            data << (ObjectGuid)plr->GetGUID();
             data << (uint32)0;
-            data << (uint64)plr->GetGUID();
+            data << (ObjectGuid)plr->GetGUID();
             data << (uint32)(sMsg.length()+1);
             data << sMsg;
             data << (uint8)0;
             plr->GetSession()->SendPacket(&data);
-            plr->SendPlaySound(3081, true);
+            plr->PlayDirectSound(3081);
             Send_IRCA(ChanOrPM(CD), "\00313To ["+_PARAMS[0]+"] : "+_PARAMS[1]+".", true, CD->TYPE);
         }
         else
@@ -2100,7 +2099,7 @@ void IRCCmd::Tele_Player(_CDATA *CD)
         }
         else
         {
-            if (uint64 guid = sObjectMgr->GetPlayerGUIDByName(_PARAMS[2].c_str()))
+            if (ObjectGuid guid = sObjectMgr->GetPlayerGUIDByName(_PARAMS[2].c_str()))
             {
                 bool in_flight;
                 Player::LoadPositionFromDB(mapid, pX, pY, pZ, pO, in_flight, guid);
@@ -2214,7 +2213,7 @@ void IRCCmd::Tele_Player(_CDATA *CD)
                 }
                 else
                 {
-                    uint64 guid = sObjectMgr->GetPlayerGUIDByName(_PARAMS[0]);
+                    ObjectGuid guid = sObjectMgr->GetPlayerGUIDByName(_PARAMS[0]);
                     Player::SavePositionInDB(mapid,pX,pY,pZ,pO,sMapMgr->GetZoneId(mapid,pX,pY,pZ),guid);
                     sIRC->Send_IRC_Channel(ChanOrPM(CD), rMsg + " \0034*Offline Tele.* ", true, CD->TYPE);
                 }
