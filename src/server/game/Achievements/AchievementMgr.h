@@ -355,15 +355,28 @@ class AchievementGlobalMgr
             return iter != m_criteriaDataMap.end() ? &iter->second : NULL;
         }
 
-        bool IsRealmCompleted(AchievementEntry const* achievement) const
+        bool IsRealmCompleted(AchievementEntry const* achievement, uint32 instanceId) const
         {
-            return m_allCompletedAchievements.find(achievement->ID) != m_allCompletedAchievements.end();
+            AllCompletedAchievements::const_iterator itr = m_allCompletedAchievements.find(achievement->ID);
+            if (itr == m_allCompletedAchievements.end())
+                return false;
+
+            if (achievement->flags & ACHIEVEMENT_FLAG_REALM_FIRST_KILL)
+                return itr->second != instanceId;
+
+            return true;
         }
 
-        void SetRealmCompleted(AchievementEntry const* achievement)
+        void SetRealmCompleted(AchievementEntry const* achievement, uint32 instanceId)
         {
-            m_allCompletedAchievements.insert(achievement->ID);
+            if (IsRealmCompleted(achievement, instanceId))
+                return;
+                
+            m_allCompletedAchievements[achievement->ID] = instanceId;
         }
+
+        // Removes instanceId as valid id to complete realm first kill achievements
+        void OnInstanceDestroyed(uint32 instanceId);
 
         void LoadAchievementCriteriaList();
         void LoadAchievementCriteriaData();
@@ -387,7 +400,7 @@ class AchievementGlobalMgr
         // store achievements by referenced achievement id to speed up lookup
         AchievementListByReferencedId m_AchievementListByReferencedId;
 
-        typedef std::set<uint32> AllCompletedAchievements;
+        typedef std::map<uint32 /*achievementId*/, uint32 /*instanceId*/> AllCompletedAchievements;
         AllCompletedAchievements m_allCompletedAchievements;
 
         AchievementRewards m_achievementRewards;
