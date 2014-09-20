@@ -269,7 +269,6 @@ public:
             Initialize();
             instance = creature->GetInstanceScript();
 
-            MemoryGUID = 0;
             creature->SetReactState(REACT_PASSIVE);
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             creature->RestoreFaction();
@@ -288,7 +287,7 @@ public:
         }
 
         InstanceScript* instance;
-        uint64 MemoryGUID;
+        ObjectGuid MemoryGUID;
 
         bool bHealth;
         bool bDone;
@@ -584,7 +583,7 @@ public:
                     break;
             }
 
-            Start(false, true, 0);
+            Start(false, true);
             uiWaypoint = uiType;
         }
 

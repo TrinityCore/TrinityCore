@@ -754,7 +754,7 @@ class spell_q12937_relief_for_the_fallen : public SpellScriptLoader
                 if (Creature* target = GetHitCreature())
                 {
                     caster->CastSpell(caster, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true, NULL);
-                    caster->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER, 0);
+                    caster->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER);
                     target->DespawnOrUnsummon();
                 }
             }
@@ -885,7 +885,7 @@ class spell_q12659_ahunaes_knife : public SpellScriptLoader
                 if (Creature* target = GetHitCreature())
                 {
                     target->DespawnOrUnsummon();
-                    caster->KilledMonsterCredit(NPC_SCALPS_KC_BUNNY, 0);
+                    caster->KilledMonsterCredit(NPC_SCALPS_KC_BUNNY);
                 }
             }
 
@@ -929,7 +929,7 @@ class spell_q9874_liquid_fire : public SpellScriptLoader
                 if (Creature* target = GetHitCreature())
                     if (target && !target->HasAura(SPELL_FLAMES))
                     {
-                        caster->KilledMonsterCredit(NPC_VILLAGER_KILL_CREDIT, 0);
+                        caster->KilledMonsterCredit(NPC_VILLAGER_KILL_CREDIT);
                         target->CastSpell(target, SPELL_FLAMES, true);
                         target->DespawnOrUnsummon(60000);
                     }
@@ -973,7 +973,7 @@ class spell_q12805_lifeblood_dummy : public SpellScriptLoader
                 Player* caster = GetCaster()->ToPlayer();
                 if (Creature* target = GetHitCreature())
                 {
-                    caster->KilledMonsterCredit(NPC_SHARD_KILL_CREDIT, 0);
+                    caster->KilledMonsterCredit(NPC_SHARD_KILL_CREDIT);
                     target->CastSpell(target, uint32(GetEffectValue()), true);
                     target->DespawnOrUnsummon(2000);
                 }
@@ -1016,7 +1016,7 @@ class spell_q13280_13283_plant_battle_standard: public SpellScriptLoader
                 Unit* caster = GetCaster();
                 if (caster->IsVehicle())
                     if (Unit* player = caster->GetVehicleKit()->GetPassenger(0))
-                         player->ToPlayer()->KilledMonsterCredit(NPC_KING_OF_THE_MOUNTAINT_KC, 0);
+                         player->ToPlayer()->KilledMonsterCredit(NPC_KING_OF_THE_MOUNTAINT_KC);
             }
 
             void Register() override
@@ -1356,7 +1356,7 @@ class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScriptLoad
                         if (Vehicle* vehicle = caster->GetVehicleKit())
                             if (Unit* passenger = vehicle->GetPassenger(0))
                                 if (Player* player = passenger->ToPlayer())
-                                    player->KilledMonsterCredit(NPC_WYRMREST_TEMPLE_CREDIT, 0);
+                                    player->KilledMonsterCredit(NPC_WYRMREST_TEMPLE_CREDIT);
             }
 
             void Register() override
@@ -2348,6 +2348,52 @@ class spell_q14100_q14111_make_player_destroy_totems : public SpellScriptLoader
         }
 };
 
+enum Fumping
+{
+    SPELL_SUMMON_SAND_GNOME  = 39240,
+    SPELL_SUMMON_BONE_SLICER = 39241
+};
+
+// 39238 - Fumping
+class spell_q10929_fumping : SpellScriptLoader
+{
+    public:
+        spell_q10929_fumping() : SpellScriptLoader("spell_q10929_fumping") { }
+
+        class spell_q10929_fumpingAuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_q10929_fumpingAuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_SAND_GNOME))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_BONE_SLICER))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                    return;
+
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, urand(SPELL_SUMMON_SAND_GNOME, SPELL_SUMMON_BONE_SLICER), true);
+            }
+
+        void Register() override
+        {
+            OnEffectRemove += AuraEffectRemoveFn(spell_q10929_fumpingAuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_q10929_fumpingAuraScript();
+    }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2405,4 +2451,5 @@ void AddSC_quest_spell_scripts()
     new spell_q12919_gymers_throw();
     new spell_q13400_illidan_kill_master();
     new spell_q14100_q14111_make_player_destroy_totems();
+    new spell_q10929_fumping();
 }

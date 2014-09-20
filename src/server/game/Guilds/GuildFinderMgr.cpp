@@ -102,7 +102,7 @@ void GuildFinderMgr::LoadMembershipRequests()
         std::string comment = fields[5].GetString();
         uint32 submitTime   = fields[6].GetUInt32();
 
-        MembershipRequest request(playerId, guildId, availability, classRoles, interests, comment, time_t(submitTime));
+        MembershipRequest request(ObjectGuid(HIGHGUID_PLAYER, playerId), guildId, availability, classRoles, interests, comment, time_t(submitTime));
 
         _membershipRequests[guildId].push_back(request);
 
@@ -129,7 +129,7 @@ void GuildFinderMgr::AddMembershipRequest(uint32 guildGuid, MembershipRequest co
     CharacterDatabase.CommitTransaction(trans);
 
     // Notify the applicant his submittion has been added
-    if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(request.GetPlayerGUID(), 0, HIGHGUID_PLAYER)))
+    if (Player* player = ObjectAccessor::FindPlayer(request.GetPlayerGUID()))
         SendMembershipRequestListUpdate(*player);
 
     // Notify the guild master and officers the list changed
@@ -178,7 +178,7 @@ void GuildFinderMgr::RemoveMembershipRequest(uint32 playerId, uint32 guildId)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_APPLICANT);
     stmt->setUInt32(0, itr->GetGuildId());
-    stmt->setUInt32(1, itr->GetPlayerGUID());
+    stmt->setUInt32(1, itr->GetPlayerGUID().GetCounter());
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
@@ -186,7 +186,7 @@ void GuildFinderMgr::RemoveMembershipRequest(uint32 playerId, uint32 guildId)
     _membershipRequests[guildId].erase(itr);
 
     // Notify the applicant his submittion has been removed
-    if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(playerId, 0, HIGHGUID_PLAYER)))
+    if (Player* player = ObjectAccessor::FindPlayer(itr->GetPlayerGUID()))
         SendMembershipRequestListUpdate(*player);
 
     // Notify the guild master and officers the list changed
@@ -304,7 +304,7 @@ void GuildFinderMgr::DeleteGuild(uint32 guildId)
         CharacterDatabase.CommitTransaction(trans);
 
         // Notify the applicant his submition has been removed
-        if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(applicant, 0, HIGHGUID_PLAYER)))
+        if (Player* player = ObjectAccessor::FindPlayer(itr->GetPlayerGUID()))
             SendMembershipRequestListUpdate(*player);
 
         ++itr;

@@ -77,7 +77,7 @@ class boss_interrogator_vishas : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
-                if (Creature* vorrel = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VORREL)))
+                if (Creature* vorrel = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VORREL)))
                     vorrel->AI()->Talk(SAY_TRIGGER_VORREL);
             }
 

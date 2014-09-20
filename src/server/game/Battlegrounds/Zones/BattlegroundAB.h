@@ -242,7 +242,7 @@ struct BattlegroundABScore final : public BattlegroundScore
     friend class BattlegroundAB;
 
     protected:
-        BattlegroundABScore(uint64 playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), BasesAssaulted(0), BasesDefended(0) { }
+        BattlegroundABScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), BasesAssaulted(0), BasesDefended(0) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {
@@ -283,7 +283,7 @@ class BattlegroundAB : public Battleground
         void AddPlayer(Player* player) override;
         void StartingEventCloseDoors() override;
         void StartingEventOpenDoors() override;
-        void RemovePlayer(Player* player, uint64 guid, uint32 team) override;
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
         void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
         bool SetupBattleground() override;
         void Reset() override;

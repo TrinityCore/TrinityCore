@@ -35,31 +35,29 @@
  * @param zoneId        The zone where the battle is (4197 for wg)
  * @param acceptTime    Time in second that the player have for accept
  */
-void WorldSession::SendBfInvitePlayerToWar(uint64 guid, uint32 zoneId, uint32 acceptTime)
+void WorldSession::SendBfInvitePlayerToWar(ObjectGuid guid, uint32 zoneId, uint32 acceptTime)
 {
-    ObjectGuid guidBytes = guid;
-
     WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTRY_INVITE, 16);
 
-    data.WriteBit(guidBytes[5]);
-    data.WriteBit(guidBytes[3]);
-    data.WriteBit(guidBytes[7]);
-    data.WriteBit(guidBytes[2]);
-    data.WriteBit(guidBytes[6]);
-    data.WriteBit(guidBytes[4]);
-    data.WriteBit(guidBytes[1]);
-    data.WriteBit(guidBytes[0]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[0]);
 
-    data.WriteByteSeq(guidBytes[6]);
+    data.WriteByteSeq(guid[6]);
     data << uint32(zoneId);         // Zone Id
-    data.WriteByteSeq(guidBytes[1]);
-    data.WriteByteSeq(guidBytes[3]);
-    data.WriteByteSeq(guidBytes[4]);
-    data.WriteByteSeq(guidBytes[2]);
-    data.WriteByteSeq(guidBytes[0]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[0]);
     data << uint32(time(NULL) + acceptTime); // Invite lasts until
-    data.WriteByteSeq(guidBytes[7]);
-    data.WriteByteSeq(guidBytes[5]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[5]);
     SendPacket(&data);
 }
 
@@ -70,39 +68,37 @@ void WorldSession::SendBfInvitePlayerToWar(uint64 guid, uint32 zoneId, uint32 ac
  *
  * @param guid           The guid of Bf
  */
-void WorldSession::SendBfInvitePlayerToQueue(uint64 guid)
+void WorldSession::SendBfInvitePlayerToQueue(ObjectGuid guid)
 {
-    ObjectGuid guidBytes = guid;
-
     WorldPacket data(SMSG_BATTLEFIELD_MGR_QUEUE_INVITE, 5);
 
     data.WriteBit(1);               // unk
     data.WriteBit(0);               // Has Warmup
     data.WriteBit(1);               // unk
-    data.WriteBit(guidBytes[0]);
+    data.WriteBit(guid[0]);
     data.WriteBit(1);               // unk
-    data.WriteBit(guidBytes[2]);
-    data.WriteBit(guidBytes[6]);
-    data.WriteBit(guidBytes[3]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[3]);
     data.WriteBit(1);               // unk
     data.WriteBit(0);               // unk
-    data.WriteBit(guidBytes[1]);
-    data.WriteBit(guidBytes[5]);
-    data.WriteBit(guidBytes[4]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[4]);
     data.WriteBit(1);               // unk
-    data.WriteBit(guidBytes[7]);
+    data.WriteBit(guid[7]);
 
     data.FlushBits();
 
-    data.WriteByteSeq(guidBytes[2]);
-    data.WriteByteSeq(guidBytes[3]);
-    data.WriteByteSeq(guidBytes[6]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[6]);
     data << uint8(1);               // Warmup
-    data.WriteByteSeq(guidBytes[5]);
-    data.WriteByteSeq(guidBytes[0]);
-    data.WriteByteSeq(guidBytes[4]);
-    data.WriteByteSeq(guidBytes[1]);
-    data.WriteByteSeq(guidBytes[7]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[7]);
     SendPacket(&data);
 }
 
@@ -116,27 +112,26 @@ void WorldSession::SendBfInvitePlayerToQueue(uint64 guid)
  * @param canQueue      if able to queue
  * @param full          on log in is full
  */
-void WorldSession::SendBfQueueInviteResponse(uint64 guid, uint32 zoneId, bool canQueue, bool full)
+void WorldSession::SendBfQueueInviteResponse(ObjectGuid guid, uint32 zoneId, bool canQueue, bool full)
 {
     const bool hasSecondGuid = false;
     const bool warmup = true;
-    ObjectGuid guidBytes = guid;
 
     WorldPacket data(SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE, 16);
 
-    data.WriteBit(guidBytes[1]);
-    data.WriteBit(guidBytes[6]);
-    data.WriteBit(guidBytes[5]);
-    data.WriteBit(guidBytes[7]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[7]);
     data.WriteBit(full);  // Logging In, VERIFYME
-    data.WriteBit(guidBytes[0]);
+    data.WriteBit(guid[0]);
     data.WriteBit(!hasSecondGuid);
-    data.WriteBit(guidBytes[4]);
+    data.WriteBit(guid[4]);
 
     // if (hasSecondGuid) 7 3 0 4 2 6 1 5
 
-    data.WriteBit(guidBytes[3]);
-    data.WriteBit(guidBytes[2]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[2]);
 
     // if (hasSecondGuid) 2 5 3 0 4 6 1 7
 
@@ -144,17 +139,17 @@ void WorldSession::SendBfQueueInviteResponse(uint64 guid, uint32 zoneId, bool ca
 
     data << uint8(canQueue);  // Accepted
 
-    data.WriteByteSeq(guidBytes[1]);
-    data.WriteByteSeq(guidBytes[3]);
-    data.WriteByteSeq(guidBytes[6]);
-    data.WriteByteSeq(guidBytes[7]);
-    data.WriteByteSeq(guidBytes[0]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[0]);
 
     data << uint8(warmup);
 
-    data.WriteByteSeq(guidBytes[2]);
-    data.WriteByteSeq(guidBytes[4]);
-    data.WriteByteSeq(guidBytes[5]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[5]);
 
     data << uint32(zoneId);
 
@@ -168,35 +163,34 @@ void WorldSession::SendBfQueueInviteResponse(uint64 guid, uint32 zoneId, bool ca
  *
  * @param guid           The guid of Bf
  */
-void WorldSession::SendBfEntered(uint64 guid)
+void WorldSession::SendBfEntered(ObjectGuid guid)
 {
     uint8 isAFK = _player->isAFK() ? 1 : 0;
-    ObjectGuid guidBytes = guid;
 
     WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTERED, 11);
 
     data.WriteBit(0);               // unk
     data.WriteBit(isAFK);           // Clear AFK
-    data.WriteBit(guidBytes[1]);
-    data.WriteBit(guidBytes[4]);
-    data.WriteBit(guidBytes[5]);
-    data.WriteBit(guidBytes[0]);
-    data.WriteBit(guidBytes[3]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[3]);
     data.WriteBit(0);               // unk
-    data.WriteBit(guidBytes[6]);
-    data.WriteBit(guidBytes[7]);
-    data.WriteBit(guidBytes[2]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[2]);
 
     data.FlushBits();
 
-    data.WriteByteSeq(guidBytes[5]);
-    data.WriteByteSeq(guidBytes[3]);
-    data.WriteByteSeq(guidBytes[0]);
-    data.WriteByteSeq(guidBytes[4]);
-    data.WriteByteSeq(guidBytes[1]);
-    data.WriteByteSeq(guidBytes[7]);
-    data.WriteByteSeq(guidBytes[2]);
-    data.WriteByteSeq(guidBytes[6]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[6]);
 
     SendPacket(&data);
 }
@@ -209,34 +203,32 @@ void WorldSession::SendBfEntered(uint64 guid)
  * @param guid          The guid of Bf
  * @param reason        Reason why player left battlefield
  */
-void WorldSession::SendBfLeaveMessage(uint64 guid, BFLeaveReason reason /*= BF_LEAVE_REASON_EXITED*/)
+void WorldSession::SendBfLeaveMessage(ObjectGuid guid, BFLeaveReason reason /*= BF_LEAVE_REASON_EXITED*/)
 {
-    ObjectGuid guidBytes = guid;
-
     WorldPacket data(SMSG_BATTLEFIELD_MGR_EJECTED, 11);
 
-    data.WriteBit(guidBytes[2]);
-    data.WriteBit(guidBytes[5]);
-    data.WriteBit(guidBytes[1]);
-    data.WriteBit(guidBytes[0]);
-    data.WriteBit(guidBytes[3]);
-    data.WriteBit(guidBytes[6]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[6]);
     data.WriteBit(0);               // Relocated
-    data.WriteBit(guidBytes[7]);
-    data.WriteBit(guidBytes[4]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[4]);
 
     data.FlushBits();
 
     data << uint8(2);               // BattleStatus
-    data.WriteByteSeq(guidBytes[1]);
-    data.WriteByteSeq(guidBytes[7]);
-    data.WriteByteSeq(guidBytes[4]);
-    data.WriteByteSeq(guidBytes[2]);
-    data.WriteByteSeq(guidBytes[3]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[3]);
     data << uint8(reason);          // Reason
-    data.WriteByteSeq(guidBytes[6]);
-    data.WriteByteSeq(guidBytes[0]);
-    data.WriteByteSeq(guidBytes[5]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[5]);
 
     SendPacket(&data);
 }
@@ -270,7 +262,7 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[0]);
     recvData.ReadByteSeq(guid[5]);
 
-    TC_LOG_ERROR("misc", "HandleQueueInviteResponse: GUID: " UI64FMTD ", accepted: %u", uint64(guid), accepted);
+    TC_LOG_ERROR("misc", "HandleQueueInviteResponse: %s, accepted: %u", guid.ToString().c_str(), accepted);
 
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
     if (!bf)

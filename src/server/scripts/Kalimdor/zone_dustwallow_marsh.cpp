@@ -652,7 +652,7 @@ public:
         if (Creature* prisoner = go->FindNearestCreature(NPC_THERAMORE_PRISONER, 1.0f))
         {
             if (player)
-                player->KilledMonsterCredit(NPC_THERAMORE_PRISONER, 0);
+                player->KilledMonsterCredit(NPC_THERAMORE_PRISONER);
 
             prisoner->AI()->Talk(SAY_FREE); // We also emote cry here (handled in creature_text.emote)
             prisoner->DespawnOrUnsummon(6000);

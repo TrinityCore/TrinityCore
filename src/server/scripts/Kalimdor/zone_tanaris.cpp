@@ -46,7 +46,12 @@ enum Aquementas
     AGGRO_YELL_AQUE     = 0,
 
     SPELL_AQUA_JET      = 13586,
-    SPELL_FROST_SHOCK   = 15089
+    SPELL_FROST_SHOCK   = 15089,
+
+    ITEM_BOOK_OF_AQUOR  = 11169,
+    ITEM_SILVERY_CLAWS  = 11172,
+    ITEM_IRONTREE_HEART = 11173,
+    ITEM_SILVER_TOTEM   = 11522
 };
 
 class npc_aquementas : public CreatureScript
@@ -94,15 +99,15 @@ public:
         {
             Player* player = receiver->ToPlayer();
 
-            if (player && player->HasItemCount(11169, 1, false) &&
-                player->HasItemCount(11172, 11, false) &&
-                player->HasItemCount(11173, 1, false) &&
-                !player->HasItemCount(11522, 1, true))
+            if (player && player->HasItemCount(ITEM_BOOK_OF_AQUOR, 1, false) &&
+                player->HasItemCount(ITEM_SILVERY_CLAWS, 11, false) &&
+                player->HasItemCount(ITEM_IRONTREE_HEART, 1, false) &&
+                !player->HasItemCount(ITEM_SILVER_TOTEM, 1, true))
             {
                 ItemPosCountVec dest;
                 uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 11522, 1, NULL);
                 if (msg == EQUIP_ERR_OK)
-                    player->StoreNewItem(dest, 11522, 1, true);
+                    player->StoreNewItem(dest, ITEM_SILVER_TOTEM, true);
             }
         }
 
@@ -172,7 +177,10 @@ enum CustodianOfTime
     WHISPER_CUSTODIAN_11    = 10,
     WHISPER_CUSTODIAN_12    = 11,
     WHISPER_CUSTODIAN_13    = 12,
-    WHISPER_CUSTODIAN_14    = 13
+    WHISPER_CUSTODIAN_14    = 13,
+
+    QUEST_CAVERNS_OF_TIME   = 10277,
+    SPELL_QID_10277         = 34883
 };
 
 class npc_custodian_of_time : public CreatureScript
@@ -248,9 +256,9 @@ public:
                         break;
                     case 24:
                         Talk(WHISPER_CUSTODIAN_14, player);
-                        DoCast(player, 34883);
+                        DoCast(player, SPELL_QID_10277);
                         // below here is temporary workaround, to be removed when spell works properly
-                        player->AreaExploredOrEventHappens(10277);
+                        player->AreaExploredOrEventHappens(QUEST_CAVERNS_OF_TIME);
                         break;
                 }
             }
@@ -478,14 +486,14 @@ public:
             PostEventTimer = 1000;
             PhasePostEvent = 0;
 
-            TortaGUID = 0;
+            TortaGUID.Clear();
         }
 
         uint32 CheckSpeechTimer;
         uint32 PostEventTimer;
         uint32 PhasePostEvent;
 
-        uint64 TortaGUID;
+        ObjectGuid TortaGUID;
 
         void Reset() override
         {

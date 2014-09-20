@@ -62,7 +62,7 @@ void WorldSession::HandleVoidStorageUnlock(WorldPacket& recvData)
     Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageUnlock - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(npcGuid));
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageUnlock - %s not found or player can't interact with it.", npcGuid.ToString().c_str());
         return;
     }
 
@@ -103,7 +103,7 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
     Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageQuery - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(npcGuid));
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageQuery - %s not found or player can't interact with it.", npcGuid.ToString().c_str());
         return;
     }
 
@@ -130,7 +130,7 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
         if (!item)
             continue;
 
-        ObjectGuid itemId = item->ItemId;
+        ObjectGuid itemId(item->ItemId);
         ObjectGuid creatorGuid = item->CreatorGuid;
 
         data.WriteBit(creatorGuid[3]);
@@ -284,7 +284,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
     Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(npcGuid));
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - %s not found or player can't interact with it.", npcGuid.ToString().c_str());
         return;
     }
 
@@ -335,7 +335,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
             continue;
         }
 
-        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetUInt64Value(ITEM_FIELD_CREATOR), item->GetItemRandomPropertyId(), item->GetItemSuffixFactor());
+        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetGuidValue(ITEM_FIELD_CREATOR), item->GetItemRandomPropertyId(), item->GetItemSuffixFactor());
 
         uint8 slot = player->AddVoidStorageItem(itemVS);
 
@@ -370,7 +370,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
         }
 
         Item* item = player->StoreNewItem(dest, itemVS->ItemEntry, true, itemVS->ItemRandomPropertyId);
-        item->SetUInt64Value(ITEM_FIELD_CREATOR, uint64(itemVS->CreatorGuid));
+        item->SetGuidValue(ITEM_FIELD_CREATOR, itemVS->CreatorGuid);
         item->SetBinding(true);
         player->SendNewItem(item, 1, false, false, false);
 
@@ -387,7 +387,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     for (uint8 i = 0; i < depositCount; ++i)
     {
-        ObjectGuid itemId = depositItems[i].first.ItemId;
+        ObjectGuid itemId(depositItems[i].first.ItemId);
         ObjectGuid creatorGuid = depositItems[i].first.CreatorGuid;
         data.WriteBit(creatorGuid[7]);
         data.WriteBit(itemId[7]);
@@ -409,7 +409,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     for (uint8 i = 0; i < withdrawCount; ++i)
     {
-        ObjectGuid itemId = withdrawItems[i].ItemId;
+        ObjectGuid itemId(withdrawItems[i].ItemId);
         data.WriteBit(itemId[1]);
         data.WriteBit(itemId[7]);
         data.WriteBit(itemId[3]);
@@ -424,7 +424,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     for (uint8 i = 0; i < withdrawCount; ++i)
     {
-        ObjectGuid itemId = withdrawItems[i].ItemId;
+        ObjectGuid itemId(withdrawItems[i].ItemId);
         data.WriteByteSeq(itemId[3]);
         data.WriteByteSeq(itemId[1]);
         data.WriteByteSeq(itemId[0]);
@@ -437,7 +437,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     for (uint8 i = 0; i < depositCount; ++i)
     {
-        ObjectGuid itemId = depositItems[i].first.ItemId;
+        ObjectGuid itemId(depositItems[i].first.ItemId);
         ObjectGuid creatorGuid = depositItems[i].first.CreatorGuid;
 
         data << uint32(depositItems[i].first.ItemSuffixFactor);
@@ -521,7 +521,7 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
     Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidSwapItem - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(npcGuid));
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidSwapItem - %s not found or player can't interact with it.", npcGuid.ToString().c_str());
         return;
     }
 
@@ -542,7 +542,7 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
     bool usedDestSlot = player->GetVoidStorageItem(newSlot) != NULL;
     ObjectGuid itemIdDest;
     if (usedDestSlot)
-        itemIdDest = player->GetVoidStorageItem(newSlot)->ItemId;
+        itemIdDest.Set(player->GetVoidStorageItem(newSlot)->ItemId);
 
     if (!player->SwapVoidStorageItem(oldSlot, newSlot))
     {

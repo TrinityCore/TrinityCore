@@ -190,9 +190,7 @@ bool RASession::ProcessCommand(std::string& command)
     }
 
     // Obtain a new promise per command
-    if (_commandExecuting != nullptr)
-        delete _commandExecuting;
-
+    delete _commandExecuting;
     _commandExecuting = new std::promise<void>();
 
     CliCommandHolder* cmd = new CliCommandHolder(this, command.c_str(), &RASession::CommandPrint, &RASession::CommandFinished);

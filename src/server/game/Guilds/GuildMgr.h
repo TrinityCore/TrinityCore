@@ -33,9 +33,9 @@ public:
         return &instance;
     }
 
-    Guild* GetGuildByLeader(uint64 guid) const;
+    Guild* GetGuildByLeader(ObjectGuid guid) const;
     Guild* GetGuildById(uint32 guildId) const;
-    Guild* GetGuildByGuid(uint64 guid) const;
+    Guild* GetGuildByGuid(ObjectGuid guid) const;
     Guild* GetGuildByName(std::string const& guildName) const;
     std::string GetGuildNameById(uint32 guildId) const;
 

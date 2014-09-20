@@ -19,6 +19,7 @@
 #define __TRINITY_GUILDFINDER_H
 
 #include "Common.h"
+#include "ObjectGuid.h"
 #include "World.h"
 #include "GuildMgr.h"
 
@@ -68,15 +69,15 @@ struct MembershipRequest
             _time = settings.GetSubmitTime();
         }
 
-        MembershipRequest(uint32 playerGUID, uint32 guildId, uint32 availability, uint32 classRoles, uint32 interests, std::string& comment, time_t submitTime) :
+        MembershipRequest(ObjectGuid playerGUID, uint32 guildId, uint32 availability, uint32 classRoles, uint32 interests, std::string& comment, time_t submitTime) :
             _comment(comment), _guildId(guildId), _playerGUID(playerGUID), _availability(availability),
             _classRoles(classRoles), _interests(interests), _time(submitTime)  {}
 
-        MembershipRequest() : _guildId(0), _playerGUID(0), _availability(0), _classRoles(0),
+        MembershipRequest() : _guildId(0), _availability(0), _classRoles(0),
             _interests(0), _time(time(NULL)) {}
 
         uint32 GetGuildId() const      { return _guildId; }
-        uint32 GetPlayerGUID() const   { return _playerGUID; }
+        ObjectGuid GetPlayerGUID() const   { return _playerGUID; }
         uint8 GetAvailability() const  { return _availability; }
         uint8 GetClassRoles() const    { return _classRoles; }
         uint8 GetInterests() const     { return _interests; }
@@ -90,7 +91,7 @@ struct MembershipRequest
         std::string _comment;
 
         uint32 _guildId;
-        uint32 _playerGUID;
+        ObjectGuid _playerGUID;
 
         uint8 _availability;
         uint8 _classRoles;

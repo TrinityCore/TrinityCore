@@ -97,7 +97,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 6:
                 player->SEND_GOSSIP_MENU(7761, creature->GetGUID());
                                                                 //'kill' our trigger to update quest status
-                player->KilledMonsterCredit(TRIGGER_RUTGAR, 0);
+                player->KilledMonsterCredit(TRIGGER_RUTGAR);
                 break;
 
             case GOSSIP_ACTION_INFO_DEF + 9:
@@ -123,7 +123,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 14:
                 player->SEND_GOSSIP_MENU(7767, creature->GetGUID());
                                                                 //'kill' our trigger to update quest status
-                player->KilledMonsterCredit(TRIGGER_FRANKAL, 0);
+                player->KilledMonsterCredit(TRIGGER_FRANKAL);
                 break;
         }
         return true;
@@ -431,24 +431,24 @@ public:
         {
             AnimationTimer = 1500;
             AnimationCount = 0;
-            AnachronosQuestTriggerGUID = 0;
-            MerithraGUID = 0;
-            ArygosGUID = 0;
-            CaelestraszGUID = 0;
-            FandralGUID = 0;
-            PlayerGUID = 0;
+            AnachronosQuestTriggerGUID.Clear();
+            MerithraGUID.Clear();
+            ArygosGUID.Clear();
+            CaelestraszGUID.Clear();
+            FandralGUID.Clear();
+            PlayerGUID.Clear();
             eventEnd = false;
         }
 
         uint32 AnimationTimer;
         uint8 AnimationCount;
 
-        uint64 AnachronosQuestTriggerGUID;
-        uint64 MerithraGUID;
-        uint64 ArygosGUID;
-        uint64 CaelestraszGUID;
-        uint64 FandralGUID;
-        uint64 PlayerGUID;
+        ObjectGuid AnachronosQuestTriggerGUID;
+        ObjectGuid MerithraGUID;
+        ObjectGuid ArygosGUID;
+        ObjectGuid CaelestraszGUID;
+        ObjectGuid FandralGUID;
+        ObjectGuid PlayerGUID;
         bool eventEnd;
 
         void Reset() override
@@ -485,7 +485,7 @@ public:
                         Fandral->AI()->Talk(FANDRAL_SAY_1, me);
                         break;
                     case 2:
-                        Fandral->SetTarget(0);
+                        Fandral->SetTarget(ObjectGuid::Empty);
                         Merithra->AI()->Talk(MERITHRA_EMOTE_1);
                         break;
                     case 3:
@@ -502,7 +502,7 @@ public:
                         Merithra->AI()->Talk(MERITHRA_SAY_2);
                         break;
                     case 7:
-                        Caelestrasz->SetTarget(0);
+                        Caelestrasz->SetTarget(ObjectGuid::Empty);
                         Merithra->GetMotionMaster()->MoveCharge(-8065, 1530, 2.61f, 10);
                         break;
                     case 8:
@@ -769,14 +769,14 @@ public:
 
         void Initialize()
         {
-            MobGUID = 0;
-            PlayerGUID = 0;
+            MobGUID.Clear();
+            PlayerGUID.Clear();
             Timers = false;
             hasTarget = false;
         }
 
-        uint64 MobGUID;
-        uint64 PlayerGUID;
+        ObjectGuid MobGUID;
+        ObjectGuid PlayerGUID;
         uint32 SpellTimer1, SpellTimer2, SpellTimer3, SpellTimer4;
         bool Timers;
         bool hasTarget;
@@ -890,7 +890,7 @@ public:
 
         void Initialize()
         {
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
 
             WaveTimer = 2000;
             AnnounceTimer = 1000;
@@ -902,7 +902,7 @@ public:
             Failed = false;
         }
 
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         uint32 WaveTimer;
         uint32 AnnounceTimer;

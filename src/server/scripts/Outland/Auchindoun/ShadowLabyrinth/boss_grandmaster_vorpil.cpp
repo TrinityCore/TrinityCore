@@ -238,7 +238,7 @@ class npc_voidtraveler : public CreatureScript
             {
                 if (_moveTimer <= diff)
                 {
-                    Creature* Vorpil = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_GRANDMASTER_VORPIL));
+                    Creature* Vorpil = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_GRANDMASTER_VORPIL));
                     if (!Vorpil)
                         return;
 

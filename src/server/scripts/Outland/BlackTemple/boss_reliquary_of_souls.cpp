@@ -113,9 +113,12 @@ public:
     {
         npc_enslaved_soulAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 ReliquaryGUID;
+        ObjectGuid ReliquaryGUID;
 
-        void Reset() override { ReliquaryGUID = 0; }
+        void Reset() override
+        {
+            ReliquaryGUID.Clear(); 
+        }
 
         void EnterCombat(Unit* /*who*/) override
         {
@@ -142,12 +145,11 @@ public:
         boss_reliquary_of_soulsAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            EssenceGUID = 0;
         }
 
         InstanceScript* instance;
 
-        uint64 EssenceGUID;
+        ObjectGuid EssenceGUID;
 
         uint32 Phase;
         uint32 Counter;
@@ -165,7 +167,7 @@ public:
                 if (Creature* essence = ObjectAccessor::GetCreature(*me, EssenceGUID))
                     essence->DespawnOrUnsummon();
 
-                EssenceGUID = 0;
+                EssenceGUID.Clear();
             }
 
             Phase = 0;
@@ -334,17 +336,15 @@ public:
                     if (Essence)
                     {
                         if (Phase == 1)
-                        {
                             Essence->AI()->Talk(SUFF_SAY_AFTER);
-                        }
                         else
-                        {
                             Essence->AI()->Talk(DESI_SAY_AFTER);
-                        }
+
                         Essence->DespawnOrUnsummon();
                     }
+
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
-                    EssenceGUID = 0;
+                    EssenceGUID.Clear();
                     SoulCount = 0;
                     SoulDeathCount = 0;
                     Timer = 3000;
@@ -624,7 +624,7 @@ public:
     {
         boss_essence_of_angerAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 AggroTargetGUID;
+        ObjectGuid AggroTargetGUID;
 
         uint32 CheckTankTimer;
         uint32 SoulScreamTimer;
@@ -636,7 +636,7 @@ public:
 
         void Reset() override
         {
-            AggroTargetGUID = 0;
+            AggroTargetGUID.Clear();
 
             CheckTankTimer = 5000;
             SoulScreamTimer = 10000;

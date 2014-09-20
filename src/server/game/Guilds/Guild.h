@@ -340,7 +340,7 @@ private:
     class Member
     {
     public:
-        Member(uint32 guildId, uint64 guid, uint8 rankId):
+        Member(uint32 guildId, ObjectGuid guid, uint8 rankId) :
             m_guildId(guildId),
             m_guid(guid),
             m_zoneId(0),
@@ -378,7 +378,7 @@ private:
         bool LoadFromDB(Field* fields);
         void SaveToDB(SQLTransaction& trans) const;
 
-        uint64 GetGUID() const { return m_guid; }
+        ObjectGuid GetGUID() const { return m_guid; }
         std::string const& GetName() const { return m_name; }
         uint32 GetAccountId() const { return m_accountId; }
         uint8 GetRankId() const { return m_rankId; }
@@ -405,7 +405,7 @@ private:
         inline void UpdateLogoutTime() { m_logoutTime = ::time(NULL); }
         inline bool IsRank(uint8 rankId) const { return m_rankId == rankId; }
         inline bool IsRankNotLower(uint8 rankId) const { return m_rankId <= rankId; }
-        inline bool IsSamePlayer(uint64 guid) const { return m_guid == guid; }
+        inline bool IsSamePlayer(ObjectGuid guid) const { return m_guid == guid; }
 
         void UpdateBankWithdrawValue(SQLTransaction& trans, uint8 tabId, uint32 amount);
         int32 GetBankWithdrawValue(uint8 tabId) const;
@@ -416,7 +416,7 @@ private:
     private:
         uint32 m_guildId;
         // Fields from characters table
-        uint64 m_guid;
+        ObjectGuid m_guid;
         std::string m_name;
         uint32 m_zoneId;
         uint8 m_level;
@@ -525,16 +525,16 @@ private:
     class NewsLogEntry : public LogEntry
     {
     public:
-        NewsLogEntry(uint32 guildId, uint32 guid, GuildNews type, uint32 playerGuid, uint32 flags, uint32 value) :
+        NewsLogEntry(uint32 guildId, uint32 guid, GuildNews type, ObjectGuid playerGuid, uint32 flags, uint32 value) :
             LogEntry(guildId, guid), m_type(type), m_playerGuid(playerGuid), m_flags(flags), m_value(value) { }
 
-        NewsLogEntry(uint32 guildId, uint32 guid, time_t timestamp, GuildNews type, uint32 playerGuid, uint32 flags, uint32 value) :
+        NewsLogEntry(uint32 guildId, uint32 guid, time_t timestamp, GuildNews type, ObjectGuid playerGuid, uint32 flags, uint32 value) :
             LogEntry(guildId, guid, timestamp), m_type(type), m_playerGuid(playerGuid), m_flags(flags), m_value(value) { }
 
         ~NewsLogEntry() { }
 
         GuildNews GetType() const { return m_type; }
-        uint64 GetPlayerGuid() const { return m_playerGuid ? MAKE_NEW_GUID(m_playerGuid, 0, HIGHGUID_PLAYER) : 0; }
+        ObjectGuid GetPlayerGuid() const { return m_playerGuid; }
         uint32 GetValue() const { return m_value; }
         uint32 GetFlags() const { return m_flags; }
         void SetSticky(bool sticky)
@@ -550,7 +550,7 @@ private:
 
     private:
         GuildNews m_type;
-        uint32 m_playerGuid;
+        ObjectGuid m_playerGuid;
         uint32 m_flags;
         uint32 m_value;
     };
@@ -775,8 +775,8 @@ public:
 
     // Getters
     uint32 GetId() const { return m_id; }
-    uint64 GetGUID() const { return MAKE_NEW_GUID(m_id, 0, HIGHGUID_GUILD); }
-    uint64 GetLeaderGUID() const { return m_leaderGuid; }
+    ObjectGuid GetGUID() const { return ObjectGuid(HIGHGUID_GUILD, m_id); }
+    ObjectGuid GetLeaderGUID() const { return m_leaderGuid; }
     std::string const& GetName() const { return m_name; }
     std::string const& GetMOTD() const { return m_motd; }
     std::string const& GetInfo() const { return m_info; }
@@ -795,15 +795,15 @@ public:
     void HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo);
     void HandleSetNewGuildMaster(WorldSession* session, std::string const& name);
     void HandleSetBankTabInfo(WorldSession* session, uint8 tabId, std::string const& name, std::string const& icon);
-    void HandleSetMemberNote(WorldSession* session, std::string const& note, uint64 guid, bool isPublic);
+    void HandleSetMemberNote(WorldSession* session, std::string const& note, ObjectGuid guid, bool isPublic);
     void HandleSetRankInfo(WorldSession* session, uint8 rankId, std::string const& name, uint32 rights, uint32 moneyPerDay, GuildBankRightsAndSlotsVec const& rightsAndSlots);
     void HandleBuyBankTab(WorldSession* session, uint8 tabId);
     void HandleInviteMember(WorldSession* session, std::string const& name);
     void HandleAcceptMember(WorldSession* session);
     void HandleLeaveMember(WorldSession* session);
-    void HandleRemoveMember(WorldSession* session, uint64 guid);
-    void HandleUpdateMemberRank(WorldSession* session, uint64 guid, bool demote);
-    void HandleSetMemberRank(WorldSession* session, uint64 guid, uint64 setterGuid, uint32 rank);
+    void HandleRemoveMember(WorldSession* session, ObjectGuid guid);
+    void HandleUpdateMemberRank(WorldSession* session, ObjectGuid guid, bool demote);
+    void HandleSetMemberRank(WorldSession* session, ObjectGuid guid, ObjectGuid setterGuid, uint32 rank);
     void HandleAddNewRank(WorldSession* session, std::string const& name);
     void HandleRemoveRank(WorldSession* session, uint8 rankId);
     void HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool cashFlow = false);
@@ -861,10 +861,10 @@ public:
 
     // Members
     // Adds member to guild. If rankId == GUILD_RANK_NONE, lowest rank is assigned.
-    bool AddMember(uint64 guid, uint8 rankId = GUILD_RANK_NONE);
-    void DeleteMember(uint64 guid, bool isDisbanding = false, bool isKicked = false, bool canDeleteGuild = false);
-    bool ChangeMemberRank(uint64 guid, uint8 newRank);
-    bool IsMember(uint64 guid) const;
+    bool AddMember(ObjectGuid guid, uint8 rankId = GUILD_RANK_NONE);
+    void DeleteMember(ObjectGuid guid, bool isDisbanding = false, bool isKicked = false, bool canDeleteGuild = false);
+    bool ChangeMemberRank(ObjectGuid guid, uint8 newRank);
+    bool IsMember(ObjectGuid guid) const;
     uint32 GetMembersCount() { return m_members.size(); }
 
     // Bank
@@ -883,7 +883,7 @@ public:
     uint64 GetExperience() const { return _experience; }
     uint64 GetTodayExperience() const { return _todayExperience; }
 
-    void AddGuildNews(uint8 type, uint64 guid, uint32 flags, uint32 value);
+    void AddGuildNews(uint8 type, ObjectGuid guid, uint32 flags, uint32 value);
 
     EmblemInfo const& GetEmblemInfo() const { return m_emblemInfo; }
     void ResetTimes(bool weekly);
@@ -894,7 +894,7 @@ public:
 protected:
     uint32 m_id;
     std::string m_name;
-    uint64 m_leaderGuid;
+    ObjectGuid m_leaderGuid;
     std::string m_motd;
     std::string m_info;
     time_t m_createdDate;
@@ -935,15 +935,15 @@ private:
     inline BankTab* GetBankTab(uint8 tabId) { return tabId < m_bankTabs.size() ? m_bankTabs[tabId] : NULL; }
     inline const BankTab* GetBankTab(uint8 tabId) const { return tabId < m_bankTabs.size() ? m_bankTabs[tabId] : NULL; }
 
-    inline const Member* GetMember(uint64 guid) const
+    inline const Member* GetMember(ObjectGuid guid) const
     {
-        Members::const_iterator itr = m_members.find(GUID_LOPART(guid));
+        Members::const_iterator itr = m_members.find(guid.GetCounter());
         return itr != m_members.end() ? itr->second : NULL;
     }
 
-    inline Member* GetMember(uint64 guid)
+    inline Member* GetMember(ObjectGuid guid)
     {
-        Members::iterator itr = m_members.find(GUID_LOPART(guid));
+        Members::iterator itr = m_members.find(guid.GetCounter());
         return itr != m_members.end() ? itr->second : NULL;
     }
 
@@ -988,8 +988,8 @@ private:
 
     int32 _GetMemberRemainingSlots(Member const* member, uint8 tabId) const;
     int32 _GetMemberRemainingMoney(Member const* member) const;
-    void _UpdateMemberWithdrawSlots(SQLTransaction& trans, uint64 guid, uint8 tabId);
-    bool _MemberHasTabRights(uint64 guid, uint8 tabId, uint32 rights) const;
+    void _UpdateMemberWithdrawSlots(SQLTransaction& trans, ObjectGuid guid, uint8 tabId);
+    bool _MemberHasTabRights(ObjectGuid guid, uint8 tabId, uint32 rights) const;
 
     void _LogEvent(GuildEventLogTypes eventType, uint32 playerGuid1, uint32 playerGuid2 = 0, uint8 newRank = 0);
     void _LogBankEvent(SQLTransaction& trans, GuildBankEventLogTypes eventType, uint8 tabId, uint32 playerGuid, uint32 itemOrMoney, uint16 itemStackCount = 0, uint8 destTabId = 0);
@@ -1002,8 +1002,8 @@ private:
     void _SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) const;
     void _SendBankContentUpdate(uint8 tabId, SlotIds slots) const;
     void SendGuildReputationWeeklyCap(WorldSession* session, uint32 reputation) const;
-    void SendGuildRanksUpdate(uint64 setterGuid, uint64 targetGuid, uint32 rank);
+    void SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, uint32 rank);
 
-    void _BroadcastEvent(GuildEvents guildEvent, uint64 guid, const char* param1 = NULL, const char* param2 = NULL, const char* param3 = NULL) const;
+    void _BroadcastEvent(GuildEvents guildEvent, ObjectGuid guid, const char* param1 = NULL, const char* param2 = NULL, const char* param3 = NULL) const;
 };
 #endif

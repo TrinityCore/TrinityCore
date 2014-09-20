@@ -65,9 +65,8 @@ class Unit;
 class Battlefield;
 class BfGraveyard;
 
-typedef std::set<uint64> GuidSet;
 typedef std::vector<BfGraveyard*> GraveyardVect;
-typedef std::map<uint64, time_t> PlayerTimerMap;
+typedef std::map<ObjectGuid, time_t> PlayerTimerMap;
 
 class BfCapturePoint
 {
@@ -82,7 +81,7 @@ class BfCapturePoint
         void SendUpdateWorldState(uint32 field, uint32 value);
 
         // Send kill notify to players in the controlling faction
-        void SendObjectiveComplete(uint32 id, uint64 guid);
+        void SendObjectiveComplete(uint32 id, ObjectGuid guid);
 
         // Used when player is activated/inactivated in the area
         virtual bool HandlePlayerEnter(Player* player);
@@ -133,7 +132,7 @@ class BfCapturePoint
         uint32 m_capturePointEntry;
 
         // Gameobject related to that capture point
-        uint64 m_capturePointGUID;
+        ObjectGuid m_capturePointGUID;
 };
 
 class BfGraveyard
@@ -155,10 +154,10 @@ class BfGraveyard
         void SetSpirit(Creature* spirit, TeamId team);
 
         // Add a player to the graveyard
-        void AddPlayer(uint64 player_guid);
+        void AddPlayer(ObjectGuid player_guid);
 
         // Remove a player from the graveyard
-        void RemovePlayer(uint64 player_guid);
+        void RemovePlayer(ObjectGuid player_guid);
 
         // Resurrect players
         void Resurrect();
@@ -167,10 +166,10 @@ class BfGraveyard
         void RelocateDeadPlayers();
 
         // Check if this graveyard has a spirit guide
-        bool HasNpc(uint64 guid);
+        bool HasNpc(ObjectGuid guid);
 
         // Check if a player is in this graveyard's resurrect queue
-        bool HasPlayer(uint64 guid) { return m_ResurrectQueue.find(guid) != m_ResurrectQueue.end(); }
+        bool HasPlayer(ObjectGuid guid) { return m_ResurrectQueue.find(guid) != m_ResurrectQueue.end(); }
 
         // Get the graveyard's ID.
         uint32 GetGraveyardId() const { return m_GraveyardId; }
@@ -178,7 +177,7 @@ class BfGraveyard
     protected:
         TeamId m_ControlTeam;
         uint32 m_GraveyardId;
-        uint64 m_SpiritGuide[BG_TEAMS_COUNT];
+        ObjectGuid m_SpiritGuide[BG_TEAMS_COUNT];
         GuidSet m_ResurrectQueue;
         Battlefield* m_Bf;
 };
@@ -223,7 +222,7 @@ class Battlefield : public ZoneScript
 
         uint32 GetTypeId() { return m_TypeId; }
         uint32 GetZoneId() { return m_ZoneId; }
-        uint64 GetGUID()   { return m_Guid;   }
+        ObjectGuid GetGUID()   { return m_Guid; }
 
         void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
 
@@ -239,7 +238,7 @@ class Battlefield : public ZoneScript
          * \brief Kick player from battlefield and teleport him to kick-point location
          * \param guid : guid of player who must be kick
          */
-        void KickPlayerFromBattlefield(uint64 guid);
+        void KickPlayerFromBattlefield(ObjectGuid guid);
 
         /// Called when player (player) enter in zone
         void HandlePlayerEnterZone(Player* player, uint32 zone);
@@ -268,7 +267,7 @@ class Battlefield : public ZoneScript
          */
         Group* GetFreeBfRaid(TeamId TeamId);
         /// Return battlefield group where player is.
-        Group* GetGroupPlayer(uint64 guid, TeamId TeamId);
+        Group* GetGroupPlayer(ObjectGuid guid, TeamId TeamId);
         /// Force player to join a battlefield group
         bool AddOrSetPlayerToCorrectBfGroup(Player* player);
 
@@ -276,8 +275,8 @@ class Battlefield : public ZoneScript
         // Find which graveyard the player must be teleported to to be resurrected by spiritguide
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
-        virtual void AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid);
-        void RemovePlayerFromResurrectQueue(uint64 player_guid);
+        virtual void AddPlayerToResurrectQueue(ObjectGuid npc_guid, ObjectGuid player_guid);
+        void RemovePlayerFromResurrectQueue(ObjectGuid player_guid);
         void SetGraveyardNumber(uint32 number) { m_GraveyardList.resize(number); }
         BfGraveyard* GetGraveyardById(uint32 id) const;
 
@@ -286,8 +285,8 @@ class Battlefield : public ZoneScript
         Creature* SpawnCreature(uint32 entry, Position const& pos, TeamId /*teamId*/);
         GameObject* SpawnGameObject(uint32 entry, float x, float y, float z, float o);
 
-        Creature* GetCreature(uint64 GUID);
-        GameObject* GetGameObject(uint64 GUID);
+        Creature* GetCreature(ObjectGuid guid);
+        GameObject* GetGameObject(ObjectGuid guid);
 
         // Script-methods
 
@@ -306,8 +305,7 @@ class Battlefield : public ZoneScript
         /// Called when a player enter in battlefield zone
         virtual void OnPlayerEnterZone(Player* /*player*/) { }
 
-        void SendWarningToAllInZone(uint32 entry);
-        void SendWarningToPlayer(Player* player, uint32 entry);
+        void SendWarning(uint8 id, WorldObject const* target = nullptr);
 
         void PlayerAcceptInviteToQueue(Player* player);
         void PlayerAcceptInviteToWar(Player* player);
@@ -323,7 +321,7 @@ class Battlefield : public ZoneScript
         /// Return if we can use mount in battlefield
         bool CanFlyIn() { return !m_isActive; }
 
-        void SendAreaSpiritHealerQueryOpcode(Player* player, uint64 guid);
+        void SendAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid guid);
 
         void StartBattle();
         void EndBattle(bool endByTimer);
@@ -344,9 +342,9 @@ class Battlefield : public ZoneScript
         void InitStalker(uint32 entry, Position const& pos);
 
     protected:
-        uint64 m_Guid;
+        ObjectGuid m_Guid;
 
-        uint64 StalkerGuid;
+        ObjectGuid StalkerGuid;
         uint32 m_Timer;                                         // Global timer for event
         bool m_IsEnabled;
         bool m_isActive;

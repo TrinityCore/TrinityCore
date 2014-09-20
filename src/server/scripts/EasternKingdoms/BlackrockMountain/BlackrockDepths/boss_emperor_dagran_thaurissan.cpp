@@ -70,7 +70,7 @@ class boss_emperor_dagran_thaurissan : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* moira = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_MOIRA)))
+                if (Creature* moira = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MOIRA)))
                 {
                     moira->AI()->EnterEvadeMode();
                     moira->setFaction(35);

@@ -206,7 +206,7 @@ void SocialMgr::GetFriendInfo(Player* player, uint32 friendGUID, FriendInfo &fri
     friendInfo.Level = 0;
     friendInfo.Class = 0;
 
-    Player* target = ObjectAccessor::FindPlayer(friendGUID);
+    Player* target = ObjectAccessor::FindPlayer(ObjectGuid(HIGHGUID_PLAYER, friendGUID));
     if (!target)
         return;
 
@@ -291,10 +291,10 @@ void SocialMgr::BroadcastToFriendListers(Player* player, WorldPacket* packet)
     AccountTypes gmSecLevel = AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST));
     for (SocialMap::const_iterator itr = m_socialMap.begin(); itr != m_socialMap.end(); ++itr)
     {
-        PlayerSocialMap::const_iterator itr2 = itr->second.m_playerSocialMap.find(player->GetGUID());
+        PlayerSocialMap::const_iterator itr2 = itr->second.m_playerSocialMap.find(player->GetGUIDLow());
         if (itr2 != itr->second.m_playerSocialMap.end() && (itr2->second.Flags & SOCIAL_FLAG_FRIEND))
         {
-            Player* target = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER));
+            Player* target = ObjectAccessor::FindPlayer(ObjectGuid(HIGHGUID_PLAYER, 0, itr->first));
             if (!target || !target->IsInWorld())
                 continue;
 

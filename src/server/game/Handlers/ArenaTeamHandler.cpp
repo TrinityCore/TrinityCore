@@ -33,9 +33,9 @@ void WorldSession::HandleInspectArenaTeamsOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "MSG_INSPECT_ARENA_TEAMS");
 
-    uint64 guid;
+    ObjectGuid guid;
     recvData >> guid;
-    TC_LOG_DEBUG("network", "Inspect Arena stats (GUID: %u TypeId: %u)", GUID_LOPART(guid), GuidHigh2TypeId(GUID_HIPART(guid)));
+    TC_LOG_DEBUG("network", "Inspect Arena stats %s", guid.ToString().c_str());
 
     Player* player = ObjectAccessor::FindPlayer(guid);
 
@@ -119,7 +119,7 @@ void WorldSession::HandleArenaTeamCreateOpcode(WorldPacket & recvData)
     }
 
     ArenaTeam* arenaTeam = new ArenaTeam;
-    if (!arenaTeam->Create(GUID_LOPART(_player->GetGUID()), type, name, background, icon, iconcolor, border, bordercolor))
+    if (!arenaTeam->Create(_player->GetGUID(), type, name, background, icon, iconcolor, border, bordercolor))
     {
         TC_LOG_ERROR("bg.arena", "Arena team create failed.");
         delete arenaTeam;
@@ -373,7 +373,7 @@ void WorldSession::HandleArenaTeamRemoveOpcode(WorldPacket& recvData)
     arenaTeam->DelMember(member->Guid, true);
 
     // Broadcast event
-    arenaTeam->BroadcastEvent(ERR_ARENA_TEAM_REMOVE_SSS, 0, 3, name, arenaTeam->GetName(), _player->GetName());
+    arenaTeam->BroadcastEvent(ERR_ARENA_TEAM_REMOVE_SSS, ObjectGuid::Empty, 3, name, arenaTeam->GetName(), _player->GetName());
 }
 
 void WorldSession::HandleArenaTeamLeaderOpcode(WorldPacket& recvData)
@@ -416,7 +416,7 @@ void WorldSession::HandleArenaTeamLeaderOpcode(WorldPacket& recvData)
     arenaTeam->SetCaptain(member->Guid);
 
     // Broadcast event
-    arenaTeam->BroadcastEvent(ERR_ARENA_TEAM_LEADER_CHANGED_SSS, 0, 3, _player->GetName(), name, arenaTeam->GetName());
+    arenaTeam->BroadcastEvent(ERR_ARENA_TEAM_LEADER_CHANGED_SSS, ObjectGuid::Empty, 3, _player->GetName(), name, arenaTeam->GetName());
 }
 
 void WorldSession::SendArenaTeamCommandResult(uint32 teamAction, const std::string& team, const std::string& player, uint32 errorId)

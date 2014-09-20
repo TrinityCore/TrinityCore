@@ -112,8 +112,8 @@ public:
 
         void Initialize()
         {
-            for (uint8 i = 0; i<3; ++i)
-                TargetGUID[i] = 0;
+            for (uint8 i = 0; i < 3; ++i)
+                TargetGUID[i].Clear();
 
             BeamCount = 0;
             CurrentBeam = SINISTER_BEAM;   // 0 - Sinister, 1 - Vile, 2 - Wicked, 3 - Sinful
@@ -236,7 +236,7 @@ public:
                             {
                                 if (Unit* unit = ObjectAccessor::GetUnit(*me, TargetGUID[i]))
                                     unit->CastSpell(unit, SPELL_ATTRACTION, true);
-                                TargetGUID[i] = 0;
+                                TargetGUID[i].Clear();
                             }
                         }
                         ++ExplosionCount;
@@ -267,7 +267,7 @@ public:
         }
 
     private:
-        uint64 TargetGUID[3];
+        ObjectGuid TargetGUID[3];
         uint32 BeamCount;
         uint32 CurrentBeam;
         uint32 ExplosionCount;

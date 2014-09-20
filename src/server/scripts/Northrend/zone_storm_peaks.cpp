@@ -454,17 +454,16 @@ public:
     {
         npc_brann_bronzebeard_keystoneAI(Creature* creature) : ScriptedAI(creature)
         {
-            memset(&objectGUID, 0, sizeof(objectGUID));
-            playerGUID = 0;
-            voiceGUID = 0;
             objectCounter = 0;
         }
 
         void Reset() override
         {
-            memset(&objectGUID, 0, sizeof(objectGUID));
-            playerGUID = 0;
-            voiceGUID  = 0;
+            for (ObjectGuid& guid : objectGUID)
+                guid.Clear();
+
+            playerGUID.Clear();
+            voiceGUID.Clear();
             objectCounter = 0;
         }
 
@@ -583,9 +582,9 @@ public:
 
     private:
         EventMap events;
-        uint64 playerGUID;
-        uint64 objectGUID[5];
-        uint64 voiceGUID;
+        ObjectGuid playerGUID;
+        ObjectGuid objectGUID[5];
+        ObjectGuid voiceGUID;
         uint8 objectCounter;
     };
 
@@ -643,13 +642,12 @@ public:
     {
         npc_king_jokkum_vehicleAI(Creature* creature) : VehicleAI(creature)
         {
-            playerGUID = 0;
             pathEnd = false;
         }
 
         void Reset() override
         {
-            playerGUID = 0;
+            playerGUID.Clear();
             pathEnd    = false;
         }
 
@@ -715,7 +713,7 @@ public:
 
     private:
         EventMap events;
-        uint64 playerGUID;
+        ObjectGuid playerGUID;
         bool pathEnd;
 
     };

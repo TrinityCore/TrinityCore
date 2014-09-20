@@ -39,10 +39,6 @@ class instance_baradin_hold: public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-
-                ArgalothGUID = 0;
-                OccutharGUID = 0;
-                AlizabalGUID = 0;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -73,7 +69,7 @@ class instance_baradin_hold: public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 data) const override
+            ObjectGuid GetGuidData(uint32 data) const override
             {
                 switch (data)
                 {
@@ -87,7 +83,7 @@ class instance_baradin_hold: public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void OnGameObjectRemove(GameObject* go) override
@@ -103,9 +99,9 @@ class instance_baradin_hold: public InstanceMapScript
             }
 
         protected:
-            uint64 ArgalothGUID;
-            uint64 OccutharGUID;
-            uint64 AlizabalGUID;
+            ObjectGuid ArgalothGUID;
+            ObjectGuid OccutharGUID;
+            ObjectGuid AlizabalGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

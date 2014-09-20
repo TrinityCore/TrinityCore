@@ -400,7 +400,7 @@ class spell_rog_killing_spree : public SpellScriptLoader
             {
                 while (!_targets.empty())
                 {
-                    uint64 guid = Trinity::Containers::SelectRandomContainerElement(_targets);
+                    ObjectGuid guid = Trinity::Containers::SelectRandomContainerElement(_targets);
                     if (Unit* target = ObjectAccessor::GetUnit(*GetTarget(), guid))
                     {
                         GetTarget()->CastSpell(target, SPELL_ROGUE_KILLING_SPREE_TELEPORT, true);
@@ -431,7 +431,7 @@ class spell_rog_killing_spree : public SpellScriptLoader
             }
 
         private:
-            std::list<uint64> _targets;
+            GuidList _targets;
         };
 
         AuraScript* GetAuraScript() const override

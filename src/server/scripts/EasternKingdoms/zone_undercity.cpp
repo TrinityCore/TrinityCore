@@ -108,7 +108,7 @@ public:
         {
             LamentEventTimer = 5000;
             LamentEvent = false;
-            targetGUID = 0;
+            targetGUID.Clear();
 
             FadeTimer = 30000;
             SummonSkeletonTimer = 20000;
@@ -119,7 +119,7 @@ public:
 
         uint32 LamentEventTimer;
         bool LamentEvent;
-        uint64 targetGUID;
+        ObjectGuid targetGUID;
 
         uint32 FadeTimer;
         uint32 SummonSkeletonTimer;

@@ -240,14 +240,14 @@ public:
         void Initialize()
         {
             Phase = 0;
-            bodyGUID = 0;
+            bodyGUID.Clear();
             die = false;
             withbody = true;
             wait = 1000;
             laugh = urand(15000, 30000);
         }
 
-        uint64 bodyGUID;
+        ObjectGuid bodyGUID;
 
         uint32 Phase;
         uint32 laugh;
@@ -390,8 +390,6 @@ public:
         {
             Initialize();
             instance = creature->GetInstanceScript();
-            headGUID = 0;
-            PlayerGUID = 0;
             id = 0;
             whirlwind = 0;
             wp_reached = false;
@@ -417,8 +415,8 @@ public:
 
         InstanceScript* instance;
 
-        uint64 headGUID;
-        uint64 PlayerGUID;
+        ObjectGuid headGUID;
+        ObjectGuid PlayerGUID;
 
         uint32 Phase;
         uint32 id;
@@ -446,9 +444,9 @@ public:
             if (headGUID)
             {
                 if (Creature* Head = ObjectAccessor::GetCreature((*me), headGUID))
-                    Head->DisappearAndDie();
+                    Head->DespawnOrUnsummon();
 
-                headGUID = 0;
+                headGUID.Clear();
             }
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
@@ -806,18 +804,17 @@ public:
         npc_pulsing_pumpkinAI(Creature* creature) : ScriptedAI(creature)
         {
             sprouted = false;
-            debuffGUID = 0;
         }
 
         bool sprouted;
-        uint64 debuffGUID;
+        ObjectGuid debuffGUID;
 
         void Reset() override
         {
             float x, y, z;
             me->GetPosition(x, y, z);   //this visual aura some under ground
             me->SetPosition(x, y, z + 0.35f, 0.0f);
-            debuffGUID = 0;
+            debuffGUID.Clear();
             Despawn();
             Creature* debuff = DoSpawnCreature(HELPER, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 14500);
             if (debuff)
@@ -857,7 +854,7 @@ public:
             if (debuff)
             {
                 debuff->SetVisible(false);
-                debuffGUID = 0;
+                debuffGUID.Clear();
             }
         }
 

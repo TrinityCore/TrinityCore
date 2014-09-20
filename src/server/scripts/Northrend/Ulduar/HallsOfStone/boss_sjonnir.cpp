@@ -281,7 +281,7 @@ class npc_iron_sludge : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* sjonnir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SJONNIR)))
+                if (Creature* sjonnir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SJONNIR)))
                     sjonnir->AI()->DoAction(ACTION_OOZE_DEAD);
             }
         };

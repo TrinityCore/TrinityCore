@@ -70,14 +70,14 @@ public:
         {
             EventActive = false;
             IsMovingToLunch = false;
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
             EventTimer = 5000;
             EventPhase = 0;
         }
 
         bool EventActive;
         bool IsMovingToLunch;
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
         uint32 EventTimer;
         uint8 EventPhase;
 

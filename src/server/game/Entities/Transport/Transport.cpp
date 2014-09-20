@@ -619,7 +619,7 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z, fl
             switch (obj->GetTypeId())
             {
                 case TYPEID_UNIT:
-                    if (!IS_PLAYER_GUID(obj->ToUnit()->GetOwnerGUID()))  // pets should be teleported with player
+                    if (!obj->ToUnit()->GetOwnerGUID().IsPlayer())  // pets should be teleported with player
                         obj->ToCreature()->FarTeleportTo(newMap, destX, destY, destZ, destO);
                     break;
                 case TYPEID_GAMEOBJECT:

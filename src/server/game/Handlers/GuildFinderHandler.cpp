@@ -58,9 +58,9 @@ void WorldSession::HandleGuildFinderAddRecruit(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(guid[1]);
     recvPacket.ReadByteSeq(guid[3]);
 
-    uint32 guildLowGuid = GUID_LOPART(uint64(guid));
+    uint32 guildLowGuid = guid.GetCounter();
 
-    if (!IS_GUILD_GUID(guid))
+    if (!guid.IsGuild())
         return;
     if (!(classRoles & GUILDFINDER_ALL_ROLES) || classRoles > GUILDFINDER_ALL_ROLES)
         return;
@@ -69,7 +69,7 @@ void WorldSession::HandleGuildFinderAddRecruit(WorldPacket& recvPacket)
     if (!(guildInterests & ALL_INTERESTS) || guildInterests > ALL_INTERESTS)
         return;
 
-    MembershipRequest request = MembershipRequest(GetPlayer()->GetGUIDLow(), guildLowGuid, availability, classRoles, guildInterests, comment, time(NULL));
+    MembershipRequest request = MembershipRequest(GetPlayer()->GetGUID(), guildLowGuid, availability, classRoles, guildInterests, comment, time(NULL));
     sGuildFinderMgr->AddMembershipRequest(guildLowGuid, request);
 }
 
@@ -198,10 +198,10 @@ void WorldSession::HandleGuildFinderDeclineRecruit(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(playerGuid[0]);
     recvPacket.ReadByteSeq(playerGuid[6]);
 
-    if (!IS_PLAYER_GUID(playerGuid))
+    if (!playerGuid.IsPlayer())
         return;
 
-    sGuildFinderMgr->RemoveMembershipRequest(GUID_LOPART(playerGuid), GetPlayer()->GetGuildId());
+    sGuildFinderMgr->RemoveMembershipRequest(playerGuid.GetCounter(), GetPlayer()->GetGuildId());
 }
 
 void WorldSession::HandleGuildFinderGetApplications(WorldPacket& /*recvPacket*/)
@@ -287,7 +287,7 @@ void WorldSession::HandleGuildFinderGetRecruits(WorldPacket& recvPacket)
     for (std::vector<MembershipRequest>::const_iterator itr = recruitsList.begin(); itr != recruitsList.end(); ++itr)
     {
         MembershipRequest request = *itr;
-        ObjectGuid playerGuid(MAKE_NEW_GUID(request.GetPlayerGUID(), 0, HIGHGUID_PLAYER));
+        ObjectGuid playerGuid = request.GetPlayerGUID();
 
         data.WriteBits(request.GetComment().size(), 11);
         data.WriteBit(playerGuid[2]);
@@ -394,10 +394,10 @@ void WorldSession::HandleGuildFinderRemoveRecruit(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(guildGuid[2]);
     recvPacket.ReadByteSeq(guildGuid[7]);
 
-    if (!IS_GUILD_GUID(guildGuid))
+    if (!guildGuid.IsGuild())
         return;
 
-    sGuildFinderMgr->RemoveMembershipRequest(GetPlayer()->GetGUIDLow(), GUID_LOPART(guildGuid));
+    sGuildFinderMgr->RemoveMembershipRequest(GetPlayer()->GetGUIDLow(), guildGuid.GetCounter());
 }
 
 // Sent any time a guild master sets an option in the interface and when listing / unlisting his guild
