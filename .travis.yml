@@ -7,11 +7,6 @@ git:
   depth: 1
 
 before_install:
-  # Get latest code for testing
-  - git submodule init
-  - git submodule update
-  - git submodule foreach git pull origin master
-
   - echo "yes" | sudo add-apt-repository ppa:kalakris/cmake
   - echo "yes" | sudo add-apt-repository ppa:boost-latest/ppa
   - echo "yes" | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
