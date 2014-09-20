@@ -565,7 +565,18 @@ class npc_wyrmrest_defender : public CreatureScript
 
         struct npc_wyrmrest_defenderAI : public VehicleAI
         {
-            npc_wyrmrest_defenderAI(Creature* creature) : VehicleAI(creature) { }
+            npc_wyrmrest_defenderAI(Creature* creature) : VehicleAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                hpWarningReady = true;
+                renewRecoveryCanCheck = false;
+
+                RenewRecoveryChecker = 0;
+            }
 
             bool hpWarningReady;
             bool renewRecoveryCanCheck;
@@ -574,10 +585,7 @@ class npc_wyrmrest_defender : public CreatureScript
 
             void Reset() override
             {
-                hpWarningReady = true;
-                renewRecoveryCanCheck = false;
-
-                RenewRecoveryChecker = 0;
+                Initialize();
             }
 
             void UpdateAI(uint32 diff) override

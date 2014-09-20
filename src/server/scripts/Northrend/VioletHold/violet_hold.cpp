@@ -305,7 +305,14 @@ public:
     {
         npc_sinclariAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
            instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiPhase = 0;
+            uiTimer = 0;
         }
 
         InstanceScript* instance;
@@ -315,8 +322,7 @@ public:
 
         void Reset() override
         {
-            uiPhase = 0;
-            uiTimer = 0;
+            Initialize();
 
             me->SetReactState(REACT_AGGRESSIVE);
 
@@ -549,8 +555,14 @@ public:
     {
         npc_teleportation_portalAI(Creature* creature) : ScriptedAI(creature), listOfMobs(me)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             uiTypeOfMobsPortal = urand(0, 1);    // 0 - elite mobs   1 - portal guardian or portal keeper with regular mobs
+        }
+
+        void Initialize()
+        {
+            uiSpawnTimer = 10000;
             bPortalGuardianOrKeeperOrEliteSpawn = false;
         }
 
@@ -564,8 +576,7 @@ public:
 
         void Reset() override
         {
-            uiSpawnTimer = 10000;
-            bPortalGuardianOrKeeperOrEliteSpawn = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -672,7 +683,7 @@ struct violet_hold_trashAI : public npc_escortAI
         instance = creature->GetInstanceScript();
         bHasGotMovingPoints = false;
         portalLocationID = instance->GetData(DATA_PORTAL_LOCATION);
-        Reset();
+        secondPortalRouteID = 0;
     }
 
     public:
@@ -797,7 +808,16 @@ public:
     {
         npc_azure_invaderAI(Creature* creature) : violet_hold_trashAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiCleaveTimer = 5000;
+            uiImpaleTimer = 4000;
+            uiBrutalStrikeTimer = 5000;
+            uiSunderArmorTimer = 4000;
         }
 
         uint32 uiCleaveTimer;
@@ -807,10 +827,7 @@ public:
 
         void Reset() override
         {
-            uiCleaveTimer = 5000;
-            uiImpaleTimer = 4000;
-            uiBrutalStrikeTimer = 5000;
-            uiSunderArmorTimer = 4000;
+            Initialize();
         }
 
         void UpdateAI(uint32 diff) override
@@ -875,7 +892,16 @@ public:
     {
         npc_azure_binderAI(Creature* creature) : violet_hold_trashAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiArcaneExplosionTimer = 5000;
+            uiArcainBarrageTimer = 4000;
+            uiFrostNovaTimer = 5000;
+            uiFrostboltTimer = 4000;
         }
 
         uint32 uiArcaneExplosionTimer;
@@ -885,10 +911,7 @@ public:
 
         void Reset() override
         {
-            uiArcaneExplosionTimer = 5000;
-            uiArcainBarrageTimer = 4000;
-            uiFrostNovaTimer = 5000;
-            uiFrostboltTimer = 4000;
+            Initialize();
         }
 
         void UpdateAI(uint32 diff) override
@@ -953,7 +976,14 @@ public:
     {
         npc_azure_mage_slayerAI(Creature* creature) : violet_hold_trashAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiArcaneEmpowermentTimer = 5000;
+            uiSpellLockTimer = 5000;
         }
 
         uint32 uiArcaneEmpowermentTimer;
@@ -961,8 +991,7 @@ public:
 
         void Reset() override
         {
-            uiArcaneEmpowermentTimer = 5000;
-            uiSpellLockTimer = 5000;
+            Initialize();
         }
 
         void UpdateAI(uint32 diff) override
@@ -1013,7 +1042,14 @@ public:
     {
         npc_azure_raiderAI(Creature* creature) : violet_hold_trashAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiConcussionBlowTimer = 5000;
+            uiMagicReflectionTimer = 8000;
         }
 
         uint32 uiConcussionBlowTimer;
@@ -1021,8 +1057,7 @@ public:
 
         void Reset() override
         {
-            uiConcussionBlowTimer = 5000;
-            uiMagicReflectionTimer = 8000;
+            Initialize();
         }
 
         void UpdateAI(uint32 diff) override
@@ -1060,14 +1095,20 @@ public:
     {
         npc_azure_stalkerAI(Creature* creature) : violet_hold_trashAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            _backstabTimer = 1300;
+            _tacticalBlinkTimer = 8000;
+            _tacticalBlinkCast = false;
         }
 
         void Reset() override
         {
-            _backstabTimer = 1300;
-            _tacticalBlinkTimer = 8000;
-            _tacticalBlinkCast =false;
+            Initialize();
         }
 
         void UpdateAI(uint32 diff) override
@@ -1125,7 +1166,16 @@ public:
     {
         npc_azure_spellbreakerAI(Creature* creature) : violet_hold_trashAI(creature)
         {
+            Initialize();
              instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiArcaneBlastTimer = 5000;
+            uiSlowTimer = 4000;
+            uiChainsOfIceTimer = 5000;
+            uiConeOfColdTimer = 4000;
         }
 
         uint32 uiArcaneBlastTimer;
@@ -1135,10 +1185,7 @@ public:
 
         void Reset() override
         {
-            uiArcaneBlastTimer = 5000;
-            uiSlowTimer = 4000;
-            uiChainsOfIceTimer = 5000;
-            uiConeOfColdTimer = 4000;
+            Initialize();
         }
 
         void UpdateAI(uint32 diff) override
@@ -1209,7 +1256,14 @@ public:
     {
         npc_azure_captainAI(Creature* creature) : violet_hold_trashAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiMortalStrikeTimer = 5000;
+            uiWhirlwindTimer = 8000;
         }
 
         uint32 uiMortalStrikeTimer;
@@ -1217,8 +1271,7 @@ public:
 
         void Reset() override
         {
-            uiMortalStrikeTimer = 5000;
-            uiWhirlwindTimer = 8000;
+            Initialize();
         }
 
         void UpdateAI(uint32 diff) override
@@ -1261,7 +1314,15 @@ public:
     {
         npc_azure_sorcerorAI(Creature* creature) : violet_hold_trashAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiArcaneStreamTimer = 4000;
+            uiArcaneStreamTimerStartingValueHolder = uiArcaneStreamTimer;
+            uiManaDetonationTimer = 5000;
         }
 
         uint32 uiArcaneStreamTimer;
@@ -1270,9 +1331,7 @@ public:
 
         void Reset() override
         {
-            uiArcaneStreamTimer = 4000;
-            uiArcaneStreamTimerStartingValueHolder = uiArcaneStreamTimer;
-            uiManaDetonationTimer = 5000;
+            Initialize();
         }
 
         void UpdateAI(uint32 diff) override
@@ -1311,13 +1370,21 @@ public:
 
     struct npc_violet_hold_arcane_sphereAI : public ScriptedAI
     {
-        npc_violet_hold_arcane_sphereAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_violet_hold_arcane_sphereAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            DespawnTimer = 3000;
+        }
 
         uint32 DespawnTimer;
 
         void Reset() override
         {
-            DespawnTimer = 3000;
+            Initialize();
 
             me->SetDisableGravity(true);
             DoCast(me, SPELL_ARCANE_SPHERE_PASSIVE, true);
