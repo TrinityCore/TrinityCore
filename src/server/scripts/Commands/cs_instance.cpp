@@ -42,7 +42,7 @@ public:
         {
             { "listbinds", rbac::RBAC_PERM_COMMAND_INSTANCE_LISTBINDS, false, &HandleInstanceListBindsCommand,    "", NULL },
             { "unbind",    rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,    false, &HandleInstanceUnbindCommand,       "", NULL },
-            { "stats",     rbac::RBAC_PERM_COMMAND_INSTANCE_STATS,     true,  &HandleInstanceStatsCommand,        "", NULL },
+            { "stats",     rbac::RBAC_PERM_COMMAND_INSTANCE_STATS,      true, &HandleInstanceStatsCommand,        "", NULL },
             { "savedata",  rbac::RBAC_PERM_COMMAND_INSTANCE_SAVEDATA,  false, &HandleInstanceSaveDataCommand,     "", NULL },
             { "setdata",   rbac::RBAC_PERM_COMMAND_INSTANCE_SETDATA,   true, &HandleInstanceSetDataCommand,      "", NULL },
             { "getdata",   rbac::RBAC_PERM_COMMAND_INSTANCE_GETDATA,   true, &HandleInstanceGetDataCommand,      "", NULL },
@@ -127,7 +127,7 @@ public:
         uint16 counter = 0;
         uint16 MapId = 0;
 
-        if (strcmp(map, "all"))
+        if (strcmp(map, "all") != 0)
         {
             MapId = uint16(atoi(map));
             if (!MapId)

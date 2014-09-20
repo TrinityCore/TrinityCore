@@ -88,11 +88,7 @@
 #define SI64FMTD "%" PRId64
 #define SI64LIT(N) INT64_C(N)
 
-#if COMPILER == COMPILER_MICROSOFT
-#  define SZFMTD "%Iu"
-#else
-#  define SZFMTD "%zu"
-#endif
+#define SZFMTD "%" PRIuPTR
 
 typedef int64_t int64;
 typedef int32_t int32;

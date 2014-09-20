@@ -163,7 +163,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                             // Summon Chromie and global whisper
                             if (Creature* chromie = instance->SummonCreature(NPC_CHROMIE_2, ChromieSummonPos[0]))
                                 if (!instance->GetPlayers().isEmpty())
-                                    chromie->AI()->TalkToMap(SAY_CRATES_COMPLETED);
+                                    chromie->AI()->Talk(SAY_CRATES_COMPLETED);
                         }
                         DoUpdateWorldState(WORLDSTATE_CRATES_REVEALED, _crateCount);
                         break;
@@ -277,17 +277,17 @@ class instance_culling_of_stratholme : public InstanceMapScript
                                 case 25:
                                     if (instance->HavePlayers())
                                         if (Creature* chromie = instance->GetCreature(_chromieGUID))
-                                            chromie->AI()->TalkToMap(SAY_INFINITE_START);
+                                            chromie->AI()->Talk(SAY_INFINITE_START);
                                     break;
                                 case 5:
                                     if (instance->HavePlayers())
                                         if (Creature* chromie = instance->GetCreature(_chromieGUID))
-                                            chromie->AI()->TalkToMap(SAY_INFINITE);
+                                            chromie->AI()->Talk(SAY_INFINITE);
                                     break;
                                 case 0:
                                     if (instance->HavePlayers())
                                         if (Creature* chromie = instance->GetCreature(_chromieGUID))
-                                            chromie->AI()->TalkToMap(SAY_INFINITE_FAIL);
+                                            chromie->AI()->Talk(SAY_INFINITE_FAIL);
 
                                     if (Creature* infinite = instance->GetCreature(_infiniteGUID))
                                     {

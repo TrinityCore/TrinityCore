@@ -459,7 +459,7 @@ public:
             uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 30658, 1, NULL);
             if (msg == EQUIP_ERR_OK)
             {
-                player->StoreNewItem(dest, 30658, 1, true);
+                player->StoreNewItem(dest, 30658, true);
                 player->PlayerTalkClass->ClearMenus();
             }
         }
@@ -469,7 +469,7 @@ public:
             uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 30659, 1, NULL);
             if (msg == EQUIP_ERR_OK)
             {
-                player->StoreNewItem(dest, 30659, 1, true);
+                player->StoreNewItem(dest, 30659, true);
                 player->PlayerTalkClass->ClearMenus();
             }
         }

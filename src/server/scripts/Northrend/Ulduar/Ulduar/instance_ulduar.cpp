@@ -153,6 +153,8 @@ class instance_ulduar : public InstanceMapScript
                 _algalonSummoned                 = false;
                 _summonAlgalon                   = false;
 
+                memset(_summonObservationRingKeeper, 0, sizeof(_summonObservationRingKeeper));
+                memset(_summonYSKeeper, 0, sizeof(_summonYSKeeper));
                 // TW
                 RunicDoorGUID.Clear();
                 StoneDoorGUID.Clear();
@@ -164,8 +166,6 @@ class instance_ulduar : public InstanceMapScript
                 stunned                          = true;
 
                 memset(champConqOfUlduar, 0, sizeof(champConqOfUlduar));
-                memset(_summonObservationRingKeeper, false, sizeof(_summonObservationRingKeeper));
-                memset(_summonYSKeeper, false, sizeof(_summonYSKeeper));
             }
 
             void FillInitialWorldStates(WorldPacket& packet) override

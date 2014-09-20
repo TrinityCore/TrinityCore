@@ -1728,7 +1728,7 @@ void Guild::HandleRemoveRank(WorldSession* session, uint8 rankId)
 
     m_ranks.pop_back();
 
-    _BroadcastEvent(GE_RANK_DELETED, ObjectGuid::Empty);
+    _BroadcastEvent(GE_RANK_DELETED, ObjectGuid::Empty, std::to_string(rankId).c_str());
 }
 
 void Guild::HandleMemberDepositMoney(WorldSession* session, uint32 amount)

@@ -371,7 +371,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, st
                         std::string logchan = "#";
                         logchan += sIRC->logchan;
                         std::stringstream ss;
-                        ss << sIRC->iLog.GetLogDateTimeStr() << ": [ " << player->GetName() << "(" << GetSession()->GetSecurity() << ") ] Used Command: [ " << fullcmd << " ] Target Guid: [" << GUID_LOPART(guid) << "]";
+                        ss << sIRC->iLog.GetLogDateTimeStr() << ": [ " << player->GetName() << "(" << GetSession()->GetSecurity() << ") ] Used Command: [ " << fullcmd << " ] Target Guid: [" << guid.ToString().c_str() << "]";
                         sIRC->Send_IRC_Channel(logchan,ss.str().c_str(), true, "LOG");
                     }
             }
@@ -919,38 +919,6 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* const* linkTypes, 
     strtok(NULL, " ");                                      // skip link tail (to allow continue strtok(NULL, s) use after return from function
     SendSysMessage(LANG_WRONG_LINK_TYPE);
     return NULL;
-}
-
-char const *fmtstring (char const *format, ...)
-{
-    va_list        argptr;
-    #define    MAX_FMT_STRING    32000
-    static char        temp_buffer[MAX_FMT_STRING];
-    static char        string[MAX_FMT_STRING];
-    static int        index = 0;
-    char    *buf;
-    int len;
-
-    va_start(argptr, format);
-    vsnprintf(temp_buffer,MAX_FMT_STRING, format, argptr);
-    va_end(argptr);
-
-    len = strlen(temp_buffer);
-
-    if (len >= MAX_FMT_STRING)
-        return "ERROR";
-
-    if (len + index >= MAX_FMT_STRING-1)
-    {
-        index = 0;
-    }
-
-    buf = &string[index];
-    memcpy(buf, temp_buffer, len+1);
-
-    index += len + 1;
-
-    return buf;
 }
 
 GameObject* ChatHandler::GetNearbyGameObject()

@@ -14875,7 +14875,7 @@ void Player::SendPreparedQuest(ObjectGuid guid)
             {
                 qe._Delay = 0;                              //TEXTEMOTE_MESSAGE;              //zyg: player emote
                 qe._Emote = 0;                              //TEXTEMOTE_HELLO;                //zyg: NPC emote
-                title = "";
+                title.clear();
             }
             else
             {
@@ -17196,7 +17196,7 @@ float Player::GetFloatValueFromArray(Tokenizer const& data, uint16 index)
     return result;
 }
 
-bool Player::isBeingLoaded() const
+bool Player::IsLoading() const
 {
     return GetSession()->PlayerLoading();
 }
@@ -26989,9 +26989,6 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     return pet;
 }
 
-bool Player::IsLoading() const
-{
-    return GetSession()->PlayerLoading();
 }
 
 void Player::InitWowarmoryFeeds() {
@@ -27031,8 +27028,6 @@ void Player::CreateWowarmoryFeed(uint32 type, uint32 data, uint32 item_guid, uin
     feed.date = time(NULL);
     TC_LOG_DEBUG("entities.unit", "[Wowarmory]: create wowarmory feed (GUID: %u, type: %d, data: %u).", feed.guid, feed.type, feed.data);
     m_wowarmory_feeds.push_back(feed);
-}
-
 void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell)
 {
     WorldPacket data(SMSG_SUPERCEDED_SPELL, 8);

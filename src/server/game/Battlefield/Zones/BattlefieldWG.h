@@ -25,11 +25,11 @@ class BattlefieldWG;
 class WintergraspCapturePoint;
 
 struct BfWGGameObjectBuilding;
-struct WGWorkshop;
+struct WintergraspWorkshop;
 
 typedef std::set<GameObject*> GameObjectSet;
-typedef std::set<BfWGGameObjectBuilding*> GameObjectBuilding;
-typedef std::set<WGWorkshop*> Workshop;
+typedef std::set<BfWGGameObjectBuilding*> GameObjectBuildingSet;
+typedef std::set<WintergraspWorkshop*> WorkshopSet;
 typedef std::set<Group*> GroupSet;
 //typedef std::set<WintergraspCapturePoint *> CapturePointSet; unused ?
 
@@ -222,7 +222,7 @@ struct BfWGCoordGY
     float o;
     uint32 gyid;
     uint8 type;
-    int32 textid;              // for gossip menu
+    uint32 textid;          // for gossip menu
     TeamId startcontrol;
 };
 
@@ -253,13 +253,13 @@ class WintergraspCapturePoint : public BfCapturePoint
     public:
         WintergraspCapturePoint(BattlefieldWG* battlefield, TeamId teamInControl);
 
-        void LinkToWorkshop(WGWorkshop* workshop) { m_Workshop = workshop; }
+        void LinkToWorkshop(WintergraspWorkshop* workshop) { m_Workshop = workshop; }
 
         void ChangeTeam(TeamId oldteam) override;
         TeamId GetTeam() const { return m_team; }
 
     protected:
-        WGWorkshop* m_Workshop;
+        WintergraspWorkshop* m_Workshop;
 };
 
 /* ######################### *
@@ -415,11 +415,11 @@ class BattlefieldWG : public Battlefield
     protected:
         bool m_isRelicInteractible;
 
-        Workshop WorkshopsList;
+        WorkshopSet Workshops;
 
         GuidSet DefenderPortalList;
         GuidSet m_KeepGameObject[BG_TEAMS_COUNT];
-        GameObjectBuilding BuildingsInZone;
+        GameObjectBuildingSet BuildingsInZone;
 
         GuidSet m_vehicles[BG_TEAMS_COUNT];
         GuidSet CanonList;
@@ -446,6 +446,7 @@ uint8 const WG_MAX_OUTSIDE_NPC      = 14;
 uint8 const WG_OUTSIDE_ALLIANCE_NPC = 7;
 uint8 const WG_MAX_TELEPORTER       = 12;
 uint8 const WG_MAX_WORKSHOP         = 6;
+uint8 const WG_MAX_TOWER            = 7;
 
 enum WintergraspGameObjectBuildingType
 {
@@ -469,6 +470,17 @@ enum WintergraspGameObjectState
     BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT,
     BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_DAMAGE,
     BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_DESTROY
+};
+
+enum WintergraspTowerIds
+{
+    BATTLEFIELD_WG_TOWER_FORTRESS_NW,
+    BATTLEFIELD_WG_TOWER_FORTRESS_SW,
+    BATTLEFIELD_WG_TOWER_FORTRESS_SE,
+    BATTLEFIELD_WG_TOWER_FORTRESS_NE,
+    BATTLEFIELD_WG_TOWER_SHADOWSIGHT,
+    BATTLEFIELD_WG_TOWER_WINTER_S_EDGE,
+    BATTLEFIELD_WG_TOWER_FLAMEWATCH
 };
 
 enum WintergraspWorkshopIds
@@ -498,32 +510,50 @@ enum WintergraspTeamControl
     BATTLEFIELD_WG_TEAM_NEUTRAL
 };
 
-/// @todo: Can this be handled with creature_text or SmartAI ?
 enum WintergraspText
 {
-    BATTLEFIELD_WG_TEXT_WORKSHOP_NAME_NE         = 12055,
-    BATTLEFIELD_WG_TEXT_WORKSHOP_NAME_NW         = 12052,
-    BATTLEFIELD_WG_TEXT_WORKSHOP_NAME_SE         = 12053,
-    BATTLEFIELD_WG_TEXT_WORKSHOP_NAME_SW         = 12054,
-    BATTLEFIELD_WG_TEXT_WORKSHOP_ATTACK          = 12051,
-    BATTLEFIELD_WG_TEXT_WORKSHOP_TAKEN           = 12050,
-    BATTLEFIELD_WG_TEXT_ALLIANCE                 = 12057,
-    BATTLEFIELD_WG_TEXT_HORDE                    = 12056,
-    BATTLEFIELD_WG_TEXT_WILL_START               = 12058,
-    BATTLEFIELD_WG_TEXT_START                    = 12067,
-    BATTLEFIELD_WG_TEXT_FIRSTRANK                = 12059,
-    BATTLEFIELD_WG_TEXT_SECONDRANK               = 12060,
-    BATTLEFIELD_WG_TEXT_KEEPTOWER_NAME_NE        = 12062,
-    BATTLEFIELD_WG_TEXT_KEEPTOWER_NAME_NW        = 12064,
-    BATTLEFIELD_WG_TEXT_KEEPTOWER_NAME_SE        = 12061,
-    BATTLEFIELD_WG_TEXT_KEEPTOWER_NAME_SW        = 12063,
-    BATTLEFIELD_WG_TEXT_TOWER_DAMAGE             = 12065,
-    BATTLEFIELD_WG_TEXT_TOWER_DESTROY            = 12066,
-    BATTLEFIELD_WG_TEXT_TOWER_NAME_S             = 12069,
-    BATTLEFIELD_WG_TEXT_TOWER_NAME_E             = 12070,
-    BATTLEFIELD_WG_TEXT_TOWER_NAME_W             = 12071,
-    BATTLEFIELD_WG_TEXT_DEFEND_KEEP              = 12068,
-    BATTLEFIELD_WG_TEXT_WIN_KEEP                 = 12072
+    // Invisible Stalker
+    BATTLEFIELD_WG_TEXT_SOUTHERN_TOWER_DAMAGE           = 1,
+    BATTLEFIELD_WG_TEXT_SOUTHERN_TOWER_DESTROY          = 2,
+    BATTLEFIELD_WG_TEXT_EASTERN_TOWER_DAMAGE            = 3,
+    BATTLEFIELD_WG_TEXT_EASTERN_TOWER_DESTROY           = 4,
+    BATTLEFIELD_WG_TEXT_WESTERN_TOWER_DAMAGE            = 5,
+    BATTLEFIELD_WG_TEXT_WESTERN_TOWER_DESTROY           = 6,
+    BATTLEFIELD_WG_TEXT_NW_KEEPTOWER_DAMAGE             = 7,
+    BATTLEFIELD_WG_TEXT_NW_KEEPTOWER_DESTROY            = 8,
+    BATTLEFIELD_WG_TEXT_SE_KEEPTOWER_DAMAGE             = 9,
+    BATTLEFIELD_WG_TEXT_SE_KEEPTOWER_DESTROY            = 10,
+    BATTLEFIELD_WG_TEXT_BROKEN_TEMPLE_ATTACK_ALLIANCE   = 11,
+    BATTLEFIELD_WG_TEXT_BROKEN_TEMPLE_CAPTURE_ALLIANCE  = 12,
+    BATTLEFIELD_WG_TEXT_BROKEN_TEMPLE_ATTACK_HORDE      = 13,
+    BATTLEFIELD_WG_TEXT_BROKEN_TEMPLE_CAPTURE_HORDE     = 14,
+    BATTLEFIELD_WG_TEXT_EASTSPARK_ATTACK_ALLIANCE       = 15,
+    BATTLEFIELD_WG_TEXT_EASTSPARK_CAPTURE_ALLIANCE      = 16,
+    BATTLEFIELD_WG_TEXT_EASTSPARK_ATTACK_HORDE          = 17,
+    BATTLEFIELD_WG_TEXT_EASTSPARK_CAPTURE_HORDE         = 18,
+    BATTLEFIELD_WG_TEXT_SUNKEN_RING_ATTACK_ALLIANCE     = 19,
+    BATTLEFIELD_WG_TEXT_SUNKEN_RING_CAPTURE_ALLIANCE    = 20,
+    BATTLEFIELD_WG_TEXT_SUNKEN_RING_ATTACK_HORDE        = 21,
+    BATTLEFIELD_WG_TEXT_SUNKEN_RING_CAPTURE_HORDE       = 22,
+    BATTLEFIELD_WG_TEXT_WESTSPARK_ATTACK_ALLIANCE       = 23,
+    BATTLEFIELD_WG_TEXT_WESTSPARK_CAPTURE_ALLIANCE      = 24,
+    BATTLEFIELD_WG_TEXT_WESTSPARK_ATTACK_HORDE          = 25,
+    BATTLEFIELD_WG_TEXT_WESTSPARK_CAPTURE_HORDE         = 26,
+
+    BATTLEFIELD_WG_TEXT_START_GROUPING                  = 27,
+    BATTLEFIELD_WG_TEXT_START_BATTLE                    = 28,
+    BATTLEFIELD_WG_TEXT_FORTRESS_DEFEND_ALLIANCE        = 29,
+    BATTLEFIELD_WG_TEXT_FORTRESS_CAPTURE_ALLIANCE       = 30,
+    BATTLEFIELD_WG_TEXT_FORTRESS_DEFEND_HORDE           = 31,
+    BATTLEFIELD_WG_TEXT_FORTRESS_CAPTURE_HORDE          = 32,
+
+    BATTLEFIELD_WG_TEXT_NE_KEEPTOWER_DAMAGE             = 33,
+    BATTLEFIELD_WG_TEXT_NE_KEEPTOWER_DESTROY            = 34,
+    BATTLEFIELD_WG_TEXT_SW_KEEPTOWER_DAMAGE             = 35,
+    BATTLEFIELD_WG_TEXT_SW_KEEPTOWER_DESTROY            = 36,
+
+    BATTLEFIELD_WG_TEXT_RANK_CORPORAL                   = 37,
+    BATTLEFIELD_WG_TEXT_RANK_FIRST_LIEUTENANT           = 38
 };
 
 enum WintergraspGameObject
@@ -550,16 +580,6 @@ enum WintergraspGameObject
     GO_WINTERGRASP_KEEP_COLLISION_WALL           = 194323
 };
 
-struct WintergraspObjectPositionData
-{
-    float x;
-    float y;
-    float z;
-    float o;
-    uint32 entryHorde;
-    uint32 entryAlliance;
-};
-
 // *****************************************************
 // ************ Destructible (Wall, Tower..) ***********
 // *****************************************************
@@ -572,72 +592,90 @@ struct WintergraspBuildingSpawnData
     float y;
     float z;
     float o;
-    uint32 type;
-    uint32 nameId;
+    WintergraspGameObjectBuildingType type;
 };
 
-struct WintergraspRebuildableBuildingData
+struct WintergraspObjectPositionData
 {
-    ObjectGuid Guid;
-    uint32 entry;
-    uint32 WorldState;
     float x;
     float y;
     float z;
     float o;
-    uint32 type;
-    uint32 nameId;
+    uint32 entryHorde;
+    uint32 entryAlliance;
 };
 
-const WintergraspBuildingSpawnData WGGameObjectBuilding[WG_MAX_OBJ] =
+WintergraspBuildingSpawnData const WGGameObjectBuilding[WG_MAX_OBJ] =
 {
     // Wall (Not spawned in db)
-    // Entry  WS    X        Y        Z        O         type                          NameID
-    { 190219, 3749, 5371.46f, 3047.47f, 407.571f, 3.14159f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 190220, 3750, 5331.26f, 3047.1f, 407.923f, 0.052359f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 191795, 3764, 5385.84f, 2909.49f, 409.713f, 0.00872f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 191796, 3772, 5384.45f, 2771.84f, 410.27f, 3.14159f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 191799, 3762, 5371.44f, 2630.61f, 408.816f, 3.13286f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 191800, 3766, 5301.84f, 2909.09f, 409.866f, 0.008724f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 191801, 3770, 5301.06f, 2771.41f, 409.901f, 3.14159f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 191802, 3751, 5280.2f, 2995.58f, 408.825f, 1.61443f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 191803, 3752, 5279.14f, 2956.02f, 408.604f, 1.5708f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 191804, 3767, 5278.69f, 2882.51f, 409.539f, 1.5708f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 191806, 3769, 5279.5f, 2798.94f, 409.998f, 1.5708f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 191807, 3759, 5279.94f, 2724.77f, 409.945f, 1.56207f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 191808, 3760, 5279.6f, 2683.79f, 409.849f, 1.55334f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 191809, 3761, 5330.96f, 2630.78f, 409.283f, 3.13286f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 190369, 3753, 5256.08f, 2933.96f, 409.357f, 3.13286f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 190370, 3758, 5257.46f, 2747.33f, 409.743f, -3.13286f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 190371, 3754, 5214.96f, 2934.09f, 409.19f, -0.008724f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 190372, 3757, 5215.82f, 2747.57f, 409.188f, -3.13286f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 190374, 3755, 5162.27f, 2883.04f, 410.256f, 1.57952f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 190376, 3756, 5163.72f, 2799.84f, 409.227f, 1.57952f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
+    // Entry  WS    X         Y         Z         O           Type
+    { 190219, 3749, 5371.46f, 3047.47f, 407.571f, 3.14159f,   BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 190220, 3750, 5331.26f, 3047.1f,  407.923f, 0.052359f,  BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191795, 3764, 5385.84f, 2909.49f, 409.713f, 0.00872f,   BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191796, 3772, 5384.45f, 2771.84f, 410.27f,  3.14159f,   BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191799, 3762, 5371.44f, 2630.61f, 408.816f, 3.13286f,   BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191800, 3766, 5301.84f, 2909.09f, 409.866f, 0.008724f,  BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191801, 3770, 5301.06f, 2771.41f, 409.901f, 3.14159f,   BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191802, 3751, 5280.2f,  2995.58f, 408.825f, 1.61443f,   BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191803, 3752, 5279.14f, 2956.02f, 408.604f, 1.5708f,    BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191804, 3767, 5278.69f, 2882.51f, 409.539f, 1.5708f,    BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191806, 3769, 5279.5f,  2798.94f, 409.998f, 1.5708f,    BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191807, 3759, 5279.94f, 2724.77f, 409.945f, 1.56207f,   BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191808, 3760, 5279.6f,  2683.79f, 409.849f, 1.55334f,   BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191809, 3761, 5330.96f, 2630.78f, 409.283f, 3.13286f,   BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 190369, 3753, 5256.08f, 2933.96f, 409.357f, 3.13286f,   BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 190370, 3758, 5257.46f, 2747.33f, 409.743f, -3.13286f,  BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 190371, 3754, 5214.96f, 2934.09f, 409.19f,  -0.008724f, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 190372, 3757, 5215.82f, 2747.57f, 409.188f, -3.13286f,  BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 190374, 3755, 5162.27f, 2883.04f, 410.256f, 1.57952f,   BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 190376, 3756, 5163.72f, 2799.84f, 409.227f, 1.57952f,   BATTLEFIELD_WG_OBJECTTYPE_WALL },
 
     // Tower of keep (Not spawned in db)
-    { 190221, 3711, 5281.15f, 3044.59f, 407.843f, 3.11539f, BATTLEFIELD_WG_OBJECTTYPE_KEEP_TOWER, BATTLEFIELD_WG_TEXT_KEEPTOWER_NAME_NW },
-    { 190373, 3713, 5163.76f, 2932.23f, 409.19f, 3.12412f, BATTLEFIELD_WG_OBJECTTYPE_KEEP_TOWER, BATTLEFIELD_WG_TEXT_KEEPTOWER_NAME_SW },
-    { 190377, 3714, 5166.4f, 2748.37f, 409.188f, -1.5708f, BATTLEFIELD_WG_OBJECTTYPE_KEEP_TOWER, BATTLEFIELD_WG_TEXT_KEEPTOWER_NAME_SE },
-    { 190378, 3712, 5281.19f, 2632.48f, 409.099f, -1.58825f, BATTLEFIELD_WG_OBJECTTYPE_KEEP_TOWER, BATTLEFIELD_WG_TEXT_KEEPTOWER_NAME_NE },
+    { 190221, 3711, 5281.15f, 3044.59f, 407.843f, 3.11539f,   BATTLEFIELD_WG_OBJECTTYPE_KEEP_TOWER }, // NW
+    { 190373, 3713, 5163.76f, 2932.23f, 409.19f,  3.12412f,   BATTLEFIELD_WG_OBJECTTYPE_KEEP_TOWER }, // SW
+    { 190377, 3714, 5166.4f,  2748.37f, 409.188f, -1.5708f,   BATTLEFIELD_WG_OBJECTTYPE_KEEP_TOWER }, // SE
+    { 190378, 3712, 5281.19f, 2632.48f, 409.099f, -1.58825f,  BATTLEFIELD_WG_OBJECTTYPE_KEEP_TOWER }, // NE
 
     // Wall (with passage) (Not spawned in db)
-    { 191797, 3765, 5343.29f, 2908.86f, 409.576f, 0.008724f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 191798, 3771, 5342.72f, 2771.39f, 409.625f, 3.14159f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
-    { 191805, 3768, 5279.13f, 2840.8f, 409.783f, 1.57952f, BATTLEFIELD_WG_OBJECTTYPE_WALL, 0 },
+    { 191797, 3765, 5343.29f, 2908.86f, 409.576f, 0.008724f,  BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191798, 3771, 5342.72f, 2771.39f, 409.625f, 3.14159f,   BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191805, 3768, 5279.13f, 2840.8f,  409.783f, 1.57952f,   BATTLEFIELD_WG_OBJECTTYPE_WALL },
 
     // South tower (Not spawned in db)
-    { 190356, 3704, 4557.17f, 3623.94f, 395.883f, 1.67552f, BATTLEFIELD_WG_OBJECTTYPE_TOWER, BATTLEFIELD_WG_TEXT_TOWER_NAME_W },
-    { 190357, 3705, 4398.17f, 2822.5f, 405.627f, -3.12412f, BATTLEFIELD_WG_OBJECTTYPE_TOWER, BATTLEFIELD_WG_TEXT_TOWER_NAME_S },
-    { 190358, 3706, 4459.1f, 1944.33f, 434.991f, -2.00276f, BATTLEFIELD_WG_OBJECTTYPE_TOWER, BATTLEFIELD_WG_TEXT_TOWER_NAME_E },
+    { 190356, 3704, 4557.17f, 3623.94f, 395.883f, 1.67552f,   BATTLEFIELD_WG_OBJECTTYPE_TOWER }, // W
+    { 190357, 3705, 4398.17f, 2822.5f,  405.627f, -3.12412f,  BATTLEFIELD_WG_OBJECTTYPE_TOWER }, // S
+    { 190358, 3706, 4459.1f,  1944.33f, 434.991f, -2.00276f,  BATTLEFIELD_WG_OBJECTTYPE_TOWER }, // E
 
     // Door of forteress (Not spawned in db)
-    { GO_WINTERGRASP_FORTRESS_GATE, 3763, 5162.99f, 2841.23f, 410.162f, -3.13286f, BATTLEFIELD_WG_OBJECTTYPE_DOOR, 0 },
+    { GO_WINTERGRASP_FORTRESS_GATE, 3763, 5162.99f, 2841.23f, 410.162f, -3.13286f, BATTLEFIELD_WG_OBJECTTYPE_DOOR },
 
     // Last door (Not spawned in db)
-    { GO_WINTERGRASP_VAULT_GATE, 3773, 5397.11f, 2841.54f, 425.899f, 3.14159f, BATTLEFIELD_WG_OBJECTTYPE_DOOR_LAST, 0 },
+    { GO_WINTERGRASP_VAULT_GATE, 3773, 5397.11f, 2841.54f, 425.899f, 3.14159f, BATTLEFIELD_WG_OBJECTTYPE_DOOR_LAST },
 };
 
-const Position WGTurret[WG_MAX_TURRET] =
+struct StaticWintergraspTowerInfo
+{
+    uint8 TowerId;
+
+    struct
+    {
+        uint8 Damaged;
+        uint8 Destroyed;
+    } TextIds;
+};
+
+StaticWintergraspTowerInfo const TowerData[WG_MAX_TOWER] =
+{
+    { BATTLEFIELD_WG_TOWER_FORTRESS_NW,   { BATTLEFIELD_WG_TEXT_NW_KEEPTOWER_DAMAGE,   BATTLEFIELD_WG_TEXT_NW_KEEPTOWER_DESTROY   } },
+    { BATTLEFIELD_WG_TOWER_FORTRESS_SW,   { BATTLEFIELD_WG_TEXT_SW_KEEPTOWER_DAMAGE,   BATTLEFIELD_WG_TEXT_SW_KEEPTOWER_DESTROY   } },
+    { BATTLEFIELD_WG_TOWER_FORTRESS_SE,   { BATTLEFIELD_WG_TEXT_SE_KEEPTOWER_DAMAGE,   BATTLEFIELD_WG_TEXT_SE_KEEPTOWER_DESTROY   } },
+    { BATTLEFIELD_WG_TOWER_FORTRESS_NE,   { BATTLEFIELD_WG_TEXT_NE_KEEPTOWER_DAMAGE,   BATTLEFIELD_WG_TEXT_NE_KEEPTOWER_DESTROY   } },
+    { BATTLEFIELD_WG_TOWER_SHADOWSIGHT,   { BATTLEFIELD_WG_TEXT_WESTERN_TOWER_DAMAGE,  BATTLEFIELD_WG_TEXT_WESTERN_TOWER_DESTROY  } },
+    { BATTLEFIELD_WG_TOWER_WINTER_S_EDGE, { BATTLEFIELD_WG_TEXT_SOUTHERN_TOWER_DAMAGE, BATTLEFIELD_WG_TEXT_SOUTHERN_TOWER_DESTROY } },
+    { BATTLEFIELD_WG_TOWER_FLAMEWATCH,    { BATTLEFIELD_WG_TEXT_EASTERN_TOWER_DAMAGE,  BATTLEFIELD_WG_TEXT_EASTERN_TOWER_DESTROY  } }
+};
+
+Position const WGTurret[WG_MAX_TURRET] =
 {
     { 5391.19f, 3060.8f,  419.616f, 1.69557f },
     { 5266.75f, 2976.5f,  421.067f, 3.20354f },
@@ -657,7 +695,7 @@ const Position WGTurret[WG_MAX_TURRET] =
 };
 
 // Here there is all npc keeper spawn point
-const WintergraspObjectPositionData WGKeepNPC[WG_MAX_KEEP_NPC] =
+WintergraspObjectPositionData const WGKeepNPC[WG_MAX_KEEP_NPC] =
 {
     // X          Y            Z           O         horde                          alliance
     // North East
@@ -735,7 +773,7 @@ struct WintergraspTeleporterData
     float o;
 };
 
-const WintergraspTeleporterData WGPortalDefenderData[WG_MAX_TELEPORTER] =
+WintergraspTeleporterData const WGPortalDefenderData[WG_MAX_TELEPORTER] =
 {
     // Player teleporter
     { 190763, 5153.41f, 2901.35f, 409.191f, -0.069f },
@@ -1030,66 +1068,69 @@ const WintergraspTowerCannonData TowerCannon[WG_MAX_TOWER_CANNON] =
 // *****************WorkShop Data & Element*****************
 // *********************************************************
 
-struct WGWorkshopData
+struct StaticWintergraspWorkshopInfo
 {
-    uint8 id;
-    uint32 worldstate;
-    uint32 text;
+    uint8 WorkshopId;
+    uint32 WorldStateId;
+
+    struct
+    {
+        uint8 AllianceCapture;
+        uint8 AllianceAttack;
+        uint8 HordeCapture;
+        uint8 HordeAttack;
+    } TextIds;
 };
 
-const WGWorkshopData WorkshopsData[WG_MAX_WORKSHOP] =
+StaticWintergraspWorkshopInfo const WorkshopData[WG_MAX_WORKSHOP] =
 {
-    // NE
-    {BATTLEFIELD_WG_WORKSHOP_NE, WORLDSTATE_WORKSHOP_NE, BATTLEFIELD_WG_TEXT_WORKSHOP_NAME_NE},
-    // NW
-    {BATTLEFIELD_WG_WORKSHOP_NW, WORLDSTATE_WORKSHOP_NW, BATTLEFIELD_WG_TEXT_WORKSHOP_NAME_NW},
-    // SE
-    {BATTLEFIELD_WG_WORKSHOP_SE, WORLDSTATE_WORKSHOP_SE, BATTLEFIELD_WG_TEXT_WORKSHOP_NAME_SE},
-    // SW
-    {BATTLEFIELD_WG_WORKSHOP_SW, WORLDSTATE_WORKSHOP_SW, BATTLEFIELD_WG_TEXT_WORKSHOP_NAME_SW},
-    // KEEP WEST - It can't be taken, so it doesn't have a textid
-    {BATTLEFIELD_WG_WORKSHOP_KEEP_WEST, WORLDSTATE_WORKSHOP_K_W, 0},
-    // KEEP EAST - It can't be taken, so it doesn't have a textid
-    {BATTLEFIELD_WG_WORKSHOP_KEEP_EAST, WORLDSTATE_WORKSHOP_K_E, 0}
+    { BATTLEFIELD_WG_WORKSHOP_NE, WORLDSTATE_WORKSHOP_NE, { BATTLEFIELD_WG_TEXT_SUNKEN_RING_CAPTURE_ALLIANCE,   BATTLEFIELD_WG_TEXT_SUNKEN_RING_ATTACK_ALLIANCE,   BATTLEFIELD_WG_TEXT_SUNKEN_RING_CAPTURE_HORDE,   BATTLEFIELD_WG_TEXT_SUNKEN_RING_ATTACK_HORDE   } },
+    { BATTLEFIELD_WG_WORKSHOP_NW, WORLDSTATE_WORKSHOP_NW, { BATTLEFIELD_WG_TEXT_BROKEN_TEMPLE_CAPTURE_ALLIANCE, BATTLEFIELD_WG_TEXT_BROKEN_TEMPLE_ATTACK_ALLIANCE, BATTLEFIELD_WG_TEXT_BROKEN_TEMPLE_CAPTURE_HORDE, BATTLEFIELD_WG_TEXT_BROKEN_TEMPLE_ATTACK_HORDE } },
+    { BATTLEFIELD_WG_WORKSHOP_SE, WORLDSTATE_WORKSHOP_SE, { BATTLEFIELD_WG_TEXT_EASTSPARK_CAPTURE_ALLIANCE,     BATTLEFIELD_WG_TEXT_EASTSPARK_ATTACK_ALLIANCE,     BATTLEFIELD_WG_TEXT_EASTSPARK_CAPTURE_HORDE,     BATTLEFIELD_WG_TEXT_EASTSPARK_ATTACK_HORDE     } },
+    { BATTLEFIELD_WG_WORKSHOP_SW, WORLDSTATE_WORKSHOP_SW, { BATTLEFIELD_WG_TEXT_WESTSPARK_CAPTURE_ALLIANCE,     BATTLEFIELD_WG_TEXT_WESTSPARK_ATTACK_ALLIANCE,     BATTLEFIELD_WG_TEXT_WESTSPARK_CAPTURE_HORDE,     BATTLEFIELD_WG_TEXT_WESTSPARK_ATTACK_HORDE     } },
+    // KEEP WORKSHOPS - It can't be taken, so it doesn't have a textids
+    { BATTLEFIELD_WG_WORKSHOP_KEEP_WEST, WORLDSTATE_WORKSHOP_K_W, { 0, 0, 0, 0 } },
+    { BATTLEFIELD_WG_WORKSHOP_KEEP_EAST, WORLDSTATE_WORKSHOP_K_E, { 0, 0, 0, 0 } }
 };
 
 // ********************************************************************
 // *         Structs using for Building, Graveyard, Workshop          *
 // ********************************************************************
+
 // Structure for different buildings that can be destroyed during battle
 struct BfWGGameObjectBuilding
 {
-    BfWGGameObjectBuilding(BattlefieldWG* wg);
-
-    // the team that controls this point
-    uint8 m_Team;
-
+private:
     // WG object
-    BattlefieldWG* m_WG;
+    BattlefieldWG* _wg;
 
     // Linked gameobject
-    ObjectGuid m_BuildGUID;
+    ObjectGuid _buildGUID;
 
-    // eWGGameObjectBuildingType
-    uint32 m_Type;
+    // the team that controls this point
+    TeamId _teamControl;
 
-    // WorldState
-    uint32 m_WorldState;
+    WintergraspGameObjectBuildingType _type;
+    uint32 _worldState;
 
-    // eWGGameObjectState
-    uint32 m_State;
+    WintergraspGameObjectState _state;
 
-    // Name id for warning text
-    uint32 m_NameId;
+    StaticWintergraspTowerInfo const* _staticTowerInfo;
 
     // GameObject associations
-    GuidSet m_GameObjectList[2];
+    GuidSet m_GameObjectList[BG_TEAMS_COUNT];
 
     // Creature associations
-    GuidSet m_CreatureBottomList[2];
-    GuidSet m_CreatureTopList[2];
+    GuidSet m_CreatureBottomList[BG_TEAMS_COUNT];
+    GuidSet m_CreatureTopList[BG_TEAMS_COUNT];
     GuidSet m_TowerCannonBottomList;
     GuidSet m_TurretTopList;
+
+public:
+    BfWGGameObjectBuilding(BattlefieldWG* wg, WintergraspGameObjectBuildingType type, uint32 worldState);
+    void Init(GameObject* go);
+
+    ObjectGuid const& GetGUID() const { return _buildGUID; }
 
     void Rebuild();
 
@@ -1099,49 +1140,33 @@ struct BfWGGameObjectBuilding
     // Called when associated gameobject is destroyed
     void Destroyed();
 
-    void Init(GameObject* go, uint32 type, uint32 worldstate, uint32 nameId);
-
     void UpdateCreatureAndGo();
 
     void UpdateTurretAttack(bool disable);
 
-    void Save();
-};
-
-struct WGWorkshop
-{
-    // pointer to the battlefield that the workshop belongs to
-    BattlefieldWG* bf;
-    // id of the workshop, useful to retrieve data of the WorkshopsData array
-    uint8 workshopId;
-    // team that controls the node
-    uint8 teamControl;
-    // for worldstate
-    uint32 state;
-
-    WGWorkshop(BattlefieldWG* _bf, uint8 _workshopId);
-
-    void GiveControlTo(uint8 team, bool init /*for first call in setup*/);
-
-    void UpdateGraveyardAndWorkshop();
+    void FillInitialWorldStates(WorldPacket& data);
 
     void Save();
 };
 
 // Structure for the 6 workshop
-struct WintergraspWorkshopData
+struct WintergraspWorkshop
 {
-    BattlefieldWG* m_WG;                                    // Pointer to wintergrasp
-    ObjectGuid m_BuildGUID;
-    uint32 m_Type;
-    uint32 m_State;                                         // For worldstate
-    uint32 m_WorldState;
-    uint32 m_TeamControl;                                   // Team witch control the workshop
-    GuidSet m_CreatureOnPoint[2];                           // Contain all Creature associate to this point
-    GuidSet m_GameObjectOnPoint[2];                         // Contain all Gameobject associate to this point
-    uint32 m_NameId;                                        // Id of trinity_string witch contain name of this node, using for alert message
+private:
+    BattlefieldWG* _wg;                             // Pointer to wintergrasp
+    ObjectGuid _buildGUID;
+    WintergraspGameObjectState _state;              // For worldstate
+    TeamId _teamControl;                            // Team witch control the workshop
+    GuidSet _creatureOnPoint[BG_TEAMS_COUNT];       // Contain all Creature associate to this point
+    GuidSet _gameObjectOnPoint[BG_TEAMS_COUNT];     // Contain all Gameobject associate to this point
 
-    WintergraspWorkshopData(BattlefieldWG* wg);
+    StaticWintergraspWorkshopInfo const* _staticInfo;
+
+public:
+    WintergraspWorkshop(BattlefieldWG* wg, uint8 type);
+
+    uint8 GetId() const { return _staticInfo->WorkshopId; }
+    TeamId GetTeamControl() const { return _teamControl; }
 
     // Spawning associate creature and store them
     void AddCreature(WintergraspObjectPositionData const& obj);
@@ -1149,13 +1174,12 @@ struct WintergraspWorkshopData
     // Spawning Associate gameobject and store them
     void AddGameObject(WintergraspObjectPositionData const& obj);
 
-    // Init method, setup variable
-    void Init(uint32 worldstate, uint32 type, uint32 nameId);
-
     // Called on change faction in CapturePoint class
-    void GiveControlTo(uint8 team, bool init /*for first call in setup*/);
+    void GiveControlTo(TeamId teamId, bool init = false);
 
     void UpdateGraveyardAndWorkshop();
+
+    void FillInitialWorldStates(WorldPacket& data);
 
     void Save();
 };

@@ -322,8 +322,6 @@ void Battlefield::StartBattle()
     InvitePlayersInZoneToWar();
     InvitePlayersInQueueToWar();
 
-    DoPlaySoundToAll(BF_START);
-
     OnBattleStart();
 }
 
@@ -339,11 +337,6 @@ void Battlefield::EndBattle(bool endByTimer)
     if (!endByTimer)
         SetDefenderTeam(GetAttackerTeam());
 
-    if (GetDefenderTeam() == TEAM_ALLIANCE)
-        DoPlaySoundToAll(BF_ALLIANCE_WINS);
-    else
-        DoPlaySoundToAll(BF_HORDE_WINS);
-
     OnBattleEnd(endByTimer);
 
     // Reset battlefield timer
@@ -357,10 +350,7 @@ void Battlefield::DoPlaySoundToAll(uint32 SoundID)
     data.Initialize(SMSG_PLAY_SOUND, 4);
     data << uint32(SoundID);
 
-    for (int team = 0; team < BG_TEAMS_COUNT; team++)
-        for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
-            if (Player* player = ObjectAccessor::FindPlayer(*itr))
-                player->SendDirectMessage(&data);
+    BroadcastPacketToWar(data);
 }
 
 bool Battlefield::HasPlayer(Player* player) const
@@ -443,18 +433,10 @@ void Battlefield::BroadcastPacketToWar(WorldPacket& data) const
                 player->SendDirectMessage(&data);
 }
 
-void Battlefield::SendWarningToAllInZone(uint32 entry)
+void Battlefield::SendWarning(uint8 id, WorldObject const* target /*= nullptr*/)
 {
     if (Creature* stalker = GetCreature(StalkerGuid))
-        // FIXME: replaced CHAT_TYPE_END with CHAT_MSG_BG_SYSTEM_NEUTRAL to fix compile, it's a guessed change :/
-        sCreatureTextMgr->SendChat(stalker, (uint8) entry, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_ADDON, TEXT_RANGE_ZONE);
-}
-
-void Battlefield::SendWarningToPlayer(Player* player, uint32 entry)
-{
-    if (player)
-        if (Creature* stalker = GetCreature(StalkerGuid))
-            sCreatureTextMgr->SendChat(stalker, (uint8)entry, player);
+        sCreatureTextMgr->SendChat(stalker, id, target);
 }
 
 void Battlefield::SendUpdateWorldState(uint32 field, uint32 value)

@@ -288,8 +288,7 @@ extern int main(int argc, char** argv)
         delete triniChatThread;
     }
 
-    if (raAcceptor != nullptr)
-        delete raAcceptor;
+    delete raAcceptor;
 
     ///- Clean database before leaving
     ClearOnlineAccounts();
