@@ -832,6 +832,9 @@ bool PlayerbotAI::CanCastSpell(uint32 spellid, Unit* target, bool checkHasSpell)
     if (target->IsImmunedToSpell(spellInfo))
         return false;
 
+    if (bot != target && bot->GetDistance(target) > sPlayerbotAIConfig.sightDistance)
+        return false;
+
     Unit* oldSel = bot->GetSelectedUnit();
     bot->SetSelection(target->GetGUID());
     Spell *spell = new Spell(bot, spellInfo, TRIGGERED_NONE);
