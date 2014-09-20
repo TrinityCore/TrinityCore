@@ -179,13 +179,21 @@ public:
 
     struct npc_brunnhildar_prisonerAI : public ScriptedAI
     {
-        npc_brunnhildar_prisonerAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_brunnhildar_prisonerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            freed = false;
+        }
 
         bool freed;
 
         void Reset() override
         {
-            freed = false;
+            Initialize();
             me->CastSpell(me, SPELL_ICE_PRISON, true);
         }
 

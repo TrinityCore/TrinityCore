@@ -129,6 +129,17 @@ public:
     {
         npc_blood_elf_council_voice_triggerAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            EnrageTimer = 900000;                               // 15 minutes
+            AggroYellTimer = 500;
+
+            YellCounter = 0;
+
+            EventStarted = false;
         }
 
         ObjectGuid Council[4];
@@ -142,12 +153,7 @@ public:
 
         void Reset() override
         {
-            EnrageTimer = 900000;                               // 15 minutes
-            AggroYellTimer = 500;
-
-            YellCounter = 0;
-
-            EventStarted = false;
+            Initialize();
         }
 
         // finds and stores the GUIDs for each Council member using instance data system.
@@ -223,7 +229,17 @@ public:
     {
         npc_illidari_councilAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            CheckTimer = 2000;
+            EndEventTimer = 0;
+
+            DeathCount = 0;
+            EventBegun = false;
         }
 
         InstanceScript* instance;
@@ -239,10 +255,7 @@ public:
 
         void Reset() override
         {
-            CheckTimer    = 2000;
-            EndEventTimer = 0;
-
-            DeathCount = 0;
+            Initialize();
 
             Creature* pMember = NULL;
             for (uint8 i = 0; i < 4; ++i)
@@ -262,8 +275,6 @@ public:
             instance->SetBossState(DATA_ILLIDARI_COUNCIL, NOT_STARTED);
             if (Creature* VoiceTrigger = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_ELF_COUNCIL_VOICE)))
                 VoiceTrigger->AI()->EnterEvadeMode();
-
-            EventBegun = false;
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -451,7 +462,19 @@ public:
 
     struct boss_gathios_the_shattererAI : public boss_illidari_councilAI
     {
-        boss_gathios_the_shattererAI(Creature* creature) : boss_illidari_councilAI(creature) { }
+        boss_gathios_the_shattererAI(Creature* creature) : boss_illidari_councilAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            ConsecrationTimer = 40000;
+            HammerOfJusticeTimer = 10000;
+            SealTimer = 40000;
+            AuraTimer = 90000;
+            BlessingTimer = 60000;
+        }
 
         uint32 ConsecrationTimer;
         uint32 HammerOfJusticeTimer;
@@ -461,11 +484,7 @@ public:
 
         void Reset() override
         {
-            ConsecrationTimer = 40000;
-            HammerOfJusticeTimer = 10000;
-            SealTimer = 40000;
-            AuraTimer = 90000;
-            BlessingTimer = 60000;
+            Initialize();
         }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -583,7 +602,20 @@ public:
 
     struct boss_high_nethermancer_zerevorAI : public boss_illidari_councilAI
     {
-        boss_high_nethermancer_zerevorAI(Creature* creature) : boss_illidari_councilAI(creature) { }
+        boss_high_nethermancer_zerevorAI(Creature* creature) : boss_illidari_councilAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            BlizzardTimer = urand(30, 91) * 1000;
+            FlamestrikeTimer = urand(30, 91) * 1000;
+            ArcaneBoltTimer = 10000;
+            DampenMagicTimer = 2000;
+            ArcaneExplosionTimer = 14000;
+            Cooldown = 0;
+        }
 
         uint32 BlizzardTimer;
         uint32 FlamestrikeTimer;
@@ -594,12 +626,7 @@ public:
 
         void Reset() override
         {
-            BlizzardTimer = urand(30, 91) * 1000;
-            FlamestrikeTimer = urand(30, 91) * 1000;
-            ArcaneBoltTimer = 10000;
-            DampenMagicTimer = 2000;
-            ArcaneExplosionTimer = 14000;
-            Cooldown = 0;
+            Initialize();
         }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -687,7 +714,18 @@ public:
 
     struct boss_lady_malandeAI : public boss_illidari_councilAI
     {
-        boss_lady_malandeAI(Creature* creature) : boss_illidari_councilAI(creature) { }
+        boss_lady_malandeAI(Creature* creature) : boss_illidari_councilAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            EmpoweredSmiteTimer = 38000;
+            CircleOfHealingTimer = 20000;
+            DivineWrathTimer = 40000;
+            ReflectiveShieldTimer = 0;
+        }
 
         uint32 EmpoweredSmiteTimer;
         uint32 CircleOfHealingTimer;
@@ -696,10 +734,7 @@ public:
 
         void Reset() override
         {
-            EmpoweredSmiteTimer = 38000;
-            CircleOfHealingTimer = 20000;
-            DivineWrathTimer = 40000;
-            ReflectiveShieldTimer = 0;
+            Initialize();
         }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -765,9 +800,19 @@ public:
 
     struct boss_veras_darkshadowAI : public boss_illidari_councilAI
     {
-        boss_veras_darkshadowAI(Creature* creature) : boss_illidari_councilAI(creature) { }
+        boss_veras_darkshadowAI(Creature* creature) : boss_illidari_councilAI(creature)
+        {
+            Initialize();
+        }
 
-        uint64 EnvenomTargetGUID;
+        void Initialize()
+        {
+            DeadlyPoisonTimer = 20000;
+            VanishTimer = urand(60, 121) * 1000;
+            AppearEnvenomTimer = 150000;
+
+            HasVanished = false;
+        }
 
         uint32 DeadlyPoisonTimer;
         uint32 VanishTimer;
@@ -777,13 +822,7 @@ public:
 
         void Reset() override
         {
-            EnvenomTargetGUID = 0;
-
-            DeadlyPoisonTimer = 20000;
-            VanishTimer = urand(60, 121) * 1000;
-            AppearEnvenomTimer = 150000;
-
-            HasVanished = false;
+            Initialize();
             me->SetVisible(true);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }

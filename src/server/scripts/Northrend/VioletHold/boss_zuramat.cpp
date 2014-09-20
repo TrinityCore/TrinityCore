@@ -65,7 +65,16 @@ public:
     {
         boss_zuramatAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            SpellShroudOfDarknessTimer = 22000;
+            SpellVoidShiftTimer = 15000;
+            SpellSummonVoidTimer = 12000;
+            voidDance = true;
         }
 
         InstanceScript* instance;
@@ -82,10 +91,7 @@ public:
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)
                 instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
 
-            SpellShroudOfDarknessTimer = 22000;
-            SpellVoidShiftTimer = 15000;
-            SpellSummonVoidTimer = 12000;
-            voidDance = true;
+            Initialize();
         }
 
         void AttackStart(Unit* who) override

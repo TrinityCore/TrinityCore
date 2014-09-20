@@ -63,7 +63,17 @@ public:
 
     struct npc_doom_blossomAI : public ScriptedAI
     {
-        npc_doom_blossomAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_doom_blossomAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            CheckTeronTimer = 5000;
+            ShadowBoltTimer = 12000;
+            TeronGUID.Clear();
+        }
 
         uint32 CheckTeronTimer;
         uint32 ShadowBoltTimer;
@@ -71,9 +81,7 @@ public:
 
         void Reset() override
         {
-            CheckTeronTimer = 5000;
-            ShadowBoltTimer = 12000;
-            TeronGUID.Clear();
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -132,7 +140,19 @@ public:
 
     struct npc_shadowy_constructAI : public ScriptedAI
     {
-        npc_shadowy_constructAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_shadowy_constructAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            GhostGUID.Clear();
+            TeronGUID.Clear();
+
+            CheckPlayerTimer = 2000;
+            CheckTeronTimer = 5000;
+        }
 
         ObjectGuid GhostGUID;
         ObjectGuid TeronGUID;
@@ -142,11 +162,7 @@ public:
 
         void Reset() override
         {
-            GhostGUID.Clear();
-            TeronGUID.Clear();
-
-            CheckPlayerTimer = 2000;
-            CheckTeronTimer = 5000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -224,7 +240,23 @@ public:
     {
         boss_teron_gorefiendAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            IncinerateTimer = urand(20000, 31000);
+            SummonDoomBlossomTimer = 12000;
+            EnrageTimer = 600000;
+            CrushingShadowsTimer = 22000;
+            SummonShadowsTimer = 60000;
+            RandomYellTimer = 50000;
+
+            AggroTimer = 20000;
+            AggroTargetGUID.Clear();
+            Intro = false;
+            Done = false;
         }
 
         InstanceScript* instance;
@@ -248,21 +280,11 @@ public:
         {
             instance->SetBossState(DATA_TERON_GOREFIEND, NOT_STARTED);
 
-            IncinerateTimer = urand(20000, 31000);
-            SummonDoomBlossomTimer = 12000;
-            EnrageTimer = 600000;
-            CrushingShadowsTimer = 22000;
-            SummonShadowsTimer = 60000;
-            RandomYellTimer = 50000;
+            Initialize();
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             // Start off unattackable so that the intro is done properly
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-
-            AggroTimer = 20000;
-            AggroTargetGUID.Clear();
-            Intro = false;
-            Done = false;
         }
 
         void EnterCombat(Unit* /*who*/) override { }

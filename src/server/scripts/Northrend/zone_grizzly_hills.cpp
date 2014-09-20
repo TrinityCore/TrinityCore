@@ -464,7 +464,6 @@ public:
         void Reset() override
         {
             _despawnTimer = 5000;
-            _playerGUID = 0;
         }
 
         void MovementInform(uint32, uint32 id) override
@@ -498,7 +497,6 @@ public:
             DoMeleeAttackIfReady();
         }
         private:
-            uint64 _playerGUID;
             uint32 _despawnTimer;
     };
 
