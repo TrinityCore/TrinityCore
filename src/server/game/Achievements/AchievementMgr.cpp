@@ -1408,7 +1408,7 @@ bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteriaEntry const* achi
     if (achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
     {
         // someone on this realm has already completed that achievement
-        if (sAchievementMgr->IsRealmCompleted(achievement, GetOwner()->GetInstanceId())
+        if (sAchievementMgr->IsRealmCompleted(achievement, GetOwner()->GetInstanceId()))
             return false;
     }
 
