@@ -1620,7 +1620,7 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
     if (achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
     {
         // someone on this realm has already completed that achievement
-        if (sAchievementMgr->IsRealmCompleted(achievement))
+        if (sAchievementMgr->IsRealmCompleted(achievement, GetPlayer()->GetInstanceId()))
             return false;
     }
 
@@ -2027,10 +2027,7 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
     ca.date = time(NULL);
     ca.changed = true;
 
-    // don't insert for ACHIEVEMENT_FLAG_REALM_FIRST_KILL since otherwise only the first group member would reach that achievement
-    /// @todo where do set this instead?
-    if (!(achievement->flags & ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
-        sAchievementMgr->SetRealmCompleted(achievement);
+    sAchievementMgr->SetRealmCompleted(achievement, GetPlayer()->GetInstanceId());
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT);
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS, achievement->points);
@@ -2405,7 +2402,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
             continue;
         }
         else if (achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
-            m_allCompletedAchievements.insert(achievementId);
+            m_allCompletedAchievements[achievementId] = uint32(0xFFFFFFFF);
     }
     while (result->NextRow());
 
@@ -2581,4 +2578,11 @@ AchievementEntry const* AchievementGlobalMgr::GetAchievement(uint32 achievementI
 AchievementCriteriaEntry const* AchievementGlobalMgr::GetAchievementCriteria(uint32 criteriaId) const
 {
     return sAchievementCriteriaStore.LookupEntry(criteriaId);
+}
+
+void AchievementGlobalMgr::OnInstanceDestroyed(uint32 instanceId)
+{
+    for (auto& realmCompletion : m_allCompletedAchievements)
+        if (realmCompletion.second == instanceId)
+            realmCompletion.second = uint32(0xFFFFFFFF);
 }
