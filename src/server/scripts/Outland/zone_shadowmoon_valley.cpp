@@ -71,7 +71,10 @@ public:
 
     struct npc_invis_infernal_casterAI : public ScriptedAI
     {
-        npc_invis_infernal_casterAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_invis_infernal_casterAI(Creature* creature) : ScriptedAI(creature)
+        {
+            ground = 0.f;
+        }
 
         void Reset() override
         {
@@ -148,12 +151,12 @@ public:
         void IsSummonedBy(Unit* summoner) override
         {
             if (summoner->ToCreature())
-                caster = summoner->ToCreature();
+                casterGUID = summoner->ToCreature()->GetGUID();;
         }
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (caster)
+            if (Creature* caster = ObjectAccessor::GetCreature(*me, casterGUID))
                 caster->AI()->SetData(TYPE_INFERNAL, DATA_DIED);
         }
 
@@ -175,7 +178,7 @@ public:
         }
 
     private:
-        Creature* caster;
+        ObjectGuid casterGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
