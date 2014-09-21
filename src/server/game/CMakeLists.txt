@@ -204,6 +204,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/scripts/PrecompiledHeaders
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
+  ${VALGRIND_INCLUDE_DIR}
 )
 
 add_library(game STATIC
