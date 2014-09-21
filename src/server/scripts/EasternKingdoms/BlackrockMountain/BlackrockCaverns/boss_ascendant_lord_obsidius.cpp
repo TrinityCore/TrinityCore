@@ -37,9 +37,9 @@ enum Spells
 
 enum Events
 {
-    EVENT_MANA_TAP                 = 0,
-    EVENT_ARCANE_TORRENT           = 1,
-    EVENT_DOMINATION               = 2
+    EVENT_MANA_TAP                 = 1,
+    EVENT_ARCANE_TORRENT           = 2,
+    EVENT_DOMINATION               = 3
 };
 
 class boss_ascendant_lord_obsidius : public CreatureScript

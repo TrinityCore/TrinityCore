@@ -36,11 +36,11 @@ enum Spells
 
 enum Events
 {
-    EVENT_TERRIFYING_ROAR          = 0,
-    EVENT_BERSERKER_CHARGE         = 1,
-    EVENT_MAGMA_SPIT               = 2,
-    EVENT_FLAMEBREAK               = 3,
-    EVENT_BERSERK                  = 4,
+    EVENT_TERRIFYING_ROAR          = 1,
+    EVENT_BERSERKER_CHARGE         = 2,
+    EVENT_MAGMA_SPIT               = 3,
+    EVENT_FLAMEBREAK               = 4,
+    EVENT_BERSERK                  = 5
 };
 
 class boss_beauty : public CreatureScript
