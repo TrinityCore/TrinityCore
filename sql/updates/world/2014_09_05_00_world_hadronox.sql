@@ -29,7 +29,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_anub_ar_crypt_fiend' WHERE `ent
 -- UPDATE `creature_template` SET `faction_A`=14,`faction_H`=14 WHERE `entry` IN (28924,28925,29051);
 
 -- Remove smart_ai support where there was one
-DELETE FROM `smart_scripts` WHERE `creature_id` IN (@Crusher,@NoSpellChampion,@NoSpellNecromancer,@NoSpellFiend,@AttackingNecromancer,@AttackingFiend,@AttackingChampion,29062,29096,29063,29097,29064,29098);
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid` IN (@Crusher,@NoSpellChampion,@NoSpellNecromancer,@NoSpellFiend,@AttackingNecromancer,@AttackingFiend,@AttackingChampion,29062,29096,29063,29097,29064,29098);
 UPDATE `creature_template` SET `AIName`='' WHERE `entry` IN (@Crusher,@NoSpellChampion,@NoSpellNecromancer,@NoSpellFiend,@AttackingNecromancer,@AttackingFiend,@AttackingChampion,29062,29096,29063,29097,29064,29098);
 
 -- @todo: Update bounding radius and combat reach

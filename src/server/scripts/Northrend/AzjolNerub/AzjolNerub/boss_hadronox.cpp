@@ -269,12 +269,14 @@ class HadronoxEventDespawner : public BasicEvent
             uint32 corpseDelay = creature->GetCorpseDelay();
             uint32 respawnDelay = creature->GetRespawnDelay();
             creature->SetCorpseDelay(1);
+            creature->SetRespawnDelay(10);
 
             if (CreatureData const* data = creature->GetCreatureData())
                 creature->NearTeleportTo(data->posX, data->posY, data->posZ, data->orientation);
 
             creature->DespawnOrUnsummon();
             creature->SetCorpseDelay(corpseDelay);
+            creature->SetRespawnDelay(respawnDelay);
         }
 
     private:
@@ -397,7 +399,7 @@ class boss_hadronox : public CreatureScript
 
             void MovementInform(uint32 type, uint32 id) override
             {
-                if (type = WAYPOINT_MOTION_TYPE)
+                if (type == WAYPOINT_MOTION_TYPE)
                 {
                     switch (id)
                     {
@@ -561,7 +563,6 @@ class boss_hadronox : public CreatureScript
         private:
             uint8 _attackersCounterA;  // Keep the count of periodic summoned attacker from each front door trigger /maximum of 3 for each/.
             uint8 _attackersCounterB;  // -//-
-            bool _disableResetChecker; // Can control reset checking mechanism with it.
             bool _allowedAttack;       // Controls if Hadronox will melee attack or not
             bool _hadronoxDenied;      // Contains data for achievement.
             bool _clearedWPMovement;   // Used to stop WP movement if player gets in Hadronox threat list.
@@ -575,18 +576,107 @@ class boss_hadronox : public CreatureScript
         }
 };
 
+struct npc_hadronox_trashAI : public npc_escortAI
+{
+    npc_hadronox_trashAI(Creature* creature) : npc_escortAI(creature)
+    {
+        _instance = creature->GetInstanceScript();
+        SetDespawnAtEnd(false);
+    }
+
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        switch (me->GetEntry())
+        {
+            case NPC_PERIODIC_ATTACKING_CHAMPION:
+            case NPC_PERIODIC_ATTACKING_NECRO:
+            case NPC_PERIODIC_ATTACKING_FIEND:
+            {
+                uint8 i = 0;
+                if (me->GetPositionX() < 500.0f)
+                {
+                    for (; i < MAX_FIRST_CRUSHER_GROUP_WAYPOINTS; ++i)
+                        AddWaypoint(i, FirstCrusherGroupWaypoints[i]);
+                }
+                else
+                {
+                    for (; i < MAX_SECOND_CRUSHER_GROUP_WAYPOINTS; ++i)
+                        AddWaypoint(i, SecondCrusherGroupWaypoints[i]);
+                }
+
+                AddWaypoint(i, PeriodicAttackingTrashFinalWP);
+                break;
+            }
+            case NPC_ANUB_CHAMPION_FRONT_D:
+            case NPC_ANUB_NECRO_FRONT_D:
+            case NPC_ANUB_FIEND_FRONT_D:
+            {
+                uint8 i = 0;
+                if (me->GetPositionX() < 500.0f)
+                {
+                    for (; i < MAX_FRONT_DOOR_A_STAIRS_WAYPOINTS; ++i)
+                        AddWaypoint(i, FrontDoorAStairsWaypoints[i]);
+
+                    for (; i < (MAX_TRASH_HEADING_LAIR_WAYPOINTS + MAX_FRONT_DOOR_A_STAIRS_WAYPOINTS); ++i)
+                        AddWaypoint(i, TrashHeadingLairWaypoints[i - MAX_FRONT_DOOR_A_STAIRS_WAYPOINTS]);
+                }
+                else
+                {
+                    for (; i < MAX_FRONT_DOOR_B_STAIRS_WAYPOINTS; ++i)
+                        AddWaypoint(i, FrontDoorBStairsWaypoints[i]);
+
+                    for (; i < (MAX_TRASH_HEADING_LAIR_WAYPOINTS + MAX_FRONT_DOOR_B_STAIRS_WAYPOINTS); ++i)
+                        AddWaypoint(i, TrashHeadingLairWaypoints[i - MAX_FRONT_DOOR_B_STAIRS_WAYPOINTS]);
+                }
+
+                me->SetReactState(REACT_DEFENSIVE);
+                break;
+            }
+            case NPC_ANUB_CHAMPION_SIDE_D:
+            case NPC_ANUB_NECRO_SIDE_D:
+            case NPC_ANUB_FIEND_SIDE_D:
+            {
+                uint8 i = 0;
+                for (; i < MAX_SIDE_DOOR_STAIRS_WAYPOINTS; ++i)
+                    AddWaypoint(i, SideDoorStairsWaypoints[i]);
+
+                for (; i < (MAX_TRASH_HEADING_LAIR_WAYPOINTS + MAX_SIDE_DOOR_STAIRS_WAYPOINTS); ++i)
+                    AddWaypoint(i, TrashHeadingLairWaypoints[i - MAX_SIDE_DOOR_STAIRS_WAYPOINTS]);
+
+                me->SetReactState(REACT_DEFENSIVE);
+                break;
+            }
+            case NPC_STATIC_CHAMPION:
+            case NPC_STATIC_NECROMANCER:
+            case NPC_STATIC_CRYPT_FIEND:
+            default:
+                return;
+        }
+
+        Start(true, true);
+    }
+
+    void EnterEvadeMode() override
+    {
+    }
+
+    void WaypointReached(uint32 /*waypointId*/) override
+    {
+    }
+
+protected:
+    EventMap _events;
+    InstanceScript* _instance;
+};
+
 class npc_anub_ar_crusher : public CreatureScript
 {
     public:
         npc_anub_ar_crusher() : CreatureScript("npc_anub_ar_crusher") { }
 
-        struct npc_anub_ar_crusherAI : public npc_escortAI
+        struct npc_anub_ar_crusherAI : public npc_hadronox_trashAI
         {
-            npc_anub_ar_crusherAI(Creature* creature) : npc_escortAI(creature)
-            {
-                _instance = creature->GetInstanceScript();
-                SetDespawnAtEnd(false);
-            }
+            npc_anub_ar_crusherAI(Creature* creature) : npc_hadronox_trashAI(creature) { }
 
             void EnterCombat(Unit* /*who*/) override
             {
@@ -599,7 +689,7 @@ class npc_anub_ar_crusher : public CreatureScript
                     }
                 }
 
-                _events.ScheduleEvent(EVENT_SMASH, DUNGEON_MODE(urand(4, 9) * IN_MILLISECONDS, urand(4, 7) * IN_MILLISECONDS));
+                _events.ScheduleEvent(EVENT_SMASH, DUNGEON_MODE(urand(4, 9), urand(4, 7)) * IN_MILLISECONDS);
             }
 
             void EnterEvadeMode() override
@@ -613,19 +703,25 @@ class npc_anub_ar_crusher : public CreatureScript
                 switch (action)
                 {
                     case CREATURE_GROUP_CRUSHER_REINFORCEMENTS_A:
-                        for (uint8 i = 0; i < MAX_FIRST_CRUSHER_GROUP_WAYPOINTS; i++)
+                    {
+                        uint8 i = 0;
+                        for (; i < MAX_FIRST_CRUSHER_GROUP_WAYPOINTS; ++i)
                             AddWaypoint(i, FirstCrusherGroupWaypoints[i]);
 
-                        AddWaypoint(MAX_FIRST_CRUSHER_GROUP_WAYPOINTS, DistantDoorCrusherFinalPoint, 1 * IN_MILLISECONDS);
+                        AddWaypoint(i, DistantDoorCrusherFinalPoint, 1 * IN_MILLISECONDS);
                         Start(true, true);
                         break;
+                    }
                     case CREATURE_GROUP_CRUSHER_REINFORCEMENTS_B:
-                        for (uint8 i = 0; i < MAX_SECOND_CRUSHER_GROUP_WAYPOINTS; i++)
+                    {
+                        uint8 i = 0;
+                        for (; i < MAX_SECOND_CRUSHER_GROUP_WAYPOINTS; ++i)
                             AddWaypoint(i, SecondCrusherGroupWaypoints[i]);
 
-                        AddWaypoint(MAX_FIRST_CRUSHER_GROUP_WAYPOINTS, CloserDoorCrusherFinalPoint, 1 * IN_MILLISECONDS);
+                        AddWaypoint(i, CloserDoorCrusherFinalPoint, 1 * IN_MILLISECONDS);
                         Start(true, true);
                         break;
+                    }
                 }
             }
 
@@ -645,19 +741,11 @@ class npc_anub_ar_crusher : public CreatureScript
                 if (_events.ExecuteEvent() == EVENT_SMASH)
                 {
                     DoCastVictim(SPELL_SMASH);
-                    _events.ScheduleEvent(EVENT_SMASH, DUNGEON_MODE(urand(12, 18) * IN_MILLISECONDS, urand(8, 18) * IN_MILLISECONDS));
+                    _events.ScheduleEvent(EVENT_SMASH, DUNGEON_MODE(urand(12, 18), urand(8, 18)) * IN_MILLISECONDS);
                 }
 
                 DoMeleeAttackIfReady();
             }
-
-            void WaypointReached(uint32 waypointId) override
-            {
-            }
-
-        private:
-            EventMap _events;
-            InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -671,85 +759,30 @@ class npc_anub_ar_champion : public CreatureScript
     public:
         npc_anub_ar_champion() : CreatureScript("npc_anub_ar_champion") { }
 
-        struct npc_anub_ar_championAI : public npc_escortAI
+        struct npc_anub_ar_championAI : public npc_hadronox_trashAI
         {
-            npc_anub_ar_championAI(Creature* creature) : npc_escortAI(creature)
+            npc_anub_ar_championAI(Creature* creature) : npc_hadronox_trashAI(creature)
             {
-                SetDespawnAtEnd(false);
-                _instance = creature->GetInstanceScript();
                 _canSpellInterrupt = false;
-            }
-
-            void IsSummonedBy(Unit* /*summoner*/) override
-            {
-                switch (me->GetEntry())
-                {
-                    case NPC_STATIC_CHAMPION:
-                        return;
-                    case NPC_PERIODIC_ATTACKING_CHAMPION:
-                        if (me->GetPositionX() < 500.0f)
-                            for (uint8 i = 0; i < MAX_FIRST_CRUSHER_GROUP_WAYPOINTS; ++i)
-                                AddWaypoint(i, FirstCrusherGroupWaypoints[i]);
-                        else
-                            for (uint8 i = 0; i < MAX_SECOND_CRUSHER_GROUP_WAYPOINTS; ++i)
-                                AddWaypoint(i, SecondCrusherGroupWaypoints[i]);
-
-                        AddWaypoint(MAX_FIRST_CRUSHER_GROUP_WAYPOINTS, PeriodicAttackingTrashFinalWP);
-                        break;
-                    case NPC_ANUB_CHAMPION_FRONT_D:
-                        if (me->GetPositionX() < 500.0f)
-                        {
-                            for (uint8 i = 0; i < MAX_FRONT_DOOR_A_STAIRS_WAYPOINTS; ++i)
-                                AddWaypoint(i, FrontDoorAStairsWaypoints[i]);
-
-                            for (uint8 i = MAX_FRONT_DOOR_A_STAIRS_WAYPOINTS; i < (MAX_TRASH_HEADING_LAIR_WAYPOINTS + MAX_FRONT_DOOR_A_STAIRS_WAYPOINTS); ++i)
-                                AddWaypoint(i, TrashHeadingLairWaypoints[i - MAX_FRONT_DOOR_A_STAIRS_WAYPOINTS]);
-                        }
-                        else
-                        {
-                            for (uint8 i = 0; i < MAX_FRONT_DOOR_B_STAIRS_WAYPOINTS; ++i)
-                                AddWaypoint(i, FrontDoorBStairsWaypoints[i]);
-
-                            for (uint8 i = MAX_FRONT_DOOR_B_STAIRS_WAYPOINTS; i < (MAX_TRASH_HEADING_LAIR_WAYPOINTS + MAX_FRONT_DOOR_B_STAIRS_WAYPOINTS); ++i)
-                                AddWaypoint(i, TrashHeadingLairWaypoints[i - MAX_FRONT_DOOR_B_STAIRS_WAYPOINTS]);
-                        }
-
-                        me->SetReactState(REACT_DEFENSIVE);
-                        break;
-                    case NPC_ANUB_CHAMPION_SIDE_D:
-                        for (uint8 i = 0; i < MAX_SIDE_DOOR_STAIRS_WAYPOINTS; i++)
-                            AddWaypoint(i, SideDoorStairsWaypoints[i]);
-
-                        for (uint8 i = MAX_SIDE_DOOR_STAIRS_WAYPOINTS; i < (MAX_TRASH_HEADING_LAIR_WAYPOINTS + MAX_SIDE_DOOR_STAIRS_WAYPOINTS); i++)
-                            AddWaypoint(i, TrashHeadingLairWaypoints[i - MAX_SIDE_DOOR_STAIRS_WAYPOINTS]);
-
-                        me->SetReactState(REACT_DEFENSIVE);
-                        break;
-                }
-
-                Start(true, true);
             }
 
             void DoAction(int32 action) override
             {
                 if (action == CREATURE_GROUP_CRUSHER_REINFORCEMENTS_A)
                 {
-                    for (uint8 i = 0; i < MAX_SECOND_CRUSHER_GROUP_WAYPOINTS; i++)
+                    uint8 i = 0;
+                    for (; i < MAX_SECOND_CRUSHER_GROUP_WAYPOINTS; ++i)
                         AddWaypoint(i, FirstCrusherGroupWaypoints[i]);
 
-                    AddWaypoint(MAX_FIRST_CRUSHER_GROUP_WAYPOINTS, DistantDoorChampionFinalPoint, 1*IN_MILLISECONDS);
+                    AddWaypoint(i, DistantDoorChampionFinalPoint, 1 * IN_MILLISECONDS);
                     Start(true, true);
                 }
             }
 
             void EnterCombat(Unit* /*who*/) override
             {
-                _events.ScheduleEvent(EVENT_REND, DUNGEON_MODE(urand(6, 9)*IN_MILLISECONDS, urand(4, 7)*IN_MILLISECONDS));
-                _events.ScheduleEvent(EVENT_PUMMEL, DUNGEON_MODE(urand(14, 17)*IN_MILLISECONDS, urand(9, 12)*IN_MILLISECONDS));
-            }
-
-            void EnterEvadeMode() override
-            {
+                _events.ScheduleEvent(EVENT_REND, DUNGEON_MODE(urand(6, 9), urand(4, 7)) * IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_PUMMEL, DUNGEON_MODE(urand(14, 17), urand(9, 12)) * IN_MILLISECONDS);
             }
 
             void WaypointReached(uint32 waypointId) override
@@ -778,14 +811,15 @@ class npc_anub_ar_champion : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_REND:
-                            if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, false, -sSpellMgr->GetSpellIdForDifficulty(SPELL_REND, me)))
+                            if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, false, -int32(sSpellMgr->GetSpellIdForDifficulty(SPELL_REND, me))))
                                 DoCast(victim, SPELL_REND);
-
-                            _events.ScheduleEvent(EVENT_REND, DUNGEON_MODE(urand(17, 32)*IN_MILLISECONDS, urand(15, 18)*IN_MILLISECONDS));
+                            _events.ScheduleEvent(EVENT_REND, DUNGEON_MODE(urand(17, 32), urand(15, 18)) * IN_MILLISECONDS);
                             break;
                         case EVENT_PUMMEL:
                             _canSpellInterrupt = true;
-                            _events.ScheduleEvent(EVENT_PUMMEL, DUNGEON_MODE(urand(14, 17)*IN_MILLISECONDS, urand(9, 12)*IN_MILLISECONDS));
+                            _events.ScheduleEvent(EVENT_PUMMEL, DUNGEON_MODE(urand(14, 17), urand(9, 12)) * IN_MILLISECONDS);
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -794,8 +828,6 @@ class npc_anub_ar_champion : public CreatureScript
             }
 
         private:
-            EventMap _events;
-            InstanceScript* _instance;
             bool _canSpellInterrupt; // Used to control when the creature will be able to do next spell interrupt.
         };
 
@@ -810,94 +842,42 @@ class npc_anub_ar_necromancer : public CreatureScript
     public:
         npc_anub_ar_necromancer() : CreatureScript("npc_anub_ar_necromancer") { }
 
-        struct npc_anub_ar_necromancerAI : public npc_escortAI
+        struct npc_anub_ar_necromancerAI : public npc_hadronox_trashAI
         {
-            npc_anub_ar_necromancerAI(Creature* creature) : npc_escortAI(creature)
-            {
-                SetDespawnAtEnd(false);
-                _instance = creature->GetInstanceScript();
-            }
-
-            void IsSummonedBy(Unit* /*summoner*/) override
-            {
-                switch (me->GetEntry())
-                {
-                    case NPC_STATIC_NECROMANCER:
-                        return;
-                    case NPC_PERIODIC_ATTACKING_NECRO:
-                        if (me->GetPositionX() < 500.0f)
-                            for (uint8 i = 0; i < MAX_FIRST_CRUSHER_GROUP_WAYPOINTS; i++)
-                                AddWaypoint(i, FirstCrusherGroupWaypoints[i]);
-                        else
-                            for (uint8 i = 0; i < MAX_FIRST_CRUSHER_GROUP_WAYPOINTS; i++)
-                                AddWaypoint(i, SecondCrusherGroupWaypoints[i]);
-
-                        AddWaypoint(MAX_FIRST_CRUSHER_GROUP_WAYPOINTS, PeriodicAttackingTrashFinalWP);
-                        break;
-                    case NPC_ANUB_NECRO_FRONT_D:
-                        if (me->GetPositionX() < 500.0f)
-                        {
-                            for (uint8 i = 0; i < MAX_FRONT_DOOR_A_STAIRS_WAYPOINTS; i++)
-                                AddWaypoint(i, FrontDoorAStairsWaypoints[i]);
-
-                            for (uint8 i = MAX_FRONT_DOOR_A_STAIRS_WAYPOINTS; i < (MAX_TRASH_HEADING_LAIR_WAYPOINTS + MAX_FRONT_DOOR_A_STAIRS_WAYPOINTS); i++)
-                                AddWaypoint(i, TrashHeadingLairWaypoints[i - MAX_FRONT_DOOR_A_STAIRS_WAYPOINTS]);
-                        }
-                        else
-                        {
-                            for (uint8 i = 0; i < MAX_FRONT_DOOR_B_STAIRS_WAYPOINTS; i++)
-                                AddWaypoint(i, FrontDoorBStairsWaypoints[i]);
-
-                            for (uint8 i = MAX_FRONT_DOOR_B_STAIRS_WAYPOINTS; i < (MAX_TRASH_HEADING_LAIR_WAYPOINTS + MAX_FRONT_DOOR_B_STAIRS_WAYPOINTS); i++)
-                                AddWaypoint(i, TrashHeadingLairWaypoints[i - MAX_FRONT_DOOR_B_STAIRS_WAYPOINTS]);
-                        }
-
-                        me->SetReactState(REACT_DEFENSIVE);
-                        break;
-                    case NPC_ANUB_NECRO_SIDE_D:
-                        for (uint8 i = 0; i < MAX_SIDE_DOOR_STAIRS_WAYPOINTS; i++)
-                            AddWaypoint(i, SideDoorStairsWaypoints[i]);
-
-                        for (uint8 i = MAX_SIDE_DOOR_STAIRS_WAYPOINTS; i < (MAX_TRASH_HEADING_LAIR_WAYPOINTS + MAX_SIDE_DOOR_STAIRS_WAYPOINTS); i++)
-                            AddWaypoint(i, TrashHeadingLairWaypoints[i - MAX_SIDE_DOOR_STAIRS_WAYPOINTS]);
-
-                        me->SetReactState(REACT_DEFENSIVE);
-                        break;
-                }
-
-                Start(true, true);
-            }
+            npc_anub_ar_necromancerAI(Creature* creature) : npc_hadronox_trashAI(creature) { }
 
             void DoAction(int32 action) override
             {
                 switch (action)
                 {
                     case CREATURE_GROUP_CRUSHER_REINFORCEMENTS_A:
-                        for (uint8 i = 0; i < MAX_FIRST_CRUSHER_GROUP_WAYPOINTS; i++)
+                    {
+                        uint8 i = 0;
+                        for (; i < MAX_FIRST_CRUSHER_GROUP_WAYPOINTS; ++i)
                             AddWaypoint(i, FirstCrusherGroupWaypoints[i]);
 
-                        AddWaypoint(MAX_FIRST_CRUSHER_GROUP_WAYPOINTS, DistantDoorNecroFinalPoint, 1*IN_MILLISECONDS);
+                        AddWaypoint(i, DistantDoorNecroFinalPoint, 1 * IN_MILLISECONDS);
                         Start(true, true);
                         break;
+                    }
                     case CREATURE_GROUP_CRUSHER_REINFORCEMENTS_B:
-                        for (uint8 i = 0; i < MAX_SECOND_CRUSHER_GROUP_WAYPOINTS; i++)
+                    {
+                        uint8 i = 0;
+                        for (; i < MAX_SECOND_CRUSHER_GROUP_WAYPOINTS; ++i)
                             AddWaypoint(i, SecondCrusherGroupWaypoints[i]);
 
-                        AddWaypoint(MAX_FIRST_CRUSHER_GROUP_WAYPOINTS, CloserDoorNecroFinalPoint, 1*IN_MILLISECONDS);
+                        AddWaypoint(i, CloserDoorNecroFinalPoint, 1 * IN_MILLISECONDS);
                         Start(true, true);
                         break;
+                    }
                 }
             }
 
             void EnterCombat(Unit* /*who*/) override
             {
                 DoCastVictim(SPELL_SHADOW_BOLT);
-                _events.ScheduleEvent(EVENT_ANIMATED_BONNES, urand(14, 17)*IN_MILLISECONDS);
-                _events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(4, 6)*IN_MILLISECONDS);
-            }
-
-            void EnterEvadeMode() override
-            {
+                _events.ScheduleEvent(EVENT_ANIMATED_BONNES, urand(14, 17) * IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(4, 6) * IN_MILLISECONDS);
             }
 
             void WaypointReached(uint32 waypointId) override
@@ -921,11 +901,13 @@ class npc_anub_ar_necromancer : public CreatureScript
                     {
                         case EVENT_SHADOW_BOLT:
                             DoCastVictim(SPELL_SHADOW_BOLT);
-                            _events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(4, 6)*IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(4, 6) * IN_MILLISECONDS);
                             break;
                         case EVENT_ANIMATED_BONNES:
                             DoCast(me, SPELL_ANIMATED_BONNES);
-                            _events.ScheduleEvent(EVENT_ANIMATED_BONNES, urand(24, 28)*IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_ANIMATED_BONNES, urand(24, 28) * IN_MILLISECONDS);
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -933,10 +915,6 @@ class npc_anub_ar_necromancer : public CreatureScript
                 if (((me->GetPower(POWER_MANA) * 100) / me->GetMaxPower(POWER_MANA)) < 5)
                     DoMeleeAttackIfReady();
             }
-
-        private:
-            EventMap _events;
-            InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -950,84 +928,27 @@ class npc_anub_ar_crypt_fiend : public CreatureScript
     public:
         npc_anub_ar_crypt_fiend() : CreatureScript("npc_anub_ar_crypt_fiend") { }
 
-        struct npc_anub_ar_crypt_fiendAI : public npc_escortAI
+        struct npc_anub_ar_crypt_fiendAI : public npc_hadronox_trashAI
         {
-            npc_anub_ar_crypt_fiendAI(Creature* creature) : npc_escortAI(creature)
-            {
-                SetDespawnAtEnd(false);
-                _instance = creature->GetInstanceScript();
-            }
-
-            void IsSummonedBy(Unit* /*summoner*/) override
-            {
-                switch (me->GetEntry())
-                {
-                    case NPC_STATIC_CRYPT_FIEND:
-                        return;
-                    case NPC_PERIODIC_ATTACKING_FIEND:
-                        if (me->GetPositionX() < 500.0f)
-                            for (uint8 i = 0; i < MAX_FIRST_CRUSHER_GROUP_WAYPOINTS; ++i)
-                                AddWaypoint(i, FirstCrusherGroupWaypoints[i]);
-                        else
-                            for (uint8 i = 0; i < MAX_SECOND_CRUSHER_GROUP_WAYPOINTS; ++i)
-                                AddWaypoint(i, SecondCrusherGroupWaypoints[i]);
-
-                        AddWaypoint(MAX_FIRST_CRUSHER_GROUP_WAYPOINTS, PeriodicAttackingTrashFinalWP);
-                        break;
-                    case NPC_ANUB_FIEND_FRONT_D:
-                        if (me->GetPositionX() < 500.0f)
-                        {
-                            for (uint8 i = 0; i < MAX_FRONT_DOOR_A_STAIRS_WAYPOINTS; i++)
-                                AddWaypoint(i, FrontDoorAStairsWaypoints[i]);
-
-                            for (uint8 i = MAX_FRONT_DOOR_A_STAIRS_WAYPOINTS; i < (MAX_TRASH_HEADING_LAIR_WAYPOINTS + MAX_FRONT_DOOR_A_STAIRS_WAYPOINTS); i++)
-                                AddWaypoint(i, TrashHeadingLairWaypoints[i - MAX_FRONT_DOOR_A_STAIRS_WAYPOINTS]);
-                        }
-                        else
-                        {
-                            for (uint8 i = 0; i < MAX_FRONT_DOOR_B_STAIRS_WAYPOINTS; i++)
-                                AddWaypoint(i, FrontDoorBStairsWaypoints[i]);
-
-                            for (uint8 i = MAX_FRONT_DOOR_B_STAIRS_WAYPOINTS; i < (MAX_TRASH_HEADING_LAIR_WAYPOINTS + MAX_FRONT_DOOR_B_STAIRS_WAYPOINTS); i++)
-                                AddWaypoint(i, TrashHeadingLairWaypoints[i - MAX_FRONT_DOOR_B_STAIRS_WAYPOINTS]);
-                        }
-
-                        me->SetReactState(REACT_DEFENSIVE);
-                        break;
-                    case NPC_ANUB_FIEND_SIDE_D:
-                        for (uint8 i = 0; i < MAX_SIDE_DOOR_STAIRS_WAYPOINTS; i++)
-                            AddWaypoint(i, SideDoorStairsWaypoints[i]);
-
-                        for (uint8 i = MAX_SIDE_DOOR_STAIRS_WAYPOINTS; i < (MAX_TRASH_HEADING_LAIR_WAYPOINTS + MAX_SIDE_DOOR_STAIRS_WAYPOINTS); i++)
-                            AddWaypoint(i, TrashHeadingLairWaypoints[i - MAX_SIDE_DOOR_STAIRS_WAYPOINTS]);
-
-                        me->SetReactState(REACT_DEFENSIVE);
-                        break;
-                }
-
-                Start(true, true);
-            }
+            npc_anub_ar_crypt_fiendAI(Creature* creature) : npc_hadronox_trashAI(creature) { }
 
             void DoAction(int32 action) override
             {
                 if (action == CREATURE_GROUP_CRUSHER_REINFORCEMENTS_B)
                 {
-                    for (uint8 i = 0; i < MAX_SECOND_CRUSHER_GROUP_WAYPOINTS; i++)
+                    uint8 i = 0;
+                    for (; i < MAX_SECOND_CRUSHER_GROUP_WAYPOINTS; ++i)
                         AddWaypoint(i, SecondCrusherGroupWaypoints[i]);
 
-                    AddWaypoint(MAX_FIRST_CRUSHER_GROUP_WAYPOINTS, CloserDoorFiendFinalPoint, 1*IN_MILLISECONDS);
+                    AddWaypoint(i, CloserDoorFiendFinalPoint, 1 * IN_MILLISECONDS);
                     Start(true, true);
                 }
             }
 
             void EnterCombat(Unit* /*who*/) override
             {
-                _events.ScheduleEvent(EVENT_INFECTED_WOUNDS, urand(4, 7)*IN_MILLISECONDS);
-                _events.ScheduleEvent(EVENT_CRUSHING_WEBS, urand(9, 12)*IN_MILLISECONDS);
-            }
-
-            void EnterEvadeMode() override
-            {
+                _events.ScheduleEvent(EVENT_INFECTED_WOUNDS, urand(4, 7) * IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_CRUSHING_WEBS, urand(9, 12) * IN_MILLISECONDS);
             }
 
             void WaypointReached(uint32 waypointId) override
@@ -1050,26 +971,22 @@ class npc_anub_ar_crypt_fiend : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_INFECTED_WOUNDS:
-                            if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, false, -sSpellMgr->GetSpellIdForDifficulty(SPELL_INFECTED_WOUNDS, me)))
+                            if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, false, -int32(sSpellMgr->GetSpellIdForDifficulty(SPELL_INFECTED_WOUNDS, me))))
                                 DoCast(victim, SPELL_INFECTED_WOUNDS);
-
-                            _events.ScheduleEvent(EVENT_INFECTED_WOUNDS, urand(9, 12)*IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_INFECTED_WOUNDS, urand(9, 12) * IN_MILLISECONDS);
                             break;
                         case EVENT_CRUSHING_WEBS:
                             if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, false))
                                 DoCast(victim, SPELL_CRUSHING_WEBS);
-
-                            _events.ScheduleEvent(EVENT_CRUSHING_WEBS, DUNGEON_MODE(urand(10, 13)*IN_MILLISECONDS, urand(13, 17)*IN_MILLISECONDS));
+                            _events.ScheduleEvent(EVENT_CRUSHING_WEBS, DUNGEON_MODE(urand(10, 13), urand(13, 17)) * IN_MILLISECONDS);
+                            break;
+                        default:
                             break;
                     }
                 }
 
                 DoMeleeAttackIfReady();
             }
-
-        private:
-            EventMap _events;
-            InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
