@@ -37,9 +37,9 @@ enum Spells
 
 enum Events
 {
-    EVENT_CLEAVE                        = 0,
-    EVENT_QUICKSILVER_ARMOR             = 1,
-    EVENT_SUPERHEATED_QUICKSILVER_ARMOR = 2
+    EVENT_CLEAVE                        = 1,
+    EVENT_QUICKSILVER_ARMOR             = 2,
+    EVENT_SUPERHEATED_QUICKSILVER_ARMOR = 3
 };
 
 class boss_karsh_steelbender : public CreatureScript
