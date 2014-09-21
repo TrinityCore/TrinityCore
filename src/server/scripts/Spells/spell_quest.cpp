@@ -2121,7 +2121,7 @@ class spell_q12641_recall_eye_of_acherus : public SpellScriptLoader
                 {
                     player->StopCastingCharm();
                     player->StopCastingBindSight();
-					player->RemoveAura(THE_EYE_OF_ACHERUS);
+		    player->RemoveAura(THE_EYE_OF_ACHERUS);
                 }
             }
 
