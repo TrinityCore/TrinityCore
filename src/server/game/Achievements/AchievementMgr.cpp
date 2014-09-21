@@ -1401,7 +1401,7 @@ template<class T>
 static uint32 GetInstanceId(T* /*object*/) { return 0xFFFFFFFF; }
 
 template<>
-static uint32 GetInstanceId(Player* player) { return player->GetInstanceId(); }
+uint32 GetInstanceId(Player* player) { return player->GetInstanceId(); }
 
 template<class T>
 bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteriaEntry const* achievementCriteria, AchievementEntry const* achievement)

@@ -1796,7 +1796,7 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
 
     ObjectGuid oldGuildGuid;
     if (uint32 oldId = pInvitee->GetGuildId())
-        oldGuildGuid = ObjectGuid(HIGHGUID_GUILD, pInvitee->GetGuildId());
+        oldGuildGuid = ObjectGuid(HIGHGUID_GUILD, oldId);
 
     ObjectGuid newGuildGuid = GetGUID();
 
