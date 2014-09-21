@@ -1061,6 +1061,7 @@ BfWGGameObjectBuilding::BfWGGameObjectBuilding(BattlefieldWG* wg, WintergraspGam
     _type = type;
     _worldState = worldState;
     _state = BATTLEFIELD_WG_OBJECTSTATE_NONE;
+    _staticTowerInfo = nullptr;
 }
 
 void BfWGGameObjectBuilding::Rebuild()

@@ -48,12 +48,20 @@ class boss_rokmar_the_crackler : public CreatureScript
 
         struct boss_rokmar_the_cracklerAI : public BossAI
         {
-            boss_rokmar_the_cracklerAI(Creature* creature) : BossAI(creature, DATA_MENNU_THE_BETRAYER) { }
+            boss_rokmar_the_cracklerAI(Creature* creature) : BossAI(creature, DATA_MENNU_THE_BETRAYER)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                rokmarFrenzy = false;
+            }
 
             void Reset() override
             {
                 _Reset();
-                rokmarFrenzy = false;
+                Initialize();
             }
 
             void JustDied(Unit* /*killer*/) override

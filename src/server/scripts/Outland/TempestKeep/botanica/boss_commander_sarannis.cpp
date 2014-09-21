@@ -50,12 +50,20 @@ class boss_commander_sarannis : public CreatureScript
 
         struct boss_commander_sarannisAI : public BossAI
         {
-            boss_commander_sarannisAI(Creature* creature) : BossAI(creature, DATA_COMMANDER_SARANNIS) { }
+            boss_commander_sarannisAI(Creature* creature) : BossAI(creature, DATA_COMMANDER_SARANNIS)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _phase = true;
+            }
 
             void Reset() override
             {
                 _Reset();
-                _phase = true;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override

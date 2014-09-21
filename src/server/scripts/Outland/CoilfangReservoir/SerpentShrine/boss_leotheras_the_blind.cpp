@@ -83,6 +83,13 @@ public:
     {
         npc_inner_demonAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            ShadowBolt_Timer = 10000;
+            Link_Timer = 1000;
         }
 
         uint32 ShadowBolt_Timer;
@@ -92,8 +99,7 @@ public:
 
         void Reset() override
         {
-            ShadowBolt_Timer = 10000;
-            Link_Timer = 1000;
+            Initialize();
         }
 
         void SetGUID(ObjectGuid guid, int32 id/* = 0 */) override
@@ -187,8 +193,28 @@ public:
     {
         boss_leotheras_the_blindAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             creature->GetPosition(x, y, z);
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            BanishTimer = 1000;
+            Whirlwind_Timer = 15000;
+            ChaosBlast_Timer = 1000;
+            SwitchToDemon_Timer = 45000;
+            SwitchToHuman_Timer = 60000;
+            Berserk_Timer = 600000;
+            InnerDemons_Timer = 30000;
+
+            DealDamage = true;
+            DemonForm = false;
+            IsFinalForm = false;
+            NeedThreatReset = false;
+            EnrageUsed = false;
+            memset(InnderDemon, 0, sizeof(InnderDemon));
+            InnerDemon_Count = 0;
         }
 
         InstanceScript* instance;
@@ -216,21 +242,8 @@ public:
         void Reset() override
         {
             CheckChannelers();
-            BanishTimer = 1000;
-            Whirlwind_Timer = 15000;
-            ChaosBlast_Timer = 1000;
-            SwitchToDemon_Timer = 45000;
-            SwitchToHuman_Timer = 60000;
-            Berserk_Timer = 600000;
-            InnerDemons_Timer = 30000;
+            Initialize();
             me->SetCanDualWield(true);
-            DealDamage = true;
-            DemonForm = false;
-            IsFinalForm = false;
-            NeedThreatReset = false;
-            EnrageUsed = false;
-            memset(InnderDemon, 0, sizeof(InnderDemon));
-            InnerDemon_Count = 0;
             me->SetSpeed(MOVE_RUN, 2.0f, true);
             me->SetDisplayId(MODEL_NIGHTELF);
             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID  , 0);
@@ -600,15 +613,23 @@ public:
 
     struct boss_leotheras_the_blind_demonformAI : public ScriptedAI
     {
-        boss_leotheras_the_blind_demonformAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_leotheras_the_blind_demonformAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            ChaosBlast_Timer = 1000;
+            DealDamage = true;
+        }
 
         uint32 ChaosBlast_Timer;
         bool DealDamage;
 
         void Reset() override
         {
-            ChaosBlast_Timer = 1000;
-            DealDamage = true;
+            Initialize();
         }
 
         void StartEvent()
@@ -675,8 +696,15 @@ public:
     {
         npc_greyheart_spellbinderAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             AddedBanish = false;
+        }
+
+        void Initialize()
+        {
+            Mindblast_Timer = urand(3000, 8000);
+            Earthshock_Timer = urand(5000, 10000);
         }
 
         InstanceScript* instance;
@@ -690,8 +718,7 @@ public:
 
         void Reset() override
         {
-            Mindblast_Timer  = urand(3000, 8000);
-            Earthshock_Timer = urand(5000, 10000);
+            Initialize();
 
             instance->SetGuidData(DATA_LEOTHERAS_EVENT_STARTER, ObjectGuid::Empty);
             Creature* leotheras = ObjectAccessor::GetCreature(*me, leotherasGUID);
