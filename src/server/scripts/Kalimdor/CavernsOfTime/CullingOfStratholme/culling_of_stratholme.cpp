@@ -356,6 +356,7 @@ public:
             step = 0;
             gossipStep = 0;
             bossEvent = 0;
+            WavesCounter = 0;
         }
 
         void Initialize()

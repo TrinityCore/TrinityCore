@@ -136,6 +136,26 @@ class boss_warbringer_omrogg : public CreatureScript
         {
             boss_warbringer_omroggAI(Creature* creature) : BossAI(creature, DATA_OMROGG)
             {
+                Initialize();
+                iaggro = 0;
+                ithreat = 0;
+                ikilling = 0;
+            }
+
+            void Initialize()
+            {
+                AggroYell = false;
+                ThreatYell = false;
+                ThreatYell2 = false;
+                KillingYell = false;
+
+                Delay_Timer = 4000;
+                BlastWave_Timer = 0;
+                BlastCount = 0;
+                Fear_Timer = 8000;
+                BurningMaul_Timer = 25000;
+                ThunderClap_Timer = 15000;
+                ResetThreat_Timer = 30000;
             }
 
             void Reset() override
@@ -152,18 +172,7 @@ class boss_warbringer_omrogg : public CreatureScript
                     RightHeadGUID.Clear();
                 }
 
-                AggroYell = false;
-                ThreatYell = false;
-                ThreatYell2 = false;
-                KillingYell = false;
-
-                Delay_Timer = 4000;
-                BlastWave_Timer = 0;
-                BlastCount = 0;
-                Fear_Timer = 8000;
-                BurningMaul_Timer = 25000;
-                ThunderClap_Timer = 15000;
-                ResetThreat_Timer = 30000;
+                Initialize();
 
                 instance->SetData(DATA_OMROGG, NOT_STARTED);   //End boss can use this later. O'mrogg must be defeated(DONE) or he will come to aid.
             }

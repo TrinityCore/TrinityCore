@@ -338,15 +338,23 @@ public:
 
   struct npc_corkiAI : public ScriptedAI
   {
-      npc_corkiAI(Creature* creature) : ScriptedAI(creature) { }
+      npc_corkiAI(Creature* creature) : ScriptedAI(creature)
+      {
+          Initialize();
+      }
+
+      void Initialize()
+      {
+          Say_Timer = 5000;
+          ReleasedFromCage = false;
+      }
 
       uint32 Say_Timer;
       bool ReleasedFromCage;
 
       void Reset() override
       {
-          Say_Timer = 5000;
-          ReleasedFromCage = false;
+          Initialize();
       }
 
       void UpdateAI(uint32 diff) override
@@ -441,7 +449,17 @@ public:
 
     struct npc_kurenai_captiveAI : public npc_escortAI
     {
-        npc_kurenai_captiveAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_kurenai_captiveAI(Creature* creature) : npc_escortAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            ChainLightningTimer = 1000;
+            HealTimer = 0;
+            FrostShockTimer = 6000;
+        }
 
         uint32 ChainLightningTimer;
         uint32 HealTimer;
@@ -449,9 +467,7 @@ public:
 
         void Reset() override
         {
-            ChainLightningTimer = 1000;
-            HealTimer = 0;
-            FrostShockTimer = 6000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

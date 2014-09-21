@@ -101,10 +101,29 @@ class boss_high_astromancer_solarian : public CreatureScript
         {
             boss_high_astromancer_solarianAI(Creature* creature) : ScriptedAI(creature), Summons(me)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
 
                 defaultarmor = creature->GetArmor();
                 defaultsize = creature->GetObjectScale();
+                memset(Portals, 0, sizeof(Portals));
+            }
+
+            void Initialize()
+            {
+                ArcaneMissiles_Timer = 2000;
+                m_uiWrathOfTheAstromancer_Timer = 15000;
+                BlindingLight_Timer = 41000;
+                Fear_Timer = 20000;
+                VoidBolt_Timer = 10000;
+                Phase1_Timer = 50000;
+                Phase2_Timer = 10000;
+                Phase3_Timer = 15000;
+                AppearDelay_Timer = 2000;
+                BlindingLight = false;
+                AppearDelay = false;
+                Wrath_Timer = 20000 + rand32() % 5000;//twice in phase one
+                Phase = 1;
             }
 
             InstanceScript* instance;
@@ -132,19 +151,7 @@ class boss_high_astromancer_solarian : public CreatureScript
 
             void Reset() override
             {
-                ArcaneMissiles_Timer = 2000;
-                m_uiWrathOfTheAstromancer_Timer = 15000;
-                BlindingLight_Timer = 41000;
-                Fear_Timer = 20000;
-                VoidBolt_Timer = 10000;
-                Phase1_Timer = 50000;
-                Phase2_Timer = 10000;
-                Phase3_Timer = 15000;
-                AppearDelay_Timer = 2000;
-                BlindingLight = false;
-                AppearDelay = false;
-                Wrath_Timer = 20000 + rand32() % 5000;//twice in phase one
-                Phase = 1;
+                Initialize();
 
                 instance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, NOT_STARTED);
 
@@ -433,7 +440,15 @@ class npc_solarium_priest : public CreatureScript
         {
             npc_solarium_priestAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                healTimer = 9000;
+                holysmiteTimer = 1;
+                aoesilenceTimer = 15000;
             }
 
             InstanceScript* instance;
@@ -444,9 +459,7 @@ class npc_solarium_priest : public CreatureScript
 
             void Reset() override
             {
-                healTimer = 9000;
-                holysmiteTimer = 1;
-                aoesilenceTimer = 15000;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override
