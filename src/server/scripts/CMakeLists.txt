@@ -145,6 +145,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/World
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
   ${MYSQL_INCLUDE_DIR}
+  ${VALGRIND_INCLUDE_DIR}
 )
 
 add_library(scripts STATIC
