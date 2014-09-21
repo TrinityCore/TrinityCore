@@ -17457,8 +17457,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         }
         else
         {
-            TC_LOG_ERROR("entities.player", "Player (guidlow %d) have problems with transport guid (%u). Teleport to bind location.",
-                guid, transLowGUID);
+            TC_LOG_ERROR("entities.player", "Player (%s) have problems with transport guid (%u). Teleport to bind location.",
+                guid.ToString().c_str(), transLowGUID);
 
             RelocateToHomebind();
         }
@@ -18290,7 +18290,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         std::string name;
         if (creatorGuid && !sObjectMgr->GetPlayerNameByGUID(creatorGuid, name))
         {
-            TC_LOG_ERROR("entities.player", "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid creator guid, set to 0 (item id: " UI64FMTD ", entry: %u, creatorGuid: %u).", GetGUIDLow(), GetName().c_str(), itemId, itemEntry, creatorGuid);
+            TC_LOG_ERROR("entities.player", "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid creator guid, set to 0 (item id: " UI64FMTD ", entry: %u, creator: %s).", GetGUIDLow(), GetName().c_str(), itemId, itemEntry, creatorGuid.ToString().c_str());
             creatorGuid.Clear();
         }
 
