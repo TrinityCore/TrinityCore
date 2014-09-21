@@ -1395,6 +1395,14 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
     }
 }
 
+// Only player personal achievements require instance id to check realm firsts
+// Guild restrictions are handled with additionalConditionType/additionalConditionValue
+template<class T>
+static uint32 GetInstanceId(T* /*object*/) { return 0xFFFFFFFF; }
+
+template<>
+static uint32 GetInstanceId(Player* player) { return player->GetInstanceId(); }
+
 template<class T>
 bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteriaEntry const* achievementCriteria, AchievementEntry const* achievement)
 {
@@ -1408,7 +1416,7 @@ bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteriaEntry const* achi
     if (achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
     {
         // someone on this realm has already completed that achievement
-        if (sAchievementMgr->IsRealmCompleted(achievement, GetOwner()->GetInstanceId()))
+        if (sAchievementMgr->IsRealmCompleted(achievement, GetInstanceId(GetOwner())))
             return false;
     }
 
