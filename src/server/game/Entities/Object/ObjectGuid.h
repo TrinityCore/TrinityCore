@@ -89,7 +89,7 @@ class ObjectGuid
 
         ObjectGuid() { _data._guid = UI64LIT(0); }
         explicit ObjectGuid(uint64 guid)  { _data._guid = guid; }
-        ObjectGuid(HighGuid hi, uint32 entry, uint32 counter) { _data._guid = counter ? uint64(counter) | (uint64(entry) << 24) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0; }
+        ObjectGuid(HighGuid hi, uint32 entry, uint32 counter) { _data._guid = counter ? uint64(counter) | (uint64(entry) << 32) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0; }
         ObjectGuid(HighGuid hi, uint32 counter) { _data._guid = counter ? uint64(counter) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0; }
 
         operator uint64() const { return _data._guid; }
