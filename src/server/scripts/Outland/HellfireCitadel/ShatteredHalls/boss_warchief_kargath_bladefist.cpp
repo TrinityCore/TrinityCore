@@ -65,15 +65,14 @@ class boss_warchief_kargath_bladefist : public CreatureScript
 
         struct boss_warchief_kargath_bladefistAI : public BossAI
         {
-            boss_warchief_kargath_bladefistAI(Creature* creature) : BossAI(creature, DATA_KARGATH) { }
-
-            void Reset() override
+            boss_warchief_kargath_bladefistAI(Creature* creature) : BossAI(creature, DATA_KARGATH)
             {
-                removeAdds();
+                Initialize();
+                target_num = 0;
+            }
 
-                me->SetSpeed(MOVE_RUN, 2);
-                me->SetWalk(false);
-
+            void Initialize()
+            {
                 summoned = 2;
                 InBlade = false;
                 Wait_Timer = 0;
@@ -83,6 +82,16 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 Summon_Assistant_Timer = 30000;
                 Assassins_Timer = 5000;
                 resetcheck_timer = 5000;
+            }
+
+            void Reset() override
+            {
+                removeAdds();
+
+                me->SetSpeed(MOVE_RUN, 2);
+                me->SetWalk(false);
+
+                Initialize();
             }
 
             void JustDied(Unit* /*killer*/) override

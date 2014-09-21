@@ -65,6 +65,17 @@ class boss_kelidan_the_breaker : public CreatureScript
         {
             boss_kelidan_the_breakerAI(Creature* creature) : BossAI(creature, DATA_KELIDAN_THE_BREAKER)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                ShadowVolley_Timer = 1000;
+                BurningNova_Timer = 15000;
+                Corruption_Timer = 5000;
+                check_Timer = 0;
+                Firenova = false;
+                addYell = false;
             }
 
             uint32 ShadowVolley_Timer;
@@ -79,12 +90,7 @@ class boss_kelidan_the_breaker : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                ShadowVolley_Timer = 1000;
-                BurningNova_Timer = 15000;
-                Corruption_Timer = 5000;
-                check_Timer = 0;
-                Firenova = false;
-                addYell = false;
+                Initialize();
                 SummonChannelers();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
@@ -271,7 +277,17 @@ class npc_shadowmoon_channeler : public CreatureScript
 
         struct npc_shadowmoon_channelerAI : public ScriptedAI
         {
-            npc_shadowmoon_channelerAI(Creature* creature) : ScriptedAI(creature){ }
+            npc_shadowmoon_channelerAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                ShadowBolt_Timer = 1000 + rand32() % 1000;
+                MarkOfShadow_Timer = 5000 + rand32() % 2000;
+                check_Timer = 0;
+            }
 
             uint32 ShadowBolt_Timer;
             uint32 MarkOfShadow_Timer;
@@ -279,9 +295,7 @@ class npc_shadowmoon_channeler : public CreatureScript
 
             void Reset() override
             {
-                ShadowBolt_Timer = 1000 + rand32() % 1000;
-                MarkOfShadow_Timer = 5000 + rand32() % 2000;
-                check_Timer = 0;
+                Initialize();
                 if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(true);
             }

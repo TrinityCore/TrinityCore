@@ -51,13 +51,21 @@ class boss_thorngrin_the_tender : public CreatureScript
 
         struct boss_thorngrin_the_tenderAI : public BossAI
         {
-            boss_thorngrin_the_tenderAI(Creature* creature) : BossAI(creature, DATA_THORNGRIN_THE_TENDER) { }
+            boss_thorngrin_the_tenderAI(Creature* creature) : BossAI(creature, DATA_THORNGRIN_THE_TENDER)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _phase1 = true;
+                _phase2 = true;
+            }
 
             void Reset() override
             {
                 _Reset();
-                _phase1 = true;
-                _phase2 = true;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override
