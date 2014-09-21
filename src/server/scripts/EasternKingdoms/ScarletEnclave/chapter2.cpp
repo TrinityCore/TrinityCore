@@ -51,17 +51,25 @@ public:
 
     struct npc_crusade_persuadedAI : public ScriptedAI
     {
-        npc_crusade_persuadedAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_crusade_persuadedAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        uint32 speechTimer;
-        uint32 speechCounter;
-        uint64 playerGUID;
-
-        void Reset() override
+        void Initialize()
         {
             speechTimer = 0;
             speechCounter = 0;
-            playerGUID = 0;
+            playerGUID.Clear();
+        }
+
+        uint32 speechTimer;
+        uint32 speechCounter;
+        ObjectGuid playerGUID;
+
+        void Reset() override
+        {
+            Initialize();
             me->SetReactState(REACT_AGGRESSIVE);
             me->RestoreFaction();
         }
@@ -207,16 +215,22 @@ public:
     {
         npc_koltira_deathweaverAI(Creature* creature) : npc_escortAI(creature)
         {
+            Initialize();
             me->SetReactState(REACT_DEFENSIVE);
+        }
+
+        void Initialize()
+        {
+            wave = 0;
+            waveTimer = 3000;
+            valrothGUID.Clear();
         }
 
         void Reset() override
         {
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
             {
-                wave = 0;
-                waveTimer = 3000;
-                valrothGUID = 0;
+                Initialize();
                 me->LoadEquipment(0, true);
                 me->RemoveAurasDueToSpell(SPELL_ANTI_MAGIC_ZONE);
                 me->RemoveAurasDueToSpell(SPELL_KOLTIRA_TRANSFORM);
@@ -343,7 +357,7 @@ public:
     private:
         uint8 wave;
         uint32 waveTimer;
-        uint64 valrothGUID;
+        ObjectGuid valrothGUID;
 
     };
 
@@ -375,7 +389,16 @@ public:
 
     struct npc_scarlet_courierAI : public ScriptedAI
     {
-        npc_scarlet_courierAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_scarlet_courierAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            uiStage = 1;
+            uiStage_timer = 3000;
+        }
 
         uint32 uiStage;
         uint32 uiStage_timer;
@@ -383,8 +406,7 @@ public:
         void Reset() override
         {
             me->Mount(14338); // not sure about this id
-            uiStage = 1;
-            uiStage_timer = 3000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -467,7 +489,17 @@ public:
 
     struct npc_high_inquisitor_valrothAI : public ScriptedAI
     {
-        npc_high_inquisitor_valrothAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_high_inquisitor_valrothAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            uiRenew_timer = 1000;
+            uiInquisitor_Penance_timer = 2000;
+            uiValroth_Smite_timer = 1000;
+        }
 
         uint32 uiRenew_timer;
         uint32 uiInquisitor_Penance_timer;
@@ -475,9 +507,7 @@ public:
 
         void Reset() override
         {
-            uiRenew_timer = 1000;
-            uiInquisitor_Penance_timer = 2000;
-            uiValroth_Smite_timer = 1000;
+            Initialize();
         }
 
         void EnterCombat(Unit* who) override
@@ -603,17 +633,25 @@ public:
 
     struct npc_a_special_surpriseAI : public ScriptedAI
     {
-        npc_a_special_surpriseAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_a_special_surpriseAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        uint32 ExecuteSpeech_Timer;
-        uint32 ExecuteSpeech_Counter;
-        uint64 PlayerGUID;
-
-        void Reset() override
+        void Initialize()
         {
             ExecuteSpeech_Timer = 0;
             ExecuteSpeech_Counter = 0;
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
+        }
+
+        uint32 ExecuteSpeech_Timer;
+        uint32 ExecuteSpeech_Counter;
+        ObjectGuid PlayerGUID;
+
+        void Reset() override
+        {
+            Initialize();
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }

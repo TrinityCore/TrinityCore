@@ -206,7 +206,7 @@ void Transport::Update(uint32 diff)
             G3D::Vector3 pos, dir;
             _currentFrame->Spline->evaluate_percent(_currentFrame->Index, t, pos);
             _currentFrame->Spline->evaluate_derivative(_currentFrame->Index, t, dir);
-            UpdatePosition(pos.x, pos.y, pos.z, atan2(dir.y, dir.x) + M_PI);
+            UpdatePosition(pos.x, pos.y, pos.z, std::atan2(dir.y, dir.x) + float(M_PI));
         }
         else
         {
@@ -609,7 +609,7 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z, fl
             switch (obj->GetTypeId())
             {
                 case TYPEID_UNIT:
-                    if (!IS_PLAYER_GUID(obj->ToUnit()->GetOwnerGUID()))  // pets should be teleported with player
+                    if (!obj->ToUnit()->GetOwnerGUID().IsPlayer())  // pets should be teleported with player
                         obj->ToCreature()->FarTeleportTo(newMap, destX, destY, destZ, destO);
                     break;
                 case TYPEID_GAMEOBJECT:

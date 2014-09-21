@@ -14,7 +14,7 @@
 #include <string>
 #include "G3D/platform.h"
 
-#ifndef G3D_WIN32
+#ifndef G3D_WINDOWS
     #include <stdarg.h>
 #endif
 

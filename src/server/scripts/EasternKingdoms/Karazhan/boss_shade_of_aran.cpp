@@ -93,37 +93,11 @@ public:
     {
         boss_aranAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* instance;
-
-        uint32 SecondarySpellTimer;
-        uint32 NormalCastTimer;
-        uint32 SuperCastTimer;
-        uint32 BerserkTimer;
-        uint32 CloseDoorTimer;                                  // Don't close the door right on aggro in case some people are still entering.
-
-        uint8 LastSuperSpell;
-
-        uint32 FlameWreathTimer;
-        uint32 FlameWreathCheckTime;
-        uint64 FlameWreathTarget[3];
-        float FWTargPosX[3];
-        float FWTargPosY[3];
-
-        uint32 CurrentNormalSpell;
-        uint32 ArcaneCooldown;
-        uint32 FireCooldown;
-        uint32 FrostCooldown;
-
-        uint32 DrinkInterruptTimer;
-
-        bool ElementalsSpawned;
-        bool Drinking;
-        bool DrinkInturrupted;
-
-        void Reset() override
+        void Initialize()
         {
             SecondarySpellTimer = 5000;
             NormalCastTimer = 0;
@@ -146,10 +120,42 @@ public:
             ElementalsSpawned = false;
             Drinking = false;
             DrinkInturrupted = false;
+        }
+
+        InstanceScript* instance;
+
+        uint32 SecondarySpellTimer;
+        uint32 NormalCastTimer;
+        uint32 SuperCastTimer;
+        uint32 BerserkTimer;
+        uint32 CloseDoorTimer;                                  // Don't close the door right on aggro in case some people are still entering.
+
+        uint8 LastSuperSpell;
+
+        uint32 FlameWreathTimer;
+        uint32 FlameWreathCheckTime;
+        ObjectGuid FlameWreathTarget[3];
+        float FWTargPosX[3];
+        float FWTargPosY[3];
+
+        uint32 CurrentNormalSpell;
+        uint32 ArcaneCooldown;
+        uint32 FireCooldown;
+        uint32 FrostCooldown;
+
+        uint32 DrinkInterruptTimer;
+
+        bool ElementalsSpawned;
+        bool Drinking;
+        bool DrinkInturrupted;
+
+        void Reset() override
+        {
+            Initialize();
 
             // Not in progress
             instance->SetData(TYPE_ARAN, NOT_STARTED);
-            instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), true);
+            instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), true);
         }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -162,7 +168,7 @@ public:
             Talk(SAY_DEATH);
 
             instance->SetData(TYPE_ARAN, DONE);
-            instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), true);
+            instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), true);
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -170,7 +176,7 @@ public:
             Talk(SAY_AGGRO);
 
             instance->SetData(TYPE_ARAN, IN_PROGRESS);
-            instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), false);
+            instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), false);
         }
 
         void FlameWreathEffect()
@@ -217,7 +223,7 @@ public:
             {
                 if (CloseDoorTimer <= diff)
                 {
-                    instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), false);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), false);
                     CloseDoorTimer = 0;
                 } else CloseDoorTimer -= diff;
             }
@@ -362,6 +368,10 @@ public:
                         Available[0] = SUPER_FLAME;
                         Available[1] = SUPER_AE;
                         break;
+                    default:
+                        Available[0] = 0;
+                        Available[1] = 0;
+                        break;
                 }
 
                 LastSuperSpell = Available[urand(0, 1)];
@@ -383,9 +393,9 @@ public:
                         FlameWreathTimer = 20000;
                         FlameWreathCheckTime = 500;
 
-                        FlameWreathTarget[0] = 0;
-                        FlameWreathTarget[1] = 0;
-                        FlameWreathTarget[2] = 0;
+                        FlameWreathTarget[0].Clear();
+                        FlameWreathTarget[1].Clear();
+                        FlameWreathTarget[2].Clear();
 
                         FlameWreathEffect();
                         break;
@@ -455,7 +465,7 @@ public:
                         {
                             unit->CastSpell(unit, 20476, true, 0, 0, me->GetGUID());
                             unit->CastSpell(unit, 11027, true);
-                            FlameWreathTarget[i] = 0;
+                            FlameWreathTarget[i].Clear();
                         }
                     }
                     FlameWreathCheckTime = 500;
@@ -508,13 +518,21 @@ public:
 
     struct water_elementalAI : public ScriptedAI
     {
-        water_elementalAI(Creature* creature) : ScriptedAI(creature) { }
+        water_elementalAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            CastTimer = 2000 + (rand32() % 3000);
+        }
 
         uint32 CastTimer;
 
         void Reset() override
         {
-            CastTimer = 2000 + (rand32() % 3000);
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }

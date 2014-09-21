@@ -40,22 +40,9 @@ class instance_blood_furnace : public InstanceMapScript
         {
             instance_blood_furnace_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-
-                TheMakerGUID            = 0;
-                BroggokGUID             = 0;
-                KelidanTheBreakerGUID   = 0;
-
-                BroggokLeverGUID        = 0;
-                PrisonDoor4GUID         = 0;
-
-                memset(PrisonCellGUIDs, 0, 8 * sizeof(uint64));
-
-                PrisonersCell5.clear();
-                PrisonersCell6.clear();
-                PrisonersCell7.clear();
-                PrisonersCell8.clear();
 
                 PrisonerCounter5        = 0;
                 PrisonerCounter6        = 0;
@@ -153,7 +140,7 @@ class instance_blood_furnace : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -167,7 +154,7 @@ class instance_blood_furnace : public InstanceMapScript
                         return BroggokLeverGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -218,9 +205,9 @@ class instance_blood_furnace : public InstanceMapScript
                 HandleGameObject(PrisonCellGUIDs[DATA_PRISON_CELL8 - DATA_PRISON_CELL1], false);
             }
 
-            void ResetPrisoners(const std::set<uint64>& prisoners)
+            void ResetPrisoners(GuidSet const& prisoners)
             {
-                for (std::set<uint64>::const_iterator i = prisoners.begin(); i != prisoners.end(); ++i)
+                for (GuidSet::const_iterator i = prisoners.begin(); i != prisoners.end(); ++i)
                     if (Creature* prisoner = instance->GetCreature(*i))
                         ResetPrisoner(prisoner);
             }
@@ -272,7 +259,7 @@ class instance_blood_furnace : public InstanceMapScript
                 ResetPrisoner(creature);
             }
 
-            void PrisonerDied(uint64 guid)
+            void PrisonerDied(ObjectGuid guid)
             {
                 if (PrisonersCell5.find(guid) != PrisonersCell5.end() && --PrisonerCounter5 <= 0)
                     ActivateCell(DATA_PRISON_CELL6);
@@ -312,9 +299,9 @@ class instance_blood_furnace : public InstanceMapScript
                 }
             }
 
-            void ActivatePrisoners(std::set<uint64> const& prisoners)
+            void ActivatePrisoners(GuidSet const& prisoners)
             {
-                for (std::set<uint64>::const_iterator i = prisoners.begin(); i != prisoners.end(); ++i)
+                for (GuidSet::const_iterator i = prisoners.begin(); i != prisoners.end(); ++i)
                     if (Creature* prisoner = instance->GetCreature(*i))
                     {
                         prisoner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
@@ -322,63 +309,20 @@ class instance_blood_furnace : public InstanceMapScript
                     }
             }
 
-            std::string GetSaveData() override
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "B F " << GetBossSaveData();
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(char const* str) override
-            {
-                if (!str)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(str);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(str);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'B' && dataHead2 == 'F')
-                {
-                    for (uint32 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
-            }
-
         protected:
-            uint64 TheMakerGUID;
-            uint64 BroggokGUID;
-            uint64 KelidanTheBreakerGUID;
+            ObjectGuid TheMakerGUID;
+            ObjectGuid BroggokGUID;
+            ObjectGuid KelidanTheBreakerGUID;
 
-            uint64 BroggokLeverGUID;
-            uint64 PrisonDoor4GUID;
+            ObjectGuid BroggokLeverGUID;
+            ObjectGuid PrisonDoor4GUID;
 
-            uint64 PrisonCellGUIDs[8];
+            ObjectGuid PrisonCellGUIDs[8];
 
-            std::set<uint64>PrisonersCell5;
-            std::set<uint64>PrisonersCell6;
-            std::set<uint64>PrisonersCell7;
-            std::set<uint64>PrisonersCell8;
+            GuidSet PrisonersCell5;
+            GuidSet PrisonersCell6;
+            GuidSet PrisonersCell7;
+            GuidSet PrisonersCell8;
 
             uint8 PrisonerCounter5;
             uint8 PrisonerCounter6;

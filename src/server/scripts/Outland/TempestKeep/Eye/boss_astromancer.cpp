@@ -202,7 +202,7 @@ class boss_high_astromancer_solarian : public CreatureScript
             {
                 float z = RAND(1.0f, -1.0f);
 
-                return (z*sqrt(radius*radius - (x - CENTER_X)*(x - CENTER_X)) + CENTER_Y);
+                return (z*std::sqrt(radius*radius - (x - CENTER_X)*(x - CENTER_X)) + CENTER_Y);
             }
 
             void UpdateAI(uint32 diff) override
@@ -464,7 +464,7 @@ class npc_solarium_priest : public CreatureScript
                     switch (urand(0, 1))
                     {
                         case 0:
-                            target = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_ASTROMANCER));
+                            target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_ASTROMANCER));
                             break;
                         case 1:
                             target = me;

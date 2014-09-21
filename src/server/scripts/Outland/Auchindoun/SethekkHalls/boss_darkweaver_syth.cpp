@@ -71,14 +71,22 @@ public:
 
     struct boss_darkweaver_sythAI : public BossAI
     {
-        boss_darkweaver_sythAI(Creature* creature) : BossAI(creature, DATA_DARKWEAVER_SYTH) { }
+        boss_darkweaver_sythAI(Creature* creature) : BossAI(creature, DATA_DARKWEAVER_SYTH)
+        { 
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            _summon90 = false;
+            _summon50 = false;
+            _summon10 = false;
+        }
 
         void Reset() override
         {
+            Initialize();
             _Reset();
-            summon90 = false;
-            summon50 = false;
-            summon10 = false;
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -109,6 +117,29 @@ public:
         {
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 summoned->AI()->AttackStart(target);
+
+            summons.Summon(summoned);
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        {
+            if (me->HealthBelowPctDamaged(90, damage) && !_summon90)
+            {
+                SythSummoning();
+                _summon90 = true;
+            }
+
+            if (me->HealthBelowPctDamaged(50, damage) && !_summon50)
+            {
+                SythSummoning();
+                _summon50 = true;
+            }
+
+            if (me->HealthBelowPctDamaged(10, damage) && !_summon10)
+            {
+                SythSummoning();
+                _summon10 = true;
+            }
         }
 
         void SythSummoning()
@@ -124,72 +155,44 @@ public:
             DoCast(me, SPELL_SUMMON_SYTH_SHADOW, true);   //right
         }
 
-        void UpdateAI(uint32 diff) override
+        void ExecuteEvent(uint32 eventId) override
         {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            switch (eventId)
             {
-                switch (eventId)
-                {
-                    case EVENT_FLAME_SHOCK:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_FLAME_SHOCK);
-                        events.ScheduleEvent(EVENT_FLAME_SHOCK, urand(10000, 15000));
-                        break;
-                    case EVENT_ARCANE_SHOCK:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_ARCANE_SHOCK);
-                        events.ScheduleEvent(EVENT_ARCANE_SHOCK, urand(10000, 15000));
-                        break;
-                    case EVENT_FROST_SHOCK:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_FROST_SHOCK);
-                        events.ScheduleEvent(EVENT_FROST_SHOCK, urand(10000, 15000));
-                        break;
-                    case EVENT_SHADOW_SHOCK:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_SHADOW_SHOCK);
-                        events.ScheduleEvent(EVENT_SHADOW_SHOCK, urand(10000, 15000));
-                        break;
-                    case EVENT_CHAIN_LIGHTNING:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_CHAIN_LIGHTNING);
-                        events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 25000);
-                        break;
-                    default:
-                        break;
-                }
+                case EVENT_FLAME_SHOCK:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_FLAME_SHOCK);
+                    events.ScheduleEvent(EVENT_FLAME_SHOCK, urand(10000, 15000));
+                    break;
+                case EVENT_ARCANE_SHOCK:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_ARCANE_SHOCK);
+                    events.ScheduleEvent(EVENT_ARCANE_SHOCK, urand(10000, 15000));
+                    break;
+                case EVENT_FROST_SHOCK:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_FROST_SHOCK);
+                    events.ScheduleEvent(EVENT_FROST_SHOCK, urand(10000, 15000));
+                    break;
+                case EVENT_SHADOW_SHOCK:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_SHADOW_SHOCK);
+                    events.ScheduleEvent(EVENT_SHADOW_SHOCK, urand(10000, 15000));
+                    break;
+                case EVENT_CHAIN_LIGHTNING:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_CHAIN_LIGHTNING);
+                    events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 25000);
+                    break;
+                default:
+                    break;
             }
-
-            if (HealthBelowPct(90) && !summon90)
-            {
-                SythSummoning();
-                summon90 = true;
-            }
-
-            if (HealthBelowPct(50) && !summon50)
-            {
-                SythSummoning();
-                summon50 = true;
-            }
-
-            if (HealthBelowPct(10) && !summon10)
-            {
-                SythSummoning();
-                summon10 = true;
-            }
-
-            DoMeleeAttackIfReady();
         }
 
         private:
-            bool summon90;
-            bool summon50;
-            bool summon10;
+            bool _summon90;
+            bool _summon50;
+            bool _summon10;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -208,19 +211,20 @@ public:
     {
         npc_syth_fireAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
         }
 
-        uint32 flameshock_timer;
-        uint32 flamebuffet_timer;
-
-        void Reset() override
+        void Initialize()
         {
-            me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
             flameshock_timer = 2500;
             flamebuffet_timer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void Reset() override
+        {
+            Initialize();
+            me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
+        }
 
         void UpdateAI(uint32 diff) override
         {
@@ -245,6 +249,10 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+        private:
+            uint32 flameshock_timer;
+            uint32 flamebuffet_timer;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -258,28 +266,24 @@ class npc_syth_arcane : public CreatureScript
 public:
     npc_syth_arcane() : CreatureScript("npc_syth_arcane") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_syth_arcaneAI(creature);
-    }
-
     struct npc_syth_arcaneAI : public ScriptedAI
     {
         npc_syth_arcaneAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
         }
 
-        uint32 arcaneshock_timer;
-        uint32 arcanebuffet_timer;
-
-        void Reset() override
+        void Initialize()
         {
-            me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, true);
             arcaneshock_timer = 2500;
             arcanebuffet_timer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void Reset() override
+        {
+            Initialize();
+            me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, true);
+        }
 
         void UpdateAI(uint32 diff) override
         {
@@ -304,7 +308,16 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+        private:
+            uint32 arcaneshock_timer;
+            uint32 arcanebuffet_timer;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_syth_arcaneAI(creature);
+    }
 };
 
 class npc_syth_frost : public CreatureScript
@@ -312,28 +325,24 @@ class npc_syth_frost : public CreatureScript
 public:
     npc_syth_frost() : CreatureScript("npc_syth_frost") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_syth_frostAI(creature);
-    }
-
     struct npc_syth_frostAI : public ScriptedAI
     {
         npc_syth_frostAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
         }
 
-        uint32 frostshock_timer;
-        uint32 frostbuffet_timer;
-
-        void Reset() override
+        void Initialize()
         {
-            me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
             frostshock_timer = 2500;
             frostbuffet_timer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void Reset() override
+        {
+            Initialize();
+            me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
+        }
 
         void UpdateAI(uint32 diff) override
         {
@@ -358,8 +367,16 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+        private:
+            uint32 frostshock_timer;
+            uint32 frostbuffet_timer;
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_syth_frostAI(creature);
+    }
 };
 
 class npc_syth_shadow : public CreatureScript
@@ -367,28 +384,24 @@ class npc_syth_shadow : public CreatureScript
 public:
     npc_syth_shadow() : CreatureScript("npc_syth_shadow") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_syth_shadowAI(creature);
-    }
-
     struct npc_syth_shadowAI : public ScriptedAI
     {
         npc_syth_shadowAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
         }
 
-        uint32 shadowshock_timer;
-        uint32 shadowbuffet_timer;
-
-        void Reset() override
+        void Initialize()
         {
-            me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, true);
             shadowshock_timer = 2500;
             shadowbuffet_timer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void Reset() override
+        {
+            Initialize();
+            me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, true);
+        }
 
         void UpdateAI(uint32 diff) override
         {
@@ -413,8 +426,16 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+        private:
+            uint32 shadowshock_timer;
+            uint32 shadowbuffet_timer;
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_syth_shadowAI(creature);
+    }
 };
 
 void AddSC_boss_darkweaver_syth()

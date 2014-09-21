@@ -315,12 +315,18 @@ class npc_fel_infernal : public CreatureScript
         {
             npc_fel_infernalAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 _instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                _felStreakTimer = 30 * IN_MILLISECONDS;
             }
 
             void Reset() override
             {
-                _felStreakTimer = 30*IN_MILLISECONDS;
+                Initialize();
                 me->SetInCombatWithZone();
             }
 

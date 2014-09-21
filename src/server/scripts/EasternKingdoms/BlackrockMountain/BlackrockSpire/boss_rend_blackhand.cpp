@@ -167,16 +167,16 @@ public:
         boss_rend_blackhandAI(Creature* creature) : BossAI(creature, DATA_WARCHIEF_REND_BLACKHAND)
         {
             gythEvent = false;
-            victorGUID = 0;
-            portcullisGUID = 0;
+            victorGUID.Clear();
+            portcullisGUID.Clear();
         }
 
         void Reset() override
         {
             _Reset();
             gythEvent = false;
-            victorGUID = 0;
-            portcullisGUID = 0;
+            victorGUID.Clear();
+            portcullisGUID.Clear();
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -437,8 +437,8 @@ public:
 
         private:
             bool   gythEvent;
-            uint64 victorGUID;
-            uint64 portcullisGUID;
+            ObjectGuid victorGUID;
+            ObjectGuid portcullisGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

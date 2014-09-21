@@ -136,8 +136,6 @@ class boss_warbringer_omrogg : public CreatureScript
         {
             boss_warbringer_omroggAI(Creature* creature) : BossAI(creature, DATA_OMROGG)
             {
-                LeftHeadGUID  = 0;
-                RightHeadGUID = 0;
             }
 
             void Reset() override
@@ -145,13 +143,13 @@ class boss_warbringer_omrogg : public CreatureScript
                 if (Unit* LeftHead  = ObjectAccessor::GetUnit(*me, LeftHeadGUID))
                 {
                     LeftHead->setDeathState(JUST_DIED);
-                    LeftHeadGUID = 0;
+                    LeftHeadGUID.Clear();
                 }
 
                 if (Unit* RightHead  = ObjectAccessor::GetUnit(*me, RightHeadGUID))
                 {
                     RightHead->setDeathState(JUST_DIED);
-                    RightHeadGUID = 0;
+                    RightHeadGUID.Clear();
                 }
 
                 AggroYell = false;
@@ -363,8 +361,8 @@ class boss_warbringer_omrogg : public CreatureScript
             }
 
             private:
-                uint64 LeftHeadGUID;
-                uint64 RightHeadGUID;
+                ObjectGuid LeftHeadGUID;
+                ObjectGuid RightHeadGUID;
                 int iaggro;
                 int ithreat;
                 int ikilling;

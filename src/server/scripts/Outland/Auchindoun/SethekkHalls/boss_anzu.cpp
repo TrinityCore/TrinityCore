@@ -67,14 +67,22 @@ class boss_anzu : public CreatureScript
 
         struct boss_anzuAI : public BossAI
         {
-            boss_anzuAI(Creature* creature) : BossAI(creature, DATA_ANZU) { }
+            boss_anzuAI(Creature* creature) : BossAI(creature, DATA_ANZU)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _under33Percent = false;
+                _under66Percent = false;
+            }
 
             void Reset() override
             {
                 //_Reset();
                 events.Reset();
-                _under33Percent = false;
-                _under66Percent = false;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override

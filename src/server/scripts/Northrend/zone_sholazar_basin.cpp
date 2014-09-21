@@ -229,7 +229,15 @@ public:
 
     struct npc_engineer_heliceAI : public npc_escortAI
     {
-        npc_engineer_heliceAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_engineer_heliceAI(Creature* creature) : npc_escortAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            m_uiChatTimer = 4000;
+        }
 
         uint32 m_uiChatTimer;
 
@@ -274,7 +282,7 @@ public:
 
         void Reset() override
         {
-            m_uiChatTimer = 4000;
+            Initialize();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -366,16 +374,24 @@ public:
 
     struct npc_jungle_punch_targetAI : public ScriptedAI
     {
-        npc_jungle_punch_targetAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_jungle_punch_targetAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        void Reset() override
+        void Initialize()
         {
             sayTimer = 3500;
             sayStep = 0;
             timer = 0;
             phase = 0;
-            playerGUID = 0;
-            orphanGUID = 0;
+            playerGUID.Clear();
+            orphanGUID.Clear();
+        }
+
+        void Reset() override
+        {
+            Initialize();
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -410,7 +426,7 @@ public:
                 switch (phase)
                 {
                     case 1:
-                        orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + cos(me->GetOrientation()) * 5, me->GetPositionY() + sin(me->GetOrientation()) * 5, me->GetPositionZ());
+                        orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + std::cos(me->GetOrientation()) * 5, me->GetPositionY() + std::sin(me->GetOrientation()) * 5, me->GetPositionZ());
                         orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_6);
                         timer = 5000;
                         break;
@@ -489,7 +505,7 @@ public:
                 if (itr->second.CreatureOrGOCount[i] != 0)
                     continue;
 
-                player->KilledMonsterCredit(me->GetEntry(), 0);
+                player->KilledMonsterCredit(me->GetEntry());
                 player->Say(SAY_OFFER, LANG_UNIVERSAL);
                 sayStep = 1;
                 break;
@@ -501,8 +517,8 @@ public:
             uint8 sayStep;
             uint32 timer;
             int8 phase;
-            uint64 playerGUID;
-            uint64 orphanGUID;
+            ObjectGuid playerGUID;
+            ObjectGuid orphanGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -783,7 +799,7 @@ public:
                     apple->CastSpell(apple, SPELL_APPLE_FALL);
                     wilhelm->AI()->Talk(SAY_WILHELM_HIT);
                     if (Player* player = shooter->ToPlayer())
-                        player->KilledMonsterCredit(NPC_APPLE, 0);
+                        player->KilledMonsterCredit(NPC_APPLE);
                     apple->DespawnOrUnsummon();
 
                     break;
@@ -977,15 +993,15 @@ public:
 
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
-            if (Player* player = GetHitUnit()->ToPlayer())
+            if (Unit* target = GetHitUnit())
             {
                 switch (GetSpellInfo()->Id)
                 {
                     case SPELL_CORRECT_TRACKS:
-                        player->MonsterSay(sObjectMgr->GetTrinityStringForDBCLocale(SAY_CORRECT_TRACKS), LANG_UNIVERSAL, player);
+                        target->Say(SAY_CORRECT_TRACKS, target);
                         break;
                     case SPELL_INCORRECT_TRACKS:
-                        player->MonsterSay(sObjectMgr->GetTrinityStringForDBCLocale(SAY_INCORRECT_TRACKS), LANG_UNIVERSAL, player);
+                        target->Say(SAY_INCORRECT_TRACKS, target);
                         break;
                     default:
                         break;

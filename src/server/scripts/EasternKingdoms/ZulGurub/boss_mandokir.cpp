@@ -112,17 +112,25 @@ class boss_mandokir : public CreatureScript
 
         struct boss_mandokirAI : public BossAI
         {
-            boss_mandokirAI(Creature* creature) : BossAI(creature, DATA_MANDOKIR) { }
+            boss_mandokirAI(Creature* creature) : BossAI(creature, DATA_MANDOKIR)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                killCount = 0;
+            }
 
             void Reset() override
             {
                 if (me->GetPositionZ() > 140.0f)
                 {
                     _Reset();
-                    killCount = 0;
+                    Initialize();
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                     events.ScheduleEvent(EVENT_CHECK_START, 1000);
-                    if (Creature* speaker = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_VILEBRANCH_SPEAKER)))
+                    if (Creature* speaker = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_VILEBRANCH_SPEAKER)))
                         if (!speaker->IsAlive())
                             speaker->Respawn(true);
                 }
@@ -171,7 +179,7 @@ class boss_mandokir : public CreatureScript
                 if (++killCount == 3)
                 {
                     Talk(SAY_DING_KILL);
-                    if (Creature* jindo = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_JINDO)))
+                    if (Creature* jindo = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JINDO)))
                         if (jindo->IsAlive())
                             jindo->AI()->Talk(SAY_GRATS_JINDO);
                     DoCast(me, SPELL_LEVEL_UP, true);
@@ -277,7 +285,7 @@ class boss_mandokir : public CreatureScript
 
         private:
             uint8 killCount;
-            uint64 chainedSpirtGUIDs[CHAINED_SPIRT_COUNT];
+            ObjectGuid chainedSpirtGUIDs[CHAINED_SPIRT_COUNT];
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -300,11 +308,19 @@ class npc_ohgan : public CreatureScript
 
         struct npc_ohganAI : public ScriptedAI
         {
-            npc_ohganAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
+            npc_ohganAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript())
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                SunderArmor_Timer = 5000;
+            }
 
             void Reset() override
             {
-                SunderArmor_Timer = 5000;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override { }
@@ -353,12 +369,20 @@ class npc_vilebranch_speaker : public CreatureScript
 
         struct npc_vilebranch_speakerAI : public ScriptedAI
         {
-            npc_vilebranch_speakerAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
+            npc_vilebranch_speakerAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript())
+            {
+                Initialize();
+            }
 
-            void Reset() override
+            void Initialize()
             {
                 demoralizing_Shout_Timer = urand(2000, 4000);
                 cleave_Timer = urand(5000, 8000);
+            }
+
+            void Reset() override
+            {
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override { }

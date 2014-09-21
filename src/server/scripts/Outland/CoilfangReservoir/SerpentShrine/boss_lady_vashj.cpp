@@ -147,17 +147,37 @@ public:
     {
         boss_lady_vashjAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             Intro = false;
             JustCreated = true;
+            CanAttack = false;
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // set it only once on Creature create (no need do intro if wiped)
-            for (uint8 i = 0; i < 4; ++i)
-                ShieldGeneratorChannel[i] = 0;
+        }
+
+        void Initialize()
+        {
+            AggroTimer = 19000;
+            ShockBlastTimer = 1 + rand32() % 60000;
+            EntangleTimer = 30000;
+            StaticChargeTimer = 10000 + rand32() % 15000;
+            ForkedLightningTimer = 2000;
+            CheckTimer = 15000;
+            EnchantedElementalTimer = 5000;
+            TaintedElementalTimer = 50000;
+            CoilfangEliteTimer = 45000 + rand32() % 5000;
+            CoilfangStriderTimer = 60000 + rand32() % 10000;
+            SummonSporebatTimer = 10000;
+            SummonSporebatStaticTimer = 30000;
+            EnchantedElementalPos = 0;
+            Phase = 0;
+
+            Entangle = false;
         }
 
         InstanceScript* instance;
 
-        uint64 ShieldGeneratorChannel[4];
+        ObjectGuid ShieldGeneratorChannel[4];
 
         uint32 AggroTimer;
         uint32 ShockBlastTimer;
@@ -181,22 +201,8 @@ public:
 
         void Reset() override
         {
-            AggroTimer = 19000;
-            ShockBlastTimer = 1 + rand32() % 60000;
-            EntangleTimer = 30000;
-            StaticChargeTimer = 10000 + rand32() % 15000;
-            ForkedLightningTimer = 2000;
-            CheckTimer = 15000;
-            EnchantedElementalTimer = 5000;
-            TaintedElementalTimer = 50000;
-            CoilfangEliteTimer = 45000 + rand32() % 5000;
-            CoilfangStriderTimer = 60000 + rand32() % 10000;
-            SummonSporebatTimer = 10000;
-            SummonSporebatStaticTimer = 30000;
-            EnchantedElementalPos = 0;
-            Phase = 0;
+            Initialize();
 
-            Entangle = false;
             if (JustCreated)
             {
                 CanAttack = false;
@@ -210,7 +216,7 @@ public:
                     if (Unit* remo = ObjectAccessor::GetUnit(*me, ShieldGeneratorChannel[i]))
                     {
                         remo->setDeathState(JUST_DIED);
-                        ShieldGeneratorChannel[i] = 0;
+                        ShieldGeneratorChannel[i].Clear();
                     }
                 }
             }
@@ -557,7 +563,18 @@ public:
     {
         npc_enchanted_elementalAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            Move = 0;
+            Phase = 1;
+
+            X = ElementWPPos[0][0];
+            Y = ElementWPPos[0][1];
+            Z = ElementWPPos[0][2];
         }
 
         InstanceScript* instance;
@@ -565,18 +582,13 @@ public:
         uint32 Phase;
         float X, Y, Z;
 
-        uint64 VashjGUID;
+        ObjectGuid VashjGUID;
 
         void Reset() override
         {
             me->SetSpeed(MOVE_WALK, 0.6f); // walk
             me->SetSpeed(MOVE_RUN, 0.6f); // run
-            Move = 0;
-            Phase = 1;
-
-            X = ElementWPPos[0][0];
-            Y = ElementWPPos[0][1];
-            Z = ElementWPPos[0][2];
+            Initialize();
 
             //search for nearest waypoint (up on stairs)
             for (uint32 i = 1; i < 8; ++i)
@@ -589,7 +601,7 @@ public:
                 }
             }
 
-            VashjGUID = instance->GetData64(DATA_LADYVASHJ);
+            VashjGUID = instance->GetGuidData(DATA_LADYVASHJ);
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -646,7 +658,14 @@ public:
     {
         npc_tainted_elementalAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            PoisonBoltTimer = 5000 + rand32() % 5000;
+            DespawnTimer = 30000;
         }
 
         InstanceScript* instance;
@@ -656,13 +675,12 @@ public:
 
         void Reset() override
         {
-            PoisonBoltTimer = 5000 + rand32() % 5000;
-            DespawnTimer = 30000;
+            Initialize();
         }
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* vashj = ObjectAccessor::GetCreature((*me), instance->GetData64(DATA_LADYVASHJ)))
+            if (Creature* vashj = ObjectAccessor::GetCreature((*me), instance->GetGuidData(DATA_LADYVASHJ)))
                 ENSURE_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->EventTaintedElementalDeath();
         }
 
@@ -714,8 +732,17 @@ public:
     {
         npc_toxic_sporebatAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             EnterEvadeMode();
+        }
+
+        void Initialize()
+        {
+            MovementTimer = 0;
+            ToxicSporeTimer = 5000;
+            BoltTimer = 5500;
+            CheckTimer = 1000;
         }
 
         InstanceScript* instance;
@@ -729,10 +756,7 @@ public:
         {
             me->SetDisableGravity(true);
             me->setFaction(14);
-            MovementTimer = 0;
-            ToxicSporeTimer = 5000;
-            BoltTimer = 5500;
-            CheckTimer = 1000;
+            Initialize();
         }
 
         void MoveInLineOfSight(Unit* /*who*/) override
@@ -778,7 +802,7 @@ public:
             if (CheckTimer <= diff)
             {
                 // check if vashj is death
-                Unit* Vashj = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_LADYVASHJ));
+                Unit* Vashj = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_LADYVASHJ));
                 if (!Vashj || !Vashj->IsAlive() || ENSURE_AI(boss_lady_vashj::boss_lady_vashjAI, Vashj->ToCreature()->AI())->Phase != 3)
                 {
                     // remove
@@ -810,7 +834,14 @@ public:
     {
         npc_shield_generator_channelAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            CheckTimer = 0;
+            Cast = false;
         }
 
         InstanceScript* instance;
@@ -819,8 +850,7 @@ public:
 
         void Reset() override
         {
-            CheckTimer = 0;
-            Cast = false;
+            Initialize();
             me->SetDisplayId(11686); // invisible
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -833,7 +863,7 @@ public:
         {
             if (CheckTimer <= diff)
             {
-                Unit* vashj = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_LADYVASHJ));
+                Unit* vashj = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_LADYVASHJ));
 
                 if (vashj && vashj->IsAlive())
                 {
@@ -865,7 +895,7 @@ public:
             return true;
         }
 
-        Creature* vashj = ObjectAccessor::GetCreature((*player), instance->GetData64(DATA_LADYVASHJ));
+        Creature* vashj = ObjectAccessor::GetCreature((*player), instance->GetGuidData(DATA_LADYVASHJ));
         if (vashj && (ENSURE_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->Phase == 2))
         {
             if (GameObject* gObj = targets.GetGOTarget())

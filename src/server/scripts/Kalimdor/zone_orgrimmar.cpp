@@ -64,21 +64,29 @@ public:
 
     struct npc_shenthulAI : public ScriptedAI
     {
-        npc_shenthulAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_shenthulAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        bool CanTalk;
-        bool CanEmote;
-        uint32 SaluteTimer;
-        uint32 ResetTimer;
-        uint64 PlayerGUID;
-
-        void Reset() override
+        void Initialize()
         {
             CanTalk = false;
             CanEmote = false;
             SaluteTimer = 6000;
             ResetTimer = 0;
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
+        }
+
+        bool CanTalk;
+        bool CanEmote;
+        uint32 SaluteTimer;
+        uint32 ResetTimer;
+        ObjectGuid PlayerGUID;
+
+        void Reset() override
+        {
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -211,15 +219,23 @@ public:
 
     struct npc_thrall_warchiefAI : public ScriptedAI
     {
-        npc_thrall_warchiefAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_thrall_warchiefAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            ChainLightningTimer = 2000;
+            ShockTimer = 8000;
+        }
 
         uint32 ChainLightningTimer;
         uint32 ShockTimer;
 
         void Reset() override
         {
-            ChainLightningTimer = 2000;
-            ShockTimer = 8000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }

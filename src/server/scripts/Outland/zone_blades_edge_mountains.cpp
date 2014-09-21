@@ -73,13 +73,6 @@ public:
            }
         }
 
-        uint64 OgreGUID;
-
-        void Reset() override
-        {
-            OgreGUID = 0;
-        }
-
         void UpdateAI(uint32 /*diff*/) override { }
     };
 
@@ -115,13 +108,12 @@ public:
     {
         npc_bloodmaul_bruteAI(Creature* creature) : ScriptedAI(creature)
         {
-            PlayerGUID = 0;
             hp30 = false;
         }
 
         void Reset() override
         {
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
             hp30 = false;
         }
 
@@ -207,7 +199,7 @@ public:
 
         private:
             EventMap events;
-            uint64 PlayerGUID;
+            ObjectGuid PlayerGUID;
             bool hp30;
     };
 
@@ -617,7 +609,7 @@ class npc_simon_bunny : public CreatureScript
             uint8 gameLevel;
             uint8 fails;
             uint8 gameTicks;
-            uint64 playerGUID;
+            ObjectGuid playerGUID;
             uint32 clusterIds[SIMON_MAX_COLORS];
             float zCoordCorrection;
             float searchDistance;
@@ -727,7 +719,7 @@ class npc_simon_bunny : public CreatureScript
             }
 
             // Used for getting involved player guid. Parameter id is used for defining if is a large(Monument) or small(Relic) node
-            void SetGUID(uint64 guid, int32 id) override
+            void SetGUID(ObjectGuid guid, int32 id) override
             {
                 me->SetCanFly(true);
 
@@ -1131,7 +1123,6 @@ public:
     {
         npc_oscillating_frequency_scanner_master_bunnyAI(Creature* creature) : ScriptedAI(creature)
         {
-            playerGuid = 0;
             timer = 500;
         }
 
@@ -1143,7 +1134,7 @@ public:
             {
                 // Spell 37392 does not exist in dbc, manually spawning
                 me->SummonCreature(NPC_OSCILLATING_FREQUENCY_SCANNER_TOP_BUNNY, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 0.5f, me->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 50000);
-                me->SummonGameObject(GO_OSCILLATING_FREQUENCY_SCANNER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), 0, 0, 0, 0, 50000);
+                me->SummonGameObject(GO_OSCILLATING_FREQUENCY_SCANNER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), 0, 0, 0, 0, 50);
                 me->DespawnOrUnsummon(50000);
             }
 
@@ -1170,7 +1161,7 @@ public:
         }
 
         private:
-            uint64 playerGuid;
+            ObjectGuid playerGuid;
             uint32 timer;
     };
 

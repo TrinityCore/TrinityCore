@@ -113,9 +113,12 @@ public:
     {
         npc_enslaved_soulAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 ReliquaryGUID;
+        ObjectGuid ReliquaryGUID;
 
-        void Reset() override { ReliquaryGUID = 0; }
+        void Reset() override
+        {
+            ReliquaryGUID.Clear(); 
+        }
 
         void EnterCombat(Unit* /*who*/) override
         {
@@ -141,13 +144,22 @@ public:
     {
         boss_reliquary_of_soulsAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
-            EssenceGUID = 0;
+            Counter = 0;
+            Timer = 0;
+            SoulCount = 0;
+            SoulDeathCount = 0;
+        }
+
+        void Initialize()
+        {
+            Phase = 0;
         }
 
         InstanceScript* instance;
 
-        uint64 EssenceGUID;
+        ObjectGuid EssenceGUID;
 
         uint32 Phase;
         uint32 Counter;
@@ -165,10 +177,10 @@ public:
                 if (Creature* essence = ObjectAccessor::GetCreature(*me, EssenceGUID))
                     essence->DespawnOrUnsummon();
 
-                EssenceGUID = 0;
+                EssenceGUID.Clear();
             }
 
-            Phase = 0;
+            Initialize();
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
@@ -334,17 +346,15 @@ public:
                     if (Essence)
                     {
                         if (Phase == 1)
-                        {
                             Essence->AI()->Talk(SUFF_SAY_AFTER);
-                        }
                         else
-                        {
                             Essence->AI()->Talk(DESI_SAY_AFTER);
-                        }
+
                         Essence->DespawnOrUnsummon();
                     }
+
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
-                    EssenceGUID = 0;
+                    EssenceGUID.Clear();
                     SoulCount = 0;
                     SoulDeathCount = 0;
                     Timer = 3000;
@@ -396,9 +406,19 @@ public:
 
     struct boss_essence_of_sufferingAI : public ScriptedAI
     {
-        boss_essence_of_sufferingAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_essence_of_sufferingAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        uint64 StatAuraGUID;
+        void Initialize()
+        {
+            AggroYellTimer = 5000;
+            FixateTimer = 8000;
+            EnrageTimer = 30000;
+            SoulDrainTimer = 45000;
+            AuraTimer = 5000;
+        }
 
         uint32 AggroYellTimer;
         uint32 FixateTimer;
@@ -408,13 +428,7 @@ public:
 
         void Reset() override
         {
-            StatAuraGUID = 0;
-
-            AggroYellTimer = 5000;
-            FixateTimer = 8000;
-            EnrageTimer = 30000;
-            SoulDrainTimer = 45000;
-            AuraTimer = 5000;
+            Initialize();
         }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
@@ -519,7 +533,17 @@ public:
 
     struct boss_essence_of_desireAI : public ScriptedAI
     {
-        boss_essence_of_desireAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_essence_of_desireAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            RuneShieldTimer = 60000;
+            DeadenTimer = 30000;
+            SoulShockTimer = 5000;
+        }
 
         uint32 RuneShieldTimer;
         uint32 DeadenTimer;
@@ -527,9 +551,7 @@ public:
 
         void Reset() override
         {
-            RuneShieldTimer = 60000;
-            DeadenTimer = 30000;
-            SoulShockTimer = 5000;
+            Initialize();
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
         }
 
@@ -622,29 +644,33 @@ public:
 
     struct boss_essence_of_angerAI : public ScriptedAI
     {
-        boss_essence_of_angerAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint64 AggroTargetGUID;
-
-        uint32 CheckTankTimer;
-        uint32 SoulScreamTimer;
-        uint32 SpiteTimer;
-
-        std::list<uint64> SpiteTargetGUID;
-
-        bool CheckedAggro;
-
-        void Reset() override
+        boss_essence_of_angerAI(Creature* creature) : ScriptedAI(creature)
         {
-            AggroTargetGUID = 0;
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            AggroTargetGUID.Clear();
 
             CheckTankTimer = 5000;
             SoulScreamTimer = 10000;
             SpiteTimer = 30000;
 
-            SpiteTargetGUID.clear();
-
             CheckedAggro = false;
+        }
+
+        ObjectGuid AggroTargetGUID;
+
+        uint32 CheckTankTimer;
+        uint32 SoulScreamTimer;
+        uint32 SpiteTimer;
+
+        bool CheckedAggro;
+
+        void Reset() override
+        {
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

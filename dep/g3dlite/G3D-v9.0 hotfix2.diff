@@ -1,0 +1,32 @@
+ dep/g3dlite/include/G3D/Color3.h  | 2 +-
+ dep/g3dlite/include/G3D/Matrix3.h | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/dep/g3dlite/include/G3D/Color3.h b/dep/g3dlite/include/G3D/Color3.h
+index 6eedf25..e5c0abc 100644
+--- a/dep/g3dlite/include/G3D/Color3.h
++++ b/dep/g3dlite/include/G3D/Color3.h
+@@ -187,7 +187,7 @@ public:
+     Color3 direction() const;
+     float squaredLength () const;
+     float dot (const Color3& rkVector) const;
+-    float unitize (float fTolerance = 1e-06);
++    float unitize (float fTolerance = 1e-06f);
+     Color3 cross (const Color3& rkVector) const;
+     Color3 unitCross (const Color3& rkVector) const;
+ 
+diff --git a/dep/g3dlite/include/G3D/Matrix3.h b/dep/g3dlite/include/G3D/Matrix3.h
+index 8cfcfe9..13cd410 100644
+--- a/dep/g3dlite/include/G3D/Matrix3.h
++++ b/dep/g3dlite/include/G3D/Matrix3.h
+@@ -242,8 +242,8 @@ public:
+     bool isOrthonormal() const;
+ 
+     Matrix3 transpose () const;
+-    bool inverse (Matrix3& rkInverse, float fTolerance = 1e-06) const;
+-    Matrix3 inverse (float fTolerance = 1e-06) const;
++    bool inverse (Matrix3& rkInverse, float fTolerance = 1e-06f) const;
++    Matrix3 inverse (float fTolerance = 1e-06f) const;
+     float determinant () const;
+ 
+     /** singular value decomposition */

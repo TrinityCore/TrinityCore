@@ -78,6 +78,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/AI/ScriptedAI
   ${CMAKE_SOURCE_DIR}/src/server/game/AI/SmartScripts
   ${CMAKE_SOURCE_DIR}/src/server/game/AuctionHouse
+  ${CMAKE_SOURCE_DIR}/src/server/game/AuctionHouseBot
   ${CMAKE_SOURCE_DIR}/src/server/game/Battlefield
   ${CMAKE_SOURCE_DIR}/src/server/game/Battlefield/Zones
   ${CMAKE_SOURCE_DIR}/src/server/game/Battlegrounds
@@ -142,6 +143,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/World
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
   ${MYSQL_INCLUDE_DIR}
+  ${VALGRIND_INCLUDE_DIR}
 )
 
 add_library(scripts STATIC

@@ -35,10 +35,9 @@ class instance_vault_of_archavon : public InstanceMapScript
         {
             instance_vault_of_archavon_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
 
-                EmalonGUID      = 0;
-                ToravonGUID     = 0;
                 ArchavonDeath   = 0;
                 EmalonDeath     = 0;
                 KoralonDeath    = 0;
@@ -59,7 +58,7 @@ class instance_vault_of_archavon : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 identifier) const override
+            ObjectGuid GetGuidData(uint32 identifier) const override
             {
                 switch (identifier)
                 {
@@ -71,7 +70,7 @@ class instance_vault_of_archavon : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -126,8 +125,8 @@ class instance_vault_of_archavon : public InstanceMapScript
             }
 
         private:
-            uint64 EmalonGUID;
-            uint64 ToravonGUID;
+            ObjectGuid EmalonGUID;
+            ObjectGuid ToravonGUID;
             time_t ArchavonDeath;
             time_t EmalonDeath;
             time_t KoralonDeath;

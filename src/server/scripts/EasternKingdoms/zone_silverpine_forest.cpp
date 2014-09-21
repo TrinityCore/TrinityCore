@@ -188,13 +188,22 @@ public:
     {
         pyrewood_ambushAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
-           QuestInProgress = false;
+            Initialize();
+            WaitTimer = WAIT_SECS;
+            QuestInProgress = false;
+        }
+
+        void Initialize()
+        {
+            Phase = 0;
+            KillCount = 0;
+            PlayerGUID.Clear();
         }
 
         uint32 Phase;
         int8 KillCount;
         uint32 WaitTimer;
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
         SummonList Summons;
 
         bool QuestInProgress;
@@ -205,9 +214,7 @@ public:
 
             if (!QuestInProgress) //fix reset values (see UpdateVictim)
             {
-                Phase = 0;
-                KillCount = 0;
-                PlayerGUID = 0;
+                Initialize();
                 Summons.DespawnAll();
             }
         }
@@ -273,7 +280,7 @@ public:
             {
                 case 0:
                     if (WaitTimer == WAIT_SECS)
-                        me->MonsterSay(NPCSAY_INIT, LANG_UNIVERSAL, NULL); //no blizzlike
+                        me->Say(NPCSAY_INIT, LANG_UNIVERSAL); //no blizzlike
 
                     if (WaitTimer <= diff)
                     {
@@ -303,7 +310,7 @@ public:
                     {
                         if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                         {
-                            me->MonsterSay(NPCSAY_END, LANG_UNIVERSAL, NULL); //not blizzlike
+                            me->Say(NPCSAY_END, LANG_UNIVERSAL); //not blizzlike
                             player->GroupEventHappens(QUEST_PYREWOOD_AMBUSH, me);
                         }
                     }

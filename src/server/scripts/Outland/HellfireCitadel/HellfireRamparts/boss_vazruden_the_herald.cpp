@@ -43,9 +43,7 @@ enum Says
 enum Spells
 {
     SPELL_FIREBALL                = 34653,
-    SPELL_FIREBALL_H              = 36920,
     SPELL_CONE_OF_FIRE            = 30926,
-    SPELL_CONE_OF_FIRE_H          = 36921,
     SPELL_SUMMON_LIQUID_FIRE      = 23971,
     SPELL_SUMMON_LIQUID_FIRE_H    = 30928,
     SPELL_BELLOWING_ROAR          = 39427,
@@ -72,7 +70,6 @@ class boss_nazan : public CreatureScript
         {
             boss_nazanAI(Creature* creature) : BossAI(creature, DATA_NAZAN)
             {
-                VazrudenGUID = 0;
                 flight = true;
             }
 
@@ -116,7 +113,7 @@ class boss_nazan : public CreatureScript
                 if (Fireball_Timer <= diff)
                 {
                     if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(victim, DUNGEON_MODE(SPELL_FIREBALL, SPELL_FIREBALL_H), true);
+                        DoCast(victim, SPELL_FIREBALL, true);
                     Fireball_Timer = urand(4000, 7000);
                 }
                 else
@@ -156,7 +153,7 @@ class boss_nazan : public CreatureScript
                 {
                     if (ConeOfFire_Timer <= diff)
                     {
-                        DoCast(me, DUNGEON_MODE(SPELL_CONE_OF_FIRE, SPELL_CONE_OF_FIRE_H));
+                        DoCast(me, SPELL_CONE_OF_FIRE);
                         ConeOfFire_Timer = 12000;
                         Fireball_Timer = 4000;
                     }
@@ -185,7 +182,7 @@ class boss_nazan : public CreatureScript
                 uint32 Fly_Timer;
                 uint32 Turn_Timer;
                 bool flight;
-                uint64 VazrudenGUID;
+                ObjectGuid VazrudenGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -284,8 +281,6 @@ class boss_vazruden_the_herald : public CreatureScript
                 summoned = false;
                 sentryDown = false;
                 lootSpawned = false;
-                NazanGUID = 0;
-                VazrudenGUID = 0;
             }
 
             void Reset() override
@@ -306,7 +301,7 @@ class boss_vazruden_the_herald : public CreatureScript
                     if (Nazan)
                     {
                         Nazan->DisappearAndDie();
-                        NazanGUID = 0;
+                        NazanGUID.Clear();
                     }
 
                     Creature* Vazruden = ObjectAccessor::GetCreature(*me, VazrudenGUID);
@@ -315,7 +310,7 @@ class boss_vazruden_the_herald : public CreatureScript
                     if (Vazruden)
                     {
                         Vazruden->DisappearAndDie();
-                        VazrudenGUID = 0;
+                        VazrudenGUID.Clear();
                     }
                     summoned = false;
                     me->ClearUnitState(UNIT_STATE_ROOT);
@@ -437,8 +432,8 @@ class boss_vazruden_the_herald : public CreatureScript
                 uint32 waypoint;
                 uint32 check;
                 bool sentryDown;
-                uint64 NazanGUID;
-                uint64 VazrudenGUID;
+                ObjectGuid NazanGUID;
+                ObjectGuid VazrudenGUID;
                 bool summoned;
                 bool lootSpawned;
         };

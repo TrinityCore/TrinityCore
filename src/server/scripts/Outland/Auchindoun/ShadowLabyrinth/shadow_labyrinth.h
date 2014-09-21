@@ -19,6 +19,7 @@
 #define SHADOW_LABYRINTH_H_
 
 #define SLScriptName "instance_shadow_labyrinth"
+#define DataHeader "SL"
 
 uint32 const EncounterCount = 4;
 

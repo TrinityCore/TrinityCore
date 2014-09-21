@@ -51,7 +51,19 @@ public:
     {
         boss_high_inquisitor_fairbanksAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            CurseOfBlood_Timer = 10000;
+            DispelMagic_Timer = 30000;
+            Fear_Timer = 40000;
+            Heal_Timer = 30000;
+            Sleep_Timer = 30000;
+            Dispel_Timer = 20000;
+            PowerWordShield = false;
         }
 
         uint32 CurseOfBlood_Timer;
@@ -65,13 +77,7 @@ public:
 
         void Reset() override
         {
-            CurseOfBlood_Timer = 10000;
-            DispelMagic_Timer = 30000;
-            Fear_Timer = 40000;
-            Heal_Timer = 30000;
-            Sleep_Timer = 30000;
-            Dispel_Timer = 20000;
-            PowerWordShield = false;
+            Initialize();
             me->SetStandState(UNIT_STAND_STATE_DEAD);
             me->SetUInt32Value(UNIT_FIELD_BYTES_1, 7);
             instance->SetBossState(DATA_HIGH_INQUISITOR_FAIRBANKS, NOT_STARTED);

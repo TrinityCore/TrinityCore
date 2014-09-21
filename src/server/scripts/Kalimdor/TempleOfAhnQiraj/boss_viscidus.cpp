@@ -91,13 +91,21 @@ class boss_viscidus : public CreatureScript
 
         struct boss_viscidusAI : public BossAI
         {
-            boss_viscidusAI(Creature* creature) : BossAI(creature, DATA_VISCIDUS) { }
+            boss_viscidusAI(Creature* creature) : BossAI(creature, DATA_VISCIDUS)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _hitcounter = 0;
+                _phase = PHASE_FROST;
+            }
 
             void Reset() override
             {
                 _Reset();
-                _hitcounter = 0;
-                _phase = PHASE_FROST;
+                Initialize();
             }
 
             void DamageTaken(Unit* attacker, uint32& /*damage*/) override
@@ -120,7 +128,7 @@ class boss_viscidus : public CreatureScript
                     uint8 NumGlobes = me->GetHealthPct() / 5.0f;
                     for (uint8 i = 0; i < NumGlobes; ++i)
                     {
-                        float Angle = i * 2 * M_PI / NumGlobes;
+                        float Angle = i * 2 * float(M_PI) / NumGlobes;
                         float X = ViscidusCoord.GetPositionX() + std::cos(Angle) * RoomRadius;
                         float Y = ViscidusCoord.GetPositionY() + std::sin(Angle) * RoomRadius;
                         float Z = -35.0f;
@@ -264,7 +272,7 @@ class npc_glob_of_viscidus : public CreatureScript
             {
                 InstanceScript* Instance = me->GetInstanceScript();
 
-                if (Creature* Viscidus = me->GetMap()->GetCreature(Instance->GetData64(DATA_VISCIDUS)))
+                if (Creature* Viscidus = me->GetMap()->GetCreature(Instance->GetGuidData(DATA_VISCIDUS)))
                 {
                     if (BossAI* ViscidusAI = dynamic_cast<BossAI*>(Viscidus->GetAI()))
                         ViscidusAI->SummonedCreatureDespawn(me);

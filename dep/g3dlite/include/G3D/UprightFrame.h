@@ -1,25 +1,24 @@
 /**
- @file UprightFrame.h
-
- @author Morgan McGuire, http://graphics.cs.williams.edu
+ \file G3D/UprightFrame.h
+ \author Morgan McGuire, http://graphics.cs.williams.edu
  */
 
-#ifndef G3D_UPRIGHTFRAME_H
-#define G3D_UPRIGHTFRAME_H
+#ifndef G3D_UprightFrame_h
+#define G3D_UprightFrame_h
 
 #include "G3D/platform.h"
 #include "G3D/Spline.h"
-#include "G3D/Vector3.h"
+#include "G3D/Any.h"
 #include "G3D/CoordinateFrame.h"
 
 namespace G3D {
 
 /**
- Coordinate frame expressed in Euler angles.
- Unlike a G3D::Quat, UprightFrame always keeps the reference frame from rolling about its own z axis.
- Particularly useful for cameras.
+    \brief  Coordinate frame expressed in Euler angles.
+            Unlike a G3D::Quat, UprightFrame always keeps the reference frame from rolling about its own z axis.
+            Particularly useful for cameras.
 
- @sa G3D::CoordinateFrame, G3D::Matrix4, G3D::PhysicsFrame, G3D::UprightSpline, G3D::UprightSplineManipulator
+    \sa G3D::CoordinateFrame, G3D::Matrix4, G3D::PhysicsFrame, G3D::UprightSpline, G3D::UprightSplineManipulator
  */
 class UprightFrame {
 public:
@@ -32,17 +31,31 @@ public:
     /** In radians about the Y-axis */
     float           yaw;
 
-    inline UprightFrame(const Vector3& t = Vector3::zero(), float p = 0, float y = 0) 
+    UprightFrame(const Vector3& t = Vector3::zero(), float p = 0, float y = 0) 
         : translation(t), pitch(p), yaw(y) {}
 
     UprightFrame(const CoordinateFrame& cframe);
+
+    /** Constructs an UprightFrame from an Any object.
+        
+        The Any format for UprightFrame is:
+
+        pitch = ##,
+        translation = Vector3(),
+        yaw = ##
+    */
+    explicit UprightFrame(const Any& any);
     
-    CoordinateFrame toCoordinateFrame() const;
+    Any toAny() const;
+
+    UprightFrame& operator=(const Any& any);
 
     /** Supports implicit cast to CoordinateFrame */
-    inline operator CoordinateFrame() const {
+    operator CoordinateFrame() const {
         return toCoordinateFrame();
     }
+
+    CoordinateFrame toCoordinateFrame() const;
 
     /** Required for use with spline */
     UprightFrame operator+(const UprightFrame& other) const;
@@ -61,8 +74,10 @@ public:
     void deserialize(class BinaryInput& b);
 };
 
-/** Shortest-path linear velocity spline for camera positions.  Always keeps the camera from rolling.
-@sa G3D::UprightSplineManipulator, G3D::UprightFrame
+/** 
+    \brief Shortest-path linear velocity spline for camera positions.  Always keeps the camera from rolling.
+
+    \sa G3D::UprightSplineManipulator, G3D::UprightFrame
 */
 class UprightSpline : public Spline<UprightFrame> {
 protected:
@@ -72,10 +87,29 @@ protected:
     }
 
 public:
-    
+    UprightSpline();
+
+
+    /** Constructs an UprightSpline from an Any object.
+        
+        The Any format for UprightSpline is:
+
+        controls = (UprightFrame, ...),
+        times = (##, ...),
+        cyclic = bool
+
+        The controls and times arrays must have the same length.
+    */
+    explicit UprightSpline(const Any& any);
+
+    virtual Any toAny(const std::string& myName) const override;
+
+    Any toAny() const;
+
+    UprightSpline& operator=(const Any& any);
+
     void serialize(class BinaryOutput& b) const;
     void deserialize(class BinaryInput& b);
-
 };
 
 }

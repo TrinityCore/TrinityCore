@@ -165,7 +165,7 @@ float SplineBase::SegLengthCatmullRom(index_type index) const
     curPos = nextPos = p[1];
 
     index_type i = 1;
-    double length = 0;
+    float length = 0;
     while (i <= STEPS_PER_SEGMENT)
     {
         C_Evaluate(p, float(i) / float(STEPS_PER_SEGMENT), s_catmullRomCoeffs, nextPos);
@@ -188,7 +188,7 @@ float SplineBase::SegLengthBezier3(index_type index) const
     curPos = nextPos;
 
     index_type i = 1;
-    double length = 0;
+    float length = 0;
     while (i <= STEPS_PER_SEGMENT)
     {
         C_Evaluate(p, float(i) / float(STEPS_PER_SEGMENT), s_Bezier3Coeffs, nextPos);

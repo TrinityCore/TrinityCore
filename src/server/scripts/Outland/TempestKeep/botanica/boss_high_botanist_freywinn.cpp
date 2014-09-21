@@ -66,8 +66,6 @@ class boss_high_botanist_freywinn : public CreatureScript
         {
             boss_high_botanist_freywinnAI(Creature* creature) : BossAI(creature, DATA_HIGH_BOTANIST_FREYWINN) { }
 
-            std::list<uint64> Adds_List;
-
             uint32 SummonSeedling_Timer;
             uint32 TreeForm_Timer;
             uint32 MoveCheck_Timer;
@@ -76,7 +74,7 @@ class boss_high_botanist_freywinn : public CreatureScript
 
             void Reset() override
             {
-                Adds_List.clear();
+                summons.DespawnAll();
 
                 SummonSeedling_Timer = 6000;
                 TreeForm_Timer = 30000;
@@ -93,7 +91,12 @@ class boss_high_botanist_freywinn : public CreatureScript
             void JustSummoned(Creature* summoned) override
             {
                 if (summoned->GetEntry() == NPC_FRAYER)
-                    Adds_List.push_back(summoned->GetGUID());
+                    summons.Summon(summoned);
+            }
+
+            void SummonedCreatureDespawn(Creature* summon) override
+            {
+                summons.Despawn(summon);
             }
 
             void DoSummonSeedling()
@@ -147,18 +150,15 @@ class boss_high_botanist_freywinn : public CreatureScript
                 {
                     if (MoveCheck_Timer <= diff)
                     {
-                        if (!Adds_List.empty())
+                        for (SummonList::iterator itr = summons.begin(); itr != summons.end(); ++itr)
                         {
-                            for (std::list<uint64>::iterator itr = Adds_List.begin(); itr != Adds_List.end(); ++itr)
+                            if (Unit* temp = ObjectAccessor::GetUnit(*me, *itr))
                             {
-                                if (Unit* temp = ObjectAccessor::GetUnit(*me, *itr))
+                                if (!temp->IsAlive())
                                 {
-                                    if (!temp->IsAlive())
-                                    {
-                                        Adds_List.erase(itr);
-                                        ++DeadAddsCount;
-                                        break;
-                                    }
+                                    summons.erase(itr);
+                                    ++DeadAddsCount;
+                                    break;
                                 }
                             }
                         }
@@ -168,7 +168,7 @@ class boss_high_botanist_freywinn : public CreatureScript
 
                         if (DeadAddsCount >= 3)
                         {
-                            Adds_List.clear();
+                            summons.DespawnAll();
                             DeadAddsCount = 0;
 
                             me->InterruptNonMeleeSpells(true);

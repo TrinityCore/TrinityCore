@@ -61,13 +61,21 @@ public:
 
     struct npc_torekAI : public npc_escortAI
     {
-        npc_torekAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_torekAI(Creature* creature) : npc_escortAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            rend_Timer = 5000;
+            thunderclap_Timer = 8000;
+            _completed = false;
+        }
 
         void Reset() override
         {
-            rend_Timer        = 5000;
-            thunderclap_Timer = 8000;
-            _completed        = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -298,13 +306,21 @@ public:
 
     struct npc_muglashAI : public npc_escortAI
     {
-        npc_muglashAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_muglashAI(Creature* creature) : npc_escortAI(creature)
+        {
+            Initialize();
+        }
 
-        void Reset() override
+        void Initialize()
         {
             eventTimer = 10000;
             waveId = 0;
             _isBrazierExtinguished = false;
+        }
+
+        void Reset() override
+        {
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

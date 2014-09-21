@@ -19,6 +19,8 @@
 #ifndef DEF_THE_EYE_H
 #define DEF_THE_EYE_H
 
+#define DataHeader "TE"
+
 enum DataTypes
 {
     DATA_ALAREVENT                      = 1,

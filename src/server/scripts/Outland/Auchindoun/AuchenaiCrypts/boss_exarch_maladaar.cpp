@@ -174,7 +174,7 @@ public:
         }
 
         uint32 soulmodel;
-        uint64 soulholder;
+        ObjectGuid soulholder;
         uint8 soulclass;
 
         uint32 Fear_timer;
@@ -187,7 +187,7 @@ public:
         void Reset() override
         {
             soulmodel = 0;
-            soulholder = 0;
+            soulholder.Clear();
             soulclass = 0;
 
             Fear_timer = 15000 + rand32() % 5000;
@@ -318,13 +318,21 @@ public:
 
     struct npc_avatar_of_martyredAI : public ScriptedAI
     {
-        npc_avatar_of_martyredAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_avatar_of_martyredAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Mortal_Strike_timer = 10000;
+        }
 
         uint32 Mortal_Strike_timer;
 
         void Reset() override
         {
-            Mortal_Strike_timer = 10000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override
