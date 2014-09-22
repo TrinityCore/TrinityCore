@@ -976,7 +976,7 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target)
         return false;
     }
 
-	spell->prepare(&targets, false);
+	spell->prepare(&targets);
 	WaitForSpellCast(spell);
 
     if (oldSel)

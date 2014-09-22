@@ -81,6 +81,8 @@ bool RandomPlayerbotFactory::CreateRandomBot(uint8 cls)
 
     uint8 race = availableRaces[cls][urand(0, availableRaces[cls].size() - 1)];
     string name = CreateRandomBotName();
+    if (name.empty())
+        return false;
 
     uint8 skin = urand(0, 7);
     uint8 face = urand(0, 7);
@@ -124,7 +126,7 @@ string RandomPlayerbotFactory::CreateRandomBotName()
 {
     QueryResult result = CharacterDatabase.Query("SELECT MAX(name_id) FROM ai_playerbot_names");
     if (!result)
-        return false;
+        return "";
 
     Field *fields = result->Fetch();
     uint32 maxId = fields[0].GetUInt32();
@@ -136,7 +138,7 @@ string RandomPlayerbotFactory::CreateRandomBotName()
     if (!result)
     {
         sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "No more names left for random bots");
-        return false;
+        return "";
     }
 
 	fields = result->Fetch();
