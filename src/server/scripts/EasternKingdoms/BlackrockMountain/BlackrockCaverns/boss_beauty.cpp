@@ -56,7 +56,7 @@ class boss_beauty : public CreatureScript
 
             }
 
-            void EnterCombat(Unit* who) override
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 events.ScheduleEvent(SPELL_MAGMA_SPIT, urand(7000, 10000));

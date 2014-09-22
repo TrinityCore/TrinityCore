@@ -70,7 +70,7 @@ class boss_corla : public CreatureScript
                 Talk(YELL_DEATH);
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (!UpdateVictim())
                     return;

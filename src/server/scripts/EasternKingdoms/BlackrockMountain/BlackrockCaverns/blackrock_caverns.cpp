@@ -20,7 +20,7 @@
 #include "blackrock_caverns.h"
 #include "SpellScript.h"
 #include "SpellAuras.h"
-#include "player.h"
+#include "Player.h"
 
 /*#####
 # npc_fire_cyclone
