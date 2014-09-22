@@ -58,13 +58,21 @@ public:
 
     struct npc_aeranasAI : public ScriptedAI
     {
-        npc_aeranasAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_aeranasAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        void Reset() override
+        void Initialize()
         {
             faction_Timer = 8000;
             envelopingWinds_Timer = 9000;
             shock_Timer = 5000;
+        }
+
+        void Reset() override
+        {
+            Initialize();
 
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             me->setFaction(FACTION_FRIENDLY);
@@ -305,12 +313,20 @@ public:
 
     struct npc_fel_guard_houndAI : public ScriptedAI
     {
-        npc_fel_guard_houndAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_fel_guard_houndAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        void Reset() override
+        void Initialize()
         {
             checkTimer = 5000; //check for creature every 5 sec
             helboarGUID.Clear();
+        }
+
+        void Reset() override
+        {
+            Initialize();
         }
 
         void MovementInform(uint32 type, uint32 id) override

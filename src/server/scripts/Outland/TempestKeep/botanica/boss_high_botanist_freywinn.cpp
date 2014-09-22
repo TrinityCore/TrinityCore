@@ -64,7 +64,19 @@ class boss_high_botanist_freywinn : public CreatureScript
 
         struct boss_high_botanist_freywinnAI : public BossAI
         {
-            boss_high_botanist_freywinnAI(Creature* creature) : BossAI(creature, DATA_HIGH_BOTANIST_FREYWINN) { }
+            boss_high_botanist_freywinnAI(Creature* creature) : BossAI(creature, DATA_HIGH_BOTANIST_FREYWINN)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                SummonSeedling_Timer = 6000;
+                TreeForm_Timer = 30000;
+                MoveCheck_Timer = 1000;
+                DeadAddsCount = 0;
+                MoveFree = true;
+            }
 
             uint32 SummonSeedling_Timer;
             uint32 TreeForm_Timer;
@@ -76,11 +88,7 @@ class boss_high_botanist_freywinn : public CreatureScript
             {
                 summons.DespawnAll();
 
-                SummonSeedling_Timer = 6000;
-                TreeForm_Timer = 30000;
-                MoveCheck_Timer = 1000;
-                DeadAddsCount = 0;
-                MoveFree = true;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override

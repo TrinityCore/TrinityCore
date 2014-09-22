@@ -73,6 +73,7 @@ public:
         {
             Initialize();
             instance = creature->GetInstanceScript();
+            uiOutroStep = 0;
         }
 
         void Initialize()

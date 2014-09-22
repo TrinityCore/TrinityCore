@@ -100,8 +100,14 @@ class npc_abyssal : public CreatureScript
         {
             npc_abyssalAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 trigger = 0;
                 Despawn_Timer = 60000;
+            }
+
+            void Initialize()
+            {
+                FireBlast_Timer = 6000;
             }
 
             uint32 FireBlast_Timer;
@@ -110,7 +116,7 @@ class npc_abyssal : public CreatureScript
 
             void Reset() override
             {
-                FireBlast_Timer = 6000;
+                Initialize();
             }
 
             void SpellHit(Unit*, const SpellInfo* spell) override
@@ -207,9 +213,24 @@ class boss_magtheridon : public CreatureScript
         {
             boss_magtheridonAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
                 me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
                 me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
+            }
+
+            void Initialize()
+            {
+                Berserk_Timer = 1320000;
+                Quake_Timer = 40000;
+                Debris_Timer = 10000;
+                Blaze_Timer = 10000 + rand32() % 20000;
+                BlastNova_Timer = 60000;
+                Cleave_Timer = 15000;
+                RandChat_Timer = 90000;
+
+                Phase3 = false;
+                NeedCheckCube = false;
             }
 
             CubeMap Cube;
@@ -229,16 +250,7 @@ class boss_magtheridon : public CreatureScript
 
             void Reset() override
             {
-                Berserk_Timer = 1320000;
-                Quake_Timer = 40000;
-                Debris_Timer = 10000;
-                Blaze_Timer = 10000 + rand32() % 20000;
-                BlastNova_Timer = 60000;
-                Cleave_Timer = 15000;
-                RandChat_Timer = 90000;
-
-                Phase3 = false;
-                NeedCheckCube = false;
+                Initialize();
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -468,7 +480,18 @@ class npc_hellfire_channeler : public CreatureScript
         {
             npc_hellfire_channelerAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                ShadowBoltVolley_Timer = urand(8000, 10000);
+                DarkMending_Timer = 10000;
+                Fear_Timer = urand(15000, 20000);
+                Infernal_Timer = urand(10000, 50000);
+
+                Check_Timer = 5000;
             }
 
             InstanceScript* instance;
@@ -482,12 +505,7 @@ class npc_hellfire_channeler : public CreatureScript
 
             void Reset() override
             {
-                ShadowBoltVolley_Timer = urand(8000, 10000);
-                DarkMending_Timer = 10000;
-                Fear_Timer = urand(15000, 20000);
-                Infernal_Timer = urand(10000, 50000);
-
-                Check_Timer = 5000;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override

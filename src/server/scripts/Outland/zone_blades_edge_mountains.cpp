@@ -242,7 +242,21 @@ public:
 
     struct npc_nether_drakeAI : public ScriptedAI
     {
-        npc_nether_drakeAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_nether_drakeAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            IsNihil = false;
+            NihilSpeech_Timer = 3000;
+            NihilSpeech_Phase = 0;
+
+            ArcaneBlast_Timer = 7500;
+            ManaBurn_Timer = 10000;
+            IntangiblePresence_Timer = 15000;
+        }
 
         bool IsNihil;
         uint32 NihilSpeech_Timer;
@@ -254,13 +268,7 @@ public:
 
         void Reset() override
         {
-            IsNihil = false;
-            NihilSpeech_Timer = 3000;
-            NihilSpeech_Phase = 0;
-
-            ArcaneBlast_Timer = 7500;
-            ManaBurn_Timer = 10000;
-            IntangiblePresence_Timer = 15000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -602,7 +610,17 @@ class npc_simon_bunny : public CreatureScript
 
         struct npc_simon_bunnyAI : public ScriptedAI
         {
-            npc_simon_bunnyAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_simon_bunnyAI(Creature* creature) : ScriptedAI(creature)
+            {
+                large = false;
+                listening = false;
+                gameLevel = 0;
+                fails = 0;
+                gameTicks = 0;
+                memset(clusterIds, 0, sizeof(clusterIds));
+                zCoordCorrection = 0.f;
+                searchDistance = 0.f;
+            }
 
             bool large;
             bool listening;

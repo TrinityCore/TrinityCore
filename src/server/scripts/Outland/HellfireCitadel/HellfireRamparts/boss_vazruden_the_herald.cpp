@@ -70,14 +70,22 @@ class boss_nazan : public CreatureScript
         {
             boss_nazanAI(Creature* creature) : BossAI(creature, DATA_NAZAN)
             {
+                Initialize();
                 flight = true;
+                BellowingRoar_Timer = 0;
+                ConeOfFire_Timer = 0;
             }
 
-            void Reset() override
+            void Initialize()
             {
                 Fireball_Timer = 4000;
                 Fly_Timer = 45000;
                 Turn_Timer = 0;
+            }
+
+            void Reset() override
+            {
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override { }
@@ -198,13 +206,21 @@ class boss_vazruden : public CreatureScript
 
         struct boss_vazrudenAI : public BossAI
         {
-            boss_vazrudenAI(Creature* creature) : BossAI(creature, DATA_VAZRUDEN) { }
+            boss_vazrudenAI(Creature* creature) : BossAI(creature, DATA_VAZRUDEN)
+            {
+                Initialize();
+            }
 
-            void Reset() override
+            void Initialize()
             {
                 Revenge_Timer = 4000;
                 UnsummonCheck = 2000;
                 WipeSaid = false;
+            }
+
+            void Reset() override
+            {
+                Initialize();
                 _Reset();
             }
 
@@ -278,16 +294,22 @@ class boss_vazruden_the_herald : public CreatureScript
         {
             boss_vazruden_the_heraldAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 summoned = false;
                 sentryDown = false;
                 lootSpawned = false;
             }
 
-            void Reset() override
+            void Initialize()
             {
                 phase = 0;
                 waypoint = 0;
                 check = 0;
+            }
+
+            void Reset() override
+            {
+                Initialize();
                 UnsummonAdds();
             }
 
@@ -451,11 +473,19 @@ class npc_hellfire_sentry : public CreatureScript
 
         struct npc_hellfire_sentryAI : public ScriptedAI
         {
-            npc_hellfire_sentryAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_hellfire_sentryAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                KidneyShot_Timer = urand(3000, 7000);
+            }
 
             void Reset() override
             {
-                KidneyShot_Timer = urand(3000, 7000);
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override { }
