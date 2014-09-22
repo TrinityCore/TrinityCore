@@ -34,12 +34,6 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-namespace
-{
-    typedef std::set<ScriptObject*> ExampleScriptContainer;
-    ExampleScriptContainer ExampleScripts;
-}
-
 // This is the global static registry of scripts.
 template<class TScript>
 class ScriptRegistry
@@ -108,12 +102,9 @@ class ScriptRegistry
                 else
                 {
                     // The script uses a script name from database, but isn't assigned to anything.
-                    if (script->GetName().find("example") == std::string::npos && script->GetName().find("Smart") == std::string::npos)
+                    if (script->GetName().find("Smart") == std::string::npos)
                         TC_LOG_ERROR("sql.sql", "Script named '%s' does not have a script name assigned in database.",
                             script->GetName().c_str());
-
-                    // These scripts don't get stored anywhere so throw them into this to avoid leaking memory
-                    ExampleScripts.insert(script);
                 }
             }
             else
@@ -233,10 +224,6 @@ void ScriptMgr::Unload()
     SCR_CLEAR(UnitScript);
 
     #undef SCR_CLEAR
-
-    for (ExampleScriptContainer::iterator itr = ExampleScripts.begin(); itr != ExampleScripts.end(); ++itr)
-        delete *itr;
-    ExampleScripts.clear();
 
     delete[] SpellSummary;
     delete[] UnitAI::AISpellInfo;
