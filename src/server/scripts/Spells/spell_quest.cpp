@@ -2101,6 +2101,11 @@ class spell_q12641_death_comes_from_on_high : public SpellScriptLoader
 };
 
 // 52694 - Recall Eye of Acherus
+enum Recall_Eye_of_Acherus
+{
+    THE_EYE_OF_ACHERUS = 51852
+};
+
 class spell_q12641_recall_eye_of_acherus : public SpellScriptLoader
 {
     public:
@@ -2116,6 +2121,7 @@ class spell_q12641_recall_eye_of_acherus : public SpellScriptLoader
                 {
                     player->StopCastingCharm();
                     player->StopCastingBindSight();
+                    player->RemoveAura(THE_EYE_OF_ACHERUS);
                 }
             }
 
