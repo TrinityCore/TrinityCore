@@ -68,6 +68,7 @@ enum Spells
     // =================== HADRONOX ====================
     SPELL_ACID_CLOUD                            = 53400,
     SPELL_LEECH_POISON                          = 53030,
+    SPELL_LEECH_POISON_HEAL                     = 53800,
     SPELL_PIERCE_ARMOR                          = 53418,
     SPELL_TAUNT                                 = 53799,
     SPELL_WEB_GRAB                              = 53406,
@@ -385,16 +386,6 @@ class boss_hadronox : public CreatureScript
                 events.ScheduleEvent(EVENT_LEECH_POISON, urand(3, 9) * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_PIERCE_ARMOR, urand(1, 3) * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_WEB_GRAB, urand(15, 19) * IN_MILLISECONDS);
-            }
-
-            // When Hadronox kills any enemy (that includes a player) he will regain 10% of HP if the target had Leech Poison applied.
-            void KilledUnit(Unit* victim) override
-            {
-                /// @todo: move to spellscript: 53030 -> 53800
-                if (!victim || !victim->HasAura(SPELL_LEECH_POISON) || !me->IsAlive())
-                    return;
-
-                me->ModifyHealth(uint32(me->CountPctFromMaxHealth(10)));
             }
 
             void MovementInform(uint32 type, uint32 id) override
@@ -771,7 +762,7 @@ class npc_anub_ar_champion : public CreatureScript
                 if (action == CREATURE_GROUP_CRUSHER_REINFORCEMENTS_A)
                 {
                     uint8 i = 0;
-                    for (; i < MAX_SECOND_CRUSHER_GROUP_WAYPOINTS; ++i)
+                    for (; i < MAX_FIRST_CRUSHER_GROUP_WAYPOINTS; ++i)
                         AddWaypoint(i, FirstCrusherGroupWaypoints[i]);
 
                     AddWaypoint(i, DistantDoorChampionFinalPoint, 1 * IN_MILLISECONDS);
@@ -992,6 +983,46 @@ class npc_anub_ar_crypt_fiend : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetAzjolNerubAI<npc_anub_ar_crypt_fiendAI>(creature);
+        }
+};
+
+// 53030, 59417 - Leech Poison
+class spell_hadronox_leech_poison : public SpellScriptLoader
+{
+    public:
+        spell_hadronox_leech_poison() : SpellScriptLoader("spell_hadronox_leech_poison") { }
+
+        class spell_hadronox_leech_poison_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hadronox_leech_poison_AuraScript);
+
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_LEECH_POISON_HEAL))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+                    if (Unit* caster = GetCaster())
+                        if (caster->IsAlive())
+                            caster->CastSpell(caster, SPELL_LEECH_POISON_HEAL, true);
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_hadronox_leech_poison_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_PERIODIC_LEECH, AURA_EFFECT_HANDLE_REAL);
+            }
+
+        private:
+            InstanceScript* _instance;
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hadronox_leech_poison_AuraScript();
         }
 };
 
@@ -1374,6 +1405,7 @@ void AddSC_boss_hadronox()
     new npc_anub_ar_champion();
     new npc_anub_ar_necromancer();
     new npc_anub_ar_crypt_fiend();
+    new spell_hadronox_leech_poison();
     new spell_trigger_large_aoi_summon_anubar_champion_periodic();
     new spell_trigger_large_aoi_summon_anubar_crypt_fiend_periodic();
     new spell_trigger_large_aoi_summon_anubar_necromancer_periodic();

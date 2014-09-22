@@ -144,8 +144,10 @@ INSERT INTO `spelldifficulty_dbc`(`id`,`spellid0`,`spellid1`) VALUES
 (53394,53394,59344); -- Spell Pummel used by Anub'Ar Champion
 
 -- Add spell_script names
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (53035,53037,53036,@WEB_FRONT_DOORS,@WEB_SIDE_DOOR,53255);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (53030,59417,53035,53037,53036,@WEB_FRONT_DOORS,@WEB_SIDE_DOOR,53255);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(53030, 'spell_hadronox_leech_poison'),
+(59417, 'spell_hadronox_leech_poison'),
 (53035, 'spell_trigger_large_aoi_summon_anubar_champion_periodic'),
 (53037, 'spell_trigger_large_aoi_summon_anubar_crypt_fiend_periodic'),
 (53036, 'spell_trigger_large_aoi_summon_anubar_necromancer_periodic'),
