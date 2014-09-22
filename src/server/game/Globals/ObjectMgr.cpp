@@ -688,13 +688,13 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
 
         if (cInfo->minlevel > difficultyInfo->minlevel)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, minlevel %u) has different `minlevel` in difficulty %u mode (Entry: %u, minlevel %u).",
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, minlevel %u) has lower `minlevel` in difficulty %u mode (Entry: %u, minlevel %u).",
                 cInfo->Entry, cInfo->minlevel, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->minlevel);
         }
 
         if (cInfo->maxlevel > difficultyInfo->maxlevel)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, maxlevel %u) has different `maxlevel` in difficulty %u mode (Entry: %u, maxlevel %u).",
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, maxlevel %u) has lower `maxlevel` in difficulty %u mode (Entry: %u, maxlevel %u).",
                 cInfo->Entry, cInfo->maxlevel, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->maxlevel);
         }
 

@@ -279,12 +279,20 @@ public:
 
     struct npc_outhouse_bunnyAI : public ScriptedAI
     {
-        npc_outhouse_bunnyAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_outhouse_bunnyAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            _counter = 0;
+            _gender = 0;
+        }
 
         void Reset() override
         {
-            _counter = 0;
-            _gender  = 0;
+            Initialize();
         }
 
         void SetData(uint32 Type, uint32 Data) override
@@ -341,11 +349,19 @@ public:
 
     struct npc_tallhorn_stagAI : public ScriptedAI
     {
-        npc_tallhorn_stagAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_tallhorn_stagAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            _phase = 1;
+        }
 
         void Reset() override
         {
-            _phase = 1;
+            Initialize();
         }
 
         void UpdateAI(uint32 /*diff*/) override
@@ -459,11 +475,19 @@ public:
 
     struct npc_wounded_skirmisherAI : public ScriptedAI
     {
-        npc_wounded_skirmisherAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_wounded_skirmisherAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            _despawnTimer = 5000;
+        }
 
         void Reset() override
         {
-            _despawnTimer = 5000;
+            Initialize();
         }
 
         void MovementInform(uint32, uint32 id) override
@@ -651,12 +675,20 @@ public:
 
         struct npc_lake_frogAI : public ScriptedAI
         {
-            npc_lake_frogAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_lake_frogAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
 
-            void Reset() override
+            void Initialize()
             {
                 _following = false;
                 _runningScript = false;
+            }
+
+            void Reset() override
+            {
+                Initialize();
                 if (me->GetEntry() == NPC_LAKE_FROG_QUEST)
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }

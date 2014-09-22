@@ -346,7 +346,6 @@ public:
         uint32 uiBladeStormTimer;
         uint32 uiInterceptTimer;
         uint32 uiMortalStrikeTimer;
-        uint32 uiAttackTimer;
 
         bool bDone;
         bool bHome;
