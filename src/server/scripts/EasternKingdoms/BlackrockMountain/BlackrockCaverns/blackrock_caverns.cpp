@@ -27,13 +27,9 @@
 # npc_fire_cyclone
 #####*/
 
-enum FireCycloneSpells
+enum FireCyclone
 {
-    SPELL_FIRE_CYCLONE_AURA     = 74851
-};
-
-enum FireCycloneEvents
-{
+    SPELL_FIRE_CYCLONE_AURA     = 74851,
     EVENT_FIRE_CYCLONE_AURA     = 1
 };
 
@@ -83,17 +79,13 @@ class npc_fire_cyclone : public CreatureScript
 # npc_twilight_flame_caller
 #####*/
 
-enum TwilightFlameCallerSpells
+enum TwilightFlameCaller
 {
     SPELL_FIRE_CHANNELING_1     = 74911,
     SPELL_FIRE_CHANNELING_2     = 74912,
     SPELL_BLAST_WAVE            = 76473,
     SPELL_CALL_FLAMES           = 76325,
-    NPC_FIRE_CYCLONE            = 40164
-};
-
-enum TwilightFlameCallerEvents
-{
+    NPC_FIRE_CYCLONE            = 40164,
     EVENT_CHANNEL               = 2,
     EVENT_BLAST_WAVE            = 3,
     EVENT_CALL_FLAMES           = 4
@@ -155,8 +147,8 @@ public: npc_twilight_flame_caller() : CreatureScript("npc_twilight_flame_caller"
 
             void EnterCombat(Unit* /*who*/) override
             {
-                _combatPhase = true;
                 _events.Reset();
+                _combatPhase = true;
                 _events.ScheduleEvent(EVENT_BLAST_WAVE, urand(8000, 10000));
                 _events.ScheduleEvent(EVENT_CALL_FLAMES,  urand(10000, 14000));
             }
@@ -226,16 +218,12 @@ public: npc_twilight_flame_caller() : CreatureScript("npc_twilight_flame_caller"
 # npc_twilight_torturer
 #####*/
 
-enum TwilightTorturerSpells
+enum TwilightTorturer
 {
     SPELL_INFLICT_PAIN          = 75590,
     SPELL_RED_HOT_POKER         = 76478,
     SPELL_SHACKLES              = 76484,
-    SPELL_WILD_BEATDOWN         = 76487
-};
-
-enum TwilightTorturerEvents
-{
+    SPELL_WILD_BEATDOWN         = 76487,
     EVENT_INFLICT_PAIN_TT       = 5,
     EVENT_RED_HOT_POKER         = 6,
     EVENT_SHACKLES              = 7,
@@ -259,6 +247,7 @@ class npc_twilight_torturer : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) override
             {
+                _events.Reset();
                 _combatPhase = true;
                 _events.ScheduleEvent(EVENT_RED_HOT_POKER, 9000);
                 _events.ScheduleEvent(EVENT_SHACKLES, 13000);
@@ -328,16 +317,12 @@ class npc_twilight_torturer : public CreatureScript
 # npc_twilight_sadist
 #####*/
 
-enum TwilightSadistSpells
+enum TwilightSadist
 {
     SPELL_INFLICT_PAIN_1        = 76497,
     SPELL_HEAT_SEEKER_BLADE     = 76502,
     SPELL_SHORT_THROW           = 76572,
-    SPELL_SINISTER_STRIKE       = 76500
-};
-
-enum TwilightSadistEvents
-{
+    SPELL_SINISTER_STRIKE       = 76500,
     EVENT_INFLICT_PAIN_TS       = 9,
     EVENT_HEAT_SEEKER_BLADE     = 10,
     EVENT_SHORT_THROW           = 11,
@@ -361,6 +346,7 @@ class npc_twilight_sadist : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) override
             {
+                _events.Reset();
                 _combatPhase = true;
                 _events.ScheduleEvent(EVENT_INFLICT_PAIN_TS, 9000);
                 _events.ScheduleEvent(EVENT_HEAT_SEEKER_BLADE,  13000);
@@ -431,19 +417,14 @@ class npc_twilight_sadist : public CreatureScript
 # npc_mad_prisoner
 #####*/
 
-enum MadPrisonerSpells
+enum MadPrisoner
 {
     SPELL_HEAD_CRACK            = 77568,
     SPELL_INFECTED_WOUND        = 76512,
-    SPELL_ENRAGE                = 8599
-};
-
-enum MadPrisonerEvents
-{
-    EVENT_INFLICT_PAIN_MP1      = 13,
-    EVENT_HEAD_CRACK            = 14,
-    EVENT_INFECTED_WOUND        = 15,
-    EVENT_ENRAGE                = 16
+    SPELL_ENRAGE                = 8599,
+    EVENT_HEAD_CRACK            = 13,
+    EVENT_INFECTED_WOUND        = 14,
+    EVENT_ENRAGE                = 15
 };
 
 class npc_mad_prisoner : public CreatureScript
@@ -454,10 +435,7 @@ class npc_mad_prisoner : public CreatureScript
         {
             npc_mad_prisonerAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-            void Reset() override
-            {
-                _events.ScheduleEvent(EVENT_INFLICT_PAIN_MP1, urand(6000, 18000));
-            }
+            void Reset() override {}
 
             void EnterCombat(Unit* /*who*/) override
             {
@@ -511,12 +489,11 @@ class npc_mad_prisoner : public CreatureScript
 # npc_crazed_mage
 #####*/
 
-enum CrazedMageEvents
+enum CrazedMage
 {
-    EVENT_INFLICT_PAIN_MP2      = 17,
-    EVENT_HEAD_CRACK2           = 18,
-    EVENT_INFECTED_WOUND2       = 19,
-    EVENT_ENRAGE2               = 20
+    EVENT_HEAD_CRACK2           = 16,
+    EVENT_INFECTED_WOUND2       = 17,
+    EVENT_ENRAGE2               = 18
 };
 
 class npc_crazed_mage : public CreatureScript
@@ -527,10 +504,7 @@ class npc_crazed_mage : public CreatureScript
         {
             npc_crazed_mageAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-            void Reset() override
-            {
-                _events.ScheduleEvent(EVENT_INFLICT_PAIN_MP2, urand(6000, 18000));
-            }
+            void Reset() override {}
 
             void EnterCombat(Unit* /*who*/) override
             {
@@ -584,14 +558,19 @@ class npc_crazed_mage : public CreatureScript
 # npc_raz_the_crazed
 #####*/
 
-enum RazTheCrazedSpells
+enum RazTheCrazed
 {
+    SAY_SMASH                   = 0,
     SPELL_AGGRO_NEARBY_TARGETS  = 80196,
-    SPELL_SHADOW_PRISON         = 79725
-};
-
-enum RazTheCrazedEvents
-{
+    SPELL_SHADOW_PRISON         = 79725,
+    SPELL_LEAP_FROM_CAGE        = 79720,
+    SPELL_FURIOUS_SWIPE         = 80206,
+    SPELL_LEAP_FROM_BRIDGE      = 80273,
+    TYPE_RAZ                    = 1,
+    DATA_ROMOGG_DEAD            = 1,
+    EVENT_AGGO_NEARBY_TARGETS   = 19,
+    EVENT_START_FIRST_PATH      = 20,
+    EVENT_FURIOUS_SWIPE         = 21
 };
 
 class npc_raz_the_crazed : public CreatureScript
@@ -602,12 +581,11 @@ class npc_raz_the_crazed : public CreatureScript
         {
             npc_raz_the_crazedAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-            void Reset() override
-            {
-            }
+            void Reset() override {}
 
             void EnterCombat(Unit* /*who*/) override
             {
+                _events.ScheduleEvent(SPELL_FURIOUS_SWIPE, 500);
             }
 
             void IsSummonedBy(Unit* summoner) override
@@ -615,27 +593,45 @@ class npc_raz_the_crazed : public CreatureScript
                 if (summoner->GetEntry() == NPC_ROMOGG_BONECRUSHER)
                 {
                     me->SetDisableGravity(true);
-                    DoCast(me, SPELL_AGGRO_NEARBY_TARGETS);
                     DoCast(me, SPELL_SHADOW_PRISON);
+                    _events.ScheduleEvent(EVENT_AGGO_NEARBY_TARGETS, 1000);
+                }
+            }
+
+            void SetData(uint32 id, uint32 data) override
+            {
+                if (id == TYPE_RAZ && data == DATA_ROMOGG_DEAD)
+                {
+                    me->RemoveAura(SPELL_SHADOW_PRISON);
+                    me->SetDisableGravity(false);
+                    DoCast(me, SPELL_LEAP_FROM_CAGE);
+                    _events.ScheduleEvent(EVENT_START_FIRST_PATH, 3000);
                 }
             }
 
             void UpdateAI(uint32 diff) override
             {
-
                 _events.Update(diff);
 
-               if (!UpdateVictim())
-                    return;
-
-                /*while (uint32 eventId = _events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
+                    case EVENT_AGGO_NEARBY_TARGETS:
+                            DoCast(me, SPELL_AGGRO_NEARBY_TARGETS);
+                            _events.ScheduleEvent(EVENT_AGGO_NEARBY_TARGETS, 1500);
+                            break;
+                        case EVENT_START_FIRST_PATH:
+                            Talk(SAY_SMASH);
+                            break;
+                        case EVENT_FURIOUS_SWIPE:
+                            DoCastVictim(SPELL_FURIOUS_SWIPE, true);
+                            _events.ScheduleEvent(SPELL_FURIOUS_SWIPE, 500);
+                            break;
                         default:
                             break;
                     }
-                }*/
+                }
                 DoMeleeAttackIfReady();
             }
 
@@ -654,17 +650,13 @@ class npc_raz_the_crazed : public CreatureScript
 # npc_chains_of_woe
 #####*/
 
-enum ChainsOfWoeSpells
+enum ChainsOfWoe
 {
     SPELL_CHAINS_OF_WOE_1       = 75437,
     SPELL_CHAINS_OF_WOE_2       = 75441,
     SPELL_CHAINS_OF_WOE_3       = 75464,
     SPELL_CHAINS_OF_WOE_4       = 82189,
-    SPELL_CHAINS_OF_WOE_5       = 82192
-};
-
-enum ChainsOfWoeModel
-{
+    SPELL_CHAINS_OF_WOE_5       = 82192,
     MODEL_INVISIBLE             = 38330
 };
 
