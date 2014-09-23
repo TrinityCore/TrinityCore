@@ -48,7 +48,7 @@ enum Events
 
 Position const SummonPos[1] =
 {
-    { 249.2639f, 949.1614f, 191.7866f, 3.141593f }
+    { 249.2639f, 949.1614f, 191.7866f, 3.141593f } // Two more to add
 };
 
 class boss_romogg_bonecrusher : public CreatureScript

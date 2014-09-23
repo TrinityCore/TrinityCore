@@ -3727,6 +3727,12 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 101009: // Gaze of Occu'thar
                 spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
                 break;
+            case 75610: // Evolution
+                spellInfo->MaxAffectedTargets = 1;
+                break;
+            case 75697: // Evolution
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENTRY);
+                break;
             // ISLE OF CONQUEST SPELLS
             //
             case 66551: // Teleport
