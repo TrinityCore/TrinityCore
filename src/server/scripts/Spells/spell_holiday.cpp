@@ -444,6 +444,214 @@ class spell_winter_veil_px_238_winter_wondervolt : public SpellScriptLoader
         }
 };
 
+enum RamBlaBla
+{
+    SPELL_RENTAL_RACING_RAM                 = 43883,
+    SPELL_RENTAL_RACING_RAM_AURA            = 42146,
+    SPELL_RAM_LEVEL_NEUTRAL                 = 43310,
+    SPELL_RAM_TROT                          = 42992,
+    SPELL_RAM_CANTER                        = 42993,
+    SPELL_RAM_GALLOP                        = 42994,
+    SPELL_RAM_FATIGUE                       = 43052,
+    SPELL_EXHAUSTED_RAM                     = 43332,
+
+    // Quest
+    SPELL_BREWFEST_QUEST_SPEED_BUNNY_GREEN  = 43345,
+    SPELL_BREWFEST_QUEST_SPEED_BUNNY_YELLOW = 43346,
+    SPELL_BREWFEST_QUEST_SPEED_BUNNY_RED    = 43347
+};
+
+// 42924 - Giddyup!
+class spell_brewfest_giddyup : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_giddyup() : SpellScriptLoader("spell_brewfest_giddyup") { }
+
+        class spell_brewfest_giddyup_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_brewfest_giddyup_AuraScript);
+
+            void OnChange(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                if (!target->HasAura(SPELL_RENTAL_RACING_RAM))
+                {
+                    target->RemoveAura(GetId());
+                    return;
+                }
+
+                if (target->HasAura(SPELL_EXHAUSTED_RAM))
+                    return;
+
+                switch (GetStackAmount())
+                {
+                    case 1: // green
+                        target->RemoveAura(SPELL_RAM_LEVEL_NEUTRAL);
+                        target->RemoveAura(SPELL_RAM_CANTER);
+                        target->CastSpell(target, SPELL_RAM_TROT, true);
+                        break;
+                    case 6: // yellow
+                        target->RemoveAura(SPELL_RAM_TROT);
+                        target->RemoveAura(SPELL_RAM_GALLOP);
+                        target->CastSpell(target, SPELL_RAM_CANTER, true);
+                        break;
+                    case 11: // red
+                        target->RemoveAura(SPELL_RAM_CANTER);
+                        target->CastSpell(target, SPELL_RAM_GALLOP, true);
+                        break;
+                    default:
+                        break;
+                }
+
+                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEFAULT)
+                {
+                    target->RemoveAura(SPELL_RAM_TROT);
+                    target->CastSpell(target, SPELL_RAM_LEVEL_NEUTRAL, true);
+                }
+            }
+
+            void OnPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                GetTarget()->RemoveAuraFromStack(GetId());
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_brewfest_giddyup_AuraScript::OnChange, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
+                OnEffectRemove += AuraEffectRemoveFn(spell_brewfest_giddyup_AuraScript::OnChange, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_brewfest_giddyup_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_brewfest_giddyup_AuraScript();
+        }
+};
+
+// 43310 - Ram Level - Neutral
+// 42992 - Ram - Trot
+// 42993 - Ram - Canter
+// 42994 - Ram - Gallop
+class spell_brewfest_ram : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_ram() : SpellScriptLoader("spell_brewfest_ram") { }
+
+        class spell_brewfest_ram_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_brewfest_ram_AuraScript);
+
+            void OnPeriodic(AuraEffect const* aurEff)
+            {
+                Unit* target = GetTarget();
+                if (target->HasAura(SPELL_EXHAUSTED_RAM))
+                    return;
+
+                switch (GetId())
+                {
+                    case SPELL_RAM_LEVEL_NEUTRAL:
+                        if (Aura* aura = target->GetAura(SPELL_RAM_FATIGUE))
+                            aura->ModStackAmount(-4);
+                        break;
+                    case SPELL_RAM_TROT: // green
+                        if (Aura* aura = target->GetAura(SPELL_RAM_FATIGUE))
+                            aura->ModStackAmount(-2);
+                        if (aurEff->GetTickNumber() == 4)
+                            target->CastSpell(target, SPELL_BREWFEST_QUEST_SPEED_BUNNY_GREEN, true);
+                        break;
+                    case SPELL_RAM_CANTER:
+                        target->CastCustomSpell(SPELL_RAM_FATIGUE, SPELLVALUE_AURA_STACK, 1, target, TRIGGERED_FULL_MASK);
+                        if (aurEff->GetTickNumber() == 4)
+                            target->CastSpell(target, SPELL_BREWFEST_QUEST_SPEED_BUNNY_YELLOW, true);
+                        break;
+                    case SPELL_RAM_GALLOP:
+                        target->CastCustomSpell(SPELL_RAM_FATIGUE, SPELLVALUE_AURA_STACK, target->HasAura(SPELL_RAM_FATIGUE) ? 4 : 5 /*Hack*/, target, TRIGGERED_FULL_MASK);
+                        if (aurEff->GetTickNumber() == 4)
+                            target->CastSpell(target, SPELL_BREWFEST_QUEST_SPEED_BUNNY_RED, true);
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_brewfest_ram_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_brewfest_ram_AuraScript();
+        }
+};
+
+// 43052 - Ram Fatigue
+class spell_brewfest_ram_fatigue : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_ram_fatigue() : SpellScriptLoader("spell_brewfest_ram_fatigue") { }
+
+        class spell_brewfest_ram_fatigue_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_brewfest_ram_fatigue_AuraScript);
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+
+                if (GetStackAmount() == 101)
+                {
+                    target->RemoveAura(SPELL_RAM_LEVEL_NEUTRAL);
+                    target->RemoveAura(SPELL_RAM_TROT);
+                    target->RemoveAura(SPELL_RAM_CANTER);
+                    target->RemoveAura(SPELL_RAM_GALLOP);
+
+                    target->CastSpell(target, SPELL_EXHAUSTED_RAM, true);
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_brewfest_ram_fatigue_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_brewfest_ram_fatigue_AuraScript();
+        }
+};
+
+// 43450 - Brewfest - apple trap - friendly DND
+class spell_brewfest_apple_trap : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_apple_trap() : SpellScriptLoader("spell_brewfest_apple_trap") { }
+
+        class spell_brewfest_apple_trap_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_brewfest_apple_trap_AuraScript);
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveAura(SPELL_RAM_FATIGUE);
+            }
+
+            void Register() override
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_brewfest_apple_trap_AuraScript::OnApply, EFFECT_0, SPELL_AURA_FORCE_REACTION, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_brewfest_apple_trap_AuraScript();
+        }
+};
+
 void AddSC_holiday_spell_scripts()
 {
     // Love is in the Air
@@ -461,4 +669,9 @@ void AddSC_holiday_spell_scripts()
     // Winter Veil
     new spell_winter_veil_mistletoe();
     new spell_winter_veil_px_238_winter_wondervolt();
+    // Brewfest
+    new spell_brewfest_giddyup();
+    new spell_brewfest_ram();
+    new spell_brewfest_ram_fatigue();
+    new spell_brewfest_apple_trap();
 }
