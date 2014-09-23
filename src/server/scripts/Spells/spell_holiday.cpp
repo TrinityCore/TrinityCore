@@ -446,6 +446,7 @@ class spell_winter_veil_px_238_winter_wondervolt : public SpellScriptLoader
 
 enum RamBlaBla
 {
+    SPELL_GIDDYUP                           = 42924,
     SPELL_RENTAL_RACING_RAM                 = 43883,
     SPELL_RENTAL_RACING_RAM_AURA            = 42146,
     SPELL_RAM_LEVEL_NEUTRAL                 = 43310,
@@ -608,6 +609,7 @@ class spell_brewfest_ram_fatigue : public SpellScriptLoader
                     target->RemoveAura(SPELL_RAM_TROT);
                     target->RemoveAura(SPELL_RAM_CANTER);
                     target->RemoveAura(SPELL_RAM_GALLOP);
+                    target->RemoveAura(SPELL_GIDDYUP);
 
                     target->CastSpell(target, SPELL_EXHAUSTED_RAM, true);
                 }
@@ -652,6 +654,34 @@ class spell_brewfest_apple_trap : public SpellScriptLoader
         }
 };
 
+// 43332 - Exhausted Ram
+class spell_brewfest_exhausted_ram : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_exhausted_ram() : SpellScriptLoader("spell_brewfest_exhausted_ram") { }
+
+        class spell_brewfest_exhausted_ram_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_brewfest_exhausted_ram_AuraScript);
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                target->CastSpell(target, SPELL_RAM_LEVEL_NEUTRAL, true);
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectApplyFn(spell_brewfest_exhausted_ram_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_brewfest_exhausted_ram_AuraScript();
+        }
+};
+
 void AddSC_holiday_spell_scripts()
 {
     // Love is in the Air
@@ -674,4 +704,5 @@ void AddSC_holiday_spell_scripts()
     new spell_brewfest_ram();
     new spell_brewfest_ram_fatigue();
     new spell_brewfest_apple_trap();
+    new spell_brewfest_exhausted_ram();
 }
