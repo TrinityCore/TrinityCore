@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -45,15 +45,16 @@ enum Events
 
 class boss_beauty : public CreatureScript
 {
-    public: boss_beauty(): CreatureScript("boss_beauty") {}
+    public:
+        boss_beauty(): CreatureScript("boss_beauty") { }
 
         struct boss_beautyAI : public BossAI
         {
-            boss_beautyAI(Creature* creature) : BossAI(creature, DATA_BEAUTY) {}
+            boss_beautyAI(Creature* creature) : BossAI(creature, DATA_BEAUTY) { }
 
             void Reset() override
             {
-
+                _Reset();
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -81,7 +82,7 @@ class boss_beauty : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 eventId = events.ExecuteEvent()) 
+                while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
@@ -106,9 +107,9 @@ class boss_beauty : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_beautyAI(creature);
+            return GetBlackrockCavernsAI<boss_beautyAI>(creature);
         }
 };
 

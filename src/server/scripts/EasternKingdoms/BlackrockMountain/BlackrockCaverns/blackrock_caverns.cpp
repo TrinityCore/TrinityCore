@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,7 +35,7 @@ enum FireCyclone
 
 class npc_fire_cyclone : public CreatureScript
 {
-    public: npc_fire_cyclone() : CreatureScript("npc_fire_cyclone") {}
+    public: npc_fire_cyclone() : CreatureScript("npc_fire_cyclone") { }
 
         struct npc_fire_cycloneAI : public ScriptedAI
         {
@@ -43,7 +43,8 @@ class npc_fire_cyclone : public CreatureScript
 
             void Reset() override
             {
-                _events.ScheduleEvent(EVENT_FIRE_CYCLONE_AURA, 100); 
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_FIRE_CYCLONE_AURA, 100);
             }
 
             void UpdateAI(uint32 diff) override
@@ -69,7 +70,7 @@ class npc_fire_cyclone : public CreatureScript
                 InstanceScript* _instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetBlackrockCavernsAI<npc_fire_cycloneAI>(creature);
         }
@@ -103,36 +104,42 @@ Position const SummonPos[6] =
 
 class npc_twilight_flame_caller : public CreatureScript
 {
-public: npc_twilight_flame_caller() : CreatureScript("npc_twilight_flame_caller") {}
+public: npc_twilight_flame_caller() : CreatureScript("npc_twilight_flame_caller") { }
 
         struct npc_twilight_flame_callerAI : public ScriptedAI
         {
-            npc_twilight_flame_callerAI(Creature* creature) : ScriptedAI(creature), _summons(me), _instance(creature->GetInstanceScript()) { }
+            npc_twilight_flame_callerAI(Creature* creature) : ScriptedAI(creature), _summons(me), _instance(creature->GetInstanceScript())
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _combatPhase = false;
+            }
 
             void Reset() override
             {
-                _combatPhase = false;
-                _flamecaller1GUID = 0;
-                _flamecaller2GUID = 0;
+                Initialize();
+                _flamecaller1GUID.Clear();
+                _flamecaller2GUID.Clear();
 
-                if (_instance)
+                if (me->GetPositionX() > 172 && me->GetPositionX() < 173 && me->GetPositionY() > 1086 && me->GetPositionY() < 1087)
                 {
-                    if (me->GetPositionX() > 172 && me->GetPositionX() < 173 && me->GetPositionY() > 1086 && me->GetPositionY() < 1087)
-                    {
-                        _flamecaller1GUID = me->GetGUID();
-                        me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[0], TEMPSUMMON_CORPSE_DESPAWN, 0);
-                        me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[1], TEMPSUMMON_CORPSE_DESPAWN, 0);
-                        me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[2], TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    }
-                    if (me->GetPositionX() > 247 && me->GetPositionX() < 248 && me->GetPositionY() > 1081 && me->GetPositionY() < 1082)
-                    {
-                        _flamecaller2GUID = me->GetGUID();
-                        me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[3], TEMPSUMMON_CORPSE_DESPAWN, 0);
-                        me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[4], TEMPSUMMON_CORPSE_DESPAWN, 0);
-                        me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[5], TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    }
-                    _events.ScheduleEvent(EVENT_CHANNEL, 100);
+                    _flamecaller1GUID = me->GetGUID();
+                    me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[0], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[1], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[2], TEMPSUMMON_CORPSE_DESPAWN, 0);
                 }
+                if (me->GetPositionX() > 247 && me->GetPositionX() < 248 && me->GetPositionY() > 1081 && me->GetPositionY() < 1082)
+                {
+                    _flamecaller2GUID = me->GetGUID();
+                    me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[3], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[4], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[5], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                }
+
+                _events.ScheduleEvent(EVENT_CHANNEL, 100);
             }
 
             void JustSummoned(Creature* summoned) override
@@ -196,19 +203,20 @@ public: npc_twilight_flame_caller() : CreatureScript("npc_twilight_flame_caller"
                             break;
                     }
                 }
+
                 DoMeleeAttackIfReady();
             }
 
         private:
             EventMap        _events;
             InstanceScript* _instance;
-            uint64          _flamecaller1GUID;
-            uint64          _flamecaller2GUID;
+            ObjectGuid      _flamecaller1GUID;
+            ObjectGuid      _flamecaller2GUID;
             SummonList      _summons;
             bool            _combatPhase;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetBlackrockCavernsAI<npc_twilight_flame_callerAI>(creature);
         }
@@ -232,15 +240,23 @@ enum TwilightTorturer
 
 class npc_twilight_torturer : public CreatureScript
 {
-    public: npc_twilight_torturer() : CreatureScript("npc_twilight_torturer") {}
+    public: npc_twilight_torturer() : CreatureScript("npc_twilight_torturer") { }
 
         struct npc_twilight_torturerAI : public ScriptedAI
         {
-            npc_twilight_torturerAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+            npc_twilight_torturerAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _combatPhase = false;
+            }
 
             void Reset() override
             {
-                _combatPhase = false;
+                Initialize();
                 if (!me->GetWaypointPath())
                     _events.ScheduleEvent(EVENT_INFLICT_PAIN_TT, urand(6000, 18000));
             }
@@ -298,6 +314,7 @@ class npc_twilight_torturer : public CreatureScript
                             break;
                     }
                 }
+
                 DoMeleeAttackIfReady();
             }
 
@@ -307,7 +324,7 @@ class npc_twilight_torturer : public CreatureScript
             bool            _combatPhase;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetBlackrockCavernsAI<npc_twilight_torturerAI>(creature);
         }
@@ -331,7 +348,7 @@ enum TwilightSadist
 
 class npc_twilight_sadist : public CreatureScript
 {
-    public: npc_twilight_sadist() : CreatureScript("npc_twilight_sadist") {}
+    public: npc_twilight_sadist() : CreatureScript("npc_twilight_sadist") { }
 
         struct npc_twilight_sadistAI : public ScriptedAI
         {
@@ -398,6 +415,7 @@ class npc_twilight_sadist : public CreatureScript
                             break;
                     }
                 }
+
                 DoMeleeAttackIfReady();
             }
 
@@ -407,7 +425,7 @@ class npc_twilight_sadist : public CreatureScript
             bool            _combatPhase;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetBlackrockCavernsAI<npc_twilight_sadistAI>(creature);
         }
@@ -429,16 +447,17 @@ enum MadPrisoner
 
 class npc_mad_prisoner : public CreatureScript
 {
-    public: npc_mad_prisoner() : CreatureScript("npc_mad_prisoner") {}
+    public: npc_mad_prisoner() : CreatureScript("npc_mad_prisoner") { }
 
         struct npc_mad_prisonerAI : public ScriptedAI
         {
             npc_mad_prisonerAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-            void Reset() override {}
+            void Reset() override { }
 
             void EnterCombat(Unit* /*who*/) override
             {
+                _events.Reset();
                 _events.ScheduleEvent(EVENT_HEAD_CRACK, 9000);
                 _events.ScheduleEvent(EVENT_INFECTED_WOUND,  13000);
                 _events.ScheduleEvent(EVENT_ENRAGE, 17000);
@@ -479,7 +498,7 @@ class npc_mad_prisoner : public CreatureScript
             InstanceScript* _instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetBlackrockCavernsAI<npc_mad_prisonerAI>(creature);
         }
@@ -498,16 +517,17 @@ enum CrazedMage
 
 class npc_crazed_mage : public CreatureScript
 {
-    public: npc_crazed_mage() : CreatureScript("npc_crazed_mage") {}
+    public: npc_crazed_mage() : CreatureScript("npc_crazed_mage") { }
 
         struct npc_crazed_mageAI : public ScriptedAI
         {
             npc_crazed_mageAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-            void Reset() override {}
+            void Reset() override { }
 
             void EnterCombat(Unit* /*who*/) override
             {
+                _events.Reset();
                 _events.ScheduleEvent(EVENT_HEAD_CRACK2, 9000);
                 _events.ScheduleEvent(EVENT_INFECTED_WOUND2,  13000);
                 _events.ScheduleEvent(EVENT_ENRAGE2, 17000);
@@ -540,6 +560,7 @@ class npc_crazed_mage : public CreatureScript
                             break;
                     }
                 }
+
                 DoMeleeAttackIfReady();
             }
 
@@ -548,7 +569,7 @@ class npc_crazed_mage : public CreatureScript
             InstanceScript* _instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetBlackrockCavernsAI<npc_crazed_mageAI>(creature);
         }
@@ -575,16 +596,17 @@ enum RazTheCrazed
 
 class npc_raz_the_crazed : public CreatureScript
 {
-    public: npc_raz_the_crazed() : CreatureScript("npc_raz_the_crazed") {}
+    public: npc_raz_the_crazed() : CreatureScript("npc_raz_the_crazed") { }
 
         struct npc_raz_the_crazedAI : public ScriptedAI
         {
             npc_raz_the_crazedAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-            void Reset() override {}
+            void Reset() override { }
 
             void EnterCombat(Unit* /*who*/) override
             {
+                _events.Reset();
                 _events.ScheduleEvent(SPELL_FURIOUS_SWIPE, 500);
             }
 
@@ -617,7 +639,7 @@ class npc_raz_the_crazed : public CreatureScript
                 {
                     switch (eventId)
                     {
-                    case EVENT_AGGO_NEARBY_TARGETS:
+                        case EVENT_AGGO_NEARBY_TARGETS:
                             DoCast(me, SPELL_AGGRO_NEARBY_TARGETS);
                             _events.ScheduleEvent(EVENT_AGGO_NEARBY_TARGETS, 1500);
                             break;
@@ -632,6 +654,7 @@ class npc_raz_the_crazed : public CreatureScript
                             break;
                     }
                 }
+
                 DoMeleeAttackIfReady();
             }
 
@@ -640,7 +663,7 @@ class npc_raz_the_crazed : public CreatureScript
             InstanceScript* _instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetBlackrockCavernsAI<npc_raz_the_crazedAI>(creature);
         }
@@ -662,13 +685,13 @@ enum ChainsOfWoe
 
 class npc_chains_of_woe : public CreatureScript
 {
-    public: npc_chains_of_woe() : CreatureScript("npc_chains_of_woe") {}
+    public: npc_chains_of_woe() : CreatureScript("npc_chains_of_woe") { }
 
         struct npc_chains_of_woeAI : public ScriptedAI
         {
             npc_chains_of_woeAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-            void IsSummonedBy(Unit* /*summoner*/)
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 me->SetDisplayId(MODEL_INVISIBLE);
                 DoCast(me, SPELL_CHAINS_OF_WOE_1, true);
@@ -679,12 +702,11 @@ class npc_chains_of_woe : public CreatureScript
             InstanceScript* _instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetBlackrockCavernsAI<npc_chains_of_woeAI>(creature);
         }
 };
-
 
 /*#####
 # spell_chains_of_woe_1
@@ -698,29 +720,26 @@ class spell_chains_of_woe_1 : public SpellScriptLoader
         {
             PrepareSpellScript(spell_chains_of_woe_1_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_CHAINS_OF_WOE_1))
                     return false;
                 return true;
             }
 
-            void HandleScriptEffect(SpellEffIndex /* effIndex */)
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 if (Player* playerTarget = GetHitPlayer())
-                {
-                    Unit* caster = GetCaster();
-                    playerTarget->CastSpell(caster, SPELL_CHAINS_OF_WOE_3, true, NULL);
-                }
+                    playerTarget->CastSpell(GetCaster(), SPELL_CHAINS_OF_WOE_3, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_chains_of_woe_1_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_chains_of_woe_1_SpellScript();
         }
@@ -738,28 +757,26 @@ class spell_chains_of_woe_4 : public SpellScriptLoader
         {
             PrepareSpellScript(spell_chains_of_woe_4_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_CHAINS_OF_WOE_4))
                     return false;
                 return true;
             }
 
-            void HandleScriptEffect(SpellEffIndex /* effIndex */)
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 if (Player* playerTarget = GetHitPlayer())
-                {
-                    playerTarget->CastSpell(playerTarget, SPELL_CHAINS_OF_WOE_5, true, NULL);
-                }
+                    playerTarget->CastSpell(playerTarget, SPELL_CHAINS_OF_WOE_5, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_chains_of_woe_4_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_chains_of_woe_4_SpellScript();
         }
@@ -779,35 +796,37 @@ enum NetherDragonEssence
 
 class spell_nether_dragon_essence_1 : public SpellScriptLoader
 {
-public: spell_nether_dragon_essence_1() : SpellScriptLoader("spell_nether_dragon_essence_1") { }
+    public: spell_nether_dragon_essence_1() : SpellScriptLoader("spell_nether_dragon_essence_1") { }
 
-    class spell_nether_dragon_essence_1_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_nether_dragon_essence_1_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellEntry*/)
+        class spell_nether_dragon_essence_1_AuraScript : public AuraScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_NETHER_DRAGON_ESSENCE_2) || !sSpellMgr->GetSpellInfo(SPELL_NETHER_DRAGON_ESSENCE_3) || !sSpellMgr->GetSpellInfo(SPELL_NETHER_DRAGON_ESSENCE_4))
-                return false;
-            return true;
-        }
+            PrepareAuraScript(spell_nether_dragon_essence_1_AuraScript);
 
-        void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_NETHER_DRAGON_ESSENCE_2)
+                    || !sSpellMgr->GetSpellInfo(SPELL_NETHER_DRAGON_ESSENCE_3)
+                    || !sSpellMgr->GetSpellInfo(SPELL_NETHER_DRAGON_ESSENCE_4))
+                    return false;
+                return true;
+            }
+
+            void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, RAND(SPELL_NETHER_DRAGON_ESSENCE_2, SPELL_NETHER_DRAGON_ESSENCE_3, SPELL_NETHER_DRAGON_ESSENCE_4));
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_nether_dragon_essence_1_AuraScript::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
         {
-            if (Unit* caster = GetCaster())
-                caster->CastSpell(caster, RAND(SPELL_NETHER_DRAGON_ESSENCE_2, SPELL_NETHER_DRAGON_ESSENCE_3, SPELL_NETHER_DRAGON_ESSENCE_4));
+            return new spell_nether_dragon_essence_1_AuraScript();
         }
-
-        void Register()
-        {
-           OnEffectPeriodic += AuraEffectPeriodicFn(spell_nether_dragon_essence_1_AuraScript::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_nether_dragon_essence_1_AuraScript();
-    }
 };
 
 /*#####
@@ -816,45 +835,40 @@ public: spell_nether_dragon_essence_1() : SpellScriptLoader("spell_nether_dragon
 
 class spell_nether_dragon_essence_2 : public SpellScriptLoader
 {
-    public: spell_nether_dragon_essence_2() : SpellScriptLoader("spell_nether_dragon_essence_2") { }
+    public:
+        spell_nether_dragon_essence_2() : SpellScriptLoader("spell_nether_dragon_essence_2") { }
 
         class spell_nether_dragon_essence_2_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_nether_dragon_essence_2_SpellScript);
 
-            void ModDestHeight(SpellEffIndex /*effIndex*/)
+            void ModDestHeight(SpellDestination& dest)
             {
-                if (Unit* caster = GetCaster())
+                Position offset = { frand(-35.0f, 35.0f), frand(-25.0f, 25.0f), 0.0f, 0.0f };
+
+                switch (GetSpellInfo()->Id)
                 {
-                    float posZ = 0;
-
-                    switch (GetSpellInfo()->Id)
-                    {
-                        case SPELL_NETHER_DRAGON_ESSENCE_2:
-                            posZ = 25.0f;
-                            break;
-                        case SPELL_NETHER_DRAGON_ESSENCE_3:
-                            posZ = 17.0f;
-                            break;
-                        case SPELL_NETHER_DRAGON_ESSENCE_4:
-                            posZ = 33.0f;
-                            break;
-                    }
-
-                    float posX = frand(-35.0f, 35.0f);
-                    float posY = frand(-25.0f, 25.0f);
-                    Position offset = {posX, posY, posZ, 0.0f};
-                    const_cast<WorldLocation*>(GetExplTargetDest())->RelocateOffset(offset);
+                    case SPELL_NETHER_DRAGON_ESSENCE_2:
+                        offset.m_positionZ = 25.0f;
+                        break;
+                    case SPELL_NETHER_DRAGON_ESSENCE_3:
+                        offset.m_positionZ = 17.0f;
+                        break;
+                    case SPELL_NETHER_DRAGON_ESSENCE_4:
+                        offset.m_positionZ = 33.0f;
+                        break;
                 }
+
+                dest.RelocateOffset(offset);
             }
 
-            void Register()
+            void Register() override
             {
-                OnEffectLaunch += SpellEffectFn(spell_nether_dragon_essence_2_SpellScript::ModDestHeight, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_nether_dragon_essence_2_SpellScript::ModDestHeight, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_nether_dragon_essence_2_SpellScript();
         }

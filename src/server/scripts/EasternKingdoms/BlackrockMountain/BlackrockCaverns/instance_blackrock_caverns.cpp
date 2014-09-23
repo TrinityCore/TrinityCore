@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,12 @@
 #include "InstanceScript.h"
 #include "blackrock_caverns.h"
 
+ObjectData const creatureData[] =
+{
+    { NPC_RAZ_THE_CRAZED, DATA_RAZ_THE_CRAZED },
+    { 0,                  0                   }
+};
+
 class instance_blackrock_caverns : public InstanceMapScript
 {
     public:
@@ -28,34 +34,12 @@ class instance_blackrock_caverns : public InstanceMapScript
         {
             instance_blackrock_caverns_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadObjectData(creatureData, nullptr);
             }
 
-            void OnCreatureCreate(Creature* creature)
-            {
-                switch (creature->GetEntry())
-                {
-                    case NPC_RAZ_THE_CRAZED:
-                        RaztheCrazed = creature->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            ObjectGuid GetGuidData(uint32 type) const override
-            {
-                switch (type)
-                {
-                case NPC_RAZ_THE_CRAZED:
-                    return RaztheCrazed;
-                default:
-                    break;
-                }
-                return ObjectGuid::Empty;
-            }
-
-            bool SetBossState(uint32 type, EncounterState state)
+            bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -74,11 +58,9 @@ class instance_blackrock_caverns : public InstanceMapScript
 
                 return true;
             }
-        protected:
-            ObjectGuid RaztheCrazed;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_blackrock_caverns_InstanceMapScript(map);
         }

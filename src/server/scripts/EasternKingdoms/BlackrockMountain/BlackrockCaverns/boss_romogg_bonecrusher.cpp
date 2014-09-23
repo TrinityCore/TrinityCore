@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -45,30 +45,33 @@ Position const SummonPos = { 249.2639f, 949.1614f, 191.7866f, 3.141593f };
 class boss_romogg_bonecrusher : public CreatureScript
 {
     public:
-        boss_romogg_bonecrusher() : CreatureScript("boss_romogg_bonecrusher") {}
+        boss_romogg_bonecrusher() : CreatureScript("boss_romogg_bonecrusher") { }
 
         struct boss_romogg_bonecrusherAI : public BossAI
         {
             boss_romogg_bonecrusherAI(Creature* creature) : BossAI(creature, DATA_ROMOGG_BONECRUSHER)
             {
-                if (instance)
-                    me->SummonCreature(NPC_RAZ_THE_CRAZED, SummonPos, TEMPSUMMON_MANUAL_DESPAWN, 200000);
+                me->SummonCreature(NPC_RAZ_THE_CRAZED, SummonPos, TEMPSUMMON_MANUAL_DESPAWN, 200000);
             }
 
-            void Reset() override { }
+            void Reset() override
+            {
+                _Reset();
+            }
 
             void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(YELL_DEATH);
 
-                if (Creature* raz = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_RAZ_THE_CRAZED)))
+                if (Creature* raz = instance->GetCreature(DATA_RAZ_THE_CRAZED))
                     raz->AI()->SetData(TYPE_RAZ, DATA_ROMOGG_DEAD);
             }
 
-            void KilledUnit(Unit* /*victim*/) override
+            void KilledUnit(Unit* who) override
             {
-                Talk(YELL_KILL);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(YELL_KILL);
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -118,13 +121,14 @@ class boss_romogg_bonecrusher : public CreatureScript
                             break;
                     }
                 }
+
                 DoMeleeAttackIfReady();
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_romogg_bonecrusherAI (creature);
+            return GetBlackrockCavernsAI<boss_romogg_bonecrusherAI>(creature);
         }
 };
 
