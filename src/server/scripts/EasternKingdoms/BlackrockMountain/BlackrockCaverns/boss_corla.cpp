@@ -79,7 +79,7 @@ class boss_corla : public CreatureScript
                 Talk(YELL_DEATH);
             }
 
-            void UpdateAI(uint32 /*diff*/) override
+            void UpdateAI(uint32 diff) override
             {
                 events.Update(diff);
 
