@@ -19,37 +19,28 @@
 #include "ScriptedCreature.h"
 #include "blackrock_caverns.h"
 
-enum Say
+enum Romogg
 {
     YELL_AGGRO                      = 0,
     YELL_KILL                       = 1,
     YELL_SKULLCRACKER               = 2,
     YELL_DEATH                      = 3,
     EMOTE_CALL_FOR_HELP             = 4,
-    EMOTE_SKULLCRACKER              = 5
-};
-
-enum Spells
-{
+    EMOTE_SKULLCRACKER              = 5,
     SPELL_CALL_FOR_HELP             = 82137, // Needs Scripting
     SPELL_CHAINS_OF_WOE             = 75539,
     SPELL_QUAKE                     = 75272,
     SPELL_SKULLCRACKER              = 75543,
-    SPELL_WOUNDING_STRIKE           = 75571
-};
-
-enum Events
-{
+    SPELL_WOUNDING_STRIKE           = 75571,
     EVENT_CHAINS_OF_WOE             = 1,
     EVENT_QUAKE                     = 2,     // Not yet sure of timing
     EVENT_SKULLCRACKER              = 3,
-    EVENT_WOUNDING_STRIKE           = 4
+    EVENT_WOUNDING_STRIKE           = 4,
+    TYPE_RAZ                        = 1,
+    DATA_ROMOGG_DEAD                = 1
 };
 
-Position const SummonPos[1] =
-{
-    { 249.2639f, 949.1614f, 191.7866f, 3.141593f } // Two more to add
-};
+Position const SummonPos = { 249.2639f, 949.1614f, 191.7866f, 3.141593f };
 
 class boss_romogg_bonecrusher : public CreatureScript
 {
@@ -58,18 +49,21 @@ class boss_romogg_bonecrusher : public CreatureScript
 
         struct boss_romogg_bonecrusherAI : public BossAI
         {
-            boss_romogg_bonecrusherAI(Creature* creature) : BossAI(creature, DATA_ROMOGG_BONECRUSHER) {}
-
-            void Reset() override
+            boss_romogg_bonecrusherAI(Creature* creature) : BossAI(creature, DATA_ROMOGG_BONECRUSHER)
             {
-                if(instance)
-                    me->SummonCreature(NPC_RAZ_THE_CRAZED, SummonPos[0], TEMPSUMMON_MANUAL_DESPAWN, 200000);
+                if (instance)
+                    me->SummonCreature(NPC_RAZ_THE_CRAZED, SummonPos, TEMPSUMMON_MANUAL_DESPAWN, 200000);
             }
+
+            void Reset() override { }
 
             void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(YELL_DEATH);
+
+                if (Creature* raz = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_RAZ_THE_CRAZED)))
+                    raz->AI()->SetData(TYPE_RAZ, DATA_ROMOGG_DEAD);
             }
 
             void KilledUnit(Unit* /*victim*/) override

@@ -35,23 +35,24 @@ class instance_blackrock_caverns : public InstanceMapScript
             {
                 switch (creature->GetEntry())
                 {
-                    case NPC_TWILIGHT_FLAME_CALLER:
+                    case NPC_RAZ_THE_CRAZED:
+                        RaztheCrazed = creature->GetGUID();
                         break;
                     default:
                         break;
                 }
             }
 
-            uint64 GetData64(uint32 type) const
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
-                    case NPC_TWILIGHT_FLAME_CALLER:
-                    default:
-                        break;
+                case NPC_RAZ_THE_CRAZED:
+                    return RaztheCrazed;
+                default:
+                    break;
                 }
-
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state)
@@ -73,6 +74,8 @@ class instance_blackrock_caverns : public InstanceMapScript
 
                 return true;
             }
+        protected:
+            ObjectGuid RaztheCrazed;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const
