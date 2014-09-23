@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -48,14 +48,15 @@ enum Events
 class boss_corla : public CreatureScript
 {
     public:
-        boss_corla(): CreatureScript("boss_corla") {}
+        boss_corla(): CreatureScript("boss_corla") { }
 
         struct boss_corlaAI : public BossAI
         {
-            boss_corlaAI(Creature* creature) : BossAI(creature, DATA_CORLA) {}
+            boss_corlaAI(Creature* creature) : BossAI(creature, DATA_CORLA) { }
 
             void Reset() override
             {
+                _Reset();
                 combatPhase = false;
                 events.ScheduleEvent(EVENT_DRAIN_ESSENSE, 2000);
             }
@@ -68,9 +69,10 @@ class boss_corla : public CreatureScript
                 combatPhase = true;
             }
 
-            void KilledUnit(Unit* /*victim*/) override
+            void KilledUnit(Unit* who) override
             {
-                Talk(YELL_KILL);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(YELL_KILL);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -89,20 +91,20 @@ class boss_corla : public CreatureScript
                     {
                         switch (eventId)
                         {
-                        case EVENT_DRAIN_ESSENSE:
-                            DoCast(me, SPELL_DRAIN_ESSENSE);
-                            events.ScheduleEvent(EVENT_STOP_DRAIN_ESSENSE, 15000);
-                            break;
-                        case EVENT_STOP_DRAIN_ESSENSE:
-                            me->InterruptSpell(CURRENT_CHANNELED_SPELL);
-                            events.ScheduleEvent(EVENT_EVOLUTION, 2000);
-                            break;
-                        case EVENT_EVOLUTION:
-                            DoCast(me, SPELL_EVOLUTION);
-                            events.ScheduleEvent(EVENT_DRAIN_ESSENSE, 2000);
-                            break;
-                        default:
-                            break;
+                            case EVENT_DRAIN_ESSENSE:
+                                DoCast(me, SPELL_DRAIN_ESSENSE);
+                                events.ScheduleEvent(EVENT_STOP_DRAIN_ESSENSE, 15000);
+                                break;
+                            case EVENT_STOP_DRAIN_ESSENSE:
+                                me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+                                events.ScheduleEvent(EVENT_EVOLUTION, 2000);
+                                break;
+                            case EVENT_EVOLUTION:
+                                DoCast(me, SPELL_EVOLUTION);
+                                events.ScheduleEvent(EVENT_DRAIN_ESSENSE, 2000);
+                                break;
+                            default:
+                                break;
                         }
                     }
                     return;
@@ -115,9 +117,9 @@ class boss_corla : public CreatureScript
             bool combatPhase;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_corlaAI(creature);
+            return GetBlackrockCavernsAI<boss_corlaAI>(creature);
         }
 };
 

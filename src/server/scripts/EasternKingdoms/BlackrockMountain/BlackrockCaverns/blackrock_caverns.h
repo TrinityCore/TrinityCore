@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,20 +15,25 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_BLACKROCKCAVERNS_H
-#define DEF_BLACKROCKCAVERNS_H
+#ifndef BLACKROCKCAVERNS_H_
+#define BLACKROCKCAVERNS_H_
 
 #define BCScriptName "instance_blackrock_caverns"
+#define DataHeader "BRC"
 
 uint32 const EncounterCount             = 5;
 
 enum DataTypes
 {
+    // Encounter States // Boss GUIDs
     DATA_ROMOGG_BONECRUSHER             = 0,
     DATA_CORLA                          = 1,
     DATA_KARSH_STEELBENDER              = 2,
     DATA_BEAUTY                         = 3,
-    DATA_ASCENDANT_LORD_OBSIDIUS        = 4
+    DATA_ASCENDANT_LORD_OBSIDIUS        = 4,
+
+    // Additional Objects
+    DATA_RAZ_THE_CRAZED                 = 5
 };
 
 enum CreatureIds
@@ -39,13 +44,9 @@ enum CreatureIds
 };
 
 template<class AI>
-CreatureAI* GetBlackrockCavernsAI(Creature* creature)
+inline AI* GetBlackrockCavernsAI(Creature* creature)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(BCScriptName))
-                return new AI(creature);
-    return NULL;
+    return GetInstanceAI<AI>(creature, BCScriptName);
 }
 
-#endif
+#endif // BLACKROCKCAVERNS_H_

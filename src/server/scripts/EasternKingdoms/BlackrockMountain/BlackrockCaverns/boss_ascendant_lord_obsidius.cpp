@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -45,7 +45,7 @@ enum Events
 class boss_ascendant_lord_obsidius : public CreatureScript
 {
     public:
-        boss_ascendant_lord_obsidius(): CreatureScript("boss_ascendant_lord_obsidius") {}
+        boss_ascendant_lord_obsidius(): CreatureScript("boss_ascendant_lord_obsidius") { }
 
         struct boss_ascendant_lord_obsidiusAI : public BossAI
         {
@@ -53,7 +53,7 @@ class boss_ascendant_lord_obsidius : public CreatureScript
 
             void Reset() override
             {
-
+                _Reset();
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -63,9 +63,10 @@ class boss_ascendant_lord_obsidius : public CreatureScript
                 Talk(YELL_AGGRO);
             }
 
-            void KilledUnit(Unit* /*victim*/) override
+            void KilledUnit(Unit* who) override
             {
-                Talk(YELL_KILL);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(YELL_KILL);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -99,9 +100,9 @@ class boss_ascendant_lord_obsidius : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_ascendant_lord_obsidiusAI (creature);
+            return GetBlackrockCavernsAI<boss_ascendant_lord_obsidiusAI>(creature);
         }
 };
 
