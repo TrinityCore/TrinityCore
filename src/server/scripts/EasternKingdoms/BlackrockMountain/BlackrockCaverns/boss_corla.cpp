@@ -30,13 +30,19 @@ enum Text
 
 enum Spells
 {
+    SPELL_EVOLUTION                = 75610,
+    SPELL_DRAIN_ESSENSE            = 75645,
     SPELL_SHADOW_POWER             = 35322,
     H_SPELL_SHADOW_POWER           = 39193
 };
 
 enum Events
 {
-
+    // Out of combat events
+    EVENT_DRAIN_ESSENSE            = 1,
+    EVENT_STOP_DRAIN_ESSENSE       = 2,
+    EVENT_EVOLUTION                = 3
+    // Combat events
 };
 
 class boss_corla : public CreatureScript
@@ -50,13 +56,16 @@ class boss_corla : public CreatureScript
 
             void Reset() override
             {
-
+                combatPhase = false;
+                events.ScheduleEvent(EVENT_DRAIN_ESSENSE, 2000);
             }
 
             void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 Talk(YELL_AGGRO);
+                events.Reset();
+                combatPhase = true;
             }
 
             void KilledUnit(Unit* /*victim*/) override
@@ -72,11 +81,38 @@ class boss_corla : public CreatureScript
 
             void UpdateAI(uint32 /*diff*/) override
             {
-                if (!UpdateVictim())
+                events.Update(diff);
+
+                if (!combatPhase)
+                {
+                    while (uint32 eventId = events.ExecuteEvent())
+                    {
+                        switch (eventId)
+                        {
+                        case EVENT_DRAIN_ESSENSE:
+                            DoCast(me, SPELL_DRAIN_ESSENSE);
+                            events.ScheduleEvent(EVENT_STOP_DRAIN_ESSENSE, 15000);
+                            break;
+                        case EVENT_STOP_DRAIN_ESSENSE:
+                            me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+                            events.ScheduleEvent(EVENT_EVOLUTION, 2000);
+                            break;
+                        case EVENT_EVOLUTION:
+                            DoCast(me, SPELL_EVOLUTION);
+                            events.ScheduleEvent(EVENT_DRAIN_ESSENSE, 2000);
+                            break;
+                        default:
+                            break;
+                        }
+                    }
                     return;
+                }
 
                 DoMeleeAttackIfReady();
             }
+
+        private:
+            bool combatPhase;
         };
 
         CreatureAI* GetAI(Creature* creature) const

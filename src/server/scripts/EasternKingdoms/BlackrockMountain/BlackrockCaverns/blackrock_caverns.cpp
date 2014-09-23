@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 #include "blackrock_caverns.h"
 #include "SpellScript.h"
 #include "SpellAuras.h"
@@ -46,7 +47,6 @@ class npc_fire_cyclone : public CreatureScript
 
             void Reset() override
             {
-                me->AddUnitState(UNIT_STATE_ROOT);
                 _events.ScheduleEvent(EVENT_FIRE_CYCLONE_AURA, 100); 
             }
 
@@ -69,7 +69,7 @@ class npc_fire_cyclone : public CreatureScript
             }
 
             private:
-                EventMap _events;
+                EventMap        _events;
                 InstanceScript* _instance;
         };
 
@@ -88,8 +88,8 @@ enum TwilightFlameCallerSpells
     SPELL_FIRE_CHANNELING_1     = 74911,
     SPELL_FIRE_CHANNELING_2     = 74912,
     SPELL_BLAST_WAVE            = 76473,
-    SPELL_CALL_FLAMES           = 76325
-
+    SPELL_CALL_FLAMES           = 76325,
+    NPC_FIRE_CYCLONE            = 40164
 };
 
 enum TwilightFlameCallerEvents
@@ -99,38 +99,74 @@ enum TwilightFlameCallerEvents
     EVENT_CALL_FLAMES           = 4
 };
 
+Position const SummonPos[6] =
+{
+    { 162.5990f, 1085.321f, 201.1190f, 0.0f },
+    { 170.5469f, 1063.403f, 201.1409f, 0.0f },
+    { 191.2326f, 1100.160f, 201.1071f, 0.0f },
+    { 228.0816f, 1106.000f, 201.1292f, 0.0f },
+    { 252.8351f, 1095.127f, 201.1436f, 0.0f },
+    { 253.6476f, 1070.226f, 201.1344f, 0.0f }
+};
+
 class npc_twilight_flame_caller : public CreatureScript
 {
-    public: npc_twilight_flame_caller() : CreatureScript("npc_twilight_flame_caller") {}
+public: npc_twilight_flame_caller() : CreatureScript("npc_twilight_flame_caller") {}
 
         struct npc_twilight_flame_callerAI : public ScriptedAI
         {
-            npc_twilight_flame_callerAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+            npc_twilight_flame_callerAI(Creature* creature) : ScriptedAI(creature), _summons(me), _instance(creature->GetInstanceScript()) { }
 
             void Reset() override
             {
+                _combatPhase = false;
                 _flamecaller1GUID = 0;
                 _flamecaller2GUID = 0;
-                if (me->GetPositionX() > 172 && me->GetPositionX() < 173 && me->GetPositionY() > 1086 && me->GetPositionY() < 1087)
-                    _flamecaller1GUID = me->GetGUID();
-                if (me->GetPositionX() > 247 && me->GetPositionX() < 248 && me->GetPositionY() > 1081 && me->GetPositionY() < 1082)
-                    _flamecaller2GUID = me->GetGUID();
-                _events.ScheduleEvent(EVENT_CHANNEL, 100);
+
+                if (_instance)
+                {
+                    if (me->GetPositionX() > 172 && me->GetPositionX() < 173 && me->GetPositionY() > 1086 && me->GetPositionY() < 1087)
+                    {
+                        _flamecaller1GUID = me->GetGUID();
+                        me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[0], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[1], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[2], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    }
+                    if (me->GetPositionX() > 247 && me->GetPositionX() < 248 && me->GetPositionY() > 1081 && me->GetPositionY() < 1082)
+                    {
+                        _flamecaller2GUID = me->GetGUID();
+                        me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[3], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[4], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[5], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    }
+                    _events.ScheduleEvent(EVENT_CHANNEL, 100);
+                }
+            }
+
+            void JustSummoned(Creature* summoned) override
+            {
+                _summons.Summon(summoned);
+            }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                _summons.DespawnAll();
             }
 
             void EnterCombat(Unit* /*who*/) override
             {
+                _combatPhase = true;
+                _events.Reset();
                 _events.ScheduleEvent(EVENT_BLAST_WAVE, urand(8000, 10000));
                 _events.ScheduleEvent(EVENT_CALL_FLAMES,  urand(10000, 14000));
             }
 
             void UpdateAI(uint32 diff) override
             {
-
                 _events.Update(diff);
 
-               if (!UpdateVictim())
-               {
+                if (!_combatPhase)
+                {
                     while (uint32 eventId = _events.ExecuteEvent())
                     {
                         switch (eventId)
@@ -148,6 +184,9 @@ class npc_twilight_flame_caller : public CreatureScript
                     }
                     return;
                 }
+
+                if (!UpdateVictim())
+                    return;
 
                 while (uint32 eventId = _events.ExecuteEvent())
                 {
@@ -169,10 +208,12 @@ class npc_twilight_flame_caller : public CreatureScript
             }
 
         private:
-            EventMap _events;
+            EventMap        _events;
             InstanceScript* _instance;
-            uint64 _flamecaller1GUID;
-            uint64 _flamecaller2GUID;
+            uint64          _flamecaller1GUID;
+            uint64          _flamecaller2GUID;
+            SummonList      _summons;
+            bool            _combatPhase;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -211,21 +252,24 @@ class npc_twilight_torturer : public CreatureScript
 
             void Reset() override
             {
+                _combatPhase = false;
+                if (!me->GetWaypointPath())
+                    _events.ScheduleEvent(EVENT_INFLICT_PAIN_TT, urand(6000, 18000));
             }
 
             void EnterCombat(Unit* /*who*/) override
             {
+                _combatPhase = true;
                 _events.ScheduleEvent(EVENT_RED_HOT_POKER, 9000);
-                _events.ScheduleEvent(EVENT_SHACKLES,  13000);
+                _events.ScheduleEvent(EVENT_SHACKLES, 13000);
                 _events.ScheduleEvent(EVENT_WILD_BEATDOWN, 17000);
             }
 
             void UpdateAI(uint32 diff) override
             {
-
                 _events.Update(diff);
 
-               if (!UpdateVictim())
+                if (!_combatPhase)
                {
                     while (uint32 eventId = _events.ExecuteEvent())
                     {
@@ -241,6 +285,9 @@ class npc_twilight_torturer : public CreatureScript
                     }
                     return;
                 }
+
+                if (!UpdateVictim())
+                    return;
 
                 while (uint32 eventId = _events.ExecuteEvent())
                 {
@@ -266,8 +313,9 @@ class npc_twilight_torturer : public CreatureScript
             }
 
         private:
-            EventMap _events;
+            EventMap        _events;
             InstanceScript* _instance;
+            bool            _combatPhase;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -306,12 +354,14 @@ class npc_twilight_sadist : public CreatureScript
 
             void Reset() override
             {
+                _combatPhase = false;
                 if(!me->GetWaypointPath())
                     _events.ScheduleEvent(EVENT_INFLICT_PAIN_TS, urand(6000, 18000));
             }
 
             void EnterCombat(Unit* /*who*/) override
             {
+                _combatPhase = true;
                 _events.ScheduleEvent(EVENT_INFLICT_PAIN_TS, 9000);
                 _events.ScheduleEvent(EVENT_HEAT_SEEKER_BLADE,  13000);
                 _events.ScheduleEvent(EVENT_SHORT_THROW, 17000);
@@ -320,10 +370,9 @@ class npc_twilight_sadist : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-
                 _events.Update(diff);
 
-               if (!UpdateVictim())
+                if (!_combatPhase)
                {
                     while (uint32 eventId = _events.ExecuteEvent())
                     {
@@ -339,6 +388,9 @@ class npc_twilight_sadist : public CreatureScript
                     }
                     return;
                 }
+
+                if (!UpdateVictim())
+                    return;
 
                 while (uint32 eventId = _events.ExecuteEvent())
                 {
@@ -364,8 +416,9 @@ class npc_twilight_sadist : public CreatureScript
             }
 
         private:
-            EventMap _events;
+            EventMap        _events;
             InstanceScript* _instance;
+            bool            _combatPhase;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -415,25 +468,10 @@ class npc_mad_prisoner : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
+                if (!UpdateVictim())
+                    return;
 
                 _events.Update(diff);
-
-               if (!UpdateVictim())
-               {
-                    while (uint32 eventId = _events.ExecuteEvent())
-                    {
-                        switch (eventId)
-                        {
-                            case EVENT_INFLICT_PAIN_MP1:     
-                                DoCast(me, SPELL_INFLICT_PAIN);
-                                _events.ScheduleEvent(EVENT_INFLICT_PAIN_MP1, urand(25000, 32000));
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    return;
-                }
 
                 while (uint32 eventId = _events.ExecuteEvent())
                 {
@@ -459,7 +497,7 @@ class npc_mad_prisoner : public CreatureScript
             }
 
         private:
-            EventMap _events;
+            EventMap        _events;
             InstanceScript* _instance;
         };
 
@@ -503,25 +541,10 @@ class npc_crazed_mage : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
+                if (!UpdateVictim())
+                    return;
 
                 _events.Update(diff);
-
-               if (!UpdateVictim())
-               {
-                    while (uint32 eventId = _events.ExecuteEvent())
-                    {
-                        switch (eventId)
-                        {
-                            case EVENT_INFLICT_PAIN_MP2:      
-                                DoCast(me, SPELL_INFLICT_PAIN);
-                                _events.ScheduleEvent(EVENT_INFLICT_PAIN_MP2, urand(25000, 32000));
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    return;
-                }
 
                 while (uint32 eventId = _events.ExecuteEvent())
                 {
