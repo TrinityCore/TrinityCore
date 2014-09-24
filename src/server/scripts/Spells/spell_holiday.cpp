@@ -682,6 +682,63 @@ class spell_brewfest_exhausted_ram : public SpellScriptLoader
         }
 };
 
+// 43714 - Brewfest - Relay Race - Intro - Force - Player to throw- DND
+class spell_brewfest_relay_race_intro_force_player_to_throw : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_relay_race_intro_force_player_to_throw() : SpellScriptLoader("spell_brewfest_relay_race_intro_force_player_to_throw") { }
+
+        class spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript);
+
+            void HandleForceCast(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                // All this spells trigger a spell that requires reagents; if the
+                // triggered spell is cast as "triggered", reagents are not consumed
+                GetHitUnit()->CastSpell((Unit*)NULL, GetSpellInfo()->Effects[effIndex].TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript::HandleForceCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript();
+        }
+};
+
+// 43876 - Dismount Ram
+class spell_brewfest_dismount_ram : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_dismount_ram() : SpellScriptLoader("spell_brewfest_dismount_ram") { }
+
+        class spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->RemoveAura(SPELL_RENTAL_RACING_RAM);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript();
+        }
+};
+
 void AddSC_holiday_spell_scripts()
 {
     // Love is in the Air
@@ -705,4 +762,6 @@ void AddSC_holiday_spell_scripts()
     new spell_brewfest_ram_fatigue();
     new spell_brewfest_apple_trap();
     new spell_brewfest_exhausted_ram();
+    new spell_brewfest_relay_race_intro_force_player_to_throw();
+    new spell_brewfest_dismount_ram();
 }
