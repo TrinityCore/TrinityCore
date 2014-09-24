@@ -260,7 +260,7 @@ void RandomPlayerbotMgr::RandomTeleportForLevel(Player* bot)
         do
         {
             Field* fields = results->Fetch();
-            uint32 mapId = fields[0].GetUInt32();
+            uint16 mapId = fields[0].GetUInt16();
             float x = fields[1].GetFloat();
             float y = fields[2].GetFloat();
             float z = fields[3].GetFloat();
@@ -272,7 +272,7 @@ void RandomPlayerbotMgr::RandomTeleportForLevel(Player* bot)
     RandomTeleport(bot, locs);
 }
 
-void RandomPlayerbotMgr::RandomTeleport(Player* bot, uint32 mapId, float teleX, float teleY, float teleZ)
+void RandomPlayerbotMgr::RandomTeleport(Player* bot, uint16 mapId, float teleX, float teleY, float teleZ)
 {
     vector<WorldLocation> locs;
     QueryResult results = WorldDatabase.PQuery("select position_x, position_y, position_z from creature where map = '%u' and abs(position_x - '%f') < '%u' and abs(position_y - '%f') < '%u'",
@@ -323,7 +323,7 @@ void RandomPlayerbotMgr::RandomizeFirst(Player* bot)
     for (int attempt = 0; attempt < 100; ++attempt)
     {
         int index = urand(0, sPlayerbotAIConfig.randomBotMaps.size() - 1);
-        uint32 mapId = sPlayerbotAIConfig.randomBotMaps[index];
+        uint16 mapId = sPlayerbotAIConfig.randomBotMaps[index];
 
         vector<GameTele const*> locs;
         GameTeleContainer const & teleMap = sObjectMgr->GetGameTeleMap();
@@ -356,7 +356,7 @@ void RandomPlayerbotMgr::RandomizeFirst(Player* bot)
     }
 }
 
-uint32 RandomPlayerbotMgr::GetZoneLevel(uint32 mapId, float teleX, float teleY, float teleZ)
+uint32 RandomPlayerbotMgr::GetZoneLevel(uint16 mapId, float teleX, float teleY, float teleZ)
 {
     uint32 maxLevel = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
 
@@ -369,8 +369,8 @@ uint32 RandomPlayerbotMgr::GetZoneLevel(uint32 mapId, float teleX, float teleY, 
     if (results)
     {
         Field* fields = results->Fetch();
-        uint32 minLevel = fields[0].GetUInt32();
-        uint32 maxLevel = fields[1].GetUInt32();
+        uint8 minLevel = fields[0].GetUInt8();
+        uint8 maxLevel = fields[1].GetUInt8();
         level = urand(minLevel, maxLevel);
         if (level > maxLevel)
             level = maxLevel;
@@ -485,7 +485,7 @@ vector<uint32> RandomPlayerbotMgr::GetFreeBots(bool alliance)
         {
             Field* fields = result->Fetch();
             uint32 guid = fields[0].GetUInt32();
-            uint32 race = fields[1].GetUInt32();
+            uint8 race = fields[1].GetUInt8();
             if (bots.find(guid) == bots.end() &&
                     ((alliance && IsAlliance(race)) || ((!alliance && !IsAlliance(race))
             )))
@@ -575,7 +575,7 @@ bool RandomPlayerbotMgr::HandlePlayerbotConsoleCommand(ChatHandler* handler, cha
                 do
                 {
                     Field* fields = results->Fetch();
-                    ObjectGuid guid = ObjectGuid(fields[0].GetUInt64());
+                    ObjectGuid guid = ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt32());
                     Player* bot = sObjectMgr->GetPlayerByLowGUID(guid);
                     if (!bot)
                         continue;
