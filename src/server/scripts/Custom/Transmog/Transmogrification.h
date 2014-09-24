@@ -45,15 +45,6 @@ public:
     }
 
 #ifdef PRESETS
-    //typedef std::map<uint8, uint32> presetslotMap;
-    //struct presetData
-    //{
-    //    std::string name;
-    //    presetslotMap slotMap;
-    //};
-    //typedef std::map<uint8, presetData> presetIdMap; // remember to lock
-    // typedef KVRWHashMap<uint64, presetIdMap> presetPlayers;
-    // presetPlayers presetMap; // presetByName[pGUID][presetID] = presetData
 
     bool EnableSetInfo;
     uint32 SetNpcText;
@@ -67,12 +58,6 @@ public:
 
     void PresetTransmog(Player* player, Item* itemTransmogrified, uint32 fakeEntry, uint8 slot);
 #endif
-
-    //typedef std::unordered_map<uint64, uint32> transmogData; // remember to lock
-    //typedef KVRWHashMap<uint64, transmogData> transmogMap;
-    //// typedef KVRWHashMap<uint64, uint64> transmogPlayers;
-    //transmogMap entryMap; // entryMap[pGUID][iGUID] = entry
-    //// transmogPlayers playerMap; // dataMap[iGUID] = pGUID
 
     bool EnableTransmogInfo;
     uint32 TransmogNpcText;
@@ -127,13 +112,13 @@ public:
     void DeleteFakeEntry(Player* player, Item* item);
     void SetFakeEntry(Player* player, Item* item, uint32 entry);
 
-    TransmogTrinityStrings Transmogrify(Player* player, uint64 itemGUID, uint8 slot, bool no_cost = false);
+    TransmogTrinityStrings Transmogrify(Player* player, ObjectGuid itemGUID, uint8 slot, bool no_cost = false);
     bool CanTransmogrifyItemWithItem(Player* player, ItemTemplate const* destination, ItemTemplate const* source) const;
     bool SuitableForTransmogrification(Player* player, ItemTemplate const* proto) const;
     // bool CanBeTransmogrified(Item const* item);
     // bool CanTransmogrify(Item const* item);
     uint32 GetSpecialPrice(ItemTemplate const* proto) const;
-    std::vector<uint64> GetItemList(const Player* player) const;
+    std::vector<ObjectGuid> GetItemList(const Player* player) const;
 };
 #define sTransmogrification Transmogrification::instance()
 

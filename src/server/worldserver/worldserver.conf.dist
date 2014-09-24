@@ -3215,12 +3215,12 @@ PacketSpoof.BanDuration = 86400
 #
 #    Transmogrification.Allowed
 #        Description: A list of item entries that are allowed for transmogrification (skips quality and CanUseItem check)
-#					  Example: "25 35674 5623"
+#                     Example: "25 35674 5623"
 #        Default:    ""
 #
 #    Transmogrification.NotAllowed
 #        Description: A list of item entries that are NOT allowed for transmogrification
-#					  Example: "25 35674 5623"
+#                     Example: "25 35674 5623"
 #        Default:    ""
 
 Logger.custom.transmog = 3, Console Server

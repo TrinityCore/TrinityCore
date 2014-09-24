@@ -1,3 +1,7 @@
+####6.1
+- Update to newest TC
+- Made guid changes
+
 ####6.0
 - Removed mutex locks - Different code style, works with ACE and boost, probably more efficient
 - Added regex checking for preset name

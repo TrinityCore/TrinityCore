@@ -1,5 +1,5 @@
 /*
-6.0
+6.1
 Transmogrification 3.3.5a - Gossip menu
 By Rochet2
 
@@ -237,7 +237,7 @@ namespace
                         return true;
                     }
                     // sender = slot, action = display
-                    TransmogTrinityStrings res = sTransmogrification->Transmogrify(player, MAKE_NEW_GUID(action, 0, HIGHGUID_ITEM), sender);
+                    TransmogTrinityStrings res = sTransmogrification->Transmogrify(player, ObjectGuid(HIGHGUID_ITEM, 0, action), sender);
                     if (res == LANG_ERR_TRANSMOG_OK)
                         session->SendAreaTriggerMessage("%s", GTS(LANG_ERR_TRANSMOG_OK));
                     else
