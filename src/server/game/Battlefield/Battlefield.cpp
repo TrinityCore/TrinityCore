@@ -105,7 +105,7 @@ void Battlefield::HandlePlayerLeaveZone(Player* player, uint32 /*zone*/)
         if (m_PlayersInWar[player->GetTeamId()].find(player->GetGUID()) != m_PlayersInWar[player->GetTeamId()].end())
         {
             m_PlayersInWar[player->GetTeamId()].erase(player->GetGUID());
-            player->GetSession()->SendBfLeaveMessage(m_BattleId);
+            player->GetSession()->SendBfLeaveMessage(m_Guid);
             if (Group* group = player->GetGroup()) // Remove the player from the raid group
                 group->RemoveMember(player->GetGUID());
 
@@ -209,7 +209,7 @@ void Battlefield::InvitePlayerToQueue(Player* player)
         return;
 
     if (m_PlayersInQueue[player->GetTeamId()].size() <= m_MinPlayer || m_PlayersInQueue[GetOtherTeam(player->GetTeamId())].size() >= m_MinPlayer)
-        player->GetSession()->SendBfInvitePlayerToQueue(m_BattleId);
+        player->GetSession()->SendBfInvitePlayerToQueue(m_Guid);
 }
 
 void Battlefield::InvitePlayersInQueueToWar()
@@ -278,7 +278,7 @@ void Battlefield::InvitePlayerToWar(Player* player)
 
     m_PlayersWillBeKick[player->GetTeamId()].erase(player->GetGUID());
     m_InvitedPlayers[player->GetTeamId()][player->GetGUID()] = time(NULL) + m_TimeForAcceptInvite;
-    player->GetSession()->SendBfInvitePlayerToWar(m_BattleId, m_ZoneId, m_TimeForAcceptInvite);
+    player->GetSession()->SendBfInvitePlayerToWar(m_Guid, m_ZoneId, m_TimeForAcceptInvite);
 }
 
 void Battlefield::InitStalker(uint32 entry, Position const& pos)
@@ -347,8 +347,9 @@ void Battlefield::EndBattle(bool endByTimer)
 void Battlefield::DoPlaySoundToAll(uint32 SoundID)
 {
     WorldPacket data;
-    data.Initialize(SMSG_PLAY_SOUND, 4);
+    data.Initialize(SMSG_PLAY_SOUND, 4 + 8);
     data << uint32(SoundID);
+    data << uint64(0);
 
     BroadcastPacketToWar(data);
 }
@@ -364,7 +365,7 @@ void Battlefield::PlayerAcceptInviteToQueue(Player* player)
     // Add player in queue
     m_PlayersInQueue[player->GetTeamId()].insert(player->GetGUID());
     // Send notification
-    player->GetSession()->SendBfQueueInviteResponse(m_BattleId, m_ZoneId);
+    player->GetSession()->SendBfQueueInviteResponse(m_Guid, m_ZoneId);
 }
 
 // Called in WorldSession::HandleBfExitRequest
@@ -382,7 +383,7 @@ void Battlefield::PlayerAcceptInviteToWar(Player* player)
 
     if (AddOrSetPlayerToCorrectBfGroup(player))
     {
-        player->GetSession()->SendBfEntered(m_BattleId);
+        player->GetSession()->SendBfEntered(m_Guid);
         m_PlayersInWar[player->GetTeamId()].insert(player->GetGUID());
         m_InvitedPlayers[player->GetTeamId()].erase(player->GetGUID());
 
@@ -457,14 +458,12 @@ void Battlefield::HideNpc(Creature* creature)
     creature->CombatStop();
     creature->SetReactState(REACT_PASSIVE);
     creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-    creature->SetPhaseMask(2, true);
     creature->DisappearAndDie();
     creature->SetVisible(false);
 }
 
 void Battlefield::ShowNpc(Creature* creature, bool aggressive)
 {
-    creature->SetPhaseMask(1, true);
     creature->SetVisible(true);
     creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
     if (!creature->IsAlive())
@@ -777,7 +776,6 @@ Creature* Battlefield::SpawnCreature(uint32 entry, float x, float y, float z, fl
         delete creature;
         return nullptr;
     }
-
     creature->SetHomePosition(x, y, z, o);
 
     CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(entry);

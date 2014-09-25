@@ -60,7 +60,6 @@ public:
             { "die",              rbac::RBAC_PERM_COMMAND_DIE,              false, &HandleDieCommand,              "", NULL },
             { "dismount",         rbac::RBAC_PERM_COMMAND_DISMOUNT,         false, &HandleDismountCommand,         "", NULL },
             { "distance",         rbac::RBAC_PERM_COMMAND_DISTANCE,         false, &HandleGetDistanceCommand,      "", NULL },
-            { "flusharenapoints", rbac::RBAC_PERM_COMMAND_FLUSHARENAPOINTS, false, &HandleFlushArenaPointsCommand, "", NULL },
             { "freeze",           rbac::RBAC_PERM_COMMAND_FREEZE,           false, &HandleFreezeCommand,           "", NULL },
             { "gps",              rbac::RBAC_PERM_COMMAND_GPS,              false, &HandleGPSCommand,              "", NULL },
             { "guid",             rbac::RBAC_PERM_COMMAND_GUID,             false, &HandleGUIDCommand,             "", NULL },
@@ -201,9 +200,9 @@ public:
         char const* unknown = handler->GetTrinityString(LANG_UNKNOWN);
 
         handler->PSendSysMessage(LANG_MAP_POSITION,
-            mapId, (mapEntry ? mapEntry->name[handler->GetSessionDbcLocale()] : unknown),
-            zoneId, (zoneEntry ? zoneEntry->area_name[handler->GetSessionDbcLocale()] : unknown),
-            areaId, (areaEntry ? areaEntry->area_name[handler->GetSessionDbcLocale()] : unknown),
+            mapId, (mapEntry ? mapEntry->name : unknown),
+            zoneId, (zoneEntry ? zoneEntry->area_name : unknown),
+            areaId, (areaEntry ? areaEntry->area_name : unknown),
             object->GetPhaseMask(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation(),
             cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
@@ -371,7 +370,8 @@ public:
             target->GetContactPoint(_player, x, y, z);
 
             _player->TeleportTo(target->GetMapId(), x, y, z, _player->GetAngle(target), TELE_TO_GM_MODE);
-            _player->SetPhaseMask(target->GetPhaseMask(), true);
+            for (auto phase : target->GetPhases())
+                _player->SetInPhase(phase, true, true);
         }
         else
         {
@@ -495,7 +495,8 @@ public:
             float x, y, z;
             handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, target->GetObjectSize());
             target->TeleportTo(handler->GetSession()->GetPlayer()->GetMapId(), x, y, z, target->GetOrientation());
-            target->SetPhaseMask(handler->GetSession()->GetPlayer()->GetPhaseMask(), true);
+            for (auto phase : handler->GetSession()->GetPlayer()->GetPhases())
+                target->SetInPhase(phase, true, true);
         }
         else
         {
@@ -1346,7 +1347,7 @@ public:
 
         // If our target does not yet have the skill they are trying to add to them, the chosen level also becomes
         // the max level of the new profession.
-        uint16 max = maxPureSkill ? atol (maxPureSkill) : targetHasSkill ? target->GetPureMaxSkillValue(skill) : uint16(level);
+        uint16 max = maxPureSkill ? atol(maxPureSkill) : targetHasSkill ? target->GetPureMaxSkillValue(skill) : uint16(level);
 
         if (level <= 0 || level > max || max <= 0)
             return false;
@@ -1355,7 +1356,7 @@ public:
         // add the skill to the player's book with step 1 (which is the first rank, in most cases something
         // like 'Apprentice <skill>'.
         target->SetSkill(skill, targetHasSkill ? target->GetSkillStep(skill) : 1, level, max);
-        handler->PSendSysMessage(LANG_SET_SKILL, skill, skillLine->name[handler->GetSessionDbcLocale()], handler->GetNameLink(target).c_str(), level, max);
+        handler->PSendSysMessage(LANG_SET_SKILL, skill, skillLine->name, handler->GetNameLink(target).c_str(), level, max);
         return true;
     }
 
@@ -1704,15 +1705,15 @@ public:
         AreaTableEntry const* area = GetAreaEntryByAreaID(areaId);
         if (area)
         {
-            areaName = area->area_name[locale];
+            areaName = area->area_name;
 
             AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone);
             if (zone)
-                zoneName = zone->area_name[locale];
+                zoneName = zone->area_name;
         }
 
         if (target)
-            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->name[locale],
+            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->name,
                 (!zoneName.empty() ? zoneName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)),
                 (!areaName.empty() ? areaName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)));
 
@@ -2216,12 +2217,6 @@ public:
         return true;
     }
 
-    static bool HandleFlushArenaPointsCommand(ChatHandler* /*handler*/, char const* /*args*/)
-    {
-        sArenaTeamMgr->DistributeArenaPoints();
-        return true;
-    }
-
     static bool HandleRepairitemsCommand(ChatHandler* handler, char const* args)
     {
         Player* target;
@@ -2454,8 +2449,9 @@ public:
             return false;
         }
 
-        WorldPacket data(SMSG_PLAY_SOUND, 4);
+        WorldPacket data(SMSG_PLAY_SOUND, 4 + 8);
         data << uint32(soundId);
+        data << uint64(handler->GetSession()->GetPlayer()->GetGUID());
         sWorld->SendGlobalMessage(&data);
 
         handler->PSendSysMessage(LANG_COMMAND_PLAYED_TO_ALL, soundId);

@@ -1023,7 +1023,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             delete targets;
             break;
         }
-        case SMART_ACTION_SET_INGAME_PHASE_MASK:
+        case SMART_ACTION_SET_INGAME_PHASE_ID:
         {
             ObjectList* targets = GetTargets(e, unit);
 
@@ -1031,12 +1031,23 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
-            {
-                if (IsUnit(*itr))
-                    (*itr)->ToUnit()->SetPhaseMask(e.action.ingamePhaseMask.mask, true);
-                else if (IsGameObject(*itr))
-                    (*itr)->ToGameObject()->SetPhaseMask(e.action.ingamePhaseMask.mask, true);
-            }
+                (*itr)->SetInPhase(e.action.ingamePhaseId.id, true, e.action.ingamePhaseId.apply == 1);
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_SET_INGAME_PHASE_GROUP:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (!targets)
+                break;
+
+            std::set<uint32> const& phases = GetPhasesForGroup(e.action.ingamePhaseGroup.groupId);
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                for (auto phase : phases)
+                    (*itr)->SetInPhase(phase, true, e.action.ingamePhaseGroup.apply == 1);
 
             delete targets;
             break;
@@ -1363,8 +1374,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             if (e.GetTargetType() == SMART_TARGET_SELF)
-                me->SetFacingTo((me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && me->GetTransGUID() ?
-                    me->GetTransportHomePosition() : me->GetHomePosition()).GetOrientation());
+                me->SetFacingTo((me->GetTransport() ? me->GetTransportHomePosition() : me->GetHomePosition()).GetOrientation());
             else if (e.GetTargetType() == SMART_TARGET_POSITION)
                 me->SetFacingTo(e.target.o);
             else if (ObjectList* targets = GetTargets(e, unit))

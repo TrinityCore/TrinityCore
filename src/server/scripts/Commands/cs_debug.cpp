@@ -93,6 +93,7 @@ public:
             { "los",           rbac::RBAC_PERM_COMMAND_DEBUG_LOS,           false, &HandleDebugLoSCommand,              "", NULL },
             { "moveflags",     rbac::RBAC_PERM_COMMAND_DEBUG_MOVEFLAGS,     false, &HandleDebugMoveflagsCommand,        "", NULL },
             { "transport",     rbac::RBAC_PERM_COMMAND_DEBUG_TRANSPORT,     false, &HandleDebugTransportCommand,        "", NULL },
+            { "phase",         rbac::RBAC_PERM_COMMAND_DEBUG_PHASE,         false, &HandleDebugPhaseCommand,            "", NULL },
             { NULL,            0,                                     false, NULL,                                "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -239,7 +240,7 @@ public:
             return false;
 
         SellResult msg = SellResult(atoi(args));
-        handler->GetSession()->GetPlayer()->SendSellError(msg, nullptr, ObjectGuid::Empty, 0);
+        handler->GetSession()->GetPlayer()->SendSellError(msg, nullptr, ObjectGuid::Empty);
         return true;
     }
 
@@ -313,7 +314,7 @@ public:
         uint32 opcode;
         parsedStream >> opcode;
 
-        WorldPacket data(opcode, 0);
+        WorldPacket data(Opcodes(opcode), 0);
 
         while (!parsedStream.eof())
         {
@@ -419,7 +420,7 @@ public:
         }
         TC_LOG_DEBUG("network", "Sending opcode %u", data.GetOpcode());
         data.hexlike();
-        player->GetSession()->SendPacket(&data);
+        player->GetSession()->SendPacket(&data, true);
         handler->PSendSysMessage(LANG_COMMAND_OPCODESENT, data.GetOpcode(), unit->GetName().c_str());
         return true;
     }
@@ -933,6 +934,9 @@ public:
             return false;
         }
 
+        for (auto phase : handler->GetSession()->GetPlayer()->GetPhases())
+            v->SetInPhase(phase, false, true);
+
         map->AddToMap(v->ToCreature());
 
         return true;
@@ -953,8 +957,22 @@ public:
         if (!*args)
             return false;
 
-        uint32 PhaseShift = atoi(args);
-        handler->GetSession()->SendSetPhaseShift(PhaseShift);
+        char* t = strtok((char*)args, " ");
+        char* p = strtok(NULL, " ");
+
+        if (!t)
+            return false;
+
+        std::set<uint32> terrainswap;
+        std::set<uint32> phaseId;
+        std::set<uint32> worldMapSwap;
+
+        terrainswap.insert((uint32)atoi(t));
+
+        if (p)
+            phaseId.insert((uint32)atoi(p));
+
+        handler->GetSession()->SendSetPhaseShift(phaseId, terrainswap, worldMapSwap);
         return true;
     }
 
@@ -1311,35 +1329,9 @@ public:
             char* mask2 = strtok(NULL, " \n");
 
             uint32 moveFlags = (uint32)atoi(mask1);
+            target->SetUnitMovementFlags(moveFlags);
 
-            static uint32 const FlagsWithHandlers = MOVEMENTFLAG_MASK_HAS_PLAYER_STATUS_OPCODE |
-                                                    MOVEMENTFLAG_WALKING | MOVEMENTFLAG_SWIMMING |
-                                                    MOVEMENTFLAG_SPLINE_ENABLED;
-
-            bool unhandledFlag = ((moveFlags ^ target->GetUnitMovementFlags()) & ~FlagsWithHandlers) != 0;
-
-            target->SetWalk((moveFlags & MOVEMENTFLAG_WALKING) != 0);
-            target->SetDisableGravity((moveFlags & MOVEMENTFLAG_DISABLE_GRAVITY) != 0);
-            target->SetSwim((moveFlags & MOVEMENTFLAG_SWIMMING) != 0);
-            target->SetCanFly((moveFlags & MOVEMENTFLAG_CAN_FLY) != 0);
-            target->SetWaterWalking((moveFlags & MOVEMENTFLAG_WATERWALKING) != 0);
-            target->SetFeatherFall((moveFlags & MOVEMENTFLAG_FALLING_SLOW) != 0);
-            target->SetHover((moveFlags & MOVEMENTFLAG_HOVER) != 0);
-
-            if (moveFlags & (MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_CAN_FLY))
-                moveFlags &= ~MOVEMENTFLAG_FALLING;
-
-            if (moveFlags & MOVEMENTFLAG_ROOT)
-            {
-                target->SetControlled(true, UNIT_STATE_ROOT);
-                moveFlags &= ~MOVEMENTFLAG_MASK_MOVING;
-            }
-
-            if (target->HasUnitMovementFlag(MOVEMENTFLAG_SPLINE_ENABLED) && !(moveFlags & MOVEMENTFLAG_SPLINE_ENABLED))
-                target->StopMoving();
-
-            if (unhandledFlag)
-                target->SetUnitMovementFlags(moveFlags);
+            /// @fixme: port master's HandleDebugMoveflagsCommand; flags need different handling
 
             if (mask2)
             {
@@ -1347,8 +1339,14 @@ public:
                 target->SetExtraUnitMovementFlags(moveFlagsExtra);
             }
 
-            if (mask2 || unhandledFlag)
-                target->SendMovementFlagUpdate();
+            if (target->GetTypeId() != TYPEID_PLAYER)
+                target->DestroyForNearbyPlayers();  // Force new SMSG_UPDATE_OBJECT:CreateObject
+            else
+            {
+                WorldPacket data(SMSG_PLAYER_MOVE);
+                target->WriteMovementInfo(data);
+                target->SendMessageToSet(&data, true);
+            }
 
             handler->PSendSysMessage(LANG_MOVEFLAGS_SET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());
         }
@@ -1389,6 +1387,17 @@ public:
         }
 
         handler->PSendSysMessage("Transport %s %s", transport->GetName().c_str(), start ? "started" : "stopped");
+        return true;
+    }
+
+    static bool HandleDebugPhaseCommand(ChatHandler* /*handler*/, char const* /*args*/)
+    {
+        /*/
+        Unit* unit = handler->getSelectedUnit();
+        Player* player = handler->GetSession()->GetPlayer();
+        if (unit && unit->GetTypeId() == TYPEID_PLAYER)
+            player = unit->ToPlayer();
+        */
         return true;
     }
 };

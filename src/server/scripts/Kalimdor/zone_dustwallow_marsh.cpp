@@ -19,16 +19,13 @@
 /* ScriptData
 SDName: Dustwallow_Marsh
 SD%Complete: 95
-SDComment: Quest support: 11180, 558, 11126, 11142, 11174, Vendor Nat Pagle
+SDComment: Quest support: 1270, 1222, 27245
 SDCategory: Dustwallow Marsh
 EndScriptData */
 
 /* ContentData
-npc_risen_husk_spirit
-npc_lady_jaina_proudmoore
-npc_nat_pagle
-npc_private_hendel
-npc_cassa_crimsonwing - handled by npc_taxi
+npc_stinky
+go_blackhoof_cage
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -666,11 +663,6 @@ public:
 
 void AddSC_dustwallow_marsh()
 {
-    new npc_risen_husk_spirit();
-    new npc_lady_jaina_proudmoore();
-    new npc_nat_pagle();
-    new npc_private_hendel();
-    new npc_zelfrax();
     new npc_stinky();
     new spell_ooze_zap();
     new spell_ooze_zap_channel_end();

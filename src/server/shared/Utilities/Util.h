@@ -68,7 +68,7 @@ private:
 
 void stripLineInvisibleChars(std::string &src);
 
-int32 MoneyStringToMoney(const std::string& moneyString);
+int64 MoneyStringToMoney(const std::string& moneyString);
 
 struct tm* localtime_r(const time_t* time, struct tm *result);
 
@@ -338,12 +338,14 @@ bool consoleToUtf8(const std::string& conStr, std::string& utf8str);
 bool Utf8FitTo(const std::string& str, std::wstring const& search);
 void utf8printf(FILE* out, const char *str, ...);
 void vutf8printf(FILE* out, const char *str, va_list* ap);
+bool Utf8ToUpperOnlyLatin(std::string& utf8String);
 
 bool IsIPAddress(char const* ipaddress);
 
 uint32 CreatePIDFile(const std::string& filename);
 
 std::string ByteArrayToHexStr(uint8 const* bytes, uint32 length, bool reverse = false);
+void HexStrToByteArray(std::string const& str, uint8* out, bool reverse = false);
 
 // simple class for not-modifyable list
 template <typename T>

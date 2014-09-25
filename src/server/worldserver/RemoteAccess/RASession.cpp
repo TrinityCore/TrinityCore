@@ -121,7 +121,7 @@ bool RASession::CheckAccessLevel(const std::string& user)
 {
     std::string safeUser = user;
 
-    AccountMgr::normalizeString(safeUser);
+    Utf8ToUpperOnlyLatin(safeUser);
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS);
     stmt->setString(0, safeUser);
@@ -152,12 +152,10 @@ bool RASession::CheckAccessLevel(const std::string& user)
 bool RASession::CheckPassword(const std::string& user, const std::string& pass)
 {
     std::string safe_user = user;
-    std::transform(safe_user.begin(), safe_user.end(), safe_user.begin(), ::toupper);
-    AccountMgr::normalizeString(safe_user);
+    Utf8ToUpperOnlyLatin(safe_user);
 
     std::string safe_pass = pass;
-    AccountMgr::normalizeString(safe_pass);
-    std::transform(safe_pass.begin(), safe_pass.end(), safe_pass.begin(), ::toupper);
+    Utf8ToUpperOnlyLatin(safe_pass);
 
     std::string hash = AccountMgr::CalculateShaPassHash(safe_user, safe_pass);
 

@@ -44,7 +44,6 @@ enum ConvertedSentry
     SPELL_CONVERT_CREDIT    = 45009
 };
 
-
 class npc_converted_sentry : public CreatureScript
 {
 public:

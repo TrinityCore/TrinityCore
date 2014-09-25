@@ -19,12 +19,7 @@
 #ifndef MODELHEADERS_H
 #define MODELHEADERS_H
 
-/* typedef unsigned char uint8;
-typedef char int8;
-typedef unsigned short uint16;
-typedef short int16;
-typedef unsigned int uint32;
-typedef int int32; */
+#include "mpqfile.h"    // integer typedefs
 
 #pragma pack(push,1)
 

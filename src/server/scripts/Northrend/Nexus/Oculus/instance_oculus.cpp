@@ -57,7 +57,7 @@ class instance_oculus : public InstanceMapScript
                     case NPC_VAROS:
                         VarosGUID = creature->GetGUID();
                         if (GetBossState(DATA_DRAKOS) == DONE)
-                           creature->SetPhaseMask(1, true);
+                            creature->SetPhaseMask(1, true);
                         break;
                     case NPC_UROM:
                         UromGUID = creature->GetGUID();

@@ -37,9 +37,12 @@ char const* ObjectGuid::GetTypeName(HighGuid high)
         case HIGHGUID_VEHICLE:      return "Vehicle";
         case HIGHGUID_DYNAMICOBJECT: return "DynObject";
         case HIGHGUID_CORPSE:       return "Corpse";
+        case HIGHGUID_AREATRIGGER:  return "AreaTrigger";
+        case HIGHGUID_BATTLEGROUND: return "Battleground";
         case HIGHGUID_MO_TRANSPORT: return "MoTransport";
         case HIGHGUID_INSTANCE:     return "InstanceID";
         case HIGHGUID_GROUP:        return "Group";
+        case HIGHGUID_GUILD:        return "Guild";
         default:
             return "<unknown>";
     }
@@ -48,7 +51,7 @@ char const* ObjectGuid::GetTypeName(HighGuid high)
 std::string ObjectGuid::ToString() const
 {
     std::ostringstream str;
-    str << "GUID Full: 0x" << std::hex << std::setw(16) << std::setfill('0') << _guid << std::dec;
+    str << "GUID Full: 0x" << std::hex << std::setw(16) << std::setfill('0') << _data._guid << std::dec;
     str << " Type: " << GetTypeName();
     if (HasEntry())
         str << (IsPet() ? " Pet number: " : " Entry: ") << GetEntry() << " ";
@@ -101,5 +104,8 @@ template uint32 ObjectGuidGenerator<HIGHGUID_PET>::Generate();
 template uint32 ObjectGuidGenerator<HIGHGUID_VEHICLE>::Generate();
 template uint32 ObjectGuidGenerator<HIGHGUID_DYNAMICOBJECT>::Generate();
 template uint32 ObjectGuidGenerator<HIGHGUID_CORPSE>::Generate();
+template uint32 ObjectGuidGenerator<HIGHGUID_AREATRIGGER>::Generate();
+template uint32 ObjectGuidGenerator<HIGHGUID_BATTLEGROUND>::Generate();
 template uint32 ObjectGuidGenerator<HIGHGUID_INSTANCE>::Generate();
 template uint32 ObjectGuidGenerator<HIGHGUID_GROUP>::Generate();
+template uint32 ObjectGuidGenerator<HIGHGUID_GUILD>::Generate();

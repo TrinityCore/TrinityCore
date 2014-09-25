@@ -49,8 +49,13 @@ enum ProfessorPhizzlethorpe
     SAY_PROGRESS_7          = 7,
     EMOTE_PROGRESS_8        = 8,
     SAY_PROGRESS_9          = 9,
+    EVENT_SAY_3         = 1,
+    EVENT_SAY_6         = 2,
+    EVENT_SAY_8         = 3,
+
     // Quests
     QUEST_SUNKEN_TREASURE   = 665,
+    QUEST_GOGGLE_BOGGLE     = 26050,
     // Creatures
     NPC_VENGEFUL_SURGE      = 2776,
     FACTION_SUNKEN_TREASURE = 113
@@ -73,33 +78,22 @@ class npc_professor_phizzlethorpe : public CreatureScript
 
                 switch (waypointId)
                 {
-                    case 4:
+                    case 6:
                         Talk(SAY_PROGRESS_2, player);
-                        break;
-                    case 5:
-                        Talk(SAY_PROGRESS_3, player);
+                        events.ScheduleEvent(EVENT_SAY_3, 3000);
                         break;
                     case 8:
                         Talk(EMOTE_PROGRESS_4);
-                        break;
-                    case 9:
-                        me->SummonCreature(NPC_VENGEFUL_SURGE, -2052.96f, -2142.49f, 20.15f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                        me->SummonCreature(NPC_VENGEFUL_SURGE, -2052.96f, -2142.49f, 20.15f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                        break;
-                    case 10:
-                        Talk(SAY_PROGRESS_5, player);
+                        me->SummonCreature(NPC_VENGEFUL_SURGE, -2065.505f, -2136.88f, 22.20362f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        me->SummonCreature(NPC_VENGEFUL_SURGE, -2059.249f, -2134.88f, 21.51582f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
                         break;
                     case 11:
-                        Talk(SAY_PROGRESS_6, player);
-                        SetRun();
+                        Talk(SAY_PROGRESS_5, player);
+                        events.ScheduleEvent(EVENT_SAY_6, 11000);
                         break;
-                    case 19:
+                    case 17:
                         Talk(SAY_PROGRESS_7, player);
-                        break;
-                    case 20:
-                        Talk(EMOTE_PROGRESS_8);
-                        Talk(SAY_PROGRESS_9, player);
-                        player->GroupEventHappens(QUEST_SUNKEN_TREASURE, me);
+                        events.ScheduleEvent(EVENT_SAY_8, 6000);
                         break;
                 }
             }
@@ -126,8 +120,34 @@ class npc_professor_phizzlethorpe : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
+                Player* player = GetPlayerForEscort();
+                if (!player)
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 event = events.ExecuteEvent())
+                {
+                    switch (event)
+                    {
+                        case EVENT_SAY_3:
+                            Talk(SAY_PROGRESS_3, player);
+                            break;
+                        case EVENT_SAY_6:
+                            Talk(SAY_PROGRESS_6, player);
+                            SetRun();
+                            break;
+                        case EVENT_SAY_8:
+                            Talk(EMOTE_PROGRESS_8);
+                            Talk(SAY_PROGRESS_9, player);
+                            player->GroupEventHappens(QUEST_GOGGLE_BOGGLE, me);
+                            break;
+                    }
+                }
                 npc_escortAI::UpdateAI(diff);
             }
+
+            EventMap events;
         };
 
     CreatureAI* GetAI(Creature* creature) const override

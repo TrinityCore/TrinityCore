@@ -44,4 +44,5 @@ private:
     int tileXMax;
     int tileYMax;
 };
+
 #endif

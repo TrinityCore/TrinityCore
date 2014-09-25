@@ -493,10 +493,7 @@ Vehicle* Vehicle::RemovePassenger(Unit* unit)
     if (_me->IsInWorld())
     {
         if (!_me->GetTransport())
-        {
-            unit->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
-            unit->m_movementInfo.transport.Reset();
-        }
+            unit->m_movementInfo.ResetTransport();
         else
             unit->m_movementInfo.transport = _me->m_movementInfo.transport;
     }
@@ -538,6 +535,7 @@ void Vehicle::RelocatePassengers()
             float px, py, pz, po;
             passenger->m_movementInfo.transport.pos.GetPosition(px, py, pz, po);
             CalculatePassengerPosition(px, py, pz, &po);
+
             passenger->UpdatePosition(px, py, pz, po);
         }
     }
@@ -798,7 +796,6 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     if (Seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE)
         Passenger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-    Passenger->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     Passenger->m_movementInfo.transport.pos.Relocate(veSeat->m_attachmentOffsetX, veSeat->m_attachmentOffsetY, veSeat->m_attachmentOffsetZ);
     Passenger->m_movementInfo.transport.time = 0;
     Passenger->m_movementInfo.transport.seat = Seat->first;

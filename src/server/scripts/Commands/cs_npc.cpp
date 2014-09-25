@@ -106,7 +106,8 @@ EnumName<Mechanics> const mechanicImmunes[MAX_MECHANIC] =
     CREATE_NAMED_ENUM(MECHANIC_DISCOVERY),
     CREATE_NAMED_ENUM(MECHANIC_IMMUNE_SHIELD),
     CREATE_NAMED_ENUM(MECHANIC_SAPPED),
-    CREATE_NAMED_ENUM(MECHANIC_ENRAGED)
+    CREATE_NAMED_ENUM(MECHANIC_ENRAGED),
+    CREATE_NAMED_ENUM(MECHANIC_WOUNDED)
 };
 
 EnumName<UnitFlags> const unitFlags[MAX_UNIT_FLAGS] =
@@ -263,7 +264,7 @@ public:
             uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT);
             CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
             data.id = id;
-            data.phaseMask = chr->GetPhaseMaskForSpawn();
+            data.phaseMask = chr->GetPhaseMask();
             data.posX = chr->GetTransOffsetX();
             data.posY = chr->GetTransOffsetY();
             data.posZ = chr->GetTransOffsetZ();
@@ -271,20 +272,23 @@ public:
 
             Creature* creature = trans->CreateNPCPassenger(guid, &data);
 
-            creature->SaveToDB(trans->GetGOInfo()->moTransport.mapID, 1 << map->GetSpawnMode(), chr->GetPhaseMaskForSpawn());
+            creature->SaveToDB(trans->GetGOInfo()->moTransport.mapID, 1 << map->GetSpawnMode(), chr->GetPhaseMask());
 
             sObjectMgr->AddCreatureToGrid(guid, &data);
             return true;
         }
 
         Creature* creature = new Creature();
-        if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, x, y, z, o))
+        if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMask(), id, x, y, z, o))
         {
             delete creature;
             return false;
         }
 
-        creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
+        for (auto phase : chr->GetPhases())
+            creature->SetInPhase(phase, false, true);
+
+        creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
 
         uint32 db_guid = creature->GetDBTableGUIDLow();
 
@@ -308,6 +312,8 @@ public:
     {
         if (!*args)
             return false;
+
+        const uint8 type = 1; // FIXME: make type (1 item, 2 currency) an argument
 
         char* pitem  = handler->extractKeyFromLink((char*)args, "Hitem");
         if (!pitem)
@@ -345,13 +351,13 @@ public:
 
         uint32 vendor_entry = vendor->GetEntry();
 
-        if (!sObjectMgr->IsVendorItemValid(vendor_entry, itemId, maxcount, incrtime, extendedcost, handler->GetSession()->GetPlayer()))
+        if (!sObjectMgr->IsVendorItemValid(vendor_entry, itemId, maxcount, incrtime, extendedcost, type, handler->GetSession()->GetPlayer()))
         {
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost);
+        sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost, type);
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 
@@ -566,7 +572,9 @@ public:
         }
         uint32 itemId = atol(pitem);
 
-        if (!sObjectMgr->RemoveVendorItem(vendor->GetEntry(), itemId))
+        const uint8 type = 1; // FIXME: make type (1 item, 2 currency) an argument
+
+        if (!sObjectMgr->RemoveVendorItem(vendor->GetEntry(), itemId, type))
         {
             handler->PSendSysMessage(LANG_ITEM_NOT_IN_LIST, itemId);
             handler->SetSentErrorMessage(true);
@@ -1091,20 +1099,14 @@ public:
         return true;
     }
 
-    //npc phasemask handling
-    //change phasemask of creature or pet
+    //npc phase handling
+    //change phase of creature or pet
     static bool HandleNpcSetPhaseCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
 
-        uint32 phasemask = (uint32) atoi((char*)args);
-        if (phasemask == 0)
-        {
-            handler->SendSysMessage(LANG_BAD_VALUE);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+        uint32 phase = (uint32) atoi((char*)args);
 
         Creature* creature = handler->getSelectedCreature();
         if (!creature)
@@ -1114,7 +1116,7 @@ public:
             return false;
         }
 
-        creature->SetPhaseMask(phasemask, true);
+        creature->SetInPhase(phase, true, !creature->IsInPhase(phase));
 
         if (!creature->IsPet())
             creature->SaveToDB();

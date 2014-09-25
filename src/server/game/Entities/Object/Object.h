@@ -118,7 +118,6 @@ class Object
 
         void BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) const;
         void BuildOutOfRangeUpdateBlock(UpdateData* data) const;
-        void BuildMovementUpdateBlock(UpdateData* data, uint32 flags = 0) const;
 
         virtual void DestroyForPlayer(Player* target, bool onDeath = false) const;
 
@@ -201,6 +200,9 @@ class Object
 
         DynamicObject* ToDynObject() { if (GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject*>(this); else return NULL; }
         DynamicObject const* ToDynObject() const { if (GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject const*>(this); else return NULL; }
+
+        AreaTrigger* ToAreaTrigger() { if (GetTypeId() == TYPEID_AREATRIGGER) return reinterpret_cast<AreaTrigger*>(this); else return NULL; }
+        AreaTrigger const* ToAreaTrigger() const { if (GetTypeId() == TYPEID_AREATRIGGER) return reinterpret_cast<AreaTrigger const*>(this); else return NULL; }
 
     protected:
         Object();
@@ -399,6 +401,7 @@ struct MovementInfo
             seat = -1;
             time = 0;
             time2 = 0;
+            time3 = 0;
         }
 
         ObjectGuid guid;
@@ -406,21 +409,22 @@ struct MovementInfo
         int8 seat;
         uint32 time;
         uint32 time2;
+        uint32 time3;
     } transport;
 
     // swimming/flying
     float pitch;
 
-    // falling
-    uint32 fallTime;
-
-        // jumping
+    // jumping
     struct JumpInfo
     {
         void Reset()
         {
+            fallTime = 0;
             zspeed = sinAngle = cosAngle = xyspeed = 0.0f;
         }
+
+        uint32 fallTime;
 
         float zspeed, sinAngle, cosAngle, xyspeed;
 
@@ -430,7 +434,7 @@ struct MovementInfo
     float splineElevation;
 
     MovementInfo() :
-        guid(), flags(0), flags2(0), time(0), pitch(0.0f), fallTime(0), splineElevation(0.0f)
+        flags(0), flags2(0), time(0), pitch(0.0f), splineElevation(0.0f)
     {
         pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
         transport.Reset();
@@ -444,10 +448,23 @@ struct MovementInfo
     bool HasMovementFlag(uint32 flag) const { return (flags & flag) != 0; }
 
     uint16 GetExtraMovementFlags() const { return flags2; }
+    void SetExtraMovementFlags(uint16 flag) { flags2 = flag; }
     void AddExtraMovementFlag(uint16 flag) { flags2 |= flag; }
+    void RemoveExtraMovementFlag(uint16 flag) { flags2 &= ~flag; }
     bool HasExtraMovementFlag(uint16 flag) const { return (flags2 & flag) != 0; }
 
-    void SetFallTime(uint32 time) { fallTime = time; }
+    uint32 GetFallTime() const { return jump.fallTime; }
+    void SetFallTime(uint32 time) { jump.fallTime = time; }
+
+    void ResetTransport()
+    {
+        transport.Reset();
+    }
+
+    void ResetJump()
+    {
+        jump.Reset();
+    }
 
     void OutDebug();
 };
@@ -575,9 +592,13 @@ class WorldObject : public Object, public WorldLocation
         uint32 GetInstanceId() const { return m_InstanceId; }
 
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
+        virtual void SetInPhase(uint32 id, bool update, bool apply);
         uint32 GetPhaseMask() const { return m_phaseMask; }
         bool InSamePhase(WorldObject const* obj) const;
         bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask) != 0; }
+        bool IsInPhase(uint32 phase) const { return _phases.find(phase) != _phases.end(); }
+        bool IsInPhase(WorldObject const* obj) const;
+        std::set<uint32> const& GetPhases() const { return _phases; }
 
         uint32 GetZoneId() const;
         uint32 GetAreaId() const;
@@ -748,6 +769,7 @@ class WorldObject : public Object, public WorldLocation
         //uint32 m_mapId;                                     // object at map with map_id
         uint32 m_InstanceId;                                // in map copy with instance id
         uint32 m_phaseMask;                                 // in area phase state
+        std::set<uint32> _phases;
 
         uint16 m_notifyflags;
         uint16 m_executed_notifies;

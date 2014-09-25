@@ -29,17 +29,33 @@
 
 enum RogueSpells
 {
-    SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK       = 22482,
-    SPELL_ROGUE_CHEAT_DEATH_COOLDOWN            = 31231,
-    SPELL_ROGUE_GLYPH_OF_PREPARATION            = 56819,
-    SPELL_ROGUE_KILLING_SPREE                   = 51690,
-    SPELL_ROGUE_KILLING_SPREE_TELEPORT          = 57840,
-    SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG        = 57841,
-    SPELL_ROGUE_KILLING_SPREE_DMG_BUFF          = 61851,
-    SPELL_ROGUE_PREY_ON_THE_WEAK                = 58670,
-    SPELL_ROGUE_SHIV_TRIGGERED                  = 5940,
-    SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST   = 57933,
-    SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC        = 59628,
+    SPELL_ROGUE_BLADE_FLURRY                        = 13877,
+    SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK           = 22482,
+    SPELL_ROGUE_CHEAT_DEATH_COOLDOWN                = 31231,
+    SPELL_ROGUE_CRIPPLING_POISON                    = 3409,
+    SPELL_ROGUE_GLYPH_OF_PREPARATION                = 56819,
+    SPELL_ROGUE_KILLING_SPREE                       = 51690,
+    SPELL_ROGUE_KILLING_SPREE_TELEPORT              = 57840,
+    SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG            = 57841,
+    SPELL_ROGUE_KILLING_SPREE_DMG_BUFF              = 61851,
+    SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT   = 31665,
+    SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE          = 31223,
+    SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC         = 31666,
+    SPELL_ROGUE_OVERKILL_TALENT                     = 58426,
+    SPELL_ROGUE_OVERKILL_PERIODIC                   = 58428,
+    SPELL_ROGUE_OVERKILL_POWER_REGEN                = 58427,
+    SPELL_ROGUE_PREY_ON_THE_WEAK                    = 58670,
+    SPELL_ROGUE_SHIV_TRIGGERED                      = 5940,
+    SPELL_ROGUE_SILCE_AND_DICE                      = 5171,
+    SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST       = 57933,
+    SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC            = 59628,
+    SPELL_ROGUE_SERRATED_BLADES_R1                  = 14171,
+    SPELL_ROGUE_RUPTURE                             = 1943,
+};
+
+enum RogueSpellIcons
+{
+    ICON_ROGUE_IMPROVED_RECUPERATE                  = 4819
 };
 
 // 13877, 33735, (check 51211, 65956) - Blade Flurry
@@ -67,24 +83,27 @@ class spell_rog_blade_flurry : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                _procTarget = eventInfo.GetActor()->SelectNearbyTarget(eventInfo.GetProcTarget());
-                return _procTarget != nullptr;
+                _procTarget = GetTarget()->SelectNearbyTarget(eventInfo.GetProcTarget());
+                return _procTarget && eventInfo.GetDamageInfo();
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                if (eventInfo.GetDamageInfo())
-                {
-                    int32 damage = eventInfo.GetDamageInfo()->GetDamage();
-                    GetTarget()->CastCustomSpell(SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK, SPELLVALUE_BASE_POINT0, damage, _procTarget, true, NULL, aurEff);
-                }
+
+                TC_LOG_ERROR("misc", "damage: %u procSpell: %u",
+                    eventInfo.GetDamageInfo()->GetDamage(), eventInfo.GetDamageInfo()->GetSpellInfo() ? eventInfo.GetDamageInfo()->GetSpellInfo()->Id : 0);
+
+                GetTarget()->CastCustomSpell(SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK, SPELLVALUE_BASE_POINT0, eventInfo.GetDamageInfo()->GetDamage(), _procTarget, true, NULL, aurEff);
             }
 
             void Register() override
             {
                 DoCheckProc += AuraCheckProcFn(spell_rog_blade_flurry_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_rog_blade_flurry_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE);
+                if (m_scriptSpellId == SPELL_ROGUE_BLADE_FLURRY)
+                    OnEffectProc += AuraEffectProcFn(spell_rog_blade_flurry_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+                else
+                    OnEffectProc += AuraEffectProcFn(spell_rog_blade_flurry_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE);
             }
 
         private:
@@ -97,7 +116,7 @@ class spell_rog_blade_flurry : public SpellScriptLoader
         }
 };
 
-// -31228 - Cheat Death
+// 31228 - Cheat Death
 class spell_rog_cheat_death : public SpellScriptLoader
 {
     public:
@@ -160,7 +179,71 @@ class spell_rog_cheat_death : public SpellScriptLoader
         }
 };
 
-// -2818 - Deadly Poison
+// -51625 - Deadly Brew
+class spell_rog_crippling_poison : public SpellScriptLoader
+{
+    public:
+        spell_rog_crippling_poison() : SpellScriptLoader("spell_rog_crippling_poison") { }
+
+        class spell_rog_crippling_poison_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_crippling_poison_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_CRIPPLING_POISON))
+                    return false;
+                return true;
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_ROGUE_CRIPPLING_POISON, true, NULL, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_rog_crippling_poison_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_rog_crippling_poison_AuraScript();
+        }
+};
+
+// -51664 - Cut to the Chase
+class spell_rog_cut_to_the_chase : public SpellScriptLoader
+{
+    public:
+        spell_rog_cut_to_the_chase () : SpellScriptLoader("spell_rog_cut_to_the_chase") { }
+
+        class spell_rog_cut_to_the_chase_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_cut_to_the_chase_AuraScript);
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                if (Aura* aur = GetTarget()->GetAura(SPELL_ROGUE_SILCE_AND_DICE))
+                    aur->SetDuration(aur->GetSpellInfo()->GetMaxDuration(), true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_rog_cut_to_the_chase_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_rog_cut_to_the_chase_AuraScript();
+        }
+};
+
+// 2818 - Deadly Poison
 class spell_rog_deadly_poison : public SpellScriptLoader
 {
     public:
@@ -206,6 +289,9 @@ class spell_rog_deadly_poison : public SpellScriptLoader
                     // item combat enchantments
                     for (uint8 slot = 0; slot < MAX_ENCHANTMENT_SLOT; ++slot)
                     {
+                        if (slot > PRISMATIC_ENCHANTMENT_SLOT && slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
+                            continue;
+
                         SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(EnchantmentSlot(slot)));
                         if (!enchant)
                             continue;
@@ -354,7 +440,44 @@ class spell_rog_killing_spree : public SpellScriptLoader
         }
 };
 
-// -31130 - Nerves of Steel
+// 31666 - Master of Subtlety
+class spell_rog_master_of_subtlety : public SpellScriptLoader
+{
+    public:
+        spell_rog_master_of_subtlety() : SpellScriptLoader("spell_rog_master_of_subtlety") { }
+
+        class spell_rog_master_of_subtlety_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_master_of_subtlety_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                Unit* target = GetTarget();
+
+                if (!target->HasAuraType(SPELL_AURA_MOD_STEALTH))
+                    target->RemoveAurasDueToSpell(SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_master_of_subtlety_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_master_of_subtlety_AuraScript();
+        }
+};
+
+// 31130 - Nerves of Steel
 class spell_rog_nerves_of_steel : public SpellScriptLoader
 {
     public:
@@ -398,6 +521,43 @@ class spell_rog_nerves_of_steel : public SpellScriptLoader
         }
 };
 
+// 58428 - Overkill
+class spell_rog_overkill : public SpellScriptLoader
+{
+    public:
+        spell_rog_overkill() : SpellScriptLoader("spell_rog_overkill") { }
+
+        class spell_rog_overkill_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_overkill_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_OVERKILL_POWER_REGEN))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                Unit* target = GetTarget();
+
+                if (!target->HasAuraType(SPELL_AURA_MOD_STEALTH))
+                    target->RemoveAurasDueToSpell(SPELL_ROGUE_OVERKILL_POWER_REGEN);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_overkill_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_overkill_AuraScript();
+        }
+};
+
 // 14185 - Preparation
 class spell_rog_preparation : public SpellScriptLoader
 {
@@ -424,29 +584,25 @@ class spell_rog_preparation : public SpellScriptLoader
             {
                 Player* caster = GetCaster()->ToPlayer();
 
-                //immediately finishes the cooldown on certain Rogue abilities
-                const SpellCooldowns& cm = caster->GetSpellCooldownMap();
+                // immediately finishes the cooldown on certain Rogue abilities
+                SpellCooldowns const& cm = caster->GetSpellCooldownMap();
                 for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
                 {
                     SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(itr->first);
-
-                    if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE)
+                    if (spellInfo->SpellFamilyName != SPELLFAMILY_ROGUE)
                     {
-                        if (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_COLDB_SHADOWSTEP ||      // Cold Blood, Shadowstep
-                            spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT)           // Vanish, Evasion, Sprint
-                            caster->RemoveSpellCooldown((itr++)->first, true);
-                        else if (caster->HasAura(SPELL_ROGUE_GLYPH_OF_PREPARATION))
-                        {
-                            if (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_DISMANTLE ||         // Dismantle
-                                spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_KICK ||               // Kick
-                                (spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_BLADE_FLURRY &&     // Blade Flurry
-                                spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_BLADE_FLURRY))
-                                caster->RemoveSpellCooldown((itr++)->first, true);
-                            else
-                                ++itr;
-                        }
-                        else
-                            ++itr;
+                        ++itr;
+                        continue;
+                    }
+
+                    if ((spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_SHADOWSTEP ||              // Shadowstep
+                        spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG0_ROGUE_VAN_SPRINT) ||              // Vanish, Sprint
+                        // Glyph of Preparation
+                        (caster->HasAura(SPELL_ROGUE_GLYPH_OF_PREPARATION) &&
+                        (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_DISMANTLE_SMOKE_BOMB ||    // Dismantle, Smoke Bomb
+                        spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG0_ROGUE_KICK)))                     // Kick
+                    {
+                        caster->RemoveSpellCooldown((itr++)->first, true);
                     }
                     else
                         ++itr;
@@ -465,7 +621,7 @@ class spell_rog_preparation : public SpellScriptLoader
         }
 };
 
-// -51685 - Prey on the Weak
+// 51685 - Prey on the Weak
 class spell_rog_prey_on_the_weak : public SpellScriptLoader
 {
     public:
@@ -510,7 +666,56 @@ class spell_rog_prey_on_the_weak : public SpellScriptLoader
         }
 };
 
-// -1943 - Rupture
+// 73651 - Recuperate
+class spell_rog_recuperate : public SpellScriptLoader
+{
+    public:
+        spell_rog_recuperate() : SpellScriptLoader("spell_rog_recuperate") { }
+
+        class spell_rog_recuperate_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_recuperate_AuraScript);
+
+            bool Load() override
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void OnPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (AuraEffect* effect = GetAura()->GetEffect(EFFECT_0))
+                        effect->RecalculateAmount(caster);
+            }
+
+            void CalculateBonus(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+            {
+                canBeRecalculated = false;
+                if (Unit* caster = GetCaster())
+                {
+                    int32 baseAmount = GetSpellInfo()->Effects[EFFECT_0].CalcValue(caster) * 1000;
+                    // Improved Recuperate
+                    if (AuraEffect const* auraEffect = caster->GetDummyAuraEffect(SPELLFAMILY_ROGUE, ICON_ROGUE_IMPROVED_RECUPERATE, EFFECT_0))
+                        baseAmount += auraEffect->GetAmount();
+
+                    amount = CalculatePct(caster->GetMaxHealth(), float(baseAmount) / 1000.0f);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_recuperate_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_recuperate_AuraScript::CalculateBonus, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_rog_recuperate_AuraScript();
+        }
+};
+
+// 1943 - Rupture
 class spell_rog_rupture : public SpellScriptLoader
 {
     public:
@@ -600,6 +805,70 @@ class spell_rog_shiv : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_rog_shiv_SpellScript();
+        }
+};
+
+// 1784 - Stealth
+class spell_rog_stealth : public SpellScriptLoader
+{
+    public:
+        spell_rog_stealth() : SpellScriptLoader("spell_rog_stealth") { }
+
+        class spell_rog_stealth_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_stealth_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_OVERKILL_TALENT) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_OVERKILL_POWER_REGEN) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_OVERKILL_PERIODIC))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+
+                // Master of Subtlety
+                if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE, EFFECT_0))
+                {
+                    int32 basepoints0 = aurEff->GetAmount();
+                    target->CastCustomSpell(target, SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT, &basepoints0, NULL, NULL, true);
+                }
+
+                // Overkill
+                if (target->HasAura(SPELL_ROGUE_OVERKILL_TALENT))
+                    target->CastSpell(target, SPELL_ROGUE_OVERKILL_POWER_REGEN, true);
+            }
+
+            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+
+                // Master of subtlety
+                if (target->HasAura(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE))
+                    target->CastSpell(target, SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC, true);
+
+                // Overkill
+                if (target->HasAura(SPELL_ROGUE_OVERKILL_TALENT))
+                    target->CastSpell(target, SPELL_ROGUE_OVERKILL_PERIODIC, true);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_rog_stealth_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_rog_stealth_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_stealth_AuraScript();
         }
 };
 
@@ -694,17 +963,58 @@ class spell_rog_tricks_of_the_trade_proc : public SpellScriptLoader
         }
 };
 
+class spell_rog_serrated_blades : public SpellScriptLoader
+{
+public:
+    spell_rog_serrated_blades() : SpellScriptLoader("spell_rog_serrated_blades") { }
+
+    class spell_rog_serrated_blades_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_serrated_blades_SpellScript);
+
+        void HandleHit()
+        {
+            if (AuraEffect* blade = GetCaster()->GetAuraEffectOfRankedSpell(SPELL_ROGUE_SERRATED_BLADES_R1, EFFECT_0))
+            {
+                uint8 combo = GetCaster()->ToPlayer()->GetComboPoints();
+
+                if (roll_chance_i(blade->GetAmount() * combo))
+                    if (Aura* dot = GetHitUnit()->GetAura(SPELL_ROGUE_RUPTURE, GetCaster()->GetGUID()))
+                        dot->RefreshDuration();
+
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_rog_serrated_blades_SpellScript::HandleHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_rog_serrated_blades_SpellScript();
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
     new spell_rog_cheat_death();
+    new spell_rog_crippling_poison();
+    new spell_rog_cut_to_the_chase();
     new spell_rog_deadly_poison();
     new spell_rog_killing_spree();
+    new spell_rog_master_of_subtlety();
     new spell_rog_nerves_of_steel();
+    new spell_rog_overkill();
     new spell_rog_preparation();
     new spell_rog_prey_on_the_weak();
+    new spell_rog_recuperate();
     new spell_rog_rupture();
     new spell_rog_shiv();
+    new spell_rog_stealth();
     new spell_rog_tricks_of_the_trade();
     new spell_rog_tricks_of_the_trade_proc();
+    new spell_rog_serrated_blades();
 }

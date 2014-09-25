@@ -95,8 +95,8 @@ enum Spells
     SPELL_RANDOM_PORTAL                      = 56047,
     SPELL_PORTAL_BEAM                        = 56046, // Malygos cast on portal to activate it during PHASE_NOT_STARTED
 
-    //Phase I
-    SPELL_BERSERK                           = 60670,
+    // Phase I
+    SPELL_BERSERK                            = 60670,
     SPELL_MALYGOS_BERSERK                    = 47008, // it's the berserk spell that will hit only Malygos after 10 min of 60670
     SPELL_PORTAL_VISUAL_CLOSED               = 55949,
     SPELL_SUMMON_POWER_PARK                  = 56142,
@@ -1525,7 +1525,7 @@ public:
                 creature->AI()->SetGUID(me->GetGUID(), DATA_LAST_OVERLOAD_GUID);
         }
 
-        void UpdateAI(uint32 /*diff*/)
+        void UpdateAI(uint32 /*diff*/) override
         {
         }
 

@@ -155,6 +155,7 @@ class ObjectAccessor
         static GameObject* GetGameObject(WorldObject const& u, ObjectGuid guid);
         static Transport* GetTransport(WorldObject const& u, ObjectGuid guid);
         static DynamicObject* GetDynamicObject(WorldObject const& u, ObjectGuid guid);
+        static AreaTrigger* GetAreaTrigger(WorldObject const& u, ObjectGuid guid);
         static Unit* GetUnit(WorldObject const&, ObjectGuid guid);
         static Creature* GetCreature(WorldObject const& u, ObjectGuid guid);
         static Pet* GetPet(WorldObject const&, ObjectGuid guid);

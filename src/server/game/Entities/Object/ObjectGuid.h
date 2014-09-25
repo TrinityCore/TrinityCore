@@ -33,10 +33,11 @@ enum TypeID
     TYPEID_PLAYER        = 4,
     TYPEID_GAMEOBJECT    = 5,
     TYPEID_DYNAMICOBJECT = 6,
-    TYPEID_CORPSE        = 7
+    TYPEID_CORPSE        = 7,
+    TYPEID_AREATRIGGER   = 8
 };
 
-#define NUM_CLIENT_OBJECT_TYPES             8
+#define NUM_CLIENT_OBJECT_TYPES             9
 
 enum TypeMask
 {
@@ -48,24 +49,28 @@ enum TypeMask
     TYPEMASK_GAMEOBJECT     = 0x0020,
     TYPEMASK_DYNAMICOBJECT  = 0x0040,
     TYPEMASK_CORPSE         = 0x0080,
+    TYPEMASK_AREATRIGGER    = 0x0100,
     TYPEMASK_SEER           = TYPEMASK_PLAYER | TYPEMASK_UNIT | TYPEMASK_DYNAMICOBJECT
 };
 
 enum HighGuid
 {
-    HIGHGUID_ITEM           = 0x4000,                      // blizz 4000
-    HIGHGUID_CONTAINER      = 0x4000,                      // blizz 4000
-    HIGHGUID_PLAYER         = 0x0000,                      // blizz 0000
-    HIGHGUID_GAMEOBJECT     = 0xF110,                      // blizz F110
-    HIGHGUID_TRANSPORT      = 0xF120,                      // blizz F120 (for GAMEOBJECT_TYPE_TRANSPORT)
-    HIGHGUID_UNIT           = 0xF130,                      // blizz F130
-    HIGHGUID_PET            = 0xF140,                      // blizz F140
-    HIGHGUID_VEHICLE        = 0xF150,                      // blizz F550
-    HIGHGUID_DYNAMICOBJECT  = 0xF100,                      // blizz F100
+    HIGHGUID_ITEM           = 0x400,                       // blizz 4000
+    HIGHGUID_CONTAINER      = 0x400,                       // blizz 4000
+    HIGHGUID_PLAYER         = 0x000,                       // blizz 0000
+    HIGHGUID_GAMEOBJECT     = 0xF11,                       // blizz F110
+    HIGHGUID_TRANSPORT      = 0xF12,                       // blizz F120 (for GAMEOBJECT_TYPE_TRANSPORT)
+    HIGHGUID_UNIT           = 0xF13,                       // blizz F130
+    HIGHGUID_PET            = 0xF14,                       // blizz F140
+    HIGHGUID_VEHICLE        = 0xF15,                       // blizz F550
+    HIGHGUID_DYNAMICOBJECT  = 0xF10,                       // blizz F100
     HIGHGUID_CORPSE         = 0xF101,                      // blizz F100
-    HIGHGUID_MO_TRANSPORT   = 0x1FC0,                      // blizz 1FC0 (for GAMEOBJECT_TYPE_MO_TRANSPORT)
-    HIGHGUID_INSTANCE       = 0x1F40,                      // blizz 1F40
-    HIGHGUID_GROUP          = 0x1F50
+    HIGHGUID_AREATRIGGER    = 0xF102,
+    HIGHGUID_BATTLEGROUND   = 0x1F1,
+    HIGHGUID_MO_TRANSPORT   = 0x1FC,                       // blizz 1FC0 (for GAMEOBJECT_TYPE_MO_TRANSPORT)
+    HIGHGUID_INSTANCE       = 0x1F4,                       // blizz 1F40
+    HIGHGUID_GROUP          = 0x1F5,
+    HIGHGUID_GUILD          = 0x1FF
 };
 
 class ObjectGuid;
@@ -82,39 +87,51 @@ class ObjectGuid
     public:
         static ObjectGuid const Empty;
 
-        ObjectGuid() : _guid(0) { }
-        explicit ObjectGuid(uint64 guid) : _guid(guid) { }
-        ObjectGuid(HighGuid hi, uint32 entry, uint32 counter) : _guid(counter ? uint64(counter) | (uint64(entry) << 24) | (uint64(hi) << 48) : 0) { }
-        ObjectGuid(HighGuid hi, uint32 counter) : _guid(counter ? uint64(counter) | (uint64(hi) << 48) : 0) { }
+        ObjectGuid() { _data._guid = UI64LIT(0); }
+        explicit ObjectGuid(uint64 guid)  { _data._guid = guid; }
+        ObjectGuid(HighGuid hi, uint32 entry, uint32 counter) { _data._guid = counter ? uint64(counter) | (uint64(entry) << 32) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0; }
+        ObjectGuid(HighGuid hi, uint32 counter) { _data._guid = counter ? uint64(counter) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0; }
 
-        operator uint64() const { return _guid; }
+        operator uint64() const { return _data._guid; }
         PackedGuidReader ReadAsPacked() { return PackedGuidReader(*this); }
 
-        void Set(uint64 guid) { _guid = guid; }
-        void Clear() { _guid = 0; }
+        void Set(uint64 guid) { _data._guid = guid; }
+        void Clear() { _data._guid = 0; }
 
         PackedGuid WriteAsPacked() const;
 
-        uint64   GetRawValue() const { return _guid; }
-        HighGuid GetHigh() const { return HighGuid((_guid >> 48) & 0x0000FFFF); }
-        uint32   GetEntry() const { return HasEntry() ? uint32((_guid >> 24) & UI64LIT(0x0000000000FFFFFF)) : 0; }
+        uint64   GetRawValue() const { return _data._guid; }
+        HighGuid GetHigh() const
+        {
+            uint32 temp = ((uint64(_data._guid) >> 48) & 0x0000FFFF);
+            return HighGuid((temp == HIGHGUID_CORPSE || temp == HIGHGUID_AREATRIGGER) ? temp : ((temp >> 4) & 0x00000FFF));
+        }
+        uint32   GetEntry() const { return HasEntry() ? uint32((_data._guid >> 32) & UI64LIT(0x00000000000FFFFF)) : 0; }
         uint32   GetCounter()  const
         {
-            return HasEntry()
-                   ? uint32(_guid & UI64LIT(0x0000000000FFFFFF))
-                   : uint32(_guid & UI64LIT(0x00000000FFFFFFFF));
+            return uint32(_data._guid & UI64LIT(0x00000000FFFFFFFF));
         }
 
-        static uint32 GetMaxCounter(HighGuid high)
+        static uint32 GetMaxCounter(HighGuid /*high*/)
         {
-            return HasEntry(high)
-                   ? uint32(0x00FFFFFF)
-                   : uint32(0xFFFFFFFF);
+            return uint32(0xFFFFFFFF);
         }
 
         uint32 GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
 
-        bool IsEmpty()             const { return _guid == 0; }
+        uint8& operator[](uint32 index)
+        {
+            ASSERT(index < sizeof(uint64));
+            return _data._bytes[index];
+        }
+
+        uint8 const& operator[](uint32 index) const
+        {
+            ASSERT(index < sizeof(uint64));
+            return _data._bytes[index];
+        }
+
+        bool IsEmpty()             const { return _data._guid == 0; }
         bool IsCreature()          const { return GetHigh() == HIGHGUID_UNIT; }
         bool IsPet()               const { return GetHigh() == HIGHGUID_PET; }
         bool IsVehicle()           const { return GetHigh() == HIGHGUID_VEHICLE; }
@@ -127,11 +144,14 @@ class ObjectGuid
         bool IsGameObject()        const { return GetHigh() == HIGHGUID_GAMEOBJECT; }
         bool IsDynamicObject()     const { return GetHigh() == HIGHGUID_DYNAMICOBJECT; }
         bool IsCorpse()            const { return GetHigh() == HIGHGUID_CORPSE; }
+        bool IsAreaTrigger()       const { return GetHigh() == HIGHGUID_AREATRIGGER; }
+        bool IsBattleground()      const { return GetHigh() == HIGHGUID_BATTLEGROUND; }
         bool IsTransport()         const { return GetHigh() == HIGHGUID_TRANSPORT; }
         bool IsMOTransport()       const { return GetHigh() == HIGHGUID_MO_TRANSPORT; }
         bool IsAnyTypeGameObject() const { return IsGameObject() || IsTransport() || IsMOTransport(); }
         bool IsInstance()          const { return GetHigh() == HIGHGUID_INSTANCE; }
         bool IsGroup()             const { return GetHigh() == HIGHGUID_GROUP; }
+        bool IsGuild()             const { return GetHigh() == HIGHGUID_GUILD; }
 
         static TypeID GetTypeId(HighGuid high)
         {
@@ -145,11 +165,14 @@ class ObjectGuid
                 case HIGHGUID_GAMEOBJECT:   return TYPEID_GAMEOBJECT;
                 case HIGHGUID_DYNAMICOBJECT: return TYPEID_DYNAMICOBJECT;
                 case HIGHGUID_CORPSE:       return TYPEID_CORPSE;
+                case HIGHGUID_AREATRIGGER:  return TYPEID_AREATRIGGER;
                 case HIGHGUID_MO_TRANSPORT: return TYPEID_GAMEOBJECT;
                 case HIGHGUID_VEHICLE:      return TYPEID_UNIT;
                 // unknown
                 case HIGHGUID_INSTANCE:
+                case HIGHGUID_BATTLEGROUND:
                 case HIGHGUID_GROUP:
+                case HIGHGUID_GUILD:
                 default:                    return TYPEID_OBJECT;
             }
         }
@@ -194,7 +217,11 @@ class ObjectGuid
         ObjectGuid(HighGuid, uint32, uint64 counter) = delete;       // no implementation, used to catch wrong type assignment
         ObjectGuid(HighGuid, uint64 counter) = delete;               // no implementation, used to catch wrong type assignment
 
-        uint64 _guid;
+        union
+        {
+            uint64 _guid;
+            uint8 _bytes[sizeof(uint64)];
+        } _data;
 };
 
 // Some Shared defines

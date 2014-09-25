@@ -152,7 +152,7 @@ struct BattlegroundWGScore final : public BattlegroundScore
     friend class BattlegroundWS;
 
     protected:
-        BattlegroundWGScore(ObjectGuid playerGuid) : BattlegroundScore(playerGuid), FlagCaptures(0), FlagReturns(0) { }
+        BattlegroundWGScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), FlagCaptures(0), FlagReturns(0) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {
@@ -170,11 +170,11 @@ struct BattlegroundWGScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data) final override
+        void BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content) final override
         {
-            data << uint32(2); // Objectives Count
-            data << uint32(FlagCaptures);
-            data << uint32(FlagReturns);
+            data.WriteBits(2, 24); // Objectives Count
+            content << uint32(FlagCaptures);
+            content << uint32(FlagReturns);
         }
 
         uint32 GetAttr1() const final override { return FlagCaptures; }

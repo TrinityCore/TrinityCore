@@ -21,6 +21,7 @@
 */
 
 #include "WorldSocket.h"
+#include <zlib.h>
 #include "Config.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -46,7 +47,6 @@
 #include "Transport.h"
 #include "WardenWin.h"
 #include "WardenMac.h"
-#include "MoveSpline.h"
 
 namespace {
 
@@ -56,14 +56,15 @@ std::string const DefaultPlayerName = "<none>";
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
-    OpcodeHandler const& opHandle = opcodeTable[packet->GetOpcode()];
+    Opcodes opcode = DropHighBytes(packet->GetOpcode());
+    OpcodeHandler const* opHandle = opcodeTable[opcode];
 
     //let's check if our opcode can be really processed in Map::Update()
-    if (opHandle.packetProcessing == PROCESS_INPLACE)
+    if (opHandle->ProcessingPlace == PROCESS_INPLACE)
         return true;
 
     //we do not process thread-unsafe packets
-    if (opHandle.packetProcessing == PROCESS_THREADUNSAFE)
+    if (opHandle->ProcessingPlace == PROCESS_THREADUNSAFE)
         return false;
 
     Player* player = m_pSession->GetPlayer();
@@ -78,13 +79,14 @@ bool MapSessionFilter::Process(WorldPacket* packet)
 //OR packet handler is not thread-safe!
 bool WorldSessionFilter::Process(WorldPacket* packet)
 {
-    OpcodeHandler const& opHandle = opcodeTable[packet->GetOpcode()];
+    Opcodes opcode = DropHighBytes(packet->GetOpcode());
+    OpcodeHandler const* opHandle = opcodeTable[opcode];
     //check if packet handler is supposed to be safe
-    if (opHandle.packetProcessing == PROCESS_INPLACE)
+    if (opHandle->ProcessingPlace == PROCESS_INPLACE)
         return true;
 
     //thread-unsafe packets should be processed in World::UpdateSessions()
-    if (opHandle.packetProcessing == PROCESS_THREADUNSAFE)
+    if (opHandle->ProcessingPlace == PROCESS_THREADUNSAFE)
         return true;
 
     //no player attached? -> our client! ^^
@@ -97,7 +99,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
+WorldSession::WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
     m_muteTime(mute_time),
     m_timeOutTime(0),
     AntiDOS(this),
@@ -106,6 +108,7 @@ WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, Account
     m_Socket(sock),
     _security(sec),
     _accountId(id),
+    _battlenetAccountId(battlenetAccountId),
     m_expansion(expansion),
     _warden(NULL),
     _logoutTime(0),
@@ -119,6 +122,7 @@ WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, Account
     m_latency(0),
     m_clientTimeDelay(0),
     m_TutorialsChanged(false),
+    _filterAddonMessages(false),
     recruiterId(recruiter),
     isRecruiter(isARecruiter),
     _RBACData(NULL),
@@ -136,6 +140,16 @@ WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, Account
     }
 
     InitializeQueryCallbackParameters();
+
+    _compressionStream = new z_stream();
+    _compressionStream->zalloc = (alloc_func)NULL;
+    _compressionStream->zfree = (free_func)NULL;
+    _compressionStream->opaque = (voidpf)NULL;
+    _compressionStream->avail_in = 0;
+    _compressionStream->next_in = NULL;
+    int32 z_res = deflateInit(_compressionStream, sWorld->getIntConfig(CONFIG_COMPRESSION));
+    if (z_res != Z_OK)
+        TC_LOG_ERROR("network", "Can't initialize packet compression (zlib: deflateInit) Error code: %i (%s)", z_res, zError(z_res));
 }
 
 /// WorldSession destructor
@@ -161,6 +175,12 @@ WorldSession::~WorldSession()
         delete packet;
 
     LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());     // One-time query
+
+    int32 z_res = deflateEnd(_compressionStream);
+    if (z_res != Z_OK && z_res != Z_DATA_ERROR) // Z_DATA_ERROR signals that internal state was BUSY
+        TC_LOG_ERROR("network", "Can't close packet compression stream (zlib: deflateEnd) Error code: %i (%s)", z_res, zError(z_res));
+
+    delete _compressionStream;
 }
 
 std::string const & WorldSession::GetPlayerName() const
@@ -188,10 +208,31 @@ uint32 WorldSession::GetGuidLow() const
 }
 
 /// Send a packet to the client
-void WorldSession::SendPacket(WorldPacket* packet)
+void WorldSession::SendPacket(WorldPacket* packet, bool forced /*= false*/)
 {
     if (!m_Socket)
         return;
+
+    if (packet->GetOpcode() == NULL_OPCODE)
+    {
+        TC_LOG_ERROR("network.opcode", "Prevented sending of NULL_OPCODE to %s", GetPlayerInfo().c_str());
+        return;
+    }
+    else if (packet->GetOpcode() == UNKNOWN_OPCODE)
+    {
+        TC_LOG_ERROR("network.opcode", "Prevented sending of UNKNOWN_OPCODE to %s", GetPlayerInfo().c_str());
+        return;
+    }
+
+    if (!forced)
+    {
+        OpcodeHandler const* handler = opcodeTable[packet->GetOpcode()];
+        if (!handler || handler->Status == STATUS_UNHANDLED)
+        {
+            TC_LOG_ERROR("network.opcode", "Prevented sending disabled opcode %s to %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str(), GetPlayerInfo().c_str());
+            return;
+        }
+    }
 
 #ifdef TRINITY_DEBUG
     // Code for network use statistic
@@ -285,106 +326,96 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     while (m_Socket && !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket && _recvQueue.next(packet, updater))
     {
         if (!AntiDOS.EvaluateOpcode(*packet, currentTime))
-        {
             KickPlayer();
-        }
-        else if (packet->GetOpcode() >= NUM_MSG_TYPES)
+
+        OpcodeHandler const* opHandle = opcodeTable[packet->GetOpcode()];
+        try
         {
-            TC_LOG_ERROR("network.opcode", "Received non-existed opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str()
-                            , GetPlayerInfo().c_str());
-            sScriptMgr->OnUnknownPacketReceive(this, *packet);
-        }
-        else
-        {
-            OpcodeHandler& opHandle = opcodeTable[packet->GetOpcode()];
-            try
+            switch (opHandle->Status)
             {
-                switch (opHandle.status)
-                {
-                    case STATUS_LOGGEDIN:
-                        if (!_player)
+                case STATUS_LOGGEDIN:
+                    if (!_player)
+                    {
+                        // skip STATUS_LOGGEDIN opcode unexpected errors if player logout sometime ago - this can be network lag delayed packets
+                        //! If player didn't log out a while ago, it means packets are being sent while the server does not recognize
+                        //! the client to be in world yet. We will re-add the packets to the bottom of the queue and process them later.
+                        if (!m_playerRecentlyLogout)
                         {
-                            // skip STATUS_LOGGEDIN opcode unexpected errors if player logout sometime ago - this can be network lag delayed packets
-                            //! If player didn't log out a while ago, it means packets are being sent while the server does not recognize
-                            //! the client to be in world yet. We will re-add the packets to the bottom of the queue and process them later.
-                            if (!m_playerRecentlyLogout)
-                            {
-                                //! Prevent infinite loop
-                                if (!firstDelayedPacket)
-                                    firstDelayedPacket = packet;
-                                //! Because checking a bool is faster than reallocating memory
-                                deletePacket = false;
-                                QueuePacket(packet);
-                                //! Log
+                            //! Prevent infinite loop
+                            if (!firstDelayedPacket)
+                                firstDelayedPacket = packet;
+                            //! Because checking a bool is faster than reallocating memory
+                            deletePacket = false;
+                            QueuePacket(packet);
+                            //! Log
                                 TC_LOG_DEBUG("network", "Re-enqueueing packet with opcode %s with with status STATUS_LOGGEDIN. "
                                     "Player is currently not in world yet.", GetOpcodeNameForLogging(packet->GetOpcode()).c_str());
-                            }
                         }
-                        else if (_player->IsInWorld())
-                        {
-                            sScriptMgr->OnPacketReceive(this, *packet);
-                            (this->*opHandle.handler)(*packet);
-                            LogUnprocessedTail(packet);
-                        }
-                        // lag can cause STATUS_LOGGEDIN opcodes to arrive after the player started a transfer
-                        break;
-                    case STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT:
-                        if (!_player && !m_playerRecentlyLogout && !m_playerLogout) // There's a short delay between _player = null and m_playerRecentlyLogout = true during logout
-                            LogUnexpectedOpcode(packet, "STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT",
-                                "the player has not logged in yet and not recently logout");
-                        else
-                        {
-                            // not expected _player or must checked in packet handler
-                            sScriptMgr->OnPacketReceive(this, *packet);
-                            (this->*opHandle.handler)(*packet);
-                            LogUnprocessedTail(packet);
-                        }
-                        break;
-                    case STATUS_TRANSFER:
-                        if (!_player)
-                            LogUnexpectedOpcode(packet, "STATUS_TRANSFER", "the player has not logged in yet");
-                        else if (_player->IsInWorld())
-                            LogUnexpectedOpcode(packet, "STATUS_TRANSFER", "the player is still in world");
-                        else
-                        {
-                            sScriptMgr->OnPacketReceive(this, *packet);
-                            (this->*opHandle.handler)(*packet);
-                            LogUnprocessedTail(packet);
-                        }
-                        break;
-                    case STATUS_AUTHED:
-                        // prevent cheating with skip queue wait
-                        if (m_inQueue)
-                        {
-                            LogUnexpectedOpcode(packet, "STATUS_AUTHED", "the player not pass queue yet");
-                            break;
-                        }
-
-                        // some auth opcodes can be recieved before STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT opcodes
-                        // however when we recieve CMSG_CHAR_ENUM we are surely no longer during the logout process.
-                        if (packet->GetOpcode() == CMSG_CHAR_ENUM)
-                            m_playerRecentlyLogout = false;
-
+                    }
+                    else if (_player->IsInWorld())
+                    {
                         sScriptMgr->OnPacketReceive(this, *packet);
-                        (this->*opHandle.handler)(*packet);
+                        (this->*opHandle->Handler)(*packet);
                         LogUnprocessedTail(packet);
+                    }
+                    // lag can cause STATUS_LOGGEDIN opcodes to arrive after the player started a transfer
+                    break;
+                case STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT:
+                    if (!_player && !m_playerRecentlyLogout && !m_playerLogout) // There's a short delay between _player = null and m_playerRecentlyLogout = true during logout
+                        LogUnexpectedOpcode(packet, "STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT",
+                            "the player has not logged in yet and not recently logout");
+                    else
+                    {
+                        // not expected _player or must checked in packet hanlder
+                        sScriptMgr->OnPacketReceive(this, *packet);
+                        (this->*opHandle->Handler)(*packet);
+                        LogUnprocessedTail(packet);
+                    }
+                    break;
+                case STATUS_TRANSFER:
+                    if (!_player)
+                        LogUnexpectedOpcode(packet, "STATUS_TRANSFER", "the player has not logged in yet");
+                    else if (_player->IsInWorld())
+                        LogUnexpectedOpcode(packet, "STATUS_TRANSFER", "the player is still in world");
+                    else
+                    {
+                        sScriptMgr->OnPacketReceive(this, *packet);
+                        (this->*opHandle->Handler)(*packet);
+                        LogUnprocessedTail(packet);
+                    }
+                    break;
+                case STATUS_AUTHED:
+                    // prevent cheating with skip queue wait
+                    if (m_inQueue)
+                    {
+                        LogUnexpectedOpcode(packet, "STATUS_AUTHED", "the player not pass queue yet");
                         break;
-                    case STATUS_NEVER:
+                    }
+
+                    // some auth opcodes can be recieved before STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT opcodes
+                    // however when we recieve CMSG_CHAR_ENUM we are surely no longer during the logout process.
+                    if (packet->GetOpcode() == CMSG_CHAR_ENUM)
+                        m_playerRecentlyLogout = false;
+
+                    sScriptMgr->OnPacketReceive(this, *packet);
+                    (this->*opHandle->Handler)(*packet);
+                    LogUnprocessedTail(packet);
+                    break;
+                case STATUS_NEVER:
                         TC_LOG_ERROR("network.opcode", "Received not allowed opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str()
                             , GetPlayerInfo().c_str());
-                        break;
-                    case STATUS_UNHANDLED:
-                        TC_LOG_DEBUG("network.opcode", "Received not handled opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str()
+                    break;
+                case STATUS_UNHANDLED:
+                        TC_LOG_ERROR("network.opcode", "Received not handled opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str()
                             , GetPlayerInfo().c_str());
-                        break;
-                }
+                    break;
             }
-            catch (ByteBufferException const&)
-            {
-                TC_LOG_ERROR("misc", "WorldSession::Update ByteBufferException occured while parsing a packet (opcode: %u) from client %s, accountid=%i. Skipped packet.",
-                        packet->GetOpcode(), GetRemoteAddress().c_str(), GetAccountId());
-                packet->hexlike();
-            }
+        }
+        catch (ByteBufferException const&)
+        {
+            TC_LOG_ERROR("network", "WorldSession::Update ByteBufferException occured while parsing a packet (opcode: %u) from client %s, accountid=%i. Skipped packet.",
+                    packet->GetOpcode(), GetRemoteAddress().c_str(), GetAccountId());
+            packet->hexlike();
         }
 
         if (deletePacket)
@@ -597,8 +628,11 @@ void WorldSession::SendNotification(const char *format, ...)
         vsnprintf(szStr, 1024, format, ap);
         va_end(ap);
 
-        WorldPacket data(SMSG_NOTIFICATION, (strlen(szStr) + 1));
-        data << szStr;
+        size_t len = strlen(szStr);
+        WorldPacket data(SMSG_NOTIFICATION, 2 + len);
+        data.WriteBits(len, 13);
+        data.FlushBits();
+        data.append(szStr, len);
         SendPacket(&data);
     }
 }
@@ -615,8 +649,11 @@ void WorldSession::SendNotification(uint32 string_id, ...)
         vsnprintf(szStr, 1024, format, ap);
         va_end(ap);
 
-        WorldPacket data(SMSG_NOTIFICATION, (strlen(szStr) + 1));
-        data << szStr;
+        size_t len = strlen(szStr);
+        WorldPacket data(SMSG_NOTIFICATION, 2 + len);
+        data.WriteBits(len, 13);
+        data.FlushBits();
+        data.append(szStr, len);
         SendPacket(&data);
     }
 }
@@ -655,15 +692,21 @@ void WorldSession::SendAuthWaitQue(uint32 position)
     if (position == 0)
     {
         WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
+        packet.WriteBit(0); // has queue info
+        packet.WriteBit(0); // has account info
+        packet.FlushBits();
         packet << uint8(AUTH_OK);
         SendPacket(&packet);
     }
     else
     {
         WorldPacket packet(SMSG_AUTH_RESPONSE, 6);
+        packet.WriteBit(1); // has queue info
+        packet.WriteBit(0); // unk queue bool
+        packet.WriteBit(0); // has account info
+        packet.FlushBits();
         packet << uint8(AUTH_WAIT_QUEUE);
         packet << uint32(position);
-        packet << uint8(0);                                 // unk
         SendPacket(&packet);
     }
 }
@@ -787,156 +830,6 @@ void WorldSession::SaveTutorialsData(SQLTransaction &trans)
     trans->Append(stmt);
 
     m_TutorialsChanged = false;
-}
-
-void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
-{
-    data >> mi->flags;
-    data >> mi->flags2;
-    data >> mi->time;
-    data >> mi->pos.PositionXYZOStream();
-
-    if (mi->HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
-    {
-        data >> mi->transport.guid.ReadAsPacked();
-        data >> mi->transport.pos.PositionXYZOStream();
-        data >> mi->transport.time;
-        data >> mi->transport.seat;
-
-        if (mi->HasExtraMovementFlag(MOVEMENTFLAG2_INTERPOLATED_MOVEMENT))
-            data >> mi->transport.time2;
-    }
-
-    if (mi->HasMovementFlag(MovementFlags(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (mi->HasExtraMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING)))
-        data >> mi->pitch;
-
-    data >> mi->fallTime;
-
-    if (mi->HasMovementFlag(MOVEMENTFLAG_FALLING))
-    {
-        data >> mi->jump.zspeed;
-        data >> mi->jump.sinAngle;
-        data >> mi->jump.cosAngle;
-        data >> mi->jump.xyspeed;
-    }
-
-    if (mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION))
-        data >> mi->splineElevation;
-
-    //! Anti-cheat checks. Please keep them in seperate if () blocks to maintain a clear overview.
-    //! Might be subject to latency, so just remove improper flags.
-    #ifdef TRINITY_DEBUG
-    #define REMOVE_VIOLATING_FLAGS(check, maskToRemove) \
-    { \
-        if (check) \
-        { \
-            TC_LOG_DEBUG("entities.unit", "WorldSession::ReadMovementInfo: Violation of MovementFlags found (%s). " \
-                "MovementFlags: %u, MovementFlags2: %u for player GUID: %u. Mask %u will be removed.", \
-                STRINGIZE(check), mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetPlayer()->GetGUIDLow(), maskToRemove); \
-            mi->RemoveMovementFlag((maskToRemove)); \
-        } \
-    }
-    #else
-    #define REMOVE_VIOLATING_FLAGS(check, maskToRemove) \
-        if (check) \
-            mi->RemoveMovementFlag((maskToRemove));
-    #endif
-
-
-    /*! This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid
-        in conjunction with any of the moving movement flags such as MOVEMENTFLAG_FORWARD.
-        It will freeze clients that receive this player's movement info.
-    */
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT),
-        MOVEMENTFLAG_ROOT);
-
-    //! Cannot hover without SPELL_AURA_HOVER
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && !GetPlayer()->HasAuraType(SPELL_AURA_HOVER),
-        MOVEMENTFLAG_HOVER);
-
-    //! Cannot ascend and descend at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ASCENDING) && mi->HasMovementFlag(MOVEMENTFLAG_DESCENDING),
-        MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING);
-
-    //! Cannot move left and right at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_RIGHT),
-        MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT);
-
-    //! Cannot strafe left and right at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_RIGHT),
-        MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT);
-
-    //! Cannot pitch up and down at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_PITCH_UP) && mi->HasMovementFlag(MOVEMENTFLAG_PITCH_DOWN),
-        MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN);
-
-    //! Cannot move forwards and backwards at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FORWARD) && mi->HasMovementFlag(MOVEMENTFLAG_BACKWARD),
-        MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD);
-
-    //! Cannot walk on water without SPELL_AURA_WATER_WALK
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_WATERWALKING) && !GetPlayer()->HasAuraType(SPELL_AURA_WATER_WALK),
-        MOVEMENTFLAG_WATERWALKING);
-
-    //! Cannot feather fall without SPELL_AURA_FEATHER_FALL
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FALLING_SLOW) && !GetPlayer()->HasAuraType(SPELL_AURA_FEATHER_FALL),
-        MOVEMENTFLAG_FALLING_SLOW);
-
-    /*! Cannot fly if no fly auras present. Exception is being a GM.
-        Note that we check for account level instead of Player::IsGameMaster() because in some
-        situations it may be feasable to use .gm fly on as a GM without having .gm on,
-        e.g. aerial combat.
-    */
-
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY) && GetSecurity() == SEC_PLAYER &&
-        !GetPlayer()->m_mover->HasAuraType(SPELL_AURA_FLY) &&
-        !GetPlayer()->m_mover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED),
-        MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY);
-
-    //! Cannot fly and fall at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY) && mi->HasMovementFlag(MOVEMENTFLAG_FALLING),
-        MOVEMENTFLAG_FALLING);
-
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ENABLED) &&
-        (!GetPlayer()->movespline->Initialized() || GetPlayer()->movespline->Finalized()), MOVEMENTFLAG_SPLINE_ENABLED);
-
-    #undef REMOVE_VIOLATING_FLAGS
-}
-
-void WorldSession::WriteMovementInfo(WorldPacket* data, MovementInfo* mi)
-{
-    *data << mi->guid.WriteAsPacked();
-    *data << mi->flags;
-    *data << mi->flags2;
-    *data << mi->time;
-    *data << mi->pos.PositionXYZOStream();
-
-    if (mi->HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
-    {
-       *data << mi->transport.guid.WriteAsPacked();
-       *data << mi->transport.pos.PositionXYZOStream();
-       *data << mi->transport.time;
-       *data << mi->transport.seat;
-
-       if (mi->HasExtraMovementFlag(MOVEMENTFLAG2_INTERPOLATED_MOVEMENT))
-           *data << mi->transport.time2;
-    }
-
-    if (mi->HasMovementFlag(MovementFlags(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || mi->HasExtraMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
-        *data << mi->pitch;
-
-    *data << mi->fallTime;
-
-    if (mi->HasMovementFlag(MOVEMENTFLAG_FALLING))
-    {
-        *data << mi->jump.zspeed;
-        *data << mi->jump.sinAngle;
-        *data << mi->jump.cosAngle;
-        *data << mi->jump.xyspeed;
-    }
-
-    if (mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION))
-        *data << mi->splineElevation;
 }
 
 void WorldSession::ReadAddonsInfo(WorldPacket &data)
@@ -1077,6 +970,57 @@ void WorldSession::SendAddonsInfo()
     }
 
     SendPacket(&data);
+}
+
+bool WorldSession::IsAddonRegistered(const std::string& prefix) const
+{
+    if (!_filterAddonMessages) // if we have hit the softcap (64) nothing should be filtered
+        return true;
+
+    if (_registeredAddonPrefixes.empty())
+        return false;
+
+    std::vector<std::string>::const_iterator itr = std::find(_registeredAddonPrefixes.begin(), _registeredAddonPrefixes.end(), prefix);
+    return itr != _registeredAddonPrefixes.end();
+}
+
+void WorldSession::HandleUnregisterAddonPrefixesOpcode(WorldPacket& /*recvPacket*/) // empty packet
+{
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_UNREGISTER_ALL_ADDON_PREFIXES");
+
+    _registeredAddonPrefixes.clear();
+}
+
+void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket)
+{
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_ADDON_REGISTERED_PREFIXES");
+
+    // This is always sent after CMSG_UNREGISTER_ALL_ADDON_PREFIXES
+
+    uint32 count = recvPacket.ReadBits(25);
+
+    if (count > REGISTERED_ADDON_PREFIX_SOFTCAP)
+    {
+        // if we have hit the softcap (64) nothing should be filtered
+        _filterAddonMessages = false;
+        recvPacket.rfinish();
+        return;
+    }
+
+    std::vector<uint8> lengths(count);
+    for (uint32 i = 0; i < count; ++i)
+        lengths[i] = recvPacket.ReadBits(5);
+
+    for (uint32 i = 0; i < count; ++i)
+        _registeredAddonPrefixes.push_back(recvPacket.ReadString(lengths[i]));
+
+    if (_registeredAddonPrefixes.size() > REGISTERED_ADDON_PREFIX_SOFTCAP) // shouldn't happen
+    {
+        _filterAddonMessages = false;
+        return;
+    }
+
+    _filterAddonMessages = true;
 }
 
 void WorldSession::SetPlayer(Player* player)
@@ -1254,7 +1198,7 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
 
     TC_LOG_WARN("network", "AntiDOS: Account %u, IP: %s, Ping: %u, Character: %s, flooding packet (opc: %s (0x%X), count: %u)",
         Session->GetAccountId(), Session->GetRemoteAddress().c_str(), Session->GetLatency(), Session->GetPlayerName().c_str(),
-        opcodeTable[p.GetOpcode()].name, p.GetOpcode(), packetCounter.amountCounter);
+        opcodeTable[p.GetOpcode()]->Name, p.GetOpcode(), packetCounter.amountCounter);
 
     switch (_policy)
     {
@@ -1307,7 +1251,6 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_PLAYER_LOGOUT:                        //   0               1
         case CMSG_LOGOUT_REQUEST:                       //   0               1
         case CMSG_PET_RENAME:                           //   0               1
-        case CMSG_QUESTGIVER_CANCEL:                    //   0               1
         case CMSG_QUESTGIVER_REQUEST_REWARD:            //   0               1
         case CMSG_COMPLETE_CINEMATIC:                   //   0               1
         case CMSG_BANKER_ACTIVATE:                      //   0               1
@@ -1317,8 +1260,6 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_DUEL_CANCELLED:                       //   0               1
         case CMSG_CALENDAR_COMPLAIN:                    //   0               1
         case CMSG_QUEST_QUERY:                          //   0               1.5
-        case CMSG_ITEM_QUERY_SINGLE:                    //   0               1.5
-        case CMSG_ITEM_NAME_QUERY:                      //   0               1.5
         case CMSG_GAMEOBJECT_QUERY:                     //   0               1.5
         case CMSG_CREATURE_QUERY:                       //   0               1.5
         case CMSG_QUESTGIVER_STATUS_QUERY:              //   0               1.5
@@ -1328,7 +1269,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_TAXIQUERYAVAILABLENODES:              //   0               1.5
         case CMSG_QUESTGIVER_QUERY_QUEST:               //   0               1.5
         case CMSG_PAGE_TEXT_QUERY:                      //   0               1.5
-        case MSG_QUERY_GUILD_BANK_TEXT:                 //   0               1.5
+        case CMSG_GUILD_BANK_QUERY_TEXT:                //   0               1.5
         case MSG_CORPSE_QUERY:                          //   0               1.5
         case MSG_MOVE_SET_FACING:                       //   0               1.5
         case CMSG_REQUEST_PARTY_MEMBER_STATS:           //   0               1.5
@@ -1343,28 +1284,44 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_SELF_RES:                             //   0               1.5
         case CMSG_UNLEARN_SKILL:                        //   0               1.5
         case CMSG_EQUIPMENT_SET_SAVE:                   //   0               1.5
-        case CMSG_DELETEEQUIPMENT_SET:                  //   0               1.5
+        case CMSG_EQUIPMENT_SET_DELETE:                 //   0               1.5
         case CMSG_DISMISS_CRITTER:                      //   0               1.5
         case CMSG_REPOP_REQUEST:                        //   0               1.5
         case CMSG_GROUP_INVITE:                         //   0               1.5
-        case CMSG_GROUP_DECLINE:                        //   0               1.5
-        case CMSG_GROUP_ACCEPT:                         //   0               1.5
+        case CMSG_GROUP_INVITE_RESPONSE:                //   0               1.5
         case CMSG_GROUP_UNINVITE_GUID:                  //   0               1.5
-        case CMSG_GROUP_UNINVITE:                       //   0               1.5
         case CMSG_GROUP_DISBAND:                        //   0               1.5
         case CMSG_BATTLEMASTER_JOIN_ARENA:              //   0               1.5
-        case CMSG_LEAVE_BATTLEFIELD:                    //   0               1.5
-        case MSG_GUILD_BANK_LOG_QUERY:                  //   0               2
+        case CMSG_BATTLEFIELD_LEAVE:                    //   0               1.5
+        case CMSG_GUILD_BANK_LOG_QUERY:                 //   0               2
         case CMSG_LOGOUT_CANCEL:                        //   0               2
         case CMSG_REALM_SPLIT:                          //   0               2
         case CMSG_ALTER_APPEARANCE:                     //   0               2
         case CMSG_QUEST_CONFIRM_ACCEPT:                 //   0               2
-        case MSG_GUILD_EVENT_LOG_QUERY:                 //   0               2.5
+        case CMSG_GUILD_EVENT_LOG_QUERY:                //   0               2.5
         case CMSG_READY_FOR_ACCOUNT_DATA_TIMES:         //   0               2.5
         case CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY:     //   0               2.5
         case CMSG_BEGIN_TRADE:                          //   0               2.5
         case CMSG_INITIATE_TRADE:                       //   0               3
-        case CMSG_MESSAGECHAT:                          //   0               3.5
+        case CMSG_MESSAGECHAT_ADDON_BATTLEGROUND:       //   0               3.5
+        case CMSG_MESSAGECHAT_ADDON_GUILD:              //   0               3.5
+        case CMSG_MESSAGECHAT_ADDON_OFFICER:            //   0               3.5
+        case CMSG_MESSAGECHAT_ADDON_PARTY:              //   0               3.5
+        case CMSG_MESSAGECHAT_ADDON_RAID:               //   0               3.5
+        case CMSG_MESSAGECHAT_ADDON_WHISPER:            //   0               3.5
+        case CMSG_MESSAGECHAT_AFK:                      //   0               3.5
+        case CMSG_MESSAGECHAT_BATTLEGROUND:             //   0               3.5
+        case CMSG_MESSAGECHAT_CHANNEL:                  //   0               3.5
+        case CMSG_MESSAGECHAT_DND:                      //   0               3.5
+        case CMSG_MESSAGECHAT_EMOTE:                    //   0               3.5
+        case CMSG_MESSAGECHAT_GUILD:                    //   0               3.5
+        case CMSG_MESSAGECHAT_OFFICER:                  //   0               3.5
+        case CMSG_MESSAGECHAT_PARTY:                    //   0               3.5
+        case CMSG_MESSAGECHAT_RAID:                     //   0               3.5
+        case CMSG_MESSAGECHAT_RAID_WARNING:             //   0               3.5
+        case CMSG_MESSAGECHAT_SAY:                      //   0               3.5
+        case CMSG_MESSAGECHAT_WHISPER:                  //   0               3.5
+        case CMSG_MESSAGECHAT_YELL:                     //   0               3.5
         case CMSG_INSPECT:                              //   0               3.5
         case CMSG_AREA_SPIRIT_HEALER_QUERY:             // not profiled
         case CMSG_STANDSTATECHANGE:                     // not profiled
@@ -1394,8 +1351,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
             break;
         }
 
-        case CMSG_GUILD_SET_PUBLIC_NOTE:                //   1               2         1 async db query
-        case CMSG_GUILD_SET_OFFICER_NOTE:               //   1               2         1 async db query
+        case CMSG_GUILD_SET_NOTE:                       //   1               2         1 async db query
         case CMSG_SET_CONTACT_NOTES:                    //   1               2.5       1 async db query
         case CMSG_CALENDAR_GET_CALENDAR:                //   0               1.5       medium upload bandwidth usage
         case CMSG_GUILD_BANK_QUERY_TAB:                 //   0               3.5       medium upload bandwidth usage
@@ -1416,7 +1372,6 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
 
         case CMSG_GM_REPORT_LAG:                        //   1               3         1 async db query
         case CMSG_SPELLCLICK:                           // not profiled
-        case CMSG_REMOVE_GLYPH:                         // not profiled
         case CMSG_DISMISS_CONTROLLED_VEHICLE:           // not profiled
         {
             maxPacketCounterAllowed = 20;
@@ -1446,7 +1401,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_REQUEST_VEHICLE_NEXT_SEAT:            // not profiled
         case CMSG_REQUEST_VEHICLE_SWITCH_SEAT:          // not profiled
         case CMSG_REQUEST_VEHICLE_EXIT:                 // not profiled
-        case CMSG_CONTROLLER_EJECT_PASSENGER:           // not profiled
+        case CMSG_EJECT_PASSENGER:                      // not profiled
         case CMSG_ITEM_REFUND:                          // not profiled
         case CMSG_SOCKET_GEMS:                          // not profiled
         case CMSG_WRAP_ITEM:                            // not profiled
@@ -1483,9 +1438,9 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_GUILD_DECLINE:                        // not profiled
         case CMSG_GUILD_LEAVE:                          // not profiled
         case CMSG_GUILD_DISBAND:                        // not profiled
-        case CMSG_GUILD_LEADER:                         // not profiled
+        case CMSG_GUILD_SET_GUILD_MASTER:               // not profiled
         case CMSG_GUILD_MOTD:                           // not profiled
-        case CMSG_GUILD_RANK:                           // not profiled
+        case CMSG_GUILD_SET_RANK_PERMISSIONS:           // not profiled
         case CMSG_GUILD_ADD_RANK:                       // not profiled
         case CMSG_GUILD_DEL_RANK:                       // not profiled
         case CMSG_GUILD_INFO_TEXT:                      // not profiled

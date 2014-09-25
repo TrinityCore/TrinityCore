@@ -343,9 +343,7 @@ enum MiscData
     SOUND_PAIN                  = 17360,    // separate sound, not attached to any text
 
     EQUIP_ASHBRINGER_GLOWING    = 50442,
-    EQUIP_BROKEN_FROSTMOURNE    = 50840,
-
-    MOVIE_FALL_OF_THE_LICH_KING = 16,
+    EQUIP_BROKEN_FROSTMOURNE    = 50840
 };
 
 enum Misc
@@ -375,25 +373,6 @@ class NecroticPlagueTargetCheck : public std::unary_function<Unit*, bool>
         Unit const* _sourceObj;
         uint32 _notAura1;
         uint32 _notAura2;
-};
-
-class HeightDifferenceCheck
-{
-    public:
-        HeightDifferenceCheck(GameObject* go, float diff, bool reverse)
-            : _baseObject(go), _difference(diff), _reverse(reverse)
-        {
-        }
-
-        bool operator()(WorldObject* unit) const
-        {
-            return (unit->GetPositionZ() - _baseObject->GetPositionZ() > _difference) != _reverse;
-        }
-
-    private:
-        GameObject* _baseObject;
-        float _difference;
-        bool _reverse;
 };
 
 class FrozenThroneResetWorker
@@ -1499,7 +1478,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                             {
                                 std::list<Creature*> triggers;
                                 GetCreatureListWithEntryInGrid(triggers, me, NPC_WORLD_TRIGGER, 150.0f);
-                                triggers.remove_if(HeightDifferenceCheck(platform, 5.0f, true));
+                                triggers.remove_if(Trinity::HeightDifferenceCheck(platform, 5.0f, true));
                                 if (triggers.empty())
                                     return;
 
@@ -2289,7 +2268,7 @@ class spell_the_lich_king_quake : public SpellScriptLoader
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (GameObject* platform = ObjectAccessor::GetGameObject(*GetCaster(), GetCaster()->GetInstanceScript()->GetGuidData(DATA_ARTHAS_PLATFORM)))
-                    targets.remove_if(HeightDifferenceCheck(platform, 5.0f, false));
+                    targets.remove_if(Trinity::HeightDifferenceCheck(platform, 5.0f, false));
             }
 
             void HandleSendEvent(SpellEffIndex /*effIndex*/)
@@ -3120,41 +3099,6 @@ class spell_the_lich_king_jump_remove_aura : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_play_movie : public SpellScriptLoader
-{
-    public:
-        spell_the_lich_king_play_movie() : SpellScriptLoader("spell_the_lich_king_play_movie") { }
-
-        class spell_the_lich_king_play_movie_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_the_lich_king_play_movie_SpellScript);
-
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                if (!sMovieStore.LookupEntry(MOVIE_FALL_OF_THE_LICH_KING))
-                    return false;
-                return true;
-            }
-
-            void HandleScript(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-                if (Player* player = GetHitPlayer())
-                    player->SendMovieStart(MOVIE_FALL_OF_THE_LICH_KING);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_play_movie_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_the_lich_king_play_movie_SpellScript();
-        }
-};
-
 class achievement_been_waiting_long_time : public AchievementCriteriaScript
 {
     public:
@@ -3224,7 +3168,6 @@ void AddSC_boss_the_lich_king()
     new spell_the_lich_king_jump();
     new spell_the_lich_king_jump_remove_aura();
     new spell_trigger_spell_from_caster("spell_the_lich_king_mass_resurrection", SPELL_MASS_RESURRECTION_REAL);
-    new spell_the_lich_king_play_movie();
     new achievement_been_waiting_long_time();
     new achievement_neck_deep_in_vile();
 }

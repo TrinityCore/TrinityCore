@@ -22,21 +22,6 @@
 #include "Utilities/ByteConverter.h"
 #include <cassert>
 
-enum DbcFieldFormat
-{
-    FT_NA='x',                                              //not used or unknown, 4 byte size
-    FT_NA_BYTE='X',                                         //not used or unknown, byte
-    FT_STRING='s',                                          //char*
-    FT_FLOAT='f',                                           //float
-    FT_INT='i',                                             //uint32
-    FT_BYTE='b',                                            //uint8
-    FT_SORT='d',                                            //sorted by this field, field is not included
-    FT_IND='n',                                             //the same, but parsed to data
-    FT_LOGIC='l',                                           //Logical (boolean)
-    FT_SQL_PRESENT='p',                                     //Used in sql format to mark column present in sql dbc
-    FT_SQL_ABSENT='a'                                       //Used in sql format to mark column absent in sql dbc
-};
-
 class DBCFileLoader
 {
     public:
@@ -51,21 +36,26 @@ class DBCFileLoader
                 float getFloat(size_t field) const
                 {
                     assert(field < file.fieldCount);
-                    float val = *reinterpret_cast<float*>(offset+file.GetOffset(field));
+                    float val = *reinterpret_cast<float*>(offset + file.GetOffset(field));
                     EndianConvert(val);
                     return val;
                 }
                 uint32 getUInt(size_t field) const
                 {
                     assert(field < file.fieldCount);
-                    uint32 val = *reinterpret_cast<uint32*>(offset+file.GetOffset(field));
+                    uint32 val = *reinterpret_cast<uint32*>(offset + file.GetOffset(field));
                     EndianConvert(val);
                     return val;
                 }
                 uint8 getUInt8(size_t field) const
                 {
                     assert(field < file.fieldCount);
-                    return *reinterpret_cast<uint8*>(offset+file.GetOffset(field));
+                    return *reinterpret_cast<uint8*>(offset + file.GetOffset(field));
+                }
+                uint64 getUInt64(size_t field) const
+                {
+                    assert(field < file.fieldCount);
+                    return *reinterpret_cast<uint64*>(offset + file.GetOffset(field));
                 }
 
                 const char *getString(size_t field) const
@@ -78,8 +68,8 @@ class DBCFileLoader
 
             private:
                 Record(DBCFileLoader &file_, unsigned char *offset_): offset(offset_), file(file_) { }
-                unsigned char *offset;
-                DBCFileLoader &file;
+                unsigned char* offset;
+                DBCFileLoader& file;
 
                 friend class DBCFileLoader;
 

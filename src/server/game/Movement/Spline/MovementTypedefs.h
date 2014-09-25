@@ -71,6 +71,8 @@ namespace Movement
 
     extern float gravity;
     extern UInt32Counter splineIdGen;
+    extern std::string MovementFlags_ToString(uint32 flags);
+    extern std::string MovementFlagsExtra_ToString(uint32 flags);
 }
 
 #endif // TRINITYSERVER_TYPEDEFS_H

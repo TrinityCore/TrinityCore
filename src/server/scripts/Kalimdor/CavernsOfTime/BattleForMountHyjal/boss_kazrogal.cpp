@@ -229,7 +229,7 @@ class spell_mark_of_kazrogal : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_mark_of_kazrogal_SpellScript();
         }
