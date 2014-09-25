@@ -229,11 +229,17 @@ public:
     {
         PrepareAuraScript(spell_warl_pet_scaling_01_AuraScript);
 
+    public:
+        spell_warl_pet_scaling_01_AuraScript()
+        {
+            _tempBonus = 0;
+        }
+
+    private:
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
                 return false;
-            _tempBonus = 0;
             return true;
         }
 
@@ -366,11 +372,17 @@ public:
     {
         PrepareAuraScript(spell_warl_pet_scaling_02_AuraScript);
 
+    public:
+        spell_warl_pet_scaling_02_AuraScript()
+        {
+            _tempBonus = 0;
+        }
+
+    private:
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
                 return false;
-            _tempBonus = 0;
             return true;
         }
 
@@ -882,6 +894,13 @@ public:
     {
         PrepareAuraScript(spell_hun_pet_scaling_01_AuraScript);
 
+    public:
+        spell_hun_pet_scaling_01_AuraScript()
+        {
+            _tempHealth = 0;
+        }
+
+    private:
         void CalculateStaminaAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
@@ -1478,11 +1497,17 @@ public:
     {
         PrepareAuraScript(spell_dk_pet_scaling_01_AuraScript);
 
+    public:
+        spell_dk_pet_scaling_01_AuraScript()
+        {
+            _tempHealth = 0;
+        }
+
+    private:
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
                 return false;
-            _tempHealth = 0;
             return true;
         }
 

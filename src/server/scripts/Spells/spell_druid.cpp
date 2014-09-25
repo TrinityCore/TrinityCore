@@ -421,6 +421,13 @@ class spell_dru_moonkin_form_passive : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_moonkin_form_passive_AuraScript);
 
+        public:
+            spell_dru_moonkin_form_passive_AuraScript()
+            {
+                absorbPct = 0;
+            }
+
+        private:
             uint32 absorbPct;
 
             bool Load() override
@@ -521,6 +528,13 @@ class spell_dru_primal_tenacity : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_primal_tenacity_AuraScript);
 
+        public:
+            spell_dru_primal_tenacity_AuraScript()
+            {
+                absorbPct = 0;
+            }
+
+        private:
             uint32 absorbPct;
 
             bool Load() override
@@ -613,6 +627,13 @@ class spell_dru_savage_defense : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_savage_defense_AuraScript);
 
+        public:
+            spell_dru_savage_defense_AuraScript()
+            {
+                absorbPct = 0;
+            }
+
+        private:
             uint32 absorbPct;
 
             bool Load() override

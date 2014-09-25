@@ -68,7 +68,17 @@ public:
 
     struct npc_unkor_the_ruthlessAI : public ScriptedAI
     {
-        npc_unkor_the_ruthlessAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_unkor_the_ruthlessAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            CanDoQuest = false;
+            UnkorUnfriendly_Timer = 0;
+            Pulverize_Timer = 3000;
+        }
 
         bool CanDoQuest;
         uint32 UnkorUnfriendly_Timer;
@@ -76,9 +86,7 @@ public:
 
         void Reset() override
         {
-            CanDoQuest = false;
-            UnkorUnfriendly_Timer = 0;
-            Pulverize_Timer = 3000;
+            Initialize();
             me->SetStandState(UNIT_STAND_STATE_STAND);
             me->setFaction(FACTION_HOSTILE);
         }
@@ -397,7 +405,15 @@ public:
     {
         npc_floonAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             m_uiNormFaction = creature->getFaction();
+        }
+
+        void Initialize()
+        {
+            Silence_Timer = 2000;
+            Frostbolt_Timer = 4000;
+            FrostNova_Timer = 9000;
         }
 
         uint32 m_uiNormFaction;
@@ -407,9 +423,7 @@ public:
 
         void Reset() override
         {
-            Silence_Timer = 2000;
-            Frostbolt_Timer = 4000;
-            FrostNova_Timer = 9000;
+            Initialize();
             if (me->getFaction() != m_uiNormFaction)
                 me->setFaction(m_uiNormFaction);
         }
