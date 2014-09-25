@@ -56,7 +56,15 @@ public:
 
     struct instance_karazhan_InstanceMapScript : public InstanceScript
     {
-        instance_karazhan_InstanceMapScript(Map* map) : InstanceScript(map) { }
+        instance_karazhan_InstanceMapScript(Map* map) : InstanceScript(map)
+        {
+            SetHeaders(DataHeader);
+            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
+            // 1 - OZ, 2 - HOOD, 3 - RAJ, this never gets altered.
+            m_uiOperaEvent = urand(1, 3);
+            m_uiOzDeathCount = 0;
+        }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string strSaveData;
@@ -79,16 +87,6 @@ public:
         ObjectGuid MastersTerraceDoor[2];
         ObjectGuid ImageGUID;
         ObjectGuid DustCoveredChest;
-
-        void Initialize() override
-        {
-            SetHeaders(DataHeader);
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-            // 1 - OZ, 2 - HOOD, 3 - RAJ, this never gets altered.
-            m_uiOperaEvent      = urand(1, 3);
-            m_uiOzDeathCount    = 0;
-        }
 
         bool IsEncounterInProgress() const override
         {

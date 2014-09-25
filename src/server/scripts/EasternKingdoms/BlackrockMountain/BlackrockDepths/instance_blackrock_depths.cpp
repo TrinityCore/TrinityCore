@@ -76,7 +76,16 @@ public:
 
     struct instance_blackrock_depths_InstanceMapScript : public InstanceScript
     {
-        instance_blackrock_depths_InstanceMapScript(Map* map) : InstanceScript(map) { }
+        instance_blackrock_depths_InstanceMapScript(Map* map) : InstanceScript(map)
+        {
+            SetHeaders(DataHeader);
+            memset(&encounter, 0, sizeof(encounter));
+
+            BarAleCount = 0;
+            GhostKillCount = 0;
+            TombTimer = TIMER_TOMBOFTHESEVEN;
+            TombEventCounter = 0;
+        }
 
         uint32 encounter[MAX_ENCOUNTER];
         std::string str_data;
@@ -114,17 +123,6 @@ public:
         ObjectGuid TombEventStarterGUID;
         uint32 TombTimer;
         uint32 TombEventCounter;
-
-        void Initialize() override
-        {
-            SetHeaders(DataHeader);
-            memset(&encounter, 0, sizeof(encounter));
-
-            BarAleCount = 0;
-            GhostKillCount = 0;
-            TombTimer = TIMER_TOMBOFTHESEVEN;
-            TombEventCounter = 0;
-        }
 
         void OnCreatureCreate(Creature* creature) override
         {
