@@ -46,7 +46,14 @@ class instance_the_eye : public InstanceMapScript
 
         struct instance_the_eye_InstanceMapScript : public InstanceScript
         {
-            instance_the_eye_InstanceMapScript(Map* map) : InstanceScript(map) { }
+            instance_the_eye_InstanceMapScript(Map* map) : InstanceScript(map)
+            {
+                SetHeaders(DataHeader);
+                memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
+                KaelthasEventPhase = 0;
+                AlarEventPhase = 0;
+            }
 
             ObjectGuid ThaladredTheDarkener;
             ObjectGuid LordSanguinar;
@@ -59,15 +66,6 @@ class instance_the_eye : public InstanceMapScript
             uint8 AlarEventPhase;
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
-
-            void Initialize() override
-            {
-                SetHeaders(DataHeader);
-                memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-                KaelthasEventPhase = 0;
-                AlarEventPhase = 0;
-            }
 
             bool IsEncounterInProgress() const override
             {

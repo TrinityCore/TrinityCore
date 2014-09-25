@@ -43,23 +43,21 @@ public:
 
     struct instance_onyxias_lair_InstanceMapScript : public InstanceScript
     {
-        instance_onyxias_lair_InstanceMapScript(Map* map) : InstanceScript(map) { }
-
-        //Eruption is a BFS graph problem
-        //One map to remember all floor, one map to keep floor that still need to erupt and one queue to know what needs to be removed
-
-        void Initialize() override
+        instance_onyxias_lair_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
 
-            onyxiaLiftoffTimer       = 0;
-            manyWhelpsCounter        = 0;
-            eruptTimer               = 0;
+            onyxiaLiftoffTimer = 0;
+            manyWhelpsCounter = 0;
+            eruptTimer = 0;
 
             achievManyWhelpsHandleIt = false;
-            achievSheDeepBreathMore  = true;
+            achievSheDeepBreathMore = true;
         }
+
+        //Eruption is a BFS graph problem
+        //One map to remember all floor, one map to keep floor that still need to erupt and one queue to know what needs to be removed
 
         void OnCreatureCreate(Creature* creature) override
         {

@@ -63,13 +63,6 @@ public:
             SetBossNumber(EncounterCount);
         }
 
-        void Initialize() override
-        {
-            // Razorgore
-            EggCount = 0;
-            EggEvent = 0;
-        }
-
         void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())

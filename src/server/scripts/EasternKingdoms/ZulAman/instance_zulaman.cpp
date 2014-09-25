@@ -66,7 +66,21 @@ class instance_zulaman : public InstanceMapScript
 
         struct instance_zulaman_InstanceMapScript : public InstanceScript
         {
-            instance_zulaman_InstanceMapScript(Map* map) : InstanceScript(map) { }
+            instance_zulaman_InstanceMapScript(Map* map) : InstanceScript(map)
+            {
+                SetHeaders(DataHeader);
+                memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
+                QuestTimer = 0;
+                QuestMinute = 0;
+                BossKilled = 0;
+                ChestLooted = 0;
+
+                for (uint8 i = 0; i < RAND_VENDOR; ++i)
+                    RandVendor[i] = NOT_STARTED;
+
+                m_auiEncounter[DATA_GONGEVENT] = NOT_STARTED;
+            }
 
             ObjectGuid HarkorsSatchelGUID;
             ObjectGuid TanzarsTrunkGUID;
@@ -89,22 +103,6 @@ class instance_zulaman : public InstanceMapScript
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
             uint32 RandVendor[RAND_VENDOR];
-
-            void Initialize() override
-            {
-                SetHeaders(DataHeader);
-                memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-                QuestTimer = 0;
-                QuestMinute = 0;
-                BossKilled = 0;
-                ChestLooted = 0;
-
-                for (uint8 i = 0; i < RAND_VENDOR; ++i)
-                    RandVendor[i] = NOT_STARTED;
-
-                m_auiEncounter[DATA_GONGEVENT] = NOT_STARTED;
-            }
 
             bool IsEncounterInProgress() const override
             {

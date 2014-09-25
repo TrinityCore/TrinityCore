@@ -112,7 +112,34 @@ public:
 
     struct instance_violet_hold_InstanceMapScript : public InstanceScript
     {
-        instance_violet_hold_InstanceMapScript(Map* map) : InstanceScript(map) { }
+        instance_violet_hold_InstanceMapScript(Map* map) : InstanceScript(map)
+        {
+            SetHeaders(DataHeader);
+
+            uiRemoveNpc = 0;
+
+            uiDoorIntegrity = 100;
+
+            uiWaveCount = 0;
+            uiLocation = urand(0, 5);
+            uiFirstBoss = 0;
+            uiSecondBoss = 0;
+            uiCountErekemGuards = 0;
+            uiCountActivationCrystals = 0;
+            uiCyanigosaEventPhase = 1;
+
+            uiActivationTimer = 5000;
+            uiDoorSpellTimer = 2000;
+            uiCyanigosaEventTimer = 3 * IN_MILLISECONDS;
+
+            bActive = false;
+            bIsDoorSpellCast = false;
+            bCrystalActivated = false;
+            defenseless = true;
+            uiMainEventPhase = NOT_STARTED;
+
+            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+        }
 
         ObjectGuid uiMoragg;
         ObjectGuid uiErekem;
@@ -167,35 +194,6 @@ public:
         std::list<uint8> NpcAtDoorCastingList;
 
         std::string str_data;
-
-        void Initialize() override
-        {
-            SetHeaders(DataHeader);
-
-            uiRemoveNpc = 0;
-
-            uiDoorIntegrity = 100;
-
-            uiWaveCount = 0;
-            uiLocation = urand(0, 5);
-            uiFirstBoss = 0;
-            uiSecondBoss = 0;
-            uiCountErekemGuards = 0;
-            uiCountActivationCrystals = 0;
-            uiCyanigosaEventPhase = 1;
-
-            uiActivationTimer = 5000;
-            uiDoorSpellTimer = 2000;
-            uiCyanigosaEventTimer = 3*IN_MILLISECONDS;
-
-            bActive = false;
-            bIsDoorSpellCast = false;
-            bCrystalActivated = false;
-            defenseless = true;
-            uiMainEventPhase = NOT_STARTED;
-
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-        }
 
         bool IsEncounterInProgress() const override
         {

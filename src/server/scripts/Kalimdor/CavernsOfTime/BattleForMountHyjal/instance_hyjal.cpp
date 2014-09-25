@@ -54,19 +54,17 @@ public:
 
     struct instance_mount_hyjal_InstanceMapScript : public InstanceScript
     {
-        instance_mount_hyjal_InstanceMapScript(Map* map) : InstanceScript(map) { }
-
-        void Initialize() override
+        instance_mount_hyjal_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-            RaidDamage         = 0;
-            Trash              = 0;
-            hordeRetreat       = 0;
-            allianceRetreat    = 0;
+            RaidDamage = 0;
+            Trash = 0;
+            hordeRetreat = 0;
+            allianceRetreat = 0;
 
-            ArchiYell          = false;
+            ArchiYell = false;
         }
 
         bool IsEncounterInProgress() const override
