@@ -39,7 +39,17 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
 
         struct instance_temple_of_ahnqiraj_InstanceMapScript : public InstanceScript
         {
-            instance_temple_of_ahnqiraj_InstanceMapScript(Map* map) : InstanceScript(map) { }
+            instance_temple_of_ahnqiraj_InstanceMapScript(Map* map) : InstanceScript(map)
+            {
+                SetHeaders(DataHeader);
+                IsBossDied[0] = false;
+                IsBossDied[1] = false;
+                IsBossDied[2] = false;
+
+                BugTrioDeathCount = 0;
+
+                CthunPhase = 0;
+            }
 
             //If Vem is dead...
             bool IsBossDied[3];
@@ -55,18 +65,6 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
             uint32 BugTrioDeathCount;
 
             uint32 CthunPhase;
-
-            void Initialize() override
-            {
-                SetHeaders(DataHeader);
-                IsBossDied[0] = false;
-                IsBossDied[1] = false;
-                IsBossDied[2] = false;
-
-                BugTrioDeathCount = 0;
-
-                CthunPhase = 0;
-            }
 
             void OnCreatureCreate(Creature* creature) override
             {

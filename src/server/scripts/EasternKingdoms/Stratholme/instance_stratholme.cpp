@@ -50,6 +50,11 @@ class instance_stratholme : public InstanceMapScript
             instance_stratholme_InstanceMapScript(Map* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
+                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                    EncounterState[i] = NOT_STARTED;
+
+                for (uint8 i = 0; i < 5; ++i)
+                    IsSilverHandDead[i] = false;
             }
 
             uint32 EncounterState[MAX_ENCOUNTER];
@@ -72,18 +77,6 @@ class instance_stratholme : public InstanceMapScript
             GuidSet crystalsGUID;
             GuidSet abomnationGUID;
             EventMap events;
-
-            void Initialize() override
-            {
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    EncounterState[i] = NOT_STARTED;
-
-                for (uint8 i = 0; i < 5; ++i)
-                    IsSilverHandDead[i] = false;
-
-                crystalsGUID.clear();
-                abomnationGUID.clear();
-            }
 
             bool StartSlaugtherSquare()
             {

@@ -78,7 +78,14 @@ public:
 
     struct instance_shadowfang_keep_InstanceMapScript : public InstanceScript
     {
-        instance_shadowfang_keep_InstanceMapScript(Map* map) : InstanceScript(map) { }
+        instance_shadowfang_keep_InstanceMapScript(Map* map) : InstanceScript(map)
+        {
+            SetHeaders(DataHeader);
+            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
+            uiPhase = 0;
+            uiTimer = 0;
+        }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;
@@ -93,15 +100,6 @@ public:
 
         uint8 uiPhase;
         uint16 uiTimer;
-
-        void Initialize() override
-        {
-            SetHeaders(DataHeader);
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-            uiPhase = 0;
-            uiTimer = 0;
-        }
 
         void OnCreatureCreate(Creature* creature) override
         {

@@ -88,10 +88,6 @@ class instance_serpent_shrine : public InstanceMapScript
             instance_serpentshrine_cavern_InstanceMapScript(Map* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
-            }
-
-            void Initialize() override
-            {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
                 StrangePool = 0;
@@ -106,7 +102,6 @@ class instance_serpent_shrine : public InstanceMapScript
                 FrenzySpawnTimer = 2000;
                 DoSpawnFrenzy = false;
                 TrashCount = 0;
-
             }
 
             bool IsEncounterInProgress() const override

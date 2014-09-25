@@ -37,6 +37,7 @@ public:
         instance_gnomeregan_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
+            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
         }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
@@ -45,11 +46,6 @@ public:
         ObjectGuid uiCaveInRightGUID;
 
         ObjectGuid uiBastmasterEmiShortfuseGUID;
-
-        void Initialize() override
-        {
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-        }
 
         void Load(const char* in) override
         {
