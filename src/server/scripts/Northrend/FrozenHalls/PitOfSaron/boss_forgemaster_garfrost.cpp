@@ -256,12 +256,13 @@ class spell_garfrost_permafrost : public SpellScriptLoader
         {
             PrepareSpellScript(spell_garfrost_permafrost_SpellScript);
 
-            bool Load() override
+        public:
+            spell_garfrost_permafrost_SpellScript()
             {
                 prevented = false;
-                return true;
             }
 
+        private:
             void PreventHitByLoS()
             {
                 if (Unit* target = GetHitUnit())
