@@ -1922,6 +1922,13 @@ class spell_igb_on_gunship_deck : public SpellScriptLoader
         {
             PrepareAuraScript(spell_igb_on_gunship_deck_AuraScript);
 
+        public:
+            spell_igb_on_gunship_deck_AuraScript()
+            {
+                _teamInInstance = 0;
+            }
+
+        private:
             bool Load() override
             {
                 if (InstanceScript* instance = GetOwner()->GetInstanceScript())
@@ -2031,6 +2038,13 @@ class spell_igb_incinerating_blast : public SpellScriptLoader
         {
             PrepareSpellScript(spell_igb_incinerating_blast_SpellScript);
 
+        public:
+            spell_igb_incinerating_blast_SpellScript()
+            {
+                _energyLeft = 0;
+            }
+
+        private:
             void StoreEnergy()
             {
                 _energyLeft = GetCaster()->GetPower(POWER_ENERGY) - 10;
@@ -2370,9 +2384,15 @@ class spell_igb_check_for_players : public SpellScriptLoader
         {
             PrepareSpellScript(spell_igb_check_for_players_SpellScript);
 
-            bool Load() override
+        public:
+            spell_igb_check_for_players_SpellScript()
             {
                 _playerCount = 0;
+            }
+
+        private:
+            bool Load() override
+            {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 

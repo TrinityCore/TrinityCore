@@ -1219,13 +1219,13 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
         {
             PrepareSpellScript(spell_deathbringer_blood_nova_targeting_SpellScript);
 
-            bool Load() override
+        public:
+            spell_deathbringer_blood_nova_targeting_SpellScript()
             {
-                // initialize variable
-                target = NULL;
-                return true;
+                target = nullptr;
             }
 
+        private:
             void FilterTargetsInitial(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())

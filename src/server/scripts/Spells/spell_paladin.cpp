@@ -99,6 +99,14 @@ class spell_pal_ardent_defender : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_ardent_defender_AuraScript);
 
+        public:
+            spell_pal_ardent_defender_AuraScript()
+            {
+                absorbPct = 0;
+                healPct = 0;
+            }
+
+        private:
             uint32 absorbPct, healPct;
 
             enum Spell
@@ -465,6 +473,13 @@ class spell_pal_divine_storm : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_divine_storm_SpellScript);
 
+        public:
+            spell_pal_divine_storm_SpellScript()
+            {
+                healPct = 0;
+            }
+
+        private:
             uint32 healPct;
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -508,6 +523,13 @@ class spell_pal_divine_storm_dummy : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_divine_storm_dummy_SpellScript);
 
+        public:
+            spell_pal_divine_storm_dummy_SpellScript()
+            {
+                _targetCount = 0;
+            }
+
+        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_STORM_HEAL))
@@ -696,6 +718,13 @@ class spell_pal_hand_of_sacrifice : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_hand_of_sacrifice_AuraScript);
 
+        public:
+            spell_pal_hand_of_sacrifice_AuraScript()
+            {
+                remainingAmount = 0;
+            }
+
+        private:
             int32 remainingAmount;
 
             bool Load() override

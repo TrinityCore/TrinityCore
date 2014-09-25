@@ -812,12 +812,13 @@ class spell_close_rift : public SpellScriptLoader
         {
             PrepareAuraScript(spell_close_rift_AuraScript);
 
-            bool Load() override
+        public:
+            spell_close_rift_AuraScript()
             {
                 _counter = 0;
-                return true;
             }
 
+        private:
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return sSpellMgr->GetSpellInfo(SPELL_DESPAWN_RIFT) != nullptr;
