@@ -172,7 +172,18 @@ class npc_nether_wraith : public CreatureScript
 
         struct npc_nether_wraithAI : public ScriptedAI
         {
-            npc_nether_wraithAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_nether_wraithAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                ArcaneMissiles_Timer = urand(1000, 4000);
+                Detonation_Timer = 20000;
+                Die_Timer = 2200;
+                Detonation = false;
+            }
 
             uint32 ArcaneMissiles_Timer;
             uint32 Detonation_Timer;
@@ -181,10 +192,7 @@ class npc_nether_wraith : public CreatureScript
 
             void Reset() override
             {
-                ArcaneMissiles_Timer = urand(1000, 4000);
-                Detonation_Timer = 20000;
-                Die_Timer = 2200;
-                Detonation = false;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override { }

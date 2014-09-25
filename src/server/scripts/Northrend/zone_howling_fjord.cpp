@@ -74,13 +74,22 @@ public:
 
     struct npc_Apothecary_HanesAI : public npc_escortAI
     {
-        npc_Apothecary_HanesAI(Creature* creature) : npc_escortAI(creature){ }
+        npc_Apothecary_HanesAI(Creature* creature) : npc_escortAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            PotTimer = 10000; //10 sec cooldown on potion
+        }
+
         uint32 PotTimer;
 
         void Reset() override
         {
             SetDespawnAtFar(false);
-            PotTimer = 10000; //10 sec cooldown on potion
+            Initialize();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -318,15 +327,23 @@ public:
     /// @todo make prisoners help (unclear if summoned or using npc's from surrounding cages (summon inside small cages?))
     struct npc_daegarnAI : public ScriptedAI
     {
-        npc_daegarnAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_daegarnAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            bEventInProgress = false;
+            uiPlayerGUID.Clear();
+        }
 
         bool bEventInProgress;
         ObjectGuid uiPlayerGUID;
 
         void Reset() override
         {
-            bEventInProgress = false;
-            uiPlayerGUID.Clear();
+            Initialize();
         }
 
         void StartEvent(ObjectGuid uiGUID)

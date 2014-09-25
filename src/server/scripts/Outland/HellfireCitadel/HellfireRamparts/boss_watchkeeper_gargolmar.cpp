@@ -58,13 +58,21 @@ class boss_watchkeeper_gargolmar : public CreatureScript
 
         struct boss_watchkeeper_gargolmarAI : public BossAI
         {
-            boss_watchkeeper_gargolmarAI(Creature* creature) : BossAI(creature, DATA_WATCHKEEPER_GARGOLMAR) { }
+            boss_watchkeeper_gargolmarAI(Creature* creature) : BossAI(creature, DATA_WATCHKEEPER_GARGOLMAR)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                hasTaunted = false;
+                yelledForHeal = false;
+                retaliation = false;
+            }
 
             void Reset() override
             {
-                hasTaunted    = false;
-                yelledForHeal = false;
-                retaliation   = false;
+                Initialize();
                 _Reset();
             }
 

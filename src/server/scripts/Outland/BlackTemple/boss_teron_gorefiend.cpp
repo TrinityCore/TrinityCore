@@ -265,7 +265,6 @@ public:
         uint32 SummonDoomBlossomTimer;
         uint32 EnrageTimer;
         uint32 CrushingShadowsTimer;
-        uint32 ShadowOfDeathTimer;
         uint32 SummonShadowsTimer;
         uint32 RandomYellTimer;
         uint32 AggroTimer;

@@ -222,13 +222,21 @@ public:
 
     struct npc_crusade_recruitAI : public ScriptedAI
     {
-        npc_crusade_recruitAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_crusade_recruitAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            _heading = me->GetOrientation();
+        }
 
         void Reset() override
         {
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
-            _heading = me->GetOrientation();
+            Initialize();
         }
 
         void UpdateAI(uint32 diff) override

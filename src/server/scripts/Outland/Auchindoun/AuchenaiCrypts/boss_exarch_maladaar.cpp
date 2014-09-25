@@ -170,7 +170,21 @@ public:
     {
         boss_exarch_maladaarAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             HasTaunted = false;
+        }
+
+        void Initialize()
+        {
+            soulmodel = 0;
+            soulholder.Clear();
+            soulclass = 0;
+
+            Fear_timer = 15000 + rand32() % 5000;
+            Ribbon_of_Souls_timer = 5000;
+            StolenSoul_Timer = 25000 + rand32() % 10000;
+
+            Avatar_summoned = false;
         }
 
         uint32 soulmodel;
@@ -186,15 +200,7 @@ public:
 
         void Reset() override
         {
-            soulmodel = 0;
-            soulholder.Clear();
-            soulclass = 0;
-
-            Fear_timer = 15000 + rand32() % 5000;
-            Ribbon_of_Souls_timer = 5000;
-            StolenSoul_Timer = 25000 + rand32() % 10000;
-
-            Avatar_summoned = false;
+            Initialize();
         }
 
         void MoveInLineOfSight(Unit* who) override
