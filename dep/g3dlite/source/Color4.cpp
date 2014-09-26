@@ -1,20 +1,17 @@
 /**
- @file Color4.cpp
+ \file Color4.cpp
 
  Color class.
 
- @author Morgan McGuire, http://graphics.cs.williams.edu
- @cite Portions by Laura Wollstadt, graphics3d.com
- @cite Portions based on Dave Eberly's Magic Software Library at http://www.magic-software.com
+ \author Morgan McGuire, http://graphics.cs.williams.edu
 
-
- @created 2002-06-25
- @edited  2009-11-10
+ \created 2002-06-25
+ \edited  2011-09-10
  */
 
 #include <stdlib.h>
 #include "G3D/Color4.h"
-#include "G3D/Color4uint8.h"
+#include "G3D/Color4unorm8.h"
 #include "G3D/Vector4.h"
 #include "G3D/format.h"
 #include "G3D/BinaryInput.h"
@@ -24,38 +21,39 @@
 
 namespace G3D {
 
+
 Color4::Color4(const Any& any) {
     *this = Color4::zero();
-    any.verifyName("Color4");
 
-    if (any.type() == Any::TABLE) {
-        for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
-            const std::string& key = toLower(it->key);
-            if (key == "r") {
-                r = it->value;
-            } else if (key == "g") {
-                g = it->value;
-            } else if (key == "b") {
-                b = it->value;
-            } else if (key == "a") {
-                a = it->value;
-            } else {
-                any.verify(false, "Illegal key: " + it->key);
-            }
-        }
-    } else if (toLower(any.name()) == "color4") {
-        r = any[0];
-        g = any[1];
-        b = any[2];
-        a = any[3];
+    any.verifyNameBeginsWith("Color", "Power", "Radiance", "Irradiance", "Energy", "Radiosity", "Biradiance");
+
+    if (any.name().find('3') != std::string::npos) {
+        // This is a Color3 constructor--extend with alpha = 1
+        *this = Color4(Color3(any), 1.0f);
     } else {
-        any.verifyName("Color4::fromARGB");
-        *this = Color4::fromARGB((int)any[0].number());
+
+        if (any.type() == Any::TABLE) {
+            any.verifyName("Color4");
+            AnyTableReader atr(any);
+            atr.getIfPresent("r", r);
+            atr.getIfPresent("g", g);
+            atr.getIfPresent("b", b);
+            atr.getIfPresent("a", a);
+            atr.verifyDone();
+        } else if (toLower(any.name()) == "color4") {
+            r = any[0];
+            g = any[1];
+            b = any[2];
+            a = any[3];
+        } else {
+            any.verifyName("Color4::fromARGB");
+            *this = Color4::fromARGB((uint32)any[0].number());
+        }
     }
 }
    
 
-Color4::operator Any() const {
+Any Color4::toAny() const {
     Any any(Any::ARRAY, "Color4");
     any.append(r, g, b, a);
     return any;
@@ -99,8 +97,7 @@ Color4::Color4(const Vector4& v) {
 }
 
 
-Color4::Color4(const Color4uint8& c) : r(c.r), g(c.g), b(c.b), a(c.a) {
-    *this /= 255.0f;
+Color4::Color4(const Color4unorm8& c) : r(c.r), g(c.g), b(c.b), a(c.a) {
 }
 
 size_t Color4::hashCode() const {
@@ -148,7 +145,7 @@ Color4 Color4::operator/ (float fScalar) const {
     Color4 kQuot;
 
     if (fScalar != 0.0f) {
-		float fInvScalar = 1.0f / fScalar;
+        float fInvScalar = 1.0f / fScalar;
         kQuot.r = fInvScalar * r;
         kQuot.g = fInvScalar * g;
         kQuot.b = fInvScalar * b;
@@ -165,7 +162,7 @@ Color4 Color4::operator/ (float fScalar) const {
 
 Color4& Color4::operator/= (float fScalar) {
     if (fScalar != 0.0f) {
-		float fInvScalar = 1.0f / fScalar;
+        float fInvScalar = 1.0f / fScalar;
         r *= fInvScalar;
         g *= fInvScalar;
         b *= fInvScalar;

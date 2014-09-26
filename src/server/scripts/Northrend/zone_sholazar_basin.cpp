@@ -18,12 +18,11 @@
 /* ScriptData
 SDName: Sholazar_Basin
 SD%Complete: 100
-SDComment: Quest support: 12570, 12573, 12621, 12726
+SDComment: Quest support: 12573, 12621, 12726
 SDCategory: Sholazar_Basin
 EndScriptData */
 
 /* ContentData
-npc_injured_rainspeaker_oracle
 npc_vekjik
 avatar_of_freya
 npc_haiphoon (Quest: "Song of Wind and Water")
@@ -38,141 +37,6 @@ EndContentData */
 #include "Vehicle.h"
 #include "CombatAI.h"
 #include "Player.h"
-
-/*######
-## npc_injured_rainspeaker_oracle
-######*/
-
-#define GOSSIP_ITEM1 "I am ready to travel to your village now."
-
-enum Rainspeaker
-{
-    SAY_START_IRO                       = 0,
-    SAY_QUEST_ACCEPT_IRO                = 1,
-    SAY_END_IRO                         = 2,
-
-    QUEST_FORTUNATE_MISUNDERSTANDINGS   = 12570,
-    FACTION_ESCORTEE_A                  = 774,
-    FACTION_ESCORTEE_H                  = 775
-};
-
-class npc_injured_rainspeaker_oracle : public CreatureScript
-{
-public:
-    npc_injured_rainspeaker_oracle() : CreatureScript("npc_injured_rainspeaker_oracle") { }
-
-    struct npc_injured_rainspeaker_oracleAI : public npc_escortAI
-    {
-        npc_injured_rainspeaker_oracleAI(Creature* creature) : npc_escortAI(creature) { c_guid = creature->GetGUID(); }
-
-        uint64 c_guid;
-
-        void Reset() override
-        {
-            me->RestoreFaction();
-            // if we will have other way to assign this to only one npc remove this part
-            if (GUID_LOPART(me->GetGUID()) != 101030)
-            {
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            }
-        }
-
-        void WaypointReached(uint32 waypointId) override
-        {
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
-
-            switch (waypointId)
-            {
-                case 1:
-                    SetRun();
-                    break;
-                case 10:
-                case 11:
-                case 12:
-                case 13:
-                case 14:
-                case 15:
-                case 16:
-                case 17:
-                case 18:
-                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
-                    me->SetSpeed(MOVE_SWIM, 0.85f, true);
-                    me->SetSwim(true);
-                    me->SetDisableGravity(true);
-                    break;
-                case 19:
-                    me->GetMotionMaster()->MoveFall();
-                    break;
-                case 28:
-                    player->GroupEventHappens(QUEST_FORTUNATE_MISUNDERSTANDINGS, me);
-                    // me->RestoreFaction();
-                    Talk(SAY_END_IRO);
-                    SetRun(false);
-                    break;
-            }
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (!HasEscortState(STATE_ESCORT_ESCORTING))
-                return;
-
-            if (Player* player = GetPlayerForEscort())
-            {
-                if (player->GetQuestStatus(QUEST_FORTUNATE_MISUNDERSTANDINGS) != QUEST_STATUS_COMPLETE)
-                    player->FailQuest(QUEST_FORTUNATE_MISUNDERSTANDINGS);
-            }
-        }
-    };
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_FORTUNATE_MISUNDERSTANDINGS) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
-            CAST_AI(npc_escortAI, (creature->AI()))->SetMaxPlayerDistance(35.0f);
-            creature->AI()->Talk(SAY_START_IRO);
-
-            switch (player->GetTeam()){
-            case ALLIANCE:
-                creature->setFaction(FACTION_ESCORTEE_A);
-                break;
-            case HORDE:
-                creature->setFaction(FACTION_ESCORTEE_H);
-                break;
-            }
-        }
-        return true;
-    }
-
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* /*_Quest*/) override
-    {
-        creature->AI()->Talk(SAY_QUEST_ACCEPT_IRO);
-        return false;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_injured_rainspeaker_oracleAI(creature);
-    }
-};
 
 /*######
 ## npc_vekjik
@@ -365,7 +229,15 @@ public:
 
     struct npc_engineer_heliceAI : public npc_escortAI
     {
-        npc_engineer_heliceAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_engineer_heliceAI(Creature* creature) : npc_escortAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            m_uiChatTimer = 4000;
+        }
 
         uint32 m_uiChatTimer;
 
@@ -410,7 +282,7 @@ public:
 
         void Reset() override
         {
-            m_uiChatTimer = 4000;
+            Initialize();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -502,16 +374,24 @@ public:
 
     struct npc_jungle_punch_targetAI : public ScriptedAI
     {
-        npc_jungle_punch_targetAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_jungle_punch_targetAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        void Reset() override
+        void Initialize()
         {
             sayTimer = 3500;
             sayStep = 0;
             timer = 0;
             phase = 0;
-            playerGUID = 0;
-            orphanGUID = 0;
+            playerGUID.Clear();
+            orphanGUID.Clear();
+        }
+
+        void Reset() override
+        {
+            Initialize();
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -546,7 +426,7 @@ public:
                 switch (phase)
                 {
                     case 1:
-                        orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + cos(me->GetOrientation()) * 5, me->GetPositionY() + sin(me->GetOrientation()) * 5, me->GetPositionZ());
+                        orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + std::cos(me->GetOrientation()) * 5, me->GetPositionY() + std::sin(me->GetOrientation()) * 5, me->GetPositionZ());
                         orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_6);
                         timer = 5000;
                         break;
@@ -625,7 +505,7 @@ public:
                 if (itr->second.CreatureOrGOCount[i] != 0)
                     continue;
 
-                player->KilledMonsterCredit(me->GetEntry(), 0);
+                player->KilledMonsterCredit(me->GetEntry());
                 player->Say(SAY_OFFER, LANG_UNIVERSAL);
                 sayStep = 1;
                 break;
@@ -637,8 +517,8 @@ public:
             uint8 sayStep;
             uint32 timer;
             int8 phase;
-            uint64 playerGUID;
-            uint64 orphanGUID;
+            ObjectGuid playerGUID;
+            ObjectGuid orphanGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -919,7 +799,7 @@ public:
                     apple->CastSpell(apple, SPELL_APPLE_FALL);
                     wilhelm->AI()->Talk(SAY_WILHELM_HIT);
                     if (Player* player = shooter->ToPlayer())
-                        player->KilledMonsterCredit(NPC_APPLE, 0);
+                        player->KilledMonsterCredit(NPC_APPLE);
                     apple->DespawnOrUnsummon();
 
                     break;
@@ -1113,15 +993,15 @@ public:
 
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
-            if (Player* player = GetHitUnit()->ToPlayer())
+            if (Unit* target = GetHitUnit())
             {
                 switch (GetSpellInfo()->Id)
                 {
                     case SPELL_CORRECT_TRACKS:
-                        player->MonsterSay(sObjectMgr->GetTrinityStringForDBCLocale(SAY_CORRECT_TRACKS), LANG_UNIVERSAL, player);
+                        target->Say(SAY_CORRECT_TRACKS, target);
                         break;
                     case SPELL_INCORRECT_TRACKS:
-                        player->MonsterSay(sObjectMgr->GetTrinityStringForDBCLocale(SAY_INCORRECT_TRACKS), LANG_UNIVERSAL, player);
+                        target->Say(SAY_INCORRECT_TRACKS, target);
                         break;
                     default:
                         break;
@@ -1143,7 +1023,6 @@ public:
 
 void AddSC_sholazar_basin()
 {
-    new npc_injured_rainspeaker_oracle();
     new npc_vekjik();
     new npc_avatar_of_freya();
     new npc_bushwhacker();

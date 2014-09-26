@@ -27,12 +27,12 @@
 
 UpdateData::UpdateData() : m_blockCount(0) { }
 
-void UpdateData::AddOutOfRangeGUID(std::set<uint64>& guids)
+void UpdateData::AddOutOfRangeGUID(GuidSet& guids)
 {
     m_outOfRangeGUIDs.insert(guids.begin(), guids.end());
 }
 
-void UpdateData::AddOutOfRangeGUID(uint64 guid)
+void UpdateData::AddOutOfRangeGUID(ObjectGuid guid)
 {
     m_outOfRangeGUIDs.insert(guid);
 }
@@ -47,9 +47,9 @@ void UpdateData::Compress(void* dst, uint32 *dst_size, void* src, int src_size)
 {
     z_stream c_stream;
 
-    c_stream.zalloc = (alloc_func)0;
-    c_stream.zfree = (free_func)0;
-    c_stream.opaque = (voidpf)0;
+    c_stream.zalloc = (alloc_func)nullptr;
+    c_stream.zfree = (free_func)nullptr;
+    c_stream.opaque = (voidpf)nullptr;
 
     // default Z_BEST_SPEED (1)
     int z_res = deflateInit(&c_stream, sWorld->getIntConfig(CONFIG_COMPRESSION));
@@ -109,13 +109,11 @@ bool UpdateData::BuildPacket(WorldPacket* packet)
 
     if (!m_outOfRangeGUIDs.empty())
     {
-        buf << (uint8) UPDATETYPE_OUT_OF_RANGE_OBJECTS;
-        buf << (uint32) m_outOfRangeGUIDs.size();
+        buf << uint8(UPDATETYPE_OUT_OF_RANGE_OBJECTS);
+        buf << uint32(m_outOfRangeGUIDs.size());
 
-        for (std::set<uint64>::const_iterator i = m_outOfRangeGUIDs.begin(); i != m_outOfRangeGUIDs.end(); ++i)
-        {
-            buf.appendPackGUID(*i);
-        }
+        for (GuidSet::const_iterator i = m_outOfRangeGUIDs.begin(); i != m_outOfRangeGUIDs.end(); ++i)
+            buf << i->WriteAsPacked();
     }
 
     buf.append(m_data);

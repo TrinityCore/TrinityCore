@@ -24,11 +24,10 @@
 enum Spells
 {
     SPELL_POISON_NOVA                             = 55081,
-    H_SPELL_POISON_NOVA                           = 59842,
     SPELL_POWERFULL_BITE                          = 48287,
-    H_SPELL_POWERFULL_BITE                        = 59840,
     SPELL_VENOM_BOLT                              = 54970,
-    H_SPELL_VENOM_BOLT                            = 59839
+    SPELL_SUMMON_SNAKES                           = 55060, // NYI
+    SPELL_SUMMON_CONSTRICTORS                     = 54969  // NYI
 };
 
 enum Yells
@@ -38,7 +37,8 @@ enum Yells
     SAY_DEATH                                     = 2,
     SAY_SUMMON_SNAKES                             = 3,
     SAY_SUMMON_CONSTRICTORS                       = 4,
-    EMOTE_NOVA                                    = 5
+    EMOTE_NOVA                                    = 5,
+    EMOTE_ACTIVATE_ALTAR                          = 6
 };
 
 enum Creatures
@@ -50,18 +50,17 @@ enum Creatures
 enum ConstrictorSpells
 {
     SPELL_GRIP_OF_SLAD_RAN                        = 55093,
-    SPELL_SNAKE_WRAP                              = 55126,
-    SPELL_VENOMOUS_BITE                           = 54987,
-    H_SPELL_VENOMOUS_BITE                         = 58996
+    SPELL_SNAKE_WRAP                              = 55126, // 55099 -> 55126
+    SPELL_VENOMOUS_BITE                           = 54987
 };
 
 static Position SpawnLoc[]=
 {
-  {1783.81f, 646.637f, 133.948f, 3.71755f},
-  {1775.03f, 606.586f, 134.165f, 1.43117f},
-  {1717.39f, 630.041f, 129.282f, 5.96903f},
-  {1765.66f, 646.542f, 134.02f,  5.11381f},
-  {1716.76f, 635.159f, 129.282f, 0.191986f}
+    {1783.81f, 646.637f, 133.948f, 3.71755f},
+    {1775.03f, 606.586f, 134.165f, 1.43117f},
+    {1717.39f, 630.041f, 129.282f, 5.96903f},
+    {1765.66f, 646.542f, 134.02f,  5.11381f},
+    {1716.76f, 635.159f, 129.282f, 0.191986f}
 };
 
 enum Misc
@@ -74,16 +73,20 @@ class boss_slad_ran : public CreatureScript
 public:
     boss_slad_ran() : CreatureScript("boss_slad_ran") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    struct boss_slad_ranAI : public BossAI
     {
-        return GetInstanceAI<boss_slad_ranAI>(creature);
-    }
-
-    struct boss_slad_ranAI : public ScriptedAI
-    {
-        boss_slad_ranAI(Creature* creature) : ScriptedAI(creature), lSummons(me)
+        boss_slad_ranAI(Creature* creature) : BossAI(creature, DATA_SLAD_RAN)
         {
-            instance = creature->GetInstanceScript();
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            uiPoisonNovaTimer = 10 * IN_MILLISECONDS;
+            uiPowerfullBiteTimer = 3 * IN_MILLISECONDS;
+            uiVenomBoltTimer = 15 * IN_MILLISECONDS;
+            uiSpawnTimer = 5 * IN_MILLISECONDS;
+            uiPhase = 0;
         }
 
         uint32 uiPoisonNovaTimer;
@@ -93,30 +96,19 @@ public:
 
         uint8 uiPhase;
 
-        std::set<uint64> lWrappedPlayers;
-        SummonList lSummons;
-
-        InstanceScript* instance;
+        GuidSet lWrappedPlayers;
 
         void Reset() override
         {
-            uiPoisonNovaTimer = 10*IN_MILLISECONDS;
-            uiPowerfullBiteTimer = 3*IN_MILLISECONDS;
-            uiVenomBoltTimer = 15*IN_MILLISECONDS;
-            uiSpawnTimer = 5*IN_MILLISECONDS;
-            uiPhase = 0;
+            Initialize();
+            _Reset();
             lWrappedPlayers.clear();
-
-            lSummons.DespawnAll();
-
-            instance->SetData(DATA_SLAD_RAN_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
+            _EnterCombat();
             Talk(SAY_AGGRO);
-
-            instance->SetData(DATA_SLAD_RAN_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 diff) override
@@ -175,10 +167,9 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
+            _JustDied();
             Talk(SAY_DEATH);
-            lSummons.DespawnAll();
-
-            instance->SetData(DATA_SLAD_RAN_EVENT, DONE);
+            Talk(EMOTE_ACTIVATE_ALTAR);
         }
 
         void KilledUnit(Unit* who) override
@@ -187,24 +178,28 @@ public:
                 Talk(SAY_SLAY);
         }
 
-        void JustSummoned(Creature* summoned) override
+        void JustSummoned(Creature* summon) override
         {
-            summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-            lSummons.Summon(summoned);
+            summon->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+            summons.Summon(summon);
         }
 
-        void SetGUID(uint64 guid, int32 type) override
+        void SetGUID(ObjectGuid guid, int32 type) override
         {
             if (type == DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES)
                 lWrappedPlayers.insert(guid);
         }
 
-        bool WasWrapped(uint64 guid)
+        bool WasWrapped(ObjectGuid guid)
         {
             return lWrappedPlayers.count(guid) != 0;
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetGundrakAI<boss_slad_ranAI>(creature);
+    }
 };
 
 class npc_slad_ran_constrictor : public CreatureScript
@@ -304,9 +299,7 @@ public:
 class achievement_snakes_whyd_it_have_to_be_snakes : public AchievementCriteriaScript
 {
     public:
-        achievement_snakes_whyd_it_have_to_be_snakes() : AchievementCriteriaScript("achievement_snakes_whyd_it_have_to_be_snakes")
-        {
-        }
+        achievement_snakes_whyd_it_have_to_be_snakes() : AchievementCriteriaScript("achievement_snakes_whyd_it_have_to_be_snakes") { }
 
         bool OnCheck(Player* player, Unit* target) override
         {

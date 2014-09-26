@@ -98,12 +98,28 @@ public:
     {
         boss_morogrim_tidewalkerAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+            Playercount = 0;
+            counter = 0;
+        }
+
+        void Initialize()
+        {
+            TidalWave_Timer = 10000;
+            WateryGrave_Timer = 30000;
+            Earthquake_Timer = 40000;
+            WateryGlobules_Timer = 0;
+            globulespell[0] = SPELL_SUMMON_WATER_GLOBULE_1;
+            globulespell[1] = SPELL_SUMMON_WATER_GLOBULE_2;
+            globulespell[2] = SPELL_SUMMON_WATER_GLOBULE_3;
+            globulespell[3] = SPELL_SUMMON_WATER_GLOBULE_4;
+
+            Earthquake = false;
+            Phase2 = false;
         }
 
         InstanceScript* instance;
-
-        Map::PlayerList const* PlayerList;
 
         uint32 TidalWave_Timer;
         uint32 WateryGrave_Timer;
@@ -118,17 +134,7 @@ public:
 
         void Reset() override
         {
-            TidalWave_Timer = 10000;
-            WateryGrave_Timer = 30000;
-            Earthquake_Timer = 40000;
-            WateryGlobules_Timer = 0;
-            globulespell[0] = SPELL_SUMMON_WATER_GLOBULE_1;
-            globulespell[1] = SPELL_SUMMON_WATER_GLOBULE_2;
-            globulespell[2] = SPELL_SUMMON_WATER_GLOBULE_3;
-            globulespell[3] = SPELL_SUMMON_WATER_GLOBULE_4;
-
-            Earthquake = false;
-            Phase2 = false;
+            Initialize();
 
             instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, NOT_STARTED);
         }
@@ -154,8 +160,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            PlayerList = &me->GetMap()->GetPlayers();
-            Playercount = PlayerList->getSize();
+            Playercount = me->GetMap()->GetPlayers().getSize();
             StartEvent();
         }
 
@@ -215,8 +220,8 @@ public:
                 {
                     //Teleport 4 players under the waterfalls
                     Unit* target;
-                    std::set<uint64> list;
-                    std::set<uint64>::const_iterator itr;
+                    GuidSet targets;
+                    GuidSet::const_iterator itr;
                     for (uint8 i = 0; i < 4; ++i)
                     {
                         counter = 0;
@@ -226,13 +231,13 @@ public:
                             if (counter < Playercount)
                                 break;
                             if (target)
-                                itr = list.find(target->GetGUID());
+                                itr = targets.find(target->GetGUID());
                             ++counter;
-                        } while (itr != list.end());
+                        } while (itr != targets.end());
 
                         if (target)
                         {
-                            list.insert(target->GetGUID());
+                            targets.insert(target->GetGUID());
                             ApplyWateryGrave(target, i);
                         }
                     }
@@ -253,8 +258,8 @@ public:
                 if (WateryGlobules_Timer <= diff)
                 {
                     Unit* pGlobuleTarget;
-                    std::set<uint64> globulelist;
-                    std::set<uint64>::const_iterator itr;
+                    GuidSet globules;
+                    GuidSet::const_iterator itr;
                     for (uint8 g = 0; g < 4; g++)  //one unit can't cast more than one spell per update, so some players have to cast for us XD
                     {
                         counter = 0;
@@ -262,14 +267,14 @@ public:
                         {
                             pGlobuleTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true);
                             if (pGlobuleTarget)
-                                itr = globulelist.find(pGlobuleTarget->GetGUID());
+                                itr = globules.find(pGlobuleTarget->GetGUID());
                             if (counter > Playercount)
                                 break;
                             ++counter;
-                        } while (itr != globulelist.end());
+                        } while (itr != globules.end());
                         if (pGlobuleTarget)
                         {
-                            globulelist.insert(pGlobuleTarget->GetGUID());
+                            globules.insert(pGlobuleTarget->GetGUID());
                             pGlobuleTarget->CastSpell(pGlobuleTarget, globulespell[g], true);
                         }
                     }
@@ -296,13 +301,21 @@ public:
 
     struct npc_water_globuleAI : public ScriptedAI
     {
-        npc_water_globuleAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_water_globuleAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Check_Timer = 1000;
+        }
 
         uint32 Check_Timer;
 
         void Reset() override
         {
-            Check_Timer = 1000;
+            Initialize();
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

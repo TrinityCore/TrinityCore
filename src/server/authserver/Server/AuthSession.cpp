@@ -21,6 +21,7 @@
 #include "AuthCodes.h"
 #include "Database/DatabaseEnv.h"
 #include "SHA1.h"
+#include "TOTP.h"
 #include "openssl/crypto.h"
 #include "Configuration/Config.h"
 #include "RealmList.h"
@@ -84,8 +85,8 @@ typedef struct AUTH_LOGON_PROOF_S
     uint8   cmd;
     uint8   error;
     uint8   M2[20];
-    uint32  unk1;
-    uint32  unk2;
+    uint32  AccountFlags;
+    uint32  SurveyId;
     uint16  unk3;
 } sAuthLogonProof_S;
 
@@ -114,6 +115,7 @@ enum class BufferSizes : uint32
     SRP_6_S = 0x20,
 };
 
+#define AUTH_LOGON_CHALLENGE_INITIAL_SIZE 4
 #define REALM_LIST_PACKET_SIZE 5
 #define XFER_ACCEPT_SIZE 1
 #define XFER_RESUME_SIZE 9
@@ -123,75 +125,78 @@ std::unordered_map<uint8, AuthHandler> AuthSession::InitHandlers()
 {
     std::unordered_map<uint8, AuthHandler> handlers;
 
-    handlers[AUTH_LOGON_CHALLENGE]     = { STATUS_CONNECTED, sizeof(AUTH_LOGON_CHALLENGE_C), &AuthSession::HandleLogonChallenge };
-    handlers[AUTH_LOGON_PROOF]         = { STATUS_CONNECTED, sizeof(AUTH_LOGON_PROOF_C),     &AuthSession::HandleLogonProof };
-    handlers[AUTH_RECONNECT_CHALLENGE] = { STATUS_CONNECTED, sizeof(AUTH_LOGON_CHALLENGE_C), &AuthSession::HandleReconnectChallenge };
-    handlers[AUTH_RECONNECT_PROOF]     = { STATUS_CONNECTED, sizeof(AUTH_RECONNECT_PROOF_C), &AuthSession::HandleReconnectProof };
-    handlers[REALM_LIST]               = { STATUS_AUTHED,    REALM_LIST_PACKET_SIZE,         &AuthSession::HandleRealmList };
-    handlers[XFER_ACCEPT]              = { STATUS_AUTHED,    XFER_ACCEPT_SIZE,               &AuthSession::HandleXferAccept };
-    handlers[XFER_RESUME]              = { STATUS_AUTHED,    XFER_RESUME_SIZE,               &AuthSession::HandleXferResume };
-    handlers[XFER_CANCEL]              = { STATUS_AUTHED,    XFER_CANCEL_SIZE,               &AuthSession::HandleXferCancel };
+    handlers[AUTH_LOGON_CHALLENGE]     = { STATUS_CONNECTED, AUTH_LOGON_CHALLENGE_INITIAL_SIZE, &AuthSession::HandleLogonChallenge };
+    handlers[AUTH_LOGON_PROOF]         = { STATUS_CONNECTED, sizeof(AUTH_LOGON_PROOF_C),        &AuthSession::HandleLogonProof };
+    handlers[AUTH_RECONNECT_CHALLENGE] = { STATUS_CONNECTED, AUTH_LOGON_CHALLENGE_INITIAL_SIZE, &AuthSession::HandleReconnectChallenge };
+    handlers[AUTH_RECONNECT_PROOF]     = { STATUS_CONNECTED, sizeof(AUTH_RECONNECT_PROOF_C),    &AuthSession::HandleReconnectProof };
+    handlers[REALM_LIST]               = { STATUS_AUTHED,    REALM_LIST_PACKET_SIZE,            &AuthSession::HandleRealmList };
+    handlers[XFER_ACCEPT]              = { STATUS_AUTHED,    XFER_ACCEPT_SIZE,                  &AuthSession::HandleXferAccept };
+    handlers[XFER_RESUME]              = { STATUS_AUTHED,    XFER_RESUME_SIZE,                  &AuthSession::HandleXferResume };
+    handlers[XFER_CANCEL]              = { STATUS_AUTHED,    XFER_CANCEL_SIZE,                  &AuthSession::HandleXferCancel };
 
     return handlers;
 }
 
 std::unordered_map<uint8, AuthHandler> const Handlers = AuthSession::InitHandlers();
 
-void AuthSession::ReadHeaderHandler(boost::system::error_code error, size_t transferedBytes)
+void AuthSession::ReadHandler()
 {
-    if (!error && transferedBytes == 1)
+    MessageBuffer& packet = GetReadBuffer();
+    while (packet.GetActiveSize())
     {
-        uint8 cmd = GetReadBuffer()[0];
+        uint8 cmd = packet.GetReadPointer()[0];
         auto itr = Handlers.find(cmd);
-        if (itr != Handlers.end())
+        if (itr == Handlers.end())
         {
-            // Handle dynamic size packet
-            if (cmd == AUTH_LOGON_CHALLENGE || cmd == AUTH_RECONNECT_CHALLENGE)
-            {
-                ReadData(sizeof(uint8) + sizeof(uint16), sizeof(cmd)); //error + size
-                sAuthLogonChallenge_C* challenge = reinterpret_cast<sAuthLogonChallenge_C*>(GetReadBuffer());
-
-                AsyncReadData(challenge->size, sizeof(uint8) + sizeof(uint8) + sizeof(uint16)); // cmd + error + size
-            }
-            else
-                AsyncReadData(itr->second.packetSize, sizeof(uint8));
+            // well we dont handle this, lets just ignore it
+            packet.Reset();
+            break;
         }
-    }
-    else
-        CloseSocket();
-}
 
-void AuthSession::ReadDataHandler(boost::system::error_code error, size_t transferedBytes)
-{
-    if (!error && transferedBytes > 0)
-    {
-        if (!(*this.*Handlers.at(GetReadBuffer()[0]).handler)())
+        uint16 size = uint16(itr->second.packetSize);
+        if (packet.GetActiveSize() < size)
+            break;
+
+        if (cmd == AUTH_LOGON_CHALLENGE || cmd == AUTH_RECONNECT_CHALLENGE)
+        {
+            sAuthLogonChallenge_C* challenge = reinterpret_cast<sAuthLogonChallenge_C*>(packet.GetReadPointer());
+            size += challenge->size;
+        }
+
+        if (packet.GetActiveSize() < size)
+            break;
+
+        if (!(*this.*Handlers.at(cmd).handler)())
         {
             CloseSocket();
             return;
         }
 
-        AsyncReadHeader();
+        packet.ReadCompleted(size);
     }
-    else
-        CloseSocket();
+
+    AsyncRead();
 }
 
-void AuthSession::AsyncWrite(ByteBuffer& packet)
+void AuthSession::SendPacket(ByteBuffer& packet)
 {
-    std::lock_guard<std::mutex> guard(_writeLock);
+    if (!IsOpen())
+        return;
 
-    bool needsWriteStart = _writeQueue.empty();
+    if (!packet.empty())
+    {
+        MessageBuffer buffer;
+        buffer.Write(packet.contents(), packet.size());
 
-    _writeQueue.push(std::move(packet));
+        std::unique_lock<std::mutex> guard(_writeLock);
 
-    if (needsWriteStart)
-        Base::AsyncWrite(_writeQueue.front());
+        QueuePacket(std::move(buffer), guard);
+    }
 }
 
 bool AuthSession::HandleLogonChallenge()
 {
-    sAuthLogonChallenge_C* challenge = reinterpret_cast<sAuthLogonChallenge_C*>(GetReadBuffer());
+    sAuthLogonChallenge_C* challenge = reinterpret_cast<sAuthLogonChallenge_C*>(GetReadBuffer().GetReadPointer());
 
     //TC_LOG_DEBUG("server.authserver", "[AuthChallenge] got full packet, %#04x bytes", challenge->size);
     TC_LOG_DEBUG("server.authserver", "[AuthChallenge] name(%d): '%s'", challenge->I_len, challenge->I);
@@ -400,7 +405,7 @@ bool AuthSession::HandleLogonChallenge()
             pkt << uint8(WOW_FAIL_UNKNOWN_ACCOUNT);
     }
 
-    AsyncWrite(pkt);
+    SendPacket(pkt);
     return true;
 }
 
@@ -410,7 +415,7 @@ bool AuthSession::HandleLogonProof()
 
     TC_LOG_DEBUG("server.authserver", "Entering _HandleLogonProof");
     // Read the packet
-    sAuthLogonProof_C *logonProof = reinterpret_cast<sAuthLogonProof_C*>(GetReadBuffer());
+    sAuthLogonProof_C *logonProof = reinterpret_cast<sAuthLogonProof_C*>(GetReadBuffer().GetReadPointer());
 
     // If the client has no valid version
     if (_expversion == NO_VALID_EXP_FLAG)
@@ -522,17 +527,11 @@ bool AuthSession::HandleLogonProof()
         // Check auth token
         if ((logonProof->securityFlags & 0x04) || !_tokenKey.empty())
         {
-            // TODO To be fixed
-
-            /*
-            uint8 size;
-            socket().recv((char*)&size, 1);
-            char* token = new char[size + 1];
-            token[size] = '\0';
-            socket().recv(token, size);
-            unsigned int validToken = TOTP::GenerateToken(_tokenKey.c_str());
-            unsigned int incomingToken = atoi(token);
-            delete[] token;
+            uint8 size = *(GetReadBuffer().GetReadPointer() + sizeof(sAuthLogonProof_C));
+            std::string token(reinterpret_cast<char*>(GetReadBuffer().GetReadPointer() + sizeof(sAuthLogonProof_C) + sizeof(size)), size);
+            GetReadBuffer().ReadCompleted(sizeof(size) + size);
+            uint32 validToken = TOTP::GenerateToken(_tokenKey.c_str());
+            uint32 incomingToken = atoi(token.c_str());
             if (validToken != incomingToken)
             {
                 ByteBuffer packet;
@@ -540,9 +539,9 @@ bool AuthSession::HandleLogonProof()
                 packet << uint8(WOW_FAIL_UNKNOWN_ACCOUNT);
                 packet << uint8(3);
                 packet << uint8(0);
-                AsyncWrite(packet);
+                SendPacket(packet);
                 return false;
-            }*/
+            }
         }
 
         ByteBuffer packet;
@@ -552,9 +551,9 @@ bool AuthSession::HandleLogonProof()
             memcpy(proof.M2, sha.GetDigest(), 20);
             proof.cmd = AUTH_LOGON_PROOF;
             proof.error = 0;
-            proof.unk1 = 0x00800000;    // Accountflags. 0x01 = GM, 0x08 = Trial, 0x00800000 = Pro pass (arena tournament)
-            proof.unk2 = 0x00;          // SurveyId
-            proof.unk3 = 0x00;
+            proof.AccountFlags = 0x00800000;    // 0x01 = GM, 0x08 = Trial, 0x00800000 = Pro pass (arena tournament)
+            proof.SurveyId = 0;
+            proof.unk3 = 0;
 
             packet.resize(sizeof(proof));
             std::memcpy(packet.contents(), &proof, sizeof(proof));
@@ -571,7 +570,7 @@ bool AuthSession::HandleLogonProof()
             std::memcpy(packet.contents(), &proof, sizeof(proof));
         }
 
-        AsyncWrite(packet);
+        SendPacket(packet);
         _isAuthenticated = true;
     }
     else
@@ -581,7 +580,7 @@ bool AuthSession::HandleLogonProof()
         packet << uint8(WOW_FAIL_UNKNOWN_ACCOUNT);
         packet << uint8(3);
         packet << uint8(0);
-        AsyncWrite(packet);
+        SendPacket(packet);
 
         TC_LOG_DEBUG("server.authserver", "'%s:%d' [AuthChallenge] account %s tried to login with invalid password!",
             GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _login.c_str());
@@ -650,7 +649,7 @@ bool AuthSession::HandleLogonProof()
 bool AuthSession::HandleReconnectChallenge()
 {
     TC_LOG_DEBUG("server.authserver", "Entering _HandleReconnectChallenge");
-    sAuthLogonChallenge_C* challenge = reinterpret_cast<sAuthLogonChallenge_C*>(GetReadBuffer());
+    sAuthLogonChallenge_C* challenge = reinterpret_cast<sAuthLogonChallenge_C*>(GetReadBuffer().GetReadPointer());
 
     //TC_LOG_DEBUG("server.authserver", "[AuthChallenge] got full packet, %#04x bytes", challenge->size);
     TC_LOG_DEBUG("server.authserver", "[AuthChallenge] name(%d): '%s'", challenge->I_len, challenge->I);
@@ -694,14 +693,14 @@ bool AuthSession::HandleReconnectChallenge()
     pkt.append(_reconnectProof.AsByteArray(16).get(), 16);        // 16 bytes random
     pkt << uint64(0x00) << uint64(0x00);                    // 16 bytes zeros
 
-    AsyncWrite(pkt);
+    SendPacket(pkt);
 
     return true;
 }
 bool AuthSession::HandleReconnectProof()
 {
     TC_LOG_DEBUG("server.authserver", "Entering _HandleReconnectProof");
-    sAuthReconnectProof_C *reconnectProof = reinterpret_cast<sAuthReconnectProof_C*>(GetReadBuffer());
+    sAuthReconnectProof_C *reconnectProof = reinterpret_cast<sAuthReconnectProof_C*>(GetReadBuffer().GetReadPointer());
 
     if (_login.empty() || !_reconnectProof.GetNumBytes() || !K.GetNumBytes())
         return false;
@@ -722,7 +721,7 @@ bool AuthSession::HandleReconnectProof()
         pkt << uint8(AUTH_RECONNECT_PROOF);
         pkt << uint8(0x00);
         pkt << uint16(0x00);                               // 2 bytes zeros
-        AsyncWrite(pkt);
+        SendPacket(pkt);
         _isAuthenticated = true;
         return true;
     }
@@ -843,7 +842,7 @@ bool AuthSession::HandleRealmList()
         pkt << AmountOfCharacters;
         pkt << realm.timezone;                              // realm category
         if (_expversion & POST_BC_EXP_FLAG)                 // 2.x and 3.x clients
-            pkt << uint8(0x2C);                             // unk, may be realm number/id?
+            pkt << uint8(realm.m_ID);
         else
             pkt << uint8(0x0);                              // 1.12.1 and 1.12.2 clients
 
@@ -882,7 +881,7 @@ bool AuthSession::HandleRealmList()
     hdr << uint16(pkt.size() + RealmListSizeBuffer.size());
     hdr.append(RealmListSizeBuffer);                        // append RealmList's size buffer
     hdr.append(pkt);                                        // append realms in the realmlist
-    AsyncWrite(hdr);
+    SendPacket(hdr);
     return true;
 }
 

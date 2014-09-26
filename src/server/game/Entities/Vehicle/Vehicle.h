@@ -29,8 +29,6 @@ struct VehicleEntry;
 class Unit;
 class VehicleJoinEvent;
 
-typedef std::set<uint64> GuidSet;
-
 class Vehicle : public TransportBase
 {
     protected:
@@ -89,7 +87,7 @@ class Vehicle : public TransportBase
         void InitMovementInfoForBase();
 
         /// This method transforms supplied transport offsets into global coordinates
-        void CalculatePassengerPosition(float& x, float& y, float& z, float* o /*= NULL*/) const
+        void CalculatePassengerPosition(float& x, float& y, float& z, float* o /*= NULL*/) const override
         {
             TransportBase::CalculatePassengerPosition(x, y, z, o,
                 GetBase()->GetPositionX(), GetBase()->GetPositionY(),
@@ -97,7 +95,7 @@ class Vehicle : public TransportBase
         }
 
         /// This method transforms supplied global coordinates into local offsets
-        void CalculatePassengerOffset(float& x, float& y, float& z, float* o /*= NULL*/) const
+        void CalculatePassengerOffset(float& x, float& y, float& z, float* o /*= NULL*/) const override
         {
             TransportBase::CalculatePassengerOffset(x, y, z, o,
                 GetBase()->GetPositionX(), GetBase()->GetPositionY(),
@@ -126,8 +124,8 @@ class VehicleJoinEvent : public BasicEvent
     protected:
         VehicleJoinEvent(Vehicle* v, Unit* u) : Target(v), Passenger(u), Seat(Target->Seats.end()) { }
         ~VehicleJoinEvent();
-        bool Execute(uint64, uint32);
-        void Abort(uint64);
+        bool Execute(uint64, uint32) override;
+        void Abort(uint64) override;
 
         Vehicle* Target;
         Unit* Passenger;

@@ -92,18 +92,27 @@ public:
 
         aqsentinelAI(Creature* creature) : ScriptedAI(creature)
         {
-            ClearBuddyList();
+            Initialize();
             abselected = 0;                                     // just initialization of variable
+            ability = 0;
         }
 
-        uint64 NearbyGUID[3];
+        void Initialize()
+        {
+            ClearBuddyList();
+            gatherOthersWhenAggro = true;
+        }
+
+        ObjectGuid NearbyGUID[3];
 
         void ClearBuddyList()
         {
-            NearbyGUID[0] = NearbyGUID[1] = NearbyGUID[2] = 0;
+            NearbyGUID[0].Clear();
+            NearbyGUID[1].Clear();
+            NearbyGUID[2].Clear();
         }
 
-        void AddBuddyToList(uint64 CreatureGUID)
+        void AddBuddyToList(ObjectGuid CreatureGUID)
         {
             if (CreatureGUID == me->GetGUID())
                 return;
@@ -122,8 +131,8 @@ public:
 
         void GiveBuddyMyList(Creature* c)
         {
-            aqsentinelAI* cai = CAST_AI(aqsentinelAI, (c)->AI());
-            for (int i=0; i<3; ++i)
+            aqsentinelAI* cai = ENSURE_AI(aqsentinelAI, (c)->AI());
+            for (int32 i = 0; i < 3; ++i)
                 if (NearbyGUID[i] && NearbyGUID[i] != c->GetGUID())
                     cai->AddBuddyToList(NearbyGUID[i]);
             cai->AddBuddyToList(me->GetGUID());
@@ -131,14 +140,14 @@ public:
 
         void SendMyListToBuddies()
         {
-            for (int i=0; i<3; ++i)
+            for (int32 i = 0; i < 3; ++i)
                 if (Creature* pNearby = ObjectAccessor::GetCreature(*me, NearbyGUID[i]))
                     GiveBuddyMyList(pNearby);
         }
 
         void CallBuddiesToAttack(Unit* who)
         {
-            for (int i=0; i<3; ++i)
+            for (int32 i = 0; i < 3; ++i)
             {
                 Creature* c = ObjectAccessor::GetCreature(*me, NearbyGUID[i]);
                 if (c)
@@ -183,8 +192,8 @@ public:
 
         void GetOtherSentinels(Unit* who)
         {
-            bool *chosenAbilities = new bool[9];
-            memset(chosenAbilities, 0, 9*sizeof(bool));
+            bool chosenAbilities[9];
+            memset(chosenAbilities, 0, sizeof(chosenAbilities));
             selectAbility(pickAbilityRandom(chosenAbilities));
 
             ClearBuddyList();
@@ -200,15 +209,13 @@ public:
                     break;
 
                 AddSentinelsNear(pNearby);
-                CAST_AI(aqsentinelAI, pNearby->AI())->gatherOthersWhenAggro = false;
-                CAST_AI(aqsentinelAI, pNearby->AI())->selectAbility(pickAbilityRandom(chosenAbilities));
+                ENSURE_AI(aqsentinelAI, pNearby->AI())->gatherOthersWhenAggro = false;
+                ENSURE_AI(aqsentinelAI, pNearby->AI())->selectAbility(pickAbilityRandom(chosenAbilities));
             }
             /*if (bli < 3)
                 DoYell("I dont have enough buddies.", LANG_NEUTRAL, 0);*/
             SendMyListToBuddies();
             CallBuddiesToAttack(who);
-
-            delete[] chosenAbilities;
         }
 
         bool gatherOthersWhenAggro;
@@ -217,7 +224,7 @@ public:
         {
             if (!me->isDead())
             {
-                for (int i=0; i<3; ++i)
+                for (int i = 0; i < 3; ++i)
                 {
                     if (!NearbyGUID[i])
                         continue;
@@ -228,8 +235,7 @@ public:
                     }
                 }
             }
-            ClearBuddyList();
-            gatherOthersWhenAggro = true;
+            Initialize();
         }
 
         void GainSentinelAbility(uint32 id)
@@ -248,7 +254,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            for (int ni=0; ni<3; ++ni)
+            for (int ni = 0; ni < 3; ++ni)
             {
                 Creature* sent = ObjectAccessor::GetCreature(*me, NearbyGUID[ni]);
                 if (!sent)
@@ -256,7 +262,7 @@ public:
                 if (sent->isDead())
                     continue;
                 sent->ModifyHealth(int32(sent->CountPctFromMaxHealth(50)));
-                CAST_AI(aqsentinelAI, sent->AI())->GainSentinelAbility(ability);
+                ENSURE_AI(aqsentinelAI, sent->AI())->GainSentinelAbility(ability);
             }
         }
     };

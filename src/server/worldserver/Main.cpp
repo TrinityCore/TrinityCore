@@ -46,6 +46,7 @@
 #include "CliRunnable.h"
 #include "SystemConfig.h"
 #include "WorldSocket.h"
+#include "WorldSocketMgr.h"
 
 using namespace boost::program_options;
 
@@ -82,11 +83,12 @@ uint32 realmID;                                             ///< Id of the realm
 
 void SignalHandler(const boost::system::error_code& error, int signalNumber);
 void FreezeDetectorHandler(const boost::system::error_code& error);
-AsyncAcceptor<RASession>* StartRaSocketAcceptor(boost::asio::io_service& ioService);
+AsyncAcceptor* StartRaSocketAcceptor(boost::asio::io_service& ioService);
 bool StartDB();
 void StopDB();
 void WorldUpdateLoop();
 void ClearOnlineAccounts();
+void ShutdownThreadPool(std::vector<std::thread>& threadPool);
 variables_map GetConsoleArguments(int argc, char** argv, std::string& cfg_file, std::string& cfg_service);
 
 /// Launch the Trinity server
@@ -179,7 +181,10 @@ extern int main(int argc, char** argv)
 
     // Start the databases
     if (!StartDB())
+    {
+        ShutdownThreadPool(threadPool);
         return 1;
+    }
 
     // Set server offline (not connectable)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = (flag & ~%u) | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, REALM_FLAG_INVALID, realmID);
@@ -199,7 +204,7 @@ extern int main(int argc, char** argv)
     }
 
     // Start the Remote Access port (acceptor) if enabled
-    AsyncAcceptor<RASession>* raAcceptor = nullptr;
+    AsyncAcceptor* raAcceptor = nullptr;
     if (sConfigMgr->GetBoolDefault("Ra.Enable", false))
         raAcceptor = StartRaSocketAcceptor(_ioService);
 
@@ -213,11 +218,8 @@ extern int main(int argc, char** argv)
     // Launch the worldserver listener socket
     uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
     std::string worldListener = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
-    bool tcpNoDelay = sConfigMgr->GetBoolDefault("Network.TcpNodelay", true);
 
-    AsyncAcceptor<WorldSocket> worldAcceptor(_ioService, worldListener, worldPort, tcpNoDelay);
-
-    sScriptMgr->OnStartup();
+    sWorldSocketMgr.StartNetwork(_ioService, worldListener, worldPort);
 
     // Set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmID);
@@ -233,16 +235,12 @@ extern int main(int argc, char** argv)
 
     TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", _FULLVERSION);
 
+    sScriptMgr->OnStartup();
+
     WorldUpdateLoop();
 
     // Shutdown starts here
-
-    _ioService.stop();
-
-    for (auto& thread : threadPool)
-    {
-        thread.join();
-    }
+    ShutdownThreadPool(threadPool);
 
     sScriptMgr->OnShutdown();
 
@@ -251,6 +249,8 @@ extern int main(int argc, char** argv)
 
     // unload battleground templates before different singletons destroyed
     sBattlegroundMgr->DeleteAllBattlegrounds();
+
+    sWorldSocketMgr.StopNetwork();
 
     sInstanceSaveMgr->Unload();
     sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
@@ -268,8 +268,7 @@ extern int main(int argc, char** argv)
         delete soapThread;
     }
 
-    if (raAcceptor != nullptr)
-        delete raAcceptor;
+    delete raAcceptor;
 
     ///- Clean database before leaving
     ClearOnlineAccounts();
@@ -281,41 +280,7 @@ extern int main(int argc, char** argv)
     if (cliThread != nullptr)
     {
 #ifdef _WIN32
-
-        // this only way to terminate CLI thread exist at Win32 (alt. way exist only in Windows Vista API)
-        //_exit(1);
-        // send keyboard input to safely unblock the CLI thread
-        INPUT_RECORD b[4];
-        HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
-        b[0].EventType = KEY_EVENT;
-        b[0].Event.KeyEvent.bKeyDown = TRUE;
-        b[0].Event.KeyEvent.uChar.AsciiChar = 'X';
-        b[0].Event.KeyEvent.wVirtualKeyCode = 'X';
-        b[0].Event.KeyEvent.wRepeatCount = 1;
-
-        b[1].EventType = KEY_EVENT;
-        b[1].Event.KeyEvent.bKeyDown = FALSE;
-        b[1].Event.KeyEvent.uChar.AsciiChar = 'X';
-        b[1].Event.KeyEvent.wVirtualKeyCode = 'X';
-        b[1].Event.KeyEvent.wRepeatCount = 1;
-
-        b[2].EventType = KEY_EVENT;
-        b[2].Event.KeyEvent.bKeyDown = TRUE;
-        b[2].Event.KeyEvent.dwControlKeyState = 0;
-        b[2].Event.KeyEvent.uChar.AsciiChar = '\r';
-        b[2].Event.KeyEvent.wVirtualKeyCode = VK_RETURN;
-        b[2].Event.KeyEvent.wRepeatCount = 1;
-        b[2].Event.KeyEvent.wVirtualScanCode = 0x1c;
-
-        b[3].EventType = KEY_EVENT;
-        b[3].Event.KeyEvent.bKeyDown = FALSE;
-        b[3].Event.KeyEvent.dwControlKeyState = 0;
-        b[3].Event.KeyEvent.uChar.AsciiChar = '\r';
-        b[3].Event.KeyEvent.wVirtualKeyCode = VK_RETURN;
-        b[3].Event.KeyEvent.wVirtualScanCode = 0x1c;
-        b[3].Event.KeyEvent.wRepeatCount = 1;
-        DWORD numb;
-        WriteConsoleInput(hStdIn, b, 4, &numb);
+        CancelSynchronousIo(cliThread->native_handle());
 #endif
         cliThread->join();
         delete cliThread;
@@ -330,6 +295,17 @@ extern int main(int argc, char** argv)
     return World::GetExitCode();
 }
 
+void ShutdownThreadPool(std::vector<std::thread>& threadPool)
+{
+    sScriptMgr->OnNetworkStop();
+
+    _ioService.stop();
+
+    for (auto& thread : threadPool)
+    {
+        thread.join();
+    }
+}
 
 void WorldUpdateLoop()
 {
@@ -402,12 +378,14 @@ void FreezeDetectorHandler(const boost::system::error_code& error)
     }
 }
 
-AsyncAcceptor<RASession>* StartRaSocketAcceptor(boost::asio::io_service& ioService)
+AsyncAcceptor* StartRaSocketAcceptor(boost::asio::io_service& ioService)
 {
     uint16 raPort = uint16(sConfigMgr->GetIntDefault("Ra.Port", 3443));
     std::string raListener = sConfigMgr->GetStringDefault("Ra.IP", "0.0.0.0");
 
-    return new AsyncAcceptor<RASession>(ioService, raListener, raPort);
+    AsyncAcceptor* acceptor = new AsyncAcceptor(ioService, raListener, raPort);
+    acceptor->AsyncAccept<RASession>();
+    return acceptor;
 }
 
 /// Initialize connection to the databases

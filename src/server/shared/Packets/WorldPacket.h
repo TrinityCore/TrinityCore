@@ -51,6 +51,8 @@ class WorldPacket : public ByteBuffer
             return *this;
         }
 
+        WorldPacket(uint16 opcode, MessageBuffer&& buffer) : ByteBuffer(std::move(buffer)), m_opcode(opcode) { }
+
         void Initialize(uint16 opcode, size_t newres=200)
         {
             clear();

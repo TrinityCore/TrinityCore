@@ -19,7 +19,7 @@
 #include "ScriptedCreature.h"
 #include "karazhan.h"
 
-enum Spells 
+enum Spells
 {
     SPELL_REPENTANCE    = 29511,
     SPELL_HOLYFIRE      = 29522,

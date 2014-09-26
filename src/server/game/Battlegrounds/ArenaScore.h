@@ -26,9 +26,9 @@ struct ArenaScore : public BattlegroundScore
     friend class Arena;
 
     protected:
-        ArenaScore(uint64 playerGuid, uint32 team) : BattlegroundScore(playerGuid), TeamId(team == ALLIANCE ? BG_TEAM_ALLIANCE : BG_TEAM_HORDE) { }
+        ArenaScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid), TeamId(team == ALLIANCE ? BG_TEAM_ALLIANCE : BG_TEAM_HORDE) { }
 
-        void AppendToPacket(WorldPacket& data) final
+        void AppendToPacket(WorldPacket& data) final override
         {
             data << uint64(PlayerGuid);
 
@@ -40,7 +40,7 @@ struct ArenaScore : public BattlegroundScore
             BuildObjectivesBlock(data);
         }
 
-        void BuildObjectivesBlock(WorldPacket& data) final
+        void BuildObjectivesBlock(WorldPacket& data) final override
         {
             data << uint32(0); // Objectives Count
         }

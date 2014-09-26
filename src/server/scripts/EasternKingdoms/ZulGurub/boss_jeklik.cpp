@@ -212,13 +212,21 @@ class npc_batrider : public CreatureScript
 
         struct npc_batriderAI : public ScriptedAI
         {
-            npc_batriderAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_batriderAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                Bomb_Timer = 2000;
+            }
 
             uint32 Bomb_Timer;
 
             void Reset() override
             {
-                Bomb_Timer = 2000;
+                Initialize();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 

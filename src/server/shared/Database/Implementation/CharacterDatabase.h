@@ -29,7 +29,7 @@ class CharacterDatabaseConnection : public MySQLConnection
         CharacterDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
 
         //- Loads database type specific prepared statements
-        void DoPrepareStatements();
+        void DoPrepareStatements() override;
 };
 
 typedef DatabaseWorkerPool<CharacterDatabaseConnection> CharacterDatabaseWorkerPool;
@@ -533,6 +533,10 @@ enum CharacterDatabaseStatements
     CHAR_SEL_ITEMCONTAINER_MONEY,
     CHAR_DEL_ITEMCONTAINER_MONEY,
     CHAR_INS_ITEMCONTAINER_MONEY,
+
+    CHAR_SEL_PVPSTATS_MAXID,
+    CHAR_INS_PVPSTATS_BATTLEGROUND,
+    CHAR_INS_PVPSTATS_PLAYER,
 
     MAX_CHARACTERDATABASE_STATEMENTS
 };

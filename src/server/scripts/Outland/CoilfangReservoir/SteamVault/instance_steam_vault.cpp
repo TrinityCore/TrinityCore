@@ -55,13 +55,9 @@ class instance_steam_vault : public InstanceMapScript
         {
             instance_steam_vault_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
 
-                ThespiaGUID          = 0;
-                MekgineerGUID        = 0;
-                KalithreshGUID       = 0;
-
-                MainChambersDoorGUID = 0;
                 DistillerState       = 0;
             }
 
@@ -95,7 +91,7 @@ class instance_steam_vault : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -108,7 +104,7 @@ class instance_steam_vault : public InstanceMapScript
                     default:
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void SetData(uint32 type, uint32 data) override
@@ -156,56 +152,13 @@ class instance_steam_vault : public InstanceMapScript
                 return true;
             }
 
-            std::string GetSaveData() override
-            {
-                OUT_SAVE_INST_DATA;
+        protected:
+            ObjectGuid ThespiaGUID;
+            ObjectGuid MekgineerGUID;
+            ObjectGuid KalithreshGUID;
 
-                std::ostringstream saveStream;
-                saveStream << "S V " << GetBossSaveData();
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(char const* str) override
-            {
-                if (!str)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(str);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(str);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'S' && dataHead2 == 'V')
-                {
-                    for (uint32 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
-            }
-
-            protected:
-                uint64 ThespiaGUID;
-                uint64 MekgineerGUID;
-                uint64 KalithreshGUID;
-
-                uint64 MainChambersDoorGUID;
-                uint8 DistillerState;
+            ObjectGuid MainChambersDoorGUID;
+            uint8 DistillerState;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

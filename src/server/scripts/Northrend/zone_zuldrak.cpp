@@ -51,7 +51,7 @@ public:
 
         void Reset() override
         {
-            _rageclawGUID = 0;
+            _rageclawGUID.Clear();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
             float x, y, z;
@@ -104,7 +104,7 @@ public:
         }
 
         private:
-            uint64 _rageclawGUID;
+            ObjectGuid _rageclawGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -222,13 +222,21 @@ public:
 
     struct npc_crusade_recruitAI : public ScriptedAI
     {
-        npc_crusade_recruitAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_crusade_recruitAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            _heading = me->GetOrientation();
+        }
 
         void Reset() override
         {
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
-            _heading = me->GetOrientation();
+            Initialize();
         }
 
         void UpdateAI(uint32 diff) override
@@ -247,7 +255,7 @@ public:
                         break;
                     case EVENT_RECRUIT_2:
                         me->SetWalk(true);
-                        me->GetMotionMaster()->MovePoint(0, me->GetPositionX() + (cos(_heading) * 10), me->GetPositionY() + (sin(_heading) * 10), me->GetPositionZ());
+                        me->GetMotionMaster()->MovePoint(0, me->GetPositionX() + (std::cos(_heading) * 10), me->GetPositionY() + (std::sin(_heading) * 10), me->GetPositionZ());
                         me->DespawnOrUnsummon(5000);
                         break;
                     default:
@@ -455,13 +463,12 @@ public:
         {
             npc_alchemist_finklesteinAI(Creature* creature) : ScriptedAI(creature)
             {
-                _playerGUID = 0;
                 _getingredienttry = 0;
             }
 
             void Reset() override
             {
-                _playerGUID = 0;
+                _playerGUID.Clear();
                 _getingredienttry = 0;
                 _events.ScheduleEvent(EVENT_TURN_TO_POT, urand(15000, 26000));
             }
@@ -556,7 +563,7 @@ public:
 
         private:
             EventMap _events;
-            uint64   _playerGUID;
+            ObjectGuid _playerGUID;
             uint8    _getingredienttry;
         };
 

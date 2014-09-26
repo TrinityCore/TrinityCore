@@ -105,6 +105,15 @@ class boss_general_vezax : public CreatureScript
         {
             boss_general_vezaxAI(Creature* creature) : BossAI(creature, BOSS_VEZAX)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                shadowDodger = true;
+                smellSaronite = true;
+                animusDead = false;
+                vaporCount = 0;
             }
 
             bool shadowDodger;
@@ -116,10 +125,7 @@ class boss_general_vezax : public CreatureScript
             {
                 _Reset();
 
-                shadowDodger = true;
-                smellSaronite = true;
-                animusDead = false;
-                vaporCount = 0;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -332,7 +338,7 @@ class boss_saronite_animus : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* Vezax = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_VEZAX)))
+                if (Creature* Vezax = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_VEZAX)))
                     Vezax->AI()->DoAction(ACTION_ANIMUS_DIE);
             }
 
@@ -427,7 +433,7 @@ class npc_saronite_vapors : public CreatureScript
                     DoCast(me, SPELL_SARONITE_VAPORS);
                     me->DespawnOrUnsummon(30000);
 
-                    if (Creature* Vezax = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_VEZAX)))
+                    if (Creature* Vezax = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_VEZAX)))
                         Vezax->AI()->DoAction(ACTION_VAPORS_DIE);
                 }
             }
@@ -526,7 +532,7 @@ class spell_general_vezax_saronite_vapors : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    int32 mana = int32(aurEff->GetAmount() * pow(2.0f, GetStackAmount())); // mana restore - bp * 2^stackamount
+                    int32 mana = int32(aurEff->GetAmount() * std::pow(2.0f, GetStackAmount())); // mana restore - bp * 2^stackamount
                     int32 damage = mana * 2;
                     caster->CastCustomSpell(GetTarget(), SPELL_SARONITE_VAPORS_ENERGIZE, &mana, NULL, NULL, true);
                     caster->CastCustomSpell(GetTarget(), SPELL_SARONITE_VAPORS_DAMAGE, &damage, NULL, NULL, true);

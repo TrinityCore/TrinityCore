@@ -18,6 +18,8 @@
 #ifndef DEF_MECHANAR_H
 #define DEF_MECHANAR_H
 
+#define DataHeader "MR"
+
 uint32 const EncounterCount             = 5;
 
 enum DataTypes

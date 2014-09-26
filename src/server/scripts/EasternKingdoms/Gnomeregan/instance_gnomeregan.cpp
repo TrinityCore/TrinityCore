@@ -36,24 +36,16 @@ public:
     {
         instance_gnomeregan_InstanceMapScript(Map* map) : InstanceScript(map)
         {
+            SetHeaders(DataHeader);
+            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
         }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-        uint64 uiCaveInLeftGUID;
-        uint64 uiCaveInRightGUID;
+        ObjectGuid uiCaveInLeftGUID;
+        ObjectGuid uiCaveInRightGUID;
 
-        uint64 uiBastmasterEmiShortfuseGUID;
-
-        void Initialize() override
-        {
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-            uiCaveInLeftGUID                = 0;
-            uiCaveInRightGUID               = 0;
-
-            uiBastmasterEmiShortfuseGUID    = 0;
-        }
+        ObjectGuid uiBastmasterEmiShortfuseGUID;
 
         void Load(const char* in) override
         {
@@ -92,12 +84,12 @@ public:
                 case GO_CAVE_IN_LEFT:
                     uiCaveInLeftGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE || m_auiEncounter[0] == NOT_STARTED)
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_CAVE_IN_RIGHT:
                     uiCaveInRightGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE || m_auiEncounter[0] == NOT_STARTED)
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
             }
         }
@@ -123,7 +115,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 uiType) const override
+        ObjectGuid GetGuidData(uint32 uiType) const override
         {
             switch (uiType)
             {
@@ -132,7 +124,7 @@ public:
                 case DATA_NPC_BASTMASTER_EMI_SHORTFUSE: return uiBastmasterEmiShortfuseGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
     };
 

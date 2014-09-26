@@ -56,7 +56,7 @@ public:
         {
             creature->setFaction(FACTION_HOSTILE);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            CAST_AI(npc_calvin_montague::npc_calvin_montagueAI, creature->AI())->AttackStart(player);
+            ENSURE_AI(npc_calvin_montague::npc_calvin_montagueAI, creature->AI())->AttackStart(player);
         }
         return true;
     }
@@ -68,17 +68,25 @@ public:
 
     struct npc_calvin_montagueAI : public ScriptedAI
     {
-        npc_calvin_montagueAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_calvin_montagueAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        uint32 m_uiPhase;
-        uint32 m_uiPhaseTimer;
-        uint64 m_uiPlayerGUID;
-
-        void Reset() override
+        void Initialize()
         {
             m_uiPhase = 0;
             m_uiPhaseTimer = 5000;
-            m_uiPlayerGUID = 0;
+            m_uiPlayerGUID.Clear();
+        }
+
+        uint32 m_uiPhase;
+        uint32 m_uiPhaseTimer;
+        ObjectGuid m_uiPlayerGUID;
+
+        void Reset() override
+        {
+            Initialize();
 
             me->RestoreFaction();
 

@@ -233,19 +233,27 @@ public:
 
     struct npc_lord_gregor_lescovarAI : public npc_escortAI
     {
-        npc_lord_gregor_lescovarAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_lord_gregor_lescovarAI(Creature* creature) : npc_escortAI(creature)
+        {
+            Initialize();
+        }
 
-        uint32 uiTimer;
-        uint32 uiPhase;
-
-        uint64 MarzonGUID;
-
-        void Reset() override
+        void Initialize()
         {
             uiTimer = 0;
             uiPhase = 0;
 
-            MarzonGUID = 0;
+            MarzonGUID.Clear();
+        }
+
+        uint32 uiTimer;
+        uint32 uiPhase;
+
+        ObjectGuid MarzonGUID;
+
+        void Reset() override
+        {
+            Initialize();
         }
 
         void EnterEvadeMode() override
@@ -486,15 +494,23 @@ public:
 
     struct npc_tyrion_spybotAI : public npc_escortAI
     {
-        npc_tyrion_spybotAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_tyrion_spybotAI(Creature* creature) : npc_escortAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            uiTimer = 0;
+            uiPhase = 0;
+        }
 
         uint32 uiTimer;
         uint32 uiPhase;
 
         void Reset() override
         {
-            uiTimer = 0;
-            uiPhase = 0;
+            Initialize();
         }
 
         void WaypointReached(uint32 waypointId) override
@@ -582,8 +598,8 @@ public:
                             {
                                 if (Player* player = GetPlayerForEscort())
                                 {
-                                    CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, pLescovar->AI())->Start(false, false, player->GetGUID());
-                                    CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, pLescovar->AI())->SetMaxPlayerDistance(200.0f);
+                                    ENSURE_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, pLescovar->AI())->Start(false, false, player->GetGUID());
+                                    ENSURE_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, pLescovar->AI())->SetMaxPlayerDistance(200.0f);
                                 }
                             }
                             me->DisappearAndDie();
@@ -623,8 +639,8 @@ public:
         {
             if (Creature* pSpybot = creature->FindNearestCreature(NPC_TYRION_SPYBOT, 5.0f, true))
             {
-                CAST_AI(npc_tyrion_spybot::npc_tyrion_spybotAI, pSpybot->AI())->Start(false, false, player->GetGUID());
-                CAST_AI(npc_tyrion_spybot::npc_tyrion_spybotAI, pSpybot->AI())->SetMaxPlayerDistance(200.0f);
+                ENSURE_AI(npc_tyrion_spybot::npc_tyrion_spybotAI, pSpybot->AI())->Start(false, false, player->GetGUID());
+                ENSURE_AI(npc_tyrion_spybot::npc_tyrion_spybotAI, pSpybot->AI())->SetMaxPlayerDistance(200.0f);
             }
             return true;
         }

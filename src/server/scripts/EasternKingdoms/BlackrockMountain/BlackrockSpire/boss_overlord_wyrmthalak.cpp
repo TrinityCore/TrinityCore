@@ -57,14 +57,22 @@ public:
 
     struct boss_overlordwyrmthalakAI : public BossAI
     {
-        boss_overlordwyrmthalakAI(Creature* creature) : BossAI(creature, DATA_OVERLORD_WYRMTHALAK) { }
+        boss_overlordwyrmthalakAI(Creature* creature) : BossAI(creature, DATA_OVERLORD_WYRMTHALAK)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Summoned = false;
+        }
 
         bool Summoned;
 
         void Reset() override
         {
             _Reset();
-            Summoned = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

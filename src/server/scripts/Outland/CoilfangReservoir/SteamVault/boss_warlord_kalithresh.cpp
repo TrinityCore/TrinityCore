@@ -110,7 +110,16 @@ public:
     {
         boss_warlord_kalithreshAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            Reflection_Timer = 10000;
+            Impale_Timer = 7000 + rand32() % 7000;
+            Rage_Timer = 45000;
+            CanRage = false;
         }
 
         InstanceScript* instance;
@@ -122,10 +131,7 @@ public:
 
         void Reset() override
         {
-            Reflection_Timer = 10000;
-            Impale_Timer = 7000 + rand32() % 7000;
-            Rage_Timer = 45000;
-            CanRage = false;
+            Initialize();
 
             instance->SetBossState(DATA_WARLORD_KALITHRESH, NOT_STARTED);
         }
@@ -168,7 +174,7 @@ public:
                 {
                     Talk(SAY_REGEN);
                     DoCast(me, SPELL_WARLORDS_RAGE);
-                    CAST_AI(npc_naga_distiller::npc_naga_distillerAI, distiller->AI())->StartRageGen(me);
+                    ENSURE_AI(npc_naga_distiller::npc_naga_distillerAI, distiller->AI())->StartRageGen(me);
                 }
                 Rage_Timer = 3000 + rand32() % 15000;
             } else Rage_Timer -= diff;

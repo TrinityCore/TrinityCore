@@ -65,13 +65,21 @@ public:
 
     struct npc_kerlonianAI : public FollowerAI
     {
-        npc_kerlonianAI(Creature* creature) : FollowerAI(creature) { }
+        npc_kerlonianAI(Creature* creature) : FollowerAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            FallAsleepTimer = urand(10000, 45000);
+        }
 
         uint32 FallAsleepTimer;
 
         void Reset() override
         {
-            FallAsleepTimer = urand(10000, 45000);
+            Initialize();
         }
 
         void MoveInLineOfSight(Unit* who) override

@@ -90,19 +90,25 @@ public:
     {
         npc_ancient_wispAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
-            ArchimondeGUID = 0;
+        }
+
+        void Initialize()
+        {
+            CheckTimer = 1000;
+            ArchimondeGUID.Clear();
         }
 
         InstanceScript* instance;
-        uint64 ArchimondeGUID;
+        ObjectGuid ArchimondeGUID;
         uint32 CheckTimer;
 
         void Reset() override
         {
-            CheckTimer = 1000;
+            Initialize();
 
-            ArchimondeGUID = instance->GetData64(DATA_ARCHIMONDE);
+            ArchimondeGUID = instance->GetGuidData(DATA_ARCHIMONDE);
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
@@ -174,15 +180,23 @@ public:
 
     struct npc_doomfire_targettingAI : public ScriptedAI
     {
-        npc_doomfire_targettingAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_doomfire_targettingAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        uint64 TargetGUID;
+        void Initialize()
+        {
+            TargetGUID.Clear();
+            ChangeTargetTimer = 5000;
+        }
+
+        ObjectGuid TargetGUID;
         uint32 ChangeTargetTimer;
 
         void Reset() override
         {
-            TargetGUID = 0;
-            ChangeTargetTimer = 5000;
+            Initialize();
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -208,7 +222,7 @@ public:
                 if (Unit* temp = ObjectAccessor::GetUnit(*me, TargetGUID))
                 {
                     me->GetMotionMaster()->MoveFollow(temp, 0.0f, 0.0f);
-                    TargetGUID = 0;
+                    TargetGUID.Clear();
                 }
                 else
                 {
@@ -244,13 +258,40 @@ public:
     {
         boss_archimondeAI(Creature* creature) : hyjal_trashAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            DoomfireSpiritGUID.Clear();
+            damageTaken = 0;
+            WorldTreeGUID.Clear();
+
+            DrainNordrassilTimer = 0;
+            FearTimer = 42000;
+            AirBurstTimer = 30000;
+            GripOfTheLegionTimer = urand(5000, 25000);
+            DoomfireTimer = 20000;
+            SoulChargeTimer = urand(2000, 30000);
+            SoulChargeCount = 0;
+            MeleeRangeCheckTimer = 15000;
+            HandOfDeathTimer = 2000;
+            WispCount = 0;                                      // When ~30 wisps are summoned, Archimonde dies
+            EnrageTimer = 600000;                               // 10 minutes
+            CheckDistanceTimer = 30000;                         // This checks if he's too close to the World Tree (75 yards from a point on the tree), if true then he will enrage
+            SummonWispTimer = 0;
+
+            Enraged = false;
+            BelowTenPercent = false;
+            HasProtected = false;
+            IsChanneling = false;
         }
 
         InstanceScript* instance;
 
-        uint64 DoomfireSpiritGUID;
-        uint64 WorldTreeGUID;
+        ObjectGuid DoomfireSpiritGUID;
+        ObjectGuid WorldTreeGUID;
 
         uint32 DrainNordrassilTimer;
         uint32 FearTimer;
@@ -275,28 +316,7 @@ public:
         {
             instance->SetData(DATA_ARCHIMONDEEVENT, NOT_STARTED);
 
-            DoomfireSpiritGUID = 0;
-            damageTaken = 0;
-            WorldTreeGUID = 0;
-
-            DrainNordrassilTimer = 0;
-            FearTimer = 42000;
-            AirBurstTimer = 30000;
-            GripOfTheLegionTimer = urand(5000, 25000);
-            DoomfireTimer = 20000;
-            SoulChargeTimer = urand(2000, 30000);
-            SoulChargeCount = 0;
-            MeleeRangeCheckTimer = 15000;
-            HandOfDeathTimer = 2000;
-            WispCount = 0;                                      // When ~30 wisps are summoned, Archimonde dies
-            EnrageTimer = 600000;                               // 10 minutes
-            CheckDistanceTimer = 30000;                         // This checks if he's too close to the World Tree (75 yards from a point on the tree), if true then he will enrage
-            SummonWispTimer = 0;
-
-            Enraged = false;
-            BelowTenPercent = false;
-            HasProtected = false;
-            IsChanneling = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -409,7 +429,7 @@ public:
                 if (Unit* DoomfireSpirit = ObjectAccessor::GetUnit(*me, DoomfireSpiritGUID))
                 {
                     summoned->GetMotionMaster()->MoveFollow(DoomfireSpirit, 0.0f, 0.0f);
-                    DoomfireSpiritGUID = 0;
+                    DoomfireSpiritGUID.Clear();
                 }
             }
         }

@@ -18,13 +18,14 @@
 
 #include "Util.h"
 #include "Common.h"
+#include "CompilerDefs.h"
 #include "utf8.h"
 #include "SFMT.h"
 #include "Errors.h" // for ASSERT
 #include <stdarg.h>
 #include <boost/thread/tss.hpp>
 
-#if PLATFORM == PLATFORM_UNIX
+#if COMPILER == COMPILER_GNU
   #include <sys/socket.h>
   #include <netinet/in.h>
   #include <arpa/inet.h>
@@ -293,7 +294,7 @@ size_t utf8length(std::string& utf8str)
     }
     catch(std::exception)
     {
-        utf8str = "";
+        utf8str.clear();
         return 0;
     }
 }
@@ -315,7 +316,7 @@ void utf8truncate(std::string& utf8str, size_t len)
     }
     catch(std::exception)
     {
-        utf8str = "";
+        utf8str.clear();
     }
 }
 
@@ -359,7 +360,7 @@ bool Utf8toWStr(const std::string& utf8str, std::wstring& wstr)
     }
     catch(std::exception)
     {
-        wstr = L"";
+        wstr.clear();
         return false;
     }
 
@@ -382,14 +383,14 @@ bool WStrToUtf8(wchar_t* wstr, size_t size, std::string& utf8str)
     }
     catch(std::exception)
     {
-        utf8str = "";
+        utf8str.clear();
         return false;
     }
 
     return true;
 }
 
-bool WStrToUtf8(std::wstring wstr, std::string& utf8str)
+bool WStrToUtf8(std::wstring const& wstr, std::string& utf8str)
 {
     try
     {
@@ -405,7 +406,7 @@ bool WStrToUtf8(std::wstring wstr, std::string& utf8str)
     }
     catch(std::exception)
     {
-        utf8str = "";
+        utf8str.clear();
         return false;
     }
 
@@ -414,7 +415,7 @@ bool WStrToUtf8(std::wstring wstr, std::string& utf8str)
 
 typedef wchar_t const* const* wstrlist;
 
-std::wstring GetMainPartOfName(std::wstring wname, uint32 declension)
+std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension)
 {
     // supported only Cyrillic cases
     if (wname.size() < 1 || !isCyrillicCharacter(wname[0]) || declension > 5)
@@ -491,7 +492,7 @@ bool consoleToUtf8(const std::string& conStr, std::string& utf8str)
 #endif
 }
 
-bool Utf8FitTo(const std::string& str, std::wstring search)
+bool Utf8FitTo(const std::string& str, std::wstring const& search)
 {
     std::wstring temp;
 

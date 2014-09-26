@@ -49,24 +49,11 @@ class instance_sunwell_plateau : public InstanceMapScript
         {
             instance_sunwell_plateau_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
 
-                KalecgosDragonGUID          = 0;
-                KalecgosHumanGUID           = 0;
-                SathrovarrGUID              = 0;
-                BrutallusGUID               = 0;
-                MadrigosaGUID               = 0;
-                FelmystGUID                 = 0;
-                AlythessGUID                = 0;
-                SacrolashGUID               = 0;
-                MuruGUID                    = 0;
-                KilJaedenGUID               = 0;
-                KilJaedenControllerGUID     = 0;
-                AnveenaGUID                 = 0;
-                KalecgosKjGUID              = 0;
                 SpectralPlayers             = 0;
-
                 SpectralRealmTimer          = 5000;
             }
 
@@ -79,7 +66,7 @@ class instance_sunwell_plateau : public InstanceMapScript
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
                         Player* player = itr->GetSource();
-                        if (player && !player->HasAura(45839, 0))
+                        if (player && !player->HasAura(45839))
                             return player;
                     }
                 }
@@ -171,7 +158,7 @@ class instance_sunwell_plateau : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 id) const override
+            ObjectGuid GetGuidData(uint32 id) const override
             {
                 switch (id)
                 {
@@ -204,75 +191,32 @@ class instance_sunwell_plateau : public InstanceMapScript
                     case DATA_PLAYER_GUID:
                     {
                         Player const* target = GetPlayerInMap();
-                        return target ? target->GetGUID() : 0;
+                        return target ? target->GetGUID() : ObjectGuid::Empty;
                     }
                     default:
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
-            std::string GetSaveData() override
-            {
-                OUT_SAVE_INST_DATA;
+        protected:
+            ObjectGuid KalecgosDragonGUID;
+            ObjectGuid KalecgosHumanGUID;
+            ObjectGuid SathrovarrGUID;
+            ObjectGuid BrutallusGUID;
+            ObjectGuid MadrigosaGUID;
+            ObjectGuid FelmystGUID;
+            ObjectGuid AlythessGUID;
+            ObjectGuid SacrolashGUID;
+            ObjectGuid MuruGUID;
+            ObjectGuid KilJaedenGUID;
+            ObjectGuid KilJaedenControllerGUID;
+            ObjectGuid AnveenaGUID;
+            ObjectGuid KalecgosKjGUID;
+            uint32 SpectralPlayers;
 
-                std::ostringstream saveStream;
-                saveStream << "S P " << GetBossSaveData();
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(char const* str) override
-            {
-                if (!str)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(str);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(str);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'S' && dataHead2 == 'P')
-                {
-                    for (uint32 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
-            }
-
-            protected:
-                uint64 KalecgosDragonGUID;
-                uint64 KalecgosHumanGUID;
-                uint64 SathrovarrGUID;
-                uint64 BrutallusGUID;
-                uint64 MadrigosaGUID;
-                uint64 FelmystGUID;
-                uint64 AlythessGUID;
-                uint64 SacrolashGUID;
-                uint64 MuruGUID;
-                uint64 KilJaedenGUID;
-                uint64 KilJaedenControllerGUID;
-                uint64 AnveenaGUID;
-                uint64 KalecgosKjGUID;
-                uint32 SpectralPlayers;
-
-                uint32 SpectralRealmTimer;
-                std::vector<uint64> SpectralRealmList;
+            uint32 SpectralRealmTimer;
+            GuidVector SpectralRealmList;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

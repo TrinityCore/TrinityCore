@@ -53,7 +53,7 @@ public:
 
     static bool HandleQuestAdd(ChatHandler* handler, const char* args)
     {
-        Player* player = handler->getSelectedPlayer();
+        Player* player = handler->getSelectedPlayerOrSelf();
         if (!player)
         {
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -151,7 +151,7 @@ public:
 
     static bool HandleQuestComplete(ChatHandler* handler, const char* args)
     {
-        Player* player = handler->getSelectedPlayer();
+        Player* player = handler->getSelectedPlayerOrSelf();
         if (!player)
         {
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -206,11 +206,11 @@ public:
             {
                 if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creature))
                     for (uint16 z = 0; z < creatureCount; ++z)
-                        player->KilledMonster(creatureInfo, 0);
+                        player->KilledMonster(creatureInfo, ObjectGuid::Empty);
             }
             else if (creature < 0)
                 for (uint16 z = 0; z < creatureCount; ++z)
-                    player->KillCreditGO(creature, 0);
+                    player->KillCreditGO(creature);
         }
 
         // If the quest requires reputation to complete

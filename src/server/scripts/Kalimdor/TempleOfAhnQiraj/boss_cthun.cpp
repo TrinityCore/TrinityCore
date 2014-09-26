@@ -160,9 +160,27 @@ public:
     {
         eye_of_cthunAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
 
             SetCombatMovement(false);
+        }
+
+        void Initialize()
+        {
+            //Phase information
+            PhaseTimer = 50000;                                 //First dark glare in 50 seconds
+
+            //Eye beam phase 50 seconds
+            BeamTimer = 3000;
+            EyeTentacleTimer = 45000;                           //Always spawns 5 seconds before Dark Beam
+            ClawTentacleTimer = 12500;                          //4 per Eye beam phase (unsure if they spawn during Dark beam)
+
+            //Dark Beam phase 35 seconds (each tick = 1 second, 35 ticks)
+            DarkGlareTick = 0;
+            DarkGlareTickTimer = 1000;
+            DarkGlareAngle = 0;
+            ClockWise = false;
         }
 
         InstanceScript* instance;
@@ -183,19 +201,7 @@ public:
 
         void Reset() override
         {
-            //Phase information
-            PhaseTimer = 50000;                                 //First dark glare in 50 seconds
-
-            //Eye beam phase 50 seconds
-            BeamTimer = 3000;
-            EyeTentacleTimer = 45000;                           //Always spawns 5 seconds before Dark Beam
-            ClawTentacleTimer = 12500;                          //4 per Eye beam phase (unsure if they spawn during Dark beam)
-
-            //Dark Beam phase 35 seconds (each tick = 1 second, 35 ticks)
-            DarkGlareTick = 0;
-            DarkGlareTickTimer = 1000;
-            DarkGlareAngle = 0;
-            ClockWise = false;
+            Initialize();
 
             //Reset flags
             me->RemoveAurasDueToSpell(SPELL_RED_COLORATION);
@@ -301,7 +307,7 @@ public:
                         me->SetReactState(REACT_PASSIVE);
 
                         //Remove any target
-                        me->SetTarget(0);
+                        me->SetTarget(ObjectGuid::Empty);
 
                         //Select random target for dark beam to start on
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -334,9 +340,9 @@ public:
                         {
                             //Set angle and cast
                             if (ClockWise)
-                                me->SetOrientation(DarkGlareAngle + DarkGlareTick * M_PI / 35);
+                                me->SetOrientation(DarkGlareAngle + DarkGlareTick * float(M_PI) / 35);
                             else
-                                me->SetOrientation(DarkGlareAngle - DarkGlareTick * M_PI / 35);
+                                me->SetOrientation(DarkGlareAngle - DarkGlareTick * float(M_PI) / 35);
 
                             me->StopMoving();
 
@@ -378,7 +384,7 @@ public:
                 //Transition phase
                 case PHASE_CTHUN_TRANSITION:
                     //Remove any target
-                    me->SetTarget(0);
+                    me->SetTarget(ObjectGuid::Empty);
                     me->SetHealth(0);
                     me->SetVisible(false);
                     break;
@@ -414,7 +420,7 @@ public:
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
 
                     //Remove Target field
-                    me->SetTarget(0);
+                    me->SetTarget(ObjectGuid::Empty);
 
                     //Death animation/respawning;
                     instance->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_TRANSITION);
@@ -454,9 +460,32 @@ public:
     {
         cthunAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             SetCombatMovement(false);
 
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            //One random wisper every 90 - 300 seconds
+            WisperTimer = 90000;
+
+            //Phase information
+            PhaseTimer = 10000;                                 //Emerge in 10 seconds
+
+            //No hold player for transition
+            HoldPlayer.Clear();
+
+            //Body Phase
+            EyeTentacleTimer = 30000;
+            FleshTentaclesKilled = 0;
+            GiantClawTentacleTimer = 15000;                     //15 seconds into body phase (1 min repeat)
+            GiantEyeTentacleTimer = 45000;                      //15 seconds into body phase (1 min repeat)
+            StomachAcidTimer = 4000;                            //Every 4 seconds
+            StomachEnterTimer = 10000;                          //Every 10 seconds
+            StomachEnterVisTimer = 0;                           //Always 3.5 seconds after Stomach Enter Timer
+            StomachEnterTarget.Clear();                         //Target to be teleported to stomach
         }
 
         InstanceScript* instance;
@@ -470,7 +499,7 @@ public:
         //-------------------
 
         //Phase transition
-        uint64 HoldPlayer;
+        ObjectGuid HoldPlayer;
 
         //Body Phase
         uint32 EyeTentacleTimer;
@@ -480,31 +509,14 @@ public:
         uint32 StomachAcidTimer;
         uint32 StomachEnterTimer;
         uint32 StomachEnterVisTimer;
-        uint64 StomachEnterTarget;
+        ObjectGuid StomachEnterTarget;
 
         //Stomach map, bool = true then in stomach
-        std::unordered_map<uint64, bool> Stomach_Map;
+        std::unordered_map<ObjectGuid, bool> Stomach_Map;
 
         void Reset() override
         {
-            //One random wisper every 90 - 300 seconds
-            WisperTimer = 90000;
-
-            //Phase information
-            PhaseTimer = 10000;                                 //Emerge in 10 seconds
-
-            //No hold player for transition
-            HoldPlayer = 0;
-
-            //Body Phase
-            EyeTentacleTimer = 30000;
-            FleshTentaclesKilled = 0;
-            GiantClawTentacleTimer = 15000;                     //15 seconds into body phase (1 min repeat)
-            GiantEyeTentacleTimer = 45000;                      //15 seconds into body phase (1 min repeat)
-            StomachAcidTimer = 4000;                            //Every 4 seconds
-            StomachEnterTimer = 10000;                          //Every 10 seconds
-            StomachEnterVisTimer = 0;                           //Always 3.5 seconds after Stomach Enter Timer
-            StomachEnterTarget = 0;                             //Target to be teleported to stomach
+            Initialize();
 
             //Clear players in stomach and outside
             Stomach_Map.clear();
@@ -536,7 +548,7 @@ public:
             if (Stomach_Map.empty())
                 return NULL;
 
-            std::unordered_map<uint64, bool>::const_iterator i = Stomach_Map.begin();
+            std::unordered_map<ObjectGuid, bool>::const_iterator i = Stomach_Map.begin();
 
             std::list<Unit*> temp;
             std::list<Unit*>::const_iterator j;
@@ -598,7 +610,7 @@ public:
                 return;
             }
 
-            me->SetTarget(0);
+            me->SetTarget(ObjectGuid::Empty);
 
             uint32 currentPhase = instance->GetData(DATA_CTHUN_PHASE);
             if (currentPhase == PHASE_CTHUN_STOMACH || currentPhase == PHASE_CTHUN_WEAK)
@@ -668,7 +680,7 @@ public:
                 //Body Phase
                 case PHASE_CTHUN_STOMACH:
                     //Remove Target field
-                    me->SetTarget(0);
+                    me->SetTarget(ObjectGuid::Empty);
 
                     //Weaken
                     if (FleshTentaclesKilled > 1)
@@ -680,7 +692,7 @@ public:
 
                         DoCast(me, SPELL_PURPLE_COLORATION, true);
 
-                        std::unordered_map<uint64, bool>::iterator i = Stomach_Map.begin();
+                        std::unordered_map<ObjectGuid, bool>::iterator i = Stomach_Map.begin();
 
                         //Kick all players out of stomach
                         while (i != Stomach_Map.end())
@@ -712,7 +724,7 @@ public:
                     if (StomachAcidTimer <= diff)
                     {
                         //Apply aura to all players in stomach
-                        std::unordered_map<uint64, bool>::iterator i = Stomach_Map.begin();
+                        std::unordered_map<ObjectGuid, bool>::iterator i = Stomach_Map.begin();
 
                         while (i != Stomach_Map.end())
                         {
@@ -774,7 +786,7 @@ public:
                                 DoTeleportPlayer(unit, STOMACH_X, STOMACH_Y, STOMACH_Z, STOMACH_O);
                             }
 
-                            StomachEnterTarget = 0;
+                            StomachEnterTarget.Clear();
                             StomachEnterVisTimer = 0;
                         } else StomachEnterVisTimer -= diff;
                     }
@@ -901,7 +913,6 @@ public:
             MindflayTimer = 500;
             KillSelfTimer = 35000;
 
-            Portal = 0;
             if (Creature* pPortal = me->SummonCreature(NPC_SMALL_PORTAL, *me, TEMPSUMMON_CORPSE_DESPAWN))
             {
                 pPortal->SetReactState(REACT_PASSIVE);
@@ -913,7 +924,7 @@ public:
 
         uint32 MindflayTimer;
         uint32 KillSelfTimer;
-        uint64 Portal;
+        ObjectGuid Portal;
 
         void JustDied(Unit* /*killer*/) override
         {
@@ -983,7 +994,6 @@ public:
 
             SetCombatMovement(false);
 
-            Portal = 0;
             if (Creature* pPortal = me->SummonCreature(NPC_SMALL_PORTAL, *me, TEMPSUMMON_CORPSE_DESPAWN))
             {
                 pPortal->SetReactState(REACT_PASSIVE);
@@ -994,7 +1004,7 @@ public:
         uint32 GroundRuptureTimer;
         uint32 HamstringTimer;
         uint32 EvadeTimer;
-        uint64 Portal;
+        ObjectGuid Portal;
 
         void JustDied(Unit* /*killer*/) override
         {
@@ -1099,7 +1109,6 @@ public:
 
             SetCombatMovement(false);
 
-            Portal = 0;
             if (Creature* pPortal = me->SummonCreature(NPC_GIANT_PORTAL, *me, TEMPSUMMON_CORPSE_DESPAWN))
             {
                 pPortal->SetReactState(REACT_PASSIVE);
@@ -1111,7 +1120,7 @@ public:
         uint32 ThrashTimer;
         uint32 HamstringTimer;
         uint32 EvadeTimer;
-        uint64 Portal;
+        ObjectGuid Portal;
 
         void JustDied(Unit* /*killer*/) override
         {
@@ -1221,7 +1230,6 @@ public:
 
             SetCombatMovement(false);
 
-            Portal = 0;
             if (Creature* pPortal = me->SummonCreature(NPC_GIANT_PORTAL, *me, TEMPSUMMON_CORPSE_DESPAWN))
             {
                 pPortal->SetReactState(REACT_PASSIVE);
@@ -1230,7 +1238,7 @@ public:
         }
 
         uint32 BeamTimer;
-        uint64 Portal;
+        ObjectGuid Portal;
 
         void JustDied(Unit* /*killer*/) override
         {

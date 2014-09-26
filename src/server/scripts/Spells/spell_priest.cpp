@@ -263,6 +263,13 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_guardian_spirit_AuraScript);
 
+        public:
+            spell_pri_guardian_spirit_AuraScript()
+            {
+                healPct = 0;
+            }
+
+        private:
             uint32 healPct;
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -451,16 +458,17 @@ class spell_pri_mana_leech : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_mana_leech_AuraScript);
 
+        public:
+            spell_pri_mana_leech_AuraScript()
+            {
+                _procTarget = nullptr;
+            }
+
+        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_MANA_LEECH_PROC))
                     return false;
-                return true;
-            }
-
-            bool Load() override
-            {
-                _procTarget = NULL;
                 return true;
             }
 
@@ -504,7 +512,7 @@ class spell_pri_mind_sear : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
-                unitList.remove_if(Trinity::ObjectGUIDCheck(GetCaster()->GetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT)));
+                unitList.remove_if(Trinity::ObjectGUIDCheck(GetCaster()->GetChannelObjectGuid()));
             }
 
             void Register() override
@@ -800,7 +808,7 @@ class spell_pri_shadow_word_death : public SpellScriptLoader
                 if (AuraEffect* aurEff = GetCaster()->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_PAIN_AND_SUFFERING, EFFECT_1))
                     AddPct(damage, aurEff->GetAmount());
 
-                GetCaster()->CastCustomSpell(GetCaster(), SPELL_PRIEST_SHADOW_WORD_DEATH, &damage, 0, 0, true);
+                GetCaster()->CastCustomSpell(GetCaster(), SPELL_PRIEST_SHADOW_WORD_DEATH, &damage, nullptr, nullptr, true);
             }
 
             void Register() override

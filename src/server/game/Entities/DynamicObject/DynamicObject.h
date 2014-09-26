@@ -38,11 +38,11 @@ class DynamicObject : public WorldObject, public GridObject<DynamicObject>, publ
         DynamicObject(bool isWorldObject);
         ~DynamicObject();
 
-        void AddToWorld();
-        void RemoveFromWorld();
+        void AddToWorld() override;
+        void RemoveFromWorld() override;
 
         bool CreateDynamicObject(uint32 guidlow, Unit* caster, uint32 spellId, Position const& pos, float radius, DynamicObjectType type);
-        void Update(uint32 p_time);
+        void Update(uint32 p_time) override;
         void Remove();
         void SetDuration(int32 newDuration);
         int32 GetDuration() const;
@@ -55,7 +55,7 @@ class DynamicObject : public WorldObject, public GridObject<DynamicObject>, publ
         void BindToCaster();
         void UnbindFromCaster();
         uint32 GetSpellId() const {  return GetUInt32Value(DYNAMICOBJECT_SPELLID); }
-        uint64 GetCasterGUID() const { return GetUInt64Value(DYNAMICOBJECT_CASTER); }
+        ObjectGuid GetCasterGUID() const { return GetGuidValue(DYNAMICOBJECT_CASTER); }
         float GetRadius() const { return GetFloatValue(DYNAMICOBJECT_RADIUS); }
 
     protected:

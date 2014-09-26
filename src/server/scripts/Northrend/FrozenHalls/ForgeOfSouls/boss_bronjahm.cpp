@@ -71,14 +71,6 @@ class boss_bronjahm : public CreatureScript
                 DoCast(me, SPELL_SOULSTORM_CHANNEL, true);
             }
 
-            void InitializeAI() override
-            {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(FoSScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
-            }
-
             void Reset() override
             {
                 events.Reset();
@@ -188,7 +180,7 @@ class boss_bronjahm : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_bronjahmAI>(creature);
+            return GetInstanceAI<boss_bronjahmAI>(creature, FoSScriptName);
         }
 };
 
@@ -211,8 +203,8 @@ class npc_corrupted_soul_fragment : public CreatureScript
 
                 if (TempSummon* summ = me->ToTempSummon())
                 {
-                    uint64 BronjahmGUID = instance->GetData64(DATA_BRONJAHM);
-                    if (GUID_LOPART(BronjahmGUID) != id)
+                    ObjectGuid BronjahmGUID(instance->GetGuidData(DATA_BRONJAHM));
+                    if (BronjahmGUID.GetCounter() != id)
                         return;
 
                     if (Creature* bronjahm = ObjectAccessor::GetCreature(*me, BronjahmGUID))

@@ -36,9 +36,8 @@ class instance_forge_of_souls : public InstanceMapScript
         {
             instance_forge_of_souls_InstanceScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
-                bronjahm = 0;
-                devourerOfSouls = 0;
 
                 teamInInstance = 0;
             }
@@ -95,7 +94,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -107,53 +106,12 @@ class instance_forge_of_souls : public InstanceMapScript
                         break;
                 }
 
-                return 0;
-            }
-
-            std::string GetSaveData() override
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "F S " << GetBossSaveData();
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(const char* in) override
-            {
-                if (!in)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(in);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(in);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'F' && dataHead2 == 'S')
-                {
-                    for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-                } else OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
+                return ObjectGuid::Empty;
             }
 
         private:
-            uint64 bronjahm;
-            uint64 devourerOfSouls;
+            ObjectGuid bronjahm;
+            ObjectGuid devourerOfSouls;
 
             uint32 teamInInstance;
         };

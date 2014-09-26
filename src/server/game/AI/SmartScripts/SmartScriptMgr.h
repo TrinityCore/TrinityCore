@@ -466,7 +466,7 @@ enum SMART_ACTION
     SMART_ACTION_SET_VISIBILITY                     = 47,     // on/off
     SMART_ACTION_SET_ACTIVE                         = 48,     // on/off
     SMART_ACTION_ATTACK_START                       = 49,     //
-    SMART_ACTION_SUMMON_GO                          = 50,     // GameObjectID, DespawnTime in ms,
+    SMART_ACTION_SUMMON_GO                          = 50,     // GameObjectID, DespawnTime in s
     SMART_ACTION_KILL_UNIT                          = 51,     //
     SMART_ACTION_ACTIVATE_TAXI                      = 52,     // TaxiID
     SMART_ACTION_WP_START                           = 53,     // run/walk, pathID, canRepeat, quest, despawntime, reactState
@@ -479,7 +479,7 @@ enum SMART_ACTION
     SMART_ACTION_SET_FLY                            = 60,     // 0/1
     SMART_ACTION_SET_SWIM                           = 61,     // 0/1
     SMART_ACTION_TELEPORT                           = 62,     // mapID,
-    SMART_ACTION_STORE_VARIABLE_DECIMAL             = 63,     // varID, number
+    // 63 unused
     SMART_ACTION_STORE_TARGET_LIST                  = 64,     // varID,
     SMART_ACTION_WP_RESUME                          = 65,     // none
     SMART_ACTION_SET_ORIENTATION                    = 66,     //
@@ -529,8 +529,9 @@ enum SMART_ACTION
     SMART_ACTION_REMOVE_POWER                       = 110,    // PowerType, newPower
     SMART_ACTION_GAME_EVENT_STOP                    = 111,    // GameEventId
     SMART_ACTION_GAME_EVENT_START                   = 112,    // GameEventId
+    SMART_ACTION_START_CLOSEST_WAYPOINT             = 113,    // wp1, wp2, wp3, wp4, wp5, wp6, wp7
 
-    SMART_ACTION_END                                = 113
+    SMART_ACTION_END                                = 114
 };
 
 struct SmartAction
@@ -987,6 +988,16 @@ struct SmartAction
             uint32 id;
         } gameEventStart;
 
+        struct
+        {
+            uint32 wp1;
+            uint32 wp2;
+            uint32 wp3;
+            uint32 wp4;
+            uint32 wp5;
+            uint32 wp6;
+        } closestWaypointFromList;
+
         //! Note for any new future actions
         //! All parameters must have type uint32
 
@@ -1341,7 +1352,7 @@ struct SmartScriptHolder
 typedef std::unordered_map<uint32, WayPoint*> WPPath;
 
 typedef std::list<WorldObject*> ObjectList;
-typedef std::list<uint64> GuidList;
+
 class ObjectGuidList
 {
     ObjectList* m_objectList;
@@ -1374,7 +1385,7 @@ public:
                 if (WorldObject* obj = ObjectAccessor::GetWorldObject(*m_baseObject, *itr))
                     m_objectList->push_back(obj);
                 else
-                    TC_LOG_DEBUG("scripts.ai", "SmartScript::mTargetStorage stores a guid to an invalid object: " UI64FMTD, *itr);
+                    TC_LOG_DEBUG("scripts.ai", "SmartScript::mTargetStorage stores a guid to an invalid object: %s", itr->ToString().c_str());
             }
         }
 
@@ -1413,7 +1424,7 @@ class SmartWaypointMgr
         {
             if (waypoint_map.find(id) != waypoint_map.end())
                 return waypoint_map[id];
-            else return 0;
+            else return nullptr;
         }
 
     private:
@@ -1604,10 +1615,12 @@ class SmartAIMgr
         CacheSpellContainerBounds GetSummonCreatureSpellContainerBounds(uint32 creatureEntry) const;
         CacheSpellContainerBounds GetSummonGameObjectSpellContainerBounds(uint32 gameObjectEntry) const;
         CacheSpellContainerBounds GetKillCreditSpellContainerBounds(uint32 killCredit) const;
+        CacheSpellContainerBounds GetCreditItemSpellContainerBounds(uint32 itemId) const;
 
         CacheSpellContainer SummonCreatureSpellStore;
         CacheSpellContainer SummonGameObjectSpellStore;
         CacheSpellContainer KillCreditSpellStore;
+        CacheSpellContainer CreateItemSpellStore;
 };
 
 #define sSmartScriptMgr SmartAIMgr::instance()

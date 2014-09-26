@@ -41,14 +41,10 @@ class instance_utgarde_keep : public InstanceMapScript
         {
             instance_utgarde_keep_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadMinionData(minionData);
-
-                PrinceKelesethGUID  = 0;
-                SkarvaldGUID        = 0;
-                DalronnGUID         = 0;
-                IngvarGUID          = 0;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -93,39 +89,39 @@ class instance_utgarde_keep : public InstanceMapScript
                 {
                     case GO_BELLOW_1:
                         Forges[0].BellowGUID = go->GetGUID();
-                        HandleGameObject(0, Forges[0].Event != NOT_STARTED, go);
+                        HandleGameObject(ObjectGuid::Empty, Forges[0].Event != NOT_STARTED, go);
                         break;
                     case GO_BELLOW_2:
                         Forges[1].BellowGUID = go->GetGUID();
-                        HandleGameObject(0, Forges[1].Event != NOT_STARTED, go);
+                        HandleGameObject(ObjectGuid::Empty, Forges[1].Event != NOT_STARTED, go);
                         break;
                     case GO_BELLOW_3:
                         Forges[2].BellowGUID = go->GetGUID();
-                        HandleGameObject(0, Forges[2].Event != NOT_STARTED, go);
+                        HandleGameObject(ObjectGuid::Empty, Forges[2].Event != NOT_STARTED, go);
                         break;
                     case GO_FORGEFIRE_1:
                         Forges[0].FireGUID = go->GetGUID();
-                        HandleGameObject(0, Forges[0].Event != NOT_STARTED, go);
+                        HandleGameObject(ObjectGuid::Empty, Forges[0].Event != NOT_STARTED, go);
                         break;
                     case GO_FORGEFIRE_2:
                         Forges[1].FireGUID = go->GetGUID();
-                        HandleGameObject(0, Forges[1].Event != NOT_STARTED, go);
+                        HandleGameObject(ObjectGuid::Empty, Forges[1].Event != NOT_STARTED, go);
                         break;
                     case GO_FORGEFIRE_3:
                         Forges[2].FireGUID = go->GetGUID();
-                        HandleGameObject(0, Forges[2].Event != NOT_STARTED, go);
+                        HandleGameObject(ObjectGuid::Empty, Forges[2].Event != NOT_STARTED, go);
                         break;
                     case GO_GLOWING_ANVIL_1:
                         Forges[0].AnvilGUID = go->GetGUID();
-                        HandleGameObject(0, Forges[0].Event != NOT_STARTED, go);
+                        HandleGameObject(ObjectGuid::Empty, Forges[0].Event != NOT_STARTED, go);
                         break;
                     case GO_GLOWING_ANVIL_2:
                         Forges[1].AnvilGUID = go->GetGUID();
-                        HandleGameObject(0, Forges[1].Event != NOT_STARTED, go);
+                        HandleGameObject(ObjectGuid::Empty, Forges[1].Event != NOT_STARTED, go);
                         break;
                     case GO_GLOWING_ANVIL_3:
                         Forges[2].AnvilGUID = go->GetGUID();
-                        HandleGameObject(0, Forges[2].Event != NOT_STARTED, go);
+                        HandleGameObject(ObjectGuid::Empty, Forges[2].Event != NOT_STARTED, go);
                         break;
                     case GO_GIANT_PORTCULLIS_1:
                     case GO_GIANT_PORTCULLIS_2:
@@ -149,7 +145,7 @@ class instance_utgarde_keep : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -165,7 +161,7 @@ class instance_utgarde_keep : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void SetData(uint32 type, uint32 data) override
@@ -191,62 +187,25 @@ class instance_utgarde_keep : public InstanceMapScript
                 }
             }
 
-            std::string GetSaveData() override
+            void WriteSaveDataMore(std::ostringstream& data) override
             {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "U K " << GetBossSaveData();
-
                 for (uint8 i = 0; i < 3; ++i)
-                    saveStream << Forges[i].Event << ' ';
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
+                    data << Forges[i].Event << ' ';
             }
 
-            void Load(char const* str) override
+            void ReadSaveDataMore(std::istringstream& data) override
             {
-                if (!str)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(str);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(str);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'U' && dataHead2 == 'K')
-                {
-                    for (uint32 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-
-                    for (uint8 i = 0; i < 3; ++i)
-                         loadStream >> Forges[i].Event;
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
+                for (uint8 i = 0; i < 3; ++i)
+                    data >> Forges[i].Event;
             }
 
         protected:
             ForgeInfo Forges[3];
 
-            uint64 PrinceKelesethGUID;
-            uint64 SkarvaldGUID;
-            uint64 DalronnGUID;
-            uint64 IngvarGUID;
+            ObjectGuid PrinceKelesethGUID;
+            ObjectGuid SkarvaldGUID;
+            ObjectGuid DalronnGUID;
+            ObjectGuid IngvarGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

@@ -23,6 +23,7 @@
 #include "SharedDefines.h"
 #include "LinkedReference/Reference.h"
 #include "UnitEvents.h"
+#include "ObjectGuid.h"
 
 #include <list>
 
@@ -103,7 +104,7 @@ class HostileReference : public Reference<Unit, ThreatManager>
 
         //=================================================
 
-        uint64 getUnitGuid() const { return iUnitGuid; }
+        ObjectGuid getUnitGuid() const { return iUnitGuid; }
 
         //=================================================
         // reference is not needed anymore. realy delete it !
@@ -117,13 +118,13 @@ class HostileReference : public Reference<Unit, ThreatManager>
         //=================================================
 
         // Tell our refTo (target) object that we have a link
-        void targetObjectBuildLink();
+        void targetObjectBuildLink() override;
 
         // Tell our refTo (taget) object, that the link is cut
-        void targetObjectDestroyLink();
+        void targetObjectDestroyLink() override;
 
         // Tell our refFrom (source) object, that the link is cut (Target destroyed)
-        void sourceObjectDestroyLink();
+        void sourceObjectDestroyLink() override;
     private:
         // Inform the source, that the status of that reference was changed
         void fireStatusChanged(ThreatRefStatusChangeEvent& threatRefStatusChangeEvent);
@@ -132,7 +133,7 @@ class HostileReference : public Reference<Unit, ThreatManager>
     private:
         float iThreat;
         float iTempThreatModifier;                          // used for taunt
-        uint64 iUnitGuid;
+        ObjectGuid iUnitGuid;
         bool iOnline;
         bool iAccessible;
 };

@@ -29,10 +29,10 @@ class GuardAI : public ScriptedAI
         explicit GuardAI(Creature* creature);
 
         static int Permissible(Creature const* creature);
-        bool CanSeeAlways(WorldObject const* obj);
+        bool CanSeeAlways(WorldObject const* obj) override;
 
-        void EnterEvadeMode();
-        void JustDied(Unit* killer);
+        void EnterEvadeMode() override;
+        void JustDied(Unit* killer) override;
 };
 #endif
 

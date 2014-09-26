@@ -109,21 +109,23 @@ public:
             return false;
         }
 
-        switch (sWorld->BanCharacter(name, durationStr, reasonStr, handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : ""))
+        std::string author = handler->GetSession() ? handler->GetSession()->GetPlayerName() : "Server";
+
+        switch (sWorld->BanCharacter(name, durationStr, reasonStr, author))
         {
             case BAN_SUCCESS:
             {
                 if (atoi(durationStr) > 0)
                 {
                     if (sWorld->getBoolConfig(CONFIG_SHOW_BAN_IN_WORLD))
-                        sWorld->SendWorldText(LANG_BAN_CHARACTER_YOUBANNEDMESSAGE_WORLD, (handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : "Server"), name.c_str(), secsToTimeString(TimeStringToSecs(durationStr), true).c_str(), reasonStr);
+                        sWorld->SendWorldText(LANG_BAN_CHARACTER_YOUBANNEDMESSAGE_WORLD, author.c_str(), name.c_str(), secsToTimeString(TimeStringToSecs(durationStr), true).c_str(), reasonStr);
                     else
                         handler->PSendSysMessage(LANG_BAN_YOUBANNED, name.c_str(), secsToTimeString(TimeStringToSecs(durationStr), true).c_str(), reasonStr);
                 }
                 else
                 {
                     if (sWorld->getBoolConfig(CONFIG_SHOW_BAN_IN_WORLD))
-                        sWorld->SendWorldText(LANG_BAN_CHARACTER_YOUPERMBANNEDMESSAGE_WORLD, (handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : "Server"), name.c_str(), reasonStr);
+                        sWorld->SendWorldText(LANG_BAN_CHARACTER_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), name.c_str(), reasonStr);
                     else
                         handler->PSendSysMessage(LANG_BAN_YOUPERMBANNED, name.c_str(), reasonStr);
                 }
@@ -195,20 +197,22 @@ public:
                 break;
         }
 
-        switch (sWorld->BanAccount(mode, nameOrIP, durationStr, reasonStr, handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : ""))
+        std::string author = handler->GetSession() ? handler->GetSession()->GetPlayerName() : "Server";
+
+        switch (sWorld->BanAccount(mode, nameOrIP, durationStr, reasonStr, author))
         {
             case BAN_SUCCESS:
                 if (atoi(durationStr) > 0)
                 {
                     if (sWorld->getBoolConfig(CONFIG_SHOW_BAN_IN_WORLD))
-                        sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD, (handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : "Server"), nameOrIP.c_str(), secsToTimeString(TimeStringToSecs(durationStr), true).c_str(), reasonStr);
+                        sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD, author.c_str(), nameOrIP.c_str(), secsToTimeString(TimeStringToSecs(durationStr), true).c_str(), reasonStr);
                     else
                         handler->PSendSysMessage(LANG_BAN_YOUBANNED, nameOrIP.c_str(), secsToTimeString(TimeStringToSecs(durationStr), true).c_str(), reasonStr);
                 }
                 else
                 {
                     if (sWorld->getBoolConfig(CONFIG_SHOW_BAN_IN_WORLD))
-                        sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, (handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : "Server"), nameOrIP.c_str(), reasonStr);
+                        sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), nameOrIP.c_str(), reasonStr);
                     else
                         handler->PSendSysMessage(LANG_BAN_YOUPERMBANNED, nameOrIP.c_str(), reasonStr);
                 }
@@ -283,7 +287,7 @@ public:
             bool permanent = (fields[1].GetUInt64() == uint64(0));
             std::string banTime = permanent ? handler->GetTrinityString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[1].GetUInt64(), true);
             handler->PSendSysMessage(LANG_BANINFO_HISTORYENTRY,
-                fields[0].GetCString(), banTime.c_str(), active ? handler->GetTrinityString(LANG_BANINFO_YES) : handler->GetTrinityString(LANG_BANINFO_NO), fields[4].GetCString(), fields[5].GetCString());
+                fields[0].GetCString(), banTime.c_str(), active ? handler->GetTrinityString(LANG_YES) : handler->GetTrinityString(LANG_NO), fields[4].GetCString(), fields[5].GetCString());
         }
         while (result->NextRow());
 
@@ -336,7 +340,7 @@ public:
             bool permanent = (fields[1].GetUInt32() == uint32(0));
             std::string banTime = permanent ? handler->GetTrinityString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[1].GetUInt32(), true);
             handler->PSendSysMessage(LANG_BANINFO_HISTORYENTRY,
-                fields[0].GetCString(), banTime.c_str(), active ? handler->GetTrinityString(LANG_BANINFO_YES) : handler->GetTrinityString(LANG_BANINFO_NO), fields[4].GetCString(), fields[5].GetCString());
+                TimeToTimestampStr(fields[0].GetUInt32()).c_str(), banTime.c_str(), active ? handler->GetTrinityString(LANG_YES) : handler->GetTrinityString(LANG_NO), fields[4].GetCString(), fields[5].GetCString());
         }
         while (result->NextRow());
 

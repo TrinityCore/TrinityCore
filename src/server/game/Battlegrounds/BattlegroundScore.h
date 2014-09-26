@@ -19,6 +19,7 @@
 #define TRINITY_BATTLEGROUND_SCORE_H
 
 #include "WorldPacket.h"
+#include "ObjectGuid.h"
 
 enum ScoreType
 {
@@ -55,7 +56,7 @@ struct BattlegroundScore
     friend class Battleground;
 
     protected:
-        BattlegroundScore(uint64 playerGuid) : PlayerGuid(playerGuid), KillingBlows(0), Deaths(0),
+        BattlegroundScore(ObjectGuid playerGuid) : PlayerGuid(playerGuid), KillingBlows(0), Deaths(0),
             HonorableKills(0), BonusHonor(0), DamageDone(0), HealingDone(0) { }
 
         virtual ~BattlegroundScore() { }
@@ -107,7 +108,20 @@ struct BattlegroundScore
         // For Logging purpose
         virtual std::string ToString() const { return ""; }
 
-        uint64 PlayerGuid;
+        uint32 GetKillingBlows() const    { return KillingBlows; }
+        uint32 GetDeaths() const          { return Deaths; }
+        uint32 GetHonorableKills() const  { return HonorableKills; }
+        uint32 GetBonusHonor() const      { return BonusHonor; }
+        uint32 GetDamageDone() const      { return DamageDone; }
+        uint32 GetHealingDone() const     { return HealingDone; }
+
+        virtual uint32 GetAttr1() const { return 0; }
+        virtual uint32 GetAttr2() const { return 0; }
+        virtual uint32 GetAttr3() const { return 0; }
+        virtual uint32 GetAttr4() const { return 0; }
+        virtual uint32 GetAttr5() const { return 0; }
+
+        ObjectGuid PlayerGuid;
 
         // Default score, present in every type
         uint32 KillingBlows;

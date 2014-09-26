@@ -991,7 +991,7 @@ class spell_item_unsated_craving : public SpellScriptLoader
                     return false;
 
                 Unit* target = procInfo.GetActionTarget();
-                if (!target || target->GetTypeId() != TYPEID_UNIT || target->GetCreatureType() == CREATURE_TYPE_CRITTER || (target->GetEntry() != NPC_SINDRAGOSA && target->IsSummon()))
+                if (!target || target->GetTypeId() != TYPEID_UNIT || target->IsCritter() || (target->GetEntry() != NPC_SINDRAGOSA && target->IsSummon()))
                     return false;
 
                 return true;
@@ -2456,7 +2456,7 @@ class spell_item_unusual_compass : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
                 Unit* caster = GetCaster();
-                caster->SetFacingTo(frand(0.0f, 2.0f * M_PI));
+                caster->SetFacingTo(frand(0.0f, 2.0f * float(M_PI)));
             }
 
             void Register() override

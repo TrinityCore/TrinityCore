@@ -136,24 +136,14 @@ class boss_warbringer_omrogg : public CreatureScript
         {
             boss_warbringer_omroggAI(Creature* creature) : BossAI(creature, DATA_OMROGG)
             {
-                LeftHeadGUID  = 0;
-                RightHeadGUID = 0;
+                Initialize();
+                iaggro = 0;
+                ithreat = 0;
+                ikilling = 0;
             }
 
-            void Reset() override
+            void Initialize()
             {
-                if (Unit* LeftHead  = ObjectAccessor::GetUnit(*me, LeftHeadGUID))
-                {
-                    LeftHead->setDeathState(JUST_DIED);
-                    LeftHeadGUID = 0;
-                }
-
-                if (Unit* RightHead  = ObjectAccessor::GetUnit(*me, RightHeadGUID))
-                {
-                    RightHead->setDeathState(JUST_DIED);
-                    RightHeadGUID = 0;
-                }
-
                 AggroYell = false;
                 ThreatYell = false;
                 ThreatYell2 = false;
@@ -166,6 +156,23 @@ class boss_warbringer_omrogg : public CreatureScript
                 BurningMaul_Timer = 25000;
                 ThunderClap_Timer = 15000;
                 ResetThreat_Timer = 30000;
+            }
+
+            void Reset() override
+            {
+                if (Unit* LeftHead  = ObjectAccessor::GetUnit(*me, LeftHeadGUID))
+                {
+                    LeftHead->setDeathState(JUST_DIED);
+                    LeftHeadGUID.Clear();
+                }
+
+                if (Unit* RightHead  = ObjectAccessor::GetUnit(*me, RightHeadGUID))
+                {
+                    RightHead->setDeathState(JUST_DIED);
+                    RightHeadGUID.Clear();
+                }
+
+                Initialize();
 
                 instance->SetData(DATA_OMROGG, NOT_STARTED);   //End boss can use this later. O'mrogg must be defeated(DONE) or he will come to aid.
             }
@@ -363,8 +370,8 @@ class boss_warbringer_omrogg : public CreatureScript
             }
 
             private:
-                uint64 LeftHeadGUID;
-                uint64 RightHeadGUID;
+                ObjectGuid LeftHeadGUID;
+                ObjectGuid RightHeadGUID;
                 int iaggro;
                 int ithreat;
                 int ikilling;

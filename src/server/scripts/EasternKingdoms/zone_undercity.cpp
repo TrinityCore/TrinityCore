@@ -81,8 +81,8 @@ public:
     {
         if (_Quest->GetQuestId() == QUEST_JOURNEY_TO_UNDERCITY)
         {
-            CAST_AI(npc_lady_sylvanas_windrunner::npc_lady_sylvanas_windrunnerAI, creature->AI())->LamentEvent = true;
-            CAST_AI(npc_lady_sylvanas_windrunner::npc_lady_sylvanas_windrunnerAI, creature->AI())->DoPlaySoundToSet(creature, SOUND_CREDIT);
+            ENSURE_AI(npc_lady_sylvanas_windrunner::npc_lady_sylvanas_windrunnerAI, creature->AI())->LamentEvent = true;
+            ENSURE_AI(npc_lady_sylvanas_windrunner::npc_lady_sylvanas_windrunnerAI, creature->AI())->DoPlaySoundToSet(creature, SOUND_CREDIT);
             creature->CastSpell(creature, SPELL_SYLVANAS_CAST, false);
 
             for (uint8 i = 0; i < 4; ++i)
@@ -99,11 +99,27 @@ public:
 
     struct npc_lady_sylvanas_windrunnerAI : public ScriptedAI
     {
-        npc_lady_sylvanas_windrunnerAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_lady_sylvanas_windrunnerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            LamentEventTimer = 5000;
+            LamentEvent = false;
+            targetGUID.Clear();
+
+            FadeTimer = 30000;
+            SummonSkeletonTimer = 20000;
+            BlackArrowTimer = 15000;
+            ShotTimer = 8000;
+            MultiShotTimer = 10000;
+        }
 
         uint32 LamentEventTimer;
         bool LamentEvent;
-        uint64 targetGUID;
+        ObjectGuid targetGUID;
 
         uint32 FadeTimer;
         uint32 SummonSkeletonTimer;
@@ -113,15 +129,7 @@ public:
 
         void Reset() override
         {
-            LamentEventTimer = 5000;
-            LamentEvent = false;
-            targetGUID = 0;
-
-            FadeTimer = 30000;
-            SummonSkeletonTimer = 20000;
-            BlackArrowTimer = 15000;
-            ShotTimer = 8000;
-            MultiShotTimer = 10000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -231,7 +239,18 @@ public:
 
     struct npc_highborne_lamenterAI : public ScriptedAI
     {
-        npc_highborne_lamenterAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_highborne_lamenterAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            EventMoveTimer = 10000;
+            EventCastTimer = 17500;
+            EventMove = true;
+            EventCast = true;
+        }
 
         uint32 EventMoveTimer;
         uint32 EventCastTimer;
@@ -240,10 +259,7 @@ public:
 
         void Reset() override
         {
-            EventMoveTimer = 10000;
-            EventCastTimer = 17500;
-            EventMove = true;
-            EventCast = true;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }

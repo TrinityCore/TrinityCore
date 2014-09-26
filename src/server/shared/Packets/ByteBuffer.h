@@ -31,8 +31,11 @@
 #include <vector>
 #include <cstring>
 #include <time.h>
-#include <math.h>
+#include <cmath>
+#include <type_traits>
 #include <boost/asio/buffer.hpp>
+
+class MessageBuffer;
 
 // Root of ByteBuffer exception hierarchy
 class ByteBufferException : public std::exception
@@ -40,7 +43,7 @@ class ByteBufferException : public std::exception
 public:
     ~ByteBufferException() throw() { }
 
-    char const* what() const throw() { return msg_.c_str(); }
+    char const* what() const throw() override { return msg_.c_str(); }
 
 protected:
     std::string & message() throw() { return msg_; }
@@ -82,14 +85,12 @@ class ByteBuffer
         }
 
         ByteBuffer(ByteBuffer&& buf) : _rpos(buf._rpos), _wpos(buf._wpos),
-            _storage(std::move(buf._storage))
-        {
-        }
+            _storage(std::move(buf._storage)) { }
 
         ByteBuffer(ByteBuffer const& right) : _rpos(right._rpos), _wpos(right._wpos),
-            _storage(right._storage)
-        {
-        }
+            _storage(right._storage) { }
+
+        ByteBuffer(MessageBuffer&& buffer);
 
         ByteBuffer& operator=(ByteBuffer const& right)
         {
@@ -113,12 +114,14 @@ class ByteBuffer
 
         template <typename T> void append(T value)
         {
+            static_assert(std::is_fundamental<T>::value, "append(compound)");
             EndianConvert(value);
             append((uint8 *)&value, sizeof(value));
         }
 
         template <typename T> void put(size_t pos, T value)
         {
+            static_assert(std::is_fundamental<T>::value, "append(compound)");
             EndianConvert(value);
             put(pos, (uint8 *)&value, sizeof(value));
         }

@@ -225,12 +225,13 @@ class spell_koralon_meteor_fists_damage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_koralon_meteor_fists_damage_SpellScript);
 
-            bool Load() override
+        public:
+            spell_koralon_meteor_fists_damage_SpellScript()
             {
                 _chainTargets = 0;
-                return true;
             }
 
+        private:
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 _chainTargets = targets.size();

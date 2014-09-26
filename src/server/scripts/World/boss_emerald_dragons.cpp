@@ -170,11 +170,17 @@ class npc_dream_fog : public CreatureScript
         {
             npc_dream_fogAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _roamTimer = 0;
             }
 
             void Reset() override
             {
-                _roamTimer = 0;
+                Initialize();
             }
 
             void UpdateAI(uint32 diff) override
@@ -247,11 +253,17 @@ class boss_ysondre : public CreatureScript
         {
             boss_ysondreAI(Creature* creature) : emerald_dragonAI(creature)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _stage = 1;
             }
 
             void Reset() override
             {
-                _stage = 1;
+                Initialize();
                 emerald_dragonAI::Reset();
                 events.ScheduleEvent(EVENT_LIGHTNING_WAVE, 12000);
             }
@@ -335,11 +347,17 @@ class boss_lethon : public CreatureScript
         {
             boss_lethonAI(Creature* creature) : emerald_dragonAI(creature)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _stage = 1;
             }
 
             void Reset() override
             {
-                _stage = 1;
+                Initialize();
                 emerald_dragonAI::Reset();
                 events.ScheduleEvent(EVENT_SHADOW_BOLT_WHIRL, 10000);
             }
@@ -400,7 +418,7 @@ class npc_spirit_shade : public CreatureScript
 
         struct npc_spirit_shadeAI : public PassiveAI
         {
-            npc_spirit_shadeAI(Creature* creature) : PassiveAI(creature), _summonerGuid(0)
+            npc_spirit_shadeAI(Creature* creature) : PassiveAI(creature), _summonerGuid()
             {
             }
 
@@ -412,7 +430,7 @@ class npc_spirit_shade : public CreatureScript
 
             void MovementInform(uint32 moveType, uint32 data) override
             {
-                if (moveType == FOLLOW_MOTION_TYPE && data == _summonerGuid)
+                if (moveType == FOLLOW_MOTION_TYPE && data == _summonerGuid.GetCounter())
                 {
                     me->CastSpell((Unit*)NULL, SPELL_DARK_OFFERING, false);
                     me->DespawnOrUnsummon(1000);
@@ -420,7 +438,7 @@ class npc_spirit_shade : public CreatureScript
             }
 
         private:
-            uint64 _summonerGuid;
+            ObjectGuid _summonerGuid;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -457,11 +475,17 @@ class boss_emeriss : public CreatureScript
         {
             boss_emerissAI(Creature* creature) : emerald_dragonAI(creature)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _stage = 1;
             }
 
             void Reset() override
             {
-                _stage = 1;
+                Initialize();
                 emerald_dragonAI::Reset();
                 events.ScheduleEvent(EVENT_VOLATILE_INFECTION, 12000);
             }
@@ -549,16 +573,22 @@ class boss_taerar : public CreatureScript
         {
             boss_taerarAI(Creature* creature) : emerald_dragonAI(creature)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _stage = 1;
+                _shades = 0;
+                _banished = false;
+                _banishedTimer = 0;
             }
 
             void Reset() override
             {
                 me->RemoveAurasDueToSpell(SPELL_SHADE);
-                _stage = 1;
 
-                _shades = 0;
-                _banished = false;
-                _banishedTimer = 0;
+                Initialize();
 
                 emerald_dragonAI::Reset();
                 events.ScheduleEvent(EVENT_ARCANE_BLAST, 12000);

@@ -31,13 +31,13 @@
 #include "Pet.h"
 #include "MapManager.h"
 
-void WorldSession::SendNameQueryOpcode(uint64 guid)
+void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
     Player* player = ObjectAccessor::FindPlayer(guid);
-    CharacterNameData const* nameData = sWorld->GetCharacterNameData(GUID_LOPART(guid));
+    CharacterNameData const* nameData = sWorld->GetCharacterNameData(guid);
 
     WorldPacket data(SMSG_NAME_QUERY_RESPONSE, (8+1+1+1+1+1+10));
-    data.appendPackGUID(guid);
+    data << guid.WriteAsPacked();
     if (!nameData)
     {
         data << uint8(1);                           // name unknown
@@ -66,7 +66,7 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
 
 void WorldSession::HandleNameQueryOpcode(WorldPacket& recvData)
 {
-    uint64 guid;
+    ObjectGuid guid;
     recvData >> guid;
 
     // This is disable by default to prevent lots of console spam
@@ -93,13 +93,12 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
 {
     uint32 entry;
     recvData >> entry;
-    uint64 guid;
+    ObjectGuid guid;
     recvData >> guid;
 
     CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(entry);
     if (ci)
     {
-
         std::string Name, SubName;
         Name = ci->Name;
         SubName = ci->SubName;
@@ -142,8 +141,8 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
     }
     else
     {
-        TC_LOG_DEBUG("network", "WORLD: CMSG_CREATURE_QUERY - NO CREATURE INFO! (GUID: %u, ENTRY: %u)",
-            GUID_LOPART(guid), entry);
+        TC_LOG_DEBUG("network", "WORLD: CMSG_CREATURE_QUERY - NO CREATURE INFO! (%s, ENTRY: %u)",
+            guid.ToString().c_str(), entry);
         WorldPacket data(SMSG_CREATURE_QUERY_RESPONSE, 4);
         data << uint32(entry | 0x80000000);
         SendPacket(&data);
@@ -156,7 +155,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
 {
     uint32 entry;
     recvData >> entry;
-    uint64 guid;
+    ObjectGuid guid;
     recvData >> guid;
 
     const GameObjectTemplate* info = sObjectMgr->GetGameObjectTemplate(entry);
@@ -198,8 +197,8 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
     }
     else
     {
-        TC_LOG_DEBUG("network", "WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (GUID: %u, ENTRY: %u)",
-            GUID_LOPART(guid), entry);
+        TC_LOG_DEBUG("network", "WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (%s, ENTRY: %u)",
+            guid.ToString().c_str(), entry);
         WorldPacket data (SMSG_GAMEOBJECT_QUERY_RESPONSE, 4);
         data << uint32(entry | 0x80000000);
         SendPacket(&data);

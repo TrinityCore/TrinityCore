@@ -68,13 +68,21 @@ public:
 
     struct boss_razorgoreAI : public BossAI
     {
-        boss_razorgoreAI(Creature* creature) : BossAI(creature, BOSS_RAZORGORE) { }
+        boss_razorgoreAI(Creature* creature) : BossAI(creature, BOSS_RAZORGORE)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            secondPhase = false;
+        }
 
         void Reset() override
         {
             _Reset();
 
-            secondPhase = false;
+            Initialize();
             instance->SetData(DATA_EGG_EVENT, NOT_STARTED);
         }
 
@@ -167,7 +175,7 @@ public:
     {
         if (InstanceScript* instance = go->GetInstanceScript())
             if (instance->GetData(DATA_EGG_EVENT) != DONE)
-                if (Creature* razor = ObjectAccessor::GetCreature(*go, instance->GetData64(DATA_RAZORGORE_THE_UNTAMED)))
+                if (Creature* razor = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_RAZORGORE_THE_UNTAMED)))
                 {
                     razor->Attack(player, true);
                     player->CastSpell(razor, SPELL_MINDCONTROL);

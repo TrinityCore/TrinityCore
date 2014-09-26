@@ -25,13 +25,22 @@
 #include "InstanceScript.h"
 
 #define CAST_AI(a, b)   (dynamic_cast<a*>(b))
+#define ENSURE_AI(a,b)  (EnsureAI<a>(b))
+
+template<class T, class U>
+T* EnsureAI(U* ai)
+{
+    T* cast_ai = dynamic_cast<T*>(ai);
+    ASSERT(cast_ai);
+    return cast_ai;
+};
 
 class InstanceScript;
 
 class SummonList
 {
 public:
-    typedef std::list<uint64> StorageType;
+    typedef GuidList StorageType;
     typedef StorageType::iterator iterator;
     typedef StorageType::const_iterator const_iterator;
     typedef StorageType::size_type size_type;
@@ -95,7 +104,7 @@ public:
     {
         // We need to use a copy of SummonList here, otherwise original SummonList would be modified
         StorageType listCopy = storage_;
-        Trinity::Containers::RandomResizeList<uint64, Predicate>(listCopy, predicate, max);
+        Trinity::Containers::RandomResizeList<ObjectGuid, Predicate>(listCopy, predicate, max);
         for (StorageType::iterator i = listCopy.begin(); i != listCopy.end(); )
         {
             Creature* summon = ObjectAccessor::GetCreature(*me, *i++);
@@ -117,7 +126,7 @@ class EntryCheckPredicate
 {
     public:
         EntryCheckPredicate(uint32 entry) : _entry(entry) { }
-        bool operator()(uint64 guid) { return GUID_ENPART(guid) == _entry; }
+        bool operator()(ObjectGuid guid) { return guid.GetEntry() == _entry; }
 
     private:
         uint32 _entry;
@@ -126,7 +135,7 @@ class EntryCheckPredicate
 class DummyEntryCheckPredicate
 {
     public:
-        bool operator()(uint64) { return true; }
+        bool operator()(ObjectGuid) { return true; }
 };
 
 struct ScriptedAI : public CreatureAI
@@ -141,31 +150,31 @@ struct ScriptedAI : public CreatureAI
     void AttackStartNoMove(Unit* target);
 
     // Called at any Damage from any attacker (before damage apply)
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) { }
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override { }
 
     //Called at World update tick
-    virtual void UpdateAI(uint32 diff);
+    virtual void UpdateAI(uint32 diff) override;
 
     //Called at creature death
-    void JustDied(Unit* /*killer*/) { }
+    void JustDied(Unit* /*killer*/) override { }
 
     //Called at creature killing another unit
-    void KilledUnit(Unit* /*victim*/) { }
+    void KilledUnit(Unit* /*victim*/) override { }
 
     // Called when the creature summon successfully other creature
-    void JustSummoned(Creature* /*summon*/) { }
+    void JustSummoned(Creature* /*summon*/) override { }
 
     // Called when a summoned creature is despawned
-    void SummonedCreatureDespawn(Creature* /*summon*/) { }
+    void SummonedCreatureDespawn(Creature* /*summon*/) override { }
 
     // Called when hit by a spell
-    void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) { }
+    void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) override { }
 
     // Called when spell hits a target
-    void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) { }
+    void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) override { }
 
     //Called at waypoint reached or PointMovement end
-    void MovementInform(uint32 /*type*/, uint32 /*id*/) { }
+    void MovementInform(uint32 /*type*/, uint32 /*id*/) override { }
 
     // Called when AI is temporarily replaced or put back when possess is applied or removed
     void OnPossess(bool /*apply*/) { }
@@ -185,13 +194,13 @@ struct ScriptedAI : public CreatureAI
     // *************
 
     //Called at creature reset either by death or evade
-    void Reset() { }
+    void Reset() override { }
 
     //Called at creature aggro either by MoveInLOS or Attack Start
-    void EnterCombat(Unit* /*victim*/) { }
+    void EnterCombat(Unit* /*victim*/) override { }
 
     // Called before EnterCombat even before the creature is in combat.
-    void AttackStart(Unit* /*target*/);
+    void AttackStart(Unit* /*target*/) override;
 
     // *************
     //AI Helper Functions
@@ -339,10 +348,10 @@ class BossAI : public ScriptedAI
         InstanceScript* const instance;
         BossBoundaryMap const* GetBoundary() const { return _boundary; }
 
-        void JustSummoned(Creature* summon);
-        void SummonedCreatureDespawn(Creature* summon);
+        void JustSummoned(Creature* summon) override;
+        void SummonedCreatureDespawn(Creature* summon) override;
 
-        virtual void UpdateAI(uint32 diff);
+        virtual void UpdateAI(uint32 diff) override;
 
         // Hook used to execute events scheduled into EventMap without the need
         // to override UpdateAI
@@ -350,10 +359,10 @@ class BossAI : public ScriptedAI
         // is supposed to run more than once
         virtual void ExecuteEvent(uint32 /*eventId*/) { }
 
-        void Reset() { _Reset(); }
-        void EnterCombat(Unit* /*who*/) { _EnterCombat(); }
-        void JustDied(Unit* /*killer*/) { _JustDied(); }
-        void JustReachedHome() { _JustReachedHome(); }
+        void Reset() override { _Reset(); }
+        void EnterCombat(Unit* /*who*/) override { _EnterCombat(); }
+        void JustDied(Unit* /*killer*/) override { _JustDied(); }
+        void JustReachedHome() override { _JustReachedHome(); }
 
     protected:
         void _Reset();
@@ -361,7 +370,7 @@ class BossAI : public ScriptedAI
         void _JustDied();
         void _JustReachedHome() { me->setActive(false); }
 
-        bool CheckInRoom()
+        virtual bool CheckInRoom()
         {
             if (CheckBoundary(me))
                 return true;
@@ -387,10 +396,10 @@ class WorldBossAI : public ScriptedAI
         WorldBossAI(Creature* creature);
         virtual ~WorldBossAI() { }
 
-        void JustSummoned(Creature* summon);
-        void SummonedCreatureDespawn(Creature* summon);
+        void JustSummoned(Creature* summon) override;
+        void SummonedCreatureDespawn(Creature* summon) override;
 
-        virtual void UpdateAI(uint32 diff);
+        virtual void UpdateAI(uint32 diff) override;
 
         // Hook used to execute events scheduled into EventMap without the need
         // to override UpdateAI
@@ -398,9 +407,9 @@ class WorldBossAI : public ScriptedAI
         // is supposed to run more than once
         virtual void ExecuteEvent(uint32 /*eventId*/) { }
 
-        void Reset() { _Reset(); }
-        void EnterCombat(Unit* /*who*/) { _EnterCombat(); }
-        void JustDied(Unit* /*killer*/) { _JustDied(); }
+        void Reset() override { _Reset(); }
+        void EnterCombat(Unit* /*who*/) override { _EnterCombat(); }
+        void JustDied(Unit* /*killer*/) override { _JustDied(); }
 
     protected:
         void _Reset();
