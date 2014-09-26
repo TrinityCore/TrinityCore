@@ -873,7 +873,12 @@ class spell_dk_improved_frost_presence : public SpellScriptLoader
             {
                 Unit* target = GetTarget();
                 if ((target->HasAura(SPELL_DK_BLOOD_PRESENCE) || target->HasAura(SPELL_DK_UNHOLY_PRESENCE)) && !target->HasAura(SPELL_DK_IMPROVED_FROST_PRESENCE_TRIGGERED))
-                    target->CastCustomSpell(SPELL_DK_IMPROVED_FROST_PRESENCE_TRIGGERED, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), target, true, NULL, aurEff);
+                {
+                    CustomSpellValues val;
+                    val.AddSpellMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount());
+                    val.AddSpellMod(SPELLVALUE_BASE_POINT1, aurEff->GetAmount());
+                    target->CastCustomSpell(SPELL_DK_IMPROVED_FROST_PRESENCE_TRIGGERED, val, target, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                }
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1111,7 +1116,12 @@ class spell_dk_presence : public SpellScriptLoader
                 Unit* target = GetTarget();
                 if (AuraEffect const* impAurEff = target->GetAuraEffectOfRankedSpell(SPELL_DK_IMPROVED_FROST_PRESENCE_R1, EFFECT_0))
                     if (!target->HasAura(SPELL_DK_IMPROVED_FROST_PRESENCE_TRIGGERED))
-                        target->CastCustomSpell(SPELL_DK_IMPROVED_FROST_PRESENCE_TRIGGERED, SPELLVALUE_BASE_POINT0, impAurEff->GetAmount(), target, true, NULL, aurEff);
+                    {
+                        CustomSpellValues val;
+                        val.AddSpellMod(SPELLVALUE_BASE_POINT0, impAurEff->GetAmount());
+                        val.AddSpellMod(SPELLVALUE_BASE_POINT1, impAurEff->GetAmount());
+                        target->CastCustomSpell(SPELL_DK_IMPROVED_FROST_PRESENCE_TRIGGERED, val, target, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                    }
             }
 
             void HandleImprovedUnholyPresence(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
