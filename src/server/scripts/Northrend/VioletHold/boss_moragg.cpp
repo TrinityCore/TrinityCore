@@ -40,7 +40,14 @@ public:
     {
         boss_moraggAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiOpticLinkTimer = 10000;
+            uiCorrosiveSalivaTimer = 5000;
         }
 
         uint32 uiOpticLinkTimer;
@@ -50,8 +57,7 @@ public:
 
         void Reset() override
         {
-            uiOpticLinkTimer = 10000;
-            uiCorrosiveSalivaTimer = 5000;
+            Initialize();
 
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
                 instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
@@ -61,7 +67,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_MORAGG_CELL)))
+            if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetGuidData(DATA_MORAGG_CELL)))
                 if (pDoor->GetGoState() == GO_STATE_READY)
                 {
                     EnterEvadeMode();

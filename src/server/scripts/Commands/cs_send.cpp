@@ -51,7 +51,7 @@ public:
     {
         // format: name "subject text" "mail text"
         Player* target;
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
         std::string targetName;
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
             return false;
@@ -82,7 +82,7 @@ public:
         /// @todo Fix poor design
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
         MailDraft(subject, text)
-            .SendMailTo(trans, MailReceiver(target, GUID_LOPART(targetGuid)), sender);
+            .SendMailTo(trans, MailReceiver(target, targetGuid.GetCounter()), sender);
 
         CharacterDatabase.CommitTransaction(trans);
 
@@ -96,7 +96,7 @@ public:
     {
         // format: name "subject text" "mail text" item1[:count1] item2[:count2] ... item12[:count12]
         Player* receiver;
-        uint64 receiverGuid;
+        ObjectGuid receiverGuid;
         std::string receiverName;
         if (!handler->extractPlayerTarget((char*)args, &receiver, &receiverGuid, &receiverName))
             return false;
@@ -192,7 +192,7 @@ public:
             }
         }
 
-        draft.SendMailTo(trans, MailReceiver(receiver, GUID_LOPART(receiverGuid)), sender);
+        draft.SendMailTo(trans, MailReceiver(receiver, receiverGuid.GetCounter()), sender);
         CharacterDatabase.CommitTransaction(trans);
 
         std::string nameLink = handler->playerLink(receiverName);
@@ -205,7 +205,7 @@ public:
         /// format: name "subject text" "mail text" money
 
         Player* receiver;
-        uint64 receiverGuid;
+        ObjectGuid receiverGuid;
         std::string receiverName;
         if (!handler->extractPlayerTarget((char*)args, &receiver, &receiverGuid, &receiverName))
             return false;
@@ -242,7 +242,7 @@ public:
 
         MailDraft(subject, text)
             .AddMoney(money)
-            .SendMailTo(trans, MailReceiver(receiver, GUID_LOPART(receiverGuid)), sender);
+            .SendMailTo(trans, MailReceiver(receiver, receiverGuid.GetCounter()), sender);
 
         CharacterDatabase.CommitTransaction(trans);
 

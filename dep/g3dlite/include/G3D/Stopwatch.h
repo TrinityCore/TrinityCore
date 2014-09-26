@@ -46,6 +46,9 @@ class Stopwatch {
 private:
 
     std::string             myName;
+
+    bool                    m_enabled;
+
     double                  startTime;
     std::string             prevMark;
     double                  prevTime;
@@ -84,6 +87,15 @@ private:
 public:
 
     Stopwatch(const std::string& name = "Stopwatch");
+
+    void setEnabled(bool e) {
+        m_enabled = e;
+    }
+
+    /** A stopwatch only prints output when enabled */
+    bool enabled() const {
+        return m_enabled;
+    }
 
     /** Returns the number of times that tick was called per wall-clock second; 
         e.g. frames-per-second. */
@@ -130,7 +142,10 @@ public:
     void reset();
 
     /** Call after an operation has completed, with the name of the operation, to
-        print a debug message listing the time since the previous after() call. */
+        print a debug message listing the time since the previous after() call.
+        
+        Does nothing if the stopwatch is disabled.
+     */
     void after(const std::string& s = "");
 
 };

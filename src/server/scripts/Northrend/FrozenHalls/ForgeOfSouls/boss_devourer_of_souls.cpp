@@ -130,14 +130,15 @@ class boss_devourer_of_souls : public CreatureScript
         {
             boss_devourer_of_soulsAI(Creature* creature) : BossAI(creature, DATA_DEVOURER_EVENT)
             {
+                Initialize();
+                beamAngle = 0.f;
+                beamAngleDiff = 0.f;
+                wailingSoulTick = 0;
             }
 
-            void InitializeAI() override
+            void Initialize()
             {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(FoSScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
+                threeFaced = true;
             }
 
             void Reset() override
@@ -149,7 +150,7 @@ class boss_devourer_of_souls : public CreatureScript
                 events.Reset();
                 summons.DespawnAll();
 
-                threeFaced = true;
+                Initialize();
 
                 instance->SetData(DATA_DEVOURER_EVENT, NOT_STARTED);
             }
@@ -292,7 +293,7 @@ class boss_devourer_of_souls : public CreatureScript
 
                             beamAngle = me->GetOrientation();
 
-                            beamAngleDiff = M_PI/30.0f; // PI/2 in 15 sec = PI/30 per tick
+                            beamAngleDiff = float(M_PI)/30.0f; // PI/2 in 15 sec = PI/30 per tick
                             if (RAND(true, false))
                                 beamAngleDiff = -beamAngleDiff;
 
@@ -300,7 +301,7 @@ class boss_devourer_of_souls : public CreatureScript
                             me->SetReactState(REACT_PASSIVE);
 
                             //Remove any target
-                            me->SetTarget(0);
+                            me->SetTarget(ObjectGuid::Empty);
 
                             me->GetMotionMaster()->Clear();
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
@@ -345,7 +346,7 @@ class boss_devourer_of_souls : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_devourer_of_soulsAI>(creature);
+            return GetInstanceAI<boss_devourer_of_soulsAI>(creature, FoSScriptName);
         }
 };
 

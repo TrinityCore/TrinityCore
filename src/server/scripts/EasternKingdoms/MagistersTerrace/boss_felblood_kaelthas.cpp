@@ -103,7 +103,27 @@ public:
     {
         boss_felblood_kaelthasAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            /// @todo Timers
+            FireballTimer = 0;
+            PhoenixTimer = 10000;
+            FlameStrikeTimer = 25000;
+            CombatPulseTimer = 0;
+
+            PyroblastTimer = 60000;
+
+            GravityLapseTimer = 0;
+            GravityLapsePhase = 0;
+
+            FirstGravityLapse = true;
+            HasTaunted = false;
+
+            Phase = 0;
         }
 
         InstanceScript* instance;
@@ -134,21 +154,7 @@ public:
 
         void Reset() override
         {
-            /// @todo Timers
-            FireballTimer = 0;
-            PhoenixTimer = 10000;
-            FlameStrikeTimer = 25000;
-            CombatPulseTimer = 0;
-
-            PyroblastTimer = 60000;
-
-            GravityLapseTimer = 0;
-            GravityLapsePhase = 0;
-
-            FirstGravityLapse = true;
-            HasTaunted = false;
-
-            Phase = 0;
+            Initialize();
 
             instance->SetBossState(DATA_KAELTHAS, NOT_STARTED);
         }
@@ -160,7 +166,7 @@ public:
             instance->SetBossState(DATA_KAELTHAS, DONE);
 
             // Enable the Translocation Orb Exit
-            if (GameObject* escapeOrb = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_ESCAPE_ORB)))
+            if (GameObject* escapeOrb = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_ESCAPE_ORB)))
                 escapeOrb->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
         }
 
@@ -247,7 +253,7 @@ public:
                     unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_FLY, true, 0, 0, me->GetGUID());
                     // Use packet hack
                     WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
-                    data.append(unit->GetPackGUID());
+                    data << unit->GetPackGUID();
                     data << uint32(0);
                     unit->SendMessageToSet(&data, true);
                 }
@@ -267,7 +273,7 @@ public:
                     unit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_DOT);
 
                     WorldPacket data(SMSG_MOVE_UNSET_CAN_FLY, 12);
-                    data.append(unit->GetPackGUID());
+                    data << unit->GetPackGUID();
                     data << uint32(0);
                     unit->SendMessageToSet(&data, true);
                 }
@@ -439,13 +445,19 @@ public:
     {
         npc_felkael_flamestrikeAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            FlameStrikeTimer = 5000;
         }
 
         uint32 FlameStrikeTimer;
 
         void Reset() override
         {
-            FlameStrikeTimer = 5000;
+            Initialize();
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->setFaction(14);
@@ -481,7 +493,16 @@ public:
     {
         npc_felkael_phoenixAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            BurnTimer = 2000;
+            Death_Timer = 3000;
+            Rebirth = false;
+            FakeDeath = false;
         }
 
         InstanceScript* instance;
@@ -495,10 +516,7 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
             me->SetDisableGravity(true);
             DoCast(me, SPELL_PHOENIX_BURN, true);
-            BurnTimer = 2000;
-            Death_Timer = 3000;
-            Rebirth = false;
-            FakeDeath = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -530,7 +548,7 @@ public:
                 me->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->ClearAllReactives();
-                me->SetTarget(0);
+                me->SetTarget(ObjectGuid::Empty);
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveIdle();
                 me->SetStandState(UNIT_STAND_STATE_DEAD);
@@ -592,13 +610,21 @@ public:
 
     struct npc_felkael_phoenix_eggAI : public ScriptedAI
     {
-        npc_felkael_phoenix_eggAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_felkael_phoenix_eggAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            HatchTimer = 10000;
+        }
 
         uint32 HatchTimer;
 
         void Reset() override
         {
-            HatchTimer = 10000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }

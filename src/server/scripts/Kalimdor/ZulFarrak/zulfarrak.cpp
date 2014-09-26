@@ -104,8 +104,16 @@ public:
     {
         npc_sergeant_blyAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             postGossipStep = 0;
+            Text_Timer = 0;
+        }
+
+        void Initialize()
+        {
+            ShieldBash_Timer = 5000;
+            Revenge_Timer = 8000;
         }
 
         InstanceScript* instance;
@@ -114,12 +122,11 @@ public:
         uint32 Text_Timer;
         uint32 ShieldBash_Timer;
         uint32 Revenge_Timer;                                   //this is wrong, spell should never be used unless me->GetVictim() dodge, parry or block attack. Trinity support required.
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         void Reset() override
         {
-            ShieldBash_Timer = 5000;
-            Revenge_Timer = 8000;
+            Initialize();
 
             me->setFaction(FACTION_FRIENDLY);
         }
@@ -134,7 +141,7 @@ public:
                     {
                         case 1:
                             //weegli doesn't fight - he goes & blows up the door
-                            if (Creature* pWeegli = instance->instance->GetCreature(instance->GetData64(ENTRY_WEEGLI)))
+                            if (Creature* pWeegli = instance->instance->GetCreature(instance->GetGuidData(ENTRY_WEEGLI)))
                                 pWeegli->AI()->DoAction(0);
                             Talk(SAY_1);
                             Text_Timer = 5000;
@@ -187,7 +194,7 @@ public:
 
         void switchFactionIfAlive(uint32 entry)
         {
-           if (Creature* crew = ObjectAccessor::GetCreature(*me, instance->GetData64(entry)))
+           if (Creature* crew = ObjectAccessor::GetCreature(*me, instance->GetGuidData(entry)))
                if (crew->IsAlive())
                    crew->setFaction(FACTION_HOSTILE);
         }
@@ -222,7 +229,7 @@ public:
 private:
     void initBlyCrewMember(InstanceScript* instance, uint32 entry, float x, float y, float z)
     {
-        if (Creature* crew = instance->instance->GetCreature(instance->GetData64(entry)))
+        if (Creature* crew = instance->instance->GetCreature(instance->GetGuidData(entry)))
         {
             crew->SetReactState(REACT_AGGRESSIVE);
             crew->SetWalk(true);
@@ -362,7 +369,7 @@ public:
             else
                 if (destroyingDoor)
                 {
-                    instance->DoUseDoorOrButton(instance->GetData64(GO_END_DOOR));
+                    instance->DoUseDoorOrButton(instance->GetGuidData(GO_END_DOOR));
                     /// @todo leave the area...
                     me->DespawnOrUnsummon();
                 };

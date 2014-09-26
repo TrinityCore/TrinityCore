@@ -264,6 +264,9 @@ class npc_annhylde_the_caller : public CreatureScript
         {
             npc_annhylde_the_callerAI(Creature* creature) : ScriptedAI(creature)
             {
+                x = 0.f;
+                y = 0.f;
+                z = 0.f;
                 _instance = creature->GetInstanceScript();
             }
 
@@ -284,7 +287,7 @@ class npc_annhylde_the_caller : public CreatureScript
                 {
                     case 1:
                         Talk(YELL_RESURRECT);
-                        if (Creature* ingvar = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_INGVAR)))
+                        if (Creature* ingvar = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_INGVAR)))
                         {
                             ingvar->RemoveAura(SPELL_SUMMON_BANSHEE);
                             ingvar->CastSpell(ingvar, SPELL_SCOURG_RESURRECTION_DUMMY, true);
@@ -313,7 +316,7 @@ class npc_annhylde_the_caller : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_RESURRECT_1:
-                            if (Creature* ingvar = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_INGVAR)))
+                            if (Creature* ingvar = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_INGVAR)))
                             {
                                 ingvar->RemoveAura(SPELL_INGVAR_FEIGN_DEATH);
                                 ingvar->CastSpell(ingvar, SPELL_SCOURG_RESURRECTION_HEAL, false);
@@ -321,7 +324,7 @@ class npc_annhylde_the_caller : public CreatureScript
                             _events.ScheduleEvent(EVENT_RESURRECT_2, 3000);
                             break;
                         case EVENT_RESURRECT_2:
-                            if (Creature* ingvar = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_INGVAR)))
+                            if (Creature* ingvar = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_INGVAR)))
                             {
                                 ingvar->RemoveAurasDueToSpell(SPELL_SCOURG_RESURRECTION_DUMMY);
                                 ingvar->AI()->DoAction(ACTION_START_PHASE_2);

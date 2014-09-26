@@ -88,8 +88,28 @@ public:
     {
         boss_the_lurker_belowAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
+            Initialize();
             SetCombatMovement(false);
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            SpoutAnimTimer = 1000;
+            RotTimer = 0;
+            WaterboltTimer = 15000; // give time to get in range when fight starts
+            SpoutTimer = 45000;
+            WhirlTimer = 18000; // after avery spout
+            PhaseTimer = 120000;
+            GeyserTimer = rand32() % 5000 + 15000;
+            CheckTimer = 15000; // give time to get in range when fight starts
+            WaitTimer = 60000; // never reached
+            WaitTimer2 = 60000; // never reached
+
+            Submerged = true; // will be false at combat start
+            Spawned = false;
+            InRange = false;
+            CanStartEvent = false;
         }
 
         InstanceScript* instance;
@@ -121,21 +141,7 @@ public:
         {
             me->SetSwim(true);
             me->SetDisableGravity(true);
-            SpoutAnimTimer = 1000;
-            RotTimer = 0;
-            WaterboltTimer = 15000; // give time to get in range when fight starts
-            SpoutTimer = 45000;
-            WhirlTimer = 18000; // after avery spout
-            PhaseTimer = 120000;
-            GeyserTimer = rand32() % 5000 + 15000;
-            CheckTimer = 15000; // give time to get in range when fight starts
-            WaitTimer = 60000; // never reached
-            WaitTimer2 = 60000; // never reached
-
-            Submerged = true; // will be false at combat start
-            Spawned = false;
-            InRange = false;
-            CanStartEvent = false;
+            Initialize();
 
             Summons.DespawnAll();
 
@@ -234,7 +240,7 @@ public:
 
                 if (SpoutTimer <= diff)
                 {
-                    me->MonsterTextEmote(EMOTE_SPOUT, NULL, true);
+                    me->TextEmote(EMOTE_SPOUT, nullptr, true);
                     me->SetReactState(REACT_PASSIVE);
                     me->GetMotionMaster()->MoveRotate(20000, urand(0, 1) ? ROTATE_DIRECTION_LEFT : ROTATE_DIRECTION_RIGHT);
                     SpoutTimer = 45000;
@@ -374,7 +380,14 @@ public:
     {
         npc_coilfang_ambusherAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             SetCombatMovement(false);
+        }
+
+        void Initialize()
+        {
+            MultiShotTimer = 10000;
+            ShootBowTimer = 4000;
         }
 
         uint32 MultiShotTimer;
@@ -382,8 +395,7 @@ public:
 
         void Reset() override
         {
-            MultiShotTimer = 10000;
-            ShootBowTimer = 4000;
+            Initialize();
         }
 
         void MoveInLineOfSight(Unit* who) override

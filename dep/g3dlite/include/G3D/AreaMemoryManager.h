@@ -1,12 +1,12 @@
 /**
- @file AreaMemoryManager.h
+ \file AreaMemoryManager.h
   
- @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+ \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
- @created 2009-01-20
- @edited  2009-05-29
+ \created 2009-01-20
+ \edited  2010-10-29
 
- Copyright 2000-2009, Morgan McGuire.
+ Copyright 2000-2012, Morgan McGuire.
  All rights reserved.
  */
 
@@ -57,7 +57,7 @@ private:
 
 public:
 
-    typedef ReferenceCountedPointer<AreaMemoryManager> Ref;
+    typedef shared_ptr<AreaMemoryManager> Ref;
 
     /** 
         \param sizeHint Total amount of memory expected to be allocated.

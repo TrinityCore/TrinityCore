@@ -15,12 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "ruby_sanctum.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "TemporarySummon.h"
 #include "WorldPacket.h"
+#include "ruby_sanctum.h"
 
 DoorData const doorData[] =
 {
@@ -37,29 +38,15 @@ class instance_ruby_sanctum : public InstanceMapScript
         {
             instance_ruby_sanctum_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                BaltharusTheWarbornGUID  = 0;
-                GeneralZarithrianGUID    = 0;
-                SavianaRagefireGUID      = 0;
-                HalionGUID               = 0;
-                TwilightHalionGUID       = 0;
-                OrbCarrierGUID           = 0;
-                OrbRotationFocusGUID     = 0;
-                HalionControllerGUID     = 0;
-                CrystalChannelTargetGUID = 0;
-                XerestraszaGUID          = 0;
                 BaltharusSharedHealth    = 0;
-                FlameWallsGUID           = 0;
-                FlameRingGUID            = 0;
-
-                memset(ZarithrianSpawnStalkerGUID, 0, 2 * sizeof(uint64));
-                memset(BurningTreeGUID, 0, 4 * sizeof(uint64));
             }
 
             void OnPlayerEnter(Player* /*player*/)
             {
-                if (!GetData64(DATA_HALION_CONTROLLER) && GetBossState(DATA_HALION) != DONE && GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
+                if (!GetGuidData(DATA_HALION_CONTROLLER) && GetBossState(DATA_HALION) != DONE && GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
                 {
                     instance->LoadGrid(HalionControllerSpawnPos.GetPositionX(), HalionControllerSpawnPos.GetPositionY());
                     if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
@@ -181,7 +168,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -221,7 +208,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -294,17 +281,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                 return BaltharusSharedHealth;
             }
 
-            std::string GetSaveData() override
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "R S " << GetBossSaveData();
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
             void FillInitialWorldStates(WorldPacket& data) override
             {
                 data << uint32(WORLDSTATE_CORPOREALITY_MATERIAL) << uint32(50);
@@ -312,55 +288,22 @@ class instance_ruby_sanctum : public InstanceMapScript
                 data << uint32(WORLDSTATE_CORPOREALITY_TOGGLE) << uint32(0);
             }
 
-            void Load(char const* str) override
-            {
-                if (!str)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(str);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(str);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'R' && dataHead2 == 'S')
-                {
-                    for (uint8 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
-            }
-
         protected:
-            uint64 BaltharusTheWarbornGUID;
-            uint64 GeneralZarithrianGUID;
-            uint64 SavianaRagefireGUID;
-            uint64 HalionGUID;
-            uint64 TwilightHalionGUID;
-            uint64 HalionControllerGUID;
-            uint64 OrbCarrierGUID;
-            uint64 OrbRotationFocusGUID;
-            uint64 CrystalChannelTargetGUID;
-            uint64 XerestraszaGUID;
-            uint64 FlameWallsGUID;
-            uint64 ZarithrianSpawnStalkerGUID[2];
-            uint64 BurningTreeGUID[4];
-            uint64 FlameRingGUID;
-            uint64 TwilightFlameRingGUID;
+            ObjectGuid BaltharusTheWarbornGUID;
+            ObjectGuid GeneralZarithrianGUID;
+            ObjectGuid SavianaRagefireGUID;
+            ObjectGuid HalionGUID;
+            ObjectGuid TwilightHalionGUID;
+            ObjectGuid HalionControllerGUID;
+            ObjectGuid OrbCarrierGUID;
+            ObjectGuid OrbRotationFocusGUID;
+            ObjectGuid CrystalChannelTargetGUID;
+            ObjectGuid XerestraszaGUID;
+            ObjectGuid FlameWallsGUID;
+            ObjectGuid ZarithrianSpawnStalkerGUID[2];
+            ObjectGuid BurningTreeGUID[4];
+            ObjectGuid FlameRingGUID;
+            ObjectGuid TwilightFlameRingGUID;
 
             uint32 BaltharusSharedHealth;
         };

@@ -308,7 +308,7 @@ void RemoveReforge(Player* player, uint32 itemguid, bool update)
         return;
 
     player->reforgeMap.erase(itemguid);
-    Item* invItem = update ? player->GetItemByGuid(MAKE_NEW_GUID(itemguid, 0, HIGHGUID_ITEM)) : NULL;
+    Item* invItem = update ? player->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, 0, itemguid)) : NULL;
     if (invItem)
         player->_ApplyItemMods(invItem, invItem->GetSlot(), false);
     player->reforgeMap.erase(itemguid);
@@ -410,7 +410,7 @@ public:
             do
             {
                 uint32 lowGUID = (*result)[0].GetUInt32();
-                Item* invItem = player->GetItemByGuid(MAKE_NEW_GUID(lowGUID, 0, HIGHGUID_ITEM));
+                Item* invItem = player->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, 0, lowGUID));
                 if (invItem)
                     player->_ApplyItemMods(invItem, invItem->GetSlot(), false);
                 ReforgeData& data = player->reforgeMap[lowGUID];
@@ -590,7 +590,7 @@ public:
         case RESTORE:
             // sender = item guidlow
             {
-                if (Item* invItem = player->GetItemByGuid(MAKE_NEW_GUID(sender, 0, HIGHGUID_ITEM)))
+                if (Item* invItem = player->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, 0, sender)))
                 {
                     if (!player->reforgeMap.empty() && player->reforgeMap.find(sender) != player->reforgeMap.end())
                         RemoveReforge(player, sender, true);

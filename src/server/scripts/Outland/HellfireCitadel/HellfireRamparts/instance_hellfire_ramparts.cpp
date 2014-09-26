@@ -34,12 +34,11 @@ class instance_ramparts : public InstanceMapScript
 
         struct instance_ramparts_InstanceMapScript : public InstanceScript
         {
-            instance_ramparts_InstanceMapScript(Map* map) : InstanceScript(map) { }
-
-            void Initialize() override
+            instance_ramparts_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                spawned = false;
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                felIronChestGUID = 0;
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -72,53 +71,9 @@ class instance_ramparts : public InstanceMapScript
                 return true;
             }
 
-            std::string GetSaveData() override
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "H R " << GetBossSaveData();
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(const char* strIn) override
-            {
-                if (!strIn)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(strIn);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(strIn);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'H' && dataHead2 == 'R')
-                {
-                    for (uint8 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
-            }
-
-            protected:
-                uint64 felIronChestGUID;
-                bool spawned;
+        protected:
+            ObjectGuid felIronChestGUID;
+            bool spawned;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

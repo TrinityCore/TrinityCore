@@ -19,6 +19,8 @@
 #ifndef DEF_TOC_H
 #define DEF_TOC_H
 
+#define DataHeader "TC"
+
 enum Data
 {
     BOSS_GRAND_CHAMPIONS,

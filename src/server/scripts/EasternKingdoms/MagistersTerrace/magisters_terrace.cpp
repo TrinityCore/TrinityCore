@@ -115,13 +115,21 @@ public:
 
     struct npc_kalecgosAI : public ScriptedAI
     {
-        npc_kalecgosAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_kalecgosAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            m_uiTransformTimer = 0;
+        }
 
         uint32 m_uiTransformTimer;
 
         void Reset() override
         {
-            m_uiTransformTimer = 0;
+            Initialize();
 
             // we must assume he appear as dragon somewhere outside the platform of orb, and then move directly to here
             if (me->GetEntry() != NPC_KAEL)
@@ -157,7 +165,7 @@ public:
                 if (Player* player = i->GetSource())
                 {
                     if (spell && spell->Effects[0].MiscValue)
-                        player->KilledMonsterCredit(spell->Effects[0].MiscValue, 0);
+                        player->KilledMonsterCredit(spell->Effects[0].MiscValue);
                 }
             }
         }

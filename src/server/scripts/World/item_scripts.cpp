@@ -241,7 +241,7 @@ public:
 
         float x, y, z;
         go->GetClosePoint(x, y, z, go->GetObjectSize() / 3, 7.0f);
-        go->SummonGameObject(GO_HIGH_QUALITY_FUR, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, 0, 0, 0, 0, 1000);
+        go->SummonGameObject(GO_HIGH_QUALITY_FUR, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, 0, 0, 0, 0, 1);
         if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, go->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
         {
             summon->SetVisible(false);
@@ -351,7 +351,7 @@ public:
             {
                 pMammoth->AI()->DoAction(1);
                 pTrap->SetGoState(GO_STATE_READY);
-                player->KilledMonsterCredit(NPC_TRAPPED_MAMMOTH_CALF, 0);
+                player->KilledMonsterCredit(NPC_TRAPPED_MAMMOTH_CALF);
                 return true;
             }
         }

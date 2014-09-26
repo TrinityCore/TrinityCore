@@ -55,12 +55,20 @@ class boss_falric : public CreatureScript
 
         struct boss_falricAI : public boss_horAI
         {
-            boss_falricAI(Creature* creature) : boss_horAI(creature, DATA_FALRIC) { }
+            boss_falricAI(Creature* creature) : boss_horAI(creature, DATA_FALRIC)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _hopelessnessCount = 0;
+            }
 
             void Reset() override
             {
                 boss_horAI::Reset();
-                _hopelessnessCount = 0;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override

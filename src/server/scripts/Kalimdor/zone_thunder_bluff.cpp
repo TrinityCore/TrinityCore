@@ -79,7 +79,19 @@ public:
 
     struct npc_cairne_bloodhoofAI : public ScriptedAI
     {
-        npc_cairne_bloodhoofAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_cairne_bloodhoofAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            BerserkerChargeTimer = 30000;
+            CleaveTimer = 5000;
+            MortalStrikeTimer = 10000;
+            ThunderclapTimer = 15000;
+            UppercutTimer = 10000;
+        }
 
         uint32 BerserkerChargeTimer;
         uint32 CleaveTimer;
@@ -89,11 +101,7 @@ public:
 
         void Reset() override
         {
-            BerserkerChargeTimer = 30000;
-            CleaveTimer = 5000;
-            MortalStrikeTimer = 10000;
-            ThunderclapTimer = 15000;
-            UppercutTimer = 10000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }

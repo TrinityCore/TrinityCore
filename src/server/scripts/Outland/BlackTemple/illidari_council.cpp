@@ -129,11 +129,20 @@ public:
     {
         npc_blood_elf_council_voice_triggerAI(Creature* creature) : ScriptedAI(creature)
         {
-            for (uint8 i = 0; i < 4; ++i)
-                Council[i] = 0;
+            Initialize();
         }
 
-        uint64 Council[4];
+        void Initialize()
+        {
+            EnrageTimer = 900000;                               // 15 minutes
+            AggroYellTimer = 500;
+
+            YellCounter = 0;
+
+            EventStarted = false;
+        }
+
+        ObjectGuid Council[4];
 
         uint32 EnrageTimer;
         uint32 AggroYellTimer;
@@ -144,12 +153,7 @@ public:
 
         void Reset() override
         {
-            EnrageTimer = 900000;                               // 15 minutes
-            AggroYellTimer = 500;
-
-            YellCounter = 0;
-
-            EventStarted = false;
+            Initialize();
         }
 
         // finds and stores the GUIDs for each Council member using instance data system.
@@ -157,10 +161,10 @@ public:
         {
             if (InstanceScript* instance = me->GetInstanceScript())
             {
-                Council[0] = instance->GetData64(DATA_GATHIOS_THE_SHATTERER);
-                Council[1] = instance->GetData64(DATA_VERAS_DARKSHADOW);
-                Council[2] = instance->GetData64(DATA_LADY_MALANDE);
-                Council[3] = instance->GetData64(DATA_HIGH_NETHERMANCER_ZEREVOR);
+                Council[0] = instance->GetGuidData(DATA_GATHIOS_THE_SHATTERER);
+                Council[1] = instance->GetGuidData(DATA_VERAS_DARKSHADOW);
+                Council[2] = instance->GetGuidData(DATA_LADY_MALANDE);
+                Council[3] = instance->GetGuidData(DATA_HIGH_NETHERMANCER_ZEREVOR);
             } else TC_LOG_ERROR("scripts", ERROR_INST_DATA);
         }
 
@@ -225,14 +229,22 @@ public:
     {
         npc_illidari_councilAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
-            for (uint8 i = 0; i < 4; ++i)
-                Council[i] = 0;
+        }
+
+        void Initialize()
+        {
+            CheckTimer = 2000;
+            EndEventTimer = 0;
+
+            DeathCount = 0;
+            EventBegun = false;
         }
 
         InstanceScript* instance;
 
-        uint64 Council[4];
+        ObjectGuid Council[4];
 
         uint32 CheckTimer;
         uint32 EndEventTimer;
@@ -243,10 +255,7 @@ public:
 
         void Reset() override
         {
-            CheckTimer    = 2000;
-            EndEventTimer = 0;
-
-            DeathCount = 0;
+            Initialize();
 
             Creature* pMember = NULL;
             for (uint8 i = 0; i < 4; ++i)
@@ -264,10 +273,8 @@ public:
             }
 
             instance->SetBossState(DATA_ILLIDARI_COUNCIL, NOT_STARTED);
-            if (Creature* VoiceTrigger = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE)))
+            if (Creature* VoiceTrigger = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_ELF_COUNCIL_VOICE)))
                 VoiceTrigger->AI()->EnterEvadeMode();
-
-            EventBegun = false;
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -283,13 +290,13 @@ public:
         {
             if (target && target->IsAlive())
             {
-                Council[0] = instance->GetData64(DATA_GATHIOS_THE_SHATTERER);
-                Council[1] = instance->GetData64(DATA_HIGH_NETHERMANCER_ZEREVOR);
-                Council[2] = instance->GetData64(DATA_LADY_MALANDE);
-                Council[3] = instance->GetData64(DATA_VERAS_DARKSHADOW);
+                Council[0] = instance->GetGuidData(DATA_GATHIOS_THE_SHATTERER);
+                Council[1] = instance->GetGuidData(DATA_HIGH_NETHERMANCER_ZEREVOR);
+                Council[2] = instance->GetGuidData(DATA_LADY_MALANDE);
+                Council[3] = instance->GetGuidData(DATA_VERAS_DARKSHADOW);
 
                 // Start the event for the Voice Trigger
-                if (Creature* VoiceTrigger = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE)))
+                if (Creature* VoiceTrigger = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_ELF_COUNCIL_VOICE)))
                 {
                     ENSURE_AI(npc_blood_elf_council_voice_trigger::npc_blood_elf_council_voice_triggerAI, VoiceTrigger->AI())->LoadCouncilGUIDs();
                     ENSURE_AI(npc_blood_elf_council_voice_trigger::npc_blood_elf_council_voice_triggerAI, VoiceTrigger->AI())->EventStarted = true;
@@ -322,7 +329,7 @@ public:
                 {
                     if (DeathCount > 3)
                     {
-                        if (Creature* VoiceTrigger = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE)))
+                        if (Creature* VoiceTrigger = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_ELF_COUNCIL_VOICE)))
                             VoiceTrigger->DealDamage(VoiceTrigger, VoiceTrigger->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                         instance->SetBossState(DATA_ILLIDARI_COUNCIL, DONE);
                         //me->SummonCreature(AKAMAID, 746.466980f, 304.394989f, 311.90208f, 6.272870f, TEMPSUMMON_DEAD_DESPAWN, 0);
@@ -379,12 +386,10 @@ struct boss_illidari_councilAI : public ScriptedAI
     boss_illidari_councilAI(Creature* creature) : ScriptedAI(creature)
     {
         instance = creature->GetInstanceScript();
-        for (uint8 i = 0; i < 4; ++i)
-            Council[i] = 0;
         LoadedGUIDs = false;
     }
 
-    uint64 Council[4];
+    ObjectGuid Council[4];
 
     InstanceScript* instance;
 
@@ -392,7 +397,7 @@ struct boss_illidari_councilAI : public ScriptedAI
 
     void EnterCombat(Unit* who) override
     {
-        if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ILLIDARI_COUNCIL)))
+        if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ILLIDARI_COUNCIL)))
             ENSURE_AI(npc_illidari_council::npc_illidari_councilAI, controller->AI())->StartEvent(who);
         DoZoneInCombat();
         // Load GUIDs on first aggro because the Creature guids are only set as the creatures are created in world-
@@ -436,10 +441,10 @@ struct boss_illidari_councilAI : public ScriptedAI
 
     void LoadGUIDs()
     {
-        Council[0] = instance->GetData64(DATA_LADY_MALANDE);
-        Council[1] = instance->GetData64(DATA_HIGH_NETHERMANCER_ZEREVOR);
-        Council[2] = instance->GetData64(DATA_GATHIOS_THE_SHATTERER);
-        Council[3] = instance->GetData64(DATA_VERAS_DARKSHADOW);
+        Council[0] = instance->GetGuidData(DATA_LADY_MALANDE);
+        Council[1] = instance->GetGuidData(DATA_HIGH_NETHERMANCER_ZEREVOR);
+        Council[2] = instance->GetGuidData(DATA_GATHIOS_THE_SHATTERER);
+        Council[3] = instance->GetGuidData(DATA_VERAS_DARKSHADOW);
 
         LoadedGUIDs = true;
     }
@@ -457,7 +462,19 @@ public:
 
     struct boss_gathios_the_shattererAI : public boss_illidari_councilAI
     {
-        boss_gathios_the_shattererAI(Creature* creature) : boss_illidari_councilAI(creature) { }
+        boss_gathios_the_shattererAI(Creature* creature) : boss_illidari_councilAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            ConsecrationTimer = 40000;
+            HammerOfJusticeTimer = 10000;
+            SealTimer = 40000;
+            AuraTimer = 90000;
+            BlessingTimer = 60000;
+        }
 
         uint32 ConsecrationTimer;
         uint32 HammerOfJusticeTimer;
@@ -467,11 +484,7 @@ public:
 
         void Reset() override
         {
-            ConsecrationTimer = 40000;
-            HammerOfJusticeTimer = 10000;
-            SealTimer = 40000;
-            AuraTimer = 90000;
-            BlessingTimer = 60000;
+            Initialize();
         }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -589,7 +602,20 @@ public:
 
     struct boss_high_nethermancer_zerevorAI : public boss_illidari_councilAI
     {
-        boss_high_nethermancer_zerevorAI(Creature* creature) : boss_illidari_councilAI(creature) { }
+        boss_high_nethermancer_zerevorAI(Creature* creature) : boss_illidari_councilAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            BlizzardTimer = urand(30, 91) * 1000;
+            FlamestrikeTimer = urand(30, 91) * 1000;
+            ArcaneBoltTimer = 10000;
+            DampenMagicTimer = 2000;
+            ArcaneExplosionTimer = 14000;
+            Cooldown = 0;
+        }
 
         uint32 BlizzardTimer;
         uint32 FlamestrikeTimer;
@@ -600,12 +626,7 @@ public:
 
         void Reset() override
         {
-            BlizzardTimer = urand(30, 91) * 1000;
-            FlamestrikeTimer = urand(30, 91) * 1000;
-            ArcaneBoltTimer = 10000;
-            DampenMagicTimer = 2000;
-            ArcaneExplosionTimer = 14000;
-            Cooldown = 0;
+            Initialize();
         }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -693,7 +714,18 @@ public:
 
     struct boss_lady_malandeAI : public boss_illidari_councilAI
     {
-        boss_lady_malandeAI(Creature* creature) : boss_illidari_councilAI(creature) { }
+        boss_lady_malandeAI(Creature* creature) : boss_illidari_councilAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            EmpoweredSmiteTimer = 38000;
+            CircleOfHealingTimer = 20000;
+            DivineWrathTimer = 40000;
+            ReflectiveShieldTimer = 0;
+        }
 
         uint32 EmpoweredSmiteTimer;
         uint32 CircleOfHealingTimer;
@@ -702,10 +734,7 @@ public:
 
         void Reset() override
         {
-            EmpoweredSmiteTimer = 38000;
-            CircleOfHealingTimer = 20000;
-            DivineWrathTimer = 40000;
-            ReflectiveShieldTimer = 0;
+            Initialize();
         }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -771,9 +800,19 @@ public:
 
     struct boss_veras_darkshadowAI : public boss_illidari_councilAI
     {
-        boss_veras_darkshadowAI(Creature* creature) : boss_illidari_councilAI(creature) { }
+        boss_veras_darkshadowAI(Creature* creature) : boss_illidari_councilAI(creature)
+        {
+            Initialize();
+        }
 
-        uint64 EnvenomTargetGUID;
+        void Initialize()
+        {
+            DeadlyPoisonTimer = 20000;
+            VanishTimer = urand(60, 121) * 1000;
+            AppearEnvenomTimer = 150000;
+
+            HasVanished = false;
+        }
 
         uint32 DeadlyPoisonTimer;
         uint32 VanishTimer;
@@ -783,13 +822,7 @@ public:
 
         void Reset() override
         {
-            EnvenomTargetGUID = 0;
-
-            DeadlyPoisonTimer = 20000;
-            VanishTimer = urand(60, 121) * 1000;
-            AppearEnvenomTimer = 150000;
-
-            HasVanished = false;
+            Initialize();
             me->SetVisible(true);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }

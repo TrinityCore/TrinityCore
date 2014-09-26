@@ -41,15 +41,9 @@ class instance_pit_of_saron : public InstanceMapScript
         {
             instance_pit_of_saron_InstanceScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(Doors);
-                _garfrostGUID = 0;
-                _krickGUID = 0;
-                _ickGUID = 0;
-                _tyrannusGUID = 0;
-                _rimefangGUID = 0;
-                _jainaOrSylvanas1GUID = 0;
-                _jainaOrSylvanas2GUID = 0;
                 _teamInInstance = 0;
             }
 
@@ -237,7 +231,7 @@ class instance_pit_of_saron : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -261,63 +255,19 @@ class instance_pit_of_saron : public InstanceMapScript
                         break;
                 }
 
-                return 0;
-            }
-
-            std::string GetSaveData() override
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "P S " << GetBossSaveData();
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(const char* in) override
-            {
-                if (!in)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(in);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(in);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'P' && dataHead2 == 'S')
-                {
-                    for (uint8 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
+                return ObjectGuid::Empty;
             }
 
         private:
-            uint64 _garfrostGUID;
-            uint64 _krickGUID;
-            uint64 _ickGUID;
-            uint64 _tyrannusGUID;
-            uint64 _rimefangGUID;
+            ObjectGuid _garfrostGUID;
+            ObjectGuid _krickGUID;
+            ObjectGuid _ickGUID;
+            ObjectGuid _tyrannusGUID;
+            ObjectGuid _rimefangGUID;
 
-            uint64 _tyrannusEventGUID;
-            uint64 _jainaOrSylvanas1GUID;
-            uint64 _jainaOrSylvanas2GUID;
+            ObjectGuid _tyrannusEventGUID;
+            ObjectGuid _jainaOrSylvanas1GUID;
+            ObjectGuid _jainaOrSylvanas2GUID;
 
             uint32 _teamInInstance;
         };

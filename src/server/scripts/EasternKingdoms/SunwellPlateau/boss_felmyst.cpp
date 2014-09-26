@@ -116,7 +116,17 @@ public:
     {
         boss_felmystAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+            uiBreathCount = 0;
+            breathX = 0.f;
+            breathY = 0.f;
+        }
+
+        void Initialize()
+        {
+            phase = PHASE_NONE;
+            uiFlightCount = 0;
         }
 
         InstanceScript* instance;
@@ -130,11 +140,9 @@ public:
 
         void Reset() override
         {
-            phase = PHASE_NONE;
+            Initialize();
 
             events.Reset();
-
-            uiFlightCount = 0;
 
             me->SetDisableGravity(true);
             me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
@@ -280,7 +288,7 @@ public:
                 {
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
                     if (!target)
-                        target = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_PLAYER_GUID));
+                        target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_PLAYER_GUID));
 
                     if (!target)
                     {
@@ -306,7 +314,7 @@ public:
 
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
                     if (!target)
-                        target = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_PLAYER_GUID));
+                        target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_PLAYER_GUID));
 
                     if (!target)
                     {
@@ -335,7 +343,7 @@ public:
                 {
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
                     if (!target)
-                        target = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_PLAYER_GUID));
+                        target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_PLAYER_GUID));
 
                     if (!target)
                     {

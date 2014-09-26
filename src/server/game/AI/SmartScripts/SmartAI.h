@@ -154,10 +154,10 @@ class SmartAI : public CreatureAI
         void SetData(uint32 id, uint32 value) override;
 
         // Used in scripts to share variables
-        void SetGUID(uint64 guid, int32 id = 0) override;
+        void SetGUID(ObjectGuid guid, int32 id = 0) override;
 
         // Used in scripts to share variables
-        uint64 GetGUID(int32 id = 0) const override;
+        ObjectGuid GetGUID(int32 id = 0) const override;
 
         //core related
         static int Permissible(const Creature*);
@@ -178,8 +178,7 @@ class SmartAI : public CreatureAI
         void sGossipSelect(Player* player, uint32 sender, uint32 action) override;
         void sGossipSelectCode(Player* player, uint32 sender, uint32 action, const char* code) override;
         void sQuestAccept(Player* player, Quest const* quest) override;
-        //void sQuestSelect(Player* player, Quest const* quest);
-        //void sQuestComplete(Player* player, Quest const* quest);
+        //void sQuestSelect(Player* player, Quest const* quest) override;
         void sQuestReward(Player* player, Quest const* quest, uint32 opt) override;
         bool sOnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex) override;
         void sOnGameEvent(bool start, uint16 eventId) override;
@@ -200,7 +199,7 @@ class SmartAI : public CreatureAI
         uint32 mFollowArrivedTimer;
         uint32 mFollowCredit;
         uint32 mFollowArrivedEntry;
-        uint64 mFollowGuid;
+        ObjectGuid mFollowGuid;
         float mFollowDist;
         float mFollowAngle;
 

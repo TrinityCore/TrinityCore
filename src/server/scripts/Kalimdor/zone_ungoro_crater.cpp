@@ -77,7 +77,15 @@ public:
 
     struct npc_ameAI : public npc_escortAI
     {
-        npc_ameAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_ameAI(Creature* creature) : npc_escortAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            DemoralizingShoutTimer = 5000;
+        }
 
         uint32 DemoralizingShoutTimer;
 
@@ -112,7 +120,7 @@ public:
 
         void Reset() override
         {
-            DemoralizingShoutTimer = 5000;
+            Initialize();
         }
 
         void JustSummoned(Creature* summoned) override
@@ -194,20 +202,28 @@ public:
 
     struct npc_ringoAI : public FollowerAI
     {
-        npc_ringoAI(Creature* creature) : FollowerAI(creature) { }
+        npc_ringoAI(Creature* creature) : FollowerAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            FaintTimer = urand(30000, 60000);
+            EndEventProgress = 0;
+            EndEventTimer = 1000;
+            SpraggleGUID.Clear();
+        }
 
         uint32 FaintTimer;
         uint32 EndEventProgress;
         uint32 EndEventTimer;
 
-        uint64 SpraggleGUID;
+        ObjectGuid SpraggleGUID;
 
         void Reset() override
         {
-            FaintTimer = urand(30000, 60000);
-            EndEventProgress = 0;
-            EndEventTimer = 1000;
-            SpraggleGUID = 0;
+            Initialize();
         }
 
         void MoveInLineOfSight(Unit* who) override

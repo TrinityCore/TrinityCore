@@ -19,6 +19,7 @@
 #define MANA_TOMBS_H_
 
 #define MTScriptName "instance_mana_tombs"
+#define DataHeader "MT"
 
 uint32 const EncounterCount = 4;
 

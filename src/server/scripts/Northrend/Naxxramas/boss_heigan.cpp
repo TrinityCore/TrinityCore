@@ -66,7 +66,13 @@ public:
 
     struct boss_heiganAI : public BossAI
     {
-        boss_heiganAI(Creature* creature) : BossAI(creature, BOSS_HEIGAN) { }
+        boss_heiganAI(Creature* creature) : BossAI(creature, BOSS_HEIGAN)
+        {
+            eruptSection = 0;
+            eruptDirection = false;
+            safetyDance = false;
+            phase = PHASE_FIGHT;
+        }
 
         uint32 eruptSection;
         bool eruptDirection;
@@ -126,10 +132,10 @@ public:
             {
                 float x, y, z, o;
                 me->GetHomePosition(x, y, z, o);
-                me->NearTeleportTo(x, y, z, o - G3D::halfPi());
+                me->NearTeleportTo(x, y, z, o - (float(M_PI) / 2));
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveIdle();
-                me->SetTarget(0);
+                me->SetTarget(ObjectGuid::Empty);
                 DoCastAOE(SPELL_PLAGUE_CLOUD);
                 events.ScheduleEvent(EVENT_PHASE, 45000);
                 events.ScheduleEvent(EVENT_ERUPT, 8000);
@@ -198,7 +204,7 @@ class spell_heigan_eruption : public SpellScriptLoader
 
                 if (GetHitDamage() >= int32(GetHitPlayer()->GetHealth()))
                     if (InstanceScript* instance = caster->GetInstanceScript())
-                        if (Creature* Heigan = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_HEIGAN)))
+                        if (Creature* Heigan = ObjectAccessor::GetCreature(*caster, instance->GetGuidData(DATA_HEIGAN)))
                             Heigan->AI()->SetData(DATA_SAFETY_DANCE, 0);
             }
 

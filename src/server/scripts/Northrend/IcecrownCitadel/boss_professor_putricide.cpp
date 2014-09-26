@@ -174,7 +174,7 @@ class AbominationDespawner
     public:
         explicit AbominationDespawner(Unit* owner) : _owner(owner) { }
 
-        bool operator()(uint64 guid)
+        bool operator()(ObjectGuid guid)
         {
             if (Unit* summon = ObjectAccessor::GetUnit(*_owner, guid))
             {
@@ -223,6 +223,7 @@ class boss_professor_putricide : public CreatureScript
                 _baseSpeed(creature->GetSpeedRate(MOVE_RUN)), _experimentState(EXPERIMENT_STATE_OOZE)
             {
                 _phase = PHASE_NONE;
+                _oozeFloodStage = 0;
             }
 
             void Reset() override
@@ -372,7 +373,7 @@ class boss_professor_putricide : public CreatureScript
                         instance->SetBossState(DATA_FESTERGUT, IN_PROGRESS); // needed here for delayed gate close
                         me->SetSpeed(MOVE_RUN, _baseSpeed, true);
                         DoAction(ACTION_FESTERGUT_GAS);
-                        if (Creature* festergut = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FESTERGUT)))
+                        if (Creature* festergut = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FESTERGUT)))
                             festergut->CastSpell(festergut, SPELL_GASEOUS_BLIGHT_LARGE, false, NULL, NULL, festergut->GetGUID());
                         break;
                     case POINT_ROTFACE:
@@ -385,7 +386,7 @@ class boss_professor_putricide : public CreatureScript
                         // stop attack
                         me->GetMotionMaster()->MoveIdle();
                         me->SetSpeed(MOVE_RUN, _baseSpeed, true);
-                        if (GameObject* table = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_PUTRICIDE_TABLE)))
+                        if (GameObject* table = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_PUTRICIDE_TABLE)))
                             me->SetFacingToObject(table);
                         // operating on new phase already
                         switch (_phase)
@@ -442,7 +443,7 @@ class boss_professor_putricide : public CreatureScript
                         _oozeFloodStage = 0;
                         DoZoneInCombat(me);
                         // init random sequence of floods
-                        if (Creature* rotface = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ROTFACE)))
+                        if (Creature* rotface = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ROTFACE)))
                         {
                             std::list<Creature*> list;
                             GetCreatureListWithEntryInGrid(list, rotface, NPC_PUDDLE_STALKER, 50.0f);
@@ -701,7 +702,7 @@ class boss_professor_putricide : public CreatureScript
                 events.SetPhase(newPhase);
             }
 
-            uint64 _oozeFloodDummyGUIDs[4];
+            ObjectGuid _oozeFloodDummyGUIDs[4];
             Phases _phase;          // external of EventMap because event phase gets reset on evade
             float const _baseSpeed;
             uint8 _oozeFloodStage;
@@ -857,6 +858,13 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
         {
             PrepareSpellScript(spell_putricide_ooze_channel_SpellScript);
 
+        public:
+            spell_putricide_ooze_channel_SpellScript()
+            {
+                _target = nullptr;
+            }
+
+        private:
             bool Validate(SpellInfo const* spell) override
             {
                 if (!spell->ExcludeTargetAuraSpell)
@@ -870,7 +878,6 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
             // this will let use safely use ToCreature() casts in entire script
             bool Load() override
             {
-                _target = NULL;
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
@@ -1151,7 +1158,7 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
 
                 if (!GetHitUnit()->HasAura(plagueId))
                 {
-                    if (Creature* professor = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
+                    if (Creature* professor = ObjectAccessor::GetCreature(*GetCaster(), instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                     {
                         if (Aura* oldPlague = GetCaster()->GetAura(plagueId, professor->GetGUID()))
                         {
@@ -1269,7 +1276,13 @@ class spell_putricide_mutated_plague : public SpellScriptLoader
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 uint32 healSpell = uint32(GetSpellInfo()->Effects[EFFECT_0].CalcValue());
-                GetTarget()->CastSpell(GetTarget(), healSpell, true, NULL, NULL, GetCasterGUID());
+                SpellInfo const* healSpellInfo = sSpellMgr->GetSpellInfo(healSpell);
+
+                if (!healSpellInfo)
+                    return;
+
+                int32 heal = healSpellInfo->Effects[0].CalcValue() * GetStackAmount();
+                GetTarget()->CastCustomSpell(healSpell, SPELLVALUE_BASE_POINT0, heal, GetTarget(), true, NULL, NULL, GetCasterGUID());
             }
 
             void Register() override
@@ -1300,7 +1313,7 @@ class spell_putricide_mutation_init : public SpellScriptLoader
                 if (!instance)
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
-                Creature* professor = ObjectAccessor::GetCreature(*GetExplTargetUnit(), instance->GetData64(DATA_PROFESSOR_PUTRICIDE));
+                Creature* professor = ObjectAccessor::GetCreature(*GetExplTargetUnit(), instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE));
                 if (!professor)
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
@@ -1421,7 +1434,7 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
                 if (!instance)
                     return;
 
-                Creature* putricide = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_PROFESSOR_PUTRICIDE));
+                Creature* putricide = ObjectAccessor::GetCreature(*caster, instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE));
                 if (!putricide)
                     return;
 

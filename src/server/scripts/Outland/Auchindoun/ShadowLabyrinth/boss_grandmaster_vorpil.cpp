@@ -52,7 +52,6 @@ enum GrandmasterVorpil
     SPELL_SACRIFICE             = 33587,
     SPELL_SHADOW_NOVA           = 33846,
     SPELL_EMPOWERING_SHADOWS    = 33783,
-    H_SPELL_EMPOWERING_SHADOWS  = 39364,
 
     NPC_VOID_PORTAL             = 19224,
     SPELL_SUMMON_PORTAL         = 33566,
@@ -87,13 +86,19 @@ class boss_grandmaster_vorpil : public CreatureScript
         {
             boss_grandmaster_vorpilAI(Creature* creature) : BossAI(creature, DATA_GRANDMASTER_VORPIL)
             {
+                Initialize();
                 _intro = false;
+            }
+
+            void Initialize()
+            {
+                _helpYell = false;
             }
 
             void Reset() override
             {
                 _Reset();
-                _helpYell = false;
+                Initialize();
             }
 
             void SummonPortals()
@@ -224,13 +229,19 @@ class npc_voidtraveler : public CreatureScript
         {
             npc_voidtravelerAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 _instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                _moveTimer = 0;
+                _sacrificed = false;
             }
 
             void Reset() override
             {
-                _moveTimer = 0;
-                _sacrificed = false;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override { }
@@ -239,13 +250,13 @@ class npc_voidtraveler : public CreatureScript
             {
                 if (_moveTimer <= diff)
                 {
-                    Creature* Vorpil = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_GRANDMASTER_VORPIL));
+                    Creature* Vorpil = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_GRANDMASTER_VORPIL));
                     if (!Vorpil)
                         return;
 
                     if (_sacrificed)
                     {
-                        DoCastAOE(DUNGEON_MODE(SPELL_EMPOWERING_SHADOWS, H_SPELL_EMPOWERING_SHADOWS), true);
+                        DoCastAOE(SPELL_EMPOWERING_SHADOWS, true);
                         DoCast(me, SPELL_SHADOW_NOVA, true);
                         me->Kill(me);
                         return;

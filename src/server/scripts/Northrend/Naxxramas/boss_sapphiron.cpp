@@ -80,7 +80,7 @@ enum Misc
     MAX_FROST_RESISTANCE    = 100
 };
 
-typedef std::map<uint64, uint64> IceBlockMap;
+typedef std::map<ObjectGuid, ObjectGuid> IceBlockMap;
 
 class boss_sapphiron : public CreatureScript
 {
@@ -90,9 +90,19 @@ class boss_sapphiron : public CreatureScript
         struct boss_sapphironAI : public BossAI
         {
             boss_sapphironAI(Creature* creature) :
-                BossAI(creature, BOSS_SAPPHIRON), _phase(PHASE_NULL),
-                _map(me->GetMap())
-            { }
+                BossAI(creature, BOSS_SAPPHIRON), _map(me->GetMap())
+            {
+                Initialize();
+                _iceboltCount = 0;
+            }
+
+            void Initialize()
+            {
+                _phase = PHASE_NULL;
+
+                _canTheHundredClub = true;
+                _checkFrostResistTimer = 5 * IN_MILLISECONDS;
+            }
 
             void InitializeAI() override
             {
@@ -115,10 +125,7 @@ class boss_sapphiron : public CreatureScript
                 if (_phase == PHASE_FLIGHT)
                     ClearIceBlock();
 
-                _phase = PHASE_NULL;
-
-                _canTheHundredClub = true;
-                _checkFrostResistTimer = 5 * IN_MILLISECONDS;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -140,7 +147,7 @@ class boss_sapphiron : public CreatureScript
                     IceBlockMap::iterator itr = _iceblocks.find(target->GetGUID());
                     if (itr != _iceblocks.end() && !itr->second)
                     {
-                        if (GameObject* iceblock = me->SummonGameObject(GO_ICEBLOCK, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, 0, 0, 0, 0, 25000))
+                        if (GameObject* iceblock = me->SummonGameObject(GO_ICEBLOCK, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, 0, 0, 0, 0, 25))
                             itr->second = iceblock->GetGUID();
                     }
                 }
@@ -313,7 +320,7 @@ class boss_sapphiron : public CreatureScript
                                 {
                                     std::vector<Unit*>::const_iterator itr = targets.begin();
                                     advance(itr, rand32() % targets.size());
-                                    _iceblocks.insert(std::make_pair((*itr)->GetGUID(), 0));
+                                    _iceblocks.insert(std::make_pair((*itr)->GetGUID(), ObjectGuid::Empty));
                                     DoCast(*itr, SPELL_ICEBOLT);
                                     --_iceboltCount;
                                 }
@@ -375,7 +382,7 @@ class boss_sapphiron : public CreatureScript
 
                     for (IceBlockMap::const_iterator itr = _iceblocks.begin(); itr != _iceblocks.end(); ++itr)
                     {
-                        if (GameObject* go = GameObject::GetGameObject(*me, itr->second))
+                        if (GameObject* go = ObjectAccessor::GetGameObject(*me, itr->second))
                         {
                             if (go->IsInBetween(me, target, 2.0f)
                                 && me->GetExactDist2d(target->GetPositionX(), target->GetPositionY()) - me->GetExactDist2d(go->GetPositionX(), go->GetPositionY()) < 5.0f)

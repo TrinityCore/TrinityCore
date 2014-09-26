@@ -41,7 +41,17 @@ public:
 
     struct instance_trial_of_the_champion_InstanceMapScript : public InstanceScript
     {
-        instance_trial_of_the_champion_InstanceMapScript(Map* map) : InstanceScript(map) { }
+        instance_trial_of_the_champion_InstanceMapScript(Map* map) : InstanceScript(map)
+        {
+            SetHeaders(DataHeader);
+            uiMovementDone = 0;
+            uiGrandChampionsDeaths = 0;
+            uiArgentSoldierDeaths = 0;
+
+            bDone = false;
+
+            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+        }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -49,46 +59,22 @@ public:
         uint16 uiGrandChampionsDeaths;
         uint8 uiArgentSoldierDeaths;
 
-        uint64 uiAnnouncerGUID;
-        uint64 uiMainGateGUID;
-        uint64 uiGrandChampionVehicle1GUID;
-        uint64 uiGrandChampionVehicle2GUID;
-        uint64 uiGrandChampionVehicle3GUID;
-        uint64 uiGrandChampion1GUID;
-        uint64 uiGrandChampion2GUID;
-        uint64 uiGrandChampion3GUID;
-        uint64 uiChampionLootGUID;
-        uint64 uiArgentChampionGUID;
+        ObjectGuid uiAnnouncerGUID;
+        ObjectGuid uiMainGateGUID;
+        ObjectGuid uiGrandChampionVehicle1GUID;
+        ObjectGuid uiGrandChampionVehicle2GUID;
+        ObjectGuid uiGrandChampionVehicle3GUID;
+        ObjectGuid uiGrandChampion1GUID;
+        ObjectGuid uiGrandChampion2GUID;
+        ObjectGuid uiGrandChampion3GUID;
+        ObjectGuid uiChampionLootGUID;
+        ObjectGuid uiArgentChampionGUID;
 
-        std::list<uint64> VehicleList;
+        GuidList VehicleList;
 
         std::string str_data;
 
         bool bDone;
-
-        void Initialize() override
-        {
-            uiMovementDone = 0;
-            uiGrandChampionsDeaths = 0;
-            uiArgentSoldierDeaths = 0;
-
-            uiAnnouncerGUID        = 0;
-            uiMainGateGUID         = 0;
-            uiGrandChampionVehicle1GUID   = 0;
-            uiGrandChampionVehicle2GUID   = 0;
-            uiGrandChampionVehicle3GUID   = 0;
-            uiGrandChampion1GUID          = 0;
-            uiGrandChampion2GUID          = 0;
-            uiGrandChampion3GUID          = 0;
-            uiChampionLootGUID            = 0;
-            uiArgentChampionGUID          = 0;
-
-            bDone = false;
-
-            VehicleList.clear();
-
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-        }
 
         bool IsEncounterInProgress() const override
         {
@@ -182,7 +168,7 @@ public:
                     m_auiEncounter[0] = uiData;
                     if (uiData == IN_PROGRESS)
                     {
-                        for (std::list<uint64>::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
+                        for (GuidList::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
                             if (Creature* summon = instance->GetCreature(*itr))
                                 summon->RemoveFromWorld();
                     }else if (uiData == DONE)
@@ -194,7 +180,7 @@ public:
                             {
                                 pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                                 pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                                pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0, 90000000);
+                                pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0, 90000);
                             }
                         }
                     }
@@ -217,7 +203,7 @@ public:
                     {
                         pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                         pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_EADRIC_LOOT_H : GO_EADRIC_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0, 90000000);
+                        pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_EADRIC_LOOT_H : GO_EADRIC_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0, 90000);
                     }
                     break;
                 case BOSS_ARGENT_CHALLENGE_P:
@@ -226,7 +212,7 @@ public:
                     {
                         pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                         pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_PALETRESS_LOOT_H : GO_PALETRESS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0, 90000000);
+                        pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_PALETRESS_LOOT_H : GO_PALETRESS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0, 90000);
                     }
                     break;
             }
@@ -251,7 +237,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 uiData) const override
+        ObjectGuid GetGuidData(uint32 uiData) const override
         {
             switch (uiData)
             {
@@ -263,10 +249,10 @@ public:
                 case DATA_GRAND_CHAMPION_3: return uiGrandChampion3GUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
-        void SetData64(uint32 uiType, uint64 uiData) override
+        void SetGuidData(uint32 uiType, ObjectGuid uiData) override
         {
             switch (uiType)
             {

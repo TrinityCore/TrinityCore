@@ -19,6 +19,8 @@
 #ifndef DEF_MOLTEN_CORE_H
 #define DEF_MOLTEN_CORE_H
 
+#define DataHeader "MC"
+
 enum Encounters
 {
     BOSS_LUCIFRON                   = 0,

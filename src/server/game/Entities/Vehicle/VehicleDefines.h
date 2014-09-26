@@ -55,12 +55,12 @@ enum VehicleSpells
 
 struct PassengerInfo
 {
-    uint64 Guid;
+    ObjectGuid Guid;
     bool IsUnselectable;
 
     void Reset()
     {
-        Guid = 0;
+        Guid.Clear();
         IsUnselectable = false;
     }
 };
@@ -72,7 +72,7 @@ struct VehicleSeat
         Passenger.Reset();
     }
 
-    bool IsEmpty() const { return !Passenger.Guid; }
+    bool IsEmpty() const { return Passenger.Guid.IsEmpty(); }
 
     VehicleSeatEntry const* SeatInfo;
     PassengerInfo Passenger;

@@ -80,6 +80,7 @@ public:
     {
         npc_blackfathom_deeps_eventAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             if (creature->IsSummon())
             {
                 creature->SetHomePosition(HomePosition);
@@ -87,6 +88,15 @@ public:
             }
 
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            Flee = false;
+
+            ravageTimer = urand(5000, 8000);
+            frostNovaTimer = urand(9000, 12000);
+            frostBoltVolleyTimer = urand(2000, 4000);
         }
 
         InstanceScript* instance;
@@ -99,11 +109,7 @@ public:
 
         void Reset() override
         {
-            Flee = false;
-
-            ravageTimer           = urand(5000, 8000);
-            frostNovaTimer        = urand(9000, 12000);
-            frostBoltVolleyTimer  = urand(2000, 4000);
+            Initialize();
         }
 
         void AttackPlayer()
@@ -204,7 +210,7 @@ public:
         {
             Talk(SAY_MORRIDUNE_1);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            Start(false, false, 0);
+            Start(false);
         }
 
         void WaypointReached(uint32 waypointId) override

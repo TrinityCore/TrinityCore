@@ -200,7 +200,15 @@ public:
     {
         npc_taskmaster_fizzuleAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             factionNorm = creature->getFaction();
+        }
+
+        void Initialize()
+        {
+            IsFriend = false;
+            ResetTimer = 120000;
+            FlareCount = 0;
         }
 
         uint32 factionNorm;
@@ -210,9 +218,7 @@ public:
 
         void Reset() override
         {
-            IsFriend = false;
-            ResetTimer = 120000;
-            FlareCount = 0;
+            Initialize();
             me->setFaction(factionNorm);
         }
 
@@ -314,7 +320,28 @@ public:
 
     struct npc_twiggy_flatheadAI : public ScriptedAI
     {
-        npc_twiggy_flatheadAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_twiggy_flatheadAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            EventInProgress = false;
+            EventGrate = false;
+            EventBigWill = false;
+            WaveTimer = 600000;
+            ChallengerChecker = 0;
+            Wave = 0;
+            PlayerGUID.Clear();
+
+            for (uint8 i = 0; i < 6; ++i)
+            {
+                AffrayChallenger[i].Clear();
+                ChallengerDown[i] = false;
+            }
+            BigWill.Clear();
+        }
 
         bool EventInProgress;
         bool EventGrate;
@@ -323,26 +350,13 @@ public:
         uint8 Wave;
         uint32 WaveTimer;
         uint32 ChallengerChecker;
-        uint64 PlayerGUID;
-        uint64 AffrayChallenger[6];
-        uint64 BigWill;
+        ObjectGuid PlayerGUID;
+        ObjectGuid AffrayChallenger[6];
+        ObjectGuid BigWill;
 
         void Reset() override
         {
-            EventInProgress = false;
-            EventGrate = false;
-            EventBigWill = false;
-            WaveTimer = 600000;
-            ChallengerChecker = 0;
-            Wave = 0;
-            PlayerGUID = 0;
-
-            for (uint8 i = 0; i < 6; ++i)
-            {
-                AffrayChallenger[i] = 0;
-                ChallengerDown[i] = false;
-            }
-            BigWill = 0;
+            Initialize();
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -477,6 +491,14 @@ public:
                             {
                                 Talk(SAY_TWIGGY_FLATHEAD_OVER);
                                 Reset();
+                            }
+                            else if (creature) // Makes BIG WILL attackable.
+                            {
+                                creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                                creature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+                                creature->setFaction(14);
+                                creature->AI()->AttackStart(warrior);
                             }
                         }
                     } else WaveTimer -= diff;

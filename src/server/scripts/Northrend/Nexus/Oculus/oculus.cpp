@@ -232,13 +232,19 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
         {
             npc_ruby_emerald_amber_drakeAI(Creature* creature) : VehicleAI(creature)
             {
+                Initialize();
                 _instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                _healthWarning = true;
             }
 
             void Reset() override
             {
                 _events.Reset();
-                _healthWarning = true;
+                Initialize();
             }
 
             void IsSummonedBy(Unit* summoner) override

@@ -54,13 +54,21 @@ class npc_jadespine_basilisk : public CreatureScript
 
         struct npc_jadespine_basiliskAI : public ScriptedAI
         {
-            npc_jadespine_basiliskAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_jadespine_basiliskAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                uiCslumberTimer = 2000;
+            }
 
             uint32 uiCslumberTimer;
 
             void Reset() override
             {
-                uiCslumberTimer = 2000;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override

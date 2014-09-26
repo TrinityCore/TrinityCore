@@ -38,10 +38,10 @@ public:
             else
                 instance->SetData(TYPE_LYCEUM, IN_PROGRESS);
             // If used brazier open linked doors (North or South)
-            if (go->GetGUID() == instance->GetData64(DATA_SF_BRAZIER_N))
-                instance->HandleGameObject(instance->GetData64(DATA_GOLEM_DOOR_N), true);
-            else if (go->GetGUID() == instance->GetData64(DATA_SF_BRAZIER_S))
-                instance->HandleGameObject(instance->GetData64(DATA_GOLEM_DOOR_S), true);
+            if (go->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_N))
+                instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_N), true);
+            else if (go->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_S))
+                instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_S), true);
         }
         return false;
     }
@@ -124,8 +124,25 @@ public:
     {
         npc_grimstoneAI(Creature* creature) : npc_escortAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             MobSpawnId = rand32() % 6;
+        }
+
+        void Initialize()
+        {
+            EventPhase = 0;
+            Event_Timer = 1000;
+
+            MobCount = 0;
+            MobDeath_Timer = 0;
+
+            for (uint8 i = 0; i < MAX_NPC_AMOUNT; ++i)
+                RingMobGUID[i].Clear();
+
+            RingBossGUID.Clear();
+
+            CanWalk = false;
         }
 
         InstanceScript* instance;
@@ -137,27 +154,16 @@ public:
         uint8 MobCount;
         uint32 MobDeath_Timer;
 
-        uint64 RingMobGUID[4];
-        uint64 RingBossGUID;
+        ObjectGuid RingMobGUID[4];
+        ObjectGuid RingBossGUID;
 
         bool CanWalk;
 
         void Reset() override
         {
+            Initialize();
+
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-
-            EventPhase = 0;
-            Event_Timer = 1000;
-
-            MobCount = 0;
-            MobDeath_Timer = 0;
-
-            for (uint8 i = 0; i < MAX_NPC_AMOUNT; ++i)
-                RingMobGUID[i] = 0;
-
-            RingBossGUID = 0;
-
-            CanWalk = false;
         }
 
         /// @todo move them to center
@@ -216,7 +222,7 @@ public:
 
         void HandleGameObject(uint32 id, bool open)
         {
-            instance->HandleGameObject(instance->GetData64(id), open);
+            instance->HandleGameObject(instance->GetGuidData(id), open);
         }
 
         void UpdateAI(uint32 diff) override
@@ -232,7 +238,7 @@ public:
                         Creature* boss = ObjectAccessor::GetCreature(*me, RingBossGUID);
                         if (boss && !boss->IsAlive() && boss->isDead())
                         {
-                            RingBossGUID = 0;
+                            RingBossGUID.Clear();
                             Event_Timer = 5000;
                             MobDeath_Timer = 0;
                             return;
@@ -245,7 +251,7 @@ public:
                         Creature* mob = ObjectAccessor::GetCreature(*me, RingMobGUID[i]);
                         if (mob && !mob->IsAlive() && mob->isDead())
                         {
-                            RingMobGUID[i] = 0;
+                            RingMobGUID[i].Clear();
                             --MobCount;
 
                             //seems all are gone, so set timer to continue and discontinue this
@@ -353,7 +359,17 @@ public:
 
     struct npc_phalanxAI : public ScriptedAI
     {
-        npc_phalanxAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_phalanxAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            ThunderClap_Timer = 12000;
+            FireballVolley_Timer = 0;
+            MightyBlow_Timer = 15000;
+        }
 
         uint32 ThunderClap_Timer;
         uint32 FireballVolley_Timer;
@@ -361,9 +377,7 @@ public:
 
         void Reset() override
         {
-            ThunderClap_Timer = 12000;
-            FireballVolley_Timer = 0;
-            MightyBlow_Timer = 15000;
+            Initialize();
         }
 
         void UpdateAI(uint32 diff) override
@@ -1238,7 +1252,14 @@ public:
     {
         npc_rocknotAI(Creature* creature) : npc_escortAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            BreakKeg_Timer = 0;
+            BreakDoor_Timer = 0;
         }
 
         InstanceScript* instance;
@@ -1251,13 +1272,12 @@ public:
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 return;
 
-            BreakKeg_Timer = 0;
-            BreakDoor_Timer = 0;
+            Initialize();
         }
 
         void DoGo(uint32 id, uint32 state)
         {
-            if (GameObject* go = instance->instance->GetGameObject(instance->GetData64(id)))
+            if (GameObject* go = instance->instance->GetGameObject(instance->GetGuidData(id)))
                 go->SetGoState((GOState)state);
         }
 
@@ -1304,7 +1324,7 @@ public:
                     DoGo(DATA_GO_BAR_KEG_TRAP, 0);               //doesn't work very well, leaving code here for future
                     //spell by trap has effect61, this indicate the bar go hostile
 
-                    if (Unit* tmp = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_PHALANX)))
+                    if (Unit* tmp = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_PHALANX)))
                         tmp->setFaction(14);
 
                     //for later, this event(s) has alot more to it.
