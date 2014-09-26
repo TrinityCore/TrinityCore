@@ -61,13 +61,21 @@ class boss_elder_nadox : public CreatureScript
 
         struct boss_elder_nadoxAI : public BossAI
         {
-            boss_elder_nadoxAI(Creature* creature) : BossAI(creature, DATA_ELDER_NADOX) { }
+            boss_elder_nadoxAI(Creature* creature) : BossAI(creature, DATA_ELDER_NADOX)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                GuardianSummoned = false;
+                GuardianDied = false;
+            }
 
             void Reset() override
             {
                 _Reset();
-                GuardianSummoned = false;
-                GuardianDied = false;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -230,16 +238,17 @@ class spell_ahn_kahet_swarm : public SpellScriptLoader
         {
             PrepareSpellScript(spell_ahn_kahet_swarm_SpellScript);
 
+        public:
+            spell_ahn_kahet_swarm_SpellScript()
+            {
+                _targetCount = 0;
+            }
+
+        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SWARM_BUFF))
                     return false;
-                return true;
-            }
-
-            bool Load() override
-            {
-                _targetCount = 0;
                 return true;
             }
 
@@ -270,7 +279,6 @@ class spell_ahn_kahet_swarm : public SpellScriptLoader
                 OnEffectHit += SpellEffectFn(spell_ahn_kahet_swarm_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
 
-        private:
             uint32 _targetCount;
         };
 

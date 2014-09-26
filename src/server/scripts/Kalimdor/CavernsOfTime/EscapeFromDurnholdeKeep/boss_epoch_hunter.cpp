@@ -59,7 +59,16 @@ public:
     {
         boss_epoch_hunterAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            SandBreath_Timer = urand(8000, 16000);
+            ImpendingDeath_Timer = urand(25000, 30000);
+            WingBuffet_Timer = 35000;
+            Mda_Timer = 40000;
         }
 
         InstanceScript* instance;
@@ -71,10 +80,7 @@ public:
 
         void Reset() override
         {
-            SandBreath_Timer = urand(8000, 16000);
-            ImpendingDeath_Timer = urand(25000, 30000);
-            WingBuffet_Timer = 35000;
-            Mda_Timer = 40000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

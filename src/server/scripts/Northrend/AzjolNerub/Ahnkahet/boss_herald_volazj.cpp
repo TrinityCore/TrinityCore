@@ -63,7 +63,17 @@ public:
     {
         boss_volazjAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiMindFlayTimer = 8 * IN_MILLISECONDS;
+            uiShadowBoltVolleyTimer = 5 * IN_MILLISECONDS;
+            uiShiverTimer = 15 * IN_MILLISECONDS;
+            // Used for Insanity handling
+            insanityHandled = 0;
         }
 
         InstanceScript* instance;
@@ -145,17 +155,13 @@ public:
 
         void Reset() override
         {
-            uiMindFlayTimer = 8*IN_MILLISECONDS;
-            uiShadowBoltVolleyTimer = 5*IN_MILLISECONDS;
-            uiShiverTimer = 15*IN_MILLISECONDS;
+            Initialize();
 
             instance->SetBossState(DATA_HERALD_VOLAZJ, NOT_STARTED);
             instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
 
             // Visible for all players in insanity
             me->SetPhaseMask((1|16|32|64|128|256), true);
-            // Used for Insanity handling
-            insanityHandled = 0;
 
             ResetPlayersPhaseMask();
 

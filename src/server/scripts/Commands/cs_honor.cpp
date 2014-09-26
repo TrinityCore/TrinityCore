@@ -71,7 +71,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         uint32 amount = (uint32)atoi(args);
@@ -91,7 +91,7 @@ public:
 
         // check online security
         if (Player* player = target->ToPlayer())
-            if (handler->HasLowerSecurity(player, 0))
+            if (handler->HasLowerSecurity(player, ObjectGuid::Empty))
                 return false;
 
         handler->GetSession()->GetPlayer()->RewardHonor(target, 1);
@@ -109,7 +109,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         target->UpdateHonorFields();

@@ -122,6 +122,13 @@ class spell_sha_astral_shift : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_astral_shift_AuraScript);
 
+        public:
+            spell_sha_astral_shift_AuraScript()
+            {
+                absorbPct = 0;
+            }
+
+        private:
             uint32 absorbPct;
 
             bool Load() override
@@ -209,13 +216,14 @@ class spell_sha_chain_heal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_chain_heal_SpellScript);
 
-            bool Load() override
+        public:
+            spell_sha_chain_heal_SpellScript()
             {
                 firstHeal = true;
                 riptide = false;
-                return true;
             }
 
+        private:
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 if (firstHeal)
@@ -310,6 +318,13 @@ class spell_sha_earth_shield : public SpellScriptLoader
                 {
                     amount = caster->SpellHealingBonusDone(GetUnitOwner(), GetSpellInfo(), amount, HEAL);
                     amount = GetUnitOwner()->SpellHealingBonusTaken(caster, GetSpellInfo(), amount, HEAL);
+
+                    //! WORKAROUND
+                    // If target is affected by healing reduction, modifier is guaranteed to be negative
+                    // value (e.g. -50). To revert the effect, multiply amount with reciprocal of relative value:
+                    // (100 / ((-1) * modifier)) * 100 = (-1) * 100 * 100 / modifier = -10000 / modifier
+                    if (int32 modifier = GetUnitOwner()->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HEALING_PCT))
+                        ApplyPct(amount, -10000.0f / float(modifier));
 
                     // Glyph of Earth Shield
                     //! WORKAROUND

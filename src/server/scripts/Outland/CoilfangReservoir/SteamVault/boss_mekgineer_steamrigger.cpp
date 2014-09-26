@@ -64,7 +64,19 @@ public:
     {
         boss_mekgineer_steamriggerAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            Shrink_Timer = 20000;
+            Saw_Blade_Timer = 15000;
+            Electrified_Net_Timer = 10000;
+
+            Summon75 = false;
+            Summon50 = false;
+            Summon25 = false;
         }
 
         InstanceScript* instance;
@@ -78,13 +90,7 @@ public:
 
         void Reset() override
         {
-            Shrink_Timer = 20000;
-            Saw_Blade_Timer = 15000;
-            Electrified_Net_Timer = 10000;
-
-            Summon75 = false;
-            Summon50 = false;
-            Summon25 = false;
+            Initialize();
 
             instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, NOT_STARTED);
         }
@@ -201,7 +207,13 @@ public:
     {
         npc_steamrigger_mechanicAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            Repair_Timer = 2000;
         }
 
         InstanceScript* instance;
@@ -210,7 +222,7 @@ public:
 
         void Reset() override
         {
-            Repair_Timer = 2000;
+            Initialize();
         }
 
         void MoveInLineOfSight(Unit* /*who*/) override
@@ -226,7 +238,7 @@ public:
             {
                 if (instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == IN_PROGRESS)
                 {
-                    if (Creature* mekgineer = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MEKGINEER_STEAMRIGGER)))
+                    if (Creature* mekgineer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MEKGINEER_STEAMRIGGER)))
                     {
                         if (me->IsWithinDistInMap(mekgineer, MAX_REPAIR_RANGE))
                         {

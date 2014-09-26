@@ -42,16 +42,14 @@ public:
 
     struct instance_razorfen_kraul_InstanceMapScript : public InstanceScript
     {
-        instance_razorfen_kraul_InstanceMapScript(Map* map) : InstanceScript(map) { }
-
-        uint64 DoorWardGUID;
-        int WardKeeperDeath;
-
-        void Initialize() override
+        instance_razorfen_kraul_InstanceMapScript(Map* map) : InstanceScript(map)
         {
+            SetHeaders(DataHeader);
             WardKeeperDeath = 0;
-            DoorWardGUID = 0;
         }
+
+        ObjectGuid DoorWardGUID;
+        int WardKeeperDeath;
 
         Player* GetPlayerInMap()
         {

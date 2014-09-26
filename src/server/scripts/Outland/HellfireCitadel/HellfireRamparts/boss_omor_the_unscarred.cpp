@@ -60,13 +60,12 @@ class boss_omor_the_unscarred : public CreatureScript
         {
             boss_omor_the_unscarredAI(Creature* creature) : BossAI(creature, DATA_OMOR_THE_UNSCARRED)
             {
+                Initialize();
                 SetCombatMovement(false);
             }
 
-            void Reset() override
+            void Initialize()
             {
-                Talk(SAY_WIPE);
-
                 OrbitalStrike_Timer = 25000;
                 ShadowWhip_Timer = 2000;
                 Aura_Timer = 10000;
@@ -74,8 +73,15 @@ class boss_omor_the_unscarred : public CreatureScript
                 Shadowbolt_Timer = 2000;
                 Summon_Timer = 10000;
                 SummonedCount = 0;
-                PlayerGUID = 0;
+                PlayerGUID.Clear();
                 CanPullBack = false;
+            }
+
+            void Reset() override
+            {
+                Talk(SAY_WIPE);
+
+                Initialize();
 
                 _Reset();
             }
@@ -141,7 +147,7 @@ class boss_omor_the_unscarred : public CreatureScript
                                 DoCast(temp, SPELL_SHADOW_WHIP);
                             }
                         }
-                        PlayerGUID = 0;
+                        PlayerGUID.Clear();
                         ShadowWhip_Timer = 2000;
                         CanPullBack = false;
                     }
@@ -218,7 +224,7 @@ class boss_omor_the_unscarred : public CreatureScript
                 uint32 Shadowbolt_Timer;
                 uint32 Summon_Timer;
                 uint32 SummonedCount;
-                uint64 PlayerGUID;
+                ObjectGuid PlayerGUID;
                 bool CanPullBack;
         };
 

@@ -50,7 +50,16 @@ class boss_instructor_malicia : public CreatureScript
 
         struct boss_instructormaliciaAI : public BossAI
         {
-            boss_instructormaliciaAI(Creature* creature) : BossAI(creature, DATA_INSTRUCTORMALICIA) { }
+            boss_instructormaliciaAI(Creature* creature) : BossAI(creature, DATA_INSTRUCTORMALICIA)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                FlashCounter = 0;
+                TouchCounter = 0;
+            }
 
             uint32 FlashCounter;
             uint32 TouchCounter;
@@ -58,8 +67,7 @@ class boss_instructor_malicia : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                FlashCounter = 0;
-                TouchCounter = 0;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override

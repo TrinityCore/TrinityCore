@@ -20,6 +20,7 @@
 #define TRINITYCORE_ARENATEAM_H
 
 #include "QueryResult.h"
+#include "ObjectGuid.h"
 #include <list>
 #include <map>
 
@@ -86,7 +87,7 @@ enum ArenaTeamTypes
 
 struct ArenaTeamMember
 {
-    uint64 Guid;
+    ObjectGuid Guid;
     std::string Name;
     uint8 Class;
     uint16 WeekGames;
@@ -118,7 +119,7 @@ class ArenaTeam
         ArenaTeam();
         ~ArenaTeam();
 
-        bool Create(uint64 captainGuid, uint8 type, std::string const& teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor);
+        bool Create(ObjectGuid captainGuid, uint8 type, std::string const& teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor);
         void Disband(WorldSession* session);
         void Disband();
 
@@ -128,28 +129,25 @@ class ArenaTeam
         uint32 GetType() const            { return Type; }
         uint8  GetSlot() const            { return GetSlotByType(GetType()); }
         static uint8 GetSlotByType(uint32 type);
-        uint64 GetCaptain() const  { return CaptainGuid; }
+        ObjectGuid GetCaptain() const  { return CaptainGuid; }
         std::string const& GetName() const { return TeamName; }
         const ArenaTeamStats& GetStats() const { return Stats; }
 
         uint32 GetRating() const          { return Stats.Rating; }
         uint32 GetAverageMMR(Group* group) const;
 
-        void SetCaptain(uint64 guid);
+        void SetCaptain(ObjectGuid guid);
         bool SetName(std::string const& name);
-        bool AddMember(uint64 PlayerGuid);
-
-        // Shouldn't be uint64 ed, because than can reference guid from members on Disband
-        // and this method removes given record from list. So invalid reference can happen.
-        void DelMember(uint64 guid, bool cleanDb);
+        bool AddMember(ObjectGuid PlayerGuid);
+        void DelMember(ObjectGuid guid, bool cleanDb);
 
         size_t GetMembersSize() const         { return Members.size(); }
         bool   Empty() const                  { return Members.empty(); }
         MemberList::iterator m_membersBegin() { return Members.begin(); }
         MemberList::iterator m_membersEnd()   { return Members.end(); }
-        bool IsMember(uint64 guid) const;
+        bool IsMember(ObjectGuid guid) const;
 
-        ArenaTeamMember* GetMember(uint64 guid);
+        ArenaTeamMember* GetMember(ObjectGuid guid);
         ArenaTeamMember* GetMember(std::string const& name);
 
         bool IsFighting() const;
@@ -160,7 +158,7 @@ class ArenaTeam
         void SaveToDB();
 
         void BroadcastPacket(WorldPacket* packet);
-        void BroadcastEvent(ArenaTeamEvents event, uint64 guid, uint8 strCount, std::string const& str1, std::string const& str2, std::string const& str3);
+        void BroadcastEvent(ArenaTeamEvents event, ObjectGuid guid, uint8 strCount, std::string const& str1, std::string const& str2, std::string const& str3);
         void NotifyStatsChanged();
 
         void MassInviteToEvent(WorldSession* session);
@@ -168,7 +166,7 @@ class ArenaTeam
         void Roster(WorldSession* session);
         void Query(WorldSession* session);
         void SendStats(WorldSession* session);
-        void Inspect(WorldSession* session, uint64 guid);
+        void Inspect(WorldSession* session, ObjectGuid guid);
 
         uint32 GetPoints(uint32 MemberRating);
         int32  GetMatchmakerRatingMod(uint32 ownRating, uint32 opponentRating, bool won);
@@ -178,7 +176,7 @@ class ArenaTeam
         void   MemberWon(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange);
         int32  LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change);
         void   MemberLost(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange = -12);
-        void   OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange = -12);
+        void   OfflineMemberLost(ObjectGuid guid, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange = -12);
 
         void UpdateArenaPointsHelper(std::map<uint32, uint32> & PlayerPoints);
 
@@ -190,7 +188,7 @@ class ArenaTeam
         uint32      TeamId;
         uint8       Type;
         std::string TeamName;
-        uint64      CaptainGuid;
+        ObjectGuid  CaptainGuid;
 
         uint32 BackgroundColor; // ARGB format
         uint8  EmblemStyle;     // icon id

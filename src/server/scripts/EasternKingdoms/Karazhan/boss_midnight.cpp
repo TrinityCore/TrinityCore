@@ -62,16 +62,23 @@ public:
     {
         boss_attumenAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
+
             Phase = 1;
 
             CleaveTimer = urand(10000, 15000);
             CurseTimer = 30000;
             RandomYellTimer = urand(30000, 60000);              //Occasionally yell
             ChargeTimer = 20000;
+         }
+
+        void Initialize()
+        {
             ResetTimer = 0;
+            Midnight.Clear();
         }
 
-        uint64 Midnight;
+        ObjectGuid Midnight;
         uint8 Phase;
         uint32 CleaveTimer;
         uint32 CurseTimer;
@@ -81,8 +88,7 @@ public:
 
         void Reset() override
         {
-            ResetTimer = 0;
-            Midnight = 0;
+            Initialize();
         }
 
         void EnterEvadeMode() override
@@ -127,17 +133,25 @@ public:
 
     struct boss_midnightAI : public ScriptedAI
     {
-        boss_midnightAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_midnightAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        uint64 Attumen;
+        void Initialize()
+        {
+            Phase = 1;
+            Attumen.Clear();
+            Mount_Timer = 0;
+        }
+
+        ObjectGuid Attumen;
         uint8 Phase;
         uint32 Mount_Timer;
 
         void Reset() override
         {
-            Phase = 1;
-            Attumen = 0;
-            Mount_Timer = 0;
+            Initialize();
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetVisible(true);
@@ -228,7 +242,7 @@ public:
             Mount_Timer = 1000;
         }
 
-        void SetMidnight(Creature* pAttumen, uint64 value)
+        void SetMidnight(Creature* pAttumen, ObjectGuid value)
         {
             ENSURE_AI(boss_attumen::boss_attumenAI, pAttumen->AI())->Midnight = value;
         }
@@ -248,7 +262,7 @@ void boss_attumen::boss_attumenAI::UpdateAI(uint32 diff)
                 pMidnight->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 pMidnight->SetVisible(true);
             }
-            Midnight = 0;
+            Midnight.Clear();
             me->SetVisible(false);
             me->Kill(me);
         } else ResetTimer -= diff;

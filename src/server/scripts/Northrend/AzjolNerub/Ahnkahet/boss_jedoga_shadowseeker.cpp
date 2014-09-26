@@ -39,11 +39,8 @@ enum Spells
     SPELL_SPHERE_VISUAL                           = 56075,
     SPELL_GIFT_OF_THE_HERALD                      = 56219,
     SPELL_CYCLONE_STRIKE                          = 56855, // Self
-    SPELL_CYCLONE_STRIKE_H                        = 60030,
     SPELL_LIGHTNING_BOLT                          = 56891, // 40Y
-    SPELL_LIGHTNING_BOLT_H                        = 60032, // 40Y
-    SPELL_THUNDERSHOCK                            = 56926, // 30Y
-    SPELL_THUNDERSHOCK_H                          = 60029  // 30Y
+    SPELL_THUNDERSHOCK                            = 56926  // 30Y
 };
 
 const Position JedogaPosition[2] =
@@ -67,9 +64,25 @@ public:
     {
         boss_jedoga_shadowseekerAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             bFirstTime = true;
             bPreDone = false;
+        }
+
+        void Initialize()
+        {
+            uiOpFerTimer = urand(15 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
+
+            uiCycloneTimer = 3 * IN_MILLISECONDS;
+            uiBoltTimer = 7 * IN_MILLISECONDS;
+            uiThunderTimer = 12 * IN_MILLISECONDS;
+
+            bOpFerok = false;
+            bOpFerokFail = false;
+            bOnGround = false;
+            bCanDown = false;
+            volunteerWork = true;
         }
 
         InstanceScript* instance;
@@ -89,23 +102,13 @@ public:
 
         void Reset() override
         {
-            uiOpFerTimer = urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS);
-
-            uiCycloneTimer = 3*IN_MILLISECONDS;
-            uiBoltTimer = 7*IN_MILLISECONDS;
-            uiThunderTimer = 12*IN_MILLISECONDS;
-
-            bOpFerok = false;
-            bOpFerokFail = false;
-            bOnGround = false;
-            bCanDown = false;
-            volunteerWork = true;
+            Initialize();
 
             if (!bFirstTime)
                 instance->SetBossState(DATA_JEDOGA_SHADOWSEEKER, FAIL);
 
-            instance->SetData64(DATA_PL_JEDOGA_TARGET, 0);
-            instance->SetData64(DATA_ADD_JEDOGA_OPFER, 0);
+            instance->SetGuidData(DATA_PL_JEDOGA_TARGET, ObjectGuid::Empty);
+            instance->SetGuidData(DATA_ADD_JEDOGA_OPFER, ObjectGuid::Empty);
             instance->SetData(DATA_JEDOGA_RESET_INITIANDS, 0);
             MoveUp();
 
@@ -212,7 +215,7 @@ public:
             }
             else
             {
-                if (Unit* target = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_PL_JEDOGA_TARGET)))
+                if (Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_PL_JEDOGA_TARGET)))
                 {
                     AttackStart(target);
                     instance->SetData(DATA_JEDOGA_RESET_INITIANDS, 0);
@@ -245,13 +248,14 @@ public:
 
         void OpferRufen()
         {
-            uint64 opfer = instance->GetData64(DATA_ADD_JEDOGA_INITIAND);
+            ObjectGuid opfer = instance->GetGuidData(DATA_ADD_JEDOGA_INITIAND);
 
             if (opfer)
             {
                 Talk(TEXT_SACRIFICE_1);
-                instance->SetData64(DATA_ADD_JEDOGA_OPFER, opfer);
-            } else
+                instance->SetGuidData(DATA_ADD_JEDOGA_OPFER, opfer);
+            }
+            else
                 bCanDown = true;
         }
 
@@ -296,7 +300,7 @@ public:
                 if (uiBoltTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        me->CastSpell(target, DUNGEON_MODE(SPELL_LIGHTNING_BOLT, SPELL_LIGHTNING_BOLT_H), false);
+                        me->CastSpell(target, SPELL_LIGHTNING_BOLT, false);
 
                     uiBoltTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
                 } else uiBoltTimer -= diff;
@@ -304,7 +308,7 @@ public:
                 if (uiThunderTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        me->CastSpell(target, DUNGEON_MODE(SPELL_THUNDERSHOCK, SPELL_THUNDERSHOCK_H), false);
+                        me->CastSpell(target, SPELL_THUNDERSHOCK, false);
 
                     uiThunderTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
                 } else uiThunderTimer -= diff;
@@ -334,7 +338,14 @@ public:
     {
         npc_jedoga_initiandAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            bWalking = false;
+            bCheckTimer = 2 * IN_MILLISECONDS;
         }
 
         InstanceScript* instance;
@@ -345,8 +356,7 @@ public:
 
         void Reset() override
         {
-            bWalking = false;
-            bCheckTimer = 2*IN_MILLISECONDS;
+            Initialize();
 
             if (instance->GetBossState(DATA_JEDOGA_SHADOWSEEKER) != IN_PROGRESS)
             {
@@ -371,7 +381,7 @@ public:
 
             if (bWalking)
             {
-                if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_JEDOGA_SHADOWSEEKER)))
+                if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JEDOGA_SHADOWSEEKER)))
                 {
                     if (!ENSURE_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok)
                         ENSURE_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerokFail = true;
@@ -380,12 +390,12 @@ public:
                         boss->AI()->DoAction(ACTION_INITIAND_KILLED);
                 }
 
-                instance->SetData64(DATA_ADD_JEDOGA_OPFER, 0);
+                instance->SetGuidData(DATA_ADD_JEDOGA_OPFER, ObjectGuid::Empty);
 
                 bWalking = false;
             }
             if (killer->GetTypeId() == TYPEID_PLAYER)
-                instance->SetData64(DATA_PL_JEDOGA_TARGET, killer->GetGUID());
+                instance->SetGuidData(DATA_PL_JEDOGA_TARGET, killer->GetGUID());
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -418,7 +428,7 @@ public:
             {
                 case 1:
                     {
-                        Creature* boss = me->GetMap()->GetCreature(instance->GetData64(DATA_JEDOGA_SHADOWSEEKER));
+                        Creature* boss = me->GetMap()->GetCreature(instance->GetGuidData(DATA_JEDOGA_SHADOWSEEKER));
                         if (boss)
                         {
                             ENSURE_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok = true;
@@ -434,7 +444,7 @@ public:
         {
             if (bCheckTimer <= diff)
             {
-                if (me->GetGUID() == instance->GetData64(DATA_ADD_JEDOGA_OPFER) && !bWalking)
+                if (me->GetGUID() == instance->GetGuidData(DATA_ADD_JEDOGA_OPFER) && !bWalking)
                 {
                     me->RemoveAurasDueToSpell(SPELL_SPHERE_VISUAL);
                     me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, false);

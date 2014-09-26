@@ -19,6 +19,7 @@
 #define AZJOL_NERUB_H_
 
 #define AzjolNerubScriptName "instance_azjol_nerub"
+#define DataHeader           "AN"
 
 uint32 const EncounterCount = 3;
 

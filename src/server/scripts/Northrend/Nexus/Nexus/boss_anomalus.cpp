@@ -77,23 +77,28 @@ class boss_anomalus : public CreatureScript
         {
             boss_anomalusAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = me->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                Phase = 0;
+                uiSparkTimer = 5000;
+                uiChaoticRiftGUID.Clear();
+                chaosTheory = true;
             }
 
             InstanceScript* instance;
 
             uint8 Phase;
             uint32 uiSparkTimer;
-            uint32 uiCreateRiftTimer;
-            uint64 uiChaoticRiftGUID;
+            ObjectGuid uiChaoticRiftGUID;
             bool chaosTheory;
 
             void Reset() override
             {
-                Phase = 0;
-                uiSparkTimer = 5000;
-                uiChaoticRiftGUID = 0;
-                chaosTheory = true;
+                Initialize();
 
                 instance->SetData(DATA_ANOMALUS_EVENT, NOT_STARTED);
             }
@@ -146,13 +151,13 @@ class boss_anomalus : public CreatureScript
                         if (Rift && Rift->isDead())
                         {
                             me->RemoveAurasDueToSpell(SPELL_RIFT_SHIELD);
-                            uiChaoticRiftGUID = 0;
+                            uiChaoticRiftGUID.Clear();
                         }
                         return;
                     }
                 }
                 else
-                    uiChaoticRiftGUID = 0;
+                    uiChaoticRiftGUID.Clear();
 
                 if ((Phase == 0) && HealthBelowPct(50))
                 {
@@ -197,8 +202,15 @@ class npc_chaotic_rift : public CreatureScript
         {
             npc_chaotic_riftAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = me->GetInstanceScript();
                 SetCombatMovement(false);
+            }
+
+            void Initialize()
+            {
+                uiChaoticEnergyBurstTimer = 1000;
+                uiSummonCrazedManaWraithTimer = 5000;
             }
 
             InstanceScript* instance;
@@ -208,8 +220,7 @@ class npc_chaotic_rift : public CreatureScript
 
             void Reset() override
             {
-                uiChaoticEnergyBurstTimer = 1000;
-                uiSummonCrazedManaWraithTimer = 5000;
+                Initialize();
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 DoCast(me, SPELL_ARCANEFORM, false);
             }
@@ -221,7 +232,7 @@ class npc_chaotic_rift : public CreatureScript
 
                 if (uiChaoticEnergyBurstTimer <= diff)
                 {
-                    Creature* Anomalus = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ANOMALUS));
+                    Creature* Anomalus = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANOMALUS));
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         if (Anomalus && Anomalus->HasAura(SPELL_RIFT_SHIELD))
@@ -239,7 +250,7 @@ class npc_chaotic_rift : public CreatureScript
                     if (Creature* Wraith = me->SummonCreature(NPC_CRAZED_MANA_WRAITH, me->GetPositionX() + 1, me->GetPositionY() + 1, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000))
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             Wraith->AI()->AttackStart(target);
-                    Creature* Anomalus = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ANOMALUS));
+                    Creature* Anomalus = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANOMALUS));
                     if (Anomalus && Anomalus->HasAura(SPELL_RIFT_SHIELD))
                         uiSummonCrazedManaWraithTimer = 5000;
                     else

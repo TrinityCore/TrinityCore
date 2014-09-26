@@ -18,6 +18,8 @@
 #ifndef DEF_NEXUS_H
 #define DEF_NEXUS_H
 
+#define DataHeader "NEX"
+
 enum DataTypes
 {
     DATA_MAGUS_TELESTRA_EVENT,

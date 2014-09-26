@@ -301,17 +301,23 @@ class boss_algalon_the_observer : public CreatureScript
         {
             boss_algalon_the_observerAI(Creature* creature) : BossAI(creature, BOSS_ALGALON)
             {
+                Initialize();
                 _firstPull = true;
                 _fedOnTears = false;
+            }
+
+            void Initialize()
+            {
+                _phaseTwo = false;
+                _fightWon = false;
+                _hasYelled = false;
             }
 
             void Reset() override
             {
                 _Reset();
                 me->SetReactState(REACT_PASSIVE);
-                _phaseTwo = false;
-                _fightWon = false;
-                _hasYelled = false;
+                Initialize();
             }
 
             void KilledUnit(Unit* victim) override
@@ -397,7 +403,7 @@ class boss_algalon_the_observer : public CreatureScript
                 {
                     _firstPull = false;
                     Talk(SAY_ALGALON_START_TIMER);
-                    if (Creature* brann = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BRANN_BRONZEBEARD_ALG)))
+                    if (Creature* brann = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BRANN_BRONZEBEARD_ALG)))
                         brann->AI()->DoAction(ACTION_FINISH_INTRO);
 
                     me->setActive(true);
@@ -715,13 +721,19 @@ class npc_living_constellation : public CreatureScript
         {
             npc_living_constellationAI(Creature* creature) : CreatureAI(creature)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _isActive = false;
             }
 
             void Reset() override
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, 2500);
-                _isActive = false;
+                Initialize();
             }
 
             uint32 GetData(uint32 /*type*/) const override
@@ -858,6 +870,7 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
         {
             npc_brann_bronzebeard_algalonAI(Creature* creature) : CreatureAI(creature)
             {
+                _currentPoint = 0;
             }
 
             void DoAction(int32 action) override
@@ -995,10 +1008,10 @@ class go_celestial_planetarium_access : public GameObjectScript
                 if (InstanceScript* instance = go->GetInstanceScript())
                 {
                     instance->SetData(DATA_ALGALON_SUMMON_STATE, 1);
-                    if (GameObject* sigil = ObjectAccessor::GetGameObject(*go, instance->GetData64(DATA_SIGILDOOR_01)))
+                    if (GameObject* sigil = ObjectAccessor::GetGameObject(*go, instance->GetGuidData(DATA_SIGILDOOR_01)))
                         sigil->SetGoState(GO_STATE_ACTIVE);
 
-                    if (GameObject* sigil = ObjectAccessor::GetGameObject(*go, instance->GetData64(DATA_SIGILDOOR_02)))
+                    if (GameObject* sigil = ObjectAccessor::GetGameObject(*go, instance->GetGuidData(DATA_SIGILDOOR_02)))
                         sigil->SetGoState(GO_STATE_ACTIVE);
                 }
 
@@ -1193,9 +1206,15 @@ class spell_algalon_big_bang : public SpellScriptLoader
         {
             PrepareSpellScript(spell_algalon_big_bang_SpellScript);
 
-            bool Load() override
+        public:
+            spell_algalon_big_bang_SpellScript()
             {
                 _targetCount = 0;
+            }
+
+        private:
+            bool Load() override
+            {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT && GetCaster()->IsAIEnabled;
             }
 

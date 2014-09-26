@@ -1621,14 +1621,14 @@ CREATE TABLE `groups` (
   `lootMethod` tinyint(3) unsigned NOT NULL,
   `looterGuid` int(10) unsigned NOT NULL,
   `lootThreshold` tinyint(3) unsigned NOT NULL,
-  `icon1` int(10) unsigned NOT NULL,
-  `icon2` int(10) unsigned NOT NULL,
-  `icon3` int(10) unsigned NOT NULL,
-  `icon4` int(10) unsigned NOT NULL,
-  `icon5` int(10) unsigned NOT NULL,
-  `icon6` int(10) unsigned NOT NULL,
-  `icon7` int(10) unsigned NOT NULL,
-  `icon8` int(10) unsigned NOT NULL,
+  `icon1` bigint(20) unsigned NOT NULL,
+  `icon2` bigint(20) unsigned NOT NULL,
+  `icon3` bigint(20) unsigned NOT NULL,
+  `icon4` bigint(20) unsigned NOT NULL,
+  `icon5` bigint(20) unsigned NOT NULL,
+  `icon6` bigint(20) unsigned NOT NULL,
+  `icon7` bigint(20) unsigned NOT NULL,
+  `icon8` bigint(20) unsigned NOT NULL,
   `groupType` tinyint(3) unsigned NOT NULL,
   `difficulty` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `raiddifficulty` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -2379,6 +2379,66 @@ LOCK TABLES `pool_quest_save` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `pvpstats_battlegrounds`
+--
+
+DROP TABLE IF EXISTS `pvpstats_battlegrounds`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pvpstats_battlegrounds` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `winner_faction` tinyint(4) NOT NULL,
+  `bracket_id` tinyint(3) unsigned NOT NULL,
+  `type` tinyint(3) unsigned NOT NULL,
+  `date` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `pvpstats_battlegrounds`
+--
+
+LOCK TABLES `pvpstats_battlegrounds` WRITE;
+/*!40000 ALTER TABLE `pvpstats_battlegrounds` DISABLE KEYS */;
+/*!40000 ALTER TABLE `pvpstats_battlegrounds` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `pvpstats_players`
+--
+
+DROP TABLE IF EXISTS `pvpstats_players`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pvpstats_players` (
+  `battleground_id` bigint(20) unsigned NOT NULL,
+  `character_guid` int(10) unsigned NOT NULL,
+  `score_killing_blows` mediumint(8) unsigned NOT NULL,
+  `score_deaths` mediumint(8) unsigned NOT NULL,
+  `score_honorable_kills` mediumint(8) unsigned NOT NULL,
+  `score_bonus_honor` mediumint(8) unsigned NOT NULL,
+  `score_damage_done` mediumint(8) unsigned NOT NULL,
+  `score_healing_done` mediumint(8) unsigned NOT NULL,
+  `attr_1` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `attr_2` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `attr_3` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `attr_4` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `attr_5` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`battleground_id`,`character_guid`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `pvpstats_players`
+--
+
+LOCK TABLES `pvpstats_players` WRITE;
+/*!40000 ALTER TABLE `pvpstats_players` DISABLE KEYS */;
+/*!40000 ALTER TABLE `pvpstats_players` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `reserved_name`
 --
 
@@ -2457,4 +2517,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-01-26 14:39:20
+-- Dump completed on 2014-08-28 15:30:47

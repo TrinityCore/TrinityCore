@@ -46,13 +46,21 @@ public:
 
     struct boss_lord_valthalakAI : public BossAI
     {
-        boss_lord_valthalakAI(Creature* creature) : BossAI(creature, DATA_LORD_VALTHALAK) { }
+        boss_lord_valthalakAI(Creature* creature) : BossAI(creature, DATA_LORD_VALTHALAK)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            frenzy40 = false;
+            frenzy15 = false;
+        }
 
         void Reset() override
         {
             _Reset();
-            frenzy40 = false;
-            frenzy15 = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

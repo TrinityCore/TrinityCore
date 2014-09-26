@@ -1,6 +1,5 @@
 /**
  @file NetworkDevice.h
-
  These classes abstract networking from the socket level to a
  serialized messaging style that is more appropriate for games.  The
  performance has been tuned for sending many small messages.  The
@@ -54,7 +53,7 @@
 namespace G3D {
 
 class TextOutput;
-
+/**  \deprecated */
 class Conduit : public ReferenceCountedObject {
 protected:
     friend class NetworkDevice;
@@ -134,7 +133,7 @@ public:
     bool ok() const;
 };
 
-typedef ReferenceCountedPointer<class ReliableConduit> ReliableConduitRef;
+typedef shared_ptr<class ReliableConduit> ReliableConduitRef;
 
 #ifdef __GNUC__
 // Workaround for a known bug in gcc 4.x where htonl produces 
@@ -164,7 +163,7 @@ uint32 gcchtonl(uint32);
         You will need the server's G3D::NetAddress.  Consider using
         G3D::Discovery::Client to find it via broadcasting.
  </OL>
-
+ \deprecated
  */
 class ReliableConduit : public Conduit {
 private:
@@ -209,7 +208,7 @@ private:
         // Reserve space for the 4 byte size header
         b.writeUInt32(0);
 
-        size_t L = b.length();
+        size_t L = (size_t)b.length();
         m.serialize(b);
         if ((size_t)b.length() == L) {
             // No data was created by serialization.
@@ -218,7 +217,7 @@ private:
             b.writeUInt8(0xFF);
         }
     
-        uint32 len = b.size() - 8;
+        uint32 len = (uint32)b.size() - 8;
     
         // We send the length first to tell recv how much data to read.
         // Here we abuse BinaryOutput a bit and write directly into
@@ -353,7 +352,7 @@ public:
 };
 
 
-typedef ReferenceCountedPointer<class LightweightConduit> LightweightConduitRef;
+typedef shared_ptr<class LightweightConduit> LightweightConduitRef;
 
 /**
  Provides fast but unreliable transfer of messages.  On a LAN,
@@ -402,6 +401,8 @@ and a pointer to an instance of the message you want to send.
 it go out of scope and the conduit cleans itself up automatically.
 
 </OL>
+
+\deprecated
  */
 class LightweightConduit : public Conduit {
 private:
@@ -458,7 +459,7 @@ private:
                     format("This LightweightConduit is limited to messages of "
                            "%d bytes (Ethernet hardware limit; this is the "
                            "'UDP MTU')", maxMessageSize()),
-                           b.size() - 4, // Don't count the type header
+                           (int)b.size() - 4, // Don't count the type header
                            maxMessageSize());
         }
     }
@@ -512,13 +513,13 @@ public:
     bool receive(NetAddress& sender);
 
     template<typename T> inline bool receive(NetAddress& sender, T& message) {
-		bool r = receive(sender);
-		if (r) {
-			BinaryInput b((messageBuffer.getCArray() + 4), 
-						  messageBuffer.size() - 4, 
-						  G3D_LITTLE_ENDIAN, BinaryInput::NO_COPY);
-			message.deserialize(b);
-		}
+        bool r = receive(sender);
+        if (r) {
+            BinaryInput b((messageBuffer.getCArray() + 4), 
+                          messageBuffer.size() - 4, 
+                          G3D_LITTLE_ENDIAN, BinaryInput::NO_COPY);
+            message.deserialize(b);
+        }
 
         return r;
     }
@@ -536,10 +537,12 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-typedef ReferenceCountedPointer<class NetListener> NetListenerRef;
+typedef shared_ptr<class NetListener> NetListenerRef;
 
 /**
  Runs on the server listening for clients trying to make reliable connections.
+
+ \deprecated
  */
 class NetListener : public ReferenceCountedObject {
 private:
@@ -600,6 +603,7 @@ public:
    values between these formats. G3D only ever exposes host byte order,
    so programmers rarely need to be aware of the distinction.
 
+   \deprecated
  */
 class NetworkDevice {
 public:

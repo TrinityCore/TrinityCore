@@ -42,13 +42,22 @@ class npc_pet_hunter_snake_trap : public CreatureScript
 
         struct npc_pet_hunter_snake_trapAI : public ScriptedAI
         {
-            npc_pet_hunter_snake_trapAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_pet_hunter_snake_trapAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _spellTimer = 0;
+                _isViper = false;
+            }
 
             void EnterCombat(Unit* /*who*/) override { }
 
             void Reset() override
             {
-                _spellTimer = 0;
+                Initialize();
 
                 CreatureTemplate const* Info = me->GetCreatureTemplate();
 

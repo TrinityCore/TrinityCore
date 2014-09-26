@@ -29,8 +29,6 @@ struct VehicleEntry;
 class Unit;
 class VehicleJoinEvent;
 
-typedef std::set<uint64> GuidSet;
-
 class Vehicle : public TransportBase
 {
     protected:

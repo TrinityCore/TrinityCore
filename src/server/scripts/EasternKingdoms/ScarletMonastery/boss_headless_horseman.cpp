@@ -232,9 +232,22 @@ public:
 
     struct npc_headAI : public ScriptedAI
     {
-        npc_headAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_headAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        uint64 bodyGUID;
+        void Initialize()
+        {
+            Phase = 0;
+            bodyGUID.Clear();
+            die = false;
+            withbody = true;
+            wait = 1000;
+            laugh = urand(15000, 30000);
+        }
+
+        ObjectGuid bodyGUID;
 
         uint32 Phase;
         uint32 laugh;
@@ -245,12 +258,7 @@ public:
 
         void Reset() override
         {
-            Phase = 0;
-            bodyGUID = 0;
-            die = false;
-            withbody = true;
-            wait = 1000;
-            laugh = urand(15000, 30000);
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -344,7 +352,7 @@ public:
                     Creature* speaker = DoSpawnCreature(HELPER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 1000);
                     if (speaker)
                         speaker->CastSpell(speaker, SPELL_HEAD_SPEAKS, false);
-                    me->MonsterTextEmote(EMOTE_LAUGHS, NULL);
+                    me->TextEmote(EMOTE_LAUGHS);
                 }
                 else laugh -= diff;
             }
@@ -380,14 +388,35 @@ public:
     {
         boss_headless_horsemanAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
-            headGUID = 0;
+            id = 0;
+            whirlwind = 0;
+            wp_reached = false;
+        }
+
+        void Initialize()
+        {
+            Phase = 1;
+            conflagrate = 15000;
+            summonadds = 15000;
+            laugh = urand(16000, 20000);
+            cleave = 2000;
+            regen = 1000;
+            burn = 6000;
+            count = 0;
+            say_timer = 3000;
+
+            withhead = true;
+            returned = true;
+            burned = false;
+            IsFlying = false;
         }
 
         InstanceScript* instance;
 
-        uint64 headGUID;
-        uint64 PlayerGUID;
+        ObjectGuid headGUID;
+        ObjectGuid PlayerGUID;
 
         uint32 Phase;
         uint32 id;
@@ -410,27 +439,14 @@ public:
 
         void Reset() override
         {
-            Phase = 1;
-            conflagrate = 15000;
-            summonadds = 15000;
-            laugh = urand(16000, 20000);
-            cleave = 2000;
-            regen = 1000;
-            burn = 6000;
-            count = 0;
-            say_timer = 3000;
-
-            withhead = true;
-            returned = true;
-            burned = false;
-            IsFlying = false;
+            Initialize();
             DoCast(me, SPELL_HEAD);
             if (headGUID)
             {
                 if (Creature* Head = ObjectAccessor::GetCreature((*me), headGUID))
-                    Head->DisappearAndDie();
+                    Head->DespawnOrUnsummon();
 
-                headGUID = 0;
+                headGUID.Clear();
             }
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
@@ -652,14 +668,14 @@ public:
                                 if (count < 3)
                                 {
                                     if (player)
-                                        player->Say(Text[count], 0);
+                                        player->Say(Text[count], LANG_UNIVERSAL);
                                 }
                                 else
                                 {
                                     DoCast(me, SPELL_RHYME_BIG);
                                     if (player)
                                     {
-                                        player->Say(Text[count], 0);
+                                        player->Say(Text[count], LANG_UNIVERSAL);
                                         player->HandleEmoteCommand(ANIM_EMOTE_SHOUT);
                                     }
                                     wp_reached = true;
@@ -717,7 +733,7 @@ public:
                 if (laugh <= diff)
                 {
                     laugh = urand(11000, 22000);
-                    me->MonsterTextEmote(EMOTE_LAUGHS, NULL);
+                    me->TextEmote(EMOTE_LAUGHS);
                     DoPlaySoundToSet(me, RandomLaugh[rand32() % 3]);
                 }
                 else laugh -= diff;
@@ -788,18 +804,17 @@ public:
         npc_pulsing_pumpkinAI(Creature* creature) : ScriptedAI(creature)
         {
             sprouted = false;
-            debuffGUID = 0;
         }
 
         bool sprouted;
-        uint64 debuffGUID;
+        ObjectGuid debuffGUID;
 
         void Reset() override
         {
             float x, y, z;
             me->GetPosition(x, y, z);   //this visual aura some under ground
             me->SetPosition(x, y, z + 0.35f, 0.0f);
-            debuffGUID = 0;
+            debuffGUID.Clear();
             Despawn();
             Creature* debuff = DoSpawnCreature(HELPER, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 14500);
             if (debuff)
@@ -839,7 +854,7 @@ public:
             if (debuff)
             {
                 debuff->SetVisible(false);
-                debuffGUID = 0;
+                debuffGUID.Clear();
             }
         }
 

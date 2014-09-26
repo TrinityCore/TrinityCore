@@ -48,15 +48,23 @@ public:
 
     struct boss_timmy_the_cruelAI : public ScriptedAI
     {
-        boss_timmy_the_cruelAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_timmy_the_cruelAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            RavenousClaw_Timer = 10000;
+            HasYelled = false;
+        }
 
         uint32 RavenousClaw_Timer;
         bool HasYelled;
 
         void Reset() override
         {
-            RavenousClaw_Timer = 10000;
-            HasYelled = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

@@ -110,11 +110,11 @@ public:
     struct netherspite_infernalAI : public ScriptedAI
     {
         netherspite_infernalAI(Creature* creature) : ScriptedAI(creature),
-            HellfireTimer(0), CleanupTimer(0), malchezaar(0), point(NULL) { }
+            HellfireTimer(0), CleanupTimer(0), point(NULL) { }
 
         uint32 HellfireTimer;
         uint32 CleanupTimer;
-        uint64 malchezaar;
+        ObjectGuid malchezaar;
         InfernalPoint *point;
 
         void Reset() override { }
@@ -186,8 +186,30 @@ public:
     {
         boss_malchezaarAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
+
             instance = creature->GetInstanceScript();
-            memset(axes, 0, sizeof(axes));
+        }
+
+        void Initialize()
+        {
+            EnfeebleTimer = 30000;
+            EnfeebleResetTimer = 38000;
+            ShadowNovaTimer = 35500;
+            SWPainTimer = 20000;
+            AmplifyDamageTimer = 5000;
+            Cleave_Timer = 8000;
+            InfernalTimer = 40000;
+            InfernalCleanupTimer = 47000;
+            AxesTargetSwitchTimer = urand(7500, 20000);
+            SunderArmorTimer = urand(5000, 10000);
+            phase = 1;
+
+            for (uint8 i = 0; i < 5; ++i)
+            {
+                enfeeble_targets[i].Clear();
+                enfeeble_health[i] = 0;
+            }
         }
 
         InstanceScript* instance;
@@ -202,12 +224,12 @@ public:
         uint32 AxesTargetSwitchTimer;
         uint32 InfernalCleanupTimer;
 
-        std::vector<uint64> infernals;
+        GuidVector infernals;
         std::vector<InfernalPoint*> positions;
 
-        uint64 axes[2];
-        uint64 enfeeble_targets[5];
-        uint32 enfeeble_health[5];
+        ObjectGuid axes[2];
+        ObjectGuid enfeeble_targets[5];
+        uint64 enfeeble_health[5];
 
         uint32 phase;
 
@@ -218,28 +240,12 @@ public:
             InfernalCleanup();
             positions.clear();
 
-            for (uint8 i = 0; i < 5; ++i)
-            {
-                enfeeble_targets[i] = 0;
-                enfeeble_health[i] = 0;
-            }
+            Initialize();
 
             for (uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
                 positions.push_back(&InfernalPoints[i]);
 
-            EnfeebleTimer = 30000;
-            EnfeebleResetTimer = 38000;
-            ShadowNovaTimer = 35500;
-            SWPainTimer = 20000;
-            AmplifyDamageTimer = 5000;
-            Cleave_Timer = 8000;
-            InfernalTimer = 40000;
-            InfernalCleanupTimer = 47000;
-            AxesTargetSwitchTimer = urand(7500, 20000);
-            SunderArmorTimer = urand(5000, 10000);
-            phase = 1;
-
-            instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), true);
+            instance->HandleGameObject(instance->GetGuidData(DATA_GO_NETHER_DOOR), true);
         }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -259,20 +265,20 @@ public:
             for (uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
                 positions.push_back(&InfernalPoints[i]);
 
-            instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), true);
+            instance->HandleGameObject(instance->GetGuidData(DATA_GO_NETHER_DOOR), true);
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
-            instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), false); // Open the door leading further in
+            instance->HandleGameObject(instance->GetGuidData(DATA_GO_NETHER_DOOR), false); // Open the door leading further in
         }
 
         void InfernalCleanup()
         {
             //Infernal Cleanup
-            for (std::vector<uint64>::const_iterator itr = infernals.begin(); itr != infernals.end(); ++itr)
+            for (GuidVector::const_iterator itr = infernals.begin(); itr != infernals.end(); ++itr)
                 if (Unit* pInfernal = ObjectAccessor::GetUnit(*me, *itr))
                     if (pInfernal->IsAlive())
                     {
@@ -290,7 +296,7 @@ public:
                 Unit* axe = ObjectAccessor::GetUnit(*me, axes[i]);
                 if (axe && axe->IsAlive())
                     axe->Kill(axe);
-                axes[i] = 0;
+                axes[i].Clear();
             }
         }
 
@@ -343,7 +349,7 @@ public:
                 Unit* target = ObjectAccessor::GetUnit(*me, enfeeble_targets[i]);
                 if (target && target->IsAlive())
                     target->SetHealth(enfeeble_health[i]);
-                enfeeble_targets[i] = 0;
+                enfeeble_targets[i].Clear();
                 enfeeble_health[i] = 0;
             }
         }
@@ -391,7 +397,7 @@ public:
             if (me->HasUnitState(UNIT_STATE_STUNNED))      // While shifting to phase 2 malchezaar stuns himself
                 return;
 
-            if (me->GetVictim() && me->GetUInt64Value(UNIT_FIELD_TARGET) != me->EnsureVictim()->GetGUID())
+            if (me->GetVictim() && me->GetTarget() != me->EnsureVictim()->GetGUID())
                 me->SetTarget(me->EnsureVictim()->GetGUID());
 
             if (phase == 1)
@@ -569,11 +575,13 @@ public:
 
         void Cleanup(Creature* infernal, InfernalPoint *point)
         {
-            for (std::vector<uint64>::iterator itr = infernals.begin(); itr!= infernals.end(); ++itr)
-                if (*itr == infernal->GetGUID())
+            for (GuidVector::iterator itr = infernals.begin(); itr!= infernals.end(); ++itr)
             {
-                infernals.erase(itr);
-                break;
+                if (*itr == infernal->GetGUID())
+                {
+                    infernals.erase(itr);
+                    break;
+                }
             }
 
             positions.push_back(point);

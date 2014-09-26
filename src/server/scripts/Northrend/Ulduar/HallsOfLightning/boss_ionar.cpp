@@ -28,17 +28,14 @@
 enum Spells
 {
     SPELL_BALL_LIGHTNING                          = 52780,
-    H_SPELL_BALL_LIGHTNING                        = 59800,
     SPELL_STATIC_OVERLOAD                         = 52658,
-    H_SPELL_STATIC_OVERLOAD                       = 59795,
 
     SPELL_DISPERSE                                = 52770,
     SPELL_SUMMON_SPARK                            = 52746,
     SPELL_SPARK_DESPAWN                           = 52776,
 
-    //Spark of Ionar
-    SPELL_SPARK_VISUAL_TRIGGER                    = 52667,
-    H_SPELL_SPARK_VISUAL_TRIGGER                  = 59833
+    // Spark of Ionar
+    SPELL_SPARK_VISUAL_TRIGGER                    = 52667
 };
 
 enum Yells
@@ -79,7 +76,21 @@ public:
     {
         boss_ionarAI(Creature* creature) : ScriptedAI(creature), lSparkList(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            bIsSplitPhase = true;
+            bHasDispersed = false;
+
+            uiSplitTimer = 25 * IN_MILLISECONDS;
+
+            uiStaticOverloadTimer = urand(5 * IN_MILLISECONDS, 6 * IN_MILLISECONDS);
+            uiBallLightningTimer = urand(10 * IN_MILLISECONDS, 11 * IN_MILLISECONDS);
+
+            uiDisperseHealth = 45 + urand(0, 10);
         }
 
         InstanceScript* instance;
@@ -100,15 +111,7 @@ public:
         {
             lSparkList.DespawnAll();
 
-            bIsSplitPhase = true;
-            bHasDispersed = false;
-
-            uiSplitTimer = 25*IN_MILLISECONDS;
-
-            uiStaticOverloadTimer = urand(5*IN_MILLISECONDS, 6*IN_MILLISECONDS);
-            uiBallLightningTimer = urand(10*IN_MILLISECONDS, 11*IN_MILLISECONDS);
-
-            uiDisperseHealth = 45 + urand(0, 10);
+            Initialize();
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
 
@@ -165,7 +168,7 @@ public:
 
             Position pos = me->GetPosition();
 
-            for (uint64 guid : lSparkList)
+            for (ObjectGuid guid : lSparkList)
             {
                 if (Creature* pSpark = ObjectAccessor::GetCreature(*me, guid))
                 {
@@ -193,7 +196,7 @@ public:
             {
                 lSparkList.Summon(summoned);
 
-                summoned->CastSpell(summoned, DUNGEON_MODE(SPELL_SPARK_VISUAL_TRIGGER, H_SPELL_SPARK_VISUAL_TRIGGER), true);
+                summoned->CastSpell(summoned, SPELL_SPARK_VISUAL_TRIGGER, true);
 
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
@@ -300,7 +303,13 @@ public:
     {
         npc_spark_of_ionarAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiCheckTimer = 2 * IN_MILLISECONDS;
         }
 
         InstanceScript* instance;
@@ -309,7 +318,7 @@ public:
 
         void Reset() override
         {
-            uiCheckTimer = 2*IN_MILLISECONDS;
+            Initialize();
             me->SetReactState(REACT_PASSIVE);
         }
 
@@ -339,7 +348,7 @@ public:
             // Prevent them to follow players through the whole instance
             if (uiCheckTimer <= uiDiff)
             {
-                Creature* ionar = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IONAR));
+                Creature* ionar = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_IONAR));
                 if (ionar && ionar->IsAlive())
                 {
                     if (me->GetDistance(ionar) > DATA_MAX_SPARK_DISTANCE)

@@ -205,7 +205,7 @@ void Utils::SaveToDisk( FILE* stream, const std::string& path )
         fclose(stream);
         return;
     }
-    
+
     // And write it in the file
     size_t wrote = fwrite(data, size, 1, disk);
     if (wrote != 1)

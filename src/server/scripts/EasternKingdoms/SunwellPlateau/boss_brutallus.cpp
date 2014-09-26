@@ -70,8 +70,24 @@ public:
     {
         boss_brutallusAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             Intro = true;
+        }
+
+        void Initialize()
+        {
+            SlashTimer = 11000;
+            StompTimer = 30000;
+            BurnTimer = 60000;
+            BerserkTimer = 360000;
+
+            IntroPhase = 0;
+            IntroPhaseTimer = 0;
+            IntroFrostBoltTimer = 0;
+
+            IsIntro = false;
+            Enraged = false;
         }
 
         InstanceScript* instance;
@@ -91,17 +107,7 @@ public:
 
         void Reset() override
         {
-            SlashTimer = 11000;
-            StompTimer = 30000;
-            BurnTimer = 60000;
-            BerserkTimer = 360000;
-
-            IntroPhase = 0;
-            IntroPhaseTimer = 0;
-            IntroFrostBoltTimer = 0;
-
-            IsIntro = false;
-            Enraged = false;
+            Initialize();
 
             DoCast(me, SPELL_DUAL_WIELD, true);
 
@@ -141,7 +147,7 @@ public:
             if (!Intro || IsIntro)
                 return;
 
-            if (Creature* Madrigosa = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MADRIGOSA)))
+            if (Creature* Madrigosa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MADRIGOSA)))
             {
                 Madrigosa->Respawn();
                 Madrigosa->setActive(true);
@@ -176,7 +182,7 @@ public:
 
         void DoIntro()
         {
-            Creature* Madrigosa = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MADRIGOSA));
+            Creature* Madrigosa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MADRIGOSA));
             if (!Madrigosa)
                 return;
 
@@ -279,7 +285,7 @@ public:
                 {
                     if (IntroFrostBoltTimer <= diff)
                     {
-                        if (Creature* Madrigosa = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MADRIGOSA)))
+                        if (Creature* Madrigosa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MADRIGOSA)))
                         {
                             Madrigosa->CastSpell(me, SPELL_INTRO_FROSTBOLT, true);
                             IntroFrostBoltTimer = 2000;

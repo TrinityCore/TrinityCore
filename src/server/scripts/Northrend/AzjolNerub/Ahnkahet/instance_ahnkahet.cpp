@@ -35,24 +35,14 @@ class instance_ahnkahet : public InstanceMapScript
         {
             instance_ahnkahet_InstanceScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
 
-                ElderNadoxGUID              = 0;
-                PrinceTaldaramGUID          = 0;
-                JedogaShadowseekerGUID      = 0;
-                AmanitarGUID                = 0;
-                HeraldVolazjGUID            = 0;
-
-                PrinceTaldaramPlatformGUID  = 0;
-                JedogaSacrifices            = 0;
-                JedogaTarget                = 0;
                 SwitchTrigger               = 0;
 
                 SpheresState[0]             = 0;
                 SpheresState[1]             = 0;
-
-                InitiandGUIDs.clear();
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -89,7 +79,7 @@ class instance_ahnkahet : public InstanceMapScript
                     case GO_PRINCE_TALDARAM_PLATFORM:
                         PrinceTaldaramPlatformGUID = go->GetGUID();
                         if (GetBossState(DATA_PRINCE_TALDARAM) == DONE)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case GO_SPHERE_1:
                         if (SpheresState[0])
@@ -141,7 +131,7 @@ class instance_ahnkahet : public InstanceMapScript
                         SwitchTrigger = data;
                         break;
                     case DATA_JEDOGA_RESET_INITIANDS:
-                        for (uint64 guid : InitiandGUIDs)
+                        for (ObjectGuid guid : InitiandGUIDs)
                         {
                             if (Creature* creature = instance->GetCreature(guid))
                             {
@@ -164,7 +154,7 @@ class instance_ahnkahet : public InstanceMapScript
                     case DATA_SPHERE_2:
                         return SpheresState[type - DATA_SPHERE_1];
                     case DATA_ALL_INITIAND_DEAD:
-                        for (uint64 guid : InitiandGUIDs)
+                        for (ObjectGuid guid : InitiandGUIDs)
                         {
                             Creature* cr = instance->GetCreature(guid);
                             if (!cr || cr->IsAlive())
@@ -179,7 +169,7 @@ class instance_ahnkahet : public InstanceMapScript
                 return 0;
             }
 
-            void SetData64(uint32 type, uint64 data) override
+            void SetGuidData(uint32 type, ObjectGuid  data) override
             {
                 switch (type)
                 {
@@ -194,7 +184,7 @@ class instance_ahnkahet : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -212,16 +202,16 @@ class instance_ahnkahet : public InstanceMapScript
                         return PrinceTaldaramPlatformGUID;
                     case DATA_ADD_JEDOGA_INITIAND:
                     {
-                        std::vector<uint64> vInitiands;
-                        vInitiands.clear();
-                        for (uint64 guid : InitiandGUIDs)
+                        GuidVector vInitiands;
+                        vInitiands.reserve(InitiandGUIDs.size());
+                        for (ObjectGuid guid : InitiandGUIDs)
                         {
                             Creature* cr = instance->GetCreature(guid);
                             if (cr && cr->IsAlive())
                                 vInitiands.push_back(guid);
                         }
                         if (vInitiands.empty())
-                            return 0;
+                            return ObjectGuid::Empty;
 
                         return Trinity::Containers::SelectRandomContainerElement(vInitiands);
                     }
@@ -232,7 +222,7 @@ class instance_ahnkahet : public InstanceMapScript
                     default:
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -245,11 +235,9 @@ class instance_ahnkahet : public InstanceMapScript
                     case DATA_JEDOGA_SHADOWSEEKER:
                         if (state == DONE)
                         {
-                            for (uint64 guid : InitiandGUIDs)
-                            {
+                            for (ObjectGuid guid : InitiandGUIDs)
                                 if (Creature* cr = instance->GetCreature(guid))
                                     cr->DespawnOrUnsummon();
-                            }
                         }
                         break;
                     default:
@@ -258,66 +246,31 @@ class instance_ahnkahet : public InstanceMapScript
                 return true;
             }
 
-            std::string GetSaveData() override
+            void WriteSaveDataMore(std::ostringstream& data) override
             {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "A K " << GetBossSaveData() << SpheresState[0] << ' ' << SpheresState[1];
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
+                data << SpheresState[0] << ' ' << SpheresState[1];
             }
 
-            void Load(char const* str) override
+            void ReadSaveDataMore(std::istringstream& data) override
             {
-                if (!str)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(str);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(str);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'A' && dataHead2 == 'K')
-                {
-                    for (uint32 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-
-                    loadStream >> SpheresState[0];
-                    loadStream >> SpheresState[1];
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
+                data >> SpheresState[0];
+                data >> SpheresState[1];
             }
 
         protected:
-            uint64 ElderNadoxGUID;
-            uint64 PrinceTaldaramGUID;
-            uint64 JedogaShadowseekerGUID;
-            uint64 AmanitarGUID;
-            uint64 HeraldVolazjGUID;
+            ObjectGuid ElderNadoxGUID;
+            ObjectGuid PrinceTaldaramGUID;
+            ObjectGuid JedogaShadowseekerGUID;
+            ObjectGuid AmanitarGUID;
+            ObjectGuid HeraldVolazjGUID;
 
-            uint64 PrinceTaldaramPlatformGUID;
-            uint64 JedogaSacrifices;
-            uint64 JedogaTarget;
+            ObjectGuid PrinceTaldaramPlatformGUID;
+            ObjectGuid JedogaSacrifices;
+            ObjectGuid JedogaTarget;
 
-            std::set<uint64> InitiandGUIDs;
+            GuidSet InitiandGUIDs;
 
-            uint8 SpheresState[2];
+            uint32 SpheresState[2];
             uint8 SwitchTrigger;
         };
 

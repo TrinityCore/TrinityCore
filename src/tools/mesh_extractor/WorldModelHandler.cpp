@@ -56,7 +56,7 @@ void WorldModelHandler::ProcessInternal( MapChunk* mcnk )
 {
     if (!IsSane())
         return;
-    
+
     uint32 refCount = mcnk->Header.MapObjectRefs;
     FILE* stream = mcnk->Source->GetStream();
     fseek(stream, mcnk->Source->Offset + mcnk->Header.OffsetMCRF, SEEK_SET);

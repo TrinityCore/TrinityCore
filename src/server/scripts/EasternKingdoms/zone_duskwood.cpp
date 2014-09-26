@@ -55,12 +55,20 @@ public:
 
     struct boss_twilight_corrupterAI : public ScriptedAI
     {
-        boss_twilight_corrupterAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_twilight_corrupterAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            KillCount = 0;
+        }
 
         void Reset() override
         {
             _events.Reset();
-            KillCount = 0;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

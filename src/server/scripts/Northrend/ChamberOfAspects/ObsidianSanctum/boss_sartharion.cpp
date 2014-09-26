@@ -41,9 +41,7 @@ enum Enums
     SPELL_BERSERK                               = 61632,    // Increases the caster's attack speed by 150% and all damage it deals by 500% for 5 min.
     SPELL_CLEAVE                                = 56909,    // Inflicts 35% weapon damage to an enemy and its nearest allies, affecting up to 10 targets.
     SPELL_FLAME_BREATH                          = 56908,    // Inflicts 8750 to 11250 Fire damage to enemies in a cone in front of the caster.
-    SPELL_FLAME_BREATH_H                        = 58956,    // Inflicts 10938 to 14062 Fire damage to enemies in a cone in front of the caster.
     SPELL_TAIL_LASH                             = 56910,    // A sweeping tail strike hits all enemies behind the caster, inflicting 3063 to 3937 damage and stunning them for 2 sec.
-    SPELL_TAIL_LASH_H                           = 58957,    // A sweeping tail strike hits all enemies behind the caster, inflicting 4375 to 5625 damage and stunning them for 2 sec.
     SPELL_WILL_OF_SARTHARION                    = 61254,    // Sartharion's presence bolsters the resolve of the Twilight Drakes, increasing their total health by 25%. This effect also increases Sartharion's health by 25%.
     SPELL_LAVA_STRIKE                           = 57571,    // (Real spell cast should be 57578) 57571 then trigger visual missile, then summon Lava Blaze on impact(spell 57572)
     SPELL_TWILIGHT_REVENGE                      = 60639,
@@ -132,14 +130,22 @@ public:
 
     struct boss_sartharionAI : public BossAI
     {
-        boss_sartharionAI(Creature* creature) : BossAI(creature, DATA_SARTHARION) { }
+        boss_sartharionAI(Creature* creature) : BossAI(creature, DATA_SARTHARION)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            _isBerserk = false;
+            _isSoftEnraged = false;
+            _isHardEnraged = false;
+            drakeCount = 0;
+        }
 
         void Reset() override
         {
-            _isBerserk     = false;
-            _isSoftEnraged = false;
-            _isHardEnraged = false;
-            drakeCount     = 0;
+            Initialize();
 
             if (me->HasAura(SPELL_TWILIGHT_REVENGE))
                 me->RemoveAurasDueToSpell(SPELL_TWILIGHT_REVENGE);
@@ -178,15 +184,15 @@ public:
             Talk(SAY_SARTHARION_DEATH);
             _JustDied();
 
-            if (Creature* tenebron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TENEBRON)))
+            if (Creature* tenebron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TENEBRON)))
                 if (tenebron->IsAlive())
                     tenebron->DisappearAndDie();
 
-            if (Creature* shadron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADRON)))
+            if (Creature* shadron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADRON)))
                 if (shadron->IsAlive())
                     shadron->DisappearAndDie();
 
-            if (Creature* vesperon = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VESPERON)))
+            if (Creature* vesperon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VESPERON)))
                 if (vesperon->IsAlive())
                     vesperon->DisappearAndDie();
         }
@@ -211,7 +217,7 @@ public:
 
         void DrakeRespawn() // Drakes respawning system
         {
-            if (Creature* tenebron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TENEBRON)))
+            if (Creature* tenebron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TENEBRON)))
             {
                 tenebron->SetHomePosition(3239.07f, 657.235f, 86.8775f, 4.74729f);
                 if (tenebron->IsAlive())
@@ -231,7 +237,7 @@ public:
                 }
             }
 
-            if (Creature* shadron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADRON)))
+            if (Creature* shadron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADRON)))
             {
                 shadron->SetHomePosition(3363.06f, 525.28f, 98.362f, 4.76475f);
                 if (shadron->IsAlive())
@@ -251,7 +257,7 @@ public:
                 }
             }
 
-            if (Creature* vesperon = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VESPERON)))
+            if (Creature* vesperon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VESPERON)))
             {
                 vesperon->SetHomePosition(3145.68f, 520.71f, 89.7f, 4.64258f);
                 if (vesperon->IsAlive())
@@ -280,7 +286,7 @@ public:
             //if at least one of the dragons are alive and are being called
             bool _canUseWill = false;
 
-            if (Creature* fetchTene = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TENEBRON)))
+            if (Creature* fetchTene = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TENEBRON)))
             {
                 if (fetchTene->IsAlive() && !fetchTene->GetVictim())
                 {
@@ -298,7 +304,7 @@ public:
                 }
             }
 
-            if (Creature* fetchShad = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADRON)))
+            if (Creature* fetchShad = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADRON)))
             {
                 if (fetchShad->IsAlive() && !fetchShad->GetVictim())
                 {
@@ -316,7 +322,7 @@ public:
                 }
             }
 
-            if (Creature* fetchVesp = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VESPERON)))
+            if (Creature* fetchVesp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VESPERON)))
             {
                 if (fetchVesp && fetchVesp->IsAlive() && !fetchVesp->GetVictim())
                 {
@@ -340,7 +346,7 @@ public:
 
         void CallDragon(uint32 dataId)
         {
-            if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetData64(dataId)))
+            if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(dataId)))
             {
                 if (temp->IsAlive() && !temp->GetVictim())
                 {
@@ -443,11 +449,11 @@ public:
                         break;
                     case EVENT_FLAME_BREATH:
                         Talk(SAY_SARTHARION_BREATH);
-                        DoCastVictim(RAID_MODE(SPELL_FLAME_BREATH, SPELL_FLAME_BREATH_H));
+                        DoCastVictim(SPELL_FLAME_BREATH);
                         events.ScheduleEvent(EVENT_FLAME_BREATH, urand(25000, 35000));
                         break;
                     case EVENT_TAIL_SWEEP:
-                        DoCastVictim(RAID_MODE(SPELL_TAIL_LASH, SPELL_TAIL_LASH_H));
+                        DoCastVictim(SPELL_TAIL_LASH);
                         events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(15000, 20000));
                         break;
                     case EVENT_CLEAVE_ATTACK:

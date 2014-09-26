@@ -19,6 +19,8 @@
 #ifndef DEF_ULDAMAN_H
 #define DEF_ULDAMAN_H
 
+#define DataHeader "UD"
+
 #define MAX_ENCOUNTER                   3
 
 enum DataTypes

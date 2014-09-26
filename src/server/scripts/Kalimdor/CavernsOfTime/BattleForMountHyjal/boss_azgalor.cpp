@@ -55,8 +55,20 @@ public:
     {
         boss_azgalorAI(Creature* creature) : hyjal_trashAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             go = false;
+        }
+
+        void Initialize()
+        {
+            damageTaken = 0;
+            RainTimer = 20000;
+            DoomTimer = 50000;
+            HowlTimer = 30000;
+            CleaveTimer = 10000;
+            EnrageTimer = 600000;
+            enraged = false;
         }
 
         uint32 RainTimer;
@@ -70,13 +82,7 @@ public:
 
         void Reset() override
         {
-            damageTaken = 0;
-            RainTimer = 20000;
-            DoomTimer = 50000;
-            HowlTimer = 30000;
-            CleaveTimer = 10000;
-            EnrageTimer = 600000;
-            enraged = false;
+            Initialize();
 
             if (IsEvent)
                 instance->SetData(DATA_AZGALOREVENT, NOT_STARTED);
@@ -99,7 +105,7 @@ public:
         {
             if (waypointId == 7 && instance)
             {
-                Unit* target = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_THRALL));
+                Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
                 if (target && target->IsAlive())
                     me->AddThreat(target, 0.0f);
             }
@@ -195,13 +201,13 @@ public:
             WarstompTimer = 10000;
             CheckTimer = 5000;
             instance = creature->GetInstanceScript();
-            AzgalorGUID = instance->GetData64(DATA_AZGALOR);
+            AzgalorGUID = instance->GetGuidData(DATA_AZGALOR);
         }
 
         uint32 CrippleTimer;
         uint32 WarstompTimer;
         uint32 CheckTimer;
-        uint64 AzgalorGUID;
+        ObjectGuid AzgalorGUID;
         InstanceScript* instance;
 
         void Reset() override

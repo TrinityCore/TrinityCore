@@ -348,15 +348,21 @@ class boss_toc_champion_controller : public CreatureScript
         {
             boss_toc_champion_controllerAI(Creature* creature) : ScriptedAI(creature), _summons(me)
             {
+                Initialize();
                 _instance = creature->GetInstanceScript();
             }
 
-            void Reset() override
+            void Initialize()
             {
                 _championsNotStarted = 0;
                 _championsFailed = 0;
                 _championsKilled = 0;
                 _inProgress = false;
+            }
+
+            void Reset() override
+            {
+                Initialize();
             }
 
             std::vector<uint32> SelectChampions(Team playerTeam)
@@ -477,7 +483,7 @@ class boss_toc_champion_controller : public CreatureScript
                         SummonChampions((Team)uiData);
                         break;
                     case 1:
-                        for (std::list<uint64>::iterator i = _summons.begin(); i != _summons.end(); ++i)
+                        for (SummonList::iterator i = _summons.begin(); i != _summons.end(); ++i)
                         {
                             if (Creature* temp = ObjectAccessor::GetCreature(*me, *i))
                             {
@@ -559,7 +565,7 @@ struct boss_faction_championsAI : public BossAI
 
     void JustReachedHome() override
     {
-        if (Creature* pChampionController = ObjectAccessor::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+        if (Creature* pChampionController = ObjectAccessor::GetCreature((*me), instance->GetGuidData(NPC_CHAMPIONS_CONTROLLER)))
             pChampionController->AI()->SetData(2, FAIL);
         me->DespawnOrUnsummon();
     }
@@ -609,7 +615,7 @@ struct boss_faction_championsAI : public BossAI
     void JustDied(Unit* /*killer*/) override
     {
         if (_aiType != AI_PET)
-            if (Creature* pChampionController = ObjectAccessor::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+            if (Creature* pChampionController = ObjectAccessor::GetCreature((*me), instance->GetGuidData(NPC_CHAMPIONS_CONTROLLER)))
                 pChampionController->AI()->SetData(2, DONE);
     }
 
@@ -617,7 +623,7 @@ struct boss_faction_championsAI : public BossAI
     {
         DoCast(me, SPELL_ANTI_AOE, true);
         _EnterCombat();
-        if (Creature* pChampionController = ObjectAccessor::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+        if (Creature* pChampionController = ObjectAccessor::GetCreature((*me), instance->GetGuidData(NPC_CHAMPIONS_CONTROLLER)))
             pChampionController->AI()->SetData(2, IN_PROGRESS);
     }
 
@@ -634,11 +640,11 @@ struct boss_faction_championsAI : public BossAI
 
             if (TeamInInstance == ALLIANCE)
             {
-                if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_VARIAN)))
+                if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_VARIAN)))
                     temp->AI()->Talk(SAY_KILL_PLAYER);
             }
             else
-                if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_GARROSH)))
+                if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_GARROSH)))
                     temp->AI()->Talk(SAY_KILL_PLAYER);
 
 
@@ -1908,7 +1914,17 @@ class npc_toc_enh_shaman : public CreatureScript
 
         struct npc_toc_enh_shamanAI : public boss_faction_championsAI
         {
-            npc_toc_enh_shamanAI(Creature* creature) : boss_faction_championsAI(creature, AI_MELEE) { }
+            npc_toc_enh_shamanAI(Creature* creature) : boss_faction_championsAI(creature, AI_MELEE)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _totemCount = 0;
+                _totemOldCenterX = me->GetPositionX();
+                _totemOldCenterY = me->GetPositionY();
+            }
 
             void Reset() override
             {
@@ -1920,9 +1936,7 @@ class npc_toc_enh_shaman : public CreatureScript
                 events.ScheduleEvent(EVENT_DEPLOY_TOTEM, 1*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_WINDFURY, urand(20*IN_MILLISECONDS, 50*IN_MILLISECONDS));
 
-                _totemCount = 0;
-                _totemOldCenterX = me->GetPositionX();
-                _totemOldCenterY = me->GetPositionY();
+                Initialize();
                 SetEquipmentSlots(false, 51803, 48013, EQUIP_NO_CHANGE);
                 summons.DespawnAll();
             }
@@ -2192,12 +2206,20 @@ class npc_toc_pet_hunter : public CreatureScript
 
         struct npc_toc_pet_hunterAI : public boss_faction_championsAI
         {
-            npc_toc_pet_hunterAI(Creature* creature) : boss_faction_championsAI(creature, AI_PET) { }
+            npc_toc_pet_hunterAI(Creature* creature) : boss_faction_championsAI(creature, AI_PET)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _clawTimer = urand(5 * IN_MILLISECONDS, 10 * IN_MILLISECONDS);
+            }
 
             void Reset() override
             {
                 boss_faction_championsAI::Reset();
-                _clawTimer = urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS);
+                Initialize();
             }
 
             void UpdateAI(uint32 diff) override

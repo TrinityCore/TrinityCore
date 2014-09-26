@@ -203,13 +203,13 @@ class boss_razorscale_controller : public CreatureScript
                 switch (spell->Id)
                 {
                     case SPELL_FLAMED:
-                        if (GameObject* Harpoon1 = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_RAZOR_HARPOON_1)))
+                        if (GameObject* Harpoon1 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_RAZOR_HARPOON_1)))
                             Harpoon1->RemoveFromWorld();
-                        if (GameObject* Harpoon2 = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_RAZOR_HARPOON_2)))
+                        if (GameObject* Harpoon2 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_RAZOR_HARPOON_2)))
                             Harpoon2->RemoveFromWorld();
-                        if (GameObject* Harpoon3 = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_RAZOR_HARPOON_3)))
+                        if (GameObject* Harpoon3 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_RAZOR_HARPOON_3)))
                             Harpoon3->RemoveFromWorld();
-                        if (GameObject* Harpoon4 = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_RAZOR_HARPOON_4)))
+                        if (GameObject* Harpoon4 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_RAZOR_HARPOON_4)))
                             Harpoon4->RemoveFromWorld();
                         DoAction(ACTION_HARPOON_BUILD);
                         DoAction(ACTION_PLACE_BROKEN_HARPOON);
@@ -242,7 +242,7 @@ class boss_razorscale_controller : public CreatureScript
                         break;
                     case ACTION_PLACE_BROKEN_HARPOON:
                         for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
-                            me->SummonGameObject(GO_RAZOR_BROKEN_HARPOON, PosHarpoon[n].GetPositionX(), PosHarpoon[n].GetPositionY(), PosHarpoon[n].GetPositionZ(), 2.286f, 0, 0, 0, 0, 180000);
+                            me->SummonGameObject(GO_RAZOR_BROKEN_HARPOON, PosHarpoon[n].GetPositionX(), PosHarpoon[n].GetPositionY(), PosHarpoon[n].GetPositionZ(), 2.286f, 0, 0, 0, 0, 180);
                         break;
                 }
             }
@@ -312,7 +312,7 @@ class go_razorscale_harpoon : public GameObjectScript
         bool OnGossipHello(Player* /*player*/, GameObject* go) override
         {
             InstanceScript* instance = go->GetInstanceScript();
-            if (ObjectAccessor::GetCreature(*go, instance->GetData64(BOSS_RAZORSCALE)))
+            if (ObjectAccessor::GetCreature(*go, instance->GetGuidData(BOSS_RAZORSCALE)))
                 go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
             return false;
         }
@@ -327,8 +327,19 @@ class boss_razorscale : public CreatureScript
         {
             boss_razorscaleAI(Creature* creature) : BossAI(creature, BOSS_RAZORSCALE)
             {
+                Initialize();
                 // Do not let Razorscale be affected by Battle Shout buff
                 me->ApplySpellImmune(0, IMMUNITY_ID, (SPELL_BATTLE_SHOUT), true);
+                FlyCount = 0;
+                EnrageTimer = 0;
+                Enraged = false;
+                phase = PHASE_GROUND;
+            }
+
+            void Initialize()
+            {
+                PermaGround = false;
+                HarpoonCounter = 0;
             }
 
             Phases phase;
@@ -345,16 +356,15 @@ class boss_razorscale : public CreatureScript
                 me->SetCanFly(true);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
-                PermaGround = false;
-                HarpoonCounter = 0;
-                if (Creature* commander = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EXPEDITION_COMMANDER)))
+                Initialize();
+                if (Creature* commander = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EXPEDITION_COMMANDER)))
                     commander->AI()->DoAction(ACTION_COMMANDER_RESET);
             }
 
             void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
-                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RAZORSCALE_CONTROL)))
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAZORSCALE_CONTROL)))
                     controller->AI()->DoAction(ACTION_HARPOON_BUILD);
                 me->SetSpeed(MOVE_FLIGHT, 3.0f, true);
                 me->SetReactState(REACT_PASSIVE);
@@ -369,7 +379,7 @@ class boss_razorscale : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
-                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RAZORSCALE_CONTROL)))
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAZORSCALE_CONTROL)))
                     controller->AI()->Reset();
             }
 
@@ -445,7 +455,7 @@ class boss_razorscale : public CreatureScript
                                 me->SetCanFly(false);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
-                                if (Creature* commander = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EXPEDITION_COMMANDER)))
+                                if (Creature* commander = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EXPEDITION_COMMANDER)))
                                     commander->AI()->DoAction(ACTION_GROUND_PHASE);
                                 events.ScheduleEvent(EVENT_BREATH, 30000, 0, PHASE_GROUND);
                                 events.ScheduleEvent(EVENT_BUFFET, 33000, 0, PHASE_GROUND);
@@ -461,7 +471,7 @@ class boss_razorscale : public CreatureScript
                                 return;
                             case EVENT_BUFFET:
                                 DoCastAOE(SPELL_WINGBUFFET);
-                                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RAZORSCALE_CONTROL)))
+                                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAZORSCALE_CONTROL)))
                                     controller->CastSpell(controller, SPELL_FLAMED, true);
                                 events.CancelEvent(EVENT_BUFFET);
                                 return;
@@ -592,27 +602,32 @@ class npc_expedition_commander : public CreatureScript
 
         struct npc_expedition_commanderAI : public ScriptedAI
         {
-            npc_expedition_commanderAI(Creature* creature) : ScriptedAI(creature)
+            npc_expedition_commanderAI(Creature* creature) : ScriptedAI(creature), summons(creature)
             {
+                Initialize();
                 instance = me->GetInstanceScript();
-                Greet = false;
             }
 
-            InstanceScript* instance;
-            std::list<uint64> summons;
-
-            bool Greet;
-            uint32 AttackStartTimer;
-            uint8  Phase;
-            Creature* Engineer[4];
-            Creature* Defender[4];
-
-            void Reset() override
+            void Initialize()
             {
                 AttackStartTimer = 0;
                 Phase = 0;
                 Greet = false;
-                summons.clear();
+            }
+
+            InstanceScript* instance;
+            SummonList summons;
+
+            bool Greet;
+            uint32 AttackStartTimer;
+            uint8  Phase;
+            ObjectGuid Engineer[4];
+            ObjectGuid Defender[4];
+
+            void Reset() override
+            {
+                Initialize();
+                summons.DespawnAll();
             }
 
             void MoveInLineOfSight(Unit* who) override
@@ -627,7 +642,7 @@ class npc_expedition_commander : public CreatureScript
 
             void JustSummoned(Creature* summoned) override
             {
-                summons.push_back(summoned->GetGUID());
+                summons.Summon(summoned);
             }
 
             void DoAction(int32 action) override
@@ -638,7 +653,7 @@ class npc_expedition_commander : public CreatureScript
                         Talk(SAY_GROUND_PHASE);
                         break;
                     case ACTION_COMMANDER_RESET:
-                        summons.clear();
+                        summons.DespawnAll();
                         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         break;
                 }
@@ -652,49 +667,59 @@ class npc_expedition_commander : public CreatureScript
                     {
                         case 1:
                             instance->SetBossState(BOSS_RAZORSCALE, IN_PROGRESS);
-                            summons.clear();
+                            summons.DespawnAll();
                             AttackStartTimer = 1000;
                             Phase = 2;
                             break;
                         case 2:
                             for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
                             {
-                                Engineer[n] = me->SummonCreature(NPC_ENGINEER, PosEngSpawn, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                                Engineer[n]->SetWalk(false);
-                                Engineer[n]->SetSpeed(MOVE_RUN, 0.5f);
-                                Engineer[n]->SetHomePosition(PosEngRepair[n]);
-                                Engineer[n]->GetMotionMaster()->MoveTargetedHome();
+                                if (Creature* summonedEngineer = me->SummonCreature(NPC_ENGINEER, PosEngSpawn, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000))
+                                {
+                                    summonedEngineer->SetWalk(false);
+                                    summonedEngineer->SetSpeed(MOVE_RUN, 0.5f);
+                                    summonedEngineer->SetHomePosition(PosEngRepair[n]);
+                                    summonedEngineer->GetMotionMaster()->MoveTargetedHome();
+                                    Engineer[n] = summonedEngineer->GetGUID();
+                                }
                             }
-                            Engineer[0]->AI()->Talk(SAY_AGGRO_3);
+                            if (Creature* firstSummon = ObjectAccessor::GetCreature(*me, Engineer[0]))
+                                firstSummon->AI()->Talk(SAY_AGGRO_3);
                             Phase = 3;
                             AttackStartTimer = 14000;
                             break;
                         case 3:
                             for (uint8 n = 0; n < 4; n++)
                             {
-                                Defender[n] = me->SummonCreature(NPC_DEFENDER, PosDefSpawn[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                                Defender[n]->SetWalk(false);
-                                Defender[n]->SetHomePosition(PosDefCombat[n]);
-                                Defender[n]->GetMotionMaster()->MoveTargetedHome();
+                                if (Creature* summonedDefender = me->SummonCreature(NPC_DEFENDER, PosDefSpawn[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000))
+                                {
+                                    summonedDefender->SetWalk(false);
+                                    summonedDefender->SetHomePosition(PosDefCombat[n]);
+                                    summonedDefender->GetMotionMaster()->MoveTargetedHome();
+                                    Defender[n] = summonedDefender->GetGUID();
+                                }
                             }
                             Phase = 4;
                             break;
                         case 4:
                             for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
-                                Engineer[n]->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
+                                if (Creature* summonedEngineer = ObjectAccessor::GetCreature(*me, Engineer[n]))
+                                    summonedEngineer->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
                             for (uint8 n = 0; n < 4; ++n)
-                                Defender[n]->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
+                                if (Creature* summonedDefender = ObjectAccessor::GetCreature(*me, Defender[n]))
+                                    summonedDefender->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
                             Talk(SAY_AGGRO_2);
                             AttackStartTimer = 16000;
                             Phase = 5;
                             break;
                         case 5:
-                            if (Creature* Razorscale = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_RAZORSCALE)))
+                            if (Creature* Razorscale = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_RAZORSCALE)))
                             {
                                 Razorscale->AI()->DoAction(ACTION_EVENT_START);
                                 me->SetInCombatWith(Razorscale);
                             }
-                            Engineer[0]->AI()->Talk(SAY_AGGRO_1);
+                            if (Creature* firstEngineer = ObjectAccessor::GetCreature(*me, Engineer[0]))
+                                firstEngineer->AI()->Talk(SAY_AGGRO_1);
                             Phase = 6;
                             break;
                     }
@@ -748,8 +773,18 @@ class npc_mole_machine_trigger : public CreatureScript
         {
             npc_mole_machine_triggerAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 SetCombatMovement(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
+            }
+
+            void Initialize()
+            {
+                SummonGobTimer = 2000;
+                SummonNpcTimer = 6000;
+                DissapearTimer = 10000;
+                GobSummoned = false;
+                NpcSummoned = false;
             }
 
             uint32 SummonGobTimer;
@@ -760,11 +795,7 @@ class npc_mole_machine_trigger : public CreatureScript
 
             void Reset() override
             {
-                SummonGobTimer = 2000;
-                SummonNpcTimer = 6000;
-                DissapearTimer = 10000;
-                GobSummoned = false;
-                NpcSummoned = false;
+                Initialize();
             }
 
             void UpdateAI(uint32 Diff) override
@@ -851,15 +882,23 @@ class npc_darkrune_watcher : public CreatureScript
 
         struct npc_darkrune_watcherAI : public ScriptedAI
         {
-            npc_darkrune_watcherAI(Creature* creature) : ScriptedAI(creature){ }
+            npc_darkrune_watcherAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                ChainTimer = urand(10000, 15000);
+                LightTimer = urand(1000, 3000);
+            }
 
             uint32 ChainTimer;
             uint32 LightTimer;
 
             void Reset() override
             {
-                ChainTimer = urand(10000, 15000);
-                LightTimer = urand(1000, 3000);
+                Initialize();
             }
 
             void UpdateAI(uint32 Diff) override
@@ -900,14 +939,22 @@ class npc_darkrune_guardian : public CreatureScript
 
         struct npc_darkrune_guardianAI : public ScriptedAI
         {
-            npc_darkrune_guardianAI(Creature* creature) : ScriptedAI(creature){ }
+            npc_darkrune_guardianAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                StormTimer = urand(3000, 6000);
+                killedByBreath = false;
+            }
 
             uint32 StormTimer;
 
             void Reset() override
             {
-                StormTimer = urand(3000, 6000);
-                killedByBreath = false;
+                Initialize();
             }
 
             uint32 GetData(uint32 type) const override
@@ -955,7 +1002,17 @@ class npc_darkrune_sentinel : public CreatureScript
 
         struct npc_darkrune_sentinelAI : public ScriptedAI
         {
-            npc_darkrune_sentinelAI(Creature* creature) : ScriptedAI(creature){ }
+            npc_darkrune_sentinelAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                HeroicTimer = urand(4000, 8000);
+                WhirlTimer = urand(20000, 25000);
+                ShoutTimer = urand(15000, 30000);
+            }
 
             uint32 HeroicTimer;
             uint32 WhirlTimer;
@@ -963,9 +1020,7 @@ class npc_darkrune_sentinel : public CreatureScript
 
             void Reset() override
             {
-                HeroicTimer = urand(4000, 8000);
-                WhirlTimer = urand(20000, 25000);
-                ShoutTimer = urand(15000, 30000);
+                Initialize();
             }
 
             void UpdateAI(uint32 Diff) override

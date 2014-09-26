@@ -40,7 +40,6 @@ enum Says
 enum Spells
 {
     SPELL_MORTAL_WOUND     = 30641,
-    H_SPELL_MORTAL_WOUND   = 36814,
     SPELL_SURGE            = 34645,
     SPELL_RETALIATION      = 22857
 };
@@ -59,13 +58,21 @@ class boss_watchkeeper_gargolmar : public CreatureScript
 
         struct boss_watchkeeper_gargolmarAI : public BossAI
         {
-            boss_watchkeeper_gargolmarAI(Creature* creature) : BossAI(creature, DATA_WATCHKEEPER_GARGOLMAR) { }
+            boss_watchkeeper_gargolmarAI(Creature* creature) : BossAI(creature, DATA_WATCHKEEPER_GARGOLMAR)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                hasTaunted = false;
+                yelledForHeal = false;
+                retaliation = false;
+            }
 
             void Reset() override
             {
-                hasTaunted    = false;
-                yelledForHeal = false;
-                retaliation   = false;
+                Initialize();
                 _Reset();
             }
 
@@ -78,7 +85,6 @@ class boss_watchkeeper_gargolmar : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* who) override
-
             {
                 if (!me->GetVictim() && me->CanCreatureAttack(who))
                 {

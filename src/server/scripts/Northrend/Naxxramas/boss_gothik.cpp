@@ -35,7 +35,6 @@ enum Spells
 {
     SPELL_HARVEST_SOUL          = 28679,
     SPELL_SHADOW_BOLT           = 29317,
-    H_SPELL_SHADOW_BOLT         = 56405,
     SPELL_INFORM_LIVE_TRAINEE   = 27892,
     SPELL_INFORM_LIVE_KNIGHT    = 27928,
     SPELL_INFORM_LIVE_RIDER     = 27935,
@@ -163,7 +162,18 @@ class boss_gothik : public CreatureScript
 
         struct boss_gothikAI : public BossAI
         {
-            boss_gothikAI(Creature* creature) : BossAI(creature, BOSS_GOTHIK) { }
+            boss_gothikAI(Creature* creature) : BossAI(creature, BOSS_GOTHIK)
+            {
+                Initialize();
+                waveCount = 0;
+            }
+
+            void Initialize()
+            {
+                mergedSides = false;
+                phaseTwo = false;
+                thirtyPercentReached = false;
+            }
 
             uint32 waveCount;
             typedef std::vector<Creature*> TriggerVct;
@@ -172,8 +182,8 @@ class boss_gothik : public CreatureScript
             bool phaseTwo;
             bool thirtyPercentReached;
 
-            std::vector<uint64> LiveTriggerGUID;
-            std::vector<uint64> DeadTriggerGUID;
+            GuidVector LiveTriggerGUID;
+            GuidVector DeadTriggerGUID;
 
             void Reset() override
             {
@@ -183,9 +193,7 @@ class boss_gothik : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
                 _Reset();
-                mergedSides = false;
-                phaseTwo = false;
-                thirtyPercentReached = false;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -459,7 +467,7 @@ class boss_gothik : public CreatureScript
                             }
                             break;
                         case EVENT_BOLT:
-                            DoCastVictim(RAID_MODE(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
+                            DoCastVictim(SPELL_SHADOW_BOLT);
                             events.ScheduleEvent(EVENT_BOLT, 1000);
                             break;
                         case EVENT_HARVEST:

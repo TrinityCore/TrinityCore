@@ -66,47 +66,10 @@ class instance_zulaman : public InstanceMapScript
 
         struct instance_zulaman_InstanceMapScript : public InstanceScript
         {
-            instance_zulaman_InstanceMapScript(Map* map) : InstanceScript(map) { }
-
-            uint64 HarkorsSatchelGUID;
-            uint64 TanzarsTrunkGUID;
-            uint64 AshlisBagGUID;
-            uint64 KrazsPackageGUID;
-            uint64 StrangeGongGUID;
-            uint64 HarrisonJonesGUID;
-
-            uint64 HexLordGateGUID;
-            uint64 ZulJinGateGUID;
-            uint64 MassiveGateGUID;
-            uint64 AkilzonDoorGUID;
-            uint64 ZulJinDoorGUID;
-            uint64 HalazziDoorGUID;
-
-            uint32 QuestTimer;
-            uint16 BossKilled;
-            uint16 QuestMinute;
-            uint16 ChestLooted;
-
-            uint32 m_auiEncounter[MAX_ENCOUNTER];
-            uint32 RandVendor[RAND_VENDOR];
-
-            void Initialize() override
+            instance_zulaman_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-                HarkorsSatchelGUID = 0;
-                TanzarsTrunkGUID = 0;
-                AshlisBagGUID = 0;
-                KrazsPackageGUID = 0;
-                StrangeGongGUID = 0;
-                HexLordGateGUID = 0;
-                ZulJinGateGUID = 0;
-                MassiveGateGUID = 0;
-                AkilzonDoorGUID = 0;
-                HalazziDoorGUID = 0;
-                ZulJinDoorGUID = 0;
-
-                HarrisonJonesGUID = 0;
 
                 QuestTimer = 0;
                 QuestMinute = 0;
@@ -118,6 +81,28 @@ class instance_zulaman : public InstanceMapScript
 
                 m_auiEncounter[DATA_GONGEVENT] = NOT_STARTED;
             }
+
+            ObjectGuid HarkorsSatchelGUID;
+            ObjectGuid TanzarsTrunkGUID;
+            ObjectGuid AshlisBagGUID;
+            ObjectGuid KrazsPackageGUID;
+            ObjectGuid StrangeGongGUID;
+            ObjectGuid HarrisonJonesGUID;
+
+            ObjectGuid HexLordGateGUID;
+            ObjectGuid ZulJinGateGUID;
+            ObjectGuid MassiveGateGUID;
+            ObjectGuid AkilzonDoorGUID;
+            ObjectGuid ZulJinDoorGUID;
+            ObjectGuid HalazziDoorGUID;
+
+            uint32 QuestTimer;
+            uint16 BossKilled;
+            uint16 QuestMinute;
+            uint16 ChestLooted;
+
+            uint32 m_auiEncounter[MAX_ENCOUNTER];
+            uint32 RandVendor[RAND_VENDOR];
 
             bool IsEncounterInProgress() const override
             {
@@ -350,7 +335,7 @@ class instance_zulaman : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -360,7 +345,7 @@ class instance_zulaman : public InstanceMapScript
                         return MassiveGateGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
         };

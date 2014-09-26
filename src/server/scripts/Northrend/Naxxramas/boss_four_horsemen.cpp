@@ -96,16 +96,29 @@ public:
     {
         boss_four_horsemenAI(Creature* creature) : BossAI(creature, BOSS_HORSEMEN)
         {
+            Initialize();
             id = Horsemen(0);
             for (uint8 i = 0; i < 4; ++i)
                 if (me->GetEntry() == NPC_HORSEMEN[i])
                     id = Horsemen(i);
             caster = (id == HORSEMEN_LADY || id == HORSEMEN_SIR);
+        }
+
+        void Initialize()
+        {
+            uiEventStarterGUID.Clear();
+            nextWP = 0;
+            punishTimer = 2000;
+            nextMovementStarted = false;
+            movementCompleted = false;
+            movementStarted = false;
+            encounterActionAttack = false;
             encounterActionReset = false;
+            doDelayPunish = false;
         }
 
         Horsemen id;
-        uint64 uiEventStarterGUID;
+        ObjectGuid uiEventStarterGUID;
         uint8 nextWP;
         uint32 punishTimer;
         bool caster;
@@ -124,24 +137,16 @@ public:
             instance->SetData(DATA_HORSEMEN0 + id, NOT_STARTED);
 
             me->SetReactState(REACT_AGGRESSIVE);
-            uiEventStarterGUID = 0;
-            nextWP = 0;
-            punishTimer = 2000;
-            nextMovementStarted = false;
-            movementCompleted = false;
-            movementStarted = false;
-            encounterActionAttack = false;
-            encounterActionReset = false;
-            doDelayPunish = false;
+            Initialize();
             _Reset();
         }
 
         bool DoEncounteraction(Unit* who, bool attack, bool reset, bool checkAllDead)
         {
-            Creature* Thane = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_THANE));
-            Creature* Lady = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LADY));
-            Creature* Baron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BARON));
-            Creature* Sir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SIR));
+            Creature* Thane = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THANE));
+            Creature* Lady = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LADY));
+            Creature* Baron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BARON));
+            Creature* Sir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SIR));
 
             if (Thane && Lady && Baron && Sir)
             {

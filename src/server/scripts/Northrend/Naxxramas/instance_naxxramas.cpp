@@ -107,28 +107,16 @@ class instance_naxxramas : public InstanceMapScript
         {
             instance_naxxramas_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadMinionData(minionData);
 
-                GothikGateGUID          = 0;
-                HorsemenChestGUID       = 0;
-                FaerlinaGUID            = 0;
-                ThaneGUID               = 0;
-                LadyGUID                = 0;
-                BaronGUID               = 0;
-                SirGUID                 = 0;
-                ThaddiusGUID            = 0;
-                HeiganGUID              = 0;
-                FeugenGUID              = 0;
-                StalaggGUID             = 0;
-                SapphironGUID           = 0;
-                KelthuzadGUID           = 0;
-                KelthuzadTriggerGUID    = 0;
+                minHorsemenDiedTime     = 0;
+                maxHorsemenDiedTime     = 0;
+                AbominationCount        = 0;
 
                 playerDied              = 0;
-
-                memset(PortalsGUID, 0, sizeof(PortalsGUID));
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -305,7 +293,7 @@ class instance_naxxramas : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 id) const override
+            ObjectGuid GetGuidData(uint32 id) const override
             {
                 switch (id)
                 {
@@ -341,7 +329,7 @@ class instance_naxxramas : public InstanceMapScript
                         return KelthuzadTriggerGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 id, EncounterState state) override
@@ -368,7 +356,7 @@ class instance_naxxramas : public InstanceMapScript
                     if (i == section)
                         continue;
 
-                    for (uint64 guid : HeiganEruptionGUID[i])
+                    for (ObjectGuid guid : HeiganEruptionGUID[i])
                     {
                         if (GameObject* heiganEruption = instance->GetGameObject(guid))
                         {
@@ -427,86 +415,41 @@ class instance_naxxramas : public InstanceMapScript
                 return false;
             }
 
-            std::string GetSaveData() override
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "N X " << GetBossSaveData() << playerDied;
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(const char* strIn) override
-            {
-                if (!strIn)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(strIn);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(strIn);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'N' && dataHead2 == 'X')
-                {
-                    for (uint8 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-
-                    loadStream >> playerDied;
-                }
-
-                OUT_LOAD_INST_DATA_COMPLETE;
-            }
-
         protected:
             /* The Arachnid Quarter */
             // Grand Widow Faerlina
-            uint64 FaerlinaGUID;
+            ObjectGuid FaerlinaGUID;
 
             /* The Plague Quarter */
             // Heigan the Unclean
-            std::set<uint64> HeiganEruptionGUID[4];
-            uint64 HeiganGUID;
+            GuidSet HeiganEruptionGUID[4];
+            ObjectGuid HeiganGUID;
 
             /* The Military Quarter */
             // Gothik the Harvester
-            uint64 GothikGateGUID;
+            ObjectGuid GothikGateGUID;
             // The Four Horsemen
-            uint64 ThaneGUID;
-            uint64 LadyGUID;
-            uint64 BaronGUID;
-            uint64 SirGUID;
-            uint64 HorsemenChestGUID;
-            uint64 HorsemenTeleporterGUID;
+            ObjectGuid ThaneGUID;
+            ObjectGuid LadyGUID;
+            ObjectGuid BaronGUID;
+            ObjectGuid SirGUID;
+            ObjectGuid HorsemenChestGUID;
             time_t minHorsemenDiedTime;
             time_t maxHorsemenDiedTime;
 
             /* The Construct Quarter */
             // Thaddius
-            uint64 ThaddiusGUID;
-            uint64 FeugenGUID;
-            uint64 StalaggGUID;
+            ObjectGuid ThaddiusGUID;
+            ObjectGuid FeugenGUID;
+            ObjectGuid StalaggGUID;
 
             /* Frostwyrm Lair */
             // Sapphiron
-            uint64 SapphironGUID;
+            ObjectGuid SapphironGUID;
             // Kel'Thuzad
-            uint64 KelthuzadGUID;
-            uint64 KelthuzadTriggerGUID;
-            uint64 PortalsGUID[4];
+            ObjectGuid KelthuzadGUID;
+            ObjectGuid KelthuzadTriggerGUID;
+            ObjectGuid PortalsGUID[4];
             uint8 AbominationCount;
 
             /* The Immortal / The Undying */
