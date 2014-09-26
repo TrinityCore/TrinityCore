@@ -204,7 +204,7 @@ public:
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
-            if (me->HealthBelowPctDamaged(100 - HealthAmountMultipler * HealthAmountModifier, damage))
+            if (me->HealthBelowPctDamaged(100 - HealthAmountMultipler * HealthAmountModifier, damage) && !(damage >= me->GetHealth()))
             {
                 uint8 Order = HealthAmountModifier - 1;
                 ++HealthAmountModifier;
