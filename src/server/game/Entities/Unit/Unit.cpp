@@ -15503,6 +15503,18 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     {
         if (Player* killed = victim->ToPlayer())
             sScriptMgr->OnPlayerKilledByCreature(killerCre, killed);
+        else if (killerCre->IsPet())
+        {
+            // Script: player_creature_honor - Allow pet's killing blow to call script for owner
+            // only if the player assisted in the kill and is still alive
+            Creature* killedCre = victim->ToCreature();
+            Player* owner = killerCre->GetCharmerOrOwner()->ToPlayer();
+
+            if (killedCre && killedCre->hasLootRecipient())
+                if (owner && owner->IsAlive())
+                    if (owner->GetGUID() == killedCre->GetLootRecipient()->GetGUID())
+                        sScriptMgr->OnCreatureKill(owner, killedCre);
+        }
     }
 }
 
