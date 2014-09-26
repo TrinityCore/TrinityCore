@@ -736,6 +736,70 @@ class spell_brewfest_dismount_ram : public SpellScriptLoader
         }
 };
 
+enum RamBlub
+{
+    QUEST_BARK_FOR_DROHNS_DISTILLERY        = 11407,
+    QUEST_BARK_FOR_TCHALIS_VOODOO_BREWERY   = 11408,
+
+    SAY_DROHN_DISTILLERY_1                  = 23520,
+    SAY_DROHN_DISTILLERY_2                  = 23521,
+    SAY_DROHN_DISTILLERY_3                  = 23522,
+    SAY_DROHN_DISTILLERY_4                  = 23523,
+
+    SAY_TCHALIS_VOODOO_1                    = 23524,
+    SAY_TCHALIS_VOODOO_2                    = 23525,
+    SAY_TCHALIS_VOODOO_3                    = 23526,
+    SAY_TCHALIS_VOODOO_4                    = 23527
+};
+
+// 43259 Brewfest  - Barker Bunny 1
+// 43260 Brewfest  - Barker Bunny 2
+// 43261 Brewfest  - Barker Bunny 3
+// 43262 Brewfest  - Barker Bunny 4
+class spell_brewfest_barker_bunny : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_barker_bunny() : SpellScriptLoader("spell_brewfest_barker_bunny") { }
+
+        class spell_brewfest_barker_bunny_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_brewfest_barker_bunny_AuraScript);
+
+            bool Load() override
+            {
+                return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Player* target = GetTarget()->ToPlayer();
+
+                uint32 BroadcastTextId = 0;
+
+                if (target->GetQuestStatus(QUEST_BARK_FOR_DROHNS_DISTILLERY) == QUEST_STATUS_INCOMPLETE ||
+                    target->GetQuestStatus(QUEST_BARK_FOR_DROHNS_DISTILLERY) == QUEST_STATUS_COMPLETE)
+                    BroadcastTextId = RAND(SAY_DROHN_DISTILLERY_1, SAY_DROHN_DISTILLERY_2, SAY_DROHN_DISTILLERY_3, SAY_DROHN_DISTILLERY_4);
+
+                if (target->GetQuestStatus(QUEST_BARK_FOR_TCHALIS_VOODOO_BREWERY) == QUEST_STATUS_INCOMPLETE ||
+                    target->GetQuestStatus(QUEST_BARK_FOR_TCHALIS_VOODOO_BREWERY) == QUEST_STATUS_COMPLETE)
+                    BroadcastTextId = RAND(SAY_TCHALIS_VOODOO_1, SAY_TCHALIS_VOODOO_2, SAY_TCHALIS_VOODOO_3, SAY_TCHALIS_VOODOO_4);
+
+                if (BroadcastTextId)
+                    target->Talk(BroadcastTextId, CHAT_MSG_SAY, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), target);
+            }
+
+            void Register() override
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_brewfest_barker_bunny_AuraScript::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_brewfest_barker_bunny_AuraScript();
+        }
+};
+
 void AddSC_holiday_spell_scripts()
 {
     // Love is in the Air
@@ -761,4 +825,5 @@ void AddSC_holiday_spell_scripts()
     new spell_brewfest_exhausted_ram();
     new spell_brewfest_relay_race_intro_force_player_to_throw();
     new spell_brewfest_dismount_ram();
+    new spell_brewfest_barker_bunny();
 }
