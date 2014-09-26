@@ -27,6 +27,7 @@
 #    CONSOLE AND REMOTE ACCESS
 #    CHARACTER DELETE OPTIONS
 #    CUSTOM SERVER OPTIONS
+#    CUSTOM SERVER OPTIONS - CREATURE HONOR
 #    LOGGING SYSTEM SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
 #
@@ -2648,6 +2649,212 @@ PlayerDump.DisallowOverwrite = 1
 #        Default:     0  - (Do not show)
 
 UI.ShowQuestLevelsInDialogs = 0
+
+#
+###################################################################################################
+
+###################################################################################################
+# CUSTOM SERVER OPTIONS - CREATURE HONOR
+#
+# player_creature_honor is a script that when enabled, allows players to gain honor
+# from killing NPCs. These options define how the script should work.
+#
+#
+# CreatureHonor General Settings
+#
+#     These settings are general script settings
+#
+#     CreatureHonor.Enabled
+#        Description: Is the script enabled
+#        Default:     0 - (disabled)
+#                     1 - (Enabled)
+#
+#     CreatureHonor.Allow.Achievement
+#        Description: Should the player gain honorable kill achievement points for NPC kills that reward honor
+#        Default:     0 - (disabled)
+#                     1 - (Enabled)
+
+CreatureHonor.Enabled = 0
+CreatureHonor.Allow.Achievement = 0
+
+#
+# CreatureHonor Levels Settings
+#
+#     These settings define level restrictions
+#
+#     CreatureHonor.Player.Minlevel
+#        Description: The minimum level the player can start earning honor from NPC kills.
+#                     When they reach this level, an in-game mail is sent containing the rules set below.
+#        Default:     10
+#
+#     CreatureHonor.Creature.BonusLevelDiff
+#        Description: If NPC level is this many levels above player, apply a bonus
+#        Default:     5 - (bonus for 5+ level difference)
+#                     0 - (disabled, no bonus applied. Note negative values are considered disabled)
+#
+#     CreatureHonor.Creature.PenaltyLevelDiff
+#        Description: If NPC level is below the player's level minus this value, subtract the honor instead. If you
+#		      enable "Require.XP" and the NPC would not award XP then this setting has no effect.
+#
+#		      NOTE: When honor is subtracted, the client makes the "coin" sound, the same sound as when
+#			    you spend money at a vendor. It is a client "feature" and can't be turned off in the script.
+#
+#        Default:     5 - (penalty for 5- level difference)
+#                     0 - (disabled, no penalty. Note: Negative values are considered disabled)
+
+CreatureHonor.Player.Minlevel = 10
+CreatureHonor.Creature.BonusLevelDiff = 5
+CreatureHonor.Creature.PenaltyLevelDiff = 0
+
+#
+# CreatureHonor Rates - Base
+#
+#     These settings define the minimum honor received for killing an NPC
+#
+#     CreatureHonor.Rate.Normal
+#        Description: The amount of base honor earned for a normal NPC
+#        Default:     3
+#
+#     CreatureHonor.Rate.Elite
+#        Description: The amount of base honor earned for an elite NPC
+#        Default:     5
+
+CreatureHonor.Rate.Normal = 3
+CreatureHonor.Rate.Elite = 5
+
+#
+# CreatureHonor Rates - Bonuses
+#
+#     These rates define bonuses applied to the base honor rate. These bonuses are accumulative so a player
+#     can get multiple extra bonuses applied depending on the NPC type (eg: A Guard who is at LevelDiffBonus)
+#
+#     CreatureHonor.Rate.GuardBonus
+#        Description: The amount of bonus honor added to base honor for guard NPCs
+#        Default:     2
+#
+#     CreatureHonor.Rate.LevelDiffBonus
+#        Description: The amount of bonus honor added to base honor for NPCs based on CreatureHonor.Creature.BonusLevelDiff
+#        Default:     5
+#
+#     CreatureHonor.Rate.RareEliteBonus
+#        Description: The amount of bonus honor added to base honor for rare elite NPCs
+#        Default:     2
+#
+#     CreatureHonor.Rate.RacialLeaderBonus
+#        Description: The amount of bonus honor added to base honor for world boss NPCs
+#        Default:     5
+#
+#     CreatureHonor.Rate.WorldBossBonus
+#        Description: The amount of bonus honor added to base honor for racial leader NPCs
+#        Default:     5
+#
+
+CreatureHonor.Rate.GuardBonus = 2
+CreatureHonor.Rate.LevelDiffBonus = 5
+CreatureHonor.Rate.RareEliteBonus = 2
+CreatureHonor.Rate.RacialLeaderBonus = 5
+CreatureHonor.Rate.WorldBossBonus = 5
+
+#
+# CreatureHonor Rules - General
+#
+#     These define general rules that must be met in order to reward honor
+#
+#     CreatureHonor.Allow.InstancesOnly
+#        Description: Allow only NPCs in instances to reward honor
+#        Default:     1 - (enabled)
+#                     0 - (disabled)
+#
+#     CreatureHonor.Require.XP
+#        Description: If NPC must be a level that would normally give XP
+#        Default:     1 - (enabled)
+#                     0 - (disabled)
+#
+#     CreatureHonor.Allow.Neutral
+#        Description: Allow earning honor from neutral NPCs if that NPC type is enabled
+#        Default:     1 - (enabled)
+#                     0 - (disabled)
+#
+#     CreatureHonor.Require.PlayerPvP
+#        Description: If player must have PvP flag enabled to gain honor
+#        Default:     1 - (enabled)
+#                     0 - (disabled)
+#
+#     CreatureHonor.Require.CreaturePvP
+#        Description: If NPC must have PvP flag enabled to gain honor
+#        Default:     1 - (enabled)
+#                     0 - (disabled)
+
+CreatureHonor.Allow.InstancesOnly = 1
+CreatureHonor.Require.XP = 1
+CreatureHonor.Allow.Neutral = 1
+CreatureHonor.Require.PlayerPvP = 1
+CreatureHonor.Require.CreaturePvP = 1
+
+#
+# CreatureHonor Rules - Creature Types
+#
+#     These settings determine if a particular NPC type can reward honor. These are modified
+#     by other settings so enabling a creature type doesn't guarantee honor, only that it can
+#     be considered.
+#
+#     For example, enabling Humanoid and disabling CreatureHonor.Allow.Neutral means any neutral
+#     Humanoid killed can not reward honor.
+#
+#     CreatureHonor.Allow.Beast
+#        Default:     0 - (do not allow)
+#                     1 - (allow)
+#
+#     CreatureHonor.Allow.Dragonkin
+#        Default:     1 - (allow)
+#                     0 - (do not allow)
+#
+#     CreatureHonor.Allow.Demon
+#        Default:     1 - (allow)
+#                     0 - (do not allow)
+#
+#     CreatureHonor.Allow.Elemental
+#        Default:     0 - (do not allow)
+#                     1 - (allow)
+#
+#     CreatureHonor.Allow.Giant
+#        Default:     1 - (allow)
+#                     0 - (do not allow)
+#
+#     CreatureHonor.Allow.Humanoid
+#        Default:     1 - (allow)
+#                     0 - (do not allow)
+#
+#     CreatureHonor.Allow.Mechanical
+#        Default:     0 - (do not allow)
+#                     1 - (allow)
+#
+#     CreatureHonor.Allow.Undead
+#        Default:     1 - (allow)
+#                     0 - (do not allow)
+#
+   
+CreatureHonor.Allow.Beast = 0
+CreatureHonor.Allow.Dragonkin = 1
+CreatureHonor.Allow.Demon = 1
+CreatureHonor.Allow.Elemental = 0
+CreatureHonor.Allow.Giant = 1
+CreatureHonor.Allow.Humanoid = 1
+CreatureHonor.Allow.Mechanical = 0
+CreatureHonor.Allow.Undead = 1
+
+#
+# CreatureHonor Messaging
+#
+#     These settings determine how messages should be displayed
+#
+#     CreatureHonor.Message.Chat.LevelReachedMessage
+#        Description: If CreatureHonor.Player.Minlevel is defined, display this message as a MOTD
+#                     Use @@ for newline and be sure to escape special characters. Empty quotes for no message ("").
+#        Default:     "@@Congratulations, you are now able to earn honor@@from NPC kills. Check your mail for rules."
+#
+
+CreatureHonor.Message.Chat.LevelReachedMessage = "@@Congratulations, you are now able to earn honor@@from NPC kills. Check your mail for rules."
 
 #
 ###################################################################################################

@@ -97,6 +97,7 @@ class ObjectGuid
 
         uint64   GetRawValue() const { return _guid; }
         HighGuid GetHigh() const { return HighGuid((_guid >> 48) & 0x0000FFFF); }
+        uint32   GetLow() const { return (uint32)(_guid & UI64LIT(0x00000000FFFFFFFF)); }
         uint32   GetEntry() const { return HasEntry() ? uint32((_guid >> 24) & UI64LIT(0x0000000000FFFFFF)) : 0; }
         uint32   GetCounter()  const
         {

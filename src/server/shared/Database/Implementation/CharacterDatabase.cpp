@@ -606,4 +606,9 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_INS_PVPSTATS_BATTLEGROUND, "INSERT INTO pvpstats_battlegrounds (id, winner_faction, bracket_id, type, date) VALUES (?, ?, ?, ?, NOW())", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_PVPSTATS_PLAYER, "INSERT INTO pvpstats_players (battleground_id, character_guid, score_killing_blows, score_deaths, score_honorable_kills, score_bonus_honor, score_damage_done, score_healing_done, attr_1, attr_2, attr_3, attr_4, attr_5) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 
+    // player_creature_honor script
+    PrepareStatement(CHAR_DEL_CREATUREHONOR_MESSAGE, "DELETE FROM creaturehonor_message WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_CREATUREHONOR_MESSAGE, "INSERT IGNORE INTO creaturehonor_message (guid, message_sent) VALUES (?, ?)", CONNECTION_BOTH);
+    PrepareStatement(CHAR_SEL_CREATUREHONOR_MESSAGE, "SELECT message_sent FROM creaturehonor_message WHERE guid = ?", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_UPD_CREATUREHONOR_MESSAGE, "UPDATE creaturehonor_message SET message_sent = ? WHERE guid = ?", CONNECTION_ASYNC);
 }
