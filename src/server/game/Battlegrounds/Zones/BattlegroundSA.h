@@ -513,7 +513,7 @@ struct BattlegroundSAScore final : public BattlegroundScore
     friend class BattlegroundSA;
 
     protected:
-        BattlegroundSAScore(uint64 playerGuid) : BattlegroundScore(playerGuid), DemolishersDestroyed(0), GatesDestroyed(0) { }
+        BattlegroundSAScore(ObjectGuid playerGuid) : BattlegroundScore(playerGuid), DemolishersDestroyed(0), GatesDestroyed(0) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {
@@ -537,6 +537,9 @@ struct BattlegroundSAScore final : public BattlegroundScore
             data << uint32(DemolishersDestroyed);
             data << uint32(GatesDestroyed);
         }
+
+        uint32 GetAttr1() const final override { return DemolishersDestroyed; }
+        uint32 GetAttr2() const final override { return GatesDestroyed; }
 
         uint32 DemolishersDestroyed;
         uint32 GatesDestroyed;
@@ -591,7 +594,7 @@ class BattlegroundSA : public Battleground
         void EndBattleground(uint32 winner) override;
 
         /// Called when a player leave battleground
-        void RemovePlayer(Player* player, uint64 guid, uint32 team) override;
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
         void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
 
         /* Scorekeeping */

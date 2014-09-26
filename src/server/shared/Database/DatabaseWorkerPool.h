@@ -76,13 +76,12 @@ class DatabaseWorkerPool
 
         bool Open(const std::string& infoString, uint8 async_threads, uint8 synch_threads)
         {
-            bool res = true;
             _connectionInfo = new MySQLConnectionInfo(infoString);
 
             TC_LOG_INFO("sql.driver", "Opening DatabasePool '%s'. Asynchronous connections: %u, synchronous connections: %u.",
                 GetDatabaseName(), async_threads, synch_threads);
 
-            res = OpenConnections(IDX_ASYNC, async_threads);
+            bool res = OpenConnections(IDX_ASYNC, async_threads);
 
             if (!res)
                 return res;

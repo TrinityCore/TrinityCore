@@ -59,7 +59,7 @@ bool ConfigMgr::LoadInitial(std::string const& file, std::string& error)
 
 bool ConfigMgr::Reload(std::string& error)
 {
-    return LoadInitial(_filename.c_str(), error);
+    return LoadInitial(_filename, error);
 }
 
 std::string ConfigMgr::GetStringDefault(std::string const& name, const std::string& def)

@@ -42,10 +42,10 @@ class LfgGroupData
         // General
         void SetState(LfgState state);
         void RestoreState();
-        void AddPlayer(uint64 guid);
-        uint8 RemovePlayer(uint64 guid);
+        void AddPlayer(ObjectGuid guid);
+        uint8 RemovePlayer(ObjectGuid guid);
         void RemoveAllPlayers();
-        void SetLeader(uint64 guid);
+        void SetLeader(ObjectGuid guid);
 
         // Dungeon
         void SetDungeon(uint32 dungeon);
@@ -56,9 +56,9 @@ class LfgGroupData
         // General
         LfgState GetState() const;
         LfgState GetOldState() const;
-        LfgGuidSet const& GetPlayers() const;
+        GuidSet const& GetPlayers() const;
         uint8 GetPlayerCount() const;
-        uint64 GetLeader() const;
+        ObjectGuid GetLeader() const;
 
         // Dungeon
         uint32 GetDungeon(bool asId = true) const;
@@ -70,8 +70,8 @@ class LfgGroupData
         // General
         LfgState m_State;                                  ///< State if group in LFG
         LfgState m_OldState;                               ///< Old State
-        uint64 m_Leader;                                   ///< Leader GUID
-        LfgGuidSet m_Players;                              ///< Players in group
+        ObjectGuid m_Leader;                               ///< Leader GUID
+        GuidSet m_Players;                                 ///< Players in group
         // Dungeon
         uint32 m_Dungeon;                                  ///< Dungeon entry
         // Vote Kick

@@ -40,7 +40,6 @@ enum Spells
     WAR_STOMP          = 34716,
     SUMMON_TREANTS     = 34727, // DBC: 34727, 34731, 34733, 34734, 34736, 34739, 34741 (with Ancestral Life spell 34742)   // won't work (guardian summon)
     ARCANE_VOLLEY      = 36705,
-    ARCANE_VOLLEY_H    = 39133,
     SPELL_HEAL_FATHER  = 6262
 };
 
@@ -75,15 +74,20 @@ class npc_warp_splinter_treant : public CreatureScript
         {
             npc_warp_splinter_treantAI(Creature* creature) : ScriptedAI(creature)
             {
-                WarpGuid = 0;
+                Initialize();
             }
 
-            uint64 WarpGuid;
+            void Initialize()
+            {
+                check_Timer = 0;
+            }
+
+            ObjectGuid WarpGuid;
             uint32 check_Timer;
 
             void Reset() override
             {
-                check_Timer = 0;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override { }
@@ -140,8 +144,16 @@ class boss_warp_splinter : public CreatureScript
         {
             boss_warp_splinterAI(Creature* creature) : BossAI(creature, DATA_WARP_SPLINTER)
             {
+                Initialize();
                 Treant_Spawn_Pos_X = creature->GetPositionX();
                 Treant_Spawn_Pos_Y = creature->GetPositionY();
+            }
+
+            void Initialize()
+            {
+                War_Stomp_Timer = urand(25000, 40000);
+                Summon_Treants_Timer = 45000;
+                Arcane_Volley_Timer = urand(8000, 20000);
             }
 
             uint32 War_Stomp_Timer;
@@ -153,9 +165,7 @@ class boss_warp_splinter : public CreatureScript
 
             void Reset() override
             {
-                War_Stomp_Timer = urand(25000, 40000);
-                Summon_Treants_Timer = 45000;
-                Arcane_Volley_Timer = urand(8000, 20000);
+                Initialize();
 
                 me->SetSpeed(MOVE_RUN, 0.7f, true);
             }
@@ -179,7 +189,7 @@ class boss_warp_splinter : public CreatureScript
             {
                 for (uint8 i = 0; i < 6; ++i)
                 {
-                    float angle = (M_PI / 3) * i;
+                    float angle = (float(M_PI) / 3) * i;
 
                     float X = Treant_Spawn_Pos_X + TREANT_SPAWN_DIST * std::cos(angle);
                     float Y = Treant_Spawn_Pos_Y + TREANT_SPAWN_DIST * std::sin(angle);
@@ -208,7 +218,7 @@ class boss_warp_splinter : public CreatureScript
                 //Check for Arcane Volley
                 if (Arcane_Volley_Timer <= diff)
                 {
-                    DoCastVictim(DUNGEON_MODE(ARCANE_VOLLEY, ARCANE_VOLLEY_H));
+                    DoCastVictim(ARCANE_VOLLEY);
                     Arcane_Volley_Timer = urand(20000, 35000);
                 }
                 else

@@ -169,14 +169,28 @@ public:
     {
         boss_skadiAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
-            m_uiGraufGUID = 0;
+            m_uiMovementTimer = 0;
+            m_uiSummonTimer = 0;
+        }
+
+        void Initialize()
+        {
+            m_uiCrushTimer = 8000;
+            m_uiPoisonedSpearTimer = 10000;
+            m_uiWhirlwindTimer = 20000;
+            m_uiMountTimer = 3000;
+            m_uiWaypointId = 0;
+            m_bSaidEmote = false;
+            m_uiSpellHitCount = 0;
+
+            Phase = SKADI;
         }
 
         InstanceScript* instance;
         SummonList Summons;
-        uint64 m_uiGraufGUID;
-        std::vector<uint64> triggersGUID;
+        ObjectGuid m_uiGraufGUID;
 
         uint32 m_uiCrushTimer;
         uint32 m_uiPoisonedSpearTimer;
@@ -192,17 +206,7 @@ public:
 
         void Reset() override
         {
-            triggersGUID.clear();
-
-            m_uiCrushTimer = 8000;
-            m_uiPoisonedSpearTimer = 10000;
-            m_uiWhirlwindTimer = 20000;
-            m_uiMountTimer = 3000;
-            m_uiWaypointId = 0;
-            m_bSaidEmote = false;
-            m_uiSpellHitCount = 0;
-
-            Phase = SKADI;
+            Initialize();
 
             Summons.DespawnAll();
             me->SetSpeed(MOVE_FLIGHT, 3.0f);
@@ -266,7 +270,7 @@ public:
         void SummonedCreatureDespawn(Creature* summoned) override
         {
             if (summoned->GetEntry() == NPC_GRAUF)
-                m_uiGraufGUID = 0;
+                m_uiGraufGUID.Clear();
             Summons.Despawn(summoned);
         }
 
@@ -469,7 +473,7 @@ public:
         if (!instance)
             return false;
 
-        if (Creature* pSkadi = ObjectAccessor::GetCreature(*go, instance->GetData64(DATA_SKADI_THE_RUTHLESS)))
+        if (Creature* pSkadi = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_SKADI_THE_RUTHLESS)))
             player->CastSpell(pSkadi, SPELL_RAPID_FIRE, true);
 
         return false;

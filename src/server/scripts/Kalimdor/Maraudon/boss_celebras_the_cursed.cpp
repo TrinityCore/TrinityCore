@@ -45,7 +45,17 @@ public:
 
     struct celebras_the_cursedAI : public ScriptedAI
     {
-        celebras_the_cursedAI(Creature* creature) : ScriptedAI(creature) { }
+        celebras_the_cursedAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            WrathTimer = 8000;
+            EntanglingRootsTimer = 2000;
+            CorruptForcesTimer = 30000;
+        }
 
         uint32 WrathTimer;
         uint32 EntanglingRootsTimer;
@@ -53,9 +63,7 @@ public:
 
         void Reset() override
         {
-            WrathTimer = 8000;
-            EntanglingRootsTimer = 2000;
-            CorruptForcesTimer = 30000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }

@@ -30,14 +30,12 @@ using boost::asio::ip::tcp;
 
 struct AuthHandler;
 
-class AuthSession : public Socket<AuthSession, ByteBuffer>
+class AuthSession : public Socket<AuthSession>
 {
-    typedef Socket<AuthSession, ByteBuffer> Base;
-
 public:
     static std::unordered_map<uint8, AuthHandler> InitHandlers();
 
-    AuthSession(tcp::socket&& socket) : Socket(std::move(socket), 1),
+    AuthSession(tcp::socket&& socket) : Socket(std::move(socket)),
         _isAuthenticated(false), _build(0), _expversion(0), _accountSecurityLevel(SEC_PLAYER)
     {
         N.SetHexStr("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
@@ -46,15 +44,13 @@ public:
 
     void Start() override
     {
-        AsyncReadHeader();
+        AsyncRead();
     }
 
-    using Base::AsyncWrite;
-    void AsyncWrite(ByteBuffer& packet);
+    void SendPacket(ByteBuffer& packet);
 
 protected:
-    void ReadHeaderHandler() override;
-    void ReadDataHandler() override;
+    void ReadHandler() override;
 
 private:
     bool HandleLogonChallenge();

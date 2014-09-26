@@ -210,7 +210,7 @@ class boss_lord_marrowgar : public CreatureScript
                             break;
                         case EVENT_COLDFLAME:
                             _coldflameLastPos.Relocate(me);
-                            _coldflameTarget = 0LL;
+                            _coldflameTarget.Clear();
                             if (!me->HasAura(SPELL_BONE_STORM))
                                 DoCastAOE(SPELL_COLDFLAME_NORMAL);
                             else
@@ -288,7 +288,7 @@ class boss_lord_marrowgar : public CreatureScript
                 return &_coldflameLastPos;
             }
 
-            uint64 GetGUID(int32 type /*= 0 */) const override
+            ObjectGuid GetGUID(int32 type /*= 0 */) const override
             {
                 switch (type)
                 {
@@ -306,10 +306,10 @@ class boss_lord_marrowgar : public CreatureScript
                     }
                 }
 
-                return 0LL;
+                return ObjectGuid::Empty;
             }
 
-            void SetGUID(uint64 guid, int32 type /*= 0 */) override
+            void SetGUID(ObjectGuid guid, int32 type /*= 0 */) override
             {
                 switch (type)
                 {
@@ -332,8 +332,8 @@ class boss_lord_marrowgar : public CreatureScript
 
         private:
             Position _coldflameLastPos;
-            std::vector<uint64> _boneSpikeImmune;
-            uint64 _coldflameTarget;
+            GuidVector _boneSpikeImmune;
+            ObjectGuid _coldflameTarget;
             uint32 _boneStormDuration;
             float _baseSpeed;
             bool _introDone;
@@ -643,7 +643,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
                     for (std::list<Unit*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr, ++i)
                     {
                         Unit* target = *itr;
-                        target->CastCustomSpell(BoneSpikeSummonId[i], SPELLVALUE_BASE_POINT0, 0, target, true);
+                        target->CastSpell(target, BoneSpikeSummonId[i], true);
                     }
 
                     marrowgarAI->Talk(SAY_BONESPIKE);
@@ -674,7 +674,7 @@ class spell_marrowgar_bone_storm : public SpellScriptLoader
 
             void RecalculateDamage()
             {
-                SetHitDamage(int32(GetHitDamage() / std::max(sqrtf(GetHitUnit()->GetExactDist2d(GetCaster())), 1.0f)));
+                SetHitDamage(int32(GetHitDamage() / std::max(std::sqrt(GetHitUnit()->GetExactDist2d(GetCaster())), 1.0f)));
             }
 
             void Register() override
@@ -698,12 +698,13 @@ class spell_marrowgar_bone_slice : public SpellScriptLoader
         {
             PrepareSpellScript(spell_marrowgar_bone_slice_SpellScript);
 
-            bool Load() override
+        public:
+            spell_marrowgar_bone_slice_SpellScript()
             {
                 _targetCount = 0;
-                return true;
             }
 
+        private:
             void ClearSpikeImmunities()
             {
                 GetCaster()->GetAI()->DoAction(ACTION_CLEAR_SPIKE_IMMUNITIES);

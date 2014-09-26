@@ -53,7 +53,25 @@ public:
 
     struct boss_sarturaAI : public ScriptedAI
     {
-        boss_sarturaAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_sarturaAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            WhirlWind_Timer = 30000;
+            WhirlWindRandom_Timer = urand(3000, 7000);
+            WhirlWindEnd_Timer = 15000;
+            AggroReset_Timer = urand(45000, 55000);
+            AggroResetEnd_Timer = 5000;
+            EnrageHard_Timer = 10 * 60000;
+
+            WhirlWind = false;
+            AggroReset = false;
+            Enraged = false;
+            EnragedHard = false;
+        }
 
         uint32 WhirlWind_Timer;
         uint32 WhirlWindRandom_Timer;
@@ -69,18 +87,7 @@ public:
 
         void Reset() override
         {
-            WhirlWind_Timer = 30000;
-            WhirlWindRandom_Timer = urand(3000, 7000);
-            WhirlWindEnd_Timer = 15000;
-            AggroReset_Timer = urand(45000, 55000);
-            AggroResetEnd_Timer = 5000;
-            EnrageHard_Timer = 10*60000;
-
-            WhirlWind = false;
-            AggroReset = false;
-            Enraged = false;
-            EnragedHard = false;
-
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -196,7 +203,23 @@ public:
 
     struct npc_sartura_royal_guardAI : public ScriptedAI
     {
-        npc_sartura_royal_guardAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_sartura_royal_guardAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            WhirlWind_Timer = 30000;
+            WhirlWindRandom_Timer = urand(3000, 7000);
+            WhirlWindEnd_Timer = 15000;
+            AggroReset_Timer = urand(45000, 55000);
+            AggroResetEnd_Timer = 5000;
+            KnockBack_Timer = 10000;
+
+            WhirlWind = false;
+            AggroReset = false;
+        }
 
         uint32 WhirlWind_Timer;
         uint32 WhirlWindRandom_Timer;
@@ -210,15 +233,7 @@ public:
 
         void Reset() override
         {
-            WhirlWind_Timer = 30000;
-            WhirlWindRandom_Timer = urand(3000, 7000);
-            WhirlWindEnd_Timer = 15000;
-            AggroReset_Timer = urand(45000, 55000);
-            AggroResetEnd_Timer = 5000;
-            KnockBack_Timer = 10000;
-
-            WhirlWind = false;
-            AggroReset = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

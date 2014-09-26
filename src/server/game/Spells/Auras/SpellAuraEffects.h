@@ -30,14 +30,14 @@ typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const* aurApp, uin
 class AuraEffect
 {
     friend void Aura::_InitEffects(uint8 effMask, Unit* caster, int32 *baseAmount);
-    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID);
+    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32* baseAmount, Item* castItem, ObjectGuid casterGUID);
     friend Aura::~Aura();
     private:
         ~AuraEffect();
         explicit AuraEffect(Aura* base, uint8 effIndex, int32 *baseAmount, Unit* caster);
     public:
         Unit* GetCaster() const { return GetBase()->GetCaster(); }
-        uint64 GetCasterGUID() const { return GetBase()->GetCasterGUID(); }
+        ObjectGuid GetCasterGUID() const { return GetBase()->GetCasterGUID(); }
         Aura* GetBase() const { return m_base; }
         void GetTargetList(std::list<Unit*> & targetList) const;
         void GetApplicationList(std::list<AuraApplication*> & applicationList) const;

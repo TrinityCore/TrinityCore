@@ -47,6 +47,13 @@ class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_absorb0_hitlimit1_AuraScript);
 
+        public:
+            spell_gen_absorb0_hitlimit1_AuraScript()
+            {
+                limit = 0;
+            }
+
+        private:
             uint32 limit;
 
             bool Load() override
@@ -217,7 +224,7 @@ class spell_gen_animal_blood : public SpellScriptLoader
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 // Remove all auras with spell id 46221, except the one currently being applied
-                while (Aura* aur = GetUnitOwner()->GetOwnedAura(SPELL_ANIMAL_BLOOD, 0, 0, 0, GetAura()))
+                while (Aura* aur = GetUnitOwner()->GetOwnedAura(SPELL_ANIMAL_BLOOD, ObjectGuid::Empty, ObjectGuid::Empty, 0, GetAura()))
                     GetUnitOwner()->RemoveOwnedAura(aur);
             }
 
@@ -775,6 +782,13 @@ class spell_gen_clone_weapon_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_clone_weapon_auraScript);
 
+        public:
+            spell_gen_clone_weapon_auraScript()
+            {
+                prevItem = 0;
+            }
+
+        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_AURA) ||
@@ -784,12 +798,6 @@ class spell_gen_clone_weapon_aura : public SpellScriptLoader
                     !sSpellMgr->GetSpellInfo(SPELL_COPY_OFFHAND_2_AURA) ||
                     !sSpellMgr->GetSpellInfo(SPELL_COPY_RANGED_AURA))
                     return false;
-                return true;
-            }
-
-            bool Load() override
-            {
-                prevItem = 0;
                 return true;
             }
 
@@ -1392,9 +1400,15 @@ class spell_gen_dungeon_credit : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_dungeon_credit_SpellScript);
 
-            bool Load() override
+        public:
+            spell_gen_dungeon_credit_SpellScript()
             {
                 _handled = false;
+            }
+
+        private:
+            bool Load() override
+            {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
@@ -1584,7 +1598,7 @@ class spell_gen_gift_of_naaru : public SpellScriptLoader
                         break;
                 }
 
-                int32 healTick = floor(heal / aurEff->GetTotalTicks());
+                int32 healTick = std::floor(heal / aurEff->GetTotalTicks());
                 amount += int32(std::max(healTick, 0));
             }
 
@@ -1866,7 +1880,7 @@ class spell_gen_mount : public SpellScriptLoader
                 if (Player* target = GetHitPlayer())
                 {
                     // Prevent stacking of mounts and client crashes upon dismounting
-                    target->RemoveAurasByType(SPELL_AURA_MOUNTED, 0, GetHitAura());
+                    target->RemoveAurasByType(SPELL_AURA_MOUNTED, ObjectGuid::Empty, GetHitAura());
 
                     // Triggered spell id dependent on riding skill and zone
                     bool canFly = false;
@@ -2406,11 +2420,17 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_on_tournament_mount_AuraScript);
 
+        public:
+            spell_gen_on_tournament_mount_AuraScript()
+            {
+                _pennantSpellId = 0;
+            }
+
+        private:
             uint32 _pennantSpellId;
 
             bool Load() override
             {
-                _pennantSpellId = 0;
                 return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
@@ -2573,16 +2593,15 @@ class spell_gen_oracle_wolvar_reputation : public SpellScriptLoader
             {
                 Player* player = GetCaster()->ToPlayer();
                 uint32 factionId = GetSpellInfo()->Effects[effIndex].CalcValue();
-                int32  repChange =  GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+                int32  repChange = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
 
                 FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionId);
-
                 if (!factionEntry)
                     return;
 
                 // Set rep to baserep + basepoints (expecting spillover for oposite faction -> become hated)
                 // Not when player already has equal or higher rep with this faction
-                if (player->GetReputationMgr().GetBaseReputation(factionEntry) < repChange)
+                if (player->GetReputationMgr().GetReputation(factionEntry) < repChange)
                     player->GetReputationMgr().SetReputation(factionEntry, repChange);
 
                 // EFFECT_INDEX_2 most likely update at war state, we already handle this in SetReputation
@@ -3610,6 +3629,110 @@ class spell_gen_eject_all_passengers : public SpellScriptLoader
         }
 };
 
+enum GMFreeze
+{
+    SPELL_GM_FREEZE = 9454
+};
+
+class spell_gen_gm_freeze : public SpellScriptLoader
+{
+    public:
+        spell_gen_gm_freeze() : SpellScriptLoader("spell_gen_gm_freeze") { }
+
+        class spell_gen_gm_freeze_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_gm_freeze_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_GM_FREEZE))
+                    return false;
+                return true;
+            }
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                // Do what was done before to the target in HandleFreezeCommand
+                if (Player* player = GetTarget()->ToPlayer())
+                {
+                    // stop combat + make player unattackable + duel stop + stop some spells
+                    player->setFaction(35);
+                    player->CombatStop();
+                    if (player->IsNonMeleeSpellCast(true))
+                        player->InterruptNonMeleeSpells(true);
+                    player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+                    // if player class = hunter || warlock remove pet if alive
+                    if ((player->getClass() == CLASS_HUNTER) || (player->getClass() == CLASS_WARLOCK))
+                    {
+                        if (Pet* pet = player->GetPet())
+                        {
+                            pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+                            // not let dismiss dead pet
+                            if (pet->IsAlive())
+                                player->RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
+                        }
+                    }
+                }
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                // Do what was done before to the target in HandleUnfreezeCommand
+                if (Player* player = GetTarget()->ToPlayer())
+                {
+                    // Reset player faction + allow combat + allow duels
+                    player->setFactionForRace(player->getRace());
+                    player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    // save player
+                    player->SaveToDB();
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_gen_gm_freeze_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_gm_freeze_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_gm_freeze_AuraScript();
+        }
+};
+
+class spell_gen_stand : public SpellScriptLoader
+{
+public:
+    spell_gen_stand() : SpellScriptLoader("spell_gen_stand") { }
+
+    class spell_gen_stand_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_stand_SpellScript);
+
+        void HandleScript(SpellEffIndex /*eff*/)
+        {
+            Creature* target = GetHitCreature();
+            if (!target)
+                return;
+
+            target->SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_STAND);
+            target->HandleEmoteCommand(EMOTE_STATE_NONE);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_gen_stand_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_gen_stand_SpellScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3690,4 +3813,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_wg_water();
     new spell_gen_whisper_gulch_yogg_saron_whisper();
     new spell_gen_eject_all_passengers();
+    new spell_gen_gm_freeze();
+    new spell_gen_stand();
 }

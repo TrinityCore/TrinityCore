@@ -23,6 +23,7 @@
 #include "World.h"
 #include "AchievementMgr.h"
 #include "ArenaTeamMgr.h"
+#include "AuctionHouseBot.h"
 #include "AuctionHouseMgr.h"
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
@@ -557,6 +558,18 @@ void World::LoadConfigSettings(bool reload)
         TC_LOG_ERROR("server.loading", "DurabilityLossChance.Block (%f) must be >=0. Using 0.0 instead.", rate_values[RATE_DURABILITY_LOSS_BLOCK]);
         rate_values[RATE_DURABILITY_LOSS_BLOCK] = 0.0f;
     }
+    rate_values[RATE_MONEY_QUEST] = sConfigMgr->GetFloatDefault("Rate.Quest.Money.Reward", 1.0f);
+    if (rate_values[RATE_MONEY_QUEST] < 0.0f)
+    {
+        TC_LOG_ERROR("server.loading", "Rate.Quest.Money.Reward (%f) must be >=0. Using 0 instead.", rate_values[RATE_MONEY_QUEST]);
+        rate_values[RATE_MONEY_QUEST] = 0.0f;
+    }
+    rate_values[RATE_MONEY_MAX_LEVEL_QUEST] = sConfigMgr->GetFloatDefault("Rate.Quest.Money.Max.Level.Reward", 1.0f);
+    if (rate_values[RATE_MONEY_MAX_LEVEL_QUEST] < 0.0f)
+    {
+        TC_LOG_ERROR("server.loading", "Rate.Quest.Money.Max.Level.Reward (%f) must be >=0. Using 0 instead.", rate_values[RATE_MONEY_MAX_LEVEL_QUEST]);
+        rate_values[RATE_MONEY_MAX_LEVEL_QUEST] = 0.0f;
+    }
     ///- Read other configuration items from the config file
 
     m_bool_configs[CONFIG_DURABILITY_LOSS_IN_PVP] = sConfigMgr->GetBoolDefault("DurabilityLoss.InPvP", false);
@@ -843,6 +856,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_GM_VISIBLE_STATE]      = sConfigMgr->GetIntDefault("GM.Visible", 2);
     m_int_configs[CONFIG_GM_CHAT]               = sConfigMgr->GetIntDefault("GM.Chat", 2);
     m_int_configs[CONFIG_GM_WHISPERING_TO]      = sConfigMgr->GetIntDefault("GM.WhisperingTo", 2);
+    m_int_configs[CONFIG_GM_FREEZE_DURATION]    = sConfigMgr->GetIntDefault("GM.FreezeAuraDuration", 0);
 
     m_int_configs[CONFIG_GM_LEVEL_IN_GM_LIST]   = sConfigMgr->GetIntDefault("GM.InGMList.Level", SEC_ADMINISTRATOR);
     m_int_configs[CONFIG_GM_LEVEL_IN_WHO_LIST]  = sConfigMgr->GetIntDefault("GM.InWhoList.Level", SEC_ADMINISTRATOR);
@@ -1009,6 +1023,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_BATTLEGROUND_CAST_DESERTER]                = sConfigMgr->GetBoolDefault("Battleground.CastDeserter", true);
     m_bool_configs[CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE]       = sConfigMgr->GetBoolDefault("Battleground.QueueAnnouncer.Enable", false);
     m_bool_configs[CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_PLAYERONLY]   = sConfigMgr->GetBoolDefault("Battleground.QueueAnnouncer.PlayerOnly", false);
+    m_bool_configs[CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE]      = sConfigMgr->GetBoolDefault("Battleground.StoreStatistics.Enable", false);
     m_int_configs[CONFIG_BATTLEGROUND_INVITATION_TYPE]               = sConfigMgr->GetIntDefault ("Battleground.InvitationType", 0);
     m_int_configs[CONFIG_BATTLEGROUND_PREMATURE_FINISH_TIMER]        = sConfigMgr->GetIntDefault ("Battleground.PrematureFinishTimer", 5 * MINUTE * IN_MILLISECONDS);
     m_int_configs[CONFIG_BATTLEGROUND_PREMADE_GROUP_WAIT_FOR_MATCH]  = sConfigMgr->GetIntDefault ("Battleground.PremadeGroupWaitForMatch", 30 * MINUTE * IN_MILLISECONDS);
@@ -1155,6 +1170,7 @@ void World::LoadConfigSettings(bool reload)
     if (m_int_configs[CONFIG_PVP_TOKEN_COUNT] < 1)
         m_int_configs[CONFIG_PVP_TOKEN_COUNT] = 1;
 
+    m_bool_configs[CONFIG_ALLOW_TRACK_BOTH_RESOURCES] = sConfigMgr->GetBoolDefault("AllowTrackBothResources", false);
     m_bool_configs[CONFIG_NO_RESET_TALENT_COST] = sConfigMgr->GetBoolDefault("NoResetTalentsCost", false);
     m_bool_configs[CONFIG_SHOW_KICK_IN_WORLD] = sConfigMgr->GetBoolDefault("ShowKickInWorld", false);
     m_bool_configs[CONFIG_SHOW_MUTE_IN_WORLD] = sConfigMgr->GetBoolDefault("ShowMuteInWorld", false);
@@ -1241,6 +1257,9 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_BIRTHDAY_TIME] = sConfigMgr->GetIntDefault("BirthdayTime", 1222964635);
 
     m_bool_configs[CONFIG_IP_BASED_ACTION_LOGGING] = sConfigMgr->GetBoolDefault("Allow.IP.Based.Action.Logging", false);
+
+    // AHBot
+    m_int_configs[CONFIG_AHBOT_UPDATE_INTERVAL] = sConfigMgr->GetIntDefault("AuctionHouseBot.Update.Interval", 20);
 
     // call ScriptMgr if we're reloading the configuration
     if (reload)
@@ -1683,9 +1702,6 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadEventScripts();                              // must be after load Creature/Gameobject(Template/Data)
     sObjectMgr->LoadWaypointScripts();
 
-    TC_LOG_INFO("server.loading", "Loading Scripts text locales...");      // must be after Load*Scripts calls
-    sObjectMgr->LoadDbScriptStrings();
-
     TC_LOG_INFO("server.loading", "Loading spell script names...");
     sObjectMgr->LoadSpellScriptNames();
 
@@ -1727,6 +1743,9 @@ void World::SetInitialWorldSettings()
     m_timers[WUPDATE_AUTOBROADCAST].SetInterval(getIntConfig(CONFIG_AUTOBROADCAST_INTERVAL));
     m_timers[WUPDATE_DELETECHARS].SetInterval(DAY*IN_MILLISECONDS); // check for chars to delete every day
 
+    // for AhBot
+    m_timers[WUPDATE_AHBOT].SetInterval(getIntConfig(CONFIG_AHBOT_UPDATE_INTERVAL) * IN_MILLISECONDS); // every 20 sec
+
     m_timers[WUPDATE_PINGDB].SetInterval(getIntConfig(CONFIG_DB_PING_INTERVAL)*MINUTE*IN_MILLISECONDS);    // Mysql ping time in minutes
 
     //to set mailtimer to return mails every day between 4 and 5 am
@@ -1753,6 +1772,9 @@ void World::SetInitialWorldSettings()
 
     // Delete all characters which have been deleted X days before
     Player::DeleteOldCharacters();
+
+    TC_LOG_INFO("server.loading", "Initialize AuctionHouseBot...");
+    sAuctionBot->Initialize();
 
     // Delete all custom channels which haven't been used for PreserveCustomChannelDuration days.
     Channel::CleanOldChannelsInDB();
@@ -1986,6 +2008,13 @@ void World::Update(uint32 diff)
         sAuctionMgr->Update();
     }
 
+    /// <li> Handle AHBot operations
+    if (m_timers[WUPDATE_AHBOT].Passed())
+    {
+        sAuctionBot->Update();
+        m_timers[WUPDATE_AHBOT].Reset();
+    }
+
     /// <li> Handle session updates when the timer has passed
     RecordTimeDiff(NULL);
     UpdateSessions(diff);
@@ -2157,7 +2186,7 @@ namespace Trinity
     {
         public:
             typedef std::vector<WorldPacket*> WorldPacketList;
-            explicit WorldWorldTextBuilder(int32 textId, va_list* args = NULL) : i_textId(textId), i_args(args) { }
+            explicit WorldWorldTextBuilder(uint32 textId, va_list* args = NULL) : i_textId(textId), i_args(args) { }
             void operator()(WorldPacketList& data_list, LocaleConstant loc_idx)
             {
                 char const* text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
@@ -2190,13 +2219,13 @@ namespace Trinity
                 }
             }
 
-            int32 i_textId;
+            uint32 i_textId;
             va_list* i_args;
     };
 }                                                           // namespace Trinity
 
 /// Send a System Message to all players (except self if mentioned)
-void World::SendWorldText(int32 string_id, ...)
+void World::SendWorldText(uint32 string_id, ...)
 {
     va_list ap;
     va_start(ap, string_id);
@@ -2215,7 +2244,7 @@ void World::SendWorldText(int32 string_id, ...)
 }
 
 /// Send a System Message to all GMs (except self if mentioned)
-void World::SendGMText(int32 string_id, ...)
+void World::SendGMText(uint32 string_id, ...)
 {
     va_list ap;
     va_start(ap, string_id);
@@ -2522,7 +2551,7 @@ void World::_UpdateGameTime()
 }
 
 /// Shutdown the server
-void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode)
+void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std::string& reason)
 {
     // ignore if server shutdown at next tick
     if (IsStopped())
@@ -2543,14 +2572,14 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode)
     else
     {
         m_ShutdownTimer = time;
-        ShutdownMsg(true);
+        ShutdownMsg(true, nullptr, reason);
     }
 
     sScriptMgr->OnShutdownInitiate(ShutdownExitCode(exitcode), ShutdownMask(options));
 }
 
 /// Display a shutdown message to the user(s)
-void World::ShutdownMsg(bool show, Player* player)
+void World::ShutdownMsg(bool show, Player* player, const std::string& reason)
 {
     // not show messages for idle shutdown mode
     if (m_ShutdownMask & SHUTDOWN_MASK_IDLE)
@@ -2565,6 +2594,8 @@ void World::ShutdownMsg(bool show, Player* player)
         (m_ShutdownTimer > 12 * HOUR && (m_ShutdownTimer % (12 * HOUR)) == 0)) // > 12 h ; every 12 h
     {
         std::string str = secsToTimeString(m_ShutdownTimer);
+        if (!reason.empty())
+            str += " - " + reason;
 
         ServerMessageType msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_TIME : SERVER_MSG_SHUTDOWN_TIME;
 
@@ -3087,15 +3118,15 @@ void World::ProcessQueryCallbacks()
 }
 
 /**
-* @brief Loads several pieces of information on server startup with the low GUID
+* @brief Loads several pieces of information on server startup with the GUID
 * There is no further database query necessary.
 * These are a number of methods that work into the calling function.
 *
-* @param guid Requires a lowGUID to call
+* @param guid Requires a guid to call
 * @return Name, Gender, Race, Class and Level of player character
 * Example Usage:
 * @code
-*    CharacterNameData const* nameData = sWorld->GetCharacterNameData(lowGUID);
+*    CharacterNameData const* nameData = sWorld->GetCharacterNameData(GUID);
 *    if (!nameData)
 *        return;
 *
@@ -3123,7 +3154,7 @@ void World::LoadCharacterNameData()
     do
     {
         Field* fields = result->Fetch();
-        AddCharacterNameData(fields[0].GetUInt32(), fields[1].GetString(),
+        AddCharacterNameData(ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt32()), fields[1].GetString(),
             fields[3].GetUInt8() /*gender*/, fields[2].GetUInt8() /*race*/, fields[4].GetUInt8() /*class*/, fields[5].GetUInt8() /*level*/);
         ++count;
     } while (result->NextRow());
@@ -3131,7 +3162,7 @@ void World::LoadCharacterNameData()
     TC_LOG_INFO("server.loading", "Loaded name data for %u characters", count);
 }
 
-void World::AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
+void World::AddCharacterNameData(ObjectGuid guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
 {
     CharacterNameData& data = _characterNameDataMap[guid];
     data.m_name = name;
@@ -3141,9 +3172,9 @@ void World::AddCharacterNameData(uint32 guid, std::string const& name, uint8 gen
     data.m_level = level;
 }
 
-void World::UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
+void World::UpdateCharacterNameData(ObjectGuid guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
 {
-    std::map<uint32, CharacterNameData>::iterator itr = _characterNameDataMap.find(guid);
+    std::map<ObjectGuid, CharacterNameData>::iterator itr = _characterNameDataMap.find(guid);
     if (itr == _characterNameDataMap.end())
         return;
 
@@ -3156,22 +3187,22 @@ void World::UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 
         itr->second.m_race = race;
 
     WorldPacket data(SMSG_INVALIDATE_PLAYER, 8);
-    data << MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER);
+    data << guid;
     SendGlobalMessage(&data);
 }
 
-void World::UpdateCharacterNameDataLevel(uint32 guid, uint8 level)
+void World::UpdateCharacterNameDataLevel(ObjectGuid guid, uint8 level)
 {
-    std::map<uint32, CharacterNameData>::iterator itr = _characterNameDataMap.find(guid);
+    std::map<ObjectGuid, CharacterNameData>::iterator itr = _characterNameDataMap.find(guid);
     if (itr == _characterNameDataMap.end())
         return;
 
     itr->second.m_level = level;
 }
 
-CharacterNameData const* World::GetCharacterNameData(uint32 guid) const
+CharacterNameData const* World::GetCharacterNameData(ObjectGuid guid) const
 {
-    std::map<uint32, CharacterNameData>::const_iterator itr = _characterNameDataMap.find(guid);
+    std::map<ObjectGuid, CharacterNameData>::const_iterator itr = _characterNameDataMap.find(guid);
     if (itr != _characterNameDataMap.end())
         return &itr->second;
     else

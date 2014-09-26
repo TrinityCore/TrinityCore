@@ -51,8 +51,18 @@ public:
     {
         boss_rage_winterchillAI(Creature* creature) : hyjal_trashAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             go = false;
+        }
+
+        void Initialize()
+        {
+            damageTaken = 0;
+            FrostArmorTimer = 37000;
+            DecayTimer = 45000;
+            NovaTimer = 15000;
+            IceboltTimer = 10000;
         }
 
         uint32 FrostArmorTimer;
@@ -63,11 +73,7 @@ public:
 
         void Reset() override
         {
-            damageTaken = 0;
-            FrostArmorTimer = 37000;
-            DecayTimer = 45000;
-            NovaTimer = 15000;
-            IceboltTimer = 10000;
+            Initialize();
 
             if (IsEvent)
                 instance->SetData(DATA_RAGEWINTERCHILLEVENT, NOT_STARTED);
@@ -89,7 +95,7 @@ public:
         {
             if (waypointId == 7 && instance)
             {
-                Unit* target = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_JAINAPROUDMOORE));
+                Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
                 if (target && target->IsAlive())
                     me->AddThreat(target, 0.0f);
             }

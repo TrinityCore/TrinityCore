@@ -136,13 +136,42 @@ class boss_zuljin : public CreatureScript
         {
             boss_zuljinAI(Creature* creature) : ScriptedAI(creature), Summons(me)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+                health_20 = 0;
             }
+
+            void Initialize()
+            {
+                Phase = 0;
+
+                Intro_Timer = 37000;
+                Berserk_Timer = 600000;
+
+                Whirlwind_Timer = 7000;
+                Grievous_Throw_Timer = 8000;
+
+                Creeping_Paralysis_Timer = 7000;
+                Overpower_Timer = 0;
+
+                Claw_Rage_Timer = 5000;
+                Lynx_Rush_Timer = 14000;
+                Claw_Loop_Timer = 0;
+                Claw_Counter = 0;
+
+                Flame_Whirl_Timer = 5000;
+                Flame_Breath_Timer = 6000;
+                Pillar_Of_Fire_Timer = 7000;
+
+                ClawTargetGUID.Clear();
+                TankGUID.Clear();
+            }
+
             InstanceScript* instance;
 
-            uint64 SpiritGUID[4];
-            uint64 ClawTargetGUID;
-            uint64 TankGUID;
+            ObjectGuid SpiritGUID[4];
+            ObjectGuid ClawTargetGUID;
+            ObjectGuid TankGUID;
 
             uint32 Phase;
             uint32 health_20;
@@ -171,30 +200,9 @@ class boss_zuljin : public CreatureScript
             {
                 instance->SetData(DATA_ZULJINEVENT, NOT_STARTED);
 
-                Phase = 0;
-
                 health_20 = me->CountPctFromMaxHealth(20);
 
-                Intro_Timer = 37000;
-                Berserk_Timer = 600000;
-
-                Whirlwind_Timer = 7000;
-                Grievous_Throw_Timer = 8000;
-
-                Creeping_Paralysis_Timer = 7000;
-                Overpower_Timer = 0;
-
-                Claw_Rage_Timer = 5000;
-                Lynx_Rush_Timer = 14000;
-                Claw_Loop_Timer = 0;
-                Claw_Counter = 0;
-
-                Flame_Whirl_Timer = 5000;
-                Flame_Breath_Timer = 6000;
-                Pillar_Of_Fire_Timer = 7000;
-
-                ClawTargetGUID = 0;
-                TankGUID = 0;
+                Initialize();
 
                 Summons.DespawnAll();
 
@@ -290,7 +298,7 @@ class boss_zuljin : public CreatureScript
                             temp->setDeathState(DEAD);
                         }
                     }
-                    SpiritGUID[i] = 0;
+                    SpiritGUID[i].Clear();
                 }
             }
 
@@ -456,7 +464,7 @@ class boss_zuljin : public CreatureScript
                                             Claw_Rage_Timer = urand(15000, 20000);
                                             me->SetSpeed(MOVE_RUN, 1.2f);
                                             AttackStart(ObjectAccessor::GetUnit(*me, TankGUID));
-                                            TankGUID = 0;
+                                            TankGUID.Clear();
                                             return;
                                         }
                                         else
@@ -504,7 +512,7 @@ class boss_zuljin : public CreatureScript
                                         Lynx_Rush_Timer = urand(15000, 20000);
                                         me->SetSpeed(MOVE_RUN, 1.2f);
                                         AttackStart(ObjectAccessor::GetUnit(*me, TankGUID));
-                                        TankGUID = 0;
+                                        TankGUID.Clear();
                                     }
                                     else
                                         AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));

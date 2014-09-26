@@ -33,7 +33,7 @@ npc_option_npcflag can be 1 or 128 (shows only if the NPC has vendor flag then)<
 and the action_menu_id is the vendor entry from npc_vendor that you want to show to the player.<br />
 
 YOU CAN also send menus from C++. All you need to do is to provide the vendor entry to the<br />
-`void WorldSession::SendListInventory(uint64 vendorGuid, uint32 vendorEntry)` function.
+`void WorldSession::SendListInventory(ObjectGuid guid, uint32 vendorEntry)` function.
 
 The npc add item command was modified so you can add items to multivendors as well.<br />
 The last vendor window must have been the multivendor you want to add your item to.<br />

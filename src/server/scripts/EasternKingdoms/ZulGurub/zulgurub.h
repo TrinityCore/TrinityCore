@@ -18,6 +18,8 @@
 #ifndef DEF_ZULGURUB_H
 #define DEF_ZULGURUB_H
 
+#define DataHeader "ZG"
+
 uint32 const EncounterCount = 13;
 
 #define ZGScriptName "instance_zulgurub"

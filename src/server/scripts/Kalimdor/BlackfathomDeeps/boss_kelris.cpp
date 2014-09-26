@@ -43,7 +43,14 @@ public:
     {
         boss_kelrisAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            mindBlastTimer = urand(2000, 5000);
+            sleepTimer = urand(9000, 12000);
         }
 
         uint32 mindBlastTimer;
@@ -53,8 +60,7 @@ public:
 
         void Reset() override
         {
-            mindBlastTimer = urand(2000, 5000);
-            sleepTimer = urand(9000, 12000);
+            Initialize();
             instance->SetData(TYPE_KELRIS, NOT_STARTED);
         }
 

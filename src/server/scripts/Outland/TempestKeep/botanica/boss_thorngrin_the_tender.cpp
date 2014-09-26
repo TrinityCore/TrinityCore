@@ -34,8 +34,7 @@ enum Says
 enum Spells
 {
     SPELL_SACRIFICE             = 34661,
-    SPELL_HELLFIRE_NORMAL       = 34659,
-    SPELL_HELLFIRE_HEROIC       = 39131,
+    SPELL_HELLFIRE              = 34659,
     SPELL_ENRAGE                = 34670
 };
 
@@ -52,13 +51,21 @@ class boss_thorngrin_the_tender : public CreatureScript
 
         struct boss_thorngrin_the_tenderAI : public BossAI
         {
-            boss_thorngrin_the_tenderAI(Creature* creature) : BossAI(creature, DATA_THORNGRIN_THE_TENDER) { }
+            boss_thorngrin_the_tenderAI(Creature* creature) : BossAI(creature, DATA_THORNGRIN_THE_TENDER)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _phase1 = true;
+                _phase2 = true;
+            }
 
             void Reset() override
             {
                 _Reset();
-                _phase1 = true;
-                _phase2 = true;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -119,7 +126,7 @@ class boss_thorngrin_the_tender : public CreatureScript
                             break;
                         case EVENT_HELLFIRE:
                             Talk(SAY_CAST_HELLFIRE);
-                            DoCastVictim(DUNGEON_MODE(SPELL_HELLFIRE_NORMAL, SPELL_HELLFIRE_HEROIC), true);
+                            DoCastVictim(SPELL_HELLFIRE, true);
                             events.ScheduleEvent(EVENT_HELLFIRE, IsHeroic() ? urand(17400, 19300) : 18000);
                             break;
                         case EVENT_ENRAGE:

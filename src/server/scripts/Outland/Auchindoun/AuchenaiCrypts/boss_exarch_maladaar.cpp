@@ -170,11 +170,25 @@ public:
     {
         boss_exarch_maladaarAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             HasTaunted = false;
         }
 
+        void Initialize()
+        {
+            soulmodel = 0;
+            soulholder.Clear();
+            soulclass = 0;
+
+            Fear_timer = 15000 + rand32() % 5000;
+            Ribbon_of_Souls_timer = 5000;
+            StolenSoul_Timer = 25000 + rand32() % 10000;
+
+            Avatar_summoned = false;
+        }
+
         uint32 soulmodel;
-        uint64 soulholder;
+        ObjectGuid soulholder;
         uint8 soulclass;
 
         uint32 Fear_timer;
@@ -186,15 +200,7 @@ public:
 
         void Reset() override
         {
-            soulmodel = 0;
-            soulholder = 0;
-            soulclass = 0;
-
-            Fear_timer = 15000 + rand32() % 5000;
-            Ribbon_of_Souls_timer = 5000;
-            StolenSoul_Timer = 25000 + rand32() % 10000;
-
-            Avatar_summoned = false;
+            Initialize();
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -318,13 +324,21 @@ public:
 
     struct npc_avatar_of_martyredAI : public ScriptedAI
     {
-        npc_avatar_of_martyredAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_avatar_of_martyredAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Mortal_Strike_timer = 10000;
+        }
 
         uint32 Mortal_Strike_timer;
 
         void Reset() override
         {
-            Mortal_Strike_timer = 10000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override

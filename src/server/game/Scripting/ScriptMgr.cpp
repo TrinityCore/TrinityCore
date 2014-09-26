@@ -34,12 +34,6 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-namespace
-{
-    typedef std::set<ScriptObject*> ExampleScriptContainer;
-    ExampleScriptContainer ExampleScripts;
-}
-
 // This is the global static registry of scripts.
 template<class TScript>
 class ScriptRegistry
@@ -108,12 +102,9 @@ class ScriptRegistry
                 else
                 {
                     // The script uses a script name from database, but isn't assigned to anything.
-                    if (script->GetName().find("example") == std::string::npos && script->GetName().find("Smart") == std::string::npos)
+                    if (script->GetName().find("Smart") == std::string::npos)
                         TC_LOG_ERROR("sql.sql", "Script named '%s' does not have a script name assigned in database.",
                             script->GetName().c_str());
-
-                    // These scripts don't get stored anywhere so throw them into this to avoid leaking memory
-                    ExampleScripts.insert(script);
                 }
             }
             else
@@ -233,10 +224,6 @@ void ScriptMgr::Unload()
     SCR_CLEAR(UnitScript);
 
     #undef SCR_CLEAR
-
-    for (ExampleScriptContainer::iterator itr = ExampleScripts.begin(); itr != ExampleScripts.end(); ++itr)
-        delete *itr;
-    ExampleScripts.clear();
 
     delete[] SpellSummary;
     delete[] UnitAI::AISpellInfo;
@@ -774,17 +761,6 @@ bool ScriptMgr::OnQuestSelect(Player* player, Creature* creature, Quest const* q
     return tmpscript->OnQuestSelect(player, creature, quest);
 }
 
-bool ScriptMgr::OnQuestComplete(Player* player, Creature* creature, Quest const* quest)
-{
-    ASSERT(player);
-    ASSERT(creature);
-    ASSERT(quest);
-
-    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnQuestComplete(player, creature, quest);
-}
-
 bool ScriptMgr::OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
 {
     ASSERT(player);
@@ -1191,6 +1167,11 @@ void ScriptMgr::OnPlayerMoneyChanged(Player* player, int32& amount)
     FOREACH_SCRIPT(PlayerScript)->OnMoneyChanged(player, amount);
 }
 
+void ScriptMgr::OnPlayerMoneyLimit(Player* player, int32 amount)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnMoneyLimit(player, amount);
+}
+
 void ScriptMgr::OnGivePlayerXP(Player* player, uint32& amount, Unit* victim)
 {
     FOREACH_SCRIPT(PlayerScript)->OnGiveXP(player, amount, victim);
@@ -1246,7 +1227,7 @@ void ScriptMgr::OnPlayerEmote(Player* player, uint32 emote)
     FOREACH_SCRIPT(PlayerScript)->OnEmote(player, emote);
 }
 
-void ScriptMgr::OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, uint64 guid)
+void ScriptMgr::OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, ObjectGuid guid)
 {
     FOREACH_SCRIPT(PlayerScript)->OnTextEmote(player, textEmote, emoteNum, guid);
 }
@@ -1271,12 +1252,12 @@ void ScriptMgr::OnPlayerCreate(Player* player)
     FOREACH_SCRIPT(PlayerScript)->OnCreate(player);
 }
 
-void ScriptMgr::OnPlayerDelete(uint64 guid, uint32 accountId)
+void ScriptMgr::OnPlayerDelete(ObjectGuid guid, uint32 accountId)
 {
     FOREACH_SCRIPT(PlayerScript)->OnDelete(guid, accountId);
 }
 
-void ScriptMgr::OnPlayerFailedDelete(uint64 guid, uint32 accountId)
+void ScriptMgr::OnPlayerFailedDelete(ObjectGuid guid, uint32 accountId)
 {
     FOREACH_SCRIPT(PlayerScript)->OnFailedDelete(guid, accountId);
 }
@@ -1294,6 +1275,11 @@ void ScriptMgr::OnPlayerBindToInstance(Player* player, Difficulty difficulty, ui
 void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea)
 {
     FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(player, newZone, newArea);
+}
+
+void ScriptMgr::OnQuestStatusChange(Player* player, uint32 questId, QuestStatus status)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnQuestStatusChange(player, questId, status);
 }
 
 // Account
@@ -1385,25 +1371,25 @@ void ScriptMgr::OnGuildBankEvent(Guild* guild, uint8 eventType, uint8 tabId, uin
 }
 
 // Group
-void ScriptMgr::OnGroupAddMember(Group* group, uint64 guid)
+void ScriptMgr::OnGroupAddMember(Group* group, ObjectGuid guid)
 {
     ASSERT(group);
     FOREACH_SCRIPT(GroupScript)->OnAddMember(group, guid);
 }
 
-void ScriptMgr::OnGroupInviteMember(Group* group, uint64 guid)
+void ScriptMgr::OnGroupInviteMember(Group* group, ObjectGuid guid)
 {
     ASSERT(group);
     FOREACH_SCRIPT(GroupScript)->OnInviteMember(group, guid);
 }
 
-void ScriptMgr::OnGroupRemoveMember(Group* group, uint64 guid, RemoveMethod method, uint64 kicker, const char* reason)
+void ScriptMgr::OnGroupRemoveMember(Group* group, ObjectGuid guid, RemoveMethod method, ObjectGuid kicker, const char* reason)
 {
     ASSERT(group);
     FOREACH_SCRIPT(GroupScript)->OnRemoveMember(group, guid, method, kicker, reason);
 }
 
-void ScriptMgr::OnGroupChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid)
+void ScriptMgr::OnGroupChangeLeader(Group* group, ObjectGuid newLeaderGuid, ObjectGuid oldLeaderGuid)
 {
     ASSERT(group);
     FOREACH_SCRIPT(GroupScript)->OnChangeLeader(group, newLeaderGuid, oldLeaderGuid);

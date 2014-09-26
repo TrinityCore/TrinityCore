@@ -39,22 +39,23 @@ class WorldSession;
 
 enum CreatureFlagsExtra
 {
-    CREATURE_FLAG_EXTRA_INSTANCE_BIND   = 0x00000001,       // creature kill bind instance with killer and killer's group
-    CREATURE_FLAG_EXTRA_CIVILIAN        = 0x00000002,       // not aggro (ignore faction/reputation hostility)
-    CREATURE_FLAG_EXTRA_NO_PARRY        = 0x00000004,       // creature can't parry
-    CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN = 0x00000008,       // creature can't counter-attack at parry
-    CREATURE_FLAG_EXTRA_NO_BLOCK        = 0x00000010,       // creature can't block
-    CREATURE_FLAG_EXTRA_NO_CRUSH        = 0x00000020,       // creature can't do crush attacks
-    CREATURE_FLAG_EXTRA_NO_XP_AT_KILL   = 0x00000040,       // creature kill not provide XP
-    CREATURE_FLAG_EXTRA_TRIGGER         = 0x00000080,       // trigger creature
-    CREATURE_FLAG_EXTRA_NO_TAUNT        = 0x00000100,       // creature is immune to taunt auras and effect attack me
-    CREATURE_FLAG_EXTRA_WORLDEVENT      = 0x00004000,       // custom flag for world event creatures (left room for merging)
-    CREATURE_FLAG_EXTRA_GUARD           = 0x00008000,       // Creature is guard
-    CREATURE_FLAG_EXTRA_NO_CRIT         = 0x00020000,       // creature can't do critical strikes
-    CREATURE_FLAG_EXTRA_NO_SKILLGAIN    = 0x00040000,       // creature won't increase weapon skills
-    CREATURE_FLAG_EXTRA_TAUNT_DIMINISH  = 0x00080000,       // Taunt is a subject to diminishing returns on this creautre
-    CREATURE_FLAG_EXTRA_ALL_DIMINISH    = 0x00100000,       // Creature is subject to all diminishing returns as player are
-    CREATURE_FLAG_EXTRA_DUNGEON_BOSS    = 0x10000000        // creature is a dungeon boss (SET DYNAMICALLY, DO NOT ADD IN DB)
+    CREATURE_FLAG_EXTRA_INSTANCE_BIND       = 0x00000001,       // creature kill bind instance with killer and killer's group
+    CREATURE_FLAG_EXTRA_CIVILIAN            = 0x00000002,       // not aggro (ignore faction/reputation hostility)
+    CREATURE_FLAG_EXTRA_NO_PARRY            = 0x00000004,       // creature can't parry
+    CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN     = 0x00000008,       // creature can't counter-attack at parry
+    CREATURE_FLAG_EXTRA_NO_BLOCK            = 0x00000010,       // creature can't block
+    CREATURE_FLAG_EXTRA_NO_CRUSH            = 0x00000020,       // creature can't do crush attacks
+    CREATURE_FLAG_EXTRA_NO_XP_AT_KILL       = 0x00000040,       // creature kill not provide XP
+    CREATURE_FLAG_EXTRA_TRIGGER             = 0x00000080,       // trigger creature
+    CREATURE_FLAG_EXTRA_NO_TAUNT            = 0x00000100,       // creature is immune to taunt auras and effect attack me
+    CREATURE_FLAG_EXTRA_WORLDEVENT          = 0x00004000,       // custom flag for world event creatures (left room for merging)
+    CREATURE_FLAG_EXTRA_GUARD               = 0x00008000,       // Creature is guard
+    CREATURE_FLAG_EXTRA_NO_CRIT             = 0x00020000,       // creature can't do critical strikes
+    CREATURE_FLAG_EXTRA_NO_SKILLGAIN        = 0x00040000,       // creature won't increase weapon skills
+    CREATURE_FLAG_EXTRA_TAUNT_DIMINISH      = 0x00080000,       // Taunt is a subject to diminishing returns on this creautre
+    CREATURE_FLAG_EXTRA_ALL_DIMINISH        = 0x00100000,       // Creature is subject to all diminishing returns as player are
+    CREATURE_FLAG_EXTRA_DUNGEON_BOSS        = 0x10000000,       // creature is a dungeon boss (SET DYNAMICALLY, DO NOT ADD IN DB)
+    CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING  = 0x20000000        // creature ignore pathfinding
 };
 
 #define CREATURE_FLAG_EXTRA_DB_ALLOWED (CREATURE_FLAG_EXTRA_INSTANCE_BIND | CREATURE_FLAG_EXTRA_CIVILIAN | \
@@ -62,7 +63,7 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_NO_CRUSH | CREATURE_FLAG_EXTRA_NO_XP_AT_KILL | CREATURE_FLAG_EXTRA_TRIGGER | \
     CREATURE_FLAG_EXTRA_NO_TAUNT | CREATURE_FLAG_EXTRA_WORLDEVENT | CREATURE_FLAG_EXTRA_NO_CRIT | \
     CREATURE_FLAG_EXTRA_NO_SKILLGAIN | CREATURE_FLAG_EXTRA_TAUNT_DIMINISH | CREATURE_FLAG_EXTRA_ALL_DIMINISH | \
-    CREATURE_FLAG_EXTRA_GUARD)
+    CREATURE_FLAG_EXTRA_GUARD | CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING)
 
 #define CREATURE_REGEN_INTERVAL 2 * IN_MILLISECONDS
 
@@ -553,11 +554,11 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void StartPickPocketRefillTimer();
         void ResetPickPocketRefillTimer() { _pickpocketLootRestore = 0; }
         bool CanGeneratePickPocketLoot() const { return _pickpocketLootRestore <= time(NULL); }
-        void SetSkinner(uint64 guid) { _skinner = guid; }
-        uint64 GetSkinner() const { return _skinner; } // Returns the player who skinned this creature
+        void SetSkinner(ObjectGuid guid) { _skinner = guid; }
+        ObjectGuid GetSkinner() const { return _skinner; } // Returns the player who skinned this creature
         Player* GetLootRecipient() const;
         Group* GetLootRecipientGroup() const;
-        bool hasLootRecipient() const { return m_lootRecipient || m_lootRecipientGroup; }
+        bool hasLootRecipient() const { return !m_lootRecipient.IsEmpty() || m_lootRecipientGroup; }
         bool isTappedBy(Player const* player) const;                          // return true if the creature is tapped by the player or a member of his party.
 
         void SetLootRecipient (Unit* unit);
@@ -675,7 +676,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool m_isTempWorldObject; //true when possessed
 
         // Handling caster facing during spellcast
-        void SetTarget(uint64 guid) override;
+        void SetTarget(ObjectGuid guid) override;
         void FocusTarget(Spell const* focusSpell, WorldObject const* target);
         void ReleaseFocus(Spell const* focusSpell);
 
@@ -688,9 +689,9 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         static float _GetHealthMod(int32 Rank);
 
-        uint64 m_lootRecipient;
+        ObjectGuid m_lootRecipient;
         uint32 m_lootRecipientGroup;
-        uint64 _skinner;
+        ObjectGuid _skinner;
 
         /// Timers
         time_t _pickpocketLootRestore;
@@ -747,15 +748,15 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 class AssistDelayEvent : public BasicEvent
 {
     public:
-        AssistDelayEvent(uint64 victim, Unit& owner) : BasicEvent(), m_victim(victim), m_owner(owner) { }
+        AssistDelayEvent(ObjectGuid victim, Unit& owner) : BasicEvent(), m_victim(victim), m_owner(owner) { }
 
         bool Execute(uint64 e_time, uint32 p_time) override;
-        void AddAssistant(uint64 guid) { m_assistants.push_back(guid); }
+        void AddAssistant(ObjectGuid guid) { m_assistants.push_back(guid); }
     private:
         AssistDelayEvent();
 
-        uint64            m_victim;
-        std::list<uint64> m_assistants;
+        ObjectGuid        m_victim;
+        GuidList          m_assistants;
         Unit&             m_owner;
 };
 

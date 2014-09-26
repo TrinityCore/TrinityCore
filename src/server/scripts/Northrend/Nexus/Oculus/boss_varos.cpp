@@ -59,7 +59,16 @@ class boss_varos : public CreatureScript
 
         struct boss_varosAI : public BossAI
         {
-            boss_varosAI(Creature* creature) : BossAI(creature, DATA_VAROS) { }
+            boss_varosAI(Creature* creature) : BossAI(creature, DATA_VAROS)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                firstCoreEnergize = false;
+                coreEnergizeOrientation = 0.0f;
+            }
 
             void InitializeAI() override
             {
@@ -77,8 +86,7 @@ class boss_varos : public CreatureScript
                 // not sure if this is handled by a timer or hp percentage
                 events.ScheduleEvent(EVENT_CALL_AZURE, urand(15, 30) * IN_MILLISECONDS);
 
-                firstCoreEnergize = false;
-                coreEnergizeOrientation = 0.0f;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -170,12 +178,18 @@ class npc_azure_ring_captain : public CreatureScript
         {
             npc_azure_ring_captainAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                targetGUID.Clear();
             }
 
             void Reset() override
             {
-                targetGUID = 0;
+                Initialize();
 
                 me->SetWalk(true);
                 //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
@@ -217,7 +231,7 @@ class npc_azure_ring_captain : public CreatureScript
                 switch (action)
                 {
                    case ACTION_CALL_DRAGON_EVENT:
-                        if (Creature* varos = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VAROS)))
+                        if (Creature* varos = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VAROS)))
                         {
                             if (Unit* victim = varos->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
@@ -232,7 +246,7 @@ class npc_azure_ring_captain : public CreatureScript
            }
 
         private:
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             InstanceScript* instance;
         };
 
@@ -315,7 +329,7 @@ class spell_varos_energize_core_area_enemy : public SpellScriptLoader
                 for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
                 {
                     float angle = varos->GetAngle((*itr)->GetPositionX(), (*itr)->GetPositionY());
-                    float diff = fabs(orientation - angle);
+                    float diff = std::fabs(orientation - angle);
 
                     if (diff > 1.0f)
                         itr = targets.erase(itr);
@@ -359,7 +373,7 @@ class spell_varos_energize_core_area_entry : public SpellScriptLoader
                 for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
                 {
                     float angle = varos->GetAngle((*itr)->GetPositionX(), (*itr)->GetPositionY());
-                    float diff = fabs(orientation - angle);
+                    float diff = std::fabs(orientation - angle);
 
                     if (diff > 1.0f)
                         itr = targets.erase(itr);

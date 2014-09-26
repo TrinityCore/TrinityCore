@@ -53,12 +53,18 @@ class boss_kurinnaxx : public CreatureScript
         {
             boss_kurinnaxxAI(Creature* creature) : BossAI(creature, DATA_KURINNAXX)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _enraged = false;
             }
 
             void Reset() override
             {
                 _Reset();
-                _enraged = false;
+                Initialize();
                 events.ScheduleEvent(EVENT_MORTAL_WOUND, 8000);
                 events.ScheduleEvent(EVENT_SANDTRAP, urand(5000, 15000));
                 events.ScheduleEvent(EVENT_TRASH, 1000);
@@ -77,7 +83,7 @@ class boss_kurinnaxx : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
-                if (Creature* Ossirian = me->GetMap()->GetCreature(instance->GetData64(DATA_OSSIRIAN)))
+                if (Creature* Ossirian = me->GetMap()->GetCreature(instance->GetGuidData(DATA_OSSIRIAN)))
                     sCreatureTextMgr->SendChat(Ossirian, SAY_KURINAXX_DEATH, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
             }
 

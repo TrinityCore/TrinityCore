@@ -29,16 +29,8 @@ class instance_drak_tharon_keep : public InstanceMapScript
         {
             instance_drak_tharon_keep_InstanceScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-
-                TrollgoreGUID       = 0;
-                NovosGUID           = 0;
-                KingDredGUID        = 0;
-                TharonJaGUID        = 0;
-
-                memset(TrollgoreInvaderSummonerGuids, 0, 3 * sizeof(uint64));
-                memset(NovosCrystalGUIDs, 0, 4 * sizeof(uint64));
-                memset(NovosSummonerGUIDs, 0, 4 * sizeof(uint64));
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -121,7 +113,7 @@ class instance_drak_tharon_keep : public InstanceMapScript
                     NovosSummonerGUIDs[3] = creature->GetGUID();
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -149,7 +141,7 @@ class instance_drak_tharon_keep : public InstanceMapScript
                         return NovosSummonerGUIDs[type - DATA_NOVOS_SUMMONER_1];
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void OnUnitDeath(Unit* unit) override
@@ -159,58 +151,15 @@ class instance_drak_tharon_keep : public InstanceMapScript
                         novos->AI()->DoAction(ACTION_CRYSTAL_HANDLER_DIED);
             }
 
-            std::string GetSaveData() override
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "D K " << GetBossSaveData();
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(char const* str) override
-            {
-                if (!str)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(str);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(str);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'D' && dataHead2 == 'K')
-                {
-                    for (uint32 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
-            }
-
         protected:
-            uint64 TrollgoreGUID;
-            uint64 NovosGUID;
-            uint64 KingDredGUID;
-            uint64 TharonJaGUID;
+            ObjectGuid TrollgoreGUID;
+            ObjectGuid NovosGUID;
+            ObjectGuid KingDredGUID;
+            ObjectGuid TharonJaGUID;
 
-            uint64 TrollgoreInvaderSummonerGuids[3];
-            uint64 NovosCrystalGUIDs[4];
-            uint64 NovosSummonerGUIDs[4];
+            ObjectGuid TrollgoreInvaderSummonerGuids[3];
+            ObjectGuid NovosCrystalGUIDs[4];
+            ObjectGuid NovosSummonerGUIDs[4];
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

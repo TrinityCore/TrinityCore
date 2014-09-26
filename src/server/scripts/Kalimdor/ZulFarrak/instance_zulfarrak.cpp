@@ -108,38 +108,29 @@ public:
 
     struct instance_zulfarrak_InstanceMapScript : public InstanceScript
     {
-        instance_zulfarrak_InstanceMapScript(Map* map) : InstanceScript(map) { }
-
-        uint32 GahzRillaEncounter;
-        uint64 ZumrahGUID;
-        uint64 BlyGUID;
-        uint64 WeegliGUID;
-        uint64 OroGUID;
-        uint64 RavenGUID;
-        uint64 MurtaGUID;
-        uint64 EndDoorGUID;
-        uint32 PyramidPhase;
-        uint32 major_wave_Timer;
-        uint32 minor_wave_Timer;
-        uint32 addGroupSize;
-        uint32 waypoint;
-
-        void Initialize() override
+        instance_zulfarrak_InstanceMapScript(Map* map) : InstanceScript(map)
         {
-            GahzRillaEncounter = NOT_STARTED;
-            ZumrahGUID = 0;
-            BlyGUID = 0;
-            WeegliGUID = 0;
-            OroGUID = 0;
-            RavenGUID = 0;
-            MurtaGUID = 0;
-            EndDoorGUID = 0;
+            SetHeaders(DataHeader);
             PyramidPhase = 0;
             major_wave_Timer = 0;
             minor_wave_Timer = 0;
             addGroupSize = 0;
             waypoint = 0;
         }
+
+        uint32 GahzRillaEncounter;
+        ObjectGuid ZumrahGUID;
+        ObjectGuid BlyGUID;
+        ObjectGuid WeegliGUID;
+        ObjectGuid OroGUID;
+        ObjectGuid RavenGUID;
+        ObjectGuid MurtaGUID;
+        ObjectGuid EndDoorGUID;
+        uint32 PyramidPhase;
+        uint32 major_wave_Timer;
+        uint32 minor_wave_Timer;
+        uint32 addGroupSize;
+        uint32 waypoint;
 
         void OnCreatureCreate(Creature* creature) override
         {
@@ -197,7 +188,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 data) const override
+        ObjectGuid GetGuidData(uint32 data) const override
         {
             switch (data)
             {
@@ -216,7 +207,7 @@ public:
                 case GO_END_DOOR:
                     return EndDoorGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data) override
@@ -314,11 +305,11 @@ public:
             };
         }
 
-        std::list<uint64> addsAtBase, movedadds;
+        GuidList addsAtBase, movedadds;
 
         void MoveNPCIfAlive(uint32 entry, float x, float y, float z, float o)
         {
-           if (Creature* npc = instance->GetCreature(GetData64(entry)))
+           if (Creature* npc = instance->GetCreature(GetGuidData(entry)))
            {
                if (npc->IsAlive())
                {
@@ -345,7 +336,7 @@ public:
 
         bool IsWaveAllDead()
         {
-            for (std::list<uint64>::iterator itr = addsAtBase.begin(); itr != addsAtBase.end(); ++itr)
+            for (GuidList::iterator itr = addsAtBase.begin(); itr != addsAtBase.end(); ++itr)
             {
                 if (Creature* add = instance->GetCreature((*itr)))
                 {
@@ -353,7 +344,7 @@ public:
                         return false;
                 }
             }
-            for (std::list<uint64>::iterator itr = movedadds.begin(); itr != movedadds.end(); ++itr)
+            for (GuidList::iterator itr = movedadds.begin(); itr != movedadds.end(); ++itr)
             {
                 if (Creature* add = instance->GetCreature(((*itr))))
                 {

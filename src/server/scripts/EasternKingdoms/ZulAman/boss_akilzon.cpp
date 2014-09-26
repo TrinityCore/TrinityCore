@@ -88,19 +88,26 @@ class boss_akilzon : public CreatureScript
         {
             boss_akilzonAI(Creature* creature) : BossAI(creature, DATA_AKILZONEVENT)
             {
-                memset(BirdGUIDs, 0, sizeof(BirdGUIDs));
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                TargetGUID.Clear();
+                CloudGUID.Clear();
+                CycloneGUID.Clear();
+                for (ObjectGuid& guid : BirdGUIDs)
+                    guid.Clear();
+
+                StormCount = 0;
+                isRaining = false;
             }
 
             void Reset() override
             {
                 _Reset();
 
-                TargetGUID = 0;
-                CloudGUID = 0;
-                CycloneGUID = 0;
-                memset(BirdGUIDs, 0, sizeof(BirdGUIDs));
-                StormCount = 0;
-                isRaining = false;
+                Initialize();
 
                 SetWeather(WEATHER_STATE_FINE, 0.0f);
             }
@@ -206,7 +213,7 @@ class boss_akilzon : public CreatureScript
                     StormCount = 0; // finish
                     events.ScheduleEvent(EVENT_SUMMON_EAGLES, 5000);
                     me->InterruptNonMeleeSpells(false);
-                    CloudGUID = 0;
+                    CloudGUID.Clear();
                     if (Cloud)
                         Cloud->DealDamage(Cloud, Cloud->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     SetWeather(WEATHER_STATE_FINE, 0.0f);
@@ -359,10 +366,10 @@ class boss_akilzon : public CreatureScript
             }
 
             private:
-                uint64 BirdGUIDs[8];
-                uint64 TargetGUID;
-                uint64 CycloneGUID;
-                uint64 CloudGUID;
+                ObjectGuid BirdGUIDs[8];
+                ObjectGuid TargetGUID;
+                ObjectGuid CycloneGUID;
+                ObjectGuid CloudGUID;
                 uint8  StormCount;
                 bool   isRaining;
         };
@@ -380,17 +387,25 @@ class npc_akilzon_eagle : public CreatureScript
 
         struct npc_akilzon_eagleAI : public ScriptedAI
         {
-            npc_akilzon_eagleAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_akilzon_eagleAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
 
-            uint32 EagleSwoop_Timer;
-            bool arrived;
-            uint64 TargetGUID;
-
-            void Reset() override
+            void Initialize()
             {
                 EagleSwoop_Timer = urand(5000, 10000);
                 arrived = true;
-                TargetGUID = 0;
+                TargetGUID.Clear();
+            }
+
+            uint32 EagleSwoop_Timer;
+            bool arrived;
+            ObjectGuid TargetGUID;
+
+            void Reset() override
+            {
+                Initialize();
                 me->SetDisableGravity(true);
             }
 
@@ -409,7 +424,7 @@ class npc_akilzon_eagle : public CreatureScript
                 {
                     if (Unit* target = ObjectAccessor::GetUnit(*me, TargetGUID))
                         DoCast(target, SPELL_EAGLE_SWOOP, true);
-                    TargetGUID = 0;
+                    TargetGUID.Clear();
                     me->SetSpeed(MOVE_RUN, 1.2f);
                     EagleSwoop_Timer = urand(5000, 10000);
                 }

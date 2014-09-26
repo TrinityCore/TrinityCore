@@ -19,6 +19,7 @@
 #define UTGARDE_KEEP_H_
 
 #define UKScriptName "instance_utgarde_keep"
+#define DataHeader "UK"
 
 uint32 const EncounterCount = 3;
 
@@ -75,11 +76,11 @@ enum GameObjectIds
 
 struct ForgeInfo
 {
-    ForgeInfo() : AnvilGUID(0), BellowGUID(0), FireGUID(0), Event(NOT_STARTED) { };
+    ForgeInfo() : Event(NOT_STARTED) { };
 
-    uint64 AnvilGUID;
-    uint64 BellowGUID;
-    uint64 FireGUID;
+    ObjectGuid AnvilGUID;
+    ObjectGuid BellowGUID;
+    ObjectGuid FireGUID;
 
     uint32 Event;
 };

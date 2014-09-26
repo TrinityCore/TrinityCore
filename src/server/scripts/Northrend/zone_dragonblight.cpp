@@ -158,8 +158,12 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
             void Reset() override
             {
                 talkWing = 0;
-                memset(audienceList, 0, sizeof(audienceList));
-                memset(imageList, 0, sizeof(imageList));
+                for (ObjectGuid& guid : audienceList)
+                    guid.Clear();
+
+                for (ObjectGuid& guid : imageList)
+                    guid.Clear();
+
                 _events.ScheduleEvent(EVENT_GET_TARGETS, 5000);
                 _events.ScheduleEvent(EVENT_START_RANDOM, 20000);
             }
@@ -351,8 +355,8 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
             }
             private:
                 EventMap _events;
-                uint64   audienceList[10];
-                uint64   imageList[5];
+                ObjectGuid audienceList[10];
+                ObjectGuid imageList[5];
                 uint8    talkWing;
         };
 
@@ -561,7 +565,18 @@ class npc_wyrmrest_defender : public CreatureScript
 
         struct npc_wyrmrest_defenderAI : public VehicleAI
         {
-            npc_wyrmrest_defenderAI(Creature* creature) : VehicleAI(creature) { }
+            npc_wyrmrest_defenderAI(Creature* creature) : VehicleAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                hpWarningReady = true;
+                renewRecoveryCanCheck = false;
+
+                RenewRecoveryChecker = 0;
+            }
 
             bool hpWarningReady;
             bool renewRecoveryCanCheck;
@@ -570,10 +585,7 @@ class npc_wyrmrest_defender : public CreatureScript
 
             void Reset() override
             {
-                hpWarningReady = true;
-                renewRecoveryCanCheck = false;
-
-                RenewRecoveryChecker = 0;
+                Initialize();
             }
 
             void UpdateAI(uint32 diff) override
@@ -652,13 +664,12 @@ class npc_torturer_lecraft : public CreatureScript
             npc_torturer_lecraftAI(Creature* creature) : ScriptedAI(creature)
             {
                 _textCounter = 1;
-                _playerGUID = 0;
             }
 
             void Reset() override
             {
                 _textCounter = 1;
-                _playerGUID  = 0;
+                _playerGUID.Clear();
             }
 
             void EnterCombat(Unit* who) override
@@ -686,7 +697,7 @@ class npc_torturer_lecraft : public CreatureScript
                     Talk(_textCounter, player);
 
                     if (_textCounter == 5)
-                        player->KilledMonsterCredit(NPC_TORTURER_LECRAFT, 0);
+                        player->KilledMonsterCredit(NPC_TORTURER_LECRAFT);
 
                     ++_textCounter;
 
@@ -723,7 +734,7 @@ class npc_torturer_lecraft : public CreatureScript
             private:
                 EventMap _events;
                 uint8    _textCounter;
-                uint64   _playerGUID;
+                ObjectGuid _playerGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const

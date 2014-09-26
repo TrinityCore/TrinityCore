@@ -62,7 +62,19 @@ class boss_laj : public CreatureScript
 
         struct boss_lajAI : public BossAI
         {
-            boss_lajAI(Creature* creature) : BossAI(creature, DATA_LAJ) { }
+            boss_lajAI(Creature* creature) : BossAI(creature, DATA_LAJ)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                CanSummon = false;
+                Teleport_Timer = 20000;
+                Summon_Timer = 2500;
+                Transform_Timer = 30000;
+                Allergic_Timer = 5000;
+            }
 
             bool CanSummon;
             uint32 Teleport_Timer;
@@ -79,11 +91,7 @@ class boss_laj : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, false);
                 me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
 
-                CanSummon = false;
-                Teleport_Timer = 20000;
-                Summon_Timer = 2500;
-                Transform_Timer = 30000;
-                Allergic_Timer = 5000;
+                Initialize();
             }
 
             void DoTransform()

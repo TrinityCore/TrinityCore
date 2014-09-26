@@ -28,6 +28,7 @@ class instance_mana_tombs : public InstanceMapScript
         {
             instance_mana_tombs_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
             }
         };

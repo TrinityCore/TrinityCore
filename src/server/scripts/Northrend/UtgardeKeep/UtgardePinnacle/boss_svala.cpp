@@ -137,13 +137,20 @@ class boss_svala : public CreatureScript
         {
             boss_svalaAI(Creature* creature) : BossAI(creature, DATA_SVALA_SORROWGRAVE)
             {
+                Initialize();
                 _introCompleted = false;
+            }
+
+            void Initialize()
+            {
+                _arthasGUID.Clear();
+                _sacrificed = false;
             }
 
             void Reset() override
             {
                 _Reset();
-                _sacrificed = false;
+
                 SetCombatMovement(true);
 
                 if (_introCompleted)
@@ -153,9 +160,9 @@ class boss_svala : public CreatureScript
 
                 me->SetDisableGravity(events.IsInPhase(NORMAL));
 
-                _arthasGUID = 0;
+                Initialize();
 
-                instance->SetData64(DATA_SACRIFICED_PLAYER, 0);
+                instance->SetGuidData(DATA_SACRIFICED_PLAYER, ObjectGuid::Empty);
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -181,7 +188,7 @@ class boss_svala : public CreatureScript
                     events.SetPhase(INTRO);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-                    if (GameObject* mirror = ObjectAccessor::GetGameObject(*me, DATA_UTGARDE_MIRROR))
+                    if (GameObject* mirror = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_UTGARDE_MIRROR)))
                         mirror->SetGoState(GO_STATE_READY);
 
                     if (Creature* arthas = me->SummonCreature(NPC_ARTHAS, ArthasPos, TEMPSUMMON_MANUAL_DESPAWN))
@@ -324,12 +331,12 @@ class boss_svala : public CreatureScript
                             break;
                         }
                         case EVENT_INTRO_DESPAWN_ARTHAS:
-                            if (GameObject* mirror = ObjectAccessor::GetGameObject(*me, DATA_UTGARDE_MIRROR))
+                            if (GameObject* mirror = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_UTGARDE_MIRROR)))
                                 mirror->SetGoState(GO_STATE_ACTIVE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             if (Creature* arthas = ObjectAccessor::GetCreature(*me, _arthasGUID))
                                 arthas->DespawnOrUnsummon();
-                            _arthasGUID = 0;
+                            _arthasGUID.Clear();
                             events.SetPhase(NORMAL);
                             _introCompleted = true;
                             events.ScheduleEvent(EVENT_SINISTER_STRIKE, 7 * IN_MILLISECONDS, 0, NORMAL);
@@ -347,7 +354,7 @@ class boss_svala : public CreatureScript
                         case EVENT_RITUAL_PREPARATION:
                             if (Unit* sacrificeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80.0f, true))
                             {
-                                instance->SetData64(DATA_SACRIFICED_PLAYER, sacrificeTarget->GetGUID());
+                                instance->SetGuidData(DATA_SACRIFICED_PLAYER, sacrificeTarget->GetGUID());
                                 Talk(SAY_SACRIFICE_PLAYER);
                                 DoCast(sacrificeTarget, SPELL_RITUAL_PREPARATION);
                                 SetCombatMovement(false);
@@ -378,7 +385,7 @@ class boss_svala : public CreatureScript
             }
 
         private:
-            uint64 _arthasGUID;
+            ObjectGuid _arthasGUID;
             bool _sacrificed;
             bool _introCompleted;
         };
@@ -398,9 +405,15 @@ class npc_ritual_channeler : public CreatureScript
         {
             npc_ritual_channelerAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
 
                 SetCombatMovement(false);
+            }
+
+            void Initialize()
+            {
+                paralyzeTimer = 1600;
             }
 
             InstanceScript* instance;
@@ -408,7 +421,7 @@ class npc_ritual_channeler : public CreatureScript
 
             void Reset() override
             {
-                paralyzeTimer = 1600;
+                Initialize();
 
                 if (IsHeroic())
                     DoCast(me, SPELL_SHADOWS_IN_THE_DARK);
@@ -421,7 +434,7 @@ class npc_ritual_channeler : public CreatureScript
 
                 if (paralyzeTimer <= diff)
                 {
-                    if (Unit* victim = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_SACRIFICED_PLAYER)))
+                    if (Unit* victim = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_SACRIFICED_PLAYER)))
                         DoCast(victim, SPELL_PARALYZE, false);
 
                     paralyzeTimer = 200;
@@ -474,7 +487,7 @@ class RitualTargetCheck
         bool operator() (WorldObject* obj) const
         {
             if (InstanceScript* instance = obj->GetInstanceScript())
-                if (instance->GetData64(DATA_SACRIFICED_PLAYER) == obj->GetGUID())
+                if (instance->GetGuidData(DATA_SACRIFICED_PLAYER) == obj->GetGUID())
                     return false;
 
             return true;
@@ -514,16 +527,24 @@ class npc_scourge_hulk : public CreatureScript
 
         struct npc_scourge_hulkAI : public ScriptedAI
         {
-            npc_scourge_hulkAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_scourge_hulkAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                mightyBlow = urand(4000, 9000);
+                volatileInfection = urand(10000, 14000);
+                killedByRitualStrike = false;
+            }
 
             uint32 mightyBlow;
             uint32 volatileInfection;
 
             void Reset() override
             {
-                mightyBlow = urand(4000, 9000);
-                volatileInfection = urand(10000, 14000);
-                killedByRitualStrike = false;
+                Initialize();
             }
 
             uint32 GetData(uint32 type) const override

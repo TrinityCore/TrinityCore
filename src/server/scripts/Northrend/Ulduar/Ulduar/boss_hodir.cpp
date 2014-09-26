@@ -181,20 +181,26 @@ class npc_flash_freeze : public CreatureScript
         {
             npc_flash_freezeAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = me->GetInstanceScript();
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
             }
 
+            void Initialize()
+            {
+                targetGUID.Clear();
+                checkDespawnTimer = 1000;
+            }
+
             InstanceScript* instance;
 
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             uint32 checkDespawnTimer;
 
             void Reset() override
             {
-                targetGUID = 0;
-                checkDespawnTimer = 1000;
+                Initialize();
             }
 
             void UpdateAI(uint32 diff) override
@@ -230,7 +236,7 @@ class npc_flash_freeze : public CreatureScript
                     // Prevents to have Ice Block on other place than target is
                     me->NearTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
                     if (target->GetTypeId() == TYPEID_PLAYER)
-                        if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_HODIR)))
+                        if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_HODIR)))
                             Hodir->AI()->DoAction(ACTION_CHEESE_THE_FREEZE);
                 }
             }
@@ -254,12 +260,11 @@ class npc_ice_block : public CreatureScript
                 instance = me->GetInstanceScript();
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
-                targetGUID = 0;
             }
 
             InstanceScript* instance;
 
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
 
             void IsSummonedBy(Unit* summoner) override
             {
@@ -282,7 +287,7 @@ class npc_ice_block : public CreatureScript
                 {
                     Helper->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
 
-                    if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_HODIR)))
+                    if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_HODIR)))
                     {
                         if (!Hodir->IsInCombat())
                         {
@@ -312,7 +317,17 @@ class boss_hodir : public CreatureScript
         {
             boss_hodirAI(Creature* creature) : BossAI(creature, BOSS_HODIR)
             {
+                Initialize();
                 me->SetReactState(REACT_PASSIVE);
+            }
+
+            void Initialize()
+            {
+                gettingColdInHereTimer = 0;
+                gettingColdInHere = false;
+                cheeseTheFreeze = false;
+                iHaveTheCoolestFriends = false;
+                iCouldSayThatThisCacheWasRare = false;
             }
 
             uint32 gettingColdInHereTimer;
@@ -324,6 +339,8 @@ class boss_hodir : public CreatureScript
 
             void Reset() override
             {
+                Initialize();
+
                 _Reset();
                 me->SetReactState(REACT_PASSIVE);
 
@@ -520,16 +537,22 @@ class npc_icicle : public CreatureScript
         {
             npc_icicleAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
+            }
+
+            void Initialize()
+            {
+                icicleTimer = 2500;
             }
 
             uint32 icicleTimer;
 
             void Reset() override
             {
-                icicleTimer = 2500;
+                Initialize();
             }
 
             void UpdateAI(uint32 diff) override
@@ -568,16 +591,22 @@ class npc_snowpacked_icicle : public CreatureScript
         {
             npc_snowpacked_icicleAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
                 me->SetReactState(REACT_PASSIVE);
+            }
+
+            void Initialize()
+            {
+                despawnTimer = 12000;
             }
 
             uint32 despawnTimer;
 
             void Reset() override
             {
-                despawnTimer = 12000;
+                Initialize();
             }
 
             void UpdateAI(uint32 diff) override
@@ -661,7 +690,7 @@ class npc_hodir_priest : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
              {
-                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_HODIR)))
+                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_HODIR)))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
               }
 
@@ -723,7 +752,7 @@ class npc_hodir_shaman : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
              {
-                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_HODIR)))
+                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_HODIR)))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
               }
 
@@ -784,7 +813,7 @@ class npc_hodir_druid : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
              {
-                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_HODIR)))
+                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_HODIR)))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
               }
 
@@ -864,7 +893,7 @@ class npc_hodir_mage : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
              {
-                  if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_HODIR)))
+                  if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_HODIR)))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
               }
 
@@ -960,7 +989,7 @@ class spell_biting_cold : public SpellScriptLoader
             }
 
         private:
-            typedef std::list< std::pair<uint64, uint8> > TargetList;
+            typedef std::list<std::pair<ObjectGuid, uint8>> TargetList;
             TargetList listOfTargets;
         };
 
@@ -985,7 +1014,7 @@ public:
             if (!caster)
                 return;
 
-            int32 damage = int32(200 * pow(2.0f, GetStackAmount()));
+            int32 damage = int32(200 * std::pow(2.0f, GetStackAmount()));
             caster->CastCustomSpell(caster, SPELL_BITING_COLD_DAMAGE, &damage, NULL, NULL, true);
 
             if (caster->isMoving())

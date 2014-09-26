@@ -29,10 +29,7 @@ enum Enums
     SPELL_TWILIGHT_RESIDUE                      = 61885,    // makes immune to shadow damage, applied when leave phase
 
     //Miniboses (Vesperon, Shadron, Tenebron)
-    SPELL_SHADOW_BREATH_H                       = 59126,    // Inflicts 8788 to 10212 Fire damage to enemies in a cone in front of the caster.
     SPELL_SHADOW_BREATH                         = 57570,    // Inflicts 6938 to 8062 Fire damage to enemies in a cone in front of the caster.
-
-    SPELL_SHADOW_FISSURE_H                      = 59127,    // Deals 9488 to 13512 Shadow damage to any enemy within the Shadow fissure after 5 sec.
     SPELL_SHADOW_FISSURE                        = 57579,    // Deals 6188 to 8812 Shadow damage to any enemy within the Shadow fissure after 5 sec.
 
     //Vesperon
@@ -49,7 +46,6 @@ enum Enums
     SPELL_GIFT_OF_TWILIGTH_SHA                  = 57835,    // TARGET_SCRIPT shadron
     SPELL_GIFT_OF_TWILIGTH_SAR                  = 58766,    // TARGET_SCRIPT sartharion
     SPELL_VOID_BLAST                            = 57581,    // Twilight Fissure
-    SPELL_VOID_BLAST_H                          = 59128,
 
     //Tenebron
     //in the portal spawns 6 eggs, if not killed in time (approx. 20s)  they will hatch,  whelps can cast 60708
@@ -165,7 +161,16 @@ struct dummy_dragonAI : public ScriptedAI
 {
     dummy_dragonAI(Creature* creature) : ScriptedAI(creature)
     {
+        Initialize();
         instance = creature->GetInstanceScript();
+    }
+
+    void Initialize()
+    {
+        waypointId = 0;
+        portalRespawnTime = 30000;
+        _canMoveFree = false;
+        _canLoot = true;
     }
 
     void Reset() override
@@ -174,10 +179,7 @@ struct dummy_dragonAI : public ScriptedAI
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
         events.Reset();
-        waypointId = 0;
-        portalRespawnTime = 30000;
-        _canMoveFree = false;
-        _canLoot = true;
+        Initialize();
     }
 
     void EnterCombat(Unit* /*who*/) override
@@ -357,7 +359,7 @@ struct dummy_dragonAI : public ScriptedAI
             return;
 
         // Twilight Revenge to main boss
-        if (Unit* sartharion = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_SARTHARION)))
+        if (Unit* sartharion = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_SARTHARION)))
             if (sartharion->IsAlive())
             {
                 sartharion->RemoveAurasDueToSpell(spellId);
@@ -382,12 +384,12 @@ struct dummy_dragonAI : public ScriptedAI
         {
             case EVENT_SHADOW_FISSURE:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                    DoCast(target, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE));
+                    DoCast(target, SPELL_SHADOW_FISSURE);
                 events.ScheduleEvent(eventId, urand(15000, 20000));
                 break;
             case EVENT_SHADOW_BREATH:
                 Talk(SAY_BREATH);
-                DoCastVictim(RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
+                DoCastVictim(SPELL_SHADOW_BREATH);
                 events.ScheduleEvent(eventId, urand(20000, 25000));
                 break;
             default:
@@ -633,12 +635,12 @@ class npc_acolyte_of_shadron : public CreatureScript
                 //if not solo fight, buff main boss, else place debuff on mini-boss. both spells TARGET_SCRIPT
                 if (instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
                 {
-                    if (Creature* sartharion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SARTHARION)))
+                    if (Creature* sartharion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SARTHARION)))
                         sartharion->AddAura(SPELL_GIFT_OF_TWILIGTH_SAR, sartharion);
                 }
                 else
                 {
-                    if (Creature* shadron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADRON)))
+                    if (Creature* shadron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADRON)))
                         shadron->AddAura(SPELL_GIFT_OF_TWILIGTH_SHA, shadron);
                 }
 
@@ -647,7 +649,7 @@ class npc_acolyte_of_shadron : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADRON)))
+                if (ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADRON)))
                     instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
 
                 Map* map = me->GetMap();
@@ -660,7 +662,7 @@ class npc_acolyte_of_shadron : public CreatureScript
 
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     {
-                        if (i->GetSource()->IsAlive() && i->GetSource()->HasAura(SPELL_TWILIGHT_SHIFT, 0) && !i->GetSource()->GetVictim())
+                        if (i->GetSource()->IsAlive() && i->GetSource()->HasAura(SPELL_TWILIGHT_SHIFT) && !i->GetSource()->GetVictim())
                         {
                             i->GetSource()->CastSpell(i->GetSource(), SPELL_TWILIGHT_SHIFT_REMOVAL_ALL, true);
                             i->GetSource()->CastSpell(i->GetSource(), SPELL_TWILIGHT_RESIDUE, true);
@@ -671,12 +673,12 @@ class npc_acolyte_of_shadron : public CreatureScript
                 }
 
                 // not solo fight, so main boss has debuff
-                if (Creature* debuffTarget = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SARTHARION)))
+                if (Creature* debuffTarget = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SARTHARION)))
                     if (debuffTarget->IsAlive() && debuffTarget->HasAura(SPELL_GIFT_OF_TWILIGTH_SAR))
                         debuffTarget->RemoveAurasDueToSpell(SPELL_GIFT_OF_TWILIGTH_SAR);
 
                 // event not in progress, then solo fight and must remove debuff mini-boss
-                if (Creature* debuffTarget = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADRON)))
+                if (Creature* debuffTarget = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADRON)))
                     if (debuffTarget->IsAlive() && debuffTarget->HasAura(SPELL_GIFT_OF_TWILIGTH_SHA))
                         debuffTarget->RemoveAurasDueToSpell(SPELL_GIFT_OF_TWILIGTH_SHA);
             }
@@ -730,7 +732,7 @@ class npc_acolyte_of_vesperon : public CreatureScript
                 me->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP_ACO);
 
                 // remove twilight torment on Vesperon
-                if (Creature* vesperon = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VESPERON)))
+                if (Creature* vesperon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VESPERON)))
                 {
                     instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
 
@@ -748,14 +750,14 @@ class npc_acolyte_of_vesperon : public CreatureScript
 
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     {
-                        if (i->GetSource()->IsAlive() && i->GetSource()->HasAura(SPELL_TWILIGHT_SHIFT, 0) && !i->GetSource()->GetVictim())
+                        if (i->GetSource()->IsAlive() && i->GetSource()->HasAura(SPELL_TWILIGHT_SHIFT) && !i->GetSource()->GetVictim())
                         {
                             i->GetSource()->CastSpell(i->GetSource(), SPELL_TWILIGHT_SHIFT_REMOVAL_ALL, true);
                             i->GetSource()->CastSpell(i->GetSource(), SPELL_TWILIGHT_RESIDUE, true);
                             i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
                             i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_ENTER);
                         }
-                        if (i->GetSource()->IsAlive() && i->GetSource()->HasAura(SPELL_TWILIGHT_TORMENT_VESP, 0) && !i->GetSource()->GetVictim())
+                        if (i->GetSource()->IsAlive() && i->GetSource()->HasAura(SPELL_TWILIGHT_TORMENT_VESP) && !i->GetSource()->GetVictim())
                             i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
                     }
                 }
@@ -834,7 +836,7 @@ public:
 
             if (events.ExecuteEvent() == EVENT_TWILIGHT_EGGS)
             {
-                if (ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TENEBRON)))
+                if (ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TENEBRON)))
                     instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
 
                 SpawnWhelps();
@@ -949,7 +951,7 @@ public:
 
             if (events.ExecuteEvent() == EVENT_VOID_BLAST)
             {
-                DoCastAOE(RAID_MODE(SPELL_VOID_BLAST, SPELL_VOID_BLAST_H));
+                DoCastAOE(SPELL_VOID_BLAST);
                 ////twilight realm
                 //DoCastVictim(57620, true);
                 //DoCastVictim(57874, true);

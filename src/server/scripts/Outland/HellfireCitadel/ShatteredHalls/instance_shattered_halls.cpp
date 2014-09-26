@@ -39,14 +39,10 @@ class instance_shattered_halls : public InstanceMapScript
 
         struct instance_shattered_halls_InstanceMapScript : public InstanceScript
         {
-            instance_shattered_halls_InstanceMapScript(Map* map) : InstanceScript(map) { }
-
-            void Initialize() override
+            instance_shattered_halls_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                nethekurseGUID      = 0;
-                nethekurseDoor1GUID = 0;
-                nethekurseDoor2GUID = 0;
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -97,7 +93,7 @@ class instance_shattered_halls : public InstanceMapScript
                 return true;
             }
 
-            uint64 GetData64(uint32 data) const override
+            ObjectGuid GetGuidData(uint32 data) const override
             {
                 switch (data)
                 {
@@ -111,56 +107,13 @@ class instance_shattered_halls : public InstanceMapScript
                         return nethekurseDoor2GUID;
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
-            std::string GetSaveData() override
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "S H " << GetBossSaveData();
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(const char* strIn) override
-            {
-                if (!strIn)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(strIn);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(strIn);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'S' && dataHead2 == 'H')
-                {
-                    for (uint8 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
-            }
-
-            protected:
-                uint64 nethekurseGUID;
-                uint64 nethekurseDoor1GUID;
-                uint64 nethekurseDoor2GUID;
+        protected:
+            ObjectGuid nethekurseGUID;
+            ObjectGuid nethekurseDoor1GUID;
+            ObjectGuid nethekurseDoor2GUID;
         };
 };
 

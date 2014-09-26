@@ -46,11 +46,11 @@ class LFGGroupScript : public GroupScript
         LFGGroupScript();
 
         // Group Hooks
-        void OnAddMember(Group* group, uint64 guid) override;
-        void OnRemoveMember(Group* group, uint64 guid, RemoveMethod method, uint64 kicker, char const* reason) override;
+        void OnAddMember(Group* group, ObjectGuid guid) override;
+        void OnRemoveMember(Group* group, ObjectGuid guid, RemoveMethod method, ObjectGuid kicker, char const* reason) override;
         void OnDisband(Group* group) override;
-        void OnChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid) override;
-        void OnInviteMember(Group* group, uint64 guid) override;
+        void OnChangeLeader(Group* group, ObjectGuid newLeaderGuid, ObjectGuid oldLeaderGuid) override;
+        void OnInviteMember(Group* group, ObjectGuid guid) override;
 };
 
 } // namespace lfg

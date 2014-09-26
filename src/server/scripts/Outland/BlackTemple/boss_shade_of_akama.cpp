@@ -165,21 +165,30 @@ public:
 
     struct boss_shade_of_akamaAI : public ScriptedAI
     {
-        boss_shade_of_akamaAI(Creature* creature) : ScriptedAI(creature), HasKilledAkamaAndReseting(false)
+        boss_shade_of_akamaAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        }
+
+        void Initialize()
+        {
+            combatStarted = false;
+            akamaReached = false;
+            HasKilledAkama = false;
+            HasKilledAkamaAndReseting = false;
         }
 
         void Reset() override
         {
             if (!HasKilledAkamaAndReseting)
             {
-                for (std::list<uint64>::const_iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
+                for (GuidList::const_iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
                     if (Creature* Channeler = ObjectAccessor::GetCreature(*me, *itr))
                         Channeler->DespawnOrUnsummon();
 
-                for (std::list<uint64>::const_iterator itr = Spawners.begin(); itr != Spawners.end(); ++itr)
+                for (GuidList::const_iterator itr = Spawners.begin(); itr != Spawners.end(); ++itr)
                     if (Creature* Spawner = ObjectAccessor::GetCreature(*me, *itr))
                         Spawner->AI()->SetData(SETDATA_DATA, SETDATA_DESPAWN_ALL_SPAWNS);
 
@@ -190,10 +199,7 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 
             me->SetWalk(true);
-            combatStarted             = false;
-            akamaReached              = false;
-            HasKilledAkama            = false;
-            HasKilledAkamaAndReseting = false;
+            Initialize();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -207,7 +213,7 @@ public:
         {
             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
             {
-                if (Creature* Akama = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AKAMA_SHADE)))
+                if (Creature* Akama = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AKAMA_SHADE)))
                     if (Akama->IsAlive())
                         ScriptedAI::AttackStart(Akama);
             }
@@ -231,7 +237,7 @@ public:
                 events.ScheduleEvent(EVENT_START_ATTACK_AKAMA, 500);
                 events.ScheduleEvent(EVENT_SET_CHANNELERS_SPAWNERS, 1000);
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
-                if (Creature* Akama = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AKAMA_SHADE)))
+                if (Creature* Akama = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AKAMA_SHADE)))
                     me->AddThreat(Akama, 10000000.0f);
             }
             else if (spell->Id == SPELL_SHADE_SOUL_CHANNEL_2)
@@ -244,8 +250,8 @@ public:
 
             if (me->GetAuraCount(SPELL_SHADE_SOUL_CHANNEL_2) <= 3)
             {
-                moveSpeed = (2.0 - (0.6 * me->GetAuraCount(SPELL_SHADE_SOUL_CHANNEL_2)));
-                me->SetSpeed(MOVE_WALK, moveSpeed / 2.5);
+                moveSpeed = (2.0f - (0.6f * me->GetAuraCount(SPELL_SHADE_SOUL_CHANNEL_2)));
+                me->SetSpeed(MOVE_WALK, moveSpeed / 2.5f);
                 me->SetSpeed(MOVE_RUN, (moveSpeed * 2) / 7);
                 me->ClearUnitState(UNIT_STATE_ROOT);
             }
@@ -267,7 +273,7 @@ public:
                     switch (eventId)
                     {
                         case EVENT_RESET_ENCOUNTER:
-                            if (Creature* Akama = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AKAMA_SHADE)))
+                            if (Creature* Akama = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AKAMA_SHADE)))
                                 if (!Akama->IsAlive())
                                     Akama->Respawn();
                             break;
@@ -307,17 +313,13 @@ public:
                     {
                         case EVENT_SET_CHANNELERS_SPAWNERS:
                         {
-                            for (std::list<uint64>::const_iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
-                            {
+                            for (GuidList::const_iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
                                 if (Creature* Channeler = ObjectAccessor::GetCreature(*me, *itr))
                                     Channeler->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            }
 
-                            for (std::list<uint64>::const_iterator itr = Spawners.begin(); itr != Spawners.end(); ++itr)
-                            {
+                            for (GuidList::const_iterator itr = Spawners.begin(); itr != Spawners.end(); ++itr)
                                 if (Creature* Spawner = ObjectAccessor::GetCreature(*me, *itr))
                                     Spawner->AI()->SetData(SETDATA_DATA, SETDATA_START_SPAWNING);
-                            }
                             break;
                         }
                         case EVENT_START_ATTACK_AKAMA:
@@ -347,14 +349,14 @@ public:
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         combatStarted = false;
 
-                        if (Creature* Akama = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AKAMA_SHADE)))
+                        if (Creature* Akama = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AKAMA_SHADE)))
                             Akama->DespawnOrUnsummon();
 
-                        for (std::list<uint64>::const_iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
+                        for (GuidList::const_iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
                             if (Creature* Channeler = ObjectAccessor::GetCreature(*me, *itr))
                                 Channeler->DespawnOrUnsummon();
 
-                        for (std::list<uint64>::const_iterator itr = Spawners.begin(); itr != Spawners.end(); ++itr)
+                        for (GuidList::const_iterator itr = Spawners.begin(); itr != Spawners.end(); ++itr)
                             if (Creature* Spawner = ObjectAccessor::GetCreature(*me, *itr))
                                 Spawner->AI()->SetData(SETDATA_DATA, SETDATA_DESPAWN_ALL_SPAWNS);
 
@@ -365,7 +367,7 @@ public:
 
                 if (!akamaReached)
                 {
-                    if (Creature* Akama = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AKAMA_SHADE)))
+                    if (Creature* Akama = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AKAMA_SHADE)))
                     {
                         if (me->IsWithinDist(Akama, 2.0f, false))
                         {
@@ -379,7 +381,7 @@ public:
                             events.CancelEvent(EVENT_START_ATTACK_AKAMA);
                             events.ScheduleEvent(EVENT_ADD_THREAT, 100);
 
-                            for (std::list<uint64>::const_iterator itr = Spawners.begin(); itr != Spawners.end(); ++itr)
+                            for (GuidList::const_iterator itr = Spawners.begin(); itr != Spawners.end(); ++itr)
                                 if (Creature* Spawner = ObjectAccessor::GetCreature(*me, *itr))
                                     Spawner->AI()->SetData(SETDATA_DATA, SETDATA_STOP_SPAWNING);
                         }
@@ -395,8 +397,8 @@ public:
         private:
             InstanceScript* instance;
             EventMap events;
-            std::list<uint64> Channelers;
-            std::list<uint64> Spawners;
+            GuidList Channelers;
+            GuidList Spawners;
             bool akamaReached;
             bool combatStarted;
             bool HasKilledAkamaAndReseting;
@@ -421,7 +423,16 @@ public:
     {
         npc_akamaAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            StartChannel = false;
+            StartCombat = false;
+            HasYelledOnce = false;
+            ShadeHasDied = false;
         }
 
         void Reset() override
@@ -429,15 +440,12 @@ public:
             me->setFaction(FACTION_FRIENDLY);
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             DoCast(me, SPELL_STEALTH);
-            StartChannel  = false;
-            StartCombat   = false;
-            HasYelledOnce = false;
-            ShadeHasDied  = false;
+            Initialize();
         }
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* Shade = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADE_OF_AKAMA)))
+            if (Creature* Shade = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
                 if (Shade->IsAlive())
                     ENSURE_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->HasKilledAkama = true;
             me->GetMotionMaster()->Clear(true);
@@ -451,7 +459,7 @@ public:
                 me->ClearUnitState(UNIT_STATE_ROOT);
                 me->RemoveAura(SPELL_AKAMA_SOUL_CHANNEL);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
-                if (Creature* Shade = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADE_OF_AKAMA)))
+                if (Creature* Shade = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
                     Shade->RemoveAura(SPELL_AKAMA_SOUL_CHANNEL);
                 StartCombat = true;
             }
@@ -577,7 +585,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* Shade = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADE_OF_AKAMA)))
+            if (Creature* Shade = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
                 Shade->AI()->SetData(SETDATA_DATA, SETDATA_CHANNELER_DIED);
         }
 
@@ -593,7 +601,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_CHANNEL:
-                        if (Creature* Shade = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADE_OF_AKAMA)))
+                        if (Creature* Shade = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
                         {
                             if (Shade->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                                 DoCast(me, SPELL_SHADE_SOUL_CHANNEL);
@@ -635,15 +643,21 @@ public:
     {
         npc_creature_generator_akamaAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            doSpawning = false;
+            leftSide = false;
         }
 
         void Reset() override
         {
             Summons.DespawnAll();
 
-            doSpawning = false;
-            leftSide   = false;
+            Initialize();
 
             if (me->GetPositionY() < 400.0f)
                 leftSide   = true;
@@ -743,34 +757,39 @@ public:
     {
         npc_ashtongue_sorcererAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
             startedBanishing = false;
+            switchToCombat = false;
         }
 
         void Reset() override
         {
             if (!startedBanishing)
             {
-                if (Creature* Shade = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADE_OF_AKAMA)))
+                if (Creature* Shade = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
                 {
                     if (Shade->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                         me->GetMotionMaster()->MovePoint(0, Shade->GetPositionX(), Shade->GetPositionY(), Shade->GetPositionZ(), false);
                     else
                     {
-                        if (Unit* target = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AKAMA_SHADE)))
+                        if (Unit* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AKAMA_SHADE)))
                             AttackStart(target);
                     }
                 }
             }
 
-            summonerGuid     = 0;
-            startedBanishing = false;
-            switchToCombat   = false;
+            summonerGuid.Clear();
+            Initialize();
         }
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* Shade = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADE_OF_AKAMA)))
+            if (Creature* Shade = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
                 Shade->AI()->SetData(SETDATA_DATA, SETDATA_CHANNELER_DIED);
             me->DespawnOrUnsummon(5000);
         }
@@ -799,7 +818,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_SORCERER_CHANNEL:
-                        if (Creature* Shade = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADE_OF_AKAMA)))
+                        if (Creature* Shade = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
                         {
                             if (Shade->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                             {
@@ -812,7 +831,7 @@ public:
                                 me->InterruptSpell(CURRENT_CHANNELED_SPELL);
                                 Shade->AI()->SetData(SETDATA_DATA, SETDATA_CHANNELER_DIED);
                                 switchToCombat = true;
-                                if (Unit* target = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AKAMA_SHADE)))
+                                if (Unit* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AKAMA_SHADE)))
                                     AttackStart(target);
                             }
                         }
@@ -824,7 +843,7 @@ public:
 
             if (!startedBanishing)
             {
-                Creature* Shade = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADE_OF_AKAMA));
+                Creature* Shade = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADE_OF_AKAMA));
                 if (me->IsWithinDist(Shade, 20.0f, false))
                 {
                     me->StopMoving();
@@ -841,7 +860,7 @@ public:
         private:
             InstanceScript* instance;
             EventMap events;
-            uint64 summonerGuid;
+            ObjectGuid summonerGuid;
             bool startedBanishing;
             bool switchToCombat;
     };
@@ -870,9 +889,9 @@ public:
 
         void Reset() override
         {
-            summonerGuid     = 0;
+            summonerGuid.Clear();
 
-            if (Unit* target = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AKAMA_SHADE)))
+            if (Unit* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AKAMA_SHADE)))
                 AttackStart(target);
         }
 
@@ -933,7 +952,7 @@ public:
         private:
             InstanceScript* instance;
             EventMap events;
-            uint64 summonerGuid;
+            ObjectGuid summonerGuid;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -960,9 +979,9 @@ public:
 
         void Reset() override
         {
-            summonerGuid     = 0;
+            summonerGuid.Clear();
 
-            if (Unit* target = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AKAMA_SHADE)))
+            if (Unit* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AKAMA_SHADE)))
                 AttackStart(target);
         }
 
@@ -1013,7 +1032,7 @@ public:
         private:
             InstanceScript* instance;
             EventMap events;
-            uint64 summonerGuid;
+            ObjectGuid summonerGuid;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -1040,9 +1059,9 @@ public:
 
         void Reset() override
         {
-            summonerGuid     = 0;
+            summonerGuid.Clear();
 
-            if (Unit* target = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AKAMA_SHADE)))
+            if (Unit* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AKAMA_SHADE)))
                 AttackStart(target);
         }
 
@@ -1093,7 +1112,7 @@ public:
         private:
             InstanceScript* instance;
             EventMap events;
-            uint64 summonerGuid;
+            ObjectGuid summonerGuid;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -1115,16 +1134,22 @@ public:
     {
         npc_ashtongue_spiritbinderAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            spiritMend = false;
+            chainHeal = false;
+            summonerGuid.Clear();
         }
 
         void Reset() override
         {
-            spiritMend = false;
-            chainHeal  = false;
-            summonerGuid = 0;
+            Initialize();
 
-            if (Unit* target = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AKAMA_SHADE)))
+            if (Unit* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AKAMA_SHADE)))
                 AttackStart(target);
         }
 
@@ -1188,7 +1213,7 @@ public:
         private:
             InstanceScript* instance;
             EventMap events;
-            uint64 summonerGuid;
+            ObjectGuid summonerGuid;
             bool spiritMend;
             bool chainHeal;
     };

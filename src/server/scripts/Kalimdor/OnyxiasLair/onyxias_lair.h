@@ -18,6 +18,8 @@
 #ifndef DEF_ONYXIAS_LAIR_H
 #define DEF_ONYXIAS_LAIR_H
 
+#define DataHeader "OL"
+
 uint32 const EncounterCount     = 1;
 
 enum DataTypes
@@ -49,7 +51,8 @@ enum CreatureIds
 {
     NPC_WHELP                   = 11262,
     NPC_LAIRGUARD               = 36561,
-    NPC_ONYXIA                  = 10184
+    NPC_ONYXIA                  = 10184,
+    NPC_TRIGGER                 = 14495
 };
 
 enum GameObjectIds
