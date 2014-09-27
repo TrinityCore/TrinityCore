@@ -1562,10 +1562,29 @@ void Guild::SendGuildRankInfo(WorldSession* session) const
     TC_LOG_DEBUG("guild", "SMSG_GUILD_RANK [%s]", session->GetPlayerInfo().c_str());
 }
 
-void Guild::HandleSetAchievementTracking(WorldSession* session, std::set<uint32> const& criteriaIds)
+void Guild::HandleSetAchievementTracking(WorldSession* session, std::set<uint32> const& achievementIds)
 {
-    if (Member* member = GetMember(session->GetPlayer()->GetGUID()))
+    Player* player = session->GetPlayer();
+
+    if (Member* member = GetMember(player->GetGUID()))
+    {
+        std::set<uint32> criteriaIds;
+
+        for (std::set<uint32>::iterator achievementId = achievementIds.begin(); achievementId != achievementIds.end(); ++achievementId)
+        {
+            if (AchievementCriteriaEntryList const* cList = sAchievementMgr->GetAchievementCriteriaByAchievement(*achievementId))
+            {
+                for (AchievementCriteriaEntryList::const_iterator itr = cList->begin(); itr != cList->end(); ++itr)
+                {
+                    AchievementCriteriaEntry const* criteria = *itr;
+                    criteriaIds.insert(criteria->ID);
+                }
+            }
+        }
+
         member->SetTrackedCriteriaIds(criteriaIds);
+        m_achievementMgr.SendAllTrackedCriterias(player, member->GetTrackedCriteriaIds());
+    }
 }
 
 void Guild::HandleSetMOTD(WorldSession* session, std::string const& motd)
