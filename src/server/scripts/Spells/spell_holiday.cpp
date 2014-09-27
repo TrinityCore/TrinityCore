@@ -560,12 +560,12 @@ class spell_brewfest_ram : public SpellScriptLoader
                         break;
                     case SPELL_RAM_CANTER:
                         target->CastCustomSpell(SPELL_RAM_FATIGUE, SPELLVALUE_AURA_STACK, 1, target, TRIGGERED_FULL_MASK);
-                        if (aurEff->GetTickNumber() == 4)
+                        if (aurEff->GetTickNumber() == 8)
                             target->CastSpell(target, SPELL_BREWFEST_QUEST_SPEED_BUNNY_YELLOW, true);
                         break;
                     case SPELL_RAM_GALLOP:
                         target->CastCustomSpell(SPELL_RAM_FATIGUE, SPELLVALUE_AURA_STACK, target->HasAura(SPELL_RAM_FATIGUE) ? 4 : 5 /*Hack*/, target, TRIGGERED_FULL_MASK);
-                        if (aurEff->GetTickNumber() == 4)
+                        if (aurEff->GetTickNumber() == 8)
                             target->CastSpell(target, SPELL_BREWFEST_QUEST_SPEED_BUNNY_RED, true);
                         break;
                     default:
