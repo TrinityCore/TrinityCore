@@ -56,7 +56,12 @@ class instance_deadmines : public InstanceMapScript
 
         struct instance_deadmines_InstanceMapScript : public InstanceScript
         {
-            instance_deadmines_InstanceMapScript(Map* map) : InstanceScript(map) { }
+            instance_deadmines_InstanceMapScript(Map* map) : InstanceScript(map)
+            {
+                SetHeaders(DataHeader);
+
+                State = CANNON_NOT_USED;
+            }
 
             ObjectGuid FactoryDoorGUID;
             ObjectGuid IronCladDoorGUID;
@@ -70,13 +75,6 @@ class instance_deadmines : public InstanceMapScript
             uint32 CannonBlast_Timer;
             uint32 PiratesDelay_Timer;
             ObjectGuid uiSmiteChestGUID;
-
-            void Initialize() override
-            {
-                SetHeaders(DataHeader);
-
-                State = CANNON_NOT_USED;
-            }
 
             virtual void Update(uint32 diff) override
             {

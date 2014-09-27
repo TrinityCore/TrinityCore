@@ -1880,12 +1880,13 @@ class spell_frost_giant_death_plague : public SpellScriptLoader
         {
             PrepareSpellScript(spell_frost_giant_death_plague_SpellScript);
 
-            bool Load() override
+        public:
+            spell_frost_giant_death_plague_SpellScript()
             {
                 _failed = false;
-                return true;
             }
 
+        private:
             // First effect
             void CountTargets(std::list<WorldObject*>& targets)
             {

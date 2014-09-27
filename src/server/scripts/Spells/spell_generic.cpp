@@ -47,6 +47,13 @@ class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_absorb0_hitlimit1_AuraScript);
 
+        public:
+            spell_gen_absorb0_hitlimit1_AuraScript()
+            {
+                limit = 0;
+            }
+
+        private:
             uint32 limit;
 
             bool Load() override
@@ -849,6 +856,13 @@ class spell_gen_clone_weapon_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_clone_weapon_auraScript);
 
+        public:
+            spell_gen_clone_weapon_auraScript()
+            {
+                prevItem = 0;
+            }
+
+        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_AURA) ||
@@ -858,12 +872,6 @@ class spell_gen_clone_weapon_aura : public SpellScriptLoader
                     !sSpellMgr->GetSpellInfo(SPELL_COPY_OFFHAND_2_AURA) ||
                     !sSpellMgr->GetSpellInfo(SPELL_COPY_RANGED_AURA))
                     return false;
-                return true;
-            }
-
-            bool Load() override
-            {
-                prevItem = 0;
                 return true;
             }
 
@@ -1409,9 +1417,15 @@ class spell_gen_dungeon_credit : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_dungeon_credit_SpellScript);
 
-            bool Load() override
+        public:
+            spell_gen_dungeon_credit_SpellScript()
             {
                 _handled = false;
+            }
+
+        private:
+            bool Load() override
+            {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
@@ -2240,11 +2254,17 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_on_tournament_mount_AuraScript);
 
+        public:
+            spell_gen_on_tournament_mount_AuraScript()
+            {
+                _pennantSpellId = 0;
+            }
+
+        private:
             uint32 _pennantSpellId;
 
             bool Load() override
             {
-                _pennantSpellId = 0;
                 return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 

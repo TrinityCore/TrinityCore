@@ -139,12 +139,13 @@ class spell_warl_banish : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_banish_SpellScript);
 
-            bool Load() override
+        public:
+            spell_warl_banish_SpellScript()
             {
                 _removed = false;
-                return true;
             }
 
+        private:
             void HandleBanish()
             {
                 /// Casting Banish on a banished target will cancel the effect

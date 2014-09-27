@@ -201,7 +201,8 @@ enum Actions
 
 enum Misc
 {
-    DATA_MADE_A_MESS                    = 45374613 // 4537, 4613 are achievement IDs
+    DATA_MADE_A_MESS                    = 45374613, // 4537, 4613 are achievement IDs
+    FACTION_SCOURGE                     = 974,
 };
 
 enum MovePoints
@@ -460,6 +461,8 @@ class boss_deathbringer_saurfang : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_INTRO_ALLIANCE_2:
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            me->setFaction(FACTION_SCOURGE);
                             Talk(SAY_INTRO_ALLIANCE_2);
                             break;
                         case EVENT_INTRO_ALLIANCE_3:
@@ -471,6 +474,8 @@ class boss_deathbringer_saurfang : public CreatureScript
                             DoCast(me, SPELL_GRIP_OF_AGONY);
                             break;
                         case EVENT_INTRO_HORDE_2:
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            me->setFaction(FACTION_SCOURGE);
                             Talk(SAY_INTRO_HORDE_2);
                             break;
                         case EVENT_INTRO_HORDE_4:
@@ -544,7 +549,6 @@ class boss_deathbringer_saurfang : public CreatureScript
                     case PHASE_INTRO_A:
                     case PHASE_INTRO_H:
                     {
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         // controls what events will execute
                         events.SetPhase(uint32(action));
 
@@ -1215,13 +1219,13 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
         {
             PrepareSpellScript(spell_deathbringer_blood_nova_targeting_SpellScript);
 
-            bool Load() override
+        public:
+            spell_deathbringer_blood_nova_targeting_SpellScript()
             {
-                // initialize variable
-                target = NULL;
-                return true;
+                target = nullptr;
             }
 
+        private:
             void FilterTargetsInitial(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())

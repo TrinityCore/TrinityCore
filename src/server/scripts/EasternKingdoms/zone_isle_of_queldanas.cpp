@@ -19,123 +19,56 @@
 /* ScriptData
 SDName: Isle_of_Queldanas
 SD%Complete: 100
-SDComment: Quest support: 11524, 11525, 11532, 11533, 11542, 11543, 11541
+SDComment: Quest support: 11541
 SDCategory: Isle Of Quel'Danas
 EndScriptData */
 
 /* ContentData
-npc_converted_sentry
 npc_greengill_slave
 EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "Player.h"
-#include "Pet.h"
 #include "SpellInfo.h"
-
-/*######
-## npc_converted_sentry
-######*/
-enum ConvertedSentry
-{
-    SAY_CONVERTED           = 0,
-
-    SPELL_CONVERT_CREDIT    = 45009
-};
-
-class npc_converted_sentry : public CreatureScript
-{
-public:
-    npc_converted_sentry() : CreatureScript("npc_converted_sentry") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_converted_sentryAI(creature);
-    }
-
-    struct npc_converted_sentryAI : public ScriptedAI
-    {
-        npc_converted_sentryAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            Credit = false;
-            Timer = 2500;
-        }
-
-        bool Credit;
-        uint32 Timer;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void MoveInLineOfSight(Unit* /*who*/) override { }
-
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!Credit)
-            {
-                if (Timer <= diff)
-                {
-                    Talk(SAY_CONVERTED);
-
-                    DoCast(me, SPELL_CONVERT_CREDIT);
-                    if (me->IsPet())
-                        me->ToPet()->SetDuration(7500);
-                    Credit = true;
-                } else Timer -= diff;
-            }
-        }
-    };
-};
 
 /*######
 ## npc_greengill_slave
 ######*/
 
-#define ENRAGE  45111
-#define ORB     45109
-#define QUESTG  11541
-#define DM      25060
+enum GreengillSlave
+{
+    NPC_DARKSPINE_MYRIDON       = 25060,
+    QUEST_GREENGILL_COAST       = 11541,
+    SPELL_ENRAGE                = 45111,
+    SPELL_ORB_MURLOC_CONTROL    = 45109,
+    SPELL_GREENGILL_SLAVE_FREED = 45110
+};
 
 class npc_greengill_slave : public CreatureScript
 {
 public:
     npc_greengill_slave() : CreatureScript("npc_greengill_slave") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_greengill_slaveAI(creature);
-    }
-
     struct npc_greengill_slaveAI : public ScriptedAI
     {
         npc_greengill_slaveAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void EnterCombat(Unit* /*who*/) override { }
-
         void SpellHit(Unit* caster, SpellInfo const* spellInfo) override
         {
             Player* player = caster->ToPlayer();
+
             if (!player)
                 return;
 
-            if (spellInfo->Id == ORB && !me->HasAura(ENRAGE))
+            if (spellInfo->Id == SPELL_ORB_MURLOC_CONTROL && !me->HasAura(SPELL_ENRAGE))
             {
-                if (player->GetQuestStatus(QUESTG) == QUEST_STATUS_INCOMPLETE)
-                    DoCast(player, 45110, true);
+                if (player->GetQuestStatus(QUEST_GREENGILL_COAST) == QUEST_STATUS_INCOMPLETE)
+                    DoCast(player, SPELL_GREENGILL_SLAVE_FREED, true);
 
-                DoCast(me, ENRAGE);
+                DoCast(me, SPELL_ENRAGE);
 
-                if (Creature* Myrmidon = me->FindNearestCreature(DM, 70))
+                if (Creature* Myrmidon = me->FindNearestCreature(NPC_DARKSPINE_MYRIDON, 70))
                 {
                     me->AddThreat(Myrmidon, 100000.0f);
                     AttackStart(Myrmidon);
@@ -148,10 +81,14 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_greengill_slaveAI(creature);
+    }
 };
 
 void AddSC_isle_of_queldanas()
 {
-    new npc_converted_sentry();
     new npc_greengill_slave();
 }

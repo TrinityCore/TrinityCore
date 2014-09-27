@@ -2459,6 +2459,13 @@ class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
         {
             PrepareAuraScript(spell_alexstrasza_gift_beam_visual_AuraScript);
 
+        public:
+            spell_alexstrasza_gift_beam_visual_AuraScript()
+            {
+                _alexstraszaGift = nullptr;
+            }
+
+        private:
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;

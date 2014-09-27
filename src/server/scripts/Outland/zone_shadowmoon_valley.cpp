@@ -218,7 +218,21 @@ public:
 
     struct npc_mature_netherwing_drakeAI : public ScriptedAI
     {
-        npc_mature_netherwing_drakeAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_mature_netherwing_drakeAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            uiPlayerGUID.Clear();
+
+            bCanEat = false;
+            bIsEating = false;
+
+            EatTimer = 5000;
+            CastTimer = 5000;
+        }
 
         ObjectGuid uiPlayerGUID;
 
@@ -230,13 +244,7 @@ public:
 
         void Reset() override
         {
-            uiPlayerGUID.Clear();
-
-            bCanEat = false;
-            bIsEating = false;
-
-            EatTimer = 5000;
-            CastTimer = 5000;
+            Initialize();
         }
 
         void SpellHit(Unit* pCaster, SpellInfo const* spell) override
@@ -486,7 +494,17 @@ public:
 
     struct npc_dragonmaw_peonAI : public ScriptedAI
     {
-        npc_dragonmaw_peonAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_dragonmaw_peonAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            PlayerGUID.Clear();
+            Tapped = false;
+            PoisonTimer = 0;
+        }
 
         ObjectGuid PlayerGUID;
         bool Tapped;
@@ -494,9 +512,7 @@ public:
 
         void Reset() override
         {
-            PlayerGUID.Clear();
-            Tapped = false;
-            PoisonTimer = 0;
+            Initialize();
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell) override
@@ -720,7 +736,21 @@ public:
 
     struct npc_overlord_morghorAI : public ScriptedAI
     {
-        npc_overlord_morghorAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_overlord_morghorAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            PlayerGUID.Clear();
+            IllidanGUID.Clear();
+
+            ConversationTimer = 0;
+            Step = 0;
+
+            Event = false;
+        }
 
         ObjectGuid PlayerGUID;
         ObjectGuid IllidanGUID;
@@ -732,13 +762,7 @@ public:
 
         void Reset() override
         {
-            PlayerGUID.Clear();
-            IllidanGUID.Clear();
-
-            ConversationTimer = 0;
-            Step = 0;
-
-            Event = false;
+            Initialize();
             me->SetUInt32Value(UNIT_NPC_FLAGS, 2);
         }
 
@@ -1264,7 +1288,22 @@ public:
 
     struct npc_torloth_the_magnificentAI : public ScriptedAI
     {
-        npc_torloth_the_magnificentAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_torloth_the_magnificentAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+            SpellTimer1 = 0;
+            SpellTimer2 = 0;
+            SpellTimer3 = 0;
+        }
+
+        void Initialize()
+        {
+            AnimationTimer = 4000;
+            AnimationCount = 0;
+            LordIllidanGUID.Clear();
+            AggroTargetGUID.Clear();
+            Timers = false;
+        }
 
         uint32 AnimationTimer, SpellTimer1, SpellTimer2, SpellTimer3;
 
@@ -1277,11 +1316,7 @@ public:
 
         void Reset() override
         {
-            AnimationTimer = 4000;
-            AnimationCount = 0;
-            LordIllidanGUID.Clear();
-            AggroTargetGUID.Clear();
-            Timers = false;
+            Initialize();
 
             me->AddUnitState(UNIT_STATE_ROOT);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -1569,7 +1604,19 @@ public:
 
     struct npc_illidari_spawnAI : public ScriptedAI
     {
-        npc_illidari_spawnAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_illidari_spawnAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+            SpellTimer1 = 0;
+            SpellTimer2 = 0;
+            SpellTimer3 = 0;
+        }
+
+        void Initialize()
+        {
+            LordIllidanGUID.Clear();
+            Timers = false;
+        }
 
         ObjectGuid LordIllidanGUID;
         uint32 SpellTimer1, SpellTimer2, SpellTimer3;
@@ -1577,8 +1624,7 @@ public:
 
         void Reset() override
         {
-            LordIllidanGUID.Clear();
-            Timers = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }

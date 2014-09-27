@@ -219,14 +219,15 @@ class spell_sha_chain_heal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_chain_heal_SpellScript);
 
-            bool Load() override
+        public:
+            spell_sha_chain_heal_SpellScript()
             {
                 firstHeal = true;
                 riptide = false;
                 amount = 0;
-                return true;
             }
 
+        private:
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 if (firstHeal)

@@ -1748,16 +1748,17 @@ class spell_mimiron_fire_search : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mimiron_fire_search_SpellScript);
 
+        public:
+            spell_mimiron_fire_search_SpellScript()
+            {
+                _noTarget = false;
+            }
+
+        private:
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WATER_SPRAY))
                     return false;
-                return true;
-            }
-
-            bool Load() override
-            {
-                _noTarget = false;
                 return true;
             }
 
