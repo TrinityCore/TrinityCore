@@ -507,12 +507,13 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
         {
             PrepareSpellScript(spell_rotface_mutated_infection_SpellScript);
 
-            bool Load() override
+        public:
+            spell_rotface_mutated_infection_SpellScript()
             {
-                _target = NULL;
-                return true;
+                _target = nullptr;
             }
 
+        private:
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 // remove targets with this aura already

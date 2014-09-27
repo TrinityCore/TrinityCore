@@ -54,6 +54,11 @@ class instance_magtheridons_lair : public InstanceMapScript
         {
             instance_magtheridons_lair_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
+                memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
+                CageTimer = 0;
+                RespawnTimer = 0;
             }
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
@@ -65,15 +70,6 @@ class instance_magtheridons_lair : public InstanceMapScript
 
             uint32 CageTimer;
             uint32 RespawnTimer;
-
-            void Initialize() override
-            {
-                SetHeaders(DataHeader);
-                memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-                CageTimer = 0;
-                RespawnTimer = 0;
-            }
 
             bool IsEncounterInProgress() const override
             {

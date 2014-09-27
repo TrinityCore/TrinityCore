@@ -746,6 +746,13 @@ class spell_dru_savage_defense : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_savage_defense_AuraScript);
 
+        public:
+            spell_dru_savage_defense_AuraScript()
+            {
+                absorbPct = 0;
+            }
+
+        private:
             uint32 absorbPct;
 
             bool Load() override

@@ -1688,12 +1688,13 @@ class spell_pursue : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pursue_SpellScript);
 
-            bool Load() override
+        public:
+            spell_pursue_SpellScript()
             {
-                _target = NULL;
-                return true;
+                _target = nullptr;
             }
 
+        private:
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(FlameLeviathanPursuedTargetSelector(GetCaster()));

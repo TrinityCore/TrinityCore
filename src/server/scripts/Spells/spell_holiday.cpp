@@ -301,12 +301,9 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
             uint32 const _triggeredSpellId;
 
         public:
-            spell_pilgrims_bounty_buff_food_AuraScript(uint32 triggeredSpellId) : AuraScript(), _triggeredSpellId(triggeredSpellId) { }
-
-            bool Load() override
+            spell_pilgrims_bounty_buff_food_AuraScript(uint32 triggeredSpellId) : AuraScript(), _triggeredSpellId(triggeredSpellId)
             {
                 _handled = false;
-                return true;
             }
 
             void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
@@ -444,6 +441,365 @@ class spell_winter_veil_px_238_winter_wondervolt : public SpellScriptLoader
         }
 };
 
+enum RamBlaBla
+{
+    SPELL_GIDDYUP                           = 42924,
+    SPELL_RENTAL_RACING_RAM                 = 43883,
+    SPELL_RENTAL_RACING_RAM_AURA            = 42146,
+    SPELL_RAM_LEVEL_NEUTRAL                 = 43310,
+    SPELL_RAM_TROT                          = 42992,
+    SPELL_RAM_CANTER                        = 42993,
+    SPELL_RAM_GALLOP                        = 42994,
+    SPELL_RAM_FATIGUE                       = 43052,
+    SPELL_EXHAUSTED_RAM                     = 43332,
+
+    // Quest
+    SPELL_BREWFEST_QUEST_SPEED_BUNNY_GREEN  = 43345,
+    SPELL_BREWFEST_QUEST_SPEED_BUNNY_YELLOW = 43346,
+    SPELL_BREWFEST_QUEST_SPEED_BUNNY_RED    = 43347
+};
+
+// 42924 - Giddyup!
+class spell_brewfest_giddyup : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_giddyup() : SpellScriptLoader("spell_brewfest_giddyup") { }
+
+        class spell_brewfest_giddyup_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_brewfest_giddyup_AuraScript);
+
+            void OnChange(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                if (!target->HasAura(SPELL_RENTAL_RACING_RAM))
+                {
+                    target->RemoveAura(GetId());
+                    return;
+                }
+
+                if (target->HasAura(SPELL_EXHAUSTED_RAM))
+                    return;
+
+                switch (GetStackAmount())
+                {
+                    case 1: // green
+                        target->RemoveAura(SPELL_RAM_LEVEL_NEUTRAL);
+                        target->RemoveAura(SPELL_RAM_CANTER);
+                        target->CastSpell(target, SPELL_RAM_TROT, true);
+                        break;
+                    case 6: // yellow
+                        target->RemoveAura(SPELL_RAM_TROT);
+                        target->RemoveAura(SPELL_RAM_GALLOP);
+                        target->CastSpell(target, SPELL_RAM_CANTER, true);
+                        break;
+                    case 11: // red
+                        target->RemoveAura(SPELL_RAM_CANTER);
+                        target->CastSpell(target, SPELL_RAM_GALLOP, true);
+                        break;
+                    default:
+                        break;
+                }
+
+                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEFAULT)
+                {
+                    target->RemoveAura(SPELL_RAM_TROT);
+                    target->CastSpell(target, SPELL_RAM_LEVEL_NEUTRAL, true);
+                }
+            }
+
+            void OnPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                GetTarget()->RemoveAuraFromStack(GetId());
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_brewfest_giddyup_AuraScript::OnChange, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
+                OnEffectRemove += AuraEffectRemoveFn(spell_brewfest_giddyup_AuraScript::OnChange, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_brewfest_giddyup_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_brewfest_giddyup_AuraScript();
+        }
+};
+
+// 43310 - Ram Level - Neutral
+// 42992 - Ram - Trot
+// 42993 - Ram - Canter
+// 42994 - Ram - Gallop
+class spell_brewfest_ram : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_ram() : SpellScriptLoader("spell_brewfest_ram") { }
+
+        class spell_brewfest_ram_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_brewfest_ram_AuraScript);
+
+            void OnPeriodic(AuraEffect const* aurEff)
+            {
+                Unit* target = GetTarget();
+                if (target->HasAura(SPELL_EXHAUSTED_RAM))
+                    return;
+
+                switch (GetId())
+                {
+                    case SPELL_RAM_LEVEL_NEUTRAL:
+                        if (Aura* aura = target->GetAura(SPELL_RAM_FATIGUE))
+                            aura->ModStackAmount(-4);
+                        break;
+                    case SPELL_RAM_TROT: // green
+                        if (Aura* aura = target->GetAura(SPELL_RAM_FATIGUE))
+                            aura->ModStackAmount(-2);
+                        if (aurEff->GetTickNumber() == 4)
+                            target->CastSpell(target, SPELL_BREWFEST_QUEST_SPEED_BUNNY_GREEN, true);
+                        break;
+                    case SPELL_RAM_CANTER:
+                        target->CastCustomSpell(SPELL_RAM_FATIGUE, SPELLVALUE_AURA_STACK, 1, target, TRIGGERED_FULL_MASK);
+                        if (aurEff->GetTickNumber() == 4)
+                            target->CastSpell(target, SPELL_BREWFEST_QUEST_SPEED_BUNNY_YELLOW, true);
+                        break;
+                    case SPELL_RAM_GALLOP:
+                        target->CastCustomSpell(SPELL_RAM_FATIGUE, SPELLVALUE_AURA_STACK, target->HasAura(SPELL_RAM_FATIGUE) ? 4 : 5 /*Hack*/, target, TRIGGERED_FULL_MASK);
+                        if (aurEff->GetTickNumber() == 4)
+                            target->CastSpell(target, SPELL_BREWFEST_QUEST_SPEED_BUNNY_RED, true);
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_brewfest_ram_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_brewfest_ram_AuraScript();
+        }
+};
+
+// 43052 - Ram Fatigue
+class spell_brewfest_ram_fatigue : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_ram_fatigue() : SpellScriptLoader("spell_brewfest_ram_fatigue") { }
+
+        class spell_brewfest_ram_fatigue_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_brewfest_ram_fatigue_AuraScript);
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+
+                if (GetStackAmount() == 101)
+                {
+                    target->RemoveAura(SPELL_RAM_LEVEL_NEUTRAL);
+                    target->RemoveAura(SPELL_RAM_TROT);
+                    target->RemoveAura(SPELL_RAM_CANTER);
+                    target->RemoveAura(SPELL_RAM_GALLOP);
+                    target->RemoveAura(SPELL_GIDDYUP);
+
+                    target->CastSpell(target, SPELL_EXHAUSTED_RAM, true);
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_brewfest_ram_fatigue_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_brewfest_ram_fatigue_AuraScript();
+        }
+};
+
+// 43450 - Brewfest - apple trap - friendly DND
+class spell_brewfest_apple_trap : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_apple_trap() : SpellScriptLoader("spell_brewfest_apple_trap") { }
+
+        class spell_brewfest_apple_trap_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_brewfest_apple_trap_AuraScript);
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveAura(SPELL_RAM_FATIGUE);
+            }
+
+            void Register() override
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_brewfest_apple_trap_AuraScript::OnApply, EFFECT_0, SPELL_AURA_FORCE_REACTION, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_brewfest_apple_trap_AuraScript();
+        }
+};
+
+// 43332 - Exhausted Ram
+class spell_brewfest_exhausted_ram : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_exhausted_ram() : SpellScriptLoader("spell_brewfest_exhausted_ram") { }
+
+        class spell_brewfest_exhausted_ram_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_brewfest_exhausted_ram_AuraScript);
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                target->CastSpell(target, SPELL_RAM_LEVEL_NEUTRAL, true);
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectApplyFn(spell_brewfest_exhausted_ram_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_brewfest_exhausted_ram_AuraScript();
+        }
+};
+
+// 43714 - Brewfest - Relay Race - Intro - Force - Player to throw- DND
+class spell_brewfest_relay_race_intro_force_player_to_throw : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_relay_race_intro_force_player_to_throw() : SpellScriptLoader("spell_brewfest_relay_race_intro_force_player_to_throw") { }
+
+        class spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript);
+
+            void HandleForceCast(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                // All this spells trigger a spell that requires reagents; if the
+                // triggered spell is cast as "triggered", reagents are not consumed
+                GetHitUnit()->CastSpell((Unit*)NULL, GetSpellInfo()->Effects[effIndex].TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript::HandleForceCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript();
+        }
+};
+
+// 43876 - Dismount Ram
+class spell_brewfest_dismount_ram : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_dismount_ram() : SpellScriptLoader("spell_brewfest_dismount_ram") { }
+
+        class spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->RemoveAura(SPELL_RENTAL_RACING_RAM);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript();
+        }
+};
+
+enum RamBlub
+{
+    QUEST_BARK_FOR_DROHNS_DISTILLERY        = 11407,
+    QUEST_BARK_FOR_TCHALIS_VOODOO_BREWERY   = 11408,
+
+    SAY_DROHN_DISTILLERY_1                  = 23520,
+    SAY_DROHN_DISTILLERY_2                  = 23521,
+    SAY_DROHN_DISTILLERY_3                  = 23522,
+    SAY_DROHN_DISTILLERY_4                  = 23523,
+
+    SAY_TCHALIS_VOODOO_1                    = 23524,
+    SAY_TCHALIS_VOODOO_2                    = 23525,
+    SAY_TCHALIS_VOODOO_3                    = 23526,
+    SAY_TCHALIS_VOODOO_4                    = 23527
+};
+
+// 43259 Brewfest  - Barker Bunny 1
+// 43260 Brewfest  - Barker Bunny 2
+// 43261 Brewfest  - Barker Bunny 3
+// 43262 Brewfest  - Barker Bunny 4
+class spell_brewfest_barker_bunny : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_barker_bunny() : SpellScriptLoader("spell_brewfest_barker_bunny") { }
+
+        class spell_brewfest_barker_bunny_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_brewfest_barker_bunny_AuraScript);
+
+            bool Load() override
+            {
+                return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Player* target = GetTarget()->ToPlayer();
+
+                uint32 BroadcastTextId = 0;
+
+                if (target->GetQuestStatus(QUEST_BARK_FOR_DROHNS_DISTILLERY) == QUEST_STATUS_INCOMPLETE ||
+                    target->GetQuestStatus(QUEST_BARK_FOR_DROHNS_DISTILLERY) == QUEST_STATUS_COMPLETE)
+                    BroadcastTextId = RAND(SAY_DROHN_DISTILLERY_1, SAY_DROHN_DISTILLERY_2, SAY_DROHN_DISTILLERY_3, SAY_DROHN_DISTILLERY_4);
+
+                if (target->GetQuestStatus(QUEST_BARK_FOR_TCHALIS_VOODOO_BREWERY) == QUEST_STATUS_INCOMPLETE ||
+                    target->GetQuestStatus(QUEST_BARK_FOR_TCHALIS_VOODOO_BREWERY) == QUEST_STATUS_COMPLETE)
+                    BroadcastTextId = RAND(SAY_TCHALIS_VOODOO_1, SAY_TCHALIS_VOODOO_2, SAY_TCHALIS_VOODOO_3, SAY_TCHALIS_VOODOO_4);
+
+                if (BroadcastTextId)
+                    target->Talk(BroadcastTextId, CHAT_MSG_SAY, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), target);
+            }
+
+            void Register() override
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_brewfest_barker_bunny_AuraScript::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_brewfest_barker_bunny_AuraScript();
+        }
+};
+
 void AddSC_holiday_spell_scripts()
 {
     // Love is in the Air
@@ -461,4 +817,13 @@ void AddSC_holiday_spell_scripts()
     // Winter Veil
     new spell_winter_veil_mistletoe();
     new spell_winter_veil_px_238_winter_wondervolt();
+    // Brewfest
+    new spell_brewfest_giddyup();
+    new spell_brewfest_ram();
+    new spell_brewfest_ram_fatigue();
+    new spell_brewfest_apple_trap();
+    new spell_brewfest_exhausted_ram();
+    new spell_brewfest_relay_race_intro_force_player_to_throw();
+    new spell_brewfest_dismount_ram();
+    new spell_brewfest_barker_bunny();
 }

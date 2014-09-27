@@ -41,20 +41,18 @@ public:
 
     struct instance_wailing_caverns_InstanceMapScript : public InstanceScript
     {
-        instance_wailing_caverns_InstanceMapScript(Map* map) : InstanceScript(map) { }
-
-        uint32 m_auiEncounter[MAX_ENCOUNTER];
-
-        bool yelled;
-        ObjectGuid NaralexGUID;
-
-        void Initialize() override
+        instance_wailing_caverns_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
             yelled = false;
         }
+
+        uint32 m_auiEncounter[MAX_ENCOUNTER];
+
+        bool yelled;
+        ObjectGuid NaralexGUID;
 
         void OnCreatureCreate(Creature* creature) override
         {

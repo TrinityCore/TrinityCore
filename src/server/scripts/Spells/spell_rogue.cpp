@@ -68,16 +68,17 @@ class spell_rog_blade_flurry : public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_blade_flurry_AuraScript);
 
+        public:
+            spell_rog_blade_flurry_AuraScript()
+            {
+                _procTarget = nullptr;
+            }
+
+        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK))
                     return false;
-                return true;
-            }
-
-            bool Load() override
-            {
-                _procTarget = NULL;
                 return true;
             }
 
@@ -126,6 +127,13 @@ class spell_rog_cheat_death : public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_cheat_death_AuraScript);
 
+        public:
+            spell_rog_cheat_death_AuraScript()
+            {
+                absorbChance = 0;
+            }
+
+        private:
             uint32 absorbChance;
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -253,9 +261,15 @@ class spell_rog_deadly_poison : public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_deadly_poison_SpellScript);
 
-            bool Load() override
+        public:
+            spell_rog_deadly_poison_SpellScript()
             {
                 _stackAmount = 0;
+            }
+
+        private:
+            bool Load() override
+            {
                 // at this point CastItem must already be initialized
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER && GetCastItem();
             }
@@ -487,6 +501,13 @@ class spell_rog_nerves_of_steel : public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_nerves_of_steel_AuraScript);
 
+        public:
+            spell_rog_nerves_of_steel_AuraScript()
+            {
+                absorbPct = 0;
+            }
+
+        private:
             uint32 absorbPct;
 
             bool Load() override
@@ -882,18 +903,19 @@ class spell_rog_tricks_of_the_trade : public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_tricks_of_the_trade_AuraScript);
 
+        public:
+            spell_rog_tricks_of_the_trade_AuraScript()
+            {
+                _redirectTarget = nullptr;
+            }
+
+        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST))
                     return false;
                 if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC))
                     return false;
-                return true;
-            }
-
-            bool Load() override
-            {
-                _redirectTarget = NULL;
                 return true;
             }
 

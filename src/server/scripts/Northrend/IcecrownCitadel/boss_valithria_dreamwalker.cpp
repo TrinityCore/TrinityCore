@@ -1158,6 +1158,13 @@ class spell_dreamwalker_decay_periodic_timer : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dreamwalker_decay_periodic_timer_AuraScript);
 
+        public:
+            spell_dreamwalker_decay_periodic_timer_AuraScript()
+            {
+                _decayRate = 0;
+            }
+
+        private:
             bool Load() override
             {
                 _decayRate = GetId() != SPELL_TIMER_BLAZING_SKELETON ? 1000 : 5000;
@@ -1385,6 +1392,13 @@ class spell_dreamwalker_nightmare_cloud : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dreamwalker_nightmare_cloud_AuraScript);
 
+        public:
+            spell_dreamwalker_nightmare_cloud_AuraScript()
+            {
+                _instance = nullptr;
+            }
+
+        private:
             bool Load() override
             {
                 _instance = GetOwner()->GetInstanceScript();
