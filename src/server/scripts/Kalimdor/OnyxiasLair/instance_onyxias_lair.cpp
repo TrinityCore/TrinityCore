@@ -36,7 +36,7 @@ class instance_onyxias_lair : public InstanceMapScript
 public:
     instance_onyxias_lair() : InstanceMapScript("instance_onyxias_lair", 249) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_onyxias_lair_InstanceMapScript(map);
     }
@@ -48,8 +48,9 @@ public:
         //Eruption is a BFS graph problem
         //One map to remember all floor, one map to keep floor that still need to erupt and one queue to know what needs to be removed
 
-        void Initialize() OVERRIDE
+        void Initialize() override
         {
+            SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
 
             onyxiaGUID               = 0;
@@ -61,7 +62,7 @@ public:
             achievSheDeepBreathMore  = true;
         }
 
-        void OnCreatureCreate(Creature* creature) OVERRIDE
+        void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
@@ -71,7 +72,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go) OVERRIDE
+        void OnGameObjectCreate(GameObject* go) override
         {
             if ((go->GetGOInfo()->displayId == 4392 || go->GetGOInfo()->displayId == 4472) && go->GetGOInfo()->trap.spellId == 17731)
             {
@@ -82,8 +83,7 @@ public:
             switch (go->GetEntry())
             {
                 case GO_WHELP_SPAWNER:
-                    Position goPos;
-                    go->GetPosition(&goPos);
+                    Position goPos = go->GetPosition();
                     if (Creature* temp = go->SummonCreature(NPC_WHELP, goPos, TEMPSUMMON_CORPSE_DESPAWN))
                     {
                         temp->SetInCombatWithZone();
@@ -93,7 +93,7 @@ public:
             }
         }
 
-        void OnGameObjectRemove(GameObject* go) OVERRIDE
+        void OnGameObjectRemove(GameObject* go) override
         {
             if ((go->GetGOInfo()->displayId == 4392 || go->GetGOInfo()->displayId == 4472) && go->GetGOInfo()->trap.spellId == 17731)
             {
@@ -133,7 +133,7 @@ public:
             FloorEruptionGUID[1].erase(floorEruptedGUID);
         }
 
-        bool SetBossState(uint32 type, EncounterState state) OVERRIDE
+        bool SetBossState(uint32 type, EncounterState state) override
         {
             if (!InstanceScript::SetBossState(type, state))
                 return false;
@@ -148,7 +148,7 @@ public:
             return true;
         }
 
-        void SetData(uint32 type, uint32 data) OVERRIDE
+        void SetData(uint32 type, uint32 data) override
         {
             switch (type)
             {
@@ -173,7 +173,7 @@ public:
             }
         }
 
-        void SetData64(uint32 type, uint64 data) OVERRIDE
+        void SetData64(uint32 type, uint64 data) override
         {
             switch (type)
             {
@@ -185,7 +185,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 data) const OVERRIDE
+        uint64 GetData64(uint32 data) const override
         {
             switch (data)
             {
@@ -196,7 +196,7 @@ public:
             return 0;
         }
 
-        void Update(uint32 diff) OVERRIDE
+        void Update(uint32 diff) override
         {
             if (GetBossState(DATA_ONYXIA) == IN_PROGRESS)
             {
@@ -237,7 +237,7 @@ public:
             }
         }
 
-        bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* /*source*/, Unit const* /*target = NULL*/, uint32 /*miscValue1 = 0*/) OVERRIDE
+        bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* /*source*/, Unit const* /*target = NULL*/, uint32 /*miscValue1 = 0*/) override
         {
             switch (criteriaId)
             {
@@ -251,59 +251,17 @@ public:
             return false;
         }
 
-        std::string GetSaveData() OVERRIDE
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-            saveStream << "O L " << GetBossSaveData();
-
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return saveStream.str();
-        }
-
-        void Load(const char* strIn) OVERRIDE
-        {
-            if (!strIn)
-            {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
-            }
-
-            OUT_LOAD_INST_DATA(strIn);
-
-            char dataHead1, dataHead2;
-
-            std::istringstream loadStream(strIn);
-            loadStream >> dataHead1 >> dataHead2;
-
-            if (dataHead1 == 'O' && dataHead2 == 'L')
-            {
-                for (uint8 i = 0; i < EncounterCount; ++i)
-                {
-                    uint32 tmpState;
-                    loadStream >> tmpState;
-                    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                        tmpState = NOT_STARTED;
-
-                    SetBossState(i, EncounterState(tmpState));
-                }
-            }
-            else
-                OUT_LOAD_INST_DATA_FAIL;
-
-            OUT_LOAD_INST_DATA_COMPLETE;
-        }
-
-        protected:
-            std::map<uint64, uint32> FloorEruptionGUID[2];
-            std::queue<uint64> FloorEruptionGUIDQueue;
-            uint64 onyxiaGUID;
-            uint32 onyxiaLiftoffTimer;
-            uint32 manyWhelpsCounter;
-            uint32 eruptTimer;
-            bool   achievManyWhelpsHandleIt;
-            bool   achievSheDeepBreathMore;
+    protected:
+        std::map<uint64, uint32> FloorEruptionGUID[2];
+        std::queue<uint64> FloorEruptionGUIDQueue;
+        uint64 onyxiaGUID;
+        uint64 triggerGUID;
+        uint64 tankGUID;
+        uint32 onyxiaLiftoffTimer;
+        uint32 manyWhelpsCounter;
+        uint32 eruptTimer;
+        bool   achievManyWhelpsHandleIt;
+        bool   achievSheDeepBreathMore;
     };
 };
 

@@ -47,7 +47,7 @@ class boss_the_black_stalker : public CreatureScript
 public:
     boss_the_black_stalker() : CreatureScript("boss_the_black_stalker") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_the_black_stalkerAI(creature);
     }
@@ -68,21 +68,21 @@ public:
         uint32 check_Timer;
         std::list<uint64> Striders;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             Levitate_Timer = 12000;
             ChainLightning_Timer = 6000;
             StaticCharge_Timer = 10000;
-            SporeStriders_Timer = 10000+rand()%5000;
+            SporeStriders_Timer = 10000 + rand32() % 5000;
             check_Timer = 5000;
             LevitatedTarget = 0;
             LevitatedTarget_Timer = 0;
             Striders.clear();
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void JustSummoned(Creature* summon) OVERRIDE
+        void JustSummoned(Creature* summon) override
         {
             if (summon && summon->GetEntry() == ENTRY_SPORE_STRIDER)
             {
@@ -95,14 +95,14 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             for (std::list<uint64>::const_iterator i = Striders.begin(); i != Striders.end(); ++i)
-                if (Creature* strider = Unit::GetCreature(*me, *i))
+                if (Creature* strider = ObjectAccessor::GetCreature(*me, *i))
                     strider->DisappearAndDie();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -124,7 +124,7 @@ public:
             if (IsHeroic() && SporeStriders_Timer <= diff)
             {
                 DoCast(me, SPELL_SUMMON_SPORE_STRIDER);
-                SporeStriders_Timer = 10000+rand()%5000;
+                SporeStriders_Timer = 10000 + rand32() % 5000;
             } else SporeStriders_Timer -= diff;
 
             // Levitate
@@ -132,7 +132,7 @@ public:
             {
                 if (LevitatedTarget_Timer <= diff)
                 {
-                    if (Unit* target = Unit::GetUnit(*me, LevitatedTarget))
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, LevitatedTarget))
                     {
                         if (!target->HasAura(SPELL_LEVITATE))
                         {
@@ -164,7 +164,7 @@ public:
                     LevitatedTarget_Timer = 2000;
                     InAir = false;
                 }
-                Levitate_Timer = 12000+rand()%3000;
+                Levitate_Timer = 12000 + rand32() % 3000;
             } else Levitate_Timer -= diff;
 
             // Chain Lightning

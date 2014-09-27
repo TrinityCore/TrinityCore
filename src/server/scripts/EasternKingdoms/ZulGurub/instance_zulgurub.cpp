@@ -41,11 +41,12 @@ class instance_zulgurub : public InstanceMapScript
         {
             instance_zulgurub_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
             }
 
-            void Initialize() OVERRIDE
+            void Initialize() override
             {
                 _zealotLorkhanGUID = 0;
                 _zealotZathGUID = 0;
@@ -56,13 +57,13 @@ class instance_zulgurub : public InstanceMapScript
                 _goGongOfBethekkGUID = 0;
             }
 
-            bool IsEncounterInProgress() const OVERRIDE
+            bool IsEncounterInProgress() const override
             {
                 // not active in Zul'Gurub
                 return false;
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -87,7 +88,7 @@ class instance_zulgurub : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -106,7 +107,7 @@ class instance_zulgurub : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* go) OVERRIDE
+            void OnGameObjectRemove(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -118,7 +119,7 @@ class instance_zulgurub : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 uiData) const OVERRIDE
+            uint64 GetData64(uint32 uiData) const override
             {
                 switch (uiData)
                 {
@@ -144,48 +145,6 @@ class instance_zulgurub : public InstanceMapScript
                 return 0;
             }
 
-            std::string GetSaveData() OVERRIDE
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "Z G " << GetBossSaveData();
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(const char* str) OVERRIDE
-            {
-                if (!str)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(str);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(str);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'Z' && dataHead2 == 'G')
-                {
-                    for (uint32 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
-            }
         private:
             //If all High Priest bosses were killed. Lorkhan, Zath and Ohgan are added too.
             //Storing Lorkhan, Zath and Thekal because we need to cast on them later. Jindo is needed for healfunction too.
@@ -199,7 +158,7 @@ class instance_zulgurub : public InstanceMapScript
             uint64 _goGongOfBethekkGUID;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_zulgurub_InstanceMapScript(map);
         }

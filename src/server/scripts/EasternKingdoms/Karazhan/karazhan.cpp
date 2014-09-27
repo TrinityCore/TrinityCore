@@ -131,9 +131,21 @@ public:
     {
         npc_barnesAI(Creature* creature) : npc_escortAI(creature)
         {
+            Initialize();
             RaidWiped = false;
             m_uiEventId = 0;
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            m_uiSpotlightGUID = 0;
+
+            TalkCount = 0;
+            TalkTimer = 2000;
+            WipeTimer = 5000;
+
+            PerformanceReady = false;
         }
 
         InstanceScript* instance;
@@ -148,15 +160,9 @@ public:
         bool PerformanceReady;
         bool RaidWiped;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
-            m_uiSpotlightGUID = 0;
-
-            TalkCount = 0;
-            TalkTimer = 2000;
-            WipeTimer = 5000;
-
-            PerformanceReady = false;
+            Initialize();
 
             m_uiEventId = instance->GetData(DATA_OPERA_PERFORMANCE);
         }
@@ -172,9 +178,9 @@ public:
             Start(false, false);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             switch (waypointId)
             {
@@ -276,7 +282,7 @@ public:
             RaidWiped = false;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             npc_escortAI::UpdateAI(diff);
 
@@ -286,7 +292,7 @@ public:
                 {
                     if (TalkCount > 3)
                     {
-                        if (Creature* pSpotlight = Unit::GetCreature(*me, m_uiSpotlightGUID))
+                        if (Creature* pSpotlight = ObjectAccessor::GetCreature(*me, m_uiSpotlightGUID))
                             pSpotlight->DespawnOrUnsummon();
 
                         SetEscortPaused(false);
@@ -336,10 +342,10 @@ public:
         }
     };
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
-        npc_barnesAI* pBarnesAI = CAST_AI(npc_barnes::npc_barnesAI, creature->AI());
+        npc_barnesAI* pBarnesAI = ENSURE_AI(npc_barnes::npc_barnesAI, creature->AI());
 
         switch (action)
         {
@@ -371,7 +377,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (InstanceScript* instance = creature->GetInstanceScript())
         {
@@ -403,7 +409,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_barnesAI>(creature);
     }
@@ -420,7 +426,7 @@ class npc_berthold : public CreatureScript
 public:
     npc_berthold() : CreatureScript("npc_berthold") { }
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
@@ -430,7 +436,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (InstanceScript* instance = creature->GetInstanceScript())
         {
@@ -467,7 +473,7 @@ class npc_image_of_medivh : public CreatureScript
 public:
     npc_image_of_medivh() : CreatureScript("npc_image_of_medivh") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_image_of_medivhAI>(creature);
     }
@@ -476,7 +482,18 @@ public:
     {
         npc_image_of_medivhAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
+            Step = 0;
+            FireArcanagosTimer = 0;
+            FireMedivhTimer = 0;
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            ArcanagosGUID = 0;
+            EventStarted = false;
+            YellTimer = 0;
         }
 
         InstanceScript* instance;
@@ -490,11 +507,9 @@ public:
 
         bool EventStarted;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
-            ArcanagosGUID = 0;
-            EventStarted = false;
-            YellTimer = 0;
+            Initialize();
 
             if (instance->GetData64(DATA_IMAGE_OF_MEDIVH) == 0)
             {
@@ -508,9 +523,9 @@ public:
                 me->RemoveCorpse();
             }
         }
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void MovementInform(uint32 type, uint32 id) OVERRIDE
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -539,7 +554,7 @@ public:
 
         uint32 NextStep(uint32 Step)
         {
-            Creature* arca = Unit::GetCreature(*me, ArcanagosGUID);
+            Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID);
             Map* map = me->GetMap();
             switch (Step)
             {
@@ -620,7 +635,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (YellTimer <= diff)
             {
@@ -630,7 +645,7 @@ public:
 
             if (Step >= 7 && Step <= 12)
             {
-                Unit* arca = Unit::GetUnit(*me, ArcanagosGUID);
+                Unit* arca = ObjectAccessor::GetUnit(*me, ArcanagosGUID);
 
                 if (FireArcanagosTimer <= diff)
                 {

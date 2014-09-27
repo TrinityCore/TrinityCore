@@ -28,6 +28,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
         {
             instance_ruins_of_ahnqiraj_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(NUM_ENCOUNTER);
 
                 _kurinaxxGUID   = 0;
@@ -39,7 +40,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                 _paralyzedGUID  = 0;
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -72,13 +73,13 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                 return true;
             }
 
-            void SetData64(uint32 type, uint64 data) OVERRIDE
+            void SetData64(uint32 type, uint64 data) override
             {
                 if (type == DATA_PARALYZED)
                     _paralyzedGUID = data;
             }
 
-            uint64 GetData64(uint32 type) const OVERRIDE
+            uint64 GetData64(uint32 type) const override
             {
                 switch (type)
                 {
@@ -101,49 +102,6 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                 return 0;
             }
 
-            std::string GetSaveData() OVERRIDE
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "R A" << GetBossSaveData();
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(char const* data)
-            {
-                if (!data)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(data);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(data);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'R' && dataHead2 == 'A')
-                {
-                    for (uint8 i = 0; i < NUM_ENCOUNTER; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > TO_BE_DECIDED)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
-            }
-
         private:
             uint64 _kurinaxxGUID;
             uint64 _rajaxxGUID;
@@ -154,7 +112,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
             uint64 _paralyzedGUID;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_ruins_of_ahnqiraj_InstanceMapScript(map);
         }

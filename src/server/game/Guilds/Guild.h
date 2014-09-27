@@ -398,8 +398,8 @@ private:
 
         ~EventLogEntry() { }
 
-        void SaveToDB(SQLTransaction& trans) const;
-        void WritePacket(WorldPacket& data) const;
+        void SaveToDB(SQLTransaction& trans) const override;
+        void WritePacket(WorldPacket& data) const override;
 
     private:
         GuildEventLogTypes m_eventType;
@@ -430,8 +430,8 @@ private:
 
         ~BankEventLogEntry() { }
 
-        void SaveToDB(SQLTransaction& trans) const;
-        void WritePacket(WorldPacket& data) const;
+        void SaveToDB(SQLTransaction& trans) const override;
+        void WritePacket(WorldPacket& data) const override;
 
     private:
         GuildBankEventLogTypes m_eventType;
@@ -608,13 +608,13 @@ private:
         PlayerMoveItemData(Guild* guild, Player* player, uint8 container, uint8 slotId) :
             MoveItemData(guild, player, container, slotId) { }
 
-        bool IsBank() const { return false; }
-        bool InitItem();
-        void RemoveItem(SQLTransaction& trans, MoveItemData* pOther, uint32 splitedAmount = 0);
-        Item* StoreItem(SQLTransaction& trans, Item* pItem);
-        void LogBankEvent(SQLTransaction& trans, MoveItemData* pFrom, uint32 count) const;
+        bool IsBank() const override { return false; }
+        bool InitItem() override;
+        void RemoveItem(SQLTransaction& trans, MoveItemData* pOther, uint32 splitedAmount = 0) override;
+        Item* StoreItem(SQLTransaction& trans, Item* pItem) override;
+        void LogBankEvent(SQLTransaction& trans, MoveItemData* pFrom, uint32 count) const override;
     protected:
-        InventoryResult CanStore(Item* pItem, bool swap);
+        InventoryResult CanStore(Item* pItem, bool swap) override;
     };
 
     class BankMoveItemData : public MoveItemData
@@ -623,17 +623,17 @@ private:
         BankMoveItemData(Guild* guild, Player* player, uint8 container, uint8 slotId) :
             MoveItemData(guild, player, container, slotId) { }
 
-        bool IsBank() const { return true; }
-        bool InitItem();
-        bool HasStoreRights(MoveItemData* pOther) const;
-        bool HasWithdrawRights(MoveItemData* pOther) const;
-        void RemoveItem(SQLTransaction& trans, MoveItemData* pOther, uint32 splitedAmount);
-        Item* StoreItem(SQLTransaction& trans, Item* pItem);
-        void LogBankEvent(SQLTransaction& trans, MoveItemData* pFrom, uint32 count) const;
-        void LogAction(MoveItemData* pFrom) const;
+        bool IsBank() const override { return true; }
+        bool InitItem() override;
+        bool HasStoreRights(MoveItemData* pOther) const override;
+        bool HasWithdrawRights(MoveItemData* pOther) const override;
+        void RemoveItem(SQLTransaction& trans, MoveItemData* pOther, uint32 splitedAmount) override;
+        Item* StoreItem(SQLTransaction& trans, Item* pItem) override;
+        void LogBankEvent(SQLTransaction& trans, MoveItemData* pFrom, uint32 count) const override;
+        void LogAction(MoveItemData* pFrom) const override;
 
     protected:
-        InventoryResult CanStore(Item* pItem, bool swap);
+        InventoryResult CanStore(Item* pItem, bool swap) override;
 
     private:
         Item* _StoreItem(SQLTransaction& trans, BankTab* pTab, Item* pItem, ItemPosCount& pos, bool clone) const;
@@ -641,7 +641,7 @@ private:
         void CanStoreItemInTab(Item* pItem, uint8 skipSlotId, bool merge, uint32& count);
     };
 
-    typedef UNORDERED_MAP<uint32, Member*> Members;
+    typedef std::unordered_map<uint32, Member*> Members;
     typedef std::vector<RankInfo> Ranks;
     typedef std::vector<BankTab*> BankTabs;
 
@@ -661,6 +661,9 @@ public:
     std::string const& GetName() const { return m_name; }
     std::string const& GetMOTD() const { return m_motd; }
     std::string const& GetInfo() const { return m_info; }
+    uint32 GetMemberCount() const { return m_members.size(); }
+    time_t GetCreatedDate() const { return m_createdDate; }
+    uint64 GetBankMoney() const { return m_bankMoney; }
 
     bool SetName(std::string const& name);
 

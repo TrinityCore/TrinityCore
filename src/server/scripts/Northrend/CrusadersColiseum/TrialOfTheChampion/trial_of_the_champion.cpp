@@ -115,8 +115,6 @@ public:
         uint64 uiVehicle2GUID;
         uint64 uiVehicle3GUID;
 
-        uint64 uiGrandChampionBoss1;
-
         std::list<uint64> Champion1List;
         std::list<uint64> Champion2List;
         std::list<uint64> Champion3List;
@@ -130,7 +128,7 @@ public:
                 uiPhase = uiPhaseStep;
         }
 
-        void SetData(uint32 uiType, uint32 /*uiData*/) OVERRIDE
+        void SetData(uint32 uiType, uint32 /*uiData*/) override
         {
             switch (uiType)
             {
@@ -140,7 +138,7 @@ public:
                     break;
                 case DATA_IN_POSITION: //movement done.
                     me->GetMotionMaster()->MovePoint(1, 735.81f, 661.92f, 412.39f);
-                    if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
                         instance->HandleGameObject(go->GetGUID(), false);
                     NextStep(10000, false, 3);
                     break;
@@ -161,7 +159,7 @@ public:
                         }
 
                         for (std::list<uint64>::const_iterator itr = TempList.begin(); itr != TempList.end(); ++itr)
-                            if (Creature* summon = Unit::GetCreature(*me, *itr))
+                            if (Creature* summon = ObjectAccessor::GetCreature(*me, *itr))
                                 AggroAllPlayers(summon);
                     }else if (uiLesserChampions == 9)
                         StartGrandChampionsAttack();
@@ -173,9 +171,9 @@ public:
 
         void StartGrandChampionsAttack()
         {
-            Creature* pGrandChampion1 = Unit::GetCreature(*me, uiVehicle1GUID);
-            Creature* pGrandChampion2 = Unit::GetCreature(*me, uiVehicle2GUID);
-            Creature* pGrandChampion3 = Unit::GetCreature(*me, uiVehicle3GUID);
+            Creature* pGrandChampion1 = ObjectAccessor::GetCreature(*me, uiVehicle1GUID);
+            Creature* pGrandChampion2 = ObjectAccessor::GetCreature(*me, uiVehicle2GUID);
+            Creature* pGrandChampion3 = ObjectAccessor::GetCreature(*me, uiVehicle3GUID);
 
             if (pGrandChampion1 && pGrandChampion2 && pGrandChampion3)
             {
@@ -185,7 +183,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 uiType, uint32 uiPointId) OVERRIDE
+        void MovementInform(uint32 uiType, uint32 uiPointId) override
         {
             if (uiType != POINT_MOTION_TYPE)
                 return;
@@ -289,13 +287,13 @@ public:
                         switch (i)
                         {
                             case 0:
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, M_PI);
+                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, float(M_PI));
                                 break;
                             case 1:
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, M_PI / 2);
+                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, float(M_PI) / 2);
                                 break;
                             case 2:
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, M_PI / 2 + M_PI);
+                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, float(M_PI) / 2 + float(M_PI));
                                 break;
                         }
                     }
@@ -397,7 +395,7 @@ public:
             }
         }
 
-       void UpdateAI(uint32 uiDiff) OVERRIDE
+       void UpdateAI(uint32 uiDiff) override
         {
             ScriptedAI::UpdateAI(uiDiff);
 
@@ -417,7 +415,7 @@ public:
                         if (!Champion1List.empty())
                         {
                             for (std::list<uint64>::const_iterator itr = Champion1List.begin(); itr != Champion1List.end(); ++itr)
-                                if (Creature* summon = Unit::GetCreature(*me, *itr))
+                                if (Creature* summon = ObjectAccessor::GetCreature(*me, *itr))
                                     AggroAllPlayers(summon);
                             NextStep(0, false);
                         }
@@ -429,7 +427,7 @@ public:
                 return;
         }
 
-        void JustSummoned(Creature* summon) OVERRIDE
+        void JustSummoned(Creature* summon) override
         {
             if (instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED)
             {
@@ -438,7 +436,7 @@ public:
             }
         }
 
-        void SummonedCreatureDespawn(Creature* summon) OVERRIDE
+        void SummonedCreatureDespawn(Creature* summon) override
         {
             switch (summon->GetEntry())
             {
@@ -458,12 +456,12 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_announcer_toc5AI>(creature);
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         InstanceScript* instance = creature->GetInstanceScript();
 
@@ -488,13 +486,13 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             player->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->StartEncounter();
+            ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->StartEncounter();
         }
 
         return true;

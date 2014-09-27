@@ -28,11 +28,12 @@ class instance_mana_tombs : public InstanceMapScript
         {
             instance_mana_tombs_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_mana_tombs_InstanceMapScript(map);
         }

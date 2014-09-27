@@ -28,7 +28,7 @@ class group_commandscript : public CommandScript
 public:
     group_commandscript() : CommandScript("group_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand groupCommandTable[] =
         {
@@ -245,7 +245,7 @@ public:
             return false;
         }
 
-        if (!groupSource->IsFull())
+        if (groupSource->IsFull())
         {
             handler->PSendSysMessage(LANG_GROUP_FULL);
             handler->SetSentErrorMessage(true);

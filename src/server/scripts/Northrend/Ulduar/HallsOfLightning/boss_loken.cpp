@@ -45,11 +45,9 @@ enum Yells
 enum Spells
 {
     SPELL_ARC_LIGHTNING                           = 52921,
-    SPELL_LIGHTNING_NOVA_N                        = 52960,
-    SPELL_LIGHTNING_NOVA_H                        = 59835,
+    SPELL_LIGHTNING_NOVA                          = 52960,
 
-    SPELL_PULSING_SHOCKWAVE_N                     = 52961,
-    SPELL_PULSING_SHOCKWAVE_H                     = 59836,
+    SPELL_PULSING_SHOCKWAVE                       = 52961,
     SPELL_PULSING_SHOCKWAVE_AURA                  = 59414
 };
 
@@ -67,7 +65,7 @@ class boss_loken : public CreatureScript
 public:
     boss_loken() : CreatureScript("boss_loken") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_lokenAI>(creature);
     }
@@ -87,7 +85,7 @@ public:
 
         uint32 m_uiHealthAmountModifier;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             m_uiArcLightning_Timer = 15000;
             m_uiLightningNova_Timer = 20000;
@@ -99,7 +97,7 @@ public:
             instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -107,7 +105,7 @@ public:
             instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
 
@@ -115,13 +113,13 @@ public:
             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PULSING_SHOCKWAVE_AURA);
         }
 
-        void KilledUnit(Unit* who) OVERRIDE
+        void KilledUnit(Unit* who) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_SLAY);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -134,7 +132,7 @@ public:
                     DoCast(me, SPELL_PULSING_SHOCKWAVE_AURA, true);
                     me->ClearUnitState(UNIT_STATE_CASTING); // this flag breaks movement
 
-                    DoCast(me, SPELL_PULSING_SHOCKWAVE_N, true);
+                    DoCast(me, SPELL_PULSING_SHOCKWAVE, true);
                     m_uiResumePulsingShockwave_Timer = 0;
                 }
                 else
@@ -155,9 +153,9 @@ public:
             {
                 Talk(SAY_NOVA);
                 Talk(EMOTE_NOVA);
-                DoCast(me, SPELL_LIGHTNING_NOVA_N);
+                DoCast(me, SPELL_LIGHTNING_NOVA);
 
-                me->RemoveAurasDueToSpell(DUNGEON_MODE<uint32>(SPELL_PULSING_SHOCKWAVE_N, SPELL_PULSING_SHOCKWAVE_H));
+                me->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_PULSING_SHOCKWAVE, me));
                 m_uiResumePulsingShockwave_Timer = DUNGEON_MODE(5000, 4000); // Pause Pulsing Shockwave aura
                 m_uiLightningNova_Timer = urand(20000, 21000);
             }
@@ -202,13 +200,13 @@ class spell_loken_pulsing_shockwave : public SpellScriptLoader
                     SetHitDamage(int32(GetHitDamage() * distance));
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_loken_pulsing_shockwave_SpellScript::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_loken_pulsing_shockwave_SpellScript();
         }

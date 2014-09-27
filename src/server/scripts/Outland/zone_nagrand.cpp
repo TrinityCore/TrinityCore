@@ -19,12 +19,11 @@
 /* ScriptData
 SDName: Nagrand
 SD%Complete: 90
-SDComment: Quest support: 9868, 9874, 10044, 10172, 10085. TextId's unknown for altruis_the_sufferer and greatmother_geyah (npc_text)
+SDComment: Quest support: 9868, 9874, 10085. TextId's unknown for altruis_the_sufferer and greatmother_geyah (npc_text)
 SDCategory: Nagrand
 EndScriptData */
 
 /* ContentData
-npc_greatmother_geyah
 npc_maghar_captive
 npc_creditmarker_visit_with_ancestors
 EndContentData */
@@ -36,114 +35,6 @@ EndContentData */
 #include "SpellInfo.h"
 
 /*######
-## npc_greatmother_geyah
-######*/
-
-#define GOSSIP_HGG1 "Hello, Greatmother. Garrosh told me that you wanted to speak with me."
-#define GOSSIP_HGG2 "Garrosh is beyond redemption, Greatmother. I fear that in helping the Mag'har, I have convinced Garrosh that he is unfit to lead."
-
-#define GOSSIP_SGG1 "You raised all of the orcs here, Greatmother?"
-#define GOSSIP_SGG2 "Do you believe that?"
-#define GOSSIP_SGG3 "What can be done? I have tried many different things. I have done my best to help the people of Nagrand. Each time I have approached Garrosh, he has dismissed me."
-#define GOSSIP_SGG4 "Left? How can you choose to leave?"
-#define GOSSIP_SGG5 "What is this duty?"
-#define GOSSIP_SGG6 "Is there anything I can do for you, Greatmother?"
-#define GOSSIP_SGG7 "I have done all that I could, Greatmother. I thank you for your kind words."
-#define GOSSIP_SGG8 "Greatmother, you are the mother of Durotan?"
-#define GOSSIP_SGG9 "Greatmother, I never had the honor. Durotan died long before my time, but his heroics are known to all on my world. The orcs of Azeroth reside in a place known as Durotar, named after your son. And ... (You take a moment to breathe and think through what you are about to tell the Greatmother.)"
-#define GOSSIP_SGG10 "It is my Warchief, Greatmother. The leader of my people. From my world. He ... He is the son of Durotan. He is your grandchild."
-#define GOSSIP_SGG11 "I will return to Azeroth at once, Greatmother."
-
-//all the textId's for the below is unknown, but i do believe the gossip item texts are proper.
-class npc_greatmother_geyah : public CreatureScript
-{
-public:
-    npc_greatmother_geyah() : CreatureScript("npc_greatmother_geyah") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 2:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 3:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 4:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 5:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 6:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 7:
-                player->AreaExploredOrEventHappens(10044);
-                player->CLOSE_GOSSIP_MENU();
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 10:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 11:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG8, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 12:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG9, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 13:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG10, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 14:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG11, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 15);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 15:
-                player->AreaExploredOrEventHappens(10172);
-                player->CLOSE_GOSSIP_MENU();
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(10044) == QUEST_STATUS_INCOMPLETE)
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HGG1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        }
-        else if (player->GetQuestStatus(10172) == QUEST_STATUS_INCOMPLETE)
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HGG2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        }
-        else
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-};
-
-/*#####
 ## npc_maghar_captive
 #####*/
 
@@ -178,7 +69,7 @@ class npc_maghar_captive : public CreatureScript
 public:
     npc_maghar_captive() : CreatureScript("npc_maghar_captive") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) OVERRIDE
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
     {
         if (quest->GetQuestId() == QUEST_TOTEM_KARDASH_H)
         {
@@ -197,7 +88,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_maghar_captiveAI(creature);
     }
@@ -210,19 +101,19 @@ public:
         uint32 HealTimer;
         uint32 FrostShockTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             ChainLightningTimer = 1000;
             HealTimer = 0;
             FrostShockTimer = 6000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             DoCast(me, SPELL_EARTHBIND_TOTEM, false);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
                 return;
@@ -234,7 +125,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             switch (waypointId)
             {
@@ -259,7 +150,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             if (summoned->GetEntry() == NPC_MURK_BRUTE)
                 summoned->AI()->Talk(SAY_MAG_NO_ESCAPE);
@@ -273,18 +164,18 @@ public:
 
         }
 
-        void SpellHitTarget(Unit* /*target*/, const SpellInfo* spell) OVERRIDE
+        void SpellHitTarget(Unit* /*target*/, const SpellInfo* spell) override
         {
             if (spell->Id == SPELL_CHAIN_LIGHTNING)
             {
-                if (rand()%10)
+                if (rand32() % 10)
                     return;
 
                 Talk(SAY_MAG_LIGHTNING);
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             npc_escortAI::UpdateAI(diff);
 
@@ -335,7 +226,7 @@ class npc_creditmarker_visit_with_ancestors : public CreatureScript
 public:
     npc_creditmarker_visit_with_ancestors() : CreatureScript("npc_creditmarker_visit_with_ancestors") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_creditmarker_visit_with_ancestorsAI(creature);
     }
@@ -344,11 +235,11 @@ public:
     {
         npc_creditmarker_visit_with_ancestorsAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE { }
+        void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
 
         {
             if (!who)
@@ -399,7 +290,7 @@ class go_corkis_prison : public GameObjectScript
 public:
   go_corkis_prison() : GameObjectScript("go_corkis_prison") { }
 
-  bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
+  bool OnGossipHello(Player* player, GameObject* go) override
   {
       go->SetGoState(GO_STATE_READY);
       if (go->GetEntry() == GO_CORKIS_PRISON)
@@ -440,7 +331,7 @@ class npc_corki : public CreatureScript
 public:
   npc_corki() : CreatureScript("npc_corki") { }
 
-  CreatureAI* GetAI(Creature* creature) const OVERRIDE
+  CreatureAI* GetAI(Creature* creature) const override
   {
       return new npc_corkiAI(creature);
   }
@@ -452,13 +343,13 @@ public:
       uint32 Say_Timer;
       bool ReleasedFromCage;
 
-      void Reset() OVERRIDE
+      void Reset() override
       {
           Say_Timer = 5000;
           ReleasedFromCage = false;
       }
 
-      void UpdateAI(uint32 diff) OVERRIDE
+      void UpdateAI(uint32 diff) override
       {
           if (ReleasedFromCage)
           {
@@ -472,7 +363,7 @@ public:
           }
       }
 
-      void MovementInform(uint32 type, uint32 id) OVERRIDE
+      void MovementInform(uint32 type, uint32 id) override
       {
           if (type == POINT_MOTION_TYPE && id == 1)
           {
@@ -524,7 +415,7 @@ class npc_kurenai_captive : public CreatureScript
 public:
     npc_kurenai_captive() : CreatureScript("npc_kurenai_captive") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) OVERRIDE
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
     {
         if (quest->GetQuestId() == QUEST_TOTEM_KARDASH_A)
         {
@@ -543,7 +434,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_kurenai_captiveAI(creature);
     }
@@ -556,19 +447,19 @@ public:
         uint32 HealTimer;
         uint32 FrostShockTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             ChainLightningTimer = 1000;
             HealTimer = 0;
             FrostShockTimer = 6000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             DoCast(me, SPELL_KUR_EARTHBIND_TOTEM, false);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
                 return;
@@ -580,7 +471,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             switch (waypointId)
             {
@@ -609,7 +500,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             if (summoned->GetEntry() == NPC_KUR_MURK_BRUTE)
                 Talk(SAY_KUR_NO_ESCAPE);
@@ -623,11 +514,11 @@ public:
             summoned->AI()->AttackStart(me);
         }
 
-        void SpellHitTarget(Unit* /*target*/, const SpellInfo* spell) OVERRIDE
+        void SpellHitTarget(Unit* /*target*/, const SpellInfo* spell) override
         {
             if (spell->Id == SPELL_KUR_CHAIN_LIGHTNING)
             {
-                if (rand()%30)
+                if (rand32() % 30)
                     return;
 
                 Talk(SAY_KUR_LIGHTNING);
@@ -635,14 +526,14 @@ public:
 
             if (spell->Id == SPELL_KUR_FROST_SHOCK)
             {
-                if (rand()%30)
+                if (rand32() % 30)
                     return;
 
                 Talk(SAY_KUR_SHOCK);
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             npc_escortAI::UpdateAI(diff);
 
@@ -695,7 +586,7 @@ class go_warmaul_prison : public GameObjectScript
     public:
         go_warmaul_prison() : GameObjectScript("go_warmaul_prison") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
+        bool OnGossipHello(Player* player, GameObject* go) override
         {
             go->UseDoorOrButton();
             if (player->GetQuestStatus(QUEST_FINDING_THE_SURVIVORS) != QUEST_STATUS_INCOMPLETE)
@@ -714,7 +605,6 @@ class go_warmaul_prison : public GameObjectScript
 
 void AddSC_nagrand()
 {
-    new npc_greatmother_geyah();
     new npc_maghar_captive();
     new npc_creditmarker_visit_with_ancestors();
     new npc_corki();

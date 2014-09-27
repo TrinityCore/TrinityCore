@@ -34,6 +34,7 @@ class Aura;
 class DynamicObject;
 class AuraScript;
 class ProcInfo;
+class ChargeDropEvent;
 
 // update aura target map every 500 ms instead of every update - reduce amount of grid searcher calls
 #define UPDATE_TARGET_MAP_INTERVAL 500
@@ -67,9 +68,9 @@ class AuraApplication
         uint8 GetSlot() const { return _slot; }
         uint8 GetFlags() const { return _flags; }
         uint8 GetEffectMask() const { return _flags & (AFLAG_EFF_INDEX_0 | AFLAG_EFF_INDEX_1 | AFLAG_EFF_INDEX_2); }
-        bool HasEffect(uint8 effect) const { ASSERT(effect < MAX_SPELL_EFFECTS);  return _flags & (1<<effect); }
-        bool IsPositive() const { return _flags & AFLAG_POSITIVE; }
-        bool IsSelfcast() const { return _flags & AFLAG_CASTER; }
+        bool HasEffect(uint8 effect) const { ASSERT(effect < MAX_SPELL_EFFECTS);  return (_flags & (1 << effect)) != 0; }
+        bool IsPositive() const { return (_flags & AFLAG_POSITIVE) != 0; }
+        bool IsSelfcast() const { return (_flags & AFLAG_CASTER) != 0; }
         uint8 GetEffectsToApply() const { return _effectsToApply; }
 
         void SetRemoveMode(AuraRemoveMode mode) { _removeMode = mode; }
@@ -129,9 +130,9 @@ class Aura
         int32 CalcMaxDuration(Unit* caster) const;
         int32 GetDuration() const { return m_duration; }
         void SetDuration(int32 duration, bool withMods = false);
-        void RefreshDuration();
+        void RefreshDuration(bool withMods = false);
         void RefreshTimers();
-        bool IsExpired() const { return !GetDuration();}
+        bool IsExpired() const { return !GetDuration() && !m_dropEvent; }
         bool IsPermanent() const { return GetMaxDuration() == -1; }
 
         uint8 GetCharges() const { return m_procCharges; }
@@ -140,6 +141,8 @@ class Aura
         uint8 CalcMaxCharges() const { return CalcMaxCharges(GetCaster()); }
         bool ModCharges(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
         bool DropCharge(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) { return ModCharges(-1, removeMode); }
+        void ModChargesDelayed(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        void DropChargeDelayed(uint32 delay, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
         uint8 GetStackAmount() const { return m_stackAmount; }
         void SetStackAmount(uint8 num);
@@ -149,6 +152,7 @@ class Aura
 
         uint8 GetCasterLevel() const { return m_casterLevel; }
 
+        bool HasMoreThanOneEffectForType(AuraType auraType) const;
         bool IsArea() const;
         bool IsPassive() const;
         bool IsDeathPersistent() const;
@@ -190,6 +194,7 @@ class Aura
 
         void SetNeedClientUpdateForTargets() const;
         void HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, bool apply, bool onReapply);
+        void HandleAuraSpecificPeriodics(AuraApplication const* aurApp, Unit* caster);
         bool CanBeAppliedOn(Unit* target);
         bool CheckAreaTarget(Unit* target);
         bool CanStackWith(Aura const* existingAura) const;
@@ -262,6 +267,8 @@ class Aura
         bool m_isSingleTarget:1;                        // true if it's a single target spell and registered at caster - can change at spell steal for example
         bool m_isUsingCharges:1;
 
+        ChargeDropEvent* m_dropEvent;
+
     private:
         Unit::AuraApplicationList m_removedApplications;
 };
@@ -272,12 +279,12 @@ class UnitAura : public Aura
     protected:
         explicit UnitAura(SpellInfo const* spellproto, uint8 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID);
     public:
-        void _ApplyForTarget(Unit* target, Unit* caster, AuraApplication * aurApp);
-        void _UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * aurApp);
+        void _ApplyForTarget(Unit* target, Unit* caster, AuraApplication * aurApp) override;
+        void _UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * aurApp) override;
 
-        void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) override;
 
-        void FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster);
+        void FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster) override;
 
         // Allow Apply Aura Handler to modify and access m_AuraDRGroup
         void SetDiminishGroup(DiminishingGroup group) { m_AuraDRGroup = group; }
@@ -293,8 +300,20 @@ class DynObjAura : public Aura
     protected:
         explicit DynObjAura(SpellInfo const* spellproto, uint8 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID);
     public:
-        void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) override;
 
-        void FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster);
+        void FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster) override;
+};
+
+class ChargeDropEvent : public BasicEvent
+{
+    friend class Aura;
+    protected:
+        ChargeDropEvent(Aura* base, AuraRemoveMode mode) : _base(base), _mode(mode) { }
+        bool Execute(uint64 /*e_time*/, uint32 /*p_time*/);
+
+    private:
+        Aura* _base;
+        AuraRemoveMode _mode;
 };
 #endif

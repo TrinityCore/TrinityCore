@@ -15,12 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "InstanceScript.h"
+#include "Player.h"
 #include "ScriptedGossip.h"
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
-#include "icecrown_citadel.h"
 #include "Spell.h"
-#include "Player.h"
+#include "icecrown_citadel.h"
 
 #define GOSSIP_SENDER_ICC_PORT 631
 
@@ -29,21 +29,25 @@ class icecrown_citadel_teleport : public GameObjectScript
     public:
         icecrown_citadel_teleport() : GameObjectScript("icecrown_citadel_teleport") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
+        bool OnGossipHello(Player* player, GameObject* go) override
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Light's Hammer.", GOSSIP_SENDER_ICC_PORT, LIGHT_S_HAMMER_TELEPORT);
             if (InstanceScript* instance = go->GetInstanceScript())
             {
                 if (instance->GetBossState(DATA_LORD_MARROWGAR) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Oratory of the Damned.", GOSSIP_SENDER_ICC_PORT, ORATORY_OF_THE_DAMNED_TELEPORT);
-                if (instance->GetBossState(DATA_LADY_DEATHWHISPER) == DONE)
+                {
+                    if (go->GetEntry() != GO_SCOURGE_TRANSPORTER_LIGHTSHAMMER)
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Light's Hammer.", GOSSIP_SENDER_ICC_PORT, LIGHT_S_HAMMER_TELEPORT);
+                    if (go->GetEntry() != GO_SCOURGE_TRANSPORTER_ORATORY)
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Oratory of the Damned.", GOSSIP_SENDER_ICC_PORT, ORATORY_OF_THE_DAMNED_TELEPORT);
+                }
+                if (instance->GetBossState(DATA_LADY_DEATHWHISPER) == DONE && go->GetEntry() != GO_SCOURGE_TRANSPORTER_RAMPART)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Rampart of Skulls.", GOSSIP_SENDER_ICC_PORT, RAMPART_OF_SKULLS_TELEPORT);
-                if (instance->GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) == DONE)
+                if (instance->GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) == DONE && go->GetEntry() != GO_SCOURGE_TRANSPORTER_DEATHBRINGER)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Deathbringer's Rise.", GOSSIP_SENDER_ICC_PORT, DEATHBRINGER_S_RISE_TELEPORT);
-                if (instance->GetData(DATA_COLDFLAME_JETS) == DONE)
+                if (instance->GetData(DATA_UPPERSPIRE_TELE_ACT) == DONE && go->GetEntry() != GO_SCOURGE_TRANSPORTER_UPPERSPIRE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Upper Spire.", GOSSIP_SENDER_ICC_PORT, UPPER_SPIRE_TELEPORT);
                 /// @todo Gauntlet event before Sindragosa
-                if (instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == DONE)
+                if (instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == DONE && go->GetEntry() != GO_SCOURGE_TRANSPORTER_SINDRAGOSA)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Sindragosa's Lair", GOSSIP_SENDER_ICC_PORT, SINDRAGOSA_S_LAIR_TELEPORT);
             }
 
@@ -51,7 +55,7 @@ class icecrown_citadel_teleport : public GameObjectScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 sender, uint32 action) OVERRIDE
+        bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 sender, uint32 action) override
         {
             player->PlayerTalkClass->ClearMenus();
             player->CLOSE_GOSSIP_MENU();
@@ -77,7 +81,7 @@ class at_frozen_throne_teleport : public AreaTriggerScript
     public:
         at_frozen_throne_teleport() : AreaTriggerScript("at_frozen_throne_teleport") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) OVERRIDE
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             if (player->IsInCombat())
             {

@@ -159,8 +159,8 @@ public:
         //int Cycles = std::max((int)ceilf(max_dist/tMaxX),(int)ceilf(max_dist/tMaxY));
         //int i = 0;
 
-        float tDeltaX = voxel * fabs(kx_inv);
-        float tDeltaY = voxel * fabs(ky_inv);
+        float tDeltaX = voxel * std::fabs(kx_inv);
+        float tDeltaY = voxel * std::fabs(ky_inv);
         do
         {
             if (Node* node = nodes[cell.x][cell.y])

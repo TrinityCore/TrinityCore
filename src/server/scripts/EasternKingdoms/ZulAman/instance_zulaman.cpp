@@ -90,8 +90,9 @@ class instance_zulaman : public InstanceMapScript
             uint32 m_auiEncounter[MAX_ENCOUNTER];
             uint32 RandVendor[RAND_VENDOR];
 
-            void Initialize() OVERRIDE
+            void Initialize() override
             {
+                SetHeaders(DataHeader);
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
                 HarkorsSatchelGUID = 0;
@@ -119,7 +120,7 @@ class instance_zulaman : public InstanceMapScript
                 m_auiEncounter[DATA_GONGEVENT] = NOT_STARTED;
             }
 
-            bool IsEncounterInProgress() const OVERRIDE
+            bool IsEncounterInProgress() const override
             {
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     if (m_auiEncounter[i] == IN_PROGRESS)
@@ -134,7 +135,7 @@ class instance_zulaman : public InstanceMapScript
                     instance->SummonCreature(NPC_HARRISON_JONES, HarrisonJonesLoc);
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -151,7 +152,7 @@ class instance_zulaman : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -201,7 +202,7 @@ class instance_zulaman : public InstanceMapScript
                     HandleGameObject(ZulJinGateGUID, true);
             }
 
-            std::string GetSaveData() OVERRIDE
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -231,7 +232,7 @@ class instance_zulaman : public InstanceMapScript
                 } else TC_LOG_ERROR("scripts", "Zul'aman: corrupted save data.");
             }
 
-            void SetData(uint32 type, uint32 data) OVERRIDE
+            void SetData(uint32 type, uint32 data) override
             {
                 switch (type)
                 {
@@ -313,7 +314,7 @@ class instance_zulaman : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type) const OVERRIDE
+            uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -331,7 +332,7 @@ class instance_zulaman : public InstanceMapScript
                 }
             }
 
-            void Update(uint32 diff) OVERRIDE
+            void Update(uint32 diff) override
             {
                 if (QuestMinute)
                 {
@@ -350,7 +351,7 @@ class instance_zulaman : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const OVERRIDE
+            uint64 GetData64(uint32 type) const override
             {
                 switch (type)
                 {
@@ -365,7 +366,7 @@ class instance_zulaman : public InstanceMapScript
 
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_zulaman_InstanceMapScript(map);
         }

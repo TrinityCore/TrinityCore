@@ -29,18 +29,19 @@ EndScriptData */
 
 enum TwilightCorrupter
 {
-    ITEM_FRAGMENT                   = 21149,
     NPC_TWILIGHT_CORRUPTER          = 15625,
-    YELL_TWILIGHTCORRUPTOR_RESPAWN  = 0,
-    YELL_TWILIGHTCORRUPTOR_AGGRO    = 1,
-    YELL_TWILIGHTCORRUPTOR_KILL     = 2,
+    YELL_TWILIGHT_CORRUPTOR_RESPAWN = 0,
+    YELL_TWILIGHT_CORRUPTOR_AGGRO   = 1,
+    YELL_TWILIGHT_CORRUPTOR_KILL    = 2,
+
     SPELL_SOUL_CORRUPTION           = 25805,
     SPELL_CREATURE_OF_NIGHTMARE     = 25806,
     SPELL_LEVEL_UP                  = 24312,
 
     EVENT_SOUL_CORRUPTION           = 1,
     EVENT_CREATURE_OF_NIGHTMARE     = 2,
-    FACTION_HOSTILE                 = 14
+
+    QUEST_NIGHTMARES_CORRUPTION     = 8735
 };
 
 /*######
@@ -54,26 +55,35 @@ public:
 
     struct boss_twilight_corrupterAI : public ScriptedAI
     {
-        boss_twilight_corrupterAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() OVERRIDE
+        boss_twilight_corrupterAI(Creature* creature) : ScriptedAI(creature)
         {
-            KillCount                 = 0;
+            Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void Initialize()
         {
-            Talk(YELL_TWILIGHTCORRUPTOR_AGGRO);
+            KillCount = 0;
+        }
+
+        void Reset() override
+        {
+            _events.Reset();
+            Initialize();
+        }
+
+        void EnterCombat(Unit* /*who*/) override
+        {
+            Talk(YELL_TWILIGHT_CORRUPTOR_AGGRO);
             _events.ScheduleEvent(EVENT_SOUL_CORRUPTION, 15000);
             _events.ScheduleEvent(EVENT_CREATURE_OF_NIGHTMARE, 30000);
         }
 
-        void KilledUnit(Unit* victim) OVERRIDE
+        void KilledUnit(Unit* victim) override
         {
             if (victim->GetTypeId() == TYPEID_PLAYER)
             {
                 ++KillCount;
-                Talk(YELL_TWILIGHTCORRUPTOR_KILL, victim);
+                Talk(YELL_TWILIGHT_CORRUPTOR_KILL, victim);
 
                 if (KillCount == 3)
                 {
@@ -83,29 +93,34 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
 
             _events.Update(diff);
 
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
             while (uint32 eventId = _events.ExecuteEvent())
             {
                 switch (eventId)
                 {
                     case EVENT_SOUL_CORRUPTION:
-                        DoCastVictim(SPELL_SOUL_CORRUPTION);
-                        _events.ScheduleEvent(EVENT_SOUL_CORRUPTION, rand()%4000+15000);
+                        DoCastAOE(SPELL_SOUL_CORRUPTION);
+                        _events.ScheduleEvent(EVENT_SOUL_CORRUPTION, urand(15000, 19000));
                         break;
                     case EVENT_CREATURE_OF_NIGHTMARE:
-                        DoCastVictim(SPELL_CREATURE_OF_NIGHTMARE);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            DoCast(target, SPELL_CREATURE_OF_NIGHTMARE);
                         _events.ScheduleEvent(EVENT_CREATURE_OF_NIGHTMARE, 45000);
                         break;
                     default:
                         break;
                 }
             }
+
             DoMeleeAttackIfReady();
         }
 
@@ -114,7 +129,7 @@ public:
             uint8 KillCount;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_twilight_corrupterAI(creature);
     }
@@ -124,27 +139,22 @@ public:
 # at_twilight_grove
 ######*/
 
+Position const TwillightCorrupter = { -10328.16f, -489.57f, 49.95f, 0.0f };
+
 class at_twilight_grove : public AreaTriggerScript
 {
-public:
-    at_twilight_grove() : AreaTriggerScript("at_twilight_grove") { }
+    public:
+        at_twilight_grove() : AreaTriggerScript("at_twilight_grove") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) OVERRIDE
-    {
-        if (player->HasQuestForItem(ITEM_FRAGMENT))
+        bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
         {
-            if (Unit* corrupter = player->SummonCreature(NPC_TWILIGHT_CORRUPTER, -10328.16f, -489.57f, 49.95f, 0, TEMPSUMMON_MANUAL_DESPAWN, 60000))
-                corrupter->setFaction(FACTION_HOSTILE);
+            if (player->GetQuestStatus(QUEST_NIGHTMARES_CORRUPTION) == QUEST_STATUS_INCOMPLETE)
+                if (!player->FindNearestCreature(NPC_TWILIGHT_CORRUPTER, 500.0f, true))
+                    if (Creature* corrupter = player->SummonCreature(NPC_TWILIGHT_CORRUPTER, TwillightCorrupter, TEMPSUMMON_MANUAL_DESPAWN, 60000))
+                        corrupter->AI()->Talk(YELL_TWILIGHT_CORRUPTOR_RESPAWN, player);
 
-            if (Creature* CorrupterSpeaker = player->SummonCreature(1, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()-1, 0, TEMPSUMMON_TIMED_DESPAWN, 15000))
-            {
-                CorrupterSpeaker->SetName("Twilight Corrupter");
-                CorrupterSpeaker->SetVisible(true);
-                CorrupterSpeaker->AI()->Talk(YELL_TWILIGHTCORRUPTOR_RESPAWN, player);
-            }
-        }
-        return false;
-    };
+            return false;
+        };
 };
 
 void AddSC_duskwood()

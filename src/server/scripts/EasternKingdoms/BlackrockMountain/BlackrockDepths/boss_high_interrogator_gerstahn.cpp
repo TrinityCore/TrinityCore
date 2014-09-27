@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,74 +26,81 @@ enum Spells
     SPELL_SHADOWSHIELD                                     = 22417
 };
 
+enum Events
+{
+    EVENT_SHADOW_WORD_PAIN                                 = 1,
+    EVENT_MANABURN                                         = 2,
+    EVENT_PSYCHIC_SCREAM                                   = 3,
+    EVENT_SHADOWSHIELD                                     = 4
+};
+
 class boss_high_interrogator_gerstahn : public CreatureScript
 {
-public:
-    boss_high_interrogator_gerstahn() : CreatureScript("boss_high_interrogator_gerstahn") { }
+    public:
+        boss_high_interrogator_gerstahn() : CreatureScript("boss_high_interrogator_gerstahn") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new boss_high_interrogator_gerstahnAI(creature);
-    }
-
-    struct boss_high_interrogator_gerstahnAI : public ScriptedAI
-    {
-        boss_high_interrogator_gerstahnAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 ShadowWordPain_Timer;
-        uint32 ManaBurn_Timer;
-        uint32 PsychicScream_Timer;
-        uint32 ShadowShield_Timer;
-
-        void Reset() OVERRIDE
+        struct boss_high_interrogator_gerstahnAI : public ScriptedAI
         {
-            ShadowWordPain_Timer = 4000;
-            ManaBurn_Timer = 14000;
-            PsychicScream_Timer = 32000;
-            ShadowShield_Timer = 8000;
-        }
+            boss_high_interrogator_gerstahnAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+            void Reset() override
+            {
+                _events.Reset();
+            }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
+            {
+                _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 4000);
+                _events.ScheduleEvent(EVENT_MANABURN, 14000);
+                _events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, 32000);
+                _events.ScheduleEvent(EVENT_SHADOWSHIELD, 8000);
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SHADOW_WORD_PAIN:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                                DoCast(target, SPELL_SHADOWWORDPAIN);
+                            _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 7000);
+                            break;
+                        case EVENT_PSYCHIC_SCREAM:
+                            DoCastVictim(SPELL_PSYCHICSCREAM);
+                            _events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, 30000);
+                            break;
+                        case EVENT_MANABURN:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                                DoCast(target, SPELL_MANABURN);
+                            _events.ScheduleEvent(EVENT_MANABURN, 10000);
+                            break;
+                        case EVENT_SHADOWSHIELD:
+                            DoCast(me, SPELL_SHADOWSHIELD);
+                            _events.ScheduleEvent(EVENT_SHADOWSHIELD, 25000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+        private:
+            EventMap _events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            //ShadowWordPain_Timer
-            if (ShadowWordPain_Timer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_SHADOWWORDPAIN);
-                ShadowWordPain_Timer = 7000;
-            } else ShadowWordPain_Timer -= diff;
-
-            //ManaBurn_Timer
-            if (ManaBurn_Timer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_MANABURN);
-                ManaBurn_Timer = 10000;
-            } else ManaBurn_Timer -= diff;
-
-            //PsychicScream_Timer
-            if (PsychicScream_Timer <= diff)
-            {
-                DoCastVictim(SPELL_PSYCHICSCREAM);
-                PsychicScream_Timer = 30000;
-            } else PsychicScream_Timer -= diff;
-
-            //ShadowShield_Timer
-            if (ShadowShield_Timer <= diff)
-            {
-                DoCast(me, SPELL_SHADOWSHIELD);
-                ShadowShield_Timer = 25000;
-            } else ShadowShield_Timer -= diff;
-
-            DoMeleeAttackIfReady();
+            return new boss_high_interrogator_gerstahnAI(creature);
         }
-    };
 };
 
 void AddSC_boss_high_interrogator_gerstahn()

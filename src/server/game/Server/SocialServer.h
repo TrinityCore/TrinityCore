@@ -2,19 +2,17 @@
 #define _SOCIALSERVER_H
 
 #include <zmqpp/zmqpp.hpp>
-#include <ace/Singleton.h>
+#include "World.h"
 #include "Commands.h"
 
 class WorldPacket;
 
 class SocialServer
 {
-    friend class ACE_Singleton<SocialServer, ACE_Null_Mutex>;
-
-    SocialServer();
     ~SocialServer();
 
 public:
+    SocialServer();
     void Init(RedirectInfo const& currentNode);
     void SendCommand(zmqpp::message& msg);
     void BuildPacketCommand(zmqpp::message& msg, WorldPacket& packet);
@@ -35,5 +33,5 @@ private:
     SocialServer& operator=(SocialServer const& right);
 };
 
-#define sSocialServer ACE_Singleton<SocialServer, ACE_Null_Mutex>::instance()
+static SocialServer* sSocialServer = new SocialServer(); //GHETTO SINGLETON
 #endif

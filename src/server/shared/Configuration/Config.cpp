@@ -16,136 +16,100 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
+#include <mutex>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ini_parser.hpp>
 #include "Config.h"
 #include "Errors.h"
 
-// Defined here as it must not be exposed to end-users.
-bool ConfigMgr::GetValueHelper(const char* name, ACE_TString &result)
+using namespace boost::property_tree;
+
+bool ConfigMgr::LoadInitial(std::string const& file, std::string& error)
 {
-    GuardType guard(_configLock);
-
-    if (_config.get() == 0)
-        return false;
-
-    ACE_TString section_name;
-    ACE_Configuration_Section_Key section_key;
-    const ACE_Configuration_Section_Key &root_key = _config->root_section();
-
-    int i = 0;
-    while (_config->enumerate_sections(root_key, i, section_name) == 0)
-    {
-        _config->open_section(root_key, section_name.c_str(), 0, section_key);
-        if (_config->get_string_value(section_key, name, result) == 0)
-            return true;
-        ++i;
-    }
-
-    return false;
-}
-
-bool ConfigMgr::LoadInitial(char const* file)
-{
-    ASSERT(file);
-
-    GuardType guard(_configLock);
+    std::lock_guard<std::mutex> lock(_configLock);
 
     _filename = file;
-    _config.reset(new ACE_Configuration_Heap());
-    if (_config->open() == 0)
-        if (LoadData(_filename.c_str()))
-            return true;
 
-    _config.reset();
-    return false;
+    try
+    {
+        ptree fullTree;
+        ini_parser::read_ini(file, fullTree);
+
+        if (fullTree.empty())
+        {
+            error = "empty file (" + file + ")";
+            return false;
+        }
+
+        // Since we're using only one section per config file, we skip the section and have direct property access
+        _config = fullTree.begin()->second;
+    }
+    catch (ini_parser::ini_parser_error const& e)
+    {
+        if (e.line() == 0)
+            error = e.message() + " (" + e.filename() + ")";
+        else
+            error = e.message() + " (" + e.filename() + ":" + std::to_string(e.line()) + ")";
+        return false;
+    }
+
+    return true;
 }
 
-bool ConfigMgr::LoadMore(char const* file)
+bool ConfigMgr::Reload(std::string& error)
 {
-    ASSERT(file);
-    ASSERT(_config);
-
-    GuardType guard(_configLock);
-
-    return LoadData(file);
+    return LoadInitial(_filename, error);
 }
 
-bool ConfigMgr::Reload()
+std::string ConfigMgr::GetStringDefault(std::string const& name, const std::string& def)
 {
-    return LoadInitial(_filename.c_str());
+    std::string value = _config.get<std::string>(ptree::path_type(name, '/'), def);
+
+    value.erase(std::remove(value.begin(), value.end(), '"'), value.end());
+
+    return value;
 }
 
-bool ConfigMgr::LoadData(char const* file)
+bool ConfigMgr::GetBoolDefault(std::string const& name, bool def)
 {
-    ACE_Ini_ImpExp config_importer(*_config.get());
-    if (config_importer.import_config(file) == 0)
-        return true;
-
-    return false;
-}
-
-std::string ConfigMgr::GetStringDefault(const char* name, const std::string &def)
-{
-    ACE_TString val;
-    return GetValueHelper(name, val) ? val.c_str() : def;
-}
-
-bool ConfigMgr::GetBoolDefault(const char* name, bool def)
-{
-    ACE_TString val;
-
-    if (!GetValueHelper(name, val))
+    try
+    {
+        std::string val = _config.get<std::string>(ptree::path_type(name, '/'));
+        val.erase(std::remove(val.begin(), val.end(), '"'), val.end());
+        return (val == "true" || val == "TRUE" || val == "yes" || val == "YES" || val == "1");
+    }
+    catch (std::exception const&  /*ex*/)
+    {
         return def;
-
-    return (val == "true" || val == "TRUE" || val == "yes" || val == "YES" ||
-        val == "1");
+    }
 }
 
-int ConfigMgr::GetIntDefault(const char* name, int def)
+int ConfigMgr::GetIntDefault(std::string const& name, int def)
 {
-    ACE_TString val;
-    return GetValueHelper(name, val) ? atoi(val.c_str()) : def;
+    return _config.get<int>(ptree::path_type(name, '/'), def);
 }
 
-float ConfigMgr::GetFloatDefault(const char* name, float def)
+float ConfigMgr::GetFloatDefault(std::string const& name, float def)
 {
-    ACE_TString val;
-    return GetValueHelper(name, val) ? (float)atof(val.c_str()) : def;
+    return _config.get<float>(ptree::path_type(name, '/'), def);
 }
 
 std::string const& ConfigMgr::GetFilename()
 {
-    GuardType guard(_configLock);
+    std::lock_guard<std::mutex> lock(_configLock);
     return _filename;
 }
 
 std::list<std::string> ConfigMgr::GetKeysByString(std::string const& name)
 {
-    GuardType guard(_configLock);
+    std::lock_guard<std::mutex> lock(_configLock);
 
     std::list<std::string> keys;
-    if (_config.get() == 0)
-        return keys;
 
-    ACE_TString section_name;
-    ACE_Configuration_Section_Key section_key;
-    const ACE_Configuration_Section_Key &root_key = _config->root_section();
-
-    int i = 0;
-    while (_config->enumerate_sections(root_key, i++, section_name) == 0)
-    {
-        _config->open_section(root_key, section_name.c_str(), 0, section_key);
-
-        ACE_TString key_name;
-        ACE_Configuration::VALUETYPE type;
-        int j = 0;
-        while (_config->enumerate_values(section_key, j++, key_name, type) == 0)
-        {
-            std::string temp = key_name.c_str();
-
-            if (!temp.find(name))
-                keys.push_back(temp);
-        }
-    }
+    for (const ptree::value_type& child : _config)
+        if (child.first.compare(0, name.length(), name) == 0)
+            keys.push_back(child.first);
 
     return keys;
 }

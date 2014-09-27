@@ -88,7 +88,7 @@ set(scripts_STAT_SRCS
   Outland/Auchindoun/ManaTombs/instance_mana_tombs.cpp
   Outland/Auchindoun/ManaTombs/mana_tombs.h
   Outland/Auchindoun/SethekkHalls/boss_darkweaver_syth.cpp
-  Outland/Auchindoun/SethekkHalls/boss_tailonking_ikiss.cpp
+  Outland/Auchindoun/SethekkHalls/boss_talon_king_ikiss.cpp
   Outland/Auchindoun/SethekkHalls/boss_anzu.cpp
   Outland/Auchindoun/SethekkHalls/instance_sethekk_halls.cpp
   Outland/Auchindoun/SethekkHalls/sethekk_halls.h
@@ -112,7 +112,7 @@ set(scripts_STAT_SRCS
   Outland/BlackTemple/instance_black_temple.cpp
   Outland/BlackTemple/boss_reliquary_of_souls.cpp
   Outland/BlackTemple/boss_warlord_najentus.cpp
-  Outland/BlackTemple/boss_bloodboil.cpp
+  Outland/BlackTemple/boss_gurtogg_bloodboil.cpp
   Outland/BlackTemple/boss_illidan.cpp
   Outland/zone_shadowmoon_valley.cpp
   Outland/zone_blades_edge_mountains.cpp

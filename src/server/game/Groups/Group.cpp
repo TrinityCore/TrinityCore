@@ -81,8 +81,6 @@ Group::~Group()
         delete(r);
     }
 
-    // it is undefined whether objectmgr (which stores the groups) or instancesavemgr
-    // will be unloaded first so we must be prepared for both cases
     // this may unload some instance saves
     for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
         for (BoundInstancesMap::iterator itr2 = m_boundInstances[i].begin(); itr2 != m_boundInstances[i].end(); ++itr2)
@@ -229,7 +227,7 @@ void Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, 
 
 void Group::ConvertToLFG()
 {
-    m_groupType = GroupType(m_groupType | GROUPTYPE_LFG | GROUPTYPE_UNK1);
+    m_groupType = GroupType(m_groupType | GROUPTYPE_LFG | GROUPTYPE_LFG_RESTRICTED);
     m_lootMethod = NEED_BEFORE_GREED;
     if (!isBGGroup() && !isBFGroup())
     {
@@ -401,7 +399,6 @@ bool Group::AddMember(Player* player)
         stmt->setUInt8(4, member.roles);
 
         CharacterDatabase.Execute(stmt);
-
     }
 
     SendUpdate();
@@ -494,7 +491,7 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod& method /*= GROUP_REMOV
 
     // LFG group vote kick handled in scripts
     if (isLFGGroup() && method == GROUP_REMOVEMETHOD_KICK)
-        return m_memberSlots.size();
+        return !m_memberSlots.empty();
 
     // remove member and change leader (if need) only if strong more 2 members _before_ member remove (BG/BF allow 1 member group)
     if (GetMembersCount() > ((isBGGroup() || isLFGGroup() || isBFGroup()) ? 1u : 2u))
@@ -1424,8 +1421,25 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                     roll->getLoot()->unlootedCount--;
                     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(roll->itemid);
-                    player->AutoStoreLoot(pProto->DisenchantID, LootTemplates_Disenchant, true);
                     player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, 13262); // Disenchant
+
+                    ItemPosCountVec dest;
+                    InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count);
+                    if (msg == EQUIP_ERR_OK)
+                        player->AutoStoreLoot(pProto->DisenchantID, LootTemplates_Disenchant, true);
+                    else // If the player's inventory is full, send the disenchant result in a mail.
+                    {
+                        Loot loot;
+                        loot.FillLoot(pProto->DisenchantID, LootTemplates_Disenchant, player, true);
+
+                        uint32 max_slot = loot.GetMaxSlotInLootFor(player);
+                        for (uint32 i = 0; i < max_slot; ++i)
+                        {
+                            LootItem* lootItem = loot.LootItemInSlot(i, player);
+                            player->SendEquipError(msg, NULL, NULL, lootItem->itemid);
+                            player->SendItemRetrievalMail(lootItem->itemid, lootItem->count);
+                        }
+                    }
                 }
             }
         }
@@ -1573,7 +1587,7 @@ void Group::UpdatePlayerOutOfRange(Player* player)
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         member = itr->GetSource();
-        if (member && !member->IsWithinDist(player, member->GetSightRange(), false))
+        if (member && member != player && (!member->IsInMap(player) || !member->IsWithinDist(player, member->GetSightRange(), false)))
             member->GetSession()->SendPacket(&data);
     }
 }
@@ -2197,12 +2211,12 @@ bool Group::IsFull() const
 
 bool Group::isLFGGroup() const
 {
-    return m_groupType & GROUPTYPE_LFG;
+    return (m_groupType & GROUPTYPE_LFG) != 0;
 }
 
 bool Group::isRaidGroup() const
 {
-    return m_groupType & GROUPTYPE_RAID;
+    return (m_groupType & GROUPTYPE_RAID) != 0;
 }
 
 bool Group::isBGGroup() const

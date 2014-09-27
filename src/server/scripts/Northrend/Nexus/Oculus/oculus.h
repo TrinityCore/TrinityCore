@@ -19,6 +19,7 @@
 #define OCULUS_H_
 
 #define OculusScriptName "instance_oculus"
+#define DataHeader "OC"
 
 uint32 const EncounterCount = 4;
 

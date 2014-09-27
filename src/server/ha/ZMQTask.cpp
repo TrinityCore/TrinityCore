@@ -26,8 +26,9 @@ ZMQTask::ZMQTask()
 
 ZMQTask::~ZMQTask()
 {
-    delete poller;
-    poller = NULL;
+  delete poller;
+  poller = NULL;
+  delete inproc;
 }
 
 int ZMQTask::open(void*)
@@ -39,7 +40,8 @@ int ZMQTask::open(void*)
 
     poller->add(*inproc);
 
-    return HandleOpen();
+    HandleOpen();
+    thr = new boost::thread((*this));
 }
 
 int ZMQTask::close(u_long flags /*= 0 */)
@@ -74,7 +76,7 @@ bool ZMQTask::process_exit()
 void ZMQTask::pipeline(zmqpp::socket* from, zmqpp::socket* to)
 {
     /*
-      Push messages from node to node.
+      Push messages from socket to socket.
     */
     if (poller->events(*from) == zmqpp::poller::poll_in)
     {

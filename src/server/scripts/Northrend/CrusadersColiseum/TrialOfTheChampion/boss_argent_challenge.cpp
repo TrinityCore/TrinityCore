@@ -135,14 +135,14 @@ class spell_eadric_radiance : public SpellScriptLoader
                 unitList.remove_if(OrientationCheck(GetCaster()));
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_eadric_radiance_SpellScript();
         }
@@ -156,9 +156,20 @@ public:
     {
         boss_eadricAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             creature->SetReactState(REACT_PASSIVE);
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        }
+
+        void Initialize()
+        {
+            uiVenganceTimer = 10000;
+            uiRadianceTimer = 16000;
+            uiHammerJusticeTimer = 25000;
+            uiResetTimer = 5000;
+
+            bDone = false;
         }
 
         InstanceScript* instance;
@@ -170,17 +181,12 @@ public:
 
         bool bDone;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
-            uiVenganceTimer = 10000;
-            uiRadianceTimer = 16000;
-            uiHammerJusticeTimer = 25000;
-            uiResetTimer = 5000;
-
-            bDone = false;
+            Initialize();
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
         {
             if (damage >= me->GetHealth())
             {
@@ -191,7 +197,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 MovementType, uint32 /*Data*/) OVERRIDE
+        void MovementInform(uint32 MovementType, uint32 /*Data*/) override
         {
             if (MovementType != POINT_MOTION_TYPE)
                 return;
@@ -201,7 +207,7 @@ public:
             me->DisappearAndDie();
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (bDone && uiResetTimer <= uiDiff)
             {
@@ -245,7 +251,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_eadricAI>(creature);
     }
@@ -260,12 +266,25 @@ public:
     {
         boss_paletressAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
 
             MemoryGUID = 0;
             creature->SetReactState(REACT_PASSIVE);
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             creature->RestoreFaction();
+        }
+
+        void Initialize()
+        {
+            uiHolyFireTimer = urand(9000, 12000);
+            uiHolySmiteTimer = urand(5000, 7000);
+            uiRenewTimer = urand(2000, 5000);
+
+            uiResetTimer = 7000;
+
+            bHealth = false;
+            bDone = false;
         }
 
         InstanceScript* instance;
@@ -279,31 +298,24 @@ public:
         uint32 uiRenewTimer;
         uint32 uiResetTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             me->RemoveAllAuras();
 
-            uiHolyFireTimer     = urand(9000, 12000);
-            uiHolySmiteTimer    = urand(5000, 7000);
-            uiRenewTimer        = urand(2000, 5000);
+            Initialize();
 
-            uiResetTimer        = 7000;
-
-            bHealth = false;
-            bDone = false;
-
-            if (Creature* pMemory = Unit::GetCreature(*me, MemoryGUID))
+            if (Creature* pMemory = ObjectAccessor::GetCreature(*me, MemoryGUID))
                 if (pMemory->IsAlive())
                     pMemory->RemoveFromWorld();
         }
 
-        void SetData(uint32 uiId, uint32 /*uiValue*/) OVERRIDE
+        void SetData(uint32 uiId, uint32 /*uiValue*/) override
         {
             if (uiId == 1)
                 me->RemoveAura(SPELL_SHIELD);
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
         {
             if (damage >= me->GetHealth())
             {
@@ -314,7 +326,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 MovementType, uint32 Point) OVERRIDE
+        void MovementInform(uint32 MovementType, uint32 Point) override
         {
             if (MovementType != POINT_MOTION_TYPE || Point != 0)
                 return;
@@ -324,7 +336,7 @@ public:
             me->DisappearAndDie();
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (bDone && uiResetTimer <= uiDiff)
             {
@@ -373,7 +385,7 @@ public:
                             DoCast(me, SPELL_RENEW);
                             break;
                         case 1:
-                            if (Creature* pMemory = Unit::GetCreature(*me, MemoryGUID))
+                            if (Creature* pMemory = ObjectAccessor::GetCreature(*me, MemoryGUID))
                                 if (pMemory->IsAlive())
                                     DoCast(pMemory, SPELL_RENEW);
                             break;
@@ -396,13 +408,13 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustSummoned(Creature* summon) OVERRIDE
+        void JustSummoned(Creature* summon) override
         {
             MemoryGUID = summon->GetGUID();
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_paletressAI>(creature);
     }
@@ -415,20 +427,28 @@ public:
 
     struct npc_memoryAI : public ScriptedAI
     {
-        npc_memoryAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_memoryAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        uint32 uiOldWoundsTimer;
-        uint32 uiShadowPastTimer;
-        uint32 uiWakingNightmare;
-
-        void Reset() OVERRIDE
+        void Initialize()
         {
             uiOldWoundsTimer = 12000;
             uiShadowPastTimer = 5000;
             uiWakingNightmare = 7000;
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        uint32 uiOldWoundsTimer;
+        uint32 uiShadowPastTimer;
+        uint32 uiWakingNightmare;
+
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -462,7 +482,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (TempSummon* summ = me->ToTempSummon())
                 if (Unit* summoner = summ->GetSummoner())
@@ -471,7 +491,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_memoryAI(creature);
     }
@@ -497,7 +517,7 @@ public:
 
         uint8 uiWaypoint;
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             if (waypointId == 0)
             {
@@ -516,7 +536,7 @@ public:
             }
         }
 
-        void SetData(uint32 uiType, uint32 /*uiData*/) OVERRIDE
+        void SetData(uint32 uiType, uint32 /*uiData*/) override
         {
             switch (me->GetEntry())
             {
@@ -568,7 +588,7 @@ public:
             uiWaypoint = uiType;
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             npc_escortAI::UpdateAI(uiDiff);
 
@@ -578,13 +598,13 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             instance->SetData(DATA_ARGENT_SOLDIER_DEFEATED, instance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_argent_soldierAI>(creature);
     }
@@ -629,7 +649,7 @@ class spell_paletress_summon_memory : public SpellScriptLoader
         {
             PrepareSpellScript(spell_paletress_summon_memory_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 for (uint8 i = 0; i < 25; ++i)
                     if (!sSpellMgr->GetSpellInfo(memorySpellId[i]))
@@ -652,14 +672,14 @@ class spell_paletress_summon_memory : public SpellScriptLoader
                 GetHitUnit()->CastSpell(GetHitUnit(), memorySpellId[urand(0, 24)], true, NULL, NULL, GetCaster()->GetGUID());
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_paletress_summon_memory_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_paletress_summon_memory_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_paletress_summon_memory_SpellScript();
         }

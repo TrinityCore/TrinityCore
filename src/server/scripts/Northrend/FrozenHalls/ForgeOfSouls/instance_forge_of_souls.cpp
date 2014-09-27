@@ -36,6 +36,7 @@ class instance_forge_of_souls : public InstanceMapScript
         {
             instance_forge_of_souls_InstanceScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
                 bronjahm = 0;
                 devourerOfSouls = 0;
@@ -43,13 +44,13 @@ class instance_forge_of_souls : public InstanceMapScript
                 teamInInstance = 0;
             }
 
-            void OnPlayerEnter(Player* player) OVERRIDE
+            void OnPlayerEnter(Player* player) override
             {
                 if (!teamInInstance)
                     teamInInstance = player->GetTeam();
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 if (!teamInInstance)
                 {
@@ -69,20 +70,20 @@ class instance_forge_of_souls : public InstanceMapScript
                         break;
                     case NPC_SYLVANAS_PART1:
                         if (teamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_JAINA_PART1, ALLIANCE);
+                            creature->UpdateEntry(NPC_JAINA_PART1);
                         break;
                     case NPC_LORALEN:
                         if (teamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_ELANDRA, ALLIANCE);
+                            creature->UpdateEntry(NPC_ELANDRA);
                         break;
                     case NPC_KALIRA:
                         if (teamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_KORELN, ALLIANCE);
+                            creature->UpdateEntry(NPC_KORELN);
                         break;
                 }
             }
 
-            uint32 GetData(uint32 type) const OVERRIDE
+            uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -95,7 +96,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const OVERRIDE
+            uint64 GetData64(uint32 type) const override
             {
                 switch (type)
                 {
@@ -110,47 +111,6 @@ class instance_forge_of_souls : public InstanceMapScript
                 return 0;
             }
 
-            std::string GetSaveData() OVERRIDE
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "F S " << GetBossSaveData();
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(const char* in) OVERRIDE
-            {
-                if (!in)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(in);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(in);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'F' && dataHead2 == 'S')
-                {
-                    for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-                } else OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
-            }
-
         private:
             uint64 bronjahm;
             uint64 devourerOfSouls;
@@ -158,7 +118,7 @@ class instance_forge_of_souls : public InstanceMapScript
             uint32 teamInInstance;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_forge_of_souls_InstanceScript(map);
         }

@@ -19,7 +19,6 @@
 #define _TICKETMGR_H
 
 #include <string>
-#include <ace/Singleton.h>
 
 #include "ObjectMgr.h"
 
@@ -85,7 +84,7 @@ public:
     GmTicket(Player* player);
     ~GmTicket();
 
-    bool IsClosed() const { return _closedBy; }
+    bool IsClosed() const { return _closedBy != 0; }
     bool IsCompleted() const { return _completed; }
     bool IsFromPlayer(uint64 guid) const { return guid == _playerGuid; }
     bool IsAssigned() const { return _assignedTo != 0; }
@@ -143,7 +142,7 @@ public:
 
     void TeleportTo(Player* player) const;
     std::string FormatMessageString(ChatHandler& handler, bool detailed = false) const;
-    std::string FormatMessageString(ChatHandler& handler, const char* szClosedName, const char* szAssignedToName, const char* szUnassignedName, const char* szDeletedName) const;
+    std::string FormatMessageString(ChatHandler& handler, const char* szClosedName, const char* szAssignedToName, const char* szUnassignedName, const char* szDeletedName, const char* szCompletedName) const;
 
     void SetChatLog(std::list<uint32> time, std::string const& log);
     std::string const& GetChatLog() const { return _chatLog; }
@@ -174,13 +173,17 @@ typedef std::map<uint32, GmTicket*> GmTicketList;
 
 class TicketMgr
 {
-    friend class ACE_Singleton<TicketMgr, ACE_Null_Mutex>;
-
 private:
     TicketMgr();
     ~TicketMgr();
 
 public:
+    static TicketMgr* instance()
+    {
+        static TicketMgr instance;
+        return &instance;
+    }
+
     void LoadTickets();
     void LoadSurveys();
 
@@ -246,6 +249,6 @@ protected:
     uint64 _lastChange;
 };
 
-#define sTicketMgr ACE_Singleton<TicketMgr, ACE_Null_Mutex>::instance()
+#define sTicketMgr TicketMgr::instance()
 
 #endif // _TICKETMGR_H

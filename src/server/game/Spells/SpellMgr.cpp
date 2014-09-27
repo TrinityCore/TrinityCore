@@ -85,6 +85,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             // Black Plague
             else if (spellproto->Id == 64155)
                 return DIMINISHING_NONE;
+            // Screams of the Dead (King Ymiron)
+            else if (spellproto->Id == 51750)
+                return DIMINISHING_NONE;
             break;
         }
         // Event spells
@@ -765,6 +768,15 @@ SpellGroupStackRule SpellMgr::CheckSpellGroupStackRules(SpellInfo const* spellIn
     return rule;
 }
 
+SpellGroupStackRule SpellMgr::GetSpellGroupStackRule(SpellGroup group) const
+{
+    SpellGroupStackMap::const_iterator itr = mSpellGroupStack.find(group);
+    if (itr != mSpellGroupStack.end())
+        return itr->second;
+
+    return SPELL_GROUP_STACK_RULE_DEFAULT;
+}
+
 SpellProcEventEntry const* SpellMgr::GetSpellProcEvent(uint32 spellId) const
 {
     SpellProcEventMap::const_iterator itr = mSpellProcEventMap.find(spellId);
@@ -773,7 +785,7 @@ SpellProcEventEntry const* SpellMgr::GetSpellProcEvent(uint32 spellId) const
     return NULL;
 }
 
-bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellInfo const* procSpell, uint32 procFlags, uint32 procExtra, bool active) const
+bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellInfo const* spellProto, SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellInfo const* procSpell, uint32 procFlags, uint32 procExtra, bool active) const
 {
     // No extra req need
     uint32 procEvent_procEx = PROC_EX_NONE;
@@ -790,7 +802,9 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
 
     *Only damaging Dots can proc auras with PROC_FLAG_TAKEN_DAMAGE
 
-    *Both Dots and hots can proc if ONLY has PROC_FLAG_DONE_PERIODIC or PROC_FLAG_TAKEN_PERIODIC. Such auras need support in Unit::HandleAuraProc.
+    *Only Dots can proc if ONLY has PROC_FLAG_DONE_PERIODIC or PROC_FLAG_TAKEN_PERIODIC.
+
+    *Hots can proc if ONLY has PROC_FLAG_DONE_PERIODIC and spellfamily != 0
 
     *Only Dots can proc auras with PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG or PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG
 
@@ -804,7 +818,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     * @param procFlags proc_flags of spellProc
     * @param procExtra proc_EX of procSpell
     * @param EventProcFlag proc_flags of aura to be procced
-
+    * @param spellProto SpellInfo of aura to be procced
 
     */
 
@@ -812,34 +826,41 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     if (procFlags & PROC_FLAG_TAKEN_DAMAGE && EventProcFlag & PROC_FLAG_TAKEN_DAMAGE)
         return true;
 
-    /// Any aura that has only PROC_FLAG_DONE_PERIODIC or PROC_FLAG_TAKEN_PERIODIC should always proc, if procSpell is correct or not is checked in Unit::HandleAuraProc
-    if (EventProcFlag == PROC_FLAG_DONE_PERIODIC || EventProcFlag == PROC_FLAG_TAKEN_PERIODIC)
-        return true;
-
     if (procFlags & PROC_FLAG_DONE_PERIODIC && EventProcFlag & PROC_FLAG_DONE_PERIODIC)
     {
-        /// Aura must have positive procflags for a HOT to proc
         if (procExtra & PROC_EX_INTERNAL_HOT)
         {
-            if (!(EventProcFlag & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS)))
+            if (EventProcFlag == PROC_FLAG_DONE_PERIODIC)
+            {
+                /// no aura with only PROC_FLAG_DONE_PERIODIC and spellFamilyName == 0 can proc from a HOT.
+                if (!spellProto->SpellFamilyName)
+                    return false;
+            }
+            /// Aura must have positive procflags for a HOT to proc
+            else if (!(EventProcFlag & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS)))
                 return false;
         }
-        /// Aura must have negative procflags for a DOT to proc
-        else if (!(EventProcFlag & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG)))
-            return false;
+        /// Aura must have negative or neutral(PROC_FLAG_DONE_PERIODIC only) procflags for a DOT to proc
+        else if (EventProcFlag != PROC_FLAG_DONE_PERIODIC)
+            if (!(EventProcFlag & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG)))
+                return false;
     }
 
     if (procFlags & PROC_FLAG_TAKEN_PERIODIC && EventProcFlag & PROC_FLAG_TAKEN_PERIODIC)
     {
-        /// Aura must have positive procflags for a HOT to proc
         if (procExtra & PROC_EX_INTERNAL_HOT)
         {
+            /// No aura that only has PROC_FLAG_TAKEN_PERIODIC can proc from a HOT.
+            if (EventProcFlag == PROC_FLAG_TAKEN_PERIODIC)
+                return false;
+            /// Aura must have positive procflags for a HOT to proc
             if (!(EventProcFlag & (PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS)))
                 return false;
         }
-        /// Aura must have negative procflags for a DOT to proc
-        else if (!(EventProcFlag & (PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG)))
-            return false;
+        /// Aura must have negative or neutral(PROC_FLAG_TAKEN_PERIODIC only) procflags for a DOT to proc
+        else if (EventProcFlag != PROC_FLAG_TAKEN_PERIODIC)
+            if (!(EventProcFlag & (PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG)))
+                return false;
     }
     // Trap casts are active by default
     if (procFlags & PROC_FLAG_DONE_TRAP_ACTIVATION)
@@ -2364,7 +2385,7 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 if (skillLine->skillId != creatureFamily->skillLine[j])
                     continue;
 
-                if (skillLine->learnOnGetSkill != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL)
+                if (skillLine->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
                     continue;
 
                 SpellInfo const* spell = GetSpellInfo(skillLine->spellId);
@@ -3198,6 +3219,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 63675: // Improved Devouring Plague
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
+            case 12721: // Deep Wounds shouldnt ignore resillience or damage taken auras because its damage is not based off a spell.
+                spellInfo->AttributesEx4 = 0;
+                break;
             case 8145: // Tremor Totem (instant pulse)
             case 6474: // Earthbind Totem (instant pulse)
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
@@ -3288,6 +3312,12 @@ void SpellMgr::LoadSpellInfoCorrections()
                 /// @todo: remove this when basepoints of all Ride Vehicle auras are calculated correctly
                 spellInfo->Effects[EFFECT_0].BasePoints = 1;
                 break;
+            case 59630: // Black Magic
+                spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
+                break;
+            case 17364: // Stormstrike
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
             // ULDUAR SPELLS
             //
             case 62374: // Pursued (Flame Leviathan)
@@ -3325,6 +3355,16 @@ void SpellMgr::LoadSpellInfoCorrections()
                 // may be db data bug, or blizz may keep reapplying area auras every update with checking immunity
                 // that will be clear if we get more spells with problem like this
                 spellInfo->AttributesEx |= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
+                break;
+            case 63414: // Spinning Up (Mimiron)
+                spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+                spellInfo->ChannelInterruptFlags = 0;
+                break;
+            case 63036: // Rocket Strike (Mimiron)
+                spellInfo->Speed = 0;
+                break;
+            case 64668: // Magnetic Field (Mimiron)
+                spellInfo->Mechanic = MECHANIC_NONE;
                 break;
             case 64468: // Empowering Shadows (Yogg-Saron)
             case 64486: // Empowering Shadows (Yogg-Saron)
@@ -3365,6 +3405,21 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(85);
                 break;
             // ENDOF TRIAL OF THE CRUSADER SPELLS
+            //
+            // HALLS OF REFLECTION SPELLS
+            //
+            case 72435: // Defiling Horror
+            case 72452: // Defiling Horror
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_60_YARDS); // 60yd
+                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_60_YARDS); // 60yd
+                break;
+            case 72830: // Achievement Check
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
+                break;
+            case 72900: // Start Halls of Reflection Quest AE
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
+                break;
+            // ENDOF HALLS OF REFLECTION SPELLS
             //
             // ICECROWN CITADEL SPELLS
             //

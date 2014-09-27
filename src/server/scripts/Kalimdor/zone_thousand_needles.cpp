@@ -57,7 +57,7 @@ class npc_kanati : public CreatureScript
 public:
     npc_kanati() : CreatureScript("npc_kanati") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) OVERRIDE
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
     {
         if (quest->GetQuestId() == QUEST_PROTECT_KANATI)
             if (npc_kanatiAI* pEscortAI = CAST_AI(npc_kanati::npc_kanatiAI, creature->AI()))
@@ -66,7 +66,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_kanatiAI(creature);
     }
@@ -75,9 +75,9 @@ public:
     {
         npc_kanatiAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() OVERRIDE { }
+        void Reset() override { }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             switch (waypointId)
             {
@@ -98,7 +98,7 @@ public:
                 me->SummonCreature(NPC_GALAK_ASS, GalakLoc, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             summoned->AI()->AttackStart(me);
         }
@@ -142,7 +142,7 @@ class npc_lakota_windsong : public CreatureScript
 public:
     npc_lakota_windsong() : CreatureScript("npc_lakota_windsong") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) OVERRIDE
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
     {
         if (quest->GetQuestId() == QUEST_FREE_AT_LAST)
         {
@@ -155,7 +155,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_lakota_windsongAI(creature);
     }
@@ -164,9 +164,9 @@ public:
     {
         npc_lakota_windsongAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() OVERRIDE { }
+        void Reset() override { }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             switch (waypointId)
             {
@@ -225,7 +225,7 @@ class npc_paoka_swiftmountain : public CreatureScript
 public:
     npc_paoka_swiftmountain() : CreatureScript("npc_paoka_swiftmountain") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) OVERRIDE
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
     {
         if (quest->GetQuestId() == QUEST_HOMEWARD)
         {
@@ -238,7 +238,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_paoka_swiftmountainAI(creature);
     }
@@ -247,9 +247,9 @@ public:
     {
         npc_paoka_swiftmountainAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() OVERRIDE { }
+        void Reset() override { }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             switch (waypointId)
             {
@@ -294,7 +294,7 @@ class npc_plucky : public CreatureScript
 public:
     npc_plucky() : CreatureScript("npc_plucky") { }
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -307,7 +307,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (player->GetQuestStatus(QUEST_SCOOP) == QUEST_STATUS_INCOMPLETE)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_P, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
@@ -317,21 +317,30 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_pluckyAI(creature);
     }
 
     struct npc_pluckyAI : public ScriptedAI
     {
-        npc_pluckyAI(Creature* creature) : ScriptedAI(creature) { NormFaction = creature->getFaction(); }
+        npc_pluckyAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+            NormFaction = creature->getFaction();
+        }
+
+        void Initialize()
+        {
+            ResetTimer = 120000;
+        }
 
         uint32 NormFaction;
         uint32 ResetTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
-            ResetTimer = 120000;
+            Initialize();
 
             if (me->getFaction() != NormFaction)
                 me->setFaction(NormFaction);
@@ -342,7 +351,7 @@ public:
             DoCast(me, SPELL_PLUCKY_CHICKEN, false);
         }
 
-        void ReceiveEmote(Player* player, uint32 TextEmote) OVERRIDE
+        void ReceiveEmote(Player* player, uint32 TextEmote) override
         {
             if (player->GetQuestStatus(QUEST_SCOOP) == QUEST_STATUS_INCOMPLETE)
             {
@@ -368,7 +377,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 Diff) OVERRIDE
+        void UpdateAI(uint32 Diff) override
         {
             if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
             {
@@ -404,7 +413,7 @@ class go_panther_cage : public GameObjectScript
 public:
     go_panther_cage() : GameObjectScript("go_panther_cage") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
+    bool OnGossipHello(Player* player, GameObject* go) override
     {
         go->UseDoorOrButton();
         if (player->GetQuestStatus(5151) == QUEST_STATUS_INCOMPLETE)
@@ -426,7 +435,7 @@ class npc_enraged_panther : public CreatureScript
 public:
     npc_enraged_panther() : CreatureScript("npc_enraged_panther") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_enraged_pantherAI(creature);
     }
@@ -435,13 +444,13 @@ public:
     {
         npc_enraged_pantherAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (!UpdateVictim())
                 return;

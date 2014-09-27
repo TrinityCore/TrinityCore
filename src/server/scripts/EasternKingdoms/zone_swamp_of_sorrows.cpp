@@ -50,12 +50,12 @@ public:
             Reset();
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             periodicSay = 6000;
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 Talk(SAY_ATTACKED, who);
@@ -70,7 +70,7 @@ public:
             }
         }
 
-        void WaypointStart(uint32 uiPointId) OVERRIDE
+        void WaypointStart(uint32 uiPointId) override
         {
             switch (uiPointId)
             {
@@ -94,7 +94,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             switch (waypointId)
             {
@@ -115,7 +115,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             npc_escortAI::UpdateAI(diff);
 
@@ -139,7 +139,7 @@ public:
         uint32 periodicSay;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_galen_goodwardAI(creature);
     }

@@ -38,7 +38,7 @@ class go_blackfathom_altar : public GameObjectScript
 public:
     go_blackfathom_altar() : GameObjectScript("go_blackfathom_altar") { }
 
-    bool OnGossipHello(Player* player, GameObject* /*go*/) OVERRIDE
+    bool OnGossipHello(Player* player, GameObject* /*go*/) override
     {
         if (!player->HasAura(SPELL_BLESSING_OF_BLACKFATHOM))
             player->AddAura(SPELL_BLESSING_OF_BLACKFATHOM, player);
@@ -51,7 +51,7 @@ class go_blackfathom_fire : public GameObjectScript
 public:
     go_blackfathom_fire() : GameObjectScript("go_blackfathom_fire") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
+    bool OnGossipHello(Player* /*player*/, GameObject* go) override
     {
         InstanceScript* instance = go->GetInstanceScript();
 
@@ -71,7 +71,7 @@ class npc_blackfathom_deeps_event : public CreatureScript
 public:
     npc_blackfathom_deeps_event() : CreatureScript("npc_blackfathom_deeps_event") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_blackfathom_deeps_eventAI>(creature);
     }
@@ -80,6 +80,7 @@ public:
     {
         npc_blackfathom_deeps_eventAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             if (creature->IsSummon())
             {
                 creature->SetHomePosition(HomePosition);
@@ -87,6 +88,15 @@ public:
             }
 
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            Flee = false;
+
+            ravageTimer = urand(5000, 8000);
+            frostNovaTimer = urand(9000, 12000);
+            frostBoltVolleyTimer = urand(2000, 4000);
         }
 
         InstanceScript* instance;
@@ -97,13 +107,9 @@ public:
 
         bool Flee;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
-            Flee = false;
-
-            ravageTimer           = urand(5000, 8000);
-            frostNovaTimer        = urand(9000, 12000);
-            frostBoltVolleyTimer  = urand(2000, 4000);
+            Initialize();
         }
 
         void AttackPlayer()
@@ -130,7 +136,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -179,7 +185,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (me->IsSummon()) //we are not a normal spawn.
                 instance->SetData(DATA_EVENT, instance->GetData(DATA_EVENT) + 1);
@@ -207,7 +213,7 @@ public:
             Start(false, false, 0);
         }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             switch (waypointId)
             {
@@ -220,13 +226,13 @@ public:
             }
         }
 
-        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) OVERRIDE
+        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) override
         {
             DoCast(player, SPELL_TELEPORT_DARNASSUS);
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_morriduneAI(creature);
     }

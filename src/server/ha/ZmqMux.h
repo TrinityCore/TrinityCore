@@ -19,36 +19,9 @@
 #define __ZMQMUX_H
 
 #include "ZMQTask.h"
-#include <ace/TSS_T.h>
+#include <string>
+#include <boost/thread/tss.hpp>
 
-/*
- * We need this crap to wrap zmqpp::socket which has no default constructor,
- * which makes ACE_TSS<> not compile because of instantiation.
- */
-class SockWrap
-{
-public:
-    SockWrap();
-    ~SockWrap();
-    zmqpp::socket& operator*();
-    zmqpp::socket* operator->();
-
-private:
-    zmqpp::socket* sock;
-};
-
-/*
- * Only here to subclass make_TSS_TYPE
- * to create sockets and connect them to pull socket of ZmqMux
- */
-class TLSock : public ACE_TSS<SockWrap> 
-{
-public:
-    TLSock(std::string u) : uri(u) {}
-    SockWrap* make_TSS_TYPE() const OVERRIDE;
-private:
-    std::string uri;
-};
 
 /*
  * Multiplexes zmq messages from many threads, 
@@ -66,9 +39,10 @@ public:
     int HandleClose(u_long);
 
 private:
-    TLSock sock;
+    boost::thread_specific_ptr<zmqpp::socket> sock;
     zmqpp::socket* from;
     zmqpp::socket* to;
+    const std::string addr;
 };
 
 #endif

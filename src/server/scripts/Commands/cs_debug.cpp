@@ -41,7 +41,7 @@ class debug_commandscript : public CommandScript
 public:
     debug_commandscript() : CommandScript("debug_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand debugPlayCommandTable[] =
         {
@@ -773,14 +773,14 @@ public:
 
                 if (item->GetOwnerGUID() != player->GetGUID())
                 {
-                    handler->PSendSysMessage("queue(" SIZEFMTD "): For the item with guid %d, the owner's guid (%d) and the player's guid (%d) don't match!", i, item->GetGUIDLow(), GUID_LOPART(item->GetOwnerGUID()), player->GetGUIDLow());
+                    handler->PSendSysMessage("queue(%zu): For the item with guid %d, the owner's guid (%d) and the player's guid (%d) don't match!", i, item->GetGUIDLow(), GUID_LOPART(item->GetOwnerGUID()), player->GetGUIDLow());
                     error = true;
                     continue;
                 }
 
                 if (item->GetQueuePos() != i)
                 {
-                    handler->PSendSysMessage("queue(" SIZEFMTD "): For the item with guid %d, the queuepos doesn't match it's position in the queue!", i, item->GetGUIDLow());
+                    handler->PSendSysMessage("queue(%zu): For the item with guid %d, the queuepos doesn't match it's position in the queue!", i, item->GetGUIDLow());
                     error = true;
                     continue;
                 }
@@ -792,14 +792,14 @@ public:
 
                 if (test == NULL)
                 {
-                    handler->PSendSysMessage("queue(" SIZEFMTD "): The bag(%d) and slot(%d) values for the item with guid %d are incorrect, the player doesn't have any item at that position!", i, item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow());
+                    handler->PSendSysMessage("queue(%zu): The bag(%d) and slot(%d) values for the item with guid %d are incorrect, the player doesn't have any item at that position!", i, item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow());
                     error = true;
                     continue;
                 }
 
                 if (test != item)
                 {
-                    handler->PSendSysMessage("queue(" SIZEFMTD "): The bag(%d) and slot(%d) values for the item with guid %d are incorrect, an item which guid is %d is there instead!", i, item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow(), test->GetGUIDLow());
+                    handler->PSendSysMessage("queue(%zu): The bag(%d) and slot(%d) values for the item with guid %d are incorrect, an item which guid is %d is there instead!", i, item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow(), test->GetGUIDLow());
                     error = true;
                     continue;
                 }
@@ -937,7 +937,7 @@ public:
         handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, handler->GetSession()->GetPlayer()->GetObjectSize());
 
         if (!i)
-            return handler->GetSession()->GetPlayer()->SummonCreature(entry, x, y, z, o);
+            return handler->GetSession()->GetPlayer()->SummonCreature(entry, x, y, z, o) != nullptr;
 
         uint32 id = (uint32)atoi(i);
 
@@ -955,7 +955,7 @@ public:
 
         Map* map = handler->GetSession()->GetPlayer()->GetMap();
 
-        if (!v->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_VEHICLE), map, handler->GetSession()->GetPlayer()->GetPhaseMask(), entry, id, handler->GetSession()->GetPlayer()->GetTeam(), x, y, z, o))
+        if (!v->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_VEHICLE), map, handler->GetSession()->GetPlayer()->GetPhaseMask(), entry, x, y, z, o, nullptr, id))
         {
             delete v;
             return false;
@@ -1136,28 +1136,28 @@ public:
 
         uint64 guid = target->GetGUID();
 
-        uint32 opcode = (uint32)atoi(x);
-        if (opcode >= target->GetValuesCount())
+        uint32 field = (uint32)atoi(x);
+        if (field >= target->GetValuesCount())
         {
-            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, opcode, GUID_LOPART(guid), target->GetValuesCount());
+            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, field, GUID_LOPART(guid), target->GetValuesCount());
             return false;
         }
 
         bool isInt32 = true;
         if (z)
-            isInt32 = (bool)atoi(z);
+            isInt32 = atoi(z) != 0;
 
         if (isInt32)
         {
             uint32 value = (uint32)atoi(y);
-            target->SetUInt32Value(opcode, value);
-            handler->PSendSysMessage(LANG_SET_UINT_FIELD, GUID_LOPART(guid), opcode, value);
+            target->SetUInt32Value(field, value);
+            handler->PSendSysMessage(LANG_SET_UINT_FIELD, GUID_LOPART(guid), field, value);
         }
         else
         {
             float value = (float)atof(y);
-            target->SetFloatValue(opcode, value);
-            handler->PSendSysMessage(LANG_SET_FLOAT_FIELD, GUID_LOPART(guid), opcode, value);
+            target->SetFloatValue(field, value);
+            handler->PSendSysMessage(LANG_SET_FLOAT_FIELD, GUID_LOPART(guid), field, value);
         }
 
         return true;
@@ -1193,7 +1193,7 @@ public:
 
         bool isInt32 = true;
         if (z)
-            isInt32 = (bool)atoi(z);
+            isInt32 = atoi(z) != 0;
 
         if (isInt32)
         {
@@ -1344,15 +1344,15 @@ public:
                                                     MOVEMENTFLAG_WALKING | MOVEMENTFLAG_SWIMMING |
                                                     MOVEMENTFLAG_SPLINE_ENABLED;
 
-            bool unhandledFlag = (moveFlags ^ target->GetUnitMovementFlags()) & ~FlagsWithHandlers;
+            bool unhandledFlag = ((moveFlags ^ target->GetUnitMovementFlags()) & ~FlagsWithHandlers) != 0;
 
-            target->SetWalk(moveFlags & MOVEMENTFLAG_WALKING);
-            target->SetDisableGravity(moveFlags & MOVEMENTFLAG_DISABLE_GRAVITY);
-            target->SetSwim(moveFlags & MOVEMENTFLAG_SWIMMING);
-            target->SetCanFly(moveFlags & MOVEMENTFLAG_CAN_FLY);
-            target->SetWaterWalking(moveFlags & MOVEMENTFLAG_WATERWALKING);
-            target->SetFeatherFall(moveFlags & MOVEMENTFLAG_FALLING_SLOW);
-            target->SetHover(moveFlags & MOVEMENTFLAG_HOVER);
+            target->SetWalk((moveFlags & MOVEMENTFLAG_WALKING) != 0);
+            target->SetDisableGravity((moveFlags & MOVEMENTFLAG_DISABLE_GRAVITY) != 0);
+            target->SetSwim((moveFlags & MOVEMENTFLAG_SWIMMING) != 0);
+            target->SetCanFly((moveFlags & MOVEMENTFLAG_CAN_FLY) != 0);
+            target->SetWaterWalking((moveFlags & MOVEMENTFLAG_WATERWALKING) != 0);
+            target->SetFeatherFall((moveFlags & MOVEMENTFLAG_FALLING_SLOW) != 0);
+            target->SetHover((moveFlags & MOVEMENTFLAG_HOVER) != 0);
 
             if (moveFlags & (MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_CAN_FLY))
                 moveFlags &= ~MOVEMENTFLAG_FALLING;
@@ -1410,8 +1410,7 @@ public:
         }
         else
         {
-            Position pos;
-            transport->GetPosition(&pos);
+            Position pos = transport->GetPosition();
             handler->PSendSysMessage("Transport %s is %s", transport->GetName().c_str(), transport->GetGoState() == GO_STATE_READY ? "stopped" : "moving");
             handler->PSendSysMessage("Transport position: %s", pos.ToString().c_str());
             return true;

@@ -44,26 +44,19 @@ class boss_huhuran : public CreatureScript
 public:
     boss_huhuran() : CreatureScript("boss_huhuran") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_huhuranAI(creature);
     }
 
     struct boss_huhuranAI : public ScriptedAI
     {
-        boss_huhuranAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_huhuranAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        uint32 Frenzy_Timer;
-        uint32 Wyvern_Timer;
-        uint32 Spit_Timer;
-        uint32 PoisonBolt_Timer;
-        uint32 NoxiousPoison_Timer;
-        uint32 FrenzyBack_Timer;
-
-        bool Frenzy;
-        bool Berserk;
-
-        void Reset() OVERRIDE
+        void Initialize()
         {
             Frenzy_Timer = urand(25000, 35000);
             Wyvern_Timer = urand(18000, 28000);
@@ -76,11 +69,26 @@ public:
             Berserk = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        uint32 Frenzy_Timer;
+        uint32 Wyvern_Timer;
+        uint32 Spit_Timer;
+        uint32 PoisonBolt_Timer;
+        uint32 NoxiousPoison_Timer;
+        uint32 FrenzyBack_Timer;
+
+        bool Frenzy;
+        bool Berserk;
+
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())

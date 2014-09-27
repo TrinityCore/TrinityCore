@@ -54,7 +54,7 @@ class npc_stolen_soul : public CreatureScript
 public:
     npc_stolen_soul() : CreatureScript("npc_stolen_soul") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_stolen_soulAI(creature);
     }
@@ -70,13 +70,13 @@ public:
         uint8 myClass;
         uint32 Class_Timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             myClass = CLASS_NONE;
             Class_Timer = 1000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         { }
 
         void SetMyClass(uint8 myclass)
@@ -84,7 +84,7 @@ public:
             myClass = myclass;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -161,7 +161,7 @@ class boss_exarch_maladaar : public CreatureScript
 public:
     boss_exarch_maladaar() : CreatureScript("boss_exarch_maladaar") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_exarch_maladaarAI(creature);
     }
@@ -184,20 +184,20 @@ public:
         bool HasTaunted;
         bool Avatar_summoned;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             soulmodel = 0;
             soulholder = 0;
             soulclass = 0;
 
-            Fear_timer = 15000 + rand()% 5000;
+            Fear_timer = 15000 + rand32() % 5000;
             Ribbon_of_Souls_timer = 5000;
-            StolenSoul_Timer = 25000 + rand()% 10000;
+            StolenSoul_Timer = 25000 + rand32() % 10000;
 
             Avatar_summoned = false;
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
 
         {
             if (!HasTaunted && me->IsWithinDistInMap(who, 150.0f))
@@ -209,12 +209,12 @@ public:
             ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             if (summoned->GetEntry() == ENTRY_STOLEN_SOUL)
             {
@@ -223,31 +223,30 @@ public:
                 summoned->SetDisplayId(soulmodel);
                 summoned->setFaction(me->getFaction());
 
-                if (Unit* target = Unit::GetUnit(*me, soulholder))
+                if (Unit* target = ObjectAccessor::GetUnit(*me, soulholder))
                 {
-
-                CAST_AI(npc_stolen_soul::npc_stolen_soulAI, summoned->AI())->SetMyClass(soulclass);
-                 summoned->AI()->AttackStart(target);
+                    ENSURE_AI(npc_stolen_soul::npc_stolen_soulAI, summoned->AI())->SetMyClass(soulclass);
+                    summoned->AI()->AttackStart(target);
                 }
             }
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
-            if (rand()%2)
+            if (rand32() % 2)
                 return;
 
             Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
             //When Exarch Maladar is defeated D'ore appear.
             me->SummonCreature(19412, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 600000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -261,7 +260,7 @@ public:
 
                 DoCast(me, SPELL_SUMMON_AVATAR);
                 Avatar_summoned = true;
-                StolenSoul_Timer = 15000 + rand()% 15000;
+                StolenSoul_Timer = 15000 + rand32() % 15000;
             }
 
             if (StolenSoul_Timer <= diff)
@@ -282,7 +281,7 @@ public:
                         DoCast(target, SPELL_STOLEN_SOUL);
                         me->SummonCreature(ENTRY_STOLEN_SOUL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
 
-                        StolenSoul_Timer = 20000 + rand()% 10000;
+                        StolenSoul_Timer = 20000 + rand32() % 10000;
                     } else StolenSoul_Timer = 1000;
                 }
             } else StolenSoul_Timer -= diff;
@@ -292,13 +291,13 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_RIBBON_OF_SOULS);
 
-                Ribbon_of_Souls_timer = 5000 + (rand()%20 * 1000);
+                Ribbon_of_Souls_timer = 5000 + (rand32() % 20 * 1000);
             } else Ribbon_of_Souls_timer -= diff;
 
             if (Fear_timer <= diff)
             {
                 DoCast(me, SPELL_SOUL_SCREAM);
-                Fear_timer = 15000 + rand()% 15000;
+                Fear_timer = 15000 + rand32() % 15000;
             } else Fear_timer -= diff;
 
             DoMeleeAttackIfReady();
@@ -312,7 +311,7 @@ class npc_avatar_of_martyred : public CreatureScript
 public:
     npc_avatar_of_martyred() : CreatureScript("npc_avatar_of_martyred") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_avatar_of_martyredAI(creature);
     }
@@ -323,16 +322,16 @@ public:
 
         uint32 Mortal_Strike_timer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             Mortal_Strike_timer = 10000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

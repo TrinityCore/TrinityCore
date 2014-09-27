@@ -35,7 +35,7 @@ int main(int /*argc*/, char** /*argv*/)
     puller.open(&ctx);
     worker.open(&ctx);
 
-    puller.wait();
+    //    puller.wait();
     delete inproc;
     return 0;
 }

@@ -28,8 +28,8 @@ public:
     virtual ~ZmqWorker();
     int svc();
 protected:
-    int HandleOpen() OVERRIDE;
-    int HandleClose(u_long flags = 0) OVERRIDE;
+    int HandleOpen();
+    int HandleClose(u_long flags = 0);
     zmqpp::socket* results;
 private:
     void perform_work();

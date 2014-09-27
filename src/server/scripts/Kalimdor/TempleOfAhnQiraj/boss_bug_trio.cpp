@@ -46,7 +46,7 @@ class boss_kri : public CreatureScript
 public:
     boss_kri() : CreatureScript("boss_kri") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_kriAI>(creature);
     }
@@ -55,7 +55,18 @@ public:
     {
         boss_kriAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            Cleave_Timer = urand(4000, 8000);
+            ToxicVolley_Timer = urand(6000, 12000);
+            Check_Timer = 2000;
+
+            VemDead = false;
+            Death = false;
         }
 
         InstanceScript* instance;
@@ -67,28 +78,23 @@ public:
         bool VemDead;
         bool Death;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
-            Cleave_Timer = urand(4000, 8000);
-            ToxicVolley_Timer = urand(6000, 12000);
-            Check_Timer = 2000;
-
-            VemDead = false;
-            Death = false;
+            Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (instance->GetData(DATA_BUG_TRIO_DEATH) < 2)// Unlootable if death
                 me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
             instance->SetData(DATA_BUG_TRIO_DEATH, 1);
         }
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -139,7 +145,7 @@ class boss_vem : public CreatureScript
 public:
     boss_vem() : CreatureScript("boss_vem") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_vemAI>(creature);
     }
@@ -148,7 +154,17 @@ public:
     {
         boss_vemAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            Charge_Timer = urand(15000, 27000);
+            KnockBack_Timer = urand(8000, 20000);
+            Enrage_Timer = 120000;
+
+            Enraged = false;
         }
 
         InstanceScript* instance;
@@ -159,16 +175,12 @@ public:
 
         bool Enraged;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
-            Charge_Timer = urand(15000, 27000);
-            KnockBack_Timer = urand(8000, 20000);
-            Enrage_Timer = 120000;
-
-            Enraged = false;
+            Initialize();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             instance->SetData(DATA_VEM_DEATH, 0);
             if (instance->GetData(DATA_BUG_TRIO_DEATH) < 2)// Unlootable if death
@@ -176,11 +188,11 @@ public:
             instance->SetData(DATA_BUG_TRIO_DEATH, 1);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -228,7 +240,7 @@ class boss_yauj : public CreatureScript
 public:
     boss_yauj() : CreatureScript("boss_yauj") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_yaujAI>(creature);
     }
@@ -237,7 +249,17 @@ public:
     {
         boss_yaujAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            Heal_Timer = urand(25000, 40000);
+            Fear_Timer = urand(12000, 24000);
+            Check_Timer = 2000;
+
+            VemDead = false;
         }
 
         InstanceScript* instance;
@@ -248,16 +270,12 @@ public:
 
         bool VemDead;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
-            Heal_Timer = urand(25000, 40000);
-            Fear_Timer = urand(12000, 24000);
-            Check_Timer = 2000;
-
-            VemDead = false;
+            Initialize();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (instance->GetData(DATA_BUG_TRIO_DEATH) < 2)// Unlootable if death
                 me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
@@ -273,11 +291,11 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -309,7 +327,7 @@ public:
                         break;
                 }
 
-                Heal_Timer = 15000+rand()%15000;
+                Heal_Timer = 15000 + rand32() % 15000;
             } else Heal_Timer -= diff;
 
             //Checking if Vem is dead. If yes we will enrage.

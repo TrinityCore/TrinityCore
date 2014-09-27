@@ -89,7 +89,8 @@ void PetAI::UpdateAI(uint32 diff)
     if (me->GetVictim() && me->EnsureVictim()->IsAlive())
     {
         // is only necessary to stop casting, the pet must not exit combat
-        if (me->EnsureVictim()->HasBreakableByDamageCrowdControlAura(me))
+        if (!me->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && // ignore channeled spells (Pin, Seduction)
+            me->EnsureVictim()->HasBreakableByDamageCrowdControlAura(me))
         {
             me->InterruptNonMeleeSpells(false);
             return;
@@ -182,7 +183,11 @@ void PetAI::UpdateAI(uint32 diff)
                 }
 
                 if (spellInfo->HasEffect(SPELL_EFFECT_JUMP_DEST))
+                {
+                    if (!spellUsed)
+                        delete spell;
                     continue; // Pets must only jump to target
+                }
 
                 // No enemy, check friendly
                 if (!spellUsed)
@@ -231,7 +236,7 @@ void PetAI::UpdateAI(uint32 diff)
             SpellCastTargets targets;
             targets.SetUnitTarget(target);
 
-            if (!me->HasInArc(M_PI, target))
+            if (!me->HasInArc(float(M_PI), target))
             {
                 me->SetInFront(target);
                 if (target && target->GetTypeId() == TYPEID_PLAYER)
@@ -240,8 +245,6 @@ void PetAI::UpdateAI(uint32 diff)
                 if (owner && owner->GetTypeId() == TYPEID_PLAYER)
                     me->SendUpdateToPlayer(owner->ToPlayer());
             }
-
-            me->AddCreatureSpellCooldown(spell->m_spellInfo->Id);
 
             spell->prepare(&targets);
         }
@@ -459,9 +462,6 @@ void PetAI::DoAttack(Unit* target, bool chase)
 
     if (me->Attack(target, true))
     {
-        if (Unit* owner = me->GetOwner())
-            owner->SetInCombatWith(target);
-
         // Play sound to let the player know the pet is attacking something it picked on its own
         if (me->HasReactState(REACT_AGGRESSIVE) && !me->GetCharmInfo()->IsCommandAttack())
             me->SendPetAIReaction(me->GetGUID());

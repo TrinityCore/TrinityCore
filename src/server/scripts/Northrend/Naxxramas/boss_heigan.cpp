@@ -59,35 +59,41 @@ class boss_heigan : public CreatureScript
 public:
     boss_heigan() : CreatureScript("boss_heigan") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_heiganAI>(creature);
     }
 
     struct boss_heiganAI : public BossAI
     {
-        boss_heiganAI(Creature* creature) : BossAI(creature, BOSS_HEIGAN) { }
+        boss_heiganAI(Creature* creature) : BossAI(creature, BOSS_HEIGAN)
+        {
+            eruptSection = 0;
+            eruptDirection = false;
+            safetyDance = false;
+            phase = PHASE_FIGHT;
+        }
 
         uint32 eruptSection;
         bool eruptDirection;
         bool safetyDance;
         Phases phase;
 
-        void KilledUnit(Unit* who) OVERRIDE
+        void KilledUnit(Unit* who) override
         {
-            if (!(rand()%5))
+            if (!(rand32() % 5))
                 Talk(SAY_SLAY);
             if (who->GetTypeId() == TYPEID_PLAYER)
                 safetyDance = false;
         }
 
-        void SetData(uint32 id, uint32 data) OVERRIDE
+        void SetData(uint32 id, uint32 data) override
         {
             if (id == DATA_SAFETY_DANCE)
                 safetyDance = data ? true : false;
         }
 
-        uint32 GetData(uint32 type) const OVERRIDE
+        uint32 GetData(uint32 type) const override
         {
             if (type == DATA_SAFETY_DANCE)
                 return safetyDance ? 1 : 0;
@@ -95,13 +101,13 @@ public:
             return 0;
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
             Talk(SAY_DEATH);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             Talk(SAY_AGGRO);
@@ -126,7 +132,7 @@ public:
             {
                 float x, y, z, o;
                 me->GetHomePosition(x, y, z, o);
-                me->NearTeleportTo(x, y, z, o - G3D::halfPi());
+                me->NearTeleportTo(x, y, z, o - (float(M_PI) / 2));
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveIdle();
                 me->SetTarget(0);
@@ -136,7 +142,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim() || !CheckInRoom())
                 return;
@@ -202,13 +208,13 @@ class spell_heigan_eruption : public SpellScriptLoader
                             Heigan->AI()->SetData(DATA_SAFETY_DANCE, 0);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_heigan_eruption_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_heigan_eruption_SpellScript();
         }
@@ -221,7 +227,7 @@ class achievement_safety_dance : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*player*/, Unit* target) override
         {
             if (!target)
                 return false;

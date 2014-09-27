@@ -27,7 +27,7 @@
 #include "ScriptMgr.h"
 #include "ConditionMgr.h"
 #include "Player.h"
-#include "Opcodes.h"
+#include "WorldSession.h"
 
 void AddItemsSetItem(Player* player, Item* item)
 {
@@ -310,7 +310,7 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
 
 void Item::SaveToDB(SQLTransaction& trans)
 {
-    bool isInTransaction = !(trans.null());
+    bool isInTransaction = bool(trans);
     if (!isInTransaction)
         trans = CharacterDatabase.BeginTransaction();
 
@@ -690,8 +690,11 @@ void Item::SetState(ItemUpdateState state, Player* forplayer)
     if (uState == ITEM_NEW && state == ITEM_REMOVED)
     {
         // pretend the item never existed
-        RemoveFromUpdateQueueOf(forplayer);
-        forplayer->DeleteRefundReference(GetGUIDLow());
+        if (forplayer)
+        {
+            RemoveFromUpdateQueueOf(forplayer);
+            forplayer->DeleteRefundReference(GetGUIDLow());
+        }
         delete this;
         return;
     }
@@ -701,7 +704,8 @@ void Item::SetState(ItemUpdateState state, Player* forplayer)
         if (uState != ITEM_NEW)
             uState = state;
 
-        AddToUpdateQueueOf(forplayer);
+        if (forplayer)
+            AddToUpdateQueueOf(forplayer);
     }
     else
     {
@@ -1129,7 +1133,7 @@ void Item::SaveRefundDataToDB()
 
 void Item::DeleteRefundDataFromDB(SQLTransaction* trans)
 {
-    if (trans && !trans->null())
+    if (trans)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
         stmt->setUInt32(0, GetGUIDLow());
@@ -1265,6 +1269,14 @@ void Item::ItemContainerSaveLootToDB()
             //  but we don't want to resave it.
             if (!_li->canSave)
                 continue;
+            // Conditions are not checked when loot is generated, it is checked when loot is sent to a player.
+            // For items that are lootable, loot is saved to the DB immediately, that means that loot can be
+            // saved to the DB that the player never should have gotten. This check prevents that, so that only
+            // items that the player should get in loot are in the DB.
+            // IE: Horde items are not saved to the DB for Ally players.
+            Player* const guid = GetOwner();
+            if (!_li->AllowedForPlayer(guid))
+               continue;
 
             stmt_items = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEMCONTAINER_ITEMS);
 

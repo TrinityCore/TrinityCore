@@ -34,7 +34,7 @@ ZmqListener::~ZmqListener()
 
 int ZmqListener::HandleOpen()
 {
-    return ACE_Task_Base::activate();
+  return 0;
 }
 
 int ZmqListener::HandleClose(u_long)

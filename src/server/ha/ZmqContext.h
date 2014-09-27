@@ -19,24 +19,21 @@
 #define __ZMQCONTEX_H
 
 #include <zmqpp/zmqpp.hpp>
-#include <ace/Singleton.h>
-#include <ace/Recursive_Thread_Mutex.h>
+#include <boost/thread/mutex.hpp>
 
 /*
  * We need to serialize access to zmq context otherwise stuff blows up.
  */
 class ZmqContext {
-    friend class ACE_Singleton<ZmqContext, ACE_Null_Mutex>;
+
 public:
     zmqpp::socket* newSocket(zmqpp::socket_type);
-
+    ZmqContext() {}
 private:
     ZmqContext(ZmqContext&){}
-    ZmqContext() {}
     zmqpp::context ctx;
-    ACE_Recursive_Thread_Mutex mtx;
+    boost::mutex mtx;
 };
-
-#define sContext ACE_Singleton<ZmqContext, ACE_Null_Mutex>::instance()
+static ZmqContext *sContext = new ZmqContext(); 
 
 #endif

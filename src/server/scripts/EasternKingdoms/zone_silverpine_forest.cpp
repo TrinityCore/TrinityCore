@@ -67,7 +67,7 @@ public:
     {
         npc_deathstalker_erlandAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -108,15 +108,15 @@ public:
             }
         }
 
-        void Reset() OVERRIDE { }
+        void Reset() override { }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             Talk(SAY_AGGRO, who);
         }
     };
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_ESCORTING)
         {
@@ -129,7 +129,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_deathstalker_erlandAI(creature);
     }
@@ -166,20 +166,20 @@ class pyrewood_ambush : public CreatureScript
 public:
     pyrewood_ambush() : CreatureScript("pyrewood_ambush") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest *quest) OVERRIDE
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest *quest) override
     {
-        if (quest->GetQuestId() == QUEST_PYREWOOD_AMBUSH && !CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->QuestInProgress)
+        if (quest->GetQuestId() == QUEST_PYREWOOD_AMBUSH && !ENSURE_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->QuestInProgress)
         {
-            CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->QuestInProgress = true;
-            CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->Phase = 0;
-            CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->KillCount = 0;
-            CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->PlayerGUID = player->GetGUID();
+            ENSURE_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->QuestInProgress = true;
+            ENSURE_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->Phase = 0;
+            ENSURE_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->KillCount = 0;
+            ENSURE_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->PlayerGUID = player->GetGUID();
         }
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new pyrewood_ambushAI(creature);
     }
@@ -188,7 +188,16 @@ public:
     {
         pyrewood_ambushAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
-           QuestInProgress = false;
+            Initialize();
+            WaitTimer = WAIT_SECS;
+            QuestInProgress = false;
+        }
+
+        void Initialize()
+        {
+            Phase = 0;
+            KillCount = 0;
+            PlayerGUID = 0;
         }
 
         uint32 Phase;
@@ -199,28 +208,26 @@ public:
 
         bool QuestInProgress;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             WaitTimer = WAIT_SECS;
 
             if (!QuestInProgress) //fix reset values (see UpdateVictim)
             {
-                Phase = 0;
-                KillCount = 0;
-                PlayerGUID = 0;
+                Initialize();
                 Summons.DespawnAll();
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             Summons.Summon(summoned);
             ++KillCount;
         }
 
-        void SummonedCreatureDespawn(Creature* summoned) OVERRIDE
+        void SummonedCreatureDespawn(Creature* summoned) override
         {
             Summons.Despawn(summoned);
             --KillCount;
@@ -245,7 +252,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (PlayerGUID)
                 if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
@@ -253,7 +260,7 @@ public:
                         player->FailQuest(QUEST_PYREWOOD_AMBUSH);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //TC_LOG_INFO("scripts", "DEBUG: p(%i) k(%i) d(%u) W(%i)", Phase, KillCount, diff, WaitTimer);
 

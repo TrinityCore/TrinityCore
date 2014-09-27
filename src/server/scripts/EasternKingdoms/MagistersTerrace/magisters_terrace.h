@@ -19,30 +19,42 @@
 #ifndef DEF_MAGISTERS_TERRACE_H
 #define DEF_MAGISTERS_TERRACE_H
 
-#define ERROR_INST_DATA      "TSCR Error: Instance Data not set properly for Magister's Terrace instance (map 585). Encounters will be buggy."
+#define DataHeader "MT"
 
-enum Data
+uint32 const EncounterCount = 4;
+
+enum DataTypes
 {
-    DATA_SELIN_EVENT,
-    DATA_VEXALLUS_EVENT,
-    DATA_DELRISSA_EVENT,
-    DATA_KAELTHAS_EVENT,
-
     DATA_SELIN,
-    DATA_FEL_CRYSTAL,
-    DATA_FEL_CRYSTAL_SIZE,
-
-    DATA_VEXALLUS_DOOR,
+    DATA_VEXALLUS,
     DATA_DELRISSA,
-    DATA_DELRISSA_DOOR,
+    DATA_KAELTHAS,
 
-    DATA_KAEL_DOOR,
     DATA_KAEL_STATUE_LEFT,
     DATA_KAEL_STATUE_RIGHT,
 
     DATA_DELRISSA_DEATH_COUNT,
     DATA_KAELTHAS_STATUES,
     DATA_ESCAPE_ORB
+};
+
+enum CreatureIds
+{
+    NPC_SELIN               = 24723,
+    NPC_DELRISSA            = 24560,
+    NPC_FEL_CRYSTAL         = 24722
+};
+
+enum GameObjectIds
+{
+    GO_VEXALLUS_DOOR        = 187896,
+    GO_SELIN_DOOR           = 187979,
+    GO_SELIN_ENCOUNTER_DOOR = 188065,
+    GO_DELRISSA_DOOR        = 187770,
+    GO_KAEL_DOOR            = 188064,
+    GO_KAEL_STATUE_1        = 188165,
+    GO_KAEL_STATUE_2        = 188166,
+    GO_ESCAPE_ORB           = 188173
 };
 
 #endif

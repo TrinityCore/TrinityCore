@@ -47,7 +47,7 @@ class boss_kazrogal : public CreatureScript
 public:
     boss_kazrogal() : CreatureScript("boss_kazrogal") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_kazrogalAI>(creature);
     }
@@ -56,8 +56,18 @@ public:
     {
         boss_kazrogalAI(Creature* creature) : hyjal_trashAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             go = false;
+        }
+
+        void Initialize()
+        {
+            damageTaken = 0;
+            CleaveTimer = 5000;
+            WarStompTimer = 15000;
+            MarkTimer = 45000;
+            MarkTimerBase = 45000;
         }
 
         uint32 CleaveTimer;
@@ -66,41 +76,37 @@ public:
         uint32 MarkTimerBase;
         bool go;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
-            damageTaken = 0;
-            CleaveTimer = 5000;
-            WarStompTimer = 15000;
-            MarkTimer = 45000;
-            MarkTimerBase = 45000;
+            Initialize();
 
             if (IsEvent)
                 instance->SetData(DATA_KAZROGALEVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             if (IsEvent)
                 instance->SetData(DATA_KAZROGALEVENT, IN_PROGRESS);
             Talk(SAY_ONAGGRO);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_ONSLAY);
         }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             if (waypointId == 7 && instance)
             {
-                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_THRALL));
+                Unit* target = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_THRALL));
                 if (target && target->IsAlive())
                     me->AddThreat(target, 0.0f);
             }
         }
 
-        void JustDied(Unit* killer) OVERRIDE
+        void JustDied(Unit* killer) override
         {
             hyjal_trashAI::JustDied(killer);
             if (IsEvent)
@@ -108,7 +114,7 @@ public:
             DoPlaySoundToSet(me, SOUND_ONDEATH);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (IsEvent)
             {
@@ -137,7 +143,7 @@ public:
             if (CleaveTimer <= diff)
             {
                 DoCast(me, SPELL_CLEAVE);
-                CleaveTimer = 6000+rand()%15000;
+                CleaveTimer = 6000 + rand32() % 15000;
             } else CleaveTimer -= diff;
 
             if (WarStompTimer <= diff)
@@ -188,7 +194,7 @@ class spell_mark_of_kazrogal : public SpellScriptLoader
                 targets.remove_if(MarkTargetFilter());
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mark_of_kazrogal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
@@ -198,7 +204,7 @@ class spell_mark_of_kazrogal : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mark_of_kazrogal_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MARK_DAMAGE))
                     return false;
@@ -217,7 +223,7 @@ class spell_mark_of_kazrogal : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_mark_of_kazrogal_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_MANA_LEECH);
             }
@@ -228,7 +234,7 @@ class spell_mark_of_kazrogal : public SpellScriptLoader
             return new spell_mark_of_kazrogal_SpellScript();
         }
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_mark_of_kazrogal_AuraScript();
         }

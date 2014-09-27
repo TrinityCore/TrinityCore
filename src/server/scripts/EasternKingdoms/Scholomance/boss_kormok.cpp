@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,20 +15,31 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Kormok
-SD%Complete: 100
-SDComment:
-SDCategory: Scholomance
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "scholomance.h"
 
 enum Spells
 {
-    SPELL_SHADOWBOLTVOLLEY      = 20741,
-    SPELL_BONESHIELD            = 27688
+    SPELL_SHADOWBOLT_VOLLEY             = 20741,
+    SPELL_BONE_SHIELD                   = 27688,
+
+    SPELL_SUMMON_BONE_MAGES             = 27695,
+
+    SPELL_SUMMON_BONE_MAGE_FRONT_LEFT   = 27696,
+    SPELL_SUMMON_BONE_MAGE_FRONT_RIGHT  = 27697,
+    SPELL_SUMMON_BONE_MAGE_BACK_RIGHT   = 27698,
+    SPELL_SUMMON_BONE_MAGE_BACK_LEFT    = 27699,
+
+    SPELL_SUMMON_BONE_MINIONS           = 27687
+};
+
+enum Events
+{
+    EVENT_SHADOWBOLT_VOLLEY = 1,
+    EVENT_BONE_SHIELD,
+    EVENT_SUMMON_MINIONS
 };
 
 class boss_kormok : public CreatureScript
@@ -37,93 +47,176 @@ class boss_kormok : public CreatureScript
 public:
     boss_kormok() : CreatureScript("boss_kormok") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new boss_kormokAI(creature);
-    }
-
     struct boss_kormokAI : public ScriptedAI
     {
-        boss_kormokAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 ShadowVolley_Timer;
-        uint32 BoneShield_Timer;
-        uint32 Minion_Timer;
-        uint32 Mage_Timer;
-        bool Mages;
-
-        void Reset() OVERRIDE
+        boss_kormokAI(Creature* creature) : ScriptedAI(creature)
         {
-            ShadowVolley_Timer = 10000;
-            BoneShield_Timer = 2000;
-            Minion_Timer = 15000;
-            Mage_Timer = 0;
+            Initialize();
+        }
+
+        void Initialize()
+        {
             Mages = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void Reset() override
         {
+            Initialize();
+            events.Reset();
         }
 
-        void SummonMinions(Unit* victim)
+        void EnterCombat(Unit* /*who*/) override
         {
-            if (Creature* SummonedMinion = DoSpawnCreature(16119, float(irand(-7, 7)), float(irand(-7, 7)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000))
-                SummonedMinion->AI()->AttackStart(victim);
+            events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 10000);
+            events.ScheduleEvent(EVENT_BONE_SHIELD, 2000);
+            events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15000);
         }
 
-        void SummonMages(Unit* victim)
+        void JustSummoned(Creature* summoned) override
         {
-            if (Creature* SummonedMage = DoSpawnCreature(16120, float(irand(-9, 9)), float(irand(-9, 9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000))
-                SummonedMage->AI()->AttackStart(victim);
+            summoned->AI()->AttackStart(me->GetVictim());
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        {
+            if (me->HealthBelowPctDamaged(25, damage) && !Mages)
+            {
+                DoCast(SPELL_SUMMON_BONE_MAGES);
+                Mages = true;
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
 
-            //ShadowVolley_Timer
-            if (ShadowVolley_Timer <= diff)
-            {
-                DoCastVictim(SPELL_SHADOWBOLTVOLLEY);
-                ShadowVolley_Timer = 15000;
-            } else ShadowVolley_Timer -= diff;
+            events.Update(diff);
 
-            //BoneShield_Timer
-            if (BoneShield_Timer <= diff)
-            {
-                DoCastVictim(SPELL_BONESHIELD);
-                BoneShield_Timer = 45000;
-            } else BoneShield_Timer -= diff;
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
-            //Minion_Timer
-            if (Minion_Timer <= diff)
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                //Cast
-                SummonMinions(me->GetVictim());
-                SummonMinions(me->GetVictim());
-                SummonMinions(me->GetVictim());
-                SummonMinions(me->GetVictim());
-
-                Minion_Timer = 12000;
-            } else Minion_Timer -= diff;
-
-            //Summon 2 Bone Mages
-            if (!Mages && HealthBelowPct(26))
-            {
-                //Cast
-                SummonMages(me->GetVictim());
-                SummonMages(me->GetVictim());
-                Mages = true;
+                switch (eventId)
+                {
+                    case EVENT_SHADOWBOLT_VOLLEY:
+                        DoCastVictim(SPELL_SHADOWBOLT_VOLLEY);
+                        events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 15000);
+                        break;
+                    case EVENT_BONE_SHIELD:
+                        DoCastVictim(SPELL_BONE_SHIELD);
+                        events.ScheduleEvent(EVENT_BONE_SHIELD, 45000);
+                        break;
+                    case EVENT_SUMMON_MINIONS:
+                        DoCast(SPELL_SUMMON_BONE_MINIONS);
+                        events.ScheduleEvent(EVENT_SUMMON_MINIONS, 12000);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             DoMeleeAttackIfReady();
         }
+
+        private:
+            EventMap events;
+            bool Mages;
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new boss_kormokAI(creature);
+    }
+};
+
+uint32 const SummonMageSpells[4] =
+{
+    SPELL_SUMMON_BONE_MAGE_FRONT_LEFT,
+    SPELL_SUMMON_BONE_MAGE_FRONT_RIGHT,
+    SPELL_SUMMON_BONE_MAGE_BACK_RIGHT,
+    SPELL_SUMMON_BONE_MAGE_BACK_LEFT,
+};
+
+// 27695 - Summon Bone Mages
+class spell_kormok_summon_bone_mages : SpellScriptLoader
+{
+    public:
+        spell_kormok_summon_bone_mages() : SpellScriptLoader("spell_kormok_summon_bone_mages") { }
+
+        class spell_kormok_summon_bone_magesSpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_kormok_summon_bone_magesSpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                for (uint32 i = 0; i < 4; ++i)
+                    if (!sSpellMgr->GetSpellInfo(SummonMageSpells[i]))
+                        return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                for (uint32 i = 0; i < 2; ++i)
+                    GetCaster()->CastSpell(GetCaster(), SummonMageSpells[urand(0, 3)], true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_kormok_summon_bone_magesSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_kormok_summon_bone_magesSpellScript();
+        }
+};
+
+// 27687 - Summon Bone Minions
+class spell_kormok_summon_bone_minions : SpellScriptLoader
+{
+    public:
+       spell_kormok_summon_bone_minions() : SpellScriptLoader("spell_kormok_summon_bone_minions") { }
+
+    class spell_kormok_summon_bone_minionsSpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_kormok_summon_bone_minionsSpellScript);
+
+        bool Validate(SpellInfo const* /*spell*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_BONE_MINIONS))
+                return false;
+            return true;
+        }
+
+        void HandleScript(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+
+            // Possible spells to handle this not found.
+            for (uint32 i = 0; i < 4; ++i)
+                GetCaster()->SummonCreature(NPC_BONE_MINION, GetCaster()->GetPositionX() + float(irand(-7, 7)), GetCaster()->GetPositionY() + float(irand(-7, 7)), GetCaster()->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_kormok_summon_bone_minionsSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_kormok_summon_bone_minionsSpellScript();
+    }
 };
 
 void AddSC_boss_kormok()
 {
     new boss_kormok();
+    new spell_kormok_summon_bone_mages();
+    new spell_kormok_summon_bone_minions();
 }

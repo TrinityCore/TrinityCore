@@ -77,27 +77,27 @@ class boss_marli : public CreatureScript
         {
             boss_marliAI(Creature* creature) : BossAI(creature, DATA_MARLI) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 if (events.IsInPhase(PHASE_THREE))
                     me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 35.0f, false); // hack
                 _Reset();
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_SPAWN_START_SPIDERS, 1000, 0, PHASE_ONE);
                 Talk(SAY_AGGRO);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -204,7 +204,7 @@ class boss_marli : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_marliAI(creature);
         }
@@ -217,18 +217,26 @@ class npc_spawn_of_marli : public CreatureScript
 
         struct npc_spawn_of_marliAI : public ScriptedAI
         {
-            npc_spawn_of_marliAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_spawn_of_marliAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
 
-            uint32 LevelUp_Timer;
-
-            void Reset() OVERRIDE
+            void Initialize()
             {
                 LevelUp_Timer = 3000;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE { }
+            uint32 LevelUp_Timer;
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void Reset() override
+            {
+                Initialize();
+            }
+
+            void EnterCombat(Unit* /*who*/) override { }
+
+            void UpdateAI(uint32 diff) override
             {
                 //Return since we have no target
                 if (!UpdateVictim())
@@ -245,7 +253,7 @@ class npc_spawn_of_marli : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_spawn_of_marliAI(creature);
         }

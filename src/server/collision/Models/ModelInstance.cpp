@@ -28,7 +28,7 @@ namespace VMAP
 {
     ModelInstance::ModelInstance(const ModelSpawn &spawn, WorldModel* model): ModelSpawn(spawn), iModel(model)
     {
-        iInvRot = G3D::Matrix3::fromEulerAnglesZYX(G3D::pi()*iRot.y/180.f, G3D::pi()*iRot.x/180.f, G3D::pi()*iRot.z/180.f).inverse();
+        iInvRot = G3D::Matrix3::fromEulerAnglesZYX(G3D::pif()*iRot.y/180.f, G3D::pif()*iRot.x/180.f, G3D::pif()*iRot.z/180.f).inverse();
         iInvScale = 1.f/iScale;
     }
 
@@ -40,7 +40,7 @@ namespace VMAP
             return false;
         }
         float time = pRay.intersectionTime(iBound);
-        if (time == G3D::inf())
+        if (time == G3D::finf())
         {
 //            std::cout << "Ray does not hit '" << name << "'\n";
 
@@ -167,7 +167,7 @@ namespace VMAP
         check += fread(&spawn.iPos, sizeof(float), 3, rf);
         check += fread(&spawn.iRot, sizeof(float), 3, rf);
         check += fread(&spawn.iScale, sizeof(float), 1, rf);
-        bool has_bound = (spawn.flags & MOD_HAS_BOUND);
+        bool has_bound = (spawn.flags & MOD_HAS_BOUND) != 0;
         if (has_bound) // only WMOs have bound in MPQ, only available after computation
         {
             Vector3 bLow, bHigh;
@@ -206,7 +206,7 @@ namespace VMAP
         check += fwrite(&spawn.iPos, sizeof(float), 3, wf);
         check += fwrite(&spawn.iRot, sizeof(float), 3, wf);
         check += fwrite(&spawn.iScale, sizeof(float), 1, wf);
-        bool has_bound = (spawn.flags & MOD_HAS_BOUND);
+        bool has_bound = (spawn.flags & MOD_HAS_BOUND) != 0;
         if (has_bound) // only WMOs have bound in MPQ, only available after computation
         {
             check += fwrite(&spawn.iBound.low(), sizeof(float), 3, wf);

@@ -263,7 +263,18 @@ public:
     {
         boss_kelthuzadAI(Creature* creature) : BossAI(creature, BOSS_KELTHUZAD), spawns(creature)
         {
+            Initialize();
             uiFaction = me->getFaction();
+        }
+
+        void Initialize()
+        {
+            nGuardiansOfIcecrownCount = 0;
+            uiGuardiansOfIcecrownTimer = 5000; // 5 seconds for summoning each Guardian of Icecrown in phase 3
+
+            Phase = 0;
+            nAbomination = 0;
+            nWeaver = 0;
         }
 
         uint32 Phase;
@@ -290,7 +301,7 @@ public:
             chained.clear();
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             _Reset();
 
@@ -315,20 +326,15 @@ public:
                         portal->ResetDoorOrButton();
             }
 
-            nGuardiansOfIcecrownCount = 0;
-            uiGuardiansOfIcecrownTimer = 5000; // 5 seconds for summoning each Guardian of Icecrown in phase 3
-
-            Phase = 0;
-            nAbomination = 0;
-            nWeaver = 0;
+            Initialize();
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
             Talk(SAY_DEATH);
@@ -336,7 +342,7 @@ public:
             ResetPlayerScale();
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             me->setFaction(uiFaction);
 
@@ -359,7 +365,7 @@ public:
             events.ScheduleEvent(EVENT_PHASE, 228000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -368,38 +374,33 @@ public:
 
             if (Phase == 1)
             {
-                while (uint32 eventId = events.GetEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_WASTE:
                             DoSummon(NPC_WASTE, Pos[RAND(0, 3, 6, 9)]);
-                            events.RepeatEvent(urand(2000, 5000));
+                            events.Repeat(2000, 5000);
                             break;
                         case EVENT_ABOMIN:
                             if (nAbomination < 8)
                             {
                                 DoSummon(NPC_ABOMINATION, Pos[RAND(1, 4, 7, 10)]);
                                 nAbomination++;
-                                events.RepeatEvent(20000);
+                                events.Repeat(20000);
                             }
-                            else
-                                events.PopEvent();
                             break;
                         case EVENT_WEAVER:
                             if (nWeaver < 8)
                             {
                                 DoSummon(NPC_WEAVER, Pos[RAND(0, 3, 6, 9)]);
                                 nWeaver++;
-                                events.RepeatEvent(25000);
+                                events.Repeat(25000);
                             }
-                            else
-                                events.PopEvent();
                             break;
                         case EVENT_TRIGGER:
                             if (GameObject* trigger = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_KELTHUZAD_TRIGGER)))
                                 trigger->SetPhaseMask(2, true);
-                            events.PopEvent();
                             break;
                         case EVENT_PHASE:
                             events.Reset();
@@ -419,7 +420,6 @@ public:
                             Phase = 2;
                             break;
                         default:
-                            events.PopEvent();
                             break;
                     }
                 }
@@ -461,17 +461,17 @@ public:
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (uint32 eventId = events.GetEvent())
+                if (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_BOLT:
                             DoCastVictim(SPELL_FROST_BOLT);
-                            events.RepeatEvent(urand(5000, 10000));
+                            events.Repeat(5000, 10000);
                             break;
                         case EVENT_NOVA:
                             DoCastAOE(SPELL_FROST_BOLT_AOE);
-                            events.RepeatEvent(urand(15000, 30000));
+                            events.Repeat(15000, 30000);
                             break;
                         case EVENT_CHAIN:
                         {
@@ -490,7 +490,7 @@ public:
                             }
                             if (!chained.empty())
                                 Talk(SAY_CHAIN);
-                            events.RepeatEvent(urand(100000, 180000));
+                            events.Repeat(100000, 180000);
                             break;
                         }
                         case EVENT_CHAINED_SPELL:
@@ -565,10 +565,8 @@ public:
                                 ++itr;
                             }
 
-                            if (chained.empty())
-                                events.PopEvent();
-                            else
-                                events.RepeatEvent(5000);
+                            if (!chained.empty())
+                                events.Repeat(5000);
 
                             break;
                         }
@@ -591,28 +589,27 @@ public:
                             if (!unitList.empty())
                             {
                                 std::vector<Unit*>::const_iterator itr = unitList.begin();
-                                advance(itr, rand()%unitList.size());
+                                advance(itr, rand32() % unitList.size());
                                 DoCast(*itr, SPELL_MANA_DETONATION);
                                 Talk(SAY_SPECIAL);
                             }
 
-                            events.RepeatEvent(urand(20000, 50000));
+                            events.Repeat(20000, 50000);
                             break;
                         }
                         case EVENT_FISSURE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_SHADOW_FISURE);
-                            events.RepeatEvent(urand(10000, 45000));
+                            events.Repeat(10000, 45000);
                             break;
                         case EVENT_BLAST:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, RAID_MODE(1, 0), 0, true))
                                 DoCast(target, SPELL_FROST_BLAST);
-                            if (rand()%2)
+                            if (rand32() % 2)
                                 Talk(SAY_FROST_BLAST);
-                            events.RepeatEvent(urand(30000, 90000));
+                            events.Repeat(30000, 90000);
                             break;
                         default:
-                            events.PopEvent();
                             break;
                     }
                 }
@@ -622,7 +619,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_kelthuzadAI>(creature);
     }
@@ -633,7 +630,7 @@ class at_kelthuzad_center : public AreaTriggerScript
 public:
     at_kelthuzad_center() : AreaTriggerScript("at_kelthuzad_center") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) OVERRIDE
+    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
     {
         if (player->IsGameMaster())
             return false;
@@ -703,14 +700,14 @@ class npc_kelthuzad_abomination : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(2000, 5000));
                 DoCast(me, SPELL_FRENZY, true);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -731,7 +728,7 @@ class npc_kelthuzad_abomination : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 _instance->SetData(DATA_ABOMINATION_KILLED, _instance->GetData(DATA_ABOMINATION_KILLED) + 1);
             }
@@ -741,7 +738,7 @@ class npc_kelthuzad_abomination : public CreatureScript
             EventMap _events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<npc_kelthuzad_abominationAI>(creature);
         }
@@ -756,7 +753,7 @@ class spell_kelthuzad_detonate_mana : public SpellScriptLoader
         {
             PrepareAuraScript(spell_kelthuzad_detonate_mana_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MANA_DETONATION_DAMAGE))
                     return false;
@@ -775,13 +772,13 @@ class spell_kelthuzad_detonate_mana : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_kelthuzad_detonate_mana_AuraScript::HandleScript, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_kelthuzad_detonate_mana_AuraScript();
         }
@@ -792,7 +789,7 @@ class achievement_just_cant_get_enough : public AchievementCriteriaScript
    public:
        achievement_just_cant_get_enough() : AchievementCriteriaScript("achievement_just_cant_get_enough") { }
 
-       bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
+       bool OnCheck(Player* /*player*/, Unit* target) override
        {
            if (!target)
                return false;

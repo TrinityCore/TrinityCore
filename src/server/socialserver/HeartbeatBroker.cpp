@@ -50,7 +50,7 @@ int HeartbeatBroker::HandleOpen()
     poller->add(*sock);
 
     printf("HeartbeatBroker socket has been set up successfully");
-    return ACE_Task_Base::activate(THR_NEW_LWP | THR_JOINABLE);
+    return 0;
 }
 
 int HeartbeatBroker::HandleClose(u_long /*flags = 0 */)

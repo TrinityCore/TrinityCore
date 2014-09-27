@@ -31,11 +31,11 @@ public:
     HeartbeatBroker();
     ~HeartbeatBroker();
 
-    int svc() OVERRIDE;
+    int svc();
 
 protected:
-    int HandleOpen() OVERRIDE;
-    int HandleClose(u_long flags = 0) OVERRIDE;
+    int HandleOpen();
+    int HandleClose(u_long flags = 0);
 
 private:
     zmqpp::socket* sock;

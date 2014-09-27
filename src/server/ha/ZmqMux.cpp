@@ -18,41 +18,14 @@
 #include "ZmqMux.h"
 #include "ZmqContext.h"
 
-SockWrap::SockWrap()
-{
-    sock = sContext->newSocket(zmqpp::socket_type::push);
-}
-
-SockWrap::~SockWrap()
-{
-    delete sock;
-}
-
-SockWrap* TLSock::make_TSS_TYPE() const
-{
-    SockWrap* sw = new SockWrap();
-    (*sw)->connect(uri);
-    return sw;
-}
-
-zmqpp::socket& SockWrap::operator*()
-{
-    return *sock;
-}
-
-zmqpp::socket* SockWrap::operator->()
-{
-    return sock;
-}
-
 ZmqMux::~ZmqMux()
 {
     delete from;
     delete to;
 }
 
-ZmqMux::ZmqMux(std::string from_uri, std::string to_uri) :
-    sock(from_uri)
+ZmqMux::ZmqMux(std::string from_uri, std::string to_uri):
+  addr(from_uri)
 {
     printf("Opening muxer thread from %s to %s\n", from_uri.c_str(), to_uri.c_str());
     from = sContext->newSocket(zmqpp::socket_type::pull);
@@ -66,7 +39,6 @@ int ZmqMux::HandleOpen()
 {
     poller->add(*from);
     poller->add(*to, zmqpp::poller::poll_out);
-    return ACE_Task_Base::activate();
 }
 
 int ZmqMux::HandleClose(u_long)
@@ -76,7 +48,13 @@ int ZmqMux::HandleClose(u_long)
 
 bool ZmqMux::send(zmqpp::message* m, bool dont_block)
 {
-    return (*sock)->send(*m, dont_block);
+  if(sock.get() == nullptr)
+    {
+      sock.reset(sContext->newSocket(zmqpp::socket_type::push));
+      sock->connect(addr);
+    }
+
+  return sock->send(*m, dont_block);
 }
 
 int ZmqMux::svc()

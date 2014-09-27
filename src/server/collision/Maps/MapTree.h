@@ -20,8 +20,8 @@
 #define _MAPTREE_H
 
 #include "Define.h"
-#include "Dynamic/UnorderedMap.h"
 #include "BoundingIntervalHierarchy.h"
+#include <unordered_map>
 
 namespace VMAP
 {
@@ -31,7 +31,7 @@ namespace VMAP
 
     struct LocationInfo
     {
-        LocationInfo(): hitInstance(0), hitModel(0), ground_Z(-G3D::inf()) { }
+        LocationInfo(): hitInstance(nullptr), hitModel(nullptr), ground_Z(-G3D::finf()) { }
         const ModelInstance* hitInstance;
         const GroupModel* hitModel;
         float ground_Z;
@@ -39,8 +39,8 @@ namespace VMAP
 
     class StaticMapTree
     {
-        typedef UNORDERED_MAP<uint32, bool> loadedTileMap;
-        typedef UNORDERED_MAP<uint32, uint32> loadedSpawnMap;
+        typedef std::unordered_map<uint32, bool> loadedTileMap;
+        typedef std::unordered_map<uint32, uint32> loadedSpawnMap;
         private:
             uint32 iMapID;
             bool iIsTiled;
@@ -81,11 +81,15 @@ namespace VMAP
             bool isTiled() const { return iIsTiled; }
             uint32 numLoadedTiles() const { return iLoadedTiles.size(); }
             void getModelInstances(ModelInstance* &models, uint32 &count);
+
+        private:
+            StaticMapTree(StaticMapTree const& right) = delete;
+            StaticMapTree& operator=(StaticMapTree const& right) = delete;
     };
 
     struct AreaInfo
     {
-        AreaInfo(): result(false), ground_Z(-G3D::inf()), flags(0), adtId(0),
+        AreaInfo(): result(false), ground_Z(-G3D::finf()), flags(0), adtId(0),
             rootId(0), groupId(0) { }
         bool result;
         float ground_Z;

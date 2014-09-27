@@ -70,22 +70,27 @@ public:
     {
         boss_vaelAI(Creature* creature) : BossAI(creature, BOSS_VAELASTRAZ)
         {
+            Initialize();
             creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             creature->setFaction(35);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void Reset() OVERRIDE
+        void Initialize()
+        {
+            PlayerGUID = 0;
+            HasYelled = false;
+        }
+
+        void Reset() override
         {
             _Reset();
 
             me->SetStandState(UNIT_STAND_STATE_DEAD);
-            PlayerGUID = 0;
-
-            HasYelled = false;
+            Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
 
@@ -109,15 +114,15 @@ public:
             events.ScheduleEvent(EVENT_SPEECH_1, 1000);
         }
 
-        void KilledUnit(Unit* victim) OVERRIDE
+        void KilledUnit(Unit* victim) override
         {
-            if (rand()%5)
+            if (rand32() % 5)
                 return;
 
             Talk(SAY_KILLTARGET, victim);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -146,8 +151,8 @@ public:
                             break;
                         case EVENT_SPEECH_4:
                             me->setFaction(103);
-                            if (PlayerGUID && Unit::GetUnit(*me, PlayerGUID))
-                                AttackStart(Unit::GetUnit(*me, PlayerGUID));;
+                            if (PlayerGUID && ObjectAccessor::GetUnit(*me, PlayerGUID))
+                                AttackStart(ObjectAccessor::GetUnit(*me, PlayerGUID));;
                             break;
                     }
                 }
@@ -216,7 +221,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void sGossipSelect(Player* player, uint32 sender, uint32 action) OVERRIDE
+        void sGossipSelect(Player* player, uint32 sender, uint32 action) override
         {
             if (sender == GOSSIP_ID && action == 0)
             {
@@ -230,7 +235,7 @@ public:
             bool HasYelled;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_vaelAI(creature);
     }

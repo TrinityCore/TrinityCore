@@ -18,6 +18,8 @@
 #ifndef DEF_RUINS_OF_AHNQIRAJ_H
 #define DEF_RUINS_OF_AHNQIRAJ_H
 
+#define DataHeader "AQR"
+
 enum DataTypes
 {
     DATA_KURINNAXX          = 0,

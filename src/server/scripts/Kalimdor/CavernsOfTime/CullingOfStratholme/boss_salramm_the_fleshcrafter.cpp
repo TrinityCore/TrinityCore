@@ -54,7 +54,7 @@ class boss_salramm : public CreatureScript
 public:
     boss_salramm() : CreatureScript("boss_salramm") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_salrammAI>(creature);
     }
@@ -63,8 +63,18 @@ public:
     {
         boss_salrammAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             Talk(SAY_SPAWN);
+        }
+
+        void Initialize()
+        {
+            uiCurseFleshTimer = 30000;  //30s DBM
+            uiExplodeGhoulTimer = urand(25000, 28000); //approx 6 sec after summon ghouls
+            uiShadowBoltTimer = urand(8000, 12000); // approx 10s
+            uiStealFleshTimer = 12345;
+            uiSummonGhoulsTimer = urand(19000, 24000); //on a video approx 24s after aggro
         }
 
         uint32 uiCurseFleshTimer;
@@ -75,25 +85,21 @@ public:
 
         InstanceScript* instance;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
-             uiCurseFleshTimer = 30000;  //30s DBM
-             uiExplodeGhoulTimer = urand(25000, 28000); //approx 6 sec after summon ghouls
-             uiShadowBoltTimer = urand(8000, 12000); // approx 10s
-             uiStealFleshTimer = 12345;
-             uiSummonGhoulsTimer = urand(19000, 24000); //on a video approx 24s after aggro
+            Initialize();
 
-             instance->SetData(DATA_SALRAMM_EVENT, NOT_STARTED);
+            instance->SetBossState(DATA_SALRAMM, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
-            instance->SetData(DATA_SALRAMM_EVENT, IN_PROGRESS);
+            instance->SetBossState(DATA_SALRAMM, IN_PROGRESS);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -135,14 +141,14 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
 
-            instance->SetData(DATA_SALRAMM_EVENT, DONE);
+            instance->SetBossState(DATA_SALRAMM, DONE);
         }
 
-        void KilledUnit(Unit* victim) OVERRIDE
+        void KilledUnit(Unit* victim) override
         {
             if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;

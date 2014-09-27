@@ -45,20 +45,13 @@ class boss_renataki : public CreatureScript
 
         struct boss_renatakiAI : public BossAI
         {
-            boss_renatakiAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) { }
-
-            uint32 Invisible_Timer;
-            uint32 Ambush_Timer;
-            uint32 Visible_Timer;
-            uint32 Aggro_Timer;
-            uint32 ThousandBlades_Timer;
-
-            bool Invisible;
-            bool Ambushed;
-
-            void Reset() OVERRIDE
+            boss_renatakiAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS)
             {
-                _Reset();
+                Initialize();
+            }
+
+            void Initialize()
+            {
                 Invisible_Timer = urand(8000, 18000);
                 Ambush_Timer = 3000;
                 Visible_Timer = 4000;
@@ -69,17 +62,32 @@ class boss_renataki : public CreatureScript
                 Ambushed = false;
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            uint32 Invisible_Timer;
+            uint32 Ambush_Timer;
+            uint32 Visible_Timer;
+            uint32 Aggro_Timer;
+            uint32 ThousandBlades_Timer;
+
+            bool Invisible;
+            bool Ambushed;
+
+            void Reset() override
+            {
+                _Reset();
+                Initialize();
+            }
+
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -155,7 +163,7 @@ class boss_renataki : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_renatakiAI(creature);
         }

@@ -38,10 +38,8 @@ enum Events
 
 enum Spells
 {
-    SPELL_IMPALE_10                 = 28783,
-    SPELL_IMPALE_25                 = 56090,
-    SPELL_LOCUST_SWARM_10           = 28785,
-    SPELL_LOCUST_SWARM_25           = 54021,
+    SPELL_IMPALE                    = 28783,
+    SPELL_LOCUST_SWARM              = 28785,
     SPELL_SUMMON_CORPSE_SCARABS_PLR = 29105,    // This spawns 5 corpse scarabs on top of player
     SPELL_SUMMON_CORPSE_SCARABS_MOB = 28864,   // This spawns 10 corpse scarabs on top of dead guards
     SPELL_BERSERK                   = 27680
@@ -57,22 +55,30 @@ class boss_anubrekhan : public CreatureScript
 public:
     boss_anubrekhan() : CreatureScript("boss_anubrekhan") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_anubrekhanAI>(creature);
     }
 
     struct boss_anubrekhanAI : public BossAI
     {
-        boss_anubrekhanAI(Creature* creature) : BossAI(creature, BOSS_ANUBREKHAN) { }
+        boss_anubrekhanAI(Creature* creature) : BossAI(creature, BOSS_ANUBREKHAN)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            hasTaunted = false;
+        }
 
         bool hasTaunted;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             _Reset();
 
-            hasTaunted = false;
+            Initialize();
 
             if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
             {
@@ -90,24 +96,24 @@ public:
             }
         }
 
-        void KilledUnit(Unit* victim) OVERRIDE
+        void KilledUnit(Unit* victim) override
         {
             /// Force the player to spawn corpse scarabs via spell, @todo Check percent chance for scarabs, 20% at the moment
-            if (!(rand()%5))
+            if (!(rand32() % 5))
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     victim->CastSpell(victim, SPELL_SUMMON_CORPSE_SCARABS_PLR, true, NULL, NULL, me->GetGUID());
 
             Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
 
             // start achievement timer (kill Maexna within 20 min)
             instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             Talk(SAY_AGGRO);
@@ -119,8 +125,7 @@ public:
                 events.ScheduleEvent(EVENT_SPAWN_GUARDIAN_NORMAL, urand(15000, 20000));
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
-
+        void MoveInLineOfSight(Unit* who) override
         {
             if (!hasTaunted && me->IsWithinDistInMap(who, 60.0f) && who->GetTypeId() == TYPEID_PLAYER)
             {
@@ -130,7 +135,7 @@ public:
             ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void SummonedCreatureDespawn(Creature* summon) OVERRIDE
+        void SummonedCreatureDespawn(Creature* summon) override
         {
             BossAI::SummonedCreatureDespawn(summon);
 
@@ -141,7 +146,7 @@ public:
             summon->CastSpell(summon, SPELL_SUMMON_CORPSE_SCARABS_MOB, true, NULL, NULL, me->GetGUID());
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim() || !CheckInRoom())
                 return;
@@ -155,14 +160,14 @@ public:
                     case EVENT_IMPALE:
                         //Cast Impale on a random target
                         //Do NOT cast it when we are afflicted by locust swarm
-                        if (!me->HasAura(RAID_MODE(SPELL_LOCUST_SWARM_10, SPELL_LOCUST_SWARM_25)))
+                        if (!me->HasAura(sSpellMgr->GetSpellIdForDifficulty(SPELL_LOCUST_SWARM, me)))
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, RAID_MODE(SPELL_IMPALE_10, SPELL_IMPALE_25));
+                                DoCast(target, SPELL_IMPALE);
                         events.ScheduleEvent(EVENT_IMPALE, urand(10000, 20000));
                         break;
                     case EVENT_LOCUST:
                         /// @todo Add Text
-                        DoCast(me, RAID_MODE(SPELL_LOCUST_SWARM_10, SPELL_LOCUST_SWARM_25));
+                        DoCast(me, SPELL_LOCUST_SWARM);
                         DoSummon(NPC_CRYPT_GUARD, GuardSummonPos, 0, TEMPSUMMON_CORPSE_DESPAWN);
                         events.ScheduleEvent(EVENT_LOCUST, 90000);
                         break;

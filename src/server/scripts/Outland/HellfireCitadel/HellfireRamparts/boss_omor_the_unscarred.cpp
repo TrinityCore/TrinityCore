@@ -63,7 +63,7 @@ class boss_omor_the_unscarred : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 Talk(SAY_WIPE);
 
@@ -80,21 +80,21 @@ class boss_omor_the_unscarred : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
             }
 
-            void KilledUnit(Unit* /*victim*/) OVERRIDE
+            void KilledUnit(Unit* /*victim*/) override
             {
-                if (rand()%2)
+                if (rand32() % 2)
                     return;
 
                 Talk(SAY_KILL_1);
             }
 
-            void JustSummoned(Creature* summoned) OVERRIDE
+            void JustSummoned(Creature* summoned) override
             {
                 Talk(SAY_SUMMON);
 
@@ -104,13 +104,13 @@ class boss_omor_the_unscarred : public CreatureScript
                 ++SummonedCount;
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DIE);
                 _JustDied();
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -122,7 +122,7 @@ class boss_omor_the_unscarred : public CreatureScript
                     {
                         me->InterruptNonMeleeSpells(false);
                         DoCast(me, SPELL_SUMMON_FIENDISH_HOUND);
-                        Summon_Timer = 15000+rand()%15000;
+                        Summon_Timer = 15000 + rand32() % 15000;
                     }
                     else
                         Summon_Timer -= diff;
@@ -159,7 +159,7 @@ class boss_omor_the_unscarred : public CreatureScript
                         if (temp && temp->GetTypeId() == TYPEID_PLAYER)
                         {
                             DoCast(temp, SPELL_ORBITAL_STRIKE);
-                            OrbitalStrike_Timer = 14000+rand()%2000;
+                            OrbitalStrike_Timer = 14000 + rand32() % 2000;
                             PlayerGUID = temp->GetGUID();
 
                             if (PlayerGUID)
@@ -187,7 +187,7 @@ class boss_omor_the_unscarred : public CreatureScript
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         DoCast(target, SPELL_TREACHEROUS_AURA);
-                        Aura_Timer = 8000+rand()%8000;
+                        Aura_Timer = 8000 + rand32() % 8000;
                     }
                 }
                 else
@@ -201,7 +201,7 @@ class boss_omor_the_unscarred : public CreatureScript
                             target = me->GetVictim();
 
                         DoCast(target, SPELL_SHADOW_BOLT);
-                        Shadowbolt_Timer = 4000+rand()%2500;
+                        Shadowbolt_Timer = 4000 + rand32() % 2500;
                     }
                 }
                 else
@@ -222,7 +222,7 @@ class boss_omor_the_unscarred : public CreatureScript
                 bool CanPullBack;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<boss_omor_the_unscarredAI>(creature);
         }

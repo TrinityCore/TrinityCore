@@ -25,6 +25,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "scarlet_monastery.h"
 
 enum Spells
 {
@@ -41,24 +42,20 @@ class boss_high_inquisitor_fairbanks : public CreatureScript
 public:
     boss_high_inquisitor_fairbanks() : CreatureScript("boss_high_inquisitor_fairbanks") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_high_inquisitor_fairbanksAI(creature);
+        return GetInstanceAI<boss_high_inquisitor_fairbanksAI>(creature);
     }
 
     struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
     {
-        boss_high_inquisitor_fairbanksAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_high_inquisitor_fairbanksAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+            instance = creature->GetInstanceScript();
+        }
 
-        uint32 CurseOfBlood_Timer;
-        uint32 DispelMagic_Timer;
-        uint32 Fear_Timer;
-        uint32 Heal_Timer;
-        uint32 Sleep_Timer;
-        uint32 Dispel_Timer;
-        bool PowerWordShield;
-
-        void Reset() OVERRIDE
+        void Initialize()
         {
             CurseOfBlood_Timer = 10000;
             DispelMagic_Timer = 30000;
@@ -67,17 +64,38 @@ public:
             Sleep_Timer = 30000;
             Dispel_Timer = 20000;
             PowerWordShield = false;
-            me->SetStandState(UNIT_STAND_STATE_DEAD);
-            me->SetUInt32Value(UNIT_FIELD_BYTES_1, 7);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        uint32 CurseOfBlood_Timer;
+        uint32 DispelMagic_Timer;
+        uint32 Fear_Timer;
+        uint32 Heal_Timer;
+        uint32 Sleep_Timer;
+        uint32 Dispel_Timer;
+        bool PowerWordShield;
+        InstanceScript* instance;
+
+        void Reset() override
+        {
+            Initialize();
+            me->SetStandState(UNIT_STAND_STATE_DEAD);
+            me->SetUInt32Value(UNIT_FIELD_BYTES_1, 7);
+            instance->SetBossState(DATA_HIGH_INQUISITOR_FAIRBANKS, NOT_STARTED);
+        }
+
+        void EnterCombat(Unit* /*who*/) override
         {
             me->SetStandState(UNIT_STAND_STATE_STAND);
             me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+            instance->SetBossState(DATA_HIGH_INQUISITOR_FAIRBANKS, IN_PROGRESS);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
+        {
+            instance->SetBossState(DATA_HIGH_INQUISITOR_FAIRBANKS, DONE);
+        }
+
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

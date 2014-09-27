@@ -60,9 +60,9 @@ public:
     {
         npc_oox09hlAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() OVERRIDE { }
+        void Reset() override { }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             if (who->GetEntry() == NPC_MARAUDING_OWL || who->GetEntry() == NPC_VILE_AMBUSHER)
                 return;
@@ -70,7 +70,7 @@ public:
             Talk(SAY_OOX_AGGRO);
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
         }
@@ -86,7 +86,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             switch (waypointId)
             {
@@ -104,7 +104,7 @@ public:
             }
         }
 
-        void WaypointStart(uint32 pointId) OVERRIDE
+        void WaypointStart(uint32 pointId) override
         {
             switch (pointId)
             {
@@ -112,8 +112,7 @@ public:
                     for (uint8 i = 0; i < 3; ++i)
                     {
                         const Position src = {147.927444f, -3851.513428f, 130.893f, 0};
-                        Position dst;
-                        me->GetRandomPoint(src, 7.0f, dst);
+                        Position dst = me->GetRandomPoint(src, 7.0f);
                         DoSummon(NPC_MARAUDING_OWL, dst, 25000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                     }
                     break;
@@ -121,8 +120,7 @@ public:
                     for (uint8 i = 0; i < 3; ++i)
                     {
                         const Position src = {-141.151581f, -4291.213867f, 120.130f, 0};
-                        Position dst;
-                        me->GetRandomPoint(src, 7.0f, dst);
+                        Position dst = me->GetRandomPoint(src, 7.0f);
                         me->SummonCreature(NPC_VILE_AMBUSHER, dst, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 25000);
                     }
                     break;
@@ -130,7 +128,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_oox09hlAI(creature);
     }
@@ -180,17 +178,23 @@ public:
     {
         npc_rinjiAI(Creature* creature) : npc_escortAI(creature)
         {
+            Initialize();
             _IsByOutrunner = false;
             spawnId = 0;
         }
 
-        void Reset() OVERRIDE
+        void Initialize()
         {
             postEventCount = 0;
             postEventTimer = 3000;
         }
 
-        void JustRespawned() OVERRIDE
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void JustRespawned() override
         {
             _IsByOutrunner = false;
             spawnId = 0;
@@ -198,7 +202,7 @@ public:
             npc_escortAI::JustRespawned();
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* who) override
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
             {
@@ -209,7 +213,7 @@ public:
                     _IsByOutrunner = true;
                 }
 
-                if (rand()%4)
+                if (rand32() % 4)
                     return;
 
                 //only if attacked and escorter is not in combat?
@@ -232,7 +236,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             summoned->SetWalk(false);
             summoned->GetMotionMaster()->MovePoint(0, AmbushMoveTo[spawnId].posX, AmbushMoveTo[spawnId].posY, AmbushMoveTo[spawnId].posZ);
@@ -249,7 +253,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -275,7 +279,7 @@ public:
             }
         }
 
-        void UpdateEscortAI(const uint32 diff) OVERRIDE
+        void UpdateEscortAI(const uint32 diff) override
         {
             //Check if we have a current target
             if (!UpdateVictim())
@@ -321,7 +325,7 @@ public:
         bool   _IsByOutrunner;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_rinjiAI(creature);
     }

@@ -427,8 +427,8 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_REPAIRITEMS                            = 521,
     RBAC_PERM_COMMAND_RESPAWN                                = 522,
     RBAC_PERM_COMMAND_REVIVE                                 = 523,
-    RBAC_PERM_COMMAND_SAVE                                   = 524,
-    RBAC_PERM_COMMAND_SAVEALL                                = 525,
+    RBAC_PERM_COMMAND_SAVEALL                                = 524,
+    RBAC_PERM_COMMAND_SAVE                                   = 525,
     RBAC_PERM_COMMAND_SETSKILL                               = 526,
     RBAC_PERM_COMMAND_SHOWAREA                               = 527,
     RBAC_PERM_COMMAND_SUMMON                                 = 528,
@@ -517,7 +517,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_ALL                             = 611,
     RBAC_PERM_COMMAND_RELOAD_ALL_ACHIEVEMENT                 = 612,
     RBAC_PERM_COMMAND_RELOAD_ALL_AREA                        = 613,
-    RBAC_PERM_UNUSED_614                                     = 614, // unused
+    RBAC_PERM_COMMAND_RELOAD_BROADCAST_TEXT                  = 614,
     RBAC_PERM_COMMAND_RELOAD_ALL_GOSSIP                      = 615,
     RBAC_PERM_COMMAND_RELOAD_ALL_ITEM                        = 616,
     RBAC_PERM_COMMAND_RELOAD_ALL_LOCALES                     = 617,
@@ -534,7 +534,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_COMMAND                         = 628,
     RBAC_PERM_COMMAND_RELOAD_CONDITIONS                      = 629,
     RBAC_PERM_COMMAND_RELOAD_CONFIG                          = 630,
-    RBAC_PERM_UNUSED_631                                     = 631, // unused
+    RBAC_PERM_COMMAND_RELOAD_BATTLEGROUND_TEMPLATE           = 631,
     RBAC_PERM_UNUSED_632                                     = 632, // unused
     RBAC_PERM_COMMAND_RELOAD_CREATURE_LINKED_RESPAWN         = 633,
     RBAC_PERM_COMMAND_RELOAD_CREATURE_LOOT_TEMPLATE          = 634,
@@ -549,10 +549,10 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_EVENT_SCRIPTS                   = 643,
     RBAC_PERM_COMMAND_RELOAD_FISHING_LOOT_TEMPLATE           = 644,
     RBAC_PERM_COMMAND_RELOAD_GAME_GRAVEYARD_ZONE             = 645,
-    RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUESTENDER           = 646,
-    RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUEST_LOOT_TEMPLATE  = 647,
-    RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUESTSTARTER         = 648,
-    RBAC_PERM_COMMAND_RELOAD_GAME_TELE                       = 649,
+    RBAC_PERM_COMMAND_RELOAD_GAME_TELE                       = 646,
+    RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUESTENDER           = 647,
+    RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUEST_LOOT_TEMPLATE  = 648,
+    RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUESTSTARTER         = 649,
     RBAC_PERM_COMMAND_RELOAD_GM_TICKETS                      = 650,
     RBAC_PERM_COMMAND_RELOAD_GOSSIP_MENU                     = 651,
     RBAC_PERM_COMMAND_RELOAD_GOSSIP_MENU_OPTION              = 652,
@@ -585,34 +585,34 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_QUEST_TEMPLATE                  = 679,
     RBAC_PERM_COMMAND_RELOAD_RBAC                            = 680,
     RBAC_PERM_COMMAND_RELOAD_REFERENCE_LOOT_TEMPLATE         = 681,
-    RBAC_PERM_COMMAND_RELOAD_REPUTATION_REWARD_RATE          = 682,
-    RBAC_PERM_COMMAND_RELOAD_RESERVED_NAME                   = 683,
-    RBAC_PERM_COMMAND_RELOAD_SKILL_DISCOVERY_TEMPLATE        = 684,
-    RBAC_PERM_COMMAND_RELOAD_SKILL_EXTRA_ITEM_TEMPLATE       = 685,
-    RBAC_PERM_COMMAND_RELOAD_SKILL_FISHING_BASE_LEVEL        = 686,
-    RBAC_PERM_COMMAND_RELOAD_SKINNING_LOOT_TEMPLATE          = 687,
-    RBAC_PERM_COMMAND_RELOAD_SMART_SCRIPTS                   = 688,
-    RBAC_PERM_COMMAND_RELOAD_SPELL_AREA                      = 689,
-    RBAC_PERM_COMMAND_RELOAD_SPELL_BONUS_DATA                = 690,
-    RBAC_PERM_COMMAND_RELOAD_SPELL_GROUP                     = 691,
-    RBAC_PERM_COMMAND_RELOAD_SPELL_GROUP_STACK_RULES         = 692,
-    RBAC_PERM_COMMAND_RELOAD_SPELL_LEARN_SPELL               = 693,
-    RBAC_PERM_COMMAND_RELOAD_SPELL_LINKED_SPELL              = 694,
+    RBAC_PERM_COMMAND_RELOAD_RESERVED_NAME                   = 682,
+    RBAC_PERM_COMMAND_RELOAD_REPUTATION_REWARD_RATE          = 683,
+    RBAC_PERM_COMMAND_RELOAD_SPILLOVER_TEMPLATE              = 684,
+    RBAC_PERM_COMMAND_RELOAD_SKILL_DISCOVERY_TEMPLATE        = 685,
+    RBAC_PERM_COMMAND_RELOAD_SKILL_EXTRA_ITEM_TEMPLATE       = 686,
+    RBAC_PERM_COMMAND_RELOAD_SKILL_FISHING_BASE_LEVEL        = 687,
+    RBAC_PERM_COMMAND_RELOAD_SKINNING_LOOT_TEMPLATE          = 688,
+    RBAC_PERM_COMMAND_RELOAD_SMART_SCRIPTS                   = 689,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_REQUIRED                  = 690,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_AREA                      = 691,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_BONUS_DATA                = 692,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_GROUP                     = 693,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_LEARN_SPELL               = 694,
     RBAC_PERM_COMMAND_RELOAD_SPELL_LOOT_TEMPLATE             = 695,
-    RBAC_PERM_COMMAND_RELOAD_SPELL_PET_AURAS                 = 696,
-    RBAC_PERM_COMMAND_RELOAD_SPELL_PROC                      = 697,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_LINKED_SPELL              = 696,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_PET_AURAS                 = 697,
     RBAC_PERM_COMMAND_RELOAD_SPELL_PROC_EVENT                = 698,
-    RBAC_PERM_COMMAND_RELOAD_SPELL_REQUIRED                  = 699,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_PROC                      = 699,
     RBAC_PERM_COMMAND_RELOAD_SPELL_SCRIPTS                   = 700,
     RBAC_PERM_COMMAND_RELOAD_SPELL_TARGET_POSITION           = 701,
     RBAC_PERM_COMMAND_RELOAD_SPELL_THREATS                   = 702,
-    RBAC_PERM_COMMAND_RELOAD_SPILLOVER_TEMPLATE              = 703,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_GROUP_STACK_RULES         = 703,
     RBAC_PERM_COMMAND_RELOAD_TRINITY_STRING                  = 704,
-    RBAC_PERM_COMMAND_RELOAD_VEHICLE_ACCESORY                = 705,
-    RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE_ACCESSORY      = 706,
-    RBAC_PERM_COMMAND_RELOAD_WARDEN_ACTION                   = 707,
-    RBAC_PERM_COMMAND_RELOAD_WAYPOINT_DATA                   = 708,
-    RBAC_PERM_COMMAND_RELOAD_WAYPOINT_SCRIPTS                = 709,
+    RBAC_PERM_COMMAND_RELOAD_WARDEN_ACTION                   = 705,
+    RBAC_PERM_COMMAND_RELOAD_WAYPOINT_SCRIPTS                = 706,
+    RBAC_PERM_COMMAND_RELOAD_WAYPOINT_DATA                   = 707,
+    RBAC_PERM_COMMAND_RELOAD_VEHICLE_ACCESORY                = 708,
+    RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE_ACCESSORY      = 709,
     RBAC_PERM_COMMAND_RESET                                  = 710,
     RBAC_PERM_COMMAND_RESET_ACHIEVEMENTS                     = 711,
     RBAC_PERM_COMMAND_RESET_HONOR                            = 712,
@@ -681,6 +681,23 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_MODIFY_CURRENCY                        = 775, // only 4.3.4
     RBAC_PERM_COMMAND_DEBUG_PHASE                            = 776, // only 4.3.4
     RBAC_PERM_COMMAND_MAILBOX                                = 777,
+    RBAC_PERM_COMMAND_AHBOT                                  = 778,
+    RBAC_PERM_COMMAND_AHBOT_ITEMS                            = 779,
+    RBAC_PERM_COMMAND_AHBOT_ITEMS_GRAY                       = 780,
+    RBAC_PERM_COMMAND_AHBOT_ITEMS_WHITE                      = 781,
+    RBAC_PERM_COMMAND_AHBOT_ITEMS_GREEN                      = 782,
+    RBAC_PERM_COMMAND_AHBOT_ITEMS_BLUE                       = 783,
+    RBAC_PERM_COMMAND_AHBOT_ITEMS_PURPLE                     = 784,
+    RBAC_PERM_COMMAND_AHBOT_ITEMS_ORANGE                     = 785,
+    RBAC_PERM_COMMAND_AHBOT_ITEMS_YELLOW                     = 786,
+    RBAC_PERM_COMMAND_AHBOT_RATIO                            = 787,
+    RBAC_PERM_COMMAND_AHBOT_RATIO_ALLIANCE                   = 788,
+    RBAC_PERM_COMMAND_AHBOT_RATIO_HORDE                      = 789,
+    RBAC_PERM_COMMAND_AHBOT_RATIO_NEUTRAL                    = 790,
+    RBAC_PERM_COMMAND_AHBOT_REBUILD                          = 791,
+    RBAC_PERM_COMMAND_AHBOT_RELOAD                           = 792,
+    RBAC_PERM_COMMAND_AHBOT_STATUS                           = 793,
+    RBAC_PERM_COMMAND_GUILD_INFO                             = 794,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
@@ -702,7 +719,7 @@ class RBACPermission
 {
     public:
         RBACPermission(uint32 id = 0, std::string const& name = ""):
-            _id(id), _name(name) { }
+            _id(id), _name(name), _perms() { }
 
         /// Gets the Name of the Object
         std::string const& GetName() const { return _name; }
@@ -737,7 +754,8 @@ class RBACData
 {
     public:
         RBACData(uint32 id, std::string const& name, int32 realmId, uint8 secLevel = 255):
-            _id(id), _name(name), _realmId(realmId), _secLevel(secLevel) { }
+            _id(id), _name(name), _realmId(realmId), _secLevel(secLevel),
+            _grantedPerms(), _deniedPerms(), _globalPerms() { }
 
         /// Gets the Name of the Object
         std::string const& GetName() const { return _name; }

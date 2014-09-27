@@ -74,7 +74,21 @@ class boss_halazzi : public CreatureScript
         {
             boss_halazziAI(Creature* creature) : ScriptedAI(creature), summons(me)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+                Phase = PHASE_NONE;
+                FrenzyTimer = 0;
+                SaberlashTimer = 0;
+                ShockTimer = 0;
+                TotemTimer = 0;
+            }
+
+            void Initialize()
+            {
+                LynxGUID = 0;
+                TransformCount = 0;
+                BerserkTimer = 600000;
+                CheckTimer = 1000;
             }
 
             InstanceScript* instance;
@@ -91,15 +105,12 @@ class boss_halazzi : public CreatureScript
 
             uint64 LynxGUID;
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 instance->SetData(DATA_HALAZZIEVENT, NOT_STARTED);
                 summons.DespawnAll();
 
-                LynxGUID = 0;
-                TransformCount = 0;
-                BerserkTimer = 600000;
-                CheckTimer = 1000;
+                Initialize();
 
                 DoCast(me, SPELL_DUAL_WIELD, true);
 
@@ -107,14 +118,14 @@ class boss_halazzi : public CreatureScript
                 EnterPhase(PHASE_LYNX);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 instance->SetData(DATA_HALAZZIEVENT, IN_PROGRESS);
                 Talk(SAY_AGGRO);
                 EnterPhase(PHASE_LYNX);
             }
 
-            void JustSummoned(Creature* summon) OVERRIDE
+            void JustSummoned(Creature* summon) override
             {
                 summon->AI()->AttackStart(me->GetVictim());
                 if (summon->GetEntry() == NPC_SPIRIT_LYNX)
@@ -122,19 +133,19 @@ class boss_halazzi : public CreatureScript
                 summons.Summon(summon);
             }
 
-            void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
+            void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
             {
                 if (damage >= me->GetHealth() && Phase != PHASE_ENRAGE)
                     damage = 0;
             }
 
-            void SpellHit(Unit*, const SpellInfo* spell) OVERRIDE
+            void SpellHit(Unit*, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_TRANSFORM_SPLIT2)
                     EnterPhase(PHASE_HUMAN);
             }
 
-            void AttackStart(Unit* who) OVERRIDE
+            void AttackStart(Unit* who) override
             {
                 if (Phase != PHASE_MERGE)
                     ScriptedAI::AttackStart(who);
@@ -152,7 +163,7 @@ class boss_halazzi : public CreatureScript
                         me->Attack(me->GetVictim(), true);
                         me->GetMotionMaster()->MoveChase(me->GetVictim());
                     }
-                    if (Creature* Lynx = Unit::GetCreature(*me, LynxGUID))
+                    if (Creature* Lynx = ObjectAccessor::GetCreature(*me, LynxGUID))
                         Lynx->DisappearAndDie();
                     me->SetMaxHealth(600000);
                     me->SetHealth(600000 - 150000 * TransformCount);
@@ -174,7 +185,7 @@ class boss_halazzi : public CreatureScript
                     TotemTimer = 12000;
                     break;
                 case PHASE_MERGE:
-                    if (Unit* pLynx = Unit::GetUnit(*me, LynxGUID))
+                    if (Unit* pLynx = ObjectAccessor::GetUnit(*me, LynxGUID))
                     {
                         Talk(SAY_MERGE);
                         pLynx->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -191,7 +202,7 @@ class boss_halazzi : public CreatureScript
                 Phase = NextPhase;
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -259,7 +270,7 @@ class boss_halazzi : public CreatureScript
                                 EnterPhase(PHASE_MERGE);
                             else
                             {
-                                Unit* Lynx = Unit::GetUnit(*me, LynxGUID);
+                                Unit* Lynx = ObjectAccessor::GetUnit(*me, LynxGUID);
                                 if (Lynx && !Lynx->HealthAbovePct(20) /*Lynx->HealthBelowPct(10)*/)
                                     EnterPhase(PHASE_MERGE);
                             }
@@ -272,7 +283,7 @@ class boss_halazzi : public CreatureScript
                 {
                     if (CheckTimer <= diff)
                     {
-                        Unit* Lynx = Unit::GetUnit(*me, LynxGUID);
+                        Unit* Lynx = ObjectAccessor::GetUnit(*me, LynxGUID);
                         if (Lynx)
                         {
                             Lynx->GetMotionMaster()->MoveFollow(me, 0, 0);
@@ -292,7 +303,7 @@ class boss_halazzi : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void KilledUnit(Unit* victim) OVERRIDE
+            void KilledUnit(Unit* victim) override
             {
                 if (victim->GetTypeId() != TYPEID_PLAYER)
                     return;
@@ -300,14 +311,14 @@ class boss_halazzi : public CreatureScript
                 Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 instance->SetData(DATA_HALAZZIEVENT, DONE);
                 Talk(SAY_DEATH);
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<boss_halazziAI>(creature);
         }
@@ -321,32 +332,40 @@ class npc_halazzi_lynx : public CreatureScript
 
         struct npc_halazzi_lynxAI : public ScriptedAI
         {
-            npc_halazzi_lynxAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_halazzi_lynxAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
 
-            uint32 FrenzyTimer;
-            uint32 shredder_timer;
-
-            void Reset() OVERRIDE
+            void Initialize()
             {
                 FrenzyTimer = urand(30000, 50000);  //frenzy every 30-50 seconds
                 shredder_timer = 4000;
             }
 
-            void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
+            uint32 FrenzyTimer;
+            uint32 shredder_timer;
+
+            void Reset() override
+            {
+                Initialize();
+            }
+
+            void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
             {
                 if (damage >= me->GetHealth())
                     damage = 0;
             }
 
-            void AttackStart(Unit* who) OVERRIDE
+            void AttackStart(Unit* who) override
             {
                 if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     ScriptedAI::AttackStart(who);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE {/*DoZoneInCombat();*/ }
+            void EnterCombat(Unit* /*who*/) override {/*DoZoneInCombat();*/ }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -368,7 +387,7 @@ class npc_halazzi_lynx : public CreatureScript
 
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_halazzi_lynxAI(creature);
         }

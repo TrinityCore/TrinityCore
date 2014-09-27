@@ -54,9 +54,20 @@ public:
     {
         boss_hadronoxAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             fMaxDistance = 50.0f;
             bFirstTime = true;
+        }
+
+        void Initialize()
+        {
+            uiAcidTimer = urand(10 * IN_MILLISECONDS, 14 * IN_MILLISECONDS);
+            uiLeechTimer = urand(3 * IN_MILLISECONDS, 9 * IN_MILLISECONDS);
+            uiPierceTimer = urand(1 * IN_MILLISECONDS, 3 * IN_MILLISECONDS);
+            uiGrabTimer = urand(15 * IN_MILLISECONDS, 19 * IN_MILLISECONDS);
+            uiDoorsTimer = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS);
+            uiCheckDistanceTimer = 2 * IN_MILLISECONDS;
         }
 
         InstanceScript* instance;
@@ -72,17 +83,12 @@ public:
 
         float fMaxDistance;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 9.0f);
             me->SetFloatValue(UNIT_FIELD_COMBATREACH, 9.0f);
 
-            uiAcidTimer = urand(10*IN_MILLISECONDS, 14*IN_MILLISECONDS);
-            uiLeechTimer = urand(3*IN_MILLISECONDS, 9*IN_MILLISECONDS);
-            uiPierceTimer = urand(1*IN_MILLISECONDS, 3*IN_MILLISECONDS);
-            uiGrabTimer = urand(15*IN_MILLISECONDS, 19*IN_MILLISECONDS);
-            uiDoorsTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            uiCheckDistanceTimer = 2*IN_MILLISECONDS;
+            Initialize();
 
             if (instance->GetBossState(DATA_HADRONOX) != DONE && !bFirstTime)
                 instance->SetBossState(DATA_HADRONOX, FAIL);
@@ -91,7 +97,7 @@ public:
         }
 
         //when Hadronox kills any enemy (that includes a party member) she will regain 10% of her HP if the target had Leech Poison on
-        void KilledUnit(Unit* Victim) OVERRIDE
+        void KilledUnit(Unit* Victim) override
         {
             // not sure if this aura check is correct, I think it is though
             if (!Victim || !Victim->HasAura(DUNGEON_MODE(SPELL_LEECH_POISON, H_SPELL_LEECH_POISON)) || !me->IsAlive())
@@ -100,12 +106,12 @@ public:
             me->ModifyHealth(int32(me->CountPctFromMaxHealth(10)));
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             instance->SetBossState(DATA_HADRONOX, DONE);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             instance->SetBossState(DATA_HADRONOX, IN_PROGRESS);
             me->SetInCombatWithZone();
@@ -132,7 +138,7 @@ public:
                 EnterEvadeMode();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -188,7 +194,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_hadronoxAI>(creature);
     }

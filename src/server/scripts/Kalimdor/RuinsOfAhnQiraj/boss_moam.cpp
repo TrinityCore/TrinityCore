@@ -60,18 +60,24 @@ class boss_moam : public CreatureScript
         {
             boss_moamAI(Creature* creature) : BossAI(creature, DATA_MOAM)
             {
+                Initialize();
             }
 
-            void Reset() OVERRIDE
+            void Initialize()
+            {
+                _isStonePhase = false;
+            }
+
+            void Reset() override
             {
                 _Reset();
                 me->SetPower(POWER_MANA, 0);
-                _isStonePhase = false;
+                Initialize();
                 events.ScheduleEvent(EVENT_STONE_PHASE, 90000);
                 //events.ScheduleEvent(EVENT_WIDE_SLASH, 11000);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
             {
                 if (!_isStonePhase && HealthBelowPct(45))
                 {
@@ -80,7 +86,7 @@ class boss_moam : public CreatureScript
                 }
             }
 
-            void DoAction(int32 action) OVERRIDE
+            void DoAction(int32 action) override
             {
                 switch (action)
                 {
@@ -105,7 +111,7 @@ class boss_moam : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -175,7 +181,7 @@ class boss_moam : public CreatureScript
             bool _isStonePhase;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_moamAI(creature);
         }

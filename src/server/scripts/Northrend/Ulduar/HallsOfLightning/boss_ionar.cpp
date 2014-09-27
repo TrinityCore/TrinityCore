@@ -28,17 +28,14 @@
 enum Spells
 {
     SPELL_BALL_LIGHTNING                          = 52780,
-    H_SPELL_BALL_LIGHTNING                        = 59800,
     SPELL_STATIC_OVERLOAD                         = 52658,
-    H_SPELL_STATIC_OVERLOAD                       = 59795,
 
     SPELL_DISPERSE                                = 52770,
     SPELL_SUMMON_SPARK                            = 52746,
     SPELL_SPARK_DESPAWN                           = 52776,
 
-    //Spark of Ionar
-    SPELL_SPARK_VISUAL_TRIGGER                    = 52667,
-    H_SPELL_SPARK_VISUAL_TRIGGER                  = 59833
+    // Spark of Ionar
+    SPELL_SPARK_VISUAL_TRIGGER                    = 52667
 };
 
 enum Yells
@@ -70,7 +67,7 @@ class boss_ionar : public CreatureScript
 public:
     boss_ionar() : CreatureScript("boss_ionar") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_ionarAI>(creature);
     }
@@ -96,7 +93,7 @@ public:
 
         uint32 uiDisperseHealth;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             lSparkList.DespawnAll();
 
@@ -118,14 +115,14 @@ public:
             instance->SetBossState(DATA_IONAR, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
             instance->SetBossState(DATA_IONAR, IN_PROGRESS);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
 
@@ -134,13 +131,13 @@ public:
             instance->SetBossState(DATA_IONAR, DONE);
         }
 
-        void KilledUnit(Unit* who) OVERRIDE
+        void KilledUnit(Unit* who) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_SLAY);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) OVERRIDE
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
             if (spell->Id == SPELL_DISPERSE)
             {
@@ -163,12 +160,11 @@ public:
             if (lSparkList.empty())
                 return;
 
-            Position pos;
-            me->GetPosition(&pos);
+            Position pos = me->GetPosition();
 
-            for (std::list<uint64>::const_iterator itr = lSparkList.begin(); itr != lSparkList.end(); ++itr)
+            for (uint64 guid : lSparkList)
             {
-                if (Creature* pSpark = ObjectAccessor::GetCreature(*me, *itr))
+                if (Creature* pSpark = ObjectAccessor::GetCreature(*me, guid))
                 {
                     if (pSpark->IsAlive())
                     {
@@ -182,19 +178,19 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) OVERRIDE
+        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) override
         {
             if (!me->IsVisible())
                 uiDamage = 0;
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             if (summoned->GetEntry() == NPC_SPARK_OF_IONAR)
             {
                 lSparkList.Summon(summoned);
 
-                summoned->CastSpell(summoned, DUNGEON_MODE(SPELL_SPARK_VISUAL_TRIGGER, H_SPELL_SPARK_VISUAL_TRIGGER), true);
+                summoned->CastSpell(summoned, SPELL_SPARK_VISUAL_TRIGGER, true);
 
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
@@ -205,13 +201,13 @@ public:
             }
         }
 
-        void SummonedCreatureDespawn(Creature* summoned) OVERRIDE
+        void SummonedCreatureDespawn(Creature* summoned) override
         {
             if (summoned->GetEntry() == NPC_SPARK_OF_IONAR)
                 lSparkList.Despawn(summoned);
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -308,13 +304,13 @@ public:
 
         uint32 uiCheckTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiCheckTimer = 2*IN_MILLISECONDS;
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void MovementInform(uint32 uiType, uint32 uiPointId) OVERRIDE
+        void MovementInform(uint32 uiType, uint32 uiPointId) override
         {
             if (uiType != POINT_MOTION_TYPE || !instance)
                 return;
@@ -323,12 +319,12 @@ public:
                 me->DespawnOrUnsummon();
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) OVERRIDE
+        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) override
         {
             uiDamage = 0;
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             // Despawn if the encounter is not running
             if (instance->GetBossState(DATA_IONAR) != IN_PROGRESS)
@@ -345,8 +341,7 @@ public:
                 {
                     if (me->GetDistance(ionar) > DATA_MAX_SPARK_DISTANCE)
                     {
-                        Position pos;
-                        ionar->GetPosition(&pos);
+                        Position pos = ionar->GetPosition();
 
                         me->SetSpeed(MOVE_RUN, 2.0f);
                         me->GetMotionMaster()->Clear();
@@ -364,7 +359,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_spark_of_ionarAI>(creature);
     }

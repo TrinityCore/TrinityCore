@@ -69,7 +69,7 @@ class boss_nightbane : public CreatureScript
 public:
     boss_nightbane() : CreatureScript("boss_nightbane") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_nightbaneAI>(creature);
     }
@@ -78,8 +78,33 @@ public:
     {
         boss_nightbaneAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
             Intro = true;
+            RainBones = false;
+            Skeletons = false;
+            FlyTimer = 0;
+        }
+
+        void Initialize()
+        {
+            BellowingRoarTimer = 30000;
+            CharredEarthTimer = 15000;
+            DistractingAshTimer = 20000;
+            SmolderingBreathTimer = 10000;
+            TailSweepTimer = 12000;
+            RainofBonesTimer = 10000;
+            SmokingBlastTimer = 20000;
+            FireballBarrageTimer = 13000;
+            SearingCindersTimer = 14000;
+            WaitTimer = 1000;
+
+            Phase = 1;
+            FlyCount = 0;
+            MovePhase = 0;
+
+            Flying = false;
+            Movement = false;
         }
 
         InstanceScript* instance;
@@ -109,22 +134,9 @@ public:
         uint32 WaitTimer;
         uint32 MovePhase;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
-            BellowingRoarTimer = 30000;
-            CharredEarthTimer = 15000;
-            DistractingAshTimer = 20000;
-            SmolderingBreathTimer = 10000;
-            TailSweepTimer = 12000;
-            RainofBonesTimer = 10000;
-            SmokingBlastTimer = 20000;
-            FireballBarrageTimer = 13000;
-            SearingCindersTimer = 14000;
-            WaitTimer = 1000;
-
-            Phase =1;
-            FlyCount = 0;
-            MovePhase = 0;
+            Initialize();
 
             me->SetSpeed(MOVE_RUN, 2.0f);
             me->SetDisableGravity(true);
@@ -137,9 +149,6 @@ public:
                 instance->SetData(TYPE_NIGHTBANE, NOT_STARTED);
 
             HandleTerraceDoors(true);
-
-            Flying = false;
-            Movement = false;
 
             if (!Intro)
             {
@@ -154,7 +163,7 @@ public:
             instance->HandleGameObject(instance->GetData64(DATA_MASTERS_TERRACE_DOOR_2), open);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             instance->SetData(TYPE_NIGHTBANE, IN_PROGRESS);
 
@@ -162,27 +171,27 @@ public:
            Talk(YELL_AGGRO);
         }
 
-        void AttackStart(Unit* who) OVERRIDE
+        void AttackStart(Unit* who) override
         {
             if (!Intro && !Flying)
                 ScriptedAI::AttackStart(who);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             instance->SetData(TYPE_NIGHTBANE, DONE);
 
             HandleTerraceDoors(true);
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
 
         {
             if (!Intro && !Flying)
                 ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void MovementInform(uint32 type, uint32 id) OVERRIDE
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -228,7 +237,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             summoned->AI()->AttackStart(me->GetVictim());
         }
@@ -253,7 +262,7 @@ public:
             Skeletons = false;
          }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             /* The timer for this was never setup apparently, not sure if the code works properly:
             if (WaitTimer <= diff)
@@ -328,7 +337,7 @@ public:
                 if (TailSweepTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        if (!me->HasInArc(M_PI, target))
+                        if (!me->HasInArc(float(M_PI), target))
                             DoCast(target, SPELL_TAIL_SWEEP);
                     TailSweepTimer = 15000;
                 } else TailSweepTimer -= diff;

@@ -32,7 +32,7 @@ class instance_shattered_halls : public InstanceMapScript
     public:
         instance_shattered_halls() : InstanceMapScript("instance_shattered_halls", 540) { }
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_shattered_halls_InstanceMapScript(map);
         }
@@ -41,15 +41,16 @@ class instance_shattered_halls : public InstanceMapScript
         {
             instance_shattered_halls_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
-            void Initialize() OVERRIDE
+            void Initialize() override
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 nethekurseGUID      = 0;
                 nethekurseDoor1GUID = 0;
                 nethekurseDoor2GUID = 0;
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -62,7 +63,7 @@ class instance_shattered_halls : public InstanceMapScript
                 }
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -72,7 +73,7 @@ class instance_shattered_halls : public InstanceMapScript
                 }
             }
 
-            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
+            bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -97,7 +98,7 @@ class instance_shattered_halls : public InstanceMapScript
                 return true;
             }
 
-            uint64 GetData64(uint32 data) const OVERRIDE
+            uint64 GetData64(uint32 data) const override
             {
                 switch (data)
                 {
@@ -114,53 +115,10 @@ class instance_shattered_halls : public InstanceMapScript
                 return 0;
             }
 
-            std::string GetSaveData() OVERRIDE
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "S H " << GetBossSaveData();
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(const char* strIn) OVERRIDE
-            {
-                if (!strIn)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(strIn);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(strIn);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'S' && dataHead2 == 'H')
-                {
-                    for (uint8 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
-            }
-
-            protected:
-                uint64 nethekurseGUID;
-                uint64 nethekurseDoor1GUID;
-                uint64 nethekurseDoor2GUID;
+        protected:
+            uint64 nethekurseGUID;
+            uint64 nethekurseDoor1GUID;
+            uint64 nethekurseDoor2GUID;
         };
 };
 

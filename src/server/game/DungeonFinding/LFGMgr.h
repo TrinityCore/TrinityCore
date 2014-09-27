@@ -18,7 +18,6 @@
 #ifndef _LFGMGR_H
 #define _LFGMGR_H
 
-#include <ace/Singleton.h>
 #include "DBCStructure.h"
 #include "Field.h"
 #include "LFG.h"
@@ -145,7 +144,7 @@ typedef std::map<uint64, LfgProposalPlayer> LfgProposalPlayerContainer;
 typedef std::map<uint64, LfgPlayerBoot> LfgPlayerBootContainer;
 typedef std::map<uint64, LfgGroupData> LfgGroupDataContainer;
 typedef std::map<uint64, LfgPlayerData> LfgPlayerDataContainer;
-typedef UNORDERED_MAP<uint32, LFGDungeonData> LFGDungeonContainer;
+typedef std::unordered_map<uint32, LFGDungeonData> LFGDungeonContainer;
 
 // Data needed by SMSG_LFG_JOIN_RESULT
 struct LfgJoinResultData
@@ -271,7 +270,7 @@ struct LFGDungeonData
     LFGDungeonData(LFGDungeonEntry const* dbc): id(dbc->ID), name(dbc->name[0]), map(dbc->map),
         type(dbc->type), expansion(dbc->expansion), group(dbc->grouptype),
         minlevel(dbc->minlevel), maxlevel(dbc->maxlevel), difficulty(Difficulty(dbc->difficulty)),
-        seasonal(dbc->flags & LFG_FLAG_SEASONAL), x(0.0f), y(0.0f), z(0.0f), o(0.0f)
+        seasonal((dbc->flags & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f)
         { }
 
     uint32 id;
@@ -292,13 +291,17 @@ struct LFGDungeonData
 
 class LFGMgr
 {
-    friend class ACE_Singleton<LFGMgr, ACE_Null_Mutex>;
-
     private:
         LFGMgr();
         ~LFGMgr();
 
     public:
+        static LFGMgr* instance()
+        {
+            static LFGMgr instance;
+            return &instance;
+        }
+
         // Functions used outside lfg namespace
         void Update(uint32 diff);
 
@@ -351,8 +354,6 @@ class LFGMgr
         // LFGScripts
         /// Get leader of the group (using internal data)
         uint64 GetLeader(uint64 guid);
-        /// Initializes locked dungeons for given player (called at login or level change)
-        void InitializeLockedDungeons(Player* player, uint8 level = 0);
         /// Sets player team
         void SetTeam(uint64 guid, uint8 team);
         /// Sets player group
@@ -370,7 +371,7 @@ class LFGMgr
 
         // LFGHandler
         /// Get locked dungeons
-        LfgLockMap const& GetLockedDungeons(uint64 guid);
+        LfgLockMap const GetLockedDungeons(uint64 guid);
         /// Returns current lfg status
         LfgUpdateData GetLfgStatus(uint64 guid);
         /// Checks if Seasonal dungeon is active
@@ -422,7 +423,6 @@ class LFGMgr
         void ClearState(uint64 guid, char const* debugMsg);
         void SetDungeon(uint64 guid, uint32 dungeon);
         void SetSelectedDungeons(uint64 guid, LfgDungeonSet const& dungeons);
-        void SetLockedDungeons(uint64 guid, LfgLockMap const& lock);
         void DecreaseKicksLeft(uint64 guid);
         void SetState(uint64 guid, LfgState state);
         void RemovePlayerData(uint64 guid);
@@ -469,5 +469,5 @@ class LFGMgr
 
 } // namespace lfg
 
-#define sLFGMgr ACE_Singleton<lfg::LFGMgr, ACE_Null_Mutex>::instance()
+#define sLFGMgr lfg::LFGMgr::instance()
 #endif

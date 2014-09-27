@@ -24,6 +24,7 @@
 #include "Player.h"
 #include "Battleground.h"
 #include "Vehicle.h"
+#include "Pet.h"
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
 {
@@ -852,6 +853,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
         Effects[i] = SpellEffectInfo(spellEntry, this, i);
 
     ChainEntry = NULL;
+    ExplicitTargetMask = 0;
 }
 
 SpellInfo::~SpellInfo()
@@ -966,7 +968,7 @@ bool SpellInfo::IsAbilityLearnedWithProfession() const
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
     {
         SkillLineAbilityEntry const* pAbility = _spell_idx->second;
-        if (!pAbility || pAbility->learnOnGetSkill != ABILITY_LEARNED_ON_GET_PROFESSION_SKILL)
+        if (!pAbility || pAbility->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE)
             continue;
 
         if (pAbility->req_skill_value > 0)
@@ -1006,7 +1008,7 @@ bool SpellInfo::IsTargetingArea() const
 
 bool SpellInfo::NeedsExplicitUnitTarget() const
 {
-    return GetExplicitTargetMask() & TARGET_FLAG_UNIT_MASK;
+    return (GetExplicitTargetMask() & TARGET_FLAG_UNIT_MASK) != 0;
 }
 
 bool SpellInfo::NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell) const
@@ -1047,7 +1049,7 @@ bool SpellInfo::NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell) con
 
 bool SpellInfo::IsPassive() const
 {
-    return Attributes & SPELL_ATTR0_PASSIVE;
+    return (Attributes & SPELL_ATTR0_PASSIVE) != 0;
 }
 
 bool SpellInfo::IsAutocastable() const
@@ -1115,12 +1117,12 @@ bool SpellInfo::IsCooldownStartedOnEvent() const
 
 bool SpellInfo::IsDeathPersistent() const
 {
-    return AttributesEx3 & SPELL_ATTR3_DEATH_PERSISTENT;
+    return (AttributesEx3 & SPELL_ATTR3_DEATH_PERSISTENT) != 0;
 }
 
 bool SpellInfo::IsRequiringDeadTarget() const
 {
-    return AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS;
+    return (AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS) != 0;
 }
 
 bool SpellInfo::IsAllowingDeadTarget() const
@@ -1154,12 +1156,12 @@ bool SpellInfo::IsPositiveEffect(uint8 effIndex) const
 
 bool SpellInfo::IsChanneled() const
 {
-    return (AttributesEx & (SPELL_ATTR1_CHANNELED_1 | SPELL_ATTR1_CHANNELED_2));
+    return (AttributesEx & (SPELL_ATTR1_CHANNELED_1 | SPELL_ATTR1_CHANNELED_2)) != 0;
 }
 
 bool SpellInfo::NeedsComboPoints() const
 {
-    return (AttributesEx & (SPELL_ATTR1_REQ_COMBO_POINTS1 | SPELL_ATTR1_REQ_COMBO_POINTS2));
+    return (AttributesEx & (SPELL_ATTR1_REQ_COMBO_POINTS1 | SPELL_ATTR1_REQ_COMBO_POINTS2)) != 0;
 }
 
 bool SpellInfo::IsBreakingStealth() const
@@ -1175,7 +1177,7 @@ bool SpellInfo::IsRangedWeaponSpell() const
 
 bool SpellInfo::IsAutoRepeatRangedSpell() const
 {
-    return AttributesEx2 & SPELL_ATTR2_AUTOREPEAT_FLAG;
+    return (AttributesEx2 & SPELL_ATTR2_AUTOREPEAT_FLAG) != 0;
 }
 
 bool SpellInfo::IsAffectedBySpellMods() const
@@ -1206,10 +1208,8 @@ bool SpellInfo::CanPierceImmuneAura(SpellInfo const* aura) const
     if (Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
         return true;
 
-    // these spells (Cyclone for example) can pierce all...
-    if ((AttributesEx & SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE)
-        // ...but not these (Divine shield for example)
-        && !(aura && (aura->Mechanic == MECHANIC_IMMUNE_SHIELD || aura->Mechanic == MECHANIC_INVULNERABILITY)))
+    // these spells (Cyclone for example) can pierce all...         // ...but not these (Divine shield, Ice block, Cyclone and Banish for example)
+    if ((AttributesEx & SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) && !(aura && (aura->Mechanic == MECHANIC_IMMUNE_SHIELD || aura->Mechanic == MECHANIC_INVULNERABILITY || aura->Mechanic == MECHANIC_BANISH)))
         return true;
 
     return false;
@@ -1505,8 +1505,16 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     // creature/player specific target checks
     if (unitTarget)
     {
-        if (AttributesEx & SPELL_ATTR1_CANT_TARGET_IN_COMBAT && unitTarget->IsInCombat())
-            return SPELL_FAILED_TARGET_AFFECTING_COMBAT;
+        if (AttributesEx & SPELL_ATTR1_CANT_TARGET_IN_COMBAT)
+        {
+            if (unitTarget->IsInCombat())
+                return SPELL_FAILED_TARGET_AFFECTING_COMBAT;
+            // player with active pet counts as a player in combat
+            else if (Player const* player = unitTarget->ToPlayer())
+                if (Pet* pet = player->GetPet())
+                    if (pet->GetVictim() && !pet->HasUnitState(UNIT_STATE_CONTROLLED))
+                        return SPELL_FAILED_TARGET_AFFECTING_COMBAT;
+        }
 
         // only spells with SPELL_ATTR3_ONLY_TARGET_GHOSTS can target ghosts
         if (((AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS) != 0) != unitTarget->HasAuraType(SPELL_AURA_GHOST))
@@ -2366,6 +2374,8 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                 case 61716: // Rabbit Costume
                 case 61734: // Noblegarden Bunny
                 case 62344: // Fists of Stone
+                case 61819: // Manabonked! (item)
+                case 61834: // Manabonked! (minigob)
                     return true;
                 default:
                     break;

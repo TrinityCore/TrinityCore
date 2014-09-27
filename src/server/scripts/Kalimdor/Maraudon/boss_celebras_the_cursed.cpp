@@ -38,34 +38,42 @@ class celebras_the_cursed : public CreatureScript
 public:
     celebras_the_cursed() : CreatureScript("celebras_the_cursed") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new celebras_the_cursedAI(creature);
     }
 
     struct celebras_the_cursedAI : public ScriptedAI
     {
-        celebras_the_cursedAI(Creature* creature) : ScriptedAI(creature) { }
+        celebras_the_cursedAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        uint32 WrathTimer;
-        uint32 EntanglingRootsTimer;
-        uint32 CorruptForcesTimer;
-
-        void Reset() OVERRIDE
+        void Initialize()
         {
             WrathTimer = 8000;
             EntanglingRootsTimer = 2000;
             CorruptForcesTimer = 30000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        uint32 WrathTimer;
+        uint32 EntanglingRootsTimer;
+        uint32 CorruptForcesTimer;
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void EnterCombat(Unit* /*who*/) override { }
+
+        void JustDied(Unit* /*killer*/) override
         {
             me->SummonCreature(13716, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 600000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

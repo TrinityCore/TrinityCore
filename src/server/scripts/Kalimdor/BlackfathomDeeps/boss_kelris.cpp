@@ -34,7 +34,7 @@ class boss_kelris : public CreatureScript
 public:
     boss_kelris() : CreatureScript("boss_kelris") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_kelrisAI>(creature);
     }
@@ -43,7 +43,14 @@ public:
     {
         boss_kelrisAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            mindBlastTimer = urand(2000, 5000);
+            sleepTimer = urand(9000, 12000);
         }
 
         uint32 mindBlastTimer;
@@ -51,26 +58,25 @@ public:
 
         InstanceScript* instance;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
-            mindBlastTimer = urand(2000, 5000);
-            sleepTimer = urand(9000, 12000);
+            Initialize();
             instance->SetData(TYPE_KELRIS, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
             instance->SetData(TYPE_KELRIS, IN_PROGRESS);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
             instance->SetData(TYPE_KELRIS, DONE);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

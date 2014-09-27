@@ -59,34 +59,42 @@ public:
 
     struct boss_zum_rahAI : public BossAI
     {
-        boss_zum_rahAI(Creature* creature) : BossAI(creature, DATA_ZUM_RAH) { }
-
-        void Reset() OVERRIDE
+        boss_zum_rahAI(Creature* creature) : BossAI(creature, DATA_ZUM_RAH)
         {
-            me->setFaction(ZUMRAH_FRIENDLY_FACTION); // areatrigger sets faction to enemy
+            Initialize();
+        }
+
+        void Initialize()
+        {
             _ward80 = false;
             _ward40 = false;
             _heal30 = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void Reset() override
+        {
+            me->setFaction(ZUMRAH_FRIENDLY_FACTION); // areatrigger sets faction to enemy
+            Initialize();
+        }
+
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_SANCT_INVADE);
             events.ScheduleEvent(EVENT_SHADOW_BOLT, 1000);
             events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 10000);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             instance->SetData(DATA_ZUM_RAH, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_KILL);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -147,7 +155,7 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_zum_rahAI>(creature);
     }

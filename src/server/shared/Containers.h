@@ -64,6 +64,34 @@ namespace Trinity
             std::advance(it, urand(0, container.size() - 1));
             return *it;
         }
+
+        /**
+        * @fn bool Trinity::Containers::Intersects(Iterator first1, Iterator last1, Iterator first2, Iterator last2)
+        *
+        * @brief Checks if two SORTED containers have a common element
+        *
+        * @param first1 Iterator pointing to start of the first container
+        * @param last1 Iterator pointing to end of the first container
+        * @param first2 Iterator pointing to start of the second container
+        * @param last2 Iterator pointing to end of the second container
+        *
+        * @return true if containers have a common element, false otherwise.
+        */
+        template<class Iterator1, class Iterator2>
+        bool Intersects(Iterator1 first1, Iterator1 last1, Iterator2 first2, Iterator2 last2)
+        {
+            while (first1 != last1 && first2 != last2)
+            {
+                if (*first1 < *first2)
+                    ++first1;
+                else if (*first2 < *first1)
+                    ++first2;
+                else
+                    return true;
+            }
+
+            return false;
+        }
     }
     //! namespace Containers
 }

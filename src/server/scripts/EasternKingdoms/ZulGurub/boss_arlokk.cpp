@@ -92,28 +92,38 @@ class boss_arlokk : public CreatureScript
 
         struct boss_arlokkAI : public BossAI
         {
-            boss_arlokkAI(Creature* creature) : BossAI(creature, DATA_ARLOKK) { }
+            boss_arlokkAI(Creature* creature) : BossAI(creature, DATA_ARLOKK)
+            {
+                Initialize();
+                memset(_triggersSideAGUID, 0, sizeof(_triggersSideAGUID));
+                memset(_triggersSideBGUID, 0, sizeof(_triggersSideBGUID));
+            }
 
-            void Reset() OVERRIDE
+            void Initialize()
+            {
+                _summonCountA = 0;
+                _summonCountB = 0;
+            }
+
+            void Reset() override
             {
                 if (events.IsInPhase(PHASE_TWO))
                     me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 35.0f, false); // hack
                 _Reset();
-                _summonCountA = 0;
-                _summonCountB = 0;
+                Initialize();
                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_DAGGER));
                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(WEAPON_DAGGER));
                 me->SetWalk(false);
                 me->GetMotionMaster()->MovePoint(0, PosMoveOnSpawn[0]);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(7000, 9000), 0, PHASE_ONE);
@@ -149,7 +159,7 @@ class boss_arlokk : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() OVERRIDE
+            void EnterEvadeMode() override
             {
                 BossAI::EnterEvadeMode();
                 if (GameObject* object = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_GONG_OF_BETHEKK)))
@@ -157,7 +167,7 @@ class boss_arlokk : public CreatureScript
                 me->DespawnOrUnsummon(4000);
             }
 
-            void SetData(uint32 id, uint32 /*value*/) OVERRIDE
+            void SetData(uint32 id, uint32 /*value*/) override
             {
                 if (id == 1)
                     --_summonCountA;
@@ -165,7 +175,7 @@ class boss_arlokk : public CreatureScript
                     --_summonCountB;
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -299,7 +309,7 @@ class boss_arlokk : public CreatureScript
             uint64 _triggersSideBGUID[5];
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetZulGurubAI<boss_arlokkAI>(creature);
         }
@@ -332,9 +342,12 @@ class npc_zulian_prowler : public CreatureScript
 
         struct npc_zulian_prowlerAI : public ScriptedAI
         {
-            npc_zulian_prowlerAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+            npc_zulian_prowlerAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+            {
+                _sideData = 0;
+            }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 if (me->GetPositionY() < -1625.0f)
                     _sideData = 1;
@@ -344,25 +357,25 @@ class npc_zulian_prowler : public CreatureScript
                 DoCast(me, SPELL_SNEAK_RANK_1_1);
                 DoCast(me, SPELL_SNEAK_RANK_1_2);
 
-                if (Unit* arlokk = me->GetUnit(*me, _instance->GetData64(NPC_ARLOKK)))
+                if (Unit* arlokk = ObjectAccessor::GetUnit(*me, _instance->GetData64(NPC_ARLOKK)))
                     me->GetMotionMaster()->MovePoint(0, arlokk->GetPositionX(), arlokk->GetPositionY(), arlokk->GetPositionZ());
                 _events.ScheduleEvent(EVENT_ATTACK, 6000);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 me->GetMotionMaster()->Clear(false);
                 me->RemoveAura(SPELL_SNEAK_RANK_1_1);
                 me->RemoveAura(SPELL_SNEAK_RANK_1_2);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) OVERRIDE
+            void SpellHit(Unit* caster, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_MARK_OF_ARLOKK_TRIGGER) // Should only hit if line of sight
                     me->Attack(caster, true);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 if (Unit* arlokk = ObjectAccessor::GetUnit(*me, _instance->GetData64(NPC_ARLOKK)))
                 {
@@ -372,7 +385,7 @@ class npc_zulian_prowler : public CreatureScript
                 me->DespawnOrUnsummon(4000);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (UpdateVictim())
                 {
@@ -402,7 +415,7 @@ class npc_zulian_prowler : public CreatureScript
             InstanceScript* _instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetZulGurubAI<npc_zulian_prowlerAI>(creature);
         }
@@ -421,7 +434,7 @@ class go_gong_of_bethekk : public GameObjectScript
 {
     public: go_gong_of_bethekk() : GameObjectScript("go_gong_of_bethekk") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
+        bool OnGossipHello(Player* /*player*/, GameObject* go) override
         {
             if (go->GetInstanceScript())
             {

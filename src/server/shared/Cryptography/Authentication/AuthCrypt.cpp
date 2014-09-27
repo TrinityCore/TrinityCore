@@ -20,6 +20,8 @@
 #include "Cryptography/HMACSHA1.h"
 #include "Cryptography/BigNumber.h"
 
+#include <cstring>
+
 AuthCrypt::AuthCrypt() :
     _clientDecrypt(SHA_DIGEST_LENGTH), _serverEncrypt(SHA_DIGEST_LENGTH),
     _initialized(false)

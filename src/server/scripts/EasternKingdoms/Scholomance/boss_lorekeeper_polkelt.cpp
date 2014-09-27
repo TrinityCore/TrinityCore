@@ -50,7 +50,7 @@ class boss_lorekeeper_polkelt : public CreatureScript
         {
             boss_lorekeeperpolkeltAI(Creature* creature) : BossAI(creature, DATA_LOREKEEPERPOLKELT) { }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_VOLATILEINFECTION, 38000);
@@ -59,7 +59,7 @@ class boss_lorekeeper_polkelt : public CreatureScript
                 events.ScheduleEvent(EVENT_NOXIOUSCATALYST, 35000);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -98,7 +98,7 @@ class boss_lorekeeper_polkelt : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_lorekeeperpolkeltAI(creature);
         }

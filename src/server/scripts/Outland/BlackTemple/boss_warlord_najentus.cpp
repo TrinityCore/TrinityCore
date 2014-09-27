@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,20 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Warlord_Najentus
-SD%Complete: 95
-SDComment:
-SDCategory: Black Temple
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "black_temple.h"
 #include "Player.h"
 #include "SpellInfo.h"
 
-enum Yells
+enum Texts
 {
     SAY_AGGRO                       = 0,
     SAY_NEEDLE                      = 1,
@@ -51,11 +43,6 @@ enum Spells
 
 };
 
-enum GameObjects
-{
-    GOBJECT_SPINE                   = 185584
-};
-
 enum Events
 {
     EVENT_BERSERK                   = 1,
@@ -65,7 +52,7 @@ enum Events
     EVENT_SHIELD                    = 5
 };
 
-enum Misc
+enum EventGroups
 {
     GCD_CAST                        = 1,
     GCD_YELL                        = 2
@@ -76,46 +63,32 @@ class boss_najentus : public CreatureScript
 public:
     boss_najentus() : CreatureScript("boss_najentus") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    struct boss_najentusAI : public BossAI
     {
-        return GetInstanceAI<boss_najentusAI>(creature);
-    }
-
-    struct boss_najentusAI : public ScriptedAI
-    {
-        boss_najentusAI(Creature* creature) : ScriptedAI(creature)
+        boss_najentusAI(Creature* creature) : BossAI(creature, DATA_HIGH_WARLORD_NAJENTUS)
         {
-            instance = creature->GetInstanceScript();
-        }
-
-        InstanceScript* instance;
-        EventMap events;
-
-        uint64 SpineTargetGUID;
-
-        void Reset() OVERRIDE
-        {
-            events.Reset();
-
             SpineTargetGUID = 0;
-
-            instance->SetBossState(DATA_HIGH_WARLORD_NAJENTUS, NOT_STARTED);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void Reset() override
+        {
+            _Reset();
+            SpineTargetGUID = 0;
+        }
+
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_SLAY);
             events.DelayEvents(5000, GCD_YELL);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
-            instance->SetBossState(DATA_HIGH_WARLORD_NAJENTUS, DONE);
-
+            _JustDied();
             Talk(SAY_DEATH);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) OVERRIDE
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
             if (spell->Id == SPELL_HURL_SPINE && me->HasAura(SPELL_TIDAL_SHIELD))
             {
@@ -125,14 +98,12 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
-            instance->SetBossState(DATA_HIGH_WARLORD_NAJENTUS, IN_PROGRESS);
-
+            _EnterCombat();
             Talk(SAY_AGGRO);
-            DoZoneInCombat();
             events.ScheduleEvent(EVENT_BERSERK, 480000, GCD_CAST);
-            events.ScheduleEvent(EVENT_YELL, 45000 + (rand()%76)*1000, GCD_YELL);
+            events.ScheduleEvent(EVENT_YELL, 45000 + (rand32() % 76) * 1000, GCD_YELL);
             ResetTimer();
         }
 
@@ -141,7 +112,7 @@ public:
             if (!SpineTargetGUID)
                 return false;
 
-            Unit* target = Unit::GetUnit(*me, SpineTargetGUID);
+            Unit* target = ObjectAccessor::GetUnit(*me, SpineTargetGUID);
             if (target && target->HasAura(SPELL_IMPALING_SPINE))
                 target->RemoveAurasDueToSpell(SPELL_IMPALING_SPINE);
             SpineTargetGUID=0;
@@ -155,44 +126,40 @@ public:
             events.RescheduleEvent(EVENT_SHIELD, 60000 + inc);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void ExecuteEvent(uint32 eventId) override
         {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            switch (eventId)
             {
-                switch (eventId)
+                case EVENT_SHIELD:
+                    DoCast(me, SPELL_TIDAL_SHIELD, true);
+                    ResetTimer(45000);
+                    break;
+                case EVENT_BERSERK:
+                    Talk(SAY_ENRAGE);
+                    DoCast(me, SPELL_BERSERK, true);
+                    events.DelayEvents(15000, GCD_YELL);
+                    break;
+                case EVENT_SPINE:
                 {
-                    case EVENT_SHIELD:
-                        DoCast(me, SPELL_TIDAL_SHIELD, true);
-                        ResetTimer(45000);
-                        break;
-                    case EVENT_BERSERK:
-                        Talk(SAY_ENRAGE);
-                        DoCast(me, SPELL_BERSERK, true);
-                        events.DelayEvents(15000, GCD_YELL);
-                        break;
-                    case EVENT_SPINE:
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
+
+                    if (!target)
+                        target = me->GetVictim();
+
+                    if (target)
                     {
-                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                        if (!target) target = me->GetVictim();
-                        if (target)
-                        {
-                            DoCast(target, SPELL_IMPALING_SPINE, true);
-                            SpineTargetGUID = target->GetGUID();
-                            //must let target summon, otherwise you cannot click the spine
-                            target->SummonGameObject(GOBJECT_SPINE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), me->GetOrientation(), 0, 0, 0, 0, 30);
-                            Talk(SAY_NEEDLE);
-                            events.DelayEvents(1500, GCD_CAST);
-                            events.DelayEvents(15000, GCD_YELL);
-                        }
-                        events.ScheduleEvent(EVENT_SPINE, 21000, GCD_CAST);
-                        return;
+                        DoCast(target, SPELL_IMPALING_SPINE, true);
+                        SpineTargetGUID = target->GetGUID();
+                        //must let target summon, otherwise you cannot click the spine
+                        target->SummonGameObject(GO_NAJENTUS_SPINE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), me->GetOrientation(), 0, 0, 0, 0, 30);
+                        Talk(SAY_NEEDLE);
+                        events.DelayEvents(1500, GCD_CAST);
+                        events.DelayEvents(15000, GCD_YELL);
                     }
-                    case EVENT_NEEDLE:
+                    events.ScheduleEvent(EVENT_SPINE, 21000, GCD_CAST);
+                    return;
+                }
+                case EVENT_NEEDLE:
                     {
                         //DoCast(me, SPELL_NEEDLE_SPINE, true);
                         std::list<Unit*> targets;
@@ -203,18 +170,24 @@ public:
                         events.DelayEvents(1500, GCD_CAST);
                         return;
                     }
-                    case EVENT_YELL:
-                        Talk(SAY_SPECIAL);
-                        events.ScheduleEvent(EVENT_YELL, urand(25000, 100000), GCD_YELL);
-                        events.DelayEvents(15000, GCD_YELL);
-                        break;
-                }
+                case EVENT_YELL:
+                    Talk(SAY_SPECIAL);
+                    events.ScheduleEvent(EVENT_YELL, urand(25000, 100000), GCD_YELL);
+                    events.DelayEvents(15000, GCD_YELL);
+                    break;
+                default:
+                    break;
             }
-
-            DoMeleeAttackIfReady();
         }
+
+    private:
+        uint64 SpineTargetGUID;
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetBlackTempleAI<boss_najentusAI>(creature);
+    }
 };
 
 class go_najentus_spine : public GameObjectScript
@@ -222,11 +195,11 @@ class go_najentus_spine : public GameObjectScript
 public:
     go_najentus_spine() : GameObjectScript("go_najentus_spine") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
+    bool OnGossipHello(Player* player, GameObject* go) override
     {
         if (InstanceScript* instance = go->GetInstanceScript())
             if (Creature* Najentus = ObjectAccessor::GetCreature(*go, instance->GetData64(DATA_HIGH_WARLORD_NAJENTUS)))
-                if (CAST_AI(boss_najentus::boss_najentusAI, Najentus->AI())->RemoveImpalingSpine())
+                if (ENSURE_AI(boss_najentus::boss_najentusAI, Najentus->AI())->RemoveImpalingSpine())
                 {
                     player->CastSpell(player, SPELL_CREATE_NAJENTUS_SPINE, true);
                     go->Delete();

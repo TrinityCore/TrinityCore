@@ -43,7 +43,6 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
   ${CMAKE_SOURCE_DIR}/src/server/ha
   ${ZMQ_INCLUDE_DIR}
-  ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
 )
 
@@ -64,7 +63,7 @@ target_link_libraries(socialserver
   shared
   zmqpp
   ${ZMQ_LIBRARY}
-  ${ACE_LIBRARY}
+  ${Boost_LIBRARIES}
   ${MYSQL_LIBRARY}
 )
 

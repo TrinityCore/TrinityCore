@@ -34,13 +34,13 @@ private:
     ContinentBuilder* cBuilder;
 public:
     BuilderThread(ContinentBuilder* _cBuilder, dtNavMeshParams& params) : Params(params), cBuilder(_cBuilder), Free(true) {}
-    
-    void SetData(int x, int y, int map, const std::string& cont) 
-    { 
-        X = x; 
-        Y = y; 
-        MapId = map; 
-        Continent = cont; 
+
+    void SetData(int x, int y, int map, const std::string& cont)
+    {
+        X = x;
+        Y = y;
+        MapId = map;
+        Continent = cont;
     }
 
     int svc()
@@ -127,13 +127,13 @@ void ContinentBuilder::Build()
     CalculateTileBounds();
 
     dtNavMeshParams params;
-    
+
     std::vector<BuilderThread*> Threads;
 
     if (TileMap->IsGlobalModel)
     {
         printf("Map %s ( %u ) is a WMO. Building with 1 thread.\n", Continent.c_str(), MapId);
-        
+
         TileBuilder* builder = new TileBuilder(this, Continent, 0, 0, MapId);
         builder->AddGeometry(TileMap->Model, TileMap->ModelDefinition);
         uint8* nav = builder->BuildInstance(params);

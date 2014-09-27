@@ -63,7 +63,17 @@ public:
     {
         boss_volazjAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiMindFlayTimer = 8 * IN_MILLISECONDS;
+            uiShadowBoltVolleyTimer = 5 * IN_MILLISECONDS;
+            uiShiverTimer = 15 * IN_MILLISECONDS;
+            // Used for Insanity handling
+            insanityHandled = 0;
         }
 
         InstanceScript* instance;
@@ -82,7 +92,7 @@ public:
             return 100*(me->GetHealth()-damage)/me->GetMaxHealth();
         }
 
-        void DamageTaken(Unit* /*pAttacker*/, uint32 &damage) OVERRIDE
+        void DamageTaken(Unit* /*pAttacker*/, uint32 &damage) override
         {
             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                 damage = 0;
@@ -95,7 +105,7 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell) OVERRIDE
+        void SpellHitTarget(Unit* target, const SpellInfo* spell) override
         {
             if (spell->Id == SPELL_INSANITY)
             {
@@ -143,19 +153,15 @@ public:
             }
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
-            uiMindFlayTimer = 8*IN_MILLISECONDS;
-            uiShadowBoltVolleyTimer = 5*IN_MILLISECONDS;
-            uiShiverTimer = 15*IN_MILLISECONDS;
+            Initialize();
 
             instance->SetBossState(DATA_HERALD_VOLAZJ, NOT_STARTED);
             instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
 
             // Visible for all players in insanity
             me->SetPhaseMask((1|16|32|64|128|256), true);
-            // Used for Insanity handling
-            insanityHandled = 0;
 
             ResetPlayersPhaseMask();
 
@@ -165,7 +171,7 @@ public:
             me->SetControlled(false, UNIT_STATE_STUNNED);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -173,7 +179,7 @@ public:
             instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
         }
 
-        void JustSummoned(Creature* summon) OVERRIDE
+        void JustSummoned(Creature* summon) override
         {
             Summons.Summon(summon);
         }
@@ -202,7 +208,7 @@ public:
             return spell;
         }
 
-        void SummonedCreatureDespawn(Creature* summon) OVERRIDE
+        void SummonedCreatureDespawn(Creature* summon) override
         {
             uint32 phase = summon->GetPhaseMask();
             uint32 nextPhase = 0;
@@ -211,7 +217,7 @@ public:
             // Check if all summons in this phase killed
             for (SummonList::const_iterator iter = Summons.begin(); iter != Summons.end(); ++iter)
             {
-                if (Creature* visage = Unit::GetCreature(*me, *iter))
+                if (Creature* visage = ObjectAccessor::GetCreature(*me, *iter))
                 {
                     // Not all are dead
                     if (phase == visage->GetPhaseMask())
@@ -246,7 +252,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -285,7 +291,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
 
@@ -295,14 +301,14 @@ public:
             ResetPlayersPhaseMask();
         }
 
-        void KilledUnit(Unit* who) OVERRIDE
+        void KilledUnit(Unit* who) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_SLAY);
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_volazjAI>(creature);
     }

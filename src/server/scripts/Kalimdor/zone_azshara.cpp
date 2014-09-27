@@ -58,20 +58,28 @@ public:
 
     struct npc_spitelashesAI : public ScriptedAI
     {
-        npc_spitelashesAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_spitelashesAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        uint32 morphtimer;
-        bool spellhit;
-
-        void Reset() OVERRIDE
+        void Initialize()
         {
             morphtimer = 0;
             spellhit = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        uint32 morphtimer;
+        bool spellhit;
 
-        void SpellHit(Unit* unit, const SpellInfo* spell) OVERRIDE
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void EnterCombat(Unit* /*who*/) override { }
+
+        void SpellHit(Unit* unit, const SpellInfo* spell) override
         {
             if (spellhit)
                 return;
@@ -94,7 +102,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             // we mustn't remove the Creature in the same round in which we cast the summon spell, otherwise there will be no summons
             if (spellhit && morphtimer >= 5000)
@@ -120,7 +128,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_spitelashesAI(creature);
     }
@@ -143,7 +151,7 @@ class npc_loramus_thalipedes : public CreatureScript
 public:
     npc_loramus_thalipedes() : CreatureScript("npc_loramus_thalipedes") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -181,7 +189,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -292,9 +300,12 @@ public:
 
     struct npc_rizzle_sprysprocketAI : public ScriptedAI
     {
-        npc_rizzle_sprysprocketAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_rizzle_sprysprocketAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        void Reset() OVERRIDE
+        void Initialize()
         {
             SpellEscapeTimer = 1300;
             TeleportTimer = 3500;
@@ -311,9 +322,14 @@ public:
             Reached = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void Reset() override
+        {
+            Initialize();
+        }
 
-        void AttackStart(Unit* who) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override { }
+
+        void AttackStart(Unit* who) override
         {
             if (!who || PlayerGUID)
                 return;
@@ -329,7 +345,7 @@ public:
             }
         }
 
-        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) OVERRIDE
+        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) override
         {
             player->CLOSE_GOSSIP_MENU();
             me->CastSpell(player, SPELL_GIVE_SOUTHFURY_MOONSTONE, true);
@@ -337,7 +353,7 @@ public:
             MustDie = true;
         }
 
-        void MovementInform(uint32 type, uint32 id) OVERRIDE
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -352,7 +368,7 @@ public:
             ContinueWP = true;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (MustDie)
             {
@@ -450,7 +466,7 @@ public:
         bool Reached;
     };
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) != QUEST_STATUS_INCOMPLETE)
             return true;
@@ -459,7 +475,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_rizzle_sprysprocketAI(creature);
     }
@@ -475,25 +491,33 @@ public:
 
     struct npc_depth_chargeAI : public ScriptedAI
     {
-        npc_depth_chargeAI(Creature* creature) : ScriptedAI(creature) { }
-
-        bool WeMustDie;
-        uint32 WeMustDieTimer;
-
-        void Reset() OVERRIDE
+        npc_depth_chargeAI(Creature* creature) : ScriptedAI(creature)
         {
-            me->SetHover(true);
-            me->SetSwim(true);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            Initialize();
+        }
+
+        void Initialize()
+        {
             WeMustDie = false;
             WeMustDieTimer = 1000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        bool WeMustDie;
+        uint32 WeMustDieTimer;
 
-        void AttackStart(Unit* /*who*/) OVERRIDE { }
+        void Reset() override
+        {
+            me->SetHover(true);
+            me->SetSwim(true);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            Initialize();
+        }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override { }
+
+        void AttackStart(Unit* /*who*/) override { }
+
+        void MoveInLineOfSight(Unit* who) override
         {
             if (!who)
                 return;
@@ -506,7 +530,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (WeMustDie)
             {
@@ -519,7 +543,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_depth_chargeAI(creature);
     }

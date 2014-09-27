@@ -37,25 +37,25 @@ class Totem : public Minion
     public:
         Totem(SummonPropertiesEntry const* properties, Unit* owner);
         virtual ~Totem() { }
-        void Update(uint32 time);
-        void InitStats(uint32 duration);
-        void InitSummon();
-        void UnSummon(uint32 msTime = 0);
+        void Update(uint32 time) override;
+        void InitStats(uint32 duration) override;
+        void InitSummon() override;
+        void UnSummon(uint32 msTime = 0) override;
         uint32 GetSpell(uint8 slot = 0) const { return m_spells[slot]; }
         uint32 GetTotemDuration() const { return m_duration; }
         void SetTotemDuration(uint32 duration) { m_duration = duration; }
         TotemType GetTotemType() const { return m_type; }
 
-        bool UpdateStats(Stats /*stat*/) { return true; }
-        bool UpdateAllStats() { return true; }
-        void UpdateResistances(uint32 /*school*/) { }
-        void UpdateArmor() { }
-        void UpdateMaxHealth() { }
-        void UpdateMaxPower(Powers /*power*/) { }
-        void UpdateAttackPowerAndDamage(bool /*ranged*/) { }
-        void UpdateDamagePhysical(WeaponAttackType /*attType*/) OVERRIDE { }
+        bool UpdateStats(Stats /*stat*/) override { return true; }
+        bool UpdateAllStats() override { return true; }
+        void UpdateResistances(uint32 /*school*/) override { }
+        void UpdateArmor() override { }
+        void UpdateMaxHealth() override { }
+        void UpdateMaxPower(Powers /*power*/) override { }
+        void UpdateAttackPowerAndDamage(bool /*ranged*/) override { }
+        void UpdateDamagePhysical(WeaponAttackType /*attType*/) override { }
 
-        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const;
+        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const override;
 
     protected:
         TotemType m_type;

@@ -91,16 +91,24 @@ class boss_viscidus : public CreatureScript
 
         struct boss_viscidusAI : public BossAI
         {
-            boss_viscidusAI(Creature* creature) : BossAI(creature, DATA_VISCIDUS) { }
-
-            void Reset() OVERRIDE
+            boss_viscidusAI(Creature* creature) : BossAI(creature, DATA_VISCIDUS)
             {
-                _Reset();
+                Initialize();
+            }
+
+            void Initialize()
+            {
                 _hitcounter = 0;
                 _phase = PHASE_FROST;
             }
 
-            void DamageTaken(Unit* attacker, uint32& /*damage*/) OVERRIDE
+            void Reset() override
+            {
+                _Reset();
+                Initialize();
+            }
+
+            void DamageTaken(Unit* attacker, uint32& /*damage*/) override
             {
                 if (_phase != PHASE_MELEE)
                     return;
@@ -120,7 +128,7 @@ class boss_viscidus : public CreatureScript
                     uint8 NumGlobes = me->GetHealthPct() / 5.0f;
                     for (uint8 i = 0; i < NumGlobes; ++i)
                     {
-                        float Angle = i * 2 * M_PI / NumGlobes;
+                        float Angle = i * 2 * float(M_PI) / NumGlobes;
                         float X = ViscidusCoord.GetPositionX() + std::cos(Angle) * RoomRadius;
                         float Y = ViscidusCoord.GetPositionY() + std::sin(Angle) * RoomRadius;
                         float Z = -35.0f;
@@ -139,7 +147,7 @@ class boss_viscidus : public CreatureScript
                     Talk(EMOTE_CRACK);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) OVERRIDE
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
                 if ((spell->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST) && _phase == PHASE_FROST && me->GetHealthPct() > 5.0f)
                 {
@@ -168,7 +176,7 @@ class boss_viscidus : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 events.Reset();
@@ -182,19 +190,19 @@ class boss_viscidus : public CreatureScript
                 events.ScheduleEvent(EVENT_POISON_SHOCK, urand(7000, 12000));
             }
 
-            void EnterEvadeMode() OVERRIDE
+            void EnterEvadeMode() override
             {
                 summons.DespawnAll();
                 ScriptedAI::EnterEvadeMode();
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 DoCast(me, SPELL_VISCIDUS_SUICIDE);
                 summons.DespawnAll();
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -245,7 +253,7 @@ class boss_viscidus : public CreatureScript
             Phases _phase;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_viscidusAI(creature);
         }
@@ -260,7 +268,7 @@ class npc_glob_of_viscidus : public CreatureScript
         {
             npc_glob_of_viscidusAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 InstanceScript* Instance = me->GetInstanceScript();
 
@@ -283,7 +291,7 @@ class npc_glob_of_viscidus : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 /*type*/, uint32 id) OVERRIDE
+            void MovementInform(uint32 /*type*/, uint32 id) override
             {
                 if (id == ROOM_CENTER)
                 {
@@ -294,7 +302,7 @@ class npc_glob_of_viscidus : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<npc_glob_of_viscidusAI>(creature);
         }

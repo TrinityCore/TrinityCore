@@ -258,10 +258,13 @@ class UnitAI
         virtual void sGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, char const* /*code*/) { }
         virtual void sQuestAccept(Player* /*player*/, Quest const* /*quest*/) { }
         virtual void sQuestSelect(Player* /*player*/, Quest const* /*quest*/) { }
-        virtual void sQuestComplete(Player* /*player*/, Quest const* /*quest*/) { }
         virtual void sQuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }
         virtual bool sOnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/) { return false; }
         virtual void sOnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
+
+    private:
+        UnitAI(UnitAI const& right) = delete;
+        UnitAI& operator=(UnitAI const& right) = delete;
 };
 
 class PlayerAI : public UnitAI
@@ -271,13 +274,13 @@ class PlayerAI : public UnitAI
     public:
         explicit PlayerAI(Player* player) : UnitAI((Unit*)player), me(player) { }
 
-        void OnCharmed(bool apply);
+        void OnCharmed(bool apply) override;
 };
 
 class SimpleCharmedAI : public PlayerAI
 {
     public:
-        void UpdateAI(uint32 diff);
+        void UpdateAI(uint32 diff) override;
         SimpleCharmedAI(Player* player): PlayerAI(player) { }
 };
 

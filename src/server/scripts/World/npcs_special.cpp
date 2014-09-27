@@ -33,7 +33,6 @@ npc_guardian            100%    guardianAI used to prevent players from accessin
 npc_garments_of_quests   80%    NPC's related to all Garments of-quests 5621, 5624, 5625, 5648, 565
 npc_injured_patient     100%    patients for triage-quests (6622 and 6624)
 npc_doctor              100%    Gustaf Vanhowzen and Gregory Victor, quest 6622 and 6624 (Triage)
-npc_mount_vendor        100%    Regular mount vendors all over the world. Display gossip if player doesn't meet the requirements to buy
 npc_sayge               100%    Darkmoon event fortune teller, buff player based on answers given
 npc_snake_trap_serpents  80%    AI for snakes that summoned by Snake Trap
 npc_shadowfiend         100%   restore 5% of owner's mana when shadowfiend die from damage
@@ -56,6 +55,7 @@ EndContentData */
 #include "CellImpl.h"
 #include "SpellAuras.h"
 #include "Pet.h"
+#include "CreatureTextMgr.h"
 
 /*########
 # npc_air_force_bots
@@ -156,7 +156,7 @@ public:
         SpawnAssociation* SpawnAssoc;
         uint64 SpawnedGUID;
 
-        void Reset() OVERRIDE { }
+        void Reset() override { }
 
         Creature* SummonGuard()
         {
@@ -175,7 +175,7 @@ public:
 
         Creature* GetSummonedGuard()
         {
-            Creature* creature = Unit::GetCreature(*me, SpawnedGUID);
+            Creature* creature = ObjectAccessor::GetCreature(*me, SpawnedGUID);
 
             if (creature && creature->IsAlive())
                 return creature;
@@ -183,8 +183,7 @@ public:
             return NULL;
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
-
+        void MoveInLineOfSight(Unit* who) override
         {
             if (!SpawnAssoc)
                 return;
@@ -260,7 +259,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_air_force_botsAI(creature);
     }
@@ -286,7 +285,7 @@ class npc_lunaclaw_spirit : public CreatureScript
 public:
     npc_lunaclaw_spirit() : CreatureScript("npc_lunaclaw_spirit") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (player->GetQuestStatus(QUEST_BODY_HEART_A) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_BODY_HEART_H) == QUEST_STATUS_INCOMPLETE)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_GRANT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -295,7 +294,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
@@ -329,20 +328,28 @@ public:
 
     struct npc_chicken_cluckAI : public ScriptedAI
     {
-        npc_chicken_cluckAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_chicken_cluckAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            ResetFlagTimer = 120000;
+        }
 
         uint32 ResetFlagTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
-            ResetFlagTimer = 120000;
+            Initialize();
             me->setFaction(FACTION_CHICKEN);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             // Reset flags after a certain time has passed so that the next player has to start the 'event' again
             if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
@@ -360,12 +367,12 @@ public:
                 DoMeleeAttackIfReady();
         }
 
-        void ReceiveEmote(Player* player, uint32 emote) OVERRIDE
+        void ReceiveEmote(Player* player, uint32 emote) override
         {
             switch (emote)
             {
                 case TEXT_EMOTE_CHICKEN:
-                    if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_NONE && rand() % 30 == 1)
+                    if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_NONE && rand32() % 30 == 1)
                     {
                         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                         me->setFaction(FACTION_FRIENDLY);
@@ -384,23 +391,23 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_chicken_cluckAI(creature);
     }
 
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest) OVERRIDE
+    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_CLUCK)
-            CAST_AI(npc_chicken_cluck::npc_chicken_cluckAI, creature->AI())->Reset();
+            ENSURE_AI(npc_chicken_cluck::npc_chicken_cluckAI, creature->AI())->Reset();
 
         return true;
     }
 
-    bool OnQuestComplete(Player* /*player*/, Creature* creature, Quest const* quest) OVERRIDE
+    bool OnQuestReward(Player* /*player*/, Creature* creature, Quest const* quest, uint32 /*opt*/) override
     {
         if (quest->GetQuestId() == QUEST_CLUCK)
-            CAST_AI(npc_chicken_cluck::npc_chicken_cluckAI, creature->AI())->Reset();
+            ENSURE_AI(npc_chicken_cluck::npc_chicken_cluckAI, creature->AI())->Reset();
 
         return true;
     }
@@ -424,15 +431,23 @@ public:
 
     struct npc_dancing_flamesAI : public ScriptedAI
     {
-        npc_dancing_flamesAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_dancing_flamesAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Active = true;
+            CanIteract = 3500;
+        }
 
         bool Active;
         uint32 CanIteract;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
-            Active = true;
-            CanIteract = 3500;
+            Initialize();
             DoCast(me, SPELL_BRAZIER, true);
             DoCast(me, SPELL_FIERY_AURA, false);
             float x, y, z;
@@ -445,7 +460,7 @@ public:
             me->SendMessageToSet(&data, true);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!Active)
             {
@@ -460,9 +475,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void ReceiveEmote(Player* player, uint32 emote) OVERRIDE
+        void ReceiveEmote(Player* player, uint32 emote) override
         {
             if (me->IsWithinLOS(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()) && me->IsWithinDistInMap(player, 30.0f))
             {
@@ -495,7 +510,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_dancing_flamesAI(creature);
     }
@@ -575,7 +590,25 @@ public:
 
     struct npc_doctorAI : public ScriptedAI
     {
-        npc_doctorAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_doctorAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            PlayerGUID = 0;
+
+            SummonPatientTimer = 10000;
+            SummonPatientCount = 0;
+            PatientDiedCount = 0;
+            PatientSavedCount = 0;
+
+            Patients.clear();
+            Coordinates.clear();
+
+            Event = false;
+        }
 
         uint64 PlayerGUID;
 
@@ -589,20 +622,9 @@ public:
         std::list<uint64> Patients;
         std::vector<Location*> Coordinates;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
-            PlayerGUID = 0;
-
-            SummonPatientTimer = 10000;
-            SummonPatientCount = 0;
-            PatientDiedCount = 0;
-            PatientSavedCount = 0;
-
-            Patients.clear();
-            Coordinates.clear();
-
-            Event = false;
-
+            Initialize();
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
@@ -671,7 +693,7 @@ public:
                             std::list<uint64>::const_iterator itr;
                             for (itr = Patients.begin(); itr != Patients.end(); ++itr)
                             {
-                                if (Creature* patient = Unit::GetCreature((*me), *itr))
+                                if (Creature* patient = ObjectAccessor::GetCreature((*me), *itr))
                                     patient->setDeathState(JUST_DIED);
                             }
                         }
@@ -690,20 +712,20 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE;
+        void UpdateAI(uint32 diff) override;
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
     };
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
         if ((quest->GetQuestId() == 6624) || (quest->GetQuestId() == 6622))
-            CAST_AI(npc_doctor::npc_doctorAI, creature->AI())->BeginEvent(player);
+            ENSURE_AI(npc_doctor::npc_doctorAI, creature->AI())->BeginEvent(player);
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_doctorAI(creature);
     }
@@ -720,15 +742,23 @@ public:
 
     struct npc_injured_patientAI : public ScriptedAI
     {
-        npc_injured_patientAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_injured_patientAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            DoctorGUID = 0;
+            Coord = NULL;
+        }
 
         uint64 DoctorGUID;
         Location* Coord;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
-            DoctorGUID = 0;
-            Coord = NULL;
+            Initialize();
 
             //no select
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -758,9 +788,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) OVERRIDE
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             Player* player = caster->ToPlayer();
             if (!player || !me->IsAlive() || spell->Id != 20804)
@@ -768,8 +798,8 @@ public:
 
             if (player->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE)
                 if (DoctorGUID)
-                    if (Creature* doctor = Unit::GetCreature(*me, DoctorGUID))
-                        CAST_AI(npc_doctor::npc_doctorAI, doctor->AI())->PatientSaved(me, player, Coord);
+                    if (Creature* doctor = ObjectAccessor::GetCreature(*me, DoctorGUID))
+                        ENSURE_AI(npc_doctor::npc_doctorAI, doctor->AI())->PatientSaved(me, player, Coord);
 
             //make not selectable
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -800,7 +830,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE
+        void UpdateAI(uint32 /*diff*/) override
         {
             //lower HP on every world tick makes it a useful counter, not officlone though
             if (me->IsAlive() && me->GetHealth() > 6)
@@ -814,13 +844,13 @@ public:
                 me->SetFlag(UNIT_DYNAMIC_FLAGS, 32);
 
                 if (DoctorGUID)
-                    if (Creature* doctor = Unit::GetCreature((*me), DoctorGUID))
-                        CAST_AI(npc_doctor::npc_doctorAI, doctor->AI())->PatientDied(Coord);
+                    if (Creature* doctor = ObjectAccessor::GetCreature((*me), DoctorGUID))
+                        ENSURE_AI(npc_doctor::npc_doctorAI, doctor->AI())->PatientDied(Coord);
             }
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_injured_patientAI(creature);
     }
@@ -841,16 +871,16 @@ void npc_doctor::npc_doctorAI::UpdateAI(uint32 diff)
             if (Coordinates.empty())
                 return;
 
-            std::vector<Location*>::iterator itr = Coordinates.begin() + rand() % Coordinates.size();
+            std::vector<Location*>::iterator itr = Coordinates.begin() + rand32() % Coordinates.size();
             uint32 patientEntry = 0;
 
             switch (me->GetEntry())
             {
                 case DOCTOR_ALLIANCE:
-                    patientEntry = AllianceSoldierId[rand() % 3];
+                    patientEntry = AllianceSoldierId[rand32() % 3];
                     break;
                 case DOCTOR_HORDE:
-                    patientEntry = HordeSoldierId[rand() % 3];
+                    patientEntry = HordeSoldierId[rand32() % 3];
                     break;
                 default:
                     TC_LOG_ERROR("scripts", "Invalid entry for Triage doctor. Please check your database");
@@ -865,8 +895,8 @@ void npc_doctor::npc_doctorAI::UpdateAI(uint32 diff)
                     Patient->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
 
                     Patients.push_back(Patient->GetGUID());
-                    CAST_AI(npc_injured_patient::npc_injured_patientAI, Patient->AI())->DoctorGUID = me->GetGUID();
-                    CAST_AI(npc_injured_patient::npc_injured_patientAI, Patient->AI())->Coord = point;
+                    ENSURE_AI(npc_injured_patient::npc_injured_patientAI, Patient->AI())->DoctorGUID = me->GetGUID();
+                    ENSURE_AI(npc_injured_patient::npc_injured_patientAI, Patient->AI())->Coord = point;
 
                     Coordinates.erase(itr);
                 }
@@ -927,7 +957,7 @@ public:
 
         uint32 RunAwayTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             CasterGUID = 0;
 
@@ -941,9 +971,9 @@ public:
             me->SetHealth(me->CountPctFromMaxHealth(70));
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) OVERRIDE
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_LESSER_HEAL_R2 || spell->Id == SPELL_FORTITUDE_R1)
             {
@@ -1053,18 +1083,18 @@ public:
             }
         }
 
-        void WaypointReached(uint32 /*waypointId*/) OVERRIDE
+        void WaypointReached(uint32 /*waypointId*/) override
         {
 
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (CanRun && !me->IsInCombat())
             {
                 if (RunAwayTimer <= diff)
                 {
-                    if (Unit* unit = Unit::GetUnit(*me, CasterGUID))
+                    if (Unit* unit = ObjectAccessor::GetUnit(*me, CasterGUID))
                     {
                         switch (me->GetEntry())
                         {
@@ -1092,7 +1122,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_garments_of_questsAI(creature);
     }
@@ -1116,16 +1146,16 @@ public:
     {
         npc_guardianAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (!UpdateVictim())
                 return;
@@ -1138,106 +1168,11 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_guardianAI(creature);
     }
 };
-
-/*######
-## npc_mount_vendor
-######*/
-
-class npc_mount_vendor : public CreatureScript
-{
-public:
-    npc_mount_vendor() : CreatureScript("npc_mount_vendor") { }
-
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        bool canBuy = false;
-        uint32 vendor = creature->GetEntry();
-        uint8 race = player->getRace();
-
-        switch (vendor)
-        {
-            case 384:                                           //Katie Hunter
-            case 1460:                                          //Unger Statforth
-            case 2357:                                          //Merideth Carlson
-            case 4885:                                          //Gregor MacVince
-                if (player->GetReputationRank(72) != REP_EXALTED && race != RACE_HUMAN)
-                    player->SEND_GOSSIP_MENU(5855, creature->GetGUID());
-                else canBuy = true;
-                break;
-            case 1261:                                          //Veron Amberstill
-                if (player->GetReputationRank(47) != REP_EXALTED && race != RACE_DWARF)
-                    player->SEND_GOSSIP_MENU(5856, creature->GetGUID());
-                else canBuy = true;
-                break;
-            case 3362:                                          //Ogunaro Wolfrunner
-                if (player->GetReputationRank(76) != REP_EXALTED && race != RACE_ORC)
-                    player->SEND_GOSSIP_MENU(5841, creature->GetGUID());
-                else canBuy = true;
-                break;
-            case 3685:                                          //Harb Clawhoof
-                if (player->GetReputationRank(81) != REP_EXALTED && race != RACE_TAUREN)
-                    player->SEND_GOSSIP_MENU(5843, creature->GetGUID());
-                else canBuy = true;
-                break;
-            case 4730:                                          //Lelanai
-                if (player->GetReputationRank(69) != REP_EXALTED && race != RACE_NIGHTELF)
-                    player->SEND_GOSSIP_MENU(5844, creature->GetGUID());
-                else canBuy = true;
-                break;
-            case 4731:                                          //Zachariah Post
-                if (player->GetReputationRank(68) != REP_EXALTED && race != RACE_UNDEAD_PLAYER)
-                    player->SEND_GOSSIP_MENU(5840, creature->GetGUID());
-                else canBuy = true;
-                break;
-            case 7952:                                          //Zjolnir
-                if (player->GetReputationRank(530) != REP_EXALTED && race != RACE_TROLL)
-                    player->SEND_GOSSIP_MENU(5842, creature->GetGUID());
-                else canBuy = true;
-                break;
-            case 7955:                                          //Milli Featherwhistle
-                if (player->GetReputationRank(54) != REP_EXALTED && race != RACE_GNOME)
-                    player->SEND_GOSSIP_MENU(5857, creature->GetGUID());
-                else canBuy = true;
-                break;
-            case 16264:                                         //Winaestra
-                if (player->GetReputationRank(911) != REP_EXALTED && race != RACE_BLOODELF)
-                    player->SEND_GOSSIP_MENU(10305, creature->GetGUID());
-                else canBuy = true;
-                break;
-            case 17584:                                         //Torallius the Pack Handler
-                if (player->GetReputationRank(930) != REP_EXALTED && race != RACE_DRAENEI)
-                    player->SEND_GOSSIP_MENU(10239, creature->GetGUID());
-                else canBuy = true;
-                break;
-        }
-
-        if (canBuy)
-        {
-            if (creature->IsVendor())
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        }
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
-
-        return true;
-    }
-};
-
 
 /*######
 ## npc_sayge
@@ -1280,7 +1215,7 @@ class npc_sayge : public CreatureScript
 public:
     npc_sayge() : CreatureScript("npc_sayge") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -1349,7 +1284,7 @@ public:
         }
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (sender)
@@ -1411,8 +1346,8 @@ public:
     {
         npc_steam_tonkAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE { }
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void Reset() override { }
+        void EnterCombat(Unit* /*who*/) override { }
 
         void OnPossess(bool apply)
         {
@@ -1429,7 +1364,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_steam_tonkAI(creature);
     }
@@ -1449,22 +1384,28 @@ public:
     {
         npc_tonk_mineAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             me->SetReactState(REACT_PASSIVE);
         }
 
-        uint32 ExplosionTimer;
-
-        void Reset() OVERRIDE
+        void Initialize()
         {
             ExplosionTimer = 3000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
-        void AttackStart(Unit* /*who*/) OVERRIDE { }
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
+        uint32 ExplosionTimer;
+
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void EnterCombat(Unit* /*who*/) override { }
+        void AttackStart(Unit* /*who*/) override { }
+        void MoveInLineOfSight(Unit* /*who*/) override { }
 
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (ExplosionTimer <= diff)
             {
@@ -1476,7 +1417,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_tonk_mineAI(creature);
     }
@@ -1500,7 +1441,7 @@ class npc_brewfest_reveler : public CreatureScript
         {
             npc_brewfest_revelerAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void ReceiveEmote(Player* player, uint32 emote) OVERRIDE
+            void ReceiveEmote(Player* player, uint32 emote) override
             {
                 if (!IsHolidayActive(HOLIDAY_BREWFEST))
                     return;
@@ -1510,7 +1451,7 @@ class npc_brewfest_reveler : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_brewfest_revelerAI(creature);
         }
@@ -1519,7 +1460,10 @@ class npc_brewfest_reveler : public CreatureScript
 enum TrainingDummy
 {
     NPC_ADVANCED_TARGET_DUMMY                  = 2674,
-    NPC_TARGET_DUMMY                           = 2673
+    NPC_TARGET_DUMMY                           = 2673,
+
+    EVENT_TD_CHECK_COMBAT                      = 1,
+    EVENT_TD_DESPAWN                           = 2
 };
 
 class npc_training_dummy : public CreatureScript
@@ -1532,23 +1476,25 @@ public:
         npc_training_dummyAI(Creature* creature) : ScriptedAI(creature)
         {
             SetCombatMovement(false);
-            entry = creature->GetEntry();
         }
 
-        uint32 entry;
-        uint32 resetTimer;
-        uint32 despawnTimer;
+        EventMap _events;
+        std::unordered_map<uint64, time_t> _damageTimes;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);//imune to knock aways like blast wave
 
-            resetTimer = 5000;
-            despawnTimer = 15000;
+            _events.Reset();
+            _damageTimes.clear();
+            if (me->GetEntry() != NPC_ADVANCED_TARGET_DUMMY && me->GetEntry() != NPC_TARGET_DUMMY)
+                _events.ScheduleEvent(EVENT_TD_CHECK_COMBAT, 1000);
+            else
+                _events.ScheduleEvent(EVENT_TD_DESPAWN, 15000);
         }
 
-        void EnterEvadeMode() OVERRIDE
+        void EnterEvadeMode() override
         {
             if (!_EnterEvadeMode())
                 return;
@@ -1556,44 +1502,59 @@ public:
             Reset();
         }
 
-        void DamageTaken(Unit* /*doneBy*/, uint32& damage) OVERRIDE
+        void DamageTaken(Unit* doneBy, uint32& damage) override
         {
-            resetTimer = 5000;
+            me->AddThreat(doneBy, float(damage));    // just to create threat reference
+            _damageTimes[doneBy->GetGUID()] = time(NULL);
             damage = 0;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
-            if (!UpdateVictim())
+            if (!me->IsInCombat())
                 return;
 
             if (!me->HasUnitState(UNIT_STATE_STUNNED))
                 me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
 
-            if (entry != NPC_ADVANCED_TARGET_DUMMY && entry != NPC_TARGET_DUMMY)
+            _events.Update(diff);
+
+            if (uint32 eventId = _events.ExecuteEvent())
             {
-                if (resetTimer <= diff)
+                switch (eventId)
                 {
-                    EnterEvadeMode();
-                    resetTimer = 5000;
+                    case EVENT_TD_CHECK_COMBAT:
+                    {
+                        time_t now = time(NULL);
+                        for (std::unordered_map<uint64, time_t>::iterator itr = _damageTimes.begin(); itr != _damageTimes.end();)
+                        {
+                            // If unit has not dealt damage to training dummy for 5 seconds, remove him from combat
+                            if (itr->second < now - 5)
+                            {
+                                if (Unit* unit = ObjectAccessor::GetUnit(*me, itr->first))
+                                    unit->getHostileRefManager().deleteReference(me);
+
+                                itr = _damageTimes.erase(itr);
+                            }
+                            else
+                                ++itr;
+                        }
+                        _events.ScheduleEvent(EVENT_TD_CHECK_COMBAT, 1000);
+                        break;
+                    }
+                    case EVENT_TD_DESPAWN:
+                        me->DespawnOrUnsummon(1);
+                        break;
+                    default:
+                        break;
                 }
-                else
-                    resetTimer -= diff;
-                return;
-            }
-            else
-            {
-                if (despawnTimer <= diff)
-                    me->DespawnOrUnsummon();
-                else
-                    despawnTimer -= diff;
             }
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
+        void MoveInLineOfSight(Unit* /*who*/) override { }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_training_dummyAI(creature);
     }
@@ -1631,14 +1592,22 @@ class npc_wormhole : public CreatureScript
 
         struct npc_wormholeAI : public PassiveAI
         {
-            npc_wormholeAI(Creature* creature) : PassiveAI(creature) { }
+            npc_wormholeAI(Creature* creature) : PassiveAI(creature)
+            {
+                Initialize();
+            }
 
-            void InitializeAI() OVERRIDE
+            void Initialize()
             {
                 _showUnderground = urand(0, 100) == 0; // Guessed value, it is really rare though
             }
 
-            uint32 GetData(uint32 type) const OVERRIDE
+            void InitializeAI() override
+            {
+                Initialize();
+            }
+
+            uint32 GetData(uint32 type) const override
             {
                 return (type == DATA_SHOW_UNDERGROUND && _showUnderground) ? 1 : 0;
             }
@@ -1647,7 +1616,7 @@ class npc_wormhole : public CreatureScript
             bool _showUnderground;
         };
 
-        bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+        bool OnGossipHello(Player* player, Creature* creature) override
         {
             if (creature->IsSummon())
             {
@@ -1669,7 +1638,7 @@ class npc_wormhole : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
         {
             player->PlayerTalkClass->ClearMenus();
 
@@ -1704,7 +1673,7 @@ class npc_wormhole : public CreatureScript
             return true;
         }
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_wormholeAI(creature);
         }
@@ -1731,7 +1700,7 @@ class npc_pet_trainer : public CreatureScript
 public:
     npc_pet_trainer() : CreatureScript("npc_pet_trainer") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -1749,7 +1718,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -1826,7 +1795,7 @@ class npc_locksmith : public CreatureScript
 public:
     npc_locksmith() : CreatureScript("npc_locksmith") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         // Arcatraz Key
         if (player->GetQuestRewardStatus(QUEST_HOW_TO_BRAKE_IN_TO_THE_ARCATRAZ) && !player->HasItemCount(ITEM_ARCATRAZ_KEY, 1, true))
@@ -1871,7 +1840,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -1931,7 +1900,7 @@ class npc_experience : public CreatureScript
 public:
     npc_experience() : CreatureScript("npc_experience") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_XP_OFF, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_XP_ON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
@@ -1939,7 +1908,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         bool noXPGain = player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
@@ -2208,12 +2177,12 @@ public:
             return 0;
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             if (GameObject* launcher = FindNearestLauncher())
             {
                 launcher->SendCustomAnim(ANIM_GO_LAUNCH_FIREWORK);
-                me->SetOrientation(launcher->GetOrientation() + M_PI/2);
+                me->SetOrientation(launcher->GetOrientation() + float(M_PI) / 2);
             }
             else
                 return;
@@ -2253,7 +2222,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_fireworkAI(creature);
     }
@@ -2278,14 +2247,26 @@ class npc_spring_rabbit : public CreatureScript
 public:
     npc_spring_rabbit() : CreatureScript("npc_spring_rabbit") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_spring_rabbitAI(creature);
     }
 
     struct npc_spring_rabbitAI : public ScriptedAI
     {
-        npc_spring_rabbitAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_spring_rabbitAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            inLove = false;
+            rabbitGUID = 0;
+            jumpTimer = urand(5000, 10000);
+            bunnyTimer = urand(10000, 20000);
+            searchTimer = urand(5000, 10000);
+        }
 
         bool inLove;
         uint32 jumpTimer;
@@ -2293,33 +2274,29 @@ public:
         uint32 searchTimer;
         uint64 rabbitGUID;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
-            inLove = false;
-            rabbitGUID = 0;
-            jumpTimer = urand(5000, 10000);
-            bunnyTimer = urand(10000, 20000);
-            searchTimer = urand(5000, 10000);
+            Initialize();
             if (Unit* owner = me->GetOwner())
                 me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void DoAction(int32 /*param*/) OVERRIDE
+        void DoAction(int32 /*param*/) override
         {
             inLove = true;
             if (Unit* owner = me->GetOwner())
                 owner->CastSpell(owner, SPELL_SPRING_FLING, true);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (inLove)
             {
                 if (jumpTimer <= diff)
                 {
-                    if (Unit* rabbit = Unit::GetUnit(*me, rabbitGUID))
+                    if (Unit* rabbit = ObjectAccessor::GetUnit(*me, rabbitGUID))
                         DoCast(rabbit, SPELL_SPRING_RABBIT_JUMP);
                     jumpTimer = urand(5000, 10000);
                 } else jumpTimer -= diff;
@@ -2353,6 +2330,60 @@ public:
     };
 };
 
+class npc_imp_in_a_ball : public CreatureScript
+{
+private:
+    enum
+    {
+        SAY_RANDOM,
+
+        EVENT_TALK = 1,
+    };
+
+public:
+    npc_imp_in_a_ball() : CreatureScript("npc_imp_in_a_ball") { }
+
+    struct npc_imp_in_a_ballAI : public ScriptedAI
+    {
+        npc_imp_in_a_ballAI(Creature* creature) : ScriptedAI(creature)
+        {
+            summonerGUID = 0;
+        }
+
+        void IsSummonedBy(Unit* summoner) override
+        {
+            if (summoner->GetTypeId() == TYPEID_PLAYER)
+            {
+                summonerGUID = summoner->GetGUID();
+                events.ScheduleEvent(EVENT_TALK, 3000);
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            events.Update(diff);
+
+            if (events.ExecuteEvent() == EVENT_TALK)
+            {
+                if (Player* owner = ObjectAccessor::GetPlayer(*me, summonerGUID))
+                {
+                    sCreatureTextMgr->SendChat(me, SAY_RANDOM, owner,
+                        owner->GetGroup() ? CHAT_MSG_MONSTER_PARTY : CHAT_MSG_MONSTER_WHISPER, LANG_ADDON, TEXT_RANGE_NORMAL);
+                }
+            }
+        }
+
+    private:
+        EventMap events;
+        uint64 summonerGUID;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_imp_in_a_ballAI(creature);
+    }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2363,7 +2394,6 @@ void AddSC_npcs_special()
     new npc_injured_patient();
     new npc_garments_of_quests();
     new npc_guardian();
-    new npc_mount_vendor();
     new npc_sayge();
     new npc_steam_tonk();
     new npc_tonk_mine();
@@ -2375,4 +2405,5 @@ void AddSC_npcs_special()
     new npc_experience();
     new npc_firework();
     new npc_spring_rabbit();
+    new npc_imp_in_a_ball();
 }

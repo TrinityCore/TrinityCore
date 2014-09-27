@@ -19,7 +19,7 @@
 #define __ZMQTASK_H
 
 #include "Define.h"
-#include <ace/Task.h>
+#include <boost/thread/thread.hpp>
 #include <zmqpp/poller.hpp>
 #include <zmqpp/socket.hpp>
 
@@ -27,25 +27,30 @@
   This class serves as a base for all long running tasks
   It is set up to terminate its running task upon receiving "kill" command
 */
-class ZMQTask : public ACE_Task_Base
+class ZMQTask
 {
 public:
     ZMQTask();
     virtual ~ZMQTask();
 
-    int open(void* data) FINAL;
-    int close(u_long flags = 0) FINAL;
-    virtual int svc() = 0;
+    int open(void* data);
+    int close(u_long flags = 0);
+    virtual int svc(){return 0;};
+
+    void operator()(){
+      svc();
+    }
 
 protected:
-    virtual int HandleOpen() = 0;
-    virtual int HandleClose(u_long flags = 0) = 0;
+    virtual int HandleOpen(){return 0;};
+    virtual int HandleClose(u_long){return 0;};
     void pipeline(zmqpp::socket* from, zmqpp::socket* to);
     bool process_exit();
 
     zmqpp::poller* poller;
 
     zmqpp::socket* inproc;
+    boost::thread* thr;
 };
 
 #endif // __ZMQTASK_H

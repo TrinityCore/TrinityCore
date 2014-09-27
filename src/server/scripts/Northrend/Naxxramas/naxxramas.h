@@ -18,6 +18,8 @@
 #ifndef DEF_NAXXRAMAS_H
 #define DEF_NAXXRAMAS_H
 
+#define DataHeader "NAX"
+
 uint32 const EncounterCount     = 15;
 
 enum Encounter

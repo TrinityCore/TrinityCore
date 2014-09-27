@@ -71,7 +71,7 @@ int CommandPuller::HandleOpen()
     poller->add(*work_res);
 
     printf("CommandPuller sockets have been set up successfully\n");
-    return ACE_Task_Base::activate();
+    return 0;
 }
 
 int CommandPuller::HandleClose(u_long /*flags  = 0 */)

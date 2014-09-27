@@ -28,7 +28,6 @@
 
 void UnitAI::AttackStart(Unit* victim)
 {
-
     if (victim && me->Attack(victim, true))
         me->GetMotionMaster()->MoveChase(victim);
 }
@@ -104,7 +103,7 @@ void UnitAI::DoAddAuraToAllHostilePlayers(uint32 spellid)
         ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
         for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
         {
-            if (Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+            if (Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
                 if (unit->GetTypeId() == TYPEID_PLAYER)
                     me->AddAura(spellid, unit);
         }
@@ -118,7 +117,7 @@ void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
         ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
         for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
         {
-            if (Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+            if (Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
                 if (unit->GetTypeId() == TYPEID_PLAYER)
                     me->CastSpell(unit, spellid, triggered);
         }
@@ -142,7 +141,7 @@ void UnitAI::DoCast(uint32 spellId)
         {
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
             {
-                bool playerOnly = spellInfo->AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_PLAYERS;
+                bool playerOnly = (spellInfo->AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_PLAYERS) != 0;
                 target = SelectTarget(SELECT_TARGET_RANDOM, 0, spellInfo->GetMaxRange(false), playerOnly);
             }
             break;
@@ -157,7 +156,7 @@ void UnitAI::DoCast(uint32 spellId)
         {
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
             {
-                bool playerOnly = spellInfo->AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_PLAYERS;
+                bool playerOnly = (spellInfo->AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_PLAYERS) != 0;
                 float range = spellInfo->GetMaxRange(false);
 
                 DefaultTargetSelector targetSelector(me, range, playerOnly, -(int32)spellId);

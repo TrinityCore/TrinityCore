@@ -684,7 +684,7 @@ struct ItemTemplate
         return false;
     }
 
-    bool IsCurrencyToken() const { return BagFamily & BAG_FAMILY_MASK_CURRENCY_TOKENS; }
+    bool IsCurrencyToken() const { return (BagFamily & BAG_FAMILY_MASK_CURRENCY_TOKENS) != 0; }
 
     uint32 GetMaxStackSize() const
     {
@@ -734,7 +734,7 @@ struct ItemTemplate
             default:
                 break;
         }
-        return itemLevel;
+        return std::max<float>(0.f, itemLevel);
     }
 
     bool IsPotion() const { return Class == ITEM_CLASS_CONSUMABLE && SubClass == ITEM_SUBCLASS_POTION; }
@@ -744,7 +744,7 @@ struct ItemTemplate
 };
 
 // Benchmarked: Faster than std::map (insert/find)
-typedef UNORDERED_MAP<uint32, ItemTemplate> ItemTemplateContainer;
+typedef std::unordered_map<uint32, ItemTemplate> ItemTemplateContainer;
 
 struct ItemLocale
 {

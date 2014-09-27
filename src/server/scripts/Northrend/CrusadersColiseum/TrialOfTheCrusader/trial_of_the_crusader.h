@@ -5,6 +5,8 @@
 #ifndef DEF_CRUSADER_H
 #define DEF_CRUSADER_H
 
+#define DataHeader "TCR"
+
 enum DataTypes
 {
     BOSS_BEASTS                 = 0,
@@ -40,7 +42,7 @@ enum SpellIds
 
 enum MiscData
 {
-    DESPAWN_TIME                = 300000,
+    DESPAWN_TIME                = 1200000,
 
     DISPLAYID_DESTROYED_FLOOR   = 9060
 };
@@ -184,8 +186,7 @@ enum CreatureIds
     NPC_FIZZLEBANG              = 35458,
     NPC_GARROSH                 = 34995,
     NPC_VARIAN                  = 34990,
-    NPC_LICH_KING_0             = 16980,
-    NPC_LICH_KING_1             = 35877,
+    NPC_LICH_KING               = 35877,
 
     NPC_THRALL                  = 34994,
     NPC_PROUDMOORE              = 34992,
@@ -294,8 +295,7 @@ enum AchievementData
     SPELL_WORMS_KILLED_IN_10_SECONDS        = 68523,
     SPELL_CHAMPIONS_KILLED_IN_MINUTE        = 68620,
     SPELL_DEFEAT_FACTION_CHAMPIONS          = 68184,
-    SPELL_TRAITOR_KING_10                   = 68186,
-    SPELL_TRAITOR_KING_25                   = 68515,
+    SPELL_TRAITOR_KING                      = 68186,
 
     // Timed events
     EVENT_START_TWINS_FIGHT                 = 21853

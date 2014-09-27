@@ -52,24 +52,32 @@ class npc_tapoke_slim_jahn : public CreatureScript
 public:
     npc_tapoke_slim_jahn() : CreatureScript("npc_tapoke_slim_jahn") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_tapoke_slim_jahnAI(creature);
     }
 
     struct npc_tapoke_slim_jahnAI : public npc_escortAI
     {
-        npc_tapoke_slim_jahnAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_tapoke_slim_jahnAI(Creature* creature) : npc_escortAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            IsFriendSummoned = false;
+        }
 
         bool IsFriendSummoned;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
-                IsFriendSummoned = false;
+                Initialize();
         }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             switch (waypointId)
             {
@@ -82,7 +90,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING) && !IsFriendSummoned && GetPlayerForEscort())
             {
@@ -93,13 +101,13 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             if (Player* player = GetPlayerForEscort())
                 summoned->AI()->AttackStart(player);
         }
 
-        void AttackedBy(Unit* pAttacker) OVERRIDE
+        void AttackedBy(Unit* pAttacker) override
         {
             if (me->GetVictim())
                 return;
@@ -110,7 +118,7 @@ public:
             AttackStart(pAttacker);
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage) OVERRIDE
+        void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage) override
         {
             if (HealthBelowPct(20))
             {
@@ -141,7 +149,7 @@ class npc_mikhail : public CreatureScript
 public:
     npc_mikhail() : CreatureScript("npc_mikhail") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) OVERRIDE
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
     {
         if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT11)
         {

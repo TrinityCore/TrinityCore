@@ -50,7 +50,6 @@ enum AzureInvaderSpells
 {
     SPELL_CLEAVE                = 15496,
     SPELL_IMPALE                = 58459,
-    H_SPELL_IMPALE              = 59256,
     SPELL_BRUTAL_STRIKE         = 58460,
     SPELL_SUNDER_ARMOR          = 58461
 };
@@ -58,23 +57,17 @@ enum AzureInvaderSpells
 enum AzureSellbreakerSpells
 {
     SPELL_ARCANE_BLAST          = 58462,
-    H_SPELL_ARCANE_BLAST        = 59257,
     SPELL_SLOW                  = 25603,
     SPELL_CHAINS_OF_ICE         = 58464,
-    SPELL_CONE_OF_COLD          = 58463,
-    H_SPELL_CONE_OF_COLD        = 59258
+    SPELL_CONE_OF_COLD          = 58463
 };
 
 enum AzureBinderSpells
 {
     SPELL_ARCANE_BARRAGE        = 58456,
-    H_SPELL_ARCANE_BARRAGE      = 59248,
     SPELL_ARCANE_EXPLOSION      = 58455,
-    H_SPELL_ARCANE_EXPLOSION    = 59245,
     SPELL_FROST_NOVA            = 58458,
-    H_SPELL_FROST_NOVA          = 59253,
-    SPELL_FROSTBOLT             = 58457,
-    H_SPELL_FROSTBOLT           = 59251,
+    SPELL_FROSTBOLT             = 58457
 };
 
 enum AzureMageSlayerSpells
@@ -92,9 +85,7 @@ enum AzureCaptainSpells
 enum AzureSorcerorSpells
 {
     SPELL_ARCANE_STREAM         = 60181,
-    H_SPELL_ARCANE_STREAM       = 60204,
-    SPELL_MANA_DETONATION       = 60182,
-    H_SPELL_MANA_DETONATION     = 60205
+    SPELL_MANA_DETONATION       = 60182
 };
 
 enum AzureRaiderSpells
@@ -260,14 +251,14 @@ class npc_sinclari_vh : public CreatureScript
 public:
     npc_sinclari_vh() : CreatureScript("npc_sinclari_vh") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->CLOSE_GOSSIP_MENU();
-                CAST_AI(npc_sinclari_vh::npc_sinclariAI, (creature->AI()))->uiPhase = 1;
+                ENSURE_AI(npc_sinclari_vh::npc_sinclariAI, (creature->AI()))->uiPhase = 1;
                 if (InstanceScript* instance = creature->GetInstanceScript())
                     instance->SetData(DATA_MAIN_EVENT_PHASE, SPECIAL);
                 break;
@@ -282,7 +273,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (InstanceScript* instance = creature->GetInstanceScript())
         {
@@ -305,7 +296,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_sinclariAI>(creature);
     }
@@ -322,7 +313,7 @@ public:
         uint8  uiPhase;
         uint32 uiTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiPhase = 0;
             uiTimer = 0;
@@ -346,7 +337,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             ScriptedAI::UpdateAI(uiDiff);
 
@@ -425,7 +416,7 @@ class npc_azure_saboteur : public CreatureScript
 public:
     npc_azure_saboteur() : CreatureScript("npc_azure_saboteur") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_azure_saboteurAI>(creature);
     }
@@ -444,7 +435,7 @@ public:
         bool bHasGotMovingPoints;
         uint32 uiBoss;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             if (!uiBoss)
                 uiBoss = instance->GetData(DATA_WAVE_COUNT) == 6 ? instance->GetData(DATA_FIRST_BOSS) : instance->GetData(DATA_SECOND_BOSS);
@@ -453,7 +444,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             switch (uiBoss)
             {
@@ -484,7 +475,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (instance->GetData(DATA_MAIN_EVENT_PHASE) != IN_PROGRESS)
                 me->CastStop();
@@ -535,7 +526,7 @@ public:
         {
             me->CastSpell(me, SABOTEUR_SHIELD_DISRUPTION, false);
             me->DisappearAndDie();
-            Creature* pSaboPort = Unit::GetCreature((*me), instance->GetData64(DATA_SABOTEUR_PORTAL));
+            Creature* pSaboPort = ObjectAccessor::GetCreature((*me), instance->GetData64(DATA_SABOTEUR_PORTAL));
             if (pSaboPort)
                 pSaboPort->DisappearAndDie();
             instance->SetData(DATA_START_BOSS_ENCOUNTER, 1);
@@ -549,7 +540,7 @@ class npc_teleportation_portal_vh : public CreatureScript
 public:
     npc_teleportation_portal_vh() : CreatureScript("npc_teleportation_portal_vh") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_teleportation_portalAI>(creature);
     }
@@ -571,18 +562,18 @@ public:
 
         InstanceScript* instance;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiSpawnTimer = 10000;
             bPortalGuardianOrKeeperOrEliteSpawn = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
+        void MoveInLineOfSight(Unit* /*who*/) override { }
 
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (instance->GetData(DATA_REMOVE_NPC) == 1)
             {
@@ -654,18 +645,18 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             instance->SetData(DATA_WAVE_COUNT, instance->GetData(DATA_WAVE_COUNT)+1);
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             listOfMobs.Summon(summoned);
             instance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
         }
 
-        void SummonedCreatureDies(Creature* summoned, Unit* /*killer*/) OVERRIDE
+        void SummonedCreatureDies(Creature* summoned, Unit* /*killer*/) override
         {
             listOfMobs.Despawn(summoned);
             instance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
@@ -690,7 +681,7 @@ struct violet_hold_trashAI : public npc_escortAI
         uint32 portalLocationID;
         uint32 secondPortalRouteID;
 
-    void WaypointReached(uint32 waypointId) OVERRIDE
+    void WaypointReached(uint32 waypointId) override
     {
         switch (portalLocationID)
         {
@@ -721,7 +712,7 @@ struct violet_hold_trashAI : public npc_escortAI
         }
     }
 
-    void UpdateAI(uint32) OVERRIDE
+    void UpdateAI(uint32) override
     {
         if (instance->GetData(DATA_MAIN_EVENT_PHASE) != IN_PROGRESS)
             me->CastStop();
@@ -778,7 +769,7 @@ struct violet_hold_trashAI : public npc_escortAI
         }
     }
 
-    void JustDied(Unit* /*killer*/) OVERRIDE
+    void JustDied(Unit* /*killer*/) override
     {
         instance->SetData(DATA_NPC_PRESENCE_AT_DOOR_REMOVE, 1);
     }
@@ -797,7 +788,7 @@ class npc_azure_invader : public CreatureScript
 public:
     npc_azure_invader() : CreatureScript("npc_azure_invader") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_azure_invaderAI>(creature);
     }
@@ -814,7 +805,7 @@ public:
         uint32 uiBrutalStrikeTimer;
         uint32 uiSunderArmorTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiCleaveTimer = 5000;
             uiImpaleTimer = 4000;
@@ -822,7 +813,7 @@ public:
             uiSunderArmorTimer = 4000;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             violet_hold_trashAI::UpdateAI(diff);
             npc_escortAI::UpdateAI(diff);
@@ -875,7 +866,7 @@ class npc_azure_binder : public CreatureScript
 public:
     npc_azure_binder() : CreatureScript("npc_azure_binder") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_azure_binderAI>(creature);
     }
@@ -892,7 +883,7 @@ public:
         uint32 uiFrostNovaTimer;
         uint32 uiFrostboltTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiArcaneExplosionTimer = 5000;
             uiArcainBarrageTimer = 4000;
@@ -900,7 +891,7 @@ public:
             uiFrostboltTimer = 4000;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             violet_hold_trashAI::UpdateAI(diff);
             npc_escortAI::UpdateAI(diff);
@@ -912,7 +903,7 @@ public:
             {
                 if (uiArcaneExplosionTimer <= diff)
                 {
-                    DoCast(DUNGEON_MODE(SPELL_ARCANE_EXPLOSION, H_SPELL_ARCANE_EXPLOSION));
+                    DoCast(SPELL_ARCANE_EXPLOSION);
                     uiArcaneExplosionTimer = 5000;
                 } else uiArcaneExplosionTimer -= diff;
 
@@ -920,7 +911,7 @@ public:
                 {
                         Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     if (target)
-                            DoCast(target, DUNGEON_MODE(SPELL_ARCANE_BARRAGE, H_SPELL_ARCANE_BARRAGE));
+                            DoCast(target, SPELL_ARCANE_BARRAGE);
                     uiArcainBarrageTimer = 6000;
                 } else uiArcainBarrageTimer -= diff;
             }
@@ -929,7 +920,7 @@ public:
             {
                 if (uiFrostNovaTimer <= diff)
                 {
-                    DoCast(DUNGEON_MODE(SPELL_FROST_NOVA, H_SPELL_FROST_NOVA));
+                    DoCast(SPELL_FROST_NOVA);
                     uiFrostNovaTimer = 5000;
                 } else uiFrostNovaTimer -= diff;
 
@@ -937,7 +928,7 @@ public:
                 {
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     if (target)
-                        DoCast(target, DUNGEON_MODE(SPELL_FROSTBOLT, H_SPELL_FROSTBOLT));
+                        DoCast(target, SPELL_FROSTBOLT);
                     uiFrostboltTimer = 6000;
                 } else uiFrostboltTimer -= diff;
             }
@@ -953,7 +944,7 @@ class npc_azure_mage_slayer : public CreatureScript
 public:
     npc_azure_mage_slayer() : CreatureScript("npc_azure_mage_slayer") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_azure_mage_slayerAI>(creature);
     }
@@ -968,13 +959,13 @@ public:
         uint32 uiArcaneEmpowermentTimer;
         uint32 uiSpellLockTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiArcaneEmpowermentTimer = 5000;
             uiSpellLockTimer = 5000;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             violet_hold_trashAI::UpdateAI(diff);
             npc_escortAI::UpdateAI(diff);
@@ -1013,7 +1004,7 @@ class npc_azure_raider : public CreatureScript
 public:
     npc_azure_raider() : CreatureScript("npc_azure_raider") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_azure_raiderAI>(creature);
     }
@@ -1028,13 +1019,13 @@ public:
         uint32 uiConcussionBlowTimer;
         uint32 uiMagicReflectionTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiConcussionBlowTimer = 5000;
             uiMagicReflectionTimer = 8000;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             violet_hold_trashAI::UpdateAI(diff);
             npc_escortAI::UpdateAI(diff);
@@ -1072,14 +1063,14 @@ public:
             instance = creature->GetInstanceScript();
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             _backstabTimer = 1300;
             _tacticalBlinkTimer = 8000;
             _tacticalBlinkCast =false;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             violet_hold_trashAI::UpdateAI(diff);
             npc_escortAI::UpdateAI(diff);
@@ -1119,7 +1110,7 @@ public:
         bool _tacticalBlinkCast;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_azure_stalkerAI>(creature);
     }
@@ -1142,7 +1133,7 @@ public:
         uint32 uiChainsOfIceTimer;
         uint32 uiConeOfColdTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiArcaneBlastTimer = 5000;
             uiSlowTimer = 4000;
@@ -1150,7 +1141,7 @@ public:
             uiConeOfColdTimer = 4000;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             violet_hold_trashAI::UpdateAI(diff);
             npc_escortAI::UpdateAI(diff);
@@ -1164,7 +1155,7 @@ public:
                 {
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     if (target)
-                        DoCast(target, DUNGEON_MODE(SPELL_ARCANE_BLAST, H_SPELL_ARCANE_BLAST));
+                        DoCast(target, SPELL_ARCANE_BLAST);
                     uiArcaneBlastTimer = 6000;
                 } else uiArcaneBlastTimer -= diff;
 
@@ -1189,7 +1180,7 @@ public:
 
                 if (uiConeOfColdTimer <= diff)
                 {
-                   DoCast(DUNGEON_MODE(SPELL_CONE_OF_COLD, H_SPELL_CONE_OF_COLD));
+                   DoCast(SPELL_CONE_OF_COLD);
                     uiConeOfColdTimer = 5000;
                 } else uiConeOfColdTimer -= diff;
             }
@@ -1198,7 +1189,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_azure_spellbreakerAI>(creature);
     }
@@ -1209,7 +1200,7 @@ class npc_azure_captain : public CreatureScript
 public:
     npc_azure_captain() : CreatureScript("npc_azure_captain") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_azure_captainAI>(creature);
     }
@@ -1224,13 +1215,13 @@ public:
         uint32 uiMortalStrikeTimer;
         uint32 uiWhirlwindTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiMortalStrikeTimer = 5000;
             uiWhirlwindTimer = 8000;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             violet_hold_trashAI::UpdateAI(diff);
             npc_escortAI::UpdateAI(diff);
@@ -1261,7 +1252,7 @@ class npc_azure_sorceror : public CreatureScript
 public:
     npc_azure_sorceror() : CreatureScript("npc_azure_sorceror") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_azure_sorcerorAI>(creature);
     }
@@ -1277,14 +1268,14 @@ public:
         uint32 uiArcaneStreamTimerStartingValueHolder;
         uint32 uiManaDetonationTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiArcaneStreamTimer = 4000;
             uiArcaneStreamTimerStartingValueHolder = uiArcaneStreamTimer;
             uiManaDetonationTimer = 5000;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             violet_hold_trashAI::UpdateAI(diff);
             npc_escortAI::UpdateAI(diff);
@@ -1296,14 +1287,14 @@ public:
             {
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                 if (target)
-                    DoCast(target, DUNGEON_MODE(SPELL_ARCANE_STREAM, H_SPELL_ARCANE_STREAM));
+                    DoCast(target, SPELL_ARCANE_STREAM);
                 uiArcaneStreamTimer = urand(0, 5000)+5000;
                 uiArcaneStreamTimerStartingValueHolder = uiArcaneStreamTimer;
             } else uiArcaneStreamTimer -= diff;
 
             if (uiManaDetonationTimer <= diff && uiArcaneStreamTimer >=1500 && uiArcaneStreamTimer <= uiArcaneStreamTimerStartingValueHolder/2)
             {
-                DoCast(DUNGEON_MODE(SPELL_MANA_DETONATION, H_SPELL_MANA_DETONATION));
+                DoCast(SPELL_MANA_DETONATION);
                 uiManaDetonationTimer = urand(2000, 6000);
             } else uiManaDetonationTimer -= diff;
 
@@ -1324,7 +1315,7 @@ public:
 
         uint32 DespawnTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             DespawnTimer = 3000;
 
@@ -1332,9 +1323,9 @@ public:
             DoCast(me, SPELL_ARCANE_SPHERE_PASSIVE, true);
         }
 
-        void EnterCombat(Unit * /*who*/) OVERRIDE { }
+        void EnterCombat(Unit * /*who*/) override { }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (DespawnTimer <= diff)
                 me->Kill(me);
@@ -1343,7 +1334,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_violet_hold_arcane_sphereAI(creature);
     }
@@ -1354,7 +1345,7 @@ class go_activation_crystal : public GameObjectScript
 public:
     go_activation_crystal() : GameObjectScript("go_activation_crystal") { }
 
-    bool OnGossipHello(Player * /*player*/, GameObject* go) OVERRIDE
+    bool OnGossipHello(Player * /*player*/, GameObject* go) override
     {
         go->EventInform(EVENT_ACTIVATE_CRYSTAL);
         return false;

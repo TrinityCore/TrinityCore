@@ -19,30 +19,33 @@
 #ifndef _REALMLIST_H
 #define _REALMLIST_H
 
-#include <ace/Singleton.h>
-#include <ace/Null_Mutex.h>
-#include <ace/INET_Addr.h>
+#include <boost/asio/ip/address.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/io_service.hpp>
 #include "Common.h"
+
+using namespace boost::asio;
 
 enum RealmFlags
 {
-    REALM_FLAG_NONE                              = 0x00,
-    REALM_FLAG_INVALID                           = 0x01,
-    REALM_FLAG_OFFLINE                           = 0x02,
-    REALM_FLAG_SPECIFYBUILD                      = 0x04,
-    REALM_FLAG_UNK1                              = 0x08,
-    REALM_FLAG_UNK2                              = 0x10,
-    REALM_FLAG_RECOMMENDED                       = 0x20,
-    REALM_FLAG_NEW                               = 0x40,
-    REALM_FLAG_FULL                              = 0x80
+    REALM_FLAG_NONE = 0x00,
+    REALM_FLAG_INVALID = 0x01,
+    REALM_FLAG_OFFLINE = 0x02,
+    REALM_FLAG_SPECIFYBUILD = 0x04,
+    REALM_FLAG_UNK1 = 0x08,
+    REALM_FLAG_UNK2 = 0x10,
+    REALM_FLAG_RECOMMENDED = 0x20,
+    REALM_FLAG_NEW = 0x40,
+    REALM_FLAG_FULL = 0x80
 };
 
 // Storage object for a realm
 struct Realm
 {
-    ACE_INET_Addr ExternalAddress;
-    ACE_INET_Addr LocalAddress;
-    ACE_INET_Addr LocalSubnetMask;
+    ip::address ExternalAddress;
+    ip::address LocalAddress;
+    ip::address LocalSubnetMask;
+    uint16 port;
     std::string name;
     uint8 icon;
     RealmFlags flag;
@@ -59,10 +62,15 @@ class RealmList
 public:
     typedef std::map<std::string, Realm> RealmMap;
 
-    RealmList();
-    ~RealmList() { }
+    static RealmList* instance()
+    {
+        static RealmList instance;
+        return &instance;
+    }
 
-    void Initialize(uint32 updateInterval);
+    ~RealmList();
+
+    void Initialize(boost::asio::io_service& ioService, uint32 updateInterval);
 
     void UpdateIfNeed();
 
@@ -73,13 +81,17 @@ public:
     uint32 size() const { return m_realms.size(); }
 
 private:
-    void UpdateRealms(bool init=false);
-    void UpdateRealm(uint32 id, const std::string& name, ACE_INET_Addr const& address, ACE_INET_Addr const& localAddr, ACE_INET_Addr const& localSubmask, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float popu, uint32 build);
+    RealmList();
+
+    void UpdateRealms(bool init = false);
+    void UpdateRealm(uint32 id, const std::string& name, ip::address const& address, ip::address const& localAddr,
+        ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population, uint32 build);
 
     RealmMap m_realms;
     uint32   m_UpdateInterval;
     time_t   m_NextUpdateTime;
+    boost::asio::ip::tcp::resolver* _resolver;
 };
 
-#define sRealmList ACE_Singleton<RealmList, ACE_Null_Mutex>::instance()
+#define sRealmList RealmList::instance()
 #endif

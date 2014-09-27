@@ -35,6 +35,7 @@ class instance_ahnkahet : public InstanceMapScript
         {
             instance_ahnkahet_InstanceScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
 
@@ -55,7 +56,7 @@ class instance_ahnkahet : public InstanceMapScript
                 InitiandGUIDs.clear();
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -82,7 +83,7 @@ class instance_ahnkahet : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -117,7 +118,7 @@ class instance_ahnkahet : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* go) OVERRIDE
+            void OnGameObjectRemove(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -129,7 +130,7 @@ class instance_ahnkahet : public InstanceMapScript
                 }
             }
 
-            void SetData(uint32 type, uint32 data) OVERRIDE
+            void SetData(uint32 type, uint32 data) override
             {
                 switch (type)
                 {
@@ -141,9 +142,9 @@ class instance_ahnkahet : public InstanceMapScript
                         SwitchTrigger = data;
                         break;
                     case DATA_JEDOGA_RESET_INITIANDS:
-                        for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
+                        for (uint64 guid : InitiandGUIDs)
                         {
-                            if (Creature* creature = instance->GetCreature(*itr))
+                            if (Creature* creature = instance->GetCreature(guid))
                             {
                                 creature->Respawn();
                                 if (!creature->IsInEvadeMode())
@@ -156,7 +157,7 @@ class instance_ahnkahet : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type) const OVERRIDE
+            uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -164,9 +165,9 @@ class instance_ahnkahet : public InstanceMapScript
                     case DATA_SPHERE_2:
                         return SpheresState[type - DATA_SPHERE_1];
                     case DATA_ALL_INITIAND_DEAD:
-                        for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
+                        for (uint64 guid : InitiandGUIDs)
                         {
-                            Creature* cr = instance->GetCreature(*itr);
+                            Creature* cr = instance->GetCreature(guid);
                             if (!cr || cr->IsAlive())
                                 return 0;
                         }
@@ -179,7 +180,7 @@ class instance_ahnkahet : public InstanceMapScript
                 return 0;
             }
 
-            void SetData64(uint32 type, uint64 data) OVERRIDE
+            void SetData64(uint32 type, uint64 data) override
             {
                 switch (type)
                 {
@@ -194,7 +195,7 @@ class instance_ahnkahet : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const OVERRIDE
+            uint64 GetData64(uint32 type) const override
             {
                 switch (type)
                 {
@@ -214,11 +215,11 @@ class instance_ahnkahet : public InstanceMapScript
                     {
                         std::vector<uint64> vInitiands;
                         vInitiands.clear();
-                        for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
+                        for (uint64 guid : InitiandGUIDs)
                         {
-                            Creature* cr = instance->GetCreature(*itr);
+                            Creature* cr = instance->GetCreature(guid);
                             if (cr && cr->IsAlive())
-                                vInitiands.push_back(*itr);
+                                vInitiands.push_back(guid);
                         }
                         if (vInitiands.empty())
                             return 0;
@@ -235,7 +236,7 @@ class instance_ahnkahet : public InstanceMapScript
                 return 0;
             }
 
-            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
+            bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -245,9 +246,9 @@ class instance_ahnkahet : public InstanceMapScript
                     case DATA_JEDOGA_SHADOWSEEKER:
                         if (state == DONE)
                         {
-                            for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
+                            for (uint64 guid : InitiandGUIDs)
                             {
-                                if (Creature* cr = instance->GetCreature(*itr))
+                                if (Creature* cr = instance->GetCreature(guid))
                                     cr->DespawnOrUnsummon();
                             }
                         }
@@ -258,50 +259,15 @@ class instance_ahnkahet : public InstanceMapScript
                 return true;
             }
 
-            std::string GetSaveData() OVERRIDE
+            void WriteSaveDataMore(std::ostringstream& data) override
             {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "A K " << GetBossSaveData() << SpheresState[0] << ' ' << SpheresState[1];
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
+                data << SpheresState[0] << ' ' << SpheresState[1];
             }
 
-            void Load(char const* str) OVERRIDE
+            void ReadSaveDataMore(std::istringstream& data) override
             {
-                if (!str)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(str);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(str);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'A' && dataHead2 == 'K')
-                {
-                    for (uint32 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-
-                    loadStream >> SpheresState[0];
-                    loadStream >> SpheresState[1];
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
+                data >> SpheresState[0];
+                data >> SpheresState[1];
             }
 
         protected:
@@ -317,11 +283,11 @@ class instance_ahnkahet : public InstanceMapScript
 
             std::set<uint64> InitiandGUIDs;
 
-            uint8 SpheresState[2];
+            uint32 SpheresState[2];
             uint8 SwitchTrigger;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
            return new instance_ahnkahet_InstanceScript(map);
         }

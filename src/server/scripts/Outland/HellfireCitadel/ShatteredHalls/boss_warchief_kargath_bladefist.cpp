@@ -67,7 +67,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
         {
             boss_warchief_kargath_bladefistAI(Creature* creature) : BossAI(creature, DATA_KARGATH) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 removeAdds();
 
@@ -85,7 +85,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 resetcheck_timer = 5000;
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
                 removeAdds();
@@ -93,12 +93,12 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 instance->SetBossState(DATA_KARGATH, DONE);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }
 
-            void JustSummoned(Creature* summoned) OVERRIDE
+            void JustSummoned(Creature* summoned) override
             {
                 switch (summoned->GetEntry())
                 {
@@ -114,7 +114,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* victim) OVERRIDE
+            void KilledUnit(Unit* victim) override
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                 {
@@ -122,7 +122,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 type, uint32 id) OVERRIDE
+            void MovementInform(uint32 type, uint32 id) override
             {
                 if (InBlade)
                 {
@@ -145,7 +145,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
             {
                 for (std::vector<uint64>::const_iterator itr = adds.begin(); itr!= adds.end(); ++itr)
                 {
-                    Creature* creature = Unit::GetCreature(*me, *itr);
+                    Creature* creature = ObjectAccessor::GetCreature(*me, *itr);
                     if (creature && creature->IsAlive())
                     {
                         creature->GetMotionMaster()->Clear(true);
@@ -157,7 +157,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
 
                 for (std::vector<uint64>::const_iterator itr = assassins.begin(); itr!= assassins.end(); ++itr)
                 {
-                    Creature* creature = Unit::GetCreature(*me, *itr);
+                    Creature* creature = ObjectAccessor::GetCreature(*me, *itr);
                     if (creature && creature->IsAlive())
                     {
                         creature->GetMotionMaster()->Clear(true);
@@ -175,7 +175,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 me->SummonCreature(NPC_SHATTERED_ASSASSIN, AssassExit[0], AssassExit[1]-8, AssassExit[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 //Return since we have no target
                 if (!UpdateVictim())
@@ -213,8 +213,8 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                             {
                                 //move in bladedance
                                 float x, y, randx, randy;
-                                randx = 0.0f + rand()%40;
-                                randy = 0.0f + rand()%40;
+                                randx = 0.0f + rand32() % 40;
+                                randy = 0.0f + rand32() % 40;
                                 x = 210+ randx;
                                 y = -60- randy;
                                 me->GetMotionMaster()->MovePoint(1, x, y, me->GetPositionZ());
@@ -308,7 +308,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 bool InBlade;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<boss_warchief_kargath_bladefistAI>(creature);
         }

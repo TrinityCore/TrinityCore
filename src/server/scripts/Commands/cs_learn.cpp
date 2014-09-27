@@ -36,7 +36,7 @@ class learn_commandscript : public CommandScript
 public:
     learn_commandscript() : CommandScript("learn_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand learnAllMyCommandTable[] =
         {
@@ -112,9 +112,9 @@ public:
         }
 
         if (allRanks)
-            targetPlayer->learnSpellHighRank(spell);
+            targetPlayer->LearnSpellHighestRank(spell);
         else
-            targetPlayer->learnSpell(spell, false);
+            targetPlayer->LearnSpell(spell, false);
 
         if (GetTalentSpellCost(spellInfo->GetFirstRankSpell()->Id))
             targetPlayer->SendTalentsInfoData(false);
@@ -133,7 +133,7 @@ public:
             if (!spellInfo->IsAbilityOfSkillType(SKILL_INTERNAL))
                 continue;
 
-            handler->GetSession()->GetPlayer()->learnSpell(i, false);
+            handler->GetSession()->GetPlayer()->LearnSpell(i, false);
         }
 
         handler->SendSysMessage(LANG_LEARNING_GM_SKILLS);
@@ -184,7 +184,7 @@ public:
             if (!SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer(), false))
                 continue;
 
-            handler->GetSession()->GetPlayer()->learnSpell(spellInfo->Id, false);
+            handler->GetSession()->GetPlayer()->LearnSpell(spellInfo->Id, false);
         }
 
         handler->SendSysMessage(LANG_COMMAND_LEARN_CLASS_SPELLS);
@@ -228,7 +228,7 @@ public:
                 continue;
 
             // learn highest rank of talent and learn all non-talent spell ranks (recursive by tree)
-            player->learnSpellHighRank(spellId);
+            player->LearnSpellHighestRank(spellId);
             player->AddTalent(spellId, player->GetActiveSpec(), true);
         }
 
@@ -320,7 +320,7 @@ public:
     {
         // skipping UNIVERSAL language (0)
         for (uint8 i = 1; i < LANGUAGES_COUNT; ++i)
-            handler->GetSession()->GetPlayer()->learnSpell(lang_description[i].spell_id, false);
+            handler->GetSession()->GetPlayer()->LearnSpell(lang_description[i].spell_id, false);
 
         handler->SendSysMessage(LANG_COMMAND_LEARN_ALL_LANG);
         return true;
@@ -332,8 +332,9 @@ public:
         if (!handler->extractPlayerTarget((char*)args, &target))
             return false;
 
-        target->learnDefaultSpells();
-        target->learnQuestRewardedSpells();
+        target->LearnDefaultSkills();
+        target->LearnCustomSpells();
+        target->LearnQuestRewardedSpells();
 
         handler->PSendSysMessage(LANG_COMMAND_LEARN_ALL_DEFAULT_AND_QUEST, handler->GetNameLink(target).c_str());
         return true;
@@ -469,7 +470,7 @@ public:
             if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, player, false))
                 continue;
 
-            player->learnSpell(skillLine->spellId, false);
+            player->LearnSpell(skillLine->spellId, false);
         }
     }
 
@@ -498,7 +499,7 @@ public:
             spellId = sSpellMgr->GetFirstSpellInChain(spellId);
 
         if (target->HasSpell(spellId))
-            target->removeSpell(spellId, false, !allRanks);
+            target->RemoveSpell(spellId, false, !allRanks);
         else
             handler->SendSysMessage(LANG_FORGET_SPELL);
 

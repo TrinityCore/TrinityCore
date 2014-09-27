@@ -25,7 +25,7 @@ class ChatLogScript : public PlayerScript
     public:
         ChatLogScript() : PlayerScript("ChatLogScript") { }
 
-        void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg) OVERRIDE
+        void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg) override
         {
             switch (type)
             {
@@ -46,7 +46,7 @@ class ChatLogScript : public PlayerScript
             }
         }
 
-        void OnChat(Player* player, uint32 /*type*/, uint32 lang, std::string& msg, Player* receiver) OVERRIDE
+        void OnChat(Player* player, uint32 /*type*/, uint32 lang, std::string& msg, Player* receiver) override
         {
             if (lang != LANG_ADDON)
                 TC_LOG_DEBUG("chat.log.whisper", "Player %s tells %s: %s",
@@ -56,7 +56,7 @@ class ChatLogScript : public PlayerScript
                     player->GetName().c_str(), receiver ? receiver->GetName().c_str() : "<unknown>", msg.c_str());
         }
 
-        void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group) OVERRIDE
+        void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group) override
         {
             //! NOTE:
             //! LANG_ADDON can only be sent by client in "PARTY", "RAID", "GUILD", "BATTLEGROUND", "WHISPER"
@@ -111,7 +111,7 @@ class ChatLogScript : public PlayerScript
             }
         }
 
-        void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild) OVERRIDE
+        void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild) override
         {
             switch (type)
             {
@@ -131,7 +131,7 @@ class ChatLogScript : public PlayerScript
             }
         }
 
-        void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Channel* channel) OVERRIDE
+        void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Channel* channel) override
         {
             bool isSystem = channel &&
                             (channel->HasFlag(CHANNEL_FLAG_TRADE) ||

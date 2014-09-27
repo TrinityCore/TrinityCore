@@ -19,54 +19,14 @@
 #ifndef TRINITYCORE_COMMON_H
 #define TRINITYCORE_COMMON_H
 
-// config.h needs to be included 1st
-/// @todo this thingy looks like hack, but its not, need to
-// make separate header however, because It makes mess here.
-#ifdef HAVE_CONFIG_H
-// Remove Some things that we will define
-// This is in case including another config.h
-// before trinity config.h
-#ifdef PACKAGE
-#undef PACKAGE
-#endif //PACKAGE
-#ifdef PACKAGE_BUGREPORT
-#undef PACKAGE_BUGREPORT
-#endif //PACKAGE_BUGREPORT
-#ifdef PACKAGE_NAME
-#undef PACKAGE_NAME
-#endif //PACKAGE_NAME
-#ifdef PACKAGE_STRING
-#undef PACKAGE_STRING
-#endif //PACKAGE_STRING
-#ifdef PACKAGE_TARNAME
-#undef PACKAGE_TARNAME
-#endif //PACKAGE_TARNAME
-#ifdef PACKAGE_VERSION
-#undef PACKAGE_VERSION
-#endif //PACKAGE_VERSION
-#ifdef VERSION
-#undef VERSION
-#endif //VERSION
-
-# include "Config.h"
-
-#undef PACKAGE
-#undef PACKAGE_BUGREPORT
-#undef PACKAGE_NAME
-#undef PACKAGE_STRING
-#undef PACKAGE_TARNAME
-#undef PACKAGE_VERSION
-#undef VERSION
-#endif //HAVE_CONFIG_H
-
 #include "Define.h"
 
-#include "Dynamic/UnorderedMap.h"
+#include <unordered_map>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <math.h>
+#include <cmath>
 #include <errno.h>
 #include <signal.h>
 #include <assert.h>
@@ -79,22 +39,19 @@
 #include <sstream>
 #include <algorithm>
 
-#include "Threading/LockedQueue.h"
-#include "Threading/Threading.h"
+#include "Debugging/Errors.h"
 
-#include <ace/Basic_Types.h>
-#include <ace/Guard_T.h>
-#include <ace/RW_Thread_Mutex.h>
-#include <ace/Thread_Mutex.h>
-#include <ace/OS_NS_time.h>
+#include "Threading/LockedQueue.h"
 
 #if PLATFORM == PLATFORM_WINDOWS
-#  include <ace/config-all.h>
-// XP winver - needed to compile with standard leak check in MemoryLeaks.h
-// uncomment later if needed
-//#define _WIN32_WINNT 0x0501
 #  include <ws2tcpip.h>
-//#undef WIN32_WINNT
+
+#  if defined(__INTEL_COMPILER)
+#    if !defined(BOOST_ASIO_HAS_MOVE)
+#      define BOOST_ASIO_HAS_MOVE
+#    endif // !defined(BOOST_ASIO_HAS_MOVE)
+#  endif // if defined(__INTEL_COMPILER)
+
 #else
 #  include <sys/types.h>
 #  include <sys/ioctl.h>
@@ -111,7 +68,6 @@
 #define snprintf _snprintf
 #define atoll _atoi64
 #define vsnprintf _vsnprintf
-#define finite(X) _finite(X)
 #define llabs _abs64
 
 #else
@@ -121,9 +77,7 @@
 
 #endif
 
-inline float finiteAlways(float f) { return finite(f) ? f : 0.0f; }
-
-#define atol(a) strtoul( a, NULL, 10)
+inline float finiteAlways(float f) { return std::isfinite(f) ? f : 0.0f; }
 
 #define STRINGIZE(a) #a
 
@@ -182,25 +136,9 @@ typedef std::vector<std::string> StringVector;
 #endif
 
 #ifndef M_PI
-#define M_PI            3.14159265358979323846f
+#define M_PI            3.14159265358979323846
 #endif
 
 #define MAX_QUERY_LEN 32*1024
-
-#define TRINITY_GUARD(MUTEX, LOCK) \
-  ACE_Guard< MUTEX > TRINITY_GUARD_OBJECT (LOCK); \
-    if (TRINITY_GUARD_OBJECT.locked() == 0) ASSERT(false);
-
-//! For proper implementation of multiple-read, single-write pattern, use
-//! ACE_RW_Mutex as underlying @MUTEX
-# define TRINITY_WRITE_GUARD(MUTEX, LOCK) \
-  ACE_Write_Guard< MUTEX > TRINITY_GUARD_OBJECT (LOCK); \
-    if (TRINITY_GUARD_OBJECT.locked() == 0) ASSERT(false);
-
-//! For proper implementation of multiple-read, single-write pattern, use
-//! ACE_RW_Mutex as underlying @MUTEX
-# define TRINITY_READ_GUARD(MUTEX, LOCK) \
-  ACE_Read_Guard< MUTEX > TRINITY_GUARD_OBJECT (LOCK); \
-    if (TRINITY_GUARD_OBJECT.locked() == 0) ASSERT(false);
 
 #endif

@@ -32,6 +32,7 @@
 #include "CreatureAIImpl.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#include "WorldSession.h"
 
 namespace
 {
@@ -175,8 +176,10 @@ struct TSpellSummary
     uint8 Effects;                                          // set of enum SelectEffect
 } *SpellSummary;
 
-ScriptMgr::ScriptMgr()
-    : _scriptCount(0), _scheduledScripts(0) { }
+ScriptMgr::ScriptMgr() : _scriptCount(0)
+{
+    _scheduledScripts = 0;
+}
 
 ScriptMgr::~ScriptMgr() { }
 
@@ -224,6 +227,7 @@ void ScriptMgr::Unload()
     SCR_CLEAR(TransportScript);
     SCR_CLEAR(AchievementCriteriaScript);
     SCR_CLEAR(PlayerScript);
+    SCR_CLEAR(AccountScript);
     SCR_CLEAR(GuildScript);
     SCR_CLEAR(GroupScript);
     SCR_CLEAR(UnitScript);
@@ -397,39 +401,49 @@ void ScriptMgr::OnNetworkStop()
     FOREACH_SCRIPT(ServerScript)->OnNetworkStop();
 }
 
-void ScriptMgr::OnSocketOpen(WorldSocket* socket)
+void ScriptMgr::OnSocketOpen(std::shared_ptr<WorldSocket> socket)
 {
     ASSERT(socket);
 
     FOREACH_SCRIPT(ServerScript)->OnSocketOpen(socket);
 }
 
-void ScriptMgr::OnSocketClose(WorldSocket* socket, bool wasNew)
+void ScriptMgr::OnSocketClose(std::shared_ptr<WorldSocket> socket)
 {
     ASSERT(socket);
 
-    FOREACH_SCRIPT(ServerScript)->OnSocketClose(socket, wasNew);
+    FOREACH_SCRIPT(ServerScript)->OnSocketClose(socket);
 }
 
-void ScriptMgr::OnPacketReceive(WorldSocket* socket, WorldPacket packet)
+void ScriptMgr::OnPacketReceive(WorldSession* session, WorldPacket const& packet)
 {
-    ASSERT(socket);
+    if (SCR_REG_LST(ServerScript).empty())
+        return;
 
-    FOREACH_SCRIPT(ServerScript)->OnPacketReceive(socket, packet);
+    WorldPacket copy(packet);
+    FOREACH_SCRIPT(ServerScript)->OnPacketReceive(session, copy);
 }
 
-void ScriptMgr::OnPacketSend(WorldSocket* socket, WorldPacket packet)
+void ScriptMgr::OnPacketSend(WorldSession* session, WorldPacket const& packet)
 {
-    ASSERT(socket);
+    ASSERT(session);
 
-    FOREACH_SCRIPT(ServerScript)->OnPacketSend(socket, packet);
+    if (SCR_REG_LST(ServerScript).empty())
+        return;
+
+    WorldPacket copy(packet);
+    FOREACH_SCRIPT(ServerScript)->OnPacketSend(session, copy);
 }
 
-void ScriptMgr::OnUnknownPacketReceive(WorldSocket* socket, WorldPacket packet)
+void ScriptMgr::OnUnknownPacketReceive(WorldSession* session, WorldPacket const& packet)
 {
-    ASSERT(socket);
+    ASSERT(session);
 
-    FOREACH_SCRIPT(ServerScript)->OnUnknownPacketReceive(socket, packet);
+    if (SCR_REG_LST(ServerScript).empty())
+        return;
+
+    WorldPacket copy(packet);
+    FOREACH_SCRIPT(ServerScript)->OnUnknownPacketReceive(session, copy);
 }
 
 void ScriptMgr::OnOpenStateChange(bool open)
@@ -758,17 +772,6 @@ bool ScriptMgr::OnQuestSelect(Player* player, Creature* creature, Quest const* q
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->OnQuestSelect(player, creature, quest);
-}
-
-bool ScriptMgr::OnQuestComplete(Player* player, Creature* creature, Quest const* quest)
-{
-    ASSERT(player);
-    ASSERT(creature);
-    ASSERT(quest);
-
-    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnQuestComplete(player, creature, quest);
 }
 
 bool ScriptMgr::OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
@@ -1177,6 +1180,11 @@ void ScriptMgr::OnPlayerMoneyChanged(Player* player, int32& amount)
     FOREACH_SCRIPT(PlayerScript)->OnMoneyChanged(player, amount);
 }
 
+void ScriptMgr::OnPlayerMoneyLimit(Player* player, int32 amount)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnMoneyLimit(player, amount);
+}
+
 void ScriptMgr::OnGivePlayerXP(Player* player, uint32& amount, Unit* victim)
 {
     FOREACH_SCRIPT(PlayerScript)->OnGiveXP(player, amount, victim);
@@ -1242,9 +1250,9 @@ void ScriptMgr::OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck)
     FOREACH_SCRIPT(PlayerScript)->OnSpellCast(player, spell, skipCheck);
 }
 
-void ScriptMgr::OnPlayerLogin(Player* player)
+void ScriptMgr::OnPlayerLogin(Player* player, bool firstLogin)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnLogin(player);
+    FOREACH_SCRIPT(PlayerScript)->OnLogin(player, firstLogin);
 }
 
 void ScriptMgr::OnPlayerLogout(Player* player)
@@ -1257,9 +1265,14 @@ void ScriptMgr::OnPlayerCreate(Player* player)
     FOREACH_SCRIPT(PlayerScript)->OnCreate(player);
 }
 
-void ScriptMgr::OnPlayerDelete(uint64 guid)
+void ScriptMgr::OnPlayerDelete(uint64 guid, uint32 accountId)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnDelete(guid);
+    FOREACH_SCRIPT(PlayerScript)->OnDelete(guid, accountId);
+}
+
+void ScriptMgr::OnPlayerFailedDelete(uint64 guid, uint32 accountId)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnFailedDelete(guid, accountId);
 }
 
 void ScriptMgr::OnPlayerSave(Player* player)
@@ -1275,6 +1288,42 @@ void ScriptMgr::OnPlayerBindToInstance(Player* player, Difficulty difficulty, ui
 void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea)
 {
     FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(player, newZone, newArea);
+}
+
+void ScriptMgr::OnQuestStatusChange(Player* player, uint32 questId, QuestStatus status)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnQuestStatusChange(player, questId, status);
+}
+
+// Account
+void ScriptMgr::OnAccountLogin(uint32 accountId)
+{
+    FOREACH_SCRIPT(AccountScript)->OnAccountLogin(accountId);
+}
+
+void ScriptMgr::OnFailedAccountLogin(uint32 accountId)
+{
+    FOREACH_SCRIPT(AccountScript)->OnFailedAccountLogin(accountId);
+}
+
+void ScriptMgr::OnEmailChange(uint32 accountId)
+{
+    FOREACH_SCRIPT(AccountScript)->OnEmailChange(accountId);
+}
+
+void ScriptMgr::OnFailedEmailChange(uint32 accountId)
+{
+    FOREACH_SCRIPT(AccountScript)->OnFailedEmailChange(accountId);
+}
+
+void ScriptMgr::OnPasswordChange(uint32 accountId)
+{
+    FOREACH_SCRIPT(AccountScript)->OnPasswordChange(accountId);
+}
+
+void ScriptMgr::OnFailedPasswordChange(uint32 accountId)
+{
+    FOREACH_SCRIPT(AccountScript)->OnFailedPasswordChange(accountId);
 }
 
 // Guild
@@ -1539,6 +1588,12 @@ PlayerScript::PlayerScript(const char* name)
     ScriptRegistry<PlayerScript>::AddScript(this);
 }
 
+AccountScript::AccountScript(const char* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<AccountScript>::AddScript(this);
+}
+
 GuildScript::GuildScript(const char* name)
     : ScriptObject(name)
 {
@@ -1581,6 +1636,7 @@ template class ScriptRegistry<PlayerScript>;
 template class ScriptRegistry<GuildScript>;
 template class ScriptRegistry<GroupScript>;
 template class ScriptRegistry<UnitScript>;
+template class ScriptRegistry<AccountScript>;
 
 // Undefine utility macros.
 #undef GET_SCRIPT_RET

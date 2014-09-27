@@ -19,6 +19,7 @@
 #define HALLS_OF_LIGHTNING_H_
 
 #define HoLScriptName "instance_halls_of_lightning"
+#define DataHeader    "HOL"
 
 uint32 const EncounterCount = 4;
 

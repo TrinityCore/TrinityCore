@@ -59,13 +59,13 @@ class boss_magmadar : public CreatureScript
             {
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 BossAI::Reset();
                 DoCast(me, SPELL_MAGMA_SPIT, true);
             }
 
-            void EnterCombat(Unit* victim) OVERRIDE
+            void EnterCombat(Unit* victim) override
             {
                 BossAI::EnterCombat(victim);
                 events.ScheduleEvent(EVENT_FRENZY, 30000);
@@ -73,7 +73,7 @@ class boss_magmadar : public CreatureScript
                 events.ScheduleEvent(EVENT_LAVA_BOMB, 12000);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -110,7 +110,7 @@ class boss_magmadar : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_magmadarAI(creature);
         }

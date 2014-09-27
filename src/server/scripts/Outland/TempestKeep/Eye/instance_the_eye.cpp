@@ -60,8 +60,9 @@ class instance_the_eye : public InstanceMapScript
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-            void Initialize() OVERRIDE
+            void Initialize() override
             {
+                SetHeaders(DataHeader);
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
                 ThaladredTheDarkener = 0;
@@ -76,7 +77,7 @@ class instance_the_eye : public InstanceMapScript
                 AlarEventPhase = 0;
             }
 
-            bool IsEncounterInProgress() const OVERRIDE
+            bool IsEncounterInProgress() const override
             {
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     if (m_auiEncounter[i] == IN_PROGRESS)
@@ -85,7 +86,7 @@ class instance_the_eye : public InstanceMapScript
                 return false;
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -113,7 +114,7 @@ class instance_the_eye : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 identifier) const OVERRIDE
+            uint64 GetData64(uint32 identifier) const override
             {
                 switch (identifier)
                 {
@@ -128,7 +129,7 @@ class instance_the_eye : public InstanceMapScript
                 return 0;
             }
 
-            void SetData(uint32 type, uint32 data) OVERRIDE
+            void SetData(uint32 type, uint32 data) override
             {
                 switch (type)
                 {
@@ -151,7 +152,7 @@ class instance_the_eye : public InstanceMapScript
                     SaveToDB();
             }
 
-            uint32 GetData(uint32 type) const OVERRIDE
+            uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -163,7 +164,7 @@ class instance_the_eye : public InstanceMapScript
                 return 0;
             }
 
-            std::string GetSaveData() OVERRIDE
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -174,7 +175,7 @@ class instance_the_eye : public InstanceMapScript
                 return stream.str();
             }
 
-            void Load(const char* in) OVERRIDE
+            void Load(const char* in) override
             {
                 if (!in)
                 {
@@ -192,7 +193,7 @@ class instance_the_eye : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_the_eye_InstanceMapScript(map);
         }

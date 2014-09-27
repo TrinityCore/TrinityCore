@@ -38,7 +38,7 @@ public:
 
 private:
     Worker() : ZmqWorker("","") {}
-    void dispatch(const zmqpp::message&) OVERRIDE;
+    void dispatch(const zmqpp::message&);
 };
 
 #endif

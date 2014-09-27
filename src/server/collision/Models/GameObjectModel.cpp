@@ -43,7 +43,7 @@ struct GameobjectModelData
     std::string name;
 };
 
-typedef UNORDERED_MAP<uint32, GameobjectModelData> ModelList;
+typedef std::unordered_map<uint32, GameobjectModelData> ModelList;
 ModelList model_list;
 
 void LoadGameObjectModelList()
@@ -140,6 +140,7 @@ bool GameObjectModel::initialize(const GameObject& go, const GameObjectDisplayIn
     }
 #endif
 
+    owner = &go;
     return true;
 }
 
@@ -161,11 +162,11 @@ GameObjectModel* GameObjectModel::Create(const GameObject& go)
 
 bool GameObjectModel::intersectRay(const G3D::Ray& ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask) const
 {
-    if (!(phasemask & ph_mask))
+    if (!(phasemask & ph_mask) || !owner->isSpawned())
         return false;
 
     float time = ray.intersectionTime(iBound);
-    if (time == G3D::inf())
+    if (time == G3D::finf())
         return false;
 
     // child bounds are defined in object space:

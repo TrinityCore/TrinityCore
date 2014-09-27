@@ -37,7 +37,7 @@ class lookup_commandscript : public CommandScript
 public:
     lookup_commandscript() : CommandScript("lookup_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand lookupPlayerCommandTable[] =
         {
@@ -628,7 +628,7 @@ public:
             return false;
 
         // can be NULL at console call
-        Player* target = handler->getSelectedPlayer();
+        Player* target = handler->getSelectedPlayerOrSelf();
 
         std::string namePart = args;
         std::wstring wNamePart;

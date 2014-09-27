@@ -47,32 +47,29 @@ class npc_shenthul : public CreatureScript
 public:
     npc_shenthul() : CreatureScript("npc_shenthul") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_SHATTERED_SALUTE)
         {
-            CAST_AI(npc_shenthul::npc_shenthulAI, creature->AI())->CanTalk = true;
-            CAST_AI(npc_shenthul::npc_shenthulAI, creature->AI())->PlayerGUID = player->GetGUID();
+            ENSURE_AI(npc_shenthul::npc_shenthulAI, creature->AI())->CanTalk = true;
+            ENSURE_AI(npc_shenthul::npc_shenthulAI, creature->AI())->PlayerGUID = player->GetGUID();
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_shenthulAI(creature);
     }
 
     struct npc_shenthulAI : public ScriptedAI
     {
-        npc_shenthulAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_shenthulAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        bool CanTalk;
-        bool CanEmote;
-        uint32 SaluteTimer;
-        uint32 ResetTimer;
-        uint64 PlayerGUID;
-
-        void Reset() OVERRIDE
+        void Initialize()
         {
             CanTalk = false;
             CanEmote = false;
@@ -81,9 +78,20 @@ public:
             PlayerGUID = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        bool CanTalk;
+        bool CanEmote;
+        uint32 SaluteTimer;
+        uint32 ResetTimer;
+        uint64 PlayerGUID;
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void EnterCombat(Unit* /*who*/) override { }
+
+        void UpdateAI(uint32 diff) override
         {
             if (CanEmote)
             {
@@ -114,7 +122,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void ReceiveEmote(Player* player, uint32 emote) OVERRIDE
+        void ReceiveEmote(Player* player, uint32 emote) override
         {
             if (emote == TEXT_EMOTE_SALUTE && player->GetQuestStatus(QUEST_SHATTERED_SALUTE) == QUEST_STATUS_INCOMPLETE)
             {
@@ -155,7 +163,7 @@ class npc_thrall_warchief : public CreatureScript
 public:
     npc_thrall_warchief() : CreatureScript("npc_thrall_warchief") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -192,7 +200,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -204,27 +212,35 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_thrall_warchiefAI(creature);
     }
 
     struct npc_thrall_warchiefAI : public ScriptedAI
     {
-        npc_thrall_warchiefAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_thrall_warchiefAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        uint32 ChainLightningTimer;
-        uint32 ShockTimer;
-
-        void Reset() OVERRIDE
+        void Initialize()
         {
             ChainLightningTimer = 2000;
             ShockTimer = 8000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        uint32 ChainLightningTimer;
+        uint32 ShockTimer;
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void EnterCombat(Unit* /*who*/) override { }
+
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

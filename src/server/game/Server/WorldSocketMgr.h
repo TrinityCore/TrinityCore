@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,50 +25,42 @@
 #ifndef __WORLDSOCKETMGR_H
 #define __WORLDSOCKETMGR_H
 
-#include <ace/Basic_Types.h>
-#include <ace/Singleton.h>
-#include <ace/Thread_Mutex.h>
+#include "SocketMgr.h"
 
 class WorldSocket;
-class ReactorRunnable;
-class ACE_Event_Handler;
 
 /// Manages all sockets connected to peers and network threads
-class WorldSocketMgr
+class WorldSocketMgr : public SocketMgr<WorldSocket>
 {
+    typedef SocketMgr<WorldSocket> BaseSocketMgr;
+
 public:
-    friend class WorldSocket;
-    friend class ACE_Singleton<WorldSocketMgr, ACE_Thread_Mutex>;
+    static WorldSocketMgr& Instance()
+    {
+        static WorldSocketMgr instance;
+        return instance;
+    }
 
     /// Start network, listen at address:port .
-    int StartNetwork(ACE_UINT16 port, const char* address);
+    bool StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port) override;
 
     /// Stops all network threads, It will wait for all running threads .
-    void StopNetwork();
+    void StopNetwork() override;
 
-    /// Wait untill all network threads have "joined" .
-    void Wait();
+    void OnSocketOpen(tcp::socket&& sock) override;
 
-private:
-    int OnSocketOpen(WorldSocket* sock);
-
-    int StartReactiveIO(ACE_UINT16 port, const char* address);
-
-private:
+protected:
     WorldSocketMgr();
-    virtual ~WorldSocketMgr();
 
-    ReactorRunnable* m_NetThreads;
-    size_t m_NetThreadsCount;
+    NetworkThread<WorldSocket>* CreateThreads() const override;
 
-    int m_SockOutKBuff;
-    int m_SockOutUBuff;
-    bool m_UseNoDelay;
-
-    class WorldSocketAcceptor* m_Acceptor;
+private:
+    int32 _socketSendBufferSize;
+    int32 m_SockOutUBuff;
+    bool _tcpNoDelay;
 };
 
-#define sWorldSocketMgr ACE_Singleton<WorldSocketMgr, ACE_Thread_Mutex>::instance()
+#define sWorldSocketMgr WorldSocketMgr::Instance()
 
 #endif
 /// @}

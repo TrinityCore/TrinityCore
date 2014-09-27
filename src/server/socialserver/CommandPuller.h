@@ -37,8 +37,8 @@ public:
     int svc();
 
 protected:
-    int HandleOpen() OVERRIDE;
-    int HandleClose(u_long flags = 0) OVERRIDE;
+    int HandleOpen();
+    int HandleClose(u_long flags = 0);
 
 private:
     //PULL socket for nodes to announce events

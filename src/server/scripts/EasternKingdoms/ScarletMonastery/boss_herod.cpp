@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
+#include "scarlet_monastery.h"
 
 enum Says
 {
@@ -44,89 +45,98 @@ enum Spells
     SPELL_FRENZY                = 8269
 };
 
-enum Entry
+enum Npcs
 {
-    ENTRY_SCARLET_TRAINEE       = 6575,
-    ENTRY_SCARLET_MYRMIDON      = 4295
+    NPC_SCARLET_TRAINEE         = 6575,
+    NPC_SCARLET_MYRMIDON        = 4295
 };
+
+enum Events
+{
+    EVENT_CLEAVE                = 1,
+    EVENT_WHIRLWIND
+};
+
+Position const ScarletTraineePos = { 1939.18f, -431.58f, 17.09f, 6.22f };
 
 class boss_herod : public CreatureScript
 {
-public:
-    boss_herod() : CreatureScript("boss_herod") { }
+    public:
+        boss_herod() : CreatureScript("boss_herod") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new boss_herodAI(creature);
-    }
-
-    struct boss_herodAI : public ScriptedAI
-    {
-        boss_herodAI(Creature* creature) : ScriptedAI(creature) { }
-
-        bool Enrage;
-
-        uint32 Cleave_Timer;
-        uint32 Whirlwind_Timer;
-
-        void Reset() OVERRIDE
+        struct boss_herodAI : public BossAI
         {
-            Enrage = false;
-            Cleave_Timer = 12000;
-            Whirlwind_Timer = 60000;
-        }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE
-        {
-            Talk(SAY_AGGRO);
-            DoCast(me, SPELL_RUSHINGCHARGE);
-        }
-
-         void KilledUnit(Unit* /*victim*/) OVERRIDE
-         {
-             Talk(SAY_KILL);
-         }
-
-         void JustDied(Unit* /*killer*/) OVERRIDE
-         {
-             for (uint8 i = 0; i < 20; ++i)
-                 me->SummonCreature(ENTRY_SCARLET_TRAINEE, 1939.18f, -431.58f, 17.09f, 6.22f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
-         }
-
-        void UpdateAI(uint32 diff) OVERRIDE
-        {
-            if (!UpdateVictim())
-                return;
-
-            //If we are <30% hp goes Enraged
-            if (!Enrage && !HealthAbovePct(30) && !me->IsNonMeleeSpellCast(false))
+            boss_herodAI(Creature* creature) : BossAI(creature, DATA_HEROD)
             {
-                Talk(EMOTE_ENRAGE);
-                Talk(SAY_ENRAGE);
-                DoCast(me, SPELL_FRENZY);
-                Enrage = true;
+                _enrage = false;
             }
 
-            //Cleave_Timer
-            if (Cleave_Timer <= diff)
+            void Reset() override
             {
-                DoCastVictim(SPELL_CLEAVE);
-                Cleave_Timer = 12000;
+                _enrage = false;
+                _Reset();
             }
-            else Cleave_Timer -= diff;
 
-            // Whirlwind_Timer
-            if (Whirlwind_Timer <= diff)
+            void EnterCombat(Unit* /*who*/) override
             {
-                Talk(SAY_WHIRLWIND);
-                DoCastVictim(SPELL_WHIRLWIND);
-                Whirlwind_Timer = 30000;
-            }
-            else Whirlwind_Timer -= diff;
+                Talk(SAY_AGGRO);
+                DoCast(me, SPELL_RUSHINGCHARGE);
+                _EnterCombat();
 
-            DoMeleeAttackIfReady();
+                events.ScheduleEvent(EVENT_CLEAVE, 12000);
+                events.ScheduleEvent(EVENT_WHIRLWIND, 60000);
+            }
+
+            void KilledUnit(Unit* /*victim*/) override
+            {
+                Talk(SAY_KILL);
+            }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                _JustDied();
+
+                for (uint8 i = 0; i < 20; ++i)
+                    me->SummonCreature(NPC_SCARLET_TRAINEE, ScarletTraineePos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+            }
+
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            {
+                if (!_enrage && me->HealthBelowPctDamaged(30, damage))
+                {
+                    Talk(EMOTE_ENRAGE);
+                    Talk(SAY_ENRAGE);
+                    DoCast(me, SPELL_FRENZY);
+                    _enrage = true;
+                }
+            }
+
+            void ExecuteEvent(uint32 eventId) override
+            {
+                switch (eventId)
+                {
+                    case EVENT_CLEAVE:
+                        DoCastVictim(SPELL_CLEAVE);
+                        events.ScheduleEvent(EVENT_CLEAVE, 12000);
+                        break;
+                    case EVENT_WHIRLWIND:
+                        Talk(SAY_WHIRLWIND);
+                        DoCastVictim(SPELL_WHIRLWIND);
+                        events.ScheduleEvent(EVENT_WHIRLWIND, 30000);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            private:
+                bool _enrage;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetScarletMonasteryAI<boss_herodAI>(creature);
         }
-    };
 };
 
 class npc_scarlet_trainee : public CreatureScript
@@ -134,7 +144,7 @@ class npc_scarlet_trainee : public CreatureScript
 public:
     npc_scarlet_trainee() : CreatureScript("npc_scarlet_trainee") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_scarlet_traineeAI(creature);
     }
@@ -148,11 +158,11 @@ public:
 
         uint32 Start_Timer;
 
-        void Reset() OVERRIDE { }
-        void WaypointReached(uint32 /*waypointId*/) OVERRIDE { }
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void Reset() override { }
+        void WaypointReached(uint32 /*waypointId*/) override { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (Start_Timer)
             {

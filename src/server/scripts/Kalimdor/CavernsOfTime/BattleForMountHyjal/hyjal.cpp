@@ -53,10 +53,10 @@ class npc_jaina_proudmoore : public CreatureScript
 public:
     npc_jaina_proudmoore() : CreatureScript("npc_jaina_proudmoore") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
-        hyjalAI* ai = CAST_AI(hyjalAI, creature->AI());
+        hyjalAI* ai = ENSURE_AI(hyjalAI, creature->AI());
         switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
@@ -78,9 +78,9 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
-        hyjalAI* ai = CAST_AI(hyjalAI, creature->AI());
+        hyjalAI* ai = ENSURE_AI(hyjalAI, creature->AI());
         if (ai->EventBegun)
             return false;
 
@@ -100,7 +100,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         if (!creature->GetInstanceScript())
             return NULL;
@@ -132,10 +132,10 @@ class npc_thrall : public CreatureScript
 public:
     npc_thrall() : CreatureScript("npc_thrall") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
-        hyjalAI* ai = CAST_AI(hyjalAI, creature->AI());
+        hyjalAI* ai = ENSURE_AI(hyjalAI, creature->AI());
         ai->DeSpawnVeins();//despawn the alliance veins
         switch (action)
         {
@@ -158,9 +158,9 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
-        hyjalAI* ai = CAST_AI(hyjalAI, creature->AI());
+        hyjalAI* ai = ENSURE_AI(hyjalAI, creature->AI());
         if (ai->EventBegun)
             return false;
 
@@ -185,7 +185,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         if (!creature->GetInstanceScript())
             return NULL;
@@ -213,7 +213,7 @@ class npc_tyrande_whisperwind : public CreatureScript
 public:
     npc_tyrande_whisperwind() : CreatureScript("npc_tyrande_whisperwind") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         if (!creature->GetInstanceScript())
             return NULL;
@@ -224,7 +224,7 @@ public:
         return ai;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF)
@@ -240,9 +240,9 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
-        hyjalAI* ai = CAST_AI(hyjalAI, creature->AI());
+        hyjalAI* ai = ENSURE_AI(hyjalAI, creature->AI());
         uint32 AzgalorEvent = ai->GetInstanceData(DATA_AZGALOREVENT);
 
         // Only let them get item if Azgalor is dead.

@@ -223,7 +223,7 @@ std::string Warden::Penalty(WardenCheck* check /*= NULL*/)
 
 void WorldSession::HandleWardenDataOpcode(WorldPacket& recvData)
 {
-    if (!_warden)
+    if (!_warden || recvData.empty())
         return;
 
     _warden->DecryptData(recvData.contents(), recvData.size());

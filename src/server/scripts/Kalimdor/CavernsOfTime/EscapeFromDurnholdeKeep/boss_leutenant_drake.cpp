@@ -37,7 +37,7 @@ class go_barrel_old_hillsbrad : public GameObjectScript
 public:
     go_barrel_old_hillsbrad() : GameObjectScript("go_barrel_old_hillsbrad") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
+    bool OnGossipHello(Player* /*player*/, GameObject* go) override
     {
         if (InstanceScript* instance = go->GetInstanceScript())
         {
@@ -107,24 +107,19 @@ class boss_lieutenant_drake : public CreatureScript
 public:
     boss_lieutenant_drake() : CreatureScript("boss_lieutenant_drake") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_lieutenant_drakeAI(creature);
     }
 
     struct boss_lieutenant_drakeAI : public ScriptedAI
     {
-        boss_lieutenant_drakeAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_lieutenant_drakeAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        bool CanPatrol;
-        uint32 wpId;
-
-        uint32 Whirlwind_Timer;
-        uint32 Fear_Timer;
-        uint32 MortalStrike_Timer;
-        uint32 ExplodingShout_Timer;
-
-        void Reset() OVERRIDE
+        void Initialize()
         {
             CanPatrol = true;
             wpId = 0;
@@ -135,22 +130,35 @@ public:
             ExplodingShout_Timer = 25000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        bool CanPatrol;
+        uint32 wpId;
+
+        uint32 Whirlwind_Timer;
+        uint32 Fear_Timer;
+        uint32 MortalStrike_Timer;
+        uint32 ExplodingShout_Timer;
+
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             /// @todo make this work
             if (CanPatrol && wpId == 0)
@@ -167,7 +175,7 @@ public:
             if (Whirlwind_Timer <= diff)
             {
                 DoCastVictim(SPELL_WHIRLWIND);
-                Whirlwind_Timer = 20000+rand()%5000;
+                Whirlwind_Timer = 20000 + rand32() % 5000;
             } else Whirlwind_Timer -= diff;
 
             //Fear
@@ -175,7 +183,7 @@ public:
             {
                 Talk(SAY_SHOUT);
                 DoCastVictim(SPELL_FRIGHTENING_SHOUT);
-                Fear_Timer = 25000+rand()%10000;
+                Fear_Timer = 25000 + rand32() % 10000;
             } else Fear_Timer -= diff;
 
             //Mortal Strike
@@ -183,7 +191,7 @@ public:
             {
                 Talk(SAY_MORTAL);
                 DoCastVictim(SPELL_MORTAL_STRIKE);
-                MortalStrike_Timer = 20000+rand()%10000;
+                MortalStrike_Timer = 20000 + rand32() % 10000;
             } else MortalStrike_Timer -= diff;
 
             DoMeleeAttackIfReady();

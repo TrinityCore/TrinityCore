@@ -84,13 +84,13 @@ class boss_tharon_ja : public CreatureScript
         {
             boss_tharon_jaAI(Creature* creature) : BossAI(creature, DATA_THARON_JA) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
                 me->RestoreDisplayId();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 _EnterCombat();
@@ -101,13 +101,13 @@ class boss_tharon_ja : public CreatureScript
                 events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(8000, 10000));
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
 
@@ -116,7 +116,7 @@ class boss_tharon_ja : public CreatureScript
                 DoCastAOE(SPELL_ACHIEVEMENT_CHECK, true);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -199,7 +199,7 @@ class boss_tharon_ja : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetDrakTharonKeepAI<boss_tharon_jaAI>(creature);
         }
@@ -214,7 +214,7 @@ class spell_tharon_ja_clear_gift_of_tharon_ja : public SpellScriptLoader
         {
             PrepareSpellScript(spell_tharon_ja_clear_gift_of_tharon_ja_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_GIFT_OF_THARON_JA))
                     return false;
@@ -227,13 +227,13 @@ class spell_tharon_ja_clear_gift_of_tharon_ja : public SpellScriptLoader
                     target->RemoveAura(SPELL_GIFT_OF_THARON_JA);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_tharon_ja_clear_gift_of_tharon_ja_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_tharon_ja_clear_gift_of_tharon_ja_SpellScript();
         }

@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,56 +24,67 @@ enum Spells
     SPELL_MORTALSTRIKE                                     = 24573
 };
 
+enum Events
+{
+    EVENT_WHIRLWIND                                        = 1,
+    EVENT_MORTALSTRIKE                                     = 2
+};
+
 class boss_gorosh_the_dervish : public CreatureScript
 {
-public:
-    boss_gorosh_the_dervish() : CreatureScript("boss_gorosh_the_dervish") { }
+    public:
+        boss_gorosh_the_dervish() : CreatureScript("boss_gorosh_the_dervish") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new boss_gorosh_the_dervishAI(creature);
-    }
-
-    struct boss_gorosh_the_dervishAI : public ScriptedAI
-    {
-        boss_gorosh_the_dervishAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 WhirlWind_Timer;
-        uint32 MortalStrike_Timer;
-
-        void Reset() OVERRIDE
+        struct boss_gorosh_the_dervishAI : public ScriptedAI
         {
-            WhirlWind_Timer = 12000;
-            MortalStrike_Timer = 22000;
-        }
+            boss_gorosh_the_dervishAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
-        {
-        }
-
-        void UpdateAI(uint32 diff) OVERRIDE
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            //WhirlWind_Timer
-            if (WhirlWind_Timer <= diff)
+            void Reset() override
             {
-                DoCast(me, SPELL_WHIRLWIND);
-                WhirlWind_Timer = 15000;
-            } else WhirlWind_Timer -= diff;
+                _events.Reset();
+            }
 
-            //MortalStrike_Timer
-            if (MortalStrike_Timer <= diff)
+            void EnterCombat(Unit* /*who*/) override
             {
-                DoCastVictim(SPELL_MORTALSTRIKE);
-                MortalStrike_Timer = 15000;
-            } else MortalStrike_Timer -= diff;
+                _events.ScheduleEvent(EVENT_WHIRLWIND, 12000);
+                _events.ScheduleEvent(EVENT_MORTALSTRIKE, 22000);
+            }
 
-            DoMeleeAttackIfReady();
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_WHIRLWIND:
+                            DoCast(me, SPELL_WHIRLWIND);
+                            _events.ScheduleEvent(EVENT_WHIRLWIND, 15000);
+                            break;
+                        case EVENT_MORTALSTRIKE:
+                            DoCastVictim(SPELL_MORTALSTRIKE);
+                            _events.ScheduleEvent(EVENT_MORTALSTRIKE, 15000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+        private:
+            EventMap _events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new boss_gorosh_the_dervishAI(creature);
         }
-    };
 };
 
 void AddSC_boss_gorosh_the_dervish()

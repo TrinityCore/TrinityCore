@@ -24,7 +24,7 @@ class go_main_chambers_access_panel : public GameObjectScript
     public:
         go_main_chambers_access_panel() : GameObjectScript("go_main_chambers_access_panel") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
+        bool OnGossipHello(Player* /*player*/, GameObject* go) override
         {
             InstanceScript* instance = go->GetInstanceScript();
             if (!instance)
@@ -55,6 +55,7 @@ class instance_steam_vault : public InstanceMapScript
         {
             instance_steam_vault_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
 
                 ThespiaGUID          = 0;
@@ -65,7 +66,7 @@ class instance_steam_vault : public InstanceMapScript
                 DistillerState       = 0;
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -83,7 +84,7 @@ class instance_steam_vault : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -95,7 +96,7 @@ class instance_steam_vault : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const OVERRIDE
+            uint64 GetData64(uint32 type) const override
             {
                 switch (type)
                 {
@@ -111,20 +112,20 @@ class instance_steam_vault : public InstanceMapScript
                 return 0;
             }
 
-            void SetData(uint32 type, uint32 data) OVERRIDE
+            void SetData(uint32 type, uint32 data) override
             {
                 if (type == DATA_DISTILLER)
                     DistillerState = data;
             }
 
-            uint32 GetData(uint32 type) const OVERRIDE
+            uint32 GetData(uint32 type) const override
             {
                 if (type == DATA_DISTILLER)
                     return DistillerState;
                 return 0;
             }
 
-            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
+            bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -156,59 +157,16 @@ class instance_steam_vault : public InstanceMapScript
                 return true;
             }
 
-            std::string GetSaveData() OVERRIDE
-            {
-                OUT_SAVE_INST_DATA;
+        protected:
+            uint64 ThespiaGUID;
+            uint64 MekgineerGUID;
+            uint64 KalithreshGUID;
 
-                std::ostringstream saveStream;
-                saveStream << "S V " << GetBossSaveData();
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(char const* str) OVERRIDE
-            {
-                if (!str)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(str);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(str);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'S' && dataHead2 == 'V')
-                {
-                    for (uint32 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
-            }
-
-            protected:
-                uint64 ThespiaGUID;
-                uint64 MekgineerGUID;
-                uint64 KalithreshGUID;
-
-                uint64 MainChambersDoorGUID;
-                uint8 DistillerState;
+            uint64 MainChambersDoorGUID;
+            uint8 DistillerState;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_steam_vault_InstanceMapScript(map);
         }

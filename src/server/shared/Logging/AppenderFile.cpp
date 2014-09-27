@@ -45,7 +45,7 @@ AppenderFile::~AppenderFile()
 
 void AppenderFile::_write(LogMessage const& message)
 {
-    bool exceedMaxSize = maxFileSize > 0 && (fileSize.value() + message.Size()) > maxFileSize;
+    bool exceedMaxSize = maxFileSize > 0 && (fileSize.load() + message.Size()) > maxFileSize;
 
     if (dynamicName)
     {

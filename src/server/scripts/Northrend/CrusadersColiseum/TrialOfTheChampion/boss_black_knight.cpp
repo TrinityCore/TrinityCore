@@ -83,7 +83,29 @@ public:
     {
         boss_black_knightAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            bEventInProgress = false;
+            bEvent = false;
+            bSummonArmy = false;
+            bDeathArmyDone = false;
+
+            uiPhase = PHASE_UNDEAD;
+
+            uiIcyTouchTimer = urand(5000, 9000);
+            uiPlagueStrikeTimer = urand(10000, 13000);
+            uiDeathRespiteTimer = urand(15000, 16000);
+            uiObliterateTimer = urand(17000, 19000);
+            uiDesecration = urand(15000, 16000);
+            uiDeathArmyCheckTimer = 7000;
+            uiResurrectTimer = 4000;
+            uiGhoulExplodeTimer = 8000;
+            uiDeathBiteTimer = urand(2000, 4000);
+            uiMarkedDeathTimer = urand(5000, 7000);
         }
 
         InstanceScript* instance;
@@ -108,29 +130,13 @@ public:
         uint32 uiDeathBiteTimer;
         uint32 uiMarkedDeathTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             RemoveSummons();
             me->SetDisplayId(me->GetNativeDisplayId());
             me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
 
-            bEventInProgress = false;
-            bEvent = false;
-            bSummonArmy = false;
-            bDeathArmyDone = false;
-
-            uiPhase = PHASE_UNDEAD;
-
-            uiIcyTouchTimer = urand(5000, 9000);
-            uiPlagueStrikeTimer = urand(10000, 13000);
-            uiDeathRespiteTimer = urand(15000, 16000);
-            uiObliterateTimer = urand(17000, 19000);
-            uiDesecration = urand(15000, 16000);
-            uiDeathArmyCheckTimer = 7000;
-            uiResurrectTimer = 4000;
-            uiGhoulExplodeTimer = 8000;
-            uiDeathBiteTimer = urand(2000, 4000);
-            uiMarkedDeathTimer = urand(5000, 7000);
+            Initialize();
         }
 
         void RemoveSummons()
@@ -140,20 +146,20 @@ public:
 
             for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
             {
-                if (Creature* temp = Unit::GetCreature(*me, *itr))
+                if (Creature* temp = ObjectAccessor::GetCreature(*me, *itr))
                     if (temp)
                         temp->DisappearAndDie();
             }
             SummonList.clear();
         }
 
-        void JustSummoned(Creature* summon) OVERRIDE
+        void JustSummoned(Creature* summon) override
         {
             SummonList.push_back(summon->GetGUID());
             summon->AI()->AttackStart(me->GetVictim());
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -268,7 +274,7 @@ public:
                 DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage) OVERRIDE
+        void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage) override
         {
             if (uiDamage > me->GetHealth() && uiPhase <= PHASE_SKELETON)
             {
@@ -289,7 +295,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             DoCast(me, SPELL_KILL_CREDIT);
 
@@ -297,7 +303,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_black_knightAI>(creature);
     }
@@ -310,16 +316,24 @@ public:
 
     struct npc_risen_ghoulAI : public ScriptedAI
     {
-        npc_risen_ghoulAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_risen_ghoulAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        uint32 uiAttackTimer;
-
-        void Reset() OVERRIDE
+        void Initialize()
         {
             uiAttackTimer = 3500;
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        uint32 uiAttackTimer;
+
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -338,7 +352,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_risen_ghoulAI(creature);
     }
@@ -356,12 +370,12 @@ public:
             Start(false, true, 0, NULL);
         }
 
-        void WaypointReached(uint32 /*waypointId*/) OVERRIDE
+        void WaypointReached(uint32 /*waypointId*/) override
         {
 
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             npc_escortAI::UpdateAI(uiDiff);
 
@@ -371,7 +385,7 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_black_knight_skeletal_gryphonAI(creature);
     }

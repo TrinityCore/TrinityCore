@@ -148,6 +148,13 @@ LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
 LoginDatabase.WorkerThreads = 1
 
 #
+#    Wrong.Password.Login.Logging
+#        Description: Additionally log attempted wrong password logging
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Wrong.Password.Login.Logging = 0
+#
 ###################################################################################################
 
 ###################################################################################################

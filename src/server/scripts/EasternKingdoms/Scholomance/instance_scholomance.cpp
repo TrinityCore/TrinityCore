@@ -27,7 +27,7 @@ class instance_scholomance : public InstanceMapScript
     public:
         instance_scholomance() : InstanceMapScript("instance_scholomance", 289) { }
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_scholomance_InstanceMapScript(map);
         }
@@ -36,6 +36,7 @@ class instance_scholomance : public InstanceMapScript
         {
             instance_scholomance_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 GateKirtonosGUID        = 0;
                 GateGandlingGUID        = 0;
@@ -48,7 +49,7 @@ class instance_scholomance : public InstanceMapScript
                 BrazierOfTheHeraldGUID  = 0;
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -84,7 +85,7 @@ class instance_scholomance : public InstanceMapScript
                 }
             }
 
-            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
+            bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -106,7 +107,7 @@ class instance_scholomance : public InstanceMapScript
                 return true;
             }
 
-            uint64 GetData64(uint32 type) const OVERRIDE
+            uint64 GetData64(uint32 type) const override
             {
                 switch (type)
                 {
@@ -168,49 +169,9 @@ class instance_scholomance : public InstanceMapScript
                     instance->SummonCreature(NPC_DARKMASTER_GANDLING, GandlingLoc);
             }
 
-            std::string GetSaveData() OVERRIDE
+            void ReadSaveDataMore(std::istringstream& /*data*/) override
             {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "S O " << GetBossSaveData();
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(const char* str) OVERRIDE
-            {
-                if (!str)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(str);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(str);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'S' && dataHead2 == 'O')
-                {
-                    for (uint32 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-
-                    CheckToSpawnGandling();
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
+                CheckToSpawnGandling();
             }
 
         protected:

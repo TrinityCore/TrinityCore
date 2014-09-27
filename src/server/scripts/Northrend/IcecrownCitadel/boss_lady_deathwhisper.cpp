@@ -218,16 +218,22 @@ class boss_lady_deathwhisper : public CreatureScript
             boss_lady_deathwhisperAI(Creature* creature) : BossAI(creature, DATA_LADY_DEATHWHISPER),
                 _dominateMindCount(RAID_MODE<uint8>(0, 1, 1, 3)), _introDone(false)
             {
+                Initialize();
             }
 
-            void Reset() OVERRIDE
+            void Initialize()
+            {
+                _waveCounter = 0;
+                _nextVengefulShadeTargetGUID = 0;
+                _darnavanGUID = 0;
+            }
+
+            void Reset() override
             {
                 _Reset();
                 me->SetPower(POWER_MANA, me->GetMaxPower(POWER_MANA));
                 events.SetPhase(PHASE_ONE);
-                _waveCounter = 0;
-                _nextVengefulShadeTargetGUID = 0;
-                _darnavanGUID = 0;
+                Initialize();
                 DoCast(me, SPELL_SHADOW_CHANNELING);
                 me->RemoveAurasDueToSpell(SPELL_BERSERK);
                 me->RemoveAurasDueToSpell(SPELL_MANA_BARRIER);
@@ -235,7 +241,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
             }
 
-            void MoveInLineOfSight(Unit* who) OVERRIDE
+            void MoveInLineOfSight(Unit* who) override
 
             {
                 if (!_introDone && me->IsWithinDistInMap(who, 110.0f))
@@ -252,7 +258,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 }
             }
 
-            void AttackStart(Unit* victim) OVERRIDE
+            void AttackStart(Unit* victim) override
             {
                 if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
@@ -261,7 +267,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     me->GetMotionMaster()->MoveChase(victim);
             }
 
-            void EnterCombat(Unit* who) OVERRIDE
+            void EnterCombat(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(DATA_LADY_DEATHWHISPER, who->ToPlayer()))
                 {
@@ -293,7 +299,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 instance->SetBossState(DATA_LADY_DEATHWHISPER, IN_PROGRESS);
             }
 
-            void JustDied(Unit* killer) OVERRIDE
+            void JustDied(Unit* killer) override
             {
                 Talk(SAY_DEATH);
 
@@ -334,7 +340,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 _JustDied();
             }
 
-            void JustReachedHome() OVERRIDE
+            void JustReachedHome() override
             {
                 _JustReachedHome();
                 instance->SetBossState(DATA_LADY_DEATHWHISPER, FAIL);
@@ -347,13 +353,13 @@ class boss_lady_deathwhisper : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* victim) OVERRIDE
+            void KilledUnit(Unit* victim) override
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_KILL);
             }
 
-            void DamageTaken(Unit* /*damageDealer*/, uint32& damage) OVERRIDE
+            void DamageTaken(Unit* /*damageDealer*/, uint32& damage) override
             {
                 // phase transition
                 if (events.IsInPhase(PHASE_ONE) && damage > me->GetPower(POWER_MANA))
@@ -379,7 +385,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature* summon) OVERRIDE
+            void JustSummoned(Creature* summon) override
             {
                 if (summon->GetEntry() == NPC_DARNAVAN)
                     _darnavanGUID = summon->GetGUID();
@@ -402,7 +408,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     summon->CastSpell(summon, SPELL_ADHERENT_S_DETERMINATION, true);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if ((!UpdateVictim() && !events.IsInPhase(PHASE_INTRO)) || !CheckInRoom())
                     return;
@@ -548,7 +554,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     summon->CastSpell(summon, SPELL_TELEPORT_VISUAL);
             }
 
-            void SetGUID(uint64 guid, int32 id/* = 0*/) OVERRIDE
+            void SetGUID(uint64 guid, int32 id/* = 0*/) override
             {
                 if (id != GUID_CULTIST)
                     return;
@@ -572,12 +578,11 @@ class boss_lady_deathwhisper : public CreatureScript
                 DoCast(cultist, SPELL_DARK_MARTYRDOM_T);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) OVERRIDE
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_DARK_MARTYRDOM_T)
                 {
-                    Position pos;
-                    target->GetPosition(&pos);
+                    Position pos = target->GetPosition();
                     if (target->GetEntry() == NPC_CULT_FANATIC)
                         me->SummonCreature(NPC_REANIMATED_FANATIC, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                     else
@@ -618,7 +623,7 @@ class boss_lady_deathwhisper : public CreatureScript
             bool _introDone;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetIcecrownCitadelAI<boss_lady_deathwhisperAI>(creature);
         }
@@ -635,7 +640,7 @@ class npc_cult_fanatic : public CreatureScript
         {
             npc_cult_fanaticAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 Events.Reset();
                 Events.ScheduleEvent(EVENT_FANATIC_NECROTIC_STRIKE, urand(10000, 12000));
@@ -645,7 +650,7 @@ class npc_cult_fanatic : public CreatureScript
                     Events.ScheduleEvent(EVENT_CULTIST_DARK_MARTYRDOM, urand(18000, 32000));
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) OVERRIDE
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_DARK_TRANSFORMATION)
                     me->UpdateEntry(NPC_DEFORMED_FANATIC);
@@ -657,7 +662,7 @@ class npc_cult_fanatic : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -697,7 +702,7 @@ class npc_cult_fanatic : public CreatureScript
             EventMap Events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetIcecrownCitadelAI<npc_cult_fanaticAI>(creature);
         }
@@ -712,7 +717,7 @@ class npc_cult_adherent : public CreatureScript
         {
             npc_cult_adherentAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 Events.Reset();
                 Events.ScheduleEvent(EVENT_ADHERENT_FROST_FEVER, urand(10000, 12000));
@@ -723,7 +728,7 @@ class npc_cult_adherent : public CreatureScript
                     Events.ScheduleEvent(EVENT_CULTIST_DARK_MARTYRDOM, urand(18000, 32000));
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) OVERRIDE
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_DARK_EMPOWERMENT)
                     me->UpdateEntry(NPC_EMPOWERED_ADHERENT);
@@ -735,7 +740,7 @@ class npc_cult_adherent : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -783,7 +788,7 @@ class npc_cult_adherent : public CreatureScript
             EventMap Events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetIcecrownCitadelAI<npc_cult_adherentAI>(creature);
         }
@@ -802,12 +807,12 @@ class npc_vengeful_shade : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 me->AddAura(SPELL_VENGEFUL_BLAST_PASSIVE, me);
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) OVERRIDE
+            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
             {
                 switch (spell->Id)
                 {
@@ -823,7 +828,7 @@ class npc_vengeful_shade : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetIcecrownCitadelAI<npc_vengeful_shadeAI>(creature);
         }
@@ -838,20 +843,26 @@ class npc_darnavan : public CreatureScript
         {
             npc_darnavanAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
             }
 
-            void Reset() OVERRIDE
+            void Initialize()
+            {
+                _canCharge = true;
+                _canShatter = true;
+            }
+
+            void Reset() override
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_DARNAVAN_BLADESTORM, 10000);
                 _events.ScheduleEvent(EVENT_DARNAVAN_INTIMIDATING_SHOUT, urand(20000, 25000));
                 _events.ScheduleEvent(EVENT_DARNAVAN_MORTAL_STRIKE, urand(25000, 30000));
                 _events.ScheduleEvent(EVENT_DARNAVAN_SUNDER_ARMOR, urand(5000, 8000));
-                _canCharge = true;
-                _canShatter = true;
+                Initialize();
             }
 
-            void JustDied(Unit* killer) OVERRIDE
+            void JustDied(Unit* killer) override
             {
                 _events.Reset();
                 if (Player* owner = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
@@ -867,7 +878,7 @@ class npc_darnavan : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 type, uint32 id) OVERRIDE
+            void MovementInform(uint32 type, uint32 id) override
             {
                 if (type != POINT_MOTION_TYPE || id != POINT_DESPAWN)
                     return;
@@ -875,12 +886,12 @@ class npc_darnavan : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void EnterCombat(Unit* /*victim*/) OVERRIDE
+            void EnterCombat(Unit* /*victim*/) override
             {
                 Talk(SAY_DARNAVAN_AGGRO);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -944,7 +955,7 @@ class npc_darnavan : public CreatureScript
             bool _canShatter;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetIcecrownCitadelAI<npc_darnavanAI>(creature);
         }
@@ -970,13 +981,13 @@ class spell_deathwhisper_mana_barrier : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_deathwhisper_mana_barrier_AuraScript::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_deathwhisper_mana_barrier_AuraScript();
         }
@@ -1001,13 +1012,13 @@ class spell_cultist_dark_martyrdom : public SpellScriptLoader
                 GetCaster()->SetDisplayId(uint32(GetCaster()->GetEntry() == NPC_CULT_FANATIC ? 38009 : 38010));
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_cultist_dark_martyrdom_SpellScript::HandleEffect, EFFECT_2, SPELL_EFFECT_FORCE_DESELECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_cultist_dark_martyrdom_SpellScript();
         }

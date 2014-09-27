@@ -6,6 +6,7 @@
 #include "GuildMgr.h"
 #include "World.h"
 #include "Commands.h"
+#include "WorldSession.h"
 
 SocialServer::SocialServer() :
     poller(new zmqpp::poller()),

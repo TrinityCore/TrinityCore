@@ -45,25 +45,33 @@ class boss_ironaya : public CreatureScript
 
         struct boss_ironayaAI : public ScriptedAI
         {
-            boss_ironayaAI(Creature* creature) : ScriptedAI(creature) { }
+            boss_ironayaAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
 
-            uint32 uiArcingTimer;
-            bool bHasCastWstomp;
-            bool bHasCastKnockaway;
-
-            void Reset() OVERRIDE
+            void Initialize()
             {
                 uiArcingTimer = 3000;
                 bHasCastKnockaway = false;
                 bHasCastWstomp = false;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            uint32 uiArcingTimer;
+            bool bHasCastWstomp;
+            bool bHasCastKnockaway;
+
+            void Reset() override
+            {
+                Initialize();
+            }
+
+            void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }
 
-            void UpdateAI(uint32 uiDiff) OVERRIDE
+            void UpdateAI(uint32 uiDiff) override
             {
                 //Return since we have no target
                 if (!UpdateVictim())
@@ -104,7 +112,7 @@ class boss_ironaya : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_ironayaAI(creature);
         }

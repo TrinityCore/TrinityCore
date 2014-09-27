@@ -39,27 +39,37 @@ class npc_valkyr_battle_maiden : public CreatureScript
 public:
     npc_valkyr_battle_maiden() : CreatureScript("npc_valkyr_battle_maiden") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_valkyr_battle_maidenAI(creature);
     }
 
     struct npc_valkyr_battle_maidenAI : public PassiveAI
     {
-        npc_valkyr_battle_maidenAI(Creature* creature) : PassiveAI(creature) { }
+        npc_valkyr_battle_maidenAI(Creature* creature) : PassiveAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            FlyBackTimer = 500;
+            phase = 0;
+            x = 0.f;
+            y = 0.f;
+            z = 0.f;
+        }
 
         uint32 FlyBackTimer;
         float x, y, z;
         uint32 phase;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             me->setActive(true);
             me->SetVisible(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetCanFly(true);
-            FlyBackTimer = 500;
-            phase = 0;
 
             me->GetPosition(x, y, z);
             z += 4.0f;
@@ -69,7 +79,7 @@ public:
             me->SetPosition(x, y, z, 0.0f);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (FlyBackTimer <= diff)
             {
@@ -99,7 +109,7 @@ public:
                         FlyBackTimer = 4500;
                         break;
                     case 2:
-                        if (!player->isRessurectRequested())
+                        if (!player->isResurrectRequested())
                         {
                             me->HandleEmoteCommand(EMOTE_ONESHOT_CUSTOM_SPELL_01);
                             DoCast(player, SPELL_REVIVE, true);

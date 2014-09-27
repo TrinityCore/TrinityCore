@@ -83,27 +83,35 @@ class boss_thekal : public CreatureScript
 
         struct boss_thekalAI : public BossAI
         {
-            boss_thekalAI(Creature* creature) : BossAI(creature, DATA_THEKAL) { }
-
-            bool Enraged;
-            bool WasDead;
-
-            void Reset() OVERRIDE
+            boss_thekalAI(Creature* creature) : BossAI(creature, DATA_THEKAL)
             {
-                if (events.IsInPhase(PHASE_TWO))
-                    me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 35.0f, false); // hack
-                _Reset();
+                Initialize();
+            }
+
+            void Initialize()
+            {
                 Enraged = false;
                 WasDead = false;
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            bool Enraged;
+            bool WasDead;
+
+            void Reset() override
+            {
+                if (events.IsInPhase(PHASE_TWO))
+                    me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 35.0f, false); // hack
+                _Reset();
+                Initialize();
+            }
+
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_MORTALCLEAVE, 4000, 0, PHASE_ONE);     // Phase 1
@@ -113,12 +121,12 @@ class boss_thekal : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void JustReachedHome() OVERRIDE
+            void JustReachedHome() override
             {
                 instance->SetBossState(DATA_THEKAL, NOT_STARTED);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -249,7 +257,7 @@ class boss_thekal : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<boss_thekalAI>(creature);
         }
@@ -264,7 +272,19 @@ class npc_zealot_lorkhan : public CreatureScript
         {
             npc_zealot_lorkhanAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                Shield_Timer = 1000;
+                BloodLust_Timer = 16000;
+                GreaterHeal_Timer = 32000;
+                Disarm_Timer = 6000;
+                Check_Timer = 10000;
+
+                FakeDeath = false;
             }
 
             uint32 Shield_Timer;
@@ -277,15 +297,9 @@ class npc_zealot_lorkhan : public CreatureScript
 
             InstanceScript* instance;
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
-                Shield_Timer = 1000;
-                BloodLust_Timer = 16000;
-                GreaterHeal_Timer = 32000;
-                Disarm_Timer = 6000;
-                Check_Timer = 10000;
-
-                FakeDeath = false;
+                Initialize();
 
                 instance->SetBossState(DATA_LORKHAN, NOT_STARTED);
 
@@ -293,11 +307,11 @@ class npc_zealot_lorkhan : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -313,7 +327,7 @@ class npc_zealot_lorkhan : public CreatureScript
                 if (BloodLust_Timer <= diff)
                 {
                     DoCast(me, SPELL_BLOODLUST);
-                    BloodLust_Timer = 20000+rand()%8000;
+                    BloodLust_Timer = 20000 + rand32() % 8000;
                 } else BloodLust_Timer -= diff;
 
                 //Casting Greaterheal to Thekal or Zath if they are in meele range.
@@ -337,14 +351,14 @@ class npc_zealot_lorkhan : public CreatureScript
                             break;
                     }
 
-                    GreaterHeal_Timer = 15000+rand()%5000;
+                    GreaterHeal_Timer = 15000 + rand32() % 5000;
                 } else GreaterHeal_Timer -= diff;
 
                 //Disarm_Timer
                 if (Disarm_Timer <= diff)
                 {
                     DoCastVictim(SPELL_DISARM);
-                    Disarm_Timer = 15000+rand()%10000;
+                    Disarm_Timer = 15000 + rand32() % 10000;
                 } else Disarm_Timer -= diff;
 
                 //Check_Timer for the death of LorKhan and Zath.
@@ -396,7 +410,7 @@ class npc_zealot_lorkhan : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<npc_zealot_lorkhanAI>(creature);
         }
@@ -412,7 +426,20 @@ class npc_zealot_zath : public CreatureScript
         {
             npc_zealot_zathAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                SweepingStrikes_Timer = 13000;
+                SinisterStrike_Timer = 8000;
+                Gouge_Timer = 25000;
+                Kick_Timer = 18000;
+                Blind_Timer = 5000;
+                Check_Timer = 10000;
+
+                FakeDeath = false;
             }
 
             uint32 SweepingStrikes_Timer;
@@ -426,16 +453,9 @@ class npc_zealot_zath : public CreatureScript
 
             InstanceScript* instance;
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
-                SweepingStrikes_Timer = 13000;
-                SinisterStrike_Timer = 8000;
-                Gouge_Timer = 25000;
-                Kick_Timer = 18000;
-                Blind_Timer = 5000;
-                Check_Timer = 10000;
-
-                FakeDeath = false;
+                Initialize();
 
                 instance->SetBossState(DATA_ZATH, NOT_STARTED);
 
@@ -443,11 +463,11 @@ class npc_zealot_zath : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -456,14 +476,14 @@ class npc_zealot_zath : public CreatureScript
                 if (SweepingStrikes_Timer <= diff)
                 {
                     DoCastVictim(SPELL_SWEEPINGSTRIKES);
-                    SweepingStrikes_Timer = 22000+rand()%4000;
+                    SweepingStrikes_Timer = 22000 + rand32() % 4000;
                 } else SweepingStrikes_Timer -= diff;
 
                 //SinisterStrike_Timer
                 if (SinisterStrike_Timer <= diff)
                 {
                     DoCastVictim(SPELL_SINISTERSTRIKE);
-                    SinisterStrike_Timer = 8000+rand()%8000;
+                    SinisterStrike_Timer = 8000 + rand32() % 8000;
                 } else SinisterStrike_Timer -= diff;
 
                 //Gouge_Timer
@@ -474,21 +494,21 @@ class npc_zealot_zath : public CreatureScript
                     if (DoGetThreat(me->GetVictim()))
                         DoModifyThreatPercent(me->GetVictim(), -100);
 
-                    Gouge_Timer = 17000+rand()%10000;
+                    Gouge_Timer = 17000 + rand32() % 10000;
                 } else Gouge_Timer -= diff;
 
                 //Kick_Timer
                 if (Kick_Timer <= diff)
                 {
                     DoCastVictim(SPELL_KICK);
-                    Kick_Timer = 15000+rand()%10000;
+                    Kick_Timer = 15000 + rand32() % 10000;
                 } else Kick_Timer -= diff;
 
                 //Blind_Timer
                 if (Blind_Timer <= diff)
                 {
                     DoCastVictim(SPELL_BLIND);
-                    Blind_Timer = 10000+rand()%10000;
+                    Blind_Timer = 10000 + rand32() % 10000;
                 } else Blind_Timer -= diff;
 
                 //Check_Timer for the death of LorKhan and Zath.
@@ -540,7 +560,7 @@ class npc_zealot_zath : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<npc_zealot_zathAI>(creature);
         }
