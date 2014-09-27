@@ -1053,7 +1053,6 @@ void AchievementMgr<Guild>::SendAllTrackedCriterias(Player* receiver, std::set<u
         criteriaBits.WriteBit(guid[6]);
         criteriaBits.WriteBit(counter[7]);
         criteriaBits.WriteBit(guid[4]);
-        criteriaBits.FlushBits();
 
         criteriaData.WriteByteSeq(guid[5]);
         criteriaData << uint32(progress->second.date); // unknown date
