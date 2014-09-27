@@ -395,6 +395,7 @@ private:
         uint32 GetTotalReputation() const { return m_totalReputation; }
         uint32 GetWeekReputation() const { return m_weekReputation; }
 
+        std::set<uint32> GetTrackedCriteriaIds() const { return m_trackedCriteriaIds; }
         void SetTrackedCriteriaIds(std::set<uint32> criteriaIds) { m_trackedCriteriaIds.swap(criteriaIds); }
         bool IsTrackingCriteriaId(uint32 criteriaId) const { return m_trackedCriteriaIds.find(criteriaId) != m_trackedCriteriaIds.end();  }
 
@@ -789,7 +790,7 @@ public:
     // Handle client commands
     void HandleRoster(WorldSession* session);
     void HandleQuery(WorldSession* session);
-    void HandleSetAchievementTracking(WorldSession* session, std::set<uint32> const& criteriaIds);
+    void HandleSetAchievementTracking(WorldSession* session, std::set<uint32> const& achievementIds);
     void HandleSetMOTD(WorldSession* session, std::string const& motd);
     void HandleSetInfo(WorldSession* session, std::string const& info);
     void HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo);
