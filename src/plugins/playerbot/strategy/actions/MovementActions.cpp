@@ -21,7 +21,7 @@ bool MovementAction::MoveNear(WorldObject* target, float distance)
     if (!target)
         return false;
 
-    distance += target->GetObjectSize();
+    distance += target->GetObjectSize() / 2.0f;
 
     float followAngle = GetFollowAngle();
     for (float angle = followAngle - M_PI; angle <= followAngle + M_PI; angle += M_PI / 4)
@@ -38,23 +38,12 @@ bool MovementAction::MoveNear(WorldObject* target, float distance)
 
 bool MovementAction::MoveTo(uint32 mapId, float x, float y, float z)
 {
+    bot->UpdateGroundPositionZ(x, y, z);
     if (!IsMovingAllowed(mapId, x, y, z))
         return false;
 
-    bot->UpdateGroundPositionZ(x, y, z);
-
-    float botZ = bot->GetPositionZ();
-    if (z - botZ > 0.5f)
-    {
-        WaitForReach(0.5f);
-        MotionMaster &mm = *bot->GetMotionMaster();
-        mm.Clear();
-        mm.MoveJump(x, y, botZ + 0.5f, bot->GetSpeed(MOVE_RUN), 0.5f);
-        return true;
-    }
-
     float distance = bot->GetDistance(x, y, z);
-    if (distance > sPlayerbotAIConfig.meleeDistance / 2)
+    if (distance > sPlayerbotAIConfig.contactDistance)
     {
         WaitForReach(distance);
 
@@ -71,7 +60,15 @@ bool MovementAction::MoveTo(uint32 mapId, float x, float y, float z)
                 !bot->IsFlying() && !bot->IsUnderWater();
         MotionMaster &mm = *bot->GetMotionMaster();
         mm.Clear();
-        mm.MovePoint(mapId, x, y, z, generatePath);
+
+        float botZ = bot->GetPositionZ();
+        if (z - botZ > 0.5f)
+        {
+            float speed = bot->GetSpeed(MOVE_RUN);
+            mm.MoveJump(x, y, botZ + 0.5f, speed, speed, 1);
+        }
+        else
+            mm.MovePoint(mapId, x, y, z, generatePath);
     }
 
     AI_VALUE(LastMovement&, "last movement").Set(x, y, z, bot->GetOrientation());
@@ -95,15 +92,11 @@ bool MovementAction::MoveTo(Unit* target, float distance)
     float angle = bot->GetAngle(target);
     float needToGo = distanceToTarget - distance;
 
-    float maxDistance = 2 * bot->GetSpeed(MOVE_RUN);
+    float maxDistance = sPlayerbotAIConfig.spellDistance;
     if (needToGo > 0 && needToGo > maxDistance)
         needToGo = maxDistance;
     else if (needToGo < 0 && needToGo < -maxDistance)
         needToGo = -maxDistance;
-
-    MotionMaster &mm = *bot->GetMotionMaster();
-    if (abs(needToGo) <= sPlayerbotAIConfig.meleeDistance)
-        return true;
 
     float dx = cos(angle) * needToGo + bx;
     float dy = sin(angle) * needToGo + by;
@@ -360,7 +353,7 @@ bool MoveOutOfEnemyContactAction::Execute(Event event)
 
 bool MoveOutOfEnemyContactAction::isUseful()
 {
-    return AI_VALUE2(float, "distance", "current target") <= sPlayerbotAIConfig.meleeDistance / 2;
+    return AI_VALUE2(float, "distance", "current target") <= sPlayerbotAIConfig.contactDistance;
 }
 
 bool SetFacingTargetAction::Execute(Event event)

@@ -25,7 +25,7 @@ public:
     bool allowGuildBots;
     uint32 globalCoolDown, reactDelay, maxWaitForMove;
     float sightDistance, spellDistance, reactDistance, grindDistance, lootDistance,
-        fleeDistance, tooCloseDistance, meleeDistance, followDistance, whisperDistance;
+        fleeDistance, tooCloseDistance, meleeDistance, followDistance, whisperDistance, contactDistance;
     uint32 criticalHealth, lowHealth, mediumHealth, almostFullHealth;
     uint32 lowMana, mediumMana;
 
