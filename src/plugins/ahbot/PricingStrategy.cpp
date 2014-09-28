@@ -93,18 +93,18 @@ double PricingStrategy::GetRarityPriceMultiplier(uint32 itemId)
     double result = 1.0;
 
     QueryResult results = WorldDatabase.PQuery(
-        "select max(ChanceOrQuestChance) from ( "
-        "select ChanceOrQuestChance from gameobject_loot_template where item = '%u' "
-        "union select ChanceOrQuestChance from spell_loot_template where item = '%u' "
-        "union select ChanceOrQuestChance from disenchant_loot_template where item = '%u' "
-        "union select ChanceOrQuestChance from fishing_loot_template where item = '%u' "
-        "union select ChanceOrQuestChance from item_loot_template where item = '%u' "
-        "union select ChanceOrQuestChance from milling_loot_template where item = '%u' "
-        "union select ChanceOrQuestChance from pickpocketing_loot_template where item = '%u' "
-        "union select ChanceOrQuestChance from prospecting_loot_template where item = '%u' "
-        "union select ChanceOrQuestChance from reference_loot_template where item = '%u' "
-        "union select ChanceOrQuestChance from skinning_loot_template where item = '%u' "
-        "union select ChanceOrQuestChance from creature_loot_template where item = '%u' "
+        "select max(Chance) from ( "
+        "select Chance from gameobject_loot_template where item = '%u' "
+        "union select Chance from spell_loot_template where item = '%u' "
+        "union select Chance from disenchant_loot_template where item = '%u' "
+        "union select Chance from fishing_loot_template where item = '%u' "
+        "union select Chance from item_loot_template where item = '%u' "
+        "union select Chance from milling_loot_template where item = '%u' "
+        "union select Chance from pickpocketing_loot_template where item = '%u' "
+        "union select Chance from prospecting_loot_template where item = '%u' "
+        "union select Chance from reference_loot_template where item = '%u' "
+        "union select Chance from skinning_loot_template where item = '%u' "
+        "union select Chance from creature_loot_template where item = '%u' "
         "union select 0 "
         ") a",
         itemId,itemId,itemId,itemId,itemId,itemId,itemId,itemId,itemId,itemId,itemId);
