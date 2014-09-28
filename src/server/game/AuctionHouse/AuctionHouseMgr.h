@@ -181,7 +181,7 @@ class AuctionHouseMgr
         void LoadAuctions();
 
         void AddAItem(Item* it);
-        bool RemoveAItem(uint32 id);
+        bool RemoveAItem(uint32 id, bool deleteItem = false);
 
         void Update();
 
