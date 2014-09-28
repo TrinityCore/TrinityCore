@@ -162,6 +162,13 @@ class spell_shadow_portal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_shadow_portal_SpellScript);
 
+        public:
+            spell_shadow_portal_SpellScript()
+            {
+                _instance = nullptr;
+            }
+
+        private:
             bool Load() override
             {
                 _instance = GetCaster()->GetInstanceScript();
@@ -222,7 +229,6 @@ class spell_shadow_portal : public SpellScriptLoader
                 OnEffectHitTarget += SpellEffectFn(spell_shadow_portal_SpellScript::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
 
-        private:
             InstanceScript* _instance;
         };
 
@@ -285,6 +291,13 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
         {
             PrepareSpellScript(spell_shadow_portal_rooms_SpellScript);
 
+        public:
+            spell_shadow_portal_rooms_SpellScript()
+            {
+                _instance = nullptr;
+            }
+
+        private:
             bool Load() override
             {
                 _instance = GetCaster()->GetInstanceScript();
@@ -358,7 +371,6 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
                 OnEffectHit += SpellEffectFn(spell_shadow_portal_rooms_SpellScript::HandleSendEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
             }
 
-        private:
             InstanceScript* _instance;
         };
 

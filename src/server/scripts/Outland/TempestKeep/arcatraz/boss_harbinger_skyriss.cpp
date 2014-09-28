@@ -67,7 +67,21 @@ class boss_harbinger_skyriss : public CreatureScript
         {
             boss_harbinger_skyrissAI(Creature* creature) : BossAI(creature, DATA_HARBINGER_SKYRISS)
             {
+                Initialize();
                 Intro = false;
+            }
+
+            void Initialize()
+            {
+                IsImage33 = false;
+                IsImage66 = false;
+
+                Intro_Phase = 1;
+                Intro_Timer = 5000;
+                MindRend_Timer = 3000;
+                Fear_Timer = 15000;
+                Domination_Timer = 30000;
+                ManaBurn_Timer = 25000;
             }
 
             bool Intro;
@@ -86,15 +100,7 @@ class boss_harbinger_skyriss : public CreatureScript
                 if (!Intro)
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 
-                IsImage33 = false;
-                IsImage66 = false;
-
-                Intro_Phase = 1;
-                Intro_Timer = 5000;
-                MindRend_Timer = 3000;
-                Fear_Timer = 15000;
-                Domination_Timer = 30000;
-                ManaBurn_Timer = 25000;
+                Initialize();
             }
 
             void MoveInLineOfSight(Unit* who) override

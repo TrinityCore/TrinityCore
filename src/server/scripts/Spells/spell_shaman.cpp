@@ -122,6 +122,13 @@ class spell_sha_astral_shift : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_astral_shift_AuraScript);
 
+        public:
+            spell_sha_astral_shift_AuraScript()
+            {
+                absorbPct = 0;
+            }
+
+        private:
             uint32 absorbPct;
 
             bool Load() override
@@ -209,13 +216,14 @@ class spell_sha_chain_heal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_chain_heal_SpellScript);
 
-            bool Load() override
+        public:
+            spell_sha_chain_heal_SpellScript()
             {
                 firstHeal = true;
                 riptide = false;
-                return true;
             }
 
+        private:
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 if (firstHeal)

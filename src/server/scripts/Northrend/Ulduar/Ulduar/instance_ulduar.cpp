@@ -60,7 +60,32 @@ class instance_ulduar : public InstanceMapScript
 
         struct instance_ulduar_InstanceMapScript : public InstanceScript
         {
-            instance_ulduar_InstanceMapScript(InstanceMap* map) : InstanceScript(map) { }
+            instance_ulduar_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
+            {
+                SetHeaders(DataHeader);
+                SetBossNumber(MAX_ENCOUNTER);
+
+                LoadDoorData(doorData);
+                LoadMinionData(minionData);
+
+                _algalonTimer = 61;
+                _maxArmorItemLevel = 0;
+                _maxWeaponItemLevel = 0;
+                TeamInInstance = 0;
+                HodirRareCacheData = 0;
+                ColossusData = 0;
+                elderCount = 0;
+                illusion = 0;
+                keepersCount = 0;
+                conSpeedAtory = false;
+                Unbroken = true;
+                IsDriveMeCrazyEligible = true;
+                _algalonSummoned = false;
+                _summonAlgalon = false;
+
+                memset(_summonObservationRingKeeper, 0, sizeof(_summonObservationRingKeeper));
+                memset(_summonYSKeeper, 0, sizeof(_summonYSKeeper));
+            }
 
             // Creatures
             ObjectGuid LeviathanGUID;
@@ -118,31 +143,6 @@ class instance_ulduar : public InstanceMapScript
             bool conSpeedAtory;
             bool Unbroken;
             bool IsDriveMeCrazyEligible;
-
-            void Initialize() override
-            {
-                SetHeaders(DataHeader);
-                SetBossNumber(MAX_ENCOUNTER);
-                LoadDoorData(doorData);
-                LoadMinionData(minionData);
-                _algalonTimer                    = 61;
-                _maxArmorItemLevel               = 0;
-                _maxWeaponItemLevel              = 0;
-                TeamInInstance                   = 0;
-                HodirRareCacheData               = 0;
-                ColossusData                     = 0;
-                elderCount                       = 0;
-                illusion                         = 0;
-                keepersCount                     = 0;
-                conSpeedAtory                    = false;
-                Unbroken                         = true;
-                IsDriveMeCrazyEligible           = true;
-                _algalonSummoned                 = false;
-                _summonAlgalon                   = false;
-
-                memset(_summonObservationRingKeeper, 0, sizeof(_summonObservationRingKeeper));
-                memset(_summonYSKeeper, 0, sizeof(_summonYSKeeper));
-            }
 
             void FillInitialWorldStates(WorldPacket& packet) override
             {

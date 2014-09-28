@@ -30,9 +30,7 @@ public:
 
     struct instance_obsidian_sanctum_InstanceMapScript : public InstanceScript
     {
-        instance_obsidian_sanctum_InstanceMapScript(Map* map) : InstanceScript(map) { }
-
-        void Initialize() override
+        instance_obsidian_sanctum_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
         }

@@ -61,6 +61,14 @@ public:
         instance_sunken_temple_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
+            State = 0;
+
+            s1 = false;
+            s2 = false;
+            s3 = false;
+            s4 = false;
+            s5 = false;
+            s6 = false;
         }
 
         ObjectGuid GOAtalaiStatue1;
@@ -79,19 +87,6 @@ public:
         bool s4;
         bool s5;
         bool s6;
-
-        void Initialize() override
-        {
-
-            State = 0;
-
-            s1 = false;
-            s2 = false;
-            s3 = false;
-            s4 = false;
-            s5 = false;
-            s6 = false;
-        }
 
         void OnGameObjectCreate(GameObject* go) override
         {

@@ -64,7 +64,14 @@ public:
 
     struct instance_blackfathom_deeps_InstanceMapScript : public InstanceScript
     {
-        instance_blackfathom_deeps_InstanceMapScript(Map* map) : InstanceScript(map) { }
+        instance_blackfathom_deeps_InstanceMapScript(Map* map) : InstanceScript(map)
+        {
+            SetHeaders(DataHeader);
+            memset(&encounter, 0, sizeof(encounter));
+
+            countFires = 0;
+            deathTimes = 0;
+        }
 
         ObjectGuid twilightLordKelrisGUID;
         ObjectGuid shrine1GUID;
@@ -78,15 +85,6 @@ public:
         uint8 encounter[MAX_ENCOUNTER];
         uint8 countFires;
         uint8 deathTimes;
-
-        void Initialize() override
-        {
-            SetHeaders(DataHeader);
-            memset(&encounter, 0, sizeof(encounter));
-
-            countFires = 0;
-            deathTimes = 0;
-        }
 
         void OnCreatureCreate(Creature* creature) override
         {

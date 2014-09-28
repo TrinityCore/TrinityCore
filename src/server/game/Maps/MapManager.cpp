@@ -36,6 +36,7 @@
 #include "Player.h"
 #include "WorldSession.h"
 #include "Opcodes.h"
+#include "AchievementMgr.h"
 
 MapManager::MapManager()
 {
@@ -393,4 +394,5 @@ void MapManager::FreeInstanceId(uint32 instanceId)
         SetNextInstanceId(instanceId);
 
     _instanceIds[instanceId] = false;
+    sAchievementMgr->OnInstanceDestroyed(instanceId);
 }

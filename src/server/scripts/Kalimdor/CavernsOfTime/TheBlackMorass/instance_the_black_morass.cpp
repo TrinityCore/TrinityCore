@@ -80,7 +80,11 @@ public:
 
     struct instance_the_black_morass_InstanceMapScript : public InstanceScript
     {
-        instance_the_black_morass_InstanceMapScript(Map* map) : InstanceScript(map) { }
+        instance_the_black_morass_InstanceMapScript(Map* map) : InstanceScript(map)
+        {
+            SetHeaders(DataHeader);
+            Clear();
+        }
 
         uint32 m_auiEncounter[EncounterCount];
 
@@ -91,12 +95,6 @@ public:
 
         ObjectGuid _medivhGUID;
         uint8  _currentRiftId;
-
-        void Initialize() override
-        {
-            SetHeaders(DataHeader);
-            Clear();
-        }
 
         void Clear()
         {

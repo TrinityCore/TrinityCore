@@ -19,8 +19,8 @@
 #ifndef SC_SCRIPTMGR_H
 #define SC_SCRIPTMGR_H
 
-#include <atomic>
 #include "Common.h"
+#include <atomic>
 #include "DBCStores.h"
 #include "QuestDef.h"
 #include "SharedDefines.h"

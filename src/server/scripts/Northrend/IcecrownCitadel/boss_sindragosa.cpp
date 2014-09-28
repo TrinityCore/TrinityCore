@@ -1044,10 +1044,15 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sindragosa_s_fury_SpellScript);
 
-            bool Load() override
+        public:
+            spell_sindragosa_s_fury_SpellScript()
             {
                 _targetCount = 0;
+            }
 
+        private:
+            bool Load() override
+            {
                 // This script should execute only in Icecrown Citadel
                 if (InstanceMap* instance = GetCaster()->GetMap()->ToInstanceMap())
                     if (instance->GetInstanceScript())

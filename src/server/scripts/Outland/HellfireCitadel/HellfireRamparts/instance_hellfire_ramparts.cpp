@@ -34,10 +34,9 @@ class instance_ramparts : public InstanceMapScript
 
         struct instance_ramparts_InstanceMapScript : public InstanceScript
         {
-            instance_ramparts_InstanceMapScript(Map* map) : InstanceScript(map) { }
-
-            void Initialize() override
+            instance_ramparts_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                spawned = false;
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
             }

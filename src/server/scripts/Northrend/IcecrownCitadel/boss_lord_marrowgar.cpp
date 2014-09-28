@@ -698,12 +698,13 @@ class spell_marrowgar_bone_slice : public SpellScriptLoader
         {
             PrepareSpellScript(spell_marrowgar_bone_slice_SpellScript);
 
-            bool Load() override
+        public:
+            spell_marrowgar_bone_slice_SpellScript()
             {
                 _targetCount = 0;
-                return true;
             }
 
+        private:
             void ClearSpikeImmunities()
             {
                 GetCaster()->GetAI()->DoAction(ACTION_CLEAR_SPIKE_IMMUNITIES);

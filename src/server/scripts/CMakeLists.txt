@@ -20,8 +20,6 @@ include(Spells/CMakeLists.txt)
 
 include(Commands/CMakeLists.txt)
 
-include(Examples/CMakeLists.txt)
-
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   ../game/AI/ScriptedAI/ScriptedEscortAI.cpp
@@ -143,6 +141,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/World
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
   ${MYSQL_INCLUDE_DIR}
+  ${VALGRIND_INCLUDE_DIR}
 )
 
 add_library(scripts STATIC
