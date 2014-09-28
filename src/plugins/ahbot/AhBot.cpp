@@ -50,7 +50,8 @@ bool AhBot::HandleAhBotCommand(ChatHandler* handler, char const* args)
     return true;
 }
 
-uint32 AhBot::auctionIds[MAX_AUCTIONS] = {1,2,3,4,5,6,7};
+uint32 AhBot::auctionIds[MAX_AUCTIONS] = {1,6,7};
+uint32 AhBot::auctioneers[MAX_AUCTIONS] = {79707,4656,23442};
 map<uint32, uint32> AhBot::factions;
 
 void AhBot::Init()
@@ -499,14 +500,6 @@ int AhBot::AddAuction(int auction, Category* category, ItemTemplate const* proto
     if (!player)
         return 0;
 
-    Item* item = Item::CreateItem(proto->ItemId, 1, player);
-    if (!item)
-        return 0;
-
-    uint32 randomPropertyId = Item::GenerateItemRandomPropertyId(proto->ItemId);
-    if (randomPropertyId)
-        item->SetItemRandomProperties(randomPropertyId);
-
     uint32 price = category->GetPricingStrategy()->GetSellPrice(proto, auctionIds[auction]);
 
     sLog->outMessage("ahbot", LOG_LEVEL_DEBUG, "AddAuction: market price adjust");
@@ -523,7 +516,14 @@ int AhBot::AddAuction(int auction, Category* category, ItemTemplate const* proto
 
     uint32 bidPrice = stackCount * price;
     uint32 buyoutPrice = stackCount * urand(price, 4 * price / 3);
-    item->SetCount(stackCount);
+
+    Item* item = Item::CreateItem(proto->ItemId, stackCount);
+    if (!item)
+        return 0;
+
+    uint32 randomPropertyId = Item::GenerateItemRandomPropertyId(proto->ItemId);
+    if (randomPropertyId)
+        item->SetItemRandomProperties(randomPropertyId);
 
     AuctionHouseEntry const* ahEntry = sAuctionHouseStore.LookupEntry(auctionIds[auction]);
     if(!ahEntry)
@@ -538,6 +538,7 @@ int AhBot::AddAuction(int auction, Category* category, ItemTemplate const* proto
     auctionEntry->owner = owner;
     auctionEntry->startbid = bidPrice;
     auctionEntry->buyout = buyoutPrice;
+    auctionEntry->auctioneer = auctioneers[auction];
     auctionEntry->bidder = 0;
     auctionEntry->bid = 0;
     auctionEntry->deposit = 0;
@@ -545,10 +546,14 @@ int AhBot::AddAuction(int auction, Category* category, ItemTemplate const* proto
     auctionEntry->auctionHouseEntry = ahEntry;
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
     item->SaveToDB(trans);
     sAuctionMgr->AddAItem(item);
-    auctionEntry->SaveToDB(trans);
     auctionHouse->AddAuction(auctionEntry);
+    auctionEntry->SaveToDB(trans);
+
+    auctionHouse->AddAuction(auctionEntry);
+
     CharacterDatabase.CommitTransaction(trans);
 
     sLog->outMessage("ahbot", LOG_LEVEL_DEBUG, "AhBot %d added %d of %s to auction %d for %d..%d", owner, stackCount, proto->Name1.c_str(), auctionIds[auction], bidPrice, buyoutPrice);
