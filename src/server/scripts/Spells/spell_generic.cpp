@@ -3721,6 +3721,51 @@ public:
     }
 };
 
+enum FearNoEvil
+{
+    SPELL_RENEWED_LIFE = 93097,
+    NPC_INJURED_STORMWIND_INFANTRY = 50047
+};
+
+class spell_gen_get_our_boys_back_dummy : public SpellScriptLoader
+{
+public:
+    spell_gen_get_our_boys_back_dummy() : SpellScriptLoader("spell_gen_get_our_boys_back_dummy") { }
+
+    class spell_gen_get_our_boys_back_dummy_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_get_our_boys_back_dummy_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_RENEWED_LIFE))
+                return false;
+            return true;
+        }
+
+        void HandleDummyEffect()
+        {
+            Unit* caster = GetCaster();
+            
+            if (Creature* InjuredStormwindInfantry = caster->FindNearestCreature(NPC_INJURED_STORMWIND_INFANTRY, 5.0f, true))
+            {
+                InjuredStormwindInfantry->SetCreatorGUID(caster->GetGUID());
+                InjuredStormwindInfantry->CastSpell(InjuredStormwindInfantry, SPELL_RENEWED_LIFE, true);
+            }
+        }
+
+        void Register() override
+        {
+            OnCast += SpellCastFn(spell_gen_get_our_boys_back_dummy_SpellScript::HandleDummyEffect);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_gen_get_our_boys_back_dummy_SpellScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3805,4 +3850,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_eject_all_passengers();
     new spell_gen_gm_freeze();
     new spell_gen_stand();
+    new spell_gen_get_our_boys_back_dummy();
 }
