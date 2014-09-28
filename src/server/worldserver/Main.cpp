@@ -280,7 +280,20 @@ extern int main(int argc, char** argv)
     if (cliThread != nullptr)
     {
 #ifdef _WIN32
-        CancelSynchronousIo(cliThread->native_handle());
+        if (!CancelSynchronousIo(cliThread->native_handle()))
+        {
+            DWORD errorCode = GetLastError();
+            LPSTR errorBuffer;
+
+            DWORD formatReturnCode = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
+                                                   nullptr, errorCode, 0, (LPTSTR)&errorBuffer, 0, nullptr);
+            if (!formatReturnCode)
+                errorBuffer = "Unknown error";
+
+            TC_LOG_ERROR("server.worldserver", "Error cancelling I/O of CliThread, error code %u, detail: %s", 
+                errorCode, errorBuffer);
+            LocalFree(errorBuffer);
+        }
 #endif
         cliThread->join();
         delete cliThread;
