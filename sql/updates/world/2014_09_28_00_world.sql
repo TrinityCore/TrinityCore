@@ -40,3 +40,6 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (5004700, 9, 3, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 59, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Injured Stormwind Infantry - Actionlist - Set Run'),
 (5004700, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 1, 50047, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Injured Stormwind Infantry - Actionlist - Start WP movement'),
 (50047, 0, 5, 0, 58, 0, 100, 0, 9, 50047, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Injured Stormwind Infantry - On WP end - Despawn');
+
+DELETE FROM `spell_script_names` WHERE `spell_id` = 93072;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (93072, 'spell_gen_get_our_boys_back_dummy');

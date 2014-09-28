@@ -554,20 +554,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
     // selection by spell family
     switch (m_spellInfo->SpellFamilyName)
     {
-        case SPELLFAMILY_GENERIC:
-            switch (m_spellInfo->Id)
-            {
-                case 93072: // Get Our Boys Back dummy effect (Fear No Evil quest)
-                {
-                    if (Creature* InjuredStormwindInfantry = m_caster->FindNearestCreature(50047, 5.0f, true))
-                    {
-                        InjuredStormwindInfantry->SetCreatorGUID(m_caster->GetGUID());
-                        InjuredStormwindInfantry->CastSpell(InjuredStormwindInfantry, 93097, true);
-                    }
-                    return;
-                }
-            }
-            break;
         case SPELLFAMILY_PALADIN:
             switch (m_spellInfo->Id)
             {
