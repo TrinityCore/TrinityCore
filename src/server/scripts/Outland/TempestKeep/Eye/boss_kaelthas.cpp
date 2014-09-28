@@ -155,8 +155,16 @@ struct advisorbase_ai : public ScriptedAI
 {
     advisorbase_ai(Creature* creature) : ScriptedAI(creature)
     {
+        Initialize();
         instance = creature->GetInstanceScript();
         m_bDoubled_Health = false;
+    }
+
+    void Initialize()
+    {
+        FakeDeath = false;
+        DelayRes_Timer = 0;
+        DelayRes_Target.Clear();
     }
 
     InstanceScript* instance;
@@ -173,9 +181,7 @@ struct advisorbase_ai : public ScriptedAI
             m_bDoubled_Health = false;
         }
 
-        FakeDeath = false;
-        DelayRes_Timer = 0;
-        DelayRes_Target.Clear();
+        Initialize();
 
         me->SetStandState(UNIT_STAND_STATE_STAND);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -289,7 +295,29 @@ class boss_kaelthas : public CreatureScript
         {
             boss_kaelthasAI(Creature* creature) : ScriptedAI(creature), summons(me)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+                PhaseSubphase = 0;
+                Phase_Timer = 0;
+            }
+
+            void Initialize()
+            {
+                Fireball_Timer = 5000 + rand32() % 10000;
+                ArcaneDisruption_Timer = 45000;
+                MindControl_Timer = 40000;
+                Phoenix_Timer = 50000;
+                ShockBarrier_Timer = 60000;
+                FlameStrike_Timer = 30000;
+                GravityLapse_Timer = 20000;
+                GravityLapse_Phase = 0;
+                NetherBeam_Timer = 8000;
+                NetherVapor_Timer = 10000;
+                PyrosCast = 0;
+                Phase = 0;
+                InGravityLapse = false;
+                IsCastingFireball = false;
+                ChainPyros = false;
             }
 
             InstanceScript* instance;
@@ -319,21 +347,7 @@ class boss_kaelthas : public CreatureScript
 
             void Reset() override
             {
-                Fireball_Timer = 5000 + rand32() % 10000;
-                ArcaneDisruption_Timer = 45000;
-                MindControl_Timer = 40000;
-                Phoenix_Timer = 50000;
-                ShockBarrier_Timer = 60000;
-                FlameStrike_Timer = 30000;
-                GravityLapse_Timer = 20000;
-                GravityLapse_Phase = 0;
-                NetherBeam_Timer = 8000;
-                NetherVapor_Timer = 10000;
-                PyrosCast = 0;
-                Phase = 0;
-                InGravityLapse = false;
-                IsCastingFireball = false;
-                ChainPyros = false;
+                Initialize();
 
                 if (me->IsInCombat())
                     PrepareAdvisors();
@@ -1016,7 +1030,17 @@ class boss_thaladred_the_darkener : public CreatureScript
         }
         struct boss_thaladred_the_darkenerAI : public advisorbase_ai
         {
-            boss_thaladred_the_darkenerAI(Creature* creature) : advisorbase_ai(creature) { }
+            boss_thaladred_the_darkenerAI(Creature* creature) : advisorbase_ai(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                Gaze_Timer = 100;
+                Silence_Timer = 20000;
+                PsychicBlow_Timer = 10000;
+            }
 
             uint32 Gaze_Timer;
             uint32 Silence_Timer;
@@ -1024,9 +1048,7 @@ class boss_thaladred_the_darkener : public CreatureScript
 
             void Reset() override
             {
-                Gaze_Timer = 100;
-                Silence_Timer = 20000;
-                PsychicBlow_Timer = 10000;
+                Initialize();
 
                 advisorbase_ai::Reset();
             }
@@ -1114,13 +1136,21 @@ class boss_lord_sanguinar : public CreatureScript
         }
         struct boss_lord_sanguinarAI : public advisorbase_ai
         {
-            boss_lord_sanguinarAI(Creature* creature) : advisorbase_ai(creature) { }
+            boss_lord_sanguinarAI(Creature* creature) : advisorbase_ai(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                Fear_Timer = 20000;
+            }
 
             uint32 Fear_Timer;
 
             void Reset() override
             {
-                Fear_Timer = 20000;
+                Initialize();
                 advisorbase_ai::Reset();
             }
 
@@ -1181,7 +1211,19 @@ class boss_grand_astromancer_capernian : public CreatureScript
         }
         struct boss_grand_astromancer_capernianAI : public advisorbase_ai
         {
-            boss_grand_astromancer_capernianAI(Creature* creature) : advisorbase_ai(creature) { }
+            boss_grand_astromancer_capernianAI(Creature* creature) : advisorbase_ai(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                Fireball_Timer = 2000;
+                Conflagration_Timer = 20000;
+                ArcaneExplosion_Timer = 5000;
+                Yell_Timer = 2000;
+                Yell = false;
+            }
 
             uint32 Fireball_Timer;
             uint32 Conflagration_Timer;
@@ -1191,11 +1233,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
 
             void Reset() override
             {
-                Fireball_Timer = 2000;
-                Conflagration_Timer = 20000;
-                ArcaneExplosion_Timer = 5000;
-                Yell_Timer = 2000;
-                Yell = false;
+                Initialize();
 
                 advisorbase_ai::Reset();
             }
@@ -1326,15 +1364,23 @@ class boss_master_engineer_telonicus : public CreatureScript
         }
         struct boss_master_engineer_telonicusAI : public advisorbase_ai
         {
-            boss_master_engineer_telonicusAI(Creature* creature) : advisorbase_ai(creature) { }
+            boss_master_engineer_telonicusAI(Creature* creature) : advisorbase_ai(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                Bomb_Timer = 10000;
+                RemoteToy_Timer = 5000;
+            }
 
             uint32 Bomb_Timer;
             uint32 RemoteToy_Timer;
 
             void Reset() override
             {
-                Bomb_Timer = 10000;
-                RemoteToy_Timer = 5000;
+                Initialize();
 
                 advisorbase_ai::Reset();
             }
@@ -1411,7 +1457,15 @@ class npc_kael_flamestrike : public CreatureScript
         {
             npc_kael_flamestrikeAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 SetCombatMovement(false);
+            }
+
+            void Initialize()
+            {
+                Timer = 5000;
+                Casting = false;
+                KillSelf = false;
             }
 
             uint32 Timer;
@@ -1420,9 +1474,7 @@ class npc_kael_flamestrike : public CreatureScript
 
             void Reset() override
             {
-                Timer = 5000;
-                Casting = false;
-                KillSelf = false;
+                Initialize();
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->setFaction(14);
@@ -1477,13 +1529,21 @@ class npc_phoenix_tk : public CreatureScript
         }
         struct npc_phoenix_tkAI : public ScriptedAI
         {
-            npc_phoenix_tkAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_phoenix_tkAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                Cycle_Timer = 2000;
+            }
 
             uint32 Cycle_Timer;
 
             void Reset() override
             {
-                Cycle_Timer = 2000;
+                Initialize();
                 DoCast(me, SPELL_BURN, true);
             }
 
@@ -1531,13 +1591,21 @@ class npc_phoenix_egg_tk : public CreatureScript
         }
         struct npc_phoenix_egg_tkAI : public ScriptedAI
         {
-            npc_phoenix_egg_tkAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_phoenix_egg_tkAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                Rebirth_Timer = 15000;
+            }
 
             uint32 Rebirth_Timer;
 
             void Reset() override
             {
-                Rebirth_Timer = 15000;
+                Initialize();
             }
 
             //ignore any

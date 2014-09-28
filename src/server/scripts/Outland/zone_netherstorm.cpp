@@ -81,7 +81,22 @@ public:
 
     struct npc_commander_dawnforgeAI : public ScriptedAI
     {
-        npc_commander_dawnforgeAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_commander_dawnforgeAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            PlayerGUID.Clear();
+            ardonisGUID.Clear();
+            pathaleonGUID.Clear();
+
+            Phase = 1;
+            PhaseSubphase = 0;
+            Phase_Timer = 4000;
+            isEvent = false;
+        }
 
         ObjectGuid PlayerGUID;
         ObjectGuid ardonisGUID;
@@ -94,14 +109,7 @@ public:
 
         void Reset() override
         {
-            PlayerGUID.Clear();
-            ardonisGUID.Clear();
-            pathaleonGUID.Clear();
-
-            Phase = 1;
-            PhaseSubphase = 0;
-            Phase_Timer = 4000;
-            isEvent = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -623,15 +631,23 @@ public:
 
     struct npc_maxx_a_million_escortAI : public npc_escortAI
     {
-        npc_maxx_a_million_escortAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_maxx_a_million_escortAI(Creature* creature) : npc_escortAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            bTake = false;
+            uiTakeTimer = 3000;
+        }
 
         bool bTake;
         uint32 uiTakeTimer;
 
         void Reset() override
         {
-            bTake=false;
-            uiTakeTimer=3000;
+            Initialize();
         }
 
         void WaypointReached(uint32 waypointId) override

@@ -143,6 +143,8 @@ class InstanceScript : public ZoneScript
         Map* instance;
 
         // On creation, NOT load.
+        // PLEASE INITIALIZE FIELDS IN THE CONSTRUCTOR INSTEAD !!!
+        // KEEPING THIS METHOD ONLY FOR BACKWARD COMPATIBILITY !!!
         virtual void Initialize() { }
 
         // On load

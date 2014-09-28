@@ -108,7 +108,15 @@ public:
 
     struct instance_zulfarrak_InstanceMapScript : public InstanceScript
     {
-        instance_zulfarrak_InstanceMapScript(Map* map) : InstanceScript(map) { }
+        instance_zulfarrak_InstanceMapScript(Map* map) : InstanceScript(map)
+        {
+            SetHeaders(DataHeader);
+            PyramidPhase = 0;
+            major_wave_Timer = 0;
+            minor_wave_Timer = 0;
+            addGroupSize = 0;
+            waypoint = 0;
+        }
 
         uint32 GahzRillaEncounter;
         ObjectGuid ZumrahGUID;
@@ -123,16 +131,6 @@ public:
         uint32 minor_wave_Timer;
         uint32 addGroupSize;
         uint32 waypoint;
-
-        void Initialize() override
-        {
-            SetHeaders(DataHeader);
-            PyramidPhase = 0;
-            major_wave_Timer = 0;
-            minor_wave_Timer = 0;
-            addGroupSize = 0;
-            waypoint = 0;
-        }
 
         void OnCreatureCreate(Creature* creature) override
         {

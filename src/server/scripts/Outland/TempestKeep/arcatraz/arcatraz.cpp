@@ -75,7 +75,19 @@ class npc_millhouse_manastorm : public CreatureScript
         {
             npc_millhouse_manastormAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                EventProgress_Timer = 2000;
+                LowHp = false;
+                Init = false;
+                Phase = 1;
+
+                Pyroblast_Timer = 1000;
+                Fireball_Timer = 2500;
             }
 
             InstanceScript* instance;
@@ -90,13 +102,7 @@ class npc_millhouse_manastorm : public CreatureScript
 
             void Reset() override
             {
-                EventProgress_Timer = 2000;
-                LowHp = false;
-                Init = false;
-                Phase = 1;
-
-                Pyroblast_Timer = 1000;
-                Fireball_Timer = 2500;
+                Initialize();
 
                 if (instance->GetData(DATA_WARDEN_2) == DONE)
                     Init = true;
@@ -271,7 +277,17 @@ class npc_warden_mellichar : public CreatureScript
         {
             npc_warden_mellicharAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
+            }
+
+            void Initialize()
+            {
+                IsRunning = false;
+                CanSpawn = false;
+
+                EventProgress_Timer = 22000;
+                Phase = 1;
             }
 
             InstanceScript* instance;
@@ -284,11 +300,7 @@ class npc_warden_mellichar : public CreatureScript
 
             void Reset() override
             {
-                IsRunning = false;
-                CanSpawn = false;
-
-                EventProgress_Timer = 22000;
-                Phase = 1;
+                Initialize();
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 DoCast(me, SPELL_TARGET_OMEGA);

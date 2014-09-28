@@ -74,6 +74,12 @@ class npc_warp_splinter_treant : public CreatureScript
         {
             npc_warp_splinter_treantAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                check_Timer = 0;
             }
 
             ObjectGuid WarpGuid;
@@ -81,7 +87,7 @@ class npc_warp_splinter_treant : public CreatureScript
 
             void Reset() override
             {
-                check_Timer = 0;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override { }
@@ -138,8 +144,16 @@ class boss_warp_splinter : public CreatureScript
         {
             boss_warp_splinterAI(Creature* creature) : BossAI(creature, DATA_WARP_SPLINTER)
             {
+                Initialize();
                 Treant_Spawn_Pos_X = creature->GetPositionX();
                 Treant_Spawn_Pos_Y = creature->GetPositionY();
+            }
+
+            void Initialize()
+            {
+                War_Stomp_Timer = urand(25000, 40000);
+                Summon_Treants_Timer = 45000;
+                Arcane_Volley_Timer = urand(8000, 20000);
             }
 
             uint32 War_Stomp_Timer;
@@ -151,9 +165,7 @@ class boss_warp_splinter : public CreatureScript
 
             void Reset() override
             {
-                War_Stomp_Timer = urand(25000, 40000);
-                Summon_Treants_Timer = 45000;
-                Arcane_Volley_Timer = urand(8000, 20000);
+                Initialize();
 
                 me->SetSpeed(MOVE_RUN, 0.7f, true);
             }

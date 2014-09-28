@@ -77,7 +77,19 @@ public:
     {
         boss_high_king_maulgarAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            ArcingSmash_Timer = 10000;
+            MightyBlow_Timer = 40000;
+            Whirlwind_Timer = 30000;
+            Charging_Timer = 0;
+            Roar_Timer = 0;
+
+            Phase2 = false;
         }
 
         InstanceScript* instance;
@@ -92,15 +104,9 @@ public:
 
         void Reset() override
         {
-            ArcingSmash_Timer = 10000;
-            MightyBlow_Timer = 40000;
-            Whirlwind_Timer = 30000;
-            Charging_Timer = 0;
-            Roar_Timer = 0;
+            Initialize();
 
             DoCast(me, SPELL_DUAL_WIELD, false);
-
-            Phase2 = false;
 
             instance->SetBossState(DATA_MAULGAR, NOT_STARTED);
         }
@@ -209,20 +215,26 @@ public:
     {
         boss_olm_the_summonerAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            DarkDecay_Timer = 10000;
+            Summon_Timer = 15000;
+            DeathCoil_Timer = 20000;
         }
 
         uint32 DarkDecay_Timer;
         uint32 Summon_Timer;
-           uint32 DeathCoil_Timer;
+        uint32 DeathCoil_Timer;
 
         InstanceScript* instance;
 
         void Reset() override
         {
-            DarkDecay_Timer = 10000;
-            Summon_Timer = 15000;
-            DeathCoil_Timer = 20000;
+            Initialize();
 
             instance->SetBossState(DATA_MAULGAR, NOT_STARTED);
         }
@@ -305,7 +317,16 @@ public:
     {
         boss_kiggler_the_crazedAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            GreaterPolymorph_Timer = 5000;
+            LightningBolt_Timer = 10000;
+            ArcaneShock_Timer = 20000;
+            ArcaneExplosion_Timer = 30000;
         }
 
         uint32 GreaterPolymorph_Timer;
@@ -317,10 +338,7 @@ public:
 
         void Reset() override
         {
-            GreaterPolymorph_Timer = 5000;
-            LightningBolt_Timer = 10000;
-            ArcaneShock_Timer = 20000;
-            ArcaneExplosion_Timer = 30000;
+            Initialize();
 
             instance->SetBossState(DATA_MAULGAR, NOT_STARTED);
         }
@@ -393,7 +411,15 @@ public:
     {
         boss_blindeye_the_seerAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            GreaterPowerWordShield_Timer = 5000;
+            Heal_Timer = urand(25000, 40000);
+            PrayerofHealing_Timer = urand(45000, 55000);
         }
 
         uint32 GreaterPowerWordShield_Timer;
@@ -404,9 +430,7 @@ public:
 
         void Reset() override
         {
-            GreaterPowerWordShield_Timer = 5000;
-            Heal_Timer = urand(25000, 40000);
-            PrayerofHealing_Timer = urand(45000, 55000);
+            Initialize();
 
             instance->SetBossState(DATA_MAULGAR, NOT_STARTED);
         }
@@ -470,7 +494,15 @@ public:
     {
         boss_krosh_firehandAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            GreaterFireball_Timer = 1000;
+            SpellShield_Timer = 5000;
+            BlastWave_Timer = 20000;
         }
 
         uint32 GreaterFireball_Timer;
@@ -481,9 +513,7 @@ public:
 
         void Reset() override
         {
-            GreaterFireball_Timer = 1000;
-            SpellShield_Timer = 5000;
-            BlastWave_Timer = 20000;
+            Initialize();
 
             instance->SetBossState(DATA_MAULGAR, NOT_STARTED);
         }

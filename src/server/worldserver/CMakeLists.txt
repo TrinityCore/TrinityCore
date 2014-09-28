@@ -140,6 +140,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/TCSoap
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
+  ${VALGRIND_INCLUDE_DIR}
 )
 
 add_executable(worldserver

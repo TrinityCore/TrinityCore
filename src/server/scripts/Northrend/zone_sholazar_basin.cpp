@@ -229,7 +229,15 @@ public:
 
     struct npc_engineer_heliceAI : public npc_escortAI
     {
-        npc_engineer_heliceAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_engineer_heliceAI(Creature* creature) : npc_escortAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            m_uiChatTimer = 4000;
+        }
 
         uint32 m_uiChatTimer;
 
@@ -274,7 +282,7 @@ public:
 
         void Reset() override
         {
-            m_uiChatTimer = 4000;
+            Initialize();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -366,9 +374,12 @@ public:
 
     struct npc_jungle_punch_targetAI : public ScriptedAI
     {
-        npc_jungle_punch_targetAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_jungle_punch_targetAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        void Reset() override
+        void Initialize()
         {
             sayTimer = 3500;
             sayStep = 0;
@@ -376,6 +387,11 @@ public:
             phase = 0;
             playerGUID.Clear();
             orphanGUID.Clear();
+        }
+
+        void Reset() override
+        {
+            Initialize();
         }
 
         void MoveInLineOfSight(Unit* who) override

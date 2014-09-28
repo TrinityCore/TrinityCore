@@ -345,6 +345,7 @@ public:
             Initialize();
             _despawned = false; // We determine if Malygos will be realocated to spawning position on reset triggered by boss despawn on evade
             _flySpeed = me->GetSpeed(MOVE_FLIGHT); // Get initial fly speed, otherwise on each wipe fly speed would add up if we get it
+            _phase = PHASE_NOT_STARTED;
         }
 
         void Initialize()
@@ -2458,6 +2459,13 @@ class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
         {
             PrepareAuraScript(spell_alexstrasza_gift_beam_visual_AuraScript);
 
+        public:
+            spell_alexstrasza_gift_beam_visual_AuraScript()
+            {
+                _alexstraszaGift = nullptr;
+            }
+
+        private:
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;

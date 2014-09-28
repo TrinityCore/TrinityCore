@@ -681,16 +681,17 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_sweeping_strikes_AuraScript);
 
+        public:
+            spell_warr_sweeping_strikes_AuraScript()
+            {
+                _procTarget = nullptr;
+            }
+
+        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1) || !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2))
                     return false;
-                return true;
-            }
-
-            bool Load() override
-            {
-                _procTarget = NULL;
                 return true;
             }
 
@@ -745,6 +746,13 @@ class spell_warr_vigilance : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_vigilance_AuraScript);
 
+        public:
+            spell_warr_vigilance_AuraScript()
+            {
+                _procTarget = nullptr;
+            }
+
+        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_GLYPH_OF_VIGILANCE))
@@ -755,12 +763,6 @@ class spell_warr_vigilance : public SpellScriptLoader
                     return false;
                 if (!sSpellMgr->GetSpellInfo(SPELL_GEN_DAMAGE_REDUCTION_AURA))
                     return false;
-                return true;
-            }
-
-            bool Load() override
-            {
-                _procTarget = NULL;
                 return true;
             }
 

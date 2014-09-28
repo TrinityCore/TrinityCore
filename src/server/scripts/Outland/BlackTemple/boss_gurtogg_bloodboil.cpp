@@ -68,7 +68,27 @@ public:
     {
         boss_gurtogg_bloodboilAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            TargetGUID.Clear();
+            TargetThreat = 0;
+
+            BloodboilTimer = 10000;
+            BloodboilCount = 0;
+            AcidGeyserTimer = 1000;
+            AcidicWoundTimer = 6000;
+            ArcingSmashTimer = 19000;
+            EnrageTimer = 600000;
+            FelAcidTimer = 25000;
+            EjectTimer = 10000;
+            BewilderingStrikeTimer = 15000;
+            PhaseChangeTimer = 60000;
+
+            Phase1 = true;
         }
 
         InstanceScript* instance;
@@ -94,22 +114,7 @@ public:
         {
             instance->SetBossState(DATA_GURTOGG_BLOODBOIL, NOT_STARTED);
 
-            TargetGUID.Clear();
-
-            TargetThreat = 0;
-
-            BloodboilTimer = 10000;
-            BloodboilCount = 0;
-            AcidGeyserTimer = 1000;
-            AcidicWoundTimer = 6000;
-            ArcingSmashTimer = 19000;
-            EnrageTimer = 600000;
-            FelAcidTimer = 25000;
-            EjectTimer = 10000;
-            BewilderingStrikeTimer = 15000;
-            PhaseChangeTimer = 60000;
-
-            Phase1 = true;
+            Initialize();
 
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);

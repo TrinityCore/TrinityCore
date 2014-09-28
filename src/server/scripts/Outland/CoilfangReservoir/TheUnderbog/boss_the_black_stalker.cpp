@@ -56,6 +56,19 @@ public:
     {
         boss_the_black_stalkerAI(Creature* creature) : ScriptedAI(creature), Striders(creature)
         {
+            Initialize();
+            InAir = false;
+        }
+
+        void Initialize()
+        {
+            Levitate_Timer = 12000;
+            ChainLightning_Timer = 6000;
+            StaticCharge_Timer = 10000;
+            SporeStriders_Timer = 10000 + rand32() % 5000;
+            check_Timer = 5000;
+            LevitatedTarget.Clear();
+            LevitatedTarget_Timer = 0;
         }
 
         uint32 SporeStriders_Timer;
@@ -70,13 +83,7 @@ public:
 
         void Reset() override
         {
-            Levitate_Timer = 12000;
-            ChainLightning_Timer = 6000;
-            StaticCharge_Timer = 10000;
-            SporeStriders_Timer = 10000 + rand32() % 5000;
-            check_Timer = 5000;
-            LevitatedTarget.Clear();
-            LevitatedTarget_Timer = 0;
+            Initialize();
             Striders.DespawnAll();
         }
 

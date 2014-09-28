@@ -24,6 +24,8 @@ SDCategory: Shadowmoon Valley
 EndScriptData */
 
 /* ContentData
+npc_invis_infernal_caster
+npc_infernal_attacker
 npc_mature_netherwing_drake
 npc_enslaved_netherwing_drake
 npc_drake_dealer_hurlunk
@@ -46,6 +48,144 @@ EndContentData */
 #include "SpellScript.h"
 #include "Player.h"
 #include "WorldSession.h"
+
+/*#####
+# npc_invis_infernal_caster
+#####*/
+
+enum InvisInfernalCaster
+{
+    EVENT_CAST_SUMMON_INFERNAL = 1,
+    NPC_INFERNAL_ATTACKER      = 21419,
+    MODEL_INVISIBLE            = 20577,
+    MODEL_INFERNAL             = 17312,
+    SPELL_SUMMON_INFERNAL      = 37277,
+    TYPE_INFERNAL              = 1,
+    DATA_DIED                  = 1
+};
+
+class npc_invis_infernal_caster : public CreatureScript
+{
+public:
+    npc_invis_infernal_caster() : CreatureScript("npc_invis_infernal_caster") { }
+
+    struct npc_invis_infernal_casterAI : public ScriptedAI
+    {
+        npc_invis_infernal_casterAI(Creature* creature) : ScriptedAI(creature)
+        {
+            ground = 0.f;
+        }
+
+        void Reset() override
+        {
+            ground = me->GetMap()->GetHeight(me->GetPositionX(), me->GetPositionY(), me->GetPositionZMinusOffset());
+            SummonInfernal();
+            events.ScheduleEvent(EVENT_CAST_SUMMON_INFERNAL, urand(1000, 3000));
+        }
+
+        void SetData(uint32 id, uint32 data) override
+        {
+            if (id == TYPE_INFERNAL && data == DATA_DIED)
+                SummonInfernal();
+        }
+
+        void SummonInfernal()
+        {
+            Creature* infernal = me->SummonCreature(NPC_INFERNAL_ATTACKER, me->GetPositionX(), me->GetPositionY(), ground + 0.05f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+            infernalGUID = infernal->GetGUID();
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_CAST_SUMMON_INFERNAL:
+                {
+                    if (Unit* infernal = ObjectAccessor::GetUnit(*me, infernalGUID))
+                        if (infernal->GetDisplayId() == MODEL_INVISIBLE)
+                            me->CastSpell(infernal, SPELL_SUMMON_INFERNAL, true);
+                    events.ScheduleEvent(EVENT_CAST_SUMMON_INFERNAL, 12000);
+                    break;
+                }
+                default:
+                    break;
+                }
+            }
+        }
+
+    private:
+        EventMap events;
+        ObjectGuid infernalGUID;
+        float ground;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_invis_infernal_casterAI(creature);
+    }
+};
+
+/*#####
+# npc_infernal_attacker
+#####*/
+
+class npc_infernal_attacker : public CreatureScript
+{
+public:
+    npc_infernal_attacker() : CreatureScript("npc_infernal_attacker") { }
+
+    struct npc_infernal_attackerAI : public ScriptedAI
+    {
+        npc_infernal_attackerAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() override
+        {
+            me->SetDisplayId(MODEL_INVISIBLE);
+            me->GetMotionMaster()->MoveRandom(5.0f);
+        }
+
+        void IsSummonedBy(Unit* summoner) override
+        {
+            if (summoner->ToCreature())
+                casterGUID = summoner->ToCreature()->GetGUID();;
+        }
+
+        void JustDied(Unit* /*killer*/) override
+        {
+            if (Creature* caster = ObjectAccessor::GetCreature(*me, casterGUID))
+                caster->AI()->SetData(TYPE_INFERNAL, DATA_DIED);
+        }
+
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        {
+            if (spell->Id == SPELL_SUMMON_INFERNAL)
+            {
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PACIFIED | UNIT_FLAG_NOT_SELECTABLE);
+                me->SetDisplayId(MODEL_INFERNAL);
+            }
+        }
+
+        void UpdateAI(uint32 /*diff*/) override
+        {
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        ObjectGuid casterGUID;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_infernal_attackerAI(creature);
+    }
+};
 
 /*#####
 # npc_mature_netherwing_drake
@@ -78,7 +218,21 @@ public:
 
     struct npc_mature_netherwing_drakeAI : public ScriptedAI
     {
-        npc_mature_netherwing_drakeAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_mature_netherwing_drakeAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            uiPlayerGUID.Clear();
+
+            bCanEat = false;
+            bIsEating = false;
+
+            EatTimer = 5000;
+            CastTimer = 5000;
+        }
 
         ObjectGuid uiPlayerGUID;
 
@@ -90,13 +244,7 @@ public:
 
         void Reset() override
         {
-            uiPlayerGUID.Clear();
-
-            bCanEat = false;
-            bIsEating = false;
-
-            EatTimer = 5000;
-            CastTimer = 5000;
+            Initialize();
         }
 
         void SpellHit(Unit* pCaster, SpellInfo const* spell) override
@@ -346,7 +494,17 @@ public:
 
     struct npc_dragonmaw_peonAI : public ScriptedAI
     {
-        npc_dragonmaw_peonAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_dragonmaw_peonAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            PlayerGUID.Clear();
+            Tapped = false;
+            PoisonTimer = 0;
+        }
 
         ObjectGuid PlayerGUID;
         bool Tapped;
@@ -354,9 +512,7 @@ public:
 
         void Reset() override
         {
-            PlayerGUID.Clear();
-            Tapped = false;
-            PoisonTimer = 0;
+            Initialize();
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell) override
@@ -580,7 +736,21 @@ public:
 
     struct npc_overlord_morghorAI : public ScriptedAI
     {
-        npc_overlord_morghorAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_overlord_morghorAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            PlayerGUID.Clear();
+            IllidanGUID.Clear();
+
+            ConversationTimer = 0;
+            Step = 0;
+
+            Event = false;
+        }
 
         ObjectGuid PlayerGUID;
         ObjectGuid IllidanGUID;
@@ -592,13 +762,7 @@ public:
 
         void Reset() override
         {
-            PlayerGUID.Clear();
-            IllidanGUID.Clear();
-
-            ConversationTimer = 0;
-            Step = 0;
-
-            Event = false;
+            Initialize();
             me->SetUInt32Value(UNIT_NPC_FLAGS, 2);
         }
 
@@ -886,13 +1050,21 @@ public:
 
     struct npc_earthmender_wildaAI : public npc_escortAI
     {
-        npc_earthmender_wildaAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_earthmender_wildaAI(Creature* creature) : npc_escortAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            m_uiHealingTimer = 0;
+        }
 
         uint32 m_uiHealingTimer;
 
         void Reset() override
         {
-            m_uiHealingTimer = 0;
+            Initialize();
         }
 
         void WaypointReached(uint32 waypointId) override
@@ -1116,7 +1288,22 @@ public:
 
     struct npc_torloth_the_magnificentAI : public ScriptedAI
     {
-        npc_torloth_the_magnificentAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_torloth_the_magnificentAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+            SpellTimer1 = 0;
+            SpellTimer2 = 0;
+            SpellTimer3 = 0;
+        }
+
+        void Initialize()
+        {
+            AnimationTimer = 4000;
+            AnimationCount = 0;
+            LordIllidanGUID.Clear();
+            AggroTargetGUID.Clear();
+            Timers = false;
+        }
 
         uint32 AnimationTimer, SpellTimer1, SpellTimer2, SpellTimer3;
 
@@ -1129,11 +1316,7 @@ public:
 
         void Reset() override
         {
-            AnimationTimer = 4000;
-            AnimationCount = 0;
-            LordIllidanGUID.Clear();
-            AggroTargetGUID.Clear();
-            Timers = false;
+            Initialize();
 
             me->AddUnitState(UNIT_STATE_ROOT);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -1271,7 +1454,24 @@ public:
 
     struct npc_lord_illidan_stormrageAI : public ScriptedAI
     {
-        npc_lord_illidan_stormrageAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_lord_illidan_stormrageAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            PlayerGUID.Clear();
+
+            WaveTimer = 10000;
+            AnnounceTimer = 7000;
+            LiveCount = 0;
+            WaveCount = 0;
+
+            EventStarted = false;
+            Announced = false;
+            Failed = false;
+        }
 
         ObjectGuid PlayerGUID;
 
@@ -1287,16 +1487,7 @@ public:
 
         void Reset() override
         {
-            PlayerGUID.Clear();
-
-            WaveTimer = 10000;
-            AnnounceTimer = 7000;
-            LiveCount = 0;
-            WaveCount = 0;
-
-            EventStarted = false;
-            Announced = false;
-            Failed = false;
+            Initialize();
 
             me->SetVisible(false);
         }
@@ -1413,7 +1604,19 @@ public:
 
     struct npc_illidari_spawnAI : public ScriptedAI
     {
-        npc_illidari_spawnAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_illidari_spawnAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+            SpellTimer1 = 0;
+            SpellTimer2 = 0;
+            SpellTimer3 = 0;
+        }
+
+        void Initialize()
+        {
+            LordIllidanGUID.Clear();
+            Timers = false;
+        }
 
         ObjectGuid LordIllidanGUID;
         uint32 SpellTimer1, SpellTimer2, SpellTimer3;
@@ -1421,8 +1624,7 @@ public:
 
         void Reset() override
         {
-            LordIllidanGUID.Clear();
-            Timers = false;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -1826,6 +2028,8 @@ public:
 
 void AddSC_shadowmoon_valley()
 {
+    new npc_invis_infernal_caster();
+    new npc_infernal_attacker();
     new npc_mature_netherwing_drake();
     new npc_enslaved_netherwing_drake();
     new npc_dragonmaw_peon();

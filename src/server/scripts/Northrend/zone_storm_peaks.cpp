@@ -179,13 +179,21 @@ public:
 
     struct npc_brunnhildar_prisonerAI : public ScriptedAI
     {
-        npc_brunnhildar_prisonerAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_brunnhildar_prisonerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            freed = false;
+        }
 
         bool freed;
 
         void Reset() override
         {
-            freed = false;
+            Initialize();
             me->CastSpell(me, SPELL_ICE_PRISON, true);
         }
 
@@ -804,12 +812,13 @@ class spell_close_rift : public SpellScriptLoader
         {
             PrepareAuraScript(spell_close_rift_AuraScript);
 
-            bool Load() override
+        public:
+            spell_close_rift_AuraScript()
             {
                 _counter = 0;
-                return true;
             }
 
+        private:
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return sSpellMgr->GetSpellInfo(SPELL_DESPAWN_RIFT) != nullptr;

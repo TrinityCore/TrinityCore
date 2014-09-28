@@ -421,6 +421,14 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
         {
             PrepareAuraScript(spell_tyrannus_overlord_brand_AuraScript);
 
+        public:
+            spell_tyrannus_overlord_brand_AuraScript()
+            {
+                oldAI = nullptr;
+                oldAIState = false;
+            }
+
+        private:
             bool Load() override
             {
                 return GetCaster() && GetCaster()->GetEntry() == NPC_TYRANNUS;

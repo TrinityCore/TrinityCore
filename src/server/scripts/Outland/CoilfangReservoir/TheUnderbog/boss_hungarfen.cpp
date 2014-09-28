@@ -50,6 +50,14 @@ public:
     {
         boss_hungarfenAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Root = false;
+            Mushroom_Timer = 5000;                              // 1 mushroom after 5s, then one per 10s. This should be different in heroic mode
+            AcidGeyser_Timer = 10000;
         }
 
         bool Root;
@@ -58,9 +66,7 @@ public:
 
         void Reset() override
         {
-            Root = false;
-            Mushroom_Timer = 5000;                              // 1 mushroom after 5s, then one per 10s. This should be different in heroic mode
-            AcidGeyser_Timer = 10000;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -116,7 +122,17 @@ public:
 
     struct npc_underbog_mushroomAI : public ScriptedAI
     {
-        npc_underbog_mushroomAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_underbog_mushroomAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Stop = false;
+            Grow_Timer = 0;
+            Shrink_Timer = 20000;
+        }
 
         bool Stop;
         uint32 Grow_Timer;
@@ -124,9 +140,7 @@ public:
 
         void Reset() override
         {
-            Stop = false;
-            Grow_Timer = 0;
-            Shrink_Timer = 20000;
+            Initialize();
 
             DoCast(me, SPELL_PUTRID_MUSHROOM, true);
             DoCast(me, SPELL_SPORE_CLOUD, true);

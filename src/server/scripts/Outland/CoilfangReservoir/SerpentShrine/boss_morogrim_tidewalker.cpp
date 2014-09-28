@@ -98,12 +98,28 @@ public:
     {
         boss_morogrim_tidewalkerAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+            Playercount = 0;
+            counter = 0;
+        }
+
+        void Initialize()
+        {
+            TidalWave_Timer = 10000;
+            WateryGrave_Timer = 30000;
+            Earthquake_Timer = 40000;
+            WateryGlobules_Timer = 0;
+            globulespell[0] = SPELL_SUMMON_WATER_GLOBULE_1;
+            globulespell[1] = SPELL_SUMMON_WATER_GLOBULE_2;
+            globulespell[2] = SPELL_SUMMON_WATER_GLOBULE_3;
+            globulespell[3] = SPELL_SUMMON_WATER_GLOBULE_4;
+
+            Earthquake = false;
+            Phase2 = false;
         }
 
         InstanceScript* instance;
-
-        Map::PlayerList const* PlayerList;
 
         uint32 TidalWave_Timer;
         uint32 WateryGrave_Timer;
@@ -118,17 +134,7 @@ public:
 
         void Reset() override
         {
-            TidalWave_Timer = 10000;
-            WateryGrave_Timer = 30000;
-            Earthquake_Timer = 40000;
-            WateryGlobules_Timer = 0;
-            globulespell[0] = SPELL_SUMMON_WATER_GLOBULE_1;
-            globulespell[1] = SPELL_SUMMON_WATER_GLOBULE_2;
-            globulespell[2] = SPELL_SUMMON_WATER_GLOBULE_3;
-            globulespell[3] = SPELL_SUMMON_WATER_GLOBULE_4;
-
-            Earthquake = false;
-            Phase2 = false;
+            Initialize();
 
             instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, NOT_STARTED);
         }
@@ -154,8 +160,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            PlayerList = &me->GetMap()->GetPlayers();
-            Playercount = PlayerList->getSize();
+            Playercount = me->GetMap()->GetPlayers().getSize();
             StartEvent();
         }
 
@@ -296,13 +301,21 @@ public:
 
     struct npc_water_globuleAI : public ScriptedAI
     {
-        npc_water_globuleAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_water_globuleAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Check_Timer = 1000;
+        }
 
         uint32 Check_Timer;
 
         void Reset() override
         {
-            Check_Timer = 1000;
+            Initialize();
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
