@@ -114,6 +114,7 @@ void PlayerbotHolder::AddPlayerBot(uint64 playerGuid, uint32 masterAccount)
 	PlayerbotMgr *mgr = bot->GetPlayerbotMgr();
 	bot->SetPlayerbotMgr(NULL);
 	delete mgr;
+	sRandomPlayerbotMgr.OnPlayerLogout(bot);
 
     bool allowed = false;
     if (botAccountId == masterAccount)
