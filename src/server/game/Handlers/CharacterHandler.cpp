@@ -281,24 +281,42 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     {
         if (uint32 mask = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED))
         {
-            bool disabled = false;
-
-            uint32 team = Player::TeamForRace(race_);
-            switch (team)
+            if (mask == 4) //  4 - (Enabled, Use Database Values Only)
             {
+                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALM_ENABLED_CLASSES_RACES);
+                stmt->setUInt32(0, realmID);
+                stmt->setUInt32(1, race_);
+                stmt->setUInt32(2, class_);
+                PreparedQueryResult result = LoginDatabase.Query(stmt);
+                if (!result)
+                {
+                    TC_LOG_ERROR("network", "Account [%d] tried to create Race [%u] with Class [%u] but combination is locked.", GetAccountId(), race_, class_);
+                    data << uint8(CHAR_CREATE_DISABLED);
+                    SendPacket(&data);
+                    return;
+                }
+            }
+			else
+            {
+                bool disabled = false;
+
+                uint32 team = Player::TeamForRace(race_);
+                switch (team)
+                {
                 case ALLIANCE:
                     disabled = (mask & (1 << 0)) != 0;
                     break;
                 case HORDE:
                     disabled = (mask & (1 << 1)) != 0;
                     break;
-            }
+                }
 
-            if (disabled)
-            {
-                data << uint8(CHAR_CREATE_DISABLED);
-                SendPacket(&data);
-                return;
+                if (disabled)
+                {
+                    data << uint8(CHAR_CREATE_DISABLED);
+                    SendPacket(&data);
+                    return;
+                }
             }
         }
     }
