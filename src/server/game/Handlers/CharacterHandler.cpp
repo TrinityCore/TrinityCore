@@ -296,7 +296,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
                     return;
                 }
             }
-			else
+            else
             {
                 bool disabled = false;
 
