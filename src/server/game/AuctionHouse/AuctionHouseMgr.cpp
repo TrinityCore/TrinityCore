@@ -147,6 +147,11 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
             .AddItem(pItem)
             .SendMailTo(trans, MailReceiver(bidder, auction->bidder), auction, MAIL_CHECK_MASK_COPIED);
     }
+    else
+    {
+        // bidder doesn't exist, delete the item
+        sAuctionMgr->RemoveAItem(auction->itemGUIDLow, true);
+    }
 }
 
 void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry* auction, SQLTransaction& trans)
@@ -206,6 +211,11 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, SQLTransacti
         MailDraft(auction->BuildAuctionMailSubject(AUCTION_EXPIRED), AuctionEntry::BuildAuctionMailBody(0, 0, auction->buyout, auction->deposit, 0))
             .AddItem(pItem)
             .SendMailTo(trans, MailReceiver(owner, auction->owner), auction, MAIL_CHECK_MASK_COPIED, 0);
+    }
+    else
+    {
+        // owner doesn't exist, delete the item
+        sAuctionMgr->RemoveAItem(auction->itemGUIDLow, true);
     }
 }
 
@@ -353,11 +363,18 @@ void AuctionHouseMgr::AddAItem(Item* it)
     mAitems[it->GetGUIDLow()] = it;
 }
 
-bool AuctionHouseMgr::RemoveAItem(uint32 id)
+bool AuctionHouseMgr::RemoveAItem(uint32 id, bool deleteItem)
 {
     ItemMap::iterator i = mAitems.find(id);
     if (i == mAitems.end())
         return false;
+
+    if (deleteItem)
+    {
+        SQLTransaction trans = SQLTransaction(nullptr);
+        i->second->FSetState(ITEM_REMOVED);
+        i->second->SaveToDB(trans);
+    }
 
     mAitems.erase(i);
     return true;
