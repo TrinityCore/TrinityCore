@@ -346,7 +346,11 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     bool hasSpline = false;
     bool hasSplineElevation = false;
 
-    uint32 unkLoopCounter = 0;
+    uint32 stopFrameCount = 0;
+    if (GameObject const* go = ToGameObject())
+        if (go->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
+            stopFrameCount = go->GetGOValue()->Transport.StopFrames->size();
+
     // Bit content
     data->WriteBit(0);
     data->WriteBit(0);
@@ -356,7 +360,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     data->WriteBit(flags & UPDATEFLAG_SELF);
     data->WriteBit(flags & UPDATEFLAG_VEHICLE);
     data->WriteBit(flags & UPDATEFLAG_LIVING);
-    data->WriteBits(unkLoopCounter, 24);
+    data->WriteBits(stopFrameCount, 24);
     data->WriteBit(0);
     data->WriteBit(flags & UPDATEFLAG_GO_TRANSPORT_POSITION);
     data->WriteBit(flags & UPDATEFLAG_STATIONARY_POSITION);
@@ -471,8 +475,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     data->FlushBits();
 
     // Data
-    for (uint32 i = 0; i < unkLoopCounter; ++i)
-        *data << uint32(0);
+    if (GameObject const* go = ToGameObject())
+        for (uint32 i = 0; i < stopFrameCount; ++i)
+            *data << uint32(go->GetGOValue()->Transport.StopFrames->at(i));
 
     if (flags & UPDATEFLAG_LIVING)
     {

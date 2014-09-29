@@ -23046,7 +23046,10 @@ template<>
 inline void UpdateVisibilityOf_helper(GuidSet& s64, GameObject* target, std::set<Unit*>& /*v*/)
 {
     // @HACK: This is to prevent objects like deeprun tram from disappearing when player moves far from its spawn point while riding it
-    if ((target->GetGOInfo()->type != GAMEOBJECT_TYPE_TRANSPORT))
+    // But exclude stoppable elevators from this hack - they would be teleporting from one end to another
+    // if affected transports move so far horizontally that it causes them to run out of visibility range then you are out of luck
+    // fix visibility instead of adding hacks here
+    if (!target->IsDynTransport())
         s64.insert(target->GetGUID());
 }
 
