@@ -591,8 +591,9 @@ MaxWhoListReturns = 49
 #                     1 - (Disabled, Alliance)
 #                     2 - (Disabled, Horde)
 #                     3 - (Disabled, Both factions)
+#					  4 - (Enabled, Use Database Values Only )
 
-CharacterCreating.Disabled = 0
+CharacterCreating.Disabled = 4
 
 #
 #    CharacterCreating.Disabled.RaceMask
