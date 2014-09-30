@@ -243,8 +243,9 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 /*phase
         case GAMEOBJECT_TYPE_TRANSPORT:
         {
             m_goValue.Transport.AnimationInfo = sTransportMgr->GetTransportAnimInfo(goinfo->entry);
-            m_goValue.Transport.PathProgress = (getMSTime() / GetTransportPeriod());
-            m_goValue.Transport.PathProgress *= GetTransportPeriod();
+            m_goValue.Transport.PathProgress = getMSTime();
+            if (m_goValue.Transport.AnimationInfo)
+                m_goValue.Transport.PathProgress -= m_goValue.Transport.PathProgress % GetTransportPeriod();    // align to period
             m_goValue.Transport.CurrentSeg = 0;
             m_goValue.Transport.StateUpdateTimer = 0;
             m_goValue.Transport.StopFrames = new std::vector<uint32>();
@@ -2129,7 +2130,9 @@ void GameObject::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
     if (state == GO_STATE_TRANSPORT_ACTIVE)
     {
         m_goValue.Transport.StateUpdateTimer = 0;
-        m_goValue.Transport.PathProgress = getMSTime() + m_goValue.Transport.StopFrames->at(GetGoState() - GO_STATE_TRANSPORT_STOPPED);
+        m_goValue.Transport.PathProgress = getMSTime();
+        if (GetGoState() >= GO_STATE_TRANSPORT_STOPPED)
+            m_goValue.Transport.StopFrames->at(GetGoState() - GO_STATE_TRANSPORT_STOPPED);
         SetGoState(GO_STATE_TRANSPORT_ACTIVE);
     }
     else
