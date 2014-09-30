@@ -251,7 +251,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 /*phase
             if (goinfo->transport.stopFrame1 > 0)
                 m_goValue.Transport.StopFrames->push_back(goinfo->transport.stopFrame1);
             if (goinfo->transport.stopFrame2 > 0)
-                m_goValue.Transport.StopFrames->push_back(goinfo->transport.stopFrame3);
+                m_goValue.Transport.StopFrames->push_back(goinfo->transport.stopFrame2);
             if (goinfo->transport.stopFrame3 > 0)
                 m_goValue.Transport.StopFrames->push_back(goinfo->transport.stopFrame3);
             if (goinfo->transport.stopFrame4 > 0)
