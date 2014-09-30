@@ -735,18 +735,37 @@ class spell_brewfest_dismount_ram : public SpellScriptLoader
 
 enum RamBlub
 {
+    // Horde
     QUEST_BARK_FOR_DROHNS_DISTILLERY        = 11407,
     QUEST_BARK_FOR_TCHALIS_VOODOO_BREWERY   = 11408,
 
+    // Alliance
+    QUEST_BARK_BARLEYBREW                   = 11293,
+    QUEST_BARK_FOR_THUNDERBREWS             = 11294,
+
+    // Bark for Drohn's Distillery!
     SAY_DROHN_DISTILLERY_1                  = 23520,
     SAY_DROHN_DISTILLERY_2                  = 23521,
     SAY_DROHN_DISTILLERY_3                  = 23522,
     SAY_DROHN_DISTILLERY_4                  = 23523,
 
+    // Bark for T'chali's Voodoo Brewery!
     SAY_TCHALIS_VOODOO_1                    = 23524,
     SAY_TCHALIS_VOODOO_2                    = 23525,
     SAY_TCHALIS_VOODOO_3                    = 23526,
-    SAY_TCHALIS_VOODOO_4                    = 23527
+    SAY_TCHALIS_VOODOO_4                    = 23527,
+
+    // Bark for the Barleybrews!
+    SAY_BARLEYBREW_1                        = 23464,
+    SAY_BARLEYBREW_2                        = 23465,
+    SAY_BARLEYBREW_3                        = 23466,
+    SAY_BARLEYBREW_4                        = 23467,
+
+    // Bark for the Thunderbrews!
+    SAY_THUNDERBREWS_1                      = 23467,
+    SAY_THUNDERBREWS_2                      = 23468,
+    SAY_THUNDERBREWS_3                      = 23469,
+    SAY_THUNDERBREWS_4                      = 22942
 };
 
 // 43259 Brewfest  - Barker Bunny 1
@@ -780,6 +799,14 @@ class spell_brewfest_barker_bunny : public SpellScriptLoader
                 if (target->GetQuestStatus(QUEST_BARK_FOR_TCHALIS_VOODOO_BREWERY) == QUEST_STATUS_INCOMPLETE ||
                     target->GetQuestStatus(QUEST_BARK_FOR_TCHALIS_VOODOO_BREWERY) == QUEST_STATUS_COMPLETE)
                     BroadcastTextId = RAND(SAY_TCHALIS_VOODOO_1, SAY_TCHALIS_VOODOO_2, SAY_TCHALIS_VOODOO_3, SAY_TCHALIS_VOODOO_4);
+
+                if (target->GetQuestStatus(QUEST_BARK_BARLEYBREW) == QUEST_STATUS_INCOMPLETE ||
+                    target->GetQuestStatus(QUEST_BARK_BARLEYBREW) == QUEST_STATUS_COMPLETE)
+                    BroadcastTextId = RAND(SAY_BARLEYBREW_1, SAY_BARLEYBREW_2, SAY_BARLEYBREW_3, SAY_BARLEYBREW_4);
+
+                if (target->GetQuestStatus(QUEST_BARK_FOR_THUNDERBREWS) == QUEST_STATUS_INCOMPLETE ||
+                    target->GetQuestStatus(QUEST_BARK_FOR_THUNDERBREWS) == QUEST_STATUS_COMPLETE)
+                    BroadcastTextId = RAND(SAY_THUNDERBREWS_1, SAY_THUNDERBREWS_2, SAY_THUNDERBREWS_3, SAY_THUNDERBREWS_4);
 
                 if (BroadcastTextId)
                     target->Talk(BroadcastTextId, CHAT_MSG_SAY, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), target);
