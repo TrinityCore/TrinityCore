@@ -281,42 +281,47 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     {
         if (uint32 mask = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED))
         {
-            if (mask == 4) //  4 - (Enabled, Use Database Values Only)
+            bool disabled = false;
+            switch (mask)
             {
-                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALM_ENABLED_CLASSES_RACES);
-                stmt->setUInt32(0, realmID);
-                stmt->setUInt32(1, race_);
-                stmt->setUInt32(2, class_);
-                PreparedQueryResult result = LoginDatabase.Query(stmt);
-                if (!result)
+                case CREATE_LIMITATION_ENABLE_USE_DATABASE_VALUES:
                 {
-                    TC_LOG_ERROR("network", "Account [%d] tried to create Race [%u] with Class [%u] but combination is locked.", GetAccountId(), race_, class_);
-                    data << uint8(CHAR_CREATE_DISABLED);
-                    SendPacket(&data);
-                    return;
+                    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALM_ENABLED_CLASSES_RACES);
+                    stmt->setUInt32(0, realmID);
+                    stmt->setUInt32(1, race_);
+                    stmt->setUInt32(2, class_);
+                    PreparedQueryResult result = LoginDatabase.Query(stmt);
+                    if (!result)
+                        disabled = true;
+                    break;
+                }
+                case CREATE_LIMITATION_DISABLE_BOTH:
+                case CREATE_LIMITATION_DISABLE_HORDE:
+                case CREATE_LIMITATION_DISABLE_ALLIANCE:
+                {
+                    uint32 team = Player::TeamForRace(race_);
+                    switch (team)
+                    {
+                    case ALLIANCE:
+                        disabled = (mask & (1 << 0)) != 0;
+                        break;
+                    case HORDE:
+                        disabled = (mask & (1 << 1)) != 0;
+                        break;
+                    }
+                    break;
+                }
+                case CREATE_LIMITATION_ENABLE_ALL:
+                default:
+                {
+                    break;
                 }
             }
-            else
+            if (disabled)
             {
-                bool disabled = false;
-
-                uint32 team = Player::TeamForRace(race_);
-                switch (team)
-                {
-                case ALLIANCE:
-                    disabled = (mask & (1 << 0)) != 0;
-                    break;
-                case HORDE:
-                    disabled = (mask & (1 << 1)) != 0;
-                    break;
-                }
-
-                if (disabled)
-                {
-                    data << uint8(CHAR_CREATE_DISABLED);
-                    SendPacket(&data);
-                    return;
-                }
+                data << uint8(CHAR_CREATE_DISABLED);
+                SendPacket(&data);
+                return;
             }
         }
     }
