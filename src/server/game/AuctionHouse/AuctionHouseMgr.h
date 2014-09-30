@@ -87,7 +87,6 @@ struct AuctionEntry
     void DeleteFromDB(SQLTransaction& trans) const;
     void SaveToDB(SQLTransaction& trans) const;
     bool LoadFromDB(Field* fields);
-    bool LoadFromFieldList(Field* fields);
     std::string BuildAuctionMailSubject(MailAuctionAnswers response) const;
     static std::string BuildAuctionMailBody(uint32 lowGuid, uint32 bid, uint32 buyout, uint32 deposit, uint32 cut);
 
@@ -172,9 +171,6 @@ class AuctionHouseMgr
         static AuctionHouseEntry const* GetAuctionHouseEntry(uint32 factionTemplateId);
 
     public:
-
-        // Used primarily at server start to avoid loading a list of expired auctions
-        void DeleteExpiredAuctionsAtStartup();
 
         //load first auction items, because of check if item exists, when loading
         void LoadAuctionItems();
