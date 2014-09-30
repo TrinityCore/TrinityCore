@@ -127,11 +127,11 @@ struct LootStoreItem
     uint32  itemid;                                         // id of the item
     uint32  reference;                                      // referenced TemplateleId
     float   chance;                                         // chance to drop for both quest and non-quest items, chance to be used for refs
-    bool    needs_quest : 1;                                // quest drop (quest is required for item to drop)
     uint16  lootmode;
+    bool    needs_quest : 1;                                // quest drop (quest is required for item to drop)
     uint8   groupid     : 7;
     uint8   mincount;                                       // mincount for drop items
-    uint8   maxcount    : 8;                                // max drop count for the item mincount or Ref multiplicator
+    uint8   maxcount;                                       // max drop count for the item mincount or Ref multiplicator
     ConditionList conditions;                               // additional loot condition
 
     // Constructor
