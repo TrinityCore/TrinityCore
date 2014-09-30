@@ -749,8 +749,24 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (e.action.randomEmote.emote6 && !IsEmoteValid(e, e.action.randomEmote.emote6))
                 return false;
             break;
-        case SMART_ACTION_ADD_AURA:
         case SMART_ACTION_CAST:
+        {
+            if (!IsSpellValid(e, e.action.cast.spell))
+                return false;
+
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(e.action.cast.spell);
+            for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+            {
+                if (spellInfo->Effects[j].IsEffect(SPELL_EFFECT_KILL_CREDIT) || spellInfo->Effects[j].IsEffect(SPELL_EFFECT_KILL_CREDIT2))
+                {
+                    if (spellInfo->Effects[j].TargetA.GetTarget() == TARGET_UNIT_CASTER)
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u Effect: SPELL_EFFECT_KILL_CREDIT: (SpellId: %u targetA: %u - targetB: %u) has invalid target for this Action",
+                        e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.cast.spell, spellInfo->Effects[j].TargetA, spellInfo->Effects[j].TargetB);
+                }
+            }
+            break;
+        }
+        case SMART_ACTION_ADD_AURA:
         case SMART_ACTION_INVOKER_CAST:
             if (!IsSpellValid(e, e.action.cast.spell))
                 return false;
