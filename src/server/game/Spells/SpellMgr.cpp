@@ -3328,6 +3328,10 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 17364: // Stormstrike
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
+            case 51798: // Brewfest - Relay Race - Intro - Quest Complete
+                //! HACK: This spell break quest complete for alliance and on retail not used °_O
+                spellInfo->Effects[EFFECT_0].Effect = 0;
+                break;
             // ULDUAR SPELLS
             //
             case 62374: // Pursued (Flame Leviathan)
