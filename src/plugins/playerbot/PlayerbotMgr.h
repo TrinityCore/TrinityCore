@@ -32,7 +32,7 @@ public:
     void OnBotLogin(Player * const bot);
 
     list<string> HandlePlayerbotCommand(char const* args, Player* master = NULL);
-    bool ProcessBotCommand(string cmd, ObjectGuid guid, bool admin, uint32 masterAccountId, uint32 masterGuildId);
+    string ProcessBotCommand(string cmd, ObjectGuid guid, bool admin, uint32 masterAccountId, uint32 masterGuildId);
     uint32 GetAccountId(string name);
 
 protected:
