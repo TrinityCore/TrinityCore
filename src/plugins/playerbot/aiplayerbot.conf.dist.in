@@ -132,6 +132,9 @@ AiPlayerbot.CommandPrefix =
 # Enable LFG for random bots
 #AiPlayerbot.RandomBotJoinLfg = 1
 
+# Level diff between random bots and nearby creatures for random teleports
+AiPlayerbot.RandomBotTeleLevel = 3
+
 # Intervals
 #AiPlayerbot.RandomBotUpdateInterval = 60
 #AiPlayerbot.RandomBotCountChangeMinInterval = 86400
