@@ -242,17 +242,19 @@ void SmartAIMgr::LoadSmartAIFromDB()
         {
             for (auto e : mEventMap[i][itr->first])
             {
+                bool found = false;
                 if (e.link && e.link != e.event_id)
                 {
                     for (auto linked : mEventMap[i][itr->first])
                     {
                         if (linked.event_id == e.link)
-                        {
-                            if (linked.GetActionType() && linked.GetEventType() != SMART_EVENT_LINK)
-                                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Entry %d SourceType %u, Event %u, Link Event %u not found or invalid, skipped.",
-                                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.link);
-                        }
+                            if (linked.GetActionType() && linked.GetEventType() == SMART_EVENT_LINK)
+                                found = true;
                     }
+
+                    if (!found)
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Entry %d SourceType %u, Event %u, Link Event %u not found or invalid",
+                            e.entryOrGuid, e.GetScriptType(), e.event_id, e.link);
                 }
             }
         }
