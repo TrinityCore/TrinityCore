@@ -249,7 +249,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
                         if (linked.event_id == e.link)
                         {
                             if (linked.GetActionType() && linked.GetEventType() != SMART_EVENT_LINK)
-                                TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Link Event %u not found or invalid, skipped.",
+                                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Entry %d SourceType %u, Event %u, Link Event %u not found or invalid, skipped.",
                                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.link);
                         }
                     }
