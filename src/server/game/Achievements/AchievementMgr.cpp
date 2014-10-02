@@ -999,7 +999,7 @@ void AchievementMgr<Guild>::SendCriteriaUpdate(AchievementCriteriaEntry const* e
 }
 
 template<class T>
-void AchievementMgr<T>::SendAllTrackedCriterias(Player* receiver, std::set<uint32> const& trackedCriterias) const
+void AchievementMgr<T>::SendAllTrackedCriterias(Player* /*receiver*/, std::set<uint32> const& /*trackedCriterias*/) const
 {
 }
 
