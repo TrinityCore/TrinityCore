@@ -83,6 +83,8 @@ typedef std::map<uint32, TransportRotationEntry const*> TransportPathRotationCon
 
 struct TransportAnimation
 {
+    TransportAnimation() : TotalTime(0) { }
+
     TransportPathContainer Path;
     TransportPathRotationContainer Rotations;
     uint32 TotalTime;
