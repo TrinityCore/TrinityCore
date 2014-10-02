@@ -235,6 +235,31 @@ void SmartAIMgr::LoadSmartAIFromDB()
     }
     while (result->NextRow());
 
+    // TO-DO: Find better way
+    for (uint8 i = 0; i < SMART_SCRIPT_TYPE_MAX; i++)
+    {
+        for (auto itr = mEventMap[i].begin(); itr != mEventMap[i].end(); ++itr)
+        {
+            for (auto e : mEventMap[i][itr->first])
+            {
+                bool found = false;
+                if (e.link && e.link != e.event_id)
+                {
+                    for (auto linked : mEventMap[i][itr->first])
+                    {
+                        if (linked.event_id == e.link)
+                            if (linked.GetActionType() && linked.GetEventType() == SMART_EVENT_LINK)
+                                found = true;
+                    }
+
+                    if (!found)
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Entry %d SourceType %u, Event %u, Link Event %u not found or invalid",
+                            e.entryOrGuid, e.GetScriptType(), e.event_id, e.link);
+                }
+            }
+        }
+    }
+
     TC_LOG_INFO("server.loading", ">> Loaded %u SmartAI scripts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
     UnLoadHelperStores();
