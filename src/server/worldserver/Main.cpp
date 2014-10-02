@@ -258,11 +258,12 @@ extern int main(int argc, char** argv)
     sInstanceSaveMgr->Unload();
     sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
     sObjectAccessor->UnloadAll();             // unload 'i_player2corpse' storage and remove from world
+    sScriptMgr->Unload();
+    sOutdoorPvPMgr->Die();
+
 #ifdef ELUNA
     Eluna::Uninitialize();
 #endif
-    sScriptMgr->Unload();
-    sOutdoorPvPMgr->Die();
 
     // set server offline
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realmID);
