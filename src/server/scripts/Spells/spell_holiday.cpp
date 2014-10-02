@@ -759,7 +759,7 @@ enum RamBlub
     SAY_BARLEYBREW_1                        = 23464,
     SAY_BARLEYBREW_2                        = 23465,
     SAY_BARLEYBREW_3                        = 23466,
-    SAY_BARLEYBREW_4                        = 23467,
+    SAY_BARLEYBREW_4                        = 22941,
 
     // Bark for the Thunderbrews!
     SAY_THUNDERBREWS_1                      = 23467,
