@@ -302,7 +302,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 sender->AddWhisperWhiteList(receiver->GetGUID());
 
             // Playerbot mod: handle whispered command to bot
-            if (receiver->GetPlayerbotAI())
+            if (receiver->GetPlayerbotAI() && lang != LANG_ADDON)
             {
                 receiver->GetPlayerbotAI()->HandleCommand(type, msg, *GetPlayer());
                 receiver->m_speakTime = 0;
@@ -333,7 +333,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             for(GroupReference* itr = group->GetFirstMember(); itr != NULL; itr=itr->next())
             {
                 Player* player = itr->GetSource();
-                if (player && player->GetPlayerbotAI())
+                if (player && player->GetPlayerbotAI() && lang != LANG_ADDON)
                 {
                     player->GetPlayerbotAI()->HandleCommand(type, msg, *GetPlayer());
                     GetPlayer()->m_speakTime = 0;
@@ -360,7 +360,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 }
                 // Playerbot mod: broadcast message to bot members
                 PlayerbotMgr *mgr = GetPlayer()->GetPlayerbotMgr();
-                if (mgr)
+                if (mgr && lang != LANG_ADDON)
                 {
                     for (PlayerBotMap::const_iterator it = mgr->GetPlayerBotsBegin(); it != mgr->GetPlayerBotsEnd(); ++it)
                     {
@@ -399,7 +399,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             for(GroupReference* itr = group->GetFirstMember(); itr != NULL; itr=itr->next())
             {
                 Player* player = itr->GetSource();
-                if (player && player->GetPlayerbotAI())
+                if (player && player->GetPlayerbotAI() && lang != LANG_ADDON)
                 {
                     player->GetPlayerbotAI()->HandleCommand(type, msg, *GetPlayer());
                     GetPlayer()->m_speakTime = 0;
@@ -429,7 +429,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             for(GroupReference* itr = group->GetFirstMember(); itr != NULL; itr=itr->next())
             {
                 Player* player = itr->GetSource();
-                if (player && player->GetPlayerbotAI())
+                if (player && player->GetPlayerbotAI() && lang != LANG_ADDON)
                 {
                     player->GetPlayerbotAI()->HandleCommand(type, msg, *GetPlayer());
                     GetPlayer()->m_speakTime = 0;
@@ -454,7 +454,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             for(GroupReference* itr = group->GetFirstMember(); itr != NULL; itr=itr->next())
             {
                 Player* player = itr->GetSource();
-                if (player && player->GetPlayerbotAI())
+                if (player && player->GetPlayerbotAI() && lang != LANG_ADDON)
                 {
                     player->GetPlayerbotAI()->HandleCommand(type, msg, *GetPlayer());
                     GetPlayer()->m_speakTime = 0;
@@ -512,7 +512,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 if (Channel* chn = cMgr->GetChannel(channel, sender))
                 {
                     // Playerbot mod: broadcast message to bot members
-                    if (_player->GetPlayerbotMgr() && chn->GetFlags() & 0x18)
+                    if (_player->GetPlayerbotMgr() && lang != LANG_ADDON && chn->GetFlags() & 0x18)
                     {
                         _player->GetPlayerbotMgr()->HandleCommand(type, msg);
                     }
