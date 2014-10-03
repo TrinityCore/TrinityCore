@@ -700,6 +700,36 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
 
     switch (e.GetActionType())
     {
+        case SMART_ACTION_TALK:
+        {
+            if (e.GetScriptType() == SMART_SCRIPT_TYPE_CREATURE)
+            {
+                uint32 entry = 0;
+                if (e.entryOrGuid >= 0)
+                    entry = e.entryOrGuid;
+                else
+                {
+                    if (CreatureData const* creatureData = sObjectMgr->GetCreatureData(uint32(abs(e.entryOrGuid))))
+                        entry = creatureData->id;
+                }
+
+                CreatureTextMap::const_iterator sList = sCreatureTextMgr->GetTextMap().find(entry);
+                if (sList == sCreatureTextMgr->GetTextMap().end())
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u could not find Text for Creature %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
+                    return false;
+                }
+
+                CreatureTextHolder const& textHolder = sList->second;
+                CreatureTextHolder::const_iterator itr = textHolder.find(e.action.talk.textGroupID);
+                if (itr == textHolder.end())
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u could not find TextGroup %u for Creature %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.talk.textGroupID, entry);
+                    return false;
+                }
+            }
+            break;
+        }
         case SMART_ACTION_SET_FACTION:
             if (e.action.faction.factionID && !sFactionTemplateStore.LookupEntry(e.action.faction.factionID))
             {
@@ -1146,7 +1176,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_SET_NPC_FLAG:
         case SMART_ACTION_ADD_NPC_FLAG:
         case SMART_ACTION_REMOVE_NPC_FLAG:
-        case SMART_ACTION_TALK:
         case SMART_ACTION_SIMPLE_TALK:
         case SMART_ACTION_CROSS_CAST:
         case SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST:
