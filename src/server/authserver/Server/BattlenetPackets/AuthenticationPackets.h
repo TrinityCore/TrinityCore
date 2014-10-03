@@ -26,23 +26,27 @@ namespace Battlenet
     {
         enum Opcode
         {
-            CMSG_LOGON_REQUEST          = 0x0,
-            CMSG_RESUME_REQUEST         = 0x1,
-            CMSG_PROOF_RESPONSE         = 0x2,
+            CMSG_LOGON_REQUEST                              = 0x0,  // Deprecated
+            CMSG_RESUME_REQUEST                             = 0x1,
+            CMSG_PROOF_RESPONSE                             = 0x2,
+            CMSG_GENERATE_SINGLE_SIGN_ON_TOKEN_REQUEST_2    = 0x8,  // Not implemented
+            CMSG_LOGON_REQUEST_3                            = 0x9,
+            CMSG_SINGLE_SIGN_ON_REQUEST_3                   = 0xA,  // Not implemented
 
-            SMSG_LOGON_RESPONSE         = 0x0,
-            SMSG_RESUME_RESPONSE        = 0x1,
-            SMSG_PROOF_REQUEST          = 0x2,
-            SMSG_PATCH                  = 0x3,  // Not implemented
-            SMSG_AUTHORIZED_LICENSES    = 0x4   // Not implemented
+            SMSG_LOGON_RESPONSE                             = 0x0,
+            SMSG_RESUME_RESPONSE                            = 0x1,
+            SMSG_PROOF_REQUEST                              = 0x2,
+            SMSG_PATCH                                      = 0x3,  // Not implemented
+            SMSG_AUTHORIZED_LICENSES                        = 0x4,  // Not implemented
+            SMSG_GENERATE_SINGLE_SIGN_ON_TOKEN_REQUEST_2    = 0x8   // Not implemented
         };
 
-        class LogonRequest final : public ClientPacket
+        class LogonRequest3 final : public ClientPacket
         {
         public:
-            LogonRequest(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
+            LogonRequest3(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
             {
-                ASSERT(header == PacketHeader(CMSG_LOGON_REQUEST, AUTHENTICATION) && "Invalid packet header for LogonRequest");
+                ASSERT(header == PacketHeader(CMSG_LOGON_REQUEST_3, AUTHENTICATION) && "Invalid packet header for LogonRequest3");
             }
 
             void Read() override;
@@ -53,6 +57,7 @@ namespace Battlenet
             std::string Locale;
             std::vector<Component> Components;
             std::string Login;
+            uint64 Compatibility;
         };
 
         class ResumeRequest final : public ClientPacket

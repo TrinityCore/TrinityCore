@@ -42,23 +42,18 @@ namespace Connection_Patcher
                 var modulePath    = "";
                 var moduleFile    = "";
 
-                // Let's use Win32 as default module
-                var patchSend         = Patches.Windows.x86.Send;
-                var offsetSend        = Offsets.Windows.x86.Send;
-                var patchRecv         = Patches.Windows.x86.Recv;
-                var offsetRecv        = Offsets.Windows.x86.Recv;
-                var patchBNet         = Patches.Windows.x86.BNet;
-                var offsetBNet        = Offsets.Windows.x86.BNet;
-                var patchSignature    = Patches.Windows.x86.Signature;
-                var offsetSignature   = Offsets.Windows.x86.Signature;
-                var fileName          = args[0].Replace(".exe", "_Patched.exe");
-                var battleNetFileName = args[0].Replace("Wow.exe", "Battle.net.dll");
-                var modulePatch       = Patches.Windows.x86.Password;
-                var modulePattern     = Patterns.Windows.x86.Password;
-                var realmListPatch    = Patches.Windows.x86.RealmList;
-                var realmListoffset   = Offsets.Windows.x86.RealmList;
-                var realmListBnPatch  = Patches.Windows.x86.RealmListBn;
-                var realmListBnPattern = Patterns.Windows.x86.RealmListBn;
+                // Let's use Win64 as default module
+                var modulePatch       = Patches.Windows.x64.Password;
+                var modulePattern     = Patterns.Windows.x64.Password;
+                var patchBNet         = Patches.Windows.x64.BNet;
+                var patternBNet       = Patterns.Windows.x64.BNet;
+                var patchPortal       = Patches.Windows.x64.Portal;
+                var patternPortal     = Patterns.Windows.x64.Portal;
+                var patchConnect      = Patches.Windows.x64.Connect;
+                var patternConnect    = Patterns.Windows.x64.Connect;
+                var patchSignature    = Patches.Windows.x64.Signature;
+                var patternSignature  = Patterns.Windows.x64.Signature;
+                var fileName          = "";
 
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("Creating patched binaries for ");
@@ -69,54 +64,51 @@ namespace Connection_Patcher
                     {
                         case BinaryTypes.Pe32:
                             Console.WriteLine("Win32 client...");
-                            modulePath        = commonAppData + "/Blizzard Entertainment/Battle.net/Cache/";
-                            moduleFile        = "8f52906a2c85b416a595702251570f96d3522f39237603115f2f1ab24962043c.auth";
+                            patchBNet        = Patches.Windows.x86.BNet;
+                            patternBNet      = Patterns.Windows.x86.BNet;
+                            patchConnect     = Patches.Windows.x86.Connect;
+                            patternConnect   = Patterns.Windows.x86.Connect;
+                            patchSignature   = Patches.Windows.x86.Signature;
+                            patternSignature = Patterns.Windows.x86.Signature;
+                            fileName         = patcher.Binary.Replace(".exe", "") + "_Patched.exe";
+                            
+                            modulePath       = commonAppData + "/Blizzard Entertainment/Battle.net/Cache/";
+                            moduleFile       = "8f52906a2c85b416a595702251570f96d3522f39237603115f2f1ab24962043c.auth";
+                            modulePatch      = Patches.Windows.x86.Password;
+                            modulePattern    = Patterns.Windows.x86.Password;
                             break;
-                        //case BinaryTypes.Pe64:
-                        //    Console.WriteLine("Win64 client...");
-                        //    fileName   = patcher.Binary.Replace(".exe", "") + "_Patched.exe";
-
-                        //    modulePath = commonAppData + "/Blizzard Entertainment/Battle.net/Cache/";
-                        //    moduleFile = "0a3afee2cade3a0e8b458c4b4660104cac7fc50e2ca9bef0d708942e77f15c1d.auth";
-                        //    break;
-                        //case BinaryTypes.Mach32:
-                        //    break;
-                        //case BinaryTypes.Mach64:
-                        //    Console.WriteLine("Mc64 client...");
-                        //    patchBNet        = Patches.Mac.x64.BNet;
-                        //    patternBNet      = Patterns.Mac.x64.BNet;
-                        //    patchSend        = Patches.Mac.x64.Send;
-                        //    patternSend      = Patterns.Mac.x64.Send;
-                        //    patchSignature   = Patches.Mac.x64.Signature;
-                        //    patternSignature = Patterns.Mac.x64.Signature;
-                        //    fileName         = patcher.Binary + " Patched";
-
-                        //    modulePath       = "/Users/Shared/Blizzard/Battle.net/Cache/";
-                        //    moduleFile       = "97eeb2e28e9e56ed6a22d09f44e2ff43c93315e006bbad43bafc0defaa6f50ae.auth";
-                        //    modulePatch      = Patches.Mac.x64.Password;
-                        //    modulePattern    = Patterns.Mac.x64.Password;
-                        //    break;
+                        case BinaryTypes.Pe64:
+                            Console.WriteLine("Win64 client...");
+                            fileName   = patcher.Binary.Replace(".exe", "") + "_Patched.exe";
+                            
+                            modulePath = commonAppData + "/Blizzard Entertainment/Battle.net/Cache/";
+                            moduleFile = "0a3afee2cade3a0e8b458c4b4660104cac7fc50e2ca9bef0d708942e77f15c1d.auth";
+                            break;
+                        case BinaryTypes.Mach32:
+                            throw new NotSupportedException("Type: " + patcher.Type + " not supported!");
+                        case BinaryTypes.Mach64:
+                            Console.WriteLine("Mac client...");
+                            patchBNet        = Patches.Mac.x64.BNet;
+                            patternBNet      = Patterns.Mac.x64.BNet;
+                            patchConnect     = Patterns.Windows.x64.Connect;
+                            patternConnect   = Patterns.Windows.x64.Connect;
+                            patchSignature   = Patches.Mac.x64.Signature;
+                            patternSignature = Patterns.Mac.x64.Signature;
+                            fileName         = patcher.Binary + " Patched";
+                            
+                            modulePath       = "/Users/Shared/Blizzard/Battle.net/Cache/";
+                            moduleFile       = "97eeb2e28e9e56ed6a22d09f44e2ff43c93315e006bbad43bafc0defaa6f50ae.auth";
+                            modulePatch      = Patches.Mac.x64.Password;
+                            modulePattern    = Patterns.Mac.x64.Password;
+                            break;
                         default:
                             throw new NotSupportedException("Type: " + patcher.Type + " not supported!");
                     }
 
-                    if (!File.Exists(battleNetFileName + "_backup"))
-                    {
-                        File.Copy(battleNetFileName, battleNetFileName + "_backup");
-                        File.SetAttributes(battleNetFileName + "_backup", File.GetAttributes(battleNetFileName + "_backup") | FileAttributes.ReadOnly);
-                    }
-
-                    using (var bnpatcher = new Patcher(battleNetFileName))
-                    {
-                        bnpatcher.Patch(patchBNet, null, offsetBNet);
-                        bnpatcher.Patch(patchSignature, null, offsetSignature);
-                        bnpatcher.Patch(realmListBnPatch, realmListBnPattern);
-                        bnpatcher.Finish();
-                    }
-
-                    patcher.Patch(patchSend, null, offsetSend);
-                    patcher.Patch(patchRecv, null, offsetRecv);
-                    patcher.Patch(realmListPatch, null, realmListoffset);
+                    patcher.Patch(patchBNet, patternBNet);
+                    patcher.Patch(patchPortal, patternPortal);
+                    patcher.Patch(patchConnect, patternConnect);
+                    patcher.Patch(patchSignature, patternSignature);
 
                     patcher.Binary = fileName;
 
@@ -139,6 +131,7 @@ namespace Connection_Patcher
 
             Console.ForegroundColor = ConsoleColor.Gray;
             Thread.Sleep(5000);
+
             Environment.Exit(0);
         }
 

@@ -20,25 +20,12 @@ namespace Connection_Patcher.Patches
 {
     class Mac
     {
-        public static class x86
-        {
-            public static byte[] BNet = { };
-            public static byte[] Send = { };
-            public static byte[] Recv = { };
-            public static byte[] Password = { 0x0F, 0x85 };
-            public static byte[] Signature = { };
-        }
-
         public static class x64
         {
-            //public static byte[] BNet = { 0xB8, 0xD5, 0xF8, 0x7F, 0x82, 0x89, 0x47, 0x0C, 0x5D, 0xC3, 0x90, 0x90, 0x90 };
-            public static byte[] BNet = { };
-            //public static byte[] Send = { 0x90, 0x31, 0xDB };
-            public static byte[] Send = { };
-            public static byte[] Recv = { };
-            public static byte[] Password = { 0x0F, 0x85 };
-            //public static byte[] Signature = { 0x45, 0x31, 0xED, 0x4D, 0x89, 0xFC, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xEB };
-            public static byte[] Signature = { };
+            public static byte[] BNet      = { 0xB8, 0xD5, 0xF8, 0x7F, 0x82, 0x89, 0x47, 0x0C, 0x5D, 0xC3, 0x90, 0x90, 0x90 };
+            public static byte[] Connect   = { };
+            public static byte[] Password  = { 0x0F, 0x85 };
+            public static byte[] Signature = { 0x45, 0x31, 0xED, 0x4D, 0x89, 0xFC, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xEB };
         }
     }
 }
