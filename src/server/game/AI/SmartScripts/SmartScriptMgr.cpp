@@ -706,12 +706,18 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             {
                 CreatureTextMap::const_iterator sList = sCreatureTextMgr->GetTextMap().find(e.entryOrGuid);
                 if (sList == sCreatureTextMgr->GetTextMap().end())
-                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u could not find Text for Creature", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u could not find Text for Creature, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                    return false;
+                }
 
                 CreatureTextHolder const& textHolder = sList->second;
                 CreatureTextHolder::const_iterator itr = textHolder.find(e.action.talk.textGroupID);
                 if (itr == textHolder.end())
-                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u could not find TextGroup %u for Creature", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.talk.textGroupID);
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u could not find TextGroup %u for Creature , skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.talk.textGroupID);
+                    return false;
+                }
             }
             break;
         }
