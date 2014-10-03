@@ -46,7 +46,6 @@
   <ItemGroup>
     <Compile Include="Constants\BinaryTypes.cs" />
     <Compile Include="Helper.cs" />
-    <Compile Include="Offsets\Windows.cs" />
     <Compile Include="Patcher.cs" />
     <Compile Include="Patches\Mac.cs" />
     <Compile Include="Patches\Windows.cs" />

@@ -18,7 +18,7 @@
 #include "AuthenticationPackets.h"
 #include "Util.h"
 
-void Battlenet::Authentication::LogonRequest::Read()
+void Battlenet::Authentication::LogonRequest3::Read()
 {
     Program = _stream.ReadFourCC();
     Platform = _stream.ReadFourCC();
@@ -35,17 +35,21 @@ void Battlenet::Authentication::LogonRequest::Read()
 
     if (_stream.Read<uint32>(1))
         Login = _stream.ReadString(9, 3);
+
+    Compatibility = _stream.Read<uint64>(64);
 }
 
-std::string Battlenet::Authentication::LogonRequest::ToString() const
+std::string Battlenet::Authentication::LogonRequest3::ToString() const
 {
     std::ostringstream stream;
-    stream << "Battlenet::Authentication::LogonRequest Program: " << Program << ", Platform: " << Platform << ", Locale: " << Locale;
+    stream << "Battlenet::Authentication::LogonRequest3 Program: " << Program << ", Platform: " << Platform << ", Locale: " << Locale;
     for (Component const& component : Components)
         stream << std::endl << "Battlenet::Component Program: " << component.Program << ", Platform: " << component.Platform << ", Build: " << component.Build;
 
     if (!Login.empty())
-        stream << std::endl << "Battlenet::Authentication::LogonRequest Login: " << Login;
+        stream << std::endl << " Login: " << Login;
+
+    stream << " Compatibility: " << Compatibility;
 
     return stream.str();
 }
@@ -189,6 +193,7 @@ void Battlenet::Authentication::LogonResponse::Write()
         _stream.Write(GameAccountFlags, 64);
 
         _stream.Write(FailedLogins, 32);
+        _stream.Write(false, 1);            // RaF
     }
     else
     {

@@ -33,9 +33,10 @@ void Battlenet::WoWRealm::ListSubscribeResponse::Write()
         _stream.Write(CharacterCounts.size(), 7);
         for (CharacterCountEntry const& entry : CharacterCounts)
         {
+            _stream.Write(entry.Realm.Region, 8);
+            _stream.Write(0, 12);
             _stream.Write(entry.Realm.Battlegroup, 8);
             _stream.Write(entry.Realm.Index, 32);
-            _stream.Write(entry.Realm.Region, 8);
             _stream.Write(entry.CharacterCount, 16);
         }
 
@@ -75,11 +76,12 @@ void Battlenet::WoWRealm::ListUpdate::Write()
     _stream.Write(UpdateState, 1);
     if (UpdateState == UPDATE)
     {
-        _stream.Write(Type + -std::numeric_limits<int32>::min(), 32);
-        _stream.WriteFloat(Population);
-        _stream.Write(Flags, 8);
-        _stream.Write(Lock, 8);
         _stream.Write(Timezone, 32);
+        _stream.WriteFloat(Population);
+        _stream.Write(Lock, 8);
+        _stream.Write(0, 19);
+        _stream.Write(Type + -std::numeric_limits<int32>::min(), 32);
+        _stream.WriteString(Name, 10);
         _stream.Write(!Version.empty(), 1);
         if (!Version.empty())
         {
@@ -96,12 +98,13 @@ void Battlenet::WoWRealm::ListUpdate::Write()
             _stream.WriteBytes(&port, 2);
         }
 
-        _stream.WriteString(Name, 10);
+        _stream.Write(Flags, 8);
     }
 
+    _stream.Write(Region, 8);
+    _stream.Write(0, 12);
     _stream.Write(Battlegroup, 8);
     _stream.Write(Index, 32);
-    _stream.Write(Region, 8);
 }
 
 std::string Battlenet::WoWRealm::ListUpdate::ToString() const
@@ -118,10 +121,12 @@ std::string Battlenet::WoWRealm::ListUpdate::ToString() const
 
 void Battlenet::WoWRealm::JoinRequestV2::Read()
 {
+    ClientSeed = _stream.Read<uint32>(32);
+    _stream.Read<uint32>(20);
+    Realm.Region = _stream.Read<uint8>(8);
+    _stream.Read<uint32>(12);
     Realm.Battlegroup = _stream.Read<uint8>(8);
     Realm.Index = _stream.Read<uint32>(32);
-    Realm.Region = _stream.Read<uint8>(8);
-    ClientSeed = _stream.Read<uint32>(32);
 }
 
 std::string Battlenet::WoWRealm::JoinRequestV2::ToString() const
@@ -138,18 +143,6 @@ void Battlenet::WoWRealm::JoinResponseV2::Write()
     if (Response == SUCCESS)
     {
         _stream.Write(ServerSeed, 32);
-        _stream.Write(IPv6.size(), 5);
-        for (tcp::endpoint const& addr : IPv6)
-        {
-            boost::asio::ip::address_v6::bytes_type ip = addr.address().to_v6().to_bytes();
-            uint16 port = addr.port();
-
-            EndianConvertReverse(port);
-
-            _stream.WriteBytes(ip.data(), 16);
-            _stream.WriteBytes(&port, 2);
-        }
-
         _stream.Write(IPv4.size(), 5);
         for (tcp::endpoint const& addr : IPv4)
         {
@@ -159,6 +152,18 @@ void Battlenet::WoWRealm::JoinResponseV2::Write()
             EndianConvertReverse(port);
 
             _stream.WriteBytes(ip.data(), 4);
+            _stream.WriteBytes(&port, 2);
+        }
+
+        _stream.Write(IPv6.size(), 5);
+        for (tcp::endpoint const& addr : IPv6)
+        {
+            boost::asio::ip::address_v6::bytes_type ip = addr.address().to_v6().to_bytes();
+            uint16 port = addr.port();
+
+            EndianConvertReverse(port);
+
+            _stream.WriteBytes(ip.data(), 16);
             _stream.WriteBytes(&port, 2);
         }
     }

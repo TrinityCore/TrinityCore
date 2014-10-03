@@ -30,7 +30,7 @@ std::map<Battlenet::PacketHeader, Battlenet::Session::PacketHandler> InitHandler
 {
     std::map<Battlenet::PacketHeader, Battlenet::Session::PacketHandler> handlers;
 
-    handlers[Battlenet::PacketHeader(Battlenet::Authentication::CMSG_LOGON_REQUEST, Battlenet::AUTHENTICATION)] = &Battlenet::Session::HandleLogonRequest;
+    handlers[Battlenet::PacketHeader(Battlenet::Authentication::CMSG_LOGON_REQUEST_3, Battlenet::AUTHENTICATION)] = &Battlenet::Session::HandleLogonRequest;
     handlers[Battlenet::PacketHeader(Battlenet::Authentication::CMSG_RESUME_REQUEST, Battlenet::AUTHENTICATION)] = &Battlenet::Session::HandleResumeRequest;
     handlers[Battlenet::PacketHeader(Battlenet::Authentication::CMSG_PROOF_RESPONSE, Battlenet::AUTHENTICATION)] = &Battlenet::Session::HandleProofResponse;
 
@@ -126,7 +126,7 @@ bool Battlenet::Session::HandleLogonRequest(PacketHeader& header, BitStream& pac
         return true;
     }
 
-    Authentication::LogonRequest info(header, packet);
+    Authentication::LogonRequest3 info(header, packet);
     info.Read();
 
     if (info.Program != "WoW")
