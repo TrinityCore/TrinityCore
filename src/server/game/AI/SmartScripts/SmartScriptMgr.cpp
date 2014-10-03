@@ -702,12 +702,21 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
     {
         case SMART_ACTION_TALK:
         {
-            if (e.GetScriptType() == SMART_SCRIPT_TYPE_CREATURE && e.entryOrGuid >= 0)
+            if (e.GetScriptType() == SMART_SCRIPT_TYPE_CREATURE)
             {
-                CreatureTextMap::const_iterator sList = sCreatureTextMgr->GetTextMap().find(e.entryOrGuid);
+                uint32 entry = 0;
+                if (e.entryOrGuid >= 0)
+                    entry = e.entryOrGuid;
+                else
+                {
+                    if (CreatureData const* creatureData = sObjectMgr->GetCreatureData(uint32(abs(e.entryOrGuid))))
+                        entry = creatureData->id;
+                }
+
+                CreatureTextMap::const_iterator sList = sCreatureTextMgr->GetTextMap().find(entry);
                 if (sList == sCreatureTextMgr->GetTextMap().end())
                 {
-                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u could not find Text for Creature, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u could not find Text for Creature %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
                     return false;
                 }
 
@@ -715,7 +724,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 CreatureTextHolder::const_iterator itr = textHolder.find(e.action.talk.textGroupID);
                 if (itr == textHolder.end())
                 {
-                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u could not find TextGroup %u for Creature , skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.talk.textGroupID);
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u could not find TextGroup %u for Creature %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.talk.textGroupID, entry);
                     return false;
                 }
             }
