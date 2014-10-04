@@ -413,7 +413,7 @@ public:
         return object;
     }
 
-    static void SaveObject(Player* player, uint32 GObjectID, bool isHex, bool message = false)
+    static void SaveObject(Player* player, uint32 GObjectID, bool isHex)
     {
         GameObject* object = GetObjectByGObjectID(player, GObjectID, isHex);
         if (!object)
