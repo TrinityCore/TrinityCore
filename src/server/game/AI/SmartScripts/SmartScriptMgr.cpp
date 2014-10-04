@@ -202,13 +202,13 @@ void SmartAIMgr::LoadSmartAIFromDB()
             CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creature->id);
             if (!creatureInfo)
             {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry (%u) does not exist, skipped loading.", uint32(temp.entryOrGuid));
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature (%u) guid (%u) does not exist, skipped loading.", creature->id, uint32(abs(temp.entryOrGuid)));
                 continue;
             }
 
             if (creatureInfo->AIName != "SmartAI")
             {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry (%u) is not using SmartAI, skipped loading.", uint32(temp.entryOrGuid));
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature guid (%u) is not using SmartAI, skipped loading.", uint32(abs(temp.entryOrGuid)));
                 continue;
             }
         }
