@@ -235,6 +235,31 @@ void SmartAIMgr::LoadSmartAIFromDB()
     }
     while (result->NextRow());
 
+    // TO-DO: Find better way
+    for (uint8 i = 0; i < SMART_SCRIPT_TYPE_MAX; i++)
+    {
+        for (auto itr = mEventMap[i].begin(); itr != mEventMap[i].end(); ++itr)
+        {
+            for (auto e : mEventMap[i][itr->first])
+            {
+                bool found = false;
+                if (e.link && e.link != e.event_id)
+                {
+                    for (auto linked : mEventMap[i][itr->first])
+                    {
+                        if (linked.event_id == e.link)
+                            if (linked.GetActionType() && linked.GetEventType() == SMART_EVENT_LINK)
+                                found = true;
+                    }
+
+                    if (!found)
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Entry %d SourceType %u, Event %u, Link Event %u not found or invalid",
+                            e.entryOrGuid, e.GetScriptType(), e.event_id, e.link);
+                }
+            }
+        }
+    }
+
     TC_LOG_INFO("server.loading", ">> Loaded %u SmartAI scripts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
     UnLoadHelperStores();
@@ -675,6 +700,15 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
 
     switch (e.GetActionType())
     {
+        case SMART_ACTION_TALK:
+        {
+            if (e.GetScriptType() == SMART_SCRIPT_TYPE_CREATURE)
+            {
+                if (!IsTextValid(e, e.action.talk.textGroupID))
+                    return false;
+            }
+            break;
+        }
         case SMART_ACTION_SET_FACTION:
             if (e.action.faction.factionID && !sFactionTemplateStore.LookupEntry(e.action.faction.factionID))
             {
@@ -749,8 +783,24 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (e.action.randomEmote.emote6 && !IsEmoteValid(e, e.action.randomEmote.emote6))
                 return false;
             break;
-        case SMART_ACTION_ADD_AURA:
         case SMART_ACTION_CAST:
+        {
+            if (!IsSpellValid(e, e.action.cast.spell))
+                return false;
+
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(e.action.cast.spell);
+            for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+            {
+                if (spellInfo->Effects[j].IsEffect(SPELL_EFFECT_KILL_CREDIT) || spellInfo->Effects[j].IsEffect(SPELL_EFFECT_KILL_CREDIT2))
+                {
+                    if (spellInfo->Effects[j].TargetA.GetTarget() == TARGET_UNIT_CASTER)
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u Effect: SPELL_EFFECT_KILL_CREDIT: (SpellId: %u targetA: %u - targetB: %u) has invalid target for this Action",
+                            e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.cast.spell, spellInfo->Effects[j].TargetA.GetTarget(), spellInfo->Effects[j].TargetB.GetTarget());
+                }
+            }
+            break;
+        }
+        case SMART_ACTION_ADD_AURA:
         case SMART_ACTION_INVOKER_CAST:
             if (!IsSpellValid(e, e.action.cast.spell))
                 return false;
@@ -1068,7 +1118,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_SET_NPC_FLAG:
         case SMART_ACTION_ADD_NPC_FLAG:
         case SMART_ACTION_REMOVE_NPC_FLAG:
-        case SMART_ACTION_TALK:
         case SMART_ACTION_SIMPLE_TALK:
         case SMART_ACTION_CROSS_CAST:
         case SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST:
@@ -1100,13 +1149,15 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
     return true;
 }
 
-/*bool SmartAIMgr::IsTextValid(SmartScriptHolder const& e, uint32 id) // unused
+bool SmartAIMgr::IsTextValid(SmartScriptHolder const& e, uint32 id) // unused
 {
     bool error = false;
     uint32 entry = 0;
+
     if (e.entryOrGuid >= 0)
         entry = uint32(e.entryOrGuid);
-    else {
+    else
+    {
         entry = uint32(abs(e.entryOrGuid));
         CreatureData const* data = sObjectMgr->GetCreatureData(entry);
         if (!data)
@@ -1117,15 +1168,18 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         else
             entry = data->id;
     }
+
     if (!entry || !sCreatureTextMgr->TextExist(entry, uint8(id)))
         error = true;
+
     if (error)
     {
         TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u using non-existent Text id %d, skipped.", e.entryOrGuid, e.GetScriptType(), e.source_type, e.GetActionType(), id);
         return false;
     }
+
     return true;
-}*/
+}
 
 void SmartAIMgr::LoadHelperStores()
 {
