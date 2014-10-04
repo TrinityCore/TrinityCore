@@ -49,8 +49,8 @@ public:
     {
         static ChatCommand GOMoveCommandTable[] =
         {
-            { "gomove", rbac::RBAC_PERM_COMMAND_GOBJECT_ADD_TEMP, false, &GOMove_Command, "", NULL },
-            { NULL, 0, false, NULL, "", NULL }
+            { "gomove", rbac::RBAC_PERM_COMMAND_GOBJECT_ADD_TEMP, false, &GOMove_Command, "", nullptr },
+            { nullptr, 0, false, nullptr, "", nullptr }
         };
         return GOMoveCommandTable;
     }
@@ -65,23 +65,22 @@ public:
             return false;
         uint32 ID = (uint32)atol(ID_t);
 
-        char* GObjectID_C = strtok(NULL, " ");
+        char* GObjectID_C = strtok(nullptr, " ");
         uint32 GObjectID = 0;
         bool isHex = false;
         if (GObjectID_C)
         {
-            GObjectID = strtoul(GObjectID_C, NULL, 0); // can take in hex as well as dec
+            GObjectID = strtoul(GObjectID_C, nullptr, 0); // can take in hex as well as dec
             isHex = (std::string(GObjectID_C).find("0x") != std::string::npos);
         }
 
-        char* ARG_t = strtok(NULL, " ");
+        char* ARG_t = strtok(nullptr, " ");
         uint32 ARG = 0;
         if (ARG_t)
             ARG = (uint32)atol(ARG_t);
 
         WorldSession* session = handler->GetSession();
         Player* player = session->GetPlayer();
-        uint64 playerGUID = player->GetGUID();
 
         if (ID < SPAWN) // no args
         {
@@ -118,7 +117,7 @@ public:
                 switch (ID)
                 {
                     case TEST:
-                        session->SendAreaTriggerMessage(player->GetName().c_str());
+                        session->SendAreaTriggerMessage("%s", player->GetName().c_str());
                         break;
                     case FACE:
                     {
@@ -183,7 +182,7 @@ public:
                 {
                     case SPAWN:
                     {
-                        if (SpawnObject(player, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), player->GetPhaseMaskForSpawn(), false, ARG, false, true))
+                        if (SpawnObject(player, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), player->GetPhaseMaskForSpawn(), false, ARG, false))
                             SpawnQue[player->GetGUID()] = ARG;
                     } break;
                     case SPAWNSPELL:
@@ -205,7 +204,7 @@ public:
                                 Field* fields = result->Fetch();
                                 uint32 guidLow = fields[0].GetUInt32();
 
-                                if (GameObject* object = GetObjectByGObjectID(player, guidLow, false))
+                                if (GetObjectByGObjectID(player, guidLow, false) != nullptr)
                                     SendSelectionInfo(player, guidLow, false, true);
                             } while (result->NextRow());
                         }
@@ -233,7 +232,7 @@ public:
     static GameObject* GetClosestGObjectID(Player* player, GameObject* obj)
     {
         if (!player)
-            return NULL;
+            return nullptr;
         uint32 closestID = 0;
         for (std::set<uint32>::const_iterator it = GObjects.begin(); it != GObjects.end();)
         {
@@ -270,7 +269,7 @@ public:
 
     static GameObject* GetObjectByGObjectID(Player* player, uint32 GObjectID, bool isHex)
     {
-        GameObject* object = NULL;
+        GameObject* object = nullptr;
         if (isHex)
         {
             object = player->GetGameObject(GObjectID);
@@ -284,7 +283,7 @@ public:
         }
 
         if (!object || !object->IsInMap(player)) // cant move objects on different maps
-            return NULL;
+            return nullptr;
         return object;
     }
 
@@ -332,18 +331,18 @@ public:
     static GameObject* SummonGameObject(Player* obj, uint32 entry, float x, float y, float z, float o, uint32 p, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime)
     {
         if (!obj->IsInWorld())
-            return NULL;
+            return nullptr;
 
         GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
         if (!goinfo)
-            return NULL;
+            return nullptr;
 
         Map* map = obj->GetMap();
         GameObject* go = new GameObject();
         if (!go->Create(0, entry, map, p, x, y, z, o, rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
         {
             delete go;
-            return NULL;
+            return nullptr;
         }
 
         go->SetRespawnTime(respawnTime);
@@ -376,25 +375,25 @@ public:
         }
     }
 
-    static GameObject* SpawnObject(Player* player, float x, float y, float z, float o, uint32 p, bool move, uint32 eorg, bool isHex, bool message = false)
+    static GameObject* SpawnObject(Player* player, float x, float y, float z, float o, uint32 p, bool move, uint32 eorg, bool isHex)
     {
         // eorg = !move && entry or move && GObjectID (entry or ID)
         if (!player || !eorg)
-            return NULL;
+            return nullptr;
 
         float rot2 = std::sin(o / 2);
         float rot3 = std::cos(o / 2);
 
-        GameObject* object = NULL;
+        GameObject* object = nullptr;
         if (move)
         {
             object = GetObjectByGObjectID(player, eorg, isHex);
             if (!object)
-                return NULL;
+                return nullptr;
             GameObject* spawned = SummonGameObject(player, object->GetEntry(), x, y, z, o, p, 0, 0, rot2, rot3, 0);
             DeleteObject(object/*, isHex ? eorg : 0*/);
             if (!spawned)
-                return NULL;
+                return nullptr;
             // object->SetPhaseMask(p, true);
             std::ostringstream ss;
             if (!isHex)
@@ -407,7 +406,7 @@ public:
         {
             object = SummonGameObject(player, eorg, x, y, z, o, p, 0, 0, rot2, rot3, 0);
             if (!object)
-                return NULL;
+                return nullptr;
             SendSelectionInfo(player, object->GetGUIDHigh(), true, true); // MUST be handled here. There are no good ways to get the GObjectID later.
         }
 
@@ -471,7 +470,7 @@ public:
                 return;
             const WorldLocation* summonPos = GetExplTargetDest();
             if (summonPos && GOMove_commandscript::SpawnQue.find(player->GetGUID()) != GOMove_commandscript::SpawnQue.end())
-                GOMove_commandscript::SpawnObject(player, summonPos->GetPositionX(), summonPos->GetPositionY(), summonPos->GetPositionZ(), player->GetOrientation(), player->GetPhaseMaskForSpawn(), false, GOMove_commandscript::SpawnQue[player->GetGUID()], false, true);
+                GOMove_commandscript::SpawnObject(player, summonPos->GetPositionX(), summonPos->GetPositionY(), summonPos->GetPositionZ(), player->GetOrientation(), player->GetPhaseMaskForSpawn(), false, GOMove_commandscript::SpawnQue[player->GetGUID()], false);
         }
 
         void Register() override
