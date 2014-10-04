@@ -710,24 +710,24 @@ struct ChrRacesEntry
     uint32      expansion;                                  // 68 (0 - original race, 1 - tbc addon, ...)
 };
 
-/* not used
+// Implemented for use in script: player_creature_honor
 struct CinematicCameraEntry
 {
-    uint32      id;                                         // 0 index
-    char*       filename;                                   // 1
-    uint32      soundid;                                    // 2 in SoundEntries.dbc or 0
-    float       start_x;                                    // 3
-    float       start_y;                                    // 4
-    float       start_z;                                    // 5
-    float       unk6;                                       // 6 speed?
+    uint32      id;                                       // 0 index
+    //char*       filename;                               // 1
+    //uint32      soundid;                                // 2 in SoundEntries.dbc or 0
+    float       end_x;                                    // 3
+    float       end_y;                                    // 4
+    float       end_z;                                    // 5
+    float       orientation;                              // 6 speed?
 };
-*/
 
+// Implemented cinematicCamera member for script: player_creature_honor
 struct CinematicSequencesEntry
 {
     uint32      Id;                                         // 0 index
     //uint32      unk1;                                     // 1 always 0
-    //uint32      cinematicCamera;                          // 2 id in CinematicCamera.dbc
+    uint32      cinematicCamera;                          // 2 id in CinematicCamera.dbc
                                                             // 3-9 always 0
 };
 

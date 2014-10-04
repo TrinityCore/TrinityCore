@@ -2518,3 +2518,16 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2014-08-28 15:30:47
+
+--
+-- Table structure for table `creturehonor_message`
+--
+
+drop table if exists `creturehonor_message`;
+
+CREATE TABLE `creaturehonor_message` (
+  `guid` int(10) unsigned NOT NULL COMMENT 'characters.guid',
+  `message_sent` int(1) unsigned DEFAULT '0' COMMENT 'Set to 0 to force message resend at login. Useful after CONF change.',
+  PRIMARY KEY (`guid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Tracks CreatureHonor script messages sent to characters.'
+
