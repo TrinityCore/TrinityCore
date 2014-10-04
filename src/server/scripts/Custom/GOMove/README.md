@@ -50,4 +50,4 @@ You will see the addon display as you log in and you should see a minmap icon wi
 In game chat use `/gomove help` to see all commands
 Note! Only game objects showing the real guid (not hex) are actually saved. If you save an object and then move it, it is again only temporary.
 
-![Guide.jpg](Guide.jpg)
+[![Guide.jpg](Guide.jpg)](https://raw.githubusercontent.com/Rochet2/TrinityCore/gomove/src/server/scripts/Custom/GOMove/Guide.jpg)
