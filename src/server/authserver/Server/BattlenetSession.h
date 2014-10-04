@@ -61,19 +61,19 @@ namespace Battlenet
 
         typedef bool(Session::*PacketHandler)(PacketHeader& socket, BitStream& packet);
 
-        // Auth
-        bool HandleAuthChallenge(PacketHeader& header, BitStream& packet);
-        bool HandleAuthReconnect(PacketHeader& header, BitStream& packet);
-        bool HandleAuthProofResponse(PacketHeader& header, BitStream& packet);
+        // Authentication
+        bool HandleLogonRequest(PacketHeader& header, BitStream& packet);
+        bool HandleResumeRequest(PacketHeader& header, BitStream& packet);
+        bool HandleProofResponse(PacketHeader& header, BitStream& packet);
 
-        // Creep
+        // Connection
         bool HandlePing(PacketHeader& header, BitStream& packet);
         bool HandleEnableEncryption(PacketHeader& header, BitStream& packet);
-        bool HandleDisconnect(PacketHeader& header, BitStream& packet);
+        bool HandleLogoutRequest(PacketHeader& header, BitStream& packet);
 
-        // WoW
-        bool HandleRealmUpdateSubscribe(PacketHeader& header, BitStream& packet);
-        bool HandleRealmJoinRequest(PacketHeader& header, BitStream& packet);
+        // WoWRealm
+        bool HandleListSubscribeRequest(PacketHeader& header, BitStream& packet);
+        bool HandleJoinRequestV2(PacketHeader& header, BitStream& packet);
 
         void Start() override;
 

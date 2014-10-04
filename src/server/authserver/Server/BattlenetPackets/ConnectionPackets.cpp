@@ -15,16 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BattlenetBitStream.h"
+#include "ConnectionPackets.h"
 
-template<>
-bool Battlenet::BitStream::Read<bool>(uint32 /*bitCount*/)
+std::string Battlenet::Connection::Pong::ToString() const
 {
-    return Read<uint8>(1) != 0;
-}
-
-template<>
-void Battlenet::BitStream::Write<bool>(bool value, uint32 /*bitCount*/)
-{
-    Write<uint8>(value ? 1 : 0, 1);
+    return "Battlenet::Connection::Pong";
 }

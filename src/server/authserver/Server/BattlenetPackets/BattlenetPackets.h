@@ -15,16 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BattlenetBitStream.h"
+#ifndef BattlenetPackets_h__
+#define BattlenetPackets_h__
 
-template<>
-bool Battlenet::BitStream::Read<bool>(uint32 /*bitCount*/)
-{
-    return Read<uint8>(1) != 0;
-}
+#include "AuthenticationPackets.h"
+#include "ConnectionPackets.h"
+#include "WoWRealmPackets.h"
 
-template<>
-void Battlenet::BitStream::Write<bool>(bool value, uint32 /*bitCount*/)
-{
-    Write<uint8>(value ? 1 : 0, 1);
-}
+#endif // BattlenetPackets_h__
