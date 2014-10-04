@@ -13,6 +13,7 @@
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
 #  ${sources_Custom}
+  Custom/GOMove/GOMove.cpp
 )
 
 message("  -> Prepared: Custom")
