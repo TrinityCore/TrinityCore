@@ -156,6 +156,10 @@ void SmartAIMgr::LoadSmartAIFromDB()
                         TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry (%u) is not using SmartAI, skipped loading.", uint32(temp.entryOrGuid));
                         continue;
                     }
+
+                    std::string scriptName = sObjectMgr->GetScriptName(creatureInfo->ScriptID);
+                    if (!scriptName.empty())
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry (%u) is using other script", uint32(temp.entryOrGuid));
                     break;
                 }
                 case SMART_SCRIPT_TYPE_GAMEOBJECT:
@@ -195,22 +199,26 @@ void SmartAIMgr::LoadSmartAIFromDB()
             CreatureData const* creature = sObjectMgr->GetCreatureData(uint32(abs(temp.entryOrGuid)));
             if (!creature)
             {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature guid (%u) does not exist, skipped loading.", uint32(abs(temp.entryOrGuid)));
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature guid (%u) does not exist, skipped loading.", creature->id, uint32(abs(temp.entryOrGuid)));
                 continue;
             }
 
             CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creature->id);
             if (!creatureInfo)
             {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature (%u) guid (%u) does not exist, skipped loading.", creature->id, uint32(abs(temp.entryOrGuid)));
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry (%u) guid (%u) does not exist, skipped loading.", creature->id, uint32(abs(temp.entryOrGuid)));
                 continue;
             }
 
             if (creatureInfo->AIName != "SmartAI")
             {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature guid (%u) is not using SmartAI, skipped loading.", uint32(abs(temp.entryOrGuid)));
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry (%u) guid (%u) is not using SmartAI, skipped loading.", creature->id, uint32(abs(temp.entryOrGuid)));
                 continue;
             }
+
+            std::string scriptName = sObjectMgr->GetScriptName(creatureInfo->ScriptID);
+            if (!scriptName.empty())
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry (%u) guid (%u) is using other script", creature->id, uint32(abs(temp.entryOrGuid)));
         }
 
         temp.source_type = source_type;
