@@ -704,29 +704,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         {
             if (e.GetScriptType() == SMART_SCRIPT_TYPE_CREATURE)
             {
-                uint32 entry = 0;
-                if (e.entryOrGuid >= 0)
-                    entry = e.entryOrGuid;
-                else
-                {
-                    if (CreatureData const* creatureData = sObjectMgr->GetCreatureData(uint32(abs(e.entryOrGuid))))
-                        entry = creatureData->id;
-                }
-
-                CreatureTextMap::const_iterator sList = sCreatureTextMgr->GetTextMap().find(entry);
-                if (sList == sCreatureTextMgr->GetTextMap().end())
-                {
-                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u could not find Text for Creature %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
+                if (!IsTextValid(e, e.action.talk.textGroupID))
                     return false;
-                }
-
-                CreatureTextHolder const& textHolder = sList->second;
-                CreatureTextHolder::const_iterator itr = textHolder.find(e.action.talk.textGroupID);
-                if (itr == textHolder.end())
-                {
-                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u could not find TextGroup %u for Creature %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.talk.textGroupID, entry);
-                    return false;
-                }
             }
             break;
         }
@@ -1207,13 +1186,15 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
     return true;
 }
 
-/*bool SmartAIMgr::IsTextValid(SmartScriptHolder const& e, uint32 id) // unused
+bool SmartAIMgr::IsTextValid(SmartScriptHolder const& e, uint32 id) // unused
 {
     bool error = false;
     uint32 entry = 0;
+
     if (e.entryOrGuid >= 0)
         entry = uint32(e.entryOrGuid);
-    else {
+    else
+    {
         entry = uint32(abs(e.entryOrGuid));
         CreatureData const* data = sObjectMgr->GetCreatureData(entry);
         if (!data)
@@ -1224,15 +1205,18 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         else
             entry = data->id;
     }
+
     if (!entry || !sCreatureTextMgr->TextExist(entry, uint8(id)))
         error = true;
+
     if (error)
     {
         TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u using non-existent Text id %d, skipped.", e.entryOrGuid, e.GetScriptType(), e.source_type, e.GetActionType(), id);
         return false;
     }
+
     return true;
-}*/
+}
 
 void SmartAIMgr::LoadHelperStores()
 {
