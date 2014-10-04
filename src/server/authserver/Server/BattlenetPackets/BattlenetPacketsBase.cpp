@@ -15,16 +15,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BattlenetBitStream.h"
+#include "BattlenetPackets.h"
+#include <sstream>
 
-template<>
-bool Battlenet::BitStream::Read<bool>(uint32 /*bitCount*/)
+std::string Battlenet::PacketHeader::ToString() const
 {
-    return Read<uint8>(1) != 0;
+    std::ostringstream stream;
+    stream << "Battlenet::PacketHeader opcode: " << Opcode << ", channel: " << Channel;
+    return stream.str();
 }
 
-template<>
-void Battlenet::BitStream::Write<bool>(bool value, uint32 /*bitCount*/)
+Battlenet::ServerPacket::ServerPacket(PacketHeader const& header) : Packet(header, *new BitStream())
 {
-    Write<uint8>(value ? 1 : 0, 1);
+    _stream.Write(header.Opcode, 6);
+    _stream.Write(1, 1);
+    _stream.Write(header.Channel, 4);
+}
+
+Battlenet::ServerPacket::~ServerPacket()
+{
+    delete &_stream;
 }

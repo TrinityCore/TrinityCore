@@ -125,7 +125,7 @@ namespace Battlenet
         {
             static_assert(std::is_integral<T>::value || std::is_enum<T>::value, "T must be an integer type");
 
-            if (_readPos + bitCount >= _writePos)
+            if (_readPos + bitCount > _writePos)
                 throw BitStreamPositionException(true, bitCount, _readPos, _writePos);
 
             uint64 ret = 0;
@@ -188,7 +188,7 @@ namespace Battlenet
         {
             static_assert(std::is_integral<T>::value || std::is_enum<T>::value, "T must be an integer type");
 
-            if (_writePos + bitCount >= 8 * MaxSize)
+            if (_writePos + bitCount > 8 * MaxSize)
                 throw BitStreamPositionException(false, bitCount, _writePos, MaxSize * 8);
 
             while (bitCount != 0)
@@ -214,7 +214,7 @@ namespace Battlenet
 
         void SetReadPos(uint32 bits)
         {
-            if (bits >= _writePos)
+            if (bits > _writePos)
                 throw BitStreamPositionException(true, bits, 0, _writePos);
 
             _readPos = bits;
@@ -235,6 +235,9 @@ namespace Battlenet
 
     template<>
     bool BitStream::Read<bool>(uint32 bitCount);
+
+    template<>
+    void BitStream::Write<bool>(bool value, uint32 bitCount);
 }
 
 #endif // __BATTLENETBITSTREAM_H__
