@@ -37,7 +37,7 @@ namespace Battlenet
         AUTHENTICATION  = 0,
         CONNECTION      = 1,
         WOWREALM        = 2,
-        FRIEND          = 3,
+        FRIENDS         = 3,
         PRESENCE        = 4,
         CHAT            = 5,
         SUPPORT         = 7,
