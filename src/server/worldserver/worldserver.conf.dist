@@ -267,9 +267,9 @@ ChangeWeatherInterval = 600000
 #
 #    PlayerSaveInterval
 #        Description: Time (in milliseconds) for player save interval.
-#        Default:     900000 - (15 min)
+#        Default:     90000 - (90 seconds)
 
-PlayerSaveInterval = 900000
+PlayerSaveInterval = 90000
 
 #
 #    PlayerSave.Stats.MinLevel
@@ -289,7 +289,7 @@ PlayerSave.Stats.SaveOnlyOnLogout = 1
 
 #
 #    mmap.enablePathFinding
-#        Description: Enable/Disable pathfinding using mmaps - experimental.
+#        Description: Enable/Disable pathfinding using mmaps - recommended.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
@@ -2004,9 +2004,9 @@ AutoBroadcast.Center = 0
 #
 #    AutoBroadcast.Timer
 #        Description: Timer (in milliseconds) for auto broadcasts.
-#        Default:     60000 - (60 seconds)
+#        Default:     60000 - (10 minutes)
 
-AutoBroadcast.Timer = 60000
+AutoBroadcast.Timer = 600000
 
 #
 ###################################################################################################

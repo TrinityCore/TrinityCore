@@ -23,7 +23,7 @@
 #include "WoWRealmPackets.h"
 #include "FriendsPackets.h"
 #include "PresencePackets.h"
-//#include "ChatPackets.h"
+#include "ChatPackets.h"
 #include "SupportPackets.h"
 #include "AchievementPackets.h"
 #include "CachePackets.h"
