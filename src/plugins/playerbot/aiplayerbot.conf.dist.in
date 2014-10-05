@@ -160,3 +160,5 @@ AiPlayerbot.RandomBotTeleLevel = 3
 #AiPlayerbot.LogValuesPerTick = 0
 #AiPlayerbot.RandomChangeMultiplier = 1
 
+# Command server port, 0 - disabled
+#AiPlayerbot.CommandServerPort = 8888

@@ -35,6 +35,7 @@ class RandomPlayerbotMgr : public PlayerbotHolder
         void IncreaseLevel(Player* bot);
         void ScheduleTeleport(uint32 bot);
         void HandleCommand(uint32 type, const string& text, Player& fromPlayer);
+        string HandleRemoteCommand(string request);
         void OnPlayerLogout(Player* player);
         void OnPlayerLogin(Player* player);
         Player* GetRandomPlayer();

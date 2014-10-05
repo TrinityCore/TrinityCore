@@ -466,6 +466,7 @@ void Engine::LogAction(const char* format, ...)
     va_start(ap, format);
     vsprintf(buf, format, ap);
     va_end(ap);
+    lastAction = buf;
 
     if (testMode)
     {

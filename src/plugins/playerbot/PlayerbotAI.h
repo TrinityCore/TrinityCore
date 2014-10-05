@@ -108,6 +108,7 @@ public:
 public:
 	virtual void UpdateAI(uint32 elapsed);
 	virtual void UpdateAIInternal(uint32 elapsed);
+	string HandleRemoteCommand(string command);
     void HandleCommand(uint32 type, const string& text, Player& fromPlayer);
 	void HandleBotOutgoingPacket(const WorldPacket& packet);
     void HandleMasterIncomingPacket(const WorldPacket& packet);
@@ -173,6 +174,7 @@ protected:
     AiObjectContext* aiObjectContext;
     Engine* currentEngine;
     Engine* engines[BOT_STATE_MAX];
+    BotState currentState;
     ChatHelper chatHelper;
     stack<ChatCommandHolder> chatCommands;
     PacketHandlingHelper botOutgoingPacketHandlers;

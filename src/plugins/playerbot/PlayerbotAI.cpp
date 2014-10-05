@@ -75,6 +75,7 @@ PlayerbotAI::PlayerbotAI(Player* bot) :
     engines[BOT_STATE_NON_COMBAT] = AiFactory::createNonCombatEngine(bot, this, aiObjectContext);
     engines[BOT_STATE_DEAD] = AiFactory::createDeadEngine(bot, this, aiObjectContext);
     currentEngine = engines[BOT_STATE_NON_COMBAT];
+    currentState = BOT_STATE_NON_COMBAT;
 
     masterIncomingPacketHandlers.AddHandler(CMSG_GAMEOBJ_REPORT_USE, "use game object");
     masterIncomingPacketHandlers.AddHandler(CMSG_AREATRIGGER, "area trigger");
@@ -397,6 +398,7 @@ void PlayerbotAI::ChangeEngine(BotState type)
     if (currentEngine != engine)
     {
         currentEngine = engine;
+        currentState = type;
         ReInitCurrentEngine();
 
         switch (type)
@@ -1329,4 +1331,60 @@ void PlayerbotAI::_fillGearScoreData(Player *player, Item* item, std::vector<uin
         default:
             break;
     }
+}
+
+string PlayerbotAI::HandleRemoteCommand(string command)
+{
+    if (command == "state")
+    {
+        switch (currentState)
+        {
+        case BOT_STATE_COMBAT:
+            return "combat";
+        case BOT_STATE_DEAD:
+            return "dead";
+        case BOT_STATE_NON_COMBAT:
+            return "non-combat";
+        default:
+            return "unknown";
+        }
+    }
+    else if (command == "position")
+    {
+        ostringstream out; out << bot->GetMapId() << "," << bot->GetPositionX() << "," << bot->GetPositionY() << "," << bot->GetPositionZ() << "," << bot->GetOrientation();
+        return out.str();
+    }
+    else if (command == "target")
+    {
+        Unit* target = *GetAiObjectContext()->GetValue<Unit*>("current target");
+        if (!target) {
+            return "";
+        }
+
+        return target->GetName();
+    }
+    else if (command == "hp")
+    {
+        int pct = (int)((static_cast<float> (bot->GetHealth()) / bot->GetMaxHealth()) * 100);
+        ostringstream out; out << pct << "%";
+
+        Unit* target = *GetAiObjectContext()->GetValue<Unit*>("current target");
+        if (!target) {
+            return out.str();
+        }
+
+        pct = (int)((static_cast<float> (target->GetHealth()) / target->GetMaxHealth()) * 100);
+        out << " / " << pct << "%";
+        return out.str();
+    }
+    else if (command == "strategy")
+    {
+        return currentEngine->ListStrategies();
+    }
+    else if (command == "action")
+    {
+        return currentEngine->GetLastAction();
+    }
+    ostringstream out; out << "invalid command: " << command;
+    return out.str();
 }

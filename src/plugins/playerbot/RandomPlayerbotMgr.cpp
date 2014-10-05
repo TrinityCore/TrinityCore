@@ -6,9 +6,11 @@
 #include "PlayerbotAI.h"
 #include "AiFactory.h"
 #include "../../game/Maps/MapManager.h"
+#include "PlayerbotCommandServer.h"
 
 RandomPlayerbotMgr::RandomPlayerbotMgr() : PlayerbotHolder(), processTicks(0)
 {
+    sPlayerbotCommandServer.Start();
 }
 
 RandomPlayerbotMgr::~RandomPlayerbotMgr()
@@ -836,4 +838,26 @@ uint32 RandomPlayerbotMgr::GetTradeDiscount(Player* bot)
 {
     Group* group = bot->GetGroup();
     return GetLootAmount(bot) / (group ? group->GetMembersCount() : 10);
+}
+
+string RandomPlayerbotMgr::HandleRemoteCommand(string request)
+{
+    string::iterator pos = find(request.begin(), request.end(), ',');
+    if (pos == request.end())
+    {
+        ostringstream out; out << "invalid request: " << request;
+        return out.str();
+    }
+
+    string command = string(request.begin(), pos);
+    uint64 guid = atoi(string(pos + 1, request.end()).c_str());
+    Player* bot = GetPlayerBot(guid);
+    if (!bot)
+        return "invalid guid";
+
+    PlayerbotAI *ai = bot->GetPlayerbotAI();
+    if (!ai)
+        return "invalid guid";
+
+    return ai->HandleRemoteCommand(command);
 }

@@ -59,6 +59,8 @@ public:
 
     uint32 iterationsPerTick;
 
+    int commandServerPort;
+
     std::string GetValue(std::string name);
     void SetValue(std::string name, std::string value);
 
