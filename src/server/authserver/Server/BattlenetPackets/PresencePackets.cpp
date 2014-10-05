@@ -18,7 +18,7 @@
 #include "BattlenetSession.h"
 #include "PresencePackets.h"
 
-f
+
 void Battlenet::Presence::UpdateRequest::Read()
 {
 
