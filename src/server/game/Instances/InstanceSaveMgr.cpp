@@ -389,7 +389,7 @@ void InstanceSaveManager::LoadResetTimes()
             if (oldresettime != newresettime)
                 CharacterDatabase.DirectPExecute("UPDATE instance_reset SET resettime = '%u' WHERE mapid = '%u' AND difficulty = '%u'", uint32(newresettime), mapid, difficulty);
 
-            SetResetTimeFor(mapid, difficulty, newresettime);
+            InitializeResetTimeFor(mapid, difficulty, newresettime);
         } while (result->NextRow());
     }
 
@@ -426,7 +426,7 @@ void InstanceSaveManager::LoadResetTimes()
             CharacterDatabase.DirectPExecute("UPDATE instance_reset SET resettime = '" UI64FMTD "' WHERE mapid = '%u' AND difficulty= '%u'", (uint64)t, mapid, difficulty);
         }
 
-        SetResetTimeFor(mapid, difficulty, t);
+        InitializeResetTimeFor(mapid, difficulty, t);
 
         // schedule the global reset/warning
         uint8 type;
