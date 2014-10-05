@@ -38,7 +38,7 @@ namespace Battlenet
             CMSG_SOCIAL_NETWORK_CONNECT                 = 0x0F,  // Not implemented
             CMSG_SOCIAL_NETWORK_DISCONNECT              = 0x11,  // Not implemented
             CMSG_SOCIAL_NETWORK_CHECK_CONNECTED         = 0x13,  // Not implemented
-            CMSG_SEND_RID_FRIEND_INVITE                 = 0x16,  // Not implemented
+            CMSG_REALID_FRIEND_INVITE                   = 0x16,  // Not implemented
 
             SMSG_FRIEND_INVITE_NOTIFY                   = 0x01,  // Not implemented
             SMSG_FRIEND_INVITE_RESULT                   = 0x03,  // Not implemented
