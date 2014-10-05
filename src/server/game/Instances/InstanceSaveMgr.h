@@ -191,9 +191,18 @@ class InstanceSaveManager
             return itr != m_resetTimeByMapDifficulty.end() ? itr->second : 0;
         }
 
-        void SetResetTimeFor(uint32 mapid, Difficulty d, time_t t)
+        // Use this on startup when initializing reset times
+        void InitializeResetTimeFor(uint32 mapid, Difficulty d, time_t t)
         {
             m_resetTimeByMapDifficulty[MAKE_PAIR32(mapid, d)] = t;
+        }
+
+        // Use this only when updating existing reset times
+        void SetResetTimeFor(uint32 mapid, Difficulty d, time_t t)
+        {
+            ResetTimeByMapDifficultyMap::iterator itr = m_resetTimeByMapDifficulty.find(MAKE_PAIR32(mapid, d));
+            ASSERT(itr != m_resetTimeByMapDifficulty.end());
+            itr->second = t;
         }
 
         ResetTimeByMapDifficultyMap const& GetResetTimeMap() const
