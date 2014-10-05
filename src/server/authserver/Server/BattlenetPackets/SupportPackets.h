@@ -15,15 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BattlenetPackets_h__
-#define BattlenetPackets_h__
+#ifndef SupportPackets_h__
+#define SupportPackets_h__
 
-#include "AuthenticationPackets.h"
-#include "ConnectionPackets.h"
-#include "WoWRealmPackets.h"
-#include "FriendsPackets.h"
-#include "PresencePackets.h"
+#include "BattlenetPacketsBase.h"
 
-#include "SupportPackets.h"
+namespace Battlenet
+{
+    namespace Support
+    {
+        enum Opcode
+        {
+            CMSG_COMPLAINT_REQUEST  = 0x0   // Not implemented
+        };
+    }
+}
 
-#endif // BattlenetPackets_h__
+#endif // SupportPackets_h__
