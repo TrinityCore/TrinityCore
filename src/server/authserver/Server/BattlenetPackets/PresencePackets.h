@@ -33,6 +33,32 @@ namespace Battlenet
             SMSG_FIELD_SPEC_ANNOUNCE    = 0x1,  // Not implemented
             SMSG_STATISTICS_UPDATE      = 0x3   // Not implemented
         };
+
+        class UpdateRequest final : public ClientPacket
+        {
+        public:
+            UpdateRequest(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
+            {
+                ASSERT(header == PacketHeader(CMSG_UPDATE_REQUEST, PRESENCE) && "Invalid packet header for UpdateRequest");
+            }
+
+            void Read() override;
+            std::string ToString() const override;
+            void CallHandler(Session* session) const override;
+        };
+
+        class StatisticSubscribe final : public ClientPacket
+        {
+        public:
+            StatisticSubscribe(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
+            {
+                ASSERT(header == PacketHeader(CMSG_STATISTIC_SUBSCRIBE, PRESENCE) && "Invalid packet header for StatisticSubscribe");
+            }
+
+            void Read() override;
+            std::string ToString() const override;
+            void CallHandler(Session* session) const override;
+        };
     }
 }
 
