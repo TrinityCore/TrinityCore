@@ -21,5 +21,6 @@
 #include "AuthenticationPackets.h"
 #include "ConnectionPackets.h"
 #include "WoWRealmPackets.h"
+#include "FriendsPackets.h"
 
 #endif // BattlenetPackets_h__
