@@ -39,6 +39,19 @@ namespace Battlenet
             SMSG_JOIN_RESPONSE_V2           = 0x8
         };
 
+        class ListSubscribeRequest final : public ClientPacket
+        {
+        public:
+            ListSubscribeRequest(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
+            {
+                ASSERT(header == PacketHeader(CMSG_LIST_SUBSCRIBE_REQUEST, WOWREALM) && "Invalid packet header for ListSubscribeRequest");
+            }
+
+            void Read() override { }
+            std::string ToString() const override;
+            void CallHandler(Session* session) const override;
+        };
+
         class JoinRequestV2 final : public ClientPacket
         {
         public:
@@ -49,6 +62,7 @@ namespace Battlenet
 
             void Read() override;
             std::string ToString() const override;
+            void CallHandler(Session* session) const override;
 
             uint32 ClientSeed;
             RealmId Realm;

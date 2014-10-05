@@ -16,8 +16,19 @@
  */
 
 #include "WoWRealmPackets.h"
+#include "BattlenetSession.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/asio/ip/address.hpp>
+
+std::string Battlenet::WoWRealm::ListSubscribeRequest::ToString() const
+{
+    return "Battlenet::WoWRealm::ListSubscribeRequest";
+}
+
+void Battlenet::WoWRealm::ListSubscribeRequest::CallHandler(Session* session) const
+{
+    session->HandleListSubscribeRequest(*this);
+}
 
 Battlenet::WoWRealm::ListSubscribeResponse::~ListSubscribeResponse()
 {
@@ -129,6 +140,11 @@ std::string Battlenet::WoWRealm::JoinRequestV2::ToString() const
     std::ostringstream stream;
     stream << "Battlenet::WoWRealm::JoinRequestV2 ClientSeed " << ClientSeed << " Region " << uint32(Realm.Region) << " Battlegroup " << uint32(Realm.Battlegroup) << " Index " << Realm.Index;
     return stream.str().c_str();
+}
+
+void Battlenet::WoWRealm::JoinRequestV2::CallHandler(Session* session) const
+{
+    session->HandleJoinRequestV2(*this);
 }
 
 void Battlenet::WoWRealm::JoinResponseV2::Write()

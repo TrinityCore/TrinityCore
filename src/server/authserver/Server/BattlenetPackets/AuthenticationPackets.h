@@ -47,6 +47,7 @@ namespace Battlenet
 
             void Read() override;
             std::string ToString() const override;
+            void CallHandler(Session* session) const override;
 
             std::string Program;
             std::string Platform;
@@ -65,6 +66,7 @@ namespace Battlenet
 
             void Read() override;
             std::string ToString() const override;
+            void CallHandler(Session* session) const override;
 
             std::string Program;
             std::string Platform;
@@ -87,6 +89,7 @@ namespace Battlenet
 
             void Read() override;
             std::string ToString() const override;
+            void CallHandler(Session* session) const override;
 
             std::vector<BitStream*> Modules;
         };

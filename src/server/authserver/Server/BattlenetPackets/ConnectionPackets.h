@@ -39,6 +39,45 @@ namespace Battlenet
             SMSG_STUN_SERVERS       = 0x4   // Not implemented
         };
 
+        class Ping final : public ClientPacket
+        {
+        public:
+            Ping(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
+            {
+                ASSERT(header == PacketHeader(CMSG_PING, CONNECTION) && "Invalid packet header for Ping");
+            }
+
+            void Read() override { }
+            std::string ToString() const override;
+            void CallHandler(Session* session) const override;
+        };
+
+        class EnableEncryption final : public ClientPacket
+        {
+        public:
+            EnableEncryption(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
+            {
+                ASSERT(header == PacketHeader(CMSG_ENABLE_ENCRYPTION, CONNECTION) && "Invalid packet header for EnableEncryption");
+            }
+
+            void Read() override { }
+            std::string ToString() const override;
+            void CallHandler(Session* session) const override;
+        };
+
+        class LogoutRequest final : public ClientPacket
+        {
+        public:
+            LogoutRequest(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
+            {
+                ASSERT(header == PacketHeader(CMSG_LOGOUT_REQUEST, CONNECTION) && "Invalid packet header for LogoutRequest");
+            }
+
+            void Read() override { }
+            std::string ToString() const override;
+            void CallHandler(Session* session) const override;
+        };
+
         class Pong final : public ServerPacket
         {
         public:
