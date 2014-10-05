@@ -27,6 +27,6 @@
 #include "SupportPackets.h"
 #include "AchievementPackets.h"
 #include "CachePackets.h"
-//#include "ProfilePackets.h"
+#include "ProfilePackets.h"
 
 #endif // BattlenetPackets_h__
