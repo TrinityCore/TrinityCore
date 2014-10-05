@@ -37,7 +37,7 @@ namespace Battlenet
             CMSG_GET_SOCIAL_NETWORK_FRIENDS             = 0x0D,  // Not implemented
             CMSG_SOCIAL_NETWORK_CONNECT                 = 0x0F,  // Not implemented
             CMSG_SOCIAL_NETWORK_DISCONNECT              = 0x11,  // Not implemented
-            CMSG_SOCIAL_NETWORK_CHECK_CONNECTED         = 0x13,  // Not implemented
+            CMSG_SOCIAL_NETWORK_CHECK_CONNECTED         = 0x13,
             CMSG_REALID_FRIEND_INVITE                   = 0x16,  // Not implemented
 
             SMSG_FRIEND_INVITE_NOTIFY                   = 0x01,  // Not implemented
@@ -49,9 +49,112 @@ namespace Battlenet
             SMSG_SOCIAL_NETWORK_FRIENDS                 = 0x0E,  // Not implemented
             SMSG_SOCIAL_NETWORK_CONNECT_RESULT          = 0x10,  // Not implemented
             SMSG_SOCIAL_NETWORK_DISCONNECT_RESULT       = 0x12,  // Not implemented
-            SMSG_SOCIAL_NETWORK_CHECK_CONNECTED_RESULT  = 0x14,  // Not implemented
+            SMSG_SOCIAL_NETWORK_CHECK_CONNECTED_RESULT  = 0x14,
             SMSG_MAX_FRIENDS_NOTIFY                     = 0x15,  // Not implemented
             SMSG_FRIENDS_LIST_NOTIFY_3                  = 0x18   // Not implemented
+        };
+
+        class SocialnetworkConnect final : public ClientPacket
+        {
+        public:
+            SocialnetworkConnect(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
+            {
+                ASSERT(header == PacketHeader(CMSG_SOCIAL_NETWORK_CONNECT, FRIENDS) && "Invalid packet header for SocialnetworkConnect");
+            }
+
+            void Read() override;
+            std::string ToString() const override;
+            void CallHandler(Session* session) const override;
+        };
+
+        class SocialNetworkConnectResult final : public ServerPacket
+        {
+        public:
+            SocialNetworkConnectResult() : ServerPacket(PacketHeader(SMSG_SOCIAL_NETWORK_CONNECT_RESULT, FRIENDS))
+            {
+            }
+
+            void Write() override;
+            std::string ToString() const override;
+        };
+
+        class SocialnetworkCheckConnected final : public ClientPacket
+        {
+        public:
+            SocialnetworkCheckConnected(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
+            {
+                ASSERT(header == PacketHeader(CMSG_SOCIAL_NETWORK_CHECK_CONNECTED, FRIENDS) && "Invalid packet header for SocialNetworkCheckConnected");
+            }
+
+            void Read() override;
+            std::string ToString() const override;
+            void CallHandler(Session* session) const override;
+
+            uint32 SocialNetworkId;
+        };
+
+        class SocialNetworkCheckConnectedResult final : public ServerPacket
+        {
+        public:
+            SocialNetworkCheckConnectedResult(uint32 socialNetworkId) : ServerPacket(PacketHeader(SMSG_SOCIAL_NETWORK_CHECK_CONNECTED_RESULT, FRIENDS)), SocialNetworkId(socialNetworkId)
+            {
+            }
+
+            void Write() override;
+            std::string ToString() const override;
+
+            uint32 SocialNetworkId;
+        };
+
+        class GetFriendsOfFriend final : public ClientPacket
+        {
+        public:
+            GetFriendsOfFriend(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
+            {
+                ASSERT(header == PacketHeader(CMSG_GET_FRIENDS_OF_FRIEND, FRIENDS) && "Invalid packet header for GetFriendsOfFriend");
+            }
+
+            void Read() override;
+            std::string ToString() const override;
+            void CallHandler(Session* session) const override;
+        };
+
+        class FriendsOfFriend final : public ServerPacket
+        {
+        public:
+            FriendsOfFriend() : ServerPacket(PacketHeader(SMSG_FRIENDS_OF_FRIEND, FRIENDS))
+            {
+            }
+
+            void Write() override;
+            std::string ToString() const override;
+        };
+
+        class RealIdFriendInvite final : public ClientPacket
+        {
+        public:
+            RealIdFriendInvite(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
+            {
+                ASSERT(header == PacketHeader(CMSG_REALID_FRIEND_INVITE, FRIENDS) && "Invalid packet header for RealIdFriendInvite");
+            }
+
+            void Read() override;
+            std::string ToString() const override;
+            void CallHandler(Session* session) const override;
+
+            std::string Email;
+            std::string Message;
+        };
+
+        class FriendInviteResult final : public ServerPacket
+        {
+        public:
+            FriendInviteResult() : ServerPacket(PacketHeader(SMSG_FRIEND_INVITE_RESULT, FRIENDS))
+            {
+            }
+
+            void Write() override;
+            std::string ToString() const override;
         };
     }
 }
