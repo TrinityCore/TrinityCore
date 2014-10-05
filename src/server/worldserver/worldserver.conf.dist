@@ -230,9 +230,9 @@ GridUnload = 1
 #    SocketTimeOutTime
 #        Description: Time (in milliseconds) after which a connection being idle on the character
 #                     selection screen is disconnected.
-#        Default:     90000 - (90 seconds)
+#        Default:     900000 - (15 minutes)
 
-SocketTimeOutTime = 90000
+SocketTimeOutTime = 900000
 
 #
 #    SessionAddDelay
@@ -266,9 +266,9 @@ ChangeWeatherInterval = 600000
 #
 #    PlayerSaveInterval
 #        Description: Time (in milliseconds) for player save interval.
-#        Default:     900000 - (15 min)
+#        Default:     90000 - (90 seconds)
 
-PlayerSaveInterval = 900000
+PlayerSaveInterval = 90000
 
 #
 #    PlayerSave.Stats.MinLevel
