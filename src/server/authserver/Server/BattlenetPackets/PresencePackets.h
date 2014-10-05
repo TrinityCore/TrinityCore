@@ -15,13 +15,25 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BattlenetPackets_h__
-#define BattlenetPackets_h__
+#ifndef PresencePackets_h__
+#define PresencePackets_h__
 
-#include "AuthenticationPackets.h"
-#include "ConnectionPackets.h"
-#include "WoWRealmPackets.h"
-#include "FriendsPackets.h"
-#include "PresencePackets.h"
+#include "BattlenetPacketsBase.h"
 
-#endif // BattlenetPackets_h__
+namespace Battlenet
+{
+    namespace Presence
+    {
+        enum Opcode
+        {
+            CMSG_UPDATE_REQUEST         = 0x0,
+            CMSG_STATISTIC_SUBSCRIBE    = 0x2,
+
+            SMSG_UPDATE_NOTIFY          = 0x0,
+            SMSG_FIELD_SPEC_ANNOUNCE    = 0x1,
+            SMSG_STATISTICS_UPDATE      = 0x3
+        };
+    }
+}
+
+#endif // PresencePackets_h__
