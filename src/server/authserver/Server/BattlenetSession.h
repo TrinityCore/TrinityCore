@@ -59,21 +59,21 @@ namespace Battlenet
         explicit Session(tcp::socket&& socket);
         ~Session();
 
-        typedef bool(Session::*PacketHandler)(PacketHeader& socket, BitStream& packet);
+        void LogUnhandledPacket(ClientPacket const& packet);
 
         // Authentication
-        bool HandleLogonRequest(PacketHeader& header, BitStream& packet);
-        bool HandleResumeRequest(PacketHeader& header, BitStream& packet);
-        bool HandleProofResponse(PacketHeader& header, BitStream& packet);
+        void HandleLogonRequest(Authentication::LogonRequest const& logonRequest);
+        void HandleResumeRequest(Authentication::ResumeRequest const& resumeRequest);
+        void HandleProofResponse(Authentication::ProofResponse const& proofResponse);
 
         // Connection
-        bool HandlePing(PacketHeader& header, BitStream& packet);
-        bool HandleEnableEncryption(PacketHeader& header, BitStream& packet);
-        bool HandleLogoutRequest(PacketHeader& header, BitStream& packet);
+        void HandlePing(Connection::Ping const& ping);
+        void HandleEnableEncryption(Connection::EnableEncryption const& enableEncryption);
+        void HandleLogoutRequest(Connection::LogoutRequest const& logoutRequest);
 
         // WoWRealm
-        bool HandleListSubscribeRequest(PacketHeader& header, BitStream& packet);
-        bool HandleJoinRequestV2(PacketHeader& header, BitStream& packet);
+        void HandleListSubscribeRequest(WoWRealm::ListSubscribeRequest const& listSubscribeRequest);
+        void HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& joinRequest);
 
         void Start() override;
 

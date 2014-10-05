@@ -17,6 +17,7 @@
 
 #include "AuthCodes.h"
 #include "BattlenetBitStream.h"
+#include "BattlenetPacketFactory.h"
 #include "BattlenetSessionManager.h"
 #include "Database/DatabaseEnv.h"
 #include "HmacHash.h"
@@ -24,27 +25,6 @@
 #include "RealmList.h"
 #include "SHA256.h"
 #include <map>
-#include <boost/asio/write.hpp>
-
-std::map<Battlenet::PacketHeader, Battlenet::Session::PacketHandler> InitHandlers()
-{
-    std::map<Battlenet::PacketHeader, Battlenet::Session::PacketHandler> handlers;
-
-    handlers[Battlenet::PacketHeader(Battlenet::Authentication::CMSG_LOGON_REQUEST, Battlenet::AUTHENTICATION)] = &Battlenet::Session::HandleLogonRequest;
-    handlers[Battlenet::PacketHeader(Battlenet::Authentication::CMSG_RESUME_REQUEST, Battlenet::AUTHENTICATION)] = &Battlenet::Session::HandleResumeRequest;
-    handlers[Battlenet::PacketHeader(Battlenet::Authentication::CMSG_PROOF_RESPONSE, Battlenet::AUTHENTICATION)] = &Battlenet::Session::HandleProofResponse;
-
-    handlers[Battlenet::PacketHeader(Battlenet::Connection::CMSG_PING, Battlenet::CONNECTION)] = &Battlenet::Session::HandlePing;
-    handlers[Battlenet::PacketHeader(Battlenet::Connection::CMSG_ENABLE_ENCRYPTION, Battlenet::CONNECTION)] = &Battlenet::Session::HandleEnableEncryption;
-    handlers[Battlenet::PacketHeader(Battlenet::Connection::CMSG_LOGOUT_REQUEST, Battlenet::CONNECTION)] = &Battlenet::Session::HandleLogoutRequest;
-
-    handlers[Battlenet::PacketHeader(Battlenet::WoWRealm::CMSG_LIST_SUBSCRIBE_REQUEST, Battlenet::WOWREALM)] = &Battlenet::Session::HandleListSubscribeRequest;
-    handlers[Battlenet::PacketHeader(Battlenet::WoWRealm::CMSG_JOIN_REQUEST_V2, Battlenet::WOWREALM)] = &Battlenet::Session::HandleJoinRequestV2;
-
-    return handlers;
-}
-
-std::map<Battlenet::PacketHeader, Battlenet::Session::PacketHandler> Handlers = InitHandlers();
 
 Battlenet::Session::ModuleHandler const Battlenet::Session::ModuleHandlers[MODULE_COUNT] =
 {
@@ -109,7 +89,12 @@ void Battlenet::Session::_SetVSFields(std::string const& pstr)
     LoginDatabase.Execute(stmt);
 }
 
-bool Battlenet::Session::HandleLogonRequest(PacketHeader& header, BitStream& packet)
+void Battlenet::Session::LogUnhandledPacket(ClientPacket const& packet)
+{
+    TC_LOG_DEBUG("server.battlenet", "Battlenet::Session::LogUnhandledPacket %s", packet.ToString().c_str());
+}
+
+void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& info)
 {
     // Verify that this IP is not in the ip_banned table
     LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
@@ -123,18 +108,15 @@ bool Battlenet::Session::HandleLogonRequest(PacketHeader& header, BitStream& pac
         complete->SetAuthResult(LOGIN_BANNED);
         AsyncWrite(complete);
         TC_LOG_DEBUG("server.battlenet", "[Battlenet::AuthChallenge] Banned ip '%s:%d' tries to login!", ip_address.c_str(), GetRemotePort());
-        return true;
+        return;
     }
-
-    Authentication::LogonRequest info(header, packet);
-    info.Read();
 
     if (info.Program != "WoW")
     {
         Authentication::LogonResponse* complete = new Authentication::LogonResponse();
         complete->SetAuthResult(AUTH_INVALID_PROGRAM);
         AsyncWrite(complete);
-        return true;
+        return;
     }
 
     if (!sBattlenetMgr->HasPlatform(info.Platform))
@@ -142,7 +124,7 @@ bool Battlenet::Session::HandleLogonRequest(PacketHeader& header, BitStream& pac
         Authentication::LogonResponse* complete = new Authentication::LogonResponse();
         complete->SetAuthResult(AUTH_INVALID_OS);
         AsyncWrite(complete);
-        return true;
+        return;
     }
 
     if (!sBattlenetMgr->HasPlatform(info.Locale))
@@ -150,7 +132,7 @@ bool Battlenet::Session::HandleLogonRequest(PacketHeader& header, BitStream& pac
         Authentication::LogonResponse* complete = new Authentication::LogonResponse();
         complete->SetAuthResult(AUTH_UNSUPPORTED_LANGUAGE);
         AsyncWrite(complete);
-        return true;
+        return;
     }
 
     for (Component const& component : info.Components)
@@ -171,7 +153,7 @@ bool Battlenet::Session::HandleLogonRequest(PacketHeader& header, BitStream& pac
             }
 
             AsyncWrite(complete);
-            return true;
+            return;
         }
 
         if (component.Platform == "base")
@@ -192,7 +174,7 @@ bool Battlenet::Session::HandleLogonRequest(PacketHeader& header, BitStream& pac
         Authentication::LogonResponse* complete = new Authentication::LogonResponse();
         complete->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
         AsyncWrite(complete);
-        return true;
+        return;
     }
 
     Field* fields = result->Fetch();
@@ -209,7 +191,7 @@ bool Battlenet::Session::HandleLogonRequest(PacketHeader& header, BitStream& pac
             Authentication::LogonResponse* complete = new Authentication::LogonResponse();
             complete->SetAuthResult(AUTH_ACCOUNT_LOCKED);
             AsyncWrite(complete);
-            return true;
+            return;
         }
     }
     else
@@ -234,7 +216,7 @@ bool Battlenet::Session::HandleLogonRequest(PacketHeader& header, BitStream& pac
                     Authentication::LogonResponse* complete = new Authentication::LogonResponse();
                     complete->SetAuthResult(AUTH_ACCOUNT_LOCKED);
                     AsyncWrite(complete);
-                    return true;
+                    return;
                 }
             }
         }
@@ -256,7 +238,7 @@ bool Battlenet::Session::HandleLogonRequest(PacketHeader& header, BitStream& pac
             complete->SetAuthResult(LOGIN_BANNED);
             AsyncWrite(complete);
             TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::AuthChallenge] Banned account %s tried to login!", ip_address.c_str(), GetRemotePort(), _accountName.c_str());
-            return true;
+            return;
         }
         else
         {
@@ -264,7 +246,7 @@ bool Battlenet::Session::HandleLogonRequest(PacketHeader& header, BitStream& pac
             complete->SetAuthResult(LOGIN_SUSPENDED);
             AsyncWrite(complete);
             TC_LOG_DEBUG("server.battlenet", "'%s:%d' [Battlenet::AuthChallenge] Temporarily banned account %s tried to login!", ip_address.c_str(), GetRemotePort(), _accountName.c_str());
-            return true;
+            return;
         }
     }
 
@@ -314,16 +296,10 @@ bool Battlenet::Session::HandleLogonRequest(PacketHeader& header, BitStream& pac
     // if has authenticator, send Token module
     request->Modules.push_back(thumbprint);
     AsyncWrite(request);
-    return true;
 }
 
-bool Battlenet::Session::HandleResumeRequest(PacketHeader& header, BitStream& packet)
+void Battlenet::Session::HandleResumeRequest(Authentication::ResumeRequest const& reconnect)
 {
-    Authentication::ResumeRequest reconnect(header, packet);
-    reconnect.Read();
-
-    TC_LOG_DEBUG("server.battlenet", "%s", reconnect.ToString().c_str());
-
     _accountName = reconnect.Login;
     _locale = reconnect.Locale;
     _os = reconnect.Platform;
@@ -341,7 +317,7 @@ bool Battlenet::Session::HandleResumeRequest(PacketHeader& header, BitStream& pa
         Authentication::ResumeResponse* resume = new Authentication::ResumeResponse();
         resume->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
         AsyncWrite(resume);
-        return false;
+        return;
     }
 
     Field* fields = result->Fetch();
@@ -370,20 +346,16 @@ bool Battlenet::Session::HandleResumeRequest(PacketHeader& header, BitStream& pa
     request->Modules.push_back(thumbprint);
     request->Modules.push_back(resume);
     AsyncWrite(request);
-    return true;
 }
 
-bool Battlenet::Session::HandleProofResponse(PacketHeader& header, BitStream& packet)
+void Battlenet::Session::HandleProofResponse(Authentication::ProofResponse const& proof)
 {
-    Authentication::ProofResponse proof(header, packet);
-    proof.Read();
-
     if (_modulesWaitingForData.size() < proof.Modules.size())
     {
         Authentication::LogonResponse* complete = new Authentication::LogonResponse();
         complete->SetAuthResult(AUTH_CORRUPTED_MODULE);
         AsyncWrite(complete);
-        return true;
+        return;
     }
 
     ServerPacket* response = nullptr;
@@ -402,32 +374,29 @@ bool Battlenet::Session::HandleProofResponse(PacketHeader& header, BitStream& pa
     }
 
     AsyncWrite(response);
-    return true;
+    return;
 }
 
-bool Battlenet::Session::HandlePing(PacketHeader& /*header*/, BitStream& /*packet*/)
+void Battlenet::Session::HandlePing(Connection::Ping const& /*ping*/)
 {
     AsyncWrite(new Connection::Pong());
-    return true;
 }
 
-bool Battlenet::Session::HandleEnableEncryption(PacketHeader& /*header*/, BitStream& /*packet*/)
+void Battlenet::Session::HandleEnableEncryption(Connection::EnableEncryption const& /*enableEncryption*/)
 {
     _crypt.Init(&K);
-    return true;
 }
 
-bool Battlenet::Session::HandleLogoutRequest(PacketHeader& /*header*/, BitStream& /*packet*/)
+void Battlenet::Session::HandleLogoutRequest(Connection::LogoutRequest const& /*logoutRequest*/)
 {
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_SESSION_KEY);
     stmt->setString(0, "");
     stmt->setBool(1, false);
     stmt->setUInt32(2, _accountId);
     LoginDatabase.Execute(stmt);
-    return true;
 }
 
-bool Battlenet::Session::HandleListSubscribeRequest(PacketHeader& /*header*/, BitStream& /*packet*/)
+void Battlenet::Session::HandleListSubscribeRequest(WoWRealm::ListSubscribeRequest const& /*listSubscribeRequest*/)
 {
     sRealmList->UpdateIfNeed();
 
@@ -491,21 +460,17 @@ bool Battlenet::Session::HandleListSubscribeRequest(PacketHeader& /*header*/, Bi
     counts->RealmData.push_back(new WoWRealm::ListComplete());
 
     AsyncWrite(counts);
-    return true;
 }
 
-bool Battlenet::Session::HandleJoinRequestV2(PacketHeader& header, BitStream& packet)
+void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& join)
 {
-    WoWRealm::JoinRequestV2 join(header, packet);
-    join.Read();
-
     WoWRealm::JoinResponseV2* result = new WoWRealm::JoinResponseV2();
     Realm const* realm = sRealmList->GetRealm(join.Realm);
     if (!realm || realm->flag & (REALM_FLAG_INVALID | REALM_FLAG_OFFLINE))
     {
         result->Response = WoWRealm::JoinResponseV2::FAILURE;
         AsyncWrite(result);
-        return true;
+        return;
     }
 
     result->ServerSeed = uint32(rand32());
@@ -535,22 +500,21 @@ bool Battlenet::Session::HandleJoinRequestV2(PacketHeader& header, BitStream& pa
         result->IPv4.emplace_back(realm->LocalAddress, realm->port);
 
     AsyncWrite(result);
-    return true;
 }
 
 void Battlenet::Session::ReadHandler()
 {
-    BitStream packet(std::move(GetReadBuffer()));
-    _crypt.DecryptRecv(packet.GetBuffer(), packet.GetSize());
+    BitStream stream(std::move(GetReadBuffer()));
+    _crypt.DecryptRecv(stream.GetBuffer(), stream.GetSize());
 
-    while (!packet.IsRead())
+    while (!stream.IsRead())
     {
         try
         {
             PacketHeader header;
-            header.Opcode = packet.Read<uint32>(6);
-            if (packet.Read<bool>(1))
-                header.Channel = packet.Read<int32>(4);
+            header.Opcode = stream.Read<uint32>(6);
+            if (stream.Read<bool>(1))
+                header.Channel = stream.Read<int32>(4);
 
             if (header.Channel != AUTHENTICATION && !_authed)
             {
@@ -559,12 +523,11 @@ void Battlenet::Session::ReadHandler()
                 return;
             }
 
-            TC_LOG_TRACE("server.battlenet", "Battlenet::Session::ReadDataHandler %s", header.ToString().c_str());
-            std::map<PacketHeader, PacketHandler>::const_iterator itr = Handlers.find(header);
-            if (itr != Handlers.end())
+            if (ClientPacket* packet = sBattlenetPacketFactory.Create(header, stream))
             {
-                if ((this->*(itr->second))(header, packet))
-                    break;
+                TC_LOG_TRACE("server.battlenet", "Battlenet::Session::ReadDataHandler %s", packet->ToString().c_str());
+                packet->CallHandler(this);
+                delete packet;
             }
             else
             {
@@ -572,7 +535,7 @@ void Battlenet::Session::ReadHandler()
                 break;
             }
 
-            packet.AlignToNextByte();
+            stream.AlignToNextByte();
         }
         catch (BitStreamPositionException const& e)
         {

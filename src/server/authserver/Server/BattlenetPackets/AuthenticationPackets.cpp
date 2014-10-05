@@ -50,6 +50,11 @@ std::string Battlenet::Authentication::LogonRequest::ToString() const
     return stream.str();
 }
 
+void Battlenet::Authentication::LogonRequest::CallHandler(Session* session) const
+{
+    session->HandleLogonRequest(*this);
+}
+
 void Battlenet::Authentication::ResumeRequest::Read()
 {
     Program = _stream.ReadFourCC();
@@ -77,11 +82,16 @@ std::string Battlenet::Authentication::ResumeRequest::ToString() const
     for (Component const& component : Components)
         stream << std::endl << "Battlenet::Component Program: " << component.Program << ", Platform: " << component.Platform << ", Build: " << component.Build;
 
-    stream << std::endl << "Battlenet::Authentication::ResumeRequest Login: " << Login;
-    stream << std::endl << "Battlenet::Authentication::ResumeRequest Region: " << uint32(Region);
-    stream << std::endl << "Battlenet::Authentication::ResumeRequest GameAccountName: " << GameAccountName;
+    stream << std::endl << "Login: " << Login;
+    stream << std::endl << "Region: " << uint32(Region);
+    stream << std::endl << "GameAccountName: " << GameAccountName;
 
     return stream.str();
+}
+
+void Battlenet::Authentication::ResumeRequest::CallHandler(Session* session) const
+{
+    session->HandleResumeRequest(*this);
 }
 
 Battlenet::Authentication::ProofRequest::~ProofRequest()
@@ -141,6 +151,11 @@ std::string Battlenet::Authentication::ProofResponse::ToString() const
     }
 
     return stream.str();
+}
+
+void Battlenet::Authentication::ProofResponse::CallHandler(Session* session) const
+{
+    session->HandleProofResponse(*this);
 }
 
 Battlenet::Authentication::LogonResponse::~LogonResponse()

@@ -31,6 +31,7 @@ using boost::asio::ip::tcp;
 namespace Battlenet
 {
     class BitStream;
+    class Session;
 
     enum Channel
     {
@@ -100,6 +101,7 @@ namespace Battlenet
         ClientPacket(PacketHeader const& header, BitStream& stream) : Packet(header, stream) { }
 
         void Write() override final { ASSERT(!"Write not implemented for this packet."); }
+        virtual void CallHandler(Session* session) const = 0;
     };
 
     class ServerPacket : public Packet

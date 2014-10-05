@@ -15,7 +15,38 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "BattlenetSession.h"
 #include "ConnectionPackets.h"
+
+std::string Battlenet::Connection::Ping::ToString() const
+{
+    return "Battlenet::Connection::Ping";
+}
+
+void Battlenet::Connection::Ping::CallHandler(Session* session) const
+{
+    session->HandlePing(*this);
+}
+
+std::string Battlenet::Connection::EnableEncryption::ToString() const
+{
+    return "Battlenet::Connection::EnableEncryption";
+}
+
+void Battlenet::Connection::EnableEncryption::CallHandler(Session* session) const
+{
+    session->HandleEnableEncryption(*this);
+}
+
+std::string Battlenet::Connection::LogoutRequest::ToString() const
+{
+    return "Battlenet::Connection::LogoutRequest";
+}
+
+void Battlenet::Connection::LogoutRequest::CallHandler(Session* session) const
+{
+    session->HandleLogoutRequest(*this);
+}
 
 std::string Battlenet::Connection::Pong::ToString() const
 {
