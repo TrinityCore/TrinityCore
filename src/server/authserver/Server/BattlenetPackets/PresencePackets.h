@@ -26,12 +26,12 @@ namespace Battlenet
     {
         enum Opcode
         {
-            CMSG_UPDATE_REQUEST         = 0x0,
-            CMSG_STATISTIC_SUBSCRIBE    = 0x2,
+            CMSG_UPDATE_REQUEST         = 0x0,  // Not implemented
+            CMSG_STATISTIC_SUBSCRIBE    = 0x2,  // Not implemented
 
-            SMSG_UPDATE_NOTIFY          = 0x0,
-            SMSG_FIELD_SPEC_ANNOUNCE    = 0x1,
-            SMSG_STATISTICS_UPDATE      = 0x3
+            SMSG_UPDATE_NOTIFY          = 0x0,  // Not implemented
+            SMSG_FIELD_SPEC_ANNOUNCE    = 0x1,  // Not implemented
+            SMSG_STATISTICS_UPDATE      = 0x3   // Not implemented
         };
     }
 }
