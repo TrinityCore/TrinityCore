@@ -91,7 +91,7 @@ class instance_halls_of_stone : public InstanceMapScript
                     case GO_TRIBUNAL_CHEST_HERO:
                         TribunalChestGUID = go->GetGUID();
                         if (GetBossState(DATA_BRANN_EVENT) == DONE)
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         break;
                     case GO_TRIBUNAL_SKY_FLOOR:
                         TribunalSkyFloorGUID = go->GetGUID();
@@ -160,7 +160,7 @@ class instance_halls_of_stone : public InstanceMapScript
                         if (state == DONE)
                         {
                             if (GameObject* go = instance->GetGameObject(TribunalChestGUID))
-                                go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         }
                         break;
                     default:
