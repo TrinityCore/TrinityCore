@@ -456,6 +456,11 @@ void PlayerbotAI::DoNextAction()
         ChangeEngine(BOT_STATE_DEAD);
     }
 
+    if (currentEngine == engines[BOT_STATE_DEAD] && bot->IsAlive())
+    {
+        ChangeEngine(BOT_STATE_NON_COMBAT);
+    }
+
     Group *group = bot->GetGroup();
     if (!master && group)
     {

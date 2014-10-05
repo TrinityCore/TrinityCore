@@ -233,12 +233,12 @@ void RandomPlayerbotMgr::RandomTeleport(Player* bot, vector<WorldLocation> &locs
         if (!area)
             continue;
 
-        sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Random teleporting bot %s to %s %f,%f,%f", bot->GetName().c_str(), area->area_name[0], x, y, z);
-        float height = map->GetWaterOrGroundLevel(x, y, 0.05f + z);
-        if (height == INVALID_HEIGHT)
+        float ground = map->GetHeight(x, y, z + 0.5f);
+        if (ground <= INVALID_HEIGHT)
             continue;
 
-        z = 0.05f + height;
+        z = 0.05f + ground;
+        sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Random teleporting bot %s to %s %f,%f,%f", bot->GetName().c_str(), area->area_name[0], x, y, z);
 
         bot->GetMotionMaster()->Clear();
         bot->TeleportTo(loc.GetMapId(), x, y, z, 0);
