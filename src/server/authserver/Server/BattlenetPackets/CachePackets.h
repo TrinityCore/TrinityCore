@@ -15,28 +15,29 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AchievementPackets_h__
-#define AchievementPackets_h__
+#ifndef CachePackets_h__
+#define CachePackets_h__
 
 #include "BattlenetPacketsBase.h"
 
 namespace Battlenet
 {
-    namespace Achievement
+    namespace Cache
     {
         enum Opcode
         {
-            CMSG_LISTEN_REQUEST             = 0x0,  // Not implemented
-            CMSG_CRITERIA_FLUSH_REQUEST     = 0x3,  // Not implemented
-            CMSG_CHANGE_TROPHY_CASE_REQUEST = 0x5,  // Not implemented
+            CMSG_GATEWAY_LOOKUP_REQUEST     = 0x2,  // Not implemented
+            CMSG_CONNECT_REQUEST            = 0x4,  // Not implemented
+            CMSG_DATA_CHUNK                 = 0x7,  // Not implemented
+            SMSG_GET_STREAM_ITEMS_REQUEST   = 0x9,  // Not implemented
 
-            SMSG_DATA                       = 0x2,  // Not implemented
-            SMSG_CRITERIA_FLUSH_RESPONSE    = 0x3,  // Not implemented
-            SMSG_ACHIEVEMENT_HANDLE_UPDATE  = 0x4,  // Not implemented
-            SMSG_CHANGE_TROPHY_CASE_RESULT  = 0x6   // Not implemented
+            SMSG_GATEWAY_LOOKUP_RESPONSE    = 0x3,  // Not implemented
+            SMSG_CONNECT_RESPONSE           = 0x4,  // Not implemented
+            SMSG_PUBLISH_LIST_RESPONSE      = 0x7,  // Not implemented
+            SMSG_RESULT                     = 0x8,  // Not implemented
+            SMSG_GET_STREAM_ITEMS_RESPONSE  = 0x9   // Not implemented
         };
     }
 }
 
-#endif // AchievementPackets_h__
-
+#endif // CachePackets_h__
